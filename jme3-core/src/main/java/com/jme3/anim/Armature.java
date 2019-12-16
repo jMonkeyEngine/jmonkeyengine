@@ -28,7 +28,7 @@ public class Armature implements JmeCloneable, Savable {
     /**
      * Serialization only
      */
-    public Armature() {
+    protected Armature() {
     }
 
     /**

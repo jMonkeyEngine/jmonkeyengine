@@ -56,7 +56,7 @@ public abstract class CollisionShape implements Savable {
      */
     protected float margin = defaultMargin;
 
-    public CollisionShape() {
+    protected CollisionShape() {
     }
 
     /**

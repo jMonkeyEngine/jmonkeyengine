@@ -37,6 +37,8 @@ import com.jme3.renderer.RenderManager;
 import com.jme3.util.SafeArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * The <code>AppStateManager</code> holds a list of {@link AppState}s which
@@ -82,6 +84,12 @@ public class AppStateManager {
      *  cleanup.  
      */
     private final SafeArrayList<AppState> terminating = new SafeArrayList<AppState>(AppState.class);
+
+    /**
+     *  Thread-safe index of every state that is currently attached and has
+     *  an ID.
+     */
+    private final ConcurrentMap<String, AppState> stateIndex = new ConcurrentHashMap<>();
  
     // All of the above lists need to be thread safe but access will be
     // synchronized separately.... but always on the states list.  This
@@ -122,7 +130,8 @@ public class AppStateManager {
 
     /**
      * Attach a state to the AppStateManager, the same state cannot be attached
-     * twice.
+     * twice.  Throws an IllegalArgumentException if the state has an ID and that
+     * ID has already been associated with another AppState.                
      *
      * @param state The state to attach
      * @return True if the state was successfully attached, false if the state
@@ -130,11 +139,16 @@ public class AppStateManager {
      */
     public boolean attach(AppState state){
         synchronized (states){
+            if( state.getId() != null && stateIndex.putIfAbsent(state.getId(), state) != null ) {
+                throw new IllegalArgumentException("ID:" + state.getId() 
+                        + " is already being used by another state:" 
+                        + stateIndex.get(state.getId()));
+            }
             if (!states.contains(state) && !initializing.contains(state)){
                 state.stateAttached(this);
                 initializing.add(state);
                 return true;
-            }else{
+            } else {
                 return false;
             }
         }
@@ -175,6 +189,12 @@ public class AppStateManager {
      */
     public boolean detach(AppState state){
         synchronized (states){
+        
+            // Remove it from the index if it exists.
+            // Note: we remove it directly from the values() in case
+            // the state has changed its ID since registered.
+            stateIndex.values().remove(state);
+        
             if (states.contains(state)){
                 state.stateDetached(this);
                 states.remove(state);
@@ -248,6 +268,35 @@ public class AppStateManager {
         }    
         return null;
     }
+
+    /**
+     *  Returns the state associated with the specified ID at the time it was
+     *  attached or null if not state was attached with that ID.
+     */
+    public <T extends AppState> T getState( String id, Class<T> stateClass ) {
+        return stateClass.cast(stateIndex.get(id));
+    }
+    
+    /**
+     *  Returns true if there is currently a state associated with the specified
+     *  ID.
+     */
+    public boolean hasState( String id ) {
+        return stateIndex.containsKey(id);
+    }
+ 
+    /**
+     *  Returns the state associated with the specified ID at the time it
+     *  was attached or throws an IllegalArgumentException if the ID was 
+     *  not found.
+     */   
+    public <T extends AppState> T stateForId( String id, Class<T> stateClass ) {
+        T result = getState(id, stateClass);
+        if( result == null ) {
+            throw new IllegalArgumentException("State not found for:" + id);
+        }
+        return stateClass.cast(result);
+    } 
 
     protected void initializePending(){
         AppState[] array = getInitializing();

@@ -65,7 +65,7 @@ public final class BoneTrack implements JmeCloneable, Track {
     /**
      * Serialization-only. Do not use.
      */
-    public BoneTrack() {
+    protected BoneTrack() {
     }
 
     /**

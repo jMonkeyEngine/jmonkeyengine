@@ -16,7 +16,7 @@ public class AnimClip implements JmeCloneable, Savable {
 
     private AnimTrack[] tracks;
 
-    public AnimClip() {
+    protected AnimClip() {
     }
 
     public AnimClip(String name) {

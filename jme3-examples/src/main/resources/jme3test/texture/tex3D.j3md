@@ -5,8 +5,8 @@ MaterialDef My MaterialDef {
     }
 
     Technique {
-        VertexShader GLSL100:   jme3test/texture/tex3D.vert
-        FragmentShader GLSL100: jme3test/texture/tex3D.frag
+        VertexShader GLSL300 GLSL100:   jme3test/texture/tex3D.vert
+        FragmentShader GLSL300 GLSL100: jme3test/texture/tex3D.frag
 
         WorldParameters {
             WorldViewProjectionMatrix

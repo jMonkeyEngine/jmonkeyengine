@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -130,7 +130,7 @@ public class Box extends AbstractBox {
     /**
      * Empty constructor for serialization only. Do not use.
      */
-    public Box(){
+    protected Box(){
         super();
     }
 

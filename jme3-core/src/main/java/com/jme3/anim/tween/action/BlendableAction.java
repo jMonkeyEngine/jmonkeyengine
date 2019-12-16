@@ -74,6 +74,7 @@ public abstract class BlendableAction extends Action {
 
     public void setTransitionLength(double transitionLength) {
         this.transitionLength = transitionLength;
+        this.transition.setLength(transitionLength);
     }
 
     protected float getTransitionWeight() {

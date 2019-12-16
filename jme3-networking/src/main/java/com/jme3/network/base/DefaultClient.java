@@ -33,6 +33,7 @@ package com.jme3.network.base;
 
 import com.jme3.network.*;
 import com.jme3.network.ClientStateListener.DisconnectInfo;
+import com.jme3.network.base.protocol.SerializerMessageProtocol;
 import com.jme3.network.kernel.Connector;
 import com.jme3.network.message.ChannelInfoMessage;
 import com.jme3.network.message.ClientRegistrationMessage;
@@ -83,6 +84,7 @@ public class DefaultClient implements Client
     private ConnectorFactory connectorFactory;
     
     private ClientServiceManager services;
+    private MessageProtocol protocol = new SerializerMessageProtocol();
     
     public DefaultClient( String gameName, int version )
     {
@@ -114,9 +116,9 @@ public class DefaultClient implements Client
             throw new IllegalStateException( "Channels already exist." );
             
         this.connectorFactory = connectorFactory;
-        channels.add(new ConnectorAdapter(reliable, dispatcher, dispatcher, true));
+        channels.add(new ConnectorAdapter(reliable, protocol, dispatcher, dispatcher, true));
         if( fast != null ) {
-            channels.add(new ConnectorAdapter(fast, dispatcher, dispatcher, false));
+            channels.add(new ConnectorAdapter(fast, protocol, dispatcher, dispatcher, false));
         } else {
             // Add the null adapter to keep the indexes right
             channels.add(null);
@@ -279,7 +281,7 @@ public class DefaultClient implements Client
         buffer.clear();        
  
         // Convert the message to bytes
-        buffer = MessageProtocol.messageToBuffer(message, buffer);
+        buffer = protocol.toByteBuffer(message, buffer);
                 
         // Since we share the buffer between invocations, we will need to 
         // copy this message's part out of it.  This is because we actually
@@ -431,7 +433,7 @@ public class DefaultClient implements Client
         try {               
             for( int i = 0; i < ports.length; i++ ) {
                 Connector c = connectorFactory.createConnector( i, ports[i] );
-                ConnectorAdapter ca = new ConnectorAdapter(c, dispatcher, dispatcher, true);
+                ConnectorAdapter ca = new ConnectorAdapter(c, protocol, dispatcher, dispatcher, true);
                 int ch = channels.size(); 
                 channels.add( ca );
                 

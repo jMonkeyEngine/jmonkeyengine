@@ -200,9 +200,11 @@ public interface GL {
     public static final int GL_ZERO = 0x0;
     
     public static final int GL_SAMPLES_PASSED = 35092;
-	public static final int GL_QUERY_COUNTER_BITS = 34916;
-	public static final int GL_CURRENT_QUERY = 34917;
+    public static final int GL_QUERY_COUNTER_BITS = 34916;
+    public static final int GL_CURRENT_QUERY = 34917;
     
+    public static final int GL_UNPACK_ROW_LENGTH = 0x0CF2;
+
     public void resetStats();
 
     /**

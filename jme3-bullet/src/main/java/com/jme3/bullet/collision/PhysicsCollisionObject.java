@@ -159,6 +159,18 @@ public abstract class PhysicsCollisionObject implements Savable {
     }
 
     /**
+     * Read the deactivation time.
+     *
+     * @return the time (in seconds)
+     */
+    public float getDeactivationTime() {
+        float time = getDeactivationTime(objectId);
+        return time;
+    }
+
+    native private float getDeactivationTime(long objectId);
+
+    /**
      * Read the collision group for this physics object.
      *
      * @return the collision group (bit mask with exactly one bit set)

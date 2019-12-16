@@ -213,7 +213,7 @@ public class TechniqueDef implements Savable, Cloneable {
     /**
      * Serialization only. Do not use.
      */
-    public TechniqueDef() {
+    protected TechniqueDef() {
         shaderLanguages = new EnumMap<Shader.ShaderType, String>(Shader.ShaderType.class);
         shaderNames = new EnumMap<Shader.ShaderType, String>(Shader.ShaderType.class);
         defineNames = new ArrayList<String>();

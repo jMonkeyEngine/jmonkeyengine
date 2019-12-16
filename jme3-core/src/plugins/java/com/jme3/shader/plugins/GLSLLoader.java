@@ -191,7 +191,7 @@ public class GLSLLoader implements AssetLoader {
         if (info.getKey() instanceof ShaderAssetKey) {
             injectDependencies = ((ShaderAssetKey) info.getKey()).isInjectDependencies();
         }
-        if (info.getKey().getExtension().equals("glsllib")) {
+        if (info.getKey().getExtension().equals("glsllib")||info.getKey().getExtension().equals("glsl")) {
             // NOTE: Loopback, GLSLLIB is loaded by this loader
             // and needs data as InputStream
             return reader;

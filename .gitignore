@@ -33,15 +33,7 @@
 /jme3-android-native/OpenALSoft.zip
 /jme3-android-native/src/native/jme_decode/STBI/
 /jme3-android-native/src/native/jme_decode/Tremor/
-/jme3-android-native/src/native/jme_decode/com_jme3_audio_plugins_NativeVorbisFile.h
-/jme3-android-native/src/native/jme_decode/com_jme3_texture_plugins_AndroidNativeImageLoader.h
 /jme3-android-native/stb_image.h
-!/jme3-bullet-native/libs/native/windows/x86_64/bulletjme.dll
-!/jme3-bullet-native/libs/native/windows/x86/bulletjme.dll
-!/jme3-bullet-native/libs/native/osx/x86/libbulletjme.dylib
-!/jme3-bullet-native/libs/native/osx/x86_64/libbulletjme.dylib
-!/jme3-bullet-native/libs/native/linux/x86/libbulletjme.so
-!/jme3-bullet-native/libs/native/linux/x86_64/libbulletjme.so
 /jme3-examples/private/
 !/jme3-vr/src/main/resources/**/*.dylib
 !/jme3-vr/src/main/resources/**/*.so
@@ -49,4 +41,8 @@
 !/jme3-vr/src/main/resources/**/*.dll
 !/jme3-vr/src/main/resources/**/*.pdb
 /buildMaven.bat
-
+/private
+.travis.yml
+appveyor.yml
+javadoc_deploy
+javadoc_deploy.pub

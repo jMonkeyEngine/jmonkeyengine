@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -541,7 +541,7 @@ public class JmeBatchRenderBackend implements BatchRenderBackend {
       } else if (blendMode == BlendMode.BLEND) {
           return RenderState.BlendMode.Alpha;
       } else if (blendMode == BlendMode.MULIPLY) {
-          return RenderState.BlendMode.Modulate;
+          return RenderState.BlendMode.Alpha;
       } else {
           throw new UnsupportedOperationException();
       }

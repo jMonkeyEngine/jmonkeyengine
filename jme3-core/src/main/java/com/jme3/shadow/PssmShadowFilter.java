@@ -75,7 +75,7 @@ public class PssmShadowFilter extends Filter {
      * assetManager, int size, int nbSplits)
      * instead.
      */
-    public PssmShadowFilter() {
+    protected PssmShadowFilter() {
         super();
     }
     

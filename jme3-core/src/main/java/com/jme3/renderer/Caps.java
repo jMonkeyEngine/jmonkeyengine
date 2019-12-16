@@ -439,8 +439,46 @@ public enum Caps {
      * Support for additional transform feedback operations
      * GL4.0 is available or (GL_ARB_transform_feedback3)
      */
-    TransformFeedback3
+    TransformFeedback3,
     
+    /**
+     * Supports OpenGL ES 3.0
+     */
+    OpenGLES30,
+
+    /**
+     * Supports GLSL 3.0
+     */
+    GLSL300,
+
+    /**
+     * Supports OpenGL ES 3.1
+     */
+    OpenGLES31,
+
+    /**
+     * Supports GLSL 3.1
+     */
+    GLSL310,
+
+    /**
+     * Supports OpenGL ES 3.2
+     */
+    OpenGLES32,
+
+    /**
+     * Supports GLSL 3.2
+     */
+    GLSL320,
+
+    /**
+     * Explicit support of depth 24 textures
+     */
+    Depth24,     
+
+    
+    UnpackRowLength
+
     ;
 
     /**

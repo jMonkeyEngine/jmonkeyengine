@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -204,4 +204,30 @@ public class TranslationalLimitMotor {
     }
 
     private native void setRestitution(long motorId, float restitution);
+
+    /**
+     * Enable or disable the indexed axis.
+     *
+     * @param axisIndex which axis: 0&rarr;X, 1&rarr;Y, 2&rarr;Z
+     * @param enableMotor true&rarr;enable, false&rarr;disable (default=false)
+     */
+    public void setEnabled(int axisIndex, boolean enableMotor) {
+        setEnabled(motorId, axisIndex, enableMotor);
+    }
+
+    native private void setEnabled(long motorId, int axisIndex,
+            boolean enableMotor);
+
+    /**
+     * Test whether the indexed axis is enabled.
+     *
+     * @param axisIndex which axis: 0&rarr;X, 1&rarr;Y, 2&rarr;Z
+     * @return true if enabled, otherwise false
+     */
+    public boolean isEnabled(int axisIndex) {
+        boolean result = isEnabled(motorId, axisIndex);
+        return result;
+    }
+
+    native private boolean isEnabled(long motorId, int axisIndex);
 }

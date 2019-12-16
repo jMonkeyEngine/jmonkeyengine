@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -62,7 +62,7 @@ public final class PoseTrack implements Track {
         /**
          * Serialization-only. Do not use.
          */
-        public PoseFrame()
+        protected PoseFrame()
         {
         }
         
@@ -114,7 +114,7 @@ public final class PoseTrack implements Track {
     /**
      * Serialization-only. Do not use.
      */
-    public PoseTrack()
+    protected PoseTrack()
     {
     }
     

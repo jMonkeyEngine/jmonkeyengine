@@ -32,6 +32,8 @@
 package com.jme3.scene.mesh;
 
 import com.jme3.scene.Mesh.Mode;
+import com.jme3.scene.VertexBuffer.Format;
+
 import java.nio.Buffer;
 
 /**
@@ -138,7 +140,7 @@ public class VirtualIndexBuffer extends IndexBuffer {
     }
 
     @Override
-    public void put(int i, int value) {
+    public IndexBuffer put(int i, int value) {
         throw new UnsupportedOperationException("Does not represent index buffer");
     }
 
@@ -151,5 +153,16 @@ public class VirtualIndexBuffer extends IndexBuffer {
     public Buffer getBuffer() {
         return null;
     }
+
+	@Override
+	public IndexBuffer put (int value) {
+		throw new UnsupportedOperationException("Does not represent index buffer");
+	}
+
+	@Override
+	public Format getFormat () {
+		// return largest size
+		return Format.UnsignedInt;
+	}
 
 }

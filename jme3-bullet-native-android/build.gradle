@@ -1,4 +1,4 @@
-String jmeBulletNativeProjectPath = '../jme3-bullet-native'
+String jmeBulletNativeProjectPath = project(":jme3-bullet-native").projectDir
 
 String localUnzipPath = jmeBulletNativeProjectPath
 String localZipFile = jmeBulletNativeProjectPath + File.separator + bulletZipFile
@@ -14,7 +14,8 @@ String jniPath = ndkWorkingPath + '/jni'
 String ndkOutputPath = ndkWorkingPath + '/libs'
 
 //Pre-compiled libs directory
-String bulletPreCompiledLibsDir = 'libs'
+def rootPath = rootProject.projectDir.absolutePath
+String bulletPreCompiledLibsDir = rootPath + File.separator + 'build' + File.separator + 'native' + File.separator +  'android' + File.separator + 'bullet'
 
 if (!hasProperty('mainClass')) {
     ext.mainClass = ''
@@ -24,7 +25,7 @@ dependencies {
     compile project(':jme3-bullet')
 }
 
-// Java source sets for IDE acces and source jar bundling / mavenization
+// Java source sets for IDE access and source jar bundling / mavenization
 sourceSets {
     main {
         java {
@@ -42,70 +43,41 @@ task downloadBullet(type: MyDownload) {
 
 // Unzip bullet if not available
 task unzipBullet(type: Copy) {
-    def zipFile = file(localZipFile)
-    def outputDir = file(localUnzipPath)
-//    println "unzipBullet zipFile = " + zipFile.absolutePath
-//    println "unzipBullet outputDir = " + outputDir.absolutePath
-
-    from zipTree(zipFile)
-    into outputDir
+    from zipTree(localZipFile)
+    into file(localUnzipPath)
 }
 
 unzipBullet.dependsOn {
-    def zipFile = file(localZipFile)
-//    println "zipFile path: " + zipFile.absolutePath
-//    println "zipFile exists: " + zipFile.exists()
-
-    if (!zipFile.exists()) {
+    if (!file(localZipFile).exists()) {
         downloadBullet
     }
 }
 
 // Copy Bullet files to jni directory
 task copyBullet(type: Copy) {
-    def sourceDir = file(bulletSrcPath)
-    def outputDir = new File(jniPath)
-//    println "copyBullet sourceDir = " + sourceDir
-//    println "copyBullet outputDir = " + outputDir
-
-    from sourceDir
-    into outputDir
+    from file(bulletSrcPath)
+    into file(jniPath)
 }
 
 copyBullet.dependsOn {
-    def bulletUnzipDir = file(localZipFolder)
-//    println "bulletUnzipDir: " + bulletUnzipDir.absolutePath
-//    println "bulletUnzipDir exists: " + bulletUnzipDir.exists()
-//    println "bulletUnzipDir isDirectory: " + bulletUnzipDir.isDirectory()
-    if (!bulletUnzipDir.isDirectory()) {
+    if (!file(localZipFolder).isDirectory()) {
         unzipBullet
     }
 }
 
 // Copy jME cpp native files to jni directory
 task copyJmeCpp(type: Copy) {
-    def sourceDir = new File(jmeCppPath)
-    def outputDir = new File(jniPath)
-//    println "copyJmeCpp sourceDir = " + sourceDir
-//    println "copyJmeCpp outputDir = " + outputDir
-
-    from sourceDir
-    into outputDir
+    from file(jmeCppPath)
+    into file(jniPath)
 }
 
 // Copy jME android native files to jni directory
 task copyJmeAndroid(type: Copy) {
-    def sourceDir = new File(jmeAndroidPath)
-    def outputDir = new File(jniPath)
-//    println "copyJmeAndroid sourceDir = " + sourceDir
-//    println "copyJmeAndroid outputDir = " + outputDir
-
-    from sourceDir
-    into outputDir
+    from file(jmeAndroidPath)
+    into file(jniPath)
 }
 
-//dependsOn ':jme3-bullet:generateNativeHeaders'
-task buildBulletNativeLib(type: Exec, dependsOn: [copyJmeAndroid, ':jme3-bullet:generateNativeHeaders', copyJmeCpp, copyBullet]) {
+task buildBulletNativeLib(type: Exec, dependsOn: [copyJmeAndroid, ':jme3-bullet:compileJava', copyJmeCpp, copyBullet]) {
 //    args 'TARGET_PLATFORM=android-9'
 //    println "buildBulletNativeLib ndkWorkingPath: " + ndkWorkingPath
 //    println "buildBulletNativeLib rootProject.ndkCommandPath: " + rootProject.ndkCommandPath
@@ -114,26 +86,20 @@ task buildBulletNativeLib(type: Exec, dependsOn: [copyJmeAndroid, ':jme3-bullet:
     args "-j" + Runtime.runtime.availableProcessors()
 }
 
-//task updatePreCompiledBulletLibs(type: Copy, dependsOn: generateNativeHeaders) {
-task updatePreCompiledBulletLibs(type: Copy, dependsOn: buildBulletNativeLib) {
-    def sourceDir = new File(ndkOutputPath)
-    def outputDir = new File(bulletPreCompiledLibsDir)
-//    println "updatePreCompiledBulletLibs sourceDir: " + sourceDir
-//    println "updatePreCompiledBulletLibs outputDir: " + outputDir
+/* The following two tasks: We store a prebuilt version in the repository, so nobody has to build
+ * natives in order to build the engine. When building these natives however, the prebuilt libraries
+ * can be updated (which is what the CI does). That's what the following two tasks do
+ */
 
-    from sourceDir
-    into outputDir
+task updatePreCompiledBulletLibs(type: Copy, dependsOn: buildBulletNativeLib) {
+    from file(ndkOutputPath)
+    into file(bulletPreCompiledLibsDir)
 }
 
 // Copy pre-compiled libs to build directory (when not building new libs)
 task copyPreCompiledBulletLibs(type: Copy) {
-    def sourceDir = new File(bulletPreCompiledLibsDir)
-    def outputDir = new File(ndkOutputPath)
-//    println "copyPreCompiledBulletLibs sourceDir: " + sourceDir
-//    println "copyPreCompiledBulletLibs outputDir: " + outputDir
-
-    from sourceDir
-    into outputDir
+    from file(bulletPreCompiledLibsDir)
+    into file(ndkOutputPath)
 }
 
 // ndkExists is a boolean from the build.gradle in the root project
@@ -149,7 +115,7 @@ if (ndkExists && buildNativeProjects == "true") {
 jar.into("lib") { from ndkOutputPath }
 
 
-// Helper class to wrap ant dowload task
+// Helper class to wrap ant download task
 class MyDownload extends DefaultTask {
     @Input
     String sourceUrl

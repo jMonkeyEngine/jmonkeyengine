@@ -345,16 +345,7 @@ public final class BinaryImporter implements JmeImporter {
 
             return out;
 
-        } catch (IOException e) {
-            logger.logp(Level.SEVERE, this.getClass().toString(), "readObject(int id)", "Exception", e);
-            return null;
-        } catch (ClassNotFoundException e) {
-            logger.logp(Level.SEVERE, this.getClass().toString(), "readObject(int id)", "Exception", e);
-            return null;
-        } catch (InstantiationException e) {
-            logger.logp(Level.SEVERE, this.getClass().toString(), "readObject(int id)", "Exception", e);
-            return null;
-        } catch (IllegalAccessException e) {
+        } catch (Exception e) {
             logger.logp(Level.SEVERE, this.getClass().toString(), "readObject(int id)", "Exception", e);
             return null;
         }
