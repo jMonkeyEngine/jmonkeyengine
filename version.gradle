@@ -37,6 +37,9 @@ task configureVersionInfo {
                 jmeGitTag = jmeGitTag.name
                 jmeFullVersion  = jmeGitTag
                 jmeVersionTag = ""
+                if(jmeFullVersion.startsWith("v")&&Character.isDigit(jmeFullVersion.charAt(1))){
+                    jmeFullVersion=jmeFullVersion.substring(1);
+                }
             } else {
                 if(useCommitHashAsVersionName=="true"&&jmeGitHash!=null&&!jmeGitHash.equals("")){
                     jmeFullVersion  = jmeGitHash
