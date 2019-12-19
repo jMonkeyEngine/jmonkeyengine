@@ -1192,6 +1192,7 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
                     new_data.put(d.get());
                     d.get(); //ignore alpha
                 }
+                format=fmt;
                 setData(0, new_data);
                 BufferUtils.destroyDirectBuffer(d);
                 return true;
@@ -1210,6 +1211,7 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
                     new_data.put(d.get());
                     new_data.put((byte)255); //just add alpha=1
                 }
+                format=fmt;
                 setData(0, new_data);
                 BufferUtils.destroyDirectBuffer(d);
                 return true;
