@@ -1167,60 +1167,6 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
         return colorSpace;
     }
 
-    /**
-     * Modifies current image creating a new bytebuffer to the selected format if possible.
-     * This method is only usefull and used when uploading sub image to currently existing
-     * textures in GLES renderers
-     *
-     * Currently only rgb8 to rgba8 and back (most found use cases)
-     *
-     * @param fmt @see Format. Desired format to convert the image.
-     *
-     * @return True, if the image could be converted to the desired format, false otherwise.
-     *
-     */
-    public boolean convertToFormat(Format fmt) {
-        if(fmt==Format.RGB8) {
-            if(getFormat()==Format.RGBA8) {
-                ByteBuffer d=data.get(0);
-                ByteBuffer new_data=BufferUtils.createByteBuffer(getHeight()*getWidth()*4);
-                d.rewind();
-                
-                for(int i=0; i<getHeight()*getWidth(); ++i) {
-                    new_data.put(d.get());
-                    new_data.put(d.get());
-                    new_data.put(d.get());
-                    d.get(); //ignore alpha
-                }
-                format=fmt;
-                setData(0, new_data);
-                BufferUtils.destroyDirectBuffer(d);
-                return true;
-            }
-        }
-
-        if(fmt==Format.RGBA8) {
-            if(getFormat()==Format.RGB8) {
-                ByteBuffer d=data.get(0);
-                ByteBuffer new_data=BufferUtils.createByteBuffer(getHeight()*getWidth()*4);
-                d.rewind();
-                
-                for(int i=0; i<getHeight()*getWidth(); ++i) {
-                    new_data.put(d.get());
-                    new_data.put(d.get());
-                    new_data.put(d.get());
-                    new_data.put((byte)255); //just add alpha=1
-                }
-                format=fmt;
-                setData(0, new_data);
-                BufferUtils.destroyDirectBuffer(d);
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     @Override
     public String toString(){
         StringBuilder sb = new StringBuilder();
