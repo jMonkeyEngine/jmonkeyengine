@@ -24,39 +24,108 @@ ext {
 
 task configureVersionInfo {
     try {
+        // Users can configure behavior by setting properties on the command
+        // line:
+        //
+        // jmeVersionName:
+        // If set this will override all automatic version detection.
+        //
+        // useCommitHashAsVersionName:
+        // If there is no jmeVersionName set and the current commit has no
+        // specific tag then setting this to 'true' will cause the version to
+        // be the full commit ID.
+        //
+        // includeBranchInVersion:
+        // Set to true if a non-master branch name should be included in the automatically
+        // generated version.
+
         def grgit = Grgit.open(project.file('.'))
         def head = grgit.head()
         jmeRevision = grgit.log(includes: [head]).size()
         jmeGitHash = head.id
         jmeShortGitHash = head.abbreviatedId
         jmeBranchName = grgit.branch.current.name
-        jmeGitTag = grgit.tag.list().find { it.commit == head }
 
-        if(jmeVersionName==""){
-            if (jmeGitTag != null) {
-                jmeGitTag = jmeGitTag.name
-                jmeFullVersion  = jmeGitTag
-                jmeVersionTag = ""
-                if(jmeFullVersion.startsWith("v")&&Character.isDigit(jmeFullVersion.charAt(1))){
-                    jmeFullVersion=jmeFullVersion.substring(1);
-                }
-            } else {
-                if(useCommitHashAsVersionName=="true"&&jmeGitHash!=null&&!jmeGitHash.equals("")){
-                    jmeFullVersion  = jmeGitHash
-                    jmeVersionTag = ""
-                }else{
-                    jmeFullVersion="${jmeVersion}-";
-                    if(jmeBranchName!="master")jmeFullVersion+="${jmeBranchName}-";
-                    jmeFullVersion+="SNAPSHOT"
-                    jmeVersionTag="SNAPSHOT"
-                }
-            }
-        }else{
-            jmeVersionTag=""
-            jmeFullVersion=jmeVersionName
+        // This code will find an exact-match tag if the current
+        // commit is the same as the tag commit.
+        jmeGitTag = grgit.tag.list().find { it.commit == head }
+        def latestTag;
+        if( jmeGitTag ) {
+            // Just use the name.  We keep jmeGitTag separate because there
+            // is some logic that wants to know if this specific commit has
+            // a tag versus 'whatever tag we are a child of'... which is what
+            // 'latestTag' will be.
+            jmeGitTag = jmeGitTag.name
+            latestTag = jmeGitTag;
+        } else {
+            // Use describe to find the most recent tag.  Unfortunately,
+            // in this version of grgit, we don't have the 'always' options
+            // so we can't make as many assumptions about the format of the
+            // string.
+            // If the commit is an exact match then it will return just the
+            // tag name... else it will be tagName-commitCount-abbreviatedId
+            // We'll use some groovy regex magic to get the tag either way.
+            def describe = grgit.describe()
+            def fullDescribe = (describe =~/(.*?)-(\d+)-g$jmeShortGitHash/)
+            latestTag = fullDescribe ? fullDescribe[0][1] : describe
+            println "Latest tag:" + latestTag
         }
 
-    
+        // We could enhance this with some more regex if we wanted to sanity
+        // check that it was formatted like our versions.
+        def tagVersion = (latestTag =~/v?(.*)/)[0][1];
+        // If the branch is not master then use the tag.
+        if( jmeBranchName != "master" ) {
+            jmeVersion = tagVersion
+        }
+
+        // Parse out just the base version part.  -SNAPSHOT versions
+        // shouldn't really include our release suffixes
+        def baseVersion = (tagVersion =~/(\d+\.\d+.\d+)/)
+        baseVersion = baseVersion.size() > 0 ? baseVersion[0][0] : tagVersion
+
+        if( !jmeVersionName ) {
+            // If there is a specific tag for the top commit then we always
+            // use that.
+            if( jmeGitTag ) {
+                println "Using GIT tag as version"
+                jmeFullVersion = tagVersion; // already cleaned up
+                jmeVersionTag = ""  // and no SNAPSHOT suffix for an exact version tag
+
+                // Note: this will not automatically add SNAPSHOT if the user has
+                // local changes that they haven't committed.  Technically, only
+                // real CI builds should be using non-SNAPSHOT versions so we may
+                // eventually want to change the script to always use -SNAPSHOT with
+                // a CI option to turn it off.
+                // We could also check the grgit.status for unstaged modified/removed files.
+                //     def unstaged = grgit.status().unstaged;
+                //     def modCount = unstaged.modified.size() + unstaged.removed.size()
+                // ...but that seems like a wasteful check considering only official
+                // version builds should not have a -SNAPSHOT.
+
+            } else if( useCommitHashAsVersionName == "true" && jmeGitHash ) {
+                // The user has opted to use the hash... and we actually have
+                // a hash.
+                println "Using commit ID as version"
+                jmeFullVersion = jmeGitHash;
+                jmeVersionTag = ""
+            } else {
+                println "Auto-detecting version"
+                jmeVersionTag = "SNAPSHOT"
+
+                if( includeBranchInVersion == "true" && jmeBranchName != "master" ) {
+                    jmeFullVersion = baseVersion + "-" + jmeBranchName + "-" + jmeVersionTag;
+                } else {
+                    jmeFullVersion = baseVersion + "-" + jmeVersionTag;
+                }
+            }
+        } else {
+            // Just use defaults
+            println "Using user-defined version"
+            jmeFullVersion=jmeVersionName
+            jmeVersionTag = "SNAPSHOT"
+        }
+
         println("Revision: ${jmeRevision}")
         println("Hash: ${jmeGitHash}")
         println("Short Hash: ${jmeShortGitHash}")
@@ -64,7 +133,8 @@ task configureVersionInfo {
         println("Build Date: ${jmeBuildDate}")
         println("Build Branch: ${jmeBranchName}")
         println("Use commit hash as version ${useCommitHashAsVersionName}")
-        println("Build Tag: ${jmeVersionTag}")
+        println("Base Version: ${baseVersion}")
+        println("Build Suffix: ${jmeVersionTag}")
         println("Build Version: ${jmeFullVersion}")
 
     } catch (ex) {
