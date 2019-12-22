@@ -81,8 +81,8 @@ task configureVersionInfo {
 
         // Parse out just the base version part.  -SNAPSHOT versions
         // shouldn't really include our release suffixes
-        def baseVersion = (tagVersion =~/(\d+\.\d+.\d+)/)
-        baseVersion = baseVersion.size() > 0 ? baseVersion[0][0] : tagVersion
+        def baseVersion = (jmeVersion =~/(\d+\.\d+.\d+)/)
+        baseVersion = baseVersion.size() > 0 ? baseVersion[0][0] : jmeVersion
 
         if( !jmeVersionName ) {
             // If there is a specific tag for the top commit then we always
