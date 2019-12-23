@@ -2549,6 +2549,9 @@ public final class GLRenderer implements Renderer {
     @Deprecated
     public void modifyTexture(Texture tex, Image pixels, int x, int y) {
         setTexture(0, tex);
+        if(caps.contains(Caps.OpenGLES20) && pixels.getFormat()!=tex.getImage().getFormat() ) {
+            logger.log(Level.WARNING, "Incompatible texture subimage");
+        }
         int target = convertTextureType(tex.getType(), pixels.getMultiSamples(), -1);
         texUtil.uploadSubTexture(target,pixels, 0, x, y,0,0,pixels.getWidth(),pixels.getHeight(), linearizeSrgbImages);     
     }
@@ -2566,6 +2569,9 @@ public final class GLRenderer implements Renderer {
      */
     public void modifyTexture(Texture2D dest, Image src, int destX, int destY, int srcX, int srcY, int areaW, int areaH) {
         setTexture(0, dest);
+        if(caps.contains(Caps.OpenGLES20) && src.getFormat()!=dest.getImage().getFormat() ) {
+            logger.log(Level.WARNING, "Incompatible texture subimage");
+        }
         int target = convertTextureType(dest.getType(), src.getMultiSamples(), -1);
         texUtil.uploadSubTexture(target, src, 0, destX, destY, srcX, srcY, areaW, areaH, linearizeSrgbImages);
     }
