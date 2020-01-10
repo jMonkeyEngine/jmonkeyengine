@@ -90,8 +90,12 @@ public class TestPBRLighting extends SimpleApplication {
         dl.setColor(ColorRGBA.White);
         rootNode.attachChild(modelNode);
 
-
         FilterPostProcessor fpp = new FilterPostProcessor(assetManager);
+        int numSamples = context.getSettings().getSamples();
+        if (numSamples > 0) {
+            fpp.setNumSamples(numSamples);
+        }
+
 //        fpp.addFilter(new FXAAFilter());
         fpp.addFilter(new ToneMapFilter(Vector3f.UNIT_XYZ.mult(4.0f)));
 //        fpp.addFilter(new SSAOFilter(0.5f, 3, 0.2f, 0.2f));
