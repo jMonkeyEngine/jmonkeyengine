@@ -1138,7 +1138,7 @@ public final class AppSettings extends HashMap<String, Object> {
     /**
      * True to enable the creation of an OpenCL context.
      *
-     * @param support
+     * @param support whether to create the context or not
      */
     public void setOpenCLSupport(boolean support) {
         putBoolean("OpenCL", support);
@@ -1162,5 +1162,29 @@ public final class AppSettings extends HashMap<String, Object> {
     
     public String getOpenCLPlatformChooser() {
         return getString("OpenCLPlatformChooser");
+    }
+
+    /**
+     * Determine if the renderer will be run in Graphics Debug mode, which means every openGL Call is checked and
+     * if it returns an error code, throw a {@link com.jme3.renderer.RendererException}.<br />
+     * Without this, many openGL calls might fail without notice, so turning it on is recommended for development.
+     *
+     * @return whether the context will be run in Graphics Debug Mode or not
+     * @see #setGraphicsDebug(boolean)
+     */
+    public boolean isGraphicsDebug() {
+        return getBoolean("GraphicsDebug");
+    }
+
+    /**
+     * Set whether the renderer will be run in Graphics Debug mode, which means every openGL Call is checked and
+     * if it returns an error code, throw a {@link com.jme3.renderer.RendererException}.<br />
+     * Without this, many openGL calls might fail without notice, so turning it on is recommended for development.
+     *
+     * @param debug whether the context will be run in Graphics Debug Mode or not
+     * @see #isGraphicsDebug()
+     */
+    public void setGraphicsDebug(boolean debug) {
+        putBoolean("GraphicsDebug", debug);
     }
 }
