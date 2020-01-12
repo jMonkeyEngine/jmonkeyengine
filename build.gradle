@@ -158,29 +158,29 @@ task configureAndroidNDK {
 
 gradle.rootProject.ext.set("usePrebuildNatives", buildNativeProjects!="true");
 
-if(skipPrebuildLibraries!="true"&&buildNativeProjects!="true"){
+if (skipPrebuildLibraries != "true" && buildNativeProjects != "true") {
     String rootPath = rootProject.projectDir.absolutePath
 
     Properties nativesSnasphotProp = new Properties()
-    File nativesSnasphotPropF=new File("${rootPath}/natives-snapshot.properties");
-    
-    if(nativesSnasphotPropF.exists()){
+    File nativesSnasphotPropF = new File("${rootPath}/natives-snapshot.properties");
+
+    if (nativesSnasphotPropF.exists()) {
 
         nativesSnasphotPropF.withInputStream { nativesSnasphotProp.load(it) }
 
-        String nativesSnasphot=nativesSnasphotProp.getProperty("natives.snapshot");
-        String nativesUrl=PREBUILD_NATIVES_URL.replace('${natives.snapshot}',nativesSnasphot)
-        println "Use natives snapshot: "+nativesUrl
+        String nativesSnasphot = nativesSnasphotProp.getProperty("natives.snapshot");
+        String nativesUrl = PREBUILD_NATIVES_URL.replace('${natives.snapshot}', nativesSnasphot)
+        println "Use natives snapshot: " + nativesUrl
 
-        String nativesZipFile="${rootPath}" + File.separator + "build"+ File.separator +nativesSnasphot+"-natives.zip"
-        String nativesPath="${rootPath}" + File.separator + "build"+ File.separator +"native"
+        String nativesZipFile = "${rootPath}" + File.separator + "build" + File.separator + nativesSnasphot + "-natives.zip"
+        String nativesPath = "${rootPath}" + File.separator + "build" + File.separator + "native"
 
 
         task getNativesZipFile {
             outputs.file nativesZipFile
             doFirst {
                 File target = file(nativesZipFile);
-                println("Download natives from "+nativesUrl+" to "+nativesZipFile);
+                println("Download natives from " + nativesUrl + " to " + nativesZipFile);
                 target.getParentFile().mkdirs();
                 ant.get(src: nativesUrl, dest: target);
             }
@@ -192,26 +192,24 @@ if(skipPrebuildLibraries!="true"&&buildNativeProjects!="true"){
             dependsOn getNativesZipFile
 
             doFirst {
-                for(File src : zipTree(nativesZipFile)){
-                    String srcRel=src.getAbsolutePath().substring((int)(nativesZipFile.length()+1));
-                    srcRel=srcRel.substring(srcRel.indexOf( File.separator)+1);
+                for (File src : zipTree(nativesZipFile)) {
+                    String srcRel = src.getAbsolutePath().substring((int) (nativesZipFile.length() + 1));
+                    srcRel = srcRel.substring(srcRel.indexOf(File.separator) + 1);
 
-                    File dest=new File(nativesPath+File.separator+srcRel);
+                    File dest = new File(nativesPath + File.separator + srcRel);
                     boolean doCopy = !(dest.exists() && dest.lastModified() > src.lastModified())
                     if (doCopy) {
-                        println("Copy "+src+" "+dest);
+                        println("Copy " + src + " " + dest);
                         dest.getParentFile().mkdirs();
                         Files.copy(src.toPath(), dest.toPath(), StandardCopyOption.REPLACE_EXISTING);
                     }
                 }
             }
         }
-        build.dependsOn extractPrebuiltNatives
+
+        assemble.dependsOn extractPrebuiltNatives
     }
 }
-
-
-
 
 
 //class IncrementalReverseTask extends DefaultTask {
