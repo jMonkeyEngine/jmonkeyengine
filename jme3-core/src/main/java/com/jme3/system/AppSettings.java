@@ -71,19 +71,6 @@ public final class AppSettings extends HashMap<String, Object> {
     public static final String LWJGL_OPENGL2 = "LWJGL-OpenGL2";
 
     /**
-     * Use LWJGL as the display system and force using the core OpenGL3.0 renderer.
-     * <p>
-     * If the underlying system does not support OpenGL3.0, then the context
-     * initialization will throw an exception. Note that currently jMonkeyEngine
-     * does not have any shaders that support OpenGL3.0 therefore this 
-     * option is not useful.
-     * <p>
-     *
-     * @see AppSettings#setRenderer(java.lang.String)
-     */
-    public static final String LWJGL_OPENGL30 = "LWJGL-OpenGL30";
-
-    /**
      * Use LWJGL as the display system and force using the core OpenGL3.2 renderer.
      * <p>
      * If the underlying system does not support OpenGL3.2, then the context
@@ -98,6 +85,33 @@ public final class AppSettings extends HashMap<String, Object> {
      */
     @Deprecated
     public static final String LWJGL_OPENGL3 = "LWJGL-OpenGL3";
+
+
+    /**
+     * Use LWJGL as the display system and force using the core OpenGL3.0 renderer.
+     * <p>
+     * If the underlying system does not support OpenGL3.0, then the context
+     * initialization will throw an exception. Note that currently jMonkeyEngine
+     * does not have any shaders that support OpenGL3.0 therefore this 
+     * option is not useful.
+     * <p>
+     *
+     * @see AppSettings#setRenderer(java.lang.String)
+     */
+    public static final String LWJGL_OPENGL30 = "LWJGL-OpenGL30";
+
+    /**
+     * Use LWJGL as the display system and force using the core OpenGL3.1 renderer.
+     * <p>
+     * If the underlying system does not support OpenGL3.1, then the context
+     * initialization will throw an exception. Note that currently jMonkeyEngine
+     * does not have any shaders that support OpenGL3.0 therefore this
+     * option is not useful.
+     * <p>
+     *
+     * @see AppSettings#setRenderer(java.lang.String)
+     */
+    public static final String LWJGL_OPENGL31 = "LWJGL-OpenGL31";
 
     /**
      * Use LWJGL as the display system and force using the core OpenGL3.2 renderer.
