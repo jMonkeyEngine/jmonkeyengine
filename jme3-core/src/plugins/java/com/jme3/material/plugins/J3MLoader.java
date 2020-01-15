@@ -491,7 +491,10 @@ public class J3MLoader implements AssetLoader {
             renderState.setAlphaFunc(RenderState.TestFunction.valueOf(split[1]));
         }else if (split[0].equals("LineWidth")){
             renderState.setLineWidth(Float.parseFloat(split[1]));
-        } else {
+        }else if (split[0].equals("RasterizerDiscard")){
+            renderState.setRasterizerDiscard(parseBoolean(split[1]));
+        }
+        else {
             throw new MatParseException(null, split[0], statement);
         }
     }
@@ -593,6 +596,8 @@ public class J3MLoader implements AssetLoader {
             }
         } else if (split[0].equals("NoRender")) {
             technique.setNoRender(true);
+        } else if (split[0].equals("TransformFeedback")) {
+            readTransformFeedback(statement.getLine());
         } else {
             throw new MatParseException(null, split[0], statement);
         }
@@ -605,7 +610,25 @@ public class J3MLoader implements AssetLoader {
         }
         material.setTransparent(parseBoolean(split[1]));
     }
-    
+    private void readTransformFeedback(String statement) throws IOException {
+        String[] split = statement.split(whitespacePattern);
+        if(split.length < 2) throw new IOException("TransportFeedback statement syntax incorrect");
+        try {
+            TechniqueDef.TransformFeedbackMode mode = TechniqueDef.TransformFeedbackMode.valueOf(split[1]);
+            if(mode == TechniqueDef.TransformFeedbackMode.Off || mode == TechniqueDef.TransformFeedbackMode.InShader) {
+                technique.setTransformFeedbackBinding(mode, null);
+            }
+            else {
+                String[] varyings = new String[split.length-2];
+                for(int i = 0; i < varyings.length; i++)
+                    varyings[i] = split[i+2];
+                technique.setTransformFeedbackBinding(mode, varyings);
+            }
+        }
+        catch(IllegalArgumentException e) {
+            throw new IOException("Invalid transform feedback mode '" + split[1] + "'");
+        }
+    }
     private static String createShaderPrologue(List<String> presetDefines) {
         DefineList dl = new DefineList(presetDefines.size());
         for (int i = 0; i < presetDefines.size(); i++) {
@@ -669,7 +692,9 @@ public class J3MLoader implements AssetLoader {
             // is now done by TechniqueDef.
             technique.setShaderFile(technique.hashCode() + "", technique.hashCode() + "", "GLSL100", "GLSL100");
             techniqueDefs.add(technique);
-        }else if (shaderNames.containsKey(Shader.ShaderType.Vertex) && shaderNames.containsKey(Shader.ShaderType.Fragment)) {
+        }else if (shaderNames.containsKey(Shader.ShaderType.Vertex) &&
+                (shaderNames.containsKey(Shader.ShaderType.Fragment) ||
+                (technique.getBoundTransformFeedbackMode() != null && technique.getBoundTransformFeedbackMode() != TechniqueDef.TransformFeedbackMode.Off))) {
             if (shaderLanguages.size() > 1) {
                 for (int i = 1; i < shaderLanguages.size(); i++) {
                     cloner.clearIndex();

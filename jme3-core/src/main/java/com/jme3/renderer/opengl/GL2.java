@@ -74,6 +74,8 @@ public interface GL2 extends GL {
     public static final int GL_TEXTURE_WRAP_R = 0x8072;
     public static final int GL_VERTEX_PROGRAM_POINT_SIZE = 0x8642;
     public static final int GL_UNSIGNED_INT_8_8_8_8 = 0x8035;
+    public static final int GL_PIXEL_PACK_BUFFER = 0x88EB;
+    public static final int GL_PIXEL_UNPACK_BUFFER = 0x88EC;
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl3/glAlphaFunc">Reference Page</a> - <em>This function is deprecated and unavailable in the Core profile</em></p>

@@ -1,0 +1,20 @@
+MaterialDef TestTR {
+
+    MaterialParameters {
+		Vector3 CamPos
+		Vector3 CamDir
+    }
+
+    Technique {
+        VertexShader GLSL130: jme3test/renderer/TestTR.vert
+		GeometryShader GLSL150: jme3test/renderer/TestTR.geom
+	
+		RenderState {
+			RasterizerDiscard On
+			FaceCull Off
+		}
+
+		TransformFeedback Interleaved TransformFeedback
+    }
+
+}

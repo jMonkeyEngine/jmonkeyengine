@@ -299,7 +299,9 @@ public class AndroidGL implements GL, GL2, GLES_30, GLExt, GLFbo {
     @Override
     public int glGetQueryObjectiv(int query, int pname) {
         IntBuffer buff = IntBuffer.allocate(1);
-        GLES30.glGetQueryiv(query, pname, buff);
+        //bug? wrong method call
+        //GLES30.glGetQueryiv(query, pname, buff);
+        GLES30.glGetQueryObjectuiv(query, pname, buff);
         return buff.get(0);
     }
 
@@ -591,6 +593,17 @@ public class AndroidGL implements GL, GL2, GLES_30, GLExt, GLFbo {
         GLES30.glReadBuffer(mode);
     }
 
+
+    @Override
+    public void glGetQuery(int target, int pname, IntBuffer params) {
+        GLES30.glGetQueryiv(pname, pname, params);
+    }
+
+    @Override
+    public void glDeleteQueries(IntBuffer ib) {
+        GLES30.glDeleteQueries(ib.limit(), ib);
+    }
+
     public void glCompressedTexImage3D(int target, int level, int internalFormat, int width, int height, int depth,
                                            int border, ByteBuffer data) {
         GLES30.glCompressedTexImage3D(target, level, internalFormat, width, height, depth, border, getLimitBytes(data), data);
@@ -610,6 +623,7 @@ public class AndroidGL implements GL, GL2, GLES_30, GLExt, GLFbo {
                                     int depth, int format, int type, ByteBuffer data) {
         GLES30.glTexSubImage3D(target, level, xoffset, yoffset, zoffset, width, height, depth, format, type, data);
     }
+
 
 }
 

@@ -36,11 +36,15 @@ import com.jme3.material.RenderState.BlendFunc;
 import com.jme3.material.RenderState.BlendMode;
 import com.jme3.material.RenderState.StencilOperation;
 import com.jme3.material.RenderState.TestFunction;
+import com.jme3.material.TechniqueDef;
 import com.jme3.math.*;
 import com.jme3.opencl.OpenCLObjectManager;
 import com.jme3.renderer.*;
+import com.jme3.scene.BufferObject;
+import com.jme3.scene.BufferObject.Target;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Mesh.Mode;
+import com.jme3.scene.TransformFeedbackOutput;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.VertexBuffer.Format;
 import com.jme3.scene.VertexBuffer.Type;
@@ -415,7 +419,7 @@ public final class GLRenderer implements Renderer {
                     + "support non-power-of-2 textures. "
                     + "Some features might not work.");
         }
-
+        
         if (caps.contains(Caps.OpenGLES20)) {
             // OpenGL ES 2 has some limited support for NPOT textures
             caps.add(Caps.PartialNonPowerOfTwoTextures);
@@ -521,6 +525,49 @@ public final class GLRenderer implements Renderer {
             limits.put(Limits.UniformBufferObjectMaxFragmentBlocks, getInteger(GL3.GL_MAX_FRAGMENT_UNIFORM_BLOCKS));
             limits.put(Limits.UniformBufferObjectMaxVertexBlocks, getInteger(GL3.GL_MAX_VERTEX_UNIFORM_BLOCKS));
         }
+        
+        //Transform feedback
+        if(caps.contains(Caps.OpenGL30) || hasExtension("GL_EXT_transform_feedback")) {
+            caps.add(Caps.TransformFeedback);
+            limits.put(Limits.TransformFeedbackMaxSeparateAttribs, getInteger(GL3.GL_MAX_TRANSFORM_FEEDBACK_SEPARATE_ATTRIBS));
+            limits.put(Limits.TransformFeedbackMaxSeparateComponents, getInteger(GL3.GL_MAX_TRANSFORM_FEEDBACK_SEPARATE_COMPONENTS));
+            limits.put(Limits.TransformFeedbackMaxInterleavedComponents, getInteger(GL3.GL_MAX_TRANSFORM_FEEDBACK_INTERLEAVED_COMPONENTS));
+            if(gl2 != null) {
+                limits.put(Limits.QueryPrimitivesGeneratedCounterBits, getQueryCounterBits(QueryObject.Type.PrimitivesGenerated));
+                limits.put(Limits.QueryTransformFeedbackPrimitivesWrittenCounterBits, getQueryCounterBits(QueryObject.Type.TransformFeedbackPrimitivesGenerated));
+            }
+        }
+        if(caps.contains(Caps.OpenGL40) || hasExtension("GL_ARB_transform_feedback2")) {
+            caps.add(Caps.TransformFeedback2);
+            limits.put(Limits.TransformFeedbackMaxFeedbackBuffers, limits.get(Limits.TransformFeedbackMaxSeparateAttribs));
+        }
+        if(caps.contains(Caps.OpenGL40) || hasExtension("GL_ARB_transform_feedback3")) {
+            caps.add(Caps.TransformFeedback3);
+            limits.put(Limits.TransformFeedbackMaxFeedbackBuffers, GL4.GL_MAX_TRANSFORM_FEEDBACK_BUFFERS);
+            limits.put(Limits.MaxVertexStreams, getInteger(GL4.GL_MAX_VERTEX_STREAMS));
+        }
+        
+        //Query objects
+        //Note: according to GLES doc: http://docs.gl/es3/glGetQueryiv
+        //cannot find counter bits for queries on ES
+        //is there a default value in the ES spec or can zero still be returned?
+        if(gl2 != null) limits.put(Limits.QuerySamplesPassedCounterBits, getQueryCounterBits(QueryObject.Type.SamplesPassed));
+        if(caps.contains(Caps.OpenGL33) || hasExtension("GL_ARB_timer_query") || hasExtension("GL_EXT_timer_query")) {
+            caps.add(Caps.TimerQuery);
+            if(gl2 != null) { 
+                limits.put(Limits.QueryTimeElapsedCounterBits, getQueryCounterBits(QueryObject.Type.TimeElapsed));
+                limits.put(Limits.QueryTimestampCounterBits, getQueryCounterBits(GL3.GL_TIMESTAMP));
+            }
+        }
+        if(caps.contains(Caps.OpenGL33) || hasExtension("GL_ARB_occlusion_query2")) {
+            caps.add(Caps.OcclusionQuery2);
+            if(gl2 != null) limits.put(Limits.QueryAnySamplesCounterBits, getQueryCounterBits(QueryObject.Type.AnySamplesPassed));
+        }
+        if(caps.contains(Caps.OpenGL43) || hasExtension("GL_ARB_ES3_compatibility")) {
+            caps.add(Caps.OcclusionQueryConservative);
+            if(gl2 != null && caps.contains(Caps.OpenGL43)) limits.put(Limits.QueryAnySamplesCounterBits, getQueryCounterBits(QueryObject.Type.AnySamplesPassedConservative));
+        }
+        
 
         if (hasExtension("GL_OES_geometry_shader") || hasExtension("GL_EXT_geometry_shader")) {
             caps.add(Caps.GeometryShader);
@@ -651,6 +698,10 @@ public final class GLRenderer implements Renderer {
     }
 
     public void clearBuffers(boolean color, boolean depth, boolean stencil) {
+        if(context.rasterizerDiscard) {
+            gl.glDisable(GL3.GL_RASTERIZER_DISCARD);
+            context.rasterizerDiscard = false;
+        }
         int bits = 0;
         if (color) {
             //See explanations of the depth below, we must enable color write to be able to clear the color buffer
@@ -707,6 +758,16 @@ public final class GLRenderer implements Renderer {
     }
 
     public void applyRenderState(RenderState state) {
+        if(gl3 != null) {
+            if(state.isRasterizerDiscard() && !context.rasterizerDiscard) {
+                gl.glEnable(GL3.GL_RASTERIZER_DISCARD);
+                context.rasterizerDiscard = true;
+            }
+            else if(!state.isRasterizerDiscard() && context.rasterizerDiscard) {
+                gl.glDisable(GL3.GL_RASTERIZER_DISCARD);
+                context.rasterizerDiscard = false;
+            }
+        }
         if (gl2 != null) {
             if (state.isWireframe() && !context.wireframe) {
                 gl2.glPolygonMode(GL.GL_FRONT_AND_BACK, GL2.GL_LINE);
@@ -1122,6 +1183,7 @@ public final class GLRenderer implements Renderer {
     protected void bindProgram(Shader shader) {
         int shaderId = shader.getId();
         if (context.boundShaderProgram != shaderId) {
+            if(context.transformFeedbackEnabled != -1) throw new RendererException("Cannot use multiple shaders for transform feedback.");
             gl.glUseProgram(shaderId);
             statistics.onShaderUse(shader, true);
             context.boundShader = shader;
@@ -1261,7 +1323,7 @@ public final class GLRenderer implements Renderer {
         assert bufferBlock.getName() != null;
         assert shader.getId() > 0;
 
-        final BufferObject bufferObject = bufferBlock.getBufferObject();
+        final UniformBufferObject bufferObject = bufferBlock.getBufferObject();
         if (bufferObject.getUniqueId() == -1 || bufferObject.isUpdateNeeded()) {
             updateBufferData(bufferObject);
         }
@@ -1273,27 +1335,29 @@ public final class GLRenderer implements Renderer {
         bindProgram(shader);
 
         final int shaderId = shader.getId();
-        final BufferObject.BufferType bufferType = bufferObject.getBufferType();
+        final UniformBufferObject.BufferType bufferType = bufferObject.getBufferType();
 
         bindBuffer(bufferBlock, bufferObject, shaderId, bufferType);
 
         bufferBlock.clearUpdateNeeded();
     }
 
-    private void bindBuffer(final ShaderBufferBlock bufferBlock, final BufferObject bufferObject, final int shaderId,
-                            final BufferObject.BufferType bufferType) {
+    private void bindBuffer(final ShaderBufferBlock bufferBlock, final UniformBufferObject bufferObject, final int shaderId,
+                            final UniformBufferObject.BufferType bufferType) {
 
         switch (bufferType) {
             case UniformBufferObject: {
                 final int blockIndex = gl3.glGetUniformBlockIndex(shaderId, bufferBlock.getName());
-                gl3.glBindBufferBase(GL3.GL_UNIFORM_BUFFER, bufferObject.getBinding(), bufferObject.getId());
+//                gl3.glBindBufferBase(GL3.GL_UNIFORM_BUFFER, bufferObject.getBinding(), bufferObject.getId());
+                bindBufferBase(Target.Uniform, bufferObject.getBinding(), bufferObject.getId());
                 gl3.glUniformBlockBinding(GL3.GL_UNIFORM_BUFFER, blockIndex, bufferObject.getBinding());
                 break;
             }
             case ShaderStorageBufferObject: {
                 final int blockIndex = gl4.glGetProgramResourceIndex(shaderId, GL4.GL_SHADER_STORAGE_BLOCK, bufferBlock.getName());
                 gl4.glShaderStorageBlockBinding(shaderId, blockIndex, bufferObject.getBinding());
-                gl4.glBindBufferBase(GL4.GL_SHADER_STORAGE_BUFFER, bufferObject.getBinding(), bufferObject.getId());
+//                gl4.glBindBufferBase(GL4.GL_SHADER_STORAGE_BUFFER, bufferObject.getBinding(), bufferObject.getId());
+                bindBufferBase(Target.ShaderStorage, bufferObject.getBinding(), bufferObject.getId());
                 break;
             }
             default: {
@@ -1481,6 +1545,8 @@ public final class GLRenderer implements Renderer {
     }
 
     public void updateShaderData(Shader shader) {
+        if(context.transformFeedbackEnabled != -1) throw new RendererException("Cannot use multiple shaders for transform feedback.");
+        
         int id = shader.getId();
         boolean needRegister = false;
         if (id == -1) {
@@ -1517,7 +1583,21 @@ public final class GLRenderer implements Renderer {
                 gl3.glBindFragDataLocation(id, i, "outFragData[" + i + "]");
             }
         }
-
+        
+        // Transform feedback linking
+        TechniqueDef.TransformFeedbackMode tfMode = shader.getBoundTransformFeedbackMode();
+        if(tfMode != null && (tfMode == TechniqueDef.TransformFeedbackMode.Interleaved || tfMode == TechniqueDef.TransformFeedbackMode.Separate) ) {
+            String[] varyings = shader.getBoundTransformFeedbackVaryings();
+            switch(tfMode) {
+                case Interleaved:
+                    gl3.glTransformFeedbackVaryings(id, varyings, GL3.GL_INTERLEAVED_ATTRIBS);
+                    break;
+                case Separate:
+                    gl3.glTransformFeedbackVaryings(id, varyings, GL3.GL_SEPARATE_ATTRIBS);
+                    break;
+            }
+        }
+        
         // Link shaders to program
         gl.glLinkProgram(id);
 
@@ -2589,16 +2669,19 @@ public final class GLRenderer implements Renderer {
     }
 
     /*********************************************************************\
-     |* Vertex Buffers and Attributes                                     *|
+     |* Buffer Objects and Attributes                                    *|
      \*********************************************************************/
-    private int convertUsage(Usage usage) {
+    public int convertUsage(Usage usage) {
         switch (usage) {
-            case Static:
-                return GL.GL_STATIC_DRAW;
-            case Dynamic:
-                return GL.GL_DYNAMIC_DRAW;
-            case Stream:
-                return GL.GL_STREAM_DRAW;
+            case Static:        return GL.GL_STATIC_DRAW;
+            case Dynamic:       return GL.GL_DYNAMIC_DRAW;
+            case Stream:        return GL.GL_STREAM_DRAW;
+            case StaticRead:    return GL.GL_STATIC_READ;
+            case DynamicRead:   return GL.GL_DYNAMIC_READ;
+            case StreamRead:    return GL.GL_STREAM_READ;
+            case StaticCopy:    return GL.GL_STATIC_COPY;
+            case DynamicCopy:   return GL.GL_DYNAMIC_COPY;
+            case StreamCopy:    return GL.GL_STREAM_COPY;
             default:
                 throw new UnsupportedOperationException("Unknown usage type.");
         }
@@ -2624,153 +2707,143 @@ public final class GLRenderer implements Renderer {
                 return GL.GL_DOUBLE;
             default:
                 throw new UnsupportedOperationException("Unknown buffer format.");
-
         }
     }
-
-    public void updateBufferData(VertexBuffer vb) {
-        int bufId = vb.getId();
-        boolean created = false;
+    public int convertTarget(Target target) {
+        switch (target) {
+            case Array: return GL.GL_ARRAY_BUFFER;
+            case AtomicCounter: return GL4.GL_ATOMIC_COUNTER_BUFFER;
+            case CopyRead: return GL3.GL_COPY_READ_BUFFER;
+            case CopyWrite: return GL3.GL_COPY_WRITE_BUFFER;
+            case DispatchIndirect: return GL4.GL_DISPATCH_INDIRECT_BUFFER;
+            case DrawIndirect: return GL4.GL_DRAW_INDIRECT_BUFFER;
+            case ElementArray: return GL.GL_ELEMENT_ARRAY_BUFFER;
+            case PixelPack: return GL2.GL_PIXEL_PACK_BUFFER;
+            case PixelUnpack: return GL2.GL_PIXEL_UNPACK_BUFFER;
+            case Query: return GL4.GL_QUERY_BUFFER;
+            case ShaderStorage: 
+                if(!caps.contains(Caps.ShaderStorageBufferObject))
+                    throw new RendererException("UniformBuffer object not supported by current hardware.");
+                return GL4.GL_SHADER_STORAGE_BUFFER;
+            case Texture: return GL3.GL_TEXTURE_BUFFER;
+            case TransformFeedback: return GL3.GL_TRANSFORM_FEEDBACK_BUFFER;
+            case Uniform: 
+                if(!caps.contains(Caps.UniformBufferObject))
+                    throw new RendererException("UniformBuffer object not supported by current hardware.");
+                return GL3.GL_UNIFORM_BUFFER;
+            default:
+                throw new UnsupportedOperationException("Unknown target type.");
+        }
+    }
+    public int convertTargetBase(Target target) {
+        switch (target) {
+            case TransformFeedback: return GL3.GL_TRANSFORM_FEEDBACK_BUFFER;
+            case Uniform: 
+                if(!caps.contains(Caps.UniformBufferObject))
+                    throw new RendererException("UniformBuffer object not supported by current hardware.");
+                return GL3.GL_UNIFORM_BUFFER;
+            default:
+                throw new UnsupportedOperationException("Unsupported target type. " + target);
+        }
+    }
+     public int convertTargetRange(Target target) {
+        switch (target) {
+            case AtomicCounter: return GL4.GL_ATOMIC_COUNTER_BUFFER;
+            case ShaderStorage: 
+                if(!caps.contains(Caps.ShaderStorageBufferObject))
+                    throw new RendererException("UniformBuffer object not supported by current hardware.");
+                return GL4.GL_SHADER_STORAGE_BUFFER;
+            case TransformFeedback: return GL3.GL_TRANSFORM_FEEDBACK_BUFFER;
+            case Uniform: 
+                if(!caps.contains(Caps.UniformBufferObject))
+                    throw new RendererException("UniformBuffer object not supported by current hardware.");
+                return GL3.GL_UNIFORM_BUFFER;
+            default:
+                throw new UnsupportedOperationException("Unsupported target type. " + target);
+        }
+    }
+    
+    public int bindBuffer(BufferObject bo) {
+        int bufId = bo.getId();
         if (bufId == -1) {
-            // create buffer
             gl.glGenBuffers(intBuf1);
             bufId = intBuf1.get(0);
-            vb.setId(bufId);
-            objManager.registerObject(vb);
-
-            //statistics.onNewVertexBuffer();
-
-            created = true;
+            bo.setId(bufId);
+            objManager.registerObject(bo);
         }
-
-        // bind buffer
-        int target;
-        if (vb.getBufferType() == VertexBuffer.Type.Index) {
-            target = GL.GL_ELEMENT_ARRAY_BUFFER;
-            if (context.boundElementArrayVBO != bufId) {
-                gl.glBindBuffer(target, bufId);
-                context.boundElementArrayVBO = bufId;
-                //statistics.onVertexBufferUse(vb, true);
-            } else {
-                //statistics.onVertexBufferUse(vb, false);
-            }
-        } else {
-            target = GL.GL_ARRAY_BUFFER;
-            if (context.boundArrayVBO != bufId) {
-                gl.glBindBuffer(target, bufId);
-                context.boundArrayVBO = bufId;
-                //statistics.onVertexBufferUse(vb, true);
-            } else {
-                //statistics.onVertexBufferUse(vb, false);
-            }
+        return bindBuffer(bo.getTarget(), bufId);
+    }
+    public int bindBuffer(Target target, int bufId) {
+        if(bufId == -1) throw new IllegalArgumentException("Buffer id cannot be -1.");
+        int t = convertTarget(target);
+        if(context.boundBO[target.ordinal()] != bufId) {
+            gl.glBindBuffer(t, bufId);
+            context.boundBO[target.ordinal()] = bufId;
         }
+        return t;
+    }
+    
+    public int bindBufferBase(Target target, int index, int bufId) {
+        if(bufId == -1) throw new IllegalArgumentException("Buffer id cannot be -1.");
+        //not caching bindBufferBase
+        //but got to set context.boundBO
+        int t = convertTargetBase(target);
+        gl3.glBindBufferBase(t, index, bufId);
+        context.boundBO[target.ordinal()] = bufId;
+        return t;
+    }
+    public int bindBufferRange(Target target, int index, int bufId, long offset, long size) {
+        if(bufId == -1) throw new IllegalArgumentException("Buffer id cannot be -1.");
+        //not caching bindBufferRange
+        //but got to set context.boundBO
+        int t = convertTargetRange(target);
+        gl3.glBindBufferRange(t, index, bufId, offset, size);
+        context.boundBO[target.ordinal()] = bufId;
+        return t;
+    }
 
-        int usage = convertUsage(vb.getUsage());
-        vb.getData().rewind();
+    @Override
+    public void updateBufferData(BufferObject bo) {
+        int target = bindBuffer(bo);
 
-        switch (vb.getFormat()) {
+        int usage = convertUsage(bo.getUsage());
+        bo.getData().rewind();
+
+        switch (bo.getFormat()) {
             case Byte:
             case UnsignedByte:
-                gl.glBufferData(target, (ByteBuffer) vb.getData(), usage);
+                gl.glBufferData(target, (ByteBuffer) bo.getData(), usage);
                 break;
             case Short:
             case UnsignedShort:
-                gl.glBufferData(target, (ShortBuffer) vb.getData(), usage);
+                gl.glBufferData(target, (ShortBuffer) bo.getData(), usage);
                 break;
             case Int:
             case UnsignedInt:
-                glext.glBufferData(target, (IntBuffer) vb.getData(), usage);
+                glext.glBufferData(target, (IntBuffer) bo.getData(), usage);
                 break;
             case Float:
-                gl.glBufferData(target, (FloatBuffer) vb.getData(), usage);
+                gl.glBufferData(target, (FloatBuffer) bo.getData(), usage);
                 break;
             default:
                 throw new UnsupportedOperationException("Unknown buffer format.");
         }
 
-        vb.clearUpdateNeeded();
-    }
-
-    @Override
-    public void updateBufferData(final BufferObject bo) {
-
-        int maxSize = Integer.MAX_VALUE;
-
-        final BufferObject.BufferType bufferType = bo.getBufferType();
-
-        if (!caps.contains(bufferType.getRequiredCaps())) {
-            throw new IllegalArgumentException("The current video hardware doesn't support " + bufferType);
-        }
-
-        final ByteBuffer data = bo.computeData(maxSize);
-        if (data == null) {
-            throw new IllegalArgumentException("Can't upload BO without data.");
-        }
-
-        int bufferId = bo.getId();
-        if (bufferId == -1) {
-
-            // create buffer
-            intBuf1.clear();
-            gl.glGenBuffers(intBuf1);
-            bufferId = intBuf1.get(0);
-
-            bo.setId(bufferId);
-
-            objManager.registerObject(bo);
-        }
-
-        data.rewind();
-
-        switch (bufferType) {
-            case UniformBufferObject: {
-                gl3.glBindBuffer(GL3.GL_UNIFORM_BUFFER, bufferId);
-                gl3.glBufferData(GL4.GL_UNIFORM_BUFFER, data, GL3.GL_DYNAMIC_DRAW);
-                gl3.glBindBuffer(GL4.GL_UNIFORM_BUFFER, 0);
-                break;
-            }
-            case ShaderStorageBufferObject: {
-                gl4.glBindBuffer(GL4.GL_SHADER_STORAGE_BUFFER, bufferId);
-                gl4.glBufferData(GL4.GL_SHADER_STORAGE_BUFFER, data, GL4.GL_DYNAMIC_COPY);
-                gl4.glBindBuffer(GL4.GL_SHADER_STORAGE_BUFFER, 0);
-                break;
-            }
-            default: {
-                throw new IllegalArgumentException("Doesn't support binding of " + bufferType);
-            }
-        }
-
         bo.clearUpdateNeeded();
     }
 
-    public void deleteBuffer(VertexBuffer vb) {
-        int bufId = vb.getId();
+    @Override
+    public void deleteBuffer(BufferObject bo) {
+        int bufId = bo.getId();
         if (bufId != -1) {
             // delete buffer
-            intBuf1.put(0, bufId);
-            intBuf1.position(0).limit(1);
+            intBuf1.clear();
+            intBuf1.put(bufId);
+            intBuf1.flip();
             gl.glDeleteBuffers(intBuf1);
-            vb.resetObject();
-
-            //statistics.onDeleteVertexBuffer();
+            bo.resetObject();
+//            statistics.onDeleteBufferObject();
         }
-    }
-
-    @Override
-    public void deleteBuffer(final BufferObject bo) {
-
-        int bufferId = bo.getId();
-        if (bufferId == -1) {
-            return;
-        }
-
-        intBuf1.clear();
-        intBuf1.put(bufferId);
-        intBuf1.flip();
-
-        gl.glDeleteBuffers(intBuf1);
-
-        bo.resetObject();
     }
 
     public void clearVertexAttribs() {
@@ -2843,13 +2916,14 @@ public final class GLRenderer implements Renderer {
             // NOTE: Use id from interleaved buffer if specified
             int bufId = idb != null ? idb.getId() : vb.getId();
             assert bufId != -1;
-            if (context.boundArrayVBO != bufId) {
-                gl.glBindBuffer(GL.GL_ARRAY_BUFFER, bufId);
-                context.boundArrayVBO = bufId;
-                //statistics.onVertexBufferUse(vb, true);
-            } else {
-                //statistics.onVertexBufferUse(vb, false);
-            }
+            bindBuffer(Target.Array, bufId);
+//            if (context.boundArrayVBO != bufId) {
+//                gl.glBindBuffer(GL.GL_ARRAY_BUFFER, bufId);
+//                context.boundArrayVBO = bufId;
+//                //statistics.onVertexBufferUse(vb, true);
+//            } else {
+//                //statistics.onVertexBufferUse(vb, false);
+//            }
 
             if (slotsRequired == 1) {
                 gl.glVertexAttribPointer(loc,
@@ -2933,13 +3007,14 @@ public final class GLRenderer implements Renderer {
         int bufId = indexBuf.getId();
         assert bufId != -1;
 
-        if (context.boundElementArrayVBO != bufId) {
-            gl.glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER, bufId);
-            context.boundElementArrayVBO = bufId;
-            //statistics.onVertexBufferUse(indexBuf, true);
-        } else {
-            //statistics.onVertexBufferUse(indexBuf, true);
-        }
+        bindBuffer(Target.ElementArray, bufId);
+//        if (context.boundElementArrayVBO != bufId) {
+//            gl.glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER, bufId);
+//            context.boundElementArrayVBO = bufId;
+//            //statistics.onVertexBufferUse(indexBuf, true);
+//        } else {
+//            //statistics.onVertexBufferUse(indexBuf, true);
+//        }
 
         int vertCount = mesh.getVertexCount();
         boolean useInstancing = count > 1 && caps.contains(Caps.MeshInstancing);
@@ -3133,6 +3208,10 @@ public final class GLRenderer implements Renderer {
 
         clearVertexAttribs();
         
+        if(context.transformFeedbackOutput != null && context.transformFeedbackEnabled == -1) {
+            beginTransformFeedback(context.transformFeedbackOutput.getMode());
+        }
+        
         if (indices != null) {
             drawTriangleList(indices, mesh, count);
         } else {
@@ -3206,12 +3285,20 @@ public final class GLRenderer implements Renderer {
 
     @Override
     public void startProfiling(int taskId) {
+        //Todo
+        //profiling can now use queries instead
+        if(context.startedQueries[QueryObject.Type.TimeElapsed.ordinal()] != 0)
+            throw new RendererException("Query of type TimeElapsed already started.");
         gl.glBeginQuery(GL.GL_TIME_ELAPSED, taskId);
+        context.startedQueries[QueryObject.Type.TimeElapsed.ordinal()] = taskId;
     }
 
     @Override
     public void stopProfiling() {
+        if(context.startedQueries[QueryObject.Type.TimeElapsed.ordinal()] == 0)
+                throw new RendererException("Query of type TimeElapsed is not started!");
         gl.glEndQuery(GL.GL_TIME_ELAPSED);
+        context.startedQueries[QueryObject.Type.TimeElapsed.ordinal()] = 0;
     }
 
     @Override
@@ -3221,7 +3308,183 @@ public final class GLRenderer implements Renderer {
 
     @Override
     public boolean isTaskResultAvailable(int taskId) {
+        //glGetQueryObjectiv generates error if query is not started
         return gl.glGetQueryObjectiv(taskId, GL.GL_QUERY_RESULT_AVAILABLE) == 1;
+    }
+    /**********************************************************************\
+    |* Transform Feedback                                                *|
+    \*********************************************************************/
+    public int convertTFMode(Mesh.Mode mode) {
+        switch (mode) {
+            case Points:
+                return GL.GL_POINTS;
+            case Lines:
+            case LineLoop:
+            case LineStrip:
+                return GL.GL_LINES;
+            case Triangles:
+            case TriangleFan:
+            case TriangleStrip:
+                return GL.GL_TRIANGLES;
+            default:
+                throw new UnsupportedOperationException("Unrecognized transform feedback mode: " + mode);
+        }
+    }
+    @Override
+    public void setTransformFeedbackOutput(TransformFeedbackOutput output) {
+        if(!caps.contains(Caps.TransformFeedback)) throw new RendererException("Transform feedback not supported by video hardware.");
+        if(context.transformFeedbackOutput == output) return;
+        
+        if(context.transformFeedbackEnabled == -1) {
+            context.transformFeedbackOutput = output;
+        }
+        else {
+            if(output != null) throw new RendererException("Cannot change transform feedback output in middle of transform feedback.");
+            endTransformFeedback();
+            context.transformFeedbackOutput.setInUse(false);
+            context.transformFeedbackOutput = null;
+        }
+    }
+    public void beginTransformFeedback(Mesh.Mode meshMode) {
+        int mode = convertTFMode(meshMode);
+        if(context.transformFeedbackEnabled == -1) {
+            TransformFeedbackOutput output = context.transformFeedbackOutput;
+            output.setInUse(true);
+            int size = output.getNumberOfBufferBindings();
+            for(int i = 0; i < size; i++) {
+                TransformFeedbackOutput.OutputBuffer b = output.getOutputBinding(i);
+                if(b.buf.isUpdateNeeded()) updateBufferData(b.buf);
+                if(b.range) bindBufferRange(Target.TransformFeedback, b.slot, b.buf.getId(), b.offset, b.size);
+                else bindBufferBase(Target.TransformFeedback, b.slot, b.buf.getId());
+            }
+            
+            gl3.glBeginTransformFeedback(mode);
+            context.transformFeedbackEnabled = mode;
+        }
+        else {
+            if(context.transformFeedbackEnabled != mode)
+                throw new RendererException("Transform feedback already enabled for mode: " + context.transformFeedbackEnabled);
+        }
+    }
+    public void endTransformFeedback() {
+        if(context.transformFeedbackEnabled != -1) {
+            gl3.glEndTransformFeedback();
+            context.transformFeedbackEnabled = -1;
+            //do we clear transform feedback bindings? or not needed?
+            
+//            TransformFeedbackOutput output = context.transformFeedbackOutput;
+//            int size = output.getNumberOfBufferBindings();
+//            for(int i = 0; i < size; i++) {
+//                TransformFeedbackOutput.OutputBuffer b = output.getOutputBinding(i);
+//                bindBufferBase(Target.TransformFeedback, b.slot, 0);
+//            }
+        }
+    }
+    /**********************************************************************\
+    |* Queries                                                            *|
+    \**********************************************************************/
+    public int convertQueryType(QueryObject.Type type) {
+        switch (type) {
+            case AnySamplesPassed:
+                return GL3.GL_ANY_SAMPLES_PASSED;
+            case AnySamplesPassedConservative:
+                return GL4.GL_ANY_SAMPLES_PASSED_CONSERVATIVE;
+            case PrimitivesGenerated:
+                return GL3.GL_PRIMITIVES_GENERATED;
+            case SamplesPassed:
+                return GL.GL_SAMPLES_PASSED;
+            case TimeElapsed:
+                return GL3.GL_TIME_ELAPSED;
+            case TransformFeedbackPrimitivesGenerated:
+                return GL3.GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN;
+            default:
+                throw new UnsupportedOperationException("Unrecognized query object type: " + type);
+        }
+    }
+
+    private int getQueryCounterBits(QueryObject.Type type) {
+        return getQueryCounterBits(convertQueryType(type));
+    }
+    private int getQueryCounterBits(int target) {
+        intBuf1.clear();
+        gl.glGetQuery(target, GL.GL_QUERY_COUNTER_BITS, intBuf1);
+        return intBuf1.get(0);
+    }
+
+    @Override
+    public boolean isQueryResultReady(QueryObject q) {
+        int id = q.getId();
+        if(id == -1) throw new RendererException("Id cannot be -1");
+        return gl.glGetQueryObjectiv(id, GL.GL_QUERY_RESULT_AVAILABLE) == GL.GL_TRUE;
+    }
+
+    @Override
+    public long getQueryResult(QueryObject q) {
+        int id = q.getId();
+        if(id == -1) throw new RendererException("Id cannot be -1");
+        //TODO
+        //return 64 bit value is possible (requires openGL 3.3+)
+        //currently glGetQueryObjectui64 is implemented
+        //in jme-lwjgl with ARBTimerQuery.glGetQueryObjectui64(query, target);
+        //thus its used with timeElapsed only for now.
+        if(q.getType() == QueryObject.Type.TimeElapsed)
+            return gl.glGetQueryObjectui64(id, GL.GL_QUERY_RESULT);
+        return gl.glGetQueryObjectiv(id, GL.GL_QUERY_RESULT);
+    }
+
+    @Override
+    public void beginQuery(QueryObject q) {
+        //TODO
+        //Can multiple indexed queries with same target different index
+        //be started simultainously?
+        //For now check and cache index 0
+        int target = convertQueryType(q.getType());
+        if(q.getIndex() == 0 && context.startedQueries[q.getType().ordinal()] != 0)
+            throw new RendererException("Query of type " + q.getType() + " already started.");
+        int id = q.getId();
+        if(id == -1) {
+            if(!Caps.supports(caps, q))
+                throw new RendererException("Query of type and index is not supported by video hardware. Type: " + q.getType() + ", index " + q.getIndex());
+            gl.glGenQueries(1, intBuf1);
+            id = intBuf1.get(0);
+            q.setId(id);
+            objManager.registerObject(q);
+        }
+        if(q.getIndex() == 0) {
+            gl.glBeginQuery(target, id);
+            context.startedQueries[q.getType().ordinal()] = id;
+        }
+        else gl4.glBeginQueryIndexed(target, q.getIndex(), id);
+        q.setState(QueryObject.State.CanEnd);
+    }
+
+    @Override
+    public void endQuery(QueryObject q) {
+        int id = q.getId();
+        if(id == -1) throw new RendererException("Id cannot be -1");
+        int target = convertQueryType(q.getType());
+        if(q.getIndex() == 0) {
+            int arrIndex = q.getType().ordinal();
+            if(context.startedQueries[arrIndex] != id)
+                throw new RendererException("Query " + q.getType() + " is not started!");
+            gl.glEndQuery(target);
+            context.startedQueries[arrIndex] = 0;
+        }
+        else gl4.glEndQueryIndexed(target, q.getIndex());
+        q.setState(QueryObject.State.CanBegin);
+    }
+
+    @Override
+    public void deleteQuery(QueryObject q) {
+        int id = q.getId();
+        if (id != -1) {
+            // delete query
+            intBuf1.clear();
+            intBuf1.put(id);
+            intBuf1.flip();
+            gl.glDeleteQueries(intBuf1);
+            q.resetObject();
+        }
     }
 
     @Override

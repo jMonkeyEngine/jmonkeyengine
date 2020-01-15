@@ -31,6 +31,7 @@
  */
 package com.jme3.renderer;
 
+import com.jme3.material.TechniqueDef;
 import com.jme3.shader.Shader;
 import com.jme3.shader.Shader.ShaderSource;
 import com.jme3.texture.FrameBuffer;
@@ -404,7 +405,42 @@ public enum Caps {
      * Supporting working with ShaderStorageBufferObjects.
      */
     ShaderStorageBufferObject,
-
+    /**
+     * Supports TimerQueries
+     * GL3.3 is available or (GL_ARB_timer_query) or (GL_EXT_timer_query)
+     * 
+     * TODO
+     * GLES: add support for (EXT_disjoint_timer_query)
+     */
+    TimerQuery,
+    /**
+     * Supports for GL_ANY_SAMPLES_PASSED query.
+     * GL3.3 is available or (GL_ARB_occlusion_query2)
+     * 
+     */
+    OcclusionQuery2,
+    /**
+     * Supports for GL_ANY_SAMPLES_PASSED_CONSERVATIVE query.
+     * GL4.3 is available or (GL_ARB_ES3_compatibility)
+     * 
+     */
+    OcclusionQueryConservative,
+    /**
+     * Support for transform feedback, primitives_generated que
+     * GL3.0 is available or (GL_EXT_transform_feedback)
+     */
+    TransformFeedback,
+    /**
+     * Support for additional transform feedback operations
+     * GL4.0 is available or (GL_ARB_transform_feedback2)
+     */
+    TransformFeedback2,
+     /**
+     * Support for additional transform feedback operations
+     * GL4.0 is available or (GL_ARB_transform_feedback3)
+     */
+    TransformFeedback3,
+    
     /**
      * Supports OpenGL ES 3.0
      */
@@ -442,6 +478,7 @@ public enum Caps {
 
     
     UnpackRowLength
+
     ;
 
     /**
@@ -591,7 +628,37 @@ public enum Caps {
                 }
             }
         }
+        if(shader.getBoundTransformFeedbackMode() != null &&
+           shader.getBoundTransformFeedbackMode() != TechniqueDef.TransformFeedbackMode.Off &&
+           !caps.contains(Caps.TransformFeedback)) return false;
+            
         return true;
     }
-
+    /**
+     * Returns true if given the renderer capabilities, the query object
+     * can be supported by the renderer.
+     * 
+     * @param caps The collection of renderer capabilities {@link Renderer#getCaps() }.
+     * @param query The query object to check
+     * @return True if it is supported, false otherwise.
+     */
+    public static boolean supports(Collection<Caps> caps, QueryObject query) {
+        switch(query.getType()) {
+            case SamplesPassed:
+                //GL1.5 is available or (GL_ARB_occlusion_query)
+                return true;
+            case AnySamplesPassed: 
+                return caps.contains(Caps.OcclusionQuery2);
+            case TimeElapsed: 
+                return caps.contains(Caps.TimerQuery);
+            case TransformFeedbackPrimitivesGenerated:
+                return caps.contains(Caps.TransformFeedback);
+            case PrimitivesGenerated: 
+                return caps.contains(Caps.TransformFeedback);
+            case AnySamplesPassedConservative: 
+                return caps.contains(Caps.OcclusionQueryConservative);
+            default:
+                throw new UnsupportedOperationException("Unrecognized query object type: " + query.getType());
+        }
+    }
 }

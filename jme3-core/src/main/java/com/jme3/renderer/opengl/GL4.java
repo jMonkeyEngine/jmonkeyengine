@@ -52,6 +52,10 @@ public interface GL4 extends GL3 {
      */
     public static final int GL_SHADER_STORAGE_BUFFER = 0x90D2;
     public static final int GL_SHADER_STORAGE_BLOCK = 0x92E6;
+    
+    public static final int GL_DRAW_INDIRECT_BUFFER = 0x8F3F;
+    public static final int GL_DISPATCH_INDIRECT_BUFFER = 0x90EE;
+    public static final int GL_QUERY_BUFFER = 0x9192;
 
     /**
      *  Accepted by the &lt;pname&gt; parameter of GetIntegerv, GetBooleanv,
@@ -67,6 +71,20 @@ public interface GL4 extends GL3 {
     public static final int GL_MAX_SHADER_STORAGE_BUFFER_BINDINGS = 0x90DD;
     public static final int GL_MAX_SHADER_STORAGE_BLOCK_SIZE = 0x90DE;
     public static final int GL_SHADER_STORAGE_BUFFER_OFFSET_ALIGNMENT = 0x90DF;
+    
+    public static final int GL_TRANSFORM_FEEDBACK = 36386;
+    public static final int GL_TRANSFORM_FEEDBACK_PAUSED = 36387;
+    public static final int GL_TRANSFORM_FEEDBACK_ACTIVE = 36388;
+    public static final int GL_TRANSFORM_FEEDBACK_BUFFER_PAUSED = 36387;
+    public static final int GL_TRANSFORM_FEEDBACK_BUFFER_ACTIVE = 36388;
+    public static final int GL_TRANSFORM_FEEDBACK_BINDING = 36389;
+    public static final int GL_MAX_TRANSFORM_FEEDBACK_BUFFERS = 36464;
+    public static final int GL_MAX_VERTEX_STREAMS = 36465;
+
+    /**
+     * Query target (OpenGL 4.3+)
+     */
+    public static final int GL_ANY_SAMPLES_PASSED_CONSERVATIVE = 36202;
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glPatchParameteri">Reference Page</a></p>
@@ -100,4 +118,26 @@ public interface GL4 extends GL3 {
      * @param storageBlockBinding The index storage block binding to associate with the specified storage block.
      */
     public void glShaderStorageBlockBinding(int program, int storageBlockIndex, int storageBlockBinding);
+
+    /**
+     * <p><a target="_blank" href="http://docs.gl/gl4/glBeginQueryIndexed">Reference Page</a></p>
+     * <p>
+     * Creates a query object and makes it active at indexed target.
+     *
+     * @param target the target type of query object established.
+     * @param index  target index
+     * @param id  id of query object
+     */
+    public void glBeginQueryIndexed(int target, int index, int id);
+    
+     /**
+     * <p><a target="_blank" href="http://docs.gl/gl4/glBeginQueryIndexed">Reference Page</a></p>
+     * <p>
+     * Marks the end of the sequence of commands to be tracked for the active query specified by {@code target}.
+     *
+     * @param target the query object target.
+     * @param index target index
+     */
+    public void glEndQueryIndexed(int target, int index);
+
 }

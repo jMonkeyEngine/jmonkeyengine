@@ -675,8 +675,8 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
      * @param name  the name of the buffer object defined in the material definition (j3md).
      * @param value the buffer object.
      */
-    public void setUniformBufferObject(final String name, final BufferObject value) {
-        value.setBufferType(BufferObject.BufferType.UniformBufferObject);
+    public void setUniformBufferObject(final String name, final UniformBufferObject value) {
+        value.setBufferType(UniformBufferObject.BufferType.UniformBufferObject);
         setParam(name, VarType.BufferObject, value);
     }
 
@@ -686,8 +686,8 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
      * @param name  the name of the buffer object defined in the material definition (j3md).
      * @param value the buffer object.
      */
-    public void setShaderStorageBufferObject(final String name, final BufferObject value) {
-        value.setBufferType(BufferObject.BufferType.ShaderStorageBufferObject);
+    public void setShaderStorageBufferObject(final String name, final UniformBufferObject value) {
+        value.setBufferType(UniformBufferObject.BufferType.ShaderStorageBufferObject);
         setParam(name, VarType.BufferObject, value);
     }
 
@@ -832,7 +832,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
             if (isBO(type)) {
 
                 final ShaderBufferBlock bufferBlock = shader.getBufferBlock(param.getPrefixedName());
-                bufferBlock.setBufferObject((BufferObject) param.getValue());
+                bufferBlock.setBufferObject((UniformBufferObject) param.getValue());
 
             } else {
 

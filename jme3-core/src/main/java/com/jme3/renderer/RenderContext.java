@@ -35,6 +35,7 @@ import com.jme3.material.RenderState;
 import com.jme3.material.RenderState.BlendFunc;
 import com.jme3.math.ColorRGBA;
 import com.jme3.scene.Mesh;
+import com.jme3.scene.TransformFeedbackOutput;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.shader.Shader;
 import com.jme3.texture.FrameBuffer;
@@ -75,6 +76,21 @@ public class RenderContext {
      * @see RenderState#setPolyOffset(float, float) 
      */
     public boolean polyOffsetEnabled = false;
+    
+    /**
+     * Stores rasterized discard state.
+     */
+    public boolean rasterizerDiscard = false;
+    
+    /**
+     * Stores transform feedback state.
+     */
+    public int transformFeedbackEnabled = -1;
+    
+    /**
+     * Stored transform feedback output.
+     */
+    public TransformFeedbackOutput transformFeedbackOutput;
     
     /**
      * @see RenderState#setPolyOffset(float, float) 
@@ -189,24 +205,24 @@ public class RenderContext {
      */
     public int boundReadBuf = -1;
 
-    /**
-     * Currently bound element array vertex buffer.
-     * 
-     * @see Renderer#renderMesh(com.jme3.scene.Mesh, int, int, com.jme3.scene.VertexBuffer[]) 
-     */
-    public int boundElementArrayVBO;
+//    /**
+//     * Currently bound element array vertex buffer.
+//     * 
+//     * @see Renderer#renderMesh(com.jme3.scene.Mesh, int, int, com.jme3.scene.VertexBuffer[]) 
+//     */
+//    public int boundElementArrayVBO;
 
     /**
      * @see Renderer#renderMesh(com.jme3.scene.Mesh, int, int, com.jme3.scene.VertexBuffer[]) 
      */
     public int boundVertexArray;
 
-    /**
-     * Currently bound array vertex buffer.
-     * 
-     * @see Renderer#renderMesh(com.jme3.scene.Mesh, int, int, com.jme3.scene.VertexBuffer[]) 
-     */
-    public int boundArrayVBO;
+//    /**
+//     * Currently bound array vertex buffer.
+//     * 
+//     * @see Renderer#renderMesh(com.jme3.scene.Mesh, int, int, com.jme3.scene.VertexBuffer[]) 
+//     */
+//    public int boundArrayVBO;
     
     /**
      * Currently bound pixel pack pixel buffer.
@@ -214,6 +230,11 @@ public class RenderContext {
     public int boundPixelPackPBO;
 
     public int numTexturesSet = 0;
+    
+    /**
+     * Currently bound buffer objects.
+     */
+    public int[] boundBO = new int[14/*BufferObject.Target.values().length*/];
 
     /**
      * Current bound texture IDs for each texture unit.
@@ -276,6 +297,11 @@ public class RenderContext {
     public ColorRGBA clearColor = new ColorRGBA(0,0,0,0);
     
     /**
+     * Started queries.
+     */
+    public int[] startedQueries = new int[6/*QueryObject.Type.values().length*/];
+    
+    /**
      * Reset the RenderContext to default GL state
      */
     public void reset(){
@@ -303,13 +329,17 @@ public class RenderContext {
         boundRB = 0;
         boundDrawBuf = -1; 
         boundReadBuf = -1;
-        boundElementArrayVBO = 0;
+//        boundElementArrayVBO = 0;
         boundVertexArray = 0;
-        boundArrayVBO = 0;
+//        boundArrayVBO = 0;
         boundPixelPackPBO = 0;
         numTexturesSet = 0;
+        for (int i = 0; i < boundBO.length; i++)
+            boundBO[i] = 0;
         for (int i = 0; i < boundTextures.length; i++)
             boundTextures[i] = null;
+        for (int i = 0; i < startedQueries.length; i++)
+            startedQueries[i] = 0;
 
         textureIndexList.reset();
         boundTextureUnit = 0;
@@ -331,5 +361,9 @@ public class RenderContext {
         depthFunc = RenderState.TestFunction.LessOrEqual;    
         alphaFunc = RenderState.TestFunction.Greater;
         clearColor.set(0,0,0,0);
+        
+        rasterizerDiscard = false;
+        transformFeedbackEnabled = -1;
+        transformFeedbackOutput = null;
     }
 }

@@ -66,6 +66,7 @@ public interface GL {
     public static final int GL_DST_ALPHA = 0x0304;
     public static final int GL_DST_COLOR = 0x306;
     public static final int GL_DYNAMIC_DRAW = 0x88E8;
+    public static final int GL_DYNAMIC_READ = 0x88E9;
     public static final int GL_DYNAMIC_COPY = 0x88EA;
     public static final int GL_ELEMENT_ARRAY_BUFFER = 0x8893;
     public static final int GL_EQUAL = 0x202;
@@ -146,10 +147,13 @@ public interface GL {
     public static final int GL_SRC_ALPHA_SATURATE = 0x0308;
     public static final int GL_SRC_COLOR = 0x300;
     public static final int GL_STATIC_DRAW = 0x88E4;
+    public static final int GL_STATIC_READ = 0x88E5;
+    public static final int GL_STATIC_COPY = 0x88E6;
     public static final int GL_STENCIL_BUFFER_BIT = 0x400;
     public static final int GL_STENCIL_TEST = 0xB90;
     public static final int GL_STREAM_DRAW = 0x88E0;
     public static final int GL_STREAM_READ = 0x88E1;
+    public static final int GL_STREAM_COPY = 0x88E2;
     public static final int GL_TEXTURE = 0x1702;
     public static final int GL_TEXTURE0 = 0x84C0;
     public static final int GL_TEXTURE1 = 0x84C1;
@@ -194,6 +198,11 @@ public interface GL {
     public static final int GL_VERSION = 0x1F02;
     public static final int GL_VERTEX_SHADER = 0x8B31;
     public static final int GL_ZERO = 0x0;
+    
+    public static final int GL_SAMPLES_PASSED = 35092;
+    public static final int GL_QUERY_COUNTER_BITS = 34916;
+    public static final int GL_CURRENT_QUERY = 34917;
+    
     public static final int GL_UNPACK_ROW_LENGTH = 0x0CF2;
 
     public void resetStats();
@@ -1300,4 +1309,19 @@ public interface GL {
      * @param height the viewport height.
      */
     public void glViewport(int x, int y, int width, int height);
+    /**
+     * <p><a target="_blank" href="http://docs.gl/gl4/glGetQueryiv">Reference Page</a></p>
+     * Returns parameters of a query object target
+     * 
+     * @param target query target
+     * @param pname GL_CURRENT_QUERY or GL_QUERY_COUNTER_BITS
+     * @param value pointer to buffer to store the result
+     */
+    public void glGetQuery(int target, int pname, IntBuffer value);
+    /**
+     * <p><a target="_blank" href="http://docs.gl/gl4/glDeleteQueries">Reference Page</a></p>
+     * Deletes named query objects.
+     * @param ib an array of query objects to be deleted.
+     */
+    public void glDeleteQueries(IntBuffer ib);
 }

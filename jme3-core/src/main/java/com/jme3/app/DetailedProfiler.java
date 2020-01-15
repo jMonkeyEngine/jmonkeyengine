@@ -57,6 +57,9 @@ public class DetailedProfiler implements AppProfiler {
             for (StatLine statLine : data.values()) {
                 for (Iterator<Integer> i = statLine.taskIds.iterator(); i.hasNext(); ) {
                     int id = i.next();
+                    //FixMe
+                    //throws with app.settings.putBoolean("GraphicsDebug", true);
+                    //reason: query has not started/ended or is already running
                     if (renderer.isTaskResultAvailable(id)) {
                         long val = renderer.getProfilingTime(id);
                         statLine.setValueGpu(val);

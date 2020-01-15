@@ -51,8 +51,7 @@ public class GLDebugES extends GLDebug implements GL, GL2, GLES_30, GLFbo, GLExt
         checkError();
     }
     
-    public void glBlendFuncSeparate(int sfactorRGB, int dfactorRGB, int sfactorAlpha, int dFactorAlpha)
-    {
+    public void glBlendFuncSeparate(int sfactorRGB, int dfactorRGB, int sfactorAlpha, int dFactorAlpha) {
        gl.glBlendFuncSeparate(sfactorRGB, dfactorRGB, sfactorAlpha, dFactorAlpha);
        checkError();
     }
@@ -206,6 +205,7 @@ public class GLDebugES extends GLDebug implements GL, GL2, GLES_30, GLFbo, GLExt
 
     @Override
     public void glEndQuery(int target) {
+        gl.glEndQuery(target);
         checkError();
     }
 
@@ -221,7 +221,7 @@ public class GLDebugES extends GLDebug implements GL, GL2, GLES_30, GLFbo, GLExt
 
     @Override
     public void glGenQueries(int num, IntBuffer ids) {
-        glGenQueries(num, ids);
+        gl.glGenQueries(num, ids);
         checkError();
     }
 
@@ -610,6 +610,17 @@ public class GLDebugES extends GLDebug implements GL, GL2, GLES_30, GLFbo, GLExt
         checkError();
     }
 
+    @Override
+    public void glGetQuery(int target, int pname, IntBuffer params) {
+        gl.glGetQuery(target, pname, params);
+        checkError();
+    }
+
+    @Override
+    public void glDeleteQueries(IntBuffer ib) {
+        gl.glDeleteQueries(ib);
+        checkError();
+    }
     public void glAlphaFunc(int func, float ref) {
         ((GL2)gl).glAlphaFunc(func, ref);
         checkError();
@@ -658,5 +669,4 @@ public class GLDebugES extends GLDebug implements GL, GL2, GLES_30, GLFbo, GLExt
         ((GL2)gl).glTexSubImage3D(target, level, xoffset, yoffset, zoffset, width, height, depth, format, type, data);
         checkError();
     }
-
 }
