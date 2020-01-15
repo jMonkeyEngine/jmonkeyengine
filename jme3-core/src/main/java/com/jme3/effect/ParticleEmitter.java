@@ -297,7 +297,7 @@ public class ParticleEmitter extends Geometry {
     /**
      * For serialization only. Do not use.
      */
-    public ParticleEmitter() {
+    protected ParticleEmitter() {
         super();
         setBatchHint(BatchHint.Never);
     }

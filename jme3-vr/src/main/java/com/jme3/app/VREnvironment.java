@@ -433,9 +433,14 @@ public class VREnvironment {
         // we are going to use OpenVR now, not the Oculus Rift
         // OpenVR does support the Rift
         String OS     = System.getProperty("os.name", "generic").toLowerCase(Locale.ENGLISH);
-        vrSupportedOS = !OS.contains("nux") && System.getProperty("sun.arch.data.model").equalsIgnoreCase("64"); //for the moment, linux/unix causes crashes, 64-bit only
-        compositorOS  = OS.contains("indows");
-        
+        vrSupportedOS = System.getProperty("sun.arch.data.model").equalsIgnoreCase("64"); //64-bit only
+        compositorOS  = OS.contains("indows") || OS.contains("nux");
+
+        if (OS.contains("nux") && vrBinding != VRConstants.SETTING_VRAPI_OPENVR_LWJGL_VALUE){
+        	logger.severe("Only LWJGL VR backend is currently (partially) supported on Linux.");
+        	vrSupportedOS = false;
+        }
+
         if( vrSupportedOS) {
         	if( vrBinding == VRConstants.SETTING_VRAPI_OSVR_VALUE ) {
         		

@@ -2,6 +2,7 @@ ShaderNodeDefinitions{
     ShaderNodeDefinition EnvMapping {      
         Type: Fragment
 
+        Shader GLSL300: Common/MatDefs/ShaderNodes/Environment/envMapping130.frag
         Shader GLSL100: Common/MatDefs/ShaderNodes/Environment/envMapping100.frag
         Shader GLSL130: Common/MatDefs/ShaderNodes/Environment/envMapping130.frag
         

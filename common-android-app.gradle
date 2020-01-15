@@ -1,7 +1,7 @@
 apply plugin: 'com.android.application'
 
 group   = 'org.jmonkeyengine'
-version = jmeVersion + '-' + jmeVersionTag
+version = jmeFullVersion
 
 sourceCompatibility = '1.6'
 

@@ -5,7 +5,7 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 
-public class GLDebugES extends GLDebug implements GL, GLFbo, GLExt {
+public class GLDebugES extends GLDebug implements GL, GL2, GLES_30, GLFbo, GLExt {
 
     private final GLFbo glfbo;
     private final GLExt glext;
@@ -609,4 +609,54 @@ public class GLDebugES extends GLDebug implements GL, GLFbo, GLExt {
         glfbo.glFramebufferTextureLayerEXT(param1, param2, param3, param4, param5);
         checkError();
     }
+
+    public void glAlphaFunc(int func, float ref) {
+        ((GL2)gl).glAlphaFunc(func, ref);
+        checkError();
+    }
+
+    public void glPointSize(float size) {
+        ((GL2)gl).glPointSize(size);
+        checkError();
+    }
+
+    public void glPolygonMode(int face, int mode) {
+        ((GL2)gl).glPolygonMode(face, mode);
+        checkError();
+    }
+
+    public void glDrawBuffer(int mode) {
+        ((GL2)gl).glDrawBuffer(mode);
+        checkError();
+    }
+
+    public void glReadBuffer(int mode) {
+        ((GL2)gl).glReadBuffer(mode);
+        checkError();
+    }
+
+    public void glCompressedTexImage3D(int target, int level, int internalFormat, int width, int height, int depth,
+                                           int border, ByteBuffer data) {
+        ((GL2)gl).glCompressedTexImage3D(target, level, internalFormat, width, height, depth, border, data);
+        checkError();
+    }
+
+    public void glCompressedTexSubImage3D(int target, int level, int xoffset, int yoffset, int zoffset, int width,
+                                              int height, int depth, int format, ByteBuffer data) {
+        ((GL2)gl).glCompressedTexSubImage3D(target, level, xoffset, yoffset, zoffset, width, height, depth, format, data);
+        checkError();
+    }
+
+    public void glTexImage3D(int target, int level, int internalFormat, int width, int height, int depth, int border,
+                                 int format, int type, ByteBuffer data) {
+        ((GL2)gl).glTexImage3D(target, level, internalFormat, width, height, depth, border, format, type, data);
+        checkError();
+    }
+
+    public void glTexSubImage3D(int target, int level, int xoffset, int yoffset, int zoffset, int width, int height,
+                                    int depth, int format, int type, ByteBuffer data) {
+        ((GL2)gl).glTexSubImage3D(target, level, xoffset, yoffset, zoffset, width, height, depth, format, type, data);
+        checkError();
+    }
+
 }

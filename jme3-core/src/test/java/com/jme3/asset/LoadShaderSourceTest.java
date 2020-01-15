@@ -46,6 +46,7 @@ public class LoadShaderSourceTest {
         assetManager.registerLocator(null, ClasspathLocator.class);
         assetManager.registerLoader(GLSLLoader.class, "frag");
         assetManager.registerLoader(GLSLLoader.class, "glsllib");
+        assetManager.registerLoader(GLSLLoader.class, "glsl");
         String showNormals = (String) assetManager.loadAsset("Common/MatDefs/Misc/ShowNormals.frag");
         System.out.println(showNormals);
     }

@@ -82,9 +82,9 @@ public class AudioTrack implements ClonableTrack {
     }
 
     /**
-     * default constructor for serialization only
+     * constructor for serialization only
      */
-    public AudioTrack() {
+    protected AudioTrack() {
     }
 
     /**

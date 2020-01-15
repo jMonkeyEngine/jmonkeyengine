@@ -32,6 +32,7 @@
 package com.jme3.app;
 
 import com.jme3.app.state.AppState;
+import com.jme3.app.state.ConstantVerifierState;
 import com.jme3.audio.AudioListenerState;
 import com.jme3.font.BitmapFont;
 import com.jme3.font.BitmapText;
@@ -97,7 +98,8 @@ public abstract class SimpleApplication extends LegacyApplication {
     }
 
     public SimpleApplication() {
-        this(new StatsAppState(), new FlyCamAppState(), new AudioListenerState(), new DebugKeysAppState());
+        this(new StatsAppState(), new FlyCamAppState(), new AudioListenerState(), new DebugKeysAppState(),
+             new ConstantVerifierState());
     }
 
     public SimpleApplication( AppState... initialStates ) {

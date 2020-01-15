@@ -34,6 +34,7 @@ package com.jme3.renderer.android;
 import android.opengl.*;
 import com.jme3.renderer.RendererException;
 import com.jme3.renderer.opengl.*;
+import com.jme3.util.BufferUtils;
 
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
@@ -41,7 +42,9 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 
-public class AndroidGL implements GL, GLExt, GLFbo {
+public class AndroidGL implements GL, GL2, GLES_30, GLExt, GLFbo {
+
+    IntBuffer tmpBuff = BufferUtils.createIntBuffer(1);
 
     public void resetStats() {
     }
@@ -361,7 +364,7 @@ public class AndroidGL implements GL, GLExt, GLFbo {
     }
 
     public void glTexImage2D(int target, int level, int internalFormat, int width, int height, int border, int format, int type, ByteBuffer data) {
-        GLES20.glTexImage2D(target, level, format, width, height, 0, format, type, data);
+        GLES20.glTexImage2D(target, level, internalFormat, width, height, 0, format, type, data);
     }
 
     public void glTexParameterf(int target, int pname, float param) {
@@ -449,7 +452,7 @@ public class AndroidGL implements GL, GLExt, GLFbo {
     }
 
     public void glBlitFramebufferEXT(int srcX0, int srcY0, int srcX1, int srcY1, int dstX0, int dstY0, int dstX1, int dstY1, int mask, int filter) {
-        throw new UnsupportedOperationException("FBO blit not available on Android");
+        GLES30.glBlitFramebuffer(srcX0, srcY0, srcX1, srcY1, dstX0, dstY0, dstX1, dstY1, mask, filter);
     }
 
     public void glBufferData(int target, IntBuffer data, int usage) {
@@ -461,31 +464,31 @@ public class AndroidGL implements GL, GLExt, GLFbo {
     }
 
     public void glDrawArraysInstancedARB(int mode, int first, int count, int primcount) {
-        throw new UnsupportedOperationException("Instancing not available on Android");
+        GLES30.glDrawArraysInstanced(mode, first, count, primcount);
     }
 
     public void glDrawBuffers(IntBuffer bufs) {
-        throw new UnsupportedOperationException("MRT not available on Android");
+        GLES30.glDrawBuffers(bufs.limit(), bufs);
     }
 
     public void glDrawElementsInstancedARB(int mode, int indices_count, int type, long indices_buffer_offset, int primcount) {
-        throw new UnsupportedOperationException("Instancing not available on Android");
+        GLES30.glDrawElementsInstanced(mode, indices_count, type, (int)indices_buffer_offset, primcount);
     }
 
     public void glGetMultisample(int pname, int index, FloatBuffer val) {
-        throw new UnsupportedOperationException("Multisample renderbuffers not available on Android");
+        GLES31.glGetMultisamplefv(pname, index, val);
     }
 
     public void glRenderbufferStorageMultisampleEXT(int target, int samples, int internalformat, int width, int height) {
-        throw new UnsupportedOperationException("Multisample renderbuffers not available on Android");
+        GLES30.glRenderbufferStorageMultisample(target, samples, internalformat, width, height);
     }
 
     public void glTexImage2DMultisample(int target, int samples, int internalformat, int width, int height, boolean fixedsamplelocations) {
-        throw new UnsupportedOperationException("Multisample textures not available on Android");
+        GLES31.glTexStorage2DMultisample(target, samples, internalformat, width, height, fixedsamplelocations);
     }
 
     public void glVertexAttribDivisorARB(int index, int divisor) {
-        throw new UnsupportedOperationException("Instancing not available on Android");
+        GLES30.glVertexAttribDivisor(index, divisor);
     }
 
     public void glBindFramebufferEXT(int param1, int param2) {
@@ -564,6 +567,49 @@ public class AndroidGL implements GL, GLExt, GLFbo {
     
     @Override
     public void glFramebufferTextureLayerEXT(int target, int attachment, int texture, int level, int layer) {
-        throw new UnsupportedOperationException("OpenGL ES 2 does not support texture arrays");
+        GLES30.glFramebufferTextureLayer(target, attachment, texture, level, layer);
     }
+
+    public void glAlphaFunc(int func, float ref) {
+    }
+    
+    public void glPointSize(float size) {
+    }
+
+    public void glPolygonMode(int face, int mode) {
+    }
+
+    // Wrapper to DrawBuffers as there's no DrawBuffer method in GLES
+    public void glDrawBuffer(int mode) {
+        tmpBuff.clear();
+        tmpBuff.put(0, mode);
+        tmpBuff.rewind();
+        glDrawBuffers(tmpBuff);
+    }
+
+    public void glReadBuffer(int mode) {
+        GLES30.glReadBuffer(mode);
+    }
+
+    public void glCompressedTexImage3D(int target, int level, int internalFormat, int width, int height, int depth,
+                                           int border, ByteBuffer data) {
+        GLES30.glCompressedTexImage3D(target, level, internalFormat, width, height, depth, border, getLimitBytes(data), data);
+    }
+
+    public void glCompressedTexSubImage3D(int target, int level, int xoffset, int yoffset, int zoffset, int width,
+                                              int height, int depth, int format, ByteBuffer data) {
+        GLES30.glCompressedTexSubImage3D(target, level, xoffset, yoffset, zoffset, width, height, depth, format, getLimitBytes(data), data);
+    }
+
+    public void glTexImage3D(int target, int level, int internalFormat, int width, int height, int depth, int border,
+                                 int format, int type, ByteBuffer data) {
+        GLES30.glTexImage3D(target, level, internalFormat, width, height, depth, border, format, type, data);
+    }
+
+    public void glTexSubImage3D(int target, int level, int xoffset, int yoffset, int zoffset, int width, int height,
+                                    int depth, int format, int type, ByteBuffer data) {
+        GLES30.glTexSubImage3D(target, level, xoffset, yoffset, zoffset, width, height, depth, format, type, data);
+    }
+
 }
+

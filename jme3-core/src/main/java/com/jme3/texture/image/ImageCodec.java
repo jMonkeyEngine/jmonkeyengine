@@ -130,6 +130,10 @@ abstract class ImageCodec {
                                                           0, 11, 6, 1));
         ((BitMaskImageCodec)params.get(Format.RGB5A1)).be = true;
        
+        params.put(Format.RGB10A2, new BitMaskImageCodec(4, 0, 
+                                                         2, 10, 10, 10,
+                                                         0, 22, 12, 2));
+
 //        params.put(Format.RGBA8,    new ByteAlignedImageCodec(4, 0,
 //                                                              0, 1, 1, 1,
 //                                                              0, 0, 1, 2));

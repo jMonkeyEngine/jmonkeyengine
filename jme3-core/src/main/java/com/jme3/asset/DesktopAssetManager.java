@@ -41,6 +41,7 @@ import com.jme3.renderer.Caps;
 import com.jme3.scene.Spatial;
 import com.jme3.shader.Glsl100ShaderGenerator;
 import com.jme3.shader.Glsl150ShaderGenerator;
+import com.jme3.shader.Glsl300ShaderGenerator;
 import com.jme3.shader.ShaderGenerator;
 import com.jme3.system.JmeSystem;
 import com.jme3.texture.Texture;
@@ -434,7 +435,9 @@ public class DesktopAssetManager implements AssetManager {
     @Override
     public ShaderGenerator getShaderGenerator(EnumSet<Caps> caps) {
         if (shaderGenerator == null) {
-            if(caps.contains(Caps.GLSL150)){
+            if(caps.contains(Caps.OpenGLES30) && caps.contains(Caps.GLSL300)){
+                shaderGenerator = new Glsl300ShaderGenerator(this);
+            }else if(caps.contains(Caps.GLSL150)) {
                 shaderGenerator = new Glsl150ShaderGenerator(this);
             }else{
                 shaderGenerator = new Glsl100ShaderGenerator(this);

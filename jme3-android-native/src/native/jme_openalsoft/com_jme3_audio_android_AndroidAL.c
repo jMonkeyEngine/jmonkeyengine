@@ -1,4 +1,4 @@
-#include "com_jme3_audio_android_AndroidAL.h"
+#include "../headers/com_jme3_audio_android_AndroidAL.h"
 #include "AL/al.h"
 #include "AL/alext.h"
 

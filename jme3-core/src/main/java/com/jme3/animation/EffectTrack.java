@@ -144,9 +144,9 @@ public class EffectTrack implements ClonableTrack {
     }
 
     /**
-     * default constructor only for serialization
+     * constructor only for serialization
      */
-    public EffectTrack() {
+    protected EffectTrack() {
     }
 
     /**

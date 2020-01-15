@@ -47,9 +47,8 @@ public interface TerrainPicker {
      *
      * @param worldPick
      *            our pick ray, in world space.
-     * @return null if no pick is found. Otherwise it returns a Vector3f  populated with the pick
-     *         coordinates.
+     * @return The number of collisions found
      */
-    public Vector3f getTerrainIntersection(final Ray worldPick, CollisionResults results);
+    public int getTerrainIntersection(final Ray worldPick, CollisionResults results);
 
 }

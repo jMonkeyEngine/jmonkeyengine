@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -68,7 +68,7 @@ public class SixDofJoint extends PhysicsJoint {
     private Vector3f linearUpperLimit = new Vector3f(Vector3f.POSITIVE_INFINITY);
     private Vector3f linearLowerLimit = new Vector3f(Vector3f.NEGATIVE_INFINITY);
 
-    public SixDofJoint() {
+    protected SixDofJoint() {
     }
 
     /**

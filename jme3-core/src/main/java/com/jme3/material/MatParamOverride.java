@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2016 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -83,7 +83,7 @@ public final class MatParamOverride extends MatParam {
     /**
      * Serialization only. Do not use.
      */
-    public MatParamOverride() {
+    protected MatParamOverride() {
         super();
     }
 

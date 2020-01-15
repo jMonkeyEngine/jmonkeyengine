@@ -10,8 +10,8 @@ MaterialDef Radial Blur {
     }
 
     Technique {
-        VertexShader GLSL120 GLSL150:   Common/MatDefs/Post/Post.vert
-        FragmentShader GLSL120 GLSL150: Common/MatDefs/Blur/RadialBlur.frag
+        VertexShader GLSL300 GLSL120 GLSL150:   Common/MatDefs/Post/Post.vert
+        FragmentShader GLSL300 GLSL120 GLSL150: Common/MatDefs/Blur/RadialBlur.frag
 
         WorldParameters {
         }

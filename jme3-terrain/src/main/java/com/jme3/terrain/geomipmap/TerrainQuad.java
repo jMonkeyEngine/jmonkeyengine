@@ -123,7 +123,7 @@ public class TerrainQuad extends Node implements Terrain {
     private int maxLod = -1;
     private BoundingBox affectedAreaBBox; // only set in the root quad
 
-    private TerrainPicker picker;
+    private TerrainPicker picker = new BresenhamTerrainPicker(this);
     private Vector3f lastScale = Vector3f.UNIT_XYZ;
 
     protected NeighbourFinder neighbourFinder;
@@ -274,20 +274,7 @@ public class TerrainQuad extends Node implements Terrain {
     }
 
     private int collideWithRay(Ray ray, CollisionResults results) {
-        if (picker == null)
-            picker = new BresenhamTerrainPicker(this);
-
-        Vector3f intersection = picker.getTerrainIntersection(ray, results);
-        if (intersection != null) {
-            if (ray.getLimit() < Float.POSITIVE_INFINITY) {
-                if (results.getClosestCollision().getDistance() <= ray.getLimit())
-                    return 1; // in range
-                else
-                    return 0; // out of range
-            } else
-                return 1;
-        } else
-            return 0;
+        return picker.getTerrainIntersection(ray, results);
     }
 
     /**
@@ -1914,6 +1901,24 @@ public class TerrainQuad extends Node implements Terrain {
         }
 
         return hm;
+    }
+
+    /**
+     * When colliding with this terrain, is a report of all collisions wanted or only the closest collision?<br>
+     * If only the closest collision is required, the collision calculation will be faster.<br>
+     * Note: If no collision happens, it takes as long as a collision with multipleCollisions on would take.
+     *
+     * @param set Whether to support multiple collisions or not
+     */
+    public void setSupportMultipleCollisions(boolean set) {
+        if (picker == null) {
+            // This is so that it doesn't fail at the IllegalStateException because null !instanceof Anything
+            throw new NullPointerException("TerrainPicker is null");
+        } else if (picker instanceof BresenhamTerrainPicker) {
+            ((BresenhamTerrainPicker)picker).setSupportMultipleCollisions(set);
+        } else {
+            throw new IllegalStateException("The underlying picking implementation does not support multiple collisions");
+        }
     }
 }
 

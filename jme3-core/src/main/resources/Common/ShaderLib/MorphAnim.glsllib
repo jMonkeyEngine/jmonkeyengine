@@ -3,8 +3,6 @@ A glsllib that perform morph animation.
 Note that it only handles morphing position, normals and tangents.
 */
 #ifdef NUM_MORPH_TARGETS
-    vec3 dummy_norm = vec3(0.0);
-    vec3 dummy_tan = vec3(0.0);
     #define NUM_BUFFERS NUM_MORPH_TARGETS * NUM_TARGETS_BUFFERS
     #if (NUM_BUFFERS > 0)
         uniform float m_MorphWeights[NUM_MORPH_TARGETS];
@@ -98,7 +96,7 @@ Note that it only handles morphing position, normals and tangents.
     }
 
     float Get_Inverse_Weights_Sum(){
-        float sum = 0;
+        float sum = 0.0;
         for( int i = 0;i < NUM_MORPH_TARGETS; i++){
             sum += m_MorphWeights[i];
         }
@@ -175,9 +173,12 @@ Note that it only handles morphing position, normals and tangents.
 
     void Morph_Compute(inout vec4 pos){
         #if (NUM_TARGETS_BUFFERS == 2)
-            Morph_Compute_Pos_Norm(pos,dummy_norm);
+            vec3 dummy_norm = vec3(0.0);
+            Morph_Compute_Pos_Norm(pos, dummy_norm);
             return;
         #elif (NUM_TARGETS_BUFFERS == 3)
+            vec3 dummy_norm = vec3(0.0);
+            vec3 dummy_tan = vec3(0.0);
             Morph_Compute_Pos_Norm_Tan(pos, dummy_norm, dummy_tan);
             return;
         #endif
@@ -189,6 +190,8 @@ Note that it only handles morphing position, normals and tangents.
             Morph_Compute_Pos(pos);
             return;
         #elif (NUM_TARGETS_BUFFERS == 3)
+            vec3 dummy_norm = vec3(0.0);
+            vec3 dummy_tan = vec3(0.0);
             Morph_Compute_Pos_Norm_Tan(pos, dummy_norm, dummy_tan);
             return;
         #elif  (NUM_TARGETS_BUFFERS == 2)

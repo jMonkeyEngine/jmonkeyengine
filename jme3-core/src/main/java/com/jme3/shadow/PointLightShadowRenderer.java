@@ -68,7 +68,7 @@ public class PointLightShadowRenderer extends AbstractShadowRenderer {
      * assetManager, int shadowMapSize)
      * instead.
      */
-    public PointLightShadowRenderer() {
+    protected PointLightShadowRenderer() {
         super();
     }
 

@@ -233,11 +233,13 @@ public class TransformTrack implements AnimTrack<Transform> {
         int endFrame = 1;
         float blend = 0;
         if (time >= times[lastFrame]) {
+            // extrapolate beyond the final frame of the animation
             startFrame = lastFrame;
 
-            time = time - times[startFrame] + times[startFrame - 1];
-            blend = (time - times[startFrame - 1])
-                    / (times[startFrame] - times[startFrame - 1]);
+            float inferredInterval = times[lastFrame] - times[lastFrame - 1];
+            if (inferredInterval > 0f) {
+                blend = (time - times[startFrame]) / inferredInterval;
+            }
 
         } else {
             // use lastFrame so we never overflow the array
@@ -297,7 +299,7 @@ public class TransformTrack implements AnimTrack<Transform> {
     }
 
     @Override
-    public Object jmeClone() {
+    public TransformTrack jmeClone() {
         try {
             TransformTrack clone = (TransformTrack) super.clone();
             return clone;

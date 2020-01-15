@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,7 +43,9 @@ import java.util.logging.Logger;
 import com.jme3.asset.TextureKey;
 import com.jme3.material.Material;
 import com.jme3.material.RenderState;
+import com.jme3.math.ColorRGBA;
 import com.jme3.math.Matrix4f;
+import com.jme3.renderer.Caps;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
 import com.jme3.scene.Geometry;
@@ -52,6 +54,7 @@ import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.scene.VertexBuffer.Usage;
 import com.jme3.texture.Image.Format;
+import com.jme3.texture.image.ImageRaster;
 import com.jme3.texture.Texture.MagFilter;
 import com.jme3.texture.Texture.MinFilter;
 import com.jme3.texture.Texture2D;
@@ -214,6 +217,31 @@ public class JmeBatchRenderBackend implements BatchRenderBackend {
     key.setGenerateMips(false);
 
     Texture2D texture = (Texture2D) display.getAssetManager().loadTexture(key);
+    // Fix GLES format incompatibility issue with glTexSubImage 
+    Renderer renderer = display.getRenderer();
+    if(renderer==null || renderer.getCaps().contains(Caps.OpenGLES20)) {
+        if(texture.getImage().getFormat()!=Format.RGBA8) {
+            com.jme3.texture.Image sourceImage = texture.getImage();
+            int size = sourceImage.getWidth() * sourceImage.getHeight() * 4;
+            ByteBuffer buffer = BufferUtils.createByteBuffer(size);
+            com.jme3.texture.Image rgba8Image = new com.jme3.texture.Image(Format.RGBA8,
+                                         sourceImage.getWidth(),
+                                         sourceImage.getHeight(),
+                                         buffer,
+                                         sourceImage.getColorSpace());
+            
+            ImageRaster input = ImageRaster.create(sourceImage, 0, 0, false);
+            ImageRaster output = ImageRaster.create(rgba8Image, 0, 0, false);
+            ColorRGBA color = new ColorRGBA();
+
+            for (int y = 0; y < sourceImage.getHeight(); y++) {
+                for (int x = 0; x < sourceImage.getWidth(); x++) {
+                    output.setPixel(x, y, input.getPixel(x, y, color));
+                }
+            }
+            return new ImageImpl(rgba8Image);
+        }
+    }
     return new ImageImpl(texture.getImage());
   }
 
@@ -541,7 +569,7 @@ public class JmeBatchRenderBackend implements BatchRenderBackend {
       } else if (blendMode == BlendMode.BLEND) {
           return RenderState.BlendMode.Alpha;
       } else if (blendMode == BlendMode.MULIPLY) {
-          return RenderState.BlendMode.Modulate;
+          return RenderState.BlendMode.Alpha;
       } else {
           throw new UnsupportedOperationException();
       }
