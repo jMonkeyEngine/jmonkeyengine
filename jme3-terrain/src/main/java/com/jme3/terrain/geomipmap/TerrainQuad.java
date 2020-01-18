@@ -1793,9 +1793,8 @@ public class TerrainQuad extends Node implements Terrain {
         // This was not cloned before... I think that's a mistake.
         this.affectedAreaBBox = cloner.clone(affectedAreaBBox);
 
-        // picker is not cloneable and not cloned.  This also seems like
-        // a mistake if you ever load the same terrain twice.
-        // this.picker = cloner.clone(picker);
+        // Otherwise, picker would be cloned by reference and thus "this" would be wrong
+        this.picker = new BresenhamTerrainPicker(this);
 
         // neighbourFinder is also not cloned.  Maybe that's ok.
     }
