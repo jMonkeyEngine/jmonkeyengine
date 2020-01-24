@@ -247,3 +247,7 @@ if (skipPrebuildLibraries != "true" && buildNativeProjects != "true") {
 //        enableAssertions = true // true by default
 //    }
 //}
+
+wrapper {
+    gradleVersion = '5.6.4'
+}
