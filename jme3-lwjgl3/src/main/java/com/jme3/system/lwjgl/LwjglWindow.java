@@ -555,10 +555,10 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         }
 
         // We need to reinit the mouse and keyboard input as they are tied to a window handle
-        if (keyInput != null) {
+        if (keyInput != null && keyInput.isInitialized()) {
             keyInput.resetContext();
         }
-        if (mouseInput != null) {
+        if (mouseInput != null && mouseInput.isInitialized()) {
             mouseInput.resetContext();
         }
 
