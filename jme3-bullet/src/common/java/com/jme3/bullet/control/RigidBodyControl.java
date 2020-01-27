@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -193,6 +193,7 @@ public class RigidBodyControl extends PhysicsRigidBody implements PhysicsControl
      *
      * @param spatial the spatial to control (or null)
      */
+    @Override
     public void setSpatial(Spatial spatial) {
         this.spatial = spatial;
         setUserObject(spatial);
@@ -249,6 +250,7 @@ public class RigidBodyControl extends PhysicsRigidBody implements PhysicsControl
      *
      * @param enabled true&rarr;enable the control, false&rarr;disable it
      */
+    @Override
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
         if (space != null) {
@@ -271,6 +273,7 @@ public class RigidBodyControl extends PhysicsRigidBody implements PhysicsControl
      *
      * @return true if enabled, otherwise false
      */
+    @Override
     public boolean isEnabled() {
         return enabled;
     }
@@ -347,6 +350,7 @@ public class RigidBodyControl extends PhysicsRigidBody implements PhysicsControl
      *
      * @param tpf the time interval between frames (in seconds, &ge;0)
      */
+    @Override
     public void update(float tpf) {
         if (enabled && spatial != null) {
             if (isKinematic() && kinematicSpatial) {
@@ -366,6 +370,7 @@ public class RigidBodyControl extends PhysicsRigidBody implements PhysicsControl
      * @param rm the render manager (not null)
      * @param vp the view port to render (not null)
      */
+    @Override
     public void render(RenderManager rm, ViewPort vp) {
     }
 
@@ -401,6 +406,7 @@ public class RigidBodyControl extends PhysicsRigidBody implements PhysicsControl
      *
      * @return the pre-existing space, or null for none
      */
+    @Override
     public PhysicsSpace getPhysicsSpace() {
         return space;
     }

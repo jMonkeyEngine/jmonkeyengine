@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -194,6 +194,7 @@ public class BetterCharacterControl extends AbstractPhysicsControl implements Ph
      * @param space the space that is about to be stepped (not null)
      * @param tpf the time per physics step (in seconds, &ge;0)
      */
+    @Override
     public void prePhysicsTick(PhysicsSpace space, float tpf) {
         checkOnGround();
         if (wantToUnDuck && checkCanUnDuck()) {
@@ -245,6 +246,7 @@ public class BetterCharacterControl extends AbstractPhysicsControl implements Ph
      * @param space the space that was just stepped (not null)
      * @param tpf the time per physics step (in seconds, &ge;0)
      */
+    @Override
     public void physicsTick(PhysicsSpace space, float tpf) {
         rigidBody.getLinearVelocity(velocity);
     }
