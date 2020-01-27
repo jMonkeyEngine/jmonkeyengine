@@ -103,6 +103,7 @@ import com.jme3.texture.Image;
         }
     }
 
+    @Override
     public void copyBlendingData(TextureBlender textureBlender) {
         if (textureBlender instanceof AbstractTextureBlender) {
             flag = ((AbstractTextureBlender) textureBlender).flag;

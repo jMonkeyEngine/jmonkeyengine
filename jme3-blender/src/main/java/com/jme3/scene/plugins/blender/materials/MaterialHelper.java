@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -100,9 +100,11 @@ public class MaterialHelper extends AbstractBlenderHelper {
         super(blenderVersion, blenderContext);
         // setting alpha masks
         alphaMasks.put(ALPHA_MASK_NONE, new IAlphaMask() {
+            @Override
             public void setImageSize(int width, int height) {
             }
 
+            @Override
             public byte getAlpha(float x, float y) {
                 return (byte) 255;
             }
@@ -111,11 +113,13 @@ public class MaterialHelper extends AbstractBlenderHelper {
             private float   r;
             private float[] center;
 
+            @Override
             public void setImageSize(int width, int height) {
                 r = Math.min(width, height) * 0.5f;
                 center = new float[] { width * 0.5f, height * 0.5f };
             }
 
+            @Override
             public byte getAlpha(float x, float y) {
                 float d = FastMath.abs(FastMath.sqrt((x - center[0]) * (x - center[0]) + (y - center[1]) * (y - center[1])));
                 return (byte) (d >= r ? 0 : 255);
@@ -125,11 +129,13 @@ public class MaterialHelper extends AbstractBlenderHelper {
             private float   r;
             private float[] center;
 
+            @Override
             public void setImageSize(int width, int height) {
                 r = Math.min(width, height) * 0.5f;
                 center = new float[] { width * 0.5f, height * 0.5f };
             }
 
+            @Override
             public byte getAlpha(float x, float y) {
                 float d = FastMath.abs(FastMath.sqrt((x - center[0]) * (x - center[0]) + (y - center[1]) * (y - center[1])));
                 return (byte) (d >= r ? 0 : -255.0f * d / r + 255.0f);
@@ -139,11 +145,13 @@ public class MaterialHelper extends AbstractBlenderHelper {
             private float   r;
             private float[] center;
 
+            @Override
             public void setImageSize(int width, int height) {
                 r = Math.min(width, height) * 0.5f;
                 center = new float[] { width * 0.5f, height * 0.5f };
             }
 
+            @Override
             public byte getAlpha(float x, float y) {
                 float d = FastMath.abs(FastMath.sqrt((x - center[0]) * (x - center[0]) + (y - center[1]) * (y - center[1]))) / r;
                 return d >= 1.0f ? 0 : (byte) ((-FastMath.sqrt((2.0f - d) * d) + 1.0f) * 255.0f);
