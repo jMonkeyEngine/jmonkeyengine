@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -282,6 +282,7 @@ public class TerrainQuad extends Node implements Terrain {
      * calculator. This routine can take a long time to run!
      * @param progressMonitor optional
      */
+    @Override
     public void generateEntropy(ProgressMonitor progressMonitor) {
         // only check this on the root quad
         if (isRootQuad())
@@ -313,10 +314,12 @@ public class TerrainQuad extends Node implements Terrain {
         return (getParent() != null && !(getParent() instanceof TerrainQuad) );
     }
 
+    @Override
     public Material getMaterial() {
         return getMaterial(null);
     }
 
+    @Override
     public Material getMaterial(Vector3f worldLocation) {
         // get the material from one of the children. They all share the same material
         if (children != null) {
@@ -332,6 +335,7 @@ public class TerrainQuad extends Node implements Terrain {
         return null;
     }
 
+    @Override
     public int getNumMajorSubdivisions() {
         return 1;
     }
@@ -873,6 +877,7 @@ public class TerrainQuad extends Node implements Terrain {
         affectedAreaBBox = new BoundingBox(getWorldTranslation(), Float.MAX_VALUE, Float.MAX_VALUE, Float.MAX_VALUE);
     }
 
+    @Override
     public float getHeightmapHeight(Vector2f xz) {
         // offset
         int halfSize = totalSize / 2;
@@ -1048,6 +1053,7 @@ public class TerrainQuad extends Node implements Terrain {
      * @param xz the location to get the height for
      * @return Float.NAN if the value does not exist, or the coordinates are outside of the terrain
      */
+    @Override
     public float getHeight(Vector2f xz) {
         // offset
         float x = (float)(((xz.x - getWorldTranslation().x) / getWorldScale().x) + (float)(totalSize-1) / 2f);
@@ -1075,6 +1081,7 @@ public class TerrainQuad extends Node implements Terrain {
         return Float.NaN;
     }
 
+    @Override
     public Vector3f getNormal(Vector2f xz) {
         // offset
         float x = (float)(((xz.x - getWorldTranslation().x) / getWorldScale().x) + (float)(totalSize-1) / 2f);
@@ -1107,6 +1114,7 @@ public class TerrainQuad extends Node implements Terrain {
         return n1.add(n2).add(n3).add(n4).normalize();
     }
 
+    @Override
     public void setHeight(Vector2f xz, float height) {
         List<Vector2f> coord = new ArrayList<Vector2f>();
         coord.add(xz);
@@ -1116,6 +1124,7 @@ public class TerrainQuad extends Node implements Terrain {
         setHeight(coord, h);
     }
 
+    @Override
     public void adjustHeight(Vector2f xz, float delta) {
         List<Vector2f> coord = new ArrayList<Vector2f>();
         coord.add(xz);
@@ -1125,10 +1134,12 @@ public class TerrainQuad extends Node implements Terrain {
         adjustHeight(coord, h);
     }
 
+    @Override
     public void setHeight(List<Vector2f> xz, List<Float> height) {
         setHeight(xz, height, true);
     }
 
+    @Override
     public void adjustHeight(List<Vector2f> xz, List<Float> height) {
         setHeight(xz, height, false);
     }
@@ -1265,6 +1276,7 @@ public class TerrainQuad extends Node implements Terrain {
     }
 
 
+    @Override
     public int getTerrainSize() {
         return totalSize;
     }
@@ -1290,6 +1302,7 @@ public class TerrainQuad extends Node implements Terrain {
      * Locked meshes are uneditable but have better performance.
      * @param locked or unlocked
      */
+    @Override
     public void setLocked(boolean locked) {
         for (int i = 0; i < this.getQuantity(); i++) {
             if (this.getChild(i) instanceof TerrainQuad) {
@@ -1827,6 +1840,7 @@ public class TerrainQuad extends Node implements Terrain {
         }
     }
 
+    @Override
     public int getMaxLod() {
         if (maxLod < 0)
             maxLod = Math.max(1, (int) (FastMath.log(size-1)/FastMath.log(2)) -1); // -1 forces our minimum of 4 triangles wide
@@ -1842,6 +1856,7 @@ public class TerrainQuad extends Node implements Terrain {
         return totalSize;
     }
 
+    @Override
     public float[] getHeightMap() {
 
         float[] hm = null;
