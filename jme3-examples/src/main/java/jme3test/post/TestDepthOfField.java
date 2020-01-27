@@ -89,6 +89,7 @@ public class TestDepthOfField extends SimpleApplication {
 
         inputManager.addListener(new ActionListener() {
 
+            @Override
             public void onAction(String name, boolean isPressed, float tpf) {
                 if (isPressed) {
                     if (name.equals("toggle")) {
@@ -101,6 +102,7 @@ public class TestDepthOfField extends SimpleApplication {
         }, "toggle");
         inputManager.addListener(new AnalogListener() {
 
+            @Override
             public void onAnalog(String name, float value, float tpf) {
                 if (name.equals("blurScaleUp")) {
                     dofFilter.setBlurScale(dofFilter.getBlurScale() + 0.01f);

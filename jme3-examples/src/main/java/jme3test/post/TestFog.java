@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -66,6 +66,7 @@ public class TestFog extends SimpleApplication {
         app.start();
     }
 
+    @Override
     public void simpleInitApp() {
         this.flyCam.setMoveSpeed(50);
         Node mainScene=new Node();
@@ -113,6 +114,7 @@ public class TestFog extends SimpleApplication {
 
         ActionListener acl = new ActionListener() {
 
+            @Override
             public void onAction(String name, boolean keyPressed, float tpf) {
                 if (name.equals("toggle") && keyPressed) {
                     if(enabled){
@@ -129,6 +131,7 @@ public class TestFog extends SimpleApplication {
 
         AnalogListener anl=new AnalogListener() {
 
+            @Override
             public void onAnalog(String name, float isPressed, float tpf) {
                 if(name.equals("DensityUp")){
                     fog.setFogDensity(fog.getFogDensity()+0.001f);

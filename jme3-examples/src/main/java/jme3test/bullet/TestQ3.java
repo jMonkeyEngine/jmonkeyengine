@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -70,6 +70,7 @@ public class TestQ3 extends SimpleApplication implements ActionListener {
         app.start();
     }
 
+    @Override
     public void simpleInitApp() {
         bulletAppState = new BulletAppState();
         stateManager.attach(bulletAppState);
@@ -152,6 +153,7 @@ public class TestQ3 extends SimpleApplication implements ActionListener {
         inputManager.addListener(this,"Space");
     }
 
+    @Override
     public void onAction(String binding, boolean value, float tpf) {
 
         if (binding.equals("Lefts")) {

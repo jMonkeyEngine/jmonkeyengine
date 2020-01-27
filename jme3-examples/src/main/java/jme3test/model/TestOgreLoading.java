@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -55,6 +55,7 @@ public class TestOgreLoading extends SimpleApplication {
         app.start();
     }
 
+    @Override
     public void simpleInitApp() {
 //        PointLight pl = new PointLight();
 //        pl.setPosition(new Vector3f(10, 10, -10));

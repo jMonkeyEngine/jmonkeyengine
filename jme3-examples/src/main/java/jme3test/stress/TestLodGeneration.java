@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -66,6 +66,7 @@ public class TestLodGeneration extends SimpleApplication {
     private ScheduledThreadPoolExecutor exec = new ScheduledThreadPoolExecutor(5);
     private AnimChannel ch;
 
+    @Override
     public void simpleInitApp() {
 
         DirectionalLight dl = new DirectionalLight();
@@ -124,6 +125,7 @@ public class TestLodGeneration extends SimpleApplication {
         guiNode.attachChild(hudText);
 
         inputManager.addListener(new ActionListener() {
+            @Override
             public void onAction(String name, boolean isPressed, float tpf) {
                 if (isPressed) {
                     if (name.equals("plus")) {
@@ -211,12 +213,14 @@ public class TestLodGeneration extends SimpleApplication {
 
     private void makeLod(final LodGenerator.TriangleReductionMethod method, final float value, final int ll) {
         exec.execute(new Runnable() {
+            @Override
             public void run() {
                 for (final Geometry geometry : listGeoms) {
                     LodGenerator lODGenerator = new LodGenerator(geometry);
                     final VertexBuffer[] lods = lODGenerator.computeLods(method, value);
 
                     enqueue(new Callable<Void>() {
+                        @Override
                         public Void call() throws Exception {
                             geometry.getMesh().setLodLevels(lods);
                             lodLevel = 0;

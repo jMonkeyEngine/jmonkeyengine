@@ -237,6 +237,7 @@ public class TestChooser extends JDialog {
      */
     private FileFilter getFileFilter() {
         return new FileFilter() {
+            @Override
             public boolean accept(File pathname) {
                 return (pathname.isDirectory() && !pathname.getName().startsWith("."))
                         || (pathname.getName().endsWith(".class")
@@ -256,6 +257,7 @@ public class TestChooser extends JDialog {
         }
 
             new Thread(new Runnable(){
+                @Override
                 public void run(){
                     for (int i = 0; i < appClass.size(); i++) {
                 	    Class<?> clazz = (Class)appClass.get(i);
@@ -332,11 +334,13 @@ public class TestChooser extends JDialog {
 
         list.getSelectionModel().addListSelectionListener(
                 new ListSelectionListener() {
+                    @Override
                     public void valueChanged(ListSelectionEvent e) {
                         selectedClass = list.getSelectedValuesList();
                     }
                 });
         list.addMouseListener(new MouseAdapter() {
+            @Override
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() == 2 && selectedClass != null) {
                     startApp(selectedClass);
@@ -362,6 +366,7 @@ public class TestChooser extends JDialog {
         buttonPanel.add(okButton);
         getRootPane().setDefaultButton(okButton);
         okButton.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 startApp(selectedClass);
             }
@@ -371,6 +376,7 @@ public class TestChooser extends JDialog {
         cancelButton.setMnemonic('C');
         buttonPanel.add(cancelButton);
         cancelButton.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 dispose();
             }
@@ -386,6 +392,7 @@ public class TestChooser extends JDialog {
         private String filter;
         private ListModel originalModel;
 
+        @Override
         public void setModel(ListModel m) {
             originalModel = m;
             super.setModel(m);
@@ -471,19 +478,23 @@ public class TestChooser extends JDialog {
                 BorderLayout.WEST);
         final javax.swing.JTextField jtf = new javax.swing.JTextField();
         jtf.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
             public void removeUpdate(DocumentEvent e) {
                 classes.setFilter(jtf.getText());
             }
 
+            @Override
             public void insertUpdate(DocumentEvent e) {
                 classes.setFilter(jtf.getText());
             }
 
+            @Override
             public void changedUpdate(DocumentEvent e) {
                 classes.setFilter(jtf.getText());
             }
         });
         jtf.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 selectedClass = classes.getSelectedValuesList();
                 startApp(selectedClass);
@@ -492,6 +503,7 @@ public class TestChooser extends JDialog {
         final JCheckBox showSettingCheck = new JCheckBox("Show Setting");
         showSettingCheck.setSelected(true);
         showSettingCheck.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 showSetting = showSettingCheck.isSelected();
             }

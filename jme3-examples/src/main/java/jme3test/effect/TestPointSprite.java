@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -75,6 +75,7 @@ public class TestPointSprite extends SimpleApplication {
         rootNode.attachChild(emit);
         inputManager.addListener(new ActionListener() {
             
+            @Override
             public void onAction(String name, boolean isPressed, float tpf) {
                 if ("setNum".equals(name) && isPressed) {
                     emit.setNumParticles(5000);

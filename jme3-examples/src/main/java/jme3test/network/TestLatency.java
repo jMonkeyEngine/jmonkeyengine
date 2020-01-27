@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -79,6 +79,7 @@ public class TestLatency {
         client.start();
         
         client.addMessageListener(new MessageListener<Client>(){
+            @Override
             public void messageReceived(Client source, Message m) {
                 TimestampMessage timeMsg = (TimestampMessage) m;
 
@@ -103,6 +104,7 @@ public class TestLatency {
         }, TimestampMessage.class);
 
         server.addMessageListener(new MessageListener<HostedConnection>(){
+            @Override
             public void messageReceived(HostedConnection source, Message m) {
                 TimestampMessage timeMsg = (TimestampMessage) m;
                 TimestampMessage outMsg = new TimestampMessage(timeMsg.timeSent, getTime());

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -225,6 +225,7 @@ public class PhysicsTestHelper {
     public static void createBallShooter(final Application app, final Node rootNode, final PhysicsSpace space) {
         ActionListener actionListener = new ActionListener() {
 
+            @Override
             public void onAction(String name, boolean keyPressed, float tpf) {
                 Sphere bullet = new Sphere(32, 32, 0.4f, true, false);
                 bullet.setTextureMode(TextureMode.Projected);

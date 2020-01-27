@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -142,6 +142,7 @@ public class TestBrickTower extends SimpleApplication {
     }
     private ActionListener actionListener = new ActionListener() {
 
+        @Override
         public void onAction(String name, boolean keyPressed, float tpf) {
             if (name.equals("shoot") && !keyPressed) {
                 Geometry bulletg = new Geometry("bullet", bullet);

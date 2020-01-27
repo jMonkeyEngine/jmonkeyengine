@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -61,6 +61,7 @@ public class TestBlendEquations extends SimpleApplication {
         app.start();
     }
 
+    @Override
     public void simpleInitApp() {
         cam.setLocation(new Vector3f(0f, 0.5f, 3f));
         viewPort.setBackgroundColor(ColorRGBA.LightGray);

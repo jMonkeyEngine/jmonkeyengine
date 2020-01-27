@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -90,6 +90,7 @@ public class HelloPicking extends SimpleApplication {
   /** Defining the "Shoot" action: Determine what was hit and how to respond. */
   private ActionListener actionListener = new ActionListener() {
 
+    @Override
     public void onAction(String name, boolean keyPressed, float tpf) {
       if (name.equals("Shoot") && !keyPressed) {
         // 1. Reset results list.

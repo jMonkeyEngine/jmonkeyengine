@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,6 +50,7 @@ public class TestParallelProjection  extends SimpleApplication implements Analog
         app.start();
     }
 
+    @Override
     public void simpleInitApp() {
         Geometry teaGeom = (Geometry) assetManager.loadModel("Models/Teapot/Teapot.obj");
 
@@ -70,6 +71,7 @@ public class TestParallelProjection  extends SimpleApplication implements Analog
         inputManager.addMapping("Size-", new KeyTrigger(KeyInput.KEY_S));
     }
 
+    @Override
     public void onAnalog(String name, float value, float tpf) {
         // Instead of moving closer/farther to object, we zoom in/out.
         if (name.equals("Size-"))

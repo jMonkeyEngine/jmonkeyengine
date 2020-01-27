@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -66,6 +66,7 @@ public class TestMultiplesFilters extends SimpleApplication {
     FilterPostProcessor fpp;
     boolean en = true;
 
+    @Override
     public void simpleInitApp() {
         this.flyCam.setMoveSpeed(10);
         cam.setLocation(new Vector3f(6.0344796f, 1.5054002f, 55.572033f));
@@ -117,6 +118,7 @@ public class TestMultiplesFilters extends SimpleApplication {
         
         inputManager.addListener(new ActionListener() {
 
+            @Override
             public void onAction(String name, boolean isPressed, float tpf) {
                 if ("toggleSSAO".equals(name) && isPressed) {
                     if (ssaoFilter.isEnabled()) {

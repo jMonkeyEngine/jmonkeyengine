@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -121,6 +121,7 @@ public class TestMultiRenderTarget extends SimpleApplication implements ScenePro
                                          FastMath.sin(angle)*3f));
         }
     }
+    @Override
     public void initialize(RenderManager rm, ViewPort vp) {
         reshape(vp, vp.getCamera().getWidth(), vp.getCamera().getHeight());
         viewPort.setOutputFrameBuffer(fb);
@@ -133,6 +134,7 @@ public class TestMultiRenderTarget extends SimpleApplication implements ScenePro
         guiNode.updateGeometricState();
     }
 
+    @Override
     public void reshape(ViewPort vp, int w, int h) {
         diffuseData  = new Texture2D(w, h, Format.RGBA8);
         normalData   = new Texture2D(w, h, Format.RGBA8);
@@ -211,10 +213,12 @@ public class TestMultiRenderTarget extends SimpleApplication implements ScenePro
          */
     }
 
+    @Override
     public boolean isInitialized() {
         return diffuseData != null;
     }
 
+    @Override
     public void preFrame(float tpf) {
         Matrix4f inverseViewProj = cam.getViewProjectionMatrix().invert();
         mat.setMatrix4("ViewProjectionMatrixInverse", inverseViewProj);
@@ -222,13 +226,16 @@ public class TestMultiRenderTarget extends SimpleApplication implements ScenePro
         renderManager.setForcedTechnique("GBuf");
     }
 
+    @Override
     public void postQueue(RenderQueue rq) {
     }
 
+    @Override
     public void postFrame(FrameBuffer out) {
         renderManager.setForcedTechnique(techOrig);
     }
 
+    @Override
     public void cleanup() {
     }
 

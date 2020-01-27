@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -87,6 +87,7 @@ public class TestCollisionListener extends SimpleApplication implements PhysicsC
         //TODO: add render code
     }
 
+    @Override
     public void collision(PhysicsCollisionEvent event) {
         if ("Box".equals(event.getNodeA().getName()) || "Box".equals(event.getNodeB().getName())) {
             if ("bullet".equals(event.getNodeA().getName()) || "bullet".equals(event.getNodeB().getName())) {

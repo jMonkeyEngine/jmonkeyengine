@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -85,6 +85,7 @@ public class TestApplet extends Applet {
         app.startCanvas();
 
         app.enqueue(new Callable<Void>(){
+            @Override
             public Void call(){
                 if (app instanceof SimpleApplication){
                     SimpleApplication simpleApp = (SimpleApplication) app;
@@ -133,6 +134,7 @@ public class TestApplet extends Applet {
     @Override
     public void destroy(){
         SwingUtilities.invokeLater(new Runnable(){
+            @Override
             public void run(){
                 removeAll();
                 System.out.println("applet:destroyStart");

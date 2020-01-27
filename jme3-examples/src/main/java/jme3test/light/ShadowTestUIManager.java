@@ -80,6 +80,7 @@ public class ShadowTestUIManager implements ActionListener {
     }
 
 
+    @Override
     public void onAction(String name, boolean keyPressed, float tpf) {
         if (name.equals("toggle") && keyPressed) {
             renderModeIndex += 1;

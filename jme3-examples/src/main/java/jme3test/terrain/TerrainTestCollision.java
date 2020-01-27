@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -248,6 +248,7 @@ public class TerrainTestCollision extends SimpleApplication {
 
     private ActionListener actionListener = new ActionListener() {
 
+        @Override
         public void onAction(String binding, boolean keyPressed, float tpf) {
             if (binding.equals("wireframe") && !keyPressed) {
                 wireframe = !wireframe;
