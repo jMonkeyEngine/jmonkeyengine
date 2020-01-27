@@ -34,8 +34,8 @@ package com.jme3.niftygui;
 import com.jme3.asset.AssetManager;
 import com.jme3.audio.AudioData;
 import com.jme3.audio.AudioNode;
-import com.jme3.audio.AudioSource.Status;
 import com.jme3.audio.AudioRenderer;
+import com.jme3.audio.AudioSource.Status;
 import de.lessvoid.nifty.spi.sound.SoundHandle;
 
 public class SoundHandleJme implements SoundHandle {
@@ -68,10 +68,11 @@ public class SoundHandleJme implements SoundHandle {
         if (fileName == null) {
             throw new NullPointerException();
         }
-        
+
         this.fileName = fileName;
     }
 
+    @Override
     public void play() {
         if (fileName != null){
             if (node != null){
@@ -87,6 +88,7 @@ public class SoundHandleJme implements SoundHandle {
         }
     }
 
+    @Override
     public void stop() {
         if (node != null){
             node.stop();
@@ -98,6 +100,7 @@ public class SoundHandleJme implements SoundHandle {
         }
     }
 
+    @Override
     public void setVolume(float f) {
         if (node != null) {
             node.setVolume(f);
@@ -105,14 +108,17 @@ public class SoundHandleJme implements SoundHandle {
         volume = f;
     }
 
+    @Override
     public float getVolume() {
         return volume;
     }
 
+    @Override
     public boolean isPlaying() {
         return node != null && node.getStatus() == Status.Playing;
     }
 
+    @Override
     public void dispose() {
     }
 }

@@ -50,20 +50,24 @@ public class SoundDeviceJme implements SoundDevice {
         this.ar = ar;
     }
 
+    @Override
     public void setResourceLoader(NiftyResourceLoader niftyResourceLoader) {
     }
 
+    @Override
     public SoundHandle loadSound(SoundSystem soundSystem, String filename) {
         AudioNode an = new AudioNode(assetManager, filename, AudioData.DataType.Buffer);
         an.setPositional(false);
         return new SoundHandleJme(ar, an);
     }
 
+    @Override
     public SoundHandle loadMusic(SoundSystem soundSystem, String filename) {
         return new SoundHandleJme(ar, assetManager, filename);
     }
 
+    @Override
     public void update(int delta) {
     }
-    
+
 }
