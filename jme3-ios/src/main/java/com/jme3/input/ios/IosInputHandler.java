@@ -107,6 +107,7 @@ public class IosInputHandler implements TouchInput {
         this.keyboardEventsEnabled = simulate;
     }
 
+    @Override
     public boolean isSimulateKeyboard() {
         return keyboardEventsEnabled;
     }
