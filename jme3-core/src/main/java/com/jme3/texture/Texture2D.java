@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -121,6 +121,7 @@ public class Texture2D extends Texture {
      * @throws IllegalArgumentException
      *             if axis or mode are null
      */
+    @Override
     public void setWrap(WrapAxis axis, WrapMode mode) {
         if (mode == null) {
             throw new IllegalArgumentException("mode can not be null.");
@@ -147,6 +148,7 @@ public class Texture2D extends Texture {
      * @throws IllegalArgumentException
      *             if mode is null
      */
+    @Override
     public void setWrap(WrapMode mode) {
         if (mode == null) {
             throw new IllegalArgumentException("mode can not be null.");
@@ -165,6 +167,7 @@ public class Texture2D extends Texture {
      * @throws IllegalArgumentException
      *             if axis is null
      */
+    @Override
     public WrapMode getWrap(WrapAxis axis) {
         switch (axis) {
             case S:

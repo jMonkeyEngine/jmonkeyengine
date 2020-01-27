@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -958,6 +958,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      *            the object to compare for equality
      * @return true if they are equal
      */
+    @Override
     public boolean equals(Object o) {
         if (!(o instanceof Vector3f)) { return false; }
 
@@ -996,6 +997,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      * the same hash code value.
      * @return the hash code value of this vector.
      */
+    @Override
     public int hashCode() {
         int hash = 37;
         hash += 37 * hash + Float.floatToIntBits(x);
@@ -1012,10 +1014,12 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      *
      * @return the string representation of this vector.
      */
+    @Override
     public String toString() {
         return "(" + x + ", " + y + ", " + z + ")";
     }
 
+    @Override
     public void write(JmeExporter e) throws IOException {
         OutputCapsule capsule = e.getCapsule(this);
         capsule.write(x, "x", 0);
@@ -1023,6 +1027,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
         capsule.write(z, "z", 0);
     }
 
+    @Override
     public void read(JmeImporter e) throws IOException {
         InputCapsule capsule = e.getCapsule(this);
         x = capsule.readFloat("x", 0);

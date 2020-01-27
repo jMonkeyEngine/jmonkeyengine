@@ -49,6 +49,7 @@ public class BlendAction extends BlendableAction {
         }
     }
 
+    @Override
     public void doInterpolate(double t) {
         blendWeight = blendSpace.getWeight();
         BlendableAction firstActiveAction = (BlendableAction) actions[firstActiveIndex];

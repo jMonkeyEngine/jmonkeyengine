@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -141,6 +141,7 @@ public class ParticleEmitter extends Geometry {
             this.parentEmitter = cloner.clone(parentEmitter);
         }
 
+        @Override
         public void setSpatial(Spatial spatial) {
         }
 
@@ -152,17 +153,21 @@ public class ParticleEmitter extends Geometry {
             return parentEmitter.isEnabled();
         }
 
+        @Override
         public void update(float tpf) {
             parentEmitter.updateFromControl(tpf);
         }
 
+        @Override
         public void render(RenderManager rm, ViewPort vp) {
             parentEmitter.renderFromControl(rm, vp);
         }
 
+        @Override
         public void write(JmeExporter ex) throws IOException {
         }
 
+        @Override
         public void read(JmeImporter im) throws IOException {
         }
     }
@@ -180,6 +185,7 @@ public class ParticleEmitter extends Geometry {
     /**
      *  The old clone() method that did not use the new Cloner utility.
      */
+    @Override
     public ParticleEmitter oldClone(boolean cloneMaterial) {
         ParticleEmitter clone = (ParticleEmitter) super.clone(cloneMaterial);
         clone.shape = shape.deepClone();

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -99,26 +99,32 @@ public class DesktopAssetManager implements AssetManager {
         }
     }
     
+    @Override
     public void addClassLoader(ClassLoader loader) {
         classLoaders.add(loader);
     }
     
+    @Override
     public void removeClassLoader(ClassLoader loader) {
         classLoaders.remove(loader);
     }
 
+    @Override
     public List<ClassLoader> getClassLoaders(){
         return Collections.unmodifiableList(classLoaders);
     }
     
+    @Override
     public void addAssetEventListener(AssetEventListener listener) {
         eventListeners.add(listener);
     }
 
+    @Override
     public void removeAssetEventListener(AssetEventListener listener) {
         eventListeners.remove(listener);
     }
 
+    @Override
     public void clearAssetEventListeners() {
         eventListeners.clear();
     }
@@ -128,6 +134,7 @@ public class DesktopAssetManager implements AssetManager {
         eventListeners.add(listener);
     }
 
+    @Override
     public void registerLoader(Class<? extends AssetLoader> loader, String ... extensions){
         handler.addLoader(loader, extensions);
         if (logger.isLoggable(Level.FINER)){
@@ -150,6 +157,7 @@ public class DesktopAssetManager implements AssetManager {
         }
     }
     
+    @Override
     public void unregisterLoader(Class<? extends AssetLoader> loaderClass) {
         handler.removeLoader(loaderClass);
         if (logger.isLoggable(Level.FINER)){
@@ -158,6 +166,7 @@ public class DesktopAssetManager implements AssetManager {
         }
     }
 
+    @Override
     public void registerLocator(String rootPath, Class<? extends AssetLocator> locatorClass){
         handler.addLocator(locatorClass, rootPath);
         if (logger.isLoggable(Level.FINER)){
@@ -180,6 +189,7 @@ public class DesktopAssetManager implements AssetManager {
         }
     }
     
+    @Override
     public void unregisterLocator(String rootPath, Class<? extends AssetLocator> clazz){
         handler.removeLocator(clazz, rootPath);
         if (logger.isLoggable(Level.FINER)){
@@ -188,6 +198,7 @@ public class DesktopAssetManager implements AssetManager {
         }
     }
     
+    @Override
     public AssetInfo locateAsset(AssetKey<?> key){
         AssetInfo info = handler.tryLocate(key);
         if (info == null){
@@ -383,48 +394,59 @@ public class DesktopAssetManager implements AssetManager {
         return clone;
     }
 
+    @Override
     public Object loadAsset(String name){
         return loadAsset(new AssetKey(name));
     }
 
+    @Override
     public Texture loadTexture(TextureKey key){                
         return (Texture) loadAsset(key);
     }
 
+    @Override
     public Material loadMaterial(String name){
         return (Material) loadAsset(new MaterialKey(name));
     }
 
+    @Override
     public Texture loadTexture(String name){
         TextureKey key = new TextureKey(name, true);
         key.setGenerateMips(true);
         return loadTexture(key);
     }
 
+    @Override
     public AudioData loadAudio(AudioKey key){
         return (AudioData) loadAsset(key);
     }
 
+    @Override
     public AudioData loadAudio(String name){
         return loadAudio(new AudioKey(name, false));
     }
 
+    @Override
     public BitmapFont loadFont(String name){
         return (BitmapFont) loadAsset(new AssetKey(name));
     }
 
+    @Override
     public Spatial loadModel(ModelKey key){
         return (Spatial) loadAsset(key);
     }
 
+    @Override
     public Spatial loadModel(String name){
         return loadModel(new ModelKey(name));
     }
 
+    @Override
     public FilterPostProcessor loadFilter(FilterKey key){
         return (FilterPostProcessor) loadAsset(key);
     }
 
+    @Override
     public FilterPostProcessor loadFilter(String name){
         return loadFilter(new FilterKey(name));
     }

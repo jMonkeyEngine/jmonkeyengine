@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -424,10 +424,12 @@ public abstract class Texture implements CloneableSmartAsset, Savable, Cloneable
     /**
      * @param key The texture key that was used to load this texture
      */
+    @Override
     public void setKey(AssetKey key){
         this.key = (TextureKey) key;
     }
 
+    @Override
     public AssetKey getKey(){
         return this.key;
     }
@@ -587,6 +589,7 @@ public abstract class Texture implements CloneableSmartAsset, Savable, Cloneable
     @Deprecated
     public abstract Texture createSimpleClone();
 
+    @Override
     public void write(JmeExporter e) throws IOException {
         OutputCapsule capsule = e.getCapsule(this);
         capsule.write(name, "name", null);
@@ -605,6 +608,7 @@ public abstract class Texture implements CloneableSmartAsset, Savable, Cloneable
                 MagFilter.Bilinear);
     }
 
+    @Override
     public void read(JmeImporter e) throws IOException {
         InputCapsule capsule = e.getCapsule(this);
         name = capsule.readString("name", null);

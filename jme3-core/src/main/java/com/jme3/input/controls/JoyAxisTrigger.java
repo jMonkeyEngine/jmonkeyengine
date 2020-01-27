@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -65,10 +65,12 @@ public class JoyAxisTrigger implements Trigger {
         return negative;
     }
 
+    @Override
     public String getName() {
         return "JoyAxis[joyId="+joyId+", axisId="+axisId+", neg="+negative+"]";
     }
 
+    @Override
     public int triggerHashCode() {
         return joyAxisHash(joyId, axisId, negative);
     }

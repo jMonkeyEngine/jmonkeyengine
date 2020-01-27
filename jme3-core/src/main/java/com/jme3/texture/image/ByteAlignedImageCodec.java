@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -109,6 +109,7 @@ class ByteAlignedImageCodec extends ImageCodec {
 //        }
     }
     
+    @Override
     public void readComponents(ByteBuffer buf, int x, int y, int width, int offset, int[] components, byte[] tmp) {
         readPixelRaw(buf, (x + y * width ) * bpp + offset, bpp, tmp);
         components[0] = readComponent(tmp, ap, az);
@@ -117,6 +118,7 @@ class ByteAlignedImageCodec extends ImageCodec {
         components[3] = readComponent(tmp, bp, bz);
     }
     
+    @Override
     public void writeComponents(ByteBuffer buf, int x, int y, int width, int offset, int[] components, byte[] tmp) {
         writeComponent(components[0], ap, az, tmp);
         writeComponent(components[1], rp, rz, tmp);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -339,6 +339,7 @@ public class HttpZipLocator implements AssetLocator {
         return openStream(entry);
     }
 
+    @Override
     public void setRootPath(String path){
         if (!rootPath.equals(path)){
             rootPath = path;
@@ -350,6 +351,7 @@ public class HttpZipLocator implements AssetLocator {
         }
     }
 
+    @Override
     public AssetInfo locate(AssetManager manager, AssetKey key){
         final ZipEntry2 entry = entries.get(key.getName());
         if (entry == null)

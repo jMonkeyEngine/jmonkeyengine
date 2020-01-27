@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,6 +41,7 @@ public abstract class AbstractTriangle implements Collidable {
     public abstract Vector3f get3();
     public abstract void set(Vector3f v1, Vector3f v2, Vector3f v3);
 
+    @Override
     public int collideWith(Collidable other, CollisionResults results){
         return other.collideWith(this, results);
     }

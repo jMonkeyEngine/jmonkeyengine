@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,10 +39,12 @@ package com.jme3.asset;
  */
 public class CloneableAssetProcessor implements AssetProcessor {
 
+    @Override
     public Object postProcess(AssetKey key, Object obj) {
         return obj;
     }
 
+    @Override
     public Object createClone(Object obj) {
         CloneableSmartAsset asset = (CloneableSmartAsset) obj;
         return asset.clone();

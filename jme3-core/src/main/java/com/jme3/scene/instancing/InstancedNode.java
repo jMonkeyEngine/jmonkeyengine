@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2018 jMonkeyEngine
+ * Copyright (c) 2014-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -151,19 +151,24 @@ public class InstancedNode extends GeometryGroupNode {
             this.node = cloner.clone(node);
         }
 
+        @Override
         public void setSpatial(Spatial spatial){
         }
 
+        @Override
         public void update(float tpf){
         }
 
+        @Override
         public void render(RenderManager rm, ViewPort vp) {
             node.renderFromControl();
         }
 
+        @Override
         public void write(JmeExporter ex) throws IOException {
         }
 
+        @Override
         public void read(JmeImporter im) throws IOException {
         }
     }
