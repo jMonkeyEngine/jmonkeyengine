@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -120,6 +120,7 @@ public class JmeDesktopSystem extends JmeSystemDelegate {
         if (!GraphicsEnvironment.isHeadless()) {
             final String msg = message;
             EventQueue.invokeLater(new Runnable() {
+                @Override
                 public void run() {
                     ErrorDialog.showDialog(msg);
                 }
@@ -155,6 +156,7 @@ public class JmeDesktopSystem extends JmeSystemDelegate {
 
         final SelectionListener selectionListener = new SelectionListener() {
 
+            @Override
             public void onSelection(int selection) {
                 synchronized (lock) {
                     done.set(true);
@@ -165,6 +167,7 @@ public class JmeDesktopSystem extends JmeSystemDelegate {
         };
         SwingUtilities.invokeLater(new Runnable() {
 
+            @Override
             public void run() {
                 synchronized (lock) {
                     SettingsDialog dialog = new SettingsDialog(settings, iconUrl, loadFromRegistry);
