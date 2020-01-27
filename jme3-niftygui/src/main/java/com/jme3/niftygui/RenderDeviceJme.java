@@ -219,7 +219,7 @@ public class RenderDeviceJme implements RenderDevice {
     }
 
     private RenderState.BlendMode convertBlend(BlendMode blendMode) {
-        if (null == blendMode) {
+        if (blendMode == null) {
             return RenderState.BlendMode.Off;
         } else
             switch (blendMode) {

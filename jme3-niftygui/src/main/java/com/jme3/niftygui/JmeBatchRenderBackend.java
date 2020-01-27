@@ -578,7 +578,7 @@ public class JmeBatchRenderBackend implements BatchRenderBackend {
         }
 
         private RenderState.BlendMode convertBlend(final BlendMode blendMode) {
-            if (null == blendMode) {
+            if (blendMode == null) {
                 return RenderState.BlendMode.Off;
             } else {
                 switch (blendMode) {
