@@ -204,6 +204,7 @@ public class JmeAndroidSystem extends JmeSystemDelegate {
     public void showSoftKeyboard(final boolean show) {
         view.getHandler().post(new Runnable() {
 
+            @Override
             public void run() {
                 InputMethodManager manager =
                         (InputMethodManager)view.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
