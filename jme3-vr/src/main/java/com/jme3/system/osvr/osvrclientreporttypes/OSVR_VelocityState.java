@@ -20,6 +20,7 @@ public class OSVR_VelocityState extends Structure {
 	public OSVR_VelocityState() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("linearVelocity", "linearVelocityValid", "angularVelocity", "angularVelocityValid");
 	}

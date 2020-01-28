@@ -1,7 +1,7 @@
 package com.jme3.shadow;
 
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -327,6 +327,7 @@ public abstract class AbstractShadowRendererVR implements SceneProcessor, Savabl
      * @param rm the render manager
      * @param vp the viewport
      */
+    @Override
     public void initialize(RenderManager rm, ViewPort vp) {
         renderManager = rm;
         viewPort = vp;
@@ -346,6 +347,7 @@ public abstract class AbstractShadowRendererVR implements SceneProcessor, Savabl
      *
      * @return true if initialized, otherwise false
      */
+    @Override
     public boolean isInitialized() {
         return viewPort != null;
     }
@@ -392,6 +394,7 @@ public abstract class AbstractShadowRendererVR implements SceneProcessor, Savabl
     }
 
     @SuppressWarnings("fallthrough")
+    @Override
     public void postQueue(RenderQueue rq) {
         lightReceivers.clear();
         skipPostPass = false;
@@ -476,6 +479,7 @@ public abstract class AbstractShadowRendererVR implements SceneProcessor, Savabl
 
     protected abstract void getReceivers(GeometryList lightReceivers);
 
+    @Override
     public void postFrame(FrameBuffer out) {
         if (skipPostPass) {
             return;
@@ -688,12 +692,15 @@ public abstract class AbstractShadowRendererVR implements SceneProcessor, Savabl
      */
     protected abstract boolean checkCulling(Camera viewCam);
     
+    @Override
     public void preFrame(float tpf) {           
     }
 
+    @Override
     public void cleanup() {
     }
 
+    @Override
     public void reshape(ViewPort vp, int w, int h) {
     }
 
@@ -804,6 +811,7 @@ public abstract class AbstractShadowRendererVR implements SceneProcessor, Savabl
      *
      * @param im importer (not null)
      */
+    @Override
     public void read(JmeImporter im) throws IOException {
         InputCapsule ic = (InputCapsule) im.getCapsule(this);
         assetManager = im.getAssetManager();
@@ -823,6 +831,7 @@ public abstract class AbstractShadowRendererVR implements SceneProcessor, Savabl
      *
      * @param ex exporter (not null)
      */
+    @Override
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = (OutputCapsule) ex.getCapsule(this);
         oc.write(nbShadowMaps, "nbShadowMaps", 1);

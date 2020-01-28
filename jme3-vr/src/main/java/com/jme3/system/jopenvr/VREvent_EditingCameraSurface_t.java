@@ -15,6 +15,7 @@ public class VREvent_EditingCameraSurface_t extends Structure {
 	public VREvent_EditingCameraSurface_t() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("overlayHandle", "nVisualMode");
 	}

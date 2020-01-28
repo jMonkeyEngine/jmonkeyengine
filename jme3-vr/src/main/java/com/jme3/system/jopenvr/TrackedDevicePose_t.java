@@ -25,6 +25,7 @@ public class TrackedDevicePose_t extends Structure {
 	public TrackedDevicePose_t() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("mDeviceToAbsoluteTracking", "vVelocity", "vAngularVelocity", "eTrackingResult", "bPoseIsValid", "bDeviceIsConnected");
 	}

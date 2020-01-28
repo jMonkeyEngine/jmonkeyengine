@@ -57,6 +57,7 @@ public class VR_IVRScreenshots_FnTable extends Structure {
 	public VR_IVRScreenshots_FnTable() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("RequestScreenshot", "HookScreenshot", "GetScreenshotPropertyType", "GetScreenshotPropertyFilename", "UpdateScreenshotProgress", "TakeStereoScreenshot", "SubmitScreenshot");
 	}

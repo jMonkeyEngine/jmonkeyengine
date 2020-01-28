@@ -15,6 +15,7 @@ public class VRTextureWithPoseAndDepth_t extends Structure {
 	public VRTextureWithPoseAndDepth_t() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("depth");
 	}

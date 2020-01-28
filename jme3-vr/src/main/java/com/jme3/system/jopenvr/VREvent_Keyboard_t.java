@@ -19,6 +19,7 @@ public class VREvent_Keyboard_t extends Structure {
 	public VREvent_Keyboard_t() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("cNewInput", "uUserValue");
 	}

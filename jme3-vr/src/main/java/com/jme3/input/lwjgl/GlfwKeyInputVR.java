@@ -1,7 +1,7 @@
 package com.jme3.input.lwjgl;
 
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -69,6 +69,7 @@ public class GlfwKeyInputVR implements KeyInput {
         this.context = context;
     }
 
+    @Override
     public void initialize() {
         if (!context.isRenderable()) {
             return;
@@ -106,6 +107,7 @@ public class GlfwKeyInputVR implements KeyInput {
         return GLFW_KEY_LAST - GLFW_KEY_SPACE;
     }
 
+    @Override
     public void update() {
         if (!context.isRenderable()) {
             return;
@@ -116,6 +118,7 @@ public class GlfwKeyInputVR implements KeyInput {
         }
     }
 
+    @Override
     public void destroy() {
         if (!context.isRenderable()) {
             return;
@@ -126,14 +129,17 @@ public class GlfwKeyInputVR implements KeyInput {
         logger.fine("Keyboard destroyed.");
     }
 
+    @Override
     public boolean isInitialized() {
         return initialized;
     }
 
+    @Override
     public void setInputListener(RawInputListener listener) {
         this.listener = listener;
     }
 
+    @Override
     public long getInputTimeNanos() {
         return (long) (glfwGetTime() * 1000000000);
     }

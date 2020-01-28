@@ -20,6 +20,7 @@ public class OSVR_EyeTracker3DState extends Structure {
 	public OSVR_EyeTracker3DState() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("directionValid", "direction", "basePointValid", "basePoint");
 	}

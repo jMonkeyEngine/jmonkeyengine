@@ -28,6 +28,7 @@ public class DistortionCoordinates_t extends Structure {
 	public DistortionCoordinates_t() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("rfRed", "rfGreen", "rfBlue");
 	}

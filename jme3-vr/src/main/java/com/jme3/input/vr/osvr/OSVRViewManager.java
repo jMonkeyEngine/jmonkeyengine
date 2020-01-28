@@ -172,6 +172,7 @@ public class OSVRViewManager extends AbstractVRViewManager{
     /**
      * Send the textures to the two eyes.
      */
+    @Override
     public void postRender() {
     	
     	if (environment != null){
@@ -268,6 +269,7 @@ public class OSVRViewManager extends AbstractVRViewManager{
     /**
      * Initialize the VR view manager.
      */
+    @Override
     public void initialize() {     
     	
     	logger.config("Initializing VR view manager.");
@@ -444,6 +446,7 @@ public class OSVRViewManager extends AbstractVRViewManager{
      * This method is called by the attached VR application and should not be called manually.
      * @param tpf the time per frame.
      */
+    @Override
     public void update(float tpf) {
         
     	if (environment != null){
@@ -512,6 +515,7 @@ public class OSVRViewManager extends AbstractVRViewManager{
     /**
      * Handles moving filters from the main view to each eye
      */
+    @Override
     public void moveScreenProcessingToEyes() {
         if( getRightViewPort() == null ){
         	return;
@@ -534,6 +538,7 @@ public class OSVRViewManager extends AbstractVRViewManager{
      * Sets the two views to use the list of {@link SceneProcessor processors}.
      * @param sourceViewport the {@link ViewPort viewport} that contains the processors to use.
      */
+    @Override
     public void syncScreenProcessing(ViewPort sourceViewport) {
         if( getRightViewPort() == null ){
         	return;

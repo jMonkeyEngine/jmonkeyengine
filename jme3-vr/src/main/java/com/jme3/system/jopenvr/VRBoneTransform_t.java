@@ -17,6 +17,7 @@ public class VRBoneTransform_t extends Structure {
 	public VRBoneTransform_t() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("position", "orientation");
 	}
