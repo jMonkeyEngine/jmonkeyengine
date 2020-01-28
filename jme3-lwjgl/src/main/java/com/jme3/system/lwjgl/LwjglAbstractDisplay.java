@@ -277,7 +277,11 @@ public abstract class LwjglAbstractDisplay extends LwjglContext implements Runna
     }
 
     @Override
-    public void destroy(boolean waitFor){
+    public void destroy(boolean waitFor) {
+        if (needClose.get()) {
+            return; // Already destroyed
+        }
+
         needClose.set(true);
         if (waitFor)
             waitFor(false);

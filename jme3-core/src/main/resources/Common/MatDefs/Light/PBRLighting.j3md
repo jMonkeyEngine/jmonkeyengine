@@ -168,7 +168,7 @@ MaterialDef PBR Lighting {
     Technique PreShadow {
 
         VertexShader GLSL300 GLSL100 GLSL150 :   Common/MatDefs/Shadow/PreShadow.vert
-        FragmentShader GLSL300 GLSL100 GLSL150 : Common/MatDefs/Shadow/PreShadow.frag
+        FragmentShader GLSL300 GLSL100 GLSL150 : Common/MatDefs/Shadow/PreShadowPBR.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -198,7 +198,7 @@ MaterialDef PBR Lighting {
 
     Technique PostShadow{
         VertexShader GLSL310 GLSL300 GLSL150:   Common/MatDefs/Shadow/PostShadow.vert
-        FragmentShader GLSL310 GLSL300 GLSL150: Common/MatDefs/Shadow/PostShadow.frag
+        FragmentShader GLSL310 GLSL300 GLSL150: Common/MatDefs/Shadow/PostShadowPBR.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -233,7 +233,7 @@ MaterialDef PBR Lighting {
 
     Technique PostShadow{
         VertexShader GLSL100:   Common/MatDefs/Shadow/PostShadow.vert
-        FragmentShader GLSL100: Common/MatDefs/Shadow/PostShadow.frag
+        FragmentShader GLSL100: Common/MatDefs/Shadow/PostShadowPBR.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
