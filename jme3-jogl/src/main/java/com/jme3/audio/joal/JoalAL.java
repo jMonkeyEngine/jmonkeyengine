@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2014 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,86 +52,106 @@ public final class JoalAL implements com.jme3.audio.openal.AL {
         this.joalAl = ALFactory.getAL();
     }
 
+    @Override
     public String alGetString(int parameter) {
         return joalAl.alGetString(parameter);
     }
 
+    @Override
     public int alGenSources() {
         IntBuffer ib = BufferUtils.createIntBuffer(1);
         joalAl.alGenSources(1, ib);
         return ib.get(0);
     }
 
+    @Override
     public int alGetError() {
         return joalAl.alGetError();
     }
 
+    @Override
     public void alDeleteSources(int numSources, IntBuffer sources) {
         joalAl.alDeleteSources(numSources, sources);
     }
 
+    @Override
     public void alGenBuffers(int numBuffers, IntBuffer buffers) {
         joalAl.alGenBuffers(numBuffers, buffers);
     }
 
+    @Override
     public void alDeleteBuffers(int numBuffers, IntBuffer buffers) {
         joalAl.alDeleteBuffers(numBuffers, buffers);
     }
 
+    @Override
     public void alSourceStop(int source) {
         joalAl.alSourceStop(source);
     }
 
+    @Override
     public void alSourcei(int source, int param, int value) {
         joalAl.alSourcei(source, param, value);
     }
 
+    @Override
     public void alBufferData(int buffer, int format, ByteBuffer data, int size, int frequency) {
         joalAl.alBufferData(buffer, format, data, size, frequency);
     }
 
+    @Override
     public void alSourcePlay(int source) {
         joalAl.alSourcePlay(source);
     }
 
+    @Override
     public void alSourcePause(int source) {
         joalAl.alSourcePause(source);
     }
 
+    @Override
     public void alSourcef(int source, int param, float value) {
         joalAl.alSourcef(source, param, value);
     }
 
+    @Override
     public void alSource3f(int source, int param, float value1, float value2, float value3) {
         joalAl.alSource3f(source, param, value1, value2, value3);
     }
 
+    @Override
     public int alGetSourcei(int source, int param) {
         IntBuffer ib = BufferUtils.createIntBuffer(1);
         joalAl.alGetSourcei(source, param, ib);
         return ib.get(0);
     }
 
+    @Override
     public void alSourceUnqueueBuffers(int source, int numBuffers, IntBuffer buffers) {
         joalAl.alSourceUnqueueBuffers(source, numBuffers, buffers);
     }
 
+    @Override
     public void alSourceQueueBuffers(int source, int numBuffers, IntBuffer buffers) {
         joalAl.alSourceQueueBuffers(source, numBuffers, buffers);
     }
 
+    @Override
     public void alListener(int param, FloatBuffer data) {
         joalAl.alListenerfv(param, data);
     }
 
+    @Override
     public void alListenerf(int param, float value) {
         joalAl.alListenerf(param, value);
     }
 
+    @Override
     public void alListener3f(int param, float value1, float value2, float value3) {
         joalAl.alListener3f(param, value1, value2, value3);
     }
 
+    @Override
     public void alSource3i(int source, int param, int value1, int value2, int value3) {
         joalAl.alSource3i(source, param, value1, value2, value3);
     }
