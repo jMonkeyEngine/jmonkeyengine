@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -72,6 +72,7 @@ public class SkeletonLoader extends DefaultHandler implements AssetLoader {
     private Vector3f axis;
     private List<Joint> unusedJoints = new ArrayList<>();
 
+    @Override
     public void startElement(String uri, String localName, String qName, Attributes attribs) throws SAXException {
         if (qName.equals("position") || qName.equals("translate")) {
             position = SAXUtil.parseVector3(attribs);
@@ -132,6 +133,7 @@ public class SkeletonLoader extends DefaultHandler implements AssetLoader {
         elementStack.add(qName);
     }
 
+    @Override
     public void endElement(String uri, String name, String qName) {
         if (qName.equals("translate") || qName.equals("position") || qName.equals("scale")) {
         } else if (qName.equals("axis")) {
@@ -288,6 +290,7 @@ public class SkeletonLoader extends DefaultHandler implements AssetLoader {
         
     }
 
+    @Override
     public Object load(AssetInfo info) throws IOException {
         //AssetManager assetManager = info.getManager();
         InputStream in = null;

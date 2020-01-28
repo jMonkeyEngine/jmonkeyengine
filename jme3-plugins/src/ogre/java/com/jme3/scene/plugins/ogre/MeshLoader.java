@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -817,6 +817,7 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
         return model;
     }
 
+    @Override
     public Object load(AssetInfo info) throws IOException {
         try {
             key = info.getKey();

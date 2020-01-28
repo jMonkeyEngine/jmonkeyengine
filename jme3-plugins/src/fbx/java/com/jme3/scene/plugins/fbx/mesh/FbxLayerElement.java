@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -108,6 +108,7 @@ public class FbxLayerElement {
 
     private FbxLayerElement() { }
     
+    @Override
     public String toString() {
         return "LayerElement[type=" + type + ", layer=" + index +
                ", mapInfoType=" + mapInfoType + ", refInfoType=" + refInfoType + "]";
