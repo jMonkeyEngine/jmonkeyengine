@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -92,6 +92,7 @@ public abstract class LwjglContext implements JmeContext {
     protected LwjglPlatform clPlatform;
     protected com.jme3.opencl.lwjgl.LwjglContext clContext;
 
+    @Override
     public void setSystemListener(SystemListener listener) {
         this.listener = listener;
     }
@@ -446,25 +447,31 @@ public abstract class LwjglContext implements JmeContext {
         }
     }
 
+    @Override
     public boolean isCreated() {
         return created.get();
     }
+    @Override
     public boolean isRenderable() {
         return renderable.get();
     }
 
+    @Override
     public void setSettings(AppSettings settings) {
         this.settings.copyFrom(settings);
     }
 
+    @Override
     public AppSettings getSettings() {
         return settings;
     }
 
+    @Override
     public Renderer getRenderer() {
         return renderer;
     }
 
+    @Override
     public Timer getTimer() {
         return timer;
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -145,6 +145,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
     /**
      * @return Type.Display or Type.Canvas
      */
+    @Override
     public JmeContext.Type getType() {
         return type;
     }
@@ -154,6 +155,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
      *
      * @param title the title to set
      */
+    @Override
     public void setTitle(final String title) {
         if (created.get() && window != NULL) {
             glfwSetWindowTitle(window, title);
@@ -163,6 +165,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
     /**
      * Restart if it's a windowed or full-screen display.
      */
+    @Override
     public void restart() {
         if (created.get()) {
             needRestart.set(true);

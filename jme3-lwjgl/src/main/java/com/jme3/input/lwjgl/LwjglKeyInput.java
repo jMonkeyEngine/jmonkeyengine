@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -55,6 +55,7 @@ public class LwjglKeyInput implements KeyInput {
         this.context = context;
     }
 
+    @Override
     public void initialize() {
         if (!context.isRenderable())
             return;
@@ -72,6 +73,7 @@ public class LwjglKeyInput implements KeyInput {
         return Keyboard.KEYBOARD_SIZE;
     }
 
+    @Override
     public void update() {
         if (!context.isRenderable())
             return;
@@ -89,6 +91,7 @@ public class LwjglKeyInput implements KeyInput {
         }
     }
 
+    @Override
     public void destroy() {
         if (!context.isRenderable())
             return;
@@ -97,14 +100,17 @@ public class LwjglKeyInput implements KeyInput {
         logger.fine("Keyboard destroyed.");
     }
 
+    @Override
     public boolean isInitialized() {
         return Keyboard.isCreated();
     }
 
+    @Override
     public void setInputListener(RawInputListener listener) {
         this.listener = listener;
     }
 
+    @Override
     public long getInputTimeNanos() {
         return Sys.getTime() * LwjglTimer.LWJGL_TIME_TO_NANOS;
     }

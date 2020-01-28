@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -63,17 +63,20 @@ public abstract class LwjglAbstractDisplay extends LwjglContext implements Runna
     /**
      * @return Type.Display or Type.Canvas
      */
+    @Override
     public abstract Type getType();
 
     /**
      * Set the title if it's a windowed display
      * @param title
      */
+    @Override
     public abstract void setTitle(String title);
 
     /**
      * Restart if it's a windowed or full-screen display.
      */
+    @Override
     public abstract void restart();
 
     /**
@@ -95,6 +98,7 @@ public abstract class LwjglAbstractDisplay extends LwjglContext implements Runna
             if (!JmeSystem.isLowPermissions()){
                 // Enable uncaught exception handler only for current thread
                 Thread.currentThread().setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+                    @Override
                     public void uncaughtException(Thread thread, Throwable thrown) {
                         listener.handleError("Uncaught exception thrown in "+thread.toString(), thrown);
                         if (needClose.get()){
@@ -200,6 +204,7 @@ public abstract class LwjglAbstractDisplay extends LwjglContext implements Runna
         super.internalDestroy();
     }
 
+    @Override
     public void run(){
         if (listener == null) {
             throw new IllegalStateException("SystemListener is not set on context!"
@@ -237,6 +242,7 @@ public abstract class LwjglAbstractDisplay extends LwjglContext implements Runna
         deinitInThread();
     }
 
+    @Override
     public JoyInput getJoyInput() {
         if (joyInput == null){
             joyInput = new JInputJoyInput();
@@ -244,6 +250,7 @@ public abstract class LwjglAbstractDisplay extends LwjglContext implements Runna
         return joyInput;
     }
 
+    @Override
     public MouseInput getMouseInput() {
         if (mouseInput == null){
             mouseInput = new LwjglMouseInput(this);
@@ -251,6 +258,7 @@ public abstract class LwjglAbstractDisplay extends LwjglContext implements Runna
         return mouseInput;
     }
 
+    @Override
     public KeyInput getKeyInput() {
         if (keyInput == null){
             keyInput = new LwjglKeyInput(this);
@@ -258,14 +266,17 @@ public abstract class LwjglAbstractDisplay extends LwjglContext implements Runna
         return keyInput;
     }
 
+    @Override
     public TouchInput getTouchInput() {
         return null;
     }
 
+    @Override
     public void setAutoFlushFrames(boolean enabled){
         this.autoFlush = enabled;
     }
 
+    @Override
     public void destroy(boolean waitFor){
         needClose.set(true);
         if (waitFor)
