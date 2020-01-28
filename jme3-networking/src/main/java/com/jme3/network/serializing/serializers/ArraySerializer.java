@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine, Java Game Networking
+ * Copyright (c) 2009-2020 jMonkeyEngine, Java Game Networking
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -67,6 +67,7 @@ public class ArraySerializer extends Serializer {
         }
     }
 
+    @Override
     public <T> T readObject(ByteBuffer data, Class<T> c) throws IOException {
         byte dimensionCount = data.get();
         if (dimensionCount == 0)
@@ -89,6 +90,7 @@ public class ArraySerializer extends Serializer {
         return array;
     }
 
+    @Override
     public void writeObject(ByteBuffer buffer, Object object) throws IOException {
         if (object == null){
             buffer.put((byte)0);

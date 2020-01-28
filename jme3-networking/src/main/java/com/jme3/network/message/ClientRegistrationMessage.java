@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -79,6 +79,7 @@ public class ClientRegistrationMessage extends AbstractMessage {
         return version;
     }
     
+    @Override
     public String toString() {
         return getClass().getName() + "[id=" + id + ", gameName=" + gameName + ", version=" + version + "]";
     }
@@ -91,6 +92,7 @@ public class ClientRegistrationMessage extends AbstractMessage {
      */   
     public static class ClientRegistrationSerializer extends Serializer {
      
+        @Override
         public ClientRegistrationMessage readObject( ByteBuffer data, Class c ) throws IOException {
     
             // Read the null/non-null marker
@@ -106,6 +108,7 @@ public class ClientRegistrationMessage extends AbstractMessage {
             return msg;
         }
 
+        @Override
         public void writeObject(ByteBuffer buffer, Object object) throws IOException {
     
             // Add the null/non-null marker

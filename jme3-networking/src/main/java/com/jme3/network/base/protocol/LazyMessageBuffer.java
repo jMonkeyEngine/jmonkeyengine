@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -66,6 +66,7 @@ public class LazyMessageBuffer implements MessageBuffer {
      *  Returns the next message in the buffer or null if there are no more
      *  messages in the buffer.  
      */
+    @Override
     public Message pollMessage() {
         if( messages.isEmpty() ) {
             return null;
@@ -77,6 +78,7 @@ public class LazyMessageBuffer implements MessageBuffer {
     /**
      *  Returns true if there is a message waiting in the buffer.
      */
+    @Override
     public boolean hasMessages() {
         return !messages.isEmpty();
     }
@@ -85,6 +87,7 @@ public class LazyMessageBuffer implements MessageBuffer {
      *  Adds byte data to the message buffer.  Returns true if there is
      *  a message waiting after this call.
      */   
+    @Override
     public boolean addBytes( ByteBuffer buffer ) {
         // push the data from the buffer into as
         // many messages as we can

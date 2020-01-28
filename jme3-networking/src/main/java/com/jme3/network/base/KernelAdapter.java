@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -264,6 +264,7 @@ public class KernelAdapter extends Thread
         }
     }
  
+    @Override
     public void run()
     {
         while( go.get() ) {

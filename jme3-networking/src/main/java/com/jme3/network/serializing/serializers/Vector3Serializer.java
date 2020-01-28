@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,6 +42,7 @@ import java.nio.ByteBuffer;
 @SuppressWarnings("unchecked")
 public class Vector3Serializer extends Serializer {
 
+    @Override
     public Vector3f readObject(ByteBuffer data, Class c) throws IOException {
         Vector3f vec3 = new Vector3f();
         vec3.x = data.getFloat();
@@ -50,6 +51,7 @@ public class Vector3Serializer extends Serializer {
         return vec3;
     }
 
+    @Override
     public void writeObject(ByteBuffer buffer, Object object) throws IOException {
         Vector3f vec3 = (Vector3f) object;
         buffer.putFloat(vec3.x);
