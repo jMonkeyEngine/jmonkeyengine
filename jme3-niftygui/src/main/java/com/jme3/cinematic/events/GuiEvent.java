@@ -52,7 +52,7 @@ public class GuiEvent extends AbstractCinematicEvent {
     /**
      * message logger for this class
      */
-    static final Logger LOGGER = Logger.getLogger(GuiEvent.class.getName());
+    private static final Logger log = Logger.getLogger(GuiEvent.class.getName());
 
     /**
      * name of the associated Nifty screen(not null)
@@ -127,7 +127,7 @@ public class GuiEvent extends AbstractCinematicEvent {
      */
     @Override
     public void onPlay() {
-        LOGGER.log(Level.FINEST, "screen should be {0}", screen);
+        log.log(Level.FINEST, "screen should be {0}", screen);
         nifty.gotoScreen(screen);
     }
 

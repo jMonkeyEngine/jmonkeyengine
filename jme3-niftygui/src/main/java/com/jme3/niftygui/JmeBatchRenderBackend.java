@@ -76,7 +76,7 @@ import java.util.logging.Logger;
  */
 public class JmeBatchRenderBackend implements BatchRenderBackend {
 
-    private static final Logger LOGGER = Logger.getLogger(JmeBatchRenderBackend.class.getName());
+    private static final Logger log = Logger.getLogger(JmeBatchRenderBackend.class.getName());
 
     private final ObjectPool<Batch> batchPool;
     private final List<Batch> batches = new ArrayList<>();
@@ -131,7 +131,7 @@ public class JmeBatchRenderBackend implements BatchRenderBackend {
 
     @Override
     public void beginFrame() {
-        LOGGER.fine("beginFrame()");
+        log.fine("beginFrame()");
 
         for (int i = 0; i < batches.size(); i++) {
             batchPool.free(batches.get(i));
@@ -150,7 +150,7 @@ public class JmeBatchRenderBackend implements BatchRenderBackend {
 
     @Override
     public void endFrame() {
-        LOGGER.fine("endFrame");
+        log.fine("endFrame");
     }
 
     @Override
@@ -198,7 +198,7 @@ public class JmeBatchRenderBackend implements BatchRenderBackend {
             }
             return atlasId;
         } catch (Exception e) {
-            LOGGER.log(Level.WARNING, e.getMessage(), e);
+            log.log(Level.WARNING, e.getMessage(), e);
             return 0; // TODO Nifty always expects this call to be successfull
             // there currently is no way to return failure or something :/
         }
