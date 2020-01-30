@@ -121,6 +121,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
 
     private GLFWErrorCallback errorCallback;
     private GLFWWindowSizeCallback windowSizeCallback;
+    private GLFWFramebufferSizeCallback framebufferSizeCallback;
     private GLFWWindowFocusCallback windowFocusCallback;
 
     private Thread mainThread;
@@ -253,16 +254,8 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             throw new RuntimeException("Failed to create the GLFW window");
         }
 
-        // Add a resize callback which delegates to the listener
-        glfwSetWindowSizeCallback(window, windowSizeCallback = new GLFWWindowSizeCallback() {
-            @Override
-            public void invoke(final long window, final int width, final int height) {
-                settings.setResolution(width, height);
-                listener.reshape(width, height);
-            }
-        });
-
         glfwSetWindowFocusCallback(window, windowFocusCallback = new GLFWWindowFocusCallback() {
+
             @Override
             public void invoke(final long window, final boolean focus) {
                 if (wasActive != focus) {
@@ -296,6 +289,23 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
 
         setWindowIcon(settings);
         showWindow();
+
+        // Add a resize callback which delegates to the listener
+        glfwSetWindowSizeCallback(window, windowSizeCallback = new GLFWWindowSizeCallback() {
+
+            @Override
+            public void invoke(final long window, final int width, final int height) {
+                settings.setResolution(width, height);
+            }
+        });
+
+        glfwSetFramebufferSizeCallback(window, framebufferSizeCallback = new GLFWFramebufferSizeCallback() {
+
+            @Override
+            public void invoke(final long window, final int width, final int height) {
+                listener.reshape(width, height);
+            }
+        });
 
         allowSwapBuffers = settings.isSwapBuffers();
     }
@@ -400,6 +410,11 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             if (windowSizeCallback != null) {
                 windowSizeCallback.close();
                 windowSizeCallback = null;
+            }
+
+            if (framebufferSizeCallback != null) {
+                framebufferSizeCallback.close();
+                framebufferSizeCallback = null;
             }
 
             if (windowFocusCallback != null) {
