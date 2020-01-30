@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -72,6 +72,7 @@ public class PerspectiveLodCalculator implements LodCalculator {
         return A / T;
     }
     
+    @Override
     public boolean calculateLod(TerrainPatch patch, List<Vector3f> locations, HashMap<String, UpdatedTerrainPatch> updates) {
         if (turnOffLod) {
             // set to full detail
@@ -139,13 +140,16 @@ public class PerspectiveLodCalculator implements LodCalculator {
         }
     }
 
+    @Override
     public void write(JmeExporter ex) throws IOException {
         
     }
 
+    @Override
     public void read(JmeImporter im) throws IOException {
     }
 
+    @Override
     public boolean usesVariableLod() {
         return true;
     }
@@ -162,14 +166,17 @@ public class PerspectiveLodCalculator implements LodCalculator {
         this.cam = cam;
     }
 
+    @Override
     public void turnOffLod() {
         turnOffLod = true;
     }
     
+    @Override
     public boolean isLodOff() {
         return turnOffLod;
     }
     
+    @Override
     public void turnOnLod() {
         turnOffLod = false;
     }

@@ -19,6 +19,7 @@ public class OSVR_ProjectionMatrix extends Structure {
 	public OSVR_ProjectionMatrix() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("left", "right", "top", "bottom", "nearClip", "farClip");
 	}

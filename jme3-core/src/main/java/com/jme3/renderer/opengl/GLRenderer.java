@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -126,6 +126,7 @@ public final class GLRenderer implements Renderer {
     }
 
     // Not making public yet ...
+    @Override
     public EnumMap<Limits, Integer> getLimits() {
         return limits;
     }
@@ -595,6 +596,7 @@ public final class GLRenderer implements Renderer {
     }
 
     @SuppressWarnings("fallthrough")
+    @Override
     public void initialize() {
         loadCapabilities();
 
@@ -620,6 +622,7 @@ public final class GLRenderer implements Renderer {
         }
     }
 
+    @Override
     public void invalidateState() {
         context.reset();
         if (gl2 != null) {
@@ -628,6 +631,7 @@ public final class GLRenderer implements Renderer {
         }
     }
 
+    @Override
     public void resetGLObjects() {
         logger.log(Level.FINE, "Reseting objects and invalidating state");
         objManager.resetObjects();
@@ -635,6 +639,7 @@ public final class GLRenderer implements Renderer {
         invalidateState();
     }
 
+    @Override
     public void cleanup() {
         logger.log(Level.FINE, "Deleting objects and invalidating state");
         objManager.deleteAllObjects(this);
@@ -646,10 +651,12 @@ public final class GLRenderer implements Renderer {
     /*********************************************************************\
      |* Render State                                                      *|
      \*********************************************************************/
+    @Override
     public void setDepthRange(float start, float end) {
         gl.glDepthRange(start, end);
     }
 
+    @Override
     public void clearBuffers(boolean color, boolean depth, boolean stencil) {
         int bits = 0;
         if (color) {
@@ -681,6 +688,7 @@ public final class GLRenderer implements Renderer {
         }
     }
 
+    @Override
     public void setBackgroundColor(ColorRGBA color) {
         if (!context.clearColor.equals(color)) {
             gl.glClearColor(color.r, color.g, color.b, color.a);
@@ -696,6 +704,7 @@ public final class GLRenderer implements Renderer {
         this.defaultAnisotropicFilter = level;
     }
 
+    @Override
     public void setAlphaToCoverage(boolean value) {
         if (caps.contains(Caps.Multisample)) {
             if (value) {
@@ -706,6 +715,7 @@ public final class GLRenderer implements Renderer {
         }
     }
 
+    @Override
     public void applyRenderState(RenderState state) {
         if (gl2 != null) {
             if (state.isWireframe() && !context.wireframe) {
@@ -1076,6 +1086,7 @@ public final class GLRenderer implements Renderer {
     /*********************************************************************\
      |* Camera and World transforms                                       *|
      \*********************************************************************/
+    @Override
     public void setViewPort(int x, int y, int w, int h) {
         if (x != vpX || vpY != y || vpW != w || vpH != h) {
             gl.glViewport(x, y, w, h);
@@ -1086,6 +1097,7 @@ public final class GLRenderer implements Renderer {
         }
     }
 
+    @Override
     public void setClipRect(int x, int y, int width, int height) {
         if (!context.clipRectEnabled) {
             gl.glEnable(GL.GL_SCISSOR_TEST);
@@ -1100,6 +1112,7 @@ public final class GLRenderer implements Renderer {
         }
     }
 
+    @Override
     public void clearClipRect() {
         if (context.clipRectEnabled) {
             gl.glDisable(GL.GL_SCISSOR_TEST);
@@ -1559,6 +1572,7 @@ public final class GLRenderer implements Renderer {
         }
     }
 
+    @Override
     public void setShader(Shader shader) {
         if (shader == null) {
             throw new IllegalArgumentException("Shader cannot be null");
@@ -1578,6 +1592,7 @@ public final class GLRenderer implements Renderer {
         }
     }
 
+    @Override
     public void deleteShaderSource(ShaderSource source) {
         if (source.getId() < 0) {
             logger.warning("Shader source is not uploaded to GPU, cannot delete.");
@@ -1588,6 +1603,7 @@ public final class GLRenderer implements Renderer {
         source.resetObject();
     }
 
+    @Override
     public void deleteShader(Shader shader) {
         if (shader.getId() == -1) {
             logger.warning("Shader is not uploaded to GPU, cannot delete.");
@@ -1613,6 +1629,7 @@ public final class GLRenderer implements Renderer {
         copyFrameBuffer(src, dst, true);
     }
 
+    @Override
     public void copyFrameBuffer(FrameBuffer src, FrameBuffer dst, boolean copyDepth) {
         if (caps.contains(Caps.FrameBufferBlit)) {
             int srcX0 = 0;
@@ -1891,6 +1908,7 @@ public final class GLRenderer implements Renderer {
         return samplePositions;
     }
 
+    @Override
     public void setMainFrameBufferOverride(FrameBuffer fb) {
         mainFbOverride = null;
         if (context.boundFBO == 0) {
@@ -1970,6 +1988,7 @@ public final class GLRenderer implements Renderer {
         
     }
     
+    @Override
     public void setFrameBuffer(FrameBuffer fb) {
         if (fb == null && mainFbOverride != null) {
             fb = mainFbOverride;
@@ -2022,6 +2041,7 @@ public final class GLRenderer implements Renderer {
         }
     }
 
+    @Override
     public void readFrameBuffer(FrameBuffer fb, ByteBuffer byteBuf) {
         readFrameBufferWithGLFormat(fb, byteBuf, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE);
     }
@@ -2049,6 +2069,7 @@ public final class GLRenderer implements Renderer {
         gl.glReadPixels(vpX, vpY, vpW, vpH, glFormat, dataType, byteBuf);
     }
 
+    @Override
     public void readFrameBufferWithFormat(FrameBuffer fb, ByteBuffer byteBuf, Image.Format format) {
         GLImageFormat glFormat = texUtil.getImageFormatWithError(format, false);
         readFrameBufferWithGLFormat(fb, byteBuf, glFormat.format, glFormat.dataType);
@@ -2059,6 +2080,7 @@ public final class GLRenderer implements Renderer {
         glfbo.glDeleteRenderbuffersEXT(intBuf1);
     }
 
+    @Override
     public void deleteFrameBuffer(FrameBuffer fb) {
         if (fb.getId() != -1) {
             if (context.boundFBO == fb.getId()) {
@@ -2547,6 +2569,7 @@ public final class GLRenderer implements Renderer {
      * @deprecated Use modifyTexture(Texture2D dest, Image src, int destX, int destY, int srcX, int srcY, int areaW, int areaH)
      */
     @Deprecated
+    @Override
     public void modifyTexture(Texture tex, Image pixels, int x, int y) {
         setTexture(0, tex);
         if(caps.contains(Caps.OpenGLES20) && pixels.getFormat()!=tex.getImage().getFormat() ) {
@@ -2576,6 +2599,7 @@ public final class GLRenderer implements Renderer {
         texUtil.uploadSubTexture(target, src, 0, destX, destY, srcX, srcY, areaW, areaH, linearizeSrgbImages);
     }
   
+    @Override
     public void deleteImage(Image image) {
         int texId = image.getId();
         if (texId != -1) {
@@ -2628,6 +2652,7 @@ public final class GLRenderer implements Renderer {
         }
     }
 
+    @Override
     public void updateBufferData(VertexBuffer vb) {
         int bufId = vb.getId();
         boolean created = false;
@@ -2743,6 +2768,7 @@ public final class GLRenderer implements Renderer {
         bo.clearUpdateNeeded();
     }
 
+    @Override
     public void deleteBuffer(VertexBuffer vb) {
         int bufId = vb.getId();
         if (bufId != -1) {
@@ -3140,6 +3166,7 @@ public final class GLRenderer implements Renderer {
         }
     }
 
+    @Override
     public void renderMesh(Mesh mesh, int lod, int count, VertexBuffer[] instanceData) {
         if (mesh.getVertexCount() == 0 || mesh.getTriangleCount() == 0 || count == 0) {
             return;
@@ -3165,6 +3192,7 @@ public final class GLRenderer implements Renderer {
 //        }
     }
 
+    @Override
     public void setMainFrameBufferSrgb(boolean enableSrgb) {
         // Gamma correction
         if (!caps.contains(Caps.Srgb) && enableSrgb) {
@@ -3191,6 +3219,7 @@ public final class GLRenderer implements Renderer {
         }
     }
 
+    @Override
     public void setLinearizeSrgbImages(boolean linearize) {
         if (caps.contains(Caps.Srgb)) {
             linearizeSrgbImages = linearize;

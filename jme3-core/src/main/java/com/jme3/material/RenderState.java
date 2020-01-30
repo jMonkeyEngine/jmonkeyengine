@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -486,6 +486,7 @@ public class RenderState implements Cloneable, Savable {
     BlendFunc sfactorAlpha = BlendFunc.One;
     BlendFunc dfactorAlpha = BlendFunc.One;
             
+    @Override
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(true, "pointSprite", false);
@@ -529,6 +530,7 @@ public class RenderState implements Cloneable, Savable {
 
     }
 
+    @Override
     public void read(JmeImporter im) throws IOException {
         InputCapsule ic = im.getCapsule(this);
         wireframe = ic.readBoolean("wireframe", false);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -206,6 +206,7 @@ public class Geometry extends Spatial {
      *
      * @see Mesh#getVertexCount()
      */
+    @Override
     public int getVertexCount() {
         return mesh.getVertexCount();
     }
@@ -217,6 +218,7 @@ public class Geometry extends Spatial {
      *
      * @see Mesh#getTriangleCount()
      */
+    @Override
     public int getTriangleCount() {
         return mesh.getTriangleCount();
     }
@@ -288,6 +290,7 @@ public class Geometry extends Spatial {
      * Updates the bounding volume of the mesh. Should be called when the
      * mesh has been modified.
      */
+    @Override
     public void updateModelBound() {
         mesh.updateBound();
         setBoundRefresh();
@@ -457,6 +460,7 @@ public class Geometry extends Spatial {
         //updateModelBound();
     }
 
+    @Override
     public int collideWith(Collidable other, CollisionResults results) {
         // Force bound to update
         checkDoBoundUpdate();

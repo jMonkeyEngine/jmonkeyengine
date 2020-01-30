@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2014 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -67,6 +67,7 @@ public final class JoalALC implements com.jme3.audio.openal.ALC {
         return device;
     }
     
+    @Override
     public void createALC() {
         ALut.alutInit();
         
@@ -95,6 +96,7 @@ public final class JoalALC implements com.jme3.audio.openal.ALC {
         */
     }
 
+    @Override
     public void destroyALC() {
         /*
         ALCcontext ctx = joalAlc.alcGetCurrentContext();
@@ -120,25 +122,31 @@ public final class JoalALC implements com.jme3.audio.openal.ALC {
         ALut.alutExit();
     }
 
+    @Override
     public boolean isCreated() {
         return getALCDevice() != null;
     }
     
+    @Override
     public String alcGetString(int parameter) {
         return joalAlc.alcGetString(getALCDevice(), parameter);
     }
 
+    @Override
     public boolean alcIsExtensionPresent(String extension) {
         return joalAlc.alcIsExtensionPresent(getALCDevice(), extension);
     }
 
+    @Override
     public void alcGetInteger(int param, IntBuffer buffer, int size) {
         joalAlc.alcGetIntegerv(getALCDevice(), param, size, buffer);
     }
 
+    @Override
     public void alcDevicePauseSOFT() {
     }
 
+    @Override
     public void alcDeviceResumeSOFT() {
     }
 }

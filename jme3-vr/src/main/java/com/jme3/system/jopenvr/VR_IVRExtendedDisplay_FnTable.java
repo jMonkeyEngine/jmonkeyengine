@@ -33,6 +33,7 @@ public class VR_IVRExtendedDisplay_FnTable extends Structure {
 	public VR_IVRExtendedDisplay_FnTable() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("GetWindowBounds", "GetEyeOutputViewport", "GetDXGIOutputInfo");
 	}

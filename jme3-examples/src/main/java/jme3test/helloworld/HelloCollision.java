@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -75,6 +75,7 @@ public class HelloCollision extends SimpleApplication
     app.start();
   }
 
+  @Override
   public void simpleInitApp() {
     /** Set up Physics */
     bulletAppState = new BulletAppState();
@@ -149,6 +150,7 @@ public class HelloCollision extends SimpleApplication
 
   /** These are our custom actions triggered by key presses.
    * We do not walk yet, we just keep track of the direction the user pressed. */
+  @Override
   public void onAction(String binding, boolean value, float tpf) {
     if (binding.equals("Left")) {
       if (value) { left = true; } else { left = false; }

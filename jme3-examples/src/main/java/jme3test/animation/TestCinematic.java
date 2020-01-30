@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -148,15 +148,18 @@ public class TestCinematic extends SimpleApplication {
 
         cinematic.addListener(new CinematicEventListener() {
 
+            @Override
             public void onPlay(CinematicEvent cinematic) {
                 chaseCam.setEnabled(false);
                 System.out.println("play");
             }
 
+            @Override
             public void onPause(CinematicEvent cinematic) {
                 System.out.println("pause");
             }
 
+            @Override
             public void onStop(CinematicEvent cinematic) {
                 chaseCam.setEnabled(true);
                 fade.setValue(1);
@@ -244,6 +247,7 @@ public class TestCinematic extends SimpleApplication {
         inputManager.addMapping("navBack", new KeyTrigger(keyInput.KEY_LEFT));
         ActionListener acl = new ActionListener() {
 
+            @Override
             public void onAction(String name, boolean keyPressed, float tpf) {
                 if (name.equals("togglePause") && keyPressed) {
                     if (cinematic.getPlayState() == PlayState.Playing) {

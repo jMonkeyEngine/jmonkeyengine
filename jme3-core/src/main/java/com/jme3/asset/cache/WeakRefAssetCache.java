@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -84,6 +84,7 @@ public class WeakRefAssetCache implements AssetCache {
         }
     }
     
+    @Override
     public <T> void addToCache(AssetKey<T> key, T obj) {
         removeCollectedAssets();
         
@@ -93,6 +94,7 @@ public class WeakRefAssetCache implements AssetCache {
         assetCache.put(key, ref);
     }
 
+    @Override
     public <T> T getFromCache(AssetKey<T> key) {
         AssetRef ref = assetCache.get(key);
         if (ref != null){
@@ -102,17 +104,21 @@ public class WeakRefAssetCache implements AssetCache {
         }
     }
 
+    @Override
     public boolean deleteFromCache(AssetKey key) {
         return assetCache.remove(key) != null;
     }
 
+    @Override
     public void clearCache() {
         assetCache.clear();
     }
     
+    @Override
     public <T> void registerAssetClone(AssetKey<T> key, T clone) {
     }
     
+    @Override
     public void notifyNoAssetClone() {
     }
 }

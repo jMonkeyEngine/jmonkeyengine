@@ -46,6 +46,7 @@ public class NativeVorbisLoader implements AssetLoader {
             throw new IOException("Not supported for audio streams");
         }
 
+        @Override
         public void setTime(float time) {
             try {
                 file.seekTime(time);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -355,6 +355,7 @@ public class TestWalkingChar extends SimpleApplication implements ActionListener
         character.setWalkDirection(walkDirection);
     }
 
+    @Override
     public void onAction(String binding, boolean value, float tpf) {
         if (binding.equals("CharLeft")) {
             if (value) {
@@ -402,6 +403,7 @@ public class TestWalkingChar extends SimpleApplication implements ActionListener
         getPhysicsSpace().add(bulletControl);
     }
 
+    @Override
     public void collision(PhysicsCollisionEvent event) {
         if (event.getObjectA() instanceof BombControl) {
             final Spatial node = event.getNodeA();
@@ -416,12 +418,14 @@ public class TestWalkingChar extends SimpleApplication implements ActionListener
         }
     }
 
+    @Override
     public void onAnimCycleDone(AnimControl control, AnimChannel channel, String animName) {
         if (channel == shootingChannel) {
             channel.setAnim("stand");
         }
     }
 
+    @Override
     public void onAnimChange(AnimControl control, AnimChannel channel, String animName) {
     }
 }

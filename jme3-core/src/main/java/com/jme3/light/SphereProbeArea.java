@@ -28,11 +28,13 @@ public class SphereProbeArea implements ProbeArea {
         return center;
     }
 
+    @Override
     public void setCenter(Vector3f center) {
         this.center.set(center);
         updateMatrix();
     }
 
+    @Override
     public float getRadius() {
         return radius;
     }

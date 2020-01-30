@@ -49,6 +49,7 @@ public class RingBuffer<T> implements Iterable<T> {
         return item;
     }
 
+    @Override
     public Iterator<T> iterator() {
         return new RingBufferIterator();
     }
@@ -58,14 +59,17 @@ public class RingBuffer<T> implements Iterable<T> {
 
         private int i = 0;
 
+        @Override
         public boolean hasNext() {
             return i < count;
         }
 
+        @Override
         public void remove() {
             throw new UnsupportedOperationException();
         }
 
+        @Override
         public T next() {
             if (!hasNext()) {
                 throw new NoSuchElementException();

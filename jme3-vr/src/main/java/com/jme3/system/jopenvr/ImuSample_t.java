@@ -19,6 +19,7 @@ public class ImuSample_t extends Structure {
 	public ImuSample_t() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("fSampleTime", "vAccel", "vGyro", "unOffScaleFlags");
 	}

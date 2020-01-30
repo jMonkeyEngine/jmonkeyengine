@@ -58,6 +58,7 @@ public class OSVR_OpenGLToolkitFunctions extends Structure {
 	public OSVR_OpenGLToolkitFunctions() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("size", "data", "create", "destroy", "handleEvents", "getDisplayFrameBuffer", "getDisplaySizeOverride");
 	}

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -58,6 +58,7 @@ public final class LightList implements Iterable<Light>, Savable, Cloneable, Jme
         /**
          * This assumes lastDistance have been computed in a previous step.
          */
+        @Override
         public int compare(Light l1, Light l2) {
             if (l1.lastDistance < l2.lastDistance)
                 return -1;
@@ -266,15 +267,18 @@ public final class LightList implements Iterable<Light>, Savable, Cloneable, Jme
      *
      * @return an iterator that can be used to iterate over this LightList.
      */
+    @Override
     public Iterator<Light> iterator() {
         return new Iterator<Light>(){
 
             int index = 0;
 
+            @Override
             public boolean hasNext() {
                 return index < size();
             }
 
+            @Override
             public Light next() {
                 if (!hasNext())
                     throw new NoSuchElementException();
@@ -282,6 +286,7 @@ public final class LightList implements Iterable<Light>, Savable, Cloneable, Jme
                 return list[index++];
             }
 
+            @Override
             public void remove() {
                 LightList.this.remove(--index);
             }
@@ -322,6 +327,7 @@ public final class LightList implements Iterable<Light>, Savable, Cloneable, Jme
         this.distToOwner = cloner.clone(distToOwner);
     }
 
+    @Override
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = ex.getCapsule(this);
 //        oc.write(owner, "owner", null);
@@ -333,6 +339,7 @@ public final class LightList implements Iterable<Light>, Savable, Cloneable, Jme
         oc.writeSavableArrayList(lights, "lights", null);
     }
 
+    @Override
     public void read(JmeImporter im) throws IOException {
         InputCapsule ic = im.getCapsule(this);
 //        owner = (Spatial) ic.readSavable("owner", null);

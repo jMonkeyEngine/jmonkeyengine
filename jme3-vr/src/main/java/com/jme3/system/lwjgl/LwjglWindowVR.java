@@ -1,7 +1,7 @@
 package com.jme3.system.lwjgl;
 
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -96,6 +96,7 @@ public abstract class LwjglWindowVR extends LwjglContextVR implements Runnable {
     /**
      * @return Type.Display or Type.Canvas
      */
+    @Override
     public JmeContext.Type getType() {
         return type;
     }
@@ -105,6 +106,7 @@ public abstract class LwjglWindowVR extends LwjglContextVR implements Runnable {
      *
      * @param title the title to set
      */
+    @Override
     public void setTitle(final String title) {
         if (created.get() && window != NULL) {
             glfwSetWindowTitle(window, title);
@@ -114,6 +116,7 @@ public abstract class LwjglWindowVR extends LwjglContextVR implements Runnable {
     /**
      * Restart if it's a windowed or full-screen display.
      */
+    @Override
     public void restart() {
         if (created.get()) {
             needRestart.set(true);
@@ -476,6 +479,7 @@ public abstract class LwjglWindowVR extends LwjglContextVR implements Runnable {
         deinitInThread();
     }
 
+    @Override
     public JoyInput getJoyInput() {
         if (joyInput == null) {
             joyInput = new GlfwJoystickInput();
@@ -483,6 +487,7 @@ public abstract class LwjglWindowVR extends LwjglContextVR implements Runnable {
         return joyInput;
     }
 
+    @Override
     public MouseInput getMouseInput() {
         if (mouseInput == null) {
             mouseInput = new GlfwMouseInputVR(this);
@@ -490,6 +495,7 @@ public abstract class LwjglWindowVR extends LwjglContextVR implements Runnable {
         return mouseInput;
     }
 
+    @Override
     public KeyInput getKeyInput() {
         if (keyInput == null) {
             keyInput = new GlfwKeyInputVR(this);
@@ -498,14 +504,17 @@ public abstract class LwjglWindowVR extends LwjglContextVR implements Runnable {
         return keyInput;
     }
 
+    @Override
     public TouchInput getTouchInput() {
         return null;
     }
 
+    @Override
     public void setAutoFlushFrames(boolean enabled) {
         this.autoFlush = enabled;
     }
 
+    @Override
     public void destroy(boolean waitFor) {
         needClose.set(true);
         if (mainThread == Thread.currentThread()) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 20018 jMonkeyEngine
+ * Copyright (c) 2018-2020 jMonkeyEngine
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -454,6 +454,7 @@ public class TestBitmapFontLayout extends SimpleApplication {
                                  ZOOM_IN, ZOOM_OUT);            
     }
  
+    @Override
     public void simpleUpdate( float tpf ) {
         if( scroll.lengthSquared() != 0 ) {
             scrollRoot.move(scroll.mult(tpf));
@@ -465,6 +466,7 @@ public class TestBitmapFontLayout extends SimpleApplication {
     }
  
     private class KeyStateListener implements ActionListener {  
+        @Override
         public void onAction(String name, boolean value, float tpf) {
             switch( name ) {
                 case RESET_VIEW:

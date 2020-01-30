@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -143,6 +143,7 @@ public class OGGLoader implements AssetLoader {
             super(ps, ls, vs, maximum);
         }
 
+        @Override
         public void setTime(float time) {
             if (time != 0.0) {
                 throw new UnsupportedOperationException("OGG/Vorbis seeking only supported for time = 0");
@@ -294,6 +295,7 @@ public class OGGLoader implements AssetLoader {
         }
     }
 
+    @Override
     public Object load(AssetInfo info) throws IOException {
         if (!(info.getKey() instanceof AudioKey)){
             throw new IllegalArgumentException("Audio assets must be loaded using an AudioKey");

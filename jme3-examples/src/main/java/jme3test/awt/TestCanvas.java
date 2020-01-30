@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -88,6 +88,7 @@ public class TestCanvas {
         final JMenuItem itemRemoveCanvas = new JMenuItem("Remove Canvas");
         menuTortureMethods.add(itemRemoveCanvas);
         itemRemoveCanvas.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 if (itemRemoveCanvas.getText().equals("Remove Canvas")){
                     currentPanel.remove(canvas);
@@ -104,6 +105,7 @@ public class TestCanvas {
         final JMenuItem itemHideCanvas = new JMenuItem("Hide Canvas");
         menuTortureMethods.add(itemHideCanvas);
         itemHideCanvas.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 if (itemHideCanvas.getText().equals("Hide Canvas")){
                     canvas.setVisible(false);
@@ -118,6 +120,7 @@ public class TestCanvas {
         final JMenuItem itemSwitchTab = new JMenuItem("Switch to tab #2");
         menuTortureMethods.add(itemSwitchTab);
         itemSwitchTab.addActionListener(new ActionListener(){
+           @Override
            public void actionPerformed(ActionEvent e){
                if (itemSwitchTab.getText().equals("Switch to tab #2")){
                    canvasPanel1.remove(canvas);
@@ -136,6 +139,7 @@ public class TestCanvas {
         JMenuItem itemSwitchLaf = new JMenuItem("Switch Look and Feel");
         menuTortureMethods.add(itemSwitchLaf);
         itemSwitchLaf.addActionListener(new ActionListener(){
+            @Override
             public void actionPerformed(ActionEvent e){
                 try {
                     UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -150,6 +154,7 @@ public class TestCanvas {
         JMenuItem itemSmallSize = new JMenuItem("Set size to (0, 0)");
         menuTortureMethods.add(itemSmallSize);
         itemSmallSize.addActionListener(new ActionListener(){
+            @Override
             public void actionPerformed(ActionEvent e){
                 Dimension preferred = frame.getPreferredSize();
                 frame.setPreferredSize(new Dimension(0, 0));
@@ -161,6 +166,7 @@ public class TestCanvas {
         JMenuItem itemKillCanvas = new JMenuItem("Stop/Start Canvas");
         menuTortureMethods.add(itemKillCanvas);
         itemKillCanvas.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 currentPanel.remove(canvas);
                 app.stop(true);
@@ -175,6 +181,7 @@ public class TestCanvas {
         JMenuItem itemExit = new JMenuItem("Exit");
         menuTortureMethods.add(itemExit);
         itemExit.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent ae) {
                 frame.dispose();
                 app.stop();
@@ -225,6 +232,7 @@ public class TestCanvas {
     public static void startApp(){
         app.startCanvas();
         app.enqueue(new Callable<Void>(){
+            @Override
             public Void call(){
                 if (app instanceof SimpleApplication){
                     SimpleApplication simpleApp = (SimpleApplication) app;
@@ -253,6 +261,7 @@ public class TestCanvas {
         }
 
         SwingUtilities.invokeLater(new Runnable(){
+            @Override
             public void run(){
                 JPopupMenu.setDefaultLightWeightPopupEnabled(false);
 

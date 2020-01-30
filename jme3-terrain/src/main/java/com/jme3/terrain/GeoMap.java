@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -323,6 +323,7 @@ public class GeoMap implements Savable {
         return m;
     }
     
+    @Override
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(hdata, "hdataarray", null);
@@ -331,6 +332,7 @@ public class GeoMap implements Savable {
         oc.write(maxval, "maxval", 0);
     }
 
+    @Override
     public void read(JmeImporter im) throws IOException {
         InputCapsule ic = im.getCapsule(this);
         hdata = ic.readFloatArray("hdataarray", null);

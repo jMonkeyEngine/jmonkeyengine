@@ -22,6 +22,7 @@ public class MatrixJointModelTransform implements JointModelTransform {
 
     }
 
+    @Override
     public void getOffsetTransform(Matrix4f outTransform, Matrix4f inverseModelBindMatrix) {
         modelTransformMatrix.mult(inverseModelBindMatrix, outTransform);
     }

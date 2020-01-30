@@ -24,6 +24,7 @@ public class OSVR_OpenGLContextParams extends Structure {
 	public OSVR_OpenGLContextParams() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("windowTitle", "fullScreen", "width", "height", "xPos", "yPos", "bitsPerPixel", "numBuffers", "visible");
 	}

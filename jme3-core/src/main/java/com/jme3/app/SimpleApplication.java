@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -82,6 +82,7 @@ public abstract class SimpleApplication extends LegacyApplication {
 
     private class AppActionListener implements ActionListener {
 
+        @Override
         public void onAction(String name, boolean value, float tpf) {
             if (!value) {
                 return;

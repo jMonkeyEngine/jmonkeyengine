@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -49,6 +49,7 @@ public class TestSaveGame extends SimpleApplication {
     public void simpleUpdate(float tpf) {
     }
 
+    @Override
     public void simpleInitApp() {
 
         //node that is used to store player data

@@ -20,6 +20,7 @@ public class OSVR_AccelerationState extends Structure {
 	public OSVR_AccelerationState() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("linearAcceleration", "linearAccelerationValid", "angularAcceleration", "angularAccelerationValid");
 	}

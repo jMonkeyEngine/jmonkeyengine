@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -85,6 +85,7 @@ public class BoundingSphere extends BoundingVolume {
         this.radius = r;
     }
 
+    @Override
     public Type getType() {
         return Type.Sphere;
     }
@@ -116,6 +117,7 @@ public class BoundingSphere extends BoundingVolume {
      * @param points
      *            the points to contain.
      */
+    @Override
     public void computeFromPoints(FloatBuffer points) {
         calcWelzl(points);
     }
@@ -383,6 +385,7 @@ public class BoundingSphere extends BoundingVolume {
      * @return BoundingVolume
      * @return ref
      */
+    @Override
     public BoundingVolume transform(Transform trans, BoundingVolume store) {
         BoundingSphere sphere;
         if (store == null || store.getType() != BoundingVolume.Type.Sphere) {
@@ -398,6 +401,7 @@ public class BoundingSphere extends BoundingVolume {
         return sphere;
     }
 
+    @Override
     public BoundingVolume transform(Matrix4f trans, BoundingVolume store) {
         BoundingSphere sphere;
         if (store == null || store.getType() != BoundingVolume.Type.Sphere) {
@@ -441,6 +445,7 @@ public class BoundingSphere extends BoundingVolume {
      *            the plane to check against.
      * @return side
      */
+    @Override
     public Plane.Side whichSide(Plane plane) {
         float distance = plane.pseudoDistance(center);
 
@@ -461,6 +466,7 @@ public class BoundingSphere extends BoundingVolume {
      *            the sphere to combine with this sphere.
      * @return a new sphere
      */
+    @Override
     public BoundingVolume merge(BoundingVolume volume) {
         if (volume == null) {
             return this;
@@ -506,6 +512,7 @@ public class BoundingSphere extends BoundingVolume {
      *            the sphere to combine with this sphere.
      * @return this
      */
+    @Override
     public BoundingVolume mergeLocal(BoundingVolume volume) {
         if (volume == null) {
             return this;
@@ -629,6 +636,7 @@ public class BoundingSphere extends BoundingVolume {
      *            a new store is created.
      * @return the new BoundingSphere
      */
+    @Override
     public BoundingVolume clone(BoundingVolume store) {
         if (store != null && store.getType() == Type.Sphere) {
             BoundingSphere rVal = (BoundingSphere) store;
@@ -661,6 +669,7 @@ public class BoundingSphere extends BoundingVolume {
      *
      * @see com.jme.bounding.BoundingVolume#intersects(com.jme.bounding.BoundingVolume)
      */
+    @Override
     public boolean intersects(BoundingVolume bv) {
         return bv.intersectsSphere(this);
     }
@@ -670,6 +679,7 @@ public class BoundingSphere extends BoundingVolume {
      *
      * @see com.jme.bounding.BoundingVolume#intersectsSphere(com.jme.bounding.BoundingSphere)
      */
+    @Override
     public boolean intersectsSphere(BoundingSphere bs) {
         return Intersection.intersect(bs, center, radius);
     }
@@ -679,6 +689,7 @@ public class BoundingSphere extends BoundingVolume {
      *
      * @see com.jme.bounding.BoundingVolume#intersectsBoundingBox(com.jme.bounding.BoundingBox)
      */
+    @Override
     public boolean intersectsBoundingBox(BoundingBox bb) {
         return Intersection.intersect(bb, center, radius);
     }
@@ -697,6 +708,7 @@ public class BoundingSphere extends BoundingVolume {
      *
      * @see com.jme.bounding.BoundingVolume#intersects(com.jme.math.Ray)
      */
+    @Override
     public boolean intersects(Ray ray) {
         assert Vector3f.isValidVector(center);
 
@@ -988,6 +1000,7 @@ public class BoundingSphere extends BoundingVolume {
         }
     }
     
+    @Override
     public int collideWith(Collidable other, CollisionResults results) {
         if (other instanceof Ray) {
             Ray ray = (Ray) other;
@@ -1034,6 +1047,7 @@ public class BoundingSphere extends BoundingVolume {
         return center.distanceSquared(point) <= (getRadius() * getRadius());
     }
 
+    @Override
     public float distanceToEdge(Vector3f point) {
         return center.distance(point) - radius;
     }

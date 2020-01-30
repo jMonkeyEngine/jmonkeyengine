@@ -21,6 +21,7 @@ public class VROverlayIntersectionParams_t extends Structure {
 	public VROverlayIntersectionParams_t() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("vSource", "vDirection", "eOrigin");
 	}

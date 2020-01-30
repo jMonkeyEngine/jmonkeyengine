@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,6 +43,7 @@ public class TestUserData extends SimpleApplication {
         app.start();
     }
 
+    @Override
     public void simpleInitApp() {
         Node scene = (Node) assetManager.loadModel("Scenes/DotScene/DotScene.scene");
         System.out.println("Scene: " + scene);

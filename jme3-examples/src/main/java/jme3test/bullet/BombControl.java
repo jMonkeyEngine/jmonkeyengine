@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -81,6 +81,7 @@ public class BombControl extends RigidBodyControl implements PhysicsCollisionLis
         prepareEffect(manager);
     }
 
+    @Override
     public void setPhysicsSpace(PhysicsSpace space) {
         super.setPhysicsSpace(space);
         if (space != null) {
@@ -116,6 +117,7 @@ public class BombControl extends RigidBodyControl implements PhysicsCollisionLis
         ghostObject = new PhysicsGhostObject(new SphereCollisionShape(explosionRadius));
     }
 
+    @Override
     public void collision(PhysicsCollisionEvent event) {
         if (space == null) {
             return;
@@ -135,10 +137,12 @@ public class BombControl extends RigidBodyControl implements PhysicsCollisionLis
         }
     }
     
+    @Override
     public void prePhysicsTick(PhysicsSpace space, float f) {
         space.removeCollisionListener(this);
     }
 
+    @Override
     public void physicsTick(PhysicsSpace space, float f) {
         //get all overlapping objects and apply impulse to them
         for (Iterator<PhysicsCollisionObject> it = ghostObject.getOverlappingObjects().iterator(); it.hasNext();) {            

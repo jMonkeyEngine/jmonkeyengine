@@ -14,6 +14,7 @@ public class VREvent_PerformanceTest_t extends Structure {
 	public VREvent_PerformanceTest_t() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("m_nFidelityLevel");
 	}

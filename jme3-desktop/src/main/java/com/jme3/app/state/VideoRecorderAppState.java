@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -70,6 +70,7 @@ public class VideoRecorderAppState extends AbstractAppState {
     private Application app;
     private ExecutorService executor = Executors.newCachedThreadPool(new ThreadFactory() {
 
+        @Override
         public Thread newThread(Runnable r) {
             Thread th = new Thread(r);
             th.setName("jME3 Video Processor");
@@ -233,6 +234,7 @@ public class VideoRecorderAppState extends AbstractAppState {
                 renderer.readFrameBufferWithFormat(out, item.buffer, Image.Format.BGRA8);
                 executor.submit(new Callable<Void>() {
 
+                    @Override
                     public Void call() throws Exception {
                         Screenshots.convertScreenShot(item.buffer, item.image);
                         item.data = writer.writeImageToBytes(item.image, quality);
@@ -250,6 +252,7 @@ public class VideoRecorderAppState extends AbstractAppState {
             }
         }
 
+        @Override
         public void initialize(RenderManager rm, ViewPort viewPort) {
             this.camera = viewPort.getCamera();
             this.width = camera.getWidth();
@@ -264,13 +267,16 @@ public class VideoRecorderAppState extends AbstractAppState {
             }
         }
 
+        @Override
         public void reshape(ViewPort vp, int w, int h) {
         }
 
+        @Override
         public boolean isInitialized() {
             return this.isInitilized;
         }
 
+        @Override
         public void preFrame(float tpf) {
             if (null == writer) {
                 try {
@@ -281,13 +287,16 @@ public class VideoRecorderAppState extends AbstractAppState {
             }
         }
 
+        @Override
         public void postQueue(RenderQueue rq) {
         }
 
+        @Override
         public void postFrame(FrameBuffer out) {
             addImage(renderManager.getRenderer(), out);
         }
 
+        @Override
         public void cleanup() {
             try {
                 while (freeItems.size() < numCpus) {
@@ -317,22 +326,27 @@ public class VideoRecorderAppState extends AbstractAppState {
             this.ticks = 0;
         }
 
+        @Override
         public long getTime() {
             return (long) (this.ticks * (1.0f / this.framerate) * 1000f);
         }
 
+        @Override
         public long getResolution() {
             return 1000L;
         }
 
+        @Override
         public float getFrameRate() {
             return this.framerate;
         }
 
+        @Override
         public float getTimePerFrame() {
             return (float) (1.0f / this.framerate);
         }
 
+        @Override
         public void update() {
             long time = System.currentTimeMillis();
             long difference = time - lastTime;
@@ -346,6 +360,7 @@ public class VideoRecorderAppState extends AbstractAppState {
             this.ticks++;
         }
 
+        @Override
         public void reset() {
             this.ticks = 0;
         }

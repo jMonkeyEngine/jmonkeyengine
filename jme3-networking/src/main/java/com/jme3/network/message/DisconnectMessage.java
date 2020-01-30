@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -71,6 +71,7 @@ public class DisconnectMessage extends AbstractMessage {
         this.type = type;
     }
     
+    @Override
     public String toString() {
         return getClass().getName() + "[reason=" + reason + ", type=" + type + "]";
     }
@@ -83,6 +84,7 @@ public class DisconnectMessage extends AbstractMessage {
      */   
     public static class DisconnectSerializer extends Serializer {
      
+        @Override
         public DisconnectMessage readObject( ByteBuffer data, Class c ) throws IOException {
     
             // Read the null/non-null marker
@@ -97,6 +99,7 @@ public class DisconnectMessage extends AbstractMessage {
             return msg;
         }
 
+        @Override
         public void writeObject(ByteBuffer buffer, Object object) throws IOException {
     
             // Add the null/non-null marker

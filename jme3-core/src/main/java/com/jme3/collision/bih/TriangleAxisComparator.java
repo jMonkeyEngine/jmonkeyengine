@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,6 +42,7 @@ public class TriangleAxisComparator implements Comparator<BIHTriangle> {
         this.axis = axis;
     }
 
+    @Override
     public int compare(BIHTriangle o1, BIHTriangle o2) {
         float v1, v2;
         Vector3f c1 = o1.getCenter();

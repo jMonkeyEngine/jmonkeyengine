@@ -20,6 +20,7 @@ public /*abstract*/ class OSVR_RenderInfoOpenGL extends Structure {
 	public OSVR_RenderInfoOpenGL() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("library", "viewport", "pose", "projection");
 	}

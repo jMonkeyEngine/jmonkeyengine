@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -61,6 +61,7 @@ public class TestPostFiltersCompositing extends SimpleApplication {
         
     }
 
+    @Override
     public void simpleInitApp() {
         this.flyCam.setMoveSpeed(10);
         cam.setLocation(new Vector3f(0.028406568f, 2.015769f, 7.386517f));

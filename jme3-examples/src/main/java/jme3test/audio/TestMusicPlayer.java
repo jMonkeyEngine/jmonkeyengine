@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -90,6 +90,7 @@ public class TestMusicPlayer extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
             public void windowClosing(java.awt.event.WindowEvent evt) {
                 formWindowClosing(evt);
             }
@@ -102,6 +103,7 @@ public class TestMusicPlayer extends javax.swing.JFrame {
         sldVolume.setPaintTicks(true);
         sldVolume.setValue(100);
         sldVolume.addChangeListener(new javax.swing.event.ChangeListener() {
+            @Override
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
                 sldVolumeStateChanged(evt);
             }
@@ -113,6 +115,7 @@ public class TestMusicPlayer extends javax.swing.JFrame {
 
         btnStop.setText("[  ]");
         btnStop.addActionListener(new java.awt.event.ActionListener() {
+            @Override
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnStopActionPerformed(evt);
             }
@@ -121,6 +124,7 @@ public class TestMusicPlayer extends javax.swing.JFrame {
 
         btnPlay.setText("II / >");
         btnPlay.addActionListener(new java.awt.event.ActionListener() {
+            @Override
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnPlayActionPerformed(evt);
             }
@@ -129,6 +133,7 @@ public class TestMusicPlayer extends javax.swing.JFrame {
 
         btnFF.setText(">>");
         btnFF.addActionListener(new java.awt.event.ActionListener() {
+            @Override
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnFFActionPerformed(evt);
             }
@@ -137,6 +142,7 @@ public class TestMusicPlayer extends javax.swing.JFrame {
 
         btnOpen.setText("Open ...");
         btnOpen.addActionListener(new java.awt.event.ActionListener() {
+            @Override
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnOpenActionPerformed(evt);
             }
@@ -153,6 +159,7 @@ public class TestMusicPlayer extends javax.swing.JFrame {
 
         sldBar.setValue(0);
         sldBar.addChangeListener(new javax.swing.event.ChangeListener() {
+            @Override
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
                 sldBarStateChanged(evt);
             }
@@ -276,6 +283,7 @@ public class TestMusicPlayer extends javax.swing.JFrame {
     */
     public static void main(String args[]) {
         java.awt.EventQueue.invokeLater(new Runnable() {
+            @Override
             public void run() {
                 new TestMusicPlayer().setVisible(true);
             }

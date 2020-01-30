@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -164,6 +164,7 @@ public class WorldOfInception extends SimpleApplication implements AnalogListene
         viewPort.addProcessor(fpp);
     }
 
+    @Override
     public void onAnalog(String name, float value, float tpf) {
         Vector3f left = rootNode.getLocalRotation().mult(Vector3f.UNIT_X.negate());
         Vector3f forward = rootNode.getLocalRotation().mult(Vector3f.UNIT_Z.negate());

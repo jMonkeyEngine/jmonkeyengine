@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 jMonkeyEngine
+ * Copyright (c) 2016-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,6 +46,7 @@ public class IdentityCloneFunction<T> implements CloneFunction<T> {
     /**
      *  Returns the object directly.
      */
+    @Override
     public T cloneObject( Cloner cloner, T object ) {
         return object;
     }
@@ -53,6 +54,7 @@ public class IdentityCloneFunction<T> implements CloneFunction<T> {
     /**
      *  Does nothing.
      */    
+    @Override
     public void cloneFields( Cloner cloner, T clone, T object ) {
     }
 }

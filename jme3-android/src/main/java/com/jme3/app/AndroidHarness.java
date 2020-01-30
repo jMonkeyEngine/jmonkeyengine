@@ -362,6 +362,7 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
      * @param dialog
      * @param whichButton
      */
+    @Override
     public void onClick(DialogInterface dialog, int whichButton) {
         if (whichButton != -2) {
             if (app != null) {
@@ -473,6 +474,7 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
         handler.setLevel(Level.ALL);
     }
 
+    @Override
     public void initialize() {
         app.initialize();
         if (handleExitHook) {
@@ -488,10 +490,12 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
         }
     }
 
+    @Override
     public void reshape(int width, int height) {
         app.reshape(width, height);
     }
 
+    @Override
     public void update() {
         app.update();
         // call to remove the splash screen, if present.
@@ -503,10 +507,12 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
         }
     }
 
+    @Override
     public void requestClose(boolean esc) {
         app.requestClose(esc);
     }
 
+    @Override
     public void destroy() {
         if (app != null) {
             app.destroy();
@@ -516,6 +522,7 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
         }
     }
 
+    @Override
     public void gainFocus() {
         logger.fine("gainFocus");
         if (view != null) {
@@ -547,6 +554,7 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
         }
     }
 
+    @Override
     public void loseFocus() {
         logger.fine("loseFocus");
         if (app != null) {

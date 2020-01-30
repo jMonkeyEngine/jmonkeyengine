@@ -18,6 +18,7 @@ public class VREvent_InputBindingLoad_t extends Structure {
 	public VREvent_InputBindingLoad_t() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("ulAppContainer", "pathMessage", "pathUrl", "pathControllerType");
 	}

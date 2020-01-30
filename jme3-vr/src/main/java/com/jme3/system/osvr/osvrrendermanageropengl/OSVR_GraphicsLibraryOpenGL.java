@@ -14,6 +14,7 @@ public class OSVR_GraphicsLibraryOpenGL extends Structure {
 	public OSVR_GraphicsLibraryOpenGL() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("toolkit");
 	}

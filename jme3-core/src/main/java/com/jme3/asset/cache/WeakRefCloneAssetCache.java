@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -119,6 +119,7 @@ public class WeakRefCloneAssetCache implements AssetCache {
         }
     }
     
+    @Override
     public <T> void addToCache(AssetKey<T> originalKey, T obj) {
         // Make room for new asset
         removeCollectedAssets();
@@ -143,16 +144,19 @@ public class WeakRefCloneAssetCache implements AssetCache {
         loadStack.add(originalKey);
     }
 
+    @Override
     public <T> void registerAssetClone(AssetKey<T> key, T clone) {
         ArrayList<AssetKey> loadStack = assetLoadStack.get();
         ((CloneableSmartAsset)clone).setKey(loadStack.remove(loadStack.size() - 1));
     }
     
+    @Override
     public void notifyNoAssetClone() {
         ArrayList<AssetKey> loadStack = assetLoadStack.get();
         loadStack.remove(loadStack.size() - 1);
     }
 
+    @Override
     public <T> T getFromCache(AssetKey<T> key) {
         AssetRef smartInfo = smartCache.get(key);
         if (smartInfo == null) {
@@ -177,6 +181,7 @@ public class WeakRefCloneAssetCache implements AssetCache {
         }
     }
 
+    @Override
     public boolean deleteFromCache(AssetKey key) {
         ArrayList<AssetKey> loadStack = assetLoadStack.get();
         
@@ -188,6 +193,7 @@ public class WeakRefCloneAssetCache implements AssetCache {
         return smartCache.remove(key) != null;
     }
     
+    @Override
     public void clearCache() {
         ArrayList<AssetKey> loadStack = assetLoadStack.get();
         

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -131,6 +131,7 @@ public class TestRagDoll extends SimpleApplication implements ActionListener {
         return joint;
     }
 
+    @Override
     public void onAction(String string, boolean bln, float tpf) {
         if ("Pull ragdoll up".equals(string)) {
             if (bln) {

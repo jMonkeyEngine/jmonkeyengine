@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -61,9 +61,11 @@ public class AwtKeyInput implements KeyInput, KeyListener {
     public AwtKeyInput(){
     }
 
+    @Override
     public void initialize() {
     }
     
+    @Override
     public void destroy() {
     }
 
@@ -79,6 +81,7 @@ public class AwtKeyInput implements KeyInput, KeyListener {
         }
     }
     
+    @Override
     public long getInputTimeNanos() {
         return System.nanoTime();
     }
@@ -87,6 +90,7 @@ public class AwtKeyInput implements KeyInput, KeyListener {
         return KeyEvent.KEY_LAST+1;
     }
 
+    @Override
     public void update() {
         synchronized (eventQueue){
             // flush events to listener
@@ -97,18 +101,22 @@ public class AwtKeyInput implements KeyInput, KeyListener {
         }
     }
 
+    @Override
     public boolean isInitialized() {
         return true;
     }
 
+    @Override
     public void setInputListener(RawInputListener listener) {
         this.listener = listener;
     }
 
+    @Override
     public void keyTyped(KeyEvent evt) {
         // key code is zero for typed events
     }
 
+    @Override
     public void keyPressed(KeyEvent evt) {
         int code = convertAwtKey(evt.getKeyCode());
         
@@ -123,6 +131,7 @@ public class AwtKeyInput implements KeyInput, KeyListener {
         }
     }
 
+    @Override
     public void keyReleased(KeyEvent evt) {
         int code = convertAwtKey(evt.getKeyCode());
         

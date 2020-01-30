@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -63,6 +63,7 @@ public class ZipLocator implements AssetLocator {
             this.entry = entry;
         }
 
+        @Override
         public InputStream openStream(){
             try{
                 return zipfile.getInputStream(entry);
@@ -72,6 +73,7 @@ public class ZipLocator implements AssetLocator {
         }
     }
 
+    @Override
     public void setRootPath(String rootPath) {
         try{
             zipfile = new ZipFile(new File(rootPath), ZipFile.OPEN_READ);
@@ -80,6 +82,7 @@ public class ZipLocator implements AssetLocator {
         }
     }
 
+    @Override
     public AssetInfo locate(AssetManager manager, AssetKey key) {
         String name = key.getName();
         if(name.startsWith("/"))name=name.substring(1);

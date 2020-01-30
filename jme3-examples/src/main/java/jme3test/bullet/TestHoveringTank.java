@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -200,9 +200,11 @@ public class TestHoveringTank extends SimpleApplication implements AnalogListene
         getPhysicsSpace().add(missile);
     }
 
+    @Override
     public void onAnalog(String binding, float value, float tpf) {
     }
 
+    @Override
     public void onAction(String binding, boolean value, float tpf) {
         if (binding.equals("Lefts")) {
             hoverControl.steer(value ? 50f : 0);

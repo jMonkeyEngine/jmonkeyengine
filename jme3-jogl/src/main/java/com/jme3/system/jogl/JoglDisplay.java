@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -59,6 +59,7 @@ public class JoglDisplay extends JoglAbstractDisplay {
     protected volatile boolean wasInited = false;
     protected Frame frame;
 
+    @Override
     public Type getType() {
         return Type.Display;
     }
@@ -238,6 +239,7 @@ public class JoglDisplay extends JoglAbstractDisplay {
         startGLCanvas();
     }
 
+    @Override
     public void init(GLAutoDrawable drawable){
         // prevent initializing twice on restart
         if (!wasInited){
@@ -253,6 +255,7 @@ public class JoglDisplay extends JoglAbstractDisplay {
         }
     }
 
+    @Override
     public void create(boolean waitFor){
         if (SwingUtilities.isEventDispatchThread()) {
             initInEDT();
@@ -261,6 +264,7 @@ public class JoglDisplay extends JoglAbstractDisplay {
                 if (waitFor) {
                     try {
                         SwingUtilities.invokeAndWait(new Runnable() {
+                            @Override
                             public void run() {
                                 initInEDT();
                             }
@@ -270,6 +274,7 @@ public class JoglDisplay extends JoglAbstractDisplay {
                     }
                 } else {
                     SwingUtilities.invokeLater(new Runnable() {
+                        @Override
                         public void run() {
                             initInEDT();
                         }
@@ -281,6 +286,7 @@ public class JoglDisplay extends JoglAbstractDisplay {
         }
     }
 
+    @Override
     public void destroy(boolean waitFor){
         needClose.set(true);
         if (waitFor){
@@ -288,6 +294,7 @@ public class JoglDisplay extends JoglAbstractDisplay {
         }
     }
 
+    @Override
     public void restart() {
         if (created.get()){
             needRestart.set(true);
@@ -296,6 +303,7 @@ public class JoglDisplay extends JoglAbstractDisplay {
         }
     }
 
+    @Override
     public void setTitle(String title){
         if (frame != null)
             frame.setTitle(title);
@@ -304,6 +312,7 @@ public class JoglDisplay extends JoglAbstractDisplay {
     /**
      * Callback.
      */
+    @Override
     public void display(GLAutoDrawable drawable) {
         if (needClose.get()) {
             listener.destroy();

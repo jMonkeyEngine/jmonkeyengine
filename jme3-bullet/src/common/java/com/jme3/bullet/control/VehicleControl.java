@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -159,6 +159,7 @@ public class VehicleControl extends PhysicsVehicle implements PhysicsControl, Jm
      *
      * @return a new control (not null)
      */
+    @Override
     public Object jmeClone() {
         VehicleControl control = new VehicleControl(collisionShape, mass);
         control.setAngularFactor(getAngularFactor());
@@ -231,6 +232,7 @@ public class VehicleControl extends PhysicsVehicle implements PhysicsControl, Jm
      *
      * @param spatial spatial to control (or null)
      */
+    @Override
     public void setSpatial(Spatial spatial) {
         this.spatial = spatial;
         setUserObject(spatial);
@@ -250,6 +252,7 @@ public class VehicleControl extends PhysicsVehicle implements PhysicsControl, Jm
      *
      * @param enabled true&rarr;enable the control, false&rarr;disable it
      */
+    @Override
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
         if (space != null) {
@@ -272,6 +275,7 @@ public class VehicleControl extends PhysicsVehicle implements PhysicsControl, Jm
      *
      * @return true if enabled, otherwise false
      */
+    @Override
     public boolean isEnabled() {
         return enabled;
     }
@@ -282,6 +286,7 @@ public class VehicleControl extends PhysicsVehicle implements PhysicsControl, Jm
      *
      * @param tpf the time interval between frames (in seconds, &ge;0)
      */
+    @Override
     public void update(float tpf) {
         if (enabled && spatial != null) {
             if (getMotionState().applyTransform(spatial)) {
@@ -301,6 +306,7 @@ public class VehicleControl extends PhysicsVehicle implements PhysicsControl, Jm
      * @param rm the render manager (not null)
      * @param vp the view port to render (not null)
      */
+    @Override
     public void render(RenderManager rm, ViewPort vp) {
     }
 
@@ -336,6 +342,7 @@ public class VehicleControl extends PhysicsVehicle implements PhysicsControl, Jm
      *
      * @return the pre-existing space, or null for none
      */
+    @Override
     public PhysicsSpace getPhysicsSpace() {
         return space;
     }

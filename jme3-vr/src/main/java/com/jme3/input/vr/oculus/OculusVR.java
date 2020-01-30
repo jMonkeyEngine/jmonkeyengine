@@ -412,6 +412,7 @@ public class OculusVR implements VRAPI {
         return HmdType.OCULUS_RIFT;
     }
 
+    @Override
     public boolean initVRCompositor(boolean set) {
         if (!set) {
             throw new UnsupportedOperationException("Cannot use LibOVR without compositor!");
@@ -427,18 +428,22 @@ public class OculusVR implements VRAPI {
         return true;
     }
 
+    @Override
     public void printLatencyInfoToConsole(boolean set) {
         throw new UnsupportedOperationException("Not yet implemented!");
     }
 
+    @Override
     public void setFlipEyes(boolean set) {
         throw new UnsupportedOperationException("Not yet implemented!");
     }
 
+    @Override
     public Void getCompositor() {
         throw new UnsupportedOperationException("Not yet implemented!");
     }
 
+    @Override
     public Void getVRSystem() {
         throw new UnsupportedOperationException("Not yet implemented!");
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -259,6 +259,7 @@ public class PhysicsSpace {
     private void setOverlapFilterCallback() {
         OverlapFilterCallback callback = new OverlapFilterCallback() {
 
+            @Override
             public boolean needBroadphaseCollision(BroadphaseProxy bp, BroadphaseProxy bp1) {
                 boolean collides = (bp.collisionFilterGroup & bp1.collisionFilterMask) != 0;
                 if (collides) {
@@ -334,6 +335,7 @@ public class PhysicsSpace {
     private void setContactCallbacks() {
         BulletGlobals.setContactAddedCallback(new ContactAddedCallback() {
 
+            @Override
             public boolean contactAdded(ManifoldPoint cp, com.bulletphysics.collision.dispatch.CollisionObject colObj0,
                     int partId0, int index0, com.bulletphysics.collision.dispatch.CollisionObject colObj1, int partId1,
                     int index1) {
@@ -344,6 +346,7 @@ public class PhysicsSpace {
 
         BulletGlobals.setContactProcessedCallback(new ContactProcessedCallback() {
 
+            @Override
             public boolean contactProcessed(ManifoldPoint cp, Object body0, Object body1) {
                 if (body0 instanceof CollisionObject && body1 instanceof CollisionObject) {
                     PhysicsCollisionObject node = null, node1 = null;
@@ -359,6 +362,7 @@ public class PhysicsSpace {
 
         BulletGlobals.setContactDestroyedCallback(new ContactDestroyedCallback() {
 
+            @Override
             public boolean contactDestroyed(Object userPersistentData) {
                 System.out.println("contact destroyed");
                 return true;

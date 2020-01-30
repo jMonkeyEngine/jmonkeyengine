@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -59,6 +59,7 @@ public class AudioBuffer extends AudioData {
         super(id);
     }
 
+    @Override
     public DataType getDataType() {
         return DataType.Buffer;
     }
@@ -67,6 +68,7 @@ public class AudioBuffer extends AudioData {
      * @return The duration of the audio in seconds. It is expected
      * that audio is uncompressed.
      */
+    @Override
     public float getDuration(){
         int bytesPerSec = (bitsPerSample / 8) * channels * sampleRate;
         if (audioData != null)
@@ -98,6 +100,7 @@ public class AudioBuffer extends AudioData {
         return audioData;
     }
 
+    @Override
     public void resetObject() {
         id = -1;
         setUpdateNeeded();

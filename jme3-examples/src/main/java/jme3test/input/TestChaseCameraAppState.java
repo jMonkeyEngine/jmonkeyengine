@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -56,6 +56,7 @@ public class TestChaseCameraAppState extends SimpleApplication implements Analog
     app.start();
   }
 
+  @Override
   public void simpleInitApp() {
     // Load a teapot model
     teaGeom = (Geometry) assetManager.loadModel("Models/Teapot/Teapot.obj");
@@ -109,6 +110,7 @@ public class TestChaseCameraAppState extends SimpleApplication implements Analog
     inputManager.addListener(this, "displayPosition");
   }
 
+  @Override
   public void onAnalog(String name, float value, float tpf) {
     if (name.equals("moveForward")) {
       teaGeom.move(0, 0, -5 * tpf);
@@ -126,6 +128,7 @@ public class TestChaseCameraAppState extends SimpleApplication implements Analog
 
   }
 
+  @Override
   public void onAction(String name, boolean keyPressed, float tpf) {
     if (name.equals("displayPosition") && keyPressed) {
       teaGeom.move(10, 10, 10);
