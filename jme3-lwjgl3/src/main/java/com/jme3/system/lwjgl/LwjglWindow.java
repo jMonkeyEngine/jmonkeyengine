@@ -80,6 +80,10 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
             glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
         });
+        RENDER_CONFIGS.put(AppSettings.LWJGL_OPENGL31, () -> {
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+        });
         RENDER_CONFIGS.put(AppSettings.LWJGL_OPENGL32, () -> {
             glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
             glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
