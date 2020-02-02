@@ -31,18 +31,18 @@
  */
 package com.jme3.system.ios;
 
-import com.jme3.input.*;
+import com.jme3.input.JoyInput;
+import com.jme3.input.KeyInput;
+import com.jme3.input.MouseInput;
+import com.jme3.input.TouchInput;
 import com.jme3.input.dummy.DummyKeyInput;
 import com.jme3.input.dummy.DummyMouseInput;
-import com.jme3.system.*;
 import com.jme3.input.ios.IosInputHandler;
 import com.jme3.opencl.Context;
 import com.jme3.renderer.ios.IosGL;
-import com.jme3.renderer.opengl.GL;
-import com.jme3.renderer.opengl.GLDebugES;
-import com.jme3.renderer.opengl.GLExt;
-import com.jme3.renderer.opengl.GLFbo;
-import com.jme3.renderer.opengl.GLRenderer;
+import com.jme3.renderer.opengl.*;
+import com.jme3.system.*;
+
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -155,16 +155,13 @@ public class IGLESContext implements JmeContext {
     @Override
     public void create(boolean waitFor) {
         logger.log(Level.FINE, "IGLESContext create");
-        
-        GL gl = new IosGL();
-        GLExt glext = (GLExt) gl;
+        IosGL gl = new IosGL();
 
-//        if (settings.getBoolean("GraphicsDebug")) {
-            gl = new GLDebugES(gl, glext, (GLFbo) glext);
-            glext = (GLExt) gl;
-//        }
+        if (settings.getBoolean("GraphicsDebug")) {
+            gl = (IosGL)GLDebug.createProxy(gl, gl, GL.class, GLExt.class, GLFbo.class);
+        }
 
-        renderer = new GLRenderer(gl, glext, (GLFbo) glext);
+        renderer = new GLRenderer(gl, gl, gl);
         renderer.initialize();
         
         input = new IosInputHandler();

@@ -52,13 +52,7 @@ import com.jme3.input.controls.SoftTextDialogInputListener;
 import com.jme3.input.dummy.DummyKeyInput;
 import com.jme3.input.dummy.DummyMouseInput;
 import com.jme3.renderer.android.AndroidGL;
-import com.jme3.renderer.opengl.GL;
-import com.jme3.renderer.opengl.GLES_30;
-import com.jme3.renderer.opengl.GLDebugES;
-import com.jme3.renderer.opengl.GLExt;
-import com.jme3.renderer.opengl.GLFbo;
-import com.jme3.renderer.opengl.GLRenderer;
-import com.jme3.renderer.opengl.GLTracer;
+import com.jme3.renderer.opengl.*;
 import com.jme3.system.*;
 import com.jme3.util.AndroidBufferAllocator;
 import com.jme3.util.BufferAllocatorFactory;
@@ -209,14 +203,14 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
         });
 
         timer = new NanoTimer();
-        Object gl = new AndroidGL();
+        GL gl = new AndroidGL();
         if (settings.getBoolean("GraphicsDebug")) {
-            gl = new GLDebugES((GL) gl, (GLExt) gl, (GLFbo) gl);
+            gl = (GL) GLDebug.createProxy(gl, gl, GL.class, GL2.class, GLES_30.class, GLFbo.class, GLExt.class);
         }
         if (settings.getBoolean("GraphicsTrace")) {
-            gl = GLTracer.createGlesTracer(gl, GL.class, GLES_30.class, GLFbo.class, GLExt.class);
+            gl = (GL)GLTracer.createGlesTracer(gl, GL.class, GLES_30.class, GLFbo.class, GLExt.class);
         }
-        renderer = new GLRenderer((GL)gl, (GLExt)gl, (GLFbo)gl);
+        renderer = new GLRenderer(gl, (GLExt)gl, (GLFbo)gl);
         renderer.initialize();
 
         JmeSystem.setSoftTextDialogInput(this);

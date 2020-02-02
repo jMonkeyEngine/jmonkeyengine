@@ -49,7 +49,7 @@ import com.jme3.renderer.jogl.JoglGLFbo;
 import com.jme3.renderer.opengl.GL2;
 import com.jme3.renderer.opengl.GL3;
 import com.jme3.renderer.opengl.GL4;
-import com.jme3.renderer.opengl.GLDebugDesktop;
+import com.jme3.renderer.opengl.GLDebug;
 import com.jme3.renderer.opengl.GLExt;
 import com.jme3.renderer.opengl.GLFbo;
 import com.jme3.renderer.opengl.GLRenderer;
@@ -178,9 +178,9 @@ public abstract class JoglContext implements JmeContext {
         	GLFbo glfbo = new JoglGLFbo();
 
             if (settings.getBoolean("GraphicsDebug")) {
-                gl    = new GLDebugDesktop(gl, glext, glfbo);
-                glext = (GLExt) gl;
-                glfbo = (GLFbo) gl;
+                gl = (com.jme3.renderer.opengl.GL) GLDebug.createProxy(gl, gl, com.jme3.renderer.opengl.GL.class, GL2.class, GL3.class, GL4.class);
+                glext = (GLExt) GLDebug.createProxy(gl, glext, GLExt.class);
+                glfbo = (GLFbo) GLDebug.createProxy(gl, glfbo, GLFbo.class);
             }
 
             if (settings.getBoolean("GraphicsTiming")) {
