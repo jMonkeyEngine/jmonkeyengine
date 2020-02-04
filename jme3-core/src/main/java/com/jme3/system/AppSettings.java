@@ -1179,7 +1179,7 @@ public final class AppSettings extends HashMap<String, Object> {
     }
 
     /**
-     * Determine if the renderer will be run in Graphics Debug mode, which means every openGL Call is checked and
+     * Determine if the renderer will be run in Graphics Debug mode, which means every openGL call is checked and
      * if it returns an error code, throw a {@link com.jme3.renderer.RendererException}.<br />
      * Without this, many openGL calls might fail without notice, so turning it on is recommended for development.
      *
@@ -1191,7 +1191,7 @@ public final class AppSettings extends HashMap<String, Object> {
     }
 
     /**
-     * Set whether the renderer will be run in Graphics Debug mode, which means every openGL Call is checked and
+     * Set whether the renderer will be run in Graphics Debug mode, which means every openGL call is checked and
      * if it returns an error code, throw a {@link com.jme3.renderer.RendererException}.<br />
      * Without this, many openGL calls might fail without notice, so turning it on is recommended for development.
      *
@@ -1200,5 +1200,57 @@ public final class AppSettings extends HashMap<String, Object> {
      */
     public void setGraphicsDebug(boolean debug) {
         putBoolean("GraphicsDebug", debug);
+    }
+
+    /**
+     * Determine if the renderer will be run in Graphics Timing mode, which means every openGL call is checked and
+     * if it runs for longer than a millisecond, log it.<br />
+     * It also keeps track of the time spent in GL Calls in general and displays them when
+     * {@link com.jme3.renderer.opengl.GL#resetStats()} is called.<br />
+     *
+     * @return whether the context will be run in Graphics Timing Mode or not
+     * @see #setGraphicsTiming(boolean)
+     * @see com.jme3.renderer.opengl.GLTiming
+     */
+    public boolean isGraphicsTiming() {
+        return getBoolean("GraphicsTiming");
+    }
+
+    /**
+     * Set whether the renderer will be run in Graphics Timing mode, which means every openGL call is checked and
+     * if it runs for longer than a millisecond, log it.<br />
+     * It also keeps track of the time spent in GL Calls in general and displays them when
+     * {@link com.jme3.renderer.opengl.GL#resetStats()} is called.<br />
+     *
+     * @param timing whether the context will be run in Graphics Timing Mode or not
+     * @see #isGraphicsTiming()
+     * @see com.jme3.renderer.opengl.GLTiming
+     */
+    public void setGraphicsTiming(boolean timing) {
+        putBoolean("GraphicsTiming", timing);
+    }
+
+    /**
+     * Determine if the renderer will be run in Graphics Trace mode, which means every openGL call is logged so one
+     * can trace what openGL commands where executed in which order by the engine.<br />
+     *
+     * @return whether the context will be run in Graphics Trace Mode or not
+     * @see #setGraphicsTrace(boolean)
+     * @see com.jme3.renderer.opengl.GLTracer
+     */
+    public boolean isGraphicsTrace() {
+        return getBoolean("GraphicsTrace");
+    }
+
+    /**
+     * Set whether the renderer will be run in Graphics Trace mode, which means every openGL call is logged so one
+     * can trace what openGL commands where executed in which order by the engine.<br />
+     *
+     * @param trace whether the context will be run in Graphics Trace Mode or not
+     * @see #isGraphicsTrace()
+     * @see com.jme3.renderer.opengl.GLTracer
+     */
+    public void setGraphicsTrace(boolean trace) {
+        putBoolean("GraphicsTrace", trace);
     }
 }
