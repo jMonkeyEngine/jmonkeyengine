@@ -1677,7 +1677,7 @@ public class TerrainQuad extends Node implements Terrain {
                         if (tp.getWorldBound().intersects(toTest)) {
                             CollisionResults cr = new CollisionResults();
                             toTest.collideWith(tp.getWorldBound(), cr);
-                            if (cr != null && cr.getClosestCollision() != null) {
+                            if (cr.getClosestCollision() != null) {
                                 cr.getClosestCollision().getDistance();
                                 results.add(new TerrainPickData(tp, cr.getClosestCollision()));
                             }

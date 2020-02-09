@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -252,7 +252,7 @@ public class Structure implements Cloneable {
         Object fieldValue = this.getFieldValue("ID");
         if (fieldValue instanceof Structure) {
             Structure id = (Structure) fieldValue;
-            return id == null ? null : id.getFieldValue("name").toString().substring(2);// blender adds 2-charactes as a name prefix
+            return id.getFieldValue("name").toString().substring(2);// blender adds 2-charactes as a name prefix
         }
         Object name = this.getFieldValue("name", null);
         return name == null ? null : name.toString().substring(2);
