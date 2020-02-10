@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -171,7 +171,7 @@ public abstract class JmeSystemDelegate {
             return is64 ? Platform.Windows64 : Platform.Windows32;
         } else if (os.contains("linux") || os.contains("freebsd") 
                 || os.contains("sunos") || os.contains("unix")) {
-            if (arch.startsWith("arm")) {
+            if (arch.startsWith("arm") || arch.startsWith("aarch")) {
                 return is64 ? Platform.Linux_ARM64 : Platform.Linux_ARM32;
             } else {
                 return is64 ? Platform.Linux64 : Platform.Linux32;
