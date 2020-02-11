@@ -813,7 +813,7 @@ public abstract class AbstractShadowRendererVR implements SceneProcessor, Savabl
      */
     @Override
     public void read(JmeImporter im) throws IOException {
-        InputCapsule ic = (InputCapsule) im.getCapsule(this);
+        InputCapsule ic = im.getCapsule(this);
         assetManager = im.getAssetManager();
         nbShadowMaps = ic.readInt("nbShadowMaps", 1);
         shadowMapSize = ic.readFloat("shadowMapSize", 0f);
@@ -833,7 +833,7 @@ public abstract class AbstractShadowRendererVR implements SceneProcessor, Savabl
      */
     @Override
     public void write(JmeExporter ex) throws IOException {
-        OutputCapsule oc = (OutputCapsule) ex.getCapsule(this);
+        OutputCapsule oc = ex.getCapsule(this);
         oc.write(nbShadowMaps, "nbShadowMaps", 1);
         oc.write(shadowMapSize, "shadowMapSize", 0);
         oc.write(shadowIntensity, "shadowIntensity", 0.7f);
