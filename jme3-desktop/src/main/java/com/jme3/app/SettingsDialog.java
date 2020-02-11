@@ -312,7 +312,7 @@ public final class SettingsDialog extends JFrame {
         });
 
         if (source.getIcons() != null) {
-            safeSetIconImages( (List<BufferedImage>) Arrays.asList((BufferedImage[]) source.getIcons()) );
+            safeSetIconImages( Arrays.asList((BufferedImage[]) source.getIcons()) );
         }
 
         setTitle(MessageFormat.format(resourceBundle.getString("frame.title"), source.getTitle()));
