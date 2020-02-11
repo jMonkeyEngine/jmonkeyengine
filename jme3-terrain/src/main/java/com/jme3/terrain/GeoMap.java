@@ -239,9 +239,9 @@ public class GeoMap implements Savable {
         int i = 0;
         for (int z = 0; z < height; z++){
             for (int x = 0; x < width; x++){
-                store.put( (float)x*scale.x + offset.x );
-                store.put( (float)hdata[i++]*scale.y );
-                store.put( (float)z*scale.z + offset.z );
+                store.put( x*scale.x + offset.x );
+                store.put( hdata[i++]*scale.y );
+                store.put( z*scale.z + offset.z );
             }
         }
 
@@ -249,8 +249,8 @@ public class GeoMap implements Savable {
     }
     
     public Vector2f getUV(int x, int y, Vector2f store){
-        store.set( (float)x / (float)getWidth(),
-                   (float)y / (float)getHeight() );
+        store.set( x / (float)getWidth(),
+                   y / (float)getHeight() );
         return store;
     }
 

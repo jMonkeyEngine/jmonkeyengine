@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -202,9 +202,9 @@ public class TerrainPatch extends Geometry {
             IndexBuffer idxB = geomap.writeIndexArrayLodDiff(curLod, false, false, false, false, totalSize);
             Buffer ib;
             if (idxB.getBuffer() instanceof IntBuffer)
-                ib = (IntBuffer)idxB.getBuffer();
+                ib = idxB.getBuffer();
             else
-                ib = (ShortBuffer)idxB.getBuffer();
+                ib = idxB.getBuffer();
             entropies[i] = EntropyComputeUtil.computeLodEntropy(mesh, ib);
         }
 
@@ -255,9 +255,9 @@ public class TerrainPatch extends Geometry {
 
             Buffer b;
             if (idxB.getBuffer() instanceof IntBuffer)
-                b = (IntBuffer)idxB.getBuffer();
+                b = idxB.getBuffer();
             else
-                b = (ShortBuffer)idxB.getBuffer();
+                b = idxB.getBuffer();
             utp.setNewIndexBuffer(b);
         }
 
