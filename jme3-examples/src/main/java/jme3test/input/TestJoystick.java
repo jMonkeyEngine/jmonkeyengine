@@ -471,7 +471,7 @@ public class TestJoystick extends SimpleApplication {
             for (CollisionResult cr : cresults) {
                 Node n = cr.getGeometry().getParent();
                 if (n != null && (n instanceof ButtonView)) {
-                    String b = ((ButtonView) n).getName().substring("Button:".length());
+                    String b = n.getName().substring("Button:".length());
                     String name = lastButton.getJoystick().getName().replaceAll(" ", "\\\\ ");
                     String id = lastButton.getLogicalId().replaceAll(" ", "\\\\ ");
                     System.out.println(name + "." + id + "=" + b);

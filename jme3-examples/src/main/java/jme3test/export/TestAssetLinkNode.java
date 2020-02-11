@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -93,7 +93,7 @@ public class TestAssetLinkNode extends SimpleApplication {
         rootNode.attachChild(loaderNode);
 
         lightMdl = new Geometry("Light", new Sphere(10, 10, 0.1f));
-        lightMdl.setMaterial( (Material) assetManager.loadAsset(new MaterialKey("Common/Materials/RedColor.j3m")));
+        lightMdl.setMaterial(assetManager.loadAsset(new MaterialKey("Common/Materials/RedColor.j3m")));
         rootNode.attachChild(lightMdl);
 
         // flourescent main light

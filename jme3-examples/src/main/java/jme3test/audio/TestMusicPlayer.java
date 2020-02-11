@@ -246,7 +246,7 @@ public class TestMusicPlayer extends javax.swing.JFrame {
     }//GEN-LAST:event_formWindowClosing
 
     private void sldVolumeStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_sldVolumeStateChanged
-       listener.setVolume( (float) sldVolume.getValue() / 100f);
+       listener.setVolume(sldVolume.getValue() / 100f);
        ar.setListener(listener);
     }//GEN-LAST:event_sldVolumeStateChanged
 

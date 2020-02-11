@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -57,7 +57,7 @@ class MovingAverage {
         if (count == 0)
             return 0;
         else
-            return (long) ((float) sum / (float) count);
+            return (long) (sum / (float) count);
     }
 
 }

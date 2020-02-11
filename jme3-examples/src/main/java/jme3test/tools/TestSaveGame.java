@@ -60,7 +60,7 @@ public class TestSaveGame extends SimpleApplication {
         myPlayer.setUserData("points", 0);
 
         //the actual model would be attached to this node
-        Spatial model = (Spatial) assetManager.loadModel("Models/Oto/Oto.mesh.xml");
+        Spatial model = assetManager.loadModel("Models/Oto/Oto.mesh.xml");
         myPlayer.attachChild(model);
 
         //before saving the game, the model should be detached so it's not saved along with the node

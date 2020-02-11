@@ -240,8 +240,8 @@ public class TestBitmapFontLayout extends SimpleApplication {
         float y1 = bb.getCenter().y - bb.getYExtent();
         float y2 = bb.getCenter().y + bb.getYExtent();
         System.out.println("xy1:" + x1 + ", " + y1 + "  xy2:" + x2 + ", " + y2);
-        int width = (int)Math.round(x2 - Math.min(0, x1));
-        int height = (int)Math.round(y2 - Math.min(0, y1)); 
+        int width = Math.round(x2 - Math.min(0, x1));
+        int height = Math.round(y2 - Math.min(0, y1)); 
         
         Texture awtText = renderAwtFont(test, width, height, bitmapFont);
         Quad quad = new Quad(width, height);

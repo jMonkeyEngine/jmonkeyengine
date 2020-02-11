@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011 jMonkeyEngine
+ * Copyright (c) 2011-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -83,7 +83,7 @@ public class TestThroughput implements MessageListener<MessageConnection> { //ex
 //System.out.println( "sending:" + msg + " back to client:" + source );
                 // The 'reliable' flag is transient and the server doesn't
                 // (yet) reset this value for us.
-                ((com.jme3.network.Message) msg).setReliable(testReliable);
+                msg.setReliable(testReliable);
                 source.send(msg);
             }
         }

@@ -98,7 +98,7 @@ public class HelloCollision extends SimpleApplication
     // We set up collision detection for the scene by creating a
     // compound collision shape and a static RigidBodyControl with mass zero.
     CollisionShape sceneShape =
-            CollisionShapeFactory.createMeshShape((Node) sceneModel);
+            CollisionShapeFactory.createMeshShape(sceneModel);
     landscape = new RigidBodyControl(sceneShape, 0);
     sceneModel.addControl(landscape);
 
