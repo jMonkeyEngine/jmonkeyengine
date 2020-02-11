@@ -496,7 +496,7 @@ import com.jme3.scene.plugins.blender.textures.generating.TextureGeneratorMusgra
                 sum += t * amp;
             }
 
-            sum *= (float) (1 << noiseDepth) / (float) ((1 << noiseDepth + 1) - 1);
+            sum *= (1 << noiseDepth) / (float) ((1 << noiseDepth + 1) - 1);
             return sum;
         }
 
