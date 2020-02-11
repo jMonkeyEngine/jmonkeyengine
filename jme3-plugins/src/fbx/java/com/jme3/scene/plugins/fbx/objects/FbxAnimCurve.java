@@ -36,8 +36,8 @@ public class FbxAnimCurve extends FbxObject {
 					return defaultValue;//keyValues[0];
 				} else {
 					// Interpolate between two keyframes
-					float dt = (float) (keyTimes[i] - keyTimes[i - 1]);
-					float dtInt = (float) (time - keyTimes[i - 1]);
+					float dt = keyTimes[i] - keyTimes[i - 1];
+					float dtInt = time - keyTimes[i - 1];
 					float dv = keyValues[i] - keyValues[i - 1];
 					return keyValues[i - 1] + dv * (dtInt / dt);
 				}

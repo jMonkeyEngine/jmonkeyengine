@@ -355,7 +355,7 @@ public class SceneLoader implements AssetLoader {
 				int firstKeyIndex = 0;
 				int lastKeyIndex = keyTimes.length - 1;
 				for(int i = 0; i < keyTimes.length; ++i) {
-					float time = (float) (((double) keyTimes[i]) * secondsPerUnit); // Translate into seconds
+					float time = (float) (keyTimes[i] * secondsPerUnit); // Translate into seconds
 					if(time <= animStart)
 						firstKeyIndex = i;
 					if(time >= animStop && animStop >= 0) {
@@ -373,7 +373,7 @@ public class SceneLoader implements AssetLoader {
 				// Calculate keyframes times
 				for(int i = 0; i < keysCount; ++i) {
 					int keyIndex = firstKeyIndex + i;
-					float time = (float) (((double) keyTimes[keyIndex]) * secondsPerUnit); // Translate into seconds
+					float time = (float) (keyTimes[keyIndex] * secondsPerUnit); // Translate into seconds
 					times[i] = time - animStart;
 					realLength = Math.max(realLength, times[i]);
 				}
