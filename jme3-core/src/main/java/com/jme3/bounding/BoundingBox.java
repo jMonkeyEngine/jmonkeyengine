@@ -813,7 +813,7 @@ public class BoundingBox extends BoundingVolume {
             }
             return 0;
         } else if (other instanceof Spatial) {
-            return ((Spatial)other).collideWith(this, results);
+            return other.collideWith(this, results);
         } else {
             throw new UnsupportedCollisionException("With: " + other.getClass().getSimpleName());
         }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1289,22 +1289,22 @@ public final class BufferUtils {
      */
     private static boolean isDirect(Buffer buf) {
         if (buf instanceof FloatBuffer) {
-            return ((FloatBuffer) buf).isDirect();
+            return buf.isDirect();
         }
         if (buf instanceof IntBuffer) {
-            return ((IntBuffer) buf).isDirect();
+            return buf.isDirect();
         }
         if (buf instanceof ShortBuffer) {
-            return ((ShortBuffer) buf).isDirect();
+            return buf.isDirect();
         }
         if (buf instanceof ByteBuffer) {
-            return ((ByteBuffer) buf).isDirect();
+            return buf.isDirect();
         }
         if (buf instanceof DoubleBuffer) {
-            return ((DoubleBuffer) buf).isDirect();
+            return buf.isDirect();
         }
         if (buf instanceof LongBuffer) {
-            return ((LongBuffer) buf).isDirect();
+            return buf.isDirect();
         }
         throw new UnsupportedOperationException(" BufferUtils.isDirect was called on " + buf.getClass().getName());
     }

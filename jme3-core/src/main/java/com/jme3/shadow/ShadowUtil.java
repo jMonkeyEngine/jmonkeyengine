@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -725,7 +725,7 @@ public class ShadowUtil {
      */
     public static void getLitGeometriesInViewPort(Spatial rootScene, Camera vpCamera, Camera[] cameras, RenderQueue.ShadowMode mode, GeometryList outputGeometryList) {
         if (rootScene != null && rootScene instanceof Node) {
-            addGeometriesInCamFrustumAndViewPortFromNode(vpCamera, cameras, (Node)rootScene, mode, outputGeometryList);
+            addGeometriesInCamFrustumAndViewPortFromNode(vpCamera, cameras, rootScene, mode, outputGeometryList);
         }
     }
     /**
