@@ -249,11 +249,7 @@ public class TerrainPatch extends Geometry {
             else
                 idxB = geomap.writeIndexArrayLodDiff(pow, right, top, left, bottom, totalSize);
 
-            Buffer b;
-            if (idxB.getBuffer() instanceof IntBuffer)
-                b = idxB.getBuffer();
-            else
-                b = idxB.getBuffer();
+            Buffer b = idxB.getBuffer();
             utp.setNewIndexBuffer(b);
         }
 
