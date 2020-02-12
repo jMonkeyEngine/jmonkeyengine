@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -49,7 +49,7 @@ public class JmeVersion {
     static {
         try {
             props.load(JmeVersion.class.getResourceAsStream("version.properties"));
-        } catch (IOException ex) {
+        } catch (IOException | NullPointerException ex) {
             logger.log(Level.WARNING, "Unable to read version info!", ex);
         }
     }
