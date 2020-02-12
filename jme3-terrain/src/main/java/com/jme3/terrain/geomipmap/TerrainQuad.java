@@ -1306,7 +1306,7 @@ public class TerrainQuad extends Node implements Terrain {
     public void setLocked(boolean locked) {
         for (int i = 0; i < this.getQuantity(); i++) {
             if (this.getChild(i) instanceof TerrainQuad) {
-                ((Terrain) getChild(i)).setLocked(locked);
+                ((TerrainQuad) getChild(i)).setLocked(locked);
             } else if (this.getChild(i) instanceof TerrainPatch) {
                 if (locked)
                     ((TerrainPatch) getChild(i)).lockMesh();
