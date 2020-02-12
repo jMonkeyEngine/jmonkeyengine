@@ -200,11 +200,7 @@ public class TerrainPatch extends Geometry {
         for (int i = 0; i <= getMaxLod(); i++){
             int curLod = (int) Math.pow(2, i);
             IndexBuffer idxB = geomap.writeIndexArrayLodDiff(curLod, false, false, false, false, totalSize);
-            Buffer ib;
-            if (idxB.getBuffer() instanceof IntBuffer)
-                ib = idxB.getBuffer();
-            else
-                ib = idxB.getBuffer();
+            Buffer ib = idxB.getBuffer();
             entropies[i] = EntropyComputeUtil.computeLodEntropy(mesh, ib);
         }
 
