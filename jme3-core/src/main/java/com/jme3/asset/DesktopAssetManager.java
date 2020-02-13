@@ -401,12 +401,12 @@ public class DesktopAssetManager implements AssetManager {
 
     @Override
     public Texture loadTexture(TextureKey key){                
-        return (Texture) loadAsset(key);
+        return loadAsset(key);
     }
 
     @Override
     public Material loadMaterial(String name){
-        return (Material) loadAsset(new MaterialKey(name));
+        return loadAsset(new MaterialKey(name));
     }
 
     @Override
@@ -418,7 +418,7 @@ public class DesktopAssetManager implements AssetManager {
 
     @Override
     public AudioData loadAudio(AudioKey key){
-        return (AudioData) loadAsset(key);
+        return loadAsset(key);
     }
 
     @Override
@@ -433,7 +433,7 @@ public class DesktopAssetManager implements AssetManager {
 
     @Override
     public Spatial loadModel(ModelKey key){
-        return (Spatial) loadAsset(key);
+        return loadAsset(key);
     }
 
     @Override
@@ -443,7 +443,7 @@ public class DesktopAssetManager implements AssetManager {
 
     @Override
     public FilterPostProcessor loadFilter(FilterKey key){
-        return (FilterPostProcessor) loadAsset(key);
+        return loadAsset(key);
     }
 
     @Override

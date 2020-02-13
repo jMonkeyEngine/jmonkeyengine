@@ -66,7 +66,7 @@ public class TestOgreAnim extends SimpleApplication
         dl.setColor(new ColorRGBA(1f, 1f, 1f, 1.0f));
         rootNode.addLight(dl);
 
-        Spatial model = (Spatial) assetManager.loadModel("Models/Oto/OtoOldAnim.j3o");
+        Spatial model = assetManager.loadModel("Models/Oto/OtoOldAnim.j3o");
         model.center();
 
         control = model.getControl(AnimControl.class);

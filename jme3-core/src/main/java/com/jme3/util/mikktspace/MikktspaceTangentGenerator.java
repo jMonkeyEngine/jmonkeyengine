@@ -105,7 +105,7 @@ public class MikktspaceTangentGenerator {
         int iNrActiveGroups, index;
         final int iNrFaces = mikkTSpace.getNumFaces();
         //boolean bRes = false;
-        final float fThresCos = (float) FastMath.cos((angularThreshold * (float) FastMath.PI) / 180.0f);
+        final float fThresCos = FastMath.cos((angularThreshold * FastMath.PI) / 180.0f);
 
         // count triangles on supported faces
         for (int f = 0; f < iNrFaces; f++) {

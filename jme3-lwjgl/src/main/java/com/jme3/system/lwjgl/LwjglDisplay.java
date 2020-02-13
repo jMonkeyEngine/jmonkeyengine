@@ -113,15 +113,11 @@ public class LwjglDisplay extends LwjglAbstractDisplay {
         Display.setTitle(settings.getTitle());
         Display.setResizable(settings.isResizable());
         
-        if (displayMode != null) {
-            if (settings.isFullscreen()) {
-                Display.setDisplayModeAndFullscreen(displayMode);
-            } else {
-                Display.setFullscreen(false);
-                Display.setDisplayMode(displayMode);
-            }
+        if (settings.isFullscreen()) {
+            Display.setDisplayModeAndFullscreen(displayMode);
         } else {
-            Display.setFullscreen(settings.isFullscreen());
+            Display.setFullscreen(false);
+            Display.setDisplayMode(displayMode);
         }
 
         if (settings.getIcons() != null) {

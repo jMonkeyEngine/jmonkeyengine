@@ -93,7 +93,7 @@ public class OSVRViewManager extends AbstractVRViewManager{
      * @see #getFullTexId()
      */
     protected int getLeftTexId() {
-        return (int)leftEyeTexture.getImage().getId();
+        return leftEyeTexture.getImage().getId();
     }
     
     /**
@@ -103,7 +103,7 @@ public class OSVRViewManager extends AbstractVRViewManager{
      * @see #getFullTexId()
      */
     protected int getRightTexId() {
-        return (int)rightEyeTexture.getImage().getId();
+        return rightEyeTexture.getImage().getId();
     }
     
     /**
@@ -113,7 +113,7 @@ public class OSVRViewManager extends AbstractVRViewManager{
      * @see #getRightTexId()
      */
     private int getFullTexId() {
-        return (int)dualEyeTex.getImage().getId();
+        return dualEyeTex.getImage().getId();
     }
     
     /**
@@ -295,7 +295,7 @@ public class OSVRViewManager extends AbstractVRViewManager{
                     int origHeight = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDisplayMode().getHeight();
                     long window = ((LwjglWindow)environment.getApplication().getContext()).getWindowHandle();
                     Vector2f windowSize = new Vector2f();
-                    ((OSVR)environment.getVRHardware()).getRenderSize(windowSize);
+                    environment.getVRHardware().getRenderSize(windowSize);
                     windowSize.x = Math.max(windowSize.x * 2f, leftCamera.getWidth());
                     org.lwjgl.glfw.GLFW.glfwSetWindowSize(window, (int)windowSize.x, (int)windowSize.y);
                     environment.getApplication().getContext().getSettings().setResolution((int)windowSize.x, (int)windowSize.y);

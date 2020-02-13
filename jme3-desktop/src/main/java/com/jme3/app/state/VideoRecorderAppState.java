@@ -343,7 +343,7 @@ public class VideoRecorderAppState extends AbstractAppState {
 
         @Override
         public float getTimePerFrame() {
-            return (float) (1.0f / this.framerate);
+            return 1.0f / this.framerate;
         }
 
         @Override

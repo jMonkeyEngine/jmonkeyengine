@@ -92,7 +92,7 @@ public class BasicShadowRenderer implements SceneProcessor {
          //DO NOT COMMENT THIS (it prevent the OSX incomplete read buffer crash)
         dummyTex = new Texture2D(size, size, Format.RGBA8);        
         shadowFB.setColorTexture(dummyTex);
-        shadowMapSize = (float)size;
+        shadowMapSize = size;
         preshadowMat = new Material(manager, "Common/MatDefs/Shadow/PreShadow.j3md");
         postshadowMat = new Material(manager, "Common/MatDefs/Shadow/BasicPostShadow.j3md");
         postshadowMat.setTexture("ShadowMap", shadowMap);

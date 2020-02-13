@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -141,8 +141,8 @@ public class LODGeomap extends GeoMap {
         float offsetX = offset.x + (offsetAmount * 1.0f);
         float offsetY = -offset.y + (offsetAmount * 1.0f);//note the -, we flip the tex coords
 
-        store.set((((float) x) + offsetX) / (float) (totalSize - 1), // calculates percentage of texture here
-                (((float) y) + offsetY) / (float) (totalSize - 1));
+        store.set((x + offsetX) / (totalSize - 1), // calculates percentage of texture here
+                (y + offsetY) / (totalSize - 1));
         return store;
     }
 

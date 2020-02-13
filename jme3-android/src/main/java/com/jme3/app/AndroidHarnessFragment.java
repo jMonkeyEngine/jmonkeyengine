@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -684,10 +684,10 @@ public class AndroidHarnessFragment extends Fragment implements
                     if (viewWidth > viewHeight && viewWidth > maxResolutionDimension) {
                         // landscape
                         fixedSizeWidth = maxResolutionDimension;
-                        fixedSizeHeight = (int)(maxResolutionDimension * ((float)viewHeight / (float)viewWidth));
+                        fixedSizeHeight = (int)(maxResolutionDimension * (viewHeight / (float)viewWidth));
                     } else if (viewHeight > viewWidth && viewHeight > maxResolutionDimension) {
                         // portrait
-                        fixedSizeWidth = (int)(maxResolutionDimension * ((float)viewWidth / (float)viewHeight));
+                        fixedSizeWidth = (int)(maxResolutionDimension * (viewWidth / (float)viewHeight));
                         fixedSizeHeight = maxResolutionDimension;
                     } else if (viewWidth == viewHeight && viewWidth > maxResolutionDimension) {
                         fixedSizeWidth = maxResolutionDimension;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -141,7 +141,7 @@ public class PQTorus extends Mesh {
         // Move along the length of the pq torus
         for (int i = 0; i < steps; i++) {
             theta += thetaStep;
-            float circleFraction = ((float) i) / (float) steps;
+            float circleFraction = i / (float) steps;
 
             // Find the point on the torus
             r = (0.5f * (2.0f + FastMath.sin(q * theta)) * radius);

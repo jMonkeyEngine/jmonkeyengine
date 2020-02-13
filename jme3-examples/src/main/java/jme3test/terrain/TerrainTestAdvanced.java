@@ -267,13 +267,13 @@ public class TerrainTestAdvanced extends SimpleApplication {
                     // planar textures don't use the mesh's texture coordinates but real world coordinates,
                     // so we need to convert these texture coordinate scales into real world scales so it looks
                     // the same when we switch to/from tr-planar mode (1024f is the alphamap size)
-                    matTerrain.setFloat("DiffuseMap_0_scale", 1f / (float) (1024f / dirtScale));
-                    matTerrain.setFloat("DiffuseMap_1_scale", 1f / (float) (1024f / darkRockScale));
-                    matTerrain.setFloat("DiffuseMap_2_scale", 1f / (float) (1024f / pinkRockScale));
-                    matTerrain.setFloat("DiffuseMap_3_scale", 1f / (float) (1024f / riverRockScale));
-                    matTerrain.setFloat("DiffuseMap_4_scale", 1f / (float) (1024f / grassScale));
-                    matTerrain.setFloat("DiffuseMap_5_scale", 1f / (float) (1024f / brickScale));
-                    matTerrain.setFloat("DiffuseMap_6_scale", 1f / (float) (1024f / roadScale));
+                    matTerrain.setFloat("DiffuseMap_0_scale", 1f / (1024f / dirtScale));
+                    matTerrain.setFloat("DiffuseMap_1_scale", 1f / (1024f / darkRockScale));
+                    matTerrain.setFloat("DiffuseMap_2_scale", 1f / (1024f / pinkRockScale));
+                    matTerrain.setFloat("DiffuseMap_3_scale", 1f / (1024f / riverRockScale));
+                    matTerrain.setFloat("DiffuseMap_4_scale", 1f / (1024f / grassScale));
+                    matTerrain.setFloat("DiffuseMap_5_scale", 1f / (1024f / brickScale));
+                    matTerrain.setFloat("DiffuseMap_6_scale", 1f / (1024f / roadScale));
                 } else {
                     matTerrain.setBoolean("useTriPlanarMapping", false);
                     

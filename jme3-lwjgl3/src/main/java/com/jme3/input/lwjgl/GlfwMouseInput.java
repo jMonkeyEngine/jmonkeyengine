@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -234,7 +234,7 @@ public class GlfwMouseInput implements MouseInput {
         DoubleBuffer y = BufferUtils.createDoubleBuffer(1);
         glfwGetCursorPos(window, x, y);
         mouseX = (int) Math.round(x.get());
-        mouseY = (int) currentHeight - (int) Math.round(y.get());
+        mouseY = currentHeight - (int) Math.round(y.get());
     }
 
     /**

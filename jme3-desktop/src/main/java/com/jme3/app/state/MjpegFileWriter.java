@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -470,7 +470,7 @@ public class MjpegFileWriter {
             baos.write(fcc);
             baos.write(intBytes(swapInt(cb)));
             for (int i = 0; i < ind.size(); i++) {
-                AVIIndex in = (AVIIndex) ind.get(i);
+                AVIIndex in = ind.get(i);
                 baos.write(in.toBytes());
             }
 

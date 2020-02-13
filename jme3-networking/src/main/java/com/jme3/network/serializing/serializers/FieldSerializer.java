@@ -146,7 +146,7 @@ public class FieldSerializer extends Serializer {
 
         T object;
         try {
-            Constructor<T> ctor = (Constructor<T>)savedCtors.get(c);
+            Constructor<T> ctor = savedCtors.get(c);
             object = ctor.newInstance();
         } catch (Exception e) {
             throw new SerializerException( "Error creating object of type:" + c, e );

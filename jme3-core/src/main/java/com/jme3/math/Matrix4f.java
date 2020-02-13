@@ -2161,7 +2161,7 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
      */
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof Matrix4f) || o == null) {
+        if (!(o instanceof Matrix4f)) {
             return false;
         }
 

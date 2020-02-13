@@ -205,9 +205,9 @@ public class TerrainTest extends SimpleApplication {
                     // planar textures don't use the mesh's texture coordinates but real world coordinates,
                     // so we need to convert these texture coordinate scales into real world scales so it looks
                     // the same when we switch to/from tri-planar mode
-                    matRock.setFloat("Tex1Scale", 1f / (float) (512f / grassScale));
-                    matRock.setFloat("Tex2Scale", 1f / (float) (512f / dirtScale));
-                    matRock.setFloat("Tex3Scale", 1f / (float) (512f / rockScale));
+                    matRock.setFloat("Tex1Scale", 1f / (512f / grassScale));
+                    matRock.setFloat("Tex2Scale", 1f / (512f / dirtScale));
+                    matRock.setFloat("Tex3Scale", 1f / (512f / rockScale));
                 } else {
                     matRock.setBoolean("useTriPlanarMapping", false);
                     matRock.setFloat("Tex1Scale", grassScale);

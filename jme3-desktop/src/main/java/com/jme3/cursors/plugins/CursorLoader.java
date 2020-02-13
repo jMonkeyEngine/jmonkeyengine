@@ -74,11 +74,11 @@ public class CursorLoader implements AssetLoader {
         isAni = false;
         isCur = false;
 
-        isIco = ((AssetKey) info.getKey()).getExtension().equals("ico");
+        isIco = info.getKey().getExtension().equals("ico");
         if (!isIco) {
-            isCur = ((AssetKey) info.getKey()).getExtension().equals("cur");
+            isCur = info.getKey().getExtension().equals("cur");
             if (!isCur) {
-                isAni = ((AssetKey) info.getKey()).getExtension().equals("ani");
+                isAni = info.getKey().getExtension().equals("ani");
             }
         }
         if (!isAni && !isIco && !isCur) {

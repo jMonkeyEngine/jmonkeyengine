@@ -94,7 +94,7 @@ public class BombControl extends RigidBodyControl implements PhysicsCollisionLis
         float COUNT_FACTOR_F = 1f;
         effect = new ParticleEmitter("Flame", Type.Triangle, 32 * COUNT_FACTOR);
         effect.setSelectRandomImage(true);
-        effect.setStartColor(new ColorRGBA(1f, 0.4f, 0.05f, (float) (1f / COUNT_FACTOR_F)));
+        effect.setStartColor(new ColorRGBA(1f, 0.4f, 0.05f, (1f / COUNT_FACTOR_F)));
         effect.setEndColor(new ColorRGBA(.4f, .22f, .12f, 0f));
         effect.setStartSize(1.3f);
         effect.setEndSize(2f);

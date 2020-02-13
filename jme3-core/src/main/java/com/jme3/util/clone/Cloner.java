@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2018 jMonkeyEngine
+ * Copyright (c) 2016-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -298,7 +298,7 @@ public class Cloner {
      */
     @SuppressWarnings("unchecked")
     public <T> CloneFunction<T> getCloneFunction( Class<T> type ) {
-        CloneFunction<T> result = (CloneFunction<T>)functions.get(type);
+        CloneFunction<T> result = functions.get(type);
         if( result == null ) {
             // Do a more exhaustive search
             for( Map.Entry<Class, CloneFunction> e : functions.entrySet() ) {

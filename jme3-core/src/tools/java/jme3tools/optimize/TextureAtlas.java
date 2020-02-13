@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2009-2012 jMonkeyEngine
+ *  Copyright (c) 2009-2020 jMonkeyEngine
  *  All rights reserved.
  * 
  *  Redistribution and use in source and binary forms, with or without
@@ -637,10 +637,10 @@ public class TextureAtlas {
          * @return The new texture coordinate inside the atlas.
          */
         public Vector2f getLocation(Vector2f previousLocation) {
-            float x = (float) getX() / (float) atlasWidth;
-            float y = (float) getY() / (float) atlasHeight;
-            float w = (float) getWidth() / (float) atlasWidth;
-            float h = (float) getHeight() / (float) atlasHeight;
+            float x = getX() / (float) atlasWidth;
+            float y = getY() / (float) atlasHeight;
+            float w = getWidth() / (float) atlasWidth;
+            float h = getHeight() / (float) atlasHeight;
             Vector2f location = new Vector2f(x, y);
             float prevX = previousLocation.x;
             float prevY = previousLocation.y;

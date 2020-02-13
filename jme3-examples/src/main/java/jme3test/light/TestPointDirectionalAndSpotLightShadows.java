@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -98,7 +98,7 @@ public class TestPointDirectionalAndSpotLightShadows extends SimpleApplication {
         rootNode.attachChild(box);
         box.setLocalTranslation(-1f, 0.5f, -2);
 
-        ((PointLight) scene.getLocalLightList().get(0)).setColor(ColorRGBA.Red);
+        scene.getLocalLightList().get(0).setColor(ColorRGBA.Red);
         
         plsr = new PointLightShadowRenderer(assetManager, SHADOWMAP_SIZE);
         plsr.setLight((PointLight) scene.getLocalLightList().get(0));

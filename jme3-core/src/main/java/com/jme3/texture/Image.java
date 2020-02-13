@@ -1254,7 +1254,7 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
         depth = capsule.readInt("depth", 0);
         mipMapSizes = capsule.readIntArray("mipMapSizes", null);
         multiSamples = capsule.readInt("multiSamples", 1);
-        data = (ArrayList<ByteBuffer>) capsule.readByteBufferArrayList("data", null);
+        data = capsule.readByteBufferArrayList("data", null);
         colorSpace = capsule.readEnum("colorSpace", ColorSpace.class, null);
 
         if (mipMapSizes != null) {
