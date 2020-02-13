@@ -821,7 +821,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
                 al.alSourcei(sourceId, EFX.AL_DIRECT_FILTER, EFX.AL_FILTER_NULL);
             }
             if (src.isPositional()) {
-                AudioSource pas = (AudioSource) src;
+                AudioSource pas = src;
                 if (pas.isReverbEnabled() && supportEfx) {
                     al.alSource3i(sourceId, EFX.AL_AUXILIARY_SEND_FILTER, 0, 0, EFX.AL_FILTER_NULL);
                 }

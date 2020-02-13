@@ -1,7 +1,7 @@
 package com.jme3.shadow;
 
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -270,7 +270,7 @@ public class DirectionalLightShadowRendererVR extends AbstractShadowRendererVR {
     @Override
     public void read(JmeImporter im) throws IOException {
         super.read(im);
-        InputCapsule ic = (InputCapsule) im.getCapsule(this);
+        InputCapsule ic = im.getCapsule(this);
         lambda = ic.readFloat("lambda", 0.65f);
         zFarOverride = ic.readInt("zFarOverride", 0);
         light = (DirectionalLight) ic.readSavable("light", null);
@@ -282,7 +282,7 @@ public class DirectionalLightShadowRendererVR extends AbstractShadowRendererVR {
     @Override
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
-        OutputCapsule oc = (OutputCapsule) ex.getCapsule(this);
+        OutputCapsule oc = ex.getCapsule(this);
         oc.write(lambda, "lambda", 0.65f);
         oc.write(zFarOverride, "zFarOverride", 0);
         oc.write(light, "light", null);

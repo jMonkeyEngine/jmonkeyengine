@@ -1050,8 +1050,8 @@ public class TerrainQuad extends Node implements Terrain {
      */
     public float getHeight(Vector2f xz) {
         // offset
-        float x = (float)(((xz.x - getWorldTranslation().x) / getWorldScale().x) + (float)(totalSize-1) / 2f);
-        float z = (float)(((xz.y - getWorldTranslation().z) / getWorldScale().z) + (float)(totalSize-1) / 2f);
+        float x = ((xz.x - getWorldTranslation().x) / getWorldScale().x) + (totalSize-1) / 2f;
+        float z = ((xz.y - getWorldTranslation().z) / getWorldScale().z) + (totalSize-1) / 2f;
         if (!isInside((int)x, (int)z))
             return Float.NaN;
         float height = getHeight((int)x, (int)z, (x%1f), (z%1f));
@@ -1077,8 +1077,8 @@ public class TerrainQuad extends Node implements Terrain {
 
     public Vector3f getNormal(Vector2f xz) {
         // offset
-        float x = (float)(((xz.x - getWorldTranslation().x) / getWorldScale().x) + (float)(totalSize-1) / 2f);
-        float z = (float)(((xz.y - getWorldTranslation().z) / getWorldScale().z) + (float)(totalSize-1) / 2f);
+        float x = ((xz.x - getWorldTranslation().x) / getWorldScale().x) + (totalSize-1) / 2f;
+        float z = ((xz.y - getWorldTranslation().z) / getWorldScale().z) + (totalSize-1) / 2f;
         Vector3f normal = getNormal(x, z, xz);
 
         return normal;
@@ -1576,10 +1576,10 @@ public class TerrainQuad extends Node implements Terrain {
         for (int x = children.size(); --x >= 0;) {
             Spatial child = children.get(x);
             if (child instanceof TerrainQuad) {
-                if (affectedArea != null && affectedArea.intersects(((TerrainQuad) child).getWorldBound()) )
+                if (affectedArea != null && affectedArea.intersects( child.getWorldBound()) )
                     ((TerrainQuad) child).fixNormals(affectedArea);
             } else if (child instanceof TerrainPatch) {
-                if (affectedArea != null && affectedArea.intersects(((TerrainPatch) child).getWorldBound()) )
+                if (affectedArea != null && affectedArea.intersects(child.getWorldBound()) )
                     ((TerrainPatch) child).updateNormals(); // recalculate the patch's normals
             }
         }
@@ -1595,10 +1595,10 @@ public class TerrainQuad extends Node implements Terrain {
         for (int x = children.size(); --x >= 0;) {
             Spatial child = children.get(x);
             if (child instanceof TerrainQuad) {
-                if (affectedArea != null && affectedArea.intersects(((TerrainQuad) child).getWorldBound()) )
+                if (affectedArea != null && affectedArea.intersects(child.getWorldBound()) )
                     ((TerrainQuad) child).fixNormalEdges(affectedArea);
             } else if (child instanceof TerrainPatch) {
-                if (affectedArea != null && !affectedArea.intersects(((TerrainPatch) child).getWorldBound()) ) // if doesn't intersect, continue
+                if (affectedArea != null && !affectedArea.intersects(child.getWorldBound()) ) // if doesn't intersect, continue
                     continue;
 
                 TerrainPatch tp = (TerrainPatch) child;
@@ -1664,7 +1664,7 @@ public class TerrainQuad extends Node implements Terrain {
                         if (tp.getWorldBound().intersects(toTest)) {
                             CollisionResults cr = new CollisionResults();
                             toTest.collideWith(tp.getWorldBound(), cr);
-                            if (cr != null && cr.getClosestCollision() != null) {
+                            if (cr.getClosestCollision() != null) {
                                 cr.getClosestCollision().getDistance();
                                 results.add(new TerrainPickData(tp, cr.getClosestCollision()));
                             }

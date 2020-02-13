@@ -388,11 +388,11 @@ public class DesktopAssetManager implements AssetManager {
     }
 
     public Texture loadTexture(TextureKey key){                
-        return (Texture) loadAsset(key);
+        return loadAsset(key);
     }
 
     public Material loadMaterial(String name){
-        return (Material) loadAsset(new MaterialKey(name));
+        return loadAsset(new MaterialKey(name));
     }
 
     public Texture loadTexture(String name){
@@ -402,7 +402,7 @@ public class DesktopAssetManager implements AssetManager {
     }
 
     public AudioData loadAudio(AudioKey key){
-        return (AudioData) loadAsset(key);
+        return loadAsset(key);
     }
 
     public AudioData loadAudio(String name){
@@ -414,7 +414,7 @@ public class DesktopAssetManager implements AssetManager {
     }
 
     public Spatial loadModel(ModelKey key){
-        return (Spatial) loadAsset(key);
+        return loadAsset(key);
     }
 
     public Spatial loadModel(String name){
@@ -422,7 +422,7 @@ public class DesktopAssetManager implements AssetManager {
     }
 
     public FilterPostProcessor loadFilter(FilterKey key){
-        return (FilterPostProcessor) loadAsset(key);
+        return loadAsset(key);
     }
 
     public FilterPostProcessor loadFilter(String name){

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -458,7 +458,7 @@ public class Spline implements Savable {
     public void read(JmeImporter im) throws IOException {
         InputCapsule in = im.getCapsule(this);
 
-        controlPoints = (ArrayList<Vector3f>) in.readSavableArrayList("controlPoints", new ArrayList<Vector3f>()); /* Empty List as default, prevents null pointers */
+        controlPoints = in.readSavableArrayList("controlPoints", new ArrayList<>()); /* Empty List as default, prevents null pointers */
         float list[] = in.readFloatArray("segmentsLength", null);
         if (list != null) {
             segmentsLength = new ArrayList<Float>();
@@ -468,7 +468,7 @@ public class Spline implements Savable {
         }
         type = in.readEnum("pathSplineType", SplineType.class, SplineType.CatmullRom);
         totalLength = in.readFloat("totalLength", 0);
-        CRcontrolPoints = (ArrayList<Vector3f>) in.readSavableArrayList("CRControlPoints", null);
+        CRcontrolPoints = in.readSavableArrayList("CRControlPoints", null);
         curveTension = in.readFloat("curveTension", 0.5f);
         cycle = in.readBoolean("cycle", false);
         knots = in.readSavableArrayList("knots", null);

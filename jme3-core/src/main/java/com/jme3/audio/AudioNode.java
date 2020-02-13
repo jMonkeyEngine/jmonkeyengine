@@ -161,7 +161,7 @@ public class AudioNode extends Node implements AudioSource {
     @Deprecated
     public AudioNode(AssetManager assetManager, String name, boolean stream, boolean streamCache) {
         this.audioKey = new AudioKey(name, stream, streamCache);
-        this.data = (AudioData) assetManager.loadAsset(audioKey);
+        this.data = assetManager.loadAsset(audioKey);
     }
 
     /**

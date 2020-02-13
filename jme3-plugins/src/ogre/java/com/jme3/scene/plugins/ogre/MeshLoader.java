@@ -840,7 +840,7 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
                 if (materialList == null && materialName != null) {
                     OgreMaterialKey materialKey = new OgreMaterialKey(folderName + materialName + ".material");
                     try {
-                        materialList = (MaterialList) assetManager.loadAsset(materialKey);
+                        materialList = assetManager.loadAsset(materialKey);
                     } catch (AssetNotFoundException e) {
                         logger.log(Level.WARNING, "Cannot locate {0} for model {1}", new Object[]{materialKey, key});
                     }
@@ -857,7 +857,7 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
             if (materialList == null) {
                 OgreMaterialKey materialKey = new OgreMaterialKey(folderName + meshName + ".material");
                 try {
-                    materialList = (MaterialList) assetManager.loadAsset(materialKey);
+                    materialList = assetManager.loadAsset(materialKey);
                 } catch (AssetNotFoundException e) {
                     logger.log(Level.WARNING, "Cannot locate {0} for model {1}", new Object[]{materialKey, key});
                 }

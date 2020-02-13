@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -108,16 +108,16 @@ public class MipMapImageRaster extends ImageRaster {
 
         switch (codec.type) {
             case ImageCodec.FLAG_F16:
-                components[0] = (int) FastMath.convertFloatToHalf(color.a);
-                components[1] = (int) FastMath.convertFloatToHalf(color.r);
-                components[2] = (int) FastMath.convertFloatToHalf(color.g);
-                components[3] = (int) FastMath.convertFloatToHalf(color.b);
+                components[0] = FastMath.convertFloatToHalf(color.a);
+                components[1] = FastMath.convertFloatToHalf(color.r);
+                components[2] = FastMath.convertFloatToHalf(color.g);
+                components[3] = FastMath.convertFloatToHalf(color.b);
                 break;
             case ImageCodec.FLAG_F32:
-                components[0] = (int) Float.floatToIntBits(color.a);
-                components[1] = (int) Float.floatToIntBits(color.r);
-                components[2] = (int) Float.floatToIntBits(color.g);
-                components[3] = (int) Float.floatToIntBits(color.b);
+                components[0] = Float.floatToIntBits(color.a);
+                components[1] = Float.floatToIntBits(color.r);
+                components[2] = Float.floatToIntBits(color.g);
+                components[3] = Float.floatToIntBits(color.b);
                 break;
             case 0:
                 // Convert color to bits by multiplying by size
@@ -154,10 +154,10 @@ public class MipMapImageRaster extends ImageRaster {
                         FastMath.convertHalfToFloat((short) components[0]));
                 break;
             case ImageCodec.FLAG_F32:
-                store.set(Float.intBitsToFloat((int) components[1]),
-                        Float.intBitsToFloat((int) components[2]),
-                        Float.intBitsToFloat((int) components[3]),
-                        Float.intBitsToFloat((int) components[0]));
+                store.set(Float.intBitsToFloat(components[1]),
+                        Float.intBitsToFloat(components[2]),
+                        Float.intBitsToFloat(components[3]),
+                        Float.intBitsToFloat(components[0]));
                 break;
             case 0:
                 // Convert to float and divide by bitsize to get into range 0.0 - 1.0.

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -56,7 +56,7 @@ public class TestRayCasting extends SimpleApplication {
 //        flyCam.setEnabled(false);
 
         // load material
-        Material mat = (Material) assetManager.loadMaterial("Interface/Logo/Logo.j3m");
+        Material mat = assetManager.loadMaterial("Interface/Logo/Logo.j3m");
 
         Mesh q = new Mesh();
         q.setBuffer(Type.Position, 3, new float[]

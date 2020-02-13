@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -404,16 +404,16 @@ public final class AppSettings extends HashMap<String, Object> {
                     // Try loading using new method
                     switch (key.charAt(0)) {
                         case 'I':
-                            put(key.substring(2), prefs.getInt(key, (Integer) 0));
+                            put(key.substring(2), prefs.getInt(key, 0));
                             break;
                         case 'F':
-                            put(key.substring(2), prefs.getFloat(key, (Float) 0f));
+                            put(key.substring(2), prefs.getFloat(key, 0f));
                             break;
                         case 'S':
-                            put(key.substring(2), prefs.get(key, (String) null));
+                            put(key.substring(2), prefs.get(key, null));
                             break;
                         case 'B':
-                            put(key.substring(2), prefs.getBoolean(key, (Boolean) false));
+                            put(key.substring(2), prefs.getBoolean(key, false));
                             break;
                         default:
                             throw new UnsupportedOperationException("Undefined setting type: " + key.charAt(0));

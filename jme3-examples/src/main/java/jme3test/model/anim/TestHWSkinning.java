@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -86,8 +86,8 @@ public class TestHWSkinning extends SimpleApplication implements ActionListener{
                 Node model = (Node)models[(i + j) % 4];
                 Spatial s = model.getChild(0).clone();
                 model.attachChild(s);
-                float x = (float)(i - SIZE / 2) / 0.1f;
-                float z = (float)(j - SIZE / 2) / 0.1f;
+                float x = (i - SIZE / 2) / 0.1f;
+                float z = (j - SIZE / 2) / 0.1f;
                 s.setLocalTranslation(x, 0, z);
             }
         }

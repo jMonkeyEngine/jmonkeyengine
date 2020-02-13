@@ -248,7 +248,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
         }
 
         if (settings.getFrameRate() > 0) {
-            minFrameDuration = (long)(1000d / (double)settings.getFrameRate()); // ms
+            minFrameDuration = (long)(1000d / settings.getFrameRate()); // ms
             logger.log(Level.FINE, "Setting min tpf: {0}ms", minFrameDuration);
         } else {
             minFrameDuration = 0;

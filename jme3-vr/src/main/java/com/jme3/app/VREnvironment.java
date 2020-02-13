@@ -169,7 +169,7 @@ public class VREnvironment {
                 ((OpenVR)hardware).getCompositor().SetTrackingSpace.apply(JOpenVRLibrary.ETrackingUniverseOrigin.ETrackingUniverseOrigin_TrackingUniverseStanding);                
             }        
         } else if (hardware instanceof LWJGLOpenVR) {
-        	if( ((LWJGLOpenVR)hardware).isInitialized() ) {
+        	if( hardware.isInitialized() ) {
             	((LWJGLOpenVR)hardware).setTrackingSpace(seated);
             }
         }

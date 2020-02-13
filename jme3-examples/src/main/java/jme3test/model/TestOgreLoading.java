@@ -89,7 +89,7 @@ public class TestOgreLoading extends SimpleApplication {
 
 
         // create the geometry and attach it
-        Spatial elephant = (Spatial) assetManager.loadModel("Models/Elephant/Elephant.mesh.xml");
+        Spatial elephant = assetManager.loadModel("Models/Elephant/Elephant.mesh.xml");
         float scale = 0.05f;
         elephant.scale(scale, scale, scale);
         rootNode.attachChild(elephant);

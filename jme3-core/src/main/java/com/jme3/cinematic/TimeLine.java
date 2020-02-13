@@ -93,7 +93,7 @@ public class TimeLine extends HashMap<Integer, KeyFrame> implements Savable {
     }
     
     public float getKeyFrameTime(KeyFrame keyFrame) {
-        return (float)keyFrame.getIndex()/(float)keyFramesPerSeconds;
+        return keyFrame.getIndex()/(float)keyFramesPerSeconds;
     }
 
     public Collection<KeyFrame> getAllKeyFrames() {

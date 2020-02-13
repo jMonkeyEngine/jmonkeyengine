@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -178,7 +178,7 @@ public class InputManager implements RawInputListener {
         if (safeMode || frameDelta == 0) {
             return 1f;
         } else {
-            return FastMath.clamp((float) timeDelta / (float) frameDelta, 0, 1);
+            return FastMath.clamp(timeDelta / (float) frameDelta, 0, 1);
         }
     }
 

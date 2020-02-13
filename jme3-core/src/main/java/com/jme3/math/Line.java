@@ -150,7 +150,7 @@ public class Line implements Savable, Cloneable, java.io.Serializable {
             origin.addLocal(compVec1);
         }
 
-        origin.multLocal(1f / (float) length);
+        origin.multLocal(1f / length);
 
         // compute sums of products
         float sumXX = 0.0f, sumXY = 0.0f, sumXZ = 0.0f;

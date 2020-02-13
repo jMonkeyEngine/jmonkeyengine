@@ -409,7 +409,7 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
         while (it.hasNext()) {
             
             boneName = it.next();
-            bone = (Bone) boneLinks.get(boneName).bone;
+            bone = boneLinks.get(boneName).bone;
             if (!bone.hasUserControl()) {
                 Logger.getLogger(KinematicRagdollControl.class.getSimpleName()).log(Level.FINE, "{0} doesn't have user control", boneName);
                 continue;
@@ -421,7 +421,7 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
             }
             int depth = 0;
             int maxDepth = ikChainDepth.get(bone.getName());
-            updateBone(boneLinks.get(bone.getName()), tpf * (float) FastMath.sqrt(distance), vars, tmpRot1, tmpRot2, bone, ikTargets.get(boneName), depth, maxDepth);
+            updateBone(boneLinks.get(bone.getName()), tpf * FastMath.sqrt(distance), vars, tmpRot1, tmpRot2, bone, ikTargets.get(boneName), depth, maxDepth);
 
             Vector3f position = vars.vect1;
             
@@ -693,10 +693,10 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
                 shape = RagdollUtils.makeShapeFromVerticeWeights(model, RagdollUtils.getBoneIndices(link.bone, skeleton, boneList), initScale, link.bone.getModelSpacePosition(), weightThreshold);
             }
 
-            PhysicsRigidBody shapeNode = new PhysicsRigidBody(shape, rootMass / (float) reccount);
+            PhysicsRigidBody shapeNode = new PhysicsRigidBody(shape, rootMass / reccount);
 
             shapeNode.setKinematic(mode == Mode.Kinematic);
-            totalMass += rootMass / (float) reccount;
+            totalMass += rootMass / reccount;
 
             link.rigidBody = shapeNode;
             link.initalWorldRotation = bone.getModelSpaceRotation().clone();

@@ -509,7 +509,7 @@ public class SceneLoader extends DefaultHandler implements AssetLoader {
                 // (Backward compatibility only!)
                 OgreMaterialKey materialKey = new OgreMaterialKey(sceneName + ".material");
                 try {
-                    materialList = (MaterialList) assetManager.loadAsset(materialKey);
+                    materialList = assetManager.loadAsset(materialKey);
                 } catch (AssetNotFoundException ex) {
                     logger.log(Level.WARNING, "Cannot locate {0} for scene {1}", new Object[]{materialKey, key});
                     materialList = null;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -194,8 +194,8 @@ public class EnvMapUtils {
 
         /* transform from [0..res - 1] to [- (1 - 1 / res) .. (1 - 1 / res)]
          (+ 0.5f is for texel center addressing) */
-        float u = (2.0f * ((float) x + 0.5f) / (float) mapSize) - 1.0f;
-        float v = (2.0f * ((float) y + 0.5f) / (float) mapSize) - 1.0f;
+        float u = (2.0f * (x + 0.5f) / mapSize) - 1.0f;
+        float v = (2.0f * (y + 0.5f) / mapSize) - 1.0f;
 
         getVectorFromCubemapFaceTexCoord(x, y, mapSize, face, store, fixSeamsMethod);
 
@@ -203,7 +203,7 @@ public class EnvMapUtils {
          * U and V are the -1..1 texture coordinate on the current face.
          * Get projected area for this texel */
         float x0, y0, x1, y1;
-        float invRes = 1.0f / (float) mapSize;
+        float invRes = 1.0f / mapSize;
         x0 = u - invRes;
         y0 = v - invRes;
         x1 = u + invRes;
@@ -246,19 +246,19 @@ public class EnvMapUtils {
         if (fixSeamsMethod == FixSeamsMethod.Stretch) {
             /* Code from Nvtt : https://github.com/castano/nvidia-texture-tools/blob/master/src/nvtt/CubeSurface.cpp#L77
              * transform from [0..res - 1] to [-1 .. 1], match up edges exactly. */
-            u = (2.0f * (float) x / ((float) mapSize - 1.0f)) - 1.0f;
-            v = (2.0f * (float) y / ((float) mapSize - 1.0f)) - 1.0f;
+            u = (2.0f * x / (mapSize - 1.0f)) - 1.0f;
+            v = (2.0f * y / (mapSize - 1.0f)) - 1.0f;
         } else {
             //Done if any other fix method or no fix method is set
             /* transform from [0..res - 1] to [- (1 - 1 / res) .. (1 - 1 / res)]
              * (+ 0.5f is for texel center addressing) */
-            u = (2.0f * ((float) x + 0.5f) / (float) (mapSize)) - 1.0f;
-            v = (2.0f * ((float) y + 0.5f) / (float) (mapSize)) - 1.0f;
+            u = (2.0f * (x + 0.5f) / mapSize) - 1.0f;
+            v = (2.0f * (y + 0.5f) / mapSize) - 1.0f;
         }
 
         if (fixSeamsMethod == FixSeamsMethod.Wrap) {
             // Warp texel centers in the proximity of the edges.
-            float a = pow((float) mapSize, 2.0f) / pow(((float) mapSize - 1f), 3.0f);
+            float a = pow(mapSize, 2.0f) / pow(mapSize - 1f, 3.0f);
             u = a * pow(u, 3f) + u;
             v = a * pow(v, 3f) + v;
         }
@@ -362,14 +362,14 @@ public class EnvMapUtils {
         if (fixSeamsMethod == FixSeamsMethod.Stretch) {
             /* Code from Nvtt : http://code.google.com/p/nvidia-texture-tools/source/browse/trunk/src/nvtt/CubeSurface.cpp
              * transform from [0..res - 1] to [-1 .. 1], match up edges exactly. */
-            u = Math.round((u + 1.0f) * ((float) mapSize - 1.0f) * 0.5f);
-            v = Math.round((v + 1.0f) * ((float) mapSize - 1.0f) * 0.5f);
+            u = Math.round((u + 1.0f) * (mapSize - 1.0f) * 0.5f);
+            v = Math.round((v + 1.0f) * (mapSize - 1.0f) * 0.5f);
         } else {
             //Done if any other fix method or no fix method is set
             /* transform from [0..res - 1] to [- (1 - 1 / res) .. (1 - 1 / res)]
              * (+ 0.5f is for texel center addressing) */
-            u = Math.round((u + 1.0f) * ((float) mapSize) * 0.5f - 0.5f);
-            v = Math.round((v + 1.0f) * ((float) mapSize) * 0.5f - 0.5f);
+            u = Math.round((u + 1.0f) * mapSize * 0.5f - 0.5f);
+            v = Math.round((v + 1.0f) * mapSize * 0.5f - 0.5f);
 
         }
 
@@ -533,7 +533,7 @@ public class EnvMapUtils {
         }
         float phi;
         long ui = i;
-        store.setX((float) i / (float) nbrSample);
+        store.setX(i / (float) nbrSample);
 
         /* From http://holger.dammertz.org/stuff/notes_HammersleyOnHemisphere.html
          * Radical Inverse : Van der Corput */
@@ -544,7 +544,7 @@ public class EnvMapUtils {
         ui = ((ui & 0x00FF00FF) << 8) | ((ui & 0xFF00FF00) >>> 8);
 
         ui = ui & 0xffffffff;
-        store.setY(2.3283064365386963e-10f * (float) (ui)); /* 0x100000000 */
+        store.setY(2.3283064365386963e-10f * ui); /* 0x100000000 */
 
         phi = 2.0f * PI * store.y;
         store.setZ(cos(phi));
@@ -611,7 +611,7 @@ public class EnvMapUtils {
         int size = cubeMap.getImage().getWidth();
         Picture[] pics = new Picture[6];
 
-        float ratio = 128f / (float) size;
+        float ratio = 128f / size;
 
         for (int i = 0; i < 6; i++) {
             pics[i] = new Picture("bla");

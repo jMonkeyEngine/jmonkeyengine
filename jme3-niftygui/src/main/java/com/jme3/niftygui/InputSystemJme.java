@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -226,8 +226,8 @@ public class InputSystemJme implements InputSystem, RawInputListener {
     }
 
     private void onMouseButtonEventQueued(MouseButtonEvent evt, NiftyInputConsumer nic) {
-        x = (int) evt.getX();
-        y = (int) (height - evt.getY());
+        x = evt.getX();
+        y = height - evt.getY();
         handleMouseEvent(evt.getButtonIndex(), evt.isPressed(), nic, evt);
     }
 

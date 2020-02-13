@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -280,9 +280,9 @@ public class FbxNode extends FbxObject<Spatial> {
                 Object userDataValue;
                 
                 if (userDataType.equals("KString")) {
-                    userDataValue = (String) e2.properties.get(4);
+                    userDataValue = e2.properties.get(4);
                 } else if (userDataType.equals("int")) {
-                    userDataValue = (Integer) e2.properties.get(4);
+                    userDataValue = e2.properties.get(4);
                 } else if (userDataType.equals("double")) {
                     // NOTE: jME3 does not support doubles in UserData.
                     //       Need to convert to float.

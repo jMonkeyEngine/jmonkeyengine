@@ -286,7 +286,7 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
     private boolean checkClassType(String className) {
         boolean include = true;
         try {
-            Class<?> clazz = (Class<?>) Class.forName(className);
+            Class<?> clazz = Class.forName(className);
             if (Application.class.isAssignableFrom(clazz)) {
                 Log.d(TAG, "Class " + className + " is a jME Application");
             } else {
