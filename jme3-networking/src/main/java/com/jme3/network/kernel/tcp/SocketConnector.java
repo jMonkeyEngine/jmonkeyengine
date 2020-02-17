@@ -33,6 +33,9 @@ package com.jme3.network.kernel.tcp;
 
 import com.jme3.network.kernel.Connector;
 import com.jme3.network.kernel.ConnectorException;
+import com.jme3.network.util.BandwidthCounter;
+import com.jme3.network.util.ByteBandwidthCounter;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -59,6 +62,7 @@ public class SocketConnector implements Connector
     private SocketAddress remoteAddress;
     private byte[] buffer = new byte[65535];
     private AtomicBoolean connected = new AtomicBoolean(false);
+    private BandwidthCounter counter = new ByteBandwidthCounter();
 
     public SocketConnector( InetAddress address, int port ) throws IOException
     {
@@ -124,6 +128,8 @@ public class SocketConnector implements Connector
                 return null;
             }
 
+            counter.incRx(count);
+
             // Wrap it in a ByteBuffer for the caller
             return ByteBuffer.wrap( buffer, 0, count ); 
         } catch( IOException e ) {
@@ -141,9 +147,15 @@ public class SocketConnector implements Connector
         
         try {
             out.write(data.array(), data.position(), data.remaining());
+            counter.incTx(data.remaining());
         } catch( IOException e ) {
             throw new ConnectorException( "Error writing to connection:" + remoteAddress, e );
         }
-    }   
+    }
+
+    @Override
+    public BandwidthCounter getCounters() {
+        return counter;
+    }
     
 }

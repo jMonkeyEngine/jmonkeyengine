@@ -31,6 +31,8 @@
  */
 package com.jme3.network.kernel;
 
+import com.jme3.network.util.BandwidthCounter;
+
 import java.nio.ByteBuffer;
 
 /**
@@ -84,4 +86,11 @@ public interface Endpoint
      *  close() is still flushing the earlier queued messages.
      */
     public void close(boolean flushData);
+
+    /**
+     * A bandwidth counter for the endpoint.
+     * Measures the number of bytes being sent and received through the endpoint.
+     * Returns the BandwidthCounter for the endpoint
+     */
+    public BandwidthCounter getCounters();
 }

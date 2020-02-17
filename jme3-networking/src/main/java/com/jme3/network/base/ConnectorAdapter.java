@@ -36,6 +36,8 @@ import com.jme3.network.Message;
 import com.jme3.network.MessageListener;
 import com.jme3.network.kernel.Connector;
 import com.jme3.network.kernel.ConnectorException;
+import com.jme3.network.util.BandwidthCounter;
+
 import java.nio.ByteBuffer;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -216,5 +218,9 @@ public class ConnectorAdapter extends Thread
                 } 
             }
         }
+    }
+
+    protected BandwidthCounter getCounters() {
+        return connector.getCounters();
     }
 }

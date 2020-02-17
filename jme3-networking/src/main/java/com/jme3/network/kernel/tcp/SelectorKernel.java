@@ -204,6 +204,8 @@ public class SelectorKernel extends AbstractKernel
         byte[] dataCopy = new byte[size];
 		System.arraycopy(shared.array(), 0, dataCopy, 0, size);
 
+		p.getCounters().incRx(dataCopy.length);
+
         Envelope env = new Envelope( p, dataCopy, true );
         addEnvelope( env );
     }

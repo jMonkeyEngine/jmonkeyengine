@@ -184,7 +184,7 @@ public class UdpKernel extends AbstractKernel
         // the address + port (ie: SocketAddress) the defacto unique
         // ID.
         Endpoint p = getEndpoint( packet.getSocketAddress(), true );
-
+        p.getCounters().incRx(packet.getLength());
         // We'll copy the data to trim it.
         byte[] data = new byte[packet.getLength()];
         System.arraycopy(packet.getData(), 0, data, 0, data.length);

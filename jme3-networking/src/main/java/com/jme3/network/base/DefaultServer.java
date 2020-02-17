@@ -40,6 +40,9 @@ import com.jme3.network.message.ClientRegistrationMessage;
 import com.jme3.network.message.DisconnectMessage;
 import com.jme3.network.service.HostedServiceManager;
 import com.jme3.network.service.serializer.ServerSerializerRegistrationsService;
+import com.jme3.network.util.BandwidthCounter;
+import com.jme3.network.util.ByteBandwidthCounter;
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.*;
@@ -521,7 +524,8 @@ public class DefaultServer implements Server
         private final int id;
         private boolean closed;
         private Endpoint[] channels;
-        private int setChannelCount = 0; 
+        private int setChannelCount = 0;
+        private EndpointBandwidthCounter counter;
        
         private final Map<String,Object> sessionData = new ConcurrentHashMap<String,Object>();       
         
@@ -529,6 +533,7 @@ public class DefaultServer implements Server
         {
             id = nextId.getAndIncrement();
             channels = new Endpoint[channelCount];
+            counter = new EndpointBandwidthCounter(channels);
         }
         
         boolean hasEndpoint( Endpoint p )
@@ -658,15 +663,86 @@ public class DefaultServer implements Server
         public Set<String> attributeNames()
         {
             return Collections.unmodifiableSet(sessionData.keySet());
-        }           
-        
+        }
+
+        @Override
+        public BandwidthCounter getCounters() {
+            return counter;
+        }
+
         @Override
         public String toString()
         {
             return "Connection[ id=" + id + ", reliable=" + channels[CH_RELIABLE] 
                                      + ", fast=" + channels[CH_UNRELIABLE] + " ]"; 
         }  
-    } 
+    }
+
+    protected class EndpointBandwidthCounter implements BandwidthCounter {
+
+        private Endpoint[] endpoints;
+        private ByteBandwidthCounter internalCounter = new ByteBandwidthCounter();
+
+        protected EndpointBandwidthCounter(Endpoint[] endpoints) {
+            this.endpoints = endpoints;
+        }
+
+        @Override
+        public long getTx() {
+            internalCounter.reset();
+            for (Endpoint endpoint : endpoints) {
+                if (endpoint != null) {
+                    incTx(endpoint.getCounters().getTx());
+                }
+            }
+            return internalCounter.getTx();
+        }
+
+        @Override
+        public long getRx() {
+            internalCounter.reset();
+            for (Endpoint endpoint : endpoints) {
+                if (endpoint != null) {
+                    incRx(endpoint.getCounters().getRx());
+                }
+            }
+            return internalCounter.getRx();
+        }
+
+        @Override
+        public void reset() {
+            for (Endpoint endpoint : endpoints) {
+                if (endpoint != null) {
+                    endpoint.getCounters().reset();
+                }
+            }
+            internalCounter.reset();
+        }
+
+        @Override
+        public boolean overflowed() {
+            for (Endpoint endpoint : endpoints) {
+                if (endpoint != null) {
+                    if (endpoint.getCounters().overflowed()) {
+                        return true;
+                    }
+                }
+            }
+            getTx();
+            getRx();
+            return internalCounter.overflowed();
+        }
+
+        @Override
+        public void incRx(long val) {
+            internalCounter.incRx(val);
+        }
+
+        @Override
+        public void incTx(long val) {
+            internalCounter.incTx(val);
+        }
+    }
 
     protected class Redispatch implements MessageListener<HostedConnection>
     {

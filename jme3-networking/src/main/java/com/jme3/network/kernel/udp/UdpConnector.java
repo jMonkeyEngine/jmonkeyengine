@@ -33,6 +33,9 @@ package com.jme3.network.kernel.udp;
 
 import com.jme3.network.kernel.Connector;
 import com.jme3.network.kernel.ConnectorException;
+import com.jme3.network.util.BandwidthCounter;
+import com.jme3.network.util.ByteBandwidthCounter;
+
 import java.io.IOException;
 import java.net.*;
 import java.nio.ByteBuffer;
@@ -52,6 +55,7 @@ public class UdpConnector implements Connector
     private SocketAddress remoteAddress;
     private byte[] buffer = new byte[65535];
     private AtomicBoolean connected = new AtomicBoolean(false);
+    private BandwidthCounter counter = new ByteBandwidthCounter();
 
     /**
      *  In order to provide proper available() checking, we
@@ -116,7 +120,7 @@ public class UdpConnector implements Connector
         try {
             DatagramPacket packet = new DatagramPacket( buffer, buffer.length );
             sock.receive(packet);
-            
+            counter.incRx(packet.getLength());
             // Wrap it in a ByteBuffer for the caller
             return ByteBuffer.wrap( buffer, 0, packet.getLength() ); 
         } catch( IOException e ) {
@@ -135,9 +139,15 @@ public class UdpConnector implements Connector
             DatagramPacket p = new DatagramPacket( data.array(), data.position(), data.remaining(), 
                                                    remoteAddress );
             sock.send(p);
+            counter.incTx(p.getLength());
         } catch( IOException e ) {
             throw new ConnectorException( "Error writing to connection:" + remoteAddress, e );
         }
-    }    
+    }
+
+    @Override
+    public BandwidthCounter getCounters() {
+        return counter;
+    }
 }
 

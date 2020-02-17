@@ -34,6 +34,9 @@ package com.jme3.network.kernel.tcp;
 import com.jme3.network.kernel.Endpoint;
 import com.jme3.network.kernel.Kernel;
 import com.jme3.network.kernel.KernelException;
+import com.jme3.network.util.BandwidthCounter;
+import com.jme3.network.util.ByteBandwidthCounter;
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
@@ -57,6 +60,7 @@ public class NioEndpoint implements Endpoint
     private SelectorKernel kernel;
     private ConcurrentLinkedQueue<ByteBuffer> outbound = new ConcurrentLinkedQueue<ByteBuffer>();
     private boolean closing = false;
+    private ByteBandwidthCounter counter = new ByteBandwidthCounter();
 
     public NioEndpoint( SelectorKernel kernel, long id, SocketChannel socket )
     {
@@ -134,7 +138,7 @@ public class NioEndpoint implements Endpoint
 
         // Queue it up
         outbound.add(buffer);
-
+        counter.incTx(buffer.limit());
         if( wakeup )
             kernel.wakeupSelector();
     }
@@ -171,6 +175,11 @@ public class NioEndpoint implements Endpoint
             throw new KernelException( "Endpoint has been closed:" + socket );
         }
         send( data, true, true );
+    }
+
+    @Override
+    public BandwidthCounter getCounters() {
+        return counter;
     }
 
     public String toString()

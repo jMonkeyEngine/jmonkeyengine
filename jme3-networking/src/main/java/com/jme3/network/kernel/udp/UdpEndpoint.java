@@ -34,6 +34,9 @@ package com.jme3.network.kernel.udp;
 import com.jme3.network.kernel.Endpoint;
 import com.jme3.network.kernel.Kernel;
 import com.jme3.network.kernel.KernelException;
+import com.jme3.network.util.BandwidthCounter;
+import com.jme3.network.util.ByteBandwidthCounter;
+
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -57,6 +60,7 @@ public class UdpEndpoint implements Endpoint
     private DatagramSocket socket;
     private UdpKernel kernel;
     private boolean connected = true; // it's connectionless but we track logical state
+    private BandwidthCounter counter = new ByteBandwidthCounter();
 
     public UdpEndpoint( UdpKernel kernel, long id, SocketAddress address, DatagramSocket socket )
     {
@@ -95,6 +99,11 @@ public class UdpEndpoint implements Endpoint
         }
     }
 
+    @Override
+    public BandwidthCounter getCounters() {
+        return counter;
+    }
+
     public long getId()
     {
         return id;
@@ -126,7 +135,7 @@ public class UdpEndpoint implements Endpoint
             // Just queue it up for the kernel threads to write
             // out
             kernel.enqueueWrite( this, p );
-                                                               
+            counter.incTx(p.getLength());
             //socket.send(p);
         } catch (Exception e) {
             if (e instanceof SocketException) {

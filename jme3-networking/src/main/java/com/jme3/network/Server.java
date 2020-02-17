@@ -34,6 +34,7 @@ package com.jme3.network;
 import java.util.Collection;
 
 import com.jme3.network.service.HostedServiceManager;
+import com.jme3.network.util.BandwidthCounter;
 
 /**
  *  Represents a host that can send and receive messages to
@@ -186,8 +187,7 @@ public interface Server
      *  Removes a previously registered type-specific listener from
      *  the specified types.
      */
-    public void removeMessageListener( MessageListener<? super HostedConnection> listener, Class... classes ); 
-    
+    public void removeMessageListener( MessageListener<? super HostedConnection> listener, Class... classes );
      
 }
 

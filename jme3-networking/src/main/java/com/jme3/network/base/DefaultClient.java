@@ -40,6 +40,9 @@ import com.jme3.network.message.ClientRegistrationMessage;
 import com.jme3.network.message.DisconnectMessage;
 import com.jme3.network.service.ClientServiceManager;
 import com.jme3.network.service.serializer.ClientSerializerRegistrationsService;
+import com.jme3.network.util.BandwidthCounter;
+import com.jme3.network.util.ByteBandwidthCounter;
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.*;
@@ -85,12 +88,15 @@ public class DefaultClient implements Client
     
     private ClientServiceManager services;
     private MessageProtocol protocol = new SerializerMessageProtocol();
+
+    private AdapterBandwidthCounter counter;
     
     public DefaultClient( String gameName, int version )
     {
         this.gameName = gameName;
         this.version = version;
         this.services = new ClientServiceManager(this);
+        this.counter = new AdapterBandwidthCounter(channels);
         addStandardServices();
     }
     
@@ -501,6 +507,10 @@ public class DefaultClient implements Client
             messageListeners.messageReceived( this, m );
         }
     }
+
+    public BandwidthCounter getCounters() {
+        return counter;
+    }
  
     protected class Redispatch implements MessageListener<Object>, ErrorListener<Object>
     {
@@ -518,5 +528,71 @@ public class DefaultClient implements Client
             // don't like red lines in my editor. :P
             DefaultClient.this.handleError( t );   
         }
-    }    
+    }
+
+    protected class AdapterBandwidthCounter implements BandwidthCounter {
+
+        private Collection<ConnectorAdapter> adapters;
+        private ByteBandwidthCounter internalCounter = new ByteBandwidthCounter();
+
+        protected AdapterBandwidthCounter(Collection<ConnectorAdapter> adapters) {
+            this.adapters = adapters;
+        }
+
+        @Override
+        public long getTx() {
+            internalCounter.reset();
+            for (ConnectorAdapter adapter : adapters) {
+                if (adapter != null) {
+                    incTx(adapter.getCounters().getTx());
+                }
+            }
+            return internalCounter.getTx();
+        }
+
+        @Override
+        public long getRx() {
+            internalCounter.reset();
+            for (ConnectorAdapter adapter : adapters) {
+                if (adapter != null) {
+                    incRx(adapter.getCounters().getRx());
+                }
+            }
+            return internalCounter.getRx();
+        }
+
+        @Override
+        public void reset() {
+            for (ConnectorAdapter adapter : adapters) {
+                if (adapter != null) {
+                    adapter.getCounters().reset();
+                }
+            }
+            internalCounter.reset();
+        }
+
+        @Override
+        public boolean overflowed() {
+            for (ConnectorAdapter adapter : adapters) {
+                if (adapter != null) {
+                    if (adapter.getCounters().overflowed()) {
+                        return true;
+                    }
+                }
+            }
+            getTx();
+            getRx();
+            return internalCounter.overflowed();
+        }
+
+        @Override
+        public void incRx(long val) {
+            internalCounter.incRx(val);
+        }
+
+        @Override
+        public void incTx(long val) {
+            internalCounter.incTx(val);
+        }
+    }
 }

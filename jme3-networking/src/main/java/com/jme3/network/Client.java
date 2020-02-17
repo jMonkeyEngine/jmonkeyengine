@@ -32,6 +32,7 @@
 package com.jme3.network;
 
 import com.jme3.network.service.ClientServiceManager;
+import com.jme3.network.util.BandwidthCounter;
 
 
 /**
@@ -150,7 +151,14 @@ public interface Client extends MessageConnection
     /**
      *  Removes a previously registered error listener.
      */
-    public void removeErrorListener( ErrorListener<? super Client> listener ); 
+    public void removeErrorListener( ErrorListener<? super Client> listener );
+
+    /**
+     * A bandwidth counter for the client.
+     * Measures the number of bytes being sent and received through the client.
+     * Returns the BandwidthCounter for the client
+     */
+    public BandwidthCounter getCounters();
 }
 
 

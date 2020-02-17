@@ -31,6 +31,8 @@
  */
 package com.jme3.network;
 
+import com.jme3.network.util.BandwidthCounter;
+
 import java.util.Set;
 
 /**
@@ -85,5 +87,12 @@ public interface HostedConnection extends MessageConnection
      *  Returns a read-only set of attribute names currently stored
      *  for this client session.
      */
-    public Set<String> attributeNames();     
+    public Set<String> attributeNames();
+
+    /**
+     * A bandwidth counter for the endpoint.
+     * Measures the number of bytes being sent and received through the endpoint.
+     * Returns the BandwidthCounter for the connection
+     */
+    public BandwidthCounter getCounters();
 }

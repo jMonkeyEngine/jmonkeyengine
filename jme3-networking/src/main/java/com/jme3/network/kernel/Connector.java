@@ -31,6 +31,8 @@
  */
 package com.jme3.network.kernel;
 
+import com.jme3.network.util.BandwidthCounter;
+
 import java.nio.ByteBuffer;
 
 /**
@@ -79,4 +81,11 @@ public interface Connector
      *  to data.limit().
      */
     public void write( ByteBuffer data );
+
+    /**
+     * A bandwidth counter for the connector.
+     * Measures the number of bytes being sent and received through the connector.
+     * Returns the BandwidthCounter for the connector
+     */
+    public BandwidthCounter getCounters();
 }
