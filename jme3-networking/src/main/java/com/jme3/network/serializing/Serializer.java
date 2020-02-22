@@ -31,6 +31,7 @@
  */
 package com.jme3.network.serializing;
 
+import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.network.message.ChannelInfoMessage;
 import com.jme3.network.message.ClientRegistrationMessage;
@@ -121,6 +122,7 @@ public abstract class Serializer {
         registerClass(String.class,    new StringSerializer());
 
         registerClass(Vector3f.class,  new Vector3Serializer());
+        registerClass(ColorRGBA.class,  new ColorRGBASerializer());
 
         registerClass(Date.class,      new DateSerializer());
         
