@@ -69,8 +69,9 @@ jobs:
         uses: actions/checkout@v1     
         with:
           fetch-depth: 1
-
-      - name: Build        
+      - name: Validate the Gradle wrapper
+        uses: gradle/wrapper-validation-action@v1
+      - name: Build
         run: |
           # Build
           # Note: since this is crossbuild we use the buildForPlatforms filter to tell
@@ -96,9 +97,10 @@ jobs:
         uses: actions/checkout@v1     
         with:
           fetch-depth: 1
-
-      - name: Build        
-        run: |       
+      - name: Validate the Gradle wrapper
+        uses: gradle/wrapper-validation-action@v1
+      - name: Build
+        run: |
           ./gradlew -PuseCommitHashAsVersionName=true --no-daemon -PbuildNativeProjects=true \
           :jme3-android-native:assemble \
           :jme3-bullet-native-android:assemble 
@@ -137,8 +139,9 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: ${{ matrix.jdk }}
-          architecture: x64 
-          
+          architecture: x64
+      - name: Validate the Gradle wrapper
+        uses: gradle/wrapper-validation-action@v1
       - name: Build Natives
         shell: bash
         env:
@@ -233,7 +236,8 @@ jobs:
         with:
           name: linuxarm-natives
           path: build/native
-                                                     
+      - name: Validate the Gradle wrapper
+        uses: gradle/wrapper-validation-action@v1
       - name: Build Engine
         shell: bash
         run: |
