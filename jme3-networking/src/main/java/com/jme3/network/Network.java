@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -175,11 +175,13 @@ public class Network
             super( gameName, version );
         }
         
+        @Override
         public void connectToServer( String host, int port, int remoteUdpPort ) throws IOException
         {
             connectToServer( InetAddress.getByName(host), port, remoteUdpPort );
         }                                     
                                  
+        @Override
         public void connectToServer( InetAddress address, int port, int remoteUdpPort ) throws IOException
         {
             UdpConnector fast = new UdpConnector( address, remoteUdpPort ); 

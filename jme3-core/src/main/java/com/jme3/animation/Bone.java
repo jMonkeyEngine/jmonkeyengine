@@ -176,7 +176,7 @@ public final class Bone implements Savable, JmeCloneable {
     /**
      * Serialization only. Do not use.
      */
-    public Bone() {
+    protected Bone() {
     }
     
     @Override   

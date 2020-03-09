@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -120,7 +120,7 @@ public class LightProbe extends Light implements Savable {
      // 1 | ay by cy | py | probe position
      // 2 | az bz cz | pz | )
      // --|----------|
-     // 3 | sx sy sz   sp | -> 1/probe radius + nbMipMaps
+     // 3 | sx sy sz   sp |    1/probe radius + nbMipMaps
      //    --scale--
      * <p>
      * (ax, ay, az) is the pitch rotation axis
@@ -206,7 +206,7 @@ public class LightProbe extends Light implements Savable {
      */
     @Deprecated
     public BoundingVolume getBounds() {
-        return new BoundingSphere(((SphereProbeArea)area).getRadius(), ((SphereProbeArea)area).getCenter());
+        return new BoundingSphere(area.getRadius(), ((SphereProbeArea)area).getCenter());
     }
 
     /**

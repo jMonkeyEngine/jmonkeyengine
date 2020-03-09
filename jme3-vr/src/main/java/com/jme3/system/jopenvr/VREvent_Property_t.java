@@ -19,12 +19,13 @@ public class VREvent_Property_t extends Structure {
 	public VREvent_Property_t() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("container", "prop");
 	}
 	/**
 	 * @param container C type : PropertyContainerHandle_t<br>
-	 * @param prop @see ETrackedDeviceProperty<br>
+	 * @param prop @see JOpenVRLibrary.ETrackedDeviceProperty <br>
 	 * C type : ETrackedDeviceProperty
 	 */
 	public VREvent_Property_t(long container, int prop) {

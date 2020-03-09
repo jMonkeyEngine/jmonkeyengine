@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,6 +36,7 @@ import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
+import com.jme3.math.Vector3f;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.scene.mesh.IndexBuffer;
@@ -67,7 +68,7 @@ public class GImpactCollisionShape extends CollisionShape {
      * No-argument constructor needed by SavableClassUtil. Do not invoke
      * directly!
      */
-    public GImpactCollisionShape() {
+    protected GImpactCollisionShape() {
     }
 
     /**
@@ -121,6 +122,7 @@ public class GImpactCollisionShape extends CollisionShape {
      * @param ex exporter (not null)
      * @throws IOException from exporter
      */
+    @Override
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
         OutputCapsule capsule = ex.getCapsule(this);
@@ -140,6 +142,7 @@ public class GImpactCollisionShape extends CollisionShape {
      * @param im importer (not null)
      * @throws IOException from importer
      */
+    @Override
     public void read(JmeImporter im) throws IOException {
         super.read(im);
         InputCapsule capsule = im.getCapsule(this);
@@ -153,6 +156,23 @@ public class GImpactCollisionShape extends CollisionShape {
         vertexBase = ByteBuffer.wrap(capsule.readByteArray("vertexBase", new byte[0]));
         createShape();
     }
+    
+    /**
+     * Alter the scaling factors of this shape.
+     * <p>
+     * Note that if the shape is shared (between collision objects and/or
+     * compound shapes) changes can have unintended consequences.
+     *
+     * @param scale the desired scaling factor for each local axis (not null, no
+     * negative component, unaffected, default=(1,1,1))
+     */
+    @Override
+    public void setScale(Vector3f scale) {
+        super.setScale(scale);
+        recalcAabb(objectId);
+    }
+
+    native private void recalcAabb(long shapeId);
 
     /**
      * Instantiate the configured shape in Bullet.

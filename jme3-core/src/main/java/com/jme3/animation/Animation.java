@@ -65,7 +65,7 @@ public class Animation implements Savable, Cloneable, JmeCloneable {
     /**
      * Serialization-only. Do not use.
      */
-    public Animation() {
+    protected Animation() {
     }
 
     /**

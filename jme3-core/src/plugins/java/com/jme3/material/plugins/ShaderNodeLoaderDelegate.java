@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -152,7 +152,7 @@ public class ShaderNodeLoaderDelegate {
      * @throws IOException
      */
     protected void readShaderNodeDefinition(List<Statement> statements, ShaderNodeDefinitionKey key) throws IOException {
-        boolean isLoadDoc = key instanceof ShaderNodeDefinitionKey && ((ShaderNodeDefinitionKey) key).isLoadDocumentation();
+        boolean isLoadDoc = key instanceof ShaderNodeDefinitionKey && key.isLoadDocumentation();
         for (Statement statement : statements) {
             try {
                 String[] split = statement.getLine().split("[ \\{]");
@@ -1058,11 +1058,11 @@ public class ShaderNodeLoaderDelegate {
     }
 
     /**
-     * merges 2 condition with the given operator
+     * Merges 2 conditions with the given operator
      *
      * @param condition1 the first condition
      * @param condition2 the second condition
-     * @param operator the operator ("&&" or "||&)
+     * @param operator the operator {@literal ("&&" or "||&)}
      * @return the merged condition
      */
     public String mergeConditions(String condition1, String condition2, String operator) {

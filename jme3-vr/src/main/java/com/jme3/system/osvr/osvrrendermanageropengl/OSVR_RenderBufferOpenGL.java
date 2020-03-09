@@ -14,6 +14,7 @@ public class OSVR_RenderBufferOpenGL extends Structure {
 	public OSVR_RenderBufferOpenGL() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("colorBufferName", "depthStencilBufferName");
 	}

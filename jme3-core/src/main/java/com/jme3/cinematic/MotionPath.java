@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -192,7 +192,7 @@ public class MotionPath implements Savable {
         int i = 0;
         for (Float len : spline.getSegmentsLength()) {
             if (sum + len >= distance) {
-                return new Vector2f((float) i, (distance - sum) / len);
+                return new Vector2f(i, (distance - sum) / len);
             }
             sum += len;
             i++;

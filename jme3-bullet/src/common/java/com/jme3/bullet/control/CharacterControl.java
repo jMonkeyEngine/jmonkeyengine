@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -120,6 +120,7 @@ public class CharacterControl extends PhysicsCharacter implements PhysicsControl
         this.spatial = cloner.clone(spatial);
     }
          
+    @Override
     public void setSpatial(Spatial spatial) {
         this.spatial = spatial;
         setUserObject(spatial);
@@ -136,6 +137,7 @@ public class CharacterControl extends PhysicsCharacter implements PhysicsControl
         return this.spatial;
     }
 
+    @Override
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
         if (space != null) {
@@ -152,6 +154,7 @@ public class CharacterControl extends PhysicsCharacter implements PhysicsControl
         }
     }
 
+    @Override
     public boolean isEnabled() {
         return enabled;
     }
@@ -172,6 +175,7 @@ public class CharacterControl extends PhysicsCharacter implements PhysicsControl
         this.useViewDirection = viewDirectionEnabled;
     }
 
+    @Override
     public void update(float tpf) {
         if (enabled && spatial != null) {
             Quaternion localRotationQuat = spatial.getLocalRotation();
@@ -195,6 +199,7 @@ public class CharacterControl extends PhysicsCharacter implements PhysicsControl
         }
     }
 
+    @Override
     public void render(RenderManager rm, ViewPort vp) {
     }
 
@@ -225,6 +230,7 @@ public class CharacterControl extends PhysicsCharacter implements PhysicsControl
         space = newSpace;
     }
 
+    @Override
     public PhysicsSpace getPhysicsSpace() {
         return space;
     }

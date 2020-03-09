@@ -463,6 +463,7 @@ public abstract class VRApplication implements Application, SystemListener {
     /**
      * Handle the error given in parameters by creating a log entry and a dialog window. Internal use only.
      */
+    @Override
     public void handleError(String errMsg, Throwable t){
         // Print error to log.
         logger.log(Level.SEVERE, errMsg, t);
@@ -483,6 +484,7 @@ public abstract class VRApplication implements Application, SystemListener {
     /**
      * Force the focus gain for the application. Internal use only.
      */
+    @Override
     public void gainFocus(){
         if (lostFocusBehavior != LostFocusBehavior.Disabled) {
             if (lostFocusBehavior == LostFocusBehavior.PauseOnLostFocus) {
@@ -498,6 +500,7 @@ public abstract class VRApplication implements Application, SystemListener {
     /**
      * Force the focus lost for the application. Internal use only.
      */
+    @Override
     public void loseFocus(){
         if (lostFocusBehavior != LostFocusBehavior.Disabled){
             if (lostFocusBehavior == LostFocusBehavior.PauseOnLostFocus) {
@@ -510,6 +513,7 @@ public abstract class VRApplication implements Application, SystemListener {
     /**
      * Reshape the display window. Internal use only.
      */
+    @Override
     public void reshape(int w, int h){
         if (renderManager != null) {
             renderManager.notifyReshape(w, h);
@@ -519,6 +523,7 @@ public abstract class VRApplication implements Application, SystemListener {
     /**
      * Request the application to close. Internal use only.
      */
+    @Override
     public void requestClose(boolean esc){
         context.destroy(false);
     }
@@ -533,6 +538,7 @@ public abstract class VRApplication implements Application, SystemListener {
      *
      * @param settings The settings to set.
      */
+    @Override
     public void setSettings(AppSettings settings){
         this.settings = settings;
         if (context != null && settings.useInput() != inputEnabled){
@@ -555,6 +561,7 @@ public abstract class VRApplication implements Application, SystemListener {
      * By default, Application will use the Timer as returned by the current {@link JmeContext} implementation.
      * @param timer the timer to use.
      */
+    @Override
     public void setTimer(Timer timer){
         this.timer = timer;
 
@@ -572,6 +579,7 @@ public abstract class VRApplication implements Application, SystemListener {
      * Determine the application's behavior when unfocused.
      * @return The lost focus behavior of the application.
      */
+    @Override
     public LostFocusBehavior getLostFocusBehavior() {
         return lostFocusBehavior;
     }
@@ -584,6 +592,7 @@ public abstract class VRApplication implements Application, SystemListener {
      *
      * @param lostFocusBehavior The new {@link LostFocusBehavior lost focus behavior} to use.
      */
+    @Override
     public void setLostFocusBehavior(LostFocusBehavior lostFocusBehavior) {
         this.lostFocusBehavior = lostFocusBehavior;
     }
@@ -593,6 +602,7 @@ public abstract class VRApplication implements Application, SystemListener {
      * @return <code>true</code> if pause on lost focus is enabled, <code>false</code> otherwise.
      * @see #getLostFocusBehavior()
      */
+    @Override
     public boolean isPauseOnLostFocus() {
         return getLostFocusBehavior() == LostFocusBehavior.PauseOnLostFocus;
     }
@@ -613,6 +623,7 @@ public abstract class VRApplication implements Application, SystemListener {
      *
      * @see #setLostFocusBehavior(com.jme3.app.LostFocusBehavior)
      */
+    @Override
     public void setPauseOnLostFocus(boolean pauseOnLostFocus) {
         if (pauseOnLostFocus) {
             setLostFocusBehavior(LostFocusBehavior.PauseOnLostFocus);
@@ -763,8 +774,8 @@ public abstract class VRApplication implements Application, SystemListener {
         
         // set opengl mode
         if( tryOpenGL3 ) {
-        	logger.config("Using LWJGL OpenGL 3 renderer.");
-            settings.setRenderer(AppSettings.LWJGL_OPENGL3);
+        	logger.config("Using LWJGL OpenGL 3.2 renderer.");
+            settings.setRenderer(AppSettings.LWJGL_OPENGL32);
         } else {
         	logger.config("Using LWJGL OpenGL 2 renderer.");
             settings.setRenderer(AppSettings.LWJGL_OPENGL2);
@@ -784,6 +795,7 @@ public abstract class VRApplication implements Application, SystemListener {
      * @param waitFor if <code>true</code>, the method will wait until the application is started.
      * @see #start(com.jme3.system.JmeContext.Type, boolean)
      */
+    @Override
     public void start(boolean waitFor){
         start(JmeContext.Type.Display, waitFor);
     }   
@@ -1401,6 +1413,7 @@ public abstract class VRApplication implements Application, SystemListener {
     /**
      * Destroy the application (release all resources).
      */
+    @Override
     public void destroy() {
         if( VRhardware != null ) {
             VRhardware.destroy();
@@ -1460,6 +1473,7 @@ public abstract class VRApplication implements Application, SystemListener {
      *
      * @param runnable The runnable to run in the main jME3 thread
      */
+    @Override
     public void enqueue(Runnable runnable){
         enqueue(new RunnableWrapper(runnable));
     }
@@ -1522,6 +1536,7 @@ public abstract class VRApplication implements Application, SystemListener {
      * to null.
      */
     
+    @Override
     public void setAppProfiler(AppProfiler prof) {
         return;
     }
@@ -1529,6 +1544,7 @@ public abstract class VRApplication implements Application, SystemListener {
     /**
      * Returns the current AppProfiler hook, or null if none is set.
      */
+    @Override
     public AppProfiler getAppProfiler() {
         return null;
     }

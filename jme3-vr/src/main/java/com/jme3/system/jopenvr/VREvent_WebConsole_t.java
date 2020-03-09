@@ -15,6 +15,7 @@ public class VREvent_WebConsole_t extends Structure {
 	public VREvent_WebConsole_t() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("webConsoleHandle");
 	}

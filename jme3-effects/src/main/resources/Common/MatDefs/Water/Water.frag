@@ -48,9 +48,8 @@ uniform vec3 m_Center;
 uniform float m_Radius;
 #endif
 
-
-vec2 scale = vec2(m_WaveScale, m_WaveScale);
-float refractionScale = m_WaveScale;
+vec2 scale; // = vec2(m_WaveScale, m_WaveScale);
+float refractionScale; // = m_WaveScale;
 
 // Modifies 4 sampled normals. Increase first values to have more
 // smaller "waves" or last to have more bigger "waves"
@@ -62,7 +61,17 @@ const float visibility = 3.0;
 // foam intensity
 uniform float m_FoamIntensity ;
 
+vec2 m_FrustumNearFar; //=vec2(1.0,m_UnderWaterFogDistance);
+const float LOG2 = 1.442695;
+
+
 varying vec2 texCoord;
+
+void setGlobals(){
+scale = vec2(m_WaveScale, m_WaveScale);
+refractionScale = m_WaveScale;
+m_FrustumNearFar=vec2(1.0,m_UnderWaterFogDistance);
+}
 
 mat3 MatrixInverse(in mat3 inMatrix){
     float det = dot(cross(inMatrix[0], inMatrix[1]), inMatrix[2]);
@@ -118,9 +127,6 @@ float fresnelTerm(in vec3 normal,in vec3 eyeVec){
     fresnel = fresnel * angle;
     return saturate(fresnel * (1.0 - saturate(m_R0)) + m_R0 - m_RefractionStrength);
 }
-
-vec2 m_FrustumNearFar=vec2(1.0,m_UnderWaterFogDistance);
-const float LOG2 = 1.442695;
 
 vec4 underWater(int sampleNum){
 
@@ -225,7 +231,7 @@ vec4 underWater(int sampleNum){
         #endif
                 
         float fogDepth= (2.0 * m_FrustumNearFar.x) / (m_FrustumNearFar.y + m_FrustumNearFar.x - sceneDepth* (m_FrustumNearFar.y-m_FrustumNearFar.x));
-        float fogIntensity= 18 * m_WaterTransparency;
+        float fogIntensity= 18.0 * m_WaterTransparency;
         fogFactor = exp2( -fogIntensity * fogIntensity * fogDepth *  fogDepth * LOG2 );
         fogFactor = clamp(fogFactor, 0.0, 1.0);
         color =mix(m_DeepWaterColor.rgb,color,fogFactor);
@@ -284,7 +290,7 @@ vec4 main_multiSample(int sampleNum){
         samples = 10;
     #endif
 
-    float biasFactor = 1.0 / samples;
+    float biasFactor = 1.0 / float(samples);
     for (int i = 0; i < samples; i++){
         texC = (surfacePoint.xz + eyeVecNorm.xz * biasFactor) * scale + m_Time * 0.03 * m_WindDirection;
 
@@ -344,7 +350,7 @@ vec4 main_multiSample(int sampleNum){
 
         normal = normalize(normal0a * normalModifier.x + normal1a * normalModifier.y +normal2a * normalModifier.z + normal3a * normalModifier.w);
 
-         #if __VERSION__ >= 130
+         #if  __VERSION__ >= 130 && !defined GL_ES
             // XXX: Here's another way to fix the terrain edge issue,
             // But it requires GLSL 1.3 and still looks kinda incorrect
             // around edges
@@ -435,12 +441,13 @@ vec4 main_multiSample(int sampleNum){
 }
 
 void main(){
+    setGlobals();
     #ifdef RESOLVE_MS
         vec4 color = vec4(0.0);
         for (int i = 0; i < m_NumSamples; i++){
             color += main_multiSample(i);
         }
-        gl_FragColor = color / m_NumSamples;
+        gl_FragColor = color / float(m_NumSamples);
     #else
         gl_FragColor = main_multiSample(0);
     #endif

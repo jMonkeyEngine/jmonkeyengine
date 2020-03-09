@@ -1,7 +1,7 @@
 package com.jme3.system.lwjgl;
 
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -79,6 +79,7 @@ public abstract class LwjglContextVR implements JmeContext {
     protected Timer timer;
     protected SystemListener listener;
 
+    @Override
     public void setSystemListener(SystemListener listener) {
         this.listener = listener;
     }
@@ -147,14 +148,14 @@ public abstract class LwjglContextVR implements JmeContext {
     }
 
     protected void initContextFirstTime() {
-        final GLCapabilities capabilities = createCapabilities(settings.getRenderer().equals(AppSettings.LWJGL_OPENGL3));
+        final GLCapabilities capabilities = createCapabilities(settings.getRenderer().equals(AppSettings.LWJGL_OPENGL32));
 
         if (!capabilities.OpenGL20) {
             throw new RendererException("OpenGL 2.0 or higher is required for jMonkeyEngine");
         }
 
         if (settings.getRenderer().equals(AppSettings.LWJGL_OPENGL2)
-                || settings.getRenderer().equals(AppSettings.LWJGL_OPENGL3)) {
+                || settings.getRenderer().equals(AppSettings.LWJGL_OPENGL32)) {
             GL gl = new LwjglGL();
             GLExt glext = new LwjglGLExt();
             GLFbo glfbo;

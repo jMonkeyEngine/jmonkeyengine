@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -99,7 +99,7 @@ public class SixDofJoint extends PhysicsJoint {
      * No-argument constructor needed by SavableClassUtil. Do not invoke
      * directly!
      */
-    public SixDofJoint() {
+    protected SixDofJoint() {
     }
 
     /**
@@ -164,6 +164,24 @@ public class SixDofJoint extends PhysicsJoint {
             rotationalMotors.add(rmot);
         }
         translationalMotor = new TranslationalLimitMotor(getTranslationalLimitMotor(objectId));
+    }
+
+    native private void getAngles(long jointId, Vector3f storeVector);
+
+    /**
+     * Copy the joint's rotation angles.
+     *
+     * @param storeResult storage for the result (modified if not null)
+     * @return the rotation angle for each local axis (in radians, either
+     * storeResult or a new vector, not null)
+     */
+    public Vector3f getAngles(Vector3f storeResult) {
+        Vector3f result = (storeResult == null) ? new Vector3f() : storeResult;
+
+        long constraintId = getObjectId();
+        getAngles(constraintId, result);
+
+        return result;
     }
 
     private native long getRotationalLimitMotor(long objectId, int index);
@@ -281,6 +299,11 @@ public class SixDofJoint extends PhysicsJoint {
         getTranslationalLimitMotor().setLowerLimit((Vector3f) capsule.readSavable("transMotor_LowerLimit", Vector3f.ZERO));
         getTranslationalLimitMotor().setRestitution(capsule.readFloat("transMotor_Restitution", 0.5f));
         getTranslationalLimitMotor().setUpperLimit((Vector3f) capsule.readSavable("transMotor_UpperLimit", Vector3f.ZERO));
+
+        for (int axisIndex = 0; axisIndex < 3; ++axisIndex) {
+            translationalMotor.setEnabled(axisIndex, capsule.readBoolean(
+                    "transMotor_Enable" + axisIndex, false));
+        }
     }
 
     /**
@@ -318,5 +341,10 @@ public class SixDofJoint extends PhysicsJoint {
         capsule.write(getTranslationalLimitMotor().getLowerLimit(), "transMotor_LowerLimit", Vector3f.ZERO);
         capsule.write(getTranslationalLimitMotor().getRestitution(), "transMotor_Restitution", 0.5f);
         capsule.write(getTranslationalLimitMotor().getUpperLimit(), "transMotor_UpperLimit", Vector3f.ZERO);
+
+        for (int axisIndex = 0; axisIndex < 3; ++axisIndex) {
+            capsule.write(translationalMotor.isEnabled(axisIndex),
+                    "transMotor_Enable" + axisIndex, false);
+        }
     }
 }

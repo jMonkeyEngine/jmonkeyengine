@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -124,6 +124,7 @@ public class ParticleDepositionHeightMap extends AbstractHeightMap {
      * to <code>load</code> is recommended if attributes have changed using
      * the set methods.
      */
+    @Override
     public boolean load() {
         int x, y;
         int calderaX, calderaY;
@@ -312,7 +313,7 @@ public class ParticleDepositionHeightMap extends AbstractHeightMap {
         //transfer the new terrain into the height map.
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
-                setHeightAtPoint((float) tempBuffer[i][j], j, i);
+                setHeightAtPoint(tempBuffer[i][j], j, i);
             }
         }
         erodeTerrain();

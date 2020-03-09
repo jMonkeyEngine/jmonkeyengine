@@ -16,6 +16,7 @@ public class OSVR_NaviPositionReport extends Structure {
 	public OSVR_NaviPositionReport() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("sensor", "state");
 	}

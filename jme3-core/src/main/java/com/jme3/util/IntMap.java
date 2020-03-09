@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -219,6 +219,7 @@ public final class IntMap<T> implements Iterable<Entry<T>>, Cloneable, JmeClonea
         size = 0;
     }
 
+    @Override
     public Iterator<Entry<T>> iterator() {
         IntMapIterator it = new IntMapIterator();
         it.beginUse();
@@ -251,10 +252,12 @@ public final class IntMap<T> implements Iterable<Entry<T>>, Cloneable, JmeClonea
             el = 0;
         }
 
+        @Override
         public boolean hasNext() {
             return el < size;
         }
 
+        @Override
         public Entry next() {
             if (el >= size)
                 throw new NoSuchElementException("No more elements!");
@@ -285,6 +288,7 @@ public final class IntMap<T> implements Iterable<Entry<T>>, Cloneable, JmeClonea
             return e;
         }
 
+        @Override
         public void remove() {
         }
 

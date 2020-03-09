@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -65,22 +65,27 @@ public class PreDepthProcessor implements SceneProcessor {
         forcedRS.setDepthWrite(false);
     }
 
+    @Override
     public void initialize(RenderManager rm, ViewPort vp) {
         this.rm = rm;
         this.vp = vp;
     }
 
+    @Override
     public void reshape(ViewPort vp, int w, int h) {
         this.vp = vp;
     }
 
+    @Override
     public boolean isInitialized() {
         return vp != null;
     }
 
+    @Override
     public void preFrame(float tpf) {
     }
 
+    @Override
     public void postQueue(RenderQueue rq) {
         // lay depth first
         rm.setForcedMaterial(preDepth);
@@ -90,10 +95,12 @@ public class PreDepthProcessor implements SceneProcessor {
         rm.setForcedRenderState(forcedRS);
     }
 
+    @Override
     public void postFrame(FrameBuffer out) {
         rm.setForcedRenderState(null);
     }
 
+    @Override
     public void cleanup() {
         vp = null;
     }

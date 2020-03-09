@@ -14,6 +14,7 @@ public class RenderModel_ControllerMode_State_t extends Structure {
 	public RenderModel_ControllerMode_State_t() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("bScrollWheelVisible");
 	}

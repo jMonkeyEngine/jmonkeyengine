@@ -14,6 +14,7 @@ public class OSVR_Quaternion extends Structure {
 	public OSVR_Quaternion() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("data");
 	}

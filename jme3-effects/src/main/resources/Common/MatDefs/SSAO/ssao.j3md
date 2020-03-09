@@ -18,8 +18,8 @@ MaterialDef SSAO {
     }
 
     Technique {
-        VertexShader GLSL150 GLSL120:   Common/MatDefs/Post/Post.vert
-        FragmentShader GLSL150 GLSL120: Common/MatDefs/SSAO/ssao.frag
+        VertexShader GLSL300 GLSL150 GLSL120:   Common/MatDefs/Post/Post.vert
+        FragmentShader GLSL300 GLSL150 GLSL120: Common/MatDefs/SSAO/ssao.frag
 
         WorldParameters {
             WorldViewMatrix

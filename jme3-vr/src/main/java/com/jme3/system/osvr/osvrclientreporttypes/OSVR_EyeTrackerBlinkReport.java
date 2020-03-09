@@ -16,6 +16,7 @@ public class OSVR_EyeTrackerBlinkReport extends Structure {
 	public OSVR_EyeTrackerBlinkReport() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("sensor", "state");
 	}

@@ -85,6 +85,18 @@ public class RootNodeAppState extends AbstractAppState {
         this.rootNode = rootNode;
     }
 
+    /**
+     * Creates the AppState with the given unique ID, ViewPort, and root Node, attaches
+     * the root Node to the ViewPort and updates it.
+     * @param viewPort An existing ViewPort
+     * @param rootNode An existing root Node
+     */
+    public RootNodeAppState( String id, ViewPort viewPort, Node rootNode ) {
+        super(id);
+        this.viewPort = viewPort;
+        this.rootNode = rootNode;
+    }
+
     @Override
     public void initialize(AppStateManager stateManager, Application app) {
         if (rootNode == null) {
@@ -101,6 +113,12 @@ public class RootNodeAppState extends AbstractAppState {
     public void update(float tpf) {
         super.update(tpf);
         rootNode.updateLogicalState(tpf);
+        
+        // FIXME: I'm 99% sure that updateGeometricState() should be
+        // called in render() so that it is done as late as possible.
+        // In complicated app state setups, cross-state chatter could 
+        // cause nodes (or their children) to be updated after this 
+        // app state's update has been called.  -pspeed:2019-09-15 
         rootNode.updateGeometricState();
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -81,6 +81,7 @@ public class SocketConnector implements Connector
             throw new ConnectorException( "Connection is closed:" + remoteAddress );
     }
      
+    @Override
     public boolean isConnected()
     {
         if( sock == null )
@@ -88,6 +89,7 @@ public class SocketConnector implements Connector
         return sock.isConnected();
     }
 
+    @Override
     public void close()
     {
         checkClosed();
@@ -101,6 +103,7 @@ public class SocketConnector implements Connector
         }            
     }     
 
+    @Override
     public boolean available()
     {
         checkClosed();
@@ -111,6 +114,7 @@ public class SocketConnector implements Connector
         }       
     }     
     
+    @Override
     public ByteBuffer read()
     {
         checkClosed();
@@ -135,6 +139,7 @@ public class SocketConnector implements Connector
         }                
     }
     
+    @Override
     public void write( ByteBuffer data )
     {
         checkClosed();

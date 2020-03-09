@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -80,6 +80,15 @@ public class TestHoveringTank extends SimpleApplication implements AnalogListene
     PointLight pl;
     Geometry lightMdl;
     Geometry collisionMarker;
+    /**
+     * initial location of the tank (in world/physics-space coordinates)
+     */
+    final private Vector3f startLocation = new Vector3f(-140f, 50f, -23f);
+    /**
+     * initial orientation of the tank (in world/physics-space coordinates)
+     */
+    final private Quaternion startOrientation
+            = new Quaternion(new float[]{0f, 0.01f, 0f});
 
     public static void main(String[] args) {
         TestHoveringTank app = new TestHoveringTank();
@@ -143,8 +152,8 @@ public class TestHoveringTank extends SimpleApplication implements AnalogListene
         spaceCraft = assetManager.loadModel("Models/HoverTank/Tank2.mesh.xml");
         CollisionShape colShape = CollisionShapeFactory.createDynamicMeshShape(spaceCraft);
         spaceCraft.setShadowMode(ShadowMode.CastAndReceive);
-        spaceCraft.setLocalTranslation(new Vector3f(-140, 50, -23));
-        spaceCraft.setLocalRotation(new Quaternion(new float[]{0, 0.01f, 0}));
+        spaceCraft.setLocalTranslation(startLocation);
+        spaceCraft.setLocalRotation(startOrientation);
 
         hoverControl = new PhysicsHoverControl(colShape, 500);
 
@@ -191,9 +200,11 @@ public class TestHoveringTank extends SimpleApplication implements AnalogListene
         getPhysicsSpace().add(missile);
     }
 
+    @Override
     public void onAnalog(String binding, float value, float tpf) {
     }
 
+    @Override
     public void onAction(String binding, boolean value, float tpf) {
         if (binding.equals("Lefts")) {
             hoverControl.steer(value ? 50f : 0);
@@ -206,8 +217,10 @@ public class TestHoveringTank extends SimpleApplication implements AnalogListene
         } else if (binding.equals("Reset")) {
             if (value) {
                 System.out.println("Reset");
-                hoverControl.setPhysicsLocation(new Vector3f(-140, 14, -23));
-                hoverControl.setPhysicsRotation(new Matrix3f());
+                hoverControl.setPhysicsLocation(startLocation);
+                hoverControl.setPhysicsRotation(startOrientation);
+                hoverControl.setAngularVelocity(Vector3f.ZERO);
+                hoverControl.setLinearVelocity(Vector3f.ZERO);
                 hoverControl.clearForces();
             } else {
             }
@@ -272,7 +285,7 @@ public class TestHoveringTank extends SimpleApplication implements AnalogListene
         Texture normalMap2 = assetManager.loadTexture("Textures/Terrain/splat/road_normal.png");
         normalMap2.setWrap(WrapMode.Repeat);
         matRock.setTexture("NormalMap", normalMap0);
-        matRock.setTexture("NormalMap_1", normalMap2);
+        matRock.setTexture("NormalMap_1", normalMap1);
         matRock.setTexture("NormalMap_2", normalMap2);
 
         AbstractHeightMap heightmap = null;

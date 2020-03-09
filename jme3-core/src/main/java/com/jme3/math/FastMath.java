@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -91,7 +91,7 @@ final public class FastMath {
      * Get the next power of two of the given number.
      * 
      * E.g. for an input 100, this returns 128.
-     * Returns 1 for all numbers <= 1.
+     * Returns 1 for all numbers less than or equal to 1.
      * 
      * @param number The number to obtain the POT for.
      * @return The next power of two.
@@ -250,7 +250,7 @@ final public class FastMath {
         c3 = 2 * T * p0 + (T - 3) * p1 + (3 - 2 * T) * p2 + -T * p3;
         c4 = -T * p0 + (2 - T) * p1 + (T - 2) * p2 + T * p3;
 
-        return (float) (((c4 * u + c3) * u + c2) * u + c1);
+        return ((c4 * u + c3) * u + c2) * u + c1;
     }
 
     /**Interpolate a spline between at least 4 control points following the Catmull-Rom equation.
@@ -942,7 +942,8 @@ final public class FastMath {
      * Converts a single precision (32 bit) floating point value
      * into half precision (16 bit).
      *
-     * <p>Source: <a href="ftp://www.fox-toolkit.org/pub/fasthalffloatconversion.pdf</a>
+     * <p>Source: <a href="ftp://www.fox-toolkit.org/pub/fasthalffloatconversion.pdf">
+     * ftp://www.fox-toolkit.org/pub/fasthalffloatconversion.pdf</a>
      *
      * @param half The half floating point value as a short.
      * @return floating point value of the half.
@@ -992,4 +993,16 @@ final public class FastMath {
                 | ((((f & 0x7f800000) - 0x38000000) >> 13) & 0x7c00)
                 | ((f >> 13) & 0x03ff));
     }
+
+    /**
+     * Converts a range of min/max to a 0-1 range.
+     * @param value the value between min-max (inclusive).
+     * @param min   the minimum of the range.
+     * @param max   the maximum of the range.
+     * @return A value between 0-1 if the given value is between min/max.
+     */
+    public static float unInterpolateLinear(float value, float min, float max) {
+        return (value - min) / (max - min);
+    }
+
 }

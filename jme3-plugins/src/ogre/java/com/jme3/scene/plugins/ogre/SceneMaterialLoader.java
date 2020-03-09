@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -100,7 +100,7 @@ class SceneMaterialLoader extends DefaultHandler {
                 String materialName = new File(materialPath).getName();
                 String matFile = folderName + materialName;
                 try {
-                    MaterialList loadedMaterialList = (MaterialList) assetManager.loadAsset(new OgreMaterialKey(matFile));
+                    MaterialList loadedMaterialList = assetManager.loadAsset(new OgreMaterialKey(matFile));
                     materialList.putAll(loadedMaterialList);
                 } catch (AssetNotFoundException ex) {
                     logger.log(Level.WARNING, "Cannot locate material file: {0}", matFile);

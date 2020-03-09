@@ -31,11 +31,13 @@
  */
 package com.jme3.scene.mesh;
 
-import com.jme3.util.BufferUtils;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
+
+import com.jme3.scene.VertexBuffer.Format;
+import com.jme3.util.BufferUtils;
 
 /**
  * <code>IndexBuffer</code> is an abstraction for integer index buffers,
@@ -59,21 +61,22 @@ public abstract class IndexBuffer {
     }
     
     /**
-     * Creates an index buffer that can contain the given amount
-     * of vertices.
-     * Returns {@link IndexShortBuffer}
+     * Creates an index buffer that can contain the given amount of vertices. 
+     * <br/>
+     * Returns either {@link IndexByteBuffer}, {@link IndexShortBuffer} or 
+     * {@link IndexIntBuffer}
      * 
      * @param vertexCount The amount of vertices to contain
-     * @param indexCount The amount of indices
-     * to contain.
-     * @return A new index buffer
+     * @param indexCount The amount of indices to contain
+     * @return A new, apropriately sized index buffer
      */
     public static IndexBuffer createIndexBuffer(int vertexCount, int indexCount){
-        if (vertexCount > 65535){
-            return new IndexIntBuffer(BufferUtils.createIntBuffer(indexCount));
-        }else{
+        if (vertexCount < 128)
+            return new IndexByteBuffer(BufferUtils.createByteBuffer (indexCount));
+        else if (vertexCount < 65536)
             return new IndexShortBuffer(BufferUtils.createShortBuffer(indexCount));
-        }
+        else
+            return new IndexIntBuffer(BufferUtils.createIntBuffer(indexCount));
     }
 
     /**
@@ -107,12 +110,31 @@ public abstract class IndexBuffer {
     public abstract int get(int i);
     
     /**
-     * Puts the vertex index at the index buffer's index.
+     * Absolute put method.
+     * 
+     * <p>Puts the vertex index at the index buffer's index.
      * Implementations may throw an {@link UnsupportedOperationException}
      * if modifying the IndexBuffer is not supported (e.g. virtual index
-     * buffers).
+     * buffers).</p>
+     * 
+     * @param i The buffer index
+     * @param value The vertex index
+     * @return This buffer
      */
-    public abstract void put(int i, int value);
+    public abstract IndexBuffer put(int i, int value);
+    
+    /**
+     * Relative put method.
+     * 
+     * <p>Puts the vertex index at the current position, then increments the
+     * position. Implementations may throw an 
+     * {@link UnsupportedOperationException} if modifying the IndexBuffer is not
+     * supported (e.g. virtual index buffers).</p>
+     * 
+     * @param value The vertex index
+     * @return This buffer
+     */
+    public abstract IndexBuffer put(int value);
     
     /**
      * Returns the size of the index buffer.
@@ -129,4 +151,17 @@ public abstract class IndexBuffer {
      * @return the underlying {@link Buffer}.
      */
     public abstract Buffer getBuffer();
+    
+    /**
+     * Returns the format of the data stored in this buffer.
+     * 
+     * <p>This method can be used to set an {@link IndexBuffer} to a 
+     * {@link com.jme3.scene.Mesh Mesh}:</p>
+     * <pre>
+     * mesh.setBuffer(Type.Index, 3, 
+     *     indexBuffer.getFormat(), indexBuffer);
+     * </pre>
+     * @return
+     */
+    public abstract Format getFormat();
 }

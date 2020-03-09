@@ -194,7 +194,7 @@ public class RmiRegistry {
     public <T> T getLocalObject( String name, Class<T> type ) {
         local.lock.readLock().lock();
         try {
-            return type.cast(local.byName.get(name));
+            return type.cast(local.byName.get(name).object);
         } finally {
             local.lock.readLock().unlock();
         }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -79,7 +79,7 @@ public class TestPBRLighting extends SimpleApplication {
         assetManager.registerLoader(KTXLoader.class, "ktx");
 
         viewPort.setBackgroundColor(ColorRGBA.White);
-        modelNode = (Node) new Node("modelNode");
+        modelNode = new Node("modelNode");
         model = (Geometry) assetManager.loadModel("Models/Tank/tank.j3o");
         MikktspaceTangentGenerator.generate(model);
         modelNode.attachChild(model);
@@ -90,8 +90,12 @@ public class TestPBRLighting extends SimpleApplication {
         dl.setColor(ColorRGBA.White);
         rootNode.attachChild(modelNode);
 
-
         FilterPostProcessor fpp = new FilterPostProcessor(assetManager);
+        int numSamples = context.getSettings().getSamples();
+        if (numSamples > 0) {
+            fpp.setNumSamples(numSamples);
+        }
+
 //        fpp.addFilter(new FXAAFilter());
         fpp.addFilter(new ToneMapFilter(Vector3f.UNIT_XYZ.mult(4.0f)));
 //        fpp.addFilter(new SSAOFilter(0.5f, 3, 0.2f, 0.2f));
@@ -203,7 +207,7 @@ public class TestPBRLighting extends SimpleApplication {
                     tex = EnvMapUtils.getCubeMapCrossDebugViewWithMipMaps(result.getPrefilteredEnvMap(), assetManager);
                 }
             });
-            ((SphereProbeArea) probe.getArea()).setRadius(100);
+            probe.getArea().setRadius(100);
             rootNode.addLight(probe);
             //getStateManager().getState(EnvironmentManager.class).addEnvProbe(probe);
 

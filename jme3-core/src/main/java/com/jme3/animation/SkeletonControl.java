@@ -113,7 +113,7 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
     /**
      * Serialization only. Do not use.
      */
-    public SkeletonControl() {
+    protected SkeletonControl() {
     }
 
     private void switchToHardware() {

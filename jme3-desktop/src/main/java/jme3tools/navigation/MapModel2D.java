@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -114,7 +114,7 @@ public class MapModel2D {
      * @since 1.0
      */
     public void calculateMinutesPerPixel(double mapWidthInLongitude) {
-        minutesPerPixel = (mapWidthInLongitude * 60) / (double) viewportWidth;
+        minutesPerPixel = (mapWidthInLongitude * 60) / viewportWidth;
     }
 
     /**

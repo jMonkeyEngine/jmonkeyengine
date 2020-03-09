@@ -19,6 +19,7 @@ public class InputDigitalActionData_t extends Structure {
 	public InputDigitalActionData_t() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("bActive", "activeOrigin", "bState", "bChanged", "fUpdateTime");
 	}

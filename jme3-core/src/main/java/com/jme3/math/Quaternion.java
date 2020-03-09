@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1371,15 +1371,17 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      *            a vector indicating the local up direction.
      *            (typically {0, 1, 0} in jME.)
      */
-    public void lookAt(Vector3f direction, Vector3f up) {
+    public Quaternion lookAt(Vector3f direction, Vector3f up) {
         TempVars vars = TempVars.get();
         vars.vect3.set(direction).normalizeLocal();
         vars.vect1.set(up).crossLocal(direction).normalizeLocal();
         vars.vect2.set(direction).crossLocal(vars.vect1).normalizeLocal();
         fromAxes(vars.vect1, vars.vect2, vars.vect3);
         vars.release();
+        return this;
     }
 
+    @Override
     public void write(JmeExporter e) throws IOException {
         OutputCapsule cap = e.getCapsule(this);
         cap.write(x, "x", 0);
@@ -1388,6 +1390,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
         cap.write(w, "w", 1);
     }
 
+    @Override
     public void read(JmeImporter e) throws IOException {
         InputCapsule cap = e.getCapsule(this);
         x = cap.readFloat("x", 0);

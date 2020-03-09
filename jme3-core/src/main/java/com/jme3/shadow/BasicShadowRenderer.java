@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -92,7 +92,7 @@ public class BasicShadowRenderer implements SceneProcessor {
          //DO NOT COMMENT THIS (it prevent the OSX incomplete read buffer crash)
         dummyTex = new Texture2D(size, size, Format.RGBA8);        
         shadowFB.setColorTexture(dummyTex);
-        shadowMapSize = (float)size;
+        shadowMapSize = size;
         preshadowMat = new Material(manager, "Common/MatDefs/Shadow/PreShadow.j3md");
         postshadowMat = new Material(manager, "Common/MatDefs/Shadow/BasicPostShadow.j3md");
         postshadowMat.setTexture("ShadowMap", shadowMap);
@@ -104,6 +104,7 @@ public class BasicShadowRenderer implements SceneProcessor {
         }
     }
 
+    @Override
     public void initialize(RenderManager rm, ViewPort vp) {
         renderManager = rm;
         viewPort = vp;
@@ -111,6 +112,7 @@ public class BasicShadowRenderer implements SceneProcessor {
         reshape(vp, vp.getCamera().getWidth(), vp.getCamera().getHeight());
     }
 
+    @Override
     public boolean isInitialized() {
         return viewPort != null;
     }
@@ -148,6 +150,7 @@ public class BasicShadowRenderer implements SceneProcessor {
         return shadowCam;
     }
 
+    @Override
     public void postQueue(RenderQueue rq) {
         for (Spatial scene : viewPort.getScenes()) {
             ShadowUtil.getGeometriesInCamFrustum(scene, viewPort.getCamera(), ShadowMode.Receive, lightReceivers);
@@ -208,6 +211,7 @@ public class BasicShadowRenderer implements SceneProcessor {
         return dispPic;
     }
 
+    @Override
     public void postFrame(FrameBuffer out) {
         if (!noOccluders) {
             postshadowMat.setMatrix4("LightViewProjectionMatrix", shadowCam.getViewProjectionMatrix());
@@ -217,9 +221,11 @@ public class BasicShadowRenderer implements SceneProcessor {
         }
     }
 
+    @Override
     public void preFrame(float tpf) {
     }
 
+    @Override
     public void cleanup() {
     }
 
@@ -228,6 +234,7 @@ public class BasicShadowRenderer implements SceneProcessor {
         this.prof = profiler;
     }
 
+    @Override
     public void reshape(ViewPort vp, int w, int h) {
         dispPic.setPosition(w / 20f, h / 20f);
         dispPic.setWidth(w / 5f);

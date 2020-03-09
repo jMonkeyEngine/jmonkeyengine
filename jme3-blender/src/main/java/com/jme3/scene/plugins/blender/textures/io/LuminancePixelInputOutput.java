@@ -11,6 +11,7 @@ import java.nio.ByteBuffer;
  * @author Marcin Roguski (Kaelthas)
  */
 /* package */class LuminancePixelInputOutput implements PixelInputOutput {
+    @Override
     public void read(Image image, int layer, TexturePixel pixel, int index) {
         ByteBuffer data = image.getData(layer);
         switch (image.getFormat()) {
@@ -36,11 +37,13 @@ import java.nio.ByteBuffer;
         }
     }
 
+    @Override
     public void read(Image image, int layer, TexturePixel pixel, int x, int y) {
         int index = y * image.getWidth() + x;
         this.read(image, layer, pixel, index);
     }
 
+    @Override
     public void write(Image image, int layer, TexturePixel pixel, int index) {
         ByteBuffer data = image.getData(layer);
         data.put(index, pixel.getInt());
@@ -67,6 +70,7 @@ import java.nio.ByteBuffer;
         }
     }
 
+    @Override
     public void write(Image image, int layer, TexturePixel pixel, int x, int y) {
         int index = y * image.getWidth() + x;
         this.write(image, layer, pixel, index);

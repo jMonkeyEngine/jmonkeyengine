@@ -31,8 +31,8 @@ public class TestTextureArrayCompressed extends SimpleApplication
        }
        
        
-       Texture tex1 = assetManager.loadTexture( "Textures/Terrain/Pond/Pond.dds");
-       Texture tex2 = assetManager.loadTexture("Textures/Terrain/BrickWall/BrickWall.dds");
+       Texture tex1 = assetManager.loadTexture( "Textures/Terrain/Pond/Pond_dxt5.dds");
+       Texture tex2 = assetManager.loadTexture("Textures/Terrain/BrickWall/BrickWall_dxt5.dds");
        List<Image> images = new ArrayList<Image>();
        images.add(tex1.getImage());
        images.add(tex2.getImage());

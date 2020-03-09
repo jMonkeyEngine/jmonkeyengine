@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -78,6 +78,7 @@ public class ImageBasedHeightMap extends AbstractHeightMap {
     /**
      * Loads the image data from top left to bottom right
      */
+    @Override
     public boolean load() {
         return load(false, false);
     }

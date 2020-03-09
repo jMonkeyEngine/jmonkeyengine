@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -81,7 +81,7 @@ import com.jme3.ui.Picture;
  *      //attaching the water to the root node
  *      rootNode.attachChild(water);
  * </code>
- * @author Normen Hansen & Rémy Bouquet
+ * @author Normen Hansen and Rémy Bouquet
  */
 public class SimpleWaterProcessor implements SceneProcessor {
 
@@ -142,6 +142,7 @@ public class SimpleWaterProcessor implements SceneProcessor {
 
     }
 
+    @Override
     public void initialize(RenderManager rm, ViewPort vp) {
         this.rm = rm;
         this.vp = vp;
@@ -164,15 +165,18 @@ public class SimpleWaterProcessor implements SceneProcessor {
         }
     }
 
+    @Override
     public void reshape(ViewPort vp, int w, int h) {
     }
 
+    @Override
     public boolean isInitialized() {
         return rm != null;
     }
     float time = 0;
     float savedTpf = 0;
 
+    @Override
     public void preFrame(float tpf) {
         time = time + (tpf * speed);
         if (time > 1f) {
@@ -182,6 +186,7 @@ public class SimpleWaterProcessor implements SceneProcessor {
         savedTpf = tpf;
     }
 
+    @Override
     public void postQueue(RenderQueue rq) {
         Camera sceneCam = rm.getCurrentCamera();
 
@@ -207,6 +212,7 @@ public class SimpleWaterProcessor implements SceneProcessor {
 
     }
 
+    @Override
     public void postFrame(FrameBuffer out) {
         if (debug) {
             displayMap(rm.getRenderer(), dispRefraction, 64);
@@ -215,6 +221,7 @@ public class SimpleWaterProcessor implements SceneProcessor {
         }
     }
 
+    @Override
     public void cleanup() {
     }
 
@@ -588,29 +595,36 @@ public class SimpleWaterProcessor implements SceneProcessor {
         ViewPort vp;
         private AppProfiler prof;
 
+        @Override
         public void initialize(RenderManager rm, ViewPort vp) {
             this.rm = rm;
             this.vp = vp;
         }
 
+        @Override
         public void reshape(ViewPort vp, int w, int h) {
         }
 
+        @Override
         public boolean isInitialized() {
             return rm != null;
         }
 
+        @Override
         public void preFrame(float tpf) {
             refractionCam.setClipPlane(refractionClipPlane, Plane.Side.Negative);//,-1
 
         }
 
+        @Override
         public void postQueue(RenderQueue rq) {
         }
 
+        @Override
         public void postFrame(FrameBuffer out) {
         }
 
+        @Override
         public void cleanup() {
         }
 

@@ -1,8 +1,8 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 23
-    buildToolsVersion "23.0.3"
+    compileSdkVersion 28
+    buildToolsVersion "28.0.3"
 
     lintOptions {
         // Fix nifty gui referencing "java.awt" package.
@@ -13,7 +13,7 @@ android {
     defaultConfig {
         applicationId "org.jmonkeyengine.jme3androidexamples"
         minSdkVersion 15       // Android 4.0.3 ICE CREAM SANDWICH
-        targetSdkVersion 22    // Android 5.1 LOLLIPOP
+        targetSdkVersion 28    // Android 9 PIE
         versionCode 1
         versionName "1.0" // TODO: from settings.gradle
     }
@@ -23,6 +23,11 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 
     sourceSets {
@@ -42,7 +47,7 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
-    compile 'com.android.support:appcompat-v7:23.3.0'
+    compile 'com.android.support:appcompat-v7:28.0.0'
 
     compile project(':jme3-core')
     compile project(':jme3-android')

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -65,7 +65,7 @@ public class ConsoleProgressReporter extends JobProgressAdapter<LightProbe>{
     @Override
     public void done(LightProbe result) {
         long end = System.currentTimeMillis();
-        logger.log(Level.INFO, "Generation done in {0}", ((float)(end - time) / 1000f));
+        logger.log(Level.INFO, "Generation done in {0}", (end - time) / 1000f);
     }
     
 }

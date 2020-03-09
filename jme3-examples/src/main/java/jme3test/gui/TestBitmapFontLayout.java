@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 20018 jMonkeyEngine
+ * Copyright (c) 2018-2020 jMonkeyEngine
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -240,8 +240,8 @@ public class TestBitmapFontLayout extends SimpleApplication {
         float y1 = bb.getCenter().y - bb.getYExtent();
         float y2 = bb.getCenter().y + bb.getYExtent();
         System.out.println("xy1:" + x1 + ", " + y1 + "  xy2:" + x2 + ", " + y2);
-        int width = (int)Math.round(x2 - Math.min(0, x1));
-        int height = (int)Math.round(y2 - Math.min(0, y1)); 
+        int width = Math.round(x2 - Math.min(0, x1));
+        int height = Math.round(y2 - Math.min(0, y1)); 
         
         Texture awtText = renderAwtFont(test, width, height, bitmapFont);
         Quad quad = new Quad(width, height);
@@ -454,6 +454,7 @@ public class TestBitmapFontLayout extends SimpleApplication {
                                  ZOOM_IN, ZOOM_OUT);            
     }
  
+    @Override
     public void simpleUpdate( float tpf ) {
         if( scroll.lengthSquared() != 0 ) {
             scrollRoot.move(scroll.mult(tpf));
@@ -465,6 +466,7 @@ public class TestBitmapFontLayout extends SimpleApplication {
     }
  
     private class KeyStateListener implements ActionListener {  
+        @Override
         public void onAction(String name, boolean value, float tpf) {
             switch( name ) {
                 case RESET_VIEW:

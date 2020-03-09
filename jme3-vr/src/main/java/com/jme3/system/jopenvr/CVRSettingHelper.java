@@ -19,6 +19,7 @@ public class CVRSettingHelper extends Structure {
 	public CVRSettingHelper() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("m_pSettings");
 	}

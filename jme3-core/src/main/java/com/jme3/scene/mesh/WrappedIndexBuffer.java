@@ -107,11 +107,7 @@ public class WrappedIndexBuffer extends VirtualIndexBuffer {
             default:
                 break;
         }
-        if (outBuf instanceof IndexIntBuffer){
-            mesh.setBuffer(Type.Index, 3, (IntBuffer)outBuf.getBuffer());
-        }else{
-            mesh.setBuffer(Type.Index, 3, (ShortBuffer)outBuf.getBuffer());
-        }
+        mesh.setBuffer(Type.Index, 3, outBuf.getFormat(), outBuf.getBuffer());
     }
     
 }

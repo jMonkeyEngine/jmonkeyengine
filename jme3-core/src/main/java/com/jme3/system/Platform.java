@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,22 +44,32 @@ public enum Platform {
     Windows64(true),
     
     /**
-     * Linux 32 bit
+     * Linux 32-bit Intel
      */
     Linux32,
     
     /**
-     * Linux 64 bit
+     * Linux 64-bit Intel
      */
     Linux64(true),
     
     /**
-     * Apple Mac OS X 32 bit
+     * Linux 32-bit ARM
+     */
+    Linux_ARM32,
+    
+    /**
+     * Linux 64-bit ARM
+     */
+    Linux_ARM64(true),
+    
+    /**
+     * Apple Mac OS X 32-bit Intel
      */
     MacOSX32,
     
     /**
-     * Apple Mac OS X 64 bit
+     * Apple Mac OS X 64-bit Intel
      */
     MacOSX64(true),
     

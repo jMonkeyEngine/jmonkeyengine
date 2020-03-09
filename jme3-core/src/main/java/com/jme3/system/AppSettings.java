@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -80,9 +80,52 @@ public final class AppSettings extends HashMap<String, Object> {
      * <p>
      * Note: OpenGL 3.2 is used to give 3.x support to Mac users.
      *
+     * @deprecated Previously meant 3.2, use LWJGL_OPENGL32 or LWJGL_OPENGL30
      * @see AppSettings#setRenderer(java.lang.String)
      */
+    @Deprecated
     public static final String LWJGL_OPENGL3 = "LWJGL-OpenGL3";
+
+
+    /**
+     * Use LWJGL as the display system and force using the core OpenGL3.0 renderer.
+     * <p>
+     * If the underlying system does not support OpenGL3.0, then the context
+     * initialization will throw an exception. Note that currently jMonkeyEngine
+     * does not have any shaders that support OpenGL3.0 therefore this 
+     * option is not useful.
+     * <p>
+     *
+     * @see AppSettings#setRenderer(java.lang.String)
+     */
+    public static final String LWJGL_OPENGL30 = "LWJGL-OpenGL30";
+
+    /**
+     * Use LWJGL as the display system and force using the core OpenGL3.1 renderer.
+     * <p>
+     * If the underlying system does not support OpenGL3.1, then the context
+     * initialization will throw an exception. Note that currently jMonkeyEngine
+     * does not have any shaders that support OpenGL3.0 therefore this
+     * option is not useful.
+     * <p>
+     *
+     * @see AppSettings#setRenderer(java.lang.String)
+     */
+    public static final String LWJGL_OPENGL31 = "LWJGL-OpenGL31";
+
+    /**
+     * Use LWJGL as the display system and force using the core OpenGL3.2 renderer.
+     * <p>
+     * If the underlying system does not support OpenGL3.2, then the context
+     * initialization will throw an exception. Note that currently jMonkeyEngine
+     * does not have any shaders that support OpenGL3.2 therefore this
+     * option is not useful.
+     * <p>
+     * Note: OpenGL 3.2 is used to give 3.x support to Mac users.
+     *
+     * @see AppSettings#setRenderer(java.lang.String)
+     */
+    public static final String LWJGL_OPENGL32 = LWJGL_OPENGL3;
 
     /**
      * Use LWJGL as the display system and force using the OpenGL3.3 renderer.
@@ -100,9 +143,21 @@ public final class AppSettings extends HashMap<String, Object> {
      * If the underlying system does not support OpenGL4.0, then the context
      * initialization will throw an exception.
      *
+     * @deprecated Use LWJGL_OPENGL40
      * @see AppSettings#setRenderer(java.lang.String)
      */
+    @Deprecated
     public static final String LWJGL_OPENGL4 = "LWJGL-OpenGL4";
+
+    /**
+     * Use LWJGL as the display system and force using the OpenGL4.0 renderer.
+     * <p>
+     * If the underlying system does not support OpenGL4.0, then the context
+     * initialization will throw an exception.
+     *
+     * @see AppSettings#setRenderer(java.lang.String)
+     */
+    public static final String LWJGL_OPENGL40 = LWJGL_OPENGL4;
 
     /**
      * Use LWJGL as the display system and force using the OpenGL4.1 renderer.
@@ -363,16 +418,16 @@ public final class AppSettings extends HashMap<String, Object> {
                     // Try loading using new method
                     switch (key.charAt(0)) {
                         case 'I':
-                            put(key.substring(2), prefs.getInt(key, (Integer) 0));
+                            put(key.substring(2), prefs.getInt(key, 0));
                             break;
                         case 'F':
-                            put(key.substring(2), prefs.getFloat(key, (Float) 0f));
+                            put(key.substring(2), prefs.getFloat(key, 0f));
                             break;
                         case 'S':
-                            put(key.substring(2), prefs.get(key, (String) null));
+                            put(key.substring(2), prefs.get(key, null));
                             break;
                         case 'B':
-                            put(key.substring(2), prefs.getBoolean(key, (Boolean) false));
+                            put(key.substring(2), prefs.getBoolean(key, false));
                             break;
                         default:
                             throw new UnsupportedOperationException("Undefined setting type: " + key.charAt(0));
@@ -1097,7 +1152,7 @@ public final class AppSettings extends HashMap<String, Object> {
     /**
      * True to enable the creation of an OpenCL context.
      *
-     * @param support
+     * @param support whether to create the context or not
      */
     public void setOpenCLSupport(boolean support) {
         putBoolean("OpenCL", support);
@@ -1121,5 +1176,81 @@ public final class AppSettings extends HashMap<String, Object> {
     
     public String getOpenCLPlatformChooser() {
         return getString("OpenCLPlatformChooser");
+    }
+
+    /**
+     * Determine if the renderer will be run in Graphics Debug mode, which means every openGL call is checked and
+     * if it returns an error code, throw a {@link com.jme3.renderer.RendererException}.<br />
+     * Without this, many openGL calls might fail without notice, so turning it on is recommended for development.
+     *
+     * @return whether the context will be run in Graphics Debug Mode or not
+     * @see #setGraphicsDebug(boolean)
+     */
+    public boolean isGraphicsDebug() {
+        return getBoolean("GraphicsDebug");
+    }
+
+    /**
+     * Set whether the renderer will be run in Graphics Debug mode, which means every openGL call is checked and
+     * if it returns an error code, throw a {@link com.jme3.renderer.RendererException}.<br />
+     * Without this, many openGL calls might fail without notice, so turning it on is recommended for development.
+     *
+     * @param debug whether the context will be run in Graphics Debug Mode or not
+     * @see #isGraphicsDebug()
+     */
+    public void setGraphicsDebug(boolean debug) {
+        putBoolean("GraphicsDebug", debug);
+    }
+
+    /**
+     * Determine if the renderer will be run in Graphics Timing mode, which means every openGL call is checked and
+     * if it runs for longer than a millisecond, log it.<br />
+     * It also keeps track of the time spent in GL Calls in general and displays them when
+     * {@link com.jme3.renderer.opengl.GL#resetStats()} is called.<br />
+     *
+     * @return whether the context will be run in Graphics Timing Mode or not
+     * @see #setGraphicsTiming(boolean)
+     * @see com.jme3.renderer.opengl.GLTiming
+     */
+    public boolean isGraphicsTiming() {
+        return getBoolean("GraphicsTiming");
+    }
+
+    /**
+     * Set whether the renderer will be run in Graphics Timing mode, which means every openGL call is checked and
+     * if it runs for longer than a millisecond, log it.<br />
+     * It also keeps track of the time spent in GL Calls in general and displays them when
+     * {@link com.jme3.renderer.opengl.GL#resetStats()} is called.<br />
+     *
+     * @param timing whether the context will be run in Graphics Timing Mode or not
+     * @see #isGraphicsTiming()
+     * @see com.jme3.renderer.opengl.GLTiming
+     */
+    public void setGraphicsTiming(boolean timing) {
+        putBoolean("GraphicsTiming", timing);
+    }
+
+    /**
+     * Determine if the renderer will be run in Graphics Trace mode, which means every openGL call is logged so one
+     * can trace what openGL commands where executed in which order by the engine.<br />
+     *
+     * @return whether the context will be run in Graphics Trace Mode or not
+     * @see #setGraphicsTrace(boolean)
+     * @see com.jme3.renderer.opengl.GLTracer
+     */
+    public boolean isGraphicsTrace() {
+        return getBoolean("GraphicsTrace");
+    }
+
+    /**
+     * Set whether the renderer will be run in Graphics Trace mode, which means every openGL call is logged so one
+     * can trace what openGL commands where executed in which order by the engine.<br />
+     *
+     * @param trace whether the context will be run in Graphics Trace Mode or not
+     * @see #isGraphicsTrace()
+     * @see com.jme3.renderer.opengl.GLTracer
+     */
+    public void setGraphicsTrace(boolean trace) {
+        putBoolean("GraphicsTrace", trace);
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2013 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -243,6 +243,7 @@ public class LodGenerator {
      * Comparator used to sort vertices according to their collapse cost
      */
     private Comparator collapseComparator = new Comparator<Vertex>() {
+        @Override
         public int compare(Vertex o1, Vertex o2) {
             if (Float.compare(o1.collapseCost, o2.collapseCost) == 0) {
                 return 0;

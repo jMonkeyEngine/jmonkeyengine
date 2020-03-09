@@ -28,6 +28,7 @@ public class Compositor_OverlaySettings extends Structure {
 	public Compositor_OverlaySettings() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("size", "curved", "antialias", "scale", "distance", "alpha", "uOffset", "vOffset", "uScale", "vScale", "gridDivs", "gridWidth", "gridScale", "transform");
 	}

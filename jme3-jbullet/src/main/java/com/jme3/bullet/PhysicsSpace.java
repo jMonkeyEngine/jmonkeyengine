@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -259,6 +259,7 @@ public class PhysicsSpace {
     private void setOverlapFilterCallback() {
         OverlapFilterCallback callback = new OverlapFilterCallback() {
 
+            @Override
             public boolean needBroadphaseCollision(BroadphaseProxy bp, BroadphaseProxy bp1) {
                 boolean collides = (bp.collisionFilterGroup & bp1.collisionFilterMask) != 0;
                 if (collides) {
@@ -334,6 +335,7 @@ public class PhysicsSpace {
     private void setContactCallbacks() {
         BulletGlobals.setContactAddedCallback(new ContactAddedCallback() {
 
+            @Override
             public boolean contactAdded(ManifoldPoint cp, com.bulletphysics.collision.dispatch.CollisionObject colObj0,
                     int partId0, int index0, com.bulletphysics.collision.dispatch.CollisionObject colObj1, int partId1,
                     int index1) {
@@ -344,6 +346,7 @@ public class PhysicsSpace {
 
         BulletGlobals.setContactProcessedCallback(new ContactProcessedCallback() {
 
+            @Override
             public boolean contactProcessed(ManifoldPoint cp, Object body0, Object body1) {
                 if (body0 instanceof CollisionObject && body1 instanceof CollisionObject) {
                     PhysicsCollisionObject node = null, node1 = null;
@@ -359,6 +362,7 @@ public class PhysicsSpace {
 
         BulletGlobals.setContactDestroyedCallback(new ContactDestroyedCallback() {
 
+            @Override
             public boolean contactDestroyed(Object userPersistentData) {
                 System.out.println("contact destroyed");
                 return true;
@@ -431,7 +435,7 @@ public class PhysicsSpace {
             Spatial node = (Spatial) obj;
             for (int i = 0; i < node.getNumControls(); i++) {
                 if (node.getControl(i) instanceof PhysicsControl) {
-                    add(((PhysicsControl) node.getControl(i)));
+                    add(node.getControl(i));
                 }
             }
         } else if (obj instanceof PhysicsCollisionObject) {
@@ -468,7 +472,7 @@ public class PhysicsSpace {
             Spatial node = (Spatial) obj;
             for (int i = 0; i < node.getNumControls(); i++) {
                 if (node.getControl(i) instanceof PhysicsControl) {
-                    remove(((PhysicsControl) node.getControl(i)));
+                    remove(node.getControl(i));
                 }
             }
         } else if (obj instanceof PhysicsCollisionObject) {
@@ -788,7 +792,7 @@ public class PhysicsSpace {
 
     /**
      * Performs a sweep collision test and returns the results as a list of PhysicsSweepTestResults<br/>
-     * You have to use different Transforms for start and end (at least distance > 0.4f).
+     * You have to use different Transforms for start and end (at least distance greater than 0.4f).
      * SweepTest will not see a collision if it starts INSIDE an object and is moving AWAY from its center.
      */
     public List<PhysicsSweepTestResult> sweepTest(CollisionShape shape, Transform start, Transform end) {
@@ -804,7 +808,7 @@ public class PhysicsSpace {
 
     /**
      * Performs a sweep collision test and returns the results as a list of PhysicsSweepTestResults<br/>
-     * You have to use different Transforms for start and end (at least distance > 0.4f).
+     * You have to use different Transforms for start and end (at least distance greater than 0.4f).
      * SweepTest will not see a collision if it starts INSIDE an object and is moving AWAY from its center.
      */
     public List<PhysicsSweepTestResult> sweepTest(CollisionShape shape, Transform start, Transform end, List<PhysicsSweepTestResult> results) {
@@ -917,7 +921,7 @@ public class PhysicsSpace {
      * 
      * The default is 10. Use 4 for low quality, 20 for high quality.
      * 
-     * @param numIterations The number of iterations used by the contact & constraint solver.
+     * @param numIterations The number of iterations used by the contact and constraint solver.
      */
     public void setSolverNumIterations(int numIterations) {
         dynamicsWorld.getSolverInfo().numIterations = numIterations;

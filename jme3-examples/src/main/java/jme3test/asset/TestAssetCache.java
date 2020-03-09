@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -73,10 +73,12 @@ public class TestAssetCache {
             return data;
         }
         
+        @Override
         public AssetKey getKey() {
             return key;
         }
 
+        @Override
         public void setKey(AssetKey key) {
             this.key = key;
         }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -248,6 +248,7 @@ public abstract class Texture implements CloneableSmartAsset, Savable, Cloneable
          * 
          * @deprecated Not supported by OpenGL 3
          */
+        @Deprecated
         MirrorEdgeClamp;
     }
 
@@ -278,21 +279,23 @@ public abstract class Texture implements CloneableSmartAsset, Savable, Cloneable
          */
         Off,
 
-        /**
+        /** 
+         * {@code
          * Compares the 3rd texture coordinate R to the value
          * in this depth texture. If R <= texture value then result is 1.0,
          * otherwise, result is 0.0. If filtering is set to bilinear or trilinear
          * the implementation may sample the texture multiple times to provide
-         * smoother results in the range [0, 1].
+         * smoother results in the range [0, 1].}
          */
         LessOrEqual,
 
         /**
+         * {@code
          * Compares the 3rd texture coordinate R to the value
          * in this depth texture. If R >= texture value then result is 1.0,
          * otherwise, result is 0.0. If filtering is set to bilinear or trilinear
          * the implementation may sample the texture multiple times to provide
-         * smoother results in the range [0, 1].
+         * smoother results in the range [0, 1].}
          */
         GreaterOrEqual
     }
@@ -421,10 +424,12 @@ public abstract class Texture implements CloneableSmartAsset, Savable, Cloneable
     /**
      * @param key The texture key that was used to load this texture
      */
+    @Override
     public void setKey(AssetKey key){
         this.key = (TextureKey) key;
     }
 
+    @Override
     public AssetKey getKey(){
         return this.key;
     }
@@ -584,6 +589,7 @@ public abstract class Texture implements CloneableSmartAsset, Savable, Cloneable
     @Deprecated
     public abstract Texture createSimpleClone();
 
+    @Override
     public void write(JmeExporter e) throws IOException {
         OutputCapsule capsule = e.getCapsule(this);
         capsule.write(name, "name", null);
@@ -602,6 +608,7 @@ public abstract class Texture implements CloneableSmartAsset, Savable, Cloneable
                 MagFilter.Bilinear);
     }
 
+    @Override
     public void read(JmeImporter e) throws IOException {
         InputCapsule capsule = e.getCapsule(this);
         name = capsule.readString("name", null);

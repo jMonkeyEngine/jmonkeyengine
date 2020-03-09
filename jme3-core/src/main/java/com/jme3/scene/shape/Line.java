@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -49,10 +49,13 @@ import java.nio.FloatBuffer;
  */
 public class Line extends Mesh {
 
-    private Vector3f start;
-    private Vector3f end;
-    
-    public Line() {
+    private Vector3f start = new Vector3f();
+    private Vector3f end = new Vector3f();
+
+    /**
+     * No-argument constructor needed by SavableClassUtil.
+     */
+    protected Line() {
     }
 
     public Line(Vector3f start, Vector3f end) {
@@ -61,11 +64,10 @@ public class Line extends Mesh {
     }
 
     protected void updateGeometry(Vector3f start, Vector3f end) {
-        this.start = start;
-        this.end = end;
+        this.start.set(start);
+        this.end.set(end);
         setBuffer(Type.Position, 3, new float[]{start.x,    start.y,    start.z,
                                                 end.x,      end.y,      end.z,});
-
 
         setBuffer(Type.TexCoord, 2, new float[]{0, 0,
                                                 1, 1});
@@ -79,9 +81,16 @@ public class Line extends Mesh {
     }
 
     /**
-     * Update the start and end points of the line.
+     * Alter the start and end.
+     *
+     * @param start the desired mesh location of the start (not null,
+     * unaffected)
+     * @param end the desired mesh location of the end (not null, unaffected)
      */
     public void updatePoints(Vector3f start, Vector3f end) {
+        this.start.set(start);
+        this.end.set(end);
+
         VertexBuffer posBuf = getBuffer(Type.Position);
         
         FloatBuffer fb = (FloatBuffer) posBuf.getData();
@@ -116,7 +125,7 @@ public class Line extends Mesh {
         super.read(im);
         InputCapsule in = im.getCapsule(this);
 
-        start = (Vector3f) in.readSavable("startVertex", null);
-        end = (Vector3f) in.readSavable("endVertex", null);
+        start = (Vector3f) in.readSavable("startVertex", start);
+        end = (Vector3f) in.readSavable("endVertex", end);
     }
 }

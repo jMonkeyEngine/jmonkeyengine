@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,14 +44,14 @@ import java.util.ArrayList;
  * Describes a cubemap texture.
  * The image specified by setImage must contain 6 data units,
  * each data contains a 2D image representing a cube's face.
- * The slices are specified in this order:<br/>
- * <br/>
- * 0 => Positive X (+x)<br/>
- * 1 => Negative X (-x)<br/>
- * 2 => Positive Y (+y)<br/>
- * 3 => Negative Y (-y)<br/>
- * 4 => Positive Z (+z)<br/>
- * 5 => Negative Z (-z)<br/>
+ * The slices are specified in this order:<br>
+ * <br>
+ * 0 -- Positive X (+x)<br>
+ * 1 -- Negative X (-x)<br>
+ * 2 -- Positive Y (+y)<br>
+ * 3 -- Negative Y (-y)<br>
+ * 4 -- Positive Z (+z)<br>
+ * 5 -- Negative Z (-z)<br>
  *
  * @author Joshua Slack
  */
@@ -93,6 +93,7 @@ public class TextureCubeMap extends Texture {
         return image;
     }
 
+    @Override
     public Texture createSimpleClone() {
         return createSimpleClone(new TextureCubeMap());
     }
@@ -116,6 +117,7 @@ public class TextureCubeMap extends Texture {
      * @throws IllegalArgumentException
      *             if axis or mode are null
      */
+    @Override
     public void setWrap(WrapAxis axis, WrapMode mode) {
         if (mode == null) {
             throw new IllegalArgumentException("mode can not be null.");
@@ -143,6 +145,7 @@ public class TextureCubeMap extends Texture {
      * @throws IllegalArgumentException
      *             if mode is null
      */
+    @Override
     public void setWrap(WrapMode mode) {
         if (mode == null) {
             throw new IllegalArgumentException("mode can not be null.");
@@ -162,6 +165,7 @@ public class TextureCubeMap extends Texture {
      * @throws IllegalArgumentException
      *             if axis is null
      */
+    @Override
     public WrapMode getWrap(WrapAxis axis) {
         switch (axis) {
             case S:

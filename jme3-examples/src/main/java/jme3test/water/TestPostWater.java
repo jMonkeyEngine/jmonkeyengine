@@ -166,6 +166,7 @@ public class TestPostWater extends SimpleApplication {
         viewPort.addProcessor(fpp);
 
         inputManager.addListener(new ActionListener() {
+            @Override
             public void onAction(String name, boolean isPressed, float tpf) {
                 if (isPressed) {
                     if (name.equals("foam1")) {
@@ -276,7 +277,7 @@ public class TestPostWater extends SimpleApplication {
         Texture normalMap2 = assetManager.loadTexture("Textures/Terrain/splat/road_normal.png");
         normalMap2.setWrap(WrapMode.Repeat);
         matRock.setTexture("NormalMap", normalMap0);
-        matRock.setTexture("NormalMap_1", normalMap2);
+        matRock.setTexture("NormalMap_1", normalMap1);
         matRock.setTexture("NormalMap_2", normalMap2);
 
         AbstractHeightMap heightmap = null;

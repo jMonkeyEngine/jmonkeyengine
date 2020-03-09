@@ -19,11 +19,12 @@ public class VROverlayIntersectionMaskPrimitive_t extends Structure {
 	public VROverlayIntersectionMaskPrimitive_t() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("m_nPrimitiveType", "m_Primitive");
 	}
 	/**
-	 * @param m_nPrimitiveType @see EVROverlayIntersectionMaskPrimitiveType<br>
+	 * @param m_nPrimitiveType @see JOpenVRLibrary.EVROverlayIntersectionMaskPrimitiveType <br>
 	 * C type : EVROverlayIntersectionMaskPrimitiveType<br>
 	 * @param m_Primitive C type : VROverlayIntersectionMaskPrimitive_Data_t
 	 */

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine, Java Game Networking
+ * Copyright (c) 2009-2020 jMonkeyEngine, Java Game Networking
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -80,6 +80,7 @@ public class FieldSerializer extends Serializer {
         throw new RuntimeException( "Registration error: no-argument constructor not found on:" + clazz );  
     }        
     
+    @Override
     public void initialize(Class clazz) {
 
         checkClass(clazz);   
@@ -123,6 +124,7 @@ public class FieldSerializer extends Serializer {
         }
 
         Collections.sort(cachedFields, new Comparator<SavedField>() {
+            @Override
             public int compare (SavedField o1, SavedField o2) {
                     return o1.field.getName().compareTo(o2.field.getName());
             }
@@ -133,6 +135,7 @@ public class FieldSerializer extends Serializer {
     }
 
     @SuppressWarnings("unchecked")
+    @Override
     public <T> T readObject(ByteBuffer data, Class<T> c) throws IOException {
     
         // Read the null/non-null marker
@@ -143,7 +146,7 @@ public class FieldSerializer extends Serializer {
 
         T object;
         try {
-            Constructor<T> ctor = (Constructor<T>)savedCtors.get(c);
+            Constructor<T> ctor = savedCtors.get(c);
             object = ctor.newInstance();
         } catch (Exception e) {
             throw new SerializerException( "Error creating object of type:" + c, e );
@@ -171,6 +174,7 @@ public class FieldSerializer extends Serializer {
         return object;
     }
 
+    @Override
     public void writeObject(ByteBuffer buffer, Object object) throws IOException {
     
         // Add the null/non-null marker

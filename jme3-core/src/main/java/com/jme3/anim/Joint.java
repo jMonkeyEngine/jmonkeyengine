@@ -216,6 +216,7 @@ public class Joint implements Savable, JmeCloneable, HasLocalTransform {
         this.name = name;
     }
 
+    @Override
     public void setLocalTransform(Transform localTransform) {
         this.localTransform.set(localTransform);
     }
@@ -268,7 +269,11 @@ public class Joint implements Savable, JmeCloneable, HasLocalTransform {
         return attachedNode;
     }
 
+    public Transform getInitialTransform() {
+        return initialTransform;
+    }
 
+    @Override
     public Transform getLocalTransform() {
         return localTransform;
     }

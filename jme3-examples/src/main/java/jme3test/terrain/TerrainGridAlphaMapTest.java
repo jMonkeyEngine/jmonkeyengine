@@ -182,9 +182,11 @@ public class TerrainGridAlphaMapTest extends SimpleApplication {
         }
         terrain.addListener(new TerrainGridListener() {
 
+            @Override
             public void gridMoved(Vector3f newCenter) {
             }
 
+            @Override
             public void tileAttached(Vector3f cell, TerrainQuad quad) {
                 Texture alpha = null;
                 try {
@@ -200,6 +202,7 @@ public class TerrainGridAlphaMapTest extends SimpleApplication {
                 updateMarkerElevations();
             }
 
+            @Override
             public void tileDetached(Vector3f cell, TerrainQuad quad) {
                 if (usePhysics) {
                     if (quad.getControl(RigidBodyControl.class) != null) {
@@ -294,7 +297,9 @@ public class TerrainGridAlphaMapTest extends SimpleApplication {
                     TerrainGridAlphaMapTest.this.down = false;
                 }
             } else if (name.equals("Jumps")) {
-                TerrainGridAlphaMapTest.this.player3.jump();
+                if (usePhysics && keyPressed) {
+                    player3.jump();
+                }
             }
         }
     };

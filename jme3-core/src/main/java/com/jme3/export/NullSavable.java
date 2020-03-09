@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,8 +41,10 @@ import java.io.IOException;
  * @author Kirill Vainer
  */
 public class NullSavable implements Savable {
+    @Override
     public void write(JmeExporter ex) throws IOException {
     }
+    @Override
     public void read(JmeImporter im) throws IOException {
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -58,6 +58,7 @@ public class TestPostWaterLake extends SimpleApplication {
         app.start();
     }
 
+    @Override
     public void simpleInitApp() {
         this.flyCam.setMoveSpeed(10);
         cam.setLocation(new Vector3f(-27.0f, 1.0f, 75.0f));
@@ -112,6 +113,7 @@ public class TestPostWaterLake extends SimpleApplication {
 
         inputManager.addListener(new ActionListener() {
 
+            @Override
             public void onAction(String name, boolean isPressed, float tpf) {
               if(isPressed){
                   if(water.isUseHQShoreline()){

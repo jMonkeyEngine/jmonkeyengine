@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,6 +52,7 @@ public class LittleEndien extends InputStream implements DataInput {
         this.in = new BufferedInputStream(in);
     }
 
+    @Override
     public int read() throws IOException {
         return in.read();
     }
@@ -66,6 +67,7 @@ public class LittleEndien extends InputStream implements DataInput {
         return in.read(buf, off, len);
     }
 
+    @Override
     public int readUnsignedShort() throws IOException {
         return (in.read() & 0xff) | ((in.read() & 0xff) << 8);
     }
@@ -80,26 +82,32 @@ public class LittleEndien extends InputStream implements DataInput {
                 | (((long) (in.read() & 0xff)) << 24));
     }
 
+    @Override
     public boolean readBoolean() throws IOException {
         return (in.read() != 0);
     }
 
+    @Override
     public byte readByte() throws IOException {
         return (byte) in.read();
     }
 
+    @Override
     public int readUnsignedByte() throws IOException {
         return in.read();
     }
 
+    @Override
     public short readShort() throws IOException {
         return (short) this.readUnsignedShort();
     }
 
+    @Override
     public char readChar() throws IOException {
         return (char) this.readUnsignedShort();
     }
 
+    @Override
     public int readInt() throws IOException {
         return ((in.read() & 0xff)
                 | ((in.read() & 0xff) << 8)
@@ -107,6 +115,7 @@ public class LittleEndien extends InputStream implements DataInput {
                 | ((in.read() & 0xff) << 24));
     }
 
+    @Override
     public long readLong() throws IOException {
         return ((in.read() & 0xff)
                 | ((long) (in.read() & 0xff) << 8)
@@ -118,30 +127,37 @@ public class LittleEndien extends InputStream implements DataInput {
                 | ((long) (in.read() & 0xff) << 56));
     }
 
+    @Override
     public float readFloat() throws IOException {
         return Float.intBitsToFloat(readInt());
     }
 
+    @Override
     public double readDouble() throws IOException {
         return Double.longBitsToDouble(readLong());
     }
 
+    @Override
     public void readFully(byte b[]) throws IOException {
         in.read(b, 0, b.length);
     }
 
+    @Override
     public void readFully(byte b[], int off, int len) throws IOException {
         in.read(b, off, len);
     }
 
+    @Override
     public int skipBytes(int n) throws IOException {
         return (int) in.skip(n);
     }
 
+    @Override
     public String readLine() throws IOException {
         throw new IOException("Unsupported operation");
     }
 
+    @Override
     public String readUTF() throws IOException {
         throw new IOException("Unsupported operation");
     }

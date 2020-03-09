@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,6 +38,7 @@ import com.jme3.export.SavableClassUtil;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.IntMap;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
@@ -75,6 +76,7 @@ public class DOMInputCapsule implements InputCapsule {
         importer.formatVersion = version.equals("") ? 0 : Integer.parseInt(version);
     }
 
+    @Override
     public int getSavableVersion(Class<? extends Savable> desiredClass) {
         if (classHierarchyVersions != null){
             return SavableClassUtil.getSavedSavableVersion(savable, desiredClass, 
@@ -122,6 +124,7 @@ public class DOMInputCapsule implements InputCapsule {
         return null;
     }
 
+    @Override
     public byte readByte(String name, byte defVal) throws IOException {
         String tmpString = currentElem.getAttribute(name);
         if (tmpString == null || tmpString.length() < 1) return defVal;
@@ -138,6 +141,7 @@ public class DOMInputCapsule implements InputCapsule {
         }
     }
 
+    @Override
     public byte[] readByteArray(String name, byte[] defVal) throws IOException {
         try {
             Element tmpEl;
@@ -177,6 +181,7 @@ public class DOMInputCapsule implements InputCapsule {
         }
     }
 
+    @Override
     public byte[][] readByteArray2D(String name, byte[][] defVal) throws IOException {
         try {
             Element tmpEl;
@@ -223,6 +228,7 @@ public class DOMInputCapsule implements InputCapsule {
         }
     }
 
+    @Override
     public int readInt(String name, int defVal) throws IOException {
         String tmpString = currentElem.getAttribute(name);
         if (tmpString == null || tmpString.length() < 1) return defVal;
@@ -239,6 +245,7 @@ public class DOMInputCapsule implements InputCapsule {
         }
     }
 
+    @Override
     public int[] readIntArray(String name, int[] defVal) throws IOException {
         try {
             Element tmpEl;
@@ -277,6 +284,7 @@ public class DOMInputCapsule implements InputCapsule {
         }
     }
 
+    @Override
     public int[][] readIntArray2D(String name, int[][] defVal) throws IOException {
         try {
             Element tmpEl;
@@ -326,6 +334,7 @@ public class DOMInputCapsule implements InputCapsule {
         }
     }
 
+    @Override
     public float readFloat(String name, float defVal) throws IOException {
         String tmpString = currentElem.getAttribute(name);
         if (tmpString == null || tmpString.length() < 1) return defVal;
@@ -342,6 +351,7 @@ public class DOMInputCapsule implements InputCapsule {
         }
     }
 
+    @Override
     public float[] readFloatArray(String name, float[] defVal) throws IOException {
         try {
             Element tmpEl;
@@ -376,6 +386,7 @@ public class DOMInputCapsule implements InputCapsule {
         }
     }
 
+    @Override
     public float[][] readFloatArray2D(String name, float[][] defVal) throws IOException {
         /* Why does this one method ignore the 'size attr.? */
         try {
@@ -412,6 +423,7 @@ public class DOMInputCapsule implements InputCapsule {
         }
     }
 
+    @Override
     public double readDouble(String name, double defVal) throws IOException {
         String tmpString = currentElem.getAttribute(name);
         if (tmpString == null || tmpString.length() < 1) return defVal;
@@ -428,6 +440,7 @@ public class DOMInputCapsule implements InputCapsule {
         }
     }
 
+    @Override
     public double[] readDoubleArray(String name, double[] defVal) throws IOException {
         try {
             Element tmpEl;
@@ -466,6 +479,7 @@ public class DOMInputCapsule implements InputCapsule {
         }
     }
 
+    @Override
     public double[][] readDoubleArray2D(String name, double[][] defVal) throws IOException {
         try {
             Element tmpEl;
@@ -511,6 +525,7 @@ public class DOMInputCapsule implements InputCapsule {
         }
     }
 
+    @Override
     public long readLong(String name, long defVal) throws IOException {
         String tmpString = currentElem.getAttribute(name);
         if (tmpString == null || tmpString.length() < 1) return defVal;
@@ -527,6 +542,7 @@ public class DOMInputCapsule implements InputCapsule {
         }
     }
 
+    @Override
     public long[] readLongArray(String name, long[] defVal) throws IOException {
         try {
             Element tmpEl;
@@ -565,6 +581,7 @@ public class DOMInputCapsule implements InputCapsule {
         }
     }
 
+    @Override
     public long[][] readLongArray2D(String name, long[][] defVal) throws IOException {
         try {
             Element tmpEl;
@@ -610,6 +627,7 @@ public class DOMInputCapsule implements InputCapsule {
         }
     }
 
+    @Override
     public short readShort(String name, short defVal) throws IOException {
         String tmpString = currentElem.getAttribute(name);
         if (tmpString == null || tmpString.length() < 1) return defVal;
@@ -626,6 +644,7 @@ public class DOMInputCapsule implements InputCapsule {
         }
     }
 
+    @Override
     public short[] readShortArray(String name, short[] defVal) throws IOException {
          try {
              Element tmpEl;
@@ -664,6 +683,7 @@ public class DOMInputCapsule implements InputCapsule {
         }
     }
 
+    @Override
     public short[][] readShortArray2D(String name, short[][] defVal) throws IOException {
         try {
             Element tmpEl;
@@ -710,6 +730,7 @@ public class DOMInputCapsule implements InputCapsule {
         }
     }
 
+    @Override
     public boolean readBoolean(String name, boolean defVal) throws IOException {
         String tmpString = currentElem.getAttribute(name);
         if (tmpString == null || tmpString.length() < 1) return defVal;
@@ -722,6 +743,7 @@ public class DOMInputCapsule implements InputCapsule {
         }
     }
 
+    @Override
     public boolean[] readBooleanArray(String name, boolean[] defVal) throws IOException {
         try {
             Element tmpEl;
@@ -756,6 +778,7 @@ public class DOMInputCapsule implements InputCapsule {
         }
     }
 
+    @Override
     public boolean[][] readBooleanArray2D(String name, boolean[][] defVal) throws IOException {
         try {
             Element tmpEl;
@@ -801,6 +824,7 @@ public class DOMInputCapsule implements InputCapsule {
         }
     }
 
+    @Override
     public String readString(String name, String defVal) throws IOException {
         String tmpString = currentElem.getAttribute(name);
         if (tmpString == null || tmpString.length() < 1) return defVal;
@@ -813,6 +837,7 @@ public class DOMInputCapsule implements InputCapsule {
         }
     }
 
+    @Override
     public String[] readStringArray(String name, String[] defVal) throws IOException {
          try {
              Element tmpEl;
@@ -857,6 +882,7 @@ public class DOMInputCapsule implements InputCapsule {
         }
     }
 
+    @Override
     public String[][] readStringArray2D(String name, String[][] defVal) throws IOException {
         try {
             Element tmpEl;
@@ -902,6 +928,7 @@ public class DOMInputCapsule implements InputCapsule {
         }
     }
 
+    @Override
     public BitSet readBitSet(String name, BitSet defVal) throws IOException {
         String tmpString = currentElem.getAttribute(name);
         if (tmpString == null || tmpString.length() < 1) return defVal;
@@ -926,6 +953,7 @@ public class DOMInputCapsule implements InputCapsule {
         }
     }
 
+    @Override
     public Savable readSavable(String name, Savable defVal) throws IOException {
         Savable ret = defVal;
         if (name != null && name.equals(""))
@@ -962,6 +990,7 @@ public class DOMInputCapsule implements InputCapsule {
 
     private Savable readSavableFromCurrentElem(Savable defVal) throws
             InstantiationException, ClassNotFoundException,
+            NoSuchMethodException, InvocationTargetException,
             IOException, IllegalAccessException {
         Savable ret = defVal;
         Savable tmp = null;
@@ -1005,6 +1034,7 @@ public class DOMInputCapsule implements InputCapsule {
         return ret;
     }
 
+    @Override
     public Savable[] readSavableArray(String name, Savable[] defVal) throws IOException {
         Savable[] ret = defVal;
         try {
@@ -1039,6 +1069,7 @@ public class DOMInputCapsule implements InputCapsule {
         }
     }
 
+    @Override
     public Savable[][] readSavableArray2D(String name, Savable[][] defVal) throws IOException {
         Savable[][] ret = defVal;
         try {
@@ -1073,6 +1104,7 @@ public class DOMInputCapsule implements InputCapsule {
         }
     }
 
+    @Override
     public ArrayList<Savable> readSavableArrayList(String name, ArrayList defVal) throws IOException {
         try {
             Element tmpEl = findChildElement(currentElem, name);
@@ -1106,6 +1138,7 @@ public class DOMInputCapsule implements InputCapsule {
         }
     }
 
+    @Override
     public ArrayList<Savable>[] readSavableArrayListArray(
             String name, ArrayList[] defVal) throws IOException {
         try {
@@ -1151,6 +1184,7 @@ public class DOMInputCapsule implements InputCapsule {
         }
     }
 
+    @Override
     public ArrayList<Savable>[][] readSavableArrayListArray2D(String name, ArrayList[][] defVal) throws IOException {
         try {
             Element tmpEl = findChildElement(currentElem, name);
@@ -1184,6 +1218,7 @@ public class DOMInputCapsule implements InputCapsule {
         }
     }
 
+    @Override
     public ArrayList<FloatBuffer> readFloatBufferArrayList(
             String name, ArrayList<FloatBuffer> defVal) throws IOException {
         try {
@@ -1222,6 +1257,7 @@ public class DOMInputCapsule implements InputCapsule {
         }
     }
 
+    @Override
     public Map<? extends Savable, ? extends Savable> readSavableMap(String name, Map<? extends Savable, ? extends Savable> defVal) throws IOException {
         Map<Savable, Savable> ret;
         Element tempEl;
@@ -1248,6 +1284,7 @@ public class DOMInputCapsule implements InputCapsule {
         return ret;
     }
 
+    @Override
     public Map<String, ? extends Savable> readStringSavableMap(String name, Map<String, ? extends Savable> defVal) throws IOException {
         Map<String, Savable> ret = null;
         Element tempEl;
@@ -1278,6 +1315,7 @@ public class DOMInputCapsule implements InputCapsule {
         return ret;
     }
 
+    @Override
     public IntMap<? extends Savable> readIntSavableMap(String name, IntMap<? extends Savable> defVal) throws IOException {
         IntMap<Savable> ret = null;
         Element tempEl;
@@ -1311,6 +1349,7 @@ public class DOMInputCapsule implements InputCapsule {
     /**
      * reads from currentElem if name is null
      */
+    @Override
     public FloatBuffer readFloatBuffer(String name, FloatBuffer defVal) throws IOException {
         try {
             Element tmpEl;
@@ -1348,6 +1387,7 @@ public class DOMInputCapsule implements InputCapsule {
         }
     }
 
+    @Override
     public IntBuffer readIntBuffer(String name, IntBuffer defVal) throws IOException {
         try {
             Element tmpEl = findChildElement(currentElem, name);
@@ -1381,6 +1421,7 @@ public class DOMInputCapsule implements InputCapsule {
         }
     }
 
+    @Override
     public ByteBuffer readByteBuffer(String name, ByteBuffer defVal) throws IOException {
         try {
             Element tmpEl = findChildElement(currentElem, name);
@@ -1414,6 +1455,7 @@ public class DOMInputCapsule implements InputCapsule {
         }
     }
 
+    @Override
     public ShortBuffer readShortBuffer(String name, ShortBuffer defVal) throws IOException {
         try {
             Element tmpEl = findChildElement(currentElem, name);
@@ -1447,6 +1489,7 @@ public class DOMInputCapsule implements InputCapsule {
         }
     }
 
+    @Override
         public ArrayList<ByteBuffer> readByteBufferArrayList(String name, ArrayList<ByteBuffer> defVal) throws IOException {
         try {
             Element tmpEl = findChildElement(currentElem, name);
@@ -1483,6 +1526,7 @@ public class DOMInputCapsule implements InputCapsule {
         }
         }
 
+        @Override
         public <T extends Enum<T>> T readEnum(String name, Class<T> enumType,
                         T defVal) throws IOException {
         T ret = defVal;

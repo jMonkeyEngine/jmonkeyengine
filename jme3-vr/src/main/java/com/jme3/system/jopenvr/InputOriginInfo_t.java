@@ -22,6 +22,7 @@ public class InputOriginInfo_t extends Structure {
 	public InputOriginInfo_t() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("devicePath", "trackedDeviceIndex", "rchRenderModelComponentName");
 	}

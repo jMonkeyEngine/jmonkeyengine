@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -77,6 +77,7 @@ public class SSAOUI {
 
         ActionListener acl = new ActionListener() {
 
+            @Override
             public void onAction(String name, boolean keyPressed, float tpf) {
 
                 if (name.equals("toggleUseAO") && keyPressed) {
@@ -102,6 +103,7 @@ public class SSAOUI {
 
         AnalogListener anl = new AnalogListener() {
 
+            @Override
             public void onAnalog(String name, float value, float tpf) {
                 if (name.equals("sampleRadiusUp")) {
                     filter.setSampleRadius(filter.getSampleRadius() + 0.01f);

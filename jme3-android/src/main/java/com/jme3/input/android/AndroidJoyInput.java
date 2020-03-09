@@ -71,10 +71,11 @@ import java.util.logging.Logger;
  * This is done to allow for battery conservation when sensor data or gamepads
  * are not required by the application.
  *
+ * {@code
  * To use the joystick rumble feature, the following line needs to be
  * added to the Android Manifest File
  *     <uses-permission android:name="android.permission.VIBRATE"/>
- *
+ * }
  * @author iwgeric
  */
 public class AndroidJoyInput implements JoyInput {

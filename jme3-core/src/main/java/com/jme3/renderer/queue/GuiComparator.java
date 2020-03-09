@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,6 +42,7 @@ import com.jme3.scene.Geometry;
  */
 public class GuiComparator implements GeometryComparator {
 
+    @Override
     public int compare(Geometry o1, Geometry o2) {
         float z1 = o1.getWorldTranslation().getZ();
         float z2 = o2.getWorldTranslation().getZ();
@@ -53,6 +54,7 @@ public class GuiComparator implements GeometryComparator {
             return 0;
     }
 
+    @Override
     public void setCamera(Camera cam) {
     }
 

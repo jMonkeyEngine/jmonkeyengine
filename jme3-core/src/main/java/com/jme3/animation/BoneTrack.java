@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -65,7 +65,7 @@ public final class BoneTrack implements JmeCloneable, Track {
     /**
      * Serialization-only. Do not use.
      */
-    public BoneTrack() {
+    protected BoneTrack() {
     }
 
     /**
@@ -202,6 +202,7 @@ public final class BoneTrack implements JmeCloneable, Track {
      * @param channel
      * @param vars
      */
+    @Override
     public void setTime(float time, float weight, AnimControl control, AnimChannel channel, TempVars vars) {
         BitSet affectedBones = channel.getAffectedBones();
         if (affectedBones != null && !affectedBones.get(targetBoneIndex)) {
@@ -268,6 +269,7 @@ public final class BoneTrack implements JmeCloneable, Track {
     /**
      * @return the length of the track
      */
+    @Override
     public float getLength() {
         return times == null ? 0 : times[times.length - 1] - times[0];
     }

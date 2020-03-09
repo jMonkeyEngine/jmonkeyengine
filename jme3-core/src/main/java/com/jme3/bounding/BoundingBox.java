@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2013 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -79,9 +79,9 @@ public class BoundingBox extends BoundingVolume {
      * Instantiate a <code>BoundingBox</code> with given center and extents.
      *
      * @param c the coordinates of the center of the box (not null, not altered)
-     * @param x the X-extent of the box (>=0, may be +Infinity)
-     * @param y the Y-extent of the box (>=0, may be +Infinity)
-     * @param z the Z-extent of the box (>=0, may be +Infinity)
+     * @param x the X-extent of the box (0 or greater, may be +Infinity)
+     * @param y the Y-extent of the box (0 or greater, may be +Infinity)
+     * @param z the Z-extent of the box (0 or greater, may be +Infinity)
      */
     public BoundingBox(Vector3f c, float x, float y, float z) {
         this.center.set(c);
@@ -106,6 +106,7 @@ public class BoundingBox extends BoundingVolume {
         setMinMax(min, max);
     }
 
+    @Override
     public Type getType() {
         return Type.AABB;
     }
@@ -117,6 +118,7 @@ public class BoundingBox extends BoundingVolume {
      * @param points
      *            the points to contain.
      */
+    @Override
     public void computeFromPoints(FloatBuffer points) {
         containAABB(points);
     }
@@ -293,6 +295,7 @@ public class BoundingBox extends BoundingVolume {
      * @param store
      *            box to store result in
      */
+    @Override
     public BoundingVolume transform(Transform trans, BoundingVolume store) {
 
         BoundingBox box;
@@ -326,6 +329,7 @@ public class BoundingBox extends BoundingVolume {
         return box;
     }
 
+    @Override
     public BoundingVolume transform(Matrix4f trans, BoundingVolume store) {
         BoundingBox box;
         if (store == null || store.getType() != Type.AABB) {
@@ -365,6 +369,7 @@ public class BoundingBox extends BoundingVolume {
      * @param plane
      *            the plane to check against.
      */
+    @Override
     public Plane.Side whichSide(Plane plane) {
         float radius = FastMath.abs(xExtent * plane.getNormal().getX())
                 + FastMath.abs(yExtent * plane.getNormal().getY())
@@ -392,6 +397,7 @@ public class BoundingBox extends BoundingVolume {
      * @return this box (with its components modified) or null if the second
      * volume is of some type other than AABB or Sphere
      */
+    @Override
     public BoundingVolume merge(BoundingVolume volume) {
         return mergeLocal(volume);
     }
@@ -406,6 +412,7 @@ public class BoundingBox extends BoundingVolume {
      * @return this box (with its components modified) or null if the second
      * volume is of some type other than AABB or Sphere
      */
+    @Override
     public BoundingVolume mergeLocal(BoundingVolume volume) {
         if (volume == null) {
             return this;
@@ -548,6 +555,7 @@ public class BoundingBox extends BoundingVolume {
      *            a new store is created.
      * @return the new BoundingBox
      */
+    @Override
     public BoundingVolume clone(BoundingVolume store) {
         if (store != null && store.getType() == Type.AABB) {
             BoundingBox rVal = (BoundingBox) store;
@@ -584,6 +592,7 @@ public class BoundingBox extends BoundingVolume {
      * 
      * @see BoundingVolume#intersects(com.jme3.bounding.BoundingVolume) 
      */
+    @Override
     public boolean intersects(BoundingVolume bv) {
         return bv.intersectsBoundingBox(this);
     }
@@ -593,6 +602,7 @@ public class BoundingBox extends BoundingVolume {
      * 
      * @see BoundingVolume#intersectsSphere(com.jme3.bounding.BoundingSphere)
      */
+    @Override
     public boolean intersectsSphere(BoundingSphere bs) {
         return bs.intersectsBoundingBox(this);
     }
@@ -604,6 +614,7 @@ public class BoundingBox extends BoundingVolume {
      * 
      * @see BoundingVolume#intersectsBoundingBox(com.jme3.bounding.BoundingBox)
      */
+    @Override
     public boolean intersectsBoundingBox(BoundingBox bb) {
         assert Vector3f.isValidVector(center) && Vector3f.isValidVector(bb.center);
 
@@ -636,6 +647,7 @@ public class BoundingBox extends BoundingVolume {
      * 
      * @see BoundingVolume#intersects(com.jme3.math.Ray) 
      */
+    @Override
     public boolean intersects(Ray ray) {
         assert Vector3f.isValidVector(center);
 
@@ -801,7 +813,7 @@ public class BoundingBox extends BoundingVolume {
             }
             return 0;
         } else if (other instanceof Spatial) {
-            return ((Spatial)other).collideWith(this, results);
+            return other.collideWith(this, results);
         } else {
             throw new UnsupportedCollisionException("With: " + other.getClass().getSimpleName());
         }
@@ -853,6 +865,7 @@ public class BoundingBox extends BoundingVolume {
                 && FastMath.abs(center.z - point.z) <= zExtent;
     }
 
+    @Override
     public float distanceToEdge(Vector3f point) {
         // compute coordinates of point in box coordinate system
         TempVars vars= TempVars.get();

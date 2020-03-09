@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -62,6 +62,7 @@ public class MouseButtonTrigger implements Trigger {
         return mouseButton;
     }
 
+    @Override
     public String getName() {
         return "Mouse Button " + mouseButton;
     }
@@ -71,6 +72,7 @@ public class MouseButtonTrigger implements Trigger {
         return 256 | (mouseButton & 0xff);
     }
 
+    @Override
     public int triggerHashCode() {
         return mouseButtonHash(mouseButton);
     }

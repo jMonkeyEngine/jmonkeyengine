@@ -66,7 +66,7 @@ public class Dome extends Mesh {
     /**
      * Serialization only. Do not use.
      */
-    public Dome() {
+    protected Dome() {
     }
 
     /**

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -110,6 +110,7 @@ public abstract class JoglAbstractDisplay extends JoglContext implements GLEvent
             }
         };
         canvas.invoke(false, new GLRunnable() {
+            @Override
             public boolean run(GLAutoDrawable glad) {
                 canvas.getGL().setSwapInterval(settings.isVSync() ? 1 : 0);
                 return true;
@@ -163,10 +164,12 @@ public abstract class JoglAbstractDisplay extends JoglContext implements GLEvent
         return mouseInput;
     }
     
+    @Override
     public TouchInput getTouchInput() {
         return null;
     }
 
+    @Override
     public void setAutoFlushFrames(boolean enabled) {
         autoFlush.set(enabled);
     }
@@ -174,6 +177,7 @@ public abstract class JoglAbstractDisplay extends JoglContext implements GLEvent
     /**
      * Callback.
      */
+    @Override
     public void reshape(GLAutoDrawable drawable, int x, int y, int width, int height) {
         listener.reshape(width, height);
     }
@@ -187,6 +191,7 @@ public abstract class JoglAbstractDisplay extends JoglContext implements GLEvent
     /**
      * Callback
      */
+    @Override
     public void dispose(GLAutoDrawable drawable) {
 
     }

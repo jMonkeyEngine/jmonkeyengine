@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -123,7 +123,7 @@ public class TerrainQuad extends Node implements Terrain {
     private int maxLod = -1;
     private BoundingBox affectedAreaBBox; // only set in the root quad
 
-    private TerrainPicker picker;
+    private TerrainPicker picker = new BresenhamTerrainPicker(this);
     private Vector3f lastScale = Vector3f.UNIT_XYZ;
 
     protected NeighbourFinder neighbourFinder;
@@ -274,20 +274,7 @@ public class TerrainQuad extends Node implements Terrain {
     }
 
     private int collideWithRay(Ray ray, CollisionResults results) {
-        if (picker == null)
-            picker = new BresenhamTerrainPicker(this);
-
-        Vector3f intersection = picker.getTerrainIntersection(ray, results);
-        if (intersection != null) {
-            if (ray.getLimit() < Float.POSITIVE_INFINITY) {
-                if (results.getClosestCollision().getDistance() <= ray.getLimit())
-                    return 1; // in range
-                else
-                    return 0; // out of range
-            } else
-                return 1;
-        } else
-            return 0;
+        return picker.getTerrainIntersection(ray, results);
     }
 
     /**
@@ -295,6 +282,7 @@ public class TerrainQuad extends Node implements Terrain {
      * calculator. This routine can take a long time to run!
      * @param progressMonitor optional
      */
+    @Override
     public void generateEntropy(ProgressMonitor progressMonitor) {
         // only check this on the root quad
         if (isRootQuad())
@@ -326,10 +314,12 @@ public class TerrainQuad extends Node implements Terrain {
         return (getParent() != null && !(getParent() instanceof TerrainQuad) );
     }
 
+    @Override
     public Material getMaterial() {
         return getMaterial(null);
     }
 
+    @Override
     public Material getMaterial(Vector3f worldLocation) {
         // get the material from one of the children. They all share the same material
         if (children != null) {
@@ -345,6 +335,7 @@ public class TerrainQuad extends Node implements Terrain {
         return null;
     }
 
+    @Override
     public int getNumMajorSubdivisions() {
         return 1;
     }
@@ -886,6 +877,7 @@ public class TerrainQuad extends Node implements Terrain {
         affectedAreaBBox = new BoundingBox(getWorldTranslation(), Float.MAX_VALUE, Float.MAX_VALUE, Float.MAX_VALUE);
     }
 
+    @Override
     public float getHeightmapHeight(Vector2f xz) {
         // offset
         int halfSize = totalSize / 2;
@@ -1061,10 +1053,11 @@ public class TerrainQuad extends Node implements Terrain {
      * @param xz the location to get the height for
      * @return Float.NAN if the value does not exist, or the coordinates are outside of the terrain
      */
+    @Override
     public float getHeight(Vector2f xz) {
         // offset
-        float x = (float)(((xz.x - getWorldTranslation().x) / getWorldScale().x) + (float)(totalSize-1) / 2f);
-        float z = (float)(((xz.y - getWorldTranslation().z) / getWorldScale().z) + (float)(totalSize-1) / 2f);
+        float x = ((xz.x - getWorldTranslation().x) / getWorldScale().x) + (totalSize-1) / 2f;
+        float z = ((xz.y - getWorldTranslation().z) / getWorldScale().z) + (totalSize-1) / 2f;
         if (!isInside((int)x, (int)z))
             return Float.NaN;
         float height = getHeight((int)x, (int)z, (x%1f), (z%1f));
@@ -1088,10 +1081,11 @@ public class TerrainQuad extends Node implements Terrain {
         return Float.NaN;
     }
 
+    @Override
     public Vector3f getNormal(Vector2f xz) {
         // offset
-        float x = (float)(((xz.x - getWorldTranslation().x) / getWorldScale().x) + (float)(totalSize-1) / 2f);
-        float z = (float)(((xz.y - getWorldTranslation().z) / getWorldScale().z) + (float)(totalSize-1) / 2f);
+        float x = ((xz.x - getWorldTranslation().x) / getWorldScale().x) + (totalSize-1) / 2f;
+        float z = ((xz.y - getWorldTranslation().z) / getWorldScale().z) + (totalSize-1) / 2f;
         Vector3f normal = getNormal(x, z, xz);
 
         return normal;
@@ -1120,6 +1114,7 @@ public class TerrainQuad extends Node implements Terrain {
         return n1.add(n2).add(n3).add(n4).normalize();
     }
 
+    @Override
     public void setHeight(Vector2f xz, float height) {
         List<Vector2f> coord = new ArrayList<Vector2f>();
         coord.add(xz);
@@ -1129,6 +1124,7 @@ public class TerrainQuad extends Node implements Terrain {
         setHeight(coord, h);
     }
 
+    @Override
     public void adjustHeight(Vector2f xz, float delta) {
         List<Vector2f> coord = new ArrayList<Vector2f>();
         coord.add(xz);
@@ -1138,10 +1134,12 @@ public class TerrainQuad extends Node implements Terrain {
         adjustHeight(coord, h);
     }
 
+    @Override
     public void setHeight(List<Vector2f> xz, List<Float> height) {
         setHeight(xz, height, true);
     }
 
+    @Override
     public void adjustHeight(List<Vector2f> xz, List<Float> height) {
         setHeight(xz, height, false);
     }
@@ -1278,6 +1276,7 @@ public class TerrainQuad extends Node implements Terrain {
     }
 
 
+    @Override
     public int getTerrainSize() {
         return totalSize;
     }
@@ -1303,6 +1302,7 @@ public class TerrainQuad extends Node implements Terrain {
      * Locked meshes are uneditable but have better performance.
      * @param locked or unlocked
      */
+    @Override
     public void setLocked(boolean locked) {
         for (int i = 0; i < this.getQuantity(); i++) {
             if (this.getChild(i) instanceof TerrainQuad) {
@@ -1589,10 +1589,10 @@ public class TerrainQuad extends Node implements Terrain {
         for (int x = children.size(); --x >= 0;) {
             Spatial child = children.get(x);
             if (child instanceof TerrainQuad) {
-                if (affectedArea != null && affectedArea.intersects(((TerrainQuad) child).getWorldBound()) )
+                if (affectedArea != null && affectedArea.intersects( child.getWorldBound()) )
                     ((TerrainQuad) child).fixNormals(affectedArea);
             } else if (child instanceof TerrainPatch) {
-                if (affectedArea != null && affectedArea.intersects(((TerrainPatch) child).getWorldBound()) )
+                if (affectedArea != null && affectedArea.intersects(child.getWorldBound()) )
                     ((TerrainPatch) child).updateNormals(); // recalculate the patch's normals
             }
         }
@@ -1608,10 +1608,10 @@ public class TerrainQuad extends Node implements Terrain {
         for (int x = children.size(); --x >= 0;) {
             Spatial child = children.get(x);
             if (child instanceof TerrainQuad) {
-                if (affectedArea != null && affectedArea.intersects(((TerrainQuad) child).getWorldBound()) )
+                if (affectedArea != null && affectedArea.intersects(child.getWorldBound()) )
                     ((TerrainQuad) child).fixNormalEdges(affectedArea);
             } else if (child instanceof TerrainPatch) {
-                if (affectedArea != null && !affectedArea.intersects(((TerrainPatch) child).getWorldBound()) ) // if doesn't intersect, continue
+                if (affectedArea != null && !affectedArea.intersects(child.getWorldBound()) ) // if doesn't intersect, continue
                     continue;
 
                 TerrainPatch tp = (TerrainPatch) child;
@@ -1677,7 +1677,7 @@ public class TerrainQuad extends Node implements Terrain {
                         if (tp.getWorldBound().intersects(toTest)) {
                             CollisionResults cr = new CollisionResults();
                             toTest.collideWith(tp.getWorldBound(), cr);
-                            if (cr != null && cr.getClosestCollision() != null) {
+                            if (cr.getClosestCollision() != null) {
                                 cr.getClosestCollision().getDistance();
                                 results.add(new TerrainPickData(tp, cr.getClosestCollision()));
                             }
@@ -1806,9 +1806,8 @@ public class TerrainQuad extends Node implements Terrain {
         // This was not cloned before... I think that's a mistake.
         this.affectedAreaBBox = cloner.clone(affectedAreaBBox);
 
-        // picker is not cloneable and not cloned.  This also seems like
-        // a mistake if you ever load the same terrain twice.
-        // this.picker = cloner.clone(picker);
+        // Otherwise, picker would be cloned by reference and thus "this" would be wrong
+        this.picker = new BresenhamTerrainPicker(this);
 
         // neighbourFinder is also not cloned.  Maybe that's ok.
     }
@@ -1841,6 +1840,7 @@ public class TerrainQuad extends Node implements Terrain {
         }
     }
 
+    @Override
     public int getMaxLod() {
         if (maxLod < 0)
             maxLod = Math.max(1, (int) (FastMath.log(size-1)/FastMath.log(2)) -1); // -1 forces our minimum of 4 triangles wide
@@ -1856,6 +1856,7 @@ public class TerrainQuad extends Node implements Terrain {
         return totalSize;
     }
 
+    @Override
     public float[] getHeightMap() {
 
         float[] hm = null;
@@ -1914,6 +1915,24 @@ public class TerrainQuad extends Node implements Terrain {
         }
 
         return hm;
+    }
+
+    /**
+     * When colliding with this terrain, is a report of all collisions wanted or only the closest collision?<br>
+     * If only the closest collision is required, the collision calculation will be faster.<br>
+     * Note: If no collision happens, it takes as long as a collision with multipleCollisions on would take.
+     *
+     * @param set Whether to support multiple collisions or not
+     */
+    public void setSupportMultipleCollisions(boolean set) {
+        if (picker == null) {
+            // This is so that it doesn't fail at the IllegalStateException because null !instanceof Anything
+            throw new NullPointerException("TerrainPicker is null");
+        } else if (picker instanceof BresenhamTerrainPicker) {
+            ((BresenhamTerrainPicker)picker).setSupportMultipleCollisions(set);
+        } else {
+            throw new IllegalStateException("The underlying picking implementation does not support multiple collisions");
+        }
     }
 }
 

@@ -37,7 +37,7 @@ import com.jme3.system.AppSettings;
 
 /**
  * Testing OpenVR environment.
- * @author Rickard <neph1 @ github>
+ * @author Rickard (neph1 @ github)
  */
 public class TestInitHmd {
     

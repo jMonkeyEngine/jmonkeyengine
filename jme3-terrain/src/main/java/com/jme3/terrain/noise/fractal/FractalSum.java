@@ -36,7 +36,7 @@ import com.jme3.terrain.noise.basis.Noise;
 
 /**
  * FractalSum is the simplest form of fractal functions summing up a few octaves
- * of the noise value with an ever decreasing (0 < roughness < 1) amplitude
+ * of the noise value with an ever decreasing roughness (0 to 1) amplitude
  * 
  * lacunarity = 2.0f is the classical octave distance
  * 

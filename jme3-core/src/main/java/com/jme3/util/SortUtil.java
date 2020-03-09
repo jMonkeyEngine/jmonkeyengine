@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,7 +47,7 @@ public class SortUtil {
     private static final int INSERTION_SORT_THRESHOLD = 7;
     
     
-    /**
+    /*
  procedure optimizedGnomeSort(a[])
     pos := 1
     last := 0
@@ -155,6 +155,7 @@ end procedure
     public static void main(String[] args) {
         Comparator<Float> ic = new Comparator<Float>() {
 
+            @Override
             public int compare(Float o1, Float o2) {
                 return (int) (o1 - o2);
             }

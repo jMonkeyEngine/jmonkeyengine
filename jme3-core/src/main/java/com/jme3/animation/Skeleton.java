@@ -121,7 +121,7 @@ public final class Skeleton implements Savable, JmeCloneable {
     /**
      * Serialization only. Do not use.
      */
-    public Skeleton() {
+    protected Skeleton() {
     }
 
     @Override   

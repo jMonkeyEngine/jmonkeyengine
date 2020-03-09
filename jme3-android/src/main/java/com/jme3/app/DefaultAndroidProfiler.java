@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 jMonkeyEngine
+ * Copyright (c) 2014-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -63,7 +63,7 @@ import com.jme3.renderer.queue.RenderQueue;
  *
  *  <p>This profiler uses the Android Trace class which is only supported
  *  on Android SDK rev 18 and higher (ver 4.3 and higher).  If the
- *  device is running a version < rev 18, the logging will
+ *  device is running a version less than rev 18, the logging will
  *  be skipped.</p>
  *
  *  <p>In the MainActivity class, add the following:</p>
@@ -82,6 +82,7 @@ import com.jme3.renderer.queue.RenderQueue;
 public class DefaultAndroidProfiler implements AppProfiler {
     private int androidApiLevel = Build.VERSION.SDK_INT;
 
+    @Override
     public void appStep(AppStep appStep) {
         if (androidApiLevel >= 18) {
             switch(appStep) {
@@ -140,6 +141,7 @@ public class DefaultAndroidProfiler implements AppProfiler {
 
     }
 
+    @Override
     public void vpStep(VpStep vpStep, ViewPort vp, RenderQueue.Bucket bucket) {
         if (androidApiLevel >= 18) {
             switch (vpStep) {

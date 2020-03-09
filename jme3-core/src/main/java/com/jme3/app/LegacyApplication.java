@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -126,6 +126,7 @@ public class LegacyApplication implements Application, SystemListener {
      *
      * @return The lost focus behavior of the application.
      */
+    @Override
     public LostFocusBehavior getLostFocusBehavior() {
         return lostFocusBehavior;
     }
@@ -142,6 +143,7 @@ public class LegacyApplication implements Application, SystemListener {
      *
      * @see LostFocusBehavior
      */
+    @Override
     public void setLostFocusBehavior(LostFocusBehavior lostFocusBehavior) {
         this.lostFocusBehavior = lostFocusBehavior;
     }
@@ -153,6 +155,7 @@ public class LegacyApplication implements Application, SystemListener {
      *
      * @see #getLostFocusBehavior()
      */
+    @Override
     public boolean isPauseOnLostFocus() {
         return getLostFocusBehavior() == LostFocusBehavior.PauseOnLostFocus;
     }
@@ -173,6 +176,7 @@ public class LegacyApplication implements Application, SystemListener {
      *
      * @see #setLostFocusBehavior(com.jme3.app.LostFocusBehavior)
      */
+    @Override
     public void setPauseOnLostFocus(boolean pauseOnLostFocus) {
         if (pauseOnLostFocus) {
             setLostFocusBehavior(LostFocusBehavior.PauseOnLostFocus);
@@ -227,6 +231,7 @@ public class LegacyApplication implements Application, SystemListener {
      *
      * @param settings The settings to set.
      */
+    @Override
     public void setSettings(AppSettings settings){
         this.settings = settings;
         if (context != null && settings.useInput() != inputEnabled){
@@ -248,6 +253,7 @@ public class LegacyApplication implements Application, SystemListener {
      * frame times.  By default, Application will use the Timer as returned
      * by the current JmeContext implementation.
      */
+    @Override
     public void setTimer(Timer timer){
         this.timer = timer;
 
@@ -260,6 +266,7 @@ public class LegacyApplication implements Application, SystemListener {
         }
     }
 
+    @Override
     public Timer getTimer(){
         return timer;
     }
@@ -355,6 +362,7 @@ public class LegacyApplication implements Application, SystemListener {
     /**
      * @return The {@link AssetManager asset manager} for this application.
      */
+    @Override
     public AssetManager getAssetManager(){
         return assetManager;
     }
@@ -362,6 +370,7 @@ public class LegacyApplication implements Application, SystemListener {
     /**
      * @return the {@link InputManager input manager}.
      */
+    @Override
     public InputManager getInputManager(){
         return inputManager;
     }
@@ -369,6 +378,7 @@ public class LegacyApplication implements Application, SystemListener {
     /**
      * @return the {@link AppStateManager app state manager}
      */
+    @Override
     public AppStateManager getStateManager() {
         return stateManager;
     }
@@ -376,6 +386,7 @@ public class LegacyApplication implements Application, SystemListener {
     /**
      * @return the {@link RenderManager render manager}
      */
+    @Override
     public RenderManager getRenderManager() {
         return renderManager;
     }
@@ -383,6 +394,7 @@ public class LegacyApplication implements Application, SystemListener {
     /**
      * @return The {@link Renderer renderer} for the application
      */
+    @Override
     public Renderer getRenderer(){
         return renderer;
     }
@@ -390,6 +402,7 @@ public class LegacyApplication implements Application, SystemListener {
     /**
      * @return The {@link AudioRenderer audio renderer} for the application
      */
+    @Override
     public AudioRenderer getAudioRenderer() {
         return audioRenderer;
     }
@@ -397,6 +410,7 @@ public class LegacyApplication implements Application, SystemListener {
     /**
      * @return The {@link Listener listener} object for audio
      */
+    @Override
     public Listener getListener() {
         return listener;
     }
@@ -404,6 +418,7 @@ public class LegacyApplication implements Application, SystemListener {
     /**
      * @return The {@link JmeContext display context} for the application
      */
+    @Override
     public JmeContext getContext(){
         return context;
     }
@@ -411,6 +426,7 @@ public class LegacyApplication implements Application, SystemListener {
     /**
      * @return The {@link Camera camera} for the application
      */
+    @Override
     public Camera getCamera(){
         return cam;
     }
@@ -420,6 +436,7 @@ public class LegacyApplication implements Application, SystemListener {
      *
      * @see #start(com.jme3.system.JmeContext.Type)
      */
+    @Override
     public void start(){
         start(JmeContext.Type.Display, false);
     }
@@ -429,6 +446,7 @@ public class LegacyApplication implements Application, SystemListener {
      *
      * @see #start(com.jme3.system.JmeContext.Type)
      */
+    @Override
     public void start(boolean waitFor){
         start(JmeContext.Type.Display, waitFor);
     }
@@ -468,6 +486,7 @@ public class LegacyApplication implements Application, SystemListener {
      * specific steps within a single update frame.  Value defaults
      * to null.
      */
+    @Override
     public void setAppProfiler(AppProfiler prof) {
         this.prof = prof;
         if (renderManager != null) {
@@ -478,6 +497,7 @@ public class LegacyApplication implements Application, SystemListener {
     /**
      * Returns the current AppProfiler hook, or null if none is set.
      */
+    @Override
     public AppProfiler getAppProfiler() {
         return prof;
     }
@@ -538,6 +558,7 @@ public class LegacyApplication implements Application, SystemListener {
     /**
      * Internal use only.
      */
+    @Override
     public void reshape(int w, int h){
         if (renderManager != null) {
             renderManager.notifyReshape(w, h);
@@ -551,6 +572,7 @@ public class LegacyApplication implements Application, SystemListener {
      * applied immediately; calling this method forces the context
      * to restart, applying the new settings.
      */
+    @Override
     public void restart(){
         context.setSettings(settings);
         context.restart();
@@ -564,6 +586,7 @@ public class LegacyApplication implements Application, SystemListener {
      *
      * @see #stop(boolean)
      */
+    @Override
     public void stop(){
         stop(false);
     }
@@ -573,6 +596,7 @@ public class LegacyApplication implements Application, SystemListener {
      * and making necessary cleanup operations.
      * After the application has stopped, it cannot be used anymore.
      */
+    @Override
     public void stop(boolean waitFor){
         logger.log(Level.FINE, "Closing application: {0}", getClass().getName());
         context.destroy(waitFor);
@@ -588,6 +612,7 @@ public class LegacyApplication implements Application, SystemListener {
      * perspective projection with 45° field of view, with near
      * and far values 1 and 1000 units respectively.
      */
+    @Override
     public void initialize(){
         if (assetManager == null){
             initAssetManager();
@@ -611,6 +636,7 @@ public class LegacyApplication implements Application, SystemListener {
     /**
      * Internal use only.
      */
+    @Override
     public void handleError(String errMsg, Throwable t){
         // Print error to log.
         logger.log(Level.SEVERE, errMsg, t);
@@ -630,6 +656,7 @@ public class LegacyApplication implements Application, SystemListener {
     /**
      * Internal use only.
      */
+    @Override
     public void gainFocus(){
         if (lostFocusBehavior != LostFocusBehavior.Disabled) {
             if (lostFocusBehavior == LostFocusBehavior.PauseOnLostFocus) {
@@ -645,6 +672,7 @@ public class LegacyApplication implements Application, SystemListener {
     /**
      * Internal use only.
      */
+    @Override
     public void loseFocus(){
         if (lostFocusBehavior != LostFocusBehavior.Disabled){
             if (lostFocusBehavior == LostFocusBehavior.PauseOnLostFocus) {
@@ -657,6 +685,7 @@ public class LegacyApplication implements Application, SystemListener {
     /**
      * Internal use only.
      */
+    @Override
     public void requestClose(boolean esc){
         context.destroy(false);
     }
@@ -671,6 +700,7 @@ public class LegacyApplication implements Application, SystemListener {
      *
      * @param callable The callable to run in the main jME3 thread
      */
+    @Override
     public <V> Future<V> enqueue(Callable<V> callable) {
         AppTask<V> task = new AppTask<V>(callable);
         taskQueue.add(task);
@@ -687,6 +717,7 @@ public class LegacyApplication implements Application, SystemListener {
      *
      * @param runnable The runnable to run in the main jME3 thread
      */
+    @Override
     public void enqueue(Runnable runnable){
         enqueue(new RunnableWrapper(runnable));
     }
@@ -707,6 +738,7 @@ public class LegacyApplication implements Application, SystemListener {
      * Do not call manually.
      * Callback from ContextListener.
      */
+    @Override
     public void update(){
         // Make sure the audio renderer is available to callables
         AudioContext.setAudioRenderer(audioRenderer);
@@ -752,6 +784,7 @@ public class LegacyApplication implements Application, SystemListener {
      * Do not call manually.
      * Callback from ContextListener.
      */
+    @Override
     public void destroy(){
         stateManager.cleanup();
 
@@ -766,10 +799,12 @@ public class LegacyApplication implements Application, SystemListener {
      * @return The GUI viewport. Which is used for the on screen
      * statistics and FPS.
      */
+    @Override
     public ViewPort getGuiViewPort() {
         return guiViewPort;
     }
 
+    @Override
     public ViewPort getViewPort() {
         return viewPort;
     }

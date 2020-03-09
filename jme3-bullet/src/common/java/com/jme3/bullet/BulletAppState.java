@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,7 +32,7 @@
 package com.jme3.bullet;
 
 import com.jme3.app.Application;
-import com.jme3.app.state.AppState;
+import com.jme3.app.state.AbstractAppState;
 import com.jme3.app.state.AppStateManager;
 import com.jme3.bullet.PhysicsSpace.BroadphaseType;
 import com.jme3.bullet.debug.BulletDebugAppState;
@@ -49,13 +49,15 @@ import java.util.logging.Logger;
  *
  * @author normenhansen
  */
-public class BulletAppState implements AppState, PhysicsTickListener {
+public class BulletAppState
+        extends AbstractAppState
+        implements PhysicsTickListener {
 
     /**
      * true if-and-only-if the physics simulation is running (started but not
      * yet stopped)
      */
-    protected boolean initialized = false;
+    protected volatile boolean isRunning = false;
     protected Application app;
     /**
      * manager that manages this state, set during attach
@@ -180,6 +182,7 @@ public class BulletAppState implements AppState, PhysicsTickListener {
         executor = new ScheduledThreadPoolExecutor(1);
         final BulletAppState app = this;
         Callable<Boolean> call = new Callable<Boolean>() {
+            @Override
             public Boolean call() throws Exception {
                 detachedPhysicsLastUpdate = System.currentTimeMillis();
                 pSpace = new PhysicsSpace(worldMin, worldMax, broadphaseType);
@@ -198,6 +201,7 @@ public class BulletAppState implements AppState, PhysicsTickListener {
         }
     }
     private Callable<Boolean> parallelPhysicsUpdate = new Callable<Boolean>() {
+        @Override
         public Boolean call() throws Exception {
             pSpace.update(tpf * getSpeed());
             return true;
@@ -205,6 +209,7 @@ public class BulletAppState implements AppState, PhysicsTickListener {
     };
     long detachedPhysicsLastUpdate = 0;
     private Callable<Boolean> detachedPhysicsUpdate = new Callable<Boolean>() {
+        @Override
         public Boolean call() throws Exception {
             pSpace.update(getPhysicsSpace().getAccuracy() * getSpeed());
             pSpace.distributeEvents();
@@ -232,7 +237,7 @@ public class BulletAppState implements AppState, PhysicsTickListener {
      * sooner, invoke this method.
      */
     public void startPhysics() {
-        if (initialized) {
+        if (isRunning) {
             return;
         }
 
@@ -252,14 +257,14 @@ public class BulletAppState implements AppState, PhysicsTickListener {
                 throw new IllegalStateException(threadingType.toString());
         }
 
-        initialized = true;
+        isRunning = true;
     }
 
     /**
      * Stop physics after this state is detached.
      */
     public void stopPhysics() {
-        if(!initialized){
+        if (!isRunning) {
             return;
         }
         if (executor != null) {
@@ -268,7 +273,7 @@ public class BulletAppState implements AppState, PhysicsTickListener {
         }
         pSpace.removeTickListener(this);
         pSpace.destroy();
-        initialized = false;
+        isRunning = false;
     }
 
     /**
@@ -278,38 +283,12 @@ public class BulletAppState implements AppState, PhysicsTickListener {
      * @param stateManager the manager for this state (not null)
      * @param app the application which owns this state (not null)
      */
+    @Override
     public void initialize(AppStateManager stateManager, Application app) {
+        super.initialize(stateManager, app);
         this.app = app;
         this.stateManager = stateManager;
         startPhysics();
-    }
-
-    /**
-     * Test whether the physics simulation is running (started but not yet
-     * stopped).
-     *
-     * @return true if running, otherwise false
-     */
-    public boolean isInitialized() {
-        return initialized;
-    }
-
-    /**
-     * Enable or disable this state.
-     *
-     * @param enabled true &rarr; enable, false &rarr; disable
-     */
-    public void setEnabled(boolean enabled) {
-        this.active = enabled;
-    }
-
-    /**
-     * Test whether this state is enabled.
-     *
-     * @return true if enabled, otherwise false
-     */
-    public boolean isEnabled() {
-        return active;
     }
 
     /**
@@ -337,8 +316,10 @@ public class BulletAppState implements AppState, PhysicsTickListener {
      *
      * @param stateManager (not null)
      */
+    @Override
     public void stateAttached(AppStateManager stateManager) {
-        if (!initialized) {
+        super.stateAttached(stateManager);
+        if (!isRunning) {
             startPhysics();
         }
         if (threadingType == ThreadingType.PARALLEL) {
@@ -351,22 +332,15 @@ public class BulletAppState implements AppState, PhysicsTickListener {
     }
 
     /**
-     * Transition this state from running to terminating. Should be invoked only
-     * by a subclass or by the AppStateManager.
-     *
-     * @param stateManager (not null)
-     */
-    public void stateDetached(AppStateManager stateManager) {
-    }
-
-    /**
      * Update this state prior to rendering. Should be invoked only by a
      * subclass or by the AppStateManager. Invoked once per frame, provided the
      * state is attached and enabled.
      *
      * @param tpf the time interval between frames (in seconds, &ge;0)
      */
+    @Override
     public void update(float tpf) {
+        super.update(tpf);
         if (debugEnabled && debugAppState == null && pSpace != null) {
             debugAppState = new BulletDebugAppState(pSpace);
             stateManager.attach(debugAppState);
@@ -388,7 +362,9 @@ public class BulletAppState implements AppState, PhysicsTickListener {
      *
      * @param rm the render manager (not null)
      */
+    @Override
     public void render(RenderManager rm) {
+        super.render(rm);
         if (!active) {
             return;
         }
@@ -405,7 +381,9 @@ public class BulletAppState implements AppState, PhysicsTickListener {
      * invoked only by a subclass or by the AppStateManager. Invoked once per
      * frame, provided the state is attached and enabled.
      */
+    @Override
     public void postRender() {
+        super.postRender();
         if (physicsFuture != null) {
             try {
                 physicsFuture.get();
@@ -424,12 +402,14 @@ public class BulletAppState implements AppState, PhysicsTickListener {
      * {@link #initialize(com.jme3.app.state.AppStateManager, com.jme3.app.Application)}
      * is invoked.
      */
+    @Override
     public void cleanup() {
         if (debugAppState != null) {
             stateManager.detach(debugAppState);
             debugAppState = null;
         }
         stopPhysics();
+        super.cleanup();
     }
 
     /**
@@ -507,6 +487,7 @@ public class BulletAppState implements AppState, PhysicsTickListener {
      * @param space the space that is about to be stepped (not null)
      * @param f the time per physics step (in seconds, &ge;0)
      */
+    @Override
     public void prePhysicsTick(PhysicsSpace space, float f) {
     }
 
@@ -517,6 +498,7 @@ public class BulletAppState implements AppState, PhysicsTickListener {
      * @param space the space that is about to be stepped (not null)
      * @param f the time per physics step (in seconds, &ge;0)
      */
+    @Override
     public void physicsTick(PhysicsSpace space, float f) {
     }
 

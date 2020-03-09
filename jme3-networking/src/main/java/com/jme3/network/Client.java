@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -90,12 +90,14 @@ public interface Client extends MessageConnection
     /**
      *  Sends a message to the server.
      */   
+    @Override
     public void send( Message message );
  
     /**
      *  Sends a message to the other end of the connection using
      *  the specified alternate channel.
      */   
+    @Override
     public void send( int channel, Message message );
  
     /**

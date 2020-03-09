@@ -124,6 +124,7 @@ public class VR_IVRInput_FnTable extends Structure {
 	public VR_IVRInput_FnTable() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("SetActionManifestPath", "GetActionSetHandle", "GetActionHandle", "GetInputSourceHandle", "UpdateActionState", "GetDigitalActionData", "GetAnalogActionData", "GetPoseActionData", "GetSkeletalActionData", "GetSkeletalBoneData", "GetSkeletalBoneDataCompressed", "DecompressSkeletalBoneData", "TriggerHapticVibrationAction", "GetActionOrigins", "GetOriginLocalizedName", "GetOriginTrackedDeviceInfo", "ShowActionOrigins", "ShowBindingsForActionSet");
 	}

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -181,7 +181,7 @@ public class TechniqueDef implements Savable, Cloneable {
     /**
      * Serialization only. Do not use.
      */
-    public TechniqueDef() {
+    protected TechniqueDef() {
         shaderLanguages = new EnumMap<Shader.ShaderType, String>(Shader.ShaderType.class);
         shaderNames = new EnumMap<Shader.ShaderType, String>(Shader.ShaderType.class);
         defineNames = new ArrayList<String>();
@@ -650,6 +650,7 @@ public class TechniqueDef implements Savable, Cloneable {
         return worldBinds;
     }
 
+    @Override
     public void write(JmeExporter ex) throws IOException{
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(name, "name", null);
@@ -680,6 +681,7 @@ public class TechniqueDef implements Savable, Cloneable {
 //        oc.write(worldBinds, "worldBinds", null);
     }
 
+    @Override
     public void read(JmeImporter im) throws IOException{
         InputCapsule ic = im.getCapsule(this);
         name = ic.readString("name", null);

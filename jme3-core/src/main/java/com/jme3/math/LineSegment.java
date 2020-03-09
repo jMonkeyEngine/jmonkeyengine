@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -575,6 +575,7 @@ public class LineSegment implements Cloneable, Savable, java.io.Serializable {
         return origin.subtract((direction.mult(extent, store)), store);
     }
 
+    @Override
     public void write(JmeExporter e) throws IOException {
         OutputCapsule capsule = e.getCapsule(this);
         capsule.write(origin, "origin", Vector3f.ZERO);
@@ -582,6 +583,7 @@ public class LineSegment implements Cloneable, Savable, java.io.Serializable {
         capsule.write(extent, "extent", 0);
     }
 
+    @Override
     public void read(JmeImporter e) throws IOException {
         InputCapsule capsule = e.getCapsule(this);
         origin = (Vector3f) capsule.readSavable("origin", Vector3f.ZERO.clone());

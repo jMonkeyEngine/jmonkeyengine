@@ -18,6 +18,7 @@ public class HmdVector4_t extends Structure {
 	public HmdVector4_t() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("v");
 	}

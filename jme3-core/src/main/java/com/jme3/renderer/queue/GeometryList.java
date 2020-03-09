@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -159,16 +159,19 @@ public class GeometryList implements Iterable<Geometry>{
         }
     }
 
+    @Override
     public Iterator<Geometry> iterator() {
         return new Iterator<Geometry>() {
 
             int index = 0;
             
+            @Override
             public boolean hasNext() {
                 return index < size();
             }
 
             
+            @Override
             public Geometry next() {
                 if ( index >= size() ) {
                     throw new NoSuchElementException("Geometry list has only " + size() + " elements");
@@ -176,6 +179,7 @@ public class GeometryList implements Iterable<Geometry>{
                 return get(index++);
             }
             
+            @Override
             public void remove() {
                 throw new UnsupportedOperationException("Geometry list doesn't support iterator removal");
             }

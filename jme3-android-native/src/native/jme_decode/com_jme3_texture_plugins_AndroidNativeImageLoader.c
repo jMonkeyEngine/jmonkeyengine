@@ -1,4 +1,4 @@
-#include "com_jme3_texture_plugins_AndroidNativeImageLoader.h"
+#include "../headers/com_jme3_texture_plugins_AndroidNativeImageLoader.h"
 #include <assert.h>
 
 #ifndef NDEBUG

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1277,36 +1277,14 @@ public final class BufferUtils {
         allocator.destroyDirectBuffer(toBeDestroyed);
     }
 
-    /*
-     * FIXME when java 1.5 supprt is dropped - replace calls to this method with
-     * Buffer.isDirect
-     * 
-     * Buffer.isDirect() is only java 6. Java 5 only have this method on Buffer
-     * subclasses : FloatBuffer, IntBuffer, ShortBuffer,
-     * ByteBuffer,DoubleBuffer, LongBuffer. CharBuffer has been excluded as we
-     * don't use it.
-     * 
+    /**
+     * Test whether the specified buffer is direct.
+     *
+     * @param buf the buffer to test (not null, unaffected)
+     * @return true if direct, otherwise false
      */
     private static boolean isDirect(Buffer buf) {
-        if (buf instanceof FloatBuffer) {
-            return ((FloatBuffer) buf).isDirect();
-        }
-        if (buf instanceof IntBuffer) {
-            return ((IntBuffer) buf).isDirect();
-        }
-        if (buf instanceof ShortBuffer) {
-            return ((ShortBuffer) buf).isDirect();
-        }
-        if (buf instanceof ByteBuffer) {
-            return ((ByteBuffer) buf).isDirect();
-        }
-        if (buf instanceof DoubleBuffer) {
-            return ((DoubleBuffer) buf).isDirect();
-        }
-        if (buf instanceof LongBuffer) {
-            return ((LongBuffer) buf).isDirect();
-        }
-        throw new UnsupportedOperationException(" BufferUtils.isDirect was called on " + buf.getClass().getName());
+        return buf.isDirect();
     }
 
     private static class BufferInfo extends PhantomReference<Buffer> {

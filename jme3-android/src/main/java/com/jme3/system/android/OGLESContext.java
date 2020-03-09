@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -53,12 +53,15 @@ import com.jme3.input.dummy.DummyKeyInput;
 import com.jme3.input.dummy.DummyMouseInput;
 import com.jme3.renderer.android.AndroidGL;
 import com.jme3.renderer.opengl.GL;
+import com.jme3.renderer.opengl.GLES_30;
 import com.jme3.renderer.opengl.GLDebugES;
 import com.jme3.renderer.opengl.GLExt;
 import com.jme3.renderer.opengl.GLFbo;
 import com.jme3.renderer.opengl.GLRenderer;
 import com.jme3.renderer.opengl.GLTracer;
 import com.jme3.system.*;
+import com.jme3.util.AndroidBufferAllocator;
+import com.jme3.util.BufferAllocatorFactory;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -81,6 +84,14 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
     protected long minFrameDuration = 0;                   // No FPS cap
     protected long lastUpdateTime = 0;
 
+    static {
+        final String implementation = BufferAllocatorFactory.PROPERTY_BUFFER_ALLOCATOR_IMPLEMENTATION;
+
+        if (System.getProperty(implementation) == null) {
+            System.setProperty(implementation, AndroidBufferAllocator.class.getName());
+        }
+    }
+
     public OGLESContext() {
     }
 
@@ -99,13 +110,13 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
      * @return GLSurfaceView The newly created view
      */
     public GLSurfaceView createView(Context context) {
+        ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        ConfigurationInfo info = am.getDeviceConfigurationInfo();
         // NOTE: We assume all ICS devices have OpenGL ES 2.0.
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
             // below 4.0, check OpenGL ES 2.0 support.
-            ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
-            ConfigurationInfo info = am.getDeviceConfigurationInfo();
             if (info.reqGlEsVersion < 0x20000) {
-                throw new UnsupportedOperationException("OpenGL ES 2.0 is not supported on this device");
+                throw new UnsupportedOperationException("OpenGL ES 2.0 or better is not supported on this device");
             }
         } else if (Build.VERSION.SDK_INT < 9){
             throw new UnsupportedOperationException("jME3 requires Android 2.3 or later");
@@ -126,7 +137,8 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
 
         // setEGLContextClientVersion must be set before calling setRenderer
         // this means it cannot be set in AndroidConfigChooser (too late)
-        view.setEGLContextClientVersion(2);
+        // use proper openGL ES version
+        view.setEGLContextClientVersion(info.reqGlEsVersion>>16);
 
         view.setFocusableInTouchMode(true);
         view.setFocusable(true);
@@ -190,6 +202,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
 
         // Setup unhandled Exception Handler
         Thread.currentThread().setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+            @Override
             public void uncaughtException(Thread thread, Throwable thrown) {
                 listener.handleError("Exception thrown in " + thread.toString(), thrown);
             }
@@ -201,7 +214,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
             gl = new GLDebugES((GL) gl, (GLExt) gl, (GLFbo) gl);
         }
         if (settings.getBoolean("GraphicsTrace")) {
-            gl = GLTracer.createGlesTracer(gl, GL.class, GLFbo.class, GLExt.class);
+            gl = GLTracer.createGlesTracer(gl, GL.class, GLES_30.class, GLFbo.class, GLExt.class);
         }
         renderer = new GLRenderer((GL)gl, (GLExt)gl, (GLFbo)gl);
         renderer.initialize();
@@ -242,7 +255,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
         }
 
         if (settings.getFrameRate() > 0) {
-            minFrameDuration = (long)(1000d / (double)settings.getFrameRate()); // ms
+            minFrameDuration = (long)(1000d / settings.getFrameRate()); // ms
             logger.log(Level.FINE, "Setting min tpf: {0}ms", minFrameDuration);
         } else {
             minFrameDuration = 0;
@@ -402,6 +415,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
         }
     }
 
+    @Override
     public void requestDialog(final int id, final String title, final String initialValue, final SoftTextDialogInputListener listener) {
         logger.log(Level.FINE, "requestDialog: title: {0}, initialValue: {1}",
                 new Object[]{title, initialValue});
@@ -445,6 +459,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
 
                 AlertDialog dialogTextInput = new AlertDialog.Builder(view.getContext()).setTitle(title).setView(layoutTextDialogInput).setPositiveButton("OK",
                         new DialogInterface.OnClickListener() {
+                            @Override
                             public void onClick(DialogInterface dialog, int whichButton) {
                                 /* User clicked OK, send COMPLETE action
                                  * and text */
@@ -452,6 +467,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
                             }
                         }).setNegativeButton("Cancel",
                         new DialogInterface.OnClickListener() {
+                            @Override
                             public void onClick(DialogInterface dialog, int whichButton) {
                                 /* User clicked CANCEL, send CANCEL action
                                  * and text */

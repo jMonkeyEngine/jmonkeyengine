@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -130,7 +130,7 @@ public class TerrainTestReadWrite extends SimpleApplication {
         Texture normalMap2 = assetManager.loadTexture("Textures/Terrain/splat/road_normal.png");
         normalMap2.setWrap(WrapMode.Repeat);
         matTerrain.setTexture("NormalMap", normalMap0);
-        matTerrain.setTexture("NormalMap_1", normalMap2);
+        matTerrain.setTexture("NormalMap_1", normalMap1);
         matTerrain.setTexture("NormalMap_2", normalMap2);
 
         matWire = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
@@ -195,6 +195,7 @@ public class TerrainTestReadWrite extends SimpleApplication {
     }
     private ActionListener saveActionListener = new ActionListener() {
 
+        @Override
         public void onAction(String name, boolean pressed, float tpf) {
             if (name.equals("save") && !pressed) {
 
@@ -267,6 +268,7 @@ public class TerrainTestReadWrite extends SimpleApplication {
     }
     private ActionListener loadActionListener = new ActionListener() {
 
+        @Override
         public void onAction(String name, boolean pressed, float tpf) {
             if (name.equals("load") && !pressed) {
                 loadTerrain();
@@ -275,6 +277,7 @@ public class TerrainTestReadWrite extends SimpleApplication {
     };
     private ActionListener cloneActionListener = new ActionListener() {
 
+        @Override
         public void onAction(String name, boolean pressed, float tpf) {
             if (name.equals("clone") && !pressed) {
 

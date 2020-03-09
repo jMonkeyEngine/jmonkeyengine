@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -61,6 +61,7 @@ public class DefaultJoystickButton implements JoystickButton {
      *
      * @param mappingName The mapping to receive joystick button events.
      */
+    @Override
     public void assignButton(String mappingName) {
         inputManager.addMapping(mappingName, new JoyButtonTrigger(parent.getJoyId(), buttonIndex));
     }
@@ -68,6 +69,7 @@ public class DefaultJoystickButton implements JoystickButton {
     /**
      *  Returns the joystick to which this axis object belongs.
      */
+    @Override
     public Joystick getJoystick() {
         return parent;
     } 
@@ -77,6 +79,7 @@ public class DefaultJoystickButton implements JoystickButton {
      *
      *  @return the name of this joystick.
      */
+    @Override
     public String getName() {
         return name;
     } 
@@ -86,6 +89,7 @@ public class DefaultJoystickButton implements JoystickButton {
      *
      *  @return the logical identifier of this joystick.
      */
+    @Override
     public String getLogicalId() {
         return logicalId;
     } 
@@ -96,6 +100,7 @@ public class DefaultJoystickButton implements JoystickButton {
      *
      *  @return the buttonId of this joystick axis.
      */
+    @Override
     public int getButtonId() {
         return buttonIndex;
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -59,7 +59,7 @@ public class MorphTrack implements AnimTrack<float[]> {
     /**
      * Serialization-only. Do not use.
      */
-    public MorphTrack() {
+    protected MorphTrack() {
     }
 
     /**
@@ -122,7 +122,7 @@ public class MorphTrack implements AnimTrack<float[]> {
 
             this.weights = weights;
 
-            assert times != null && times.length == weights.length;
+            assert times.length == weights.length;
         }
     }
 

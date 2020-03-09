@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -62,7 +62,7 @@ public class CylinderCollisionShape extends CollisionShape {
      * No-argument constructor needed by SavableClassUtil. Do not invoke
      * directly!
      */
-    public CylinderCollisionShape() {
+    protected CylinderCollisionShape() {
     }
 
     /**
@@ -128,6 +128,7 @@ public class CylinderCollisionShape extends CollisionShape {
      * @param ex exporter (not null)
      * @throws IOException from exporter
      */
+    @Override
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
         OutputCapsule capsule = ex.getCapsule(this);
@@ -141,6 +142,7 @@ public class CylinderCollisionShape extends CollisionShape {
      * @param im importer (not null)
      * @throws IOException from importer
      */
+    @Override
     public void read(JmeImporter im) throws IOException {
         super.read(im);
         InputCapsule capsule = im.getCapsule(this);

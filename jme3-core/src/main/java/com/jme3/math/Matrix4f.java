@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -2161,7 +2161,7 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
      */
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof Matrix4f) || o == null) {
+        if (o == null || o.getClass() != getClass()) {
             return false;
         }
 
@@ -2225,6 +2225,7 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
         return true;
     }
 
+    @Override
     public void write(JmeExporter e) throws IOException {
         OutputCapsule cap = e.getCapsule(this);
         cap.write(m00, "m00", 1);
@@ -2245,6 +2246,7 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
         cap.write(m33, "m33", 1);
     }
 
+    @Override
     public void read(JmeImporter e) throws IOException {
         InputCapsule cap = e.getCapsule(this);
         m00 = cap.readFloat("m00", 1);

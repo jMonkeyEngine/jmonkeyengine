@@ -42,8 +42,8 @@ MaterialDef Post Shadow {
     }
 
     Technique {
-        VertexShader GLSL150:   Common/MatDefs/Shadow/PostShadowFilter.vert
-        FragmentShader GLSL150: Common/MatDefs/Shadow/PostShadowFilter15.frag
+        VertexShader GLSL310 GLSL150:   Common/MatDefs/Shadow/PostShadowFilter.vert
+        FragmentShader GLSL310 GLSL150: Common/MatDefs/Shadow/PostShadowFilter15.frag
 
         WorldParameters {
             ResolutionInverse

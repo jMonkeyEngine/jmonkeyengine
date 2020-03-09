@@ -139,10 +139,12 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         this.name = name;
     }
 
+    @Override
     public void setKey(AssetKey key) {
         this.key = key;
     }
 
+    @Override
     public AssetKey getKey() {
         return key;
     }
@@ -537,9 +539,11 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         MatParamTexture val = getTextureParam(name);
         if (val == null) {
             checkTextureParamColorSpace(name, value);
-            paramValues.put(name, new MatParamTexture(type, name, value, null));
+            paramValues.put(name, new MatParamTexture(type, name, value, value.getImage() != null ? value.getImage().getColorSpace() : null));
         } else {
+            checkTextureParamColorSpace(name, value);
             val.setTextureValue(value);
+            val.setColorSpace(value.getImage() != null ? value.getImage().getColorSpace() : null);
         }
 
         if (technique != null) {
@@ -1038,6 +1042,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         render(geom, geom.getWorldLightList(), rm);
     }
 
+    @Override
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(def.getAssetName(), "material_def", null);
@@ -1055,6 +1060,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
                 "]";
     }
 
+    @Override
     public void read(JmeImporter im) throws IOException {
         InputCapsule ic = im.getCapsule(this);
 

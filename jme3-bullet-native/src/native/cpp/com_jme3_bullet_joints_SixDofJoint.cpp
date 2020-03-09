@@ -165,6 +165,30 @@ extern "C" {
         btGeneric6DofConstraint* joint = new btGeneric6DofConstraint(*bodyA, *bodyB, transA, transB, useLinearReferenceFrameA);
         return reinterpret_cast<jlong>(joint);
     }
+
+    /*
+     * Class:     com_jme3_bullet_joints_SixDofJoint
+     * Method:    getAngles
+     * Signature: (JLcom/jme3/math/Vector3f;)V
+     */
+    JNIEXPORT void JNICALL Java_com_jme3_bullet_joints_SixDofJoint_getAngles
+    (JNIEnv *env, jobject object, jlong jointId, jobject storeVector) {
+        btGeneric6DofConstraint *pJoint
+                = reinterpret_cast<btGeneric6DofConstraint *> (jointId);
+        if (pJoint == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
+
+        pJoint->calculateTransforms();
+        btScalar x = pJoint->getAngle(0);
+        btScalar y = pJoint->getAngle(1);
+        btScalar z = pJoint->getAngle(2);
+        const btVector3& angles = btVector3(x, y, z);
+        jmeBulletUtil::convert(env, &angles, storeVector);
+    }
+
 #ifdef __cplusplus
 }
 #endif

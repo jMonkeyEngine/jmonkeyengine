@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -159,6 +159,7 @@ public class MotionEvent extends AbstractCinematicEvent implements Control, JmeC
         this.loopMode = loopMode;
     }
 
+    @Override
     public void update(float tpf) {
         if (isControl) {
             internalUpdate(tpf);
@@ -200,6 +201,7 @@ public class MotionEvent extends AbstractCinematicEvent implements Control, JmeC
         onUpdate(0);
     }
 
+    @Override
     public void onUpdate(float tpf) {
         traveledDistance = path.interpolatePath(time, this, tpf);
         computeTargetDirection();
@@ -457,9 +459,11 @@ public class MotionEvent extends AbstractCinematicEvent implements Control, JmeC
         return playState != PlayState.Stopped;
     }
 
+    @Override
     public void render(RenderManager rm, ViewPort vp) {
     }
 
+    @Override
     public void setSpatial(Spatial spatial) {
         this.spatial = spatial;
     }

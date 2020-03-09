@@ -130,7 +130,7 @@ abstract public class PhysicsLink
      * No-argument constructor needed by SavableClassUtil. Do not invoke
      * directly!
      */
-    public PhysicsLink() {
+    protected PhysicsLink() {
     }
 
     /**
