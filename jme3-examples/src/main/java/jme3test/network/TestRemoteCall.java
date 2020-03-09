@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -66,12 +66,14 @@ public class TestRemoteCall {
     }
 
     public static class ServerAccessImpl implements ServerAccess {
+        @Override
         public boolean attachChild(String model) {
             if (model == null)
                 throw new RuntimeException("Cannot be null. .. etc");
 
             final String finalModel = model;
             serverApp.enqueue(new Callable<Void>() {
+                @Override
                 public Void call() throws Exception {
                     Spatial spatial = serverApp.getAssetManager().loadModel(finalModel);
                     serverApp.getRootNode().attachChild(spatial);

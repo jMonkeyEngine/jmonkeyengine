@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -185,6 +185,7 @@ public class HelloTerrainCollision extends SimpleApplication
 
   /** These are our custom actions triggered by key presses.
    * We do not walk yet, we just keep track of the direction the user pressed. */
+  @Override
   public void onAction(String binding, boolean value, float tpf) {
     if (binding.equals("Left")) {
       if (value) { left = true; } else { left = false; }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -68,6 +68,7 @@ public class MouseAxisTrigger implements Trigger {
         return negative;
     }
 
+    @Override
     public String getName() {
         String sign = negative ? "Negative" : "Positive";
         switch (mouseAxis){
@@ -83,6 +84,7 @@ public class MouseAxisTrigger implements Trigger {
         return (negative ? 768 : 512) | (mouseAxis & 0xff);
     }
 
+    @Override
     public int triggerHashCode() {
         return mouseAxisHash(mouseAxis, negative);
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -167,7 +167,7 @@ public class AssetLinkNode extends Node {
         final InputCapsule capsule = e.getCapsule(this);
         final AssetManager assetManager = e.getAssetManager();
 
-        assetLoaderKeys = (ArrayList<ModelKey>) capsule.readSavableArrayList("assetLoaderKeyList", new ArrayList<ModelKey>());
+        assetLoaderKeys = capsule.readSavableArrayList("assetLoaderKeyList", new ArrayList<>());
 
         for (final Iterator<ModelKey> iterator = assetLoaderKeys.iterator(); iterator.hasNext(); ) {
 

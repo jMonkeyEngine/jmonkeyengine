@@ -105,6 +105,7 @@ public class TestTangentGenBadModels extends SimpleApplication {
             
             private boolean isLit = true;
             
+            @Override
             public void onAction(String name, boolean isPressed, float tpf) {
                 if (isPressed) return;
                 Material mat;

@@ -18,6 +18,7 @@ public class InputPoseActionData_t extends Structure {
 	public InputPoseActionData_t() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("bActive", "activeOrigin", "pose");
 	}

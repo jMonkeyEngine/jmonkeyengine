@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2014 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -183,6 +183,7 @@ public class MaterialDebugAppState extends AbstractAppState {
         } else {
             final String actionName = binding.getActionName();
             inputManager.addListener(new ActionListener() {
+                @Override
                 public void onAction(String name, boolean isPressed, float tpf) {
                     if (actionName.equals(name) && isPressed) {
                         //reloading the material
@@ -265,6 +266,7 @@ public class MaterialDebugAppState extends AbstractAppState {
 
         }
 
+        @Override
         public void reload() {
             Material reloadedMat = reloadMaterial(geom.getMaterial());
             //if the reload is successful, we re setup the material with its params and reassign it to the box
@@ -274,11 +276,13 @@ public class MaterialDebugAppState extends AbstractAppState {
             }
         }
 
+        @Override
         public String getActionName() {
             return geom.getName() + "Reload";
 
         }
 
+        @Override
         public Trigger getTrigger() {
             return trigger;
         }
@@ -294,6 +298,7 @@ public class MaterialDebugAppState extends AbstractAppState {
             this.filter = filter;
         }
 
+        @Override
         public void reload() {
             Field[] fields1 = filter.getClass().getDeclaredFields();
             Field[] fields2 = filter.getClass().getSuperclass().getDeclaredFields();
@@ -351,10 +356,12 @@ public class MaterialDebugAppState extends AbstractAppState {
 
         }
 
+        @Override
         public String getActionName() {
             return filter.getName() + "Reload";
         }
 
+        @Override
         public Trigger getTrigger() {
             return trigger;
         }
@@ -400,10 +407,12 @@ public class MaterialDebugAppState extends AbstractAppState {
             return false;
         }
 
+        @Override
         public String getName() {
             return fileName;
         }
 
+        @Override
         public int triggerHashCode() {
             return 0;
         }

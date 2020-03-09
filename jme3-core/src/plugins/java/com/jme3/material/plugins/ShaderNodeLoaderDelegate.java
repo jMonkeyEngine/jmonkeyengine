@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -152,7 +152,7 @@ public class ShaderNodeLoaderDelegate {
      * @throws IOException
      */
     protected void readShaderNodeDefinition(List<Statement> statements, ShaderNodeDefinitionKey key) throws IOException {
-        boolean isLoadDoc = key instanceof ShaderNodeDefinitionKey && ((ShaderNodeDefinitionKey) key).isLoadDocumentation();
+        boolean isLoadDoc = key instanceof ShaderNodeDefinitionKey && key.isLoadDocumentation();
         for (Statement statement : statements) {
             try {
                 String[] split = statement.getLine().split("[ \\{]");

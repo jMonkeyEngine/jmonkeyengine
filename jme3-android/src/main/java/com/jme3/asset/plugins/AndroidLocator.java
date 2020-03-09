@@ -17,6 +17,7 @@ public class AndroidLocator implements AssetLocator {
     public AndroidLocator() {
     }
 
+    @Override
     public void setRootPath(String rootPath) {
         this.rootPath = rootPath;
     }

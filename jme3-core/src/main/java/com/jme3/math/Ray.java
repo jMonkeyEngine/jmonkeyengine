@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -383,6 +383,7 @@ public final class Ray implements Savable, Cloneable, Collidable, java.io.Serial
         return true;
     }
 
+    @Override
     public int collideWith(Collidable other, CollisionResults results) {
         if (other instanceof BoundingVolume) {
             BoundingVolume bv = (BoundingVolume) other;
@@ -492,16 +493,19 @@ public final class Ray implements Savable, Cloneable, Collidable, java.io.Serial
         direction.set(source.getDirection());
     }
 
+    @Override
     public String toString() {
         return getClass().getSimpleName() + " [Origin: " + origin + ", Direction: " + direction + "]";
     }
 
+    @Override
     public void write(JmeExporter e) throws IOException {
         OutputCapsule capsule = e.getCapsule(this);
         capsule.write(origin, "origin", Vector3f.ZERO);
         capsule.write(direction, "direction", Vector3f.ZERO);
     }
 
+    @Override
     public void read(JmeImporter e) throws IOException {
         InputCapsule capsule = e.getCapsule(this);
         origin = (Vector3f) capsule.readSavable("origin", Vector3f.ZERO.clone());

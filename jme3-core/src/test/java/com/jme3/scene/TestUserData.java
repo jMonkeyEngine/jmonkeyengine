@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,36 +46,36 @@ public class TestUserData extends TestCase {
     @Test
     public void testLong() throws Exception {
         Spatial sp = new Node("TestSpatial");
-        userDataTest(sp, (Long) (long) (Math.random() * Long.MAX_VALUE));
+        userDataTest(sp, Math.random() * Long.MAX_VALUE);
     }
 
     @Test
     public void testInt() throws Exception {
         Spatial sp = new Node("TestSpatial");
-        userDataTest(sp, (Integer) (int) (Math.random() * Integer.MAX_VALUE));
+        userDataTest(sp, Math.random() * Integer.MAX_VALUE);
     }
 
     @Test
     public void testShort() throws Exception {
         Spatial sp = new Node("TestSpatial");
-        userDataTest(sp, (Short) (short) (Math.random() * Short.MAX_VALUE));
+        userDataTest(sp, Math.random() * Short.MAX_VALUE);
     }
 
     @Test
     public void testByte() throws Exception {
         Spatial sp = new Node("TestSpatial");
-        userDataTest(sp, (Byte) (byte) (Math.random() * Byte.MAX_VALUE));
+        userDataTest(sp, Math.random() * Byte.MAX_VALUE);
     }
 
     @Test
     public void testDouble() throws Exception {
         Spatial sp = new Node("TestSpatial");
-        userDataTest(sp, (Double) (double) (Math.random() * Double.MAX_VALUE));
+        userDataTest(sp, Math.random() * Double.MAX_VALUE);
     }
 
     @Test
     public void testFloat() throws Exception {
         Spatial sp = new Node("TestSpatial");
-        userDataTest(sp, (Float) (float) (Math.random() * Float.MAX_VALUE));
+        userDataTest(sp, Math.random() * Float.MAX_VALUE);
     }
 }

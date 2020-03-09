@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -81,6 +81,7 @@ public class UdpConnector implements Connector
             throw new ConnectorException( "Connection is closed:" + remoteAddress );
     }
      
+    @Override
     public boolean isConnected()
     {
         if( sock == null )
@@ -88,6 +89,7 @@ public class UdpConnector implements Connector
         return sock.isConnected();
     }
 
+    @Override
     public void close()
     {
         checkClosed();
@@ -101,6 +103,7 @@ public class UdpConnector implements Connector
      *  This always returns false since the simple DatagramSocket usage
      *  cannot be run in a non-blocking way.
      */
+    @Override
     public boolean available()
     {
         // It would take a separate thread or an NIO Selector based implementation to get this
@@ -110,6 +113,7 @@ public class UdpConnector implements Connector
         return false;
     }     
     
+    @Override
     public ByteBuffer read()
     {
         checkClosed();
@@ -128,6 +132,7 @@ public class UdpConnector implements Connector
         }                
     }
     
+    @Override
     public void write( ByteBuffer data )
     {
         checkClosed();

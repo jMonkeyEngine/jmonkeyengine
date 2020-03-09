@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,7 +47,7 @@ import java.io.IOException;
 public class PlaneCollisionShape extends CollisionShape{
     private Plane plane;
 
-    public PlaneCollisionShape() {
+    protected PlaneCollisionShape() {
     }
 
     /**
@@ -63,12 +63,14 @@ public class PlaneCollisionShape extends CollisionShape{
         return plane;
     }
 
+    @Override
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
         OutputCapsule capsule = ex.getCapsule(this);
         capsule.write(plane, "collisionPlane", new Plane());
     }
 
+    @Override
     public void read(JmeImporter im) throws IOException {
         super.read(im);
         InputCapsule capsule = im.getCapsule(this);

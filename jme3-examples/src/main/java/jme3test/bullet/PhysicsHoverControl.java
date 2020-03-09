@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -112,6 +112,7 @@ public class PhysicsHoverControl extends PhysicsVehicle implements PhysicsContro
         throw new UnsupportedOperationException("Not yet implemented.");
     }
          
+    @Override
     public void setSpatial(Spatial spatial) {
         this.spatial = spatial;
         setUserObject(spatial);
@@ -122,10 +123,12 @@ public class PhysicsHoverControl extends PhysicsVehicle implements PhysicsContro
         setPhysicsRotation(spatial.getWorldRotation().toRotationMatrix());
     }
 
+    @Override
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
     }
 
+    @Override
     public boolean isEnabled() {
         return enabled;
     }
@@ -140,6 +143,7 @@ public class PhysicsHoverControl extends PhysicsVehicle implements PhysicsContro
         }
     }
 
+    @Override
     public void prePhysicsTick(PhysicsSpace space, float f) {
         Vector3f angVel = getAngularVelocity();
         float rotationVelocity = angVel.getY();
@@ -183,18 +187,22 @@ public class PhysicsHoverControl extends PhysicsVehicle implements PhysicsContro
         }
     }
 
+    @Override
     public void physicsTick(PhysicsSpace space, float f) {
     }
 
+    @Override
     public void update(float tpf) {
         if (enabled && spatial != null) {
             getMotionState().applyTransform(spatial);
         }
     }
 
+    @Override
     public void render(RenderManager rm, ViewPort vp) {
     }
 
+    @Override
     public void setPhysicsSpace(PhysicsSpace space) {
         createVehicle(space);
         if (space == null) {
@@ -210,6 +218,7 @@ public class PhysicsHoverControl extends PhysicsVehicle implements PhysicsContro
         this.space = space;
     }
 
+    @Override
     public PhysicsSpace getPhysicsSpace() {
         return space;
     }

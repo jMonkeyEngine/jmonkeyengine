@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,7 +50,7 @@ public abstract class PhysicsJoint implements Savable {
     protected Vector3f pivotB;
     protected boolean collisionBetweenLinkedBodys = true;
 
-    public PhysicsJoint() {
+    protected PhysicsJoint() {
     }
 
     /**
@@ -117,6 +117,7 @@ public abstract class PhysicsJoint implements Savable {
         getBodyB().removeJoint(this);
     }
 
+    @Override
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule capsule = ex.getCapsule(this);
         capsule.write(nodeA, "nodeA", null);
@@ -125,10 +126,11 @@ public abstract class PhysicsJoint implements Savable {
         capsule.write(pivotB, "pivotB", null);
     }
 
+    @Override
     public void read(JmeImporter im) throws IOException {
         InputCapsule capsule = im.getCapsule(this);
-        this.nodeA = ((PhysicsRigidBody) capsule.readSavable("nodeA", new PhysicsRigidBody()));
-        this.nodeB = (PhysicsRigidBody) capsule.readSavable("nodeB", new PhysicsRigidBody());
+        this.nodeA = ((PhysicsRigidBody) capsule.readSavable("nodeA", null));
+        this.nodeB = (PhysicsRigidBody) capsule.readSavable("nodeB", null);
         this.pivotA = (Vector3f) capsule.readSavable("pivotA", new Vector3f());
         this.pivotB = (Vector3f) capsule.readSavable("pivotB", new Vector3f());
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -72,7 +72,7 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
     protected javax.vecmath.Vector3f localInertia = new javax.vecmath.Vector3f();
     protected ArrayList<PhysicsJoint> joints = new ArrayList<PhysicsJoint>();
 
-    public PhysicsRigidBody() {
+    protected PhysicsRigidBody() {
     }
 
     /**
@@ -539,6 +539,7 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
         rBody.clearForces();
     }
 
+    @Override
     public void setCollisionShape(CollisionShape collisionShape) {
         super.setCollisionShape(collisionShape);
         if(collisionShape instanceof MeshCollisionShape && mass!=0){

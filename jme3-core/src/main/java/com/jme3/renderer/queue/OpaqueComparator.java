@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,6 +42,7 @@ public class OpaqueComparator implements GeometryComparator {
     private final Vector3f tempVec  = new Vector3f();
     private final Vector3f tempVec2 = new Vector3f();
 
+    @Override
     public void setCamera(Camera cam){
         this.cam = cam;
     }

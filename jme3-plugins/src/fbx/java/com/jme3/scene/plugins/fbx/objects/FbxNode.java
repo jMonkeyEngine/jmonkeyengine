@@ -92,9 +92,9 @@ public class FbxNode extends FbxObject {
 				String userDataType = (String) prop.properties.get(1);
 				Object userDataValue;
 				if(userDataType.equals("KString")) {
-					userDataValue = (String) prop.properties.get(4);
+					userDataValue = prop.properties.get(4);
 				} else if(userDataType.equals("int")) {
-					userDataValue = (Integer) prop.properties.get(4);
+					userDataValue = prop.properties.get(4);
 				} else if(userDataType.equals("double")) {
 					// NOTE: jME3 does not support doubles in UserData.
 					//       Need to convert to float.

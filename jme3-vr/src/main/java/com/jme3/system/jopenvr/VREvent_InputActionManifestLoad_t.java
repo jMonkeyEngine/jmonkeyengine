@@ -17,6 +17,7 @@ public class VREvent_InputActionManifestLoad_t extends Structure {
 	public VREvent_InputActionManifestLoad_t() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("pathAppKey", "pathMessage", "pathMessageParam", "pathManifestPath");
 	}

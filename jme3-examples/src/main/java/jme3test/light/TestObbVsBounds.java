@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -134,6 +134,7 @@ public class TestObbVsBounds extends SimpleApplication {
         flyCam.setEnabled(false);
 
         inputManager.addListener(new AnalogListener() {
+            @Override
             public void onAnalog(String name, float value, float tpf) {
                 Spatial s = null;
                 float mult = 1;
@@ -178,6 +179,7 @@ public class TestObbVsBounds extends SimpleApplication {
         }, "up", "down", "left", "right");
 
         inputManager.addListener(new ActionListener() {
+            @Override
             public void onAction(String name, boolean isPressed, float tpf) {
                 if (name.equals("click")) {
                     if (isPressed) {
@@ -224,7 +226,7 @@ public class TestObbVsBounds extends SimpleApplication {
         points[7].set(1, -1, -1);
 
         Mesh box = WireFrustum.makeFrustum(points);
-        areaGeom = new Geometry("light", (Mesh)box);
+        areaGeom = new Geometry("light", box);
         areaGeom.setMaterial(new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md"));
         areaGeom.getMaterial().setColor("Color", ColorRGBA.White);
     }

@@ -15,6 +15,7 @@ public class OSVR_ButtonReport extends Structure {
 	public OSVR_ButtonReport() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("sensor", "state");
 	}

@@ -16,6 +16,7 @@ public class OSVR_Pose3 extends Structure {
 	public OSVR_Pose3() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("translation", "rotation");
 	}

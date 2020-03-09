@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -96,6 +96,7 @@ public class StatsView extends Node implements Control, JmeCloneable {
         return statText.getLineHeight() * statLabels.length;
     }
 
+    @Override
     public void update(float tpf) {
 
         if (!isEnabled())
@@ -133,6 +134,7 @@ public class StatsView extends Node implements Control, JmeCloneable {
         throw new UnsupportedOperationException("Not yet implemented.");
     }
 
+    @Override
     public void setSpatial(Spatial spatial) {
     }
 
@@ -145,6 +147,7 @@ public class StatsView extends Node implements Control, JmeCloneable {
         return enabled;
     }
 
+    @Override
     public void render(RenderManager rm, ViewPort vp) {
     }
 

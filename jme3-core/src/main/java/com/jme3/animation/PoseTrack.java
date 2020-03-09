@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -62,7 +62,7 @@ public final class PoseTrack implements Track {
         /**
          * Serialization-only. Do not use.
          */
-        public PoseFrame()
+        protected PoseFrame()
         {
         }
         
@@ -87,12 +87,14 @@ public final class PoseTrack implements Track {
             }
         }
 
+        @Override
         public void write(JmeExporter e) throws IOException {
             OutputCapsule out = e.getCapsule(this);
             out.write(poses, "poses", null);
             out.write(weights, "weights", null);
         }
 
+        @Override
         public void read(JmeImporter i) throws IOException {
             InputCapsule in = i.getCapsule(this);
             weights = in.readFloatArray("weights", null);
@@ -114,7 +116,7 @@ public final class PoseTrack implements Track {
     /**
      * Serialization-only. Do not use.
      */
-    public PoseTrack()
+    protected PoseTrack()
     {
     }
     
@@ -132,6 +134,7 @@ public final class PoseTrack implements Track {
         pb.updateData(pb.getData());
     }
 
+    @Override
     public void setTime(float time, float weight, AnimControl control, AnimChannel channel, TempVars vars) {
         // TODO: When MeshControl is created, it will gather targets
         // list automatically which is then retrieved here.
@@ -161,6 +164,7 @@ public final class PoseTrack implements Track {
     /**
      * @return the length of the track
      */
+    @Override
     public float getLength() {
         return times == null ? 0 : times[times.length - 1] - times[0];
     }

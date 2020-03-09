@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -198,8 +198,8 @@ public class DXTFlipper {
 
     public static ByteBuffer flipDXT(ByteBuffer img, int w, int h, Format format){
         int originalLimit = img.limit();
-        int blocksX = (int) FastMath.ceil((float)w / 4f);
-        int blocksY = (int) FastMath.ceil((float)h / 4f);
+        int blocksX = (int) FastMath.ceil(w / 4f);
+        int blocksY = (int) FastMath.ceil(h / 4f);
 
         int type;
         switch (format){

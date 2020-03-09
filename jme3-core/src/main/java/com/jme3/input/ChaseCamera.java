@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -184,6 +184,7 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
         registerWithInput(inputManager);
     }
 
+    @Override
     public void onAction(String name, boolean keyPressed, float tpf) {
         if (dragToRotate) {
             if (name.equals(CameraInput.CHASECAM_TOGGLEROTATE) && enabled) {
@@ -204,6 +205,7 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
     }
 
 
+    @Override
     public void onAnalog(String name, float value, float tpf) {
         if (name.equals(CameraInput.CHASECAM_MOVELEFT)) {
             rotateCamera(-value);
@@ -612,6 +614,7 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
      * Sets the spacial for the camera control, should only be used internally
      * @param spatial
      */
+    @Override
     public void setSpatial(Spatial spatial) {
         target = spatial;
         if (spatial == null) {
@@ -626,6 +629,7 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
      * update the camera control, should only be used internally
      * @param tpf
      */
+    @Override
     public void update(float tpf) {
         updateCamera(tpf);
     }
@@ -635,6 +639,7 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
      * @param rm
      * @param vp
      */
+    @Override
     public void render(RenderManager rm, ViewPort vp) {
         //nothing to render
     }
@@ -644,6 +649,7 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
      * @param ex the exporter
      * @throws IOException
      */
+    @Override
     public void write(JmeExporter ex) throws IOException {
         throw new UnsupportedOperationException("remove ChaseCamera before saving");
     }
@@ -653,6 +659,7 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
      * @param im
      * @throws IOException
      */
+    @Override
     public void read(JmeImporter im) throws IOException {
         InputCapsule ic = im.getCapsule(this);
         maxDistance = ic.readFloat("maxDistance", 40);

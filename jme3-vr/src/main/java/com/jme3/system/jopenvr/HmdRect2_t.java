@@ -17,6 +17,7 @@ public class HmdRect2_t extends Structure {
 	public HmdRect2_t() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("vTopLeft", "vBottomRight");
 	}

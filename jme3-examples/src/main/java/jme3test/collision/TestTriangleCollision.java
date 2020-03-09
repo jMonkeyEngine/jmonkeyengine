@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -92,6 +92,7 @@ public class TestTriangleCollision extends SimpleApplication {
     }
     private AnalogListener analogListener = new AnalogListener() {
 
+        @Override
         public void onAnalog(String name, float value, float tpf) {
             if (name.equals("MoveRight")) {
                 geom1.move(2 * tpf, 0, 0);

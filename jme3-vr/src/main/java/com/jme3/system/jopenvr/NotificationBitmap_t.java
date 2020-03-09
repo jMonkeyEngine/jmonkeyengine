@@ -21,6 +21,7 @@ public class NotificationBitmap_t extends Structure {
 	public NotificationBitmap_t() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("m_pImageData", "m_nWidth", "m_nHeight", "m_nBytesPerPixel");
 	}

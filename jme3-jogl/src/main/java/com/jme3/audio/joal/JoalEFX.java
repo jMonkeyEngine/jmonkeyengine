@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2014 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,46 +50,57 @@ public final class JoalEFX implements EFX {
         joalAlext = ALFactory.getALExt();
     }
 
+    @Override
     public void alGenAuxiliaryEffectSlots(int numSlots, IntBuffer buffers) {
         joalAlext.alGenAuxiliaryEffectSlots(numSlots, buffers);
     }
 
+    @Override
     public void alGenEffects(int numEffects, IntBuffer buffers) {
         joalAlext.alGenEffects(numEffects, buffers);
     }
 
+    @Override
     public void alEffecti(int effect, int param, int value) {
         joalAlext.alEffecti(effect, param, value);
     }
 
+    @Override
     public void alAuxiliaryEffectSloti(int effectSlot, int param, int value) {
         joalAlext.alAuxiliaryEffectSloti(effectSlot, param, value);
     }
 
+    @Override
     public void alDeleteEffects(int numEffects, IntBuffer buffers) {
         joalAlext.alDeleteEffects(numEffects, buffers);
     }
 
+    @Override
     public void alDeleteAuxiliaryEffectSlots(int numEffectSlots, IntBuffer buffers) {
         joalAlext.alDeleteAuxiliaryEffectSlots(numEffectSlots, buffers);
     }
 
+    @Override
     public void alGenFilters(int numFilters, IntBuffer buffers) {
         joalAlext.alGenFilters(numFilters, buffers);
     }
 
+    @Override
     public void alFilteri(int filter, int param, int value) {
         joalAlext.alFilteri(filter, param, value);
     }
 
+    @Override
     public void alFilterf(int filter, int param, float value) {
         joalAlext.alFilterf(filter, param, value);
     }
 
+    @Override
     public void alDeleteFilters(int numFilters, IntBuffer buffers) {
         joalAlext.alDeleteFilters(numFilters, buffers);
     }
 
+    @Override
     public void alEffectf(int effect, int param, float value) {
         joalAlext.alEffectf(effect, param, value);
     }

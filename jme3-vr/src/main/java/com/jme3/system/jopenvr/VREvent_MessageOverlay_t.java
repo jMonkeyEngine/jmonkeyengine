@@ -14,6 +14,7 @@ public class VREvent_MessageOverlay_t extends Structure {
 	public VREvent_MessageOverlay_t() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("unVRMessageOverlayResponse");
 	}

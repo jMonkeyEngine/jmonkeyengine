@@ -170,7 +170,7 @@ public class LWJGLOpenVR implements VRAPI {
                     VR.k_unTrackedDeviceIndex_Hmd, VR.ETrackedDeviceProperty_Prop_SerialNumber_String, hmdErrorStore));
 
             hmdDisplayFrequency = BufferUtils.createIntBuffer(1);
-            hmdDisplayFrequency.put( (int) VR.ETrackedDeviceProperty_Prop_DisplayFrequency_Float);
+            hmdDisplayFrequency.put(VR.ETrackedDeviceProperty_Prop_DisplayFrequency_Float);
             
             trackedDevicePose = TrackedDevicePose.create(VR.k_unMaxTrackedDeviceCount);
             hmdTrackedDevicePoses = new TrackedDevicePose[VR.k_unMaxTrackedDeviceCount];

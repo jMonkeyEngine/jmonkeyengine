@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,6 +48,7 @@ public class TestMessages {
     }
 
     private static class ServerPingResponder implements MessageListener<HostedConnection> {
+        @Override
         public void messageReceived(HostedConnection source, com.jme3.network.Message message) {
             if (message instanceof PingMessage){
                 System.out.println("Server: Received ping message!");
@@ -57,6 +58,7 @@ public class TestMessages {
     }
 
     private static class ClientPingResponder implements MessageListener<Client> {
+        @Override
         public void messageReceived(Client source, com.jme3.network.Message message) {
             if (message instanceof PongMessage){
                 System.out.println("Client: Received pong message!");

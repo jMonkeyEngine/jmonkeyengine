@@ -20,6 +20,9 @@ The engine is used by several commercial game studios and computer-science cours
  - [Lightspeed Frontier (on Steam)](https://store.steampowered.com/app/548650/Lightspeed_Frontier/)
  - [Skullstone](http://www.skullstonegame.com/)
  - [Spoxel (on Steam)](https://store.steampowered.com/app/746880/Spoxel/)
+ - [Nine Circles of Hell (on Steam)](https://store.steampowered.com/app/1200600/Nine_Circles_of_Hell/)
+ - [Leap](https://gamejolt.com/games/leap/313308)
+ - [Jumping Jack Flag](http://timealias.bplaced.net/jack/)
 
 ## Getting started
 

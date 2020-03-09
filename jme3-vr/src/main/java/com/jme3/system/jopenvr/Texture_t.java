@@ -26,6 +26,7 @@ public class Texture_t extends Structure {
 	public Texture_t() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("handle", "eType", "eColorSpace");
 	}

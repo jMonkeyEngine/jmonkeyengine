@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,6 +40,7 @@ public class TransparentComparator implements GeometryComparator {
     private Camera cam;
     private final Vector3f tempVec = new Vector3f();
 
+    @Override
     public void setCamera(Camera cam){
         this.cam = cam;
     }
@@ -87,6 +88,7 @@ public class TransparentComparator implements GeometryComparator {
         return spat.getWorldBound().distanceToEdge(cam.getLocation());
     }
 
+    @Override
     public int compare(Geometry o1, Geometry o2) {
         float d1 = distanceToCam(o1);
         float d2 = distanceToCam(o2);

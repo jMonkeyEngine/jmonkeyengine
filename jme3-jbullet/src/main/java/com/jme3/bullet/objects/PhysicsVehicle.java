@@ -67,7 +67,7 @@ public class PhysicsVehicle extends PhysicsRigidBody {
     protected ArrayList<VehicleWheel> wheels = new ArrayList<VehicleWheel>();
     protected PhysicsSpace physicsSpace;
 
-    public PhysicsVehicle() {
+    protected PhysicsVehicle() {
     }
 
     public PhysicsVehicle(CollisionShape shape) {

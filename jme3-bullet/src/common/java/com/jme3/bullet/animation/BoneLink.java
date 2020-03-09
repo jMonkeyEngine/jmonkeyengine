@@ -99,7 +99,7 @@ public class BoneLink extends PhysicsLink {
      * No-argument constructor needed by SavableClassUtil. Do not invoke
      * directly!
      */
-    public BoneLink() {
+    protected BoneLink() {
     }
 
     /**

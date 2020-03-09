@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2017 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -109,7 +109,7 @@ public class WireSphere extends Mesh {
         /*
          * Update vertex positions for the great circle in the X-Y plane.
          */
-        float rate = FastMath.TWO_PI / (float) samples;
+        float rate = FastMath.TWO_PI / samples;
         float angle = 0;
         for (int i = 0; i < samples; i++) {
             float x = radius * FastMath.cos(angle);
@@ -130,7 +130,7 @@ public class WireSphere extends Mesh {
         /*
          * Update vertex positions for 'zSamples' parallel circles.
          */
-        float zRate = (radius * 2) / (float) (zSamples);
+        float zRate = (radius * 2) / zSamples;
         float zHeight = -radius + (zRate / 2f);
         float rb = 1f / zSamples;
         float b = rb / 2f;

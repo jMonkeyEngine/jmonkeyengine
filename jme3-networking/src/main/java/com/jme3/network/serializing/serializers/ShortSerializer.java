@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,10 +42,12 @@ import java.nio.ByteBuffer;
  */
 @SuppressWarnings("unchecked")
 public class ShortSerializer extends Serializer {
+    @Override
     public Short readObject(ByteBuffer data, Class c) throws IOException {
         return data.getShort();
     }
 
+    @Override
     public void writeObject(ByteBuffer buffer, Object object) throws IOException {
         buffer.putShort((Short)object);
     }

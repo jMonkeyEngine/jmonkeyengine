@@ -48,9 +48,11 @@ public class TestEnqueueRunnable extends SimpleApplication{
             return thread;
         }
         
+        @Override
         public void run(){
             while(running){
                 enqueue(new Runnable(){ //primary usage of this in real applications would use lambda expressions which are unavailable at java 6
+                    @Override
                     public void run(){
                         material.setColor("Color", ColorRGBA.randomColor());
                     }

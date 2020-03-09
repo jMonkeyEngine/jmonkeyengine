@@ -15,6 +15,7 @@ public class OSVR_IncrementalQuaternion extends Structure {
 	public OSVR_IncrementalQuaternion() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("incrementalRotation", "dt");
 	}

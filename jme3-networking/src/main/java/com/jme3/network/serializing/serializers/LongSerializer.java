@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,10 +43,12 @@ import java.nio.ByteBuffer;
 @SuppressWarnings("unchecked")
 public class LongSerializer extends Serializer {
 
+    @Override
     public Long readObject(ByteBuffer data, Class c) throws IOException {
         return data.getLong();
     }
 
+    @Override
     public void writeObject(ByteBuffer buffer, Object object) throws IOException {
         buffer.putLong((Long)object);
     }

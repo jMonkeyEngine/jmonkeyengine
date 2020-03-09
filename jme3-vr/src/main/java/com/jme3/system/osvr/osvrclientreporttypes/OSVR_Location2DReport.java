@@ -16,6 +16,7 @@ public class OSVR_Location2DReport extends Structure {
 	public OSVR_Location2DReport() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("sensor", "location");
 	}

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -87,7 +87,7 @@ public class TouchEventPool {
         TouchEvent evt = null;
         int curSize = eventPool.size();
         while (curSize > 0) {
-            evt = (TouchEvent)eventPool.pop();
+            evt = eventPool.pop();
             if (evt.isConsumed()) {
                 break;
             } else {

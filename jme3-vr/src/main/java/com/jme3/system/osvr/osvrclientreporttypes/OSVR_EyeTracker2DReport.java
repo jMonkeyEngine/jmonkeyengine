@@ -16,6 +16,7 @@ public class OSVR_EyeTracker2DReport extends Structure {
 	public OSVR_EyeTracker2DReport() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("sensor", "state");
 	}

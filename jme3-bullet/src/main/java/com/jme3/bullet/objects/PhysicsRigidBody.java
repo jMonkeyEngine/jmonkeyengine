@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -81,7 +81,7 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
      * No-argument constructor needed by SavableClassUtil. Do not invoke
      * directly!
      */
-    public PhysicsRigidBody() {
+    protected PhysicsRigidBody() {
     }
 
     /**
@@ -794,6 +794,7 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
      *
      * @param collisionShape the shape to apply (not null, alias created)
      */
+    @Override
     public void setCollisionShape(CollisionShape collisionShape) {
         super.setCollisionShape(collisionShape);
         if (collisionShape instanceof MeshCollisionShape && mass != 0) {

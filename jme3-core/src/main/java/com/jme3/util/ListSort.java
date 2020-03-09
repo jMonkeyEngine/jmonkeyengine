@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1000,6 +1000,7 @@ public class ListSort<T> {
         ListSort ls = new ListSort();
         ls.allocateStack(34);
         ls.sort(arr, new Comparator<Integer>() {
+            @Override
             public int compare(Integer o1, Integer o2) {
                 int x = o1 - o2;
                 return (x == 0) ? 0 : (x > 0) ? 1 : -1;

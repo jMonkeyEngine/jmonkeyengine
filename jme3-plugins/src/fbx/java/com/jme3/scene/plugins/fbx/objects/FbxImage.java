@@ -117,7 +117,7 @@ public class FbxImage extends FbxObject {
 			}
 		}
 		if(image == null)
-			return new Image(Image.Format.RGB8, 1, 1, BufferUtils.createByteBuffer((int) ((long) 1 * (long) 1 * (long) Image.Format.RGB8.getBitsPerPixel() / 8L)), ColorSpace.Linear);
+			return new Image(Image.Format.RGB8, 1, 1, BufferUtils.createByteBuffer((int) (Image.Format.RGB8.getBitsPerPixel() / 8L)), ColorSpace.Linear);
 		return image;
 	}
 }

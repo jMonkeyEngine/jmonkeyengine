@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -58,7 +58,7 @@ public class HingeJoint extends PhysicsJoint {
     protected float relaxationFactor = 1.0f;
     protected float limitSoftness = 0.9f;
 
-    public HingeJoint() {
+    protected HingeJoint() {
     }
 
     /**
@@ -125,6 +125,7 @@ public class HingeJoint extends PhysicsJoint {
         return ((HingeConstraint) constraint).getHingeAngle();
     }
 
+    @Override
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
         OutputCapsule capsule = ex.getCapsule(this);
@@ -145,6 +146,7 @@ public class HingeJoint extends PhysicsJoint {
         capsule.write(((HingeConstraint) constraint).getMaxMotorImpulse(), "maxMotorImpulse", 0.0f);
     }
 
+    @Override
     public void read(JmeImporter im) throws IOException {
         super.read(im);
         InputCapsule capsule = im.getCapsule(this);

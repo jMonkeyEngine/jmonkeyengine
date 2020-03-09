@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -250,7 +250,7 @@ final public class FastMath {
         c3 = 2 * T * p0 + (T - 3) * p1 + (3 - 2 * T) * p2 + -T * p3;
         c4 = -T * p0 + (2 - T) * p1 + (T - 2) * p2 + T * p3;
 
-        return (float) (((c4 * u + c3) * u + c2) * u + c1);
+        return ((c4 * u + c3) * u + c2) * u + c1;
     }
 
     /**Interpolate a spline between at least 4 control points following the Catmull-Rom equation.

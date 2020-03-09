@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -313,6 +313,7 @@ public class HDRLoader implements AssetLoader {
         return new Image(pixelFormat, width, height, dataStore, ColorSpace.Linear);
     }
 
+    @Override
     public Object load(AssetInfo info) throws IOException {
         if (!(info.getKey() instanceof TextureKey))
             throw new IllegalArgumentException("Texture assets must be loaded using a TextureKey");

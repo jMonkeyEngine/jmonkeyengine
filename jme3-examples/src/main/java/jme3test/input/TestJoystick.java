@@ -165,6 +165,7 @@ public class TestJoystick extends SimpleApplication {
 
         private Map<JoystickAxis, Float> lastValues = new HashMap<>();
 
+        @Override
         public void onJoyAxisEvent(JoyAxisEvent evt) {
             Float last = lastValues.remove(evt.getAxis());
             float value = evt.getValue();
@@ -188,16 +189,23 @@ public class TestJoystick extends SimpleApplication {
             } 
         }
 
+        @Override
         public void onJoyButtonEvent(JoyButtonEvent evt) {
             setViewedJoystick( evt.getButton().getJoystick() );
             gamepad.setButtonValue( evt.getButton(), evt.isPressed() ); 
         }
 
+        @Override
         public void beginInput() {}
+        @Override
         public void endInput() {}
+        @Override
         public void onMouseMotionEvent(MouseMotionEvent evt) {}
+        @Override
         public void onMouseButtonEvent(MouseButtonEvent evt) {}
+        @Override
         public void onKeyEvent(KeyInputEvent evt) {}
+        @Override
         public void onTouchEvent(TouchEvent evt) {}        
     }
 
@@ -463,7 +471,7 @@ public class TestJoystick extends SimpleApplication {
             for (CollisionResult cr : cresults) {
                 Node n = cr.getGeometry().getParent();
                 if (n != null && (n instanceof ButtonView)) {
-                    String b = ((ButtonView) n).getName().substring("Button:".length());
+                    String b = n.getName().substring("Button:".length());
                     String name = lastButton.getJoystick().getName().replaceAll(" ", "\\\\ ");
                     String id = lastButton.getLogicalId().replaceAll(" ", "\\\\ ");
                     System.out.println(name + "." + id + "=" + b);

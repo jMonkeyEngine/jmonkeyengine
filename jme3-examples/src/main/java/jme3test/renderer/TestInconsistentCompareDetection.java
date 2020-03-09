@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2014 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -92,6 +92,7 @@ public class TestInconsistentCompareDetection extends SimpleApplication {
         }
         
         Thread evilThread = new Thread(new Runnable() {
+            @Override
             public void run() {
                 try {
                     Thread.sleep(1000);

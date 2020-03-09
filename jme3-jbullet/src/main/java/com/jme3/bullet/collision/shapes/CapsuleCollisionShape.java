@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -49,7 +49,7 @@ public class CapsuleCollisionShape extends CollisionShape{
     protected float radius,height;
     protected int axis;
 
-    public CapsuleCollisionShape() {
+    protected CapsuleCollisionShape() {
     }
 
     /**
@@ -91,6 +91,7 @@ public class CapsuleCollisionShape extends CollisionShape{
         return axis;
     }
 
+    @Override
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
         OutputCapsule capsule = ex.getCapsule(this);
@@ -99,6 +100,7 @@ public class CapsuleCollisionShape extends CollisionShape{
         capsule.write(axis, "axis", 1);
     }
 
+    @Override
     public void read(JmeImporter im) throws IOException {
         super.read(im);
         InputCapsule capsule = im.getCapsule(this);

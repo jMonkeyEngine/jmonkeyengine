@@ -27,6 +27,7 @@ public class VR_IVRNotifications_FnTable extends Structure {
 	public VR_IVRNotifications_FnTable() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("CreateNotification", "RemoveNotification");
 	}

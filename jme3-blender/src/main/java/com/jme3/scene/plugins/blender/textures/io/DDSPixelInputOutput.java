@@ -15,10 +15,12 @@ import jme3tools.converters.RGB565;
     /**
      * For this class the index should be considered as a pixel index in AWT image format.
      */
+    @Override
     public void read(Image image, int layer, TexturePixel pixel, int index) {
         this.read(image, layer, pixel, index % image.getWidth(), index / image.getWidth());
     }
 
+    @Override
     public void read(Image image, int layer, TexturePixel pixel, int x, int y) {
         int xTexetlIndex = x % image.getWidth() >> 2;
         int yTexelIndex = y % image.getHeight() >> 2;
@@ -161,10 +163,12 @@ import jme3tools.converters.RGB565;
         pixel.alpha = alpha;
     }
 
+    @Override
     public void write(Image image, int layer, TexturePixel pixel, int index) {
         throw new UnsupportedOperationException("Cannot put the DXT pixel by index because not every index contains the pixel color!");
     }
 
+    @Override
     public void write(Image image, int layer, TexturePixel pixel, int x, int y) {
         throw new UnsupportedOperationException("Writing to DDS texture pixel by pixel is not yet supported!");
     }

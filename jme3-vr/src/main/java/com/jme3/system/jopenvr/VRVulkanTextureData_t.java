@@ -43,6 +43,7 @@ public class VRVulkanTextureData_t extends Structure {
 	public VRVulkanTextureData_t() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("m_nImage", "m_pDevice", "m_pPhysicalDevice", "m_pInstance", "m_pQueue", "m_nQueueFamilyIndex", "m_nWidth", "m_nHeight", "m_nFormat", "m_nSampleCount");
 	}

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -76,7 +76,7 @@ public abstract class PhysicsJoint implements Savable {
      * No-argument constructor needed by SavableClassUtil. Do not invoke
      * directly!
      */
-    public PhysicsJoint() {
+    protected PhysicsJoint() {
     }
 
     /**
@@ -192,6 +192,7 @@ public abstract class PhysicsJoint implements Savable {
      * @param ex exporter (not null)
      * @throws IOException from exporter
      */
+    @Override
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule capsule = ex.getCapsule(this);
         capsule.write(nodeA, "nodeA", null);
@@ -206,10 +207,11 @@ public abstract class PhysicsJoint implements Savable {
      * @param im importer (not null)
      * @throws IOException from importer
      */
+    @Override
     public void read(JmeImporter im) throws IOException {
         InputCapsule capsule = im.getCapsule(this);
-        this.nodeA = ((PhysicsRigidBody) capsule.readSavable("nodeA", new PhysicsRigidBody()));
-        this.nodeB = (PhysicsRigidBody) capsule.readSavable("nodeB", new PhysicsRigidBody());
+        this.nodeA = ((PhysicsRigidBody) capsule.readSavable("nodeA", null));
+        this.nodeB = (PhysicsRigidBody) capsule.readSavable("nodeB", null);
         this.pivotA = (Vector3f) capsule.readSavable("pivotA", new Vector3f());
         this.pivotB = (Vector3f) capsule.readSavable("pivotB", new Vector3f());
     }

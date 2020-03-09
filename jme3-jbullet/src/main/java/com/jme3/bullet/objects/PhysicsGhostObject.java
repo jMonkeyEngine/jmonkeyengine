@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -68,7 +68,7 @@ public class PhysicsGhostObject extends PhysicsCollisionObject {
     protected javax.vecmath.Quat4f tempRot = new javax.vecmath.Quat4f();
     private List<PhysicsCollisionObject> overlappingObjects = new LinkedList<PhysicsCollisionObject>();
 
-    public PhysicsGhostObject() {
+    protected PhysicsGhostObject() {
     }
 
     public PhysicsGhostObject(CollisionShape shape) {

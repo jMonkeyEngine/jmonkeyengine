@@ -16,6 +16,7 @@ public class VREvent_Process_t extends Structure {
 	public VREvent_Process_t() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("pid", "oldPid", "bForced");
 	}

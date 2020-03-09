@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -117,6 +117,7 @@ public class HillHeightMap extends AbstractHeightMap {
      * Generates a heightmap using the Hill Algorithm and the attributes set by
      * the constructor or the setters.
      */
+    @Override
     public boolean load() {
         // clean up data if needed.
         if (null != heightData) {
@@ -134,7 +135,7 @@ public class HillHeightMap extends AbstractHeightMap {
         // transfer temporary buffer to final heightmap
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
-                setHeightAtPoint((float) tempBuffer[i][j], j, i);
+                setHeightAtPoint(tempBuffer[i][j], j, i);
             }
         }
 

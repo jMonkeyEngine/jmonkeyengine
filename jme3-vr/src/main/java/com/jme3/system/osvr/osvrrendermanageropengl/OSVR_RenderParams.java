@@ -24,6 +24,7 @@ public class OSVR_RenderParams extends Structure {
 	public OSVR_RenderParams() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("worldFromRoomAppend", "roomFromHeadReplace", "nearClipDistanceMeters", "farClipDistanceMeters");
 	}

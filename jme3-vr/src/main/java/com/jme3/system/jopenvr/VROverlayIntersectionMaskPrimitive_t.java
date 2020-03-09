@@ -19,6 +19,7 @@ public class VROverlayIntersectionMaskPrimitive_t extends Structure {
 	public VROverlayIntersectionMaskPrimitive_t() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("m_nPrimitiveType", "m_Primitive");
 	}

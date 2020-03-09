@@ -1,11 +1,11 @@
 // OpenAL Soft r1.16
-String openALSoftUrl = 'http://repo.or.cz/w/openal-soft.git/snapshot/e5016f814a265ed592a88acea95cf912c4bfdf12.zip'
+String openALSoftUrl = 'https://github.com/jMonkeyEngine/openal-soft/archive/e5016f814a265ed592a88acea95cf912c4bfdf12.zip'
 String openALSoftZipFile = 'OpenALSoft.zip'
 
 // OpenAL Soft directory the download is extracted into
 // Typically, the downloaded OpenAL Soft zip file will extract to a directory
 // called "openal-soft"
-String openALSoftFolder = 'openal-soft-e5016f8'
+String openALSoftFolder = 'openal-soft-e5016f814a265ed592a88acea95cf912c4bfdf12'
 
 //Working directories for the ndk build.
 String openalsoftBuildDir = "${buildDir}" + File.separator + 'openalsoft'

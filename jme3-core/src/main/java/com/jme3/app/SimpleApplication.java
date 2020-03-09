@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,6 +32,7 @@
 package com.jme3.app;
 
 import com.jme3.app.state.AppState;
+import com.jme3.app.state.ConstantVerifierState;
 import com.jme3.audio.AudioListenerState;
 import com.jme3.font.BitmapFont;
 import com.jme3.font.BitmapText;
@@ -81,6 +82,7 @@ public abstract class SimpleApplication extends LegacyApplication {
 
     private class AppActionListener implements ActionListener {
 
+        @Override
         public void onAction(String name, boolean value, float tpf) {
             if (!value) {
                 return;
@@ -97,7 +99,8 @@ public abstract class SimpleApplication extends LegacyApplication {
     }
 
     public SimpleApplication() {
-        this(new StatsAppState(), new FlyCamAppState(), new AudioListenerState(), new DebugKeysAppState());
+        this(new StatsAppState(), new FlyCamAppState(), new AudioListenerState(), new DebugKeysAppState(),
+             new ConstantVerifierState());
     }
 
     public SimpleApplication( AppState... initialStates ) {

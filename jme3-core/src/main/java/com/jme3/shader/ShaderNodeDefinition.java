@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -194,7 +194,7 @@ public class ShaderNodeDefinition implements Savable {
      */
     @Override
     public void write(JmeExporter ex) throws IOException {
-        OutputCapsule oc = (OutputCapsule) ex.getCapsule(this);
+        OutputCapsule oc = ex.getCapsule(this);
         oc.write(name, "name", "");
         String[] str = new String[shadersLanguage.size()];
         oc.write(shadersLanguage.toArray(str), "shadersLanguage", null);
@@ -230,7 +230,7 @@ public class ShaderNodeDefinition implements Savable {
      */
     @Override
     public void read(JmeImporter im) throws IOException {
-        InputCapsule ic = (InputCapsule) im.getCapsule(this);
+        InputCapsule ic = im.getCapsule(this);
         name = ic.readString("name", "");
 
         String[] str = ic.readStringArray("shadersLanguage", null);
@@ -248,8 +248,8 @@ public class ShaderNodeDefinition implements Savable {
         }
 
         type = ic.readEnum("type", Shader.ShaderType.class, null);
-        inputs = (List<ShaderNodeVariable>) ic.readSavableArrayList("inputs", new ArrayList<ShaderNodeVariable>());
-        outputs = (List<ShaderNodeVariable>) ic.readSavableArrayList("outputs", new ArrayList<ShaderNodeVariable>());
+        inputs = ic.readSavableArrayList("inputs", new ArrayList<>());
+        outputs = ic.readSavableArrayList("outputs", new ArrayList<>());
     }
 
     /**

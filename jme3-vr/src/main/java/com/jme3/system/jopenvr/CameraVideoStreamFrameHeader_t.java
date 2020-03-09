@@ -23,6 +23,7 @@ public class CameraVideoStreamFrameHeader_t extends Structure {
 	public CameraVideoStreamFrameHeader_t() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("eFrameType", "nWidth", "nHeight", "nBytesPerPixel", "nFrameSequence", "standingTrackedDevicePose");
 	}

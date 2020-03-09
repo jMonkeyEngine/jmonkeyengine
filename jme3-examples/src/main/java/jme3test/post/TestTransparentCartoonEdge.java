@@ -22,6 +22,7 @@ public class TestTransparentCartoonEdge extends SimpleApplication {
         app.start();
     }
 
+    @Override
     public void simpleInitApp() {
         renderManager.setAlphaToCoverage(true);
         cam.setLocation(new Vector3f(0.14914267f, 0.58147097f, 4.7686534f));

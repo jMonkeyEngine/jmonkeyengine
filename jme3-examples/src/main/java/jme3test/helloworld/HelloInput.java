@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -81,6 +81,7 @@ public class HelloInput extends SimpleApplication {
 
   /** Use this listener for KeyDown/KeyUp events */
   private ActionListener actionListener = new ActionListener() {
+    @Override
     public void onAction(String name, boolean keyPressed, float tpf) {
       if (name.equals("Pause") && !keyPressed) {
         isRunning = !isRunning;
@@ -90,6 +91,7 @@ public class HelloInput extends SimpleApplication {
 
   /** Use this listener for continuous events */
   private AnalogListener analogListener = new AnalogListener() {
+    @Override
     public void onAnalog(String name, float value, float tpf) {
       if (isRunning) {
         if (name.equals("Rotate")) {
