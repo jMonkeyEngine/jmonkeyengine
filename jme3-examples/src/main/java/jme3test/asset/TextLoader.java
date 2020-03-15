@@ -10,6 +10,7 @@ import java.util.Scanner;
  * files as strings.
  */
 public class TextLoader implements AssetLoader {
+    @Override
     public Object load(AssetInfo assetInfo) throws IOException {
         Scanner scan = new Scanner(assetInfo.openStream());
         StringBuilder sb = new StringBuilder();

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -137,6 +137,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         return filters.iterator();
     }
 
+    @Override
     public void initialize(RenderManager rm, ViewPort vp) {
         renderManager = rm;
         renderer = rm.getRenderer();
@@ -230,10 +231,12 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         renderManager.renderGeometry(fsQuad);
     }
     
+    @Override
     public boolean isInitialized() {
         return viewPort != null;
     }
 
+    @Override
     public void postQueue(RenderQueue rq) {
         for (Filter filter : filters.getArray()) {
             if (filter.isEnabled()) {
@@ -323,6 +326,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         }
     }
 
+    @Override
     public void postFrame(FrameBuffer out) {
 
         FrameBuffer sceneBuffer = renderFrameBuffer;
@@ -340,6 +344,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         }
     }
 
+    @Override
     public void preFrame(float tpf) {
         if (filters.isEmpty() || lastFilterIndex == -1) {
             //If the camera is initialized and there are no filter to render, the camera viewport is restored as it was
@@ -408,6 +413,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         }
     }
 
+    @Override
     public void cleanup() {
         if (viewPort != null) {
             //reset the viewport camera viewport to its initial value
@@ -438,6 +444,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         this.prof = profiler;
     }
 
+    @Override
     public void reshape(ViewPort vp, int w, int h) {
         Camera cam = vp.getCamera();
         //this has no effect at first init but is useful when resizing the canvas with multi views
@@ -543,12 +550,14 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         this.fbFormat = fbFormat;
     }
 
+    @Override
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(numSamples, "numSamples", 0);
         oc.writeSavableArrayList(new ArrayList(filters), "filters", null);
     }
 
+    @Override
     public void read(JmeImporter im) throws IOException {
         InputCapsule ic = im.getCapsule(this);
         numSamples = ic.readInt("numSamples", 0);

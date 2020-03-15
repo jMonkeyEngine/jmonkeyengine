@@ -166,6 +166,7 @@ public class TestPostWater extends SimpleApplication {
         viewPort.addProcessor(fpp);
 
         inputManager.addListener(new ActionListener() {
+            @Override
             public void onAction(String name, boolean isPressed, float tpf) {
                 if (isPressed) {
                     if (name.equals("foam1")) {

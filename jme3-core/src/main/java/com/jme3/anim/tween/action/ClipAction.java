@@ -63,6 +63,7 @@ public class ClipAction extends BlendableAction {
 
     }
 
+    @Override
     public String toString() {
         return clip.toString();
     }

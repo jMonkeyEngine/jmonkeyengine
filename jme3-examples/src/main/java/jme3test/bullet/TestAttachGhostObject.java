@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -71,6 +71,7 @@ public class TestAttachGhostObject extends SimpleApplication implements AnalogLi
         inputManager.addListener(this, "Lefts", "Rights", "Space");
     }
 
+    @Override
     public void onAnalog(String binding, float value, float tpf) {
         if (binding.equals("Lefts")) {
             joint.enableMotor(true, 1, .1f);

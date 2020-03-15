@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -311,6 +311,7 @@ public class CubeField extends SimpleApplication implements AnalogListener {
         inputManager.addListener(this, "START", "Left", "Right");
     }
 
+    @Override
     public void onAnalog(String binding, float value, float tpf) {
         if (binding.equals("START") && !START){
             START = true;

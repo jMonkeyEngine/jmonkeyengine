@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -59,10 +59,12 @@ public class XMLImporter implements JmeImporter {
     public XMLImporter() {
     }
 
+    @Override
     public int getFormatVersion() {
         return formatVersion;
     }
     
+    @Override
     public AssetManager getAssetManager(){
         return assetManager;
     }
@@ -71,6 +73,7 @@ public class XMLImporter implements JmeImporter {
         this.assetManager = assetManager;
     }
 
+    @Override
     public Object load(AssetInfo info) throws IOException {
         assetManager = info.getManager();
         InputStream in = info.openStream();
@@ -108,6 +111,7 @@ public class XMLImporter implements JmeImporter {
         }
     }
 
+    @Override
     public InputCapsule getCapsule(Savable id) {
         return domIn;
     }

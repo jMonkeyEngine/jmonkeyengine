@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2016 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -56,6 +56,7 @@ public class Utils {
         Taken directly from org.lwjgl.opencl.Util
      */
 	private static final Map<Integer, String> CL_ERROR_TOKENS = LWJGLUtil.getClassTokens(new LWJGLUtil.TokenFilter() {
+                @Override
 		public boolean accept(final Field field, final int value) {
 			return value < 0; // Currently, all OpenCL errors have negative values.
 		}

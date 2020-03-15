@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -77,6 +77,7 @@ public final class BinaryImporter implements JmeImporter {
     public BinaryImporter() {
     }
     
+    @Override
     public int getFormatVersion(){
         return formatVersion;
     }
@@ -93,10 +94,12 @@ public final class BinaryImporter implements JmeImporter {
         this.assetManager = manager;
     }
 
+    @Override
     public AssetManager getAssetManager(){
         return assetManager;
     }
 
+    @Override
     public Object load(AssetInfo info){
 //        if (!(info.getKey() instanceof ModelKey))
 //            throw new IllegalArgumentException("Model assets must be loaded using a ModelKey");

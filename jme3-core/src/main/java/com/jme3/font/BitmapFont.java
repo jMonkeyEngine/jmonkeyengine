@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -215,7 +215,7 @@ public class BitmapFont implements Savable {
                 firstCharOfLine = true;
                 continue;
             }
-            BitmapCharacter c = charSet.getCharacter((int) theChar);
+            BitmapCharacter c = charSet.getCharacter(theChar);
             if (c != null){
                 if (theChar == '\\' && i<text.length()-1 && text.charAt(i+1)=='#'){
                     if (i+5<text.length() && text.charAt(i+5)=='#'){

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -71,6 +71,7 @@ public class LightScatteringUI {
 
         ActionListener acl = new ActionListener() {
 
+            @Override
             public void onAction(String name, boolean keyPressed, float tpf) {
 
                 if (name.equals("sampleUp")) {
@@ -97,6 +98,7 @@ public class LightScatteringUI {
 
          AnalogListener anl = new AnalogListener() {
 
+            @Override
             public void onAnalog(String name, float value, float tpf) {
                
                 if (name.equals("blurStartUp")) {

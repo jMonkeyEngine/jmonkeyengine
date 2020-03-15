@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -118,6 +118,7 @@ public class Filters
             this.value = value;
         }
         
+        @Override
         public boolean apply( T input )
         {
             return value == input || (value != null && value.equals(input));
@@ -133,6 +134,7 @@ public class Filters
             this.collection = collection;
         }
         
+        @Override
         public boolean apply( T input )
         {
             return collection.contains(input);
@@ -148,6 +150,7 @@ public class Filters
             this.delegate = delegate;
         }
         
+        @Override
         public boolean apply( T input )
         {
             return !delegate.apply(input);

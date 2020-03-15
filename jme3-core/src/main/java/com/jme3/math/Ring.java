@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -200,6 +200,7 @@ public final class Ring implements Savable, Cloneable, java.io.Serializable {
         return result;
     }
 
+    @Override
     public void write(JmeExporter e) throws IOException {
         OutputCapsule capsule = e.getCapsule(this);
         capsule.write(center, "center", Vector3f.ZERO);
@@ -208,6 +209,7 @@ public final class Ring implements Savable, Cloneable, java.io.Serializable {
         capsule.write(outerRadius, "outerRadius", 1f);
     }
 
+    @Override
     public void read(JmeImporter e) throws IOException {
         InputCapsule capsule = e.getCapsule(this);
         center = (Vector3f) capsule.readSavable("center",

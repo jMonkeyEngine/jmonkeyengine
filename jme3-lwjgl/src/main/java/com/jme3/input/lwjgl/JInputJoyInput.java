@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2016 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -66,6 +66,7 @@ public class JInputJoyInput implements JoyInput {
 
     private Map<Controller, JInputJoystick> joystickIndex = new HashMap<Controller, JInputJoystick>();
     
+    @Override
     public void setJoyRumble(int joyId, float amount){
 
         if( joyId >= joysticks.length )        
@@ -77,6 +78,7 @@ public class JInputJoyInput implements JoyInput {
         }
     }
 
+    @Override
     public Joystick[] loadJoysticks(InputManager inputManager){
         ControllerEnvironment ce =
             ControllerEnvironment.getDefaultEnvironment();
@@ -113,10 +115,12 @@ public class JInputJoyInput implements JoyInput {
         return joysticks;
     }
 
+    @Override
     public void initialize() {
         inited = true;
     }
 
+    @Override
     public void update() {
         ControllerEnvironment ce =
             ControllerEnvironment.getDefaultEnvironment();
@@ -182,18 +186,22 @@ public class JInputJoyInput implements JoyInput {
         }
     }
 
+    @Override
     public void destroy() {
         inited = false;
     }
 
+    @Override
     public boolean isInitialized() {
         return inited;
     }
 
+    @Override
     public void setInputListener(RawInputListener listener) {
         this.listener = listener;
     }
 
+    @Override
     public long getInputTimeNanos() {
         return 0;
     }

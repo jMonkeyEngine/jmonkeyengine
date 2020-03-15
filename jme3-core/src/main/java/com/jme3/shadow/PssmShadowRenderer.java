@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -352,12 +352,14 @@ public class PssmShadowRenderer implements SceneProcessor {
         return frustumMdl;
     }
 
+    @Override
     public void initialize(RenderManager rm, ViewPort vp) {
         renderManager = rm;
         viewPort = vp;
         postTechniqueName = "PostShadow";
     }
 
+    @Override
     public boolean isInitialized() {
         return viewPort != null;
     }
@@ -381,6 +383,7 @@ public class PssmShadowRenderer implements SceneProcessor {
     }
 
     @SuppressWarnings("fallthrough")
+    @Override
     public void postQueue(RenderQueue rq) {
         for (Spatial scene : viewPort.getScenes()) {
             ShadowUtil.getGeometriesInCamFrustum(scene, viewPort.getCamera(), ShadowMode.Receive, lightReceivers);
@@ -488,6 +491,7 @@ public class PssmShadowRenderer implements SceneProcessor {
         debug = true;
     }
 
+    @Override
     public void postFrame(FrameBuffer out) {
 
         if (debug) {
@@ -581,12 +585,15 @@ public class PssmShadowRenderer implements SceneProcessor {
         }        
     }
 
+    @Override
     public void preFrame(float tpf) {
     }
 
+    @Override
     public void cleanup() {
     }
 
+    @Override
     public void reshape(ViewPort vp, int w, int h) {
     }
 

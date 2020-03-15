@@ -19,6 +19,7 @@ public class HiddenAreaMesh_t extends Structure {
 	public HiddenAreaMesh_t() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("pVertexData", "unTriangleCount");
 	}

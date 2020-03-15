@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -71,6 +71,7 @@ public class LwjglMouseInput implements MouseInput {
         this.context = context;
     }
 
+    @Override
     public void initialize() {
         if (!context.isRenderable())
             return;
@@ -91,14 +92,17 @@ public class LwjglMouseInput implements MouseInput {
         }
     }
 
+    @Override
     public boolean isInitialized(){
         return Mouse.isCreated();
     }
 
+    @Override
     public int getButtonCount(){
         return Mouse.getButtonCount();
     }
 
+    @Override
     public void update() {
         if (!context.isRenderable())
             return;
@@ -139,6 +143,7 @@ public class LwjglMouseInput implements MouseInput {
         }
     }
 
+    @Override
     public void destroy() {
         if (!context.isRenderable())
             return;
@@ -154,6 +159,7 @@ public class LwjglMouseInput implements MouseInput {
         logger.fine("Mouse destroyed.");
     }
 
+    @Override
     public void setCursorVisible(boolean visible){
         cursorVisible = visible;
         if (!context.isRenderable())
@@ -190,10 +196,12 @@ public class LwjglMouseInput implements MouseInput {
         listener.onMouseMotionEvent(evt);
     }
 
+    @Override
     public long getInputTimeNanos() {
         return Sys.getTime() * LwjglTimer.LWJGL_TIME_TO_NANOS;
     }
 
+    @Override
     public void setNativeCursor(JmeCursor jmeCursor) {
         try {
             Cursor newCursor = null;

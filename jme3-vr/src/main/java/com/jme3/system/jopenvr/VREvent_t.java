@@ -21,6 +21,7 @@ public class VREvent_t extends Structure {
 	public VREvent_t() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("eventType", "trackedDeviceIndex", "eventAgeSeconds", "data");
 	}

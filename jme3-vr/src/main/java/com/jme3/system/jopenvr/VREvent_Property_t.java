@@ -19,6 +19,7 @@ public class VREvent_Property_t extends Structure {
 	public VREvent_Property_t() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("container", "prop");
 	}

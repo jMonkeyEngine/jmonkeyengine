@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -539,7 +539,7 @@ public class PhysicsSpace {
             Spatial node = (Spatial) obj;
             for (int i = 0; i < node.getNumControls(); i++) {
                 if (node.getControl(i) instanceof PhysicsControl) {
-                    add(((PhysicsControl) node.getControl(i)));
+                    add(node.getControl(i));
                 }
             }
         } else if (obj instanceof PhysicsCollisionObject) {
@@ -581,7 +581,7 @@ public class PhysicsSpace {
             Spatial node = (Spatial) obj;
             for (int i = 0; i < node.getNumControls(); i++) {
                 if (node.getControl(i) instanceof PhysicsControl) {
-                    remove(((PhysicsControl) node.getControl(i)));
+                    remove(node.getControl(i));
                 }
             }
         } else if (obj instanceof PhysicsCollisionObject) {
@@ -1129,7 +1129,7 @@ public class PhysicsSpace {
     public List<PhysicsSweepTestResult> sweepTest(CollisionShape shape, Transform start, Transform end) {
         List results = new LinkedList();
         sweepTest(shape, start, end , results);
-        return (List<PhysicsSweepTestResult>) results;
+        return results;
     }
 
     /**

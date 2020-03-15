@@ -18,6 +18,7 @@ public class HmdQuad_t extends Structure {
 	public HmdQuad_t() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("vCorners");
 	}

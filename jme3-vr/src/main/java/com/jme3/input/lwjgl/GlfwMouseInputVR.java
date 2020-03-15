@@ -1,7 +1,7 @@
 package com.jme3.input.lwjgl;
 
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -131,6 +131,7 @@ public class GlfwMouseInputVR implements MouseInput {
         mouseButtonEvents.add(mouseButtonEvent);
     }
 
+    @Override
     public void initialize() {
         glfwSetCursorPosCallback(context.getWindowHandle(), cursorPosCallback = new GLFWCursorPosCallback() {
             @Override
@@ -216,6 +217,7 @@ public class GlfwMouseInputVR implements MouseInput {
      * Check if the input is initialized.
      * @return <code>true</code> if the input is initialized and <code>false</code> otherwise.
      */
+    @Override
     public boolean isInitialized() {
         return initialized;
     }
@@ -291,6 +293,7 @@ public class GlfwMouseInputVR implements MouseInput {
         return glfwCreateCursor(glfwImage, jmeCursor.getXHotSpot(), jmeCursor.getYHotSpot());
     }
 
+    @Override
     public void setNativeCursor(JmeCursor jmeCursor) {
         if (jmeCursor != null) {
             Long glfwCursor = jmeToGlfwCursorMap.get(jmeCursor);

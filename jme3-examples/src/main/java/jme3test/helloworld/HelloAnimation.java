@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -79,6 +79,7 @@ public class HelloAnimation extends SimpleApplication
   }
 
   /** Use this listener to trigger something after an animation is done. */
+  @Override
   public void onAnimCycleDone(AnimControl control, AnimChannel channel, String animName) {
     if (animName.equals("Walk")) {
       /** After "walk", reset to "stand". */
@@ -89,6 +90,7 @@ public class HelloAnimation extends SimpleApplication
   }
 
   /** Use this listener to trigger something between two animations. */
+  @Override
   public void onAnimChange(AnimControl control, AnimChannel channel, String animName) {
     // unused
   }
@@ -101,6 +103,7 @@ public class HelloAnimation extends SimpleApplication
 
   /** Definining the named action that can be triggered by key inputs. */
   private ActionListener actionListener = new ActionListener() {
+    @Override
     public void onAction(String name, boolean keyPressed, float tpf) {
       if (name.equals("Walk") && !keyPressed) {
         if (!channel.getAnimationName().equals("Walk")) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -298,6 +298,7 @@ When arrays can be inserted in J3M files
         }
     }
 
+    @Override
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(type, "varType", null);
@@ -320,6 +321,7 @@ When arrays can be inserted in J3M files
         }
     }
 
+    @Override
     public void read(JmeImporter im) throws IOException {
         InputCapsule ic = im.getCapsule(this);
         type = ic.readEnum("varType", VarType.class, null);

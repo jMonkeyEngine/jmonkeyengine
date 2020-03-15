@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine All rights reserved.
+ * Copyright (c) 2009-2020 jMonkeyEngine All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -462,6 +462,7 @@ public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable
         return hash;
     }
     
+    @Override
     public void write(JmeExporter e) throws IOException {
         OutputCapsule capsule = e.getCapsule(this);
         capsule.write(r, "r", 0);
@@ -470,6 +471,7 @@ public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable
         capsule.write(a, "a", 0);
     }
 
+    @Override
     public void read(JmeImporter e) throws IOException {
         InputCapsule capsule = e.getCapsule(this);
         r = capsule.readFloat("r", 0);

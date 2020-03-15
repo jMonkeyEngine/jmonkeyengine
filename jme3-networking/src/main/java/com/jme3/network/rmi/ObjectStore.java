@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -87,14 +87,17 @@ public class ObjectStore {
     public class ServerEventHandler implements MessageListener<HostedConnection>,
                                                       ConnectionListener {
 
+        @Override
         public void messageReceived(HostedConnection source, Message m) {
             onMessage(source, m);
         }
 
+        @Override
         public void connectionAdded(Server server, HostedConnection conn) {
             onConnection(conn);
         }
 
+        @Override
         public void connectionRemoved(Server server, HostedConnection conn) {
         }
         
@@ -103,14 +106,17 @@ public class ObjectStore {
     public class ClientEventHandler implements MessageListener,
                                                       ClientStateListener {
 
+        @Override
         public void messageReceived(Object source, Message m) {
             onMessage(null, m);
         }
 
+        @Override
         public void clientConnected(Client c) {
             onConnection(null);
         }
 
+        @Override
         public void clientDisconnected(Client c, DisconnectInfo info) {
         }
         

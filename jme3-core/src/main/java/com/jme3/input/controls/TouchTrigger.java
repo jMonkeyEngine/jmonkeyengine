@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -62,6 +62,7 @@ public class TouchTrigger implements Trigger {
         return 0xfedcba98 + keyCode;
     }
 
+    @Override
     public int triggerHashCode() {
         return touchHash(keyCode);
     }

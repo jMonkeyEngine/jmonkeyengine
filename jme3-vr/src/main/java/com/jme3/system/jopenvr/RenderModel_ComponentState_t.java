@@ -19,6 +19,7 @@ public class RenderModel_ComponentState_t extends Structure {
 	public RenderModel_ComponentState_t() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("mTrackingToComponentRenderModel", "mTrackingToComponentLocal", "uProperties");
 	}

@@ -14,12 +14,12 @@ public class OsvrClientReportTypesLibrary implements Library {
 	static {
 		Native.register(OsvrClientReportTypesLibrary.class, OsvrClientReportTypesLibrary.JNA_NATIVE_LIB);
 	}
-	public static final int OSVR_TRUE = (int)(1);
-	public static final int OSVR_FALSE = (int)(0);
-	public static final int OSVR_BUTTON_PRESSED = (int)(1);
-	public static final int OSVR_BUTTON_NOT_PRESSED = (int)(0);
-	public static final int OSVR_EYE_BLINK = (int)(1);
-	public static final int OSVR_EYE_NO_BLINK = (int)(0);
+	public static final int OSVR_TRUE = 1;
+	public static final int OSVR_FALSE = 0;
+	public static final int OSVR_BUTTON_PRESSED = 1;
+	public static final int OSVR_BUTTON_NOT_PRESSED = 0;
+	public static final int OSVR_EYE_BLINK = 1;
+	public static final int OSVR_EYE_NO_BLINK = 0;
 	/** Original signature : <code>double osvrVec3GetX(const OSVR_Vec3*)</code> */
 	public static native double osvrVec3GetX(OSVR_Vec3 v);
 	/** Original signature : <code>void osvrVec3SetX(OSVR_Vec3*, double)</code> */

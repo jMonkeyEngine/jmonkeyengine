@@ -37,14 +37,17 @@ public class GpuAnalyzerValidator implements Validator {
         return null;
     }
     
+    @Override
     public String getName() {
         return "AMD GPU Shader Analyzer";
     }
 
+    @Override
     public boolean isInstalled() {
         return getInstalledVersion() != null;
     }
 
+    @Override
     public String getInstalledVersion() {
         if (version == null){
             version = checkGpuAnalyzerVersion();
@@ -104,6 +107,7 @@ public class GpuAnalyzerValidator implements Validator {
         }
     }
     
+    @Override
     public void validate(Shader shader, StringBuilder results) {
         for (ShaderSource source : shader.getSources()){
             results.append("Checking: ").append(source.getName());

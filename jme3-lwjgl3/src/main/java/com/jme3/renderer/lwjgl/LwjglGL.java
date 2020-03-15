@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -591,6 +591,7 @@ public class LwjglGL extends LwjglRender implements GL, GL2, GL3, GL4 {
         return GL15.glGetQueryObjecti(query, pname);
     }
 
+    @Override
     public String glGetShaderInfoLog(int shader, int maxSize) {
         return GL20.glGetShaderInfoLog(shader, maxSize);
     }

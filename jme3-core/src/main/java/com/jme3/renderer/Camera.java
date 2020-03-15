@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1432,6 +1432,7 @@ public class Camera implements Savable, Cloneable {
                 + "near=" + frustumNear + ", far=" + frustumFar + "]";
     }
 
+    @Override
     public void write(JmeExporter e) throws IOException {
         OutputCapsule capsule = e.getCapsule(this);
         capsule.write(location, "location", Vector3f.ZERO);
@@ -1455,6 +1456,7 @@ public class Camera implements Savable, Cloneable {
         capsule.write(name, "name", null);
     }
 
+    @Override
     public void read(JmeImporter e) throws IOException {
         InputCapsule capsule = e.getCapsule(this);
         location = (Vector3f) capsule.readSavable("location", Vector3f.ZERO.clone());

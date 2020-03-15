@@ -127,7 +127,7 @@ public class RefEnv extends SimpleApplication {
                     rootNode.getChild(0).setCullHint(Spatial.CullHint.Dynamic);
                 }
             });
-            ((SphereProbeArea) probe.getArea()).setRadius(100);
+            probe.getArea().setRadius(100);
             rootNode.addLight(probe);
 
         }

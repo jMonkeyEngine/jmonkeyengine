@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -199,8 +199,8 @@ public class ShaderNode implements Savable, Cloneable {
         name = ic.readString("name", "");
         definition = (ShaderNodeDefinition) ic.readSavable("definition", null);
         condition = ic.readString("condition", null);
-        inputMapping = (List<VariableMapping>) ic.readSavableArrayList("inputMapping", new ArrayList<VariableMapping>());
-        outputMapping = (List<VariableMapping>) ic.readSavableArrayList("outputMapping", new ArrayList<VariableMapping>());
+        inputMapping = ic.readSavableArrayList("inputMapping", new ArrayList<>());
+        outputMapping = ic.readSavableArrayList("outputMapping", new ArrayList<>());
     }
 
     /**

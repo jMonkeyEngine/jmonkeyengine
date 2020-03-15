@@ -136,9 +136,11 @@ public class TerrainGridTileLoaderTest extends SimpleApplication {
 
             terrain.addListener(new TerrainGridListener() {
 
+                @Override
                 public void gridMoved(Vector3f newCenter) {
                 }
 
+                @Override
                 public void tileAttached(Vector3f cell, TerrainQuad quad) {
                     while(quad.getControl(RigidBodyControl.class)!=null){
                         quad.removeControl(RigidBodyControl.class);
@@ -147,6 +149,7 @@ public class TerrainGridTileLoaderTest extends SimpleApplication {
                     bulletAppState.getPhysicsSpace().add(quad);
                 }
 
+                @Override
                 public void tileDetached(Vector3f cell, TerrainQuad quad) {
                     if (quad.getControl(RigidBodyControl.class) != null) {
                         bulletAppState.getPhysicsSpace().remove(quad);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -312,7 +312,7 @@ public final class SettingsDialog extends JFrame {
         });
 
         if (source.getIcons() != null) {
-            safeSetIconImages( (List<BufferedImage>) Arrays.asList((BufferedImage[]) source.getIcons()) );
+            safeSetIconImages( Arrays.asList((BufferedImage[]) source.getIcons()) );
         }
 
         setTitle(MessageFormat.format(resourceBundle.getString("frame.title"), source.getTitle()));
@@ -352,6 +352,7 @@ public final class SettingsDialog extends JFrame {
         fullscreenBox.setSelected(source.isFullscreen());
         fullscreenBox.addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
                 updateResolutionChoices();
             }
@@ -438,6 +439,7 @@ public final class SettingsDialog extends JFrame {
         // saves.
         ok.addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
                 if (verifyAndSaveCurrentSelection()) {
                     setUserSelection(APPROVE_SELECTION);
@@ -454,6 +456,7 @@ public final class SettingsDialog extends JFrame {
 
         cancel.addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
                 setUserSelection(CANCEL_SELECTION);
                 dispose();
@@ -487,6 +490,7 @@ public final class SettingsDialog extends JFrame {
         mainPanel.getRootPane().setDefaultButton(ok);
         SwingUtilities.invokeLater(new Runnable() {
 
+            @Override
             public void run() {
                 // Fill in the combos once the window has opened so that the insets can be read.
                 // The assumption is made that the settings window and the display window will have the
@@ -629,6 +633,7 @@ public final class SettingsDialog extends JFrame {
 
         resolutionBox.addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
                 updateDisplayChoices();
             }
@@ -880,6 +885,7 @@ public final class SettingsDialog extends JFrame {
         /**
          * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
          */
+        @Override
         public int compare(DisplayMode a, DisplayMode b) {
             // Width
             if (a.getWidth() != b.getWidth()) {

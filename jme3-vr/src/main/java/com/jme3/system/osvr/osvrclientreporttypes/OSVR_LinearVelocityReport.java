@@ -15,6 +15,7 @@ public class OSVR_LinearVelocityReport extends Structure {
 	public OSVR_LinearVelocityReport() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("sensor", "state");
 	}

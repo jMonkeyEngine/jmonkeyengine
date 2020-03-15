@@ -21,6 +21,7 @@ public class VRControllerState_t extends Structure {
 	public VRControllerState_t() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("unPacketNum", "ulButtonPressed", "ulButtonTouched", "rAxis");
 	}

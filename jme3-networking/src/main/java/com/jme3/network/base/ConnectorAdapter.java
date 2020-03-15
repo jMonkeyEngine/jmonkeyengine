@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -154,6 +154,7 @@ public class ConnectorAdapter extends Thread
         errorHandler.handleError( this, e );
     }
  
+    @Override
     public void run()
     {
         MessageBuffer messageBuffer = protocol.createBuffer();
@@ -205,6 +206,7 @@ public class ConnectorAdapter extends Thread
             }
         }
         
+        @Override
         public void run()
         {
             while( go.get() ) {

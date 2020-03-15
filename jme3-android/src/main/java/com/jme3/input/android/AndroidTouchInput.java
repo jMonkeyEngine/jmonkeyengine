@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -131,8 +131,8 @@ public class AndroidTouchInput implements TouchInput {
 
         // view width and height are 0 until the view is displayed on the screen
         if (androidInput.getView().getWidth() != 0 && androidInput.getView().getHeight() != 0) {
-            scaleX = (float)settings.getWidth() / (float)androidInput.getView().getWidth();
-            scaleY = (float)settings.getHeight() / (float)androidInput.getView().getHeight();
+            scaleX = settings.getWidth() / (float)androidInput.getView().getWidth();
+            scaleY = settings.getHeight() / (float)androidInput.getView().getHeight();
         }
         logger.log(Level.FINE, "Setting input scaling, scaleX: {0}, scaleY: {1}",
                 new Object[]{scaleX, scaleY});

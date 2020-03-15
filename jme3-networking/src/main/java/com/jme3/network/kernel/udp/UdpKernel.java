@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -84,6 +84,7 @@ public class UdpKernel extends AbstractKernel
         return new HostThread();
     }
 
+    @Override
     public void initialize()
     {
         if( thread != null )
@@ -101,6 +102,7 @@ public class UdpKernel extends AbstractKernel
         }
     }
 
+    @Override
     public void terminate() throws InterruptedException
     {
         if( thread == null )
@@ -122,6 +124,7 @@ public class UdpKernel extends AbstractKernel
      *  Dispatches the data to all endpoints managed by the
      *  kernel.  'routing' is currently ignored.
      */
+    @Override
     public void broadcast( Filter<? super Endpoint> filter, ByteBuffer data, boolean reliable,
                            boolean copy )
     {
@@ -209,6 +212,7 @@ public class UdpKernel extends AbstractKernel
             this.packet = packet;
         }
         
+        @Override
         public void run()
         {
             // Not guaranteed to always work but an extra datagram
@@ -263,6 +267,7 @@ public class UdpKernel extends AbstractKernel
             join();
         }
 
+        @Override
         public void run()
         {
             log.log( Level.FINE, "Kernel started for connection:{0}.", address );

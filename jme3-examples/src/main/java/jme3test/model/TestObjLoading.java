@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,6 +46,7 @@ public class TestObjLoading extends SimpleApplication {
         app.start();
     }
 
+    @Override
     public void simpleInitApp() {
         // create the geometry and attach it
         Geometry teaGeom = (Geometry) assetManager.loadModel("Models/Teapot/Teapot.obj");

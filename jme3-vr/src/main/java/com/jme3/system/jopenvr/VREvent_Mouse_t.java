@@ -16,6 +16,7 @@ public class VREvent_Mouse_t extends Structure {
 	public VREvent_Mouse_t() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("x", "y", "button");
 	}

@@ -30,26 +30,26 @@ public class OsvrMatrixConventionsLibrary implements Library {
 	/** enum values */
 	public static interface OSVR_MatrixOrderingFlags {
 		public static final int OSVR_MATRIX_COLMAJOR = 0x0;
-		public static final int OSVR_MATRIX_ROWMAJOR = (int)OsvrMatrixConventionsLibrary.OSVR_MatrixMasks.OSVR_MATRIX_MASK_ROWMAJOR;
+		public static final int OSVR_MATRIX_ROWMAJOR = OsvrMatrixConventionsLibrary.OSVR_MatrixMasks.OSVR_MATRIX_MASK_ROWMAJOR;
 	};
 	/** enum values */
 	public static interface OSVR_MatrixVectorFlags {
 		public static final int OSVR_MATRIX_COLVECTORS = 0x0;
-		public static final int OSVR_MATRIX_ROWVECTORS = (int)OsvrMatrixConventionsLibrary.OSVR_MatrixMasks.OSVR_MATRIX_MASK_ROWVECTORS;
+		public static final int OSVR_MATRIX_ROWVECTORS = OsvrMatrixConventionsLibrary.OSVR_MatrixMasks.OSVR_MATRIX_MASK_ROWVECTORS;
 	};
 	/** enum values */
 	public static interface OSVR_ProjectionMatrixInputFlags {
 		public static final int OSVR_MATRIX_RHINPUT = 0x0;
-		public static final int OSVR_MATRIX_LHINPUT = (int)OsvrMatrixConventionsLibrary.OSVR_MatrixMasks.OSVR_MATRIX_MASK_LHINPUT;
+		public static final int OSVR_MATRIX_LHINPUT = OsvrMatrixConventionsLibrary.OSVR_MatrixMasks.OSVR_MATRIX_MASK_LHINPUT;
 	};
 	/** enum values */
 	public static interface OSVR_ProjectionMatrixZFlags {
 		public static final int OSVR_MATRIX_SIGNEDZ = 0x0;
-		public static final int OSVR_MATRIX_UNSIGNEDZ = (int)OsvrMatrixConventionsLibrary.OSVR_MatrixMasks.OSVR_MATRIX_MASK_UNSIGNEDZ;
+		public static final int OSVR_MATRIX_UNSIGNEDZ = OsvrMatrixConventionsLibrary.OSVR_MatrixMasks.OSVR_MATRIX_MASK_UNSIGNEDZ;
 	};
 	public static final int OSVR_MATRIX_SIZE = 16;
-	public static final int OSVR_RETURN_SUCCESS = (int)(0);
-	public static final int OSVR_RETURN_FAILURE = (int)(1);
+	public static final int OSVR_RETURN_SUCCESS = 0;
+	public static final int OSVR_RETURN_FAILURE = 1;
 	/** Original signature : <code>double osvrVec3GetX(const OSVR_Vec3*)</code> */
 	public static native double osvrVec3GetX(OSVR_Vec3 v);
 	/** Original signature : <code>void osvrVec3SetX(OSVR_Vec3*, double)</code> */

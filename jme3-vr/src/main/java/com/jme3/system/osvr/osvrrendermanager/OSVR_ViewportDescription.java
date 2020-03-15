@@ -20,6 +20,7 @@ public class OSVR_ViewportDescription extends Structure {
 	public OSVR_ViewportDescription() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("left", "lower", "width", "height");
 	}

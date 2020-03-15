@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -208,10 +208,12 @@ public class TransformTrack implements AnimTrack<Transform> {
         }
     }
 
+    @Override
     public double getLength() {
         return length;
     }
 
+    @Override
     public void getDataAtTime(double t, Transform transform) {
         float time = (float) t;
 

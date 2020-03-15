@@ -46,6 +46,7 @@ public class VR_IVRIOBuffer_FnTable extends Structure {
 	public VR_IVRIOBuffer_FnTable() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("Open", "Close", "Read", "Write", "PropertyContainer");
 	}

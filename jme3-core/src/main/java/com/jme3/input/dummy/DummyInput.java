@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,6 +44,7 @@ public class DummyInput implements Input {
 
     protected boolean inited = false;
 
+    @Override
     public void initialize() {
         if (inited)
             throw new IllegalStateException("Input already initialized.");
@@ -51,11 +52,13 @@ public class DummyInput implements Input {
         inited = true;
     }
 
+    @Override
     public void update() {
         if (!inited)
             throw new IllegalStateException("Input not initialized.");
     }
 
+    @Override
     public void destroy() {
         if (!inited)
             throw new IllegalStateException("Input not initialized.");
@@ -63,13 +66,16 @@ public class DummyInput implements Input {
         inited = false;
     }
 
+    @Override
     public boolean isInitialized() {
         return inited;
     }
 
+    @Override
     public void setInputListener(RawInputListener listener) {
     }
 
+    @Override
     public long getInputTimeNanos() {
         return System.currentTimeMillis() * 1000000;
     }

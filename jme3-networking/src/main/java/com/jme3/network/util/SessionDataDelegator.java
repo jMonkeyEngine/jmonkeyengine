@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 jMonkeyEngine
+ * Copyright (c) 2015-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -92,6 +92,7 @@ public class SessionDataDelegator extends AbstractMessageDelegator<HostedConnect
      *  HostConnection.  If there is no value at that attribute then
      *  the miss() method is called.
      */   
+    @Override
     protected Object getSourceDelegate( HostedConnection source ) {
         Object result = source.getAttribute(attributeName);
         if( result == null ) {

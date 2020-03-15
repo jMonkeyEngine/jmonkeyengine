@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1381,6 +1381,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
         return this;
     }
 
+    @Override
     public void write(JmeExporter e) throws IOException {
         OutputCapsule cap = e.getCapsule(this);
         cap.write(x, "x", 0);
@@ -1389,6 +1390,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
         cap.write(w, "w", 1);
     }
 
+    @Override
     public void read(JmeImporter e) throws IOException {
         InputCapsule cap = e.getCapsule(this);
         x = cap.readFloat("x", 0);

@@ -74,9 +74,11 @@ public class TerrainGridSerializationTest extends SimpleApplication {
 
             terrain.addListener(new TerrainGridListener() {
 
+                @Override
                 public void gridMoved(Vector3f newCenter) {
                 }
 
+                @Override
                 public void tileAttached(Vector3f cell, TerrainQuad quad) {
                     //workaround for bugged test j3o's
                     while(quad.getControl(RigidBodyControl.class)!=null){
@@ -86,6 +88,7 @@ public class TerrainGridSerializationTest extends SimpleApplication {
                     bulletAppState.getPhysicsSpace().add(quad);
                 }
 
+                @Override
                 public void tileDetached(Vector3f cell, TerrainQuad quad) {
                     if (quad.getControl(RigidBodyControl.class) != null) {
                         bulletAppState.getPhysicsSpace().remove(quad);

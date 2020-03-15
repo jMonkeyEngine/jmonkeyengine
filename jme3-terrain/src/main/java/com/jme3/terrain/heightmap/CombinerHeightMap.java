@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -229,6 +229,7 @@ public class CombinerHeightMap extends AbstractHeightMap {
      *
      * @return boolean if the heightmap was successfully created.
      */
+    @Override
     public boolean load() {
         if (null != heightData) {
             unloadHeightMap();

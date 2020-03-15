@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -120,15 +120,10 @@ final class ImplHandler {
                     ((AssetLocator)obj).setRootPath(path);
                 }
                 return obj;
-            } catch (InstantiationException ex) {
+            } catch (InstantiationException | IllegalAccessException ex) {
                 logger.log(Level.SEVERE,"Cannot create locator of type {0}, does"
-                            + " the class have an empty and publically accessible"+
+                            + " the class have an empty and publicly accessible"+
                               " constructor?", type.getName());
-                logger.throwing(type.getName(), "<init>", ex);
-            } catch (IllegalAccessException ex) {
-                logger.log(Level.SEVERE,"Cannot create locator of type {0}, "
-                            + "does the class have an empty and publically "
-                            + "accessible constructor?", type.getName());
                 logger.throwing(type.getName(), "<init>", ex);
             }
             return null;

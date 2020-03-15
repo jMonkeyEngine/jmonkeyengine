@@ -22,6 +22,7 @@ public class RenderModel_Vertex_t extends Structure {
 	public RenderModel_Vertex_t() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("vPosition", "vNormal", "rfTextureCoord");
 	}

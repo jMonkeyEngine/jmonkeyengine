@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -202,6 +202,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
 
         // Setup unhandled Exception Handler
         Thread.currentThread().setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+            @Override
             public void uncaughtException(Thread thread, Throwable thrown) {
                 listener.handleError("Exception thrown in " + thread.toString(), thrown);
             }
@@ -254,7 +255,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
         }
 
         if (settings.getFrameRate() > 0) {
-            minFrameDuration = (long)(1000d / (double)settings.getFrameRate()); // ms
+            minFrameDuration = (long)(1000d / settings.getFrameRate()); // ms
             logger.log(Level.FINE, "Setting min tpf: {0}ms", minFrameDuration);
         } else {
             minFrameDuration = 0;
@@ -414,6 +415,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
         }
     }
 
+    @Override
     public void requestDialog(final int id, final String title, final String initialValue, final SoftTextDialogInputListener listener) {
         logger.log(Level.FINE, "requestDialog: title: {0}, initialValue: {1}",
                 new Object[]{title, initialValue});
@@ -457,6 +459,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
 
                 AlertDialog dialogTextInput = new AlertDialog.Builder(view.getContext()).setTitle(title).setView(layoutTextDialogInput).setPositiveButton("OK",
                         new DialogInterface.OnClickListener() {
+                            @Override
                             public void onClick(DialogInterface dialog, int whichButton) {
                                 /* User clicked OK, send COMPLETE action
                                  * and text */
@@ -464,6 +467,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
                             }
                         }).setNegativeButton("Cancel",
                         new DialogInterface.OnClickListener() {
+                            @Override
                             public void onClick(DialogInterface dialog, int whichButton) {
                                 /* User clicked CANCEL, send CANCEL action
                                  * and text */

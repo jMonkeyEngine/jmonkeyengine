@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -70,6 +70,7 @@ public class NamedThreadFactory implements ThreadFactory
         this.delegate = delegate;
     }
     
+    @Override
     public Thread newThread( Runnable r )
     {
         Thread result = delegate.newThread(r);

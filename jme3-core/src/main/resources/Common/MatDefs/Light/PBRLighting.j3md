@@ -168,7 +168,7 @@ MaterialDef PBR Lighting {
     Technique PreShadow {
 
         VertexShader GLSL300 GLSL100 GLSL150 :   Common/MatDefs/Shadow/PreShadow.vert
-        FragmentShader GLSL300 GLSL100 GLSL150 : Common/MatDefs/Shadow/PreShadow.frag
+        FragmentShader GLSL300 GLSL100 GLSL150 : Common/MatDefs/Shadow/PreShadowPBR.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -196,9 +196,9 @@ MaterialDef PBR Lighting {
     }
 
 
-    Technique PostShadow{
-        VertexShader GLSL310 GLSL300 GLSL150:   Common/MatDefs/Shadow/PostShadow.vert
-        FragmentShader GLSL310 GLSL300 GLSL150: Common/MatDefs/Shadow/PostShadow.frag
+    Technique PostShadow {
+        VertexShader GLSL310 GLSL300 GLSL100 GLSL150:   Common/MatDefs/Shadow/PostShadow.vert
+        FragmentShader GLSL310 GLSL300 GLSL100 GLSL150: Common/MatDefs/Shadow/PostShadowPBR.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -212,7 +212,6 @@ MaterialDef PBR Lighting {
             FILTER_MODE : FilterMode
             PCFEDGE : PCFEdge
             DISCARD_ALPHA : AlphaDiscardThreshold           
-            SHADOWMAP_SIZE : ShadowMapSize
             SHADOWMAP_SIZE : ShadowMapSize
             FADE : FadeInfo
             PSSM : Splits
@@ -228,40 +227,6 @@ MaterialDef PBR Lighting {
             Blend Modulate
             DepthWrite Off                 
             PolyOffset -0.1 0
-        }
-    }
-
-    Technique PostShadow{
-        VertexShader GLSL100:   Common/MatDefs/Shadow/PostShadow.vert
-        FragmentShader GLSL100: Common/MatDefs/Shadow/PostShadow.frag
-
-        WorldParameters {
-            WorldViewProjectionMatrix
-            WorldMatrix
-            ViewProjectionMatrix
-            ViewMatrix
-        }
-
-        Defines {
-            HARDWARE_SHADOWS : HardwareShadows
-            FILTER_MODE : FilterMode
-            PCFEDGE : PCFEdge
-            DISCARD_ALPHA : AlphaDiscardThreshold           
-            SHADOWMAP_SIZE : ShadowMapSize
-            FADE : FadeInfo
-            PSSM : Splits
-            POINTLIGHT : LightViewProjectionMatrix5
-            NUM_BONES : NumberOfBones
-            INSTANCING : UseInstancing
-            BACKFACE_SHADOWS: BackfaceShadows
-            NUM_MORPH_TARGETS: NumberOfMorphTargets
-            NUM_TARGETS_BUFFERS: NumberOfTargetsBuffers
-        }
-
-        ForcedRenderState {
-            Blend Modulate
-            DepthWrite Off   
-            PolyOffset -0.1 0  
         }
     }
 

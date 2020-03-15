@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -103,6 +103,7 @@ class BitMaskImageCodec extends ImageCodec {
         components[3] = (inputPixel >> bs) & maxBlue;
     }
 
+    @Override
     public void writeComponents(ByteBuffer buf, int x, int y, int width, int offset, int[] components, byte[] tmp) {
         // Shift components then mask them
         // Map all components into a single bitspace

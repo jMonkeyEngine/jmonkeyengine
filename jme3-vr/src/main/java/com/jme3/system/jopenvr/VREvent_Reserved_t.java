@@ -17,6 +17,7 @@ public class VREvent_Reserved_t extends Structure {
 	public VREvent_Reserved_t() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("reserved0", "reserved1", "reserved2", "reserved3");
 	}

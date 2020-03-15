@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -148,7 +148,7 @@ public class CubeMapWrapper {
             store = new ColorRGBA();
         }
         raster.setSlice(face);
-        return raster.getPixel((int) x, (int) y, store);
+        return raster.getPixel(x, y, store);
     }
 
      /**
@@ -170,7 +170,7 @@ public class CubeMapWrapper {
         }
         mipMapRaster.setSlice(face);
         mipMapRaster.setMipLevel(mipLevel);
-        return mipMapRaster.getPixel((int) x, (int) y, store);
+        return mipMapRaster.getPixel(x, y, store);
     }
 
     /**
@@ -209,7 +209,7 @@ public class CubeMapWrapper {
      */
     public void setPixel(int x, int y, int face, ColorRGBA color) {
         raster.setSlice(face);
-        raster.setPixel((int) x, (int) y, color);
+        raster.setPixel(x, y, color);
     }
 
     /**
@@ -227,7 +227,7 @@ public class CubeMapWrapper {
 
         mipMapRaster.setSlice(face);
         mipMapRaster.setMipLevel(mipLevel);
-        mipMapRaster.setPixel((int) x, (int) y, color);
+        mipMapRaster.setPixel(x, y, color);
     }
 
     /**

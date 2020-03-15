@@ -82,7 +82,7 @@ public class TestShaderNodesStress extends SimpleApplication {
                         renderTime = System.nanoTime();
                         sum += renderTime - updateTime;
                         System.err.println("render time : " + (renderTime - updateTime));
-                        System.err.println("Average render time : " + ((float)sum / (float)(nbFrames-150)));
+                        System.err.println("Average render time : " + (sum / (float)(nbFrames-150)));
                     }
                     break;
 

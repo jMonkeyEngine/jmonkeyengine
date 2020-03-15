@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -64,6 +64,7 @@ public class BloomUI {
 
         AnalogListener anl = new AnalogListener() {
 
+            @Override
             public void onAnalog(String name, float value, float tpf) {
                 if (name.equals("blurScaleUp")) {
                     filter.setBlurScale(filter.getBlurScale() + 0.01f);

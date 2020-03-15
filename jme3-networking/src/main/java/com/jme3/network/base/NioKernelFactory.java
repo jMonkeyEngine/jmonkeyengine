@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,6 +45,7 @@ import java.io.IOException;
  */
 public class NioKernelFactory implements KernelFactory
 {
+    @Override
     public Kernel createKernel( int channel, int port ) throws IOException
     {
         return new SelectorKernel(port);

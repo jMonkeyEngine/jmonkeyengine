@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,6 +50,7 @@ import java.util.zip.ZipOutputStream;
 public class ZIPSerializer extends Serializer {
 
     @SuppressWarnings("unchecked")
+    @Override
     public <T> T readObject(ByteBuffer data, Class<T> c) throws IOException {
         try
         {
@@ -83,6 +84,7 @@ public class ZIPSerializer extends Serializer {
         }
     }
 
+    @Override
     public void writeObject(ByteBuffer buffer, Object object) throws IOException {
         if (!(object instanceof ZIPCompressedMessage)) return;
 

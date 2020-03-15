@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -83,6 +83,7 @@ public class SelectorKernel extends AbstractKernel
         return new SelectorThread();
     }
 
+    @Override
     public void initialize()
     {
         if( thread != null )
@@ -98,6 +99,7 @@ public class SelectorKernel extends AbstractKernel
         }
     }
 
+    @Override
     public void terminate() throws InterruptedException
     {
         if( thread == null )
@@ -114,6 +116,7 @@ public class SelectorKernel extends AbstractKernel
         }
     }
 
+    @Override
     public void broadcast( Filter<? super Endpoint> filter, ByteBuffer data, boolean reliable,
                            boolean copy )
     {
@@ -441,6 +444,7 @@ public class SelectorKernel extends AbstractKernel
             }
         }
 
+        @Override
         public void run()
         {
             log.log( Level.FINE, "Kernel started for connection:{0}.", address );

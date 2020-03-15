@@ -69,13 +69,14 @@ jobs:
         uses: actions/checkout@v1     
         with:
           fetch-depth: 1
-
-      - name: Build        
+      - name: Validate the Gradle wrapper
+        uses: gradle/wrapper-validation-action@v1
+      - name: Build
         run: |
           # Build
           # Note: since this is crossbuild we use the buildForPlatforms filter to tell
           # the buildscript wich platforms it should build for.
-          gradle -PuseCommitHashAsVersionName=true --no-daemon -PbuildForPlatforms=LinuxArm,LinuxArmHF,LinuxArm64 -PbuildNativeProjects=true \
+          ./gradlew -PuseCommitHashAsVersionName=true --no-daemon -PbuildForPlatforms=LinuxArm,LinuxArmHF,LinuxArm64 -PbuildNativeProjects=true \
           :jme3-bullet-native:assemble 
 
       - name: Upload natives
@@ -96,10 +97,11 @@ jobs:
         uses: actions/checkout@v1     
         with:
           fetch-depth: 1
-
-      - name: Build        
-        run: |       
-          gradle -PuseCommitHashAsVersionName=true --no-daemon -PbuildNativeProjects=true \
+      - name: Validate the Gradle wrapper
+        uses: gradle/wrapper-validation-action@v1
+      - name: Build
+        run: |
+          ./gradlew -PuseCommitHashAsVersionName=true --no-daemon -PbuildNativeProjects=true \
           :jme3-android-native:assemble \
           :jme3-bullet-native-android:assemble 
      
@@ -137,8 +139,9 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: ${{ matrix.jdk }}
-          architecture: x64 
-          
+          architecture: x64
+      - name: Validate the Gradle wrapper
+        uses: gradle/wrapper-validation-action@v1
       - name: Build Natives
         shell: bash
         env:
@@ -159,7 +162,7 @@ jobs:
           fi
           
           # Build
-          gradle  -PuseCommitHashAsVersionName=true --no-daemon  -PbuildNativeProjects=true -Dmaven.repo.local="$PWD/dist/maven" \
+          ./gradlew  -PuseCommitHashAsVersionName=true --no-daemon  -PbuildNativeProjects=true -Dmaven.repo.local="$PWD/dist/maven" \
           build \
           :jme3-bullet-native:build
                   
@@ -233,12 +236,13 @@ jobs:
         with:
           name: linuxarm-natives
           path: build/native
-                                                     
+      - name: Validate the Gradle wrapper
+        uses: gradle/wrapper-validation-action@v1
       - name: Build Engine
         shell: bash
         run: |
           # Build
-          gradle -PuseCommitHashAsVersionName=true -PskipPrebuildLibraries=true build
+          ./gradlew -PuseCommitHashAsVersionName=true -PskipPrebuildLibraries=true build
           
           if [ "${{ matrix.deploy }}" = "true" ];
           then  
@@ -247,7 +251,7 @@ jobs:
             sudo apt-get install -y zip
 
             # Create the zip release and the javadoc
-            gradle -PuseCommitHashAsVersionName=true -PskipPrebuildLibraries=true mergedJavadoc createZipDistribution
+            ./gradlew -PuseCommitHashAsVersionName=true -PskipPrebuildLibraries=true mergedJavadoc createZipDistribution
           
             # We prepare the release for deploy
             mkdir -p ./dist/release/
@@ -255,7 +259,7 @@ jobs:
             
             # Create the maven artifacts
             mkdir -p ./dist/maven/
-            gradle -PuseCommitHashAsVersionName=true -PskipPrebuildLibraries=true install -Dmaven.repo.local="$PWD/dist/maven"
+            ./gradlew -PuseCommitHashAsVersionName=true -PskipPrebuildLibraries=true install -Dmaven.repo.local="$PWD/dist/maven"
 
             # Zip the natives into a single archive (we are going to use this to deploy native snapshots)
             echo "Create native zip"

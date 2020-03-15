@@ -56,6 +56,7 @@ public class TestAwtPanels extends SimpleApplication {
         app.start();
         
         SwingUtilities.invokeLater(new Runnable(){
+            @Override
             public void run(){
                 /*
                  * Sleep 2 seconds to ensure there's no race condition.
