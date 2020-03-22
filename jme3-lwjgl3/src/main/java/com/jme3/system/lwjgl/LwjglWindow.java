@@ -47,6 +47,7 @@ import com.jme3.util.BufferUtils;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
@@ -125,6 +126,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
 
     private GLFWErrorCallback errorCallback;
     private GLFWWindowSizeCallback windowSizeCallback;
+    private GLFWFramebufferSizeCallback framebufferSizeCallback;
     private GLFWWindowFocusCallback windowFocusCallback;
 
     private Thread mainThread;
@@ -257,16 +259,8 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             throw new RuntimeException("Failed to create the GLFW window");
         }
 
-        // Add a resize callback which delegates to the listener
-        glfwSetWindowSizeCallback(window, windowSizeCallback = new GLFWWindowSizeCallback() {
-            @Override
-            public void invoke(final long window, final int width, final int height) {
-                settings.setResolution(width, height);
-                listener.reshape(width, height);
-            }
-        });
-
         glfwSetWindowFocusCallback(window, windowFocusCallback = new GLFWWindowFocusCallback() {
+
             @Override
             public void invoke(final long window, final boolean focus) {
                 if (wasActive != focus) {
@@ -301,12 +295,46 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         setWindowIcon(settings);
         showWindow();
 
+        // Windows resize callback
+        glfwSetWindowSizeCallback(window, windowSizeCallback = new GLFWWindowSizeCallback() {
+
+            @Override
+            public void invoke(final long window, final int width, final int height) {
+
+                // This is the window size, never to passed to any pixel based stuff!
+                // https://www.glfw.org/docs/latest/window_guide.html#window_size
+                onWindowSizeChanged(width, height);
+            }
+        });
+
+        // Add a framebuffer resize callback which delegates to the listener
+        glfwSetFramebufferSizeCallback(window, framebufferSizeCallback = new GLFWFramebufferSizeCallback() {
+
+            @Override
+            public void invoke(final long window, final int width, final int height) {
+
+                // The window size might be also changed, but the window size callback might not trigger
+                // Maybe a bug in graphics drivers or LWJGL 3...? So make sure we emulate the original JME behavior here
+                IntBuffer windowWidth = BufferUtils.createIntBuffer(1);
+                IntBuffer windowHeight = BufferUtils.createIntBuffer(1);
+                glfwGetWindowSize(window, windowWidth, windowHeight);
+                onWindowSizeChanged(windowWidth.get(), windowHeight.get());
+
+                // https://www.glfw.org/docs/latest/window_guide.html#window_fbsize
+                listener.reshape(width, height);
+            }
+        });
+
         allowSwapBuffers = settings.isSwapBuffers();
 
         // Create OpenCL
         if (settings.isOpenCLSupport()) {
             initOpenCL(window);
         }
+    }
+
+    private void onWindowSizeChanged(final int width, final int height) {
+        settings.setResolution(width, height);
     }
 
     protected void showWindow() {
@@ -411,6 +439,11 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             if (windowSizeCallback != null) {
                 windowSizeCallback.close();
                 windowSizeCallback = null;
+            }
+
+            if (framebufferSizeCallback != null) {
+                framebufferSizeCallback.close();
+                framebufferSizeCallback = null;
             }
 
             if (windowFocusCallback != null) {
