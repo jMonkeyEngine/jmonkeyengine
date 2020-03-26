@@ -217,18 +217,6 @@ public final class AppSettings extends HashMap<String, Object> {
     public static final String LWJGL_OPENAL = "LWJGL";
 
     /**
-     * Use the Android MediaPlayer / SoundPool based renderer for Android audio capabilities.
-     * <p>
-     * NOTE: Supports Android 2.2+ platforms.
-     *
-     * @see AppSettings#setAudioRenderer(java.lang.String)
-     * @deprecated This audio renderer has too many limitations.
-     * use {@link #ANDROID_OPENAL_SOFT} instead.
-     */
-    @Deprecated
-    public static final String ANDROID_MEDIAPLAYER = "MediaPlayer";
-
-    /**
      * Use the OpenAL Soft based renderer for Android audio capabilities.
      * <p>
      * This is the current default for Android platforms.
@@ -237,33 +225,6 @@ public final class AppSettings extends HashMap<String, Object> {
      * @see AppSettings#setAudioRenderer(java.lang.String)
      */
     public static final String ANDROID_OPENAL_SOFT = "OpenAL_SOFT";
-    
-    /**
-     * Use JogAmp's JOGL as the display system, with the OpenGL forward compatible profile
-     * <p>
-     * N.B: This backend is EXPERIMENTAL
-     *
-     * @see AppSettings#setRenderer(java.lang.String)
-     */
-    public static final String JOGL_OPENGL_FORWARD_COMPATIBLE = "JOGL_OPENGL_FORWARD_COMPATIBLE";
-    
-    /**
-     * Use JogAmp's JOGL as the display system with the backward compatible profile
-     * <p>
-     * N.B: This backend is EXPERIMENTAL
-     *
-     * @see AppSettings#setRenderer(java.lang.String)
-     */
-    public static final String JOGL_OPENGL_BACKWARD_COMPATIBLE = "JOGL_OPENGL_BACKWARD_COMPATIBLE";
-    
-    /**
-     * Use JogAmp's JOAL as the display system
-     * <p>
-     * N.B: This backend is EXPERIMENTAL
-     *
-     * @see AppSettings#setRenderer(java.lang.String)
-     */
-    public static final String JOAL = "JOAL";
 
     static {
         defaults.put("Width", 640);
