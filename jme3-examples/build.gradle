@@ -29,7 +29,6 @@ dependencies {
 //    compile project(':jme3-jbullet')
 
     compile project(':jme3-jogg')
-    compile project(':jme3-jogl')
     compile project(':jme3-lwjgl')
 //    compile project(':jme3-lwjgl3')
     compile project(':jme3-networking')
@@ -60,7 +59,7 @@ jar.doFirst{
     }
 }
 
-task dist (dependsOn: ['build', ':jme3-jogl:jar', ':jme3-bullet:jar', ':jme3-android:jar', \
+task dist (dependsOn: ['build', ':jme3-bullet:jar', ':jme3-android:jar', \
                        ':jme3-android-native:jar', ':jme3-bullet-native-android:jar', \
                        ':jme3-bullet-native:jar']) {
     doLast {
@@ -80,24 +79,6 @@ task dist (dependsOn: ['build', ':jme3-jogl:jar', ':jme3-bullet:jar', ':jme3-and
             from jar.archivePath
             into '../dist'
             rename { "jMonkeyEngine3.jar" }
-        }
-        // Copy JOGL packages, remove version
-        def config = project(':jme3-jogl').configurations.runtime.copyRecursive({ !(it instanceof ProjectDependency); })
-        config.resolvedConfiguration.resolvedArtifacts.each {artifact ->
-            copy{
-                from artifact.file
-                into '../dist/opt/jogl/lib'
-                if(artifact.classifier != null){
-                    rename { "${artifact.name}-${artifact.classifier}.${artifact.extension}" }
-                } else{
-                    rename { "${artifact.name}.${artifact.extension}" }
-                }
-            }
-        }
-        copy {
-            from project(':jme3-jogl').jar.archivePath
-            into '../dist/opt/jogl'
-            rename {project(':jme3-jogl').name+".jar"}
         }
 
         // Copy bullet packages, remove version
