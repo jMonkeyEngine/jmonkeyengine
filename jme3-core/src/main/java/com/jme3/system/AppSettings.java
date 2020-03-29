@@ -215,6 +215,18 @@ public final class AppSettings extends HashMap<String, Object> {
      * @see AppSettings#setAudioRenderer(java.lang.String)
      */
     public static final String LWJGL_OPENAL = "LWJGL";
+    
+    /**
+     * Use the Android MediaPlayer / SoundPool based renderer for Android audio capabilities.
+     * <p>
+     * NOTE: Supports Android 2.2+ platforms.
+     *
+     * @see AppSettings#setAudioRenderer(java.lang.String)
+     * @deprecated This audio renderer has too many limitations.
+     * use {@link #ANDROID_OPENAL_SOFT} instead.
+     */
+    @Deprecated
+    public static final String ANDROID_MEDIAPLAYER = "MediaPlayer";
 
     /**
      * Use the OpenAL Soft based renderer for Android audio capabilities.
