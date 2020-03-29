@@ -215,7 +215,7 @@ public final class AppSettings extends HashMap<String, Object> {
      * @see AppSettings#setAudioRenderer(java.lang.String)
      */
     public static final String LWJGL_OPENAL = "LWJGL";
-    
+
     /**
      * Use the Android MediaPlayer / SoundPool based renderer for Android audio capabilities.
      * <p>
