@@ -119,8 +119,11 @@ public class JmeDesktopSystem extends JmeSystemDelegate {
     public void showErrorDialog(String message) {
         if (!GraphicsEnvironment.isHeadless()) {
             final String msg = message;
-            EventQueue.invokeLater(() -> {
-                ErrorDialog.showDialog(msg);
+            EventQueue.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    ErrorDialog.showDialog(msg);
+                }
             });
         } else {
             System.err.println("[JME ERROR] " + message);
@@ -151,18 +154,26 @@ public class JmeDesktopSystem extends JmeSystemDelegate {
         final AtomicInteger result = new AtomicInteger();
         final Object lock = new Object();
 
-        final SelectionListener selectionListener = (int selection) -> {
-            synchronized (lock) {
-                done.set(true);
-                result.set(selection);
-                lock.notifyAll();
+        final SelectionListener selectionListener = new SelectionListener() {
+
+            @Override
+            public void onSelection(int selection) {
+                synchronized (lock) {
+                    done.set(true);
+                    result.set(selection);
+                    lock.notifyAll();
+                }
             }
         };
-        SwingUtilities.invokeLater(() -> {
-            synchronized (lock) {
-                SettingsDialog dialog = new SettingsDialog(settings, iconUrl, loadFromRegistry);
-                dialog.setSelectionListener(selectionListener);
-                dialog.showDialog();
+        SwingUtilities.invokeLater(new Runnable() {
+
+            @Override
+            public void run() {
+                synchronized (lock) {
+                    SettingsDialog dialog = new SettingsDialog(settings, iconUrl, loadFromRegistry);
+                    dialog.setSelectionListener(selectionListener);
+                    dialog.showDialog();
+                }
             }
         });
 
@@ -180,7 +191,6 @@ public class JmeDesktopSystem extends JmeSystemDelegate {
         return result.get() == SettingsDialog.APPROVE_SELECTION;
     }
 
-    @SuppressWarnings("null")
     private JmeContext newContextLwjgl(AppSettings settings, JmeContext.Type type) {
         try {
             Class<? extends JmeContext> ctxClazz = null;
@@ -199,7 +209,9 @@ public class JmeDesktopSystem extends JmeSystemDelegate {
             }
 
             return ctxClazz.newInstance();
-        } catch (InstantiationException | IllegalAccessException ex) {
+        } catch (InstantiationException ex) {
+            logger.log(Level.SEVERE, "Failed to create context", ex);
+        } catch (IllegalAccessException ex) {
             logger.log(Level.SEVERE, "Failed to create context", ex);
         } catch (ClassNotFoundException ex) {
             logger.log(Level.SEVERE, "CRITICAL ERROR: Context class is missing!\n"
@@ -213,11 +225,12 @@ public class JmeDesktopSystem extends JmeSystemDelegate {
         try {
             String className = settings.getRenderer().substring("CUSTOM".length());
 
-            @SuppressWarnings("UnusedAssignment")
             Class<? extends JmeContext> ctxClazz = null;
             ctxClazz = (Class<? extends JmeContext>) Class.forName(className);
             return ctxClazz.newInstance();
-        } catch (InstantiationException | IllegalAccessException ex) {
+        } catch (InstantiationException ex) {
+            logger.log(Level.SEVERE, "Failed to create context", ex);
+        } catch (IllegalAccessException ex) {
             logger.log(Level.SEVERE, "Failed to create context", ex);
         } catch (ClassNotFoundException ex) {
             logger.log(Level.SEVERE, "CRITICAL ERROR: Context class is missing!", ex);
@@ -256,7 +269,9 @@ public class JmeDesktopSystem extends JmeSystemDelegate {
         } catch (ClassNotFoundException ex) {
             logger.log(Level.SEVERE, "CRITICAL ERROR: Audio implementation class is missing!\n"
                                    + "Make sure jme3_lwjgl-oal is on the classpath.", ex);
-        } catch (IllegalAccessException | InstantiationException ex) {
+        } catch (IllegalAccessException ex) {
+            logger.log(Level.SEVERE, "Failed to create context", ex);
+        } catch (InstantiationException ex) {
             logger.log(Level.SEVERE, "Failed to create context", ex);
         }
 
