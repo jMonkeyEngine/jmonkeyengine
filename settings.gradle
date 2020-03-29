@@ -23,7 +23,6 @@ if (JavaVersion.current().isJava8Compatible()) {
 // Other external dependencies
 include 'jme3-jbullet'
 include 'jme3-niftygui'
-include 'jme3-jogg'
 include 'jme3-android'
 include 'jme3-ios'
 
