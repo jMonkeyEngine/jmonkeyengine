@@ -543,10 +543,10 @@ jobs:
             git config --global user.name "Github Actions"
             git config --global user.email "actions@users.noreply.github.com"
       
-            git add .
-            git commit -m "$version"
+            git add . || true
+            git commit -m "$version" || true
 
             branch="gh-pages"                   
-            git push origin "$branch" --force 
+            git push origin "$branch" --force || true
 
           fi
