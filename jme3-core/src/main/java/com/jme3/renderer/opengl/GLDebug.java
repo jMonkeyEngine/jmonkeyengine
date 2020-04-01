@@ -36,6 +36,8 @@ import com.jme3.renderer.RendererException;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * This class uses Reflection to intercept method calls to the Proxy Object ({@link #createProxy(GL, Object, Class[])}
@@ -51,10 +53,15 @@ import java.lang.reflect.Proxy;
 public class GLDebug implements InvocationHandler {
     protected Object obj;
     protected GL gl;
+    protected Method methodGlGetError;
+    private static final Logger LOG = Logger.getLogger(GLDebug.class.getName());
 
-    private GLDebug(GL gl, Object obj) {
+    private GLDebug(GL gl, Object obj) throws NoSuchMethodException {
         this.gl = gl;
         this.obj = obj;
+        methodGlGetError = GL.class.getMethod("glGetError");
+        /* The NoSuchMethodException shouldn't be thrown, but since we're in a constructor and cannot fail safe
+         * otherwise, we throw it. */
     }
 
     protected String decodeError(int err) {
@@ -102,7 +109,7 @@ public class GLDebug implements InvocationHandler {
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         Object result = method.invoke(obj, args);
 
-        if (method.getName().equals("glGetError")) {
+        if (method.equals(methodGlGetError)) {
             return result;
         }
 
@@ -117,13 +124,19 @@ public class GLDebug implements InvocationHandler {
      * @param gl The GL Context, required to call {@link GL#glGetError()}
      * @param obj The object which methods will be proxied
      * @param implementedInterfaces The interfaces/class this object implements
-     * @return The Proxy object
+     * @return The Proxy object (or null if an error occured)
      */
     public static Object createProxy(GL gl, Object obj, Class<?>... implementedInterfaces) {
-        return Proxy.newProxyInstance(
-            GLDebug.class.getClassLoader(),
-            implementedInterfaces,
-            new GLDebug(gl, obj)
-        );
+        try {
+            return Proxy.newProxyInstance(
+                    GLDebug.class.getClassLoader(),
+                    implementedInterfaces,
+                    new GLDebug(gl, obj)
+            );
+        } catch (NoSuchMethodException nsme) {
+            LOG.log(Level.SEVERE, "Could not initialize the proxy because the glGetError method wasn't found!",
+                    nsme);
+            return null;
+        }
     }
 }
