@@ -134,9 +134,8 @@ public class GLDebug implements InvocationHandler {
                     new GLDebug(gl, obj)
             );
         } catch (NoSuchMethodException nsme) {
-            LOG.log(Level.SEVERE, "Could not initialize the proxy because the glGetError method wasn't found!",
+            throw new IllegalStateException("Could not initialize the proxy because the glGetError method wasn't found!",
                     nsme);
-            return null;
         }
     }
 }
