@@ -273,8 +273,15 @@ public interface Renderer {
      *
      * @param bo the buffer object to upload.
      */
-    public void updateBufferData(BufferObject bo);
-
+    public void updateShaderStorageBufferObjectData( BufferObject bo) ;
+    
+    /**
+     * Uploads data of the buffer object on the GPU.
+     *
+     * @param bo the buffer object to upload.
+     */
+    public void updateUniformBufferObjectData( BufferObject bo) ;
+    
     /**
      * Deletes a vertex buffer from the GPU.
      * @param vb The vertex buffer to delete
@@ -457,4 +464,7 @@ public interface Renderer {
      */
     public int getDefaultAnisotropicFilter();
 
+    public void setShaderStorageBufferObject(int bindingPoint, BufferObject bufferObject) ;
+    public void setUniformBufferObject(int bindingPoint, BufferObject bufferObject) ;
+    
 }

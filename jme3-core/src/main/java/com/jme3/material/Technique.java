@@ -33,6 +33,7 @@ package com.jme3.material;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.light.LightList;
+import com.jme3.material.Material.BindUnits;
 import com.jme3.material.TechniqueDef.LightMode;
 import com.jme3.material.logic.TechniqueDefLogic;
 import com.jme3.renderer.Caps;
@@ -161,9 +162,9 @@ public final class Technique {
      * @param geometry The geometry to render
      * @param lights Lights which influence the geometry.
      */
-    void render(RenderManager renderManager, Shader shader, Geometry geometry, LightList lights, int lastTexUnit) {
+    void render(RenderManager renderManager, Shader shader, Geometry geometry, LightList lights, BindUnits lastBindUnits) {
         TechniqueDefLogic logic = def.getLogic();
-        logic.render(renderManager, shader, geometry, lights, lastTexUnit);
+        logic.render(renderManager, shader, geometry, lights, lastBindUnits);
     }
     
     /**

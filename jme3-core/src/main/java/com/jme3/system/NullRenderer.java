@@ -173,9 +173,6 @@ public class NullRenderer implements Renderer {
     }
 
     @Override
-    public void updateBufferData(BufferObject bo) {
-    }
-    @Override
     public void deleteBuffer(VertexBuffer vb) {
     }
 
@@ -253,5 +250,29 @@ public class NullRenderer implements Renderer {
     @Override
     public int getDefaultAnisotropicFilter() {
         return 0;
+    }
+
+    @Override
+    public void updateShaderStorageBufferObjectData(BufferObject bo) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void updateUniformBufferObjectData(BufferObject bo) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void setShaderStorageBufferObject(int bindingPoint, BufferObject bufferObject) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void setUniformBufferObject(int bindingPoint, BufferObject bufferObject) {
+        // TODO Auto-generated method stub
+
     }
 }

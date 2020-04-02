@@ -33,6 +33,8 @@ package com.jme3.util;
 
 import java.util.*;
 
+import com.jme3.util.functional.NoArgFunction;
+
 /**
  *  <p>Provides a list with similar modification semantics to java.util.concurrent's
  *  CopyOnWriteArrayList except that it is not concurrent and also provides
@@ -316,6 +318,22 @@ public class SafeArrayList<E> implements List<E>, Cloneable {
     public E set(int index, E element) {
         return getBuffer().set(index, element);
     }
+
+    public void expand(int index,NoArgFunction<E> constructor){
+        while(size()<=index)   add(constructor!=null?constructor.eval():null);
+    }
+
+    public E expandAndSet(int index, E element,NoArgFunction<E> constructor){
+        expand(index,constructor);
+        return getBuffer().set(index, element);
+    }
+
+
+    public E expandAndGet(int index, NoArgFunction<E> constructor){
+        expand(index,constructor);
+        return getBuffer().get(index);
+    }
+
 
     @Override
     public void add(int index, E element) {

@@ -1005,4 +1005,11 @@ final public class FastMath {
         return (value - min) / (max - min);
     }
 
+    /**
+     * Round n to a multiple of p
+     */
+    public static int toMultipleOf(int n, int p) {
+        return ((n - 1) | (p - 1)) + 1;
+    }
+
 }

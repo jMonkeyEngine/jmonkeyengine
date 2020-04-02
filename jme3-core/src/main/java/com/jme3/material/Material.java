@@ -501,6 +501,18 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         }
     }
 
+      /**
+     * Pass a parameter to the material shader. The VarType will be obtained from the matdef.
+     *
+     * @param name the name of the parameter defined in the material definition (j3md)
+     * @param value the value of the parameter
+     */
+    public void setParam(String name,  Object value) {
+        MatParam p=getMaterialDef().getMaterialParam(name);
+        setParam(name,p.getVarType(),value);
+    }
+
+
     /**
      * Clear a parameter from this material. The parameter must exist
      * @param name the name of the parameter to clear
@@ -678,8 +690,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
      * @param value the buffer object.
      */
     public void setUniformBufferObject(final String name, final BufferObject value) {
-        value.setBufferType(BufferObject.BufferType.UniformBufferObject);
-        setParam(name, VarType.BufferObject, value);
+        setParam(name, VarType.UniformBufferObject, value);
     }
 
     /**
@@ -689,8 +700,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
      * @param value the buffer object.
      */
     public void setShaderStorageBufferObject(final String name, final BufferObject value) {
-        value.setBufferType(BufferObject.BufferType.ShaderStorageBufferObject);
-        setParam(name, VarType.BufferObject, value);
+        setParam(name, VarType.ShaderStorageBufferObject, value);
     }
 
     /**
@@ -788,7 +798,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         sortingId = -1;
     }
 
-    private int applyOverrides(Renderer renderer, Shader shader, SafeArrayList<MatParamOverride> overrides, int unit) {
+    private void applyOverrides(Renderer renderer, Shader shader, SafeArrayList<MatParamOverride> overrides, BindUnits bindUnits) {
         for (MatParamOverride override : overrides.getArray()) {
             VarType type = override.getVarType();
 
@@ -801,29 +811,70 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
             Uniform uniform = shader.getUniform(override.getPrefixedName());
 
             if (override.getValue() != null) {
-                if (type.isTextureType()) {
-                    renderer.setTexture(unit, (Texture) override.getValue());
-                    uniform.setValue(VarType.Int, unit);
-                    unit++;
-                } else {
-                    uniform.setValue(type, override.getValue());
-                }
+                updateShaderMaterialParameter(renderer,type,shader,override,bindUnits,true);
             } else {
                 uniform.clearValue();
             }
         }
-        return unit;
     }
 
-    private int updateShaderMaterialParameters(Renderer renderer, Shader shader,
-                                               SafeArrayList<MatParamOverride> worldOverrides, SafeArrayList<MatParamOverride> forcedOverrides) {
 
-        int unit = 0;
+
+    private void updateShaderMaterialParameter(Renderer renderer,VarType type,Shader shader,MatParam param,BindUnits unit,boolean override){
+        if ( type == VarType.UniformBufferObject||type==VarType.ShaderStorageBufferObject) {
+  
+            ShaderBufferBlock bufferBlock = shader.getBufferBlock(param.getPrefixedName());
+            BufferObject bufferObject=(BufferObject) param.getValue();
+
+            ShaderBufferBlock.BufferType btype;
+            if(type==VarType.ShaderStorageBufferObject){
+                btype=ShaderBufferBlock.BufferType.ShaderStorageBufferObject;
+                bufferBlock.setBufferObject(btype,bufferObject);
+                renderer.setShaderStorageBufferObject(unit.bufferUnit++,bufferObject);
+            }else{
+                btype=ShaderBufferBlock.BufferType.UniformBufferObject;
+                bufferBlock.setBufferObject(btype,bufferObject);
+                renderer.setUniformBufferObject(unit.bufferUnit++,bufferObject);
+            }
+
+      
+        } else {
+            Uniform uniform = shader.getUniform(param.getPrefixedName());
+            if (!override&&uniform.isSetByCurrentMaterial())  return;
+            
+            if (type.isTextureType()) {
+                renderer.setTexture(unit.textureUnit, (Texture) param.getValue());
+                uniform.setValue(VarType.Int, unit.textureUnit);
+                unit.textureUnit++;
+            } else {
+                uniform.setValue(type, param.getValue());
+            }
+        }
+    }
+
+
+    public static class BindUnits{
+        public int textureUnit=0;
+        public int bufferUnit=0;
+    }
+
+    private BindUnits bindUnits=new BindUnits();
+
+
+
+    private BindUnits updateShaderMaterialParameters(Renderer renderer, Shader shader,
+                                               SafeArrayList<MatParamOverride> worldOverrides, SafeArrayList<MatParamOverride> forcedOverrides) {
+   
+
+        bindUnits.textureUnit=0;
+        bindUnits.bufferUnit=0;
+                                                
+                                                
         if (worldOverrides != null) {
-            unit = applyOverrides(renderer, shader, worldOverrides, unit);
+            applyOverrides(renderer, shader, worldOverrides, bindUnits);
         }
         if (forcedOverrides != null) {
-            unit = applyOverrides(renderer, shader, forcedOverrides, unit);
+            applyOverrides(renderer, shader, forcedOverrides, bindUnits);
         }
 
         for (int i = 0; i < paramValues.size(); i++) {
@@ -831,41 +882,14 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
             MatParam param = paramValues.getValue(i);
             VarType type = param.getVarType();
 
-            if (isBO(type)) {
-
-                final ShaderBufferBlock bufferBlock = shader.getBufferBlock(param.getPrefixedName());
-                bufferBlock.setBufferObject((BufferObject) param.getValue());
-
-            } else {
-
-                Uniform uniform = shader.getUniform(param.getPrefixedName());
-                if (uniform.isSetByCurrentMaterial()) {
-                    continue;
-                }
-
-                if (type.isTextureType()) {
-                    renderer.setTexture(unit, (Texture) param.getValue());
-                    uniform.setValue(VarType.Int, unit);
-                    unit++;
-                } else {
-                    uniform.setValue(type, param.getValue());
-                }
-            }
+            updateShaderMaterialParameter(renderer,type,shader,param,bindUnits,false);
         }
 
         //TODO HACKY HACK remove this when texture unit is handled by the uniform.
-        return unit;
+        return bindUnits;
     }
 
-    /**
-     * Returns true if the type is Buffer Object's type.
-     *
-     * @param type the material parameter type.
-     * @return true if the type is Buffer Object's type.
-     */
-    private boolean isBO(final VarType type) {
-        return type == VarType.BufferObject;
-    }
+
 
     private void updateRenderState(RenderManager renderManager, Renderer renderer, TechniqueDef techniqueDef) {
         if (renderManager.getForcedRenderState() != null) {
@@ -1019,13 +1043,13 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         renderManager.updateUniformBindings(shader);
         
         // Set material parameters
-        int unit = updateShaderMaterialParameters(renderer, shader, overrides, renderManager.getForcedMatParams());
+        BindUnits units= updateShaderMaterialParameters(renderer, shader, overrides, renderManager.getForcedMatParams());
 
         // Clear any uniforms not changed by material.
         resetUniformsNotSetByCurrent(shader);
         
         // Delegate rendering to the technique
-        technique.render(renderManager, shader, geometry, lights, unit);
+        technique.render(renderManager, shader, geometry, lights, units);
     }
 
     /**

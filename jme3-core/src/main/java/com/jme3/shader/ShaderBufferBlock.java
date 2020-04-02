@@ -31,32 +31,43 @@
  */
 package com.jme3.shader;
 
+import java.lang.ref.WeakReference;
+
 /**
  * Implementation of shader's buffer block.
  *
- * @author JavaSaBr
+ * @author JavaSaBr, Riccardo Balbo
  */
 public class ShaderBufferBlock extends ShaderVariable {
-
+    
+    public static enum BufferType{
+        UniformBufferObject,
+        ShaderStorageBufferObject
+    }
     /**
      * Current used buffer object.
      */
     protected BufferObject bufferObject;
+    protected WeakReference<BufferObject> bufferObjectRef;
+    protected BufferType type;
 
     /**
      * Set the new buffer object.
      *
      * @param bufferObject the new buffer object.
      */
-    public void setBufferObject(final BufferObject bufferObject) {
-
+    public void setBufferObject(BufferType type, BufferObject bufferObject) {
         if (bufferObject == null) {
             throw new IllegalArgumentException("for storage block " + name + ": storageData cannot be null");
         }
-
         this.bufferObject = bufferObject;
-
+        this.bufferObjectRef=new WeakReference<BufferObject>(bufferObject);
+        this.type=type;
         updateNeeded = true;
+    }
+
+    public BufferType getType(){
+        return type;
     }
 
     /**
@@ -90,4 +101,14 @@ public class ShaderBufferBlock extends ShaderVariable {
     public BufferObject getBufferObject() {
         return bufferObject;
     }
+
+    public WeakReference<BufferObject> getBufferObjectRef() {
+        return bufferObjectRef;
+    }
+
+    public void setBufferObjectRef(WeakReference<BufferObject> bufferObjectRef) {
+        this.bufferObjectRef = bufferObjectRef;
+    }
+
+
 }
