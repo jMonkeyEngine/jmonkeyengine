@@ -9,6 +9,7 @@ buildscript {
     dependencies {
         classpath 'com.android.tools.build:gradle:3.1.4'
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4'
+        classpath 'me.tatarka:gradle-retrolambda:3.7.1'
     }
 }
 
@@ -21,6 +22,8 @@ allprojects {
 
 apply plugin: 'base'
 apply from: file('version.gradle')
+
+apply plugin: 'me.tatarka.retrolambda'
 
 // This is applied to all sub projects
 subprojects {
@@ -250,4 +253,11 @@ if (skipPrebuildLibraries != "true" && buildNativeProjects != "true") {
 
 wrapper {
     gradleVersion = '5.6.4'
+}
+
+
+retrolambda {
+  javaVersion JavaVersion.VERSION_1_7
+  incremental true
+    jvmArgs '-noverify'
 }
