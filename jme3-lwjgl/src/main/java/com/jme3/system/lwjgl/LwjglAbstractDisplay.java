@@ -93,15 +93,15 @@ public abstract class LwjglAbstractDisplay extends LwjglContext implements Runna
     /**
      * Does LWJGL display initialization in the OpenGL thread
      */
-    protected boolean initInThread(){
+    protected boolean initInThread() {
         try {
-            if (!JmeSystem.isLowPermissions()){
+            if (!JmeSystem.isLowPermissions()) {
                 // Enable uncaught exception handler only for current thread
                 Thread.currentThread().setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
                     @Override
                     public void uncaughtException(Thread thread, Throwable thrown) {
                         listener.handleError("Uncaught exception thrown in "+thread.toString(), thrown);
-                        if (needClose.get()){
+                        if (needClose.get()) {
                             // listener.handleError() has requested the
                             // context to close. Satisfy request.
                             deinitInThread();
@@ -119,15 +119,17 @@ public abstract class LwjglAbstractDisplay extends LwjglContext implements Runna
 
             created.set(true);
             super.internalCreate();
-        } catch (Exception ex){
+        } catch (Exception ex) {
             try {
-                if (Display.isCreated())
+                if (Display.isCreated()) {
                     Display.destroy();
+                }
             } catch (Exception ex2){
                 logger.log(Level.WARNING, null, ex2);
             }
 
             listener.handleError("Failed to create display", ex);
+            createdLock.notifyAll(); // Release the lock, so start(true) doesn't deadlock.
             return false; // if we failed to create display, do not continue
         }
 
@@ -135,7 +137,7 @@ public abstract class LwjglAbstractDisplay extends LwjglContext implements Runna
         return true;
     }
 
-    protected boolean checkGLError(){
+    protected boolean checkGLError() {
         try {
             Util.checkGLError();
         } catch (OpenGLException ex){
