@@ -143,7 +143,11 @@ float renderProbe(vec3 viewDir, vec3 worldPos, vec3 normal, vec3 norm, float Rou
 
     if(lightProbeData[0][3] != 0.0){
         // oriented box probe
-        mat3 wToLocalRot = mat3(lightProbeData);
+        mat3 wToLocalRot;
+        wToLocalRot[0].xyz = lightProbeData[0].xyz;
+        wToLocalRot[1].xyz = lightProbeData[1].xyz;
+        wToLocalRot[2].xyz = lightProbeData[2].xyz;
+
         wToLocalRot = inverse(wToLocalRot);
         vec3 scale = vec3(lightProbeData[0][3], lightProbeData[1][3], lightProbeData[2][3]);
         #if NB_PROBES >= 2
