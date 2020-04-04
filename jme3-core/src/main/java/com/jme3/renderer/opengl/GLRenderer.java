@@ -506,12 +506,19 @@ public final class GLRenderer implements Renderer {
         if (hasExtension("GL_ARB_shader_storage_buffer_object")) {
             caps.add(Caps.ShaderStorageBufferObject);
             limits.put(Limits.ShaderStorageBufferObjectMaxBlockSize, getInteger(GL4.GL_MAX_SHADER_STORAGE_BLOCK_SIZE));
-            limits.put(Limits.ShaderStorageBufferObjectMaxComputeBlocks, getInteger(GL4.GL_MAX_COMPUTE_SHADER_STORAGE_BLOCKS));
-            limits.put(Limits.ShaderStorageBufferObjectMaxGeometryBlocks, getInteger(GL4.GL_MAX_GEOMETRY_SHADER_STORAGE_BLOCKS));
+            if (hasExtension("GL_ARB_compute_shader" ) || caps.contains(Caps.OpenGL43)) {
+                limits.put(Limits.ShaderStorageBufferObjectMaxComputeBlocks, getInteger(GL4.GL_MAX_COMPUTE_SHADER_STORAGE_BLOCKS));
+            }
+            if (hasExtension("GL_ARB_geometry_shader_4") || caps.contains(Caps.OpenGL32)) {
+                limits.put(Limits.ShaderStorageBufferObjectMaxGeometryBlocks, getInteger(GL4.GL_MAX_GEOMETRY_SHADER_STORAGE_BLOCKS));
+            }
             limits.put(Limits.ShaderStorageBufferObjectMaxFragmentBlocks, getInteger(GL4.GL_MAX_FRAGMENT_SHADER_STORAGE_BLOCKS));
             limits.put(Limits.ShaderStorageBufferObjectMaxVertexBlocks, getInteger(GL4.GL_MAX_VERTEX_SHADER_STORAGE_BLOCKS));
-            limits.put(Limits.ShaderStorageBufferObjectMaxTessControlBlocks, getInteger(GL4.GL_MAX_TESS_CONTROL_SHADER_STORAGE_BLOCKS));
-            limits.put(Limits.ShaderStorageBufferObjectMaxTessEvaluationBlocks, getInteger(GL4.GL_MAX_TESS_EVALUATION_SHADER_STORAGE_BLOCKS));
+
+            if (hasExtension("GL_ARB_tessellation_shader") || caps.contains(Caps.OpenGL40)) {
+                limits.put(Limits.ShaderStorageBufferObjectMaxTessControlBlocks, getInteger(GL4.GL_MAX_TESS_CONTROL_SHADER_STORAGE_BLOCKS));
+                limits.put(Limits.ShaderStorageBufferObjectMaxTessEvaluationBlocks, getInteger(GL4.GL_MAX_TESS_EVALUATION_SHADER_STORAGE_BLOCKS));
+            }
             limits.put(Limits.ShaderStorageBufferObjectMaxCombineBlocks, getInteger(GL4.GL_MAX_COMBINED_SHADER_STORAGE_BLOCKS));
         }
 
