@@ -36,8 +36,6 @@ import com.jme3.renderer.RendererException;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * This class uses Reflection to intercept method calls to the Proxy Object ({@link #createProxy(GL, Object, Class[])}
@@ -54,7 +52,6 @@ public class GLDebug implements InvocationHandler {
     protected Object obj;
     protected GL gl;
     protected Method methodGlGetError;
-    private static final Logger LOG = Logger.getLogger(GLDebug.class.getName());
 
     private GLDebug(GL gl, Object obj) throws NoSuchMethodException {
         this.gl = gl;
@@ -134,8 +131,8 @@ public class GLDebug implements InvocationHandler {
                     new GLDebug(gl, obj)
             );
         } catch (NoSuchMethodException nsme) {
-            throw new IllegalStateException("Could not initialize the proxy because the glGetError method wasn't found!",
-                    nsme);
+            throw new IllegalArgumentException ("Could not initialize the proxy because the glGetError method wasn't " +
+                    "found!", nsme);
         }
     }
 }
