@@ -50,7 +50,7 @@ import com.jme3.renderer.opengl.GL;
 import com.jme3.renderer.opengl.GL2;
 import com.jme3.renderer.opengl.GL3;
 import com.jme3.renderer.opengl.GL4;
-import com.jme3.renderer.opengl.GLDebugDesktop;
+import com.jme3.renderer.opengl.GLDebug;
 import com.jme3.renderer.opengl.GLExt;
 import com.jme3.renderer.opengl.GLFbo;
 import com.jme3.renderer.opengl.GLRenderer;
@@ -270,9 +270,9 @@ public abstract class LwjglContext implements JmeContext {
             }
             
             if (settings.getBoolean("GraphicsDebug")) {
-                gl = new GLDebugDesktop(gl, glext, glfbo);
-                glext = (GLExt) gl;
-                glfbo = (GLFbo) gl;
+                gl = (GL) GLDebug.createProxy(gl, gl, GL.class, GL2.class, GL3.class, GL4.class);
+                glext = (GLExt) GLDebug.createProxy(gl, glext, GLExt.class);
+                glfbo = (GLFbo) GLDebug.createProxy(gl, glfbo, GLFbo.class);
             }
             if (settings.getBoolean("GraphicsTiming")) {
                 GLTimingState timingState = new GLTimingState();
