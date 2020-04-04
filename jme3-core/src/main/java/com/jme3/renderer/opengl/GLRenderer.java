@@ -525,7 +525,9 @@ public final class GLRenderer implements Renderer {
         if (hasExtension("GL_ARB_uniform_buffer_object")) {
             caps.add(Caps.UniformBufferObject);
             limits.put(Limits.UniformBufferObjectMaxBlockSize, getInteger(GL3.GL_MAX_UNIFORM_BLOCK_SIZE));
-            limits.put(Limits.UniformBufferObjectMaxGeometryBlocks, getInteger(GL3.GL_MAX_GEOMETRY_UNIFORM_BLOCKS));
+            if (hasExtension("GL_ARB_geometry_shader_4") || caps.contains(Caps.OpenGL32)) {
+                limits.put(Limits.UniformBufferObjectMaxGeometryBlocks, getInteger(GL3.GL_MAX_GEOMETRY_UNIFORM_BLOCKS));
+            }
             limits.put(Limits.UniformBufferObjectMaxFragmentBlocks, getInteger(GL3.GL_MAX_FRAGMENT_UNIFORM_BLOCKS));
             limits.put(Limits.UniformBufferObjectMaxVertexBlocks, getInteger(GL3.GL_MAX_VERTEX_UNIFORM_BLOCKS));
         }
