@@ -92,6 +92,7 @@ public class JmeBatchRenderBackend implements BatchRenderBackend {
     private int textureAtlasId = 1;
     private Batch currentBatch;
     private Matrix4f tempMat = new Matrix4f();
+    private ByteBuffer initialData = null;
 
     // this is only used for debugging purpose and will make the removed textures filled with a color
     // please note: the old way to init this via a system property has been
@@ -185,7 +186,20 @@ public class JmeBatchRenderBackend implements BatchRenderBackend {
     @Override
     public int createTextureAtlas(final int width, final int height) {
         try {
+            // we initialize a buffer here that will be used as base for all texture atlas images
+            if (initialData==null)
+            {
+                initialData = BufferUtils.createByteBuffer(width * height * 4);
+                for (int i = 0; i < width * height; i++) {
+                    initialData.put((byte) 0x00);
+                    initialData.put((byte) 0x00);
+                    initialData.put((byte) 0x00);
+                    initialData.put((byte) 0xff);
+                }
+            }
+
             int atlasId = addTexture(createAtlasTextureInternal(width, height));
+
             return atlasId;
         } catch (Exception e) {
             log.log(Level.WARNING, e.getMessage(), e);
@@ -196,17 +210,8 @@ public class JmeBatchRenderBackend implements BatchRenderBackend {
 
     @Override
     public void clearTextureAtlas(final int atlasId) {
-        com.jme3.texture.Image atlasImage=getTextureAtlas(atlasId).getImage();
-        ByteBuffer atlasBuffer=atlasImage.getData(0);
-        atlasBuffer.rewind();
-        for (int i=0; i<atlasImage.getWidth()*atlasImage.getHeight(); i++) {
-            atlasBuffer.put((byte) 0x00);
-            atlasBuffer.put((byte) 0xff);
-            atlasBuffer.put((byte) 0x00);
-            atlasBuffer.put((byte) 0xff);
-        }
-        atlasBuffer.rewind();
-        atlasImage.setUpdateNeeded();
+        initialData.rewind();
+        getTextureAtlas(atlasId).getImage().setData(initialData);
     }
 
     @Override
@@ -367,10 +372,7 @@ public class JmeBatchRenderBackend implements BatchRenderBackend {
 
     // internal implementations
     private Texture2D createAtlasTextureInternal(final int width, final int height) throws Exception {
-        ByteBuffer initialData = BufferUtils.createByteBuffer(width * height * 4);
-        for (int i = 0; i < width * height * 4; i++) {
-            initialData.put((byte) 0x00);
-        }
+	// re-use pre-defined initial data instead of creating a new buffer
         initialData.rewind();
 
         Texture2D texture = new Texture2D(new com.jme3.texture.Image(Format.RGBA8, width, height, initialData, ColorSpace.sRGB));
@@ -637,3 +639,4 @@ public class JmeBatchRenderBackend implements BatchRenderBackend {
         }
     }
 }
+
