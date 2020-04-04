@@ -43,9 +43,11 @@ out vec4 outFragColor;
 #endif
 
 #if __VERSION__ == 110
-mat3 mat3(mat4 m) {
+mat3 mat3_sub(mat4 m) {
   return mat3(m[0].xyz, m[1].xyz, m[2].xyz);
 }
+#else
+ #define mat3_sub mat3
 #endif
 
 #if __VERSION__ <= 140
