@@ -314,26 +314,36 @@ public class AndroidTouchInput implements TouchInput {
 
         TouchEvent evt;
         // TODO: get touch event from pool
-        if (event.getAction() == KeyEvent.ACTION_DOWN) {
-            evt = new TouchEvent();
-            evt.set(TouchEvent.Type.KEY_DOWN);
-            evt.setKeyCode(event.getKeyCode());
-            evt.setCharacters(event.getCharacters());
-            evt.setTime(event.getEventTime());
-
-            // Send the event
-            addEvent(evt);
-
-        } else if (event.getAction() == KeyEvent.ACTION_UP) {
-            evt = new TouchEvent();
-            evt.set(TouchEvent.Type.KEY_UP);
-            evt.setKeyCode(event.getKeyCode());
-            evt.setCharacters(event.getCharacters());
-            evt.setTime(event.getEventTime());
-
-            // Send the event
-            addEvent(evt);
-
+        switch (event.getAction()) {
+            case KeyEvent.ACTION_DOWN:
+                evt = new TouchEvent();
+                evt.set(TouchEvent.Type.KEY_DOWN);
+                evt.setKeyCode(event.getKeyCode());
+                evt.setCharacters(event.getCharacters());
+                evt.setTime(event.getEventTime());
+                // Send the event
+                addEvent(evt);
+                break;
+            case KeyEvent.ACTION_UP:
+                evt = new TouchEvent();
+                evt.set(TouchEvent.Type.KEY_UP);
+                evt.setKeyCode(event.getKeyCode());
+                evt.setCharacters(event.getCharacters());
+                evt.setTime(event.getEventTime());
+                // Send the event
+                addEvent(evt);
+                break;
+            case KeyEvent.ACTION_MULTIPLE:
+                evt = new TouchEvent();
+                evt.set(TouchEvent.Type.KEY_MULTIPLE);
+                evt.setKeyCode(event.getKeyCode());
+                evt.setCharacters(event.getCharacters());
+                evt.setTime(event.getEventTime());
+                // Send the event
+                addEvent(evt);
+                break;
+            default:
+                break;
         }
 
         if (isSimulateKeyboard()) {
