@@ -1,8 +1,9 @@
 package jme3test.model.anim;
 
-import com.jme3.animation.AnimControl;
-import com.jme3.animation.Animation;
-import com.jme3.animation.SpatialTrack;
+import com.jme3.anim.AnimClip;
+import com.jme3.anim.AnimComposer;
+import com.jme3.anim.AnimTrack;
+import com.jme3.anim.TransformTrack;
 import com.jme3.app.SimpleApplication;
 import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
@@ -11,7 +12,6 @@ import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.shape.Box;
-import java.util.HashMap;
 
 public class TestSpatialAnim extends SimpleApplication {
 
@@ -66,22 +66,20 @@ public class TestSpatialAnim extends SimpleApplication {
         	rotations[i] = Quaternion.IDENTITY;
         	scales[i] = Vector3f.UNIT_XYZ;
         }
-        SpatialTrack spatialTrack = new SpatialTrack(times, translations, rotations, scales);
-        
-        //creating the animation
-        Animation spatialAnimation = new Animation("anim", animTime);
-        spatialAnimation.setTracks(new SpatialTrack[] { spatialTrack });
-        
-        //create spatial animation control
-        AnimControl control = new AnimControl();
-        HashMap<String, Animation> animations = new HashMap<String, Animation>();
-        animations.put("anim", spatialAnimation);
-        control.setAnimations(animations);
-        model.addControl(control);
+        TransformTrack transformTrack = new TransformTrack(geom, times, translations, rotations, scales);
+        TransformTrack transformTrackChild = new TransformTrack(childGeom, times, translations, rotations, scales);
+        // creating the animation
+        AnimClip animClip = new AnimClip("anim");
+        animClip.setTracks(new AnimTrack[] { transformTrack, transformTrackChild });
 
+        // create spatial animation control
+        AnimComposer animComposer = new AnimComposer();
+        animComposer.addAnimClip(animClip);
+
+        model.addControl(animComposer);
         rootNode.attachChild(model);
-        
-        //run animation
-        control.createChannel().setAnim("anim");
+
+        // run animation
+        model.getControl(AnimComposer.class).setCurrentAction("anim");
     }
 }
