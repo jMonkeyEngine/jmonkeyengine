@@ -32,8 +32,9 @@
 
 package jme3test.model.anim;
 
-import com.jme3.animation.AnimChannel;
-import com.jme3.animation.AnimControl;
+import com.jme3.anim.AnimClip;
+import com.jme3.anim.AnimComposer;
+import com.jme3.anim.util.AnimMigrationUtils;
 import com.jme3.app.SimpleApplication;
 import com.jme3.asset.BlenderKey;
 import com.jme3.light.DirectionalLight;
@@ -45,49 +46,50 @@ import com.jme3.scene.Spatial;
 
 public class TestBlenderAnim extends SimpleApplication {
 
-    private AnimChannel channel;
-    private AnimControl control;
+	public static void main(String[] args) {
+		TestBlenderAnim app = new TestBlenderAnim();
+		app.start();
+	}
 
-    public static void main(String[] args) {
-    	TestBlenderAnim app = new TestBlenderAnim();
-        app.start();
-    }
+	@Override
+	public void simpleInitApp() {
+		flyCam.setMoveSpeed(10f);
+		cam.setLocation(new Vector3f(6.4013605f, 7.488437f, 12.843031f));
+		cam.setRotation(new Quaternion(-0.060740203f, 0.93925786f, -0.2398315f, -0.2378785f));
 
-    @Override
-    public void simpleInitApp() {
-        flyCam.setMoveSpeed(10f);
-        cam.setLocation(new Vector3f(6.4013605f, 7.488437f, 12.843031f));
-        cam.setRotation(new Quaternion(-0.060740203f, 0.93925786f, -0.2398315f, -0.2378785f));
+		DirectionalLight dl = new DirectionalLight();
+		dl.setDirection(new Vector3f(-0.1f, -0.7f, -1).normalizeLocal());
+		dl.setColor(new ColorRGBA(1f, 1f, 1f, 1.0f));
+		rootNode.addLight(dl);
 
-        DirectionalLight dl = new DirectionalLight();
-        dl.setDirection(new Vector3f(-0.1f, -0.7f, -1).normalizeLocal());
-        dl.setColor(new ColorRGBA(1f, 1f, 1f, 1.0f));
-        rootNode.addLight(dl);
+		BlenderKey blenderKey = new BlenderKey("Blender/2.4x/BaseMesh_249.blend");
 
-        BlenderKey blenderKey = new BlenderKey("Blender/2.4x/BaseMesh_249.blend");
-        
-        Spatial scene = assetManager.loadModel(blenderKey);
-        rootNode.attachChild(scene);
-        
-        Spatial model = this.findNode(rootNode, "BaseMesh_01");
-        model.center();
-        
-        control = model.getControl(AnimControl.class);
-        channel = control.createChannel();
+		Spatial scene = assetManager.loadModel(blenderKey);
+		rootNode.attachChild(scene);
 
-        channel.setAnim("run_01");
-    }
-    
-    /**
-     * This method finds a node of a given name.
-     * @param rootNode the root node to search
-     * @param name the name of the searched node
-     * @return the found node or null
-     */
-    private Spatial findNode(Node rootNode, String name) {
-        if (name.equals(rootNode.getName())) {
-            return rootNode;
-        }
-        return rootNode.getChild(name);
-    }
+		Spatial model = this.findNode(rootNode, "BaseMesh_01");
+		AnimMigrationUtils.migrate(model);
+		model.center();
+
+		AnimComposer animComposer = model.getControl(AnimComposer.class);
+		animComposer.getAnimClips().forEach(animClip -> System.out.println("AnimClip name: " + animClip.getName()));
+		AnimClip animClip = animComposer.getAnimClip("run_01"); // run_sideway_left, aim, run_sideway_right, base_stand, run_01, base, jump
+		animComposer.setCurrentAction(animClip.getName());
+	}
+
+	/**
+	 * This method finds a node of a given name.
+	 * 
+	 * @param rootNode
+	 *            the root node to search
+	 * @param name
+	 *            the name of the searched node
+	 * @return the found node or null
+	 */
+	private Spatial findNode(Node rootNode, String name) {
+		if (name.equals(rootNode.getName())) {
+			return rootNode;
+		}
+		return rootNode.getChild(name);
+	}
 }
