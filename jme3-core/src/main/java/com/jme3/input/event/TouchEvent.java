@@ -103,7 +103,11 @@ public class TouchEvent extends InputEvent {
         SHOWPRESS,
         // Others
         OUTSIDE,
-        IDLE
+        IDLE,
+        /**
+         * Virtual keyboard or hardware key event up, fields: keyCode, characters
+         */
+        KEY_MULTIPLE
     }
     private Type type = Type.IDLE;
     private int pointerId;
