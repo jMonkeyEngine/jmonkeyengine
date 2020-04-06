@@ -64,17 +64,18 @@ public class TestSceneLoading extends SimpleApplication {
 
     @Override
     public void simpleInitApp() {
+        File file = new File("wildhouse.zip");
+        if (!file.exists()) {
+            useHttp = true;
+        }
+        
         this.flyCam.setMoveSpeed(10);
 
         // load sky
         rootNode.attachChild(SkyFactory.createSky(assetManager, 
                 "Textures/Sky/Bright/BrightSky.dds", 
                 SkyFactory.EnvMapType.CubeMap));
-
-        File file = new File("wildhouse.zip");
-        if (!file.exists()) {
-            useHttp = true;
-        }
+        
         // create the geometry and attach it
         // load the level from zip or http zip
         if (useHttp) {
