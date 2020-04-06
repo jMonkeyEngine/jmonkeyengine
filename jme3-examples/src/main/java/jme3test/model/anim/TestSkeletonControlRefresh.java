@@ -71,7 +71,7 @@ public class TestSkeletonControlRefresh extends SimpleApplication implements Act
     private List<SkinningControl> skinningControls = new ArrayList<>();
 
     private final static int SIZE = 10;
-    private boolean hwSkinningEnable = false;
+    private boolean hwSkinningEnable = true;
     private BitmapText hwsText;
 
     public static void main(String[] args) {
