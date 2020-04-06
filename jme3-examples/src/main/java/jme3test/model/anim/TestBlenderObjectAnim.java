@@ -32,8 +32,9 @@
 
 package jme3test.model.anim;
 
-import com.jme3.animation.AnimChannel;
-import com.jme3.animation.AnimControl;
+import com.jme3.anim.AnimClip;
+import com.jme3.anim.AnimComposer;
+import com.jme3.anim.util.AnimMigrationUtils;
 import com.jme3.app.SimpleApplication;
 import com.jme3.asset.BlenderKey;
 import com.jme3.light.DirectionalLight;
@@ -44,9 +45,6 @@ import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 
 public class TestBlenderObjectAnim extends SimpleApplication {
-
-    private AnimChannel channel;
-    private AnimControl control;
 
     public static void main(String[] args) {
     	TestBlenderObjectAnim app = new TestBlenderObjectAnim();
@@ -72,10 +70,13 @@ public class TestBlenderObjectAnim extends SimpleApplication {
         Spatial model = this.findNode(rootNode, "Cube");
         model.center();
         
-        control = model.getControl(AnimControl.class);
-        channel = control.createChannel();
+		// Because it's old .blend file need to migrate object.
+		AnimMigrationUtils.migrate(model);
 
-        channel.setAnim("Action");
+		AnimComposer animComposer = model.getControl(AnimComposer.class);
+		animComposer.getAnimClips().forEach(animClip -> System.out.println("AnimClip name: " + animClip.getName()));
+		AnimClip animClip = animComposer.getAnimClip("Action"); // Action, Action.001
+		animComposer.setCurrentAction(animClip.getName());
     }
     
     /**
