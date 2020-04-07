@@ -104,10 +104,10 @@ public class TestSkeletonControlRefresh extends SimpleApplication implements Act
                 model.setLocalTranslation(i - SIZE / 2, 0, j - SIZE / 2);
 
                 animComposer = model.getControl(AnimComposer.class);
-                animComposer.getAnimClips().forEach(animClip -> {
+                for (AnimClip animClip : animComposer.getAnimClips()) {
                     Action action = animComposer.action(animClip.getName());
                     animComposer.addAction(animClip.getName(), new NoLoopAction(action, animComposer));
-                });
+                }
                 animComposer.setCurrentAction(new ArrayList<>(animComposer.getAnimClips()).get((i + j) % 4).getName());
 
                 SkinningControl skinningControl = model.getControl(SkinningControl.class);
@@ -157,7 +157,9 @@ public class TestSkeletonControlRefresh extends SimpleApplication implements Act
     public void onAction(String name, boolean isPressed, float tpf) {
         if (isPressed && name.equals("toggleHWS")) {
             hwSkinningEnable = !hwSkinningEnable;
-            skinningControls.forEach(sc -> sc.setHardwareSkinningPreferred(hwSkinningEnable));
+            for (SkinningControl sc : skinningControls) {
+                sc.setHardwareSkinningPreferred(hwSkinningEnable);
+            }
             hwsText.setText("HWS : " + hwSkinningEnable);
         }
     }
