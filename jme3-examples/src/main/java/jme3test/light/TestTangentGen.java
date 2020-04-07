@@ -129,9 +129,9 @@ public class TestTangentGen extends SimpleApplication {
         IntBuffer ib = BufferUtils.createIntBuffer(indexes.length);
         ib.put(indexes);
         strip.setBuffer(Type.Position, 3, vb);
-		strip.setBuffer(Type.Normal, 3, nb);
-		strip.setBuffer(Type.TexCoord, 2, tb);
-		strip.setBuffer(Type.Index, 3, ib);
+        strip.setBuffer(Type.Normal, 3, nb);
+        strip.setBuffer(Type.TexCoord, 2, tb);
+        strip.setBuffer(Type.Index, 3, ib);
         strip.updateBound();
         return strip;
     }
