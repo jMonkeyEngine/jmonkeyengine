@@ -155,7 +155,7 @@ public class TestVertexBufferSharing extends SimpleApplication {
             }
             LOG.info("create new program from sources");
         }
-		program.register();
+        program.register();
         kernel = program.createKernel("ScaleKernel").register();
     }
     private void initOpenCL2() {

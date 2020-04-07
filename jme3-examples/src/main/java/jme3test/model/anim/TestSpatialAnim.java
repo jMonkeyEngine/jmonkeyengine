@@ -16,7 +16,7 @@ import com.jme3.scene.shape.Box;
 public class TestSpatialAnim extends SimpleApplication {
 
     public static void main(String[] args) {
-    	TestSpatialAnim app = new TestSpatialAnim();
+        TestSpatialAnim app = new TestSpatialAnim();
         app.start();
     }
 
@@ -58,13 +58,13 @@ public class TestSpatialAnim extends SimpleApplication {
         Vector3f[] translations = new Vector3f[totalFrames];
         Quaternion[] rotations = new Quaternion[totalFrames];
         Vector3f[] scales = new Vector3f[totalFrames];
-		for (int i = 0; i < totalFrames; ++i) {
-        	times[i] = t;
-        	t += dT;
-        	translations[i] = new Vector3f(x, 0, 0);
-        	x += dX;
-        	rotations[i] = Quaternion.IDENTITY;
-        	scales[i] = Vector3f.UNIT_XYZ;
+        for (int i = 0; i < totalFrames; ++i) {
+                times[i] = t;
+                t += dT;
+                translations[i] = new Vector3f(x, 0, 0);
+                x += dX;
+                rotations[i] = Quaternion.IDENTITY;
+                scales[i] = Vector3f.UNIT_XYZ;
         }
         TransformTrack transformTrack = new TransformTrack(geom, times, translations, rotations, scales);
         TransformTrack transformTrackChild = new TransformTrack(childGeom, times, translations, rotations, scales);

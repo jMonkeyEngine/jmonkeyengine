@@ -47,7 +47,7 @@ import com.jme3.scene.Spatial;
 public class TestBlenderObjectAnim extends SimpleApplication {
 
     public static void main(String[] args) {
-    	TestBlenderObjectAnim app = new TestBlenderObjectAnim();
+        TestBlenderObjectAnim app = new TestBlenderObjectAnim();
         app.start();
     }
 
@@ -70,13 +70,13 @@ public class TestBlenderObjectAnim extends SimpleApplication {
         Spatial model = this.findNode(rootNode, "Cube");
         model.center();
         
-		// Because it's old .blend file need to migrate object.
-		AnimMigrationUtils.migrate(model);
+        // Because it's old .blend file need to migrate object.
+        AnimMigrationUtils.migrate(model);
 
-		AnimComposer animComposer = model.getControl(AnimComposer.class);
-		animComposer.getAnimClips().forEach(animClip -> System.out.println("AnimClip name: " + animClip.getName()));
-		AnimClip animClip = animComposer.getAnimClip("Action"); // Action, Action.001
-		animComposer.setCurrentAction(animClip.getName());
+        AnimComposer animComposer = model.getControl(AnimComposer.class);
+        animComposer.getAnimClips().forEach(animClip -> System.out.println("AnimClip name: " + animClip.getName()));
+        AnimClip animClip = animComposer.getAnimClip("Action"); // Action, Action.001
+        animComposer.setCurrentAction(animClip.getName());
     }
     
     /**
