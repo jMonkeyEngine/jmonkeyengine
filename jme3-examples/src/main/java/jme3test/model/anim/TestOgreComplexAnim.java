@@ -49,87 +49,87 @@ import com.jme3.scene.debug.custom.ArmatureDebugger;
 
 public class TestOgreComplexAnim extends SimpleApplication {
 
-	private SkinningControl skinningControl;
+    private SkinningControl skinningControl;
 
-	private float angle = 0;
-	private float rate = 1;
+    private float angle = 0;
+    private float rate = 1;
 
-	public static void main(String[] args) {
-		TestOgreComplexAnim app = new TestOgreComplexAnim();
-		app.start();
-	}
+    public static void main(String[] args) {
+        TestOgreComplexAnim app = new TestOgreComplexAnim();
+        app.start();
+    }
 
-	@Override
-	public void simpleInitApp() {
-		flyCam.setMoveSpeed(10f);
-		cam.setLocation(new Vector3f(6.4013605f, 7.488437f, 12.843031f));
-		cam.setRotation(new Quaternion(-0.060740203f, 0.93925786f, -0.2398315f, -0.2378785f));
+    @Override
+    public void simpleInitApp() {
+        flyCam.setMoveSpeed(10f);
+        cam.setLocation(new Vector3f(6.4013605f, 7.488437f, 12.843031f));
+        cam.setRotation(new Quaternion(-0.060740203f, 0.93925786f, -0.2398315f, -0.2378785f));
 
-		DirectionalLight dl = new DirectionalLight();
-		dl.setDirection(new Vector3f(-0.1f, -0.7f, -1).normalizeLocal());
-		dl.setColor(new ColorRGBA(1f, 1f, 1f, 1.0f));
-		rootNode.addLight(dl);
+        DirectionalLight dl = new DirectionalLight();
+        dl.setDirection(new Vector3f(-0.1f, -0.7f, -1).normalizeLocal());
+        dl.setColor(new ColorRGBA(1f, 1f, 1f, 1.0f));
+        rootNode.addLight(dl);
 
-		Node model = (Node) assetManager.loadModel("Models/Oto/Oto.mesh.xml");
+        Node model = (Node) assetManager.loadModel("Models/Oto/Oto.mesh.xml");
 
-		skinningControl = model.getControl(SkinningControl.class);
-		AnimComposer ac = model.getControl(AnimComposer.class);
+        skinningControl = model.getControl(SkinningControl.class);
+        AnimComposer ac = model.getControl(AnimComposer.class);
 
-		ArmatureMask feet = ArmatureMask.createMask(skinningControl.getArmature(), "hip.right", "hip.left");
-		Action dodgeAction = ac.action("Dodge");
-		dodgeAction.setMask(feet);
-		dodgeAction.setSpeed(2f);
-		Action walkAction = ac.action("Walk");
-		walkAction.setMask(feet);
-		walkAction.setSpeed(0.25f);
+        ArmatureMask feet = ArmatureMask.createMask(skinningControl.getArmature(), "hip.right", "hip.left");
+        Action dodgeAction = ac.action("Dodge");
+        dodgeAction.setMask(feet);
+        dodgeAction.setSpeed(2f);
+        Action walkAction = ac.action("Walk");
+        walkAction.setMask(feet);
+        walkAction.setSpeed(0.25f);
 
-		ArmatureMask rightHand = ArmatureMask.createMask(skinningControl.getArmature(), "uparm.right");
-		Action pullAction = ac.action("pull");
-		pullAction.setMask(rightHand);
-		pullAction.setSpeed(0.5f);
-		Action standAction = ac.action("stand");
-		standAction.setMask(rightHand);
-		standAction.setSpeed(0.5f);
+        ArmatureMask rightHand = ArmatureMask.createMask(skinningControl.getArmature(), "uparm.right");
+        Action pullAction = ac.action("pull");
+        pullAction.setMask(rightHand);
+        pullAction.setSpeed(0.5f);
+        Action standAction = ac.action("stand");
+        standAction.setMask(rightHand);
+        standAction.setSpeed(0.5f);
 
-		ac.actionSequence("complexAction",
-		        ac.actionSequence("feetAction", dodgeAction, walkAction),
-		        ac.actionSequence("rightHandAction", pullAction, standAction));
+        ac.actionSequence("complexAction",
+                ac.actionSequence("feetAction", dodgeAction, walkAction),
+                ac.actionSequence("rightHandAction", pullAction, standAction));
 
-		ac.setCurrentAction("complexAction");
+        ac.setCurrentAction("complexAction");
 
-		Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-		mat.getAdditionalRenderState().setWireframe(true);
-		mat.setColor("Color", ColorRGBA.Green);
-		mat.setFloat("PointSize", 7f); // Bug ? do not change size of debug points ?
-		mat.getAdditionalRenderState().setDepthTest(false);
+        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        mat.getAdditionalRenderState().setWireframe(true);
+        mat.setColor("Color", ColorRGBA.Green);
+        mat.setFloat("PointSize", 7f); // Bug ? do not change size of debug points ?
+        mat.getAdditionalRenderState().setDepthTest(false);
 
-		ArmatureDebugger armatureDebug = new ArmatureDebugger("armature", skinningControl.getArmature(),
-		        skinningControl.getArmature().getJointList());
-		armatureDebug.setMaterial(mat);
-		model.attachChild(armatureDebug);
+        ArmatureDebugger armatureDebug = new ArmatureDebugger("armature", skinningControl.getArmature(),
+                skinningControl.getArmature().getJointList());
+        armatureDebug.setMaterial(mat);
+        model.attachChild(armatureDebug);
 
-		rootNode.attachChild(model);
-	}
+        rootNode.attachChild(model);
+    }
 
-	@Override
-	public void simpleUpdate(float tpf) {
-		Joint j = skinningControl.getArmature().getJoint("spinehigh");
-		Joint j2 = skinningControl.getArmature().getJoint("uparm.left");
+    @Override
+    public void simpleUpdate(float tpf) {
+        Joint j = skinningControl.getArmature().getJoint("spinehigh");
+        Joint j2 = skinningControl.getArmature().getJoint("uparm.left");
 
-		angle += tpf * rate;
-		if (angle > FastMath.HALF_PI / 2f) {
-			angle = FastMath.HALF_PI / 2f;
-			rate = -1;
-		} else if (angle < -FastMath.HALF_PI / 2f) {
-			angle = -FastMath.HALF_PI / 2f;
-			rate = 1;
-		}
+        angle += tpf * rate;
+        if (angle > FastMath.HALF_PI / 2f) {
+            angle = FastMath.HALF_PI / 2f;
+            rate = -1;
+        } else if (angle < -FastMath.HALF_PI / 2f) {
+            angle = -FastMath.HALF_PI / 2f;
+            rate = 1;
+        }
 
-		Quaternion q = new Quaternion();
-		q.fromAngles(0, angle, 0);
+        Quaternion q = new Quaternion();
+        q.fromAngles(0, angle, 0);
 
-		j.setLocalRotation(j.getInitialTransform().getRotation().mult(q));
-		j2.setLocalScale(j.getInitialTransform().getScale().mult(new Vector3f(1 + angle, 1 + angle, 1 + angle)));
-	}
+        j.setLocalRotation(j.getInitialTransform().getRotation().mult(q));
+        j2.setLocalScale(j.getInitialTransform().getScale().mult(new Vector3f(1 + angle, 1 + angle, 1 + angle)));
+    }
 
 }
