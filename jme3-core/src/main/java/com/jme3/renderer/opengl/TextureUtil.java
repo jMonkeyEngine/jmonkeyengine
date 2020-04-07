@@ -32,7 +32,7 @@
 package com.jme3.renderer.opengl;
 
 import com.jme3.renderer.Caps;
-import com.jme3.renderer.RendererException;
+import com.jme3.renderer.UnsupportedImageFormatException;
 import com.jme3.texture.Image;
 import com.jme3.texture.Image.Format;
 import com.jme3.texture.image.ColorSpace;
@@ -99,7 +99,7 @@ final class TextureUtil {
             logger.log(Level.WARNING, "No sRGB format available for ''{0}''. Failling back to linear.", fmt);
         }
         if (glFmt == null) { 
-            throw new RendererException("Image format '" + fmt + "' is unsupported by the video hardware.");
+            throw new UnsupportedImageFormatException("Image format '" + fmt + "' is unsupported by the video hardware.");
         }
         return glFmt;
     }
