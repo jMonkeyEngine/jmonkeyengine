@@ -570,9 +570,9 @@ public class FastMathTest {
     @Test
     public void testInterpolateLinear_float() {
         assertEquals(0.0f, FastMath.interpolateLinear(2.0f, 2.93874e-39f, 0.0f), 0.0f);
-	    assertEquals(0.0f, FastMath.interpolateLinear(0.999999f, 1.4013e-45f, 0.0f), 0.0f);
-	    assertEquals(-2.93874e-39f, FastMath.interpolateLinear(0.0f, -2.93874e-39f, -0.0f), 0.0f);
-	    assertEquals(0.0f, FastMath.interpolateLinear(0.0f, 0.0f, 0.0f), 0.0f);
+        assertEquals(0.0f, FastMath.interpolateLinear(0.999999f, 1.4013e-45f, 0.0f), 0.0f);
+        assertEquals(-2.93874e-39f, FastMath.interpolateLinear(0.0f, -2.93874e-39f, -0.0f), 0.0f);
+        assertEquals(0.0f, FastMath.interpolateLinear(0.0f, 0.0f, 0.0f), 0.0f);
     }
 
     @Test

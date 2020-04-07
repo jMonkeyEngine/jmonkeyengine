@@ -107,12 +107,12 @@ public class HttpZipLocator implements AssetLocator {
     }
 
     private static int get16(byte[] b, int off) {
-	return  (b[off++] & 0xff) |
+        return  (b[off++] & 0xff) |
                ((b[off]   & 0xff) << 8);
     }
 
     private static int get32(byte[] b, int off) {
-	return  (b[off++] & 0xff) |
+        return  (b[off++] & 0xff) |
                ((b[off++] & 0xff) << 8) |
                ((b[off++] & 0xff) << 16) |
                ((b[off] & 0xff) << 24);
@@ -246,13 +246,13 @@ public class HttpZipLocator implements AssetLocator {
     private void fillByteArray(byte[] array, InputStream source) throws IOException{
         int total = 0;
         int length = array.length;
-	while (total < length) {
-	    int read = source.read(array, total, length - total);
+        while (total < length) {
+            int read = source.read(array, total, length - total);
             if (read < 0)
                 throw new IOException("Failed to read entire array");
 
-	    total += read;
-	}
+            total += read;
+        }
     }
 
     private void readCentralDirectory() throws IOException{

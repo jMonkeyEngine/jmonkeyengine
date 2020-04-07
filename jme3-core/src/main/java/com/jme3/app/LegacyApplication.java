@@ -726,7 +726,7 @@ public class LegacyApplication implements Application, SystemListener {
      * Runs tasks enqueued via {@link #enqueue(Callable)}
      */
     protected void runQueuedTasks() {
-	  AppTask<?> task;
+        AppTask<?> task;
         while( (task = taskQueue.poll()) != null ) {
             if (!task.isCancelled()) {
                 task.invoke();

@@ -284,7 +284,7 @@ public abstract class BoundingVolume implements Savable, Cloneable, Collidable {
      *            the bounding box to test against.
      * @return true if this volume intersects the given bounding box.
      */
-//	public abstract boolean intersectsOrientedBoundingBox(OrientedBoundingBox bb);
+//  public abstract boolean intersectsOrientedBoundingBox(OrientedBoundingBox bb);
     /**
      * 
      * determines if a given point is contained within this bounding volume.

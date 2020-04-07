@@ -121,8 +121,8 @@ public final class Intersection {
 //    private boolean axisTestX01(float a, float b, float fa, float fb,
 //                             Vector3f center, Vector3f ext,
 //                             Vector3f v1, Vector3f v2, Vector3f v3){
-//	float p0 = a * v0.y - b * v0.z;
-//	float p2 = a * v2.y - b * v2.z;
+//      float p0 = a * v0.y - b * v0.z;
+//      float p2 = a * v2.y - b * v2.z;
 //        if(p0 < p2){
 //            min = p0;
 //            max = p2;
@@ -130,8 +130,8 @@ public final class Intersection {
 //            min = p2;
 //            max = p0;
 //        }
-//	float rad = fa * boxhalfsize.y + fb * boxhalfsize.z;
-//	if(min > rad || max < -rad)
+//      float rad = fa * boxhalfsize.y + fb * boxhalfsize.z;
+//      if(min > rad || max < -rad)
 //            return false;
 //    }
     public static boolean intersect(BoundingBox bbox, Vector3f v1, Vector3f v2, Vector3f v3) {

@@ -161,8 +161,8 @@ MaterialDef bad-booleans2 {
             PSSM : Splits
             POINTLIGHT : LightViewProjectionMatrix5
             NUM_BONES : NumberOfBones
-	        INSTANCING : UseInstancing
-	        BACKFACE_SHADOWS: BackfaceShadows
+            INSTANCING : UseInstancing
+            BACKFACE_SHADOWS: BackfaceShadows
             NUM_MORPH_TARGETS: NumberOfMorphTargets
             NUM_TARGETS_BUFFERS: NumberOfTargetsBuffers
         }
@@ -190,7 +190,7 @@ MaterialDef bad-booleans2 {
             HAS_GLOWMAP : GlowMap
             HAS_GLOWCOLOR : GlowColor
             NUM_BONES : NumberOfBones
-	        INSTANCING : UseInstancing
+            INSTANCING : UseInstancing
             HAS_POINTSIZE : PointSize
             NUM_MORPH_TARGETS: NumberOfMorphTargets
             NUM_TARGETS_BUFFERS: NumberOfTargetsBuffers

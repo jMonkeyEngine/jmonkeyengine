@@ -150,24 +150,24 @@ public class BoundingSphere extends BoundingVolume {
 //     * <code>computeFromTris</code> creates a new Bounding Box from a given
 //     * set of triangles. It is used in OBBTree calculations.
 //     *
-//	 * @param indices
-//	 * @param mesh
+//     * @param indices
+//     * @param mesh
 //     * @param start
 //     * @param end
 //     */
 //    public void computeFromTris(int[] indices, Mesh mesh, int start, int end) {
-//    	if (end - start <= 0) {
+//        if (end - start <= 0) {
 //            return;
 //        }
 //
-//    	Vector3f[] vertList = new Vector3f[(end - start) * 3];
+//        Vector3f[] vertList = new Vector3f[(end - start) * 3];
 //
 //        int count = 0;
 //        for (int i = start; i < end; i++) {
-//        	mesh.getTriangle(indices[i], verts);
-//        	vertList[count++] = new Vector3f(verts[0]);
-//        	vertList[count++] = new Vector3f(verts[1]);
-//        	vertList[count++] = new Vector3f(verts[2]);
+//              mesh.getTriangle(indices[i], verts);
+//              vertList[count++] = new Vector3f(verts[0]);
+//              vertList[count++] = new Vector3f(verts[1]);
+//              vertList[count++] = new Vector3f(verts[2]);
 //        }
 //
 //        averagePoints(vertList);
@@ -492,7 +492,7 @@ public class BoundingSphere extends BoundingVolume {
             }
 
 //        case OBB: {
-//        	OrientedBoundingBox box = (OrientedBoundingBox) volume;
+//            OrientedBoundingBox box = (OrientedBoundingBox) volume;
 //            BoundingSphere rVal = (BoundingSphere) this.clone(null);
 //            return rVal.mergeOBB(box);
 //        }
@@ -539,7 +539,7 @@ public class BoundingSphere extends BoundingVolume {
             }
 
 //        case OBB: {
-//        	return mergeOBB((OrientedBoundingBox) volume);
+//            return mergeOBB((OrientedBoundingBox) volume);
 //        }
 
             default:

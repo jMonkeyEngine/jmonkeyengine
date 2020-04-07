@@ -317,7 +317,7 @@ public class EnvMapUtils {
         }
 
         //compute vector depending on the face
-        // Code from Nvtt : http://code.google.com/p/nvidia-texture-tools/source/browse/trunk/src/nvtt/CubeSurface.cpp	
+        // Code from Nvtt : http://code.google.com/p/nvidia-texture-tools/source/browse/trunk/src/nvtt/CubeSurface.cpp
         switch (face) {
             case 0:
                 //store.set(1f, -v, -u, 0);
@@ -360,7 +360,7 @@ public class EnvMapUtils {
         v *= bias;
 
         if (fixSeamsMethod == FixSeamsMethod.Stretch) {
-            /* Code from Nvtt : http://code.google.com/p/nvidia-texture-tools/source/browse/trunk/src/nvtt/CubeSurface.cpp		
+            /* Code from Nvtt : http://code.google.com/p/nvidia-texture-tools/source/browse/trunk/src/nvtt/CubeSurface.cpp
              * transform from [0..res - 1] to [-1 .. 1], match up edges exactly. */
             u = Math.round((u + 1.0f) * (mapSize - 1.0f) * 0.5f);
             v = Math.round((v + 1.0f) * (mapSize - 1.0f) * 0.5f);

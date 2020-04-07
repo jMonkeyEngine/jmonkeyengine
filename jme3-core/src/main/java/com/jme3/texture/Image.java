@@ -266,7 +266,7 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
          * half-precision floating point red, green, and blue.
          * 
          * Requires {@link Caps#FloatTexture}.
-		 * May be supported for renderbuffers, but the OpenGL specification does not require it.
+         * May be supported for renderbuffers, but the OpenGL specification does not require it.
          */
         RGB16F(48,true),
         
@@ -281,7 +281,7 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
          * single-precision floating point red, green, and blue.
          * 
          * Requires {@link Caps#FloatTexture}.
-		 * May be supported for renderbuffers, but the OpenGL specification does not require it.
+         * May be supported for renderbuffers, but the OpenGL specification does not require it.
          */
         RGB32F(96,true),
         
@@ -466,8 +466,8 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
          * Requires {@link Caps#IntegerTexture}.
          */
         RGBA32UI(128),
-		
-		/**
+
+        /**
          * half-precision floating point red.
          * 
          * Requires {@link Caps#FloatTexture}.

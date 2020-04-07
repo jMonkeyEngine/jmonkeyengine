@@ -71,7 +71,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
             Float.NEGATIVE_INFINITY);
 
     
-	/**
+    /**
      * the x value of the vector.
      */
     public float x;
