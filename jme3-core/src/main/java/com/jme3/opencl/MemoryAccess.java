@@ -40,13 +40,13 @@ public enum MemoryAccess {
     /**
      * A kernel can both read and write the buffer.
      */
-	READ_WRITE,
+    READ_WRITE,
     /**
      * A kernel can only write this buffer.
      */
-	WRITE_ONLY,
+    WRITE_ONLY,
     /**
      * A kernel can only read this buffer
      */
-	READ_ONLY
+    READ_ONLY
 }

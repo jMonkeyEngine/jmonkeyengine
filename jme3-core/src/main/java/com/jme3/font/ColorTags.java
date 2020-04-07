@@ -46,7 +46,7 @@ import java.util.regex.Pattern;
  */
 class ColorTags {
     private static final Pattern colorPattern = Pattern.compile("\\\\#([0-9a-fA-F]{8})#|\\\\#([0-9a-fA-F]{6})#|" +
-    		                                                    "\\\\#([0-9a-fA-F]{4})#|\\\\#([0-9a-fA-F]{3})#");
+                                                                "\\\\#([0-9a-fA-F]{4})#|\\\\#([0-9a-fA-F]{3})#");
     private LinkedList<Range> colors = new LinkedList<Range>();
     private String text;
     private String original;

@@ -45,7 +45,7 @@ public abstract class AbstractOpenCLObject implements OpenCLObject {
     @Override
     public AbstractOpenCLObject register() {
         OpenCLObjectManager.getInstance().registerObject(this);
-		return this;
+        return this;
     }
     @Override
     public void release() {

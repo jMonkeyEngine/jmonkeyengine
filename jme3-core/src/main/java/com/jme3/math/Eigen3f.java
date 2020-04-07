@@ -49,15 +49,15 @@ public class Eigen3f implements java.io.Serializable {
 
     
     public Eigen3f() {
-    	
+
     }
     
     public Eigen3f(Matrix3f data) {
         calculateEigen(data);
     }
 
-	public void calculateEigen(Matrix3f data) {
-		// prep work...
+    public void calculateEigen(Matrix3f data) {
+        // prep work...
         eigenVectors[0] = new Vector3f();
         eigenVectors[1] = new Vector3f();
         eigenVectors[2] = new Vector3f();
@@ -134,7 +134,7 @@ public class Eigen3f implements java.io.Serializable {
                 eigenValues[i] *= maxMagnitude;
             }
         }
-	}
+    }
 
     /**
      * Scale the matrix so its entries are in [-1,1]. The scaling is applied

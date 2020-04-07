@@ -89,7 +89,7 @@ public final class BoneTrack implements JmeCloneable, Track {
      * @param scales the scale of the bone for each frame
      */
     public BoneTrack(int targetBoneIndex, float[] times, Vector3f[] translations, Quaternion[] rotations, Vector3f[] scales) {
-    	this.targetBoneIndex = targetBoneIndex;
+        this.targetBoneIndex = targetBoneIndex;
         this.setKeyframes(times, translations, rotations, scales);
     }
 

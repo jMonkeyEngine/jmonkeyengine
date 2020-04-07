@@ -287,14 +287,14 @@ public class Camera implements Savable, Cloneable {
         }
     }
     
-	/**
-         * This method copies the settings of the given camera.
-    	 * 
-	 * @param cam
-	 *            the camera we copy the settings from
-	 */
+    /**
+     * This method copies the settings of the given camera.
+     * 
+     * @param cam
+     *            the camera we copy the settings from
+     */
     public void copyFrom(Camera cam) {
-    	location.set(cam.location);
+        location.set(cam.location);
         rotation.set(cam.rotation);
 
         frustumNear = cam.frustumNear;
