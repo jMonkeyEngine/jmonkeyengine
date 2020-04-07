@@ -323,6 +323,7 @@ public class AndroidTouchInput implements TouchInput {
                 evt.setTime(event.getEventTime());
                 // Send the event
                 addEvent(evt);
+                
                 break;
             case KeyEvent.ACTION_UP:
                 evt = new TouchEvent();
@@ -332,6 +333,7 @@ public class AndroidTouchInput implements TouchInput {
                 evt.setTime(event.getEventTime());
                 // Send the event
                 addEvent(evt);
+                
                 break;
             case KeyEvent.ACTION_MULTIPLE:
                 evt = new TouchEvent();
@@ -341,6 +343,7 @@ public class AndroidTouchInput implements TouchInput {
                 evt.setTime(event.getEventTime());
                 // Send the event
                 addEvent(evt);
+                
                 break;
             default:
                 break;
