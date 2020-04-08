@@ -35,8 +35,7 @@ package jme3test.model.anim;
  *
  * @author Nehon
  */
-import java.util.ArrayList;
-import java.util.List;
+
 
 import com.jme3.anim.AnimClip;
 import com.jme3.anim.AnimComposer;
@@ -52,11 +51,7 @@ import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
-import com.jme3.math.ColorRGBA;
-import com.jme3.math.FastMath;
-import com.jme3.math.Quaternion;
-import com.jme3.math.Vector2f;
-import com.jme3.math.Vector3f;
+import com.jme3.math.*;
 import com.jme3.post.FilterPostProcessor;
 import com.jme3.post.ssao.SSAOFilter;
 import com.jme3.renderer.queue.RenderQueue;
@@ -64,6 +59,9 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Quad;
 import com.jme3.shadow.DirectionalLightShadowFilter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class TestSkeletonControlRefresh extends SimpleApplication implements ActionListener {
 
@@ -154,7 +152,7 @@ public class TestSkeletonControlRefresh extends SimpleApplication implements Act
        rootNode.attachChild(geom);
     }
 
-
+ 
     @Override
     public void onAction(String name, boolean isPressed, float tpf) {
         if(isPressed && name.equals("toggleHWS")){
