@@ -86,7 +86,7 @@ public class TestSkeletonControlRefresh extends SimpleApplication implements Act
         cam.setLocation(new Vector3f(3.8664846f, 6.2704787f, 9.664585f));
         cam.setRotation(new Quaternion(-0.054774776f, 0.94064945f, -0.27974048f, -0.18418397f));
         makeHudText();
-
+ 
         DirectionalLight dl = new DirectionalLight();
         dl.setDirection(new Vector3f(-0.1f, -0.7f, -1).normalizeLocal());
         dl.setColor(new ColorRGBA(1f, 1f, 1f, 1.0f));
@@ -124,10 +124,10 @@ public class TestSkeletonControlRefresh extends SimpleApplication implements Act
         inputManager.addListener(this, "toggleHWS");
         inputManager.addMapping("toggleHWS", new KeyTrigger(KeyInput.KEY_SPACE));
         
-//         DirectionalLightShadowRenderer pssm = new DirectionalLightShadowRenderer(assetManager, 1024, 2);
-//         pssm.setLight(dl);
-//         viewPort.addProcessor(pssm);
-
+//        DirectionalLightShadowRenderer pssm = new DirectionalLightShadowRenderer(assetManager, 1024, 2);
+//        pssm.setLight(dl);
+//        viewPort.addProcessor(pssm);
+        
         FilterPostProcessor fpp = new FilterPostProcessor(assetManager);
         
         DirectionalLightShadowFilter sf = new DirectionalLightShadowFilter(assetManager, 1024, 2);
@@ -135,24 +135,25 @@ public class TestSkeletonControlRefresh extends SimpleApplication implements Act
         fpp.addFilter(sf);
         fpp.addFilter(new SSAOFilter());
         viewPort.addProcessor(fpp);
-
-
+     
+        
     }
     
      public void setupFloor() {
-         Quad q = new Quad(20, 20);
-         q.scaleTextureCoordinates(Vector2f.UNIT_XY.mult(10));
-         Geometry geom = new Geometry("floor", q);
-         Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-         mat.setColor("Color", ColorRGBA.White);       
-         geom.setMaterial(mat);
+        Quad q = new Quad(20, 20);
+       q.scaleTextureCoordinates(Vector2f.UNIT_XY.mult(10));
+       Geometry geom = new Geometry("floor", q);
+       Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+       mat.setColor("Color", ColorRGBA.White);       
+       geom.setMaterial(mat);
 
-         geom.rotate(-FastMath.HALF_PI, 0, 0);
-         geom.center();
-         geom.move(0, -0.3f, 0);
-         geom.setShadowMode(RenderQueue.ShadowMode.Receive);
-         rootNode.attachChild(geom);
+       geom.rotate(-FastMath.HALF_PI, 0, 0);
+       geom.center();
+       geom.move(0, -0.3f, 0);
+       geom.setShadowMode(RenderQueue.ShadowMode.Receive);
+       rootNode.attachChild(geom);
     }
+
 
     @Override
     public void onAction(String name, boolean isPressed, float tpf) {
