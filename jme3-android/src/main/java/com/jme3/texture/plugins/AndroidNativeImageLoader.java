@@ -30,7 +30,7 @@ public class AndroidNativeImageLoader  implements AssetLoader {
         InputStream in = null;
         try {
             in = info.openStream();
-            return load(info.openStream(), flip, tmpArray);
+            return load(in, flip, tmpArray);
         } finally {
             if (in != null){
                 in.close();
