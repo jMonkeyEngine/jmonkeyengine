@@ -66,6 +66,7 @@ import java.util.List;
 public class TestSkeletonControlRefresh extends SimpleApplication implements ActionListener{
 
     private AnimComposer animComposer;
+    
     private final static int SIZE = 10;
     private boolean hwSkinningEnable = true;
     private List<SkinningControl> skinningControls = new ArrayList<>();
