@@ -59,7 +59,7 @@ import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.post.FilterPostProcessor;
 import com.jme3.post.ssao.SSAOFilter;
-import com.jme3.renderer.queue.RenderQueue.ShadowMode;
+import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Quad;
@@ -71,14 +71,14 @@ public class TestSkeletonControlRefresh extends SimpleApplication implements Act
     private List<SkinningControl> skinningControls = new ArrayList<>();
 
     private final static int SIZE = 10;
-    private boolean hwSkinningEnable = false;
+    private boolean hwSkinningEnable = true;
     private BitmapText hwsText;
-
+ 
     public static void main(String[] args) {
         TestSkeletonControlRefresh app = new TestSkeletonControlRefresh();
         app.start();
     }
-
+ 
     @Override
     public void simpleInitApp() {
         viewPort.setBackgroundColor(ColorRGBA.White);
@@ -93,8 +93,8 @@ public class TestSkeletonControlRefresh extends SimpleApplication implements Act
         rootNode.addLight(dl);
         Material m = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         TextureKey k = new TextureKey("Models/Oto/Oto.jpg", false);
-        m.setTexture("ColorMap", assetManager.loadTexture(k));
-
+        m.setTexture("ColorMap", assetManager.loadTexture(k));        
+ 
         for (int i = 0; i < SIZE; i++) {
             for (int j = 0; j < SIZE; j++) {
                 Spatial model = assetManager.loadModel("Models/Oto/Oto.mesh.xml");
@@ -116,59 +116,60 @@ public class TestSkeletonControlRefresh extends SimpleApplication implements Act
 
                 rootNode.attachChild(model);
             }
-        }
-
-        rootNode.setShadowMode(ShadowMode.CastAndReceive);
+        }        
+        
+        rootNode.setShadowMode(RenderQueue.ShadowMode.CastAndReceive);
         setupFloor();
-
+        
         inputManager.addListener(this, "toggleHWS");
         inputManager.addMapping("toggleHWS", new KeyTrigger(KeyInput.KEY_SPACE));
-
-        // DirectionalLightShadowRenderer pssm = new DirectionalLightShadowRenderer(assetManager, 1024, 2);
-        // pssm.setLight(dl);
-        // viewPort.addProcessor(pssm);
+        
+//         DirectionalLightShadowRenderer pssm = new DirectionalLightShadowRenderer(assetManager, 1024, 2);
+//         pssm.setLight(dl);
+//         viewPort.addProcessor(pssm);
 
         FilterPostProcessor fpp = new FilterPostProcessor(assetManager);
-
+        
         DirectionalLightShadowFilter sf = new DirectionalLightShadowFilter(assetManager, 1024, 2);
         sf.setLight(dl);
         fpp.addFilter(sf);
         fpp.addFilter(new SSAOFilter());
         viewPort.addProcessor(fpp);
 
+
     }
+    
+     public void setupFloor() {
+         Quad q = new Quad(20, 20);
+         q.scaleTextureCoordinates(Vector2f.UNIT_XY.mult(10));
+         Geometry geom = new Geometry("floor", q);
+         Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+         mat.setColor("Color", ColorRGBA.White);       
+         geom.setMaterial(mat);
 
-    public void setupFloor() {
-        Quad q = new Quad(20, 20);
-        q.scaleTextureCoordinates(Vector2f.UNIT_XY.mult(10));
-        Geometry geom = new Geometry("floor", q);
-        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        mat.setColor("Color", ColorRGBA.White);
-        geom.setMaterial(mat);
-
-        geom.rotate(-FastMath.HALF_PI, 0, 0);
-        geom.center();
-        geom.move(0, -0.3f, 0);
-        geom.setShadowMode(ShadowMode.Receive);
-        rootNode.attachChild(geom);
+         geom.rotate(-FastMath.HALF_PI, 0, 0);
+         geom.center();
+         geom.move(0, -0.3f, 0);
+         geom.setShadowMode(RenderQueue.ShadowMode.Receive);
+         rootNode.attachChild(geom);
     }
 
     @Override
     public void onAction(String name, boolean isPressed, float tpf) {
-        if (isPressed && name.equals("toggleHWS")) {
+        if(isPressed && name.equals("toggleHWS")){
             hwSkinningEnable = !hwSkinningEnable;
             for (SkinningControl sc : skinningControls) {
                 sc.setHardwareSkinningPreferred(hwSkinningEnable);
             }
-            hwsText.setText("HWS : " + hwSkinningEnable);
+            hwsText.setText("HWS : "+ hwSkinningEnable);
         }
     }
-
+ 
     private void makeHudText() {
         guiFont = assetManager.loadFont("Interface/Fonts/Default.fnt");
         hwsText = new BitmapText(guiFont, false);
         hwsText.setSize(guiFont.getCharSet().getRenderedSize());
-        hwsText.setText("HWS : " + hwSkinningEnable);
+        hwsText.setText("HWS : "+ hwSkinningEnable);
         hwsText.setLocalTranslation(0, cam.getHeight(), 0);
         guiNode.attachChild(hwsText);
     }
