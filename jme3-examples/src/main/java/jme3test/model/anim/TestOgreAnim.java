@@ -54,94 +54,94 @@ import com.jme3.scene.shape.Box;
 
 public class TestOgreAnim extends SimpleApplication implements ActionListener {
 
-        private AnimComposer animComposer;
-        private static LoopAction currentAction;
+    private AnimComposer animComposer;
+    private static LoopAction currentAction;
 
-        public static void main(String[] args) {
-                TestOgreAnim app = new TestOgreAnim();
-                app.start();
+    public static void main(String[] args) {
+        TestOgreAnim app = new TestOgreAnim();
+        app.start();
+    }
+
+    @Override
+    public void simpleInitApp() {
+        flyCam.setMoveSpeed(10f);
+        cam.setLocation(new Vector3f(6.4013605f, 7.488437f, 12.843031f));
+        cam.setRotation(new Quaternion(-0.060740203f, 0.93925786f, -0.2398315f, -0.2378785f));
+
+        DirectionalLight dl = new DirectionalLight();
+        dl.setDirection(new Vector3f(-0.1f, -0.7f, -1).normalizeLocal());
+        dl.setColor(new ColorRGBA(1f, 1f, 1f, 1.0f));
+        rootNode.addLight(dl);
+
+        Spatial model = assetManager.loadModel("Models/Oto/Oto.mesh.xml");
+        model.center();
+
+        animComposer = model.getControl(AnimComposer.class);
+        animComposer.actionBlended("Attack", new LinearBlendSpace(0f, 0.5f), "Dodge");
+        for (AnimClip animClip : animComposer.getAnimClips()) {
+            Action action = animComposer.action(animClip.getName());
+            animComposer.addAction(animClip.getName(), new LoopAction(action, animComposer));
+        }
+        currentAction = (LoopAction) animComposer.setCurrentAction("stand"); // Walk, pull, Dodge, stand, push
+
+        SkinningControl skinningControl = model.getControl(SkinningControl.class);
+        skinningControl.setHardwareSkinningPreferred(false);
+
+        Box b = new Box(.25f, 3f, .25f);
+        Geometry item = new Geometry("Item", b);
+        item.move(0, 1.5f, 0);
+        item.setMaterial(assetManager.loadMaterial("Common/Materials/RedColor.j3m"));
+        Node n = skinningControl.getAttachmentsNode("hand.right");
+        n.attachChild(item);
+
+        rootNode.attachChild(model);
+
+        inputManager.addListener(this, "Attack");
+        inputManager.addMapping("Attack", new KeyTrigger(KeyInput.KEY_SPACE));
+    }
+
+    @Override
+    public void onAction(String binding, boolean value, float tpf) {
+        if (binding.equals("Attack") && value) {
+            if (currentAction != null && !currentAction.equals(animComposer.getAction("Dodge"))) {
+                currentAction = (LoopAction) animComposer.setCurrentAction("Dodge");
+                currentAction.setNextAnim("stand");
+                currentAction.setSpeed(0.1f);
+            }
+        }
+    }
+
+    static class LoopAction extends BaseAction {
+
+        final AnimComposer ac;
+        private boolean loop = false;
+        private String nextAnim = null;
+
+        public LoopAction(Tween delegate, AnimComposer ac) {
+            super(delegate);
+            this.ac = ac;
+        }
+
+        public void setLoop(boolean loop) {
+            this.loop = loop;
+        }
+
+        public void setNextAnim(String nextAction) {
+            this.nextAnim = nextAction;
         }
 
         @Override
-        public void simpleInitApp() {
-                flyCam.setMoveSpeed(10f);
-                cam.setLocation(new Vector3f(6.4013605f, 7.488437f, 12.843031f));
-                cam.setRotation(new Quaternion(-0.060740203f, 0.93925786f, -0.2398315f, -0.2378785f));
-
-                DirectionalLight dl = new DirectionalLight();
-                dl.setDirection(new Vector3f(-0.1f, -0.7f, -1).normalizeLocal());
-                dl.setColor(new ColorRGBA(1f, 1f, 1f, 1.0f));
-                rootNode.addLight(dl);
-
-                Spatial model = assetManager.loadModel("Models/Oto/Oto.mesh.xml");
-                model.center();
-
-                animComposer = model.getControl(AnimComposer.class);
-                animComposer.actionBlended("Attack", new LinearBlendSpace(0f, 0.5f), "Dodge");
-                for (AnimClip animClip : animComposer.getAnimClips()) {
-                        Action action = animComposer.action(animClip.getName());
-                        animComposer.addAction(animClip.getName(), new LoopAction(action, animComposer));
+        public boolean interpolate(double t) {
+            boolean running = super.interpolate(t);
+            if (!loop && !running) {
+                setSpeed(0);
+                ac.removeCurrentAction(AnimComposer.DEFAULT_LAYER);
+                if (nextAnim != null && ac.hasAction(nextAnim)) {
+                    currentAction = (LoopAction) ac.setCurrentAction(nextAnim);
                 }
-                currentAction = (LoopAction) animComposer.setCurrentAction("stand"); // Walk, pull, Dodge, stand, push
-
-                SkinningControl skinningControl = model.getControl(SkinningControl.class);
-                skinningControl.setHardwareSkinningPreferred(false);
-
-                Box b = new Box(.25f, 3f, .25f);
-                Geometry item = new Geometry("Item", b);
-                item.move(0, 1.5f, 0);
-                item.setMaterial(assetManager.loadMaterial("Common/Materials/RedColor.j3m"));
-                Node n = skinningControl.getAttachmentsNode("hand.right");
-                n.attachChild(item);
-
-                rootNode.attachChild(model);
-
-                inputManager.addListener(this, "Attack");
-                inputManager.addMapping("Attack", new KeyTrigger(KeyInput.KEY_SPACE));
+            }
+            return running;
         }
 
-        @Override
-        public void onAction(String binding, boolean value, float tpf) {
-                if (binding.equals("Attack") && value) {
-                        if (currentAction != null && !currentAction.equals(animComposer.getAction("Dodge"))) {
-                                currentAction = (LoopAction) animComposer.setCurrentAction("Dodge");
-                                currentAction.setNextAnim("stand");
-                                currentAction.setSpeed(0.1f);
-                        }
-                }
-        }
-
-        static class LoopAction extends BaseAction {
-
-                final AnimComposer ac;
-                private boolean loop = false;
-                private String nextAnim = null;
-
-                public LoopAction(Tween delegate, AnimComposer ac) {
-                        super(delegate);
-                        this.ac = ac;
-                }
-
-                public void setLoop(boolean loop) {
-                        this.loop = loop;
-                }
-
-                public void setNextAnim(String nextAction) {
-                        this.nextAnim = nextAction;
-                }
-
-                @Override
-                public boolean interpolate(double t) {
-                        boolean running = super.interpolate(t);
-                        if (!loop && !running) {
-                                setSpeed(0);
-                                ac.removeCurrentAction(AnimComposer.DEFAULT_LAYER);
-                                if (nextAnim != null && ac.hasAction(nextAnim)) {
-                                        currentAction = (LoopAction) ac.setCurrentAction(nextAnim);
-                                }
-                        }
-                        return running;
-                }
-
-        }
+    }
 }
