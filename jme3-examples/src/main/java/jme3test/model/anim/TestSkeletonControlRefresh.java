@@ -95,7 +95,7 @@ public class TestSkeletonControlRefresh extends SimpleApplication implements Act
         for (int i = 0; i < SIZE; i++) {
             for (int j = 0; j < SIZE; j++) {
                 Spatial model = assetManager.loadModel("Models/Oto/Oto.mesh.xml");
-                // setting a different material
+                //setting a different material
                 model.setMaterial(m.clone());
                 model.setLocalScale(0.1f);
                 model.setLocalTranslation(i - SIZE / 2, 0, j - SIZE / 2);
