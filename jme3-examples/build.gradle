@@ -59,7 +59,7 @@ jar.doFirst{
     }
 }
 
-task dist (dependsOn: ['build', ':jme3-jogl:jar', ':jme3-bullet:jar', ':jme3-android:jar', \
+task dist (dependsOn: ['build', ':jme3-bullet:jar', ':jme3-android:jar', \
                        ':jme3-android-native:jar', ':jme3-bullet-native-android:jar', \
                        ':jme3-bullet-native:jar']) {
     doLast {
