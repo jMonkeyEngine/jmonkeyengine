@@ -23,6 +23,7 @@ public class AppOverrideKeys_t extends Structure {
 	public AppOverrideKeys_t() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("pchKey", "pchValue");
 	}

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2016 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -74,6 +74,7 @@ public class TestMultipleApplications extends SimpleApplication {
         settings.setRenderer(AppSettings.JOGL_OPENGL_FORWARD_COMPATIBLE);
         for (int i=0; i<2; ++i) {
             new Thread() {
+                @Override
                 public void run() {
                     if (currentDeviceIndex == -1) {
                         return;

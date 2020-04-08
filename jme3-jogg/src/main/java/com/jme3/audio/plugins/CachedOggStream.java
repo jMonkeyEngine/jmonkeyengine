@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -84,23 +84,28 @@ public class CachedOggStream implements PhysicalOggStream {
         return logicalStreams.get(Integer.valueOf(serialNumber));
     }
 
+    @Override
     public Collection<LogicalOggStream> getLogicalStreams() {
         return logicalStreams.values();
     }
 
+    @Override
     public boolean isOpen() {
         return !closed;
     }
 
+    @Override
     public void close() throws IOException {
         closed = true;
         sourceStream.close();
     }
 
+    @Override
     public OggPage getOggPage(int index) throws IOException {
         return oggPages.get(index);
     }
 
+   @Override
    public void setTime(long granulePosition) throws IOException {
        for (LogicalOggStream los : getLogicalStreams()){
            los.setTime(granulePosition);
@@ -150,6 +155,7 @@ public class CachedOggStream implements PhysicalOggStream {
        return pageNumber-1;
    }
 
+   @Override
    public boolean isSeekable() {
       return true;
    }

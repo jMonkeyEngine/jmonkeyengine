@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -58,13 +58,13 @@ public class TestBumpModel extends SimpleApplication {
 
     @Override
     public void simpleInitApp() {
-        Spatial signpost = (Spatial) assetManager.loadAsset(new OgreMeshKey("Models/Sign Post/Sign Post.mesh.xml"));
-        signpost.setMaterial( (Material) assetManager.loadMaterial("Models/Sign Post/Sign Post.j3m"));
+        Spatial signpost = assetManager.loadAsset(new OgreMeshKey("Models/Sign Post/Sign Post.mesh.xml"));
+        signpost.setMaterial(assetManager.loadMaterial("Models/Sign Post/Sign Post.j3m"));
         TangentBinormalGenerator.generate(signpost);
         rootNode.attachChild(signpost);
 
         lightMdl = new Geometry("Light", new Sphere(10, 10, 0.1f));
-        lightMdl.setMaterial( (Material) assetManager.loadMaterial("Common/Materials/RedColor.j3m"));
+        lightMdl.setMaterial(assetManager.loadMaterial("Common/Materials/RedColor.j3m"));
         rootNode.attachChild(lightMdl);
 
         // flourescent main light

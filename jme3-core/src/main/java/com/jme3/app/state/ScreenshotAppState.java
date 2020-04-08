@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -187,6 +187,7 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
         super.initialize(stateManager, app);
     }
 
+    @Override
     public void onAction(String name, boolean value, float tpf) {
         if (value){
             capture = true;
@@ -197,6 +198,7 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
         capture = true;
     }
 
+    @Override
     public void initialize(RenderManager rm, ViewPort vp) {
         renderer = rm.getRenderer();
         this.rm = rm;
@@ -208,18 +210,22 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
         return super.isInitialized() && renderer != null;
     }
 
+    @Override
     public void reshape(ViewPort vp, int w, int h) {
         outBuf = BufferUtils.createByteBuffer(w * h * 4);
         width = w;
         height = h;
     }
 
+    @Override
     public void preFrame(float tpf) {
     }
 
+    @Override
     public void postQueue(RenderQueue rq) {
     }
 
+    @Override
     public void postFrame(FrameBuffer out) {
         if (capture){
             capture = false;

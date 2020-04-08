@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -92,6 +92,7 @@ public class TestMotionPath extends SimpleApplication {
 
         path.addListener(new MotionPathListener() {
 
+            @Override
             public void onWayPointReach(MotionEvent control, int wayPointIndex) {
                 if (path.getNbWayPoints() == wayPointIndex + 1) {
                     wayPointsText.setText(control.getSpatial().getName() + "Finished!!! ");
@@ -153,6 +154,7 @@ public class TestMotionPath extends SimpleApplication {
         inputManager.addMapping("play_stop", new KeyTrigger(KeyInput.KEY_SPACE));
         ActionListener acl = new ActionListener() {
 
+            @Override
             public void onAction(String name, boolean keyPressed, float tpf) {
                 if (name.equals("display_hidePath") && keyPressed) {
                     if (active) {

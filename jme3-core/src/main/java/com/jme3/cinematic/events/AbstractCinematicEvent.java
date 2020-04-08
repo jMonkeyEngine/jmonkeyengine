@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -104,6 +104,7 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
      * or when it was force-stopped during playback.
      * By default, this method just calls regular stop().
      */
+    @Override
     public void forceStop(){
         stop();
     }
@@ -111,6 +112,7 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
     /**
      * Play this event.
      */
+    @Override
     public void play() {
         onPlay();        
         playState = PlayState.Playing;
@@ -131,6 +133,7 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
      * Used internally only.
      * @param tpf time per frame.
      */
+    @Override
     public void internalUpdate(float tpf) {
         if (playState == PlayState.Playing) {
             time = time + (tpf * speed);         
@@ -161,6 +164,7 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
      * Stops the animation. 
      * Next time when play() is called, the animation starts from the beginning.
      */
+    @Override
     public void stop() {
         onStop();
         time = 0;
@@ -182,6 +186,7 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
      * Pause this event.
      * Next time when play() is called, the animation restarts from here.
      */
+    @Override
     public void pause() {
         onPause();
         playState = PlayState.Paused;
@@ -202,6 +207,7 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
      * Returns the actual duration of the animation (initialDuration/speed)
      * @return the duration (in seconds)
      */
+    @Override
     public float getDuration() {
         return initialDuration / speed;
     }
@@ -212,6 +218,7 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
      * At speed = 2, the animation will last initialDuration/2...
      * @param speed
      */
+    @Override
     public void setSpeed(float speed) {
         this.speed = speed;
     }
@@ -220,6 +227,7 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
      * Returns the speed of the animation.
      * @return the speed
      */
+    @Override
     public float getSpeed() {
         return speed;
     }
@@ -228,6 +236,7 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
      * Returns the current playstate of the animation (playing or paused or stopped).
      * @return the enum value
      */
+    @Override
     public PlayState getPlayState() {
         return playState;
     }
@@ -236,6 +245,7 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
      * Returns the initial duration of the animation at speed = 1 in seconds.
      * @return the duration in seconds
      */
+    @Override
     public float getInitialDuration() {
         return initialDuration;
     }
@@ -244,6 +254,7 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
      * Sets the duration of the animation at speed = 1 in seconds.
      * @param initialDuration
      */
+    @Override
     public void setInitialDuration(float initialDuration) {
         this.initialDuration = initialDuration;
     }
@@ -253,6 +264,7 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
      * @see LoopMode
      * @return the enum value
      */
+    @Override
     public LoopMode getLoopMode() {
         return loopMode;
     }
@@ -262,6 +274,7 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
      * @see LoopMode
      * @param loopMode
      */
+    @Override
     public void setLoopMode(LoopMode loopMode) {
         this.loopMode = loopMode;
     }
@@ -271,6 +284,7 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
      * @param ex exporter
      * @throws IOException 
      */
+    @Override
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(playState, "playState", PlayState.Stopped);
@@ -284,6 +298,7 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
      * @param im importer
      * @throws IOException 
      */
+    @Override
     public void read(JmeImporter im) throws IOException {
         InputCapsule ic = im.getCapsule(this);
         playState = ic.readEnum("playState", PlayState.class, PlayState.Stopped);
@@ -297,6 +312,7 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
      * @param app
      * @param cinematic 
      */
+    @Override
     public void initEvent(Application app, Cinematic cinematic) {
     }
 
@@ -331,6 +347,7 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
      * Fast-forward the event to the given timestamp. Time=0 is the start of the event.
      * @param time the time to fast forward to.
      */
+    @Override
     public void setTime(float time) {
         this.time = time ;
     }
@@ -338,10 +355,12 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
     /**
      * Return the current timestamp of the event. Time=0 is the start of the event.
      */
+    @Override
     public float getTime() {
         return time;
     }
 
+    @Override
     public void dispose() {    
     }
     

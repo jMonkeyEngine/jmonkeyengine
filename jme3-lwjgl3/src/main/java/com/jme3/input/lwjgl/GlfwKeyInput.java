@@ -83,11 +83,33 @@ public class GlfwKeyInput implements KeyInput {
 
     @Override
     public void initialize() {
+        if (!context.isRenderable()) {
+            return;
+        }
+        initCallbacks();
 
+        initialized = true;
+        logger.fine("Keyboard created.");
+    }
+
+    /**
+     * Re-initializes the key input context window specific callbacks
+     */
+    public void resetContext() {
         if (!context.isRenderable()) {
             return;
         }
 
+        closeCallbacks();
+        initCallbacks();
+    }
+
+    private void closeCallbacks() {
+        keyCallback.close();
+        charCallback.close();
+    }
+
+    private void initCallbacks() {
         glfwSetKeyCallback(context.getWindowHandle(), keyCallback = new GLFWKeyCallback() {
             @Override
             public void invoke(final long window, final int key, final int scancode, final int action, final int mods) {
@@ -122,9 +144,6 @@ public class GlfwKeyInput implements KeyInput {
                 keyInputEvents.add(released);
             }
         });
-
-        initialized = true;
-        logger.fine("Keyboard created.");
     }
 
     public int getKeyCount() {
@@ -149,8 +168,7 @@ public class GlfwKeyInput implements KeyInput {
             return;
         }
 
-        keyCallback.close();
-        charCallback.close();
+        closeCallbacks();
         logger.fine("Keyboard destroyed.");
     }
 

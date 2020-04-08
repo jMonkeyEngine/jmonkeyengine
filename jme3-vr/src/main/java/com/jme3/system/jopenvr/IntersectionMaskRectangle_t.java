@@ -17,6 +17,7 @@ public class IntersectionMaskRectangle_t extends Structure {
 	public IntersectionMaskRectangle_t() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("m_flTopLeftX", "m_flTopLeftY", "m_flWidth", "m_flHeight");
 	}

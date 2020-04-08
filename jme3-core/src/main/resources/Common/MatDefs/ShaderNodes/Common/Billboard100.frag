@@ -1,15 +1,15 @@
 void main(){
-	// First colunm.
+  // First column.
   worldViewMatrix[0][0] = scale; 
   worldViewMatrix[0][1] = 0.0; 
   worldViewMatrix[0][2] = 0.0; 
-	  
-  // Second colunm.
+  
+  // Second column.
   worldViewMatrix[1][0] = 0.0; 
   worldViewMatrix[1][1] = scale; 
   worldViewMatrix[1][2] = 0.0; 
-	  
-  // Thrid colunm.
+  
+  // Third column.
   worldViewMatrix[2][0] = 0.0; 
   worldViewMatrix[2][1] = 0.0; 
   worldViewMatrix[2][2] = scale;  

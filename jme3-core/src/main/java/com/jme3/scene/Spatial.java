@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -213,10 +213,12 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
         refreshFlags |= RF_BOUND;
     }
 
+    @Override
     public void setKey(AssetKey key) {
         this.key = key;
     }
 
+    @Override
     public AssetKey getKey() {
         return key;
     }
@@ -1103,6 +1105,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
      * <code>setLocalTransform</code> sets the local transform of this
      * spatial.
      */
+    @Override
     public void setLocalTransform(Transform t) {
         this.localTransform.set(t);
         setTransformRefresh();
@@ -1114,6 +1117,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
      *
      * @return the local transform of this spatial.
      */
+    @Override
     public Transform getLocalTransform() {
         return localTransform;
     }
@@ -1535,6 +1539,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
         return true;
     }
 
+    @Override
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule capsule = ex.getCapsule(this);
         capsule.write(name, "name", null);
@@ -1552,6 +1557,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
         capsule.writeStringSavableMap(userData, "user_data", null);
     }
 
+    @Override
     public void read(JmeImporter im) throws IOException {
         InputCapsule ic = im.getCapsule(this);
 

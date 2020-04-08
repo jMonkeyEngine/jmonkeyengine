@@ -91,6 +91,7 @@ public class TerrainGridTest extends SimpleApplication {
 
         this.terrain = new TerrainGrid("terrain", 65, 257, new ImageTileLoader(assetManager, new Namer() {
 
+            @Override
             public String getName(int x, int y) {
                 return "Scenes/TerrainMountains/terrain_" + x + "_" + y + ".png";
             }
@@ -130,9 +131,11 @@ public class TerrainGridTest extends SimpleApplication {
 
             terrain.addListener(new TerrainGridListener() {
 
+                @Override
                 public void gridMoved(Vector3f newCenter) {
                 }
 
+                @Override
                 public void tileAttached(Vector3f cell, TerrainQuad quad) {
                     while(quad.getControl(RigidBodyControl.class)!=null){
                         quad.removeControl(RigidBodyControl.class);
@@ -141,6 +144,7 @@ public class TerrainGridTest extends SimpleApplication {
                     bulletAppState.getPhysicsSpace().add(quad);
                 }
 
+                @Override
                 public void tileDetached(Vector3f cell, TerrainQuad quad) {
                     if (quad.getControl(RigidBodyControl.class) != null) {
                         bulletAppState.getPhysicsSpace().remove(quad);

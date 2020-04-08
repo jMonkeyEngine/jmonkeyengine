@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -54,6 +54,7 @@ public class JoglNewtDisplay extends JoglNewtAbstractDisplay {
     protected AtomicBoolean needRestart = new AtomicBoolean(false);
     protected volatile boolean wasInited = false;
 
+    @Override
     public Type getType() {
         return Type.Display;
     }
@@ -149,6 +150,7 @@ public class JoglNewtDisplay extends JoglNewtAbstractDisplay {
         startGLCanvas();
     }
 
+    @Override
     public void init(GLAutoDrawable drawable){
         // prevent initializing twice on restart
         if (!wasInited){
@@ -164,10 +166,12 @@ public class JoglNewtDisplay extends JoglNewtAbstractDisplay {
         }
     }
 
+    @Override
     public void create(boolean waitFor){
         privateInit();
     }
 
+    @Override
     public void destroy(boolean waitFor){
         needClose.set(true);
         if (waitFor){
@@ -177,6 +181,7 @@ public class JoglNewtDisplay extends JoglNewtAbstractDisplay {
             animator.stop();
     }
 
+    @Override
     public void restart() {
         if (created.get()){
             needRestart.set(true);
@@ -185,6 +190,7 @@ public class JoglNewtDisplay extends JoglNewtAbstractDisplay {
         }
     }
 
+    @Override
     public void setTitle(String title){
         if (canvas != null) {
             canvas.setTitle(title);
@@ -194,6 +200,7 @@ public class JoglNewtDisplay extends JoglNewtAbstractDisplay {
     /**
      * Callback.
      */
+    @Override
     public void display(GLAutoDrawable drawable) {
         if (needClose.get()) {
             listener.destroy();

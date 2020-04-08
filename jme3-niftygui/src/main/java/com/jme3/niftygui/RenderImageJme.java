@@ -50,7 +50,7 @@ public class RenderImageJme implements RenderImage {
 
         key.setAnisotropy(0);
         key.setGenerateMips(false);
-        
+
         texture = (Texture2D) display.getAssetManager().loadTexture(key);
         texture.setMagFilter(linear ? MagFilter.Bilinear : MagFilter.Nearest);
         texture.setMinFilter(linear ? MinFilter.BilinearNoMipMaps : MinFilter.NearestNoMipMaps);
@@ -64,7 +64,7 @@ public class RenderImageJme implements RenderImage {
         if (texture.getImage() == null) {
             throw new IllegalArgumentException("texture.getImage() cannot be null");
         }
-        
+
         this.texture = texture;
         this.image = texture.getImage();
         width = image.getWidth();
@@ -75,14 +75,17 @@ public class RenderImageJme implements RenderImage {
         return texture;
     }
 
+    @Override
     public int getWidth() {
         return width;
     }
 
+    @Override
     public int getHeight() {
         return height;
     }
 
+    @Override
     public void dispose() {
     }
 }

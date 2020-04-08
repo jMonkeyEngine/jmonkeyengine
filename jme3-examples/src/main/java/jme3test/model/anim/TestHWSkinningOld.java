@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -75,7 +75,7 @@ public class TestHWSkinningOld extends SimpleApplication implements ActionListen
 
         for (int i = 0; i < SIZE; i++) {
             for (int j = 0; j < SIZE; j++) {
-                Spatial model = (Spatial) assetManager.loadModel("Models/Oto/OtoOldAnim.j3o");
+                Spatial model = assetManager.loadModel("Models/Oto/OtoOldAnim.j3o");
                 model.setLocalScale(0.1f);
                 model.setLocalTranslation(i - SIZE / 2, 0, j - SIZE / 2);
                 control = model.getControl(AnimControl.class);

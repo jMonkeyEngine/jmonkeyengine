@@ -202,6 +202,7 @@ public class OrientedBoxProbeArea implements ProbeArea {
         vars.release();
     }
 
+    @Override
     public Matrix4f getUniformMatrix() {
         return uniformMatrix;
     }
@@ -219,6 +220,7 @@ public class OrientedBoxProbeArea implements ProbeArea {
         return transform.getTranslation();
     }
 
+    @Override
     public void setCenter(Vector3f center) {
         transform.setTranslation(center);
         updateMatrix();

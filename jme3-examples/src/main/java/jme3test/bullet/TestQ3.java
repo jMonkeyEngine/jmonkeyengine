@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -61,16 +61,18 @@ public class TestQ3 extends SimpleApplication implements ActionListener {
     private static boolean useHttp = false;
     private boolean left=false,right=false,up=false,down=false;
 
-    public static void main(String[] args) {
-        File file = new File("quake3level.zip");
-        if (!file.exists()) {
-            useHttp = true;
-        }
+    public static void main(String[] args) {        
         TestQ3 app = new TestQ3();
         app.start();
     }
 
+    @Override
     public void simpleInitApp() {
+        File file = new File("quake3level.zip");
+        if (!file.exists()) {
+            useHttp = true;
+        }
+        
         bulletAppState = new BulletAppState();
         stateManager.attach(bulletAppState);
         flyCam.setMoveSpeed(100);
@@ -152,6 +154,7 @@ public class TestQ3 extends SimpleApplication implements ActionListener {
         inputManager.addListener(this,"Space");
     }
 
+    @Override
     public void onAction(String binding, boolean value, float tpf) {
 
         if (binding.equals("Lefts")) {

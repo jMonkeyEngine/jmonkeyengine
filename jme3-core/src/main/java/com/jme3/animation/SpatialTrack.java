@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -101,6 +101,7 @@ public class SpatialTrack implements JmeCloneable, Track {
      * @param time
      *            the current time of the animation
      */
+    @Override
     public void setTime(float time, float weight, AnimControl control, AnimChannel channel, TempVars vars) {
         Spatial spatial = trackSpatial;
         if (spatial == null) {
@@ -242,6 +243,7 @@ public class SpatialTrack implements JmeCloneable, Track {
     /**
      * @return the length of the track
      */
+    @Override
     public float getLength() {
             return times == null ? 0 : times[times.length - 1] - times[0];
     }

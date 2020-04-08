@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -78,6 +78,7 @@ public class TestDirectionalLightShadow extends SimpleApplication implements Act
     }
     private float frustumSize = 100;
 
+    @Override
     public void onAnalog(String name, float value, float tpf) {
         if (cam.isParallelProjection()) {
             // Instead of moving closer/farther to object, we zoom in/out.
@@ -245,6 +246,7 @@ public class TestDirectionalLightShadow extends SimpleApplication implements Act
     private BitmapText shadowStabilizationText;
     private BitmapText shadowZfarText;
 
+    @Override
     public void onAction(String name, boolean keyPressed, float tpf) {
 
 

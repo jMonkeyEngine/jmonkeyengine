@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -57,6 +57,7 @@ public class UrlLocator implements AssetLocator {
     private static final Logger logger = Logger.getLogger(UrlLocator.class.getName());
     private URL root;
 
+    @Override
     public void setRootPath(String rootPath) {
         try {
             this.root = new URL(rootPath);
@@ -65,6 +66,7 @@ public class UrlLocator implements AssetLocator {
         }
     }
 
+    @Override
     public AssetInfo locate(AssetManager manager, AssetKey key) {
         String name = key.getName();
         try{

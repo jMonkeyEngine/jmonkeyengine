@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -150,7 +150,7 @@ public class Line implements Savable, Cloneable, java.io.Serializable {
             origin.addLocal(compVec1);
         }
 
-        origin.multLocal(1f / (float) length);
+        origin.multLocal(1f / length);
 
         // compute sums of products
         float sumXX = 0.0f, sumXY = 0.0f, sumXZ = 0.0f;
@@ -213,12 +213,14 @@ public class Line implements Savable, Cloneable, java.io.Serializable {
         return result;
     }
 
+    @Override
     public void write(JmeExporter e) throws IOException {
         OutputCapsule capsule = e.getCapsule(this);
         capsule.write(origin, "origin", Vector3f.ZERO);
         capsule.write(direction, "direction", Vector3f.ZERO);
     }
 
+    @Override
     public void read(JmeImporter e) throws IOException {
         InputCapsule capsule = e.getCapsule(this);
         origin = (Vector3f) capsule.readSavable("origin", Vector3f.ZERO.clone());

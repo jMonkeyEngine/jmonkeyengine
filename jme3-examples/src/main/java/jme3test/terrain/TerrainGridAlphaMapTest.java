@@ -182,9 +182,11 @@ public class TerrainGridAlphaMapTest extends SimpleApplication {
         }
         terrain.addListener(new TerrainGridListener() {
 
+            @Override
             public void gridMoved(Vector3f newCenter) {
             }
 
+            @Override
             public void tileAttached(Vector3f cell, TerrainQuad quad) {
                 Texture alpha = null;
                 try {
@@ -200,6 +202,7 @@ public class TerrainGridAlphaMapTest extends SimpleApplication {
                 updateMarkerElevations();
             }
 
+            @Override
             public void tileDetached(Vector3f cell, TerrainQuad quad) {
                 if (usePhysics) {
                     if (quad.getControl(RigidBodyControl.class) != null) {

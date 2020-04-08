@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine All rights reserved. <p/>
+ * Copyright (c) 2009-2020 jMonkeyEngine All rights reserved. <p/>
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  * 
@@ -154,6 +154,7 @@ public class TestPhysicsCharacter extends SimpleApplication implements ActionLis
         physicsCharacter.setViewDirection(viewDirection);
     }
 
+  @Override
     public void onAction(String binding, boolean value, float tpf) {
         if (binding.equals("Strafe Left")) {
             if (value) {

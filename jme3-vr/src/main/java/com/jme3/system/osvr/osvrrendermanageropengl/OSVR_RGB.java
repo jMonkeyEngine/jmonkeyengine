@@ -15,6 +15,7 @@ public class OSVR_RGB extends Structure {
 	public OSVR_RGB() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("r", "g", "b");
 	}

@@ -17,6 +17,7 @@ public class HmdQuaternionf_t extends Structure {
 	public HmdQuaternionf_t() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("w", "x", "y", "z");
 	}

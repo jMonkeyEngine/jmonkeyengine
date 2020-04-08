@@ -1,5 +1,5 @@
 String tremorZipFile = "TremorAndroid.zip"
-String stbiUrl = 'https://raw.githubusercontent.com/nothings/stb/master/stb_image.h'
+String stbiUrl = 'https://raw.githubusercontent.com/jMonkeyEngine/stb/0224a44a10564a214595797b4c88323f79a5f934/stb_image.h'
 
 // Working directories for the ndk build.
 String decodeBuildDir = "${buildDir}" + File.separator + 'decode'

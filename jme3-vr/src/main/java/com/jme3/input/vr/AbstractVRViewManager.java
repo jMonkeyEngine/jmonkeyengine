@@ -69,6 +69,7 @@ public abstract class AbstractVRViewManager implements VRViewManager {
      * Get the {@link ViewPort view port} attached to the mirror display.
      * @return the view port attached to the mirror display.
      */
+    @Override
     public ViewPort getMirrorViewPort() {
 		return mirrorViewPort;
 	}
@@ -132,6 +133,7 @@ public abstract class AbstractVRViewManager implements VRViewManager {
     /**
      * Handles moving filters from the main view to each eye
      */
+    @Override
     public void moveScreenProcessingToEyes() {
     	
     	if (environment != null){

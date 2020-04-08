@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -121,6 +121,7 @@ public class TestSerialization implements MessageListener<HostedConnection> {
         }
     }
 
+    @Override
     public void messageReceived(HostedConnection source, Message m) {
         TestSerializationMessage cm = (TestSerializationMessage) m;
         System.out.println(cm.z);

@@ -61,7 +61,7 @@ public interface OpenCLObject {
     ObjectReleaser getReleaser();
     /**
      * Releases this native object.
-	 * 
+     * 
      * Should delegate to {@code getReleaser().release()}.
      */
     void release();
@@ -71,10 +71,10 @@ public interface OpenCLObject {
      * {@link OpenCLObjectManager}, you have to release it manually 
      * by calling {@link #release() }.
      * Without registering or releasing, a memory leak might occur.
-	 * <br>
-	 * Returns {@code this} to allow calls like
-	 * {@code Buffer buffer = clContext.createBuffer(1024).register();}.
-	 * @return {@code this}
+     * <br>
+     * Returns {@code this} to allow calls like
+     * {@code Buffer buffer = clContext.createBuffer(1024).register();}.
+     * @return {@code this}
      */
     OpenCLObject register();
 }

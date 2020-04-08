@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -81,7 +81,7 @@ public class TestSimpleWater extends SimpleApplication implements ActionListener
 
         //create water quad
         //waterPlane = waterProcessor.createWaterGeometry(100, 100);
-        waterPlane=(Spatial)  assetManager.loadModel("Models/WaterTest/WaterTest.mesh.xml");
+        waterPlane = assetManager.loadModel("Models/WaterTest/WaterTest.mesh.xml");
         waterPlane.setMaterial(waterProcessor.getMaterial());
         waterPlane.setLocalScale(40);
         waterPlane.setLocalTranslation(-5, 0, 5);
@@ -142,6 +142,7 @@ public class TestSimpleWater extends SimpleApplication implements ActionListener
         waterProcessor.setLightPosition(lightPos);
     }
 
+    @Override
     public void onAction(String name, boolean value, float tpf) {
         if (name.equals("use_water") && value) {
             if (!useWater) {

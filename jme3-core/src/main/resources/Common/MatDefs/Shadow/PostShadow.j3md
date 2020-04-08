@@ -31,7 +31,7 @@ MaterialDef Post Shadow {
         Float ShadowMapSize
 
         Boolean BackfaceShadows: false
-		
+
     }
 
     Technique {

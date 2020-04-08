@@ -106,6 +106,7 @@ public abstract class LwjglContext implements JmeContext {
     private static final Set<String> SUPPORTED_RENDERS = new HashSet<>(Arrays.asList(
             AppSettings.LWJGL_OPENGL2,
             AppSettings.LWJGL_OPENGL30,
+            AppSettings.LWJGL_OPENGL31,
             AppSettings.LWJGL_OPENGL32,
             AppSettings.LWJGL_OPENGL33,
             AppSettings.LWJGL_OPENGL40,
@@ -195,9 +196,9 @@ public abstract class LwjglContext implements JmeContext {
         }
 
         if (settings.getBoolean("GraphicsDebug")) {
-            gl = new GLDebugDesktop(gl, glext, glfbo);
-            glext = (GLExt) gl;
-            glfbo = (GLFbo) gl;
+            gl = (GL) GLDebug.createProxy(gl, gl, GL.class, GL2.class, GL3.class, GL4.class);
+            glext = (GLExt) GLDebug.createProxy(gl, glext, GLExt.class);
+            glfbo = (GLFbo) GLDebug.createProxy(gl, glfbo, GLFbo.class);
         }
 
         if (settings.getBoolean("GraphicsTiming")) {

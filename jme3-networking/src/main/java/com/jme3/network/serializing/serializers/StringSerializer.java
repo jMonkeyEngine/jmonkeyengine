@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -93,10 +93,12 @@ public class StringSerializer extends Serializer {
         return new String(buffer, "UTF-8");
     }
 
+    @Override
     public String readObject(ByteBuffer data, Class c) throws IOException {
         return readString(data);
     }
 
+    @Override
     public void writeObject(ByteBuffer buffer, Object object) throws IOException {
         String string = (String)object;
 

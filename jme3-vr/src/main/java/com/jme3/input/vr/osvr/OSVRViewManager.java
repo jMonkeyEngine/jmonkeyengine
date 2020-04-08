@@ -93,7 +93,7 @@ public class OSVRViewManager extends AbstractVRViewManager{
      * @see #getFullTexId()
      */
     protected int getLeftTexId() {
-        return (int)leftEyeTexture.getImage().getId();
+        return leftEyeTexture.getImage().getId();
     }
     
     /**
@@ -103,7 +103,7 @@ public class OSVRViewManager extends AbstractVRViewManager{
      * @see #getFullTexId()
      */
     protected int getRightTexId() {
-        return (int)rightEyeTexture.getImage().getId();
+        return rightEyeTexture.getImage().getId();
     }
     
     /**
@@ -113,7 +113,7 @@ public class OSVRViewManager extends AbstractVRViewManager{
      * @see #getRightTexId()
      */
     private int getFullTexId() {
-        return (int)dualEyeTex.getImage().getId();
+        return dualEyeTex.getImage().getId();
     }
     
     /**
@@ -172,6 +172,7 @@ public class OSVRViewManager extends AbstractVRViewManager{
     /**
      * Send the textures to the two eyes.
      */
+    @Override
     public void postRender() {
     	
     	if (environment != null){
@@ -268,6 +269,7 @@ public class OSVRViewManager extends AbstractVRViewManager{
     /**
      * Initialize the VR view manager.
      */
+    @Override
     public void initialize() {     
     	
     	logger.config("Initializing VR view manager.");
@@ -293,7 +295,7 @@ public class OSVRViewManager extends AbstractVRViewManager{
                     int origHeight = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDisplayMode().getHeight();
                     long window = ((LwjglWindow)environment.getApplication().getContext()).getWindowHandle();
                     Vector2f windowSize = new Vector2f();
-                    ((OSVR)environment.getVRHardware()).getRenderSize(windowSize);
+                    environment.getVRHardware().getRenderSize(windowSize);
                     windowSize.x = Math.max(windowSize.x * 2f, leftCamera.getWidth());
                     org.lwjgl.glfw.GLFW.glfwSetWindowSize(window, (int)windowSize.x, (int)windowSize.y);
                     environment.getApplication().getContext().getSettings().setResolution((int)windowSize.x, (int)windowSize.y);
@@ -444,6 +446,7 @@ public class OSVRViewManager extends AbstractVRViewManager{
      * This method is called by the attached VR application and should not be called manually.
      * @param tpf the time per frame.
      */
+    @Override
     public void update(float tpf) {
         
     	if (environment != null){
@@ -512,6 +515,7 @@ public class OSVRViewManager extends AbstractVRViewManager{
     /**
      * Handles moving filters from the main view to each eye
      */
+    @Override
     public void moveScreenProcessingToEyes() {
         if( getRightViewPort() == null ){
         	return;
@@ -534,6 +538,7 @@ public class OSVRViewManager extends AbstractVRViewManager{
      * Sets the two views to use the list of {@link SceneProcessor processors}.
      * @param sourceViewport the {@link ViewPort viewport} that contains the processors to use.
      */
+    @Override
     public void syncScreenProcessing(ViewPort sourceViewport) {
         if( getRightViewPort() == null ){
         	return;

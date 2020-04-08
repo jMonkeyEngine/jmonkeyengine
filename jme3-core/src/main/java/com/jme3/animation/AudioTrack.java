@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -73,10 +73,12 @@ public class AudioTrack implements ClonableTrack {
     //Animation listener to stop the sound when the animation ends or is changed
     private class OnEndListener implements AnimEventListener {
 
+        @Override
         public void onAnimCycleDone(AnimControl control, AnimChannel channel, String animName) {
             stop();
         }
 
+        @Override
         public void onAnimChange(AnimControl control, AnimChannel channel, String animName) {
         }
     }
@@ -120,6 +122,7 @@ public class AudioTrack implements ClonableTrack {
      * @see Track#setTime(float, float, com.jme3.animation.AnimControl,
      * com.jme3.animation.AnimChannel, com.jme3.util.TempVars)
      */
+    @Override
     public void setTime(float time, float weight, AnimControl control, AnimChannel channel, TempVars vars) {
 
         if (time >= length) {
@@ -146,6 +149,7 @@ public class AudioTrack implements ClonableTrack {
      *
      * @return length of the track
      */
+    @Override
     public float getLength() {
         return length;
     }
@@ -255,6 +259,7 @@ public class AudioTrack implements ClonableTrack {
         data.addTrack(audioTrack);
     }
 
+    @Override
     public void cleanUp() {
         TrackInfo t = (TrackInfo) audio.getUserData("TrackInfo");
         t.getTracks().remove(this);
@@ -308,6 +313,7 @@ public class AudioTrack implements ClonableTrack {
      * @param ex exporter
      * @throws IOException exception
      */
+    @Override
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule out = ex.getCapsule(this);
         out.write(audio, "audio", null);
@@ -321,6 +327,7 @@ public class AudioTrack implements ClonableTrack {
      * @param im importer
      * @throws IOException Exception
      */
+    @Override
     public void read(JmeImporter im) throws IOException {
         InputCapsule in = im.getCapsule(this);
         audio = (AudioNode) in.readSavable("audio", null);

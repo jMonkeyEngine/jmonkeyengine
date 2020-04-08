@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -71,6 +71,7 @@ public class MapSerializer extends Serializer {
      */
 
     @SuppressWarnings("unchecked")
+    @Override
     public <T> T readObject(ByteBuffer data, Class<T> c) throws IOException {
         int length = data.getInt();
 
@@ -124,6 +125,7 @@ public class MapSerializer extends Serializer {
     }
 
     @SuppressWarnings("unchecked")
+    @Override
     public void writeObject(ByteBuffer buffer, Object object) throws IOException {
         Map map = (Map)object;
         int length = map.size();

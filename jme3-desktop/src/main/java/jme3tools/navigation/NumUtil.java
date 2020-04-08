@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,6 +52,6 @@ public class NumUtil {
         float p = (float) Math.pow(10, Rpl);
         Rval = Rval * p;
         float tmp = Math.round(Rval);
-        return (float) tmp / p;
+        return tmp / p;
     }
 }

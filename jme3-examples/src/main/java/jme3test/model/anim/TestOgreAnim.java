@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -66,7 +66,7 @@ public class TestOgreAnim extends SimpleApplication
         dl.setColor(new ColorRGBA(1f, 1f, 1f, 1.0f));
         rootNode.addLight(dl);
 
-        Spatial model = (Spatial) assetManager.loadModel("Models/Oto/OtoOldAnim.j3o");
+        Spatial model = assetManager.loadModel("Models/Oto/OtoOldAnim.j3o");
         model.center();
 
         control = model.getControl(AnimControl.class);
@@ -101,6 +101,7 @@ public class TestOgreAnim extends SimpleApplication
     }
 
 
+    @Override
     public void onAnimCycleDone(AnimControl control, AnimChannel channel, String animName) {
         if (animName.equals("Dodge")){
             channel.setAnim("stand", 0.50f);
@@ -109,9 +110,11 @@ public class TestOgreAnim extends SimpleApplication
         }
     }
 
+    @Override
     public void onAnimChange(AnimControl control, AnimChannel channel, String animName) {
     }
 
+    @Override
     public void onAction(String binding, boolean value, float tpf) {
         if (binding.equals("Attack") && value){
             if (!channel.getAnimationName().equals("Dodge")){

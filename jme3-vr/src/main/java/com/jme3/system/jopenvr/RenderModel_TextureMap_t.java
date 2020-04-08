@@ -20,6 +20,7 @@ public class RenderModel_TextureMap_t extends Structure {
 	public RenderModel_TextureMap_t() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("unWidth", "unHeight", "rubTextureMapData");
 	}

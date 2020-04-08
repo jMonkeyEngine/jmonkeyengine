@@ -39,6 +39,7 @@ public class VR_IVRSpatialAnchors_FnTable extends Structure {
 	public VR_IVRSpatialAnchors_FnTable() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("CreateSpatialAnchorFromDescriptor", "CreateSpatialAnchorFromPose", "GetSpatialAnchorPose", "GetSpatialAnchorDescriptor");
 	}

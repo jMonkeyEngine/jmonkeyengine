@@ -16,8 +16,6 @@ public class TextureGeneratorFactory {
                 return new TextureGeneratorDistnoise(noiseGenerator);
             case TextureHelper.TEX_MAGIC:
                 return new TextureGeneratorMagic(noiseGenerator);
-            case TextureHelper.TEX_MARBLE:
-                return new TextureGeneratorMarble(noiseGenerator);
             case TextureHelper.TEX_MUSGRAVE:
                 return new TextureGeneratorMusgrave(noiseGenerator);
             case TextureHelper.TEX_NOISE:
@@ -26,8 +24,6 @@ public class TextureGeneratorFactory {
                 return new TextureGeneratorStucci(noiseGenerator);
             case TextureHelper.TEX_VORONOI:
                 return new TextureGeneratorVoronoi(noiseGenerator);
-            case TextureHelper.TEX_WOOD:
-                return new TextureGeneratorWood(noiseGenerator);
             default:
                 throw new IllegalStateException("Unknown generated texture type: " + generatedTexture);
         }

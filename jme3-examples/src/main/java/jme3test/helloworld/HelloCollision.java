@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -75,6 +75,7 @@ public class HelloCollision extends SimpleApplication
     app.start();
   }
 
+  @Override
   public void simpleInitApp() {
     /** Set up Physics */
     bulletAppState = new BulletAppState();
@@ -97,7 +98,7 @@ public class HelloCollision extends SimpleApplication
     // We set up collision detection for the scene by creating a
     // compound collision shape and a static RigidBodyControl with mass zero.
     CollisionShape sceneShape =
-            CollisionShapeFactory.createMeshShape((Node) sceneModel);
+            CollisionShapeFactory.createMeshShape(sceneModel);
     landscape = new RigidBodyControl(sceneShape, 0);
     sceneModel.addControl(landscape);
 
@@ -149,6 +150,7 @@ public class HelloCollision extends SimpleApplication
 
   /** These are our custom actions triggered by key presses.
    * We do not walk yet, we just keep track of the direction the user pressed. */
+  @Override
   public void onAction(String binding, boolean value, float tpf) {
     if (binding.equals("Left")) {
       if (value) { left = true; } else { left = false; }

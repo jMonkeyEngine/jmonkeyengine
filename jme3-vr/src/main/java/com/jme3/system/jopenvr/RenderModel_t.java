@@ -28,6 +28,7 @@ public class RenderModel_t extends Structure {
 	public RenderModel_t() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("rVertexData", "unVertexCount", "rIndexData", "unTriangleCount", "diffuseTextureId");
 	}

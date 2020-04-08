@@ -404,7 +404,7 @@ public class LWJGLOpenVRInput implements VRInputAPI {
     public Vector3f getFinalObserverPosition(int index) {
 
         if (environment != null) {
-            VRViewManager vrvm = (VRViewManager) environment.getVRViewManager();
+            VRViewManager vrvm = environment.getVRViewManager();
 
             if (vrvm != null) {
                 if (isInputDeviceTracking(index) == false) {

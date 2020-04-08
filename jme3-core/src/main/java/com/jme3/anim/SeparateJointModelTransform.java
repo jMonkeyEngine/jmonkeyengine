@@ -23,6 +23,7 @@ public class SeparateJointModelTransform implements JointModelTransform {
         }
     }
 
+    @Override
     public void getOffsetTransform(Matrix4f outTransform, Matrix4f inverseModelBindMatrix) {
         modelTransform.toTransformMatrix(outTransform).mult(inverseModelBindMatrix, outTransform);
     }

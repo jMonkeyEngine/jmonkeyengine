@@ -251,7 +251,7 @@ import com.jme3.util.BufferUtils;
                     }
                 }
 
-                if (vertexGroups != null && vertexGroups.size() > 0) {
+                if (vertexGroups.size() > 0) {
                     Map<Float, Integer> group = vertexGroups.get(i);
                     maximumWeightsPerVertex = Math.max(maximumWeightsPerVertex, group.size());
                     boneWeightAndIndexes.add(new TreeMap<Float, Integer>(group));

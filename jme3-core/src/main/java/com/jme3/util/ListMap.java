@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -53,14 +53,17 @@ public final class ListMap<K, V> extends AbstractMap<K, V> implements Cloneable,
             this.value = value;
         }
 
+        @Override
         public K getKey() {
             return key;
         }
 
+        @Override
         public V getValue() {
             return value;
         }
 
+        @Override
         public V setValue(V v) {
             throw new UnsupportedOperationException();
         }
@@ -155,7 +158,7 @@ public final class ListMap<K, V> extends AbstractMap<K, V> implements Cloneable,
 
     @Override
     public boolean containsKey(Object key) {
-        return backingMap.containsKey( (K) key); 
+        return backingMap.containsKey(key); 
 //        if (key == null)
 //            throw new IllegalArgumentException();
 //
@@ -169,7 +172,7 @@ public final class ListMap<K, V> extends AbstractMap<K, V> implements Cloneable,
 
     @Override
     public boolean containsValue(Object value) {
-        return backingMap.containsValue( (V) value); 
+        return backingMap.containsValue(value); 
 //        for (int i = 0; i < entries.size(); i++){
 //            if (valEq(entries.get(i).value, value))
 //                return true;
@@ -179,7 +182,7 @@ public final class ListMap<K, V> extends AbstractMap<K, V> implements Cloneable,
 
     @Override
     public V get(Object key) {
-        return backingMap.get( (K) key); 
+        return backingMap.get(key); 
 //        if (key == null)
 //            throw new IllegalArgumentException();
 //
@@ -234,7 +237,7 @@ public final class ListMap<K, V> extends AbstractMap<K, V> implements Cloneable,
 
     @Override
     public V remove(Object key) {
-        V element = backingMap.remove( (K) key);
+        V element = backingMap.remove(key);
         if (element != null){
             // find removed element
             int size = size() + 1; // includes removed element
@@ -322,6 +325,7 @@ public final class ListMap<K, V> extends AbstractMap<K, V> implements Cloneable,
 //        return values;
     }
 
+    @Override
     public Set<Entry<K, V>> entrySet() {
         return backingMap.entrySet();
 //        HashSet<Entry<K, V>> entryset = new HashSet<Entry<K, V>>();

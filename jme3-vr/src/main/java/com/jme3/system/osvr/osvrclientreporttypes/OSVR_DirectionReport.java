@@ -16,6 +16,7 @@ public class OSVR_DirectionReport extends Structure {
 	public OSVR_DirectionReport() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("sensor", "direction");
 	}

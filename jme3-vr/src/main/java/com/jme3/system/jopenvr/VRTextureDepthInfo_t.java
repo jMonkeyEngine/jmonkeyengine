@@ -22,6 +22,7 @@ public class VRTextureDepthInfo_t extends Structure {
 	public VRTextureDepthInfo_t() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("handle", "mProjection", "vRange");
 	}

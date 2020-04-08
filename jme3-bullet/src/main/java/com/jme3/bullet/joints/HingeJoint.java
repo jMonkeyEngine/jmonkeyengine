@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -242,6 +242,7 @@ public class HingeJoint extends PhysicsJoint {
      * @param ex exporter (not null)
      * @throws IOException from exporter
      */
+    @Override
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
         OutputCapsule capsule = ex.getCapsule(this);
@@ -268,6 +269,7 @@ public class HingeJoint extends PhysicsJoint {
      * @param im importer (not null)
      * @throws IOException from importer
      */
+    @Override
     public void read(JmeImporter im) throws IOException {
         super.read(im);
         InputCapsule capsule = im.getCapsule(this);

@@ -43,6 +43,7 @@ public class TextureBlenderLuminance extends AbstractTextureBlender {
         super(flag, negateTexture, blendType, materialColor, color, blendFactor);
     }
 
+    @Override
     public Image blend(Image image, Image baseImage, BlenderContext blenderContext) {
         this.prepareImagesForBlending(image, baseImage);
 

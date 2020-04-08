@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -111,6 +111,7 @@ public final class BIHNode implements Savable {
         this.rightPlane = rightPlane;
     }
 
+    @Override
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(leftIndex, "left_index", 0);
@@ -122,6 +123,7 @@ public final class BIHNode implements Savable {
         oc.write(right, "right_node", null);
     }
 
+    @Override
     public void read(JmeImporter im) throws IOException {
         InputCapsule ic = im.getCapsule(this);
         leftIndex = ic.readInt("left_index", 0);

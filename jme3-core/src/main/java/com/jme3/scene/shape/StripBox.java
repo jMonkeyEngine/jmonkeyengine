@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -139,12 +139,14 @@ public class StripBox extends AbstractBox {
         return new StripBox(center.clone(), xExtent, yExtent, zExtent);
     }
 
+    @Override
     protected void doUpdateGeometryIndices() {
         if (getBuffer(Type.Index) == null){
             setBuffer(Type.Index, 3, BufferUtils.createShortBuffer(GEOMETRY_INDICES_DATA));
         }
     }
 
+    @Override
     protected void doUpdateGeometryNormals() {
         if (getBuffer(Type.Normal) == null){
             float[] normals = new float[8 * 3];
@@ -164,12 +166,14 @@ public class StripBox extends AbstractBox {
         }
     }
 
+    @Override
     protected void doUpdateGeometryTextures() {
         if (getBuffer(Type.TexCoord) == null){
             setBuffer(Type.TexCoord, 2, BufferUtils.createFloatBuffer(GEOMETRY_TEXTURE_DATA));
         }
     }
 
+    @Override
     protected void doUpdateGeometryVertices() {
         FloatBuffer fpb = BufferUtils.createVector3Buffer(8 * 3);
         Vector3f[] v = computeVertices();

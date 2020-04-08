@@ -21,6 +21,7 @@ public class VRActiveActionSet_t extends Structure {
 	public VRActiveActionSet_t() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("ulActionSet", "ulRestrictedToDevice", "ulSecondaryActionSet", "unPadding", "nPriority");
 	}

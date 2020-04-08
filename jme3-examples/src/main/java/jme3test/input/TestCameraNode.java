@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine All rights reserved.
+ * Copyright (c) 2009-2020 jMonkeyEngine All rights reserved.
  * <p/>
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -63,6 +63,7 @@ public class TestCameraNode extends SimpleApplication implements AnalogListener,
     app.start();
   }
 
+  @Override
   public void simpleInitApp() {
     // load a teapot model 
     teaGeom = (Geometry) assetManager.loadModel("Models/Teapot/Teapot.obj");
@@ -110,6 +111,7 @@ public class TestCameraNode extends SimpleApplication implements AnalogListener,
     inputManager.addListener(this, "rotateRight", "rotateLeft", "toggleRotate");
   }
 
+  @Override
   public void onAnalog(String name, float value, float tpf) {
     //computing the normalized direction of the cam to move the teaNode
     direction.set(cam.getDirection()).normalizeLocal();
@@ -138,6 +140,7 @@ public class TestCameraNode extends SimpleApplication implements AnalogListener,
 
   }
 
+  @Override
   public void onAction(String name, boolean keyPressed, float tpf) {
     //toggling rotation on or off
     if (name.equals("toggleRotate") && keyPressed) {

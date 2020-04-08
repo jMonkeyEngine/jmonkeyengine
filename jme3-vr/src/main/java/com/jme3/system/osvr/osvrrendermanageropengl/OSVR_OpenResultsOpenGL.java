@@ -20,6 +20,7 @@ public class OSVR_OpenResultsOpenGL extends Structure {
 	public OSVR_OpenResultsOpenGL() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("status", "library", "buffers");
 	}

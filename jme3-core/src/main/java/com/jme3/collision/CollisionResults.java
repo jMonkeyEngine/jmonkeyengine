@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -61,6 +61,7 @@ public class CollisionResults implements Iterable<CollisionResult> {
      * 
      * @return the iterator
      */
+    @Override
     public Iterator<CollisionResult> iterator() {
         if (results == null) {
             List<CollisionResult> dumbCompiler = Collections.emptyList();            

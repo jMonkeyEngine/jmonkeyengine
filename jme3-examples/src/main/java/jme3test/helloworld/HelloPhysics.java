@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -123,6 +123,7 @@ public class HelloPhysics extends SimpleApplication {
    * The ball is set up to fly from the camera position in the camera direction.
    */
   private ActionListener actionListener = new ActionListener() {
+    @Override
     public void onAction(String name, boolean keyPressed, float tpf) {
       if (name.equals("shoot") && !keyPressed) {
         makeCannonBall();

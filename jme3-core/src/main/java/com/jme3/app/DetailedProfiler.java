@@ -284,7 +284,7 @@ public class DetailedProfiler implements AppProfiler {
             if (nbFramesCpu == 0) {
                 return 0;
             }
-            return (double) cpuSum / (double) Math.min(nbFramesCpu, MAX_FRAMES);
+            return cpuSum / (double) Math.min(nbFramesCpu, MAX_FRAMES);
         }
 
         public double getAverageGpu() {
@@ -292,7 +292,7 @@ public class DetailedProfiler implements AppProfiler {
                 return 0;
             }
 
-            return (double) gpuSum / (double) Math.min(nbFramesGpu, MAX_FRAMES);
+            return gpuSum / (double) Math.min(nbFramesGpu, MAX_FRAMES);
         }
     }
 

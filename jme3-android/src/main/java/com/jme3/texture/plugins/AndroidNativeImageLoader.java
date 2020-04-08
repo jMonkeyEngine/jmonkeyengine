@@ -25,12 +25,13 @@ public class AndroidNativeImageLoader  implements AssetLoader {
     
     private static native Image load(InputStream in, boolean flipY, byte[] tmpArray) throws IOException;
     
+    @Override
     public Image load(AssetInfo info) throws IOException {
         boolean flip = ((TextureKey) info.getKey()).isFlipY();
         InputStream in = null;
         try {
             in = info.openStream();
-            return load(info.openStream(), flip, tmpArray);
+            return load(in, flip, tmpArray);
         } finally {
             if (in != null){
                 in.close();

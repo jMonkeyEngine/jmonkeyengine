@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -149,7 +149,7 @@ public class HDRLoader implements AssetLoader {
                 rleTempBuffer = BufferUtils.createByteBuffer(width * 4);
         }
         
-	// read each component separately
+        // read each component separately
         for (int i = 0; i < 4; i++) {
             // read WIDTH bytes for the channel
             for (int j = 0; j < width;) {
@@ -161,7 +161,7 @@ public class HDRLoader implements AssetLoader {
                         rleTempBuffer.put( (j++) * 4 + i , (byte)val);
                         //scanline[j++][i] = val;
                     }
-                } else {	// non-run
+                } else { // non-run
                     while ((code--) != 0) {
                         int val = in.read();
                         rleTempBuffer.put( (j++) * 4 + i, (byte)val);
@@ -313,6 +313,7 @@ public class HDRLoader implements AssetLoader {
         return new Image(pixelFormat, width, height, dataStore, ColorSpace.Linear);
     }
 
+    @Override
     public Object load(AssetInfo info) throws IOException {
         if (!(info.getKey() instanceof TextureKey))
             throw new IllegalArgumentException("Texture assets must be loaded using a TextureKey");

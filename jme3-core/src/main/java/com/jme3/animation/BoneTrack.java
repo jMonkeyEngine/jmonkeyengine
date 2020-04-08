@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -89,7 +89,7 @@ public final class BoneTrack implements JmeCloneable, Track {
      * @param scales the scale of the bone for each frame
      */
     public BoneTrack(int targetBoneIndex, float[] times, Vector3f[] translations, Quaternion[] rotations, Vector3f[] scales) {
-    	this.targetBoneIndex = targetBoneIndex;
+        this.targetBoneIndex = targetBoneIndex;
         this.setKeyframes(times, translations, rotations, scales);
     }
 
@@ -202,6 +202,7 @@ public final class BoneTrack implements JmeCloneable, Track {
      * @param channel
      * @param vars
      */
+    @Override
     public void setTime(float time, float weight, AnimControl control, AnimChannel channel, TempVars vars) {
         BitSet affectedBones = channel.getAffectedBones();
         if (affectedBones != null && !affectedBones.get(targetBoneIndex)) {
@@ -268,6 +269,7 @@ public final class BoneTrack implements JmeCloneable, Track {
     /**
      * @return the length of the track
      */
+    @Override
     public float getLength() {
         return times == null ? 0 : times[times.length - 1] - times[0];
     }

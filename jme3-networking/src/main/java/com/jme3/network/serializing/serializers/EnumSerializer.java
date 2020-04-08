@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,6 +42,7 @@ import java.nio.ByteBuffer;
  * @author Lars Wesselius
  */
 public class EnumSerializer extends Serializer {
+    @Override
     public <T> T readObject(ByteBuffer data, Class<T> c) throws IOException {
         try {
             int ordinal = data.getInt();
@@ -57,6 +58,7 @@ public class EnumSerializer extends Serializer {
         }
     }
 
+    @Override
     public void writeObject(ByteBuffer buffer, Object object) throws IOException {
         if (object == null) {
             buffer.putInt(-1);

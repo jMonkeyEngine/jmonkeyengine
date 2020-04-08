@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -138,6 +138,7 @@ public class FluidSimHeightMap extends AbstractHeightMap {
      * Generates a heightmap using fluid simulation and the attributes set by
      * the constructor or the setters.
      */
+    @Override
     public boolean load() {
         // Clean up data if needed.
         if (null != heightData) {
@@ -211,7 +212,7 @@ public class FluidSimHeightMap extends AbstractHeightMap {
         // put the normalized heightmap into the range [0...255] and into the heightmap
         for (int y = 0; y < size; y++) {
             for (int x = 0; x < size; x++) {
-                heightData[x + y * size] = (float) (tempBuffer[curBuf][x + y * size]);
+                heightData[x + y * size] = tempBuffer[curBuf][x + y * size];
             }
         }
         normalizeTerrain(NORMALIZE_RANGE);

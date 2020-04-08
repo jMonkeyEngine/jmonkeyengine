@@ -38,23 +38,28 @@ public class EraseTimer extends Timer {
         return getTime() * INVERSE_TIMER_RESOLUTION;
     }
 
+    @Override
     public long getTime() {
         //return System.currentTimeMillis() - startTime;
         return System.nanoTime() - startTime;
     }
 
+    @Override
     public long getResolution() {
         return TIMER_RESOLUTION;
     }
 
+    @Override
     public float getFrameRate() {
         return fps;
     }
 
+    @Override
     public float getTimePerFrame() {
         return tpf;
     }
 
+    @Override
     public void update() {
         tpf = (getTime() - previousTime) * (1.0f / TIMER_RESOLUTION);
         if (tpf >= 0.2) {
@@ -66,6 +71,7 @@ public class EraseTimer extends Timer {
         previousTime = getTime();
     }
 
+    @Override
     public void reset() {
         //startTime = System.currentTimeMillis();
         startTime = System.nanoTime();

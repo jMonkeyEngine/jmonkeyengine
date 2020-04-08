@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -57,6 +57,7 @@ public abstract class AbstractMessage implements Message
      *  Sets this message to 'reliable' or not and returns this
      *  message.
      */
+    @Override
     public Message setReliable(boolean f)
     {
         this.reliable = f;
@@ -67,6 +68,7 @@ public abstract class AbstractMessage implements Message
      *  Indicates which way an outgoing message should be sent
      *  or which way an incoming message was sent.
      */
+    @Override
     public boolean isReliable()
     {
         return reliable;

@@ -16,8 +16,8 @@ public class OsvrTimeValueLibrary implements Library {
 	static {
 		Native.register(OsvrTimeValueLibrary.class, OsvrTimeValueLibrary.JNA_NATIVE_LIB);
 	}
-	public static final int OSVR_TRUE = (int)(1);
-	public static final int OSVR_FALSE = (int)(0);
+	public static final int OSVR_TRUE = 1;
+	public static final int OSVR_FALSE = 0;
 	/**
 	 * Gets the current time in the TimeValue. Parallel to gettimeofday.
 	 * Original signature : <code>void osvrTimeValueGetNow(OSVR_TimeValue*)</code>

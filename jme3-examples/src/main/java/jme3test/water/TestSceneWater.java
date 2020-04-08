@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -51,7 +51,7 @@ import java.io.File;
 public class TestSceneWater extends SimpleApplication {
 
     // set default for applets
-    private static boolean useHttp = true;
+    private static boolean useHttp = false;
 
     public static void main(String[] args) {
       
@@ -59,7 +59,13 @@ public class TestSceneWater extends SimpleApplication {
         app.start();
     }
 
+    @Override
     public void simpleInitApp() {
+        File file = new File("wildhouse.zip");
+        if (!file.exists()) {
+            useHttp = true;
+        }
+        
         this.flyCam.setMoveSpeed(10);
         Node mainScene=new Node();
         cam.setLocation(new Vector3f(-27.0f, 1.0f, 75.0f));
@@ -70,11 +76,7 @@ public class TestSceneWater extends SimpleApplication {
                 "Textures/Sky/Bright/BrightSky.dds", 
                 SkyFactory.EnvMapType.CubeMap));
 
-        
-        File file = new File("wildhouse.zip");
-        if (file.exists()) {
-            useHttp = false;
-        }
+                
         // create the geometry and attach it
         // load the level from zip or http zip
         if (useHttp) {

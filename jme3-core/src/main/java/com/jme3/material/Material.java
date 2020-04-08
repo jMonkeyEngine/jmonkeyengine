@@ -139,10 +139,12 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         this.name = name;
     }
 
+    @Override
     public void setKey(AssetKey key) {
         this.key = key;
     }
 
+    @Override
     public AssetKey getKey() {
         return key;
     }
@@ -1040,6 +1042,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         render(geom, geom.getWorldLightList(), rm);
     }
 
+    @Override
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(def.getAssetName(), "material_def", null);
@@ -1057,6 +1060,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
                 "]";
     }
 
+    @Override
     public void read(JmeImporter im) throws IOException {
         InputCapsule ic = im.getCapsule(this);
 

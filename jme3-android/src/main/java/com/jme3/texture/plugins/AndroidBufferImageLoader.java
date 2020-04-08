@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2014 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -67,6 +67,7 @@ public class AndroidBufferImageLoader implements AssetLoader {
         }
     }
     
+    @Override
     public Object load(AssetInfo assetInfo) throws IOException {
         Bitmap bitmap = null;
         Image.Format format;

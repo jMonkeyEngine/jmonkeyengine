@@ -14,6 +14,7 @@ public class OSVR_Vec3 extends Structure {
 	public OSVR_Vec3() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("data");
 	}

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -53,9 +53,11 @@ public class NewtKeyInput implements KeyInput, KeyListener {
     public NewtKeyInput() {
     }
     
+    @Override
     public void initialize() {
     }
     
+    @Override
     public void destroy() {
     }
 
@@ -70,10 +72,12 @@ public class NewtKeyInput implements KeyInput, KeyListener {
         }
     }
     
+    @Override
     public long getInputTimeNanos() {
         return System.nanoTime();
     }
 
+    @Override
     public void update() {
         synchronized (eventQueue){
             // flush events to listener
@@ -84,10 +88,12 @@ public class NewtKeyInput implements KeyInput, KeyListener {
         }
     }
 
+    @Override
     public boolean isInitialized() {
         return true;
     }
 
+    @Override
     public void setInputListener(RawInputListener listener) {
         this.listener = listener;
     }
@@ -95,6 +101,7 @@ public class NewtKeyInput implements KeyInput, KeyListener {
     public void keyTyped(KeyEvent evt) {
     }
 
+    @Override
     public void keyPressed(KeyEvent evt) {
         int code = convertNewtKey(evt.getKeySymbol());
         KeyInputEvent keyEvent = new KeyInputEvent(code, evt.getKeyChar(), true, evt.isAutoRepeat());
@@ -104,6 +111,7 @@ public class NewtKeyInput implements KeyInput, KeyListener {
         }
     }
 
+    @Override
     public void keyReleased(KeyEvent evt) {
         int code = convertNewtKey(evt.getKeySymbol());
         KeyInputEvent keyEvent = new KeyInputEvent(code, evt.getKeyChar(), false, evt.isAutoRepeat());
