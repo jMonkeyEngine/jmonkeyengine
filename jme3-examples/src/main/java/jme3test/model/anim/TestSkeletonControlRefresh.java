@@ -63,13 +63,12 @@ import com.jme3.shadow.DirectionalLightShadowFilter;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TestSkeletonControlRefresh extends SimpleApplication implements ActionListener {
+public class TestSkeletonControlRefresh extends SimpleApplication implements ActionListener{
 
     private AnimComposer animComposer;
-    private List<SkinningControl> skinningControls = new ArrayList<>();
-
     private final static int SIZE = 10;
     private boolean hwSkinningEnable = true;
+    private List<SkinningControl> skinningControls = new ArrayList<>();
     private BitmapText hwsText;
  
     public static void main(String[] args) {
