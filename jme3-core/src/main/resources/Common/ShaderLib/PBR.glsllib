@@ -2,6 +2,9 @@
 #ifndef PI
     #define PI 3.14159265358979323846264
 #endif
+#ifndef NB_PROBES
+    #define NB_PROBES 0
+#endif
 
 //Specular fresnel computation
 vec3 F_Shlick(float vh,	vec3 F0){
