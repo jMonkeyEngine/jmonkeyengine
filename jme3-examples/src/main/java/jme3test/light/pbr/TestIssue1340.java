@@ -17,6 +17,8 @@ import com.jme3.system.AppSettings;
  */
 public class TestIssue1340 extends SimpleApplication {
 
+    int frame;
+
     public static void main(String[] args) {
         TestIssue1340 testIssue1340 = new TestIssue1340();
         testIssue1340.setSettings(createSettings());
@@ -43,13 +45,6 @@ public class TestIssue1340 extends SimpleApplication {
 
         viewPort.setBackgroundColor(ColorRGBA.LightGray);
     }
-
-    /**
-     * #ifndef NB_PROBES
-     *     #define NB_PROBES 0
-     * #endif
-     */
-    int frame;
 
     @Override
     public void simpleUpdate(float tpf) {
