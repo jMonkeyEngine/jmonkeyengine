@@ -36,6 +36,7 @@ import com.jme3.anim.AnimClip;
 import com.jme3.anim.AnimComposer;
 import com.jme3.anim.SkinningControl;
 import com.jme3.anim.tween.Tween;
+import com.jme3.anim.tween.Tweens;
 import com.jme3.anim.tween.action.Action;
 import com.jme3.anim.tween.action.BaseAction;
 import com.jme3.anim.tween.action.LinearBlendSpace;
@@ -55,7 +56,7 @@ import com.jme3.scene.shape.Box;
 public class TestOgreAnim extends SimpleApplication implements ActionListener {
 
     private AnimComposer animComposer;
-    private static LoopAction currentAction;
+    private static Action currentAction;
 
     public static void main(String[] args) {
         TestOgreAnim app = new TestOgreAnim();
@@ -80,9 +81,12 @@ public class TestOgreAnim extends SimpleApplication implements ActionListener {
         animComposer.actionBlended("Attack", new LinearBlendSpace(0f, 0.5f), "Dodge");
         for (AnimClip animClip : animComposer.getAnimClips()) {
             Action action = animComposer.action(animClip.getName());
-            animComposer.addAction(animClip.getName(), new LoopAction(action, animComposer));
+            if(!"stand".equals(animClip.getName())) {
+                action = new BaseAction(Tweens.sequence(action, Tweens.callMethod(this, "backToStand", animComposer)));
+            }
+            animComposer.addAction(animClip.getName(), action);
         }
-        currentAction = (LoopAction) animComposer.setCurrentAction("stand"); // Walk, pull, Dodge, stand, push
+        currentAction = animComposer.setCurrentAction("stand"); // Walk, pull, Dodge, stand, push
 
         SkinningControl skinningControl = model.getControl(SkinningControl.class);
         skinningControl.setHardwareSkinningPreferred(false);
@@ -100,48 +104,18 @@ public class TestOgreAnim extends SimpleApplication implements ActionListener {
         inputManager.addMapping("Attack", new KeyTrigger(KeyInput.KEY_SPACE));
     }
 
+    public Tween backToStand(AnimComposer animComposer) {
+        currentAction =  animComposer.setCurrentAction("stand");
+        return currentAction;
+    }
+    
     @Override
     public void onAction(String binding, boolean value, float tpf) {
         if (binding.equals("Attack") && value) {
             if (currentAction != null && !currentAction.equals(animComposer.getAction("Dodge"))) {
-                currentAction = (LoopAction) animComposer.setCurrentAction("Dodge");
-                currentAction.setNextAnim("stand");
+                currentAction = animComposer.setCurrentAction("Dodge");
                 currentAction.setSpeed(0.1f);
             }
         }
-    }
-
-    static class LoopAction extends BaseAction {
-
-        final AnimComposer ac;
-        private boolean loop = false;
-        private String nextAnim = null;
-
-        public LoopAction(Tween delegate, AnimComposer ac) {
-            super(delegate);
-            this.ac = ac;
-        }
-
-        public void setLoop(boolean loop) {
-            this.loop = loop;
-        }
-
-        public void setNextAnim(String nextAction) {
-            this.nextAnim = nextAction;
-        }
-
-        @Override
-        public boolean interpolate(double t) {
-            boolean running = super.interpolate(t);
-            if (!loop && !running) {
-                setSpeed(0);
-                ac.removeCurrentAction(AnimComposer.DEFAULT_LAYER);
-                if (nextAnim != null && ac.hasAction(nextAnim)) {
-                    currentAction = (LoopAction) ac.setCurrentAction(nextAnim);
-                }
-            }
-            return running;
-        }
-
     }
 }
