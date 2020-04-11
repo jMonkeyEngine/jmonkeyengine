@@ -130,6 +130,8 @@ public class AWTFrameProcessor implements SceneProcessor, PropertyChangeListener
 	private boolean askFixAspect;
 	private boolean enabled;
 
+	private boolean flipY = true;
+
 	@Override
 	public void initialize(RenderManager rm, ViewPort vp) {
 		this.renderManager = rm;
@@ -219,25 +221,49 @@ public class AWTFrameProcessor implements SceneProcessor, PropertyChangeListener
 	@Override
 	public void componentHidden(ComponentEvent e) {
 	}
-	
+
 	@Override
 	public void hierarchyChanged(HierarchyEvent e) {	
 	}
-	
+
 	@Override
 	public void ancestorMoved(HierarchyEvent e) {}
 
 	@Override
 	public void ancestorResized(HierarchyEvent e) {
-	    notifyChangedDimension(destination.getWidth(), destination.getHeight());
+		notifyChangedDimension(destination.getWidth(), destination.getHeight());
 	}
-	
+
 	public AWTFrameProcessor() {
+		this(true);
+	}
+
+	public AWTFrameProcessor(boolean flipY) {
 		transferMode = TransferMode.ALWAYS;
 		askWidth = 1;
 		askHeight = 1;
 		main = true;
 		reshapeNeeded = new AtomicInteger(2);    
+
+		this.flipY = flipY;
+	}
+
+	/**
+	 * Is the rendered image is Y flipped.
+	 * @return <code>true</code> if the rendered image has to be Y flipped and <code>false</code> otherwise
+	 * @see #setFlipY(boolean)
+	 */
+	public boolean isFlipY() {
+		return flipY;
+	}
+
+	/**
+	 * Set if the rendered image has to be Y flipped.
+	 * @param flip <code>true</code> if the rendered image has to be Y flipped and <code>false</code> otherwise
+	 * @see #isFlipY()
+	 */
+	public void setFlipY(boolean flip) {
+		this.flipY = flip;
 	}
 
 	/**
@@ -276,7 +302,7 @@ public class AWTFrameProcessor implements SceneProcessor, PropertyChangeListener
 	protected void notifyChangedDimension(Number width, Number height) {
 		notifyComponentResized(width.intValue(), height.intValue(), isPreserveRatio());
 	}
-	
+
 	/**
 	 * Gets the application.
 	 *
@@ -384,7 +410,7 @@ public class AWTFrameProcessor implements SceneProcessor, PropertyChangeListener
 	 * @param fixAspect true if need to fix aspect.
 	 */
 	protected void notifyComponentResized(int newWidth, int newHeight, boolean fixAspect) {
-		
+
 		newWidth = Math.max(newWidth, 1);
 		newHeight = Math.max(newHeight, 1);
 
@@ -583,7 +609,7 @@ public class AWTFrameProcessor implements SceneProcessor, PropertyChangeListener
 		Component destination = getDestination();
 		destination.addPropertyChangeListener(this);
 		destination.addPropertyChangeListener(this);
-		
+
 		destination.addComponentListener(this);
 
 		destination.addHierarchyListener(this);
@@ -595,9 +621,9 @@ public class AWTFrameProcessor implements SceneProcessor, PropertyChangeListener
 		Component destination = getDestination();
 		destination.removePropertyChangeListener(this);
 		destination.removePropertyChangeListener(this);
-		
+
 		destination.removeComponentListener(this);
-		
+
 		destination.removeHierarchyListener(this);
 		destination.removeHierarchyBoundsListener(this);
 	}
@@ -639,7 +665,7 @@ public class AWTFrameProcessor implements SceneProcessor, PropertyChangeListener
 	 * @return the new frame transfer.
 	 */
 	protected AWTComponentRenderer createFrameTransfer(FrameBuffer frameBuffer, int width, int height) {
-		return new AWTComponentRenderer(getDestination(), getTransferMode(), isMain() ? null : frameBuffer, width, height);
+		return new AWTComponentRenderer(getDestination(), getTransferMode(), isMain() ? null : frameBuffer, width, height, flipY);
 	}
 
 	/**

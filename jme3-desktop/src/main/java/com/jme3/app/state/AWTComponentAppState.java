@@ -35,7 +35,6 @@ import java.awt.Component;
 
 import com.jme3.app.Application;
 import com.jme3.app.state.AbstractAppState;
-import com.jme3.app.state.AppStateManager;
 import com.jme3.system.awt.AWTFrameProcessor;
 import com.jme3.system.awt.AWTTaskExecutor;
 
@@ -53,6 +52,8 @@ public class AWTComponentAppState extends AbstractAppState {
  
   private AWTFrameProcessor.TransferMode transferMode = AWTFrameProcessor.TransferMode.ON_CHANGES;
   
+  private boolean flipY = true;
+  
   @Override
   public void initialize(AppStateManager stateManager, Application app) {
     super.initialize(stateManager, app);
@@ -61,6 +62,7 @@ public class AWTComponentAppState extends AbstractAppState {
   @Override
   public void stateAttached(final AppStateManager stateManager) {
     processor = new AWTFrameProcessor();
+    processor.setFlipY(flipY);
 	processor.setTransferMode(transferMode);
 
 	AWTTaskExecutor.getInstance().addToExecute(new Runnable() {
@@ -131,5 +133,29 @@ public class AWTComponentAppState extends AbstractAppState {
    */
   public void setTransferMode(AWTFrameProcessor.TransferMode mode) {
 	  this.transferMode = mode;
+  }
+  
+	
+  /**
+   * Is the rendered image is Y flipped.
+   * @return <code>true</code> if the rendered image has to be Y flipped and <code>false</code> otherwise
+   * @see #setFlipY(boolean)
+   */
+  public boolean isFlipY() {
+	  return flipY;
+  }
+  
+  /**
+   * Set if the rendered image has to be Y flipped.
+   * @param flip <code>true</code> if the rendered image has to be Y flipped and <code>false</code> otherwise
+   * @see #isFlipY()
+   */
+  public void setFlipY(boolean flip) {
+	  
+	  if (processor != null) {
+		  processor.setFlipY(flip);
+	  }
+	  
+	  this.flipY = flip;
   }
 }

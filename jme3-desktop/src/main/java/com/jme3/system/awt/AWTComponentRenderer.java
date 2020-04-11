@@ -153,6 +153,11 @@ public class AWTComponentRenderer {
   private Graphics2D offGraphics = null;
   
   /**
+   * Is the rendered image has to be flipped in Y.
+   */
+  private boolean flipY = true;
+  
+  /**
    * Create a new component renderer attached to the given {@link Component destination}. 
    * The graphics of the destination are updated with the JMonkeyEngine rendering result.
    * @param destination the AWT component to use as target of the JMonkeyEngine rendering.
@@ -175,11 +180,26 @@ public class AWTComponentRenderer {
    * @param height the height of the component in pixels.
    */
   public AWTComponentRenderer(Component destination, TransferMode transferMode, FrameBuffer frameBuffer, int width, int height) {
+    this(destination, transferMode, frameBuffer, width, height, true);
+  }
+  
+  /**
+   * Create a new component renderer attached to the given {@link Component destination}. 
+   * The graphics of the destination are updated with the JMonkeyEngine rendering result.
+   * @param destination the AWT component to use as target of the JMonkeyEngine rendering.
+   * @param transferMode the rendering mode that can be {@link TransferMode#ALWAYS} if the component has to be rendered at each update or {@link TransferMode#ON_CHANGES} if the component has to be rendered only when changes are occurring.
+   * @param frameBuffer the JMonkey frame buffer to use (if <code>null</code> is passed, a new default frame buffer is created)
+   * @param width the width of the component in pixels.
+   * @param height the height of the component in pixels.
+   * @param yFlipped <code>true</code> if the rendered image has to be Y flipped and <code>false</code> otherwise
+   */
+  public AWTComponentRenderer(Component destination, TransferMode transferMode, FrameBuffer frameBuffer, int width, int height, boolean yFlipped) {
     this.transferMode = transferMode;
     this.frameState = new AtomicInteger(WAITING_STATE);
     this.imageState = new AtomicInteger(WAITING_STATE);
     this.width = frameBuffer != null ? frameBuffer.getWidth() : width;
     this.height = frameBuffer != null ? frameBuffer.getHeight() : height;
+    this.flipY = yFlipped;
     this.frameCount = 0;
 
     if (frameBuffer != null) {
@@ -253,6 +273,24 @@ public class AWTComponentRenderer {
   }
 
   /**
+   * Is the rendered image is Y flipped.
+   * @return <code>true</code> if the rendered image has to be Y flipped and <code>false</code> otherwise
+   * @see #setFlipY(boolean)
+   */
+  public boolean isFlipY() {
+	  return flipY;
+  }
+  
+  /**
+   * Set if the rendered image has to be Y flipped.
+   * @param flip <code>true</code> if the rendered image has to be Y flipped and <code>false</code> otherwise
+   * @see #isFlipY()
+   */
+  public void setFlipY(boolean flip) {
+	  this.flipY = flip;
+  }
+  
+  /**
    * Copy the JMonkey frame buffer that has been rendered by the JMonkey engine and schedule the rendering of the component.
    * @param renderManager the JMonkey render manager.
    */
@@ -324,13 +362,31 @@ public class AWTComponentRenderer {
 
         synchronized (byteBuffer) {
           
-          for(int i = 0; i < width * height; i++) {
-            imageDataBuffer[i] =   ((0xff & byteBuffer[i*4+3]) << 24)  // Alpha 
-                                 | ((0xff & byteBuffer[i*4])   << 16)  // Red
-                                 | ((0xff & byteBuffer[i*4+1]) <<  8)  // Green 
-                                 | ((0xff & byteBuffer[i*4+2]));       // BLue
-            
-          }
+        	if (flipY) {
+        		
+        		int index = 0;
+        		for(int x = 0; x < width; x++) {
+        			for(int y = 0; y < height; y++) {
+        				index = y*width+x;
+
+        				imageDataBuffer[(height - y - 1)*width+x] =   ((0xff & byteBuffer[index*4+3]) << 24)  // Alpha 
+                                                                    | ((0xff & byteBuffer[index*4])   << 16)  // Red
+                                                                    | ((0xff & byteBuffer[index*4+1]) <<  8)  // Green 
+                                                                    | ((0xff & byteBuffer[index*4+2]));       // BLue;
+        			}
+        		}
+        		
+        	} else {
+        		for(int i = 0; i < width * height; i++) {
+                    imageDataBuffer[i] =   ((0xff & byteBuffer[i*4+3]) << 24)  // Alpha 
+                                         | ((0xff & byteBuffer[i*4])   << 16)  // Red
+                                         | ((0xff & byteBuffer[i*4+1]) <<  8)  // Green 
+                                         | ((0xff & byteBuffer[i*4+2]));       // BLue
+                    
+                  }	
+        	}
+        	
+          
         }
 
         DataBuffer buffer = new DataBufferInt(imageDataBuffer, imageDataBuffer.length);
