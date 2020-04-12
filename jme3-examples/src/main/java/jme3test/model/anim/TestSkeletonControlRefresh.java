@@ -172,5 +172,4 @@ public class TestSkeletonControlRefresh extends SimpleApplication implements Act
         hwsText.setLocalTranslation(0, cam.getHeight(), 0);
         guiNode.attachChild(hwsText);
     }
-
 }
