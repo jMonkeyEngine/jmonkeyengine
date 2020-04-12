@@ -38,6 +38,7 @@ public class DetailedProfiler implements AppProfiler {
 
     @Override
     public void appStep(AppStep step) {
+
         curAppPath = step.name();
 
         if (step == AppStep.BeginFrame) {
@@ -102,7 +103,10 @@ public class DetailedProfiler implements AppProfiler {
     private void closeFrame() {
         //close frame
         if (data != null) {
-
+            if (ongoingGpuProfiling && renderer != null) {
+                renderer.stopProfiling();
+                ongoingGpuProfiling = false;
+            }
             prevPath = null;
 
             for (StatLine statLine : data.values()) {
