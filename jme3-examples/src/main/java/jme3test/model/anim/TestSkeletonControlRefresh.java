@@ -40,7 +40,7 @@ package jme3test.model.anim;
 import com.jme3.anim.AnimClip;
 import com.jme3.anim.AnimComposer;
 import com.jme3.anim.SkinningControl;
-import com.jme3.anim.tween.Tween;
+import com.jme3.anim.tween.Tweens;
 import com.jme3.anim.tween.action.Action;
 import com.jme3.anim.tween.action.BaseAction;
 import com.jme3.app.SimpleApplication;
@@ -103,7 +103,8 @@ public class TestSkeletonControlRefresh extends SimpleApplication implements Act
                 animComposer = model.getControl(AnimComposer.class);
                 for (AnimClip animClip : animComposer.getAnimClips()) {
                     Action action = animComposer.action(animClip.getName());
-                    animComposer.addAction(animClip.getName(), new NoLoopAction(action, animComposer));
+                    animComposer.addAction(animClip.getName(), new BaseAction(
+                    		Tweens.sequence(action, Tweens.callMethod(animComposer, "removeCurrentAction", AnimComposer.DEFAULT_LAYER))));
                 }
                 animComposer.setCurrentAction(new ArrayList<>(animComposer.getAnimClips()).get((i + j) % 4).getName());
 
@@ -172,29 +173,4 @@ public class TestSkeletonControlRefresh extends SimpleApplication implements Act
         guiNode.attachChild(hwsText);
     }
 
-    static class NoLoopAction extends BaseAction {
-
-        final AnimComposer ac;
-        private boolean loop = false;
-
-        public NoLoopAction(Tween delegate, AnimComposer ac) {
-            super(delegate);
-            this.ac = ac;
-        }
-
-        public void setLoop(boolean loop) {
-            this.loop = loop;
-        }
-
-        @Override
-        public boolean interpolate(double t) {
-            boolean running = super.interpolate(t);
-            if (!loop && !running) {
-                setSpeed(0);
-                ac.removeCurrentAction(AnimComposer.DEFAULT_LAYER);
-            }
-            return running;
-        }
-
-    }
 }
