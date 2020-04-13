@@ -37,7 +37,12 @@ package jme3test.model.anim;
  */
 
 
-import com.jme3.animation.*;
+import com.jme3.anim.AnimClip;
+import com.jme3.anim.AnimComposer;
+import com.jme3.anim.SkinningControl;
+import com.jme3.anim.tween.Tweens;
+import com.jme3.anim.tween.action.Action;
+import com.jme3.anim.tween.action.BaseAction;
 import com.jme3.app.SimpleApplication;
 import com.jme3.asset.TextureKey;
 import com.jme3.font.BitmapText;
@@ -58,15 +63,12 @@ import com.jme3.shadow.DirectionalLightShadowFilter;
 import java.util.ArrayList;
 import java.util.List;
 
-//TODO rework this Test when the new animation system is done.
 public class TestSkeletonControlRefresh extends SimpleApplication implements ActionListener{
- 
-    private AnimChannel channel;
-    private AnimControl control;
-    private String[] animNames = {"Dodge", "Walk", "pull", "push"};
+
+    private AnimComposer animComposer;
     private final static int SIZE = 10;
     private boolean hwSkinningEnable = true;
-    private List<SkeletonControl> skControls = new ArrayList<SkeletonControl>();
+    private List<SkinningControl> skinningControls = new ArrayList<>();
     private BitmapText hwsText;
  
     public static void main(String[] args) {
@@ -92,22 +94,24 @@ public class TestSkeletonControlRefresh extends SimpleApplication implements Act
  
         for (int i = 0; i < SIZE; i++) {
             for (int j = 0; j < SIZE; j++) {
-                Spatial model = assetManager.loadModel("Models/Oto/OtoOldAnim.j3o");
+                Spatial model = assetManager.loadModel("Models/Oto/Oto.mesh.xml");
                 //setting a different material
                 model.setMaterial(m.clone());
                 model.setLocalScale(0.1f);
                 model.setLocalTranslation(i - SIZE / 2, 0, j - SIZE / 2);
-                control = model.getControl(AnimControl.class);
- 
-                channel = control.createChannel();
-                channel.setAnim(animNames[(i + j) % 4]);
-                channel.setLoopMode(LoopMode.DontLoop);
-                SkeletonControl skeletonControl = model.getControl(SkeletonControl.class);
-               
-                //This is a workaround the issue. this call will make the SkeletonControl gather the targets again.
-                //skeletonControl.setSpatial(model);
-                skeletonControl.setHardwareSkinningPreferred(hwSkinningEnable);
-                skControls.add(skeletonControl);
+
+                animComposer = model.getControl(AnimComposer.class);
+                for (AnimClip animClip : animComposer.getAnimClips()) {
+                    Action action = animComposer.action(animClip.getName());
+                    animComposer.addAction(animClip.getName(), new BaseAction(
+                    		Tweens.sequence(action, Tweens.callMethod(animComposer, "removeCurrentAction", AnimComposer.DEFAULT_LAYER))));
+                }
+                animComposer.setCurrentAction(new ArrayList<>(animComposer.getAnimClips()).get((i + j) % 4).getName());
+
+                SkinningControl skinningControl = model.getControl(SkinningControl.class);
+                skinningControl.setHardwareSkinningPreferred(hwSkinningEnable);
+                skinningControls.add(skinningControl);
+
                 rootNode.attachChild(model);
             }
         }        
@@ -153,10 +157,10 @@ public class TestSkeletonControlRefresh extends SimpleApplication implements Act
     public void onAction(String name, boolean isPressed, float tpf) {
         if(isPressed && name.equals("toggleHWS")){
             hwSkinningEnable = !hwSkinningEnable;
-            for (SkeletonControl skControl : skControls) {
-                skControl.setHardwareSkinningPreferred(hwSkinningEnable);              
-                hwsText.setText("HWS : "+ hwSkinningEnable);
+            for (SkinningControl sc : skinningControls) {
+                sc.setHardwareSkinningPreferred(hwSkinningEnable);
             }
+            hwsText.setText("HWS : "+ hwSkinningEnable);
         }
     }
  
