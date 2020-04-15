@@ -239,9 +239,8 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
             // Create application instance
             try {
                 if (app == null) {
-                    @SuppressWarnings("unchecked")
-                    Class<? extends LegacyApplication> clazz = (Class<? extends LegacyApplication>) Class.forName(appClass);
-                    app = clazz.newInstance();
+                    Class clazz = Class.forName(appClass);
+                    app = (LegacyApplication)clazz.newInstance();
                 }
 
                 app.setSettings(settings);

@@ -103,8 +103,8 @@ public class AppletHarness extends Applet {
         JmeSystem.setLowPermissions(true);
 
         try{
-            Class<? extends LegacyApplication> clazz = (Class<? extends LegacyApplication>) Class.forName(appClass);
-            app = clazz.newInstance();
+            Class clazz = Class.forName(appClass);
+            app = (LegacyApplication) clazz.newInstance();
         }catch (ClassNotFoundException ex){
             ex.printStackTrace();
         }catch (InstantiationException ex){

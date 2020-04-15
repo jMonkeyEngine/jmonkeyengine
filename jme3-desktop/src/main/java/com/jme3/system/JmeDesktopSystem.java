@@ -193,22 +193,22 @@ public class JmeDesktopSystem extends JmeSystemDelegate {
 
     private JmeContext newContextLwjgl(AppSettings settings, JmeContext.Type type) {
         try {
-            Class<? extends JmeContext> ctxClazz = null;
+            Class ctxClazz = null;
             switch (type) {
                 case Canvas:
-                    ctxClazz = (Class<? extends JmeContext>) Class.forName("com.jme3.system.lwjgl.LwjglCanvas");
+                    ctxClazz = Class.forName("com.jme3.system.lwjgl.LwjglCanvas");
                     break;
                 case Display:
-                    ctxClazz = (Class<? extends JmeContext>) Class.forName("com.jme3.system.lwjgl.LwjglDisplay");
+                    ctxClazz = Class.forName("com.jme3.system.lwjgl.LwjglDisplay");
                     break;
                 case OffscreenSurface:
-                    ctxClazz = (Class<? extends JmeContext>) Class.forName("com.jme3.system.lwjgl.LwjglOffscreenBuffer");
+                    ctxClazz = Class.forName("com.jme3.system.lwjgl.LwjglOffscreenBuffer");
                     break;
                 default:
                     throw new IllegalArgumentException("Unsupported context type " + type);
             }
 
-            return ctxClazz.newInstance();
+            return (JmeContext) ctxClazz.newInstance();
         } catch (InstantiationException ex) {
             logger.log(Level.SEVERE, "Failed to create context", ex);
         } catch (IllegalAccessException ex) {
@@ -225,9 +225,8 @@ public class JmeDesktopSystem extends JmeSystemDelegate {
         try {
             String className = settings.getRenderer().substring("CUSTOM".length());
 
-            Class<? extends JmeContext> ctxClazz = null;
-            ctxClazz = (Class<? extends JmeContext>) Class.forName(className);
-            return ctxClazz.newInstance();
+            Class ctxClazz = Class.forName(className);
+            return (JmeContext) ctxClazz.newInstance();
         } catch (InstantiationException ex) {
             logger.log(Level.SEVERE, "Failed to create context", ex);
         } catch (IllegalAccessException ex) {
