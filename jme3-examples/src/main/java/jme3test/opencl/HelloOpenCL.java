@@ -58,7 +58,7 @@ public class HelloOpenCL extends SimpleApplication {
         AppSettings settings = new AppSettings(true);
         settings.setOpenCLSupport(true);
         settings.setVSync(true);
-//        settings.setRenderer(AppSettings.JOGL_OPENGL_FORWARD_COMPATIBLE);
+        settings.setRenderer(AppSettings.LWJGL_OPENGL2);
         app.setSettings(settings);
         app.start(); // start the game
     }
