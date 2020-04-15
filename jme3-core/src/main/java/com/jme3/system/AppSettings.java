@@ -237,33 +237,6 @@ public final class AppSettings extends HashMap<String, Object> {
      * @see AppSettings#setAudioRenderer(java.lang.String)
      */
     public static final String ANDROID_OPENAL_SOFT = "OpenAL_SOFT";
-    
-    /**
-     * Use JogAmp's JOGL as the display system, with the OpenGL forward compatible profile
-     * <p>
-     * N.B: This backend is EXPERIMENTAL
-     *
-     * @see AppSettings#setRenderer(java.lang.String)
-     */
-    public static final String JOGL_OPENGL_FORWARD_COMPATIBLE = "JOGL_OPENGL_FORWARD_COMPATIBLE";
-    
-    /**
-     * Use JogAmp's JOGL as the display system with the backward compatible profile
-     * <p>
-     * N.B: This backend is EXPERIMENTAL
-     *
-     * @see AppSettings#setRenderer(java.lang.String)
-     */
-    public static final String JOGL_OPENGL_BACKWARD_COMPATIBLE = "JOGL_OPENGL_BACKWARD_COMPATIBLE";
-    
-    /**
-     * Use JogAmp's JOAL as the display system
-     * <p>
-     * N.B: This backend is EXPERIMENTAL
-     *
-     * @see AppSettings#setRenderer(java.lang.String)
-     */
-    public static final String JOAL = "JOAL";
 
     static {
         defaults.put("Width", 640);
@@ -504,7 +477,7 @@ public final class AppSettings extends HashMap<String, Object> {
         return i.intValue();
     }
 
-    /**
+    /** 
      * Get a boolean from the settings.
      * <p>
      * If the key is not set, then false is returned.
@@ -887,7 +860,7 @@ public final class AppSettings extends HashMap<String, Object> {
      * Linux (and similar platforms) expect one 32x32 icon.
      * Mac OS X should be supplied one 128x128 icon.
      * <br/>
-     * The icon is used for the settings window, and the LWJGL render window. Not currently supported for JOGL.
+     * The icon is used for the settings window, and the LWJGL render window.
      * Note that a bug in Java 6 (bug ID 6445278, currently hidden but available in Google cache) currently prevents
      * the icon working for alt-tab on the settings dialog in Windows.
      *

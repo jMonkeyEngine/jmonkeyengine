@@ -71,7 +71,7 @@ public class TestMultipleApplications extends SimpleApplication {
         settings.setOpenCLSupport(true);
         settings.setVSync(true);
         settings.setOpenCLPlatformChooser(CustomPlatformChooser.class);
-        settings.setRenderer(AppSettings.JOGL_OPENGL_FORWARD_COMPATIBLE);
+        settings.setRenderer(AppSettings.LWJGL_OPENGL2);
         for (int i=0; i<2; ++i) {
             new Thread() {
                 @Override

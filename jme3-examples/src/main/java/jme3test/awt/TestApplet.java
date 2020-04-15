@@ -57,7 +57,7 @@ public class TestApplet extends Applet {
         AppSettings settings = new AppSettings(true);
         settings.setWidth(640);
         settings.setHeight(480);
-//        settings.setRenderer(AppSettings.JOGL);
+        settings.setRenderer(AppSettings.LWJGL_OPENGL2);
 
         JmeSystem.setLowPermissions(true);
 
