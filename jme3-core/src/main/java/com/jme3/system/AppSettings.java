@@ -477,7 +477,7 @@ public final class AppSettings extends HashMap<String, Object> {
         return i.intValue();
     }
 
-    /**
+    /** 
      * Get a boolean from the settings.
      * <p>
      * If the key is not set, then false is returned.
@@ -860,7 +860,7 @@ public final class AppSettings extends HashMap<String, Object> {
      * Linux (and similar platforms) expect one 32x32 icon.
      * Mac OS X should be supplied one 128x128 icon.
      * <br/>
-     * The icon is used for the settings window, and the LWJGL render window. Not currently supported for JOGL.
+     * The icon is used for the settings window, and the LWJGL render window.
      * Note that a bug in Java 6 (bug ID 6445278, currently hidden but available in Google cache) currently prevents
      * the icon working for alt-tab on the settings dialog in Windows.
      *
