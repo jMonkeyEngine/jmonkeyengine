@@ -51,7 +51,7 @@ import java.util.logging.Logger;
  * 
  * In addition, this test shows how to use {@link ProgramCache}.
  * 
- * @author shaman
+ * @author shaman 
  */
 public class TestWriteToTexture extends SimpleApplication implements AnalogListener, ActionListener {
     private static final Logger LOG = Logger.getLogger(TestWriteToTexture.class.getName());
@@ -72,7 +72,7 @@ public class TestWriteToTexture extends SimpleApplication implements AnalogListe
         AppSettings settings = new AppSettings(true);
         settings.setOpenCLSupport(true);
         settings.setVSync(false);
-//        settings.setRenderer(AppSettings.JOGL_OPENGL_FORWARD_COMPATIBLE);
+        settings.setRenderer(AppSettings.LWJGL_OPENGL2);
         app.setSettings(settings);
         app.start(); // start the game
     }
