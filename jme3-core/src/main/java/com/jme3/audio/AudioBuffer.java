@@ -31,9 +31,9 @@
  */
 package com.jme3.audio;
 
-import com.jme3.audio.AudioData.DataType;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.NativeObject;
+
 import java.nio.ByteBuffer;
 
 /**
@@ -85,8 +85,14 @@ public class AudioBuffer extends AudioData {
     /**
      * Update the data in the buffer with new data.
      * @param data
+     * @throws IllegalArgumentException if the provided buffer is not a direct buffer
      */
     public void updateData(ByteBuffer data){
+        if (!data.isDirect()) {
+            throw new IllegalArgumentException(
+                    "Currently only direct buffers are allowed");
+        }
+
         this.audioData = data;
         updateNeeded = true;
     }
