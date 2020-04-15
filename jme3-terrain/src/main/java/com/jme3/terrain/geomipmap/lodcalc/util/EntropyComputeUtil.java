@@ -41,6 +41,7 @@ import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.util.BufferUtils;
 import java.nio.Buffer;
+import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
@@ -78,6 +79,8 @@ public class EntropyComputeUtil {
             terrainBlock.setBuffer(Type.Index, 3, (IntBuffer)lodIndices);
         else if (lodIndices instanceof ShortBuffer) {
             terrainBlock.setBuffer(Type.Index, 3, (ShortBuffer) lodIndices);
+        } else {
+            terrainBlock.setBuffer(Type.Index, 3, (ByteBuffer) lodIndices);
         }
 
         // Recalculate collision mesh
