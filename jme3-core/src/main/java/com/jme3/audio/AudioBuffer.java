@@ -90,8 +90,10 @@ public class AudioBuffer extends AudioData {
      * @throws IllegalArgumentException if the provided buffer is not a direct buffer
      */
     public void updateData(ByteBuffer data){
-        if (!data.isDirect())
-            throw new IllegalArgumentException("Currently only direct buffers are allowed");
+        if (!data.isDirect()) {
+            throw new IllegalArgumentException(
+                    "Currently only direct buffers are allowed");
+        }
 
         this.audioData = data;
         updateNeeded = true;
