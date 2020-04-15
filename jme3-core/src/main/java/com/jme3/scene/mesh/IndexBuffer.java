@@ -161,7 +161,7 @@ public abstract class IndexBuffer {
      * mesh.setBuffer(Type.Index, 3, 
      *     indexBuffer.getFormat(), indexBuffer);
      * </pre>
-     * @return
+     * @return an enum value
      */
     public abstract Format getFormat();
 }
