@@ -49,7 +49,7 @@ import java.nio.file.Files;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
+/** 
  * This test class tests the capability to read and modify an OpenGL vertex buffer.
  * It is also shown how to use the program binaries to implement a simple program
  * cache.
@@ -72,7 +72,7 @@ public class TestVertexBufferSharing extends SimpleApplication {
         AppSettings settings = new AppSettings(true);
         settings.setOpenCLSupport(true);
         settings.setVSync(false);
-//        settings.setRenderer(AppSettings.JOGL_OPENGL_FORWARD_COMPATIBLE);
+        settings.setRenderer(AppSettings.LWJGL_OPENGL2);
         app.setSettings(settings);
         app.start(); // start the game
     }
