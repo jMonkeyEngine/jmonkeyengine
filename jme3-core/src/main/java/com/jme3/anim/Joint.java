@@ -333,6 +333,7 @@ public class Joint implements Savable, JmeCloneable, HasLocalTransform {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule output = ex.getCapsule(this);
 

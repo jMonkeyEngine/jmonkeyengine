@@ -735,12 +735,14 @@ public class Node extends Spatial {
         this.updateList = cloner.clone(updateList);
     }
     @Override
+    @SuppressWarnings("unchecked")
     public void write(JmeExporter e) throws IOException {
         super.write(e);
         e.getCapsule(this).writeSavableArrayList(new ArrayList(children), "children", null);
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void read(JmeImporter e) throws IOException {
         // XXX: Load children before loading itself!!
         // This prevents empty children list if controls query

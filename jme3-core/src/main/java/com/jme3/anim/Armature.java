@@ -261,6 +261,7 @@ public class Armature implements JmeCloneable, Savable {
 
 
     @Override
+    @SuppressWarnings("unchecked")
     public void read(JmeImporter im) throws IOException {
         InputCapsule input = im.getCapsule(this);
 

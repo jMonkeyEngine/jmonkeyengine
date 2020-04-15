@@ -77,6 +77,7 @@ public class KeyFrame implements Savable {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void read(JmeImporter im) throws IOException {
         InputCapsule ic = im.getCapsule(this);
         cinematicEvents = ic.readSavableArrayList("cinematicEvents", null);

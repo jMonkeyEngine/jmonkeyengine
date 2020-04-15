@@ -455,6 +455,7 @@ public class Spline implements Savable {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void read(JmeImporter im) throws IOException {
         InputCapsule in = im.getCapsule(this);
 

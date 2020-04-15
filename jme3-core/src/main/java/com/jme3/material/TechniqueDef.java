@@ -682,6 +682,7 @@ public class TechniqueDef implements Savable, Cloneable {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void read(JmeImporter im) throws IOException{
         InputCapsule ic = im.getCapsule(this);
         name = ic.readString("name", null);

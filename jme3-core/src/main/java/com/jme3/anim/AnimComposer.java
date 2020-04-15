@@ -330,6 +330,7 @@ public class AnimComposer extends AbstractControl {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void read(JmeImporter im) throws IOException {
         super.read(im);
         InputCapsule ic = im.getCapsule(this);

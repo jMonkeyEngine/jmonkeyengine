@@ -62,6 +62,7 @@ public class TrackInfo implements Savable, JmeCloneable {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void read(JmeImporter im) throws IOException {
         InputCapsule c = im.getCapsule(this);
         tracks = c.readSavableArrayList("tracks", null);

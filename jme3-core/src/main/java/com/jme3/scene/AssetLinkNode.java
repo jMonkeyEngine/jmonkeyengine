@@ -161,6 +161,7 @@ public class AssetLinkNode extends Node {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void read(JmeImporter e) throws IOException {
         super.read(e);
 

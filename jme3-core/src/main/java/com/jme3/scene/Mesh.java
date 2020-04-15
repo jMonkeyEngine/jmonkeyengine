@@ -1575,6 +1575,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule out = ex.getCapsule(this);
 
@@ -1618,6 +1619,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void read(JmeImporter im) throws IOException {
         InputCapsule in = im.getCapsule(this);
         meshBound = (BoundingVolume) in.readSavable("modelBound", null);
