@@ -396,7 +396,7 @@ public class DesktopAssetManager implements AssetManager {
 
     @Override
     public Object loadAsset(String name){
-        return loadAsset(new AssetKey(name));
+        return loadAsset(new AssetKey<>(name));
     }
 
     @Override
@@ -428,7 +428,7 @@ public class DesktopAssetManager implements AssetManager {
 
     @Override
     public BitmapFont loadFont(String name){
-        return (BitmapFont) loadAsset(new AssetKey(name));
+        return loadAsset(new AssetKey<BitmapFont>(name));
     }
 
     @Override

@@ -331,9 +331,9 @@ public final class OBJLoader implements AssetLoader {
 
         // NOTE: Cut off any relative/absolute paths
         name = new File(name).getName();
-        AssetKey mtlKey = new AssetKey(key.getFolder() + name);
+        AssetKey<MaterialList> mtlKey = new AssetKey<>(key.getFolder() + name);
         try {
-            matList = (MaterialList) assetManager.loadAsset(mtlKey);
+            matList = assetManager.loadAsset(mtlKey);
         } catch (AssetNotFoundException ex){
             logger.log(Level.WARNING, "Cannot locate {0} for model {1}", new Object[]{name, key});
         }

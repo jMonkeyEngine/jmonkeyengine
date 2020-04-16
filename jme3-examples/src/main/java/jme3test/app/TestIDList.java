@@ -45,7 +45,7 @@ public class TestIDList {
 
         public StateCol(){
             // populate with free ids
-            List<Integer> freeIds = new ArrayList();
+            List<Integer> freeIds = new ArrayList<>();
             for (int i = 0; i < 16; i++){
                 freeIds.add(i);
             }

@@ -294,7 +294,7 @@ final class ImplHandler {
         Iterator<ImplThreadLocal<AssetLocator>> it = locatorsList.iterator();
        
         while (it.hasNext()){
-            ImplThreadLocal locator = it.next();
+            ImplThreadLocal<AssetLocator> locator = it.next();
             if (locator.getPath().equals(rootPath) &&
                 locator.getTypeClass().equals(locatorType)){
                 //it.remove();

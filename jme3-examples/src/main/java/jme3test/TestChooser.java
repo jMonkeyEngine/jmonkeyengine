@@ -323,7 +323,7 @@ public class TestChooser extends JDialog {
 
         final FilteredJList list = new FilteredJList();
         list.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-        DefaultListModel model = new DefaultListModel();
+        DefaultListModel<Class> model = new DefaultListModel<>();
         for (Class c : classes) {
             model.addElement(c);
         }

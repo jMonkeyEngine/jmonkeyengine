@@ -370,10 +370,10 @@ public class BinaryExporter implements JmeExporter {
         return contentTable.get(object).getContent();
     }
 
-    private BinaryClassObject createClassObject(Class clazz) throws IOException{
+    private BinaryClassObject createClassObject(Class<? extends Savable> clazz) throws IOException{
         BinaryClassObject bco = new BinaryClassObject();
         bco.alias = generateTag();
-        bco.nameFields = new HashMap<String, BinaryClassField>();
+        bco.nameFields = new HashMap<>();
         bco.classHierarchyVersions = SavableClassUtil.getSavableVersions(clazz);
         
         classes.put(clazz.getName(), bco);

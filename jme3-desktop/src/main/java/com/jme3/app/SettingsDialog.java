@@ -94,10 +94,10 @@ public final class SettingsDialog extends JFrame {
     private JCheckBox vsyncBox = null;
     private JCheckBox gammaBox = null;
     private JCheckBox fullscreenBox = null;
-    private JComboBox displayResCombo = null;
-    private JComboBox colorDepthCombo = null;
-    private JComboBox displayFreqCombo = null;
-    private JComboBox antialiasCombo = null;
+    private JComboBox<String> displayResCombo = null;
+    private JComboBox<String> colorDepthCombo = null;
+    private JComboBox<String> displayFreqCombo = null;
+    private JComboBox<String> antialiasCombo = null;
     private JLabel icon = null;
     private int selection = 0;
     private SelectionListener selectionListener = null;
@@ -342,11 +342,11 @@ public final class SettingsDialog extends JFrame {
 
         displayResCombo = setUpResolutionChooser();
         displayResCombo.addKeyListener(aListener);
-        colorDepthCombo = new JComboBox();
+        colorDepthCombo = new JComboBox<>();
         colorDepthCombo.addKeyListener(aListener);
-        displayFreqCombo = new JComboBox();
+        displayFreqCombo = new JComboBox<>();
         displayFreqCombo.addKeyListener(aListener);
-        antialiasCombo = new JComboBox();
+        antialiasCombo = new JComboBox<>();
         antialiasCombo.addKeyListener(aListener);
         fullscreenBox = new JCheckBox(resourceBundle.getString("checkbox.fullscreen"));
         fullscreenBox.setSelected(source.isFullscreen());
@@ -628,8 +628,8 @@ public final class SettingsDialog extends JFrame {
      * 
      * @return the combo box of display modes.
      */
-    private JComboBox setUpResolutionChooser() {
-        JComboBox resolutionBox = new JComboBox();
+    private JComboBox<String> setUpResolutionChooser() {
+        JComboBox<String> resolutionBox = new JComboBox<>();
 
         resolutionBox.addActionListener(new ActionListener() {
 
@@ -663,11 +663,11 @@ public final class SettingsDialog extends JFrame {
 
         // grab available depths
         String[] depths = getDepths(resolution, modes);
-        colorDepthCombo.setModel(new DefaultComboBoxModel(depths));
+        colorDepthCombo.setModel(new DefaultComboBoxModel<>(depths));
         colorDepthCombo.setSelectedItem(colorDepth);
         // grab available frequencies
         String[] freqs = getFrequencies(resolution, modes);
-        displayFreqCombo.setModel(new DefaultComboBoxModel(freqs));
+        displayFreqCombo.setModel(new DefaultComboBoxModel<>(freqs));
         // Try to reset freq
         displayFreqCombo.setSelectedItem(displayFreq);
         
@@ -686,18 +686,18 @@ public final class SettingsDialog extends JFrame {
      */
     private void updateResolutionChoices() {
         if (!fullscreenBox.isSelected()) {
-            displayResCombo.setModel(new DefaultComboBoxModel(
+            displayResCombo.setModel(new DefaultComboBoxModel<>(
                     getWindowedResolutions(windowModes)));
             if (displayResCombo.getItemCount() > 0) {
                 displayResCombo.setSelectedIndex(displayResCombo.getItemCount()-1);
             }
-            colorDepthCombo.setModel(new DefaultComboBoxModel(new String[]{
+            colorDepthCombo.setModel(new DefaultComboBoxModel<>(new String[]{
                         "24 bpp", "16 bpp"}));
-            displayFreqCombo.setModel(new DefaultComboBoxModel(
+            displayFreqCombo.setModel(new DefaultComboBoxModel<>(
                     new String[]{resourceBundle.getString("refresh.na")}));
             displayFreqCombo.setEnabled(false);
         } else {
-            displayResCombo.setModel(new DefaultComboBoxModel(
+            displayResCombo.setModel(new DefaultComboBoxModel<>(
                     getResolutions(modes, Integer.MAX_VALUE, Integer.MAX_VALUE)));
             if (displayResCombo.getItemCount() > 0) {
                 displayResCombo.setSelectedIndex(displayResCombo.getItemCount()-1);
@@ -711,7 +711,7 @@ public final class SettingsDialog extends JFrame {
         // maybe in the future will add support for determining this info
         // through pbuffer
         String[] choices = new String[]{resourceBundle.getString("antialias.disabled"), "2x", "4x", "6x", "8x", "16x"};
-        antialiasCombo.setModel(new DefaultComboBoxModel(choices));
+        antialiasCombo.setModel(new DefaultComboBoxModel<>(choices));
         antialiasCombo.setSelectedItem(choices[Math.min(source.getSamples()/2,5)]);
     }
 

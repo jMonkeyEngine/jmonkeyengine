@@ -743,7 +743,7 @@ public class J3MLoader implements AssetLoader {
 
             String extendedMat = split[1].trim();
 
-            MaterialDef def = (MaterialDef) assetManager.loadAsset(new AssetKey(extendedMat));
+            MaterialDef def = assetManager.loadAsset(new AssetKey<MaterialDef>(extendedMat));
             if (def == null) {
                 throw new MatParseException("Extended material " + extendedMat + " cannot be found.", materialStat);
             }

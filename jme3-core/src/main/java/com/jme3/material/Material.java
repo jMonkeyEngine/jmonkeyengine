@@ -101,7 +101,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
     }
 
     public Material(AssetManager contentMan, String defName) {
-        this((MaterialDef) contentMan.loadAsset(new AssetKey(defName)));
+        this(contentMan.loadAsset(new AssetKey<MaterialDef>(defName)));
     }
 
     /**
@@ -1109,7 +1109,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
             assert applyDefaultValues && guessRenderStateApply;
         }
 
-        def = (MaterialDef) im.getAssetManager().loadAsset(new AssetKey(defName));
+        def = im.getAssetManager().loadAsset(new AssetKey<MaterialDef>(defName));
         paramValues = new ListMap<String, MatParam>();
 
         // load the textures and update nextTexUnit

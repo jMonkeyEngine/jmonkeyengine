@@ -77,7 +77,7 @@ public class ThreadingManager {
     }
 
     public <T> Future<T> loadAsset(AssetKey<T> assetKey) {
-        return executor.submit(new LoadingTask(assetKey));
+        return executor.submit(new LoadingTask<>(assetKey));
     }
 
     public static boolean isLoadingThread() {

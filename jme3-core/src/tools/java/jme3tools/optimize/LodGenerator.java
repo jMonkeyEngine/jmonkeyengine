@@ -242,7 +242,7 @@ public class LodGenerator {
     /**
      * Comparator used to sort vertices according to their collapse cost
      */
-    private Comparator collapseComparator = new Comparator<Vertex>() {
+    private Comparator<Vertex> collapseComparator = new Comparator<Vertex>() {
         @Override
         public int compare(Vertex o1, Vertex o2) {
             if (Float.compare(o1.collapseCost, o2.collapseCost) == 0) {
