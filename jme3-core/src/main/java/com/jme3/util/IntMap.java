@@ -262,6 +262,7 @@ public final class IntMap<T> implements Iterable<Entry<T>>, Cloneable, JmeClonea
         }
 
         @Override
+        @SuppressWarnings("unchecked")
         public Entry next() {
             if (el >= size)
                 throw new NoSuchElementException("No more elements!");

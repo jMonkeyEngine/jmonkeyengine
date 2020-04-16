@@ -393,11 +393,13 @@ public class TestChooser extends JDialog {
         private ListModel originalModel;
 
         @Override
+        @SuppressWarnings("unchecked")
         public void setModel(ListModel m) {
             originalModel = m;
             super.setModel(m);
         }
 
+        @SuppressWarnings("unchecked")
         private void update() {
             if (filter == null || filter.length() == 0) {
                 super.setModel(originalModel);

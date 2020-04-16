@@ -208,6 +208,7 @@ final class ImplHandler {
         }
     }
     
+    @SuppressWarnings("unchecked")
     public <T extends AssetCache> T getCache(Class<T> cacheClass) {
         if (cacheClass == null) {
             return null;
@@ -234,6 +235,7 @@ final class ImplHandler {
         return cache;
     }
     
+    @SuppressWarnings("unchecked")
     public <T extends AssetProcessor> T getProcessor(Class<T> procClass){
         if (procClass == null)
             return null;
@@ -259,6 +261,7 @@ final class ImplHandler {
         return proc;
     }
     
+    @SuppressWarnings("unchecked")
     public void addLoader(final Class<? extends AssetLoader> loaderType, String ... extensions){
         // Synchronized access must be used for any ops on classToLoaderMap
         ImplThreadLocal local = new ImplThreadLocal(loaderType, extensions);
@@ -285,6 +288,7 @@ final class ImplHandler {
         }
     }
     
+    @SuppressWarnings("unchecked")
     public void addLocator(final Class<? extends AssetLocator> locatorType, String rootPath){
         locatorsList.add(new ImplThreadLocal(locatorType, rootPath));
     }

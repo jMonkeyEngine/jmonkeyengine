@@ -416,6 +416,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
      * @param name the parameter name to look up.
      * @return current value or null if the parameter wasn't set.
      */
+    @SuppressWarnings("unchecked")
     public <T> T getParamValue(final String name) {
         final MatParam param = paramValues.get(name);
         return param == null ? null : (T) param.getValue();
@@ -1061,6 +1062,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void read(JmeImporter im) throws IOException {
         InputCapsule ic = im.getCapsule(this);
 
