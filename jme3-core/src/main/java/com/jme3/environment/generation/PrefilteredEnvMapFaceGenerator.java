@@ -137,6 +137,7 @@ public class PrefilteredEnvMapFaceGenerator extends RunnableWithProgress {
         app.enqueue(new Callable<Void>() {
 
             @Override
+            @SuppressWarnings("unchecked")
             public Void call() throws Exception {
                 listener.done(face);
                 return null;

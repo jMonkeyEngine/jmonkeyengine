@@ -718,6 +718,7 @@ public class LegacyApplication implements Application, SystemListener {
      * @param runnable The runnable to run in the main jME3 thread
      */
     @Override
+    @SuppressWarnings("unchecked")
     public void enqueue(Runnable runnable){
         enqueue(new RunnableWrapper(runnable));
     }

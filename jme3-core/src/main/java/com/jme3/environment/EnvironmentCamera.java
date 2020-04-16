@@ -368,6 +368,7 @@ public class EnvironmentCamera extends BaseAppState {
         JobProgressListener<TextureCubeMap> callback;
         Spatial scene;
 
+        @SuppressWarnings("unchecked")
         public SnapshotJob(JobProgressListener callback, Spatial scene) {
             this.callback = callback;
             this.scene = scene;

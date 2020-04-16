@@ -410,6 +410,7 @@ public class DefaultClient implements Client
      *  Either calls the ErrorListener or closes the connection
      *  if there are no listeners.  
      */ 
+    @SuppressWarnings("unchecked")
     protected void handleError( Throwable t )
     {
         // If there are no listeners then close the connection with

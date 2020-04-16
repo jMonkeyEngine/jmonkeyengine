@@ -73,6 +73,7 @@ public class SortUtil {
 end procedure
      */
     
+    @SuppressWarnings("unchecked")
     public static void gsort(Object[] a, Comparator comp) {
         int pos = 1;
         int last = 0;
@@ -241,6 +242,7 @@ end procedure
         }
     }
 
+    @SuppressWarnings("unchecked")
     public static void qsort(int[] a, int lo0, int hi0, Comparator comp) {
         // bail out if we're already done
         if (hi0 <= lo0) {
@@ -324,6 +326,7 @@ end procedure
         }
     }
     
+    @SuppressWarnings("unchecked")
     private static void merge(Object[] src, Object[] dest,
             int low, int middle, int high, Comparator comp) {
         int leftEnd = middle - 1;

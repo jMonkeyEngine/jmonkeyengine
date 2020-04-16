@@ -194,6 +194,7 @@ public abstract class ShaderGenerator {
      * @param info the ShaderGenerationInfo
      * @param type the Shader type
      */
+    @SuppressWarnings("unchecked")
     protected void generateDeclarationAndMainBody(List<ShaderNode> shaderNodes, StringBuilder sourceDeclaration, StringBuilder source, ShaderGenerationInfo info, Shader.ShaderType type) {
         for (ShaderNode shaderNode : shaderNodes) {
             if (info.getUnusedNodes().contains(shaderNode.getName())) {

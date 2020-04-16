@@ -47,6 +47,7 @@ public class Filters
      *  Creates a filter that returns true for any value in the specified
      *  list of values and false for all other cases.
      */
+    @SuppressWarnings("unchecked")
     public static <T> Filter<T> in( T... values )
     {
         return in( new HashSet<T>(Arrays.asList(values)) );
@@ -66,6 +67,7 @@ public class Filters
      *  list of values and false for all other cases.  This is the equivalent
      *  of calling not(in(values)).
      */
+    @SuppressWarnings("unchecked")
     public static <T> Filter<T> notIn( T... values )
     {
         return not( in( values ) );

@@ -261,6 +261,7 @@ public class JmeDesktopSystem extends JmeSystemDelegate {
         return ctx;
     }
 
+    @SuppressWarnings("unchecked")
     private <T> T newObject(String className) {
         try {
             Class<T> clazz = (Class<T>) Class.forName(className);

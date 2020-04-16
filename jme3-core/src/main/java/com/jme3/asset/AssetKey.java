@@ -59,6 +59,7 @@ public class AssetKey<T> implements Savable, Cloneable {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public AssetKey<T> clone() {
         try {
             return (AssetKey<T>) super.clone();

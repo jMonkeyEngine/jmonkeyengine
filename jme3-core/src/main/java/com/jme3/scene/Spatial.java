@@ -837,6 +837,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
      *
      * @see Spatial#addControl(com.jme3.scene.control.Control)
      */
+    @SuppressWarnings("unchecked")
     public <T extends Control> T getControl(Class<T> controlType) {
         for (Control c : controls.getArray()) {
             if (controlType.isAssignableFrom(c.getClass())) {
@@ -1435,6 +1436,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
      *  Called internally by com.jme3.util.clone.Cloner.  Do not call directly.
      */
     @Override
+    @SuppressWarnings("unchecked")
     public void cloneFields( Cloner cloner, Object original ) {
 
         // Clone all of the fields that need fix-ups and/or potential
@@ -1502,6 +1504,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
         }
     }
 
+    @SuppressWarnings("unchecked")
     public Collection<String> getUserDataKeys() {
         if (userData != null) {
             return userData.keySet();
@@ -1540,6 +1543,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule capsule = ex.getCapsule(this);
         capsule.write(name, "name", null);
@@ -1558,6 +1562,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void read(JmeImporter im) throws IOException {
         InputCapsule ic = im.getCapsule(this);
 

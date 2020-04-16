@@ -348,6 +348,7 @@ public class TextureAtlas {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private Image convertImageToAwt(Image source) {
         //use awt dependent classes without actual dependency via reflection
         try {

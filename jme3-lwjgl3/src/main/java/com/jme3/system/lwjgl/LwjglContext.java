@@ -288,6 +288,7 @@ public abstract class LwjglContext implements JmeContext {
         }
     }
 
+    @SuppressWarnings("unchecked")
     protected void initOpenCL(final long window) {
         logger.info("Initialize OpenCL with LWJGL3");
         

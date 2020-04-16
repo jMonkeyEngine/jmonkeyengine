@@ -242,6 +242,7 @@ public class AppStateManager {
      * @return First attached state that is an instance of stateClass. If failOnMiss is true 
      * then an IllegalArgumentException is thrown if the state is not attached.
      */
+    @SuppressWarnings("unchecked")
     public <T extends AppState> T getState(Class<T> stateClass, boolean failOnMiss){
         synchronized (states){
             AppState[] array = getStates();

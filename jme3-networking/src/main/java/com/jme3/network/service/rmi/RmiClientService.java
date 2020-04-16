@@ -160,6 +160,7 @@ public class RmiClientService extends AbstractClientService {
     }
     
     @Override
+    @SuppressWarnings("unchecked")
     public void start() {
         super.start();
         

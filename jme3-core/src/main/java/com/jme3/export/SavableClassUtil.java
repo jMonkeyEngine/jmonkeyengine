@@ -90,6 +90,7 @@ public class SavableClassUtil {
         return result;
     }
 
+    @SuppressWarnings("unchecked")
     public static int[] getSavableVersions(Class<? extends Savable> clazz) throws IOException{
         ArrayList<Integer> versionList = new ArrayList<Integer>();
         Class superclass = clazz;
@@ -105,6 +106,7 @@ public class SavableClassUtil {
         return versions;
     }
     
+    @SuppressWarnings("unchecked")
     public static int getSavableVersion(Class<? extends Savable> clazz) throws IOException{
         try {
             Field field = clazz.getField("SAVABLE_VERSION");
@@ -221,6 +223,7 @@ public class SavableClassUtil {
      *
      * @return the pre-existing constructor (not null)
      */
+    @SuppressWarnings("unchecked")
     private static Constructor findNoArgConstructor(String className)
             throws ClassNotFoundException, InstantiationException {
         Class clazz = Class.forName(className);

@@ -63,6 +63,7 @@ public class CustomContentManager {
         return output;
     }
 
+    @SuppressWarnings("unchecked")
     private <T> T readExtension(String name, JsonElement el, T input) throws AssetLoadException, IOException {
         JsonElement extensions = el.getAsJsonObject().getAsJsonObject("extensions");
         if (extensions == null) {
@@ -93,6 +94,7 @@ public class CustomContentManager {
         return input;
     }
 
+    @SuppressWarnings("unchecked")
     private <T> T readExtras(String name, JsonElement el, T input) throws AssetLoadException {
         if (key == null) {
             return input;

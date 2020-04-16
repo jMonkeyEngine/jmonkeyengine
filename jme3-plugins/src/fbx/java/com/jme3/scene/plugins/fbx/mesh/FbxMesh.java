@@ -110,6 +110,7 @@ public final class FbxMesh extends FbxNodeAttribute<IntMap<Mesh>> {
         return skinDeformer;
     }
     
+    @SuppressWarnings("unchecked")
     public void applyCluster(FbxCluster cluster) {
         if (boneIndices == null) {
             boneIndices = new ArrayList[positions.length];

@@ -375,6 +375,7 @@ public class InstancedGeometry extends Geometry {
         return geometries;
     }
 
+    @SuppressWarnings("unchecked")
     public VertexBuffer[] getAllInstanceData() {
         ArrayList<VertexBuffer> allData = new ArrayList();
         if (transformInstanceData != null) {

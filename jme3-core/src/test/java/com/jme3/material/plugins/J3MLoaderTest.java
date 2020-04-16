@@ -46,6 +46,7 @@ public class J3MLoaderTest {
     private MaterialDef materialDef;
 
     @Before
+    @SuppressWarnings("unchecked")
     public void setUp() throws Exception {
         when(assetKey.getExtension()).thenReturn(".j3m");
         when(assetInfo.getManager()).thenReturn(assetManager);

@@ -180,6 +180,7 @@ public class RmiHostedService extends AbstractHostedService {
      *  This method is called automatically for all new connections if
      *  autohost is set to true.
      */
+    @SuppressWarnings("unchecked")
     public void startHostingOnConnection( HostedConnection hc ) {
         if( log.isLoggable(Level.FINEST) ) {
             log.log(Level.FINEST, "startHostingOnConnection:{0}", hc);

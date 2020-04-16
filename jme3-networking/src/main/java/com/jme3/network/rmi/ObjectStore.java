@@ -129,6 +129,7 @@ public class ObjectStore {
         Serializer.registerClass(RemoteMethodReturnMessage.class, s);
     }
 
+    @SuppressWarnings("unchecked")
     public ObjectStore(Client client) {
         this.client = client;
         client.addMessageListener(clientEventHandler, 
@@ -187,6 +188,7 @@ public class ObjectStore {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public <T> T getExposedObject(String name, Class<T> type, boolean waitFor) throws InterruptedException{
         RemoteObject ro = remoteObjects.get(name);
         if (ro == null){

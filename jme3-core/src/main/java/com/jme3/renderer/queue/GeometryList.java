@@ -149,6 +149,7 @@ public class GeometryList implements Iterable<Geometry>{
     /**
      * Sorts the elements in the list according to their Comparator.
      */
+    @SuppressWarnings("unchecked")
     public void sort() {
         if (size > 1) {
             // sort the spatial list using the comparator

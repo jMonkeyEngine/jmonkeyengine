@@ -65,6 +65,7 @@ public final class AssetConfig {
         }
     }
     
+    @SuppressWarnings("unchecked")
     public static void loadText(AssetManager assetManager, URL configUrl) throws IOException{
         InputStream in = configUrl.openStream();
         try {
