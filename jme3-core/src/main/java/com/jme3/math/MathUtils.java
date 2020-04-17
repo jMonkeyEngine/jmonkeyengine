@@ -8,6 +8,13 @@ import com.jme3.util.TempVars;
  */
 public class MathUtils {
 
+    /**
+     * Calculate the natural logarithm of a unit quaternion.
+     *
+     * @param q the input Quaternion (not null, normalized, unaffected)
+     * @param store storage for the result (not null, modified)
+     * @return the logarithm (store)
+     */
     public static Quaternion log(Quaternion q, Quaternion store) {
         float a = FastMath.acos(q.w);
         float sina = FastMath.sin(a);
@@ -25,6 +32,13 @@ public class MathUtils {
         return store;
     }
 
+    /**
+     * Calculate the exponential of a pure quaternion.
+     *
+     * @param q the input Quaternion (not null, w=0, unaffected)
+     * @param store storage for the result (not null, modified)
+     * @return the exponential (store)
+     */
     public static Quaternion exp(Quaternion q, Quaternion store) {
 
         float len = FastMath.sqrt(q.x * q.x + q.y * q.y + q.z * q.z);
@@ -66,6 +80,15 @@ public class MathUtils {
         return store;
     }
 
+    /**
+     * Interpolate between 2 quaternions using Slerp.
+     *
+     * @param q1 the desired value for t=0
+     * @param q2 the desired value for t=1
+     * @param t the fractional parameter (&ge;0, &le;1)
+     * @param store storage for the result (not null, modified)
+     * @return the interpolated Quaternion (store)
+     */
     public static Quaternion slerp(Quaternion q1, Quaternion q2, float t, Quaternion store) {
 
         float dot = (q1.x * q2.x) + (q1.y * q2.y) + (q1.z * q2.z)

@@ -57,13 +57,34 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      * Represents the identity quaternion rotation (0, 0, 0, 1).
      */
     public static final Quaternion IDENTITY = new Quaternion();
+    /**
+     * another instance of the identity Quaternion (0, 0, 0, 1)
+     */
     public static final Quaternion DIRECTION_Z = new Quaternion();
+    /**
+     * The zero quaternion (0, 0, 0, 0) doesn't represent any rotation.
+     */
     public static final Quaternion ZERO = new Quaternion(0, 0, 0, 0);
 
     static {
         DIRECTION_Z.fromAxes(Vector3f.UNIT_X, Vector3f.UNIT_Y, Vector3f.UNIT_Z);
     }
-    protected float x, y, z, w;
+    /**
+     * the X component (not an angle!)
+     */
+    protected float x;
+    /**
+     * the Y component (not an angle!)
+     */
+    protected float y;
+    /**
+     * the Z component (not an angle!)
+     */
+    protected float z;
+    /**
+     * the W (real) component (not an angle!)
+     */
+    protected float w;
 
     /**
      * Constructor instantiates a new <code>Quaternion</code> object
@@ -93,18 +114,38 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
         this.w = w;
     }
 
+    /**
+     * Determine the X component.
+     *
+     * @return x
+     */
     public float getX() {
         return x;
     }
 
+    /**
+     * Determine the Y component.
+     *
+     * @return y
+     */
     public float getY() {
         return y;
     }
 
+    /**
+     * Determine the Z component.
+     *
+     * @return z
+     */
     public float getZ() {
         return z;
     }
 
+    /**
+     * Determine the W (real) component.
+     *
+     * @return w
+     */
     public float getW() {
         return w;
     }
@@ -317,6 +358,21 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
                 matrix.m11, matrix.m12, matrix.m20, matrix.m21, matrix.m22);
     }
 
+    /**
+     * Set this quaternion based on a rotation matrix with the specified
+     * elements.
+     *
+     * @param m00 the matrix element in row 0, column 0
+     * @param m01 the matrix element in row 0, column 1
+     * @param m02 the matrix element in row 0, column 2
+     * @param m10 the matrix element in row 1, column 0
+     * @param m11 the matrix element in row 1, column 1
+     * @param m12 the matrix element in row 1, column 2
+     * @param m20 the matrix element in row 2, column 0
+     * @param m21 the matrix element in row 2, column 1
+     * @param m22 the matrix element in row 2, column 2
+     * @return this Quaternion
+     */
     public Quaternion fromRotationMatrix(float m00, float m01, float m02,
             float m10, float m11, float m12, float m20, float m21, float m22) {
         // first normalize the forward (F), up (U) and side (S) vectors of the rotation matrix
@@ -1357,6 +1413,13 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
         return this;
     }
 
+    /**
+     * Serialize this quaternion to the specified exporter, for example when
+     * saving to a J3O file.
+     *
+     * @param e (not null)
+     * @throws IOException from the exporter
+     */
     @Override
     public void write(JmeExporter e) throws IOException {
         OutputCapsule cap = e.getCapsule(this);
@@ -1366,6 +1429,13 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
         cap.write(w, "w", 1);
     }
 
+    /**
+     * De-serialize this quaternion from the specified importer, for example
+     * when loading from a J3O file.
+     *
+     * @param e (not null)
+     * @throws IOException from the importer
+     */
     @Override
     public void read(JmeImporter e) throws IOException {
         InputCapsule cap = e.getCapsule(this);
@@ -1413,6 +1483,11 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
         return opposite(this);
     }
 
+    /**
+     * Create a copy of this quaternion.
+     *
+     * @return a new instance, equivalent to this one
+     */
     @Override
     public Quaternion clone() {
         try {

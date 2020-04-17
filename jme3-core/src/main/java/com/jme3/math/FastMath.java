@@ -55,6 +55,9 @@ final public class FastMath {
      * A "close to zero" float epsilon value for use
      */
     public static final float ZERO_TOLERANCE = 0.0001f;
+    /**
+     * The value 1/3, as a float.
+     */
     public static final float ONE_THIRD = 1f / 3f;
     /**
      * The value PI as a float. (180 degrees)
@@ -612,6 +615,12 @@ final public class FastMath {
         return (float) (1.0f / Math.sqrt(fValue));
     }
 
+    /**
+     * Quickly estimate 1/sqrt(fValue).
+     *
+     * @param x the input value (&ge;0)
+     * @return an approximate value for 1/sqrt(x)
+     */
     public static float fastInvSqrt(float x) {
         float xhalf = 0.5f * x;
         int i = Float.floatToIntBits(x); // get bits for floating value
@@ -830,6 +839,12 @@ final public class FastMath {
         return (int) (nextRandomFloat() * (max - min + 1)) + min;
     }
 
+    /**
+     * Choose a pseudo-random, uniformly-distributed integer value from
+     * the shared generator.
+     *
+     * @return the next integer value
+     */
     public static int nextRandomInt() {
         return rand.nextInt();
     }
@@ -1025,6 +1040,14 @@ final public class FastMath {
         }
     }
 
+    /**
+     * Convert a single-precision (32-bit) floating-point value
+     * to half precision.
+     *
+     * @param flt the input value (not a NaN)
+     * @return a near-equivalent value in half precision
+     * @throws UnsupportedOperationException if flt is a NaN
+     */
     public static short convertFloatToHalf(float flt) {
         if (Float.isNaN(flt)) {
             throw new UnsupportedOperationException("NaN to half conversion not supported!");

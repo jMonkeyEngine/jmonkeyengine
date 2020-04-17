@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,6 +34,9 @@ package com.jme3.math;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * A calculator for the eigenvectors and eigenvalues of a Matrix3f. 
+ */
 public class Eigen3f implements java.io.Serializable {
 
     static final long serialVersionUID = 1;
@@ -48,14 +51,27 @@ public class Eigen3f implements java.io.Serializable {
     static final double ROOT_THREE_DOUBLE = Math.sqrt(3.0);
 
     
+    /**
+     * Instantiate an empty calculator.
+     */
     public Eigen3f() {
 
     }
     
+    /**
+     * Calculate the eigenvalues and eigenvectors of the specified matrix.
+     *
+     * @param data the input Matrix3f
+     */
     public Eigen3f(Matrix3f data) {
         calculateEigen(data);
     }
 
+    /**
+     * Calculate the eigenvalues and eigenvectors of the specified matrix.
+     *
+     * @param data the input Matrix3f
+     */
     public void calculateEigen(Matrix3f data) {
         // prep work...
         eigenVectors[0] = new Vector3f();
@@ -378,6 +394,11 @@ public class Eigen3f implements java.io.Serializable {
         }
     }
 
+    /**
+     * Test the Eigen3f class.
+     * 
+     * @param args ignored
+     */
     public static void main(String[] args) {
         Matrix3f mat = new Matrix3f(2, 1, 1, 1, 2, 1, 1, 1, 2);
         Eigen3f eigenSystem = new Eigen3f(mat);
@@ -402,18 +423,40 @@ public class Eigen3f implements java.io.Serializable {
         // -0.816485 0.004284 0.577350
     }
 
+    /**
+     * Read the indexed eigenvalue.
+     * 
+     * @param i which value to read (0, 1, or 2)
+     * @return the previously calculated eigenvalue
+     */
     public float getEigenValue(int i) {
         return eigenValues[i];
     }
 
+    /**
+     * Access the indexed eigenvector.
+     * 
+     * @param i which vector to read (0, 1, or 2)
+     * @return the pre-existing eigenvector
+     */
     public Vector3f getEigenVector(int i) {
         return eigenVectors[i];
     }
 
+    /**
+     * Access the array of eigenvalues.
+     * 
+     * @return the pre-existing array
+     */
     public float[] getEigenValues() {
         return eigenValues;
     }
 
+    /**
+     * Access the array of eigenvectors.
+     * 
+     * @return the pre-existing array of vectors
+     */
     public Vector3f[] getEigenVectors() {
         return eigenVectors;
     }

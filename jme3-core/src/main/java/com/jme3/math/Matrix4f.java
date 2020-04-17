@@ -59,11 +59,77 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     static final long serialVersionUID = 1;
 
     private static final Logger logger = Logger.getLogger(Matrix4f.class.getName());
-    public float m00, m01, m02, m03;
-    public float m10, m11, m12, m13;
-    public float m20, m21, m22, m23;
-    public float m30, m31, m32, m33;
+    /**
+     * the element in row 0, column 0
+     */
+    public float m00;
+    /**
+     * the element in row 0, column 1
+     */
+    public float m01;
+    /**
+     * the element in row 0, column 2
+     */
+    public float m02;
+    /**
+     * the element in row 0, column 3
+     */
+    public float m03;
+    /**
+     * the element in row 1, column 0
+     */
+    public float m10;
+    /**
+     * the element in row 1, column 1
+     */
+    public float m11;
+    /**
+     * the element in row 1, column 2
+     */
+    public float m12;
+    /**
+     * the element in row 1, column 3
+     */
+    public float m13;
+    /**
+     * the element in row 2, column 0
+     */
+    public float m20;
+    /**
+     * the element in row 2, column 1
+     */
+    public float m21;
+    /**
+     * the element in row 2, column 2
+     */
+    public float m22;
+    /**
+     * the element in row 2, column 3
+     */
+    public float m23;
+    /**
+     * the element in row 3, column 0
+     */
+    public float m30;
+    /**
+     * the element in row 3, column 1
+     */
+    public float m31;
+    /**
+     * the element in row 0, column 2
+     */
+    public float m32;
+    /**
+     * the element in row 3, column 3
+     */
+    public float m33;
+    /**
+     * an instance of the zero matrix (all elements = 0)
+     */
     public static final Matrix4f ZERO = new Matrix4f(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+    /**
+     * an instance of the identity matrix (diagonals = 1, other elements = 0)
+     */
     public static final Matrix4f IDENTITY = new Matrix4f();
 
     /**
@@ -640,6 +706,11 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
         }
     }
 
+    /**
+     * Generate the transpose of this matrix.
+     *
+     * @return a new Matrix4f with its rows and columns transposed
+     */
     public Matrix4f transpose() {
         float[] tmp = new float[16];
         get(tmp, true);
@@ -754,6 +825,13 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
         return fb;
     }
 
+    /**
+     * Copy the elements of this matrix to a float array.
+     *
+     * @param f   the array to fill (not null, length >= 16)
+     * @param columnMajor
+     *            true &rarr; column-major order, false &rarr; row-major order
+     */
     public void fillFloatArray(float[] f, boolean columnMajor) {
         if (columnMajor) {
             f[0] = m00;
@@ -975,6 +1053,12 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
         m33 *= scalar;
     }
 
+    /**
+     * Multiply this matrix by a scalar.
+     *
+     * @param scalar the scaling factor
+     * @return a new Matrix4f with every element scaled
+     */
     public Matrix4f mult(float scalar) {
         Matrix4f out = new Matrix4f();
         out.set(this);
@@ -982,6 +1066,13 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
         return out;
     }
 
+    /**
+     * Multiply this matrix by a scalar.
+     *
+     * @param scalar the scaling factor
+     * @param store storage for the result (not null, modified)
+     * @return a scaled matrix (store)
+     */
     public Matrix4f mult(float scalar, Matrix4f store) {
         store.set(this);
         store.multLocal(scalar);
@@ -1544,6 +1635,14 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
         return adjoint(null);
     }
 
+    /**
+     * Set this matrix to the specified 3-D coordinate transform.  The
+     * effective sequence of operations is: scale, then rotate, then translate.
+     *
+     * @param position the desired translation (not null, unaffected)
+     * @param scale the desired scaling (not null, unaffected)
+     * @param rotMat the desired rotation (not null, unaffected)
+     */
     public void setTransform(Vector3f position, Vector3f scale, Matrix3f rotMat) {
         // Ordering:
         //    1. Scale
@@ -1651,6 +1750,12 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
         return this;
     }
 
+    /**
+     * Calculate the sum of this matrix and another.
+     *
+     * @param mat the Matrix4f to add (not null, unaffected)
+     * @return a new Matrix4f
+     */
     public Matrix4f add(Matrix4f mat) {
         Matrix4f result = new Matrix4f();
         result.m00 = this.m00 + mat.m00;
@@ -1697,29 +1802,67 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
         m33 += mat.m33;
     }
 
+    /**
+     * Interpret this matrix as a 3-D coordinate transform and determine its
+     * translation component.
+     *
+     * @return a new translation vector
+     */
     public Vector3f toTranslationVector() {
         return new Vector3f(m03, m13, m23);
     }
 
+    /**
+     * Interpret this matrix as a 3-D coordinate transform and determine its
+     * translation component.
+     *
+     * @param vector storage for the result (not null, modified)
+     * @return the translation vector (vector)
+     */
     public Vector3f toTranslationVector(Vector3f vector) {
         return vector.set(m03, m13, m23);
     }
 
+    /**
+     * Interpret this matrix as a 3-D coordinate transform and determine its
+     * rotation component.
+     *
+     * @return a new rotation Quaternion
+     */
     public Quaternion toRotationQuat() {
         Quaternion quat = new Quaternion();
         quat.fromRotationMatrix(toRotationMatrix());
         return quat;
     }
 
+    /**
+     * Interpret this matrix as a 3-D coordinate transform and determine its
+     * rotation component.
+     *
+     * @param q storage for the result (not null, modified)
+     * @return the rotation Quaternion (q)
+     */
     public Quaternion toRotationQuat(Quaternion q) {
         return q.fromRotationMatrix(m00, m01, m02, m10,
                 m11, m12, m20, m21, m22);
     }
 
+    /**
+     * Interpret this matrix as a 3-D coordinate transform and determine its
+     * rotation component.
+     *
+     * @return a new rotation matrix
+     */
     public Matrix3f toRotationMatrix() {
         return new Matrix3f(m00, m01, m02, m10, m11, m12, m20, m21, m22);
     }
 
+    /**
+     * Interpret this matrix as a 3-D coordinate transform and determine its
+     * rotation component.
+     *
+     * @param mat storage for the result (not null, modified)
+     */
     public void toRotationMatrix(Matrix3f mat) {
         mat.m00 = m00;
         mat.m01 = m01;
@@ -2041,6 +2184,12 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
         vec.z = vx * m02 + vy * m12 + vz * m22;
     }
 
+    /**
+     * Interpret this matrix as a 3-D coordinate transform and apply its
+     * rotation component to the specified vector.
+     *
+     * @param vec the vector to rotate (not null, modified)
+     */
     public void rotateVect(Vector3f vec) {
         float vx = vec.x, vy = vec.y, vz = vec.z;
 
@@ -2209,6 +2358,13 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
         return true;
     }
 
+    /**
+     * Serialize this matrix to the specified exporter, for example when
+     * saving to a J3O file.
+     *
+     * @param e (not null)
+     * @throws IOException from the exporter
+     */
     @Override
     public void write(JmeExporter e) throws IOException {
         OutputCapsule cap = e.getCapsule(this);
@@ -2230,6 +2386,13 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
         cap.write(m33, "m33", 1);
     }
 
+    /**
+     * De-serialize this matrix from the specified importer, for example
+     * when loading from a J3O file.
+     *
+     * @param e (not null)
+     * @throws IOException from the importer
+     */
     @Override
     public void read(JmeImporter e) throws IOException {
         InputCapsule cap = e.getCapsule(this);
@@ -2348,6 +2511,11 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
         multLocal(matrix4f);
     }
 
+    /**
+     * Create a copy of this matrix.
+     *
+     * @return a new instance, equivalent to this one
+     */
     @Override
     public Matrix4f clone() {
         try {

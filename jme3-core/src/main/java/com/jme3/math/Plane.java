@@ -153,6 +153,13 @@ public class Plane implements Savable, Cloneable, java.io.Serializable {
         return constant;
     }
 
+    /**
+     * Find the point in this plane that's nearest to the specified point.
+     *
+     * @param point location vector of the input point (not null, unaffected)
+     * @param store storage for the result (not null, modififed)
+     * @return a location in this plane (store)
+     */
     public Vector3f getClosestPoint(Vector3f point, Vector3f store) {
 //        float t = constant - normal.dot(point);
 //        return store.set(normal).multLocal(t).addLocal(point);
@@ -160,10 +167,24 @@ public class Plane implements Savable, Cloneable, java.io.Serializable {
         return store.set(normal).multLocal(t).addLocal(point);
     }
 
+    /**
+     * Find the point in this plane that's nearest to the specified point.
+     *
+     * @param point location vector of the input point (not null, unaffected)
+     * @return a new location vector in this plane
+     */
     public Vector3f getClosestPoint(Vector3f point) {
         return getClosestPoint(point, new Vector3f());
     }
 
+    /**
+     * Reflect the specified point in this plane.
+     *
+     * @param point location vector of the input point (not null, unaffected)
+     * @param store storage for the result (modififed if not null)
+     * @return a location vector for the reflected point (either store or a new
+     * vector)
+     */
     public Vector3f reflect(Vector3f point, Vector3f store) {
         if (store == null) {
             store = new Vector3f();
@@ -270,6 +291,13 @@ public class Plane implements Savable, Cloneable, java.io.Serializable {
                 + constant + "]";
     }
 
+    /**
+     * Serialize this plane to the specified exporter, for example when
+     * saving to a J3O file.
+     *
+     * @param e (not null)
+     * @throws IOException from the exporter
+     */
     @Override
     public void write(JmeExporter e) throws IOException {
         OutputCapsule capsule = e.getCapsule(this);
@@ -277,6 +305,13 @@ public class Plane implements Savable, Cloneable, java.io.Serializable {
         capsule.write(constant, "constant", 0);
     }
 
+    /**
+     * De-serialize this plane from the specified importer, for example
+     * when loading from a J3O file.
+     *
+     * @param e (not null)
+     * @throws IOException from the importer
+     */
     @Override
     public void read(JmeImporter e) throws IOException {
         InputCapsule capsule = e.getCapsule(this);
@@ -284,6 +319,11 @@ public class Plane implements Savable, Cloneable, java.io.Serializable {
         constant = capsule.readFloat("constant", 0);
     }
 
+    /**
+     * Create a copy of this plane.
+     *
+     * @return a new instance, equivalent to this one
+     */
     @Override
     public Plane clone() {
         try {

@@ -1,9 +1,10 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine All rights reserved.
+ * Copyright (c) 2009-2020 jMonkeyEngine
+ * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- *  *
+ *
  * * Redistributions of source code must retain the above copyright notice,
  * this list of conditions and the following disclaimer.
  *
@@ -387,6 +388,11 @@ public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable
         return "Color[" + r + ", " + g + ", " + b + ", " + a + "]";
     }
 
+    /**
+     * Create a copy of this color.
+     *
+     * @return a new instance, equivalent to this one
+     */
     @Override
     public ColorRGBA clone() {
         try {
@@ -462,6 +468,13 @@ public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable
         return hash;
     }
     
+    /**
+     * Serialize this color to the specified exporter, for example when
+     * saving to a J3O file.
+     *
+     * @param e (not null)
+     * @throws IOException from the exporter
+     */
     @Override
     public void write(JmeExporter e) throws IOException {
         OutputCapsule capsule = e.getCapsule(this);
@@ -471,6 +484,13 @@ public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable
         capsule.write(a, "a", 0);
     }
 
+    /**
+     * De-serialize this color from the specified importer, for example when
+     * loading from a J3O file.
+     *
+     * @param e (not null)
+     * @throws IOException from the importer
+     */
     @Override
     public void read(JmeImporter e) throws IOException {
         InputCapsule capsule = e.getCapsule(this);

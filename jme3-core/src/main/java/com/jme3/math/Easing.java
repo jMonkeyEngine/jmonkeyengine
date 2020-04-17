@@ -7,6 +7,9 @@ package com.jme3.math;
 public class Easing {
 
 
+    /**
+     * a function that always returns 0
+     */
     public static EaseFunction constant = new EaseFunction() {
         @Override
         public float apply(float value) {
@@ -23,6 +26,9 @@ public class Easing {
         }
     };
 
+    /**
+     * a function that returns the square of its input
+     */
     public static EaseFunction inQuad = new EaseFunction() {
         @Override
         public float apply(float value) {
@@ -30,6 +36,9 @@ public class Easing {
         }
     };
 
+    /**
+     * a function that returns the cube of its input
+     */
     public static EaseFunction inCubic = new EaseFunction() {
         @Override
         public float apply(float value) {
@@ -37,6 +46,9 @@ public class Easing {
         }
     };
 
+    /**
+     * a function that returns the 4th power of its input
+     */
     public static EaseFunction inQuart = new EaseFunction() {
         @Override
         public float apply(float value) {
@@ -44,6 +56,9 @@ public class Easing {
         }
     };
 
+    /**
+     * a function that returns the 5th power of its input
+     */
     public static EaseFunction inQuint = new EaseFunction() {
         @Override
         public float apply(float value) {
@@ -62,6 +77,9 @@ public class Easing {
         }
     };
 
+    /**
+     * a function that starts quickly, then bounces several times
+     */
     public static EaseFunction outBounce = new EaseFunction() {
         @Override
         public float apply(float value) {
@@ -81,6 +99,9 @@ public class Easing {
      * In Elastic and bounce
      */
     public static EaseFunction inElastic = new Invert(outElastic);
+    /**
+     * a function containing a series of increasing bounces
+     */
     public static EaseFunction inBounce = new Invert(outBounce);
 
     /**
@@ -128,6 +149,12 @@ public class Easing {
         private EaseFunction in;
         private EaseFunction out;
 
+        /**
+         * Instantiate a function that blends 2 pre-existing functions.
+         *
+         * @param in the function to use at value=0
+         * @param out the function to use at value=1
+         */
         public InOut(EaseFunction in, EaseFunction out) {
             this.in = in;
             this.out = out;

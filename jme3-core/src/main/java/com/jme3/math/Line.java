@@ -108,6 +108,12 @@ public class Line implements Savable, Cloneable, java.io.Serializable {
         this.direction = direction;
     }
 
+    /**
+     * Calculate the squared distance from this line to the specified point.
+     *
+     * @param point location vector of the input point (not null, unaffected)
+     * @return the square of the minimum distance (&ge;0)
+     */
     public float distanceSquared(Vector3f point) {
         TempVars vars = TempVars.get();
 
@@ -123,10 +129,21 @@ public class Line implements Savable, Cloneable, java.io.Serializable {
         return len;
     }
 
+    /**
+     * Calculate the distance from this line to the specified point.
+     *
+     * @param point location vector of the input point (not null, unaffected)
+     * @return the minimum distance (&ge;0)
+     */
     public float distance(Vector3f point) {
         return FastMath.sqrt(distanceSquared(point));
     }
 
+    /**
+     * Fit this line to the specified points.
+     *
+     * @param points a buffer containing location vectors, or null
+     */
     public void orthogonalLineFit(FloatBuffer points) {
         if (points == null) {
             return;
@@ -213,6 +230,13 @@ public class Line implements Savable, Cloneable, java.io.Serializable {
         return result;
     }
 
+    /**
+     * Serialize this line to the specified exporter, for example when
+     * saving to a J3O file.
+     *
+     * @param e (not null)
+     * @throws IOException from the exporter
+     */
     @Override
     public void write(JmeExporter e) throws IOException {
         OutputCapsule capsule = e.getCapsule(this);
@@ -220,6 +244,13 @@ public class Line implements Savable, Cloneable, java.io.Serializable {
         capsule.write(direction, "direction", Vector3f.ZERO);
     }
 
+    /**
+     * De-serialize this line from the specified importer, for example when
+     * loading from a J3O file.
+     *
+     * @param e (not null)
+     * @throws IOException from the importer
+     */
     @Override
     public void read(JmeImporter e) throws IOException {
         InputCapsule capsule = e.getCapsule(this);
@@ -227,6 +258,11 @@ public class Line implements Savable, Cloneable, java.io.Serializable {
         direction = (Vector3f) capsule.readSavable("direction", Vector3f.ZERO.clone());
     }
 
+    /**
+     * Create a copy of this line.
+     *
+     * @return a new instance, equivalent to this one
+     */
     @Override
     public Line clone() {
         try {

@@ -63,7 +63,9 @@ public final class Ray implements Savable, Cloneable, Collidable, java.io.Serial
      */
     public Vector3f direction = new Vector3f(0, 0, 1);
     
-    
+    /**
+     * The length of the ray (defaults to +Infinity).
+     */
     public float limit = Float.POSITIVE_INFINITY;
 
     /**
@@ -493,11 +495,25 @@ public final class Ray implements Savable, Cloneable, Collidable, java.io.Serial
         direction.set(source.getDirection());
     }
 
+    /**
+     * Represent this ray as a String.  The format is:
+     *
+     * Ray [Origin: (X.X, Y.Y, Z.Z), Direction: (X.X, Y.Y, Z.Z)]
+     *
+     * @return a descriptive string of text (not null, not empty)
+     */
     @Override
     public String toString() {
         return getClass().getSimpleName() + " [Origin: " + origin + ", Direction: " + direction + "]";
     }
 
+    /**
+     * Serialize this ray to the specified exporter, for example when
+     * saving to a J3O file.
+     *
+     * @param e (not null)
+     * @throws IOException from the exporter
+     */
     @Override
     public void write(JmeExporter e) throws IOException {
         OutputCapsule capsule = e.getCapsule(this);
@@ -505,6 +521,13 @@ public final class Ray implements Savable, Cloneable, Collidable, java.io.Serial
         capsule.write(direction, "direction", Vector3f.ZERO);
     }
 
+    /**
+     * De-serialize this ray from the specified importer, for example
+     * when loading from a J3O file.
+     *
+     * @param e (not null)
+     * @throws IOException from the importer
+     */
     @Override
     public void read(JmeImporter e) throws IOException {
         InputCapsule capsule = e.getCapsule(this);
@@ -512,6 +535,11 @@ public final class Ray implements Savable, Cloneable, Collidable, java.io.Serial
         direction = (Vector3f) capsule.readSavable("direction", Vector3f.ZERO.clone());
     }
 
+    /**
+     * Create a copy of this ray.
+     *
+     * @return a new instance, equivalent to this one
+     */
     @Override
     public Ray clone() {
         try {
