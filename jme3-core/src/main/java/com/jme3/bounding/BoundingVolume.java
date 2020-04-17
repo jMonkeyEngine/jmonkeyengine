@@ -44,12 +44,11 @@ import java.nio.FloatBuffer;
 /**
  * <code>BoundingVolume</code> defines an interface for dealing with
  * containment of a collection of points.
- * 
+ *
  * @author Mark Powell
  * @version $Id: BoundingVolume.java,v 1.24 2007/09/21 15:45:32 nca Exp $
  */
 public abstract class BoundingVolume implements Savable, Cloneable, Collidable {
-
     /**
      * The type of bounding volume being used.
      */
@@ -57,13 +56,11 @@ public abstract class BoundingVolume implements Savable, Cloneable, Collidable {
         /**
          * {@link BoundingSphere}
          */
-        Sphere, 
-        
+        Sphere,
         /**
          * {@link BoundingBox}.
          */
-        AABB, 
-        
+        AABB,
         /**
          * Currently unsupported by jME3.
          */
@@ -82,7 +79,6 @@ public abstract class BoundingVolume implements Savable, Cloneable, Collidable {
 
     /**
      * Grabs the checkplane we should check first.
-     *
      */
     public int getCheckPlane() {
         return checkPlane;
@@ -103,7 +99,6 @@ public abstract class BoundingVolume implements Savable, Cloneable, Collidable {
     public abstract Type getType();
 
     /**
-     *
      * <code>transform</code> alters the location of the bounding volume by a
      * rotation, translation and a scalar.
      *
@@ -116,7 +111,6 @@ public abstract class BoundingVolume implements Savable, Cloneable, Collidable {
     }
 
     /**
-     *
      * <code>transform</code> alters the location of the bounding volume by a
      * rotation, translation and a scalar.
      *
@@ -131,7 +125,6 @@ public abstract class BoundingVolume implements Savable, Cloneable, Collidable {
     public abstract BoundingVolume transform(Matrix4f trans, BoundingVolume store);
 
     /**
-     *
      * <code>whichSide</code> returns the side on which the bounding volume
      * lies on a plane. Possible values are POSITIVE_SIDE, NEGATIVE_SIDE, and
      * NO_SIDE.
@@ -143,7 +136,6 @@ public abstract class BoundingVolume implements Savable, Cloneable, Collidable {
     public abstract Plane.Side whichSide(Plane plane);
 
     /**
-     *
      * <code>computeFromPoints</code> generates a bounding volume that
      * encompasses a collection of points.
      *
@@ -204,7 +196,7 @@ public abstract class BoundingVolume implements Savable, Cloneable, Collidable {
     /**
      * Find the distance from the center of this Bounding Volume to the given
      * point.
-     * 
+     *
      * @param point
      *            The point to get the distance to
      * @return distance
@@ -216,7 +208,7 @@ public abstract class BoundingVolume implements Savable, Cloneable, Collidable {
     /**
      * Find the squared distance from the center of this Bounding Volume to the
      * given point.
-     * 
+     *
      * @param point
      *            The point to get the distance to
      * @return distance
@@ -228,7 +220,7 @@ public abstract class BoundingVolume implements Savable, Cloneable, Collidable {
     /**
      * Find the distance from the nearest edge of this Bounding Volume to the given
      * point.
-     * 
+     *
      * @param point
      *            The point to get the distance to
      * @return distance
@@ -255,7 +247,6 @@ public abstract class BoundingVolume implements Savable, Cloneable, Collidable {
      */
     public abstract boolean intersects(Ray ray);
 
-
     /**
      * determines if this bounding volume and a given bounding sphere are
      * intersecting.
@@ -276,7 +267,7 @@ public abstract class BoundingVolume implements Savable, Cloneable, Collidable {
      */
     public abstract boolean intersectsBoundingBox(BoundingBox bb);
 
-    /**
+    /*
      * determines if this bounding volume and a given bounding box are
      * intersecting.
      *
@@ -286,11 +277,10 @@ public abstract class BoundingVolume implements Savable, Cloneable, Collidable {
      */
 //  public abstract boolean intersectsOrientedBoundingBox(OrientedBoundingBox bb);
     /**
-     * 
      * determines if a given point is contained within this bounding volume.
      * If the point is on the edge of the bounding volume, this method will
      * return false. Use intersects(Vector3f) to check for edge intersection.
-     * 
+     *
      * @param point
      *            the point to check
      * @return true if the point lies within this bounding volume.
@@ -299,6 +289,7 @@ public abstract class BoundingVolume implements Savable, Cloneable, Collidable {
 
     /**
      * Determines if a given point intersects (touches or is inside) this bounding volume.
+     *
      * @param point the point to check
      * @return true if the point lies within this bounding volume.
      */
@@ -308,11 +299,11 @@ public abstract class BoundingVolume implements Savable, Cloneable, Collidable {
 
     @Override
     public BoundingVolume clone() {
-        try{
+        try {
             BoundingVolume clone = (BoundingVolume) super.clone();
             clone.center = center.clone();
             return clone;
-        }catch (CloneNotSupportedException ex){
+        } catch (CloneNotSupportedException ex) {
             throw new AssertionError();
         }
     }
@@ -326,7 +317,7 @@ public abstract class BoundingVolume implements Savable, Cloneable, Collidable {
     public void read(JmeImporter e) throws IOException {
         center = (Vector3f) e.getCapsule(this).readSavable("center", Vector3f.ZERO.clone());
     }
-    
+
     public int collideWith(Collidable other) {
         TempVars tempVars = TempVars.get();
         try {
@@ -338,4 +329,3 @@ public abstract class BoundingVolume implements Savable, Cloneable, Collidable {
         }
     }
 }
-
