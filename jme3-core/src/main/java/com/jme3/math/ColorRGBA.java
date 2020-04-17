@@ -380,7 +380,7 @@ public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable
     /**
      * <code>toString</code> returns the string representation of this <code>ColorRGBA</code>.
      * The format of the string is:<br>
-     * <Class Name>: [R=RR.RRRR, G=GG.GGGG, B=BB.BBBB, A=AA.AAAA]
+     * Color[R.RRRR, G.GGGG, B.BBBB, A.AAAA]
      * @return The string representation of this <code>ColorRGBA</code>.
      */
     @Override
