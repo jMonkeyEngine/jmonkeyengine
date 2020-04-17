@@ -78,7 +78,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     /**
      * Sets this rotation to the given Quaternion value.
      *
-     * @param rot The new rotation for this matrix.
+     * @param rot The new rotation for this Transform.
      * @return this
      */
     public Transform setRotation(Quaternion rot) {
@@ -89,7 +89,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     /**
      * Sets this translation to the given value.
      *
-     * @param trans The new translation for this matrix.
+     * @param trans The new translation for this Transform.
      * @return this
      */
     public Transform setTranslation(Vector3f trans) {
@@ -98,7 +98,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Return the translation vector in this matrix.
+     * Return the translation vector in this Transform.
      *
      * @return translation vector.
      */
@@ -109,7 +109,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     /**
      * Sets this scale to the given value.
      *
-     * @param scale The new scale for this matrix.
+     * @param scale The new scale for this Transform.
      * @return this
      */
     public Transform setScale(Vector3f scale) {
@@ -120,7 +120,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     /**
      * Sets this scale to the given value.
      *
-     * @param scale The new scale for this matrix.
+     * @param scale The new scale for this Transform.
      * @return this
      */
     public Transform setScale(float scale) {
@@ -129,7 +129,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Return the scale vector in this matrix.
+     * Return the scale vector in this Transform.
      *
      * @return scale vector.
      */
@@ -142,8 +142,8 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
      * a new vector3f is created to hold the value. The value, once stored, is
      * returned.
      *
-     * @param trans The store location for this matrix's translation.
-     * @return The value of this matrix's translation.
+     * @param trans The store location for this transform's translation.
+     * @return The value of this transform's translation.
      */
     public Vector3f getTranslation(Vector3f trans) {
         if (trans == null) {
@@ -158,8 +158,8 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
      * new Quaternion is created to hold the value. The value, once stored, is
      * returned.
      *
-     * @param quat The store location for this matrix's rotation.
-     * @return The value of this matrix's rotation.
+     * @param quat The store location for this transform's rotation.
+     * @return The value of this transform's rotation.
      */
     public Quaternion getRotation(Quaternion quat) {
         if (quat == null) {
@@ -170,7 +170,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Return the rotation quaternion in this matrix.
+     * Return the rotation quaternion in this Transform.
      *
      * @return rotation quaternion.
      */
@@ -183,8 +183,8 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
      * vector3f is created to hold the value. The value, once stored, is
      * returned.
      *
-     * @param scale The store location for this matrix's scale.
-     * @return The value of this matrix's scale.
+     * @param scale The store location for this transform's scale.
+     * @return The value of this transform's scale.
      */
     public Vector3f getScale(Vector3f scale) {
         if (scale == null) {
@@ -211,11 +211,11 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Changes the values of this matrix according to its parent. Very similar
+     * Changes the values of this Transform according to its parent. Very similar
      * to the concept of Node/Spatial transforms.
      *
-     * @param parent The parent matrix.
-     * @return This matrix, after combining.
+     * @param parent The parent Transform.
+     * @return This Transform, after combining.
      */
     public Transform combineWithParent(Transform parent) {
         //applying parent scale to local scale
@@ -234,11 +234,11 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Sets this matrix's translation to the given x,y,z values.
+     * Sets this transform's translation to the given x,y,z values.
      *
-     * @param x This matrix's new x translation.
-     * @param y This matrix's new y translation.
-     * @param z This matrix's new z translation.
+     * @param x This transform's new x translation.
+     * @param y This transform's new y translation.
+     * @param z This transform's new z translation.
      * @return this
      */
     public Transform setTranslation(float x, float y, float z) {
@@ -247,11 +247,11 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Sets this matrix's scale to the given x,y,z values.
+     * Sets this transform's scale to the given x,y,z values.
      *
-     * @param x This matrix's new x scale.
-     * @param y This matrix's new y scale.
-     * @param z This matrix's new z scale.
+     * @param x This transform's new x scale.
+     * @param y This transform's new y scale.
+     * @param z This transform's new z scale.
      * @return this
      */
     public Transform setScale(float x, float y, float z) {
@@ -365,9 +365,9 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Sets this matrix to be equal to the given matrix.
+     * Sets this Transform to be equal to the given Transform.
      *
-     * @param matrixQuat The matrix to be equal to.
+     * @param matrixQuat The Transform to be equal to.
      * @return this
      */
     public Transform set(Transform matrixQuat) {
