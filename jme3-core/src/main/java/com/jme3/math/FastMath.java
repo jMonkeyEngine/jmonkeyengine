@@ -678,8 +678,7 @@ final public class FastMath {
     }
 
     /**
-     * Returns the tangent of a value.  If USE_FAST_TRIG is enabled, an approximate value
-     * is returned.  Otherwise, a direct value is used.
+     * Returns the tangent of the specified angle.
      *
      * @param fValue The value to tangent, in radians.
      * @return The tangent of fValue.
