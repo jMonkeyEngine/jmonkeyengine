@@ -79,6 +79,11 @@ public class LineSegment implements Cloneable, Savable, java.io.Serializable {
     /**
      * <p>Creates a new LineSegment with the given origin, direction and extent.</p>
      * <p>Note that the origin is not one of the ends of the LineSegment, but its center.</p>
+     *
+     * @param origin the location of the desired midpoint (alias created)
+     * @param direction the desired direction vector (alias created)
+     * @param extent the extent: 1/2 of the desired length, assuming direction
+     * is a unit vector
      */
     public LineSegment(Vector3f origin, Vector3f direction, float extent) {
         this.origin = origin;
@@ -89,6 +94,9 @@ public class LineSegment implements Cloneable, Savable, java.io.Serializable {
     /**
      * <p>Creates a new LineSegment with a given origin and end. This constructor will calculate the
      * center, the direction and the extent.</p>
+     *
+     * @param start location of the negative endpoint (not null, unaffected)
+     * @param end location of the negative endpoint (not null, unaffected)
      */
     public LineSegment(Vector3f start, Vector3f end) {
         this.origin = new Vector3f(0.5f * (start.x + end.x), 0.5f * (start.y + end.y), 0.5f * (start.z + end.z));
@@ -716,6 +724,9 @@ public class LineSegment implements Cloneable, Savable, java.io.Serializable {
     /**
      * <p>Evaluates whether a given point is contained within the axis aligned bounding box
      * that contains this LineSegment.</p><p>This function is float error aware.</p>
+     * 
+     * @param point the location of the input point (not null, unaffected)
+     * @return true if contained in the box, otherwise false
      */
     public boolean isPointInsideBounds(Vector3f point) {
         return isPointInsideBounds(point, Float.MIN_VALUE);
@@ -725,6 +736,10 @@ public class LineSegment implements Cloneable, Savable, java.io.Serializable {
      * <p>Evaluates whether a given point is contained within the axis aligned bounding box
      * that contains this LineSegment.</p><p>This function accepts an error parameter, which
      * is added to the extent of the bounding box.</p>
+     * 
+     * @param point the location of the input point (not null, unaffected)
+     * @param error the desired margin for error
+     * @return true if contained in the box, otherwise false
      */
     public boolean isPointInsideBounds(Vector3f point, float error) {
 

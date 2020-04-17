@@ -801,6 +801,24 @@ final public class FastMath {
 
     /**
      * Returns the determinant of a 4x4 matrix.
+     *
+     * @param m00 the element in row 0, column 0 of the matrix
+     * @param m01 the element in row 0, column 1 of the matrix
+     * @param m02 the element in row 0, column 2 of the matrix
+     * @param m03 the element in row 0, column 3 of the matrix
+     * @param m10 the element in row 1, column 0 of the matrix
+     * @param m11 the element in row 1, column 1 of the matrix
+     * @param m12 the element in row 1, column 2 of the matrix
+     * @param m13 the element in row 1, column 3 of the matrix
+     * @param m20 the element in row 2, column 0 of the matrix
+     * @param m21 the element in row 2, column 1 of the matrix
+     * @param m22 the element in row 2, column 2 of the matrix
+     * @param m23 the element in row 2, column 3 of the matrix
+     * @param m30 the element in row 3, column 0 of the matrix
+     * @param m31 the element in row 3, column 1 of the matrix
+     * @param m32 the element in row 3, column 2 of the matrix
+     * @param m33 the element in row 3, column 3 of the matrix
+     * @return the determinant
      */
     public static float determinant(double m00, double m01, double m02,
             double m03, double m10, double m11, double m12, double m13,
@@ -832,6 +850,8 @@ final public class FastMath {
     /**
      * Returns a random integer between min and max.
      *
+     * @param min the desired minimum value
+     * @param max the desired maximum value
      * @return A random int between <tt>min</tt> (inclusive) to
      * <tt>max</tt> (inclusive).
      */
@@ -852,6 +872,12 @@ final public class FastMath {
     /**
      * Converts a point from Spherical coordinates to Cartesian (using positive
      * Y as up) and stores the results in the store var.
+     *
+     * @param sphereCoords the input spherical coordinates: x=distance from
+     * origin, y=longitude in radians, z=latitude in radians (not null,
+     * unaffected)
+     * @param store storage for the result (modified if not null)
+     * @return the Cartesian coordinates (either store or a new vector)
      */
     public static Vector3f sphericalToCartesian(Vector3f sphereCoords,
             Vector3f store) {
@@ -870,6 +896,11 @@ final public class FastMath {
      * Converts a point from Cartesian coordinates (using positive Y as up) to
      * Spherical and stores the results in the store var. (Radius, Azimuth,
      * Polar)
+     *
+     * @param cartCoords the input Cartesian coordinates (not null, unaffected)
+     * @param store storage for the result (modified if not null)
+     * @return the Cartesian coordinates: x=distance from origin, y=longitude in
+     * radians, z=latitude in radians (either store or a new vector)
      */
     public static Vector3f cartesianToSpherical(Vector3f cartCoords,
             Vector3f store) {
@@ -894,6 +925,12 @@ final public class FastMath {
     /**
      * Converts a point from Spherical coordinates to Cartesian (using positive
      * Z as up) and stores the results in the store var.
+     *
+     * @param sphereCoords the input spherical coordinates: x=distance from
+     * origin, y=longitude in radians, z=latitude in radians (not null,
+     * unaffected)
+     * @param store storage for the result (modified if not null)
+     * @return the Cartesian coordinates (either store or a new vector)
      */
     public static Vector3f sphericalToCartesianZ(Vector3f sphereCoords,
             Vector3f store) {
@@ -912,6 +949,11 @@ final public class FastMath {
      * Converts a point from Cartesian coordinates (using positive Z as up) to
      * Spherical and stores the results in the store var. (Radius, Azimuth,
      * Polar)
+     *
+     * @param cartCoords the input Cartesian coordinates (not null, unaffected)
+     * @param store storage for the result (modified if not null)
+     * @return the Cartesian coordinates: x=distance from origin, y=latitude in
+     * radians, z=longitude in radians (either store or a new vector)
      */
     public static Vector3f cartesianZToSpherical(Vector3f cartCoords,
             Vector3f store) {
@@ -938,6 +980,10 @@ final public class FastMath {
      *
      * @param val -
      *            the angle to normalize (in radians)
+     * @param min
+     *            the lower limit of the range
+     * @param max
+     *            the upper limit of the range
      * @return the normalized angle (also in radians)
      */
     public static float normalize(float val, float min, float max) {

@@ -142,6 +142,23 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * constructs a matrix with the given values.
+     *
+     * @param m00 the desired value for row 0, column 0
+     * @param m01 the desired value for row 0, column 1
+     * @param m02 the desired value for row 0, column 2
+     * @param m03 the desired value for row 0, column 3
+     * @param m10 the desired value for row 1, column 0
+     * @param m11 the desired value for row 1, column 1
+     * @param m12 the desired value for row 1, column 2
+     * @param m13 the desired value for row 1, column 3
+     * @param m20 the desired value for row 2, column 0
+     * @param m21 the desired value for row 2, column 1
+     * @param m22 the desired value for row 2, column 2
+     * @param m23 the desired value for row 2, column 3
+     * @param m30 the desired value for row 3, column 0
+     * @param m31 the desired value for row 3, column 1
+     * @param m32 the desired value for row 3, column 2
+     * @param m33 the desired value for row 3, column 3
      */
     public Matrix4f(float m00, float m01, float m02, float m03,
             float m10, float m11, float m12, float m13,
@@ -593,6 +610,23 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * Sets the values of this matrix
+     *
+     * @param m00 the desired value for row 0, column 0
+     * @param m01 the desired value for row 0, column 1
+     * @param m02 the desired value for row 0, column 2
+     * @param m03 the desired value for row 0, column 3
+     * @param m10 the desired value for row 1, column 0
+     * @param m11 the desired value for row 1, column 1
+     * @param m12 the desired value for row 1, column 2
+     * @param m13 the desired value for row 1, column 3
+     * @param m20 the desired value for row 2, column 0
+     * @param m21 the desired value for row 2, column 1
+     * @param m22 the desired value for row 2, column 2
+     * @param m23 the desired value for row 2, column 3
+     * @param m30 the desired value for row 3, column 0
+     * @param m31 the desired value for row 3, column 1
+     * @param m32 the desired value for row 3, column 2
+     * @param m33 the desired value for row 3, column 3
      */
     public void set(float m00, float m01, float m02, float m03,
             float m10, float m11, float m12, float m13,
@@ -622,6 +656,7 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
      *
      * @param matrix
      *            the matrix to read the value from.
+     * @return this
      */
     public Matrix4f set(Matrix4f matrix) {
         m00 = matrix.m00;
@@ -1513,6 +1548,7 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     /**
      * Inverts this matrix and stores it in the given store.
      *
+     * @param store storage for the result (modified if not null)
      * @return The store
      */
     public Matrix4f invert(Matrix4f store) {

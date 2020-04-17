@@ -235,6 +235,7 @@ public final class Vector2f implements Savable, Cloneable, java.io.Serializable 
      * @param changeAmnt
      *            An amount between 0.0 - 1.0 representing a percentage change
      *            from this towards finalVec
+     * @return this
      */
     public Vector2f interpolateLocal(Vector2f finalVec, float changeAmnt) {
         this.x = (1 - changeAmnt) * this.x + changeAmnt * finalVec.x;
@@ -253,6 +254,7 @@ public final class Vector2f implements Savable, Cloneable, java.io.Serializable 
      * @param changeAmnt
      *            An amount between 0.0 - 1.0 representing a percentage change
      *            from beginVec towards finalVec
+     * @return this
      */
     public Vector2f interpolateLocal(Vector2f beginVec, Vector2f finalVec,
             float changeAmnt) {
@@ -622,6 +624,8 @@ public final class Vector2f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * <code>zero</code> resets this vector's data to zero internally.
+     *
+     * @return this
      */
     public Vector2f zero() {
         x = y = 0;
@@ -698,6 +702,10 @@ public final class Vector2f implements Savable, Cloneable, java.io.Serializable 
     /**
      * Returns true if this vector is similar to the specified vector within
      * some value of epsilon.
+     *
+     * @param other the vector to compare with (not null, unaffected)
+     * @param epsilon the desired error tolerance for each component
+     * @return true if both components are within tolerance, otherwise false
      */
     public boolean isSimilar(Vector2f other, float epsilon) {
         if (other == null) {

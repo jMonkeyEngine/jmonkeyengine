@@ -119,6 +119,9 @@ public class Plane implements Savable, Cloneable, java.io.Serializable {
     /**
      * <code>setNormal</code> sets the normal of the plane.
      *
+     * @param x the desired X component for the normal vector
+     * @param y the desired Y component for the normal vector
+     * @param z the desired Z component for the normal vector
      */
     public void setNormal(float x, float y, float z) {
         this.normal.set(x, y, z);

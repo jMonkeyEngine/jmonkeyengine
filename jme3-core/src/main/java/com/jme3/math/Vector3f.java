@@ -247,6 +247,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      *            the value to multiply this vector by.
      * @param add
      *            the value to add
+     * @return this
      */
     public Vector3f scaleAdd(float scalar, Vector3f add) {
         x = x * scalar + add.x;
@@ -265,6 +266,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      *            the value to multiply the scalar by
      * @param add
      *            the value to add
+     * @return this
      */
     public Vector3f scaleAdd(float scalar, Vector3f mult, Vector3f add) {
         this.x = mult.x * scalar + add.x;
@@ -789,6 +791,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      * in this vector.
      *
      * @param other
+     * @return this
      */
     public Vector3f maxLocal(Vector3f other) {
         x = other.x > x ? other.x : x;
@@ -803,6 +806,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      * in this vector.
      *
      * @param other
+     * @return this
      */
     public Vector3f minLocal(Vector3f other) {
         x = other.x < x ? other.x : x;
@@ -813,6 +817,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * <code>zero</code> resets this vector's data to zero internally.
+     * @return this
      */
     public Vector3f zero() {
         x = y = z = 0;
@@ -839,6 +844,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      * @param finalVec The final vector to interpolate towards
      * @param changeAmnt An amount between 0.0 - 1.0 representing a percentage
      *  change from this towards finalVec
+     * @return this
      */
     public Vector3f interpolateLocal(Vector3f finalVec, float changeAmnt) {
         this.x = (1 - changeAmnt) * this.x + changeAmnt * finalVec.x;
@@ -855,6 +861,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      * @param finalVec The final vector to interpolate towards
      * @param changeAmnt An amount between 0.0 - 1.0 representing a percentage
      *  change from beginVec towards finalVec
+     * @return this
      */
     public Vector3f interpolateLocal(Vector3f beginVec, Vector3f finalVec, float changeAmnt) {
         this.x = (1 - changeAmnt) * beginVec.x + changeAmnt * finalVec.x;
@@ -978,6 +985,10 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     /**
      * Returns true if this vector is similar to the specified vector within
      * some value of epsilon.
+     *
+     * @param other the vector to compare with (not null, unaffected)
+     * @param epsilon the desired error tolerance for each component
+     * @return true if all 3 components are within tolerance, otherwise false
      */
     public boolean isSimilar(Vector3f other, float epsilon) {
         if (other == null) {
