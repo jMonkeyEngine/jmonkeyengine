@@ -1269,7 +1269,7 @@ public final class BufferUtils {
      * and cleans the direct buffers. However, as this doesn't happen
      * immediately after discarding all references to a direct buffer, it's easy
      * to OutOfMemoryError yourself using direct buffers.
-     **/
+     */
     public static void destroyDirectBuffer(Buffer toBeDestroyed) {
         if (!isDirect(toBeDestroyed)) {
             return;
@@ -1318,5 +1318,4 @@ public final class BufferUtils {
             }
         }
     }
-
 }

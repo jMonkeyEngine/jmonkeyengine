@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,7 +39,7 @@ import java.io.IOException;
 /**
  * Started Date: Jul 16, 2004<br><br>
  * Represents a translation, rotation and scale in one object.
- * 
+ *
  * @author Jack Lindamood
  * @author Joshua Slack
  */
@@ -53,30 +53,31 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     private Vector3f translation = new Vector3f();
     private Vector3f scale = new Vector3f(1, 1, 1);
 
-    public Transform(Vector3f translation, Quaternion rot){
+    public Transform(Vector3f translation, Quaternion rot) {
         this.translation.set(translation);
         this.rot.set(rot);
     }
-    
-    public Transform(Vector3f translation, Quaternion rot, Vector3f scale){
+
+    public Transform(Vector3f translation, Quaternion rot, Vector3f scale) {
         this(translation, rot);
         this.scale.set(scale);
     }
 
-    public Transform(Vector3f translation){
+    public Transform(Vector3f translation) {
         this(translation, Quaternion.IDENTITY);
     }
 
-    public Transform(Quaternion rot){
+    public Transform(Quaternion rot) {
         this(Vector3f.ZERO, rot);
     }
 
-    public Transform(){
+    public Transform() {
         this(Vector3f.ZERO, Quaternion.IDENTITY);
     }
 
     /**
      * Sets this rotation to the given Quaternion value.
+     *
      * @param rot The new rotation for this matrix.
      * @return this
      */
@@ -87,6 +88,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
 
     /**
      * Sets this translation to the given value.
+     *
      * @param trans The new translation for this matrix.
      * @return this
      */
@@ -97,6 +99,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
 
     /**
      * Return the translation vector in this matrix.
+     *
      * @return translation vector.
      */
     public Vector3f getTranslation() {
@@ -105,6 +108,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
 
     /**
      * Sets this scale to the given value.
+     *
      * @param scale The new scale for this matrix.
      * @return this
      */
@@ -115,6 +119,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
 
     /**
      * Sets this scale to the given value.
+     *
      * @param scale The new scale for this matrix.
      * @return this
      */
@@ -125,6 +130,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
 
     /**
      * Return the scale vector in this matrix.
+     *
      * @return scale vector.
      */
     public Vector3f getScale() {
@@ -132,64 +138,82 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Stores this translation value into the given vector3f.  If trans is null, a new vector3f is created to
-     * hold the value.  The value, once stored, is returned.
+     * Stores this translation value into the given vector3f. If trans is null,
+     * a new vector3f is created to hold the value. The value, once stored, is
+     * returned.
+     *
      * @param trans The store location for this matrix's translation.
      * @return The value of this matrix's translation.
      */
     public Vector3f getTranslation(Vector3f trans) {
-        if (trans==null) trans=new Vector3f();
+        if (trans == null) {
+            trans = new Vector3f();
+        }
         trans.set(this.translation);
         return trans;
     }
 
     /**
-     * Stores this rotation value into the given Quaternion.  If quat is null, a new Quaternion is created to
-     * hold the value.  The value, once stored, is returned.
+     * Stores this rotation value into the given Quaternion. If quat is null, a
+     * new Quaternion is created to hold the value. The value, once stored, is
+     * returned.
+     *
      * @param quat The store location for this matrix's rotation.
      * @return The value of this matrix's rotation.
      */
     public Quaternion getRotation(Quaternion quat) {
-        if (quat==null) quat=new Quaternion();
+        if (quat == null) {
+            quat = new Quaternion();
+        }
         quat.set(rot);
         return quat;
     }
-    
+
     /**
      * Return the rotation quaternion in this matrix.
+     *
      * @return rotation quaternion.
      */
     public Quaternion getRotation() {
         return rot;
-    } 
-    
+    }
+
     /**
-     * Stores this scale value into the given vector3f.  If scale is null, a new vector3f is created to
-     * hold the value.  The value, once stored, is returned.
+     * Stores this scale value into the given vector3f. If scale is null, a new
+     * vector3f is created to hold the value. The value, once stored, is
+     * returned.
+     *
      * @param scale The store location for this matrix's scale.
      * @return The value of this matrix's scale.
      */
     public Vector3f getScale(Vector3f scale) {
-        if (scale==null) scale=new Vector3f();
+        if (scale == null) {
+            scale = new Vector3f();
+        }
         scale.set(this.scale);
         return scale;
     }
 
     /**
-     * Sets this transform to the interpolation between the first transform and the second by delta amount.
+     * Sets this transform to the interpolation between the first transform and
+     * the second by delta amount.
+     *
      * @param t1 The beginning transform.
      * @param t2 The ending transform.
-     * @param delta An amount between 0 and 1 representing how far to interpolate from t1 to t2.
+     * @param delta An amount between 0 and 1 representing how far to
+     * interpolate from t1 to t2.
      */
     public void interpolateTransforms(Transform t1, Transform t2, float delta) {
         t1.rot.nlerp(t2.rot, delta);
         this.rot.set(t1.rot);
-        this.translation.interpolateLocal(t1.translation,t2.translation,delta);
-        this.scale.interpolateLocal(t1.scale,t2.scale,delta);
+        this.translation.interpolateLocal(t1.translation, t2.translation, delta);
+        this.scale.interpolateLocal(t1.scale, t2.scale, delta);
     }
 
     /**
-     * Changes the values of this matrix according to its parent.  Very similar to the concept of Node/Spatial transforms.
+     * Changes the values of this matrix according to its parent. Very similar
+     * to the concept of Node/Spatial transforms.
+     *
      * @param parent The parent matrix.
      * @return This matrix, after combining.
      */
@@ -202,56 +226,58 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
         translation.multLocal(parent.scale);
         //applying parent rotation to local translation, then applying parent translation to local translation.
         //Note that parent.rot.multLocal(translation) doesn't modify "parent.rot" but "translation"
-        parent
-            .rot
-            .multLocal(translation)
-            .addLocal(parent.translation);
+        parent.rot
+                .multLocal(translation)
+                .addLocal(parent.translation);
 
         return this;
     }
 
     /**
      * Sets this matrix's translation to the given x,y,z values.
+     *
      * @param x This matrix's new x translation.
      * @param y This matrix's new y translation.
      * @param z This matrix's new z translation.
      * @return this
      */
-    public Transform setTranslation(float x,float y, float z) {
-        translation.set(x,y,z);
+    public Transform setTranslation(float x, float y, float z) {
+        translation.set(x, y, z);
         return this;
     }
 
     /**
      * Sets this matrix's scale to the given x,y,z values.
+     *
      * @param x This matrix's new x scale.
      * @param y This matrix's new y scale.
      * @param z This matrix's new z scale.
      * @return this
      */
     public Transform setScale(float x, float y, float z) {
-        scale.set(x,y,z);
+        scale.set(x, y, z);
         return this;
     }
 
-    public Vector3f transformVector(final Vector3f in, Vector3f store){
-        if (store == null)
+    public Vector3f transformVector(final Vector3f in, Vector3f store) {
+        if (store == null) {
             store = new Vector3f();
+        }
 
         // multiply with scale first, then rotate, finally translate (cf.
         // Eberly)
         return rot.mult(store.set(in).multLocal(scale), store).addLocal(translation);
     }
 
-    public Vector3f transformInverseVector(final Vector3f in, Vector3f store){
-        if (store == null)
+    public Vector3f transformInverseVector(final Vector3f in, Vector3f store) {
+        if (store == null) {
             store = new Vector3f();
+        }
 
         // The author of this code should look above and take the inverse of that
         // But for some reason, they didn't ..
 //        in.subtract(translation, store).divideLocal(scale);
 //        rot.inverse().mult(store, store);
-
         in.subtract(translation, store);
         rot.inverse().mult(store, store);
         store.divideLocal(scale);
@@ -272,7 +298,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
         store.setScale(scale);
         return store;
     }
-    
+
     public void fromTransformMatrix(Matrix4f mat) {
         TempVars vars = TempVars.get();
         translation.set(mat.toTranslationVector(vars.vect1));
@@ -280,13 +306,13 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
         scale.set(mat.toScaleVector(vars.vect2));
         vars.release();
     }
-    
+
     public Transform invert() {
         Transform t = new Transform();
         t.fromTransformMatrix(toTransformMatrix().invertLocal());
         return t;
     }
-    
+
     /**
      * Loads the identity.  Equal to translation=0,0,0 scale=1,1,1 rot=0,0,0,1.
      */
@@ -331,14 +357,16 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     @Override
-    public String toString(){
-        return getClass().getSimpleName() + "[ " + translation.x + ", " + translation.y + ", " + translation.z + "]\n"
-                                          + "[ " + rot.x + ", " + rot.y + ", " + rot.z + ", " + rot.w + "]\n"
-                                          + "[ " + scale.x + " , " + scale.y + ", " + scale.z + "]";
+    public String toString() {
+        return getClass().getSimpleName()
+                + "[ " + translation.x + ", " + translation.y + ", " + translation.z + "]\n"
+                + "[ " + rot.x + ", " + rot.y + ", " + rot.z + ", " + rot.w + "]\n"
+                + "[ " + scale.x + " , " + scale.y + ", " + scale.z + "]";
     }
 
     /**
      * Sets this matrix to be equal to the given matrix.
+     *
      * @param matrixQuat The matrix to be equal to.
      * @return this
      */
@@ -360,12 +388,12 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     @Override
     public void read(JmeImporter e) throws IOException {
         InputCapsule capsule = e.getCapsule(this);
-        
-        rot.set((Quaternion)capsule.readSavable("rot", Quaternion.IDENTITY));
-        translation.set((Vector3f)capsule.readSavable("translation", Vector3f.ZERO));
-        scale.set((Vector3f)capsule.readSavable("scale", Vector3f.UNIT_XYZ));
+
+        rot.set((Quaternion) capsule.readSavable("rot", Quaternion.IDENTITY));
+        translation.set((Vector3f) capsule.readSavable("translation", Vector3f.ZERO));
+        scale.set((Vector3f) capsule.readSavable("scale", Vector3f.UNIT_XYZ));
     }
-    
+
     @Override
     public Transform clone() {
         try {

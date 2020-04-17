@@ -42,10 +42,9 @@ import java.util.logging.Logger;
  * hypercomplex numbers. Quaternions extends a rotation in three dimensions to a
  * rotation in four dimensions. This avoids "gimbal lock" and allows for smooth
  * continuous rotation.
- * 
- * <code>Quaternion</code> is defined by four floating point numbers: {x y z
- * w}.
- * 
+ *
+ * <code>Quaternion</code> is defined by four floating point numbers: {x y z w}.
+ *
  * @author Mark Powell
  * @author Joshua Slack
  */
@@ -60,7 +59,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     public static final Quaternion IDENTITY = new Quaternion();
     public static final Quaternion DIRECTION_Z = new Quaternion();
     public static final Quaternion ZERO = new Quaternion(0, 0, 0, 0);
-    
+
     static {
         DIRECTION_Z.fromAxes(Vector3f.UNIT_X, Vector3f.UNIT_Y, Vector3f.UNIT_Z);
     }
@@ -82,14 +81,10 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      * Constructor instantiates a new <code>Quaternion</code> object from the
      * given list of parameters.
      *
-     * @param x
-     *            the x value of the quaternion.
-     * @param y
-     *            the y value of the quaternion.
-     * @param z
-     *            the z value of the quaternion.
-     * @param w
-     *            the w value of the quaternion.
+     * @param x   the x value of the quaternion.
+     * @param y   the y value of the quaternion.
+     * @param z   the z value of the quaternion.
+     * @param w   the w value of the quaternion.
      */
     public Quaternion(float x, float y, float z, float w) {
         this.x = x;
@@ -115,17 +110,13 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     }
 
     /**
-     * sets the data in a <code>Quaternion</code> object from the given list
-     * of parameters.
+     * sets the data in a <code>Quaternion</code> object from the given list of
+     * parameters.
      *
-     * @param x
-     *            the x value of the quaternion.
-     * @param y
-     *            the y value of the quaternion.
-     * @param z
-     *            the z value of the quaternion.
-     * @param w
-     *            the w value of the quaternion.
+     * @param x   the x value of the quaternion.
+     * @param y   the y value of the quaternion.
+     * @param z   the z value of the quaternion.
+     * @param w   the w value of the quaternion.
      * @return this
      */
     public Quaternion set(float x, float y, float z, float w) {
@@ -141,8 +132,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      * passed <code>Quaternion</code> object. The values are copied producing
      * a new object.
      *
-     * @param q
-     *            The Quaternion to copy values from.
+     * @param q   The Quaternion to copy values from.
      * @return this
      */
     public Quaternion set(Quaternion q) {
@@ -184,8 +174,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      * Constructor instantiates a new <code>Quaternion</code> object from an
      * existing quaternion, creating a copy.
      *
-     * @param q
-     *            the quaternion to copy.
+     * @param q   the quaternion to copy.
      */
     public Quaternion(Quaternion q) {
         this.x = q.x;
@@ -195,7 +184,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     }
 
     /**
-     * Sets this Quaternion to {0, 0, 0, 1}.  Same as calling set(0,0,0,1).
+     * Sets this Quaternion to {0, 0, 0, 1}. Same as calling set(0,0,0,1).
      */
     public void loadIdentity() {
         x = y = z = 0;
@@ -231,10 +220,12 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
 
     /**
      * <code>fromAngles</code> builds a Quaternion from the Euler rotation
-     * angles (x,y,z) aka (pitch, yaw, roll)). Note that we are applying in order: (y, z, x) aka (yaw, roll, pitch) but
-     * we've ordered them in x, y, and z for convenience.
+     * angles (x,y,z) aka (pitch, yaw, roll)).
+     * Note that we are applying in order: (y, z, x) aka (yaw, roll, pitch)
+     * but we've ordered them in x, y, and z for convenience.
+     *
      * @see <a href="http://www.euclideanspace.com/maths/geometry/rotations/conversions/eulerToQuaternion/index.htm">http://www.euclideanspace.com/maths/geometry/rotations/conversions/eulerToQuaternion/index.htm</a>
-     * 
+     *
      * @param xAngle
      *            the Euler pitch of rotation (in radians). (aka Attitude, often rot
      *            around x)
@@ -275,10 +266,10 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
 
     /**
      * <code>toAngles</code> returns this quaternion converted to Euler rotation
-     * angles (x,y,z) aka (pitch, yaw, roll).<br/>  
+     * angles (x,y,z) aka (pitch, yaw, roll).<br/>
      * Note that the result is not always 100% accurate due to the implications of euler angles.
      * @see <a href="http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToEuler/index.htm">http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToEuler/index.htm</a>
-     * 
+     *
      * @param angles
      *            the float[] in which the angles should be stored, or null if
      *            you want a new float[] to be created
@@ -307,7 +298,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
             angles[2] = -FastMath.HALF_PI;
             angles[0] = 0;
         } else {
-            angles[1] = FastMath.atan2(2 * y * w - 2 * x * z, sqx - sqy - sqz + sqw); // yaw or heading 
+            angles[1] = FastMath.atan2(2 * y * w - 2 * x * z, sqx - sqy - sqz + sqw); // yaw or heading
             angles[2] = FastMath.asin(2 * test / unit); // roll or bank
             angles[0] = FastMath.atan2(2 * x * w - 2 * y * z, -sqx + sqy - sqz + sqw); // pitch or attitude
         }
@@ -315,10 +306,9 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     }
 
     /**
-     * 
      * <code>fromRotationMatrix</code> generates a quaternion from a supplied
      * matrix. This matrix is assumed to be a rotational matrix.
-     * 
+     *
      * @param matrix
      *            the matrix that defines the rotation.
      */
@@ -353,7 +343,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
             m22 *= lengthSquared;
         }
 
-        // Use the Graphics Gems code, from 
+        // Use the Graphics Gems code, from
         // ftp://ftp.cis.upenn.edu/pub/graphics/shoemake/quatut.ps.Z
         // *NOT* the "Matrix and Quaternions FAQ", which has errors!
 
@@ -398,7 +388,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     /**
      * <code>toRotationMatrix</code> converts this quaternion to a rotational
      * matrix. Note: the result is created from a normalized version of this quat.
-     * 
+     *
      * @return the rotation matrix representation of this quaternion.
      */
     public Matrix3f toRotationMatrix() {
@@ -409,7 +399,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     /**
      * <code>toRotationMatrix</code> converts this quaternion to a rotational
      * matrix. The result is stored in result.
-     * 
+     *
      * @param result
      *            The Matrix3f to store the result in.
      * @return the rotation matrix representation of this quaternion.
@@ -805,6 +795,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
 
     /**
      * Sets the values of this quaternion to the nlerp from itself to q2 by blend.
+     *
      * @param q2
      * @param blend
      */
@@ -829,8 +820,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      * <code>add</code> adds the values of this quaternion to those of the
      * parameter quaternion. The result is returned as a new quaternion.
      *
-     * @param q
-     *            the quaternion to add to this.
+     * @param q   the quaternion to add to this.
      * @return the new quaternion.
      */
     public Quaternion add(Quaternion q) {
@@ -841,8 +831,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      * <code>add</code> adds the values of this quaternion to those of the
      * parameter quaternion. The result is stored in this Quaternion.
      *
-     * @param q
-     *            the quaternion to add to this.
+     * @param q   the quaternion to add to this.
      * @return This Quaternion after addition.
      */
     public Quaternion addLocal(Quaternion q) {
@@ -858,8 +847,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      * from those of this quaternion. The result is returned as a new
      * quaternion.
      *
-     * @param q
-     *            the quaternion to subtract from this.
+     * @param q   the quaternion to subtract from this.
      * @return the new quaternion.
      */
     public Quaternion subtract(Quaternion q) {
@@ -870,8 +858,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      * <code>subtract</code> subtracts the values of the parameter quaternion
      * from those of this quaternion. The result is stored in this Quaternion.
      *
-     * @param q
-     *            the quaternion to subtract from this.
+     * @param q   the quaternion to subtract from this.
      * @return This Quaternion after subtraction.
      */
     public Quaternion subtractLocal(Quaternion q) {
@@ -903,8 +890,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      * It IS safe for q and res to be the same object.
      * It IS NOT safe for this and res to be the same object.
      *
-     * @param q
-     *            the quaternion to multiply this quaternion by.
+     * @param q   the quaternion to multiply this quaternion by.
      * @param res
      *            the quaternion to store the result in.
      * @return the new quaternion.
@@ -982,8 +968,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      * corresponds to an axis of the coordinate system defined by the quaternion
      * rotation.
      *
-     * @param axis
-     *            the array of vectors to be filled.
+     * @param axis the array of vectors to be filled.
      */
     public void toAxes(Vector3f axis[]) {
         Matrix3f tempMat = toRotationMatrix();
@@ -996,8 +981,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      * <code>mult</code> multiplies this quaternion by a parameter vector. The
      * result is returned as a new vector.
      *
-     * @param v
-     *            the vector to multiply this quaternion by.
+     * @param v   the vector to multiply this quaternion by.
      * @return the new vector.
      */
     public Vector3f mult(Vector3f v) {
@@ -1008,8 +992,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      * <code>mult</code> multiplies this quaternion by a parameter vector. The
      * result is stored in the supplied vector
      *
-     * @param v
-     *            the vector to multiply this quaternion by.
+     * @param v   the vector to multiply this quaternion by.
      * @return v
      */
     public Vector3f multLocal(Vector3f v) {
@@ -1031,8 +1014,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      * stored in this Quaternion, which is also returned for chaining. Similar
      * to this *= q.
      *
-     * @param q
-     *            The Quaternion to multiply this one by.
+     * @param q   The Quaternion to multiply this one by.
      * @return This Quaternion, after multiplication.
      */
     public Quaternion multLocal(Quaternion q) {
@@ -1051,14 +1033,10 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      * stored in this Quaternion, which is also returned for chaining. Similar
      * to this *= q.
      *
-     * @param qx -
-     *            quat x value
-     * @param qy -
-     *            quat y value
-     * @param qz -
-     *            quat z value
-     * @param qw -
-     *            quat w value
+     * @param qx   quat x value
+     * @param qy   quat y value
+     * @param qz   quat z value
+     * @param qw   quat w value
      *
      * @return This Quaternion, after multiplication.
      */
@@ -1076,7 +1054,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     /**
      * <code>mult</code> multiplies this quaternion by a parameter vector. The
      * result is returned as a new vector.
-     * 
+     *
      * @param v
      *            the vector to multiply this quaternion by.
      * @param store
@@ -1279,7 +1257,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
         }
         return true;
     }
-    
+
     /**
      * Returns true if this quaternion is similar to the specified quaternion
      * within some value of epsilon.
@@ -1304,11 +1282,10 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     }
 
     /**
-     * 
      * <code>hashCode</code> returns the hash code value as an integer and is
      * supported for the benefit of hashing based collection classes such as
      * Hashtable, HashMap, HashSet etc.
-     * 
+     *
      * @return the hashcode for this instance of Quaternion.
      * @see java.lang.Object#hashCode()
      */
@@ -1327,7 +1304,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      * <code>readExternal</code> builds a quaternion from an
      * <code>ObjectInput</code> object. <br>
      * NOTE: Used with serialization. Not to be called manually.
-     * 
+     *
      * @param in
      *            the ObjectInput value to read from.
      * @throws IOException
@@ -1345,7 +1322,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      * <code>writeExternal</code> writes this quaternion out to a
      * <code>ObjectOutput</code> object. NOTE: Used with serialization. Not to
      * be called manually.
-     * 
+     *
      * @param out
      *            the object to write to.
      * @throws IOException

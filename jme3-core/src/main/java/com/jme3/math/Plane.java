@@ -40,7 +40,7 @@ import java.util.logging.Logger;
  * This provides methods for calculating a "distance" of a point from this
  * plane. The distance is pseudo due to the fact that it can be negative if the
  * point is on the non-normal side of the plane.
- * 
+ *
  * @author Mark Powell
  * @author Joshua Slack
  * @author Ian McClean
@@ -58,12 +58,12 @@ public class Plane implements Savable, Cloneable, java.io.Serializable {
         Negative
     }
 
-    /** 
+    /**
      * Vector normal to the plane.
      */
     protected Vector3f normal = new Vector3f();
 
-    /** 
+    /**
      * Constant of the plane. See formula in class definition.
      */
     protected float constant;
@@ -78,7 +78,7 @@ public class Plane implements Savable, Cloneable, java.io.Serializable {
     /**
      * Constructor instantiates a new <code>Plane</code> object. The normal
      * and constant values are set at creation.
-     * 
+     *
      * @param normal
      *            the normal of the plane.
      * @param constant
@@ -105,7 +105,7 @@ public class Plane implements Savable, Cloneable, java.io.Serializable {
 
     /**
      * <code>setNormal</code> sets the normal of the plane.
-     * 
+     *
      * @param normal
      *            the new normal of the plane.
      */
@@ -121,12 +121,12 @@ public class Plane implements Savable, Cloneable, java.io.Serializable {
      *
      */
     public void setNormal(float x, float y, float z) {
-        this.normal.set(x,y,z);
+        this.normal.set(x, y, z);
     }
 
     /**
      * <code>getNormal</code> retrieves the normal of the plane.
-     * 
+     *
      * @return the normal of the plane.
      */
     public Vector3f getNormal() {
@@ -136,7 +136,7 @@ public class Plane implements Savable, Cloneable, java.io.Serializable {
     /**
      * <code>setConstant</code> sets the constant value that helps define the
      * plane.
-     * 
+     *
      * @param constant
      *            the new constant value.
      */
@@ -146,27 +146,28 @@ public class Plane implements Savable, Cloneable, java.io.Serializable {
 
     /**
      * <code>getConstant</code> returns the constant of the plane.
-     * 
+     *
      * @return the constant of the plane.
      */
     public float getConstant() {
         return constant;
     }
 
-    public Vector3f getClosestPoint(Vector3f point, Vector3f store){
+    public Vector3f getClosestPoint(Vector3f point, Vector3f store) {
 //        float t = constant - normal.dot(point);
 //        return store.set(normal).multLocal(t).addLocal(point);
         float t = (constant - normal.dot(point)) / normal.dot(normal);
         return store.set(normal).multLocal(t).addLocal(point);
     }
 
-    public Vector3f getClosestPoint(Vector3f point){
+    public Vector3f getClosestPoint(Vector3f point) {
         return getClosestPoint(point, new Vector3f());
     }
 
-    public Vector3f reflect(Vector3f point, Vector3f store){
-        if (store == null)
+    public Vector3f reflect(Vector3f point, Vector3f store) {
+        if (store == null) {
             store = new Vector3f();
+        }
 
         float d = pseudoDistance(point);
         store.set(normal).negateLocal().multLocal(d * 2f);
@@ -179,7 +180,7 @@ public class Plane implements Savable, Cloneable, java.io.Serializable {
      * a provided point. If the point is on the negative side of the plane the
      * distance returned is negative, otherwise it is positive. If the point is
      * on the plane, it is zero.
-     * 
+     *
      * @param point
      *            the point to check.
      * @return the signed distance from the plane to a point.
@@ -192,7 +193,7 @@ public class Plane implements Savable, Cloneable, java.io.Serializable {
      * <code>whichSide</code> returns the side at which a point lies on the
      * plane. The positive values returned are: NEGATIVE_SIDE, POSITIVE_SIDE and
      * NO_SIDE.
-     * 
+     *
      * @param point
      *            the point to check.
      * @return the side at which the point lies.
@@ -208,19 +209,19 @@ public class Plane implements Savable, Cloneable, java.io.Serializable {
         }
     }
 
-    public boolean isOnPlane(Vector3f point){
+    public boolean isOnPlane(Vector3f point) {
         float dist = pseudoDistance(point);
-        if (dist < FastMath.FLT_EPSILON && dist > -FastMath.FLT_EPSILON)
+        if (dist < FastMath.FLT_EPSILON && dist > -FastMath.FLT_EPSILON) {
             return true;
-        else
+        } else {
             return false;
+        }
     }
 
     /**
      * Initialize this plane using the three points of the given triangle.
-     * 
-     * @param t
-     *            the triangle
+     *
+     * @param t   the triangle
      */
     public void setPlanePoints(AbstractTriangle t) {
         setPlanePoints(t.get1(), t.get2(), t.get3());
@@ -232,14 +233,14 @@ public class Plane implements Savable, Cloneable, java.io.Serializable {
      * @param origin
      * @param normal
      */
-    public void setOriginNormal(Vector3f origin, Vector3f normal){
+    public void setOriginNormal(Vector3f origin, Vector3f normal) {
         this.normal.set(normal);
         this.constant = normal.x * origin.x + normal.y * origin.y + normal.z * origin.z;
     }
 
     /**
      * Initialize the Plane using the given 3 points as coplanar.
-     * 
+     *
      * @param v1
      *            the first point
      * @param v2
@@ -260,7 +261,7 @@ public class Plane implements Savable, Cloneable, java.io.Serializable {
      * <code>Vector3f</code> object, so the format is the following:
      * com.jme.math.Plane [Normal: org.jme.math.Vector3f [X=XX.XXXX, Y=YY.YYYY,
      * Z=ZZ.ZZZZ] - Constant: CC.CCCCC]
-     * 
+     *
      * @return the string representation of this plane.
      */
     @Override

@@ -49,11 +49,11 @@ public class Spline implements Savable {
         Bezier,
         Nurb
     }
-    
+
     private List<Vector3f> controlPoints = new ArrayList<Vector3f>();
-    private List<Float> knots;				//knots of NURBS spline
-    private float[] weights;				//weights of NURBS spline
-    private int basisFunctionDegree;		//degree of NURBS spline basis function (computed automatically)
+    private List<Float> knots;       //knots of NURBS spline
+    private float[] weights;         //weights of NURBS spline
+    private int basisFunctionDegree; //degree of NURBS spline basis function (computed automatically)
     private boolean cycle;
     private List<Float> segmentsLength;
     private float totalLength;
@@ -66,6 +66,7 @@ public class Spline implements Savable {
 
     /**
      * Create a spline
+     *
      * @param splineType the type of the spline @see {SplineType}
      * @param controlPoints an array of vector to use as control points of the spline
      * If the type of the curve is Bezier curve the control points should be provided
@@ -74,15 +75,15 @@ public class Spline implements Savable {
      * for the border points of the curve, who should have only one handle point.
      * The pattern should be as follows:
      * P0 - H0  :  H1 - P1 - H1  :  ...  :  Hn - Pn
-     * 
+     *
      * n is the amount of 'P' - points.
      * @param curveTension the tension of the spline
      * @param cycle true if the spline cycle.
      */
     public Spline(SplineType splineType, Vector3f[] controlPoints, float curveTension, boolean cycle) {
-    	if(splineType==SplineType.Nurb) {
-    		throw new IllegalArgumentException("To create NURBS spline use: 'public Spline(Vector3f[] controlPoints, float[] weights, float[] nurbKnots)' constructor!");
-    	}
+        if (splineType == SplineType.Nurb) {
+            throw new IllegalArgumentException("To create NURBS spline use: 'public Spline(Vector3f[] controlPoints, float[] weights, float[] nurbKnots)' constructor!");
+        }
         for (int i = 0; i < controlPoints.length; i++) {
             Vector3f vector3f = controlPoints[i];
             this.controlPoints.add(vector3f);
@@ -95,6 +96,7 @@ public class Spline implements Savable {
 
     /**
      * Create a spline
+     *
      * @param splineType the type of the spline @see {SplineType}
      * @param controlPoints a list of vector to use as control points of the spline
      * If the type of the curve is Bezier curve the control points should be provided
@@ -103,45 +105,46 @@ public class Spline implements Savable {
      * for the border points of the curve, who should have only one handle point.
      * The pattern should be as follows:
      * P0 - H0  :  H1 - P1 - H1  :  ...  :  Hn - Pn
-     * 
+     *
      * n is the amount of 'P' - points.
      * @param curveTension the tension of the spline
      * @param cycle true if the spline cycle.
      */
     public Spline(SplineType splineType, List<Vector3f> controlPoints, float curveTension, boolean cycle) {
-    	if(splineType==SplineType.Nurb) {
-    		throw new IllegalArgumentException("To create NURBS spline use: 'public Spline(Vector3f[] controlPoints, float[] weights, float[] nurbKnots)' constructor!");
-    	}
+        if (splineType == SplineType.Nurb) {
+            throw new IllegalArgumentException("To create NURBS spline use: 'public Spline(Vector3f[] controlPoints, float[] weights, float[] nurbKnots)' constructor!");
+        }
         type = splineType;
         this.controlPoints.addAll(controlPoints);
         this.curveTension = curveTension;
         this.cycle = cycle;
         this.computeTotalLength();
     }
-    
+
     /**
      * Create a NURBS spline. A spline type is automatically set to SplineType.Nurb.
      * The cycle is set to <b>false</b> by default.
+     *
      * @param controlPoints a list of vector to use as control points of the spline
-	 * @param nurbKnots the nurb's spline knots
+     * @param nurbKnots the nurb's spline knots
      */
     public Spline(List<Vector4f> controlPoints, List<Float> nurbKnots) {
-    	//input data control
-    	for(int i=0;i<nurbKnots.size()-1;++i) {
-    		if(nurbKnots.get(i)>nurbKnots.get(i+1)) {
-    			throw new IllegalArgumentException("The knots values cannot decrease!");
-    		}
-    	}
+        //input data control
+        for (int i = 0; i < nurbKnots.size() - 1; ++i) {
+            if (nurbKnots.get(i) > nurbKnots.get(i + 1)) {
+                throw new IllegalArgumentException("The knots values cannot decrease!");
+            }
+        }
 
-    	//storing the data
+        //storing the data
         type = SplineType.Nurb;
         this.weights = new float[controlPoints.size()];
         this.knots = nurbKnots;
         this.basisFunctionDegree = nurbKnots.size() - weights.length;
-        for(int i=0;i<controlPoints.size();++i) {
-        	Vector4f controlPoint = controlPoints.get(i);
-        	this.controlPoints.add(new Vector3f(controlPoint.x, controlPoint.y, controlPoint.z));
-        	this.weights[i] = controlPoint.w;
+        for (int i = 0; i < controlPoints.size(); ++i) {
+            Vector4f controlPoint = controlPoints.get(i);
+            this.controlPoints.add(new Vector3f(controlPoint.x, controlPoint.y, controlPoint.z));
+            this.weights[i] = controlPoint.w;
         }
         CurveAndSurfaceMath.prepareNurbsKnots(knots, basisFunctionDegree);
         this.computeTotalLength();
@@ -175,6 +178,7 @@ public class Spline implements Savable {
 
     /**
      * Adds a controlPoint to the spline
+     *
      * @param controlPoint a position in world space
      */
     public void addControlPoint(Vector3f controlPoint) {
@@ -192,6 +196,7 @@ public class Spline implements Savable {
 
     /**
      * remove the controlPoint from the spline
+     *
      * @param controlPoint the controlPoint to remove
      */
     public void removeControlPoint(Vector3f controlPoint) {
@@ -200,8 +205,8 @@ public class Spline implements Savable {
             this.computeTotalLength();
         }
     }
-    
-    public void clearControlPoints(){
+
+    public void clearControlPoints() {
         controlPoints.clear();
         totalLength = 0;
     }
@@ -225,10 +230,10 @@ public class Spline implements Savable {
                     totalLength += l;
                 }
             }
-        } else if(type == SplineType.Bezier) { 
-        	this.computeBezierLength();
-        } else if(type == SplineType.Nurb) {
-        	this.computeNurbLength();
+        } else if (type == SplineType.Bezier) {
+            this.computeBezierLength();
+        } else if (type == SplineType.Nurb) {
+            this.computeNurbLength();
         } else {
             this.initCatmullRomWayPoints(controlPoints);
             this.computeCatmulLength();
@@ -249,34 +254,37 @@ public class Spline implements Savable {
             }
         }
     }
-    
+
     /**
      * This method calculates the Bezier curve length.
      */
     private void computeBezierLength() {
-    	float l = 0;
+        float l = 0;
         if (controlPoints.size() > 1) {
-            for (int i = 0; i < controlPoints.size() - 1; i+=3) {
+            for (int i = 0; i < controlPoints.size() - 1; i += 3) {
                 l = FastMath.getBezierP1toP2Length(controlPoints.get(i),
-                		controlPoints.get(i + 1), controlPoints.get(i + 2), controlPoints.get(i + 3));
+                        controlPoints.get(i + 1), controlPoints.get(i + 2), controlPoints.get(i + 3));
                 segmentsLength.add(l);
                 totalLength += l;
             }
         }
     }
-    
+
     /**
      * This method calculates the NURB curve length.
      */
     private void computeNurbLength() {
-    	//TODO: implement
+        //TODO: implement
     }
 
     /**
      * Interpolate a position on the spline
-     * @param value a value from 0 to 1 that represent the position between the current control point and the next one
+     *
+     * @param value a value from 0 to 1 that represent the position between the
+     * current control point and the next one
      * @param currentControlPoint the current control point
-     * @param store a vector to store the result (use null to create a new one that will be returned by the method)
+     * @param store a vector to store the result (use null to create a new one
+     * that will be returned by the method)
      * @return the position
      */
     public Vector3f interpolate(float value, int currentControlPoint, Vector3f store) {
@@ -291,11 +299,11 @@ public class Spline implements Savable {
                 FastMath.interpolateLinear(value, controlPoints.get(currentControlPoint), controlPoints.get(currentControlPoint + 1), store);
                 break;
             case Bezier:
-            	FastMath.interpolateBezier(value, controlPoints.get(currentControlPoint), controlPoints.get(currentControlPoint + 1), controlPoints.get(currentControlPoint + 2), controlPoints.get(currentControlPoint + 3), store);
-            	break;
+                FastMath.interpolateBezier(value, controlPoints.get(currentControlPoint), controlPoints.get(currentControlPoint + 1), controlPoints.get(currentControlPoint + 2), controlPoints.get(currentControlPoint + 3), store);
+                break;
             case Nurb:
-            	CurveAndSurfaceMath.interpolateNurbs(value, this, store);
-            	break;
+                CurveAndSurfaceMath.interpolateNurbs(value, this, store);
+                break;
             default:
                 break;
         }
@@ -316,8 +324,8 @@ public class Spline implements Savable {
      */
     public void setCurveTension(float curveTension) {
         this.curveTension = curveTension;
-        if(type==SplineType.CatmullRom && !getControlPoints().isEmpty()) {            
-        	this.computeTotalLength();
+        if (type == SplineType.CatmullRom && !getControlPoints().isEmpty()) {
+            this.computeTotalLength();
         }
     }
 
@@ -330,23 +338,24 @@ public class Spline implements Savable {
 
     /**
      * set to true to make the spline cycle
+     *
      * @param cycle
      */
     public void setCycle(boolean cycle) {
-    	if(type!=SplineType.Nurb) {
-    		if (controlPoints.size() >= 2) {
-    			if (this.cycle && !cycle) {
-    				controlPoints.remove(controlPoints.size() - 1);
-    			}
-    			if (!this.cycle && cycle) {
-    				controlPoints.add(controlPoints.get(0));
-    			}
-    			this.cycle = cycle;
-    			this.computeTotalLength();
-    		} else {
-    			this.cycle = cycle;
-    		}
-    	}
+        if (type != SplineType.Nurb) {
+            if (controlPoints.size() >= 2) {
+                if (this.cycle && !cycle) {
+                    controlPoints.remove(controlPoints.size() - 1);
+                }
+                if (!this.cycle && cycle) {
+                    controlPoints.add(controlPoints.get(0));
+                }
+                this.cycle = cycle;
+                this.computeTotalLength();
+            } else {
+                this.cycle = cycle;
+            }
+        }
     }
 
     /**
@@ -365,6 +374,7 @@ public class Spline implements Savable {
 
     /**
      * Sets the type of the spline
+     *
      * @param type
      */
     public void setType(SplineType type) {
@@ -385,57 +395,63 @@ public class Spline implements Savable {
     public List<Float> getSegmentsLength() {
         return segmentsLength;
     }
-    
+
     //////////// NURBS getters /////////////////////
-    
-	/**
-	 * This method returns the minimum nurb curve knot value. Check the nurb type before calling this method. It the curve is not of a Nurb
-	 * type - NPE will be thrown.
-	 * @return the minimum nurb curve knot value
-	 */
-    public float getMinNurbKnot() {
-    	return knots.get(basisFunctionDegree - 1);
-    }
-    
     /**
-	 * This method returns the maximum nurb curve knot value. Check the nurb type before calling this method. It the curve is not of a Nurb
-	 * type - NPE will be thrown.
-	 * @return the maximum nurb curve knot value
-	 */
-    public float getMaxNurbKnot() {
-    	return knots.get(weights.length);
+     * This method returns the minimum nurb curve knot value. Check the nurb
+     * type before calling this method. It the curve is not of a Nurb type - NPE
+     * will be thrown.
+     *
+     * @return the minimum nurb curve knot value
+     */
+    public float getMinNurbKnot() {
+        return knots.get(basisFunctionDegree - 1);
     }
-    
+
+    /**
+     * This method returns the maximum nurb curve knot value. Check the nurb
+     * type before calling this method. It the curve is not of a Nurb type - NPE
+     * will be thrown.
+     *
+     * @return the maximum nurb curve knot value
+     */
+    public float getMaxNurbKnot() {
+        return knots.get(weights.length);
+    }
+
     /**
      * This method returns NURBS' spline knots.
+     *
      * @return NURBS' spline knots
      */
     public List<Float> getKnots() {
-		return knots;
-	}
-    
+        return knots;
+    }
+
     /**
      * This method returns NURBS' spline weights.
+     *
      * @return NURBS' spline weights
      */
     public float[] getWeights() {
-		return weights;
-	}
-    
+        return weights;
+    }
+
     /**
      * This method returns NURBS' spline basis function degree.
+     *
      * @return NURBS' spline basis function degree
      */
     public int getBasisFunctionDegree() {
-		return basisFunctionDegree;
-	}
+        return basisFunctionDegree;
+    }
 
     @Override
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = ex.getCapsule(this);
         oc.writeSavableArrayList((ArrayList) controlPoints, "controlPoints", null);
         oc.write(type, "type", SplineType.CatmullRom);
-        
+
         float list[] = null;
         if (segmentsLength != null) {
             list = new float[segmentsLength.size()];
@@ -449,7 +465,7 @@ public class Spline implements Savable {
         oc.writeSavableArrayList((ArrayList) CRcontrolPoints, "CRControlPoints", null);
         oc.write(curveTension, "curveTension", 0.5f);
         oc.write(cycle, "cycle", false);
-        oc.writeSavableArrayList((ArrayList<Float>)knots, "knots", null);
+        oc.writeSavableArrayList((ArrayList<Float>) knots, "knots", null);
         oc.write(weights, "weights", null);
         oc.write(basisFunctionDegree, "basisFunctionDegree", 0);
     }
@@ -458,7 +474,8 @@ public class Spline implements Savable {
     public void read(JmeImporter im) throws IOException {
         InputCapsule in = im.getCapsule(this);
 
-        controlPoints = in.readSavableArrayList("controlPoints", new ArrayList<>()); /* Empty List as default, prevents null pointers */
+        controlPoints = in.readSavableArrayList("controlPoints", new ArrayList<>());
+        /* Empty List as default, prevents null pointers */
         float list[] = in.readFloatArray("segmentsLength", null);
         if (list != null) {
             segmentsLength = new ArrayList<Float>();

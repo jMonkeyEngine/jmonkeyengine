@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -49,7 +49,7 @@ import java.nio.Buffer;
  * <li>{@link Mode#TriangleStrip}: 0, 1, 2 | 2, 1, 3 | 2, 3, 4 | ...</li>
  * <li>{@link Mode#TriangleFan}: 0, 1, 2 | 0, 2, 3 | 0, 3, 4 | ...</li>
  * </ul>
- * 
+ *
  * @author Kirill Vainer
  */
 public class VirtualIndexBuffer extends IndexBuffer {
@@ -58,8 +58,8 @@ public class VirtualIndexBuffer extends IndexBuffer {
     protected int numIndices = 0;
     protected Mode meshMode;
     protected int position = 0;
- 
-    public VirtualIndexBuffer(int numVerts, Mode meshMode){
+
+    public VirtualIndexBuffer(int numVerts, Mode meshMode) {
         this.numVerts = numVerts;
         this.meshMode = meshMode;
         switch (meshMode) {
@@ -108,33 +108,38 @@ public class VirtualIndexBuffer extends IndexBuffer {
 
     @Override
     public int get(int i) {
-        if (meshMode == Mode.Triangles || meshMode == Mode.Lines || meshMode == Mode.Points){
+        if (meshMode == Mode.Triangles || meshMode == Mode.Lines || meshMode == Mode.Points) {
             return i;
-        }else if (meshMode == Mode.LineStrip){
+        } else if (meshMode == Mode.LineStrip) {
             return (i + 1) / 2;
-        }else if (meshMode == Mode.LineLoop){
-            return (i == (numVerts-1)) ? 0 : ((i + 1) / 2);
-        }else if (meshMode == Mode.TriangleStrip){
-           int triIndex   = i/3;
-           int vertIndex  = i%3;
-           boolean isBack = (i/3)%2==1;
-           if (!isBack){
+        } else if (meshMode == Mode.LineLoop) {
+            return (i == (numVerts - 1)) ? 0 : ((i + 1) / 2);
+        } else if (meshMode == Mode.TriangleStrip) {
+            int triIndex = i / 3;
+            int vertIndex = i % 3;
+            boolean isBack = (i / 3) % 2 == 1;
+            if (!isBack) {
                 return triIndex + vertIndex;
-           }else{
-               switch (vertIndex){
-                   case 0: return triIndex + 1;
-                   case 1: return triIndex;
-                   case 2: return triIndex + 2;
-                   default: throw new AssertionError();
-               }
+            } else {
+                switch (vertIndex) {
+                    case 0:
+                        return triIndex + 1;
+                    case 1:
+                        return triIndex;
+                    case 2:
+                        return triIndex + 2;
+                    default:
+                        throw new AssertionError();
+                }
             }
-        }else if (meshMode == Mode.TriangleFan){
-            int vertIndex = i%3;
-            if (vertIndex == 0)
+        } else if (meshMode == Mode.TriangleFan) {
+            int vertIndex = i % 3;
+            if (vertIndex == 0) {
                 return 0;
-            else
+            } else {
                 return (i / 3) + vertIndex;
-        }else{
+            }
+        } else {
             throw new UnsupportedOperationException();
         }
     }
@@ -154,15 +159,15 @@ public class VirtualIndexBuffer extends IndexBuffer {
         return null;
     }
 
-	@Override
-	public IndexBuffer put (int value) {
-		throw new UnsupportedOperationException("Does not represent index buffer");
-	}
+    @Override
+    public IndexBuffer put(int value) {
+        throw new UnsupportedOperationException("Does not represent index buffer");
+    }
 
-	@Override
-	public Format getFormat () {
-		// return largest size
-		return Format.UnsignedInt;
-	}
+    @Override
+    public Format getFormat() {
+        // return largest size
+        return Format.UnsignedInt;
+    }
 
 }
