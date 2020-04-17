@@ -1199,8 +1199,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     }
 
     /**
-     * <code>negate</code> inverts the values of the quaternion.
-     *
+     * Flip the signs of all components of this Quaternion.
      */
     public void negate() {
         x *= -1;
