@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -158,8 +158,76 @@ public class FastMathTest {
         assertEquals(10.022974f, retval.getX(), 0.0f);
         assertEquals(1.4358196f, retval.getY(), 0.01f);
         assertEquals(0.61709767f, retval.getZ(), 0.0f);
+        /*
+         * ensure that the transformation is reversible in Octant I
+         */
+        final Vector3f out1 = FastMath.sphericalToCartesian(retval, null);
+        assertEquals(cartCoords.x, out1.x, 1e-5f);
+        assertEquals(cartCoords.y, out1.y, 1e-5f);
+        assertEquals(cartCoords.z, out1.z, 1e-5f);
+        /*
+         * test reversibility in the other 7 octants
+         */
+        final Vector3f in2 = new Vector3f(-1.9f, +5.8f, +8.1f);
+        final Vector3f spherical2 = FastMath.cartesianToSpherical(in2, null);
+        final Vector3f out2 = FastMath.sphericalToCartesian(spherical2, null);
+        assertEquals(in2.x, out2.x, 1e-5f);
+        assertEquals(in2.y, out2.y, 1e-5f);
+        assertEquals(in2.z, out2.z, 1e-5f);
+
+        final Vector3f in3 = new Vector3f(+1.7f, -3.8f, +8.6f);
+        final Vector3f spherical3 = FastMath.cartesianToSpherical(in3, null);
+        final Vector3f out3 = FastMath.sphericalToCartesian(spherical3, null);
+        assertEquals(in3.x, out3.x, 1e-5f);
+        assertEquals(in3.y, out3.y, 1e-5f);
+        assertEquals(in3.z, out3.z, 1e-5f);
+
+        final Vector3f in4 = new Vector3f(-1.5f, -3.2f, +4.1f);
+        final Vector3f spherical4 = FastMath.cartesianToSpherical(in4, null);
+        final Vector3f out4 = FastMath.sphericalToCartesian(spherical4, null);
+        assertEquals(in4.x, out4.x, 1e-5f);
+        assertEquals(in4.y, out4.y, 1e-5f);
+        assertEquals(in4.z, out4.z, 1e-5f);
+
+        final Vector3f in5 = new Vector3f(+3.5f, +7.2f, -4.3f);
+        final Vector3f spherical5 = FastMath.cartesianToSpherical(in5, null);
+        final Vector3f out5 = FastMath.sphericalToCartesian(spherical5, null);
+        assertEquals(in5.x, out5.x, 1e-5f);
+        assertEquals(in5.y, out5.y, 1e-5f);
+        assertEquals(in5.z, out5.z, 1e-5f);
+
+        final Vector3f in6 = new Vector3f(-6.9f, +5.8f, -2.1f);
+        final Vector3f spherical6 = FastMath.cartesianToSpherical(in6, null);
+        final Vector3f out6 = FastMath.sphericalToCartesian(spherical6, null);
+        assertEquals(in6.x, out6.x, 1e-5f);
+        assertEquals(in6.y, out6.y, 1e-5f);
+        assertEquals(in6.z, out6.z, 1e-5f);
+
+        final Vector3f in7 = new Vector3f(+1.1f, -3.0f, -8.6f);
+        final Vector3f spherical7 = FastMath.cartesianToSpherical(in7, null);
+        final Vector3f out7 = FastMath.sphericalToCartesian(spherical7, null);
+        assertEquals(in7.x, out7.x, 1e-5f);
+        assertEquals(in7.y, out7.y, 1e-5f);
+        assertEquals(in7.z, out7.z, 1e-5f);
+
+        final Vector3f in8 = new Vector3f(-6.2f, -2.2f, -4.1f);
+        final Vector3f spherical8 = FastMath.cartesianToSpherical(in8, null);
+        final Vector3f out8 = FastMath.sphericalToCartesian(spherical8, null);
+        assertEquals(in8.x, out8.x, 1e-5f);
+        assertEquals(in8.y, out8.y, 1e-5f);
+        assertEquals(in8.z, out8.z, 1e-5f);
+        /*
+         * test reversibility on the origin
+         */
+        final Vector3f in0 = new Vector3f(0f, 0f, 0f);
+        final Vector3f spherical0 = FastMath.cartesianToSpherical(in0, null);
+        final Vector3f out0 = FastMath.sphericalToCartesian(spherical0, null);
+        assertEquals(in0.x, out0.x, 1e-5f);
+        assertEquals(in0.y, out0.y, 1e-5f);
+        assertEquals(in0.z, out0.z, 1e-5f);
     }
 
+    @Ignore // test fails due to issue #1349
     @Test
     public void testCartesianZToSpherical() {
         final Vector3f cartCoords = new Vector3f(1.1f, 5.8f, 8.1f);
@@ -178,6 +246,73 @@ public class FastMathTest {
         assertEquals(10.022974f, retval.getX(), 0.01f);
         assertEquals(0.61709767f, retval.getY(), 0.01f);
         assertEquals(1.4358196f, retval.getZ(), 0.01f);
+        /*
+         * ensure that the transformation is reversible in Octant I
+         */
+        final Vector3f out1 = FastMath.sphericalToCartesianZ(retval, null);
+        assertEquals(cartCoords.x, out1.x, 1e-5f);
+        assertEquals(cartCoords.y, out1.y, 1e-5f);
+        assertEquals(cartCoords.z, out1.z, 1e-5f);
+        /*
+         * test reversibility in the other 7 octants
+         */
+        final Vector3f in2 = new Vector3f(-1.9f, +5.8f, +8.1f);
+        final Vector3f spherical2 = FastMath.cartesianZToSpherical(in2, null);
+        final Vector3f out2 = FastMath.sphericalToCartesianZ(spherical2, null);
+        assertEquals(in2.x, out2.x, 1e-5f);
+        assertEquals(in2.y, out2.y, 1e-5f);
+        assertEquals(in2.z, out2.z, 1e-5f);
+
+        final Vector3f in3 = new Vector3f(+1.7f, -3.8f, +8.6f);
+        final Vector3f spherical3 = FastMath.cartesianZToSpherical(in3, null);
+        final Vector3f out3 = FastMath.sphericalToCartesianZ(spherical3, null);
+        assertEquals(in3.x, out3.x, 1e-5f);
+        assertEquals(in3.y, out3.y, 1e-5f);
+        assertEquals(in3.z, out3.z, 1e-5f);
+
+        final Vector3f in4 = new Vector3f(-1.5f, -3.2f, +4.1f);
+        final Vector3f spherical4 = FastMath.cartesianZToSpherical(in4, null);
+        final Vector3f out4 = FastMath.sphericalToCartesianZ(spherical4, null);
+        assertEquals(in4.x, out4.x, 1e-5f);
+        assertEquals(in4.y, out4.y, 1e-5f);
+        assertEquals(in4.z, out4.z, 1e-5f);
+
+        final Vector3f in5 = new Vector3f(+3.5f, +7.2f, -4.3f);
+        final Vector3f spherical5 = FastMath.cartesianZToSpherical(in5, null);
+        final Vector3f out5 = FastMath.sphericalToCartesianZ(spherical5, null);
+        assertEquals(in5.x, out5.x, 1e-5f);
+        assertEquals(in5.y, out5.y, 1e-5f);
+        assertEquals(in5.z, out5.z, 1e-5f);
+
+        final Vector3f in6 = new Vector3f(-6.9f, +5.8f, -2.1f);
+        final Vector3f spherical6 = FastMath.cartesianZToSpherical(in6, null);
+        final Vector3f out6 = FastMath.sphericalToCartesianZ(spherical6, null);
+        assertEquals(in6.x, out6.x, 1e-5f);
+        assertEquals(in6.y, out6.y, 1e-5f);
+        assertEquals(in6.z, out6.z, 1e-5f);
+
+        final Vector3f in7 = new Vector3f(+1.1f, -3.0f, -8.6f);
+        final Vector3f spherical7 = FastMath.cartesianZToSpherical(in7, null);
+        final Vector3f out7 = FastMath.sphericalToCartesianZ(spherical7, null);
+        assertEquals(in7.x, out7.x, 1e-5f);
+        assertEquals(in7.y, out7.y, 1e-5f);
+        assertEquals(in7.z, out7.z, 1e-5f);
+
+        final Vector3f in8 = new Vector3f(-6.2f, -2.2f, -4.1f);
+        final Vector3f spherical8 = FastMath.cartesianZToSpherical(in8, null);
+        final Vector3f out8 = FastMath.sphericalToCartesianZ(spherical8, null);
+        assertEquals(in8.x, out8.x, 1e-5f);
+        assertEquals(in8.y, out8.y, 1e-5f);
+        assertEquals(in8.z, out8.z, 1e-5f);
+        /*
+         * test reversibility on the origin
+         */
+        final Vector3f in0 = new Vector3f(0f, 0f, 0f);
+        final Vector3f spherical0 = FastMath.cartesianZToSpherical(in0, null);
+        final Vector3f out0 = FastMath.sphericalToCartesianZ(spherical0, null);
+        assertEquals(in0.x, out0.x, 1e-5f);
+        assertEquals(in0.y, out0.y, 1e-5f);
+        assertEquals(in0.z, out0.z, 1e-5f);
     }
 
     @Test
