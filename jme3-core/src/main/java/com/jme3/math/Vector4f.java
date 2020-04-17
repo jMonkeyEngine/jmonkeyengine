@@ -232,6 +232,8 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
      *            the y value to add.
      * @param addZ
      *            the z value to add.
+     * @param addW
+     *            the w value to add.
      * @return the result vector.
      */
     public Vector4f add(float addX, float addY, float addZ, float addW) {
@@ -249,6 +251,8 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
      *            value to add to y
      * @param addZ
      *            value to add to z
+     * @param addW
+     *            the w value to add.
      * @return this
      */
     public Vector4f addLocal(float addX, float addY, float addZ, float addW) {
@@ -268,6 +272,7 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
      *            the value to multiply this vector by.
      * @param add
      *            the value to add
+     * @return this
      */
     public Vector4f scaleAdd(float scalar, Vector4f add) {
         x = x * scalar + add.x;
@@ -288,6 +293,7 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
      *            the value to multiply the scalar by
      * @param add
      *            the value to add
+     * @return this
      */
     public Vector4f scaleAdd(float scalar, Vector4f mult, Vector4f add) {
         this.x = mult.x * scalar + add.x;
@@ -732,6 +738,7 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
      * component in this and <code>other</code> vector. The result is stored
      * in this vector.
      * @param other
+     * @return this
      */
     public Vector4f maxLocal(Vector4f other){
         x = other.x > x ? other.x : x;
@@ -746,6 +753,7 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
      * component in this and <code>other</code> vector. The result is stored
      * in this vector.
      * @param other
+     * @return this
      */
     public Vector4f minLocal(Vector4f other){
         x = other.x < x ? other.x : x;
@@ -757,6 +765,8 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * <code>zero</code> resets this vector's data to zero internally.
+     *
+     * @return this, with all components set to zero
      */
     public Vector4f zero() {
         x = y = z = w = 0;
@@ -782,6 +792,7 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
      * @param finalVec The final vector to interpolate towards
      * @param changeAmnt An amount between 0.0 - 1.0 representing a percentage
      *  change from this towards finalVec
+     * @return this
      */
     public Vector4f interpolateLocal(Vector4f finalVec, float changeAmnt) {
         this.x=(1-changeAmnt)*this.x + changeAmnt*finalVec.x;
@@ -798,6 +809,7 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
      * @param finalVec The final vector to interpolate towards
      * @param changeAmnt An amount between 0.0 - 1.0 representing a percentage
      *  change from beginVec towards finalVec
+     * @return this
      */
     public Vector4f interpolateLocal(Vector4f beginVec,Vector4f finalVec, float changeAmnt) {
         this.x=(1-changeAmnt)*beginVec.x + changeAmnt*finalVec.x;
@@ -878,6 +890,10 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
     /**
      * Returns true if this vector is similar to the specified vector within
      * some value of epsilon.
+     *
+     * @param other the vector to compare with (not null, unaffected)
+     * @param epsilon the desired error tolerance for each component
+     * @return true if all 4 components are within tolerance, otherwise false
      */
     public boolean isSimilar(Vector4f other, float epsilon) {
         if (other == null) {

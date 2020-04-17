@@ -420,6 +420,8 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
      * @param fb
      *            the buffer to fill, starting at current position. Must have
      *            room for 9 more floats.
+     * @param columnMajor
+     *            true &rarr; column-major order, false &rarr; row-major order
      * @return matrix data as a FloatBuffer. (position is advanced by 9 and any
      *         limit set is not changed).
      */
@@ -975,6 +977,7 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
     /**
      * Inverts this matrix and stores it in the given store.
      *
+     * @param store storage for the result (modified if not null)
      * @return The store
      */
     public Matrix3f invert(Matrix3f store) {

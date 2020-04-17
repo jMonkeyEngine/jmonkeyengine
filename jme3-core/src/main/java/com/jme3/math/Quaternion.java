@@ -208,6 +208,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      *
      * @param angles
      *            the Euler angles of rotation (in radians).
+     * @return this
      */
     public Quaternion fromAngles(float[] angles) {
         if (angles.length != 3) {
@@ -235,6 +236,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      * @param zAngle
      *            the Euler roll of rotation (in radians). (aka Bank, often
      *            rot around z)
+     * @return this
      */
     public Quaternion fromAngles(float xAngle, float yAngle, float zAngle) {
         float angle;
@@ -311,6 +313,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      *
      * @param matrix
      *            the matrix that defines the rotation.
+     * @return this
      */
     public Quaternion fromRotationMatrix(Matrix3f matrix) {
         return fromRotationMatrix(matrix.m00, matrix.m01, matrix.m02, matrix.m10,
@@ -632,6 +635,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      *            the angle to rotate (in radians).
      * @param axis
      *            the axis of rotation (already normalized).
+     * @return this
      */
     public Quaternion fromAngleNormalAxis(float angle, Vector3f axis) {
         if (axis.x == 0 && axis.y == 0 && axis.z == 0) {
@@ -690,6 +694,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      *            the second quaternion.
      * @param t
      *            the amount to interpolate between the two quaternions.
+     * @return this
      */
     public Quaternion slerp(Quaternion q1, Quaternion q2, float t) {
         // Create a local quaternion to store the interpolated quaternion
@@ -936,6 +941,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      * @param axis
      *            the array containing the three vectors representing the
      *            coordinate system.
+     * @return this
      */
     public Quaternion fromAxes(Vector3f[] axis) {
         if (axis.length != 3) {
@@ -956,6 +962,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      * @param xAxis vector representing the x-axis of the coordinate system.
      * @param yAxis vector representing the y-axis of the coordinate system.
      * @param zAxis vector representing the z-axis of the coordinate system.
+     * @return this
      */
     public Quaternion fromAxes(Vector3f xAxis, Vector3f yAxis, Vector3f zAxis) {
         return fromRotationMatrix(xAxis.x, yAxis.x, zAxis.x, xAxis.y, yAxis.y,
@@ -1150,6 +1157,8 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     /**
      * <code>normalize</code> normalizes the current <code>Quaternion</code>.
      * The result is stored internally.
+     *
+     * @return this
      */
     public Quaternion normalizeLocal() {
         float n = FastMath.invSqrt(norm());
@@ -1260,6 +1269,10 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     /**
      * Returns true if this quaternion is similar to the specified quaternion
      * within some value of epsilon.
+     *
+     * @param other the Quaternion to compare with (not null, unaffected)
+     * @param epsilon the error tolerance for each component
+     * @return true if all 4 components are within tolerance, otherwise false
      */
     public boolean isSimilar(Quaternion other, float epsilon) {
         if (other == null) {
@@ -1346,6 +1359,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      * @param up
      *            a vector indicating the local up direction.
      *            (typically {0, 1, 0} in jME.)
+     * @return this
      */
     public Quaternion lookAt(Vector3f direction, Vector3f up) {
         TempVars vars = TempVars.get();
