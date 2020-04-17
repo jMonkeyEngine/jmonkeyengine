@@ -249,12 +249,13 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * <code>get</code> retrieves a value from the matrix at the given
-     * position. If the position is invalid a <code>JmeException</code> is
-     * thrown.
+     * position.
      *
      * @param i   the row index.
-     * @param j   the colum index.
+     * @param j   the column index.
      * @return the value at (i, j).
+     * @throws IllegalArgumentException
+     *            if either index is invalid
      */
     @SuppressWarnings("fallthrough")
     public float get(int i, int j) {
@@ -413,13 +414,14 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * <code>set</code> places a given value into the matrix at the given
-     * position. If the position is invalid a <code>JmeException</code> is
-     * thrown.
+     * position.
      *
      * @param i   the row index.
-     * @param j   the colum index.
+     * @param j   the column index.
      * @param value
      *            the value for (i, j).
+     * @throws IllegalArgumentException
+     *            if either index is invalid
      */
     @SuppressWarnings("fallthrough")
     public void set(int i, int j, float value) {
@@ -496,8 +498,8 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
      *
      * @param matrix
      *            the matrix to set the value to.
-     * @throws JmeException
-     *             if the array is not of size 16.
+     * @throws IllegalArgumentException
+     *             if the array is 4x4
      */
     public void set(float[][] matrix) {
         if (matrix.length != 4 || matrix[0].length != 4) {
@@ -1808,7 +1810,7 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
      *
      * @param translation
      *            the new values for the translation.
-     * @throws JmeException
+     * @throws IllegalArgumentException
      *             if translation is not size 3.
      */
     public void setTranslation(float[] translation) {
@@ -1852,7 +1854,7 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
      *
      * @param translation
      *            the new values for the inverse translation.
-     * @throws JmeException
+     * @throws IllegalArgumentException
      *             if translation is not size 3.
      */
     public void setInverseTranslation(float[] translation) {
@@ -1922,7 +1924,7 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
      *
      * @param angles
      *            the Euler angles in radians.
-     * @throws JmeException
+     * @throws IllegalArgumentException
      *             if angles is not size 3.
      */
     public void setInverseRotationRadians(float[] angles) {
@@ -1959,7 +1961,7 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
      *
      * @param angles
      *            the Euler angles in degrees.
-     * @throws JmeException
+     * @throws IllegalArgumentException
      *             if angles is not size 3.
      */
     public void setInverseRotationDegrees(float[] angles) {
@@ -1980,7 +1982,7 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
      *
      * @param vec
      *            the Vector3f data to be translated.
-     * @throws JmeException
+     * @throws IllegalArgumentException
      *             if the size of the Vector3f is not 3.
      */
     public void inverseTranslateVect(float[] vec) {
@@ -2000,7 +2002,7 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
      *
      * @param data
      *            the Vector3f to be translated.
-     * @throws JmeException
+     * @throws IllegalArgumentException
      *             if the size of the Vector3f is not 3.
      */
     public void inverseTranslateVect(Vector3f data) {
@@ -2015,7 +2017,7 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
      *
      * @param data
      *            the Vector3f to be translated.
-     * @throws JmeException
+     * @throws IllegalArgumentException
      *             if the size of the Vector3f is not 3.
      */
     public void translateVect(Vector3f data) {
