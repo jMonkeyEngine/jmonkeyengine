@@ -112,7 +112,7 @@ public abstract class AbstractHeightMap implements HeightMap {
      *            the new size of the terrain.
      * @throws Exception 
      *
-     * @throws JmeException
+     * @throws Exception
      *             if the size is less than or equal to zero.
      */
     @Override
@@ -131,8 +131,7 @@ public abstract class AbstractHeightMap implements HeightMap {
      *
      * @param filter
      *            the erosion value.
-     * @throws Exception 
-     * @throws JmeException
+     * @throws Exception
      *             if filter is less than 0 or greater than 1.
      */
     @Override
@@ -254,9 +253,7 @@ public abstract class AbstractHeightMap implements HeightMap {
      * @param filename
      *            the file name to save the current data as.
      * @return true if the save was successful, false otherwise.
-     * @throws Exception 
-     *
-     * @throws JmeException
+     * @throws Exception
      *             if filename is null.
      */
     public boolean save(String filename) throws Exception {

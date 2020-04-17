@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -74,7 +74,7 @@ public class RawHeightMap extends AbstractHeightMap {
      *            the RAW file to use as the heightmap.
      * @param size
      *            the size of the RAW (must be square).
-     * @throws JmeException
+     * @throws Exception
      *             if the filename is null or not RAW, and if the size is 0 or
      *             less.
      */
@@ -137,10 +137,10 @@ public class RawHeightMap extends AbstractHeightMap {
 
     /**
      * <code>load</code> fills the height data array with the appropriate data
-     * from the set RAW image. If the RAW image has not been set a JmeException
-     * will be thrown.
+     * from the set RAW image.
      *
      * @return true if the load is successfull, false otherwise.
+     * @throws RuntimeException if the RAW image has not been set
      */
     @Override
     public boolean load() {
@@ -216,7 +216,7 @@ public class RawHeightMap extends AbstractHeightMap {
      *
      * @param filename
      *            the new file to use for the height data.
-     * @throws JmeException
+     * @throws Exception
      *             if the file is null or not RAW.
      */
     public void setFilename(String filename) throws Exception {
@@ -236,7 +236,7 @@ public class RawHeightMap extends AbstractHeightMap {
      *
      * @param stream
      *            the new stream to use for the height data.
-     * @throws JmeException
+     * @throws Exception
      *             if the stream is null or not RAW.
      */
     public void setHeightStream(InputStream stream) throws Exception {

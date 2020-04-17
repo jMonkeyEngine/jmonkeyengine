@@ -146,13 +146,12 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * <code>get</code> retrieves a value from the matrix at the given
-     * position. If the position is invalid a <code>JmeException</code> is
-     * thrown.
+     * <code>get</code> retrieves a value from the matrix at the given position.
      *
      * @param i   the row index.
-     * @param j   the colum index.
+     * @param j   the column index.
      * @return the value at (i, j).
+     * @throws IllegalArgumentException if either index is invalid
      */
     @SuppressWarnings("fallthrough")
     public float get(int i, int j) {
@@ -549,16 +548,16 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * <code>set</code> places a given value into the matrix at the given
-     * position. If the position is invalid a <code>JmeException</code> is
-     * thrown.
+     * position.
      *
      * @param i
      *            the row index.
      * @param j
-     *            the colum index.
+     *            the column index.
      * @param value
      *            the value for (i, j).
      * @return this
+     * @throws IllegalArgumentException if either index is invalid
      */
     @SuppressWarnings("fallthrough")
     public Matrix3f set(int i, int j, float value) {
@@ -611,8 +610,7 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
      *
      * @param matrix
      *            the new values of the matrix.
-     * @throws JmeException
-     *             if the array is not of size 9.
+     * @throws IllegalArgumentException if the matrix is not 3x3
      * @return this
      */
     public Matrix3f set(float[][] matrix) {
