@@ -230,7 +230,6 @@ public class AwtPanelsContext implements JmeContext {
     @Override
     public void setSettings(AppSettings settings) {
         this.settings.copyFrom(settings);
-        this.settings.setRenderer(AppSettings.LWJGL_OPENGL2);
         if (actualContext != null){
             actualContext.setSettings(settings);
         }
