@@ -1218,11 +1218,10 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     }
 
     /**
+     * <code>toString</code> returns a string representation of this
+     * <code>Quaternion</code>. The format is:
      *
-     * <code>toString</code> creates the string representation of this
-     * <code>Quaternion</code>. The values of the quaternion are displaced (x,
-     * y, z, w), in the following manner: <br>
-     * (x, y, z, w)
+     * (X.XXXX, Y.YYYY, Z.ZZZZ, W.WWWW)
      *
      * @return the string representation of this object.
      * @see java.lang.Object#toString()
