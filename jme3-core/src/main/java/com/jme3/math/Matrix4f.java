@@ -516,7 +516,7 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
      * @param matrix
      *            the matrix to set the value to.
      * @throws IllegalArgumentException
-     *             if the array is 4x4
+     *            if the array isn't 4x4
      */
     public void set(float[][] matrix) {
         if (matrix.length != 4 || matrix[0].length != 4) {
