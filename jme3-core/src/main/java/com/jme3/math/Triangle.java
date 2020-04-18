@@ -345,6 +345,13 @@ public class Triangle extends AbstractTriangle implements Savable, Cloneable, ja
         return store.normalizeLocal();
     }
 
+    /**
+     * Serialize this triangle to the specified exporter, for example when
+     * saving to a J3O file.
+     *
+     * @param e (not null)
+     * @throws IOException from the exporter
+     */
     @Override
     public void write(JmeExporter e) throws IOException {
         e.getCapsule(this).write(pointa, "pointa", Vector3f.ZERO);
@@ -352,6 +359,13 @@ public class Triangle extends AbstractTriangle implements Savable, Cloneable, ja
         e.getCapsule(this).write(pointc, "pointc", Vector3f.ZERO);
     }
 
+    /**
+     * De-serialize this triangle from the specified importer, for example
+     * when loading from a J3O file.
+     *
+     * @param e (not null)
+     * @throws IOException from the importer
+     */
     @Override
     public void read(JmeImporter e) throws IOException {
         pointa = (Vector3f) e.getCapsule(this).readSavable("pointa", Vector3f.ZERO.clone());
@@ -359,6 +373,11 @@ public class Triangle extends AbstractTriangle implements Savable, Cloneable, ja
         pointc = (Vector3f) e.getCapsule(this).readSavable("pointc", Vector3f.ZERO.clone());
     }
 
+    /**
+     * Create a copy of this triangle.
+     *
+     * @return a new instance, equivalent to this one
+     */
     @Override
     public Triangle clone() {
         try {

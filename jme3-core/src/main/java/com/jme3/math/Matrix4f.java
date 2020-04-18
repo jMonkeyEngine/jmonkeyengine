@@ -974,6 +974,18 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
         m00 = m11 = m22 = m33 = 1.0f;
     }
 
+    /**
+     * Configure this matrix to represent a perspective-view frustrum or
+     * rectangular solid with the specified clipping planes.
+     *
+     * @param near the coordinate of the near plane
+     * @param far the coordinate of the far plane
+     * @param left the coordinate of the left plane
+     * @param right the coordinate of the right plane
+     * @param top the coordinate of the top plane
+     * @param bottom the coordinate of the bottom plane
+     * @param parallel true &rarr; parallel sides, false &rarr; perspective
+     */
     public void fromFrustum(float near, float far, float left, float right,
             float top, float bottom, boolean parallel) {
         loadIdentity();

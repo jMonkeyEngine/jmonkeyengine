@@ -156,6 +156,13 @@ public final class Rectangle implements Savable, Cloneable, java.io.Serializable
         return result;
     }
 
+    /**
+     * Serialize this rectangle to the specified exporter, for example when
+     * saving to a J3O file.
+     *
+     * @param e (not null)
+     * @throws IOException from the exporter
+     */
     @Override
     public void write(JmeExporter e) throws IOException {
         OutputCapsule capsule = e.getCapsule(this);
@@ -164,6 +171,13 @@ public final class Rectangle implements Savable, Cloneable, java.io.Serializable
         capsule.write(c, "c", Vector3f.ZERO);
     }
 
+    /**
+     * De-serialize this rectangle from the specified importer, for example
+     * when loading from a J3O file.
+     *
+     * @param e (not null)
+     * @throws IOException from the importer
+     */
     @Override
     public void read(JmeImporter e) throws IOException {
         InputCapsule capsule = e.getCapsule(this);
@@ -172,6 +186,11 @@ public final class Rectangle implements Savable, Cloneable, java.io.Serializable
         c = (Vector3f) capsule.readSavable("c", Vector3f.ZERO.clone());
     }
 
+    /**
+     * Create a copy of this rectangle.
+     *
+     * @return a new instance, equivalent to this one
+     */
     @Override
     public Rectangle clone() {
         try {

@@ -46,8 +46,13 @@ import java.util.logging.Logger;
 public final class Vector2f implements Savable, Cloneable, java.io.Serializable {
     static final long serialVersionUID = 1;
     private static final Logger logger = Logger.getLogger(Vector2f.class.getName());
-
+    /**
+     * shared instance of the all-zero vector (0,0) - Do not modify!
+     */
     public static final Vector2f ZERO = new Vector2f(0f, 0f);
+    /**
+     * shared instance of the all-ones vector (1,1) - Do not modify!
+     */
     public static final Vector2f UNIT_XY = new Vector2f(1f, 1f);
     /**
      * the x value of the vector.
@@ -595,19 +600,41 @@ public final class Vector2f implements Savable, Cloneable, java.io.Serializable 
         return angle;
     }
 
+    /**
+     * Determine the X component of this vector.
+     *
+     * @return x
+     */
     public float getX() {
         return x;
     }
 
+    /**
+     * Alter the X component of this vector.
+     *
+     * @param x the desired value
+     * @return this vector, modified
+     */
     public Vector2f setX(float x) {
         this.x = x;
         return this;
     }
 
+    /**
+     * Determine the Y component of this vector.
+     *
+     * @return y
+     */
     public float getY() {
         return y;
     }
 
+    /**
+     * Alter the Y component of this vector.
+     *
+     * @param y the desired value
+     * @return this vector, modified
+     */
     public Vector2f setY(float y) {
         this.y = y;
         return this;
@@ -649,6 +676,11 @@ public final class Vector2f implements Savable, Cloneable, java.io.Serializable 
         return hash;
     }
 
+    /**
+     * Create a copy of this vector.
+     *
+     * @return a new instance, equivalent to this one
+     */
     @Override
     public Vector2f clone() {
         try {
@@ -764,6 +796,13 @@ public final class Vector2f implements Savable, Cloneable, java.io.Serializable 
         out.writeFloat(y);
     }
 
+    /**
+     * Serialize this vector to the specified exporter, for example when
+     * saving to a J3O file.
+     *
+     * @param e (not null)
+     * @throws IOException from the exporter
+     */
     @Override
     public void write(JmeExporter e) throws IOException {
         OutputCapsule capsule = e.getCapsule(this);
@@ -771,6 +810,13 @@ public final class Vector2f implements Savable, Cloneable, java.io.Serializable 
         capsule.write(y, "y", 0);
     }
 
+    /**
+     * De-serialize this vector from the specified importer, for example
+     * when loading from a J3O file.
+     *
+     * @param e (not null)
+     * @throws IOException from the importer
+     */
     @Override
     public void read(JmeImporter e) throws IOException {
         InputCapsule capsule = e.getCapsule(this);

@@ -454,6 +454,13 @@ public class Spline implements Savable {
         return basisFunctionDegree;
     }
 
+    /**
+     * Serialize this spline to the specified exporter, for example when
+     * saving to a J3O file.
+     *
+     * @param ex (not null)
+     * @throws IOException from the exporter
+     */
     @Override
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = ex.getCapsule(this);
@@ -478,6 +485,13 @@ public class Spline implements Savable {
         oc.write(basisFunctionDegree, "basisFunctionDegree", 0);
     }
 
+    /**
+     * De-serialize this spline from the specified importer, for example
+     * when loading from a J3O file.
+     *
+     * @param im (not null)
+     * @throws IOException from the importer
+     */
     @Override
     @SuppressWarnings("unchecked")
     public void read(JmeImporter im) throws IOException {

@@ -405,6 +405,12 @@ public final class Ray implements Savable, Cloneable, Collidable, java.io.Serial
         }
     }
 
+    /**
+     * Calculate the squared distance from this ray to the specified point.
+     *
+     * @param point location vector of the input point (not null, unaffected)
+     * @return the square of the minimum distance (&ge;0)
+     */
     public float distanceSquared(Vector3f point) {
         TempVars vars = TempVars.get();
 

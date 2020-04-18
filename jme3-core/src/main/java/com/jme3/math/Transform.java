@@ -377,6 +377,13 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
         return this;
     }
 
+    /**
+     * Serialize this transform to the specified exporter, for example when
+     * saving to a J3O file.
+     *
+     * @param e (not null)
+     * @throws IOException from the exporter
+     */
     @Override
     public void write(JmeExporter e) throws IOException {
         OutputCapsule capsule = e.getCapsule(this);
@@ -385,6 +392,13 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
         capsule.write(scale, "scale", Vector3f.UNIT_XYZ);
     }
 
+    /**
+     * De-serialize this transform from the specified importer, for example
+     * when loading from a J3O file.
+     *
+     * @param e (not null)
+     * @throws IOException from the importer
+     */
     @Override
     public void read(JmeImporter e) throws IOException {
         InputCapsule capsule = e.getCapsule(this);
@@ -394,6 +408,11 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
         scale.set((Vector3f) capsule.readSavable("scale", Vector3f.UNIT_XYZ));
     }
 
+    /**
+     * Create a copy of this transform.
+     *
+     * @return a new instance, equivalent to this one
+     */
     @Override
     public Transform clone() {
         try {

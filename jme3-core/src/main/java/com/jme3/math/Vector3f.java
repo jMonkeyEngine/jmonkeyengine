@@ -52,17 +52,42 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
 
     static final long serialVersionUID = 1;
     private static final Logger logger = Logger.getLogger(Vector3f.class.getName());
-
+    /**
+     * shared instance of the all-zero vector (0,0,0) - Do not modify!
+     */
     public final static Vector3f ZERO = new Vector3f(0, 0, 0);
+    /**
+     * shared instance of the all-NaN vector (NaN,NaN,NaN) - Do not modify!
+     */
     public final static Vector3f NAN = new Vector3f(Float.NaN, Float.NaN, Float.NaN);
+    /**
+     * shared instance of the +X direction (1,0,0) - Do not modify!
+     */
     public final static Vector3f UNIT_X = new Vector3f(1, 0, 0);
+    /**
+     * shared instance of the +Y direction (0,1,0) - Do not modify!
+     */
     public final static Vector3f UNIT_Y = new Vector3f(0, 1, 0);
+    /**
+     * shared instance of the +Z direction (0,0,1) - Do not modify!
+     */
     public final static Vector3f UNIT_Z = new Vector3f(0, 0, 1);
+    /**
+     * shared instance of the all-ones vector (1,1,1) - Do not modify!
+     */
     public final static Vector3f UNIT_XYZ = new Vector3f(1, 1, 1);
+    /**
+     * shared instance of the all-plus-infinity vector (+Inf,+Inf,+Inf)
+     * - Do not modify!
+     */
     public final static Vector3f POSITIVE_INFINITY = new Vector3f(
             Float.POSITIVE_INFINITY,
             Float.POSITIVE_INFINITY,
             Float.POSITIVE_INFINITY);
+    /**
+     * shared instance of the all-negative-infinity vector (-Inf,-Inf,-Inf)
+     * - Do not modify!
+     */
     public final static Vector3f NEGATIVE_INFINITY = new Vector3f(
             Float.NEGATIVE_INFINITY,
             Float.NEGATIVE_INFINITY,
@@ -917,6 +942,11 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
         }
     }
 
+    /**
+     * Create a copy of this vector.
+     *
+     * @return a new instance, equivalent to this one
+     */
     @Override
     public Vector3f clone() {
         try {
@@ -1027,6 +1057,13 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
         return "(" + x + ", " + y + ", " + z + ")";
     }
 
+    /**
+     * Serialize this vector to the specified exporter, for example when
+     * saving to a J3O file.
+     *
+     * @param e (not null)
+     * @throws IOException from the exporter
+     */
     @Override
     public void write(JmeExporter e) throws IOException {
         OutputCapsule capsule = e.getCapsule(this);
@@ -1035,6 +1072,13 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
         capsule.write(z, "z", 0);
     }
 
+    /**
+     * De-serialize this vector from the specified importer, for example
+     * when loading from a J3O file.
+     *
+     * @param e (not null)
+     * @throws IOException from the importer
+     */
     @Override
     public void read(JmeImporter e) throws IOException {
         InputCapsule capsule = e.getCapsule(this);
@@ -1043,28 +1087,61 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
         z = capsule.readFloat("z", 0);
     }
 
+    /**
+     * Determine the X component of this vector.
+     *
+     * @return x
+     */
     public float getX() {
         return x;
     }
 
+    /**
+     * Alter the X component of this vector.
+     *
+     * @param x the desired value
+     * @return this vector, modified
+     */
     public Vector3f setX(float x) {
         this.x = x;
         return this;
     }
 
+    /**
+     * Determine the Y component of this vector.
+     *
+     * @return y
+     */
     public float getY() {
         return y;
     }
 
+    /**
+     * Alter the Y component of this vector.
+     *
+     * @param y the desired value
+     * @return this vector, modified
+     */
     public Vector3f setY(float y) {
         this.y = y;
         return this;
     }
 
+    /**
+     * Determine the Z component of this vector.
+     *
+     * @return z
+     */
     public float getZ() {
         return z;
     }
 
+    /**
+     * Alter the Z component of this vector.
+     *
+     * @param z the desired value
+     * @return this vector, modified
+     */
     public Vector3f setZ(float z) {
         this.z = z;
         return this;

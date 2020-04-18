@@ -52,9 +52,21 @@ public class Plane implements Savable, Cloneable, java.io.Serializable {
     private static final Logger logger = Logger
             .getLogger(Plane.class.getName());
 
+    /**
+     * Describe the relationship between a point and a plane.
+     */
     public static enum Side {
+        /**
+         * a point that lies in the plane
+         */
         None,
+        /**
+         * a point on the side with positive pseudo-distance
+         */
         Positive,
+        /**
+         * a point on the side with negative pseudo-distance
+         */
         Negative
     }
 

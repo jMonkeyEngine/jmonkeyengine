@@ -194,6 +194,13 @@ public final class Ring implements Savable, Cloneable, java.io.Serializable {
         return result;
     }
 
+    /**
+     * Serialize this ring to the specified exporter, for example when
+     * saving to a J3O file.
+     *
+     * @param e (not null)
+     * @throws IOException from the exporter
+     */
     @Override
     public void write(JmeExporter e) throws IOException {
         OutputCapsule capsule = e.getCapsule(this);
@@ -203,6 +210,13 @@ public final class Ring implements Savable, Cloneable, java.io.Serializable {
         capsule.write(outerRadius, "outerRadius", 1f);
     }
 
+    /**
+     * De-serialize this ring from the specified importer, for example
+     * when loading from a J3O file.
+     *
+     * @param e (not null)
+     * @throws IOException from the importer
+     */
     @Override
     public void read(JmeImporter e) throws IOException {
         InputCapsule capsule = e.getCapsule(this);
@@ -212,6 +226,11 @@ public final class Ring implements Savable, Cloneable, java.io.Serializable {
         outerRadius = capsule.readFloat("outerRadius", 1f);
     }
 
+    /**
+     * Create a copy of this ring.
+     *
+     * @return a new instance, equivalent to this one
+     */
     @Override
     public Ring clone() {
         try {
