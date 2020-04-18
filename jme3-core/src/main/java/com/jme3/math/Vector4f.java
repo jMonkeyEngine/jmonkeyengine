@@ -66,22 +66,18 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
             Float.NEGATIVE_INFINITY,
             Float.NEGATIVE_INFINITY,
             Float.NEGATIVE_INFINITY);
-
     /**
      * the x value of the vector.
      */
     public float x;
-
     /**
      * the y value of the vector.
      */
     public float y;
-
     /**
      * the z value of the vector.
      */
     public float z;
-
     /**
      * the w value of the vector.
      */
@@ -100,14 +96,10 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
      * Constructor instantiates a new <code>Vector4f</code> with provides
      * values.
      *
-     * @param x
-     *            the x value of the vector.
-     * @param y
-     *            the y value of the vector.
-     * @param z
-     *            the z value of the vector.
-     * @param w
-     *            the w value of the vector.
+     * @param x   the x value of the vector.
+     * @param y   the y value of the vector.
+     * @param z   the z value of the vector.
+     * @param w   the w value of the vector.
      */
     public Vector4f(float x, float y, float z, float w) {
         this.x = x;
@@ -119,6 +111,7 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
     /**
      * Constructor instantiates a new <code>Vector3f</code> that is a copy
      * of the provided vector
+     *
      * @param copy The Vector3f to copy
      */
     public Vector4f(Vector4f copy) {
@@ -129,14 +122,10 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
      * <code>set</code> sets the x,y,z,w values of the vector based on passed
      * parameters.
      *
-     * @param x
-     *            the x value of the vector.
-     * @param y
-     *            the y value of the vector.
-     * @param z
-     *            the z value of the vector.
-     * @param w
-     *            the w value of the vector.
+     * @param x   the x value of the vector.
+     * @param y   the y value of the vector.
+     * @param z   the z value of the vector.
+     * @param w   the w value of the vector.
      * @return this vector
      */
     public Vector4f set(float x, float y, float z, float w) {
@@ -164,7 +153,6 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     *
      * <code>add</code> adds a provided vector to this vector creating a
      * resultant vector which is returned. If the provided vector is null, null
      * is returned.
@@ -182,7 +170,6 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     *
      * <code>add</code> adds the values of a provided vector storing the
      * values in the supplied vector.
      *
@@ -222,7 +209,6 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     *
      * <code>add</code> adds the provided values to this vector, creating a
      * new vector that is then returned.
      *
@@ -264,7 +250,6 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     *
      * <code>scaleAdd</code> multiplies this vector by a scalar then adds the
      * given Vector3f.
      *
@@ -283,7 +268,6 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     *
      * <code>scaleAdd</code> multiplies the given vector by a scalar then adds
      * the given vector.
      *
@@ -304,7 +288,6 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     *
      * <code>dot</code> calculates the dot product of this vector with a
      * provided vector. If the provided vector is null, 0 is returned.
      *
@@ -320,10 +303,10 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
         return x * vec.x + y * vec.y + z * vec.z + w * vec.w;
     }
 
-    public Vector4f project(Vector4f other){
+    public Vector4f project(Vector4f other) {
         float n = this.dot(other); // A . B
         float d = other.lengthSquared(); // |B|^2
-        return new Vector4f(other).multLocal(n/d);
+        return new Vector4f(other).multLocal(n / d);
     }
 
     /**
@@ -333,7 +316,7 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
      * @return true if this vector is a unit vector (length() ~= 1),
      * or false otherwise.
      */
-    public boolean isUnitVector(){
+    public boolean isUnitVector() {
         float len = length();
         return 0.99f < len && len < 1.01f;
     }
@@ -384,7 +367,6 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     *
      * <code>mult</code> multiplies this vector by a scalar. The resultant
      * vector is returned.
      *
@@ -397,7 +379,6 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     *
      * <code>mult</code> multiplies this vector by a scalar. The resultant
      * vector is supplied as the second parameter and returned.
      *
@@ -505,7 +486,9 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
             logger.warning("Provided vector is null, null returned.");
             return null;
         }
-        if (store == null) store = new Vector4f();
+        if (store == null) {
+            store = new Vector4f();
+        }
         return store.set(x * vec.x, y * vec.y, z * vec.z, w * vec.w);
     }
 
@@ -518,7 +501,7 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
      * @return the result <code>Vector</code>.
      */
     public Vector4f divide(float scalar) {
-        scalar = 1f/scalar;
+        scalar = 1f / scalar;
         return new Vector4f(x * scalar, y * scalar, z * scalar, w * scalar);
     }
 
@@ -532,7 +515,7 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
      * @return this
      */
     public Vector4f divideLocal(float scalar) {
-        scalar = 1f/scalar;
+        scalar = 1f / scalar;
         x *= scalar;
         y *= scalar;
         z *= scalar;
@@ -570,7 +553,6 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     *
      * <code>negate</code> returns the negative of this vector. All values are
      * negated and set to a new vector.
      *
@@ -581,7 +563,6 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     *
      * <code>negateLocal</code> negates the internal values of this vector.
      *
      * @return this.
@@ -595,7 +576,6 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     *
      * <code>subtract</code> subtracts the values of a given vector from those
      * of this vector creating a new vector object. If the provided vector is
      * null, null is returned.
@@ -630,7 +610,6 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     *
      * <code>subtract</code>
      *
      * @param vec
@@ -640,7 +619,7 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
      * @return result
      */
     public Vector4f subtract(Vector4f vec, Vector4f result) {
-        if(result == null) {
+        if (result == null) {
             result = new Vector4f();
         }
         result.x = x - vec.x;
@@ -651,7 +630,6 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     *
      * <code>subtract</code> subtracts the provided values from this vector,
      * creating a new vector that is then returned.
      *
@@ -705,7 +683,7 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
 //
 //        return divide(1);
         float length = x * x + y * y + z * z + w * w;
-        if (length != 1f && length != 0f){
+        if (length != 1f && length != 0f) {
             length = 1.0f / FastMath.sqrt(length);
             return new Vector4f(x * length, y * length, z * length, w * length);
         }
@@ -723,7 +701,7 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
         // than the old jme normalize as this method
         // is commonly used.
         float length = x * x + y * y + z * z + w * w;
-        if (length != 1f && length != 0f){
+        if (length != 1f && length != 0f) {
             length = 1.0f / FastMath.sqrt(length);
             x *= length;
             y *= length;
@@ -737,10 +715,11 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
      * <code>maxLocal</code> computes the maximum value for each
      * component in this and <code>other</code> vector. The result is stored
      * in this vector.
+     *
      * @param other
      * @return this
      */
-    public Vector4f maxLocal(Vector4f other){
+    public Vector4f maxLocal(Vector4f other) {
         x = other.x > x ? other.x : x;
         y = other.y > y ? other.y : y;
         z = other.z > z ? other.z : z;
@@ -752,10 +731,11 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
      * <code>minLocal</code> computes the minimum value for each
      * component in this and <code>other</code> vector. The result is stored
      * in this vector.
+     *
      * @param other
      * @return this
      */
-    public Vector4f minLocal(Vector4f other){
+    public Vector4f minLocal(Vector4f other) {
         x = other.x < x ? other.x : x;
         y = other.y < y ? other.y : y;
         z = other.z < z ? other.z : z;
@@ -789,53 +769,62 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
     /**
      * Sets this vector to the interpolation by changeAmnt from this to the finalVec
      * this=(1-changeAmnt)*this + changeAmnt * finalVec
+     *
      * @param finalVec The final vector to interpolate towards
      * @param changeAmnt An amount between 0.0 - 1.0 representing a percentage
      *  change from this towards finalVec
      * @return this
      */
     public Vector4f interpolateLocal(Vector4f finalVec, float changeAmnt) {
-        this.x=(1-changeAmnt)*this.x + changeAmnt*finalVec.x;
-        this.y=(1-changeAmnt)*this.y + changeAmnt*finalVec.y;
-        this.z=(1-changeAmnt)*this.z + changeAmnt*finalVec.z;
-        this.w=(1-changeAmnt)*this.w + changeAmnt*finalVec.w;
+        this.x = (1 - changeAmnt) * this.x + changeAmnt * finalVec.x;
+        this.y = (1 - changeAmnt) * this.y + changeAmnt * finalVec.y;
+        this.z = (1 - changeAmnt) * this.z + changeAmnt * finalVec.z;
+        this.w = (1 - changeAmnt) * this.w + changeAmnt * finalVec.w;
         return this;
     }
 
     /**
      * Sets this vector to the interpolation by changeAmnt from beginVec to finalVec
      * this=(1-changeAmnt)*beginVec + changeAmnt * finalVec
+     *
      * @param beginVec the beginning vector (changeAmnt=0)
      * @param finalVec The final vector to interpolate towards
      * @param changeAmnt An amount between 0.0 - 1.0 representing a percentage
      *  change from beginVec towards finalVec
      * @return this
      */
-    public Vector4f interpolateLocal(Vector4f beginVec,Vector4f finalVec, float changeAmnt) {
-        this.x=(1-changeAmnt)*beginVec.x + changeAmnt*finalVec.x;
-        this.y=(1-changeAmnt)*beginVec.y + changeAmnt*finalVec.y;
-        this.z=(1-changeAmnt)*beginVec.z + changeAmnt*finalVec.z;
-        this.w=(1-changeAmnt)*beginVec.w + changeAmnt*finalVec.w;
+    public Vector4f interpolateLocal(Vector4f beginVec, Vector4f finalVec, float changeAmnt) {
+        this.x = (1 - changeAmnt) * beginVec.x + changeAmnt * finalVec.x;
+        this.y = (1 - changeAmnt) * beginVec.y + changeAmnt * finalVec.y;
+        this.z = (1 - changeAmnt) * beginVec.z + changeAmnt * finalVec.z;
+        this.w = (1 - changeAmnt) * beginVec.w + changeAmnt * finalVec.w;
         return this;
     }
 
     /**
      * Check a vector... if it is null or its floats are NaN or infinite,
      * return false.  Else return true.
+     *
      * @param vector the vector to check
      * @return true or false as stated above.
      */
     public static boolean isValidVector(Vector4f vector) {
-      if (vector == null) return false;
-      if (Float.isNaN(vector.x) ||
-          Float.isNaN(vector.y) ||
-          Float.isNaN(vector.z)||
-          Float.isNaN(vector.w)) return false;
-      if (Float.isInfinite(vector.x) ||
-          Float.isInfinite(vector.y) ||
-          Float.isInfinite(vector.z) ||
-          Float.isInfinite(vector.w)) return false;
-      return true;
+        if (vector == null) {
+            return false;
+        }
+        if (Float.isNaN(vector.x)
+                || Float.isNaN(vector.y)
+                || Float.isNaN(vector.z)
+                || Float.isNaN(vector.w)) {
+            return false;
+        }
+        if (Float.isInfinite(vector.x)
+                || Float.isInfinite(vector.y)
+                || Float.isInfinite(vector.z)
+                || Float.isInfinite(vector.w)) {
+            return false;
+        }
+        return true;
     }
 
     @Override
@@ -870,24 +859,35 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
      * are these two vectors the same? they are is they both have the same x,y,
      * and z values.
      *
-     * @param o
-     *            the object to compare for equality
+     * @param o   the object to compare for equality
      * @return true if they are equal
      */
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof Vector4f)) { return false; }
+        if (!(o instanceof Vector4f)) {
+            return false;
+        }
 
-        if (this == o) { return true; }
+        if (this == o) {
+            return true;
+        }
 
         Vector4f comp = (Vector4f) o;
-        if (Float.compare(x,comp.x) != 0) return false;
-        if (Float.compare(y,comp.y) != 0) return false;
-        if (Float.compare(z,comp.z) != 0) return false;
-        if (Float.compare(w,comp.w) != 0) return false;
+        if (Float.compare(x, comp.x) != 0) {
+            return false;
+        }
+        if (Float.compare(y, comp.y) != 0) {
+            return false;
+        }
+        if (Float.compare(z, comp.z) != 0) {
+            return false;
+        }
+        if (Float.compare(w, comp.w) != 0) {
+            return false;
+        }
         return true;
     }
-    
+
     /**
      * Returns true if this vector is similar to the specified vector within
      * some value of epsilon.
@@ -919,6 +919,7 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
      * <code>hashCode</code> returns a unique code for this vector object based
      * on its values. If two vectors are logically equivalent, they will return
      * the same hash code value.
+     *
      * @return the hash code value of this vector.
      */
     @Override
@@ -1000,8 +1001,7 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * @param index
-     * @return x value if index == 0, y value if index == 1 or z value if index ==
-     *         2
+     * @return x value if index == 0, y value if index == 1 or z value if index == 2
      * @throws IllegalArgumentException
      *             if index is not one of 0, 1, 2.
      */
@@ -1040,9 +1040,8 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
                 return;
             case 3:
                 w = value;
-              return;
+                return;
         }
         throw new IllegalArgumentException("index must be either 0, 1, 2 or 3");
     }
-
 }

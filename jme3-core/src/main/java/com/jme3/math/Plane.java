@@ -309,8 +309,8 @@ public class Plane implements Savable, Cloneable, java.io.Serializable {
     }
 
     /**
-     * De-serialize this plane from the specified importer, for example
-     * when loading from a J3O file.
+     * De-serialize this plane from the specified importer, for example when
+     * loading from a J3O file.
      *
      * @param e (not null)
      * @throws IOException from the importer

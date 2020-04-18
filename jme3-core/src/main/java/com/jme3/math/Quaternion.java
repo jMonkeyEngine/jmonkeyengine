@@ -602,8 +602,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      * by the parameter. This column is returned as a <code>Vector3f</code>
      * object.
      *
-     * @param i
-     *            the column to retrieve. Must be between 0 and 2.
+     * @param i   the column to retrieve. Must be between 0 and 2.
      * @return the column specified by the index.
      */
     public Vector3f getRotationColumn(int i) {
@@ -615,8 +614,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      * by the parameter. This column is returned as a <code>Vector3f</code>
      * object. The value is retrieved as if this quaternion was first normalized.
      *
-     * @param i
-     *            the column to retrieve. Must be between 0 and 2.
+     * @param i   the column to retrieve. Must be between 0 and 2.
      * @param store
      *            the vector object to store the result in. if null, a new one
      *            is created.
@@ -748,8 +746,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      *            the first quaternion.
      * @param q2
      *            the second quaternion.
-     * @param t
-     *            the amount to interpolate between the two quaternions.
+     * @param t   the amount to interpolate between the two quaternions.
      * @return this
      */
     public Quaternion slerp(Quaternion q1, Quaternion q2, float t) {
@@ -935,8 +932,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      * The result is returned as a new quaternion. It should be noted that
      * quaternion multiplication is not commutative so q * p != p * q.
      *
-     * @param q
-     *            the quaternion to multiply this quaternion by.
+     * @param q   the quaternion to multiply this quaternion by.
      * @return the new quaternion.
      */
     public Quaternion mult(Quaternion q) {
@@ -1178,8 +1174,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      * <code>dot</code> calculates and returns the dot product of this
      * quaternion with that of the parameter quaternion.
      *
-     * @param q
-     *            the quaternion to calculate the dot product of.
+     * @param q   the quaternion to calculate the dot product of.
      * @return the dot product of this and the parameter quaternion.
      */
     public float dot(Quaternion q) {
@@ -1292,8 +1287,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      * <code>equals</code> determines if two quaternions are logically equal,
      * that is, if the values of (x, y, z, w) are the same for both quaternions.
      *
-     * @param o
-     *            the object to compare for equality
+     * @param o   the object to compare for equality
      * @return true if they are equal, false otherwise.
      */
     @Override
@@ -1469,6 +1463,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
 
     /**
      * FIXME: This seems to have singularity type issues with angle == 0, possibly others such as PI.
+     *
      * @param store
      *            A Quaternion to store our result in. If null, a new one is
      *            created.

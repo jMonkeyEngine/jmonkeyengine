@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,12 +40,11 @@ import java.io.IOException;
  * <code>Triangle</code> defines an object for containing triangle information.
  * The triangle is defined by a collection of three {@link Vector3f}
  * objects.
- * 
+ *
  * @author Mark Powell
  * @author Joshua Slack
  */
 public class Triangle extends AbstractTriangle implements Savable, Cloneable, java.io.Serializable {
-
     static final long serialVersionUID = 1;
 
     private Vector3f pointa = new Vector3f();
@@ -67,6 +66,7 @@ public class Triangle extends AbstractTriangle implements Savable, Cloneable, ja
      * supplied vectors as the points. It is recommended that the vertices
      * be supplied in a counter clockwise winding to support normals for a
      * right handed coordinate system.
+     *
      * @param p1 the first point of the triangle.
      * @param p2 the second point of the triangle.
      * @param p3 the third point of the triangle.
@@ -230,8 +230,7 @@ public class Triangle extends AbstractTriangle implements Savable, Cloneable, ja
     }
 
     /**
-     * calculateCenter finds the average point of the triangle. 
-     *
+     * calculateCenter finds the average point of the triangle.
      */
     public void calculateCenter() {
         if (center == null) {
@@ -258,6 +257,7 @@ public class Triangle extends AbstractTriangle implements Savable, Cloneable, ja
 
     /**
      * obtains the center point of this triangle (average of the three triangles)
+     *
      * @return the center point.
      */
     public Vector3f getCenter() {
@@ -269,6 +269,7 @@ public class Triangle extends AbstractTriangle implements Savable, Cloneable, ja
 
     /**
      * sets the center point of this triangle (average of the three triangles)
+     *
      * @param center the center point.
      */
     public void setCenter(Vector3f center) {
@@ -278,7 +279,7 @@ public class Triangle extends AbstractTriangle implements Savable, Cloneable, ja
     /**
      * obtains the unit length normal vector of this triangle, if set or
      * calculated
-     * 
+     *
      * @return the normal vector
      */
     public Vector3f getNormal() {
@@ -290,6 +291,7 @@ public class Triangle extends AbstractTriangle implements Savable, Cloneable, ja
 
     /**
      * sets the normal vector of this triangle (to conform, must be unit length)
+     *
      * @param normal the normal vector.
      */
     public void setNormal(Vector3f normal) {
@@ -298,6 +300,7 @@ public class Triangle extends AbstractTriangle implements Savable, Cloneable, ja
 
     /**
      * obtains the projection of the vertices relative to the line origin.
+     *
      * @return the projection of the triangle.
      */
     public float getProjection() {
@@ -306,6 +309,7 @@ public class Triangle extends AbstractTriangle implements Savable, Cloneable, ja
 
     /**
      * sets the projection of the vertices relative to the line origin.
+     *
      * @param projection the projection of the triangle.
      */
     public void setProjection(float projection) {
@@ -314,6 +318,7 @@ public class Triangle extends AbstractTriangle implements Savable, Cloneable, ja
 
     /**
      * obtains an index that this triangle represents if it is contained in a OBBTree.
+     *
      * @return the index in an OBBtree
      */
     public int getIndex() {
@@ -322,6 +327,7 @@ public class Triangle extends AbstractTriangle implements Savable, Cloneable, ja
 
     /**
      * sets an index that this triangle represents if it is contained in a OBBTree.
+     *
      * @param index the index in an OBBtree
      */
     public void setIndex(int index) {

@@ -50,7 +50,6 @@ import java.io.IOException;
  * @author Joshua Slack
  */
 public class LineSegment implements Cloneable, Savable, java.io.Serializable {
-
     static final long serialVersionUID = 1;
 
     private Vector3f origin;
@@ -650,7 +649,7 @@ public class LineSegment implements Cloneable, Savable, java.io.Serializable {
 
     /**
      * Determine the location of this segment's positive end.
-     * 
+     *
      * @param store storage for the result (modified if not null)
      * @return a location vector (either store or a new vector)
      */
@@ -663,7 +662,7 @@ public class LineSegment implements Cloneable, Savable, java.io.Serializable {
 
     /**
      * Determine the location of this segment's negative end.
-     * 
+     *
      * @param store storage for the result (modified if not null)
      * @return a location vector (either store or a new vector)
      */
@@ -724,7 +723,7 @@ public class LineSegment implements Cloneable, Savable, java.io.Serializable {
     /**
      * <p>Evaluates whether a given point is contained within the axis aligned bounding box
      * that contains this LineSegment.</p><p>This function is float error aware.</p>
-     * 
+     *
      * @param point the location of the input point (not null, unaffected)
      * @return true if contained in the box, otherwise false
      */
@@ -736,13 +735,12 @@ public class LineSegment implements Cloneable, Savable, java.io.Serializable {
      * <p>Evaluates whether a given point is contained within the axis aligned bounding box
      * that contains this LineSegment.</p><p>This function accepts an error parameter, which
      * is added to the extent of the bounding box.</p>
-     * 
+     *
      * @param point the location of the input point (not null, unaffected)
      * @param error the desired margin for error
      * @return true if contained in the box, otherwise false
      */
     public boolean isPointInsideBounds(Vector3f point, float error) {
-
         if (FastMath.abs(point.x - origin.x) > FastMath.abs(direction.x * extent) + error) {
             return false;
         }

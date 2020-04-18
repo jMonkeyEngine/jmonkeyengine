@@ -388,7 +388,7 @@ public class Spline implements Savable {
 
     /**
      * returns this spline control points
-     * 
+     *
      * @return the pre-existing list
      */
     public List<Vector3f> getControlPoints() {

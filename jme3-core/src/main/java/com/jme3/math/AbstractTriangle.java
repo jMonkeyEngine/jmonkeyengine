@@ -38,7 +38,6 @@ import com.jme3.collision.CollisionResults;
  * A Collidable with a triangular shape.
  */
 public abstract class AbstractTriangle implements Collidable {
-
     /**
      * Determine the location of the first vertex.
      *
@@ -77,8 +76,7 @@ public abstract class AbstractTriangle implements Collidable {
      * @return the number of collisions found
      */
     @Override
-    public int collideWith(Collidable other, CollisionResults results){
+    public int collideWith(Collidable other, CollisionResults results) {
         return other.collideWith(this, results);
     }
-
 }

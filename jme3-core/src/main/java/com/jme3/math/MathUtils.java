@@ -7,7 +7,6 @@ import com.jme3.util.TempVars;
  * Created by Nehon on 23/04/2017.
  */
 public class MathUtils {
-
     /**
      * Calculate the natural logarithm of a unit quaternion.
      *
@@ -157,7 +156,6 @@ public class MathUtils {
     private static Quaternion spline(Quaternion qnm1, Quaternion qn, Quaternion qnp1, Quaternion store, Quaternion tmp) {
         Quaternion invQn = new Quaternion(-qn.x, -qn.y, -qn.z, qn.w);
 
-
         log(invQn.mult(qnp1), tmp);
         log(invQn.mult(qnm1), store);
         store.addLocal(tmp).multLocal(-1f / 4f);
@@ -167,7 +165,6 @@ public class MathUtils {
         return store.normalizeLocal();
         //return qn * (((qni * qnm1).log() + (qni * qnp1).log()) / -4).exp();
     }
-
 
     //! spherical cubic interpolation
     public static Quaternion squad(Quaternion q0, Quaternion q1, Quaternion q2, Quaternion q3, Quaternion a, Quaternion b, float t, Quaternion store) {
@@ -186,7 +183,6 @@ public class MathUtils {
 //                d = slerpNoInvert(a, b, t);
 //        return slerpNoInvert(c, d, 2 * t * (1 - t));
     }
-
 
     /**
      * Returns the shortest distance between a Ray and a segment.
@@ -266,5 +262,4 @@ public class MathUtils {
         vars.release();
         return length;
     }
-
 }

@@ -267,6 +267,7 @@ final public class FastMath {
      *     [-T    2-T  T-2   T   ]
      * where T is the curve tension
      * the result is a value between p1 and p2, t=0 for p1, t=1 for p2
+     *
      * @param u value from 0 to 1
      * @param T The tension of the curve
      * @param p0 control point 0
@@ -294,6 +295,7 @@ final public class FastMath {
      *     [-T    2-T  T-2   T   ]
      * where T is the tension of the curve
      * the result is a value between p1 and p2, t=0 for p1, t=1 for p2
+     *
      * @param u value from 0 to 1
      * @param T The tension of the curve
      * @param p0 control point 0
@@ -323,6 +325,7 @@ final public class FastMath {
      *     [-T    2-T  T-2   T   ]
      * where T is the tension of the curve
      * the result is a value between p1 and p2, t=0 for p1, t=1 for p2
+     *
      * @param u value from 0 to 1
      * @param T The tension of the curve
      * @param p0 control point 0
@@ -344,6 +347,7 @@ final public class FastMath {
      *     [  1.0   0.0   0.0    0.0 ]
      * where T is the curve tension
      * the result is a value between p1 and p3, t=0 for p1, t=1 for p3
+     *
      * @param u value from 0 to 1
      * @param p0 control point 0
      * @param p1 control point 1
@@ -370,6 +374,7 @@ final public class FastMath {
      *     [  1.0   0.0   0.0    0.0 ]
      * where T is the tension of the curve
      * the result is a value between p1 and p3, t=0 for p1, t=1 for p3
+     *
      * @param u value from 0 to 1
      * @param p0 control point 0
      * @param p1 control point 1
@@ -398,6 +403,7 @@ final public class FastMath {
      *     [  1.0   0.0   0.0    0.0 ]
      * where T is the tension of the curve
      * the result is a value between p1 and p3, t=0 for p1, t=1 for p3
+     *
      * @param u value from 0 to 1
      * @param p0 control point 0
      * @param p1 control point 1
@@ -1001,10 +1007,8 @@ final public class FastMath {
     }
 
     /**
-     * @param x
-     *            the value whose sign is to be adjusted.
-     * @param y
-     *            the value whose sign is to be used.
+     * @param x   the value whose sign is to be adjusted.
+     * @param y   the value whose sign is to be used.
      * @return x with its sign changed to match the sign of y.
      */
     public static float copysign(float x, float y) {

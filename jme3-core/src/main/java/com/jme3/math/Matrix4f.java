@@ -55,7 +55,6 @@ import java.util.logging.Logger;
  * @author Joshua Slack
  */
 public final class Matrix4f implements Savable, Cloneable, java.io.Serializable {
-
     static final long serialVersionUID = 1;
 
     private static final Logger logger = Logger.getLogger(Matrix4f.class.getName());
@@ -1940,12 +1939,9 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     /**
      * Sets the scale.
      *
-     * @param x
-     *            the X scale
-     * @param y
-     *            the Y scale
-     * @param z
-     *            the Z scale
+     * @param x   the X scale
+     * @param y   the Y scale
+     * @param z   the Z scale
      */
     public void setScale(float x, float y, float z) {
 
@@ -2324,8 +2320,7 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     /**
      * are these two matrices the same? they are is they both have the same mXX values.
      *
-     * @param o
-     *            the object to compare for equality
+     * @param o   the object to compare for equality
      * @return true if they are equal
      */
     @Override

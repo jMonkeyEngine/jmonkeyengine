@@ -120,7 +120,6 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
      */
     public Matrix3f(float m00, float m01, float m02, float m10, float m11,
             float m12, float m20, float m21, float m22) {
-
         this.m00 = m00;
         this.m01 = m01;
         this.m02 = m02;
@@ -304,7 +303,7 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
         }
 
         float mag = 1.0f / FastMath.sqrt(
-                m00 * m00
+                  m00 * m00
                 + m10 * m10
                 + m20 * m20);
 
@@ -313,7 +312,7 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
         store.m20 = m20 * mag;
 
         mag = 1.0f / FastMath.sqrt(
-                m01 * m01
+                  m01 * m01
                 + m11 * m11
                 + m21 * m21);
 
@@ -340,8 +339,7 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
      * <code>getColumn</code> returns one of three columns specified by the
      * parameter. This column is returned as a <code>Vector3f</code> object.
      *
-     * @param i
-     *            the column to retrieve. Must be between 0 and 2.
+     * @param i   the column to retrieve. Must be between 0 and 2.
      * @return the column specified by the index.
      */
     public Vector3f getColumn(int i) {
@@ -352,8 +350,7 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
      * <code>getColumn</code> returns one of three columns specified by the
      * parameter. This column is returned as a <code>Vector3f</code> object.
      *
-     * @param i
-     *            the column to retrieve. Must be between 0 and 2.
+     * @param i   the column to retrieve. Must be between 0 and 2.
      * @param store
      *            the vector object to store the result in. if null, a new one
      *            is created.
@@ -390,8 +387,7 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
      * <code>getColumn</code> returns one of three rows as specified by the
      * parameter. This row is returned as a <code>Vector3f</code> object.
      *
-     * @param i
-     *            the row to retrieve. Must be between 0 and 2.
+     * @param i   the row to retrieve. Must be between 0 and 2.
      * @return the row specified by the index.
      */
     public Vector3f getRow(int i) {
@@ -402,8 +398,7 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
      * <code>getRow</code> returns one of three rows as specified by the
      * parameter. This row is returned as a <code>Vector3f</code> object.
      *
-     * @param i
-     *            the row to retrieve. Must be between 0 and 2.
+     * @param i   the row to retrieve. Must be between 0 and 2.
      * @param store
      *            the vector object to store the result in. if null, a new one
      *            is created.
@@ -520,14 +515,12 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
      * <code>setColumn</code> sets a particular column of this matrix to that
      * represented by the provided vector.
      *
-     * @param i
-     *            the column to set.
+     * @param i   the column to set.
      * @param column
      *            the data to set.
      * @return this
      */
     public Matrix3f setColumn(int i, Vector3f column) {
-
         if (column == null) {
             logger.warning("Column is null. Ignoring.");
             return this;
@@ -559,14 +552,12 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
      * <code>setRow</code> sets a particular row of this matrix to that
      * represented by the provided vector.
      *
-     * @param i
-     *            the row to set.
+     * @param i   the row to set.
      * @param row
      *            the data to set.
      * @return this
      */
     public Matrix3f setRow(int i, Vector3f row) {
-
         if (row == null) {
             logger.warning("Row is null. Ignoring.");
             return this;
@@ -598,10 +589,8 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
      * <code>set</code> places a given value into the matrix at the given
      * position.
      *
-     * @param i
-     *            the row index.
-     * @param j
-     *            the column index.
+     * @param i   the row index.
+     * @param j   the column index.
      * @param value
      *            the value for (i, j).
      * @return this
@@ -858,7 +847,6 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
      * @return a matrix3f object containing the result of this operation
      */
     public Matrix3f mult(Matrix3f mat, Matrix3f product) {
-
         float temp00, temp01, temp02;
         float temp10, temp11, temp12;
         float temp20, temp21, temp22;
@@ -914,7 +902,6 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
      * @return The given product vector.
      */
     public Vector3f mult(Vector3f vec, Vector3f product) {
-
         if (null == product) {
             product = new Vector3f();
         }
@@ -1230,8 +1217,7 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
     /**
      * are these two matrices the same? they are is they both have the same mXX values.
      *
-     * @param o
-     *            the object to compare for equality
+     * @param o   the object to compare for equality
      * @return true if they are equal
      */
     @Override

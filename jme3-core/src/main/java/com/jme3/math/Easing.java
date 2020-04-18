@@ -5,8 +5,6 @@ package com.jme3.math;
  * Created by Nehon on 26/03/2017.
  */
 public class Easing {
-
-
     /**
      * a function that always returns 0
      */
@@ -66,7 +64,6 @@ public class Easing {
         }
     };
 
-
     /**
      * Out Elastic and bounce
      */
@@ -122,11 +119,9 @@ public class Easing {
     public static EaseFunction inOutElastic = new InOut(inElastic, outElastic);
     public static EaseFunction inOutBounce = new InOut(inBounce, outBounce);
 
-
     /**
      * Extra functions
      */
-
     public static EaseFunction smoothStep = new EaseFunction() {
         @Override
         public float apply(float t) {
@@ -185,6 +180,4 @@ public class Easing {
             return 1f - func.apply(1f - value);
         }
     }
-
-
 }

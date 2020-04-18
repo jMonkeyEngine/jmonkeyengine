@@ -34,20 +34,17 @@ package com.jme3.math;
 import com.jme3.export.*;
 import java.io.IOException;
 
-
 /**
  * <code>Ring</code> defines a flat ring or disk within three dimensional
  * space that is specified via the ring's center point, an up vector, an inner
  * radius, and an outer radius.
- * 
+ *
  * @author Andrzej Kapolka
  * @author Joshua Slack
  */
-
 public final class Ring implements Savable, Cloneable, java.io.Serializable {
-
     static final long serialVersionUID = 1;
-    
+
     private Vector3f center, up;
     private float innerRadius, outerRadius;
     private transient static Vector3f b1 = new Vector3f(), b2 = new Vector3f();
@@ -67,7 +64,7 @@ public final class Ring implements Savable, Cloneable, java.io.Serializable {
     /**
      * Constructor creates a new <code>Ring</code> with defined center point,
      * up vector, and inner and outer radii.
-     * 
+     *
      * @param center
      *            the center of the ring.
      * @param up
@@ -87,7 +84,7 @@ public final class Ring implements Savable, Cloneable, java.io.Serializable {
 
     /**
      * <code>getCenter</code> returns the center of the ring.
-     * 
+     *
      * @return the center of the ring.
      */
     public Vector3f getCenter() {
@@ -96,7 +93,7 @@ public final class Ring implements Savable, Cloneable, java.io.Serializable {
 
     /**
      * <code>setCenter</code> sets the center of the ring.
-     * 
+     *
      * @param center
      *            the center of the ring.
      */
@@ -106,7 +103,7 @@ public final class Ring implements Savable, Cloneable, java.io.Serializable {
 
     /**
      * <code>getUp</code> returns the ring's up vector.
-     * 
+     *
      * @return the ring's up vector.
      */
     public Vector3f getUp() {
@@ -115,7 +112,7 @@ public final class Ring implements Savable, Cloneable, java.io.Serializable {
 
     /**
      * <code>setUp</code> sets the ring's up vector.
-     * 
+     *
      * @param up
      *            the ring's up vector.
      */
@@ -125,7 +122,7 @@ public final class Ring implements Savable, Cloneable, java.io.Serializable {
 
     /**
      * <code>getInnerRadius</code> returns the ring's inner radius.
-     * 
+     *
      * @return the ring's inner radius.
      */
     public float getInnerRadius() {
@@ -134,7 +131,7 @@ public final class Ring implements Savable, Cloneable, java.io.Serializable {
 
     /**
      * <code>setInnerRadius</code> sets the ring's inner radius.
-     * 
+     *
      * @param innerRadius
      *            the ring's inner radius.
      */
@@ -144,7 +141,7 @@ public final class Ring implements Savable, Cloneable, java.io.Serializable {
 
     /**
      * <code>getOuterRadius</code> returns the ring's outer radius.
-     * 
+     *
      * @return the ring's outer radius.
      */
     public float getOuterRadius() {
@@ -153,7 +150,7 @@ public final class Ring implements Savable, Cloneable, java.io.Serializable {
 
     /**
      * <code>setOuterRadius</code> sets the ring's outer radius.
-     * 
+     *
      * @param outerRadius
      *            the ring's outer radius.
      */
@@ -162,9 +159,8 @@ public final class Ring implements Savable, Cloneable, java.io.Serializable {
     }
 
     /**
-     * 
      * <code>random</code> returns a random point within the ring.
-     * 
+     *
      * @return a random point within the ring.
      */
     public Vector3f random() {
@@ -172,9 +168,8 @@ public final class Ring implements Savable, Cloneable, java.io.Serializable {
     }
 
     /**
-     * 
      * <code>random</code> returns a random point within the ring.
-     * 
+     *
      * @param result Vector to store result in
      * @return a random point within the ring.
      */
@@ -182,13 +177,12 @@ public final class Ring implements Savable, Cloneable, java.io.Serializable {
         if (result == null) {
             result = new Vector3f();
         }
-        
+
         // compute a random radius according to the ring area distribution
-        float inner2 = innerRadius * innerRadius, outer2 = outerRadius
-                * outerRadius, r = FastMath.sqrt(inner2
-                + FastMath.nextRandomFloat() * (outer2 - inner2)), theta = FastMath
-                .nextRandomFloat()
-                * FastMath.TWO_PI;
+        float inner2 = innerRadius * innerRadius,
+              outer2 = outerRadius * outerRadius,
+              r = FastMath.sqrt(inner2 + FastMath.nextRandomFloat() * (outer2 - inner2)),
+              theta = FastMath.nextRandomFloat() * FastMath.TWO_PI;
         up.cross(Vector3f.UNIT_X, b1);
         if (b1.lengthSquared() < FastMath.FLT_EPSILON) {
             up.cross(Vector3f.UNIT_Y, b1);
@@ -212,10 +206,8 @@ public final class Ring implements Savable, Cloneable, java.io.Serializable {
     @Override
     public void read(JmeImporter e) throws IOException {
         InputCapsule capsule = e.getCapsule(this);
-        center = (Vector3f) capsule.readSavable("center",
-                Vector3f.ZERO.clone());
-        up = (Vector3f) capsule
-                .readSavable("up", Vector3f.UNIT_Z.clone());
+        center = (Vector3f) capsule.readSavable("center", Vector3f.ZERO.clone());
+        up = (Vector3f) capsule.readSavable("up", Vector3f.UNIT_Z.clone());
         innerRadius = capsule.readFloat("innerRadius", 0f);
         outerRadius = capsule.readFloat("outerRadius", 1f);
     }

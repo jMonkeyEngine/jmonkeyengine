@@ -93,12 +93,9 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      * Constructor instantiates a new <code>Vector3f</code> with provides
      * values.
      *
-     * @param x
-     *            the x value of the vector.
-     * @param y
-     *            the y value of the vector.
-     * @param z
-     *            the z value of the vector.
+     * @param x   the x value of the vector.
+     * @param y   the y value of the vector.
+     * @param z   the z value of the vector.
      */
     public Vector3f(float x, float y, float z) {
         this.x = x;
@@ -109,6 +106,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     /**
      * Constructor instantiates a new <code>Vector3f</code> that is a copy
      * of the provided vector
+     *
      * @param copy The Vector3f to copy
      */
     public Vector3f(Vector3f copy) {
@@ -119,12 +117,9 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      * <code>set</code> sets the x,y,z values of the vector based on passed
      * parameters.
      *
-     * @param x
-     *            the x value of the vector.
-     * @param y
-     *            the y value of the vector.
-     * @param z
-     *            the z value of the vector.
+     * @param x   the x value of the vector.
+     * @param y   the y value of the vector.
+     * @param z   the z value of the vector.
      * @return this vector
      */
     public Vector3f set(float x, float y, float z) {
@@ -295,8 +290,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      * <code>cross</code> calculates the cross product of this vector with a
      * parameter vector v.
      *
-     * @param v
-     *            the vector to take the cross product of with this.
+     * @param v   the vector to take the cross product of with this.
      * @return the cross product vector.
      */
     public Vector3f cross(Vector3f v) {
@@ -307,8 +301,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      * <code>cross</code> calculates the cross product of this vector with a
      * parameter vector v.  The result is stored in <code>result</code>
      *
-     * @param v
-     *            the vector to take the cross product of with this.
+     * @param v   the vector to take the cross product of with this.
      * @param result
      *            the vector to store the cross product result.
      * @return result, after receiving the cross product vector.
@@ -346,8 +339,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      * <code>crossLocal</code> calculates the cross product of this vector
      * with a parameter vector v.
      *
-     * @param v
-     *            the vector to take the cross product of with this.
+     * @param v   the vector to take the cross product of with this.
      * @return this.
      */
     public Vector3f crossLocal(Vector3f v) {
@@ -817,6 +809,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * <code>zero</code> resets this vector's data to zero internally.
+     *
      * @return this
      */
     public Vector3f zero() {
@@ -955,8 +948,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      * are these two vectors the same? they are is they both have the same x,y,
      * and z values.
      *
-     * @param o
-     *            the object to compare for equality
+     * @param o   the object to compare for equality
      * @return true if they are equal
      */
     @Override
@@ -1080,8 +1072,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * @param index
-     * @return x value if index == 0, y value if index == 1 or z value if index ==
-     *         2
+     * @return x value if index == 0, y value if index == 1 or z value if index == 2
      * @throws IllegalArgumentException
      *             if index is not one of 0, 1, 2.
      */

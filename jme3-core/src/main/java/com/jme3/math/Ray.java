@@ -46,23 +46,20 @@ import java.io.IOException;
  * defined by the following equation: {@literal
  * R(t) = origin + t*direction for t >= 0.
  * }
+ *
  * @author Mark Powell
  * @author Joshua Slack
  */
 public final class Ray implements Savable, Cloneable, Collidable, java.io.Serializable {
-
     static final long serialVersionUID = 1;
-
-    /** 
-     * The ray's beginning point. 
+    /**
+     * The ray's beginning point.
      */
     public Vector3f origin = new Vector3f();
-    
-    /** 
-     * The direction of the ray. 
+    /**
+     * The direction of the ray.
      */
     public Vector3f direction = new Vector3f(0, 0, 1);
-    
     /**
      * The length of the ray (defaults to +Infinity).
      */
@@ -79,6 +76,7 @@ public final class Ray implements Savable, Cloneable, Collidable, java.io.Serial
     /**
      * Constructor instantiates a new <code>Ray</code> object. The origin and
      * direction are given.
+     *
      * @param origin the origin of the ray.
      * @param direction the direction the ray travels in.
      */
@@ -87,15 +85,17 @@ public final class Ray implements Savable, Cloneable, Collidable, java.io.Serial
         setDirection(direction);
     }
 
-    /**
+    /*
      * <code>intersect</code> determines if the Ray intersects a triangle.
+     *
      * @param t the Triangle to test against.
      * @return true if the ray collides.
      */
 //    public boolean intersect(Triangle t) {
 //        return intersect(t.get(0), t.get(1), t.get(2));
 //    }
-    /**
+
+    /*
      * <code>intersect</code> determines if the Ray intersects a triangle
      * defined by the specified points.
      *
@@ -110,13 +110,14 @@ public final class Ray implements Savable, Cloneable, Collidable, java.io.Serial
 //    public boolean intersect(Vector3f v0,Vector3f v1,Vector3f v2){
 //        return intersectWhere(v0, v1, v2, null);
 //    }
+
     /**
-     * <code>intersectWhere</code> determines if the Ray intersects a triangle. It then
-     * stores the point of intersection in the given loc vector
+     * <code>intersectWhere</code> determines if the Ray intersects a triangle.
+     * It then stores the point of intersection in the given loc vector
+     *
      * @param t the Triangle to test against.
-     * @param loc
-     *            storage vector to save the collision point in (if the ray
-     *            collides)
+     * @param loc storage vector to save the collision point in (if the ray
+     * collides)
      * @return true if the ray collides.
      */
     public boolean intersectWhere(Triangle t, Vector3f loc) {
@@ -363,7 +364,6 @@ public final class Ray implements Savable, Cloneable, Collidable, java.io.Serial
     }
 
     /**
-     * 
      * @param p
      * @param loc
      * @return true if the ray collides with the given Plane
@@ -437,8 +437,8 @@ public final class Ray implements Savable, Cloneable, Collidable, java.io.Serial
     }
 
     /**
-     *
      * <code>setOrigin</code> sets the origin of the ray.
+     *
      * @param origin the origin of the ray.
      */
     public void setOrigin(Vector3f origin) {
@@ -449,7 +449,7 @@ public final class Ray implements Savable, Cloneable, Collidable, java.io.Serial
      * <code>getLimit</code> returns the limit of the ray, aka the length.
      * If the limit is not infinity, then this ray is a line with length <code>
      * limit</code>.
-     * 
+     *
      * @return the limit of the ray, aka the length.
      */
     public float getLimit() {
@@ -458,16 +458,17 @@ public final class Ray implements Savable, Cloneable, Collidable, java.io.Serial
 
     /**
      * <code>setLimit</code> sets the limit of the ray.
+     *
      * @param limit the limit of the ray.
-     * @see Ray#getLimit() 
+     * @see Ray#getLimit()
      */
     public void setLimit(float limit) {
         this.limit = limit;
     }
 
     /**
-     *
      * <code>getDirection</code> retrieves the direction vector of the ray.
+     *
      * @return the direction of the ray.
      */
     public Vector3f getDirection() {
@@ -475,8 +476,8 @@ public final class Ray implements Savable, Cloneable, Collidable, java.io.Serial
     }
 
     /**
-     *
      * <code>setDirection</code> sets the direction vector of the ray.
+     *
      * @param direction the direction of the ray.
      */
     public void setDirection(Vector3f direction) {
@@ -486,7 +487,7 @@ public final class Ray implements Savable, Cloneable, Collidable, java.io.Serial
 
     /**
      * Copies information from a source ray into this ray.
-     * 
+     *
      * @param source
      *            the ray to copy information from
      */
