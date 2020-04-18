@@ -309,7 +309,8 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
 
     /**
      * <code>toAngles</code> returns this quaternion converted to Euler rotation
-     * angles (x,y,z) aka (pitch, yaw, roll).<br/>
+     * angles (x,y,z) aka (pitch, yaw, roll).
+     *
      * Note that the result is not always 100% accurate due to the implications of euler angles.
      * @see <a href="http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToEuler/index.htm">http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToEuler/index.htm</a>
      *

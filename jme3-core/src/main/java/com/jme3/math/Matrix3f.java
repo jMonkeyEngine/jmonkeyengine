@@ -1161,7 +1161,7 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
      *  0.0  1.0  0.0
      *  0.0  0.0  1.0
      * ]
-     * <pre>
+     * </pre>
      *
      * @return the string representation of this object.
      */
