@@ -84,9 +84,7 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
     public float w;
 
     /**
-     * Constructor instantiates a new <code>Vector3f</code> with default
-     * values of (0,0,0).
-     *
+     * Instantiate a <code>Vector4f</code> with the value (0,0,0,0).
      */
     public Vector4f() {
         x = y = z = w = 0;
@@ -109,10 +107,9 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Constructor instantiates a new <code>Vector3f</code> that is a copy
-     * of the provided vector
+     * Instantiate a <code>Vector4f</code> that is a copy of the provided vector.
      *
-     * @param copy The Vector3f to copy
+     * @param copy The Vector4f to copy
      */
     public Vector4f(Vector4f copy) {
         this.set(copy);
@@ -251,7 +248,7 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * <code>scaleAdd</code> multiplies this vector by a scalar then adds the
-     * given Vector3f.
+     * given Vector4f.
      *
      * @param scalar
      *            the value to multiply this vector by.
@@ -436,7 +433,7 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * <code>multLocal</code> multiplies this vector by 3 scalars
+     * <code>multLocal</code> multiplies this vector by 4 scalars
      * internally, and returns a handle to this vector for easy chaining of
      * calls.
      *
@@ -837,12 +834,12 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Saves this Vector3f into the given float[] object.
+     * Saves this Vector4f into the given float[] object.
      *
      * @param floats
-     *            The float[] to take this Vector3f. If null, a new float[3] is
+     *            The float[] to take this Vector4f. If null, a new float[4] is
      *            created.
-     * @return The array, with X, Y, Z float values in that order
+     * @return The array, with X, Y, Z, W float values in that order
      */
     public float[] toArray(float[] floats) {
         if (floats == null) {
@@ -936,7 +933,7 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
      * <code>toString</code> returns the string representation of this vector.
      * The format is:
      *
-     * org.jme.math.Vector3f [X=XX.XXXX, Y=YY.YYYY, Z=ZZ.ZZZZ, W=WW.WWWW]
+     * (XX.XXXX, YY.YYYY, ZZ.ZZZZ, WW.WWWW)
      *
      * @return the string representation of this vector.
      */
