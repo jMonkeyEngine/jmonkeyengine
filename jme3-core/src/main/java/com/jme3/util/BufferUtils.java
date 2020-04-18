@@ -144,6 +144,7 @@ public final class BufferUtils {
      *
      * @param data
      *            array of Vector3f objects to place into a new FloatBuffer
+     * @return a new direct, flipped FloatBuffer, or null if data was null
      */
     public static FloatBuffer createFloatBuffer(Vector3f... data) {
         if (data == null) {
@@ -167,6 +168,7 @@ public final class BufferUtils {
      *
      * @param data
      *            array of Quaternion objects to place into a new FloatBuffer
+     * @return a new direct, flipped FloatBuffer, or null if data was null
      */
     public static FloatBuffer createFloatBuffer(Quaternion... data) {
         if (data == null) {
@@ -190,6 +192,7 @@ public final class BufferUtils {
      *
      * @param data
      *            array of Vector4 objects to place into a new FloatBuffer
+     * @return a new direct, flipped FloatBuffer, or null if data was null
      */
     public static FloatBuffer createFloatBuffer(Vector4f... data) {
         if (data == null) {
@@ -213,6 +216,7 @@ public final class BufferUtils {
      *
      * @param data
      *            array of ColorRGBA objects to place into a new FloatBuffer
+     * @return a new direct, flipped FloatBuffer, or null if data was null
      */
     public static FloatBuffer createFloatBuffer(ColorRGBA... data) {
         if (data == null) {
@@ -235,6 +239,7 @@ public final class BufferUtils {
      *
      * @param data
      *            array of float primitives to place into a new FloatBuffer
+     * @return a new direct, flipped FloatBuffer, or null if data was null
      */
     public static FloatBuffer createFloatBuffer(float... data) {
         if (data == null) {
@@ -524,6 +529,7 @@ public final class BufferUtils {
      *
      * @param data
      *            array of Vector2f objects to place into a new FloatBuffer
+     * @return a new direct, flipped FloatBuffer, or null if data was null
      */
     public static FloatBuffer createFloatBuffer(Vector2f... data) {
         if (data == null) {
@@ -730,6 +736,7 @@ public final class BufferUtils {
      *
      * @param data
      *            array of ints to place into a new IntBuffer
+     * @return a new direct, flipped IntBuffer, or null if data was null
      */
     public static IntBuffer createIntBuffer(int... data) {
         if (data == null) {
@@ -1269,6 +1276,8 @@ public final class BufferUtils {
      * and cleans the direct buffers. However, as this doesn't happen
      * immediately after discarding all references to a direct buffer, it's easy
      * to OutOfMemoryError yourself using direct buffers.
+     *
+     * @param toBeDestroyed the buffer to de-allocate (not null)
      */
     public static void destroyDirectBuffer(Buffer toBeDestroyed) {
         if (!isDirect(toBeDestroyed)) {
