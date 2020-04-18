@@ -1015,10 +1015,10 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * <code>toString</code> returns the string representation of this vector.
+     * <code>toString</code> returns a string representation of this vector.
      * The format is:
      *
-     * org.jme.math.Vector3f [X=XX.XXXX, Y=YY.YYYY, Z=ZZ.ZZZZ]
+     * (XX.XXXX, YY.YYYY, ZZ.ZZZZ)
      *
      * @return the string representation of this vector.
      */

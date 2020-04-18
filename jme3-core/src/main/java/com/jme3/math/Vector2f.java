@@ -724,9 +724,10 @@ public final class Vector2f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * <code>toString</code> returns the string representation of this vector
-     * object. The format of the string is such: com.jme.math.Vector2f
-     * [X=XX.XXXX, Y=YY.YYYY]
+     * <code>toString</code> returns a string representation of this vector.
+     * The format is:
+     *
+     * (XX.XXXX, YY.YYYY)
      *
      * @return the string representation of this vector.
      */
