@@ -12,7 +12,6 @@ include 'jme3-terrain'
 
 // Desktop dependent java classes
 include 'jme3-desktop'
-include 'jme3-blender'
 include 'jme3-lwjgl'
 if (JavaVersion.current().isJava8Compatible()) {
     include 'jme3-lwjgl3'

@@ -1,4 +1,4 @@
-jMonkeyEngine 
+jMonkeyEngine
 =============
 
 [![Build Status](https://github.com/jMonkeyEngine/jmonkeyengine/workflows/Build%20jMonkeyEngine/badge.svg)](https://github.com/jMonkeyEngine/jmonkeyengine/actions)
@@ -37,8 +37,8 @@ Note: The master branch on GitHub is a development version of the engine and is 
  - NetBeans Platform
  - Gradle
 
-Plus a bunch of awesome libraries & tight integrations like Bullet, Blender, NiftyGUI and other goodies.
- 
+Plus a bunch of awesome libraries & tight integrations like Bullet, NiftyGUI and other goodies.
+
 ### Documentation
 
 Did you miss it? Don't sweat it, [here it is again](https://jmonkeyengine.github.io/wiki).

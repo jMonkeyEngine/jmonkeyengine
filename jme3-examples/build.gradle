@@ -18,7 +18,6 @@ task run(dependsOn: 'build', type:JavaExec) {
 }
 
 dependencies {
-    compile project(':jme3-blender')
     compile project(':jme3-core')
     compile project(':jme3-desktop')
     compile project(':jme3-effects')
