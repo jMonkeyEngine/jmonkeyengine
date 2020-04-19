@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2016 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,8 +43,8 @@ import java.nio.ByteBuffer;
  * All access methods (read/write/copy/map) are available in both sychronized/blocking versions
  * and in async/non-blocking versions. The later ones always return an {@link Event} object
  * and have the prefix -Async in their name.
- * 
- * @see Context#createBuffer(long, com.jme3.opencl.MemoryAccess) 
+ *
+ * @see Context#createBuffer(long, com.jme3.opencl.MemoryAccess)
  * @author shaman
  */
 public abstract class Buffer extends AbstractOpenCLObject {
@@ -53,21 +53,21 @@ public abstract class Buffer extends AbstractOpenCLObject {
         super(releaser);
     }
 
-	@Override
-	public Buffer register() {
-		super.register();
-		return this;
-	}
-    
+    @Override
+    public Buffer register() {
+        super.register();
+        return this;
+    }
+
     /**
      * @return the size of the buffer in bytes.
-     * @see Context#createBuffer(long) 
+     * @see Context#createBuffer(long)
      */
     public abstract long getSize();
 
     /**
      * @return the memory access flags set on creation.
-     * @see Context#createBuffer(long, com.jme3.opencl.MemoryAccess) 
+     * @see Context#createBuffer(long, com.jme3.opencl.MemoryAccess)
      */
     public abstract MemoryAccess getMemoryAccessFlags();
 
@@ -75,6 +75,7 @@ public abstract class Buffer extends AbstractOpenCLObject {
      * Performs a blocking read of the buffer.
      * The target buffer must have at least {@code size} bytes remaining.
      * This method may set the limit to the last byte read.
+     *
      * @param queue the command queue
      * @param dest the target buffer
      * @param size the size in bytes being read
@@ -102,6 +103,7 @@ public abstract class Buffer extends AbstractOpenCLObject {
      * Performs an async/non-blocking read of the buffer.
      * The target buffer must have at least {@code size} bytes remaining.
      * This method may set the limit to the last byte read.
+     *
      * @param queue the command queue
      * @param dest the target buffer
      * @param size the size in bytes being read
@@ -130,6 +132,7 @@ public abstract class Buffer extends AbstractOpenCLObject {
      * Performs a blocking write to the buffer.
      * The target buffer must have at least {@code size} bytes remaining.
      * This method may set the limit to the last byte that will be written.
+     *
      * @param queue the command queue
      * @param src the source buffer, its data is written to this buffer
      * @param size the size in bytes to write
@@ -157,6 +160,7 @@ public abstract class Buffer extends AbstractOpenCLObject {
      * Performs an async/non-blocking write to the buffer.
      * The target buffer must have at least {@code size} bytes remaining.
      * This method may set the limit to the last byte that will be written.
+     *
      * @param queue the command queue
      * @param src the source buffer, its data is written to this buffer
      * @param size the size in bytes to write
@@ -183,6 +187,7 @@ public abstract class Buffer extends AbstractOpenCLObject {
 
     /**
      * Performs a blocking copy operation from this buffer to the specified buffer.
+     *
      * @param queue the command queue
      * @param dest the target buffer
      * @param size the size in bytes to copy
@@ -209,6 +214,7 @@ public abstract class Buffer extends AbstractOpenCLObject {
 
     /**
      * Performs an async/non-blocking copy operation from this buffer to the specified buffer.
+     *
      * @param queue the command queue
      * @param dest the target buffer
      * @param size the size in bytes to copy
@@ -238,8 +244,9 @@ public abstract class Buffer extends AbstractOpenCLObject {
      * Maps this buffer directly into host memory. This might be the fastest method
      * to access the contents of the buffer since the OpenCL implementation directly
      * provides the memory.<br>
-     * <b>Important:</b> The mapped memory MUST be released by calling 
+     * <b>Important:</b> The mapped memory MUST be released by calling
      * {@link #unmap(com.jme3.opencl.CommandQueue, java.nio.ByteBuffer) }.
+     *
      * @param queue the command queue
      * @param size the size in bytes to map
      * @param offset the offset into this buffer
@@ -251,7 +258,7 @@ public abstract class Buffer extends AbstractOpenCLObject {
     /**
      * Alternative version of {@link #map(com.jme3.opencl.CommandQueue, long, long, com.jme3.opencl.MappingAccess) },
      * sets {@code offset} to zero.
-     * <b>Important:</b> The mapped memory MUST be released by calling 
+     * <b>Important:</b> The mapped memory MUST be released by calling
      * {@link #unmap(com.jme3.opencl.CommandQueue, java.nio.ByteBuffer) }.
      */
     public ByteBuffer map(CommandQueue queue, long size, MappingAccess access) {
@@ -261,7 +268,7 @@ public abstract class Buffer extends AbstractOpenCLObject {
     /**
      * Alternative version of {@link #map(com.jme3.opencl.CommandQueue, long, com.jme3.opencl.MappingAccess) },
      * sets {@code size} to {@link #getSize() }.
-     * <b>Important:</b> The mapped memory MUST be released by calling 
+     * <b>Important:</b> The mapped memory MUST be released by calling
      * {@link #unmap(com.jme3.opencl.CommandQueue, java.nio.ByteBuffer) }.
      */
     public ByteBuffer map(CommandQueue queue, MappingAccess access) {
@@ -272,6 +279,7 @@ public abstract class Buffer extends AbstractOpenCLObject {
      * Unmaps a previously mapped memory.
      * This releases the native resources and for WRITE_ONLY or READ_WRITE access,
      * the memory content is sent back to the GPU.
+     *
      * @param queue the command queue
      * @param ptr the buffer that was previously mapped
      */
@@ -281,8 +289,9 @@ public abstract class Buffer extends AbstractOpenCLObject {
      * Maps this buffer asynchronously into host memory. This might be the fastest method
      * to access the contents of the buffer since the OpenCL implementation directly
      * provides the memory.<br>
-     * <b>Important:</b> The mapped memory MUST be released by calling 
+     * <b>Important:</b> The mapped memory MUST be released by calling
      * {@link #unmap(com.jme3.opencl.CommandQueue, java.nio.ByteBuffer) }.
+     *
      * @param queue the command queue
      * @param size the size in bytes to map
      * @param offset the offset into this buffer
@@ -291,28 +300,31 @@ public abstract class Buffer extends AbstractOpenCLObject {
      * and the event indicating when the buffer contents are available
      */
     public abstract AsyncMapping mapAsync(CommandQueue queue, long size, long offset, MappingAccess access);
+
     /**
      * Alternative version of {@link #mapAsync(com.jme3.opencl.CommandQueue, long, long, com.jme3.opencl.MappingAccess) },
      * sets {@code offset} to zero.
-     * <b>Important:</b> The mapped memory MUST be released by calling 
+     * <b>Important:</b> The mapped memory MUST be released by calling
      * {@link #unmap(com.jme3.opencl.CommandQueue, java.nio.ByteBuffer) }.
      */
     public AsyncMapping mapAsync(CommandQueue queue, long size, MappingAccess access) {
         return mapAsync(queue, size, 0, access);
     }
+
     /**
      * Alternative version of {@link #mapAsync(com.jme3.opencl.CommandQueue, long, com.jme3.opencl.MappingAccess) },
      * sets {@code size} to {@link #getSize() }.
-     * <b>Important:</b> The mapped memory MUST be released by calling 
+     * <b>Important:</b> The mapped memory MUST be released by calling
      * {@link #unmap(com.jme3.opencl.CommandQueue, java.nio.ByteBuffer) }.
      */
     public AsyncMapping mapAsync(CommandQueue queue, MappingAccess access) {
         return mapAsync(queue, getSize(), 0, access);
     }
-    
+
     /**
      * Enqueues a fill operation. This method can be used to initialize or clear
      * a buffer with a certain value.
+     *
      * @param queue the command queue
      * @param pattern the buffer containing the filling pattern.
      *  The remaining bytes specify the pattern length
@@ -354,14 +366,14 @@ public abstract class Buffer extends AbstractOpenCLObject {
             return buffer;
         }
     }
-    
+
     /**
      * Copies this buffer to the specified image.
      * Note that no format conversion is done.
      * <br>
      * For detailed description of the origin and region paramenter, see the
      * documentation of the {@link Image} class.
-     * 
+     *
      * @param queue the command queue
      * @param dest the target image
      * @param srcOffset the offset in bytes into this buffer
@@ -370,7 +382,7 @@ public abstract class Buffer extends AbstractOpenCLObject {
      * @return the event object
      */
     public abstract Event copyToImageAsync(CommandQueue queue, Image dest, long srcOffset, long[] destOrigin, long[] destRegion);
-    
+
     /**
      * Aquires this buffer object for using. Only call this method if this buffer
      * represents a shared object from OpenGL, created with e.g.
@@ -379,11 +391,12 @@ public abstract class Buffer extends AbstractOpenCLObject {
      * done, the buffer must be released by calling
      * {@link #releaseBufferForSharingAsync(com.jme3.opencl.CommandQueue) }
      * so that OpenGL can use the VertexBuffer again.
+     *
      * @param queue the command queue
      * @return the event object
      */
     public abstract Event acquireBufferForSharingAsync(CommandQueue queue);
-    
+
     /**
      * Aquires this buffer object for using. Only call this method if this buffer
      * represents a shared object from OpenGL, created with e.g.
@@ -392,36 +405,37 @@ public abstract class Buffer extends AbstractOpenCLObject {
      * done, the buffer must be released by calling
      * {@link #releaseBufferForSharingAsync(com.jme3.opencl.CommandQueue) }
      * so that OpenGL can use the VertexBuffer again.
-     * 
+     *
      * The generated event object is directly released.
      * This brings a performance improvement when the resource is e.g. directly
      * used by a kernel afterwards on the same queue (this implicitly waits for
-     * this action). If you need the event, use 
+     * this action). If you need the event, use
      * {@link #acquireBufferForSharingAsync(com.jme3.opencl.CommandQueue) } instead.
-     * 
+     *
      * @param queue the command queue
      */
     public void acquireBufferForSharingNoEvent(CommandQueue queue) {
         //default implementation, overwrite for better performance
         acquireBufferForSharingAsync(queue).release();
     }
-    
+
     /**
      * Releases a shared buffer object.
      * Call this method after the buffer object was acquired by
      * {@link #acquireBufferForSharingAsync(com.jme3.opencl.CommandQueue) }
      * to hand the control back to OpenGL.
+     *
      * @param queue the command queue
      * @return the event object
      */
     public abstract Event releaseBufferForSharingAsync(CommandQueue queue);
-    
+
     /**
      * Releases a shared buffer object.
      * Call this method after the buffer object was acquired by
      * {@link #acquireBufferForSharingAsync(com.jme3.opencl.CommandQueue) }
      * to hand the control back to OpenGL.
-     * The generated event object is directly released, resulting in 
+     * The generated event object is directly released, resulting in
      * performance improvements.
      * @param queue the command queue
      */
@@ -430,9 +444,8 @@ public abstract class Buffer extends AbstractOpenCLObject {
         releaseBufferForSharingAsync(queue).release();
     }
 
-	@Override
-	public String toString() {
-		return "Buffer (" + getSize() + "B)";
-	}
-
+    @Override
+    public String toString() {
+        return "Buffer (" + getSize() + "B)";
+    }
 }
