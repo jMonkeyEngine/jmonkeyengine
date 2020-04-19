@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -63,6 +63,7 @@ import java.util.logging.Logger;
  *  <li>Created buffers and images shared with OpenGL vertex buffers, textures and renderbuffers</li>
  *  <li>Create program objects from source code and source files</li>
  * </ul>
+ *
  * @author shaman
  */
 public abstract class Context extends AbstractOpenCLObject {
@@ -72,11 +73,11 @@ public abstract class Context extends AbstractOpenCLObject {
         super(releaser);
     }
 
-	@Override
-	public Context register() {
-		super.register();
-		return this;
-	}
+    @Override
+    public Context register() {
+        super.register();
+        return this;
+    }
 
     /**
      * Returns all available devices for this context.
@@ -87,6 +88,7 @@ public abstract class Context extends AbstractOpenCLObject {
      * memory size and so on, are queried over the Device instances.
      * <br>
      * The available devices were specified by a {@link PlatformChooser}.
+     *
      * @return a list of devices
      */
     public abstract List<? extends Device> getDevices();
@@ -94,29 +96,35 @@ public abstract class Context extends AbstractOpenCLObject {
     /**
      * Alternative version of {@link #createQueue(com.jme3.opencl.Device) },
      * just uses the first device returned by {@link #getDevices() }.
+     *
      * @return the command queue
      */
     public CommandQueue createQueue() {
         return createQueue(getDevices().get(0));
     }
+
     /**
      * Creates a command queue sending commands to the specified device.
      * The device must be an entry of {@link #getDevices() }.
+     *
      * @param device the target device
      * @return the command queue
      */
-	public abstract CommandQueue createQueue(Device device);
+    public abstract CommandQueue createQueue(Device device);
 
     /**
      * Allocates a new buffer of the specific size and access type on the device.
+     *
      * @param size the size of the buffer in bytes
      * @param access the allowed access of this buffer from kernel code
      * @return the new buffer
      */
     public abstract Buffer createBuffer(long size, MemoryAccess access);
+
     /**
      * Alternative version of {@link #createBuffer(long, com.jme3.opencl.MemoryAccess) },
      * creates a buffer with read and write access.
+     *
      * @param size the size of the buffer in bytes
      * @return the new buffer
      */
@@ -129,14 +137,17 @@ public abstract class Context extends AbstractOpenCLObject {
      * specified by a ByteBuffer can then be used directly by kernel code,
      * although the access might be slower than with native buffers
      * created by {@link #createBuffer(long, com.jme3.opencl.MemoryAccess) }.
+     *
      * @param data the host buffer to use
      * @param access the allowed access of this buffer from kernel code
      * @return the new buffer
      */
     public abstract Buffer createBufferFromHost(ByteBuffer data, MemoryAccess access);
+
     /**
      * Alternative version of {@link #createBufferFromHost(java.nio.ByteBuffer, com.jme3.opencl.MemoryAccess) },
      * creates a buffer with read and write access.
+     *
      * @param data the host buffer to use
      * @return the new buffer
      */
@@ -152,14 +163,15 @@ public abstract class Context extends AbstractOpenCLObject {
      * with row and slice pitches. This buffer is then used to store the image.
      * If no ByteBuffer is specified, a new buffer is allocated (this is the
      * normal behaviour).
+     *
      * @param access the allowed access of this image from kernel code
      * @param format the image format
      * @param descr the image descriptor
      * @return the new image object
      */
     public abstract Image createImage(MemoryAccess access, ImageFormat format, ImageDescriptor descr);
-	//TODO: add simplified methods for 1D, 2D, 3D textures
-    
+    //TODO: add simplified methods for 1D, 2D, 3D textures
+
     /**
      * Queries all supported image formats for a specified memory access and
      * image type.
@@ -168,16 +180,17 @@ public abstract class Context extends AbstractOpenCLObject {
      * where {@code ImageChannelType} or {@code ImageChannelOrder} are {@code null}
      * (or both). This is the case when the device supports new formats that
      * are not included in this wrapper yet.
+     *
      * @param access the memory access type
      * @param type the image type (1D, 2D, 3D, ...)
      * @return an array of all supported image formats
      */
     public abstract ImageFormat[] querySupportedFormats(MemoryAccess access, ImageType type);
-    
-	//Interop
+
+    //Interop
     /**
-     * Creates a shared buffer from a VertexBuffer. 
-     * The returned buffer and the vertex buffer operate on the same memory, 
+     * Creates a shared buffer from a VertexBuffer.
+     * The returned buffer and the vertex buffer operate on the same memory,
      * changes in one view are visible in the other view.
      * This can be used to modify meshes directly from OpenCL (e.g. for particle systems).
      * <br>
@@ -188,6 +201,7 @@ public abstract class Context extends AbstractOpenCLObject {
      * by {@link Buffer#acquireBufferForSharingAsync(com.jme3.opencl.CommandQueue) }
      * and after modifying it, released by {@link Buffer#releaseBufferForSharingAsync(com.jme3.opencl.CommandQueue) }.
      * This is needed so that OpenGL and OpenCL operations do not interfere with each other.
+     *
      * @param vb the vertex buffer to share
      * @param access the memory access for the kernel
      * @return the new buffer
@@ -208,7 +222,7 @@ public abstract class Context extends AbstractOpenCLObject {
      * by {@link Image#acquireImageForSharingAsync(com.jme3.opencl.CommandQueue) }
      * and after modifying it, released by {@link Image#releaseImageForSharingAsync(com.jme3.opencl.CommandQueue) }
      * This is needed so that OpenGL and OpenCL operations do not interfere with each other.
-     * 
+     *
      * @param image the jME3 image object
      * @param textureType the texture type (1D, 2D, 3D), since this is not stored in the image
      * @param miplevel the mipmap level that should be shared
@@ -216,6 +230,7 @@ public abstract class Context extends AbstractOpenCLObject {
      * @return the OpenCL image
      */
     public abstract Image bindImage(com.jme3.texture.Image image, Texture.Type textureType, int miplevel, MemoryAccess access);
+
     /**
      * Creates a shared image object from a jME3 texture.
      * The returned image shares the same memory with the jME3 texture, changes
@@ -233,7 +248,7 @@ public abstract class Context extends AbstractOpenCLObject {
      * <p>
      * This method is equivalent to calling
      * {@code bindImage(texture.getImage(), texture.getType(), miplevel, access)}.
-     * 
+     *
      * @param texture the jME3 texture
      * @param miplevel the mipmap level that should be shared
      * @param access the allowed memory access for kernels
@@ -242,9 +257,11 @@ public abstract class Context extends AbstractOpenCLObject {
     public Image bindImage(Texture texture, int miplevel, MemoryAccess access) {
         return bindImage(texture.getImage(), texture.getType(), miplevel, access);
     }
+
     /**
      * Alternative version to {@link #bindImage(com.jme3.texture.Texture, int, com.jme3.opencl.MemoryAccess) },
-     * uses {@code miplevel=0}. 
+     * uses {@code miplevel=0}.
+     *
      * @param texture the jME3 texture
      * @param access the allowed memory access for kernels
      * @return the OpenCL image
@@ -252,6 +269,7 @@ public abstract class Context extends AbstractOpenCLObject {
     public Image bindImage(Texture texture, MemoryAccess access) {
         return bindImage(texture, 0, access);
     }
+
     /**
      * Creates a shared image object from a jME3 render buffer.
      * The returned image shares the same memory with the jME3 render buffer, changes
@@ -267,7 +285,7 @@ public abstract class Context extends AbstractOpenCLObject {
      * by {@link Image#acquireImageForSharingAsync(com.jme3.opencl.CommandQueue) }
      * and after modifying it, released by {@link Image#releaseImageForSharingAsync(com.jme3.opencl.CommandQueue) }
      * This is needed so that OpenGL and OpenCL operations do not interfere with each other.
-     * 
+     *
      * @param buffer
      * @param access
      * @return an image
@@ -279,22 +297,24 @@ public abstract class Context extends AbstractOpenCLObject {
             return bindImage(buffer.getTexture(), access);
         }
     }
+
     protected abstract Image bindPureRenderBuffer(FrameBuffer.RenderBuffer buffer, MemoryAccess access);
 
     /**
      * Creates a program object from the provided source code.
      * The program still needs to be compiled using {@link Program#build() }.
-     * 
+     *
      * @param sourceCode the source code
      * @return the program object
      */
     public abstract Program createProgramFromSourceCode(String sourceCode);
-    
+
     /**
      * Resolves dependencies (using {@code #include } in the source code)
      * and delegates the combined source code to
      * {@link #createProgramFromSourceCode(java.lang.String) }.
      * Important: only absolute paths are allowed.
+     *
      * @param sourceCode the original source code
      * @param assetManager the asset manager to load the files
      * @return the created program object
@@ -310,6 +330,7 @@ public abstract class Context extends AbstractOpenCLObject {
         }
         return createProgramFromSourceCode(builder.toString());
     }
+
     private void buildSourcesRec(BufferedReader reader, StringBuilder builder, AssetManager assetManager) throws IOException {
         String ln;
         while ((ln = reader.readLine()) != null) {
@@ -319,11 +340,11 @@ public abstract class Context extends AbstractOpenCLObject {
                     ln = ln.substring(1);
                 }
                 if (ln.endsWith("\"")) {
-                    ln = ln.substring(0, ln.length()-1);
+                    ln = ln.substring(0, ln.length() - 1);
                 }
                 AssetInfo info = assetManager.locateAsset(new AssetKey<String>(ln));
                 if (info == null) {
-                    throw new AssetNotFoundException("Unable to load source file \""+ln+"\"");
+                    throw new AssetNotFoundException("Unable to load source file \"" + ln + "\"");
                 }
                 try (BufferedReader r = new BufferedReader(new InputStreamReader(info.openStream()))) {
                     builder.append("//-- begin import ").append(ln).append(" --\n");
@@ -335,10 +356,10 @@ public abstract class Context extends AbstractOpenCLObject {
             }
         }
     }
-    
+
     /**
      * Creates a program object from the provided source code and files.
-     * The source code is made up from the specified include string first, 
+     * The source code is made up from the specified include string first,
      * then all files specified by the resource array (array of asset paths)
      * are loaded by the provided asset manager and appended to the source code.
      * <p>
@@ -348,10 +369,10 @@ public abstract class Context extends AbstractOpenCLObject {
      *  <li>Some common OpenCL files used as libraries (Convention: file names end with {@code .clh}</li>
      *  <li>One main OpenCL file containing the actual kernels (Convention: file name ends with {@code .cl})</li>
      * </ul>
-     * 
+     *
      * After the files were combined, additional include statements are resolved
      * by {@link #createProgramFromSourceCodeWithDependencies(java.lang.String, com.jme3.asset.AssetManager) }.
-     * 
+     *
      * @param assetManager the asset manager used to load the files
      * @param include an additional include string
      * @param resources an array of asset paths pointing to OpenCL source files
@@ -364,7 +385,7 @@ public abstract class Context extends AbstractOpenCLObject {
 
     /**
      * Creates a program object from the provided source code and files.
-     * The source code is made up from the specified include string first, 
+     * The source code is made up from the specified include string first,
      * then all files specified by the resource array (array of asset paths)
      * are loaded by the provided asset manager and appended to the source code.
      * <p>
@@ -374,10 +395,10 @@ public abstract class Context extends AbstractOpenCLObject {
      *  <li>Some common OpenCL files used as libraries (Convention: file names end with {@code .clh}</li>
      *  <li>One main OpenCL file containing the actual kernels (Convention: file name ends with {@code .cl})</li>
      * </ul>
-     * 
+     *
      * After the files were combined, additional include statements are resolved
      * by {@link #createProgramFromSourceCodeWithDependencies(java.lang.String, com.jme3.asset.AssetManager) }.
-     * 
+     *
      * @param assetManager the asset manager used to load the files
      * @param include an additional include string
      * @param resources an array of asset paths pointing to OpenCL source files
@@ -390,7 +411,7 @@ public abstract class Context extends AbstractOpenCLObject {
         for (String res : resources) {
             AssetInfo info = assetManager.locateAsset(new AssetKey<String>(res));
             if (info == null) {
-                throw new AssetNotFoundException("Unable to load source file \""+res+"\"");
+                throw new AssetNotFoundException("Unable to load source file \"" + res + "\"");
             }
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(info.openStream()))) {
                 while (true) {
@@ -401,7 +422,7 @@ public abstract class Context extends AbstractOpenCLObject {
                     str.append(line).append('\n');
                 }
             } catch (IOException ex) {
-                LOG.log(Level.WARNING, "unable to load source file '"+res+"'", ex);
+                LOG.log(Level.WARNING, "unable to load source file '" + res + "'", ex);
             }
         }
         return createProgramFromSourceCodeWithDependencies(str.toString(), assetManager);
@@ -410,6 +431,7 @@ public abstract class Context extends AbstractOpenCLObject {
     /**
      * Alternative version of {@link #createProgramFromSourceFilesWithInclude(com.jme3.asset.AssetManager, java.lang.String, java.lang.String...) }
      * with an empty include string
+     *
      * @throws AssetNotFoundException if a file could not be loaded
      */
     public Program createProgramFromSourceFiles(AssetManager assetManager, String... resources) {
@@ -419,12 +441,13 @@ public abstract class Context extends AbstractOpenCLObject {
     /**
      * Alternative version of {@link #createProgramFromSourceFilesWithInclude(com.jme3.asset.AssetManager, java.lang.String, java.util.List) }
      * with an empty include string
+     *
      * @throws AssetNotFoundException if a file could not be loaded
      */
     public Program createProgramFromSourceFiles(AssetManager assetManager, List<String> resources) {
         return createProgramFromSourceFilesWithInclude(assetManager, "", resources);
     }
-    
+
     /**
      * Creates a program from the specified binaries.
      * The binaries are created by {@link Program#getBinary(com.jme3.opencl.Device) }.
@@ -432,20 +455,19 @@ public abstract class Context extends AbstractOpenCLObject {
      * {@link Program#build(java.lang.String, com.jme3.opencl.Device...) }.
      * <b>Important:</b>The device passed to {@code Program.getBinary(..)},
      * this method and {@code Program#build(..)} must be the same.
-     * 
+     *
      * The binaries are used to build a program cache across multiple launches
      * of the application. The programs build much faster from binaries than
      * from sources.
-     * 
+     *
      * @param binaries the binaries
      * @param device the device to use
      * @return the new program
      */
     public abstract Program createProgramFromBinary(ByteBuffer binaries, Device device);
 
-	@Override
-	public String toString() {
-		return "Context (" + getDevices() + ')';
-	}
-
+    @Override
+    public String toString() {
+        return "Context (" + getDevices() + ')';
+    }
 }
