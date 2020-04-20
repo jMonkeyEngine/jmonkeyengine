@@ -70,7 +70,7 @@ public class TestUseAfterFree extends SimpleApplication {
         
         time += tpf;
         if (time > 5) {
-            System.out.println("Assiging texture to deleted object!");
+            System.out.println("Assigning texture to deleted object!");
             
             deletedTex = assetManager.loadTexture("Interface/Logo/Monkey.png");
             BufferUtils.destroyDirectBuffer(deletedTex.getImage().getData(0));
