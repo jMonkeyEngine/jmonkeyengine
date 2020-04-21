@@ -9,6 +9,7 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.shape.Quad;
+import com.jme3.system.AppSettings;
 import com.jme3.util.BufferUtils;
 
 import java.util.concurrent.Callable;
@@ -63,6 +64,10 @@ public class TestTessellationShader extends SimpleApplication {
     }
 
     public static void main(String[] args) {
-        new TestTessellationShader().start();
+        TestTessellationShader app = new TestTessellationShader();
+        AppSettings settings = new AppSettings(true);
+        settings.setRenderer(AppSettings.LWJGL_OPENGL40);
+        app.setSettings(settings);
+        app.start();
     }
 }
