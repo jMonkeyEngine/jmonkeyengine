@@ -79,7 +79,7 @@ public class MorphTrack implements AnimTrack<float[]> {
     /**
      * return the array of weights of this track
      *
-     * @return the pre-existing array
+     * @return the pre-existing array -- do not modify
      */
     public float[] getWeights() {
         return weights;
@@ -88,7 +88,7 @@ public class MorphTrack implements AnimTrack<float[]> {
     /**
      * returns the arrays of time for this track
      *
-     * @return the pre-existing array
+     * @return the pre-existing array -- do not modify
      */
     public float[] getTimes() {
         return times;
