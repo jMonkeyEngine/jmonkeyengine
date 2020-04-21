@@ -8,6 +8,7 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.shape.Sphere;
+import com.jme3.system.AppSettings;
 import com.jme3.util.BufferUtils;
 
 /**
@@ -37,6 +38,9 @@ public class TestGeometryShader extends SimpleApplication {
 
     public static void main(String[] args) {
         TestGeometryShader app = new TestGeometryShader();
+        AppSettings settings = new AppSettings(true);
+        settings.setRenderer(AppSettings.LWJGL_OPENGL33);
+        app.setSettings(settings);
         app.start();
     }
 }
