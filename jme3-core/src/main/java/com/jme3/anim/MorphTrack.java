@@ -65,8 +65,10 @@ public class MorphTrack implements AnimTrack<float[]> {
     /**
      * Creates a morph track with the given Geometry as a target
      *
-     * @param times        a float array with the time of each frame
-     * @param weights       the morphs for each frames
+     * @param times    a float array with the time of each frame (alias created
+     *                 -- do not modify after passing it to this constructor)
+     * @param weights  the morphs for each frames (alias created -- do not
+     *                 modify after passing it to this constructor)
      */
     public MorphTrack(Geometry target, float[] times, float[] weights, int nbMorphTargets) {
         this.target = target;
@@ -95,7 +97,8 @@ public class MorphTrack implements AnimTrack<float[]> {
     /**
      * Sets the keyframes times for this Joint track
      *
-     * @param times the keyframes times
+     * @param times  the keyframes times (alias created -- do not modify after
+     *               passing it to this setter)
      */
     public void setTimes(float[] times) {
         if (times.length == 0) {
@@ -109,9 +112,10 @@ public class MorphTrack implements AnimTrack<float[]> {
     /**
      * Set the weight for this morph track
      *
-     * @param times        a float array with the time of each frame
-     * @param weights      the weights of the morphs for each frame
-
+     * @param times    a float array with the time of each frame (alias created
+     *                 -- do not modify after passing it to this setter)
+     * @param weights  the weights of the morphs for each frame (alias created
+     *                 -- do not modify after passing it to this setter)
      */
     public void setKeyframes(float[] times, float[] weights) {
         setTimes(times);
@@ -211,6 +215,7 @@ public class MorphTrack implements AnimTrack<float[]> {
     @Override
     public void cloneFields(Cloner cloner, Object original) {
         this.target = cloner.clone(target);
+        // Note: interpolator, times, and weights are not cloned
     }
 
 
