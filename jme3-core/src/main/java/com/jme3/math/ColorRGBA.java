@@ -626,6 +626,18 @@ public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
+     * Converts a color from RGBA 255 values.
+     * @param r the red value in 0-255 range.
+     * @param g the green value in 0-255 range.
+     * @param b the blue value in 0-255 range.
+     * @param a the alpha value in 0-255 range.
+     * @return the ColorRGBA equivalent of the RGBA 255 color.
+     */
+    public static ColorRGBA fromRGBA255(int r, int g, int b, int a) {
+        return new ColorRGBA(r / 255.0F, g / 255.0F, b / 255.0F, a / 255.0F);
+    }
+
+    /**
      * Transform this <code>ColorRGBA</code> to a <code>Vector3f</code> using
      * x = r, y = g, z = b. The Alpha value is not used.
      * This method is useful for shader assignments.
