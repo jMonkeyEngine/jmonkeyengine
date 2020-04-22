@@ -38,6 +38,13 @@ import com.jme3.scene.shape.Box;
 import com.jme3.texture.Texture;
 import com.jme3.util.BufferUtils;
 
+/**
+ * Demonstrate what happens if you use a deleted texture with OpenGL.
+ *
+ * If assertions are enabled, an AssertionError is thrown NativeObjectManager.
+ *
+ * @author Kirill Vainer
+ */
 public class TestUseAfterFree extends SimpleApplication {
 
     private float time = 0;
