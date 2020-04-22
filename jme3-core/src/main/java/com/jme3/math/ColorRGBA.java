@@ -205,6 +205,46 @@ public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
+     * Sets the red color to the specified value.
+     * @param value the value to set the red channel.
+     * @return the ColorRGBA object with the modified value.
+     */
+    public ColorRGBA setRed(float value) {
+        r = value;
+        return this;
+    }
+
+    /**
+     * Sets the green color to the specified value.
+     * @param value the value to set the green channel.
+     * @return the ColorRGBA object with the modified value.
+     */
+    public ColorRGBA setGreen(float value) {
+        g = value;
+        return this;
+    }
+
+    /**
+     * Sets the blue color to the specified value.
+     * @param value the value to set the blue channel.
+     * @return the ColorRGBA object with the modified value.
+     */
+    public ColorRGBA setBlue(float value) {
+        b = value;
+        return this;
+    }
+
+    /**
+     * Sets the alpha color to the specified value.
+     * @param value the value to set the alpha channel.
+     * @return the ColorRGBA object with the modified value.
+     */
+    public ColorRGBA setAlpha(float value) {
+        a = value;
+        return this;
+    }
+
+    /**
      * Saturate that color ensuring all channels have a value between 0 and 1
      */
     public void clamp() {
