@@ -234,7 +234,7 @@ public class TerrainTestAdvanced extends SimpleApplication {
         hintText = new BitmapText(guiFont, false);
         hintText.setSize(guiFont.getCharSet().getRenderedSize());
         hintText.setLocalTranslation(0, getCamera().getHeight(), 0);
-        hintText.setText("Hit T to switch to wireframe,  P to switch to tri-planar texturing");
+        hintText.setText("Press T to toggle wireframe,  P to toggle tri-planar texturing");
         guiNode.attachChild(hintText);
     }
 
@@ -255,7 +255,7 @@ public class TerrainTestAdvanced extends SimpleApplication {
         public void onAction(String name, boolean pressed, float tpf) {
             if (name.equals("wireframe") && !pressed) {
                 wireframe = !wireframe;
-                if (!wireframe) {
+                if (wireframe) {
                     terrain.setMaterial(matWire);
                 } else {
                     terrain.setMaterial(matTerrain);

@@ -81,7 +81,7 @@ public class TerrainTestModifyHeight extends SimpleApplication {
     private TerrainQuad terrain;
     Material matTerrain;
     Material matWire;
-    boolean wireframe = true;
+    boolean wireframe = false;
     boolean triPlanar = false;
     boolean wardiso = false;
     boolean minnaert = false;
@@ -198,7 +198,7 @@ public class TerrainTestModifyHeight extends SimpleApplication {
         public void onAction(String name, boolean pressed, float tpf) {
             if (name.equals("wireframe") && !pressed) {
                 wireframe = !wireframe;
-                if (!wireframe) {
+                if (wireframe) {
                     terrain.setMaterial(matWire);
                 } else {
                     terrain.setMaterial(matTerrain);
