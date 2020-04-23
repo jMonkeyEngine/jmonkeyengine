@@ -42,6 +42,7 @@ import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
+import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
 import com.jme3.terrain.Terrain;
@@ -175,6 +176,7 @@ public class TerrainTestReadWrite extends SimpleApplication {
     private void createControls() {
         flyCam.setMoveSpeed(50);
         cam.setLocation(new Vector3f(0, 100, 0));
+        cam.setRotation(new Quaternion(-0.1779f, 0.821934f, -0.39033f, -0.3747f));
 
         inputManager.addMapping("save", new KeyTrigger(KeyInput.KEY_T));
         inputManager.addListener(saveActionListener, "save");
