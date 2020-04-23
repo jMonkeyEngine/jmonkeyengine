@@ -16,6 +16,7 @@ import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
+import com.jme3.math.Quaternion;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
@@ -165,6 +166,7 @@ public class TerrainGridAlphaMapTest extends SimpleApplication {
 
 
         this.getCamera().setLocation(new Vector3f(0, 256, 0));
+        cam.setRotation(new Quaternion(-0.1f, 0.89826f, -0.2695f, -0.3325f));
 
         this.viewPort.setBackgroundColor(new ColorRGBA(0.7f, 0.8f, 1f, 1f));
 

@@ -45,6 +45,7 @@ import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
 import com.jme3.material.RenderState.BlendMode;
 import com.jme3.math.ColorRGBA;
+import com.jme3.math.Quaternion;
 import com.jme3.math.Ray;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
@@ -152,7 +153,7 @@ public class TerrainTestModifyHeight extends SimpleApplication {
         rootNode.addLight(ambLight);
 
         cam.setLocation(new Vector3f(0, 256, 0));
-        cam.lookAtDirection(new Vector3f(0, -1f, 0).normalizeLocal(), Vector3f.UNIT_X);
+        cam.setRotation(new Quaternion(0.25966f, 0.690398f, -0.2952f, 0.60727f));
     }
     
     public void loadHintText() {

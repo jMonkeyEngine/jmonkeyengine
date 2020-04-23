@@ -40,6 +40,7 @@ import com.jme3.light.DirectionalLight;
 import com.jme3.light.PointLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
+import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.terrain.geomipmap.TerrainLodControl;
@@ -150,7 +151,7 @@ public class TerrainTestAndroid extends SimpleApplication {
         rootNode.addLight(light);
 
         cam.setLocation(new Vector3f(0, 10, -10));
-        cam.lookAtDirection(new Vector3f(0, -1.5f, -1).normalizeLocal(), Vector3f.UNIT_Y);
+        cam.setRotation(new Quaternion(0.01f, 0.964871f, -0.25966f, 0.0387f));
     }
 
     public void loadHintText() {
