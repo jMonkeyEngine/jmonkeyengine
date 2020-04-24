@@ -9,3 +9,4 @@ public interface AnimTrack<T> extends Savable, JmeCloneable {
     public double getLength();
 
 }
+
