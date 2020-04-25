@@ -48,6 +48,7 @@ on:
     branches:
       - master
       - newbuild
+      - v3.3
       - v3.3.*
       - v3.2
       - v3.2.*
