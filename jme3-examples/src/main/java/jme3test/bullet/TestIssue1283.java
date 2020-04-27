@@ -58,7 +58,7 @@ import com.jme3.system.AppSettings;
 import java.util.logging.Logger;
 
 /**
- * Test case for JME issue #1283: collision-group filter not applied to CCD.
+ * Test case for issue #1283: collision-group filter not applied to CCD.
  * <p>
  * Click RMB or press the "B" key to shoot a ball at the wall. In a successful
  * test, all balls will pass through the wall. If any ball rebounds, or is
