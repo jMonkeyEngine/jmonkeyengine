@@ -17,6 +17,10 @@ sourceSets {
     }
 }
 
+dependencies {
+    testCompile project(':jme3-testdata')
+}
+
 task updateVersionPropertiesFile {
     def versionFile = file('src/main/resources/com/jme3/system/version.properties')
     def versionFileText = "# THIS IS AN AUTO-GENERATED FILE..\n" +
