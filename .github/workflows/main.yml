@@ -205,7 +205,7 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: ${{ matrix.jdk }}
-          architecture: x64 
+          architecture: x64
 
       - name: Download natives for linux
         uses: actions/download-artifact@master
@@ -218,7 +218,7 @@ jobs:
         with:
           name: windows-natives
           path: build/native
-             
+
       - name: Download natives for mac
         uses: actions/download-artifact@master
         with:
@@ -350,6 +350,8 @@ jobs:
                 if [ "$NATIVE_CHANGES" = "" ];then NATIVE_CHANGES="$(git diff-tree --name-only "$GITHUB_SHA" "$nativeSnapshot"  --  jme3-android-native/)"; fi
                 if [ "$NATIVE_CHANGES" = "" ];then NATIVE_CHANGES="$(git diff-tree --name-only "$GITHUB_SHA" "$nativeSnapshot"  --  jme3-bullet-native-android/)"; fi
                 if [ "$NATIVE_CHANGES" = "" ];then NATIVE_CHANGES="$(git diff-tree --name-only "$GITHUB_SHA" "$nativeSnapshot"  --  jme3-bullet/)"; fi
+                # The bulletUrl (in gradle.properties) might have changed.
+                if [ "$NATIVE_CHANGES" = "" ];then NATIVE_CHANGES="$(git diff-tree --name-only "$GITHUB_SHA" "$nativeSnapshot"  --  gradle.properties)"; fi
               fi
             fi
 
