@@ -221,6 +221,36 @@ public class JmeDesktopSystem extends JmeSystemDelegate {
         return null;
     }
 
+    private JmeContext newContextJogl(AppSettings settings, JmeContext.Type type) {
+        try {
+            Class ctxClazz = null;
+            switch (type) {
+                case Display:
+                    ctxClazz = Class.forName("com.jme3.system.jogl.JoglNewtDisplay");
+                    break;
+                case Canvas:
+                    ctxClazz = Class.forName("com.jme3.system.jogl.JoglNewtCanvas");
+                    break;
+                case OffscreenSurface:
+                    ctxClazz = Class.forName("com.jme3.system.jogl.JoglOffscreenBuffer");
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unsupported context type " + type);
+            }
+
+            return (JmeContext) ctxClazz.newInstance();
+        } catch (InstantiationException ex) {
+            logger.log(Level.SEVERE, "Failed to create context", ex);
+        } catch (IllegalAccessException ex) {
+            logger.log(Level.SEVERE, "Failed to create context", ex);
+        } catch (ClassNotFoundException ex) {
+            logger.log(Level.SEVERE, "CRITICAL ERROR: Context class is missing!\n"
+                    + "Make sure jme3-jogl is on the classpath.", ex);
+        }
+
+        return null;
+    }
+
     private JmeContext newContextCustom(AppSettings settings, JmeContext.Type type) {
         try {
             String className = settings.getRenderer().substring("CUSTOM".length());
@@ -250,6 +280,9 @@ public class JmeDesktopSystem extends JmeSystemDelegate {
         } else if (settings.getRenderer().startsWith("LWJGL")) {
             ctx = newContextLwjgl(settings, contextType);
             ctx.setSettings(settings);
+        } else if (settings.getRenderer().startsWith("JOGL")) {
+            ctx = newContextJogl(settings, contextType);
+            ctx.setSettings(settings);
         } else if (settings.getRenderer().startsWith("CUSTOM")) {
             ctx = newContextCustom(settings, contextType);
             ctx.setSettings(settings);
@@ -267,8 +300,8 @@ public class JmeDesktopSystem extends JmeSystemDelegate {
             Class<T> clazz = (Class<T>) Class.forName(className);
             return clazz.newInstance();
         } catch (ClassNotFoundException ex) {
-            logger.log(Level.SEVERE, "CRITICAL ERROR: Audio implementation class is missing!\n"
-                                   + "Make sure jme3_lwjgl-oal is on the classpath.", ex);
+            logger.log(Level.SEVERE, "CRITICAL ERROR: Audio implementation class "
+                    + className + " is missing!\n", ex);
         } catch (IllegalAccessException ex) {
             logger.log(Level.SEVERE, "Failed to create context", ex);
         } catch (InstantiationException ex) {
@@ -289,6 +322,10 @@ public class JmeDesktopSystem extends JmeSystemDelegate {
             al = newObject("com.jme3.audio.lwjgl.LwjglAL");
             alc = newObject("com.jme3.audio.lwjgl.LwjglALC");
             efx = newObject("com.jme3.audio.lwjgl.LwjglEFX");
+        } else if (settings.getAudioRenderer().startsWith("JOAL")) {
+            al = newObject("com.jme3.audio.joal.JoalAL");
+            alc = newObject("com.jme3.audio.joal.JoalALC");
+            efx = newObject("com.jme3.audio.joal.JoalEFX");
         } else {
             throw new UnsupportedOperationException(
                     "Unrecognizable audio renderer specified: "

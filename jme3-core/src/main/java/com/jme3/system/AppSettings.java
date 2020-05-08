@@ -237,6 +237,33 @@ public final class AppSettings extends HashMap<String, Object> {
      * @see AppSettings#setAudioRenderer(java.lang.String)
      */
     public static final String ANDROID_OPENAL_SOFT = "OpenAL_SOFT";
+    
+    /**
+     * Use JogAmp's JOGL as the display system, with the OpenGL forward compatible profile
+     * <p>
+     * N.B: This backend is EXPERIMENTAL
+     *
+     * @see AppSettings#setRenderer(java.lang.String)
+     */
+    public static final String JOGL_OPENGL_FORWARD_COMPATIBLE = "JOGL_OPENGL_FORWARD_COMPATIBLE";
+    
+    /**
+     * Use JogAmp's JOGL as the display system, with the backward compatible profile
+     * <p>
+     * N.B: This backend is EXPERIMENTAL
+     *
+     * @see AppSettings#setRenderer(java.lang.String)
+     */
+    public static final String JOGL_OPENGL_BACKWARD_COMPATIBLE = "JOGL_OPENGL_BACKWARD_COMPATIBLE";
+    
+    /**
+     * Use JogAmp's JOAL as the audio renderer.
+     * <p>
+     * N.B: This backend is EXPERIMENTAL
+     *
+     * @see AppSettings#setAudioRenderer(java.lang.String)
+     */
+    public static final String JOAL = "JOAL";
 
     static {
         defaults.put("Width", 640);
@@ -644,6 +671,8 @@ public final class AppSettings extends HashMap<String, Object> {
      * <li>AppSettings.LWJGL_OPENGL3 - Force OpenGL3.3 compatability</li>
      * <li>AppSettings.LWJGL_OPENGL_ANY - Choose an appropriate
      * OpenGL version based on system capabilities</li>
+     * <li>AppSettings.JOGL_OPENGL_BACKWARD_COMPATIBLE</li>
+     * <li>AppSettings.JOGL_OPENGL_FORWARD_COMPATIBLE</li>
      * <li>null - Disable graphics rendering</li>
      * </ul>
      * @param renderer The renderer to set
@@ -667,6 +696,7 @@ public final class AppSettings extends HashMap<String, Object> {
      * Set the audio renderer to use. One of:<br>
      * <ul>
      * <li>AppSettings.LWJGL_OPENAL - Default for LWJGL</li>
+     * <li>AppSettings.JOAL</li>
      * <li>null - Disable audio</li>
      * </ul>
      * @param audioRenderer
