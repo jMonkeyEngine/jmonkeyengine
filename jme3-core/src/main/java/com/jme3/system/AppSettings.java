@@ -284,7 +284,7 @@ public final class AppSettings extends HashMap<String, Object> {
         defaults.put("SettingsDialogImage", "/com/jme3/app/Monkey.png");
         defaults.put("MinHeight", 0);
         defaults.put("MinWidth", 0);
-        defaults.put("GammaCorrection", false);
+        defaults.put("GammaCorrection", true);
         defaults.put("Resizable", false);
         defaults.put("SwapBuffers", true);
         defaults.put("OpenCL", false);
@@ -916,11 +916,13 @@ public final class AppSettings extends HashMap<String, Object> {
     }
 
     /**
-     * Enables Gamma Correction
-     * This requires that the GPU supports GL_ARB_framebuffer_sRGB and will
-     * disabled otherwise.
-     * @param gammaCorrection
-     * (Default : true)
+     * Enable or disable gamma correction. If enabled, the main framebuffer will
+     * be configured for sRGB colors, and sRGB images will be linearized.
+     *
+     * Gamma correction requires a GPU that supports GL_ARB_framebuffer_sRGB;
+     * otherwise this setting will be ignoreded.
+     *
+     * @param gammaCorrection true to enable, false to disable (Default : true)
      */
     public void setGammaCorrection(boolean gammaCorrection) {
         putBoolean("GammaCorrection", gammaCorrection);
@@ -1095,10 +1097,15 @@ public final class AppSettings extends HashMap<String, Object> {
         return getString("SettingsDialogImage");
     }
 
+    /**
+     * Test whether gamma correction should be enabled.
+     *
+     * @return true for enabled, false for disabled
+     */
     public boolean isGammaCorrection() {
         return getBoolean("GammaCorrection");
     }
-    
+
     /**
      * Allows the display window to be resized by dragging its edges.
      * 
