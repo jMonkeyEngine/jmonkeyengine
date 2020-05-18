@@ -279,7 +279,7 @@ public final class AppSettings extends HashMap<String, Object> {
         defaults.put("AudioRenderer", LWJGL_OPENAL);
         defaults.put("DisableJoysticks", true);
         defaults.put("UseInput", true);
-        defaults.put("VSync", false);
+        defaults.put("VSync", true);
         defaults.put("FrameRate", -1);
         defaults.put("SettingsDialogImage", "/com/jme3/app/Monkey.png");
         defaults.put("MinHeight", 0);
@@ -862,10 +862,10 @@ public final class AppSettings extends HashMap<String, Object> {
     }
 
     /**
-     * Set to true to enable vertical-synchronization, limiting and synchronizing
-     * every frame rendered to the monitor's refresh rate.
-     * @param value
-     * (Default: false)
+     * Enable or disable vertical synchronization. If enabled, rendering will be
+     * synchronized with the display's refresh interval.
+     *
+     * @param value true to enable, false to disable (Default : true)
      */
     public void setVSync(boolean value) {
         putBoolean("VSync", value);
@@ -1042,7 +1042,9 @@ public final class AppSettings extends HashMap<String, Object> {
     }
 
     /**
-     * Get the vsync state
+     * Test whether vertical synchronization should be enabled.
+     *
+     * @return true for enabled, false for disabled
      * @see #setVSync(boolean)
      */
     public boolean isVSync() {
