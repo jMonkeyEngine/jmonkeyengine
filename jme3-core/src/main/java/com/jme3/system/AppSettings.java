@@ -920,7 +920,7 @@ public final class AppSettings extends HashMap<String, Object> {
      * be configured for sRGB colors, and sRGB images will be linearized.
      *
      * Gamma correction requires a GPU that supports GL_ARB_framebuffer_sRGB;
-     * otherwise this setting will be ignoreded.
+     * otherwise this setting will be ignored.
      *
      * @param gammaCorrection true to enable, false to disable (Default : true)
      */
