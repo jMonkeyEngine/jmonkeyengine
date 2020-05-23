@@ -263,7 +263,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     /**
      * <code>fromAngles</code> builds a Quaternion from the Euler rotation
      * angles (x,y,z) aka (pitch, yaw, roll)).
-     * Note that we are applying in order: (y, z, x) aka (yaw, roll, pitch)
+     * Note that we are applying in order: (y, x, z) aka (yaw, pitch, roll)
      * but we've ordered them in x, y, and z for convenience.
      *
      * @see <a href="http://www.euclideanspace.com/maths/geometry/rotations/conversions/eulerToQuaternion/index.htm">http://www.euclideanspace.com/maths/geometry/rotations/conversions/eulerToQuaternion/index.htm</a>
