@@ -125,6 +125,26 @@ public class AnimComposer extends AbstractControl {
         return currentAction;
     }
     
+    public Action getCurrentAction(String name) {
+        return getCurrentAction(name, DEFAULT_LAYER);
+    }
+    
+    /**
+     * Return current action on specified layer.
+     * 
+     * @param actionName The name of the action to run.
+     * @param layerName The layer on which action should run.
+     * @return The action corresponding to the given name.
+     */
+    public Action getCurrentAction(String actionName, String layerName) {
+        Layer l = layers.get(layerName);
+        if (l == null) {
+            throw new IllegalArgumentException("Unknown layer " + layerName);
+        }
+        
+        return l.currentAction;
+    }
+    
     /**
      * Remove current action on specified layer.
      *
