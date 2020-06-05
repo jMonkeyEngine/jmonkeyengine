@@ -145,6 +145,10 @@ public class AnimComposer extends AbstractControl {
         return l.currentAction;
     }
     
+    public void removeCurrentAction() {
+        removeCurrentAction(DEFAULT_LAYER);
+    }
+    
     /**
      * Remove current action on specified layer.
      *
