@@ -164,6 +164,10 @@ public class AnimComposer extends AbstractControl {
         l.currentAction = null;
     }
     
+    public double getTime() {
+        return getTime(DEFAULT_LAYER);
+    }
+    
     /**
      * Returns current time of the specified layer.
      */
