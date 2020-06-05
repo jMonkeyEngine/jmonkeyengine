@@ -174,6 +174,10 @@ public class AnimComposer extends AbstractControl {
         }
         return l.time;
     }
+    
+    public void setTime(double time) {
+        setTime(DEFAULT_LAYER, time);
+    }
 
     /**
      * Sets current time on the specified layer. 
