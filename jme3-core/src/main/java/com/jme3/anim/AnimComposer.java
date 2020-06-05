@@ -49,7 +49,7 @@ import java.util.*;
 
 /**
  * AnimComposer is a Spatial control that allows manipulation of
- * armament (skeletal) animation.
+ * {@link Armature armature} (skeletal) animation.
  * 
  * @author Nehon
  */
