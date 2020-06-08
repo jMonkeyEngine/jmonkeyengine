@@ -77,7 +77,7 @@ class ColorTags {
         }
         Matcher m = colorPattern.matcher(charSeq);
         if (m.find()) {
-            StringBuilder builder = new StringBuilder(charSeq.length()-7);
+            StringBuilder builder = new StringBuilder();
             int startIndex = 0;
             do {
                 String colorStr = null;
