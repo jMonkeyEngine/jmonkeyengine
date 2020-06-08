@@ -1533,17 +1533,19 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
     /**
      * Remove the given MorphTarget from the Mesh
      * @param target The MorphTarget to remove
+     * @return If the MorphTarget was removed
      */
-    public void removeMorphTarget(MorphTarget target) {
-        morphTargets.remove(target);
+    public boolean removeMorphTarget(MorphTarget target) {
+        return morphTargets.remove(target);
     }
 
     /**
      * Remove the MorphTarget from the Mesh at the given index
      * @param index Index of the MorphTarget to remove
+     * @return The MorphTarget that was removed
      */
-    public void removeMorphTarget(int index) {
-        morphTargets.remove(index);
+    public MorphTarget removeMorphTarget(int index) {
+        return morphTargets.remove(index);
     }
 
     /**
