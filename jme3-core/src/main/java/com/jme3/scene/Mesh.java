@@ -1536,7 +1536,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
      * @return If the MorphTarget was removed
      */
     public boolean removeMorphTarget(MorphTarget target) {
-        return morphTargets != null ? morphTargets.remove(target) : null;
+        return morphTargets != null ? morphTargets.remove(target) : false;
     }
 
     /**
