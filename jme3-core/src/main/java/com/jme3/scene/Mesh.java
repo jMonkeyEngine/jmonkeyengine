@@ -1530,6 +1530,41 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
         morphTargets.add(target);
     }
 
+    /**
+     * Remove the given MorphTarget from the Mesh
+     * @param target The MorphTarget to remove
+     * @return If the MorphTarget was removed
+     */
+    public boolean removeMorphTarget(MorphTarget target) {
+        return morphTargets != null ? morphTargets.remove(target) : false;
+    }
+
+    /**
+     * Remove the MorphTarget from the Mesh at the given index
+     * @throws IndexOutOfBoundsException if the index outside the number of morph targets
+     * @param index Index of the MorphTarget to remove
+     * @return The MorphTarget that was removed
+     */
+    public MorphTarget removeMorphTarget(int index) {
+        if (morphTargets == null) {
+            throw new IndexOutOfBoundsException("Index:" + index + ", Size:0");
+        }
+        return morphTargets.remove(index);
+    }
+
+    /**
+     * Get the MorphTarget at the given index
+     * @throws IndexOutOfBoundsException if the index outside the number of morph targets
+     * @param index The index of the morph target to get
+     * @return The MorphTarget at the index
+     */
+    public MorphTarget getMorphTarget(int index) {
+        if (morphTargets == null) {
+            throw new IndexOutOfBoundsException("Index:" + index + ", Size:0");
+        }
+        return morphTargets.get(index);
+    }
+
     public MorphTarget[] getMorphTargets() {
         if (morphTargets == null) {
             return new MorphTarget[0];
