@@ -126,7 +126,7 @@ public class DistanceLodCalculator implements LodCalculator {
     public void read(JmeImporter im) throws IOException {
         InputCapsule ic = im.getCapsule(this);
         size = ic.readInt("patchSize", 32);
-        lodMultiplier = ic.readFloat("lodMultiplier", 2.7f);
+        lodMultiplier = ic.readFloat("lodMultiplier", 32f);
     }
 
     @Override
