@@ -50,7 +50,8 @@ test {
 jar {
     manifest {
         attributes 'Implementation-Title': 'jMonkeyEngine',
-                   'Implementation-Version': jmeFullVersion
+                   'Implementation-Version': jmeFullVersion,
+                   'Automatic-Module-Name': "${project.name.replace("-", ".")}" 
     }
 }
 
