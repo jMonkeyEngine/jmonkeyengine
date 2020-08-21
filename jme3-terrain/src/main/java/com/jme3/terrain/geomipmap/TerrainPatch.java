@@ -975,7 +975,11 @@ public class TerrainPatch extends Geometry {
         // not to clone it.  Terrain uses mutable textures and stuff so it's important
         // to clone it.  (At least that's my understanding and is evidenced by the old
         // clone code specifically cloning material.)  -pspeed
-        this.material = material.clone();
+        if (material.clone() == null) {
+            throw new NullPointerException("Cannot clone a null material!");
+        } else {
+            this.material = material.clone();
+        }
     }
 
     protected void ensurePositiveVolumeBBox() {
