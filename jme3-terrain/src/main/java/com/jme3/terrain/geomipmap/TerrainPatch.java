@@ -931,6 +931,9 @@ public class TerrainPatch extends Geometry {
 
     @Override
     public TerrainPatch clone() {
+        // Note: this method should probably be using JmeCloner instead of manually
+        // cloning.  -pspeed:2020-08-21
+
         TerrainPatch clone = new TerrainPatch();
         clone.name = name.toString();
         clone.size = size;
@@ -946,7 +949,7 @@ public class TerrainPatch extends Geometry {
         clone.setLocalTranslation(getLocalTranslation().clone());
         Mesh m = clone.geomap.createMesh(clone.stepScale, Vector2f.UNIT_XY, clone.offset, clone.offsetAmount, clone.totalSize, false);
         clone.setMesh(m);
-        clone.setMaterial(material.clone());
+        clone.setMaterial(material == null ? null : material.clone());
         return clone;
     }
 
@@ -975,7 +978,9 @@ public class TerrainPatch extends Geometry {
         // not to clone it.  Terrain uses mutable textures and stuff so it's important
         // to clone it.  (At least that's my understanding and is evidenced by the old
         // clone code specifically cloning material.)  -pspeed
-        this.material = material.clone();
+        // Also note that Geometry will have potentially already cloned this but the pre-JmeCloner
+        // code didn't care about that extra garbage, either. -pspeed:2020-08-21
+        this.material = material == null ? null : material.clone();
     }
 
     protected void ensurePositiveVolumeBBox() {
