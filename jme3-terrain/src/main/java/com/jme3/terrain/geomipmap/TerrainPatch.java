@@ -976,7 +976,7 @@ public class TerrainPatch extends Geometry {
         // to clone it.  (At least that's my understanding and is evidenced by the old
         // clone code specifically cloning material.)  -pspeed
         if (this.material == null) {
-            throw new NullPointerException("Make sure you have set a Material before cloning the TerrainPatch");
+// Cannot clone if null
         } else {
             this.material = material.clone();
         }
