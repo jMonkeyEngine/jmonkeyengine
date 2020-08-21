@@ -167,13 +167,13 @@ public interface Application {
 
     /**
      * Starts the application.
-     * A bug occuring when using the LWJGL3 prevents the method from returning until after #stop() is called.
+     * A bug occuring when using LWJGL3 prevents this method from returning until after the application is stopped.
      */
     public void start();
 
     /**
      * Starts the application.
-     * A bug occuring when using the LWJGL3 prevents the method from returning until after #stop() is called.
+     * A bug occuring when using LWJGL3 prevents this method from returning until after the application is stopped.
      */
     public void start(boolean waitFor);
 
