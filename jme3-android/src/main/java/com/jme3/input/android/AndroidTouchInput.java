@@ -162,7 +162,6 @@ public class AndroidTouchInput implements TouchInput {
 
         boolean bWasHandled = false;
         TouchEvent touch = null;
-        //    System.out.println("native : " + event.getAction());
         int action = getAction(event);
         int pointerIndex = getPointerIndex(event);
         int pointerId = getPointerId(event);
