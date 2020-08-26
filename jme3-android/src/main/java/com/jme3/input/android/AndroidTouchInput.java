@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2012 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -131,8 +131,8 @@ public class AndroidTouchInput implements TouchInput {
 
         // view width and height are 0 until the view is displayed on the screen
         if (androidInput.getView().getWidth() != 0 && androidInput.getView().getHeight() != 0) {
-            scaleX = settings.getWidth() / (float)androidInput.getView().getWidth();
-            scaleY = settings.getHeight() / (float)androidInput.getView().getHeight();
+            scaleX = (float)settings.getWidth() / (float)androidInput.getView().getWidth();
+            scaleY = (float)settings.getHeight() / (float)androidInput.getView().getHeight();
         }
         logger.log(Level.FINE, "Setting input scaling, scaleX: {0}, scaleY: {1}",
                 new Object[]{scaleX, scaleY});
@@ -314,36 +314,26 @@ public class AndroidTouchInput implements TouchInput {
 
         TouchEvent evt;
         // TODO: get touch event from pool
-        switch (event.getAction()) {
-            case KeyEvent.ACTION_DOWN:
+        if (event.getAction() == KeyEvent.ACTION_DOWN) {
             evt = new TouchEvent();
             evt.set(TouchEvent.Type.KEY_DOWN);
             evt.setKeyCode(event.getKeyCode());
             evt.setCharacters(event.getCharacters());
             evt.setTime(event.getEventTime());
+
             // Send the event
             addEvent(evt);
-                break;
-            case KeyEvent.ACTION_UP:
+
+        } else if (event.getAction() == KeyEvent.ACTION_UP) {
             evt = new TouchEvent();
             evt.set(TouchEvent.Type.KEY_UP);
             evt.setKeyCode(event.getKeyCode());
             evt.setCharacters(event.getCharacters());
             evt.setTime(event.getEventTime());
+
             // Send the event
             addEvent(evt);
-                break;
-            case KeyEvent.ACTION_MULTIPLE:
-                evt = new TouchEvent();
-                evt.set(TouchEvent.Type.KEY_MULTIPLE);
-                evt.setKeyCode(event.getKeyCode());
-                evt.setCharacters(event.getCharacters());
-                evt.setTime(event.getEventTime());
-                // Send the event
-                addEvent(evt);
-                break;
-            default:
-                break;
+
         }
 
         if (isSimulateKeyboard()) {
