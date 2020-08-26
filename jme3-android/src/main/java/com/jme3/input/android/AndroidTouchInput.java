@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -62,6 +62,7 @@ import java.util.logging.Logger;
  *
  * @author iwgeric
  */
+
 public class AndroidTouchInput implements TouchInput {
     private static final Logger logger = Logger.getLogger(AndroidTouchInput.class.getName());
 
