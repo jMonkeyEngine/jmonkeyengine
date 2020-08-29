@@ -48,8 +48,11 @@ import com.jme3.texture.Texture2D;
 import com.jme3.util.IntMap;
 import com.jme3.util.mikktspace.MikktspaceTangentGenerator;
 import java.io.*;
+import java.net.URI;
+import java.net.URLDecoder;
 import java.nio.Buffer;
 import java.nio.FloatBuffer;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -589,11 +592,12 @@ public class GltfLoader implements AssetLoader {
                 data = Base64.getDecoder().decode(uri.substring(uri.indexOf(",") + 1));
             } else {
                 //external file let's load it
-                if (!uri.endsWith(".bin")) {
-                    throw new AssetLoadException("Cannot load " + uri + ", a .bin extension is required.");
+                String decoded = decodeUri(uri);
+                if (!decoded.endsWith(".bin")) {
+                    throw new AssetLoadException("Cannot load " + decoded + ", a .bin extension is required.");
                 }
 
-                BinDataKey key = new BinDataKey(info.getKey().getFolder() + uri);
+                BinDataKey key = new BinDataKey(info.getKey().getFolder() + decoded);
                 InputStream input = (InputStream) info.getManager().loadAsset(key);
                 data = new byte[bufferLength];
                 DataInputStream dataStream = new DataInputStream(input);
@@ -764,7 +768,8 @@ public class GltfLoader implements AssetLoader {
             result = (Texture2D) info.getManager().loadAssetFromStream(key, new ByteArrayInputStream(data));
         } else {
             //external file image
-            TextureKey key = new TextureKey(info.getKey().getFolder() + uri, flip);
+            String decoded = decodeUri(uri);
+            TextureKey key = new TextureKey(info.getKey().getFolder() + decoded, flip);
             Texture tex = info.getManager().loadTexture(key);
             result = (Texture2D) tex;
         }
@@ -1184,6 +1189,14 @@ public class GltfLoader implements AssetLoader {
 
     public Node getRootNode() {
         return rootNode;
+    }
+
+    private String decodeUri(String uri) {
+        try {
+            return URLDecoder.decode(uri.replace("+", "%2B"), "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            return uri; //This would mean that UTF-8 is unsupported on the platform.
+        }
     }
 
     public static class WeightData {
