@@ -48,11 +48,9 @@ import com.jme3.texture.Texture2D;
 import com.jme3.util.IntMap;
 import com.jme3.util.mikktspace.MikktspaceTangentGenerator;
 import java.io.*;
-import java.net.URI;
 import java.net.URLDecoder;
 import java.nio.Buffer;
 import java.nio.FloatBuffer;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -439,7 +437,7 @@ public class GltfLoader implements AssetLoader {
                     targetNames.add(target.getAsString());
                 }
             }
-            
+
             //Read morph targets
             JsonArray targets = meshObject.getAsJsonArray("targets");
             if(targets != null){
@@ -459,7 +457,7 @@ public class GltfLoader implements AssetLoader {
                     mesh.addMorphTarget(morphTarget);
                 }
             }
-        
+
             //Read mesh extras
             mesh = customContentManager.readExtensionAndExtras("primitive", meshObject, mesh);
 
@@ -1131,7 +1129,7 @@ public class GltfLoader implements AssetLoader {
 //                    skinData.rootBoneTransformOffset.combineWithParent(skinData.parent.getWorldTransform());
 //                }
 //            }
-            
+
             if (skinData.animComposer != null && skinData.animComposer.getSpatial() == null) {
                 spatial.addControl(skinData.animComposer);
             }
