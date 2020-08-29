@@ -437,7 +437,7 @@ public class GltfLoader implements AssetLoader {
                     targetNames.add(target.getAsString());
                 }
             }
-
+            
             //Read morph targets
             JsonArray targets = meshObject.getAsJsonArray("targets");
             if(targets != null){
@@ -457,7 +457,7 @@ public class GltfLoader implements AssetLoader {
                     mesh.addMorphTarget(morphTarget);
                 }
             }
-
+        
             //Read mesh extras
             mesh = customContentManager.readExtensionAndExtras("primitive", meshObject, mesh);
 
@@ -1129,7 +1129,7 @@ public class GltfLoader implements AssetLoader {
 //                    skinData.rootBoneTransformOffset.combineWithParent(skinData.parent.getWorldTransform());
 //                }
 //            }
-
+            
             if (skinData.animComposer != null && skinData.animComposer.getSpatial() == null) {
                 spatial.addControl(skinData.animComposer);
             }
