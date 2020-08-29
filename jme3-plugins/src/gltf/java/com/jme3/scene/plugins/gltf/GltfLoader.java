@@ -1191,7 +1191,7 @@ public class GltfLoader implements AssetLoader {
 
     private String decodeUri(String uri) {
         try {
-            return URLDecoder.decode(uri.replace("+", "%2B"), "UTF-8");
+            return URLDecoder.decode(uri, "UTF-8");
         } catch (UnsupportedEncodingException e) {
             return uri; //This would mean that UTF-8 is unsupported on the platform.
         }
