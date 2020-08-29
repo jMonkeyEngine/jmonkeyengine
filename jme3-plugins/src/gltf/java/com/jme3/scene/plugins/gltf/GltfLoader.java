@@ -1428,4 +1428,3 @@ public class GltfLoader implements AssetLoader {
     }
 
 }
-
