@@ -159,10 +159,10 @@ public class Easing {
         public float apply(float value) {
             if (value < 0.5) {
                 value = value * 2;
-                return inQuad.apply(value) / 2;
+                return in.apply(value) / 2;
             } else {
                 value = (value - 0.5f) * 2;
-                return outQuad.apply(value) / 2 + 0.5f;
+                return out.apply(value) / 2 + 0.5f;
             }
         }
     }
