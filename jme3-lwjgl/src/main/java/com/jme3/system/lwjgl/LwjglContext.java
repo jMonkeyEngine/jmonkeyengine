@@ -91,7 +91,18 @@ public abstract class LwjglContext implements JmeContext {
     
     protected LwjglPlatform clPlatform;
     protected com.jme3.opencl.lwjgl.LwjglContext clContext;
+    protected LwjglDevice aDevice;
 
+    public String getDeviceName() {
+        return aDevice.getName();
+    }
+    public String getDeviceVersion() {
+        return aDevice.getVersion();
+    }
+    public String getDeviceProfile() {
+        return aDevice.getProfile();
+    }
+    
     @Override
     public void setSystemListener(SystemListener listener) {
         this.listener = listener;
@@ -341,6 +352,7 @@ public abstract class LwjglContext implements JmeContext {
             platformInfos.append("\n *   Available devices:");
             for (int j=0; j<devices.size(); ++j) {
                 LwjglDevice device = devices.get(j);
+                aDevice = device;
                 platformInfos.append("\n *    * Device ").append(j+1);
                 platformInfos.append("\n *    *   Name: ").append(device.getName());
                 platformInfos.append("\n *    *   Vendor: ").append(device.getVendor());
