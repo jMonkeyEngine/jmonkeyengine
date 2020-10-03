@@ -204,8 +204,8 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
      * interpolate from t1 to t2.
      */
     public void interpolateTransforms(Transform t1, Transform t2, float delta) {
-        t1.rot.nlerp(t2.rot, delta);
-        this.rot.set(t1.rot);
+        this.rot.set(t1.rot); 
+        this.rot.nlerp(t2.rot, delta);
         this.translation.interpolateLocal(t1.translation, t2.translation, delta);
         this.scale.interpolateLocal(t1.scale, t2.scale, delta);
     }
