@@ -1635,11 +1635,16 @@ public final class GLRenderer implements Renderer {
      |* Framebuffers                                                      *|
      \*********************************************************************/
     public void copyFrameBuffer(FrameBuffer src, FrameBuffer dst) {
-        copyFrameBuffer(src, dst, true);
+        copyFrameBuffer(src, dst, true, true);
     }
 
     @Override
     public void copyFrameBuffer(FrameBuffer src, FrameBuffer dst, boolean copyDepth) {
+        copyFrameBuffer(src, dst, true, copyDepth);
+    }
+
+    @Override
+    public void copyFrameBuffer(FrameBuffer src, FrameBuffer dst, boolean copyColor,boolean copyDepth) {
         if (caps.contains(Caps.FrameBufferBlit)) {
             int srcX0 = 0;
             int srcY0 = 0;
@@ -1692,7 +1697,13 @@ public final class GLRenderer implements Renderer {
                 dstX1 = dst.getWidth();
                 dstY1 = dst.getHeight();
             }
-            int mask = GL.GL_COLOR_BUFFER_BIT;
+            
+            int mask = 0;
+            
+            if(copyColor){
+                mask|=GL.GL_COLOR_BUFFER_BIT;
+            }
+
             if (copyDepth) {
                 mask |= GL.GL_DEPTH_BUFFER_BIT;
             }

@@ -56,7 +56,7 @@ import java.util.ArrayList;
  * depth testing (which requires a depth buffer).
  * Buffers can be copied to other framebuffers
  * including the main screen, by using
- * {@link Renderer#copyFrameBuffer(com.jme3.texture.FrameBuffer, com.jme3.texture.FrameBuffer, boolean)}.
+ * {@link Renderer#copyFrameBuffer(com.jme3.texture.FrameBuffer, com.jme3.texture.FrameBuffer, boolean, boolean)}.
  * The content of a {@link RenderBuffer} can be retrieved by using
  * {@link Renderer#readFrameBuffer(com.jme3.texture.FrameBuffer, java.nio.ByteBuffer) }.
  * <p>
