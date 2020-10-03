@@ -49,6 +49,7 @@ import com.jme3.scene.Node;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image.Format;
 import com.jme3.texture.Texture2D;
+import com.jme3.texture.FrameBuffer.FrameBufferTarget;
 import com.jme3.ui.Picture;
 
 public class TestMultiRenderTarget extends SimpleApplication implements SceneProcessor {
@@ -177,10 +178,10 @@ public class TestMultiRenderTarget extends SimpleApplication implements ScenePro
         guiNode.updateGeometricState();
         
         fb = new FrameBuffer(w, h, 1);
-        fb.setDepthTexture(depthData);
-        fb.addColorTexture(diffuseData);
-        fb.addColorTexture(normalData);
-        fb.addColorTexture(specularData);
+        fb.setDepthTarget(FrameBufferTarget.newTarget(depthData));
+        fb.addColorTarget(FrameBufferTarget.newTarget(diffuseData));
+        fb.addColorTarget(FrameBufferTarget.newTarget(normalData));
+        fb.addColorTarget(FrameBufferTarget.newTarget(specularData));
         fb.setMultiTarget(true);
 
         /*
