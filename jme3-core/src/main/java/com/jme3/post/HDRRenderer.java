@@ -364,7 +364,7 @@ public class HDRRenderer implements SceneProcessor {
 //            renderManager.renderViewPortRaw(viewPort);
 
             // render back to non-multisampled FB
-            renderer.copyFrameBuffer(msFB, mainSceneFB, true);
+            renderer.copyFrameBuffer(msFB, mainSceneFB, true, true);
         }else{
 //            renderer.setFrameBuffer(mainSceneFB);
 //            renderer.clearBuffers(true,true,false);

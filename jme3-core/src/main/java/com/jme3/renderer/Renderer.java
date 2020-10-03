@@ -184,11 +184,21 @@ public interface Renderer {
      */
     public void deleteShaderSource(ShaderSource source);
 
+
+    
     /**
      * Copies contents from src to dst, scaling if necessary.
      * set copyDepth to false to only copy the color buffers.
+     * @deprecated  Use {@link Renderer#copyFrameBuffer(com.jme3.texture.FrameBuffer, com.jme3.texture.FrameBuffer, boolean, boolean)}.
      */
-    public void copyFrameBuffer(FrameBuffer src, FrameBuffer dst, boolean copyDepth);
+    @Deprecated public void copyFrameBuffer(FrameBuffer src, FrameBuffer dst, boolean copyDepth);
+
+
+    /**
+     * Copies contents from src to dst, scaling if necessary.
+    */
+    public void copyFrameBuffer(FrameBuffer src, FrameBuffer dst, boolean copyColor, boolean copyDepth);
+
 
     /**
      * Sets the framebuffer that will be drawn to.
