@@ -1825,12 +1825,12 @@ public final class GLRenderer implements Renderer {
                     convertAttachmentSlot(rb.getSlot()),
                     convertTextureType(tex.getType(), image.getMultiSamples(), rb.getFace()),
                     image.getId(),
-                    0);
+                    rb.getLevel());
         } else {
             glfbo.glFramebufferTextureLayerEXT(GLFbo.GL_FRAMEBUFFER_EXT, 
                     convertAttachmentSlot(rb.getSlot()), 
                     image.getId(), 
-                    0,
+                    rb.getLevel(),
                     rb.getLayer());
         }
     }
