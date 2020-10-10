@@ -13,7 +13,7 @@ buildscript {
         classpath 'com.android.tools.build:gradle:3.5.3'
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4'
         classpath 'me.tatarka:gradle-retrolambda:3.7.1'
-        classpath "com.github.spotbugs:spotbugs-gradle-plugin:3.0.0"
+        classpath "gradle.plugin.com.github.spotbugs.snom:spotbugs-gradle-plugin:4.5.1"
     }
 }
 
@@ -41,7 +41,7 @@ subprojects {
         apply from: rootProject.file('common-android-app.gradle')
     }
 
-    if (!project.name.endsWith("-native") && project.name != "jme3-bullet-native-android") {
+    if (!project.name.endsWith("-native") && project.name != "jme3-bullet-native-android" && enableSpotBugs != "false" ) {
         apply plugin: 'com.github.spotbugs'
 
         // Currently we only warn about issues and try to fix them as we go, but those aren't mission critical.
@@ -49,7 +49,7 @@ subprojects {
             ignoreFailures = true
         }
 
-        tasks.withType(com.github.spotbugs.SpotBugsTask) {
+        tasks.withType(com.github.spotbugs.snom.SpotBugsTask ) {
             reports {
                 html.enabled = !project.hasProperty("xml-reports")
                 xml.enabled = project.hasProperty("xml-reports")
