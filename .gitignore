@@ -2,7 +2,7 @@
 **/.classpath
 **/.settings
 **/.project
-**/.vscode
+**/.vscode/**
 **/out/
 /.gradle/
 /.nb-gradle/
@@ -46,3 +46,5 @@
 appveyor.yml
 javadoc_deploy
 javadoc_deploy.pub
+!.vscode/settings.json
+!.vscode/JME_style.xml
