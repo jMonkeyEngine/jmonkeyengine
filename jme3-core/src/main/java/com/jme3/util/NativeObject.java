@@ -31,6 +31,7 @@
  */
 package com.jme3.util;
 
+import java.lang.ref.WeakReference;
 import java.nio.Buffer;
 
 /**
@@ -226,5 +227,12 @@ public abstract class NativeObject implements Cloneable {
         if (objectManager != null) {
             objectManager.enqueueUnusedObject(this);
         }
+    }
+
+    private WeakReference<NativeObject> weakRef;
+
+    public <T> WeakReference<T> getWeakRef() {
+        if (weakRef == null) weakRef = new WeakReference<NativeObject>(this);
+        return (WeakReference<T>) weakRef;
     }
 }
