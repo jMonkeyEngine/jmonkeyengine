@@ -2030,12 +2030,14 @@ public final class GLRenderer implements Renderer {
             for (int i = 0; i < context.boundFB.getNumColorBuffers(); i++) {
                 RenderBuffer rb = context.boundFB.getColorBuffer(i);
                 Texture tex = rb.getTexture();
-                if (tex != null
-                        && tex.getMinFilter().usesMipMapLevels()) {
+                if (tex != null && tex.getMinFilter().usesMipMapLevels()) {
                     setTexture(0, rb.getTexture());
-
-                    int textureType = convertTextureType(tex.getType(), tex.getImage().getMultiSamples(), rb.getFace());
-                    glfbo.glGenerateMipmapEXT(textureType);
+                    if (tex.getType() == Texture.Type.CubeMap) {
+                        glfbo.glGenerateMipmapEXT(GL.GL_TEXTURE_CUBE_MAP);
+                    }else{
+                        int textureType = convertTextureType(tex.getType(), tex.getImage().getMultiSamples(), rb.getFace());
+                        glfbo.glGenerateMipmapEXT(textureType);
+                    }
                 }
             }
         }
