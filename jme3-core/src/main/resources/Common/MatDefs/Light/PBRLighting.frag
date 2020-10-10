@@ -227,7 +227,7 @@ void main(){
     #endif
 
     #if defined(AO_PACKED_IN_MR_MAP) && defined(USE_PACKED_MR)
-       ao *= aoRoughnessMetallicValue.rrr;
+       ao = aoRoughnessMetallicValue.rrr;
     #endif
 
     float ndotv = max( dot( normal, viewDir ),0.0);
