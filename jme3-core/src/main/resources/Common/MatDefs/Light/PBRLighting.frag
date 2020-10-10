@@ -135,11 +135,11 @@ void main(){
     #endif
 
     //ao in r channel, roughness in green channel, metallic in blue channel!
-    vec3 metallicRoughnessAoValue = vec3(1.0, 1.0, 0.0);
+    vec3 aoRoughnessMetallicValue = vec3(1.0, 1.0, 0.0);
     #ifdef USE_PACKED_MR
-        metallicRoughnessAoValue = texture2D(m_MetallicRoughnessMap, newTexCoord).rgb;
-        float Roughness = metallicRoughnessAoValue.g * max(m_Roughness, 1e-4);
-        float Metallic = metallicRoughnessAoValue.b * max(m_Metallic, 0.0);
+        aoRoughnessMetallicValue = texture2D(m_MetallicRoughnessMap, newTexCoord).rgb;
+        float Roughness = aoRoughnessMetallicValue.g * max(m_Roughness, 1e-4);
+        float Metallic = aoRoughnessMetallicValue.b * max(m_Metallic, 0.0);
     #else
         #ifdef ROUGHNESSMAP
             float Roughness = texture2D(m_RoughnessMap, newTexCoord).r * max(m_Roughness, 1e-4);
@@ -210,27 +210,25 @@ void main(){
     gl_FragColor.rgb = vec3(0.0);
     vec3 ao = vec3(1.0);
 
-    #if defined(LIGHTMAP) || ( defined(AO_PACKED_IN_MR_MAP) && defined(USE_PACKED_MR) )
+    #ifdef LIGHTMAP
        vec3 lightMapColor;
-        #ifdef AO_PACKED_IN_MR_MAP
-            lightMapColor = metallicRoughnessAoValue.rrr; //ao value packed in red channel of MR map 
-        #else
-            #ifdef SEPARATE_TEXCOORD    
-                lightMapColor = texture2D(m_LightMap, texCoord2).rgb;
-            #else
-                lightMapColor = texture2D(m_LightMap, texCoord).rgb;
-            #endif                                                 
-       #endif
-       #if defined(AO_MAP) || defined(AO_PACKED_IN_MR_MAP)
-            lightMapColor.gb = lightMapColor.rr;
-            ao = lightMapColor;
+       #ifdef SEPARATE_TEXCOORD
+          lightMapColor = texture2D(m_LightMap, texCoord2).rgb;
        #else
-            gl_FragColor.rgb += diffuseColor.rgb * lightMapColor;
+          lightMapColor = texture2D(m_LightMap, texCoord).rgb;
        #endif
-       
+       #ifdef AO_MAP
+         lightMapColor.gb = lightMapColor.rr;
+         ao = lightMapColor;
+       #else
+         gl_FragColor.rgb += diffuseColor.rgb * lightMapColor;
+       #endif
        specularColor.rgb *= lightMapColor;
     #endif
 
+    #if defined(AO_PACKED_IN_MR_MAP) && defined(USE_PACKED_MR)
+       ao *= aoRoughnessMetallicValue.rrr;
+    #endif
 
     float ndotv = max( dot( normal, viewDir ),0.0);
     for( int i = 0;i < NB_LIGHTS; i+=3){
