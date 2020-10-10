@@ -72,7 +72,7 @@ MaterialDef PBR Lighting {
         Boolean SeparateTexCoord
         // the light map is a gray scale ao map, on ly the r channel will be read.
         Boolean LightMapAsAOMap
-
+        Boolean AoPackedInMRMap
         //shadows
         Int FilterMode
         Boolean HardwareShadows
@@ -158,6 +158,7 @@ MaterialDef PBR Lighting {
             NORMAL_TYPE: NormalType
             VERTEX_COLOR : UseVertexColor
             AO_MAP: LightMapAsAOMap
+            AO_PACKED_IN_MR_MAP : AoPackedInMRMap
             NUM_MORPH_TARGETS: NumberOfMorphTargets
             NUM_TARGETS_BUFFERS: NumberOfTargetsBuffers
             HORIZON_FADE: HorizonFade

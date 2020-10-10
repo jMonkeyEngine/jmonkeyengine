@@ -134,10 +134,12 @@ void main(){
         vec4 albedo = Color;
     #endif
 
+    //ao in r channel, roughness in green channel, metallic in blue channel!
+    vec3 aoRoughnessMetallicValue = vec3(1.0, 1.0, 0.0);
     #ifdef USE_PACKED_MR
-        vec2 rm = texture2D(m_MetallicRoughnessMap, newTexCoord).gb;
-        float Roughness = rm.x * max(m_Roughness, 1e-4);
-        float Metallic = rm.y * max(m_Metallic, 0.0);
+        aoRoughnessMetallicValue = texture2D(m_MetallicRoughnessMap, newTexCoord).rgb;
+        float Roughness = aoRoughnessMetallicValue.g * max(m_Roughness, 1e-4);
+        float Metallic = aoRoughnessMetallicValue.b * max(m_Metallic, 0.0);
     #else
         #ifdef ROUGHNESSMAP
             float Roughness = texture2D(m_RoughnessMap, newTexCoord).r * max(m_Roughness, 1e-4);
@@ -224,6 +226,9 @@ void main(){
        specularColor.rgb *= lightMapColor;
     #endif
 
+    #if defined(AO_PACKED_IN_MR_MAP) && defined(USE_PACKED_MR)
+       ao = aoRoughnessMetallicValue.rrr;
+    #endif
 
     float ndotv = max( dot( normal, viewDir ),0.0);
     for( int i = 0;i < NB_LIGHTS; i+=3){
