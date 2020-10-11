@@ -109,6 +109,16 @@ public class ParticleEmitter extends Geometry {
     //variable that helps with computations
     private transient Vector3f temp = new Vector3f();
     private transient Vector3f lastPos;
+    
+    private ColorRGBA startColorToFadeTo = new ColorRGBA();
+    private ColorRGBA initialStartColorToFadeFrom  = new ColorRGBA();
+    private float totalStartColorFadeDuration;
+    private float startColorFadeDuration;        
+    private ColorRGBA endColorToFadeTo  = new ColorRGBA();
+    private ColorRGBA initialEndColorToFadeFrom  = new ColorRGBA();
+    private float totalEndColorFadeDuration;
+    private float endColorFadeDuration;   
+
 
     public static class ParticleEmitterControl implements Control, JmeCloneable {
 
@@ -1118,28 +1128,18 @@ public class ParticleEmitter extends Geometry {
         vars.release();
     }
     
-    private ColorRGBA startColorToFadeTo;
-    private ColorRGBA initialStartColorToFadeFrom;
-    private float totalStartColorFadeDuration;
-    private float startColorFadeDuration;
-    
-    private ColorRGBA endColorToFadeTo;
-    private ColorRGBA initialEndColorToFadeFrom;
-    private float totalEndColorFadeDuration;
-    private float endColorFadeDuration;    
-    
-    public void setFadeToStartColor(float fadeDuration, ColorRGBA newStartColor){
+    public void fadeToStartColor(float fadeDuration, ColorRGBA newStartColor){
         totalStartColorFadeDuration = fadeDuration;  
         startColorFadeDuration = fadeDuration;
-        startColorToFadeTo = newStartColor;        
-        initialStartColorToFadeFrom = this.getStartColor().clone();
+        startColorToFadeTo.set(newStartColor);
+        initialStartColorToFadeFrom.set(getStartColor());
     }
     
-    public void setFadeToEndColor(float fadeDuration, ColorRGBA newEndColor){
+    public void fadeToEndColor(float fadeDuration, ColorRGBA newEndColor){
         totalEndColorFadeDuration = fadeDuration;
         endColorFadeDuration = fadeDuration;
-        endColorToFadeTo = newEndColor;
-        initialEndColorToFadeFrom = this.getEndColor().clone();
+        endColorToFadeTo.set(newEndColor);
+        initialEndColorToFadeFrom.set(getEndColor());
     }
      
      //convenience method for fading both start and end color over the same duration
@@ -1147,6 +1147,16 @@ public class ParticleEmitter extends Geometry {
         setFadeToEndColor(fadeDuration, newEndColor);
         setFadeToStartColor(fadeDuration, newStartColor);
     }  
+    
+    public ColorRGBA getStartColorToFadeTo() {        return startColorToFadeTo;    }
+    public ColorRGBA getInitialStartColorToFadeFrom() {        return initialStartColorToFadeFrom;    }
+    public float getStartColorFadeDuration() {        return startColorFadeDuration;    }    
+    public float getTotalStartColorFadeDuration() {        return totalStartColorFadeDuration;    }
+    public ColorRGBA getEndColorToFadeTo() {        return endColorToFadeTo;    }    
+    public ColorRGBA getInitialEndColorToFadeFrom() {        return initialEndColorToFadeFrom;    }
+    public float getTotalEndColorFadeDuration() {        return totalEndColorFadeDuration;    }
+    public float getEndColorFadeDuration() {        return endColorFadeDuration;    }
+    
     private void updateColorFading(float tpf){
         if(startColorFadeDuration > 0){
             startColorFadeDuration -= tpf;
