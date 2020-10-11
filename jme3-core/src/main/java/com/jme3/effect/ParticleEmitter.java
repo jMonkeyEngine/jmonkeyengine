@@ -1192,9 +1192,6 @@ public class ParticleEmitter extends Geometry {
                 currentStartColor.interpolateLocal(startColorToFadeTo, timeSlerpPct);
             }            
         }
-        else{
-            currentStartColor.set(getStartColor());
-        } 
 
         
         //color fading for end color
@@ -1208,9 +1205,6 @@ public class ParticleEmitter extends Geometry {
                 currentEndColor.set(initialEndColorToFadeFrom);
                 currentEndColor.interpolateLocal(endColorToFadeTo, timeSlerpPct);
             }
-        }
-        else{
-            currentEndColor.set(getEndColor());
         }
     }
     
