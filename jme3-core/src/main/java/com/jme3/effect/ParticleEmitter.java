@@ -118,6 +118,10 @@ public class ParticleEmitter extends Geometry {
     private ColorRGBA initialEndColorToFadeFrom  = new ColorRGBA();
     private float totalEndColorFadeDuration;
     private float endColorFadeDuration;   
+    
+    private ColorRGBA currentStartColor;
+    private ColorRGBA currentEndColor;    
+
 
 
     public static class ParticleEmitterControl implements Control, JmeCloneable {
@@ -833,6 +837,11 @@ public class ParticleEmitter extends Geometry {
      *
      * @see ParticleEmitter#setStartSize(float)
      */
+    
+    
+    
+    
+    
     public float getStartSize() {
         return startSize;
     }
@@ -1043,7 +1052,7 @@ public class ParticleEmitter extends Geometry {
 
         // affecting color, size and angle
         float b = (p.startlife - p.life) / p.startlife;
-        p.color.interpolateLocal(startColor, endColor, b);
+        p.color.interpolateLocal(currentStartColor, currentEndColor, b);
         p.size = FastMath.interpolateLinear(b, startSize, endSize);
         p.angle += p.rotateSpeed * tpf;
 
@@ -1132,14 +1141,14 @@ public class ParticleEmitter extends Geometry {
         totalStartColorFadeDuration = fadeDuration;  
         startColorFadeDuration = fadeDuration;
         startColorToFadeTo.set(newStartColor);
-        initialStartColorToFadeFrom.set(getStartColor());
+        initialStartColorToFadeFrom.set(getCurrentStartColor());
     }
     
     public void setFadeToEndColor(float fadeDuration, ColorRGBA newEndColor){
         totalEndColorFadeDuration = fadeDuration;
         endColorFadeDuration = fadeDuration;
         endColorToFadeTo.set(newEndColor);
-        initialEndColorToFadeFrom.set(getEndColor());
+        initialEndColorToFadeFrom.set(getCurrentEndColor());
     }
      
      //convenience method for fading both start and end color over the same duration
@@ -1147,6 +1156,9 @@ public class ParticleEmitter extends Geometry {
         setFadeToEndColor(fadeDuration, newEndColor);
         setFadeToStartColor(fadeDuration, newStartColor);
     }  
+    
+    public ColorRGBA getCurrentStartColor() {        return currentStartColor;    }
+    public ColorRGBA getCurrentEndColor() {        return currentEndColor;    }
     
     public ColorRGBA getStartColorToFadeTo() {        return startColorToFadeTo;    }
     public ColorRGBA getInitialStartColorToFadeFrom() {        return initialStartColorToFadeFrom;    }
@@ -1158,34 +1170,44 @@ public class ParticleEmitter extends Geometry {
     public float getEndColorFadeDuration() {        return endColorFadeDuration;    }
     
     private void updateColorFading(float tpf){
+       //ensures that currentStartColor and currentEndColor match startColor and endColor whenever there has been no previous color fading
+        if(currentStartColor == null){
+            currentStartColor = new ColorRGBA();
+            currentStartColor.set(getStartColor());
+        }
+        if(currentEndColor == null){
+            currentEndColor  = new ColorRGBA();
+            currentEndColor.set(getEndColor());
+        }
+        
         if(startColorFadeDuration > 0){
             startColorFadeDuration -= tpf;
             
             if(startColorFadeDuration < 0){
-                setStartColor(startColorToFadeTo);
+                currentStartColor.set(startColorToFadeTo);
             }else{
                 float timeSlerpPct = 1 - (startColorFadeDuration / totalStartColorFadeDuration);
                 
-                ColorRGBA slerpedStartColor = initialStartColorToFadeFrom.clone();
-                slerpedStartColor.interpolateLocal(startColorToFadeTo, timeSlerpPct);
-                setStartColor(slerpedStartColor);
-            }
-            
+                currentStartColor.set(initialStartColorToFadeFrom);
+                currentStartColor.interpolateLocal(startColorToFadeTo, timeSlerpPct);
+            }            
         }
+
         
         //color fading for end color
         if(endColorFadeDuration > 0){
             endColorFadeDuration -= tpf;
             if(endColorFadeDuration < 0){
-                setEndColor(endColorToFadeTo);
+                currentEndColor.set(endColorToFadeTo);
             }else{
                 float timeSlerpPct =  1 - (endColorFadeDuration / totalEndColorFadeDuration);
                 
-                ColorRGBA slerpedEndColor = initialEndColorToFadeFrom.clone();
-                slerpedEndColor.interpolateLocal(endColorToFadeTo, timeSlerpPct);
-                setEndColor(slerpedEndColor);
+                currentEndColor.set(initialEndColorToFadeFrom);
+                currentEndColor.interpolateLocal(endColorToFadeTo, timeSlerpPct);
             }
-            
+        }
+        else{
+            currentStartColor.set(getStartColor());
         }
     }
     
@@ -1219,8 +1241,8 @@ public class ParticleEmitter extends Geometry {
      */
     public void updateFromControl(float tpf) {
         if (enabled) {
-            this.updateParticleState(tpf);
-            this.updateColorFading(tpf);
+            this.updateColorFading(tpf);  
+            this.updateParticleState(tpf);            
         }
     }
 
