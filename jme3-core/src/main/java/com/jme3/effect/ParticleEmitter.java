@@ -1286,6 +1286,17 @@ public class ParticleEmitter extends Geometry {
         oc.write(rotateSpeed, "rotateSpeed", 0);
 
         oc.write(particleInfluencer, "influencer", DEFAULT_INFLUENCER);
+        
+        oc.write(startColorToFadeTo, "startColorToFadeTo", new ColorRGBA());
+        oc.write(initialStartColorToFadeFrom, "initialStartColorToFadeFrom", new ColorRGBA());
+        oc.write(totalStartColorFadeDuration, "totalStartColorFadeDuration", 0);
+        oc.write(startColorFadeDuration, "startColorFadeDuration", 0);
+        
+        oc.write(endColorToFadeTo, "endColorToFadeTo", new ColorRGBA());
+        oc.write(initialEndColorToFadeFrom, "initialEndColorToFadeFrom", new ColorRGBA());
+        oc.write(totalEndColorFadeDuration, "totalEndColorFadeDuration", 0);
+        oc.write(endColorFadeDuration, "endColorFadeDuration", 0);
+        
     }
 
     @Override
@@ -1322,6 +1333,16 @@ public class ParticleEmitter extends Geometry {
         selectRandomImage = ic.readBoolean("selectRandomImage", false);
         randomAngle = ic.readBoolean("randomAngle", false);
         rotateSpeed = ic.readFloat("rotateSpeed", 0);
+        
+        startColorToFadeTo = (ColorRGBA) ic.readSavable("startColorToFadeTo", new ColorRGBA());
+        initialStartColorToFadeFrom = (ColorRGBA) ic.readSavable("initialStartColorToFadeFrom", new ColorRGBA());
+        totalStartColorFadeDuration = ic.readFloat("totalStartColorFadeDuration", 0);
+        startColorFadeDuration = ic.readFloat("startColorFadeDuration", 0);        
+        endColorToFadeTo = (ColorRGBA) ic.readSavable("endColorToFadeTo", new ColorRGBA());
+        initialEndColorToFadeFrom = (ColorRGBA) ic.readSavable("initialEndColorToFadeFrom", new ColorRGBA());
+        totalEndColorFadeDuration = ic.readFloat("totalEndColorFadeDuration", 0);
+        endColorFadeDuration = ic.readFloat("endColorFadeDuration", 0);
+    
 
         switch (meshType) {
             case Point:
