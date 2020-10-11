@@ -1128,14 +1128,14 @@ public class ParticleEmitter extends Geometry {
         vars.release();
     }
     
-    public void fadeToStartColor(float fadeDuration, ColorRGBA newStartColor){
+    public void setFadeToStartColor(float fadeDuration, ColorRGBA newStartColor){
         totalStartColorFadeDuration = fadeDuration;  
         startColorFadeDuration = fadeDuration;
         startColorToFadeTo.set(newStartColor);
         initialStartColorToFadeFrom.set(getStartColor());
     }
     
-    public void fadeToEndColor(float fadeDuration, ColorRGBA newEndColor){
+    public void setFadeToEndColor(float fadeDuration, ColorRGBA newEndColor){
         totalEndColorFadeDuration = fadeDuration;
         endColorFadeDuration = fadeDuration;
         endColorToFadeTo.set(newEndColor);
