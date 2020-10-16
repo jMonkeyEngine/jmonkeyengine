@@ -45,10 +45,7 @@ import com.jme3.scene.control.Control;
 import com.jme3.util.clone.Cloner;
 import java.io.IOException;
 
-/**
- *
- * @author ryan
- */
+
 public class ParticleEmitterEffectsControl extends AbstractControl implements Control{
     
     private ParticleEmitter particleEmitter;
@@ -146,7 +143,7 @@ public class ParticleEmitterEffectsControl extends AbstractControl implements Co
     protected void controlUpdate(float tpf) {
         if(enabled){
             updateColorFading(tpf);
-        }        
+        }   
     }
 
     @Override
@@ -169,6 +166,7 @@ public class ParticleEmitterEffectsControl extends AbstractControl implements Co
     @Override
     public void update(float tpf) {
         super.update(tpf);
+   
     }
 
     @Override
@@ -177,7 +175,7 @@ public class ParticleEmitterEffectsControl extends AbstractControl implements Co
     }
     
      @Override
-    public void cloneFields(Cloner cloner, Object original) {
+     public void cloneFields(Cloner cloner, Object original) {       
         super.cloneFields(cloner, original);
         
         this.startColorToFadeTo = cloner.clone(startColorToFadeTo);
@@ -196,6 +194,7 @@ public class ParticleEmitterEffectsControl extends AbstractControl implements Co
         super.write(ex);
         
         OutputCapsule oc = ex.getCapsule(this);
+        
         oc.write(startColorToFadeTo, "startColorToFadeTo", new ColorRGBA());
         oc.write(initialStartColorToFadeFrom, "initialStartColorToFadeFrom", new ColorRGBA());
         oc.write(totalStartColorFadeDuration, "totalStartColorFadeDuration", 0);
