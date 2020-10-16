@@ -30,7 +30,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.effect;
+package com.jme3.effect.controls;
 import com.jme3.effect.ParticleEmitter;
 import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
