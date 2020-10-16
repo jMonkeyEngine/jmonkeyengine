@@ -178,9 +178,7 @@ public class ParticleEmitterEffectsControl extends AbstractControl implements Co
     
      @Override
     public void cloneFields(Cloner cloner, Object original) {
-        super.cloneFields(cloner, original); //To change body of generated methods, choose Tools | Templates.
-        
-         super.cloneFields(cloner, original);
+        super.cloneFields(cloner, original);
         
         this.startColorToFadeTo = cloner.clone(startColorToFadeTo);
         this.initialStartColorToFadeFrom = cloner.clone(initialStartColorToFadeFrom);
@@ -198,7 +196,7 @@ public class ParticleEmitterEffectsControl extends AbstractControl implements Co
         super.write(ex);
         
         OutputCapsule oc = ex.getCapsule(this);
-         oc.write(startColorToFadeTo, "startColorToFadeTo", new ColorRGBA());
+        oc.write(startColorToFadeTo, "startColorToFadeTo", new ColorRGBA());
         oc.write(initialStartColorToFadeFrom, "initialStartColorToFadeFrom", new ColorRGBA());
         oc.write(totalStartColorFadeDuration, "totalStartColorFadeDuration", 0);
         oc.write(startColorFadeDuration, "startColorFadeDuration", 0);
