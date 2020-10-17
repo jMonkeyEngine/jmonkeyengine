@@ -221,9 +221,4 @@ public class ParticleEmitterEffectsControl extends AbstractControl implements Co
         totalEndColorFadeDuration = ic.readFloat("totalEndColorFadeDuration", 0);
         endColorFadeDuration = ic.readFloat("endColorFadeDuration", 0);
     }
-
-    
-    
-
-    
 }
