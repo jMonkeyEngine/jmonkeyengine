@@ -219,8 +219,8 @@ public abstract class LwjglAbstractDisplay extends LwjglContext implements Runna
             logger.log(Level.SEVERE, "Display initialization failed. Cannot continue.");
             return;
         }
-        while (true){
-            if (renderable.get()){
+        do {
+            if (renderable.get()) {
                 if (Display.isCloseRequested())
                     listener.requestClose(false);
 
@@ -238,9 +238,7 @@ public abstract class LwjglAbstractDisplay extends LwjglContext implements Runna
 
             runLoop();
 
-            if (needClose.get())
-                break;
-        }
+        } while (!needClose.get());
         deinitInThread();
     }
 
