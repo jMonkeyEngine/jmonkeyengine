@@ -2034,7 +2034,7 @@ public final class GLRenderer implements Renderer {
                     setTexture(0, rb.getTexture());
                     if (tex.getType() == Texture.Type.CubeMap) {
                         glfbo.glGenerateMipmapEXT(GL.GL_TEXTURE_CUBE_MAP);
-                    }else{
+                    } else {
                         int textureType = convertTextureType(tex.getType(), tex.getImage().getMultiSamples(), rb.getFace());
                         glfbo.glGenerateMipmapEXT(textureType);
                     }
