@@ -62,7 +62,6 @@ import java.util.logging.Logger;
  *
  * @author iwgeric
  */
-
 public class AndroidTouchInput implements TouchInput {
     private static final Logger logger = Logger.getLogger(AndroidTouchInput.class.getName());
 
@@ -132,8 +131,8 @@ public class AndroidTouchInput implements TouchInput {
 
         // view width and height are 0 until the view is displayed on the screen
         if (androidInput.getView().getWidth() != 0 && androidInput.getView().getHeight() != 0) {
-            scaleX = (float)settings.getWidth() / (float)androidInput.getView().getWidth();
-            scaleY = (float)settings.getHeight() / (float)androidInput.getView().getHeight();
+            scaleX = settings.getWidth() / (float)androidInput.getView().getWidth();
+            scaleY = settings.getHeight() / (float)androidInput.getView().getHeight();
         }
         logger.log(Level.FINE, "Setting input scaling, scaleX: {0}, scaleY: {1}",
                 new Object[]{scaleX, scaleY});
@@ -162,6 +161,7 @@ public class AndroidTouchInput implements TouchInput {
 
         boolean bWasHandled = false;
         TouchEvent touch = null;
+        //    System.out.println("native : " + event.getAction());
         int action = getAction(event);
         int pointerIndex = getPointerIndex(event);
         int pointerId = getPointerId(event);
