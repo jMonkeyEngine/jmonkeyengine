@@ -187,8 +187,7 @@ public class JmeBatchRenderBackend implements BatchRenderBackend {
     public int createTextureAtlas(final int width, final int height) {
         try {
             // we initialize a buffer here that will be used as base for all texture atlas images
-            if (initialData==null)
-            {
+            if (initialData == null) {
                 initialData = BufferUtils.createByteBuffer(width * height * 4);
                 for (int i = 0; i < width * height; i++) {
                     initialData.put((byte) 0x00);
@@ -372,7 +371,7 @@ public class JmeBatchRenderBackend implements BatchRenderBackend {
 
     // internal implementations
     private Texture2D createAtlasTextureInternal(final int width, final int height) throws Exception {
-	// re-use pre-defined initial data instead of creating a new buffer
+        // re-use pre-defined initial data instead of creating a new buffer
         initialData.rewind();
 
         Texture2D texture = new Texture2D(new com.jme3.texture.Image(Format.RGBA8, width, height, initialData, ColorSpace.sRGB));
@@ -639,4 +638,3 @@ public class JmeBatchRenderBackend implements BatchRenderBackend {
         }
     }
 }
-
