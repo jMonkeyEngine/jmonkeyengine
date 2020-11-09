@@ -12,10 +12,36 @@ public class LwjglALC implements ALC {
 
     @Override
     public void createALC() {
-        try {
-            AL.create();
-        } catch (LWJGLException ex) {
-            throw new RuntimeException(ex);
+        int numRetriesRemaining = 4;
+        int retryDelayMsec = 100; // start with an 0.1-second delay
+
+        while (true) {
+            try {
+                AL.create();
+                break;
+
+            } catch (LWJGLException exception1) {
+                if (numRetriesRemaining < 1) {
+                    throw new RuntimeException(exception1);
+                }
+
+                // Retry to mitigate JME Issue 1383.
+                --numRetriesRemaining;
+                System.out.printf("Caught an LWJGLException from AL.create(). "
+                        + "Will retry after %d msec, "
+                        + "with %d more retr%s remaining.%n",
+                        retryDelayMsec,
+                        numRetriesRemaining,
+                        (numRetriesRemaining == 1) ? "y" : "ies");
+
+                try {
+                    Thread.sleep(retryDelayMsec);
+                } catch (InterruptedException exception2) {
+                }
+
+                // Triple the wait time after each failure.
+                retryDelayMsec *= 3;
+            }
         }
     }
 
