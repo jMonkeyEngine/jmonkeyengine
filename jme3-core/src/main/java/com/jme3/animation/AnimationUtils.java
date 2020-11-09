@@ -37,7 +37,7 @@ package com.jme3.animation;
  */
 public class AnimationUtils {
     
-    public AnimationUtils(){
+    private AnimationUtils(){
         
     }
     /**
