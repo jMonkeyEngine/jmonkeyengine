@@ -158,13 +158,10 @@ public class LODGeomap extends GeoMap {
      * @return the LOD-ified index buffer
      */
     public IndexBuffer writeIndexArrayLodDiff(int lod, boolean rightLod, boolean topLod, boolean leftLod, boolean bottomLod, int totalSize) {
-
-        
+        int numVertices = getWidth() * getHeight();
         int numIndexes = calculateNumIndexesLodDiff(lod);
-        
-        IndexBuffer ib = IndexBuffer.createIndexBuffer(numIndexes, numIndexes);
+        IndexBuffer ib = IndexBuffer.createIndexBuffer(numVertices, numIndexes);
         VerboseBuffer buffer = new VerboseBuffer(ib);
-
 
         // generate center squares minus the edges
         //System.out.println("for (x="+lod+"; x<"+(getWidth()-(2*lod))+"; x+="+lod+")");
@@ -360,12 +357,10 @@ public class LODGeomap extends GeoMap {
     }
 
     public IndexBuffer writeIndexArrayLodVariable(int lod, int rightLod, int topLod, int leftLod, int bottomLod, int totalSize) {
-
+        int numVertices = getWidth() * getHeight();
         int numIndexes = calculateNumIndexesLodDiff(lod);
-        
-        IndexBuffer ib = IndexBuffer.createIndexBuffer(numIndexes, numIndexes);
+        IndexBuffer ib = IndexBuffer.createIndexBuffer(numVertices, numIndexes);
         VerboseBuffer buffer = new VerboseBuffer(ib);
-
 
         // generate center squares minus the edges
         //System.out.println("for (x="+lod+"; x<"+(getWidth()-(2*lod))+"; x+="+lod+")");
