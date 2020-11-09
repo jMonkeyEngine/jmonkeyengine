@@ -24,6 +24,9 @@ allprojects {
     }
 }
 
+// Set the license for IDEs that understand this
+ext.license = file("$rootDir/license.txt")
+
 apply plugin: 'base'
 apply plugin: 'com.github.spotbugs'
 apply from: file('version.gradle')
