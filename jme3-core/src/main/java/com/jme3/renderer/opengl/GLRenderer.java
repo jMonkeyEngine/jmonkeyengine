@@ -62,6 +62,7 @@ import com.jme3.util.MipMapGenerator;
 import com.jme3.util.NativeObjectManager;
 import jme3tools.shader.ShaderDebug;
 
+import java.lang.ref.WeakReference;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
@@ -2387,9 +2388,9 @@ public final class GLRenderer implements Renderer {
             gl.glActiveTexture(GL.GL_TEXTURE0 + unit);
             context.boundTextureUnit = unit;
         }
-        if (context.boundTextures[unit] != img) {
+        if (context.boundTextures[unit]==null||context.boundTextures[unit].get() != img.getWeakRef().get()) {
             gl.glBindTexture(target, img.getId());
-            context.boundTextures[unit] = img;
+            context.boundTextures[unit] = img.getWeakRef();
             statistics.onTextureUse(img, true);
         } else {
             statistics.onTextureUse(img, false);
@@ -2405,13 +2406,13 @@ public final class GLRenderer implements Renderer {
      * @param unit At what unit to bind the texture.
      */
     private void bindTextureOnly(int target, Image img, int unit) {
-        if (context.boundTextures[unit] != img) {
+        if (context.boundTextures[unit] == null || context.boundTextures[unit].get() != img.getWeakRef().get()) {
             if (context.boundTextureUnit != unit) {
                 gl.glActiveTexture(GL.GL_TEXTURE0 + unit);
                 context.boundTextureUnit = unit;
             }
             gl.glBindTexture(target, img.getId());
-            context.boundTextures[unit] = img;
+            context.boundTextures[unit] = img.getWeakRef();
             statistics.onTextureUse(img, true);
         } else {
             statistics.onTextureUse(img, false);
@@ -2826,7 +2827,7 @@ public final class GLRenderer implements Renderer {
         for (int i = 0; i < attribList.oldLen; i++) {
             int idx = attribList.oldList[i];
             gl.glDisableVertexAttribArray(idx);
-            if (context.boundAttribs[idx].isInstanced()) {
+            if (context.boundAttribs[idx].get().isInstanced()) {
                 glext.glVertexAttribDivisorARB(idx, 0);
             }
             context.boundAttribs[idx] = null;
@@ -2881,13 +2882,13 @@ public final class GLRenderer implements Renderer {
             updateBufferData(vb);
         }
 
-        VertexBuffer[] attribs = context.boundAttribs;
+        WeakReference<VertexBuffer>[] attribs = context.boundAttribs;
         for (int i = 0; i < slotsRequired; i++) {
             if (!context.attribIndexList.moveToNew(loc + i)) {
                 gl.glEnableVertexAttribArray(loc + i);
             }
         }
-        if (attribs[loc] != vb) {
+        if (attribs[loc]==null||attribs[loc].get() != vb) {
             // NOTE: Use id from interleaved buffer if specified
             int bufId = idb != null ? idb.getId() : vb.getId();
             assert bufId != -1;
@@ -2927,14 +2928,14 @@ public final class GLRenderer implements Renderer {
 
             for (int i = 0; i < slotsRequired; i++) {
                 int slot = loc + i;
-                if (vb.isInstanced() && (attribs[slot] == null || !attribs[slot].isInstanced())) {
+                if (vb.isInstanced() && (attribs[slot] == null || attribs[slot].get() == null || !attribs[slot].get().isInstanced())) {
                     // non-instanced -> instanced
                     glext.glVertexAttribDivisorARB(slot, vb.getInstanceSpan());
-                } else if (!vb.isInstanced() && attribs[slot] != null && attribs[slot].isInstanced()) {
+                } else if (!vb.isInstanced() && attribs[slot] != null && attribs[slot].get() != null && attribs[slot].get().isInstanced()) {
                     // instanced -> non-instanced
                     glext.glVertexAttribDivisorARB(slot, 0);
                 }
-                attribs[slot] = vb;
+                attribs[slot] = vb.getWeakRef();
             }
         }
     }
