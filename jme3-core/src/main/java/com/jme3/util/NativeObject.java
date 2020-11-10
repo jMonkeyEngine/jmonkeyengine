@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -79,6 +79,8 @@ public abstract class NativeObject implements Cloneable {
      * and needs to be updated before used.
      */
     protected boolean updateNeeded = true;
+
+    private WeakReference<NativeObject> weakRef;
 
     /**
      * Creates a new GLObject. Should be
@@ -228,8 +230,6 @@ public abstract class NativeObject implements Cloneable {
             objectManager.enqueueUnusedObject(this);
         }
     }
-
-    private WeakReference<NativeObject> weakRef;
 
     public <T> WeakReference<T> getWeakRef() {
         if (weakRef == null) weakRef = new WeakReference<NativeObject>(this);
