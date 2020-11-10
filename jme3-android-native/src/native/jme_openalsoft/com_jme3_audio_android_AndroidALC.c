@@ -74,14 +74,11 @@ static void CloseAL()
 
 static ALCdevice* GetALCDevice()
 {
-    ALCdevice *device;
-    ALCcontext *ctx;
+    ALCcontext *ctx = alcGetCurrentContext();
 
-    ctx = alcGetCurrentContext();
-    
-    if (ctx != NULL) 
+    if (ctx != NULL)
     {
-        device = alcGetContextsDevice(ctx);
+        ALCdevice *device = alcGetContextsDevice(ctx);
         
         if (device != NULL)
         {

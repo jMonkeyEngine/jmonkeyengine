@@ -298,7 +298,7 @@ JNIEXPORT void JNICALL Java_com_jme3_audio_plugins_NativeVorbisFile_readFully
     wrapper->env = env;
     
     char err[512];
-    void* byteBufferPtr = (*env)->GetDirectBufferAddress(env, buf);
+    byte* byteBufferPtr = (byte*)(*env)->GetDirectBufferAddress(env, buf);
     jlong byteBufferCap = (*env)->GetDirectBufferCapacity(env, buf);
     
     int offset     = 0;
