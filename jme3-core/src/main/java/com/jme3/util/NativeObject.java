@@ -233,7 +233,7 @@ public abstract class NativeObject implements Cloneable {
 
     public <T> WeakReference<T> getWeakRef() {
         if (weakRef == null) {
-            weakRef = new WeakReference<NativeObject>(this);
+            weakRef = new WeakReference<>(this);
         }
         return (WeakReference<T>) weakRef;
     }
