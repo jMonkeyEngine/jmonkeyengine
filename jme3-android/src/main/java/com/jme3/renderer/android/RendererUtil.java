@@ -77,8 +77,6 @@ public class RendererUtil {
         if (error != EGL10.EGL_SUCCESS) {
             String errorMessage;
             switch (error) {
-                case EGL10.EGL_SUCCESS:
-                    return;
                 case EGL10.EGL_NOT_INITIALIZED:
                     errorMessage = "EGL is not initialized, or could not be "
                             + "initialized, for the specified EGL display connection. ";
