@@ -34,6 +34,8 @@ package com.jme3.export.xml;
 
 import java.io.*;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+
 import org.w3c.dom.*;
 
 /**
@@ -48,7 +50,7 @@ import org.w3c.dom.*;
 public class DOMSerializer {
 
     /** The encoding to use for output (default is UTF-8) */
-    private Charset encoding = Charset.forName("utf-8");
+    private Charset encoding = StandardCharsets.UTF_8;
 
     /** The amount of indentation to use (default is 4 spaces). */
     private int indent = 4;
