@@ -38,7 +38,6 @@ import com.jme3.material.*;
  */
 public abstract class PBRMaterialAdapter extends MaterialAdapter {
 
-
     public PBRMaterialAdapter() {
         addParamMapping("normalTexture", "NormalMap");
         addParamMapping("occlusionTexture", "LightMap");
@@ -59,10 +58,12 @@ public abstract class PBRMaterialAdapter extends MaterialAdapter {
         if (param.getName().equals("alpha")) {
             String alphaMode = (String) param.getValue();
             switch (alphaMode) {
-                case "MASK":
+                case "MASK": // fallthrough
                 case "BLEND":
                     getMaterial().getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Alpha);
+                    break;
             }
+            // Alpha is a RenderState not a Material Parameter, so return null
             return null;
         }
         if (param.getName().equals("doubleSided")) {
@@ -71,6 +72,7 @@ public abstract class PBRMaterialAdapter extends MaterialAdapter {
                 //Note that this is not completely right as normals on the back side will be in the wrong direction.
                 getMaterial().getAdditionalRenderState().setFaceCullMode(RenderState.FaceCullMode.Off);
             }
+            // FaceCulling is a RenderState not a Material Parameter, so return null
             return null;
         }
         if (param.getName().equals("NormalMap")) {
@@ -81,9 +83,6 @@ public abstract class PBRMaterialAdapter extends MaterialAdapter {
             //Gltf only supports AO maps (gray scales and only the r channel must be read)
             getMaterial().setBoolean("LightMapAsAOMap", true);
         }
-
-
-
 
         return param;
     }
