@@ -75,6 +75,7 @@ public class DOMSerializer {
                 break;
             default:
                 writer.write(c);
+                break;
             }
         }
     }
