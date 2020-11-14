@@ -177,7 +177,7 @@
   </nodes>
   <externals>
     <item type="material">
-      <file name="Scene.material"/>
+      <file name="Main.material"/>
     </item>
   </externals>
   <environment>
