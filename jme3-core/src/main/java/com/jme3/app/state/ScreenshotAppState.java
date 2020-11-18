@@ -197,6 +197,22 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
 
     /**
      * Clean up this AppState during the first update after it gets detached.
+     * <p>
+     * Because each ScreenshotAppState is also a SceneProcessor (in addition to
+     * being an AppState) this method is also invoked when the SceneProcessor
+     * get removed from its ViewPort, leading to an indirect recursion:
+     * <ol><li>AppStateManager invokes ScreenshotAppState.cleanup()</li>
+     * <li>cleanup() invokes ViewPort.removeProcessor()</li>
+     * <li>removeProcessor() invokes ScreenshotAppState.cleanup()</li>
+     * <li>... and so on.</li>
+     * </ol>
+     * <p>
+     * In order to break this recursion, this method only removes the
+     * SceneProcessor if it has not previously been removed.
+     * <p>
+     * A better design would have the AppState and SceneProcessor be 2 distinct
+     * objects, but doing so now might break applications that rely on them
+     * being a single object.
      */
     @Override
     public void cleanup() {
