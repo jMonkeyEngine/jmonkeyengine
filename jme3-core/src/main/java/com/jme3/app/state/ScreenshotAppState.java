@@ -68,6 +68,14 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
     private long shotIndex = 0;
     private int width, height;
     private AppProfiler prof;
+    /**
+     * InputManager to which the ActionListener and the mapping are added
+     */
+    private InputManager inputManager;
+    /**
+     * ViewPort to which the SceneProcessor is attached
+     */
+    private ViewPort last;
 
     /**
      * Using this constructor, the screenshot files will be written sequentially to the system
@@ -170,13 +178,13 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
 
     @Override
     public void initialize(AppStateManager stateManager, Application app) {
-        if (!super.isInitialized()){
-            InputManager inputManager = app.getInputManager();
+        if (!super.isInitialized()) {
+            inputManager = app.getInputManager();
             inputManager.addMapping("ScreenShot", new KeyTrigger(KeyInput.KEY_SYSRQ));
             inputManager.addListener(this, "ScreenShot");
 
             List<ViewPort> vps = app.getRenderManager().getPostViews();
-            ViewPort last = vps.get(vps.size()-1);
+            last = vps.get(vps.size() - 1);
             last.addProcessor(this);
 
             if (shotName == null) {
@@ -185,6 +193,42 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
         }
 
         super.initialize(stateManager, app);
+    }
+
+    /**
+     * Clean up this AppState during the first update after it gets detached.
+     * <p>
+     * Because each ScreenshotAppState is also a SceneProcessor (in addition to
+     * being an AppState) this method is also invoked when the SceneProcessor
+     * get removed from its ViewPort, leading to an indirect recursion:
+     * <ol><li>AppStateManager invokes ScreenshotAppState.cleanup()</li>
+     * <li>cleanup() invokes ViewPort.removeProcessor()</li>
+     * <li>removeProcessor() invokes ScreenshotAppState.cleanup()</li>
+     * <li>... and so on.</li>
+     * </ol>
+     * <p>
+     * In order to break this recursion, this method only removes the
+     * SceneProcessor if it has not previously been removed.
+     * <p>
+     * A better design would have the AppState and SceneProcessor be 2 distinct
+     * objects, but doing so now might break applications that rely on them
+     * being a single object.
+     */
+    @Override
+    public void cleanup() {
+        if (inputManager != null) {
+            inputManager.deleteMapping("ScreenShot");
+            inputManager.removeListener(this);
+            inputManager = null;
+        }
+
+        ViewPort viewPort = last;
+        if (viewPort != null) {
+            last = null;
+            viewPort.removeProcessor(this); // XXX indirect recursion!
+        }
+
+        super.cleanup();
     }
 
     @Override
@@ -219,10 +263,12 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
 
     @Override
     public void preFrame(float tpf) {
+        // do nothing
     }
 
     @Override
     public void postQueue(RenderQueue rq) {
+        // do nothing
     }
 
     @Override
