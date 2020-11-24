@@ -16,7 +16,7 @@ import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
 import com.jme3.util.IntMap;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
@@ -40,7 +40,7 @@ public class J3MOutputCapsule implements OutputCapsule {
         parameters = new HashMap<>();
     }
 
-    public void writeToStream(OutputStreamWriter out) throws IOException {
+    public void writeToStream(Writer out) throws IOException {
         for (String key : parameters.keySet()) {
             out.write("      ");
             writeParameter(out, key, parameters.get(key));
@@ -48,7 +48,7 @@ public class J3MOutputCapsule implements OutputCapsule {
         }
     }
 
-    protected void writeParameter(OutputStreamWriter out, String name, String value) throws IOException {
+    protected void writeParameter(Writer out, String name, String value) throws IOException {
         out.write(name);
         out.write(" : ");
         out.write(value);
