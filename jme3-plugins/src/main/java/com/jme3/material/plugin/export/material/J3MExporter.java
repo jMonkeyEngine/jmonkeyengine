@@ -10,7 +10,7 @@ import com.jme3.export.OutputCapsule;
 import com.jme3.export.Savable;
 import com.jme3.material.Material;
 import com.jme3.material.MaterialDef;
-import java.io.BufferedWriter;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -50,20 +50,20 @@ public class J3MExporter implements JmeExporter {
             throw new IllegalArgumentException("J3MExporter can only save com.jme3.material.Material class");
         }
 
-        try (OutputStreamWriter out = new OutputStreamWriter(f, StandardCharsets.UTF_8);
-                BufferedWriter writer = new BufferedWriter(out)) {
+        try (OutputStreamWriter out = new OutputStreamWriter(f, StandardCharsets.UTF_8)) {
 
             rootCapsule.clear();
             object.write(this);
-            rootCapsule.writeToStream(writer);
+            rootCapsule.writeToStream(out);
 
         }
     }
 
     @Override
     public void save(Savable object, File f) throws IOException {
-        try (FileOutputStream fos = new FileOutputStream(f)) {
-            save(object, fos);
+        try (FileOutputStream fos = new FileOutputStream(f);
+                BufferedOutputStream bos = new BufferedOutputStream(fos)) {
+            save(object, bos);
         }
     }
 
