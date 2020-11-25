@@ -2,6 +2,8 @@ package com.jme3.audio.lwjgl;
 
 import com.jme3.audio.openal.ALC;
 import java.nio.IntBuffer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.openal.AL;
 import org.lwjgl.openal.ALC10;
@@ -9,6 +11,11 @@ import org.lwjgl.openal.ALCcontext;
 import org.lwjgl.openal.ALCdevice;
 
 public class LwjglALC implements ALC {
+    /**
+     * message logger for this class
+     */
+    private static final Logger logger
+            = Logger.getLogger(LwjglALC.class.getName());
 
     @Override
     public void createALC() {
@@ -27,12 +34,14 @@ public class LwjglALC implements ALC {
 
                 // Retry to mitigate JME Issue 1383.
                 --numRetriesRemaining;
-                System.out.printf("Caught an LWJGLException from AL.create(). "
+                String message = String.format(
+                        "Caught an LWJGLException from AL.create(). "
                         + "Will retry after %d msec, "
                         + "with %d more retr%s remaining.%n",
                         retryDelayMsec,
                         numRetriesRemaining,
                         (numRetriesRemaining == 1) ? "y" : "ies");
+                logger.log(Level.WARNING, message);
 
                 try {
                     Thread.sleep(retryDelayMsec);
