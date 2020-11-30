@@ -7,13 +7,11 @@ package com.jme3.material.plugin.export.materialdef;
 
 import com.jme3.material.*;
 import com.jme3.math.*;
-import com.jme3.texture.image.ColorSpace;
-
-import java.io.*;
-
 import static com.jme3.shader.VarType.Vector2;
 import static com.jme3.shader.VarType.Vector3;
 import static com.jme3.shader.VarType.Vector4;
+import com.jme3.texture.image.ColorSpace;
+import java.io.*;
 
 /**
  * @author nehon
@@ -23,7 +21,7 @@ public class J3mdMatParamWriter {
     public J3mdMatParamWriter() {
     }
 
-    public void write(MatParam param, OutputStreamWriter out) throws IOException {
+    public void write(MatParam param, Writer out) throws IOException {
         out.write("        ");
         out.write(param.getVarType().name());
         out.write(" ");
