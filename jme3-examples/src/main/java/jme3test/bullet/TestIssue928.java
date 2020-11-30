@@ -43,6 +43,10 @@ import com.jme3.bullet.BulletAppState.ThreadingType;
  * If successful, no crash will occur.
  */
 public class TestIssue928 extends SimpleApplication {
+    private int count = 0;
+    private int frame = 0;
+    private BulletAppState bulletAppState;
+
     // *************************************************************************
     // new methods exposed
 
@@ -51,9 +55,6 @@ public class TestIssue928 extends SimpleApplication {
         app.start();
     }
 
-    int count = 0;
-    int frame = 0;
-    BulletAppState bulletAppState;
     // *************************************************************************
     // SimpleApplication methods
 
@@ -74,7 +75,7 @@ public class TestIssue928 extends SimpleApplication {
 
         frame++;
         if (count == 70) {
-            System.exit(0);
+            stop();
         }
     }
 }

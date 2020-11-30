@@ -434,7 +434,7 @@ public class MikktspaceTangentGenerator {
                 boolean bReadyLeftSwap = false, bReadyRightSwap = false;
                 while ((!bReadyLeftSwap) && iL < iR) {
                     assert (iL >= iL_in && iL <= iR_in);
-                    bReadyLeftSwap = !(pTmpVert[iL].vert[channel] < fSep);
+                    bReadyLeftSwap = pTmpVert[iL].vert[channel] >= fSep;
                     if (!bReadyLeftSwap) {
                         ++iL;
                     }

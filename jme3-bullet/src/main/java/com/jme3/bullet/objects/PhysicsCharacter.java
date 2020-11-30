@@ -40,6 +40,7 @@ import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
+
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -161,18 +162,19 @@ public class PhysicsCharacter extends PhysicsCollisionObject {
      */
     @Deprecated
 	public void setUpAxis(int axis) {
-		if(axis<0) axis=0;
-		else if(axis>2) axis=2;
-		switch(axis){
-			case 0:
-				setUp(Vector3f.UNIT_X);
-				break;
-			case 1:
-				setUp(Vector3f.UNIT_Y);
-				break;
-			case 2:
-				setUp(Vector3f.UNIT_Z);
-		}
+        switch (axis) {
+            case 0:
+                setUp(Vector3f.UNIT_X);
+                break;
+            case 1:
+                setUp(Vector3f.UNIT_Y);
+                break;
+            case 2:
+                setUp(Vector3f.UNIT_Z);
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid axis, not in range [0, 2]");
+        }
 	}
     
     /**
@@ -183,7 +185,6 @@ public class PhysicsCharacter extends PhysicsCollisionObject {
     public void setUp(Vector3f axis) {
         setUp(characterId, axis);
     }
-
 
     private native void setUp(long characterId, Vector3f axis);
 
