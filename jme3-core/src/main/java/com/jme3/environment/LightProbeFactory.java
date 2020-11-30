@@ -65,7 +65,7 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
  * Note that in case you are using a {@link JobProgressListener} all the its 
  * method will be called inside and app.enqueue callable.
  * This means that it's completely safe to modify the scenegraph within the 
- * Listener method, but also means that the even will be delayed until next update loop.
+ * Listener method, but also means that the event will be delayed until next update loop.
  * 
  * @see EnvironmentCamera
  * @author bouquet
