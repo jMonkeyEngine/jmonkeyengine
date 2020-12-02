@@ -20,7 +20,7 @@ public class LwjglALC implements ALC {
     @Override
     public void createALC() {
         int numRetriesRemaining = 4;
-        int retryDelayMsec = 100; // start with an 0.1-second delay
+        int retryDelayMsec = 100; // 0.1-second delay between retries
 
         while (true) {
             try {
@@ -47,9 +47,6 @@ public class LwjglALC implements ALC {
                     Thread.sleep(retryDelayMsec);
                 } catch (InterruptedException exception2) {
                 }
-
-                // Triple the wait time after each failure.
-                retryDelayMsec *= 3;
             }
         }
     }
