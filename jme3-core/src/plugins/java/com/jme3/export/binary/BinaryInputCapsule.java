@@ -37,11 +37,11 @@ import com.jme3.export.SavableClassUtil;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.IntMap;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.HashMap;
@@ -1023,7 +1023,7 @@ final class BinaryInputCapsule implements InputCapsule {
             bytes[x] =  content[index++];
         }
 
-        return new String(bytes, "UTF8");
+        return new String(bytes, StandardCharsets.UTF_8);
     }
 
     protected String[] readStringArray(byte[] content) throws IOException {
