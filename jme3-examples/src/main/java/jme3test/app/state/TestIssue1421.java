@@ -88,12 +88,13 @@ public class TestIssue1421 extends SimpleApplication {
             List<SceneProcessor> processorList = lastViewPort.getProcessors();
             int numProcessors = processorList.size();
             if (numProcessors != 0) {
-                throw new RuntimeException("SceneProcessor is still attached.");
+                throw new IllegalStateException(
+                        "SceneProcessor is still attached.");
             }
 
             // Check whether KEY_SYSRQ is still mapped.
             if (inputManager.hasMapping("ScreenShot")) {
-                throw new RuntimeException("KEY_SYSRQ is still mapped.");
+                throw new IllegalStateException("KEY_SYSRQ is still mapped.");
             }
             stop();
         }
