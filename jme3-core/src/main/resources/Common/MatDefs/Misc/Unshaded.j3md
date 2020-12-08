@@ -59,6 +59,8 @@ MaterialDef Unshaded {
         Float ShadowMapSize
 
         Boolean BackfaceShadows: true
+        
+        Float DesaturationValue
     }
 
     Technique {
@@ -82,7 +84,8 @@ MaterialDef Unshaded {
             NUM_BONES : NumberOfBones
             DISCARD_ALPHA : AlphaDiscardThreshold
             NUM_MORPH_TARGETS: NumberOfMorphTargets
-            NUM_TARGETS_BUFFERS: NumberOfTargetsBuffers
+            NUM_TARGETS_BUFFERS: NumberOfTargetsBuffers            
+            DESATURATION : DesaturationValue
         }
     }
 
