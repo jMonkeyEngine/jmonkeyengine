@@ -50,7 +50,7 @@ void main(){
     
     #ifdef DESATURATE
         vec3 gray = vec3(dot(vec3(0.2126,0.7152,0.0722), color.rgb));
-        color = vec4(mix(color.rgb, gray, m_DesaturationValue), 0.0);       
+        color.rgb = vec3(mix(color.rgb, gray, m_DesaturationValue));       
     #endif
 
     gl_FragColor = color;
