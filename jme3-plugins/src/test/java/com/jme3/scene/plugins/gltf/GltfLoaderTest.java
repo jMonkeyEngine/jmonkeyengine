@@ -1,10 +1,12 @@
 package com.jme3.scene.plugins.gltf;
 
+import com.jme3.asset.AssetLoadException;
 import com.jme3.asset.AssetManager;
 import com.jme3.material.plugin.TestMaterialWrite;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.system.JmeSystem;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -33,6 +35,16 @@ public class GltfLoaderTest {
 //        dumpScene(scene, 0);
     }
 
+    @Test
+    public void testLoadEmptyScene() {
+        try {
+            Spatial scene = assetManager.loadModel("gltf/box/boxWithEmptyScene.gltf");
+            dumpScene(scene, 0);
+        } catch (AssetLoadException ex) {
+            ex.printStackTrace();
+            Assert.fail("Failed to import gltf model with empty scene");
+        }
+    }
 
     private void dumpScene(Spatial s, int indent) {
         System.err.println(indentString.substring(0, indent) + s.getName() + " (" + s.getClass().getSimpleName() + ") / " +
