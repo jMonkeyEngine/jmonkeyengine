@@ -208,6 +208,10 @@ public class GltfLoader implements AssetLoader {
             sceneNode.setCullHint(Spatial.CullHint.Always);
 
             sceneNode.setName(getAsString(scene.getAsJsonObject(), "name"));
+            // If the scene is empty, ignore it.
+            if (!scene.getAsJsonObject().has("nodes")) {
+                continue;
+            }
             JsonArray sceneNodes = scene.getAsJsonObject().getAsJsonArray("nodes");
             sceneNode = customContentManager.readExtensionAndExtras("scene", scene, sceneNode);
             rootNode.attachChild(sceneNode);
