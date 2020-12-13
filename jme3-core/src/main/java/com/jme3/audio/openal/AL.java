@@ -86,7 +86,7 @@ public interface AL {
      */
     public static final int AL_GAIN = 0x100A;
 
-    /*
+    /**
      * Indicate minimum source attenuation
      * Type: ALfloat
      * Range:  [0.0 - 1.0]
@@ -131,7 +131,7 @@ public interface AL {
     public static final int AL_SAMPLE_OFFSET = 0x1025;
     public static final int AL_BYTE_OFFSET = 0x1026;
 
-    /*
+    /**
      * Source type (Static, Streaming or undetermined)
      * Source is Static if a Buffer has been attached using AL_BUFFER
      * Source is Streaming if one or more Buffers have been attached using alSourceQueueBuffers

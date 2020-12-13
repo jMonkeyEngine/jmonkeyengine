@@ -1065,7 +1065,7 @@ public class TerrainQuad extends Node implements Terrain {
         return height;
     }
 
-    /*
+    /**
      * gets an interpolated value at the specified point
      */
     protected float getHeight(int x, int z, float xm, float zm) {

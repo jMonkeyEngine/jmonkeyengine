@@ -993,7 +993,7 @@ public class ListSort<T> {
         return length;
     }
     
-    /*
+    /**
      * test case
      */
     @SuppressWarnings("unchecked")
