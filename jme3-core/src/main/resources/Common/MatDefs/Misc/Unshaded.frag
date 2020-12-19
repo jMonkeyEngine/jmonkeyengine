@@ -48,7 +48,7 @@ void main(){
         }
     #endif
     
-    #ifdef DESATURATE
+    #ifdef DESATURATION
         vec3 gray = vec3(dot(vec3(0.2126,0.7152,0.0722), color.rgb));
         color.rgb = vec3(mix(color.rgb, gray, m_DesaturationValue));       
     #endif
