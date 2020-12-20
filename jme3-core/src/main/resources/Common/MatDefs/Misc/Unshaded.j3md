@@ -60,6 +60,7 @@ MaterialDef Unshaded {
 
         Boolean BackfaceShadows: true
         
+        // 1.0 indicates 100% desaturation
         Float DesaturationValue
     }
 
