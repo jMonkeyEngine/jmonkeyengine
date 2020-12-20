@@ -12,7 +12,9 @@ uniform vec4 m_Color;
 uniform sampler2D m_ColorMap;
 uniform sampler2D m_LightMap;
 
-uniform float m_DesaturationValue;
+#ifdef DESATURATION
+    uniform float m_DesaturationValue;
+#endif
 
 varying vec2 texCoord1;
 varying vec2 texCoord2;
