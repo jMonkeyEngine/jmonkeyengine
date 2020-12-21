@@ -121,9 +121,9 @@ public class LightsPunctualExtensionLoader implements ExtensionLoader {
         //Get properties
         String name = obj.has("name") ? obj.get("name").getAsString() : "";
 
-        //TODO: How do we incorporate intensity
         float intensity = obj.has("intensity") ? obj.get("intensity").getAsFloat() : 1.0f;
         ColorRGBA color = obj.has("color") ? GltfUtils.getAsColor(obj, "color") : new ColorRGBA(ColorRGBA.White);
+        color = lumensToColor(color, intensity);
         float range = obj.has("range") ? obj.get("range").getAsFloat() : Float.POSITIVE_INFINITY;
 
         //Spot specific
@@ -155,9 +155,9 @@ public class LightsPunctualExtensionLoader implements ExtensionLoader {
         //Get properties
         String name = obj.has("name") ? obj.get("name").getAsString() : "";
 
-        //TODO: How do we incorporate intensity
         float intensity = obj.has("intensity") ? obj.get("intensity").getAsFloat() : 1.0f;
         ColorRGBA color = obj.has("color") ? GltfUtils.getAsColor(obj, "color") : new ColorRGBA(ColorRGBA.White);
+        color = lumensToColor(color, intensity);
 
         DirectionalLight directionalLight = new DirectionalLight();
         directionalLight.setName(name);
@@ -171,9 +171,9 @@ public class LightsPunctualExtensionLoader implements ExtensionLoader {
         //Get properties
         String name = obj.has("name") ? obj.get("name").getAsString() : "";
 
-        //TODO: How do we incorporate intensity
         float intensity = obj.has("intensity") ? obj.get("intensity").getAsFloat() : 1.0f;
         ColorRGBA color = obj.has("color") ? GltfUtils.getAsColor(obj, "color") : new ColorRGBA(ColorRGBA.White);
+        color = lumensToColor(color, intensity);
         float range = obj.has("range") ? obj.get("range").getAsFloat() : Float.POSITIVE_INFINITY;
 
         PointLight pointLight = new PointLight();
@@ -190,6 +190,34 @@ public class LightsPunctualExtensionLoader implements ExtensionLoader {
         } else {
             throw new AssetLoadException("KHR_lights_punctual extension accessed undefined light at index " + light);
         }
+    }
+
+    private ColorRGBA lumensToColor(ColorRGBA color, float lumens) {
+        ColorRGBA brightnessModifier = lumensToColor(lumens);
+        return color.mult(brightnessModifier);
+    }
+
+    private ColorRGBA lumensToColor(float lumens) {
+        /*
+        Taken from /Common/ShaderLib/Hdr.glsllib
+        vec4 HDR_EncodeLum(in float lum){
+        float Le = 2.0 * log2(lum + epsilon) + 127.0;
+        vec4 result = vec4(0.0);
+        result.a = fract(Le);
+        result.rgb = vec3((Le - (floor(result.a * 255.0)) / 255.0) / 255.0);
+        return result;
+         */
+        float epsilon = 0.0001f;
+
+        double Le = 2f * Math.log(lumens * epsilon) / Math.log(2);
+        ColorRGBA color = new ColorRGBA();
+        color.a = (float) (Le - Math.floor(Le)); //Get fractional part
+        float val = (float) ((Le - (Math.floor(color.a * 255.0)) / 255.0) / 255.0);
+        color.r = val;
+        color.g = val;
+        color.b = val;
+
+        return color;
     }
 
     private class NodeNeedingLight {
