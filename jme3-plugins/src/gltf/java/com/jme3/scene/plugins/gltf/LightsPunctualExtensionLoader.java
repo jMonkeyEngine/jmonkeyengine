@@ -44,6 +44,7 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
+import com.jme3.scene.control.LightControl;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -73,7 +74,7 @@ public class LightsPunctualExtensionLoader implements ExtensionLoader {
                 if (!lightDefinitions.containsKey(index)) {
                     pendingNodes.add(new NodeNeedingLight((Node) input, index));
                 } else {
-                    addLight((Node) input, index);
+                    addLight((Node) input, (Node) input, index);
                 }
             } else if (jsonObject.has("lights")) { //This will get run last
                 //Process the light definitions
@@ -104,7 +105,7 @@ public class LightsPunctualExtensionLoader implements ExtensionLoader {
 
                 //Build any lights that are pending now that we have definitions
                 for (NodeNeedingLight nodeInNeed : pendingNodes) {
-                    addLight(nodeInNeed.getNode(), nodeInNeed.getLightIndex());
+                    addLight((Node) input, nodeInNeed.getNode(), nodeInNeed.getLightIndex());
                 }
                 pendingNodes.clear();
             } else {
@@ -184,11 +185,14 @@ public class LightsPunctualExtensionLoader implements ExtensionLoader {
         return pointLight;
     }
 
-    private void addLight(Node node, int light) {
-        if (lightDefinitions.containsKey(light)) {
-            node.addLight(lightDefinitions.get(light));
+    private void addLight(Node parent, Node node, int lightIndex) {
+        if (lightDefinitions.containsKey(lightIndex)) {
+            Light light = lightDefinitions.get(lightIndex);
+            parent.addLight(light);
+            LightControl control = new LightControl(light);
+            node.addControl(control);
         } else {
-            throw new AssetLoadException("KHR_lights_punctual extension accessed undefined light at index " + light);
+            throw new AssetLoadException("KHR_lights_punctual extension accessed undefined light at index " + lightIndex);
         }
     }
 
