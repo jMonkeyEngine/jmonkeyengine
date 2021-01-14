@@ -32,6 +32,8 @@
 package com.jme3.scene.instancing;
 
 import com.jme3.bounding.BoundingVolume;
+import com.jme3.collision.Collidable;
+import com.jme3.collision.CollisionResults;
 import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
@@ -391,6 +393,11 @@ public class InstancedGeometry extends Geometry {
     public boolean checkCulling(Camera cam) {
         this.cam = cam;
         return super.checkCulling(cam);
+    }
+
+    @Override
+    public int collideWith(Collidable other, CollisionResults results) {
+        return 0; // Ignore collision
     }
 
     /**
