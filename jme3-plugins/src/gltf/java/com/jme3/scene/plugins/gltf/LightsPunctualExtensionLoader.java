@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -213,7 +213,7 @@ public class LightsPunctualExtensionLoader implements ExtensionLoader {
          */
         float epsilon = 0.0001f;
 
-        double Le = 2f * Math.log(lumens * epsilon) / Math.log(2);
+        double Le = 2f * Math.log(lumens * epsilon) / Math.log(2) + 127.0;
         ColorRGBA color = new ColorRGBA();
         color.a = (float) (Le - Math.floor(Le)); //Get fractional part
         float val = (float) ((Le - (Math.floor(color.a * 255.0)) / 255.0) / 255.0);
