@@ -189,7 +189,7 @@ public class LightsPunctualExtensionLoader implements ExtensionLoader {
         if (lightDefinitions.containsKey(lightIndex)) {
             Light light = lightDefinitions.get(lightIndex);
             parent.addLight(light);
-            LightControl control = new LightControl(light);
+            LightControl control = new GltfLightControl(light);
             node.addControl(control);
         } else {
             throw new AssetLoadException("KHR_lights_punctual extension accessed undefined light at index " + lightIndex);
