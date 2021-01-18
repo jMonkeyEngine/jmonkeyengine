@@ -179,7 +179,7 @@ jobs:
     name: Build on ${{ matrix.osName }} jdk${{ matrix.jdk }}
     runs-on: ${{ matrix.os }}    
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         os: [ubuntu-18.04,windows-2019,macOS-latest]
         jdk: [8.x.x,11.x.x]
