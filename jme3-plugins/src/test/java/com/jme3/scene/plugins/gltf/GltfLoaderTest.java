@@ -2,8 +2,12 @@ package com.jme3.scene.plugins.gltf;
 
 import com.jme3.asset.AssetLoadException;
 import com.jme3.asset.AssetManager;
+import com.jme3.light.DirectionalLight;
 import com.jme3.light.Light;
+import com.jme3.light.PointLight;
+import com.jme3.light.SpotLight;
 import com.jme3.material.plugin.TestMaterialWrite;
+import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.system.JmeSystem;
@@ -64,7 +68,20 @@ public class GltfLoaderTest {
                 s.getLocalTransform().getRotation().toString() + ", " +
                 s.getLocalTransform().getScale().toString());
         for (Light light : s.getLocalLightList()) {
-            System.err.println(indentString.substring(0, indent + 1) + " (" + light.getClass().getSimpleName() + ")" );
+            System.err.print(indentString.substring(0, indent + 1) + " (" + light.getClass().getSimpleName() + ")");
+            if (light instanceof SpotLight) {
+                Vector3f pos = ((SpotLight) light).getPosition();
+                Vector3f dir = ((SpotLight) light).getDirection();
+                System.err.println(" " + pos.toString() + ", " + dir.toString());
+            } else if (light instanceof PointLight) {
+                Vector3f pos = ((PointLight) light).getPosition();
+                System.err.println(" " + pos.toString());
+            } else if (light instanceof DirectionalLight) {
+                Vector3f dir = ((DirectionalLight) light).getDirection();
+                System.err.println(" " + dir.toString());
+            } else {
+                System.err.println();
+            }
         }
         if (s instanceof Node) {
             Node n = (Node) s;
