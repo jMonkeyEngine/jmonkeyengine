@@ -163,7 +163,6 @@ jobs:
           
           # Build
           ./gradlew  -PuseCommitHashAsVersionName=true --no-daemon  -PbuildNativeProjects=true -Dmaven.repo.local="$PWD/dist/maven" \
-          build \
           :jme3-bullet-native:build
                   
       # Upload natives to be used later by the BuildJMonkey job
