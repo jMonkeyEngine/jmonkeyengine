@@ -181,9 +181,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-18.04,windows-2019,macOS-latest]
+        os: [ubuntu-18.04,ubuntu-20.04,windows-2019,macOS-latest]
         jdk: [8.x.x,11.x.x]
         include:
+          - os: ubuntu-20.04
+            osName: linux-next
           - os: ubuntu-18.04
             osName: linux
             deploy: true
