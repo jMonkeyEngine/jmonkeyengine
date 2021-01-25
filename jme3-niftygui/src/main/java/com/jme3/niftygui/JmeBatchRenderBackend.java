@@ -209,17 +209,8 @@ public class JmeBatchRenderBackend implements BatchRenderBackend {
 
     @Override
     public void clearTextureAtlas(final int atlasId) {
-        com.jme3.texture.Image atlasImage=getTextureAtlas(atlasId).getImage();
-        ByteBuffer atlasBuffer=atlasImage.getData(0);
-        atlasBuffer.rewind();
-        for (int i=0; i<atlasImage.getWidth()*atlasImage.getHeight(); i++) {
-            atlasBuffer.put((byte) 0x00);
-            atlasBuffer.put((byte) 0xff);
-            atlasBuffer.put((byte) 0x00);
-            atlasBuffer.put((byte) 0xff);
-        }
-        atlasBuffer.rewind();
-        atlasImage.setUpdateNeeded();
+        initialData.rewind();
+        getTextureAtlas(atlasId).getImage().setData(initialData);
     }
 
     @Override
