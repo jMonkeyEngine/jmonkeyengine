@@ -80,6 +80,7 @@ public final class IntMap<T> implements Iterable<Entry<T>>, Cloneable, JmeClonea
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public IntMap<T> clone(){
         try{
             IntMap<T> clone = (IntMap<T>) super.clone();
@@ -137,6 +138,7 @@ public final class IntMap<T> implements Iterable<Entry<T>>, Cloneable, JmeClonea
         return false;
     }
 
+    @SuppressWarnings("unchecked")
     public T get(int key) {
         int index = key & mask;
         for (Entry e = table[index]; e != null; e = e.next){
@@ -147,6 +149,7 @@ public final class IntMap<T> implements Iterable<Entry<T>>, Cloneable, JmeClonea
         return null;
     }
 
+    @SuppressWarnings("unchecked")
     public T put(int key, T value) {
         int index = key & mask;
         // Check if key already exists.
@@ -186,6 +189,7 @@ public final class IntMap<T> implements Iterable<Entry<T>>, Cloneable, JmeClonea
         return null;
     }
 
+    @SuppressWarnings("unchecked")
     public T remove(int key) {
         int index = key & mask;
         Entry prev = table[index];
@@ -258,6 +262,7 @@ public final class IntMap<T> implements Iterable<Entry<T>>, Cloneable, JmeClonea
         }
 
         @Override
+        @SuppressWarnings("unchecked")
         public Entry next() {
             if (el >= size)
                 throw new NoSuchElementException("No more elements!");
@@ -320,6 +325,7 @@ public final class IntMap<T> implements Iterable<Entry<T>>, Cloneable, JmeClonea
         }
 
         @Override
+        @SuppressWarnings("unchecked")
         public Entry<T> clone(){
             try{
                 Entry<T> clone = (Entry<T>) super.clone();

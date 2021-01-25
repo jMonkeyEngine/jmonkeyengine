@@ -506,7 +506,7 @@ package com.jme3.bounding;
 ////        Vector3f max = _compVect2.set(new Vector3f(Float.NEGATIVE_INFINITY, Float.NEGATIVE_INFINITY, Float.NEGATIVE_INFINITY));
 ////        Vector3f point;
 ////        for (int i = start; i < end; i++) {
-////        	mesh.getTriangle(indices[i], verts);
+////            mesh.getTriangle(indices[i], verts);
 ////            point = verts[0];
 ////            if (point.x < min.x)
 ////                min.x = point.x;

@@ -62,6 +62,7 @@ import com.jme3.util.MipMapGenerator;
 import com.jme3.util.NativeObjectManager;
 import jme3tools.shader.ShaderDebug;
 
+import java.lang.ref.WeakReference;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
@@ -503,26 +504,6 @@ public final class GLRenderer implements Renderer {
             }
         }
 
-        if (hasExtension("GL_ARB_shader_storage_buffer_object")) {
-            caps.add(Caps.ShaderStorageBufferObject);
-            limits.put(Limits.ShaderStorageBufferObjectMaxBlockSize, getInteger(GL4.GL_MAX_SHADER_STORAGE_BLOCK_SIZE));
-            limits.put(Limits.ShaderStorageBufferObjectMaxComputeBlocks, getInteger(GL4.GL_MAX_COMPUTE_SHADER_STORAGE_BLOCKS));
-            limits.put(Limits.ShaderStorageBufferObjectMaxGeometryBlocks, getInteger(GL4.GL_MAX_GEOMETRY_SHADER_STORAGE_BLOCKS));
-            limits.put(Limits.ShaderStorageBufferObjectMaxFragmentBlocks, getInteger(GL4.GL_MAX_FRAGMENT_SHADER_STORAGE_BLOCKS));
-            limits.put(Limits.ShaderStorageBufferObjectMaxVertexBlocks, getInteger(GL4.GL_MAX_VERTEX_SHADER_STORAGE_BLOCKS));
-            limits.put(Limits.ShaderStorageBufferObjectMaxTessControlBlocks, getInteger(GL4.GL_MAX_TESS_CONTROL_SHADER_STORAGE_BLOCKS));
-            limits.put(Limits.ShaderStorageBufferObjectMaxTessEvaluationBlocks, getInteger(GL4.GL_MAX_TESS_EVALUATION_SHADER_STORAGE_BLOCKS));
-            limits.put(Limits.ShaderStorageBufferObjectMaxCombineBlocks, getInteger(GL4.GL_MAX_COMBINED_SHADER_STORAGE_BLOCKS));
-        }
-
-        if (hasExtension("GL_ARB_uniform_buffer_object")) {
-            caps.add(Caps.UniformBufferObject);
-            limits.put(Limits.UniformBufferObjectMaxBlockSize, getInteger(GL3.GL_MAX_UNIFORM_BLOCK_SIZE));
-            limits.put(Limits.UniformBufferObjectMaxGeometryBlocks, getInteger(GL3.GL_MAX_GEOMETRY_UNIFORM_BLOCKS));
-            limits.put(Limits.UniformBufferObjectMaxFragmentBlocks, getInteger(GL3.GL_MAX_FRAGMENT_UNIFORM_BLOCKS));
-            limits.put(Limits.UniformBufferObjectMaxVertexBlocks, getInteger(GL3.GL_MAX_VERTEX_UNIFORM_BLOCKS));
-        }
-
         if (hasExtension("GL_OES_geometry_shader") || hasExtension("GL_EXT_geometry_shader")) {
             caps.add(Caps.GeometryShader);
         }
@@ -530,6 +511,35 @@ public final class GLRenderer implements Renderer {
         if (hasExtension("GL_OES_tessellation_shader") || hasExtension("GL_EXT_tessellation_shader")) {
             caps.add(Caps.TesselationShader);
         }
+
+        if (hasExtension("GL_ARB_shader_storage_buffer_object")) {
+            caps.add(Caps.ShaderStorageBufferObject);
+            limits.put(Limits.ShaderStorageBufferObjectMaxBlockSize, getInteger(GL4.GL_MAX_SHADER_STORAGE_BLOCK_SIZE));
+            // Commented out until we support ComputeShaders and the ComputeShader Cap
+            // limits.put(Limits.ShaderStorageBufferObjectMaxComputeBlocks, getInteger(GL4.GL_MAX_COMPUTE_SHADER_STORAGE_BLOCKS));
+            if (caps.contains(Caps.GeometryShader)) {
+                limits.put(Limits.ShaderStorageBufferObjectMaxGeometryBlocks, getInteger(GL4.GL_MAX_GEOMETRY_SHADER_STORAGE_BLOCKS));
+            }
+            limits.put(Limits.ShaderStorageBufferObjectMaxFragmentBlocks, getInteger(GL4.GL_MAX_FRAGMENT_SHADER_STORAGE_BLOCKS));
+            limits.put(Limits.ShaderStorageBufferObjectMaxVertexBlocks, getInteger(GL4.GL_MAX_VERTEX_SHADER_STORAGE_BLOCKS));
+            if (caps.contains(Caps.TesselationShader)) {
+                limits.put(Limits.ShaderStorageBufferObjectMaxTessControlBlocks, getInteger(GL4.GL_MAX_TESS_CONTROL_SHADER_STORAGE_BLOCKS));
+                limits.put(Limits.ShaderStorageBufferObjectMaxTessEvaluationBlocks, getInteger(GL4.GL_MAX_TESS_EVALUATION_SHADER_STORAGE_BLOCKS));
+            }
+            limits.put(Limits.ShaderStorageBufferObjectMaxCombineBlocks, getInteger(GL4.GL_MAX_COMBINED_SHADER_STORAGE_BLOCKS));
+        }
+
+        if (hasExtension("GL_ARB_uniform_buffer_object")) {
+            caps.add(Caps.UniformBufferObject);
+            limits.put(Limits.UniformBufferObjectMaxBlockSize, getInteger(GL3.GL_MAX_UNIFORM_BLOCK_SIZE));
+            if (caps.contains(Caps.GeometryShader)) {
+                limits.put(Limits.UniformBufferObjectMaxGeometryBlocks, getInteger(GL3.GL_MAX_GEOMETRY_UNIFORM_BLOCKS));
+            }
+            limits.put(Limits.UniformBufferObjectMaxFragmentBlocks, getInteger(GL3.GL_MAX_FRAGMENT_UNIFORM_BLOCKS));
+            limits.put(Limits.UniformBufferObjectMaxVertexBlocks, getInteger(GL3.GL_MAX_VERTEX_UNIFORM_BLOCKS));
+        }
+
+
          
         if(caps.contains(Caps.OpenGL20)){
             caps.add(Caps.UnpackRowLength);
@@ -1626,11 +1636,16 @@ public final class GLRenderer implements Renderer {
      |* Framebuffers                                                      *|
      \*********************************************************************/
     public void copyFrameBuffer(FrameBuffer src, FrameBuffer dst) {
-        copyFrameBuffer(src, dst, true);
+        copyFrameBuffer(src, dst, true, true);
     }
 
     @Override
     public void copyFrameBuffer(FrameBuffer src, FrameBuffer dst, boolean copyDepth) {
+        copyFrameBuffer(src, dst, true, copyDepth);
+    }
+
+    @Override
+    public void copyFrameBuffer(FrameBuffer src, FrameBuffer dst, boolean copyColor,boolean copyDepth) {
         if (caps.contains(Caps.FrameBufferBlit)) {
             int srcX0 = 0;
             int srcY0 = 0;
@@ -1683,7 +1698,13 @@ public final class GLRenderer implements Renderer {
                 dstX1 = dst.getWidth();
                 dstY1 = dst.getHeight();
             }
-            int mask = GL.GL_COLOR_BUFFER_BIT;
+            
+            int mask = 0;
+            
+            if(copyColor){
+                mask|=GL.GL_COLOR_BUFFER_BIT;
+            }
+
             if (copyDepth) {
                 mask |= GL.GL_DEPTH_BUFFER_BIT;
             }
@@ -1805,12 +1826,12 @@ public final class GLRenderer implements Renderer {
                     convertAttachmentSlot(rb.getSlot()),
                     convertTextureType(tex.getType(), image.getMultiSamples(), rb.getFace()),
                     image.getId(),
-                    0);
+                    rb.getLevel());
         } else {
             glfbo.glFramebufferTextureLayerEXT(GLFbo.GL_FRAMEBUFFER_EXT, 
                     convertAttachmentSlot(rb.getSlot()), 
                     image.getId(), 
-                    0,
+                    rb.getLevel(),
                     rb.getLayer());
         }
     }
@@ -2010,12 +2031,14 @@ public final class GLRenderer implements Renderer {
             for (int i = 0; i < context.boundFB.getNumColorBuffers(); i++) {
                 RenderBuffer rb = context.boundFB.getColorBuffer(i);
                 Texture tex = rb.getTexture();
-                if (tex != null
-                        && tex.getMinFilter().usesMipMapLevels()) {
+                if (tex != null && tex.getMinFilter().usesMipMapLevels()) {
                     setTexture(0, rb.getTexture());
-
-                    int textureType = convertTextureType(tex.getType(), tex.getImage().getMultiSamples(), rb.getFace());
-                    glfbo.glGenerateMipmapEXT(textureType);
+                    if (tex.getType() == Texture.Type.CubeMap) {
+                        glfbo.glGenerateMipmapEXT(GL.GL_TEXTURE_CUBE_MAP);
+                    } else {
+                        int textureType = convertTextureType(tex.getType(), tex.getImage().getMultiSamples(), rb.getFace());
+                        glfbo.glGenerateMipmapEXT(textureType);
+                    }
                 }
             }
         }
@@ -2365,9 +2388,9 @@ public final class GLRenderer implements Renderer {
             gl.glActiveTexture(GL.GL_TEXTURE0 + unit);
             context.boundTextureUnit = unit;
         }
-        if (context.boundTextures[unit] != img) {
+        if (context.boundTextures[unit]==null||context.boundTextures[unit].get() != img.getWeakRef().get()) {
             gl.glBindTexture(target, img.getId());
-            context.boundTextures[unit] = img;
+            context.boundTextures[unit] = img.getWeakRef();
             statistics.onTextureUse(img, true);
         } else {
             statistics.onTextureUse(img, false);
@@ -2383,13 +2406,13 @@ public final class GLRenderer implements Renderer {
      * @param unit At what unit to bind the texture.
      */
     private void bindTextureOnly(int target, Image img, int unit) {
-        if (context.boundTextures[unit] != img) {
+        if (context.boundTextures[unit] == null || context.boundTextures[unit].get() != img.getWeakRef().get()) {
             if (context.boundTextureUnit != unit) {
                 gl.glActiveTexture(GL.GL_TEXTURE0 + unit);
                 context.boundTextureUnit = unit;
             }
             gl.glBindTexture(target, img.getId());
-            context.boundTextures[unit] = img;
+            context.boundTextures[unit] = img.getWeakRef();
             statistics.onTextureUse(img, true);
         } else {
             statistics.onTextureUse(img, false);
@@ -2804,7 +2827,7 @@ public final class GLRenderer implements Renderer {
         for (int i = 0; i < attribList.oldLen; i++) {
             int idx = attribList.oldList[i];
             gl.glDisableVertexAttribArray(idx);
-            if (context.boundAttribs[idx].isInstanced()) {
+            if (context.boundAttribs[idx].get().isInstanced()) {
                 glext.glVertexAttribDivisorARB(idx, 0);
             }
             context.boundAttribs[idx] = null;
@@ -2859,13 +2882,13 @@ public final class GLRenderer implements Renderer {
             updateBufferData(vb);
         }
 
-        VertexBuffer[] attribs = context.boundAttribs;
+        WeakReference<VertexBuffer>[] attribs = context.boundAttribs;
         for (int i = 0; i < slotsRequired; i++) {
             if (!context.attribIndexList.moveToNew(loc + i)) {
                 gl.glEnableVertexAttribArray(loc + i);
             }
         }
-        if (attribs[loc] != vb) {
+        if (attribs[loc]==null||attribs[loc].get() != vb) {
             // NOTE: Use id from interleaved buffer if specified
             int bufId = idb != null ? idb.getId() : vb.getId();
             assert bufId != -1;
@@ -2905,14 +2928,14 @@ public final class GLRenderer implements Renderer {
 
             for (int i = 0; i < slotsRequired; i++) {
                 int slot = loc + i;
-                if (vb.isInstanced() && (attribs[slot] == null || !attribs[slot].isInstanced())) {
+                if (vb.isInstanced() && (attribs[slot] == null || attribs[slot].get() == null || !attribs[slot].get().isInstanced())) {
                     // non-instanced -> instanced
                     glext.glVertexAttribDivisorARB(slot, vb.getInstanceSpan());
-                } else if (!vb.isInstanced() && attribs[slot] != null && attribs[slot].isInstanced()) {
+                } else if (!vb.isInstanced() && attribs[slot] != null && attribs[slot].get() != null && attribs[slot].get().isInstanced()) {
                     // instanced -> non-instanced
                     glext.glVertexAttribDivisorARB(slot, 0);
                 }
-                attribs[slot] = vb;
+                attribs[slot] = vb.getWeakRef();
             }
         }
     }

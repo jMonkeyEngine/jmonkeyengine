@@ -12,6 +12,12 @@ version = jmeFullVersion
 sourceCompatibility = '1.8'
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
+gradle.projectsEvaluated {
+    tasks.withType(JavaCompile) { // compile-time options:
+        options.compilerArgs << '-Xlint:unchecked'
+    }
+}
+
 repositories {
     mavenCentral()
     maven {
@@ -44,7 +50,8 @@ test {
 jar {
     manifest {
         attributes 'Implementation-Title': 'jMonkeyEngine',
-                   'Implementation-Version': jmeFullVersion
+                   'Implementation-Version': jmeFullVersion,
+                   'Automatic-Module-Name': "${project.name.replace("-", ".")}" 
     }
 }
 

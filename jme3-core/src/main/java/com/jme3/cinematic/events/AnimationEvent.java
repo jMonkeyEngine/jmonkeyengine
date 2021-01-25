@@ -284,6 +284,7 @@ public class AnimationEvent extends AbstractCinematicEvent {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void initEvent(Application app, Cinematic cinematic) {
         super.initEvent(app, cinematic);
         this.cinematic = cinematic;
@@ -451,6 +452,7 @@ public class AnimationEvent extends AbstractCinematicEvent {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void dispose() {
         super.dispose();
         if (cinematic != null) {

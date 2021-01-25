@@ -365,6 +365,7 @@ public final class AnimControl extends AbstractControl implements Cloneable, Jme
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void read(JmeImporter im) throws IOException {
         super.read(im);
         InputCapsule in = im.getCapsule(this);

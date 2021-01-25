@@ -163,7 +163,7 @@ public class TerrainGrid extends TerrainQuad {
                     
                     if (isCenter(quadIdx)) {
                         // if it should be attached as a child right now, attach it
-                        getControl(UpdateControl.class).enqueue(new Callable() {
+                        getControl(UpdateControl.class).enqueue(new Callable<Object>() {
                             // back on the OpenGL thread:
                             @Override
                             public Object call() throws Exception {
@@ -177,7 +177,7 @@ public class TerrainGrid extends TerrainQuad {
                             }
                         });
                     } else {
-                        getControl(UpdateControl.class).enqueue(new Callable() {
+                        getControl(UpdateControl.class).enqueue(new Callable<Object>() {
                             @Override
                             public Object call() throws Exception {
                                 removeQuad(newQuad);
@@ -188,7 +188,7 @@ public class TerrainGrid extends TerrainQuad {
                 }
             }
 
-            getControl(UpdateControl.class).enqueue(new Callable() {
+            getControl(UpdateControl.class).enqueue(new Callable<Object>() {
                     // back on the OpenGL thread:
                     @Override
                     public Object call() throws Exception {

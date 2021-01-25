@@ -260,6 +260,7 @@ public class OGGLoader implements AssetLoader {
         }
     }
     
+    @SuppressWarnings("unchecked")
     private AudioData load(InputStream in, boolean readStream, boolean streamCache) throws IOException{
         if (readStream && streamCache){
             oggStream = new CachedOggStream(in);

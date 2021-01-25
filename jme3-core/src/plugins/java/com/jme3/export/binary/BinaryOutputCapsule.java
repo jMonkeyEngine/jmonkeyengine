@@ -41,6 +41,7 @@ import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
@@ -684,8 +685,7 @@ final class BinaryOutputCapsule implements OutputCapsule {
             write(NULL_OBJECT);
             return;
         }
-        // write our output as UTF-8. Java misspells UTF-8 as UTF8 for official use in java.lang
-        byte[] bytes = value.getBytes("UTF8");
+        byte[] bytes = value.getBytes(StandardCharsets.UTF_8);
         write(bytes.length);
         baos.write(bytes);
     }

@@ -249,6 +249,15 @@ public class EnvironmentCamera extends BaseAppState {
         }
     }
 
+    /**
+     * Returns an array of the 6 ViewPorts used to capture the snapshot.
+     * Note that this will be null until after initialize() is called.
+     * @return array of ViewPorts
+     */
+    public ViewPort[] getViewPorts(){
+        return viewports;
+    }
+
     @Override
     protected void initialize(Application app) {
         this.backGroundColor = app.getViewPort().getBackgroundColor();
@@ -359,6 +368,7 @@ public class EnvironmentCamera extends BaseAppState {
         JobProgressListener<TextureCubeMap> callback;
         Spatial scene;
 
+        @SuppressWarnings("unchecked")
         public SnapshotJob(JobProgressListener callback, Spatial scene) {
             this.callback = callback;
             this.scene = scene;

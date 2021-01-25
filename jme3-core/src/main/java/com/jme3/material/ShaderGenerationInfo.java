@@ -177,6 +177,7 @@ public class ShaderGenerationInfo implements Savable, Cloneable {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void read(JmeImporter im) throws IOException {
         InputCapsule ic = im.getCapsule(this);
         attributes = ic.readSavableArrayList("attributes", new ArrayList<ShaderNodeVariable>());

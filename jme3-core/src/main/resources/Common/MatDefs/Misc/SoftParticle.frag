@@ -42,7 +42,7 @@ void main(){
     float depthv = fetchTextureSample(m_DepthTexture, vPos, 0).x * 2.0 - 1.0; // Scene depth
     depthv *= projPos.y;
     float particleDepth = projPos.x;
-	
+
     float zdiff = depthv - particleDepth;
     if(zdiff <= 0.0){
         discard;

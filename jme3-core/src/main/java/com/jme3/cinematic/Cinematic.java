@@ -234,6 +234,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
      * @throws IOException
      */
     @Override
+    @SuppressWarnings("unchecked")
     public void read(JmeImporter im) throws IOException {
         super.read(im);
         InputCapsule ic = im.getCapsule(this);

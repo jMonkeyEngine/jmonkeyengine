@@ -55,6 +55,7 @@ public class FieldSerializer extends Serializer {
     private static Map<Class, SavedField[]> savedFields = new HashMap<Class, SavedField[]>();
     private static Map<Class, Constructor> savedCtors = new HashMap<Class, Constructor>();
 
+    @SuppressWarnings("unchecked")
     protected void checkClass(Class clazz) {
     
         // See if the class has a public no-arg constructor

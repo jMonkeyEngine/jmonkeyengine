@@ -193,22 +193,22 @@ public class JmeDesktopSystem extends JmeSystemDelegate {
 
     private JmeContext newContextLwjgl(AppSettings settings, JmeContext.Type type) {
         try {
-            Class<? extends JmeContext> ctxClazz = null;
+            Class ctxClazz = null;
             switch (type) {
                 case Canvas:
-                    ctxClazz = (Class<? extends JmeContext>) Class.forName("com.jme3.system.lwjgl.LwjglCanvas");
+                    ctxClazz = Class.forName("com.jme3.system.lwjgl.LwjglCanvas");
                     break;
                 case Display:
-                    ctxClazz = (Class<? extends JmeContext>) Class.forName("com.jme3.system.lwjgl.LwjglDisplay");
+                    ctxClazz = Class.forName("com.jme3.system.lwjgl.LwjglDisplay");
                     break;
                 case OffscreenSurface:
-                    ctxClazz = (Class<? extends JmeContext>) Class.forName("com.jme3.system.lwjgl.LwjglOffscreenBuffer");
+                    ctxClazz = Class.forName("com.jme3.system.lwjgl.LwjglOffscreenBuffer");
                     break;
                 default:
                     throw new IllegalArgumentException("Unsupported context type " + type);
             }
 
-            return ctxClazz.newInstance();
+            return (JmeContext) ctxClazz.newInstance();
         } catch (InstantiationException ex) {
             logger.log(Level.SEVERE, "Failed to create context", ex);
         } catch (IllegalAccessException ex) {
@@ -223,29 +223,29 @@ public class JmeDesktopSystem extends JmeSystemDelegate {
 
     private JmeContext newContextJogl(AppSettings settings, JmeContext.Type type) {
         try {
-            Class<? extends JmeContext> ctxClazz = null;
+            Class ctxClazz = null;
             switch (type) {
                 case Display:
-                    ctxClazz = (Class<? extends JmeContext>) Class.forName("com.jme3.system.jogl.JoglNewtDisplay");
+                    ctxClazz = Class.forName("com.jme3.system.jogl.JoglNewtDisplay");
                     break;
                 case Canvas:
-                    ctxClazz = (Class<? extends JmeContext>) Class.forName("com.jme3.system.jogl.JoglNewtCanvas");
+                    ctxClazz = Class.forName("com.jme3.system.jogl.JoglNewtCanvas");
                     break;
                 case OffscreenSurface:
-                    ctxClazz = (Class<? extends JmeContext>) Class.forName("com.jme3.system.jogl.JoglOffscreenBuffer");
+                    ctxClazz = Class.forName("com.jme3.system.jogl.JoglOffscreenBuffer");
                     break;
                 default:
                     throw new IllegalArgumentException("Unsupported context type " + type);
             }
 
-            return ctxClazz.newInstance();
+            return (JmeContext) ctxClazz.newInstance();
         } catch (InstantiationException ex) {
             logger.log(Level.SEVERE, "Failed to create context", ex);
         } catch (IllegalAccessException ex) {
             logger.log(Level.SEVERE, "Failed to create context", ex);
         } catch (ClassNotFoundException ex) {
             logger.log(Level.SEVERE, "CRITICAL ERROR: Context class is missing!\n"
-                    + "Make sure jme3_jogl is on the classpath.", ex);
+                    + "Make sure jme3-jogl is on the classpath.", ex);
         }
 
         return null;
@@ -255,9 +255,8 @@ public class JmeDesktopSystem extends JmeSystemDelegate {
         try {
             String className = settings.getRenderer().substring("CUSTOM".length());
 
-            Class<? extends JmeContext> ctxClazz = null;
-            ctxClazz = (Class<? extends JmeContext>) Class.forName(className);
-            return ctxClazz.newInstance();
+            Class ctxClazz = Class.forName(className);
+            return (JmeContext) ctxClazz.newInstance();
         } catch (InstantiationException ex) {
             logger.log(Level.SEVERE, "Failed to create context", ex);
         } catch (IllegalAccessException ex) {
@@ -295,13 +294,14 @@ public class JmeDesktopSystem extends JmeSystemDelegate {
         return ctx;
     }
 
+    @SuppressWarnings("unchecked")
     private <T> T newObject(String className) {
         try {
             Class<T> clazz = (Class<T>) Class.forName(className);
             return clazz.newInstance();
         } catch (ClassNotFoundException ex) {
-            logger.log(Level.SEVERE, "CRITICAL ERROR: Audio implementation class is missing!\n"
-                                   + "Make sure jme3_lwjgl-oal or jm3_joal is on the classpath.", ex);
+            logger.log(Level.SEVERE, "CRITICAL ERROR: Audio implementation class "
+                    + className + " is missing!\n", ex);
         } catch (IllegalAccessException ex) {
             logger.log(Level.SEVERE, "Failed to create context", ex);
         } catch (InstantiationException ex) {

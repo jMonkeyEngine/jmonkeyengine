@@ -5,6 +5,7 @@ import com.jme3.app.state.ScreenshotAppState;
 import com.jme3.bullet.control.CharacterControl;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
+import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.terrain.geomipmap.TerrainGrid;
 import com.jme3.terrain.geomipmap.TerrainGridLodControl;
@@ -136,6 +137,7 @@ public class TerrainFractalGridTest extends SimpleApplication {
 
 
         this.getCamera().setLocation(new Vector3f(0, 300, 0));
+        cam.setRotation(new Quaternion(0.51176f, -0.14f, 0.085f, 0.84336f));
 
         this.viewPort.setBackgroundColor(new ColorRGBA(0.7f, 0.8f, 1f, 1f));
 

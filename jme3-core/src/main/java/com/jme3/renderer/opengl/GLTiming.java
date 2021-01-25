@@ -62,6 +62,7 @@ public class GLTiming implements InvocationHandler {
     }
     
     @Override
+    @SuppressWarnings("unchecked")
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         String methodName = method.getName();
         if (methodName.equals("resetStats")) {

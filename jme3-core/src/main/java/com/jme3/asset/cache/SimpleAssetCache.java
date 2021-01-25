@@ -56,6 +56,7 @@ public class SimpleAssetCache implements AssetCache {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public <T> T getFromCache(AssetKey<T> key) {
         return (T) keyToAssetMap.get(key);
     }

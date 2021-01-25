@@ -152,6 +152,7 @@ public class MTLLoader implements AssetLoader {
             material.setFloat("AlphaDiscardThreshold", 0.01f);
         }
         
+        material.setName(matName);
         matList.put(matName, material);
     }
 

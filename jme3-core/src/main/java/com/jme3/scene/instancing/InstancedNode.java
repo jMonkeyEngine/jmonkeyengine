@@ -183,7 +183,10 @@ public class InstancedNode extends GeometryGroupNode {
     private HashMap<InstanceTypeKey, InstancedGeometry> instancesMap =
             new HashMap<InstanceTypeKey, InstancedGeometry>();
 
-    public InstancedNode() {
+    /**
+     * Serialization only. Do not use.
+     */
+    protected InstancedNode() {
         super();
         // NOTE: since we are deserializing,
         // the control is going to be added automatically here.

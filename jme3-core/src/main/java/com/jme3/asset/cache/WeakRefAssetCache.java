@@ -95,6 +95,7 @@ public class WeakRefAssetCache implements AssetCache {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public <T> T getFromCache(AssetKey<T> key) {
         AssetRef ref = assetCache.get(key);
         if (ref != null){

@@ -166,6 +166,7 @@ public class CompoundCollisionShape extends CollisionShape {
      * @throws IOException from importer
      */
     @Override
+    @SuppressWarnings("unchecked")
     public void read(JmeImporter im) throws IOException {
         super.read(im);
         InputCapsule capsule = im.getCapsule(this);

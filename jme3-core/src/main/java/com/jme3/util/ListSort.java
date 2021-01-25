@@ -131,6 +131,7 @@ public class ListSort<T> {
      *
      * @param len
      */
+    @SuppressWarnings("unchecked")
     public final void allocateStack(int len) {
 
         length = len;
@@ -992,9 +993,10 @@ public class ListSort<T> {
         return length;
     }
     
-    /*
+    /**
      * test case
      */
+    @SuppressWarnings("unchecked")
     public static void main(String[] argv) {
         Integer[] arr = new Integer[]{5, 6, 2, 9, 10, 11, 12, 8, 3, 12, 3, 7, 12, 32, 458, 12, 5, 3, 78, 45, 12, 32, 58, 45, 65, 45, 98, 45, 65, 2, 3, 47, 21, 35};
         ListSort ls = new ListSort();

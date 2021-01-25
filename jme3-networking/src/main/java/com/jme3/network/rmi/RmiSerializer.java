@@ -235,6 +235,7 @@ public class RmiSerializer extends Serializer {
     }
             
     @Override
+    @SuppressWarnings("unchecked")
     public <T> T readObject(ByteBuffer data, Class<T> c) throws IOException {
         if (c == RemoteObjectDefMessage.class){
             return (T) readObjectDefs(data);

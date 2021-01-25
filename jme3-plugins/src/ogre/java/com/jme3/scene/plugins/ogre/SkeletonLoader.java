@@ -164,6 +164,7 @@ public class SkeletonLoader extends DefaultHandler implements AssetLoader {
             indexToJoint.clear();
             armature = new Armature(joints);
             armature.saveBindPose();
+            armature.saveInitialPose();
         } else if (qName.equals("animation")) {
             animClips.add(animClip);
             animClip = null;

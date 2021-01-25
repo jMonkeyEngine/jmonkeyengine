@@ -242,7 +242,7 @@ public class LodGenerator {
     /**
      * Comparator used to sort vertices according to their collapse cost
      */
-    private Comparator collapseComparator = new Comparator<Vertex>() {
+    private Comparator<Vertex> collapseComparator = new Comparator<Vertex>() {
         @Override
         public int compare(Vertex o1, Vertex o2) {
             if (Float.compare(o1.collapseCost, o2.collapseCost) == 0) {
@@ -623,7 +623,7 @@ public class LodGenerator {
         VertexBuffer indexBuffer = mesh.getBuffer(VertexBuffer.Type.Index);
         
         boolean isShortBuffer = indexBuffer.getFormat() == VertexBuffer.Format.UnsignedShort;
-        // Create buffers.	
+        // Create buffers.
         VertexBuffer lodBuffer = new VertexBuffer(VertexBuffer.Type.Index);
         int bufsize = indexCount == 0 ? 3 : indexCount;
         
@@ -979,7 +979,7 @@ public class LodGenerator {
             
         } else {
             // TODO: Find out why is this needed. assertOutdatedCollapseCost() fails on some
-            // rare situations without this. For example goblin.mesh fails.	
+            // rare situations without this. For example goblin.mesh fails.
             //Treeset to have an ordered list with unique values
             SortedSet<Vertex> updatable = new TreeSet<Vertex>(collapseComparator);
             

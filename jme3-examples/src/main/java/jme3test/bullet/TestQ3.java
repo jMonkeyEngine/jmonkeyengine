@@ -61,17 +61,18 @@ public class TestQ3 extends SimpleApplication implements ActionListener {
     private static boolean useHttp = false;
     private boolean left=false,right=false,up=false,down=false;
 
-    public static void main(String[] args) {
-        File file = new File("quake3level.zip");
-        if (!file.exists()) {
-            useHttp = true;
-        }
+    public static void main(String[] args) {        
         TestQ3 app = new TestQ3();
         app.start();
     }
 
     @Override
     public void simpleInitApp() {
+        File file = new File("quake3level.zip");
+        if (!file.exists()) {
+            useHttp = true;
+        }
+        
         bulletAppState = new BulletAppState();
         stateManager.attach(bulletAppState);
         flyCam.setMoveSpeed(100);

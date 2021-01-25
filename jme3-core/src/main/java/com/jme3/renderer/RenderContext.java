@@ -31,6 +31,8 @@
  */
 package com.jme3.renderer;
 
+import java.lang.ref.WeakReference;
+
 import com.jme3.material.RenderState;
 import com.jme3.math.ColorRGBA;
 import com.jme3.scene.Mesh;
@@ -219,7 +221,7 @@ public class RenderContext {
      *
      * @see Renderer#setTexture(int, com.jme3.texture.Texture)
      */
-    public final Image[] boundTextures = new Image[16];
+    public final WeakReference<Image> boundTextures[] = new WeakReference[16];
 
     /**
      * IDList for texture units
@@ -252,7 +254,7 @@ public class RenderContext {
      * Vertex attribs currently bound and enabled. If a slot is null, then
      * it is disabled.
      */
-    public final VertexBuffer[] boundAttribs = new VertexBuffer[16];
+    public final WeakReference<VertexBuffer> [] boundAttribs = new WeakReference[16];
 
     /**
      * IDList for vertex attributes

@@ -83,6 +83,7 @@ public class BresenhamTerrainPicker implements TerrainPicker {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public int getTerrainIntersection(Ray worldPick, CollisionResults results) {
         int numCollisions = 0;
         worldPickRay.set(worldPick);

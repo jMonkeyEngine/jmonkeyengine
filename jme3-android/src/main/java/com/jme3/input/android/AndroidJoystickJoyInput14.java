@@ -113,7 +113,7 @@ public class AndroidJoystickJoyInput14 {
         joysticks.clear();
         joystickIndex.clear();
 
-        ArrayList gameControllerDeviceIds = new ArrayList();
+        ArrayList<Integer> gameControllerDeviceIds = new ArrayList<>();
         int[] deviceIds = InputDevice.getDeviceIds();
         for (int deviceId : deviceIds) {
             InputDevice dev = InputDevice.getDevice(deviceId);

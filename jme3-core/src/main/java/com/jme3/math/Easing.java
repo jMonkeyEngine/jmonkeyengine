@@ -5,8 +5,9 @@ package com.jme3.math;
  * Created by Nehon on 26/03/2017.
  */
 public class Easing {
-
-
+    /**
+     * a function that always returns 0
+     */
     public static EaseFunction constant = new EaseFunction() {
         @Override
         public float apply(float value) {
@@ -23,6 +24,9 @@ public class Easing {
         }
     };
 
+    /**
+     * a function that returns the square of its input
+     */
     public static EaseFunction inQuad = new EaseFunction() {
         @Override
         public float apply(float value) {
@@ -30,6 +34,9 @@ public class Easing {
         }
     };
 
+    /**
+     * a function that returns the cube of its input
+     */
     public static EaseFunction inCubic = new EaseFunction() {
         @Override
         public float apply(float value) {
@@ -37,6 +44,9 @@ public class Easing {
         }
     };
 
+    /**
+     * a function that returns the 4th power of its input
+     */
     public static EaseFunction inQuart = new EaseFunction() {
         @Override
         public float apply(float value) {
@@ -44,13 +54,15 @@ public class Easing {
         }
     };
 
+    /**
+     * a function that returns the 5th power of its input
+     */
     public static EaseFunction inQuint = new EaseFunction() {
         @Override
         public float apply(float value) {
             return value * value * value * value * value;
         }
     };
-
 
     /**
      * Out Elastic and bounce
@@ -62,6 +74,9 @@ public class Easing {
         }
     };
 
+    /**
+     * a function that starts quickly, then bounces several times
+     */
     public static EaseFunction outBounce = new EaseFunction() {
         @Override
         public float apply(float value) {
@@ -81,6 +96,9 @@ public class Easing {
      * In Elastic and bounce
      */
     public static EaseFunction inElastic = new Invert(outElastic);
+    /**
+     * a function containing a series of increasing bounces
+     */
     public static EaseFunction inBounce = new Invert(outBounce);
 
     /**
@@ -101,11 +119,9 @@ public class Easing {
     public static EaseFunction inOutElastic = new InOut(inElastic, outElastic);
     public static EaseFunction inOutBounce = new InOut(inBounce, outBounce);
 
-
     /**
      * Extra functions
      */
-
     public static EaseFunction smoothStep = new EaseFunction() {
         @Override
         public float apply(float t) {
@@ -128,6 +144,12 @@ public class Easing {
         private EaseFunction in;
         private EaseFunction out;
 
+        /**
+         * Instantiate a function that blends 2 pre-existing functions.
+         *
+         * @param in the function to use at value=0
+         * @param out the function to use at value=1
+         */
         public InOut(EaseFunction in, EaseFunction out) {
             this.in = in;
             this.out = out;
@@ -137,10 +159,10 @@ public class Easing {
         public float apply(float value) {
             if (value < 0.5) {
                 value = value * 2;
-                return inQuad.apply(value) / 2;
+                return in.apply(value) / 2;
             } else {
                 value = (value - 0.5f) * 2;
-                return outQuad.apply(value) / 2 + 0.5f;
+                return out.apply(value) / 2 + 0.5f;
             }
         }
     }
@@ -158,6 +180,4 @@ public class Easing {
             return 1f - func.apply(1f - value);
         }
     }
-
-
 }

@@ -340,6 +340,7 @@ public final class LightList implements Iterable<Light>, Savable, Cloneable, Jme
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void read(JmeImporter im) throws IOException {
         InputCapsule ic = im.getCapsule(this);
 //        owner = (Spatial) ic.readSavable("owner", null);

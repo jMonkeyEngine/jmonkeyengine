@@ -82,7 +82,7 @@ public class KeyInputEvent extends InputEvent {
     }
 
     /**
-     * Returns true if this event is a repeat event. Not used anymore.
+     * Returns true if this event is a repeat event.
      * 
      * @return true if this event is a repeat event
      */

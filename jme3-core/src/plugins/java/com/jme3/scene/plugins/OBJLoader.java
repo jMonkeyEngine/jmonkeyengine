@@ -66,10 +66,9 @@ public final class OBJLoader implements AssetLoader {
     protected final ArrayList<Vector3f> verts = new ArrayList<Vector3f>();
     protected final ArrayList<Vector2f> texCoords = new ArrayList<Vector2f>();
     protected final ArrayList<Vector3f> norms = new ArrayList<Vector3f>();
-    
-    protected final ArrayList<Face> faces = new ArrayList<Face>();
-    protected final HashMap<String, ArrayList<Face>> matFaces = new HashMap<String, ArrayList<Face>>();
-    
+
+    private final ArrayList<Group> groups = new ArrayList<Group>();
+
     protected String currentMatName;
     protected String currentObjectName;
 
@@ -86,6 +85,16 @@ public final class OBJLoader implements AssetLoader {
 
     protected String objName;
     protected Node objNode;
+
+    private static class Group {
+        private String name;
+        private final ArrayList<Face> faces = new ArrayList<Face>();
+        private final HashMap<String, ArrayList<Face>> matFaces = new HashMap<String, ArrayList<Face>>();
+
+        public Group(final String name) {
+            this.name = name;
+        }
+    }
 
     protected static class Vertex {
 
@@ -164,8 +173,7 @@ public final class OBJLoader implements AssetLoader {
         verts.clear();
         texCoords.clear();
         norms.clear();
-        faces.clear();
-        matFaces.clear();
+        groups.clear();
 
         vertIndexMap.clear();
         indexVertMap.clear();
@@ -289,10 +297,17 @@ public final class OBJLoader implements AssetLoader {
             f.verticies[i] = vertList.get(i);
         }
 
-        if (matList != null && matFaces.containsKey(currentMatName)){
-            matFaces.get(currentMatName).add(f);
+        Group group = groups.get(groups.size() - 1);
+
+        if (currentMatName != null && matList != null && matList.containsKey(currentMatName)){
+            ArrayList<Face> matFaces = group.matFaces.get(currentMatName);
+            if (matFaces == null) {
+                matFaces = new ArrayList<Face>();
+                group.matFaces.put(currentMatName, matFaces);
+            }
+            matFaces.add(f);
         }else{
-            faces.add(f); // faces that belong to the default material
+            group.faces.add(f); // faces that belong to the default material
         }
     }
 
@@ -331,18 +346,11 @@ public final class OBJLoader implements AssetLoader {
 
         // NOTE: Cut off any relative/absolute paths
         name = new File(name).getName();
-        AssetKey mtlKey = new AssetKey(key.getFolder() + name);
+        AssetKey<MaterialList> mtlKey = new AssetKey<>(key.getFolder() + name);
         try {
-            matList = (MaterialList) assetManager.loadAsset(mtlKey);
+            matList = assetManager.loadAsset(mtlKey);
         } catch (AssetNotFoundException ex){
             logger.log(Level.WARNING, "Cannot locate {0} for model {1}", new Object[]{name, key});
-        }
-
-        if (matList != null){
-            // create face lists for every material
-            for (String matName : matList.keySet()){
-                matFaces.put(matName, new ArrayList<Face>());
-            }
         }
     }
 
@@ -387,8 +395,14 @@ public final class OBJLoader implements AssetLoader {
             // specify MTL lib to use for this OBJ file
             String mtllib = scan.nextLine().trim();
             loadMtlLib(mtllib);
-        }else if (cmd.equals("s") || cmd.equals("g")){
+        }else if (cmd.equals("s")) {
+            logger.log(Level.WARNING, "smoothing groups are not supported, statement ignored: {0}", cmd);
             return nextStatement();
+        }else if (cmd.equals("mg")) {
+            logger.log(Level.WARNING, "merge groups are not supported, statement ignored: {0}", cmd);
+            return nextStatement();
+        }else if (cmd.equals("g")) {
+            groups.add(new Group(scan.nextLine().trim()));
         }else{
             // skip entire command until next line
             logger.log(Level.WARNING, "Unknown statement in OBJ! {0}", cmd);
@@ -565,11 +579,14 @@ public final class OBJLoader implements AssetLoader {
         }
 
         objNode = new Node(objName + "-objnode");
+    
+        Group defaultGroupStub = new Group(null);
+        groups.add(defaultGroupStub);
 
         if (!(info.getKey() instanceof ModelKey))
             throw new IllegalArgumentException("Model assets must be loaded using a ModelKey");
 
-        InputStream in = null; 
+        InputStream in = null;
         try {
             in = info.openStream();
             
@@ -583,25 +600,43 @@ public final class OBJLoader implements AssetLoader {
             }
         }
         
-        if (matFaces.size() > 0){
-            for (Entry<String, ArrayList<Face>> entry : matFaces.entrySet()){
-                ArrayList<Face> materialFaces = entry.getValue();
-                if (materialFaces.size() > 0){
-                    Geometry geom = createGeometry(materialFaces, entry.getKey());
+        for (Group group : groups) {
+            if (group == defaultGroupStub) {
+                materializeGroup(group, objNode);
+            } else {
+                Node groupNode = new Node(group.name);
+                materializeGroup(group, groupNode);
+                if (groupNode.getQuantity() == 1) {
+                    Spatial geom = groupNode.getChild(0);
+                    geom.setName(groupNode.getName());
                     objNode.attachChild(geom);
+                } else if (groupNode.getQuantity() > 1) {
+                    objNode.attachChild(groupNode);
                 }
             }
-        }else if (faces.size() > 0){
-            // generate final geometry
-            Geometry geom = createGeometry(faces, null);
-            objNode.attachChild(geom);
         }
 
         if (objNode.getQuantity() == 1)
             // only 1 geometry, so no need to send node
-            return objNode.getChild(0); 
+            return objNode.getChild(0);
         else
             return objNode;
     }
- 
+    
+    private void materializeGroup(Group group, Node container) throws IOException {
+        if (group.matFaces.size() > 0) {
+            for (Entry<String, ArrayList<Face>> entry : group.matFaces.entrySet()){
+                ArrayList<Face> materialFaces = entry.getValue();
+                if (materialFaces.size() > 0){
+                    Geometry geom = createGeometry(materialFaces, entry.getKey());
+                    container.attachChild(geom);
+                }
+            }
+        } else if (group.faces.size() > 0) {
+            // generate final geometry
+            Geometry geom = createGeometry(group.faces, null);
+            container.attachChild(geom);
+        }
+    }
+    
 }

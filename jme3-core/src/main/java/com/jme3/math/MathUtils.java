@@ -7,7 +7,13 @@ import com.jme3.util.TempVars;
  * Created by Nehon on 23/04/2017.
  */
 public class MathUtils {
-
+    /**
+     * Calculate the natural logarithm of a unit quaternion.
+     *
+     * @param q the input Quaternion (not null, normalized, unaffected)
+     * @param store storage for the result (not null, modified)
+     * @return the logarithm (store)
+     */
     public static Quaternion log(Quaternion q, Quaternion store) {
         float a = FastMath.acos(q.w);
         float sina = FastMath.sin(a);
@@ -25,6 +31,13 @@ public class MathUtils {
         return store;
     }
 
+    /**
+     * Calculate the exponential of a pure quaternion.
+     *
+     * @param q the input Quaternion (not null, w=0, unaffected)
+     * @param store storage for the result (not null, modified)
+     * @return the exponential (store)
+     */
     public static Quaternion exp(Quaternion q, Quaternion store) {
 
         float len = FastMath.sqrt(q.x * q.x + q.y * q.y + q.z * q.z);
@@ -66,6 +79,15 @@ public class MathUtils {
         return store;
     }
 
+    /**
+     * Interpolate between 2 quaternions using Slerp.
+     *
+     * @param q1 the desired value for t=0
+     * @param q2 the desired value for t=1
+     * @param t the fractional parameter (&ge;0, &le;1)
+     * @param store storage for the result (not null, modified)
+     * @return the interpolated Quaternion (store)
+     */
     public static Quaternion slerp(Quaternion q1, Quaternion q2, float t, Quaternion store) {
 
         float dot = (q1.x * q2.x) + (q1.y * q2.y) + (q1.z * q2.z)
@@ -134,7 +156,6 @@ public class MathUtils {
     private static Quaternion spline(Quaternion qnm1, Quaternion qn, Quaternion qnp1, Quaternion store, Quaternion tmp) {
         Quaternion invQn = new Quaternion(-qn.x, -qn.y, -qn.z, qn.w);
 
-
         log(invQn.mult(qnp1), tmp);
         log(invQn.mult(qnm1), store);
         store.addLocal(tmp).multLocal(-1f / 4f);
@@ -144,7 +165,6 @@ public class MathUtils {
         return store.normalizeLocal();
         //return qn * (((qni * qnm1).log() + (qni * qnp1).log()) / -4).exp();
     }
-
 
     //! spherical cubic interpolation
     public static Quaternion squad(Quaternion q0, Quaternion q1, Quaternion q2, Quaternion q3, Quaternion a, Quaternion b, float t, Quaternion store) {
@@ -163,7 +183,6 @@ public class MathUtils {
 //                d = slerpNoInvert(a, b, t);
 //        return slerpNoInvert(c, d, 2 * t * (1 - t));
     }
-
 
     /**
      * Returns the shortest distance between a Ray and a segment.
@@ -243,5 +262,4 @@ public class MathUtils {
         vars.release();
         return length;
     }
-
 }

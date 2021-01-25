@@ -5,10 +5,15 @@ buildscript {
     repositories {
         google()
         jcenter()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.1.4'
+        classpath 'com.android.tools.build:gradle:3.5.3'
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4'
+        classpath 'me.tatarka:gradle-retrolambda:3.7.1'
+        classpath "gradle.plugin.com.github.spotbugs.snom:spotbugs-gradle-plugin:4.5.1"
     }
 }
 
@@ -19,8 +24,14 @@ allprojects {
     }
 }
 
+// Set the license for IDEs that understand this
+ext.license = file("$rootDir/license.txt")
+
 apply plugin: 'base'
+apply plugin: 'com.github.spotbugs'
 apply from: file('version.gradle')
+
+apply plugin: 'me.tatarka.retrolambda'
 
 // This is applied to all sub projects
 subprojects {
@@ -31,6 +42,22 @@ subprojects {
         }
     } else {
         apply from: rootProject.file('common-android-app.gradle')
+    }
+
+    if (!project.name.endsWith("-native") && project.name != "jme3-bullet-native-android" && enableSpotBugs != "false" ) {
+        apply plugin: 'com.github.spotbugs'
+
+        // Currently we only warn about issues and try to fix them as we go, but those aren't mission critical.
+        spotbugs {
+            ignoreFailures = true
+        }
+
+        tasks.withType(com.github.spotbugs.snom.SpotBugsTask ) {
+            reports {
+                html.enabled = !project.hasProperty("xml-reports")
+                xml.enabled = project.hasProperty("xml-reports")
+            }
+        }
     }
 }
 
@@ -250,4 +277,11 @@ if (skipPrebuildLibraries != "true" && buildNativeProjects != "true") {
 
 wrapper {
     gradleVersion = '5.6.4'
+}
+
+
+retrolambda {
+  javaVersion JavaVersion.VERSION_1_7
+  incremental true
+    jvmArgs '-noverify'
 }

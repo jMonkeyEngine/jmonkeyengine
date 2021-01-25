@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -81,74 +81,74 @@ public final class ReflectionAllocator implements BufferAllocator {
         } catch (ClassNotFoundException ex) {
             return null; // the direct buffer implementation was not found
         } catch (Throwable t) {
-        	if (t.getClass().getName().equals("java.lang.reflect.InaccessibleObjectException")) {
-        		return null;// the class is in an unexported module
-        	} else {
-        		throw t;
-        	}
+            if (t.getClass().getName().equals("java.lang.reflect.InaccessibleObjectException")) {
+                return null;// the class is in an unexported module
+            } else {
+                throw t;
+            }
         }
     }
 
     @Override
     /**
      * This function explicitly calls the Cleaner method of a direct buffer.
-     * 
+     *
      * @param toBeDestroyed
      *            The direct buffer that will be "cleaned". Utilizes reflection.
-     * 
+     *
      */
     public void destroyDirectBuffer(Buffer toBeDestroyed) {
         try {
             if (freeMethod != null) {
                 freeMethod.invoke(toBeDestroyed);
             } else {
-            	//TODO load the methods only once, store them into a cache (only for Java >= 9)
-            	Method localCleanerMethod;
-            	if (cleanerMethod == null) {
-            		localCleanerMethod = loadMethod(toBeDestroyed.getClass().getName(), "cleaner");
-            	} else {
-            		localCleanerMethod = cleanerMethod;
-            	}
-				if (localCleanerMethod == null) {
-					Logger.getLogger(BufferUtils.class.getName()).log(Level.SEVERE,
-							"Buffer cannot be destroyed: {0}", toBeDestroyed);
-				} else {
-					Object cleaner = localCleanerMethod.invoke(toBeDestroyed);
-					if (cleaner != null) {
-						Method localCleanMethod;
-						if (cleanMethod == null) {
-							if (cleaner instanceof Runnable) {
-								// jdk.internal.ref.Cleaner implements Runnable in Java 9
-								localCleanMethod = loadMethod(Runnable.class.getName(), "run");
-							} else {
-								// sun.misc.Cleaner does not implement Runnable in Java < 9
-								localCleanMethod = loadMethod(cleaner.getClass().getName(), "clean");
-							}
-						} else {
-							localCleanMethod = cleanMethod;
-						}
-						if (localCleanMethod == null) {
-							Logger.getLogger(BufferUtils.class.getName()).log(Level.SEVERE,
-									"Buffer cannot be destroyed: {0}", toBeDestroyed);
-						} else {
-							localCleanMethod.invoke(cleaner);
-						}
-					} else {
-						Method localViewedBufferMethod;
-						if (viewedBufferMethod == null) {
-							localViewedBufferMethod = loadMethod(toBeDestroyed.getClass().getName(), "viewedBuffer");
-						} else {
-							localViewedBufferMethod = viewedBufferMethod;
-						}
-						if (localViewedBufferMethod == null) {
-							Logger.getLogger(BufferUtils.class.getName()).log(Level.SEVERE,
-									"Buffer cannot be destroyed: {0}", toBeDestroyed);
-						} else {
-							// Try the alternate approach of getting the viewed
-							// buffer
-							// first
-							Object viewedBuffer = localViewedBufferMethod.invoke(toBeDestroyed);
-							if (viewedBuffer != null) {
+                //TODO load the methods only once, store them into a cache (only for Java >= 9)
+                Method localCleanerMethod;
+                if (cleanerMethod == null) {
+                    localCleanerMethod = loadMethod(toBeDestroyed.getClass().getName(), "cleaner");
+                } else {
+                    localCleanerMethod = cleanerMethod;
+                }
+                if (localCleanerMethod == null) {
+                    Logger.getLogger(BufferUtils.class.getName()).log(Level.SEVERE,
+                            "Buffer cannot be destroyed: {0}", toBeDestroyed);
+                } else {
+                    Object cleaner = localCleanerMethod.invoke(toBeDestroyed);
+                    if (cleaner != null) {
+                        Method localCleanMethod;
+                        if (cleanMethod == null) {
+                            if (cleaner instanceof Runnable) {
+                                // jdk.internal.ref.Cleaner implements Runnable in Java 9
+                                localCleanMethod = loadMethod(Runnable.class.getName(), "run");
+                            } else {
+                                // sun.misc.Cleaner does not implement Runnable in Java < 9
+                                localCleanMethod = loadMethod(cleaner.getClass().getName(), "clean");
+                            }
+                        } else {
+                            localCleanMethod = cleanMethod;
+                        }
+                        if (localCleanMethod == null) {
+                            Logger.getLogger(BufferUtils.class.getName()).log(Level.SEVERE,
+                                    "Buffer cannot be destroyed: {0}", toBeDestroyed);
+                        } else {
+                            localCleanMethod.invoke(cleaner);
+                        }
+                    } else {
+                        Method localViewedBufferMethod;
+                        if (viewedBufferMethod == null) {
+                            localViewedBufferMethod = loadMethod(toBeDestroyed.getClass().getName(), "viewedBuffer");
+                        } else {
+                            localViewedBufferMethod = viewedBufferMethod;
+                        }
+                        if (localViewedBufferMethod == null) {
+                            Logger.getLogger(BufferUtils.class.getName()).log(Level.SEVERE,
+                                    "Buffer cannot be destroyed: {0}", toBeDestroyed);
+                        } else {
+                            // Try the alternate approach of getting the viewed
+                            // buffer
+                            // first
+                            Object viewedBuffer = localViewedBufferMethod.invoke(toBeDestroyed);
+                            if (viewedBuffer != null) {
                                 if (viewedBuffer instanceof Buffer) {
                                     destroyDirectBuffer((Buffer) viewedBuffer);
                                 }
@@ -157,10 +157,10 @@ public final class ReflectionAllocator implements BufferAllocator {
                             } else {
                                 Logger.getLogger(BufferUtils.class.getName()).log(Level.SEVERE,
                                         "Buffer cannot be destroyed: {0}", toBeDestroyed);
-							}
-						}
-					}
-				}
+                            }
+                        }
+                    }
+                }
             }
         } catch (IllegalAccessException ex) {
             Logger.getLogger(BufferUtils.class.getName()).log(Level.SEVERE, "{0}", ex);

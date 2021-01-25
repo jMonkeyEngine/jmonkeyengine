@@ -1,0 +1,20 @@
+newmtl dot_purple
+map_Kd -o 0 0 -s 1 1 dot_purple.png
+Kd 1 1 1
+d 1
+
+newmtl dot_red
+map_Kd -o 0 0 -s 1 1 dot_red.png
+Kd 1 1 1
+d 1
+
+newmtl dot_blue
+map_Kd -o 0 0 -s 1 1 dot_blue.png
+Kd 1 1 1
+d 1
+
+newmtl dot_green
+map_Kd -o 0 0 -s 1 1 dot_green.png
+Kd 1 1 1
+d 1
+

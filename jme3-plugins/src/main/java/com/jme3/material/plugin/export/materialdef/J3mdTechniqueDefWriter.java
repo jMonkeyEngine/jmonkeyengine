@@ -9,9 +9,8 @@ import com.jme3.material.MatParam;
 import com.jme3.material.RenderState;
 import com.jme3.material.TechniqueDef;
 import com.jme3.shader.*;
-
 import java.io.IOException;
-import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.util.Collection;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -25,7 +24,7 @@ public class J3mdTechniqueDefWriter {
     public J3mdTechniqueDefWriter() {
     }
 
-    public void write(TechniqueDef techniqueDef, Collection<MatParam> matParams, OutputStreamWriter out) throws IOException {
+    public void write(TechniqueDef techniqueDef, Collection<MatParam> matParams, Writer out) throws IOException {
         out.write("    Technique");
         if(!techniqueDef.getName().equals("Default")) {
             out.write(" ");
@@ -93,7 +92,7 @@ public class J3mdTechniqueDefWriter {
         out.write("    }\n");
     }
 
-    private void writeDefines(TechniqueDef techniqueDef, Collection<MatParam> matParams, OutputStreamWriter out) throws IOException {
+    private void writeDefines(TechniqueDef techniqueDef, Collection<MatParam> matParams, Writer out) throws IOException {
         out.write("        Defines {\n");
 
         for (int i = 0; i < techniqueDef.getDefineNames().length; i++) {
@@ -110,7 +109,7 @@ public class J3mdTechniqueDefWriter {
         out.write("        }\n\n");
     }
 
-    private void writeShaderNodes(TechniqueDef techniqueDef, Collection<MatParam> matParams, OutputStreamWriter out) throws IOException {
+    private void writeShaderNodes(TechniqueDef techniqueDef, Collection<MatParam> matParams, Writer out) throws IOException {
         out.write("        VertexShaderNodes {\n");
         for (ShaderNode shaderNode : techniqueDef.getShaderNodes()) {
             if(shaderNode.getDefinition().getType() == Shader.ShaderType.Vertex){
@@ -128,7 +127,7 @@ public class J3mdTechniqueDefWriter {
         out.write("        }\n\n");
     }
 
-    private void writeWorldParams(TechniqueDef techniqueDef, OutputStreamWriter out) throws IOException {
+    private void writeWorldParams(TechniqueDef techniqueDef, Writer out) throws IOException {
         out.write("        WorldParameters {\n");
         for (UniformBinding uniformBinding : techniqueDef.getWorldBindings()) {
             out.write("            ");
@@ -138,7 +137,7 @@ public class J3mdTechniqueDefWriter {
         out.write("        }\n\n");
     }
 
-    private void writeShaders(TechniqueDef techniqueDef, OutputStreamWriter out) throws IOException {
+    private void writeShaders(TechniqueDef techniqueDef, Writer out) throws IOException {
         if (techniqueDef.getShaderProgramNames().size() > 0) {
             for (Shader.ShaderType shaderType : techniqueDef.getShaderProgramNames().keySet()) {
                 //   System.err.println(shaderType + " " +techniqueDef.getShaderProgramNames().get(shaderType) + " " +techniqueDef.getShaderProgramLanguage(shaderType))
@@ -154,7 +153,7 @@ public class J3mdTechniqueDefWriter {
         }
     }
 
-    private void writeShaderNode( OutputStreamWriter out, ShaderNode shaderNode, Collection<MatParam> matParams) throws IOException {
+    private void writeShaderNode(Writer out, ShaderNode shaderNode, Collection<MatParam> matParams) throws IOException {
         out.write("            ShaderNode ");
         out.write(shaderNode.getName());
         out.write(" {\n");
@@ -193,8 +192,7 @@ public class J3mdTechniqueDefWriter {
         out.write("            }\n");
     }
 
-    private void writeVariableMapping(final OutputStreamWriter out, final ShaderNode shaderNode,
-                                      final VariableMapping mapping, final Collection<MatParam> matParams)
+    private void writeVariableMapping(final Writer out, final ShaderNode shaderNode,                                      final VariableMapping mapping, final Collection<MatParam> matParams)
             throws IOException {
 
         final ShaderNodeVariable leftVar = mapping.getLeftVariable();
@@ -269,7 +267,7 @@ public class J3mdTechniqueDefWriter {
         return res;
     }
 
-    private void writeRenderStateAttribute(OutputStreamWriter out, String name, String value) throws IOException {
+    private void writeRenderStateAttribute(Writer out, String name, String value) throws IOException {
         out.write("            ");
         out.write(name);
         out.write(" ");
@@ -277,7 +275,7 @@ public class J3mdTechniqueDefWriter {
         out.write("\n");
     }
 
-    private void writeRenderState(RenderState rs, OutputStreamWriter out) throws IOException {
+    private void writeRenderState(RenderState rs, Writer out) throws IOException {
         RenderState defRs = RenderState.DEFAULT;
         if(rs.getBlendMode() != defRs.getBlendMode()) {
             writeRenderStateAttribute(out, "Blend", rs.getBlendMode().name());

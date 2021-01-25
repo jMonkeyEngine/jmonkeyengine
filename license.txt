@@ -1,7 +1,7 @@
 <#if licenseFirst??>
 ${licenseFirst}
 </#if>
-${licensePrefix}Copyright (c) 2009-${date?date?string("yyyy")} ${project.organization!user}
+${licensePrefix}Copyright (c) 2009-${date?date?string("yyyy")} jMonkeyEngine
 ${licensePrefix}All rights reserved.
 ${licensePrefix?replace(" +$", "", "r")}
 ${licensePrefix}Redistribution and use in source and binary forms, with or without
@@ -15,7 +15,7 @@ ${licensePrefix}* Redistributions in binary form must reproduce the above copyri
 ${licensePrefix}  notice, this list of conditions and the following disclaimer in the
 ${licensePrefix}  documentation and/or other materials provided with the distribution.
 ${licensePrefix?replace(" +$", "", "r")}
-${licensePrefix}* Neither the name of '${project.organization!user}' nor the names of its contributors
+${licensePrefix}* Neither the name of 'jMonkeyEngine' nor the names of its contributors
 ${licensePrefix}  may be used to endorse or promote products derived from this software
 ${licensePrefix}  without specific prior written permission.
 ${licensePrefix?replace(" +$", "", "r")}

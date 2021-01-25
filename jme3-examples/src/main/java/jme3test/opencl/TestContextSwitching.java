@@ -46,7 +46,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
+ * 
  * @author Sebastian Weiss
  */
 public class TestContextSwitching extends SimpleApplication implements ScreenController {
@@ -79,7 +79,7 @@ public class TestContextSwitching extends SimpleApplication implements ScreenCon
         settings.setWidth(800);
         settings.setHeight(600);
         settings.setOpenCLPlatformChooser(CustomPlatformChooser.class);
-        //settings.setRenderer(AppSettings.JOGL_OPENGL_FORWARD_COMPATIBLE);
+        settings.setRenderer(AppSettings.LWJGL_OPENGL2);
         
         setSettings(settings);
         setShowSettings(false);
@@ -252,3 +252,4 @@ public class TestContextSwitching extends SimpleApplication implements ScreenCon
         
     }
 }
+

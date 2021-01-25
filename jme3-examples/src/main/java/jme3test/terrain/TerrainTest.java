@@ -40,6 +40,7 @@ import com.jme3.light.DirectionalLight;
 import com.jme3.light.PointLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
+import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.terrain.geomipmap.TerrainLodControl;
@@ -169,14 +170,14 @@ public class TerrainTest extends SimpleApplication {
         rootNode.addLight(light);
 
         cam.setLocation(new Vector3f(0, 10, -10));
-        cam.lookAtDirection(new Vector3f(0, -1.5f, -1).normalizeLocal(), Vector3f.UNIT_Y);
+        cam.setRotation(new Quaternion(0.012f, 0.964311f, -0.261f, 0.043f));
     }
 
     public void loadHintText() {
         hintText = new BitmapText(guiFont, false);
         hintText.setSize(guiFont.getCharSet().getRenderedSize());
         hintText.setLocalTranslation(0, getCamera().getHeight(), 0);
-        hintText.setText("Hit T to switch to wireframe,  P to switch to tri-planar texturing");
+        hintText.setText("Press T to toggle wireframe,  P to toggle tri-planar texturing");
         guiNode.attachChild(hintText);
     }
 
@@ -193,7 +194,7 @@ public class TerrainTest extends SimpleApplication {
         public void onAction(String name, boolean pressed, float tpf) {
             if (name.equals("wireframe") && !pressed) {
                 wireframe = !wireframe;
-                if (!wireframe) {
+                if (wireframe) {
                     terrain.setMaterial(matWire);
                 } else {
                     terrain.setMaterial(matRock);

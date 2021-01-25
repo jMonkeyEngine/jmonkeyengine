@@ -105,6 +105,7 @@ public class TimeLine extends HashMap<Integer, KeyFrame> implements Savable {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = ex.getCapsule(this);
         ArrayList list = new ArrayList();

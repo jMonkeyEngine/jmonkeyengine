@@ -328,6 +328,7 @@ public abstract class AbstractShadowFilter<T extends AbstractShadowRenderer> ext
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public AbstractShadowFilter<T> jmeClone() {
         try {
             return (AbstractShadowFilter<T>) super.clone();

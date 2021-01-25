@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -59,24 +59,38 @@ public abstract class IndexBuffer {
             throw new UnsupportedOperationException("Index buffer type unsupported: "+ buf.getClass());
         }
     }
-    
+
     /**
-     * Creates an index buffer that can contain the given amount of vertices. 
-     * <br/>
-     * Returns either {@link IndexByteBuffer}, {@link IndexShortBuffer} or 
+     * Create an IndexBuffer with the specified capacity.
+     *
+     * @param vertexCount the number of vertices that will be indexed into
+     * (determines number of bits per element)
+     * @param indexCount the number of indices the IndexBuffer must hold
+     * (determines number of elements in the buffer)
+     * @return a new, appropriately sized IndexBuffer, which may be an
+     * {@link IndexByteBuffer}, an {@link IndexShortBuffer}, or an
      * {@link IndexIntBuffer}
-     * 
-     * @param vertexCount The amount of vertices to contain
-     * @param indexCount The amount of indices to contain
-     * @return A new, apropriately sized index buffer
      */
-    public static IndexBuffer createIndexBuffer(int vertexCount, int indexCount){
-        if (vertexCount < 128)
-            return new IndexByteBuffer(BufferUtils.createByteBuffer (indexCount));
-        else if (vertexCount < 65536)
-            return new IndexShortBuffer(BufferUtils.createShortBuffer(indexCount));
-        else
-            return new IndexIntBuffer(BufferUtils.createIntBuffer(indexCount));
+    public static IndexBuffer createIndexBuffer(int vertexCount,
+            int indexCount) {
+        IndexBuffer result;
+
+        if (vertexCount < 128) { // TODO: could be vertexCount <= 256
+            ByteBuffer buffer = BufferUtils.createByteBuffer(indexCount);
+            int maxIndexValue = vertexCount - 1;
+            result = new IndexByteBuffer(buffer, maxIndexValue);
+
+        } else if (vertexCount < 65536) { // TODO: could be <= 65536
+            ShortBuffer buffer = BufferUtils.createShortBuffer(indexCount);
+            int maxIndexValue = vertexCount - 1;
+            result = new IndexShortBuffer(buffer, maxIndexValue);
+
+        } else {
+            IntBuffer buffer = BufferUtils.createIntBuffer(indexCount);
+            result = new IndexIntBuffer(buffer);
+        }
+
+        return result;
     }
 
     /**
@@ -161,7 +175,7 @@ public abstract class IndexBuffer {
      * mesh.setBuffer(Type.Index, 3, 
      *     indexBuffer.getFormat(), indexBuffer);
      * </pre>
-     * @return
+     * @return an enum value
      */
     public abstract Format getFormat();
 }

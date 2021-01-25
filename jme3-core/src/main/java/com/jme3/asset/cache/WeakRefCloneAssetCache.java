@@ -157,6 +157,7 @@ public class WeakRefCloneAssetCache implements AssetCache {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public <T> T getFromCache(AssetKey<T> key) {
         AssetRef smartInfo = smartCache.get(key);
         if (smartInfo == null) {

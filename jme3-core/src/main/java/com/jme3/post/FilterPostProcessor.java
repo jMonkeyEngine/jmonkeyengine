@@ -331,7 +331,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
 
         FrameBuffer sceneBuffer = renderFrameBuffer;
         if (renderFrameBufferMS != null && !renderer.getCaps().contains(Caps.OpenGL32)) {
-            renderer.copyFrameBuffer(renderFrameBufferMS, renderFrameBuffer, true);
+            renderer.copyFrameBuffer(renderFrameBufferMS, renderFrameBuffer, true, true);
         } else if (renderFrameBufferMS != null) {
             sceneBuffer = renderFrameBufferMS;
         }
@@ -551,6 +551,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(numSamples, "numSamples", 0);
@@ -558,6 +559,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void read(JmeImporter im) throws IOException {
         InputCapsule ic = im.getCapsule(this);
         numSamples = ic.readInt("numSamples", 0);
@@ -593,6 +595,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
      * @param filterType the filter type
      * @return a filter assignable form the given type 
      */
+    @SuppressWarnings("unchecked")
     public <T extends Filter> T getFilter(Class<T> filterType) {
         for (Filter c : filters.getArray()) {
             if (filterType.isAssignableFrom(c.getClass())) {

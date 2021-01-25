@@ -29,7 +29,8 @@ public final class ALUtil {
                 errorText = "Out of Memory";
                 break;
             default:
-                errorText = "Unknown Error Code: " + String.valueOf(errorCode);
+                errorText = "Unknown Error Code: " + errorCode;
+                break;
         }
         return errorText;
     }

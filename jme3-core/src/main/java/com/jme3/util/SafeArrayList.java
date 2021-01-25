@@ -104,6 +104,7 @@ public class SafeArrayList<E> implements List<E>, Cloneable {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public SafeArrayList<E> clone() {
         try {
             SafeArrayList<E> clone = (SafeArrayList<E>)super.clone();
@@ -122,6 +123,7 @@ public class SafeArrayList<E> implements List<E>, Cloneable {
         }
     }
 
+    @SuppressWarnings("unchecked")
     protected final <T> T[] createArray(Class<T> type, int size) {
         return (T[])java.lang.reflect.Array.newInstance(type, size);
     }
@@ -194,6 +196,7 @@ public class SafeArrayList<E> implements List<E>, Cloneable {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public <T> T[] toArray(T[] a) {
 
         E[] array = getArray();

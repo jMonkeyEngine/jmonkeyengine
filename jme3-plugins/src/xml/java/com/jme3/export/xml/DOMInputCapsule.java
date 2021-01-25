@@ -1105,6 +1105,7 @@ public class DOMInputCapsule implements InputCapsule {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public ArrayList<Savable> readSavableArrayList(String name, ArrayList defVal) throws IOException {
         try {
             Element tmpEl = findChildElement(currentElem, name);
@@ -1139,6 +1140,7 @@ public class DOMInputCapsule implements InputCapsule {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public ArrayList<Savable>[] readSavableArrayListArray(
             String name, ArrayList[] defVal) throws IOException {
         try {
@@ -1185,6 +1187,7 @@ public class DOMInputCapsule implements InputCapsule {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public ArrayList<Savable>[][] readSavableArrayListArray2D(String name, ArrayList[][] defVal) throws IOException {
         try {
             Element tmpEl = findChildElement(currentElem, name);

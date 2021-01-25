@@ -1,3 +1,34 @@
+/*
+ * Copyright (c) 2009-2020 jMonkeyEngine
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ * * Redistributions of source code must retain the above copyright
+ *   notice, this list of conditions and the following disclaimer.
+ *
+ * * Redistributions in binary form must reproduce the above copyright
+ *   notice, this list of conditions and the following disclaimer in the
+ *   documentation and/or other materials provided with the distribution.
+ *
+ * * Neither the name of 'jMonkeyEngine' nor the names of its contributors
+ *   may be used to endorse or promote products derived from this software
+ *   without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package com.jme3.anim;
 
 import com.jme3.anim.tween.Tween;
@@ -17,10 +48,16 @@ import java.io.IOException;
 import java.util.*;
 
 /**
- * Created by Nehon on 20/12/2017.
+ * AnimComposer is a Spatial control that allows manipulation of
+ * {@link Armature armature} (skeletal) animation.
+ * 
+ * @author Nehon
  */
 public class AnimComposer extends AbstractControl {
 
+    /**
+     * The name of the default layer.
+     */
     public static final String DEFAULT_LAYER = "Default";
     private Map<String, AnimClip> animClipMap = new HashMap<>();
 
@@ -32,6 +69,12 @@ public class AnimComposer extends AbstractControl {
         layers.put(DEFAULT_LAYER, new Layer(this));
     }
 
+    /**
+     * Tells if an animation is contained in the list of animations.
+     * 
+     * @param name The name of the animation.
+     * @return true, if the named animation is in the list of animations.
+     */
     public boolean hasAnimClip(String name) {
         return animClipMap.containsKey(name);
     }
@@ -71,6 +114,12 @@ public class AnimComposer extends AbstractControl {
         animClipMap.remove(anim.getName());
     }
 
+    /**
+     * Run an action on the default layer.
+     * 
+     * @param name The name of the action to run.
+     * @return The action corresponding to the given name.
+     */
     public Action setCurrentAction(String name) {
         return setCurrentAction(name, DEFAULT_LAYER);
     }
@@ -95,6 +144,37 @@ public class AnimComposer extends AbstractControl {
     }
     
     /**
+     * Return the current action on the default layer.
+     * 
+     * @return  The action corresponding to the given name.
+     */
+    public Action getCurrentAction() {
+        return getCurrentAction(DEFAULT_LAYER);
+    }
+    
+    /**
+     * Return current action on specified layer.
+     * 
+     * @param layerName The layer on which action should run.
+     * @return The action corresponding to the given name.
+     */
+    public Action getCurrentAction(String layerName) {
+        Layer l = layers.get(layerName);
+        if (l == null) {
+            throw new IllegalArgumentException("Unknown layer " + layerName);
+        }
+        
+        return l.currentAction;
+    }
+    
+    /**
+     * Remove current action on default layer.
+     */
+    public void removeCurrentAction() {
+        removeCurrentAction(DEFAULT_LAYER);
+    }
+    
+    /**
      * Remove current action on specified layer.
      *
      * @param layerName The name of the layer we want to remove its action.
@@ -110,7 +190,18 @@ public class AnimComposer extends AbstractControl {
     }
     
     /**
+     * Returns current time of the default layer.
+     * 
+     * @return The current time.
+     */
+    public double getTime() {
+        return getTime(DEFAULT_LAYER);
+    }
+    
+    /**
      * Returns current time of the specified layer.
+     * 
+     * @param layerName The layer from which to get the time.
      */
     public double getTime(String layerName) {
         Layer l = layers.get(layerName);
@@ -119,9 +210,16 @@ public class AnimComposer extends AbstractControl {
         }
         return l.time;
     }
+    
+    /**
+     * Sets current time on the default layer.
+     */
+    public void setTime(double time) {
+        setTime(DEFAULT_LAYER, time);
+    }
 
     /**
-     * Sets current time on the specified layer. 
+     * Sets current time on the specified layer.
      */
     public void setTime(String layerName, double time) {
         Layer l = layers.get(layerName);
@@ -190,6 +288,12 @@ public class AnimComposer extends AbstractControl {
         return action;
     }
     
+    /**
+     * Tells if an action is contained in the list of actions.
+     * 
+     * @param name The name of the action.
+     * @return true, if the named action is in the list of actions.
+     */
     public boolean hasAction(String name) {
         return actions.containsKey(name);
     }
@@ -219,12 +323,20 @@ public class AnimComposer extends AbstractControl {
         layers.remove(name);
     }
 
+    /**
+     * Creates an action that will interpolate over an entire sequence
+     * of tweens in order.
+     */
     public BaseAction actionSequence(String name, Tween... tweens) {
         BaseAction action = new BaseAction(Tweens.sequence(tweens));
         actions.put(name, action);
         return action;
     }
 
+    /**
+     * Creates an action that blends the named clips using the given blend
+     * space.
+     */
     public BlendAction actionBlended(String name, BlendSpace blendSpace, String... clips) {
         BlendableAction[] acts = new BlendableAction[clips.length];
         for (int i = 0; i < acts.length; i++) {
@@ -330,6 +442,7 @@ public class AnimComposer extends AbstractControl {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void read(JmeImporter im) throws IOException {
         super.read(im);
         InputCapsule ic = im.getCapsule(this);

@@ -298,7 +298,7 @@ JNIEXPORT void JNICALL Java_com_jme3_audio_plugins_NativeVorbisFile_readFully
     wrapper->env = env;
     
     char err[512];
-    void* byteBufferPtr = (*env)->GetDirectBufferAddress(env, buf);
+    unsigned char* byteBufferPtr = (unsigned char*)(*env)->GetDirectBufferAddress(env, buf);
     jlong byteBufferCap = (*env)->GetDirectBufferCapacity(env, buf);
     
     int offset     = 0;
@@ -306,7 +306,7 @@ JNIEXPORT void JNICALL Java_com_jme3_audio_plugins_NativeVorbisFile_readFully
     
     while (remaining > 0)
     {
-        long result = ov_read(ovf, byteBufferPtr + offset, remaining, &bitstream);
+        long result = ov_read(ovf, (void*)(byteBufferPtr + offset), remaining, &bitstream);
 
         LOGI("ov_read(%d, %d) = %ld", offset, remaining, result);
         

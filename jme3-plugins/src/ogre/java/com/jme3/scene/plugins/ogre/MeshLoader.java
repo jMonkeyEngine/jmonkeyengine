@@ -595,9 +595,9 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
     }
 
     private void startSkeleton(String name) {
-        AssetKey assetKey = new AssetKey(folderName + name + ".xml");
+        AssetKey<AnimData> assetKey = new AssetKey<AnimData>(folderName + name + ".xml");
         try {
-            animData = (AnimData) assetManager.loadAsset(assetKey);
+            animData = assetManager.loadAsset(assetKey);
         } catch (AssetNotFoundException ex) {
             logger.log(Level.WARNING, "Cannot locate {0} for model {1}", new Object[]{assetKey, key});
             animData = null;

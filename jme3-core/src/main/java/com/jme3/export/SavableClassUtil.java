@@ -58,11 +58,11 @@ import java.util.logging.Logger;
 public class SavableClassUtil {
 
     private final static HashMap<String, String> CLASS_REMAPPINGS = new HashMap<>();
-    
+
     private static void addRemapping(String oldClass, Class<? extends Savable> newClass){
         CLASS_REMAPPINGS.put(oldClass, newClass.getName());
     }
-    
+
     static {
         addRemapping("com.jme3.effect.EmitterSphereShape", EmitterSphereShape.class);
         addRemapping("com.jme3.effect.EmitterBoxShape", EmitterBoxShape.class);
@@ -73,9 +73,13 @@ public class SavableClassUtil {
         addRemapping("com.jme3.material.Material$MatParamTexture", MatParamTexture.class);
         addRemapping("com.jme3.animation.BoneAnimation", Animation.class);
         addRemapping("com.jme3.animation.SpatialAnimation", Animation.class);
+
+        // Even though we no longer include Blender loading as part of the engine,
+        // we leave this line in so that old j3os will still work and just not
+        // load that data.  -pspeed:2020-04-19
         addRemapping("com.jme3.scene.plugins.blender.objects.Properties", NullSavable.class);
     }
-    
+
     private static String remapClass(String className) throws ClassNotFoundException {
         String result = CLASS_REMAPPINGS.get(className);
         if (result == null) {
@@ -84,12 +88,13 @@ public class SavableClassUtil {
             return result;
         }
     }
-    
+
     public static boolean isImplementingSavable(Class clazz){
         boolean result = Savable.class.isAssignableFrom(clazz);
         return result;
     }
 
+    @SuppressWarnings("unchecked")
     public static int[] getSavableVersions(Class<? extends Savable> clazz) throws IOException{
         ArrayList<Integer> versionList = new ArrayList<Integer>();
         Class superclass = clazz;
@@ -97,20 +102,21 @@ public class SavableClassUtil {
             versionList.add(getSavableVersion(superclass));
             superclass = superclass.getSuperclass();
         } while (superclass != null && SavableClassUtil.isImplementingSavable(superclass));
-        
+
         int[] versions = new int[versionList.size()];
         for (int i = 0; i < versionList.size(); i++){
             versions[i] = versionList.get(i);
         }
         return versions;
     }
-    
+
+    @SuppressWarnings("unchecked")
     public static int getSavableVersion(Class<? extends Savable> clazz) throws IOException{
         try {
             Field field = clazz.getField("SAVABLE_VERSION");
             Class<? extends Savable> declaringClass = (Class<? extends Savable>) field.getDeclaringClass();
             if (declaringClass == clazz){
-                return field.getInt(null); 
+                return field.getInt(null);
             }else{
                 return 0; // This class doesn't declare this field, e.g. version == 0
             }
@@ -124,11 +130,11 @@ public class SavableClassUtil {
             return 0; // not using versions
         }
     }
-    
+
     public static int getSavedSavableVersion(Object savable, Class<? extends Savable> desiredClass, int[] versions, int formatVersion){
         Class thisClass = savable.getClass();
         int count = 0;
-        
+
         while (thisClass != desiredClass) {
             thisClass = thisClass.getSuperclass();
             if (thisClass != null && SavableClassUtil.isImplementingSavable(thisClass)){
@@ -139,26 +145,26 @@ public class SavableClassUtil {
         }
 
         if (thisClass == null){
-            throw new IllegalArgumentException(savable.getClass().getName() + 
-                                               " does not extend " + 
+            throw new IllegalArgumentException(savable.getClass().getName() +
+                                               " does not extend " +
                                                desiredClass.getName() + "!");
         }else if (count >= versions.length){
             if (formatVersion <= 1){
                 return 0; // for buggy versions of j3o
             }else{
-                throw new IllegalArgumentException(savable.getClass().getName() + 
+                throw new IllegalArgumentException(savable.getClass().getName() +
                                                    " cannot access version of " +
-                                                   desiredClass.getName() + 
+                                                   desiredClass.getName() +
                                                    " because it doesn't implement Savable");
             }
         }
         return versions[count];
     }
-    
+
     /**
      * fromName creates a new Savable from the provided class name. First registered modules
      * are checked to handle special cases, if the modules do not handle the class name, the
-     * class is instantiated directly. 
+     * class is instantiated directly.
      * @param className the class name to create.
      * @return the Savable instance of the class.
      * @throws InstantiationException thrown if the class does not have an empty constructor.
@@ -221,6 +227,7 @@ public class SavableClassUtil {
      *
      * @return the pre-existing constructor (not null)
      */
+    @SuppressWarnings("unchecked")
     private static Constructor findNoArgConstructor(String className)
             throws ClassNotFoundException, InstantiationException {
         Class clazz = Class.forName(className);

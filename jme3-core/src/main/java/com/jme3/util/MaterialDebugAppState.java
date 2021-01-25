@@ -299,6 +299,7 @@ public class MaterialDebugAppState extends AbstractAppState {
         }
 
         @Override
+        @SuppressWarnings("unchecked")
         public void reload() {
             Field[] fields1 = filter.getClass().getDeclaredFields();
             Field[] fields2 = filter.getClass().getSuperclass().getDeclaredFields();

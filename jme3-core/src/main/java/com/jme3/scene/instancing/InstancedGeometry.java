@@ -32,6 +32,8 @@
 package com.jme3.scene.instancing;
 
 import com.jme3.bounding.BoundingVolume;
+import com.jme3.collision.Collidable;
+import com.jme3.collision.CollisionResults;
 import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
@@ -40,6 +42,8 @@ import com.jme3.export.Savable;
 import com.jme3.math.Matrix3f;
 import com.jme3.math.Matrix4f;
 import com.jme3.math.Quaternion;
+import com.jme3.renderer.Camera;
+import com.jme3.renderer.Camera.FrustumIntersect;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.VertexBuffer;
@@ -63,6 +67,8 @@ public class InstancedGeometry extends Geometry {
     private Geometry[] geometries = new Geometry[1];
 
     private int firstUnusedIndex = 0;
+    private int numCulledGeometries = 0;
+    private Camera cam;
 
     public InstancedGeometry() {
         super();
@@ -208,7 +214,7 @@ public class InstancedGeometry extends Geometry {
     }
 
     public int getActualNumInstances() {
-        return firstUnusedIndex;
+        return firstUnusedIndex - numCulledGeometries;
     }
 
     private void swap(int idx1, int idx2) {
@@ -250,6 +256,7 @@ public class InstancedGeometry extends Geometry {
         fb.limit(fb.capacity());
         fb.position(0);
 
+        numCulledGeometries = 0;
         TempVars vars = TempVars.get();
         {
             float[] temp = vars.matrixWrite;
@@ -271,6 +278,19 @@ public class InstancedGeometry extends Geometry {
                     }
                 }
 
+                if (cam != null) {
+                    BoundingVolume bv = geom.getWorldBound();
+                    int save = cam.getPlaneState();
+                    cam.setPlaneState(0);
+                    FrustumIntersect intersect = cam.contains(bv);
+                    cam.setPlaneState(save);
+
+                    if (intersect == FrustumIntersect.Outside) {
+                        numCulledGeometries++;
+                        continue;
+                    }
+                }
+
                 Matrix4f worldMatrix = geom.getWorldMatrix();
                 updateInstance(worldMatrix, temp, 0, vars.tempMat3, vars.quat1);
                 fb.put(temp);
@@ -280,7 +300,7 @@ public class InstancedGeometry extends Geometry {
 
         fb.flip();
 
-        if (fb.limit() / INSTANCE_SIZE != firstUnusedIndex) {
+        if (fb.limit() / INSTANCE_SIZE != (firstUnusedIndex - numCulledGeometries)) {
             throw new AssertionError();
         }
 
@@ -357,6 +377,7 @@ public class InstancedGeometry extends Geometry {
         return geometries;
     }
 
+    @SuppressWarnings("unchecked")
     public VertexBuffer[] getAllInstanceData() {
         ArrayList<VertexBuffer> allData = new ArrayList();
         if (transformInstanceData != null) {
@@ -366,6 +387,17 @@ public class InstancedGeometry extends Geometry {
             allData.addAll(Arrays.asList(globalInstanceData));
         }
         return allData.toArray(new VertexBuffer[allData.size()]);
+    }
+
+    @Override
+    public boolean checkCulling(Camera cam) {
+        this.cam = cam;
+        return super.checkCulling(cam);
+    }
+
+    @Override
+    public int collideWith(Collidable other, CollisionResults results) {
+        return 0; // Ignore collision
     }
 
     /**

@@ -143,6 +143,7 @@ public class DesktopAssetManager implements AssetManager {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public void registerLoader(String clsName, String ... extensions){
         Class<? extends AssetLoader> clazz = null;
         try{
@@ -175,6 +176,7 @@ public class DesktopAssetManager implements AssetManager {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public void registerLocator(String rootPath, String clsName){
         Class<? extends AssetLocator> clazz = null;
         try{
@@ -263,6 +265,7 @@ public class DesktopAssetManager implements AssetManager {
      * @throws AssetLoadException If failed to load asset due to exception or
      * other error.
      */
+    @SuppressWarnings("unchecked")
     protected <T> T loadLocatedAsset(AssetKey<T> key, AssetInfo info, AssetProcessor proc, AssetCache cache) {
         AssetLoader loader = handler.aquireLoader(key);
         Object obj;
@@ -318,6 +321,7 @@ public class DesktopAssetManager implements AssetManager {
      * {@link CloneableSmartAsset}, if the cache is null, or if the 
      * processor did not clone the asset.
      */
+    @SuppressWarnings("unchecked")
     protected <T> T registerAndCloneSmartAsset(AssetKey<T> key, T obj, AssetProcessor proc, AssetCache cache) {
         // object obj is the original asset
         // create an instance for user
@@ -354,6 +358,7 @@ public class DesktopAssetManager implements AssetManager {
     }
     
     @Override
+    @SuppressWarnings("unchecked")
     public <T> T loadAsset(AssetKey<T> key){
         if (key == null)
             throw new IllegalArgumentException("key cannot be null");
@@ -396,7 +401,7 @@ public class DesktopAssetManager implements AssetManager {
 
     @Override
     public Object loadAsset(String name){
-        return loadAsset(new AssetKey(name));
+        return loadAsset(new AssetKey<>(name));
     }
 
     @Override
@@ -428,7 +433,7 @@ public class DesktopAssetManager implements AssetManager {
 
     @Override
     public BitmapFont loadFont(String name){
-        return (BitmapFont) loadAsset(new AssetKey(name));
+        return loadAsset(new AssetKey<BitmapFont>(name));
     }
 
     @Override

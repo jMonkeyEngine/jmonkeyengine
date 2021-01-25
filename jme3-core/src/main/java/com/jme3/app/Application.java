@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -167,11 +167,13 @@ public interface Application {
 
     /**
      * Starts the application.
+     * A bug occuring when using LWJGL3 prevents this method from returning until after the application is stopped.
      */
     public void start();
 
     /**
      * Starts the application.
+     * A bug occuring when using LWJGL3 prevents this method from returning until after the application is stopped.
      */
     public void start(boolean waitFor);
 

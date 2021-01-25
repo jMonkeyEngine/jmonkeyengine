@@ -196,9 +196,9 @@ public abstract class LwjglContext implements JmeContext {
         }
 
         if (settings.getBoolean("GraphicsDebug")) {
-            gl = new GLDebugDesktop(gl, glext, glfbo);
-            glext = (GLExt) gl;
-            glfbo = (GLFbo) gl;
+            gl = (GL) GLDebug.createProxy(gl, gl, GL.class, GL2.class, GL3.class, GL4.class);
+            glext = (GLExt) GLDebug.createProxy(gl, glext, GLExt.class);
+            glfbo = (GLFbo) GLDebug.createProxy(gl, glfbo, GLFbo.class);
         }
 
         if (settings.getBoolean("GraphicsTiming")) {
@@ -288,6 +288,7 @@ public abstract class LwjglContext implements JmeContext {
         }
     }
 
+    @SuppressWarnings("unchecked")
     protected void initOpenCL(final long window) {
         logger.info("Initialize OpenCL with LWJGL3");
         
@@ -430,6 +431,9 @@ public abstract class LwjglContext implements JmeContext {
                 case MACOSX:
                     properties.put(APPLEGLSharing.CL_CONTEXT_PROPERTY_USE_CGL_SHAREGROUP_APPLE)
                             .put(org.lwjgl.opengl.CGL.CGLGetShareGroup(org.lwjgl.opengl.CGL.CGLGetCurrentContext()));
+                    break;
+                default:
+                    break; // Unknown Platform, do nothing.
             }
 
             properties.put(CL_CONTEXT_PLATFORM).put(platform);

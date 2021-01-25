@@ -86,12 +86,12 @@ public class TestDepthStencil extends SimpleApplication {
             @Override
             protected void controlUpdate(float tpf) {
                 Material mat = sphere.getMaterial();
-		mat.getAdditionalRenderState().setStencil(enableStencil,
+                mat.getAdditionalRenderState().setStencil(enableStencil,
                     RenderState.StencilOperation.Keep, RenderState.StencilOperation.Keep, RenderState.StencilOperation.Keep,
                     RenderState.StencilOperation.Keep, RenderState.StencilOperation.Keep, RenderState.StencilOperation.Keep,
                     RenderState.TestFunction.Never, RenderState.TestFunction.Never
                     //TestFunction.Always, TestFunction.Always
-		);
+                );
             }
 
             @Override

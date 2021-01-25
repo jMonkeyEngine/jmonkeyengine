@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,7 +40,7 @@ import java.util.Arrays;
  * Wrapper for an OpenCL kernel, a piece of executable code on the GPU.
  * <p>
  * Terminology:<br>
- * A Kernel is executed in parallel. In total number of parallel threads, 
+ * A Kernel is executed in parallel. In total number of parallel threads,
  * called work items, are specified by the <i>global work size</i> (of type
  * {@link WorkSize}. These threads are organized in a 1D, 2D or 3D grid
  * (of coarse, this is only a logical view). Inside each kernel,
@@ -54,7 +54,7 @@ import java.util.Arrays;
  * The maximal size of it can be queried by {@link Device#getMaxiumWorkItemsPerGroup() }.
  * Again, the threads inside the work group can be organized in a 1D, 2D or 3D
  * grid, but this is also just a logical view (specifying how the threads are
- * indexed). 
+ * indexed).
  * The work group is important for another concept: <i> shared memory</i>
  * Unlike the normal global or constant memory (passing a {@link Buffer} object
  * as argument), shared memory can't be set from outside. Shared memory is
@@ -64,22 +64,22 @@ import java.util.Arrays;
  * {@link LocalMem} or {@link LocalMemPerElement} as argument.<br>
  * Due to heavy register usage or other reasons, a kernel might not be able
  * to utilize a whole work group. Therefore, the actual number of threads
- * that can be executed in a work group can be queried by 
- * {@link #getMaxWorkGroupSize(com.jme3.opencl.Device) }, which might differ from the 
+ * that can be executed in a work group can be queried by
+ * {@link #getMaxWorkGroupSize(com.jme3.opencl.Device) }, which might differ from the
  * value returned from the Device.
- * 
+ *
  * <p>
  * There are two ways to launch a kernel:<br>
- * First, arguments and the work group sizes can be set in advance 
+ * First, arguments and the work group sizes can be set in advance
  * ({@code setArg(index, ...)}, {@code setGlobalWorkSize(...)} and {@code setWorkGroupSize(...)}.
  * Then a kernel is launched by {@link #Run(com.jme3.opencl.CommandQueue) }.<br>
  * Second, two convenient functions are provided that set the arguments
  * and work sizes in one call:
  * {@link #Run1(com.jme3.opencl.CommandQueue, com.jme3.opencl.Kernel.WorkSize, java.lang.Object...) }
  * and {@link #Run2(com.jme3.opencl.CommandQueue, com.jme3.opencl.Kernel.WorkSize, com.jme3.opencl.Kernel.WorkSize, java.lang.Object...) }.
- * 
+ *
  * @author shaman
- * @see Program#createKernel(java.lang.String) 
+ * @see Program#createKernel(java.lang.String)
  */
 public abstract class Kernel extends AbstractOpenCLObject {
     /**
@@ -97,12 +97,12 @@ public abstract class Kernel extends AbstractOpenCLObject {
         this.workGroupSize = new WorkSize(0);
     }
 
-	@Override
-	public Kernel register() {
-		super.register();
-		return this;
-	}
-	
+    @Override
+    public Kernel register() {
+        super.register();
+        return this;
+    }
+
     /**
      * @return the name of the kernel as defined in the program source code
      */
@@ -122,6 +122,7 @@ public abstract class Kernel extends AbstractOpenCLObject {
 
     /**
      * Sets the global work size.
+     *
      * @param ws the work size to set
      */
     public void setGlobalWorkSize(WorkSize ws) {
@@ -130,6 +131,7 @@ public abstract class Kernel extends AbstractOpenCLObject {
 
     /**
      * Sets the global work size to a 1D grid
+     *
      * @param size the size in 1D
      */
     public void setGlobalWorkSize(int size) {
@@ -138,6 +140,7 @@ public abstract class Kernel extends AbstractOpenCLObject {
 
     /**
      * Sets the global work size to be a 2D grid
+     *
      * @param width the width
      * @param height the height
      */
@@ -147,6 +150,7 @@ public abstract class Kernel extends AbstractOpenCLObject {
 
     /**
      * Sets the global work size to be a 3D grid
+     *
      * @param width the width
      * @param height the height
      * @param depth the depth
@@ -164,6 +168,7 @@ public abstract class Kernel extends AbstractOpenCLObject {
 
     /**
      * Sets the work group size
+     *
      * @param ws the work group size to set
      */
     public void setWorkGroupSize(WorkSize ws) {
@@ -172,6 +177,7 @@ public abstract class Kernel extends AbstractOpenCLObject {
 
     /**
      * Sets the work group size to be a 1D grid
+     *
      * @param size the size to set
      */
     public void setWorkGroupSize(int size) {
@@ -180,6 +186,7 @@ public abstract class Kernel extends AbstractOpenCLObject {
 
     /**
      * Sets the work group size to be a 2D grid
+     *
      * @param width the width
      * @param height the height
      */
@@ -189,6 +196,7 @@ public abstract class Kernel extends AbstractOpenCLObject {
 
     /**
      * Sets the work group size to be a 3D grid
+     *
      * @param width the width
      * @param height the height
      * @param depth the depth
@@ -196,7 +204,7 @@ public abstract class Kernel extends AbstractOpenCLObject {
     public void setWorkGroupSdize(int width, int height, int depth) {
         workGroupSize.set(3, width, height, depth);
     }
-    
+
     /**
      * Tells the driver to figure out the work group size on their own.
      * Use this if you do not rely on specific work group layouts, i.e.
@@ -207,10 +215,11 @@ public abstract class Kernel extends AbstractOpenCLObject {
     public void setWorkGroupSizeToNull() {
         workGroupSize.set(1, 0, 0, 0);
     }
-    
+
     /**
      * Returns the maximal work group size when this kernel is executed on
      * the specified device
+     *
      * @param device the device
      * @return the maximal work group size
      */
@@ -221,7 +230,7 @@ public abstract class Kernel extends AbstractOpenCLObject {
     public abstract void setArg(int index, LocalMem t);
 
     public abstract void setArg(int index, Buffer t);
-    
+
     public abstract void setArg(int index, Image i);
 
     public abstract void setArg(int index, byte b);
@@ -237,20 +246,20 @@ public abstract class Kernel extends AbstractOpenCLObject {
     public abstract void setArg(int index, double d);
 
     public abstract void setArg(int index, Vector2f v);
-  
+
     public abstract void setArg(int index, Vector4f v);
 
     public abstract void setArg(int index, Quaternion q);
-    
+
     public abstract void setArg(int index, Matrix4f mat);
-    
+
     public void setArg(int index, Matrix3f mat) {
         TempVars vars = TempVars.get();
         try {
             Matrix4f m = vars.tempMat4;
             m.zero();
-            for (int i=0; i<3; ++i) {
-                for (int j=0; j<3; ++j) {
+            for (int i = 0; i < 3; ++i) {
+                for (int j = 0; j < 3; ++j) {
                     m.set(i, j, mat.get(i, j));
                 }
             }
@@ -259,13 +268,14 @@ public abstract class Kernel extends AbstractOpenCLObject {
             vars.release();
         }
     }
-    
+
     /**
      * Raw version to set an argument.
      * {@code size} bytes of the provided byte buffer are copied to the kernel
      * argument. The size in bytes must match exactly the argument size
      * as defined in the kernel code.
      * Use this method to send custom structures to the kernel
+     *
      * @param index the index of the argument
      * @param buffer the raw buffer
      * @param size the size in bytes
@@ -279,6 +289,7 @@ public abstract class Kernel extends AbstractOpenCLObject {
      * long, float, double, Vector2f, Vector4f, Quaternion, Matrix3f, Matrix4f}.
      * <br>
      * Note: Matrix3f and Matrix4f will be mapped to a {@code float16} (row major).
+     *
      * @param index the index of the argument, from 0 to {@link #getArgCount()}-1
      * @param arg the argument
      * @throws IllegalArgumentException if the argument type is not one of the listed ones
@@ -331,24 +342,26 @@ public abstract class Kernel extends AbstractOpenCLObject {
      * If the returned event object is not needed and would otherwise be
      * released immediately, {@link #RunNoEvent(com.jme3.opencl.CommandQueue) }
      * might bring a better performance.
+     *
      * @param queue the command queue
      * @return an event object indicating when the kernel is finished
-     * @see #setGlobalWorkSize(com.jme3.opencl.Kernel.WorkSize) 
-     * @see #setWorkGroupSize(com.jme3.opencl.Kernel.WorkSize) 
-     * @see #setArg(int, java.lang.Object) 
+     * @see #setGlobalWorkSize(com.jme3.opencl.Kernel.WorkSize)
+     * @see #setWorkGroupSize(com.jme3.opencl.Kernel.WorkSize)
+     * @see #setArg(int, java.lang.Object)
      */
     public abstract Event Run(CommandQueue queue);
-    
+
     /**
      * Launches the kernel with the current global work size, work group size
      * and arguments without returning an event object.
      * The generated event is directly released. Therefore, the performance
      * is better, but there is no way to detect when the kernel execution
      * has finished. For this purpose, use {@link #Run(com.jme3.opencl.CommandQueue) }.
+     *
      * @param queue the command queue
-     * @see #setGlobalWorkSize(com.jme3.opencl.Kernel.WorkSize) 
-     * @see #setWorkGroupSize(com.jme3.opencl.Kernel.WorkSize) 
-     * @see #setArg(int, java.lang.Object) 
+     * @see #setGlobalWorkSize(com.jme3.opencl.Kernel.WorkSize)
+     * @see #setWorkGroupSize(com.jme3.opencl.Kernel.WorkSize)
+     * @see #setArg(int, java.lang.Object)
      */
     public void RunNoEvent(CommandQueue queue) {
         //Default implementation, overwrite to not allocate the event object
@@ -361,11 +374,12 @@ public abstract class Kernel extends AbstractOpenCLObject {
      * size is automatically determined by the driver.
      * Each object in the argument array is sent to the kernel by
      * {@link #setArg(int, java.lang.Object) }.
+     *
      * @param queue the command queue
      * @param globalWorkSize the global work size
      * @param args the kernel arguments
      * @return an event object indicating when the kernel is finished
-     * @see #Run2(com.jme3.opencl.CommandQueue, com.jme3.opencl.Kernel.WorkSize, com.jme3.opencl.Kernel.WorkSize, java.lang.Object...) 
+     * @see #Run2(com.jme3.opencl.CommandQueue, com.jme3.opencl.Kernel.WorkSize, com.jme3.opencl.Kernel.WorkSize, java.lang.Object...)
      */
     public Event Run1(CommandQueue queue, WorkSize globalWorkSize, Object... args) {
         setGlobalWorkSize(globalWorkSize);
@@ -373,7 +387,7 @@ public abstract class Kernel extends AbstractOpenCLObject {
         setArgs(args);
         return Run(queue);
     }
-    
+
     /**
      * Sets the work sizes and arguments in one call and launches the kernel.
      * The global work size is set to the specified size. The work group
@@ -382,12 +396,13 @@ public abstract class Kernel extends AbstractOpenCLObject {
      * {@link #setArg(int, java.lang.Object) }.
      * The generated event is directly released. Therefore, the performance
      * is better, but there is no way to detect when the kernel execution
-     * has finished. For this purpose, use 
+     * has finished. For this purpose, use
      * {@link #Run1(com.jme3.opencl.CommandQueue, com.jme3.opencl.Kernel.WorkSize, java.lang.Object...) }.
+     *
      * @param queue the command queue
      * @param globalWorkSize the global work size
      * @param args the kernel arguments
-     * @see #Run2(com.jme3.opencl.CommandQueue, com.jme3.opencl.Kernel.WorkSize, com.jme3.opencl.Kernel.WorkSize, java.lang.Object...) 
+     * @see #Run2(com.jme3.opencl.CommandQueue, com.jme3.opencl.Kernel.WorkSize, com.jme3.opencl.Kernel.WorkSize, java.lang.Object...)
      */
     public void Run1NoEvent(CommandQueue queue, WorkSize globalWorkSize, Object... args) {
         setGlobalWorkSize(globalWorkSize);
@@ -398,6 +413,7 @@ public abstract class Kernel extends AbstractOpenCLObject {
 
     /**
      * Sets the work sizes and arguments in one call and launches the kernel.
+     *
      * @param queue the command queue
      * @param globalWorkSize the global work size
      * @param workGroupSize the work group size
@@ -416,8 +432,9 @@ public abstract class Kernel extends AbstractOpenCLObject {
      * Sets the work sizes and arguments in one call and launches the kernel.
      * The generated event is directly released. Therefore, the performance
      * is better, but there is no way to detect when the kernel execution
-     * has finished. For this purpose, use 
+     * has finished. For this purpose, use
      * {@link #Run2(com.jme3.opencl.CommandQueue, com.jme3.opencl.Kernel.WorkSize, com.jme3.opencl.Kernel.WorkSize, java.lang.Object...) }.
+     *
      * @param queue the command queue
      * @param globalWorkSize the global work size
      * @param workGroupSize the work group size
@@ -431,22 +448,22 @@ public abstract class Kernel extends AbstractOpenCLObject {
         RunNoEvent(queue);
     }
 
-	@Override
-	public String toString() {
-		return "Kernel (" + getName() + ")";
-	}
-	
+    @Override
+    public String toString() {
+        return "Kernel (" + getName() + ")";
+    }
+
     /**
-     * A placeholder for kernel arguments representing local kernel memory.
-     * This defines the size of available shared memory of a {@code __shared} kernel
+     * A placeholder for kernel arguments representing local kernel memory. This
+     * defines the size of available shared memory of a {@code __shared} kernel
      * argument
      */
     public static final class LocalMem {
-
         private int size;
 
         /**
          * Creates a new LocalMem instance
+         *
          * @param size the size of the available shared memory in bytes
          */
         public LocalMem(int size) {
@@ -480,11 +497,11 @@ public abstract class Kernel extends AbstractOpenCLObject {
             return true;
         }
 
-		@Override
-		public String toString() {
-			return "LocalMem (" + size + "B)";
-		}
-		
+        @Override
+        public String toString() {
+            return "LocalMem (" + size + "B)";
+        }
+
     }
 
     /**
@@ -498,11 +515,11 @@ public abstract class Kernel extends AbstractOpenCLObject {
      * (e.g. by {@link #setWorkGroupSizeToNull()} or {@link #Run1(com.jme3.opencl.CommandQueue, com.jme3.opencl.Kernel.WorkSize, java.lang.Object...) }.
      */
     public static final class LocalMemPerElement {
-
         private int size;
 
         /**
          * Creates a new LocalMemPerElement instance
+         *
          * @param size the number of bytes available for each thread within
          * a work group
          */
@@ -537,15 +554,16 @@ public abstract class Kernel extends AbstractOpenCLObject {
             return true;
         }
 
-		@Override
-		public String toString() {
-			return "LocalMemPerElement (" + size + "B)";
-		}
-		
+        @Override
+        public String toString() {
+            return "LocalMemPerElement (" + size + "B)";
+        }
+
     }
 
     /**
      * The work size (global and local) for executing a kernel
+     *
      * @author shaman
      */
     public static final class WorkSize {
@@ -555,6 +573,7 @@ public abstract class Kernel extends AbstractOpenCLObject {
 
         /**
          * Creates a new work size object
+         *
          * @param dimension the dimension (1,2,3)
          * @param sizes the sizes in each dimension, the length must match the specified dimension
          */
@@ -572,6 +591,7 @@ public abstract class Kernel extends AbstractOpenCLObject {
 
         /**
          * Creates a 1D work size of the specified extend
+         *
          * @param size the size
          */
         public WorkSize(long size) {
@@ -580,6 +600,7 @@ public abstract class Kernel extends AbstractOpenCLObject {
 
         /**
          * Creates a 2D work size of the specified extend
+         *
          * @param width the width
          * @param height the height
          */
@@ -589,6 +610,7 @@ public abstract class Kernel extends AbstractOpenCLObject {
 
         /**
          * Creates a 3D work size of the specified extend.
+         *
          * @param width the width
          * @param height the height
          * @param depth the depth
@@ -647,20 +669,18 @@ public abstract class Kernel extends AbstractOpenCLObject {
             return true;
         }
 
-		@Override
-		public String toString() {
-			StringBuilder str = new StringBuilder();
-			str.append("WorkSize[");
-			for (int i=0; i<dimension; ++i) {
-				if (i>0) {
-					str.append(", ");
-				}
-				str.append(sizes[i]);
-			}
-			str.append(']');
-			return str.toString();
-		}
-		
+        @Override
+        public String toString() {
+            StringBuilder str = new StringBuilder();
+            str.append("WorkSize[");
+            for (int i = 0; i < dimension; ++i) {
+                if (i > 0) {
+                    str.append(", ");
+                }
+                str.append(sizes[i]);
+            }
+            str.append(']');
+            return str.toString();
+        }
     }
-    
 }

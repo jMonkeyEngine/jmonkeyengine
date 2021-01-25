@@ -56,9 +56,10 @@ public class TouchTrigger implements Trigger {
         else
             return "TouchInput KeyCode " + keyCode;
     }
-    
-    public static int touchHash(int keyCode){
-        assert keyCode >= 0 && keyCode <= 255;
+
+    public static int touchHash(int keyCode) {
+        assert keyCode >= 0 && keyCode <= 255 :
+                "unexpected keyCode: " + keyCode;
         return 0xfedcba98 + keyCode;
     }
 

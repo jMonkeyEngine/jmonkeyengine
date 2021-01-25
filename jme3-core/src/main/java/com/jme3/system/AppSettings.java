@@ -248,7 +248,7 @@ public final class AppSettings extends HashMap<String, Object> {
     public static final String JOGL_OPENGL_FORWARD_COMPATIBLE = "JOGL_OPENGL_FORWARD_COMPATIBLE";
     
     /**
-     * Use JogAmp's JOGL as the display system with the backward compatible profile
+     * Use JogAmp's JOGL as the display system, with the backward compatible profile
      * <p>
      * N.B: This backend is EXPERIMENTAL
      *
@@ -257,11 +257,11 @@ public final class AppSettings extends HashMap<String, Object> {
     public static final String JOGL_OPENGL_BACKWARD_COMPATIBLE = "JOGL_OPENGL_BACKWARD_COMPATIBLE";
     
     /**
-     * Use JogAmp's JOAL as the display system
+     * Use JogAmp's JOAL as the audio renderer.
      * <p>
      * N.B: This backend is EXPERIMENTAL
      *
-     * @see AppSettings#setRenderer(java.lang.String)
+     * @see AppSettings#setAudioRenderer(java.lang.String)
      */
     public static final String JOAL = "JOAL";
 
@@ -279,12 +279,12 @@ public final class AppSettings extends HashMap<String, Object> {
         defaults.put("AudioRenderer", LWJGL_OPENAL);
         defaults.put("DisableJoysticks", true);
         defaults.put("UseInput", true);
-        defaults.put("VSync", false);
+        defaults.put("VSync", true);
         defaults.put("FrameRate", -1);
         defaults.put("SettingsDialogImage", "/com/jme3/app/Monkey.png");
         defaults.put("MinHeight", 0);
         defaults.put("MinWidth", 0);
-        defaults.put("GammaCorrection", false);
+        defaults.put("GammaCorrection", true);
         defaults.put("Resizable", false);
         defaults.put("SwapBuffers", true);
         defaults.put("OpenCL", false);
@@ -504,7 +504,7 @@ public final class AppSettings extends HashMap<String, Object> {
         return i.intValue();
     }
 
-    /**
+    /** 
      * Get a boolean from the settings.
      * <p>
      * If the key is not set, then false is returned.
@@ -671,6 +671,8 @@ public final class AppSettings extends HashMap<String, Object> {
      * <li>AppSettings.LWJGL_OPENGL3 - Force OpenGL3.3 compatability</li>
      * <li>AppSettings.LWJGL_OPENGL_ANY - Choose an appropriate
      * OpenGL version based on system capabilities</li>
+     * <li>AppSettings.JOGL_OPENGL_BACKWARD_COMPATIBLE</li>
+     * <li>AppSettings.JOGL_OPENGL_FORWARD_COMPATIBLE</li>
      * <li>null - Disable graphics rendering</li>
      * </ul>
      * @param renderer The renderer to set
@@ -694,6 +696,7 @@ public final class AppSettings extends HashMap<String, Object> {
      * Set the audio renderer to use. One of:<br>
      * <ul>
      * <li>AppSettings.LWJGL_OPENAL - Default for LWJGL</li>
+     * <li>AppSettings.JOAL</li>
      * <li>null - Disable audio</li>
      * </ul>
      * @param audioRenderer
@@ -859,10 +862,10 @@ public final class AppSettings extends HashMap<String, Object> {
     }
 
     /**
-     * Set to true to enable vertical-synchronization, limiting and synchronizing
-     * every frame rendered to the monitor's refresh rate.
-     * @param value
-     * (Default: false)
+     * Enable or disable vertical synchronization. If enabled, rendering will be
+     * synchronized with the display's refresh interval.
+     *
+     * @param value true to enable, false to disable (Default : true)
      */
     public void setVSync(boolean value) {
         putBoolean("VSync", value);
@@ -887,7 +890,7 @@ public final class AppSettings extends HashMap<String, Object> {
      * Linux (and similar platforms) expect one 32x32 icon.
      * Mac OS X should be supplied one 128x128 icon.
      * <br/>
-     * The icon is used for the settings window, and the LWJGL render window. Not currently supported for JOGL.
+     * The icon is used for the settings window, and the LWJGL render window.
      * Note that a bug in Java 6 (bug ID 6445278, currently hidden but available in Google cache) currently prevents
      * the icon working for alt-tab on the settings dialog in Windows.
      *
@@ -913,11 +916,13 @@ public final class AppSettings extends HashMap<String, Object> {
     }
 
     /**
-     * Enables Gamma Correction
-     * This requires that the GPU supports GL_ARB_framebuffer_sRGB and will
-     * disabled otherwise.
-     * @param gammaCorrection
-     * (Default : true)
+     * Enable or disable gamma correction. If enabled, the main framebuffer will
+     * be configured for sRGB colors, and sRGB images will be linearized.
+     *
+     * Gamma correction requires a GPU that supports GL_ARB_framebuffer_sRGB;
+     * otherwise this setting will be ignored.
+     *
+     * @param gammaCorrection true to enable, false to disable (Default : true)
      */
     public void setGammaCorrection(boolean gammaCorrection) {
         putBoolean("GammaCorrection", gammaCorrection);
@@ -1037,7 +1042,9 @@ public final class AppSettings extends HashMap<String, Object> {
     }
 
     /**
-     * Get the vsync state
+     * Test whether vertical synchronization should be enabled.
+     *
+     * @return true for enabled, false for disabled
      * @see #setVSync(boolean)
      */
     public boolean isVSync() {
@@ -1092,10 +1099,15 @@ public final class AppSettings extends HashMap<String, Object> {
         return getString("SettingsDialogImage");
     }
 
+    /**
+     * Test whether gamma correction should be enabled.
+     *
+     * @return true for enabled, false for disabled
+     */
     public boolean isGammaCorrection() {
         return getBoolean("GammaCorrection");
     }
-    
+
     /**
      * Allows the display window to be resized by dragging its edges.
      * 

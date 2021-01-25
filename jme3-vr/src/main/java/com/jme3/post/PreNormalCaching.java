@@ -33,7 +33,7 @@ public class PreNormalCaching {
         // do we already have a valid cache to set the framebuffer to?
         Renderer r = renderManager.getRenderer();
         if( cachedPreNormals != null ) {
-            r.copyFrameBuffer(cachedPreNormals, normalPass.getRenderFrameBuffer(), false);
+            r.copyFrameBuffer(cachedPreNormals, normalPass.getRenderFrameBuffer(),true,  false);
         } else {
             // lets make the prenormals
             r.setFrameBuffer(normalPass.getRenderFrameBuffer());

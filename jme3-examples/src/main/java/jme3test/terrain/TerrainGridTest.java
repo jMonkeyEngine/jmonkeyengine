@@ -14,6 +14,7 @@ import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
+import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.terrain.geomipmap.TerrainGrid;
 import com.jme3.terrain.geomipmap.TerrainGridListener;
@@ -110,7 +111,7 @@ public class TerrainGridTest extends SimpleApplication {
         stateManager.attach(bulletAppState);
 
         this.getCamera().setLocation(new Vector3f(0, 400, 0));
-        this.getCamera().lookAt(new Vector3f(0,0,0), Vector3f.UNIT_Y);
+        cam.setRotation(new Quaternion(0.61573f, -0.0054f, 0.0042f, 0.78793f));
         
         this.viewPort.setBackgroundColor(new ColorRGBA(0.7f, 0.8f, 1f, 1f));
 

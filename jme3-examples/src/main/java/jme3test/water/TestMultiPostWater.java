@@ -27,7 +27,7 @@ import java.util.List;
 
 /**
  * test
- *
+ * 
  * @author normenhansen
  */
 public class TestMultiPostWater extends SimpleApplication {
@@ -43,9 +43,6 @@ public class TestMultiPostWater extends SimpleApplication {
         AppSettings s = new AppSettings(true);
         s.setRenderer(AppSettings.LWJGL_OPENGL2);
         s.setAudioRenderer(AppSettings.LWJGL_OPENAL);
-//       
-//        s.setRenderer("JOGL");
-//        s.setAudioRenderer("JOAL");
         app.setSettings(s);
 
         app.start();

@@ -1127,7 +1127,7 @@ public class PhysicsSpace {
      * @return a new list of results
      */
     public List<PhysicsSweepTestResult> sweepTest(CollisionShape shape, Transform start, Transform end) {
-        List results = new LinkedList();
+        List<PhysicsSweepTestResult> results = new LinkedList<>();
         sweepTest(shape, start, end , results);
         return results;
     }

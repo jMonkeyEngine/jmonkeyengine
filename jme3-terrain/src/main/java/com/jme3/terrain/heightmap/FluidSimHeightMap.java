@@ -81,7 +81,7 @@ public class FluidSimHeightMap extends AbstractHeightMap {
      *                        the distance between each node of the heightmap
      * @param seed
      *            the seed to generate the same heightmap again
-     * @throws JmeException
+     * @throws Exception
      *             if size of the terrain is not greater that zero, or number of
      *             iterations is not greater that zero, or the minimum initial height
      *             is greater than the maximum (or the other way around)
@@ -116,7 +116,7 @@ public class FluidSimHeightMap extends AbstractHeightMap {
      *            size the size of the terrain to be generated
      * @param iterations
      *            the number of iterations to do
-     * @throws JmeException
+     * @throws Exception
      *             if size of the terrain is not greater that zero, or number of
      *             iterations is not greater that zero
      */
@@ -134,7 +134,7 @@ public class FluidSimHeightMap extends AbstractHeightMap {
     }
 
 
-    /*
+    /**
      * Generates a heightmap using fluid simulation and the attributes set by
      * the constructor or the setters.
      */
@@ -233,7 +233,7 @@ public class FluidSimHeightMap extends AbstractHeightMap {
      *
      * @param iterations
      *            the number of iterations to do
-     * @throws JmeException
+     * @throws Exception
      *             if iterations if not greater than zero
      */
     public void setIterations(int iterations) throws Exception {

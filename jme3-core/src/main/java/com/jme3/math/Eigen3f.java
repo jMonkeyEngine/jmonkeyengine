@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,10 +34,12 @@ package com.jme3.math;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * A calculator for the eigenvectors and eigenvalues of a Matrix3f.
+ */
 public class Eigen3f implements java.io.Serializable {
-
     static final long serialVersionUID = 1;
-    
+
     private static final Logger logger = Logger.getLogger(Eigen3f.class
             .getName());
 
@@ -47,17 +49,29 @@ public class Eigen3f implements java.io.Serializable {
     static final double ONE_THIRD_DOUBLE = 1.0 / 3.0;
     static final double ROOT_THREE_DOUBLE = Math.sqrt(3.0);
 
-    
+    /**
+     * Instantiate an empty calculator.
+     */
     public Eigen3f() {
-    	
+
     }
-    
+
+    /**
+     * Calculate the eigenvalues and eigenvectors of the specified matrix.
+     *
+     * @param data the input Matrix3f
+     */
     public Eigen3f(Matrix3f data) {
         calculateEigen(data);
     }
 
-	public void calculateEigen(Matrix3f data) {
-		// prep work...
+    /**
+     * Calculate the eigenvalues and eigenvectors of the specified matrix.
+     *
+     * @param data the input Matrix3f
+     */
+    public void calculateEigen(Matrix3f data) {
+        // prep work...
         eigenVectors[0] = new Vector3f();
         eigenVectors[1] = new Vector3f();
         eigenVectors[2] = new Vector3f();
@@ -77,7 +91,7 @@ public class Eigen3f implements java.io.Serializable {
         maxRows[0] = new Vector3f();
         maxRows[1] = new Vector3f();
         maxRows[2] = new Vector3f();
-        
+
         for (int i = 0; i < 3; i++) {
             Matrix3f tempMatrix = new Matrix3f(scaledData);
             tempMatrix.m00 -= eigenValues[i];
@@ -134,12 +148,12 @@ public class Eigen3f implements java.io.Serializable {
                 eigenValues[i] *= maxMagnitude;
             }
         }
-	}
+    }
 
     /**
      * Scale the matrix so its entries are in [-1,1]. The scaling is applied
      * only when at least one matrix entry has magnitude larger than 1.
-     * 
+     *
      * @return the max magnitude in this matrix
      */
     private float scaleMatrix(Matrix3f mat) {
@@ -176,7 +190,8 @@ public class Eigen3f implements java.io.Serializable {
     }
 
     /**
-     * Compute the eigenvectors of the given Matrix, using the 
+     * Compute the eigenvectors of the given Matrix, using the
+     *
      * @param mat
      * @param vect
      * @param index1
@@ -264,14 +279,14 @@ public class Eigen3f implements java.io.Serializable {
             }
         }
 
-         eigenVectors[index3].cross(eigenVectors[index1], eigenVectors[index2]);
+        eigenVectors[index3].cross(eigenVectors[index1], eigenVectors[index2]);
     }
 
     /**
      * Check the rank of the given Matrix to determine if it is positive. While
      * doing so, store the max magnitude entry in the given float store and the
      * max row of the matrix in the Vector store.
-     * 
+     *
      * @param matrix
      *            the Matrix3f to analyze.
      * @param maxMagnitudeStore
@@ -306,7 +321,7 @@ public class Eigen3f implements java.io.Serializable {
     /**
      * Generate the base eigen values of the given matrix using double precision
      * math.
-     * 
+     *
      * @param mat
      *            the Matrix3f to analyze.
      * @param rootsStore
@@ -378,13 +393,19 @@ public class Eigen3f implements java.io.Serializable {
         }
     }
 
+    /**
+     * Test the Eigen3f class.
+     *
+     * @param args ignored
+     */
     public static void main(String[] args) {
         Matrix3f mat = new Matrix3f(2, 1, 1, 1, 2, 1, 1, 1, 2);
         Eigen3f eigenSystem = new Eigen3f(mat);
 
         logger.info("eigenvalues = ");
-        for (int i = 0; i < 3; i++)
+        for (int i = 0; i < 3; i++) {
             logger.log(Level.FINE, "{0} ", eigenSystem.getEigenValue(i));
+        }
 
         logger.info("eigenvectors = ");
         for (int i = 0; i < 3; i++) {
@@ -402,18 +423,40 @@ public class Eigen3f implements java.io.Serializable {
         // -0.816485 0.004284 0.577350
     }
 
+    /**
+     * Read the indexed eigenvalue.
+     *
+     * @param i which value to read (0, 1, or 2)
+     * @return the previously calculated eigenvalue
+     */
     public float getEigenValue(int i) {
         return eigenValues[i];
     }
 
+    /**
+     * Access the indexed eigenvector.
+     *
+     * @param i which vector to read (0, 1, or 2)
+     * @return the pre-existing eigenvector
+     */
     public Vector3f getEigenVector(int i) {
         return eigenVectors[i];
     }
 
+    /**
+     * Access the array of eigenvalues.
+     *
+     * @return the pre-existing array
+     */
     public float[] getEigenValues() {
         return eigenValues;
     }
 
+    /**
+     * Access the array of eigenvectors.
+     *
+     * @return the pre-existing array of vectors
+     */
     public Vector3f[] getEigenVectors() {
         return eigenVectors;
     }

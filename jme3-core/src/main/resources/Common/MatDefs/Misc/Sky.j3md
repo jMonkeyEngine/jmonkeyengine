@@ -2,7 +2,7 @@ MaterialDef Sky Plane {
     MaterialParameters {
         TextureCubeMap Texture
         Boolean SphereMap
-	Boolean EquirectMap
+        Boolean EquirectMap
         Vector3 NormalScale
     }
     Technique {
@@ -17,7 +17,7 @@ MaterialDef Sky Plane {
 
         Defines {
             SPHERE_MAP : SphereMap
-	        EQUIRECT_MAP : EquirectMap
+            EQUIRECT_MAP : EquirectMap
         }
 
         RenderState {

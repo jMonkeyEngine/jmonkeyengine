@@ -231,9 +231,9 @@ public class LightProbe extends Light implements Savable {
                 break;
             case OrientedBox:
                 area = new OrientedBoxProbeArea(new Transform());
-                area.setCenter(position);
                 break;
         }
+        area.setCenter(position);
     }
 
     public AreaType getAreaType(){

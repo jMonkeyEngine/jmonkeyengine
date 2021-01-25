@@ -287,14 +287,14 @@ public class Camera implements Savable, Cloneable {
         }
     }
     
-	/**
-         * This method copies the settings of the given camera.
-    	 * 
-	 * @param cam
-	 *            the camera we copy the settings from
-	 */
+    /**
+     * This method copies the settings of the given camera.
+     * 
+     * @param cam
+     *            the camera we copy the settings from
+     */
     public void copyFrom(Camera cam) {
-    	location.set(cam.location);
+        location.set(cam.location);
         rotation.set(cam.rotation);
 
         frustumNear = cam.frustumNear;
@@ -1006,13 +1006,13 @@ public class Camera implements Savable, Cloneable {
      * on the negative side of the plane is can be culled out.
      *
      * NOTE: This method is used internally for culling, for public usage,
-     * the plane state of the bounding volume must be saved and restored, e.g:
+     * the plane state of the camera must be saved and restored, e.g:
      * <code>BoundingVolume bv;<br>
      * Camera c;<br>
-     * int planeState = bv.getPlaneState();<br>
-     * bv.setPlaneState(0);<br>
+     * int planeState = c.getPlaneState();<br>
+     * c.setPlaneState(0);<br>
      * c.contains(bv);<br>
-     * bv.setPlaneState(plateState);<br>
+     * c.setPlaneState(plateState);<br>
      * </code>
      *
      * @param bound the bound to check for culling

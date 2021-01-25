@@ -54,7 +54,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * <code>BufferUtils</code> is a helper class for generating nio buffers from
  * jME data classes such as Vectors and ColorRGBA.
- * 
+ *
  * @author Joshua Slack
  * @version $Id: BufferUtils.java,v 1.16 2007/10/29 16:56:18 nca Exp $
  */
@@ -74,7 +74,7 @@ public final class BufferUtils {
      * Set it to true if you want to enable direct memory tracking for debugging
      * purpose. Default is false. To print direct memory usage use
      * BufferUtils.printCurrentDirectMemory(StringBuilder store);
-     * 
+     *
      * @param enabled
      */
     public static void setTrackDirectMemoryEnabled(boolean enabled) {
@@ -84,7 +84,7 @@ public final class BufferUtils {
     /**
      * Creates a clone of the given buffer. The clone's capacity is equal to the
      * given buffer's limit.
-     * 
+     *
      * @param buf
      *            The buffer to clone
      * @return The cloned buffer
@@ -141,9 +141,10 @@ public final class BufferUtils {
      * Generate a new FloatBuffer using the given array of Vector3f objects. The
      * FloatBuffer will be 3 * data.length long and contain the vector data as
      * data[0].x, data[0].y, data[0].z, data[1].x... etc.
-     * 
+     *
      * @param data
      *            array of Vector3f objects to place into a new FloatBuffer
+     * @return a new direct, flipped FloatBuffer, or null if data was null
      */
     public static FloatBuffer createFloatBuffer(Vector3f... data) {
         if (data == null) {
@@ -164,9 +165,10 @@ public final class BufferUtils {
     /**
      * Generate a new FloatBuffer using the given array of Quaternion objects.
      * The FloatBuffer will be 4 * data.length long and contain the vector data.
-     * 
+     *
      * @param data
      *            array of Quaternion objects to place into a new FloatBuffer
+     * @return a new direct, flipped FloatBuffer, or null if data was null
      */
     public static FloatBuffer createFloatBuffer(Quaternion... data) {
         if (data == null) {
@@ -190,6 +192,7 @@ public final class BufferUtils {
      *
      * @param data
      *            array of Vector4 objects to place into a new FloatBuffer
+     * @return a new direct, flipped FloatBuffer, or null if data was null
      */
     public static FloatBuffer createFloatBuffer(Vector4f... data) {
         if (data == null) {
@@ -213,6 +216,7 @@ public final class BufferUtils {
      *
      * @param data
      *            array of ColorRGBA objects to place into a new FloatBuffer
+     * @return a new direct, flipped FloatBuffer, or null if data was null
      */
     public static FloatBuffer createFloatBuffer(ColorRGBA... data) {
         if (data == null) {
@@ -232,9 +236,10 @@ public final class BufferUtils {
 
     /**
      * Generate a new FloatBuffer using the given array of float primitives.
-     * 
+     *
      * @param data
      *            array of float primitives to place into a new FloatBuffer
+     * @return a new direct, flipped FloatBuffer, or null if data was null
      */
     public static FloatBuffer createFloatBuffer(float... data) {
         if (data == null) {
@@ -250,7 +255,7 @@ public final class BufferUtils {
     /**
      * Create a new FloatBuffer of an appropriate size to hold the specified
      * number of Vector3f object data.
-     * 
+     *
      * @param vertices
      *            number of vertices that need to be held by the newly created
      *            buffer
@@ -265,7 +270,7 @@ public final class BufferUtils {
      * Create a new FloatBuffer of an appropriate size to hold the specified
      * number of Vector3f object data only if the given buffer if not already
      * the right size.
-     * 
+     *
      * @param buf
      *            the buffer to first check and rewind
      * @param vertices
@@ -285,7 +290,7 @@ public final class BufferUtils {
     /**
      * Sets the data contained in the given color into the FloatBuffer at the
      * specified index.
-     * 
+     *
      * @param color
      *            the data to insert
      * @param buf
@@ -304,7 +309,7 @@ public final class BufferUtils {
     /**
      * Sets the data contained in the given quaternion into the FloatBuffer at
      * the specified index.
-     * 
+     *
      * @param quat
      *            the {@link Quaternion} to insert
      * @param buf
@@ -343,7 +348,7 @@ public final class BufferUtils {
     /**
      * Sets the data contained in the given Vector3F into the FloatBuffer at the
      * specified index.
-     * 
+     *
      * @param vector
      *            the data to insert
      * @param buf
@@ -369,7 +374,7 @@ public final class BufferUtils {
     /**
      * Updates the values of the given vector from the specified buffer at the
      * index provided.
-     * 
+     *
      * @param vector
      *            the vector to set data on
      * @param buf
@@ -387,7 +392,7 @@ public final class BufferUtils {
     /**
      * Updates the values of the given vector from the specified buffer at the
      * index provided.
-     * 
+     *
      * @param vector
      *            the vector to set data on
      * @param buf
@@ -405,7 +410,7 @@ public final class BufferUtils {
 
     /**
      * Generates a Vector3f array from the given FloatBuffer.
-     * 
+     *
      * @param buff
      *            the FloatBuffer to read from
      * @return a newly generated array of Vector3f objects
@@ -424,7 +429,7 @@ public final class BufferUtils {
      * Copies a Vector3f from one position in the buffer to another. The index
      * values are in terms of vector number (eg, vector number 0 is positions
      * 0-2 in the FloatBuffer.)
-     * 
+     *
      * @param buf
      *            the buffer to copy from/to
      * @param fromPos
@@ -438,7 +443,7 @@ public final class BufferUtils {
 
     /**
      * Normalize a Vector3f in-buffer.
-     * 
+     *
      * @param buf
      *            the buffer to find the Vector3f within
      * @param index
@@ -456,7 +461,7 @@ public final class BufferUtils {
 
     /**
      * Add to a Vector3f in-buffer.
-     * 
+     *
      * @param toAdd
      *            the vector to add from
      * @param buf
@@ -476,7 +481,7 @@ public final class BufferUtils {
 
     /**
      * Multiply and store a Vector3f in-buffer.
-     * 
+     *
      * @param toMult
      *            the vector to multiply against
      * @param buf
@@ -497,7 +502,7 @@ public final class BufferUtils {
     /**
      * Checks to see if the given Vector3f is equals to the data stored in the
      * buffer at the given data index.
-     * 
+     *
      * @param check
      *            the vector to check against - null will return false.
      * @param buf
@@ -521,9 +526,10 @@ public final class BufferUtils {
      * Generate a new FloatBuffer using the given array of Vector2f objects. The
      * FloatBuffer will be 2 * data.length long and contain the vector data as
      * data[0].x, data[0].y, data[1].x... etc.
-     * 
+     *
      * @param data
      *            array of Vector2f objects to place into a new FloatBuffer
+     * @return a new direct, flipped FloatBuffer, or null if data was null
      */
     public static FloatBuffer createFloatBuffer(Vector2f... data) {
         if (data == null) {
@@ -544,7 +550,7 @@ public final class BufferUtils {
     /**
      * Create a new FloatBuffer of an appropriate size to hold the specified
      * number of Vector2f object data.
-     * 
+     *
      * @param vertices
      *            number of vertices that need to be held by the newly created
      *            buffer
@@ -559,7 +565,7 @@ public final class BufferUtils {
      * Create a new FloatBuffer of an appropriate size to hold the specified
      * number of Vector2f object data only if the given buffer if not already
      * the right size.
-     * 
+     *
      * @param buf
      *            the buffer to first check and rewind
      * @param vertices
@@ -579,7 +585,7 @@ public final class BufferUtils {
     /**
      * Sets the data contained in the given Vector2F into the FloatBuffer at the
      * specified index.
-     * 
+     *
      * @param vector
      *            the data to insert
      * @param buf
@@ -595,7 +601,7 @@ public final class BufferUtils {
     /**
      * Updates the values of the given vector from the specified buffer at the
      * index provided.
-     * 
+     *
      * @param vector
      *            the vector to set data on
      * @param buf
@@ -611,7 +617,7 @@ public final class BufferUtils {
 
     /**
      * Generates a Vector2f array from the given FloatBuffer.
-     * 
+     *
      * @param buff
      *            the FloatBuffer to read from
      * @return a newly generated array of Vector2f objects
@@ -630,7 +636,7 @@ public final class BufferUtils {
      * Copies a Vector2f from one position in the buffer to another. The index
      * values are in terms of vector number (eg, vector number 0 is positions
      * 0-1 in the FloatBuffer.)
-     * 
+     *
      * @param buf
      *            the buffer to copy from/to
      * @param fromPos
@@ -644,7 +650,7 @@ public final class BufferUtils {
 
     /**
      * Normalize a Vector2f in-buffer.
-     * 
+     *
      * @param buf
      *            the buffer to find the Vector2f within
      * @param index
@@ -662,7 +668,7 @@ public final class BufferUtils {
 
     /**
      * Add to a Vector2f in-buffer.
-     * 
+     *
      * @param toAdd
      *            the vector to add from
      * @param buf
@@ -682,7 +688,7 @@ public final class BufferUtils {
 
     /**
      * Multiply and store a Vector2f in-buffer.
-     * 
+     *
      * @param toMult
      *            the vector to multiply against
      * @param buf
@@ -703,7 +709,7 @@ public final class BufferUtils {
     /**
      * Checks to see if the given Vector2f is equals to the data stored in the
      * buffer at the given data index.
-     * 
+     *
      * @param check
      *            the vector to check against - null will return false.
      * @param buf
@@ -727,9 +733,10 @@ public final class BufferUtils {
      * Generate a new IntBuffer using the given array of ints. The IntBuffer
      * will be data.length long and contain the int data as data[0], data[1]...
      * etc.
-     * 
+     *
      * @param data
      *            array of ints to place into a new IntBuffer
+     * @return a new direct, flipped IntBuffer, or null if data was null
      */
     public static IntBuffer createIntBuffer(int... data) {
         if (data == null) {
@@ -745,7 +752,7 @@ public final class BufferUtils {
     /**
      * Create a new int[] array and populate it with the given IntBuffer's
      * contents.
-     * 
+     *
      * @param buff
      *            the IntBuffer to read from
      * @return a new int array populated from the IntBuffer
@@ -765,7 +772,7 @@ public final class BufferUtils {
     /**
      * Create a new float[] array and populate it with the given FloatBuffer's
      * contents.
-     * 
+     *
      * @param buff
      *            the FloatBuffer to read from
      * @return a new float array populated from the FloatBuffer
@@ -785,7 +792,7 @@ public final class BufferUtils {
     //// -- GENERAL DOUBLE ROUTINES -- ////
     /**
      * Create a new DoubleBuffer of the specified size.
-     * 
+     *
      * @param size
      *            required number of double to store.
      * @return the new DoubleBuffer
@@ -800,7 +807,7 @@ public final class BufferUtils {
     /**
      * Create a new DoubleBuffer of an appropriate size to hold the specified
      * number of doubles only if the given buffer if not already the right size.
-     * 
+     *
      * @param buf
      *            the buffer to first check and rewind
      * @param size
@@ -823,7 +830,7 @@ public final class BufferUtils {
      * DoubleBuffer. The new DoubleBuffer is separate from the old one and
      * changes are not reflected across. If you want to reflect changes,
      * consider using Buffer.duplicate().
-     * 
+     *
      * @param buf
      *            the DoubleBuffer to copy
      * @return the copy
@@ -848,7 +855,7 @@ public final class BufferUtils {
     //// -- GENERAL FLOAT ROUTINES -- ////
     /**
      * Create a new FloatBuffer of the specified size.
-     * 
+     *
      * @param size
      *            required number of floats to store.
      * @return the new FloatBuffer
@@ -862,7 +869,7 @@ public final class BufferUtils {
 
     /**
      * Copies floats from one position in the buffer to another.
-     * 
+     *
      * @param buf
      *            the buffer to copy from/to
      * @param fromPos
@@ -885,7 +892,7 @@ public final class BufferUtils {
      * FloatBuffer. The new FloatBuffer is separate from the old one and changes
      * are not reflected across. If you want to reflect changes, consider using
      * Buffer.duplicate().
-     * 
+     *
      * @param buf
      *            the FloatBuffer to copy
      * @return the copy
@@ -910,7 +917,7 @@ public final class BufferUtils {
     //// -- GENERAL INT ROUTINES -- ////
     /**
      * Create a new IntBuffer of the specified size.
-     * 
+     *
      * @param size
      *            required number of ints to store.
      * @return the new IntBuffer
@@ -925,7 +932,7 @@ public final class BufferUtils {
     /**
      * Create a new IntBuffer of an appropriate size to hold the specified
      * number of ints only if the given buffer if not already the right size.
-     * 
+     *
      * @param buf
      *            the buffer to first check and rewind
      * @param size
@@ -948,7 +955,7 @@ public final class BufferUtils {
      * The new IntBuffer is separate from the old one and changes are not
      * reflected across. If you want to reflect changes, consider using
      * Buffer.duplicate().
-     * 
+     *
      * @param buf
      *            the IntBuffer to copy
      * @return the copy
@@ -973,7 +980,7 @@ public final class BufferUtils {
     //// -- GENERAL BYTE ROUTINES -- ////
     /**
      * Create a new ByteBuffer of the specified size.
-     * 
+     *
      * @param size
      *            required number of ints to store.
      * @return the new IntBuffer
@@ -988,7 +995,7 @@ public final class BufferUtils {
     /**
      * Create a new ByteBuffer of an appropriate size to hold the specified
      * number of ints only if the given buffer if not already the right size.
-     * 
+     *
      * @param buf
      *            the buffer to first check and rewind
      * @param size
@@ -1030,7 +1037,7 @@ public final class BufferUtils {
      * The new ByteBuffer is separate from the old one and changes are not
      * reflected across. If you want to reflect changes, consider using
      * Buffer.duplicate().
-     * 
+     *
      * @param buf
      *            the ByteBuffer to copy
      * @return the copy
@@ -1055,7 +1062,7 @@ public final class BufferUtils {
     //// -- GENERAL SHORT ROUTINES -- ////
     /**
      * Create a new ShortBuffer of the specified size.
-     * 
+     *
      * @param size
      *            required number of shorts to store.
      * @return the new ShortBuffer
@@ -1070,7 +1077,7 @@ public final class BufferUtils {
     /**
      * Create a new ShortBuffer of an appropriate size to hold the specified
      * number of shorts only if the given buffer if not already the right size.
-     * 
+     *
      * @param buf
      *            the buffer to first check and rewind
      * @param size
@@ -1104,7 +1111,7 @@ public final class BufferUtils {
      * ShortBuffer. The new ShortBuffer is separate from the old one and changes
      * are not reflected across. If you want to reflect changes, consider using
      * Buffer.duplicate().
-     * 
+     *
      * @param buf
      *            the ShortBuffer to copy
      * @return the copy
@@ -1130,7 +1137,7 @@ public final class BufferUtils {
      * Ensures there is at least the <code>required</code> number of entries
      * left after the current position of the buffer. If the buffer is too small
      * a larger one is created and the old one copied to the new buffer.
-     * 
+     *
      * @param buffer
      *            buffer that should be checked/copied (may be null)
      * @param required
@@ -1269,7 +1276,9 @@ public final class BufferUtils {
      * and cleans the direct buffers. However, as this doesn't happen
      * immediately after discarding all references to a direct buffer, it's easy
      * to OutOfMemoryError yourself using direct buffers.
-     **/
+     *
+     * @param toBeDestroyed the buffer to de-allocate (not null)
+     */
     public static void destroyDirectBuffer(Buffer toBeDestroyed) {
         if (!isDirect(toBeDestroyed)) {
             return;
@@ -1318,5 +1327,4 @@ public final class BufferUtils {
             }
         }
     }
-
 }

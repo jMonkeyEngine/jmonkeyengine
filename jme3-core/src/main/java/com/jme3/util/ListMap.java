@@ -74,6 +74,7 @@ public final class ListMap<K, V> extends AbstractMap<K, V> implements Cloneable,
         }
 
         @Override
+        @SuppressWarnings("unchecked")
         public boolean equals(Object obj) {
             if (obj == null) {
                 return false;
@@ -103,18 +104,21 @@ public final class ListMap<K, V> extends AbstractMap<K, V> implements Cloneable,
     
 //    private final ArrayList<ListMapEntry<K,V>> entries;
 
+    @SuppressWarnings("unchecked")
     public ListMap(){
         entries = new ListMapEntry[4];
         backingMap = new HashMap<K, V>(4);
 //       entries = new ArrayList<ListMapEntry<K,V>>();
     }
 
+    @SuppressWarnings("unchecked")
     public ListMap(int initialCapacity){
         entries = new ListMapEntry[initialCapacity];
         backingMap = new HashMap<K, V>(initialCapacity);
 //        entries = new ArrayList<ListMapEntry<K, V>>(initialCapacity);
     }
 
+    @SuppressWarnings("unchecked")
     public ListMap(Map<? extends K, ? extends V> map){
         entries = new ListMapEntry[map.size()];
         backingMap = new HashMap<K, V>(map.size());
@@ -195,6 +199,7 @@ public final class ListMap<K, V> extends AbstractMap<K, V> implements Cloneable,
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public V put(K key, V value) {
         if (backingMap.containsKey(key)){
             // set the value on the entry

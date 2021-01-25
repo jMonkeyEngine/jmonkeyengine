@@ -40,12 +40,11 @@ import java.nio.FloatBuffer;
 /**
  * <code>Line</code> defines a line. Where a line is defined as infinite along
  * two points. The two points of the line are defined as the origin and direction.
- * 
+ *
  * @author Mark Powell
  * @author Joshua Slack
  */
 public class Line implements Savable, Cloneable, java.io.Serializable {
-
     static final long serialVersionUID = 1;
 
     private Vector3f origin;
@@ -64,6 +63,7 @@ public class Line implements Savable, Cloneable, java.io.Serializable {
     /**
      * Constructor instantiates a new <code>Line</code> object. The origin
      * and direction are set via the parameters.
+     *
      * @param origin the origin of the line.
      * @param direction the direction of the line.
      */
@@ -73,8 +73,8 @@ public class Line implements Savable, Cloneable, java.io.Serializable {
     }
 
     /**
-     *
      * <code>getOrigin</code> returns the origin of the line.
+     *
      * @return the origin of the line.
      */
     public Vector3f getOrigin() {
@@ -82,8 +82,8 @@ public class Line implements Savable, Cloneable, java.io.Serializable {
     }
 
     /**
-     *
      * <code>setOrigin</code> sets the origin of the line.
+     *
      * @param origin the origin of the line.
      */
     public void setOrigin(Vector3f origin) {
@@ -91,8 +91,8 @@ public class Line implements Savable, Cloneable, java.io.Serializable {
     }
 
     /**
-     *
      * <code>getDirection</code> returns the direction of the line.
+     *
      * @return the direction of the line.
      */
     public Vector3f getDirection() {
@@ -100,14 +100,20 @@ public class Line implements Savable, Cloneable, java.io.Serializable {
     }
 
     /**
-     *
      * <code>setDirection</code> sets the direction of the line.
+     *
      * @param direction the direction of the line.
      */
     public void setDirection(Vector3f direction) {
         this.direction = direction;
     }
 
+    /**
+     * Calculate the squared distance from this line to the specified point.
+     *
+     * @param point location vector of the input point (not null, unaffected)
+     * @return the square of the minimum distance (&ge;0)
+     */
     public float distanceSquared(Vector3f point) {
         TempVars vars = TempVars.get();
 
@@ -123,10 +129,21 @@ public class Line implements Savable, Cloneable, java.io.Serializable {
         return len;
     }
 
+    /**
+     * Calculate the distance from this line to the specified point.
+     *
+     * @param point location vector of the input point (not null, unaffected)
+     * @return the minimum distance (&ge;0)
+     */
     public float distance(Vector3f point) {
         return FastMath.sqrt(distanceSquared(point));
     }
 
+    /**
+     * Fit this line to the specified points.
+     *
+     * @param points a buffer containing location vectors, or null
+     */
     public void orthogonalLineFit(FloatBuffer points) {
         if (points == null) {
             return;
@@ -186,8 +203,8 @@ public class Line implements Savable, Cloneable, java.io.Serializable {
     }
 
     /**
-     *
      * <code>random</code> determines a random point along the line.
+     *
      * @return a random point on the line.
      */
     public Vector3f random() {
@@ -196,7 +213,7 @@ public class Line implements Savable, Cloneable, java.io.Serializable {
 
     /**
      * <code>random</code> determines a random point along the line.
-     * 
+     *
      * @param result Vector to store result in
      * @return a random point on the line.
      */
@@ -213,6 +230,13 @@ public class Line implements Savable, Cloneable, java.io.Serializable {
         return result;
     }
 
+    /**
+     * Serialize this line to the specified exporter, for example when
+     * saving to a J3O file.
+     *
+     * @param e (not null)
+     * @throws IOException from the exporter
+     */
     @Override
     public void write(JmeExporter e) throws IOException {
         OutputCapsule capsule = e.getCapsule(this);
@@ -220,6 +244,13 @@ public class Line implements Savable, Cloneable, java.io.Serializable {
         capsule.write(direction, "direction", Vector3f.ZERO);
     }
 
+    /**
+     * De-serialize this line from the specified importer, for example when
+     * loading from a J3O file.
+     *
+     * @param e (not null)
+     * @throws IOException from the importer
+     */
     @Override
     public void read(JmeImporter e) throws IOException {
         InputCapsule capsule = e.getCapsule(this);
@@ -227,6 +258,11 @@ public class Line implements Savable, Cloneable, java.io.Serializable {
         direction = (Vector3f) capsule.readSavable("direction", Vector3f.ZERO.clone());
     }
 
+    /**
+     * Create a copy of this line.
+     *
+     * @return a new instance, equivalent to this one
+     */
     @Override
     public Line clone() {
         try {
