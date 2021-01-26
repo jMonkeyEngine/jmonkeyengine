@@ -171,6 +171,17 @@ public abstract class BaseAppState implements AppState {
         return getStateManager().getState( type, failOnMiss );
     }
 
+    public final <T extends AppState> T getState( String id, Class<T> type ) {
+        return getState(id, type, false);
+    }
+    
+    public final <T extends AppState> T getState( String id, Class<T> type, boolean failOnMiss ) {
+        if( failOnMiss ) {
+            return getStateManager().stateForId(id, type);
+        }
+        return getStateManager().getState(id, type);
+    }
+
     @Override
     public final void setEnabled( boolean enabled )
     {
