@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -207,7 +207,7 @@ public class Camera implements Savable, Cloneable {
     /**
      * Serialization only. Do not use.
      */
-    public Camera() {
+    protected Camera() {
         worldPlane = new Plane[MAX_WORLD_PLANES];
         for (int i = 0; i < MAX_WORLD_PLANES; i++) {
             worldPlane[i] = new Plane();

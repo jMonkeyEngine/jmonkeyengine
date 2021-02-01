@@ -384,7 +384,7 @@ public class VREnvironment {
     				if ((settings != null) && (settings.getWidth() != 0) && (settings.getHeight() != 0)){
     		        	dummyCam = new Camera(settings.getWidth(), settings.getHeight());
     		        } else {
-    		        	dummyCam = new Camera();
+    		        	dummyCam = new Camera(0, 0);
     		        }
     			}
     		} else {
