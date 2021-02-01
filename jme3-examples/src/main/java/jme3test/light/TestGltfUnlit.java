@@ -5,6 +5,13 @@ import com.jme3.input.controls.ActionListener;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 
+/**
+ * Tests the GLTF scene containing an unlit material. If it works, it should use the
+ * Common/MatDefs/Misc/Unshaded.j3md material definition for those objects.
+ *
+ * @author Markil 3
+ * @version 3.3.0-SNAPSHOT
+ */
 public class TestGltfUnlit extends SimpleApplication implements ActionListener {
     public static void main(String[] args) {
         TestGltfUnlit testUnlit = new TestGltfUnlit();

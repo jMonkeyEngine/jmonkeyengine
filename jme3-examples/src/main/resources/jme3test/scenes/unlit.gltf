@@ -1,7 +1,8 @@
 {
     "asset" : {
         "generator" : "Khronos glTF Blender I/O v1.4.40",
-        "version" : "2.0"
+        "version" : "2.0",
+        "author" : "Markil 3"
     },
     "extensionsUsed" : [
         "KHR_materials_unlit"
