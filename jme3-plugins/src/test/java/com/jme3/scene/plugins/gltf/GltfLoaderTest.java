@@ -38,19 +38,6 @@ public class GltfLoaderTest {
     }
 
     @Test
-    public void testLoadScene() {
-        Spatial scene = assetManager.loadModel("gltf/scene/map.gltf");
-        dumpScene(scene, 0);
-    }
-
-    public static void main(String[] args)
-    {
-        GltfLoaderTest instance = new GltfLoaderTest();
-        instance.init();
-        instance.testLoadScene();
-    }
-
-    @Test
     public void testLoadEmptyScene() {
         try {
             Spatial scene = assetManager.loadModel("gltf/box/boxWithEmptyScene.gltf");
