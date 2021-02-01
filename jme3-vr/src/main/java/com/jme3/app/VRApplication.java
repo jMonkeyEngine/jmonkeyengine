@@ -251,7 +251,7 @@ public abstract class VRApplication implements Application, SystemListener {
         
         guiNode.setQueueBucket(Bucket.Gui);
         guiNode.setCullHint(CullHint.Never);
-        dummyCam = new Camera();
+        dummyCam = new Camera(0, 0);
         
         initStateManager();
 
