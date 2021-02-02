@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -615,7 +615,7 @@ public class BoundingSphere extends BoundingVolume {
         if (rCenter == null) {
             rVal.setCenter(rCenter = new Vector3f());
         }
-        if (length > RADIUS_EPSILON) {
+        if (length > RADIUS_EPSILON && Float.isFinite(length)) {
             float coeff = (length + radiusDiff) / (2.0f * length);
             rCenter.set(center.addLocal(diff.multLocal(coeff)));
         } else {
