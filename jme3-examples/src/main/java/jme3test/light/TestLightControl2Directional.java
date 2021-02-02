@@ -105,11 +105,17 @@ public class TestLightControl2Directional extends SimpleApplication {
          * 360 degree rotation
          */
         final float FULL_ROT = FastMath.PI * 2;
-        super.simpleUpdate(tpf);
         angles[0] += rotAxis.x * ROT_SPEED * tpf;
         angles[1] += rotAxis.y * ROT_SPEED * tpf;
         angles[2] += rotAxis.z * ROT_SPEED * tpf;
         direction.setDirection(new Quaternion().fromAngles(angles).mult(INIT_DIR));
+        super.simpleUpdate(tpf);
+        /*
+         * Make sure they are equal.
+         */
+        if (FastMath.abs(direction.getDirection().normalize().subtractLocal(lightNode.getWorldRotation().mult(Vector3f.UNIT_Z).negateLocal().normalizeLocal()).lengthSquared()) > .1F) {
+            System.err.printf("Rotation not equal: is %s (%s), needs to be %s (%f)\n", lightNode.getWorldRotation().mult(Vector3f.UNIT_Z).normalizeLocal(), lightNode.getLocalRotation().mult(Vector3f.UNIT_Z).normalizeLocal(), direction.getDirection().normalize(), FastMath.abs(direction.getDirection().normalize().subtract(lightNode.getWorldRotation().mult(Vector3f.UNIT_Z).normalizeLocal()).lengthSquared()));
+        }
         if (angles[0] >= FULL_ROT || angles[1] >= FULL_ROT || angles[2] >= FULL_ROT) {
             direction.setDirection(INIT_DIR);
             angles[0] = 0;
@@ -125,6 +131,5 @@ public class TestLightControl2Directional extends SimpleApplication {
                 rotAxis.set(1, 0, 0);
             }
         }
-//        lightNode.lookAt(Vector3f.ZERO, Vector3f.UNIT_Y);
     }
 }

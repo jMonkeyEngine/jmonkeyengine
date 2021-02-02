@@ -109,11 +109,20 @@ public class TestLightControl2Spot extends SimpleApplication {
          * 360 degree rotation
          */
         final float FULL_ROT = FastMath.PI * 2;
-        super.simpleUpdate(tpf);
         angles[0] += rotAxis.x * ROT_SPEED * tpf;
         angles[1] += rotAxis.y * ROT_SPEED * tpf;
         angles[2] += rotAxis.z * ROT_SPEED * tpf;
         spot.setDirection(new Quaternion().fromAngles(angles).mult(INIT_DIR));
+        super.simpleUpdate(tpf);
+        /*
+         * Make sure they are equal.
+         */
+        if (spot.getPosition().subtract(lightNode.getWorldTranslation()).lengthSquared() > 0.1F) {
+            System.err.printf("Translation not equal: is %s (%s), needs to be %s\n", lightNode.getWorldTranslation(), lightNode.getLocalTranslation(), spot.getPosition());
+        }
+        if (FastMath.abs(spot.getDirection().normalize().subtractLocal(lightNode.getWorldRotation().mult(Vector3f.UNIT_Z).negateLocal().normalizeLocal()).lengthSquared()) > .1F) {
+            System.err.printf("Rotation not equal: is %s (%s), needs to be %s (%f)\n", lightNode.getWorldRotation().mult(Vector3f.UNIT_Z).normalizeLocal(), lightNode.getLocalRotation().mult(Vector3f.UNIT_Z).normalizeLocal(), spot.getDirection().normalize(), FastMath.abs(spot.getDirection().normalize().subtract(lightNode.getWorldRotation().mult(Vector3f.UNIT_Z).normalizeLocal()).lengthSquared()));
+        }
         if (angles[0] >= FULL_ROT || angles[1] >= FULL_ROT || angles[2] >= FULL_ROT) {
             spot.setDirection(INIT_DIR);
             angles[0] = 0;
@@ -128,18 +137,6 @@ public class TestLightControl2Spot extends SimpleApplication {
             } else {
                 rotAxis.set(1, 0, 0);
             }
-        }
-        /*
-         * Make sure they are equal.
-         */
-        if (spot.getPosition().subtract(lightNode.getWorldTranslation()).lengthSquared() > 0.1F) {
-            System.out.printf("Translation not equal: is %s (%s), needs to be %s\n", lightNode.getWorldTranslation(), lightNode.getLocalTranslation(), spot.getPosition());
-        }
-        /*
-         * This causes warnings if I don't use at least 4, but the values are close enough that I don't really care.
-         */
-        if (spot.getDirection().normalize().subtract(lightNode.getWorldRotation().mult(Vector3f.UNIT_Z).normalizeLocal()).lengthSquared() > 4F) {
-            System.out.printf("Rotation not equal: is %s (%s), needs to be %s\n", lightNode.getWorldRotation().mult(Vector3f.UNIT_Z).normalizeLocal(), lightNode.getLocalRotation().mult(Vector3f.UNIT_Z).normalizeLocal(), spot.getDirection().normalize());
         }
     }
 }
