@@ -51,6 +51,7 @@ import java.io.IOException;
  * This Control maintains a reference to a Camera,
  * which will be synched with the position (worldTranslation)
  * of the current spatial.
+ *
  * @author tim
  */
 public class LightControl extends AbstractControl {
@@ -130,26 +131,17 @@ public class LightControl extends AbstractControl {
     private void spatialToLight(Light light) {
 
         final Vector3f worldTranslation = spatial.getWorldTranslation();
+        Vector3f worldDirection = spatial.getWorldRotation().mult(Vector3f.UNIT_Z).negateLocal();
 
         if (light instanceof PointLight) {
             ((PointLight) light).setPosition(worldTranslation);
-            return;
-        }
-
-        final TempVars vars = TempVars.get();
-        final Vector3f vec = vars.vect1;
-
-        if (light instanceof DirectionalLight) {
-            ((DirectionalLight) light).setDirection(vec.set(worldTranslation).multLocal(-1.0f));
-        }
-
-        if (light instanceof SpotLight) {
+        } else if (light instanceof DirectionalLight) {
+            ((DirectionalLight) light).setDirection(worldDirection);
+        } else if (light instanceof SpotLight) {
             final SpotLight spotLight = (SpotLight) light;
             spotLight.setPosition(worldTranslation);
-            spotLight.setDirection(spatial.getWorldRotation().multLocal(vec.set(Vector3f.UNIT_Y).multLocal(-1)));
+            spotLight.setDirection(worldDirection);
         }
-
-        vars.release();
     }
 
     private void lightToSpatial(Light light) {
