@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -435,7 +435,18 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      * @return the length or magnitude of the vector.
      */
     public float length() {
-        return FastMath.sqrt(lengthSquared());
+        /*
+         * Use double-precision arithmetic to reduce the chance of overflow
+         * (when lengthSquared > Float.MAX_VALUE) or underflow (when
+         * lengthSquared is < Float.MIN_VALUE).
+         */
+        double xx = x;
+        double yy = y;
+        double zz = z;
+        double lengthSquared = xx * xx + yy * yy + zz * zz;
+        float result = (float) Math.sqrt(lengthSquared);
+
+        return result;
     }
 
     /**
@@ -470,7 +481,18 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      * @return the distance between the two vectors.
      */
     public float distance(Vector3f v) {
-        return FastMath.sqrt(distanceSquared(v));
+        /*
+         * Use double-precision arithmetic to reduce the chance of overflow 
+         * (when distanceSquared > Float.MAX_VALUE) or underflow (when 
+         * distanceSquared is < Float.MIN_VALUE).
+         */
+        double dx = x - v.x;
+        double dy = y - v.y;
+        double dz = z - v.z;
+        double distanceSquared = dx * dx + dy * dy + dz * dz;
+        float result = (float) Math.sqrt(distanceSquared);
+
+        return result;
     }
 
     /**
