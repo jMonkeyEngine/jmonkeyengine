@@ -218,6 +218,7 @@ public class InstancedNode extends GeometryGroupNode {
                     + "lod-" + lookUp.lodLevel);
             ig.setMaterial(lookUp.material);
             ig.setMesh(lookUp.mesh);
+            if (lookUp.lodLevel > 0) ig.setLodLevel(lookUp.lodLevel);
             ig.setUserData(UserData.JME_PHYSICSIGNORE, true);
             ig.setCullHint(CullHint.Never);
             ig.setShadowMode(RenderQueue.ShadowMode.Inherit);
@@ -247,6 +248,9 @@ public class InstancedNode extends GeometryGroupNode {
         InstancedGeometry ig = igByGeom.remove(geom);
         if (ig != null) {
             ig.deleteInstance(geom);
+            if (ig.isEmpty()) {
+                detachChild(ig);
+            }
         }
     }
 
@@ -258,6 +262,9 @@ public class InstancedNode extends GeometryGroupNode {
                 throw new AssertionError();
             }
             oldIG.deleteInstance(geom);
+            if (oldIG.isEmpty()) {
+                detachChild(oldIG);
+            }
             newIG.addInstance(geom);
             igByGeom.put(geom, newIG);
         }
@@ -286,6 +293,14 @@ public class InstancedNode extends GeometryGroupNode {
         Spatial s = super.detachChildAt(index);
         if (s instanceof Node) {
             ungroupSceneGraph(s);
+        } else if (s instanceof InstancedGeometry) {
+            InstancedGeometry ig = (InstancedGeometry) s;
+            lookUp.mesh = ig.getMesh();
+            lookUp.material = ig.getMaterial();
+            lookUp.lodLevel = ig.getLodLevel();
+
+            instancesMap.remove(lookUp, ig);
+            ig.cleanup();
         }
         return s;
     }
