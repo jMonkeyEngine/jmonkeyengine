@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -64,8 +64,10 @@ public class DefaultTechniqueDefLogic implements TechniqueDefLogic {
         int lodLevel = geom.getLodLevel();
         if (geom instanceof InstancedGeometry) {
             InstancedGeometry instGeom = (InstancedGeometry) geom;
-            renderer.renderMesh(mesh, lodLevel, instGeom.getActualNumInstances(),
-                    instGeom.getAllInstanceData());
+            int numVisibleInstances = instGeom.getNumVisibleInstances();
+            if (numVisibleInstances > 0) {
+                renderer.renderMesh(mesh, lodLevel, numVisibleInstances, instGeom.getAllInstanceData());
+            }
         } else {
             renderer.renderMesh(mesh, lodLevel, 1, null);
         }
