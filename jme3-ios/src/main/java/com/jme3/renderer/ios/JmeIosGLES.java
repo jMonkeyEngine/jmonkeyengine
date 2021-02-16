@@ -3,6 +3,7 @@ package com.jme3.renderer.ios;
 import com.jme3.renderer.RendererException;
 
 import java.nio.Buffer;
+import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.logging.Logger;
@@ -10,7 +11,7 @@ import java.util.logging.Logger;
 /**
  * The <code>iOS GLES interface</code> iOS alternative to Android's GLES20 class
  * 
- * @author Kostyantyn Hushchyn
+ * @author Kostyantyn Hushchyn, Jesus Oliver
  */
 public class JmeIosGLES {
     private static final Logger logger = Logger.getLogger(JmeIosGLES.class.getName());
@@ -232,7 +233,31 @@ public class JmeIosGLES {
 	public static native void glVertexAttribPointer2(int indx, int size, int type, boolean normalized, int stride, int offset);
 	public static native void glViewport(int x, int y, int width, int height);
 	
+	// New methods for GLES3
+	public static native void glBeginQuery(int target, int query);
+	public static native void glEndQuery(int target);
+	public static native void glGenQueries(int num, IntBuffer buff);
+	public static native void glGetQueryObjectuiv(int query, int pname, int[] params);
+	public static native void glGetQueryiv(int query, int pname, int[] params);
+	public static native void glBlitFramebuffer(int srcX0, int srcY0, int srcX1, int srcY1, int dstX0, int dstY0, int dstX1, int dstY1, int mask, int filter);
+	public static native void glDrawArraysInstanced(int mode, int first, int count, int primcount);
+	public static native void glDrawBuffers(int size, IntBuffer data); //TODO: use buffer or intbuffer?
+	public static native void glDrawElementsInstanced(int mode, int indices_count, int type, long indices_buffer_offset, int primcount);
+	public static native void glVertexAttribDivisor(int index, int divisor);
+	public static native void glFramebufferTextureLayer(int target, int attachment, int texture, int level, int layer);
+
+	// New methods from GL2 interface which are supported in GLES30
+	public static native void glReadBuffer(int mode);
+	public static native void glCompressedTexImage3D(int target, int level, int internalFormat, int width, int height, int depth,
+                                           int border, int size, ByteBuffer data);
+	public static native void glCompressedTexSubImage3D(int target, int level, int xoffset, int yoffset, int zoffset, int width,
+										   int height, int depth, int format, int size, ByteBuffer data);
+	public static native void glTexImage3D(int target, int level, int internalFormat, int width, int height, int depth, int border,
+										   int format, int type, ByteBuffer data);
+	public static native void glTexSubImage3D(int target, int level, int xoffset, int yoffset, int zoffset, int width, int height,
+                                    int depth, int format, int type, ByteBuffer data);
 	
+									
     public static void checkGLError() {
         if (!ENABLE_ERROR_CHECKING) {
             return;
