@@ -33,8 +33,11 @@ package com.jme3.renderer.ios;
 
 import com.jme3.renderer.RendererException;
 import com.jme3.renderer.opengl.GL;
+import com.jme3.renderer.opengl.GL2;
+import com.jme3.renderer.opengl.GLES_30;
 import com.jme3.renderer.opengl.GLExt;
 import com.jme3.renderer.opengl.GLFbo;
+import com.jme3.util.BufferUtils;
 import java.nio.Buffer;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
@@ -603,7 +606,7 @@ public class IosGL implements GL, GL2, GLES_30, GLExt, GLFbo {
 
     @Override
     public void glBlitFramebufferEXT(int srcX0, int srcY0, int srcX1, int srcY1, int dstX0, int dstY0, int dstX1, int dstY1, int mask, int filter) {
-        JmeIosGLES.glBlitFramebuffer(srcX0, srcY0, srcX1, srcY1, dstX0, dstY0, dstX1, dstY1, mask, filter)
+        JmeIosGLES.glBlitFramebuffer(srcX0, srcY0, srcX1, srcY1, dstX0, dstY0, dstX1, dstY1, mask, filter);
     }
 
     @Override
@@ -737,7 +740,7 @@ public class IosGL implements GL, GL2, GLES_30, GLExt, GLFbo {
     
     @Override
     public void glFramebufferTextureLayerEXT(int target, int attachment, int texture, int level, int layer) {
-        JmeIosGLES.glFramebufferTextureLayerEXT(target, attachment, texture, level, layer);
+        JmeIosGLES.glFramebufferTextureLayer(target, attachment, texture, level, layer);
     }
 
     // New methods from GL2 interface which are supported in GLES30
