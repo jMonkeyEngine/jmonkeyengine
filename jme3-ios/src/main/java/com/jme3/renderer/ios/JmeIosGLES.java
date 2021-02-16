@@ -9,7 +9,7 @@ import java.nio.IntBuffer;
 import java.util.logging.Logger;
 
 /**
- * The <code>iOS GLES interface</code> iOS alternative to Android's GLES20 class
+ * The <code>iOS GLES interface</code> iOS alternative to Android's GLES20 and GLES30 classes
  * 
  * @author Kostyantyn Hushchyn, Jesus Oliver
  */
