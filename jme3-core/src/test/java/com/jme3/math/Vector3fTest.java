@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -235,12 +235,16 @@ public class Vector3fTest {
         assertEquals(-0.0f, retval.z, 0.0f);
     }
 
+    /**
+     * Verify that distance() doesn't always overflow when distanceSquared >
+     * Float.MAX_VALUE .
+     */
     @Test
     public void testDistance() {
         final Vector3f target = new Vector3f(3.86405e+18f, 3.02146e+23f, 0.171875f);
         final Vector3f v = new Vector3f(-2.0f, -1.61503e+19f, 0.171875f);
-
-        assertEquals(Float.POSITIVE_INFINITY, target.distance(v), 0.0f);
+   
+        assertEquals(3.0216215e23f, target.distance(v), 0f);
     }
 
     @Test
@@ -540,11 +544,21 @@ public class Vector3fTest {
 
     @Test
     public void testLength() {
-        assertEquals(0.0f, new Vector3f(1.88079e-37f, 0.0f, 1.55077e-36f).length(), 0.0f);
+        /*
+         * avoid underflow when lengthSquared is < Float.MIN_VALUE
+         */
+        assertEquals(1.5621336e-36f,
+                new Vector3f(1.88079e-37f, 0.0f, 1.55077e-36f).length(), 0f);
+
         assertEquals(Float.NaN, new Vector3f(Float.NaN, 0.0f, 1.55077e-36f).length(), 0.0f);
         assertEquals(Float.POSITIVE_INFINITY, new Vector3f(Float.POSITIVE_INFINITY, 0.0f, 1.0f).length(), 0.0f);
+
         assertEquals(4.0124f, new Vector3f(1.9f, 3.2f, 1.5f).length(), 0.001f);
-        assertEquals(Float.POSITIVE_INFINITY, new Vector3f(1.8e37f, 1.8e37f, 1.5e36f).length(), 0.0f);
+        /*
+         * avoid overflow when lengthSquared > Float.MAX_VALUE
+         */
+        assertEquals(2.5499999e37f,
+                new Vector3f(1.8e37f, 1.8e37f, 1.5e36f).length(), 0.0f);
     }
 
     @Test
