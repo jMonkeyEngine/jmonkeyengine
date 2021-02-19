@@ -759,7 +759,7 @@ public class IosGL implements GL, GL2, GLES_30, GLExt, GLFbo {
     // Wrapper to DrawBuffers as there's no DrawBuffer method in GLES
     @Override
     public void glDrawBuffer(int mode) {
-        tmpBuff.clear();
+        ((Buffer)tmpBuff).clear();
         tmpBuff.put(0, mode);
         tmpBuff.rewind();
         glDrawBuffers(tmpBuff);
