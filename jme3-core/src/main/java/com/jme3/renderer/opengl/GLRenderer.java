@@ -633,7 +633,7 @@ public final class GLRenderer implements Renderer {
         }
 
 	IntBuffer tmp=BufferUtils.createIntBuffer(16);
-	gl.glGetInteger(36006, tmp);
+	gl.glGetInteger(GL.GL_FRAMEBUFFER_BINDING, tmp);
 	tmp.rewind();
 	int fbOnLoad=tmp.get();
 	if(fbOnLoad>0)
