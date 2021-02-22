@@ -347,9 +347,7 @@ public class IosGL implements GL, GL2, GLES_30, GLExt, GLFbo {
 
     @Override
     public void glGetBoolean(int pname, ByteBuffer params) {
-        // TODO: fix me!!!
-        // JmeIosGLES.glGetBoolean(pname, params);
-        throw new UnsupportedOperationException("Today is not a good day for this");
+        JmeIosGLES.glGetBoolean(pname, params);
     }
 
     @Override
@@ -429,11 +427,11 @@ public class IosGL implements GL, GL2, GLES_30, GLExt, GLFbo {
 
     @Override
     public boolean glIsEnabled(int cap) {
-        // TODO: fix me!!!
+        // kept this always returning true for compatibility
         if (cap == GLExt.GL_MULTISAMPLE_ARB) {
             return true;
         } else {
-            throw new UnsupportedOperationException();
+            return JmeIosGLES.glIsEnabled(cap);
         }
     }
 
@@ -477,14 +475,12 @@ public class IosGL implements GL, GL2, GLES_30, GLExt, GLFbo {
 
     @Override
     public void glStencilFuncSeparate(int face, int func, int ref, int mask) {
-        // TODO: fix me!!!
-        // JmeIosGLES.glStencilFuncSeparate(face, func, ref, mask);
+        JmeIosGLES.glStencilFuncSeparate(face, func, ref, mask);
     }
 
     @Override
     public void glStencilOpSeparate(int face, int sfail, int dpfail, int dppass) {
-        // TODO: fix me!!!
-        // JmeIosGLES.glStencilOpSeparate(face, sfail, dpfail, dppass);
+        JmeIosGLES.glStencilOpSeparate(face, sfail, dpfail, dppass);
     }
 
     @Override

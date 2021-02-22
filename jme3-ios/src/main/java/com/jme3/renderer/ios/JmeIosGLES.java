@@ -185,6 +185,7 @@ public class JmeIosGLES {
 	public static native void glGenTextures(int n, int[] textures, int offset);
 	public static native void glGenerateMipmap(int target);
 	public static native int glGetAttribLocation(int program, String name);
+	public static native void glGetBoolean(int pname, ByteBuffer params);
 	public static native int glGetError();
 	public static native void glGetFramebufferAttachmentParameteriv(int target, int attachment, int pname, int[] params, int offset);
 	public static native void glGetIntegerv (int pname, int[] params, int offset);
@@ -194,6 +195,7 @@ public class JmeIosGLES {
 	public static native void glGetShaderiv(int shader, int pname, int[] params, int offset);
 	public static native String glGetString(int name);
 	public static native int glGetUniformLocation(int program, String name);
+	public static native boolean glIsEnabled(int cap);
 	public static native boolean glIsFramebuffer(int framebuffer);
 	public static native boolean glIsRenderbuffer(int renderbuffer);
 	public static native void glLineWidth(float width);
@@ -205,6 +207,8 @@ public class JmeIosGLES {
 	public static native void glRenderbufferStorage(int target, int internalformat, int width, int height);
 	public static native void glScissor(int x, int y, int width, int height);
 	public static native void glShaderSource(int shader, String string);
+	public static native void glStencilFuncSeparate(int face, int func, int ref, int mask);
+	public static native void glStencilOpSeparate(int face, int sfail, int dpfail, int dppass);
 	public static native void glTexImage2D(int target, int level, int internalformat, int width, int height, int border, int format, int type, Buffer pixels);
 	public static native void glTexParameteri(int target, int pname, int param);
 	public static native void glTexParameterf(int target, int pname, float param);
