@@ -207,6 +207,7 @@ public class JmeIosGLES {
 	public static native void glShaderSource(int shader, String string);
 	public static native void glTexImage2D(int target, int level, int internalformat, int width, int height, int border, int format, int type, Buffer pixels);
 	public static native void glTexParameteri(int target, int pname, int param);
+	public static native void glTexParameterf(int target, int pname, float param);
 	public static native void glTexSubImage2D(int target, int level, int xoffset, int yoffset, int width, int height, int format, int type, Buffer pixels);
 	public static native void glUniform1f(int location, float x);
 	public static native void glUniform1fv(int location, int count, FloatBuffer v);

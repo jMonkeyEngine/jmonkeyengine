@@ -494,8 +494,7 @@ public class IosGL implements GL, GL2, GLES_30, GLExt, GLFbo {
 
     @Override
     public void glTexParameterf(int target, int pname, float param) {
-        // TODO: fix me!!!
-        // JmeIosGLES.glTexParameterf(target, pname, param);
+        JmeIosGLES.glTexParameterf(target, pname, param);
     }
 
     @Override
