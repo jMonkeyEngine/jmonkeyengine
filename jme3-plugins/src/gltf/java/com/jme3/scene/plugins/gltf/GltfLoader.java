@@ -1087,8 +1087,7 @@ public class GltfLoader implements AssetLoader {
     private void findChildren(int nodeIndex) throws IOException {
         JointWrapper jw = fetchFromCache("nodes", nodeIndex, JointWrapper.class);
         
-        //Check if jw node exist or leave the function
-        if(jw == null){
+        if(jw == null) {
             return;
         }
         
