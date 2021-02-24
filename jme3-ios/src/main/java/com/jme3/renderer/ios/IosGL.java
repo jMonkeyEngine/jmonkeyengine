@@ -376,29 +376,12 @@ public class IosGL implements GL, GL2, GLES_30, GLExt, GLFbo {
 
     @Override
     public long glGetQueryObjectui64(int query, int pname) {
-        //Sample from Android
-        /*
-        IntBuffer buff = IntBuffer.allocate(1);
-        //FIXME This is wrong IMO should be glGetQueryObjectui64v with a LongBuffer but it seems the API doesn't provide it.
-        JmeIosGLES.glGetQueryObjectuiv(query, pname, buff);
-        return buff.get(0);
-        */
-
-        //Sample from glGetInteger + mods
         JmeIosGLES.glGetQueryObjectuiv(query, pname, temp_array);
         return temp_array[0];
     }
 
     @Override
     public int glGetQueryObjectiv(int query, int pname) {
-        //Sample from Android
-        /*
-        IntBuffer buff = IntBuffer.allocate(1);
-        JmeIosGLES.glGetQueryiv(query, pname, buff);
-        return buff.get(0);
-        */
-    
-        //Sample from glGetInteger + mods
         JmeIosGLES.glGetQueryiv(query, pname, temp_array);
         return temp_array[0];
     }
