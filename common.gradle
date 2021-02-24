@@ -14,7 +14,8 @@ sourceCompatibility = '1.8'
 
 if(JavaVersion.current() >= JavaVersion.VERSION_1_9) {
     compileJava {
-        options.release = 8
+	options.compilerArgs.addAll(['--release', '8'])
+        //Replace previous with "options.release = 8" if updated to gradle 6.6 or newer
     }
 }
 
