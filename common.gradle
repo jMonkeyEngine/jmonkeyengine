@@ -69,6 +69,7 @@ javadoc {
     if (JavaVersion.current().isJava8Compatible()){
         options.addStringOption('Xdoclint:none', '-quiet')
     }
+    source = sourceSets.main.allJava // main only, exclude tests
 }
 
 test {
