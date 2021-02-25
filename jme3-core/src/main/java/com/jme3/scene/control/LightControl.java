@@ -137,8 +137,12 @@ public class LightControl extends AbstractControl {
      * @author pspeed42
      */
     private void spatialToLight(Light light) {
-        final Vector3f worldTranslation = spatial.getWorldTranslation();
-        final Vector3f worldDirection = spatial.getWorldRotation().mult(Vector3f.UNIT_Z).negateLocal();
+        TempVars vars = TempVars.get();
+
+        final Vector3f worldTranslation = vars.vect1;
+        worldTranslation.set(spatial.getWorldTranslation());
+        final Vector3f worldDirection = vars.vect2;
+        spatial.getWorldRotation().mult(Vector3f.UNIT_Z, worldDirection).negateLocal();
 
         if (light instanceof PointLight) {
             ((PointLight) light).setPosition(worldTranslation);
@@ -149,6 +153,7 @@ public class LightControl extends AbstractControl {
             spotLight.setPosition(worldTranslation);
             spotLight.setDirection(worldDirection);
         }
+        vars.release();
     }
 
     /**
