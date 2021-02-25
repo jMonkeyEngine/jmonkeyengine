@@ -137,13 +137,10 @@ task mergedJavadoc(type: Javadoc, description: 'Creates Javadoc from all the pro
     options.overview = file("javadoc-overview.html")
     // Note: The closures below are executed lazily.
     source subprojects.collect {project ->
-        project.sourceSets*.allJava
+        project.sourceSets.main.allJava // main only, exclude tests
     }
     classpath = files(subprojects.collect {project ->
             project.sourceSets*.compileClasspath})
-    //    source {
-    //        subprojects*.sourceSets*.main*.allSource
-    //    }
     classpath.from {
         subprojects*.configurations*.compile*.copyRecursive({ !(it instanceof ProjectDependency); })*.resolve()
     }
