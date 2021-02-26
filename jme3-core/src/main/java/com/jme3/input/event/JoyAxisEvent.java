@@ -36,17 +36,19 @@ import com.jme3.input.JoystickAxis;
 
 /**
  * Joystick axis event.
- * 
+ *
  * @author Kirill Vainer, Paul Speed
  */
 public class JoyAxisEvent extends InputEvent {
 
     private JoystickAxis axis;
     private float value;
+    private float rawValue;
 
-    public JoyAxisEvent(JoystickAxis axis, float value) {
+    public JoyAxisEvent(JoystickAxis axis, float value, float rawValue) {
         this.axis = axis;
         this.value = value;
+        this.rawValue = rawValue;
     }
 
     /**
@@ -60,9 +62,8 @@ public class JoyAxisEvent extends InputEvent {
 
     /**
      * Returns the joystick axis index.
-     * 
+     *
      * @return joystick axis index.
-     * 
      * @see com.jme3.input.JoystickAxis#assignAxis(java.lang.String, java.lang.String)
      */
     public int getAxisIndex() {
@@ -71,10 +72,9 @@ public class JoyAxisEvent extends InputEvent {
 
     /**
      * The joystick index.
-     * 
+     *
      * @return joystick index.
-     * 
-     * @see InputManager#getJoysticks() 
+     * @see InputManager#getJoysticks()
      */
     public int getJoyIndex() {
         return axis.getJoystick().getJoyId();
@@ -82,10 +82,19 @@ public class JoyAxisEvent extends InputEvent {
 
     /**
      * The value of the axis.
-     * 
+     *
      * @return value of the axis.
      */
     public float getValue() {
         return value;
+    }
+
+    /**
+     * The value of the axis before it was remapped.
+     *
+     * @return value of the axis.
+     */
+    public float getRawValue() {
+        return rawValue;
     }
 }
