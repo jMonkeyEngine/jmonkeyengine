@@ -632,14 +632,14 @@ public final class GLRenderer implements Renderer {
             }
         }
 
-	IntBuffer tmp=BufferUtils.createIntBuffer(16);
+	IntBuffer tmp = BufferUtils.createIntBuffer(16);
 	gl.glGetInteger(GL.GL_FRAMEBUFFER_BINDING, tmp);
 	tmp.rewind();
-	int fbOnLoad=tmp.get();
-	if(fbOnLoad>0)
+	int fbOnLoad = tmp.get();
+	if(fbOnLoad > 0)
 	{
             // Overriding default FB to fbOnLoad. Mostly iOS fix for scene processors and filters
-	    defaultFBO=fbOnLoad;
+	    defaultFBO = fbOnLoad;
 	}
     }
 
