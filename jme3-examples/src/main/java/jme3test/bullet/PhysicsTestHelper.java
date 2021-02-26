@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -260,7 +260,7 @@ public class PhysicsTestHelper {
      * @param assetManager for loading assets
      * @param floorDimensions width/depth of the "floor" (X/Z)
      * @param position sets the floor's local translation
-     * @return
+     * @return a new Geometry
      */
     public static Geometry createGImpactTestFloor(AssetManager assetManager, float floorDimensions, Vector3f position) {
         Geometry floor = createTestFloor(assetManager, floorDimensions, position, ColorRGBA.Red);
@@ -277,7 +277,7 @@ public class PhysicsTestHelper {
      * @param assetManager for loading assets
      * @param floorDimensions width/depth of the "floor" (X/Z)
      * @param position sets the floor's local translation
-     * @return
+     * @return a new Geometry
      */
     public static Geometry createMeshTestFloor(AssetManager assetManager, float floorDimensions, Vector3f position) {
         Geometry floor = createTestFloor(assetManager, floorDimensions, position, new ColorRGBA(0.5f, 0.5f, 0.9f, 1));
