@@ -113,7 +113,7 @@ public class AndroidJoystickJoyInput14 {
         joysticks.clear();
         joystickIndex.clear();
 
-        ArrayList<Integer> gameControllerDeviceIds = new ArrayList<>();
+        ArrayList gameControllerDeviceIds = new ArrayList();
         int[] deviceIds = InputDevice.getDeviceIds();
         for (int deviceId : deviceIds) {
             InputDevice dev = InputDevice.getDevice(deviceId);
@@ -131,10 +131,10 @@ public class AndroidJoystickJoyInput14 {
                     // can later correspond the input from the InputDevice to the
                     // appropriate jME Joystick event
                     AndroidJoystick joystick = new AndroidJoystick(inputManager,
-                                                                joyInput,
-                                                                dev,
-                                                                joyId+joysticks.size(),
-                                                                dev.getName());
+                            joyInput,
+                            dev,
+                            joyId+joysticks.size(),
+                            dev.getName());
                     joystickIndex.put(deviceId, joystick);
                     joysticks.add(joystick);
 
@@ -249,13 +249,13 @@ public class AndroidJoystickJoyInput14 {
         private Map<Integer, JoystickButton> buttonIndex = new HashMap<Integer, JoystickButton>();
 
         public AndroidJoystick( InputManager inputManager, JoyInput joyInput, InputDevice device,
-                               int joyId, String name ) {
+                                int joyId, String name ) {
             super( inputManager, joyInput, joyId, name );
 
             this.device = device;
 
             this.nullAxis = new DefaultJoystickAxis( getInputManager(), this, -1,
-                                                     "Null", "null", false, false, 0 );
+                    "Null", "null", false, false, 0 );
             this.xAxis = nullAxis;
             this.yAxis = nullAxis;
             this.povX = nullAxis;
@@ -289,7 +289,7 @@ public class AndroidJoystickJoyInput14 {
                 original = JoystickButton.BUTTON_2;
             } else if (keyCode == KeyEvent.KEYCODE_BUTTON_X) {
                 original = JoystickButton.BUTTON_3;
-            // Front buttons  Some of these have the top ones and the bottoms ones flipped.
+                // Front buttons  Some of these have the top ones and the bottoms ones flipped.
             } else if (keyCode == KeyEvent.KEYCODE_BUTTON_L1) {
                 original = JoystickButton.BUTTON_4;
             } else if (keyCode == KeyEvent.KEYCODE_BUTTON_R1) {
@@ -307,26 +307,26 @@ public class AndroidJoystickJoyInput14 {
 //                original = JoystickButton.BUTTON_8;
 //            } else if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
 //                original = JoystickButton.BUTTON_9;
-            // Select and start buttons
+                // Select and start buttons
             } else if (keyCode == KeyEvent.KEYCODE_BUTTON_SELECT) {
                 original = JoystickButton.BUTTON_8;
             } else if (keyCode == KeyEvent.KEYCODE_BUTTON_START) {
                 original = JoystickButton.BUTTON_9;
-            // Joystick push buttons
+                // Joystick push buttons
             } else if (keyCode == KeyEvent.KEYCODE_BUTTON_THUMBL) {
                 original = JoystickButton.BUTTON_10;
             } else if (keyCode == KeyEvent.KEYCODE_BUTTON_THUMBR) {
                 original = JoystickButton.BUTTON_11;
             }
 
-            String logicalId = JoystickCompatibilityMappings.remapComponent( getName(), original );
+            String logicalId = JoystickCompatibilityMappings.remapButton( getName(), original );
             if( logicalId == null ? original != null : !logicalId.equals(original) ) {
                 logger.log(Level.FINE, "Remapped: {0} to: {1}",
                         new Object[]{original, logicalId});
             }
 
             JoystickButton button = new DefaultJoystickButton( getInputManager(), this, getButtonCount(),
-                                                               name, logicalId );
+                    name, logicalId );
             addButton(button);
             buttonIndex.put( keyCode, button );
             return button;
@@ -350,20 +350,20 @@ public class AndroidJoystickJoyInput14 {
             } else if (motionRange.getAxis() == MotionEvent.AXIS_HAT_Y) {
                 original = JoystickAxis.POV_Y;
             }
-            String logicalId = JoystickCompatibilityMappings.remapComponent( getName(), original );
+            String logicalId = JoystickCompatibilityMappings.remapAxis( getName(), original );
             if( logicalId == null ? original != null : !logicalId.equals(original) ) {
                 logger.log(Level.FINE, "Remapped: {0} to: {1}",
                         new Object[]{original, logicalId});
             }
 
             JoystickAxis axis = new DefaultJoystickAxis(getInputManager(),
-                                                this,
-                                                getAxisCount(),
-                                                name,
-                                                logicalId,
-                                                true,
-                                                true,
-                                                motionRange.getFlat());
+                    this,
+                    getAxisCount(),
+                    name,
+                    logicalId,
+                    true,
+                    true,
+                    motionRange.getFlat());
 
             if (motionRange.getAxis() == MotionEvent.AXIS_X) {
                 xAxis = axis;
