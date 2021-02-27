@@ -145,6 +145,7 @@ public class GlfwJoystickInput implements JoyInput {
 
     @Override
     public void update() {
+        float rawValue, value;
         for (final Map.Entry<Integer, GlfwJoystick> entry : joysticks.entrySet()) {
 
             // Axes
@@ -157,8 +158,9 @@ public class GlfwJoystickInput implements JoyInput {
 
             if (axisValues != null) {
                 for (final JoystickAxis axis : entry.getValue().getAxes()) {
-                    final float value = axisValues.get(axis.getAxisId());
-                    listener.onJoyAxisEvent(new JoyAxisEvent(axis, value));
+                    rawValue = axisValues.get(axis.getAxisId());
+                    value = JoystickCompatibilityMappings.remapAxisRange(axis, rawValue);
+                    listener.onJoyAxisEvent(new JoyAxisEvent(axis, value, rawValue));
                 }
             }
 

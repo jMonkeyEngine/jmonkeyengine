@@ -139,38 +139,41 @@ public class JInputJoyInput implements JoyInput {
             while (q.getNextEvent(e)){
                 Identifier id = e.getComponent().getIdentifier();
                 if (id == Identifier.Axis.POV){
-                    float x = 0, y = 0;
+                    float rawX = 0, rawY = 0, x, y;
                     float v = e.getValue();
 
                     if (v == POV.CENTER){
-                        x = 0; y = 0;
+                        rawX = 0; rawY = 0;
                     }else if (v == POV.DOWN){
-                        x = 0; y = -1f;
+                        rawX = 0; rawY = -1f;
                     }else if (v == POV.DOWN_LEFT){
-                        x = -1f; y = -1f;
+                        rawX = -1f; rawY = -1f;
                     }else if (v == POV.DOWN_RIGHT){
-                        x = 1f; y = -1f;
+                        rawX = 1f; rawY = -1f;
                     }else if (v == POV.LEFT){
-                        x = -1f; y = 0;
+                        rawX = -1f; rawY = 0;
                     }else if (v == POV.RIGHT){
-                        x = 1f; y = 0;
+                        rawX = 1f; rawY = 0;
                     }else if (v == POV.UP){
-                        x = 0; y = 1f;
+                        rawX = 0; rawY = 1f;
                     }else if (v == POV.UP_LEFT){
-                        x = -1f; y = 1f;
+                        rawX = -1f; rawY = 1f;
                     }else if (v == POV.UP_RIGHT){
-                        x = 1f; y = 1f;
+                        rawX = 1f; rawY = 1f;
                     }
 
-                    JoyAxisEvent evt1 = new JoyAxisEvent(stick.povX, x);
-                    JoyAxisEvent evt2 = new JoyAxisEvent(stick.povY, y);
+                    x = JoystickCompatibilityMappings.remapAxisRange(stick.povX, rawX);
+                    y = JoystickCompatibilityMappings.remapAxisRange(stick.povY, rawY);
+                    JoyAxisEvent evt1 = new JoyAxisEvent(stick.povX, x, rawX);
+                    JoyAxisEvent evt2 = new JoyAxisEvent(stick.povY, y, rawY);
                     listener.onJoyAxisEvent(evt1);
                     listener.onJoyAxisEvent(evt2);
                 }else if (id instanceof Axis){
-                    float value = e.getValue();
+                    float rawValue = e.getValue();
+                    float value = JoystickCompatibilityMappings.remapAxisRange(stick.povY, rawValue);
 
                     JoystickAxis axis = stick.axisIndex.get(e.getComponent());
-                    JoyAxisEvent evt = new JoyAxisEvent(axis, value);
+                    JoyAxisEvent evt = new JoyAxisEvent(axis, value, rawValue);
                     listener.onJoyAxisEvent(evt);
                 }else if (id instanceof Button){
 
