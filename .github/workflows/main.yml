@@ -3,8 +3,6 @@
 ######################################################################################
 # Quick overview of what is going on in this script:
 #   - Build natives for android
-#   - Build natives for linux arm
-#   - Build natives for windows,mac,linux x86_64 and x86
 #   - Merge the natives, build the engine, create the zip release, maven artifacts, javadoc and native snapshot
 #   - (only when there is a change in the native code) Deploy the native snapshot to bintray
 #   - (only when building a release) Deploy everything else to github releases, github packet registry and bintray
@@ -58,34 +56,6 @@ on:
   
 jobs:
   
-  # Builds the natives on linux arm
-  BuildLinuxArmNatives:
-    name: Build natives for linux (arm)
-    runs-on: ubuntu-18.04
-    container:
-      image: riccardoblb/buildenv-jme3:linuxArm
-   
-    steps:
-      - name: Clone the repo
-        uses: actions/checkout@v2     
-        with:
-          fetch-depth: 1
-      - name: Validate the Gradle wrapper
-        uses: gradle/wrapper-validation-action@v1
-      - name: Build
-        run: |
-          # Build
-          # Note: since this is crossbuild we use the buildForPlatforms filter to tell
-          # the buildscript wich platforms it should build for.
-          ./gradlew -PuseCommitHashAsVersionName=true --no-daemon -PbuildForPlatforms=LinuxArm,LinuxArmHF,LinuxArm64 -PbuildNativeProjects=true \
-          :jme3-bullet-native:assemble 
-
-      - name: Upload natives
-        uses: actions/upload-artifact@master
-        with:
-          name: linuxarm-natives
-          path: build/native 
-
   # Build the natives on android
   BuildAndroidNatives:
     name: Build natives for android
@@ -103,8 +73,7 @@ jobs:
       - name: Build
         run: |
           ./gradlew -PuseCommitHashAsVersionName=true --no-daemon -PbuildNativeProjects=true \
-          :jme3-android-native:assemble \
-          :jme3-bullet-native-android:assemble 
+          :jme3-android-native:assemble 
      
       - name: Upload natives
         uses: actions/upload-artifact@master
@@ -112,71 +81,9 @@ jobs:
           name: android-natives
           path: build/native
 
-  # Build the natives
-  BuildNatives:
-    strategy:
-      fail-fast: true
-      matrix:
-        os: [ubuntu-18.04,windows-2019,macOS-latest] 
-        jdk: [8.x.x]
-        include:
-          - os: ubuntu-18.04
-            osName: linux
-          - os: windows-2019
-            osName: windows
-          - os: macOS-latest
-            osName: mac
-              
-    name: Build natives for ${{ matrix.osName }}
-    runs-on: ${{ matrix.os }}    
-    steps:    
-    
-      - name: Clone the repo
-        uses: actions/checkout@v2     
-        with:
-          fetch-depth: 1
-           
-      - name: Prepare java environment
-        uses: actions/setup-java@v1
-        with:
-          java-version: ${{ matrix.jdk }}
-          architecture: x64
-      - name: Validate the Gradle wrapper
-        uses: gradle/wrapper-validation-action@v1
-      - name: Build Natives
-        shell: bash
-        env:
-          OS_NAME: ${{ matrix.osName }}
-        run: |
-          # Install dependencies
-          if [ "$OS_NAME" = "mac" ];
-          then
-            echo "Prepare mac"        
-          
-          elif [ "$OS_NAME" = "linux" ];
-          then
-            echo "Prepare linux"
-            sudo apt-get update
-            sudo apt-get install -y gcc-multilib g++-multilib
-          else
-            echo "Prepare windows"
-          fi
-          
-          # Build
-          ./gradlew  -PuseCommitHashAsVersionName=true --no-daemon  -PbuildNativeProjects=true -Dmaven.repo.local="$PWD/dist/maven" \
-          :jme3-bullet-native:build
-                  
-      # Upload natives to be used later by the BuildJMonkey job
-      - name: Upload natives
-        uses: actions/upload-artifact@master
-        with:
-          name: ${{ matrix.osName }}-natives
-          path: build/native
- 
-
   # Build the engine, we only deploy from ubuntu-18.04 jdk8
   BuildJMonkey:  
-    needs: [BuildNatives,BuildAndroidNatives]
+    needs: [BuildAndroidNatives]
     name: Build on ${{ matrix.osName }} jdk${{ matrix.jdk }}
     runs-on: ${{ matrix.os }}    
     strategy:
@@ -209,35 +116,12 @@ jobs:
           java-version: ${{ matrix.jdk }}
           architecture: x64
 
-      - name: Download natives for linux
-        uses: actions/download-artifact@master
-        with:
-          name: linux-natives
-          path: build/native
-
-      - name: Download natives for windows
-        uses: actions/download-artifact@master
-        with:
-          name: windows-natives
-          path: build/native
-
-      - name: Download natives for mac
-        uses: actions/download-artifact@master
-        with:
-          name: mac-natives
-          path: build/native
-
       - name: Download natives for android
         uses: actions/download-artifact@master
         with:
           name: android-natives
           path: build/native
 
-      - name: Download natives for linux (arm)
-        uses: actions/download-artifact@master
-        with:
-          name: linuxarm-natives
-          path: build/native
       - name: Validate the Gradle wrapper
         uses: gradle/wrapper-validation-action@v1
       - name: Build Engine
@@ -348,12 +232,7 @@ jobs:
               else
                 # We check if the native code changed.
                 echo "Detect changes"
-                NATIVE_CHANGES="$(git diff-tree --name-only "$GITHUB_SHA" "$nativeSnapshot" -- jme3-bullet-native/)"
                 if [ "$NATIVE_CHANGES" = "" ];then NATIVE_CHANGES="$(git diff-tree --name-only "$GITHUB_SHA" "$nativeSnapshot"  --  jme3-android-native/)"; fi
-                if [ "$NATIVE_CHANGES" = "" ];then NATIVE_CHANGES="$(git diff-tree --name-only "$GITHUB_SHA" "$nativeSnapshot"  --  jme3-bullet-native-android/)"; fi
-                if [ "$NATIVE_CHANGES" = "" ];then NATIVE_CHANGES="$(git diff-tree --name-only "$GITHUB_SHA" "$nativeSnapshot"  --  jme3-bullet/)"; fi
-                # The bulletUrl (in gradle.properties) might have changed.
-                if [ "$NATIVE_CHANGES" = "" ];then NATIVE_CHANGES="$(git diff-tree --name-only "$GITHUB_SHA" "$nativeSnapshot"  --  gradle.properties)"; fi
               fi
             fi
 
