@@ -45,6 +45,10 @@ public class JoyAxisEvent extends InputEvent {
     private float value;
     private float rawValue;
 
+    public JoyAxisEvent(JoystickAxis axis, float value) {
+        this(axis, value, value);
+    }
+
     public JoyAxisEvent(JoystickAxis axis, float value, float rawValue) {
         this.axis = axis;
         this.value = value;
