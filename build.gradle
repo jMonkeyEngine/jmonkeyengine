@@ -44,7 +44,7 @@ subprojects {
         apply from: rootProject.file('common-android-app.gradle')
     }
 
-    if (!project.name.endsWith("-native") && project.name != "jme3-bullet-native-android" && enableSpotBugs != "false" ) {
+    if (!project.name.endsWith("-native") && enableSpotBugs != "false" ) {
         apply plugin: 'com.github.spotbugs'
 
         // Currently we only warn about issues and try to fix them as we go, but those aren't mission critical.
