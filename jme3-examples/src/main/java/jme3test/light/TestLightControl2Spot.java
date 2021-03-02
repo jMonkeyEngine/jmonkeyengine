@@ -2,7 +2,6 @@ package jme3test.light;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.light.AmbientLight;
-import com.jme3.light.DirectionalLight;
 import com.jme3.light.SpotLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
@@ -26,14 +25,14 @@ public class TestLightControl2Spot extends SimpleApplication {
     private final Vector3f rotAxis = new Vector3f(Vector3f.UNIT_X);
     private final float[] angles = new float[3];
 
+    private Node lightNode;
+    private SpotLight spot;
+    private Geometry lightMdl;
+
     public static void main(String[] args) {
         TestLightControl2Spot app = new TestLightControl2Spot();
         app.start();
     }
-
-    Node lightNode;
-    SpotLight spot;
-    Geometry lightMdl;
 
     public void setupLighting() {
         AmbientLight al = new AmbientLight();

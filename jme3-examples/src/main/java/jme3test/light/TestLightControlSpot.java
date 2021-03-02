@@ -26,14 +26,14 @@ public class TestLightControlSpot extends SimpleApplication {
     private final Vector3f rotAxis = new Vector3f(Vector3f.UNIT_X);
     private final float[] angles = new float[3];
 
+    private Node lightNode;
+    private SpotLight spot;
+    private Geometry lightMdl;
+
     public static void main(String[] args) {
         TestLightControlSpot app = new TestLightControlSpot();
         app.start();
     }
-
-    Node lightNode;
-    SpotLight spot;
-    Geometry lightMdl;
 
     public void setupLighting() {
         AmbientLight al = new AmbientLight();
