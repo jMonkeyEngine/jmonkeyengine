@@ -27,7 +27,6 @@ public class TestLightControl2Spot extends SimpleApplication {
 
     private Node lightNode;
     private SpotLight spot;
-    private Geometry lightMdl;
 
     public static void main(String[] args) {
         TestLightControl2Spot app = new TestLightControl2Spot();
@@ -35,6 +34,7 @@ public class TestLightControl2Spot extends SimpleApplication {
     }
 
     public void setupLighting() {
+        Geometry lightMdl;
         AmbientLight al = new AmbientLight();
         al.setColor(ColorRGBA.White.mult(2f));
         rootNode.addLight(al);

@@ -28,7 +28,6 @@ public class TestLightControlDirectional extends SimpleApplication {
 
     private Node lightNode;
     private DirectionalLight direction;
-    private Geometry lightMdl;
 
     public static void main(String[] args) {
         TestLightControlDirectional app = new TestLightControlDirectional();
@@ -36,6 +35,7 @@ public class TestLightControlDirectional extends SimpleApplication {
     }
 
     public void setupLighting() {
+        Geometry lightMdl;
         AmbientLight al = new AmbientLight();
         al.setColor(ColorRGBA.White.mult(2f));
         rootNode.addLight(al);
