@@ -161,19 +161,21 @@ public class LightControl extends AbstractControl {
      */
     private void lightToSpatial(Light light) {
         TempVars vars = TempVars.get();
+        boolean rot = false, trans = false;
 
         if (light instanceof PointLight) {
             PointLight pLight = (PointLight) light;
             vars.vect1.set(pLight.getPosition());
-            spatial.getLocalRotation().mult(Vector3f.UNIT_Z, vars.vect2);
+            trans = true;
         } else if (light instanceof DirectionalLight) {
             DirectionalLight dLight = (DirectionalLight) light;
-            vars.vect1.set(spatial.getLocalTranslation());
             vars.vect2.set(dLight.getDirection()).negateLocal();
+            rot = true;
         } else if (light instanceof SpotLight) {
             SpotLight sLight = (SpotLight) light;
             vars.vect1.set(sLight.getPosition());
             vars.vect2.set(sLight.getDirection()).negateLocal();
+            trans = rot = true;
         }
         if (spatial.getParent() != null) {
             spatial.getParent().getLocalToWorldMatrix(vars.tempMat4).invertLocal();
@@ -181,9 +183,14 @@ public class LightControl extends AbstractControl {
             vars.tempMat4.translateVect(vars.vect1);
             vars.tempMat4.rotateVect(vars.vect2);
         }
-        vars.quat1.lookAt(vars.vect2, Vector3f.UNIT_Y);
-        spatial.setLocalRotation(vars.quat1);
-        spatial.setLocalTranslation(vars.vect1);
+
+        if (rot) {
+            vars.quat1.lookAt(vars.vect2, Vector3f.UNIT_Y);
+            spatial.setLocalRotation(vars.quat1);
+        }
+        if (trans) {
+            spatial.setLocalTranslation(vars.vect1);
+        }
         vars.release();
     }
 
