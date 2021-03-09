@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -185,11 +185,13 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     }
 
     /**
-     * Instantiate a new <code>Quaternion</code> from Euler rotation angles,
-     * applying the rotations in X-Z-Y order.
+     * Instantiate a new <code>Quaternion</code> from Tait-Bryan angles,
+     * applying the rotations in x-z-y extrinsic order or y-z'-x" intrinsic
+     * order.
      *
-     * @param angles an array of Euler rotation angles (in radians, exactly 3
-     * elements, in X-Y-Z order!, unaffected)
+     * @param angles an array of Tait-Bryan angles (in radians, exactly 3
+     * elements, the X angle in angles[0], the Y angle in angles[1], and the Z
+     * angle in angles[2], unaffected)
      */
     public Quaternion(float[] angles) {
         fromAngles(angles);
@@ -243,11 +245,13 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     }
 
     /**
-     * Reconfigure this <code>Quaternion</code> based on Euler rotation angles,
-     * applying the rotations in X-Z-Y order.
+     * Reconfigure this <code>Quaternion</code> based on Tait-Bryan angles,
+     * applying the rotations in x-z-y extrinsic order or y-z'-x" intrinsic
+     * order.
      *
-     * @param angles an array of Euler rotation angles (in radians, exactly 3
-     * elements, in X-Y-Z order(!), unaffected)
+     * @param angles an array of Tait-Bryan angles (in radians, exactly 3
+     * elements, the X angle in angles[0], the Y angle in angles[1], and the Z
+     * angle in angles[2], unaffected)
      * @return this
      */
     public Quaternion fromAngles(float[] angles) {
@@ -260,17 +264,15 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     }
 
     /**
-     * Reconfigure this Quaternion based on Euler rotations, applying the
-     * rotations in X-Z-Y order. This suits applications where +X is the forward
-     * direction and +Y is the up direction, in which case the order of
-     * application is (roll, pitch, yaw).
+     * Reconfigure this Quaternion based on Tait-Bryan rotations, applying the
+     * rotations in x-z-y extrinsic order or y-z'-x" intrinsic order.
      *
      * @see
      * <a href="http://www.euclideanspace.com/maths/geometry/rotations/conversions/eulerToQuaternion/index.htm">http://www.euclideanspace.com/maths/geometry/rotations/conversions/eulerToQuaternion/index.htm</a>
      *
-     * @param xAngle the X-axis rotation angle (in radians)
-     * @param yAngle the Y-axis rotation angle (in radians)
-     * @param zAngle the Z-axis rotation angle (in radians)
+     * @param xAngle the X angle (in radians)
+     * @param yAngle the Y angle (in radians)
+     * @param zAngle the Z angle (in radians)
      * @return this
      */
     public Quaternion fromAngles(float xAngle, float yAngle, float zAngle) {
@@ -302,18 +304,20 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     }
 
     /**
-     * Convert this <code>Quaternion</code> to Euler rotation angles, to be
-     * applied in X-Z-Y order, for instance by {@link #fromAngles(float[])}.
+     * Convert this <code>Quaternion</code> to Tait-Bryan angles, to be applied
+     * in x-z-y intrinsic order or y-z'-x" extrinsic order, for instance by
+     * {@link #fromAngles(float[])}.
      *
      * Note that the result is not always 100% accurate due to the implications
-     * of Euler angles.
+     * of Tait-Bryan angles.
      *
      * @see
      * <a href="http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToEuler/index.htm">http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToEuler/index.htm</a>
      *
      * @param angles an array of 3 floats in which to store the result, or else
      * null (If null, a new array will be allocated.)
-     * @return an array of 3 angles (in radians, in X-Y-Z order)
+     * @return an array of 3 angles (in radians, the X angle in angles[0], the Y
+     * angle in angles[1], and the Z angle in angles[2])
      */
     public float[] toAngles(float[] angles) {
         if (angles == null) {
