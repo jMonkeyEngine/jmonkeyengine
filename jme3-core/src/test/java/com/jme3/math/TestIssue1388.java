@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 jMonkeyEngine
+ * Copyright (c) 2020-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,8 +35,8 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * Verify the order in which Euler angles are applied. This was issue #1388 at
- * GitHub.
+ * Verify the order in which Tait-Bryan angles are applied by the Quaternion
+ * class. This was issue #1388 at GitHub.
  *
  * @author Stephen Gold
  */
@@ -47,7 +47,7 @@ public class TestIssue1388 {
         Vector3f in = new Vector3f(4f, 6f, 9f); // test vector, never modified
         Vector3f saveIn = in.clone();
         /*
-         * arbitrary Euler angles between -PI/2 and +PI/2
+         * Three arbitrary rotation angles between -PI/2 and +PI/2
          */
         final float xAngle = 1.23f;
         final float yAngle = 0.765f;
@@ -55,7 +55,9 @@ public class TestIssue1388 {
         float[] angles = new float[]{xAngle, yAngle, zAngle};
         float[] saveAngles = new float[]{xAngle, yAngle, zAngle};
         /*
-         * Apply the rotations to the "in" vector in X,Z,Y order.
+         * Part 1: verify that the extrinsic rotation order is x-z-y
+         *
+         * Apply extrinsic rotations to the "in" vector in x-z-y order.
          */
         Quaternion qx = new Quaternion().fromAngleAxis(xAngle, Vector3f.UNIT_X);
         Quaternion qy = new Quaternion().fromAngleAxis(yAngle, Vector3f.UNIT_Y);
@@ -93,6 +95,14 @@ public class TestIssue1388 {
         assertEquals(angles, out5, 1e-5f);
         float[] out6 = q3.toAngles(null);
         assertEquals(angles, out6, 1e-5f);
+        /*
+         * Part 2: verify intrinsic rotation order
+         *
+         * Apply intrinsic rotations to the "in" vector in y-z'-x" order.
+         */
+        Quaternion q4 = qy.mult(qz).mult(qx);
+        Vector3f out7 = q4.mult(in);
+        assertEquals(outXZY, out7, 1e-5f);
         /*
          * Verify that the values of "saveAngles" and "in" haven't changed.
          */
