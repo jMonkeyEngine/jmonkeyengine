@@ -7,63 +7,92 @@ include $(CLEAR_VARS)
 LOCAL_MODULE     := openalsoftjme
 
 LOCAL_C_INCLUDES += $(LOCAL_PATH) $(LOCAL_PATH)/include \
-		    $(LOCAL_PATH)/OpenAL32/Include $(LOCAL_PATH)/Alc  $(LOCAL_PATH)/common
+		    $(LOCAL_PATH)/alc  $(LOCAL_PATH)/common
 
-LOCAL_CFLAGS     := -std=c99 -ffast-math -DAL_BUILD_LIBRARY -DAL_ALEXT_PROTOTYPES -fcommon -O0
+LOCAL_CPP_FEATURES += exceptions
+
+LOCAL_CFLAGS     := -ffast-math -DAL_BUILD_LIBRARY -DAL_ALEXT_PROTOTYPES -fcommon -O0 -DRESTRICT=""
 LOCAL_LDLIBS     := -lOpenSLES -llog -Wl,-s
 
-LOCAL_SRC_FILES  :=   Alc/ALc.c \
-                      Alc/alconfig.c \
-                      Alc/ALu.c \
-                      Alc/ambdec.c \
-                      Alc/backends/base.c \
-                      Alc/backends/loopback.c \
-                      Alc/backends/null.c \
-                      Alc/backends/opensl.c \
-                      Alc/backends/wave.c \
-                      Alc/bformatdec.c \
-                      Alc/bs2b.c \
-                      Alc/converter.c \
-                      Alc/effects/autowah.c \
-                      Alc/effects/chorus.c \
-                      Alc/effects/compressor.c \
-                      Alc/effects/dedicated.c \
-                      Alc/effects/distortion.c \
-                      Alc/effects/echo.c \
-                      Alc/effects/equalizer.c \
-                      Alc/effects/fshifter.c \
-                      Alc/effects/modulator.c \
-                      Alc/effects/null.c \
-                      Alc/effects/pshifter.c \
-                      Alc/effects/reverb.c \
-                      Alc/filters/filter.c \
-                      Alc/filters/nfc.c \
-                      Alc/filters/splitter.c \
-                      Alc/helpers.c \
-                      Alc/hrtf.c \
-                      Alc/mastering.c \
-                      Alc/mixer/mixer_c.c \
-                      Alc/mixvoice.c \
-                      Alc/panning.c \
-                      Alc/ringbuffer.c \
-                      Alc/uhjfilter.c \
-                      common/alcomplex.c \
-                      common/almalloc.c \
-                      common/atomic.c \
-                      common/rwlock.c \
-                      common/threads.c \
-                      common/uintmap.c \
-                      OpenAL32/alAuxEffectSlot.c \
-                      OpenAL32/alBuffer.c \
-                      OpenAL32/alEffect.c \
-                      OpenAL32/alError.c \
-                      OpenAL32/alExtension.c \
-                      OpenAL32/alFilter.c \
-                      OpenAL32/alListener.c \
-                      OpenAL32/alSource.c \
-                      OpenAL32/alState.c \
-                      OpenAL32/event.c \
-                      OpenAL32/sample_cvt.c \
+LOCAL_SRC_FILES  :=   al/auxeffectslot.cpp \
+                      al/buffer.cpp \
+                      al/effect.cpp \
+                      al/effects/autowah.cpp \
+                      al/effects/chorus.cpp \
+                      al/effects/compressor.cpp \
+                      al/effects/convolution.cpp \
+                      al/effects/dedicated.cpp \
+                      al/effects/distortion.cpp \
+                      al/effects/echo.cpp \
+                      al/effects/equalizer.cpp \
+                      al/effects/fshifter.cpp \
+                      al/effects/modulator.cpp \
+                      al/effects/null.cpp \
+                      al/effects/pshifter.cpp \
+                      al/effects/reverb.cpp \
+                      al/effects/vmorpher.cpp \
+                      al/error.cpp \
+                      al/event.cpp \
+                      al/extension.cpp \
+                      al/filter.cpp \
+                      al/listener.cpp \
+                      al/source.cpp \
+                      al/state.cpp \
+                      alc/alc.cpp \
+                      alc/alconfig.cpp \
+                      alc/alu.cpp \
+                      alc/backends/base.cpp \
+                      alc/backends/loopback.cpp \
+                      alc/backends/null.cpp \
+                      alc/backends/opensl.cpp \
+                      alc/backends/wave.cpp \
+                      alc/bformatdec.cpp \
+                      alc/buffer_storage.cpp \
+                      alc/converter.cpp \
+                      alc/effects/autowah.cpp \
+                      alc/effects/chorus.cpp \
+                      alc/effects/compressor.cpp \
+                      alc/effects/convolution.cpp \
+                      alc/effects/dedicated.cpp \
+                      alc/effects/distortion.cpp \
+                      alc/effects/echo.cpp \
+                      alc/effects/equalizer.cpp \
+                      alc/effects/fshifter.cpp \
+                      alc/effects/modulator.cpp \
+                      alc/effects/null.cpp \
+                      alc/effects/pshifter.cpp \
+                      alc/effects/reverb.cpp \
+                      alc/effects/vmorpher.cpp \
+                      alc/effectslot.cpp \
+                      alc/helpers.cpp \
+                      alc/hrtf.cpp \
+                      alc/panning.cpp \
+                      alc/uiddefs.cpp \
+                      alc/voice.cpp \
+                      common/alcomplex.cpp \
+                      common/alfstream.cpp \
+                      common/almalloc.cpp \
+                      common/alstring.cpp \
+                      common/dynload.cpp \
+                      common/polyphase_resampler.cpp \
+                      common/ringbuffer.cpp \
+                      common/strutils.cpp \
+                      common/threads.cpp \
+                      core/ambdec.cpp \
+                      core/bs2b.cpp \
+                      core/bsinc_tables.cpp \
+                      core/cpu_caps.cpp \
+                      core/devformat.cpp \
+                      core/except.cpp \
+                      core/filters/biquad.cpp \
+                      core/filters/nfc.cpp \
+                      core/filters/splitter.cpp \
+                      core/fmt_traits.cpp \
+                      core/fpu_ctrl.cpp \
+                      core/logging.cpp \
+                      core/mastering.cpp \
+                      core/mixer/mixer_c.cpp \
+                      core/uhjfilter.cpp \
                       com_jme3_audio_android_AndroidAL.c \
                       com_jme3_audio_android_AndroidALC.c \
                       com_jme3_audio_android_AndroidEFX.c
