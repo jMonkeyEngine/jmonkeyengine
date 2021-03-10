@@ -3,7 +3,7 @@
 #define ALC_API __attribute__((visibility("protected")))
 
 /* Define to the library version */
-#define ALSOFT_VERSION "1.16.0"
+#define ALSOFT_VERSION "1.17.2"
 
 #ifdef IN_IDE_PARSER
 /* KDevelop's parser doesn't recognize the C99-standard restrict keyword, but
@@ -13,6 +13,9 @@
 
 /* Define any available alignment declaration */
 #define ALIGN(x) __attribute__((aligned(x)))
+
+/* Define a built-in call indicating an aligned data pointer */
+#define ASSUME_ALIGNED(x, y) __builtin_assume_aligned(x, y)
 
 /* Define if we have the C11 aligned_alloc function */
 /* #undef HAVE_ALIGNED_ALLOC */
@@ -201,3 +204,13 @@
 
 /* Define if we have pthread_mutex_timedlock() */
 /* #undef HAVE_PTHREAD_MUTEX_TIMEDLOCK */
+
+#define HAVE_DIRENT_H
+
+#define HAVE_LOG2F
+
+#define HAVE_CBRTF
+
+#define HAVE_COPYSIGNF
+
+
