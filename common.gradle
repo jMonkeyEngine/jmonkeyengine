@@ -12,6 +12,13 @@ version = jmeFullVersion
 sourceCompatibility = '1.8'
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
+if(JavaVersion.current() >= JavaVersion.VERSION_1_9) {
+    compileJava {
+	options.compilerArgs.addAll(['--release', '8'])
+        //Replace previous with "options.release = 8" if updated to gradle 6.6 or newer
+    }
+}
+
 gradle.projectsEvaluated {
     tasks.withType(JavaCompile) { // compile-time options:
         options.compilerArgs << '-Xlint:unchecked'

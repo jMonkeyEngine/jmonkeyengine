@@ -2,6 +2,9 @@ if (!hasProperty('mainClass')) {
     ext.mainClass = ''
 }
 
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
+
 dependencies {
     compile project(':jme3-core')
     compile project(':jme3-plugins')
