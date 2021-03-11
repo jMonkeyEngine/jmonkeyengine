@@ -232,7 +232,7 @@ jobs:
               else
                 # We check if the native code changed.
                 echo "Detect changes"
-                NATIVE_CHANGES="$(git diff-tree --name-only "$GITHUB_SHA" "$nativeSnapshot"  --  jme3-android-native/)"; fi
+                NATIVE_CHANGES="$(git diff-tree --name-only "$GITHUB_SHA" "$nativeSnapshot"  --  jme3-android-native/)"
               fi
             fi
 
