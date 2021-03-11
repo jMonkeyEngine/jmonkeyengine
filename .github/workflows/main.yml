@@ -4,7 +4,7 @@
 # Quick overview of what is going on in this script:
 #   - Build natives for android
 #   - Merge the natives, build the engine, create the zip release, maven artifacts, javadoc and native snapshot
-#   - (only when there is a change in the native code) Deploy the native snapshot to bintray
+#   - (only when native code changes) Deploy the natives snapshot to Bintray and the MinIO instance
 #   - (only when building a release) Deploy everything else to github releases, github packet registry and bintray
 #   - (only when building a release) Update javadoc.jmonkeyengine.org
 # Note:
@@ -20,6 +20,8 @@
 #     BINTRAY_USER=riccardo
 #     BINTRAY_APIKEY=XXXXXX
 #     BINTRAY_LICENSE="BSD 3-Clause"
+# >> Configure MINIO NATIVES SNAPSHOT
+#     OBJECTS_KEY=XXXXXX
 # >> Configure  PACKAGE REGISTRY RELEASE
 #   Nothing to do here, everything is autoconfigured to work with the account/org that 
 #   is running the build.
@@ -241,9 +243,21 @@ jobs:
             then
               echo "No changes, skip."
             else
+              if [ "${{ secrets.OBJECTS_KEY }}" = "" ];
+              then
+                echo "Configure the OBJECTS_KEY secret to enable natives snapshot deployment to MinIO"
+              else
+                # Deploy natives snapshot to a MinIO instance using function in bintray.sh
+                minio_uploadFile dist/jme3-natives.zip \
+                  native_snapshots/$GITHUB_SHA/jme3-natives.zip \
+                  https://objects.jmonkeyengine.org \
+                  jmonkeyengine \
+                  ${{ secrets.OBJECTS_KEY }}
+              fi
+
               if [ "${{ secrets.BINTRAY_GENERIC_REPO }}" = "" ];
               then               
-                echo "Configure the following secrets to enable native snapshot deployment"
+                echo "Configure the following secrets to enable natives snapshot deployment to Bintray:"
                 echo "BINTRAY_GENERIC_REPO, BINTRAY_USER, BINTRAY_APIKEY"           
               else
                 # Deploy snapshot
