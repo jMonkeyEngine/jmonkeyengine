@@ -46,7 +46,7 @@ function minio_uploadFile {
     secret="$5"
 
     echo "Install MinIO client"
-    wget https://dl.min.io/client/mc/release/linux-amd64/mc
+    wget --quiet https://dl.min.io/client/mc/release/linux-amd64/mc
     chmod +x ./mc
 
     echo "Add an alias for the MinIO instance to the MinIO configuration file"
