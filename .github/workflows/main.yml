@@ -22,6 +22,9 @@
 #     BINTRAY_LICENSE="BSD 3-Clause"
 # >> Configure MINIO NATIVES SNAPSHOT
 #     OBJECTS_KEY=XXXXXX
+# >> Configure SIGNING
+#     SIGNING_KEY=XXXXXX
+#     SIGNING_PASSWORD=XXXXXX
 # >> Configure  PACKAGE REGISTRY RELEASE
 #   Nothing to do here, everything is autoconfigured to work with the account/org that 
 #   is running the build.
@@ -145,9 +148,22 @@ jobs:
             mkdir -p ./dist/release/
             mv build/distributions/*.zip dist/release/
             
-            # Create the maven artifacts
-            mkdir -p ./dist/maven/
-            ./gradlew -PuseCommitHashAsVersionName=true -PskipPrebuildLibraries=true install -Dmaven.repo.local="$PWD/dist/maven"
+            # Install maven artifacts to ./dist/maven and sign them if possible
+            if [ "${{ secrets.SIGNING_PASSWORD }}" = "" ];
+            then
+              echo "Configure the following secrets to enable signing:"
+              echo "SIGNING_KEY, SIGNING_PASSWORD"
+
+              ./gradlew publishMavenPublicationToDistRepository \
+              -PskipPrebuildLibraries=true -PuseCommitHashAsVersionName=true \
+              --console=plain --stacktrace
+            else
+              ./gradlew publishMavenPublicationToDistRepository \
+              -PsigningKey='${{ secrets.SIGNING_KEY }}' \
+              -PsigningPassword='${{ secrets.SIGNING_PASSWORD }}' \
+              -PskipPrebuildLibraries=true -PuseCommitHashAsVersionName=true \
+              --console=plain --stacktrace
+            fi
 
             # Zip the natives into a single archive (we are going to use this to deploy native snapshots)
             echo "Create native zip"
