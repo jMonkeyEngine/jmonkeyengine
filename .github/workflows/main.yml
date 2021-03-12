@@ -4,7 +4,7 @@
 # Quick overview of what is going on in this script:
 #   - Build natives for android
 #   - Merge the natives, build the engine, create the zip release, maven artifacts, javadoc and native snapshot
-#   - (only when native code changes) Deploy the natives snapshot to Bintray and the MinIO instance
+#   - (only when native code changes) Deploy the natives snapshot to the MinIO instance
 #   - (only when building a release) Deploy everything else to github releases, github packet registry and bintray
 #   - (only when building a release) Update javadoc.jmonkeyengine.org
 # Note:
@@ -13,7 +13,7 @@
 #   running workflow, we use it to store the result of each job since the filesystem
 #   is not maintained between jobs.
 ################# CONFIGURATIONS #####################################################
-# >> Configure BINTRAY RELEASE & NATIVE SNAPSHOT
+# >> Configure BINTRAY RELEASE
 #   Configure the following secrets/variables (customize the values with your own)
 #     BINTRAY_GENERIC_REPO=riccardoblsandbox/jmonkeyengine-files
 #     BINTRAY_MAVEN_REPO=riccardoblsandbox/jmonkeyengine
@@ -253,21 +253,6 @@ jobs:
                   https://objects.jmonkeyengine.org \
                   jmonkeyengine \
                   ${{ secrets.OBJECTS_KEY }}
-              fi
-
-              if [ "${{ secrets.BINTRAY_GENERIC_REPO }}" = "" ];
-              then               
-                echo "Configure the following secrets to enable natives snapshot deployment to Bintray:"
-                echo "BINTRAY_GENERIC_REPO, BINTRAY_USER, BINTRAY_APIKEY"           
-              else
-                # Deploy snapshot
-                bintray_uploadFile dist/jme3-natives.zip \
-                  $GITHUB_SHA/$GITHUB_SHA/jme3-natives.zip \
-                  ${{ secrets.BINTRAY_GENERIC_REPO }} "content" "natives" \
-                  ${{ secrets.BINTRAY_USER }} \
-                  ${{ secrets.BINTRAY_APIKEY }}  \
-                  "https://github.com/${GITHUB_REPOSITORY}" \
-                  "${{ secrets.BINTRAY_LICENSE }}" "true"
 
                 # We reference the snapshot by writing its commit hash in  natives-snapshot.properties 
                 echo "natives.snapshot=$GITHUB_SHA" > natives-snapshot.properties

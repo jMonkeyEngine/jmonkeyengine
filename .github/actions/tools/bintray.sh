@@ -35,63 +35,6 @@ function bintray_createPackage {
     fi
 }
 
-# uploadFile file destination [REPO] "content" [PACKAGE] [USER] [PASSWORD] [SRCREPO] [LICENSE]
-function bintray_uploadFile {
-    file="$1"
-    dest="$2"
-    
-    echo "Upload $file to $dest"
-
-    repo="$3"
-    type="$4"
-    package="$5"
-
-    user="$6"
-    password="$7"
-   
-    srcrepo="$8"
-    license="$9"
-    publish="${10}"
-
-    bintray_createPackage $repo $package $user $password $srcrepo $license
-
-    url="https://api.bintray.com/$type/$repo/$package/$dest"
-    if [ "$publish" = "true" ]; then url="$url;publish=1"; fi
-
-    curl -T "$file" -u$user:$password "$url"
-     
-}
-
-function bintray_uploadAll {
-    path="$1"
-    destpath="$2"
-    repo="$3"
-    type="$4"
-    package="$5"
-
-    user="$6"
-    password="$7"
-   
-    srcrepo="$8"
-    license="$9"
-    publish="${10}"
-
-    cdir="$PWD"
-    cd "$path"
-
-    files="`find . -type f -print`"
-    IFS="
-"
-    set -f
-    for f in $files; do
-        destfile="$destpath/${f:2}"
-        bintray_uploadFile $f $destfile $repo $type $package $user $password $srcrepo $license $publish
-    done
-    set +f
-    unset IFS
-    cd "$cdir"
-}
-
 # minio_uploadFile <LOCAL_FILEPATH> <REMOTE_FILEPATH> <MINIO_URL> <MINIO_ACCESS_KEY> <MINIO_SECRET_KEY>
 #
 # Upload the specified file to the specified MinIO instance.
