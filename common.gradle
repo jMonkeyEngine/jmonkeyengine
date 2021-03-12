@@ -5,6 +5,8 @@
 apply plugin: 'java'
 apply plugin: 'groovy'
 apply plugin: 'maven'
+apply plugin: 'maven-publish'
+apply plugin: 'signing'
 
 group = 'org.jmonkeyengine'
 version = jmeFullVersion
@@ -144,3 +146,39 @@ artifacts {
     archives writeFullPom.outputs.files[0]
 }
 
+publishing {
+    publications {
+        maven(MavenPublication) {
+            artifact javadocJar
+            artifact sourcesJar
+            from components.java
+            version project.version
+        }
+    }
+    repositories {
+        maven {
+            name = 'Dist'
+            url = gradle.rootProject.projectDir.absolutePath + '/dist/maven'
+        }
+        maven {
+            credentials {
+                username = gradle.rootProject.hasProperty('ossrhUsername') ? ossrhUsername : 'Unknown user'
+                password = gradle.rootProject.hasProperty('ossrhPassword') ? ossrhPassword : 'Unknown password'
+            }
+            name = 'OSSRH'
+            url = 'https://oss.sonatype.org/service/local/staging/deploy/maven2'
+        }
+    }
+}
+
+signing {
+    def signingKey = gradle.rootProject.findProperty('signingKey')
+    def signingPassword = gradle.rootProject.findProperty('signingPassword')
+    useInMemoryPgpKeys(signingKey, signingPassword)
+
+    sign configurations.archives
+    sign publishing.publications.maven
+}
+tasks.withType(Sign) {
+    onlyIf { gradle.rootProject.hasProperty('signingKey') }
+}
