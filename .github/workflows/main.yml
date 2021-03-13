@@ -90,7 +90,7 @@ jobs:
     name: Build natives for android
     runs-on: ubuntu-18.04
     container:
-      image: riccardoblb/buildenv-jme3:android
+      image: jmonkeyengine/buildenv-jme3:android
   
     steps:
       - name: Clone the repo
