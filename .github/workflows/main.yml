@@ -324,16 +324,18 @@ jobs:
           name: release
           path: dist/release
 
-      - name: Deploy the maven artifacts to Sonatype OSSRH
+      - name: Rebuild the maven artifacts and deploy them to Sonatype OSSRH
         run: |
           if [ "${{ secrets.OSSRH_PASSWORD }}" = "" ];
           then
             echo "Configure the following secrets to enable deployment to Sonatype:"
-            echo "OSSRH_PASSWORD, OSSRH_USERNAME"
+            echo "OSSRH_PASSWORD, OSSRH_USERNAME, SIGNING_KEY, SIGNING_PASSWORD"
           else
             ./gradlew publishMavenPublicationToOSSRHRepository \
             -PossrhPassword=${{ secrets.OSSRH_PASSWORD }} \
             -PossrhUsername=${{ secrets.OSSRH_USERNAME }} \
+            -PsigningKey='${{ secrets.SIGNING_KEY }}' \
+            -PsigningPassword='${{ secrets.SIGNING_PASSWORD }}' \
             -PskipPrebuildLibraries=true -PuseCommitHashAsVersionName=true \
             --console=plain --stacktrace
           fi
