@@ -152,6 +152,30 @@ publishing {
             artifact javadocJar
             artifact sourcesJar
             from components.java
+            pom {
+                description = POM_DESCRIPTION
+                developers {
+                    developer {
+                        id = 'jMonkeyEngine'
+                        name = 'jMonkeyEngine Team'
+                    }
+                }
+                inceptionYear = POM_INCEPTION_YEAR
+                licenses {
+                    license {
+                        distribution = POM_LICENSE_DISTRIBUTION
+                        name = POM_LICENSE_NAME
+                        url = POM_LICENSE_URL
+                    }
+                }
+                name = POM_NAME
+                scm {
+                    connection = POM_SCM_CONNECTION
+                    developerConnection = POM_SCM_DEVELOPER_CONNECTION
+                    url = POM_SCM_URL
+                }
+                url = POM_URL
+            }
             version project.version
         }
     }
