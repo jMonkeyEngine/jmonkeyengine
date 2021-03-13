@@ -5,7 +5,7 @@
 #   - Build natives for android
 #   - Merge the natives, build the engine, create the zip release, maven artifacts, javadoc and native snapshot
 #   - (only when native code changes) Deploy the natives snapshot to the MinIO instance
-#   - (only when building a release) Deploy everything else to github releases, github packet registry and bintray
+#   - (only when building a release) Deploy everything else to github releases, github packet registry, Bintray, and Sonatype
 #   - (only when building a release) Update javadoc.jmonkeyengine.org
 # Note:
 #   All the actions/upload-artifact and actions/download-artifact steps are used to pass 
@@ -22,6 +22,9 @@
 #     BINTRAY_LICENSE="BSD 3-Clause"
 # >> Configure MINIO NATIVES SNAPSHOT
 #     OBJECTS_KEY=XXXXXX
+# >> Configure SONATYPE RELEASE
+#     OSSRH_PASSWORD=XXXXXX
+#     OSSRH_USERNAME=XXXXXX
 # >> Configure SIGNING
 #     SIGNING_KEY=XXXXXX
 #     SIGNING_PASSWORD=XXXXXX
@@ -319,9 +322,23 @@ jobs:
         uses: actions/download-artifact@master
         with:
           name: release
-          path: dist/release      
-      
-      - name: Deploy to github releases    
+          path: dist/release
+
+      - name: Deploy the maven artifacts to Sonatype OSSRH
+        run: |
+          if [ "${{ secrets.OSSRH_PASSWORD }}" = "" ];
+          then
+            echo "Configure the following secrets to enable deployment to Sonatype:"
+            echo "OSSRH_PASSWORD, OSSRH_USERNAME"
+          else
+            ./gradlew publishMavenPublicationToOSSRHRepository \
+            -PossrhPassword=${{ secrets.OSSRH_PASSWORD }} \
+            -PossrhUsername=${{ secrets.OSSRH_USERNAME }} \
+            -PskipPrebuildLibraries=true -PuseCommitHashAsVersionName=true \
+            --console=plain --stacktrace
+          fi
+
+      - name: Deploy to GitHub Releases
         run: |
           # We need to get the release id (yeah, it's not the same as the tag)
           echo "${GITHUB_EVENT_PATH}"
