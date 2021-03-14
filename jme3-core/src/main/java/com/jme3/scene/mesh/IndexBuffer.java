@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -77,7 +77,7 @@ public abstract class IndexBuffer {
 
         if (vertexCount < 128) { // TODO: could be vertexCount <= 256
             ByteBuffer buffer = BufferUtils.createByteBuffer(indexCount);
-            int maxIndexValue = vertexCount - 1;
+            int maxIndexValue = Math.max(0, vertexCount - 1);
             result = new IndexByteBuffer(buffer, maxIndexValue);
 
         } else if (vertexCount < 65536) { // TODO: could be <= 65536
