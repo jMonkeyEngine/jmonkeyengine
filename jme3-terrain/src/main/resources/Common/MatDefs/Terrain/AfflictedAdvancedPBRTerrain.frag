@@ -2,8 +2,7 @@
 #import "Common/ShaderLib/GLSLCompat.glsllib"
 #import "Common/ShaderLib/PBR.glsllib"
 #import "Common/ShaderLib/Lighting.glsllib"
-#import "MatDefs/ShaderLib/AfflictionLib.glsllib"
-#import "MatDefs/ShaderLib/OcclusionParallax.glsllib"
+#import "Common/MatDefs/Terrain/AfflictionLib.glsllib"
 
 
 #ifdef DEBUG_VALUES_MODE
