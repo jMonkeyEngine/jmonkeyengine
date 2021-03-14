@@ -1,0 +1,390 @@
+#import "MatDefs/ShaderLib/NoiseLib.glsllib"
+
+//code for tri-planar mapping on any afflicted shaders
+vec4 getTriPlanarBlend(in vec4 coords, in vec3 blending, in sampler2D map, in float scale) {
+      vec4 col1 = texture2D( map, coords.yz * scale);
+      vec4 col2 = texture2D( map, coords.xz * scale);
+      vec4 col3 = texture2D( map, coords.xy * scale); 
+      // blend the results of the 3 planar projections.
+      vec4 tex = col1 * blending.x + col2 * blending.y + col3 * blending.z;
+      
+      return tex;
+}
+
+
+//used for mixing normal map normals with the world normals. texure slots without a normal map use wNormal as their blending value instead
+vec3 mixNormals(in vec3 normalIn, in vec3 worldNorm){
+    
+    
+    vec3 returnNorm = normalize((normalIn.xyz * vec3(2.0) - vec3(1.0)));
+  //   vec3 returnNorm = normalize(normalIn.xyz);
+     
+     
+    
+        vec3 baseNorm = worldNorm.rgb + vec3(0, 0, 1);
+        returnNorm *= vec3(-1, -1, 1);
+        returnNorm = baseNorm.rgb*dot(baseNorm.rgb, returnNorm.rgb)/baseNorm.z - returnNorm.rgb;
+
+        returnNorm = normalize(returnNorm);
+        
+        
+        
+        
+   //     returnNorm.rgb = normalize(returnNorm.rgb * vec3(2.0) - vec3(1.0));
+
+        return returnNorm;
+}
+
+
+vec4 desaturate(vec4 albedo, float deathVar){
+        
+    vec3 gray = vec3(dot(vec3(0.2126,0.7152,0.0722), albedo.rgb));
+   // gray *= vec3(0.7, 0.5, 0.45);
+    albedo = vec4(mix(albedo.rgb, gray, deathVar), 0.0);
+
+    return albedo;
+}
+
+//methods for terrains
+    vec3 alterLiveliness(vec3 color, float liveVal, int mode){
+    //change hue
+
+    //    liveVal 
+
+   //     if(mode > 0){ //0 means dont scale to be dead or alive at all (bricks, etc)
+
+
+
+            float deathVar = (1.0 - (liveVal));
+
+            if(mode > 0){ //1 means fully alive. 1 is less alive, and 2 is slightly less but still alive
+                deathVar -= mode * 0.03;
+
+                deathVar = max(0.0, deathVar);
+            }
+
+            deathVar = min(0.99, deathVar);
+
+            float hueVar = (deathVar) * 0.34;
+            color.r += color.r*hueVar * 1.8;
+            color.g -= color.g*hueVar;
+            color.b -= color.b*hueVar*5.0 ;
+
+
+            color = desaturate(vec4(color, 1.0), deathVar).rgb;
+  //      }
+        
+   //     color = vec3(0.1);
+        
+        return color;
+        
+    }
+
+
+    vec3 alterLiveliness(vec3 color, float livelinessValue){
+    //change hue
+
+        float deathVar = (1.0 - (livelinessValue));
+
+        float hueVar = (deathVar) * 0.34;
+        color.r += color.r*hueVar * 1.8;
+        color.g -= color.g*hueVar;
+        color.b -= color.b*hueVar*5.0 ;
+
+
+       color = desaturate(vec4(color, 1.0), deathVar).rgb;
+
+
+        return color;
+    }
+
+
+//methods for death and afflictionness applied to all affliction shaders
+
+
+vec4 alterBarkLiveliness(vec4 albedo, float livelinessValue){
+    float deathVar = 1.0 - livelinessValue;
+
+    float hueVar = (deathVar) * 0.97;
+    albedo.r += albedo.r*hueVar * 0.21;
+    albedo.g += albedo.g*hueVar*0.84;
+    albedo.b -= albedo.b*hueVar*1.9;
+
+    albedo *= 0.1 + (0.9 * livelinessValue);
+
+    return albedo;
+}
+
+vec4 alterPlantLiveliness(vec4 albedo, float livelinessValue){
+    float deathVar = 1.0 - livelinessValue;
+
+    float hueVar = (deathVar) * 0.77;
+    albedo.r += albedo.r*hueVar * 1.8;
+    albedo.g -= albedo.g*hueVar;
+    albedo.b -= albedo.b*hueVar*5.0 ;
+
+    return albedo;
+}
+
+vec4 alterStoneLiveliness(vec4 albedo, float livelinessValue){
+    livelinessValue = 0.56 + (0.44 * livelinessValue); //stone and rock has an 80% minimum, and scales up from there
+
+    float deathVar = 1.0 - livelinessValue;
+    
+
+    float hueVar = (deathVar);
+    albedo.r += albedo.r*hueVar * 1.2;
+    albedo.g += albedo.g*hueVar;
+    albedo.b -= albedo.b*hueVar*3.14 ;
+
+    albedo = desaturate(albedo, deathVar * 1.7);
+
+    
+
+    return albedo;
+}
+
+
+
+//AFFLICTION METHODS
+
+//adjusts the affliction value for the best visual representation (since 0.0 - 1.0 is not as visually linear as it is numerically)
+float getAdjustedAfflictionVar(float afflictionVar){
+
+    float t0 = 0.15;
+    float t1 = 0.45;
+    float t2 = 0.75;
+    float t3 = 0.95;
+    float adjustedVar;
+
+    if(afflictionVar > 0.02){
+        adjustedVar = mix(0.02, 0.53, afflictionVar);
+    }
+    else{
+        adjustedVar = 0;
+    }
+   
+    return adjustedVar;
+}
+
+float getAfflictionEdgeTaper(float noiseVar, float afflictionVar){
+
+    float amt = noiseVar - (0.4 * afflictionVar) - .04;
+
+    if(amt <= 0.05){
+        amt = 0.05;
+    }
+    
+
+    return amt;
+}
+
+vec4 alterAfflictionColor(float afflictionVar, vec4 albedo, vec4 afflictionAlbedo, float noiseVar){    
+
+    float originalAfflictionVar = afflictionVar; 
+    afflictionVar = getAdjustedAfflictionVar(afflictionVar);
+    
+
+    float edgeTaper = getAfflictionEdgeTaper(noiseVar, afflictionVar);  
+
+    if(afflictionVar >= noiseVar){
+        float albedoOpacity = min((originalAfflictionVar * 0.2) + 0.8 , 1.0);
+        albedo.rgba = mix(albedo.rgba, afflictionAlbedo.rgba, afflictionAlbedo.a * albedoOpacity);
+    }
+    else if(afflictionVar > edgeTaper){
+        float edgeDiff = noiseVar - afflictionVar;
+        edgeDiff = edgeDiff / afflictionVar;
+
+
+        albedo.rgba = mix(afflictionAlbedo.rgba, albedo.rgba, edgeDiff * afflictionAlbedo.a);
+    }
+   else{
+        float minimumVal = max(0.15, noiseVar) * min((afflictionVar - (afflictionVar * -afflictionVar * 30)), 0.8);
+        
+        albedo.rgba = mix(albedo.rgba, afflictionAlbedo.rgba, minimumVal * afflictionAlbedo.a);
+    }
+    
+
+    return albedo;
+}
+vec4 alterAfflictionGlow(float afflictionVar, vec4 afflictionGlowColor, float noiseVar){    
+
+    afflictionGlowColor.rgb = mix(vec3(0), afflictionGlowColor.rgb, afflictionVar * noiseVar * afflictionGlowColor.a);
+
+    return afflictionGlowColor;
+}
+   
+vec3 alterAfflictionNormals(float afflictionVar, vec3 normal, vec3 afflictionNormal, float noiseVar){
+//do something so that the middle points of the 
+
+ //   afflictionNormal = (vec3(2) * afflictionNormal) - vec3(1);
+
+    vec3 originalNorm = normal * 1.3 * noiseVar;
+
+    afflictionVar = getAdjustedAfflictionVar(afflictionVar);
+
+    float edgeTaper = getAfflictionEdgeTaper(noiseVar, afflictionVar);  
+    
+ //   afflictionNormal = mixNormals(afflictionNormal);
+
+    if(afflictionVar >= noiseVar){
+        normal = afflictionNormal;
+    }
+    else if(afflictionVar > edgeTaper){
+        float edgeDiff = noiseVar - afflictionVar;
+        edgeDiff = edgeDiff / afflictionVar;
+         normal = mix(afflictionNormal, normal, edgeDiff);
+    }
+    else{
+        normal = mix(normal, afflictionNormal, noiseVar * afflictionVar);
+    //    albedo.rgb = mix(albedo.rgb, afflictionAlbedo.rgb, afflictionVar * noiseVar * noiseVar* afflictionAlbedo.a);
+    }
+
+    
+    return normalize(normal + originalNorm);
+}
+
+vec3 alterAfflictionNormalsForTerrain(float afflictionVar, vec3 normal, vec3 afflictionNormal, float noiseVar, vec3 worldNorm){
+//do something so that the middle points of the 
+
+ //   afflictionNormal = (vec3(2) * afflictionNormal) - vec3(1);
+
+
+    afflictionVar = getAdjustedAfflictionVar(afflictionVar);
+
+    float edgeTaper = getAfflictionEdgeTaper(noiseVar, afflictionVar);  
+    
+    
+    vec3 blendedNormal = normal;
+    
+    float blendValue = afflictionVar;
+    
+    if(afflictionVar >= noiseVar){
+     //   normal = afflictionNormal;
+        blendValue = 1.0;
+    }
+    else if(afflictionVar > edgeTaper){
+        float edgeDiff = noiseVar - afflictionVar;
+        edgeDiff = edgeDiff / afflictionVar;
+        
+        blendValue *= edgeDiff;
+    //     normal = mix(afflictionNormal, normal, edgeDiff);
+    }
+    else{
+        blendValue = noiseVar * afflictionVar;
+    //    albedo.rgb = mix(albedo.rgb, afflictionAlbedo.rgb, afflictionVar * noiseVar * noiseVar* afflictionAlbedo.a);
+    }
+    
+    
+    
+    afflictionNormal = mixNormals(afflictionNormal, worldNorm);
+    blendedNormal = mix(normal, afflictionNormal, blendValue);
+
+    return blendedNormal;
+}
+
+vec3 alterAfflictionAo(float afflictionVar, vec3 ao, vec3 afflictionAo, float noiseVar){
+
+
+    afflictionVar = getAdjustedAfflictionVar(afflictionVar);
+
+    float edgeTaper = getAfflictionEdgeTaper(noiseVar, afflictionVar);  
+
+    if(afflictionVar >= noiseVar){
+        ao = afflictionAo;
+    }
+    else if(afflictionVar > edgeTaper){
+        float edgeDiff = noiseVar - afflictionVar;
+        edgeDiff = edgeDiff / afflictionVar;
+
+         ao = mix(afflictionAo, ao, edgeDiff);
+    }
+    else{
+        ao = mix(ao, afflictionAo, noiseVar * afflictionVar);
+    //    albedo.rgb = mix(albedo.rgb, afflictionAlbedo.rgb, afflictionVar * noiseVar * noiseVar* afflictionAlbedo.a);
+    }
+    
+    return ao;
+}
+
+float alterAfflictionRoughness(float afflictionVar, float originalRoughness, float afflictionRoughness, float noiseVar){
+
+    afflictionVar = getAdjustedAfflictionVar(afflictionVar) * 0.93;
+
+
+    float edgeTaper = getAfflictionEdgeTaper(noiseVar, afflictionVar);  
+    if(afflictionVar >= noiseVar){
+        originalRoughness = afflictionRoughness;
+    }
+    else if(afflictionVar > edgeTaper){
+        float edgeDiff = noiseVar - afflictionVar;
+        edgeDiff = edgeDiff / afflictionVar;
+
+         originalRoughness = mix(afflictionRoughness, originalRoughness, edgeDiff);
+    }
+    else{
+        float newVal = mix(originalRoughness, afflictionRoughness, afflictionVar * noiseVar *2);
+    }
+
+    
+    originalRoughness = min(originalRoughness, 1.0);
+
+
+    return originalRoughness;
+}
+
+float alterAfflictionMetallic(float afflictionVar, float originalMetallic, float afflictionMetallic, float noiseVar){
+
+
+    afflictionVar = getAdjustedAfflictionVar(afflictionVar);
+
+
+       float edgeTaper = getAfflictionEdgeTaper(noiseVar, afflictionVar);  
+    if(afflictionVar >= noiseVar){
+        originalMetallic = afflictionMetallic;
+    }
+    else if(afflictionVar > edgeTaper){
+        float edgeDiff = noiseVar - afflictionVar;
+        edgeDiff = edgeDiff / afflictionVar;
+
+         originalMetallic = mix(afflictionMetallic, originalMetallic, edgeDiff);
+    }
+    else{
+        float newVal = mix(originalMetallic, afflictionMetallic, afflictionVar * noiseVar *2);
+    }
+
+    
+    originalMetallic = min(originalMetallic, 1.0);
+    return originalMetallic;
+}
+
+
+vec4 getFogLinear(in vec4 diffuseColor, in vec4 fogColor, in float start, in float end, in float distance) {
+
+    float fogFactor = (end - distance) / (end - start);
+    fogFactor = clamp(fogFactor, 0.0, 1.0);
+
+    return mix(fogColor, diffuseColor, fogFactor);
+}
+
+vec4 getFogExp(in vec4 diffuseColor, in vec4 fogColor, in float fogDensity, in float distance) {
+
+    float fogFactor = 1.0 / exp(distance * fogDensity);
+    fogFactor = clamp( fogFactor, 0.0, 1.0 );
+
+    return mix(fogColor, diffuseColor, fogFactor);
+}
+
+vec4 getFogExpSquare(in vec4 diffuseColor, in vec4 fogColor, in float fogDensity, in float distance) {
+
+    float fogFactor = 1.0 / exp( (distance * fogDensity) * (distance * fogDensity));
+    fogFactor = clamp( fogFactor, 0.0, 1.0 );
+
+    vec4 finalColor = mix(fogColor, diffuseColor, fogFactor);
+    return finalColor;
+}
+
+
+
+
+
