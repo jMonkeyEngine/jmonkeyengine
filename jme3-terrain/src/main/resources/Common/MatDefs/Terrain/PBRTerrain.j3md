@@ -1,5 +1,5 @@
 // NOTE: Doesn't support OpenGL1
-MaterialDef Afflicted PBR Terrain {
+MaterialDef PBR Terrain {
 
     MaterialParameters {
 
