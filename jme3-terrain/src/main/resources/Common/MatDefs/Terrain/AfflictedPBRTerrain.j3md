@@ -216,8 +216,8 @@ MaterialDef Afflicted PBR Terrain {
 
         LightMode SinglePassAndImageBased
 
-        VertexShader GLSL100 GLSL130 GLSL150:   MatDefs/vert/AfflictedPBRTerrain.vert
-        FragmentShader GLSL100 GLSL130 GLSL150: MatDefs/frag/AfflictedPBRTerrain.frag
+        VertexShader GLSL100 GLSL130 GLSL150:   Common/MatDefs/Terrain/AfflictedPBRTerrain.vert
+        FragmentShader GLSL100 GLSL130 GLSL150: Common/MatDefs/Terrain/AfflictedPBRTerrain.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
