@@ -1,5 +1,5 @@
 ######################################################################################
-# JME CI/CD 
+# JME CI/CD
 ######################################################################################
 # Quick overview of what is going on in this script:
 #   - Build natives for android
@@ -8,7 +8,7 @@
 #   - (only when building a release) Deploy everything else to github releases, github packet registry, Bintray, and Sonatype
 #   - (only when building a release) Update javadoc.jmonkeyengine.org
 # Note:
-#   All the actions/upload-artifact and actions/download-artifact steps are used to pass 
+#   All the actions/upload-artifact and actions/download-artifact steps are used to pass
 #   stuff between jobs, github actions has some sort of storage that is local to the
 #   running workflow, we use it to store the result of each job since the filesystem
 #   is not maintained between jobs.
@@ -29,7 +29,7 @@
 #     SIGNING_KEY=XXXXXX
 #     SIGNING_PASSWORD=XXXXXX
 # >> Configure  PACKAGE REGISTRY RELEASE
-#   Nothing to do here, everything is autoconfigured to work with the account/org that 
+#   Nothing to do here, everything is autoconfigured to work with the account/org that
 #   is running the build.
 # >> Configure  JAVADOC
 #     JAVADOC_GHPAGES_REPO="riccardoblsandbox/javadoc.jmonkeyengine.org.git"
@@ -37,7 +37,7 @@
 #       ssh-keygen -t rsa -b 4096 -C "actions@users.noreply.github.com" -f javadoc_deploy
 #   Set
 #     JAVADOC_GHPAGES_DEPLOY_PRIVKEY="......."
-#   In github repo -> Settings, use javadoc_deploy.pub as Deploy key with write access  
+#   In github repo -> Settings, use javadoc_deploy.pub as Deploy key with write access
 ######################################################################################
 # Resources:
 #   - Github actions docs: https://help.github.com/en/articles/about-github-actions
@@ -61,19 +61,19 @@ on:
   pull_request:
   release:
     types: [published]
-  
+
 jobs:
-  
+
   # Build the natives on android
   BuildAndroidNatives:
     name: Build natives for android
     runs-on: ubuntu-18.04
     container:
       image: jmonkeyengine/buildenv-jme3:android
-  
+
     steps:
       - name: Clone the repo
-        uses: actions/checkout@v2     
+        uses: actions/checkout@v2
         with:
           fetch-depth: 1
       - name: Validate the Gradle wrapper
@@ -81,8 +81,8 @@ jobs:
       - name: Build
         run: |
           ./gradlew -PuseCommitHashAsVersionName=true --no-daemon -PbuildNativeProjects=true \
-          :jme3-android-native:assemble 
-     
+          :jme3-android-native:assemble
+
       - name: Upload natives
         uses: actions/upload-artifact@master
         with:
@@ -90,10 +90,10 @@ jobs:
           path: build/native
 
   # Build the engine, we only deploy from ubuntu-18.04 jdk8
-  BuildJMonkey:  
+  BuildJMonkey:
     needs: [BuildAndroidNatives]
     name: Build on ${{ matrix.osName }} jdk${{ matrix.jdk }}
-    runs-on: ${{ matrix.os }}    
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
@@ -108,16 +108,16 @@ jobs:
           - os: windows-2019
             osName: windows
           - os: macOS-latest
-            osName: mac 
+            osName: mac
           - jdk: 11.x.x
-            deploy: false 
+            deploy: false
 
-    steps:          
+    steps:
       - name: Clone the repo
         uses: actions/checkout@v2
         with:
           fetch-depth: 1
-          
+
       - name: Setup the java environment
         uses: actions/setup-java@v1
         with:
@@ -137,20 +137,20 @@ jobs:
         run: |
           # Build
           ./gradlew -i -PuseCommitHashAsVersionName=true -PskipPrebuildLibraries=true build
-          
+
           if [ "${{ matrix.deploy }}" = "true" ];
-          then  
+          then
             # We are going to need "zip"
             sudo apt-get update
             sudo apt-get install -y zip
 
             # Create the zip release and the javadoc
             ./gradlew -PuseCommitHashAsVersionName=true -PskipPrebuildLibraries=true mergedJavadoc createZipDistribution
-          
+
             # We prepare the release for deploy
             mkdir -p ./dist/release/
             mv build/distributions/*.zip dist/release/
-            
+
             # Install maven artifacts to ./dist/maven and sign them if possible
             if [ "${{ secrets.SIGNING_PASSWORD }}" = "" ];
             then
@@ -172,10 +172,10 @@ jobs:
             echo "Create native zip"
             cdir="$PWD"
             cd "build/native"
-            zip -r "$cdir/dist/jme3-natives.zip" *       
+            zip -r "$cdir/dist/jme3-natives.zip" *
             cd "$cdir"
             echo "Done"
-          fi         
+          fi
 
       # Used later by DeploySnapshot
       - name: Upload merged natives
@@ -184,29 +184,29 @@ jobs:
         with:
           name: natives
           path: dist/jme3-natives.zip
-          
+
       # Upload maven artifacts to be used later by the deploy job
       - name: Upload maven artifacts
         if: matrix.deploy==true
         uses: actions/upload-artifact@master
         with:
           name: maven
-          path: dist/maven          
+          path: dist/maven
 
       - name: Upload javadoc
         if:  matrix.deploy==true
         uses: actions/upload-artifact@master
         with:
           name: javadoc
-          path: dist/javadoc        
-          
-      # Upload release archive to be used later by the deploy job    
+          path: dist/javadoc
+
+      # Upload release archive to be used later by the deploy job
       - name: Upload release
         if: github.event_name == 'release' && matrix.deploy==true
         uses: actions/upload-artifact@master
         with:
           name: release
-          path: dist/release             
+          path: dist/release
 
   # This job deploys the native snapshot.
   # The snapshot is downloaded when people build the engine without setting buildNativeProject
@@ -227,7 +227,7 @@ jobs:
           then
             git clone --single-branch --branch "$branch" https://github.com/${GITHUB_REPOSITORY}.git .
           fi
-      
+
       - name: Download merged natives
         uses: actions/download-artifact@master
         with:
@@ -245,7 +245,7 @@ jobs:
             then
               nativeSnapshot=`cat "natives-snapshot.properties"`
               nativeSnapshot="${nativeSnapshot#*=}"
-              
+
               # We deploy ONLY if GITHUB_SHA (the current commit hash) is newer than $nativeSnapshot
               if [ "`git rev-list --count $nativeSnapshot..$GITHUB_SHA`" = "0" ];
               then
@@ -273,17 +273,17 @@ jobs:
                   jmonkeyengine \
                   ${{ secrets.OBJECTS_KEY }}
 
-                # We reference the snapshot by writing its commit hash in  natives-snapshot.properties 
+                # We reference the snapshot by writing its commit hash in  natives-snapshot.properties
                 echo "natives.snapshot=$GITHUB_SHA" > natives-snapshot.properties
-                
+
                 # We commit the updated  natives-snapshot.properties
                 git config --global user.name "Github Actions"
                 git config --global user.email "actions@users.noreply.github.com"
-      
+
                 git add natives-snapshot.properties
-              
+
                 git commit -m "[skip ci] update natives snapshot"
-                
+
                 # Pull rebase from the remote repo, just in case there was a push in the meantime
                 git pull -q --rebase
 
@@ -292,32 +292,32 @@ jobs:
 
                 # Push
                 (git -c http.extraheader="AUTHORIZATION: basic $header" push origin "$branch" || true)
-              
+
               fi
             fi
           fi
 
   # This job deploys the release
-  DeployRelease:  
+  DeployRelease:
     needs: [BuildJMonkey]
     name: Deploy Release
     runs-on: ubuntu-18.04
     if: github.event_name == 'release'
-    steps:   
-    
+    steps:
+
       # We need to clone everything again for uploadToMaven.sh ...
       - name: Clone the repo
         uses: actions/checkout@v2
         with:
           fetch-depth: 1
-    
+
       # Download all the stuff...
       - name: Download maven artifacts
         uses: actions/download-artifact@master
         with:
           name: maven
           path: dist/maven
-      
+
       - name: Download release
         uses: actions/download-artifact@master
         with:
@@ -357,7 +357,7 @@ jobs:
           -H "Content-Type: application/zip" \
           --data-binary @"$filename" \
           "$url"
-            
+
       - name: Deploy to bintray
         run: |
           source .github/actions/tools/uploadToMaven.sh
@@ -368,22 +368,22 @@ jobs:
           else
             uploadAllToMaven dist/maven/ https://api.bintray.com/maven/${{ secrets.BINTRAY_MAVEN_REPO }} ${{ secrets.BINTRAY_USER }} ${{ secrets.BINTRAY_APIKEY }} "https://github.com/${GITHUB_REPOSITORY}" "${{ secrets.BINTRAY_LICENSE }}"
           fi
-      
+
       # - name: Deploy to github package registry
       #   run: |
       #     source .github/actions/tools/uploadToMaven.sh
       #     registry="https://maven.pkg.github.com/$GITHUB_REPOSITORY"
       #     echo "Deploy to github package registry $registry"
       #     uploadAllToMaven dist/maven/ $registry "token" ${{ secrets.GITHUB_TOKEN }}
-          
+
   # Deploy the javadoc
-  DeployJavaDoc:  
+  DeployJavaDoc:
     needs: [BuildJMonkey]
     name: Deploy Javadoc
     runs-on: ubuntu-18.04
     if: github.event_name == 'release'
-    steps:   
-      
+    steps:
+
       # We are going to need a deploy key for this, since we need
       # to push to a different repo
       - name: Set ssh key
@@ -398,16 +398,16 @@ jobs:
           branch="gh-pages"
           export GIT_SSH_COMMAND="ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i $HOME/.ssh/deploy.key"
           git clone --single-branch --branch "$branch" git@github.com:${{ secrets.JAVADOC_GHPAGES_REPO }} .
-          
+
       # Download the javadoc in the new directory "newdoc"
       - name: Download javadoc
         uses: actions/download-artifact@master
         with:
           name: javadoc
           path: newdoc
-      
+
       # The actual deploy
-      - name: Deploy to github pages    
+      - name: Deploy to github pages
         run: |
           set -f
           IFS=$'\n'
@@ -429,10 +429,10 @@ jobs:
             # if there isn't an index.txt we create one (we need this to list the versions)
             if [ ! -f "index.txt" ]; then echo "" > index.txt ; fi
             index="`cat index.txt`"
-         
+
             # Check if this version is already in index.txt
             addNew=true
-            for v in $index; 
+            for v in $index;
             do
               if [ "$v" = "$version" ];
               then
@@ -459,11 +459,11 @@ jobs:
             # Commit the changes
             git config --global user.name "Github Actions"
             git config --global user.email "actions@users.noreply.github.com"
-      
+
             git add . || true
             git commit -m "$version" || true
 
-            branch="gh-pages"                   
+            branch="gh-pages"
             git push origin "$branch" --force || true
 
           fi
