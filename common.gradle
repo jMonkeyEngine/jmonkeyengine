@@ -41,7 +41,6 @@ dependencies {
     // Adding dependencies here will add the dependencies to each subproject.
     testCompile 'junit:junit:4.13.2'
     testCompile 'org.mockito:mockito-core:3.8.0'
-    testCompile group: 'org.easytesting', name: 'fest-assert-core', version: '2.0M10'
     testCompile 'org.codehaus.groovy:groovy-all:3.0.7'
 }
 
