@@ -12,7 +12,6 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.5.3'
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4'
         classpath 'me.tatarka:gradle-retrolambda:3.7.1'
         classpath "gradle.plugin.com.github.spotbugs.snom:spotbugs-gradle-plugin:4.5.1"
     }
@@ -39,9 +38,6 @@ apply plugin: 'me.tatarka.retrolambda'
 subprojects {
     if(!project.name.equals('jme3-android-examples')) {
         apply from: rootProject.file('common.gradle')
-        if (!project.name.equals('jme3-testdata')) {
-            apply from: rootProject.file('bintray.gradle')
-        }
     } else {
         apply from: rootProject.file('common-android-app.gradle')
     }

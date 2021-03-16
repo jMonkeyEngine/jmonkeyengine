@@ -5,7 +5,7 @@
 #   - Build natives for android
 #   - Merge the natives, build the engine, create the zip release, maven artifacts, javadoc and native snapshot
 #   - (only when native code changes) Deploy the natives snapshot to the MinIO instance
-#   - (only when building a release) Deploy everything else to github releases, github packet registry, Bintray, and Sonatype
+#   - (only when building a release) Deploy everything else to github releases and Sonatype
 #   - (only when building a release) Update javadoc.jmonkeyengine.org
 # Note:
 #   All the actions/upload-artifact and actions/download-artifact steps are used to pass
@@ -13,13 +13,6 @@
 #   running workflow, we use it to store the result of each job since the filesystem
 #   is not maintained between jobs.
 ################# CONFIGURATIONS #####################################################
-# >> Configure BINTRAY RELEASE
-#   Configure the following secrets/variables (customize the values with your own)
-#     BINTRAY_GENERIC_REPO=riccardoblsandbox/jmonkeyengine-files
-#     BINTRAY_MAVEN_REPO=riccardoblsandbox/jmonkeyengine
-#     BINTRAY_USER=riccardo
-#     BINTRAY_APIKEY=XXXXXX
-#     BINTRAY_LICENSE="BSD 3-Clause"
 # >> Configure MINIO NATIVES SNAPSHOT
 #     OBJECTS_KEY=XXXXXX
 # >> Configure SONATYPE RELEASE
@@ -357,17 +350,6 @@ jobs:
           -H "Content-Type: application/zip" \
           --data-binary @"$filename" \
           "$url"
-
-      - name: Deploy to bintray
-        run: |
-          source .github/actions/tools/uploadToMaven.sh
-          if [ "${{ secrets.BINTRAY_MAVEN_REPO }}" = "" ];
-          then
-            echo "Configure the following secrets to enable bintray deployment"
-            echo "BINTRAY_MAVEN_REPO, BINTRAY_USER, BINTRAY_APIKEY"
-          else
-            uploadAllToMaven dist/maven/ https://api.bintray.com/maven/${{ secrets.BINTRAY_MAVEN_REPO }} ${{ secrets.BINTRAY_USER }} ${{ secrets.BINTRAY_APIKEY }} "https://github.com/${GITHUB_REPOSITORY}" "${{ secrets.BINTRAY_LICENSE }}"
-          fi
 
       # - name: Deploy to github package registry
       #   run: |
