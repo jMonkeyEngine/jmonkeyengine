@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -467,4 +467,19 @@ public interface Renderer {
      */
     public int getDefaultAnisotropicFilter();
 
+    /**
+     * Test whether images with the sRGB flag will be linearized when read by a
+     * shader.
+     *
+     * @return true for linearization, false for no linearization
+     */
+    public boolean isLinearizeSrgbImages();
+
+    /**
+     * Test whether colors rendered to the main framebuffer undergo
+     * linear-to-sRGB conversion.
+     *
+     * @return true for conversion, false for no conversion
+     */
+    public boolean isMainFrameBufferSrgb();
 }

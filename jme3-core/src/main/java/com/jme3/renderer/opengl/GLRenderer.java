@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -3285,5 +3285,31 @@ public final class GLRenderer implements Renderer {
     @Override
     public int getDefaultAnisotropicFilter() {
         return this.defaultAnisotropicFilter;
+    }
+
+    /**
+     * Test whether images with the sRGB flag will be linearized when read by a
+     * shader.
+     *
+     * @return true for linearization, false for no linearization
+     */
+    @Override
+    public boolean isLinearizeSrgbImages() {
+        return linearizeSrgbImages;
+    }
+
+    /**
+     * Test whether colors rendered to the main framebuffer undergo
+     * linear-to-sRGB conversion.
+     *
+     * @return true for conversion, false for no conversion
+     */
+    @Override
+    public boolean isMainFrameBufferSrgb() {
+        if (!caps.contains(Caps.Srgb)) {
+            return false;
+        } else {
+            return gl.glIsEnabled(GLExt.GL_FRAMEBUFFER_SRGB_EXT);
+        }
     }
 }
