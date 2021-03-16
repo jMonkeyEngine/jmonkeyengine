@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,43 +29,38 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+package com.jme3.bounding;
+
+import com.jme3.math.Vector3f;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
- * Author: Normen Hansen
+ * Test cases for the BoundingSphere class.
+ *
+ * @author Stephen Gold
  */
-#include "com_jme3_bullet_collision_shapes_HullCollisionShape.h"
-#include "jmeBulletUtil.h"
-#include "BulletCollision/CollisionShapes/btConvexHullShape.h"
+public class TestBoundingSphere {
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-    /*
-     * Class:     com_jme3_bullet_collision_shapes_HullCollisionShape
-     * Method:    createShape
-     * Signature: ([F)J
+    /**
+     * Verify that an infinite bounding sphere can be merged with a very
+     * eccentric bounding box without producing NaNs. This was issue #1459 at
+     * GitHub.
      */
-    JNIEXPORT jlong JNICALL Java_com_jme3_bullet_collision_shapes_HullCollisionShape_createShape
-    (JNIEnv *env, jobject object, jobject array) {
-        jmeClasses::initJavaClasses(env);
-        float* data = (float*) env->GetDirectBufferAddress(array);
-        //TODO: capacity will not always be length!
-        int length = env->GetDirectBufferCapacity(array)/4;
-        btConvexHullShape* shape = new btConvexHullShape();
-        for (int i = 0; i < length; i+=3) {
-            btVector3 vect = btVector3(data[i],
-                    data[i + 1],
-                    data[i + 2]);
-            
-            shape->addPoint(vect);
-        }
-        
-        shape->optimizeConvexHull();
+    @Test
+    public void testIssue1459() {
+        Vector3f boxCenter = new Vector3f(-92f, 3.3194322e29f, 674.89886f);
+        BoundingBox boundingBox = new BoundingBox(boxCenter,
+                1.0685959f, 3.3194322e29f, 2.705017f);
 
-        return reinterpret_cast<jlong>(shape);
+        Vector3f sphCenter = new Vector3f(0f, 0f, 0f);
+        float radius = Float.POSITIVE_INFINITY;
+        BoundingSphere boundingSphere = new BoundingSphere(radius, sphCenter);
+
+        boundingSphere.mergeLocal(boundingBox);
+
+        Vector3f copyCenter = new Vector3f();
+        boundingSphere.getCenter(copyCenter);
+        Assert.assertTrue(Vector3f.isValidVector(copyCenter));
     }
-
-#ifdef __cplusplus
 }
-#endif

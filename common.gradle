@@ -5,12 +5,21 @@
 apply plugin: 'java'
 apply plugin: 'groovy'
 apply plugin: 'maven'
+apply plugin: 'maven-publish'
+apply plugin: 'signing'
 
 group = 'org.jmonkeyengine'
 version = jmeFullVersion
 
 sourceCompatibility = '1.8'
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+
+if(JavaVersion.current() >= JavaVersion.VERSION_1_9) {
+    compileJava {
+	options.compilerArgs.addAll(['--release', '8'])
+        //Replace previous with "options.release = 8" if updated to gradle 6.6 or newer
+    }
+}
 
 gradle.projectsEvaluated {
     tasks.withType(JavaCompile) { // compile-time options:
@@ -69,6 +78,7 @@ javadoc {
     if (JavaVersion.current().isJava8Compatible()){
         options.addStringOption('Xdoclint:none', '-quiet')
     }
+    source = sourceSets.main.allJava // main only, exclude tests
 }
 
 test {
@@ -136,3 +146,63 @@ artifacts {
     archives writeFullPom.outputs.files[0]
 }
 
+publishing {
+    publications {
+        maven(MavenPublication) {
+            artifact javadocJar
+            artifact sourcesJar
+            from components.java
+            pom {
+                description = POM_DESCRIPTION
+                developers {
+                    developer {
+                        id = 'jMonkeyEngine'
+                        name = 'jMonkeyEngine Team'
+                    }
+                }
+                inceptionYear = POM_INCEPTION_YEAR
+                licenses {
+                    license {
+                        distribution = POM_LICENSE_DISTRIBUTION
+                        name = POM_LICENSE_NAME
+                        url = POM_LICENSE_URL
+                    }
+                }
+                name = POM_NAME
+                scm {
+                    connection = POM_SCM_CONNECTION
+                    developerConnection = POM_SCM_DEVELOPER_CONNECTION
+                    url = POM_SCM_URL
+                }
+                url = POM_URL
+            }
+            version project.version
+        }
+    }
+    repositories {
+        maven {
+            name = 'Dist'
+            url = gradle.rootProject.projectDir.absolutePath + '/dist/maven'
+        }
+        maven {
+            credentials {
+                username = gradle.rootProject.hasProperty('ossrhUsername') ? ossrhUsername : 'Unknown user'
+                password = gradle.rootProject.hasProperty('ossrhPassword') ? ossrhPassword : 'Unknown password'
+            }
+            name = 'OSSRH'
+            url = 'https://oss.sonatype.org/service/local/staging/deploy/maven2'
+        }
+    }
+}
+
+signing {
+    def signingKey = gradle.rootProject.findProperty('signingKey')
+    def signingPassword = gradle.rootProject.findProperty('signingPassword')
+    useInMemoryPgpKeys(signingKey, signingPassword)
+
+    sign configurations.archives
+    sign publishing.publications.maven
+}
+tasks.withType(Sign) {
+    onlyIf { gradle.rootProject.hasProperty('signingKey') }
+}

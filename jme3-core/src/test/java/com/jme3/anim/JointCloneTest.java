@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,20 +29,31 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+package com.jme3.anim;
 
-#ifndef JNI_MD_H
-#define JNI_MD_H
+import com.jme3.util.clone.Cloner;
+import org.junit.Assert;
+import org.junit.Test;
 
-#ifndef __has_attribute
-#define __has_attribute(x) 0
-#endif
+/**
+ * Test cloning a Joint.
+ *
+ * @author Stephen Gold
+ */
+public class JointCloneTest {
 
-#define JNIEXPORT __declspec(dllexport)
-#define JNIIMPORT __declspec(dllimport)
-#define JNICALL
+    /**
+     * Make sure the initial transform gets cloned. This was issue 1469 at
+     * Github.
+     */
+    @Test
+    public void testInitialTransform() {
+        Joint testJoint = new Joint("testJoint");
+        Assert.assertTrue(testJoint.getInitialTransform().isIdentity());
 
-typedef int jint;
-typedef long long jlong;
-typedef signed char jbyte;
+        Joint clone = Cloner.deepClone(testJoint);
+        clone.getInitialTransform().setScale(2f);
 
-#endif
+        Assert.assertTrue(testJoint.getInitialTransform().isIdentity());
+    }
+}

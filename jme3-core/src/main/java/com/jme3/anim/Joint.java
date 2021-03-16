@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -342,6 +342,7 @@ public class Joint implements Savable, JmeCloneable, HasLocalTransform {
         this.attachedNode = cloner.clone(attachedNode);
         this.targetGeometry = cloner.clone(targetGeometry);
         this.localTransform = cloner.clone(localTransform);
+        this.initialTransform = cloner.clone(initialTransform);
         this.inverseModelBindMatrix = cloner.clone(inverseModelBindMatrix);
     }
 

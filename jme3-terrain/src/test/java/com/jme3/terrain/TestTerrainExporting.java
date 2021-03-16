@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,38 +29,43 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.bullet.objects.infos;
+
+package com.jme3.terrain;
+
+import com.jme3.export.binary.BinaryExporter;
+import com.jme3.math.FastMath;
+import com.jme3.terrain.collision.BaseAWTTest;
+import com.jme3.terrain.geomipmap.TerrainQuad;
+import com.jme3.terrain.heightmap.AbstractHeightMap;
+import com.jme3.terrain.heightmap.ImageBasedHeightMap;
+import com.jme3.texture.Texture;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
- * Typical tuning parameters for a PhysicsVehicle.
+ * Test saving/loading terrain.
  *
- * @author normenhansen
+ * @author Ali-RS
  */
-public class VehicleTuning {
+public class TestTerrainExporting extends BaseAWTTest {
+
     /**
-     * suspension stiffness constant (10&rarr;off-road buggy, 50&rarr;sports
-     * car, 200&rarr;Formula-1 race car, default=5.88)
+     * Test saving/loading a TerrainQuad.
      */
-    public float suspensionStiffness = 5.88f;
-    /**
-     * suspension damping when compressed (0&rarr;no damping, default=0.83)
-     */
-    public float suspensionCompression = 0.83f;
-    /**
-     * suspension damping when expanded (0&rarr;no damping, default=0.88)
-     */
-    public float suspensionDamping = 0.88f;
-    /**
-     * maximum suspension travel distance (in centimeters, default=500)
-     */
-    public float maxSuspensionTravelCm = 500f;
-    /**
-     * maximum force exerted by each wheel's suspension (default=6000)
-     */
-    public float maxSuspensionForce = 6000f;
-    /**
-     * coefficient of friction between tyres and ground (0.8&rarr;realistic car,
-     * 10000&rarr;kart racer, default=10.5)
-     */
-    public float frictionSlip = 10.5f;
+    @Test
+    public void testTerrainExporting() {
+
+        Texture heightMapImage = getAssetManager().loadTexture("Textures/Terrain/splat/mountains512.png");
+        AbstractHeightMap map = new ImageBasedHeightMap(heightMapImage.getImage(), 0.25f);
+        map.load();
+
+        TerrainQuad terrain = new TerrainQuad("Terrain", 65, 513, map.getHeightMap());
+
+        TerrainQuad saveAndLoad = BinaryExporter.saveAndLoad(getAssetManager(), terrain);
+
+        Assert.assertEquals(513, saveAndLoad.getTotalSize());
+        Assert.assertEquals(65, saveAndLoad.getPatchSize());
+        Assert.assertArrayEquals(terrain.getHeightMap(), saveAndLoad.getHeightMap(), FastMath.ZERO_TOLERANCE);
+    }
+
 }
