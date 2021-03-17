@@ -66,6 +66,7 @@ public class JInputJoyInput implements JoyInput {
 
     private Map<Controller, JInputJoystick> joystickIndex = new HashMap<Controller, JInputJoystick>();
 
+    @Override
     public void setJoyRumble(int joyId, float amount){
 
         if( joyId >= joysticks.length )
@@ -77,16 +78,17 @@ public class JInputJoyInput implements JoyInput {
         }
     }
 
+    @Override
     public Joystick[] loadJoysticks(InputManager inputManager){
         ControllerEnvironment ce =
-                ControllerEnvironment.getDefaultEnvironment();
+            ControllerEnvironment.getDefaultEnvironment();
 
         Controller[] cs = ce.getControllers();
 
         List<Joystick> list = new ArrayList<Joystick>();
         for( Controller c : ce.getControllers() ) {
             if (c.getType() == Controller.Type.KEYBOARD
-                    || c.getType() == Controller.Type.MOUSE)
+             || c.getType() == Controller.Type.MOUSE)
                 continue;
 
             logger.log(Level.FINE, "Attempting to create joystick for: \"{0}\"", c);
@@ -113,13 +115,15 @@ public class JInputJoyInput implements JoyInput {
         return joysticks;
     }
 
+    @Override
     public void initialize() {
         inited = true;
     }
 
+    @Override
     public void update() {
         ControllerEnvironment ce =
-                ControllerEnvironment.getDefaultEnvironment();
+            ControllerEnvironment.getDefaultEnvironment();
 
         Controller[] cs = ce.getControllers();
         Event e = new Event();
@@ -185,18 +189,22 @@ public class JInputJoyInput implements JoyInput {
         }
     }
 
+    @Override
     public void destroy() {
         inited = false;
     }
 
+    @Override
     public boolean isInitialized() {
         return inited;
     }
 
+    @Override
     public void setInputListener(RawInputListener listener) {
         this.listener = listener;
     }
 
+    @Override
     public long getInputTimeNanos() {
         return 0;
     }
@@ -219,7 +227,7 @@ public class JInputJoyInput implements JoyInput {
             this.controller = controller;
 
             this.nullAxis = new DefaultJoystickAxis( getInputManager(), this, -1,
-                    "Null", "null", false, false, 0 );
+                                                     "Null", "null", false, false, 0 );
             this.xAxis = nullAxis;
             this.yAxis = nullAxis;
             this.povX = nullAxis;
@@ -260,7 +268,7 @@ public class JInputJoyInput implements JoyInput {
             }
 
             JoystickButton button = new DefaultJoystickButton( getInputManager(), this, getButtonCount(),
-                    name, logicalId );
+                                                               name, logicalId );
             addButton(button);
             buttonIndex.put( comp, button );
         }
@@ -282,9 +290,9 @@ public class JInputJoyInput implements JoyInput {
             }
 
             JoystickAxis axis = new DefaultJoystickAxis( getInputManager(),
-                    this, getAxisCount(), name, logicalId,
-                    comp.isAnalog(), comp.isRelative(),
-                    comp.getDeadZone() );
+                                                         this, getAxisCount(), name, logicalId,
+                                                         comp.isAnalog(), comp.isRelative(),
+                                                         comp.getDeadZone() );
             addAxis(axis);
             axisIndex.put( comp, axis );
 
@@ -298,15 +306,15 @@ public class JInputJoyInput implements JoyInput {
                 // Add two fake axes for the JME provided convenience
                 // axes: AXIS_POV_X, AXIS_POV_Y
                 povX = new DefaultJoystickAxis( getInputManager(),
-                        this, getAxisCount(), JoystickAxis.POV_X,
-                        id.getName() + "_x",
-                        comp.isAnalog(), comp.isRelative(), comp.getDeadZone() );
+                                                this, getAxisCount(), JoystickAxis.POV_X,
+                                                id.getName() + "_x",
+                                                comp.isAnalog(), comp.isRelative(), comp.getDeadZone() );
                 logger.log(Level.FINE, "Adding axis: \"{0}\" id:" + id.getName() + "_x", povX.getName() );
                 addAxis(povX);
                 povY = new DefaultJoystickAxis( getInputManager(),
-                        this, getAxisCount(), JoystickAxis.POV_Y,
-                        id.getName() + "_y",
-                        comp.isAnalog(), comp.isRelative(), comp.getDeadZone() );
+                                                this, getAxisCount(), JoystickAxis.POV_Y,
+                                                id.getName() + "_y",
+                                                comp.isAnalog(), comp.isRelative(), comp.getDeadZone() );
                 logger.log(Level.FINE, "Adding axis: \"{0}\" id:" + id.getName() + "_y", povY.getName() );
                 addAxis(povY);
             }

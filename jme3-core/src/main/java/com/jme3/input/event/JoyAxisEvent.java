@@ -68,6 +68,7 @@ public class JoyAxisEvent extends InputEvent {
      * Returns the joystick axis index.
      *
      * @return joystick axis index.
+     *
      * @see com.jme3.input.JoystickAxis#assignAxis(java.lang.String, java.lang.String)
      */
     public int getAxisIndex() {
@@ -78,6 +79,7 @@ public class JoyAxisEvent extends InputEvent {
      * The joystick index.
      *
      * @return joystick index.
+     *
      * @see InputManager#getJoysticks()
      */
     public int getJoyIndex() {
