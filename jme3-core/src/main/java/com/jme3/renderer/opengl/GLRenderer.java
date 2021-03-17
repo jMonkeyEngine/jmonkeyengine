@@ -91,6 +91,7 @@ public final class GLRenderer implements Renderer {
     private final EnumMap<Limits, Integer> limits = new EnumMap<Limits, Integer>(Limits.class);
 
     private FrameBuffer mainFbOverride = null;
+    private int defaultFBO = 0;
     private final Statistics statistics = new Statistics();
     private int vpX, vpY, vpW, vpH;
     private int clipX, clipY, clipW, clipH;
@@ -630,6 +631,16 @@ public final class GLRenderer implements Renderer {
                 gl2.glEnable(GL2.GL_POINT_SPRITE);
             }
         }
+
+	IntBuffer tmp = BufferUtils.createIntBuffer(16);
+	gl.glGetInteger(GL.GL_FRAMEBUFFER_BINDING, tmp);
+	tmp.rewind();
+	int fbOnLoad = tmp.get();
+	if(fbOnLoad > 0)
+	{
+            // Overriding default FB to fbOnLoad. Mostly iOS fix for scene processors and filters
+	    defaultFBO = fbOnLoad;
+	}
     }
 
     @Override
@@ -1856,10 +1867,10 @@ public final class GLRenderer implements Renderer {
     
     private void bindFrameBuffer(FrameBuffer fb) {
         if (fb == null) {
-            if (context.boundFBO != 0) {
-                glfbo.glBindFramebufferEXT(GLFbo.GL_FRAMEBUFFER_EXT, 0);
+            if (context.boundFBO != defaultFBO) {
+                glfbo.glBindFramebufferEXT(GLFbo.GL_FRAMEBUFFER_EXT, defaultFBO);
                 statistics.onFrameBufferUse(null, true);
-                context.boundFBO = 0;
+                context.boundFBO = defaultFBO;
                 context.boundFB = null;
             }
         } else {

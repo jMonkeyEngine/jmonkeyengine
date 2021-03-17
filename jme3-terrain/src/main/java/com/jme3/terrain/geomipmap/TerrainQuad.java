@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1734,6 +1734,7 @@ public class TerrainQuad extends Node implements Terrain {
         offsetAmount = c.readFloat("offsetAmount", 0);
         quadrant = c.readInt("quadrant", 0);
         totalSize = c.readInt("totalSize", 0);
+        patchSize = c.readInt("patchSize", 0);
         //lodCalculator = (LodCalculator) c.readSavable("lodCalculator", createDefaultLodCalculator());
         //lodCalculatorFactory = (LodCalculatorFactory) c.readSavable("lodCalculatorFactory", null);
 
@@ -1750,6 +1751,7 @@ public class TerrainQuad extends Node implements Terrain {
         OutputCapsule c = e.getCapsule(this);
         c.write(size, "size", 0);
         c.write(totalSize, "totalSize", 0);
+        c.write(patchSize, "patchSize", 0);
         c.write(stepScale, "stepScale", null);
         c.write(offset, "offset", new Vector2f(0,0));
         c.write(offsetAmount, "offsetAmount", 0);

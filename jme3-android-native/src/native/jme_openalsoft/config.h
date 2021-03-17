@@ -2,17 +2,17 @@
 #define AL_API  __attribute__((visibility("protected")))
 #define ALC_API __attribute__((visibility("protected")))
 
-/* Define to the library version */
-#define ALSOFT_VERSION "1.16.0"
-
-#ifdef IN_IDE_PARSER
-/* KDevelop's parser doesn't recognize the C99-standard restrict keyword, but
- * recent versions (at least 4.5.1) do recognize GCC's __restrict. */
-#define restrict __restrict
-#endif 
-
 /* Define any available alignment declaration */
 #define ALIGN(x) __attribute__((aligned(x)))
+
+/* Define a built-in call indicating an aligned data pointer */
+#define ASSUME_ALIGNED(x, y) __builtin_assume_aligned(x, y)
+
+/* Define if HRTF data is embedded in the library */
+/* #undef ALSOFT_EMBED_HRTF_DATA */ 
+
+/* Define if we have the sysconf function */
+#define HAVE_SYSCONF
 
 /* Define if we have the C11 aligned_alloc function */
 /* #undef HAVE_ALIGNED_ALLOC */
@@ -23,16 +23,20 @@
 /* Define if we have the _aligned_malloc function */
 /* #undef HAVE__ALIGNED_MALLOC */
 
+/* Define if we have the proc_pidpath function */
+/* #undef HAVE_PROC_PIDPATH */
+
+/* Define if we have the getopt function */
+#define HAVE_GETOPT
+
 /* Define if we have SSE CPU extensions */
 /* #undef HAVE_SSE */
 /* #undef HAVE_SSE2 */
+/* #undef HAVE_SSE3 */
 /* #undef HAVE_SSE4_1 */
 
 /* Define if we have ARM Neon CPU extensions */
 /* #undef HAVE_NEON */
-
-/* Define if we have FluidSynth support */
-/* #undef HAVE_FLUIDSYNTH */
 
 /* Define if we have the ALSA backend */
 /* #undef HAVE_ALSA */
@@ -49,8 +53,8 @@
 /* Define if we have the QSA backend */
 /* #undef HAVE_QSA */
 
-/* Define if we have the MMDevApi backend */
-/* #undef HAVE_MMDEVAPI */
+/* Define if we have the WASAPI backend */
+/* #undef HAVE_WASAPI */
 
 /* Define if we have the DSound backend */
 /* #undef HAVE_DSOUND */
@@ -64,6 +68,9 @@
 /* Define if we have the PulseAudio backend */
 /* #undef HAVE_PULSEAUDIO */
 
+/* Define if we have the JACK backend */
+/* #undef HAVE_JACK */
+
 /* Define if we have the CoreAudio backend */
 /* #undef HAVE_COREAUDIO */
 
@@ -73,14 +80,32 @@
 /* Define if we have the Wave Writer backend */
 #define HAVE_WAVE
 
+/* Define if we have the SDL2 backend */
+/* #undef HAVE_SDL2 */
+
 /* Define if we have the stat function */
 #define HAVE_STAT
 
 /* Define if we have the lrintf function */
 #define HAVE_LRINTF
 
+/* Define if we have the modff function */
+#define HAVE_MODFF
+
+/* Define if we have the log2f function */
+#define HAVE_LOG2F 
+
+/* Define if we have the cbrtf function */
+#define HAVE_CBRTF
+
+/* Define if we have the copysignf function */
+#define HAVE_COPYSIGNF
+
 /* Define if we have the strtof function */
 /* #undef HAVE_STRTOF */
+
+/* Define if we have the strnlen function */
+#define HAVE_STRNLEN
 
 /* Define if we have the __int64 type */
 /* #undef HAVE___INT64 */
@@ -91,9 +116,6 @@
 /* Define to the size of a long long int type */
 #define SIZEOF_LONG_LONG 8
 
-/* Define if we have C99 variable-length array support */
-#define HAVE_C99_VLA
-
 /* Define if we have C99 _Bool support */
 #define HAVE_C99_BOOL
 
@@ -101,10 +123,10 @@
 #define HAVE_C11_STATIC_ASSERT
 
 /* Define if we have C11 _Alignas support */
-/* #undef HAVE_C11_ALIGNAS */
+#define HAVE_C11_ALIGNAS
 
 /* Define if we have C11 _Atomic support */
-/* #undef HAVE_C11_ATOMIC */
+#define HAVE_C11_ATOMIC
 
 /* Define if we have GCC's destructor attribute */
 #define HAVE_GCC_DESTRUCTOR
@@ -119,7 +141,7 @@
 #define HAVE_STDBOOL_H
 
 /* Define if we have stdalign.h */
-/* #undef HAVE_STDALIGN_H */
+#define HAVE_STDALIGN_H
 
 /* Define if we have windows.h */
 /* #undef HAVE_WINDOWS_H */
@@ -130,17 +152,11 @@
 /* Define if we have pthread_np.h */
 /* #undef HAVE_PTHREAD_NP_H */
 
-/* Define if we have alloca.h */
-/* #undef HAVE_ALLOCA_H */
-
 /* Define if we have malloc.h */
 #define HAVE_MALLOC_H
 
-/* Define if we have ftw.h */
-/* #undef HAVE_FTW_H */
-
-/* Define if we have io.h */
-/* #undef HAVE_IO_H */
+/* Define if we have dirent.h */
+#define HAVE_DIRENT_H
 
 /* Define if we have strings.h */
 #define HAVE_STRINGS_H
@@ -175,23 +191,29 @@
 /* Define if we have the __cpuid() intrinsic */
 /* #undef HAVE_CPUID_INTRINSIC */
 
+/* Define if we have the _BitScanForward64() intrinsic */
+/* #undef HAVE_BITSCANFORWARD64_INTRINSIC */
+
+/* Define if we have the _BitScanForward() intrinsic */
+/* #undef HAVE_BITSCANFORWARD_INTRINSIC */
+
 /* Define if we have _controlfp() */
 /* #undef HAVE__CONTROLFP */
 
 /* Define if we have __control87_2() */
 /* #undef HAVE___CONTROL87_2 */
 
-/* Define if we have ftw() */
-/* #undef HAVE_FTW */
-
-/* Define if we have _wfindfirst() */
-/* #undef HAVE__WFINDFIRST */
-
 /* Define if we have pthread_setschedparam() */
 #define HAVE_PTHREAD_SETSCHEDPARAM
 
 /* Define if we have pthread_setname_np() */
 #define HAVE_PTHREAD_SETNAME_NP
+
+/* Define if pthread_setname_np() only accepts one parameter */
+/* #undef PTHREAD_SETNAME_NP_ONE_PARAM */
+
+/* Define if pthread_setname_np() accepts three parameters */
+/* #undef PTHREAD_SETNAME_NP_THREE_PARAMS */
 
 /* Define if we have pthread_set_name_np() */
 /* #undef HAVE_PTHREAD_SET_NAME_NP */

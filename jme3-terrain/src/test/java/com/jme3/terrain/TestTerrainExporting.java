@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,19 +30,42 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef JNI_MD_H
-#define JNI_MD_H
+package com.jme3.terrain;
 
-#ifndef __has_attribute
-#define __has_attribute(x) 0
-#endif
+import com.jme3.export.binary.BinaryExporter;
+import com.jme3.math.FastMath;
+import com.jme3.terrain.collision.BaseAWTTest;
+import com.jme3.terrain.geomipmap.TerrainQuad;
+import com.jme3.terrain.heightmap.AbstractHeightMap;
+import com.jme3.terrain.heightmap.ImageBasedHeightMap;
+import com.jme3.texture.Texture;
+import org.junit.Assert;
+import org.junit.Test;
 
-#define JNIEXPORT __declspec(dllexport)
-#define JNIIMPORT __declspec(dllimport)
-#define JNICALL
+/**
+ * Test saving/loading terrain.
+ *
+ * @author Ali-RS
+ */
+public class TestTerrainExporting extends BaseAWTTest {
 
-typedef int jint;
-typedef long long jlong;
-typedef signed char jbyte;
+    /**
+     * Test saving/loading a TerrainQuad.
+     */
+    @Test
+    public void testTerrainExporting() {
 
-#endif
+        Texture heightMapImage = getAssetManager().loadTexture("Textures/Terrain/splat/mountains512.png");
+        AbstractHeightMap map = new ImageBasedHeightMap(heightMapImage.getImage(), 0.25f);
+        map.load();
+
+        TerrainQuad terrain = new TerrainQuad("Terrain", 65, 513, map.getHeightMap());
+
+        TerrainQuad saveAndLoad = BinaryExporter.saveAndLoad(getAssetManager(), terrain);
+
+        Assert.assertEquals(513, saveAndLoad.getTotalSize());
+        Assert.assertEquals(65, saveAndLoad.getPatchSize());
+        Assert.assertArrayEquals(terrain.getHeightMap(), saveAndLoad.getHeightMap(), FastMath.ZERO_TOLERANCE);
+    }
+
+}
