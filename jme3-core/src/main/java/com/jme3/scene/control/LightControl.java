@@ -39,6 +39,7 @@ import com.jme3.light.DirectionalLight;
 import com.jme3.light.Light;
 import com.jme3.light.PointLight;
 import com.jme3.light.SpotLight;
+import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
@@ -161,35 +162,38 @@ public class LightControl extends AbstractControl {
      */
     private void lightToSpatial(Light light) {
         TempVars vars = TempVars.get();
-        boolean rot = false, trans = false;
+        Vector3f translation = vars.vect1;
+        Vector3f direction = vars.vect2;
+        Quaternion rotation = vars.quat1;
+        boolean rotateSpatial = false, translateSpatial = false;
 
         if (light instanceof PointLight) {
             PointLight pLight = (PointLight) light;
-            vars.vect1.set(pLight.getPosition());
-            trans = true;
+            translation.set(pLight.getPosition());
+            translateSpatial = true;
         } else if (light instanceof DirectionalLight) {
             DirectionalLight dLight = (DirectionalLight) light;
-            vars.vect2.set(dLight.getDirection()).negateLocal();
-            rot = true;
+            direction.set(dLight.getDirection()).negateLocal();
+            rotateSpatial = true;
         } else if (light instanceof SpotLight) {
             SpotLight sLight = (SpotLight) light;
-            vars.vect1.set(sLight.getPosition());
-            vars.vect2.set(sLight.getDirection()).negateLocal();
-            trans = rot = true;
+            translation.set(sLight.getPosition());
+            direction.set(sLight.getDirection()).negateLocal();
+            translateSpatial = rotateSpatial = true;
         }
         if (spatial.getParent() != null) {
             spatial.getParent().getLocalToWorldMatrix(vars.tempMat4).invertLocal();
-            vars.tempMat4.rotateVect(vars.vect1);
-            vars.tempMat4.translateVect(vars.vect1);
-            vars.tempMat4.rotateVect(vars.vect2);
+            vars.tempMat4.rotateVect(translation);
+            vars.tempMat4.translateVect(translation);
+            vars.tempMat4.rotateVect(direction);
         }
 
-        if (rot) {
-            vars.quat1.lookAt(vars.vect2, Vector3f.UNIT_Y);
-            spatial.setLocalRotation(vars.quat1);
+        if (rotateSpatial) {
+            rotation.lookAt(direction, Vector3f.UNIT_Y).normalizeLocal();
+            spatial.setLocalRotation(rotation);
         }
-        if (trans) {
-            spatial.setLocalTranslation(vars.vect1);
+        if (translateSpatial) {
+            spatial.setLocalTranslation(translation);
         }
         vars.release();
     }
