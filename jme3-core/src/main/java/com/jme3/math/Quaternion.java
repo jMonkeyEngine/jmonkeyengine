@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1023,18 +1023,21 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     }
 
     /**
+     * <code>toAxes</code> determines the axes of the coordinate system
+     * described by this Quaternion.
      *
-     * <code>toAxes</code> takes in an array of three vectors. Each vector
-     * corresponds to an axis of the coordinate system defined by the quaternion
-     * rotation.
-     *
-     * @param axis the array of vectors to be filled.
+     * @param axes an array to store the results (not null, length=3, modified)
      */
-    public void toAxes(Vector3f axis[]) {
+    public void toAxes(Vector3f axes[]) {
+        if (axes.length != 3) {
+            throw new IllegalArgumentException(
+                    "Axes array must have three elements");
+        }
+
         Matrix3f tempMat = toRotationMatrix();
-        axis[0] = tempMat.getColumn(0, axis[0]);
-        axis[1] = tempMat.getColumn(1, axis[1]);
-        axis[2] = tempMat.getColumn(2, axis[2]);
+        axes[0] = tempMat.getColumn(0, axes[0]);
+        axes[1] = tempMat.getColumn(1, axes[1]);
+        axes[2] = tempMat.getColumn(2, axes[2]);
     }
 
     /**
