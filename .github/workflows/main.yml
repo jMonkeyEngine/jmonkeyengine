@@ -229,7 +229,7 @@ jobs:
 
       - name: Deploy natives snapshot
         run: |
-          source .github/actions/tools/bintray.sh
+          source .github/actions/tools/minio.sh
           NATIVE_CHANGES="yes"
           branch="${GITHUB_REF//refs\/heads\//}"
           if [ "$branch" != "" ];
@@ -259,7 +259,7 @@ jobs:
               then
                 echo "Configure the OBJECTS_KEY secret to enable natives snapshot deployment to MinIO"
               else
-                # Deploy natives snapshot to a MinIO instance using function in bintray.sh
+                # Deploy natives snapshot to a MinIO instance using function in minio.sh
                 minio_uploadFile dist/jme3-natives.zip \
                   native-snapshots/$GITHUB_SHA/jme3-natives.zip \
                   https://objects.jmonkeyengine.org \
