@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -55,7 +55,7 @@ import java.util.logging.Logger;
 
 /**
  * A Video recording AppState that records the screen output into an AVI file with
- * M-JPEG content. The file should be playable on any OS in any video player.<br/>
+ * M-JPEG content. The file should be playable on any OS in any video player.<br>
  * The video recording starts when the state is attached and stops when it is detached
  * or the application is quit. You can set the fileName of the file to be written when the
  * state is detached, else the old file will be overwritten. If you specify no file

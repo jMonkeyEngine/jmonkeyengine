@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,8 +38,8 @@ import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 
 /**
- * <a href="http://www.geeks3d.com/20110405/fxaa-fast-approximate-anti-aliasing-demo-glsl-opengl-test-radeon-geforce/3/" rel="nofollow">http://www.geeks3d.com/20110405/fxaa-fast-approximate-anti-aliasing-demo-glsl-<span class="domtooltips" title="OpenGL (Open Graphics Library) is a standard specification defining a cross-language, cross-platform API for writing applications that produce 2D and 3D computer graphics." id="domtooltipsspan11">opengl</span>-test-radeon-geforce/3/</a>
- * <a href="http://developer.download.nvidia.com/assets/gamedev/files/sdk/11/FXAA_WhitePaper.pdf" rel="nofollow">http://developer.download.nvidia.com/assets/gamedev/files/sdk/11/FXAA_WhitePaper.pdf</a>
+ * <a href="http://www.geeks3d.com/20110405/fxaa-fast-approximate-anti-aliasing-demo-glsl-opengl-test-radeon-geforce/3/">demo</a>
+ * <a href="http://developer.download.nvidia.com/assets/gamedev/files/sdk/11/FXAA_WhitePaper.pdf">whitepaper</a>
  *
  * @author Phate666 (adapted to jme3)
  *

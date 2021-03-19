@@ -394,7 +394,7 @@ public abstract class VRApplication implements Application, SystemListener {
 
     
     /**
-        we do NOT want to get & modify the distortion scene camera, so
+        we do NOT want to get and modify the distortion scene camera, so
         return the left viewport camera instead if we are in VR mode
     */
     @Override

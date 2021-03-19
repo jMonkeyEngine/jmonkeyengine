@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -308,7 +308,7 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
     }
 
     /**
-     * Sets the amount of motion that has to happen in one physics tick to trigger the continuous motion detection<br/>
+     * Sets the amount of motion that has to happen in one physics tick to trigger the continuous motion detection<br>
      * This avoids the problem of fast objects moving through other objects, set to zero to disable (default)
      * @param threshold
      */
@@ -367,7 +367,7 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
     }
 
     /**
-     * Set the local gravity of this PhysicsRigidBody<br/>
+     * Set the local gravity of this PhysicsRigidBody<br>
      * Set this after adding the node to the PhysicsSpace,
      * the PhysicsSpace assigns its current gravity to the physics node when its added.
      * @param gravity the gravity vector to set

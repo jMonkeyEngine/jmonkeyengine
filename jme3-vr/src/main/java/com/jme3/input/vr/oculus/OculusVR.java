@@ -29,7 +29,7 @@ import static org.lwjgl.system.MemoryUtil.*;
  * A few notes about the Oculus coordinate system:
  * <ul>
  * <li>Matrices should be transposed</li>
- * <li>Quaternions should be inverted<li/>
+ * <li>Quaternions should be inverted</li>
  * <li>Vectors should have their X and Z axes flipped, but apparently not Y.</li>
  * </ul>
  *

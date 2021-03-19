@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -61,7 +61,7 @@ import java.util.logging.Logger;
 
 /**
  * <p>
- * TerrainGrid itself is an actual TerrainQuad. Its four children are the visible four tiles.</p>
+ * TerrainGrid itself is an actual TerrainQuad. Its four children are the visible four tiles.
  * </p><p>
  * The grid is indexed by cells. Each cell has an integer XZ coordinate originating at 0,0.
  * TerrainGrid will piggyback on the TerrainLodControl so it can use the camera for its

@@ -15,7 +15,7 @@ import java.util.List;
 
 /**
  *
- * @author @wezrule
+ * @author wezrule
  */
 public class TestPhysicsRayCast extends SimpleApplication {
 

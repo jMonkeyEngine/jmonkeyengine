@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -103,8 +103,8 @@ public class AndroidHarnessFragment extends Fragment implements
     protected int eglDepthBits = 16;
 
     /**
-     * Sets the number of samples to use for multisampling.</br>
-     * Leave 0 (default) to disable multisampling.</br>
+     * Sets the number of samples to use for multisampling.<br>
+     * Leave 0 (default) to disable multisampling.<br>
      * Set to 2 or 4 to enable multisampling.
      */
     protected int eglSamples = 0;
@@ -128,7 +128,7 @@ public class AndroidHarnessFragment extends Fragment implements
      * If the surfaceview is rectangular, the longest side (width or height)
      * will have the resolution set to a maximum of maxResolutionDimension.
      * The other direction will be set to a value that maintains the aspect
-     * ratio of the surfaceview. </br>
+     * ratio of the surfaceview. <br>
      * Any value less than 0 (default = -1) will result in the surfaceview having the
      * same resolution as the view layout (ie. no max resolution).
      */

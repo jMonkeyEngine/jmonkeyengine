@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -182,7 +182,7 @@ public class PhysicsSpace {
     private com.bulletphysics.linearmath.Transform sweepTrans2 = new com.bulletphysics.linearmath.Transform(new javax.vecmath.Matrix3f());
 
     /**
-     * Get the current PhysicsSpace <b>running on this thread</b><br/>
+     * Get the current PhysicsSpace <b>running on this thread</b><br>
      * For parallel physics, this can also be called from the OpenGL thread to receive the PhysicsSpace
      * @return the PhysicsSpace running on this thread
      */
@@ -791,7 +791,7 @@ public class PhysicsSpace {
     }
 
     /**
-     * Performs a sweep collision test and returns the results as a list of PhysicsSweepTestResults<br/>
+     * Performs a sweep collision test and returns the results as a list of PhysicsSweepTestResults<br>
      * You have to use different Transforms for start and end (at least distance greater than 0.4f).
      * SweepTest will not see a collision if it starts INSIDE an object and is moving AWAY from its center.
      */
@@ -807,7 +807,7 @@ public class PhysicsSpace {
     }
 
     /**
-     * Performs a sweep collision test and returns the results as a list of PhysicsSweepTestResults<br/>
+     * Performs a sweep collision test and returns the results as a list of PhysicsSweepTestResults<br>
      * You have to use different Transforms for start and end (at least distance greater than 0.4f).
      * SweepTest will not see a collision if it starts INSIDE an object and is moving AWAY from its center.
      */

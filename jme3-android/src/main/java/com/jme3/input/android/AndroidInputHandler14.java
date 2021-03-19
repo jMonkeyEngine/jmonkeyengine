@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,7 +41,7 @@ import java.util.logging.Logger;
 
 /**
  * <code>AndroidInputHandler14</code> extends <code>AndroidInputHandler</code> to
- * add the onHover and onGenericMotion events that where added in Android rev 14 (Android 4.0).</br>
+ * add the onHover and onGenericMotion events that where added in Android rev 14 (Android 4.0).<br>
  * The onGenericMotion events are the main interface to Joystick axes.  They
  * were actually released in Android rev 12.
  *

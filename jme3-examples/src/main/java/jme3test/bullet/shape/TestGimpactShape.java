@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -80,7 +80,7 @@ import jme3test.bullet.PhysicsTestHelper;
  * eventually, generally a larger scales for this test.
  * </li>
  * <li>
- * Some shapes such as PQTorus & signpost never go inactive at larger scales for both Native and JBullet (test
+ * Some shapes such as PQTorus and signpost never go inactive at larger scales for both Native and JBullet (test
  * at 1.5 and 1.9 scale)
  * </li>
  * </ol>
