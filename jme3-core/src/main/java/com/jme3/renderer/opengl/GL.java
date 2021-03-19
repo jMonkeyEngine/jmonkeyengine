@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2014 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -205,7 +205,9 @@ public interface GL {
      * Selects which texture unit subsequent texture state calls will affect. The number of texture units an implementation supports is implementation
      * dependent.
      *
-     * @param texture which texture unit to make active. One of:<br><table><tr><td>{@link #GL_TEXTURE0 TEXTURE0}</td><td>GL_TEXTURE[1-31]</td></tr></table>
+     * @param texture which texture unit to make active. One of:
+     *  {@link #GL_TEXTURE0 TEXTURE0}
+     *  GL_TEXTURE[1-31]
      */
     public void glActiveTexture(int texture);
 
@@ -537,7 +539,12 @@ public interface GL {
      * <p>
      * Creates a shader object.
      *
-     * @param shaderType the type of shader to be created. One of:<br><table><tr><td>{@link #GL_VERTEX_SHADER VERTEX_SHADER}</td><td>{@link #GL_FRAGMENT_SHADER FRAGMENT_SHADER}</td><td>{@link GL3#GL_GEOMETRY_SHADER GEOMETRY_SHADER}</td><td>{@link GL4#GL_TESS_CONTROL_SHADER TESS_CONTROL_SHADER}</td></tr><tr><td>{@link GL4#GL_TESS_EVALUATION_SHADER TESS_EVALUATION_SHADER}</td></tr></table>
+     * @param shaderType the type of shader to be created. One of:
+     *  {@link #GL_VERTEX_SHADER VERTEX_SHADER}
+     *  {@link #GL_FRAGMENT_SHADER FRAGMENT_SHADER}
+     *  {@link GL3#GL_GEOMETRY_SHADER GEOMETRY_SHADER}
+     *  {@link GL4#GL_TESS_CONTROL_SHADER TESS_CONTROL_SHADER}
+     *  {@link GL4#GL_TESS_EVALUATION_SHADER TESS_EVALUATION_SHADER}
      */
     public int glCreateShader(int shaderType);
 
@@ -548,7 +555,10 @@ public interface GL {
      * CullFace mode is {@link #GL_BACK BACK} while back-facing polygons are rasterized only if either culling is disabled or the CullFace mode is
      * {@link #GL_FRONT FRONT}. The initial setting of the CullFace mode is {@link #GL_BACK BACK}. Initially, culling is disabled.
      *
-     * @param mode the CullFace mode. One of:<br><table><tr><td>{@link #GL_FRONT FRONT}</td><td>{@link #GL_BACK BACK}</td><td>{@link #GL_FRONT_AND_BACK FRONT_AND_BACK}</td></tr></table>
+     * @param mode the CullFace mode. One of:
+     *  {@link #GL_FRONT FRONT}
+     *  {@link #GL_BACK BACK}
+     *  {@link #GL_FRONT_AND_BACK FRONT_AND_BACK}
      */
     public void glCullFace(int mode);
 
@@ -599,7 +609,15 @@ public interface GL {
      * <p>
      * Specifies the comparison that takes place during the depth buffer test (when {@link #GL_DEPTH_TEST DEPTH_TEST} is enabled).
      *
-     * @param func the depth test comparison. One of:<br><table><tr><td>{@link #GL_NEVER NEVER}</td><td>{@link #GL_ALWAYS ALWAYS}</td><td>{@link #GL_LESS LESS}</td><td>{@link #GL_LEQUAL LEQUAL}</td><td>{@link #GL_EQUAL EQUAL}</td><td>{@link #GL_GREATER GREATER}</td><td>{@link #GL_GEQUAL GEQUAL}</td><td>{@link #GL_NOTEQUAL NOTEQUAL}</td></tr></table>
+     * @param func the depth test comparison. One of:
+     *  {@link #GL_NEVER NEVER}
+     *  {@link #GL_ALWAYS ALWAYS}
+     *  {@link #GL_LESS LESS}
+     *  {@link #GL_LEQUAL LEQUAL}
+     *  {@link #GL_EQUAL EQUAL}
+     *  {@link #GL_GREATER GREATER}
+     *  {@link #GL_GEQUAL GEQUAL}
+     *  {@link #GL_NOTEQUAL NOTEQUAL}
      */
     public void glDepthFunc(int func);
 
@@ -681,7 +699,7 @@ public interface GL {
      * <p>Vertex attributes that are modified by glDrawRangeElements have an unspecified value after glDrawRangeElements returns. Attributes that aren't modified
      * maintain their previous values.</p>
      * <p>
-     * <h5>Errors</h5>
+     * Errors
      * <p>
      * <p>It is an error for indices to lie outside the range start end, but implementations may not check for this situation. Such indices cause
      * implementation-dependent behavior.</p>
@@ -854,7 +872,9 @@ public interface GL {
      * Returns the integer value of a query object parameter.
      *
      * @param query the name of a query object
-     * @param pname the symbolic name of a query object parameter. One of:<br><table><tr><td>{@link #GL_QUERY_RESULT QUERY_RESULT}</td><td>{@link #GL_QUERY_RESULT_AVAILABLE QUERY_RESULT_AVAILABLE}</td></tr></table>
+     * @param pname the symbolic name of a query object parameter. One of:
+     *  {@link #GL_QUERY_RESULT QUERY_RESULT}
+     *  {@link #GL_QUERY_RESULT_AVAILABLE QUERY_RESULT_AVAILABLE}
      */
     public int glGetQueryObjectiv(int query, int pname);
 
@@ -884,7 +904,12 @@ public interface GL {
      * <p>
      * Return strings describing properties of the current GL context.
      *
-     * @param name the property to query. One of:<br><table><tr><td>{@link #GL_RENDERER RENDERER}</td><td>{@link #GL_VENDOR VENDOR}</td><td>{@link #GL_EXTENSIONS EXTENSIONS}</td><td>{@link #GL_VERSION VERSION}</td><td>{@link GL2#GL_SHADING_LANGUAGE_VERSION SHADING_LANGUAGE_VERSION}</td></tr></table>
+     * @param name the property to query. One of:
+     *  {@link #GL_RENDERER RENDERER}
+     *  {@link #GL_VENDOR VENDOR}
+     *  {@link #GL_EXTENSIONS EXTENSIONS}
+     *  {@link #GL_VERSION VERSION}
+     *  {@link GL2#GL_SHADING_LANGUAGE_VERSION SHADING_LANGUAGE_VERSION}
      */
     public String glGetString(int name);
 
@@ -1023,8 +1048,19 @@ public interface GL {
      * <p>
      * Sets front and/or back function and reference value for stencil testing.
      *
-     * @param face whether front and/or back stencil state is updated. One of:<br><table><tr><td>{@link GL#GL_FRONT FRONT}</td><td>{@link GL#GL_BACK BACK}</td><td>{@link GL#GL_FRONT_AND_BACK FRONT_AND_BACK}</td></tr></table>
-     * @param func the test function. The initial value is GL_ALWAYS. One of:<br><table><tr><td>{@link GL#GL_NEVER NEVER}</td><td>{@link GL#GL_LESS LESS}</td><td>{@link GL#GL_LEQUAL LEQUAL}</td><td>{@link GL#GL_GREATER GREATER}</td><td>{@link GL#GL_GEQUAL GEQUAL}</td><td>{@link GL#GL_EQUAL EQUAL}</td><td>{@link GL#GL_NOTEQUAL NOTEQUAL}</td><td>{@link GL#GL_ALWAYS ALWAYS}</td></tr></table>
+     * @param face whether front and/or back stencil state is updated. One of:
+     *  {@link GL#GL_FRONT FRONT}
+     *  {@link GL#GL_BACK BACK}
+     *  {@link GL#GL_FRONT_AND_BACK FRONT_AND_BACK}
+     * @param func the test function. The initial value is GL_ALWAYS. One of:
+     *  {@link GL#GL_NEVER NEVER}
+     *  {@link GL#GL_LESS LESS}
+     *  {@link GL#GL_LEQUAL LEQUAL}
+     *  {@link GL#GL_GREATER GREATER}
+     *  {@link GL#GL_GEQUAL GEQUAL}
+     *  {@link GL#GL_EQUAL EQUAL}
+     *  {@link GL#GL_NOTEQUAL NOTEQUAL}
+     *  {@link GL#GL_ALWAYS ALWAYS}
      * @param ref  the reference value for the stencil test. {@code ref} is clamped to the range [0, 2n &ndash; 1], where {@code n} is the number of bitplanes in the stencil
      *             buffer. The initial value is 0.
      * @param mask a mask that is ANDed with both the reference value and the stored stencil value when the test is done. The initial value is all 1's.
@@ -1036,8 +1072,19 @@ public interface GL {
      * <p>
      * Sets front and/or back stencil test actions.
      *
-     * @param face   whether front and/or back stencil state is updated. One of:<br><table><tr><td>{@link GL#GL_FRONT FRONT}</td><td>{@link GL#GL_BACK BACK}</td><td>{@link GL#GL_FRONT_AND_BACK FRONT_AND_BACK}</td></tr></table>
-     * @param sfail  the action to take when the stencil test fails. The initial value is GL_KEEP. One of:<br><table><tr><td>{@link GL#GL_KEEP KEEP}</td><td>{@link GL#GL_ZERO ZERO}</td><td>{@link GL#GL_REPLACE REPLACE}</td><td>{@link GL#GL_INCR INCR}</td><td>{@link GL#GL_INCR_WRAP INCR_WRAP}</td><td>{@link GL#GL_DECR DECR}</td><td>{@link GL#GL_DECR_WRAP DECR_WRAP}</td><td>{@link GL#GL_INVERT INVERT}</td></tr></table>
+     * @param face   whether front and/or back stencil state is updated. One of:
+     *  {@link GL#GL_FRONT FRONT}
+     *  {@link GL#GL_BACK BACK}
+     *  {@link GL#GL_FRONT_AND_BACK FRONT_AND_BACK}
+     * @param sfail  the action to take when the stencil test fails. The initial value is GL_KEEP. One of:
+     *  {@link GL#GL_KEEP KEEP}
+     *  {@link GL#GL_ZERO ZERO}
+     *  {@link GL#GL_REPLACE REPLACE}
+     *  {@link GL#GL_INCR INCR}
+     *  {@link GL#GL_INCR_WRAP INCR_WRAP}
+     *  {@link GL#GL_DECR DECR}
+     *  {@link GL#GL_DECR_WRAP DECR_WRAP}
+     *  {@link GL#GL_INVERT INVERT}
      * @param dpfail the stencil action when the stencil test passes, but the depth test fails. The initial value is GL_KEEP.
      * @param dppass the stencil action when both the stencil test and the depth test pass, or when the stencil test passes and either there is no depth buffer or depth
      *               testing is not enabled. The initial value is GL_KEEP.

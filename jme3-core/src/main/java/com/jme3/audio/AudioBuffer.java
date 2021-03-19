@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,7 +39,7 @@ import java.nio.ByteBuffer;
 /**
  * An <code>AudioBuffer</code> is an implementation of AudioData
  * where the audio is buffered (stored in memory). All parts of it
- * are accessible at any time. <br/>
+ * are accessible at any time. <br>
  * AudioBuffers are useful for short sounds, like effects, etc.
  *
  * @author Kirill Vainer

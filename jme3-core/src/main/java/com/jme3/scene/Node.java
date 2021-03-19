@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -623,17 +623,17 @@ public class Node extends Spatial {
      /**
      * Returns flat list of Spatials implementing the specified class AND
      * with name matching the specified pattern.
-     * </P> <P>
+     * <P>
      * Note that we are <i>matching</i> the pattern, therefore the pattern
      * must match the entire pattern (i.e. it behaves as if it is sandwiched
      * between "^" and "$").
      * You can set regex modes, like case insensitivity, by using the (?X)
      * or (?X:Y) constructs.
      * </P> <P>
-     * By design, it is always safe to code loops like:<CODE><PRE>
+     * By design, it is always safe to code loops like:<PRE>
      *     for (Spatial spatial : node.descendantMatches(AClass.class, "regex"))
-     * </PRE></CODE>
-     * </P> <P>
+     * </PRE>
+     * <P>
      * "Descendants" does not include self, per the definition of the word.
      * To test for descendants AND self, you must do a
      * <code>node.matches(aClass, aRegex)</code> +

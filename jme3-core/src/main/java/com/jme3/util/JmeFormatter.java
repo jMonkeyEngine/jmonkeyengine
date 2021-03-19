@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,7 +40,7 @@ import java.util.logging.LogRecord;
 
 /**
  * More simple formatter than the default one used in Java logging.
- * Example output: <br/>
+ * Example output: <br>
  * INFO Display3D 12:00 PM: Display created.
  */
 public class JmeFormatter extends Formatter {

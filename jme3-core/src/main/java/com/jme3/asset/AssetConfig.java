@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,12 +41,12 @@ import java.util.logging.Logger;
 
 /**
  * <code>AssetConfig</code> loads a config file to configure the asset manager.
- * <br/><br/>
+ *
  * The config file is specified with the following format:
  * <code>
- * "INCLUDE" <path>
- * "LOADER" <class> : (<extension> ",")* <extension>
- * "LOCATOR" <path> <class>
+ * "INCLUDE" path
+ * "LOADER" class : (extension ",")* extension
+ * "LOCATOR" path class
  * </code>
  *
  * @author Kirill Vainer

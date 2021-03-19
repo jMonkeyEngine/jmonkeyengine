@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,7 +42,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * The <code>AppStateManager</code> holds a list of {@link AppState}s which
- * it will update and render.<br/>
+ * it will update and render.<br>
  * When an {@link AppState} is attached or detached, the
  * {@link AppState#stateAttached(com.jme3.app.state.AppStateManager) } and
  * {@link AppState#stateDetached(com.jme3.app.state.AppStateManager) } methods

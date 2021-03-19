@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2014 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -168,7 +168,9 @@ public interface GL3 extends GL2 {
      * <p>
      * Queries indexed string state.
      *
-     * @param name  the indexed state to query. One of:<br><table><tr><td>{@link GL#GL_EXTENSIONS EXTENSIONS}</td><td>{@link GL2#GL_SHADING_LANGUAGE_VERSION SHADING_LANGUAGE_VERSION}</td></tr></table>
+     * @param name  the indexed state to query. One of:
+     *  {@link GL#GL_EXTENSIONS EXTENSIONS}
+     *  {@link GL2#GL_SHADING_LANGUAGE_VERSION SHADING_LANGUAGE_VERSION}
      * @param index the index of the particular element being queried.
      */
     public String glGetString(int name, int index); /// GL3+
@@ -190,7 +192,11 @@ public interface GL3 extends GL2 {
      *
      * Binds a buffer object to an indexed buffer target.
      *
-     * @param target the target of the bind operation. One of:<br><table><tr><td>{@link #GL_TRANSFORM_FEEDBACK_BUFFER TRANSFORM_FEEDBACK_BUFFER}</td><td>{@link #GL_UNIFORM_BUFFER UNIFORM_BUFFER}</td><td>{@link GL4#GL_ATOMIC_COUNTER_BUFFER ATOMIC_COUNTER_BUFFER}</td><td>{@link GL4#GL_SHADER_STORAGE_BUFFER SHADER_STORAGE_BUFFER}</td></tr></table>
+     * @param target the target of the bind operation. One of:
+     *  {@link #GL_TRANSFORM_FEEDBACK_BUFFER TRANSFORM_FEEDBACK_BUFFER}
+     *  {@link #GL_UNIFORM_BUFFER UNIFORM_BUFFER}
+     *  {@link GL4#GL_ATOMIC_COUNTER_BUFFER ATOMIC_COUNTER_BUFFER}
+     *  {@link GL4#GL_SHADER_STORAGE_BUFFER SHADER_STORAGE_BUFFER}
      * @param index  the index of the binding point within the array specified by {@code target}
      * @param buffer a buffer object to bind to the specified binding point
      */

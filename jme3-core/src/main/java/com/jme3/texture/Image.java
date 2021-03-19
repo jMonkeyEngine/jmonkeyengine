@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1140,7 +1140,7 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
      * such conversion must not be performed, for example, when loading normal
      * maps.
      *
-     * @param colorSpace @see ColorSpace. Set to sRGB to enable srgb -&gt; linear 
+     * @param colorSpace Set to sRGB to enable srgb -&gt; linear 
      * conversion, Linear otherwise.
      *
      * @see Renderer#setLinearizeSrgbImages(boolean)

@@ -357,7 +357,11 @@ public interface AL {
      * background music.</p>
      *
      * @param buffer    the buffer to modify.
-     * @param format    the data format. One of:<br><table><tr><td>{@link #AL_FORMAT_MONO8 FORMAT_MONO8}</td><td>{@link #AL_FORMAT_MONO16 FORMAT_MONO16}</td><td>{@link #AL_FORMAT_STEREO8 FORMAT_STEREO8}</td><td>{@link #AL_FORMAT_STEREO16 FORMAT_STEREO16}</td></tr></table>
+     * @param format    the data format. One of:
+     *  {@link #AL_FORMAT_MONO8 FORMAT_MONO8}
+     *  {@link #AL_FORMAT_MONO16 FORMAT_MONO16}
+     *  {@link #AL_FORMAT_STEREO8 FORMAT_STEREO8}
+     *  {@link #AL_FORMAT_STEREO16 FORMAT_STEREO16}
      * @param data      the sample data.
      * @param frequency the data frequency.
      */
@@ -391,7 +395,22 @@ public interface AL {
      * Sets the float value of a source parameter.
      *
      * @param source the source to modify.
-     * @param param  the parameter to modify. One of:<br><table><tr><td>{@link #AL_CONE_INNER_ANGLE CONE_INNER_ANGLE}</td><td>{@link #AL_CONE_OUTER_ANGLE CONE_OUTER_ANGLE}</td><td>{@link #AL_PITCH PITCH}</td><td>{@link #AL_DIRECTION DIRECTION}</td><td>{@link #AL_LOOPING LOOPING}</td><td>{@link #AL_BUFFER BUFFER}</td><td>{@link #AL_SOURCE_STATE SOURCE_STATE}</td></tr><tr><td>{@link #AL_CONE_OUTER_GAIN CONE_OUTER_GAIN}</td><td>{@link #AL_SOURCE_TYPE SOURCE_TYPE}</td><td>{@link #AL_POSITION POSITION}</td><td>{@link #AL_VELOCITY VELOCITY}</td><td>{@link #AL_GAIN GAIN}</td><td>{@link #AL_REFERENCE_DISTANCE REFERENCE_DISTANCE}</td><td>{@link #AL_ROLLOFF_FACTOR ROLLOFF_FACTOR}</td></tr><tr><td>{@link #AL_MAX_DISTANCE MAX_DISTANCE}</td></tr></table>
+     * @param param  the parameter to modify. One of:
+     *  {@link #AL_CONE_INNER_ANGLE CONE_INNER_ANGLE}
+     *  {@link #AL_CONE_OUTER_ANGLE CONE_OUTER_ANGLE}
+     *  {@link #AL_PITCH PITCH}
+     *  {@link #AL_DIRECTION DIRECTION}
+     *  {@link #AL_LOOPING LOOPING}
+     *  {@link #AL_BUFFER BUFFER}
+     *  {@link #AL_SOURCE_STATE SOURCE_STATE}
+     *  {@link #AL_CONE_OUTER_GAIN CONE_OUTER_GAIN}
+     *  {@link #AL_SOURCE_TYPE SOURCE_TYPE}
+     *  {@link #AL_POSITION POSITION}
+     *  {@link #AL_VELOCITY VELOCITY}
+     *  {@link #AL_GAIN GAIN}
+     *  {@link #AL_REFERENCE_DISTANCE REFERENCE_DISTANCE}
+     *  {@link #AL_ROLLOFF_FACTOR ROLLOFF_FACTOR}
+     *  {@link #AL_MAX_DISTANCE MAX_DISTANCE}
      * @param value  the parameter value.
      */
     public void alSourcef(int source, int param, float value);
@@ -400,7 +419,22 @@ public interface AL {
      * Sets the 3 dimensional values of a source parameter.
      *
      * @param source the source to modify.
-     * @param param  the parameter to modify. One of:<br><table><tr><td>{@link #AL_CONE_INNER_ANGLE CONE_INNER_ANGLE}</td><td>{@link #AL_CONE_OUTER_ANGLE CONE_OUTER_ANGLE}</td><td>{@link #AL_PITCH PITCH}</td><td>{@link #AL_DIRECTION DIRECTION}</td><td>{@link #AL_LOOPING LOOPING}</td><td>{@link #AL_BUFFER BUFFER}</td><td>{@link #AL_SOURCE_STATE SOURCE_STATE}</td></tr><tr><td>{@link #AL_CONE_OUTER_GAIN CONE_OUTER_GAIN}</td><td>{@link #AL_SOURCE_TYPE SOURCE_TYPE}</td><td>{@link #AL_POSITION POSITION}</td><td>{@link #AL_VELOCITY VELOCITY}</td><td>{@link #AL_GAIN GAIN}</td><td>{@link #AL_REFERENCE_DISTANCE REFERENCE_DISTANCE}</td><td>{@link #AL_ROLLOFF_FACTOR ROLLOFF_FACTOR}</td></tr><tr><td>{@link #AL_MAX_DISTANCE MAX_DISTANCE}</td></tr></table>
+     * @param param  the parameter to modify. One of:
+     *  {@link #AL_CONE_INNER_ANGLE CONE_INNER_ANGLE}
+     *  {@link #AL_CONE_OUTER_ANGLE CONE_OUTER_ANGLE}
+     *  {@link #AL_PITCH PITCH}
+     *  {@link #AL_DIRECTION DIRECTION}
+     *  {@link #AL_LOOPING LOOPING}
+     *  {@link #AL_BUFFER BUFFER}
+     *  {@link #AL_SOURCE_STATE SOURCE_STATE}
+     *  {@link #AL_CONE_OUTER_GAIN CONE_OUTER_GAIN}
+     *  {@link #AL_SOURCE_TYPE SOURCE_TYPE}
+     *  {@link #AL_POSITION POSITION}
+     *  {@link #AL_VELOCITY VELOCITY}
+     *  {@link #AL_GAIN GAIN}
+     *  {@link #AL_REFERENCE_DISTANCE REFERENCE_DISTANCE}
+     *  {@link #AL_ROLLOFF_FACTOR ROLLOFF_FACTOR}
+     *  {@link #AL_MAX_DISTANCE MAX_DISTANCE}
      * @param value1 the first parameter value.
      * @param value2 the second parameter value.
      * @param value3 the third parameter value.
@@ -411,7 +445,22 @@ public interface AL {
      * Returns the integer value of the specified source parameter.
      *
      * @param source the source to query.
-     * @param param  the parameter to query. One of:<br><table><tr><td>{@link #AL_CONE_INNER_ANGLE CONE_INNER_ANGLE}</td><td>{@link #AL_CONE_OUTER_ANGLE CONE_OUTER_ANGLE}</td><td>{@link #AL_PITCH PITCH}</td><td>{@link #AL_DIRECTION DIRECTION}</td><td>{@link #AL_LOOPING LOOPING}</td><td>{@link #AL_BUFFER BUFFER}</td><td>{@link #AL_SOURCE_STATE SOURCE_STATE}</td></tr><tr><td>{@link #AL_CONE_OUTER_GAIN CONE_OUTER_GAIN}</td><td>{@link #AL_SOURCE_TYPE SOURCE_TYPE}</td><td>{@link #AL_POSITION POSITION}</td><td>{@link #AL_VELOCITY VELOCITY}</td><td>{@link #AL_GAIN GAIN}</td><td>{@link #AL_REFERENCE_DISTANCE REFERENCE_DISTANCE}</td><td>{@link #AL_ROLLOFF_FACTOR ROLLOFF_FACTOR}</td></tr><tr><td>{@link #AL_MAX_DISTANCE MAX_DISTANCE}</td></tr></table>
+     * @param param  the parameter to query. One of:
+     *  {@link #AL_CONE_INNER_ANGLE CONE_INNER_ANGLE}
+     *  {@link #AL_CONE_OUTER_ANGLE CONE_OUTER_ANGLE}
+     *  {@link #AL_PITCH PITCH}
+     *  {@link #AL_DIRECTION DIRECTION}
+     *  {@link #AL_LOOPING LOOPING}
+     *  {@link #AL_BUFFER BUFFER}
+     *  {@link #AL_SOURCE_STATE SOURCE_STATE}
+     *  {@link #AL_CONE_OUTER_GAIN CONE_OUTER_GAIN}
+     *  {@link #AL_SOURCE_TYPE SOURCE_TYPE}
+     *  {@link #AL_POSITION POSITION}
+     *  {@link #AL_VELOCITY VELOCITY}
+     *  {@link #AL_GAIN GAIN}
+     *  {@link #AL_REFERENCE_DISTANCE REFERENCE_DISTANCE}
+     *  {@link #AL_ROLLOFF_FACTOR ROLLOFF_FACTOR}
+     *  {@link #AL_MAX_DISTANCE MAX_DISTANCE}
      */
     public int alGetSourcei(int source, int param);
 
@@ -453,7 +502,11 @@ public interface AL {
     /**
      * Sets the float value of a listener parameter.
      *
-     * @param param the parameter to modify. One of:<br><table><tr><td>{@link #AL_ORIENTATION ORIENTATION}</td><td>{@link #AL_POSITION POSITION}</td><td>{@link #AL_VELOCITY VELOCITY}</td><td>{@link #AL_GAIN GAIN}</td></tr></table>
+     * @param param the parameter to modify. One of:
+     *  {@link #AL_ORIENTATION ORIENTATION}
+     *  {@link #AL_POSITION POSITION}
+     *  {@link #AL_VELOCITY VELOCITY}
+     *  {@link #AL_GAIN GAIN}
      * @param value the parameter value.
      */
     public void alListenerf(int param, float value);
@@ -461,7 +514,11 @@ public interface AL {
     /**
      * Sets the 3 dimensional float values of a listener parameter.
      *
-     * @param param  the parameter to modify. One of:<br><table><tr><td>{@link #AL_ORIENTATION ORIENTATION}</td><td>{@link #AL_POSITION POSITION}</td><td>{@link #AL_VELOCITY VELOCITY}</td><td>{@link #AL_GAIN GAIN}</td></tr></table>
+     * @param param  the parameter to modify. One of:
+     *  {@link #AL_ORIENTATION ORIENTATION}
+     *  {@link #AL_POSITION POSITION}
+     *  {@link #AL_VELOCITY VELOCITY}
+     *  {@link #AL_GAIN GAIN}
      * @param value1 the first value.
      * @param value2 the second value.
      * @param value3 the third value.

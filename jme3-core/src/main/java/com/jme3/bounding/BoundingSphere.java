@@ -654,7 +654,7 @@ public class BoundingSphere extends BoundingVolume {
 
     /**
      * <code>toString</code> returns the string representation of this object.
-     * The form is: "Radius: RRR.SSSS Center: <Vector>".
+     * The form is: "Radius: RRR.SSSS Center: vector".
      *
      * @return the string representation of this.
      */
