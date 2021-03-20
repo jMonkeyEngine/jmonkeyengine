@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,7 +32,6 @@
 package com.jme3.cursors.plugins;
 
 import com.jme3.asset.AssetInfo;
-import com.jme3.asset.AssetKey;
 import com.jme3.asset.AssetLoader;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.LittleEndien;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,7 +52,6 @@ import com.jme3.scene.plugins.fbx.anim.FbxAnimLayer;
 import com.jme3.scene.plugins.fbx.anim.FbxAnimStack;
 import com.jme3.scene.plugins.fbx.anim.FbxBindPose;
 import com.jme3.scene.plugins.fbx.anim.FbxLimbNode;
-import com.jme3.scene.plugins.fbx.file.FbxDump;
 import com.jme3.scene.plugins.fbx.file.FbxElement;
 import com.jme3.scene.plugins.fbx.file.FbxFile;
 import com.jme3.scene.plugins.fbx.file.FbxReader;

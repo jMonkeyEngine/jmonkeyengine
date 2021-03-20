@@ -1,7 +1,6 @@
 package com.jme3.terrain.collision;
 
 import com.jme3.asset.AssetManager;
-import com.jme3.system.JmeDesktopSystem;
 import com.jme3.system.JmeSystem;
 
 /**

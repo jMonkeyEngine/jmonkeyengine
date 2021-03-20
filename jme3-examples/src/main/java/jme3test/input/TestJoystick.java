@@ -1,12 +1,9 @@
 package jme3test.input;
 
-import java.util.*;
-
 import com.jme3.app.SimpleApplication;
 import com.jme3.collision.CollisionResult;
 import com.jme3.collision.CollisionResults;
 import com.jme3.font.BitmapText;
-import com.jme3.input.DefaultJoystickAxis;
 import com.jme3.input.Joystick;
 import com.jme3.input.JoystickAxis;
 import com.jme3.input.JoystickButton;

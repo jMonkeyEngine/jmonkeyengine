@@ -9,7 +9,6 @@ import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.LightProbe;
-import com.jme3.light.SphereProbeArea;
 import com.jme3.material.Material;
 import com.jme3.math.*;
 import com.jme3.scene.*;

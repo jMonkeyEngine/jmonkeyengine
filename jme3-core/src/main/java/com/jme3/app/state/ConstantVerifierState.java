@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 jMonkeyEngine
+ * Copyright (c) 2014-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,7 +33,6 @@
 package com.jme3.app.state;
 
 import java.util.Arrays;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.jme3.app.Application;
