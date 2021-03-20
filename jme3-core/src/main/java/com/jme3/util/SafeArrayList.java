@@ -80,7 +80,7 @@ public class SafeArrayList<E> implements List<E>, Cloneable {
     //       make this publicly act like a read-only list.
     //       SafeArrayList-specific methods could then be exposed
     //       for the classes like Node and Spatial to use to manage
-    //       the list.  This was the callers couldn't remove a child
+    //       the list.  This was because the callers couldn't remove a child
     //       without it being detached properly, for example.
 
     final private Class<E> elementType;
