@@ -70,7 +70,7 @@ public class TerrainTestAdvanced extends SimpleApplication {
     private boolean triPlanar = false;
     private boolean wardiso = false;
     private boolean minnaert = false;
-    protected BitmapText hintText;
+    private BitmapText hintText;
     private PointLight pl;
     private Geometry lightMdl;
     private float dirtScale = 16;

@@ -25,12 +25,12 @@ public class TestAlphaToCoverage extends SimpleApplication {
         new TestAlphaToCoverage().start();
     }
 
-    public GL gl = new LwjglGL();
-    public GLExt glext = new LwjglGLExt();
-    public GLFbo glfbo = new LwjglGLFboEXT();
+    private GL gl = new LwjglGL();
+    private GLExt glext = new LwjglGLExt();
+    private GLFbo glfbo = new LwjglGLFboEXT();
     private GLRenderer glRenderer= new GLRenderer(gl,glext,glfbo);
 
-    public EnumSet<Caps> caps = glRenderer.getCaps();
+    private EnumSet<Caps> caps = glRenderer.getCaps();
 
 
 

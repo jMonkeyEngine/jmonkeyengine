@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,7 +48,7 @@ public class TestControls extends SimpleApplication {
             System.out.println(name + " = " + pressed);
         }
     };
-    public AnalogListener analogListener = new AnalogListener() {
+    private AnalogListener analogListener = new AnalogListener() {
         @Override
         public void onAnalog(String name, float value, float tpf) {
             System.out.println(name + " = " + value);

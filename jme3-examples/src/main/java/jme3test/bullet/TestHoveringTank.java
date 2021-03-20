@@ -76,7 +76,7 @@ public class TestHoveringTank extends SimpleApplication implements AnalogListene
     private TerrainQuad terrain;
     private Material matRock;
     private boolean wireframe = false;
-    protected BitmapText hintText;
+    private BitmapText hintText;
     private PointLight pl;
     private Geometry lightMdl;
     private Geometry collisionMarker;

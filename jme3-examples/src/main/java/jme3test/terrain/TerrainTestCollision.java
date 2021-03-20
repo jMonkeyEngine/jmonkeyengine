@@ -83,7 +83,7 @@ public class TerrainTestCollision extends SimpleApplication {
     private Material matRock;
     private Material matWire;
     private boolean wireframe = false;
-    protected BitmapText hintText;
+    private BitmapText hintText;
     private PointLight pl;
     private Geometry lightMdl;
     private List<Geometry> collisionMarkers;

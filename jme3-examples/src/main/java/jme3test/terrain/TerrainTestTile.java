@@ -72,7 +72,7 @@ public class TerrainTestTile extends SimpleApplication {
     private boolean triPlanar = false;
     private boolean wardiso = false;
     private boolean minnaert = false;
-    protected BitmapText hintText;
+    private BitmapText hintText;
     private float grassScale = 256;
     
 

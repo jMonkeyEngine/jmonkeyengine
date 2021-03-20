@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -65,7 +65,7 @@ import java.util.logging.Logger;
 public class TerrainTestReadWrite extends SimpleApplication {
 
     private Terrain terrain;
-    protected BitmapText hintText;
+    private BitmapText hintText;
     private float grassScale = 64;
     private float dirtScale = 16;
     private float rockScale = 128;

@@ -52,7 +52,7 @@ public class HelloInput extends SimpleApplication {
     HelloInput app = new HelloInput();
     app.start();
   }
-  protected Geometry player;
+  private Geometry player;
   private Boolean isRunning=true;
 
   @Override

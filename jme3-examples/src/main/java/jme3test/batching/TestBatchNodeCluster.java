@@ -72,21 +72,21 @@ public class TestBatchNodeCluster extends SimpleApplication {
             }
         }
     };
-    protected Random rand = new Random();
-    protected int maxCubes = 2000;
-    protected int startAt = 0;
-    protected static int xPositions = 0, yPositions = 0, zPositions = 0;
-    protected int returner = 0;
-    protected ArrayList<Integer> xPosition = new ArrayList<Integer>();
-    protected ArrayList<Integer> yPosition = new ArrayList<Integer>();
-    protected ArrayList<Integer> zPosition = new ArrayList<Integer>();
-    protected int xLimitf = 60, xLimits = -60, yLimitf = 60, yLimits = -20, zLimitf = 60, zLimits = -60;
-    protected int circ = 8;//increases by 8 every time.
-    protected int dynamic = 4;
-    protected static AppSettings settingst;
-    protected boolean isTrue = true;
+    private Random rand = new Random();
+    private int maxCubes = 2000;
+    private int startAt = 0;
+    private static int xPositions = 0, yPositions = 0, zPositions = 0;
+    private int returner = 0;
+    private ArrayList<Integer> xPosition = new ArrayList<Integer>();
+    private ArrayList<Integer> yPosition = new ArrayList<Integer>();
+    private ArrayList<Integer> zPosition = new ArrayList<Integer>();
+    private int xLimitf = 60, xLimits = -60, yLimitf = 60, yLimits = -20, zLimitf = 60, zLimits = -60;
+    private int circ = 8;//increases by 8 every time.
+    private int dynamic = 4;
+    private static AppSettings settingst;
+    private boolean isTrue = true;
     private int lineLength = 50;
-    protected BatchNode batchNode;
+    private BatchNode batchNode;
     private Material mat1;
     private Material mat2;
     private Material mat3;

@@ -77,7 +77,7 @@ public class TerrainTest extends SimpleApplication {
     private Material matWire;
     private boolean wireframe = false;
     private boolean triPlanar = false;
-    protected BitmapText hintText;
+    private BitmapText hintText;
     private PointLight pl;
     private Geometry lightMdl;
     private float grassScale = 64;
