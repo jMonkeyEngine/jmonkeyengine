@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package jme3test.model.anim;
 
 import com.jme3.system.Timer;
