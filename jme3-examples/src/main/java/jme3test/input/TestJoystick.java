@@ -160,7 +160,7 @@ public class TestJoystick extends SimpleApplication {
      */   
     protected class JoystickEventListener implements RawInputListener {
 
-        private Map<JoystickAxis, Float> lastValues = new HashMap<>();
+        final private Map<JoystickAxis, Float> lastValues = new HashMap<>();
 
         @Override
         public void onJoyAxisEvent(JoyAxisEvent evt) {
@@ -216,10 +216,10 @@ public class TestJoystick extends SimpleApplication {
         private float lastPovX = 0;
         private float lastPovY = 0;
  
-        private Geometry leftStick;
-        private Geometry rightStick;
+        final private Geometry leftStick;
+        final private Geometry rightStick;
             
-        private Map<String, ButtonView> buttons = new HashMap<String, ButtonView>();
+        final private Map<String, ButtonView> buttons = new HashMap<String, ButtonView>();
     
         public GamepadView() {
             super( "gamepad" );
@@ -419,8 +419,8 @@ public class TestJoystick extends SimpleApplication {
     protected class ButtonView extends Node {
  
         private int state = 0;
-        private Material material;
-        private ColorRGBA hilite = new ColorRGBA( 0.0f, 0.75f, 0.75f, 0.5f );
+        final private Material material;
+        final private ColorRGBA hilite = new ColorRGBA( 0.0f, 0.75f, 0.75f, 0.5f );
         
         public ButtonView( String name, float x, float y, float width, float height ) {
             super( "Button:" + name );

@@ -63,12 +63,12 @@ public class TestBetterCharacter extends SimpleApplication implements ActionList
     private BetterCharacterControl physicsCharacter;
     private Node characterNode;
     private CameraNode camNode;
-    private boolean rotate = false;
-    private Vector3f walkDirection = new Vector3f(0, 0, 0);
-    private Vector3f viewDirection = new Vector3f(0, 0, 1);
+    final private boolean rotate = false;
+    final private Vector3f walkDirection = new Vector3f(0, 0, 0);
+    final private Vector3f viewDirection = new Vector3f(0, 0, 1);
     private boolean leftStrafe = false, rightStrafe = false, forward = false, backward = false,
             leftRotate = false, rightRotate = false;
-    private Vector3f normalGravity = new Vector3f(0, -9.81f, 0);
+    final private Vector3f normalGravity = new Vector3f(0, -9.81f, 0);
     private Geometry planet;
 
     public static void main(String[] args) {

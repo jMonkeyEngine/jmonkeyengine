@@ -66,9 +66,9 @@ public class TerrainTestReadWrite extends SimpleApplication {
 
     private Terrain terrain;
     private BitmapText hintText;
-    private float grassScale = 64;
-    private float dirtScale = 16;
-    private float rockScale = 128;
+    final private float grassScale = 64;
+    final private float dirtScale = 16;
+    final private float rockScale = 128;
     private Material matTerrain;
     private Material matWire;
 
@@ -195,7 +195,7 @@ public class TerrainTestReadWrite extends SimpleApplication {
         hintText.setText("Hit T to save, and Y to load");
         guiNode.attachChild(hintText);
     }
-    private ActionListener saveActionListener = new ActionListener() {
+    final private ActionListener saveActionListener = new ActionListener() {
 
         @Override
         public void onAction(String name, boolean pressed, float tpf) {
@@ -268,7 +268,7 @@ public class TerrainTestReadWrite extends SimpleApplication {
             }
         }
     }
-    private ActionListener loadActionListener = new ActionListener() {
+    final private ActionListener loadActionListener = new ActionListener() {
 
         @Override
         public void onAction(String name, boolean pressed, float tpf) {
@@ -277,7 +277,7 @@ public class TerrainTestReadWrite extends SimpleApplication {
             }
         }
     };
-    private ActionListener cloneActionListener = new ActionListener() {
+    final private ActionListener cloneActionListener = new ActionListener() {
 
         @Override
         public void onAction(String name, boolean pressed, float tpf) {

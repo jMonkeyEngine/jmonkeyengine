@@ -39,9 +39,9 @@ public class TestIDList {
 
     static class StateCol {
 
-        private static Random rand = new Random();
+        final private static Random rand = new Random();
 
-        private Map<Integer, Object> objs = new HashMap<Integer, Object>();
+        final private Map<Integer, Object> objs = new HashMap<Integer, Object>();
 
         public StateCol(){
             // populate with free ids
@@ -74,11 +74,11 @@ public class TestIDList {
 
     }
 
-    private static IDList list = new IDList();
-    private static int boundSlot = 0;
+    final private static IDList list = new IDList();
+    final private static int boundSlot = 0;
     
-    private static Object[] slots = new Object[16];
-    private static boolean[] enabledSlots = new boolean[16];
+    final private static Object[] slots = new Object[16];
+    final private static boolean[] enabledSlots = new boolean[16];
 
     static void enable(int slot){
         System.out.println("Enabled SLOT["+slot+"]");

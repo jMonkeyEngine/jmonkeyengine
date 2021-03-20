@@ -32,11 +32,11 @@ import java.util.List;
  */
 public class TestMultiPostWater extends SimpleApplication {
 
-    private Vector3f lightDir = new Vector3f(-4.9236743f, -1.27054665f, 5.896916f);
+    final private Vector3f lightDir = new Vector3f(-4.9236743f, -1.27054665f, 5.896916f);
     private WaterFilter water;
     private TerrainQuad terrain;
     private Material matRock;    
-    private static float WATER_HEIGHT = 90;
+    final private static float WATER_HEIGHT = 90;
 
     public static void main(String[] args) {
         TestMultiPostWater app = new TestMultiPostWater();

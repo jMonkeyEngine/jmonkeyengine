@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -61,12 +61,12 @@ public class BombControl extends RigidBodyControl implements PhysicsCollisionLis
 
     private float explosionRadius = 10;
     private PhysicsGhostObject ghostObject;
-    private Vector3f vector = new Vector3f();
-    private Vector3f vector2 = new Vector3f();
+    final private Vector3f vector = new Vector3f();
+    final private Vector3f vector2 = new Vector3f();
     private float forceFactor = 1;
     private ParticleEmitter effect;
-    private float fxTime = 0.5f;
-    private float maxTime = 4f;
+    final private float fxTime = 0.5f;
+    final private float maxTime = 4f;
     private float curTime = -1.0f;
     private float timer;
 

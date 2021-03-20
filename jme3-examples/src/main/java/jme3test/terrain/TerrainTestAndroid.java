@@ -169,7 +169,7 @@ public class TerrainTestAndroid extends SimpleApplication {
         inputManager.addMapping("triPlanar", new KeyTrigger(KeyInput.KEY_P));
         inputManager.addListener(actionListener, "triPlanar");
     }
-    private ActionListener actionListener = new ActionListener() {
+    final private ActionListener actionListener = new ActionListener() {
 
         @Override
         public void onAction(String name, boolean pressed, float tpf) {

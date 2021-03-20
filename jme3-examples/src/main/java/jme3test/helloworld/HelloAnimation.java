@@ -102,7 +102,7 @@ public class HelloAnimation extends SimpleApplication
   }
 
   /** Definining the named action that can be triggered by key inputs. */
-  private ActionListener actionListener = new ActionListener() {
+  final private ActionListener actionListener = new ActionListener() {
     @Override
     public void onAction(String name, boolean keyPressed, float tpf) {
       if (name.equals("Walk") && !keyPressed) {

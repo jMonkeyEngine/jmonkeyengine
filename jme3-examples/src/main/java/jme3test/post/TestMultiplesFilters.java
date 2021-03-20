@@ -60,7 +60,7 @@ public class TestMultiplesFilters extends SimpleApplication {
     }
     private SSAOFilter ssaoFilter;
     private FilterPostProcessor fpp;
-    private boolean en = true;
+    final private boolean en = true;
 
     @Override
     public void simpleInitApp() {

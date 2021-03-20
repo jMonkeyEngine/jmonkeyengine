@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -56,7 +56,7 @@ public class TestAttachGhostObject extends SimpleApplication implements AnalogLi
     private GhostControl ghostControl;
     private Node collisionNode;
     private Node hammerNode;
-    private Vector3f tempVec = new Vector3f();
+    final private Vector3f tempVec = new Vector3f();
     private BulletAppState bulletAppState;
 
     public static void main(String[] args) {

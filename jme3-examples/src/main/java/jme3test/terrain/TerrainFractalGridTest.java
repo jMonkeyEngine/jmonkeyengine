@@ -27,9 +27,9 @@ public class TerrainFractalGridTest extends SimpleApplication {
 
     private Material mat_terrain;
     private TerrainGrid terrain;
-    private float grassScale = 64;
-    private float dirtScale = 16;
-    private float rockScale = 128;
+    final private float grassScale = 64;
+    final private float dirtScale = 16;
+    final private float rockScale = 128;
 
     public static void main(final String[] args) {
         TerrainFractalGridTest app = new TerrainFractalGridTest();

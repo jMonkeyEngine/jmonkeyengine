@@ -48,14 +48,14 @@ import java.util.List;
  */
 public class TestPostWater extends SimpleApplication {
 
-    private Vector3f lightDir = new Vector3f(-4.9236743f, -1.27054665f, 5.896916f);
+    final private Vector3f lightDir = new Vector3f(-4.9236743f, -1.27054665f, 5.896916f);
     private WaterFilter water;
     private TerrainQuad terrain;
     private Material matRock;
     private AudioNode waves;
-    private LowPassFilter underWaterAudioFilter = new LowPassFilter(0.5f, 0.1f);
-    private LowPassFilter underWaterReverbFilter = new LowPassFilter(0.5f, 0.1f);
-    private LowPassFilter aboveWaterAudioFilter = new LowPassFilter(1, 1);
+    final private LowPassFilter underWaterAudioFilter = new LowPassFilter(0.5f, 0.1f);
+    final private LowPassFilter underWaterReverbFilter = new LowPassFilter(0.5f, 0.1f);
+    final private LowPassFilter aboveWaterAudioFilter = new LowPassFilter(1, 1);
 
     public static void main(String[] args) {
         TestPostWater app = new TestPostWater();
@@ -302,7 +302,7 @@ public class TestPostWater extends SimpleApplication {
     //This part is to emulate tides, slightly varrying the height of the water plane
     private float time = 0.0f;
     private float waterHeight = 0.0f;
-    private float initialWaterHeight = 90f;//0.8f;
+    final private float initialWaterHeight = 90f;//0.8f;
     private boolean uw = false;
 
     @Override

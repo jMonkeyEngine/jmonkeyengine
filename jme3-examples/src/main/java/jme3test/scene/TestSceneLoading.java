@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,8 +47,8 @@ import java.io.File;
 
 public class TestSceneLoading extends SimpleApplication {
 
-    private Sphere sphereMesh = new Sphere(32, 32, 10, false, true);
-    private Geometry sphere = new Geometry("Sky", sphereMesh);
+    final private Sphere sphereMesh = new Sphere(32, 32, 10, false, true);
+    final private Geometry sphere = new Geometry("Sky", sphereMesh);
     private static boolean useHttp = false;
 
     public static void main(String[] args) {

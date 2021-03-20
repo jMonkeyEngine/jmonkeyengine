@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -63,14 +63,14 @@ public class HelloTerrainCollision extends SimpleApplication
   private BulletAppState bulletAppState;
   private RigidBodyControl landscape;
   private CharacterControl player;
-  private Vector3f walkDirection = new Vector3f();
+  final private Vector3f walkDirection = new Vector3f();
   private boolean left = false, right = false, up = false, down = false;
   private TerrainQuad terrain;
   private Material mat_terrain;
   //Temporary vectors used on each frame.
   //They here to avoid instanciating new vectors on each frame
-  private Vector3f camDir = new Vector3f();
-  private Vector3f camLeft = new Vector3f();
+  final private Vector3f camDir = new Vector3f();
+  final private Vector3f camLeft = new Vector3f();
 
   public static void main(String[] args) {
     HelloTerrainCollision app = new HelloTerrainCollision();

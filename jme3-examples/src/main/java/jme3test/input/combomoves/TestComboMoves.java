@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,7 +44,7 @@ import java.util.List;
 
 public class TestComboMoves extends SimpleApplication implements ActionListener {
 
-    private HashSet<String> pressedMappings = new HashSet<String>();
+    final private HashSet<String> pressedMappings = new HashSet<String>();
 
     private ComboMove fireball;
     private ComboMoveExecution fireballExec;

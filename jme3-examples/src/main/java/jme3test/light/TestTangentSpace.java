@@ -27,7 +27,7 @@ public class TestTangentSpace extends SimpleApplication {
         app.start();
     }
     
-    private Node debugNode = new Node("debug");
+    final private Node debugNode = new Node("debug");
     
     @Override
     public void simpleInitApp() {

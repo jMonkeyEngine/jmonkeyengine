@@ -339,8 +339,8 @@ public class TestDirectionalLightShadow extends SimpleApplication implements Act
     private boolean right = false;
     private boolean fwd = false;
     private boolean back = false;
-    private float time = 0;
-    private float s = 1f;
+    final private float time = 0;
+    final private float s = 1f;
 
     @Override
     public void simpleUpdate(float tpf) {

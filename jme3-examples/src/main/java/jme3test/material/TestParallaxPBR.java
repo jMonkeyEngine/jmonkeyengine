@@ -49,7 +49,7 @@ import com.jme3.util.TangentBinormalGenerator;
 
 public class TestParallaxPBR extends SimpleApplication {
 
-    private Vector3f lightDir = new Vector3f(-1, -1, .5f).normalizeLocal();
+    final private Vector3f lightDir = new Vector3f(-1, -1, .5f).normalizeLocal();
 
     public static void main(String[] args) {
         TestParallaxPBR app = new TestParallaxPBR();
@@ -146,7 +146,7 @@ public class TestParallaxPBR extends SimpleApplication {
         inputManager.addMapping("toggleSteep", new KeyTrigger(KeyInput.KEY_SPACE));
     }
     private float parallaxHeigh = 0.05f;
-    private float time = 0;
+    final private float time = 0;
     private boolean steep = false;
 
     @Override

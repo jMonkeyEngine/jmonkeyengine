@@ -24,18 +24,18 @@ import com.jme3.shadow.EdgeFilteringMode;
  */
 public class ShadowTestUIManager implements ActionListener {
 
-    private BitmapText shadowTypeText;
-    private BitmapText shadowCompareText;
-    private BitmapText shadowFilterText;
-    private BitmapText shadowIntensityText;
+    final private BitmapText shadowTypeText;
+    final private BitmapText shadowCompareText;
+    final private BitmapText shadowFilterText;
+    final private BitmapText shadowIntensityText;
     private final static String TYPE_TEXT = "(Space) Shadow type : ";
     private final static String COMPARE_TEXT = "(enter) Shadow compare ";
     private final static String FILTERING_TEXT = "(f) Edge filtering : ";
     private final static String INTENSITY_TEXT = "(t:up, g:down) Shadow intensity : ";
     private boolean hardwareShadows = true;
-    private AbstractShadowRenderer plsr;
-    private AbstractShadowFilter plsf;
-    private ViewPort viewPort;
+    final private AbstractShadowRenderer plsr;
+    final private AbstractShadowFilter plsf;
+    final private ViewPort viewPort;
     private int filteringIndex = 0;
     private int renderModeIndex = 0;
     

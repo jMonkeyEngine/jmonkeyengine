@@ -69,7 +69,7 @@ public class TestPointDirectionalAndSpotLightShadows extends SimpleApplication {
     private SpotLightShadowFilter slsf;
     private SpotLight spotLight;
     
-    private boolean useFilter = false;
+    final private boolean useFilter = false;
     
     @Override
     public void simpleInitApp() {

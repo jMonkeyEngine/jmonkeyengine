@@ -144,7 +144,7 @@ public class TestParallax extends SimpleApplication {
         inputManager.addMapping("toggleSteep", new KeyTrigger(KeyInput.KEY_SPACE));
     }
     private float parallaxHeigh = 0.05f;
-    private float time = 0;
+    final private float time = 0;
     private boolean steep = false;
 
     @Override

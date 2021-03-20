@@ -41,7 +41,7 @@ import com.jme3.util.TangentBinormalGenerator;
 
 public class TestParallelTangentGeneration {
 
-    private static ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+    final private static ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
     public static void main(String[] args) {
 

@@ -50,12 +50,12 @@ import com.jme3.scene.Node;
 
 public class TestIssue877 extends SimpleApplication {
 
-    private BulletAppState bulletAppState = new BulletAppState();
-    private int numPendulums = 6;
-    private int numFalling = 6;
-    private Node pivots[] = new Node[numPendulums];
-    private Node bobs[] = new Node[numPendulums];
-    private Node falling[] = new Node[numFalling];
+    final private BulletAppState bulletAppState = new BulletAppState();
+    final private int numPendulums = 6;
+    final private int numFalling = 6;
+    final private Node pivots[] = new Node[numPendulums];
+    final private Node bobs[] = new Node[numPendulums];
+    final private Node falling[] = new Node[numFalling];
     private float timeToNextPrint = 1f; // in seconds
 
     public static void main(String[] args) {

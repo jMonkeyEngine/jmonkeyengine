@@ -50,18 +50,18 @@ import java.util.*;
 
 public class TestGltfLoading extends SimpleApplication {
 
-    private Node autoRotate = new Node("autoRotate");
-    private List<Spatial> assets = new ArrayList<>();
+    final private Node autoRotate = new Node("autoRotate");
+    final private List<Spatial> assets = new ArrayList<>();
     private Node probeNode;
     private float time = 0;
     private int assetIndex = 0;
     private boolean useAutoRotate = false;
     private final static String indentString = "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t";
-    private int duration = 1;
+    final private int duration = 1;
     private boolean playAnim = true;
 
     private Geometry g;
-    private int morphIndex = 0;
+    final private int morphIndex = 0;
 
 
     public static void main(String[] args) {
@@ -264,7 +264,7 @@ public class TestGltfLoading extends SimpleApplication {
 
     }
 
-    private Queue<String> anims = new LinkedList<>();
+    final private Queue<String> anims = new LinkedList<>();
     private AnimComposer composer;
 
     private void playFirstAnim(Spatial s) {

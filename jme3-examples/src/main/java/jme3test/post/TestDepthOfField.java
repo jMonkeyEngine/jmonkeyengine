@@ -32,7 +32,7 @@ import java.util.List;
 public class TestDepthOfField extends SimpleApplication {
 
     private FilterPostProcessor fpp;
-    private Vector3f lightDir = new Vector3f(-4.9236743f, -1.27054665f, 5.896916f);
+    final private Vector3f lightDir = new Vector3f(-4.9236743f, -1.27054665f, 5.896916f);
     private TerrainQuad terrain;
     private Material matRock;
     private DepthOfFieldFilter dofFilter;

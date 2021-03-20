@@ -75,7 +75,7 @@ public class TestHoveringTank extends SimpleApplication implements AnalogListene
     private Spatial spaceCraft;
     private TerrainQuad terrain;
     private Material matRock;
-    private boolean wireframe = false;
+    final private boolean wireframe = false;
     private BitmapText hintText;
     private PointLight pl;
     private Geometry lightMdl;

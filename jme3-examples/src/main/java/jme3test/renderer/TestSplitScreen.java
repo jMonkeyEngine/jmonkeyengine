@@ -51,9 +51,9 @@ import com.jme3.scene.shape.Box;
 public class TestSplitScreen extends SimpleApplication implements ActionListener {
 
     private boolean splitScreen = false;
-    private Box mesh = new Box(1f, 1f, 1f);
+    final private Box mesh = new Box(1f, 1f, 1f);
     private Camera leftCam, rightCam;
-    private Node leftScene = new Node("left scene");
+    final private Node leftScene = new Node("left scene");
     private ViewPort leftView, rightView;
 
     @Override

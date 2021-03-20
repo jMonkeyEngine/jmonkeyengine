@@ -90,7 +90,7 @@ public class TestTriangleCollision extends SimpleApplication {
                     "MoveRight", "MoveLeft", "MoveUp", "MoveDown"
                 });
     }
-    private AnalogListener analogListener = new AnalogListener() {
+    final private AnalogListener analogListener = new AnalogListener() {
 
         @Override
         public void onAnalog(String name, float value, float tpf) {

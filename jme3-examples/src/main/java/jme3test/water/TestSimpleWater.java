@@ -58,7 +58,7 @@ public class TestSimpleWater extends SimpleApplication implements ActionListener
     private SimpleWaterProcessor waterProcessor;
     private Node sceneNode;
     private boolean useWater = true;
-    private Vector3f lightPos =  new Vector3f(33,12,-29);
+    final private Vector3f lightPos =  new Vector3f(33,12,-29);
 
 
     public static void main(String[] args) {

@@ -26,7 +26,7 @@ public class TestAnimMigration extends SimpleApplication {
 
     private ArmatureDebugAppState debugAppState;
     private AnimComposer composer;
-    private LinkedList<String> anims = new LinkedList<>();
+    final private LinkedList<String> anims = new LinkedList<>();
     private boolean playAnim = false;
     private BlendAction action;
     private float blendValue = 1f;

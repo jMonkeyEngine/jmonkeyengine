@@ -240,7 +240,7 @@ public class TestManyLightsSingle extends SimpleApplication {
     private BitmapText helloText;
     private long time;
     private long nbFrames;
-    private long startTime = 0;
+    final private long startTime = 0;
 
     @Override
     public void simpleUpdate(float tpf) {
@@ -257,8 +257,8 @@ public class TestManyLightsSingle extends SimpleApplication {
 
     class MoveControl extends AbstractControl {
 
-        private float direction;
-        private Vector3f origPos = new Vector3f();
+        final private float direction;
+        final private Vector3f origPos = new Vector3f();
 
         public MoveControl(float direction) {
             this.direction = direction;

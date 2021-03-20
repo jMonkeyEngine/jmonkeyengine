@@ -68,8 +68,8 @@ public class TerrainTestAdvanced extends SimpleApplication {
     private Material matWire;
     private boolean wireframe = false;
     private boolean triPlanar = false;
-    private boolean wardiso = false;
-    private boolean minnaert = false;
+    final private boolean wardiso = false;
+    final private boolean minnaert = false;
     private BitmapText hintText;
     private PointLight pl;
     private Geometry lightMdl;
@@ -249,7 +249,7 @@ public class TerrainTestAdvanced extends SimpleApplication {
         inputManager.addMapping("DetachControl", new KeyTrigger(KeyInput.KEY_0));
         inputManager.addListener(actionListener, "DetachControl");
     }
-    private ActionListener actionListener = new ActionListener() {
+    final private ActionListener actionListener = new ActionListener() {
 
         @Override
         public void onAction(String name, boolean pressed, float tpf) {

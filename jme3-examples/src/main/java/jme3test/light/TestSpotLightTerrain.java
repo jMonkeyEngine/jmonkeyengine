@@ -63,16 +63,16 @@ public class TestSpotLightTerrain extends SimpleApplication {
     private TerrainQuad terrain;
     private Material matTerrain;
     private Material matWire;
-    private boolean wireframe = false;
-    private boolean triPlanar = false;
-    private boolean wardiso = false;
-    private boolean minnaert = false;
+    final private boolean wireframe = false;
+    final private boolean triPlanar = false;
+    final private boolean wardiso = false;
+    final private boolean minnaert = false;
     private BitmapText hintText;
     private PointLight pl;
     private Geometry lightMdl;
-    private float grassScale = 64;
-    private float dirtScale = 16;
-    private float rockScale = 128;
+    final private float grassScale = 64;
+    final private float dirtScale = 16;
+    final private float rockScale = 128;
     private SpotLight sl;
 
     public static void main(String[] args) {

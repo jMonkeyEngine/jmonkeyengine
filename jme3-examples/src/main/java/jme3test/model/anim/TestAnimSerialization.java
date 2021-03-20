@@ -30,7 +30,7 @@ public class TestAnimSerialization extends SimpleApplication {
 
     private ArmatureDebugAppState debugAppState;
     private AnimComposer composer;
-    private Queue<String> anims = new LinkedList<>();
+    final private Queue<String> anims = new LinkedList<>();
     private boolean playAnim = true;
     private File file;
 

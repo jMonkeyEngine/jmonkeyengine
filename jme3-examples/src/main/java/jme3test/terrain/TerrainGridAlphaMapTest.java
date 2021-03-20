@@ -45,9 +45,9 @@ import java.io.File;
 public class TerrainGridAlphaMapTest extends SimpleApplication {
 
     private TerrainGrid terrain;
-    private float grassScale = 64;
-    private float dirtScale = 16;
-    private float rockScale = 128;
+    final private float grassScale = 64;
+    final private float dirtScale = 16;
+    final private float rockScale = 128;
     private boolean usePhysics = false;
 
     public static void main(final String[] args) {

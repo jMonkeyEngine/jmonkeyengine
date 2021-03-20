@@ -53,7 +53,7 @@ public class TestCameraNode extends SimpleApplication implements AnalogListener,
   private Node teaNode;
   private CameraNode camNode;
   private boolean rotate = false;
-  private Vector3f direction = new Vector3f();
+  final private Vector3f direction = new Vector3f();
 
   public static void main(String[] args) {
     TestCameraNode app = new TestCameraNode();

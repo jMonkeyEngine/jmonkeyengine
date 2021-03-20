@@ -61,13 +61,13 @@ public class HelloCollision extends SimpleApplication
   private BulletAppState bulletAppState;
   private RigidBodyControl landscape;
   private CharacterControl player;
-  private Vector3f walkDirection = new Vector3f();
+  final private Vector3f walkDirection = new Vector3f();
   private boolean left = false, right = false, up = false, down = false;
   
   //Temporary vectors used on each frame.
   //They here to avoid instanciating new vectors on each frame
-  private Vector3f camDir = new Vector3f();
-  private Vector3f camLeft = new Vector3f();
+  final private Vector3f camDir = new Vector3f();
+  final private Vector3f camLeft = new Vector3f();
 
   public static void main(String[] args) {
     HelloCollision app = new HelloCollision();

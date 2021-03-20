@@ -229,8 +229,8 @@ public class TestConeVSFrustum extends SimpleApplication {
     }
     private Geometry boxGeo, boxGeo2;
     private final static float MOVE_SPEED = 60;
-    private Vector3f tmp = new Vector3f();
-    private Quaternion tmpQuat = new Quaternion();
+    final private Vector3f tmp = new Vector3f();
+    final private Quaternion tmpQuat = new Quaternion();
     private boolean moving, shift;
     private boolean panning;
     private Geometry geom;

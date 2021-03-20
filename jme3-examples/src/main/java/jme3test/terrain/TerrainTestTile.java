@@ -69,11 +69,11 @@ public class TerrainTestTile extends SimpleApplication {
     private Material matTerrain;
     private Material matWire;
     private boolean wireframe = false;
-    private boolean triPlanar = false;
-    private boolean wardiso = false;
-    private boolean minnaert = false;
+    final private boolean triPlanar = false;
+    final private boolean wardiso = false;
+    final private boolean minnaert = false;
     private BitmapText hintText;
-    private float grassScale = 256;
+    final private float grassScale = 256;
     
 
     public static void main(String[] args) {
@@ -145,7 +145,7 @@ public class TerrainTestTile extends SimpleApplication {
         inputManager.addMapping("wireframe", new KeyTrigger(KeyInput.KEY_T));
         inputManager.addListener(actionListener, "wireframe");
     }
-    private ActionListener actionListener = new ActionListener() {
+    final private ActionListener actionListener = new ActionListener() {
 
         @Override
         public void onAction(String name, boolean pressed, float tpf) {
@@ -170,10 +170,10 @@ public class TerrainTestTile extends SimpleApplication {
      */
     private class TiledTerrain extends Node implements Terrain, NeighbourFinder {
 
-        private TerrainQuad terrain1;
-        private TerrainQuad terrain2;
-        private TerrainQuad terrain3;
-        private TerrainQuad terrain4;
+        final private TerrainQuad terrain1;
+        final private TerrainQuad terrain2;
+        final private TerrainQuad terrain3;
+        final private TerrainQuad terrain4;
         
         TiledTerrain() {
             // TERRAIN TEXTURE material

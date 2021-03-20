@@ -47,7 +47,7 @@ import com.jme3.util.TangentBinormalGenerator;
 
 public class TestSpotLight extends SimpleApplication {
 
-    private Vector3f lightTarget = new Vector3f(12, 3.5f, 30);
+    final private Vector3f lightTarget = new Vector3f(12, 3.5f, 30);
 
     public static void main(String[] args){
         TestSpotLight app = new TestSpotLight();

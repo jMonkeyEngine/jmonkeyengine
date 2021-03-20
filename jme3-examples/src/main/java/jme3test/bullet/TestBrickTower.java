@@ -90,11 +90,11 @@ import com.jme3.texture.Texture.WrapMode;
  */
 public class TestBrickTower extends SimpleApplication {
 
-    private int bricksPerLayer = 8;
-    private int brickLayers = 30;
+    final private int bricksPerLayer = 8;
+    final private int brickLayers = 30;
 
-    private static float brickWidth = .75f, brickHeight = .25f, brickDepth = .25f;
-    private float radius = 3f;
+    final private static float brickWidth = .75f, brickHeight = .25f, brickDepth = .25f;
+    final private float radius = 3f;
     private float angle = 0;
 
 
@@ -140,7 +140,7 @@ public class TestBrickTower extends SimpleApplication {
     private PhysicsSpace getPhysicsSpace() {
         return bulletAppState.getPhysicsSpace();
     }
-    private ActionListener actionListener = new ActionListener() {
+    final private ActionListener actionListener = new ActionListener() {
 
         @Override
         public void onAction(String name, boolean keyPressed, float tpf) {

@@ -62,8 +62,8 @@ public class TestLodGeneration extends SimpleApplication {
     private int lodLevel = 0;
     private Node model;
     private BitmapText hudText;
-    private List<Geometry> listGeoms = new ArrayList<Geometry>();
-    private ScheduledThreadPoolExecutor exec = new ScheduledThreadPoolExecutor(5);
+    final private List<Geometry> listGeoms = new ArrayList<Geometry>();
+    final private ScheduledThreadPoolExecutor exec = new ScheduledThreadPoolExecutor(5);
     private AnimChannel ch;
 
     @Override

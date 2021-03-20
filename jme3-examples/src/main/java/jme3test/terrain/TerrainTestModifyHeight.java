@@ -82,13 +82,13 @@ public class TerrainTestModifyHeight extends SimpleApplication {
     private Material matTerrain;
     private Material matWire;
     private boolean wireframe = false;
-    private boolean triPlanar = false;
-    private boolean wardiso = false;
-    private boolean minnaert = false;
+    final private boolean triPlanar = false;
+    final private boolean wardiso = false;
+    final private boolean minnaert = false;
     private BitmapText hintText;
-    private float grassScale = 64;
-    private float dirtScale = 16;
-    private float rockScale = 128;
+    final private float grassScale = 64;
+    final private float dirtScale = 16;
+    final private float rockScale = 128;
     
     private boolean raiseTerrain = false;
     private boolean lowerTerrain = false;
@@ -192,7 +192,7 @@ public class TerrainTestModifyHeight extends SimpleApplication {
         inputManager.addMapping("Lower", new MouseButtonTrigger(MouseInput.BUTTON_RIGHT));
         inputManager.addListener(actionListener, "Lower");
     }
-    private ActionListener actionListener = new ActionListener() {
+    final private ActionListener actionListener = new ActionListener() {
 
         @Override
         public void onAction(String name, boolean pressed, float tpf) {

@@ -53,7 +53,7 @@ import com.jme3.util.TangentBinormalGenerator;
 public class TestPostFilters extends SimpleApplication implements ActionListener {
 
     private FilterPostProcessor fpp;
-    private Vector3f lightDir = new Vector3f(-1, -1, .5f).normalizeLocal();
+    final private Vector3f lightDir = new Vector3f(-1, -1, .5f).normalizeLocal();
     private FadeFilter fade;
 
     public static void main(String[] args) {

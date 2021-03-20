@@ -61,9 +61,9 @@ import com.jme3.texture.Texture.WrapMode;
  */
 public class TestBrickWall extends SimpleApplication {
 
-    private static float bLength = 0.48f;
-    private static float bWidth = 0.24f;
-    private static float bHeight = 0.12f;
+    final private static float bLength = 0.48f;
+    final private static float bWidth = 0.24f;
+    final private static float bHeight = 0.12f;
     private Material mat;
     private Material mat2;
     private Material mat3;
@@ -109,7 +109,7 @@ public class TestBrickWall extends SimpleApplication {
     private PhysicsSpace getPhysicsSpace() {
         return bulletAppState.getPhysicsSpace();
     }
-    private ActionListener actionListener = new ActionListener() {
+    final private ActionListener actionListener = new ActionListener() {
 
         @Override
         public void onAction(String name, boolean keyPressed, float tpf) {

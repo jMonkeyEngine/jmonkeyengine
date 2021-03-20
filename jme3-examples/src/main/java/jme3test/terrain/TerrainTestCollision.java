@@ -246,7 +246,7 @@ public class TerrainTestCollision extends SimpleApplication {
         }
     }
 
-    private ActionListener actionListener = new ActionListener() {
+    final private ActionListener actionListener = new ActionListener() {
 
         @Override
         public void onAction(String binding, boolean keyPressed, float tpf) {

@@ -44,7 +44,7 @@ import com.jme3.post.ssao.SSAOFilter;
  */
 public class SSAOUI {
 
-    private SSAOFilter filter;
+    final private SSAOFilter filter;
 
     public SSAOUI(InputManager inputManager, SSAOFilter filter) {
         this.filter = filter;

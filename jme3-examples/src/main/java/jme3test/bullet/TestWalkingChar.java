@@ -82,7 +82,7 @@ public class TestWalkingChar extends SimpleApplication implements ActionListener
     private CharacterControl character;
     private Node model;
     //temp vectors
-    private Vector3f walkDirection = new Vector3f();
+    final private Vector3f walkDirection = new Vector3f();
     //terrain
     private TerrainQuad terrain;
     private RigidBodyControl terrainPhysicsNode;
@@ -104,9 +104,9 @@ public class TestWalkingChar extends SimpleApplication implements ActionListener
     private ParticleEmitter effect;
     //brick wall
     private Box brick;
-    private float bLength = 0.8f;
-    private float bWidth = 0.4f;
-    private float bHeight = 0.4f;
+    final private float bLength = 0.8f;
+    final private float bWidth = 0.4f;
+    final private float bHeight = 0.4f;
     private FilterPostProcessor fpp;
 
     public static void main(String[] args) {

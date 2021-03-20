@@ -122,7 +122,7 @@ public class HelloPhysics extends SimpleApplication {
    * Every time the shoot action is triggered, a new cannon ball is produced.
    * The ball is set up to fly from the camera position in the camera direction.
    */
-  private ActionListener actionListener = new ActionListener() {
+  final private ActionListener actionListener = new ActionListener() {
     @Override
     public void onAction(String name, boolean keyPressed, float tpf) {
       if (name.equals("shoot") && !keyPressed) {

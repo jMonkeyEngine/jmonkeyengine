@@ -63,7 +63,7 @@ public class TestBatchNodeCluster extends SimpleApplication {
         app.setShowSettings(false); 
         app.start();
     }
-    private ActionListener al = new ActionListener() {
+    final private ActionListener al = new ActionListener() {
 
         @Override
         public void onAction(String name, boolean isPressed, float tpf) {
@@ -72,20 +72,20 @@ public class TestBatchNodeCluster extends SimpleApplication {
             }
         }
     };
-    private Random rand = new Random();
-    private int maxCubes = 2000;
-    private int startAt = 0;
-    private static int xPositions = 0, yPositions = 0, zPositions = 0;
-    private int returner = 0;
-    private ArrayList<Integer> xPosition = new ArrayList<Integer>();
-    private ArrayList<Integer> yPosition = new ArrayList<Integer>();
-    private ArrayList<Integer> zPosition = new ArrayList<Integer>();
-    private int xLimitf = 60, xLimits = -60, yLimitf = 60, yLimits = -20, zLimitf = 60, zLimits = -60;
-    private int circ = 8;//increases by 8 every time.
-    private int dynamic = 4;
+    final private Random rand = new Random();
+    final private int maxCubes = 2000;
+    final private int startAt = 0;
+    final private static int xPositions = 0, yPositions = 0, zPositions = 0;
+    final private int returner = 0;
+    final private ArrayList<Integer> xPosition = new ArrayList<Integer>();
+    final private ArrayList<Integer> yPosition = new ArrayList<Integer>();
+    final private ArrayList<Integer> zPosition = new ArrayList<Integer>();
+    final private int xLimitf = 60, xLimits = -60, yLimitf = 60, yLimits = -20, zLimitf = 60, zLimits = -60;
+    final private int circ = 8;//increases by 8 every time.
+    final private int dynamic = 4;
     private static AppSettings settingst;
-    private boolean isTrue = true;
-    private int lineLength = 50;
+    final private boolean isTrue = true;
+    final private int lineLength = 50;
     private BatchNode batchNode;
     private Material mat1;
     private Material mat2;
@@ -335,11 +335,11 @@ public class TestBatchNodeCluster extends SimpleApplication {
     public int getz(int i) {
         return zPosition.get(i);
     }
-    private long nbFrames = 0;
-    private long cullTime = 0;
+    final private long nbFrames = 0;
+    final private long cullTime = 0;
     private float time = 0;
-    private Vector3f lookAtPos = new Vector3f(0, 0, 0);
-    private float xpos = 0;
+    final private Vector3f lookAtPos = new Vector3f(0, 0, 0);
+    final private float xpos = 0;
     private Spatial box;
 
     @Override
