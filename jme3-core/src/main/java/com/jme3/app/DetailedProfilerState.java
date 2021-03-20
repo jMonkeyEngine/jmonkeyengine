@@ -60,13 +60,13 @@ public class DetailedProfilerState extends BaseAppState {
     private static final String TOGGLE_KEY = "Toggle_Detailed_Profiler";
     private static final String CLICK_KEY = "Click_Detailed_Profiler";
     private static final String INSIGNIFICANT = "Hide insignificant stat";
-    private DetailedProfiler prof = new DetailedProfiler();
+    final private DetailedProfiler prof = new DetailedProfiler();
 
     private float time = 0;
     private BitmapFont font;
     private BitmapFont bigFont;
-    private Node ui = new Node("Stats ui");
-    private Map<String, StatLineView> lines = new HashMap<>();
+    final private Node ui = new Node("Stats ui");
+    final private Map<String, StatLineView> lines = new HashMap<>();
     private double totalTimeCpu;
     private double totalTimeGpu;
     private int maxLevel = 0;
@@ -83,14 +83,14 @@ public class DetailedProfilerState extends BaseAppState {
 
     private StatLineView rootLine;
     private int height = 0;
-    private DecimalFormat df = new DecimalFormat("##0.00", new DecimalFormatSymbols(Locale.US));
+    final private DecimalFormat df = new DecimalFormat("##0.00", new DecimalFormatSymbols(Locale.US));
 
-    private ColorRGBA dimmedWhite = ColorRGBA.White.mult(0.7f);
-    private ColorRGBA dimmedGreen = ColorRGBA.Green.mult(0.7f);
-    private ColorRGBA dimmedOrange = ColorRGBA.Orange.mult(0.7f);
-    private ColorRGBA dimmedRed = ColorRGBA.Red.mult(0.7f);
+    final private ColorRGBA dimmedWhite = ColorRGBA.White.mult(0.7f);
+    final private ColorRGBA dimmedGreen = ColorRGBA.Green.mult(0.7f);
+    final private ColorRGBA dimmedOrange = ColorRGBA.Orange.mult(0.7f);
+    final private ColorRGBA dimmedRed = ColorRGBA.Red.mult(0.7f);
 
-    private ProfilerInputListener inputListener = new ProfilerInputListener();
+    final private ProfilerInputListener inputListener = new ProfilerInputListener();
 
     public DetailedProfilerState() {
 

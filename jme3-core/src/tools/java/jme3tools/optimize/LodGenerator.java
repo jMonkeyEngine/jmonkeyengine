@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -108,7 +108,7 @@ public class LodGenerator {
     private List<Triangle> triangleList;
     private List<Vertex> vertexList = new ArrayList<Vertex>();
     private float meshBoundingSphereRadius;
-    private Mesh mesh;
+    final private Mesh mesh;
 
     /**
      * Describe the way triangles will be removed. <br> PROPORTIONAL :
@@ -242,7 +242,7 @@ public class LodGenerator {
     /**
      * Comparator used to sort vertices according to their collapse cost
      */
-    private Comparator<Vertex> collapseComparator = new Comparator<Vertex>() {
+    final private Comparator<Vertex> collapseComparator = new Comparator<Vertex>() {
         @Override
         public int compare(Vertex o1, Vertex o2) {
             if (Float.compare(o1.collapseCost, o2.collapseCost) == 0) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -98,8 +98,8 @@ public class MaterialDebugAppState extends AbstractAppState {
     private RenderManager renderManager;
     private AssetManager assetManager;
     private InputManager inputManager;
-    private List<Binding> bindings = new ArrayList<Binding>();
-    private Map<Trigger,List<Binding>> fileTriggers = new HashMap<Trigger,List<Binding>> ();
+    final private List<Binding> bindings = new ArrayList<Binding>();
+    final private Map<Trigger,List<Binding>> fileTriggers = new HashMap<Trigger,List<Binding>> ();
     
 
     @Override

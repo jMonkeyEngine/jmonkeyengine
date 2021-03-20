@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -74,17 +74,17 @@ public class NativeObjectManager {
     /**
      * List of currently active GLObjects.
      */
-    private HashMap<Long, NativeObjectRef> refMap = new HashMap<Long, NativeObjectRef>();
+    final private HashMap<Long, NativeObjectRef> refMap = new HashMap<Long, NativeObjectRef>();
     
     /**
      * List of real objects requested by user for deletion.
      */
-    private ArrayDeque<NativeObject> userDeletionQueue = new ArrayDeque<NativeObject>();
+    final private ArrayDeque<NativeObject> userDeletionQueue = new ArrayDeque<NativeObject>();
 
     private static class NativeObjectRef extends PhantomReference<Object> {
         
-        private NativeObject objClone;
-        private WeakReference<NativeObject> realObj;
+        final private NativeObject objClone;
+        final private WeakReference<NativeObject> realObj;
 
         public NativeObjectRef(ReferenceQueue<Object> refQueue, NativeObject obj){
             super(obj.handleRef, refQueue);

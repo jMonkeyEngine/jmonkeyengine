@@ -8,7 +8,7 @@ import java.util.List;
 
 public class BaseAction extends Action {
 
-    private Tween tween;
+    final private Tween tween;
 
     public BaseAction(Tween tween) {
         this.tween = tween;

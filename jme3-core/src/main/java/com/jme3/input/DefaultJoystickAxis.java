@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,13 +40,13 @@ import com.jme3.input.controls.JoyAxisTrigger;
  */
 public class DefaultJoystickAxis implements JoystickAxis {
 
-    private InputManager inputManager;
-    private Joystick parent;
-    private int axisIndex;
-    private String name;
-    private String logicalId;
-    private boolean isAnalog;
-    private boolean isRelative;
+    final private InputManager inputManager;
+    final private Joystick parent;
+    final private int axisIndex;
+    final private String name;
+    final private String logicalId;
+    final private boolean isAnalog;
+    final private boolean isRelative;
     private float deadZone;
 
     /**

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -80,7 +80,7 @@ public class FrameBuffer extends NativeObject {
     private int width = 0;
     private int height = 0;
     private int samples = 1;
-    private ArrayList<RenderBuffer> colorBufs = new ArrayList<RenderBuffer>();
+    final private ArrayList<RenderBuffer> colorBufs = new ArrayList<RenderBuffer>();
     private RenderBuffer depthBuf = null;
     private int colorBufIndex = 0;
     private boolean srgb;

@@ -76,7 +76,7 @@ public abstract class SimpleApplication extends LegacyApplication {
     protected BitmapFont guiFont;
     protected FlyByCamera flyCam;
     protected boolean showSettings = true;
-    private AppActionListener actionListener = new AppActionListener();
+    final private AppActionListener actionListener = new AppActionListener();
 
     private class AppActionListener implements ActionListener {
 

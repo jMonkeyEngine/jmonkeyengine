@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -70,10 +70,10 @@ public class DesktopAssetManager implements AssetManager {
     
     private final ImplHandler handler = new ImplHandler(this);
 
-    private CopyOnWriteArrayList<AssetEventListener> eventListeners = 
+    final private CopyOnWriteArrayList<AssetEventListener> eventListeners = 
             new CopyOnWriteArrayList<AssetEventListener>();
     
-    private List<ClassLoader> classLoaders =
+    final private List<ClassLoader> classLoaders =
             Collections.synchronizedList(new ArrayList<ClassLoader>());
 
     public DesktopAssetManager(){

@@ -172,8 +172,8 @@ public class Easing {
      */
     public static class InOut implements EaseFunction {
 
-        private EaseFunction in;
-        private EaseFunction out;
+        final private EaseFunction in;
+        final private EaseFunction out;
 
         /**
          * Instantiate a function that blends 2 pre-existing functions.
@@ -200,7 +200,7 @@ public class Easing {
 
     private static class Invert implements EaseFunction {
 
-        private EaseFunction func;
+        final private EaseFunction func;
 
         public Invert(EaseFunction func) {
             this.func = func;

@@ -53,7 +53,7 @@ public final class SinglePassAndImageBasedLightingLogic extends DefaultTechnique
 
     private boolean useAmbientLight;
     private final ColorRGBA ambientLightColor = new ColorRGBA(0, 0, 0, 1);
-    private List<LightProbe> lightProbes = new ArrayList<>(3);
+    final private List<LightProbe> lightProbes = new ArrayList<>(3);
 
     static {
         ADDITIVE_LIGHT.setBlendMode(BlendMode.AlphaAdditive);

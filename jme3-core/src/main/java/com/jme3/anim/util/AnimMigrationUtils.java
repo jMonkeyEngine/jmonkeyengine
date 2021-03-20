@@ -10,8 +10,8 @@ import java.util.*;
 
 public class AnimMigrationUtils {
 
-    private static AnimControlVisitor animControlVisitor = new AnimControlVisitor();
-    private static SkeletonControlVisitor skeletonControlVisitor = new SkeletonControlVisitor();
+    final private static AnimControlVisitor animControlVisitor = new AnimControlVisitor();
+    final private static SkeletonControlVisitor skeletonControlVisitor = new SkeletonControlVisitor();
 
 
     public static Spatial migrate(Spatial source) {

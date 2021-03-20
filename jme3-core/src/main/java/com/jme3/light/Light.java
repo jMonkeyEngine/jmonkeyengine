@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -87,7 +87,7 @@ public abstract class Light implements Savable, Cloneable {
         Probe(4);
                 
 
-        private int typeId;
+        final private int typeId;
 
         Type(int type){
             this.typeId = type;

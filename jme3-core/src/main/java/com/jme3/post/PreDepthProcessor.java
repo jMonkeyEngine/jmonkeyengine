@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -49,9 +49,9 @@ public class PreDepthProcessor implements SceneProcessor {
 
     private RenderManager rm;
     private ViewPort vp;
-    private AssetManager assetManager;
-    private Material preDepth;
-    private RenderState forcedRS;
+    final private AssetManager assetManager;
+    final private Material preDepth;
+    final private RenderState forcedRS;
     private AppProfiler prof;
 
     public PreDepthProcessor(AssetManager assetManager){

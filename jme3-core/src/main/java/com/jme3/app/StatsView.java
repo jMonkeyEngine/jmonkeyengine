@@ -61,11 +61,11 @@ import com.jme3.util.clone.JmeCloneable;
  */
 public class StatsView extends Node implements Control, JmeCloneable {
 
-    private BitmapText statText;
-    private Statistics statistics;
+    final private BitmapText statText;
+    final private Statistics statistics;
 
-    private String[] statLabels;
-    private int[] statData;
+    final private String[] statLabels;
+    final private int[] statData;
 
     private boolean enabled = true;
 

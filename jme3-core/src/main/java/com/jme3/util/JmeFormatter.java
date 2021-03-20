@@ -45,11 +45,11 @@ import java.util.logging.LogRecord;
  */
 public class JmeFormatter extends Formatter {
 
-    private Date calendar = new Date();
-    private String lineSeperator;
-    private MessageFormat format;
-    private Object args[] = new Object[1];
-    private StringBuffer store = new StringBuffer();
+    final private Date calendar = new Date();
+    final private String lineSeperator;
+    final private MessageFormat format;
+    final private Object args[] = new Object[1];
+    final private StringBuffer store = new StringBuffer();
 
     public JmeFormatter(){
         lineSeperator = System.getProperty("line.separator");

@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2009-2020 jMonkeyEngine
+ *  Copyright (c) 2009-2021 jMonkeyEngine
  *  All rights reserved.
  * 
  *  Redistribution and use in source and binary forms, with or without
@@ -121,11 +121,11 @@ public class TextureAtlas {
 
     private static final Logger logger = Logger.getLogger(TextureAtlas.class.getName());
     private Map<String, byte[]> images;
-    private int atlasWidth, atlasHeight;
-    private Format format = Format.ABGR8;
-    private Node root;
-    private Map<String, TextureAtlasTile> locationMap;
-    private Map<String, String> mapNameMap;
+    final private int atlasWidth, atlasHeight;
+    final private Format format = Format.ABGR8;
+    final private Node root;
+    final private Map<String, TextureAtlasTile> locationMap;
+    final private Map<String, String> mapNameMap;
     private String rootMapName;
 
     public TextureAtlas(int width, int height) {
@@ -620,8 +620,8 @@ public class TextureAtlas {
 
     public class TextureAtlasTile {
 
-        private int x;
-        private int y;
+        final private int x;
+        final private int y;
         private int width;
         private int height;
 

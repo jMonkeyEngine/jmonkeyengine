@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2017 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -57,7 +57,7 @@ import com.jme3.renderer.Camera;
  */
 public class FlyByCamera implements AnalogListener, ActionListener {
 
-    private static String[] mappings = new String[]{
+    final private static String[] mappings = new String[]{
         CameraInput.FLYCAM_LEFT,
         CameraInput.FLYCAM_RIGHT,
         CameraInput.FLYCAM_UP,

@@ -88,7 +88,7 @@ public class ConstantVerifierState extends BaseAppState {
 
     public enum ErrorType { Assert, Exception, Log };
 
-    private SafeArrayList<Checker> checkers = new SafeArrayList<>(Checker.class);
+    final private SafeArrayList<Checker> checkers = new SafeArrayList<>(Checker.class);
     private ErrorType errorType;
 
     /**

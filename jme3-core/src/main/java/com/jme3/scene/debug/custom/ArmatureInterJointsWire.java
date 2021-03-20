@@ -1,7 +1,7 @@
 package com.jme3.scene.debug.custom;
 
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,7 +46,7 @@ import java.nio.FloatBuffer;
  * @author Marcin Roguski (Kaelthas)
  */
 public class ArmatureInterJointsWire extends Mesh {
-    private Vector3f tmp = new Vector3f();
+    final private Vector3f tmp = new Vector3f();
 
 
     public ArmatureInterJointsWire(Vector3f start, Vector3f[] ends) {

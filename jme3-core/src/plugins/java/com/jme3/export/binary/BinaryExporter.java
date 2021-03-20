@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -154,10 +154,10 @@ public class BinaryExporter implements JmeExporter {
              = new HashMap<Integer, Integer>();
 
     // key - class name, value = bco
-    private HashMap<String, BinaryClassObject> classes
+    final private HashMap<String, BinaryClassObject> classes
              = new HashMap<String, BinaryClassObject>();
 
-    private ArrayList<Savable> contentKeys = new ArrayList<Savable>();
+    final private ArrayList<Savable> contentKeys = new ArrayList<Savable>();
 
     public static boolean debug = false;
     public static boolean useFastBufs = true;

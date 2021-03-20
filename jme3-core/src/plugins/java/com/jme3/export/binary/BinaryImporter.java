@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -54,16 +54,16 @@ public final class BinaryImporter implements JmeImporter {
     private AssetManager assetManager;
 
     //Key - alias, object - bco
-    private HashMap<String, BinaryClassObject> classes
+    final private HashMap<String, BinaryClassObject> classes
              = new HashMap<String, BinaryClassObject>();
     //Key - id, object - the savable
-    private HashMap<Integer, Savable> contentTable
+    final private HashMap<Integer, Savable> contentTable
             = new HashMap<Integer, Savable>();
     //Key - savable, object - capsule
-    private IdentityHashMap<Savable, BinaryInputCapsule> capsuleTable
+    final private IdentityHashMap<Savable, BinaryInputCapsule> capsuleTable
              = new IdentityHashMap<Savable, BinaryInputCapsule>();
     //Key - id, opject - location in the file
-    private HashMap<Integer, Integer> locationTable
+    final private HashMap<Integer, Integer> locationTable
              = new HashMap<Integer, Integer>();
 
     public static boolean debug = false;

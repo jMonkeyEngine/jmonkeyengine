@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -87,7 +87,7 @@ public final class OBJLoader implements AssetLoader {
     protected Node objNode;
 
     private static class Group {
-        private String name;
+        final private String name;
         private final ArrayList<Face> faces = new ArrayList<Face>();
         private final HashMap<String, ArrayList<Face>> matFaces = new HashMap<String, ArrayList<Face>>();
 
@@ -237,7 +237,7 @@ public final class OBJLoader implements AssetLoader {
         return t;
     }
 
-    private ArrayList<Vertex> vertList = new ArrayList<Vertex>();
+    final private ArrayList<Vertex> vertList = new ArrayList<Vertex>();
 
     protected void readFace(){
         Face f = new Face();

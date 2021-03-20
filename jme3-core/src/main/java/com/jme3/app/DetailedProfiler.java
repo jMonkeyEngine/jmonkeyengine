@@ -59,10 +59,10 @@ public class DetailedProfiler implements AppProfiler {
     private String curSpPath = null;
     private VpStep lastVpStep = null;
 
-    private StringBuilder path = new StringBuilder(256);
-    private StringBuilder vpPath = new StringBuilder(256);
+    final private StringBuilder path = new StringBuilder(256);
+    final private StringBuilder vpPath = new StringBuilder(256);
 
-    private Deque<Integer> idsPool = new ArrayDeque<>(100);
+    final private Deque<Integer> idsPool = new ArrayDeque<>(100);
 
     StatLine frameTime;
 
@@ -256,8 +256,8 @@ public class DetailedProfiler implements AppProfiler {
     }
 
     public static class StatLine {
-        private long[] cpuTimes = new long[MAX_FRAMES];
-        private long[] gpuTimes = new long[MAX_FRAMES];
+        final private long[] cpuTimes = new long[MAX_FRAMES];
+        final private long[] gpuTimes = new long[MAX_FRAMES];
         private int startCursor = 0;
         private int cpuCursor = 0;
         private int gpuCursor = 0;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -53,12 +53,12 @@ import java.util.Map;
  */
 public class Surface extends Mesh {
     private SplineType           type;                // the type of the surface
-    private List<List<Vector4f>> controlPoints;       // space control points and their weights
-    private List<Float>[]        knots;               // knots of the surface
-    private int                  basisUFunctionDegree; // the degree of basis U function
+    final private List<List<Vector4f>> controlPoints;       // space control points and their weights
+    final private List<Float>[]        knots;               // knots of the surface
+    final private int                  basisUFunctionDegree; // the degree of basis U function
     private int                  basisVFunctionDegree; // the degree of basis V function
-    private int                  uSegments;           // the amount of U segments
-    private int                  vSegments;           // the amount of V segments
+    final private int                  uSegments;           // the amount of U segments
+    final private int                  vSegments;           // the amount of V segments
 
     /**
      * Constructor. Constructs required surface.

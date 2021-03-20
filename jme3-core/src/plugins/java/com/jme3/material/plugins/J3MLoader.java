@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -73,10 +73,10 @@ public class J3MLoader implements AssetLoader {
     private Material material;
     private TechniqueDef technique;
     private RenderState renderState;
-    private ArrayList<String> presetDefines = new ArrayList<String>();
+    final private ArrayList<String> presetDefines = new ArrayList<String>();
 
-    private List<EnumMap<Shader.ShaderType, String>> shaderLanguages;
-    private EnumMap<Shader.ShaderType, String> shaderNames;
+    final private List<EnumMap<Shader.ShaderType, String>> shaderLanguages;
+    final private EnumMap<Shader.ShaderType, String> shaderNames;
 
     private static final String whitespacePattern = "\\p{javaWhitespace}+";
 

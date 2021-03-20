@@ -117,7 +117,7 @@ public class ArmatureDebugAppState extends BaseAppState {
         }
     }
 
-    private ActionListener actionListener = new ActionListener() {
+    final private ActionListener actionListener = new ActionListener() {
         @Override
         public void onAction(String name, boolean isPressed, float tpf) {
             if (name.equals("shoot") && isPressed) {

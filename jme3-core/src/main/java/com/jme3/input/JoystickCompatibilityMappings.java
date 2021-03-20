@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -61,13 +61,13 @@ public class JoystickCompatibilityMappings {
 
     // List of resource paths to check for the joystick-mapping.properties
     // files.
-    private static String[] searchPaths = { "joystick-mapping.properties" };  
+    final private static String[] searchPaths = { "joystick-mapping.properties" };  
 
-    private static Map<String,Map<String,String>> joystickMappings = new HashMap<String,Map<String,String>>();
+    final private static Map<String,Map<String,String>> joystickMappings = new HashMap<String,Map<String,String>>();
 
     // Remaps names by regex.
-    private static Map<Pattern, String> nameRemappings = new HashMap<>();
-    private static Map<String, String> nameCache = new HashMap<>();
+    final private static Map<Pattern, String> nameRemappings = new HashMap<>();
+    final private static Map<String, String> nameCache = new HashMap<>();
 
     static {
         loadDefaultMappings();
