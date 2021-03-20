@@ -367,6 +367,9 @@ public class AppStateManager {
         AppState[] array = getStates();
         for (AppState state : array){
             if (state.isEnabled()) {
+                if (app.getAppProfiler() != null) {
+                    app.getAppProfiler().appSubStep(state.getClass().getSimpleName());
+                }
                 state.render(rm);
             }
         }
@@ -379,6 +382,9 @@ public class AppStateManager {
         AppState[] array = getStates();
         for (AppState state : array){
             if (state.isEnabled()) {
+                if (app.getAppProfiler() != null) {
+                    app.getAppProfiler().appSubStep(state.getClass().getSimpleName());
+                }
                 state.postRender();
             }
         }
