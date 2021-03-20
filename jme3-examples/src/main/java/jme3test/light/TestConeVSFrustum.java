@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -227,15 +227,15 @@ public class TestConeVSFrustum extends SimpleApplication {
         System.err.println("light " + spotLight.getPosition());
 
     }
-    Geometry boxGeo, boxGeo2;
+    private Geometry boxGeo, boxGeo2;
     private final static float MOVE_SPEED = 60;
-    Vector3f tmp = new Vector3f();
-    Quaternion tmpQuat = new Quaternion();
-    boolean moving, shift;
-    boolean panning;
-    Geometry geom;
-    SpotLight spotLight;
-    Camera frustumCam;
+    private Vector3f tmp = new Vector3f();
+    private Quaternion tmpQuat = new Quaternion();
+    private boolean moving, shift;
+    private boolean panning;
+    private Geometry geom;
+    private SpotLight spotLight;
+    private Camera frustumCam;
 
     @Override
     public void simpleUpdate(float tpf) {

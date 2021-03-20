@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -61,19 +61,19 @@ import com.jme3.util.SkyFactory;
 public class TestSpotLightTerrain extends SimpleApplication {
 
     private TerrainQuad terrain;
-    Material matTerrain;
-    Material matWire;
-    boolean wireframe = false;
-    boolean triPlanar = false;
-    boolean wardiso = false;
-    boolean minnaert = false;
+    private Material matTerrain;
+    private Material matWire;
+    private boolean wireframe = false;
+    private boolean triPlanar = false;
+    private boolean wardiso = false;
+    private boolean minnaert = false;
     protected BitmapText hintText;
-    PointLight pl;
-    Geometry lightMdl;
+    private PointLight pl;
+    private Geometry lightMdl;
     private float grassScale = 64;
     private float dirtScale = 16;
     private float rockScale = 128;
-    SpotLight sl;
+    private SpotLight sl;
 
     public static void main(String[] args) {
         TestSpotLightTerrain app = new TestSpotLightTerrain();

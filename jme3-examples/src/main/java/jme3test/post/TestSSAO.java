@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,7 @@ import com.jme3.texture.Texture;
 
 public class TestSSAO extends SimpleApplication {
 
-    Geometry model;
+    private Geometry model;
 
     public static void main(String[] args) {
         TestSSAO app = new TestSSAO();

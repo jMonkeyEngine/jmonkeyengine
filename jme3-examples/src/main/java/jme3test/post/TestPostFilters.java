@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -54,7 +54,7 @@ public class TestPostFilters extends SimpleApplication implements ActionListener
 
     private FilterPostProcessor fpp;
     private Vector3f lightDir = new Vector3f(-1, -1, .5f).normalizeLocal();
-    FadeFilter fade;
+    private FadeFilter fade;
 
     public static void main(String[] args) {
         TestPostFilters app = new TestPostFilters();

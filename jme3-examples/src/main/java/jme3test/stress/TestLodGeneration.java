@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -57,8 +57,8 @@ public class TestLodGeneration extends SimpleApplication {
         TestLodGeneration app = new TestLodGeneration();
         app.start();
     }
-    boolean wireFrame = false;
-    float reductionvalue = 0.0f;
+    private boolean wireFrame = false;
+    private float reductionvalue = 0.0f;
     private int lodLevel = 0;
     private Node model;
     private BitmapText hudText;

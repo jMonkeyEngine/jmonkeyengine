@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -67,24 +67,24 @@ import jme3test.bullet.BombControl;
  */
 public class TestBatchNodeTower extends SimpleApplication {
 
-    int bricksPerLayer = 8;
-    int brickLayers = 30;
+    private int bricksPerLayer = 8;
+    private int brickLayers = 30;
 
-    static float brickWidth = .75f, brickHeight = .25f, brickDepth = .25f;
-    float radius = 3f;
-    float angle = 0;
+    private static float brickWidth = .75f, brickHeight = .25f, brickDepth = .25f;
+    private float radius = 3f;
+    private float angle = 0;
 
 
-    Material mat;
-    Material mat2;
-    Material mat3;
-    DirectionalLightShadowFilter shadowRenderer;
+    private Material mat;
+    private Material mat2;
+    private Material mat3;
+    private DirectionalLightShadowFilter shadowRenderer;
     private Sphere bullet;
     private Box brick;
     private SphereCollisionShape bulletCollisionShape;
 
     private BulletAppState bulletAppState;
-    BatchNode batchNode = new BatchNode("batch Node");
+    private BatchNode batchNode = new BatchNode("batch Node");
     
     public static void main(String args[]) {
         TestBatchNodeTower f = new TestBatchNodeTower();
@@ -226,7 +226,7 @@ public class TestBatchNodeTower extends SimpleApplication {
         tex3.setWrap(WrapMode.Repeat);
         mat3.setTexture("ColorMap", tex3);
     }
-int nbBrick =0;
+    private int nbBrick =0;
     public void addBrick(Vector3f ori) {
         Geometry reBoxg = new Geometry("brick", brick);
         reBoxg.setMaterial(mat);

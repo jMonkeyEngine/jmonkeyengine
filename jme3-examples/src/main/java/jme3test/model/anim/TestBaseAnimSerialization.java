@@ -25,11 +25,11 @@ import java.nio.ShortBuffer;
  */
 public class TestBaseAnimSerialization extends SimpleApplication {
 
-    Joint j1;
-    Joint j2;
-    AnimComposer composer;
-    Armature armature;
-    File file;
+    private Joint j1;
+    private Joint j2;
+    private AnimComposer composer;
+    private Armature armature;
+    private File file;
 
     public static void main(String... argv) {
         TestBaseAnimSerialization app = new TestBaseAnimSerialization();

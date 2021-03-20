@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine All rights reserved.
+ * Copyright (c) 2009-2021 jMonkeyEngine All rights reserved.
  * <p/>
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -51,9 +51,9 @@ public class TestCameraNode extends SimpleApplication implements AnalogListener,
 
   private Geometry teaGeom;
   private Node teaNode;
-  CameraNode camNode;
-  boolean rotate = false;
-  Vector3f direction = new Vector3f();
+  private CameraNode camNode;
+  private boolean rotate = false;
+  private Vector3f direction = new Vector3f();
 
   public static void main(String[] args) {
     TestCameraNode app = new TestCameraNode();

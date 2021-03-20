@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -65,9 +65,9 @@ public class HelloPhysics extends SimpleApplication {
   private BulletAppState bulletAppState;
 
   /** Prepare Materials */
-  Material wall_mat;
-  Material stone_mat;
-  Material floor_mat;
+  private Material wall_mat;
+  private Material stone_mat;
+  private Material floor_mat;
 
   /** Prepare geometries and physical nodes for bricks and cannon balls. */
   private RigidBodyControl    brick_phy;

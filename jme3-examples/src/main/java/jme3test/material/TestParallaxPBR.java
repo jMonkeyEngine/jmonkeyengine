@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -59,7 +59,7 @@ public class TestParallaxPBR extends SimpleApplication {
     public void setupSkyBox() {
         rootNode.attachChild(SkyFactory.createSky(assetManager, "Scenes/Beach/FullskiesSunset0068.dds", SkyFactory.EnvMapType.CubeMap));
     }
-    DirectionalLight dl;
+    private DirectionalLight dl;
 
     public void setupLighting() {
 
@@ -68,7 +68,7 @@ public class TestParallaxPBR extends SimpleApplication {
         dl.setColor(new ColorRGBA(.9f, .9f, .9f, 1));
         rootNode.addLight(dl);
     }
-    Material mat;
+    private Material mat;
 
     public void setupFloor() {
         mat = assetManager.loadMaterial("Textures/Terrain/BrickWall/BrickWallPBR.j3m");
@@ -145,9 +145,9 @@ public class TestParallaxPBR extends SimpleApplication {
         }, "toggleSteep");
         inputManager.addMapping("toggleSteep", new KeyTrigger(KeyInput.KEY_SPACE));
     }
-    float parallaxHeigh = 0.05f;
-    float time = 0;
-    boolean steep = false;
+    private float parallaxHeigh = 0.05f;
+    private float time = 0;
+    private boolean steep = false;
 
     @Override
     public void simpleUpdate(float tpf) {

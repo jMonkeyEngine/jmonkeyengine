@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,7 +47,7 @@ import com.jme3.scene.Node;
 public class HelloAnimation extends SimpleApplication
                          implements AnimEventListener {
 
-  Node player;
+  private Node player;
   private AnimChannel channel;
   private AnimControl control;
 

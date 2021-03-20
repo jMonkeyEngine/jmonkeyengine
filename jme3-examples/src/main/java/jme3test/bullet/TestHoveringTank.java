@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -73,13 +73,13 @@ public class TestHoveringTank extends SimpleApplication implements AnalogListene
     private BulletAppState bulletAppState;
     private PhysicsHoverControl hoverControl;
     private Spatial spaceCraft;
-    TerrainQuad terrain;
-    Material matRock;
-    boolean wireframe = false;
+    private TerrainQuad terrain;
+    private Material matRock;
+    private boolean wireframe = false;
     protected BitmapText hintText;
-    PointLight pl;
-    Geometry lightMdl;
-    Geometry collisionMarker;
+    private PointLight pl;
+    private Geometry lightMdl;
+    private Geometry collisionMarker;
     /**
      * initial location of the tank (in world/physics-space coordinates)
      */

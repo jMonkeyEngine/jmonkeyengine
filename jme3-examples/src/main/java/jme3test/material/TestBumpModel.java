@@ -46,9 +46,9 @@ import com.jme3.util.TangentBinormalGenerator;
 
 public class TestBumpModel extends SimpleApplication {
 
-    float angle;
-    PointLight pl;
-    Spatial lightMdl;
+    private float angle;
+    private PointLight pl;
+    private Spatial lightMdl;
 
     public static void main(String[] args){
         TestBumpModel app = new TestBumpModel();

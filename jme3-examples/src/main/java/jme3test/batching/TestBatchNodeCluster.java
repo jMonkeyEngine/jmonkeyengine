@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -87,11 +87,11 @@ public class TestBatchNodeCluster extends SimpleApplication {
     protected boolean isTrue = true;
     private int lineLength = 50;
     protected BatchNode batchNode;
-    Material mat1;
-    Material mat2;
-    Material mat3;
-    Material mat4;
-    Node terrain;
+    private Material mat1;
+    private Material mat2;
+    private Material mat3;
+    private Material mat4;
+    private Node terrain;
     //protected
 //    protected Geometry player;
 
@@ -335,12 +335,12 @@ public class TestBatchNodeCluster extends SimpleApplication {
     public int getz(int i) {
         return zPosition.get(i);
     }
-    long nbFrames = 0;
-    long cullTime = 0;
-    float time = 0;
-    Vector3f lookAtPos = new Vector3f(0, 0, 0);
-    float xpos = 0;
-    Spatial box;
+    private long nbFrames = 0;
+    private long cullTime = 0;
+    private float time = 0;
+    private Vector3f lookAtPos = new Vector3f(0, 0, 0);
+    private float xpos = 0;
+    private Spatial box;
 
     @Override
     public void simpleUpdate(float tpf) {

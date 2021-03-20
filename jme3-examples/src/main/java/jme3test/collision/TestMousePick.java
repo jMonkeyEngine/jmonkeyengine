@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -54,8 +54,8 @@ public class TestMousePick extends SimpleApplication {
         app.start();
     }
     
-    Node shootables;
-    Geometry mark;
+    private Node shootables;
+    private Geometry mark;
 
     @Override
     public void simpleInitApp() {

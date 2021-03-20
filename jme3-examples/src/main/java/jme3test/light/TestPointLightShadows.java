@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -55,10 +55,10 @@ public class TestPointLightShadows extends SimpleApplication implements ActionLi
         TestPointLightShadows app = new TestPointLightShadows();
         app.start();
     }
-    Node lightNode;
-    PointLightShadowRenderer plsr;
-    PointLightShadowFilter plsf;
-    AmbientLight al;
+    private Node lightNode;
+    private PointLightShadowRenderer plsr;
+    private PointLightShadowFilter plsf;
+    private AmbientLight al;
 
     @Override
     public void simpleInitApp () {

@@ -21,8 +21,8 @@ import java.nio.ShortBuffer;
  */
 public class TestArmature extends SimpleApplication {
 
-    Joint j1;
-    Joint j2;
+    private Joint j1;
+    private Joint j2;
 
     public static void main(String... argv) {
         TestArmature app = new TestArmature();

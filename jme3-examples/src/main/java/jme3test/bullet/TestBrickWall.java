@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -61,12 +61,12 @@ import com.jme3.texture.Texture.WrapMode;
  */
 public class TestBrickWall extends SimpleApplication {
 
-    static float bLength = 0.48f;
-    static float bWidth = 0.24f;
-    static float bHeight = 0.12f;
-    Material mat;
-    Material mat2;
-    Material mat3;
+    private static float bLength = 0.48f;
+    private static float bWidth = 0.24f;
+    private static float bHeight = 0.12f;
+    private Material mat;
+    private Material mat2;
+    private Material mat3;
     private static Sphere bullet;
     private static Box brick;
     private static SphereCollisionShape bulletCollisionShape;

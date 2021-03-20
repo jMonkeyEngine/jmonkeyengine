@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -78,19 +78,19 @@ import java.util.List;
  */
 public class TerrainTestCollision extends SimpleApplication {
 
-    TerrainQuad terrain;
-    Node terrainPhysicsNode;
-    Material matRock;
-    Material matWire;
-    boolean wireframe = false;
+    private TerrainQuad terrain;
+    private Node terrainPhysicsNode;
+    private Material matRock;
+    private Material matWire;
+    private boolean wireframe = false;
     protected BitmapText hintText;
-    PointLight pl;
-    Geometry lightMdl;
-    List<Geometry> collisionMarkers;
+    private PointLight pl;
+    private Geometry lightMdl;
+    private List<Geometry> collisionMarkers;
     private BulletAppState bulletAppState;
-    Geometry collisionSphere;
-    Geometry collisionBox;
-    Geometry selectedCollisionObject;
+    private Geometry collisionSphere;
+    private Geometry collisionBox;
+    private Geometry selectedCollisionObject;
 
     public static void main(String[] args) {
         TerrainTestCollision app = new TerrainTestCollision();

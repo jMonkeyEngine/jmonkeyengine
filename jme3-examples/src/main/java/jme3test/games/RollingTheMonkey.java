@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2017 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -111,9 +111,9 @@ public class RollingTheMonkey extends SimpleApplication implements ActionListene
     
     private Node pickUps;
     
-    BitmapText infoText;
-    BitmapText scoreText;
-    BitmapText messageText;
+    private BitmapText infoText;
+    private BitmapText scoreText;
+    private BitmapText messageText;
     
     @Override
     public void simpleInitApp() {

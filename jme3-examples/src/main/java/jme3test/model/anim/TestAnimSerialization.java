@@ -28,11 +28,11 @@ import java.util.Queue;
  */
 public class TestAnimSerialization extends SimpleApplication {
 
-    ArmatureDebugAppState debugAppState;
-    AnimComposer composer;
-    Queue<String> anims = new LinkedList<>();
-    boolean playAnim = true;
-    File file;
+    private ArmatureDebugAppState debugAppState;
+    private AnimComposer composer;
+    private Queue<String> anims = new LinkedList<>();
+    private boolean playAnim = true;
+    private File file;
 
     public static void main(String... argv) {
         TestAnimSerialization app = new TestAnimSerialization();

@@ -55,9 +55,9 @@ import java.util.logging.Logger;
 
 public class TestAssetLinkNode extends SimpleApplication {
 
-    float angle;
-    PointLight pl;
-    Spatial lightMdl;
+    private float angle;
+    private PointLight pl;
+    private Spatial lightMdl;
 
     public static void main(String[] args){
         TestAssetLinkNode app = new TestAssetLinkNode();

@@ -223,7 +223,7 @@ public class TerrainGridAlphaMapTest extends SimpleApplication {
         createMarkerPoints(1);
     }
     
-    Node markers;
+    private Node markers;
     
     
     private void createMarkerPoints(float count) {

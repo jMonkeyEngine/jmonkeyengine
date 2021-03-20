@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine All rights reserved. <p/>
+ * Copyright (c) 2009-2021 jMonkeyEngine All rights reserved. <p/>
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  * 
@@ -51,10 +51,10 @@ public class TestPhysicsCharacter extends SimpleApplication implements ActionLis
   private CharacterControl physicsCharacter;
   private Node characterNode;
   private CameraNode camNode;
-  boolean rotate = false;
+  private boolean rotate = false;
   private Vector3f walkDirection = new Vector3f(0,0,0);
   private Vector3f viewDirection = new Vector3f(0,0,0);
-  boolean leftStrafe = false, rightStrafe = false, forward = false, backward = false, 
+  private boolean leftStrafe = false, rightStrafe = false, forward = false, backward = false, 
           leftRotate = false, rightRotate = false;
 
   public static void main(String[] args) {

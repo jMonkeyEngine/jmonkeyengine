@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -63,10 +63,10 @@ public class TestBetterCharacter extends SimpleApplication implements ActionList
     private BetterCharacterControl physicsCharacter;
     private Node characterNode;
     private CameraNode camNode;
-    boolean rotate = false;
+    private boolean rotate = false;
     private Vector3f walkDirection = new Vector3f(0, 0, 0);
     private Vector3f viewDirection = new Vector3f(0, 0, 1);
-    boolean leftStrafe = false, rightStrafe = false, forward = false, backward = false,
+    private boolean leftStrafe = false, rightStrafe = false, forward = false, backward = false,
             leftRotate = false, rightRotate = false;
     private Vector3f normalGravity = new Vector3f(0, -9.81f, 0);
     private Geometry planet;

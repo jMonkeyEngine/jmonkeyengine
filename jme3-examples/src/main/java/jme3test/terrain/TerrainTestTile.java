@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -66,12 +66,12 @@ import java.util.List;
 public class TerrainTestTile extends SimpleApplication {
 
     private TiledTerrain terrain;
-    Material matTerrain;
-    Material matWire;
-    boolean wireframe = false;
-    boolean triPlanar = false;
-    boolean wardiso = false;
-    boolean minnaert = false;
+    private Material matTerrain;
+    private Material matWire;
+    private boolean wireframe = false;
+    private boolean triPlanar = false;
+    private boolean wardiso = false;
+    private boolean minnaert = false;
     protected BitmapText hintText;
     private float grassScale = 256;
     

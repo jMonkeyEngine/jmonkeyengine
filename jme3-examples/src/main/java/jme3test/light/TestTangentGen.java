@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -53,9 +53,9 @@ import java.nio.IntBuffer;
 
 public class TestTangentGen extends SimpleApplication {
 
-    float angle;
-    PointLight pl;
-    Geometry lightMdl;
+    private float angle;
+    private PointLight pl;
+    private Geometry lightMdl;
 
     public static void main(String[] args){
         TestTangentGen app = new TestTangentGen();

@@ -24,12 +24,12 @@ import java.util.LinkedList;
  */
 public class TestAnimMigration extends SimpleApplication {
 
-    ArmatureDebugAppState debugAppState;
-    AnimComposer composer;
-    LinkedList<String> anims = new LinkedList<>();
-    boolean playAnim = false;
-    BlendAction action;
-    float blendValue = 1f;
+    private ArmatureDebugAppState debugAppState;
+    private AnimComposer composer;
+    private LinkedList<String> anims = new LinkedList<>();
+    private boolean playAnim = false;
+    private BlendAction action;
+    private float blendValue = 1f;
 
     public static void main(String... argv) {
         TestAnimMigration app = new TestAnimMigration();

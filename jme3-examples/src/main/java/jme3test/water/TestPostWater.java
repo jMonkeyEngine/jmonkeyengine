@@ -50,12 +50,12 @@ public class TestPostWater extends SimpleApplication {
 
     private Vector3f lightDir = new Vector3f(-4.9236743f, -1.27054665f, 5.896916f);
     private WaterFilter water;
-    TerrainQuad terrain;
-    Material matRock;
-    AudioNode waves;
-    LowPassFilter underWaterAudioFilter = new LowPassFilter(0.5f, 0.1f);
-    LowPassFilter underWaterReverbFilter = new LowPassFilter(0.5f, 0.1f);
-    LowPassFilter aboveWaterAudioFilter = new LowPassFilter(1, 1);
+    private TerrainQuad terrain;
+    private Material matRock;
+    private AudioNode waves;
+    private LowPassFilter underWaterAudioFilter = new LowPassFilter(0.5f, 0.1f);
+    private LowPassFilter underWaterReverbFilter = new LowPassFilter(0.5f, 0.1f);
+    private LowPassFilter aboveWaterAudioFilter = new LowPassFilter(1, 1);
 
     public static void main(String[] args) {
         TestPostWater app = new TestPostWater();
@@ -198,7 +198,7 @@ public class TestPostWater extends SimpleApplication {
 //        createBox();
 //        createFire();
     }
-    Geometry box;
+    private Geometry box;
 
     private void createBox() {
         //creating a transluscent box

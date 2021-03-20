@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -90,17 +90,17 @@ import com.jme3.texture.Texture.WrapMode;
  */
 public class TestBrickTower extends SimpleApplication {
 
-    int bricksPerLayer = 8;
-    int brickLayers = 30;
+    private int bricksPerLayer = 8;
+    private int brickLayers = 30;
 
-    static float brickWidth = .75f, brickHeight = .25f, brickDepth = .25f;
-    float radius = 3f;
-    float angle = 0;
+    private static float brickWidth = .75f, brickHeight = .25f, brickDepth = .25f;
+    private float radius = 3f;
+    private float angle = 0;
 
 
-    Material mat;
-    Material mat2;
-    Material mat3;
+    private Material mat;
+    private Material mat2;
+    private Material mat3;
     private Sphere bullet;
     private Box brick;
     private SphereCollisionShape bulletCollisionShape;

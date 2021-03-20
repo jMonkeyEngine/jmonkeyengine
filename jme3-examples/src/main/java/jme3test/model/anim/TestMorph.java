@@ -21,7 +21,7 @@ import java.nio.FloatBuffer;
 
 public class TestMorph extends SimpleApplication {
 
-    float[] weights = new float[2];
+    private float[] weights = new float[2];
 
     public static void main(String... args) {
         TestMorph app = new TestMorph();

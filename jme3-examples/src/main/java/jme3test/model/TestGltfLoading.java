@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,18 +50,18 @@ import java.util.*;
 
 public class TestGltfLoading extends SimpleApplication {
 
-    Node autoRotate = new Node("autoRotate");
-    List<Spatial> assets = new ArrayList<>();
-    Node probeNode;
-    float time = 0;
-    int assetIndex = 0;
-    boolean useAutoRotate = false;
+    private Node autoRotate = new Node("autoRotate");
+    private List<Spatial> assets = new ArrayList<>();
+    private Node probeNode;
+    private float time = 0;
+    private int assetIndex = 0;
+    private boolean useAutoRotate = false;
     private final static String indentString = "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t";
-    int duration = 1;
-    boolean playAnim = true;
+    private int duration = 1;
+    private boolean playAnim = true;
 
-    Geometry g;
-    int morphIndex = 0;
+    private Geometry g;
+    private int morphIndex = 0;
 
 
     public static void main(String[] args) {
@@ -264,8 +264,8 @@ public class TestGltfLoading extends SimpleApplication {
 
     }
 
-    Queue<String> anims = new LinkedList<>();
-    AnimComposer composer;
+    private Queue<String> anims = new LinkedList<>();
+    private AnimComposer composer;
 
     private void playFirstAnim(Spatial s) {
 

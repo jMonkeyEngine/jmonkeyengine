@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -49,9 +49,9 @@ import com.jme3.scene.shape.Box;
 
 public class TestTriangleCollision extends SimpleApplication {
 
-    Geometry geom1;
+    private Geometry geom1;
 
-    Spatial golem;
+    private Spatial golem;
 
     public static void main(String[] args) {
         TestTriangleCollision app = new TestTriangleCollision();

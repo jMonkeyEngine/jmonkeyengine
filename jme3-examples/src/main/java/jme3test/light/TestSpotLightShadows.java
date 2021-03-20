@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -59,8 +59,8 @@ public class TestSpotLightShadows extends SimpleApplication {
         TestSpotLightShadows app = new TestSpotLightShadows();
         app.start();
     }
-    SpotLight spot;
-    Geometry lightMdl;
+    private SpotLight spot;
+    private Geometry lightMdl;
 
     public void setupLighting() {
         AmbientLight al = new AmbientLight();
@@ -182,8 +182,8 @@ public class TestSpotLightShadows extends SimpleApplication {
 
 
     }
-    float angle;
-    boolean stop = true;
+    private float angle;
+    private boolean stop = true;
 
     @Override
     public void simpleUpdate(float tpf) {

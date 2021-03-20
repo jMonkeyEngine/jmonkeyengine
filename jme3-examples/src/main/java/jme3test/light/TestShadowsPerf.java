@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -54,16 +54,16 @@ import com.jme3.util.TangentBinormalGenerator;
 
 public class TestShadowsPerf extends SimpleApplication {
 
-    float angle;
-    PointLight pl;
-    Spatial lightMdl;
+    private float angle;
+    private PointLight pl;
+    private Spatial lightMdl;
 
     public static void main(String[] args) {
         TestShadowsPerf app = new TestShadowsPerf();
         app.start();
     }
-    Geometry sphere;
-    Material mat;
+    private Geometry sphere;
+    private Material mat;
 
     @Override
     public void simpleInitApp() {
@@ -144,7 +144,7 @@ public class TestShadowsPerf extends SimpleApplication {
         inputManager.addMapping("display", new KeyTrigger(KeyInput.KEY_SPACE));
         inputManager.addMapping("add", new KeyTrigger(KeyInput.KEY_RETURN));
     }
-    int val = 0;
+    private int val = 0;
 
     private void createballs() {
         System.out.println((frames / time) + ";" + val);
@@ -165,8 +165,8 @@ public class TestShadowsPerf extends SimpleApplication {
         time = 0;
         frames = 0;
     }
-    float time;
-    float frames = 0;
+    private float time;
+    private float frames = 0;
 
     @Override
     public void simpleUpdate(float tpf) {

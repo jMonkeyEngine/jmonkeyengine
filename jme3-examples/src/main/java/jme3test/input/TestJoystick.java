@@ -208,18 +208,18 @@ public class TestJoystick extends SimpleApplication {
 
     protected class GamepadView extends Node {
     
-        float xAxis = 0;
-        float yAxis = 0;
-        float zAxis = 0;
-        float zRotation = 0;
+        private float xAxis = 0;
+        private float yAxis = 0;
+        private float zAxis = 0;
+        private float zRotation = 0;
         
-        float lastPovX = 0;
-        float lastPovY = 0;
+        private float lastPovX = 0;
+        private float lastPovY = 0;
  
-        Geometry leftStick;
-        Geometry rightStick;
+        private Geometry leftStick;
+        private Geometry rightStick;
             
-        Map<String, ButtonView> buttons = new HashMap<String, ButtonView>();
+        private Map<String, ButtonView> buttons = new HashMap<String, ButtonView>();
     
         public GamepadView() {
             super( "gamepad" );

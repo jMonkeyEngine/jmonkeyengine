@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 jMonkeyEngine
+ * Copyright (c) 2018-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,10 +42,10 @@ import com.jme3.bullet.PhysicsSpace;
 
 public class TestIssue883 extends SimpleApplication {
 
-    boolean firstPrint = true;
-    float timeToNextPrint = 1f; // in seconds
-    double frameTime; // in seconds
-    double physicsTime; // in seconds
+    private boolean firstPrint = true;
+    private float timeToNextPrint = 1f; // in seconds
+    private double frameTime; // in seconds
+    private double physicsTime; // in seconds
 
     public static void main(String[] args) {
         TestIssue883 app = new TestIssue883();

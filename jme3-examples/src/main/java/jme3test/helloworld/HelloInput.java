@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -53,7 +53,7 @@ public class HelloInput extends SimpleApplication {
     app.start();
   }
   protected Geometry player;
-  Boolean isRunning=true;
+  private Boolean isRunning=true;
 
   @Override
   public void simpleInitApp() {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -73,13 +73,13 @@ import com.jme3.texture.Texture.WrapMode;
 public class TerrainTest extends SimpleApplication {
 
     private TerrainQuad terrain;
-    Material matRock;
-    Material matWire;
-    boolean wireframe = false;
-    boolean triPlanar = false;
+    private Material matRock;
+    private Material matWire;
+    private boolean wireframe = false;
+    private boolean triPlanar = false;
     protected BitmapText hintText;
-    PointLight pl;
-    Geometry lightMdl;
+    private PointLight pl;
+    private Geometry lightMdl;
     private float grassScale = 64;
     private float dirtScale = 16;
     private float rockScale = 128;

@@ -33,9 +33,9 @@ public class TestDepthOfField extends SimpleApplication {
 
     private FilterPostProcessor fpp;
     private Vector3f lightDir = new Vector3f(-4.9236743f, -1.27054665f, 5.896916f);
-    TerrainQuad terrain;
-    Material matRock;
-    DepthOfFieldFilter dofFilter;
+    private TerrainQuad terrain;
+    private Material matRock;
+    private DepthOfFieldFilter dofFilter;
 
     public static void main(String[] args) {
         TestDepthOfField app = new TestDepthOfField();

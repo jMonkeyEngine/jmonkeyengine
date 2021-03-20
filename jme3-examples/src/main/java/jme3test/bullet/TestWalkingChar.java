@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -79,35 +79,35 @@ public class TestWalkingChar extends SimpleApplication implements ActionListener
 
     private BulletAppState bulletAppState;
     //character
-    CharacterControl character;
-    Node model;
+    private CharacterControl character;
+    private Node model;
     //temp vectors
-    Vector3f walkDirection = new Vector3f();
+    private Vector3f walkDirection = new Vector3f();
     //terrain
-    TerrainQuad terrain;
-    RigidBodyControl terrainPhysicsNode;
+    private TerrainQuad terrain;
+    private RigidBodyControl terrainPhysicsNode;
     //Materials
-    Material matRock;
-    Material matBullet;
+    private Material matRock;
+    private Material matBullet;
     //animation
-    AnimChannel animationChannel;
-    AnimChannel shootingChannel;
-    AnimControl animationControl;
-    float airTime = 0;
+    private AnimChannel animationChannel;
+    private AnimChannel shootingChannel;
+    private AnimControl animationControl;
+    private float airTime = 0;
     //camera
-    boolean left = false, right = false, up = false, down = false;
-    ChaseCamera chaseCam;
+    private boolean left = false, right = false, up = false, down = false;
+    private ChaseCamera chaseCam;
     //bullet
-    Sphere bullet;
-    SphereCollisionShape bulletCollisionShape;
+    private Sphere bullet;
+    private SphereCollisionShape bulletCollisionShape;
     //explosion
-    ParticleEmitter effect;
+    private ParticleEmitter effect;
     //brick wall
-    Box brick;
-    float bLength = 0.8f;
-    float bWidth = 0.4f;
-    float bHeight = 0.4f;
-    FilterPostProcessor fpp;
+    private Box brick;
+    private float bLength = 0.8f;
+    private float bWidth = 0.4f;
+    private float bHeight = 0.4f;
+    private FilterPostProcessor fpp;
 
     public static void main(String[] args) {
         TestWalkingChar app = new TestWalkingChar();

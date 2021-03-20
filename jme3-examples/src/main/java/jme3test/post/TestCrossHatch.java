@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -53,13 +53,13 @@ import com.jme3.util.SkyFactory.EnvMapType;
 
 public class TestCrossHatch extends SimpleApplication {
 
-    float angle;
-    Spatial lightMdl;
-    Spatial teapot;
-    Geometry frustumMdl;
-    WireFrustum frustum;
-    boolean active=true;
-    FilterPostProcessor fpp;
+    private float angle;
+    private Spatial lightMdl;
+    private Spatial teapot;
+    private Geometry frustumMdl;
+    private WireFrustum frustum;
+    private boolean active=true;
+    private FilterPostProcessor fpp;
     
     public static void main(String[] args){
         TestCrossHatch app = new TestCrossHatch();
