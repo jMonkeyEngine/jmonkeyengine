@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -66,7 +66,7 @@ public class AwtPanel extends Canvas implements SceneProcessor {
     private IntBuffer intBuf;
     private RenderManager rm;
     private PaintMode paintMode;
-    private ArrayList<ViewPort> viewPorts = new ArrayList<ViewPort>();
+    private ArrayList<ViewPort> viewPorts = new ArrayList<>();
 
     // Visibility/drawing vars
     private BufferStrategy strategy;

@@ -369,7 +369,7 @@ public final class NativeLibraryLoader {
     }
     
     public static File[] getJarsWithNatives() {
-        HashSet<File> jarFiles = new HashSet<File>();
+        HashSet<File> jarFiles = new HashSet<>();
         for (Map.Entry<NativeLibrary.Key, NativeLibrary> lib : nativeLibraryMap.entrySet()) {
             File jarFile = getJarForNativeLibrary(lib.getValue().getPlatform(), lib.getValue().getName());
             if (jarFile != null) {

@@ -51,7 +51,7 @@ public class TestHWSkinningOld extends SimpleApplication implements ActionListen
     final private String[] animNames = {"Dodge", "Walk", "pull", "push"};
     private final static int SIZE = 50;
     private boolean hwSkinningEnable = true;
-    final private List<SkeletonControl> skControls = new ArrayList<SkeletonControl>();
+    final private List<SkeletonControl> skControls = new ArrayList<>();
     private BitmapText hwsText;
 
     public static void main(String[] args) {

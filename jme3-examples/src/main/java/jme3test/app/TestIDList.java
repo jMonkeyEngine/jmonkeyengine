@@ -41,7 +41,7 @@ public class TestIDList {
 
         final private static Random rand = new Random();
 
-        final private Map<Integer, Object> objs = new HashMap<Integer, Object>();
+        final private Map<Integer, Object> objs = new HashMap<>();
 
         public StateCol(){
             // populate with free ids

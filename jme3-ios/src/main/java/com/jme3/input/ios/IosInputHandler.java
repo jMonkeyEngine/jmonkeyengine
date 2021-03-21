@@ -27,7 +27,7 @@ public class IosInputHandler implements TouchInput {
     // Internal
     private boolean initialized = false;
     private RawInputListener listener = null;
-    private ConcurrentLinkedQueue<InputEvent> inputEventQueue = new ConcurrentLinkedQueue<InputEvent>();
+    private ConcurrentLinkedQueue<InputEvent> inputEventQueue = new ConcurrentLinkedQueue<>();
     private final TouchEventPool touchEventPool = new TouchEventPool(MAX_TOUCH_EVENTS);
     private IosTouchHandler touchHandler;
     private float scaleX = 1f;

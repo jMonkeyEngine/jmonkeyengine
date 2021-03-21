@@ -36,8 +36,8 @@ import java.util.List;
 
 public abstract class AbstractFilter implements Filter {
 
-	protected List<Filter> preFilters = new ArrayList<Filter>();
-	protected List<Filter> postFilters = new ArrayList<Filter>();
+	protected List<Filter> preFilters = new ArrayList<>();
+	protected List<Filter> postFilters = new ArrayList<>();
 
 	private boolean enabled = true;
 

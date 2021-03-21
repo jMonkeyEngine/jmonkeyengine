@@ -55,7 +55,7 @@ import com.jme3.network.base.MessageProtocol;
 public class GreedyMessageBuffer implements MessageBuffer {
 
     private MessageProtocol protocol;
-    private final LinkedList<Message> messages = new LinkedList<Message>();
+    private final LinkedList<Message> messages = new LinkedList<>();
     private ByteBuffer current;
     private int size;
     private Byte carry;

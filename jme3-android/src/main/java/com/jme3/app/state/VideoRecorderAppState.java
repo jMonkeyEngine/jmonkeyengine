@@ -224,7 +224,7 @@ public class VideoRecorderAppState extends AbstractAppState {
         private RenderManager renderManager;
         private boolean isInitilized = false;
         private LinkedBlockingQueue<WorkItem> freeItems;
-        private LinkedBlockingQueue<WorkItem> usedItems = new LinkedBlockingQueue<WorkItem>();
+        private LinkedBlockingQueue<WorkItem> usedItems = new LinkedBlockingQueue<>();
         private MjpegFileWriter writer;
         private boolean fastMode = true;
         private AppProfiler prof;

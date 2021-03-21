@@ -83,14 +83,14 @@ public class AndroidJoyInput implements JoyInput {
     public static boolean disableSensors = false;
 
     protected AndroidInputHandler inputHandler;
-    protected List<Joystick> joystickList = new ArrayList<Joystick>();
+    protected List<Joystick> joystickList = new ArrayList<>();
 //    private boolean dontSendHistory = false;
 
 
     // Internal
     private boolean initialized = false;
     private RawInputListener listener = null;
-    private ConcurrentLinkedQueue<InputEvent> eventQueue = new ConcurrentLinkedQueue<InputEvent>();
+    private ConcurrentLinkedQueue<InputEvent> eventQueue = new ConcurrentLinkedQueue<>();
     private AndroidSensorJoyInput sensorJoyInput;
     private Vibrator vibrator = null;
     private boolean vibratorActive = false;

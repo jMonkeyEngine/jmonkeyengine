@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -747,7 +747,7 @@ public final class SettingsDialog extends JFrame {
         heightLimit -= insets.top + insets.bottom;
         widthLimit -= insets.left + insets.right;
         
-        ArrayList<String> resolutions = new ArrayList<String>(modes.length);
+        ArrayList<String> resolutions = new ArrayList<>(modes.length);
         for (int i = 0; i < modes.length; i++) {
             int height = modes[i].getHeight();
             int width = modes[i].getWidth();
@@ -796,7 +796,7 @@ public final class SettingsDialog extends JFrame {
      * Returns every possible bit depth for the given resolution.
      */
     private static String[] getDepths(String resolution, DisplayMode[] modes) {
-        ArrayList<String> depths = new ArrayList<String>(4);
+        ArrayList<String> depths = new ArrayList<>(4);
         for (int i = 0; i < modes.length; i++) {
             // Filter out all bit depths lower than 16 - Java incorrectly
             // reports
@@ -828,7 +828,7 @@ public final class SettingsDialog extends JFrame {
      */
     private static String[] getFrequencies(String resolution,
             DisplayMode[] modes) {
-        ArrayList<String> freqs = new ArrayList<String>(4);
+        ArrayList<String> freqs = new ArrayList<>(4);
         for (int i = 0; i < modes.length; i++) {
             String res = modes[i].getWidth() + " x " + modes[i].getHeight();
             String freq;

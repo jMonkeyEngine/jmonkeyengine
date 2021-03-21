@@ -1,7 +1,7 @@
 package com.jme3.input.lwjgl;
 
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -81,10 +81,10 @@ public class GlfwMouseInputVR implements MouseInput {
     private GLFWCursorPosCallback cursorPosCallback;
     private GLFWScrollCallback scrollCallback;
     private GLFWMouseButtonCallback mouseButtonCallback;
-    private Queue<MouseMotionEvent> mouseMotionEvents = new LinkedList<MouseMotionEvent>();
-    private Queue<MouseButtonEvent> mouseButtonEvents = new LinkedList<MouseButtonEvent>();
+    private Queue<MouseMotionEvent> mouseMotionEvents = new LinkedList<>();
+    private Queue<MouseButtonEvent> mouseButtonEvents = new LinkedList<>();
 
-    private Map<JmeCursor, Long> jmeToGlfwCursorMap = new HashMap<JmeCursor, Long>();
+    private Map<JmeCursor, Long> jmeToGlfwCursorMap = new HashMap<>();
 
     /**
      * Create a new mouse input attached to the given {@link LwjglWindowVR context}.

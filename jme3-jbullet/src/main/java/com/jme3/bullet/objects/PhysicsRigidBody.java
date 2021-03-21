@@ -70,7 +70,7 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
     protected javax.vecmath.Matrix3f tempMatrix = new javax.vecmath.Matrix3f();
     //TEMP VARIABLES
     protected javax.vecmath.Vector3f localInertia = new javax.vecmath.Vector3f();
-    protected ArrayList<PhysicsJoint> joints = new ArrayList<PhysicsJoint>();
+    protected ArrayList<PhysicsJoint> joints = new ArrayList<>();
 
     protected PhysicsRigidBody() {
     }

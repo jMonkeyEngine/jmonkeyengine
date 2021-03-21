@@ -199,7 +199,7 @@ public class TestMultiPostWater extends SimpleApplication {
             e.printStackTrace();
         }
         terrain = new TerrainQuad("terrain", 65, 513, heightmap.getHeightMap());
-        List<Camera> cameras = new ArrayList<Camera>();
+        List<Camera> cameras = new ArrayList<>();
         cameras.add(getCamera());
         terrain.setMaterial(matRock);
         terrain.setLocalScale(new Vector3f(5, 5, 5));

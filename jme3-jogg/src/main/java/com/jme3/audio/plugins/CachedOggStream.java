@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -56,9 +56,9 @@ public class CachedOggStream implements PhysicalOggStream {
     private boolean bos = false;
     private InputStream sourceStream;
     private HashMap<Integer, LogicalOggStream> logicalStreams 
-            = new HashMap<Integer, LogicalOggStream>();
+            = new HashMap<>();
     
-    private IntMap<OggPage> oggPages = new IntMap<OggPage>();
+    private IntMap<OggPage> oggPages = new IntMap<>();
     private OggPage lastPage;
    
     private int pageNumber;

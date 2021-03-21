@@ -108,7 +108,7 @@ public class SerializerRegistrationsMessage extends AbstractMessage {
     public static void compile() {
     
         // Let's just see what they are here
-        List<Registration> list = new ArrayList<Registration>();
+        List<Registration> list = new ArrayList<>();
         for( SerializerRegistration reg : Serializer.getSerializerRegistrations() ) {
             Class type = reg.getType();
             if( ignore.contains(type) )

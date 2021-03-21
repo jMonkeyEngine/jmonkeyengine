@@ -52,7 +52,7 @@ import com.jme3.network.base.MessageProtocol;
 public class LazyMessageBuffer implements MessageBuffer {
 
     private MessageProtocol protocol;
-    private final LinkedList<ByteBuffer> messages = new LinkedList<ByteBuffer>();
+    private final LinkedList<ByteBuffer> messages = new LinkedList<>();
     private ByteBuffer current;
     private int size;
     private Byte carry;

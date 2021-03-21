@@ -219,7 +219,7 @@ public class TestJoystick extends SimpleApplication {
         final private Geometry leftStick;
         final private Geometry rightStick;
             
-        final private Map<String, ButtonView> buttons = new HashMap<String, ButtonView>();
+        final private Map<String, ButtonView> buttons = new HashMap<>();
     
         public GamepadView() {
             super( "gamepad" );

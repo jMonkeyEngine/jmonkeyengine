@@ -44,7 +44,7 @@ import java.util.List;
 
 public class TestComboMoves extends SimpleApplication implements ActionListener {
 
-    final private HashSet<String> pressedMappings = new HashSet<String>();
+    final private HashSet<String> pressedMappings = new HashSet<>();
 
     private ComboMove fireball;
     private ComboMoveExecution fireballExec;
@@ -177,7 +177,7 @@ public class TestComboMoves extends SimpleApplication implements ActionListener 
         }
 
         // the pressed mappings was changed. update combo executions
-        List<ComboMove> invokedMoves = new ArrayList<ComboMove>();
+        List<ComboMove> invokedMoves = new ArrayList<>();
         if (shurikenExec.updateState(pressedMappings, time)){
             invokedMoves.add(shuriken);
         }

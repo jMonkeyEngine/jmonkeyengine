@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -266,12 +266,12 @@ public abstract class Serializer {
             ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
             String path = pkgName.replace('.', '/');
             Enumeration<URL> resources = classLoader.getResources(path);
-            List<File> dirs = new ArrayList<File>();
+            List<File> dirs = new ArrayList<>();
             while (resources.hasMoreElements()) {
                 URL resource = resources.nextElement();
                 dirs.add(new File(resource.getFile()));
             }
-            ArrayList<Class> classes = new ArrayList<Class>();
+            ArrayList<Class> classes = new ArrayList<>();
             for (File directory : dirs) {
                 classes.addAll(findClasses(directory, pkgName));
             }
@@ -289,7 +289,7 @@ public abstract class Serializer {
     }
 
     private static List<Class> findClasses(File dir, String pkgName) throws ClassNotFoundException {
-        List<Class> classes = new ArrayList<Class>();
+        List<Class> classes = new ArrayList<>();
         if (!dir.exists()) {
             return classes;
         }

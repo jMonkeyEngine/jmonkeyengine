@@ -38,7 +38,7 @@ public class TestAndroidSensors extends SimpleApplication implements ActionListe
 
     private Geometry geomZero = null;
     // Map of joysticks saved with the joyId as the key
-    private IntMap<Joystick> joystickMap = new IntMap<Joystick>();
+    private IntMap<Joystick> joystickMap = new IntMap<>();
     // flag to allow for the joystick axis to be calibrated on startup
     private boolean initialCalibrationComplete = false;
     // mappings used for onAnalog

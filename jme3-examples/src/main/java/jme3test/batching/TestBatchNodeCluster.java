@@ -77,9 +77,9 @@ public class TestBatchNodeCluster extends SimpleApplication {
     final private int startAt = 0;
     final private static int xPositions = 0, yPositions = 0, zPositions = 0;
     final private int returner = 0;
-    final private ArrayList<Integer> xPosition = new ArrayList<Integer>();
-    final private ArrayList<Integer> yPosition = new ArrayList<Integer>();
-    final private ArrayList<Integer> zPosition = new ArrayList<Integer>();
+    final private ArrayList<Integer> xPosition = new ArrayList<>();
+    final private ArrayList<Integer> yPosition = new ArrayList<>();
+    final private ArrayList<Integer> zPosition = new ArrayList<>();
     final private int xLimitf = 60, xLimits = -60, yLimitf = 60, yLimits = -20, zLimitf = 60, zLimits = -60;
     final private int circ = 8;//increases by 8 every time.
     final private int dynamic = 4;

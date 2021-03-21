@@ -114,10 +114,10 @@ public class TerrainGrid extends TerrainQuad {
     protected int quadSize;
     private TerrainGridTileLoader gridTileLoader;
     protected Vector3f[] quadIndex;
-    protected Set<TerrainGridListener> listeners = new HashSet<TerrainGridListener>();
+    protected Set<TerrainGridListener> listeners = new HashSet<>();
     protected Material material;
     //cache  needs to be 1 row (4 cells) larger than what we care is cached
-    protected LRUCache<Vector3f, TerrainQuad> cache = new LRUCache<Vector3f, TerrainQuad>(20);
+    protected LRUCache<Vector3f, TerrainQuad> cache = new LRUCache<>(20);
     protected int cellsLoaded = 0;
     protected int[] gridOffset;
     protected boolean runOnce = false;

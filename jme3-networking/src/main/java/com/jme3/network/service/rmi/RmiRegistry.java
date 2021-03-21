@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 jMonkeyEngine
+ * Copyright (c) 2015-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -68,8 +68,8 @@ public class RmiRegistry {
     private final ClassInfoRegistry classCache = new ClassInfoRegistry();
     private final AtomicInteger nextObjectId = new AtomicInteger();
     
-    private final ObjectIndex<SharedObject> local = new ObjectIndex<SharedObject>();
-    private final ObjectIndex<Object> remote = new ObjectIndex<Object>();
+    private final ObjectIndex<SharedObject> local = new ObjectIndex<>();
+    private final ObjectIndex<Object> remote = new ObjectIndex<>();
 
     // Only used on the server to provide thread-local context for
     // local RMI calls.
@@ -378,9 +378,9 @@ public class RmiRegistry {
      *  the remote objects and a lock that can guard them.
      */
     private class ObjectIndex<T> {
-        final Map<String, T> byName = new HashMap<String, T>();
-        final Map<Short, T> byId = new HashMap<Short, T>(); 
-        final Map<Short, ClassInfo> classes = new HashMap<Short, ClassInfo>();  
+        final Map<String, T> byName = new HashMap<>();
+        final Map<Short, T> byId = new HashMap<>(); 
+        final Map<Short, ClassInfo> classes = new HashMap<>();  
         final ReadWriteLock lock = new ReentrantReadWriteLock();
         
         public ObjectIndex() {

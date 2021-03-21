@@ -140,7 +140,7 @@ public class HelloTerrainCollision extends SimpleApplication
     rootNode.attachChild(terrain);
 
     /** 5. The LOD (level of detail) depends on were the camera is: */
-    List<Camera> cameras = new ArrayList<Camera>();
+    List<Camera> cameras = new ArrayList<>();
     cameras.add(getCamera());
     TerrainLodControl control = new TerrainLodControl(terrain, cameras);
     terrain.addControl(control);

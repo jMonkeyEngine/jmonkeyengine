@@ -220,8 +220,8 @@ public class TerrainTestModifyHeight extends SimpleApplication {
         float xStepAmount = terrain.getLocalScale().x;
         float zStepAmount = terrain.getLocalScale().z;
         long start = System.currentTimeMillis();
-        List<Vector2f> locs = new ArrayList<Vector2f>();
-        List<Float> heights = new ArrayList<Float>();
+        List<Vector2f> locs = new ArrayList<>();
+        List<Float> heights = new ArrayList<>();
         
         for (int z = -radiusStepsZ; z < radiusStepsZ; z++) {
             for (int x = -radiusStepsX; x < radiusStepsX; x++) {

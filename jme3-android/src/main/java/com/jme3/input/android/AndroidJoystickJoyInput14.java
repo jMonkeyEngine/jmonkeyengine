@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -65,7 +65,7 @@ public class AndroidJoystickJoyInput14 {
 
     private boolean loaded = false;
     private AndroidJoyInput joyInput;
-    private Map<Integer, AndroidJoystick> joystickIndex = new HashMap<Integer, AndroidJoystick>();
+    private Map<Integer, AndroidJoystick> joystickIndex = new HashMap<>();
 
     private static int[] AndroidGamepadButtons = {
             // Dpad buttons
@@ -109,7 +109,7 @@ public class AndroidJoystickJoyInput14 {
 
     public List<Joystick> loadJoysticks(int joyId, InputManager inputManager) {
         logger.log(Level.INFO, "loading Joystick devices");
-        ArrayList<Joystick> joysticks = new ArrayList<Joystick>();
+        ArrayList<Joystick> joysticks = new ArrayList<>();
         joysticks.clear();
         joystickIndex.clear();
 
@@ -245,8 +245,8 @@ public class AndroidJoystickJoyInput14 {
         private JoystickAxis yAxis;
         private JoystickAxis povX;
         private JoystickAxis povY;
-        private Map<Integer, JoystickAxis> axisIndex = new HashMap<Integer, JoystickAxis>();
-        private Map<Integer, JoystickButton> buttonIndex = new HashMap<Integer, JoystickButton>();
+        private Map<Integer, JoystickAxis> axisIndex = new HashMap<>();
+        private Map<Integer, JoystickButton> buttonIndex = new HashMap<>();
 
         public AndroidJoystick( InputManager inputManager, JoyInput joyInput, InputDevice device,
                                int joyId, String name ) {

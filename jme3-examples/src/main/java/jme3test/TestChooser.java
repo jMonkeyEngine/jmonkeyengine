@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -461,7 +461,7 @@ public class TestChooser extends JDialog {
     }
 
     protected void start(String[] args) {
-        final Vector<Class> classes = new Vector<Class>();
+        final Vector<Class> classes = new Vector<>();
         logger.fine("Composing Test list...");
         addDisplayedClasses(classes);
         setup(classes);

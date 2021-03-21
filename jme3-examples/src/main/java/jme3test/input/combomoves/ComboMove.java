@@ -64,7 +64,7 @@ public class ComboMove {
     }
 
     final private String moveName;
-    final private List<ComboMoveState> states = new ArrayList<ComboMoveState>();
+    final private List<ComboMoveState> states = new ArrayList<>();
     private boolean useFinalState = true;
     private float priority = 1;
     private float castTime = 0.8f;

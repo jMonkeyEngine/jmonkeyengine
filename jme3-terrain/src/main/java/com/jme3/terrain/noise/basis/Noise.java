@@ -44,7 +44,7 @@ import java.util.List;
  */
 public abstract class Noise implements Basis {
 
-	protected List<Modulator> modulators = new ArrayList<Modulator>();
+	protected List<Modulator> modulators = new ArrayList<>();
 
 	protected float scale = 1.0f;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine, Java Game Networking
+ * Copyright (c) 2009-2021 jMonkeyEngine, Java Game Networking
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -86,7 +86,7 @@ public class FieldSerializer extends Serializer {
 
         checkClass(clazz);   
     
-        List<Field> fields = new ArrayList<Field>();
+        List<Field> fields = new ArrayList<>();
 
         Class processingClass = clazz;
         while (processingClass != Object.class ) {
@@ -94,7 +94,7 @@ public class FieldSerializer extends Serializer {
             processingClass = processingClass.getSuperclass();
         }
 
-        List<SavedField> cachedFields = new ArrayList<SavedField>(fields.size());
+        List<SavedField> cachedFields = new ArrayList<>(fields.size());
         for (Field field : fields) {
             int modifiers = field.getModifiers();
             if (Modifier.isTransient(modifiers)) continue;

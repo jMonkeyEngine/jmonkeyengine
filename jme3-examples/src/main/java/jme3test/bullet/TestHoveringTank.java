@@ -296,7 +296,7 @@ public class TestHoveringTank extends SimpleApplication implements AnalogListene
             e.printStackTrace();
         }
         terrain = new TerrainQuad("terrain", 65, 513, heightmap.getHeightMap());
-        List<Camera> cameras = new ArrayList<Camera>();
+        List<Camera> cameras = new ArrayList<>();
         cameras.add(getCamera());
         TerrainLodControl control = new TerrainLodControl(terrain, cameras);
         terrain.addControl(control);

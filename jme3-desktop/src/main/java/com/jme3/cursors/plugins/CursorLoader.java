@@ -578,7 +578,7 @@ public class CursorLoader implements AssetLoader {
             // 1 - ICO
             // 2 - CUR
             IntBuffer singleCursor = null;
-            ArrayList<IntBuffer> cursors = new ArrayList<IntBuffer>();
+            ArrayList<IntBuffer> cursors = new ArrayList<>();
             int bwidth = 0;
             int bheight = 0;
             boolean multIcons = false;

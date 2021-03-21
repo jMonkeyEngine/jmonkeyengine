@@ -48,7 +48,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class ClassInfoRegistry {
  
     //private final LoadingCache<Class, ClassInfo> cache;  // Guava version
-    private final Map<Class, ClassInfo> cache = new HashMap<Class, ClassInfo>();
+    private final Map<Class, ClassInfo> cache = new HashMap<>();
     private final AtomicInteger nextClassId = new AtomicInteger();
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
  
