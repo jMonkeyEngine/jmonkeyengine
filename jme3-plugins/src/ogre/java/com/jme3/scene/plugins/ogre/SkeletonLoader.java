@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -51,7 +51,7 @@ public class SkeletonLoader extends DefaultHandler implements AssetLoader {
 
     private static final Logger logger = Logger.getLogger(SceneLoader.class.getName());
     //private AssetManager assetManager;
-    private Stack<String> elementStack = new Stack<String>();
+    private Stack<String> elementStack = new Stack<>();
     private HashMap<Integer, Joint> indexToJoint = new HashMap<>();
     private HashMap<String, Joint> nameToJoint = new HashMap<>();
     private TransformTrack track;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -61,7 +61,7 @@ import org.xml.sax.helpers.DefaultHandler;
 class SceneMaterialLoader extends DefaultHandler {
     
     private static final Logger logger = Logger.getLogger(SceneMaterialLoader.class.getName());
-    private Stack<String> elementStack = new Stack<String>();
+    private Stack<String> elementStack = new Stack<>();
     private String folderName;
     private MaterialList materialList;
     private AssetManager assetManager;

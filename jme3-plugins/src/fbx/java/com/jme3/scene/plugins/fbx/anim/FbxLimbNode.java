@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -67,7 +67,7 @@ public class FbxLimbNode extends FbxNode {
             throw new UnsupportedOperationException("Limb nodes cannot be skeleton holders");
         }
         
-        List<Bone> bones = new ArrayList<Bone>();
+        List<Bone> bones = new ArrayList<>();
         
         for (FbxNode child : skeletonHolderNode.getChildren()) {
             if (child instanceof FbxLimbNode) {

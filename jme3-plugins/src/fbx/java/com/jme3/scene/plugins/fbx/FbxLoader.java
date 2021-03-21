@@ -80,10 +80,10 @@ public class FbxLoader implements AssetLoader {
     private String sceneFilename;
     private String sceneFolderName;
     private FbxGlobalSettings globalSettings;
-    private final Map<FbxId, FbxObject> objectMap = new HashMap<FbxId, FbxObject>();
+    private final Map<FbxId, FbxObject> objectMap = new HashMap<>();
     
-    private final List<FbxAnimStack> animStacks = new ArrayList<FbxAnimStack>();
-    private final List<FbxBindPose> bindPoses = new ArrayList<FbxBindPose>();
+    private final List<FbxAnimStack> animStacks = new ArrayList<>();
+    private final List<FbxBindPose> bindPoses = new ArrayList<>();
     
     @Override
     public Object load(AssetInfo assetInfo) throws IOException {
@@ -308,7 +308,7 @@ public class FbxLoader implements AssetLoader {
         // So, we need to use heuristics to find which node(s) 
         // an animation is associated with, so we can create the AnimControl
         // in the appropriate location in the scene.
-        Map<FbxToJmeTrack, FbxToJmeTrack> pairs = new HashMap<FbxToJmeTrack, FbxToJmeTrack>();
+        Map<FbxToJmeTrack, FbxToJmeTrack> pairs = new HashMap<>();
         for (FbxAnimStack stack : animStacks) {
             for (FbxAnimLayer layer : stack.getLayers()) {
                 for (FbxAnimCurveNode curveNode : layer.getAnimationCurveNodes()) {

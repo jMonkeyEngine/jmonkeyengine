@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,7 +43,7 @@ import java.util.List;
  */
 public class AnimationList {
 	
-	List<AnimInverval> list = new ArrayList<AnimInverval>();
+	List<AnimInverval> list = new ArrayList<>();
 	
 	/**
 	 * Use in the case of multiple animation layers in FBX asset

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,7 +44,7 @@ public class FbxMaterialProperties {
     
     private static final Map<String, FBXMaterialProperty> propertyMetaMap = new HashMap<String, FBXMaterialProperty>();
     
-    private final Map<String, Object> propertyValueMap = new HashMap<String, Object>();
+    private final Map<String, Object> propertyValueMap = new HashMap<>();
     
     private static enum Type {
         Color,

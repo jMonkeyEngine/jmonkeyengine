@@ -334,7 +334,7 @@ public class FbxMesh extends FbxObject {
 			for(int i = 0; i < vCount; ++i) {
 				vertexMap.set(i, i);
 				indexMap.set(i, i);
-				List<Integer> l = new ArrayList<Integer>(1);
+				List<Integer> l = new ArrayList<>(1);
 				l.add(i);
 				reverseVertexMap.add(l);
 			}
@@ -488,7 +488,7 @@ public class FbxMesh extends FbxObject {
 				tcBuf.put(u).put(v);
 			}
 		}
-		List<Geometry> geometries = new ArrayList<Geometry>();
+		List<Geometry> geometries = new ArrayList<>();
 		if(materialsReference.equals("IndexToDirect") && materialsMapping.equals("ByPolygon")) {
 			IntMap<List<Integer>> indexBuffers = new IntMap<>();
 			for(int polygon = 0; polygon < materials.length; ++polygon) {

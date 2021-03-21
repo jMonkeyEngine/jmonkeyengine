@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,7 +43,7 @@ public class FbxAnimLayer extends FbxObject {
 
     private static final Logger logger = Logger.getLogger(FbxAnimLayer.class.getName());
     
-    private final List<FbxAnimCurveNode> animCurves = new ArrayList<FbxAnimCurveNode>();
+    private final List<FbxAnimCurveNode> animCurves = new ArrayList<>();
     
     public FbxAnimLayer(AssetManager assetManager, String sceneFolderName) {
         super(assetManager, sceneFolderName);

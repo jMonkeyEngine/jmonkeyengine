@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -176,7 +176,7 @@ public final class IrUtils {
      * Convert mesh from quads / triangles to triangles only.
      */
     public static void triangulate(IrMesh mesh) {
-        List<IrPolygon> newPolygons = new ArrayList<IrPolygon>(mesh.polygons.length);
+        List<IrPolygon> newPolygons = new ArrayList<>(mesh.polygons.length);
         for (IrPolygon inputPoly : mesh.polygons) {
             if (inputPoly.vertices.length == 4) {
                 IrPolygon[] tris = quadToTri(inputPoly);
@@ -202,7 +202,7 @@ public final class IrUtils {
      * Polygons without a material will be added to key = -1.
      */
     public static IntMap<IrMesh> splitByMaterial(IrMesh mesh) {
-        IntMap<List<IrPolygon>> materialToPolyList = new IntMap<List<IrPolygon>>();
+        IntMap<List<IrPolygon>> materialToPolyList = new IntMap<>();
         for (IrPolygon polygon : mesh.polygons) {
             int materialIndex = -1;
             for (IrVertex vertex : polygon.vertices) {
@@ -223,7 +223,7 @@ public final class IrUtils {
             }
             polyList.add(polygon);
         }
-        IntMap<IrMesh> materialToMesh = new IntMap<IrMesh>();
+        IntMap<IrMesh> materialToMesh = new IntMap<>();
         for (IntMap.Entry<List<IrPolygon>> entry : materialToPolyList) {
             int key = entry.getKey();
             List<IrPolygon> polygons = entry.getValue();
@@ -241,9 +241,9 @@ public final class IrUtils {
      * Convert IrMesh to jME3 mesh.
      */
     public static Mesh convertIrMeshToJmeMesh(IrMesh mesh) {
-        Map<IrVertex, Integer> vertexToVertexIndex = new HashMap<IrVertex, Integer>();
-        List<IrVertex> vertices = new ArrayList<IrVertex>();
-        List<Integer> indexes = new ArrayList<Integer>();
+        Map<IrVertex, Integer> vertexToVertexIndex = new HashMap<>();
+        List<IrVertex> vertices = new ArrayList<>();
+        List<Integer> indexes = new ArrayList<>();
         
         int vertexIndex = 0;
         for (IrPolygon polygon : mesh.polygons) {
