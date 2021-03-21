@@ -558,4 +558,6 @@ public interface KeyInput extends Input {
      * the last key.
      */
     public static final int KEY_LAST = 0xE0;
+
+    public String getKeyName(int key);
 }

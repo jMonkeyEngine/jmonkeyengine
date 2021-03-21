@@ -168,4 +168,14 @@ public class GlfwKeyMap {
     public static int toJmeKeyCode(final int glfwKey) {
         return GLFW_TO_JME_KEY_MAP[glfwKey];
     }
+
+    public static int fromJmeKeyCode(final int jmeKey) {
+        for(int i=0;i<GLFW_TO_JME_KEY_MAP.length;i++){
+            if(GLFW_TO_JME_KEY_MAP[i]==jmeKey){
+                return i;
+            }
+        }
+        return GLFW_KEY_UNKNOWN;
+    }
+    
 }

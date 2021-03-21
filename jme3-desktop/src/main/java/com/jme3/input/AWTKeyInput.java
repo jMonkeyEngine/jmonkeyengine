@@ -234,4 +234,8 @@ public class AWTKeyInput extends AWTInput implements KeyInput, KeyListener{
       System.out.println("Key released "+e.getKeyChar());
       onKeyEvent(e, false);
     }
+
+    public String getKeyName(int key){
+      return null;
+  }
 }
