@@ -71,18 +71,18 @@ public class AppStateManager {
      *  initialization.  Once initialized they will be added to
      *  the running app states.  
      */
-    private final SafeArrayList<AppState> initializing = new SafeArrayList<AppState>(AppState.class);
+    private final SafeArrayList<AppState> initializing = new SafeArrayList<>(AppState.class);
     
     /**
      *  Holds the active states once they are initialized.  
      */
-    private final SafeArrayList<AppState> states = new SafeArrayList<AppState>(AppState.class);
+    private final SafeArrayList<AppState> states = new SafeArrayList<>(AppState.class);
     
     /**
      *  List holding the detached app states that are pending
      *  cleanup.  
      */
-    private final SafeArrayList<AppState> terminating = new SafeArrayList<AppState>(AppState.class);
+    private final SafeArrayList<AppState> terminating = new SafeArrayList<>(AppState.class);
 
     /**
      *  Thread-safe index of every state that is currently attached and has

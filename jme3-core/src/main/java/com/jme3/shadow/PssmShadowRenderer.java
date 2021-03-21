@@ -171,7 +171,7 @@ public class PssmShadowRenderer implements SceneProcessor {
     protected boolean applyPCFEdge = true;
     protected boolean applyShadowIntensity = true;
     //a list of material of the post shadow queue geometries.
-    protected List<Material> matCache = new ArrayList<Material>();
+    protected List<Material> matCache = new ArrayList<>();
     //Holding the info for fading shadows in the far distance 
     protected Vector2f fadeInfo;
     protected float fadeLength;

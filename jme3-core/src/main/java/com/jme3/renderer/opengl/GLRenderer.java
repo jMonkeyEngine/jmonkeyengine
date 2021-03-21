@@ -88,7 +88,7 @@ public final class GLRenderer implements Renderer {
     private final RenderContext context = new RenderContext();
     private final NativeObjectManager objManager = new NativeObjectManager();
     private final EnumSet<Caps> caps = EnumSet.noneOf(Caps.class);
-    private final EnumMap<Limits, Integer> limits = new EnumMap<Limits, Integer>(Limits.class);
+    private final EnumMap<Limits, Integer> limits = new EnumMap<>(Limits.class);
 
     private FrameBuffer mainFbOverride = null;
     private int defaultFBO = 0;
@@ -134,7 +134,7 @@ public final class GLRenderer implements Renderer {
     }
 
     private HashSet<String> loadExtensions() {
-        HashSet<String> extensionSet = new HashSet<String>(64);
+        HashSet<String> extensionSet = new HashSet<>(64);
         if (caps.contains(Caps.OpenGL30)) {
             // If OpenGL3+ is available, use the non-deprecated way
             // of getting supported extensions.

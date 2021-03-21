@@ -103,10 +103,10 @@ public class LodGenerator {
     private Vector3f tmpV2 = new Vector3f();
     private boolean bestQuality = true;
     private int indexCount = 0;
-    private List<Vertex> collapseCostSet = new ArrayList<Vertex>();
+    private List<Vertex> collapseCostSet = new ArrayList<>();
     private float collapseCostLimit;
     private List<Triangle> triangleList;
-    private List<Vertex> vertexList = new ArrayList<Vertex>();
+    private List<Vertex> vertexList = new ArrayList<>();
     private float meshBoundingSphereRadius;
     final private Mesh mesh;
 
@@ -183,8 +183,8 @@ public class LodGenerator {
         
         Vector3f position = new Vector3f();
         float collapseCost = UNINITIALIZED_COLLAPSE_COST;
-        List<Edge> edges = new ArrayList<Edge>();
-        Set<Triangle> triangles = new HashSet<Triangle>();
+        List<Edge> edges = new ArrayList<>();
+        Set<Triangle> triangles = new HashSet<>();
         Vertex collapseTo;
         boolean isSeam;
         int index;//index in the buffer for debugging
@@ -279,7 +279,7 @@ public class LodGenerator {
         BoundingSphere bs = new BoundingSphere();
         bs.computeFromPoints(mesh.getFloatBuffer(VertexBuffer.Type.Position));
         meshBoundingSphereRadius = bs.getRadius();
-        List<Vertex> vertexLookup = new ArrayList<Vertex>();
+        List<Vertex> vertexLookup = new ArrayList<>();
         initialize();
         
         gatherVertexData(mesh, vertexLookup);
@@ -896,7 +896,7 @@ public class LodGenerator {
         // It may have vertexIDs and triangles from different submeshes(different vertex buffers),
         // so we need to connect them correctly based on deleted triangle's edge.
         // mCollapsedEdgeIDs will be used, when looking up the connections for replacement.
-        List<CollapsedEdge> tmpCollapsedEdges = new ArrayList<CollapsedEdge>();
+        List<CollapsedEdge> tmpCollapsedEdges = new ArrayList<>();
         for (Iterator<Triangle> it = src.triangles.iterator(); it.hasNext();) {
             Triangle triangle = it.next();
             if (triangle.hasVertex(dest)) {
@@ -981,7 +981,7 @@ public class LodGenerator {
             // TODO: Find out why is this needed. assertOutdatedCollapseCost() fails on some
             // rare situations without this. For example goblin.mesh fails.
             //Treeset to have an ordered list with unique values
-            SortedSet<Vertex> updatable = new TreeSet<Vertex>(collapseComparator);
+            SortedSet<Vertex> updatable = new TreeSet<>(collapseComparator);
             
             for (Edge edge : src.edges) {
                 updatable.add(edge.destination);

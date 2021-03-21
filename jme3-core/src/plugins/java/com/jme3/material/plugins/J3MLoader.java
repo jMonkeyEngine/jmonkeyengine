@@ -73,7 +73,7 @@ public class J3MLoader implements AssetLoader {
     private Material material;
     private TechniqueDef technique;
     private RenderState renderState;
-    final private ArrayList<String> presetDefines = new ArrayList<String>();
+    final private ArrayList<String> presetDefines = new ArrayList<>();
 
     final private List<EnumMap<Shader.ShaderType, String>> shaderLanguages;
     final private EnumMap<Shader.ShaderType, String> shaderNames;
@@ -151,7 +151,7 @@ public class J3MLoader implements AssetLoader {
     }
 
     private List<String> tokenizeTextureValue(final String value) {
-        final List<String> matchList = new ArrayList<String>();
+        final List<String> matchList = new ArrayList<>();
         final Pattern regex = Pattern.compile("[^\\s\"']+|\"([^\"]*)\"|'([^']*)'");
         final Matcher regexMatcher = regex.matcher(value.trim());
 
@@ -169,7 +169,7 @@ public class J3MLoader implements AssetLoader {
     }
 
     private List<TextureOptionValue> parseTextureOptions(final List<String> values) {
-        final List<TextureOptionValue> matchList = new ArrayList<TextureOptionValue>();
+        final List<TextureOptionValue> matchList = new ArrayList<>();
 
         if (values.isEmpty() || values.size() == 1) {
             return matchList;

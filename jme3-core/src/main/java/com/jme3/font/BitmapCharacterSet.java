@@ -100,7 +100,7 @@ public class BitmapCharacterSet implements Savable {
     }
 
     private IntMap<BitmapCharacter> readCharset(InputCapsule ic, int style) throws IOException {
-        IntMap<BitmapCharacter> charset = new IntMap<BitmapCharacter>();
+        IntMap<BitmapCharacter> charset = new IntMap<>();
         short[] indexes = ic.readShortArray("indexes"+style, null);
         Savable[] chars = ic.readSavableArray("chars"+style, null);
 

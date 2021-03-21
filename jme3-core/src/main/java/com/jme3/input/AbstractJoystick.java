@@ -47,8 +47,8 @@ public abstract class AbstractJoystick implements Joystick {
     final private int joyId;
     final private String name;
     
-    final private List<JoystickAxis> axes = new ArrayList<JoystickAxis>();       
-    final private List<JoystickButton> buttons = new ArrayList<JoystickButton>();       
+    final private List<JoystickAxis> axes = new ArrayList<>();       
+    final private List<JoystickButton> buttons = new ArrayList<>();       
 
     /**
      * Creates a new joystick instance. Only used internally.

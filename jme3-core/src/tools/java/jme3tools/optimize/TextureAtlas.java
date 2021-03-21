@@ -469,7 +469,7 @@ public class TextureAtlas {
      * @return Null if the atlas cannot be created because not all textures fit.
      */
     public static TextureAtlas createAtlas(Spatial root, int atlasSize) {
-        List<Geometry> geometries = new ArrayList<Geometry>();
+        List<Geometry> geometries = new ArrayList<>();
         GeometryBatchFactory.gatherGeoms(root, geometries);
         TextureAtlas atlas = new TextureAtlas(atlasSize, atlasSize);
         for (Geometry geometry : geometries) {
@@ -490,7 +490,7 @@ public class TextureAtlas {
      * @return A new geometry that uses the generated texture atlas and merges all meshes of the root spatial, null if the atlas cannot be created because not all textures fit.
      */
     public static Geometry makeAtlasBatch(Spatial spat, AssetManager mgr, int atlasSize) {
-        List<Geometry> geometries = new ArrayList<Geometry>();
+        List<Geometry> geometries = new ArrayList<>();
         GeometryBatchFactory.gatherGeoms(spat, geometries);
         TextureAtlas atlas = createAtlas(spat, atlasSize);
         if (atlas == null) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -332,7 +332,7 @@ public final class LightList implements Iterable<Light>, Savable, Cloneable, Jme
         OutputCapsule oc = ex.getCapsule(this);
 //        oc.write(owner, "owner", null);
 
-        ArrayList<Light> lights = new ArrayList<Light>();
+        ArrayList<Light> lights = new ArrayList<>();
         for (int i = 0; i < listSize; i++){
             lights.add(list[i]);
         }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -69,7 +69,7 @@ public final class GLTracer implements InvocationHandler {
     private static final String ANSI_WHITE = "\u001B[37m";
 
     private static void noEnumArgs(String method, int... argSlots) {
-        IntMap<Void> argSlotsMap = new IntMap<Void>();
+        IntMap<Void> argSlotsMap = new IntMap<>();
         for (int argSlot : argSlots) {
             argSlotsMap.put(argSlot, null);
         }
@@ -146,7 +146,7 @@ public final class GLTracer implements InvocationHandler {
     }
     
     private static IntMap<String> generateConstantMap(Class<?> ... classes) {
-        IntMap<String> constMap = new IntMap<String>();
+        IntMap<String> constMap = new IntMap<>();
         for (Class<?> clazz : classes) {
             for (Field field : clazz.getFields()) {
                 if (field.getType() == int.class) {

@@ -69,17 +69,17 @@ public class NativeObjectManager {
     /**
      * Reference queue for {@link NativeObjectRef native object references}.
      */
-    private ReferenceQueue<Object> refQueue = new ReferenceQueue<Object>();
+    private ReferenceQueue<Object> refQueue = new ReferenceQueue<>();
 
     /**
      * List of currently active GLObjects.
      */
-    final private HashMap<Long, NativeObjectRef> refMap = new HashMap<Long, NativeObjectRef>();
+    final private HashMap<Long, NativeObjectRef> refMap = new HashMap<>();
     
     /**
      * List of real objects requested by user for deletion.
      */
-    final private ArrayDeque<NativeObject> userDeletionQueue = new ArrayDeque<NativeObject>();
+    final private ArrayDeque<NativeObject> userDeletionQueue = new ArrayDeque<>();
 
     private static class NativeObjectRef extends PhantomReference<Object> {
         
@@ -199,7 +199,7 @@ public class NativeObjectManager {
      */
     public void deleteAllObjects(Object rendererObject){
         deleteUnused(rendererObject);
-        ArrayList<NativeObjectRef> refMapCopy = new ArrayList<NativeObjectRef>(refMap.values());
+        ArrayList<NativeObjectRef> refMapCopy = new ArrayList<>(refMap.values());
         for (NativeObjectRef ref : refMapCopy) {
             deleteNativeObject(rendererObject, ref.objClone, ref, true, false);
         }

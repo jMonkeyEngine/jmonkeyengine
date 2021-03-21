@@ -137,7 +137,7 @@ public class Surface extends Mesh {
         float maxVKnot = this.getMaxVNurbKnot();
         float deltaV = (maxVKnot - minVKnot) / vSegments;
 
-        List<Vector3f> vertices = new ArrayList<Vector3f>((uSegments + 1) * (vSegments + 1));// new Vector3f[(uSegments + 1) * (vSegments + 1)];
+        List<Vector3f> vertices = new ArrayList<>((uSegments + 1) * (vSegments + 1));// new Vector3f[(uSegments + 1) * (vSegments + 1)];
 
         float u = minUKnot, v = minVKnot;
         for (int i = 0; i <= vSegments; ++i) {
@@ -164,7 +164,7 @@ public class Surface extends Mesh {
             int uVerticesAmount = uSegments + 1;
             int vVerticesAmount = vSegments + 1;
             int newUVerticesAmount = 2 + (uVerticesAmount - 2) * 2;
-            List<Vector3f> verticesWithUDuplicates = new ArrayList<Vector3f>(vVerticesAmount * newUVerticesAmount);
+            List<Vector3f> verticesWithUDuplicates = new ArrayList<>(vVerticesAmount * newUVerticesAmount);
             for(int i=0;i<vertices.size();++i) {
                 verticesWithUDuplicates.add(vertices.get(i));
                 if(i % uVerticesAmount != 0 && i % uVerticesAmount != uVerticesAmount - 1) {
@@ -172,7 +172,7 @@ public class Surface extends Mesh {
                 }
             }
             // and then duplicate all verts that are not on the border along the V axis
-            List<Vector3f> verticesWithVDuplicates = new ArrayList<Vector3f>(verticesWithUDuplicates.size() * vVerticesAmount);
+            List<Vector3f> verticesWithVDuplicates = new ArrayList<>(verticesWithUDuplicates.size() * vVerticesAmount);
             verticesWithVDuplicates.addAll(verticesWithUDuplicates.subList(0, newUVerticesAmount));
             for(int i=1;i<vSegments;++i) {
                 verticesWithVDuplicates.addAll(verticesWithUDuplicates.subList(i * newUVerticesAmount, i * newUVerticesAmount + newUVerticesAmount));
@@ -212,7 +212,7 @@ public class Surface extends Mesh {
 
         Vector3f[] verticesArray = vertices.toArray(new Vector3f[vertices.size()]);
         // normalMap merges normals of faces that will be rendered smooth
-        Map<Vector3f, Vector3f> normalMap = new HashMap<Vector3f, Vector3f>(verticesArray.length);
+        Map<Vector3f, Vector3f> normalMap = new HashMap<>(verticesArray.length);
         for (int i = 0; i < indices.length; i += 3) {
             Vector3f n = FastMath.computeNormal(verticesArray[indices[i]], verticesArray[indices[i + 1]], verticesArray[indices[i + 2]]);
             this.addNormal(n, normalMap, smooth, verticesArray[indices[i]], verticesArray[indices[i + 1]], verticesArray[indices[i + 2]]);

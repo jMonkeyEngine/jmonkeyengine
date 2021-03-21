@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -67,9 +67,9 @@ public final class StaticPassLightingLogic extends DefaultTechniqueDefLogic {
     private final int numPointLightsDefineId;
     private final int numSpotLightsDefineId;
 
-    private final ArrayList<DirectionalLight> tempDirLights = new ArrayList<DirectionalLight>();
-    private final ArrayList<PointLight> tempPointLights = new ArrayList<PointLight>();
-    private final ArrayList<SpotLight> tempSpotLights = new ArrayList<SpotLight>();
+    private final ArrayList<DirectionalLight> tempDirLights = new ArrayList<>();
+    private final ArrayList<PointLight> tempPointLights = new ArrayList<>();
+    private final ArrayList<SpotLight> tempSpotLights = new ArrayList<>();
 
     private final ColorRGBA ambientLightColor = new ColorRGBA(0, 0, 0, 1);
     private final Vector3f tempPosition = new Vector3f();

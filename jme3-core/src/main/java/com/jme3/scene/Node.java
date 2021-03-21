@@ -62,7 +62,7 @@ public class Node extends Spatial {
     /**
      * This node's children.
      */
-    protected SafeArrayList<Spatial> children = new SafeArrayList<Spatial>(Spatial.class);
+    protected SafeArrayList<Spatial> children = new SafeArrayList<>(Spatial.class);
     /**
      * If this node is a root, this list will contain the current
      * set of children (and children of children) that require
@@ -212,7 +212,7 @@ public class Node extends Spatial {
             return updateList;
         }
         if (updateList == null) {
-            updateList = new SafeArrayList<Spatial>(Spatial.class);
+            updateList = new SafeArrayList<>(Spatial.class);
         } else {
             updateList.clear();
         }
@@ -653,7 +653,7 @@ public class Node extends Spatial {
     @SuppressWarnings("unchecked")
     public <T extends Spatial> List<T> descendantMatches(
             Class<T> spatialSubclass, String nameRegex) {
-        List<T> newList = new ArrayList<T>();
+        List<T> newList = new ArrayList<>();
         if (getQuantity() < 1) {
             return newList;
         }
@@ -717,7 +717,7 @@ public class Node extends Spatial {
 
     public Spatial oldDeepClone() {
         Node nodeClone = (Node) super.clone();
-        nodeClone.children = new SafeArrayList<Spatial>(Spatial.class);
+        nodeClone.children = new SafeArrayList<>(Spatial.class);
         for (Spatial child : children) {
             Spatial childClone = child.deepClone();
             childClone.parent = nodeClone;

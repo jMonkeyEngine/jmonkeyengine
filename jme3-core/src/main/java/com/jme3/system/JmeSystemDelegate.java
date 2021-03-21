@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -55,7 +55,7 @@ public abstract class JmeSystemDelegate {
     protected final Logger logger = Logger.getLogger(JmeSystem.class.getName());
     protected boolean initialized = false;
     protected boolean lowPermissions = false;
-    protected Map<JmeSystem.StorageFolderType, File> storageFolders = new EnumMap<JmeSystem.StorageFolderType, File>(JmeSystem.StorageFolderType.class);
+    protected Map<JmeSystem.StorageFolderType, File> storageFolders = new EnumMap<>(JmeSystem.StorageFolderType.class);
     protected SoftTextDialogInput softTextDialogInput = null;
 
     public synchronized File getStorageFolder(JmeSystem.StorageFolderType type) {

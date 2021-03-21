@@ -71,10 +71,10 @@ public class DesktopAssetManager implements AssetManager {
     private final ImplHandler handler = new ImplHandler(this);
 
     final private CopyOnWriteArrayList<AssetEventListener> eventListeners = 
-            new CopyOnWriteArrayList<AssetEventListener>();
+            new CopyOnWriteArrayList<>();
     
     final private List<ClassLoader> classLoaders =
-            Collections.synchronizedList(new ArrayList<ClassLoader>());
+            Collections.synchronizedList(new ArrayList<>());
 
     public DesktopAssetManager(){
         this(null);

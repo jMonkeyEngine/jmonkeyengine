@@ -53,8 +53,8 @@ public class OpenCLObjectManager {
         return INSTANCE;
     }
     
-    final private ReferenceQueue<Object> refQueue = new ReferenceQueue<Object>();
-    final private HashSet<OpenCLObjectRef> activeObjects = new HashSet<OpenCLObjectRef>();
+    final private ReferenceQueue<Object> refQueue = new ReferenceQueue<>();
+    final private HashSet<OpenCLObjectRef> activeObjects = new HashSet<>();
     
     private static class OpenCLObjectRef extends PhantomReference<Object> {
         

@@ -563,7 +563,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
     public void read(JmeImporter im) throws IOException {
         InputCapsule ic = im.getCapsule(this);
         numSamples = ic.readInt("numSamples", 0);
-        filters = new SafeArrayList<Filter>(Filter.class, ic.readSavableArrayList("filters", null));
+        filters = new SafeArrayList<>(Filter.class, ic.readSavableArrayList("filters", null));
         for (Filter filter : filters.getArray()) {
             filter.setProcessor(this);
             setFilterState(filter, filter.isEnabled());

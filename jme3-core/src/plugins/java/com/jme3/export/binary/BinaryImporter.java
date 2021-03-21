@@ -55,16 +55,16 @@ public final class BinaryImporter implements JmeImporter {
 
     //Key - alias, object - bco
     final private HashMap<String, BinaryClassObject> classes
-             = new HashMap<String, BinaryClassObject>();
+             = new HashMap<>();
     //Key - id, object - the savable
     final private HashMap<Integer, Savable> contentTable
-            = new HashMap<Integer, Savable>();
+            = new HashMap<>();
     //Key - savable, object - capsule
     final private IdentityHashMap<Savable, BinaryInputCapsule> capsuleTable
-             = new IdentityHashMap<Savable, BinaryInputCapsule>();
+             = new IdentityHashMap<>();
     //Key - id, opject - location in the file
     final private HashMap<Integer, Integer> locationTable
-             = new HashMap<Integer, Integer>();
+             = new HashMap<>();
 
     public static boolean debug = false;
 

@@ -75,12 +75,12 @@ public class ShaderNodeLoaderDelegate {
     protected Set<String> varNames = new HashSet<>();
     protected AssetManager assetManager;
     protected ConditionParser conditionParser = new ConditionParser();
-    protected List<String> nulledConditions = new ArrayList<String>();
+    protected List<String> nulledConditions = new ArrayList<>();
 
     protected class DeclaredVariable {
 
         ShaderNodeVariable var;
-        List<ShaderNode> nodes = new ArrayList<ShaderNode>();
+        List<ShaderNode> nodes = new ArrayList<>();
 
         public DeclaredVariable(ShaderNodeVariable var) {
             this.var = var;

@@ -98,8 +98,8 @@ public class MaterialDebugAppState extends AbstractAppState {
     private RenderManager renderManager;
     private AssetManager assetManager;
     private InputManager inputManager;
-    final private List<Binding> bindings = new ArrayList<Binding>();
-    final private Map<Trigger,List<Binding>> fileTriggers = new HashMap<Trigger,List<Binding>> ();
+    final private List<Binding> bindings = new ArrayList<>();
+    final private Map<Trigger,List<Binding>> fileTriggers = new HashMap<> ();
     
 
     @Override
@@ -304,7 +304,7 @@ public class MaterialDebugAppState extends AbstractAppState {
             Field[] fields1 = filter.getClass().getDeclaredFields();
             Field[] fields2 = filter.getClass().getSuperclass().getDeclaredFields();
 
-            List<Field> fields = new ArrayList<Field>();
+            List<Field> fields = new ArrayList<>();
             fields.addAll(Arrays.asList(fields1));
             fields.addAll(Arrays.asList(fields2));
             Material m = new Material();
@@ -335,7 +335,7 @@ public class MaterialDebugAppState extends AbstractAppState {
                     }
                     if (field.getName().equals("postRenderPasses")) {
                         field.setAccessible(true);
-                        List<Pass> passes = new ArrayList<Pass>();
+                        List<Pass> passes = new ArrayList<>();
                         passes = (List<Pass>) field.get(filter);
                         if (passes != null) {
                             for (Pass pass : passes) {

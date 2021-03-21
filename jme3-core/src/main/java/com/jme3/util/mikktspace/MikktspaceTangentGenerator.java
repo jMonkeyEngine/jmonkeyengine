@@ -1666,7 +1666,7 @@ public class MikktspaceTangentGenerator {
 
     private static class Group {
         int nrFaces;
-        List<Integer> faceIndices = new ArrayList<Integer>();
+        List<Integer> faceIndices = new ArrayList<>();
         int vertexRepresentitive;
         boolean orientPreservering;
     }

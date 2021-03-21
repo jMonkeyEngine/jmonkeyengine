@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -55,22 +55,22 @@ final class ImplHandler {
     private final AssetManager assetManager;
     
     private final ThreadLocal<AssetKey> parentAssetKey 
-            = new ThreadLocal<AssetKey>();
+            = new ThreadLocal<>();
     
     private final CopyOnWriteArrayList<ImplThreadLocal<AssetLocator>> locatorsList =
-                new CopyOnWriteArrayList<ImplThreadLocal<AssetLocator>>();
+                new CopyOnWriteArrayList<>();
     
     private final HashMap<Class<?>, ImplThreadLocal<AssetLoader>> classToLoaderMap = 
-                new HashMap<Class<?>, ImplThreadLocal<AssetLoader>>();
+                new HashMap<>();
 
     private final ConcurrentHashMap<String, ImplThreadLocal<AssetLoader>> extensionToLoaderMap =
-                new ConcurrentHashMap<String, ImplThreadLocal<AssetLoader>>();
+                new ConcurrentHashMap<>();
     
     private final ConcurrentHashMap<Class<? extends AssetProcessor>, AssetProcessor> classToProcMap =
-                new ConcurrentHashMap<Class<? extends AssetProcessor>, AssetProcessor>();
+                new ConcurrentHashMap<>();
     
     private final ConcurrentHashMap<Class<? extends AssetCache>, AssetCache> classToCacheMap =
-                new ConcurrentHashMap<Class<? extends AssetCache>, AssetCache>();
+                new ConcurrentHashMap<>();
 
     public ImplHandler(AssetManager assetManager){
         this.assetManager = assetManager;
@@ -294,7 +294,7 @@ final class ImplHandler {
     }
 
     public void removeLocator(final Class<? extends AssetLocator> locatorType, String rootPath){
-        ArrayList<ImplThreadLocal<AssetLocator>> locatorsToRemove = new ArrayList<ImplThreadLocal<AssetLocator>>();
+        ArrayList<ImplThreadLocal<AssetLocator>> locatorsToRemove = new ArrayList<>();
         Iterator<ImplThreadLocal<AssetLocator>> it = locatorsList.iterator();
        
         while (it.hasNext()){

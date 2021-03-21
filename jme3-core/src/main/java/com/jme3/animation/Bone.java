@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -76,7 +76,7 @@ public final class Bone implements Savable, JmeCloneable {
     public static final int SAVABLE_VERSION = 2;
     private String name;
     private Bone parent;
-    private ArrayList<Bone> children = new ArrayList<Bone>();
+    private ArrayList<Bone> children = new ArrayList<>();
     /**
      * If enabled, user can control bone transform with setUserTransforms.
      * Animation transforms are not applied to this bone when enabled.

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -746,7 +746,7 @@ public class DDSLoader implements AssetLoader {
             totalSize += sizes[i];
         }
 
-        ArrayList<ByteBuffer> allMaps = new ArrayList<ByteBuffer>();
+        ArrayList<ByteBuffer> allMaps = new ArrayList<>();
         if (depth > 1 && !texture3D) {
             for (int i = 0; i < depth; i++) {
                 if (compressed) {

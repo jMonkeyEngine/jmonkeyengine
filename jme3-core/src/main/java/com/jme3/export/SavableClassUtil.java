@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -96,7 +96,7 @@ public class SavableClassUtil {
 
     @SuppressWarnings("unchecked")
     public static int[] getSavableVersions(Class<? extends Savable> clazz) throws IOException{
-        ArrayList<Integer> versionList = new ArrayList<Integer>();
+        ArrayList<Integer> versionList = new ArrayList<>();
         Class superclass = clazz;
         do {
             versionList.add(getSavableVersion(superclass));

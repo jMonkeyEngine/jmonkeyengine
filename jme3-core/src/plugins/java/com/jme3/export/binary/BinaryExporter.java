@@ -148,16 +148,16 @@ public class BinaryExporter implements JmeExporter {
     protected int idCount = 1;
 
     protected IdentityHashMap<Savable, BinaryIdContentPair> contentTable
-             = new IdentityHashMap<Savable, BinaryIdContentPair>();
+             = new IdentityHashMap<>();
 
     protected HashMap<Integer, Integer> locationTable
-             = new HashMap<Integer, Integer>();
+             = new HashMap<>();
 
     // key - class name, value = bco
     final private HashMap<String, BinaryClassObject> classes
-             = new HashMap<String, BinaryClassObject>();
+             = new HashMap<>();
 
-    final private ArrayList<Savable> contentKeys = new ArrayList<Savable>();
+    final private ArrayList<Savable> contentKeys = new ArrayList<>();
 
     public static boolean debug = false;
     public static boolean useFastBufs = true;
@@ -259,7 +259,7 @@ public class BinaryExporter implements JmeExporter {
         // write out data to a separate stream
         int location = 0;
         // keep track of location for each piece
-        HashMap<String, ArrayList<BinaryIdContentPair>> alreadySaved = new HashMap<String, ArrayList<BinaryIdContentPair>>(
+        HashMap<String, ArrayList<BinaryIdContentPair>> alreadySaved = new HashMap<>(
                 contentTable.size());
         for (Savable savable : contentKeys) {
             // look back at previous written data for matches

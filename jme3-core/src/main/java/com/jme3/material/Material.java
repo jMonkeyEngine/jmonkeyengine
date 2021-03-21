@@ -77,9 +77,9 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
     private AssetKey key;
     private String name;
     private MaterialDef def;
-    private ListMap<String, MatParam> paramValues = new ListMap<String, MatParam>();
+    private ListMap<String, MatParam> paramValues = new ListMap<>();
     private Technique technique;
-    private HashMap<String, Technique> techniques = new HashMap<String, Technique>();
+    private HashMap<String, Technique> techniques = new HashMap<>();
     private RenderState additionalState = null;
     final private RenderState mergedRenderState = new RenderState();
     private boolean transparent = false;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,7 +43,7 @@ public class ListMapTest {
 
     @Test
     public void testListMap() {
-        ListMap<String, String> listMap = new ListMap<String, String>();
+        ListMap<String, String> listMap = new ListMap<>();
         listMap.put("bob", "hello");
         assert "hello".equals(listMap.get("bob"));
         assert "hello".equals(listMap.remove("bob"));

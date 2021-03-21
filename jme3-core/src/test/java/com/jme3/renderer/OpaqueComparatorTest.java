@@ -108,7 +108,7 @@ public class OpaqueComparatorTest {
             System.out.println(mat);
         }
         
-        Set<String> alreadySeen = new HashSet<String>();
+        Set<String> alreadySeen = new HashSet<>();
         Material current = null;
         for (int i = 0; i < gl.size(); i++) {
             Material mat = gl.get(i).getMaterial();
