@@ -131,7 +131,6 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
 
     private Thread mainThread;
 
-    private double frameSleepTime;
     private long window = NULL;
     private int frameRateLimit = -1;
 
@@ -226,7 +225,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         glfwWindowHint(GLFW_STENCIL_BITS, settings.getStencilBits());
         glfwWindowHint(GLFW_SAMPLES, settings.getSamples());
         glfwWindowHint(GLFW_STEREO, settings.useStereo3D() ? GLFW_TRUE : GLFW_FALSE);
-        glfwWindowHint(GLFW_REFRESH_RATE, settings.getFrequency());
+        glfwWindowHint(GLFW_REFRESH_RATE, settings.getFrequency()<=0?GLFW_DONT_CARE:settings.getFrequency());
 
         if (settings.getBitsPerPixel() == 24) {
             glfwWindowHint(GLFW_RED_BITS, 8);
@@ -564,21 +563,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             setFrameRateLimit(20);
         }
 
-        // If software frame rate limiting has been asked for, lets calculate sleep time based on a base value calculated
-        // from 1000 / frameRateLimit in milliseconds subtracting the time it has taken to render last frame.
-        // This gives an approximate limit within 3 fps of the given frame rate limit.
-        if (frameRateLimit > 0) {
-            final double sleep = frameSleepTime - (timer.getTimePerFrame() / 1000.0);
-            final long sleepMillis = (long) sleep;
-            final int additionalNanos = (int) ((sleep - sleepMillis) * 1000000.0);
-
-            if (sleepMillis >= 0 && additionalNanos >= 0) {
-                try {
-                    Thread.sleep(sleepMillis, additionalNanos);
-                } catch (InterruptedException ignored) {
-                }
-            }
-        }
+        Sync.sync(frameRateLimit);
 
         glfwPollEvents();
     }
@@ -604,7 +589,6 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
 
     private void setFrameRateLimit(int frameRateLimit) {
         this.frameRateLimit = frameRateLimit;
-        frameSleepTime = 1000.0 / this.frameRateLimit;
     }
 
     /**
