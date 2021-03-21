@@ -68,7 +68,6 @@ import java.util.concurrent.Callable;
  */
 public class RollingTheMonkey extends SimpleApplication implements ActionListener, PhysicsCollisionListener {
     
-    private static final String TITLE           = "Rolling The Monkey";
     private static final String MESSAGE         = "Thanks for Playing!";
     private static final String INFO_MESSAGE    = "Collect all the spinning cubes!\nPress the 'R' key any time to reset!";
     

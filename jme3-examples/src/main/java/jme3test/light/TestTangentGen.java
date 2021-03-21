@@ -53,10 +53,6 @@ import java.nio.IntBuffer;
 
 public class TestTangentGen extends SimpleApplication {
 
-    private float angle;
-    private PointLight pl;
-    private Geometry lightMdl;
-
     public static void main(String[] args){
         TestTangentGen app = new TestTangentGen();
         app.start();

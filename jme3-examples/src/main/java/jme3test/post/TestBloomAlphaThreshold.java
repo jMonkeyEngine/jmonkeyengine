@@ -56,11 +56,7 @@ import com.jme3.util.SkyFactory.EnvMapType;
 public class TestBloomAlphaThreshold extends SimpleApplication
 {
 
-	private float angle;
-	private Spatial lightMdl;
 	private Spatial teapot;
-	private Geometry frustumMdl;
-	private WireFrustum frustum;
 	private boolean active = true;
 	private FilterPostProcessor fpp;
 

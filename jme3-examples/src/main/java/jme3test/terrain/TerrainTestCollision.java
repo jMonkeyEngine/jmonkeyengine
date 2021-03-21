@@ -79,16 +79,12 @@ import java.util.List;
 public class TerrainTestCollision extends SimpleApplication {
 
     private TerrainQuad terrain;
-    private Node terrainPhysicsNode;
     private Material matRock;
     private Material matWire;
     private boolean wireframe = false;
     private BitmapText hintText;
-    private PointLight pl;
-    private Geometry lightMdl;
     private List<Geometry> collisionMarkers;
     private BulletAppState bulletAppState;
-    private Geometry collisionSphere;
     private Geometry collisionBox;
     private Geometry selectedCollisionObject;
 

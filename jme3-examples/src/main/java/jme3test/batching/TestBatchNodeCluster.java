@@ -75,16 +75,11 @@ public class TestBatchNodeCluster extends SimpleApplication {
     final private Random rand = new Random();
     final private int maxCubes = 2000;
     final private int startAt = 0;
-    final private static int xPositions = 0, yPositions = 0, zPositions = 0;
-    final private int returner = 0;
     final private ArrayList<Integer> xPosition = new ArrayList<>();
     final private ArrayList<Integer> yPosition = new ArrayList<>();
     final private ArrayList<Integer> zPosition = new ArrayList<>();
-    final private int xLimitf = 60, xLimits = -60, yLimitf = 60, yLimits = -20, zLimitf = 60, zLimits = -60;
-    final private int circ = 8;//increases by 8 every time.
-    final private int dynamic = 4;
+    final private int yLimitf = 60, yLimits = -20;
     private static AppSettings settingst;
-    final private boolean isTrue = true;
     final private int lineLength = 50;
     private BatchNode batchNode;
     private Material mat1;
@@ -335,11 +330,7 @@ public class TestBatchNodeCluster extends SimpleApplication {
     public int getz(int i) {
         return zPosition.get(i);
     }
-    final private long nbFrames = 0;
-    final private long cullTime = 0;
     private float time = 0;
-    final private Vector3f lookAtPos = new Vector3f(0, 0, 0);
-    final private float xpos = 0;
     private Spatial box;
 
     @Override

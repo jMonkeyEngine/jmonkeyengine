@@ -238,9 +238,6 @@ public class TestManyLightsSingle extends SimpleApplication {
     }
 
     private BitmapText helloText;
-    private long time;
-    private long nbFrames;
-    final private long startTime = 0;
 
     @Override
     public void simpleUpdate(float tpf) {

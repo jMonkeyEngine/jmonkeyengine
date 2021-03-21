@@ -58,7 +58,6 @@ public class TestPhysicsCharacter extends SimpleApplication implements ActionLis
   private CharacterControl physicsCharacter;
   private Node characterNode;
   private CameraNode camNode;
-  final private boolean rotate = false;
   final private Vector3f walkDirection = new Vector3f(0,0,0);
   final private Vector3f viewDirection = new Vector3f(0,0,0);
   private boolean leftStrafe = false, rightStrafe = false, forward = false, backward = false, 

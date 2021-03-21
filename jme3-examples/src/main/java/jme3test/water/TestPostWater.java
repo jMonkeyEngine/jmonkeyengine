@@ -84,8 +84,6 @@ public class TestPostWater extends SimpleApplication {
     private TerrainQuad terrain;
     private Material matRock;
     private AudioNode waves;
-    final private LowPassFilter underWaterAudioFilter = new LowPassFilter(0.5f, 0.1f);
-    final private LowPassFilter underWaterReverbFilter = new LowPassFilter(0.5f, 0.1f);
     final private LowPassFilter aboveWaterAudioFilter = new LowPassFilter(1, 1);
 
     public static void main(String[] args) {
@@ -319,8 +317,6 @@ public class TestPostWater extends SimpleApplication {
             e.printStackTrace();
         }
         terrain = new TerrainQuad("terrain", 65, 513, heightmap.getHeightMap());
-        List<Camera> cameras = new ArrayList<>();
-        cameras.add(getCamera());
         terrain.setMaterial(matRock);
         terrain.setLocalScale(new Vector3f(5, 5, 5));
         terrain.setLocalTranslation(new Vector3f(0, -30, 0));

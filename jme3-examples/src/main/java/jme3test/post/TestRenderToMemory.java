@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -77,14 +77,12 @@ public class TestRenderToMemory extends SimpleApplication implements SceneProces
 
     private FrameBuffer offBuffer;
     private ViewPort offView;
-    private Texture2D offTex;
     private Camera offCamera;
     private ImageDisplay display;
 
     private static final int width = 800, height = 600;
 
     private final ByteBuffer cpuBuf = BufferUtils.createByteBuffer(width * height * 4);
-    private final byte[] cpuArray = new byte[width * height * 4];
     private final BufferedImage image = new BufferedImage(width, height,
                                             BufferedImage.TYPE_INT_BGR);
 

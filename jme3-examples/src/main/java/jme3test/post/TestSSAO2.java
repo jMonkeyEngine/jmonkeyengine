@@ -43,8 +43,6 @@ import com.jme3.scene.shape.Box;
 
 public class TestSSAO2 extends SimpleApplication {
 
-    private Geometry model;
-
     public static void main(String[] args) {
         TestSSAO2 app = new TestSSAO2();
         app.start();

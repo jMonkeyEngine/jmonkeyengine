@@ -54,10 +54,6 @@ import com.jme3.util.TangentBinormalGenerator;
 
 public class TestShadowsPerf extends SimpleApplication {
 
-    private float angle;
-    private PointLight pl;
-    private Spatial lightMdl;
-
     public static void main(String[] args) {
         TestShadowsPerf app = new TestShadowsPerf();
         app.start();

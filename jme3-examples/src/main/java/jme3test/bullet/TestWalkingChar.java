@@ -96,7 +96,6 @@ public class TestWalkingChar extends SimpleApplication implements ActionListener
     private float airTime = 0;
     //camera
     private boolean left = false, right = false, up = false, down = false;
-    private ChaseCamera chaseCam;
     //bullet
     private Sphere bullet;
     private SphereCollisionShape bulletCollisionShape;
@@ -107,7 +106,6 @@ public class TestWalkingChar extends SimpleApplication implements ActionListener
     final private float bLength = 0.8f;
     final private float bWidth = 0.4f;
     final private float bHeight = 0.4f;
-    private FilterPostProcessor fpp;
 
     public static void main(String[] args) {
         TestWalkingChar app = new TestWalkingChar();
@@ -301,7 +299,7 @@ public class TestWalkingChar extends SimpleApplication implements ActionListener
 
     private void setupChaseCamera() {
         flyCam.setEnabled(false);
-        chaseCam = new ChaseCamera(cam, model, inputManager);
+        new ChaseCamera(cam, model, inputManager);
     }
 
     private void setupAnimationController() {

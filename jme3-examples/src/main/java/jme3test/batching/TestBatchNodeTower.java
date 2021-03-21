@@ -226,7 +226,7 @@ public class TestBatchNodeTower extends SimpleApplication {
         tex3.setWrap(WrapMode.Repeat);
         mat3.setTexture("ColorMap", tex3);
     }
-    private int nbBrick =0;
+
     public void addBrick(Vector3f ori) {
         Geometry reBoxg = new Geometry("brick", brick);
         reBoxg.setMaterial(mat);
@@ -237,7 +237,6 @@ public class TestBatchNodeTower extends SimpleApplication {
         reBoxg.getControl(RigidBodyControl.class).setFriction(1.6f);
         this.batchNode.attachChild(reBoxg);
         this.getPhysicsSpace().add(reBoxg);
-        nbBrick++;
     }
 
     protected void initCrossHairs() {

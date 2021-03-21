@@ -64,7 +64,6 @@ public class TestLodGeneration extends SimpleApplication {
     private BitmapText hudText;
     final private List<Geometry> listGeoms = new ArrayList<>();
     final private ScheduledThreadPoolExecutor exec = new ScheduledThreadPoolExecutor(5);
-    private AnimChannel ch;
 
     @Override
     public void simpleInitApp() {

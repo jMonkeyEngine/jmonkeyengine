@@ -43,8 +43,6 @@ import jme3tools.optimize.GeometryBatchFactory;
 
 public class TestBatchLod extends SimpleApplication {
 
-    final private boolean lod = false;
-
     public static void main(String[] args) {
         TestBatchLod app = new TestBatchLod();
         app.start();

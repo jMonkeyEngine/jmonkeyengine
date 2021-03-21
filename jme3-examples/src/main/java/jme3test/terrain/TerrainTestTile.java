@@ -69,9 +69,6 @@ public class TerrainTestTile extends SimpleApplication {
     private Material matTerrain;
     private Material matWire;
     private boolean wireframe = false;
-    final private boolean triPlanar = false;
-    final private boolean wardiso = false;
-    final private boolean minnaert = false;
     private BitmapText hintText;
     final private float grassScale = 256;
     

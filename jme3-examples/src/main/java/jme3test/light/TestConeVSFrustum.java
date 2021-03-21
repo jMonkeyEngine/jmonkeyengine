@@ -227,7 +227,7 @@ public class TestConeVSFrustum extends SimpleApplication {
         System.err.println("light " + spotLight.getPosition());
 
     }
-    private Geometry boxGeo, boxGeo2;
+    private Geometry boxGeo;
     private final static float MOVE_SPEED = 60;
     final private Vector3f tmp = new Vector3f();
     final private Quaternion tmpQuat = new Quaternion();

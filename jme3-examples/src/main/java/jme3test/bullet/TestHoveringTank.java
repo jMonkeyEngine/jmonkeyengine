@@ -75,11 +75,6 @@ public class TestHoveringTank extends SimpleApplication implements AnalogListene
     private Spatial spaceCraft;
     private TerrainQuad terrain;
     private Material matRock;
-    final private boolean wireframe = false;
-    private BitmapText hintText;
-    private PointLight pl;
-    private Geometry lightMdl;
-    private Geometry collisionMarker;
     /**
      * initial location of the tank (in world/physics-space coordinates)
      */

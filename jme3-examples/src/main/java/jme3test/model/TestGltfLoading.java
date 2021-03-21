@@ -60,10 +60,6 @@ public class TestGltfLoading extends SimpleApplication {
     final private int duration = 1;
     private boolean playAnim = true;
 
-    private Geometry g;
-    final private int morphIndex = 0;
-
-
     public static void main(String[] args) {
         TestGltfLoading app = new TestGltfLoading();
         app.start();

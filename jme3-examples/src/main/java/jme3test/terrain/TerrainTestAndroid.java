@@ -66,8 +66,6 @@ public class TerrainTestAndroid extends SimpleApplication {
     private boolean wireframe = false;
     private boolean triPlanar = false;
     private BitmapText hintText;
-    private PointLight pl;
-    private Geometry lightMdl;
     private float grassScale = 64;
     private float dirtScale = 16;
     private float rockScale = 128;

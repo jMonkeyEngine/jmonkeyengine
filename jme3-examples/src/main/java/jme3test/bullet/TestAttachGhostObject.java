@@ -55,8 +55,6 @@ public class TestAttachGhostObject extends SimpleApplication implements AnalogLi
     private HingeJoint joint;
     private GhostControl ghostControl;
     private Node collisionNode;
-    private Node hammerNode;
-    final private Vector3f tempVec = new Vector3f();
     private BulletAppState bulletAppState;
 
     public static void main(String[] args) {

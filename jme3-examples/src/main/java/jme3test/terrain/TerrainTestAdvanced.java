@@ -68,11 +68,7 @@ public class TerrainTestAdvanced extends SimpleApplication {
     private Material matWire;
     private boolean wireframe = false;
     private boolean triPlanar = false;
-    final private boolean wardiso = false;
-    final private boolean minnaert = false;
     private BitmapText hintText;
-    private PointLight pl;
-    private Geometry lightMdl;
     private float dirtScale = 16;
     private float darkRockScale = 32;
     private float pinkRockScale = 32;

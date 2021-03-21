@@ -69,7 +69,6 @@ public class TestBrickWall extends SimpleApplication {
     private Material mat3;
     private static Sphere bullet;
     private static Box brick;
-    private static SphereCollisionShape bulletCollisionShape;
 
     private BulletAppState bulletAppState;
 
@@ -87,7 +86,6 @@ public class TestBrickWall extends SimpleApplication {
 
         bullet = new Sphere(32, 32, 0.4f, true, false);
         bullet.setTextureMode(TextureMode.Projected);
-        bulletCollisionShape = new SphereCollisionShape(0.4f);
         brick = new Box(bLength, bHeight, bWidth);
         brick.scaleTextureCoordinates(new Vector2f(1f, .5f));
 

@@ -35,7 +35,7 @@ public class TerrainFractalGridTest extends SimpleApplication {
         TerrainFractalGridTest app = new TerrainFractalGridTest();
         app.start();
     }
-    private CharacterControl player3;
+
     private FractalSum base;
     private PerturbFilter perturb;
     private OptimizedErode therm;

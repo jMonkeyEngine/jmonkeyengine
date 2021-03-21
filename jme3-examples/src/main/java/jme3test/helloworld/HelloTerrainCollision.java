@@ -61,7 +61,6 @@ public class HelloTerrainCollision extends SimpleApplication
         implements ActionListener {
 
   private BulletAppState bulletAppState;
-  private RigidBodyControl landscape;
   private CharacterControl player;
   final private Vector3f walkDirection = new Vector3f();
   private boolean left = false, right = false, up = false, down = false;

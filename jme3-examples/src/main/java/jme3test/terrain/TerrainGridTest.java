@@ -35,7 +35,6 @@ public class TerrainGridTest extends SimpleApplication {
     final private float dirtScale = 16;
     final private float rockScale = 128;
     final private boolean usePhysics = false;
-    final private boolean physicsAdded = false;
 
     public static void main(final String[] args) {
         TerrainGridTest app = new TerrainGridTest();

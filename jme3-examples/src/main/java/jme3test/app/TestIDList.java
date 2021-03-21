@@ -74,9 +74,7 @@ public class TestIDList {
 
     }
 
-    final private static IDList list = new IDList();
-    final private static int boundSlot = 0;
-    
+    final private static IDList list = new IDList();   
     final private static Object[] slots = new Object[16];
     final private static boolean[] enabledSlots = new boolean[16];
 
