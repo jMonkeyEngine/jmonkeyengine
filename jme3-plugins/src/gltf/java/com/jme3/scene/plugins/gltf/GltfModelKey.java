@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -109,7 +109,7 @@ public class GltfModelKey extends ModelKey {
     /**
      * Sets the ExtrasLoader for reading any extra information from the gltf file.
      *
-     * @param extrasLoader
+     * @param extrasLoader the desired loader
      */
     public void setExtrasLoader(ExtrasLoader extrasLoader) {
         this.extrasLoader = extrasLoader;

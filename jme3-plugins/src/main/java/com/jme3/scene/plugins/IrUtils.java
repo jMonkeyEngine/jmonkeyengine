@@ -102,7 +102,10 @@ public final class IrUtils {
     }
     
     /**
-     * Applies smoothing groups to vertex normals.
+     * Applies smoothing groups to vertex normals. XXX not implemented!
+     * 
+     * @param mesh ignored
+     * @return null
      */
     public static IrMesh applySmoothingGroups(IrMesh mesh) {
         return null;
@@ -125,6 +128,11 @@ public final class IrUtils {
         }
     }
     
+    /**
+     * Removes low bone weights from mesh, leaving only 4 bone weights at max.
+     * 
+     * @param vertex the IrVertex to modify (not null)
+     */
     private static void trimBoneWeights(IrVertex vertex) {
         if (vertex.boneWeightsIndices == null) {
             return;
@@ -163,6 +171,8 @@ public final class IrUtils {
     
     /**
      * Removes low bone weights from mesh, leaving only 4 bone weights at max.
+     * 
+     * @param mesh the IrMesh to modify (not null)
      */
     public static void trimBoneWeights(IrMesh mesh) {
         for (IrPolygon polygon : mesh.polygons) {
@@ -174,6 +184,8 @@ public final class IrUtils {
     
     /**
      * Convert mesh from quads / triangles to triangles only.
+     * 
+     * @param mesh the input IrMesh (not null)
      */
     public static void triangulate(IrMesh mesh) {
         List<IrPolygon> newPolygons = new ArrayList<>(mesh.polygons.length);
@@ -200,6 +212,9 @@ public final class IrUtils {
      * one material each.
      * 
      * Polygons without a material will be added to key = -1.
+     * 
+     * @param mesh the input IrMesh (not null)
+     * @return a new IntMap containing the resulting meshes
      */
     public static IntMap<IrMesh> splitByMaterial(IrMesh mesh) {
         IntMap<List<IrPolygon>> materialToPolyList = new IntMap<>();
@@ -239,6 +254,9 @@ public final class IrUtils {
      
     /**
      * Convert IrMesh to jME3 mesh.
+     *
+     * @param mesh the input IrMesh (not null)
+     * @return a new Mesh
      */
     public static Mesh convertIrMeshToJmeMesh(IrMesh mesh) {
         Map<IrVertex, Integer> vertexToVertexIndex = new HashMap<>();

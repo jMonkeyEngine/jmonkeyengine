@@ -252,6 +252,8 @@ public final class FbxMesh extends FbxNodeAttribute<IntMap<Mesh>> {
     
     /**
      * Convert FBXMesh to IRMesh.
+     *
+     * @return a new IrMesh
      */
     public IrMesh toIRMesh() {
         IrMesh newMesh = new IrMesh();
