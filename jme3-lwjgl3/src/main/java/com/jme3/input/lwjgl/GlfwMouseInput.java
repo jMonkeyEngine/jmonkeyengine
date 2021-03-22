@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -130,7 +130,6 @@ public class GlfwMouseInput implements MouseInput {
     private int mouseX;
     private int mouseY;
     private int mouseWheel;
-    private int currentWidth;
     private int currentHeight;
 
     private boolean cursorVisible;
@@ -209,7 +208,7 @@ public class GlfwMouseInput implements MouseInput {
 
             glfwGetWindowSize(window, width, height);
 
-            currentWidth = width.get();
+            width.get();
             currentHeight = height.get();
         }
 
@@ -239,7 +238,6 @@ public class GlfwMouseInput implements MouseInput {
             @Override
             public void invoke(final long window, final int width, final int height) {
                 currentHeight = height;
-                currentWidth = width;
             }
         });
     }

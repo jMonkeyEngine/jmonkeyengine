@@ -69,7 +69,6 @@ public class AndroidTouchInput implements TouchInput {
     private boolean mouseEventsInvertX = false;
     private boolean mouseEventsInvertY = false;
     private boolean keyboardEventsEnabled = false;
-    private boolean dontSendHistory = false;
 
     protected int numPointers = 0;
     final private HashMap<Integer, Vector2f> lastPositions = new HashMap<>();
@@ -162,7 +161,7 @@ public class AndroidTouchInput implements TouchInput {
         boolean bWasHandled = false;
         TouchEvent touch = null;
         //    System.out.println("native : " + event.getAction());
-        int action = getAction(event);
+        getAction(event);
         int pointerIndex = getPointerIndex(event);
         int pointerId = getPointerId(event);
         Vector2f lastPos = lastPositions.get(pointerId);
@@ -469,7 +468,7 @@ public class AndroidTouchInput implements TouchInput {
 
     @Override
     public void setOmitHistoricEvents(boolean dontSendHistory) {
-        this.dontSendHistory = dontSendHistory;
+        // not implemented
     }
 
 }

@@ -63,7 +63,6 @@ import java.util.logging.Logger;
 public class AndroidJoystickJoyInput14 {
     private static final Logger logger = Logger.getLogger(AndroidJoystickJoyInput14.class.getName());
 
-    private boolean loaded = false;
     private AndroidJoyInput joyInput;
     private Map<Integer, AndroidJoystick> joystickIndex = new HashMap<>();
 
@@ -173,8 +172,6 @@ public class AndroidJoystickJoyInput14 {
             }
         }
 
-
-        loaded = true;
         return joysticks;
     }
 

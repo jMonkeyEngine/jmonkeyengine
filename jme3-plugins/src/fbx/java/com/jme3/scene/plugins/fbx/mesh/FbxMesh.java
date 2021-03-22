@@ -60,7 +60,6 @@ public final class FbxMesh extends FbxNodeAttribute<IntMap<Mesh>> {
     private static final Logger logger = Logger.getLogger(FbxMesh.class.getName());
     
     private FbxPolygon[] polygons;
-    private int[] edges;
     private FbxLayerElement[] layerElements;
     private Vector3f[] positions;
     private FbxLayer[] layers;
@@ -167,7 +166,6 @@ public final class FbxMesh extends FbxNodeAttribute<IntMap<Mesh>> {
     }
     
     private void setEdges(int[] edges) {
-        this.edges = edges;
         // TODO: ...
     }
     

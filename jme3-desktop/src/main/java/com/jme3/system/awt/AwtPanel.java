@@ -80,7 +80,6 @@ public class AwtPanel extends Canvas implements SceneProcessor {
     private int newHeight = 1;
     private AtomicBoolean reshapeNeeded = new AtomicBoolean(false);
     private final Object lock = new Object();
-    private AppProfiler prof;
 
     public AwtPanel(PaintMode paintMode) {
         this(paintMode, false);
@@ -338,6 +337,6 @@ public class AwtPanel extends Canvas implements SceneProcessor {
 
     @Override
     public void setProfiler(AppProfiler profiler) {
-        this.prof = profiler;
+        // not implemented
     }
 }

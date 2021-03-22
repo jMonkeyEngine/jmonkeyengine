@@ -64,7 +64,6 @@ public abstract class Serializer {
     private static final List<SerializerRegistration> registrations                 = new ArrayList<SerializerRegistration>();
 
     private static final Serializer                         fieldSerializer         = new FieldSerializer();
-    private static final Serializer                         serializableSerializer  = new SerializableSerializer();
     private static final Serializer                         arraySerializer         = new ArraySerializer();
 
     private static short nextAvailableId = -2; // historically the first ID was always -2

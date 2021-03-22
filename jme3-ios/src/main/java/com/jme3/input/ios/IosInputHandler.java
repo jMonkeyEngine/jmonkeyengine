@@ -22,7 +22,6 @@ public class IosInputHandler implements TouchInput {
     private boolean mouseEventsInvertX = false;
     private boolean mouseEventsInvertY = false;
     private boolean keyboardEventsEnabled = false;
-    private boolean dontSendHistory = false;
 
     // Internal
     private boolean initialized = false;
@@ -114,7 +113,7 @@ public class IosInputHandler implements TouchInput {
 
     @Override
     public void setOmitHistoricEvents(boolean dontSendHistory) {
-        this.dontSendHistory = dontSendHistory;
+        // not implemented
     }
 
     // ----------------

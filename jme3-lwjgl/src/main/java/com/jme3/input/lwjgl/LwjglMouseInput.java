@@ -55,8 +55,6 @@ public class LwjglMouseInput implements MouseInput {
     private LwjglAbstractDisplay context;
 
     private RawInputListener listener;
-
-    private boolean supportHardwareCursor = false;
     private boolean cursorVisible = true;
 
     /**
@@ -79,7 +77,7 @@ public class LwjglMouseInput implements MouseInput {
         try {
             Mouse.create();
             logger.fine("Mouse created.");
-            supportHardwareCursor = (Cursor.getCapabilities() & Cursor.CURSOR_ONE_BIT_TRANSPARENCY) != 0;
+            Cursor.getCapabilities();
 
             // Recall state that was set before initialization
             Mouse.setGrabbed(!cursorVisible);

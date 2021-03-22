@@ -34,8 +34,6 @@ import java.nio.FloatBuffer;
 
 public class HydraulicErodeFilter extends AbstractFilter {
 
-	private Basis waterMap;
-	private Basis sedimentMap;
 	private float Kr;
 	private float Ks;
 	private float Ke;
@@ -59,7 +57,7 @@ public class HydraulicErodeFilter extends AbstractFilter {
 	}
 
 	public void setSedimentMap(Basis sedimentMap) {
-		this.sedimentMap = sedimentMap;
+            // not implemented
 	}
 
 	public void setT(float t) {
@@ -67,7 +65,7 @@ public class HydraulicErodeFilter extends AbstractFilter {
 	}
 
 	public void setWaterMap(Basis waterMap) {
-		this.waterMap = waterMap;
+            // not implemented
 	}
 
 	@Override

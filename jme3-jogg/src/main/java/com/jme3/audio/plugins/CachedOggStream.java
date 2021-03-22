@@ -53,7 +53,6 @@ public class CachedOggStream implements PhysicalOggStream {
 
     private boolean closed = false;
     private boolean eos = false;
-    private boolean bos = false;
     private InputStream sourceStream;
     private HashMap<Integer, LogicalOggStream> logicalStreams 
             = new HashMap<>();
@@ -130,9 +129,7 @@ public class CachedOggStream implements PhysicalOggStream {
            return -1;
 
        OggPage op = OggPage.create(sourceStream);
-       if (!op.isBos()){
-           bos = true;
-       }
+       op.isBos();
        if (op.isEos()){
            eos = true;
            lastPage = op;
