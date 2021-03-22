@@ -40,8 +40,13 @@ import com.jme3.util.TempVars;
  *
  * @author Nehon
  */
-public class WaterUtils {
-    
+public class WaterUtils {    
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private WaterUtils() {
+    }
+
     public static void updateReflectionCam(Camera reflectionCam, Plane plane, Camera sceneCam){
         
         TempVars vars = TempVars.get();

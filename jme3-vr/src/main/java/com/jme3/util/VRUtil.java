@@ -17,6 +17,12 @@ public class VRUtil {
     private static final long SLEEP_PRECISION = TimeUnit.MILLISECONDS.toNanos(4);
     private static final long SPIN_YIELD_PRECISION = TimeUnit.MILLISECONDS.toNanos(2);
     
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private VRUtil() {
+    }
+
     public static void sleepNanos(long nanoDuration) {
         final long end = System.nanoTime() + nanoDuration; 
         long timeLeft = nanoDuration; 

@@ -117,6 +117,12 @@ public class TangentBinormalGenerator {
         }
     }
     
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private TangentBinormalGenerator() {
+    }
+
     private static List<VertexData> initVertexData(int size) {
         List<VertexData> vertices = new ArrayList<>(size);        
         for (int i = 0; i < size; i++) {

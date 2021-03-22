@@ -68,6 +68,12 @@ public class MikktspaceTangentGenerator {
     private final static long INTERNAL_RND_SORT_SEED = 39871946 & 0xffffffffL;
     static final int CELLS = 2048;
 
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private MikktspaceTangentGenerator() {
+    }
+
     static int makeIndex(final int face, final int vert) {
         assert (vert >= 0 && vert < 4 && face >= 0);
         return (face << 2) | (vert & 0x3);

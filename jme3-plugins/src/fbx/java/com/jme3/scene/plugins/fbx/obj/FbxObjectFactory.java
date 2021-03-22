@@ -59,6 +59,12 @@ public final class FbxObjectFactory {
     
     private static final Logger logger = Logger.getLogger(FbxObjectFactory.class.getName());
     
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private FbxObjectFactory() {
+    }
+
     private static Class<? extends FbxObject> getImplementingClass(String elementName, String subclassName) {
         if (elementName.equals("NodeAttribute")) {
             if (subclassName.equals("Root")) {

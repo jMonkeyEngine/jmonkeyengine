@@ -177,6 +177,12 @@ public class ImageToAwt {
         
     }
 
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private ImageToAwt() {
+    }
+
     private static int Ix(int x, int y, int w){
         return y * w + x;
     }

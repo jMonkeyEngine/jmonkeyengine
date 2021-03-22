@@ -52,6 +52,12 @@ public class RendererUtil {
     public static boolean ENABLE_ERROR_CHECKING = true;
 
     /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private RendererUtil() {
+    }
+
+    /**
      * Checks for an OpenGL error and throws a {@link RendererException} if
      * there is one. Ignores the value of
      * {@link RendererUtil#ENABLE_ERROR_CHECKING}.

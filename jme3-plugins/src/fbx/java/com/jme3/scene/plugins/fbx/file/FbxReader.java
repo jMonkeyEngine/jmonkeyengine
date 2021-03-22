@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2014 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -49,6 +49,12 @@ public class FbxReader {
 	 * "Kaydara FBX Binary\x20\x20\x00\x1a\x00"
 	 */
 	public static final byte[] HEAD_MAGIC = new byte[]{0x4b, 0x61, 0x79, 0x64, 0x61, 0x72, 0x61, 0x20, 0x46, 0x42, 0x58, 0x20, 0x42, 0x69, 0x6e, 0x61, 0x72, 0x79, 0x20, 0x20, 0x00, 0x1a, 0x00};
+
+        /**
+         * A private constructor to inhibit instantiation of this class.
+         */
+        private FbxReader() {
+        }
 
 	public static FbxFile readFBX(InputStream stream) throws IOException {
 		FbxFile fbxFile = new FbxFile();

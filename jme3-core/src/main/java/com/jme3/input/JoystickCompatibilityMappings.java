@@ -73,6 +73,12 @@ public class JoystickCompatibilityMappings {
         loadDefaultMappings();
     }
 
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private JoystickCompatibilityMappings() {
+    }
+
     protected static Map<String,String> getMappings( String joystickName, boolean create ) {
         Map<String,String> result = joystickMappings.get(joystickName.trim());
         if( result == null && create ) {

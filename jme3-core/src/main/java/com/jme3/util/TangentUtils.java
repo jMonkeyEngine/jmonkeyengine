@@ -38,6 +38,12 @@ import com.jme3.scene.*;
  */
 public class TangentUtils {
 
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private TangentUtils() {
+    }
+
     public static void generateBindPoseTangentsIfNecessary(Mesh mesh){
         if (mesh.getBuffer(VertexBuffer.Type.BindPosePosition) != null) {
 

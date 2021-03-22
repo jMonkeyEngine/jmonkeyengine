@@ -214,6 +214,7 @@ public class FrameBuffer extends NativeObject {
     }
 
     public static class FrameBufferTarget {
+        private FrameBufferTarget(){}
         public static FrameBufferTextureTarget newTarget(Texture tx){
             FrameBufferTextureTarget t=new FrameBufferTextureTarget();
             t.setTexture(tx);
@@ -227,6 +228,11 @@ public class FrameBuffer extends NativeObject {
         }
     }
 
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private FrameBuffer() {
+    }
 
     public void addColorTarget(FrameBufferBufferTarget colorBuf){
         colorBuf.slot=colorBufs.size();

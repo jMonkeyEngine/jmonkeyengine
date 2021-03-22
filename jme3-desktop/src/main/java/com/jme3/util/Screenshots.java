@@ -40,6 +40,12 @@ import java.nio.IntBuffer;
 
 public final class Screenshots {
     
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private Screenshots() {
+    }
+
     public static void convertScreenShot2(IntBuffer bgraBuf, BufferedImage out){
         WritableRaster wr = out.getRaster();
         DataBufferInt db = (DataBufferInt) wr.getDataBuffer();

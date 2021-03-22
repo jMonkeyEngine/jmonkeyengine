@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -51,6 +51,11 @@ import java.util.LinkedList;
  * @author normenhansen, tim8dev
  */
 public class CollisionShapeFactory {
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private CollisionShapeFactory() {
+    }
 
     /**
      * Calculate the correct transform for a collision shape relative to the

@@ -52,6 +52,12 @@ public class MPOTestUtils {
         }
     };
 
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private MPOTestUtils() {
+    }
+
     private static void validateSubScene(Spatial scene) {
         scene.checkCulling(DUMMY_CAM);
 

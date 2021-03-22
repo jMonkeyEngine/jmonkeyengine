@@ -39,6 +39,12 @@ import com.jme3.util.TempVars;
  */
 public class MathUtils {
     /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private MathUtils() {
+    }
+
+    /**
      * Calculate the natural logarithm of a unit quaternion.
      *
      * @param q the input Quaternion (not null, normalized, unaffected)

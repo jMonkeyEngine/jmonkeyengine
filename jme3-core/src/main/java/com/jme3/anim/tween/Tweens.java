@@ -53,6 +53,12 @@ public class Tweens {
     private static final CurveFunction SINE = new Sine();
 
     /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private Tweens() {
+    }
+
+    /**
      * Creates a tween that will interpolate over an entire sequence
      * of tweens in order.
      */

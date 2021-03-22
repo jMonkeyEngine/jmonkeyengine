@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,6 +50,12 @@ import static java.lang.Math.min;
  * for more info.
  */
 public final class PssmShadowUtil {
+
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private PssmShadowUtil() {
+    }
 
     /**
      * Updates the frustum splits stores in <code>splits</code> using PSSM.

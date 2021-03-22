@@ -18,6 +18,12 @@ public class PreNormalCaching {
     private static int lastNormalPassesCount, curCount;
     
     /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private PreNormalCaching() {
+    }
+
+    /**
      * Get pre-normals from the given rendering.
      * @param renderManager the render manager.
      * @param normalPass the normal pass.

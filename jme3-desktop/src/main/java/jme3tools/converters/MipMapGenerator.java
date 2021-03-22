@@ -44,6 +44,12 @@ import java.util.ArrayList;
 
 public class MipMapGenerator {
 
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private MipMapGenerator() {
+    }
+
     private static BufferedImage scaleDown(BufferedImage sourceImage, int targetWidth, int targetHeight) {
         int sourceWidth  = sourceImage.getWidth();
         int sourceHeight = sourceImage.getHeight();

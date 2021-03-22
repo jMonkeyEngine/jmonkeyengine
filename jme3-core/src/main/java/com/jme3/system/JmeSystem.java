@@ -53,6 +53,12 @@ public class JmeSystem {
 
     private static JmeSystemDelegate systemDelegate;
 
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private JmeSystem() {
+    }
+
     public static void setSystemDelegate(JmeSystemDelegate systemDelegate) {
         JmeSystem.systemDelegate = systemDelegate;
     }

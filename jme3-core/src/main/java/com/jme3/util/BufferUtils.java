@@ -70,6 +70,12 @@ public final class BufferUtils {
     static ClearReferences cleanupthread;
 
     /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private BufferUtils() {
+    }
+
+    /**
      * Set it to true if you want to enable direct memory tracking for debugging
      * purpose. Default is false. To print direct memory usage use
      * BufferUtils.printCurrentDirectMemory(StringBuilder store);

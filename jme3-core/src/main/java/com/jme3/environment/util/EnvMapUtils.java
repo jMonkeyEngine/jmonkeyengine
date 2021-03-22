@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -88,6 +88,12 @@ public class EnvMapUtils {
     public static enum GenerationType {
         Fast,
         HighQuality
+    }
+
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private EnvMapUtils() {
     }
 
     /**

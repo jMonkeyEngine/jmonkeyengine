@@ -10,7 +10,12 @@ import com.jme3.shadow.DirectionalLightShadowFilter;
  * @author Rickard
  */
 public class FilterUtil {
-    
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private FilterUtil() {
+    }
+
     public static FogFilter cloneFogFilter(FogFilter fogFilter){
         FogFilter filterClone = new FogFilter();
         filterClone.setFogColor(fogFilter.getFogColor());

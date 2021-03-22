@@ -135,6 +135,12 @@ public class JmeIosGLES {
 	public static final int GL_VERTEX_SHADER = 0x00008b31;
 	public static final int GL_ZERO = 0x00000000;
 
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private JmeIosGLES() {
+    }
+
 	public static native void glActiveTexture(int texture);
 	public static native void glAttachShader(int program, int shader);
 	public static native void glBindBuffer(int target, int buffer);

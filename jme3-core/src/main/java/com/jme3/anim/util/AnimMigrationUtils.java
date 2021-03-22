@@ -13,6 +13,11 @@ public class AnimMigrationUtils {
     final private static AnimControlVisitor animControlVisitor = new AnimControlVisitor();
     final private static SkeletonControlVisitor skeletonControlVisitor = new SkeletonControlVisitor();
 
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private AnimMigrationUtils() {
+    }
 
     public static Spatial migrate(Spatial source) {
         Map<Skeleton, Armature> skeletonArmatureMap = new HashMap<>();

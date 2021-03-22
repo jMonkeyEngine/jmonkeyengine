@@ -168,6 +168,12 @@ public class Easing {
     };
 
     /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private Easing() {
+    }
+
+    /**
      * An Ease function composed of 2 sb function for custom in and out easing
      */
     public static class InOut implements EaseFunction {

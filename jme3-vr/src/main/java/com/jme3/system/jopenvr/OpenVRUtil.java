@@ -16,6 +16,11 @@ import com.sun.jna.ptr.IntByReference;
  * @author Julien Seinturier - 2017 - <a href="http://www.seinturier.fr">http://www.seinturier.fr</a>
  */
 public class OpenVRUtil {
+        /**
+         * A private constructor to inhibit instantiation of this class.
+         */
+        private OpenVRUtil() {
+        }
 
 	/**
 	 * Get the value of the given string {@link JOpenVRLibrary.ETrackedDeviceProperty property} attached to the given device.
