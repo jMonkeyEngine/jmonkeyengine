@@ -21,6 +21,13 @@ dependencies {
     testCompile project(':jme3-testdata')
 }
 
+javadoc {
+    // Disable doclint for JDK8+.
+    if (JavaVersion.current().isJava8Compatible()){
+        options.addStringOption('Xdoclint:none', '-quiet')
+    }
+}
+
 task updateVersionPropertiesFile {
     def versionFile = file('src/main/resources/com/jme3/system/version.properties')
     def versionFileText = "# THIS IS AN AUTO-GENERATED FILE..\n" +

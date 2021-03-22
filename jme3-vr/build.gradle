@@ -27,3 +27,10 @@ dependencies {
     runtime "org.lwjgl:lwjgl-openvr:${lwjglVersion}:natives-linux"
     runtime "org.lwjgl:lwjgl-openvr:${lwjglVersion}:natives-macos"
 }
+
+javadoc {
+    // Disable doclint for JDK8+.
+    if (JavaVersion.current().isJava8Compatible()){
+        options.addStringOption('Xdoclint:none', '-quiet')
+    }
+}

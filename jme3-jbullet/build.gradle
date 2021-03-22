@@ -18,3 +18,10 @@ dependencies {
     compile project(':jme3-core')
     compile project(':jme3-terrain')
 }
+
+javadoc {
+    // Disable doclint for JDK8+.
+    if (JavaVersion.current().isJava8Compatible()){
+        options.addStringOption('Xdoclint:none', '-quiet')
+    }
+}
