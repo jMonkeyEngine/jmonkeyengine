@@ -229,7 +229,7 @@ public class AndroidHarnessFragment extends Fragment implements
      * other methods.  View related objects should not be reused, but rather
      * created and destroyed along with the Activity.
      *
-     * @param savedInstanceState
+     * @param savedInstanceState the saved instance state
      */
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -282,9 +282,9 @@ public class AndroidHarnessFragment extends Fragment implements
      * by the Activity's layout parameters for this Fragment.  For jME, we also
      * update the application reference to the new view.
      *
-     * @param inflater
-     * @param container
-     * @param savedInstanceState
+     * @param inflater ignored
+     * @param container ignored
+     * @param savedInstanceState ignored
      * @return the new view
      */
     @Override
@@ -431,8 +431,8 @@ public class AndroidHarnessFragment extends Fragment implements
      * Called by the android alert dialog, terminate the activity and OpenGL
      * rendering
      *
-     * @param dialog
-     * @param whichButton
+     * @param dialog ignored
+     * @param whichButton the button index
      */
     @Override
     public void onClick(DialogInterface dialog, int whichButton) {

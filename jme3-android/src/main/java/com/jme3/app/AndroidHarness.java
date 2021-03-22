@@ -358,8 +358,8 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
      * Called by the android alert dialog, terminate the activity and OpenGL
      * rendering
      *
-     * @param dialog
-     * @param whichButton
+     * @param dialog ignored
+     * @param whichButton the button index
      */
     @Override
     public void onClick(DialogInterface dialog, int whichButton) {
