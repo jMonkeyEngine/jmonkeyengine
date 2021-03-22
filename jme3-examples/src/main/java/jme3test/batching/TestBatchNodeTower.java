@@ -106,7 +106,6 @@ public class TestBatchNodeTower extends SimpleApplication {
 
         brick = new Box(brickWidth, brickHeight, brickDepth);
         brick.scaleTextureCoordinates(new Vector2f(1f, .5f));
-        //bulletAppState.getPhysicsSpace().enableDebug(assetManager);
         initMaterial();
         initTower();
         initFloor();

@@ -79,7 +79,6 @@ public class HelloCollision extends SimpleApplication
     /** Set up Physics */
     bulletAppState = new BulletAppState();
     stateManager.attach(bulletAppState);
-    //bulletAppState.getPhysicsSpace().enableDebug(assetManager);
 
     // We re-use the flyby camera for rotation, while positioning is handled by physics
     viewPort.setBackgroundColor(new ColorRGBA(0.7f, 0.8f, 1f, 1f));

@@ -114,7 +114,6 @@ public class TestHoveringTank extends SimpleApplication implements AnalogListene
         bulletAppState = new BulletAppState();
         bulletAppState.setThreadingType(BulletAppState.ThreadingType.PARALLEL);
         stateManager.attach(bulletAppState);
-//        bulletAppState.getPhysicsSpace().enableDebug(assetManager);
         bulletAppState.getPhysicsSpace().setAccuracy(1f/30f);
         rootNode.attachChild(SkyFactory.createSky(assetManager, 
                 "Textures/Sky/Bright/BrightSky.dds", EnvMapType.CubeMap));

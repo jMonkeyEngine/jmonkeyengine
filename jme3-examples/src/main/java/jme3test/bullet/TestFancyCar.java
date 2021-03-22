@@ -84,7 +84,6 @@ public class TestFancyCar extends SimpleApplication implements ActionListener {
     public void simpleInitApp() {
         bulletAppState = new BulletAppState();
         stateManager.attach(bulletAppState);
-//        bulletAppState.getPhysicsSpace().enableDebug(assetManager);
         cam.setFrustumFar(150f);
         flyCam.setMoveSpeed(10);
 

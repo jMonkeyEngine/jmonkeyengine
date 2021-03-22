@@ -81,7 +81,6 @@ public class HelloTerrainCollision extends SimpleApplication
     /** Set up Physics */
     bulletAppState = new BulletAppState();
     stateManager.attach(bulletAppState);
-    //bulletAppState.getPhysicsSpace().enableDebug(assetManager);
     
     flyCam.setMoveSpeed(100);
     setUpKeys();

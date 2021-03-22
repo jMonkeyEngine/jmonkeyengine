@@ -99,7 +99,6 @@ public class HelloPhysics extends SimpleApplication {
     /** Set up Physics Game */
     bulletAppState = new BulletAppState();
     stateManager.attach(bulletAppState);
-    //bulletAppState.getPhysicsSpace().enableDebug(assetManager);
     /** Configure cam to look at scene */
     cam.setLocation(new Vector3f(0, 4f, 6f));
     cam.lookAt(new Vector3f(2, 2, 0), Vector3f.UNIT_Y);
