@@ -79,10 +79,6 @@ public class CachedOggStream implements PhysicalOggStream {
         return lastPage;
     }
     
-    private LogicalOggStream getLogicalStream(int serialNumber) {
-        return logicalStreams.get(Integer.valueOf(serialNumber));
-    }
-
     @Override
     public Collection<LogicalOggStream> getLogicalStreams() {
         return logicalStreams.values();

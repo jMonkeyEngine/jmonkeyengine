@@ -390,19 +390,6 @@ public final class NativeLibraryLoader {
         }
     }
     
-    private static String mapLibraryName_emulated(String name, Platform platform) {
-        switch (platform) {
-            case MacOSX32:
-            case MacOSX64:
-                return name + ".dylib";
-            case Windows32:
-            case Windows64:
-                return name + ".dll";
-            default:
-                return name + ".so";
-        }
-    }
-    
     /**
      * Removes platform-specific portions of a library file name so
      * that it can be accepted by {@link System#loadLibrary(java.lang.String) }.

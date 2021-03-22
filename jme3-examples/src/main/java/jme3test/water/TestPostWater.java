@@ -224,61 +224,6 @@ public class TestPostWater extends SimpleApplication {
         inputManager.addMapping("foam3", new KeyTrigger(KeyInput.KEY_3));
         inputManager.addMapping("upRM", new KeyTrigger(KeyInput.KEY_PGUP));
         inputManager.addMapping("downRM", new KeyTrigger(KeyInput.KEY_PGDN));
-//        createBox();
-//        createFire();
-    }
-    private Geometry box;
-
-    private void createBox() {
-        //creating a transluscent box
-        box = new Geometry("box", new Box(50, 50, 50));
-        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        mat.setColor("Color", new ColorRGBA(1.0f, 0, 0, 0.3f));
-        mat.getAdditionalRenderState().setBlendMode(BlendMode.Alpha);
-        //mat.getAdditionalRenderState().setDepthWrite(false);
-        //mat.getAdditionalRenderState().setDepthTest(false);
-        box.setMaterial(mat);
-        box.setQueueBucket(Bucket.Translucent);
-
-
-        //creating a post view port
-//        ViewPort post=renderManager.createPostView("transpPost", cam);
-//        post.setClearFlags(false, true, true);
-
-
-        box.setLocalTranslation(-600, 0, 300);
-
-        //attaching the box to the post viewport
-        //Don't forget to updateGeometricState() the box in the simpleUpdate
-        //  post.attachScene(box);
-
-        rootNode.attachChild(box);
-    }
-
-    private void createFire() {
-        /**
-         * Uses Texture from jme3-test-data library!
-         */
-        ParticleEmitter fire = new ParticleEmitter("Emitter", ParticleMesh.Type.Triangle, 30);
-        Material mat_red = new Material(assetManager, "Common/MatDefs/Misc/Particle.j3md");
-        mat_red.setTexture("Texture", assetManager.loadTexture("Effects/Explosion/flame.png"));
-
-        fire.setMaterial(mat_red);
-        fire.setImagesX(2);
-        fire.setImagesY(2); // 2x2 texture animation
-        fire.setEndColor(new ColorRGBA(1f, 0f, 0f, 1f));   // red
-        fire.setStartColor(new ColorRGBA(1f, 1f, 0f, 0.5f)); // yellow
-        fire.getParticleInfluencer().setInitialVelocity(new Vector3f(0, 2, 0));
-        fire.setStartSize(10f);
-        fire.setEndSize(1f);
-        fire.setGravity(0, 0, 0);
-        fire.setLowLife(0.5f);
-        fire.setHighLife(1.5f);
-        fire.getParticleInfluencer().setVelocityVariation(0.3f);
-        fire.setLocalTranslation(-600, 50, 300);
-
-        fire.setQueueBucket(Bucket.Translucent);
-        rootNode.attachChild(fire);
     }
 
     private void createTerrain(Node rootNode) {

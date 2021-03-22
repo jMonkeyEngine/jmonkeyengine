@@ -124,27 +124,6 @@ public class GLSLLoader implements AssetLoader {
         return node;
     }
 
-    private ShaderDependencyNode nextIndependentNode() throws IOException {
-        Collection<ShaderDependencyNode> allNodes = dependCache.values();
-
-        if (allNodes.isEmpty()) {
-            return null;
-        }
-
-        for (ShaderDependencyNode node : allNodes) {
-            if (node.getDependOnMe().isEmpty()) {
-                return node;
-            }
-        }
-
-        // Circular dependency found..
-        for (ShaderDependencyNode node : allNodes){
-            System.out.println(node.getName());
-        }
-
-        throw new IOException("Circular dependency.");
-    }
-
     private String resolveDependencies(ShaderDependencyNode node, Set<ShaderDependencyNode> alreadyInjectedSet, StringBuilder extensions, boolean injectDependencies) {
         if (alreadyInjectedSet.contains(node)) {
             return "// " + node.getName() + " was already injected at the top.\n";

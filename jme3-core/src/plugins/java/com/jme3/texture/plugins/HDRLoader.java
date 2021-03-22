@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -113,10 +113,6 @@ public class HDRLoader implements AssetLoader {
         rgbf[2] = B * e;
     }
 
-    private short flip(int in){
-        return (short) ((in << 8 & 0xFF00) | (in >> 8));
-    }
-    
     private void writeRGBE(byte[] rgbe){
         if (writeRGBE){
             dataStore.put(rgbe);

@@ -290,45 +290,4 @@ public class TerrainTestReadWrite extends SimpleApplication {
             }
         }
     };
-
-    // no junit tests, so this has to be hand-tested:
-    private static void testHeightmapBuilding() {
-        int s = 9;
-        int b = 3;
-        float[] hm = new float[s * s];
-        for (int i = 0; i < s; i++) {
-            for (int j = 0; j < s; j++) {
-                hm[(i * s) + j] = i * j;
-            }
-        }
-
-        for (int i = 0; i < s; i++) {
-            for (int j = 0; j < s; j++) {
-                System.out.print(hm[i * s + j] + " ");
-            }
-            System.out.println("");
-        }
-
-        TerrainQuad terrain = new TerrainQuad("terrain", b, s, hm);
-        float[] hm2 = terrain.getHeightMap();
-        boolean failed = false;
-        for (int i = 0; i < s * s; i++) {
-            if (hm[i] != hm2[i]) {
-                failed = true;
-            }
-        }
-
-        System.out.println("");
-        if (failed) {
-            System.out.println("Terrain heightmap building FAILED!!!");
-            for (int i = 0; i < s; i++) {
-                for (int j = 0; j < s; j++) {
-                    System.out.print(hm2[i * s + j] + " ");
-                }
-                System.out.println("");
-            }
-        } else {
-            System.out.println("Terrain heightmap building PASSED");
-        }
-    }
 }

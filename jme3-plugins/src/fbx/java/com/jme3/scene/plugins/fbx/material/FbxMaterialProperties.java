@@ -68,37 +68,6 @@ public class FbxMaterialProperties {
         }
     }
 
-    private static boolean isValueAcceptable(Type type, Object value) {
-        if (type == Type.Ignore) {
-            return true;
-        }
-        if (value instanceof FbxTexture) {
-            switch (type) {
-                case Texture2D:
-                case Texture2DOrAlpha:
-                case Texture2DOrColor:
-                case Texture2DOrFactor:
-                    return true;
-            }
-        } else if (value instanceof ColorRGBA) {
-            switch (type) {
-                case Color:
-                case Texture2DOrColor:
-                    return true;
-            }
-        } else if (value instanceof Float) {
-            switch (type) {
-                case Alpha:
-                case Factor:
-                case Texture2DOrAlpha:
-                case Texture2DOrFactor:
-                    return true;
-            }
-        }
-        
-        return false;
-    }
-    
     private static void defineProp(String name, Type type) {
         propertyMetaMap.put(name, new FBXMaterialProperty(name, type));
     }

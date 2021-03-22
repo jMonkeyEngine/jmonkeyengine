@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -120,20 +120,6 @@ public final class PoseTrack implements Track {
     {
     }
     
-    private void applyFrame(Mesh target, int frameIndex, float weight){
-        PoseFrame frame = frames[frameIndex];
-        VertexBuffer pb = target.getBuffer(Type.Position);
-        for (int i = 0; i < frame.poses.length; i++){
-            Pose pose = frame.poses[i];
-            float poseWeight = frame.weights[i] * weight;
-
-            pose.apply(poseWeight, (FloatBuffer) pb.getData());
-        }
-
-        // force to re-upload data to gpu
-        pb.updateData(pb.getData());
-    }
-
     @Override
     public void setTime(float time, float weight, AnimControl control, AnimChannel channel, TempVars vars) {
         // TODO: When MeshControl is created, it will gather targets

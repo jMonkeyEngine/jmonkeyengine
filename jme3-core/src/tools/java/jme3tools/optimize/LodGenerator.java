@@ -381,18 +381,6 @@ public class LodGenerator {
 //        assert (checkCosts());
     }
 
-    //Debug only
-    private boolean checkCosts() {
-        for (Vertex vertex : vertexList) {
-            boolean test = find(collapseCostSet, vertex);
-            if (!test) {
-                System.out.println("vertex " + vertex.index + " not present in collapse costs");
-                return false;
-            }
-        }
-        return true;
-    }
-    
     private void computeVertexCollapseCost(Vertex vertex) {
         
         vertex.collapseCost = UNINITIALIZED_COLLAPSE_COST;
@@ -997,49 +985,5 @@ public class LodGenerator {
             
         }
         return true;
-    }
-    
-    private boolean assertValidMesh() {
-        // Allows to find bugs in collapsing.
-        for (Vertex vertex : collapseCostSet) {
-            assertValidVertex(vertex);
-        }
-        return true;
-        
-    }
-    
-    private boolean assertValidVertex(Vertex v) {
-        // Allows to find bugs in collapsing.
-        //       System.out.println("Asserting " + v.index);
-        for (Triangle t : v.triangles) {
-            for (int i = 0; i < 3; i++) {
-                //             System.out.println("check " + t.vertex[i].index);
-
-                //assert (collapseCostSet.contains(t.vertex[i]));
-                assert (find(collapseCostSet, t.vertex[i]));
-                
-                assert (t.vertex[i].edges.contains(new Edge(t.vertex[i].collapseTo)));
-                for (int n = 0; n < 3; n++) {
-                    if (i != n) {
-                        
-                        int id = t.vertex[i].edges.indexOf(new Edge(t.vertex[n]));
-                        Edge ed = t.vertex[i].edges.get(id);
-                        //assert (ed.collapseCost != UNINITIALIZED_COLLAPSE_COST);
-                    } else {
-                        assert (!t.vertex[i].edges.contains(new Edge(t.vertex[n])));
-                    }
-                }
-            }
-        }
-        return true;
-    }
-    
-    private boolean find(List<Vertex> set, Vertex v) {
-        for (Vertex vertex : set) {
-            if (v == vertex) {
-                return true;
-            }
-        }
-        return false;
     }
 }

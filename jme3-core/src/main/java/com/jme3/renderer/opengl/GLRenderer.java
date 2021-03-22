@@ -3123,33 +3123,6 @@ public final class GLRenderer implements Renderer {
         }
     }
 
-    private void renderMeshVertexArray(Mesh mesh, int lod, int count, VertexBuffer instanceData) {
-        if (mesh.getId() == -1) {
-            updateVertexArray(mesh, instanceData);
-        } else {
-            // TODO: Check if it was updated
-        }
-
-        if (context.boundVertexArray != mesh.getId()) {
-            gl3.glBindVertexArray(mesh.getId());
-            context.boundVertexArray = mesh.getId();
-        }
-
-//        IntMap<VertexBuffer> buffers = mesh.getBuffers();
-        VertexBuffer indices;
-        if (mesh.getNumLodLevels() > 0) {
-            indices = mesh.getLodLevel(lod);
-        } else {
-            indices = mesh.getBuffer(Type.Index);
-        }
-        if (indices != null) {
-            drawTriangleList(indices, mesh, count);
-        } else {
-            drawTriangleArray(mesh.getMode(), count, mesh.getVertexCount());
-        }
-        clearVertexAttribs();
-    }
-
     private void renderMeshDefault(Mesh mesh, int lod, int count, VertexBuffer[] instanceData) {
 
         // Here while count is still passed in.  Can be removed when/if

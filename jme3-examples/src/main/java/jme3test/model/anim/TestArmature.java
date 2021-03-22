@@ -171,32 +171,6 @@ public class TestArmature extends SimpleApplication {
         }, "bind");
     }
 
-
-    private void displayNormals(Spatial s) {
-        final Node debugTangents = new Node("debug tangents");
-        debugTangents.setCullHint(Spatial.CullHint.Never);
-
-        rootNode.attachChild(debugTangents);
-
-        final Material debugMat = assetManager.loadMaterial("Common/Materials/VertexColor.j3m");
-        debugMat.getAdditionalRenderState().setLineWidth(2);
-
-        s.depthFirstTraversal(new SceneGraphVisitorAdapter() {
-            @Override
-            public void visit(Geometry g) {
-                Mesh m = g.getMesh();
-                Geometry debug = new Geometry(
-                        "debug tangents geom",
-                        TangentBinormalGenerator.genNormalLines(m, 0.1f)
-                );
-                debug.setMaterial(debugMat);
-                debug.setCullHint(Spatial.CullHint.Never);
-                debug.setLocalTransform(g.getWorldTransform());
-                debugTangents.attachChild(debug);
-            }
-        });
-    }
-
     private Mesh createMesh() {
         Cylinder c = new Cylinder(30, 16, 0.1f, 1, true);
 

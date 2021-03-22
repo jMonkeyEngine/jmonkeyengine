@@ -217,15 +217,6 @@ public class FbxLoader implements AssetLoader {
         }
     }
     
-    private void removeUnconnectedObjects() {
-        for (FbxObject object : new ArrayList<FbxObject>(objectMap.values())) {
-            if (!object.isJmeObjectCreated()) {
-                logger.log(Level.WARNING, "Purging orphan FBX object: {0}", object);
-                objectMap.remove(object.getId());
-            }
-        }
-    }
-    
     private void connectObjects(FbxElement element) {
         if (objectMap.isEmpty()) {
             logger.log(Level.WARNING, "FBX file is missing object information");
