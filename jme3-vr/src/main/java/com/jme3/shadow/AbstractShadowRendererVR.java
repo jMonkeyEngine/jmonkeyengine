@@ -221,7 +221,7 @@ public abstract class AbstractShadowRendererVR implements SceneProcessor, Savabl
      */
     final public void setEdgeFilteringMode(EdgeFilteringMode filterMode) {
         if (filterMode == null) {
-            throw new NullPointerException();
+            throw new IllegalArgumentException("filterMode cannot be null");
         }
 
         this.edgeFilteringMode = filterMode;

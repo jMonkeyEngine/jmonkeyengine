@@ -111,13 +111,13 @@ public final class SettingsDialog extends JFrame {
      *
      * @param source
      *            the <code>AppSettings</code> object to use for working with
-     *            the properties file.
+     *            the properties file (not null)
      * @param imageFile
      *            the image file to use as the title of the dialog;
      *            <code>null</code> will result in to image being displayed
      * @param loadSettings
      *            if true, copy the settings, otherwise merge them
-     * @throws NullPointerException
+     * @throws IllegalArgumentException
      *             if the source is <code>null</code>
      */
     public SettingsDialog(AppSettings source, String imageFile, boolean loadSettings) {
@@ -130,18 +130,18 @@ public final class SettingsDialog extends JFrame {
      * 
      * @param source
      *            the <code>GameSettings</code> object to use for working with
-     *            the properties file.
+     *            the properties file (not null)
      * @param imageFile
      *            the image file to use as the title of the dialog;
      *            <code>null</code> will result in to image being displayed
      * @param loadSettings
      *            if true, copy the settings, otherwise merge them
-     * @throws NullPointerException
+     * @throws IllegalArgumentException
      *             if the source is <code>null</code>
      */
     public SettingsDialog(AppSettings source, URL imageFile, boolean loadSettings) {
         if (source == null) {
-            throw new NullPointerException("Settings source cannot be null");
+            throw new IllegalArgumentException("Settings source cannot be null");
         }
 
         this.source = source;

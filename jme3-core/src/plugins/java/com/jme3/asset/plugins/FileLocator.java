@@ -46,8 +46,9 @@ public class FileLocator implements AssetLocator {
 
     @Override
     public void setRootPath(String rootPath) {
-        if (rootPath == null)
-            throw new NullPointerException();
+        if (rootPath == null) {
+            throw new IllegalArgumentException("rootPath cannot be null");
+        }
         
         try {
             root = new File(rootPath).getCanonicalFile();

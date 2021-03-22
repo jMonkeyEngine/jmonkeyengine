@@ -1037,14 +1037,14 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
      * <code>setFormat</code> sets the image format for this image.
      *
      * @param format
-     *            the image format.
-     * @throws NullPointerException
+     *            the image format (not null)
+     * @throws IllegalArgumentException
      *             if format is null
      * @see Format
      */
     public void setFormat(Format format) {
         if (format == null) {
-            throw new NullPointerException("format may not be null.");
+            throw new IllegalArgumentException("format may not be null.");
         }
 
         this.format = format;

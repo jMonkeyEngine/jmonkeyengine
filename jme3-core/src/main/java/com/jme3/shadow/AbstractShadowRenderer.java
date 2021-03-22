@@ -218,11 +218,11 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
      * Sets the filtering mode for shadow edges. See {@link EdgeFilteringMode}
      * for more info.
      *
-     * @param filterMode the desired filter mode (not null)
+     * @param filterMode the desired filtering mode (not null)
      */
     final public void setEdgeFilteringMode(EdgeFilteringMode filterMode) {
         if (filterMode == null) {
-            throw new NullPointerException();
+            throw new IllegalArgumentException("filterMode cannot be null");
         }
 
         this.edgeFilteringMode = filterMode;

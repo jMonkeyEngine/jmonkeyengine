@@ -1928,8 +1928,7 @@ public class TerrainQuad extends Node implements Terrain {
      */
     public void setSupportMultipleCollisions(boolean set) {
         if (picker == null) {
-            // This is so that it doesn't fail at the IllegalStateException because null !instanceof Anything
-            throw new NullPointerException("TerrainPicker is null");
+            throw new IllegalStateException("The TerrainPicker is null.");
         } else if (picker instanceof BresenhamTerrainPicker) {
             ((BresenhamTerrainPicker)picker).setSupportMultipleCollisions(set);
         } else {
