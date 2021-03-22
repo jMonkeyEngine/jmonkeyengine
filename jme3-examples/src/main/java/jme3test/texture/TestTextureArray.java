@@ -76,7 +76,7 @@ public class TestTextureArray extends SimpleApplication
    }
 
    /**
-    * @param args
+    * @param args ignored
     */
    public static void main(String[] args)
    {
