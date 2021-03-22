@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -72,13 +72,6 @@ public class BIHTree implements CollisionData {
     // private transient CollisionResults boundResults = new CollisionResults();
     private transient float[] bihSwapTmp;
     
-    private static final TriangleAxisComparator[] comparators = new TriangleAxisComparator[]
-    {
-        new TriangleAxisComparator(0),
-        new TriangleAxisComparator(1),
-        new TriangleAxisComparator(2)
-    };
-
     private void initTriList(FloatBuffer vb, IndexBuffer ib) {
         pointData = new float[numTris * 3 * 3];
         int p = 0;

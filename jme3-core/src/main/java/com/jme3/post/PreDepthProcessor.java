@@ -49,13 +49,10 @@ public class PreDepthProcessor implements SceneProcessor {
 
     private RenderManager rm;
     private ViewPort vp;
-    final private AssetManager assetManager;
     final private Material preDepth;
     final private RenderState forcedRS;
-    private AppProfiler prof;
 
     public PreDepthProcessor(AssetManager assetManager){
-        this.assetManager = assetManager;
         preDepth = new Material(assetManager, "Common/MatDefs/Shadow/PreShadow.j3md");
         preDepth.getAdditionalRenderState().setPolyOffset(0, 0);
         preDepth.getAdditionalRenderState().setFaceCullMode(FaceCullMode.Back);
@@ -107,7 +104,7 @@ public class PreDepthProcessor implements SceneProcessor {
 
     @Override
     public void setProfiler(AppProfiler profiler) {
-        this.prof = profiler;
+        // not implemented
     }
 
 }

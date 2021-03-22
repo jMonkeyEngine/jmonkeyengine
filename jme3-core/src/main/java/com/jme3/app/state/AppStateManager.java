@@ -96,7 +96,6 @@ public class AppStateManager {
     // is that they are all modified from the same thread anyway.
     
     private final Application app;
-    private AppState[] stateArray;
 
     public AppStateManager(Application app){
         this.app = app;

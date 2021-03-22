@@ -94,7 +94,6 @@ public class InputManager implements RawInputListener {
     private long lastLastUpdateTime = 0;
     private long lastUpdateTime = 0;
     private long frameDelta = 0;
-    private long firstTime = 0;
     private boolean eventsPermitted = false;
     private boolean mouseVisible = true;
     private boolean safeMode = false;
@@ -151,7 +150,7 @@ public class InputManager implements RawInputListener {
             touch.setInputListener(this);
         }
 
-        firstTime = keys.getInputTimeNanos();
+        keys.getInputTimeNanos();
     }
 
     private void invokeActions(int hash, boolean pressed) {

@@ -70,7 +70,6 @@ public class MotionEvent extends AbstractCinematicEvent implements Control, JmeC
     protected Direction directionType = Direction.None;
     protected MotionPath path;
     private boolean isControl = true;
-    final private int travelDirection = 1;
     /**
      * the distance traveled by the spatial on the path
      */
