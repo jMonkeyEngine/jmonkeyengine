@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -60,6 +60,12 @@ import java.util.List;
  * </ul> for more info.
  */
 public class ShadowUtil {
+
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private ShadowUtil() {
+    }
 
     /**
      * Updates a points arrays with the frustum corners of the provided camera.

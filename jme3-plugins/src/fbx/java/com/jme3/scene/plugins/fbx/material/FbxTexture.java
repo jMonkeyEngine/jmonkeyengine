@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,7 +33,6 @@ package com.jme3.scene.plugins.fbx.material;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.TextureKey;
-import com.jme3.math.Vector2f;
 import com.jme3.scene.plugins.fbx.file.FbxElement;
 import com.jme3.scene.plugins.fbx.obj.FbxObject;
 import com.jme3.texture.Image;
@@ -53,15 +52,9 @@ public class FbxTexture extends FbxObject<Texture> {
         FromTextureIntensity;
     }
     
-    private String type;
     private FbxImage media;
-    
-    // TODO: not currently used.
-    private AlphaSource alphaSource = AlphaSource.FromTextureAlpha;
     private String uvSet;
     private int wrapModeU = 0, wrapModeV = 0;
-    private final Vector2f uvTranslation = new Vector2f(0, 0);
-    private final Vector2f uvScaling = new Vector2f(1, 1);
 
     public FbxTexture(AssetManager assetManager, String sceneFolderName) {
         super(assetManager, sceneFolderName);
@@ -105,7 +98,7 @@ public class FbxTexture extends FbxObject<Texture> {
         if (getSubclassName().equals("")) {
             for (FbxElement e : element.children) {
                 if (e.id.equals("Type")) {
-                    type = (String) e.properties.get(0);
+                    e.properties.get(0);
                 } 
                 /*else if (e.id.equals("FileName")) {
                     filename = (String) e.properties.get(0);

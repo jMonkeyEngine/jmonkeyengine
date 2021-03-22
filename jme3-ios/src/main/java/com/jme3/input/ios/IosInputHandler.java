@@ -22,12 +22,11 @@ public class IosInputHandler implements TouchInput {
     private boolean mouseEventsInvertX = false;
     private boolean mouseEventsInvertY = false;
     private boolean keyboardEventsEnabled = false;
-    private boolean dontSendHistory = false;
 
     // Internal
     private boolean initialized = false;
     private RawInputListener listener = null;
-    private ConcurrentLinkedQueue<InputEvent> inputEventQueue = new ConcurrentLinkedQueue<InputEvent>();
+    private ConcurrentLinkedQueue<InputEvent> inputEventQueue = new ConcurrentLinkedQueue<>();
     private final TouchEventPool touchEventPool = new TouchEventPool(MAX_TOUCH_EVENTS);
     private IosTouchHandler touchHandler;
     private float scaleX = 1f;
@@ -114,7 +113,7 @@ public class IosInputHandler implements TouchInput {
 
     @Override
     public void setOmitHistoricEvents(boolean dontSendHistory) {
-        this.dontSendHistory = dontSendHistory;
+        // not implemented
     }
 
     // ----------------

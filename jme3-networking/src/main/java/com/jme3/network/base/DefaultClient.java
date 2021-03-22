@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -68,18 +68,18 @@ public class DefaultClient implements Client
     private static final int CH_UNRELIABLE = 1;
     private static final int CH_FIRST = 2;
         
-    private final ThreadLocal<ByteBuffer> dataBuffer = new ThreadLocal<ByteBuffer>();
+    private final ThreadLocal<ByteBuffer> dataBuffer = new ThreadLocal<>();
     
     private int id = -1;
     private boolean isRunning = false;
     private final CountDownLatch connecting = new CountDownLatch(1);
     private String gameName;
     private int version;
-    private final MessageListenerRegistry<Client> messageListeners = new MessageListenerRegistry<Client>();
-    private final List<ClientStateListener> stateListeners = new CopyOnWriteArrayList<ClientStateListener>();
-    private final List<ErrorListener<? super Client>> errorListeners = new CopyOnWriteArrayList<ErrorListener<? super Client>>();
+    private final MessageListenerRegistry<Client> messageListeners = new MessageListenerRegistry<>();
+    private final List<ClientStateListener> stateListeners = new CopyOnWriteArrayList<>();
+    private final List<ErrorListener<? super Client>> errorListeners = new CopyOnWriteArrayList<>();
     private final Redispatch dispatcher = new Redispatch();
-    private final List<ConnectorAdapter> channels = new ArrayList<ConnectorAdapter>();    
+    private final List<ConnectorAdapter> channels = new ArrayList<>();    
  
     private ConnectorFactory connectorFactory;
     

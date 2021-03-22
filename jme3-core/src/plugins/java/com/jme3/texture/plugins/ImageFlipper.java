@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,6 +43,12 @@ import java.nio.ByteBuffer;
  * @author Kirill Vainer
  */
 public class ImageFlipper {
+
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private ImageFlipper() {
+    }
 
     public static void flipImage(Image img, int index){
         if (img.getFormat().isCompressed())

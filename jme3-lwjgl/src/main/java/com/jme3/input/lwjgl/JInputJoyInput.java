@@ -1,5 +1,9 @@
 /*
+<<<<<<< HEAD
  * Copyright (c) 2009-2016 jMonkeyEngine
+=======
+ * Copyright (c) 2009-2021 jMonkeyEngine
+>>>>>>> master
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -64,7 +68,7 @@ public class JInputJoyInput implements JoyInput {
     private JInputJoystick[] joysticks;
     private RawInputListener listener;
 
-    private Map<Controller, JInputJoystick> joystickIndex = new HashMap<Controller, JInputJoystick>();
+    private Map<Controller, JInputJoystick> joystickIndex = new HashMap<>();
 
     @Override
     public void setJoyRumble(int joyId, float amount){
@@ -84,8 +88,7 @@ public class JInputJoyInput implements JoyInput {
             ControllerEnvironment.getDefaultEnvironment();
 
         Controller[] cs = ce.getControllers();
-
-        List<Joystick> list = new ArrayList<Joystick>();
+        List<Joystick> list = new ArrayList<>();
         for( Controller c : ce.getControllers() ) {
             if (c.getType() == Controller.Type.KEYBOARD
              || c.getType() == Controller.Type.MOUSE)
@@ -217,9 +220,9 @@ public class JInputJoyInput implements JoyInput {
         private JoystickAxis yAxis;
         private JoystickAxis povX;
         private JoystickAxis povY;
-        private Map<Component, JoystickAxis> axisIndex = new HashMap<Component, JoystickAxis>();
-        private Map<Component, JoystickButton> buttonIndex = new HashMap<Component, JoystickButton>();
-
+        private Map<Component, JoystickAxis> axisIndex = new HashMap<>();
+        private Map<Component, JoystickButton> buttonIndex = new HashMap<>();
+    
         public JInputJoystick( InputManager inputManager, JoyInput joyInput, Controller controller,
                                int joyId, String name ) {
             super( inputManager, joyInput, joyId, name );

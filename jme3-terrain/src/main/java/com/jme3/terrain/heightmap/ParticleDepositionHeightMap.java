@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -374,8 +374,6 @@ public class ParticleDepositionHeightMap extends AbstractHeightMap {
      * <code>setMaxParticles</code> sets the maximum number of particles
      * for a single jump.
      * @param maxParticles the maximum number of particles for a single jump.
-     * @throws Exception if maxParticles is negative or less than
-     *              the current number of minParticles.
      */
     public void setMaxParticles(int maxParticles) {
         this.maxParticles = maxParticles;

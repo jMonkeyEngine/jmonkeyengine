@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2017 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -51,7 +51,7 @@ import com.jme3.shader.VarType;
  */
 public class TestMatParamOverride extends SimpleApplication {
 
-    private Box box = new Box(1, 1, 1);
+    final private Box box = new Box(1, 1, 1);
     final MatParamOverride overrideYellow
             = new MatParamOverride(VarType.Vector4, "Color",
                     ColorRGBA.Yellow);

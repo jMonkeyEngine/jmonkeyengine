@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -106,10 +106,10 @@ public class AnimInterpolators {
     public static final CatmullRomInterpolator CatmullRom = new CatmullRomInterpolator();
 
     public static class CatmullRomInterpolator extends AnimInterpolator<Vector3f> {
-        private Vector3f p0 = new Vector3f();
-        private Vector3f p1 = new Vector3f();
-        private Vector3f p2 = new Vector3f();
-        private Vector3f p3 = new Vector3f();
+        final private Vector3f p0 = new Vector3f();
+        final private Vector3f p1 = new Vector3f();
+        final private Vector3f p2 = new Vector3f();
+        final private Vector3f p3 = new Vector3f();
         private float tension = 0.7f;
 
         public CatmullRomInterpolator(float tension) {
@@ -134,7 +134,7 @@ public class AnimInterpolators {
     //Time Interpolators
 
     public static class TimeInterpolator extends AnimInterpolator<Float> {
-        private EaseFunction ease;
+        final private EaseFunction ease;
 
         public TimeInterpolator(EaseFunction ease) {
             this.ease = ease;
@@ -176,5 +176,9 @@ public class AnimInterpolators {
 
     public static final TimeInterpolator constant = new TimeInterpolator(Easing.constant);
 
-
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private AnimInterpolators() {
+    }
 }

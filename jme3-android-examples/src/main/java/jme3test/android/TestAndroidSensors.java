@@ -38,7 +38,7 @@ public class TestAndroidSensors extends SimpleApplication implements ActionListe
 
     private Geometry geomZero = null;
     // Map of joysticks saved with the joyId as the key
-    private IntMap<Joystick> joystickMap = new IntMap<Joystick>();
+    private IntMap<Joystick> joystickMap = new IntMap<>();
     // flag to allow for the joystick axis to be calibrated on startup
     private boolean initialCalibrationComplete = false;
     // mappings used for onAnalog
@@ -228,7 +228,7 @@ public class TestAndroidSensors extends SimpleApplication implements ActionListe
         }
     }
 
-
+    @Override
     public void onAction(String string, boolean pressed, float tpf) {
        if (string.equalsIgnoreCase("MouseClick") && pressed) {
             // Calibrate the axis (set new zero position) if the axis
@@ -256,7 +256,7 @@ public class TestAndroidSensors extends SimpleApplication implements ActionListe
         }
     }
 
-
+    @Override
     public void onAnalog(String string, float value, float tpf) {
         logger.log(Level.INFO, "onAnalog for {0}, value: {1}, tpf: {2}",
                 new Object[]{string, value, tpf});

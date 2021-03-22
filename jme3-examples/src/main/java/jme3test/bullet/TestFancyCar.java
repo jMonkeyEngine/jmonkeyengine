@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,6 @@ import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.PhysicsSpace;
 import com.jme3.bullet.collision.shapes.CollisionShape;
 import com.jme3.bullet.control.VehicleControl;
-import com.jme3.bullet.objects.VehicleWheel;
 import com.jme3.bullet.util.CollisionShapeFactory;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
@@ -55,8 +54,6 @@ public class TestFancyCar extends SimpleApplication implements ActionListener {
 
     private BulletAppState bulletAppState;
     private VehicleControl player;
-    private VehicleWheel fr, fl, br, bl;
-    private Node node_fr, node_fl, node_br, node_bl;
     private float wheelRadius;
     private float steeringValue = 0;
     private float accelerationValue = 0;
@@ -86,7 +83,6 @@ public class TestFancyCar extends SimpleApplication implements ActionListener {
     public void simpleInitApp() {
         bulletAppState = new BulletAppState();
         stateManager.attach(bulletAppState);
-//        bulletAppState.getPhysicsSpace().enableDebug(assetManager);
         cam.setFrustumFar(150f);
         flyCam.setMoveSpeed(10);
 

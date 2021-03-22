@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -59,17 +59,15 @@ public final class GLTracer implements InvocationHandler {
     
     private static final String ANSI_RESET = "\u001B[0m";
     private static final String ANSI_BRIGHT = "\u001B[1m";
-    private static final String ANSI_BLACK = "\u001B[30m";
     private static final String ANSI_RED = "\u001B[31m";
     private static final String ANSI_GREEN = "\u001B[32m";
     private static final String ANSI_YELLOW = "\u001B[33m";
     private static final String ANSI_BLUE = "\u001B[34m";
     private static final String ANSI_MAGENTA = "\u001B[35m";
     private static final String ANSI_CYAN = "\u001B[36m";
-    private static final String ANSI_WHITE = "\u001B[37m";
 
     private static void noEnumArgs(String method, int... argSlots) {
-        IntMap<Void> argSlotsMap = new IntMap<Void>();
+        IntMap<Void> argSlotsMap = new IntMap<>();
         for (int argSlot : argSlots) {
             argSlotsMap.put(argSlot, null);
         }
@@ -146,7 +144,7 @@ public final class GLTracer implements InvocationHandler {
     }
     
     private static IntMap<String> generateConstantMap(Class<?> ... classes) {
-        IntMap<String> constMap = new IntMap<String>();
+        IntMap<String> constMap = new IntMap<>();
         for (Class<?> clazz : classes) {
             for (Field field : clazz.getFields()) {
                 if (field.getType() == int.class) {
@@ -154,8 +152,8 @@ public final class GLTracer implements InvocationHandler {
                         int val = field.getInt(null);
                         String name = field.getName();
                         constMap.put(val, name);
-                    } catch (IllegalArgumentException ex) {
-                    } catch (IllegalAccessException ex) {
+                    } catch (IllegalArgumentException
+                            | IllegalAccessException ex) {
                     }
                 }
             }

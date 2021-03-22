@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,12 +52,6 @@ public class UdpConnector implements Connector
     private SocketAddress remoteAddress;
     private byte[] buffer = new byte[65535];
     private AtomicBoolean connected = new AtomicBoolean(false);
-
-    /**
-     *  In order to provide proper available() checking, we
-     *  potentially queue one datagram.
-     */
-    private DatagramPacket pending;
 
     /**
      *  Creates a new UDP connection that send datagrams to the

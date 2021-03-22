@@ -67,7 +67,7 @@ public class HelloAudio extends SimpleApplication {
   }
 
   /** Defining the "Shoot" action: Play a gun sound. */
-  private ActionListener actionListener = new ActionListener() {
+  final private ActionListener actionListener = new ActionListener() {
     @Override
     public void onAction(String name, boolean keyPressed, float tpf) {
       if (name.equals("Shoot") && !keyPressed) {

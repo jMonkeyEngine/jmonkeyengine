@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -153,7 +153,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable,
     public transient float queueDistance = Float.NEGATIVE_INFINITY;
     protected Transform localTransform;
     protected Transform worldTransform;
-    protected SafeArrayList<Control> controls = new SafeArrayList<Control>(Control.class);
+    protected SafeArrayList<Control> controls = new SafeArrayList<>(Control.class);
     protected HashMap<String, Savable> userData = null;
     /**
      * Used for smart asset caching
@@ -1800,7 +1800,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable,
      * @param visitor
      */
     public void breadthFirstTraversal(SceneGraphVisitor visitor) {
-        Queue<Spatial> queue = new LinkedList<Spatial>();
+        Queue<Spatial> queue = new LinkedList<>();
         queue.add(this);
 
         while (!queue.isEmpty()) {

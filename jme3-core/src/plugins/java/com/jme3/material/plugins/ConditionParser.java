@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -89,7 +89,7 @@ public class ConditionParser {
      * @return the list of defines
      */
     public List<String> extractDefines(String expression) {
-        List<String> defines = new ArrayList<String>();
+        List<String> defines = new ArrayList<>();
         expression = expression.replaceAll("#ifdef", "").replaceAll("#if", "").replaceAll("defined", "");
         Pattern pattern = Pattern.compile("(\\w+)");
         formattedExpression = expression;

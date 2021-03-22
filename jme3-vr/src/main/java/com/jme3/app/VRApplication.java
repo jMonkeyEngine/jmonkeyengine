@@ -195,7 +195,7 @@ public abstract class VRApplication implements Application, SystemListener {
     private float speed = 1f;
     private AudioRenderer audioRenderer;    
     private LostFocusBehavior lostFocusBehavior = LostFocusBehavior.ThrottleOnLostFocus;
-    private final ConcurrentLinkedQueue<AppTask<?>> taskQueue = new ConcurrentLinkedQueue<AppTask<?>>();
+    private final ConcurrentLinkedQueue<AppTask<?>> taskQueue = new ConcurrentLinkedQueue<>();
     private Timer timer = new NanoTimer();
     private boolean paused = false, inputEnabled = true;
     private InputManager inputManager;
@@ -394,7 +394,7 @@ public abstract class VRApplication implements Application, SystemListener {
 
     
     /**
-        we do NOT want to get & modify the distortion scene camera, so
+        we do NOT want to get and modify the distortion scene camera, so
         return the left viewport camera instead if we are in VR mode
     */
     @Override
@@ -1458,7 +1458,7 @@ public abstract class VRApplication implements Application, SystemListener {
     
     @Override
     public <V> Future<V> enqueue(Callable<V> callable) {
-        AppTask<V> task = new AppTask<V>(callable);
+        AppTask<V> task = new AppTask<>(callable);
         taskQueue.add(task);
         return task;
     }

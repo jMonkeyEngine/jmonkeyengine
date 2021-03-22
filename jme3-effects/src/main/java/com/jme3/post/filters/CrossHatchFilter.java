@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,7 +44,7 @@ import com.jme3.renderer.ViewPort;
  * Try combining this with a cartoon edge filter to obtain manga style visuals.
  *
  * Based on an article from Geeks3D:
- *    <a href="http://www.geeks3d.com/20110219/shader-library-crosshatching-glsl-filter/" rel="nofollow">http://www.geeks3d.com/20110219/shader-library-crosshatching-glsl-filter/</a>
+ *    <a href="http://www.geeks3d.com/20110219/shader-library-crosshatching-glsl-filter/">http://www.geeks3d.com/20110219/shader-library-crosshatching-glsl-filter/</a>
  *
  * @author Roy Straver a.k.a. Baal Garnaal
  */

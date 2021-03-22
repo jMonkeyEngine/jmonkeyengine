@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,7 +46,7 @@ import java.util.List;
 public class WeightedProbeBlendingStrategy implements LightProbeBlendingStrategy {
 
     private final static int MAX_PROBES = 3;
-    List<LightProbe> lightProbes = new ArrayList<LightProbe>();
+    List<LightProbe> lightProbes = new ArrayList<>();
 
     @Override
     public void registerProbe(LightProbe probe) {

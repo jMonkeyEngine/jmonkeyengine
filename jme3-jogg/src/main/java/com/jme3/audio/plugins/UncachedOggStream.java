@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,9 +48,9 @@ public class UncachedOggStream implements PhysicalOggStream {
     private boolean eos = false;
     private boolean bos = false;
     private InputStream sourceStream;
-    private LinkedList<OggPage> pageCache = new LinkedList<OggPage>();
+    private LinkedList<OggPage> pageCache = new LinkedList<>();
     private HashMap<Integer, LogicalOggStream> logicalStreams 
-            = new HashMap<Integer, LogicalOggStream>();
+            = new HashMap<>();
     private OggPage lastPage = null;
 
     public UncachedOggStream(InputStream in) throws OggFormatException, IOException {

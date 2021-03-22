@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -75,7 +75,7 @@ public class EffectTrack implements ClonableTrack {
     private boolean emitted = false;
     private boolean initialized = false;
     //control responsible for disable and cull the emitter once all particles are gone
-    private KillParticleControl killParticles = new KillParticleControl();
+    final private KillParticleControl killParticles = new KillParticleControl();
 
     public static class KillParticleControl extends AbstractControl {
 

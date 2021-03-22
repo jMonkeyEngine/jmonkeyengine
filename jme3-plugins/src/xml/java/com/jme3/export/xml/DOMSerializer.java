@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -87,7 +87,7 @@ public class DOMSerializer {
      * 
      * @param doc the document to serialize.
      * @param file the file to serialize to.
-     * @throws IOException
+     * @throws IOException for various error conditions
      */
     public void serialize(Document doc, File file) throws IOException {
         serialize(doc, new FileOutputStream(file));
@@ -98,7 +98,7 @@ public class DOMSerializer {
      * 
      * @param doc the document to serialize.
      * @param out the stream to serialize to.
-     * @throws IOException
+     * @throws IOException for various error conditions
      */
     public void serialize(Document doc, OutputStream out) throws IOException {
         Writer writer = new OutputStreamWriter(out, encoding);

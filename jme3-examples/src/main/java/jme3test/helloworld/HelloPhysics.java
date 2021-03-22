@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -65,9 +65,9 @@ public class HelloPhysics extends SimpleApplication {
   private BulletAppState bulletAppState;
 
   /** Prepare Materials */
-  Material wall_mat;
-  Material stone_mat;
-  Material floor_mat;
+  private Material wall_mat;
+  private Material stone_mat;
+  private Material floor_mat;
 
   /** Prepare geometries and physical nodes for bricks and cannon balls. */
   private RigidBodyControl    brick_phy;
@@ -99,7 +99,6 @@ public class HelloPhysics extends SimpleApplication {
     /** Set up Physics Game */
     bulletAppState = new BulletAppState();
     stateManager.attach(bulletAppState);
-    //bulletAppState.getPhysicsSpace().enableDebug(assetManager);
     /** Configure cam to look at scene */
     cam.setLocation(new Vector3f(0, 4f, 6f));
     cam.lookAt(new Vector3f(2, 2, 0), Vector3f.UNIT_Y);
@@ -122,7 +121,7 @@ public class HelloPhysics extends SimpleApplication {
    * Every time the shoot action is triggered, a new cannon ball is produced.
    * The ball is set up to fly from the camera position in the camera direction.
    */
-  private ActionListener actionListener = new ActionListener() {
+  final private ActionListener actionListener = new ActionListener() {
     @Override
     public void onAction(String name, boolean keyPressed, float tpf) {
       if (name.equals("shoot") && !keyPressed) {
@@ -181,7 +180,7 @@ public class HelloPhysics extends SimpleApplication {
   }
 
   /** This method creates one individual physical brick. */
-  public void makeBrick(Vector3f loc) {
+  private void makeBrick(Vector3f loc) {
     /** Create a brick geometry and attach to scene graph. */
     Geometry brick_geo = new Geometry("brick", box);
     brick_geo.setMaterial(wall_mat);

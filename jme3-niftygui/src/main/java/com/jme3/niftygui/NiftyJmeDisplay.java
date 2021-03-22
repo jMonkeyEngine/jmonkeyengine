@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -70,7 +70,6 @@ public class NiftyJmeDisplay implements SceneProcessor {
     protected ResourceLocationJme resourceLocation;
 
     protected int w, h;
-    private AppProfiler prof;
 
     protected class ResourceLocationJme implements ResourceLocation {
 
@@ -372,7 +371,7 @@ public class NiftyJmeDisplay implements SceneProcessor {
 
     @Override
     public void setProfiler(AppProfiler profiler) {
-        this.prof = profiler;
+        // not implemented
     }
 
 }

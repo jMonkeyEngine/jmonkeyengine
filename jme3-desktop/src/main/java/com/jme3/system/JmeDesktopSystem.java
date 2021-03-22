@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -209,9 +209,7 @@ public class JmeDesktopSystem extends JmeSystemDelegate {
             }
 
             return (JmeContext) ctxClazz.newInstance();
-        } catch (InstantiationException ex) {
-            logger.log(Level.SEVERE, "Failed to create context", ex);
-        } catch (IllegalAccessException ex) {
+        } catch (InstantiationException | IllegalAccessException ex) {
             logger.log(Level.SEVERE, "Failed to create context", ex);
         } catch (ClassNotFoundException ex) {
             logger.log(Level.SEVERE, "CRITICAL ERROR: Context class is missing!\n"
@@ -239,9 +237,7 @@ public class JmeDesktopSystem extends JmeSystemDelegate {
             }
 
             return (JmeContext) ctxClazz.newInstance();
-        } catch (InstantiationException ex) {
-            logger.log(Level.SEVERE, "Failed to create context", ex);
-        } catch (IllegalAccessException ex) {
+        } catch (InstantiationException | IllegalAccessException ex) {
             logger.log(Level.SEVERE, "Failed to create context", ex);
         } catch (ClassNotFoundException ex) {
             logger.log(Level.SEVERE, "CRITICAL ERROR: Context class is missing!\n"
@@ -257,9 +253,7 @@ public class JmeDesktopSystem extends JmeSystemDelegate {
 
             Class ctxClazz = Class.forName(className);
             return (JmeContext) ctxClazz.newInstance();
-        } catch (InstantiationException ex) {
-            logger.log(Level.SEVERE, "Failed to create context", ex);
-        } catch (IllegalAccessException ex) {
+        } catch (InstantiationException | IllegalAccessException ex) {
             logger.log(Level.SEVERE, "Failed to create context", ex);
         } catch (ClassNotFoundException ex) {
             logger.log(Level.SEVERE, "CRITICAL ERROR: Context class is missing!", ex);
@@ -302,9 +296,7 @@ public class JmeDesktopSystem extends JmeSystemDelegate {
         } catch (ClassNotFoundException ex) {
             logger.log(Level.SEVERE, "CRITICAL ERROR: Audio implementation class "
                     + className + " is missing!\n", ex);
-        } catch (IllegalAccessException ex) {
-            logger.log(Level.SEVERE, "Failed to create context", ex);
-        } catch (InstantiationException ex) {
+        } catch (IllegalAccessException | InstantiationException ex) {
             logger.log(Level.SEVERE, "Failed to create context", ex);
         }
 

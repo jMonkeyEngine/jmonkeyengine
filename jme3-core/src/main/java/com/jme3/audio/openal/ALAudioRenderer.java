@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -65,7 +65,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
     private int[] channels;
     private AudioSource[] chanSrcs;
     private int nextChan = 0;
-    private final ArrayList<Integer> freeChans = new ArrayList<Integer>();
+    private final ArrayList<Integer> freeChans = new ArrayList<>();
     private Listener listener;
     private boolean audioDisabled = false;
     private boolean supportEfx = false;
@@ -101,7 +101,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
         }
 
         // Find maximum # of sources supported by this implementation
-        ArrayList<Integer> channelList = new ArrayList<Integer>();
+        ArrayList<Integer> channelList = new ArrayList<>();
         for (int i = 0; i < MAX_NUM_CHANNELS; i++) {
             int chan = al.alGenSources();
             if (al.alGetError() != 0) {

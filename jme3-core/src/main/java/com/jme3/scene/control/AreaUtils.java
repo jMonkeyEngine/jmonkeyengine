@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,6 +44,11 @@ import com.jme3.math.FastMath;
  */
 
 public class AreaUtils {
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private AreaUtils() {
+    }
 
   /**
    * Estimate the screen area of a bounding volume. If the volume isn't a

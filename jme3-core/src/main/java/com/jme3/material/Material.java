@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -64,7 +64,7 @@ import java.util.logging.Logger;
  * those parameters map to uniforms which are defined in a shader.
  * Setting the parameters can modify the behavior of a
  * shader.
- * <p/>
+ * </p>
  *
  * @author Kirill Vainer
  */
@@ -77,11 +77,11 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
     private AssetKey key;
     private String name;
     private MaterialDef def;
-    private ListMap<String, MatParam> paramValues = new ListMap<String, MatParam>();
+    private ListMap<String, MatParam> paramValues = new ListMap<>();
     private Technique technique;
-    private HashMap<String, Technique> techniques = new HashMap<String, Technique>();
+    private HashMap<String, Technique> techniques = new HashMap<>();
     private RenderState additionalState = null;
-    private RenderState mergedRenderState = new RenderState();
+    final private RenderState mergedRenderState = new RenderState();
     private boolean transparent = false;
     private boolean receivesShadows = false;
     private int sortingId = -1;

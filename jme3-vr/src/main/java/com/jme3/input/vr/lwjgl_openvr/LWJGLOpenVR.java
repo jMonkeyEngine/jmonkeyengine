@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.jme3.input.vr.lwjgl_openvr;
 
 import com.jme3.app.VREnvironment;
@@ -49,9 +44,6 @@ public class LWJGLOpenVR implements VRAPI {
     private final Quaternion rotStore = new Quaternion();
     private final Vector3f posStore = new Vector3f();
     
-    // for debugging latency
-    private int frames = 0;    
-    
     protected Matrix4f[] poseMatrices;
 
     private final Matrix4f hmdPose = Matrix4f.IDENTITY.clone();
@@ -62,9 +54,6 @@ public class LWJGLOpenVR implements VRAPI {
     
     private Vector3f hmdPoseLeftEyeVec, hmdPoseRightEyeVec, hmdSeatToStand;
     
-    private float vsyncToPhotons;
-    private double timePerFrame, frameCountRun;
-    private long frameCount;
     private LWJGLOpenVRInput VRinput;
     
     
@@ -128,18 +117,14 @@ public class LWJGLOpenVR implements VRAPI {
         return "OpenVR/LWJGL";
     }
     
-    private static long latencyWaitTime = 0;
-    
     @Override
     public void setFlipEyes(boolean set) {
         flipEyes = set;
     }
     
-    private boolean enableDebugLatency = false;
-    
     @Override
     public void printLatencyInfoToConsole(boolean set) {
-        enableDebugLatency = set;
+        // not implemented
     }
 
     @Override
@@ -179,7 +164,7 @@ public class LWJGLOpenVR implements VRAPI {
                 poseMatrices[i] = new Matrix4f();
                 hmdTrackedDevicePoses[i] = trackedDevicePose.get(i);
             }
-            timePerFrame = 1.0 / hmdDisplayFrequency.get(0);
+            hmdDisplayFrequency.get(0);
             TrackedDevicePose.create(VR.k_unMaxTrackedDeviceCount);
             // init controllers for the first time
             VRinput = new LWJGLOpenVRInput(environment);

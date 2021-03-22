@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,7 +42,7 @@ import java.util.HashSet;
 public final class DefaultLightFilter implements LightFilter {
 
     private Camera camera;
-    private final HashSet<Light> processedLights = new HashSet<Light>();
+    private final HashSet<Light> processedLights = new HashSet<>();
     private LightProbeBlendingStrategy probeBlendStrat;
 
     public DefaultLightFilter() {

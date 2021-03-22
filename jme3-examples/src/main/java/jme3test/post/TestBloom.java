@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,20 +46,15 @@ import com.jme3.post.filters.BloomFilter;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
-import com.jme3.scene.debug.WireFrustum;
 import com.jme3.scene.shape.Box;
 import com.jme3.util.SkyFactory;
 import com.jme3.util.SkyFactory.EnvMapType;
 
 public class TestBloom extends SimpleApplication {
 
-    float angle;
-    Spatial lightMdl;
-    Spatial teapot;
-    Geometry frustumMdl;
-    WireFrustum frustum;
-    boolean active=true;
-    FilterPostProcessor fpp;
+    private Spatial teapot;
+    private boolean active=true;
+    private FilterPostProcessor fpp;
     
     public static void main(String[] args){
         TestBloom app = new TestBloom();

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -115,7 +115,7 @@ public class TestTexture3D extends SimpleApplication {
          * This method creates a RGB8 texture with the sizes of 10x10x10 pixels.
          */
     private Texture getTexture() throws IOException {
-        ArrayList<ByteBuffer> data = new ArrayList<ByteBuffer>(1);
+        ArrayList<ByteBuffer> data = new ArrayList<>(1);
         ByteBuffer bb = BufferUtils.createByteBuffer(10 * 10 * 10 * 3);//all data must be inside one buffer
         for (int i = 0; i < 10; ++i) {
             for (int j = 0; j < 10 * 10; ++j) {

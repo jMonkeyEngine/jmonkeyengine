@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -68,7 +68,7 @@ public class TestSkeletonControlRefresh extends SimpleApplication implements Act
     private AnimComposer animComposer;
     private final static int SIZE = 10;
     private boolean hwSkinningEnable = true;
-    private List<SkinningControl> skinningControls = new ArrayList<>();
+    final private List<SkinningControl> skinningControls = new ArrayList<>();
     private BitmapText hwsText;
  
     public static void main(String[] args) {

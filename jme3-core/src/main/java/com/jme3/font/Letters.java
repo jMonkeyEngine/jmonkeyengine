@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,10 +47,10 @@ class Letters {
     private final LetterQuad tail;
     private final BitmapFont font;
     private LetterQuad current;
-    private StringBlock block;
+    final private StringBlock block;
     private float totalWidth;
     private float totalHeight;
-    private ColorTags colorTags = new ColorTags();
+    final private ColorTags colorTags = new ColorTags();
     private ColorRGBA baseColor = null;
     private float baseAlpha = -1;
     private String plainText;

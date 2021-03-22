@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2020 jMonkeyEngine
+ * Copyright (c) 2016-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -99,17 +99,17 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class Cloner {
 
-    static Logger log = Logger.getLogger(Cloner.class.getName());
+    final static Logger log = Logger.getLogger(Cloner.class.getName());
 
     /**
      *  Keeps track of the objects that have been cloned so far.
      */
-    private IdentityHashMap<Object, Object> index = new IdentityHashMap<Object, Object>();
+    final private IdentityHashMap<Object, Object> index = new IdentityHashMap<>();
 
     /**
      *  Custom functions for cloning objects.
      */
-    private Map<Class, CloneFunction> functions = new HashMap<Class, CloneFunction>();
+    final private Map<Class, CloneFunction> functions = new HashMap<>();
 
     /**
      *  Cache the clone methods once for all cloners.

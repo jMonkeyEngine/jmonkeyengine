@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,6 +48,12 @@ public class DXTFlipper {
 
     static {
         bb.order(ByteOrder.LITTLE_ENDIAN);
+    }
+
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private DXTFlipper() {
     }
 
     private static long readCode5(long data, int x, int y){

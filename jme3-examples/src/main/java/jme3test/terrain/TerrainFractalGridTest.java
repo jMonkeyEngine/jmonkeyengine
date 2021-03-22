@@ -2,7 +2,6 @@ package jme3test.terrain;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.app.state.ScreenshotAppState;
-import com.jme3.bullet.control.CharacterControl;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Quaternion;
@@ -27,15 +26,15 @@ public class TerrainFractalGridTest extends SimpleApplication {
 
     private Material mat_terrain;
     private TerrainGrid terrain;
-    private float grassScale = 64;
-    private float dirtScale = 16;
-    private float rockScale = 128;
+    final private float grassScale = 64;
+    final private float dirtScale = 16;
+    final private float rockScale = 128;
 
     public static void main(final String[] args) {
         TerrainFractalGridTest app = new TerrainFractalGridTest();
         app.start();
     }
-    private CharacterControl player3;
+
     private FractalSum base;
     private PerturbFilter perturb;
     private OptimizedErode therm;

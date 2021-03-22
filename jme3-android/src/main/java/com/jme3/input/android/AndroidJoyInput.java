@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -51,7 +51,7 @@ import java.util.logging.Logger;
 /**
  * Main class that manages various joystick devices.  Joysticks can be many forms
  * including a simulated joystick to communicate the device orientation as well
- * as physical gamepads. </br>
+ * as physical gamepads. <br>
  * This class manages all the joysticks and feeds the inputs from each back
  * to jME's InputManager.
  *
@@ -83,14 +83,14 @@ public class AndroidJoyInput implements JoyInput {
     public static boolean disableSensors = false;
 
     protected AndroidInputHandler inputHandler;
-    protected List<Joystick> joystickList = new ArrayList<Joystick>();
+    protected List<Joystick> joystickList = new ArrayList<>();
 //    private boolean dontSendHistory = false;
 
 
     // Internal
     private boolean initialized = false;
     private RawInputListener listener = null;
-    private ConcurrentLinkedQueue<InputEvent> eventQueue = new ConcurrentLinkedQueue<InputEvent>();
+    private ConcurrentLinkedQueue<InputEvent> eventQueue = new ConcurrentLinkedQueue<>();
     private AndroidSensorJoyInput sensorJoyInput;
     private Vibrator vibrator = null;
     private boolean vibratorActive = false;

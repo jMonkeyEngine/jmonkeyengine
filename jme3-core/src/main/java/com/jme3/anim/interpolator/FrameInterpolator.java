@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,13 +46,13 @@ public class FrameInterpolator {
     private AnimInterpolator<Quaternion> rotationInterpolator = AnimInterpolators.NLerp;
     private AnimInterpolator<Vector3f> scaleInterpolator = AnimInterpolators.LinearVec3f;
 
-    private TrackDataReader<Vector3f> translationReader = new TrackDataReader<>();
-    private TrackDataReader<Quaternion> rotationReader = new TrackDataReader<>();
-    private TrackDataReader<Vector3f> scaleReader = new TrackDataReader<>();
-    private TrackTimeReader timesReader = new TrackTimeReader();
+    final private TrackDataReader<Vector3f> translationReader = new TrackDataReader<>();
+    final private TrackDataReader<Quaternion> rotationReader = new TrackDataReader<>();
+    final private TrackDataReader<Vector3f> scaleReader = new TrackDataReader<>();
+    final private TrackTimeReader timesReader = new TrackTimeReader();
 
 
-    private Transform transforms = new Transform();
+    final private Transform transforms = new Transform();
 
     public Transform interpolate(float t, int currentIndex, CompactVector3Array translations, CompactQuaternionArray rotations, CompactVector3Array scales, float[] times){
         timesReader.setData(times);

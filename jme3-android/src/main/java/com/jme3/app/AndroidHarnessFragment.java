@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -103,8 +103,8 @@ public class AndroidHarnessFragment extends Fragment implements
     protected int eglDepthBits = 16;
 
     /**
-     * Sets the number of samples to use for multisampling.</br>
-     * Leave 0 (default) to disable multisampling.</br>
+     * Sets the number of samples to use for multisampling.<br>
+     * Leave 0 (default) to disable multisampling.<br>
      * Set to 2 or 4 to enable multisampling.
      */
     protected int eglSamples = 0;
@@ -128,7 +128,7 @@ public class AndroidHarnessFragment extends Fragment implements
      * If the surfaceview is rectangular, the longest side (width or height)
      * will have the resolution set to a maximum of maxResolutionDimension.
      * The other direction will be set to a value that maintains the aspect
-     * ratio of the surfaceview. </br>
+     * ratio of the surfaceview. <br>
      * Any value less than 0 (default = -1) will result in the surfaceview having the
      * same resolution as the view layout (ie. no max resolution).
      */
@@ -229,7 +229,7 @@ public class AndroidHarnessFragment extends Fragment implements
      * other methods.  View related objects should not be reused, but rather
      * created and destroyed along with the Activity.
      *
-     * @param savedInstanceState
+     * @param savedInstanceState the saved instance state
      */
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -282,9 +282,9 @@ public class AndroidHarnessFragment extends Fragment implements
      * by the Activity's layout parameters for this Fragment.  For jME, we also
      * update the application reference to the new view.
      *
-     * @param inflater
-     * @param container
-     * @param savedInstanceState
+     * @param inflater ignored
+     * @param container ignored
+     * @param savedInstanceState ignored
      * @return the new view
      */
     @Override
@@ -431,8 +431,8 @@ public class AndroidHarnessFragment extends Fragment implements
      * Called by the android alert dialog, terminate the activity and OpenGL
      * rendering
      *
-     * @param dialog
-     * @param whichButton
+     * @param dialog ignored
+     * @param whichButton the button index
      */
     @Override
     public void onClick(DialogInterface dialog, int whichButton) {

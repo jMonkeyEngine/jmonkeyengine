@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.jme3.input.vr.oculus;
 
 import com.jme3.app.VREnvironment;
@@ -29,7 +24,7 @@ import static org.lwjgl.system.MemoryUtil.*;
  * A few notes about the Oculus coordinate system:
  * <ul>
  * <li>Matrices should be transposed</li>
- * <li>Quaternions should be inverted<li/>
+ * <li>Quaternions should be inverted</li>
  * <li>Vectors should have their X and Z axes flipped, but apparently not Y.</li>
  * </ul>
  *

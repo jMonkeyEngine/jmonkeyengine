@@ -82,7 +82,12 @@ public interface ALC {
     /**
      * Obtains string value(s) from ALC.
      *
-     * @param parameter the information to query. One of:<br><table><tr><td>{@link #ALC_DEFAULT_DEVICE_SPECIFIER DEFAULT_DEVICE_SPECIFIER}</td><td>{@link #ALC_DEVICE_SPECIFIER DEVICE_SPECIFIER}</td><td>{@link #ALC_EXTENSIONS EXTENSIONS}</td></tr><tr><td>{@link #ALC_CAPTURE_DEFAULT_DEVICE_SPECIFIER CAPTURE_DEFAULT_DEVICE_SPECIFIER}</td><td>{@link #ALC_CAPTURE_DEVICE_SPECIFIER CAPTURE_DEVICE_SPECIFIER}</td></tr></table>
+     * @param parameter the information to query. One of:
+     *  {@link #ALC_DEFAULT_DEVICE_SPECIFIER DEFAULT_DEVICE_SPECIFIER}
+     *  {@link #ALC_DEVICE_SPECIFIER DEVICE_SPECIFIER}
+     *  {@link #ALC_EXTENSIONS EXTENSIONS}
+     *  {@link #ALC_CAPTURE_DEFAULT_DEVICE_SPECIFIER CAPTURE_DEFAULT_DEVICE_SPECIFIER}
+     *  {@link #ALC_CAPTURE_DEVICE_SPECIFIER CAPTURE_DEVICE_SPECIFIER}
      */
     public String alcGetString(int parameter);
 
@@ -99,7 +104,12 @@ public interface ALC {
     /**
      * Obtains integer value(s) from ALC.
      *
-     * @param param  the information to query. One of:<br><table><tr><td>{@link #ALC_MAJOR_VERSION MAJOR_VERSION}</td><td>{@link #ALC_MINOR_VERSION MINOR_VERSION}</td><td>{@link #ALC_ATTRIBUTES_SIZE ATTRIBUTES_SIZE}</td><td>{@link #ALC_ALL_ATTRIBUTES ALL_ATTRIBUTES}</td><td>{@link #ALC_CAPTURE_SAMPLES CAPTURE_SAMPLES}</td></tr></table>
+     * @param param  the information to query. One of:
+     *  {@link #ALC_MAJOR_VERSION MAJOR_VERSION}
+     *  {@link #ALC_MINOR_VERSION MINOR_VERSION}
+     *  {@link #ALC_ATTRIBUTES_SIZE ATTRIBUTES_SIZE}
+     *  {@link #ALC_ALL_ATTRIBUTES ALL_ATTRIBUTES}
+     *  {@link #ALC_CAPTURE_SAMPLES CAPTURE_SAMPLES}
      * @param buffer the destination buffer.
      * @param size   the buffer size.
      */

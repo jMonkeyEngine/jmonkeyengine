@@ -33,7 +33,7 @@ public class TestTextureArrayCompressed extends SimpleApplication
        
        Texture tex1 = assetManager.loadTexture( "Textures/Terrain/Pond/Pond_dxt5.dds");
        Texture tex2 = assetManager.loadTexture("Textures/Terrain/BrickWall/BrickWall_dxt5.dds");
-       List<Image> images = new ArrayList<Image>();
+       List<Image> images = new ArrayList<>();
        images.add(tex1.getImage());
        images.add(tex2.getImage());
        TextureArray tex3 = new TextureArray(images);
@@ -76,7 +76,7 @@ public class TestTextureArrayCompressed extends SimpleApplication
    }
 
    /**
-    * @param args
+    * @param args ignored
     */
    public static void main(String[] args)
    {

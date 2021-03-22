@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -67,8 +67,8 @@ public class EmitterMeshFaceShape extends EmitterMeshVertexShape {
         for (Mesh mesh : meshes) {
             Vector3f[] vertexTable = BufferUtils.getVector3Array(mesh.getFloatBuffer(Type.Position));
             int[] indices = new int[3];
-            List<Vector3f> vertices = new ArrayList<Vector3f>(mesh.getTriangleCount() * 3);
-            List<Vector3f> normals = new ArrayList<Vector3f>(mesh.getTriangleCount());
+            List<Vector3f> vertices = new ArrayList<>(mesh.getTriangleCount() * 3);
+            List<Vector3f> normals = new ArrayList<>(mesh.getTriangleCount());
             for (int i = 0; i < mesh.getTriangleCount(); ++i) {
                 mesh.getTriangle(i, indices);
                 vertices.add(vertexTable[indices[0]]);

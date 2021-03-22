@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -54,9 +54,9 @@ public class SkeletonInterBoneWire extends Mesh {
     /** The amount of connections between bones. */
     private int                 connectionsAmount;
     /** The skeleton that will be showed. */
-    private Skeleton            skeleton;
+    final private Skeleton            skeleton;
     /** The map between the bone index and its length. */
-    private Map<Integer, Float> boneLengths;
+    final private Map<Integer, Float> boneLengths;
 
     /**
      * Creates buffers for points. Each line has POINT_AMOUNT of points.

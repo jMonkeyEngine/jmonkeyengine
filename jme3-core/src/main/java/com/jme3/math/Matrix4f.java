@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -862,7 +862,7 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     /**
      * Copy the elements of this matrix to a float array.
      *
-     * @param f   the array to fill (not null, length >= 16)
+     * @param f   the array to fill (not null, length&ge;16)
      * @param columnMajor
      *            true &rarr; column-major order, false &rarr; row-major order
      */

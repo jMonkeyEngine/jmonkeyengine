@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 jMonkeyEngine
+ * Copyright (c) 2015-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -49,7 +49,7 @@ public class RemoteObjectHandler implements InvocationHandler {
     private final byte channel;
     private final short objectId;
     private final ClassInfo typeInfo;
-    private final Map<Method, MethodInfo> methodIndex = new ConcurrentHashMap<Method, MethodInfo>();
+    private final Map<Method, MethodInfo> methodIndex = new ConcurrentHashMap<>();
 
     public RemoteObjectHandler( RmiRegistry rmi, byte channel, short objectId, ClassInfo typeInfo ) {
         this.rmi = rmi;

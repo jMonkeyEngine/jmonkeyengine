@@ -1116,9 +1116,9 @@ public class TerrainQuad extends Node implements Terrain {
 
     @Override
     public void setHeight(Vector2f xz, float height) {
-        List<Vector2f> coord = new ArrayList<Vector2f>();
+        List<Vector2f> coord = new ArrayList<>();
         coord.add(xz);
-        List<Float> h = new ArrayList<Float>();
+        List<Float> h = new ArrayList<>();
         h.add(height);
 
         setHeight(coord, h);
@@ -1126,9 +1126,9 @@ public class TerrainQuad extends Node implements Terrain {
 
     @Override
     public void adjustHeight(Vector2f xz, float delta) {
-        List<Vector2f> coord = new ArrayList<Vector2f>();
+        List<Vector2f> coord = new ArrayList<>();
         coord.add(xz);
-        List<Float> h = new ArrayList<Float>();
+        List<Float> h = new ArrayList<>();
         h.add(delta);
 
         adjustHeight(coord, h);
@@ -1150,7 +1150,7 @@ public class TerrainQuad extends Node implements Terrain {
 
         int halfSize = totalSize / 2;
 
-        List<LocationHeight> locations = new ArrayList<LocationHeight>();
+        List<LocationHeight> locations = new ArrayList<>();
 
         // offset
         for (int i=0; i<xz.size(); i++) {
@@ -1186,10 +1186,10 @@ public class TerrainQuad extends Node implements Terrain {
         if (children == null)
             return;
 
-        List<LocationHeight> quadLH1 = new ArrayList<LocationHeight>();
-        List<LocationHeight> quadLH2 = new ArrayList<LocationHeight>();
-        List<LocationHeight> quadLH3 = new ArrayList<LocationHeight>();
-        List<LocationHeight> quadLH4 = new ArrayList<LocationHeight>();
+        List<LocationHeight> quadLH1 = new ArrayList<>();
+        List<LocationHeight> quadLH2 = new ArrayList<>();
+        List<LocationHeight> quadLH3 = new ArrayList<>();
+        List<LocationHeight> quadLH4 = new ArrayList<>();
         Spatial quad1 = null;
         Spatial quad2 = null;
         Spatial quad3 = null;

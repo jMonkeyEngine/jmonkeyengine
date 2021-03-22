@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2014 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,7 +36,7 @@ import java.util.List;
 
 public class FbxFile {
 	
-	public List<FbxElement> rootElements = new ArrayList<FbxElement>();
+	public List<FbxElement> rootElements = new ArrayList<>();
 	public long version;
 	
         @Override

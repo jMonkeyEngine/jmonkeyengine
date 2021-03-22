@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,7 +44,7 @@ import com.jme3.post.ssao.SSAOFilter;
  */
 public class SSAOUI {
 
-    SSAOFilter filter;
+    final private SSAOFilter filter;
 
     public SSAOUI(InputManager inputManager, SSAOFilter filter) {
         this.filter = filter;

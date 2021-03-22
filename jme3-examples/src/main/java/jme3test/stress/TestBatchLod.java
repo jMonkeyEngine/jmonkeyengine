@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,8 +42,6 @@ import com.jme3.scene.control.LodControl;
 import jme3tools.optimize.GeometryBatchFactory;
 
 public class TestBatchLod extends SimpleApplication {
-
-    private boolean lod = false;
 
     public static void main(String[] args) {
         TestBatchLod app = new TestBatchLod();

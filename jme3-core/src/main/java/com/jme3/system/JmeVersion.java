@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -63,4 +63,10 @@ public class JmeVersion {
     public static final String VERSION_TAG      = props.getProperty("version.tag", "");
     public static final String VERSION_FULL     = props.getProperty("version.full", "");
     public static final String FULL_NAME        = props.getProperty("name.full", "jMonkeyEngine (unknown version)");
+    
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private JmeVersion() {
+    }
 }

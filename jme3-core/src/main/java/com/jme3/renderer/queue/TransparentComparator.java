@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,43 +43,6 @@ public class TransparentComparator implements GeometryComparator {
     @Override
     public void setCamera(Camera cam){
         this.cam = cam;
-    }
-
-    /**
-     * Calculates the distance from a spatial to the camera. Distance is a
-     * squared distance.
-     *
-     * @param spat
-     *            Spatial to distancize.
-     * @return Distance from Spatial to camera.
-     */
-    private float distanceToCam2(Geometry spat){
-        if (spat == null)
-            return Float.NEGATIVE_INFINITY;
-
-        if (spat.queueDistance != Float.NEGATIVE_INFINITY)
-            return spat.queueDistance;
-
-        Vector3f camPosition = cam.getLocation();
-        Vector3f viewVector = cam.getDirection();
-        Vector3f spatPosition = null;
-
-        if (spat.getWorldBound() != null){
-            spatPosition = spat.getWorldBound().getCenter();
-        }else{
-            spatPosition = spat.getWorldTranslation();
-        }
-
-        spatPosition.subtract(camPosition, tempVec);
-        spat.queueDistance = tempVec.dot(tempVec);
-
-        float retval = Math.abs(tempVec.dot(viewVector)
-                / viewVector.dot(viewVector));
-        viewVector.mult(retval, tempVec);
-
-        spat.queueDistance = tempVec.length();
-
-        return spat.queueDistance;
     }
 
     private float distanceToCam(Geometry spat){

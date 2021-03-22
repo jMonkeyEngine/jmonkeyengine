@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,8 +52,8 @@ public class HelloInput extends SimpleApplication {
     HelloInput app = new HelloInput();
     app.start();
   }
-  protected Geometry player;
-  Boolean isRunning=true;
+  private Geometry player;
+  private Boolean isRunning=true;
 
   @Override
   public void simpleInitApp() {
@@ -80,7 +80,7 @@ public class HelloInput extends SimpleApplication {
   }
 
   /** Use this listener for KeyDown/KeyUp events */
-  private ActionListener actionListener = new ActionListener() {
+  final private ActionListener actionListener = new ActionListener() {
     @Override
     public void onAction(String name, boolean keyPressed, float tpf) {
       if (name.equals("Pause") && !keyPressed) {
@@ -90,7 +90,7 @@ public class HelloInput extends SimpleApplication {
   };
 
   /** Use this listener for continuous events */
-  private AnalogListener analogListener = new AnalogListener() {
+  final private AnalogListener analogListener = new AnalogListener() {
     @Override
     public void onAnalog(String name, float value, float tpf) {
       if (isRunning) {

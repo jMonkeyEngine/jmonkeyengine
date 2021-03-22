@@ -63,6 +63,11 @@ import com.jme3.util.BufferUtils;
  * @author normenhansen
  */
 public class PhysicsTestHelper {
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private PhysicsTestHelper() {
+    }
 
     /**
      * creates a simple physics test world with a floor, an obstacle and some test boxes

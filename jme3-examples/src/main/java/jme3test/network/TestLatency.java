@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -54,8 +54,8 @@ public class TestLatency {
     @Serializable
     public static class TimestampMessage extends AbstractMessage {
 
-        long timeSent     = 0;
-        long timeReceived = 0;
+        private long timeSent     = 0;
+        private long timeReceived = 0;
 
         public TimestampMessage(){
             setReliable(false);

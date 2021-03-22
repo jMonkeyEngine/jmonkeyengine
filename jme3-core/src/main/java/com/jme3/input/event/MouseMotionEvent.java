@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,7 +40,7 @@ package com.jme3.input.event;
  */
 public class MouseMotionEvent extends InputEvent {
 
-    private int x, y, dx, dy, wheel, deltaWheel;
+    final private int x, y, dx, dy, wheel, deltaWheel;
 
     public MouseMotionEvent(int x, int y, int dx, int dy, int wheel, int deltaWheel) {
         this.x = x;

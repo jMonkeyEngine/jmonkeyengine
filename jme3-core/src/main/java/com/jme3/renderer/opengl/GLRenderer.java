@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -84,11 +84,10 @@ public final class GLRenderer implements Renderer {
     private final StringBuilder stringBuf = new StringBuilder(250);
     private final IntBuffer intBuf1 = BufferUtils.createIntBuffer(1);
     private final IntBuffer intBuf16 = BufferUtils.createIntBuffer(16);
-    private final FloatBuffer floatBuf16 = BufferUtils.createFloatBuffer(16);
     private final RenderContext context = new RenderContext();
     private final NativeObjectManager objManager = new NativeObjectManager();
     private final EnumSet<Caps> caps = EnumSet.noneOf(Caps.class);
-    private final EnumMap<Limits, Integer> limits = new EnumMap<Limits, Integer>(Limits.class);
+    private final EnumMap<Limits, Integer> limits = new EnumMap<>(Limits.class);
 
     private FrameBuffer mainFbOverride = null;
     private int defaultFBO = 0;
@@ -134,7 +133,7 @@ public final class GLRenderer implements Renderer {
     }
 
     private HashSet<String> loadExtensions() {
-        HashSet<String> extensionSet = new HashSet<String>(64);
+        HashSet<String> extensionSet = new HashSet<>(64);
         if (caps.contains(Caps.OpenGL30)) {
             // If OpenGL3+ is available, use the non-deprecated way
             // of getting supported extensions.
@@ -3124,33 +3123,6 @@ public final class GLRenderer implements Renderer {
         }
     }
 
-    private void renderMeshVertexArray(Mesh mesh, int lod, int count, VertexBuffer instanceData) {
-        if (mesh.getId() == -1) {
-            updateVertexArray(mesh, instanceData);
-        } else {
-            // TODO: Check if it was updated
-        }
-
-        if (context.boundVertexArray != mesh.getId()) {
-            gl3.glBindVertexArray(mesh.getId());
-            context.boundVertexArray = mesh.getId();
-        }
-
-//        IntMap<VertexBuffer> buffers = mesh.getBuffers();
-        VertexBuffer indices;
-        if (mesh.getNumLodLevels() > 0) {
-            indices = mesh.getLodLevel(lod);
-        } else {
-            indices = mesh.getBuffer(Type.Index);
-        }
-        if (indices != null) {
-            drawTriangleList(indices, mesh, count);
-        } else {
-            drawTriangleArray(mesh.getMode(), count, mesh.getVertexCount());
-        }
-        clearVertexAttribs();
-    }
-
     private void renderMeshDefault(Mesh mesh, int lod, int count, VertexBuffer[] instanceData) {
 
         // Here while count is still passed in.  Can be removed when/if
@@ -3299,5 +3271,31 @@ public final class GLRenderer implements Renderer {
     @Override
     public int getDefaultAnisotropicFilter() {
         return this.defaultAnisotropicFilter;
+    }
+
+    /**
+     * Test whether images with the sRGB flag will be linearized when read by a
+     * shader.
+     *
+     * @return true for linearization, false for no linearization
+     */
+    @Override
+    public boolean isLinearizeSrgbImages() {
+        return linearizeSrgbImages;
+    }
+
+    /**
+     * Test whether colors rendered to the main framebuffer undergo
+     * linear-to-sRGB conversion.
+     *
+     * @return true for conversion, false for no conversion
+     */
+    @Override
+    public boolean isMainFrameBufferSrgb() {
+        if (!caps.contains(Caps.Srgb)) {
+            return false;
+        } else {
+            return gl.glIsEnabled(GLExt.GL_FRAMEBUFFER_SRGB_EXT);
+        }
     }
 }

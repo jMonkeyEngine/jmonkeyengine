@@ -176,12 +176,12 @@ public class InstancedNode extends GeometryGroupNode {
     protected InstancedNodeControl control;
 
     protected HashMap<Geometry, InstancedGeometry> igByGeom
-            = new HashMap<Geometry, InstancedGeometry>();
+            = new HashMap<>();
 
     private InstanceTypeKey lookUp = new InstanceTypeKey();
 
     private HashMap<InstanceTypeKey, InstancedGeometry> instancesMap =
-            new HashMap<InstanceTypeKey, InstancedGeometry>();
+            new HashMap<>();
 
     /**
      * Serialization only. Do not use.
@@ -374,13 +374,13 @@ public class InstancedNode extends GeometryGroupNode {
         this.control = cloner.clone(control);
         this.lookUp = cloner.clone(lookUp);
 
-        HashMap<Geometry, InstancedGeometry> newIgByGeom = new HashMap<Geometry, InstancedGeometry>();
+        HashMap<Geometry, InstancedGeometry> newIgByGeom = new HashMap<>();
         for( Map.Entry<Geometry, InstancedGeometry> e : igByGeom.entrySet() ) {
             newIgByGeom.put(cloner.clone(e.getKey()), cloner.clone(e.getValue()));
         }
         this.igByGeom = newIgByGeom;
 
-        HashMap<InstanceTypeKey, InstancedGeometry> newInstancesMap = new HashMap<InstanceTypeKey, InstancedGeometry>();
+        HashMap<InstanceTypeKey, InstancedGeometry> newInstancesMap = new HashMap<>();
         for( Map.Entry<InstanceTypeKey, InstancedGeometry> e : instancesMap.entrySet() ) {
             newInstancesMap.put(cloner.clone(e.getKey()), cloner.clone(e.getValue()));
         }

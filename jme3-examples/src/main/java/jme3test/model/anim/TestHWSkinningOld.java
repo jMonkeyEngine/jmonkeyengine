@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,10 +48,10 @@ public class TestHWSkinningOld extends SimpleApplication implements ActionListen
 
     private AnimChannel channel;
     private AnimControl control;
-    private String[] animNames = {"Dodge", "Walk", "pull", "push"};
+    final private String[] animNames = {"Dodge", "Walk", "pull", "push"};
     private final static int SIZE = 50;
     private boolean hwSkinningEnable = true;
-    private List<SkeletonControl> skControls = new ArrayList<SkeletonControl>();
+    final private List<SkeletonControl> skControls = new ArrayList<>();
     private BitmapText hwsText;
 
     public static void main(String[] args) {

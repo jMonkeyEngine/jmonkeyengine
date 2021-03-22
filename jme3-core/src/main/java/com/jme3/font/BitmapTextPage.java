@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -56,7 +56,7 @@ class BitmapTextPage extends Geometry {
     private final byte[] color;
     private final int page;
     private final Texture2D texture;
-    private final LinkedList<LetterQuad> pageQuads = new LinkedList<LetterQuad>();
+    private final LinkedList<LetterQuad> pageQuads = new LinkedList<>();
 
     BitmapTextPage(BitmapFont font, boolean arrayBased, int page) {
         super("BitmapFont", new Mesh());

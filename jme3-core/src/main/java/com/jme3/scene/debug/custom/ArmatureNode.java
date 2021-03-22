@@ -1,7 +1,7 @@
 package com.jme3.scene.debug.custom;
 
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -54,15 +54,15 @@ public class ArmatureNode extends Node {
     /**
      * The armature to be displayed.
      */
-    private Armature armature;
+    final private Armature armature;
     /**
      * The map between the bone index and its length.
      */
-    private Map<Joint, Geometry[]> jointToGeoms = new HashMap<>();
-    private Map<Geometry, Joint> geomToJoint = new HashMap<>();
+    final private Map<Joint, Geometry[]> jointToGeoms = new HashMap<>();
+    final private Map<Geometry, Joint> geomToJoint = new HashMap<>();
     private Joint selectedJoint = null;
-    private Vector3f tmp = new Vector3f();
-    private Vector2f tmpv2 = new Vector2f();
+    final private Vector3f tmp = new Vector3f();
+    final private Vector2f tmpv2 = new Vector2f();
     private final static ColorRGBA selectedColor = ColorRGBA.Orange;
     private final static ColorRGBA selectedColorJ = ColorRGBA.Yellow;
     private final static ColorRGBA outlineColor = ColorRGBA.LightGray;

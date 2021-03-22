@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 jMonkeyEngine
+ * Copyright (c) 2015-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -64,7 +64,7 @@ public class RpcConnection {
      *  The objectId index of RpcHandler objects that are used to perform the
      *  RPC calls for a particular object.
      */
-    private Map<Short, RpcHandler> handlers = new ConcurrentHashMap<Short, RpcHandler>();
+    private Map<Short, RpcHandler> handlers = new ConcurrentHashMap<>();
     
     /**
      *  Provides unique messages IDs for outbound synchronous call
@@ -78,7 +78,7 @@ public class RpcConnection {
      *  response is received, the appropriate handler is found here and the
      *  response or error set, thus releasing the waiting caller.
      */ 
-    private Map<Long, ResponseHolder> responses = new ConcurrentHashMap<Long, ResponseHolder>(); 
+    private Map<Long, ResponseHolder> responses = new ConcurrentHashMap<>(); 
  
     /**
      *  Creates a new RpcConnection for the specified network connection.

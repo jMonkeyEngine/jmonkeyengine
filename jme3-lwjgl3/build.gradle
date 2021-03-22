@@ -52,3 +52,11 @@ dependencies {
     runtime "org.lwjgl:lwjgl-openal:${lwjglVersion}:natives-linux-arm64"
     runtime "org.lwjgl:lwjgl-openal:${lwjglVersion}:natives-macos"
 }
+
+javadoc {
+    // Disable doclint for JDK8+.
+    if (JavaVersion.current().isJava8Compatible()){
+        options.addStringOption('Xdoclint:none', '-quiet')
+    }
+}
+

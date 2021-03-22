@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -63,17 +63,17 @@ public final class OBJLoader implements AssetLoader {
 
     private static final Logger logger = Logger.getLogger(OBJLoader.class.getName());
 
-    protected final ArrayList<Vector3f> verts = new ArrayList<Vector3f>();
-    protected final ArrayList<Vector2f> texCoords = new ArrayList<Vector2f>();
-    protected final ArrayList<Vector3f> norms = new ArrayList<Vector3f>();
+    protected final ArrayList<Vector3f> verts = new ArrayList<>();
+    protected final ArrayList<Vector2f> texCoords = new ArrayList<>();
+    protected final ArrayList<Vector3f> norms = new ArrayList<>();
 
-    private final ArrayList<Group> groups = new ArrayList<Group>();
+    private final ArrayList<Group> groups = new ArrayList<>();
 
     protected String currentMatName;
     protected String currentObjectName;
 
-    protected final HashMap<Vertex, Integer> vertIndexMap = new HashMap<Vertex, Integer>(100);
-    protected final IntMap<Vertex> indexVertMap = new IntMap<Vertex>(100);
+    protected final HashMap<Vertex, Integer> vertIndexMap = new HashMap<>(100);
+    protected final IntMap<Vertex> indexVertMap = new IntMap<>(100);
     protected int curIndex    = 0;
     protected int objectIndex = 0;
     protected int geomIndex   = 0;
@@ -87,9 +87,9 @@ public final class OBJLoader implements AssetLoader {
     protected Node objNode;
 
     private static class Group {
-        private String name;
-        private final ArrayList<Face> faces = new ArrayList<Face>();
-        private final HashMap<String, ArrayList<Face>> matFaces = new HashMap<String, ArrayList<Face>>();
+        final private String name;
+        private final ArrayList<Face> faces = new ArrayList<>();
+        private final HashMap<String, ArrayList<Face>> matFaces = new HashMap<>();
 
         public Group(final String name) {
             this.name = name;
@@ -237,7 +237,7 @@ public final class OBJLoader implements AssetLoader {
         return t;
     }
 
-    private ArrayList<Vertex> vertList = new ArrayList<Vertex>();
+    final private ArrayList<Vertex> vertList = new ArrayList<>();
 
     protected void readFace(){
         Face f = new Face();
@@ -453,7 +453,7 @@ public final class OBJLoader implements AssetLoader {
         boolean hasTexCoord = false;
         boolean hasNormals  = false;
 
-        ArrayList<Face> newFaces = new ArrayList<Face>(faceList.size());
+        ArrayList<Face> newFaces = new ArrayList<>(faceList.size());
         for (int i = 0; i < faceList.size(); i++){
             Face f = faceList.get(i);
 

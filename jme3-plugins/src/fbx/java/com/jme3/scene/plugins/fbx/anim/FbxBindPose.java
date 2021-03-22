@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,7 +41,7 @@ import java.util.Map;
 
 public class FbxBindPose extends FbxObject<Map<FbxId, Matrix4f>> {
 
-    private final Map<FbxId, Matrix4f> bindPose = new HashMap<FbxId, Matrix4f>();
+    private final Map<FbxId, Matrix4f> bindPose = new HashMap<>();
     
     public FbxBindPose(AssetManager assetManager, String sceneFolderName) {
         super(assetManager, sceneFolderName);

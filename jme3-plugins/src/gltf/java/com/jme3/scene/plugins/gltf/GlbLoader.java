@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,17 +42,15 @@ import java.util.ArrayList;
  */
 public class GlbLoader extends GltfLoader {
 
-    private static final int GLTF_MAGIC = 0x46546C67;
     private static final int JSON_TYPE = 0x4E4F534A;
-    private static final int BIN_TYPE = 0x004E4942;
     private ArrayList<byte[]> data = new ArrayList<>();
 
     @Override
     public Object load(AssetInfo assetInfo) throws IOException {
         data.clear();
         LittleEndien stream = new LittleEndien(new DataInputStream(assetInfo.openStream()));
-        int magic = stream.readInt();
-        int version = stream.readInt();
+        /* magic */ stream.readInt();
+        /* version */ stream.readInt();
         int length = stream.readInt();
 
         byte[] json = null;

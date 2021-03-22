@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -85,7 +85,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
     private AppProfiler prof;
 
     private Format fbFormat = Format.RGB111110F;
-    private Format depthFormat = Format.Depth;
+    final private Format depthFormat = Format.Depth;
     
     /**
      * Create a FilterProcessor 
@@ -563,7 +563,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
     public void read(JmeImporter im) throws IOException {
         InputCapsule ic = im.getCapsule(this);
         numSamples = ic.readInt("numSamples", 0);
-        filters = new SafeArrayList<Filter>(Filter.class, ic.readSavableArrayList("filters", null));
+        filters = new SafeArrayList<>(Filter.class, ic.readSavableArrayList("filters", null));
         for (Filter filter : filters.getArray()) {
             filter.setProcessor(this);
             setFilterState(filter, filter.isEnabled());

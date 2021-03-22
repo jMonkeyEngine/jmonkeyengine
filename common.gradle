@@ -73,10 +73,6 @@ javadoc {
     options.use = "true"
     options.charSet = "UTF-8"
     options.encoding = "UTF-8"
-    //disable doclint for JDK8, more quiet output
-    if (JavaVersion.current().isJava8Compatible()){
-        options.addStringOption('Xdoclint:none', '-quiet')
-    }
     source = sourceSets.main.allJava // main only, exclude tests
 }
 

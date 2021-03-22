@@ -7,9 +7,9 @@ public class Weights {//}  extends Savable, JmeCloneable{
 
     private final static float MIN_WEIGHT = 0.005f;
 
-    private int[] indices;
-    private float[] data;
-    private int size;
+    final private int[] indices;
+    final private float[] data;
+    final private int size;
 
     public Weights(float[] array, int start, int length) {
         ArrayList<Float> list = new ArrayList<>();

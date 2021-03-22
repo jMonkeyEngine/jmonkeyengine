@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -110,23 +110,23 @@ public class BulletDebugAppState extends AbstractAppState {
     /**
      * map rigid bodies to visualizations
      */
-    protected HashMap<PhysicsRigidBody, Spatial> bodies = new HashMap<PhysicsRigidBody, Spatial>();
+    protected HashMap<PhysicsRigidBody, Spatial> bodies = new HashMap<>();
     /**
      * map joints to visualizations
      */
-    protected HashMap<PhysicsJoint, Spatial> joints = new HashMap<PhysicsJoint, Spatial>();
+    protected HashMap<PhysicsJoint, Spatial> joints = new HashMap<>();
     /**
      * map ghosts to visualizations
      */
-    protected HashMap<PhysicsGhostObject, Spatial> ghosts = new HashMap<PhysicsGhostObject, Spatial>();
+    protected HashMap<PhysicsGhostObject, Spatial> ghosts = new HashMap<>();
     /**
      * map physics characters to visualizations
      */
-    protected HashMap<PhysicsCharacter, Spatial> characters = new HashMap<PhysicsCharacter, Spatial>();
+    protected HashMap<PhysicsCharacter, Spatial> characters = new HashMap<>();
     /**
      * map vehicles to visualizations
      */
-    protected HashMap<PhysicsVehicle, Spatial> vehicles = new HashMap<PhysicsVehicle, Spatial>();
+    protected HashMap<PhysicsVehicle, Spatial> vehicles = new HashMap<>();
     /**
      * Instantiate an app state to visualize the specified space. This constructor should be invoked only by
      * BulletAppState.

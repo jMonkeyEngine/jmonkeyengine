@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -98,9 +98,9 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
     private int meshIndex = 0;
     private int texCoordIndex = 0;
     private String ignoreUntilEnd = null;
-    private List<Geometry> geoms = new ArrayList<Geometry>();
-    private ArrayList<Boolean> usesSharedMesh = new ArrayList<Boolean>();
-    private IntMap<List<VertexBuffer>> lodLevels = new IntMap<List<VertexBuffer>>();
+    private List<Geometry> geoms = new ArrayList<>();
+    private ArrayList<Boolean> usesSharedMesh = new ArrayList<>();
+    private IntMap<List<VertexBuffer>> lodLevels = new IntMap<>();
     private AnimData animData;
 
     public MeshLoader() {
@@ -595,7 +595,7 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
     }
 
     private void startSkeleton(String name) {
-        AssetKey<AnimData> assetKey = new AssetKey<AnimData>(folderName + name + ".xml");
+        AssetKey<AnimData> assetKey = new AssetKey<>(folderName + name + ".xml");
         try {
             animData = assetManager.loadAsset(assetKey);
         } catch (AssetNotFoundException ex) {
@@ -887,11 +887,7 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
             }
 
             return compileModel();
-        } catch (SAXException ex) {
-            IOException ioEx = new IOException("Error while parsing Ogre3D mesh.xml");
-            ioEx.initCause(ex);
-            throw ioEx;
-        } catch (ParserConfigurationException ex) {
+        } catch (SAXException | ParserConfigurationException ex) {
             IOException ioEx = new IOException("Error while parsing Ogre3D mesh.xml");
             ioEx.initCause(ex);
             throw ioEx;

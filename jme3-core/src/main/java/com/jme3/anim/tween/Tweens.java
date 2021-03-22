@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020 jMonkeyEngine
+ * Copyright (c) 2015-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -51,6 +51,12 @@ public class Tweens {
 
     private static final CurveFunction SMOOTH = new SmoothStep();
     private static final CurveFunction SINE = new Sine();
+
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private Tweens() {
+    }
 
     /**
      * Creates a tween that will interpolate over an entire sequence
@@ -469,9 +475,7 @@ public class Tweens {
         protected void doInterpolate(double t) {
             try {
                 method.invoke(target, args);
-            } catch (IllegalAccessException e) {
-                throw new RuntimeException("Error running method:" + method + " for object:" + target, e);
-            } catch (InvocationTargetException e) {
+            } catch (IllegalAccessException | InvocationTargetException e) {
                 throw new RuntimeException("Error running method:" + method + " for object:" + target, e);
             }
         }
@@ -600,9 +604,7 @@ public class Tweens {
                     args[tIndex] = t;
                 }
                 method.invoke(target, args);
-            } catch (IllegalAccessException e) {
-                throw new RuntimeException("Error running method:" + method + " for object:" + target, e);
-            } catch (InvocationTargetException e) {
+            } catch (IllegalAccessException | InvocationTargetException e) {
                 throw new RuntimeException("Error running method:" + method + " for object:" + target, e);
             }
         }

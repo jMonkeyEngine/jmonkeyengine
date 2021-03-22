@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -80,6 +80,12 @@ public class SkyFactory {
         EquirectMap
     }
     
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private SkyFactory() {
+    }
+
     /**
      * Create a sky with radius=10 using the given cubemap or spheremap texture.
      *

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -532,8 +532,8 @@ final public class FastMath {
     /**
      * A direct call to Math.atan2.
      *
-     * @param fY
-     * @param fX
+     * @param fY ordinate
+     * @param fX abscissa
      * @return Math.atan2(fY,fX)
      * @see java.lang.Math#atan2(double, double)
      */

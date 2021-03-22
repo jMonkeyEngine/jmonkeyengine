@@ -251,27 +251,6 @@ public class InstancedGeometry extends Geometry {
         }
     }
 
-    private void sanitize(boolean insideEntriesNonNull) {
-        if (firstUnusedIndex >= geometries.length) {
-            throw new AssertionError();
-        }
-        for (int i = 0; i < geometries.length; i++) {
-            if (i < firstUnusedIndex) {
-                if (geometries[i] == null) {
-                    if (insideEntriesNonNull) {
-                        throw new AssertionError();
-                    }
-                } else if (InstancedNode.getGeometryStartIndex2(geometries[i]) != i) {
-                    throw new AssertionError();
-                }
-            } else {
-                if (geometries[i] != null) {
-                    throw new AssertionError();
-                }
-            }
-        }
-    }
-
     public void updateInstances() {
         FloatBuffer fb = (FloatBuffer) transformInstanceData.getData();
         fb.limit(fb.capacity());
