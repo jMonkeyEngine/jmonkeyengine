@@ -42,7 +42,6 @@ import com.jme3.math.*;
 import com.jme3.scene.*;
 import com.jme3.scene.debug.custom.ArmatureDebugAppState;
 import com.jme3.scene.shape.Cylinder;
-import com.jme3.util.TangentBinormalGenerator;
 
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;

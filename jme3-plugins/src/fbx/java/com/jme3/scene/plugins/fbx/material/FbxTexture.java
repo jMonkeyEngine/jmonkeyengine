@@ -33,7 +33,6 @@ package com.jme3.scene.plugins.fbx.material;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.TextureKey;
-import com.jme3.math.Vector2f;
 import com.jme3.scene.plugins.fbx.file.FbxElement;
 import com.jme3.scene.plugins.fbx.obj.FbxObject;
 import com.jme3.texture.Image;

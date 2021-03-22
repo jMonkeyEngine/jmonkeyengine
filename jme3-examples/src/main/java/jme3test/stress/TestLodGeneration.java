@@ -32,7 +32,6 @@
 package jme3test.stress;
 
 import com.jme3.anim.SkinningControl;
-import com.jme3.animation.AnimChannel;
 import com.jme3.app.SimpleApplication;
 import com.jme3.bounding.BoundingBox;
 import com.jme3.font.BitmapText;
