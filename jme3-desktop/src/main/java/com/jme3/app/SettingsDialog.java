@@ -115,6 +115,8 @@ public final class SettingsDialog extends JFrame {
      * @param imageFile
      *            the image file to use as the title of the dialog;
      *            <code>null</code> will result in to image being displayed
+     * @param loadSettings
+     *            if true, copy the settings, otherwise merge them
      * @throws NullPointerException
      *             if the source is <code>null</code>
      */
@@ -132,7 +134,8 @@ public final class SettingsDialog extends JFrame {
      * @param imageFile
      *            the image file to use as the title of the dialog;
      *            <code>null</code> will result in to image being displayed
-     * @param loadSettings 
+     * @param loadSettings
+     *            if true, copy the settings, otherwise merge them
      * @throws NullPointerException
      *             if the source is <code>null</code>
      */
