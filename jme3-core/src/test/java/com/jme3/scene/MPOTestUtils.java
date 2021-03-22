@@ -102,13 +102,10 @@ public class MPOTestUtils {
             Field refreshFlagsField = Spatial.class.getDeclaredField("refreshFlags");
             refreshFlagsField.setAccessible(true);
             return (Integer) refreshFlagsField.get(scene);
-        } catch (NoSuchFieldException ex) {
-            throw new AssertionError(ex);
-        } catch (SecurityException ex) {
-            throw new AssertionError(ex);
-        } catch (IllegalArgumentException ex) {
-            throw new AssertionError(ex);
-        } catch (IllegalAccessException ex) {
+        } catch (NoSuchFieldException
+                | SecurityException
+                | IllegalArgumentException
+                | IllegalAccessException ex) {
             throw new AssertionError(ex);
         }
     }

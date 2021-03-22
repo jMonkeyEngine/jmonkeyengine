@@ -543,11 +543,7 @@ public class SceneLoader extends DefaultHandler implements AssetLoader {
             }
 
             return root;
-        } catch (SAXException ex) {
-            IOException ioEx = new IOException("Error while parsing Ogre3D dotScene");
-            ioEx.initCause(ex);
-            throw ioEx;
-        } catch (ParserConfigurationException ex) {
+        } catch (SAXException | ParserConfigurationException ex) {
             IOException ioEx = new IOException("Error while parsing Ogre3D dotScene");
             ioEx.initCause(ex);
             throw ioEx;

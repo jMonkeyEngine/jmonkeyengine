@@ -217,9 +217,7 @@ public class SerializerRegistrationsMessage extends AbstractMessage {
                 log.log(Level.FINE, "   result:{0}", result);                
             } catch( ClassNotFoundException e ) {
                 throw new RuntimeException( "Class not found attempting to register:" + this, e );
-            } catch( InstantiationException e ) {
-                throw new RuntimeException( "Error instantiating serializer registering:" + this, e );
-            } catch( IllegalAccessException e ) {
+            } catch( InstantiationException | IllegalAccessException e ) {
                 throw new RuntimeException( "Error instantiating serializer registering:" + this, e );
             }            
         }

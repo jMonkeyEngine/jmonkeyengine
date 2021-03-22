@@ -277,12 +277,7 @@ public class SkeletonLoader extends DefaultHandler implements AssetLoader {
             armature = null;
             animClips = null;
             return data;
-        } catch (SAXException ex) {
-            IOException ioEx = new IOException("Error while parsing Ogre3D dotScene");
-            ioEx.initCause(ex);
-            fullReset();
-            throw ioEx;
-        } catch (ParserConfigurationException ex) {
+        } catch (SAXException | ParserConfigurationException ex) {
             IOException ioEx = new IOException("Error while parsing Ogre3D dotScene");
             ioEx.initCause(ex);
             fullReset();

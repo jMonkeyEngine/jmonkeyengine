@@ -152,8 +152,8 @@ public final class GLTracer implements InvocationHandler {
                         int val = field.getInt(null);
                         String name = field.getName();
                         constMap.put(val, name);
-                    } catch (IllegalArgumentException ex) {
-                    } catch (IllegalAccessException ex) {
+                    } catch (IllegalArgumentException
+                            | IllegalAccessException ex) {
                     }
                 }
             }

@@ -180,17 +180,10 @@ public class TestChooser extends JDialog {
                 if (!getClass().equals(cls)) {
                     return cls;
                 }
-            } catch (NoClassDefFoundError e) {
-                // class has unresolved dependencies
-                return null;
-            } catch (ClassNotFoundException e) {
-                // class not in classpath
-                return null;
-            } catch (NoSuchMethodException e) {
-                // class does not have a main method
-                return null;
-            } catch (UnsupportedClassVersionError e){
-                // unsupported version
+            } catch (NoClassDefFoundError // class has unresolved dependencies
+                    | ClassNotFoundException // class not in classpath
+                    | NoSuchMethodException // class does not have a main method
+                    | UnsupportedClassVersionError e) { // unsupported version             
                 return null;
             }
         }

@@ -359,13 +359,13 @@ public class TextureAtlas {
             Image newImage = new Image(format, source.getWidth(), source.getHeight(), BufferUtils.createByteBuffer(source.getWidth() * source.getHeight() * 4), null, ColorSpace.Linear);
             clazz.getMethod("convert", Image.class, Image.class).invoke(clazz.newInstance(), source, newImage);
             return newImage;
-        } catch (InstantiationException ex) {
-        } catch (IllegalAccessException ex) {
-        } catch (IllegalArgumentException ex) {
-        } catch (InvocationTargetException ex) {
-        } catch (NoSuchMethodException ex) {
-        } catch (SecurityException ex) {
-        } catch (ClassNotFoundException ex) {
+        } catch (InstantiationException
+                | IllegalAccessException
+                | IllegalArgumentException
+                | InvocationTargetException
+                | NoSuchMethodException
+                | SecurityException
+                | ClassNotFoundException ex) {
         }
         return null;
     }

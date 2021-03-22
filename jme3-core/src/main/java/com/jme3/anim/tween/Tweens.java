@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020 jMonkeyEngine
+ * Copyright (c) 2015-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -469,9 +469,7 @@ public class Tweens {
         protected void doInterpolate(double t) {
             try {
                 method.invoke(target, args);
-            } catch (IllegalAccessException e) {
-                throw new RuntimeException("Error running method:" + method + " for object:" + target, e);
-            } catch (InvocationTargetException e) {
+            } catch (IllegalAccessException | InvocationTargetException e) {
                 throw new RuntimeException("Error running method:" + method + " for object:" + target, e);
             }
         }
@@ -600,9 +598,7 @@ public class Tweens {
                     args[tIndex] = t;
                 }
                 method.invoke(target, args);
-            } catch (IllegalAccessException e) {
-                throw new RuntimeException("Error running method:" + method + " for object:" + target, e);
-            } catch (InvocationTargetException e) {
+            } catch (IllegalAccessException | InvocationTargetException e) {
                 throw new RuntimeException("Error running method:" + method + " for object:" + target, e);
             }
         }

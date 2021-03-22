@@ -148,9 +148,7 @@ public class DesktopAssetManager implements AssetManager {
         Class<? extends AssetLoader> clazz = null;
         try{
             clazz = (Class<? extends AssetLoader>) Class.forName(clsName);
-        }catch (ClassNotFoundException ex){
-            logger.log(Level.WARNING, "Failed to find loader: "+clsName, ex);
-        }catch (NoClassDefFoundError ex){
+        } catch (ClassNotFoundException | NoClassDefFoundError ex) {
             logger.log(Level.WARNING, "Failed to find loader: "+clsName, ex);
         }
         if (clazz != null){

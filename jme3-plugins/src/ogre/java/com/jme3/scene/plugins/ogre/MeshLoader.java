@@ -887,11 +887,7 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
             }
 
             return compileModel();
-        } catch (SAXException ex) {
-            IOException ioEx = new IOException("Error while parsing Ogre3D mesh.xml");
-            ioEx.initCause(ex);
-            throw ioEx;
-        } catch (ParserConfigurationException ex) {
+        } catch (SAXException | ParserConfigurationException ex) {
             IOException ioEx = new IOException("Error while parsing Ogre3D mesh.xml");
             ioEx.initCause(ex);
             throw ioEx;

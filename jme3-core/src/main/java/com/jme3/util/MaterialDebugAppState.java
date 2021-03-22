@@ -349,9 +349,7 @@ public class MaterialDebugAppState extends AbstractAppState {
                         }
                     }
                 }
-            } catch (IllegalArgumentException ex) {
-                Logger.getLogger(MaterialDebugAppState.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (IllegalAccessException ex) {
+            } catch (IllegalArgumentException | IllegalAccessException ex) {
                 Logger.getLogger(MaterialDebugAppState.class.getName()).log(Level.SEVERE, null, ex);
             }
 
@@ -388,13 +386,10 @@ public class MaterialDebugAppState extends AbstractAppState {
                     file = new File(url.getFile());
                     fileLastM = file.lastModified();
 
-                } catch (NoSuchFieldException ex) {
-                    Logger.getLogger(MaterialDebugAppState.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (SecurityException ex) {
-                    Logger.getLogger(MaterialDebugAppState.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (IllegalArgumentException ex) {
-                    Logger.getLogger(MaterialDebugAppState.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (IllegalAccessException ex) {
+                } catch (NoSuchFieldException
+                        | SecurityException
+                        | IllegalArgumentException
+                        | IllegalAccessException ex) {
                     Logger.getLogger(MaterialDebugAppState.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }

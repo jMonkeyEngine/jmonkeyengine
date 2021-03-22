@@ -212,8 +212,7 @@ public class SavableClassUtil {
                 }
                 try {
                     return (Savable) loadedClass.newInstance();
-                } catch (InstantiationException e) {
-                } catch (IllegalAccessException e) {
+                } catch (InstantiationException | IllegalAccessException e) {
                 }
             }
         }

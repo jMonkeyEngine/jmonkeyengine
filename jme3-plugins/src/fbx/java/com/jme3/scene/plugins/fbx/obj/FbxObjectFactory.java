@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -194,16 +194,10 @@ public final class FbxObjectFactory {
                                                     ") forgot to call super.fromElement() in their fromElement() implementation");
                 }
                 return obj;
-            } catch (InvocationTargetException ex) {
-                // Programmer error.
-                throw new IllegalStateException(ex);
-            } catch (NoSuchMethodException ex) {
-                // Programmer error.
-                throw new IllegalStateException(ex);
-            } catch (InstantiationException ex) {
-                // Programmer error.
-                throw new IllegalStateException(ex);
-            } catch (IllegalAccessException ex) {
+            } catch (InvocationTargetException
+                    | NoSuchMethodException
+                    | InstantiationException
+                    | IllegalAccessException ex) {
                 // Programmer error.
                 throw new IllegalStateException(ex);
             }
