@@ -96,7 +96,7 @@ public class TestChooser extends JDialog {
      * @return classes vector, list of all the classes in a given package (must
      *         be found in classpath).
      */
-    protected Vector<Class> find(String pckgname, boolean recursive,
+    private Vector<Class> find(String pckgname, boolean recursive,
             Vector<Class> classes) {
         URL url;
 

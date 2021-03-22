@@ -106,7 +106,7 @@ public class TestMousePick extends SimpleApplication {
     }
  
     /** A cube object for target practice */
-    protected Geometry makeCube(String name, float x, float y, float z) {
+    private Geometry makeCube(String name, float x, float y, float z) {
         Box box = new Box(1, 1, 1);
         Geometry cube = new Geometry(name, box);
         cube.setLocalTranslation(x, y, z);
@@ -117,7 +117,7 @@ public class TestMousePick extends SimpleApplication {
     }
 
     /** A floor to show that the "shot" can go through several objects. */
-    protected Geometry makeFloor() {
+    private Geometry makeFloor() {
         Box box = new Box(15, .2f, 15);
         Geometry floor = new Geometry("the Floor", box);
         floor.setLocalTranslation(0, -4, -5);

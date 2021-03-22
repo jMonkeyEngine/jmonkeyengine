@@ -180,7 +180,7 @@ public class HelloPhysics extends SimpleApplication {
   }
 
   /** This method creates one individual physical brick. */
-  public void makeBrick(Vector3f loc) {
+  private void makeBrick(Vector3f loc) {
     /** Create a brick geometry and attach to scene graph. */
     Geometry brick_geo = new Geometry("brick", box);
     brick_geo.setMaterial(wall_mat);
