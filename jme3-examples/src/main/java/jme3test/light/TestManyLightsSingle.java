@@ -52,7 +52,6 @@ import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.LightNode;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.AbstractControl;
@@ -105,27 +104,19 @@ public class TestManyLightsSingle extends SimpleApplication {
             if (nb > 60) {
                 n.removeLight(light);
             } else {
-
-                LightNode ln = new LightNode("l", light);
-                n.attachChild(ln);
-                ln.setLocalTranslation(p.getPosition());
                 int rand = FastMath.nextRandomInt(0, 3);
                 switch (rand) {
                     case 0:
                         light.setColor(ColorRGBA.Red);
-                        //   ln.addControl(new MoveControl(5f));
                         break;
                     case 1:
                         light.setColor(ColorRGBA.Yellow);
-                        //    ln.addControl(new MoveControl(5f));
                         break;
                     case 2:
                         light.setColor(ColorRGBA.Green);
-                        //ln.addControl(new MoveControl(-5f));
                         break;
                     case 3:
                         light.setColor(ColorRGBA.Orange);
-                        //ln.addControl(new MoveControl(-5f));
                         break;
                 }
             }
