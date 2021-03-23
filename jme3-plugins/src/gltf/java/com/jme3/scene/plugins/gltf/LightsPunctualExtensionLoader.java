@@ -55,16 +55,19 @@ import static com.jme3.scene.plugins.gltf.GltfUtils.getAsFloat;
 
 /**
  * Extension loader for KHR_lights_punctual extension which allows
- * for lights to be added to the node from the gltf model
- * Created by Trevor Flynn - 12/12/2020
+ * for lights to be added to the node from the gltf model.
+ *
+ * Supports directional, point, and spot lights.
+ *
+ * Created by Trevor Flynn - 3/23/2021
  */
 public class LightsPunctualExtensionLoader implements ExtensionLoader {
 
-    private HashSet<NodeNeedingLight> pendingNodes = new HashSet<>();
-    private HashMap<Integer, Light> lightDefinitions = new HashMap<>();
+    private final HashSet<NodeNeedingLight> pendingNodes = new HashSet<>();
+    private final HashMap<Integer, Light> lightDefinitions = new HashMap<>();
 
     @Override
-    public Object handleExtension(GltfLoader loader, String parentName, JsonElement parent, JsonElement extension, Object input) throws IOException {
+    public Object handleExtension(GltfLoader loader, String parentName, JsonElement parent, JsonElement extension, Object input) {
         if (input instanceof Node) { //We are processing a node
             JsonObject jsonObject = extension.getAsJsonObject();
             if (jsonObject.has("light")) { //These will get run first when loading the gltf file
@@ -118,6 +121,11 @@ public class LightsPunctualExtensionLoader implements ExtensionLoader {
         }
     }
 
+    /**
+     * Build a spot light from gltf json.
+     * @param obj The gltf json object for the spot light
+     * @return A spot light representation of the gltf object
+     */
     private SpotLight buildSpotLight(JsonObject obj) {
         //Get properties
         String name = obj.has("name") ? obj.get("name").getAsString() : "";
@@ -135,7 +143,7 @@ public class LightsPunctualExtensionLoader implements ExtensionLoader {
         /*
         Correct floating point error on half PI, GLTF spec says that the outerConeAngle
         can be less or equal to PI/2, but JME requires less than PI/2.
-        We will being the angle within PI/2 if it is equal or larger than PI/2
+        We will bring the angle within PI/2 if it is equal or larger than PI/2
          */
         if (outerConeAngle >= FastMath.HALF_PI) {
             outerConeAngle = FastMath.HALF_PI - 0.000001f;
@@ -152,6 +160,11 @@ public class LightsPunctualExtensionLoader implements ExtensionLoader {
         return spotLight;
     }
 
+    /**
+     * Build a directional light from gltf json.
+     * @param obj The gltf json object for the directional light
+     * @return A directional light representation of the gltf object
+     */
     private DirectionalLight buildDirectionalLight(JsonObject obj) {
         //Get properties
         String name = obj.has("name") ? obj.get("name").getAsString() : "";
@@ -168,6 +181,11 @@ public class LightsPunctualExtensionLoader implements ExtensionLoader {
         return directionalLight;
     }
 
+    /**
+     * Build a point light from gltf json.
+     * @param obj The gltf json object for the point light
+     * @return A point light representation of the gltf object
+     */
     private PointLight buildPointLight(JsonObject obj) {
         //Get properties
         String name = obj.has("name") ? obj.get("name").getAsString() : "";
@@ -185,6 +203,13 @@ public class LightsPunctualExtensionLoader implements ExtensionLoader {
         return pointLight;
     }
 
+    /**
+     * Attach a light at the given index to the given parent node,
+     * and the control for the light to the given node.
+     * @param parent The node to attach the light to
+     * @param node The node to attach the light control to
+     * @param lightIndex The index of the light
+     */
     private void addLight(Node parent, Node node, int lightIndex) {
         if (lightDefinitions.containsKey(lightIndex)) {
             Light light = lightDefinitions.get(lightIndex);
@@ -196,11 +221,26 @@ public class LightsPunctualExtensionLoader implements ExtensionLoader {
         }
     }
 
+    /**
+     * Convert a floating point lumens value into a color that
+     * represents both color and brightness of the light.
+     *
+     * @param color The base color of the light
+     * @param lumens The lumnes value to convert to a color
+     * @return A color representing the intensity of the given lumens encoded into the given color
+     */
     private ColorRGBA lumensToColor(ColorRGBA color, float lumens) {
         ColorRGBA brightnessModifier = lumensToColor(lumens);
         return color.mult(brightnessModifier);
     }
 
+    /**
+     * Convert a floating point lumens value into a grayscale color that
+     * represents a brightness.
+     *
+     * @param lumens The lumnes value to convert to a color
+     * @return A color representing the intensity of the given lumens
+     */
     private ColorRGBA lumensToColor(float lumens) {
         /*
         Taken from /Common/ShaderLib/Hdr.glsllib
@@ -224,7 +264,10 @@ public class LightsPunctualExtensionLoader implements ExtensionLoader {
         return color;
     }
 
-    private class NodeNeedingLight {
+    /**
+     * A bean to contain the relation between a node and a light index
+     */
+    private static class NodeNeedingLight {
         private Node node;
         private int lightIndex;
 
