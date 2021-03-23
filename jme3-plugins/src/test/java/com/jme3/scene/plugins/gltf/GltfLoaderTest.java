@@ -100,6 +100,10 @@ public class GltfLoaderTest {
                 s.getLocalTransform().getTranslation().toString() + ", " +
                 s.getLocalTransform().getRotation().toString() + ", " +
                 s.getLocalTransform().getScale().toString());
+        if (s instanceof Geometry) {
+            System.err.print(" / " + ((Geometry) s).getMaterial());
+        }
+        System.err.println();
         for (Light light : s.getLocalLightList()) {
             System.err.print(indentString.substring(0, indent + 1) + " (" + light.getClass().getSimpleName() + ")");
             if (light instanceof SpotLight) {
@@ -116,11 +120,7 @@ public class GltfLoaderTest {
                 System.err.println();
             }
         }
-        if (s instanceof Geometry)
-        {
-            System.err.print(" / " + ((Geometry) s).getMaterial());
-        }
-        System.err.println();
+
         if (s instanceof Node) {
             Node n = (Node) s;
             for (Spatial spatial : n.getChildren()) {
