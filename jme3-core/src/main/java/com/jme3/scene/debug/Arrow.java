@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,8 +47,8 @@ import java.nio.FloatBuffer;
  */
 public class Arrow extends Mesh {
     
-    private Quaternion tempQuat = new Quaternion();
-    private Vector3f tempVec = new Vector3f();
+    final private Quaternion tempQuat = new Quaternion();
+    final private Vector3f tempVec = new Vector3f();
 
     private static final float[] positions = new float[]{
         0, 0, 0,
@@ -62,7 +62,7 @@ public class Arrow extends Mesh {
     /**
      * Serialization only. Do not use.
      */
-    public Arrow() {
+    protected Arrow() {
     }
 
     /**

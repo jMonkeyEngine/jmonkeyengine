@@ -15,6 +15,7 @@ public class SpatialAnchorPose_t extends Structure {
 	public SpatialAnchorPose_t() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("mAnchorToAbsoluteTracking");
 	}

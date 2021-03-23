@@ -26,6 +26,7 @@ public class D3D12TextureData_t extends Structure {
 	public D3D12TextureData_t() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("m_pResource", "m_pCommandQueue", "m_nNodeMask");
 	}

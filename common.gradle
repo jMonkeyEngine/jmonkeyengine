@@ -3,13 +3,29 @@
 //
 
 apply plugin: 'java'
+apply plugin: 'groovy'
 apply plugin: 'maven'
+apply plugin: 'maven-publish'
+apply plugin: 'signing'
 
 group = 'org.jmonkeyengine'
-version = jmePomVersion
+version = jmeFullVersion
 
-sourceCompatibility = '1.7'
+sourceCompatibility = '1.8'
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+
+if(JavaVersion.current() >= JavaVersion.VERSION_1_9) {
+    compileJava {
+	options.compilerArgs.addAll(['--release', '8'])
+        //Replace previous with "options.release = 8" if updated to gradle 6.6 or newer
+    }
+}
+
+gradle.projectsEvaluated {
+    tasks.withType(JavaCompile) { // compile-time options:
+        options.compilerArgs << '-Xlint:unchecked'
+    }
+}
 
 repositories {
     mavenCentral()
@@ -23,30 +39,41 @@ repositories {
 
 dependencies {
     // Adding dependencies here will add the dependencies to each subproject.
-    testCompile group: 'junit', name: 'junit', version: '4.12'
-    testCompile group: 'org.mockito', name: 'mockito-core', version: '2.0.28-beta'
-    testCompile group: 'org.easytesting', name: 'fest-assert-core', version: '2.0M10'
+    testCompile 'junit:junit:4.13.2'
+    testCompile 'org.mockito:mockito-core:3.8.0'
+    testCompile 'org.codehaus.groovy:groovy-all:3.0.7'
 }
+
+
+// Uncomment if you want to see the status of every test that is run and
+// the test output.
+/*
+test {
+    testLogging {
+        events "passed", "skipped", "failed", "standardOut", "standardError"
+    }
+}
+*/
 
 jar {
     manifest {
         attributes 'Implementation-Title': 'jMonkeyEngine',
-                   'Implementation-Version': jmeFullVersion
+                   'Implementation-Version': jmeFullVersion,
+                   'Automatic-Module-Name': "${project.name.replace("-", ".")}" 
     }
 }
 
 javadoc {
     failOnError = false
     options.memberLevel = org.gradle.external.javadoc.JavadocMemberLevel.PROTECTED
-    options.docTitle = "jMonkeyEngine ${jmeMainVersion} ${project.name} Javadoc"
-    options.windowTitle = "jMonkeyEngine ${jmeMainVersion} ${project.name} Javadoc"
-    options.header = "<b>jMonkeyEngine ${jmeMainVersion} ${project.name}</b>"
+    options.docTitle = "jMonkeyEngine ${jmeFullVersion} ${project.name} Javadoc"
+    options.windowTitle = "jMonkeyEngine ${jmeFullVersion} ${project.name} Javadoc"
+    options.header = "<b>jMonkeyEngine ${jmeFullVersion} ${project.name}</b>"
     options.author = "true"
     options.use = "true"
-    //disable doclint for JDK8, more quiet output
-    if (JavaVersion.current().isJava8Compatible()){
-        options.addStringOption('Xdoclint:none', '-quiet')
-    }
+    options.charSet = "UTF-8"
+    options.encoding = "UTF-8"
+    source = sourceSets.main.allJava // main only, exclude tests
 }
 
 test {
@@ -114,3 +141,63 @@ artifacts {
     archives writeFullPom.outputs.files[0]
 }
 
+publishing {
+    publications {
+        maven(MavenPublication) {
+            artifact javadocJar
+            artifact sourcesJar
+            from components.java
+            pom {
+                description = POM_DESCRIPTION
+                developers {
+                    developer {
+                        id = 'jMonkeyEngine'
+                        name = 'jMonkeyEngine Team'
+                    }
+                }
+                inceptionYear = POM_INCEPTION_YEAR
+                licenses {
+                    license {
+                        distribution = POM_LICENSE_DISTRIBUTION
+                        name = POM_LICENSE_NAME
+                        url = POM_LICENSE_URL
+                    }
+                }
+                name = POM_NAME
+                scm {
+                    connection = POM_SCM_CONNECTION
+                    developerConnection = POM_SCM_DEVELOPER_CONNECTION
+                    url = POM_SCM_URL
+                }
+                url = POM_URL
+            }
+            version project.version
+        }
+    }
+    repositories {
+        maven {
+            name = 'Dist'
+            url = gradle.rootProject.projectDir.absolutePath + '/dist/maven'
+        }
+        maven {
+            credentials {
+                username = gradle.rootProject.hasProperty('ossrhUsername') ? ossrhUsername : 'Unknown user'
+                password = gradle.rootProject.hasProperty('ossrhPassword') ? ossrhPassword : 'Unknown password'
+            }
+            name = 'OSSRH'
+            url = 'https://oss.sonatype.org/service/local/staging/deploy/maven2'
+        }
+    }
+}
+
+signing {
+    def signingKey = gradle.rootProject.findProperty('signingKey')
+    def signingPassword = gradle.rootProject.findProperty('signingPassword')
+    useInMemoryPgpKeys(signingKey, signingPassword)
+
+    sign configurations.archives
+    sign publishing.publications.maven
+}
+tasks.withType(Sign) {
+    onlyIf { gradle.rootProject.hasProperty('signingKey') }
+}

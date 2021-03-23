@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -73,28 +73,31 @@ public class ObjectStore {
     private volatile short invocationIdCounter = 0;
 
     // Invocations waiting ..
-    private IntMap<Invocation> pendingInvocations = new IntMap<Invocation>();
+    private IntMap<Invocation> pendingInvocations = new IntMap<>();
     
     // Objects I share with other people
-    private IntMap<LocalObject> localObjects = new IntMap<LocalObject>();
+    private IntMap<LocalObject> localObjects = new IntMap<>();
 
     // Objects others share with me
-    private HashMap<String, RemoteObject> remoteObjects = new HashMap<String, RemoteObject>();
-    private IntMap<RemoteObject> remoteObjectsById = new IntMap<RemoteObject>();
+    private HashMap<String, RemoteObject> remoteObjects = new HashMap<>();
+    private IntMap<RemoteObject> remoteObjectsById = new IntMap<>();
 
     private final Object receiveObjectLock = new Object();
 
     public class ServerEventHandler implements MessageListener<HostedConnection>,
                                                       ConnectionListener {
 
+        @Override
         public void messageReceived(HostedConnection source, Message m) {
             onMessage(source, m);
         }
 
+        @Override
         public void connectionAdded(Server server, HostedConnection conn) {
             onConnection(conn);
         }
 
+        @Override
         public void connectionRemoved(Server server, HostedConnection conn) {
         }
         
@@ -103,14 +106,17 @@ public class ObjectStore {
     public class ClientEventHandler implements MessageListener,
                                                       ClientStateListener {
 
+        @Override
         public void messageReceived(Object source, Message m) {
             onMessage(null, m);
         }
 
+        @Override
         public void clientConnected(Client c) {
             onConnection(null);
         }
 
+        @Override
         public void clientDisconnected(Client c, DisconnectInfo info) {
         }
         
@@ -123,6 +129,7 @@ public class ObjectStore {
         Serializer.registerClass(RemoteMethodReturnMessage.class, s);
     }
 
+    @SuppressWarnings("unchecked")
     public ObjectStore(Client client) {
         this.client = client;
         client.addMessageListener(clientEventHandler, 
@@ -157,7 +164,7 @@ public class ObjectStore {
         localObj.theObject = obj;
         //localObj.methods   = obj.getClass().getMethods();
         
-        ArrayList<Method> methodList = new ArrayList<Method>();
+        ArrayList<Method> methodList = new ArrayList<>();
         for (Method method : obj.getClass().getMethods()){
             if (method.getDeclaringClass() == obj.getClass()){
                 methodList.add(method);
@@ -181,6 +188,7 @@ public class ObjectStore {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public <T> T getExposedObject(String name, Class<T> type, boolean waitFor) throws InterruptedException{
         RemoteObject ro = remoteObjects.get(name);
         if (ro == null){

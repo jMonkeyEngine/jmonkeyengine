@@ -16,6 +16,7 @@ import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
+import com.jme3.math.Quaternion;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
@@ -44,9 +45,9 @@ import java.io.File;
 public class TerrainGridAlphaMapTest extends SimpleApplication {
 
     private TerrainGrid terrain;
-    private float grassScale = 64;
-    private float dirtScale = 16;
-    private float rockScale = 128;
+    final private float grassScale = 64;
+    final private float dirtScale = 16;
+    final private float rockScale = 128;
     private boolean usePhysics = false;
 
     public static void main(final String[] args) {
@@ -165,6 +166,7 @@ public class TerrainGridAlphaMapTest extends SimpleApplication {
 
 
         this.getCamera().setLocation(new Vector3f(0, 256, 0));
+        cam.setRotation(new Quaternion(-0.1f, 0.89826f, -0.2695f, -0.3325f));
 
         this.viewPort.setBackgroundColor(new ColorRGBA(0.7f, 0.8f, 1f, 1f));
 
@@ -182,9 +184,11 @@ public class TerrainGridAlphaMapTest extends SimpleApplication {
         }
         terrain.addListener(new TerrainGridListener() {
 
+            @Override
             public void gridMoved(Vector3f newCenter) {
             }
 
+            @Override
             public void tileAttached(Vector3f cell, TerrainQuad quad) {
                 Texture alpha = null;
                 try {
@@ -200,6 +204,7 @@ public class TerrainGridAlphaMapTest extends SimpleApplication {
                 updateMarkerElevations();
             }
 
+            @Override
             public void tileDetached(Vector3f cell, TerrainQuad quad) {
                 if (usePhysics) {
                     if (quad.getControl(RigidBodyControl.class) != null) {
@@ -218,7 +223,7 @@ public class TerrainGridAlphaMapTest extends SimpleApplication {
         createMarkerPoints(1);
     }
     
-    Node markers;
+    private Node markers;
     
     
     private void createMarkerPoints(float count) {
@@ -294,7 +299,9 @@ public class TerrainGridAlphaMapTest extends SimpleApplication {
                     TerrainGridAlphaMapTest.this.down = false;
                 }
             } else if (name.equals("Jumps")) {
-                TerrainGridAlphaMapTest.this.player3.jump();
+                if (usePhysics && keyPressed) {
+                    player3.jump();
+                }
             }
         }
     };

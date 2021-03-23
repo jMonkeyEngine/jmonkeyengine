@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -85,7 +85,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
     private AppProfiler prof;
 
     private Format fbFormat = Format.RGB111110F;
-    private Format depthFormat = Format.Depth;
+    final private Format depthFormat = Format.Depth;
     
     /**
      * Create a FilterProcessor 
@@ -99,7 +99,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
      * Don't use this constructor, use {@link #FilterPostProcessor(AssetManager assetManager)}<br>
      * This constructor is used for serialization only
      */
-    public FilterPostProcessor() {
+    protected FilterPostProcessor() {
     }
 
     /**
@@ -137,6 +137,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         return filters.iterator();
     }
 
+    @Override
     public void initialize(RenderManager rm, ViewPort vp) {
         renderManager = rm;
         renderer = rm.getRenderer();
@@ -230,10 +231,12 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         renderManager.renderGeometry(fsQuad);
     }
     
+    @Override
     public boolean isInitialized() {
         return viewPort != null;
     }
 
+    @Override
     public void postQueue(RenderQueue rq) {
         for (Filter filter : filters.getArray()) {
             if (filter.isEnabled()) {
@@ -323,11 +326,12 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         }
     }
 
+    @Override
     public void postFrame(FrameBuffer out) {
 
         FrameBuffer sceneBuffer = renderFrameBuffer;
         if (renderFrameBufferMS != null && !renderer.getCaps().contains(Caps.OpenGL32)) {
-            renderer.copyFrameBuffer(renderFrameBufferMS, renderFrameBuffer, true);
+            renderer.copyFrameBuffer(renderFrameBufferMS, renderFrameBuffer, true, true);
         } else if (renderFrameBufferMS != null) {
             sceneBuffer = renderFrameBufferMS;
         }
@@ -340,6 +344,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         }
     }
 
+    @Override
     public void preFrame(float tpf) {
         if (filters.isEmpty() || lastFilterIndex == -1) {
             //If the camera is initialized and there are no filter to render, the camera viewport is restored as it was
@@ -408,6 +413,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         }
     }
 
+    @Override
     public void cleanup() {
         if (viewPort != null) {
             //reset the viewport camera viewport to its initial value
@@ -438,6 +444,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         this.prof = profiler;
     }
 
+    @Override
     public void reshape(ViewPort vp, int w, int h) {
         Camera cam = vp.getCamera();
         //this has no effect at first init but is useful when resizing the canvas with multi views
@@ -543,16 +550,20 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         this.fbFormat = fbFormat;
     }
 
+    @Override
+    @SuppressWarnings("unchecked")
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(numSamples, "numSamples", 0);
         oc.writeSavableArrayList(new ArrayList(filters), "filters", null);
     }
 
+    @Override
+    @SuppressWarnings("unchecked")
     public void read(JmeImporter im) throws IOException {
         InputCapsule ic = im.getCapsule(this);
         numSamples = ic.readInt("numSamples", 0);
-        filters = new SafeArrayList<Filter>(Filter.class, ic.readSavableArrayList("filters", null));
+        filters = new SafeArrayList<>(Filter.class, ic.readSavableArrayList("filters", null));
         for (Filter filter : filters.getArray()) {
             filter.setProcessor(this);
             setFilterState(filter, filter.isEnabled());
@@ -584,6 +595,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
      * @param filterType the filter type
      * @return a filter assignable form the given type 
      */
+    @SuppressWarnings("unchecked")
     public <T extends Filter> T getFilter(Class<T> filterType) {
         for (Filter c : filters.getArray()) {
             if (filterType.isAssignableFrom(c.getClass())) {

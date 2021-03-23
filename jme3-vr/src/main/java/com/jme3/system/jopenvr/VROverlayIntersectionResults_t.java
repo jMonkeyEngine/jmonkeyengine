@@ -20,6 +20,7 @@ public class VROverlayIntersectionResults_t extends Structure {
 	public VROverlayIntersectionResults_t() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("vPoint", "vNormal", "vUVs", "fDistance");
 	}

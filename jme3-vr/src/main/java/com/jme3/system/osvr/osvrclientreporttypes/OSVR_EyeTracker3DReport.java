@@ -16,6 +16,7 @@ public class OSVR_EyeTracker3DReport extends Structure {
 	public OSVR_EyeTracker3DReport() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("sensor", "state");
 	}

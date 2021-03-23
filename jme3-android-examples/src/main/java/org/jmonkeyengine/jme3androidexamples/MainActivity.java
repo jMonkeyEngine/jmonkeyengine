@@ -74,8 +74,8 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
     /* Fields to contain the current position and display contents of the spinner */
     private int currentPosition = 0;
     private String currentSelection = "";
-    private List<String> classNames = new ArrayList<String>();
-    private List<String> exclusions = new ArrayList<String>();
+    private List<String> classNames = new ArrayList<>();
+    private List<String> exclusions = new ArrayList<>();
     private String rootPackage;
 
     /* ListView that displays the test application class names. */
@@ -286,7 +286,7 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
     private boolean checkClassType(String className) {
         boolean include = true;
         try {
-            Class<?> clazz = (Class<?>) Class.forName(className);
+            Class<?> clazz = Class.forName(className);
             if (Application.class.isAssignableFrom(clazz)) {
                 Log.d(TAG, "Class " + className + " is a jME Application");
             } else {

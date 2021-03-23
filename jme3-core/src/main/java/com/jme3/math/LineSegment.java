@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,18 +50,25 @@ import java.io.IOException;
  * @author Joshua Slack
  */
 public class LineSegment implements Cloneable, Savable, java.io.Serializable {
-
     static final long serialVersionUID = 1;
 
     private Vector3f origin;
     private Vector3f direction;
     private float extent;
 
+    /**
+     * Instantiate a zero-length segment at the origin.
+     */
     public LineSegment() {
         origin = new Vector3f();
         direction = new Vector3f();
     }
 
+    /**
+     * Instantiate a copy of the specified segment.
+     *
+     * @param ls the LineSegment to copy (not null, unaffected)
+     */
     public LineSegment(LineSegment ls) {
         this.origin = new Vector3f(ls.getOrigin());
         this.direction = new Vector3f(ls.getDirection());
@@ -71,6 +78,11 @@ public class LineSegment implements Cloneable, Savable, java.io.Serializable {
     /**
      * <p>Creates a new LineSegment with the given origin, direction and extent.</p>
      * <p>Note that the origin is not one of the ends of the LineSegment, but its center.</p>
+     *
+     * @param origin the location of the desired midpoint (alias created)
+     * @param direction the desired direction vector (alias created)
+     * @param extent the extent: 1/2 of the desired length, assuming direction
+     * is a unit vector
      */
     public LineSegment(Vector3f origin, Vector3f direction, float extent) {
         this.origin = origin;
@@ -81,6 +93,9 @@ public class LineSegment implements Cloneable, Savable, java.io.Serializable {
     /**
      * <p>Creates a new LineSegment with a given origin and end. This constructor will calculate the
      * center, the direction and the extent.</p>
+     *
+     * @param start location of the negative endpoint (not null, unaffected)
+     * @param end location of the negative endpoint (not null, unaffected)
      */
     public LineSegment(Vector3f start, Vector3f end) {
         this.origin = new Vector3f(0.5f * (start.x + end.x), 0.5f * (start.y + end.y), 0.5f * (start.z + end.z));
@@ -89,24 +104,54 @@ public class LineSegment implements Cloneable, Savable, java.io.Serializable {
         direction.normalizeLocal();
     }
 
+    /**
+     * Copy the specified segment to this one.
+     *
+     * @param ls the LineSegment to copy (not null, unaffected)
+     */
     public void set(LineSegment ls) {
         this.origin = new Vector3f(ls.getOrigin());
         this.direction = new Vector3f(ls.getDirection());
         this.extent = ls.getExtent();
     }
 
+    /**
+     * Calculate the distance between this segment and the specified point.
+     *
+     * @param point a location vector (not null, unaffected)
+     * @return the minimum distance (&ge;0)
+     */
     public float distance(Vector3f point) {
         return FastMath.sqrt(distanceSquared(point));
     }
 
+    /**
+     * Calculate the distance between this segment and another.
+     *
+     * @param ls the other LineSegment (not null, unaffected)
+     * @return the minimum distance (&ge;0)
+     */
     public float distance(LineSegment ls) {
         return FastMath.sqrt(distanceSquared(ls));
     }
 
+    /**
+     * Calculate the distance between this segment and the specified Ray.
+     *
+     * @param r the input Ray (not null, unaffected)
+     * @return the minimum distance (&ge;0)
+     */
     public float distance(Ray r) {
         return FastMath.sqrt(distanceSquared(r));
     }
 
+    /**
+     * Calculate the squared distance between this segment and the specified
+     * point.
+     *
+     * @param point location vector of the input point (not null, unaffected)
+     * @return the square of the minimum distance (&ge;0)
+     */
     public float distanceSquared(Vector3f point) {
         TempVars vars = TempVars.get();
         Vector3f compVec1 = vars.vect1;
@@ -131,6 +176,12 @@ public class LineSegment implements Cloneable, Savable, java.io.Serializable {
         return len;
     }
 
+    /**
+     * Calculate the squared distance between this segment and another.
+     *
+     * @param test the other LineSegment (not null, unaffected)
+     * @return the square of the minimum distance (&ge;0)
+     */
     public float distanceSquared(LineSegment test) {
         TempVars vars = TempVars.get();
         Vector3f compVec1 = vars.vect1;
@@ -416,6 +467,13 @@ public class LineSegment implements Cloneable, Savable, java.io.Serializable {
         return FastMath.abs(squareDistance);
     }
 
+    /**
+     * Calculate the squared distance between this segment and the specified
+     * Ray.
+     *
+     * @param r the input Ray (not null, unaffected)
+     * @return the square of the minimum distance (&ge;0)
+     */
     public float distanceSquared(Ray r) {
         Vector3f kDiff = r.getOrigin().subtract(origin);
         float fA01 = -r.getDirection().dot(direction);
@@ -535,31 +593,66 @@ public class LineSegment implements Cloneable, Savable, java.io.Serializable {
         return FastMath.abs(fSqrDist);
     }
 
+    /**
+     * Access the direction of this segment.
+     *
+     * @return the pre-existing direction vector
+     */
     public Vector3f getDirection() {
         return direction;
     }
 
+    /**
+     * Alter the direction of this segment.
+     *
+     * @param direction the desired direction vector (alias created!)
+     */
     public void setDirection(Vector3f direction) {
         this.direction = direction;
     }
 
+    /**
+     * Read the extent of this segment.
+     *
+     * @return the extent
+     */
     public float getExtent() {
         return extent;
     }
 
+    /**
+     * Alter the extent of this segment.
+     *
+     * @param extent the desired extent
+     */
     public void setExtent(float extent) {
         this.extent = extent;
     }
 
+    /**
+     * Access the origin of this segment.
+     *
+     * @return the pre-existing location vector
+     */
     public Vector3f getOrigin() {
         return origin;
     }
 
+    /**
+     * Alter the origin of this segment.
+     *
+     * @param origin the desired location vector (alias created!)
+     */
     public void setOrigin(Vector3f origin) {
         this.origin = origin;
     }
 
-    // P+e*D
+    /**
+     * Determine the location of this segment's positive end.
+     *
+     * @param store storage for the result (modified if not null)
+     * @return a location vector (either store or a new vector)
+     */
     public Vector3f getPositiveEnd(Vector3f store) {
         if (store == null) {
             store = new Vector3f();
@@ -567,7 +660,12 @@ public class LineSegment implements Cloneable, Savable, java.io.Serializable {
         return origin.add((direction.mult(extent, store)), store);
     }
 
-    // P-e*D
+    /**
+     * Determine the location of this segment's negative end.
+     *
+     * @param store storage for the result (modified if not null)
+     * @return a location vector (either store or a new vector)
+     */
     public Vector3f getNegativeEnd(Vector3f store) {
         if (store == null) {
             store = new Vector3f();
@@ -575,6 +673,14 @@ public class LineSegment implements Cloneable, Savable, java.io.Serializable {
         return origin.subtract((direction.mult(extent, store)), store);
     }
 
+    /**
+     * Serialize this segment to the specified exporter, for example when
+     * saving to a J3O file.
+     *
+     * @param e (not null)
+     * @throws IOException from the exporter
+     */
+    @Override
     public void write(JmeExporter e) throws IOException {
         OutputCapsule capsule = e.getCapsule(this);
         capsule.write(origin, "origin", Vector3f.ZERO);
@@ -582,6 +688,14 @@ public class LineSegment implements Cloneable, Savable, java.io.Serializable {
         capsule.write(extent, "extent", 0);
     }
 
+    /**
+     * De-serialize this segment from the specified importer, for example
+     * when loading from a J3O file.
+     *
+     * @param e (not null)
+     * @throws IOException from the importer
+     */
+    @Override
     public void read(JmeImporter e) throws IOException {
         InputCapsule capsule = e.getCapsule(this);
         origin = (Vector3f) capsule.readSavable("origin", Vector3f.ZERO.clone());
@@ -589,6 +703,11 @@ public class LineSegment implements Cloneable, Savable, java.io.Serializable {
         extent = capsule.readFloat("extent", 0);
     }
 
+    /**
+     * Create a copy of this segment.
+     *
+     * @return a new instance, equivalent to this one
+     */
     @Override
     public LineSegment clone() {
         try {
@@ -604,6 +723,9 @@ public class LineSegment implements Cloneable, Savable, java.io.Serializable {
     /**
      * <p>Evaluates whether a given point is contained within the axis aligned bounding box
      * that contains this LineSegment.</p><p>This function is float error aware.</p>
+     *
+     * @param point the location of the input point (not null, unaffected)
+     * @return true if contained in the box, otherwise false
      */
     public boolean isPointInsideBounds(Vector3f point) {
         return isPointInsideBounds(point, Float.MIN_VALUE);
@@ -613,9 +735,12 @@ public class LineSegment implements Cloneable, Savable, java.io.Serializable {
      * <p>Evaluates whether a given point is contained within the axis aligned bounding box
      * that contains this LineSegment.</p><p>This function accepts an error parameter, which
      * is added to the extent of the bounding box.</p>
+     *
+     * @param point the location of the input point (not null, unaffected)
+     * @param error the desired margin for error
+     * @return true if contained in the box, otherwise false
      */
     public boolean isPointInsideBounds(Vector3f point, float error) {
-
         if (FastMath.abs(point.x - origin.x) > FastMath.abs(direction.x * extent) + error) {
             return false;
         }

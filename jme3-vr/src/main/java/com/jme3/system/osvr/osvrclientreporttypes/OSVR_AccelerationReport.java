@@ -15,6 +15,7 @@ public class OSVR_AccelerationReport extends Structure {
 	public OSVR_AccelerationReport() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("sensor", "state");
 	}

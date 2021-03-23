@@ -1,22 +1,26 @@
-// OpenAL Soft r1.16
-String openALSoftUrl = 'http://repo.or.cz/w/openal-soft.git/snapshot/e5016f814a265ed592a88acea95cf912c4bfdf12.zip'
+// OpenAL Soft r1.21.1
+// TODO: update URL to jMonkeyEngine fork once it's updated with latest kcat's changes
+String openALSoftUrl = 'https://github.com/kcat/openal-soft/archive/1.21.1.zip'
 String openALSoftZipFile = 'OpenALSoft.zip'
 
 // OpenAL Soft directory the download is extracted into
 // Typically, the downloaded OpenAL Soft zip file will extract to a directory
 // called "openal-soft"
-String openALSoftFolder = 'openal-soft-e5016f8'
+String openALSoftFolder = 'openal-soft-1.21.1'
 
 //Working directories for the ndk build.
 String openalsoftBuildDir = "${buildDir}" + File.separator + 'openalsoft'
+String openalsoftClassesBuildDir = "${buildDir}" + File.separator + 'openalsoft_classes'
 String openalsoftBuildJniDir = openalsoftBuildDir + File.separator + 'jni'
 String openalsoftBuildLibsDir = openalsoftBuildDir + File.separator + 'libs'
 
 //Pre-compiled libs directory
-String openalsoftPreCompiledLibsDir = 'libs' + File.separator + 'openalsoft'
+def rootPath = rootProject.projectDir.absolutePath
+String openalsoftPreCompiledLibsDir = rootPath + File.separator + 'build' + File.separator + 'native' + File.separator +  'android' + File.separator + 'openalsoft'
 
 // jME Android Native source files path
 String openalsoftJmeAndroidPath = 'src/native/jme_openalsoft'
+String jmeHeaders = 'src/native/headers'
 
 // Download external source files if not available
 task downloadOpenALSoft(type: MyDownload) {
@@ -53,7 +57,7 @@ task copyOpenALSoft(type: Copy) {
     into outputDir
 }
 copyOpenALSoft.dependsOn {
-    def openALSoftUnzipDir = new File(project.projectDir.absolutePath + File.separator + openALSoftFolder)
+    def openALSoftUnzipDir = new File(openalsoftBuildDir + File.separator + openALSoftFolder)
 //    println "openALSoftUnzipDir path: " + openALSoftUnzipDir.absolutePath
 //    println "openALSoftUnzipDir exists: " + openALSoftUnzipDir.isDirectory()
     if (!openALSoftUnzipDir.isDirectory()) {
@@ -61,8 +65,14 @@ copyOpenALSoft.dependsOn {
     }
 }
 
+// Copy JME Headers to jni directory
+task copyJmeHeadersOpenAL(type: Copy) {
+    from file(jmeHeaders)
+    into file(openalsoftBuildJniDir + File.separator + "headers")
+}
+
 // Copy jME Android native files to jni directory
-task copyJmeOpenALSoft(type: Copy, dependsOn:copyOpenALSoft) {
+task copyJmeOpenALSoft(type: Copy, dependsOn: [copyOpenALSoft, copyJmeHeadersOpenAL]) {
     def sourceDir = file(openalsoftJmeAndroidPath)
     def outputDir = file(openalsoftBuildJniDir)
 //    println "copyJmeOpenALSoft sourceDir: " + sourceDir
@@ -72,16 +82,7 @@ task copyJmeOpenALSoft(type: Copy, dependsOn:copyOpenALSoft) {
     into outputDir
 }
 
-task generateOpenAlSoftHeaders(type:Exec, dependsOn: copyJmeOpenALSoft) {
-    executable org.gradle.internal.jvm.Jvm.current().getExecutable('javah')
-    args '-d', openalsoftJmeAndroidPath
-    args '-classpath', project.projectClassPath
-    args "com.jme3.audio.android.AndroidAL"
-    args "com.jme3.audio.android.AndroidALC"
-    args "com.jme3.audio.android.AndroidEFX"
-}
-
-task buildOpenAlSoftNativeLib(type: Exec, dependsOn: generateOpenAlSoftHeaders) {
+task buildOpenAlSoftNativeLib(type: Exec, dependsOn: copyJmeOpenALSoft) {
 //    println "openalsoft build dir: " + openalsoftBuildDir
 //    println "ndkCommandPath: " + project.ndkCommandPath
     workingDir openalsoftBuildDir

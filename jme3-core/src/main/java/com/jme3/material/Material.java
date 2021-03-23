@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -64,7 +64,7 @@ import java.util.logging.Logger;
  * those parameters map to uniforms which are defined in a shader.
  * Setting the parameters can modify the behavior of a
  * shader.
- * <p/>
+ * </p>
  *
  * @author Kirill Vainer
  */
@@ -77,11 +77,11 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
     private AssetKey key;
     private String name;
     private MaterialDef def;
-    private ListMap<String, MatParam> paramValues = new ListMap<String, MatParam>();
+    private ListMap<String, MatParam> paramValues = new ListMap<>();
     private Technique technique;
-    private HashMap<String, Technique> techniques = new HashMap<String, Technique>();
+    private HashMap<String, Technique> techniques = new HashMap<>();
     private RenderState additionalState = null;
-    private RenderState mergedRenderState = new RenderState();
+    final private RenderState mergedRenderState = new RenderState();
     private boolean transparent = false;
     private boolean receivesShadows = false;
     private int sortingId = -1;
@@ -101,7 +101,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
     }
 
     public Material(AssetManager contentMan, String defName) {
-        this((MaterialDef) contentMan.loadAsset(new AssetKey(defName)));
+        this(contentMan.loadAsset(new AssetKey<MaterialDef>(defName)));
     }
 
     /**
@@ -139,10 +139,12 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         this.name = name;
     }
 
+    @Override
     public void setKey(AssetKey key) {
         this.key = key;
     }
 
+    @Override
     public AssetKey getKey() {
         return key;
     }
@@ -414,6 +416,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
      * @param name the parameter name to look up.
      * @return current value or null if the parameter wasn't set.
      */
+    @SuppressWarnings("unchecked")
     public <T> T getParamValue(final String name) {
         final MatParam param = paramValues.get(name);
         return param == null ? null : (T) param.getValue();
@@ -537,9 +540,11 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         MatParamTexture val = getTextureParam(name);
         if (val == null) {
             checkTextureParamColorSpace(name, value);
-            paramValues.put(name, new MatParamTexture(type, name, value, null));
+            paramValues.put(name, new MatParamTexture(type, name, value, value.getImage() != null ? value.getImage().getColorSpace() : null));
         } else {
+            checkTextureParamColorSpace(name, value);
             val.setTextureValue(value);
+            val.setColorSpace(value.getImage() != null ? value.getImage().getColorSpace() : null);
         }
 
         if (technique != null) {
@@ -1038,6 +1043,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         render(geom, geom.getWorldLightList(), rm);
     }
 
+    @Override
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(def.getAssetName(), "material_def", null);
@@ -1055,6 +1061,8 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
                 "]";
     }
 
+    @Override
+    @SuppressWarnings("unchecked")
     public void read(JmeImporter im) throws IOException {
         InputCapsule ic = im.getCapsule(this);
 
@@ -1103,7 +1111,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
             assert applyDefaultValues && guessRenderStateApply;
         }
 
-        def = (MaterialDef) im.getAssetManager().loadAsset(new AssetKey(defName));
+        def = im.getAssetManager().loadAsset(new AssetKey<MaterialDef>(defName));
         paramValues = new ListMap<String, MatParam>();
 
         // load the textures and update nextTexUnit

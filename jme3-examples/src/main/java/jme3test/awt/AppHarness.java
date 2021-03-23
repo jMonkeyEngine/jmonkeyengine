@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -79,13 +79,11 @@ public class AppHarness extends Applet {
         JmeSystem.setLowPermissions(true);
 
         try{
-            Class<? extends LegacyApplication> clazz = (Class<? extends LegacyApplication>) Class.forName(appClass);
-            app = clazz.newInstance();
-        }catch (ClassNotFoundException ex){
-            ex.printStackTrace();
-        }catch (InstantiationException ex){
-            ex.printStackTrace();
-        }catch (IllegalAccessException ex){
+            Class clazz = Class.forName(appClass);
+            app = (LegacyApplication) clazz.newInstance();
+        }catch (ClassNotFoundException
+                | InstantiationException
+                | IllegalAccessException ex){
             ex.printStackTrace();
         }
 
@@ -138,6 +136,7 @@ public class AppHarness extends Applet {
     public void destroy(){
         System.out.println("applet:destroyStart");
         SwingUtilities.invokeLater(new Runnable(){
+            @Override
             public void run(){
                 removeAll();
                 System.out.println("applet:destroyRemoved");

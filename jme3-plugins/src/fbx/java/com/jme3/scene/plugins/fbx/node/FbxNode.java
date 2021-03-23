@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -98,10 +98,10 @@ public class FbxNode extends FbxObject<Spatial> {
     private InheritMode inheritMode = InheritMode.ScaleAfterChildRotation;
 
     protected FbxNode parent;
-    protected List<FbxNode> children = new ArrayList<FbxNode>();
-    protected List<FbxMaterial> materials = new ArrayList<FbxMaterial>();
-    protected Map<String, Object> userData = new HashMap<String, Object>();
-    protected Map<String, List<FbxAnimCurveNode>> propertyToAnimCurveMap = new HashMap<String, List<FbxAnimCurveNode>>();
+    protected List<FbxNode> children = new ArrayList<>();
+    protected List<FbxMaterial> materials = new ArrayList<>();
+    protected Map<String, Object> userData = new HashMap<>();
+    protected Map<String, List<FbxAnimCurveNode>> propertyToAnimCurveMap = new HashMap<>();
     protected FbxNodeAttribute nodeAttribute;
     protected double visibility = 1.0;
     
@@ -280,9 +280,9 @@ public class FbxNode extends FbxObject<Spatial> {
                 Object userDataValue;
                 
                 if (userDataType.equals("KString")) {
-                    userDataValue = (String) e2.properties.get(4);
+                    userDataValue = e2.properties.get(4);
                 } else if (userDataType.equals("int")) {
-                    userDataValue = (Integer) e2.properties.get(4);
+                    userDataValue = e2.properties.get(4);
                 } else if (userDataType.equals("double")) {
                     // NOTE: jME3 does not support doubles in UserData.
                     //       Need to convert to float.

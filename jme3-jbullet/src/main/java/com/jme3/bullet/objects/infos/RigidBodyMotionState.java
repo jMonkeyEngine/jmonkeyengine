@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -71,6 +71,7 @@ public class RigidBodyMotionState extends MotionState {
      * @param t caller-provided storage for the Transform
      * @return t
      */
+    @Override
     public Transform getWorldTransform(Transform t) {
         t.set(motionStateTrans);
         return t;
@@ -80,6 +81,7 @@ public class RigidBodyMotionState extends MotionState {
      * called from bullet when the transform of the rigidbody changes
      * @param worldTrans
      */
+    @Override
     public void setWorldTransform(Transform worldTrans) {
         if (jmeLocationDirty) {
             return;

@@ -1,26 +1,59 @@
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+
 buildscript {
     repositories {
+        mavenCentral()
         google()
-        jcenter()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.1.4'
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4'
+        classpath 'com.android.tools.build:gradle:3.5.3'
+        classpath 'me.tatarka:gradle-retrolambda:3.7.1'
+        classpath "gradle.plugin.com.github.spotbugs.snom:spotbugs-gradle-plugin:4.5.1"
     }
 }
 
+allprojects {
+    repositories {
+        mavenCentral()
+        google()
+    }
+}
+
+// Set the license for IDEs that understand this
+ext.license = file("$rootDir/license.txt")
+
 apply plugin: 'base'
+apply plugin: 'com.github.spotbugs'
 apply from: file('version.gradle')
+
+apply plugin: 'me.tatarka.retrolambda'
 
 // This is applied to all sub projects
 subprojects {
     if(!project.name.equals('jme3-android-examples')) {
         apply from: rootProject.file('common.gradle')
-        if (!project.name.equals('jme3-testdata')) {
-            apply from: rootProject.file('bintray.gradle')
-        }
     } else {
         apply from: rootProject.file('common-android-app.gradle')
+    }
+
+    if (!project.name.endsWith("-native") && enableSpotBugs != "false" ) {
+        apply plugin: 'com.github.spotbugs'
+
+        // Currently we only warn about issues and try to fix them as we go, but those aren't mission critical.
+        spotbugs {
+            ignoreFailures = true
+        }
+
+        tasks.withType(com.github.spotbugs.snom.SpotBugsTask ) {
+            reports {
+                html.enabled = !project.hasProperty("xml-reports")
+                xml.enabled = project.hasProperty("xml-reports")
+            }
+        }
     }
 }
 
@@ -100,16 +133,18 @@ task mergedJavadoc(type: Javadoc, description: 'Creates Javadoc from all the pro
     options.overview = file("javadoc-overview.html")
     // Note: The closures below are executed lazily.
     source subprojects.collect {project ->
-        project.sourceSets*.allJava
+        project.sourceSets.main.allJava // main only, exclude tests
     }
-//    classpath = files(subprojects.collect {project ->
-//            project.sourceSets*.compileClasspath})
-    //    source {
-    //        subprojects*.sourceSets*.main*.allSource
-    //    }
+    classpath = files(subprojects.collect {project ->
+            project.sourceSets*.compileClasspath})
     classpath.from {
         subprojects*.configurations*.compile*.copyRecursive({ !(it instanceof ProjectDependency); })*.resolve()
     }
+}
+
+clean.dependsOn('cleanMergedJavadoc')
+task cleanMergedJavadoc(type: Delete) {
+    delete file('dist/javadoc')
 }
 
 task mergedSource(type: Copy){
@@ -140,6 +175,62 @@ task configureAndroidNDK {
         ndkCommandPath = ndkBuildPath
     }
 }
+
+gradle.rootProject.ext.set("usePrebuildNatives", buildNativeProjects!="true");
+
+if (skipPrebuildLibraries != "true" && buildNativeProjects != "true") {
+    String rootPath = rootProject.projectDir.absolutePath
+
+    Properties nativesSnasphotProp = new Properties()
+    File nativesSnasphotPropF = new File("${rootPath}/natives-snapshot.properties");
+
+    if (nativesSnasphotPropF.exists()) {
+
+        nativesSnasphotPropF.withInputStream { nativesSnasphotProp.load(it) }
+
+        String nativesSnasphot = nativesSnasphotProp.getProperty("natives.snapshot");
+        String nativesUrl = PREBUILD_NATIVES_URL.replace('${natives.snapshot}', nativesSnasphot)
+        println "Use natives snapshot: " + nativesUrl
+
+        String nativesZipFile = "${rootPath}" + File.separator + "build" + File.separator + nativesSnasphot + "-natives.zip"
+        String nativesPath = "${rootPath}" + File.separator + "build" + File.separator + "native"
+
+
+        task getNativesZipFile {
+            outputs.file nativesZipFile
+            doFirst {
+                File target = file(nativesZipFile);
+                println("Download natives from " + nativesUrl + " to " + nativesZipFile);
+                target.getParentFile().mkdirs();
+                ant.get(src: nativesUrl, dest: target);
+            }
+        }
+
+        task extractPrebuiltNatives {
+            inputs.file nativesZipFile
+            outputs.dir nativesPath
+            dependsOn getNativesZipFile
+
+            doFirst {
+                for (File src : zipTree(nativesZipFile)) {
+                    String srcRel = src.getAbsolutePath().substring((int) (nativesZipFile.length() + 1));
+                    srcRel = srcRel.substring(srcRel.indexOf(File.separator) + 1);
+
+                    File dest = new File(nativesPath + File.separator + srcRel);
+                    boolean doCopy = !(dest.exists() && dest.lastModified() > src.lastModified())
+                    if (doCopy) {
+                        println("Copy " + src + " " + dest);
+                        dest.getParentFile().mkdirs();
+                        Files.copy(src.toPath(), dest.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                    }
+                }
+            }
+        }
+
+        assemble.dependsOn extractPrebuiltNatives
+    }
+}
+
 
 //class IncrementalReverseTask extends DefaultTask {
 //    @InputDirectory
@@ -176,3 +267,14 @@ task configureAndroidNDK {
 //        enableAssertions = true // true by default
 //    }
 //}
+
+wrapper {
+    gradleVersion = '5.6.4'
+}
+
+
+retrolambda {
+  javaVersion JavaVersion.VERSION_1_7
+  incremental true
+    jvmArgs '-noverify'
+}

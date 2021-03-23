@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,6 +35,7 @@ import com.jme3.font.BitmapFont.Align;
 import com.jme3.font.BitmapFont.VAlign;
 import com.jme3.font.ColorTags.Range;
 import com.jme3.math.ColorRGBA;
+
 import java.util.LinkedList;
 
 /**
@@ -46,10 +47,10 @@ class Letters {
     private final LetterQuad tail;
     private final BitmapFont font;
     private LetterQuad current;
-    private StringBlock block;
+    final private StringBlock block;
     private float totalWidth;
     private float totalHeight;
-    private ColorTags colorTags = new ColorTags();
+    final private ColorTags colorTags = new ColorTags();
     private ColorRGBA baseColor = null;
     private float baseAlpha = -1;
     private String plainText;
@@ -179,8 +180,8 @@ class Letters {
             l = l.getNext();
         }
 
-        align();
         block.setLineCount(lineCount);
+        align();
         rewind();
     }
 
@@ -203,10 +204,10 @@ class Letters {
                 gapY = 0;
                 break;
             case Center:
-                gapY = (height-totalHeight)*0.5f;
+                gapY = (height - totalHeight) * 0.5f;
                 break;
             case Bottom:
-                gapY = height-totalHeight;
+                gapY = height - totalHeight;
                 break;
             }
         }
@@ -323,9 +324,9 @@ class Letters {
             while (!l.isTail()) {
                 totalWidth = Math.max(totalWidth, l.getX1());
                 l = l.getNext();
-                totalHeight = Math.max(totalHeight, -l.getY1());
             }
         }
+        totalHeight = font.getLineHeight(block) * block.getLineCount();
     }
 
     /**

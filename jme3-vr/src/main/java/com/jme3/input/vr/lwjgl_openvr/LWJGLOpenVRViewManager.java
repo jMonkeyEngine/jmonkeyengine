@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.jme3.input.vr.lwjgl_openvr;
 
 import com.jme3.app.VREnvironment;
@@ -74,7 +70,7 @@ public class LWJGLOpenVRViewManager extends AbstractVRViewManager {
      * @see #getFullTexId()
      */
     protected int getLeftTexId() {
-        return (int) getLeftTexture().getImage().getId();
+        return getLeftTexture().getImage().getId();
     }
 
     /**
@@ -85,7 +81,7 @@ public class LWJGLOpenVRViewManager extends AbstractVRViewManager {
      * @see #getFullTexId()
      */
     protected int getRightTexId() {
-        return (int) getRightTexture().getImage().getId();
+        return getRightTexture().getImage().getId();
     }
 
     /**
@@ -96,7 +92,7 @@ public class LWJGLOpenVRViewManager extends AbstractVRViewManager {
      * @see #getRightTexId()
      */
     private int getFullTexId() {
-        return (int) dualEyeTex.getImage().getId();
+        return dualEyeTex.getImage().getId();
     }
 
     /**
@@ -482,7 +478,7 @@ public class LWJGLOpenVRViewManager extends AbstractVRViewManager {
                     pic.setLocalScale(1.5f, 1f, 1f);
                 }
                 pic.setQueueBucket(Bucket.Opaque);
-                pic.setTexture(environment.getApplication().getAssetManager(), (Texture2D) tex, false);
+                pic.setTexture(environment.getApplication().getAssetManager(), tex, false);
                 viewPort.attachScene(pic);
                 viewPort.setOutputFrameBuffer(null);
 

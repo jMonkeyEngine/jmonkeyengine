@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2014 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -54,7 +54,7 @@ public class TestDepthStencil extends SimpleApplication {
 
     private boolean enableStencil = false;
     
-    private Node fbNode = new Node("Framebuffer Node");
+    final private Node fbNode = new Node("Framebuffer Node");
     private FrameBuffer fb;
 
     public static void main(String[] args){
@@ -86,12 +86,12 @@ public class TestDepthStencil extends SimpleApplication {
             @Override
             protected void controlUpdate(float tpf) {
                 Material mat = sphere.getMaterial();
-		mat.getAdditionalRenderState().setStencil(enableStencil,
+                mat.getAdditionalRenderState().setStencil(enableStencil,
                     RenderState.StencilOperation.Keep, RenderState.StencilOperation.Keep, RenderState.StencilOperation.Keep,
                     RenderState.StencilOperation.Keep, RenderState.StencilOperation.Keep, RenderState.StencilOperation.Keep,
                     RenderState.TestFunction.Never, RenderState.TestFunction.Never
                     //TestFunction.Always, TestFunction.Always
-		);
+                );
             }
 
             @Override
@@ -110,14 +110,15 @@ public class TestDepthStencil extends SimpleApplication {
         
         inputManager.addMapping("toggle", new KeyTrigger(KeyInput.KEY_SPACE));
         ActionListener acl = new ActionListener() {
+            @Override
             public void onAction(String name, boolean keyPressed, float tpf) {
                 if (name.equals("toggle") && keyPressed) {
                     if (enableStencil) {
                         enableStencil = false;
-                        System.out.println("Stencil Enabled (model should be hidden)");
+                        System.out.println("Stencil Disabled (model should be visible)");
                     } else {
                         enableStencil = true;
-                        System.out.println("Stencil Disabled (model should be visible)");
+                        System.out.println("Stencil Enabled (model should be hidden)");
                     }
                 }
             }

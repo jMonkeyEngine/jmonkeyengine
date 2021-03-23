@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2018 jMonkeyEngine
+ * Copyright (c) 2014-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -151,19 +151,24 @@ public class InstancedNode extends GeometryGroupNode {
             this.node = cloner.clone(node);
         }
 
+        @Override
         public void setSpatial(Spatial spatial){
         }
 
+        @Override
         public void update(float tpf){
         }
 
+        @Override
         public void render(RenderManager rm, ViewPort vp) {
             node.renderFromControl();
         }
 
+        @Override
         public void write(JmeExporter ex) throws IOException {
         }
 
+        @Override
         public void read(JmeImporter im) throws IOException {
         }
     }
@@ -171,14 +176,17 @@ public class InstancedNode extends GeometryGroupNode {
     protected InstancedNodeControl control;
 
     protected HashMap<Geometry, InstancedGeometry> igByGeom
-            = new HashMap<Geometry, InstancedGeometry>();
+            = new HashMap<>();
 
     private InstanceTypeKey lookUp = new InstanceTypeKey();
 
     private HashMap<InstanceTypeKey, InstancedGeometry> instancesMap =
-            new HashMap<InstanceTypeKey, InstancedGeometry>();
+            new HashMap<>();
 
-    public InstancedNode() {
+    /**
+     * Serialization only. Do not use.
+     */
+    protected InstancedNode() {
         super();
         // NOTE: since we are deserializing,
         // the control is going to be added automatically here.
@@ -210,6 +218,7 @@ public class InstancedNode extends GeometryGroupNode {
                     + "lod-" + lookUp.lodLevel);
             ig.setMaterial(lookUp.material);
             ig.setMesh(lookUp.mesh);
+            if (lookUp.lodLevel > 0) ig.setLodLevel(lookUp.lodLevel);
             ig.setUserData(UserData.JME_PHYSICSIGNORE, true);
             ig.setCullHint(CullHint.Never);
             ig.setShadowMode(RenderQueue.ShadowMode.Inherit);
@@ -239,6 +248,9 @@ public class InstancedNode extends GeometryGroupNode {
         InstancedGeometry ig = igByGeom.remove(geom);
         if (ig != null) {
             ig.deleteInstance(geom);
+            if (ig.isEmpty()) {
+                detachChild(ig);
+            }
         }
     }
 
@@ -250,6 +262,9 @@ public class InstancedNode extends GeometryGroupNode {
                 throw new AssertionError();
             }
             oldIG.deleteInstance(geom);
+            if (oldIG.isEmpty()) {
+                detachChild(oldIG);
+            }
             newIG.addInstance(geom);
             igByGeom.put(geom, newIG);
         }
@@ -278,6 +293,14 @@ public class InstancedNode extends GeometryGroupNode {
         Spatial s = super.detachChildAt(index);
         if (s instanceof Node) {
             ungroupSceneGraph(s);
+        } else if (s instanceof InstancedGeometry) {
+            InstancedGeometry ig = (InstancedGeometry) s;
+            lookUp.mesh = ig.getMesh();
+            lookUp.material = ig.getMaterial();
+            lookUp.lodLevel = ig.getLodLevel();
+
+            instancesMap.remove(lookUp, ig);
+            ig.cleanup();
         }
         return s;
     }
@@ -351,13 +374,13 @@ public class InstancedNode extends GeometryGroupNode {
         this.control = cloner.clone(control);
         this.lookUp = cloner.clone(lookUp);
 
-        HashMap<Geometry, InstancedGeometry> newIgByGeom = new HashMap<Geometry, InstancedGeometry>();
+        HashMap<Geometry, InstancedGeometry> newIgByGeom = new HashMap<>();
         for( Map.Entry<Geometry, InstancedGeometry> e : igByGeom.entrySet() ) {
             newIgByGeom.put(cloner.clone(e.getKey()), cloner.clone(e.getValue()));
         }
         this.igByGeom = newIgByGeom;
 
-        HashMap<InstanceTypeKey, InstancedGeometry> newInstancesMap = new HashMap<InstanceTypeKey, InstancedGeometry>();
+        HashMap<InstanceTypeKey, InstancedGeometry> newInstancesMap = new HashMap<>();
         for( Map.Entry<InstanceTypeKey, InstancedGeometry> e : instancesMap.entrySet() ) {
             newInstancesMap.put(cloner.clone(e.getKey()), cloner.clone(e.getValue()));
         }

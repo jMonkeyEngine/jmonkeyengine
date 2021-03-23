@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -69,11 +69,10 @@ public class AndroidTouchInput implements TouchInput {
     private boolean mouseEventsInvertX = false;
     private boolean mouseEventsInvertY = false;
     private boolean keyboardEventsEnabled = false;
-    private boolean dontSendHistory = false;
 
     protected int numPointers = 0;
-    final private HashMap<Integer, Vector2f> lastPositions = new HashMap<Integer, Vector2f>();
-    final private ConcurrentLinkedQueue<InputEvent> inputEventQueue = new ConcurrentLinkedQueue<InputEvent>();
+    final private HashMap<Integer, Vector2f> lastPositions = new HashMap<>();
+    final private ConcurrentLinkedQueue<InputEvent> inputEventQueue = new ConcurrentLinkedQueue<>();
     private final static int MAX_TOUCH_EVENTS = 1024;
     private final TouchEventPool touchEventPool = new TouchEventPool(MAX_TOUCH_EVENTS);
     private float scaleX = 1f;
@@ -131,8 +130,8 @@ public class AndroidTouchInput implements TouchInput {
 
         // view width and height are 0 until the view is displayed on the screen
         if (androidInput.getView().getWidth() != 0 && androidInput.getView().getHeight() != 0) {
-            scaleX = (float)settings.getWidth() / (float)androidInput.getView().getWidth();
-            scaleY = (float)settings.getHeight() / (float)androidInput.getView().getHeight();
+            scaleX = settings.getWidth() / (float)androidInput.getView().getWidth();
+            scaleY = settings.getHeight() / (float)androidInput.getView().getHeight();
         }
         logger.log(Level.FINE, "Setting input scaling, scaleX: {0}, scaleY: {1}",
                 new Object[]{scaleX, scaleY});
@@ -162,7 +161,7 @@ public class AndroidTouchInput implements TouchInput {
         boolean bWasHandled = false;
         TouchEvent touch = null;
         //    System.out.println("native : " + event.getAction());
-        int action = getAction(event);
+        getAction(event);
         int pointerIndex = getPointerIndex(event);
         int pointerId = getPointerId(event);
         Vector2f lastPos = lastPositions.get(pointerId);
@@ -469,7 +468,7 @@ public class AndroidTouchInput implements TouchInput {
 
     @Override
     public void setOmitHistoricEvents(boolean dontSendHistory) {
-        this.dontSendHistory = dontSendHistory;
+        // not implemented
     }
 
 }

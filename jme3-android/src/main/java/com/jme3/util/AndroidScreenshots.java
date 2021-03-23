@@ -9,6 +9,12 @@ public final class AndroidScreenshots {
     private static final Logger logger = Logger.getLogger(AndroidScreenshots.class.getName());
 
     /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private AndroidScreenshots() {
+    }
+
+    /**
      * Convert OpenGL GLES20.GL_RGBA to Bitmap.Config.ARGB_8888 and store result
      * in a Bitmap
      *

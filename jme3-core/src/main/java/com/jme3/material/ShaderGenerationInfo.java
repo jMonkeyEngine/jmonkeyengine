@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -53,11 +53,11 @@ public class ShaderGenerationInfo implements Savable, Cloneable {
     /**
      * the list of attributes of the vertex shader
      */
-    protected List<ShaderNodeVariable> attributes = new ArrayList<ShaderNodeVariable>();
+    protected List<ShaderNodeVariable> attributes = new ArrayList<>();
     /**
      * the list of all the uniforms to declare in the vertex shader
      */
-    protected List<ShaderNodeVariable> vertexUniforms = new ArrayList<ShaderNodeVariable>();
+    protected List<ShaderNodeVariable> vertexUniforms = new ArrayList<>();
     /**
      * the global output of the vertex shader (to assign ot gl_Position)
      */
@@ -65,19 +65,19 @@ public class ShaderGenerationInfo implements Savable, Cloneable {
     /**
      * the list of varyings
      */
-    protected List<ShaderNodeVariable> varyings = new ArrayList<ShaderNodeVariable>();
+    protected List<ShaderNodeVariable> varyings = new ArrayList<>();
     /**
      * the list of all the uniforms to declare in the fragment shader
      */
-    protected List<ShaderNodeVariable> fragmentUniforms = new ArrayList<ShaderNodeVariable>();
+    protected List<ShaderNodeVariable> fragmentUniforms = new ArrayList<>();
     /**
      * the list of all the fragment shader global outputs (to assign ot gl_FragColor or gl_Fragdata[n])
      */
-    protected List<ShaderNodeVariable> fragmentGlobals = new ArrayList<ShaderNodeVariable>();
+    protected List<ShaderNodeVariable> fragmentGlobals = new ArrayList<>();
     /**
      * the unused node names of this shader (node whose output are never used)
      */
-    protected List<String> unusedNodes = new ArrayList<String>();
+    protected List<String> unusedNodes = new ArrayList<>();
 
     /**
      *
@@ -177,6 +177,7 @@ public class ShaderGenerationInfo implements Savable, Cloneable {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void read(JmeImporter im) throws IOException {
         InputCapsule ic = im.getCapsule(this);
         attributes = ic.readSavableArrayList("attributes", new ArrayList<ShaderNodeVariable>());

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 jMonkeyEngine
+ * Copyright (c) 2015-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,9 +33,9 @@
 package com.jme3.network.service.rmi;
 
 import com.jme3.network.serializing.Serializable;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import javax.jws.Oneway;
 
 
 /**
@@ -70,11 +70,9 @@ public final class MethodInfo {
     public Object invoke( Object target, Object... parms ) {
         try {
             return method.invoke(target, parms);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException("Error invoking:" + method + " on:" + target, e);
-        } catch (IllegalArgumentException e) {
-            throw new RuntimeException("Error invoking:" + method + " on:" + target, e);
-        } catch (InvocationTargetException e) {
+        } catch (IllegalAccessException
+                | IllegalArgumentException
+                | InvocationTargetException e) {
             throw new RuntimeException("Error invoking:" + method + " on:" + target, e);
         }
     }
@@ -102,12 +100,18 @@ public final class MethodInfo {
     }
  
     public static CallType getCallType( Method m ) {
-        if( m.getReturnType() != Void.TYPE )
+        if( m.getReturnType() != Void.TYPE ) {
             return CallType.Synchronous;
-        if( m.getAnnotation(Oneway.class) != null )
-            return CallType.Asynchronous;
-        if( m.getAnnotation(Asynchronous.class) == null )
+        }
+        if( m.getAnnotation(Asynchronous.class) == null ) {
             return CallType.Synchronous;
+        }
+        for (Annotation annotation : m.getAnnotations()) {
+            Class<? extends Annotation> type = annotation.annotationType();
+            if (type.getName().equals("javax.jws.Oneway")) {
+                return CallType.Asynchronous;
+            }
+        }
             
         Asynchronous async = m.getAnnotation(Asynchronous.class);             
         return async.reliable() ? CallType.Asynchronous : CallType.Unreliable;         

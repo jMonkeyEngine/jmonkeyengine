@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -53,6 +53,7 @@ public class ThreadingManager {
     }
 
     protected class LoadingThreadFactory implements ThreadFactory {
+        @Override
         public Thread newThread(Runnable r) {
             Thread t = new Thread(r, "jME3-threadpool-" + (nextThreadId++));
             t.setDaemon(true);
@@ -69,13 +70,14 @@ public class ThreadingManager {
             this.assetKey = assetKey;
         }
 
+        @Override
         public T call() throws Exception {
             return owner.loadAsset(assetKey);
         }
     }
 
     public <T> Future<T> loadAsset(AssetKey<T> assetKey) {
-        return executor.submit(new LoadingTask(assetKey));
+        return executor.submit(new LoadingTask<>(assetKey));
     }
 
     public static boolean isLoadingThread() {

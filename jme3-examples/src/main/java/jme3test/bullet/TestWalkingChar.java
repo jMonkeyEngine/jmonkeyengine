@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -79,35 +79,33 @@ public class TestWalkingChar extends SimpleApplication implements ActionListener
 
     private BulletAppState bulletAppState;
     //character
-    CharacterControl character;
-    Node model;
+    private CharacterControl character;
+    private Node model;
     //temp vectors
-    Vector3f walkDirection = new Vector3f();
+    final private Vector3f walkDirection = new Vector3f();
     //terrain
-    TerrainQuad terrain;
-    RigidBodyControl terrainPhysicsNode;
+    private TerrainQuad terrain;
+    private RigidBodyControl terrainPhysicsNode;
     //Materials
-    Material matRock;
-    Material matBullet;
+    private Material matRock;
+    private Material matBullet;
     //animation
-    AnimChannel animationChannel;
-    AnimChannel shootingChannel;
-    AnimControl animationControl;
-    float airTime = 0;
+    private AnimChannel animationChannel;
+    private AnimChannel shootingChannel;
+    private AnimControl animationControl;
+    private float airTime = 0;
     //camera
-    boolean left = false, right = false, up = false, down = false;
-    ChaseCamera chaseCam;
+    private boolean left = false, right = false, up = false, down = false;
     //bullet
-    Sphere bullet;
-    SphereCollisionShape bulletCollisionShape;
+    private Sphere bullet;
+    private SphereCollisionShape bulletCollisionShape;
     //explosion
-    ParticleEmitter effect;
+    private ParticleEmitter effect;
     //brick wall
-    Box brick;
-    float bLength = 0.8f;
-    float bWidth = 0.4f;
-    float bHeight = 0.4f;
-    FilterPostProcessor fpp;
+    private Box brick;
+    final private float bLength = 0.8f;
+    final private float bWidth = 0.4f;
+    final private float bHeight = 0.4f;
 
     public static void main(String[] args) {
         TestWalkingChar app = new TestWalkingChar();
@@ -202,7 +200,7 @@ public class TestWalkingChar extends SimpleApplication implements ActionListener
         float COUNT_FACTOR_F = 1f;
         effect = new ParticleEmitter("Flame", Type.Triangle, 32 * COUNT_FACTOR);
         effect.setSelectRandomImage(true);
-        effect.setStartColor(new ColorRGBA(1f, 0.4f, 0.05f, (float) (1f / COUNT_FACTOR_F)));
+        effect.setStartColor(new ColorRGBA(1f, 0.4f, 0.05f, (1f / COUNT_FACTOR_F)));
         effect.setEndColor(new ColorRGBA(.4f, .22f, .12f, 0f));
         effect.setStartSize(1.3f);
         effect.setEndSize(2f);
@@ -262,7 +260,7 @@ public class TestWalkingChar extends SimpleApplication implements ActionListener
         Texture normalMap2 = assetManager.loadTexture("Textures/Terrain/splat/road_normal.png");
         normalMap2.setWrap(WrapMode.Repeat);
         matRock.setTexture("NormalMap", normalMap0);
-        matRock.setTexture("NormalMap_1", normalMap2);
+        matRock.setTexture("NormalMap_1", normalMap1);
         matRock.setTexture("NormalMap_2", normalMap2);
 
         AbstractHeightMap heightmap = null;
@@ -275,7 +273,7 @@ public class TestWalkingChar extends SimpleApplication implements ActionListener
         }
 
         terrain = new TerrainQuad("terrain", 65, 513, heightmap.getHeightMap());
-        List<Camera> cameras = new ArrayList<Camera>();
+        List<Camera> cameras = new ArrayList<>();
         cameras.add(getCamera());
         TerrainLodControl control = new TerrainLodControl(terrain, cameras);
         terrain.addControl(control);
@@ -301,7 +299,7 @@ public class TestWalkingChar extends SimpleApplication implements ActionListener
 
     private void setupChaseCamera() {
         flyCam.setEnabled(false);
-        chaseCam = new ChaseCamera(cam, model, inputManager);
+        new ChaseCamera(cam, model, inputManager);
     }
 
     private void setupAnimationController() {
@@ -355,6 +353,7 @@ public class TestWalkingChar extends SimpleApplication implements ActionListener
         character.setWalkDirection(walkDirection);
     }
 
+    @Override
     public void onAction(String binding, boolean value, float tpf) {
         if (binding.equals("CharLeft")) {
             if (value) {
@@ -402,6 +401,7 @@ public class TestWalkingChar extends SimpleApplication implements ActionListener
         getPhysicsSpace().add(bulletControl);
     }
 
+    @Override
     public void collision(PhysicsCollisionEvent event) {
         if (event.getObjectA() instanceof BombControl) {
             final Spatial node = event.getNodeA();
@@ -416,12 +416,14 @@ public class TestWalkingChar extends SimpleApplication implements ActionListener
         }
     }
 
+    @Override
     public void onAnimCycleDone(AnimControl control, AnimChannel channel, String animName) {
         if (channel == shootingChannel) {
             channel.setAnim("stand");
         }
     }
 
+    @Override
     public void onAnimChange(AnimControl control, AnimChannel channel, String animName) {
     }
 }

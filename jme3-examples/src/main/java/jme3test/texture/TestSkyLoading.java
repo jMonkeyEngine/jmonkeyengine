@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,6 +44,7 @@ public class TestSkyLoading extends SimpleApplication {
         app.start();
     }
 
+    @Override
     public void simpleInitApp() {
         Texture west = assetManager.loadTexture("Textures/Sky/Lagoon/lagoon_west.jpg");
         Texture east = assetManager.loadTexture("Textures/Sky/Lagoon/lagoon_east.jpg");

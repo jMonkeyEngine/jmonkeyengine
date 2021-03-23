@@ -20,7 +20,7 @@ public class ShaderCheck {
     private static final Logger logger = Logger.getLogger(ShaderCheck.class.getName());
     private static AssetManager assetManager;
     
-    private static Validator[] validators = new Validator[]{
+    final private static Validator[] validators = new Validator[]{
         new CgcValidator(),
 //        new GpuAnalyzerValidator()
     };
@@ -31,7 +31,7 @@ public class ShaderCheck {
         assetManager.registerLocator("/", ClasspathLocator.class);
         assetManager.registerLoader(J3MLoader.class, "j3m");
         assetManager.registerLoader(J3MLoader.class, "j3md");
-        assetManager.registerLoader(GLSLLoader.class, "vert", "frag","geom","tsctrl","tseval","glsllib");
+        assetManager.registerLoader(GLSLLoader.class, "vert", "frag","geom","tsctrl","tseval","glsllib","glsl");
     }
     
     private static void checkMatDef(String matdefName) {

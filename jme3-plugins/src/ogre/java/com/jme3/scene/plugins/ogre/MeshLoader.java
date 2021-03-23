@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -98,9 +98,9 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
     private int meshIndex = 0;
     private int texCoordIndex = 0;
     private String ignoreUntilEnd = null;
-    private List<Geometry> geoms = new ArrayList<Geometry>();
-    private ArrayList<Boolean> usesSharedMesh = new ArrayList<Boolean>();
-    private IntMap<List<VertexBuffer>> lodLevels = new IntMap<List<VertexBuffer>>();
+    private List<Geometry> geoms = new ArrayList<>();
+    private ArrayList<Boolean> usesSharedMesh = new ArrayList<>();
+    private IntMap<List<VertexBuffer>> lodLevels = new IntMap<>();
     private AnimData animData;
 
     public MeshLoader() {
@@ -595,9 +595,9 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
     }
 
     private void startSkeleton(String name) {
-        AssetKey assetKey = new AssetKey(folderName + name + ".xml");
+        AssetKey<AnimData> assetKey = new AssetKey<>(folderName + name + ".xml");
         try {
-            animData = (AnimData) assetManager.loadAsset(assetKey);
+            animData = assetManager.loadAsset(assetKey);
         } catch (AssetNotFoundException ex) {
             logger.log(Level.WARNING, "Cannot locate {0} for model {1}", new Object[]{assetKey, key});
             animData = null;
@@ -817,6 +817,7 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
         return model;
     }
 
+    @Override
     public Object load(AssetInfo info) throws IOException {
         try {
             key = info.getKey();
@@ -840,7 +841,7 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
                 if (materialList == null && materialName != null) {
                     OgreMaterialKey materialKey = new OgreMaterialKey(folderName + materialName + ".material");
                     try {
-                        materialList = (MaterialList) assetManager.loadAsset(materialKey);
+                        materialList = assetManager.loadAsset(materialKey);
                     } catch (AssetNotFoundException e) {
                         logger.log(Level.WARNING, "Cannot locate {0} for model {1}", new Object[]{materialKey, key});
                     }
@@ -857,7 +858,7 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
             if (materialList == null) {
                 OgreMaterialKey materialKey = new OgreMaterialKey(folderName + meshName + ".material");
                 try {
-                    materialList = (MaterialList) assetManager.loadAsset(materialKey);
+                    materialList = assetManager.loadAsset(materialKey);
                 } catch (AssetNotFoundException e) {
                     logger.log(Level.WARNING, "Cannot locate {0} for model {1}", new Object[]{materialKey, key});
                 }
@@ -886,11 +887,7 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
             }
 
             return compileModel();
-        } catch (SAXException ex) {
-            IOException ioEx = new IOException("Error while parsing Ogre3D mesh.xml");
-            ioEx.initCause(ex);
-            throw ioEx;
-        } catch (ParserConfigurationException ex) {
+        } catch (SAXException | ParserConfigurationException ex) {
             IOException ioEx = new IOException("Error while parsing Ogre3D mesh.xml");
             ioEx.initCause(ex);
             throw ioEx;

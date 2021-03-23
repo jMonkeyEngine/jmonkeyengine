@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.jme3.post;
 
 import com.jme3.post.Filter.Pass;
@@ -23,6 +18,12 @@ public class PreNormalCaching {
     private static int lastNormalPassesCount, curCount;
     
     /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private PreNormalCaching() {
+    }
+
+    /**
      * Get pre-normals from the given rendering.
      * @param renderManager the render manager.
      * @param normalPass the normal pass.
@@ -33,7 +34,7 @@ public class PreNormalCaching {
         // do we already have a valid cache to set the framebuffer to?
         Renderer r = renderManager.getRenderer();
         if( cachedPreNormals != null ) {
-            r.copyFrameBuffer(cachedPreNormals, normalPass.getRenderFrameBuffer(), false);
+            r.copyFrameBuffer(cachedPreNormals, normalPass.getRenderFrameBuffer(),true,  false);
         } else {
             // lets make the prenormals
             r.setFrameBuffer(normalPass.getRenderFrameBuffer());

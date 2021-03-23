@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -96,7 +96,7 @@ public class TestChooser extends JDialog {
      * @return classes vector, list of all the classes in a given package (must
      *         be found in classpath).
      */
-    protected Vector<Class> find(String pckgname, boolean recursive,
+    private Vector<Class> find(String pckgname, boolean recursive,
             Vector<Class> classes) {
         URL url;
 
@@ -180,17 +180,10 @@ public class TestChooser extends JDialog {
                 if (!getClass().equals(cls)) {
                     return cls;
                 }
-            } catch (NoClassDefFoundError e) {
-                // class has unresolved dependencies
-                return null;
-            } catch (ClassNotFoundException e) {
-                // class not in classpath
-                return null;
-            } catch (NoSuchMethodException e) {
-                // class does not have a main method
-                return null;
-            } catch (UnsupportedClassVersionError e){
-                // unsupported version
+            } catch (NoClassDefFoundError // class has unresolved dependencies
+                    | ClassNotFoundException // class not in classpath
+                    | NoSuchMethodException // class does not have a main method
+                    | UnsupportedClassVersionError e) { // unsupported version             
                 return null;
             }
         }
@@ -237,6 +230,7 @@ public class TestChooser extends JDialog {
      */
     private FileFilter getFileFilter() {
         return new FileFilter() {
+            @Override
             public boolean accept(File pathname) {
                 return (pathname.isDirectory() && !pathname.getName().startsWith("."))
                         || (pathname.getName().endsWith(".class")
@@ -256,52 +250,53 @@ public class TestChooser extends JDialog {
         }
 
             new Thread(new Runnable(){
+                @Override
                 public void run(){
                     for (int i = 0; i < appClass.size(); i++) {
-                	    Class<?> clazz = (Class)appClass.get(i);
-                		try {
-                			if (LegacyApplication.class.isAssignableFrom(clazz)) {
-                    			Object app = clazz.newInstance();
-                			    if (app instanceof SimpleApplication) {
-                			        final Method settingMethod = clazz.getMethod("setShowSettings", boolean.class);
-                			        settingMethod.invoke(app, showSetting);
-                			    }
-                			    final Method mainMethod = clazz.getMethod("start");
-                			    mainMethod.invoke(app);
-                			    Field contextField = LegacyApplication.class.getDeclaredField("context");
-                			    contextField.setAccessible(true);
-                			    JmeContext context = null; 
-                			    while (context == null) {
-                			        context = (JmeContext) contextField.get(app);
-                			        Thread.sleep(100);
-                			    }
-                			    while (!context.isCreated()) {
-                			        Thread.sleep(100);
-                			    }
-                			    while (context.isCreated()) {
-                			        Thread.sleep(100);
-                			    }
-                			} else {
+                        Class<?> clazz = (Class)appClass.get(i);
+                        try {
+                            if (LegacyApplication.class.isAssignableFrom(clazz)) {
+                                Object app = clazz.newInstance();
+                                if (app instanceof SimpleApplication) {
+                                    final Method settingMethod = clazz.getMethod("setShowSettings", boolean.class);
+                                    settingMethod.invoke(app, showSetting);
+                                }
+                                final Method mainMethod = clazz.getMethod("start");
+                                mainMethod.invoke(app);
+                                Field contextField = LegacyApplication.class.getDeclaredField("context");
+                                contextField.setAccessible(true);
+                                JmeContext context = null; 
+                                while (context == null) {
+                                    context = (JmeContext) contextField.get(app);
+                                    Thread.sleep(100);
+                                }
+                                while (!context.isCreated()) {
+                                    Thread.sleep(100);
+                                }
+                                while (context.isCreated()) {
+                                    Thread.sleep(100);
+                                }
+                            } else {
                                 final Method mainMethod = clazz.getMethod("main", (new String[0]).getClass());
                                 mainMethod.invoke(clazz, new Object[]{new String[0]});
-                			}
-                			// wait for destroy
-                			System.gc();
-                		} catch (IllegalAccessException ex) {
-                			logger.log(Level.SEVERE, "Cannot access constructor: "+clazz.getName(), ex);
-                		} catch (IllegalArgumentException ex) {
-                			logger.log(Level.SEVERE, "main() had illegal argument: "+clazz.getName(), ex);
-                		} catch (InvocationTargetException ex) {
-                			logger.log(Level.SEVERE, "main() method had exception: "+clazz.getName(), ex);
-                		} catch (InstantiationException ex) {
-                			logger.log(Level.SEVERE, "Failed to create app: "+clazz.getName(), ex);
-                		} catch (NoSuchMethodException ex){
-                			logger.log(Level.SEVERE, "Test class doesn't have main method: "+clazz.getName(), ex);
-                		} catch (Exception ex) {
-                		    logger.log(Level.SEVERE, "Cannot start test: "+clazz.getName(), ex);
+                            }
+                            // wait for destroy
+                            System.gc();
+                        } catch (IllegalAccessException ex) {
+                            logger.log(Level.SEVERE, "Cannot access constructor: "+clazz.getName(), ex);
+                        } catch (IllegalArgumentException ex) {
+                            logger.log(Level.SEVERE, "main() had illegal argument: "+clazz.getName(), ex);
+                        } catch (InvocationTargetException ex) {
+                            logger.log(Level.SEVERE, "main() method had exception: "+clazz.getName(), ex);
+                        } catch (InstantiationException ex) {
+                            logger.log(Level.SEVERE, "Failed to create app: "+clazz.getName(), ex);
+                        } catch (NoSuchMethodException ex){
+                            logger.log(Level.SEVERE, "Test class doesn't have main method: "+clazz.getName(), ex);
+                        } catch (Exception ex) {
+                            logger.log(Level.SEVERE, "Cannot start test: "+clazz.getName(), ex);
                             ex.printStackTrace();
                         }
-                	}
+                    }
                 }
             }).start();
     }
@@ -321,7 +316,7 @@ public class TestChooser extends JDialog {
 
         final FilteredJList list = new FilteredJList();
         list.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-        DefaultListModel model = new DefaultListModel();
+        DefaultListModel<Class> model = new DefaultListModel<>();
         for (Class c : classes) {
             model.addElement(c);
         }
@@ -332,11 +327,13 @@ public class TestChooser extends JDialog {
 
         list.getSelectionModel().addListSelectionListener(
                 new ListSelectionListener() {
+                    @Override
                     public void valueChanged(ListSelectionEvent e) {
                         selectedClass = list.getSelectedValuesList();
                     }
                 });
         list.addMouseListener(new MouseAdapter() {
+            @Override
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() == 2 && selectedClass != null) {
                     startApp(selectedClass);
@@ -362,6 +359,7 @@ public class TestChooser extends JDialog {
         buttonPanel.add(okButton);
         getRootPane().setDefaultButton(okButton);
         okButton.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 startApp(selectedClass);
             }
@@ -371,6 +369,7 @@ public class TestChooser extends JDialog {
         cancelButton.setMnemonic('C');
         buttonPanel.add(cancelButton);
         cancelButton.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 dispose();
             }
@@ -386,11 +385,14 @@ public class TestChooser extends JDialog {
         private String filter;
         private ListModel originalModel;
 
+        @Override
+        @SuppressWarnings("unchecked")
         public void setModel(ListModel m) {
             originalModel = m;
             super.setModel(m);
         }
 
+        @SuppressWarnings("unchecked")
         private void update() {
             if (filter == null || filter.length() == 0) {
                 super.setModel(originalModel);
@@ -452,7 +454,7 @@ public class TestChooser extends JDialog {
     }
 
     protected void start(String[] args) {
-        final Vector<Class> classes = new Vector<Class>();
+        final Vector<Class> classes = new Vector<>();
         logger.fine("Composing Test list...");
         addDisplayedClasses(classes);
         setup(classes);
@@ -471,19 +473,23 @@ public class TestChooser extends JDialog {
                 BorderLayout.WEST);
         final javax.swing.JTextField jtf = new javax.swing.JTextField();
         jtf.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
             public void removeUpdate(DocumentEvent e) {
                 classes.setFilter(jtf.getText());
             }
 
+            @Override
             public void insertUpdate(DocumentEvent e) {
                 classes.setFilter(jtf.getText());
             }
 
+            @Override
             public void changedUpdate(DocumentEvent e) {
                 classes.setFilter(jtf.getText());
             }
         });
         jtf.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 selectedClass = classes.getSelectedValuesList();
                 startApp(selectedClass);
@@ -492,6 +498,7 @@ public class TestChooser extends JDialog {
         final JCheckBox showSettingCheck = new JCheckBox("Show Setting");
         showSettingCheck.setSelected(true);
         showSettingCheck.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 showSetting = showSettingCheck.isSelected();
             }

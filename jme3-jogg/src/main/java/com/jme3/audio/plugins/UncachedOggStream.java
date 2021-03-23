@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,9 +48,9 @@ public class UncachedOggStream implements PhysicalOggStream {
     private boolean eos = false;
     private boolean bos = false;
     private InputStream sourceStream;
-    private LinkedList<OggPage> pageCache = new LinkedList<OggPage>();
+    private LinkedList<OggPage> pageCache = new LinkedList<>();
     private HashMap<Integer, LogicalOggStream> logicalStreams 
-            = new HashMap<Integer, LogicalOggStream>();
+            = new HashMap<>();
     private OggPage lastPage = null;
 
     public UncachedOggStream(InputStream in) throws OggFormatException, IOException {
@@ -91,6 +91,7 @@ public class UncachedOggStream implements PhysicalOggStream {
         pageCache.add(op);
     }
 
+    @Override
     public OggPage getOggPage(int index) throws IOException {
         if (eos){
             return null;
@@ -117,21 +118,26 @@ public class UncachedOggStream implements PhysicalOggStream {
         return logicalStreams.get(Integer.valueOf(serialNumber));
     }
 
+    @Override
     public Collection<LogicalOggStream> getLogicalStreams() {
         return logicalStreams.values();
     }
 
+    @Override
     public void setTime(long granulePosition) throws IOException {
     }
 
+    @Override
     public boolean isSeekable() {
         return false;
     }
 
+    @Override
     public boolean isOpen() {
         return !closed;
     }
 
+    @Override
     public void close() throws IOException {
         closed = true;
         sourceStream.close();

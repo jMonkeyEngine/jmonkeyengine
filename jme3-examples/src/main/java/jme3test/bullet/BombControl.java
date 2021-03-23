@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -61,12 +61,12 @@ public class BombControl extends RigidBodyControl implements PhysicsCollisionLis
 
     private float explosionRadius = 10;
     private PhysicsGhostObject ghostObject;
-    private Vector3f vector = new Vector3f();
-    private Vector3f vector2 = new Vector3f();
+    final private Vector3f vector = new Vector3f();
+    final private Vector3f vector2 = new Vector3f();
     private float forceFactor = 1;
     private ParticleEmitter effect;
-    private float fxTime = 0.5f;
-    private float maxTime = 4f;
+    final private float fxTime = 0.5f;
+    final private float maxTime = 4f;
     private float curTime = -1.0f;
     private float timer;
 
@@ -81,6 +81,7 @@ public class BombControl extends RigidBodyControl implements PhysicsCollisionLis
         prepareEffect(manager);
     }
 
+    @Override
     public void setPhysicsSpace(PhysicsSpace space) {
         super.setPhysicsSpace(space);
         if (space != null) {
@@ -93,7 +94,7 @@ public class BombControl extends RigidBodyControl implements PhysicsCollisionLis
         float COUNT_FACTOR_F = 1f;
         effect = new ParticleEmitter("Flame", Type.Triangle, 32 * COUNT_FACTOR);
         effect.setSelectRandomImage(true);
-        effect.setStartColor(new ColorRGBA(1f, 0.4f, 0.05f, (float) (1f / COUNT_FACTOR_F)));
+        effect.setStartColor(new ColorRGBA(1f, 0.4f, 0.05f, (1f / COUNT_FACTOR_F)));
         effect.setEndColor(new ColorRGBA(.4f, .22f, .12f, 0f));
         effect.setStartSize(1.3f);
         effect.setEndSize(2f);
@@ -116,6 +117,7 @@ public class BombControl extends RigidBodyControl implements PhysicsCollisionLis
         ghostObject = new PhysicsGhostObject(new SphereCollisionShape(explosionRadius));
     }
 
+    @Override
     public void collision(PhysicsCollisionEvent event) {
         if (space == null) {
             return;
@@ -135,10 +137,12 @@ public class BombControl extends RigidBodyControl implements PhysicsCollisionLis
         }
     }
     
+    @Override
     public void prePhysicsTick(PhysicsSpace space, float f) {
         space.removeCollisionListener(this);
     }
 
+    @Override
     public void physicsTick(PhysicsSpace space, float f) {
         //get all overlapping objects and apply impulse to them
         for (Iterator<PhysicsCollisionObject> it = ghostObject.getOverlappingObjects().iterator(); it.hasNext();) {            

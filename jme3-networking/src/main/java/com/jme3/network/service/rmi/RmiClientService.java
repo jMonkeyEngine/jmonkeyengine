@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 jMonkeyEngine
+ * Copyright (c) 2015-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -69,7 +69,7 @@ public class RmiClientService extends AbstractClientService {
     private RmiRegistry rmi;
     private volatile boolean isStarted = false;
     
-    private final List<ObjectInfo> pending = new ArrayList<ObjectInfo>();   
+    private final List<ObjectInfo> pending = new ArrayList<>();   
     
     public RmiClientService() {
         this((short)-1, (byte)MessageConnection.CHANNEL_DEFAULT_RELIABLE);
@@ -160,6 +160,7 @@ public class RmiClientService extends AbstractClientService {
     }
     
     @Override
+    @SuppressWarnings("unchecked")
     public void start() {
         super.start();
         

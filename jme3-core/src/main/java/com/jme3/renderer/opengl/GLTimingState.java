@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,5 +37,5 @@ public class GLTimingState {
     long timeSpentInGL = 0;
     int sampleCount = 0;
     long lastPrintOutTime = 0;
-    final HashMap<String, Long> callTiming = new HashMap<String, Long>();
+    final HashMap<String, Long> callTiming = new HashMap<>();
 }

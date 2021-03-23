@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -62,28 +62,34 @@ public class NanoTimer extends Timer {
         return getTime() * INVERSE_TIMER_RESOLUTION;
     }
 
+    @Override
     public long getTime() {
         return System.nanoTime() - startTime;
     }
 
+    @Override
     public long getResolution() {
         return TIMER_RESOLUTION;
     }
 
+    @Override
     public float getFrameRate() {
         return fps;
     }
 
+    @Override
     public float getTimePerFrame() {
         return tpf;
     }
 
+    @Override
     public void update() {
         tpf = (getTime() - previousTime) * (1.0f / TIMER_RESOLUTION);
         fps = 1.0f / tpf;
         previousTime = getTime();
     }
     
+    @Override
     public void reset() {
         startTime = System.nanoTime();
         previousTime = getTime();

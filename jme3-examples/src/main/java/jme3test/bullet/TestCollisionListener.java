@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,6 @@ import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.PhysicsSpace;
 import com.jme3.bullet.collision.PhysicsCollisionEvent;
 import com.jme3.bullet.collision.PhysicsCollisionListener;
-import com.jme3.bullet.collision.shapes.SphereCollisionShape;
 import com.jme3.renderer.RenderManager;
 import com.jme3.scene.shape.Sphere;
 import com.jme3.scene.shape.Sphere.TextureMode;
@@ -50,7 +49,6 @@ public class TestCollisionListener extends SimpleApplication implements PhysicsC
 
     private BulletAppState bulletAppState;
     private Sphere bullet;
-    private SphereCollisionShape bulletCollisionShape;
 
     public static void main(String[] args) {
         TestCollisionListener app = new TestCollisionListener();
@@ -64,7 +62,6 @@ public class TestCollisionListener extends SimpleApplication implements PhysicsC
         bulletAppState.setDebugEnabled(true);
         bullet = new Sphere(32, 32, 0.4f, true, false);
         bullet.setTextureMode(TextureMode.Projected);
-        bulletCollisionShape = new SphereCollisionShape(0.4f);
 
         PhysicsTestHelper.createPhysicsTestWorld(rootNode, assetManager, bulletAppState.getPhysicsSpace());
         PhysicsTestHelper.createBallShooter(this, rootNode, bulletAppState.getPhysicsSpace());
@@ -87,6 +84,7 @@ public class TestCollisionListener extends SimpleApplication implements PhysicsC
         //TODO: add render code
     }
 
+    @Override
     public void collision(PhysicsCollisionEvent event) {
         if ("Box".equals(event.getNodeA().getName()) || "Box".equals(event.getNodeB().getName())) {
             if ("bullet".equals(event.getNodeA().getName()) || "bullet".equals(event.getNodeB().getName())) {

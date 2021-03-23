@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -63,7 +63,7 @@ public final class FbxDump {
      * @return The UID to object map.
      */
     private static Map<FbxId, FbxElement> createUidToObjectMap(FbxFile file) {
-        Map<FbxId, FbxElement> uidToObjectMap = new HashMap<FbxId, FbxElement>();
+        Map<FbxId, FbxElement> uidToObjectMap = new HashMap<>();
         for (FbxElement rootElement : file.rootElements) {
             if (rootElement.id.equals("Objects")) {
                 for (FbxElement fbxObj : rootElement.children) {
@@ -148,9 +148,9 @@ public final class FbxDump {
             case 'F':
                 // Double, Float.
                 if (property instanceof Double) {
-                    ps.print(DECIMAL_FORMAT.format((Double)property));
+                    ps.print(DECIMAL_FORMAT.format(property));
                 } else if (property instanceof Float) {
-                    ps.print(DECIMAL_FORMAT.format((Float)property));
+                    ps.print(DECIMAL_FORMAT.format(property));
                 } else {
                     ps.print(property);
                 }

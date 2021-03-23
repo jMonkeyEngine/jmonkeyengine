@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -75,12 +75,12 @@ public class ShaderNodeLoaderDelegate {
     protected Set<String> varNames = new HashSet<>();
     protected AssetManager assetManager;
     protected ConditionParser conditionParser = new ConditionParser();
-    protected List<String> nulledConditions = new ArrayList<String>();
+    protected List<String> nulledConditions = new ArrayList<>();
 
     protected class DeclaredVariable {
 
         ShaderNodeVariable var;
-        List<ShaderNode> nodes = new ArrayList<ShaderNode>();
+        List<ShaderNode> nodes = new ArrayList<>();
 
         public DeclaredVariable(ShaderNodeVariable var) {
             this.var = var;
@@ -152,7 +152,7 @@ public class ShaderNodeLoaderDelegate {
      * @throws IOException
      */
     protected void readShaderNodeDefinition(List<Statement> statements, ShaderNodeDefinitionKey key) throws IOException {
-        boolean isLoadDoc = key instanceof ShaderNodeDefinitionKey && ((ShaderNodeDefinitionKey) key).isLoadDocumentation();
+        boolean isLoadDoc = key instanceof ShaderNodeDefinitionKey && key.isLoadDocumentation();
         for (Statement statement : statements) {
             try {
                 String[] split = statement.getLine().split("[ \\{]");
@@ -388,7 +388,7 @@ public class ShaderNodeLoaderDelegate {
     }
 
     /**
-     * Reads a Shader statement of this form <TYPE> <LANG> : <SOURCE>
+     * Reads a Shader statement of the form TYPE LANG : SOURCE
      *
      * @param statement
      * @throws IOException
@@ -1058,11 +1058,11 @@ public class ShaderNodeLoaderDelegate {
     }
 
     /**
-     * merges 2 condition with the given operator
+     * Merges 2 conditions with the given operator
      *
      * @param condition1 the first condition
      * @param condition2 the second condition
-     * @param operator the operator ("&&" or "||&)
+     * @param operator the operator {@literal ("&&" or "||&)}
      * @return the merged condition
      */
     public String mergeConditions(String condition1, String condition2, String operator) {

@@ -1,3 +1,34 @@
+/*
+ * Copyright (c) 2017-2021 jMonkeyEngine
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ * * Redistributions of source code must retain the above copyright
+ *   notice, this list of conditions and the following disclaimer.
+ *
+ * * Redistributions in binary form must reproduce the above copyright
+ *   notice, this list of conditions and the following disclaimer in the
+ *   documentation and/or other materials provided with the distribution.
+ *
+ * * Neither the name of 'jMonkeyEngine' nor the names of its contributors
+ *   may be used to endorse or promote products derived from this software
+ *   without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package com.jme3.math;
 
 import com.jme3.renderer.Camera;
@@ -7,7 +38,19 @@ import com.jme3.util.TempVars;
  * Created by Nehon on 23/04/2017.
  */
 public class MathUtils {
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private MathUtils() {
+    }
 
+    /**
+     * Calculate the natural logarithm of a unit quaternion.
+     *
+     * @param q the input Quaternion (not null, normalized, unaffected)
+     * @param store storage for the result (not null, modified)
+     * @return the logarithm (store)
+     */
     public static Quaternion log(Quaternion q, Quaternion store) {
         float a = FastMath.acos(q.w);
         float sina = FastMath.sin(a);
@@ -25,6 +68,13 @@ public class MathUtils {
         return store;
     }
 
+    /**
+     * Calculate the exponential of a pure quaternion.
+     *
+     * @param q the input Quaternion (not null, w=0, unaffected)
+     * @param store storage for the result (not null, modified)
+     * @return the exponential (store)
+     */
     public static Quaternion exp(Quaternion q, Quaternion store) {
 
         float len = FastMath.sqrt(q.x * q.x + q.y * q.y + q.z * q.z);
@@ -66,6 +116,15 @@ public class MathUtils {
         return store;
     }
 
+    /**
+     * Interpolate between 2 quaternions using Slerp.
+     *
+     * @param q1 the desired value for t=0
+     * @param q2 the desired value for t=1
+     * @param t the fractional parameter (&ge;0, &le;1)
+     * @param store storage for the result (not null, modified)
+     * @return the interpolated Quaternion (store)
+     */
     public static Quaternion slerp(Quaternion q1, Quaternion q2, float t, Quaternion store) {
 
         float dot = (q1.x * q2.x) + (q1.y * q2.y) + (q1.z * q2.z)
@@ -134,7 +193,6 @@ public class MathUtils {
     private static Quaternion spline(Quaternion qnm1, Quaternion qn, Quaternion qnp1, Quaternion store, Quaternion tmp) {
         Quaternion invQn = new Quaternion(-qn.x, -qn.y, -qn.z, qn.w);
 
-
         log(invQn.mult(qnp1), tmp);
         log(invQn.mult(qnm1), store);
         store.addLocal(tmp).multLocal(-1f / 4f);
@@ -144,7 +202,6 @@ public class MathUtils {
         return store.normalizeLocal();
         //return qn * (((qni * qnm1).log() + (qni * qnp1).log()) / -4).exp();
     }
-
 
     //! spherical cubic interpolation
     public static Quaternion squad(Quaternion q0, Quaternion q1, Quaternion q2, Quaternion q3, Quaternion a, Quaternion b, float t, Quaternion store) {
@@ -163,7 +220,6 @@ public class MathUtils {
 //                d = slerpNoInvert(a, b, t);
 //        return slerpNoInvert(c, d, 2 * t * (1 - t));
     }
-
 
     /**
      * Returns the shortest distance between a Ray and a segment.
@@ -243,5 +299,4 @@ public class MathUtils {
         vars.release();
         return length;
     }
-
 }

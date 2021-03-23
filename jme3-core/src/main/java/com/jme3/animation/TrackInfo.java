@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,16 +50,19 @@ import java.util.ArrayList;
 @Deprecated
 public class TrackInfo implements Savable, JmeCloneable {
 
-    ArrayList<Track> tracks = new ArrayList<Track>();
+    ArrayList<Track> tracks = new ArrayList<>();
 
     public TrackInfo() {
     }
 
+    @Override
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule c = ex.getCapsule(this);
         c.writeSavableArrayList(tracks, "tracks", null);
     }
 
+    @Override
+    @SuppressWarnings("unchecked")
     public void read(JmeImporter im) throws IOException {
         InputCapsule c = im.getCapsule(this);
         tracks = c.readSavableArrayList("tracks", null);

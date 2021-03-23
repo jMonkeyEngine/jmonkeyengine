@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -54,12 +54,6 @@ public class UdpConnector implements Connector
     private AtomicBoolean connected = new AtomicBoolean(false);
 
     /**
-     *  In order to provide proper available() checking, we
-     *  potentially queue one datagram.
-     */
-    private DatagramPacket pending;
-
-    /**
      *  Creates a new UDP connection that send datagrams to the
      *  specified address and port.
      */
@@ -81,6 +75,7 @@ public class UdpConnector implements Connector
             throw new ConnectorException( "Connection is closed:" + remoteAddress );
     }
      
+    @Override
     public boolean isConnected()
     {
         if( sock == null )
@@ -88,6 +83,7 @@ public class UdpConnector implements Connector
         return sock.isConnected();
     }
 
+    @Override
     public void close()
     {
         checkClosed();
@@ -101,6 +97,7 @@ public class UdpConnector implements Connector
      *  This always returns false since the simple DatagramSocket usage
      *  cannot be run in a non-blocking way.
      */
+    @Override
     public boolean available()
     {
         // It would take a separate thread or an NIO Selector based implementation to get this
@@ -110,6 +107,7 @@ public class UdpConnector implements Connector
         return false;
     }     
     
+    @Override
     public ByteBuffer read()
     {
         checkClosed();
@@ -128,6 +126,7 @@ public class UdpConnector implements Connector
         }                
     }
     
+    @Override
     public void write( ByteBuffer data )
     {
         checkClosed();

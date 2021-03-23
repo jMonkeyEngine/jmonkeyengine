@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -51,6 +51,11 @@ import java.util.LinkedList;
  * @author normenhansen, tim8dev
  */
 public class CollisionShapeFactory {
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private CollisionShapeFactory() {
+    }
 
     /**
      * Calculate the correct transform for a collision shape relative to the
@@ -229,7 +234,7 @@ public class CollisionShapeFactory {
      */
     public static CollisionShape createBoxShape(Spatial spatial) {
         if (spatial instanceof Geometry) {
-            return createSingleBoxShape((Geometry) spatial, spatial);
+            return createSingleBoxShape(spatial, spatial);
         } else if (spatial instanceof Node) {
             return createBoxCompoundShape((Node) spatial);
         } else {
@@ -296,7 +301,7 @@ public class CollisionShapeFactory {
      * @param vector
      */
     public static void shiftCompoundShapeContents(CompoundCollisionShape compoundShape, Vector3f vector) {
-        for (Iterator<ChildCollisionShape> it = new LinkedList(compoundShape.getChildren()).iterator(); it.hasNext();) {
+        for (Iterator<ChildCollisionShape> it = new LinkedList<>(compoundShape.getChildren()).iterator(); it.hasNext();) {
             ChildCollisionShape childCollisionShape = it.next();
             CollisionShape child = childCollisionShape.shape;
             Vector3f location = childCollisionShape.location;

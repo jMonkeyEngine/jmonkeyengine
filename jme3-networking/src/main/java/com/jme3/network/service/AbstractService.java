@@ -60,6 +60,7 @@ public abstract class AbstractService<S extends ServiceManager> implements Servi
      *  Retrieves the first sibling service of the specified
      *  type.
      */   
+    @SuppressWarnings("unchecked")
     protected <T extends Service<S>> T getService( Class<T> type ) {
         return type.cast(serviceManager.getService(type));
     }    

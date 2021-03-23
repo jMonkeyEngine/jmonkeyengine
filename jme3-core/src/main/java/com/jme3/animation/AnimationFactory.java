@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -287,12 +287,12 @@ public class AnimationFactory {
                 //frames delta
                 int dF = keyFrameIndex - prev;
                 //angle per frame for x,y ,z
-                float dXAngle = (x - prevRot.eulerAngles.x) / (float) dF;
-                float dYAngle = (y - prevRot.eulerAngles.y) / (float) dF;
-                float dZAngle = (z - prevRot.eulerAngles.z) / (float) dF;
+                float dXAngle = (x - prevRot.eulerAngles.x) / dF;
+                float dYAngle = (y - prevRot.eulerAngles.y) / dF;
+                float dZAngle = (z - prevRot.eulerAngles.z) / dF;
 
                 // the keyFrame step
-                int keyStep = (int) (((float) (dF)) / delta * (float) EULER_STEP);
+                int keyStep = (int) (dF / delta * EULER_STEP);
                 // the current keyFrame
                 int cursor = prev + keyStep;
                 while (cursor < keyFrameIndex) {
@@ -425,7 +425,7 @@ public class AnimationFactory {
                 //interating over the frames
                 for (int j = i; j <= key; j++) {
                     // computing interpolation value
-                    float val = (float) (j - i) / (float) span;
+                    float val = (j - i) / (float) span;
                     //interpolationg depending on the transform type
                     switch (type) {
                         case Translation:
@@ -451,7 +451,7 @@ public class AnimationFactory {
                             translations[j] = ((Vector3f) keyFrames[i]).clone();
                             break;
                         case Rotation:
-                            rotations[j] = ((Quaternion) ((Rotation) keyFrames[i]).rotation).clone();
+                            rotations[j] = ((Rotation) keyFrames[i]).rotation.clone();
                             break;
                         case Scale:
                             scales[j] = ((Vector3f) keyFrames[i]).clone();

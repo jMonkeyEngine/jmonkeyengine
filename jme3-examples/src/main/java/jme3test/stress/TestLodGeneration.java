@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,7 +32,6 @@
 package jme3test.stress;
 
 import com.jme3.anim.SkinningControl;
-import com.jme3.animation.AnimChannel;
 import com.jme3.app.SimpleApplication;
 import com.jme3.bounding.BoundingBox;
 import com.jme3.font.BitmapText;
@@ -57,15 +56,15 @@ public class TestLodGeneration extends SimpleApplication {
         TestLodGeneration app = new TestLodGeneration();
         app.start();
     }
-    boolean wireFrame = false;
-    float reductionvalue = 0.0f;
+    private boolean wireFrame = false;
+    private float reductionvalue = 0.0f;
     private int lodLevel = 0;
     private Node model;
     private BitmapText hudText;
-    private List<Geometry> listGeoms = new ArrayList<Geometry>();
-    private ScheduledThreadPoolExecutor exec = new ScheduledThreadPoolExecutor(5);
-    private AnimChannel ch;
+    final private List<Geometry> listGeoms = new ArrayList<>();
+    final private ScheduledThreadPoolExecutor exec = new ScheduledThreadPoolExecutor(5);
 
+    @Override
     public void simpleInitApp() {
 
         DirectionalLight dl = new DirectionalLight();
@@ -124,6 +123,7 @@ public class TestLodGeneration extends SimpleApplication {
         guiNode.attachChild(hudText);
 
         inputManager.addListener(new ActionListener() {
+            @Override
             public void onAction(String name, boolean isPressed, float tpf) {
                 if (isPressed) {
                     if (name.equals("plus")) {
@@ -211,12 +211,14 @@ public class TestLodGeneration extends SimpleApplication {
 
     private void makeLod(final LodGenerator.TriangleReductionMethod method, final float value, final int ll) {
         exec.execute(new Runnable() {
+            @Override
             public void run() {
                 for (final Geometry geometry : listGeoms) {
                     LodGenerator lODGenerator = new LodGenerator(geometry);
                     final VertexBuffer[] lods = lODGenerator.computeLods(method, value);
 
                     enqueue(new Callable<Void>() {
+                        @Override
                         public Void call() throws Exception {
                             geometry.getMesh().setLodLevels(lods);
                             lodLevel = 0;

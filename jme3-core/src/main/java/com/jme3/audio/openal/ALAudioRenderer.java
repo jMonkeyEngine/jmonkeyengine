@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -65,7 +65,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
     private int[] channels;
     private AudioSource[] chanSrcs;
     private int nextChan = 0;
-    private final ArrayList<Integer> freeChans = new ArrayList<Integer>();
+    private final ArrayList<Integer> freeChans = new ArrayList<>();
     private Listener listener;
     private boolean audioDisabled = false;
     private boolean supportEfx = false;
@@ -101,7 +101,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
         }
 
         // Find maximum # of sources supported by this implementation
-        ArrayList<Integer> channelList = new ArrayList<Integer>();
+        ArrayList<Integer> channelList = new ArrayList<>();
         for (int i = 0; i < MAX_NUM_CHANNELS; i++) {
             int chan = al.alGenSources();
             if (al.alGetError() != 0) {
@@ -216,6 +216,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
         alc.destroyALC();
     }
 
+    @Override
     public void initialize() {
         if (decoderThread.isAlive()) {
             throw new IllegalStateException("Initialize already called");
@@ -237,6 +238,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
         }
     }
 
+    @Override
     public void run() {
         long updateRateNanos = (long) (UPDATE_RATE * 1000000000);
         mainloop:
@@ -267,6 +269,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
         }
     }
 
+    @Override
     public void cleanup() {
         // kill audio thread
         if (!decoderThread.isAlive()) {
@@ -359,6 +362,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
         }
     }
     
+    @Override
     public void updateSourceParam(AudioSource src, AudioParam param) {
         checkDead();
         synchronized (threadLock) {
@@ -585,6 +589,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
         }
     }
 
+    @Override
     public void updateListenerParam(Listener listener, ListenerParam param) {
         checkDead();
         synchronized (threadLock) {
@@ -651,6 +656,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
         }
     }
 
+    @Override
     public void setEnvironment(Environment env) {
         checkDead();
         synchronized (threadLock) {
@@ -821,7 +827,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
                 al.alSourcei(sourceId, EFX.AL_DIRECT_FILTER, EFX.AL_FILTER_NULL);
             }
             if (src.isPositional()) {
-                AudioSource pas = (AudioSource) src;
+                AudioSource pas = src;
                 if (pas.isReverbEnabled() && supportEfx) {
                     al.alSource3i(sourceId, EFX.AL_AUXILIARY_SEND_FILTER, 0, 0, EFX.AL_FILTER_NULL);
                 }
@@ -845,6 +851,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
         }
     }
 
+    @Override
     public void update(float tpf) {
         synchronized (threadLock) {
             updateInRenderThread(tpf);
@@ -977,6 +984,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
         objManager.deleteUnused(this);
     }
 
+    @Override
     public void setListener(Listener listener) {
         checkDead();
         synchronized (threadLock) {
@@ -996,6 +1004,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
         }
     }
     
+    @Override
     public void pauseAll() {
         if (!supportPauseDevice) {
             throw new UnsupportedOperationException("Pause device is NOT supported!");
@@ -1004,6 +1013,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
         alc.alcDevicePauseSOFT();
     }
 
+    @Override
     public void resumeAll() {
         if (!supportPauseDevice) {
             throw new UnsupportedOperationException("Pause device is NOT supported!");
@@ -1012,6 +1022,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
         alc.alcDeviceResumeSOFT();
     }
 
+    @Override
     public void playSourceInstance(AudioSource src) {
         checkDead();
         synchronized (threadLock) {
@@ -1049,6 +1060,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
         }
     }
 
+    @Override
     public void playSource(AudioSource src) {
         checkDead();
         synchronized (threadLock) {
@@ -1087,6 +1099,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
         }
     }
 
+    @Override
     public void pauseSource(AudioSource src) {
         checkDead();
         synchronized (threadLock) {
@@ -1103,6 +1116,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
         }
     }
 
+    @Override
     public void stopSource(AudioSource src) {
         synchronized (threadLock) {
             if (audioDisabled) {
@@ -1196,6 +1210,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
         }
     }
 
+    @Override
     public void deleteFilter(Filter filter) {
         int id = filter.getId();
         if (id != -1) {
@@ -1206,6 +1221,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
         }
     }
 
+    @Override
     public void deleteAudioData(AudioData ad) {
         synchronized (threadLock) {
             if (audioDisabled) {

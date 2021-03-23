@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -148,36 +148,36 @@ public class BinaryExporter implements JmeExporter {
     protected int idCount = 1;
 
     protected IdentityHashMap<Savable, BinaryIdContentPair> contentTable
-             = new IdentityHashMap<Savable, BinaryIdContentPair>();
+             = new IdentityHashMap<>();
 
     protected HashMap<Integer, Integer> locationTable
-             = new HashMap<Integer, Integer>();
+             = new HashMap<>();
 
     // key - class name, value = bco
-    private HashMap<String, BinaryClassObject> classes
-             = new HashMap<String, BinaryClassObject>();
+    final private HashMap<String, BinaryClassObject> classes
+             = new HashMap<>();
 
-    private ArrayList<Savable> contentKeys = new ArrayList<Savable>();
+    final private ArrayList<Savable> contentKeys = new ArrayList<>();
 
     public static boolean debug = false;
     public static boolean useFastBufs = true;
-      
+
     public BinaryExporter() {
     }
 
     public static BinaryExporter getInstance() {
         return new BinaryExporter();
     }
-    
+
     /**
      * Saves the object into memory then loads it from memory.
-     * 
+     *
      * Used by tests to check if the persistence system is working.
-     * 
+     *
      * @param <T> The type of savable.
      * @param assetManager AssetManager to load assets from.
      * @param object The object to save and then load.
-     * @return A new instance that has been saved and loaded from the 
+     * @return A new instance that has been saved and loaded from the
      * original object.
      */
     public static <T extends Savable> T saveAndLoad(AssetManager assetManager, T object) {
@@ -194,6 +194,7 @@ public class BinaryExporter implements JmeExporter {
         }
     }
 
+    @Override
     public void save(Savable object, OutputStream os) throws IOException {
         // reset some vars
         aliasCount = 1;
@@ -202,11 +203,11 @@ public class BinaryExporter implements JmeExporter {
         contentTable.clear();
         locationTable.clear();
         contentKeys.clear();
-        
+
         // write signature and version
         os.write(ByteUtils.convertToBytes(FormatVersion.SIGNATURE));
         os.write(ByteUtils.convertToBytes(FormatVersion.VERSION));
-        
+
         int id = processBinarySavable(object);
 
         // write out tag table
@@ -215,7 +216,7 @@ public class BinaryExporter implements JmeExporter {
         int aliasSize = ((int) FastMath.log(classNum, 256) + 1); // make all
                                                                   // aliases a
                                                                   // fixed width
-        
+
         os.write(ByteUtils.convertToBytes(classNum));
         for (String key : classes.keySet()) {
             BinaryClassObject bco = classes.get(key);
@@ -225,20 +226,20 @@ public class BinaryExporter implements JmeExporter {
                     aliasSize);
             os.write(aliasBytes);
             classTableSize += aliasSize;
-            
+
             // jME3 NEW: Write class hierarchy version numbers
             os.write( bco.classHierarchyVersions.length );
             for (int version : bco.classHierarchyVersions){
                 os.write(ByteUtils.convertToBytes(version));
             }
             classTableSize += 1 + bco.classHierarchyVersions.length * 4;
-            
+
             // write classname size & classname
             byte[] classBytes = key.getBytes();
             os.write(ByteUtils.convertToBytes(classBytes.length));
             os.write(classBytes);
             classTableSize += 4 + classBytes.length;
-            
+
             // for each field, write alias, type, and name
             os.write(ByteUtils.convertToBytes(bco.nameFields.size()));
             for (String fieldName : bco.nameFields.keySet()) {
@@ -258,7 +259,7 @@ public class BinaryExporter implements JmeExporter {
         // write out data to a separate stream
         int location = 0;
         // keep track of location for each piece
-        HashMap<String, ArrayList<BinaryIdContentPair>> alreadySaved = new HashMap<String, ArrayList<BinaryIdContentPair>>(
+        HashMap<String, ArrayList<BinaryIdContentPair>> alreadySaved = new HashMap<>(
                 contentTable.size());
         for (Savable savable : contentKeys) {
             // look back at previous written data for matches
@@ -349,35 +350,35 @@ public class BinaryExporter implements JmeExporter {
         return bytes;
     }
 
+    @Override
     public void save(Savable object, File f) throws IOException {
         File parentDirectory = f.getParentFile();
         if (parentDirectory != null && !parentDirectory.exists()) {
             parentDirectory.mkdirs();
         }
 
-        FileOutputStream fos = new FileOutputStream(f);
-        try {
-            save(object, fos);
-        } finally {
-            fos.close();
+        try (FileOutputStream fos = new FileOutputStream(f);
+                BufferedOutputStream bos = new BufferedOutputStream(fos)) {
+            save(object, bos);
         }
     }
 
+    @Override
     public BinaryOutputCapsule getCapsule(Savable object) {
         return contentTable.get(object).getContent();
     }
 
-    private BinaryClassObject createClassObject(Class clazz) throws IOException{
+    private BinaryClassObject createClassObject(Class<? extends Savable> clazz) throws IOException{
         BinaryClassObject bco = new BinaryClassObject();
         bco.alias = generateTag();
-        bco.nameFields = new HashMap<String, BinaryClassField>();
+        bco.nameFields = new HashMap<>();
         bco.classHierarchyVersions = SavableClassUtil.getSavableVersions(clazz);
-        
+
         classes.put(clazz.getName(), bco);
-            
+
         return bco;
     }
-    
+
     public int processBinarySavable(Savable object) throws IOException {
         if (object == null) {
             return -1;

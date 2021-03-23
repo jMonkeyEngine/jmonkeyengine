@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -134,6 +134,7 @@ public final class UserData implements Savable {
         }
     }
 
+    @Override
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(type, "type", (byte) 0);
@@ -191,6 +192,7 @@ public final class UserData implements Savable {
         }
     }
 
+    @Override
     public void read(JmeImporter im) throws IOException {
         InputCapsule ic = im.getCapsule(this);
         type = ic.readByte("type", (byte) 0);
@@ -217,7 +219,7 @@ public final class UserData implements Savable {
                 value = this.readList(ic, "0");
                 break;
             case TYPE_MAP:
-                Map<Object, Object> map = new HashMap<Object, Object>();
+                Map<Object, Object> map = new HashMap<>();
                 List<?> keys = this.readList(ic, "0");
                 List<?> values = this.readList(ic, "1");
                 for (int i = 0; i < keys.size(); ++i) {
@@ -314,7 +316,7 @@ public final class UserData implements Savable {
      */
     private List<?> readList(InputCapsule ic, String listName) throws IOException {
         int size = ic.readInt(listName + "size", 0);
-        List<Object> list = new ArrayList<Object>(size);
+        List<Object> list = new ArrayList<>(size);
         for (int i = 0; i < size; ++i) {
             int type = ic.readInt(listName + "t" + i, 0);
             switch (type) {
@@ -343,7 +345,7 @@ public final class UserData implements Savable {
                     list.add(this.readList(ic, listName + "v" + i));
                     break;
                 case TYPE_MAP:
-                    Map<Object, Object> map = new HashMap<Object, Object>();
+                    Map<Object, Object> map = new HashMap<>();
                     List<?> keys = this.readList(ic, listName + "v(keys)" + i);
                     List<?> values = this.readList(ic, listName + "v(vals)" + i);
                     for (int j = 0; j < keys.size(); ++j) {

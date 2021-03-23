@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,12 +52,13 @@ import java.util.Comparator;
  * for optimal performance, but can be called several times if the length of the
  * list changes
  *
+ * {@code
  * Disclaimer : I was intrigued by the use of val >>> 1 in java 7 Timsort class
  * instead of val / 2 (integer division). Micro benching revealed that val >>> 1
  * is twice faster than val / 2 in java 6 and has similar perf in java 7. The
  * following code uses val >>> 1 when ever a value needs to be divided by 2 and
  * rounded to its floor
- *
+ * }
  *
  * @author Nehon
  */
@@ -66,7 +67,7 @@ public class ListSort<T> {
     /**
      * Threshold for binary sort vs merge. Original algorithm use 64, java7
      * TimSort uses 32 and I used 128, see this post for explanations :
-     * http://hub.jmonkeyengine.org/groups/development-discussion-jme3/forum/topic/i-got-that-sorted-out-huhuhu/
+     * https://hub.jmonkeyengine.org/t/i-got-that-sorted-out-huhuhu/24478
      */
     private static final int MIN_SIZE = 128;
     private T[] array;
@@ -130,6 +131,7 @@ public class ListSort<T> {
      *
      * @param len
      */
+    @SuppressWarnings("unchecked")
     public final void allocateStack(int len) {
 
         length = len;
@@ -991,14 +993,16 @@ public class ListSort<T> {
         return length;
     }
     
-    /*
+    /**
      * test case
      */
+    @SuppressWarnings("unchecked")
     public static void main(String[] argv) {
         Integer[] arr = new Integer[]{5, 6, 2, 9, 10, 11, 12, 8, 3, 12, 3, 7, 12, 32, 458, 12, 5, 3, 78, 45, 12, 32, 58, 45, 65, 45, 98, 45, 65, 2, 3, 47, 21, 35};
         ListSort ls = new ListSort();
         ls.allocateStack(34);
         ls.sort(arr, new Comparator<Integer>() {
+            @Override
             public int compare(Integer o1, Integer o2) {
                 int x = o1 - o2;
                 return (x == 0) ? 0 : (x > 0) ? 1 : -1;

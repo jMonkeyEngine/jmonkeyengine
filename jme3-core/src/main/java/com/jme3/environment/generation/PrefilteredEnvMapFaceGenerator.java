@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -137,6 +137,7 @@ public class PrefilteredEnvMapFaceGenerator extends RunnableWithProgress {
         app.enqueue(new Callable<Void>() {
 
             @Override
+            @SuppressWarnings("unchecked")
             public Void call() throws Exception {
                 listener.done(face);
                 return null;
@@ -211,7 +212,7 @@ public class PrefilteredEnvMapFaceGenerator extends RunnableWithProgress {
             nbRotations = numSamples == 1 ? 1 : 18;
         }
 
-        float rad = 2f * FastMath.PI / (float) nbRotations;
+        float rad = 2f * FastMath.PI / nbRotations;
         // offset rotation to avoid sampling pattern
         float gi = (float) (FastMath.abs(N.z + N.x) * 256.0);
         float offset = rad * (FastMath.cos((gi * 0.5f) % (2f * FastMath.PI)) * 0.5f + 0.5f);

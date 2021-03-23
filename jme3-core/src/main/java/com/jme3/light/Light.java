@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012, 2015-2016 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -87,7 +87,7 @@ public abstract class Light implements Savable, Cloneable {
         Probe(4);
                 
 
-        private int typeId;
+        final private int typeId;
 
         Type(int type){
             this.typeId = type;
@@ -259,6 +259,7 @@ public abstract class Light implements Savable, Cloneable {
         }
     }
 
+    @Override
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(color, "color", null);
@@ -266,6 +267,7 @@ public abstract class Light implements Savable, Cloneable {
         oc.write(name, "name", null);
     }
 
+    @Override
     public void read(JmeImporter im) throws IOException {
         InputCapsule ic = im.getCapsule(this);
         color = (ColorRGBA) ic.readSavable("color", null);

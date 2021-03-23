@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,6 +41,7 @@ import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
@@ -68,6 +69,7 @@ final class BinaryOutputCapsule implements OutputCapsule {
         this.cObj = bco;
     }
 
+    @Override
     public void write(byte value, String name, byte defVal) throws IOException {
         if (value == defVal)
             return;
@@ -75,6 +77,7 @@ final class BinaryOutputCapsule implements OutputCapsule {
         write(value);
     }
 
+    @Override
     public void write(byte[] value, String name, byte[] defVal)
             throws IOException {
         if (value == defVal)
@@ -83,6 +86,7 @@ final class BinaryOutputCapsule implements OutputCapsule {
         write(value);
     }
 
+    @Override
     public void write(byte[][] value, String name, byte[][] defVal)
             throws IOException {
         if (value == defVal)
@@ -91,6 +95,7 @@ final class BinaryOutputCapsule implements OutputCapsule {
         write(value);
     }
 
+    @Override
     public void write(int value, String name, int defVal) throws IOException {
         if (value == defVal)
             return;
@@ -98,6 +103,7 @@ final class BinaryOutputCapsule implements OutputCapsule {
         write(value);
     }
 
+    @Override
     public void write(int[] value, String name, int[] defVal)
             throws IOException {
         if (value == defVal)
@@ -106,6 +112,7 @@ final class BinaryOutputCapsule implements OutputCapsule {
         write(value);
     }
 
+    @Override
     public void write(int[][] value, String name, int[][] defVal)
             throws IOException {
         if (value == defVal)
@@ -114,6 +121,7 @@ final class BinaryOutputCapsule implements OutputCapsule {
         write(value);
     }
 
+    @Override
     public void write(float value, String name, float defVal)
             throws IOException {
         if (value == defVal)
@@ -122,6 +130,7 @@ final class BinaryOutputCapsule implements OutputCapsule {
         write(value);
     }
 
+    @Override
     public void write(float[] value, String name, float[] defVal)
             throws IOException {
         if (value == defVal)
@@ -130,6 +139,7 @@ final class BinaryOutputCapsule implements OutputCapsule {
         write(value);
     }
 
+    @Override
     public void write(float[][] value, String name, float[][] defVal)
             throws IOException {
         if (value == defVal)
@@ -138,6 +148,7 @@ final class BinaryOutputCapsule implements OutputCapsule {
         write(value);
     }
 
+    @Override
     public void write(double value, String name, double defVal)
             throws IOException {
         if (value == defVal)
@@ -146,6 +157,7 @@ final class BinaryOutputCapsule implements OutputCapsule {
         write(value);
     }
 
+    @Override
     public void write(double[] value, String name, double[] defVal)
             throws IOException {
         if (value == defVal)
@@ -154,6 +166,7 @@ final class BinaryOutputCapsule implements OutputCapsule {
         write(value);
     }
 
+    @Override
     public void write(double[][] value, String name, double[][] defVal)
             throws IOException {
         if (value == defVal)
@@ -162,6 +175,7 @@ final class BinaryOutputCapsule implements OutputCapsule {
         write(value);
     }
 
+    @Override
     public void write(long value, String name, long defVal) throws IOException {
         if (value == defVal)
             return;
@@ -169,6 +183,7 @@ final class BinaryOutputCapsule implements OutputCapsule {
         write(value);
     }
 
+    @Override
     public void write(long[] value, String name, long[] defVal)
             throws IOException {
         if (value == defVal)
@@ -177,6 +192,7 @@ final class BinaryOutputCapsule implements OutputCapsule {
         write(value);
     }
 
+    @Override
     public void write(long[][] value, String name, long[][] defVal)
             throws IOException {
         if (value == defVal)
@@ -185,6 +201,7 @@ final class BinaryOutputCapsule implements OutputCapsule {
         write(value);
     }
 
+    @Override
     public void write(short value, String name, short defVal)
             throws IOException {
         if (value == defVal)
@@ -193,6 +210,7 @@ final class BinaryOutputCapsule implements OutputCapsule {
         write(value);
     }
 
+    @Override
     public void write(short[] value, String name, short[] defVal)
             throws IOException {
         if (value == defVal)
@@ -201,6 +219,7 @@ final class BinaryOutputCapsule implements OutputCapsule {
         write(value);
     }
 
+    @Override
     public void write(short[][] value, String name, short[][] defVal)
             throws IOException {
         if (value == defVal)
@@ -209,6 +228,7 @@ final class BinaryOutputCapsule implements OutputCapsule {
         write(value);
     }
 
+    @Override
     public void write(boolean value, String name, boolean defVal)
             throws IOException {
         if (value == defVal)
@@ -217,6 +237,7 @@ final class BinaryOutputCapsule implements OutputCapsule {
         write(value);
     }
 
+    @Override
     public void write(boolean[] value, String name, boolean[] defVal)
             throws IOException {
         if (value == defVal)
@@ -225,6 +246,7 @@ final class BinaryOutputCapsule implements OutputCapsule {
         write(value);
     }
 
+    @Override
     public void write(boolean[][] value, String name, boolean[][] defVal)
             throws IOException {
         if (value == defVal)
@@ -233,6 +255,7 @@ final class BinaryOutputCapsule implements OutputCapsule {
         write(value);
     }
 
+    @Override
     public void write(String value, String name, String defVal)
             throws IOException {
         if (value == null ? defVal == null : value.equals(defVal))
@@ -241,6 +264,7 @@ final class BinaryOutputCapsule implements OutputCapsule {
         write(value);
     }
 
+    @Override
     public void write(String[] value, String name, String[] defVal)
             throws IOException {
         if (value == defVal)
@@ -249,6 +273,7 @@ final class BinaryOutputCapsule implements OutputCapsule {
         write(value);
     }
 
+    @Override
     public void write(String[][] value, String name, String[][] defVal)
             throws IOException {
         if (value == defVal)
@@ -257,6 +282,7 @@ final class BinaryOutputCapsule implements OutputCapsule {
         write(value);
     }
 
+    @Override
     public void write(BitSet value, String name, BitSet defVal)
             throws IOException {
         if (value == defVal)
@@ -265,6 +291,7 @@ final class BinaryOutputCapsule implements OutputCapsule {
         write(value);
     }
 
+    @Override
     public void write(Savable object, String name, Savable defVal)
             throws IOException {
         if (object == defVal)
@@ -273,6 +300,7 @@ final class BinaryOutputCapsule implements OutputCapsule {
         write(object);
     }
 
+    @Override
     public void write(Savable[] objects, String name, Savable[] defVal)
             throws IOException {
         if (objects == defVal)
@@ -281,6 +309,7 @@ final class BinaryOutputCapsule implements OutputCapsule {
         write(objects);
     }
 
+    @Override
     public void write(Savable[][] objects, String name, Savable[][] defVal)
             throws IOException {
         if (objects == defVal)
@@ -289,6 +318,7 @@ final class BinaryOutputCapsule implements OutputCapsule {
         write(objects);
     }
 
+    @Override
     public void write(FloatBuffer value, String name, FloatBuffer defVal)
             throws IOException {
         if (value == defVal)
@@ -297,6 +327,7 @@ final class BinaryOutputCapsule implements OutputCapsule {
         write(value);
     }
 
+    @Override
     public void write(IntBuffer value, String name, IntBuffer defVal)
             throws IOException {
         if (value == defVal)
@@ -305,6 +336,7 @@ final class BinaryOutputCapsule implements OutputCapsule {
         write(value);
     }
 
+    @Override
     public void write(ByteBuffer value, String name, ByteBuffer defVal)
             throws IOException {
         if (value == defVal)
@@ -313,6 +345,7 @@ final class BinaryOutputCapsule implements OutputCapsule {
         write(value);
     }
 
+    @Override
     public void write(ShortBuffer value, String name, ShortBuffer defVal)
             throws IOException {
         if (value == defVal)
@@ -321,6 +354,7 @@ final class BinaryOutputCapsule implements OutputCapsule {
         write(value);
     }
 
+    @Override
     public void writeFloatBufferArrayList(ArrayList<FloatBuffer> array,
             String name, ArrayList<FloatBuffer> defVal) throws IOException {
         if (array == defVal)
@@ -329,6 +363,7 @@ final class BinaryOutputCapsule implements OutputCapsule {
         writeFloatBufferArrayList(array);
     }
 
+    @Override
     public void writeByteBufferArrayList(ArrayList<ByteBuffer> array,
             String name, ArrayList<ByteBuffer> defVal) throws IOException {
         if (array == defVal)
@@ -337,6 +372,7 @@ final class BinaryOutputCapsule implements OutputCapsule {
         writeByteBufferArrayList(array);
     }
 
+    @Override
     public void writeSavableArrayList(ArrayList array, String name,
             ArrayList defVal) throws IOException {
         if (array == defVal)
@@ -345,6 +381,7 @@ final class BinaryOutputCapsule implements OutputCapsule {
         writeSavableArrayList(array);
     }
 
+    @Override
     public void writeSavableArrayListArray(ArrayList[] array, String name,
             ArrayList[] defVal) throws IOException {
         if (array == defVal)
@@ -353,6 +390,7 @@ final class BinaryOutputCapsule implements OutputCapsule {
         writeSavableArrayListArray(array);
     }
 
+    @Override
     public void writeSavableArrayListArray2D(ArrayList[][] array, String name,
             ArrayList[][] defVal) throws IOException {
         if (array == defVal)
@@ -361,6 +399,7 @@ final class BinaryOutputCapsule implements OutputCapsule {
         writeSavableArrayListArray2D(array);
     }
 
+    @Override
     public void writeSavableMap(Map<? extends Savable, ? extends Savable> map,
             String name, Map<? extends Savable, ? extends Savable> defVal)
             throws IOException {
@@ -370,6 +409,7 @@ final class BinaryOutputCapsule implements OutputCapsule {
         writeSavableMap(map);
     }
 
+    @Override
     public void writeStringSavableMap(Map<String, ? extends Savable> map,
             String name, Map<String, ? extends Savable> defVal)
             throws IOException {
@@ -379,6 +419,7 @@ final class BinaryOutputCapsule implements OutputCapsule {
         writeStringSavableMap(map);
     }
 
+    @Override
     public void writeIntSavableMap(IntMap<? extends Savable> map,
             String name, IntMap<? extends Savable> defVal)
             throws IOException {
@@ -644,8 +685,7 @@ final class BinaryOutputCapsule implements OutputCapsule {
             write(NULL_OBJECT);
             return;
         }
-        // write our output as UTF-8. Java misspells UTF-8 as UTF8 for official use in java.lang
-        byte[] bytes = value.getBytes("UTF8");
+        byte[] bytes = value.getBytes(StandardCharsets.UTF_8);
         write(bytes.length);
         baos.write(bytes);
     }
@@ -931,6 +971,7 @@ final class BinaryOutputCapsule implements OutputCapsule {
         value.rewind();
     }
 
+    @Override
     public void write(Enum value, String name, Enum defVal) throws IOException {
         if (value == defVal)
             return;

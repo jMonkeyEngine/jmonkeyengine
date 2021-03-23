@@ -13,7 +13,7 @@ public class SphereProbeArea implements ProbeArea {
 
     private Vector3f center = new Vector3f();
     private float radius = 1;
-    private Matrix4f uniformMatrix = new Matrix4f();
+    final private Matrix4f uniformMatrix = new Matrix4f();
 
     public SphereProbeArea() {
     }
@@ -28,11 +28,13 @@ public class SphereProbeArea implements ProbeArea {
         return center;
     }
 
+    @Override
     public void setCenter(Vector3f center) {
         this.center.set(center);
         updateMatrix();
     }
 
+    @Override
     public float getRadius() {
         return radius;
     }

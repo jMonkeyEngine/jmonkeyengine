@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -94,10 +94,10 @@ public final class SettingsDialog extends JFrame {
     private JCheckBox vsyncBox = null;
     private JCheckBox gammaBox = null;
     private JCheckBox fullscreenBox = null;
-    private JComboBox displayResCombo = null;
-    private JComboBox colorDepthCombo = null;
-    private JComboBox displayFreqCombo = null;
-    private JComboBox antialiasCombo = null;
+    private JComboBox<String> displayResCombo = null;
+    private JComboBox<String> colorDepthCombo = null;
+    private JComboBox<String> displayFreqCombo = null;
+    private JComboBox<String> antialiasCombo = null;
     private JLabel icon = null;
     private int selection = 0;
     private SelectionListener selectionListener = null;
@@ -115,6 +115,8 @@ public final class SettingsDialog extends JFrame {
      * @param imageFile
      *            the image file to use as the title of the dialog;
      *            <code>null</code> will result in to image being displayed
+     * @param loadSettings
+     *            if true, copy the settings, otherwise merge them
      * @throws NullPointerException
      *             if the source is <code>null</code>
      */
@@ -132,8 +134,9 @@ public final class SettingsDialog extends JFrame {
      * @param imageFile
      *            the image file to use as the title of the dialog;
      *            <code>null</code> will result in to image being displayed
-     * @param loadSettings 
-     * @throws JmeException
+     * @param loadSettings
+     *            if true, copy the settings, otherwise merge them
+     * @throws NullPointerException
      *             if the source is <code>null</code>
      */
     public SettingsDialog(AppSettings source, URL imageFile, boolean loadSettings) {
@@ -312,7 +315,7 @@ public final class SettingsDialog extends JFrame {
         });
 
         if (source.getIcons() != null) {
-            safeSetIconImages( (List<BufferedImage>) Arrays.asList((BufferedImage[]) source.getIcons()) );
+            safeSetIconImages( Arrays.asList((BufferedImage[]) source.getIcons()) );
         }
 
         setTitle(MessageFormat.format(resourceBundle.getString("frame.title"), source.getTitle()));
@@ -342,16 +345,17 @@ public final class SettingsDialog extends JFrame {
 
         displayResCombo = setUpResolutionChooser();
         displayResCombo.addKeyListener(aListener);
-        colorDepthCombo = new JComboBox();
+        colorDepthCombo = new JComboBox<>();
         colorDepthCombo.addKeyListener(aListener);
-        displayFreqCombo = new JComboBox();
+        displayFreqCombo = new JComboBox<>();
         displayFreqCombo.addKeyListener(aListener);
-        antialiasCombo = new JComboBox();
+        antialiasCombo = new JComboBox<>();
         antialiasCombo.addKeyListener(aListener);
         fullscreenBox = new JCheckBox(resourceBundle.getString("checkbox.fullscreen"));
         fullscreenBox.setSelected(source.isFullscreen());
         fullscreenBox.addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
                 updateResolutionChoices();
             }
@@ -438,6 +442,7 @@ public final class SettingsDialog extends JFrame {
         // saves.
         ok.addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
                 if (verifyAndSaveCurrentSelection()) {
                     setUserSelection(APPROVE_SELECTION);
@@ -454,6 +459,7 @@ public final class SettingsDialog extends JFrame {
 
         cancel.addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
                 setUserSelection(CANCEL_SELECTION);
                 dispose();
@@ -487,6 +493,7 @@ public final class SettingsDialog extends JFrame {
         mainPanel.getRootPane().setDefaultButton(ok);
         SwingUtilities.invokeLater(new Runnable() {
 
+            @Override
             public void run() {
                 // Fill in the combos once the window has opened so that the insets can be read.
                 // The assumption is made that the settings window and the display window will have the
@@ -624,11 +631,12 @@ public final class SettingsDialog extends JFrame {
      * 
      * @return the combo box of display modes.
      */
-    private JComboBox setUpResolutionChooser() {
-        JComboBox resolutionBox = new JComboBox();
+    private JComboBox<String> setUpResolutionChooser() {
+        JComboBox<String> resolutionBox = new JComboBox<>();
 
         resolutionBox.addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
                 updateDisplayChoices();
             }
@@ -658,11 +666,11 @@ public final class SettingsDialog extends JFrame {
 
         // grab available depths
         String[] depths = getDepths(resolution, modes);
-        colorDepthCombo.setModel(new DefaultComboBoxModel(depths));
+        colorDepthCombo.setModel(new DefaultComboBoxModel<>(depths));
         colorDepthCombo.setSelectedItem(colorDepth);
         // grab available frequencies
         String[] freqs = getFrequencies(resolution, modes);
-        displayFreqCombo.setModel(new DefaultComboBoxModel(freqs));
+        displayFreqCombo.setModel(new DefaultComboBoxModel<>(freqs));
         // Try to reset freq
         displayFreqCombo.setSelectedItem(displayFreq);
         
@@ -681,18 +689,18 @@ public final class SettingsDialog extends JFrame {
      */
     private void updateResolutionChoices() {
         if (!fullscreenBox.isSelected()) {
-            displayResCombo.setModel(new DefaultComboBoxModel(
+            displayResCombo.setModel(new DefaultComboBoxModel<>(
                     getWindowedResolutions(windowModes)));
             if (displayResCombo.getItemCount() > 0) {
                 displayResCombo.setSelectedIndex(displayResCombo.getItemCount()-1);
             }
-            colorDepthCombo.setModel(new DefaultComboBoxModel(new String[]{
+            colorDepthCombo.setModel(new DefaultComboBoxModel<>(new String[]{
                         "24 bpp", "16 bpp"}));
-            displayFreqCombo.setModel(new DefaultComboBoxModel(
+            displayFreqCombo.setModel(new DefaultComboBoxModel<>(
                     new String[]{resourceBundle.getString("refresh.na")}));
             displayFreqCombo.setEnabled(false);
         } else {
-            displayResCombo.setModel(new DefaultComboBoxModel(
+            displayResCombo.setModel(new DefaultComboBoxModel<>(
                     getResolutions(modes, Integer.MAX_VALUE, Integer.MAX_VALUE)));
             if (displayResCombo.getItemCount() > 0) {
                 displayResCombo.setSelectedIndex(displayResCombo.getItemCount()-1);
@@ -706,7 +714,7 @@ public final class SettingsDialog extends JFrame {
         // maybe in the future will add support for determining this info
         // through pbuffer
         String[] choices = new String[]{resourceBundle.getString("antialias.disabled"), "2x", "4x", "6x", "8x", "16x"};
-        antialiasCombo.setModel(new DefaultComboBoxModel(choices));
+        antialiasCombo.setModel(new DefaultComboBoxModel<>(choices));
         antialiasCombo.setSelectedItem(choices[Math.min(source.getSamples()/2,5)]);
     }
 
@@ -742,7 +750,7 @@ public final class SettingsDialog extends JFrame {
         heightLimit -= insets.top + insets.bottom;
         widthLimit -= insets.left + insets.right;
         
-        ArrayList<String> resolutions = new ArrayList<String>(modes.length);
+        ArrayList<String> resolutions = new ArrayList<>(modes.length);
         for (int i = 0; i < modes.length; i++) {
             int height = modes[i].getHeight();
             int width = modes[i].getWidth();
@@ -791,7 +799,7 @@ public final class SettingsDialog extends JFrame {
      * Returns every possible bit depth for the given resolution.
      */
     private static String[] getDepths(String resolution, DisplayMode[] modes) {
-        ArrayList<String> depths = new ArrayList<String>(4);
+        ArrayList<String> depths = new ArrayList<>(4);
         for (int i = 0; i < modes.length; i++) {
             // Filter out all bit depths lower than 16 - Java incorrectly
             // reports
@@ -823,7 +831,7 @@ public final class SettingsDialog extends JFrame {
      */
     private static String[] getFrequencies(String resolution,
             DisplayMode[] modes) {
-        ArrayList<String> freqs = new ArrayList<String>(4);
+        ArrayList<String> freqs = new ArrayList<>(4);
         for (int i = 0; i < modes.length; i++) {
             String res = modes[i].getWidth() + " x " + modes[i].getHeight();
             String freq;
@@ -880,6 +888,7 @@ public final class SettingsDialog extends JFrame {
         /**
          * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
          */
+        @Override
         public int compare(DisplayMode a, DisplayMode b) {
             // Width
             if (a.getWidth() != b.getWidth()) {

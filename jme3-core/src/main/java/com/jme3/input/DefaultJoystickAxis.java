@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,13 +40,13 @@ import com.jme3.input.controls.JoyAxisTrigger;
  */
 public class DefaultJoystickAxis implements JoystickAxis {
 
-    private InputManager inputManager;
-    private Joystick parent;
-    private int axisIndex;
-    private String name;
-    private String logicalId;
-    private boolean isAnalog;
-    private boolean isRelative;
+    final private InputManager inputManager;
+    final private Joystick parent;
+    final private int axisIndex;
+    final private String name;
+    final private String logicalId;
+    final private boolean isAnalog;
+    final private boolean isRelative;
     private float deadZone;
 
     /**
@@ -71,6 +71,7 @@ public class DefaultJoystickAxis implements JoystickAxis {
      *  @param positiveMapping The mapping to receive events when the axis is negative
      *  @param negativeMapping The mapping to receive events when the axis is positive
      */
+    @Override
     public void assignAxis(String positiveMapping, String negativeMapping){
         if (axisIndex != -1) {
             inputManager.addMapping(positiveMapping, new JoyAxisTrigger(parent.getJoyId(), axisIndex, false));
@@ -81,6 +82,7 @@ public class DefaultJoystickAxis implements JoystickAxis {
     /**
      *  Returns the joystick to which this axis object belongs.
      */
+    @Override
     public Joystick getJoystick() {
         return parent;
     }
@@ -90,6 +92,7 @@ public class DefaultJoystickAxis implements JoystickAxis {
      *
      *  @return the name of this joystick.
      */
+    @Override
     public String getName() {
         return name;
     }
@@ -99,6 +102,7 @@ public class DefaultJoystickAxis implements JoystickAxis {
      *
      *  @return the logical identifier of this joystick.
      */
+    @Override
     public String getLogicalId() {
         return logicalId;
     }    
@@ -108,6 +112,7 @@ public class DefaultJoystickAxis implements JoystickAxis {
      *
      *  @return the axisId of this joystick axis.
      */
+    @Override
     public int getAxisId() {
         return axisIndex;
     }
@@ -116,6 +121,7 @@ public class DefaultJoystickAxis implements JoystickAxis {
      *  Returns true if this is an analog axis, meaning the values
      *  are a continuous range instead of 1, 0, and -1.
      */
+    @Override
     public boolean isAnalog() {
         return isAnalog;
     }
@@ -123,6 +129,7 @@ public class DefaultJoystickAxis implements JoystickAxis {
     /**
      *  Returns true if this axis presents relative values.
      */
+    @Override
     public boolean isRelative() {
         return isRelative;
     }
@@ -131,6 +138,7 @@ public class DefaultJoystickAxis implements JoystickAxis {
      *  Returns the suggested dead zone for this axis.  Values less than this
      *  can be safely ignored.
      */
+    @Override
     public float getDeadZone() {
         return deadZone;
     }        

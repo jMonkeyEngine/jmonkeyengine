@@ -13,7 +13,7 @@ import com.jme3.math.Transform;
  */
 public class SeparateJointModelTransform implements JointModelTransform {
 
-    private Transform modelTransform = new Transform();
+    final private Transform modelTransform = new Transform();
 
     @Override
     public void updateModelTransform(Transform localTransform, Joint parent) {
@@ -23,6 +23,7 @@ public class SeparateJointModelTransform implements JointModelTransform {
         }
     }
 
+    @Override
     public void getOffsetTransform(Matrix4f outTransform, Matrix4f inverseModelBindMatrix) {
         modelTransform.toTransformMatrix(outTransform).mult(inverseModelBindMatrix, outTransform);
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,12 +42,14 @@ import com.jme3.input.controls.MouseAxisTrigger;
 
 public class TestControls extends SimpleApplication {
     
-    private ActionListener actionListener = new ActionListener(){
+    final private ActionListener actionListener = new ActionListener(){
+        @Override
         public void onAction(String name, boolean pressed, float tpf){
             System.out.println(name + " = " + pressed);
         }
     };
-    public AnalogListener analogListener = new AnalogListener() {
+    final private AnalogListener analogListener = new AnalogListener() {
+        @Override
         public void onAnalog(String name, float value, float tpf) {
             System.out.println(name + " = " + value);
         }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,19 +40,16 @@ import com.jme3.bullet.collision.shapes.BoxCollisionShape;
 import com.jme3.bullet.collision.shapes.CollisionShape;
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.bullet.util.CollisionShapeFactory;
-import com.jme3.font.BitmapText;
 import com.jme3.input.ChaseCamera;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.AnalogListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.DirectionalLight;
-import com.jme3.light.PointLight;
 import com.jme3.material.Material;
 import com.jme3.math.*;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
-import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
 import com.jme3.shadow.DirectionalLightShadowRenderer;
 import com.jme3.shadow.EdgeFilteringMode;
@@ -73,13 +70,17 @@ public class TestHoveringTank extends SimpleApplication implements AnalogListene
     private BulletAppState bulletAppState;
     private PhysicsHoverControl hoverControl;
     private Spatial spaceCraft;
-    TerrainQuad terrain;
-    Material matRock;
-    boolean wireframe = false;
-    protected BitmapText hintText;
-    PointLight pl;
-    Geometry lightMdl;
-    Geometry collisionMarker;
+    private TerrainQuad terrain;
+    private Material matRock;
+    /**
+     * initial location of the tank (in world/physics-space coordinates)
+     */
+    final private Vector3f startLocation = new Vector3f(-140f, 50f, -23f);
+    /**
+     * initial orientation of the tank (in world/physics-space coordinates)
+     */
+    final private Quaternion startOrientation
+            = new Quaternion(new float[]{0f, 0.01f, 0f});
 
     public static void main(String[] args) {
         TestHoveringTank app = new TestHoveringTank();
@@ -110,7 +111,6 @@ public class TestHoveringTank extends SimpleApplication implements AnalogListene
         bulletAppState = new BulletAppState();
         bulletAppState.setThreadingType(BulletAppState.ThreadingType.PARALLEL);
         stateManager.attach(bulletAppState);
-//        bulletAppState.getPhysicsSpace().enableDebug(assetManager);
         bulletAppState.getPhysicsSpace().setAccuracy(1f/30f);
         rootNode.attachChild(SkyFactory.createSky(assetManager, 
                 "Textures/Sky/Bright/BrightSky.dds", EnvMapType.CubeMap));
@@ -143,8 +143,8 @@ public class TestHoveringTank extends SimpleApplication implements AnalogListene
         spaceCraft = assetManager.loadModel("Models/HoverTank/Tank2.mesh.xml");
         CollisionShape colShape = CollisionShapeFactory.createDynamicMeshShape(spaceCraft);
         spaceCraft.setShadowMode(ShadowMode.CastAndReceive);
-        spaceCraft.setLocalTranslation(new Vector3f(-140, 50, -23));
-        spaceCraft.setLocalRotation(new Quaternion(new float[]{0, 0.01f, 0}));
+        spaceCraft.setLocalTranslation(startLocation);
+        spaceCraft.setLocalRotation(startOrientation);
 
         hoverControl = new PhysicsHoverControl(colShape, 500);
 
@@ -191,9 +191,11 @@ public class TestHoveringTank extends SimpleApplication implements AnalogListene
         getPhysicsSpace().add(missile);
     }
 
+    @Override
     public void onAnalog(String binding, float value, float tpf) {
     }
 
+    @Override
     public void onAction(String binding, boolean value, float tpf) {
         if (binding.equals("Lefts")) {
             hoverControl.steer(value ? 50f : 0);
@@ -206,8 +208,10 @@ public class TestHoveringTank extends SimpleApplication implements AnalogListene
         } else if (binding.equals("Reset")) {
             if (value) {
                 System.out.println("Reset");
-                hoverControl.setPhysicsLocation(new Vector3f(-140, 14, -23));
-                hoverControl.setPhysicsRotation(new Matrix3f());
+                hoverControl.setPhysicsLocation(startLocation);
+                hoverControl.setPhysicsRotation(startOrientation);
+                hoverControl.setAngularVelocity(Vector3f.ZERO);
+                hoverControl.setLinearVelocity(Vector3f.ZERO);
                 hoverControl.clearForces();
             } else {
             }
@@ -272,7 +276,7 @@ public class TestHoveringTank extends SimpleApplication implements AnalogListene
         Texture normalMap2 = assetManager.loadTexture("Textures/Terrain/splat/road_normal.png");
         normalMap2.setWrap(WrapMode.Repeat);
         matRock.setTexture("NormalMap", normalMap0);
-        matRock.setTexture("NormalMap_1", normalMap2);
+        matRock.setTexture("NormalMap_1", normalMap1);
         matRock.setTexture("NormalMap_2", normalMap2);
 
         AbstractHeightMap heightmap = null;
@@ -283,7 +287,7 @@ public class TestHoveringTank extends SimpleApplication implements AnalogListene
             e.printStackTrace();
         }
         terrain = new TerrainQuad("terrain", 65, 513, heightmap.getHeightMap());
-        List<Camera> cameras = new ArrayList<Camera>();
+        List<Camera> cameras = new ArrayList<>();
         cameras.add(getCamera());
         TerrainLodControl control = new TerrainLodControl(terrain, cameras);
         terrain.addControl(control);

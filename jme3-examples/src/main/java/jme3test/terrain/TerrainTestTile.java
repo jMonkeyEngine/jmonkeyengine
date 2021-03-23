@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -66,14 +66,11 @@ import java.util.List;
 public class TerrainTestTile extends SimpleApplication {
 
     private TiledTerrain terrain;
-    Material matTerrain;
-    Material matWire;
-    boolean wireframe = false;
-    boolean triPlanar = false;
-    boolean wardiso = false;
-    boolean minnaert = false;
-    protected BitmapText hintText;
-    private float grassScale = 256;
+    private Material matTerrain;
+    private Material matWire;
+    private boolean wireframe = false;
+    private BitmapText hintText;
+    final private float grassScale = 256;
     
 
     public static void main(String[] args) {
@@ -145,8 +142,9 @@ public class TerrainTestTile extends SimpleApplication {
         inputManager.addMapping("wireframe", new KeyTrigger(KeyInput.KEY_T));
         inputManager.addListener(actionListener, "wireframe");
     }
-    private ActionListener actionListener = new ActionListener() {
+    final private ActionListener actionListener = new ActionListener() {
 
+        @Override
         public void onAction(String name, boolean pressed, float tpf) {
             if (name.equals("wireframe") && !pressed) {
                 wireframe = !wireframe;
@@ -169,10 +167,10 @@ public class TerrainTestTile extends SimpleApplication {
      */
     private class TiledTerrain extends Node implements Terrain, NeighbourFinder {
 
-        private TerrainQuad terrain1;
-        private TerrainQuad terrain2;
-        private TerrainQuad terrain3;
-        private TerrainQuad terrain4;
+        final private TerrainQuad terrain1;
+        final private TerrainQuad terrain2;
+        final private TerrainQuad terrain3;
+        final private TerrainQuad terrain4;
         
         TiledTerrain() {
             // TERRAIN TEXTURE material
@@ -231,6 +229,7 @@ public class TerrainTestTile extends SimpleApplication {
          * 1  3
          * 2  4
          */
+        @Override
         public TerrainQuad getRightQuad(TerrainQuad center) {
             //System.out.println("lookup neighbour");
             if (center == terrain1)
@@ -245,6 +244,7 @@ public class TerrainTestTile extends SimpleApplication {
          * 1  3
          * 2  4
          */
+        @Override
         public TerrainQuad getLeftQuad(TerrainQuad center) {
             //System.out.println("lookup neighbour");
             if (center == terrain3)
@@ -259,6 +259,7 @@ public class TerrainTestTile extends SimpleApplication {
          * 1  3
          * 2  4
          */
+        @Override
         public TerrainQuad getTopQuad(TerrainQuad center) {
             //System.out.println("lookup neighbour");
             if (center == terrain2)
@@ -273,6 +274,7 @@ public class TerrainTestTile extends SimpleApplication {
          * 1  3
          * 2  4
          */
+        @Override
         public TerrainQuad getDownQuad(TerrainQuad center) {
             //System.out.println("lookup neighbour");
             if (center == terrain1)
@@ -283,69 +285,84 @@ public class TerrainTestTile extends SimpleApplication {
             return null;
         }
         
+        @Override
         public float getHeight(Vector2f xz) {
             // you will have to offset the coordinate for each terrain, to center on it
             throw new UnsupportedOperationException("Not supported yet.");
         }
 
+        @Override
         public Vector3f getNormal(Vector2f xz) {
             // you will have to offset the coordinate for each terrain, to center on it
             throw new UnsupportedOperationException("Not supported yet.");
         }
 
+        @Override
         public float getHeightmapHeight(Vector2f xz) {
             // you will have to offset the coordinate for each terrain, to center on it
             throw new UnsupportedOperationException("Not supported yet.");
         }
 
+        @Override
         public void setHeight(Vector2f xzCoordinate, float height) {
             // you will have to offset the coordinate for each terrain, to center on it
             throw new UnsupportedOperationException("Not supported yet.");
         }
 
+        @Override
         public void setHeight(List<Vector2f> xz, List<Float> height) {
             // you will have to offset the coordinate for each terrain, to center on it
             throw new UnsupportedOperationException("Not supported yet.");
         }
 
+        @Override
         public void adjustHeight(Vector2f xzCoordinate, float delta) {
             // you will have to offset the coordinate for each terrain, to center on it
             throw new UnsupportedOperationException("Not supported yet.");
         }
 
+        @Override
         public void adjustHeight(List<Vector2f> xz, List<Float> height) {
             // you will have to offset the coordinate for each terrain, to center on it
             throw new UnsupportedOperationException("Not supported yet.");
         }
 
+        @Override
         public float[] getHeightMap() {
             throw new UnsupportedOperationException("Not supported yet.");
         }
 
+        @Override
         public int getMaxLod() {
             throw new UnsupportedOperationException("Not supported yet.");
         }
 
+        @Override
         public void setLocked(boolean locked) {
             throw new UnsupportedOperationException("Not supported yet.");
         }
 
+        @Override
         public void generateEntropy(ProgressMonitor monitor) {
             throw new UnsupportedOperationException("Not supported yet.");
         }
 
+        @Override
         public Material getMaterial() {
             throw new UnsupportedOperationException("Not supported yet.");
         }
 
+        @Override
         public Material getMaterial(Vector3f worldLocation) {
             throw new UnsupportedOperationException("Not supported yet.");
         }
 
+        @Override
         public int getTerrainSize() {
             throw new UnsupportedOperationException("Not supported yet.");
         }
 
+        @Override
         public int getNumMajorSubdivisions() {
             throw new UnsupportedOperationException("Not supported yet.");
         }

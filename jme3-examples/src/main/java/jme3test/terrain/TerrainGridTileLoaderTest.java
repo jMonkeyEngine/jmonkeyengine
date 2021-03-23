@@ -16,6 +16,7 @@ import com.jme3.input.controls.KeyTrigger;
 import com.jme3.input.controls.MouseButtonTrigger;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
+import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.terrain.Terrain;
 import com.jme3.terrain.geomipmap.TerrainGrid;
@@ -33,11 +34,10 @@ public class TerrainGridTileLoaderTest extends SimpleApplication {
 
     private Material mat_terrain;
     private TerrainGrid terrain;
-    private float grassScale = 64;
-    private float dirtScale = 16;
-    private float rockScale = 128;
-    private boolean usePhysics = true;
-    private boolean physicsAdded = false;
+    final private float grassScale = 64;
+    final private float dirtScale = 16;
+    final private float rockScale = 128;
+    final private boolean usePhysics = true;
 
     public static void main(final String[] args) {
         TerrainGridTileLoaderTest app = new TerrainGridTileLoaderTest();
@@ -120,6 +120,7 @@ public class TerrainGridTileLoaderTest extends SimpleApplication {
         stateManager.attach(bulletAppState);
 
         this.getCamera().setLocation(new Vector3f(0, 256, 0));
+        cam.setRotation(new Quaternion(-0.0075f, 0.949784f, -0.312f, -0.0227f));
 
         this.viewPort.setBackgroundColor(new ColorRGBA(0.7f, 0.8f, 1f, 1f));
 
@@ -136,9 +137,11 @@ public class TerrainGridTileLoaderTest extends SimpleApplication {
 
             terrain.addListener(new TerrainGridListener() {
 
+                @Override
                 public void gridMoved(Vector3f newCenter) {
                 }
 
+                @Override
                 public void tileAttached(Vector3f cell, TerrainQuad quad) {
                     while(quad.getControl(RigidBodyControl.class)!=null){
                         quad.removeControl(RigidBodyControl.class);
@@ -147,6 +150,7 @@ public class TerrainGridTileLoaderTest extends SimpleApplication {
                     bulletAppState.getPhysicsSpace().add(quad);
                 }
 
+                @Override
                 public void tileDetached(Vector3f cell, TerrainQuad quad) {
                     if (quad.getControl(RigidBodyControl.class) != null) {
                         bulletAppState.getPhysicsSpace().remove(quad);

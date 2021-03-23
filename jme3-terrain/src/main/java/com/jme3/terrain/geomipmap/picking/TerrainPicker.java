@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,7 +33,6 @@ package com.jme3.terrain.geomipmap.picking;
 
 import com.jme3.collision.CollisionResults;
 import com.jme3.math.Ray;
-import com.jme3.math.Vector3f;
 
 /**
  * Pick the location on the terrain from a given ray.
@@ -47,9 +46,8 @@ public interface TerrainPicker {
      *
      * @param worldPick
      *            our pick ray, in world space.
-     * @return null if no pick is found. Otherwise it returns a Vector3f  populated with the pick
-     *         coordinates.
+     * @return The number of collisions found
      */
-    public Vector3f getTerrainIntersection(final Ray worldPick, CollisionResults results);
+    public int getTerrainIntersection(final Ray worldPick, CollisionResults results);
 
 }

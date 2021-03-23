@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.jme3.input.vr;
 
 import com.jme3.math.Quaternion;
@@ -123,7 +118,7 @@ public interface VRInputAPI {
     public Object getRawControllerState(int index);
     
     /**
-     * Swap the two hands (exchange the hands controller 1 & 2 indices).
+     * Swap the two hands (exchange the hands controller 1 and 2 indices).
      */
     public void swapHands();
     

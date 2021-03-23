@@ -9,7 +9,6 @@ import com.jme3.input.MouseInput;
 import com.jme3.input.lwjgl.GlfwMouseInputVR;
 import com.jme3.material.RenderState.BlendMode;
 import com.jme3.math.Vector2f;
-import com.jme3.scene.Node;
 import com.jme3.system.AppSettings;
 import com.jme3.system.lwjgl.LwjglWindow;
 import com.jme3.texture.Texture;
@@ -27,8 +26,8 @@ public abstract class AbstractVRMouseManager implements VRMouseManager {
 
 	private VREnvironment environment = null;
 	
-
-    
+    private boolean vrMouseEnabled = true;
+    private boolean mouseAttached = false;
     private Picture mouseImage;
     private int recentCenterCount = 0;
     
@@ -69,6 +68,11 @@ public abstract class AbstractVRMouseManager implements VRMouseManager {
     @Override
     public VREnvironment getVREnvironment() {
       return environment;
+    }
+
+    @Override
+    public void setVRMouseEnabled(boolean enabled) {
+        vrMouseEnabled = enabled;
     }
     
     @Override
@@ -185,10 +189,9 @@ public abstract class AbstractVRMouseManager implements VRMouseManager {
     @Override
     public void update(float tpf) {
         // if we are showing the cursor, add our picture as it
-
-        if( environment.getApplication().getInputManager().isCursorVisible() ) {
-            if( mouseImage.getParent() == null ) {
-            	
+        if( vrMouseEnabled && environment.getApplication().getInputManager().isCursorVisible() ) {
+            if(!mouseAttached) {
+                mouseAttached = true;
             	environment.getApplication().getGuiViewPort().attachScene(mouseImage);         
                 centerMouse();
                 // the "real" mouse pointer should stay hidden
@@ -216,13 +219,13 @@ public abstract class AbstractVRMouseManager implements VRMouseManager {
 		    
             mouseImage.updateGeometricState();
             
-        } else if( mouseImage.getParent() != null ) {
-        	Node n = mouseImage.getParent();
-            mouseImage.removeFromParent();
-            
-            if (n != null){
-              n.updateGeometricState();
-            }
+        } else if(mouseAttached) {
+            mouseAttached = false;
+            environment.getApplication().getGuiViewPort().detachScene(mouseImage);
+
+            // Use the setCursorVisible implementation to show the cursor again, depending on the state of cursorVisible
+            boolean cursorVisible = environment.getApplication().getInputManager().isCursorVisible();
+            environment.getApplication().getContext().getMouseInput().setCursorVisible(cursorVisible);
         }
     }  
 }

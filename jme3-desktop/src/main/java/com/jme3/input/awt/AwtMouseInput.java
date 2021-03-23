@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -64,8 +64,8 @@ public class AwtMouseInput implements MouseInput, MouseListener, MouseWheelListe
 
     private Component component;
 
-    private final ArrayList<MouseButtonEvent> eventQueue = new ArrayList<MouseButtonEvent>();
-    private final ArrayList<MouseButtonEvent> eventQueueCopy = new ArrayList<MouseButtonEvent>();
+    private final ArrayList<MouseButtonEvent> eventQueue = new ArrayList<>();
+    private final ArrayList<MouseButtonEvent> eventQueueCopy = new ArrayList<>();
 
     private int lastEventX;
     private int lastEventY;
@@ -122,24 +122,30 @@ public class AwtMouseInput implements MouseInput, MouseListener, MouseWheelListe
         component.addMouseWheelListener(this);
     }
 
+    @Override
     public void initialize() {
     }
 
+    @Override
     public void destroy() {
     }
 
+    @Override
     public boolean isInitialized() {
         return true;
     }
 
+    @Override
     public void setInputListener(RawInputListener listener) {
         this.listener = listener;
     }
 
+    @Override
     public long getInputTimeNanos() {
         return System.nanoTime();
     }
     
+    @Override
     public void setCursorVisible(boolean visible) {
 //        if(JmeSystem.getPlatform() != Platform.MacOSX32 &&
 //                JmeSystem.getPlatform() != Platform.MacOSX64 &&
@@ -151,6 +157,7 @@ public class AwtMouseInput implements MouseInput, MouseListener, MouseWheelListe
             this.visible = visible;
             final boolean newVisible = visible;
             SwingUtilities.invokeLater(new Runnable() {
+                @Override
                 public void run() {
                     component.setCursor(newVisible ? null : getTransparentCursor());
                     if (!newVisible) {
@@ -162,6 +169,7 @@ public class AwtMouseInput implements MouseInput, MouseListener, MouseWheelListe
         }
     }
 
+    @Override
     public void update() {
         if (cursorMoved) {
             int newX = location.x;
@@ -215,15 +223,18 @@ public class AwtMouseInput implements MouseInput, MouseListener, MouseWheelListe
 //	}
 
 
+    @Override
     public int getButtonCount() {
         return 3;
     }
 
+    @Override
     public void mouseClicked(MouseEvent awtEvt) {
 //        MouseButtonEvent evt = new MouseButtonEvent(getJMEButtonIndex(arg0), false);
 //        listener.onMouseButtonEvent(evt);
     }
 
+    @Override
     public void mousePressed(MouseEvent awtEvt) {
         // Must flip Y!
         int y = component.getHeight() - awtEvt.getY();
@@ -234,6 +245,7 @@ public class AwtMouseInput implements MouseInput, MouseListener, MouseWheelListe
         }
     }
 
+    @Override
     public void mouseReleased(MouseEvent awtEvt) {
         int y = component.getHeight() - awtEvt.getY();
         MouseButtonEvent evt = new MouseButtonEvent(getJMEButtonIndex(awtEvt), false, awtEvt.getX(), y);
@@ -243,28 +255,33 @@ public class AwtMouseInput implements MouseInput, MouseListener, MouseWheelListe
         }
     }
 
+    @Override
     public void mouseEntered(MouseEvent awtEvt) {
         if (!visible) {
             recenterMouse(awtEvt.getComponent());
         }
     }
 
+    @Override
     public void mouseExited(MouseEvent awtEvt) {
         if (!visible) {
             recenterMouse(awtEvt.getComponent());
         }
     }
 
+    @Override
     public void mouseWheelMoved(MouseWheelEvent awtEvt) {
         int dwheel = awtEvt.getUnitsToScroll();
         wheelPos += dwheel * WHEEL_AMP;
         cursorMoved = true;
     }
 
+    @Override
     public void mouseDragged(MouseEvent awtEvt) {
         mouseMoved(awtEvt);
     }
 
+    @Override
     public void mouseMoved(MouseEvent awtEvt) {
         if (isRecentering) {
             // MHenze (cylab) Fix Issue 35:
@@ -321,6 +338,7 @@ public class AwtMouseInput implements MouseInput, MouseListener, MouseWheelListe
         return index;
     }
 
+    @Override
     public void setNativeCursor(JmeCursor cursor) {
     }
 }

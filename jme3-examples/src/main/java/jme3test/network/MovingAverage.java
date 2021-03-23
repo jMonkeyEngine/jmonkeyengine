@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,7 +34,7 @@ package jme3test.network;
 
 class MovingAverage {
 
-    private long[] samples;
+    final private long[] samples;
     private long sum;
     private int count, index;
 
@@ -57,7 +57,7 @@ class MovingAverage {
         if (count == 0)
             return 0;
         else
-            return (long) ((float) sum / (float) count);
+            return (long) (sum / (float) count);
     }
 
 }

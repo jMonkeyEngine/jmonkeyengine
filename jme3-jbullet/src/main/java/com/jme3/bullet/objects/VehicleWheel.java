@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -67,7 +67,7 @@ public class VehicleWheel implements Savable {
     protected final Quaternion tmp_inverseWorldRotation = new Quaternion();
     private boolean applyLocal = false;
 
-    public VehicleWheel() {
+    protected VehicleWheel() {
     }
 
     public VehicleWheel(Spatial spat, Vector3f location, Vector3f direction, Vector3f axle,
@@ -178,7 +178,7 @@ public class VehicleWheel implements Savable {
     /**
      * the damping coefficient for when the suspension is compressed.
      * Set to k * 2.0 * FastMath.sqrt(m_suspensionStiffness) so k is proportional to critical damping.<br>
-     * k = 0.0 undamped & bouncy, k = 1.0 critical damping<br>
+     * k = 0.0 undamped/bouncy, k = 1.0 critical damping<br>
      * 0.1 to 0.3 are good values
      * @param wheelsDampingCompression
      */

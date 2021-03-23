@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -51,7 +51,7 @@ public class SkeletonLoader extends DefaultHandler implements AssetLoader {
 
     private static final Logger logger = Logger.getLogger(SceneLoader.class.getName());
     //private AssetManager assetManager;
-    private Stack<String> elementStack = new Stack<String>();
+    private Stack<String> elementStack = new Stack<>();
     private HashMap<Integer, Joint> indexToJoint = new HashMap<>();
     private HashMap<String, Joint> nameToJoint = new HashMap<>();
     private TransformTrack track;
@@ -72,6 +72,7 @@ public class SkeletonLoader extends DefaultHandler implements AssetLoader {
     private Vector3f axis;
     private List<Joint> unusedJoints = new ArrayList<>();
 
+    @Override
     public void startElement(String uri, String localName, String qName, Attributes attribs) throws SAXException {
         if (qName.equals("position") || qName.equals("translate")) {
             position = SAXUtil.parseVector3(attribs);
@@ -132,6 +133,7 @@ public class SkeletonLoader extends DefaultHandler implements AssetLoader {
         elementStack.add(qName);
     }
 
+    @Override
     public void endElement(String uri, String name, String qName) {
         if (qName.equals("translate") || qName.equals("position") || qName.equals("scale")) {
         } else if (qName.equals("axis")) {
@@ -162,6 +164,7 @@ public class SkeletonLoader extends DefaultHandler implements AssetLoader {
             indexToJoint.clear();
             armature = new Armature(joints);
             armature.saveBindPose();
+            armature.saveInitialPose();
         } else if (qName.equals("animation")) {
             animClips.add(animClip);
             animClip = null;
@@ -274,12 +277,7 @@ public class SkeletonLoader extends DefaultHandler implements AssetLoader {
             armature = null;
             animClips = null;
             return data;
-        } catch (SAXException ex) {
-            IOException ioEx = new IOException("Error while parsing Ogre3D dotScene");
-            ioEx.initCause(ex);
-            fullReset();
-            throw ioEx;
-        } catch (ParserConfigurationException ex) {
+        } catch (SAXException | ParserConfigurationException ex) {
             IOException ioEx = new IOException("Error while parsing Ogre3D dotScene");
             ioEx.initCause(ex);
             fullReset();
@@ -288,6 +286,7 @@ public class SkeletonLoader extends DefaultHandler implements AssetLoader {
         
     }
 
+    @Override
     public Object load(AssetInfo info) throws IOException {
         //AssetManager assetManager = info.getManager();
         InputStream in = null;

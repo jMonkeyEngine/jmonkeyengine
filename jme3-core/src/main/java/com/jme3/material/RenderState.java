@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -272,27 +272,27 @@ public class RenderState implements Cloneable, Savable {
         /**
          * Additive blending. For use with glows and particle emitters.
          * <p>
-         * Result = Source Color + Destination Color -> (GL_ONE, GL_ONE)
+         * Result = Source Color + Destination Color -&gt; (GL_ONE, GL_ONE)
          */
         Additive,
         /**
          * Premultiplied alpha blending, for use with premult alpha textures.
          * <p>
-         * Result = Source Color + (Dest Color * (1 - Source Alpha) ) -> (GL_ONE, GL_ONE_MINUS_SRC_ALPHA)
+         * Result = Source Color + (Dest Color * (1 - Source Alpha) ) -&gt; (GL_ONE, GL_ONE_MINUS_SRC_ALPHA)
          */
         PremultAlpha,
         /**
          * Additive blending that is multiplied with source alpha.
          * For use with glows and particle emitters.
          * <p>
-         * Result = (Source Alpha * Source Color) + Dest Color -> (GL_SRC_ALPHA, GL_ONE)
+         * Result = (Source Alpha * Source Color) + Dest Color -&gt; (GL_SRC_ALPHA, GL_ONE)
          */
         AlphaAdditive,
         /**
          * Color blending, blends in color from dest color
          * using source color.
          * <p>
-         * Result = Source Color + (1 - Source Color) * Dest Color -> (GL_ONE, GL_ONE_MINUS_SRC_COLOR)
+         * Result = Source Color + (1 - Source Color) * Dest Color -&gt; (GL_ONE, GL_ONE_MINUS_SRC_COLOR)
          */
         Color,
         /**
@@ -300,7 +300,7 @@ public class RenderState implements Cloneable, Savable {
          * using source alpha.
          * <p>
          * Result = Source Alpha * Source Color +
-         *          (1 - Source Alpha) * Dest Color -> (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+         *          (1 - Source Alpha) * Dest Color -&gt; (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
          */
         Alpha,
          /**
@@ -309,28 +309,28 @@ public class RenderState implements Cloneable, Savable {
          * The resulting alpha is the sum between the source alpha and the destination alpha.
          * <p>
          * Result.rgb = Source Alpha * Source Color +
-         *          (1 - Source Alpha) * Dest Color -> (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-         * Result.a = 1 * Source Alpha + 1 * Dest Alpha -> (GL_ONE, GL_ONE)
+         *          (1 - Source Alpha) * Dest Color -&gt; (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+         * Result.a = 1 * Source Alpha + 1 * Dest Alpha -&gt; (GL_ONE, GL_ONE)
          * 
          */
         AlphaSumA,
         /**
          * Multiplies the source and dest colors.
          * <p>
-         * Result = Source Color * Dest Color -> (GL_DST_COLOR, GL_ZERO)
+         * Result = Source Color * Dest Color -&gt; (GL_DST_COLOR, GL_ZERO)
          */
         Modulate,
         /**
          * Multiplies the source and dest colors then doubles the result.
          * <p>
-         * Result = 2 * Source Color * Dest Color -> (GL_DST_COLOR, GL_SRC_COLOR)
+         * Result = 2 * Source Color * Dest Color -&gt; (GL_DST_COLOR, GL_SRC_COLOR)
          */
         ModulateX2,
         /**
          * Opposite effect of Modulate/Multiply. Invert both colors, multiply and
          * then invert the result.
          * <p>
-         * Result = 1 - (1 - Source Color) * (1 - Dest Color) -> (GL_ONE, GL_ONE_MINUS_SRC_COLOR)
+         * Result = 1 - (1 - Source Color) * (1 - Dest Color) -&gt; (GL_ONE, GL_ONE_MINUS_SRC_COLOR)
          */
         Screen,
         /**
@@ -338,7 +338,7 @@ public class RenderState implements Cloneable, Savable {
          * operation.  This is directly equivalent to Photoshop's "Exclusion" blend.
          * <p>
          * Result = (Source Color * (1 - Dest Color)) + (Dest Color * (1 - Source Color))
-         *  -> (GL_ONE_MINUS_DST_COLOR, GL_ONE_MINUS_SRC_COLOR) 
+         *  -&gt; (GL_ONE_MINUS_DST_COLOR, GL_ONE_MINUS_SRC_COLOR) 
          */
         Exclusion,
         /**
@@ -346,12 +346,12 @@ public class RenderState implements Cloneable, Savable {
          * <p>
          * These attributes can be set by using the following methods:
          * <ul>
-         * <li>{@link RenderState#setBlendEquation(BlendEquation)}<br/>
-         * <li>{@link RenderState#setBlendEquationAlpha(BlendEquationAlpha)}<br/>
-         * <li>{@link RenderState#setCustomBlendFactors(BlendFunc, BlendFunc, BlendFunc, BlendFunc)}<br/>
+         * <li>{@link RenderState#setBlendEquation(BlendEquation)}
+         * <li>{@link RenderState#setBlendEquationAlpha(BlendEquationAlpha)}
+         * <li>{@link RenderState#setCustomBlendFactors(BlendFunc, BlendFunc, BlendFunc, BlendFunc)}
          * </ul>
          * <p>
-         * Result.RGB = BlendEquation( sfactorRGB * Source.RGB , dfactorRGB * Destination.RGB )<br/>
+         * Result.RGB = BlendEquation( sfactorRGB * Source.RGB , dfactorRGB * Destination.RGB )<br>
          * Result.A = BlendEquationAlpha( sfactorAlpha * Source.A , dfactorAlpha * Destination.A )
          */
         Custom
@@ -486,6 +486,7 @@ public class RenderState implements Cloneable, Savable {
     BlendFunc sfactorAlpha = BlendFunc.One;
     BlendFunc dfactorAlpha = BlendFunc.One;
             
+    @Override
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(true, "pointSprite", false);
@@ -529,6 +530,7 @@ public class RenderState implements Cloneable, Savable {
 
     }
 
+    @Override
     public void read(JmeImporter im) throws IOException {
         InputCapsule ic = im.getCapsule(this);
         wireframe = ic.readBoolean("wireframe", false);
@@ -770,7 +772,7 @@ public class RenderState implements Cloneable, Savable {
      * already in the color buffer. The blending operation is determined
      * by the {@link BlendMode}. For example, the {@link BlendMode#Additive}
      * will add the input pixel's color to the color already in the color buffer:
-     * <br/>
+     * <br>
      * <code>Result = Source Color + Destination Color</code>
      *
      * @param blendMode The blend mode to use. Set to {@link BlendMode#Off}
@@ -786,10 +788,10 @@ public class RenderState implements Cloneable, Savable {
      * Set the blending equation for the color component (RGB).
      * <p>
      * The blending equation determines, how the RGB values of the input pixel
-     * will be blended with the RGB values of the pixel already in the color buffer.<br/>
+     * will be blended with the RGB values of the pixel already in the color buffer.<br>
      * For example, {@link BlendEquation#Add} will add the input pixel's color
      * to the color already in the color buffer:
-     * <br/>
+     * <br>
      * <code>Result = Source Color + Destination Color</code>
      * <p>
      * <b>Note:</b> This gets only used in {@link BlendMode#Custom} mode.
@@ -806,10 +808,10 @@ public class RenderState implements Cloneable, Savable {
      * Set the blending equation for the alpha component.
      * <p>
      * The alpha blending equation determines, how the alpha values of the input pixel
-     * will be blended with the alpha values of the pixel already in the color buffer.<br/>
+     * will be blended with the alpha values of the pixel already in the color buffer.<br>
      * For example, {@link BlendEquationAlpha#Add} will add the input pixel's color
      * to the color already in the color buffer:
-     * <br/>
+     * <br>
      * <code>Result = Source Color + Destination Color</code>
      * <p>
      * <b>Note:</b> This gets only used in {@link BlendMode#Custom} mode.
@@ -899,7 +901,7 @@ public class RenderState implements Cloneable, Savable {
      * typically with positive Z pointing into the screen.
      * Typical values are (1.0f, 1.0f) or (-1.0f, -1.0f)
      *
-     * @see <a href="http://www.opengl.org/resources/faq/technical/polygonoffset.htm" rel="nofollow">http://www.opengl.org/resources/faq/technical/polygonoffset.htm</a>
+     * @see <a href="http://www.opengl.org/resources/faq/technical/polygonoffset.htm">http://www.opengl.org/resources/faq/technical/polygonoffset.htm</a>
      * @param factor scales the maximum Z slope, with respect to X or Y of the polygon
      * @param units scales the minimum resolvable depth buffer value
      **/
@@ -1242,6 +1244,7 @@ public class RenderState implements Cloneable, Savable {
      * material parameter.
      * @return false
      */
+    @Deprecated
     public boolean isAlphaTest() {
         return false;
     }
@@ -1454,7 +1457,7 @@ public class RenderState implements Cloneable, Savable {
      * Merges <code>this</code> state and <code>additionalState</code> into
      * the parameter <code>state</code> based on a specific criteria.
      *
-     * <p>The criteria for this merge is the following:<br/>
+     * <p>The criteria for this merge is the following:<br>
      * For every given property, such as alpha test or depth write, check
      * if it was modified from the original in the <code>additionalState</code>
      * if it was modified, then copy the property from the <code>additionalState</code>

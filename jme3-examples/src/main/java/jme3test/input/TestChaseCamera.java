@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -55,6 +55,7 @@ public class TestChaseCamera extends SimpleApplication implements AnalogListener
     app.start();
   }
 
+  @Override
   public void simpleInitApp() {
     // Load a teapot model
     teaGeom = (Geometry) assetManager.loadModel("Models/Teapot/Teapot.obj");
@@ -116,6 +117,7 @@ public class TestChaseCamera extends SimpleApplication implements AnalogListener
     inputManager.addListener(this, "displayPosition");
   }
 
+  @Override
   public void onAnalog(String name, float value, float tpf) {
     if (name.equals("moveForward")) {
       teaGeom.move(0, 0, -5 * tpf);
@@ -133,6 +135,7 @@ public class TestChaseCamera extends SimpleApplication implements AnalogListener
 
   }
 
+  @Override
   public void onAction(String name, boolean keyPressed, float tpf) {
     if (name.equals("displayPosition") && keyPressed) {
       teaGeom.move(10, 10, 10);

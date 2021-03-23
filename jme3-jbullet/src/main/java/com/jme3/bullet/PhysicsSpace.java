@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -127,7 +127,7 @@ public class PhysicsSpace {
                     return new ConcurrentLinkedQueue<AppTask<?>>();
                 }
             };
-    private ConcurrentLinkedQueue<AppTask<?>> pQueue = new ConcurrentLinkedQueue<AppTask<?>>();
+    private ConcurrentLinkedQueue<AppTask<?>> pQueue = new ConcurrentLinkedQueue<>();
     private static ThreadLocal<PhysicsSpace> physicsSpaceTL = new ThreadLocal<PhysicsSpace>();
     private DiscreteDynamicsWorld dynamicsWorld = null;
     private BroadphaseInterface broadphase;
@@ -135,19 +135,19 @@ public class PhysicsSpace {
     private CollisionDispatcher dispatcher;
     private ConstraintSolver solver;
     private DefaultCollisionConfiguration collisionConfiguration;
-    private Map<PairCachingGhostObject, PhysicsGhostObject> physicsGhostObjects = new ConcurrentHashMap<PairCachingGhostObject, PhysicsGhostObject>();
-    private Map<PairCachingGhostObject, PhysicsCharacter> physicsCharacters = new ConcurrentHashMap<PairCachingGhostObject, PhysicsCharacter>();
-    private Map<RigidBody, PhysicsRigidBody> physicsBodies = new ConcurrentHashMap<RigidBody, PhysicsRigidBody>();
-    private Map<TypedConstraint, PhysicsJoint> physicsJoints = new ConcurrentHashMap<TypedConstraint, PhysicsJoint>();
-    private Map<RaycastVehicle, PhysicsVehicle> physicsVehicles = new ConcurrentHashMap<RaycastVehicle, PhysicsVehicle>();
+    private Map<PairCachingGhostObject, PhysicsGhostObject> physicsGhostObjects = new ConcurrentHashMap<>();
+    private Map<PairCachingGhostObject, PhysicsCharacter> physicsCharacters = new ConcurrentHashMap<>();
+    private Map<RigidBody, PhysicsRigidBody> physicsBodies = new ConcurrentHashMap<>();
+    private Map<TypedConstraint, PhysicsJoint> physicsJoints = new ConcurrentHashMap<>();
+    private Map<RaycastVehicle, PhysicsVehicle> physicsVehicles = new ConcurrentHashMap<>();
     /**
      * map from collision groups to registered group listeners
      */
-    private Map<Integer, PhysicsCollisionGroupListener> collisionGroupListeners = new ConcurrentHashMap<Integer, PhysicsCollisionGroupListener>();
+    private Map<Integer, PhysicsCollisionGroupListener> collisionGroupListeners = new ConcurrentHashMap<>();
     /**
      * queue of registered tick listeners
      */
-    private ConcurrentLinkedQueue<PhysicsTickListener> tickListeners = new ConcurrentLinkedQueue<PhysicsTickListener>();
+    private ConcurrentLinkedQueue<PhysicsTickListener> tickListeners = new ConcurrentLinkedQueue<>();
     /**
      * list of registered collision listeners
      */
@@ -156,7 +156,7 @@ public class PhysicsSpace {
     /**
      * queue of collision events not yet distributed to listeners
      */
-    private ArrayDeque<PhysicsCollisionEvent> collisionEvents = new ArrayDeque<PhysicsCollisionEvent>();
+    private ArrayDeque<PhysicsCollisionEvent> collisionEvents = new ArrayDeque<>();
     private PhysicsCollisionEventFactory eventFactory = new PhysicsCollisionEventFactory();
     /**
      * copy of minimum coordinate values when using AXIS_SWEEP broadphase
@@ -182,7 +182,7 @@ public class PhysicsSpace {
     private com.bulletphysics.linearmath.Transform sweepTrans2 = new com.bulletphysics.linearmath.Transform(new javax.vecmath.Matrix3f());
 
     /**
-     * Get the current PhysicsSpace <b>running on this thread</b><br/>
+     * Get the current PhysicsSpace <b>running on this thread</b><br>
      * For parallel physics, this can also be called from the OpenGL thread to receive the PhysicsSpace
      * @return the PhysicsSpace running on this thread
      */
@@ -259,6 +259,7 @@ public class PhysicsSpace {
     private void setOverlapFilterCallback() {
         OverlapFilterCallback callback = new OverlapFilterCallback() {
 
+            @Override
             public boolean needBroadphaseCollision(BroadphaseProxy bp, BroadphaseProxy bp1) {
                 boolean collides = (bp.collisionFilterGroup & bp1.collisionFilterMask) != 0;
                 if (collides) {
@@ -334,6 +335,7 @@ public class PhysicsSpace {
     private void setContactCallbacks() {
         BulletGlobals.setContactAddedCallback(new ContactAddedCallback() {
 
+            @Override
             public boolean contactAdded(ManifoldPoint cp, com.bulletphysics.collision.dispatch.CollisionObject colObj0,
                     int partId0, int index0, com.bulletphysics.collision.dispatch.CollisionObject colObj1, int partId1,
                     int index1) {
@@ -344,6 +346,7 @@ public class PhysicsSpace {
 
         BulletGlobals.setContactProcessedCallback(new ContactProcessedCallback() {
 
+            @Override
             public boolean contactProcessed(ManifoldPoint cp, Object body0, Object body1) {
                 if (body0 instanceof CollisionObject && body1 instanceof CollisionObject) {
                     PhysicsCollisionObject node = null, node1 = null;
@@ -359,6 +362,7 @@ public class PhysicsSpace {
 
         BulletGlobals.setContactDestroyedCallback(new ContactDestroyedCallback() {
 
+            @Override
             public boolean contactDestroyed(Object userPersistentData) {
                 System.out.println("contact destroyed");
                 return true;
@@ -401,7 +405,7 @@ public class PhysicsSpace {
     }
 
     public static <V> Future<V> enqueueOnThisThread(Callable<V> callable) {
-        AppTask<V> task = new AppTask<V>(callable);
+        AppTask<V> task = new AppTask<>(callable);
         System.out.println("created apptask");
         pQueueTL.get().add(task);
         return task;
@@ -414,7 +418,7 @@ public class PhysicsSpace {
      * @return a new AppTask
      */
     public <V> Future<V> enqueue(Callable<V> callable) {
-        AppTask<V> task = new AppTask<V>(callable);
+        AppTask<V> task = new AppTask<>(callable);
         pQueue.add(task);
         return task;
     }
@@ -431,7 +435,7 @@ public class PhysicsSpace {
             Spatial node = (Spatial) obj;
             for (int i = 0; i < node.getNumControls(); i++) {
                 if (node.getControl(i) instanceof PhysicsControl) {
-                    add(((PhysicsControl) node.getControl(i)));
+                    add(node.getControl(i));
                 }
             }
         } else if (obj instanceof PhysicsCollisionObject) {
@@ -468,7 +472,7 @@ public class PhysicsSpace {
             Spatial node = (Spatial) obj;
             for (int i = 0; i < node.getNumControls(); i++) {
                 if (node.getControl(i) instanceof PhysicsControl) {
-                    remove(((PhysicsControl) node.getControl(i)));
+                    remove(node.getControl(i));
                 }
             }
         } else if (obj instanceof PhysicsCollisionObject) {
@@ -756,7 +760,7 @@ public class PhysicsSpace {
      * Performs a ray collision test and returns the results as a list of PhysicsRayTestResults
      */
     public List<PhysicsRayTestResult> rayTest(Vector3f from, Vector3f to) {
-        List<PhysicsRayTestResult> results = new LinkedList<PhysicsRayTestResult>();
+        List<PhysicsRayTestResult> results = new LinkedList<>();
         dynamicsWorld.rayTest(Converter.convert(from, rayVec1), Converter.convert(to, rayVec2), new InternalRayListener(results));
         return results;
     }
@@ -787,12 +791,12 @@ public class PhysicsSpace {
     }
 
     /**
-     * Performs a sweep collision test and returns the results as a list of PhysicsSweepTestResults<br/>
-     * You have to use different Transforms for start and end (at least distance > 0.4f).
+     * Performs a sweep collision test and returns the results as a list of PhysicsSweepTestResults<br>
+     * You have to use different Transforms for start and end (at least distance greater than 0.4f).
      * SweepTest will not see a collision if it starts INSIDE an object and is moving AWAY from its center.
      */
     public List<PhysicsSweepTestResult> sweepTest(CollisionShape shape, Transform start, Transform end) {
-        List<PhysicsSweepTestResult> results = new LinkedList<PhysicsSweepTestResult>();
+        List<PhysicsSweepTestResult> results = new LinkedList<>();
         if (!(shape.getCShape() instanceof ConvexShape)) {
             logger.log(Level.WARNING, "Trying to sweep test with incompatible mesh shape!");
             return results;
@@ -803,8 +807,8 @@ public class PhysicsSpace {
     }
 
     /**
-     * Performs a sweep collision test and returns the results as a list of PhysicsSweepTestResults<br/>
-     * You have to use different Transforms for start and end (at least distance > 0.4f).
+     * Performs a sweep collision test and returns the results as a list of PhysicsSweepTestResults<br>
+     * You have to use different Transforms for start and end (at least distance greater than 0.4f).
      * SweepTest will not see a collision if it starts INSIDE an object and is moving AWAY from its center.
      */
     public List<PhysicsSweepTestResult> sweepTest(CollisionShape shape, Transform start, Transform end, List<PhysicsSweepTestResult> results) {
@@ -917,7 +921,7 @@ public class PhysicsSpace {
      * 
      * The default is 10. Use 4 for low quality, 20 for high quality.
      * 
-     * @param numIterations The number of iterations used by the contact & constraint solver.
+     * @param numIterations The number of iterations used by the contact and constraint solver.
      */
     public void setSolverNumIterations(int numIterations) {
         dynamicsWorld.getSolverInfo().numIterations = numIterations;

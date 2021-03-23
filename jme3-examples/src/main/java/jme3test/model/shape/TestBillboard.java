@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,6 +48,7 @@ import com.jme3.scene.shape.Quad;
  */
 public class TestBillboard extends SimpleApplication {
 
+    @Override
     public void simpleInitApp() {
         flyCam.setMoveSpeed(10);
 
@@ -93,8 +94,8 @@ public class TestBillboard extends SimpleApplication {
 //        rootNode.attachChild(bb);
 //        rootNode.attachChild(g2);
     }
- Node n;
- Node n2;
+    private Node n;
+    private Node n2;
     @Override
     public void simpleUpdate(float tpf) {
         super.simpleUpdate(tpf);

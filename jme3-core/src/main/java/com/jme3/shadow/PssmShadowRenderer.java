@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -69,7 +69,7 @@ import java.util.List;
  * This results in a better quality shadow than standard shadow mapping.<br> for
  * more informations on this read this <a
  * href="http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html">http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html</a><br>
- * <p/>
+ *
  * @author Rémy Bouquet aka Nehon
  * @deprecated use {@link DirectionalLightShadowRenderer}
  */
@@ -171,7 +171,7 @@ public class PssmShadowRenderer implements SceneProcessor {
     protected boolean applyPCFEdge = true;
     protected boolean applyShadowIntensity = true;
     //a list of material of the post shadow queue geometries.
-    protected List<Material> matCache = new ArrayList<Material>();
+    protected List<Material> matCache = new ArrayList<>();
     //Holding the info for fading shadows in the far distance 
     protected Vector2f fadeInfo;
     protected float fadeLength;
@@ -352,12 +352,14 @@ public class PssmShadowRenderer implements SceneProcessor {
         return frustumMdl;
     }
 
+    @Override
     public void initialize(RenderManager rm, ViewPort vp) {
         renderManager = rm;
         viewPort = vp;
         postTechniqueName = "PostShadow";
     }
 
+    @Override
     public boolean isInitialized() {
         return viewPort != null;
     }
@@ -381,6 +383,7 @@ public class PssmShadowRenderer implements SceneProcessor {
     }
 
     @SuppressWarnings("fallthrough")
+    @Override
     public void postQueue(RenderQueue rq) {
         for (Spatial scene : viewPort.getScenes()) {
             ShadowUtil.getGeometriesInCamFrustum(scene, viewPort.getCamera(), ShadowMode.Receive, lightReceivers);
@@ -488,6 +491,7 @@ public class PssmShadowRenderer implements SceneProcessor {
         debug = true;
     }
 
+    @Override
     public void postFrame(FrameBuffer out) {
 
         if (debug) {
@@ -581,12 +585,15 @@ public class PssmShadowRenderer implements SceneProcessor {
         }        
     }
 
+    @Override
     public void preFrame(float tpf) {
     }
 
+    @Override
     public void cleanup() {
     }
 
+    @Override
     public void reshape(ViewPort vp, int w, int h) {
     }
 
@@ -599,7 +606,7 @@ public class PssmShadowRenderer implements SceneProcessor {
         return lambda;
     }
 
-    /*
+    /**
      * Adjust the repartition of the different shadow maps in the shadow extend
      * usually goes from 0.0 to 1.0
      * a low value give a more linear repartition resulting in a constant quality in the shadow over the extends, but near shadows could look very jagged

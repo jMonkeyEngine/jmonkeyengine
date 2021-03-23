@@ -156,5 +156,10 @@ public class VRConstants {
      * @see #SETTING_VRAPI_OPENVR_LWJGL_VALUE
      */
     public static final int SETTING_VRAPI_OCULUSVR_VALUE    = 4;
-    
+
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private VRConstants() {
+    }
 }

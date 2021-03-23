@@ -33,7 +33,7 @@ public class TestTextureArray extends SimpleApplication
        
        Texture tex1 = assetManager.loadTexture( "Textures/Terrain/Pond/Pond.jpg");
        Texture tex2 = assetManager.loadTexture("Textures/Terrain/Rock2/rock.jpg");
-       List<Image> images = new ArrayList<Image>();
+       List<Image> images = new ArrayList<>();
        images.add(tex1.getImage());
        images.add(tex2.getImage());
        TextureArray tex3 = new TextureArray(images);
@@ -76,7 +76,7 @@ public class TestTextureArray extends SimpleApplication
    }
 
    /**
-    * @param args
+    * @param args ignored
     */
    public static void main(String[] args)
    {

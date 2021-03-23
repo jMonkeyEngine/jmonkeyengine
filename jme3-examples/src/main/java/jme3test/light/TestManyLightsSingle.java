@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -63,7 +63,7 @@ public class TestManyLightsSingle extends SimpleApplication {
     /**
      * Switch mode with space bar at run time
      */
-    TechniqueDef.LightMode lm = TechniqueDef.LightMode.SinglePass;
+    private TechniqueDef.LightMode lm = TechniqueDef.LightMode.SinglePass;
 
     @Override
     public void simpleInitApp() {
@@ -143,6 +143,7 @@ public class TestManyLightsSingle extends SimpleApplication {
         stateManager.attach(debug);
 
         inputManager.addListener(new ActionListener() {
+            @Override
             public void onAction(String name, boolean isPressed, float tpf) {
                 if (name.equals("toggle") && isPressed) {
                     if (lm == TechniqueDef.LightMode.SinglePass) {
@@ -222,10 +223,7 @@ public class TestManyLightsSingle extends SimpleApplication {
         }
     }
 
-    BitmapText helloText;
-    long time;
-    long nbFrames;
-    long startTime = 0;
+    private BitmapText helloText;
 
     @Override
     public void simpleUpdate(float tpf) {
@@ -242,8 +240,8 @@ public class TestManyLightsSingle extends SimpleApplication {
 
     class MoveControl extends AbstractControl {
 
-        float direction;
-        Vector3f origPos = new Vector3f();
+        final private float direction;
+        final private Vector3f origPos = new Vector3f();
 
         public MoveControl(float direction) {
             this.direction = direction;
@@ -254,7 +252,7 @@ public class TestManyLightsSingle extends SimpleApplication {
             super.setSpatial(spatial); //To change body of generated methods, choose Tools | Templates.
             origPos.set(spatial.getLocalTranslation());
         }
-        float time = 0;
+        private float time = 0;
 
         @Override
         protected void controlUpdate(float tpf) {

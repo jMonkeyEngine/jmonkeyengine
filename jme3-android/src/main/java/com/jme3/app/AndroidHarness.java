@@ -75,8 +75,8 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
     protected int eglDepthBits = 16;
 
     /**
-     * Sets the number of samples to use for multisampling.</br>
-     * Leave 0 (default) to disable multisampling.</br>
+     * Sets the number of samples to use for multisampling.<br>
+     * Leave 0 (default) to disable multisampling.<br>
      * Set to 2 or 4 to enable multisampling.
      */
     protected int eglSamples = 0;
@@ -88,7 +88,7 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
     protected int eglStencilBits = 0;
 
     /**
-     * Set the desired frame rate.  If frameRate > 0, the application
+     * Set the desired frame rate.  If frameRate higher than 0, the application
      * will be capped at the desired frame rate.
      * (default = -1, no frame rate cap)
      */
@@ -239,9 +239,8 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
             // Create application instance
             try {
                 if (app == null) {
-                    @SuppressWarnings("unchecked")
-                    Class<? extends LegacyApplication> clazz = (Class<? extends LegacyApplication>) Class.forName(appClass);
-                    app = clazz.newInstance();
+                    Class clazz = Class.forName(appClass);
+                    app = (LegacyApplication)clazz.newInstance();
                 }
 
                 app.setSettings(settings);
@@ -359,9 +358,10 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
      * Called by the android alert dialog, terminate the activity and OpenGL
      * rendering
      *
-     * @param dialog
-     * @param whichButton
+     * @param dialog ignored
+     * @param whichButton the button index
      */
+    @Override
     public void onClick(DialogInterface dialog, int whichButton) {
         if (whichButton != -2) {
             if (app != null) {
@@ -473,6 +473,7 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
         handler.setLevel(Level.ALL);
     }
 
+    @Override
     public void initialize() {
         app.initialize();
         if (handleExitHook) {
@@ -488,10 +489,12 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
         }
     }
 
+    @Override
     public void reshape(int width, int height) {
         app.reshape(width, height);
     }
 
+    @Override
     public void update() {
         app.update();
         // call to remove the splash screen, if present.
@@ -503,10 +506,12 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
         }
     }
 
+    @Override
     public void requestClose(boolean esc) {
         app.requestClose(esc);
     }
 
+    @Override
     public void destroy() {
         if (app != null) {
             app.destroy();
@@ -516,6 +521,7 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
         }
     }
 
+    @Override
     public void gainFocus() {
         logger.fine("gainFocus");
         if (view != null) {
@@ -547,6 +553,7 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
         }
     }
 
+    @Override
     public void loseFocus() {
         logger.fine("loseFocus");
         if (app != null) {

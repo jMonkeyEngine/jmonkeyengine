@@ -160,38 +160,66 @@ public class TestJoystick extends SimpleApplication {
      */   
     protected class JoystickEventListener implements RawInputListener {
 
+        final private Map<JoystickAxis, Float> lastValues = new HashMap<>();
+
+        @Override
         public void onJoyAxisEvent(JoyAxisEvent evt) {
-            setViewedJoystick( evt.getAxis().getJoystick() );
-            gamepad.setAxisValue( evt.getAxis(), evt.getValue() ); 
+            Float last = lastValues.remove(evt.getAxis());
+            float value = evt.getValue();
+                    
+            // Check the axis dead zone.  InputManager normally does this
+            // by default but not for raw events like we get here.
+            float effectiveDeadZone = Math.max(inputManager.getAxisDeadZone(), evt.getAxis().getDeadZone());
+            if( Math.abs(value) < effectiveDeadZone ) {
+                if( last == null ) {
+                    // Just skip the event
+                    return;
+                }
+                // Else set the value to 0
+                lastValues.remove(evt.getAxis());
+                value = 0;
+            }         
+            setViewedJoystick( evt.getAxis().getJoystick() );            
+            gamepad.setAxisValue( evt.getAxis(), value );
+            if( value != 0 ) {
+                lastValues.put(evt.getAxis(), value);
+            } 
         }
 
+        @Override
         public void onJoyButtonEvent(JoyButtonEvent evt) {
             setViewedJoystick( evt.getButton().getJoystick() );
             gamepad.setButtonValue( evt.getButton(), evt.isPressed() ); 
         }
 
+        @Override
         public void beginInput() {}
+        @Override
         public void endInput() {}
+        @Override
         public void onMouseMotionEvent(MouseMotionEvent evt) {}
+        @Override
         public void onMouseButtonEvent(MouseButtonEvent evt) {}
+        @Override
         public void onKeyEvent(KeyInputEvent evt) {}
+        @Override
         public void onTouchEvent(TouchEvent evt) {}        
     }
 
     protected class GamepadView extends Node {
     
-        float xAxis = 0;
-        float yAxis = 0;
-        float zAxis = 0;
-        float zRotation = 0;
+        private float xAxis = 0;
+        private float yAxis = 0;
+        private float zAxis = 0;
+        private float zRotation = 0;
         
-        float lastPovX = 0;
-        float lastPovY = 0;
+        private float lastPovX = 0;
+        private float lastPovY = 0;
  
-        Geometry leftStick;
-        Geometry rightStick;
+        final private Geometry leftStick;
+        final private Geometry rightStick;
             
-        Map<String, ButtonView> buttons = new HashMap<String, ButtonView>();
+        final private Map<String, ButtonView> buttons = new HashMap<>();
     
         public GamepadView() {
             super( "gamepad" );
@@ -266,7 +294,8 @@ public class TestJoystick extends SimpleApplication {
         }
  
         public void setAxisValue( JoystickAxis axis, float value ) {
-            System.out.println( "Axis:" + axis.getName() + "=" + value );
+                
+            System.out.println( "Axis:" + axis.getName() + "(id:" + axis.getLogicalId() + ")=" + value );
             if( axis == axis.getJoystick().getXAxis() ) {
                 setXAxis(value);
             } else if( axis == axis.getJoystick().getYAxis() ) {
@@ -280,6 +309,22 @@ public class TestJoystick extends SimpleApplication {
                 setZAxis(value);
             } else if( axis == axis.getJoystick().getAxis(JoystickAxis.Z_ROTATION) ) {
                 setZRotation(-value);
+            } else if( axis == axis.getJoystick().getAxis(JoystickAxis.LEFT_TRIGGER) ) {
+                if( axis.getJoystick().getButton(JoystickButton.BUTTON_6) == null ) {
+                    // left/right triggers sometimes only show up as axes
+                    boolean pressed = value != 0;
+                    if( pressed != buttons.get(JoystickButton.BUTTON_6).isDown() ) {
+                        setButtonValue(JoystickButton.BUTTON_6, pressed);
+                    }
+                }
+            } else if( axis == axis.getJoystick().getAxis(JoystickAxis.RIGHT_TRIGGER) ) {
+                if( axis.getJoystick().getButton(JoystickButton.BUTTON_7) == null ) {
+                    // left/right triggers sometimes only show up as axes
+                    boolean pressed = value != 0;
+                    if( pressed != buttons.get(JoystickButton.BUTTON_7).isDown() ) {
+                        setButtonValue(JoystickButton.BUTTON_7, pressed);
+                    }
+                }
             } else if( axis == axis.getJoystick().getPovXAxis() ) {
                 if( lastPovX < 0 ) {
                     setButtonValue( "POV -X", false );    
@@ -374,8 +419,8 @@ public class TestJoystick extends SimpleApplication {
     protected class ButtonView extends Node {
  
         private int state = 0;
-        private Material material;
-        private ColorRGBA hilite = new ColorRGBA( 0.0f, 0.75f, 0.75f, 0.5f );
+        final private Material material;
+        final private ColorRGBA hilite = new ColorRGBA( 0.0f, 0.75f, 0.75f, 0.5f );
         
         public ButtonView( String name, float x, float y, float width, float height ) {
             super( "Button:" + name );
@@ -402,6 +447,10 @@ public class TestJoystick extends SimpleApplication {
             System.out.println( getName() + " state:" + state );
         }
         
+        public boolean isDown() {
+            return state > 0;
+        }
+        
         public void down() {
             state++;            
             resetState();
@@ -419,7 +468,7 @@ public class TestJoystick extends SimpleApplication {
             for (CollisionResult cr : cresults) {
                 Node n = cr.getGeometry().getParent();
                 if (n != null && (n instanceof ButtonView)) {
-                    String b = ((ButtonView) n).getName().substring("Button:".length());
+                    String b = n.getName().substring("Button:".length());
                     String name = lastButton.getJoystick().getName().replaceAll(" ", "\\\\ ");
                     String id = lastButton.getLogicalId().replaceAll(" ", "\\\\ ");
                     System.out.println(name + "." + id + "=" + b);

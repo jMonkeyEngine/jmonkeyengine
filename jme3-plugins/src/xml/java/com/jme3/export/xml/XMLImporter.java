@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -59,10 +59,12 @@ public class XMLImporter implements JmeImporter {
     public XMLImporter() {
     }
 
+    @Override
     public int getFormatVersion() {
         return formatVersion;
     }
     
+    @Override
     public AssetManager getAssetManager(){
         return assetManager;
     }
@@ -71,6 +73,7 @@ public class XMLImporter implements JmeImporter {
         this.assetManager = assetManager;
     }
 
+    @Override
     public Object load(AssetInfo info) throws IOException {
         assetManager = info.getManager();
         InputStream in = info.openStream();
@@ -97,17 +100,14 @@ public class XMLImporter implements JmeImporter {
         try {
             domIn = new DOMInputCapsule(DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(f), this);
             return domIn.readSavable(null, null);
-        } catch (SAXException e) {
-            IOException ex = new IOException();
-            ex.initCause(e);
-            throw ex;
-        } catch (ParserConfigurationException e) {
+        } catch (SAXException | ParserConfigurationException e) {
             IOException ex = new IOException();
             ex.initCause(e);
             throw ex;
         }
     }
 
+    @Override
     public InputCapsule getCapsule(Savable id) {
         return domIn;
     }

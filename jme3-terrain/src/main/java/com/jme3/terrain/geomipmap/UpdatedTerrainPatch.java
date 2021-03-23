@@ -33,6 +33,7 @@ package com.jme3.terrain.geomipmap;
 
 import com.jme3.scene.VertexBuffer.Type;
 import java.nio.Buffer;
+import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 
@@ -180,6 +181,8 @@ public class UpdatedTerrainPatch {
                 updatedPatch.getMesh().setBuffer(Type.Index, 3, (IntBuffer)newIndexBuffer);
             else if (newIndexBuffer instanceof ShortBuffer)
                 updatedPatch.getMesh().setBuffer(Type.Index, 3, (ShortBuffer)newIndexBuffer);
+            else
+                updatedPatch.getMesh().setBuffer(Type.Index, 3, (ByteBuffer)newIndexBuffer);
         }
     }
     

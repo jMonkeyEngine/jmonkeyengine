@@ -101,6 +101,7 @@ public class IrradianceSphericalHarmonicsGenerator extends RunnableWithProgress 
         app.enqueue(new Callable<Void>() {
 
             @Override
+            @SuppressWarnings("unchecked")
             public Void call() throws Exception {
                 listener.done(6);
                 return null;

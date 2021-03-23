@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -64,7 +64,6 @@ public abstract class Serializer {
     private static final List<SerializerRegistration> registrations                 = new ArrayList<SerializerRegistration>();
 
     private static final Serializer                         fieldSerializer         = new FieldSerializer();
-    private static final Serializer                         serializableSerializer  = new SerializableSerializer();
     private static final Serializer                         arraySerializer         = new ArraySerializer();
 
     private static short nextAvailableId = -2; // historically the first ID was always -2
@@ -153,7 +152,7 @@ public abstract class Serializer {
     
     /**
      *  When set to true, classes that do not have intrinsic IDs in their
-     *  @Serializable will not be auto-registered during write.  Defaults
+     *  {@code @Serializable } will not be auto-registered during write.  Defaults
      *  to true since this is almost never desired behavior with the way
      *  this code works.  Set to false to get the old permissive behavior.
      */
@@ -266,12 +265,12 @@ public abstract class Serializer {
             ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
             String path = pkgName.replace('.', '/');
             Enumeration<URL> resources = classLoader.getResources(path);
-            List<File> dirs = new ArrayList<File>();
+            List<File> dirs = new ArrayList<>();
             while (resources.hasMoreElements()) {
                 URL resource = resources.nextElement();
                 dirs.add(new File(resource.getFile()));
             }
-            ArrayList<Class> classes = new ArrayList<Class>();
+            ArrayList<Class> classes = new ArrayList<>();
             for (File directory : dirs) {
                 classes.addAll(findClasses(directory, pkgName));
             }
@@ -289,7 +288,7 @@ public abstract class Serializer {
     }
 
     private static List<Class> findClasses(File dir, String pkgName) throws ClassNotFoundException {
-        List<Class> classes = new ArrayList<Class>();
+        List<Class> classes = new ArrayList<>();
         if (!dir.exists()) {
             return classes;
         }

@@ -41,7 +41,7 @@ import java.io.IOException;
 
 /**
  *
- * @author Rickard <neph1 @ github>
+ * @author Rickard (neph1 @ github)
  */
 public class CameraEvent extends AbstractCinematicEvent{
 

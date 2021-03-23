@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -60,12 +60,12 @@ public class Animation implements Savable, Cloneable, JmeCloneable {
     /** 
      * The tracks of the animation. 
      */
-    private SafeArrayList<Track> tracks = new SafeArrayList<Track>(Track.class);
+    private SafeArrayList<Track> tracks = new SafeArrayList<>(Track.class);
 
     /**
      * Serialization-only. Do not use.
      */
-    public Animation() {
+    protected Animation() {
     }
 
     /**
@@ -181,7 +181,7 @@ public class Animation implements Savable, Cloneable, JmeCloneable {
     public Animation clone() {
         try {
             Animation result = (Animation) super.clone();
-            result.tracks = new SafeArrayList<Track>(Track.class);
+            result.tracks = new SafeArrayList<>(Track.class);
             for (Track track : tracks) {
                 result.tracks.add(track.clone());
             }
@@ -199,7 +199,7 @@ public class Animation implements Savable, Cloneable, JmeCloneable {
     public Animation cloneForSpatial(Spatial spat) {
         try {
             Animation result = (Animation) super.clone();
-            result.tracks = new SafeArrayList<Track>(Track.class);
+            result.tracks = new SafeArrayList<>(Track.class);
             for (Track track : tracks) {
                 if (track instanceof ClonableTrack) {
                     result.tracks.add(((ClonableTrack) track).cloneForSpatial(spat));
@@ -265,7 +265,7 @@ public class Animation implements Savable, Cloneable, JmeCloneable {
             // tracks set at all even though it makes no sense.
             // Since there's a null check in setTime(),
             // it's only appropriate that the check is made here as well.
-            tracks = new SafeArrayList<Track>(Track.class);
+            tracks = new SafeArrayList<>(Track.class);
             for (Savable savable : arr) {
                 tracks.add((Track) savable);
             }

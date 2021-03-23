@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -49,6 +49,7 @@ import com.jme3.scene.Node;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image.Format;
 import com.jme3.texture.Texture2D;
+import com.jme3.texture.FrameBuffer.FrameBufferTarget;
 import com.jme3.ui.Picture;
 
 public class TestMultiRenderTarget extends SimpleApplication implements SceneProcessor {
@@ -121,6 +122,7 @@ public class TestMultiRenderTarget extends SimpleApplication implements ScenePro
                                          FastMath.sin(angle)*3f));
         }
     }
+    @Override
     public void initialize(RenderManager rm, ViewPort vp) {
         reshape(vp, vp.getCamera().getWidth(), vp.getCamera().getHeight());
         viewPort.setOutputFrameBuffer(fb);
@@ -133,6 +135,7 @@ public class TestMultiRenderTarget extends SimpleApplication implements ScenePro
         guiNode.updateGeometricState();
     }
 
+    @Override
     public void reshape(ViewPort vp, int w, int h) {
         diffuseData  = new Texture2D(w, h, Format.RGBA8);
         normalData   = new Texture2D(w, h, Format.RGBA8);
@@ -175,10 +178,10 @@ public class TestMultiRenderTarget extends SimpleApplication implements ScenePro
         guiNode.updateGeometricState();
         
         fb = new FrameBuffer(w, h, 1);
-        fb.setDepthTexture(depthData);
-        fb.addColorTexture(diffuseData);
-        fb.addColorTexture(normalData);
-        fb.addColorTexture(specularData);
+        fb.setDepthTarget(FrameBufferTarget.newTarget(depthData));
+        fb.addColorTarget(FrameBufferTarget.newTarget(diffuseData));
+        fb.addColorTarget(FrameBufferTarget.newTarget(normalData));
+        fb.addColorTarget(FrameBufferTarget.newTarget(specularData));
         fb.setMultiTarget(true);
 
         /*
@@ -211,10 +214,12 @@ public class TestMultiRenderTarget extends SimpleApplication implements ScenePro
          */
     }
 
+    @Override
     public boolean isInitialized() {
         return diffuseData != null;
     }
 
+    @Override
     public void preFrame(float tpf) {
         Matrix4f inverseViewProj = cam.getViewProjectionMatrix().invert();
         mat.setMatrix4("ViewProjectionMatrixInverse", inverseViewProj);
@@ -222,13 +227,16 @@ public class TestMultiRenderTarget extends SimpleApplication implements ScenePro
         renderManager.setForcedTechnique("GBuf");
     }
 
+    @Override
     public void postQueue(RenderQueue rq) {
     }
 
+    @Override
     public void postFrame(FrameBuffer out) {
         renderManager.setForcedTechnique(techOrig);
     }
 
+    @Override
     public void cleanup() {
     }
 

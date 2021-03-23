@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -49,7 +49,7 @@ import com.jme3.util.TangentBinormalGenerator;
 
 public class TestParallaxPBR extends SimpleApplication {
 
-    private Vector3f lightDir = new Vector3f(-1, -1, .5f).normalizeLocal();
+    final private Vector3f lightDir = new Vector3f(-1, -1, .5f).normalizeLocal();
 
     public static void main(String[] args) {
         TestParallaxPBR app = new TestParallaxPBR();
@@ -59,7 +59,7 @@ public class TestParallaxPBR extends SimpleApplication {
     public void setupSkyBox() {
         rootNode.attachChild(SkyFactory.createSky(assetManager, "Scenes/Beach/FullskiesSunset0068.dds", SkyFactory.EnvMapType.CubeMap));
     }
-    DirectionalLight dl;
+    private DirectionalLight dl;
 
     public void setupLighting() {
 
@@ -68,7 +68,7 @@ public class TestParallaxPBR extends SimpleApplication {
         dl.setColor(new ColorRGBA(.9f, .9f, .9f, 1));
         rootNode.addLight(dl);
     }
-    Material mat;
+    private Material mat;
 
     public void setupFloor() {
         mat = assetManager.loadMaterial("Textures/Terrain/BrickWall/BrickWallPBR.j3m");
@@ -116,6 +116,7 @@ public class TestParallaxPBR extends SimpleApplication {
 
         inputManager.addListener(new AnalogListener() {
 
+            @Override
             public void onAnalog(String name, float value, float tpf) {
                 if ("heightUP".equals(name)) {
                     parallaxHeigh += 0.01;
@@ -134,6 +135,7 @@ public class TestParallaxPBR extends SimpleApplication {
 
         inputManager.addListener(new ActionListener() {
 
+            @Override
             public void onAction(String name, boolean isPressed, float tpf) {
                 if (isPressed && "toggleSteep".equals(name)) {
                     steep = !steep;
@@ -143,9 +145,8 @@ public class TestParallaxPBR extends SimpleApplication {
         }, "toggleSteep");
         inputManager.addMapping("toggleSteep", new KeyTrigger(KeyInput.KEY_SPACE));
     }
-    float parallaxHeigh = 0.05f;
-    float time = 0;
-    boolean steep = false;
+    private float parallaxHeigh = 0.05f;
+    private boolean steep = false;
 
     @Override
     public void simpleUpdate(float tpf) {

@@ -53,7 +53,7 @@ MaterialDef PBR Lighting {
         // Parallax/height map
         Texture2D ParallaxMap -LINEAR
 
-        //Set to true is parallax map is stored in the alpha channel of the normal map
+        //Set to true if parallax map is stored in the alpha channel of the normal map
         Boolean PackedNormalParallax   
 
         //Sets the relief height for parallax mapping
@@ -70,9 +70,9 @@ MaterialDef PBR Lighting {
 
         // Set to use TexCoord2 for the lightmap sampling
         Boolean SeparateTexCoord
-        // the light map is a gray scale ao map, on ly the r channel will be read.
+        // the light map is a grayscale ao map, only the r channel will be read.
         Boolean LightMapAsAOMap
-
+        Boolean AoPackedInMRMap
         //shadows
         Int FilterMode
         Boolean HardwareShadows
@@ -111,10 +111,10 @@ MaterialDef PBR Lighting {
         Int NumberOfMorphTargets
         Int NumberOfTargetsBuffers
                 
-        //For instancing
+        // For instancing
         Boolean UseInstancing
 
-        //For Vertex Color
+        // For Vertex Color
         Boolean UseVertexColor
 
         Boolean BackfaceShadows : false
@@ -123,8 +123,8 @@ MaterialDef PBR Lighting {
     Technique {
         LightMode SinglePassAndImageBased
         
-        VertexShader GLSL110 GLSL150:   Common/MatDefs/Light/PBRLighting.vert
-        FragmentShader GLSL110 GLSL150: Common/MatDefs/Light/PBRLighting.frag
+        VertexShader GLSL300 GLSL110 GLSL150:   Common/MatDefs/Light/PBRLighting.vert
+        FragmentShader GLSL300 GLSL110 GLSL150: Common/MatDefs/Light/PBRLighting.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -158,6 +158,7 @@ MaterialDef PBR Lighting {
             NORMAL_TYPE: NormalType
             VERTEX_COLOR : UseVertexColor
             AO_MAP: LightMapAsAOMap
+            AO_PACKED_IN_MR_MAP : AoPackedInMRMap
             NUM_MORPH_TARGETS: NumberOfMorphTargets
             NUM_TARGETS_BUFFERS: NumberOfTargetsBuffers
             HORIZON_FADE: HorizonFade
@@ -167,8 +168,8 @@ MaterialDef PBR Lighting {
 
     Technique PreShadow {
 
-        VertexShader GLSL100 GLSL150 :   Common/MatDefs/Shadow/PreShadow.vert
-        FragmentShader GLSL100 GLSL150 : Common/MatDefs/Shadow/PreShadow.frag
+        VertexShader GLSL300 GLSL100 GLSL150 :   Common/MatDefs/Shadow/PreShadow.vert
+        FragmentShader GLSL300 GLSL100 GLSL150 : Common/MatDefs/Shadow/PreShadowPBR.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -196,9 +197,9 @@ MaterialDef PBR Lighting {
     }
 
 
-    Technique PostShadow{
-        VertexShader GLSL150:   Common/MatDefs/Shadow/PostShadow.vert
-        FragmentShader GLSL150: Common/MatDefs/Shadow/PostShadow.frag
+    Technique PostShadow {
+        VertexShader GLSL310 GLSL300 GLSL100 GLSL150:   Common/MatDefs/Shadow/PostShadow.vert
+        FragmentShader GLSL310 GLSL300 GLSL100 GLSL150: Common/MatDefs/Shadow/PostShadowPBR.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -212,7 +213,6 @@ MaterialDef PBR Lighting {
             FILTER_MODE : FilterMode
             PCFEDGE : PCFEdge
             DISCARD_ALPHA : AlphaDiscardThreshold           
-            SHADOWMAP_SIZE : ShadowMapSize
             SHADOWMAP_SIZE : ShadowMapSize
             FADE : FadeInfo
             PSSM : Splits
@@ -228,40 +228,6 @@ MaterialDef PBR Lighting {
             Blend Modulate
             DepthWrite Off                 
             PolyOffset -0.1 0
-        }
-    }
-
-    Technique PostShadow{
-        VertexShader GLSL100:   Common/MatDefs/Shadow/PostShadow.vert
-        FragmentShader GLSL100: Common/MatDefs/Shadow/PostShadow.frag
-
-        WorldParameters {
-            WorldViewProjectionMatrix
-            WorldMatrix
-            ViewProjectionMatrix
-            ViewMatrix
-        }
-
-        Defines {
-            HARDWARE_SHADOWS : HardwareShadows
-            FILTER_MODE : FilterMode
-            PCFEDGE : PCFEdge
-            DISCARD_ALPHA : AlphaDiscardThreshold           
-            SHADOWMAP_SIZE : ShadowMapSize
-            FADE : FadeInfo
-            PSSM : Splits
-            POINTLIGHT : LightViewProjectionMatrix5
-            NUM_BONES : NumberOfBones
-            INSTANCING : UseInstancing
-            BACKFACE_SHADOWS: BackfaceShadows
-            NUM_MORPH_TARGETS: NumberOfMorphTargets
-            NUM_TARGETS_BUFFERS: NumberOfTargetsBuffers
-        }
-
-        ForcedRenderState {
-            Blend Modulate
-            DepthWrite Off   
-            PolyOffset -0.1 0  
         }
     }
 

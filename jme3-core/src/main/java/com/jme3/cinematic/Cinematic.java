@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -93,18 +93,19 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
     private Node scene;
     protected TimeLine timeLine = new TimeLine();
     private int lastFetchedKeyFrame = -1;
-    private List<CinematicEvent> cinematicEvents = new ArrayList<>();
+    final private List<CinematicEvent> cinematicEvents = new ArrayList<>();
     private Map<String, CameraNode> cameras = new HashMap<>();
     private CameraNode currentCam;
     private boolean initialized = false;
     private Map<String, Map<Object, Object>> eventsData;
     private float nextEnqueue = 0;
+    private String id;
 
     /**
      * Used for serialization creates a cinematic, don't use this constructor
      * directly
      */
-    public Cinematic() {
+    protected Cinematic() {
         super();
     }
 
@@ -233,6 +234,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
      * @throws IOException
      */
     @Override
+    @SuppressWarnings("unchecked")
     public void read(JmeImporter im) throws IOException {
         super.read(im);
         InputCapsule ic = im.getCapsule(this);
@@ -269,6 +271,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
      * @param stateManager the state manager
      * @param app the application
      */
+    @Override
     public void initialize(AppStateManager stateManager, Application app) {
         initEvent(app, this);
         for (CinematicEvent cinematicEvent : cinematicEvents) {
@@ -287,8 +290,23 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
      *
      * @return true if initialized, otherwise false
      */
+    @Override
     public boolean isInitialized() {
         return initialized;
+    }
+
+    /**
+     *  Sets the unique ID of this app state.  Note: that setting
+     *  this while an app state is attached to the state manager will
+     *  have no effect on ID-based lookups.
+     */
+    protected void setId( String id ) {
+        this.id = id;
+    }
+
+    @Override
+    public String getId() {
+        return id;
     }
 
     /**
@@ -297,6 +315,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
      *
      * @param enabled true or false
      */
+    @Override
     public void setEnabled(boolean enabled) {
         if (enabled) {
             play();
@@ -309,6 +328,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
      *
      * @return true if enabled
      */
+    @Override
     public boolean isEnabled() {
         return playState == PlayState.Playing;
     }
@@ -318,6 +338,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
      *
      * @param stateManager the state manager
      */
+    @Override
     public void stateAttached(AppStateManager stateManager) {
     }
 
@@ -326,6 +347,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
      *
      * @param stateManager the state manager
      */
+    @Override
     public void stateDetached(AppStateManager stateManager) {
         stop();
     }
@@ -493,6 +515,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
      *
      * @see AppState#render(com.jme3.renderer.RenderManager)
      */
+    @Override
     public void render(RenderManager rm) {
     }
 
@@ -501,6 +524,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
      *
      * @see AppState#postRender()
      */
+    @Override
     public void postRender() {
     }
 
@@ -509,6 +533,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
      *
      * @see AppState#cleanup()
      */
+    @Override
     public void cleanup() {
     }
 

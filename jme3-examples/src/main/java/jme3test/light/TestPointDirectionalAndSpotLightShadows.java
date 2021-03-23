@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -60,16 +60,16 @@ public class TestPointDirectionalAndSpotLightShadows extends SimpleApplication {
         TestPointDirectionalAndSpotLightShadows app = new TestPointDirectionalAndSpotLightShadows();
         app.start();
     }
-    Node lightNode;
-    PointLightShadowRenderer plsr;
-    PointLightShadowFilter plsf;
-    DirectionalLightShadowRenderer dlsr;
-    DirectionalLightShadowFilter dlsf;
-    SpotLightShadowRenderer slsr;
-    SpotLightShadowFilter slsf;
-    SpotLight spotLight;
+    private Node lightNode;
+    private PointLightShadowRenderer plsr;
+    private PointLightShadowFilter plsf;
+    private DirectionalLightShadowRenderer dlsr;
+    private DirectionalLightShadowFilter dlsf;
+    private SpotLightShadowRenderer slsr;
+    private SpotLightShadowFilter slsf;
+    private SpotLight spotLight;
     
-    boolean useFilter = false;
+    final private boolean useFilter = false;
     
     @Override
     public void simpleInitApp() {
@@ -98,7 +98,7 @@ public class TestPointDirectionalAndSpotLightShadows extends SimpleApplication {
         rootNode.attachChild(box);
         box.setLocalTranslation(-1f, 0.5f, -2);
 
-        ((PointLight) scene.getLocalLightList().get(0)).setColor(ColorRGBA.Red);
+        scene.getLocalLightList().get(0).setColor(ColorRGBA.Red);
         
         plsr = new PointLightShadowRenderer(assetManager, SHADOWMAP_SIZE);
         plsr.setLight((PointLight) scene.getLocalLightList().get(0));
@@ -166,7 +166,7 @@ public class TestPointDirectionalAndSpotLightShadows extends SimpleApplication {
   
     }
 
-    float timeElapsed = 0.0f;
+    private float timeElapsed = 0.0f;
     @Override
     public void simpleUpdate(float tpf) {
         timeElapsed += tpf;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,18 +45,23 @@ public class TestSoftwareMouse extends SimpleApplication {
 
     private Picture cursor;
 
-    private RawInputListener inputListener = new RawInputListener() {
+    final private RawInputListener inputListener = new RawInputListener() {
 
         private float x = 0, y = 0;
 
+        @Override
         public void beginInput() {
         }
+        @Override
         public void endInput() {
         }
+        @Override
         public void onJoyAxisEvent(JoyAxisEvent evt) {
         }
+        @Override
         public void onJoyButtonEvent(JoyButtonEvent evt) {
         }
+        @Override
         public void onMouseMotionEvent(MouseMotionEvent evt) {
             x += evt.getDX();
             y += evt.getDY();
@@ -69,10 +74,13 @@ public class TestSoftwareMouse extends SimpleApplication {
             // adjust for hotspot
             cursor.setPosition(x, y - 64);
         }
+        @Override
         public void onMouseButtonEvent(MouseButtonEvent evt) {
         }
+        @Override
         public void onKeyEvent(KeyInputEvent evt) {
         }
+        @Override
         public void onTouchEvent(TouchEvent evt) {
         }
     };

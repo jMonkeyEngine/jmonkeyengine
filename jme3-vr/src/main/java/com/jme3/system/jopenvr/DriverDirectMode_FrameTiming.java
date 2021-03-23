@@ -18,6 +18,7 @@ public class DriverDirectMode_FrameTiming extends Structure {
 	public DriverDirectMode_FrameTiming() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("m_nSize", "m_nNumFramePresents", "m_nNumMisPresented", "m_nNumDroppedFrames", "m_nReprojectionFlags");
 	}

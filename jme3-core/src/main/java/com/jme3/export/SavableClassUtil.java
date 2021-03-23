@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,7 +36,9 @@ import com.jme3.effect.shapes.*;
 import com.jme3.material.MatParamTexture;
 
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -56,11 +58,11 @@ import java.util.logging.Logger;
 public class SavableClassUtil {
 
     private final static HashMap<String, String> CLASS_REMAPPINGS = new HashMap<>();
-    
+
     private static void addRemapping(String oldClass, Class<? extends Savable> newClass){
         CLASS_REMAPPINGS.put(oldClass, newClass.getName());
     }
-    
+
     static {
         addRemapping("com.jme3.effect.EmitterSphereShape", EmitterSphereShape.class);
         addRemapping("com.jme3.effect.EmitterBoxShape", EmitterBoxShape.class);
@@ -71,9 +73,19 @@ public class SavableClassUtil {
         addRemapping("com.jme3.material.Material$MatParamTexture", MatParamTexture.class);
         addRemapping("com.jme3.animation.BoneAnimation", Animation.class);
         addRemapping("com.jme3.animation.SpatialAnimation", Animation.class);
+
+        // Even though we no longer include Blender loading as part of the engine,
+        // we leave this line in so that old j3os will still work and just not
+        // load that data.  -pspeed:2020-04-19
         addRemapping("com.jme3.scene.plugins.blender.objects.Properties", NullSavable.class);
     }
-    
+
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private SavableClassUtil() {
+    }
+
     private static String remapClass(String className) throws ClassNotFoundException {
         String result = CLASS_REMAPPINGS.get(className);
         if (result == null) {
@@ -82,33 +94,35 @@ public class SavableClassUtil {
             return result;
         }
     }
-    
+
     public static boolean isImplementingSavable(Class clazz){
         boolean result = Savable.class.isAssignableFrom(clazz);
         return result;
     }
 
+    @SuppressWarnings("unchecked")
     public static int[] getSavableVersions(Class<? extends Savable> clazz) throws IOException{
-        ArrayList<Integer> versionList = new ArrayList<Integer>();
+        ArrayList<Integer> versionList = new ArrayList<>();
         Class superclass = clazz;
         do {
             versionList.add(getSavableVersion(superclass));
             superclass = superclass.getSuperclass();
         } while (superclass != null && SavableClassUtil.isImplementingSavable(superclass));
-        
+
         int[] versions = new int[versionList.size()];
         for (int i = 0; i < versionList.size(); i++){
             versions[i] = versionList.get(i);
         }
         return versions;
     }
-    
+
+    @SuppressWarnings("unchecked")
     public static int getSavableVersion(Class<? extends Savable> clazz) throws IOException{
         try {
             Field field = clazz.getField("SAVABLE_VERSION");
             Class<? extends Savable> declaringClass = (Class<? extends Savable>) field.getDeclaringClass();
             if (declaringClass == clazz){
-                return field.getInt(null); 
+                return field.getInt(null);
             }else{
                 return 0; // This class doesn't declare this field, e.g. version == 0
             }
@@ -122,11 +136,11 @@ public class SavableClassUtil {
             return 0; // not using versions
         }
     }
-    
+
     public static int getSavedSavableVersion(Object savable, Class<? extends Savable> desiredClass, int[] versions, int formatVersion){
         Class thisClass = savable.getClass();
         int count = 0;
-        
+
         while (thisClass != desiredClass) {
             thisClass = thisClass.getSuperclass();
             if (thisClass != null && SavableClassUtil.isImplementingSavable(thisClass)){
@@ -137,40 +151,43 @@ public class SavableClassUtil {
         }
 
         if (thisClass == null){
-            throw new IllegalArgumentException(savable.getClass().getName() + 
-                                               " does not extend " + 
+            throw new IllegalArgumentException(savable.getClass().getName() +
+                                               " does not extend " +
                                                desiredClass.getName() + "!");
         }else if (count >= versions.length){
             if (formatVersion <= 1){
                 return 0; // for buggy versions of j3o
             }else{
-                throw new IllegalArgumentException(savable.getClass().getName() + 
+                throw new IllegalArgumentException(savable.getClass().getName() +
                                                    " cannot access version of " +
-                                                   desiredClass.getName() + 
+                                                   desiredClass.getName() +
                                                    " because it doesn't implement Savable");
             }
         }
         return versions[count];
     }
-    
+
     /**
      * fromName creates a new Savable from the provided class name. First registered modules
      * are checked to handle special cases, if the modules do not handle the class name, the
-     * class is instantiated directly. 
+     * class is instantiated directly.
      * @param className the class name to create.
      * @return the Savable instance of the class.
      * @throws InstantiationException thrown if the class does not have an empty constructor.
      * @throws IllegalAccessException thrown if the class is not accessable.
+     * @throws java.lang.reflect.InvocationTargetException
      * @throws ClassNotFoundException thrown if the class name is not in the classpath.
-     * @throws IOException when loading ctor parameters fails
      */
-    public static Savable fromName(String className) throws InstantiationException,
-            IllegalAccessException, ClassNotFoundException, IOException {
-
+    public static Savable fromName(String className)
+            throws ClassNotFoundException, IllegalAccessException,
+            InstantiationException, InvocationTargetException {
         className = remapClass(className);
+
+        Constructor noArgConstructor = findNoArgConstructor(className);
+        noArgConstructor.setAccessible(true);
         try {
-            return (Savable) Class.forName(className).newInstance();
-        } catch (InstantiationException e) {
+            return (Savable) noArgConstructor.newInstance();
+        } catch (InvocationTargetException | InstantiationException e) {
             Logger.getLogger(SavableClassUtil.class.getName()).log(
                     Level.SEVERE, "Could not access constructor of class ''{0}" + "''! \n"
                     + "Some types need to have the BinaryImporter set up in a special way. Please doublecheck the setup.", className);
@@ -184,6 +201,7 @@ public class SavableClassUtil {
     }
 
     public static Savable fromName(String className, List<ClassLoader> loaders) throws InstantiationException,
+            InvocationTargetException, NoSuchMethodException,
             IllegalAccessException, ClassNotFoundException, IOException {
         if (loaders == null) {
             return fromName(className);
@@ -200,12 +218,33 @@ public class SavableClassUtil {
                 }
                 try {
                     return (Savable) loadedClass.newInstance();
-                } catch (InstantiationException e) {
-                } catch (IllegalAccessException e) {
+                } catch (InstantiationException | IllegalAccessException e) {
                 }
             }
         }
 
         return fromName(className);
+    }
+
+    /**
+     * Use reflection to gain access to the no-arg constructor of the named
+     * class.
+     *
+     * @return the pre-existing constructor (not null)
+     */
+    @SuppressWarnings("unchecked")
+    private static Constructor findNoArgConstructor(String className)
+            throws ClassNotFoundException, InstantiationException {
+        Class clazz = Class.forName(className);
+        Constructor result;
+        try {
+            result = clazz.getDeclaredConstructor();
+        } catch (NoSuchMethodException e) {
+            throw new InstantiationException(
+                    "Loading requires a no-arg constructor, but class "
+                    + className + " lacks one.");
+        }
+
+        return result;
     }
 }

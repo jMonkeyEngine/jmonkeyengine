@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -51,7 +51,7 @@ public class GeometryList implements Iterable<Geometry>{
     private static final int DEFAULT_SIZE = 32;
 
     private Geometry[] geometries;    
-    private ListSort listSort;
+    final private ListSort listSort;
     private int size;
     private GeometryComparator comparator;
 
@@ -149,6 +149,7 @@ public class GeometryList implements Iterable<Geometry>{
     /**
      * Sorts the elements in the list according to their Comparator.
      */
+    @SuppressWarnings("unchecked")
     public void sort() {
         if (size > 1) {
             // sort the spatial list using the comparator
@@ -159,16 +160,19 @@ public class GeometryList implements Iterable<Geometry>{
         }
     }
 
+    @Override
     public Iterator<Geometry> iterator() {
         return new Iterator<Geometry>() {
 
             int index = 0;
             
+            @Override
             public boolean hasNext() {
                 return index < size();
             }
 
             
+            @Override
             public Geometry next() {
                 if ( index >= size() ) {
                     throw new NoSuchElementException("Geometry list has only " + size() + " elements");
@@ -176,6 +180,7 @@ public class GeometryList implements Iterable<Geometry>{
                 return get(index++);
             }
             
+            @Override
             public void remove() {
                 throw new UnsupportedOperationException("Geometry list doesn't support iterator removal");
             }

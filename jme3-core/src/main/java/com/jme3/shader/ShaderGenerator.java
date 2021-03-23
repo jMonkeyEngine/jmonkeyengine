@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -72,7 +72,7 @@ public abstract class ShaderGenerator {
      */
     Pattern extensions = Pattern.compile("(#extension.*\\s+)");
 
-    private Map<String, String> imports = new LinkedHashMap<>();
+    final private Map<String, String> imports = new LinkedHashMap<>();
 
     /**
      * Build a shaderGenerator
@@ -194,6 +194,7 @@ public abstract class ShaderGenerator {
      * @param info the ShaderGenerationInfo
      * @param type the Shader type
      */
+    @SuppressWarnings("unchecked")
     protected void generateDeclarationAndMainBody(List<ShaderNode> shaderNodes, StringBuilder sourceDeclaration, StringBuilder source, ShaderGenerationInfo info, Shader.ShaderType type) {
         for (ShaderNode shaderNode : shaderNodes) {
             if (info.getUnusedNodes().contains(shaderNode.getName())) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,6 +32,7 @@
 package com.jme3.network.base;
 
 import com.jme3.network.*;
+import com.jme3.network.base.protocol.SerializerMessageProtocol;
 import com.jme3.network.kernel.Endpoint;
 import com.jme3.network.kernel.Kernel;
 import com.jme3.network.message.ChannelInfoMessage;
@@ -72,22 +73,23 @@ public class DefaultServer implements Server
     private final KernelFactory kernelFactory = KernelFactory.DEFAULT;
     private KernelAdapter reliableAdapter;
     private KernelAdapter fastAdapter;
-    private final List<KernelAdapter> channels = new ArrayList<KernelAdapter>();
-    private final List<Integer> alternatePorts = new ArrayList<Integer>();
+    private final List<KernelAdapter> channels = new ArrayList<>();
+    private final List<Integer> alternatePorts = new ArrayList<>();
     private final Redispatch dispatcher = new Redispatch();
-    private final Map<Integer,HostedConnection> connections = new ConcurrentHashMap<Integer,HostedConnection>();
+    private final Map<Integer,HostedConnection> connections = new ConcurrentHashMap<>();
     private final Map<Endpoint,HostedConnection> endpointConnections 
-                            = new ConcurrentHashMap<Endpoint,HostedConnection>();
+                            = new ConcurrentHashMap<>();
     
     // Keeps track of clients for whom we've only received the UDP
     // registration message
-    private final Map<Long,Connection> connecting = new ConcurrentHashMap<Long,Connection>();
+    private final Map<Long,Connection> connecting = new ConcurrentHashMap<>();
     
     private final MessageListenerRegistry<HostedConnection> messageListeners 
-                            = new MessageListenerRegistry<HostedConnection>();                        
-    private final List<ConnectionListener> connectionListeners = new CopyOnWriteArrayList<ConnectionListener>();
+                            = new MessageListenerRegistry<>();                        
+    private final List<ConnectionListener> connectionListeners = new CopyOnWriteArrayList<>();
     
     private HostedServiceManager services;
+    private MessageProtocol protocol = new SerializerMessageProtocol();
     
     public DefaultServer( String gameName, int version, Kernel reliable, Kernel fast )
     {
@@ -99,10 +101,10 @@ public class DefaultServer implements Server
         this.services = new HostedServiceManager(this);        
         addStandardServices();
         
-        reliableAdapter = new KernelAdapter( this, reliable, dispatcher, true );
+        reliableAdapter = new KernelAdapter(this, reliable, protocol, dispatcher, true);
         channels.add( reliableAdapter );
         if( fast != null ) {
-            fastAdapter = new KernelAdapter( this, fast, dispatcher, false );
+            fastAdapter = new KernelAdapter(this, fast, protocol, dispatcher, false);
             channels.add( fastAdapter );
         }
     }   
@@ -153,7 +155,7 @@ public class DefaultServer implements Server
             alternatePorts.add(port);
             
             Kernel kernel = kernelFactory.createKernel(result, port); 
-            channels.add( new KernelAdapter(this, kernel, dispatcher, true) );
+            channels.add( new KernelAdapter(this, kernel, protocol, dispatcher, true) );
             
             return result;
         } catch( IOException e ) {
@@ -238,7 +240,7 @@ public class DefaultServer implements Server
         if( connections.isEmpty() )
             return;
  
-        ByteBuffer buffer = MessageProtocol.messageToBuffer(message, null);
+        ByteBuffer buffer = protocol.toByteBuffer(message, null);
  
         FilterAdapter adapter = filter == null ? null : new FilterAdapter(filter);
                
@@ -263,7 +265,7 @@ public class DefaultServer implements Server
 
         checkChannel(channel);
         
-        ByteBuffer buffer = MessageProtocol.messageToBuffer(message, null);
+        ByteBuffer buffer = protocol.toByteBuffer(message, null);
  
         FilterAdapter adapter = filter == null ? null : new FilterAdapter(filter);
 
@@ -285,7 +287,7 @@ public class DefaultServer implements Server
     @Override
     public Collection<HostedConnection> getConnections()
     {
-        return Collections.unmodifiableCollection((Collection<HostedConnection>)connections.values());
+        return Collections.unmodifiableCollection(connections.values());
     } 
  
     @Override
@@ -521,7 +523,7 @@ public class DefaultServer implements Server
         private Endpoint[] channels;
         private int setChannelCount = 0; 
        
-        private final Map<String,Object> sessionData = new ConcurrentHashMap<String,Object>();       
+        private final Map<String,Object> sessionData = new ConcurrentHashMap<>();       
         
         public Connection( int channelCount )
         {
@@ -579,7 +581,7 @@ public class DefaultServer implements Server
             if( log.isLoggable(Level.FINER) ) {
                 log.log(Level.FINER, "send({0})", message);
             }
-            ByteBuffer buffer = MessageProtocol.messageToBuffer(message, null);
+            ByteBuffer buffer = protocol.toByteBuffer(message, null);
             if( message.isReliable() || channels[CH_UNRELIABLE] == null ) {
                 channels[CH_RELIABLE].send( buffer );
             } else {
@@ -594,7 +596,7 @@ public class DefaultServer implements Server
                 log.log(Level.FINER, "send({0}, {1})", new Object[]{channel, message});
             }
             checkChannel(channel);
-            ByteBuffer buffer = MessageProtocol.messageToBuffer(message, null);
+            ByteBuffer buffer = protocol.toByteBuffer(message, null);
             channels[channel+CH_FIRST].send(buffer);
         }
  

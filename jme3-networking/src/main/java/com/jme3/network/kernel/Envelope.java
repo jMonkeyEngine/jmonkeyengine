@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -71,6 +71,7 @@ public class Envelope
         return reliable;
     }
     
+    @Override
     public String toString()
     {
         return "Envelope[" + source + ", " + (reliable?"reliable":"unreliable") + ", " + data.length + "]";

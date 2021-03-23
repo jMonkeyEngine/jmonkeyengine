@@ -38,6 +38,13 @@ import com.jme3.scene.shape.Box;
 import com.jme3.texture.Texture;
 import com.jme3.util.BufferUtils;
 
+/**
+ * Demonstrate what happens if you use a deleted texture with OpenGL.
+ *
+ * If assertions are enabled, an AssertionError is thrown NativeObjectManager.
+ *
+ * @author Kirill Vainer
+ */
 public class TestUseAfterFree extends SimpleApplication {
 
     private float time = 0;
@@ -70,7 +77,7 @@ public class TestUseAfterFree extends SimpleApplication {
         
         time += tpf;
         if (time > 5) {
-            System.out.println("Assiging texture to deleted object!");
+            System.out.println("Assigning texture to deleted object!");
             
             deletedTex = assetManager.loadTexture("Interface/Logo/Monkey.png");
             BufferUtils.destroyDirectBuffer(deletedTex.getImage().getData(0));

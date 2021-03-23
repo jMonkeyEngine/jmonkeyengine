@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -97,7 +97,7 @@ public class HDRRenderer implements SceneProcessor {
 
     private MinFilter fbMinFilter = MinFilter.BilinearNoMipMaps;
     private MagFilter fbMagFilter = MagFilter.Bilinear;
-    private AssetManager manager;
+    final private AssetManager manager;
 
     private boolean enabled = true;
 
@@ -252,10 +252,12 @@ public class HDRRenderer implements SceneProcessor {
         renderProcessing(r, scene1FB[curSrc], hdr1);
     }
 
+    @Override
     public boolean isInitialized(){
         return viewPort != null;
     }
 
+    @Override
     public void reshape(ViewPort vp, int w, int h){
         if (mainSceneFB != null){
             renderer.deleteFrameBuffer(mainSceneFB);
@@ -290,6 +292,7 @@ public class HDRRenderer implements SceneProcessor {
         createLumShaders();
     }
 
+    @Override
     public void initialize(RenderManager rm, ViewPort vp){
         if (!enabled)
             return;
@@ -335,6 +338,7 @@ public class HDRRenderer implements SceneProcessor {
         
     }
 
+    @Override
     public void preFrame(float tpf) {
         if (!enabled)
             return;
@@ -343,9 +347,11 @@ public class HDRRenderer implements SceneProcessor {
         blendFactor = (time / throttle);
     }
 
+    @Override
     public void postQueue(RenderQueue rq) {
     }
 
+    @Override
     public void postFrame(FrameBuffer out) {
         if (!enabled)
             return;
@@ -358,7 +364,7 @@ public class HDRRenderer implements SceneProcessor {
 //            renderManager.renderViewPortRaw(viewPort);
 
             // render back to non-multisampled FB
-            renderer.copyFrameBuffer(msFB, mainSceneFB, true);
+            renderer.copyFrameBuffer(msFB, mainSceneFB, true, true);
         }else{
 //            renderer.setFrameBuffer(mainSceneFB);
 //            renderer.clearBuffers(true,true,false);
@@ -404,6 +410,7 @@ public class HDRRenderer implements SceneProcessor {
         renderManager.setCamera(viewPort.getCamera(), false);
     }
 
+    @Override
     public void cleanup() {
         if (!enabled)
             return;

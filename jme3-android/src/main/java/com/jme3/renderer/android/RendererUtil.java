@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,6 +52,12 @@ public class RendererUtil {
     public static boolean ENABLE_ERROR_CHECKING = true;
 
     /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private RendererUtil() {
+    }
+
+    /**
      * Checks for an OpenGL error and throws a {@link RendererException} if
      * there is one. Ignores the value of
      * {@link RendererUtil#ENABLE_ERROR_CHECKING}.
@@ -71,14 +77,14 @@ public class RendererUtil {
     /**
      * Checks for an EGL error and throws a {@link RendererException} if there
      * is one. Ignores the value of {@link RendererUtil#ENABLE_ERROR_CHECKING}.
+     * 
+     * @param egl (not null)
      */
     public static void checkEGLError(EGL10 egl) {
         int error = egl.eglGetError();
         if (error != EGL10.EGL_SUCCESS) {
             String errorMessage;
             switch (error) {
-                case EGL10.EGL_SUCCESS:
-                    return;
                 case EGL10.EGL_NOT_INITIALIZED:
                     errorMessage = "EGL is not initialized, or could not be "
                             + "initialized, for the specified EGL display connection. ";

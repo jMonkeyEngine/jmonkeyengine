@@ -44,10 +44,10 @@ import java.util.logging.Logger;
  *  management convenience than AbstractAppState, including methods
  *  for enable/disable/initialize state management.
  *  The abstract onEnable() and onDisable() methods are called
- *  appropriately during initialize(), terminate(), or setEnabled()
+ *  appropriately during initialize(), cleanup(), or setEnabled()
  *  depending on the mutual state of "initialized" and "enabled".
  *  
- *  <p>initialize() and terminate() can be used by subclasses to
+ *  <p>initialize() and cleanup() can be used by subclasses to
  *  manage resources that should exist the entire time that the 
  *  app state is attached.  This is useful for resources that might
  *  be expensive to create or load.</p>
@@ -78,6 +78,14 @@ public abstract class BaseAppState implements AppState {
     private Application app;
     private boolean initialized;
     private boolean enabled = true;
+    private String id;
+
+    protected BaseAppState() {
+    }
+    
+    protected BaseAppState( String id ) {
+        this.id = id;
+    }
 
     /**
      *  Called during initialization once the app state is
@@ -133,6 +141,20 @@ public abstract class BaseAppState implements AppState {
         return initialized;
     }
 
+    /**
+     *  Sets the unique ID of this app state.  Note: that setting
+     *  this while an app state is attached to the state manager will
+     *  have no effect on ID-based lookups.
+     */
+    protected void setId( String id ) {
+        this.id = id;
+    }
+
+    @Override
+    public String getId() {
+        return id;
+    }
+
     public final Application getApplication() {
         return app;
     }
@@ -147,6 +169,17 @@ public abstract class BaseAppState implements AppState {
     
     public final <T extends AppState> T getState( Class<T> type, boolean failOnMiss ) {
         return getStateManager().getState( type, failOnMiss );
+    }
+
+    public final <T extends AppState> T getState( String id, Class<T> type ) {
+        return getState(id, type, false);
+    }
+    
+    public final <T extends AppState> T getState( String id, Class<T> type, boolean failOnMiss ) {
+        if( failOnMiss ) {
+            return getStateManager().stateForId(id, type);
+        }
+        return getStateManager().getState(id, type);
     }
 
     @Override

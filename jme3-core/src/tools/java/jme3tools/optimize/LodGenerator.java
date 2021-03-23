@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2013 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -103,12 +103,12 @@ public class LodGenerator {
     private Vector3f tmpV2 = new Vector3f();
     private boolean bestQuality = true;
     private int indexCount = 0;
-    private List<Vertex> collapseCostSet = new ArrayList<Vertex>();
+    private List<Vertex> collapseCostSet = new ArrayList<>();
     private float collapseCostLimit;
     private List<Triangle> triangleList;
-    private List<Vertex> vertexList = new ArrayList<Vertex>();
+    private List<Vertex> vertexList = new ArrayList<>();
     private float meshBoundingSphereRadius;
-    private Mesh mesh;
+    final private Mesh mesh;
 
     /**
      * Describe the way triangles will be removed. <br> PROPORTIONAL :
@@ -183,8 +183,8 @@ public class LodGenerator {
         
         Vector3f position = new Vector3f();
         float collapseCost = UNINITIALIZED_COLLAPSE_COST;
-        List<Edge> edges = new ArrayList<Edge>();
-        Set<Triangle> triangles = new HashSet<Triangle>();
+        List<Edge> edges = new ArrayList<>();
+        Set<Triangle> triangles = new HashSet<>();
         Vertex collapseTo;
         boolean isSeam;
         int index;//index in the buffer for debugging
@@ -242,7 +242,8 @@ public class LodGenerator {
     /**
      * Comparator used to sort vertices according to their collapse cost
      */
-    private Comparator collapseComparator = new Comparator<Vertex>() {
+    final private Comparator<Vertex> collapseComparator = new Comparator<Vertex>() {
+        @Override
         public int compare(Vertex o1, Vertex o2) {
             if (Float.compare(o1.collapseCost, o2.collapseCost) == 0) {
                 return 0;
@@ -278,7 +279,7 @@ public class LodGenerator {
         BoundingSphere bs = new BoundingSphere();
         bs.computeFromPoints(mesh.getFloatBuffer(VertexBuffer.Type.Position));
         meshBoundingSphereRadius = bs.getRadius();
-        List<Vertex> vertexLookup = new ArrayList<Vertex>();
+        List<Vertex> vertexLookup = new ArrayList<>();
         initialize();
         
         gatherVertexData(mesh, vertexLookup);
@@ -380,18 +381,6 @@ public class LodGenerator {
 //        assert (checkCosts());
     }
 
-    //Debug only
-    private boolean checkCosts() {
-        for (Vertex vertex : vertexList) {
-            boolean test = find(collapseCostSet, vertex);
-            if (!test) {
-                System.out.println("vertex " + vertex.index + " not present in collapse costs");
-                return false;
-            }
-        }
-        return true;
-    }
-    
     private void computeVertexCollapseCost(Vertex vertex) {
         
         vertex.collapseCost = UNINITIALIZED_COLLAPSE_COST;
@@ -622,7 +611,7 @@ public class LodGenerator {
         VertexBuffer indexBuffer = mesh.getBuffer(VertexBuffer.Type.Index);
         
         boolean isShortBuffer = indexBuffer.getFormat() == VertexBuffer.Format.UnsignedShort;
-        // Create buffers.	
+        // Create buffers.
         VertexBuffer lodBuffer = new VertexBuffer(VertexBuffer.Type.Index);
         int bufsize = indexCount == 0 ? 3 : indexCount;
         
@@ -895,7 +884,7 @@ public class LodGenerator {
         // It may have vertexIDs and triangles from different submeshes(different vertex buffers),
         // so we need to connect them correctly based on deleted triangle's edge.
         // mCollapsedEdgeIDs will be used, when looking up the connections for replacement.
-        List<CollapsedEdge> tmpCollapsedEdges = new ArrayList<CollapsedEdge>();
+        List<CollapsedEdge> tmpCollapsedEdges = new ArrayList<>();
         for (Iterator<Triangle> it = src.triangles.iterator(); it.hasNext();) {
             Triangle triangle = it.next();
             if (triangle.hasVertex(dest)) {
@@ -978,9 +967,9 @@ public class LodGenerator {
             
         } else {
             // TODO: Find out why is this needed. assertOutdatedCollapseCost() fails on some
-            // rare situations without this. For example goblin.mesh fails.	
+            // rare situations without this. For example goblin.mesh fails.
             //Treeset to have an ordered list with unique values
-            SortedSet<Vertex> updatable = new TreeSet<Vertex>(collapseComparator);
+            SortedSet<Vertex> updatable = new TreeSet<>(collapseComparator);
             
             for (Edge edge : src.edges) {
                 updatable.add(edge.destination);
@@ -996,49 +985,5 @@ public class LodGenerator {
             
         }
         return true;
-    }
-    
-    private boolean assertValidMesh() {
-        // Allows to find bugs in collapsing.
-        for (Vertex vertex : collapseCostSet) {
-            assertValidVertex(vertex);
-        }
-        return true;
-        
-    }
-    
-    private boolean assertValidVertex(Vertex v) {
-        // Allows to find bugs in collapsing.
-        //       System.out.println("Asserting " + v.index);
-        for (Triangle t : v.triangles) {
-            for (int i = 0; i < 3; i++) {
-                //             System.out.println("check " + t.vertex[i].index);
-
-                //assert (collapseCostSet.contains(t.vertex[i]));
-                assert (find(collapseCostSet, t.vertex[i]));
-                
-                assert (t.vertex[i].edges.contains(new Edge(t.vertex[i].collapseTo)));
-                for (int n = 0; n < 3; n++) {
-                    if (i != n) {
-                        
-                        int id = t.vertex[i].edges.indexOf(new Edge(t.vertex[n]));
-                        Edge ed = t.vertex[i].edges.get(id);
-                        //assert (ed.collapseCost != UNINITIALIZED_COLLAPSE_COST);
-                    } else {
-                        assert (!t.vertex[i].edges.contains(new Edge(t.vertex[n])));
-                    }
-                }
-            }
-        }
-        return true;
-    }
-    
-    private boolean find(List<Vertex> set, Vertex v) {
-        for (Vertex vertex : set) {
-            if (v == vertex) {
-                return true;
-            }
-        }
-        return false;
     }
 }

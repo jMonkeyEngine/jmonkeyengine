@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,7 +41,7 @@ public class MaterialExtension {
 
     private String baseMatName;
     private String jmeMatDefName;
-    private HashMap<String, String> textureMappings = new HashMap<String, String>();
+    private HashMap<String, String> textureMappings = new HashMap<>();
 
     /**
      * Material extension defines a mapping from an Ogre3D "base" material

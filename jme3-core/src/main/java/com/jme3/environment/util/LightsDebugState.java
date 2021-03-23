@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -54,14 +54,14 @@ import java.util.Map;
 public class LightsDebugState extends BaseAppState {
 
     private Node debugNode;
-    private final Map<LightProbe, Node> probeMapping = new HashMap<LightProbe, Node>();
-    private final List<LightProbe> garbage = new ArrayList<LightProbe>();
+    private final Map<LightProbe, Node> probeMapping = new HashMap<>();
+    private final List<LightProbe> garbage = new ArrayList<>();
     private Geometry debugGeom;
     private Geometry debugBounds;
     private Material debugMaterial;
     private float probeScale = 1.0f;
     private Spatial scene = null;
-    private final List<LightProbe> probes = new ArrayList<LightProbe>();
+    private final List<LightProbe> probes = new ArrayList<>();
 
     @Override
     protected void initialize(Application app) {

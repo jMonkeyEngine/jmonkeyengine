@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -78,7 +78,7 @@ public class AndroidSensorJoyInput implements SensorEventListener {
     private AndroidJoyInput joyInput;
     private SensorManager sensorManager = null;
     private WindowManager windowManager = null;
-    private IntMap<SensorData> sensors = new IntMap<SensorData>();
+    private IntMap<SensorData> sensors = new IntMap<>();
     private int lastRotation = 0;
     private boolean loaded = false;
 
@@ -96,7 +96,7 @@ public class AndroidSensorJoyInput implements SensorEventListener {
         int sensorAccuracy = -1;
         float[] lastValues;
         final Object valuesLock = new Object();
-        ArrayList<AndroidSensorJoystickAxis> axes = new ArrayList<AndroidSensorJoystickAxis>();
+        ArrayList<AndroidSensorJoystickAxis> axes = new ArrayList<>();
         boolean enabled = false;
         boolean haveData = false;
 
@@ -561,7 +561,7 @@ public class AndroidSensorJoyInput implements SensorEventListener {
                         }
                     }
                 }
-            } else if (sensorData != null) {
+            } else {
                 if (!sensorData.haveData) {
                     sensorData.haveData = true;
                 }

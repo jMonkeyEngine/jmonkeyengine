@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -115,6 +115,7 @@ public class AudioStream extends AudioData implements Closeable {
         return readSamples(buf, 0, buf.length);
     }
 
+    @Override
     public float getDuration() {
         return duration;
     }
@@ -178,9 +179,8 @@ public class AudioStream extends AudioData implements Closeable {
     /**
      * Closes the stream, releasing all data relating to it. 
      * Reading from the stream will return eof.
-     *
-     * @throws IOException
      */
+    @Override
     public void close() {
         if (in != null && open) {
             try {

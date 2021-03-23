@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,6 +34,8 @@ package com.jme3.export.xml;
 
 import java.io.*;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+
 import org.w3c.dom.*;
 
 /**
@@ -48,7 +50,7 @@ import org.w3c.dom.*;
 public class DOMSerializer {
 
     /** The encoding to use for output (default is UTF-8) */
-    private Charset encoding = Charset.forName("utf-8");
+    private Charset encoding = StandardCharsets.UTF_8;
 
     /** The amount of indentation to use (default is 4 spaces). */
     private int indent = 4;
@@ -75,6 +77,7 @@ public class DOMSerializer {
                 break;
             default:
                 writer.write(c);
+                break;
             }
         }
     }
@@ -84,7 +87,7 @@ public class DOMSerializer {
      * 
      * @param doc the document to serialize.
      * @param file the file to serialize to.
-     * @throws IOException
+     * @throws IOException for various error conditions
      */
     public void serialize(Document doc, File file) throws IOException {
         serialize(doc, new FileOutputStream(file));
@@ -95,7 +98,7 @@ public class DOMSerializer {
      * 
      * @param doc the document to serialize.
      * @param out the stream to serialize to.
-     * @throws IOException
+     * @throws IOException for various error conditions
      */
     public void serialize(Document doc, OutputStream out) throws IOException {
         Writer writer = new OutputStreamWriter(out, encoding);

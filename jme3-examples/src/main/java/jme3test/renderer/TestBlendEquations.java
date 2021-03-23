@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,7 +44,7 @@ import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Quad;
 
 /**
- * This test demonstrates the usage of customized blend equations and factors on a material.<br/>
+ * This test demonstrates the usage of customized blend equations and factors on a material.<br>
  * Customized blend equations and factors always requires {@link com.jme3.material.RenderState.BlendMode#Custom}.
  *
  * @author the_Minka
@@ -61,6 +61,7 @@ public class TestBlendEquations extends SimpleApplication {
         app.start();
     }
 
+    @Override
     public void simpleInitApp() {
         cam.setLocation(new Vector3f(0f, 0.5f, 3f));
         viewPort.setBackgroundColor(ColorRGBA.LightGray);

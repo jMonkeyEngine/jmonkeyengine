@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,9 +44,16 @@ import java.util.HashSet;
 public class Filters 
 {
     /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private Filters() {
+    }
+
+    /**
      *  Creates a filter that returns true for any value in the specified
      *  list of values and false for all other cases.
      */
+    @SuppressWarnings("unchecked")
     public static <T> Filter<T> in( T... values )
     {
         return in( new HashSet<T>(Arrays.asList(values)) );
@@ -66,6 +73,7 @@ public class Filters
      *  list of values and false for all other cases.  This is the equivalent
      *  of calling not(in(values)).
      */
+    @SuppressWarnings("unchecked")
     public static <T> Filter<T> notIn( T... values )
     {
         return not( in( values ) );
@@ -118,6 +126,7 @@ public class Filters
             this.value = value;
         }
         
+        @Override
         public boolean apply( T input )
         {
             return value == input || (value != null && value.equals(input));
@@ -133,6 +142,7 @@ public class Filters
             this.collection = collection;
         }
         
+        @Override
         public boolean apply( T input )
         {
             return collection.contains(input);
@@ -148,6 +158,7 @@ public class Filters
             this.delegate = delegate;
         }
         
+        @Override
         public boolean apply( T input )
         {
             return !delegate.apply(input);

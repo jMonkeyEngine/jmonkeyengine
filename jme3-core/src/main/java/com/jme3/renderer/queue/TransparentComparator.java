@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,45 +40,9 @@ public class TransparentComparator implements GeometryComparator {
     private Camera cam;
     private final Vector3f tempVec = new Vector3f();
 
+    @Override
     public void setCamera(Camera cam){
         this.cam = cam;
-    }
-
-    /**
-     * Calculates the distance from a spatial to the camera. Distance is a
-     * squared distance.
-     *
-     * @param spat
-     *            Spatial to distancize.
-     * @return Distance from Spatial to camera.
-     */
-    private float distanceToCam2(Geometry spat){
-        if (spat == null)
-            return Float.NEGATIVE_INFINITY;
-
-        if (spat.queueDistance != Float.NEGATIVE_INFINITY)
-            return spat.queueDistance;
-
-        Vector3f camPosition = cam.getLocation();
-        Vector3f viewVector = cam.getDirection();
-        Vector3f spatPosition = null;
-
-        if (spat.getWorldBound() != null){
-            spatPosition = spat.getWorldBound().getCenter();
-        }else{
-            spatPosition = spat.getWorldTranslation();
-        }
-
-        spatPosition.subtract(camPosition, tempVec);
-        spat.queueDistance = tempVec.dot(tempVec);
-
-        float retval = Math.abs(tempVec.dot(viewVector)
-                / viewVector.dot(viewVector));
-        viewVector.mult(retval, tempVec);
-
-        spat.queueDistance = tempVec.length();
-
-        return spat.queueDistance;
     }
 
     private float distanceToCam(Geometry spat){
@@ -87,6 +51,7 @@ public class TransparentComparator implements GeometryComparator {
         return spat.getWorldBound().distanceToEdge(cam.getLocation());
     }
 
+    @Override
     public int compare(Geometry o1, Geometry o2) {
         float d1 = distanceToCam(o1);
         float d2 = distanceToCam(o2);

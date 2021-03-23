@@ -23,6 +23,7 @@ public class InputAnalogActionData_t extends Structure {
 	public InputAnalogActionData_t() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("bActive", "activeOrigin", "x", "y", "z", "deltaX", "deltaY", "deltaZ", "fUpdateTime");
 	}

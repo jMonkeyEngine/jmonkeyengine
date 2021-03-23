@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -69,12 +69,15 @@ public class KeyFrame implements Savable {
         return cinematicEvents.isEmpty();
     }
 
+    @Override
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = ex.getCapsule(this);
         oc.writeSavableArrayList((ArrayList) cinematicEvents, "cinematicEvents", null);
         oc.write(index, "index", 0);
     }
 
+    @Override
+    @SuppressWarnings("unchecked")
     public void read(JmeImporter im) throws IOException {
         InputCapsule ic = im.getCapsule(this);
         cinematicEvents = ic.readSavableArrayList("cinematicEvents", null);

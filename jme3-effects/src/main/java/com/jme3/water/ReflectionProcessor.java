@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -51,7 +51,6 @@ public class ReflectionProcessor implements SceneProcessor {
     private Camera reflectionCam;
     private FrameBuffer reflectionBuffer;
     private Plane reflectionClipPlane;
-    private AppProfiler prof;
 
     /**
      * Creates a ReflectionProcessor
@@ -65,21 +64,26 @@ public class ReflectionProcessor implements SceneProcessor {
         this.reflectionClipPlane = reflectionClipPlane;
     }
 
+    @Override
     public void initialize(RenderManager rm, ViewPort vp) {
         this.rm = rm;
         this.vp = vp;
     }
 
+    @Override
     public void reshape(ViewPort vp, int w, int h) {
     }
 
+    @Override
     public boolean isInitialized() {
         return rm != null;
     }
 
+    @Override
     public void preFrame(float tpf) {
     }
 
+    @Override
     public void postQueue(RenderQueue rq) {
         //we need special treatement for the sky because it must not be clipped
         rm.getRenderer().setFrameBuffer(reflectionBuffer);
@@ -96,15 +100,16 @@ public class ReflectionProcessor implements SceneProcessor {
 
     }
 
+    @Override
     public void postFrame(FrameBuffer out) {
     }
 
+    @Override
     public void cleanup() {
     }
 
     @Override
     public void setProfiler(AppProfiler profiler) {
-        this.prof = profiler;
     }
 
     /**

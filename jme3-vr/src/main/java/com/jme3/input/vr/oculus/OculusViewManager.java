@@ -55,7 +55,7 @@ import static org.lwjgl.ovr.OVRErrorCode.*;
 /**
  * A rendering system for Oculus's LibOVR API.
  *
- * @author Campbell Suter <znix@znix.xyz>
+ * @author Campbell Suter (znix@znix.xyz)
  */
 public class OculusViewManager extends AbstractVRViewManager {
 

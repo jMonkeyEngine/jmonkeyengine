@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2016 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,8 +36,15 @@ import com.jme3.renderer.Caps;
 import com.jme3.renderer.RenderManager;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
+import com.jme3.shader.VarType;
 import com.jme3.system.NullRenderer;
 import com.jme3.system.TestUtil;
+import com.jme3.texture.Image;
+import com.jme3.texture.Texture2D;
+import com.jme3.texture.Image.Format;
+import com.jme3.texture.image.ColorSpace;
+import com.jme3.util.BufferUtils;
+
 import java.util.Arrays;
 import java.util.EnumSet;
 import static org.junit.Assert.*;
@@ -121,6 +128,30 @@ public class MaterialTest {
     }
 
     @Test
+    public void testForcedColorSpace(){
+       
+        Image img=new Image(Format.RGBA8,2,2,BufferUtils.createByteBuffer(16),null,ColorSpace.sRGB);
+        Image img2=new Image(Format.RGBA8,2,2,BufferUtils.createByteBuffer(16),null,ColorSpace.sRGB);
+        Texture2D tx=new Texture2D(img);
+        Texture2D tx2=new Texture2D(img2);
+
+        assertTrue(tx2.getImage().getColorSpace()==ColorSpace.sRGB);
+        assertTrue(tx2.getImage().getColorSpace()==ColorSpace.sRGB);
+
+        AssetManager assetManager = TestUtil.createAssetManager();
+        MaterialDef def=new MaterialDef(assetManager,"test");
+        def.addMaterialParamTexture(VarType.Texture2D, "ColorMap",ColorSpace.Linear, null);
+        Material mat=new Material(def);
+        
+        mat.setTexture("ColorMap",tx);          
+        assertTrue(tx.getImage().getColorSpace()==ColorSpace.Linear);
+        
+        mat.setTexture("ColorMap",tx2);  
+        assertTrue(tx2.getImage().getColorSpace()==ColorSpace.Linear);       
+    
+    }
+
+    @Test
     public void testSelectNamedTechnique_GLSL100Cap() {
         supportGlsl(100);
         material("Common/MatDefs/Light/Lighting.j3md");
@@ -155,10 +186,6 @@ public class MaterialTest {
                 myCaps.add(Caps.GLSL100);
                 break;
         }
-    }
-
-    private void caps(Caps... caps) {
-        myCaps.addAll(Arrays.asList(caps));
     }
 
     private void material(String path) {

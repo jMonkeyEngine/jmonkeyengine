@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -81,7 +81,7 @@ public class FluidSimHeightMap extends AbstractHeightMap {
      *                        the distance between each node of the heightmap
      * @param seed
      *            the seed to generate the same heightmap again
-     * @throws JmeException
+     * @throws Exception
      *             if size of the terrain is not greater that zero, or number of
      *             iterations is not greater that zero, or the minimum initial height
      *             is greater than the maximum (or the other way around)
@@ -116,7 +116,7 @@ public class FluidSimHeightMap extends AbstractHeightMap {
      *            size the size of the terrain to be generated
      * @param iterations
      *            the number of iterations to do
-     * @throws JmeException
+     * @throws Exception
      *             if size of the terrain is not greater that zero, or number of
      *             iterations is not greater that zero
      */
@@ -134,10 +134,11 @@ public class FluidSimHeightMap extends AbstractHeightMap {
     }
 
 
-    /*
+    /**
      * Generates a heightmap using fluid simulation and the attributes set by
      * the constructor or the setters.
      */
+    @Override
     public boolean load() {
         // Clean up data if needed.
         if (null != heightData) {
@@ -211,7 +212,7 @@ public class FluidSimHeightMap extends AbstractHeightMap {
         // put the normalized heightmap into the range [0...255] and into the heightmap
         for (int y = 0; y < size; y++) {
             for (int x = 0; x < size; x++) {
-                heightData[x + y * size] = (float) (tempBuffer[curBuf][x + y * size]);
+                heightData[x + y * size] = tempBuffer[curBuf][x + y * size];
             }
         }
         normalizeTerrain(NORMALIZE_RANGE);
@@ -232,7 +233,7 @@ public class FluidSimHeightMap extends AbstractHeightMap {
      *
      * @param iterations
      *            the number of iterations to do
-     * @throws JmeException
+     * @throws Exception
      *             if iterations if not greater than zero
      */
     public void setIterations(int iterations) throws Exception {

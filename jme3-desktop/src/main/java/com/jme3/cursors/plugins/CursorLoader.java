@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,7 +32,6 @@
 package com.jme3.cursors.plugins;
 
 import com.jme3.asset.AssetInfo;
-import com.jme3.asset.AssetKey;
 import com.jme3.asset.AssetLoader;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.LittleEndien;
@@ -67,17 +66,18 @@ public class CursorLoader implements AssetLoader {
      * @return A JmeCursor representation of the LWJGL's Cursor.
      * @throws IOException if the file is not found.
      */
+    @Override
     public JmeCursor load(AssetInfo info) throws IOException {
 
         isIco = false;
         isAni = false;
         isCur = false;
 
-        isIco = ((AssetKey) info.getKey()).getExtension().equals("ico");
+        isIco = info.getKey().getExtension().equals("ico");
         if (!isIco) {
-            isCur = ((AssetKey) info.getKey()).getExtension().equals("cur");
+            isCur = info.getKey().getExtension().equals("cur");
             if (!isCur) {
-                isAni = ((AssetKey) info.getKey()).getExtension().equals("ani");
+                isAni = info.getKey().getExtension().equals("ani");
             }
         }
         if (!isAni && !isIco && !isCur) {
@@ -578,7 +578,7 @@ public class CursorLoader implements AssetLoader {
             // 1 - ICO
             // 2 - CUR
             IntBuffer singleCursor = null;
-            ArrayList<IntBuffer> cursors = new ArrayList<IntBuffer>();
+            ArrayList<IntBuffer> cursors = new ArrayList<>();
             int bwidth = 0;
             int bheight = 0;
             boolean multIcons = false;

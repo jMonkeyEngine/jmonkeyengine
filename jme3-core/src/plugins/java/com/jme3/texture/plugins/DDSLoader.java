@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -61,12 +61,10 @@ import java.util.logging.Logger;
 public class DDSLoader implements AssetLoader {
 
     private static final Logger logger = Logger.getLogger(DDSLoader.class.getName());
-    private static final boolean forceRGBA = false;
     private static final int DDSD_MANDATORY = 0x1007;
     private static final int DDSD_MANDATORY_DX10 = 0x6;
     private static final int DDSD_MIPMAPCOUNT = 0x20000;
     private static final int DDSD_LINEARSIZE = 0x80000;
-    private static final int DDSD_DEPTH = 0x800000;
     private static final int DDPF_ALPHAPIXELS = 0x1;
     private static final int DDPF_FOURCC = 0x4;
     private static final int DDPF_RGB = 0x40;
@@ -76,8 +74,6 @@ public class DDSLoader implements AssetLoader {
     private static final int DDPF_ALPHA = 0x2;
     // used by NVTextureTools to mark normal images.
     private static final int DDPF_NORMAL = 0x80000000;
-    private static final int SWIZZLE_xGxR = 0x78477852;
-    private static final int DDSCAPS_COMPLEX = 0x8;
     private static final int DDSCAPS_TEXTURE = 0x1000;
     private static final int DDSCAPS_MIPMAP = 0x400000;
     private static final int DDSCAPS2_CUBEMAP = 0x200;
@@ -88,12 +84,8 @@ public class DDSLoader implements AssetLoader {
     private static final int PF_ATI1 = 0x31495441;
     private static final int PF_ATI2 = 0x32495441; // 0x41544932;
     private static final int PF_DX10 = 0x30315844; // a DX10 format
-    private static final int DX10DIM_BUFFER = 0x1,
-            DX10DIM_TEXTURE1D = 0x2,
-            DX10DIM_TEXTURE2D = 0x3,
-            DX10DIM_TEXTURE3D = 0x4;
-    private static final int DX10MISC_GENERATE_MIPS = 0x1,
-            DX10MISC_TEXTURECUBE = 0x4;
+    private static final int DX10DIM_TEXTURE3D = 0x4;
+    private static final int DX10MISC_TEXTURECUBE = 0x4;
     private static final double LOG2 = Math.log(2);
     private int width;
     private int height;
@@ -107,7 +99,6 @@ public class DDSLoader implements AssetLoader {
     private boolean compressed;
     private boolean texture3D;
     private boolean grayscaleOrAlpha;
-    private boolean normal;
     private Format pixelFormat;
     private int bpp;
     private int[] sizes;
@@ -117,6 +108,7 @@ public class DDSLoader implements AssetLoader {
     public DDSLoader() {
     }
 
+    @Override
     public Object load(AssetInfo info) throws IOException {
         if (!(info.getKey() instanceof TextureKey)) {
             throw new IllegalArgumentException("Texture assets must be loaded using a TextureKey");
@@ -252,7 +244,7 @@ public class DDSLoader implements AssetLoader {
         }
 
         int pfFlags = in.readInt();
-        normal = is(pfFlags, DDPF_NORMAL);
+        is(pfFlags, DDPF_NORMAL);
 
         if (is(pfFlags, DDPF_FOURCC)) {
             compressed = true;
@@ -276,20 +268,15 @@ public class DDSLoader implements AssetLoader {
                 case PF_DXT5:
                     bpp = 8;
                     pixelFormat = Image.Format.DXT5;
-                    if (swizzle == SWIZZLE_xGxR) {
-                        normal = true;
-                    }
                     break;
-                /*
                 case PF_ATI1:
                     bpp = 4;
-                    pixelFormat = Image.Format.LTC;
+                    pixelFormat = Image.Format.RGTC1;
                     break;
                 case PF_ATI2:
                     bpp = 8;
-                    pixelFormat = Image.Format.LATC;
+                    pixelFormat = Image.Format.RGTC2;
                     break;
-                */
                 case PF_DX10:
                     compressed = false;
                     directx10 = true;
@@ -747,7 +734,7 @@ public class DDSLoader implements AssetLoader {
             totalSize += sizes[i];
         }
 
-        ArrayList<ByteBuffer> allMaps = new ArrayList<ByteBuffer>();
+        ArrayList<ByteBuffer> allMaps = new ArrayList<>();
         if (depth > 1 && !texture3D) {
             for (int i = 0; i < depth; i++) {
                 if (compressed) {

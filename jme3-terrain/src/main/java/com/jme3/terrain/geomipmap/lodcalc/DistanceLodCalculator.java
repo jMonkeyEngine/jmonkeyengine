@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -62,6 +62,7 @@ public class DistanceLodCalculator implements LodCalculator {
         this.lodMultiplier = multiplier;
     }
     
+    @Override
     public boolean calculateLod(TerrainPatch terrainPatch, List<Vector3f> locations, HashMap<String, UpdatedTerrainPatch> updates) {
         if (locations == null || locations.isEmpty())
             return false;// no camera yet
@@ -114,16 +115,18 @@ public class DistanceLodCalculator implements LodCalculator {
         return loc;
     }
 
+    @Override
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(size, "patchSize", 32);
         oc.write(lodMultiplier, "lodMultiplier", 32);
     }
 
+    @Override
     public void read(JmeImporter im) throws IOException {
         InputCapsule ic = im.getCapsule(this);
         size = ic.readInt("patchSize", 32);
-        lodMultiplier = ic.readFloat("lodMultiplier", 2.7f);
+        lodMultiplier = ic.readFloat("lodMultiplier", 32f);
     }
 
     @Override
@@ -148,6 +151,7 @@ public class DistanceLodCalculator implements LodCalculator {
      * Does this calculator require the terrain to have the difference of 
      * LOD levels of neighbours to be more than 1.
      */
+    @Override
     public boolean usesVariableLod() {
         return false;
     }
@@ -168,14 +172,17 @@ public class DistanceLodCalculator implements LodCalculator {
         this.size = size;
     }
 
+    @Override
     public void turnOffLod() {
         turnOffLod = true;
     }
     
+    @Override
     public boolean isLodOff() {
         return turnOffLod;
     }
     
+    @Override
     public void turnOnLod() {
         turnOffLod = false;
     }

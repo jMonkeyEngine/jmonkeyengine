@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,10 +46,10 @@ import javax.swing.JLabel;
 
 public class RayTrace {
 
-    private BufferedImage image;
-    private Camera cam;
-    private Spatial scene;
-    private CollisionResults results = new CollisionResults();
+    final private BufferedImage image;
+    final private Camera cam;
+    final private Spatial scene;
+    final private CollisionResults results = new CollisionResults();
     private JFrame frame;
     private JLabel label;
 

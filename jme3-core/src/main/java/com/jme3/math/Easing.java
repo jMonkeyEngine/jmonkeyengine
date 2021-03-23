@@ -1,3 +1,34 @@
+/*
+ * Copyright (c) 2017-2021 jMonkeyEngine
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ * * Redistributions of source code must retain the above copyright
+ *   notice, this list of conditions and the following disclaimer.
+ *
+ * * Redistributions in binary form must reproduce the above copyright
+ *   notice, this list of conditions and the following disclaimer in the
+ *   documentation and/or other materials provided with the distribution.
+ *
+ * * Neither the name of 'jMonkeyEngine' nor the names of its contributors
+ *   may be used to endorse or promote products derived from this software
+ *   without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package com.jme3.math;
 
 /**
@@ -5,8 +36,9 @@ package com.jme3.math;
  * Created by Nehon on 26/03/2017.
  */
 public class Easing {
-
-
+    /**
+     * a function that always returns 0
+     */
     public static EaseFunction constant = new EaseFunction() {
         @Override
         public float apply(float value) {
@@ -23,6 +55,9 @@ public class Easing {
         }
     };
 
+    /**
+     * a function that returns the square of its input
+     */
     public static EaseFunction inQuad = new EaseFunction() {
         @Override
         public float apply(float value) {
@@ -30,6 +65,9 @@ public class Easing {
         }
     };
 
+    /**
+     * a function that returns the cube of its input
+     */
     public static EaseFunction inCubic = new EaseFunction() {
         @Override
         public float apply(float value) {
@@ -37,6 +75,9 @@ public class Easing {
         }
     };
 
+    /**
+     * a function that returns the 4th power of its input
+     */
     public static EaseFunction inQuart = new EaseFunction() {
         @Override
         public float apply(float value) {
@@ -44,13 +85,15 @@ public class Easing {
         }
     };
 
+    /**
+     * a function that returns the 5th power of its input
+     */
     public static EaseFunction inQuint = new EaseFunction() {
         @Override
         public float apply(float value) {
             return value * value * value * value * value;
         }
     };
-
 
     /**
      * Out Elastic and bounce
@@ -62,6 +105,9 @@ public class Easing {
         }
     };
 
+    /**
+     * a function that starts quickly, then bounces several times
+     */
     public static EaseFunction outBounce = new EaseFunction() {
         @Override
         public float apply(float value) {
@@ -81,6 +127,9 @@ public class Easing {
      * In Elastic and bounce
      */
     public static EaseFunction inElastic = new Invert(outElastic);
+    /**
+     * a function containing a series of increasing bounces
+     */
     public static EaseFunction inBounce = new Invert(outBounce);
 
     /**
@@ -101,11 +150,9 @@ public class Easing {
     public static EaseFunction inOutElastic = new InOut(inElastic, outElastic);
     public static EaseFunction inOutBounce = new InOut(inBounce, outBounce);
 
-
     /**
      * Extra functions
      */
-
     public static EaseFunction smoothStep = new EaseFunction() {
         @Override
         public float apply(float t) {
@@ -121,13 +168,25 @@ public class Easing {
     };
 
     /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private Easing() {
+    }
+
+    /**
      * An Ease function composed of 2 sb function for custom in and out easing
      */
     public static class InOut implements EaseFunction {
 
-        private EaseFunction in;
-        private EaseFunction out;
+        final private EaseFunction in;
+        final private EaseFunction out;
 
+        /**
+         * Instantiate a function that blends 2 pre-existing functions.
+         *
+         * @param in the function to use at value=0
+         * @param out the function to use at value=1
+         */
         public InOut(EaseFunction in, EaseFunction out) {
             this.in = in;
             this.out = out;
@@ -137,17 +196,17 @@ public class Easing {
         public float apply(float value) {
             if (value < 0.5) {
                 value = value * 2;
-                return inQuad.apply(value) / 2;
+                return in.apply(value) / 2;
             } else {
                 value = (value - 0.5f) * 2;
-                return outQuad.apply(value) / 2 + 0.5f;
+                return out.apply(value) / 2 + 0.5f;
             }
         }
     }
 
     private static class Invert implements EaseFunction {
 
-        private EaseFunction func;
+        final private EaseFunction func;
 
         public Invert(EaseFunction func) {
             this.func = func;
@@ -158,6 +217,4 @@ public class Easing {
             return 1f - func.apply(1f - value);
         }
     }
-
-
 }

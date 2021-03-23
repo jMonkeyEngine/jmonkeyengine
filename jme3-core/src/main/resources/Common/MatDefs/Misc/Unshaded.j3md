@@ -59,11 +59,14 @@ MaterialDef Unshaded {
         Float ShadowMapSize
 
         Boolean BackfaceShadows: true
+        
+        // 1.0 indicates 100% desaturation
+        Float DesaturationValue
     }
 
     Technique {
-        VertexShader GLSL100 GLSL150:   Common/MatDefs/Misc/Unshaded.vert
-        FragmentShader GLSL100 GLSL150: Common/MatDefs/Misc/Unshaded.frag
+        VertexShader GLSL310 GLSL300 GLSL100 GLSL150:   Common/MatDefs/Misc/Unshaded.vert
+        FragmentShader GLSL310 GLSL300 GLSL100 GLSL150: Common/MatDefs/Misc/Unshaded.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -82,14 +85,15 @@ MaterialDef Unshaded {
             NUM_BONES : NumberOfBones
             DISCARD_ALPHA : AlphaDiscardThreshold
             NUM_MORPH_TARGETS: NumberOfMorphTargets
-            NUM_TARGETS_BUFFERS: NumberOfTargetsBuffers
+            NUM_TARGETS_BUFFERS: NumberOfTargetsBuffers            
+            DESATURATION : DesaturationValue
         }
     }
 
     Technique PreNormalPass {
 
-        VertexShader GLSL100 GLSL150 :   Common/MatDefs/SSAO/normal.vert
-        FragmentShader GLSL100 GLSL150 : Common/MatDefs/SSAO/normal.frag
+        VertexShader GLSL310 GLSL300 GLSL100 GLSL150 :   Common/MatDefs/SSAO/normal.vert
+        FragmentShader GLSL310 GLSL300 GLSL100 GLSL150 : Common/MatDefs/SSAO/normal.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -109,8 +113,8 @@ MaterialDef Unshaded {
 
     Technique PreShadow {
 
-        VertexShader GLSL100 GLSL150 :   Common/MatDefs/Shadow/PreShadow.vert
-        FragmentShader GLSL100 GLSL150 : Common/MatDefs/Shadow/PreShadow.frag
+        VertexShader GLSL310 GLSL300 GLSL100 GLSL150 :   Common/MatDefs/Shadow/PreShadow.vert
+        FragmentShader GLSL310 GLSL300 GLSL100 GLSL150 : Common/MatDefs/Shadow/PreShadow.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -140,8 +144,8 @@ MaterialDef Unshaded {
 
 
     Technique PostShadow {
-        VertexShader GLSL100 GLSL150:   Common/MatDefs/Shadow/PostShadow.vert
-        FragmentShader GLSL100 GLSL150: Common/MatDefs/Shadow/PostShadow.frag
+        VertexShader GLSL310 GLSL300 GLSL100 GLSL150:   Common/MatDefs/Shadow/PostShadow.vert
+        FragmentShader GLSL310 GLSL300 GLSL100 GLSL150: Common/MatDefs/Shadow/PostShadow.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -161,8 +165,8 @@ MaterialDef Unshaded {
             PSSM : Splits
             POINTLIGHT : LightViewProjectionMatrix5
             NUM_BONES : NumberOfBones
-	        INSTANCING : UseInstancing
-	        BACKFACE_SHADOWS: BackfaceShadows
+            INSTANCING : UseInstancing
+            BACKFACE_SHADOWS: BackfaceShadows
             NUM_MORPH_TARGETS: NumberOfMorphTargets
             NUM_TARGETS_BUFFERS: NumberOfTargetsBuffers
         }
@@ -176,8 +180,8 @@ MaterialDef Unshaded {
 
     Technique Glow {
 
-        VertexShader GLSL100 GLSL150:   Common/MatDefs/Misc/Unshaded.vert
-        FragmentShader GLSL100 GLSL150: Common/MatDefs/Light/Glow.frag
+        VertexShader GLSL310 GLSL300 GLSL100 GLSL150:   Common/MatDefs/Misc/Unshaded.vert
+        FragmentShader GLSL310 GLSL300 GLSL100 GLSL150: Common/MatDefs/Light/Glow.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -190,7 +194,7 @@ MaterialDef Unshaded {
             HAS_GLOWMAP : GlowMap
             HAS_GLOWCOLOR : GlowColor
             NUM_BONES : NumberOfBones
-	        INSTANCING : UseInstancing
+            INSTANCING : UseInstancing
             HAS_POINTSIZE : PointSize
             NUM_MORPH_TARGETS: NumberOfMorphTargets
             NUM_TARGETS_BUFFERS: NumberOfTargetsBuffers

@@ -12,8 +12,6 @@ include 'jme3-terrain'
 
 // Desktop dependent java classes
 include 'jme3-desktop'
-include 'jme3-blender'
-include 'jme3-jogl'
 include 'jme3-lwjgl'
 if (JavaVersion.current().isJava8Compatible()) {
     include 'jme3-lwjgl3'
@@ -28,9 +26,6 @@ include 'jme3-android'
 include 'jme3-ios'
 
 //native builds
-include 'jme3-bullet' //java
-include 'jme3-bullet-native' //cpp
-include 'jme3-bullet-native-android' //cpp
 include 'jme3-android-native' //cpp
 
 // Test Data project

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012, 2016, 2018-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -158,9 +158,10 @@ public class AudioNode extends Node implements AudioSource {
      *
      * @deprecated Use {@link AudioNode#AudioNode(com.jme3.asset.AssetManager, java.lang.String, com.jme3.audio.AudioData.DataType)} instead
      */
+    @Deprecated
     public AudioNode(AssetManager assetManager, String name, boolean stream, boolean streamCache) {
         this.audioKey = new AudioKey(name, stream, streamCache);
-        this.data = (AudioData) assetManager.loadAsset(audioKey);
+        this.data = assetManager.loadAsset(audioKey);
     }
 
     /**
@@ -173,6 +174,7 @@ public class AudioNode extends Node implements AudioSource {
      *
      * @deprecated Use {@link AudioNode#AudioNode(com.jme3.asset.AssetManager, java.lang.String, com.jme3.audio.AudioData.DataType)} instead
      */
+    @Deprecated
     public AudioNode(AssetManager assetManager, String name, boolean stream) {
         this(assetManager, name, stream, true); // Always streamCached
     }
@@ -186,6 +188,7 @@ public class AudioNode extends Node implements AudioSource {
      *
      * @deprecated AudioRenderer parameter is ignored.
      */
+    @Deprecated
     public AudioNode(AudioRenderer audioRenderer, AssetManager assetManager, String name) {
         this(assetManager, name, DataType.Buffer);
     }
@@ -197,6 +200,7 @@ public class AudioNode extends Node implements AudioSource {
      * @param name The filename of the audio file
      * @deprecated Use {@link AudioNode#AudioNode(com.jme3.asset.AssetManager, java.lang.String, com.jme3.audio.AudioData.DataType) } instead
      */
+    @Deprecated
     public AudioNode(AssetManager assetManager, String name) {
         this(assetManager, name, DataType.Buffer);
     }
@@ -248,6 +252,7 @@ public class AudioNode extends Node implements AudioSource {
     /**
      * Do not use.
      */
+    @Override
     public final void setChannel(int channel) {
         if (status != AudioSource.Status.Stopped) {
             throw new IllegalStateException("Can only set source id when stopped");
@@ -259,6 +264,7 @@ public class AudioNode extends Node implements AudioSource {
     /**
      * Do not use.
      */
+    @Override
     public int getChannel() {
         return channel;
     }
@@ -267,6 +273,7 @@ public class AudioNode extends Node implements AudioSource {
      * @return The {#link Filter dry filter} that is set.
      * @see AudioNode#setDryFilter(com.jme3.audio.Filter)
      */
+    @Override
     public Filter getDryFilter() {
         return dryFilter;
     }
@@ -311,6 +318,7 @@ public class AudioNode extends Node implements AudioSource {
      * {@link AudioNode#setAudioData(com.jme3.audio.AudioData, com.jme3.audio.AudioKey) }
      * or any of the constructors that initialize the audio data.
      */
+    @Override
     public AudioData getAudioData() {
         return data;
     }
@@ -320,6 +328,7 @@ public class AudioNode extends Node implements AudioSource {
      * The status will be changed when either the {@link AudioNode#play() }
      * or {@link AudioNode#stop() } methods are called.
      */
+    @Override
     public AudioSource.Status getStatus() {
         return status;
     }
@@ -327,6 +336,7 @@ public class AudioNode extends Node implements AudioSource {
     /**
      * Do not use.
      */
+    @Override
     public final void setStatus(AudioSource.Status status) {
         this.status = status;
     }
@@ -349,6 +359,7 @@ public class AudioNode extends Node implements AudioSource {
      * otherwise, false.
      * @see AudioNode#setLooping(boolean)
      */
+    @Override
     public boolean isLooping() {
         return loop;
     }
@@ -369,6 +380,7 @@ public class AudioNode extends Node implements AudioSource {
      *
      * @see AudioNode#setPitch(float)
      */
+    @Override
     public float getPitch() {
         return pitch;
     }
@@ -395,6 +407,7 @@ public class AudioNode extends Node implements AudioSource {
      *
      * @see AudioNode#setVolume(float)
      */
+    @Override
     public float getVolume() {
         return volume;
     }
@@ -420,6 +433,7 @@ public class AudioNode extends Node implements AudioSource {
     /**
      * @return the time offset in the sound sample when to start playing.
      */
+    @Override
     public float getTimeOffset() {
         return timeOffset;
     }
@@ -452,6 +466,7 @@ public class AudioNode extends Node implements AudioSource {
             return 0;
     }
 
+    @Override
     public Vector3f getPosition() {
         return getWorldTranslation();
     }
@@ -461,6 +476,7 @@ public class AudioNode extends Node implements AudioSource {
      *
      * @see AudioNode#setVelocity(com.jme3.math.Vector3f)
      */
+    @Override
     public Vector3f getVelocity() {
         return velocity;
     }
@@ -483,6 +499,7 @@ public class AudioNode extends Node implements AudioSource {
      *
      * @see AudioNode#setReverbEnabled(boolean)
      */
+    @Override
     public boolean isReverbEnabled() {
         return reverbEnabled;
     }
@@ -509,13 +526,14 @@ public class AudioNode extends Node implements AudioSource {
      *
      * @see AudioNode#setReverbFilter(com.jme3.audio.Filter)
      */
+    @Override
     public Filter getReverbFilter() {
         return reverbFilter;
     }
 
     /**
      * Set the reverb filter for this audio node.
-     * <br/>
+     * <br>
      * The reverb filter will influence the reverberations
      * of the audio node playing. This only has an effect if
      * reverb is enabled.
@@ -534,6 +552,7 @@ public class AudioNode extends Node implements AudioSource {
      *
      * @see AudioNode#setMaxDistance(float)
      */
+    @Override
     public float getMaxDistance() {
         return maxDistance;
     }
@@ -541,7 +560,7 @@ public class AudioNode extends Node implements AudioSource {
     /**
      * Set the maximum distance for the attenuation of the audio node.
      * Does nothing if the audio node is not positional.
-     * <br/>
+     * <br>
      * The maximum distance is the distance beyond which the audio
      * node will no longer be attenuated.  Normal attenuation is logarithmic
      * from refDistance (it reduces by half when the distance doubles).
@@ -568,6 +587,7 @@ public class AudioNode extends Node implements AudioSource {
      *
      * @see AudioNode#setRefDistance(float)
      */
+    @Override
     public float getRefDistance() {
         return refDistance;
     }
@@ -575,7 +595,7 @@ public class AudioNode extends Node implements AudioSource {
     /**
      * Set the reference playing distance for the audio node.
      * Does nothing if the audio node is not positional.
-     * <br/>
+     * <br>
      * The reference playing distance is the distance at which the
      * audio node will be exactly half of its volume.
      *
@@ -597,6 +617,7 @@ public class AudioNode extends Node implements AudioSource {
      *
      * @see AudioNode#setDirectional(boolean)
      */
+    @Override
     public boolean isDirectional() {
         return directional;
     }
@@ -604,7 +625,7 @@ public class AudioNode extends Node implements AudioSource {
     /**
      * Set the audio node to be directional.
      * Does nothing if the audio node is not positional.
-     * <br/>
+     * <br>
      * After setting directional, you should call
      * {@link AudioNode#setDirection(com.jme3.math.Vector3f) }
      * to set the audio node's direction.
@@ -622,6 +643,7 @@ public class AudioNode extends Node implements AudioSource {
      *
      * @see AudioNode#setDirection(com.jme3.math.Vector3f)
      */
+    @Override
     public Vector3f getDirection() {
         return direction;
     }
@@ -644,6 +666,7 @@ public class AudioNode extends Node implements AudioSource {
      *
      * @see AudioNode#setInnerAngle(float)
      */
+    @Override
     public float getInnerAngle() {
         return innerAngle;
     }
@@ -665,6 +688,7 @@ public class AudioNode extends Node implements AudioSource {
      *
      * @see AudioNode#setOuterAngle(float)
      */
+    @Override
     public float getOuterAngle() {
         return outerAngle;
     }
@@ -686,6 +710,7 @@ public class AudioNode extends Node implements AudioSource {
      *
      * @see AudioNode#setPositional(boolean)
      */
+    @Override
     public boolean isPositional() {
         return positional;
     }
@@ -722,7 +747,7 @@ public class AudioNode extends Node implements AudioSource {
     @Override
     public void updateGeometricState() {
         super.updateGeometricState();
-        if (channel < 0 || this.getParent() == null) return;
+        if (channel < 0) return;
         Vector3f currentWorldTranslation = worldTransform.getTranslation();
         if (!previousWorldTranslation.equals(currentWorldTranslation)) {
             getRenderer().updateSourceParam(this, AudioParam.Position);

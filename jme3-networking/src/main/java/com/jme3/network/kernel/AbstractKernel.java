@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -57,13 +57,13 @@ public abstract class AbstractKernel implements Kernel
      *  Contains the pending endpoint events waiting for the caller
      *  to retrieve them.
      */
-    private ConcurrentLinkedQueue<EndpointEvent> endpointEvents = new ConcurrentLinkedQueue<EndpointEvent>();
+    private ConcurrentLinkedQueue<EndpointEvent> endpointEvents = new ConcurrentLinkedQueue<>();
 
     /**
      *  Contains the pending envelopes waiting for the caller to
      *  retrieve them.
      */
-    private LinkedBlockingQueue<Envelope> envelopes = new LinkedBlockingQueue<Envelope>();
+    private LinkedBlockingQueue<Envelope> envelopes = new LinkedBlockingQueue<>();
 
     protected AbstractKernel()
     {
@@ -96,6 +96,7 @@ public abstract class AbstractKernel implements Kernel
     /**
      *  Returns true if there are waiting envelopes.
      */
+    @Override
     public boolean hasEnvelopes()
     {
         return !envelopes.isEmpty();
@@ -105,6 +106,7 @@ public abstract class AbstractKernel implements Kernel
      *  Removes one envelope from the received messages queue or
      *  blocks until one is available.
      */
+    @Override
     public Envelope read() throws InterruptedException
     {
         return envelopes.take();
@@ -114,6 +116,7 @@ public abstract class AbstractKernel implements Kernel
      *  Removes and returnsn one endpoint event from the event queue or
      *  null if there are no endpoint events.
      */
+    @Override
     public EndpointEvent nextEvent()
     {
         return endpointEvents.poll();

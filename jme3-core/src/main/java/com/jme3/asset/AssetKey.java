@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -59,6 +59,7 @@ public class AssetKey<T> implements Savable, Cloneable {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public AssetKey<T> clone() {
         try {
             return (AssetKey<T>) super.clone();
@@ -146,7 +147,7 @@ public class AssetKey<T> implements Savable, Cloneable {
             return path;
         }
         String[] parts = path.split("/");
-        LinkedList<String> list = new LinkedList<String>();
+        LinkedList<String> list = new LinkedList<>();
         for (int i = 0; i < parts.length; i++) {
             String string = parts[i];
             if (string.length() == 0 || string.equals(".")) {
@@ -191,11 +192,13 @@ public class AssetKey<T> implements Savable, Cloneable {
         return name;
     }
 
+    @Override
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(name, "name", null);
     }
 
+    @Override
     public void read(JmeImporter im) throws IOException {
         InputCapsule ic = im.getCapsule(this);
         name = reducePath(ic.readString("name", null));

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -54,19 +54,20 @@ public class TestMultiplesFilters extends SimpleApplication {
 
     private static boolean useHttp = false;
 
-    public static void main(String[] args) {
+    public static void main(String[] args) {        
+        TestMultiplesFilters app = new TestMultiplesFilters();
+        app.start();
+    }
+    private SSAOFilter ssaoFilter;
+    private FilterPostProcessor fpp;
+
+    @Override
+    public void simpleInitApp() {
         File file = new File("wildhouse.zip");
         if (!file.exists()) {
             useHttp = true;
         }
-        TestMultiplesFilters app = new TestMultiplesFilters();
-        app.start();
-    }
-    SSAOFilter ssaoFilter;
-    FilterPostProcessor fpp;
-    boolean en = true;
-
-    public void simpleInitApp() {
+        
         this.flyCam.setMoveSpeed(10);
         cam.setLocation(new Vector3f(6.0344796f, 1.5054002f, 55.572033f));
         cam.setRotation(new Quaternion(0.0016069f, 0.9810479f, -0.008143323f, 0.19358753f));
@@ -117,6 +118,7 @@ public class TestMultiplesFilters extends SimpleApplication {
         
         inputManager.addListener(new ActionListener() {
 
+            @Override
             public void onAction(String name, boolean isPressed, float tpf) {
                 if ("toggleSSAO".equals(name) && isPressed) {
                     if (ssaoFilter.isEnabled()) {

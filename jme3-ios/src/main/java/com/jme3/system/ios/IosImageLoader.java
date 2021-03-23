@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,6 +45,7 @@ import java.io.InputStream;
  */
 public class IosImageLoader implements AssetLoader {
 
+    @Override
     public Object load(AssetInfo info) throws IOException {
         boolean flip = ((TextureKey) info.getKey()).isFlipY();
         Image img = null;

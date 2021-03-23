@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,6 @@ import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.input.controls.MouseButtonTrigger;
 import com.jme3.light.DirectionalLight;
-import com.jme3.light.PointLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Quaternion;
@@ -53,7 +52,6 @@ import com.jme3.math.Ray;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.Node;
 import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Sphere;
 import com.jme3.terrain.geomipmap.TerrainLodControl;
@@ -63,6 +61,9 @@ import com.jme3.terrain.heightmap.AbstractHeightMap;
 import com.jme3.terrain.heightmap.ImageBasedHeightMap;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Creates a terrain object and a collision node to go with it. Then
@@ -75,19 +76,15 @@ import com.jme3.texture.Texture.WrapMode;
  */
 public class TerrainTestCollision extends SimpleApplication {
 
-    TerrainQuad terrain;
-    Node terrainPhysicsNode;
-    Material matRock;
-    Material matWire;
-    boolean wireframe = false;
-    protected BitmapText hintText;
-    PointLight pl;
-    Geometry lightMdl;
-    Geometry collisionMarker;
+    private TerrainQuad terrain;
+    private Material matRock;
+    private Material matWire;
+    private boolean wireframe = false;
+    private BitmapText hintText;
+    private List<Geometry> collisionMarkers;
     private BulletAppState bulletAppState;
-    Geometry collisionSphere;
-    Geometry collisionBox;
-    Geometry selectedCollisionObject;
+    private Geometry collisionBox;
+    private Geometry selectedCollisionObject;
 
     public static void main(String[] args) {
         TerrainTestCollision app = new TerrainTestCollision();
@@ -103,6 +100,7 @@ public class TerrainTestCollision extends SimpleApplication {
 
     @Override
     public void simpleInitApp() {
+        collisionMarkers = new ArrayList<>();
         bulletAppState = new BulletAppState();
         bulletAppState.setThreadingType(BulletAppState.ThreadingType.PARALLEL);
         stateManager.attach(bulletAppState);
@@ -142,6 +140,8 @@ public class TerrainTestCollision extends SimpleApplication {
         terrain.setLocked(false); // unlock it so we can edit the height
         rootNode.attachChild(terrain);
 
+        // if set to false, only the first collision is returned and collision is slightly faster.
+        terrain.setSupportMultipleCollisions(true);
 
         /**
          * Create PhysicsRigidBodyControl for collision
@@ -227,17 +227,22 @@ public class TerrainTestCollision extends SimpleApplication {
         super.update();
     }
 
-    private void createCollisionMarker() {
-        Sphere s = new Sphere(6, 6, 1);
-        collisionMarker = new Geometry("collisionMarker");
-        collisionMarker.setMesh(s);
-        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        mat.setColor("Color", ColorRGBA.Orange);
-        collisionMarker.setMaterial(mat);
-        rootNode.attachChild(collisionMarker);
+    private void createCollisionMarkers(int num) {
+        for (int i = 0; i < num; i++) {
+            Sphere s = new Sphere(6, 6, 1);
+            Geometry collisionMarker = new Geometry("collisionMarker");
+            collisionMarker.setMesh(s);
+            Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+            mat.setColor("Color", i == 0 ? ColorRGBA.Orange : ColorRGBA.Blue);
+            collisionMarker.setMaterial(mat);
+            rootNode.attachChild(collisionMarker);
+            collisionMarkers.add(collisionMarker);
+        }
     }
-    private ActionListener actionListener = new ActionListener() {
 
+    final private ActionListener actionListener = new ActionListener() {
+
+        @Override
         public void onAction(String binding, boolean keyPressed, float tpf) {
             if (binding.equals("wireframe") && !keyPressed) {
                 wireframe = !wireframe;
@@ -247,24 +252,35 @@ public class TerrainTestCollision extends SimpleApplication {
                     terrain.setMaterial(matRock);
                 }
             } else if (binding.equals("shoot") && !keyPressed) {
-
                 Vector3f origin = cam.getWorldCoordinates(new Vector2f(settings.getWidth() / 2, settings.getHeight() / 2), 0.0f);
                 Vector3f direction = cam.getWorldCoordinates(new Vector2f(settings.getWidth() / 2, settings.getHeight() / 2), 0.3f);
                 direction.subtractLocal(origin).normalizeLocal();
 
-
                 Ray ray = new Ray(origin, direction);
                 CollisionResults results = new CollisionResults();
-                int numCollisions = terrain.collideWith(ray, results);
-                if (numCollisions > 0) {
-                    CollisionResult hit = results.getClosestCollision();
-                    if (collisionMarker == null) {
-                        createCollisionMarker();
+
+                if (terrain.collideWith(ray, results) > 0) {
+                    CollisionResult hit = results.getClosestCollision(); // sorts the collection before printing
+                    printCollisions(results);
+
+                    // Remove old markers.
+                    for (Geometry g: collisionMarkers) {
+                        g.removeFromParent();
                     }
+                    collisionMarkers.clear();
+
+                    createCollisionMarkers(results.size());
+
+                    // Position Closest Collision
                     Vector2f loc = new Vector2f(hit.getContactPoint().x, hit.getContactPoint().z);
                     float height = terrain.getHeight(loc);
-                    System.out.println("collide " + hit.getContactPoint() + ", height: " + height + ", distance: " + hit.getDistance());
-                    collisionMarker.setLocalTranslation(new Vector3f(hit.getContactPoint().x, height, hit.getContactPoint().z));
+                    System.out.println("Closest Collision: " + hit.getContactPoint() + ", height: " + height + ", distance: " + hit.getDistance());
+                    collisionMarkers.get(0).setLocalTranslation(new Vector3f(hit.getContactPoint().x, height, hit.getContactPoint().z));
+
+                    // Position Rest: When getClosestCollision has been called, the results are sorted, and thus 0 is closest.
+                    for (int i = 1; i < results.size(); i++) {
+                        collisionMarkers.get(i).setLocalTranslation(results.getCollision(i).getContactPoint());
+                    }
                 }
             } else if (binding.equals("cameraDown") && !keyPressed) {
                 getCamera().lookAtDirection(new Vector3f(0, -1, 0), Vector3f.UNIT_Y);
@@ -301,5 +317,15 @@ public class TerrainTestCollision extends SimpleApplication {
         if (terrain.collideWith(selectedCollisionObject.getWorldBound(), new CollisionResults()) > 0) {
             selectedCollisionObject.setLocalTranslation(oldLoc);
         }
+    }
+
+    private void printCollisions(CollisionResults cr) {
+        System.out.println("================ Collision Results ================");
+        for (int i = 0; i < cr.size(); i++) {
+            CollisionResult res = cr.getCollision(i);
+            System.out.println("Result " + i);
+            System.out.println("\t\t" + res.toString());
+        }
+        System.out.println("================ END Collision Results ================");
     }
 }

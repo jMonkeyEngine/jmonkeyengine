@@ -14,7 +14,7 @@ import java.util.ArrayList;
  */
 public class TestCursor extends SimpleApplication {
 
-    private ArrayList<JmeCursor> cursors = new ArrayList<JmeCursor>();
+    final private ArrayList<JmeCursor> cursors = new ArrayList<>();
     private long sysTime;
     private int count = 0;
 

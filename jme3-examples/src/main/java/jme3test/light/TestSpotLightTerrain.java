@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,16 +33,13 @@ package jme3test.light;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.bounding.BoundingBox;
-import com.jme3.font.BitmapText;
 import com.jme3.light.AmbientLight;
-import com.jme3.light.PointLight;
 import com.jme3.light.SpotLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
-import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
 import com.jme3.terrain.geomipmap.TerrainLodControl;
 import com.jme3.terrain.geomipmap.TerrainQuad;
@@ -61,19 +58,12 @@ import com.jme3.util.SkyFactory;
 public class TestSpotLightTerrain extends SimpleApplication {
 
     private TerrainQuad terrain;
-    Material matTerrain;
-    Material matWire;
-    boolean wireframe = false;
-    boolean triPlanar = false;
-    boolean wardiso = false;
-    boolean minnaert = false;
-    protected BitmapText hintText;
-    PointLight pl;
-    Geometry lightMdl;
-    private float grassScale = 64;
-    private float dirtScale = 16;
-    private float rockScale = 128;
-    SpotLight sl;
+    private Material matTerrain;
+    private Material matWire;
+    final private float grassScale = 64;
+    final private float dirtScale = 16;
+    final private float rockScale = 128;
+    private SpotLight sl;
 
     public static void main(String[] args) {
         TestSpotLightTerrain app = new TestSpotLightTerrain();
@@ -165,7 +155,7 @@ public class TestSpotLightTerrain extends SimpleApplication {
         Texture normalMap2 = assetManager.loadTexture("Textures/Terrain/splat/road_normal.png");
         normalMap2.setWrap(WrapMode.Repeat);
         matTerrain.setTexture("NormalMap", normalMap0);
-        matTerrain.setTexture("NormalMap_1", normalMap2);
+        matTerrain.setTexture("NormalMap_1", normalMap1);
         matTerrain.setTexture("NormalMap_2", normalMap2);
         matTerrain.setTexture("NormalMap_4", normalMap2);
 

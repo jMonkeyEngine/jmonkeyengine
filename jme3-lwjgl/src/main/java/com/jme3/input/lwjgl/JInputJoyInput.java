@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2016 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -64,8 +64,9 @@ public class JInputJoyInput implements JoyInput {
     private JInputJoystick[] joysticks;
     private RawInputListener listener;
 
-    private Map<Controller, JInputJoystick> joystickIndex = new HashMap<Controller, JInputJoystick>();
+    private Map<Controller, JInputJoystick> joystickIndex = new HashMap<>();
     
+    @Override
     public void setJoyRumble(int joyId, float amount){
 
         if( joyId >= joysticks.length )        
@@ -77,13 +78,14 @@ public class JInputJoyInput implements JoyInput {
         }
     }
 
+    @Override
     public Joystick[] loadJoysticks(InputManager inputManager){
         ControllerEnvironment ce =
             ControllerEnvironment.getDefaultEnvironment();
 
         Controller[] cs = ce.getControllers();
         
-        List<Joystick> list = new ArrayList<Joystick>();
+        List<Joystick> list = new ArrayList<>();
         for( Controller c : ce.getControllers() ) {
             if (c.getType() == Controller.Type.KEYBOARD
              || c.getType() == Controller.Type.MOUSE)
@@ -113,10 +115,12 @@ public class JInputJoyInput implements JoyInput {
         return joysticks;
     }
 
+    @Override
     public void initialize() {
         inited = true;
     }
 
+    @Override
     public void update() {
         ControllerEnvironment ce =
             ControllerEnvironment.getDefaultEnvironment();
@@ -182,18 +186,22 @@ public class JInputJoyInput implements JoyInput {
         }
     }
 
+    @Override
     public void destroy() {
         inited = false;
     }
 
+    @Override
     public boolean isInitialized() {
         return inited;
     }
 
+    @Override
     public void setInputListener(RawInputListener listener) {
         this.listener = listener;
     }
 
+    @Override
     public long getInputTimeNanos() {
         return 0;
     }
@@ -206,8 +214,8 @@ public class JInputJoyInput implements JoyInput {
         private JoystickAxis yAxis;
         private JoystickAxis povX;
         private JoystickAxis povY;
-        private Map<Component, JoystickAxis> axisIndex = new HashMap<Component, JoystickAxis>();
-        private Map<Component, JoystickButton> buttonIndex = new HashMap<Component, JoystickButton>();
+        private Map<Component, JoystickAxis> axisIndex = new HashMap<>();
+        private Map<Component, JoystickButton> buttonIndex = new HashMap<>();
     
         public JInputJoystick( InputManager inputManager, JoyInput joyInput, Controller controller, 
                                int joyId, String name ) {

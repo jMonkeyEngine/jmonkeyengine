@@ -238,7 +238,7 @@ public enum Caps {
     TextureBuffer,
 
     /**
-     * Supports floating point & half textures (Format.RGB16F)
+     * Supports floating point and half textures (Format.RGB16F)
      */
     FloatTexture,
     
@@ -403,7 +403,46 @@ public enum Caps {
     /**
      * Supporting working with ShaderStorageBufferObjects.
      */
-    ShaderStorageBufferObject;
+    ShaderStorageBufferObject,
+
+    /**
+     * Supports OpenGL ES 3.0
+     */
+    OpenGLES30,
+
+    /**
+     * Supports GLSL 3.0
+     */
+    GLSL300,
+
+    /**
+     * Supports OpenGL ES 3.1
+     */
+    OpenGLES31,
+
+    /**
+     * Supports GLSL 3.1
+     */
+    GLSL310,
+
+    /**
+     * Supports OpenGL ES 3.2
+     */
+    OpenGLES32,
+
+    /**
+     * Supports GLSL 3.2
+     */
+    GLSL320,
+
+    /**
+     * Explicit support of depth 24 textures
+     */
+    Depth24,     
+
+    
+    UnpackRowLength
+    ;
 
     /**
      * Returns true if given the renderer capabilities, the texture

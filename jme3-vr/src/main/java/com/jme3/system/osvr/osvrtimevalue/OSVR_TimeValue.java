@@ -16,6 +16,7 @@ public class OSVR_TimeValue extends Structure {
 	public OSVR_TimeValue() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("seconds", "microseconds");
 	}

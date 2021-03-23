@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -123,12 +123,13 @@ public class ChaseCameraAppState extends AbstractAppState implements ActionListe
         initVerticalAxisInputs();
         initZoomInput();
         initHorizontalAxisInput();
-        initTogleRotateInput();
+        initToggleRotateInput();
 
         inputManager.addListener(this, inputs);
         inputManager.setCursorVisible(dragToRotate);
     }
 
+    @Override
     public void onAction(String name, boolean keyPressed, float tpf) {
         if (isEnabled()) {
             if (dragToRotate) {
@@ -150,6 +151,7 @@ public class ChaseCameraAppState extends AbstractAppState implements ActionListe
 
     }
 
+    @Override
     public void onAnalog(String name, float value, float tpf) {
         if (isEnabled()) {
             if (canRotate) {
@@ -225,7 +227,7 @@ public class ChaseCameraAppState extends AbstractAppState implements ActionListe
         toggleRotateTrigger = triggers;
         if (inputManager != null) {
             inputManager.deleteMapping(CameraInput.CHASECAM_TOGGLEROTATE);
-            initTogleRotateInput();
+            initToggleRotateInput();
             inputManager.addListener(this, CameraInput.CHASECAM_TOGGLEROTATE);
         }
     }
@@ -491,7 +493,7 @@ public class ChaseCameraAppState extends AbstractAppState implements ActionListe
         inputManager.addMapping(CameraInput.CHASECAM_ZOOMOUT, zoomOutTrigger);
     }
 
-    private void initTogleRotateInput() {
+    private void initToggleRotateInput() {
         inputManager.addMapping(CameraInput.CHASECAM_TOGGLEROTATE, toggleRotateTrigger);
     }
 }

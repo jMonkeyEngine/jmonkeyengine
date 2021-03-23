@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -64,10 +64,10 @@ public class PhysicsVehicle extends PhysicsRigidBody {
     protected RaycastVehicle vehicle;
     protected VehicleTuning tuning;
     protected VehicleRaycaster rayCaster;
-    protected ArrayList<VehicleWheel> wheels = new ArrayList<VehicleWheel>();
+    protected ArrayList<VehicleWheel> wheels = new ArrayList<>();
     protected PhysicsSpace physicsSpace;
 
-    public PhysicsVehicle() {
+    protected PhysicsVehicle() {
     }
 
     public PhysicsVehicle(CollisionShape shape) {
@@ -301,7 +301,7 @@ public class PhysicsVehicle extends PhysicsRigidBody {
      * After adding the wheel, use direct wheel access.<br>
      * The damping coefficient for when the suspension is compressed.
      * Set to k * 2.0 * FastMath.sqrt(m_suspensionStiffness) so k is proportional to critical damping.<br>
-     * k = 0.0 undamped & bouncy, k = 1.0 critical damping<br>
+     * k = 0.0 undamped/bouncy, k = 1.0 critical damping<br>
      * 0.1 to 0.3 are good values
      * @param suspensionCompression the suspensionCompression to set
      */
@@ -312,7 +312,7 @@ public class PhysicsVehicle extends PhysicsRigidBody {
     /**
      * The damping coefficient for when the suspension is compressed.
      * Set to k * 2.0 * FastMath.sqrt(m_suspensionStiffness) so k is proportional to critical damping.<br>
-     * k = 0.0 undamped & bouncy, k = 1.0 critical damping<br>
+     * k = 0.0 undamped/bouncy, k = 1.0 critical damping<br>
      * 0.1 to 0.3 are good values
      * @param wheel
      * @param suspensionCompression
@@ -477,6 +477,7 @@ public class PhysicsVehicle extends PhysicsRigidBody {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void read(JmeImporter im) throws IOException {
         InputCapsule capsule = im.getCapsule(this);
         tuning = new VehicleTuning();

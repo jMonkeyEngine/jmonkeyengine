@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,11 +50,11 @@ public abstract class RagdollPreset {
     /**
      * map bone names to joint presets
      */
-    protected Map<String, JointPreset> boneMap = new HashMap<String, JointPreset>();
+    protected Map<String, JointPreset> boneMap = new HashMap<>();
     /**
      * lexicon to map bone names to entries
      */
-    protected Map<String, LexiconEntry> lexicon = new HashMap<String, LexiconEntry>();
+    protected Map<String, LexiconEntry> lexicon = new HashMap<>();
 
     /**
      * Initialize the map from bone names to joint presets.

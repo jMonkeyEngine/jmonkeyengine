@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -78,6 +78,7 @@ public class TestDirectionalLightShadow extends SimpleApplication implements Act
     }
     private float frustumSize = 100;
 
+    @Override
     public void onAnalog(String name, float value, float tpf) {
         if (cam.isParallelProjection()) {
             // Instead of moving closer/farther to object, we zoom in/out.
@@ -160,7 +161,7 @@ public class TestDirectionalLightShadow extends SimpleApplication implements Act
 
         rootNode.attachChild(sky);
     }
-    DirectionalLight l;
+    private DirectionalLight l;
 
     @Override
     public void simpleInitApp() {
@@ -245,6 +246,7 @@ public class TestDirectionalLightShadow extends SimpleApplication implements Act
     private BitmapText shadowStabilizationText;
     private BitmapText shadowZfarText;
 
+    @Override
     public void onAction(String name, boolean keyPressed, float tpf) {
 
 
@@ -331,14 +333,13 @@ public class TestDirectionalLightShadow extends SimpleApplication implements Act
         }
 
     }
-    boolean up = false;
-    boolean down = false;
-    boolean left = false;
-    boolean right = false;
-    boolean fwd = false;
-    boolean back = false;
-    float time = 0;
-    float s = 1f;
+    private boolean up = false;
+    private boolean down = false;
+    private boolean left = false;
+    private boolean right = false;
+    private boolean fwd = false;
+    private boolean back = false;
+    final private float s = 1f;
 
     @Override
     public void simpleUpdate(float tpf) {

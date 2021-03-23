@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,6 +41,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 /**
@@ -59,12 +61,22 @@ public class JoystickCompatibilityMappings {
 
     // List of resource paths to check for the joystick-mapping.properties
     // files.
-    private static String[] searchPaths = { "joystick-mapping.properties" };  
+    final private static String[] searchPaths = { "joystick-mapping.properties" };  
 
-    private static Map<String,Map<String,String>> joystickMappings = new HashMap<String,Map<String,String>>();
+    final private static Map<String,Map<String,String>> joystickMappings = new HashMap<String,Map<String,String>>();
+
+    // Remaps names by regex.
+    final private static Map<Pattern, String> nameRemappings = new HashMap<>();
+    final private static Map<String, String> nameCache = new HashMap<>();
 
     static {
         loadDefaultMappings();
+    }
+
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private JoystickCompatibilityMappings() {
     }
 
     protected static Map<String,String> getMappings( String joystickName, boolean create ) {
@@ -81,11 +93,29 @@ public class JoystickCompatibilityMappings {
      *  is a mapping for it otherwise it returns the original name.
      */
     public static String remapComponent( String joystickName, String componentId ) {
-        Map<String,String> map = getMappings(joystickName.trim(), false);   
-        if( map == null )
+        logger.log(Level.FINE, "remapComponent(" + joystickName + ", " + componentId + ")");
+         
+        // Always try the specific name first.
+        joystickName = joystickName.trim();     
+        Map<String,String> map = getMappings(joystickName, false);   
+        if( map != null && map.containsKey(componentId) ) {
+            logger.log(Level.FINE, "returning remapped:" + map.get(componentId));        
+            return map.get(componentId);
+        }
+        // Try the normalized name
+        joystickName = getNormalizedName(joystickName);
+        logger.log(Level.FINE, "normalized joystick name:" + joystickName);         
+        if( joystickName == null ) {
             return componentId;
-        if( !map.containsKey(componentId) )
+        }
+        map = getMappings(joystickName, false);
+        if( map == null ) {
             return componentId;
+        }   
+        if( !map.containsKey(componentId) ) {
+            return componentId;
+        }
+        logger.log(Level.FINE, "returning remapped:" + map.get(componentId));        
         return map.get(componentId); 
     }       
  
@@ -130,8 +160,36 @@ public class JoystickCompatibilityMappings {
             String stick = key.substring(0, split).trim();
             String component = key.substring(split+1).trim();            
             String value = String.valueOf(e.getValue()).trim();
-            addMapping(stick, component, value);           
+            if( "regex".equals(component) ) {
+                // It's a name remapping
+                addJoystickNameRegex(value, stick);
+            }
+            addMapping(stick, component, value);
         }
+    }
+ 
+    /**
+     *  Maps a regular expression to a normalized name for that joystick.
+     */
+    public static void addJoystickNameRegex( String regex, String name ) {
+        logger.log(Level.FINE, "addJoystickNameRegex(" + regex + ", " + name + ")");
+        nameRemappings.put(Pattern.compile(regex), name);   
+    }
+    
+    protected static String getNormalizedName( String name ) {
+        String result = nameCache.get(name);
+        if( result != null ) {
+            return result;
+        }
+        for( Map.Entry<Pattern, String> e : nameRemappings.entrySet() ) {
+            Pattern p = e.getKey();
+            Matcher m = p.matcher(name);
+            if( m.matches() ) {
+                nameCache.put(name, e.getValue());
+                return e.getValue();
+            }
+        }
+        return null;
     }
  
     /**

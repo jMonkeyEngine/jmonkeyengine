@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,10 +36,12 @@ import com.jme3.renderer.RenderManager;
 import com.jme3.util.SafeArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * The <code>AppStateManager</code> holds a list of {@link AppState}s which
- * it will update and render.<br/>
+ * it will update and render.<br>
  * When an {@link AppState} is attached or detached, the
  * {@link AppState#stateAttached(com.jme3.app.state.AppStateManager) } and
  * {@link AppState#stateDetached(com.jme3.app.state.AppStateManager) } methods
@@ -69,18 +71,24 @@ public class AppStateManager {
      *  initialization.  Once initialized they will be added to
      *  the running app states.  
      */
-    private final SafeArrayList<AppState> initializing = new SafeArrayList<AppState>(AppState.class);
+    private final SafeArrayList<AppState> initializing = new SafeArrayList<>(AppState.class);
     
     /**
      *  Holds the active states once they are initialized.  
      */
-    private final SafeArrayList<AppState> states = new SafeArrayList<AppState>(AppState.class);
+    private final SafeArrayList<AppState> states = new SafeArrayList<>(AppState.class);
     
     /**
      *  List holding the detached app states that are pending
      *  cleanup.  
      */
-    private final SafeArrayList<AppState> terminating = new SafeArrayList<AppState>(AppState.class);
+    private final SafeArrayList<AppState> terminating = new SafeArrayList<>(AppState.class);
+
+    /**
+     *  Thread-safe index of every state that is currently attached and has
+     *  an ID.
+     */
+    private final ConcurrentMap<String, AppState> stateIndex = new ConcurrentHashMap<>();
  
     // All of the above lists need to be thread safe but access will be
     // synchronized separately.... but always on the states list.  This
@@ -88,7 +96,6 @@ public class AppStateManager {
     // is that they are all modified from the same thread anyway.
     
     private final Application app;
-    private AppState[] stateArray;
 
     public AppStateManager(Application app){
         this.app = app;
@@ -121,7 +128,8 @@ public class AppStateManager {
 
     /**
      * Attach a state to the AppStateManager, the same state cannot be attached
-     * twice.
+     * twice.  Throws an IllegalArgumentException if the state has an ID and that
+     * ID has already been associated with another AppState.                
      *
      * @param state The state to attach
      * @return True if the state was successfully attached, false if the state
@@ -129,11 +137,16 @@ public class AppStateManager {
      */
     public boolean attach(AppState state){
         synchronized (states){
+            if( state.getId() != null && stateIndex.putIfAbsent(state.getId(), state) != null ) {
+                throw new IllegalArgumentException("ID:" + state.getId() 
+                        + " is already being used by another state:" 
+                        + stateIndex.get(state.getId()));
+            }
             if (!states.contains(state) && !initializing.contains(state)){
                 state.stateAttached(this);
                 initializing.add(state);
                 return true;
-            }else{
+            } else {
                 return false;
             }
         }
@@ -174,6 +187,12 @@ public class AppStateManager {
      */
     public boolean detach(AppState state){
         synchronized (states){
+        
+            // Remove it from the index if it exists.
+            // Note: we remove it directly from the values() in case
+            // the state has changed its ID since registered.
+            stateIndex.values().remove(state);
+        
             if (states.contains(state)){
                 state.stateDetached(this);
                 states.remove(state);
@@ -221,6 +240,7 @@ public class AppStateManager {
      * @return First attached state that is an instance of stateClass. If failOnMiss is true 
      * then an IllegalArgumentException is thrown if the state is not attached.
      */
+    @SuppressWarnings("unchecked")
     public <T extends AppState> T getState(Class<T> stateClass, boolean failOnMiss){
         synchronized (states){
             AppState[] array = getStates();
@@ -247,6 +267,35 @@ public class AppStateManager {
         }    
         return null;
     }
+
+    /**
+     *  Returns the state associated with the specified ID at the time it was
+     *  attached or null if not state was attached with that ID.
+     */
+    public <T extends AppState> T getState( String id, Class<T> stateClass ) {
+        return stateClass.cast(stateIndex.get(id));
+    }
+    
+    /**
+     *  Returns true if there is currently a state associated with the specified
+     *  ID.
+     */
+    public boolean hasState( String id ) {
+        return stateIndex.containsKey(id);
+    }
+ 
+    /**
+     *  Returns the state associated with the specified ID at the time it
+     *  was attached or throws an IllegalArgumentException if the ID was 
+     *  not found.
+     */   
+    public <T extends AppState> T stateForId( String id, Class<T> stateClass ) {
+        T result = getState(id, stateClass);
+        if( result == null ) {
+            throw new IllegalArgumentException("State not found for:" + id);
+        }
+        return stateClass.cast(result);
+    } 
 
     protected void initializePending(){
         AppState[] array = getInitializing();
@@ -300,6 +349,9 @@ public class AppStateManager {
         AppState[] array = getStates();
         for (AppState state : array){
             if (state.isEnabled()) {
+                if (app.getAppProfiler() != null) {
+                    app.getAppProfiler().appSubStep(state.getClass().getSimpleName());
+                }
                 state.update(tpf);
             }
         }
@@ -313,6 +365,9 @@ public class AppStateManager {
         AppState[] array = getStates();
         for (AppState state : array){
             if (state.isEnabled()) {
+                if (app.getAppProfiler() != null) {
+                    app.getAppProfiler().appSubStep(state.getClass().getSimpleName());
+                }
                 state.render(rm);
             }
         }
@@ -325,6 +380,9 @@ public class AppStateManager {
         AppState[] array = getStates();
         for (AppState state : array){
             if (state.isEnabled()) {
+                if (app.getAppProfiler() != null) {
+                    app.getAppProfiler().appSubStep(state.getClass().getSimpleName());
+                }
                 state.postRender();
             }
         }

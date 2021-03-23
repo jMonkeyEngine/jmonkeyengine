@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -205,15 +205,18 @@ public final class Shader extends NativeObject {
                                               + sourceType.name()+", language=" + language + "]";
         }
 
+        @Override
         public void resetObject(){
             id = -1;
             setUpdateNeeded();
         }
 
+        @Override
         public void deleteObject(Object rendererObject){
             ((Renderer)rendererObject).deleteShaderSource(ShaderSource.this);
         }
 
+        @Override
         public NativeObject createDestructableClone(){
             return new ShaderSource(ShaderSource.this);
         }
@@ -449,6 +452,7 @@ public final class Shader extends NativeObject {
         ((Renderer)rendererObject).deleteShader(this);
     }
 
+    @Override
     public NativeObject createDestructableClone(){
         return new Shader(this);
     }

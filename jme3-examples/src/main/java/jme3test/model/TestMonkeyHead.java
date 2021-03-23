@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,9 +44,9 @@ import com.jme3.scene.shape.Sphere;
 
 public class TestMonkeyHead extends SimpleApplication {
 
-    float angle;
-    PointLight pl;
-    Spatial lightMdl;
+    private float angle;
+    private PointLight pl;
+    private Spatial lightMdl;
 
     public static void main(String[] args){
         TestMonkeyHead app = new TestMonkeyHead();
@@ -57,7 +57,7 @@ public class TestMonkeyHead extends SimpleApplication {
     public void simpleInitApp() {
         viewPort.setBackgroundColor(ColorRGBA.DarkGray);
 
-        Spatial bumpy = (Spatial) assetManager.loadModel("Models/MonkeyHead/MonkeyHead.mesh.xml");
+        Spatial bumpy = assetManager.loadModel("Models/MonkeyHead/MonkeyHead.mesh.xml");
         rootNode.attachChild(bumpy);
 
         lightMdl = new Geometry("Light", new Sphere(10, 10, 0.1f));

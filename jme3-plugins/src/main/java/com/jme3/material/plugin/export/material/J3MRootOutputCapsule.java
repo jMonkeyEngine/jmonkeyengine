@@ -1,15 +1,10 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.jme3.material.plugin.export.material;
 
 import com.jme3.export.OutputCapsule;
 import com.jme3.export.Savable;
 
 import java.io.IOException;
-import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.util.HashMap;
 
 /**
@@ -46,7 +41,7 @@ public class J3MRootOutputCapsule extends J3MOutputCapsule {
     }
 
     @Override
-    public void writeToStream(OutputStreamWriter out) throws IOException {
+    public void writeToStream(Writer out) throws IOException {
         out.write("Material " + name + " : " + materialDefinition + " {\n\n");
         if (isTransparent != null)
             out.write("    Transparent " + ((isTransparent) ? "On" : "Off") + "\n\n");

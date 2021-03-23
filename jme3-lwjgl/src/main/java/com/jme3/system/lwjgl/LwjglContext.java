@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,7 +50,7 @@ import com.jme3.renderer.opengl.GL;
 import com.jme3.renderer.opengl.GL2;
 import com.jme3.renderer.opengl.GL3;
 import com.jme3.renderer.opengl.GL4;
-import com.jme3.renderer.opengl.GLDebugDesktop;
+import com.jme3.renderer.opengl.GLDebug;
 import com.jme3.renderer.opengl.GLExt;
 import com.jme3.renderer.opengl.GLFbo;
 import com.jme3.renderer.opengl.GLRenderer;
@@ -92,6 +92,7 @@ public abstract class LwjglContext implements JmeContext {
     protected LwjglPlatform clPlatform;
     protected com.jme3.opencl.lwjgl.LwjglContext clContext;
 
+    @Override
     public void setSystemListener(SystemListener listener) {
         this.listener = listener;
     }
@@ -106,11 +107,63 @@ public abstract class LwjglContext implements JmeContext {
                     Display.getPixelScaleFactor()});
     }
 
+    protected int[] getGLVersion(String renderer) {
+        int maj = -1, min = -1;
+        switch (settings.getRenderer()) {
+            case AppSettings.LWJGL_OPENGL2:
+                maj = 2;
+                min = 0;
+                break;
+            case AppSettings.LWJGL_OPENGL30:
+                maj = 3;
+                min = 0;
+                break;
+            case AppSettings.LWJGL_OPENGL31:
+                maj = 3;
+                min = 1;
+                break;
+            case AppSettings.LWJGL_OPENGL32:
+                maj = 3;
+                min = 2;
+                break;
+            case AppSettings.LWJGL_OPENGL33:
+                maj = 3;
+                min = 3;
+                break;
+            case AppSettings.LWJGL_OPENGL40:
+                maj = 4;
+                min = 0;
+                break;
+            case AppSettings.LWJGL_OPENGL41:
+                maj = 4;
+                min = 1;
+                break;
+            case AppSettings.LWJGL_OPENGL42:
+                maj = 4;
+                min = 2;
+                break;
+            case AppSettings.LWJGL_OPENGL43:
+                maj = 4;
+                min = 3;
+                break;
+            case AppSettings.LWJGL_OPENGL44:
+                maj = 4;
+                min = 4;
+                break;
+            case AppSettings.LWJGL_OPENGL45:
+                maj = 4;
+                min = 5;
+                break;
+        }
+        return maj == -1 ? null : new int[] { maj, min };
+    }
+
     protected ContextAttribs createContextAttribs() {
-        if (settings.getBoolean("GraphicsDebug") || settings.getRenderer().equals(AppSettings.LWJGL_OPENGL3)) {
+        int vers[] = getGLVersion(settings.getRenderer());
+        if (settings.getBoolean("GraphicsDebug") || (vers != null && vers[0] != 2)) {
             ContextAttribs attr;
-            if (settings.getRenderer().equals(AppSettings.LWJGL_OPENGL3)) {
-                attr = new ContextAttribs(3, 2);
+            if (vers != null && vers[0] != 2) {
+                attr = new ContextAttribs(vers[0], vers[1]);
                 attr = attr.withProfileCore(true).withForwardCompatible(true).withProfileCompatibility(false);
             } else {
                 attr = new ContextAttribs();
@@ -204,8 +257,8 @@ public abstract class LwjglContext implements JmeContext {
                     + "required for jMonkeyEngine");
         }
         
-        if (settings.getRenderer().equals(AppSettings.LWJGL_OPENGL2)
-                || settings.getRenderer().equals(AppSettings.LWJGL_OPENGL3)) {
+        int vers[] = getGLVersion(settings.getRenderer());
+        if (vers != null) {
             GL gl = new LwjglGL();
             GLExt glext = new LwjglGLExt();
             GLFbo glfbo;
@@ -217,9 +270,9 @@ public abstract class LwjglContext implements JmeContext {
             }
             
             if (settings.getBoolean("GraphicsDebug")) {
-                gl = new GLDebugDesktop(gl, glext, glfbo);
-                glext = (GLExt) gl;
-                glfbo = (GLFbo) gl;
+                gl = (GL) GLDebug.createProxy(gl, gl, GL.class, GL2.class, GL3.class, GL4.class);
+                glext = (GLExt) GLDebug.createProxy(gl, glext, GLExt.class);
+                glfbo = (GLFbo) GLDebug.createProxy(gl, glfbo, GLFbo.class);
             }
             if (settings.getBoolean("GraphicsTiming")) {
                 GLTimingState timingState = new GLTimingState();
@@ -398,25 +451,31 @@ public abstract class LwjglContext implements JmeContext {
         }
     }
 
+    @Override
     public boolean isCreated() {
         return created.get();
     }
+    @Override
     public boolean isRenderable() {
         return renderable.get();
     }
 
+    @Override
     public void setSettings(AppSettings settings) {
         this.settings.copyFrom(settings);
     }
 
+    @Override
     public AppSettings getSettings() {
         return settings;
     }
 
+    @Override
     public Renderer getRenderer() {
         return renderer;
     }
 
+    @Override
     public Timer getTimer() {
         return timer;
     }

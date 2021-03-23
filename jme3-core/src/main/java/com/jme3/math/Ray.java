@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,26 +43,26 @@ import java.io.IOException;
 /**
  * <code>Ray</code> defines a line segment which has an origin and a direction.
  * That is, a point and an infinite ray is cast from this point. The ray is
- * defined by the following equation: R(t) = origin + t*direction for t >= 0.
- * 
+ * defined by the following equation: {@literal
+ * R(t) = origin + t*direction for t >= 0.
+ * }
+ *
  * @author Mark Powell
  * @author Joshua Slack
  */
 public final class Ray implements Savable, Cloneable, Collidable, java.io.Serializable {
-
     static final long serialVersionUID = 1;
-
-    /** 
-     * The ray's beginning point. 
+    /**
+     * The ray's beginning point.
      */
     public Vector3f origin = new Vector3f();
-    
-    /** 
-     * The direction of the ray. 
+    /**
+     * The direction of the ray.
      */
     public Vector3f direction = new Vector3f(0, 0, 1);
-    
-    
+    /**
+     * The length of the ray (defaults to +Infinity).
+     */
     public float limit = Float.POSITIVE_INFINITY;
 
     /**
@@ -76,6 +76,7 @@ public final class Ray implements Savable, Cloneable, Collidable, java.io.Serial
     /**
      * Constructor instantiates a new <code>Ray</code> object. The origin and
      * direction are given.
+     *
      * @param origin the origin of the ray.
      * @param direction the direction the ray travels in.
      */
@@ -84,15 +85,17 @@ public final class Ray implements Savable, Cloneable, Collidable, java.io.Serial
         setDirection(direction);
     }
 
-    /**
+    /*
      * <code>intersect</code> determines if the Ray intersects a triangle.
+     *
      * @param t the Triangle to test against.
      * @return true if the ray collides.
      */
 //    public boolean intersect(Triangle t) {
 //        return intersect(t.get(0), t.get(1), t.get(2));
 //    }
-    /**
+
+    /*
      * <code>intersect</code> determines if the Ray intersects a triangle
      * defined by the specified points.
      *
@@ -107,13 +110,14 @@ public final class Ray implements Savable, Cloneable, Collidable, java.io.Serial
 //    public boolean intersect(Vector3f v0,Vector3f v1,Vector3f v2){
 //        return intersectWhere(v0, v1, v2, null);
 //    }
+
     /**
-     * <code>intersectWhere</code> determines if the Ray intersects a triangle. It then
-     * stores the point of intersection in the given loc vector
+     * <code>intersectWhere</code> determines if the Ray intersects a triangle.
+     * It then stores the point of intersection in the given loc vector
+     *
      * @param t the Triangle to test against.
-     * @param loc
-     *            storage vector to save the collision point in (if the ray
-     *            collides)
+     * @param loc storage vector to save the collision point in (if the ray
+     * collides)
      * @return true if the ray collides.
      */
     public boolean intersectWhere(Triangle t, Vector3f loc) {
@@ -360,7 +364,6 @@ public final class Ray implements Savable, Cloneable, Collidable, java.io.Serial
     }
 
     /**
-     * 
      * @param p
      * @param loc
      * @return true if the ray collides with the given Plane
@@ -382,6 +385,7 @@ public final class Ray implements Savable, Cloneable, Collidable, java.io.Serial
         return true;
     }
 
+    @Override
     public int collideWith(Collidable other, CollisionResults results) {
         if (other instanceof BoundingVolume) {
             BoundingVolume bv = (BoundingVolume) other;
@@ -401,6 +405,12 @@ public final class Ray implements Savable, Cloneable, Collidable, java.io.Serial
         }
     }
 
+    /**
+     * Calculate the squared distance from this ray to the specified point.
+     *
+     * @param point location vector of the input point (not null, unaffected)
+     * @return the square of the minimum distance (&ge;0)
+     */
     public float distanceSquared(Vector3f point) {
         TempVars vars = TempVars.get();
 
@@ -433,8 +443,8 @@ public final class Ray implements Savable, Cloneable, Collidable, java.io.Serial
     }
 
     /**
-     *
      * <code>setOrigin</code> sets the origin of the ray.
+     *
      * @param origin the origin of the ray.
      */
     public void setOrigin(Vector3f origin) {
@@ -445,7 +455,7 @@ public final class Ray implements Savable, Cloneable, Collidable, java.io.Serial
      * <code>getLimit</code> returns the limit of the ray, aka the length.
      * If the limit is not infinity, then this ray is a line with length <code>
      * limit</code>.
-     * 
+     *
      * @return the limit of the ray, aka the length.
      */
     public float getLimit() {
@@ -454,16 +464,17 @@ public final class Ray implements Savable, Cloneable, Collidable, java.io.Serial
 
     /**
      * <code>setLimit</code> sets the limit of the ray.
+     *
      * @param limit the limit of the ray.
-     * @see Ray#getLimit() 
+     * @see Ray#getLimit()
      */
     public void setLimit(float limit) {
         this.limit = limit;
     }
 
     /**
-     *
      * <code>getDirection</code> retrieves the direction vector of the ray.
+     *
      * @return the direction of the ray.
      */
     public Vector3f getDirection() {
@@ -471,8 +482,8 @@ public final class Ray implements Savable, Cloneable, Collidable, java.io.Serial
     }
 
     /**
-     *
      * <code>setDirection</code> sets the direction vector of the ray.
+     *
      * @param direction the direction of the ray.
      */
     public void setDirection(Vector3f direction) {
@@ -482,7 +493,7 @@ public final class Ray implements Savable, Cloneable, Collidable, java.io.Serial
 
     /**
      * Copies information from a source ray into this ray.
-     * 
+     *
      * @param source
      *            the ray to copy information from
      */
@@ -491,22 +502,51 @@ public final class Ray implements Savable, Cloneable, Collidable, java.io.Serial
         direction.set(source.getDirection());
     }
 
+    /**
+     * Represent this ray as a String.  The format is:
+     *
+     * Ray [Origin: (X.X, Y.Y, Z.Z), Direction: (X.X, Y.Y, Z.Z)]
+     *
+     * @return a descriptive string of text (not null, not empty)
+     */
+    @Override
     public String toString() {
         return getClass().getSimpleName() + " [Origin: " + origin + ", Direction: " + direction + "]";
     }
 
+    /**
+     * Serialize this ray to the specified exporter, for example when
+     * saving to a J3O file.
+     *
+     * @param e (not null)
+     * @throws IOException from the exporter
+     */
+    @Override
     public void write(JmeExporter e) throws IOException {
         OutputCapsule capsule = e.getCapsule(this);
         capsule.write(origin, "origin", Vector3f.ZERO);
         capsule.write(direction, "direction", Vector3f.ZERO);
     }
 
+    /**
+     * De-serialize this ray from the specified importer, for example
+     * when loading from a J3O file.
+     *
+     * @param e (not null)
+     * @throws IOException from the importer
+     */
+    @Override
     public void read(JmeImporter e) throws IOException {
         InputCapsule capsule = e.getCapsule(this);
         origin = (Vector3f) capsule.readSavable("origin", Vector3f.ZERO.clone());
         direction = (Vector3f) capsule.readSavable("direction", Vector3f.ZERO.clone());
     }
 
+    /**
+     * Create a copy of this ray.
+     *
+     * @return a new instance, equivalent to this one
+     */
     @Override
     public Ray clone() {
         try {

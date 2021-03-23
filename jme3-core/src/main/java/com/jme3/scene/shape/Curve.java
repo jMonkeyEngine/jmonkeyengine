@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -55,7 +55,7 @@ public class Curve extends Mesh {
     /**
      * Serialization only. Do not use.
      */
-    public Curve() {
+    protected Curve() {
     }
 
     /**
@@ -198,12 +198,12 @@ public class Curve extends Mesh {
      * points
      */
     private void createNurbMesh(int nbSubSegments) {
-    	if(spline.getControlPoints() != null && spline.getControlPoints().size() > 0) {
-    		if(nbSubSegments == 0) {
-        		nbSubSegments = spline.getControlPoints().size() + 1;
-        	} else {
-        		nbSubSegments = spline.getControlPoints().size() * nbSubSegments + 1;
-        	}
+        if (spline.getControlPoints() != null && spline.getControlPoints().size() > 0) {
+            if (nbSubSegments == 0) {
+                nbSubSegments = spline.getControlPoints().size() + 1;
+            } else {
+                nbSubSegments = spline.getControlPoints().size() * nbSubSegments + 1;
+            }
             float minKnot = spline.getMinNurbKnot();
             float maxKnot = spline.getMaxNurbKnot();
             float deltaU = (maxKnot - minKnot) / nbSubSegments;
@@ -233,7 +233,7 @@ public class Curve extends Mesh {
             this.setBuffer(VertexBuffer.Type.Index, 2, indices);
             this.updateBound();
             this.updateCounts();
-    	}
+        }
     }
 
     private void createLinearMesh() {

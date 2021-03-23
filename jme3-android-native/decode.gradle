@@ -1,16 +1,19 @@
 String tremorZipFile = "TremorAndroid.zip"
-String stbiUrl = 'https://raw.githubusercontent.com/nothings/stb/master/stb_image.h'
+String stbiUrl = 'https://raw.githubusercontent.com/jMonkeyEngine/stb/0224a44a10564a214595797b4c88323f79a5f934/stb_image.h'
 
 // Working directories for the ndk build.
 String decodeBuildDir = "${buildDir}" + File.separator + 'decode'
+String decodeClassesBuildDir = "${buildDir}" + File.separator + 'decode_classes'
 String decodeBuildJniDir = decodeBuildDir + File.separator + 'jni'
 String decodeBuildLibsDir = decodeBuildDir + File.separator + 'libs'
 
 // Pre-compiled libs directory
-String decodePreCompiledLibsDir = 'libs' + File.separator + 'decode'
+def rootPath = rootProject.projectDir.absolutePath
+String decodePreCompiledLibsDir = rootPath + File.separator + 'build' + File.separator + 'native' + File.separator +  'android' + File.separator + 'decode'
 
 // jME Android Native source files path
 String decodeSourceDir = 'src/native/jme_decode'
+String jmeHeaders = 'src/native/headers'
 
 task downloadStbImage(type: MyDownload) {
     sourceUrl = stbiUrl
@@ -44,17 +47,13 @@ task copyTremorFiles(type: Copy) {
     into outputDir
 }
 
-// Generate headers via javah
-task generateJavahHeaders(type: Exec) {
-    executable org.gradle.internal.jvm.Jvm.current().getExecutable('javah')
-    args '-d', decodeSourceDir
-    args '-classpath', project.projectClassPath
-    args "com.jme3.audio.plugins.NativeVorbisFile"
-    args "com.jme3.texture.plugins.AndroidNativeImageLoader"
+task copyJmeHeadersDecode(type: Copy) {
+    from file(jmeHeaders)
+    into file(decodeBuildJniDir + File.separator + "headers")
 }
 
 // Copy jME Android native files to jni directory
-task copySourceToBuild(type: Copy, dependsOn:[copyTremorFiles, copyStbiFiles, generateJavahHeaders]) {
+task copySourceToBuild(type: Copy, dependsOn:[copyTremorFiles, copyStbiFiles, copyJmeHeadersDecode]) {
     def sourceDir = file(decodeSourceDir)
     def outputDir = file(decodeBuildJniDir)
 

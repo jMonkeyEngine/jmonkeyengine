@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,21 +43,27 @@ import java.util.List;
  */
 public class AnimationList {
 	
-	List<AnimInverval> list = new ArrayList<AnimInverval>();
+	List<AnimInverval> list = new ArrayList<>();
 	
 	/**
 	 * Use in the case of multiple animation layers in FBX asset
-	 * @param name - animation name to access via {@link com.jme3.animation.AnimControl}
-	 */
+         *
+         * @param name - animation name to access via {@link com.jme3.animation.AnimControl}
+         * @param firstFrame the index of the first frame
+         * @param lastFrame the index of the last frame
+         */
 	public void add(String name, int firstFrame, int lastFrame) {
 		add(name, null, firstFrame, lastFrame);
 	}
-	
-	/**
-	 * Use in the case of multiple animation layers in FBX asset
-	 * @param name - animation name to access via {@link com.jme3.animation.AnimControl}
-	 * @param layerName - source layer
-	 */
+
+        /**
+         * Use in the case of multiple animation layers in FBX asset
+         *
+         * @param name - animation name to access via {@link com.jme3.animation.AnimControl}
+         * @param layerName - source layer
+         * @param firstFrame the index of the first frame
+         * @param lastFrame the index of the last frame
+         */
 	public void add(String name, String layerName, int firstFrame, int lastFrame) {
 		AnimInverval cue = new AnimInverval();
 		cue.name = name;

@@ -226,6 +226,7 @@ public class BufferObject extends NativeObject {
      * @param <T> the value's type.
      * @return the current value.
      */
+    @SuppressWarnings("unchecked")
     public <T> T getFieldValue(final String name) {
 
         final BufferObjectField field = fields.get(name);
@@ -492,6 +493,7 @@ public class BufferObject extends NativeObject {
      * @param data  the data buffer.
      * @param value the value.
      */
+    @SuppressWarnings("unchecked")
     protected void writeMat3Array(final ByteBuffer data, final Object value) {
 
         if (value instanceof Matrix3f[]) {
@@ -523,6 +525,7 @@ public class BufferObject extends NativeObject {
      * @param data  the data buffer.
      * @param value the value.
      */
+    @SuppressWarnings("unchecked")
     protected void writeMat4Array(final ByteBuffer data, final Object value) {
 
         if (value instanceof Matrix4f[]) {
@@ -555,6 +558,7 @@ public class BufferObject extends NativeObject {
      * @param data  the data buffer.
      * @param value the value.
      */
+    @SuppressWarnings("unchecked")
     protected void writeVec4Array(final ByteBuffer data, final Object value) {
 
         if (value instanceof Object[]) {
@@ -586,6 +590,7 @@ public class BufferObject extends NativeObject {
      * @param data  the data buffer.
      * @param value the value.
      */
+    @SuppressWarnings("unchecked")
     protected void writeVec3Array(final ByteBuffer data, final Object value) {
 
         if (value instanceof Vector3f[]) {
@@ -617,6 +622,7 @@ public class BufferObject extends NativeObject {
      * @param data  the data buffer.
      * @param value the value.
      */
+    @SuppressWarnings("unchecked")
     protected void writeVec2Array(final ByteBuffer data, final Object value) {
 
         if (value instanceof Vector2f[]) {

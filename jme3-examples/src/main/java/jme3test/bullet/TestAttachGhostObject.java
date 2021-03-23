@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -55,8 +55,6 @@ public class TestAttachGhostObject extends SimpleApplication implements AnalogLi
     private HingeJoint joint;
     private GhostControl ghostControl;
     private Node collisionNode;
-    private Node hammerNode;
-    private Vector3f tempVec = new Vector3f();
     private BulletAppState bulletAppState;
 
     public static void main(String[] args) {
@@ -71,6 +69,7 @@ public class TestAttachGhostObject extends SimpleApplication implements AnalogLi
         inputManager.addListener(this, "Lefts", "Rights", "Space");
     }
 
+    @Override
     public void onAnalog(String binding, float value, float tpf) {
         if (binding.equals("Lefts")) {
             joint.enableMotor(true, 1, .1f);

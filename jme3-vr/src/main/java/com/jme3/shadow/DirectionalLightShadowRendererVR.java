@@ -1,7 +1,7 @@
 package com.jme3.shadow;
 
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -58,7 +58,7 @@ import java.io.IOException;
  * the shadow map.<br> This results in a better quality shadow than standard
  * shadow mapping.<br> for more informations on this read this <a
  * href="http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html">http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html</a><br>
- * <p/>
+ *
  * @author Rémy Bouquet aka Nehon
  * @author reden - phr00t - https://github.com/phr00t
  * @author Julien Seinturier - COMEX SA - <a href="http://www.seinturier.fr">http://www.seinturier.fr</a>
@@ -270,7 +270,7 @@ public class DirectionalLightShadowRendererVR extends AbstractShadowRendererVR {
     @Override
     public void read(JmeImporter im) throws IOException {
         super.read(im);
-        InputCapsule ic = (InputCapsule) im.getCapsule(this);
+        InputCapsule ic = im.getCapsule(this);
         lambda = ic.readFloat("lambda", 0.65f);
         zFarOverride = ic.readInt("zFarOverride", 0);
         light = (DirectionalLight) ic.readSavable("light", null);
@@ -282,7 +282,7 @@ public class DirectionalLightShadowRendererVR extends AbstractShadowRendererVR {
     @Override
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
-        OutputCapsule oc = (OutputCapsule) ex.getCapsule(this);
+        OutputCapsule oc = ex.getCapsule(this);
         oc.write(lambda, "lambda", 0.65f);
         oc.write(zFarOverride, "zFarOverride", 0);
         oc.write(light, "light", null);

@@ -1,35 +1,3 @@
-/*
- Version Info Examples
- =====================
-
- Nightly Build Snapshot
- * git tag:
- * Full Version: 3.1-5124
- * POM Version: 3.1.0-SNAPSHOT
- * NBM Revision: 5124
- * NBM UC Suffix: nightly/3.1/plugins
-
- Nightly Build Snapshot (PBRIsComing branch)
- * git tag:
- * Full Version: 3.1-PBRIsComing-5124
- * POM Version: 3.1.0-PBRIsComing-SNAPSHOT
- * NBM Revision: 5124
- * NBM UC Suffix: PBRIsComing-nightly/3.1/plugins
-
- Alpha1 Release
- * git tag: v3.1.0-alpha1
- * Full Version: 3.1-alpha1
- * POM Version: 3.1.0-alpha1
- * NBM Revision: 0
- * NBM UC Suffix: stable/3.1/plugins
-
- Final Release
- * git tag: v3.1.0
- * Full Version: 3.1
- * POM Version: 3.1.0
- * NBM Revision: 0
- * NBM UC Suffix: stable/3.1/plugins
- */
 
 import java.text.SimpleDateFormat
 import org.ajoberstar.grgit.*
@@ -50,116 +18,125 @@ ext {
     jmeShortGitHash = ""
     jmeBuildDate    = new SimpleDateFormat("yyyy-MM-dd").format(new Date())
     jmeBranchName   = "unknown"
-    jmeFullVersion  = "${jmeVersion}-UNKNOWN"
-    jmePomVersion   = "unknown"
-}
-
-def getReleaseInfo(String tag) {
-    if (tag == null) {
-        // not a tagged commit
-        return null;
-    }
-    if (!tag.startsWith("v")) {
-        // syntax error
-        return null;
-    }
-    tag = tag.substring(1)
-
-    String[] parts = tag.split("-", 2);
-    String mainVersion;
-    boolean prerelease;
-    String releaseName = null;
-
-    if (parts.length == 2) {
-        // prerelease
-        prerelease = true;
-        mainVersion = parts[0];
-        releaseName = parts[1];
-        if (releaseName.size() == 0) {
-            // syntax error
-            return null;
-        }
-    } else if (parts.length == 1) {
-        // final release
-        prerelease = false;
-        mainVersion = parts[0];
-    } else {
-        // error
-        return null;
-    }
-
-    if (mainVersion.size() == 0) {
-        // syntax error
-        return null;
-    }
-
-    parts = mainVersion.split("\\.");
-    if (parts.size() != 3) {
-        // syntax error
-        return null;
-    }
-
-    String baseVersion = parts[0] + "." + parts[1];
-
-    return [
-        "tag" : tag,
-        "baseVersion" : baseVersion,
-        "mainVersion" : mainVersion,
-        "prerelease" :  prerelease,
-        "releaseName" : releaseName,
-        "releaseSuffix": (prerelease ? "-${releaseName}": "")
-    ]
+    jmeFullVersion  = "${jmeVersion}-SNAPSHOT"
+    jmeVersionTag="SNAPSHOT"
 }
 
 task configureVersionInfo {
     try {
+        // Users can configure behavior by setting properties on the command
+        // line:
+        //
+        // jmeVersionName:
+        // If set this will override all automatic version detection.
+        //
+        // useCommitHashAsVersionName:
+        // If there is no jmeVersionName set and the current commit has no
+        // specific tag then setting this to 'true' will cause the version to
+        // be the full commit ID.
+        //
+        // includeBranchInVersion:
+        // Set to true if a non-master branch name should be included in the automatically
+        // generated version.
+
         def grgit = Grgit.open(project.file('.'))
         def head = grgit.head()
         jmeRevision = grgit.log(includes: [head]).size()
         jmeGitHash = head.id
         jmeShortGitHash = head.abbreviatedId
         jmeBranchName = grgit.branch.current.name
+
+        // This code will find an exact-match tag if the current
+        // commit is the same as the tag commit.
         jmeGitTag = grgit.tag.list().find { it.commit == head }
-
-        if (jmeGitTag != null) {
+        def latestTag;
+        if( jmeGitTag ) {
+            // Just use the name.  We keep jmeGitTag separate because there
+            // is some logic that wants to know if this specific commit has
+            // a tag versus 'whatever tag we are a child of'... which is what
+            // 'latestTag' will be.
             jmeGitTag = jmeGitTag.name
+            latestTag = jmeGitTag;
         } else {
-            if (System.env.APPVEYOR_REPO_TAG == "true") {
-                jmeGitTag = System.env.APPVEYOR_REPO_TAG_NAME
+            // Use describe to find the most recent tag.  Unfortunately,
+            // in this version of grgit, we don't have the 'always' options
+            // so we can't make as many assumptions about the format of the
+            // string.
+            // If the commit is an exact match then it will return just the
+            // tag name... else it will be tagName-commitCount-abbreviatedId
+            // We'll use some groovy regex magic to get the tag either way.
+            def describe = grgit.describe()
+            def fullDescribe = (describe =~/(.*?)-(\d+)-g$jmeShortGitHash/)
+            latestTag = fullDescribe ? fullDescribe[0][1] : describe
+            println "Latest tag:" + latestTag
+        }
+
+        // We could enhance this with some more regex if we wanted to sanity
+        // check that it was formatted like our versions.
+        def tagVersion = (latestTag =~/v?(.*)/)[0][1];
+        // If the branch is not master then use the tag.
+        if( jmeBranchName != "master" ) {
+            jmeVersion = tagVersion
+        }
+
+        // Parse out just the base version part.  -SNAPSHOT versions
+        // shouldn't really include our release suffixes
+        def baseVersion = (jmeVersion =~/(\d+\.\d+.\d+)/)
+        baseVersion = baseVersion.size() > 0 ? baseVersion[0][0] : jmeVersion
+
+        if( !jmeVersionName ) {
+            // If there is a specific tag for the top commit then we always
+            // use that.
+            if( jmeGitTag ) {
+                println "Using GIT tag as version"
+                jmeFullVersion = tagVersion; // already cleaned up
+                jmeVersionTag = ""  // and no SNAPSHOT suffix for an exact version tag
+
+                // Note: this will not automatically add SNAPSHOT if the user has
+                // local changes that they haven't committed.  Technically, only
+                // real CI builds should be using non-SNAPSHOT versions so we may
+                // eventually want to change the script to always use -SNAPSHOT with
+                // a CI option to turn it off.
+                // We could also check the grgit.status for unstaged modified/removed files.
+                //     def unstaged = grgit.status().unstaged;
+                //     def modCount = unstaged.modified.size() + unstaged.removed.size()
+                // ...but that seems like a wasteful check considering only official
+                // version builds should not have a -SNAPSHOT.
+
+            } else if( useCommitHashAsVersionName == "true" && jmeGitHash ) {
+                // The user has opted to use the hash... and we actually have
+                // a hash.
+                println "Using commit ID as version"
+                jmeFullVersion = jmeGitHash;
+                jmeVersionTag = ""
             } else {
-                jmeGitTag = System.env.TRAVIS_TAG
-            }
-        }
+                println "Auto-detecting version"
+                jmeVersionTag = "SNAPSHOT"
 
-        def releaseInfo = getReleaseInfo(jmeGitTag)
-        if (releaseInfo != null) {
-            jmeFullVersion = "${releaseInfo.baseVersion}${releaseInfo.releaseSuffix}"
-            jmePomVersion = "${releaseInfo.mainVersion}${releaseInfo.releaseSuffix}"
+                if( includeBranchInVersion == "true" && jmeBranchName != "master" ) {
+                    jmeFullVersion = baseVersion + "-" + jmeBranchName + "-" + jmeVersionTag;
+                } else {
+                    jmeFullVersion = baseVersion + "-" + jmeVersionTag;
+                }
+            }
         } else {
-            // SNAPSHOT
-            jmeFullVersion = jmeMainVersion
-            jmePomVersion  = jmeVersion
-            if (System.env.TRAVIS_BRANCH != null) {
-                jmeBranchName = System.env.TRAVIS_BRANCH
-            } else if (System.env.APPVEYOR_REPO_BRANCH != null) {
-                jmeBranchName = System.env.APPVEYOR_REPO_BRANCH
-            }
-            if (System.env.TRAVIS_PULL_REQUEST != null &&
-                System.env.TRAVIS_PULL_REQUEST != "false") {
-                jmeBranchName += "-pr-" + System.env.TRAVIS_PULL_REQUEST
-            } else if (System.env.APPVEYOR_PULL_REQUEST_NUMBER != null) {
-                jmeBranchName += "-pr-" + System.env.APPVEYOR_PULL_REQUEST_NUMBER
-            }
-            if (jmeBranchName != "master") {
-                jmeFullVersion += "-${jmeBranchName}"
-                jmePomVersion  += "-${jmeBranchName}"
-            }
-            jmeFullVersion += "-${jmeRevision}"
-            jmePomVersion  += "-SNAPSHOT"
+            // Just use defaults
+            println "Using user-defined version"
+            jmeFullVersion=jmeVersionName
+            jmeVersionTag = "SNAPSHOT"
         }
 
-        logger.warn("Full Version: ${jmeFullVersion}")
-        logger.warn("POM Version: ${jmePomVersion}")
+        println("Revision: ${jmeRevision}")
+        println("Hash: ${jmeGitHash}")
+        println("Short Hash: ${jmeShortGitHash}")
+        println("Tag: ${jmeGitTag}")
+        println("Build Date: ${jmeBuildDate}")
+        println("Build Branch: ${jmeBranchName}")
+        println("Use commit hash as version ${useCommitHashAsVersionName}")
+        println("Base Version: ${baseVersion}")
+        println("Build Suffix: ${jmeVersionTag}")
+        println("Build Version: ${jmeFullVersion}")
+
     } catch (ex) {
         // Failed to get repo info
         logger.warn("Failed to get repository info: " + ex.message + ". " + \

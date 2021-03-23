@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -61,14 +61,14 @@ import java.util.LinkedList;
 public class SixDofJoint extends PhysicsJoint {
 
     private boolean useLinearReferenceFrameA = true;
-    private LinkedList<RotationalLimitMotor> rotationalMotors = new LinkedList<RotationalLimitMotor>();
+    private LinkedList<RotationalLimitMotor> rotationalMotors = new LinkedList<>();
     private TranslationalLimitMotor translationalMotor;
     private Vector3f angularUpperLimit = new Vector3f(Vector3f.POSITIVE_INFINITY);
     private Vector3f angularLowerLimit = new Vector3f(Vector3f.NEGATIVE_INFINITY);
     private Vector3f linearUpperLimit = new Vector3f(Vector3f.POSITIVE_INFINITY);
     private Vector3f linearLowerLimit = new Vector3f(Vector3f.NEGATIVE_INFINITY);
 
-    public SixDofJoint() {
+    protected SixDofJoint() {
     }
 
     /**

@@ -16,6 +16,7 @@ public class OSVR_NaviVelocityReport extends Structure {
 	public OSVR_NaviVelocityReport() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("sensor", "state");
 	}

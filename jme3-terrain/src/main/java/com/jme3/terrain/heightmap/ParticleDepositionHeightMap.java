@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -76,7 +76,7 @@ public class ParticleDepositionHeightMap extends AbstractHeightMap {
      *              represented as a percentage, where 0.0 will not invert
      *              anything, and 1.0 will invert all.
      *
-     * @throws JmeException if any value is less than zero, and
+     * @throws Exception if any value is less than zero, and
      *              if caldera is not between 0 and 1. If minParticles is greater than
      *              max particles as well.
      */
@@ -124,6 +124,7 @@ public class ParticleDepositionHeightMap extends AbstractHeightMap {
      * to <code>load</code> is recommended if attributes have changed using
      * the set methods.
      */
+    @Override
     public boolean load() {
         int x, y;
         int calderaX, calderaY;
@@ -312,7 +313,7 @@ public class ParticleDepositionHeightMap extends AbstractHeightMap {
         //transfer the new terrain into the height map.
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
-                setHeightAtPoint((float) tempBuffer[i][j], j, i);
+                setHeightAtPoint(tempBuffer[i][j], j, i);
             }
         }
         erodeTerrain();
@@ -328,7 +329,7 @@ public class ParticleDepositionHeightMap extends AbstractHeightMap {
      * <code>setJumps</code> sets the number of jumps or peaks that will
      * be created during the next call to <code>load</code>.
      * @param jumps the number of jumps to use for next load.
-     * @throws JmeException if jumps is less than zero.
+     * @throws Exception if jumps is less than zero.
      */
     public void setJumps(int jumps) throws Exception {
         if (jumps < 0) {
@@ -343,7 +344,7 @@ public class ParticleDepositionHeightMap extends AbstractHeightMap {
      * be aggitated.
      *
      * @param peakWalk the amount to aggitate the jump point.
-     * @throws JmeException if peakWalk is negative or zero.
+     * @throws Exception if peakWalk is negative or zero.
      */
     public void setPeakWalk(int peakWalk) throws Exception {
         if (peakWalk <= 0) {
@@ -359,7 +360,7 @@ public class ParticleDepositionHeightMap extends AbstractHeightMap {
      *
      * @param caldera the level at which a peak will be inverted. This must be
      *              between 0 and 1, as it is represented as a percentage.
-     * @throws JmeException if caldera is not between 0 and 1.
+     * @throws Exception if caldera is not between 0 and 1.
      */
     public void setCaldera(float caldera) throws Exception {
         if (caldera < 0.0f || caldera > 1.0f) {
@@ -373,8 +374,6 @@ public class ParticleDepositionHeightMap extends AbstractHeightMap {
      * <code>setMaxParticles</code> sets the maximum number of particles
      * for a single jump.
      * @param maxParticles the maximum number of particles for a single jump.
-     * @throws JmeException if maxParticles is negative or less than
-     *              the current number of minParticles.
      */
     public void setMaxParticles(int maxParticles) {
         this.maxParticles = maxParticles;
@@ -384,7 +383,7 @@ public class ParticleDepositionHeightMap extends AbstractHeightMap {
      * <code>setMinParticles</code> sets the minimum number of particles
      * for a single jump.
      * @param minParticles the minimum number of particles for a single jump.
-     * @throws JmeException if minParticles are greater than
+     * @throws Exception if minParticles are greater than
      *              the current maxParticles;
      */
     public void setMinParticles(int minParticles) throws Exception {

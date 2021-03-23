@@ -9,6 +9,7 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.shape.Quad;
+import com.jme3.system.AppSettings;
 import com.jme3.util.BufferUtils;
 
 import java.util.concurrent.Callable;
@@ -17,8 +18,8 @@ import java.util.concurrent.Callable;
  * Created by michael on 28.02.15.
  */
 public class TestTessellationShader extends SimpleApplication {
-    Material tessellationMaterial;
-    int tessFactor=5;
+    private Material tessellationMaterial;
+    private int tessFactor=5;
     @Override
     public void simpleInitApp() {
         tessellationMaterial = new Material(getAssetManager(), "Materials/Tess/SimpleTess.j3md");
@@ -63,6 +64,10 @@ public class TestTessellationShader extends SimpleApplication {
     }
 
     public static void main(String[] args) {
-        new TestTessellationShader().start();
+        TestTessellationShader app = new TestTessellationShader();
+        AppSettings settings = new AppSettings(true);
+        settings.setRenderer(AppSettings.LWJGL_OPENGL40);
+        app.setSettings(settings);
+        app.start();
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,6 +34,8 @@ package com.jme3.scene.mesh;
 import java.nio.Buffer;
 import java.nio.IntBuffer;
 
+import com.jme3.scene.VertexBuffer.Format;
+
 /**
  * IndexBuffer implementation for {@link IntBuffer}s.
  * 
@@ -41,7 +43,7 @@ import java.nio.IntBuffer;
  */
 public class IndexIntBuffer extends IndexBuffer {
 
-    private IntBuffer buf;
+    final private IntBuffer buf;
 
     public IndexIntBuffer(IntBuffer buffer) {
         buf = buffer;
@@ -58,8 +60,15 @@ public class IndexIntBuffer extends IndexBuffer {
     }
 
     @Override
-    public void put(int i, int value) {
+    public IndexIntBuffer put(int i, int value) {
         buf.put(i, value);
+        return this;
+    }
+    
+    @Override
+    public IndexIntBuffer put(int value) {
+        buf.put(value);
+        return this;
     }
 
     @Override
@@ -70,5 +79,10 @@ public class IndexIntBuffer extends IndexBuffer {
     @Override
     public Buffer getBuffer() {
         return buf;
+    }
+    
+    @Override
+    public Format getFormat () {
+        return Format.UnsignedInt;
     }
 }

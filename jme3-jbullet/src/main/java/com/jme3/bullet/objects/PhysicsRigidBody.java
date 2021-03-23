@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -70,9 +70,9 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
     protected javax.vecmath.Matrix3f tempMatrix = new javax.vecmath.Matrix3f();
     //TEMP VARIABLES
     protected javax.vecmath.Vector3f localInertia = new javax.vecmath.Vector3f();
-    protected ArrayList<PhysicsJoint> joints = new ArrayList<PhysicsJoint>();
+    protected ArrayList<PhysicsJoint> joints = new ArrayList<>();
 
-    public PhysicsRigidBody() {
+    protected PhysicsRigidBody() {
     }
 
     /**
@@ -279,12 +279,17 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
     /**
      * Enable/disable this body's contact response.
      *
-     * @param newState true to respond to contacts (default=true)
+     * @param responsive true to respond to contacts, false to ignore them
+     * (default=true)
      */
-    public void setContactResponse(boolean newState) {
-        if (!newState) {
-            throw new UnsupportedOperationException("Not implemented.");
+    public void setContactResponse(boolean responsive) {
+        int flags = rBody.getCollisionFlags();
+        if (responsive) {
+            flags &= ~CollisionFlags.NO_CONTACT_RESPONSE;
+        } else {
+            flags |= CollisionFlags.NO_CONTACT_RESPONSE;
         }
+        rBody.setCollisionFlags(flags);
     }
 
     /**
@@ -293,7 +298,9 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
      * @return true if responsive, otherwise false
      */
     public boolean isContactResponse() {
-        return true;
+        int flags = rBody.getCollisionFlags();
+        boolean result = (flags & CollisionFlags.NO_CONTACT_RESPONSE) == 0x0;
+        return result;
     }
 
     public void setCcdSweptSphereRadius(float radius) {
@@ -301,7 +308,7 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
     }
 
     /**
-     * Sets the amount of motion that has to happen in one physics tick to trigger the continuous motion detection<br/>
+     * Sets the amount of motion that has to happen in one physics tick to trigger the continuous motion detection<br>
      * This avoids the problem of fast objects moving through other objects, set to zero to disable (default)
      * @param threshold
      */
@@ -360,7 +367,7 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
     }
 
     /**
-     * Set the local gravity of this PhysicsRigidBody<br/>
+     * Set the local gravity of this PhysicsRigidBody<br>
      * Set this after adding the node to the PhysicsSpace,
      * the PhysicsSpace assigns its current gravity to the physics node when its added.
      * @param gravity the gravity vector to set
@@ -532,6 +539,7 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
         rBody.clearForces();
     }
 
+    @Override
     public void setCollisionShape(CollisionShape collisionShape) {
         super.setCollisionShape(collisionShape);
         if(collisionShape instanceof MeshCollisionShape && mass!=0){
@@ -676,6 +684,7 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
      * @throws IOException from importer
      */
     @Override
+    @SuppressWarnings("unchecked")
     public void read(JmeImporter e) throws IOException {
         super.read(e);
 

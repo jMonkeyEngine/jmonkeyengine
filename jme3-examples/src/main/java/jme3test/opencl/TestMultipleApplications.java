@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2016 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,7 +50,6 @@ public class TestMultipleApplications extends SimpleApplication {
     private static final Logger LOG = Logger.getLogger(TestMultipleApplications.class.getName());
     
     private static final Object sync = new Object();
-    private static Platform selectedPlatform;
     private static List<? extends Device> availableDevices;
     private static int currentDeviceIndex;
     
@@ -71,9 +70,10 @@ public class TestMultipleApplications extends SimpleApplication {
         settings.setOpenCLSupport(true);
         settings.setVSync(true);
         settings.setOpenCLPlatformChooser(CustomPlatformChooser.class);
-        settings.setRenderer(AppSettings.JOGL_OPENGL_FORWARD_COMPATIBLE);
+        settings.setRenderer(AppSettings.LWJGL_OPENGL2);
         for (int i=0; i<2; ++i) {
             new Thread() {
+                @Override
                 public void run() {
                     if (currentDeviceIndex == -1) {
                         return;
@@ -100,7 +100,6 @@ public class TestMultipleApplications extends SimpleApplication {
 
             Platform platform = platforms.get(0);
             availableDevices = platform.getDevices();
-            selectedPlatform = platform;
             
             Device device = platform.getDevices().get(currentDeviceIndex);
             currentDeviceIndex ++;

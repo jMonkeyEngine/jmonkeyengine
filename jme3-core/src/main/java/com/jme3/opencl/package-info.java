@@ -153,10 +153,6 @@ package com.jme3.opencl;
  * thrown. The exception always records the error code and error name and the 
  * OpenCL function call where the error was detected. Please check the official
  * OpenCL specification for the meanings of these errors for that particular function.</li>
- * <li>{@code UnsupportedOperationException}: the OpenCL implementation does not
- * support some operations. This is currently only an issue for Jogamp's Jogl
- * renderer, since Jocl only supports OpenCL 1.1. LWJGL has full support for
- * OpenCL 1.2 and 2.0.
  * </ul>
  */
 

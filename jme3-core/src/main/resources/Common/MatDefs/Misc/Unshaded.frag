@@ -12,6 +12,10 @@ uniform vec4 m_Color;
 uniform sampler2D m_ColorMap;
 uniform sampler2D m_LightMap;
 
+#ifdef DESATURATION
+    uniform float m_DesaturationValue;
+#endif
+
 varying vec2 texCoord1;
 varying vec2 texCoord2;
 
@@ -44,6 +48,11 @@ void main(){
         if(color.a < m_AlphaDiscardThreshold){
            discard;
         }
+    #endif
+    
+    #ifdef DESATURATION
+        vec3 gray = vec3(dot(vec3(0.2126,0.7152,0.0722), color.rgb));
+        color.rgb = vec3(mix(color.rgb, gray, m_DesaturationValue));       
     #endif
 
     gl_FragColor = color;

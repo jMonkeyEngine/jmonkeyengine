@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -51,6 +51,7 @@ public class KeyTrigger implements Trigger {
         this.keyCode = keyCode;
     }
 
+    @Override
     public String getName() {
         return "KeyCode " + keyCode;
     }
@@ -64,6 +65,7 @@ public class KeyTrigger implements Trigger {
         return keyCode & 0xff;
     }
 
+    @Override
     public int triggerHashCode() {
         return keyHash(keyCode);
     }

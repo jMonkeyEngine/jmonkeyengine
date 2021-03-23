@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -54,17 +54,17 @@ public final class BinaryImporter implements JmeImporter {
     private AssetManager assetManager;
 
     //Key - alias, object - bco
-    private HashMap<String, BinaryClassObject> classes
-             = new HashMap<String, BinaryClassObject>();
+    final private HashMap<String, BinaryClassObject> classes
+             = new HashMap<>();
     //Key - id, object - the savable
-    private HashMap<Integer, Savable> contentTable
-            = new HashMap<Integer, Savable>();
+    final private HashMap<Integer, Savable> contentTable
+            = new HashMap<>();
     //Key - savable, object - capsule
-    private IdentityHashMap<Savable, BinaryInputCapsule> capsuleTable
-             = new IdentityHashMap<Savable, BinaryInputCapsule>();
+    final private IdentityHashMap<Savable, BinaryInputCapsule> capsuleTable
+             = new IdentityHashMap<>();
     //Key - id, opject - location in the file
-    private HashMap<Integer, Integer> locationTable
-             = new HashMap<Integer, Integer>();
+    final private HashMap<Integer, Integer> locationTable
+             = new HashMap<>();
 
     public static boolean debug = false;
 
@@ -77,6 +77,7 @@ public final class BinaryImporter implements JmeImporter {
     public BinaryImporter() {
     }
     
+    @Override
     public int getFormatVersion(){
         return formatVersion;
     }
@@ -93,10 +94,12 @@ public final class BinaryImporter implements JmeImporter {
         this.assetManager = manager;
     }
 
+    @Override
     public AssetManager getAssetManager(){
         return assetManager;
     }
 
+    @Override
     public Object load(AssetInfo info){
 //        if (!(info.getKey() instanceof ModelKey))
 //            throw new IllegalArgumentException("Model assets must be loaded using a ModelKey");
@@ -345,16 +348,7 @@ public final class BinaryImporter implements JmeImporter {
 
             return out;
 
-        } catch (IOException e) {
-            logger.logp(Level.SEVERE, this.getClass().toString(), "readObject(int id)", "Exception", e);
-            return null;
-        } catch (ClassNotFoundException e) {
-            logger.logp(Level.SEVERE, this.getClass().toString(), "readObject(int id)", "Exception", e);
-            return null;
-        } catch (InstantiationException e) {
-            logger.logp(Level.SEVERE, this.getClass().toString(), "readObject(int id)", "Exception", e);
-            return null;
-        } catch (IllegalAccessException e) {
+        } catch (Exception e) {
             logger.logp(Level.SEVERE, this.getClass().toString(), "readObject(int id)", "Exception", e);
             return null;
         }

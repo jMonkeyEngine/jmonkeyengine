@@ -39,7 +39,7 @@ import java.util.List;
 public class FilteredBasis extends AbstractFilter implements Basis {
 
 	private Basis basis;
-	private List<Modulator> modulators = new ArrayList<Modulator>();
+	private List<Modulator> modulators = new ArrayList<>();
 	private float scale;
 
 	public FilteredBasis() {}

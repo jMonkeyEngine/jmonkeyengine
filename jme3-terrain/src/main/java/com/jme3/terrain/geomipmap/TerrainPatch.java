@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -54,8 +54,6 @@ import com.jme3.util.clone.Cloner;
 import java.io.IOException;
 import java.nio.Buffer;
 import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
-import java.nio.ShortBuffer;
 import java.util.HashMap;
 import java.util.List;
 
@@ -200,11 +198,7 @@ public class TerrainPatch extends Geometry {
         for (int i = 0; i <= getMaxLod(); i++){
             int curLod = (int) Math.pow(2, i);
             IndexBuffer idxB = geomap.writeIndexArrayLodDiff(curLod, false, false, false, false, totalSize);
-            Buffer ib;
-            if (idxB.getBuffer() instanceof IntBuffer)
-                ib = (IntBuffer)idxB.getBuffer();
-            else
-                ib = (ShortBuffer)idxB.getBuffer();
+            Buffer ib = idxB.getBuffer();
             entropies[i] = EntropyComputeUtil.computeLodEntropy(mesh, ib);
         }
 
@@ -253,11 +247,7 @@ public class TerrainPatch extends Geometry {
             else
                 idxB = geomap.writeIndexArrayLodDiff(pow, right, top, left, bottom, totalSize);
 
-            Buffer b;
-            if (idxB.getBuffer() instanceof IntBuffer)
-                b = (IntBuffer)idxB.getBuffer();
-            else
-                b = (ShortBuffer)idxB.getBuffer();
+            Buffer b = idxB.getBuffer();
             utp.setNewIndexBuffer(b);
         }
 
@@ -939,6 +929,9 @@ public class TerrainPatch extends Geometry {
 
     @Override
     public TerrainPatch clone() {
+        // Note: this method should probably be using JmeCloner instead of manually
+        // cloning.  -pspeed:2020-08-21
+
         TerrainPatch clone = new TerrainPatch();
         clone.name = name.toString();
         clone.size = size;
@@ -954,7 +947,7 @@ public class TerrainPatch extends Geometry {
         clone.setLocalTranslation(getLocalTranslation().clone());
         Mesh m = clone.geomap.createMesh(clone.stepScale, Vector2f.UNIT_XY, clone.offset, clone.offsetAmount, clone.totalSize, false);
         clone.setMesh(m);
-        clone.setMaterial(material.clone());
+        clone.setMaterial(material == null ? null : material.clone());
         return clone;
     }
 
@@ -983,7 +976,9 @@ public class TerrainPatch extends Geometry {
         // not to clone it.  Terrain uses mutable textures and stuff so it's important
         // to clone it.  (At least that's my understanding and is evidenced by the old
         // clone code specifically cloning material.)  -pspeed
-        this.material = material.clone();
+        // Also note that Geometry will have potentially already cloned this but the pre-JmeCloner
+        // code didn't care about that extra garbage, either. -pspeed:2020-08-21
+        this.material = material == null ? null : material.clone();
     }
 
     protected void ensurePositiveVolumeBBox() {

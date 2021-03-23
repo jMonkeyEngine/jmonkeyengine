@@ -2,6 +2,9 @@
 #ifndef PI
     #define PI 3.14159265358979323846264
 #endif
+#ifndef NB_PROBES
+    #define NB_PROBES 0
+#endif
 
 //Specular fresnel computation
 vec3 F_Shlick(float vh,	vec3 F0){
@@ -143,8 +146,9 @@ float renderProbe(vec3 viewDir, vec3 worldPos, vec3 normal, vec3 norm, float Rou
 
     if(lightProbeData[0][3] != 0.0){
         // oriented box probe
-        mat3 wToLocalRot = mat3(lightProbeData);
-        wToLocalRot = inverse(wToLocalRot);
+        // mat3_sub our compat wrapper for mat3(mat4)
+        mat3 wToLocalRot = inverse(mat3_sub(lightProbeData));
+
         vec3 scale = vec3(lightProbeData[0][3], lightProbeData[1][3], lightProbeData[2][3]);
         #if NB_PROBES >= 2
             // probe blending

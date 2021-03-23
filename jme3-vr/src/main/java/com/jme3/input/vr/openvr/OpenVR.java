@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.jme3.input.vr.openvr;
 
 import com.jme3.app.VREnvironment;
@@ -206,7 +201,7 @@ public class OpenVR implements VRAPI {
             _tframeCount = new LongByReference();
             
             hmdDisplayFrequency = IntBuffer.allocate(1);
-            hmdDisplayFrequency.put( (int) JOpenVRLibrary.ETrackedDeviceProperty.ETrackedDeviceProperty_Prop_DisplayFrequency_Float);
+            hmdDisplayFrequency.put(JOpenVRLibrary.ETrackedDeviceProperty.ETrackedDeviceProperty_Prop_DisplayFrequency_Float);
             hmdTrackedDevicePoseReference = new TrackedDevicePose_t.ByReference();
             hmdTrackedDevicePoses = (TrackedDevicePose_t[])hmdTrackedDevicePoseReference.toArray(JOpenVRLibrary.k_unMaxTrackedDeviceCount);
             poseMatrices = new Matrix4f[JOpenVRLibrary.k_unMaxTrackedDeviceCount];
@@ -556,6 +551,8 @@ public class OpenVR implements VRAPI {
                 completeName = completeName.toLowerCase(Locale.ENGLISH).trim();
                 if( completeName.contains("htc") || completeName.contains("vive") ) {
                     return HmdType.HTC_VIVE;
+                } else if ( completeName.contains("index") ) {
+                    return HmdType.VALVE_INDEX;
                 } else if( completeName.contains("osvr") ) {
                     return HmdType.OSVR;
                 } else if( completeName.contains("oculus") || completeName.contains("rift") ||

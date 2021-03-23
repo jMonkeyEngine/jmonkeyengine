@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,6 +41,7 @@ import com.jme3.renderer.Caps;
 import com.jme3.scene.Spatial;
 import com.jme3.shader.Glsl100ShaderGenerator;
 import com.jme3.shader.Glsl150ShaderGenerator;
+import com.jme3.shader.Glsl300ShaderGenerator;
 import com.jme3.shader.ShaderGenerator;
 import com.jme3.system.JmeSystem;
 import com.jme3.texture.Texture;
@@ -69,11 +70,11 @@ public class DesktopAssetManager implements AssetManager {
     
     private final ImplHandler handler = new ImplHandler(this);
 
-    private CopyOnWriteArrayList<AssetEventListener> eventListeners = 
-            new CopyOnWriteArrayList<AssetEventListener>();
+    final private CopyOnWriteArrayList<AssetEventListener> eventListeners = 
+            new CopyOnWriteArrayList<>();
     
-    private List<ClassLoader> classLoaders =
-            Collections.synchronizedList(new ArrayList<ClassLoader>());
+    final private List<ClassLoader> classLoaders =
+            Collections.synchronizedList(new ArrayList<>());
 
     public DesktopAssetManager(){
         this(null);
@@ -98,26 +99,32 @@ public class DesktopAssetManager implements AssetManager {
         }
     }
     
+    @Override
     public void addClassLoader(ClassLoader loader) {
         classLoaders.add(loader);
     }
     
+    @Override
     public void removeClassLoader(ClassLoader loader) {
         classLoaders.remove(loader);
     }
 
+    @Override
     public List<ClassLoader> getClassLoaders(){
         return Collections.unmodifiableList(classLoaders);
     }
     
+    @Override
     public void addAssetEventListener(AssetEventListener listener) {
         eventListeners.add(listener);
     }
 
+    @Override
     public void removeAssetEventListener(AssetEventListener listener) {
         eventListeners.remove(listener);
     }
 
+    @Override
     public void clearAssetEventListeners() {
         eventListeners.clear();
     }
@@ -127,6 +134,7 @@ public class DesktopAssetManager implements AssetManager {
         eventListeners.add(listener);
     }
 
+    @Override
     public void registerLoader(Class<? extends AssetLoader> loader, String ... extensions){
         handler.addLoader(loader, extensions);
         if (logger.isLoggable(Level.FINER)){
@@ -135,13 +143,12 @@ public class DesktopAssetManager implements AssetManager {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public void registerLoader(String clsName, String ... extensions){
         Class<? extends AssetLoader> clazz = null;
         try{
             clazz = (Class<? extends AssetLoader>) Class.forName(clsName);
-        }catch (ClassNotFoundException ex){
-            logger.log(Level.WARNING, "Failed to find loader: "+clsName, ex);
-        }catch (NoClassDefFoundError ex){
+        } catch (ClassNotFoundException | NoClassDefFoundError ex) {
             logger.log(Level.WARNING, "Failed to find loader: "+clsName, ex);
         }
         if (clazz != null){
@@ -149,6 +156,7 @@ public class DesktopAssetManager implements AssetManager {
         }
     }
     
+    @Override
     public void unregisterLoader(Class<? extends AssetLoader> loaderClass) {
         handler.removeLoader(loaderClass);
         if (logger.isLoggable(Level.FINER)){
@@ -157,6 +165,7 @@ public class DesktopAssetManager implements AssetManager {
         }
     }
 
+    @Override
     public void registerLocator(String rootPath, Class<? extends AssetLocator> locatorClass){
         handler.addLocator(locatorClass, rootPath);
         if (logger.isLoggable(Level.FINER)){
@@ -165,6 +174,7 @@ public class DesktopAssetManager implements AssetManager {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public void registerLocator(String rootPath, String clsName){
         Class<? extends AssetLocator> clazz = null;
         try{
@@ -179,6 +189,7 @@ public class DesktopAssetManager implements AssetManager {
         }
     }
     
+    @Override
     public void unregisterLocator(String rootPath, Class<? extends AssetLocator> clazz){
         handler.removeLocator(clazz, rootPath);
         if (logger.isLoggable(Level.FINER)){
@@ -187,6 +198,7 @@ public class DesktopAssetManager implements AssetManager {
         }
     }
     
+    @Override
     public AssetInfo locateAsset(AssetKey<?> key){
         AssetInfo info = handler.tryLocate(key);
         if (info == null){
@@ -251,6 +263,7 @@ public class DesktopAssetManager implements AssetManager {
      * @throws AssetLoadException If failed to load asset due to exception or
      * other error.
      */
+    @SuppressWarnings("unchecked")
     protected <T> T loadLocatedAsset(AssetKey<T> key, AssetInfo info, AssetProcessor proc, AssetCache cache) {
         AssetLoader loader = handler.aquireLoader(key);
         Object obj;
@@ -306,6 +319,7 @@ public class DesktopAssetManager implements AssetManager {
      * {@link CloneableSmartAsset}, if the cache is null, or if the 
      * processor did not clone the asset.
      */
+    @SuppressWarnings("unchecked")
     protected <T> T registerAndCloneSmartAsset(AssetKey<T> key, T obj, AssetProcessor proc, AssetCache cache) {
         // object obj is the original asset
         // create an instance for user
@@ -342,6 +356,7 @@ public class DesktopAssetManager implements AssetManager {
     }
     
     @Override
+    @SuppressWarnings("unchecked")
     public <T> T loadAsset(AssetKey<T> key){
         if (key == null)
             throw new IllegalArgumentException("key cannot be null");
@@ -382,48 +397,59 @@ public class DesktopAssetManager implements AssetManager {
         return clone;
     }
 
+    @Override
     public Object loadAsset(String name){
-        return loadAsset(new AssetKey(name));
+        return loadAsset(new AssetKey<>(name));
     }
 
+    @Override
     public Texture loadTexture(TextureKey key){                
-        return (Texture) loadAsset(key);
+        return loadAsset(key);
     }
 
+    @Override
     public Material loadMaterial(String name){
-        return (Material) loadAsset(new MaterialKey(name));
+        return loadAsset(new MaterialKey(name));
     }
 
+    @Override
     public Texture loadTexture(String name){
         TextureKey key = new TextureKey(name, true);
         key.setGenerateMips(true);
         return loadTexture(key);
     }
 
+    @Override
     public AudioData loadAudio(AudioKey key){
-        return (AudioData) loadAsset(key);
+        return loadAsset(key);
     }
 
+    @Override
     public AudioData loadAudio(String name){
         return loadAudio(new AudioKey(name, false));
     }
 
+    @Override
     public BitmapFont loadFont(String name){
-        return (BitmapFont) loadAsset(new AssetKey(name));
+        return loadAsset(new AssetKey<BitmapFont>(name));
     }
 
+    @Override
     public Spatial loadModel(ModelKey key){
-        return (Spatial) loadAsset(key);
+        return loadAsset(key);
     }
 
+    @Override
     public Spatial loadModel(String name){
         return loadModel(new ModelKey(name));
     }
 
+    @Override
     public FilterPostProcessor loadFilter(FilterKey key){
-        return (FilterPostProcessor) loadAsset(key);
+        return loadAsset(key);
     }
 
+    @Override
     public FilterPostProcessor loadFilter(String name){
         return loadFilter(new FilterKey(name));
     }
@@ -434,7 +460,9 @@ public class DesktopAssetManager implements AssetManager {
     @Override
     public ShaderGenerator getShaderGenerator(EnumSet<Caps> caps) {
         if (shaderGenerator == null) {
-            if(caps.contains(Caps.GLSL150)){
+            if(caps.contains(Caps.OpenGLES30) && caps.contains(Caps.GLSL300)){
+                shaderGenerator = new Glsl300ShaderGenerator(this);
+            }else if(caps.contains(Caps.GLSL150)) {
                 shaderGenerator = new Glsl150ShaderGenerator(this);
             }else{
                 shaderGenerator = new Glsl100ShaderGenerator(this);

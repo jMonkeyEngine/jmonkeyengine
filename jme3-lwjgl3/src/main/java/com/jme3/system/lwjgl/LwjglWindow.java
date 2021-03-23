@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,6 +47,7 @@ import com.jme3.util.BufferUtils;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
@@ -76,7 +77,15 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
     private static final Map<String, Runnable> RENDER_CONFIGS = new HashMap<>();
 
     static {
-        RENDER_CONFIGS.put(AppSettings.LWJGL_OPENGL3, () -> {
+        RENDER_CONFIGS.put(AppSettings.LWJGL_OPENGL30, () -> {
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+        });
+        RENDER_CONFIGS.put(AppSettings.LWJGL_OPENGL31, () -> {
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+        });
+        RENDER_CONFIGS.put(AppSettings.LWJGL_OPENGL32, () -> {
             glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
             glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
         });
@@ -84,7 +93,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
             glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
         });
-        RENDER_CONFIGS.put(AppSettings.LWJGL_OPENGL4, () -> {
+        RENDER_CONFIGS.put(AppSettings.LWJGL_OPENGL40, () -> {
             glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
             glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
         });
@@ -117,6 +126,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
 
     private GLFWErrorCallback errorCallback;
     private GLFWWindowSizeCallback windowSizeCallback;
+    private GLFWFramebufferSizeCallback framebufferSizeCallback;
     private GLFWWindowFocusCallback windowFocusCallback;
 
     private Thread mainThread;
@@ -141,6 +151,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
     /**
      * @return Type.Display or Type.Canvas
      */
+    @Override
     public JmeContext.Type getType() {
         return type;
     }
@@ -150,6 +161,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
      *
      * @param title the title to set
      */
+    @Override
     public void setTitle(final String title) {
         if (created.get() && window != NULL) {
             glfwSetWindowTitle(window, title);
@@ -159,6 +171,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
     /**
      * Restart if it's a windowed or full-screen display.
      */
+    @Override
     public void restart() {
         if (created.get()) {
             needRestart.set(true);
@@ -246,16 +259,8 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             throw new RuntimeException("Failed to create the GLFW window");
         }
 
-        // Add a resize callback which delegates to the listener
-        glfwSetWindowSizeCallback(window, windowSizeCallback = new GLFWWindowSizeCallback() {
-            @Override
-            public void invoke(final long window, final int width, final int height) {
-                settings.setResolution(width, height);
-                listener.reshape(width, height);
-            }
-        });
-
         glfwSetWindowFocusCallback(window, windowFocusCallback = new GLFWWindowFocusCallback() {
+
             @Override
             public void invoke(final long window, final boolean focus) {
                 if (wasActive != focus) {
@@ -290,7 +295,46 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         setWindowIcon(settings);
         showWindow();
 
+        // Windows resize callback
+        glfwSetWindowSizeCallback(window, windowSizeCallback = new GLFWWindowSizeCallback() {
+
+            @Override
+            public void invoke(final long window, final int width, final int height) {
+
+                // This is the window size, never to passed to any pixel based stuff!
+                // https://www.glfw.org/docs/latest/window_guide.html#window_size
+                onWindowSizeChanged(width, height);
+            }
+        });
+
+        // Add a framebuffer resize callback which delegates to the listener
+        glfwSetFramebufferSizeCallback(window, framebufferSizeCallback = new GLFWFramebufferSizeCallback() {
+
+            @Override
+            public void invoke(final long window, final int width, final int height) {
+
+                // The window size might be also changed, but the window size callback might not trigger
+                // Maybe a bug in graphics drivers or LWJGL 3...? So make sure we emulate the original JME behavior here
+                IntBuffer windowWidth = BufferUtils.createIntBuffer(1);
+                IntBuffer windowHeight = BufferUtils.createIntBuffer(1);
+                glfwGetWindowSize(window, windowWidth, windowHeight);
+                onWindowSizeChanged(windowWidth.get(), windowHeight.get());
+
+                // https://www.glfw.org/docs/latest/window_guide.html#window_fbsize
+                listener.reshape(width, height);
+            }
+        });
+
         allowSwapBuffers = settings.isSwapBuffers();
+
+        // Create OpenCL
+        if (settings.isOpenCLSupport()) {
+            initOpenCL(window);
+        }
+    }
+
+    private void onWindowSizeChanged(final int width, final int height) {
+        settings.setResolution(width, height);
     }
 
     protected void showWindow() {
@@ -299,6 +343,8 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
 
     /**
      * Set custom icons to the window of this application.
+     *
+     * @param settings settings for getting the icons
      */
     protected void setWindowIcon(final AppSettings settings) {
 
@@ -395,6 +441,11 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
                 windowSizeCallback = null;
             }
 
+            if (framebufferSizeCallback != null) {
+                framebufferSizeCallback.close();
+                framebufferSizeCallback = null;
+            }
+
             if (windowFocusCallback != null) {
                 windowFocusCallback.close();
                 windowFocusCallback = null;
@@ -405,7 +456,6 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
                 window = NULL;
             }
 
-            glfwTerminate();
         } catch (final Exception ex) {
             listener.handleError("Failed to destroy context", ex);
         }
@@ -425,6 +475,8 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
 
     /**
      * Does LWJGL display initialization in the OpenGL thread
+     *
+     * @return returns {@code true} if the context initialization was successful
      */
     protected boolean initInThread() {
         try {
@@ -451,13 +503,6 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
 
             created.set(true);
             super.internalCreate();
-
-            //create OpenCL
-            //Must be done here because the window handle is needed
-            if (settings.isOpenCLSupport()) {
-                initOpenCL(window);
-            }
-
         } catch (Exception ex) {
             try {
                 if (window != NULL) {
@@ -482,14 +527,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
     protected void runLoop() {
         // If a restart is required, lets recreate the context.
         if (needRestart.getAndSet(false)) {
-            try {
-                destroyContext();
-                createContext(settings);
-            } catch (Exception ex) {
-                LOGGER.log(Level.SEVERE, "Failed to set display settings!", ex);
-            }
-
-            LOGGER.fine("Display restarted.");
+            restartContext();
         }
 
         if (!created.get()) {
@@ -545,6 +583,25 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         glfwPollEvents();
     }
 
+    private void restartContext() {
+        try {
+            destroyContext();
+            createContext(settings);
+        } catch (Exception ex) {
+            LOGGER.log(Level.SEVERE, "Failed to set display settings!", ex);
+        }
+
+        // We need to reinit the mouse and keyboard input as they are tied to a window handle
+        if (keyInput != null && keyInput.isInitialized()) {
+            keyInput.resetContext();
+        }
+        if (mouseInput != null && mouseInput.isInitialized()) {
+            mouseInput.resetContext();
+        }
+
+        LOGGER.fine("Display restarted.");
+    }
+
     private void setFrameRateLimit(int frameRateLimit) {
         this.frameRateLimit = frameRateLimit;
         frameSleepTime = 1000.0 / this.frameRateLimit;
@@ -558,6 +615,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
 
         destroyContext();
         super.internalDestroy();
+        glfwTerminate();
 
         LOGGER.fine("Display destroyed.");
     }

@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.jme3.input.vr.lwjgl_openvr;
 
 import java.util.ArrayList;
@@ -404,7 +399,7 @@ public class LWJGLOpenVRInput implements VRInputAPI {
     public Vector3f getFinalObserverPosition(int index) {
 
         if (environment != null) {
-            VRViewManager vrvm = (VRViewManager) environment.getVRViewManager();
+            VRViewManager vrvm = environment.getVRViewManager();
 
             if (vrvm != null) {
                 if (isInputDeviceTracking(index) == false) {

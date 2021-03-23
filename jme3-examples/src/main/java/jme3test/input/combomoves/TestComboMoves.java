@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,7 +44,7 @@ import java.util.List;
 
 public class TestComboMoves extends SimpleApplication implements ActionListener {
 
-    private HashSet<String> pressedMappings = new HashSet<String>();
+    final private HashSet<String> pressedMappings = new HashSet<>();
 
     private ComboMove fireball;
     private ComboMoveExecution fireballExec;
@@ -168,6 +168,7 @@ public class TestComboMoves extends SimpleApplication implements ActionListener 
         }
     }
 
+    @Override
     public void onAction(String name, boolean isPressed, float tpf) {
         if (isPressed){
             pressedMappings.add(name);
@@ -176,7 +177,7 @@ public class TestComboMoves extends SimpleApplication implements ActionListener 
         }
 
         // the pressed mappings was changed. update combo executions
-        List<ComboMove> invokedMoves = new ArrayList<ComboMove>();
+        List<ComboMove> invokedMoves = new ArrayList<>();
         if (shurikenExec.updateState(pressedMappings, time)){
             invokedMoves.add(shuriken);
         }

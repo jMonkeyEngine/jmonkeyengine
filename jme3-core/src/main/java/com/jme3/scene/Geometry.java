@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -61,7 +61,6 @@ import java.util.logging.Logger;
  * @author Kirill Vainer
  */
 public class Geometry extends Spatial {
-
     // Version #1: removed shared meshes.
     // models loaded with shared mesh will be automatically fixed.
     public static final int SAVABLE_VERSION = 1;
@@ -74,19 +73,16 @@ public class Geometry extends Spatial {
      */
     protected boolean ignoreTransform = false;
     protected transient Matrix4f cachedWorldMat = new Matrix4f();
-
     /**
      * Specifies which {@link GeometryGroupNode} this <code>Geometry</code>
      * is managed by.
      */
     protected GeometryGroupNode groupNode;
-
     /**
      * The start index of this <code>Geometry's</code> inside
      * the {@link GeometryGroupNode}.
      */
     protected int startIndex = -1;
-
     /**
      * Morph state variable for morph animation
      */
@@ -98,7 +94,8 @@ public class Geometry extends Spatial {
     private int nbSimultaneousGPUMorph = -1;
 
     /**
-     * Serialization only. Do not use.
+     * Instantiate a <code>Geometry</code> with no name, no mesh, and no
+     * material. The mesh and material must be set prior to rendering.
      */
     public Geometry() {
         this(null);
@@ -205,6 +202,7 @@ public class Geometry extends Spatial {
      *
      * @see Mesh#getVertexCount()
      */
+    @Override
     public int getVertexCount() {
         return mesh.getVertexCount();
     }
@@ -216,6 +214,7 @@ public class Geometry extends Spatial {
      *
      * @see Mesh#getTriangleCount()
      */
+    @Override
     public int getTriangleCount() {
         return mesh.getTriangleCount();
     }
@@ -287,6 +286,7 @@ public class Geometry extends Spatial {
      * Updates the bounding volume of the mesh. Should be called when the
      * mesh has been modified.
      */
+    @Override
     public void updateModelBound() {
         mesh.updateBound();
         setBoundRefresh();
@@ -387,8 +387,7 @@ public class Geometry extends Spatial {
         }
     }
 
-
-    /**
+    /*
      * Indicate that the transform of this spatial has changed and that
      * a refresh is required.
      */
@@ -456,6 +455,7 @@ public class Geometry extends Spatial {
         //updateModelBound();
     }
 
+    @Override
     public int collideWith(Collidable other, CollisionResults results) {
         // Force bound to update
         checkDoBoundUpdate();
@@ -514,7 +514,7 @@ public class Geometry extends Spatial {
      */
     @Override
     public Geometry clone(boolean cloneMaterial) {
-        return (Geometry)super.clone(cloneMaterial);
+        return (Geometry) super.clone(cloneMaterial);
     }
 
     /**
@@ -548,13 +548,13 @@ public class Geometry extends Spatial {
      *  Called internally by com.jme3.util.clone.Cloner.  Do not call directly.
      */
     @Override
-    public void cloneFields( Cloner cloner, Object original ) {
+    public void cloneFields(Cloner cloner, Object original) {
         super.cloneFields(cloner, original);
 
         // If this is a grouped node and if our group node is
         // also cloned then we'll grab its reference.
-        if( groupNode != null ) {
-            if( cloner.isCloned(groupNode) ) {
+        if (groupNode != null) {
+            if (cloner.isCloned(groupNode)) {
                 // Then resolve the reference
                 this.groupNode = cloner.clone(groupNode);
             } else {
@@ -576,7 +576,7 @@ public class Geometry extends Spatial {
 
         // See if we clone the mesh using the special animation
         // semi-deep cloning
-        if( shallowClone && mesh != null && mesh.getBuffer(Type.BindPosePosition) != null ) {
+        if (shallowClone && mesh != null && mesh.getBuffer(Type.BindPosePosition) != null) {
             // Then we need to clone the mesh a little deeper
             this.mesh = mesh.cloneForAnim();
         } else {
@@ -588,7 +588,7 @@ public class Geometry extends Spatial {
     }
 
     public void setMorphState(float[] state) {
-        if (mesh == null || mesh.getMorphTargets().length == 0){
+        if (mesh == null || mesh.getMorphTargets().length == 0) {
             return;
         }
 
@@ -602,7 +602,24 @@ public class Geometry extends Spatial {
     }
 
     /**
+     * Set the state of the morph with the given name.
+     *
+     * If the name of the morph is not found, no state will be set.
+     *
+     * @param morphTarget The name of the morph to set the state of
+     * @param state The state to set the morph to
+     */
+    public void setMorphState(String morphTarget, float state) {
+        int index = mesh.getMorphIndex(morphTarget);
+        if (index >= 0) {
+            morphState[index] = state;
+            this.dirtyMorph = true;
+        }
+    }
+
+    /**
      * returns true if the morph state has changed on the last frame.
+     *
      * @return true if changed, otherwise false
      */
     public boolean isDirtyMorph() {
@@ -612,6 +629,7 @@ public class Geometry extends Spatial {
     /**
      * Seting this to true will stop this geometry morph buffer to be updated,
      * unless the morph state changes
+     *
      * @param dirtyMorph
      */
     public void setDirtyMorph(boolean dirtyMorph) {
@@ -621,6 +639,7 @@ public class Geometry extends Spatial {
     /**
      * returns the morph state of this Geometry.
      * Used internally by the MorphControl.
+     *
      * @return an array
      */
     public float[] getMorphState() {
@@ -631,10 +650,28 @@ public class Geometry extends Spatial {
     }
 
     /**
-     * Return the number of morph targets that can be handled on the GPU simultaneously for this geometry.
+     * Get the state of a morph
+     *
+     * @param morphTarget the name of the morph to get the state of
+     * @return the state of the morph, or -1 if the morph is not found
+     */
+    public float getMorphState(String morphTarget) {
+        int index = mesh.getMorphIndex(morphTarget);
+        if (index < 0) {
+            return -1;
+        } else {
+            return morphState[index];
+        }
+    }
+
+    /**
+     * Return the number of morph targets that can be handled
+     * on the GPU simultaneously for this geometry.
      * Note that it depends on the material set on this geometry.
-     * This number is computed and set by the MorphControl, so it might be available only after the first frame.
+     * This number is computed and set by the MorphControl,
+     * so it might be available only after the first frame.
      * Else it's set to -1.
+     *
      * @return the number of simultaneous morph targets handled on the GPU
      */
     public int getNbSimultaneousGPUMorph() {
@@ -642,11 +679,15 @@ public class Geometry extends Spatial {
     }
 
     /**
-     * Sets the number of morph targets that can be handled on the GPU simultaneously for this geometry.
+     * Sets the number of morph targets that can be handled
+     * on the GPU simultaneously for this geometry.
      * Note that it depends on the material set on this geometry.
-     * This number is computed and set by the MorphControl, so it might be available only after the first frame.
+     * This number is computed and set by the MorphControl,
+     * so it might be available only after the first frame.
      * Else it's set to -1.
-     * WARNING: setting this manually might crash the shader compilation if set too high. Do it at your own risk.
+     * WARNING: setting this manually might crash the shader compilation if set too high.
+     * Do it at your own risk.
+     *
      * @param nbSimultaneousGPUMorph the number of simultaneous morph targets to be handled on the GPU.
      */
     public void setNbSimultaneousGPUMorph(int nbSimultaneousGPUMorph) {
@@ -688,7 +729,8 @@ public class Geometry extends Spatial {
                 material = im.getAssetManager().loadMaterial(matName);
             } catch (AssetNotFoundException ex) {
                 // Cannot find J3M file.
-                logger.log(Level.FINE, "Cannot locate {0} for geometry {1}", new Object[]{matName, key});
+                logger.log(Level.FINE, "Cannot locate {0} for geometry {1}",
+                        new Object[]{matName, key});
             }
         }
         // If material is NULL, try to load it from the geometry

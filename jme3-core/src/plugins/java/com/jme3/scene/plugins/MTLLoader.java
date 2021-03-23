@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -152,6 +152,7 @@ public class MTLLoader implements AssetLoader {
             material.setFloat("AlphaDiscardThreshold", 0.01f);
         }
         
+        material.setName(matName);
         matList.put(matName, material);
     }
 
@@ -287,6 +288,7 @@ public class MTLLoader implements AssetLoader {
     }
 
     @SuppressWarnings("empty-statement")
+    @Override
     public Object load(AssetInfo info) throws IOException{
         reset();
         

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,6 +31,7 @@
  */
 package com.jme3.util;
 
+import java.lang.ref.WeakReference;
 import java.nio.Buffer;
 
 /**
@@ -78,6 +79,8 @@ public abstract class NativeObject implements Cloneable {
      * and needs to be updated before used.
      */
     protected boolean updateNeeded = true;
+
+    private WeakReference<NativeObject> weakRef;
 
     /**
      * Creates a new GLObject. Should be
@@ -226,5 +229,18 @@ public abstract class NativeObject implements Cloneable {
         if (objectManager != null) {
             objectManager.enqueueUnusedObject(this);
         }
+    }
+
+    /**
+     * Acquire a weak reference to this NativeObject.
+     *
+     * @param <T> the type
+     * @return a weak reference (possibly a pre-existing one)
+     */
+    public <T> WeakReference<T> getWeakRef() {
+        if (weakRef == null) {
+            weakRef = new WeakReference<>(this);
+        }
+        return (WeakReference<T>) weakRef;
     }
 }

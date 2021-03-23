@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -53,14 +53,14 @@ import com.jme3.util.TangentBinormalGenerator;
 
 public class TestSpotLightShadows extends SimpleApplication {
 
-    private Vector3f lightTarget = new Vector3f(12, 3.5f, 30);
+    final private Vector3f lightTarget = new Vector3f(12, 3.5f, 30);
 
     public static void main(String[] args) {
         TestSpotLightShadows app = new TestSpotLightShadows();
         app.start();
     }
-    SpotLight spot;
-    Geometry lightMdl;
+    private SpotLight spot;
+    private Geometry lightMdl;
 
     public void setupLighting() {
         AmbientLight al = new AmbientLight();
@@ -120,6 +120,7 @@ public class TestSpotLightShadows extends SimpleApplication {
         ShadowTestUIManager uiMan = new ShadowTestUIManager(assetManager, slsr, slsf, guiNode, inputManager, viewPort);
 
         inputManager.addListener(new ActionListener() {
+            @Override
             public void onAction(String name, boolean isPressed, float tpf) {
                 if (name.equals("stop") && isPressed) {
                     stop = !stop;
@@ -181,8 +182,8 @@ public class TestSpotLightShadows extends SimpleApplication {
 
 
     }
-    float angle;
-    boolean stop = true;
+    private float angle;
+    private boolean stop = true;
 
     @Override
     public void simpleUpdate(float tpf) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 jMonkeyEngine
+ * Copyright (c) 2016-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -125,6 +125,7 @@ public class TestCloner {
             this.i = i;
         }
  
+        @Override
         public RegularObject clone() {
             try {
                 return (RegularObject)super.clone();
@@ -133,6 +134,7 @@ public class TestCloner {
             }
         }
         
+        @Override
         public String toString() {
             return getClass().getSimpleName() + "@" + System.identityHashCode(this) 
                     + "[i=" + i + "]";
@@ -147,6 +149,7 @@ public class TestCloner {
             this.name = name;
         }
                
+        @Override
         public String toString() {
             return getClass().getSimpleName() + "@" + System.identityHashCode(this) 
                     + "[i=" + i + ", name=" + name + "]";
@@ -163,6 +166,7 @@ public class TestCloner {
             this.rsc = new RegularSubclass(age, name);
         }
         
+        @Override
         public Parent clone() {
             try {
                 return (Parent)super.clone();
@@ -171,17 +175,20 @@ public class TestCloner {
             }
         }
         
+        @Override
         public Parent jmeClone() {
             // Ok to delegate to clone() in this case because no deep
             // cloning is done there.
             return clone();
         }
  
+        @Override
         public void cloneFields( Cloner cloner, Object original ) {
             this.ro = cloner.clone(ro);
             this.rsc = cloner.clone(rsc);
         } 
         
+        @Override
         public String toString() {
             return getClass().getSimpleName() + "@" + System.identityHashCode(this)
                     + "[ro=" + ro + ", rsc=" + rsc + "]";
@@ -190,7 +197,7 @@ public class TestCloner {
     
     public static class GraphNode implements Cloneable, JmeCloneable {
  
-        private String name;       
+        final private String name;       
         private List<GraphNode> links = new ArrayList<>();
         
         public GraphNode( String name ) {
@@ -230,6 +237,7 @@ public class TestCloner {
             return links;
         }
         
+        @Override
         public GraphNode jmeClone() {
             try {
                 return (GraphNode)super.clone();
@@ -238,10 +246,12 @@ public class TestCloner {
             }
         }
  
+        @Override
         public void cloneFields( Cloner cloner, Object original ) {
             this.links = cloner.clone(links);
         } 
         
+        @Override
         public String toString() {
             return getClass().getSimpleName() + "@" + System.identityHashCode(this)
                     + "[name=" + name + "]";
@@ -252,9 +262,9 @@ public class TestCloner {
     
         private int[] intArray;
         private int[][] intArray2D;
-        private Object[] objects;
+        final private Object[] objects;
         private RegularObject[] regularObjects;
-        private String[] strings;
+        final private String[] strings;
  
         public ArrayHolder( int... values ) {
             this.intArray = values;
@@ -273,6 +283,7 @@ public class TestCloner {
             }
         }
         
+        @Override
         public ArrayHolder jmeClone() {
             try {
                 return (ArrayHolder)super.clone();
@@ -281,6 +292,7 @@ public class TestCloner {
             }
         }
  
+        @Override
         public void cloneFields( Cloner cloner, Object original ) {
             intArray = cloner.clone(intArray);
             intArray2D = cloner.clone(intArray2D);
@@ -294,6 +306,7 @@ public class TestCloner {
             //strings = cloner.clone(strings);
         }
         
+        @Override
         public String toString() {
             StringBuilder sb = new StringBuilder();
             sb.append("intArray=" + intArray);

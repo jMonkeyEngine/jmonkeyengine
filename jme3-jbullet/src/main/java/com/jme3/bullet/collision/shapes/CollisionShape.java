@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,11 +44,19 @@ import java.io.IOException;
  */
 public abstract class CollisionShape implements Savable {
 
+    /**
+     * default margin for new shapes (in physics-space units, &gt;0,
+     * default=0.04)
+     */
+    private static float defaultMargin = 0.04f;
     protected com.bulletphysics.collision.shapes.CollisionShape cShape;
     protected Vector3f scale = new Vector3f(1, 1, 1);
-    protected float margin = 0.0f;
+    /**
+     * copy of collision margin (in physics-space units, &gt;0, default=0)
+     */
+    protected float margin = defaultMargin;
 
-    public CollisionShape() {
+    protected CollisionShape() {
     }
 
     /**
@@ -88,6 +96,26 @@ public abstract class CollisionShape implements Savable {
         return cShape.getMargin();
     }
 
+    /**
+     * Alter the default margin for new shapes.
+     *
+     * @param margin the desired margin distance (in physics-space units, &gt;0,
+     * default=0.04)
+     */
+    public static void setDefaultMargin(float margin) {
+        defaultMargin = margin;
+    }
+
+    /**
+     * Read the default margin for new shapes.
+     *
+     * @return margin the default margin distance (in physics-space units,
+     * &gt;0)
+     */
+    public static float getDefaultMargin() {
+        return defaultMargin;
+    }
+
     public void setMargin(float margin) {
         cShape.setMargin(margin);
         this.margin = margin;
@@ -97,12 +125,14 @@ public abstract class CollisionShape implements Savable {
         return scale;
     }
 
+    @Override
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule capsule = ex.getCapsule(this);
         capsule.write(scale, "scale", new Vector3f(1, 1, 1));
         capsule.write(getMargin(), "margin", 0.0f);
     }
 
+    @Override
     public void read(JmeImporter im) throws IOException {
         InputCapsule capsule = im.getCapsule(this);
         this.scale = (Vector3f) capsule.readSavable("scale", new Vector3f(1, 1, 1));

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -71,7 +71,7 @@ public class SceneLoader extends DefaultHandler implements AssetLoader {
     private static final Logger logger = Logger.getLogger(SceneLoader.class.getName());
     private SceneMaterialLoader materialLoader = new SceneMaterialLoader();
     private SceneMeshLoader meshLoader=new SceneMeshLoader();
-    private Stack<String> elementStack = new Stack<String>();
+    private Stack<String> elementStack = new Stack<>();
     private AssetKey key;
     private String sceneName;
     private String folderName;
@@ -489,6 +489,7 @@ public class SceneLoader extends DefaultHandler implements AssetLoader {
     public void characters(char ch[], int start, int length) {
     }
 
+    @Override
     public Object load(AssetInfo info) throws IOException {
         try {
             key = info.getKey();
@@ -509,7 +510,7 @@ public class SceneLoader extends DefaultHandler implements AssetLoader {
                 // (Backward compatibility only!)
                 OgreMaterialKey materialKey = new OgreMaterialKey(sceneName + ".material");
                 try {
-                    materialList = (MaterialList) assetManager.loadAsset(materialKey);
+                    materialList = assetManager.loadAsset(materialKey);
                 } catch (AssetNotFoundException ex) {
                     logger.log(Level.WARNING, "Cannot locate {0} for scene {1}", new Object[]{materialKey, key});
                     materialList = null;
@@ -542,11 +543,7 @@ public class SceneLoader extends DefaultHandler implements AssetLoader {
             }
 
             return root;
-        } catch (SAXException ex) {
-            IOException ioEx = new IOException("Error while parsing Ogre3D dotScene");
-            ioEx.initCause(ex);
-            throw ioEx;
-        } catch (ParserConfigurationException ex) {
+        } catch (SAXException | ParserConfigurationException ex) {
             IOException ioEx = new IOException("Error while parsing Ogre3D dotScene");
             ioEx.initCause(ex);
             throw ioEx;

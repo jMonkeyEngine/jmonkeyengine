@@ -7,8 +7,8 @@ MaterialDef Tex3DThumb {
     }
 
     Technique {
-        VertexShader GLSL100:   jme3test/texture/tex3DThumb.vert
-        FragmentShader GLSL100: jme3test/texture/tex3DThumb.frag
+        VertexShader GLSL300 GLSL100:   jme3test/texture/tex3DThumb.vert
+        FragmentShader GLSL300 GLSL100: jme3test/texture/tex3DThumb.frag
 
         WorldParameters {
             WorldViewProjectionMatrix

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -66,7 +66,6 @@ public class HillHeightMap extends AbstractHeightMap {
      * @param seed
      *            the seed to generate the same heightmap again
      * @throws Exception
-     * @throws JmeException
      *             if size of the terrain is not greater that zero, or number of
      *             iterations is not greater that zero
      */
@@ -104,7 +103,6 @@ public class HillHeightMap extends AbstractHeightMap {
      * @param maxRadius
      *            the maximum radius of a hill
      * @throws Exception
-     * @throws JmeException
      *             if size of the terrain is not greater that zero, or number of
      *             iterations is not greater that zero
      */
@@ -113,10 +111,11 @@ public class HillHeightMap extends AbstractHeightMap {
         this(size, iterations, minRadius, maxRadius, new Random().nextLong());
     }
 
-    /*
+    /**
      * Generates a heightmap using the Hill Algorithm and the attributes set by
      * the constructor or the setters.
      */
+    @Override
     public boolean load() {
         // clean up data if needed.
         if (null != heightData) {
@@ -134,7 +133,7 @@ public class HillHeightMap extends AbstractHeightMap {
         // transfer temporary buffer to final heightmap
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
-                setHeightAtPoint((float) tempBuffer[i][j], j, i);
+                setHeightAtPoint(tempBuffer[i][j], j, i);
             }
         }
 
@@ -213,7 +212,6 @@ public class HillHeightMap extends AbstractHeightMap {
      * @param iterations
      *            the number of hills to grow
      * @throws Exception
-     * @throws JmeException
      *             if iterations if not greater than zero
      */
     public void setIterations(int iterations) throws Exception {
@@ -230,7 +228,6 @@ public class HillHeightMap extends AbstractHeightMap {
      * @param maxRadius
      *            the maximum radius of a hill
      * @throws Exception
-     * @throws JmeException
      *             if the maximum radius if not greater than zero or not greater
      *             than the minimum radius
      */
@@ -247,8 +244,7 @@ public class HillHeightMap extends AbstractHeightMap {
      *
      * @param minRadius
      *            the minimum radius of a hill
-     * @throws Exception
-     * @throws JmeException if the minimum radius is not greater than zero or not
+     * @throws Exception if the minimum radius is not greater than zero or not
      *        lower than the maximum radius
      */
     public void setMinRadius(float minRadius) throws Exception {

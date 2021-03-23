@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,6 +40,12 @@ import java.nio.IntBuffer;
 
 public final class Screenshots {
     
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private Screenshots() {
+    }
+
     public static void convertScreenShot2(IntBuffer bgraBuf, BufferedImage out){
         WritableRaster wr = out.getRaster();
         DataBufferInt db = (DataBufferInt) wr.getDataBuffer();
@@ -67,8 +73,8 @@ public final class Screenshots {
     /**
      * Flips the image along the Y axis and converts BGRA to ABGR
      * 
-     * @param bgraBuf
-     * @param out 
+     * @param bgraBuf (not null, modified)
+     * @param out (not null) 
      */
     public static void convertScreenShot(ByteBuffer bgraBuf, BufferedImage out){
         WritableRaster wr = out.getRaster();

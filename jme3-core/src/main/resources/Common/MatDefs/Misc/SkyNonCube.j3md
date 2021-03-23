@@ -1,0 +1,28 @@
+MaterialDef Sky Plane {
+    MaterialParameters {
+        Texture2D Texture
+        Boolean SphereMap
+        Boolean EquirectMap
+        Vector3 NormalScale
+    }
+    Technique {
+        VertexShader GLSL100 GLSL150:   Common/MatDefs/Misc/Sky.vert
+        FragmentShader GLSL100 GLSL150: Common/MatDefs/Misc/Sky.frag
+
+        WorldParameters {
+            ViewMatrix
+            ProjectionMatrix
+            WorldMatrixInverse
+        }
+
+        Defines {
+            SPHERE_MAP : SphereMap
+            EQUIRECT_MAP : EquirectMap
+        }
+
+        RenderState {
+            DepthWrite Off
+            DepthFunc Equal
+        }
+    }
+}

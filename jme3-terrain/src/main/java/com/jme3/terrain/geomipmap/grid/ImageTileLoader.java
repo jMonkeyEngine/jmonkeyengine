@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -55,13 +55,11 @@ public class ImageTileLoader implements TerrainGridTileLoader{
     private final Namer namer;
     private int patchSize;
     private int quadSize;
-    private float heightScale = 1;
-    //private int imageType = BufferedImage.TYPE_USHORT_GRAY; // 16 bit grayscale
-    //private ImageHeightmap customImageHeightmap;
 
     public ImageTileLoader(final String textureBase, final String textureExt, AssetManager assetManager) {
         this(assetManager, new Namer() {
 
+            @Override
             public String getName(int x, int y) {
                 return textureBase + "_" + x + "_" + y + "." + textureExt;
             }
@@ -77,7 +75,7 @@ public class ImageTileLoader implements TerrainGridTileLoader{
      * Affects the vertical scale of the terrain when loaded.
      */
     public void setHeightScale(float heightScale) {
-        this.heightScale = heightScale;
+        // not implemented
     }
     
     
@@ -156,24 +154,29 @@ public class ImageTileLoader implements TerrainGridTileLoader{
         this.patchSize = size - 1;
     }
 
+    @Override
     public TerrainQuad getTerrainQuadAt(Vector3f location) {
         HeightMap heightMapAt = getHeightMapAt(location);
         TerrainQuad q = new TerrainQuad("Quad" + location, patchSize, quadSize, heightMapAt == null ? null : heightMapAt.getHeightMap());
         return q;
     }
 
+    @Override
     public void setPatchSize(int patchSize) {
         this.patchSize = patchSize;
     }
 
+    @Override
     public void setQuadSize(int quadSize) {
         this.quadSize = quadSize;
     }
 
+    @Override
     public void write(JmeExporter ex) throws IOException {
         //TODO: serialization
     }
 
+    @Override
     public void read(JmeImporter im) throws IOException {
         //TODO: serialization
     }

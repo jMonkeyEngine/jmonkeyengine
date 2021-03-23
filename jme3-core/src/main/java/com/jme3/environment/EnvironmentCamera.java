@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -111,7 +111,7 @@ public class EnvironmentCamera extends BaseAppState {
      */
     protected int size = 256;
 
-    private final List<SnapshotJob> jobs = new ArrayList<SnapshotJob>();
+    private final List<SnapshotJob> jobs = new ArrayList<>();
 
     /**
      * Creates an EnvironmentCamera with a size of 256
@@ -197,6 +197,24 @@ public class EnvironmentCamera extends BaseAppState {
     }
 
     /**
+     * Alter the background color of an initialized EnvironmentCamera.
+     *
+     * @param bgColor the desired color (not null, unaffected, default is the
+     * background color of the application's default viewport)
+     */
+    public void setBackGroundColor(ColorRGBA bgColor) {
+        if (!isInitialized()) {
+            throw new IllegalStateException(
+                    "The EnvironmentCamera is uninitialized.");
+        }
+
+        backGroundColor.set(bgColor);
+        for (int i = 0; i < 6; ++i) {
+            viewports[i].setBackgroundColor(bgColor);
+        }
+    }
+
+    /**
      * Gets the size of environment cameras.
      *
      * @return the size of environment cameras.
@@ -249,9 +267,18 @@ public class EnvironmentCamera extends BaseAppState {
         }
     }
 
+    /**
+     * Returns an array of the 6 ViewPorts used to capture the snapshot.
+     * Note that this will be null until after initialize() is called.
+     * @return array of ViewPorts
+     */
+    public ViewPort[] getViewPorts(){
+        return viewports;
+    }
+
     @Override
     protected void initialize(Application app) {
-        this.backGroundColor = app.getViewPort().getBackgroundColor();
+        this.backGroundColor = app.getViewPort().getBackgroundColor().clone();
 
         final Camera[] cameras = new Camera[6];
         final Texture2D[] textures = new Texture2D[6];
@@ -359,6 +386,7 @@ public class EnvironmentCamera extends BaseAppState {
         JobProgressListener<TextureCubeMap> callback;
         Spatial scene;
 
+        @SuppressWarnings("unchecked")
         public SnapshotJob(JobProgressListener callback, Spatial scene) {
             this.callback = callback;
             this.scene = scene;

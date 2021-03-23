@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,7 +50,6 @@ import com.jme3.system.AppSettings;
 import com.jme3.system.JmeContext.Type;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image.Format;
-import com.jme3.texture.Texture2D;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.Screenshots;
 import java.awt.Color;
@@ -77,14 +76,12 @@ public class TestRenderToMemory extends SimpleApplication implements SceneProces
 
     private FrameBuffer offBuffer;
     private ViewPort offView;
-    private Texture2D offTex;
     private Camera offCamera;
     private ImageDisplay display;
 
     private static final int width = 800, height = 600;
 
     private final ByteBuffer cpuBuf = BufferUtils.createByteBuffer(width * height * 4);
-    private final byte[] cpuArray = new byte[width * height * 4];
     private final BufferedImage image = new BufferedImage(width, height,
                                             BufferedImage.TYPE_INT_BGR);
 
@@ -138,6 +135,7 @@ public class TestRenderToMemory extends SimpleApplication implements SceneProces
 
     public void createDisplayFrame(){
         SwingUtilities.invokeLater(new Runnable(){
+            @Override
             public void run(){
                 JFrame frame = new JFrame("Render Display");
                 display = new ImageDisplay();
@@ -145,6 +143,7 @@ public class TestRenderToMemory extends SimpleApplication implements SceneProces
                 frame.getContentPane().add(display);
                 frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                 frame.addWindowListener(new WindowAdapter(){
+                    @Override
                     public void windowClosed(WindowEvent e){
                         stop();
                     }
@@ -229,19 +228,24 @@ public class TestRenderToMemory extends SimpleApplication implements SceneProces
         offBox.updateGeometricState();
     }
 
+    @Override
     public void initialize(RenderManager rm, ViewPort vp) {
     }
 
+    @Override
     public void reshape(ViewPort vp, int w, int h) {
     }
 
+    @Override
     public boolean isInitialized() {
         return true;
     }
 
+    @Override
     public void preFrame(float tpf) {
     }
 
+    @Override
     public void postQueue(RenderQueue rq) {
     }
 
@@ -249,10 +253,12 @@ public class TestRenderToMemory extends SimpleApplication implements SceneProces
      * Update the CPU image's contents after the scene has
      * been rendered to the framebuffer.
      */
+    @Override
     public void postFrame(FrameBuffer out) {
         updateImageContents();
     }
 
+    @Override
     public void cleanup() {
     }
 

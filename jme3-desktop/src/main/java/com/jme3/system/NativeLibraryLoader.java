@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,19 +50,19 @@ import java.util.logging.Logger;
  * using {@link #loadNativeLibrary(java.lang.String, boolean) }.
  * <br>
  * Example:<br>
- * <code><pre>
+ * <pre>
  * NativeLibraryLoader.registerNativeLibrary("mystuff", Platform.Windows32, "native/windows/mystuff.dll");
  * NativeLibraryLoader.registerNativeLibrary("mystuff", Platform.Windows64, "native/windows/mystuff64.dll");
  * NativeLibraryLoader.registerNativeLibrary("mystuff", Platform.Linux32,   "native/linux/libmystuff.so");
  * NativeLibraryLoader.registerNativeLibrary("mystuff", Platform.Linux64,   "native/linux/libmystuff64.so");
  * NativeLibraryLoader.registerNativeLibrary("mystuff", Platform.MacOSX32,  "native/macosx/libmystuff.jnilib");
  * NativeLibraryLoader.registerNativeLibrary("mystuff", Platform.MacOSX64,  "native/macosx/libmystuff.jnilib");
- * </pre></code>
+ * </pre>
  * <br>
  * This will register the library. Load it via: <br>
- * <code><pre>
+ * <pre>
  * NativeLibraryLoader.loadNativeLibrary("mystuff", true);
- * </pre></code>
+ * </pre>
  * It will load the right library automatically based on the platform.
  * 
  * @author Kirill Vainer
@@ -175,6 +175,8 @@ public final class NativeLibraryLoader {
         registerNativeLibrary("bulletjme", Platform.Windows64, "native/windows/x86_64/bulletjme.dll");
         registerNativeLibrary("bulletjme", Platform.Linux32,   "native/linux/x86/libbulletjme.so");
         registerNativeLibrary("bulletjme", Platform.Linux64,   "native/linux/x86_64/libbulletjme.so");
+        registerNativeLibrary("bulletjme", Platform.Linux_ARM32, "native/linux/arm32/libbulletjme.so");
+        registerNativeLibrary("bulletjme", Platform.Linux_ARM64, "native/linux/arm64/libbulletjme.so");
         registerNativeLibrary("bulletjme", Platform.MacOSX32,  "native/osx/x86/libbulletjme.dylib");
         registerNativeLibrary("bulletjme", Platform.MacOSX64,  "native/osx/x86_64/libbulletjme.dylib");
         
@@ -244,6 +246,7 @@ public final class NativeLibraryLoader {
      * called <code>natives_&lt;hash&gt;</code> where &lt;hash&gt;
      * is computed automatically as the XOR of the classpath hash code
      * and the last modified date of this class.
+     * </ul>
      * 
      * @return Path where natives will be extracted to.
      */
@@ -366,7 +369,7 @@ public final class NativeLibraryLoader {
     }
     
     public static File[] getJarsWithNatives() {
-        HashSet<File> jarFiles = new HashSet<File>();
+        HashSet<File> jarFiles = new HashSet<>();
         for (Map.Entry<NativeLibrary.Key, NativeLibrary> lib : nativeLibraryMap.entrySet()) {
             File jarFile = getJarForNativeLibrary(lib.getValue().getPlatform(), lib.getValue().getName());
             if (jarFile != null) {
@@ -384,19 +387,6 @@ public final class NativeLibraryLoader {
                 }
                 extractNativeLibrary(platform, lib.getValue().getName(), targetDir);
             }
-        }
-    }
-    
-    private static String mapLibraryName_emulated(String name, Platform platform) {
-        switch (platform) {
-            case MacOSX32:
-            case MacOSX64:
-                return name + ".dylib";
-            case Windows32:
-            case Windows64:
-                return name + ".dll";
-            default:
-                return name + ".so";
         }
     }
     
@@ -624,8 +614,8 @@ public final class NativeLibraryLoader {
             in = conn.getInputStream();
         } catch (IOException ex) {
             // Maybe put more detail here? Not sure..
-            throw new UnsatisfiedLinkError("Failed to open file: '" + url + 
-                                           "'. Error: " + ex);
+            throw new UncheckedIOException("Failed to open file: '" + url + 
+                                           "'. Error: " + ex, ex);
         }
         
         File targetFile = new File(extactionDirectory, loadedAsFileName);
@@ -665,8 +655,8 @@ public final class NativeLibraryLoader {
             if (ex.getMessage().contains("used by another process")) {
                 return;
             } else {
-                throw new UnsatisfiedLinkError("Failed to extract native "
-                        + "library to: " + targetFile);
+                throw new UncheckedIOException("Failed to extract native "
+                        + "library to: " + targetFile, ex);
             }
         } finally {
             // XXX: HACK. Vary loading method based on library name..

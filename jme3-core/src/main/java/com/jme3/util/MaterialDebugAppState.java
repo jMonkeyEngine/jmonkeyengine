@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2014 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -98,8 +98,8 @@ public class MaterialDebugAppState extends AbstractAppState {
     private RenderManager renderManager;
     private AssetManager assetManager;
     private InputManager inputManager;
-    private List<Binding> bindings = new ArrayList<Binding>();
-    private Map<Trigger,List<Binding>> fileTriggers = new HashMap<Trigger,List<Binding>> ();
+    final private List<Binding> bindings = new ArrayList<>();
+    final private Map<Trigger,List<Binding>> fileTriggers = new HashMap<> ();
     
 
     @Override
@@ -183,6 +183,7 @@ public class MaterialDebugAppState extends AbstractAppState {
         } else {
             final String actionName = binding.getActionName();
             inputManager.addListener(new ActionListener() {
+                @Override
                 public void onAction(String name, boolean isPressed, float tpf) {
                     if (actionName.equals(name) && isPressed) {
                         //reloading the material
@@ -265,6 +266,7 @@ public class MaterialDebugAppState extends AbstractAppState {
 
         }
 
+        @Override
         public void reload() {
             Material reloadedMat = reloadMaterial(geom.getMaterial());
             //if the reload is successful, we re setup the material with its params and reassign it to the box
@@ -274,11 +276,13 @@ public class MaterialDebugAppState extends AbstractAppState {
             }
         }
 
+        @Override
         public String getActionName() {
             return geom.getName() + "Reload";
 
         }
 
+        @Override
         public Trigger getTrigger() {
             return trigger;
         }
@@ -294,11 +298,13 @@ public class MaterialDebugAppState extends AbstractAppState {
             this.filter = filter;
         }
 
+        @Override
+        @SuppressWarnings("unchecked")
         public void reload() {
             Field[] fields1 = filter.getClass().getDeclaredFields();
             Field[] fields2 = filter.getClass().getSuperclass().getDeclaredFields();
 
-            List<Field> fields = new ArrayList<Field>();
+            List<Field> fields = new ArrayList<>();
             fields.addAll(Arrays.asList(fields1));
             fields.addAll(Arrays.asList(fields2));
             Material m = new Material();
@@ -329,7 +335,7 @@ public class MaterialDebugAppState extends AbstractAppState {
                     }
                     if (field.getName().equals("postRenderPasses")) {
                         field.setAccessible(true);
-                        List<Pass> passes = new ArrayList<Pass>();
+                        List<Pass> passes = new ArrayList<>();
                         passes = (List<Pass>) field.get(filter);
                         if (passes != null) {
                             for (Pass pass : passes) {
@@ -343,18 +349,18 @@ public class MaterialDebugAppState extends AbstractAppState {
                         }
                     }
                 }
-            } catch (IllegalArgumentException ex) {
-                Logger.getLogger(MaterialDebugAppState.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (IllegalAccessException ex) {
+            } catch (IllegalArgumentException | IllegalAccessException ex) {
                 Logger.getLogger(MaterialDebugAppState.class.getName()).log(Level.SEVERE, null, ex);
             }
 
         }
 
+        @Override
         public String getActionName() {
             return filter.getName() + "Reload";
         }
 
+        @Override
         public Trigger getTrigger() {
             return trigger;
         }
@@ -380,13 +386,10 @@ public class MaterialDebugAppState extends AbstractAppState {
                     file = new File(url.getFile());
                     fileLastM = file.lastModified();
 
-                } catch (NoSuchFieldException ex) {
-                    Logger.getLogger(MaterialDebugAppState.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (SecurityException ex) {
-                    Logger.getLogger(MaterialDebugAppState.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (IllegalArgumentException ex) {
-                    Logger.getLogger(MaterialDebugAppState.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (IllegalAccessException ex) {
+                } catch (NoSuchFieldException
+                        | SecurityException
+                        | IllegalArgumentException
+                        | IllegalAccessException ex) {
                     Logger.getLogger(MaterialDebugAppState.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
@@ -400,10 +403,12 @@ public class MaterialDebugAppState extends AbstractAppState {
             return false;
         }
 
+        @Override
         public String getName() {
             return fileName;
         }
 
+        @Override
         public int triggerHashCode() {
             return 0;
         }

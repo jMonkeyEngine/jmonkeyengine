@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -75,7 +75,7 @@ public class AnimationEvent extends AbstractCinematicEvent {
      * used for serialization don't call directly use one of the following
      * constructors
      */
-    public AnimationEvent() {
+    protected AnimationEvent() {
         super();
     }
     
@@ -284,6 +284,7 @@ public class AnimationEvent extends AbstractCinematicEvent {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void initEvent(Application app, Cinematic cinematic) {
         super.initEvent(app, cinematic);
         this.cinematic = cinematic;
@@ -451,6 +452,7 @@ public class AnimationEvent extends AbstractCinematicEvent {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void dispose() {
         super.dispose();
         if (cinematic != null) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,7 +34,6 @@ package jme3test.light;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.light.DirectionalLight;
-import com.jme3.light.PointLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
@@ -52,10 +51,6 @@ import java.nio.IntBuffer;
 
 
 public class TestTangentGen extends SimpleApplication {
-
-    float angle;
-    PointLight pl;
-    Geometry lightMdl;
 
     public static void main(String[] args){
         TestTangentGen app = new TestTangentGen();
@@ -129,9 +124,9 @@ public class TestTangentGen extends SimpleApplication {
         IntBuffer ib = BufferUtils.createIntBuffer(indexes.length);
         ib.put(indexes);
         strip.setBuffer(Type.Position, 3, vb);
-		strip.setBuffer(Type.Normal, 3, nb);
-		strip.setBuffer(Type.TexCoord, 2, tb);
-		strip.setBuffer(Type.Index, 3, ib);
+        strip.setBuffer(Type.Normal, 3, nb);
+        strip.setBuffer(Type.TexCoord, 2, tb);
+        strip.setBuffer(Type.Index, 3, ib);
         strip.updateBound();
         return strip;
     }

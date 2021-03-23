@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2009-2012 jMonkeyEngine
+ *  Copyright (c) 2009-2021 jMonkeyEngine
  *  All rights reserved.
  * 
  *  Redistribution and use in source and binary forms, with or without
@@ -121,11 +121,11 @@ public class TextureAtlas {
 
     private static final Logger logger = Logger.getLogger(TextureAtlas.class.getName());
     private Map<String, byte[]> images;
-    private int atlasWidth, atlasHeight;
-    private Format format = Format.ABGR8;
-    private Node root;
-    private Map<String, TextureAtlasTile> locationMap;
-    private Map<String, String> mapNameMap;
+    final private int atlasWidth, atlasHeight;
+    final private Format format = Format.ABGR8;
+    final private Node root;
+    final private Map<String, TextureAtlasTile> locationMap;
+    final private Map<String, String> mapNameMap;
     private String rootMapName;
 
     public TextureAtlas(int width, int height) {
@@ -348,6 +348,7 @@ public class TextureAtlas {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private Image convertImageToAwt(Image source) {
         //use awt dependent classes without actual dependency via reflection
         try {
@@ -358,13 +359,13 @@ public class TextureAtlas {
             Image newImage = new Image(format, source.getWidth(), source.getHeight(), BufferUtils.createByteBuffer(source.getWidth() * source.getHeight() * 4), null, ColorSpace.Linear);
             clazz.getMethod("convert", Image.class, Image.class).invoke(clazz.newInstance(), source, newImage);
             return newImage;
-        } catch (InstantiationException ex) {
-        } catch (IllegalAccessException ex) {
-        } catch (IllegalArgumentException ex) {
-        } catch (InvocationTargetException ex) {
-        } catch (NoSuchMethodException ex) {
-        } catch (SecurityException ex) {
-        } catch (ClassNotFoundException ex) {
+        } catch (InstantiationException
+                | IllegalAccessException
+                | IllegalArgumentException
+                | InvocationTargetException
+                | NoSuchMethodException
+                | SecurityException
+                | ClassNotFoundException ex) {
         }
         return null;
     }
@@ -468,7 +469,7 @@ public class TextureAtlas {
      * @return Null if the atlas cannot be created because not all textures fit.
      */
     public static TextureAtlas createAtlas(Spatial root, int atlasSize) {
-        List<Geometry> geometries = new ArrayList<Geometry>();
+        List<Geometry> geometries = new ArrayList<>();
         GeometryBatchFactory.gatherGeoms(root, geometries);
         TextureAtlas atlas = new TextureAtlas(atlasSize, atlasSize);
         for (Geometry geometry : geometries) {
@@ -489,7 +490,7 @@ public class TextureAtlas {
      * @return A new geometry that uses the generated texture atlas and merges all meshes of the root spatial, null if the atlas cannot be created because not all textures fit.
      */
     public static Geometry makeAtlasBatch(Spatial spat, AssetManager mgr, int atlasSize) {
-        List<Geometry> geometries = new ArrayList<Geometry>();
+        List<Geometry> geometries = new ArrayList<>();
         GeometryBatchFactory.gatherGeoms(spat, geometries);
         TextureAtlas atlas = createAtlas(spat, atlasSize);
         if (atlas == null) {
@@ -619,8 +620,8 @@ public class TextureAtlas {
 
     public class TextureAtlasTile {
 
-        private int x;
-        private int y;
+        final private int x;
+        final private int y;
         private int width;
         private int height;
 
@@ -637,10 +638,10 @@ public class TextureAtlas {
          * @return The new texture coordinate inside the atlas.
          */
         public Vector2f getLocation(Vector2f previousLocation) {
-            float x = (float) getX() / (float) atlasWidth;
-            float y = (float) getY() / (float) atlasHeight;
-            float w = (float) getWidth() / (float) atlasWidth;
-            float h = (float) getHeight() / (float) atlasHeight;
+            float x = getX() / (float) atlasWidth;
+            float y = getY() / (float) atlasHeight;
+            float w = getWidth() / (float) atlasWidth;
+            float h = getHeight() / (float) atlasHeight;
             Vector2f location = new Vector2f(x, y);
             float prevX = previousLocation.x;
             float prevY = previousLocation.y;

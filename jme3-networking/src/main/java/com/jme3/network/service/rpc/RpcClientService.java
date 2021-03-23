@@ -73,6 +73,7 @@ public class RpcClientService extends AbstractClientService {
      *  Used internally to setup the RpcConnection and MessageDelegator.
      */
     @Override
+    @SuppressWarnings("unchecked")
     protected void onInitialize( ClientServiceManager serviceManager ) {        
         Client client = serviceManager.getClient();
         this.rpc = new RpcConnection(client);
@@ -86,6 +87,7 @@ public class RpcClientService extends AbstractClientService {
      *  was previously added to the network Client.
      */
     @Override
+    @SuppressWarnings("unchecked")
     public void terminate( ClientServiceManager serviceManager ) {
         Client client = serviceManager.getClient();
         client.removeMessageListener(delegator, delegator.getMessageTypes());                   

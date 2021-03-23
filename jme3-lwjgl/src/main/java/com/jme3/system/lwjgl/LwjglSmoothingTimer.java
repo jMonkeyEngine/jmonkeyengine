@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -85,6 +85,7 @@ public class LwjglSmoothingTimer extends Timer {
         logger.log(Level.FINE, "Timer resolution: {0} ticks per second", LWJGL_TIMER_RES);
     }
 
+    @Override
     public void reset() {
         lastFrameDiff = 0;
         lastFPS = 0;
@@ -108,6 +109,7 @@ public class LwjglSmoothingTimer extends Timer {
     /**
      * @see Timer#getTime() 
      */
+    @Override
     public long getTime() {
         return Sys.getTime() - startTime;
     }
@@ -115,6 +117,7 @@ public class LwjglSmoothingTimer extends Timer {
     /**
      * @see Timer#getResolution() 
      */
+    @Override
     public long getResolution() {
         return LWJGL_TIMER_RES;
     }
@@ -125,10 +128,12 @@ public class LwjglSmoothingTimer extends Timer {
      *
      * @return the current frame rate.
      */
+    @Override
     public float getFrameRate() {
         return lastFPS;
     }
 
+    @Override
     public float getTimePerFrame() {
         return lastTPF;
     }
@@ -137,6 +142,7 @@ public class LwjglSmoothingTimer extends Timer {
      * <code>update</code> recalulates the frame rate based on the previous
      * call to update. It is assumed that update is called each frame.
      */
+    @Override
     public void update() {
         long newTime = Sys.getTime();
         long oldTime = this.oldTime;

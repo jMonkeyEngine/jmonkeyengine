@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,7 +39,6 @@ import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.DirectionalLight;
-import com.jme3.light.PointLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
@@ -64,15 +63,11 @@ import com.jme3.util.SkyFactory;
 public class TerrainTestAdvanced extends SimpleApplication {
 
     private TerrainQuad terrain;
-    Material matTerrain;
-    Material matWire;
-    boolean wireframe = false;
-    boolean triPlanar = false;
-    boolean wardiso = false;
-    boolean minnaert = false;
-    protected BitmapText hintText;
-    PointLight pl;
-    Geometry lightMdl;
+    private Material matTerrain;
+    private Material matWire;
+    private boolean wireframe = false;
+    private boolean triPlanar = false;
+    private BitmapText hintText;
     private float dirtScale = 16;
     private float darkRockScale = 32;
     private float pinkRockScale = 32;
@@ -234,7 +229,7 @@ public class TerrainTestAdvanced extends SimpleApplication {
         hintText = new BitmapText(guiFont, false);
         hintText.setSize(guiFont.getCharSet().getRenderedSize());
         hintText.setLocalTranslation(0, getCamera().getHeight(), 0);
-        hintText.setText("Hit T to switch to wireframe,  P to switch to tri-planar texturing");
+        hintText.setText("Press T to toggle wireframe,  P to toggle tri-planar texturing");
         guiNode.attachChild(hintText);
     }
 
@@ -249,12 +244,13 @@ public class TerrainTestAdvanced extends SimpleApplication {
         inputManager.addMapping("DetachControl", new KeyTrigger(KeyInput.KEY_0));
         inputManager.addListener(actionListener, "DetachControl");
     }
-    private ActionListener actionListener = new ActionListener() {
+    final private ActionListener actionListener = new ActionListener() {
 
+        @Override
         public void onAction(String name, boolean pressed, float tpf) {
             if (name.equals("wireframe") && !pressed) {
                 wireframe = !wireframe;
-                if (!wireframe) {
+                if (wireframe) {
                     terrain.setMaterial(matWire);
                 } else {
                     terrain.setMaterial(matTerrain);
@@ -266,13 +262,13 @@ public class TerrainTestAdvanced extends SimpleApplication {
                     // planar textures don't use the mesh's texture coordinates but real world coordinates,
                     // so we need to convert these texture coordinate scales into real world scales so it looks
                     // the same when we switch to/from tr-planar mode (1024f is the alphamap size)
-                    matTerrain.setFloat("DiffuseMap_0_scale", 1f / (float) (1024f / dirtScale));
-                    matTerrain.setFloat("DiffuseMap_1_scale", 1f / (float) (1024f / darkRockScale));
-                    matTerrain.setFloat("DiffuseMap_2_scale", 1f / (float) (1024f / pinkRockScale));
-                    matTerrain.setFloat("DiffuseMap_3_scale", 1f / (float) (1024f / riverRockScale));
-                    matTerrain.setFloat("DiffuseMap_4_scale", 1f / (float) (1024f / grassScale));
-                    matTerrain.setFloat("DiffuseMap_5_scale", 1f / (float) (1024f / brickScale));
-                    matTerrain.setFloat("DiffuseMap_6_scale", 1f / (float) (1024f / roadScale));
+                    matTerrain.setFloat("DiffuseMap_0_scale", 1f / (1024f / dirtScale));
+                    matTerrain.setFloat("DiffuseMap_1_scale", 1f / (1024f / darkRockScale));
+                    matTerrain.setFloat("DiffuseMap_2_scale", 1f / (1024f / pinkRockScale));
+                    matTerrain.setFloat("DiffuseMap_3_scale", 1f / (1024f / riverRockScale));
+                    matTerrain.setFloat("DiffuseMap_4_scale", 1f / (1024f / grassScale));
+                    matTerrain.setFloat("DiffuseMap_5_scale", 1f / (1024f / brickScale));
+                    matTerrain.setFloat("DiffuseMap_6_scale", 1f / (1024f / roadScale));
                 } else {
                     matTerrain.setBoolean("useTriPlanarMapping", false);
                     

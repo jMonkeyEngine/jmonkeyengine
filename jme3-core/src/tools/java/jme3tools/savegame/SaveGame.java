@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -54,6 +54,12 @@ import java.util.zip.GZIPOutputStream;
  * @author normenhansen
  */
 public class SaveGame {
+
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private SaveGame() {
+    }
 
     /**
      * Saves a savable in a system-dependent way.

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -55,22 +55,22 @@ final class ImplHandler {
     private final AssetManager assetManager;
     
     private final ThreadLocal<AssetKey> parentAssetKey 
-            = new ThreadLocal<AssetKey>();
+            = new ThreadLocal<>();
     
     private final CopyOnWriteArrayList<ImplThreadLocal<AssetLocator>> locatorsList =
-                new CopyOnWriteArrayList<ImplThreadLocal<AssetLocator>>();
+                new CopyOnWriteArrayList<>();
     
     private final HashMap<Class<?>, ImplThreadLocal<AssetLoader>> classToLoaderMap = 
-                new HashMap<Class<?>, ImplThreadLocal<AssetLoader>>();
+                new HashMap<>();
 
     private final ConcurrentHashMap<String, ImplThreadLocal<AssetLoader>> extensionToLoaderMap =
-                new ConcurrentHashMap<String, ImplThreadLocal<AssetLoader>>();
+                new ConcurrentHashMap<>();
     
     private final ConcurrentHashMap<Class<? extends AssetProcessor>, AssetProcessor> classToProcMap =
-                new ConcurrentHashMap<Class<? extends AssetProcessor>, AssetProcessor>();
+                new ConcurrentHashMap<>();
     
     private final ConcurrentHashMap<Class<? extends AssetCache>, AssetCache> classToCacheMap =
-                new ConcurrentHashMap<Class<? extends AssetCache>, AssetCache>();
+                new ConcurrentHashMap<>();
 
     public ImplHandler(AssetManager assetManager){
         this.assetManager = assetManager;
@@ -120,15 +120,10 @@ final class ImplHandler {
                     ((AssetLocator)obj).setRootPath(path);
                 }
                 return obj;
-            } catch (InstantiationException ex) {
+            } catch (InstantiationException | IllegalAccessException ex) {
                 logger.log(Level.SEVERE,"Cannot create locator of type {0}, does"
-                            + " the class have an empty and publically accessible"+
+                            + " the class have an empty and publicly accessible"+
                               " constructor?", type.getName());
-                logger.throwing(type.getName(), "<init>", ex);
-            } catch (IllegalAccessException ex) {
-                logger.log(Level.SEVERE,"Cannot create locator of type {0}, "
-                            + "does the class have an empty and publically "
-                            + "accessible constructor?", type.getName());
                 logger.throwing(type.getName(), "<init>", ex);
             }
             return null;
@@ -213,6 +208,7 @@ final class ImplHandler {
         }
     }
     
+    @SuppressWarnings("unchecked")
     public <T extends AssetCache> T getCache(Class<T> cacheClass) {
         if (cacheClass == null) {
             return null;
@@ -239,6 +235,7 @@ final class ImplHandler {
         return cache;
     }
     
+    @SuppressWarnings("unchecked")
     public <T extends AssetProcessor> T getProcessor(Class<T> procClass){
         if (procClass == null)
             return null;
@@ -264,6 +261,7 @@ final class ImplHandler {
         return proc;
     }
     
+    @SuppressWarnings("unchecked")
     public void addLoader(final Class<? extends AssetLoader> loaderType, String ... extensions){
         // Synchronized access must be used for any ops on classToLoaderMap
         ImplThreadLocal local = new ImplThreadLocal(loaderType, extensions);
@@ -290,16 +288,17 @@ final class ImplHandler {
         }
     }
     
+    @SuppressWarnings("unchecked")
     public void addLocator(final Class<? extends AssetLocator> locatorType, String rootPath){
         locatorsList.add(new ImplThreadLocal(locatorType, rootPath));
     }
 
     public void removeLocator(final Class<? extends AssetLocator> locatorType, String rootPath){
-        ArrayList<ImplThreadLocal<AssetLocator>> locatorsToRemove = new ArrayList<ImplThreadLocal<AssetLocator>>();
+        ArrayList<ImplThreadLocal<AssetLocator>> locatorsToRemove = new ArrayList<>();
         Iterator<ImplThreadLocal<AssetLocator>> it = locatorsList.iterator();
        
         while (it.hasNext()){
-            ImplThreadLocal locator = it.next();
+            ImplThreadLocal<AssetLocator> locator = it.next();
             if (locator.getPath().equals(rootPath) &&
                 locator.getTypeClass().equals(locatorType)){
                 //it.remove();

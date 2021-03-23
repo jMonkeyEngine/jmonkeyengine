@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -56,6 +56,7 @@ public class TestResizableApp extends SimpleApplication {
         app.start();
     }
 
+    @Override
     public void reshape(int width, int height) {
         super.reshape(width, height);
 
@@ -65,6 +66,7 @@ public class TestResizableApp extends SimpleApplication {
                     "Current Size: " + settings.getWidth() + "x" + settings.getHeight());
     }
     
+    @Override
     public void simpleInitApp() {
         flyCam.setDragToRotate(true);
         

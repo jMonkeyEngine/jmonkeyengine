@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,6 +40,12 @@ import org.xml.sax.SAXException;
  * Utility methods for parsing XML data using SAX.
  */
 public final class SAXUtil {
+
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private SAXUtil() {
+    }
 
     /**
      * Parses an integer from a string, if the string is null returns

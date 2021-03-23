@@ -10,8 +10,13 @@ public enum HmdType {
 	/**
 	 * <a href="https://www.vive.com/fr/">HTC vive</a> Head Mounted Device (HMD).
 	 */
-    HTC_VIVE, 
-    
+    HTC_VIVE,
+
+    /**
+     * <a href="https://www.valvesoftware.com/en/index">Valve Index</a> Head Mounted Device (HMD).
+     */
+    VALVE_INDEX,
+
     /**
      * <a href="https://www3.oculus.com/en-us/rift/">Occulus Rift</a> Head Mounted Device (HMD).
      */

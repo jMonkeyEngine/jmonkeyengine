@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -102,7 +102,10 @@ public final class IrUtils {
     }
     
     /**
-     * Applies smoothing groups to vertex normals.
+     * Applies smoothing groups to vertex normals. XXX not implemented!
+     * 
+     * @param mesh ignored
+     * @return null
      */
     public static IrMesh applySmoothingGroups(IrMesh mesh) {
         return null;
@@ -125,6 +128,11 @@ public final class IrUtils {
         }
     }
     
+    /**
+     * Removes low bone weights from mesh, leaving only 4 bone weights at max.
+     * 
+     * @param vertex the IrVertex to modify (not null)
+     */
     private static void trimBoneWeights(IrVertex vertex) {
         if (vertex.boneWeightsIndices == null) {
             return;
@@ -163,6 +171,8 @@ public final class IrUtils {
     
     /**
      * Removes low bone weights from mesh, leaving only 4 bone weights at max.
+     * 
+     * @param mesh the IrMesh to modify (not null)
      */
     public static void trimBoneWeights(IrMesh mesh) {
         for (IrPolygon polygon : mesh.polygons) {
@@ -174,9 +184,11 @@ public final class IrUtils {
     
     /**
      * Convert mesh from quads / triangles to triangles only.
+     * 
+     * @param mesh the input IrMesh (not null)
      */
     public static void triangulate(IrMesh mesh) {
-        List<IrPolygon> newPolygons = new ArrayList<IrPolygon>(mesh.polygons.length);
+        List<IrPolygon> newPolygons = new ArrayList<>(mesh.polygons.length);
         for (IrPolygon inputPoly : mesh.polygons) {
             if (inputPoly.vertices.length == 4) {
                 IrPolygon[] tris = quadToTri(inputPoly);
@@ -200,9 +212,12 @@ public final class IrUtils {
      * one material each.
      * 
      * Polygons without a material will be added to key = -1.
+     * 
+     * @param mesh the input IrMesh (not null)
+     * @return a new IntMap containing the resulting meshes
      */
     public static IntMap<IrMesh> splitByMaterial(IrMesh mesh) {
-        IntMap<List<IrPolygon>> materialToPolyList = new IntMap<List<IrPolygon>>();
+        IntMap<List<IrPolygon>> materialToPolyList = new IntMap<>();
         for (IrPolygon polygon : mesh.polygons) {
             int materialIndex = -1;
             for (IrVertex vertex : polygon.vertices) {
@@ -223,7 +238,7 @@ public final class IrUtils {
             }
             polyList.add(polygon);
         }
-        IntMap<IrMesh> materialToMesh = new IntMap<IrMesh>();
+        IntMap<IrMesh> materialToMesh = new IntMap<>();
         for (IntMap.Entry<List<IrPolygon>> entry : materialToPolyList) {
             int key = entry.getKey();
             List<IrPolygon> polygons = entry.getValue();
@@ -239,11 +254,14 @@ public final class IrUtils {
      
     /**
      * Convert IrMesh to jME3 mesh.
+     *
+     * @param mesh the input IrMesh (not null)
+     * @return a new Mesh
      */
     public static Mesh convertIrMeshToJmeMesh(IrMesh mesh) {
-        Map<IrVertex, Integer> vertexToVertexIndex = new HashMap<IrVertex, Integer>();
-        List<IrVertex> vertices = new ArrayList<IrVertex>();
-        List<Integer> indexes = new ArrayList<Integer>();
+        Map<IrVertex, Integer> vertexToVertexIndex = new HashMap<>();
+        List<IrVertex> vertices = new ArrayList<>();
+        List<Integer> indexes = new ArrayList<>();
         
         int vertexIndex = 0;
         for (IrPolygon polygon : mesh.polygons) {

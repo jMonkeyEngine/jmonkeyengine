@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -69,6 +69,7 @@ public abstract class AbstractHeightMap implements HeightMap {
      * <code>unloadHeightMap</code> clears the data of the height map. This
      * insures it is ready for reloading.
      */
+    @Override
     public void unloadHeightMap() {
         heightData = null;
     }
@@ -81,6 +82,7 @@ public abstract class AbstractHeightMap implements HeightMap {
      * @param scale
      *            the scale to multiply height values by.
      */
+    @Override
     public void setHeightScale(float scale) {
         heightScale = scale;
     }
@@ -97,6 +99,7 @@ public abstract class AbstractHeightMap implements HeightMap {
      * @param z
      *            the z (north/south) coordinate.
      */
+    @Override
     public void setHeightAtPoint(float height, int x, int z) {
         heightData[x + (z * size)] = height;
     }
@@ -109,9 +112,10 @@ public abstract class AbstractHeightMap implements HeightMap {
      *            the new size of the terrain.
      * @throws Exception 
      *
-     * @throws JmeException
+     * @throws Exception
      *             if the size is less than or equal to zero.
      */
+    @Override
     public void setSize(int size) throws Exception {
         if (size <= 0) {
             throw new Exception("size must be greater than zero.");
@@ -127,10 +131,10 @@ public abstract class AbstractHeightMap implements HeightMap {
      *
      * @param filter
      *            the erosion value.
-     * @throws Exception 
-     * @throws JmeException
+     * @throws Exception
      *             if filter is less than 0 or greater than 1.
      */
+    @Override
     public void setMagnificationFilter(float filter) throws Exception {
         if (filter < 0 || filter >= 1) {
             throw new Exception("filter must be between 0 and 1");
@@ -148,6 +152,7 @@ public abstract class AbstractHeightMap implements HeightMap {
      *            the z (north/south) coordinate.
      * @return the value at (x,z).
      */
+    @Override
     public float getTrueHeightAtPoint(int x, int z) {
         //logger.fine( heightData[x + (z*size)]);
         return heightData[x + (z * size)];
@@ -163,6 +168,7 @@ public abstract class AbstractHeightMap implements HeightMap {
      *            the z (north/south) coordinate.
      * @return the scaled value at (x, z).
      */
+    @Override
     public float getScaledHeightAtPoint(int x, int z) {
         return ((heightData[x + (z * size)]) * heightScale);
     }
@@ -177,6 +183,7 @@ public abstract class AbstractHeightMap implements HeightMap {
      *            the y coordinate of the point.
      * @return the interpolated height at this point.
      */
+    @Override
     public float getInterpolatedHeight(float x, float z) {
         float low, highX, highZ;
         float intX, intZ;
@@ -210,6 +217,7 @@ public abstract class AbstractHeightMap implements HeightMap {
      *
      * @return the grid of height data.
      */
+    @Override
     public float[] getHeightMap() {
         return heightData;
     }
@@ -218,6 +226,7 @@ public abstract class AbstractHeightMap implements HeightMap {
      * Build a new array of height data with the scaled values.
      * @return a new array
      */
+    @Override
     public float[] getScaledHeightMap() {
         float[] hm = new float[heightData.length];
         for (int i=0; i<heightData.length; i++) {
@@ -232,6 +241,7 @@ public abstract class AbstractHeightMap implements HeightMap {
      *
      * @return the size of a single side.
      */
+    @Override
     public int getSize() {
         return size;
     }
@@ -243,9 +253,7 @@ public abstract class AbstractHeightMap implements HeightMap {
      * @param filename
      *            the file name to save the current data as.
      * @return true if the save was successful, false otherwise.
-     * @throws Exception 
-     *
-     * @throws JmeException
+     * @throws Exception
      *             if filename is null.
      */
     public boolean save(String filename) throws Exception {

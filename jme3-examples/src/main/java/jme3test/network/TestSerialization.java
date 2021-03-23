@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -71,23 +71,23 @@ public class TestSerialization implements MessageListener<HostedConnection> {
     @Serializable
     public static class TestSerializationMessage extends AbstractMessage {
 
-        boolean z;
-        byte b;
-        char c;
-        short s;
-        int i;
-        float f;
-        long l;
-        double d;
+        private boolean z;
+        private byte b;
+        private char c;
+        private short s;
+        private int i;
+        private float f;
+        private long l;
+        private double d;
         
-        int[] ia;
-        List<Object> ls;
-        Map<String, SomeObject> mp;
+        private int[] ia;
+        private List<Object> ls;
+        private Map<String, SomeObject> mp;
 
-        Status status1;
-        Status status2;
+        private Status status1;
+        private Status status2;
 
-        Date date;
+        private Date date;
 
         public TestSerializationMessage(){
             super(true);
@@ -121,6 +121,7 @@ public class TestSerialization implements MessageListener<HostedConnection> {
         }
     }
 
+    @Override
     public void messageReceived(HostedConnection source, Message m) {
         TestSerializationMessage cm = (TestSerializationMessage) m;
         System.out.println(cm.z);

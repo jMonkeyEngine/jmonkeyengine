@@ -373,7 +373,7 @@ public class Uniform extends ShaderVariable {
                 //feed this.value with the collected values.
                 if (this.value instanceof ColorRGBA) {
                     ((ColorRGBA) this.value).set(vec4.x, vec4.y, vec4.z, vec4.w);
-                } else if (value instanceof Vector4f) {
+                } else if (this.value instanceof Vector4f) {
                     ((Vector4f) this.value).set(vec4);
                 } else {
                     ((Quaternion) this.value).set(vec4.x, vec4.y, vec4.z, vec4.w);

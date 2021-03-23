@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,6 +48,12 @@ public class DXTFlipper {
 
     static {
         bb.order(ByteOrder.LITTLE_ENDIAN);
+    }
+
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private DXTFlipper() {
     }
 
     private static long readCode5(long data, int x, int y){
@@ -198,8 +204,8 @@ public class DXTFlipper {
 
     public static ByteBuffer flipDXT(ByteBuffer img, int w, int h, Format format){
         int originalLimit = img.limit();
-        int blocksX = (int) FastMath.ceil((float)w / 4f);
-        int blocksY = (int) FastMath.ceil((float)h / 4f);
+        int blocksX = (int) FastMath.ceil(w / 4f);
+        int blocksY = (int) FastMath.ceil(h / 4f);
 
         int type;
         switch (format){
@@ -213,14 +219,12 @@ public class DXTFlipper {
             case DXT5:
                 type = 3;
                 break;
-            /*
-            case LATC:
+            case RGTC2:
                 type = 4;
-                break;
-            case LTC:
+                break;                
+            case RGTC1:
                 type = 5;
                 break;
-            */
             default:
                 throw new IllegalArgumentException();
         }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -130,7 +130,6 @@ public class GlfwMouseInput implements MouseInput {
     private int mouseX;
     private int mouseY;
     private int mouseWheel;
-    private int currentWidth;
     private int currentHeight;
 
     private boolean cursorVisible;
@@ -176,7 +175,30 @@ public class GlfwMouseInput implements MouseInput {
 
     @Override
     public void initialize() {
+        initCallbacks();
 
+        if (listener != null) {
+            sendFirstMouseEvent();
+        }
+
+        setCursorVisible(cursorVisible);
+        logger.fine("Mouse created.");
+        initialized = true;
+    }
+
+    /**
+     * Re-initializes the mouse input context window specific callbacks
+     */
+    public void resetContext() {
+        if (!context.isRenderable()) {
+            return;
+        }
+
+        closeCallbacks();
+        initCallbacks();
+    }
+
+    private void initCallbacks() {
         final long window = context.getWindowHandle();
 
         try (MemoryStack stack = MemoryStack.stackPush()) {
@@ -186,7 +208,7 @@ public class GlfwMouseInput implements MouseInput {
 
             glfwGetWindowSize(window, width, height);
 
-            currentWidth = width.get();
+            width.get();
             currentHeight = height.get();
         }
 
@@ -216,17 +238,8 @@ public class GlfwMouseInput implements MouseInput {
             @Override
             public void invoke(final long window, final int width, final int height) {
                 currentHeight = height;
-                currentWidth = width;
             }
         });
-
-        if(listener != null) {
-            sendFirstMouseEvent();
-        }
-
-        setCursorVisible(cursorVisible);
-        logger.fine("Mouse created.");
-        initialized = true;
     }
 
     private void initCurrentMousePosition(long window) {
@@ -234,7 +247,7 @@ public class GlfwMouseInput implements MouseInput {
         DoubleBuffer y = BufferUtils.createDoubleBuffer(1);
         glfwGetCursorPos(window, x, y);
         mouseX = (int) Math.round(x.get());
-        mouseY = (int) currentHeight - (int) Math.round(y.get());
+        mouseY = currentHeight - (int) Math.round(y.get());
     }
 
     /**
@@ -295,9 +308,7 @@ public class GlfwMouseInput implements MouseInput {
             return;
         }
 
-        cursorPosCallback.close();
-        scrollCallback.close();
-        mouseButtonCallback.close();
+        closeCallbacks();
 
         currentCursor = null;
         currentCursorDelays = null;
@@ -311,6 +322,12 @@ public class GlfwMouseInput implements MouseInput {
         jmeToGlfwCursorMap.clear();
 
         logger.fine("Mouse destroyed.");
+    }
+
+    private void closeCallbacks() {
+        cursorPosCallback.close();
+        scrollCallback.close();
+        mouseButtonCallback.close();
     }
 
     @Override

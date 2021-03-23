@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -55,7 +55,7 @@ public class NioEndpoint implements Endpoint
     private long id;
     private SocketChannel socket;
     private SelectorKernel kernel;
-    private ConcurrentLinkedQueue<ByteBuffer> outbound = new ConcurrentLinkedQueue<ByteBuffer>();
+    private ConcurrentLinkedQueue<ByteBuffer> outbound = new ConcurrentLinkedQueue<>();
     private boolean closing = false;
 
     public NioEndpoint( SelectorKernel kernel, long id, SocketChannel socket )
@@ -65,16 +65,19 @@ public class NioEndpoint implements Endpoint
         this.kernel = kernel;
     }
 
+    @Override
     public Kernel getKernel()
     {
         return kernel;
     }
 
+    @Override
     public void close()
     {
         close(false);
     }
 
+    @Override
     public void close( boolean flushData )
     {
         if( flushData ) {
@@ -97,16 +100,19 @@ public class NioEndpoint implements Endpoint
         }
     }
 
+    @Override
     public long getId()
     {
         return id;
     }
 
+    @Override
     public String getAddress()
     {
         return String.valueOf(socket.socket().getRemoteSocketAddress()); 
     }     
 
+    @Override
     public boolean isConnected()
     {
         return socket.isConnected();
@@ -162,6 +168,7 @@ public class NioEndpoint implements Endpoint
         return !outbound.isEmpty();
     }
 
+    @Override
     public void send( ByteBuffer data )
     {   
         if( data == null ) {
@@ -173,6 +180,7 @@ public class NioEndpoint implements Endpoint
         send( data, true, true );
     }
 
+    @Override
     public String toString()
     {
         return "NioEndpoint[" + id + ", " + socket + "]";

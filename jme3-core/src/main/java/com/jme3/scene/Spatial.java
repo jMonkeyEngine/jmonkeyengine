@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -68,8 +68,8 @@ import java.util.logging.Logger;
  * @author Joshua Slack
  * @version $Revision: 4075 $, $Data$
  */
-public abstract class Spatial implements Savable, Cloneable, Collidable, CloneableSmartAsset, JmeCloneable, HasLocalTransform {
-
+public abstract class Spatial implements Savable, Cloneable, Collidable,
+        CloneableSmartAsset, JmeCloneable, HasLocalTransform {
     private static final Logger logger = Logger.getLogger(Spatial.class.getName());
 
     /**
@@ -77,7 +77,6 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
      * this spatial.
      */
     public enum CullHint {
-
         /**
          * Do whatever our parent does. If no parent, default to {@link #Dynamic}.
          */
@@ -104,7 +103,6 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
      * Specifies if this spatial should be batched
      */
     public enum BatchHint {
-
         /**
          * Do whatever our parent does. If no parent, default to {@link #Always}.
          */
@@ -121,12 +119,13 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
     /**
      * Refresh flag types
      */
-    protected static final int RF_TRANSFORM = 0x01, // need light resort + combine transforms
-                               RF_BOUND = 0x02,
-                               RF_LIGHTLIST = 0x04, // changes in light lists 
-                               RF_CHILD_LIGHTLIST = 0x08, // some child need geometry update
-                               RF_MATPARAM_OVERRIDE = 0x10;
-    
+    protected static final int
+            RF_TRANSFORM = 0x01, // need light resort + combine transforms
+            RF_BOUND = 0x02,
+            RF_LIGHTLIST = 0x04, // changes in light lists
+            RF_CHILD_LIGHTLIST = 0x08, // some child need geometry update
+            RF_MATPARAM_OVERRIDE = 0x10;
+
     protected CullHint cullHint = CullHint.Inherit;
     protected BatchHint batchHint = BatchHint.Inherit;
     /**
@@ -147,13 +146,14 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
      */
     protected String name;
     // scale values
-    protected transient Camera.FrustumIntersect frustrumIntersects = Camera.FrustumIntersect.Intersects;
+    protected transient Camera.FrustumIntersect frustrumIntersects
+            = Camera.FrustumIntersect.Intersects;
     protected RenderQueue.Bucket queueBucket = RenderQueue.Bucket.Inherit;
     protected ShadowMode shadowMode = RenderQueue.ShadowMode.Inherit;
     public transient float queueDistance = Float.NEGATIVE_INFINITY;
     protected Transform localTransform;
     protected Transform worldTransform;
-    protected SafeArrayList<Control> controls = new SafeArrayList<Control>(Control.class);
+    protected SafeArrayList<Control> controls = new SafeArrayList<>(Control.class);
     protected HashMap<String, Savable> userData = null;
     /**
      * Used for smart asset caching
@@ -213,10 +213,12 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
         refreshFlags |= RF_BOUND;
     }
 
+    @Override
     public void setKey(AssetKey key) {
         this.key = key;
     }
 
+    @Override
     public AssetKey getKey() {
         return key;
     }
@@ -230,6 +232,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
     boolean requiresUpdates() {
         return requiresUpdates | !controls.isEmpty();
     }
+
     /**
      * Subclasses can call this with true to denote that they require
      * updateLogicalState() to be called even if they contain no controls.
@@ -245,7 +248,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
      * optimal behavior if they don't require updateLogicalState() to be
      * called even if there are no controls.
      */
-    protected void setRequiresUpdates( boolean f ) {
+    protected void setRequiresUpdates(boolean f) {
         // Note to explorers, the reason this was done as a protected setter
         // instead of passed on construction is because it frees all subclasses
         // from having to make sure to always pass the value up in case they
@@ -262,7 +265,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
         // it to false if the class is Node.class or Geometry.class.
         // This means that all subclasses will default to the old behavior
         // unless they opt in.
-        if( parent != null ) {
+        if (parent != null) {
             throw new IllegalStateException("setRequiresUpdates() cannot be called once attached.");
         }
         this.requiresUpdates = f;
@@ -323,6 +326,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
             p = p.parent;
         }
     }
+
     /**
      * (Internal use only) Forces a refresh of the given types of data.
      *
@@ -554,9 +558,9 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
         Vector3f compVecA = vars.vect4;
         compVecA.set(position).subtractLocal(worldTranslation);
         getLocalRotation().lookAt(compVecA, upVector);
-        if ( getParent() != null ) {
-            Quaternion rot=vars.quat1;
-            rot =  rot.set(parent.getWorldRotation()).inverseLocal().multLocal(getLocalRotation());
+        if (getParent() != null) {
+            Quaternion rot = vars.quat1;
+            rot = rot.set(parent.getWorldRotation()).inverseLocal().multLocal(getLocalRotation());
             rot.normalizeLocal();
             setLocalRotation(rot);
         }
@@ -760,6 +764,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
 
     /**
      * Add a control to the list of controls.
+     *
      * @param control The control to add.
      *
      * @see Spatial#removeControl(java.lang.Class)
@@ -772,7 +777,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
         // If the requirement to be updated has changed
         // then we need to let the parent node know so it
         // can rebuild its update list.
-        if( parent != null && before != after ) {
+        if (parent != null && before != after) {
             parent.invalidateUpdateList();
         }
     }
@@ -795,7 +800,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
         // If the requirement to be updated has changed
         // then we need to let the parent node know so it
         // can rebuild its update list.
-        if( parent != null && before != after ) {
+        if (parent != null && before != after) {
             parent.invalidateUpdateList();
         }
     }
@@ -820,7 +825,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
         // If the requirement to be updated has changed
         // then we need to let the parent node know so it
         // can rebuild its update list.
-        if( parent != null && before != after ) {
+        if (parent != null && before != after) {
             parent.invalidateUpdateList();
         }
         return result;
@@ -835,6 +840,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
      *
      * @see Spatial#addControl(com.jme3.scene.control.Control)
      */
+    @SuppressWarnings("unchecked")
     public <T extends Control> T getControl(Class<T> controlType) {
         for (Control c : controls.getArray()) {
             if (controlType.isAssignableFrom(c.getClass())) {
@@ -1103,6 +1109,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
      * <code>setLocalTransform</code> sets the local transform of this
      * spatial.
      */
+    @Override
     public void setLocalTransform(Transform t) {
         this.localTransform.set(t);
         setTransformRefresh();
@@ -1114,6 +1121,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
      *
      * @return the local transform of this spatial.
      */
+    @Override
     public Transform getLocalTransform() {
         return localTransform;
     }
@@ -1224,6 +1232,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
 
     /**
      * Centers the spatial in the origin of the world bound.
+     *
      * @return The spatial on which this method is called, e.g <code>this</code>.
      */
     public Spatial center() {
@@ -1336,8 +1345,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
      *
      * @see Mesh#cloneForAnim()
      */
-    public Spatial clone( boolean cloneMaterial ) {
-
+    public Spatial clone(boolean cloneMaterial) {
         // Setup the cloner for the type of cloning we want to do.
         Cloner cloner = new Cloner();
 
@@ -1346,7 +1354,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
 
         // If we aren't cloning materials then we will make sure those
         // aren't cloned also
-        if( !cloneMaterial ) {
+        if (!cloneMaterial) {
             cloner.setCloneFunction(Material.class, new IdentityCloneFunction<Material>());
         }
 
@@ -1420,7 +1428,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
     @Override
     public Spatial jmeClone() {
         try {
-            Spatial clone = (Spatial)super.clone();
+            Spatial clone = (Spatial) super.clone();
             return clone;
         } catch (CloneNotSupportedException ex) {
             throw new AssertionError();
@@ -1431,8 +1439,8 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
      *  Called internally by com.jme3.util.clone.Cloner.  Do not call directly.
      */
     @Override
-    public void cloneFields( Cloner cloner, Object original ) {
-
+    @SuppressWarnings("unchecked")
+    public void cloneFields(Cloner cloner, Object original) {
         // Clone all of the fields that need fix-ups and/or potential
         // sharing.
         this.parent = cloner.clone(parent);
@@ -1451,11 +1459,11 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
         // to avoid all of the nasty cloneForSpatial() fixup style code that
         // used to inject stuff into the clone's user data.  By using cloner
         // to clone the user data we get this automatically.
-        if( userData != null ) {
-            userData = (HashMap<String, Savable>)userData.clone();
-            for( Map.Entry<String, Savable> e : userData.entrySet() ) {
+        if (userData != null) {
+            userData = (HashMap<String, Savable>) userData.clone();
+            for (Map.Entry<String, Savable> e : userData.entrySet()) {
                 Savable value = e.getValue();
-                if( value instanceof Cloneable ) {
+                if (value instanceof Cloneable) {
                     // Note: all JmeCloneable objects are also Cloneable so this
                     // catches both cases.
                     e.setValue(cloner.clone(value));
@@ -1468,7 +1476,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
         if (data == null) {
             if (userData != null) {
                 userData.remove(key);
-                if(userData.isEmpty()) {
+                if (userData.isEmpty()) {
                     userData = null;
                 }
             }
@@ -1498,6 +1506,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
         }
     }
 
+    @SuppressWarnings("unchecked")
     public Collection<String> getUserDataKeys() {
         if (userData != null) {
             return userData.keySet();
@@ -1535,6 +1544,8 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
         return true;
     }
 
+    @Override
+    @SuppressWarnings("unchecked")
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule capsule = ex.getCapsule(this);
         capsule.write(name, "name", null);
@@ -1552,6 +1563,8 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
         capsule.writeStringSavableMap(userData, "user_data", null);
     }
 
+    @Override
+    @SuppressWarnings("unchecked")
     public void read(JmeImporter im) throws IOException {
         InputCapsule ic = im.getCapsule(this);
 
@@ -1577,9 +1590,11 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
         }
         worldOverrides = new SafeArrayList<>(MatParamOverride.class);
 
-        //changed for backward compatibility with j3o files generated before the AnimControl/SkeletonControl split
+        //changed for backward compatibility with j3o files
+        //generated before the AnimControl/SkeletonControl split
         //the AnimControl creates the SkeletonControl for old files and add it to the spatial.
-        //The SkeletonControl must be the last in the stack so we add the list of all other control before it.
+        //The SkeletonControl must be the last in the stack
+        //so we add the list of all other control before it.
         //When backward compatibility won't be needed anymore this can be replaced by :
         //controls = ic.readSavableArrayList("controlsList", null));
         controls.addAll(0, ic.readSavableArrayList("controlsList", null));
@@ -1748,13 +1763,14 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
 
     /**
      * Visit each scene graph element ordered by DFS with the default post order mode.
+     *
      * @param visitor
-     * @see #depthFirstTraversal(com.jme3.scene.SceneGraphVisitor, com.jme3.scene.Spatial.DFSMode) 
+     * @see #depthFirstTraversal(com.jme3.scene.SceneGraphVisitor, com.jme3.scene.Spatial.DFSMode)
      */
     public void depthFirstTraversal(SceneGraphVisitor visitor) {
         depthFirstTraversal(visitor, DFSMode.POST_ORDER);
     }
-    
+
     /**
      * Specifies the mode of the depth first search.
      */
@@ -1768,10 +1784,11 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
          */
         POST_ORDER;
     }
-    
+
     /**
      * Visit each scene graph element ordered by DFS.
      * There are two modes: pre order and post order.
+     *
      * @param visitor
      * @param mode the traversal mode: pre order or post order
      */
@@ -1779,10 +1796,11 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
 
     /**
      * Visit each scene graph element ordered by BFS
+     *
      * @param visitor
      */
     public void breadthFirstTraversal(SceneGraphVisitor visitor) {
-        Queue<Spatial> queue = new LinkedList<Spatial>();
+        Queue<Spatial> queue = new LinkedList<>();
         queue.add(this);
 
         while (!queue.isEmpty()) {

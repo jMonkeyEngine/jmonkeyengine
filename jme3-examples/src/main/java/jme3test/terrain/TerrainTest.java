@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,6 +40,7 @@ import com.jme3.light.DirectionalLight;
 import com.jme3.light.PointLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
+import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.terrain.geomipmap.TerrainLodControl;
@@ -72,13 +73,13 @@ import com.jme3.texture.Texture.WrapMode;
 public class TerrainTest extends SimpleApplication {
 
     private TerrainQuad terrain;
-    Material matRock;
-    Material matWire;
-    boolean wireframe = false;
-    boolean triPlanar = false;
-    protected BitmapText hintText;
-    PointLight pl;
-    Geometry lightMdl;
+    private Material matRock;
+    private Material matWire;
+    private boolean wireframe = false;
+    private boolean triPlanar = false;
+    private BitmapText hintText;
+    private PointLight pl;
+    private Geometry lightMdl;
     private float grassScale = 64;
     private float dirtScale = 16;
     private float rockScale = 128;
@@ -169,14 +170,14 @@ public class TerrainTest extends SimpleApplication {
         rootNode.addLight(light);
 
         cam.setLocation(new Vector3f(0, 10, -10));
-        cam.lookAtDirection(new Vector3f(0, -1.5f, -1).normalizeLocal(), Vector3f.UNIT_Y);
+        cam.setRotation(new Quaternion(0.012f, 0.964311f, -0.261f, 0.043f));
     }
 
     public void loadHintText() {
         hintText = new BitmapText(guiFont, false);
         hintText.setSize(guiFont.getCharSet().getRenderedSize());
         hintText.setLocalTranslation(0, getCamera().getHeight(), 0);
-        hintText.setText("Hit T to switch to wireframe,  P to switch to tri-planar texturing");
+        hintText.setText("Press T to toggle wireframe,  P to toggle tri-planar texturing");
         guiNode.attachChild(hintText);
     }
 
@@ -187,12 +188,13 @@ public class TerrainTest extends SimpleApplication {
         inputManager.addMapping("triPlanar", new KeyTrigger(KeyInput.KEY_P));
         inputManager.addListener(actionListener, "triPlanar");
     }
-    private ActionListener actionListener = new ActionListener() {
+    final private ActionListener actionListener = new ActionListener() {
 
+        @Override
         public void onAction(String name, boolean pressed, float tpf) {
             if (name.equals("wireframe") && !pressed) {
                 wireframe = !wireframe;
-                if (!wireframe) {
+                if (wireframe) {
                     terrain.setMaterial(matWire);
                 } else {
                     terrain.setMaterial(matRock);
@@ -204,9 +206,9 @@ public class TerrainTest extends SimpleApplication {
                     // planar textures don't use the mesh's texture coordinates but real world coordinates,
                     // so we need to convert these texture coordinate scales into real world scales so it looks
                     // the same when we switch to/from tri-planar mode
-                    matRock.setFloat("Tex1Scale", 1f / (float) (512f / grassScale));
-                    matRock.setFloat("Tex2Scale", 1f / (float) (512f / dirtScale));
-                    matRock.setFloat("Tex3Scale", 1f / (float) (512f / rockScale));
+                    matRock.setFloat("Tex1Scale", 1f / (512f / grassScale));
+                    matRock.setFloat("Tex2Scale", 1f / (512f / dirtScale));
+                    matRock.setFloat("Tex3Scale", 1f / (512f / rockScale));
                 } else {
                     matRock.setBoolean("useTriPlanarMapping", false);
                     matRock.setFloat("Tex1Scale", grassScale);

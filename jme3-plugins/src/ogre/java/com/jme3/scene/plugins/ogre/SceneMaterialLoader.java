@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -61,7 +61,7 @@ import org.xml.sax.helpers.DefaultHandler;
 class SceneMaterialLoader extends DefaultHandler {
     
     private static final Logger logger = Logger.getLogger(SceneMaterialLoader.class.getName());
-    private Stack<String> elementStack = new Stack<String>();
+    private Stack<String> elementStack = new Stack<>();
     private String folderName;
     private MaterialList materialList;
     private AssetManager assetManager;
@@ -100,7 +100,7 @@ class SceneMaterialLoader extends DefaultHandler {
                 String materialName = new File(materialPath).getName();
                 String matFile = folderName + materialName;
                 try {
-                    MaterialList loadedMaterialList = (MaterialList) assetManager.loadAsset(new OgreMaterialKey(matFile));
+                    MaterialList loadedMaterialList = assetManager.loadAsset(new OgreMaterialKey(matFile));
                     materialList.putAll(loadedMaterialList);
                 } catch (AssetNotFoundException ex) {
                     logger.log(Level.WARNING, "Cannot locate material file: {0}", matFile);
@@ -145,11 +145,7 @@ class SceneMaterialLoader extends DefaultHandler {
             }
             
             return materialList;
-        } catch (SAXException ex) {
-            IOException ioEx = new IOException("Error while parsing Ogre3D dotScene");
-            ioEx.initCause(ex);
-            throw ioEx;
-        } catch (ParserConfigurationException ex) {
+        } catch (SAXException | ParserConfigurationException ex) {
             IOException ioEx = new IOException("Error while parsing Ogre3D dotScene");
             ioEx.initCause(ex);
             throw ioEx;

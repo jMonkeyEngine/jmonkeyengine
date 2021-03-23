@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.jme3.input.vr.openvr;
 
 import com.jme3.app.VREnvironment;
@@ -75,7 +71,7 @@ public class OpenVRViewManager extends AbstractVRViewManager {
      * @see #getFullTexId()
      */
     protected int getLeftTexId() {
-        return (int)getLeftTexture().getImage().getId();
+        return getLeftTexture().getImage().getId();
     }
     
     /**
@@ -85,7 +81,7 @@ public class OpenVRViewManager extends AbstractVRViewManager {
      * @see #getFullTexId()
      */
     protected int getRightTexId() {
-        return (int)getRightTexture().getImage().getId();
+        return getRightTexture().getImage().getId();
     }
     
     /**
@@ -95,7 +91,7 @@ public class OpenVRViewManager extends AbstractVRViewManager {
      * @see #getRightTexId()
      */
     private int getFullTexId() {
-        return (int)dualEyeTex.getImage().getId();
+        return dualEyeTex.getImage().getId();
     }
       
     /**

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,7 +48,7 @@ public class HullCollisionShape extends CollisionShape {
 
     private float[] points;
 
-    public HullCollisionShape() {
+    protected HullCollisionShape() {
     }
 
     public HullCollisionShape(Mesh mesh) {
@@ -86,7 +86,7 @@ public class HullCollisionShape extends CollisionShape {
     }
 
     protected void createShape(float[] points) {
-        ObjectArrayList<Vector3f> pointList = new ObjectArrayList<Vector3f>();
+        ObjectArrayList<Vector3f> pointList = new ObjectArrayList<>();
         for (int i = 0; i < points.length; i += 3) {
             pointList.add(new Vector3f(points[i], points[i + 1], points[i + 2]));
         }

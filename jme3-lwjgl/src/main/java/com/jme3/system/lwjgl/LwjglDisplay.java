@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -67,6 +67,7 @@ public class LwjglDisplay extends LwjglAbstractDisplay {
         return null;
     }
 
+    @Override
     protected void createContext(AppSettings settings) throws LWJGLException{
         DisplayMode displayMode;
         if (settings.getWidth() <= 0 || settings.getHeight() <= 0){
@@ -112,15 +113,11 @@ public class LwjglDisplay extends LwjglAbstractDisplay {
         Display.setTitle(settings.getTitle());
         Display.setResizable(settings.isResizable());
         
-        if (displayMode != null) {
-            if (settings.isFullscreen()) {
-                Display.setDisplayModeAndFullscreen(displayMode);
-            } else {
-                Display.setFullscreen(false);
-                Display.setDisplayMode(displayMode);
-            }
+        if (settings.isFullscreen()) {
+            Display.setDisplayModeAndFullscreen(displayMode);
         } else {
-            Display.setFullscreen(settings.isFullscreen());
+            Display.setFullscreen(false);
+            Display.setDisplayMode(displayMode);
         }
 
         if (settings.getIcons() != null) {
@@ -155,6 +152,7 @@ public class LwjglDisplay extends LwjglAbstractDisplay {
         }
     }
     
+    @Override
     protected void destroyContext(){
         try {
             renderer.cleanup();
@@ -165,6 +163,7 @@ public class LwjglDisplay extends LwjglAbstractDisplay {
         }
     }
 
+    @Override
     public void create(boolean waitFor){
         if (created.get()){
             logger.warning("create() called when display is already created!");
@@ -206,10 +205,12 @@ public class LwjglDisplay extends LwjglAbstractDisplay {
         }
     }
 
+    @Override
     public Type getType() {
         return Type.Display;
     }
 
+    @Override
     public void setTitle(String title){
         if (created.get())
             Display.setTitle(title);

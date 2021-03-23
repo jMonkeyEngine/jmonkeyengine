@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -70,7 +70,7 @@ public class WAVLoader implements AssetLoader {
     
     private static class ResettableInputStream extends LittleEndien implements SeekableStream {
         
-        private AssetInfo info;
+        final private AssetInfo info;
         private int resetOffset = 0;
         
         public ResettableInputStream(AssetInfo info, InputStream in) {
@@ -82,6 +82,7 @@ public class WAVLoader implements AssetLoader {
             this.resetOffset = resetOffset;
         }
 
+        @Override
         public void setTime(float time) {
             if (time != 0f) {
                 throw new UnsupportedOperationException("Seeking WAV files not supported");
@@ -196,7 +197,7 @@ public class WAVLoader implements AssetLoader {
                     break;
                 case i_data:
                     // Compute duration based on data chunk size
-                    duration = (float)(len / bytesPerSec);
+                    duration = len / bytesPerSec;
 
                     if (readStream) {
                         readDataChunkForStream(inOffset, len);
@@ -215,6 +216,7 @@ public class WAVLoader implements AssetLoader {
         }
     }
     
+    @Override
     public Object load(AssetInfo info) throws IOException {
         AudioData data;
         InputStream inputStream = null;

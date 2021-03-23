@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -53,14 +53,17 @@ public final class ListMap<K, V> extends AbstractMap<K, V> implements Cloneable,
             this.value = value;
         }
 
+        @Override
         public K getKey() {
             return key;
         }
 
+        @Override
         public V getValue() {
             return value;
         }
 
+        @Override
         public V setValue(V v) {
             throw new UnsupportedOperationException();
         }
@@ -71,6 +74,7 @@ public final class ListMap<K, V> extends AbstractMap<K, V> implements Cloneable,
         }
 
         @Override
+        @SuppressWarnings("unchecked")
         public boolean equals(Object obj) {
             if (obj == null) {
                 return false;
@@ -100,18 +104,21 @@ public final class ListMap<K, V> extends AbstractMap<K, V> implements Cloneable,
     
 //    private final ArrayList<ListMapEntry<K,V>> entries;
 
+    @SuppressWarnings("unchecked")
     public ListMap(){
         entries = new ListMapEntry[4];
         backingMap = new HashMap<K, V>(4);
 //       entries = new ArrayList<ListMapEntry<K,V>>();
     }
 
+    @SuppressWarnings("unchecked")
     public ListMap(int initialCapacity){
         entries = new ListMapEntry[initialCapacity];
         backingMap = new HashMap<K, V>(initialCapacity);
 //        entries = new ArrayList<ListMapEntry<K, V>>(initialCapacity);
     }
 
+    @SuppressWarnings("unchecked")
     public ListMap(Map<? extends K, ? extends V> map){
         entries = new ListMapEntry[map.size()];
         backingMap = new HashMap<K, V>(map.size());
@@ -155,7 +162,7 @@ public final class ListMap<K, V> extends AbstractMap<K, V> implements Cloneable,
 
     @Override
     public boolean containsKey(Object key) {
-        return backingMap.containsKey( (K) key); 
+        return backingMap.containsKey(key); 
 //        if (key == null)
 //            throw new IllegalArgumentException();
 //
@@ -169,7 +176,7 @@ public final class ListMap<K, V> extends AbstractMap<K, V> implements Cloneable,
 
     @Override
     public boolean containsValue(Object value) {
-        return backingMap.containsValue( (V) value); 
+        return backingMap.containsValue(value); 
 //        for (int i = 0; i < entries.size(); i++){
 //            if (valEq(entries.get(i).value, value))
 //                return true;
@@ -179,7 +186,7 @@ public final class ListMap<K, V> extends AbstractMap<K, V> implements Cloneable,
 
     @Override
     public V get(Object key) {
-        return backingMap.get( (K) key); 
+        return backingMap.get(key); 
 //        if (key == null)
 //            throw new IllegalArgumentException();
 //
@@ -192,6 +199,7 @@ public final class ListMap<K, V> extends AbstractMap<K, V> implements Cloneable,
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public V put(K key, V value) {
         if (backingMap.containsKey(key)){
             // set the value on the entry
@@ -234,7 +242,7 @@ public final class ListMap<K, V> extends AbstractMap<K, V> implements Cloneable,
 
     @Override
     public V remove(Object key) {
-        V element = backingMap.remove( (K) key);
+        V element = backingMap.remove(key);
         if (element != null){
             // find removed element
             int size = size() + 1; // includes removed element
@@ -295,7 +303,7 @@ public final class ListMap<K, V> extends AbstractMap<K, V> implements Cloneable,
 
     @Override
     public ListMap<K, V> clone(){
-        ListMap<K, V> clone = new ListMap<K, V>(size());
+        ListMap<K, V> clone = new ListMap<>(size());
         clone.putAll(this);
         return clone;
     }
@@ -322,6 +330,7 @@ public final class ListMap<K, V> extends AbstractMap<K, V> implements Cloneable,
 //        return values;
     }
 
+    @Override
     public Set<Entry<K, V>> entrySet() {
         return backingMap.entrySet();
 //        HashSet<Entry<K, V>> entryset = new HashSet<Entry<K, V>>();

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -130,7 +130,7 @@ public class Box extends AbstractBox {
     /**
      * Empty constructor for serialization only. Do not use.
      */
-    public Box(){
+    protected Box(){
         super();
     }
 
@@ -145,24 +145,28 @@ public class Box extends AbstractBox {
         return new Box(center.clone(), xExtent, yExtent, zExtent);
     }
 
+    @Override
     protected void doUpdateGeometryIndices() {
         if (getBuffer(Type.Index) == null){
             setBuffer(Type.Index, 3, BufferUtils.createShortBuffer(GEOMETRY_INDICES_DATA));
         }
     }
 
+    @Override
     protected void doUpdateGeometryNormals() {
         if (getBuffer(Type.Normal) == null){
             setBuffer(Type.Normal, 3, BufferUtils.createFloatBuffer(GEOMETRY_NORMALS_DATA));
         }
     }
 
+    @Override
     protected void doUpdateGeometryTextures() {
         if (getBuffer(Type.TexCoord) == null){
             setBuffer(Type.TexCoord, 2, BufferUtils.createFloatBuffer(GEOMETRY_TEXTURE_DATA));
         }
     }
 
+    @Override
     protected void doUpdateGeometryVertices() {
         FloatBuffer fpb = BufferUtils.createVector3Buffer(24);
         Vector3f[] v = computeVertices();

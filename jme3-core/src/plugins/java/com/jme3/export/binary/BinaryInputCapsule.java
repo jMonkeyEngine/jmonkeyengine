@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,11 +37,11 @@ import com.jme3.export.SavableClassUtil;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.IntMap;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.HashMap;
@@ -257,11 +257,13 @@ final class BinaryInputCapsule implements InputCapsule {
         }
     }
     
+    @Override
     public int getSavableVersion(Class<? extends Savable> desiredClass){
         return SavableClassUtil.getSavedSavableVersion(savable, desiredClass, 
                                             cObj.classHierarchyVersions, importer.getFormatVersion());
     }
 
+    @Override
     public BitSet readBitSet(String name, BitSet defVal) throws IOException {
         BinaryClassField field = cObj.nameFields.get(name);
         if (field == null || !fieldData.containsKey(field.alias))
@@ -269,6 +271,7 @@ final class BinaryInputCapsule implements InputCapsule {
         return (BitSet) fieldData.get(field.alias);
     }
 
+    @Override
     public boolean readBoolean(String name, boolean defVal) throws IOException {
         BinaryClassField field = cObj.nameFields.get(name);
         if (field == null || !fieldData.containsKey(field.alias))
@@ -276,6 +279,7 @@ final class BinaryInputCapsule implements InputCapsule {
         return ((Boolean) fieldData.get(field.alias)).booleanValue();
     }
 
+    @Override
     public boolean[] readBooleanArray(String name, boolean[] defVal)
             throws IOException {
         BinaryClassField field = cObj.nameFields.get(name);
@@ -284,6 +288,7 @@ final class BinaryInputCapsule implements InputCapsule {
         return (boolean[]) fieldData.get(field.alias);
     }
 
+    @Override
     public boolean[][] readBooleanArray2D(String name, boolean[][] defVal)
             throws IOException {
         BinaryClassField field = cObj.nameFields.get(name);
@@ -292,6 +297,7 @@ final class BinaryInputCapsule implements InputCapsule {
         return (boolean[][]) fieldData.get(field.alias);
     }
 
+    @Override
     public byte readByte(String name, byte defVal) throws IOException {
         BinaryClassField field = cObj.nameFields.get(name);
         if (field == null || !fieldData.containsKey(field.alias))
@@ -299,6 +305,7 @@ final class BinaryInputCapsule implements InputCapsule {
         return ((Byte) fieldData.get(field.alias)).byteValue();
     }
 
+    @Override
     public byte[] readByteArray(String name, byte[] defVal) throws IOException {
         BinaryClassField field = cObj.nameFields.get(name);
         if (field == null || !fieldData.containsKey(field.alias))
@@ -306,6 +313,7 @@ final class BinaryInputCapsule implements InputCapsule {
         return (byte[]) fieldData.get(field.alias);
     }
 
+    @Override
     public byte[][] readByteArray2D(String name, byte[][] defVal)
             throws IOException {
         BinaryClassField field = cObj.nameFields.get(name);
@@ -314,6 +322,7 @@ final class BinaryInputCapsule implements InputCapsule {
         return (byte[][]) fieldData.get(field.alias);
     }
 
+    @Override
     public ByteBuffer readByteBuffer(String name, ByteBuffer defVal)
             throws IOException {
         BinaryClassField field = cObj.nameFields.get(name);
@@ -323,6 +332,7 @@ final class BinaryInputCapsule implements InputCapsule {
     }
 
     @SuppressWarnings("unchecked")
+    @Override
     public ArrayList<ByteBuffer> readByteBufferArrayList(String name,
             ArrayList<ByteBuffer> defVal) throws IOException {
         BinaryClassField field = cObj.nameFields.get(name);
@@ -331,6 +341,7 @@ final class BinaryInputCapsule implements InputCapsule {
         return (ArrayList<ByteBuffer>) fieldData.get(field.alias);
     }
 
+    @Override
     public double readDouble(String name, double defVal) throws IOException {
         BinaryClassField field = cObj.nameFields.get(name);
         if (field == null || !fieldData.containsKey(field.alias))
@@ -338,6 +349,7 @@ final class BinaryInputCapsule implements InputCapsule {
         return ((Double) fieldData.get(field.alias)).doubleValue();
     }
 
+    @Override
     public double[] readDoubleArray(String name, double[] defVal)
             throws IOException {
         BinaryClassField field = cObj.nameFields.get(name);
@@ -346,6 +358,7 @@ final class BinaryInputCapsule implements InputCapsule {
         return (double[]) fieldData.get(field.alias);
     }
 
+    @Override
     public double[][] readDoubleArray2D(String name, double[][] defVal)
             throws IOException {
         BinaryClassField field = cObj.nameFields.get(name);
@@ -354,6 +367,7 @@ final class BinaryInputCapsule implements InputCapsule {
         return (double[][]) fieldData.get(field.alias);
     }
 
+    @Override
     public float readFloat(String name, float defVal) throws IOException {
         BinaryClassField field = cObj.nameFields.get(name);
         if (field == null || !fieldData.containsKey(field.alias))
@@ -361,6 +375,7 @@ final class BinaryInputCapsule implements InputCapsule {
         return ((Float) fieldData.get(field.alias)).floatValue();
     }
 
+    @Override
     public float[] readFloatArray(String name, float[] defVal)
             throws IOException {
         BinaryClassField field = cObj.nameFields.get(name);
@@ -369,6 +384,7 @@ final class BinaryInputCapsule implements InputCapsule {
         return (float[]) fieldData.get(field.alias);
     }
 
+    @Override
     public float[][] readFloatArray2D(String name, float[][] defVal)
             throws IOException {
         BinaryClassField field = cObj.nameFields.get(name);
@@ -377,6 +393,7 @@ final class BinaryInputCapsule implements InputCapsule {
         return (float[][]) fieldData.get(field.alias);
     }
 
+    @Override
     public FloatBuffer readFloatBuffer(String name, FloatBuffer defVal)
             throws IOException {
         BinaryClassField field = cObj.nameFields.get(name);
@@ -386,6 +403,7 @@ final class BinaryInputCapsule implements InputCapsule {
     }
 
     @SuppressWarnings("unchecked")
+    @Override
     public ArrayList<FloatBuffer> readFloatBufferArrayList(String name,
             ArrayList<FloatBuffer> defVal) throws IOException {
         BinaryClassField field = cObj.nameFields.get(name);
@@ -394,6 +412,7 @@ final class BinaryInputCapsule implements InputCapsule {
         return (ArrayList<FloatBuffer>) fieldData.get(field.alias);
     }
 
+    @Override
     public int readInt(String name, int defVal) throws IOException {
         BinaryClassField field = cObj.nameFields.get(name);
         if (field == null || !fieldData.containsKey(field.alias))
@@ -401,6 +420,7 @@ final class BinaryInputCapsule implements InputCapsule {
         return ((Integer) fieldData.get(field.alias)).intValue();
     }
 
+    @Override
     public int[] readIntArray(String name, int[] defVal) throws IOException {
         BinaryClassField field = cObj.nameFields.get(name);
         if (field == null || !fieldData.containsKey(field.alias))
@@ -408,6 +428,7 @@ final class BinaryInputCapsule implements InputCapsule {
         return (int[]) fieldData.get(field.alias);
     }
 
+    @Override
     public int[][] readIntArray2D(String name, int[][] defVal)
             throws IOException {
         BinaryClassField field = cObj.nameFields.get(name);
@@ -416,6 +437,7 @@ final class BinaryInputCapsule implements InputCapsule {
         return (int[][]) fieldData.get(field.alias);
     }
 
+    @Override
     public IntBuffer readIntBuffer(String name, IntBuffer defVal)
             throws IOException {
         BinaryClassField field = cObj.nameFields.get(name);
@@ -424,6 +446,7 @@ final class BinaryInputCapsule implements InputCapsule {
         return (IntBuffer) fieldData.get(field.alias);
     }
 
+    @Override
     public long readLong(String name, long defVal) throws IOException {
         BinaryClassField field = cObj.nameFields.get(name);
         if (field == null || !fieldData.containsKey(field.alias))
@@ -431,6 +454,7 @@ final class BinaryInputCapsule implements InputCapsule {
         return ((Long) fieldData.get(field.alias)).longValue();
     }
 
+    @Override
     public long[] readLongArray(String name, long[] defVal) throws IOException {
         BinaryClassField field = cObj.nameFields.get(name);
         if (field == null || !fieldData.containsKey(field.alias))
@@ -438,6 +462,7 @@ final class BinaryInputCapsule implements InputCapsule {
         return (long[]) fieldData.get(field.alias);
     }
 
+    @Override
     public long[][] readLongArray2D(String name, long[][] defVal)
             throws IOException {
         BinaryClassField field = cObj.nameFields.get(name);
@@ -446,6 +471,7 @@ final class BinaryInputCapsule implements InputCapsule {
         return (long[][]) fieldData.get(field.alias);
     }
 
+    @Override
     public Savable readSavable(String name, Savable defVal) throws IOException {
         BinaryClassField field = cObj.nameFields.get(name);
         if (field == null || !fieldData.containsKey(field.alias))
@@ -461,6 +487,7 @@ final class BinaryInputCapsule implements InputCapsule {
             return defVal;
     }
 
+    @Override
     public Savable[] readSavableArray(String name, Savable[] defVal)
             throws IOException {
         BinaryClassField field = cObj.nameFields.get(name);
@@ -488,6 +515,7 @@ final class BinaryInputCapsule implements InputCapsule {
         }
     }
 
+    @Override
     public Savable[][] readSavableArray2D(String name, Savable[][] defVal)
             throws IOException {
         BinaryClassField field = cObj.nameFields.get(name);
@@ -533,7 +561,7 @@ final class BinaryInputCapsule implements InputCapsule {
         if(savables == null) {
             return null;
         }
-        ArrayList<Savable> arrayList = new ArrayList<Savable>(savables.length);
+        ArrayList<Savable> arrayList = new ArrayList<>(savables.length);
         for (int x = 0; x < savables.length; x++) {
             arrayList.add(savables[x]);
         }
@@ -545,7 +573,7 @@ final class BinaryInputCapsule implements InputCapsule {
         if(savables == null) {
             return null;
         }
-        Map<Savable, Savable> map = new HashMap<Savable, Savable>(savables.length);
+        Map<Savable, Savable> map = new HashMap<>(savables.length);
         for (int x = 0; x < savables.length; x++) {
             map.put(savables[x][0], savables[x][1]);
         }
@@ -557,7 +585,7 @@ final class BinaryInputCapsule implements InputCapsule {
             return null;
         }
 
-        Map<String, Savable> map = new HashMap<String, Savable>(keys.length);
+        Map<String, Savable> map = new HashMap<>(keys.length);
         for (int x = 0; x < keys.length; x++)
             map.put(keys[x], values[x]);
 
@@ -569,13 +597,14 @@ final class BinaryInputCapsule implements InputCapsule {
             return null;
         }
 
-        IntMap<Savable> map = new IntMap<Savable>(keys.length);
+        IntMap<Savable> map = new IntMap<>(keys.length);
         for (int x = 0; x < keys.length; x++)
             map.put(keys[x], values[x]);
 
         return map;
     }
 
+    @Override
     public ArrayList readSavableArrayList(String name, ArrayList defVal)
             throws IOException {
         BinaryClassField field = cObj.nameFields.get(name);
@@ -591,6 +620,7 @@ final class BinaryInputCapsule implements InputCapsule {
         return (ArrayList) value;
     }
 
+    @Override
     public ArrayList[] readSavableArrayListArray(String name, ArrayList[] defVal)
             throws IOException {
         BinaryClassField field = cObj.nameFields.get(name);
@@ -613,6 +643,7 @@ final class BinaryInputCapsule implements InputCapsule {
         return (ArrayList[]) value;
     }
 
+    @Override
     public ArrayList[][] readSavableArrayListArray2D(String name,
             ArrayList[][] defVal) throws IOException {
         BinaryClassField field = cObj.nameFields.get(name);
@@ -639,6 +670,7 @@ final class BinaryInputCapsule implements InputCapsule {
     }
 
     @SuppressWarnings("unchecked")
+    @Override
     public Map<? extends Savable, ? extends Savable> readSavableMap(String name, Map<? extends Savable, ? extends Savable> defVal)
             throws IOException {
         BinaryClassField field = cObj.nameFields.get(name);
@@ -655,6 +687,7 @@ final class BinaryInputCapsule implements InputCapsule {
     }
 
     @SuppressWarnings("unchecked")
+    @Override
     public Map<String, ? extends Savable> readStringSavableMap(String name, Map<String, ? extends Savable> defVal)
             throws IOException {
         BinaryClassField field = cObj.nameFields.get(name);
@@ -672,6 +705,7 @@ final class BinaryInputCapsule implements InputCapsule {
     }
 
     @SuppressWarnings("unchecked")
+    @Override
     public IntMap<? extends Savable> readIntSavableMap(String name, IntMap<? extends Savable> defVal)
             throws IOException {
         BinaryClassField field = cObj.nameFields.get(name);
@@ -688,6 +722,7 @@ final class BinaryInputCapsule implements InputCapsule {
         return (IntMap<Savable>) value;
     }
 
+    @Override
     public short readShort(String name, short defVal) throws IOException {
         BinaryClassField field = cObj.nameFields.get(name);
         if (field == null || !fieldData.containsKey(field.alias))
@@ -695,6 +730,7 @@ final class BinaryInputCapsule implements InputCapsule {
         return ((Short) fieldData.get(field.alias)).shortValue();
     }
 
+    @Override
     public short[] readShortArray(String name, short[] defVal)
             throws IOException {
         BinaryClassField field = cObj.nameFields.get(name);
@@ -703,6 +739,7 @@ final class BinaryInputCapsule implements InputCapsule {
         return (short[]) fieldData.get(field.alias);
     }
 
+    @Override
     public short[][] readShortArray2D(String name, short[][] defVal)
             throws IOException {
         BinaryClassField field = cObj.nameFields.get(name);
@@ -711,6 +748,7 @@ final class BinaryInputCapsule implements InputCapsule {
         return (short[][]) fieldData.get(field.alias);
     }
 
+    @Override
     public ShortBuffer readShortBuffer(String name, ShortBuffer defVal)
             throws IOException {
         BinaryClassField field = cObj.nameFields.get(name);
@@ -719,6 +757,7 @@ final class BinaryInputCapsule implements InputCapsule {
         return (ShortBuffer) fieldData.get(field.alias);
     }
 
+    @Override
     public String readString(String name, String defVal) throws IOException {
         BinaryClassField field = cObj.nameFields.get(name);
         if (field == null || !fieldData.containsKey(field.alias))
@@ -726,6 +765,7 @@ final class BinaryInputCapsule implements InputCapsule {
         return (String) fieldData.get(field.alias);
     }
 
+    @Override
     public String[] readStringArray(String name, String[] defVal)
             throws IOException {
         BinaryClassField field = cObj.nameFields.get(name);
@@ -734,6 +774,7 @@ final class BinaryInputCapsule implements InputCapsule {
         return (String[]) fieldData.get(field.alias);
     }
 
+    @Override
     public String[][] readStringArray2D(String name, String[][] defVal)
             throws IOException {
         BinaryClassField field = cObj.nameFields.get(name);
@@ -972,129 +1013,17 @@ final class BinaryInputCapsule implements InputCapsule {
         return value;
     }
 
-    /*
-     * UTF-8 crash course:
-     *
-     * UTF-8 codepoints map to UTF-16 codepoints and vv, which is what Java uses for its Strings.
-     * (so a UTF-8 codepoint can contain all possible values for a Java char)
-     *
-     * A UTF-8 codepoint can be 1, 2 or 3 bytes long. How long a codepint is can be told by reading the first byte:
-     * b < 0x80, 1 byte
-     * (b & 0xC0) == 0xC0, 2 bytes
-     * (b & 0xE0) == 0xE0, 3 bytes
-     *
-     * However there is an additional restriction to UTF-8, to enable you to find the start of a UTF-8 codepoint,
-     * if you start reading at a random point in a UTF-8 byte stream. That's why UTF-8 requires for the second and third byte of
-     * a multibyte codepoint:
-     * (b & 0x80) == 0x80  (in other words, first bit must be 1)
-     */
-    private final static int UTF8_START = 0; // next byte should be the start of a new
-    private final static int UTF8_2BYTE = 2; // next byte should be the second byte of a 2 byte codepoint
-    private final static int UTF8_3BYTE_1 = 3; // next byte should be the second byte of a 3 byte codepoint
-    private final static int UTF8_3BYTE_2 = 4; // next byte should be the third byte of a 3 byte codepoint
-    private final static int UTF8_ILLEGAL = 10; // not an UTF8 string
-
-    // String
     protected String readString(byte[] content) throws IOException {
         int length = readInt(content);
         if (length == BinaryOutputCapsule.NULL_OBJECT)
             return null;
 
-        /*
-         * @see ISSUE 276
-         *
-         * We'll transfer the bytes into a separate byte array.
-         * While we do that we'll take the opportunity to check if the byte data is valid UTF-8.
-         *
-         * If it is not UTF-8 it is most likely saved with the BinaryOutputCapsule bug, that saves Strings using their native
-         * encoding. Unfortunatly there is no way to know what encoding was used, so we'll parse using the most common one in
-         * that case; latin-1 aka ISO8859_1
-         *
-         * Encoding of "low" ASCII codepoint (in plain speak: when no special characters are used) will usually look the same
-         * for UTF-8 and the other 1 byte codepoint encodings (espc true for numbers and regular letters of the alphabet). So these
-         * are valid UTF-8 and will give the same result (at most a few charakters will appear different, such as the euro sign).
-         *
-         * However, when "high" codepoints are used (any codepoint that over 0x7F, in other words where the first bit is a 1) it's
-         * a different matter and UTF-8 and the 1 byte encoding greatly will differ, as well as most 1 byte encodings relative to each
-         * other.
-         *
-         * It is impossible to detect which one-byte encoding is used. Since UTF8 and practically all 1-byte encodings share the most
-         * used characters (the "none-high" ones) parsing them will give the same result. However, not all byte sequences are legal in
-         * UTF-8 (see explantion above). If not UTF-8 encoded content is detected we therefore fall back on latin1. We also log a warning.
-         *
-         * By this method we detect all use of 1 byte encoding if they:
-         * - use a "high" codepoint after a "low" codepoint or a sequence of codepoints that is valid as UTF-8 bytes, that starts with 1000
-         * - use a "low" codepoint after a "high" codepoint
-         * - use a "low" codepoint after "high" codepoint, after a "high" codepoint that starts with 1110
-         *
-         *  In practise this means that unless 2 or 3 "high" codepoints are used after each other in proper order, we'll detect the string
-         *  was not originally UTF-8 encoded.
-         *
-         */
         byte[] bytes = new byte[length];
-        int utf8State = UTF8_START;
-        int b;
         for (int x = 0; x < length; x++) {
             bytes[x] =  content[index++];
-            b = (int) bytes[x] & 0xFF; // unsign our byte
-
-            switch (utf8State) {
-            case UTF8_START:
-                if (b < 0x80) {
-                    // good
-                }
-                else if ((b & 0xC0) == 0xC0) {
-                    utf8State = UTF8_2BYTE;
-                }
-                else if ((b & 0xE0) == 0xE0) {
-                    utf8State = UTF8_3BYTE_1;
-                }
-                else {
-                    utf8State = UTF8_ILLEGAL;
-                }
-                break;
-            case UTF8_3BYTE_1:
-            case UTF8_3BYTE_2:
-            case UTF8_2BYTE:
-                 if ((b & 0x80) == 0x80)
-                    utf8State = utf8State == UTF8_3BYTE_1 ? UTF8_3BYTE_2 : UTF8_START;
-                 else
-                    utf8State = UTF8_ILLEGAL;
-                break;
-            }
         }
 
-        try {
-            // even though so far the parsing might have been a legal UTF-8 sequence, only if a codepoint is fully given is it correct UTF-8
-            if (utf8State == UTF8_START) {
-                // Java misspells UTF-8 as UTF8 for official use in java.lang
-                return new String(bytes, "UTF8");
-            }
-            else {
-                logger.log(
-                        Level.WARNING,
-                        "Your export has been saved with an incorrect encoding for its String fields which means it might not load correctly " +
-                        "due to encoding issues. You should probably re-export your work. See ISSUE 276 in the jME issue tracker."
-                );
-                // We use ISO8859_1 to be consistent across platforms. We could default to native encoding, but this would lead to inconsistent
-                // behaviour across platforms!
-                // Developers that have previously saved their exports using the old exporter (which uses native encoding), can temporarly
-                // remove the ""ISO8859_1" parameter, and change the above if statement to "if (false)".
-                // They should then import and re-export their models using the same environment they were originally created in.
-                return new String(bytes, "ISO8859_1");
-            }
-        } catch (UnsupportedEncodingException uee) {
-            // as a last resort fall back to platform native.
-            // JavaDoc is vague about what happens when a decoding a String that contains un undecodable sequence
-            // it also doesn't specify which encodings have to be supported (though UTF-8 and ISO8859 have been in the SUN JRE since at least 1.1)
-            logger.log(
-                    Level.SEVERE,
-                    "Your export has been saved with an incorrect encoding or your version of Java is unable to decode the stored string. " +
-                    "While your export may load correctly by falling back, using it on different platforms or java versions might lead to "+
-                    "very strange inconsitenties. You should probably re-export your work. See ISSUE 276 in the jME issue tracker."
-            );
-            return new String(bytes);
-        }
+        return new String(bytes, StandardCharsets.UTF_8);
     }
 
     protected String[] readStringArray(byte[] content) throws IOException {
@@ -1239,7 +1168,7 @@ final class BinaryInputCapsule implements InputCapsule {
         if (length == BinaryOutputCapsule.NULL_OBJECT) {
             return null;
         }
-        ArrayList<FloatBuffer> rVal = new ArrayList<FloatBuffer>(length);
+        ArrayList<FloatBuffer> rVal = new ArrayList<>(length);
         for (int x = 0; x < length; x++) {
             rVal.add(readFloatBuffer(content));
         }
@@ -1254,7 +1183,7 @@ final class BinaryInputCapsule implements InputCapsule {
         if (length == BinaryOutputCapsule.NULL_OBJECT) {
             return null;
         }
-        ArrayList<ByteBuffer> rVal = new ArrayList<ByteBuffer>(length);
+        ArrayList<ByteBuffer> rVal = new ArrayList<>(length);
         for (int x = 0; x < length; x++) {
             rVal.add(readByteBuffer(content));
         }
@@ -1368,6 +1297,7 @@ final class BinaryInputCapsule implements InputCapsule {
         public ID[] values;
     }
 
+    @Override
     public <T extends Enum<T>> T readEnum(String name, Class<T> enumType, T defVal) throws IOException {
         String eVal = readString(name, defVal != null ? defVal.name() : null);
         if (eVal != null) {

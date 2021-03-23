@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -79,6 +79,7 @@ public class EndpointEvent
         return type;
     }
     
+    @Override
     public String toString()
     {
         return "EndpointEvent[" + type + ", " + endpoint + "]";

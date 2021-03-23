@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -185,6 +185,14 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
          * 
          */
         DXT5(8,false,true, false),
+
+        RGTC2(8,false,true, false),
+
+        SIGNED_RGTC2(8,false,true, false),
+        
+        RGTC1(4,false,true, false),
+        
+        SIGNED_RGTC1(4,false,true, false),
         
         /**
          * Luminance-Alpha Texture Compression. 
@@ -258,7 +266,7 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
          * half-precision floating point red, green, and blue.
          * 
          * Requires {@link Caps#FloatTexture}.
-		 * May be supported for renderbuffers, but the OpenGL specification does not require it.
+         * May be supported for renderbuffers, but the OpenGL specification does not require it.
          */
         RGB16F(48,true),
         
@@ -273,7 +281,7 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
          * single-precision floating point red, green, and blue.
          * 
          * Requires {@link Caps#FloatTexture}.
-		 * May be supported for renderbuffers, but the OpenGL specification does not require it.
+         * May be supported for renderbuffers, but the OpenGL specification does not require it.
          */
         RGB32F(96,true),
         
@@ -458,8 +466,8 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
          * Requires {@link Caps#IntegerTexture}.
          */
         RGBA32UI(128),
-		
-		/**
+
+        /**
          * half-precision floating point red.
          * 
          * Requires {@link Caps#FloatTexture}.
@@ -486,6 +494,11 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
          * Requires {@link Caps#FloatTexture}.
          */
         RG32F(64,true),
+
+        /**
+         * 10-bit red, green, and blue with 2-bit alpha.
+         */
+        RGB10A2(32),
         ;
 
         private int bpp;
@@ -1127,7 +1140,7 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
      * such conversion must not be performed, for example, when loading normal
      * maps.
      *
-     * @param colorSpace @see ColorSpace. Set to sRGB to enable srgb -&gt; linear 
+     * @param colorSpace Set to sRGB to enable srgb -&gt; linear 
      * conversion, Linear otherwise.
      *
      * @see Renderer#setLinearizeSrgbImages(boolean)
@@ -1219,6 +1232,7 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
         return hash;
     }
 
+    @Override
     public void write(JmeExporter e) throws IOException {
         OutputCapsule capsule = e.getCapsule(this);
         capsule.write(format, "format", Format.RGBA8);
@@ -1231,6 +1245,7 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
         capsule.write(colorSpace, "colorSpace", null);
     }
 
+    @Override
     public void read(JmeImporter e) throws IOException {
         InputCapsule capsule = e.getCapsule(this);
         format = capsule.readEnum("format", Format.class, Format.RGBA8);
@@ -1239,7 +1254,7 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
         depth = capsule.readInt("depth", 0);
         mipMapSizes = capsule.readIntArray("mipMapSizes", null);
         multiSamples = capsule.readInt("multiSamples", 1);
-        data = (ArrayList<ByteBuffer>) capsule.readByteBufferArrayList("data", null);
+        data = capsule.readByteBufferArrayList("data", null);
         colorSpace = capsule.readEnum("colorSpace", ColorSpace.class, null);
 
         if (mipMapSizes != null) {

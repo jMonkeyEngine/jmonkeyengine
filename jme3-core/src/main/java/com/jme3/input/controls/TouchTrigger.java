@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -56,12 +56,13 @@ public class TouchTrigger implements Trigger {
         else
             return "TouchInput KeyCode " + keyCode;
     }
-    
-    public static int touchHash(int keyCode){
-        assert keyCode >= 0 && keyCode <= 255;
-        return 0xfedcba98 + keyCode;
+
+    public static int touchHash(int keyCode) {
+        int result = 0xfedcba98 + keyCode;
+        return result;
     }
 
+    @Override
     public int triggerHashCode() {
         return touchHash(keyCode);
     }

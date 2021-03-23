@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -73,10 +73,10 @@ public class J3MLoader implements AssetLoader {
     private Material material;
     private TechniqueDef technique;
     private RenderState renderState;
-    private ArrayList<String> presetDefines = new ArrayList<String>();
+    final private ArrayList<String> presetDefines = new ArrayList<>();
 
-    private List<EnumMap<Shader.ShaderType, String>> shaderLanguages;
-    private EnumMap<Shader.ShaderType, String> shaderNames;
+    final private List<EnumMap<Shader.ShaderType, String>> shaderLanguages;
+    final private EnumMap<Shader.ShaderType, String> shaderNames;
 
     private static final String whitespacePattern = "\\p{javaWhitespace}+";
 
@@ -151,7 +151,7 @@ public class J3MLoader implements AssetLoader {
     }
 
     private List<String> tokenizeTextureValue(final String value) {
-        final List<String> matchList = new ArrayList<String>();
+        final List<String> matchList = new ArrayList<>();
         final Pattern regex = Pattern.compile("[^\\s\"']+|\"([^\"]*)\"|'([^']*)'");
         final Matcher regexMatcher = regex.matcher(value.trim());
 
@@ -169,7 +169,7 @@ public class J3MLoader implements AssetLoader {
     }
 
     private List<TextureOptionValue> parseTextureOptions(final List<String> values) {
-        final List<TextureOptionValue> matchList = new ArrayList<TextureOptionValue>();
+        final List<TextureOptionValue> matchList = new ArrayList<>();
 
         if (values.isEmpty() || values.size() == 1) {
             return matchList;
@@ -295,8 +295,7 @@ public class J3MLoader implements AssetLoader {
             for (final TextureOptionValue textureOptionValue : textureOptionValues) {
                 textureOptionValue.applyToTexture(texture);
             }
-        }
-
+        }        
         return texture;
     }
 
@@ -402,7 +401,7 @@ public class J3MLoader implements AssetLoader {
             defaultValObj = readValue(type, defaultVal);
         }
         if(type.isTextureType()){
-            materialDef.addMaterialParamTexture(type, name, colorSpace);
+            materialDef.addMaterialParamTexture(type, name, colorSpace,(Texture)defaultValObj);
         }else{
             materialDef.addMaterialParam(type, name, defaultValObj);
         }
@@ -744,7 +743,7 @@ public class J3MLoader implements AssetLoader {
 
             String extendedMat = split[1].trim();
 
-            MaterialDef def = (MaterialDef) assetManager.loadAsset(new AssetKey(extendedMat));
+            MaterialDef def = assetManager.loadAsset(new AssetKey<MaterialDef>(extendedMat));
             if (def == null) {
                 throw new MatParseException("Extended material " + extendedMat + " cannot be found.", materialStat);
             }
@@ -787,6 +786,7 @@ public class J3MLoader implements AssetLoader {
         }
     }
 
+    @Override
     public Object load(AssetInfo info) throws IOException {
         this.assetManager = info.getManager();
 

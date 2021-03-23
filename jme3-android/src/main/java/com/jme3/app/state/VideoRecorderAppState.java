@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -55,7 +55,7 @@ import java.util.logging.Logger;
 
 /**
  * A Video recording AppState that records the screen output into an AVI file with
- * M-JPEG content. The file should be playable on any OS in any video player.<br/>
+ * M-JPEG content. The file should be playable on any OS in any video player.<br>
  * The video recording starts when the state is attached and stops when it is detached
  * or the application is quit. You can set the fileName of the file to be written when the
  * state is detached, else the old file will be overwritten. If you specify no file
@@ -73,6 +73,7 @@ public class VideoRecorderAppState extends AbstractAppState {
     private Application app;
     private ExecutorService executor = Executors.newCachedThreadPool(new ThreadFactory() {
 
+        @Override
         public Thread newThread(Runnable r) {
             Thread th = new Thread(r);
             th.setName("jME3 Video Processor");
@@ -131,9 +132,14 @@ public class VideoRecorderAppState extends AbstractAppState {
     }
 
     /**
-     * This constructor allows you to specify the output file of the video as well as the quality
+     * This constructor allows you to specify the output file of the video as
+     * well as the quality.
+     *
      * @param file the video file
-     * @param quality the quality of the jpegs in the video stream (0.0 smallest file - 1.0 largest file)
+     * @param quality the quality of the jpegs in the video stream (0.0 smallest
+     * file - 1.0 largest file)
+     * @param framerate the frame rate of the resulting video, the application
+     * will be locked to this framerate
      */
     public VideoRecorderAppState(File file, float quality, int framerate) {
         this.file = file;
@@ -223,7 +229,7 @@ public class VideoRecorderAppState extends AbstractAppState {
         private RenderManager renderManager;
         private boolean isInitilized = false;
         private LinkedBlockingQueue<WorkItem> freeItems;
-        private LinkedBlockingQueue<WorkItem> usedItems = new LinkedBlockingQueue<WorkItem>();
+        private LinkedBlockingQueue<WorkItem> usedItems = new LinkedBlockingQueue<>();
         private MjpegFileWriter writer;
         private boolean fastMode = true;
         private AppProfiler prof;
@@ -239,6 +245,7 @@ public class VideoRecorderAppState extends AbstractAppState {
                 renderer.readFrameBufferWithFormat(out, item.buffer, Image.Format.BGRA8);
                 executor.submit(new Callable<Void>() {
 
+                    @Override
                     public Void call() throws Exception {
                         if (fastMode) {
                             item.data = item.buffer.array();
@@ -260,6 +267,7 @@ public class VideoRecorderAppState extends AbstractAppState {
             }
         }
 
+        @Override
         public void initialize(RenderManager rm, ViewPort viewPort) {
             logger.log(Level.INFO, "initialize in VideoProcessor");
             this.camera = viewPort.getCamera();
@@ -275,13 +283,16 @@ public class VideoRecorderAppState extends AbstractAppState {
             }
         }
 
+        @Override
         public void reshape(ViewPort vp, int w, int h) {
         }
 
+        @Override
         public boolean isInitialized() {
             return this.isInitilized;
         }
 
+        @Override
         public void preFrame(float tpf) {
             if (null == writer) {
                 try {
@@ -292,14 +303,17 @@ public class VideoRecorderAppState extends AbstractAppState {
             }
         }
 
+        @Override
         public void postQueue(RenderQueue rq) {
         }
 
+        @Override
         public void postFrame(FrameBuffer out) {
             numFrames++;
             addImage(renderManager.getRenderer(), out);
         }
 
+        @Override
         public void cleanup() {
             logger.log(Level.INFO, "cleanup in VideoProcessor");
             logger.log(Level.INFO, "VideoProcessor numFrames: {0}", numFrames);
@@ -332,22 +346,27 @@ public class VideoRecorderAppState extends AbstractAppState {
             this.ticks = 0;
         }
 
+        @Override
         public long getTime() {
             return (long) (this.ticks * (1.0f / this.framerate) * 1000f);
         }
 
+        @Override
         public long getResolution() {
             return 1000L;
         }
 
+        @Override
         public float getFrameRate() {
             return this.framerate;
         }
 
+        @Override
         public float getTimePerFrame() {
-            return (float) (1.0f / this.framerate);
+            return 1.0f / this.framerate;
         }
 
+        @Override
         public void update() {
             long time = System.currentTimeMillis();
             long difference = time - lastTime;
@@ -364,6 +383,7 @@ public class VideoRecorderAppState extends AbstractAppState {
             this.ticks++;
         }
 
+        @Override
         public void reset() {
             this.ticks = 0;
         }

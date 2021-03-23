@@ -4,8 +4,8 @@ public class LinearBlendSpace implements BlendSpace {
 
     private BlendAction action;
     private float value;
-    private float maxValue;
-    private float minValue;
+    final private float maxValue;
+    final private float minValue;
     private float step;
 
     public LinearBlendSpace(float minValue, float maxValue) {
@@ -17,7 +17,7 @@ public class LinearBlendSpace implements BlendSpace {
     public void setBlendAction(BlendAction action) {
         this.action = action;
         Action[] actions = action.getActions();
-        step = (maxValue - minValue) / (float) (actions.length - 1);
+        step = (maxValue - minValue) / (actions.length - 1);
     }
 
     @Override

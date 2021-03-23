@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -93,8 +93,8 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
      */
     protected static final Logger logger = Logger.getLogger(KinematicRagdollControl.class.getName());
     protected List<RagdollCollisionListener> listeners;
-    protected final Set<String> boneList = new TreeSet<String>();
-    protected final Map<String, PhysicsBoneLink> boneLinks = new HashMap<String, PhysicsBoneLink>();
+    protected final Set<String> boneList = new TreeSet<>();
+    protected final Map<String, PhysicsBoneLink> boneLinks = new HashMap<>();
     protected final Vector3f modelPosition = new Vector3f();
     protected final Quaternion modelRotation = new Quaternion();
     protected final PhysicsRigidBody baseRigidBody;
@@ -123,8 +123,8 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
      * accumulate total mass of ragdoll when control is added to a scene
      */
     protected float totalMass = 0;
-    private Map<String, Vector3f> ikTargets = new HashMap<String, Vector3f>();
-    private Map<String, Integer> ikChainDepth = new HashMap<String, Integer>();
+    private Map<String, Vector3f> ikTargets = new HashMap<>();
+    private Map<String, Integer> ikChainDepth = new HashMap<>();
     /**
      * rotational speed for inverse kinematics (radians per second, default=7)
      */
@@ -409,7 +409,7 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
         while (it.hasNext()) {
             
             boneName = it.next();
-            bone = (Bone) boneLinks.get(boneName).bone;
+            bone = boneLinks.get(boneName).bone;
             if (!bone.hasUserControl()) {
                 Logger.getLogger(KinematicRagdollControl.class.getSimpleName()).log(Level.FINE, "{0} doesn't have user control", boneName);
                 continue;
@@ -421,7 +421,7 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
             }
             int depth = 0;
             int maxDepth = ikChainDepth.get(bone.getName());
-            updateBone(boneLinks.get(bone.getName()), tpf * (float) FastMath.sqrt(distance), vars, tmpRot1, tmpRot2, bone, ikTargets.get(boneName), depth, maxDepth);
+            updateBone(boneLinks.get(bone.getName()), tpf * FastMath.sqrt(distance), vars, tmpRot1, tmpRot2, bone, ikTargets.get(boneName), depth, maxDepth);
 
             Vector3f position = vars.vect1;
             
@@ -693,10 +693,10 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
                 shape = RagdollUtils.makeShapeFromVerticeWeights(model, RagdollUtils.getBoneIndices(link.bone, skeleton, boneList), initScale, link.bone.getModelSpacePosition(), weightThreshold);
             }
 
-            PhysicsRigidBody shapeNode = new PhysicsRigidBody(shape, rootMass / (float) reccount);
+            PhysicsRigidBody shapeNode = new PhysicsRigidBody(shape, rootMass / reccount);
 
             shapeNode.setKinematic(mode == Mode.Kinematic);
-            totalMass += rootMass / (float) reccount;
+            totalMass += rootMass / reccount;
 
             link.rigidBody = shapeNode;
             link.initalWorldRotation = bone.getModelSpaceRotation().clone();
@@ -817,6 +817,7 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
      *
      * @param event (not null)
      */
+    @Override
     public void collision(PhysicsCollisionEvent event) {
         PhysicsCollisionObject objA = event.getObjectA();
         PhysicsCollisionObject objB = event.getObjectB();

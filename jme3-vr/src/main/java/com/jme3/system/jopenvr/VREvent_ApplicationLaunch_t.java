@@ -15,6 +15,7 @@ public class VREvent_ApplicationLaunch_t extends Structure {
 	public VREvent_ApplicationLaunch_t() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("pid", "unArgsHandle");
 	}

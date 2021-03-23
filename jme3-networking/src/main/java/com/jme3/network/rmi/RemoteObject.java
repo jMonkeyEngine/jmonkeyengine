@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -59,7 +59,7 @@ public class RemoteObject implements InvocationHandler {
      * Maps from methods locally retrieved from the RMI interface to
      * a method ID.
      */
-    HashMap<Method, Integer> methodMap = new HashMap<Method, Integer>();
+    HashMap<Method, Integer> methodMap = new HashMap<>();
 
     /**
      * The {@link ObjectStore} which stores this RMI interface.
@@ -100,7 +100,7 @@ public class RemoteObject implements InvocationHandler {
      */
     public void loadMethods(Class<?> interfaceClass){
         HashMap<String, ArrayList<Method>> nameToMethods
-                = new HashMap<String, ArrayList<Method>>();
+                = new HashMap<>();
 
         for (Method method : interfaceClass.getDeclaredMethods()){
             ArrayList<Method> list = nameToMethods.get(method.getName());
@@ -129,6 +129,7 @@ public class RemoteObject implements InvocationHandler {
     /**
      * Callback from InvocationHandler.
      */
+    @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         return store.invokeRemoteMethod(this, method, args);
     }

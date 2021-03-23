@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -66,6 +66,7 @@ public class UdpEndpoint implements Endpoint
         this.kernel = kernel;
     }
 
+    @Override
     public Kernel getKernel()
     {
         return kernel;
@@ -76,11 +77,13 @@ public class UdpEndpoint implements Endpoint
         return address;
     }
 
+    @Override
     public void close()
     {
         close( false );
     }
 
+    @Override
     public void close( boolean flush )
     {
         // No real reason to flush UDP traffic yet... especially
@@ -95,16 +98,19 @@ public class UdpEndpoint implements Endpoint
         }
     }
 
+    @Override
     public long getId()
     {
         return id;
     }
 
+    @Override
     public String getAddress()
     {
         return String.valueOf(address); 
     }     
 
+    @Override
     public boolean isConnected()
     {
         // The socket is always unconnected anyway so we track our
@@ -112,6 +118,7 @@ public class UdpEndpoint implements Endpoint
         return connected;
     }
 
+    @Override
     public void send( ByteBuffer data )
     {
         if( !isConnected() ) {
@@ -139,6 +146,7 @@ public class UdpEndpoint implements Endpoint
         }
     }
 
+    @Override
     public String toString()
     {
         return "UdpEndpoint[" + id + ", " + address + "]";

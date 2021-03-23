@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -60,7 +60,6 @@ public final class FbxMesh extends FbxNodeAttribute<IntMap<Mesh>> {
     private static final Logger logger = Logger.getLogger(FbxMesh.class.getName());
     
     private FbxPolygon[] polygons;
-    private int[] edges;
     private FbxLayerElement[] layerElements;
     private Vector3f[] positions;
     private FbxLayer[] layers;
@@ -78,8 +77,8 @@ public final class FbxMesh extends FbxNodeAttribute<IntMap<Mesh>> {
     public void fromElement(FbxElement element) {
         super.fromElement(element);
         
-        List<FbxLayerElement> layerElementsList = new ArrayList<FbxLayerElement>();
-        List<FbxLayer> layersList = new ArrayList<FbxLayer>();
+        List<FbxLayerElement> layerElementsList = new ArrayList<>();
+        List<FbxLayer> layersList = new ArrayList<>();
         
         for (FbxElement e : element.children) {
             if (e.id.equals("Vertices")) {
@@ -110,6 +109,7 @@ public final class FbxMesh extends FbxNodeAttribute<IntMap<Mesh>> {
         return skinDeformer;
     }
     
+    @SuppressWarnings("unchecked")
     public void applyCluster(FbxCluster cluster) {
         if (boneIndices == null) {
             boneIndices = new ArrayList[positions.length];
@@ -166,15 +166,14 @@ public final class FbxMesh extends FbxNodeAttribute<IntMap<Mesh>> {
     }
     
     private void setEdges(int[] edges) {
-        this.edges = edges;
         // TODO: ...
     }
     
     private void setPolygonVertexIndices(int[] polygonVertexIndices) {
-        List<FbxPolygon> polygonList = new ArrayList<FbxPolygon>();
+        List<FbxPolygon> polygonList = new ArrayList<>();
 
         boolean finishPolygon = false;
-        List<Integer> vertexIndices = new ArrayList<Integer>();
+        List<Integer> vertexIndices = new ArrayList<>();
 
         for (int i = 0; i < polygonVertexIndices.length; i++) {
             int vertexIndex = polygonVertexIndices[i];
@@ -229,7 +228,7 @@ public final class FbxMesh extends FbxNodeAttribute<IntMap<Mesh>> {
         IntMap<IrMesh> irMeshes = IrUtils.splitByMaterial(irMesh);
         
         // Create a jME3 Mesh for each material index.
-        IntMap<Mesh> jmeMeshes = new IntMap<Mesh>();
+        IntMap<Mesh> jmeMeshes = new IntMap<>();
         for (IntMap.Entry<IrMesh> irMeshEntry : irMeshes) {
             Mesh jmeMesh = IrUtils.convertIrMeshToJmeMesh(irMeshEntry.getValue());
             jmeMeshes.put(irMeshEntry.getKey(), jmeMesh);
@@ -253,6 +252,8 @@ public final class FbxMesh extends FbxNodeAttribute<IntMap<Mesh>> {
     
     /**
      * Convert FBXMesh to IRMesh.
+     *
+     * @return a new IrMesh
      */
     public IrMesh toIRMesh() {
         IrMesh newMesh = new IrMesh();

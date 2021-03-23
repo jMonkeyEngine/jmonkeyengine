@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,7 +33,6 @@ package com.jme3.font;
 
 import com.jme3.font.BitmapFont.Align;
 import com.jme3.font.BitmapFont.VAlign;
-import com.jme3.material.MatParam;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.renderer.RenderManager;
@@ -429,14 +428,6 @@ public class BitmapText extends Node {
             textPages[i].assemble(letters);
         }
         needRefresh = false;
-    }
-
-    private ColorRGBA getColor( Material mat, String name ) {
-        MatParam mp = mat.getParam(name);
-        if( mp == null ) {
-            return null;
-        }
-        return (ColorRGBA)mp.getValue();
     }
 
     public void render(RenderManager rm, ColorRGBA color) {

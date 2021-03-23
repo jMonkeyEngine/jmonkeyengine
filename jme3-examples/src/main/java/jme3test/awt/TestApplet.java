@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -57,18 +57,16 @@ public class TestApplet extends Applet {
         AppSettings settings = new AppSettings(true);
         settings.setWidth(640);
         settings.setHeight(480);
-//        settings.setRenderer(AppSettings.JOGL);
+        settings.setRenderer(AppSettings.LWJGL_OPENGL2);
 
         JmeSystem.setLowPermissions(true);
 
         try{
-            Class<? extends LegacyApplication> clazz = (Class<? extends LegacyApplication>) Class.forName(appClass);
-            app = clazz.newInstance();
-        }catch (ClassNotFoundException ex){
-            ex.printStackTrace();
-        }catch (InstantiationException ex){
-            ex.printStackTrace();
-        }catch (IllegalAccessException ex){
+            Class clazz = Class.forName(appClass);
+            app = (LegacyApplication) clazz.newInstance();
+        } catch (ClassNotFoundException
+                | InstantiationException
+                | IllegalAccessException ex){
             ex.printStackTrace();
         }
 
@@ -85,6 +83,7 @@ public class TestApplet extends Applet {
         app.startCanvas();
 
         app.enqueue(new Callable<Void>(){
+            @Override
             public Void call(){
                 if (app instanceof SimpleApplication){
                     SimpleApplication simpleApp = (SimpleApplication) app;
@@ -133,6 +132,7 @@ public class TestApplet extends Applet {
     @Override
     public void destroy(){
         SwingUtilities.invokeLater(new Runnable(){
+            @Override
             public void run(){
                 removeAll();
                 System.out.println("applet:destroyStart");

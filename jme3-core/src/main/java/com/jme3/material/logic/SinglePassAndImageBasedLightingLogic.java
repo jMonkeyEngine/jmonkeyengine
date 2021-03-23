@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,10 +48,12 @@ public final class SinglePassAndImageBasedLightingLogic extends DefaultTechnique
     private static final String DEFINE_SINGLE_PASS_LIGHTING = "SINGLE_PASS_LIGHTING";
     private static final String DEFINE_NB_LIGHTS = "NB_LIGHTS";
     private static final String DEFINE_NB_PROBES = "NB_PROBES";
+    private static final String DEFINE_USE_AMBIENT_LIGHT = "USE_AMBIENT_LIGHT";
     private static final RenderState ADDITIVE_LIGHT = new RenderState();
 
+    private boolean useAmbientLight;
     private final ColorRGBA ambientLightColor = new ColorRGBA(0, 0, 0, 1);
-    private List<LightProbe> lightProbes = new ArrayList<>(3);
+    final private List<LightProbe> lightProbes = new ArrayList<>(3);
 
     static {
         ADDITIVE_LIGHT.setBlendMode(BlendMode.AlphaAdditive);
@@ -61,12 +63,14 @@ public final class SinglePassAndImageBasedLightingLogic extends DefaultTechnique
     private final int singlePassLightingDefineId;
     private final int nbLightsDefineId;
     private final int nbProbesDefineId;
+    private final int useAmbientLightDefineId;
 
     public SinglePassAndImageBasedLightingLogic(TechniqueDef techniqueDef) {
         super(techniqueDef);
         singlePassLightingDefineId = techniqueDef.addShaderUnmappedDefine(DEFINE_SINGLE_PASS_LIGHTING, VarType.Boolean);
         nbLightsDefineId = techniqueDef.addShaderUnmappedDefine(DEFINE_NB_LIGHTS, VarType.Int);
         nbProbesDefineId = techniqueDef.addShaderUnmappedDefine(DEFINE_NB_PROBES, VarType.Int);
+        useAmbientLightDefineId = techniqueDef.addShaderUnmappedDefine(DEFINE_USE_AMBIENT_LIGHT, VarType.Boolean);
     }
 
     @Override
@@ -83,23 +87,23 @@ public final class SinglePassAndImageBasedLightingLogic extends DefaultTechnique
             lightProbes.clear();
             extractIndirectLights(lights, false);
             defines.set(nbProbesDefineId, lightProbes.size());
+            defines.set(useAmbientLightDefineId, useAmbientLight);
         }
 
         return super.makeCurrent(assetManager, renderManager, rendererCaps, lights, defines);
     }
 
     /**
-     * Uploads the lights in the light list as two uniform arrays.<br/><br/> *
+     * Uploads the lights in the light list as two uniform arrays.
      * <p>
-     * <code>uniform vec4 g_LightColor[numLights];</code><br/> //
-     * g_LightColor.rgb is the diffuse/specular color of the light.<br/> //
-     * g_Lightcolor.a is the type of light, 0 = Directional, 1 = Point, <br/> //
-     * 2 = Spot. <br/> <br/>
-     * <code>uniform vec4 g_LightPosition[numLights];</code><br/> //
-     * g_LightPosition.xyz is the position of the light (for point lights)<br/>
-     * // or the direction of the light (for directional lights).<br/> //
+     * <code>uniform vec4 g_LightColor[numLights];</code> //
+     * g_LightColor.rgb is the diffuse/specular color of the light. //
+     * g_Lightcolor.a is the type of light, 0 = Directional, 1 = Point, 2 = Spot.
+     * <code>uniform vec4 g_LightPosition[numLights];</code> //
+     * g_LightPosition.xyz is the position of the light (for point lights)
+     * // or the direction of the light (for directional lights). //
      * g_LightPosition.w is the inverse radius (1/r) of the light (for
-     * attenuation) <br/> </p>
+     * attenuation) </p>
      */
     protected int updateLightListUniforms(Shader shader, Geometry g, LightList lightList, int numLights, RenderManager rm, int startIndex, int lastTexUnit) {
         if (numLights == 0) { // this shader does not do lighting, ignore.
@@ -127,7 +131,7 @@ public final class SinglePassAndImageBasedLightingLogic extends DefaultTechnique
             // apply additive blending for 2nd and future passes
             rm.getRenderer().applyRenderState(ADDITIVE_LIGHT);
             ambientColor.setValue(VarType.Vector4, ColorRGBA.Black);
-        }else{
+        } else{
             extractIndirectLights(lightList,true);
             ambientColor.setValue(VarType.Vector4, ambientLightColor);
         }
@@ -260,9 +264,11 @@ public final class SinglePassAndImageBasedLightingLogic extends DefaultTechnique
 
     protected void extractIndirectLights(LightList lightList, boolean removeLights) {
         ambientLightColor.set(0, 0, 0, 1);
+        useAmbientLight = false;
         for (int j = 0; j < lightList.size(); j++) {
             Light l = lightList.get(j);
             if (l instanceof AmbientLight) {
+                useAmbientLight = true;
                 ambientLightColor.addLocal(l.getColor());
                 if(removeLights){
                     lightList.remove(l);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,17 +39,26 @@ import java.nio.ByteBuffer;
  * on any jvm
  */
 public final class PrimitiveAllocator implements BufferAllocator {
-
+    /**
+     * De-allocate a direct buffer.
+     *
+     * @param toBeDestroyed ignored
+     */
     @Override
     public void destroyDirectBuffer(Buffer toBeDestroyed) {
-        // no exception by intent, as this way naivly written java7/8
+        // no exception by intent, as this way naively written java7/8
         // applications won't crash on 9 assuming they can dispose buffers
         System.err.println("Warning destroyBuffer not supported");
     }
 
+    /**
+     * Allocate a direct ByteBuffer of the specified size.
+     *
+     * @param size in bytes (&ge;0)
+     * @return a new direct buffer
+     */
     @Override
     public ByteBuffer allocate(int size) {
         return ByteBuffer.allocateDirect(size);
     }
-
 }

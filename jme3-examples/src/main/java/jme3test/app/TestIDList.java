@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,13 +39,13 @@ public class TestIDList {
 
     static class StateCol {
 
-        static Random rand = new Random();
+        final private static Random rand = new Random();
 
-        Map<Integer, Object> objs = new HashMap<Integer, Object>();
+        final private Map<Integer, Object> objs = new HashMap<>();
 
         public StateCol(){
             // populate with free ids
-            List<Integer> freeIds = new ArrayList();
+            List<Integer> freeIds = new ArrayList<>();
             for (int i = 0; i < 16; i++){
                 freeIds.add(i);
             }
@@ -74,11 +74,9 @@ public class TestIDList {
 
     }
 
-    static IDList list = new IDList();
-    static int boundSlot = 0;
-    
-    static Object[] slots = new Object[16];
-    static boolean[] enabledSlots = new boolean[16];
+    final private static IDList list = new IDList();   
+    final private static Object[] slots = new Object[16];
+    final private static boolean[] enabledSlots = new boolean[16];
 
     static void enable(int slot){
         System.out.println("Enabled SLOT["+slot+"]");

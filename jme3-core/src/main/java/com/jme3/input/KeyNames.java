@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -178,6 +178,12 @@ public class KeyNames {
         KEY_NAMES[KEY_KANJI] = "Kanji";
         KEY_NAMES[KEY_AX] = "Ax";
         KEY_NAMES[KEY_UNLABELED] = "Unlabeled";
+    }
+
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private KeyNames() {
     }
 
     public static String getName(int keyId) {

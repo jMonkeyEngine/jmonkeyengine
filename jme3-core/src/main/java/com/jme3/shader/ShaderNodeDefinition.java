@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,11 +52,11 @@ public class ShaderNodeDefinition implements Savable {
 
     private String name;
     private Shader.ShaderType type;
-    private List<String> shadersLanguage = new ArrayList<String>();
-    private List<String> shadersPath = new ArrayList<String>();
+    private List<String> shadersLanguage = new ArrayList<>();
+    private List<String> shadersPath = new ArrayList<>();
     private String documentation;
-    private List<ShaderNodeVariable> inputs = new ArrayList<ShaderNodeVariable>();
-    private List<ShaderNodeVariable> outputs = new ArrayList<ShaderNodeVariable>();
+    private List<ShaderNodeVariable> inputs = new ArrayList<>();
+    private List<ShaderNodeVariable> outputs = new ArrayList<>();
     private String path = null;
     private boolean noOutput = false;
 
@@ -194,7 +194,7 @@ public class ShaderNodeDefinition implements Savable {
      */
     @Override
     public void write(JmeExporter ex) throws IOException {
-        OutputCapsule oc = (OutputCapsule) ex.getCapsule(this);
+        OutputCapsule oc = ex.getCapsule(this);
         oc.write(name, "name", "");
         String[] str = new String[shadersLanguage.size()];
         oc.write(shadersLanguage.toArray(str), "shadersLanguage", null);
@@ -229,8 +229,9 @@ public class ShaderNodeDefinition implements Savable {
      * @throws IOException
      */
     @Override
+    @SuppressWarnings("unchecked")
     public void read(JmeImporter im) throws IOException {
-        InputCapsule ic = (InputCapsule) im.getCapsule(this);
+        InputCapsule ic = im.getCapsule(this);
         name = ic.readString("name", "");
 
         String[] str = ic.readStringArray("shadersLanguage", null);
@@ -248,8 +249,8 @@ public class ShaderNodeDefinition implements Savable {
         }
 
         type = ic.readEnum("type", Shader.ShaderType.class, null);
-        inputs = (List<ShaderNodeVariable>) ic.readSavableArrayList("inputs", new ArrayList<ShaderNodeVariable>());
-        outputs = (List<ShaderNodeVariable>) ic.readSavableArrayList("outputs", new ArrayList<ShaderNodeVariable>());
+        inputs = ic.readSavableArrayList("inputs", new ArrayList<>());
+        outputs = ic.readSavableArrayList("outputs", new ArrayList<>());
     }
 
     /**

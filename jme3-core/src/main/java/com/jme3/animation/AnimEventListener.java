@@ -43,7 +43,7 @@ public interface AnimEventListener {
     /**
      * Invoked when an animation "cycle" is done. For non-looping animations,
      * this event is invoked when the animation is finished playing. For
-     * looping animations, this even is invoked each time the animation is restarted.
+     * looping animations, this event is invoked each time the animation is restarted.
      *
      * @param control The control to which the listener is assigned.
      * @param channel The channel being altered

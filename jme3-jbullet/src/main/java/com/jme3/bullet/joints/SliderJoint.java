@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,7 +52,7 @@ public class SliderJoint extends PhysicsJoint {
     protected Matrix3f rotA, rotB;
     protected boolean useLinearReferenceFrameA;
 
-    public SliderJoint() {
+    protected SliderJoint() {
     }
 
     /**

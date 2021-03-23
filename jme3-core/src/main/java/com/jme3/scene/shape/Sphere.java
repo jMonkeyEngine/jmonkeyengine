@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -84,7 +84,7 @@ public class Sphere extends Mesh {
     /**
      * Serialization only. Do not use.
      */
-    public Sphere() {
+    protected Sphere() {
     }
 
     /**
@@ -402,6 +402,7 @@ public class Sphere extends Mesh {
         setStatic();
     }
 
+    @Override
     public void read(JmeImporter e) throws IOException {
         super.read(e);
         InputCapsule capsule = e.getCapsule(this);
@@ -413,6 +414,7 @@ public class Sphere extends Mesh {
         interior = capsule.readBoolean("interior", false);
     }
 
+    @Override
     public void write(JmeExporter e) throws IOException {
         super.write(e);
         OutputCapsule capsule = e.getCapsule(this);

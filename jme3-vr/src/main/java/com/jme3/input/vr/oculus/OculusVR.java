@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.jme3.input.vr.oculus;
 
 import com.jme3.app.VREnvironment;
@@ -29,11 +24,11 @@ import static org.lwjgl.system.MemoryUtil.*;
  * A few notes about the Oculus coordinate system:
  * <ul>
  * <li>Matrices should be transposed</li>
- * <li>Quaternions should be inverted<li/>
+ * <li>Quaternions should be inverted</li>
  * <li>Vectors should have their X and Z axes flipped, but apparently not Y.</li>
  * </ul>
  *
- * @author Campbell Suter <znix@znix.xyz>
+ * @author Campbell Suter (znix@znix.xyz)
  */
 public class OculusVR implements VRAPI {
 
@@ -412,6 +407,7 @@ public class OculusVR implements VRAPI {
         return HmdType.OCULUS_RIFT;
     }
 
+    @Override
     public boolean initVRCompositor(boolean set) {
         if (!set) {
             throw new UnsupportedOperationException("Cannot use LibOVR without compositor!");
@@ -427,18 +423,22 @@ public class OculusVR implements VRAPI {
         return true;
     }
 
+    @Override
     public void printLatencyInfoToConsole(boolean set) {
         throw new UnsupportedOperationException("Not yet implemented!");
     }
 
+    @Override
     public void setFlipEyes(boolean set) {
         throw new UnsupportedOperationException("Not yet implemented!");
     }
 
+    @Override
     public Void getCompositor() {
         throw new UnsupportedOperationException("Not yet implemented!");
     }
 
+    @Override
     public Void getVRSystem() {
         throw new UnsupportedOperationException("Not yet implemented!");
     }

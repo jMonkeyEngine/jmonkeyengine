@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -55,15 +55,13 @@ public class LwjglMouseInput implements MouseInput {
     private LwjglAbstractDisplay context;
 
     private RawInputListener listener;
-
-    private boolean supportHardwareCursor = false;
     private boolean cursorVisible = true;
 
     /**
      * We need to cache the cursors
      * (https://github.com/jMonkeyEngine/jmonkeyengine/issues/537)
      */
-    private Map<JmeCursor, Cursor> cursorMap = new HashMap<JmeCursor, Cursor>();
+    private Map<JmeCursor, Cursor> cursorMap = new HashMap<>();
 
     private int curX, curY, curWheel;
 
@@ -71,6 +69,7 @@ public class LwjglMouseInput implements MouseInput {
         this.context = context;
     }
 
+    @Override
     public void initialize() {
         if (!context.isRenderable())
             return;
@@ -78,7 +77,7 @@ public class LwjglMouseInput implements MouseInput {
         try {
             Mouse.create();
             logger.fine("Mouse created.");
-            supportHardwareCursor = (Cursor.getCapabilities() & Cursor.CURSOR_ONE_BIT_TRANSPARENCY) != 0;
+            Cursor.getCapabilities();
 
             // Recall state that was set before initialization
             Mouse.setGrabbed(!cursorVisible);
@@ -91,14 +90,17 @@ public class LwjglMouseInput implements MouseInput {
         }
     }
 
+    @Override
     public boolean isInitialized(){
         return Mouse.isCreated();
     }
 
+    @Override
     public int getButtonCount(){
         return Mouse.getButtonCount();
     }
 
+    @Override
     public void update() {
         if (!context.isRenderable())
             return;
@@ -139,6 +141,7 @@ public class LwjglMouseInput implements MouseInput {
         }
     }
 
+    @Override
     public void destroy() {
         if (!context.isRenderable())
             return;
@@ -154,6 +157,7 @@ public class LwjglMouseInput implements MouseInput {
         logger.fine("Mouse destroyed.");
     }
 
+    @Override
     public void setCursorVisible(boolean visible){
         cursorVisible = visible;
         if (!context.isRenderable())
@@ -190,10 +194,12 @@ public class LwjglMouseInput implements MouseInput {
         listener.onMouseMotionEvent(evt);
     }
 
+    @Override
     public long getInputTimeNanos() {
         return Sys.getTime() * LwjglTimer.LWJGL_TIME_TO_NANOS;
     }
 
+    @Override
     public void setNativeCursor(JmeCursor jmeCursor) {
         try {
             Cursor newCursor = null;

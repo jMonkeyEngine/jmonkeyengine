@@ -1,3 +1,34 @@
+/*
+ * Copyright (c) 2017-2021 jMonkeyEngine
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ * * Redistributions of source code must retain the above copyright
+ *   notice, this list of conditions and the following disclaimer.
+ *
+ * * Redistributions in binary form must reproduce the above copyright
+ *   notice, this list of conditions and the following disclaimer in the
+ *   documentation and/or other materials provided with the distribution.
+ *
+ * * Neither the name of 'jMonkeyEngine' nor the names of its contributors
+ *   may be used to endorse or promote products derived from this software
+ *   without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package com.jme3.app;
 
 import com.jme3.profile.*;
@@ -28,16 +59,17 @@ public class DetailedProfiler implements AppProfiler {
     private String curSpPath = null;
     private VpStep lastVpStep = null;
 
-    private StringBuilder path = new StringBuilder(256);
-    private StringBuilder vpPath = new StringBuilder(256);
+    final private StringBuilder path = new StringBuilder(256);
+    final private StringBuilder vpPath = new StringBuilder(256);
 
-    private Deque<Integer> idsPool = new ArrayDeque<>(100);
+    final private Deque<Integer> idsPool = new ArrayDeque<>(100);
 
     StatLine frameTime;
 
 
     @Override
     public void appStep(AppStep step) {
+
         curAppPath = step.name();
 
         if (step == AppStep.BeginFrame) {
@@ -87,11 +119,25 @@ public class DetailedProfiler implements AppProfiler {
             closeFrame();
         }
     }
+    
+    
+    @Override
+    public void appSubStep(String... additionalInfo) {
+        if (data != null) {
+            String pathStep = getPath("", additionalInfo);
+            path.setLength(0);
+            path.append(curAppPath).append(pathStep);
+            addStep(path.toString(), System.nanoTime());
+        }
+    }
 
     private void closeFrame() {
         //close frame
         if (data != null) {
-
+            if (ongoingGpuProfiling && renderer != null) {
+                renderer.stopProfiling();
+                ongoingGpuProfiling = false;
+            }
             prevPath = null;
 
             for (StatLine statLine : data.values()) {
@@ -210,8 +256,8 @@ public class DetailedProfiler implements AppProfiler {
     }
 
     public static class StatLine {
-        private long[] cpuTimes = new long[MAX_FRAMES];
-        private long[] gpuTimes = new long[MAX_FRAMES];
+        final private long[] cpuTimes = new long[MAX_FRAMES];
+        final private long[] gpuTimes = new long[MAX_FRAMES];
         private int startCursor = 0;
         private int cpuCursor = 0;
         private int gpuCursor = 0;
@@ -273,7 +319,7 @@ public class DetailedProfiler implements AppProfiler {
             if (nbFramesCpu == 0) {
                 return 0;
             }
-            return (double) cpuSum / (double) Math.min(nbFramesCpu, MAX_FRAMES);
+            return cpuSum / (double) Math.min(nbFramesCpu, MAX_FRAMES);
         }
 
         public double getAverageGpu() {
@@ -281,7 +327,7 @@ public class DetailedProfiler implements AppProfiler {
                 return 0;
             }
 
-            return (double) gpuSum / (double) Math.min(nbFramesGpu, MAX_FRAMES);
+            return gpuSum / (double) Math.min(nbFramesGpu, MAX_FRAMES);
         }
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -158,6 +158,7 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
         return Type.Canvas;
     }
 
+    @Override
     public void create(boolean waitFor){
         if (renderThread == null){
             logger.log(Level.FINE, "MAIN: Creating OGL thread.");
@@ -182,6 +183,7 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
         // TODO: Handle other cases, like change of pixel format, etc.
     }
 
+    @Override
     public Canvas getCanvas(){
         return canvas;
     }
@@ -285,6 +287,7 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
         }
 
         SwingUtilities.invokeLater(new Runnable(){
+            @Override
             public void run(){
                 canvas.requestFocus();
             }
@@ -294,6 +297,9 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
     /**
      * It seems it is best to use one pixel format for all shared contexts.
      * @see <a href="http://developer.apple.com/library/mac/#qa/qa1248/_index.html">http://developer.apple.com/library/mac/#qa/qa1248/_index.html</a>
+     * 
+     * @param forPbuffer true&rarr;zero samples, false&rarr;correct number of samples
+     * @return a new instance
      */
     protected PixelFormat acquirePixelFormat(boolean forPbuffer){
         if (forPbuffer){
@@ -330,6 +336,8 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
 
     /**
      * Makes sure the pbuffer is available and ready for use
+     * 
+     * @throws LWJGLException if the buffer can't be made current
      */
     protected void makePbufferAvailable() throws LWJGLException{
         if (pbuffer != null && pbuffer.isBufferLost()){
@@ -369,6 +377,7 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
      * 1) When the context thread ends
      * 2) Any time the canvas becomes non-displayable
      */
+    @Override
     protected void destroyContext(){
         try {
             // invalidate the state so renderer can resume operation

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,6 +48,7 @@ import java.util.logging.Level;
 public class CollectionSerializer extends Serializer {
 
     @SuppressWarnings("unchecked")
+    @Override
     public <T> T readObject(ByteBuffer data, Class<T> c) throws IOException {
         int length = data.getInt();
 
@@ -77,6 +78,7 @@ public class CollectionSerializer extends Serializer {
         return (T)collection;
     }
 
+    @Override
     public void writeObject(ByteBuffer buffer, Object object) throws IOException {
         Collection collection = (Collection)object;
         int length = collection.size();

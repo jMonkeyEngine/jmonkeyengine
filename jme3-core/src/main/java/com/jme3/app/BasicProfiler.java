@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 jMonkeyEngine
+ * Copyright (c) 2014-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -67,7 +67,6 @@ public class BasicProfiler implements AppProfiler {
     private long[] frames;
     private long startTime;
     private long renderTime;
-    private long previousFrame;
     private long updateInterval = 1000000L; // once a millisecond
     private long lastUpdate = 0;
     
@@ -174,7 +173,6 @@ public class BasicProfiler implements AppProfiler {
             case EndFrame:
                 long time = System.nanoTime();
                 frames[frameIndex * 2 + 1] = time - renderTime;
-                previousFrame = startTime; 
                 frameIndex++;
                 if( frameIndex >= size ) {
                     frameIndex = 0;
@@ -185,6 +183,10 @@ public class BasicProfiler implements AppProfiler {
                 }                
                 break;
         }
+    }
+    
+    @Override
+    public void appSubStep(String... additionalInfo) {
     }
     
     @Override

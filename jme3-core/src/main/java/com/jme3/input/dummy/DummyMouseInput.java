@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,15 +42,18 @@ import com.jme3.input.MouseInput;
  */
 public class DummyMouseInput extends DummyInput implements MouseInput {
 
+    @Override
     public void setCursorVisible(boolean visible) {
         if (!inited)
             throw new IllegalStateException("Input not initialized.");
     }
 
+    @Override
     public int getButtonCount() {
         return 0;
     }
 
+    @Override
     public void setNativeCursor(JmeCursor cursor) {
     }
 

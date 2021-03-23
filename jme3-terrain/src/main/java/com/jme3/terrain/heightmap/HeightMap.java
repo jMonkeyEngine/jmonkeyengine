@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -130,7 +130,6 @@ public interface HeightMap {
      * @param filter
      * the erosion value.
      * @throws Exception
-     * @throws JmeException
      * if filter is less than 0 or greater than 1.
      */
     void setMagnificationFilter(float filter) throws Exception;
@@ -142,8 +141,6 @@ public interface HeightMap {
      * @param size
      * the new size of the terrain.
      * @throws Exception
-     *
-     * @throws JmeException
      * if the size is less than or equal to zero.
      */
     void setSize(int size) throws Exception;

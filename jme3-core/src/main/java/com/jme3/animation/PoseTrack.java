@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,12 +32,8 @@
 package com.jme3.animation;
 
 import com.jme3.export.*;
-import com.jme3.scene.Mesh;
-import com.jme3.scene.VertexBuffer;
-import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.util.TempVars;
 import java.io.IOException;
-import java.nio.FloatBuffer;
 
 /**
  * A single track of pose animation associated with a certain mesh.
@@ -62,7 +58,7 @@ public final class PoseTrack implements Track {
         /**
          * Serialization-only. Do not use.
          */
-        public PoseFrame()
+        protected PoseFrame()
         {
         }
         
@@ -87,12 +83,14 @@ public final class PoseTrack implements Track {
             }
         }
 
+        @Override
         public void write(JmeExporter e) throws IOException {
             OutputCapsule out = e.getCapsule(this);
             out.write(poses, "poses", null);
             out.write(weights, "weights", null);
         }
 
+        @Override
         public void read(JmeImporter i) throws IOException {
             InputCapsule in = i.getCapsule(this);
             weights = in.readFloatArray("weights", null);
@@ -114,24 +112,11 @@ public final class PoseTrack implements Track {
     /**
      * Serialization-only. Do not use.
      */
-    public PoseTrack()
+    protected PoseTrack()
     {
     }
     
-    private void applyFrame(Mesh target, int frameIndex, float weight){
-        PoseFrame frame = frames[frameIndex];
-        VertexBuffer pb = target.getBuffer(Type.Position);
-        for (int i = 0; i < frame.poses.length; i++){
-            Pose pose = frame.poses[i];
-            float poseWeight = frame.weights[i] * weight;
-
-            pose.apply(poseWeight, (FloatBuffer) pb.getData());
-        }
-
-        // force to re-upload data to gpu
-        pb.updateData(pb.getData());
-    }
-
+    @Override
     public void setTime(float time, float weight, AnimControl control, AnimChannel channel, TempVars vars) {
         // TODO: When MeshControl is created, it will gather targets
         // list automatically which is then retrieved here.
@@ -161,6 +146,7 @@ public final class PoseTrack implements Track {
     /**
      * @return the length of the track
      */
+    @Override
     public float getLength() {
         return times == null ? 0 : times[times.length - 1] - times[0];
     }

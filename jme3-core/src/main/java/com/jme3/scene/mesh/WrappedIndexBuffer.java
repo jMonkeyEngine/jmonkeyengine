@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,8 +35,6 @@ import com.jme3.scene.Mesh;
 import com.jme3.scene.Mesh.Mode;
 import com.jme3.scene.VertexBuffer.Type;
 import java.nio.Buffer;
-import java.nio.IntBuffer;
-import java.nio.ShortBuffer;
 
 /**
  * <code>WrappedIndexBuffer</code> converts vertex indices from a non list based
@@ -107,11 +105,7 @@ public class WrappedIndexBuffer extends VirtualIndexBuffer {
             default:
                 break;
         }
-        if (outBuf instanceof IndexIntBuffer){
-            mesh.setBuffer(Type.Index, 3, (IntBuffer)outBuf.getBuffer());
-        }else{
-            mesh.setBuffer(Type.Index, 3, (ShortBuffer)outBuf.getBuffer());
-        }
+        mesh.setBuffer(Type.Index, 3, outBuf.getFormat(), outBuf.getBuffer());
     }
     
 }

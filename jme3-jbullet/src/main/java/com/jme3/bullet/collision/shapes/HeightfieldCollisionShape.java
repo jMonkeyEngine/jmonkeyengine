@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -65,7 +65,7 @@ public class HeightfieldCollisionShape extends CollisionShape {
 	protected int upAxis;
 	protected boolean flipQuadEdges;
 
-	public HeightfieldCollisionShape() {
+	protected HeightfieldCollisionShape() {
 
 	}
 
@@ -129,6 +129,7 @@ public class HeightfieldCollisionShape extends CollisionShape {
 		return null;
     }
 
+    @Override
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
         OutputCapsule capsule = ex.getCapsule(this);
@@ -142,6 +143,7 @@ public class HeightfieldCollisionShape extends CollisionShape {
         capsule.write(flipQuadEdges, "flipQuadEdges", false);
     }
 
+    @Override
     public void read(JmeImporter im) throws IOException {
         super.read(im);
         InputCapsule capsule = im.getCapsule(this);

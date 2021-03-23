@@ -14,6 +14,7 @@ public class VREvent_Ipd_t extends Structure {
 	public VREvent_Ipd_t() {
 		super();
 	}
+        @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("ipdMeters");
 	}

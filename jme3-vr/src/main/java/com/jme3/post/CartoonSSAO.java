@@ -1,7 +1,3 @@
-/*
-* To change this template, choose Tools | Templates
-* and open the template in the editor.
-*/
 package com.jme3.post;
 
 import com.jme3.asset.AssetManager;
@@ -43,7 +39,7 @@ public class CartoonSSAO extends Filter{
 
     /**
     * Create a Screen Space Ambient Occlusion Filter.
-    * @param downsample factor to divide resolution by for filter, >1 increases speed but degrades quality.
+    * @param downsample factor to divide resolution by for filter, &gt;1 increases speed but degrades quality.
     * @param instancedRendering <code>true</code> if this filter has to use instance rendering and <code>false</code> (default) otherwise.
     */
     public CartoonSSAO(float downsample, boolean instancedRendering) {
@@ -140,7 +136,7 @@ public class CartoonSSAO extends Filter{
         frustumNearFar = new Vector2f();
 
         float farY = (vp.getCamera().getFrustumTop() / vp.getCamera().getFrustumNear()) * vp.getCamera().getFrustumFar();
-        float farX = farY * ((float) screenWidth / (float) screenHeight);
+        float farX = farY * (screenWidth / (float) screenHeight);
         frustumCorner = new Vector3f(farX, farY, vp.getCamera().getFrustumFar());
         frustumNearFar.x = vp.getCamera().getFrustumNear();
         frustumNearFar.y = vp.getCamera().getFrustumFar();

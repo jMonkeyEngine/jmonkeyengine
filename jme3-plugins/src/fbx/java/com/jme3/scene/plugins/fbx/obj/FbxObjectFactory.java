@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -59,6 +59,12 @@ public final class FbxObjectFactory {
     
     private static final Logger logger = Logger.getLogger(FbxObjectFactory.class.getName());
     
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private FbxObjectFactory() {
+    }
+
     private static Class<? extends FbxObject> getImplementingClass(String elementName, String subclassName) {
         if (elementName.equals("NodeAttribute")) {
             if (subclassName.equals("Root")) {
@@ -194,16 +200,10 @@ public final class FbxObjectFactory {
                                                     ") forgot to call super.fromElement() in their fromElement() implementation");
                 }
                 return obj;
-            } catch (InvocationTargetException ex) {
-                // Programmer error.
-                throw new IllegalStateException(ex);
-            } catch (NoSuchMethodException ex) {
-                // Programmer error.
-                throw new IllegalStateException(ex);
-            } catch (InstantiationException ex) {
-                // Programmer error.
-                throw new IllegalStateException(ex);
-            } catch (IllegalAccessException ex) {
+            } catch (InvocationTargetException
+                    | NoSuchMethodException
+                    | InstantiationException
+                    | IllegalAccessException ex) {
                 // Programmer error.
                 throw new IllegalStateException(ex);
             }

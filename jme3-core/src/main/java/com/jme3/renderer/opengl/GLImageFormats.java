@@ -166,7 +166,7 @@ public final class GLImageFormats {
                 format(formatToGL, Format.Luminance8,       GLExt.GL_RGBA8, GL.GL_LUMINANCE,       GL.GL_UNSIGNED_BYTE);
                 format(formatToGL, Format.Luminance8Alpha8, GLExt.GL_RGBA8, GL.GL_LUMINANCE_ALPHA, GL.GL_UNSIGNED_BYTE);
             }
-            format(formatToGL, Format.RGB8,             GLExt.GL_RGBA8, GL.GL_RGB,             GL.GL_UNSIGNED_BYTE);
+            format(formatToGL, Format.RGB8,             GL2.GL_RGB8,    GL.GL_RGB,             GL.GL_UNSIGNED_BYTE);
             format(formatToGL, Format.RGBA8,            GLExt.GL_RGBA8, GL.GL_RGBA,            GL.GL_UNSIGNED_BYTE);
             
             formatSwiz(formatToGL, Format.BGR8, GL2.GL_RGB8, GL2.GL_RGB, GL.GL_UNSIGNED_BYTE);
@@ -217,8 +217,28 @@ public final class GLImageFormats {
                 format(formatToGL, Format.RGB16F_to_RGB9E5,     GLExt.GL_RGB9_E5_EXT,         GL.GL_RGB, halfFloatFormat);
             }
         }
+
+        // Supported in GLES30 core 
+        if (caps.contains(Caps.OpenGLES30)) { 
+            format(formatToGL, Format.RGB10A2,              GLES_30.GL_RGB10_A2,             GL.GL_RGBA,            GLES_30.GL_UNSIGNED_INT_2_10_10_10_REV);
+            format(formatToGL, Format.Alpha8,               GL2.GL_ALPHA8,                   GL.GL_ALPHA,           GL.GL_UNSIGNED_BYTE);
+            format(formatToGL, Format.Luminance8,           GL.GL_LUMINANCE,                 GL.GL_LUMINANCE,       GL.GL_UNSIGNED_BYTE);
+            format(formatToGL, Format.Luminance8Alpha8,     GL.GL_LUMINANCE_ALPHA,           GL.GL_LUMINANCE_ALPHA, GL.GL_UNSIGNED_BYTE);
+
+            formatSrgb(formatToGL, Format.RGB8,             GLExt.GL_SRGB8_EXT,              GL.GL_RGB,             GL.GL_UNSIGNED_BYTE);
+            formatSrgb(formatToGL, Format.RGBA8,            GLExt.GL_SRGB8_ALPHA8_EXT,       GL.GL_RGBA,            GL.GL_UNSIGNED_BYTE);
+
+            //Depending on the device could be better to use the previously defined extension based float textures instead of gles3.0 texture formats
+//            if (!caps.contains(Caps.FloatTexture)) {
+                format(formatToGL, Format.RGB16F,           GLExt.GL_RGB16F_ARB,             GL.GL_RGB,             GLExt.GL_HALF_FLOAT_ARB);
+                format(formatToGL, Format.RGB32F,           GLExt.GL_RGB32F_ARB,             GL.GL_RGB,             GL.GL_FLOAT);
+                format(formatToGL, Format.RGBA16F,          GLExt.GL_RGBA16F_ARB,            GL.GL_RGBA,            GLExt.GL_HALF_FLOAT_ARB);
+                format(formatToGL, Format.RGBA32F,          GLExt.GL_RGBA32F_ARB,            GL.GL_RGBA,            GL.GL_FLOAT);
+//            }
+            format(formatToGL, Format.RGB111110F,           GLExt.GL_R11F_G11F_B10F_EXT,     GL.GL_RGB,             GLExt.GL_UNSIGNED_INT_10F_11F_11F_REV_EXT);
+        }
         
-        // Need to check if Caps.DepthTexture is supported prior to using for textures
+         // Need to check if Caps.DepthTexture is supported prior to using for textures
         // But for renderbuffers its OK.
         format(formatToGL, Format.Depth16, GL.GL_DEPTH_COMPONENT16,  GL.GL_DEPTH_COMPONENT, GL.GL_UNSIGNED_SHORT);
         
@@ -228,7 +248,7 @@ public final class GLImageFormats {
         } else {
             format(formatToGL, Format.Depth, GL.GL_DEPTH_COMPONENT, GL.GL_DEPTH_COMPONENT, GL.GL_UNSIGNED_BYTE);
         }
-        if (caps.contains(Caps.OpenGL20)) {
+        if (caps.contains(Caps.OpenGL20) || caps.contains(Caps.Depth24)) {
             format(formatToGL, Format.Depth24, GL2.GL_DEPTH_COMPONENT24,  GL.GL_DEPTH_COMPONENT, GL.GL_UNSIGNED_INT);
         }
         if (caps.contains(Caps.FloatDepthBuffer)) {
@@ -244,6 +264,13 @@ public final class GLImageFormats {
             formatComp(formatToGL, Format.DXT1A, GLExt.GL_COMPRESSED_RGBA_S3TC_DXT1_EXT, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE);
             formatComp(formatToGL, Format.DXT3,  GLExt.GL_COMPRESSED_RGBA_S3TC_DXT3_EXT, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE);
             formatComp(formatToGL, Format.DXT5,  GLExt.GL_COMPRESSED_RGBA_S3TC_DXT5_EXT, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE);
+        }
+
+        if(caps.contains(Caps.OpenGL30)){
+            formatComp(formatToGL, Format.RGTC2,  GL3.GL_COMPRESSED_RG_RGTC2,  GL3.GL_RG,  GL.GL_UNSIGNED_BYTE);
+            formatComp(formatToGL, Format.SIGNED_RGTC2,  GL3.GL_COMPRESSED_SIGNED_RG_RGTC2,  GL3.GL_RG,  GL.GL_BYTE);
+            formatComp(formatToGL, Format.RGTC1,  GL3.GL_COMPRESSED_RED_RGTC1,  GL3.GL_RED,  GL.GL_UNSIGNED_BYTE);
+            formatComp(formatToGL, Format.SIGNED_RGTC1,  GL3.GL_COMPRESSED_SIGNED_RED_RGTC1,  GL3.GL_RED,  GL.GL_BYTE);
         }
         
         if (caps.contains(Caps.TextureCompressionETC2)) {

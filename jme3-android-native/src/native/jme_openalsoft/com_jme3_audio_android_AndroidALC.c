@@ -1,5 +1,5 @@
 #include "util.h"
-#include "com_jme3_audio_android_AndroidALC.h"
+#include "../headers/com_jme3_audio_android_AndroidALC.h"
 #include "AL/alc.h"
 #include "AL/alext.h"
 
@@ -74,14 +74,11 @@ static void CloseAL()
 
 static ALCdevice* GetALCDevice()
 {
-    ALCdevice *device;
-    ALCcontext *ctx;
+    ALCcontext *ctx = alcGetCurrentContext();
 
-    ctx = alcGetCurrentContext();
-    
-    if (ctx != NULL) 
+    if (ctx != NULL)
     {
-        device = alcGetContextsDevice(ctx);
+        ALCdevice *device = alcGetContextsDevice(ctx);
         
         if (device != NULL)
         {

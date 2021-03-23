@@ -310,7 +310,7 @@ public class SceneLoader implements AssetLoader {
 			}
 		}
 		// Extract animations
-		HashMap<String, Animation> anims = new HashMap<String, Animation>();
+		HashMap<String, Animation> anims = new HashMap<>();
 		for(AnimInverval animInfo : animList.list) {
 			float realLength = 0;
 			float length = (animInfo.lastFrame - animInfo.firstFrame) / this.animFrameRate;
@@ -331,7 +331,7 @@ public class SceneLoader implements AssetLoader {
 				// Animation channels may have different keyframes (non-baked animation).
 				//   So we have to restore intermediate values for all channels cause of JME requires
 				//   a bone track as a single channel with collective transformation for each keyframe
-				Set<Long> stamps = new TreeSet<Long>(); // Sorted unique timestamps
+				Set<Long> stamps = new TreeSet<>(); // Sorted unique timestamps
 				FbxAnimNode animTranslation = limb.animTranslation(sourceLayerId);
 				FbxAnimNode animRotation = limb.animRotation(sourceLayerId);
 				FbxAnimNode animScale = limb.animScale(sourceLayerId);
@@ -355,7 +355,7 @@ public class SceneLoader implements AssetLoader {
 				int firstKeyIndex = 0;
 				int lastKeyIndex = keyTimes.length - 1;
 				for(int i = 0; i < keyTimes.length; ++i) {
-					float time = (float) (((double) keyTimes[i]) * secondsPerUnit); // Translate into seconds
+					float time = (float) (keyTimes[i] * secondsPerUnit); // Translate into seconds
 					if(time <= animStart)
 						firstKeyIndex = i;
 					if(time >= animStop && animStop >= 0) {
@@ -373,7 +373,7 @@ public class SceneLoader implements AssetLoader {
 				// Calculate keyframes times
 				for(int i = 0; i < keysCount; ++i) {
 					int keyIndex = firstKeyIndex + i;
-					float time = (float) (((double) keyTimes[keyIndex]) * secondsPerUnit); // Translate into seconds
+					float time = (float) (keyTimes[keyIndex] * secondsPerUnit); // Translate into seconds
 					times[i] = time - animStart;
 					realLength = Math.max(realLength, times[i]);
 				}

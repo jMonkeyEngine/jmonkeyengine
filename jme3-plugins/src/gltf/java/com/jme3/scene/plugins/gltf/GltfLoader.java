@@ -1,3 +1,34 @@
+/*
+ * Copyright (c) 2009-2021 jMonkeyEngine
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ * * Redistributions of source code must retain the above copyright
+ *   notice, this list of conditions and the following disclaimer.
+ *
+ * * Redistributions in binary form must reproduce the above copyright
+ *   notice, this list of conditions and the following disclaimer in the
+ *   documentation and/or other materials provided with the distribution.
+ *
+ * * Neither the name of 'jMonkeyEngine' nor the names of its contributors
+ *   may be used to endorse or promote products derived from this software
+ *   without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package com.jme3.scene.plugins.gltf;
 
 import com.google.gson.*;
@@ -16,9 +47,8 @@ import com.jme3.texture.Texture;
 import com.jme3.texture.Texture2D;
 import com.jme3.util.IntMap;
 import com.jme3.util.mikktspace.MikktspaceTangentGenerator;
-
-import javax.xml.bind.DatatypeConverter;
 import java.io.*;
+import java.net.URLDecoder;
 import java.nio.Buffer;
 import java.nio.FloatBuffer;
 import java.util.*;
@@ -63,10 +93,6 @@ public class GltfLoader implements AssetLoader {
     private static Map<String, MaterialAdapter> defaultMaterialAdapters = new HashMap<>();
     private CustomContentManager customContentManager = new CustomContentManager();
     private boolean useNormalsFlag = false;
-    private Quaternion tmpQuat = new Quaternion();
-    private Transform tmpTransforms = new Transform();
-    private Transform tmpTransforms2 = new Transform();
-    private Matrix4f tmpMat = new Matrix4f();
 
     Map<SkinData, List<Spatial>> skinnedSpatials = new HashMap<>();
     IntMap<SkinBuffers> skinBuffers = new IntMap<>();
@@ -98,7 +124,7 @@ public class GltfLoader implements AssetLoader {
             docRoot = new JsonParser().parse(new JsonReader(new InputStreamReader(stream))).getAsJsonObject();
 
             JsonObject asset = docRoot.getAsJsonObject().get("asset").getAsJsonObject();
-            String generator = getAsString(asset, "generator");
+            getAsString(asset, "generator");
             String version = getAsString(asset, "version");
             String minVersion = getAsString(asset, "minVersion");
             if (!isSupported(version, minVersion)) {
@@ -178,6 +204,10 @@ public class GltfLoader implements AssetLoader {
             sceneNode.setCullHint(Spatial.CullHint.Always);
 
             sceneNode.setName(getAsString(scene.getAsJsonObject(), "name"));
+            // If the scene is empty, ignore it.
+            if (!scene.getAsJsonObject().has("nodes")) {
+                continue;
+            }
             JsonArray sceneNodes = scene.getAsJsonObject().getAsJsonArray("nodes");
             sceneNode = customContentManager.readExtensionAndExtras("scene", scene, sceneNode);
             rootNode.attachChild(sceneNode);
@@ -399,10 +429,23 @@ public class GltfLoader implements AssetLoader {
                 mesh.generateBindPose();
             }
 
+            //Read morph target names
+            LinkedList<String> targetNames = new LinkedList<>();
+            if (meshData.has("extras") && meshData.getAsJsonObject("extras").has("targetNames")) {
+                JsonArray targetNamesJson = meshData.getAsJsonObject("extras").getAsJsonArray("targetNames");
+                for (JsonElement target : targetNamesJson) {
+                    targetNames.add(target.getAsString());
+                }
+            }
+            
+            //Read morph targets
             JsonArray targets = meshObject.getAsJsonArray("targets");
             if(targets != null){
                 for (JsonElement target : targets) {
                     MorphTarget morphTarget = new MorphTarget();
+                    if (targetNames.size() > 0) {
+                        morphTarget.setName(targetNames.pop());
+                    }
                     for (Map.Entry<String, JsonElement> entry : target.getAsJsonObject().entrySet()) {
                         String bufferType = entry.getKey();
                         VertexBuffer.Type type = getVertexBufferType(bufferType);
@@ -414,7 +457,8 @@ public class GltfLoader implements AssetLoader {
                     mesh.addMorphTarget(morphTarget);
                 }
             }
-
+        
+            //Read mesh extras
             mesh = customContentManager.readExtensionAndExtras("primitive", meshObject, mesh);
 
             Geometry geom = new Geometry(null, mesh);
@@ -543,14 +587,15 @@ public class GltfLoader implements AssetLoader {
         if (uri != null) {
             if (uri.startsWith("data:")) {
                 //base 64 embed data
-                data = DatatypeConverter.parseBase64Binary(uri.substring(uri.indexOf(",") + 1));
+                data = Base64.getDecoder().decode(uri.substring(uri.indexOf(",") + 1));
             } else {
                 //external file let's load it
-                if (!uri.endsWith(".bin")) {
-                    throw new AssetLoadException("Cannot load " + uri + ", a .bin extension is required.");
+                String decoded = decodeUri(uri);
+                if (!decoded.endsWith(".bin")) {
+                    throw new AssetLoadException("Cannot load " + decoded + ", a .bin extension is required.");
                 }
 
-                BinDataKey key = new BinDataKey(info.getKey().getFolder() + uri);
+                BinDataKey key = new BinDataKey(info.getKey().getFolder() + decoded);
                 InputStream input = (InputStream) info.getManager().loadAsset(key);
                 data = new byte[bufferLength];
                 DataInputStream dataStream = new DataInputStream(input);
@@ -714,14 +759,15 @@ public class GltfLoader implements AssetLoader {
         } else if (uri.startsWith("data:")) {
             //base64 encoded image
             String[] uriInfo = uri.split(",");
-            byte[] data = DatatypeConverter.parseBase64Binary(uriInfo[1]);
+            byte[] data = Base64.getDecoder().decode(uriInfo[1]);
             String headerInfo = uriInfo[0].split(";")[0];
             String extension = headerInfo.split("/")[1];
             TextureKey key = new TextureKey("image" + sourceIndex + "." + extension, flip);
             result = (Texture2D) info.getManager().loadAssetFromStream(key, new ByteArrayInputStream(data));
         } else {
             //external file image
-            TextureKey key = new TextureKey(info.getKey().getFolder() + uri, flip);
+            String decoded = decodeUri(uri);
+            TextureKey key = new TextureKey(info.getKey().getFolder() + decoded, flip);
             Texture tex = info.getManager().loadTexture(key);
             result = (Texture2D) tex;
         }
@@ -1143,6 +1189,14 @@ public class GltfLoader implements AssetLoader {
         return rootNode;
     }
 
+    private String decodeUri(String uri) {
+        try {
+            return URLDecoder.decode(uri, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            return uri; //This would mean that UTF-8 is unsupported on the platform.
+        }
+    }
+
     public static class WeightData {
         float value;
         short index;
@@ -1374,4 +1428,3 @@ public class GltfLoader implements AssetLoader {
     }
 
 }
-

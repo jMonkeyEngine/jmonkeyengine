@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -231,6 +231,7 @@ public abstract class AbstractPhysicsControl implements PhysicsControl, JmeClone
      *
      * @param spatial the spatial to control (or null)
      */
+    @Override
     public void setSpatial(Spatial spatial) {
         if (this.spatial != null && this.spatial != spatial) {
             removeSpatialData(this.spatial);
@@ -247,6 +248,13 @@ public abstract class AbstractPhysicsControl implements PhysicsControl, JmeClone
     }
 
     /**
+     * @return returns the spatial the control is added to, or null if the control is not attached to a spatial yet.
+     */
+    public Spatial getSpatial(){
+        return this.spatial;
+    }
+
+    /**
      * Enable or disable this control.
      * <p>
      * When the control is disabled, the physics object is removed from physics
@@ -255,6 +263,7 @@ public abstract class AbstractPhysicsControl implements PhysicsControl, JmeClone
      *
      * @param enabled true&rarr;enable the control, false&rarr;disable it
      */
+    @Override
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
         if (space != null) {
@@ -277,13 +286,16 @@ public abstract class AbstractPhysicsControl implements PhysicsControl, JmeClone
      *
      * @return true if enabled, otherwise false
      */
+    @Override
     public boolean isEnabled() {
         return enabled;
     }
 
+    @Override
     public void update(float tpf) {
     }
 
+    @Override
     public void render(RenderManager rm, ViewPort vp) {
     }
 
@@ -319,6 +331,7 @@ public abstract class AbstractPhysicsControl implements PhysicsControl, JmeClone
      *
      * @return the pre-existing space, or null for none
      */
+    @Override
     public PhysicsSpace getPhysicsSpace() {
         return space;
     }
