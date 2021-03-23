@@ -29,7 +29,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.input;
+package com.jme3.input.awt;
 
 import java.awt.Component;
 import java.util.Objects;
@@ -37,8 +37,8 @@ import java.util.Objects;
 import com.jme3.app.Application;
 import com.jme3.input.Input;
 import com.jme3.input.RawInputListener;
-import com.jme3.system.AWTContext;
-import com.jme3.system.AWTTaskExecutor;
+import com.jme3.system.JmeContext;
+import com.jme3.system.awt.AWTTaskExecutor;
 
 /**
  * The implementation of the {@link Input} dedicated to AWT {@link Component component}.
@@ -55,7 +55,7 @@ public class AWTInput implements Input {
     /**
      * The context.
      */
-    protected final AWTContext context;
+    protected final JmeContext context;
 
     /**
      * The raw listener.
@@ -77,7 +77,11 @@ public class AWTInput implements Input {
      */
     protected boolean initialized;
 
-    public AWTInput(final AWTContext context) {
+    public AWTInput() {
+        this.context = null;
+    }
+    
+    public AWTInput(final JmeContext context) {
         this.context = context;
     }
 
@@ -102,7 +106,7 @@ public class AWTInput implements Input {
 
     @Override
     public void update() {
-        if (!context.isRenderable()) return;
+        if ((context == null) || (!context.isRenderable())) return;
         updateImpl();
     }
 

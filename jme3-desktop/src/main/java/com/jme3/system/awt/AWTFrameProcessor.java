@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,10 +29,15 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.system;
+package com.jme3.system.awt;
 
 import java.awt.Component;
 import java.awt.EventQueue;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.awt.event.HierarchyBoundsListener;
+import java.awt.event.HierarchyEvent;
+import java.awt.event.HierarchyListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Iterator;
@@ -40,8 +45,8 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.jme3.app.Application;
-import com.jme3.input.AWTKeyInput;
-import com.jme3.input.AWTMouseInput;
+import com.jme3.input.awt.AWTInputKeyboard;
+import com.jme3.input.awt.AWTInputMouse;
 import com.jme3.post.SceneProcessor;
 import com.jme3.profile.AppProfiler;
 import com.jme3.renderer.Camera;
@@ -60,7 +65,7 @@ import com.jme3.texture.Image;
  * @author Alexander Brui (JavaSaBr)
  *
  */
-public class AWTFrameProcessor implements SceneProcessor, PropertyChangeListener {
+public class AWTFrameProcessor implements SceneProcessor, PropertyChangeListener, ComponentListener, HierarchyListener, HierarchyBoundsListener{
 
 	public enum TransferMode {
 		ALWAYS,
@@ -124,6 +129,8 @@ public class AWTFrameProcessor implements SceneProcessor, PropertyChangeListener
 
 	private boolean askFixAspect;
 	private boolean enabled;
+
+	private boolean flipY = true;
 
 	@Override
 	public void initialize(RenderManager rm, ViewPort vp) {
@@ -192,15 +199,71 @@ public class AWTFrameProcessor implements SceneProcessor, PropertyChangeListener
 
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
-		System.out.println("Property changed: "+evt.getPropertyName()+" "+evt.getOldValue()+" -> "+evt.getNewValue());
+	}
+
+	@Override
+	public void componentResized(ComponentEvent e) {
+		if ((e != null) && (e.getComponent() == destination)){
+			if (e.getComponent() != null) {
+				notifyChangedDimension(e.getComponent().getWidth(), e.getComponent().getHeight());
+			}
+		}
+	}
+
+	@Override
+	public void componentMoved(ComponentEvent e) {
+	}
+
+	@Override
+	public void componentShown(ComponentEvent e) {
+	}
+
+	@Override
+	public void componentHidden(ComponentEvent e) {
+	}
+
+	@Override
+	public void hierarchyChanged(HierarchyEvent e) {	
+	}
+
+	@Override
+	public void ancestorMoved(HierarchyEvent e) {}
+
+	@Override
+	public void ancestorResized(HierarchyEvent e) {
+		notifyChangedDimension(destination.getWidth(), destination.getHeight());
 	}
 
 	public AWTFrameProcessor() {
+		this(true);
+	}
+
+	public AWTFrameProcessor(boolean flipY) {
 		transferMode = TransferMode.ALWAYS;
 		askWidth = 1;
 		askHeight = 1;
 		main = true;
 		reshapeNeeded = new AtomicInteger(2);    
+
+		this.flipY = flipY;
+	}
+
+	/**
+	 * Is the rendered image is Y flipped.
+	 * @return <code>true</code> if the rendered image has to be Y flipped and <code>false</code> otherwise
+	 * @see #setFlipY(boolean)
+	 */
+	public boolean isFlipY() {
+		return flipY;
+	}
+
+	/**
+	 * Set if the rendered image has to be Y flipped.
+	 * @param flip <code>true</code> if the rendered image has to be Y flipped and <code>false</code> otherwise
+	 * @see #isFlipY()
+	 */
+	public void setFlipY(boolean flip) {
+		this.flipY = flip;
 	}
 
 	/**
@@ -208,7 +271,7 @@ public class AWTFrameProcessor implements SceneProcessor, PropertyChangeListener
 	 *
 	 * @param newValue the new value of the ratio.
 	 */
-	protected void notifyChangedRatio(Boolean newValue) {
+	protected void notifyChangedpRatio(Boolean newValue) {
 		notifyComponentResized(destination.getWidth(), destination.getHeight(), newValue);
 	}
 
@@ -228,6 +291,16 @@ public class AWTFrameProcessor implements SceneProcessor, PropertyChangeListener
 	 */
 	protected void notifyChangedWidth(Number newValue) {
 		notifyComponentResized(newValue.intValue(), destination.getHeight(), isPreserveRatio());
+	}
+
+	/**
+	 * Notify about that the dimensions were changed.
+	 *
+	 * @param width the new value of the width.
+	 * @param height the new value of the height.
+	 */
+	protected void notifyChangedDimension(Number width, Number height) {
+		notifyComponentResized(width.intValue(), height.intValue(), isPreserveRatio());
 	}
 
 	/**
@@ -331,8 +404,7 @@ public class AWTFrameProcessor implements SceneProcessor, PropertyChangeListener
 	}
 
 	/**
-	 * Handle resizing.
-	 *
+	 * Handle rendering component resizing.
 	 * @param newWidth  the new width.
 	 * @param newHeight the new height.
 	 * @param fixAspect true if need to fix aspect.
@@ -488,9 +560,9 @@ public class AWTFrameProcessor implements SceneProcessor, PropertyChangeListener
 			if (application.getContext() != null) {
 				if (application.getContext() instanceof AWTContext) {
 					AWTContext context = (AWTContext) application.getContext();
-					AWTMouseInput mouseInput = context.getMouseInput();
+					AWTInputMouse mouseInput = context.getMouseInput();
 					mouseInput.bind(destination);
-					AWTKeyInput keyInput = context.getKeyInput();
+					AWTInputKeyboard keyInput = context.getKeyInput();
 					keyInput.bind(destination);
 
 					setDestination(destination);
@@ -518,9 +590,9 @@ public class AWTFrameProcessor implements SceneProcessor, PropertyChangeListener
 
 		if (hasApplication() && isMain()) {
 			final AWTContext context = (AWTContext) getApplication().getContext();
-			final AWTMouseInput mouseInput = context.getMouseInput();
+			final AWTInputMouse mouseInput = context.getMouseInput();
 			mouseInput.unbind();
-			final AWTKeyInput keyInput = context.getKeyInput();
+			final AWTInputKeyboard keyInput = context.getKeyInput();
 			keyInput.unbind();
 		}
 
@@ -537,6 +609,11 @@ public class AWTFrameProcessor implements SceneProcessor, PropertyChangeListener
 		Component destination = getDestination();
 		destination.addPropertyChangeListener(this);
 		destination.addPropertyChangeListener(this);
+
+		destination.addComponentListener(this);
+
+		destination.addHierarchyListener(this);
+		destination.addHierarchyBoundsListener(this);
 	}
 
 
@@ -544,6 +621,11 @@ public class AWTFrameProcessor implements SceneProcessor, PropertyChangeListener
 		Component destination = getDestination();
 		destination.removePropertyChangeListener(this);
 		destination.removePropertyChangeListener(this);
+
+		destination.removeComponentListener(this);
+
+		destination.removeHierarchyListener(this);
+		destination.removeHierarchyBoundsListener(this);
 	}
 
 	/**
@@ -583,7 +665,7 @@ public class AWTFrameProcessor implements SceneProcessor, PropertyChangeListener
 	 * @return the new frame transfer.
 	 */
 	protected AWTComponentRenderer createFrameTransfer(FrameBuffer frameBuffer, int width, int height) {
-		return new AWTComponentRenderer(getDestination(), getTransferMode(), isMain() ? null : frameBuffer, width, height);
+		return new AWTComponentRenderer(getDestination(), getTransferMode(), isMain() ? null : frameBuffer, width, height, flipY);
 	}
 
 	/**

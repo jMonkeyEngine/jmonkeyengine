@@ -29,13 +29,15 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.system;
+package com.jme3.system.awt;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import com.jme3.input.AWTKeyInput;
-import com.jme3.input.AWTMouseInput;
 import com.jme3.input.JoyInput;
 import com.jme3.input.TouchInput;
+import com.jme3.input.awt.AWTInputKeyboard;
+import com.jme3.input.awt.AWTInputMouse;
 import com.jme3.opencl.Context;
 import com.jme3.renderer.Renderer;
 import com.jme3.system.AppSettings;
@@ -49,11 +51,14 @@ import com.jme3.system.Timer;
  * <p>
  * This class is based on the <a href="http://www.oracle.com/technetwork/java/javase/overview/javafx-overview-2158620.html">JavaFX</a> original code provided by Alexander Brui (see <a href="https://github.com/JavaSaBr/JME3-JFX">JME3-FX</a>)
  * </p>
+ * It is possible to specify a system renderer to use by setting the system property <i>jme3.system.renderer</i> with a value that specifies the renderer to use (These values can be obtained from {@link AppSettings} class).
  * @author Julien Seinturier - COMEX SA - <a href="http://www.seinturier.fr">http://www.seinturier.fr</a>
  * @author Alexander Brui (JavaSaBr)
  */
 public class AWTContext implements JmeContext {
 
+  private static final Logger logger = Logger.getLogger(JmeContext.class.getName());
+	
   /**
    * The settings.
    */
@@ -62,12 +67,12 @@ public class AWTContext implements JmeContext {
   /**
    * The key input.
    */
-  protected final AWTKeyInput keyInput;
+  protected final AWTInputKeyboard keyInput;
 
   /**
    * The mouse input.
    */
-  protected final AWTMouseInput mouseInput;
+  protected final AWTInputMouse mouseInput;
 
   /**
    * The current width.
@@ -79,14 +84,19 @@ public class AWTContext implements JmeContext {
    */
   private volatile int height;
 
+  private String underlyingRenderer = null;
+  
   /**
    * The background context.
    */
   protected JmeContext backgroundContext;
 
+  /**
+   * Create a new AWT Context
+   */
   public AWTContext() {
-      this.keyInput = new AWTKeyInput(this);
-      this.mouseInput = new AWTMouseInput(this);
+      this.keyInput = new AWTInputKeyboard(this);
+      this.mouseInput = new AWTInputMouse(this);
       this.settings = createSettings();
       this.backgroundContext = createBackgroundContext();
       this.height = 1;
@@ -94,44 +104,85 @@ public class AWTContext implements JmeContext {
   }
 
   /**
+   * Get the current display height of the context.
    * @return the current height.
+   * @see #getWidth()
    */
   public int getHeight() {
       return height;
   }
 
   /**
+   * Set the current display height of the context.
    * @param height the current height.
+   * @see #setWidth(int)
    */
   public void setHeight(final int height) {
       this.height = height;
   }
 
   /**
+   * Get the current display width of the context.
    * @return the current width.
+   * @see #getHeight()
    */
   public int getWidth() {
       return width;
   }
 
   /**
+   * Set the current display width of the context.
    * @param width the current width.
+   * @see #setHeight(int)
    */
   public void setWidth(final int width) {
       this.width = width;
   }
 
   /**
-   * @return new settings.
+   * Create a default application settings.
+   * @return the created application settings.
    */
   protected AppSettings createSettings() {
       final AppSettings settings = new AppSettings(true);
-      settings.setRenderer(AppSettings.LWJGL_OPENGL32);
+      
+      String renderer = System.getProperty("jme3.system.renderer");
+      
+      if (renderer != null) {
+    	  underlyingRenderer = renderer;
+    	  settings.setRenderer(underlyingRenderer);
+    	  logger.log(Level.INFO, "Using underlying renderer "+settings.getRenderer()+".");
+      } else {
+    	  underlyingRenderer = settings.getRenderer();
+    	  logger.log(Level.INFO, "Using default underlying renderer "+underlyingRenderer);
+    	  logger.log(Level.INFO, getClass().getSimpleName()+" underlying renderer can be set using jme3.awt.renderer property.");
+      }
+      
       return settings;
   }
 
+  @Override
+  public void setSettings(AppSettings settings) {
+      this.settings.copyFrom(settings);
+      
+      String renderer = System.getProperty("jme3.system.renderer");
+      
+      if (renderer != null) {
+    	  underlyingRenderer = renderer;
+    	  this.settings.setRenderer(underlyingRenderer);
+    	  logger.log(Level.INFO, "Using underlying renderer "+this.settings.getRenderer()+".");
+      } else {
+    	  this.settings.setRenderer(underlyingRenderer);
+    	  logger.log(Level.INFO, "Using default underlying renderer "+this.settings.getRenderer());
+    	  logger.log(Level.INFO, getClass().getSimpleName()+" underlying renderer can be set using jme3.awt.renderer property.");
+      }
+      
+      this.backgroundContext.setSettings(this.settings);
+  }
+  
   /**
-   * @return new context/
+   * Create a background context for displaying.
+   * @return the created context
    */
   protected JmeContext createBackgroundContext() {
       return JmeSystem.newContext(settings, Type.OffscreenSurface);
@@ -140,13 +191,6 @@ public class AWTContext implements JmeContext {
   @Override
   public Type getType() {
       return Type.OffscreenSurface;
-  }
-
-  @Override
-  public void setSettings(AppSettings settings) {
-      this.settings.copyFrom(settings);
-      this.settings.setRenderer(AppSettings.LWJGL_OPENGL32);
-      this.backgroundContext.setSettings(settings);
   }
 
   @Override
@@ -170,12 +214,12 @@ public class AWTContext implements JmeContext {
   }
 
   @Override
-  public AWTMouseInput getMouseInput() {
+  public AWTInputMouse getMouseInput() {
       return mouseInput;
   }
 
   @Override
-  public AWTKeyInput getKeyInput() {
+  public AWTInputKeyboard getKeyInput() {
       return keyInput;
   }
 
@@ -215,9 +259,8 @@ public class AWTContext implements JmeContext {
 
   @Override
   public void create(final boolean waitFor) {
-        String render = System.getProperty("awt.background.render", AppSettings.LWJGL_OPENGL33);
-        backgroundContext.getSettings().setRenderer(render);
-        backgroundContext.create(waitFor);
+      logger.log(Level.INFO, "Creating background renderer using "+backgroundContext.getSettings().getRenderer()+" renderer");
+      backgroundContext.create(waitFor);
   }
 
   @Override

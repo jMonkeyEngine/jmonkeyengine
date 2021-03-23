@@ -35,9 +35,8 @@ import java.awt.Component;
 
 import com.jme3.app.Application;
 import com.jme3.app.state.AbstractAppState;
-import com.jme3.app.state.AppStateManager;
-import com.jme3.system.AWTFrameProcessor;
-import com.jme3.system.AWTTaskExecutor;
+import com.jme3.system.awt.AWTFrameProcessor;
+import com.jme3.system.awt.AWTTaskExecutor;
 
 /**
  * An app state dedicated to the rendering of a JMonkey application within an AWT component.
@@ -53,6 +52,8 @@ public class AWTComponentAppState extends AbstractAppState {
  
   private AWTFrameProcessor.TransferMode transferMode = AWTFrameProcessor.TransferMode.ON_CHANGES;
   
+  private boolean flipY = true;
+  
   @Override
   public void initialize(AppStateManager stateManager, Application app) {
     super.initialize(stateManager, app);
@@ -61,6 +62,7 @@ public class AWTComponentAppState extends AbstractAppState {
   @Override
   public void stateAttached(final AppStateManager stateManager) {
     processor = new AWTFrameProcessor();
+    processor.setFlipY(flipY);
 	processor.setTransferMode(transferMode);
 
 	AWTTaskExecutor.getInstance().addToExecute(new Runnable() {
@@ -116,20 +118,44 @@ public class AWTComponentAppState extends AbstractAppState {
   }
   
   /**
-   * Get the {@link com.jme3.system.AWTFrameProcessor.TransferMode transfer mode} that is used by the underlying frame processor.
-   * @return the {@link com.jme3.system.AWTFrameProcessor.TransferMode transfer mode} that is used by the underlying frame processor.
-   * @see #setTransferMode(com.jme3.system.AWTFrameProcessor.TransferMode)
+   * Get the {@link AWTFrameProcessor.TransferMode transfer mode} that is used by the underlying frame processor.
+   * @return the {@link AWTFrameProcessor.TransferMode transfer mode} that is used by the underlying frame processor.
+   * @see #setTransferMode(AWTFrameProcessor.TransferMode)
    */
   public AWTFrameProcessor.TransferMode getTransferMode(){
 	  return transferMode;
   }
   
   /**
-   * Set the {@link com.jme3.system.AWTFrameProcessor.TransferMode transfer mode} that is used by the underlying frame processor.
-   * @param mode the {@link com.jme3.system.AWTFrameProcessor.TransferMode transfer mode} that is used by the underlying frame processor.
+   * Set the {@link AWTFrameProcessor.TransferMode transfer mode} that is used by the underlying frame processor.
+   * @param mode the {@link AWTFrameProcessor.TransferMode transfer mode} that is used by the underlying frame processor.
    * @see #getTransferMode()
    */
   public void setTransferMode(AWTFrameProcessor.TransferMode mode) {
 	  this.transferMode = mode;
+  }
+  
+	
+  /**
+   * Is the rendered image is Y flipped.
+   * @return <code>true</code> if the rendered image has to be Y flipped and <code>false</code> otherwise
+   * @see #setFlipY(boolean)
+   */
+  public boolean isFlipY() {
+	  return flipY;
+  }
+  
+  /**
+   * Set if the rendered image has to be Y flipped.
+   * @param flip <code>true</code> if the rendered image has to be Y flipped and <code>false</code> otherwise
+   * @see #isFlipY()
+   */
+  public void setFlipY(boolean flip) {
+	  
+	  if (processor != null) {
+		  processor.setFlipY(flip);
+	  }
+	  
+	  this.flipY = flip;
   }
 }

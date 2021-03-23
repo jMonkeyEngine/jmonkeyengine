@@ -29,7 +29,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.input;
+package com.jme3.input.awt;
 
 import java.awt.Component;
 import java.awt.event.KeyEvent;
@@ -40,7 +40,7 @@ import java.util.Map;
 
 import com.jme3.input.KeyInput;
 import com.jme3.input.event.KeyInputEvent;
-import com.jme3.system.AWTContext;
+import com.jme3.system.JmeContext;
 
 
 /**
@@ -51,7 +51,7 @@ import com.jme3.system.AWTContext;
  * @author Julien Seinturier - COMEX SA - <a href="http://www.seinturier.fr">http://www.seinturier.fr</a>
  * @author Alexander Brui (JavaSaBr)
  */
-public class AWTKeyInput extends AWTInput implements KeyInput, KeyListener{
+public class AWTInputKeyboard extends AWTInput implements KeyInput, KeyListener{
 
     private static final Map<Integer, Integer> KEY_CODE_TO_JME = new HashMap<>();
 
@@ -168,7 +168,12 @@ public class AWTKeyInput extends AWTInput implements KeyInput, KeyListener{
 
     private final LinkedList<KeyInputEvent> keyInputEvents;
 
-    public AWTKeyInput(AWTContext context) {
+    public AWTInputKeyboard() {
+        super();
+        keyInputEvents = new LinkedList<KeyInputEvent>();
+    }
+    
+    public AWTInputKeyboard(JmeContext context) {
         super(context);
         keyInputEvents = new LinkedList<KeyInputEvent>();
     }
@@ -219,19 +224,16 @@ public class AWTKeyInput extends AWTInput implements KeyInput, KeyListener{
 
     @Override
     public void keyTyped(KeyEvent e) {
-      System.out.println("Key typed "+e.getKeyChar());
       //onKeyEvent(e, false);
     }
 
     @Override
     public void keyPressed(KeyEvent e) {
-      System.out.println("Key pressed "+e.getKeyChar());
       onKeyEvent(e, true);
     }
 
     @Override
     public void keyReleased(KeyEvent e) {
-      System.out.println("Key released "+e.getKeyChar());
       onKeyEvent(e, false);
     }
 }
