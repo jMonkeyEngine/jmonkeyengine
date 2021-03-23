@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -55,8 +55,8 @@ import java.util.logging.Logger;
  */
 public class AssetLinkNode extends Node {
 
-    protected ArrayList<ModelKey> assetLoaderKeys = new ArrayList<ModelKey>();
-    protected Map<ModelKey, Spatial> assetChildren = new HashMap<ModelKey, Spatial>();
+    protected ArrayList<ModelKey> assetLoaderKeys = new ArrayList<>();
+    protected Map<ModelKey, Spatial> assetChildren = new HashMap<>();
 
     public AssetLinkNode() {
     }

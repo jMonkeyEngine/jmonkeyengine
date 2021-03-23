@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -71,6 +71,12 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
  * @author bouquet
  */
 public class LightProbeFactory {
+
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private LightProbeFactory() {
+    }
 
     /**
      * Creates a LightProbe with the giver EnvironmentCamera in the given scene.
@@ -208,7 +214,7 @@ public class LightProbeFactory {
     }
 
     /**
-     * For debuging porpose only
+     * For debuging purposes only.
      * Will return a Node meant to be added to a GUI presenting the 2 cube maps in a cross pattern with all the mip maps.
      *
      * @param manager the asset manager

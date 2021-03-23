@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -533,7 +533,7 @@ public class AudioNode extends Node implements AudioSource {
 
     /**
      * Set the reverb filter for this audio node.
-     * <br/>
+     * <br>
      * The reverb filter will influence the reverberations
      * of the audio node playing. This only has an effect if
      * reverb is enabled.
@@ -560,7 +560,7 @@ public class AudioNode extends Node implements AudioSource {
     /**
      * Set the maximum distance for the attenuation of the audio node.
      * Does nothing if the audio node is not positional.
-     * <br/>
+     * <br>
      * The maximum distance is the distance beyond which the audio
      * node will no longer be attenuated.  Normal attenuation is logarithmic
      * from refDistance (it reduces by half when the distance doubles).
@@ -595,7 +595,7 @@ public class AudioNode extends Node implements AudioSource {
     /**
      * Set the reference playing distance for the audio node.
      * Does nothing if the audio node is not positional.
-     * <br/>
+     * <br>
      * The reference playing distance is the distance at which the
      * audio node will be exactly half of its volume.
      *
@@ -625,7 +625,7 @@ public class AudioNode extends Node implements AudioSource {
     /**
      * Set the audio node to be directional.
      * Does nothing if the audio node is not positional.
-     * <br/>
+     * <br>
      * After setting directional, you should call
      * {@link AudioNode#setDirection(com.jme3.math.Vector3f) }
      * to set the audio node's direction.

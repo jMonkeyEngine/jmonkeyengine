@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -64,8 +64,8 @@ public class AwtMouseInput implements MouseInput, MouseListener, MouseWheelListe
 
     private Component component;
 
-    private final ArrayList<MouseButtonEvent> eventQueue = new ArrayList<MouseButtonEvent>();
-    private final ArrayList<MouseButtonEvent> eventQueueCopy = new ArrayList<MouseButtonEvent>();
+    private final ArrayList<MouseButtonEvent> eventQueue = new ArrayList<>();
+    private final ArrayList<MouseButtonEvent> eventQueueCopy = new ArrayList<>();
 
     private int lastEventX;
     private int lastEventY;

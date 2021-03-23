@@ -34,11 +34,10 @@ public class TerrainGridTileLoaderTest extends SimpleApplication {
 
     private Material mat_terrain;
     private TerrainGrid terrain;
-    private float grassScale = 64;
-    private float dirtScale = 16;
-    private float rockScale = 128;
-    private boolean usePhysics = true;
-    private boolean physicsAdded = false;
+    final private float grassScale = 64;
+    final private float dirtScale = 16;
+    final private float rockScale = 128;
+    final private boolean usePhysics = true;
 
     public static void main(final String[] args) {
         TerrainGridTileLoaderTest app = new TerrainGridTileLoaderTest();

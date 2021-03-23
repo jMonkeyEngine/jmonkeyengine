@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,7 +32,6 @@
  
 package com.jme3.network.base.protocol;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
 
@@ -56,7 +55,7 @@ import com.jme3.network.base.MessageProtocol;
 public class GreedyMessageBuffer implements MessageBuffer {
 
     private MessageProtocol protocol;
-    private final LinkedList<Message> messages = new LinkedList<Message>();
+    private final LinkedList<Message> messages = new LinkedList<>();
     private ByteBuffer current;
     private int size;
     private Byte carry;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,8 +41,8 @@ import com.jme3.input.JoystickAxis;
  */
 public class JoyAxisEvent extends InputEvent {
 
-    private JoystickAxis axis;
-    private float value;
+    final private JoystickAxis axis;
+    final private float value;
 
     public JoyAxisEvent(JoystickAxis axis, float value) {
         this.axis = axis;

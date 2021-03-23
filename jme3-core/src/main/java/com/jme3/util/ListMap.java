@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -303,7 +303,7 @@ public final class ListMap<K, V> extends AbstractMap<K, V> implements Cloneable,
 
     @Override
     public ListMap<K, V> clone(){
-        ListMap<K, V> clone = new ListMap<K, V>(size());
+        ListMap<K, V> clone = new ListMap<>(size());
         clone.putAll(this);
         return clone;
     }

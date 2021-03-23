@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -192,10 +192,7 @@ public class BulletAppState
         };
         try {
             return executor.submit(call).get();
-        } catch (InterruptedException ex) {
-            Logger.getLogger(BulletAppState.class.getName()).log(Level.SEVERE, null, ex);
-            return false;
-        } catch (ExecutionException ex) {
+        } catch (InterruptedException | ExecutionException ex) {
             Logger.getLogger(BulletAppState.class.getName()).log(Level.SEVERE, null, ex);
             return false;
         }
@@ -388,9 +385,7 @@ public class BulletAppState
             try {
                 physicsFuture.get();
                 physicsFuture = null;
-            } catch (InterruptedException ex) {
-                Logger.getLogger(BulletAppState.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (ExecutionException ex) {
+            } catch (InterruptedException | ExecutionException ex) {
                 Logger.getLogger(BulletAppState.class.getName()).log(Level.SEVERE, null, ex);
             }
         }

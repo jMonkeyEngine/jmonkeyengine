@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -67,7 +67,6 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
     private String shotName;
     private long shotIndex = 0;
     private int width, height;
-    private AppProfiler prof;
     /**
      * InputManager to which the ActionListener and the mapping are added
      */
@@ -312,7 +311,6 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
 
     @Override
     public void setProfiler(AppProfiler profiler) {
-        this.prof = profiler;
     }
 
     /**

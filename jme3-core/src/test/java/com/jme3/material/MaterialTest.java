@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2016 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -186,10 +186,6 @@ public class MaterialTest {
                 myCaps.add(Caps.GLSL100);
                 break;
         }
-    }
-
-    private void caps(Caps... caps) {
-        myCaps.addAll(Arrays.asList(caps));
     }
 
     private void material(String path) {

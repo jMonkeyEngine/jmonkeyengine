@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -75,12 +75,12 @@ public class ShaderNodeLoaderDelegate {
     protected Set<String> varNames = new HashSet<>();
     protected AssetManager assetManager;
     protected ConditionParser conditionParser = new ConditionParser();
-    protected List<String> nulledConditions = new ArrayList<String>();
+    protected List<String> nulledConditions = new ArrayList<>();
 
     protected class DeclaredVariable {
 
         ShaderNodeVariable var;
-        List<ShaderNode> nodes = new ArrayList<ShaderNode>();
+        List<ShaderNode> nodes = new ArrayList<>();
 
         public DeclaredVariable(ShaderNodeVariable var) {
             this.var = var;
@@ -388,7 +388,7 @@ public class ShaderNodeLoaderDelegate {
     }
 
     /**
-     * Reads a Shader statement of this form <TYPE> <LANG> : <SOURCE>
+     * Reads a Shader statement of the form TYPE LANG : SOURCE
      *
      * @param statement
      * @throws IOException

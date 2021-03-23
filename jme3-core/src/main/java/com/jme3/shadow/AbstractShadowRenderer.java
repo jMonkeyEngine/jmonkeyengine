@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -109,7 +109,7 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
     /**
      * list of materials for post shadow queue geometries
      */
-    protected List<Material> matCache = new ArrayList<Material>();
+    protected List<Material> matCache = new ArrayList<>();
     protected GeometryList lightReceivers = new GeometryList(new OpaqueComparator());
     protected GeometryList shadowMapOccluders = new GeometryList(new OpaqueComparator());
     private String[] shadowMapStringCache;

@@ -18,8 +18,8 @@ import java.util.concurrent.Callable;
  * Created by michael on 28.02.15.
  */
 public class TestTessellationShader extends SimpleApplication {
-    Material tessellationMaterial;
-    int tessFactor=5;
+    private Material tessellationMaterial;
+    private int tessFactor=5;
     @Override
     public void simpleInitApp() {
         tessellationMaterial = new Material(getAssetManager(), "Materials/Tess/SimpleTess.j3md");

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -55,7 +55,7 @@ import java.util.logging.Logger;
  */
 public class CompoundCollisionShape extends CollisionShape {
 
-    protected ArrayList<ChildCollisionShape> children = new ArrayList<ChildCollisionShape>();
+    protected ArrayList<ChildCollisionShape> children = new ArrayList<>();
 
     public CompoundCollisionShape() {
         cShape = new CompoundShape();

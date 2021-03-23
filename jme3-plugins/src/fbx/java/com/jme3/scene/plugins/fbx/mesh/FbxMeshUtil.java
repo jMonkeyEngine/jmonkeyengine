@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,6 +34,11 @@ package com.jme3.scene.plugins.fbx.mesh;
 import com.jme3.scene.plugins.fbx.file.FbxElement;
 
 public class FbxMeshUtil {
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private FbxMeshUtil() {
+    }
 
     public static double[] getDoubleArray(FbxElement el) {
         if (el.propertiesTypes[0] == 'd') {

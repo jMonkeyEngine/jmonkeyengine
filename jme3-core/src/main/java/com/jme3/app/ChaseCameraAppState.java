@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -123,7 +123,7 @@ public class ChaseCameraAppState extends AbstractAppState implements ActionListe
         initVerticalAxisInputs();
         initZoomInput();
         initHorizontalAxisInput();
-        initTogleRotateInput();
+        initToggleRotateInput();
 
         inputManager.addListener(this, inputs);
         inputManager.setCursorVisible(dragToRotate);
@@ -227,7 +227,7 @@ public class ChaseCameraAppState extends AbstractAppState implements ActionListe
         toggleRotateTrigger = triggers;
         if (inputManager != null) {
             inputManager.deleteMapping(CameraInput.CHASECAM_TOGGLEROTATE);
-            initTogleRotateInput();
+            initToggleRotateInput();
             inputManager.addListener(this, CameraInput.CHASECAM_TOGGLEROTATE);
         }
     }
@@ -493,7 +493,7 @@ public class ChaseCameraAppState extends AbstractAppState implements ActionListe
         inputManager.addMapping(CameraInput.CHASECAM_ZOOMOUT, zoomOutTrigger);
     }
 
-    private void initTogleRotateInput() {
+    private void initToggleRotateInput() {
         inputManager.addMapping(CameraInput.CHASECAM_TOGGLEROTATE, toggleRotateTrigger);
     }
 }

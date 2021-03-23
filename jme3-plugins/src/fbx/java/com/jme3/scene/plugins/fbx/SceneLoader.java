@@ -310,7 +310,7 @@ public class SceneLoader implements AssetLoader {
 			}
 		}
 		// Extract animations
-		HashMap<String, Animation> anims = new HashMap<String, Animation>();
+		HashMap<String, Animation> anims = new HashMap<>();
 		for(AnimInverval animInfo : animList.list) {
 			float realLength = 0;
 			float length = (animInfo.lastFrame - animInfo.firstFrame) / this.animFrameRate;
@@ -331,7 +331,7 @@ public class SceneLoader implements AssetLoader {
 				// Animation channels may have different keyframes (non-baked animation).
 				//   So we have to restore intermediate values for all channels cause of JME requires
 				//   a bone track as a single channel with collective transformation for each keyframe
-				Set<Long> stamps = new TreeSet<Long>(); // Sorted unique timestamps
+				Set<Long> stamps = new TreeSet<>(); // Sorted unique timestamps
 				FbxAnimNode animTranslation = limb.animTranslation(sourceLayerId);
 				FbxAnimNode animRotation = limb.animRotation(sourceLayerId);
 				FbxAnimNode animScale = limb.animScale(sourceLayerId);

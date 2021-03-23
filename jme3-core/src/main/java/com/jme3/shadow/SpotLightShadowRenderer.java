@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -59,7 +59,7 @@ import java.io.IOException;
  * shadow map.<br> This results in a better quality shadow than standard shadow
  * mapping.<br> for more informations on this read this <a
  * href="http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html">http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html</a><br>
- * <p/>
+ *
  * @author Rémy Bouquet aka Nehon
  */
 public class SpotLightShadowRenderer extends AbstractShadowRenderer {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -79,15 +79,15 @@ public final class AnimControl extends AbstractControl implements Cloneable, Jme
     /**
      * List of animations
      */
-    HashMap<String, Animation> animationMap = new HashMap<String, Animation>();
+    HashMap<String, Animation> animationMap = new HashMap<>();
     /**
      * Animation channels
      */
-    private transient ArrayList<AnimChannel> channels = new ArrayList<AnimChannel>();
+    private transient ArrayList<AnimChannel> channels = new ArrayList<>();
     /**
      * Animation event listeners
      */
-    private transient ArrayList<AnimEventListener> listeners = new ArrayList<AnimEventListener>();
+    private transient ArrayList<AnimEventListener> listeners = new ArrayList<>();
 
     /**
      * Creates a new animation control for the given skeleton.

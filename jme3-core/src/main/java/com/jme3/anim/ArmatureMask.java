@@ -4,7 +4,7 @@ import java.util.BitSet;
 
 public class ArmatureMask implements AnimationMask {
 
-    private BitSet affectedJoints = new BitSet();
+    final private BitSet affectedJoints = new BitSet();
 
     @Override
     public boolean contains(Object target) {

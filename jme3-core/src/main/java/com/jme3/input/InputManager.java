@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -94,26 +94,25 @@ public class InputManager implements RawInputListener {
     private long lastLastUpdateTime = 0;
     private long lastUpdateTime = 0;
     private long frameDelta = 0;
-    private long firstTime = 0;
     private boolean eventsPermitted = false;
     private boolean mouseVisible = true;
     private boolean safeMode = false;
     private float globalAxisDeadZone = 0.05f;
     private final Vector2f cursorPos = new Vector2f();
     private Joystick[] joysticks;
-    private final IntMap<ArrayList<Mapping>> bindings = new IntMap<ArrayList<Mapping>>();
-    private final HashMap<String, Mapping> mappings = new HashMap<String, Mapping>();
-    private final IntMap<Long> pressedButtons = new IntMap<Long>();
-    private final IntMap<Float> axisValues = new IntMap<Float>();
-    private final SafeArrayList<RawInputListener> rawListeners = new SafeArrayList<RawInputListener>(RawInputListener.class);
-    private final ArrayList<InputEvent> inputQueue = new ArrayList<InputEvent>();
+    private final IntMap<ArrayList<Mapping>> bindings = new IntMap<>();
+    private final HashMap<String, Mapping> mappings = new HashMap<>();
+    private final IntMap<Long> pressedButtons = new IntMap<>();
+    private final IntMap<Float> axisValues = new IntMap<>();
+    private final SafeArrayList<RawInputListener> rawListeners = new SafeArrayList<>(RawInputListener.class);
+    private final ArrayList<InputEvent> inputQueue = new ArrayList<>();
     private final List<JoystickConnectionListener> joystickConnectionListeners = new ArrayList<>();
 
     private static class Mapping {
 
         private final String name;
-        private final ArrayList<Integer> triggers = new ArrayList<Integer>();
-        private final ArrayList<InputListener> listeners = new ArrayList<InputListener>();
+        private final ArrayList<Integer> triggers = new ArrayList<>();
+        private final ArrayList<InputListener> listeners = new ArrayList<>();
 
         public Mapping(String name) {
             this.name = name;
@@ -151,7 +150,7 @@ public class InputManager implements RawInputListener {
             touch.setInputListener(this);
         }
 
-        firstTime = keys.getInputTimeNanos();
+        keys.getInputTimeNanos();
     }
 
     private void invokeActions(int hash, boolean pressed) {

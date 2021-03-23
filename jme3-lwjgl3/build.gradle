@@ -16,19 +16,47 @@ dependencies {
     compile "org.lwjgl:lwjgl-openal:${lwjglVersion}"
     compile "org.lwjgl:lwjgl-opencl:${lwjglVersion}"
     compile "org.lwjgl:lwjgl-opengl:${lwjglVersion}"
+
     runtime "org.lwjgl:lwjgl:${lwjglVersion}:natives-windows"
+    runtime "org.lwjgl:lwjgl:${lwjglVersion}:natives-windows-x86"
     runtime "org.lwjgl:lwjgl:${lwjglVersion}:natives-linux"
+    runtime "org.lwjgl:lwjgl:${lwjglVersion}:natives-linux-arm32"
+    runtime "org.lwjgl:lwjgl:${lwjglVersion}:natives-linux-arm64"
     runtime "org.lwjgl:lwjgl:${lwjglVersion}:natives-macos"
+
     runtime "org.lwjgl:lwjgl-glfw:${lwjglVersion}:natives-windows"
+    runtime "org.lwjgl:lwjgl-glfw:${lwjglVersion}:natives-windows-x86"
     runtime "org.lwjgl:lwjgl-glfw:${lwjglVersion}:natives-linux"
+    runtime "org.lwjgl:lwjgl-glfw:${lwjglVersion}:natives-linux-arm32"
+    runtime "org.lwjgl:lwjgl-glfw:${lwjglVersion}:natives-linux-arm64"
     runtime "org.lwjgl:lwjgl-glfw:${lwjglVersion}:natives-macos"
+
     runtime "org.lwjgl:lwjgl-jemalloc:${lwjglVersion}:natives-windows"
+    runtime "org.lwjgl:lwjgl-jemalloc:${lwjglVersion}:natives-windows-x86"
     runtime "org.lwjgl:lwjgl-jemalloc:${lwjglVersion}:natives-linux"
+    runtime "org.lwjgl:lwjgl-jemalloc:${lwjglVersion}:natives-linux-arm32"
+    runtime "org.lwjgl:lwjgl-jemalloc:${lwjglVersion}:natives-linux-arm64"
     runtime "org.lwjgl:lwjgl-jemalloc:${lwjglVersion}:natives-macos"
+
     runtime "org.lwjgl:lwjgl-opengl:${lwjglVersion}:natives-windows"
+    runtime "org.lwjgl:lwjgl-opengl:${lwjglVersion}:natives-windows-x86"
     runtime "org.lwjgl:lwjgl-opengl:${lwjglVersion}:natives-linux"
+    runtime "org.lwjgl:lwjgl-opengl:${lwjglVersion}:natives-linux-arm32"
+    runtime "org.lwjgl:lwjgl-opengl:${lwjglVersion}:natives-linux-arm64"
     runtime "org.lwjgl:lwjgl-opengl:${lwjglVersion}:natives-macos"
+
     runtime "org.lwjgl:lwjgl-openal:${lwjglVersion}:natives-windows"
+    runtime "org.lwjgl:lwjgl-openal:${lwjglVersion}:natives-windows-x86"
     runtime "org.lwjgl:lwjgl-openal:${lwjglVersion}:natives-linux"
+    runtime "org.lwjgl:lwjgl-openal:${lwjglVersion}:natives-linux-arm32"
+    runtime "org.lwjgl:lwjgl-openal:${lwjglVersion}:natives-linux-arm64"
     runtime "org.lwjgl:lwjgl-openal:${lwjglVersion}:natives-macos"
 }
+
+javadoc {
+    // Disable doclint for JDK8+.
+    if (JavaVersion.current().isJava8Compatible()){
+        options.addStringOption('Xdoclint:none', '-quiet')
+    }
+}
+

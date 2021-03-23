@@ -38,8 +38,8 @@ public class IterativeFilter extends AbstractFilter {
 
 	private int iterations;
 
-	private List<Filter> preIterateFilters = new ArrayList<Filter>();
-	private List<Filter> postIterateFilters = new ArrayList<Filter>();
+	private List<Filter> preIterateFilters = new ArrayList<>();
+	private List<Filter> postIterateFilters = new ArrayList<>();
 	private Filter filter;
 
 	@Override

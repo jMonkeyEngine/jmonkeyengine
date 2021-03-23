@@ -26,7 +26,7 @@ import java.io.File;
 public class TerrainGridSerializationTest extends SimpleApplication {
 
     private TerrainGrid terrain;
-    private boolean usePhysics = true;
+    final private boolean usePhysics = true;
 
     public static void main(final String[] args) {
         TerrainGridSerializationTest app = new TerrainGridSerializationTest();

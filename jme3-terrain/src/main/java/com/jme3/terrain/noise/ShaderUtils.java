@@ -46,6 +46,11 @@ import java.nio.ByteOrder;
  * 
  */
 public class ShaderUtils {
+        /**
+         * A private constructor to inhibit instantiation of this class.
+         */
+        private ShaderUtils() {
+        }
 
 	public static final float[] i2c(final int color) {
 		return new float[] { (color & 0x00ff0000) / 256f, (color & 0x0000ff00) / 256f, (color & 0x000000ff) / 256f,

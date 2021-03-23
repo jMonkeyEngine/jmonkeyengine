@@ -1,7 +1,7 @@
 package com.jme3.shadow;
 
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -58,7 +58,7 @@ import java.io.IOException;
  * the shadow map.<br> This results in a better quality shadow than standard
  * shadow mapping.<br> for more informations on this read this <a
  * href="http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html">http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html</a><br>
- * <p/>
+ *
  * @author Rémy Bouquet aka Nehon
  * @author reden - phr00t - https://github.com/phr00t
  * @author Julien Seinturier - COMEX SA - <a href="http://www.seinturier.fr">http://www.seinturier.fr</a>

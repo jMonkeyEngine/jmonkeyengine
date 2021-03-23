@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,7 +50,7 @@ public class TestMusicPlayer extends javax.swing.JFrame {
     private AudioNode musicSource;
     private float musicLength = 0;
     private float curTime = 0;
-    private Listener listener = new Listener();
+    final private Listener listener = new Listener();
 
     public TestMusicPlayer() {
         initComponents();

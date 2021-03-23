@@ -4,5 +4,5 @@ if (!hasProperty('mainClass')) {
 
 dependencies {
     compile project(':jme3-core')
-    compile 'de.jarnbjo:j-ogg-all:1.0.0'
+    compile 'com.github.stephengold:j-ogg-all:1.0.1'
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,7 +39,7 @@ import java.util.logging.Logger;
 
 /**
  * <code>AndroidJoyInput14</code> extends <code>AndroidJoyInput</code>
- * to include support for physical joysticks/gamepads.</br>
+ * to include support for physical joysticks/gamepads.
  *
  * @author iwgeric
  */

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,9 +52,9 @@ public class MessageListenerRegistry<S> implements MessageListener<S>
 {
     static final Logger log = Logger.getLogger(MessageListenerRegistry.class.getName());
     
-    private final List<MessageListener<? super S>> listeners = new CopyOnWriteArrayList<MessageListener<? super S>>();
+    private final List<MessageListener<? super S>> listeners = new CopyOnWriteArrayList<>();
     private final Map<Class,List<MessageListener<? super S>>> typeListeners 
-                    = new ConcurrentHashMap<Class,List<MessageListener<? super S>>>(); 
+                    = new ConcurrentHashMap<>(); 
 
     public MessageListenerRegistry()
     {

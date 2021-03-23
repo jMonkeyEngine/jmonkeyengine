@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -51,7 +51,6 @@ public class ReflectionProcessor implements SceneProcessor {
     private Camera reflectionCam;
     private FrameBuffer reflectionBuffer;
     private Plane reflectionClipPlane;
-    private AppProfiler prof;
 
     /**
      * Creates a ReflectionProcessor
@@ -111,7 +110,6 @@ public class ReflectionProcessor implements SceneProcessor {
 
     @Override
     public void setProfiler(AppProfiler profiler) {
-        this.prof = profiler;
     }
 
     /**

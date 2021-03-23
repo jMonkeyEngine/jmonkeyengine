@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018 jMonkeyEngine
+ * Copyright (c) 2015-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -83,7 +83,7 @@ public class RmiHostedService extends AbstractHostedService {
     private short rmiId;
     private byte defaultChannel;
     private boolean autoHost;
-    private final Map<String, GlobalShare> globalShares = new ConcurrentHashMap<String, GlobalShare>();
+    private final Map<String, GlobalShare> globalShares = new ConcurrentHashMap<>();
 
     public RmiHostedService() {
         this((short)-1, (byte)MessageConnection.CHANNEL_DEFAULT_RELIABLE, true);

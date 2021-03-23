@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,6 +52,12 @@ public class Network
 {
     public static final String DEFAULT_GAME_NAME = "Unnamed jME3 Game";
     public static final int DEFAULT_VERSION = 42;
+
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private Network() {
+    }
 
     /**
      *  Creates a Server that will utilize both reliable and fast

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -142,6 +142,12 @@ public class AndroidKeyMapping {
         0x0,//media fastforward
         0x0,//mute
     };
+
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private AndroidKeyMapping() {
+    }
 
     public static int getJmeKey(int androidKey) {
         if (androidKey > ANDROID_TO_JME.length) {

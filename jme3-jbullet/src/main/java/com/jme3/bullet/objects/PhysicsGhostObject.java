@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -66,7 +66,7 @@ public class PhysicsGhostObject extends PhysicsCollisionObject {
     protected Transform tempTrans = new Transform(Converter.convert(new Matrix3f()));
     private com.jme3.math.Transform physicsLocation = new com.jme3.math.Transform();
     protected javax.vecmath.Quat4f tempRot = new javax.vecmath.Quat4f();
-    private List<PhysicsCollisionObject> overlappingObjects = new LinkedList<PhysicsCollisionObject>();
+    private List<PhysicsCollisionObject> overlappingObjects = new LinkedList<>();
 
     protected PhysicsGhostObject() {
     }

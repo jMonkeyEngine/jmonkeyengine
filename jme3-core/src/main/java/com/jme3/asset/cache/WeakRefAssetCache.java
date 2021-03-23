@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -55,10 +55,10 @@ public class WeakRefAssetCache implements AssetCache {
 
     private static final Logger logger = Logger.getLogger(WeakRefAssetCache.class.getName());
     
-    private final ReferenceQueue<Object> refQueue = new ReferenceQueue<Object>();
+    private final ReferenceQueue<Object> refQueue = new ReferenceQueue<>();
     
     private final ConcurrentHashMap<AssetKey, AssetRef> assetCache 
-            = new ConcurrentHashMap<AssetKey, AssetRef>();
+            = new ConcurrentHashMap<>();
 
     private static class AssetRef extends WeakReference<Object> {
         

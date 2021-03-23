@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2019 jMonkeyEngine
+ * Copyright (c) 2015-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -60,7 +60,7 @@ public abstract class AbstractMessageDelegator<S extends MessageConnection>
     static final Logger log = Logger.getLogger(AbstractMessageDelegator.class.getName());                                
                                 
     private Class delegateType;
-    private Map<Class, Method> methods = new HashMap<Class, Method>();
+    private Map<Class, Method> methods = new HashMap<>();
     private Class[] messageTypes;
  
     /**
@@ -190,7 +190,7 @@ public abstract class AbstractMessageDelegator<S extends MessageConnection>
      *  the parameters.
      */
     public AbstractMessageDelegator<S> map( String... methodNames ) {
-        Set<String> names = new HashSet<String>( Arrays.asList(methodNames) );
+        Set<String> names = new HashSet<>( Arrays.asList(methodNames) );
         map(names);
         return this;
     }

@@ -11,10 +11,10 @@ public class BlendAction extends BlendableAction {
 
     private int firstActiveIndex;
     private int secondActiveIndex;
-    private BlendSpace blendSpace;
+    final private BlendSpace blendSpace;
     private float blendWeight;
-    private double[] timeFactor;
-    private Map<HasLocalTransform, Transform> targetMap = new HashMap<>();
+    final private double[] timeFactor;
+    final private Map<HasLocalTransform, Transform> targetMap = new HashMap<>();
 
     public BlendAction(BlendSpace blendSpace, BlendableAction... actions) {
         super(actions);

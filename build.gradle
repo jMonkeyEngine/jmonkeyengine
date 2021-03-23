@@ -3,15 +3,14 @@ import java.nio.file.StandardCopyOption;
 
 buildscript {
     repositories {
+        mavenCentral()
         google()
-        jcenter()
         maven {
             url "https://plugins.gradle.org/m2/"
         }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.5.3'
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4'
         classpath 'me.tatarka:gradle-retrolambda:3.7.1'
         classpath "gradle.plugin.com.github.spotbugs.snom:spotbugs-gradle-plugin:4.5.1"
     }
@@ -19,8 +18,8 @@ buildscript {
 
 allprojects {
     repositories {
+        mavenCentral()
         google()
-        jcenter()
     }
 }
 
@@ -37,14 +36,11 @@ apply plugin: 'me.tatarka.retrolambda'
 subprojects {
     if(!project.name.equals('jme3-android-examples')) {
         apply from: rootProject.file('common.gradle')
-        if (!project.name.equals('jme3-testdata')) {
-            apply from: rootProject.file('bintray.gradle')
-        }
     } else {
         apply from: rootProject.file('common-android-app.gradle')
     }
 
-    if (!project.name.endsWith("-native") && project.name != "jme3-bullet-native-android" && enableSpotBugs != "false" ) {
+    if (!project.name.endsWith("-native") && enableSpotBugs != "false" ) {
         apply plugin: 'com.github.spotbugs'
 
         // Currently we only warn about issues and try to fix them as we go, but those aren't mission critical.
@@ -137,13 +133,10 @@ task mergedJavadoc(type: Javadoc, description: 'Creates Javadoc from all the pro
     options.overview = file("javadoc-overview.html")
     // Note: The closures below are executed lazily.
     source subprojects.collect {project ->
-        project.sourceSets*.allJava
+        project.sourceSets.main.allJava // main only, exclude tests
     }
     classpath = files(subprojects.collect {project ->
             project.sourceSets*.compileClasspath})
-    //    source {
-    //        subprojects*.sourceSets*.main*.allSource
-    //    }
     classpath.from {
         subprojects*.configurations*.compile*.copyRecursive({ !(it instanceof ProjectDependency); })*.resolve()
     }

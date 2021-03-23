@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -71,7 +71,7 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
     /**
      * List of geometries affected by this control.
      */
-    private SafeArrayList<Geometry> targets = new SafeArrayList<Geometry>(Geometry.class);
+    private SafeArrayList<Geometry> targets = new SafeArrayList<>(Geometry.class);
 
     /**
      * Used to track when a mesh was updated. Meshes are only updated if they

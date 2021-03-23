@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,10 +40,10 @@ import com.jme3.input.KeyInput;
  */
 public class KeyInputEvent extends InputEvent {
 
-    private int keyCode;
-    private char keyChar;
-    private boolean pressed;
-    private boolean repeating;
+    final private int keyCode;
+    final private char keyChar;
+    final private boolean pressed;
+    final private boolean repeating;
 
     public KeyInputEvent(int keyCode, char keyChar, boolean pressed, boolean repeating) {
         this.keyCode = keyCode;

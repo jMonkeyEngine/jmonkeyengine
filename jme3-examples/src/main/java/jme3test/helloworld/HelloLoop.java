@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,7 +48,7 @@ public class HelloLoop extends SimpleApplication {
         app.start();
     }
 
-    protected Geometry player;
+    private Geometry player;
 
     @Override
     public void simpleInitApp() {

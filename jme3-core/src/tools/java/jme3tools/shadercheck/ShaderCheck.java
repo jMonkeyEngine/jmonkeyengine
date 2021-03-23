@@ -20,7 +20,7 @@ public class ShaderCheck {
     private static final Logger logger = Logger.getLogger(ShaderCheck.class.getName());
     private static AssetManager assetManager;
     
-    private static Validator[] validators = new Validator[]{
+    final private static Validator[] validators = new Validator[]{
         new CgcValidator(),
 //        new GpuAnalyzerValidator()
     };

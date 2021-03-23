@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2017 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -68,7 +68,6 @@ import java.util.concurrent.Callable;
  */
 public class RollingTheMonkey extends SimpleApplication implements ActionListener, PhysicsCollisionListener {
     
-    private static final String TITLE           = "Rolling The Monkey";
     private static final String MESSAGE         = "Thanks for Playing!";
     private static final String INFO_MESSAGE    = "Collect all the spinning cubes!\nPress the 'R' key any time to reset!";
     
@@ -111,9 +110,9 @@ public class RollingTheMonkey extends SimpleApplication implements ActionListene
     
     private Node pickUps;
     
-    BitmapText infoText;
-    BitmapText scoreText;
-    BitmapText messageText;
+    private BitmapText infoText;
+    private BitmapText scoreText;
+    private BitmapText messageText;
     
     @Override
     public void simpleInitApp() {

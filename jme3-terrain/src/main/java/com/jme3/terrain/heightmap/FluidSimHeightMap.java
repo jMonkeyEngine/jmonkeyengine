@@ -134,7 +134,7 @@ public class FluidSimHeightMap extends AbstractHeightMap {
     }
 
 
-    /*
+    /**
      * Generates a heightmap using fluid simulation and the attributes set by
      * the constructor or the setters.
      */

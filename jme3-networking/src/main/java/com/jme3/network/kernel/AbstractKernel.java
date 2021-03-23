@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -57,13 +57,13 @@ public abstract class AbstractKernel implements Kernel
      *  Contains the pending endpoint events waiting for the caller
      *  to retrieve them.
      */
-    private ConcurrentLinkedQueue<EndpointEvent> endpointEvents = new ConcurrentLinkedQueue<EndpointEvent>();
+    private ConcurrentLinkedQueue<EndpointEvent> endpointEvents = new ConcurrentLinkedQueue<>();
 
     /**
      *  Contains the pending envelopes waiting for the caller to
      *  retrieve them.
      */
-    private LinkedBlockingQueue<Envelope> envelopes = new LinkedBlockingQueue<Envelope>();
+    private LinkedBlockingQueue<Envelope> envelopes = new LinkedBlockingQueue<>();
 
     protected AbstractKernel()
     {

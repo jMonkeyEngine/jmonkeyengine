@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,13 +52,13 @@ import com.jme3.water.SimpleWaterProcessor;
  */
 public class TestSimpleWater extends SimpleApplication implements ActionListener {
 
-    Material mat;
-    Spatial waterPlane;
-    Geometry lightSphere;
-    SimpleWaterProcessor waterProcessor;
-    Node sceneNode;
-    boolean useWater = true;
-    private Vector3f lightPos =  new Vector3f(33,12,-29);
+    private Material mat;
+    private Spatial waterPlane;
+    private Geometry lightSphere;
+    private SimpleWaterProcessor waterProcessor;
+    private Node sceneNode;
+    private boolean useWater = true;
+    final private Vector3f lightPos =  new Vector3f(33,12,-29);
 
 
     public static void main(String[] args) {

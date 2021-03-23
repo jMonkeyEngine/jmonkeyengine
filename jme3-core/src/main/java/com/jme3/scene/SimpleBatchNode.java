@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -71,7 +71,7 @@ public class SimpleBatchNode extends BatchNode {
             batch.geometry.setTransformRefresh();
         }
     }
-    private Matrix4f cachedLocalMat = new Matrix4f();
+    final private Matrix4f cachedLocalMat = new Matrix4f();
 
     @Override
     protected Matrix4f getTransformMatrix(Geometry g){

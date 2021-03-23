@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,6 +37,12 @@ import static com.jme3.input.KeyInput.*;
 public class GlfwKeyMap {
 
     private static final int[] GLFW_TO_JME_KEY_MAP = new int[GLFW_KEY_LAST + 1];
+
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private GlfwKeyMap() {
+    }
 
     private static void reg(final int jmeKey, final int glfwKey) {
         GLFW_TO_JME_KEY_MAP[glfwKey] = jmeKey;

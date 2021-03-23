@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,7 +43,7 @@ import com.jme3.font.Rectangle;
 public class TestRtlBitmapText extends SimpleApplication {
 
     // A right to left text.
-    private String text = ".text left to right test a is This";
+    final private String text = ".text left to right test a is This";
 
     public static void main(String[] args) {
         TestRtlBitmapText app = new TestRtlBitmapText();

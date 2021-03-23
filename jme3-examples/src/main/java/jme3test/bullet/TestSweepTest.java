@@ -19,12 +19,12 @@ import java.util.List;
  */
 public class TestSweepTest extends SimpleApplication {
 
-    private BulletAppState bulletAppState = new BulletAppState();
+    final private BulletAppState bulletAppState = new BulletAppState();
     private CapsuleCollisionShape obstacleCollisionShape;
     private CapsuleCollisionShape capsuleCollisionShape;
     private Node capsule;
     private Node obstacle;
-    private float dist = .5f;
+    final private float dist = .5f;
 
     public static void main(String[] args) {
         new TestSweepTest().start();

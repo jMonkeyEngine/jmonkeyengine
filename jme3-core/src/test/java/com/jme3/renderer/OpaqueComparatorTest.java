@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -56,10 +56,10 @@ import org.junit.Test;
 public class OpaqueComparatorTest {
     
     private final Mesh mesh = new Box(1,1,1);
-    private Camera cam = new Camera(1, 1);
+    final private Camera cam = new Camera(1, 1);
     private RenderManager renderManager;
     private AssetManager assetManager;
-    private OpaqueComparator comparator = new OpaqueComparator();
+    final private OpaqueComparator comparator = new OpaqueComparator();
     
     @Before
     public void setUp() {
@@ -108,7 +108,7 @@ public class OpaqueComparatorTest {
             System.out.println(mat);
         }
         
-        Set<String> alreadySeen = new HashSet<String>();
+        Set<String> alreadySeen = new HashSet<>();
         Material current = null;
         for (int i = 0; i < gl.size(); i++) {
             Material mat = gl.get(i).getMaterial();

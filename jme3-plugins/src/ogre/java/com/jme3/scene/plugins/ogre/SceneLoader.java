@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -71,7 +71,7 @@ public class SceneLoader extends DefaultHandler implements AssetLoader {
     private static final Logger logger = Logger.getLogger(SceneLoader.class.getName());
     private SceneMaterialLoader materialLoader = new SceneMaterialLoader();
     private SceneMeshLoader meshLoader=new SceneMeshLoader();
-    private Stack<String> elementStack = new Stack<String>();
+    private Stack<String> elementStack = new Stack<>();
     private AssetKey key;
     private String sceneName;
     private String folderName;
@@ -543,11 +543,7 @@ public class SceneLoader extends DefaultHandler implements AssetLoader {
             }
 
             return root;
-        } catch (SAXException ex) {
-            IOException ioEx = new IOException("Error while parsing Ogre3D dotScene");
-            ioEx.initCause(ex);
-            throw ioEx;
-        } catch (ParserConfigurationException ex) {
+        } catch (SAXException | ParserConfigurationException ex) {
             IOException ioEx = new IOException("Error while parsing Ogre3D dotScene");
             ioEx.initCause(ex);
             throw ioEx;

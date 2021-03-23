@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -58,9 +58,8 @@ public class TestMultiplesFilters extends SimpleApplication {
         TestMultiplesFilters app = new TestMultiplesFilters();
         app.start();
     }
-    SSAOFilter ssaoFilter;
-    FilterPostProcessor fpp;
-    boolean en = true;
+    private SSAOFilter ssaoFilter;
+    private FilterPostProcessor fpp;
 
     @Override
     public void simpleInitApp() {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -93,10 +93,6 @@ public class GltfLoader implements AssetLoader {
     private static Map<String, MaterialAdapter> defaultMaterialAdapters = new HashMap<>();
     private CustomContentManager customContentManager = new CustomContentManager();
     private boolean useNormalsFlag = false;
-    private Quaternion tmpQuat = new Quaternion();
-    private Transform tmpTransforms = new Transform();
-    private Transform tmpTransforms2 = new Transform();
-    private Matrix4f tmpMat = new Matrix4f();
 
     Map<SkinData, List<Spatial>> skinnedSpatials = new HashMap<>();
     IntMap<SkinBuffers> skinBuffers = new IntMap<>();
@@ -128,7 +124,7 @@ public class GltfLoader implements AssetLoader {
             docRoot = new JsonParser().parse(new JsonReader(new InputStreamReader(stream))).getAsJsonObject();
 
             JsonObject asset = docRoot.getAsJsonObject().get("asset").getAsJsonObject();
-            String generator = getAsString(asset, "generator");
+            getAsString(asset, "generator");
             String version = getAsString(asset, "version");
             String minVersion = getAsString(asset, "minVersion");
             if (!isSupported(version, minVersion)) {

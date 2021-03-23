@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -889,7 +889,7 @@ public final class AppSettings extends HashMap<String, Object> {
      * the latter for the alt-tab icon.
      * Linux (and similar platforms) expect one 32x32 icon.
      * Mac OS X should be supplied one 128x128 icon.
-     * <br/>
+     * <br>
      * The icon is used for the settings window, and the LWJGL render window.
      * Note that a bug in Java 6 (bug ID 6445278, currently hidden but available in Google cache) currently prevents
      * the icon working for alt-tab on the settings dialog in Windows.
@@ -1192,7 +1192,7 @@ public final class AppSettings extends HashMap<String, Object> {
 
     /**
      * Determine if the renderer will be run in Graphics Debug mode, which means every openGL call is checked and
-     * if it returns an error code, throw a {@link com.jme3.renderer.RendererException}.<br />
+     * if it returns an error code, throw a {@link com.jme3.renderer.RendererException}.<br>
      * Without this, many openGL calls might fail without notice, so turning it on is recommended for development.
      *
      * @return whether the context will be run in Graphics Debug Mode or not
@@ -1204,7 +1204,7 @@ public final class AppSettings extends HashMap<String, Object> {
 
     /**
      * Set whether the renderer will be run in Graphics Debug mode, which means every openGL call is checked and
-     * if it returns an error code, throw a {@link com.jme3.renderer.RendererException}.<br />
+     * if it returns an error code, throw a {@link com.jme3.renderer.RendererException}.<br>
      * Without this, many openGL calls might fail without notice, so turning it on is recommended for development.
      *
      * @param debug whether the context will be run in Graphics Debug Mode or not
@@ -1216,9 +1216,9 @@ public final class AppSettings extends HashMap<String, Object> {
 
     /**
      * Determine if the renderer will be run in Graphics Timing mode, which means every openGL call is checked and
-     * if it runs for longer than a millisecond, log it.<br />
+     * if it runs for longer than a millisecond, log it.<br>
      * It also keeps track of the time spent in GL Calls in general and displays them when
-     * {@link com.jme3.renderer.opengl.GL#resetStats()} is called.<br />
+     * {@link com.jme3.renderer.opengl.GL#resetStats()} is called.
      *
      * @return whether the context will be run in Graphics Timing Mode or not
      * @see #setGraphicsTiming(boolean)
@@ -1230,9 +1230,9 @@ public final class AppSettings extends HashMap<String, Object> {
 
     /**
      * Set whether the renderer will be run in Graphics Timing mode, which means every openGL call is checked and
-     * if it runs for longer than a millisecond, log it.<br />
+     * if it runs for longer than a millisecond, log it.<br>
      * It also keeps track of the time spent in GL Calls in general and displays them when
-     * {@link com.jme3.renderer.opengl.GL#resetStats()} is called.<br />
+     * {@link com.jme3.renderer.opengl.GL#resetStats()} is called.
      *
      * @param timing whether the context will be run in Graphics Timing Mode or not
      * @see #isGraphicsTiming()
@@ -1244,7 +1244,7 @@ public final class AppSettings extends HashMap<String, Object> {
 
     /**
      * Determine if the renderer will be run in Graphics Trace mode, which means every openGL call is logged so one
-     * can trace what openGL commands where executed in which order by the engine.<br />
+     * can trace what openGL commands where executed in which order by the engine.
      *
      * @return whether the context will be run in Graphics Trace Mode or not
      * @see #setGraphicsTrace(boolean)
@@ -1256,7 +1256,7 @@ public final class AppSettings extends HashMap<String, Object> {
 
     /**
      * Set whether the renderer will be run in Graphics Trace mode, which means every openGL call is logged so one
-     * can trace what openGL commands where executed in which order by the engine.<br />
+     * can trace what openGL commands where executed in which order by the engine.
      *
      * @param trace whether the context will be run in Graphics Trace Mode or not
      * @see #isGraphicsTrace()

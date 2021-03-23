@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -297,6 +297,9 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
     /**
      * It seems it is best to use one pixel format for all shared contexts.
      * @see <a href="http://developer.apple.com/library/mac/#qa/qa1248/_index.html">http://developer.apple.com/library/mac/#qa/qa1248/_index.html</a>
+     * 
+     * @param forPbuffer true&rarr;zero samples, false&rarr;correct number of samples
+     * @return a new instance
      */
     protected PixelFormat acquirePixelFormat(boolean forPbuffer){
         if (forPbuffer){
@@ -333,6 +336,8 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
 
     /**
      * Makes sure the pbuffer is available and ready for use
+     * 
+     * @throws LWJGLException if the buffer can't be made current
      */
     protected void makePbufferAvailable() throws LWJGLException{
         if (pbuffer != null && pbuffer.isBufferLost()){

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,16 +40,16 @@ import java.util.logging.LogRecord;
 
 /**
  * More simple formatter than the default one used in Java logging.
- * Example output: <br/>
+ * Example output: <br>
  * INFO Display3D 12:00 PM: Display created.
  */
 public class JmeFormatter extends Formatter {
 
-    private Date calendar = new Date();
-    private String lineSeperator;
-    private MessageFormat format;
-    private Object args[] = new Object[1];
-    private StringBuffer store = new StringBuffer();
+    final private Date calendar = new Date();
+    final private String lineSeperator;
+    final private MessageFormat format;
+    final private Object args[] = new Object[1];
+    final private StringBuffer store = new StringBuffer();
 
     public JmeFormatter(){
         lineSeperator = System.getProperty("line.separator");

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -140,4 +140,10 @@ public class CameraInput {
     public final static String FLYCAM_LOWER = "FLYCAM_Lower";
     
     public final static String FLYCAM_INVERTY = "FLYCAM_InvertY";
+    
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private CameraInput() {
+    }
 }

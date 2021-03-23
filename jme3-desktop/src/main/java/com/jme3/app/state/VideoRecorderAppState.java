@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -54,7 +54,7 @@ import java.util.logging.Logger;
 
 /**
  * A Video recording AppState that records the screen output into an AVI file with
- * M-JPEG content. The file should be playable on any OS in any video player.<br/>
+ * M-JPEG content. The file should be playable on any OS in any video player.<br>
  * The video recording starts when the state is attached and stops when it is detached
  * or the application is quit. You can set the fileName of the file to be written when the
  * state is detached, else the old file will be overwritten. If you specify no file
@@ -132,6 +132,7 @@ public class VideoRecorderAppState extends AbstractAppState {
      * This constructor allows you to specify the output file of the video as well as the quality
      * @param file the video file
      * @param quality the quality of the jpegs in the video stream (0.0 smallest file - 1.0 largest file)
+     * @param framerate the frame rate of the resulting video, the application will be locked to this framerate
      */
     public VideoRecorderAppState(File file, float quality, int framerate) {
         this.file = file;
@@ -219,7 +220,7 @@ public class VideoRecorderAppState extends AbstractAppState {
         private RenderManager renderManager;
         private boolean isInitilized = false;
         private LinkedBlockingQueue<WorkItem> freeItems;
-        private LinkedBlockingQueue<WorkItem> usedItems = new LinkedBlockingQueue<WorkItem>();
+        private LinkedBlockingQueue<WorkItem> usedItems = new LinkedBlockingQueue<>();
         private MjpegFileWriter writer;
         private AppProfiler prof;
 

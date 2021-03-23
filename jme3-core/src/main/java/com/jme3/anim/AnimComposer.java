@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -462,7 +462,6 @@ public class AnimComposer extends AbstractControl {
         private AnimComposer ac;
         private Action currentAction;
         private AnimationMask mask;
-        private float weight;
         private double time;
 
         public Layer(AnimComposer ac) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -73,20 +73,20 @@ public class DefaultServer implements Server
     private final KernelFactory kernelFactory = KernelFactory.DEFAULT;
     private KernelAdapter reliableAdapter;
     private KernelAdapter fastAdapter;
-    private final List<KernelAdapter> channels = new ArrayList<KernelAdapter>();
-    private final List<Integer> alternatePorts = new ArrayList<Integer>();
+    private final List<KernelAdapter> channels = new ArrayList<>();
+    private final List<Integer> alternatePorts = new ArrayList<>();
     private final Redispatch dispatcher = new Redispatch();
-    private final Map<Integer,HostedConnection> connections = new ConcurrentHashMap<Integer,HostedConnection>();
+    private final Map<Integer,HostedConnection> connections = new ConcurrentHashMap<>();
     private final Map<Endpoint,HostedConnection> endpointConnections 
-                            = new ConcurrentHashMap<Endpoint,HostedConnection>();
+                            = new ConcurrentHashMap<>();
     
     // Keeps track of clients for whom we've only received the UDP
     // registration message
-    private final Map<Long,Connection> connecting = new ConcurrentHashMap<Long,Connection>();
+    private final Map<Long,Connection> connecting = new ConcurrentHashMap<>();
     
     private final MessageListenerRegistry<HostedConnection> messageListeners 
-                            = new MessageListenerRegistry<HostedConnection>();                        
-    private final List<ConnectionListener> connectionListeners = new CopyOnWriteArrayList<ConnectionListener>();
+                            = new MessageListenerRegistry<>();                        
+    private final List<ConnectionListener> connectionListeners = new CopyOnWriteArrayList<>();
     
     private HostedServiceManager services;
     private MessageProtocol protocol = new SerializerMessageProtocol();
@@ -523,7 +523,7 @@ public class DefaultServer implements Server
         private Endpoint[] channels;
         private int setChannelCount = 0; 
        
-        private final Map<String,Object> sessionData = new ConcurrentHashMap<String,Object>();       
+        private final Map<String,Object> sessionData = new ConcurrentHashMap<>();       
         
         public Connection( int channelCount )
         {

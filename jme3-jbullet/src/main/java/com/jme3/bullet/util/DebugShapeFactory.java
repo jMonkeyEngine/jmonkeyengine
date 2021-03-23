@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -63,6 +63,12 @@ public class DebugShapeFactory {
     private static final Vector3f aabbMax = new Vector3f(1e30f, 1e30f, 1e30f);
     /** The minimum corner for the aabb used for triangles to include in ConcaveShape processing.*/
     private static final Vector3f aabbMin = new Vector3f(-1e30f, -1e30f, -1e30f);
+
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private DebugShapeFactory() {
+    }
 
     /**
      * Creates a debug shape from the given collision shape. This is mostly used internally.<br>

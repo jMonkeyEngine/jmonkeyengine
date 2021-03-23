@@ -3,14 +3,15 @@ package com.jme3.renderer.ios;
 import com.jme3.renderer.RendererException;
 
 import java.nio.Buffer;
+import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.logging.Logger;
 
 /**
- * The <code>iOS GLES interface</code> iOS alternative to Android's GLES20 class
+ * The <code>iOS GLES interface</code> iOS alternative to Android's GLES20 and GLES30 classes
  * 
- * @author Kostyantyn Hushchyn
+ * @author Kostyantyn Hushchyn, Jesus Oliver
  */
 public class JmeIosGLES {
     private static final Logger logger = Logger.getLogger(JmeIosGLES.class.getName());
@@ -134,6 +135,12 @@ public class JmeIosGLES {
 	public static final int GL_VERTEX_SHADER = 0x00008b31;
 	public static final int GL_ZERO = 0x00000000;
 
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private JmeIosGLES() {
+    }
+
 	public static native void glActiveTexture(int texture);
 	public static native void glAttachShader(int program, int shader);
 	public static native void glBindBuffer(int target, int buffer);
@@ -184,6 +191,7 @@ public class JmeIosGLES {
 	public static native void glGenTextures(int n, int[] textures, int offset);
 	public static native void glGenerateMipmap(int target);
 	public static native int glGetAttribLocation(int program, String name);
+	public static native void glGetBoolean(int pname, ByteBuffer params);
 	public static native int glGetError();
 	public static native void glGetFramebufferAttachmentParameteriv(int target, int attachment, int pname, int[] params, int offset);
 	public static native void glGetIntegerv (int pname, int[] params, int offset);
@@ -193,6 +201,7 @@ public class JmeIosGLES {
 	public static native void glGetShaderiv(int shader, int pname, int[] params, int offset);
 	public static native String glGetString(int name);
 	public static native int glGetUniformLocation(int program, String name);
+	public static native boolean glIsEnabled(int cap);
 	public static native boolean glIsFramebuffer(int framebuffer);
 	public static native boolean glIsRenderbuffer(int renderbuffer);
 	public static native void glLineWidth(float width);
@@ -204,8 +213,11 @@ public class JmeIosGLES {
 	public static native void glRenderbufferStorage(int target, int internalformat, int width, int height);
 	public static native void glScissor(int x, int y, int width, int height);
 	public static native void glShaderSource(int shader, String string);
+	public static native void glStencilFuncSeparate(int face, int func, int ref, int mask);
+	public static native void glStencilOpSeparate(int face, int sfail, int dpfail, int dppass);
 	public static native void glTexImage2D(int target, int level, int internalformat, int width, int height, int border, int format, int type, Buffer pixels);
 	public static native void glTexParameteri(int target, int pname, int param);
+	public static native void glTexParameterf(int target, int pname, float param);
 	public static native void glTexSubImage2D(int target, int level, int xoffset, int yoffset, int width, int height, int format, int type, Buffer pixels);
 	public static native void glUniform1f(int location, float x);
 	public static native void glUniform1fv(int location, int count, FloatBuffer v);
@@ -232,7 +244,31 @@ public class JmeIosGLES {
 	public static native void glVertexAttribPointer2(int indx, int size, int type, boolean normalized, int stride, int offset);
 	public static native void glViewport(int x, int y, int width, int height);
 	
+	// New methods for GLES3
+	public static native void glBeginQuery(int target, int query);
+	public static native void glEndQuery(int target);
+	public static native void glGenQueries(int num, IntBuffer buff);
+	public static native void glGetQueryObjectuiv(int query, int pname, int[] params);
+	public static native void glGetQueryiv(int query, int pname, int[] params);
+	public static native void glBlitFramebuffer(int srcX0, int srcY0, int srcX1, int srcY1, int dstX0, int dstY0, int dstX1, int dstY1, int mask, int filter);
+	public static native void glDrawArraysInstanced(int mode, int first, int count, int primcount);
+	public static native void glDrawBuffers(int size, IntBuffer data); //TODO: use buffer or intbuffer?
+	public static native void glDrawElementsInstanced(int mode, int indices_count, int type, long indices_buffer_offset, int primcount);
+	public static native void glVertexAttribDivisor(int index, int divisor);
+	public static native void glFramebufferTextureLayer(int target, int attachment, int texture, int level, int layer);
+
+	// New methods from GL2 interface which are supported in GLES30
+	public static native void glReadBuffer(int mode);
+	public static native void glCompressedTexImage3D(int target, int level, int internalFormat, int width, int height, int depth,
+                                           int border, int size, ByteBuffer data);
+	public static native void glCompressedTexSubImage3D(int target, int level, int xoffset, int yoffset, int zoffset, int width,
+										   int height, int depth, int format, int size, ByteBuffer data);
+	public static native void glTexImage3D(int target, int level, int internalFormat, int width, int height, int depth, int border,
+										   int format, int type, ByteBuffer data);
+	public static native void glTexSubImage3D(int target, int level, int xoffset, int yoffset, int zoffset, int width, int height,
+                                    int depth, int format, int type, ByteBuffer data);
 	
+									
     public static void checkGLError() {
         if (!ENABLE_ERROR_CHECKING) {
             return;

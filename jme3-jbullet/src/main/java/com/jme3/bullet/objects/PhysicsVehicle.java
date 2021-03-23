@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -64,7 +64,7 @@ public class PhysicsVehicle extends PhysicsRigidBody {
     protected RaycastVehicle vehicle;
     protected VehicleTuning tuning;
     protected VehicleRaycaster rayCaster;
-    protected ArrayList<VehicleWheel> wheels = new ArrayList<VehicleWheel>();
+    protected ArrayList<VehicleWheel> wheels = new ArrayList<>();
     protected PhysicsSpace physicsSpace;
 
     protected PhysicsVehicle() {

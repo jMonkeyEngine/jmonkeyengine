@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,7 +31,10 @@
  */
 package com.jme3.scene.instancing;
 
+import com.jme3.bounding.BoundingBox;
 import com.jme3.bounding.BoundingVolume;
+import com.jme3.collision.Collidable;
+import com.jme3.collision.CollisionResults;
 import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
@@ -65,7 +68,7 @@ public class InstancedGeometry extends Geometry {
     private Geometry[] geometries = new Geometry[1];
 
     private int firstUnusedIndex = 0;
-    private int numCulledGeometries = 0;
+    private int numVisibleInstances = 0;
     private Camera cam;
 
     public InstancedGeometry() {
@@ -211,8 +214,28 @@ public class InstancedGeometry extends Geometry {
         return geometries.length;
     }
 
-    public int getActualNumInstances() {
-        return firstUnusedIndex - numCulledGeometries;
+    /**
+     * @return The number of instances are visible by camera.
+     */
+    public int getNumVisibleInstances() {
+        return numVisibleInstances;
+    }
+
+    /**
+     * @return The number of instances are in this {@link InstancedGeometry}
+     */
+    public int getNumInstances() {
+        int count = 0;
+        for (int i = 0; i < geometries.length; i++) {
+            if (geometries[i] != null) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    public boolean isEmpty() {
+        return getNumInstances() == 0;
     }
 
     private void swap(int idx1, int idx2) {
@@ -228,33 +251,12 @@ public class InstancedGeometry extends Geometry {
         }
     }
 
-    private void sanitize(boolean insideEntriesNonNull) {
-        if (firstUnusedIndex >= geometries.length) {
-            throw new AssertionError();
-        }
-        for (int i = 0; i < geometries.length; i++) {
-            if (i < firstUnusedIndex) {
-                if (geometries[i] == null) {
-                    if (insideEntriesNonNull) {
-                        throw new AssertionError();
-                    }
-                } else if (InstancedNode.getGeometryStartIndex2(geometries[i]) != i) {
-                    throw new AssertionError();
-                }
-            } else {
-                if (geometries[i] != null) {
-                    throw new AssertionError();
-                }
-            }
-        }
-    }
-
     public void updateInstances() {
         FloatBuffer fb = (FloatBuffer) transformInstanceData.getData();
         fb.limit(fb.capacity());
         fb.position(0);
 
-        numCulledGeometries = 0;
+        int numCulledGeometries = 0;
         TempVars vars = TempVars.get();
         {
             float[] temp = vars.matrixWrite;
@@ -298,7 +300,8 @@ public class InstancedGeometry extends Geometry {
 
         fb.flip();
 
-        if (fb.limit() / INSTANCE_SIZE != (firstUnusedIndex - numCulledGeometries)) {
+        numVisibleInstances = firstUnusedIndex - numCulledGeometries;
+        if (fb.limit() / INSTANCE_SIZE != numVisibleInstances) {
             throw new AssertionError();
         }
 
@@ -368,6 +371,9 @@ public class InstancedGeometry extends Geometry {
             }
         }
 
+        if (resultBound == null) {
+            resultBound = new BoundingBox(getWorldTranslation(), 0f, 0f, 0f);
+        }
         this.worldBound = resultBound;
     }
 
@@ -391,6 +397,11 @@ public class InstancedGeometry extends Geometry {
     public boolean checkCulling(Camera cam) {
         this.cam = cam;
         return super.checkCulling(cam);
+    }
+
+    @Override
+    public int collideWith(Collidable other, CollisionResults results) {
+        return 0; // Ignore collision
     }
 
     /**
@@ -424,5 +435,14 @@ public class InstancedGeometry extends Geometry {
         for (int i = 0; i < geometrySavables.length; i++) {
             geometries[i] = (Geometry) geometrySavables[i];
         }
+    }
+
+    /**
+     *  Destroy internal buffers.
+     */
+    protected void cleanup() {
+        BufferUtils.destroyDirectBuffer(transformInstanceData.getData());
+        transformInstanceData = null;
+        geometries = null;
     }
 }

@@ -111,7 +111,7 @@ public class HillHeightMap extends AbstractHeightMap {
         this(size, iterations, minRadius, maxRadius, new Random().nextLong());
     }
 
-    /*
+    /**
      * Generates a heightmap using the Hill Algorithm and the attributes set by
      * the constructor or the setters.
      */

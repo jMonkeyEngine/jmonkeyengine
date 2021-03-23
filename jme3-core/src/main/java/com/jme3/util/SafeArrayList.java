@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -80,10 +80,10 @@ public class SafeArrayList<E> implements List<E>, Cloneable {
     //       make this publicly act like a read-only list.
     //       SafeArrayList-specific methods could then be exposed
     //       for the classes like Node and Spatial to use to manage
-    //       the list.  This was the callers couldn't remove a child
+    //       the list.  This was because the callers couldn't remove a child
     //       without it being detached properly, for example.
 
-    private Class<E> elementType;
+    final private Class<E> elementType;
     private List<E> buffer;
     private E[] backingArray;
     private int size = 0;
@@ -402,7 +402,7 @@ public class SafeArrayList<E> implements List<E>, Cloneable {
     }
 
     protected class ArrayIterator<E> implements ListIterator<E> {
-        private E[] array;
+        final private E[] array;
         private int next;
         private int lastReturned;
 

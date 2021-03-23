@@ -17,9 +17,9 @@ import com.jme3.scene.shape.Sphere;
 public class TestLightingFog extends SimpleApplication implements ActionListener {
 
     private Material material;
-    private Vector2f linear = new Vector2f(25, 120);
-    private float exp = 0.015f;
-    private float expsq = 0.02f;
+    final private Vector2f linear = new Vector2f(25, 120);
+    final private float exp = 0.015f;
+    final private float expsq = 0.02f;
 
     public static void main(String[] args) {
         TestLightingFog testLightingFog = new TestLightingFog();

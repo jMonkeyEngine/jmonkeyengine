@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -94,8 +94,8 @@ public class TestBitmapFont extends SimpleApplication {
         }
     };
 
-    private RawInputListener textListener = new RawInputListener() {
-        private StringBuilder str = new StringBuilder();
+    final private RawInputListener textListener = new RawInputListener() {
+        final private StringBuilder str = new StringBuilder();
 
         @Override
         public void onMouseMotionEvent(MouseMotionEvent evt) { }

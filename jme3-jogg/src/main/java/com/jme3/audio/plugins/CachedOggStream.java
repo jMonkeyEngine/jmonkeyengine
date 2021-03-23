@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -53,12 +53,11 @@ public class CachedOggStream implements PhysicalOggStream {
 
     private boolean closed = false;
     private boolean eos = false;
-    private boolean bos = false;
     private InputStream sourceStream;
     private HashMap<Integer, LogicalOggStream> logicalStreams 
-            = new HashMap<Integer, LogicalOggStream>();
+            = new HashMap<>();
     
-    private IntMap<OggPage> oggPages = new IntMap<OggPage>();
+    private IntMap<OggPage> oggPages = new IntMap<>();
     private OggPage lastPage;
    
     private int pageNumber;
@@ -80,10 +79,6 @@ public class CachedOggStream implements PhysicalOggStream {
         return lastPage;
     }
     
-    private LogicalOggStream getLogicalStream(int serialNumber) {
-        return logicalStreams.get(Integer.valueOf(serialNumber));
-    }
-
     @Override
     public Collection<LogicalOggStream> getLogicalStreams() {
         return logicalStreams.values();
@@ -130,9 +125,7 @@ public class CachedOggStream implements PhysicalOggStream {
            return -1;
 
        OggPage op = OggPage.create(sourceStream);
-       if (!op.isBos()){
-           bos = true;
-       }
+       op.isBos();
        if (op.isEos()){
            eos = true;
            lastPage = op;

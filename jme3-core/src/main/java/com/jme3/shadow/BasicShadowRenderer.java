@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -62,17 +62,17 @@ public class BasicShadowRenderer implements SceneProcessor {
 
     private RenderManager renderManager;
     private ViewPort viewPort;
-    private FrameBuffer shadowFB;
-    private Texture2D shadowMap;
-    private Camera shadowCam;
-    private Material preshadowMat;
-    private Material postshadowMat;
-    private Picture dispPic = new Picture("Picture");
+    final private FrameBuffer shadowFB;
+    final private Texture2D shadowMap;
+    final private Camera shadowCam;
+    final private Material preshadowMat;
+    final private Material postshadowMat;
+    final private Picture dispPic = new Picture("Picture");
     private boolean noOccluders = false;
-    private Vector3f[] points = new Vector3f[8];
-    private Vector3f direction = new Vector3f();
+    final private Vector3f[] points = new Vector3f[8];
+    final private Vector3f direction = new Vector3f();
     protected Texture2D dummyTex;
-    private float shadowMapSize;
+    final private float shadowMapSize;
 
     protected GeometryList lightReceivers = new GeometryList(new OpaqueComparator());
     protected GeometryList shadowOccluders = new GeometryList(new OpaqueComparator());

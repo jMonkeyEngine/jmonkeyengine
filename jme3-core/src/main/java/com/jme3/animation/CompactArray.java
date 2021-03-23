@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,7 +44,7 @@ import java.util.Map;
  */
 public abstract class CompactArray<T> implements JmeCloneable {
 
-    protected Map<T, Integer> indexPool = new HashMap<T, Integer>();
+    protected Map<T, Integer> indexPool = new HashMap<>();
     protected int[] index;
     protected float[] array;
     private boolean invalid;

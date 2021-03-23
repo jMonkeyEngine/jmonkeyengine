@@ -74,8 +74,8 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
     /* Fields to contain the current position and display contents of the spinner */
     private int currentPosition = 0;
     private String currentSelection = "";
-    private List<String> classNames = new ArrayList<String>();
-    private List<String> exclusions = new ArrayList<String>();
+    private List<String> classNames = new ArrayList<>();
+    private List<String> exclusions = new ArrayList<>();
     private String rootPackage;
 
     /* ListView that displays the test application class names. */

@@ -34,6 +34,12 @@ public class Primitives {
     }
 
     /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private Primitives() {
+    }
+
+    /**
      * Returns the corresponding wrapper type of {@code type} if it is a primitive type; otherwise
      * returns {@code type} itself. Idempotent.
      * <p>

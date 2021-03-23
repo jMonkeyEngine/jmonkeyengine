@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -80,6 +80,12 @@ public class SavableClassUtil {
         addRemapping("com.jme3.scene.plugins.blender.objects.Properties", NullSavable.class);
     }
 
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private SavableClassUtil() {
+    }
+
     private static String remapClass(String className) throws ClassNotFoundException {
         String result = CLASS_REMAPPINGS.get(className);
         if (result == null) {
@@ -96,7 +102,7 @@ public class SavableClassUtil {
 
     @SuppressWarnings("unchecked")
     public static int[] getSavableVersions(Class<? extends Savable> clazz) throws IOException{
-        ArrayList<Integer> versionList = new ArrayList<Integer>();
+        ArrayList<Integer> versionList = new ArrayList<>();
         Class superclass = clazz;
         do {
             versionList.add(getSavableVersion(superclass));
@@ -212,8 +218,7 @@ public class SavableClassUtil {
                 }
                 try {
                     return (Savable) loadedClass.newInstance();
-                } catch (InstantiationException e) {
-                } catch (IllegalAccessException e) {
+                } catch (InstantiationException | IllegalAccessException e) {
                 }
             }
         }
