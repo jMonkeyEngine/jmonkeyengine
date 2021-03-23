@@ -271,24 +271,24 @@ public class LightsPunctualExtensionLoader implements ExtensionLoader {
         private Node node;
         private int lightIndex;
 
-        public NodeNeedingLight(Node node, int lightIndex) {
+        private NodeNeedingLight(Node node, int lightIndex) {
             this.node = node;
             this.lightIndex = lightIndex;
         }
 
-        public Node getNode() {
+        private Node getNode() {
             return node;
         }
 
-        public void setNode(Node node) {
+        private void setNode(Node node) {
             this.node = node;
         }
 
-        public int getLightIndex() {
+        private int getLightIndex() {
             return lightIndex;
         }
 
-        public void setLightIndex(int lightIndex) {
+        private void setLightIndex(int lightIndex) {
             this.lightIndex = lightIndex;
         }
     }
