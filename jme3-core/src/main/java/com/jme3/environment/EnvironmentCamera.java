@@ -172,8 +172,7 @@ public class EnvironmentCamera extends BaseAppState {
 
     @Override
     public void render(final RenderManager renderManager) {
-
-        if (jobs.isEmpty()) {
+        if (!isBusy()) {
             return;
         }
 
@@ -274,6 +273,17 @@ public class EnvironmentCamera extends BaseAppState {
      */
     public ViewPort[] getViewPorts(){
         return viewports;
+    }
+
+    /**
+     * Test whether this EnvironmentCamera is busy. Avoid reconfiguring while
+     * busy!
+     *
+     * @return true if busy, otherwise false
+     */
+    public boolean isBusy() {
+        boolean result = !jobs.isEmpty();
+        return result;
     }
 
     @Override
