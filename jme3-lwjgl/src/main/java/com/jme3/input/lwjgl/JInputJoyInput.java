@@ -1,9 +1,5 @@
 /*
-<<<<<<< HEAD
- * Copyright (c) 2009-2016 jMonkeyEngine
-=======
  * Copyright (c) 2009-2021 jMonkeyEngine
->>>>>>> master
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
