@@ -98,9 +98,9 @@ public class HelloAnimation extends SimpleApplication {
    */
   public void onAdvanceDone() {
     /**
-     * Play the "halt" animation action.
+     * Play the "stand" animation action.
      */
-    control.setCurrentAction("halt");
+    control.setCurrentAction("stand");
   }
 
   /**
