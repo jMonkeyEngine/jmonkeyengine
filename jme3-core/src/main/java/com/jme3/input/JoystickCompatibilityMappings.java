@@ -60,10 +60,6 @@ public class JoystickCompatibilityMappings {
 
     private static final Logger logger = Logger.getLogger(JoystickCompatibilityMappings.class.getName());
 
-    static {
-        logger.setLevel(Level.FINE);
-    }
-
     // List of resource paths to check for the joystick-mapping.properties
     // files.
     private static String[] searchPaths = {"joystick-mapping.properties"};
