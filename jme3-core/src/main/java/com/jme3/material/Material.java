@@ -88,7 +88,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
 
     public Material(MaterialDef def) {
         if (def == null) {
-            throw new NullPointerException("Material definition cannot be null");
+            throw new IllegalArgumentException("Material definition cannot be null");
         }
         this.def = def;
 

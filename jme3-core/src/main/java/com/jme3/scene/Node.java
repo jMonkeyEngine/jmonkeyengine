@@ -339,7 +339,7 @@ public class Node extends Spatial {
      * @param child
      *            the child to attach to this node.
      * @return the number of children maintained by this node.
-     * @throws NullPointerException if child is null.
+     * @throws IllegalArgumentException if child is null or this
      */
     public int attachChildAt(Spatial child, int index) {
         if (child == null) {
@@ -374,12 +374,12 @@ public class Node extends Spatial {
      * This child will no longer be maintained.
      *
      * @param child
-     *            the child to remove.
+     *            the child to remove (not null)
      * @return the index the child was at. -1 if the child was not in the list.
      */
     public int detachChild(Spatial child) {
         if (child == null) {
-            throw new NullPointerException();
+            throw new IllegalArgumentException("child cannot be null");
         }
 
         if (child.getParent() == this) {
@@ -395,16 +395,16 @@ public class Node extends Spatial {
 
     /**
      * <code>detachChild</code> removes a given child from the node's list.
-     * This child will no longe be maintained. Only the first child with a
+     * This child will no longer be maintained. Only the first child with a
      * matching name is removed.
      *
      * @param childName
-     *            the child to remove.
+     *            the child to remove (not null)
      * @return the index the child was at. -1 if the child was not in the list.
      */
     public int detachChildNamed(String childName) {
         if (childName == null) {
-            throw new NullPointerException();
+            throw new IllegalArgumentException("childName cannot be null");
         }
 
         for (int x = 0, max = children.size(); x < max; x++) {

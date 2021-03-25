@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -627,7 +627,7 @@ public class LODGeomap extends GeoMap {
 
     public FloatBuffer[] writeTangentArray(FloatBuffer normalBuffer, FloatBuffer tangentStore, FloatBuffer binormalStore, FloatBuffer textureBuffer, Vector3f scale) {
         if (!isLoaded()) {
-            throw new NullPointerException();
+            throw new IllegalStateException("The Geomap data is not loaded.");
         }
 
         if (tangentStore != null) {
@@ -769,7 +769,7 @@ public class LODGeomap extends GeoMap {
     @Override
     public FloatBuffer writeNormalArray(FloatBuffer store, Vector3f scale) {
         if (!isLoaded()) {
-            throw new NullPointerException();
+            throw new IllegalStateException("The Geomap data is not loaded.");
         }
 
         if (store != null) {
