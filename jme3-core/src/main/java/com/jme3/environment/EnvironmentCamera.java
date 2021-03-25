@@ -172,27 +172,30 @@ public class EnvironmentCamera extends BaseAppState {
 
     @Override
     public void render(final RenderManager renderManager) {
-        if (!isBusy()) {
-            return;
-        }
+        if (isBusy()) {
+            final SnapshotJob job = jobs.get(0);
 
-        final SnapshotJob job = jobs.get(0);
+            for (int i = 0; i < 6; i++) {
+                viewports[i].clearScenes();
+                viewports[i].attachScene(job.scene);
+                renderManager.renderViewPort(viewports[i], 0.16f);
+                buffers[i] = BufferUtils.createByteBuffer(
+                        size * size * imageFormat.getBitsPerPixel() / 8);
+                renderManager.getRenderer().readFrameBufferWithFormat(
+                        framebuffers[i], buffers[i], imageFormat);
+                images[i] = new Image(imageFormat, size, size, buffers[i],
+                        ColorSpace.Linear);
+                MipMapGenerator.generateMipMaps(images[i]);
+            }
 
-        for (int i = 0; i < 6; i++) {
-            viewports[i].clearScenes();
-            viewports[i].attachScene(job.scene);
-            renderManager.renderViewPort(viewports[i], 0.16f);
-            buffers[i] = BufferUtils.createByteBuffer(size * size * imageFormat.getBitsPerPixel() / 8);
-            renderManager.getRenderer().readFrameBufferWithFormat(framebuffers[i], buffers[i], imageFormat);
-            images[i] = new Image(imageFormat, size, size, buffers[i], ColorSpace.Linear);
-            MipMapGenerator.generateMipMaps(images[i]);
-        }
-
-        final TextureCubeMap map = EnvMapUtils.makeCubeMap(images[0], images[1], images[2], images[3], images[4], images[5], imageFormat);
+            final TextureCubeMap map = EnvMapUtils.makeCubeMap(images[0],
+                    images[1], images[2], images[3], images[4], images[5],
+                    imageFormat);
             debugEnv = map;
-        job.callback.done(map);
-        map.getImage().dispose();
-        jobs.remove(0);
+            job.callback.done(map);
+            map.getImage().dispose();
+            jobs.remove(0);
+        }
     }
 
     /**
