@@ -382,7 +382,7 @@ public class FlyByCamera implements AnalogListener, ActionListener {
      * @param value zoom amount
      */
     protected void zoomCamera(float value){
-        cam.setFov(cam.getFov() - value * 0.1F * zoomSpeed);
+        cam.setFov(cam.getFov() + value * 0.1F * zoomSpeed);
     }
 
     /**
