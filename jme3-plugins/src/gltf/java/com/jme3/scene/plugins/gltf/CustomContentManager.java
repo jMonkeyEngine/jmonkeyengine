@@ -55,6 +55,7 @@ public class CustomContentManager {
 
     static {
         defaultExtensionLoaders.put("KHR_materials_pbrSpecularGlossiness", new PBRSpecGlossExtensionLoader());
+        defaultExtensionLoaders.put("KHR_lights_punctual", new LightsPunctualExtensionLoader());
         defaultExtensionLoaders.put("KHR_materials_unlit", new UnlitExtensionLoader());
     }
 
