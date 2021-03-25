@@ -152,7 +152,6 @@ public class Camera implements Savable, Cloneable {
      * Distance from camera to bottom frustum plane.
      */
     protected float frustumBottom;
-    private float currentFov;
     //Temporary values computed in onFrustumChange that are needed if a
     //call is made to onFrameChange.
     protected float[] coeffLeft;
@@ -584,10 +583,17 @@ public class Camera implements Savable, Cloneable {
     /**
      * Obtains field of view when the camera is in perspective mode.
      *
-     * @return Frame of view angle along the Y in degrees, or -1 if the camera is in orthogonal mode.
+     * @return Frame of view angle along the Y in degrees, or 0 if the camera is in orthogonal mode.
      */
     public float getFov() {
-        return !this.parallelProjection ? currentFov : -1;
+        if (!this.parallelProjection)
+        {
+            float fovY = frustumTop / frustumNear;
+            fovY = FastMath.atan(fovY);
+            fovY /= 0.5F * FastMath.DEG_TO_RAD;
+            return fovY;
+        }
+        return 0;
     }
 
     /**
@@ -599,8 +605,7 @@ public class Camera implements Savable, Cloneable {
     public void setFov(float fovY) {
         if (!this.parallelProjection && fovY > 0) {
             float h = FastMath.tan(fovY * FastMath.DEG_TO_RAD * .5f) * frustumNear;
-            float w = h * (width / height);
-            currentFov = fovY;
+            float w = h * getAspect();
             frustumLeft = -w;
             frustumRight = w;
             frustumBottom = -h;
@@ -610,12 +615,14 @@ public class Camera implements Savable, Cloneable {
     }
 
     /**
-     * Obtains the aspect ratio when the camera is in perspective mode.
+     * Obtains the aspect ratio.
      *
-     * @return Width:Height ratio, or -1 if the camera is in orthogonal mode.
+     * @return Width:Height ratio.
      */
     public float getAspect() {
-        return !this.parallelProjection ? (width / height) : -1;
+        float h = height * (viewPortTop - viewPortBottom);
+        float w = width * (viewPortRight - viewPortLeft);
+        return w / h;
     }
 
     /**
@@ -813,7 +820,6 @@ public class Camera implements Savable, Cloneable {
 
         float h = FastMath.tan(fovY * FastMath.DEG_TO_RAD * .5f) * near;
         float w = h * aspect;
-        currentFov = fovY;
         frustumLeft = -w;
         frustumRight = w;
         frustumBottom = -h;
