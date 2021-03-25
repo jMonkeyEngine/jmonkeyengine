@@ -600,10 +600,14 @@ public class Camera implements Savable, Cloneable {
      * Sets the field of view when the camera is in perspective mode. Note that this method has no
      * effect when the camera is in orthogonal mode.
      *
-     * @param fovY   Frame of view angle along the Y in degrees.
+     * @param fovY   Frame of view angle along the Y in degrees. This must be greater than 0.
      */
     public void setFov(float fovY) {
-        if (!this.parallelProjection && fovY > 0) {
+        if (fovY <= 0)
+        {
+            throw new IllegalArgumentException("Field of view must be greater than 0");
+        }
+        if (!this.parallelProjection) {
             float h = FastMath.tan(fovY * FastMath.DEG_TO_RAD * .5f) * frustumNear;
             float w = h * getAspect();
             frustumLeft = -w;
