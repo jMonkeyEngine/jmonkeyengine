@@ -152,6 +152,8 @@ public class Camera implements Savable, Cloneable {
      * Distance from camera to bottom frustum plane.
      */
     protected float frustumBottom;
+    private float currentFov;
+    private float currentAspect;
     //Temporary values computed in onFrustumChange that are needed if a
     //call is made to onFrameChange.
     protected float[] coeffLeft;
@@ -457,8 +459,8 @@ public class Camera implements Savable, Cloneable {
         if (fixAspect) {
             float h = height * (viewPortTop - viewPortBottom);
             float w = width * (viewPortRight - viewPortLeft);
-            float aspectRatio = w / h;
-            frustumRight = frustumTop * aspectRatio;
+            currentAspect = w / h;
+            frustumRight = frustumTop * currentAspect;
             frustumLeft = -frustumRight;
             onFrustumChange();
         }
@@ -578,6 +580,62 @@ public class Camera implements Savable, Cloneable {
     public void setFrustumTop(float frustumTop) {
         this.frustumTop = frustumTop;
         onFrustumChange();
+    }
+
+    /**
+     * Obtains field of view when the camera is in perspective mode.
+     *
+     * @return Frame of view angle along the Y in degrees, or -1 if the camera is in orthogonal mode.
+     */
+    public float getFov() {
+        return !this.parallelProjection ? currentFov : -1;
+    }
+
+    /**
+     * Sets the field of view when the camera is in perspective mode. Note that this method has no
+     * effect when the camera is in orthogonal mode.
+     *
+     * @param fovY   Frame of view angle along the Y in degrees.
+     */
+    public void setFov(float fovY) {
+        if (!this.parallelProjection && fovY > 0) {
+            float h = FastMath.tan(fovY * FastMath.DEG_TO_RAD * .5f) * frustumNear;
+            float w = h * currentAspect;
+            currentFov = fovY;
+            frustumLeft = -w;
+            frustumRight = w;
+            frustumBottom = -h;
+            frustumTop = h;
+            onFrustumChange();
+        }
+    }
+
+    /**
+     * Obtains the aspect ratio when the camera is in perspective mode.
+     *
+     * @return Width:Height ratio, or -1 if the camera is in orthogonal mode.
+     */
+    public float getAspect() {
+        return !this.parallelProjection ? currentAspect : -1;
+    }
+
+    /**
+     * Sets the aspect ratio when the camera is in perspective mode. Note that this method has no
+     * effect when the camera is in orthogonal mode.
+     *
+     * @param aspect Width:Height ratio
+     */
+    public void setAspect(float aspect) {
+        if (!this.parallelProjection && aspect != 0) {
+            float h = FastMath.tan(currentFov * FastMath.DEG_TO_RAD * .5f) * frustumNear;
+            float w = h * aspect;
+            currentAspect = aspect;
+            frustumLeft = -w;
+            frustumRight = w;
+            frustumBottom = -h;
+            frustumTop = h;
+            onFrustumChange();
+        }
     }
 
     /**
@@ -775,6 +833,8 @@ public class Camera implements Savable, Cloneable {
 
         float h = FastMath.tan(fovY * FastMath.DEG_TO_RAD * .5f) * near;
         float w = h * aspect;
+        currentFov = fovY;
+        currentAspect = aspect;
         frustumLeft = -w;
         frustumRight = w;
         frustumBottom = -h;
