@@ -177,6 +177,7 @@ public class AndroidJoystickJoyInput14 {
 
     public boolean onGenericMotion(MotionEvent event) {
         boolean consumed = false;
+        float rawValue, value;
 //        logger.log(Level.INFO, "onGenericMotion event: {0}", event);
         event.getDeviceId();
         event.getSource();
@@ -185,7 +186,8 @@ public class AndroidJoystickJoyInput14 {
         if (joystick != null) {
             for (int androidAxis: joystick.getAndroidAxes()) {
                 String axisName = MotionEvent.axisToString(androidAxis);
-                float value = event.getAxisValue(androidAxis);
+                rawValue = event.getAxisValue(androidAxis);
+                value = JoystickCompatibilityMappings.remapAxisRange(joystick.getAxis(androidAxis), rawValue);
                 int action = event.getAction();
                 if (action == MotionEvent.ACTION_MOVE) {
 //                    logger.log(Level.INFO, "MOVE axis num: {0}, axisName: {1}, value: {2}",
@@ -194,7 +196,7 @@ public class AndroidJoystickJoyInput14 {
                     if (axis != null) {
 //                        logger.log(Level.INFO, "MOVE axis num: {0}, axisName: {1}, value: {2}, deadzone: {3}",
 //                                new Object[]{androidAxis, axisName, value, axis.getDeadZone()});
-                        JoyAxisEvent axisEvent = new JoyAxisEvent(axis, value);
+                        JoyAxisEvent axisEvent = new JoyAxisEvent(axis, value, rawValue);
                         joyInput.addEvent(axisEvent);
                         consumed = true;
                     } else {
@@ -316,7 +318,7 @@ public class AndroidJoystickJoyInput14 {
                 original = JoystickButton.BUTTON_11;
             }
 
-            String logicalId = JoystickCompatibilityMappings.remapComponent( getName(), original );
+            String logicalId = JoystickCompatibilityMappings.remapButton( getName(), original );
             if( logicalId == null ? original != null : !logicalId.equals(original) ) {
                 logger.log(Level.FINE, "Remapped: {0} to: {1}",
                         new Object[]{original, logicalId});
@@ -347,7 +349,7 @@ public class AndroidJoystickJoyInput14 {
             } else if (motionRange.getAxis() == MotionEvent.AXIS_HAT_Y) {
                 original = JoystickAxis.POV_Y;
             }
-            String logicalId = JoystickCompatibilityMappings.remapComponent( getName(), original );
+            String logicalId = JoystickCompatibilityMappings.remapAxis( getName(), original );
             if( logicalId == null ? original != null : !logicalId.equals(original) ) {
                 logger.log(Level.FINE, "Remapped: {0} to: {1}",
                         new Object[]{original, logicalId});
