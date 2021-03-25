@@ -153,7 +153,6 @@ public class Camera implements Savable, Cloneable {
      */
     protected float frustumBottom;
     private float currentFov;
-    private float currentAspect;
     //Temporary values computed in onFrustumChange that are needed if a
     //call is made to onFrameChange.
     protected float[] coeffLeft;
@@ -459,8 +458,8 @@ public class Camera implements Savable, Cloneable {
         if (fixAspect) {
             float h = height * (viewPortTop - viewPortBottom);
             float w = width * (viewPortRight - viewPortLeft);
-            currentAspect = w / h;
-            frustumRight = frustumTop * currentAspect;
+            float aspectRatio = w / h;
+            frustumRight = frustumTop * aspectRatio;
             frustumLeft = -frustumRight;
             onFrustumChange();
         }
@@ -600,7 +599,7 @@ public class Camera implements Savable, Cloneable {
     public void setFov(float fovY) {
         if (!this.parallelProjection && fovY > 0) {
             float h = FastMath.tan(fovY * FastMath.DEG_TO_RAD * .5f) * frustumNear;
-            float w = h * currentAspect;
+            float w = h * (width / height);
             currentFov = fovY;
             frustumLeft = -w;
             frustumRight = w;
@@ -616,26 +615,7 @@ public class Camera implements Savable, Cloneable {
      * @return Width:Height ratio, or -1 if the camera is in orthogonal mode.
      */
     public float getAspect() {
-        return !this.parallelProjection ? currentAspect : -1;
-    }
-
-    /**
-     * Sets the aspect ratio when the camera is in perspective mode. Note that this method has no
-     * effect when the camera is in orthogonal mode.
-     *
-     * @param aspect Width:Height ratio
-     */
-    public void setAspect(float aspect) {
-        if (!this.parallelProjection && aspect != 0) {
-            float h = FastMath.tan(currentFov * FastMath.DEG_TO_RAD * .5f) * frustumNear;
-            float w = h * aspect;
-            currentAspect = aspect;
-            frustumLeft = -w;
-            frustumRight = w;
-            frustumBottom = -h;
-            frustumTop = h;
-            onFrustumChange();
-        }
+        return !this.parallelProjection ? (width / height) : -1;
     }
 
     /**
@@ -834,7 +814,6 @@ public class Camera implements Savable, Cloneable {
         float h = FastMath.tan(fovY * FastMath.DEG_TO_RAD * .5f) * near;
         float w = h * aspect;
         currentFov = fovY;
-        currentAspect = aspect;
         frustumLeft = -w;
         frustumRight = w;
         frustumBottom = -h;
