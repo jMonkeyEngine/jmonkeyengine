@@ -54,7 +54,6 @@ public class HelloAnimation extends SimpleApplication {
 
   private Action advance;
   private AnimComposer control;
-  private boolean advancePending;
   private Node player;
 
   public static void main(String[] args) {
@@ -85,12 +84,13 @@ public class HelloAnimation extends SimpleApplication {
        that transitions from "Walk" to "stand" in half a second. */
     BlendSpace quickBlend = new LinearBlendSpace(0f, 0.5f);
     Action halt = control.actionBlended("halt", quickBlend, "stand", "Walk");
+    halt.setLength(0.5);
 
     /* Compose an animation action named "advance"
        that walks for one cycle, then halts, then invokes onAdvanceDone(). */
     Action walk = control.action("Walk");
-    Tween done = Tweens.callMethod(this, "onAdvanceDone");
-    advance = control.actionSequence("advance", walk, halt, done);
+    Tween doneTween = Tweens.callMethod(this, "onAdvanceDone");
+    advance = control.actionSequence("advance", walk, halt, doneTween);
   }
 
   /**
@@ -104,21 +104,8 @@ public class HelloAnimation extends SimpleApplication {
   }
 
   /**
-   * If advancePending is set, play the "advance" animation action ---
-   * unless it's already playing.
-   */
-  @Override
-  public void simpleUpdate(float tpf) {
-    boolean isAdvancing = control.getCurrentAction().equals(advance);
-    if (advancePending && !isAdvancing) {
-      control.setCurrentAction("advance");
-      advancePending = false;
-    }
-  }
-
-  /**
-   * Map the spacebar to the "Walk" input action and add a listener to set
-   * advancePending each time it's pressed.
+   * Map the spacebar to the "Walk" input action, and add a listener to initiate
+   * the "advance" animation action each time it's pressed.
    */
   private void initKeys() {
     inputManager.addMapping("Walk", new KeyTrigger(KeyInput.KEY_SPACE));
@@ -126,8 +113,8 @@ public class HelloAnimation extends SimpleApplication {
     ActionListener handler = new ActionListener() {
       @Override
       public void onAction(String name, boolean keyPressed, float tpf) {
-        if (name.equals("Walk") && keyPressed) {
-          advancePending = true;
+        if (keyPressed && control.getCurrentAction() != advance) {
+          control.setCurrentAction("advance");
         }
       }
     };
