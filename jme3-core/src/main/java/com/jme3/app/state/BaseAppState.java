@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 jMonkeyEngine
+ * Copyright (c) 2014-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -145,6 +145,8 @@ public abstract class BaseAppState implements AppState {
      *  Sets the unique ID of this app state.  Note: that setting
      *  this while an app state is attached to the state manager will
      *  have no effect on ID-based lookups.
+     *
+     * @param id the desired ID
      */
     protected void setId( String id ) {
         this.id = id;
