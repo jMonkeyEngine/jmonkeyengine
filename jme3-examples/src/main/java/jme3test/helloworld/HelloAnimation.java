@@ -96,7 +96,7 @@ public class HelloAnimation extends SimpleApplication {
   /**
    * Callback to indicate that the "advance" animation action has completed.
    */
-  public void onAdvanceDone() {
+  void onAdvanceDone() {
     /**
      * Play the "stand" animation action.
      */
