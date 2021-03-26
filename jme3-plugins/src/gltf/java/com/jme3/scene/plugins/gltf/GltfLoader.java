@@ -167,7 +167,10 @@ public class GltfLoader implements AssetLoader {
 
             //only one scene let's not return the root.
             if (rootNode.getChildren().size() == 1) {
-                rootNode = (Node) rootNode.getChild(0);
+                Node child = (Node) rootNode.getChild(0);
+                //Migrate lights that were in the parent to the child.
+                rootNode.getLocalLightList().forEach(child::addLight);
+                rootNode = child;
             }
             //no name for the scene... let's set the file name.
             if (rootNode.getName() == null) {

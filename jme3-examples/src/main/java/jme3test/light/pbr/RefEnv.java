@@ -147,8 +147,9 @@ public class RefEnv extends SimpleApplication {
     public void simpleUpdate(float tpf) {
         frame++;
 
+        EnvironmentCamera eCam = stateManager.getState(EnvironmentCamera.class);
         if (frame == 2) {
-            final LightProbe probe = LightProbeFactory.makeProbe(stateManager.getState(EnvironmentCamera.class), rootNode, EnvMapUtils.GenerationType.Fast, new JobProgressAdapter<LightProbe>() {
+            final LightProbe probe = LightProbeFactory.makeProbe(eCam, rootNode, EnvMapUtils.GenerationType.Fast, new JobProgressAdapter<LightProbe>() {
 
                 @Override
                 public void done(LightProbe result) {
@@ -160,6 +161,10 @@ public class RefEnv extends SimpleApplication {
             probe.getArea().setRadius(100);
             rootNode.addLight(probe);
 
+        }
+
+        if (eCam.isBusy()) {
+            System.out.println("EnvironmentCamera busy as of frame " + frame);
         }
     }
 }

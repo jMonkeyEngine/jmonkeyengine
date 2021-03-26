@@ -258,11 +258,11 @@ public class PssmShadowRenderer implements SceneProcessor {
      * Sets the filtering mode for shadow edges see {@link FilterMode} for more
      * info
      *
-     * @param filterMode
+     * @param filterMode the desired mode (not null)
      */
     final public void setFilterMode(FilterMode filterMode) {
         if (filterMode == null) {
-            throw new NullPointerException();
+            throw new IllegalArgumentException("filterMode cannot be null");
         }
 
         if (this.filterMode == filterMode) {
@@ -289,11 +289,11 @@ public class PssmShadowRenderer implements SceneProcessor {
     /**
      * sets the shadow compare mode see {@link CompareMode} for more info
      *
-     * @param compareMode
+     * @param compareMode the desired mode (not null)
      */
     final public void setCompareMode(CompareMode compareMode) {
         if (compareMode == null) {
-            throw new NullPointerException();
+            throw new IllegalArgumentException("compareMode cannot be null");
         }
 
         if (this.compareMode == compareMode) {
