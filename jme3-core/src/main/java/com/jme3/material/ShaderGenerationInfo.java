@@ -138,7 +138,7 @@ public class ShaderGenerationInfo implements Savable, Cloneable {
 
     /**
      * 
-     * @return the list on unused node names
+     * @return the list of unused node names
      */
     public List<String> getUnusedNodes() {
         return unusedNodes;
