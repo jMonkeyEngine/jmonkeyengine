@@ -137,6 +137,8 @@ public class SafeArrayList<E> implements List<E>, Cloneable {
      *  is guaranteed not to change through further List manipulation.
      *  Changes to this array may or may not be reflected in the list and
      *  should be avoided.
+     *
+     * @return either the pre-existing array or a new one
      */
     public final E[] getArray() {
         if( backingArray != null )

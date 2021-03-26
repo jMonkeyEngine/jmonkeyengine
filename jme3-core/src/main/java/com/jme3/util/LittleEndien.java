@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -74,6 +74,9 @@ public class LittleEndien extends InputStream implements DataInput {
 
     /**
      * read an unsigned int as a long
+     *
+     * @return the value that was read
+     * @throws IOException if an I/O error occurs while reading
      */
     public long readUInt() throws IOException {
         return ((in.read() & 0xff)

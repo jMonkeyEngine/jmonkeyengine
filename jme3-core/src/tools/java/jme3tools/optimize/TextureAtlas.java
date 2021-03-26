@@ -138,7 +138,8 @@ public class TextureAtlas {
 
     /**
      * Add a geometries DiffuseMap (or ColorMap), NormalMap and SpecularMap to the atlas.
-     * @param geometry
+     *
+     * @param geometry the Geometry to be added (not null)
      * @return false if the atlas is full.
      */
     public boolean addGeometry(Geometry geometry) {
@@ -394,7 +395,8 @@ public class TextureAtlas {
 
     /**
      * Creates a new atlas texture for the given map name.
-     * @param mapName
+     *
+     * @param mapName the desired name
      * @return the atlas texture
      */
     public Texture getAtlasTexture(String mapName) {
