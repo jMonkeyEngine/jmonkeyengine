@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -55,7 +55,10 @@ public interface SceneProcessor {
 
     /**
      * Called when the resolution of the viewport has been changed.
-     * @param vp
+     *
+     * @param vp the affected ViewPort
+     * @param w the new width (in pixels)
+     * @param h the new height (in pixels)
      */
     public void reshape(ViewPort vp, int w, int h);
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -96,9 +96,10 @@ public abstract class Filter implements Savable {
 
         /**
          * init the pass called internally
-         * @param renderer
-         * @param width
-         * @param height
+         *
+         * @param renderer (not null)
+         * @param width the width (in pixels, &ge;0)
+         * @param height the height (in pixels, &ge;0)
          * @param textureFormat
          * @param depthBufferFormat
          * @param numSamples
@@ -333,8 +334,9 @@ public abstract class Filter implements Savable {
     /**
      * Override this method if you want to save extra properties when the filter is saved else only basic properties of the filter will be saved
      * This method should always begin by super.write(ex);
-     * @param ex
-     * @throws IOException
+     *
+     * @param ex the exporter (not null)
+     * @throws IOException from the exporter
      */
     @Override
     public void write(JmeExporter ex) throws IOException {

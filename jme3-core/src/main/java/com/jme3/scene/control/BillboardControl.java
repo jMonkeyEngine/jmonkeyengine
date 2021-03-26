@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -280,6 +280,8 @@ public class BillboardControl extends AbstractControl {
      * Sets the type of rotation this Billboard will have. The alignment can
      * be Camera, Screen, AxialY, or AxialZ. Invalid alignments will
      * assume no billboard rotation.
+     * 
+     * @param alignment the desired alignment (Camera/Screen/AxialY/AxialZ)
      */
     public void setAlignment(Alignment alignment) {
         this.alignment = alignment;
