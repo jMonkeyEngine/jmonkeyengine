@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -216,7 +216,7 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
      * Sets the speed of the animation.
      * At speed = 1, the animation will last initialDuration seconds,
      * At speed = 2, the animation will last initialDuration/2...
-     * @param speed
+     * @param speed the desired speedup factor (default=1)
      */
     @Override
     public void setSpeed(float speed) {
@@ -252,7 +252,7 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
 
     /**
      * Sets the duration of the animation at speed = 1 in seconds.
-     * @param initialDuration
+     * @param initialDuration the desired duration (in de-scaled seconds)
      */
     @Override
     public void setInitialDuration(float initialDuration) {
@@ -272,7 +272,7 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
     /**
      * Sets the loopMode of the animation.
      * @see LoopMode
-     * @param loopMode
+     * @param loopMode the desired mode (default=DontLoop)
      */
     @Override
     public void setLoopMode(LoopMode loopMode) {
@@ -282,7 +282,7 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
     /**
      * Used for serialization only.
      * @param ex exporter
-     * @throws IOException 
+     * @throws IOException from the exporter
      */
     @Override
     public void write(JmeExporter ex) throws IOException {
@@ -296,7 +296,7 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
     /**
      * Used for serialization only.
      * @param im importer
-     * @throws IOException 
+     * @throws IOException from the importer
      */
     @Override
     public void read(JmeImporter im) throws IOException {
@@ -309,8 +309,9 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
 
     /**
      * Initialize this event (called internally only).
-     * @param app
-     * @param cinematic 
+     *
+     * @param app ignored
+     * @param cinematic ignored
      */
     @Override
     public void initEvent(Application app, Cinematic cinematic) {

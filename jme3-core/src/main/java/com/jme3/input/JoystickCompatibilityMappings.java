@@ -269,6 +269,10 @@ public class JoystickCompatibilityMappings {
     /**
      * Returns the remapped version of the axis/button name if there
      * is a mapping for it otherwise it returns the original name.
+     *
+     * @param joystickName which joystick (not null)
+     * @param componentId the unmapped axis/button name
+     * @return the resulting axis/button name
      */
     public static String remapComponent(String joystickName, String componentId) {
         logger.log(Level.FINE, "remapComponent(" + joystickName + ", " + componentId + ")");
@@ -301,6 +305,8 @@ public class JoystickCompatibilityMappings {
      * Returns a set of Joystick axis name remappings if they exist otherwise
      * it returns an empty map.
      *
+     * @param joystickName which joystick (not null)
+     * @return an unmodifiable map
      * @author Markil3
      */
     public static Map<String, AxisData> getJoystickAxisMappings(String joystickName) {
@@ -314,6 +320,8 @@ public class JoystickCompatibilityMappings {
      * Returns a set of Joystick button name remappings if they exist otherwise
      * it returns an empty map.
      *
+     * @param joystickName which joystick (not null)
+     * @return an unmodifiable map
      * @author Markil3
      */
     public static Map<String, String> getJoystickButtonMappings(String joystickName) {
@@ -326,6 +334,9 @@ public class JoystickCompatibilityMappings {
     /**
      * Returns a set of Joystick axis/button name remappings if they exist otherwise
      * it returns an empty map.
+     *
+     * @param joystickName which joystick (not null)
+     * @return an unmodifiable map
      */
     public static Map<String, String> getJoystickMappings(String joystickName) {
         Map<String, String> result = getMappings(joystickName.trim(), false);
@@ -339,6 +350,9 @@ public class JoystickCompatibilityMappings {
      * joystick's name and axis/button name.  The "remap" value will be
      * used instead.
      *
+     * @param stickName which joystick (not null)
+     * @param sourceComponentId the name to be remapped
+     * @param remapId the remapped name
      * @author Markil3
      */
     public static void addAxisMapping(String stickName, String sourceComponentId, String remapId) {
@@ -351,6 +365,10 @@ public class JoystickCompatibilityMappings {
      * joystick's name and axis/button name.  The "remap" value will be
      * used instead.
      *
+     * @param stickName which joystick (not null)
+     * @param sourceComponentId the name to be remapped
+     * @param remapId the remapped name
+     * @param range the desired range (not null, exactly 2 elements)
      * @author Markil3
      */
     public static void addAxisMapping(String stickName, String sourceComponentId, String remapId, float[] range) {
@@ -366,6 +384,9 @@ public class JoystickCompatibilityMappings {
      * joystick's name and axis/button name.  The "remap" value will be
      * used instead.
      *
+     * @param stickName which joystick (not null)
+     * @param sourceComponentId the name to be remapped
+     * @param remapId the remapped name
      * @author Markil3
      */
     public static void addButtonMapping(String stickName, String sourceComponentId, String remapId) {
@@ -377,6 +398,10 @@ public class JoystickCompatibilityMappings {
      * Adds a single Joystick axis or button remapping based on the
      * joystick's name and axis/button name.  The "remap" value will be
      * used instead.
+     * 
+     * @param stickName which joystick (not null)
+     * @param sourceComponentId the name to be remapped
+     * @param remapId the remapped name
      */
     public static void addMapping(String stickName, String sourceComponentId, String remapId) {
         logger.log(Level.FINE, "addMapping(" + stickName + ", " + sourceComponentId + ", " + remapId + ")");
@@ -391,6 +416,7 @@ public class JoystickCompatibilityMappings {
      * addMapping(stickName, sourceComponent, remap) for every property
      * that it is able to parse.
      *
+     * @param p (not null)
      * @author Paul Speed
      * @author Markil 3
      */
@@ -471,6 +497,9 @@ public class JoystickCompatibilityMappings {
 
     /**
      * Maps a regular expression to a normalized name for that joystick.
+     *
+     * @param regex the regular expression to be matched
+     * @param name the remapped name
      */
     public static void addJoystickNameRegex(String regex, String name) {
         logger.log(Level.FINE, "addJoystickNameRegex(" + regex + ", " + name + ")");
@@ -496,6 +525,9 @@ public class JoystickCompatibilityMappings {
     /**
      * Loads a set of compatibility mappings from the property file
      * specified by the given URL.
+     *
+     * @param u the URL of the properties file (not null)
+     * @throws IOException if an I/O exception occurs
      */
     public static void loadMappingProperties(URL u) throws IOException {
         logger.log(Level.FINE, "Loading mapping properties:{0}", u);

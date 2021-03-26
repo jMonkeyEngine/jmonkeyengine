@@ -52,6 +52,11 @@ public abstract class AbstractJoystick implements Joystick {
 
     /**
      * Creates a new joystick instance. Only used internally.
+     *
+     * @param inputManager (alias created)
+     * @param joyInput (alias created)
+     * @param joyId ID to assign to the instance
+     * @param name name to assign to the instance
      */
     protected AbstractJoystick(InputManager inputManager, JoyInput joyInput,
                                int joyId, String name) {
