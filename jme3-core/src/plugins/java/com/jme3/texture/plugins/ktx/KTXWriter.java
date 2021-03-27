@@ -70,7 +70,8 @@ public class KTXWriter {
 
     /**
      * Creates a KTXWriter that will write files in the given path
-     * @param path 
+     *
+     * @param path the desired filesystem path (alias created)
      */
     public KTXWriter(String path) {
         filePath = path;

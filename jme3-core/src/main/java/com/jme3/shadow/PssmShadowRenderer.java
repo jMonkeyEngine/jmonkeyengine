@@ -376,7 +376,7 @@ public class PssmShadowRenderer implements SceneProcessor {
     /**
      * Sets the light direction to use to compute shadows
      *
-     * @param direction
+     * @param direction a direction vector (not null, unaffected)
      */
     public void setDirection(Vector3f direction) {
         this.direction.set(direction).normalizeLocal();
@@ -680,7 +680,7 @@ public class PssmShadowRenderer implements SceneProcessor {
      * Sets the shadow edges thickness. default is 1, setting it to lower values
      * can help to reduce the jagged effect of the shadow edges
      *
-     * @param edgesThickness
+     * @param edgesThickness the desired thickness (in tenths of a pixel, default=10)
      */
     public void setEdgesThickness(int edgesThickness) {
         this.edgesThickness = Math.max(1, Math.min(edgesThickness, 10));
@@ -703,7 +703,7 @@ public class PssmShadowRenderer implements SceneProcessor {
      * multiple shadows cast by multiple light sources. Make sure the last
      * PssmRenderer in the stack DOES flush the queues, but not the others
      *
-     * @param flushQueues
+     * @param flushQueues true to flush the queues, false to avoid flushing them
      */
     public void setFlushQueues(boolean flushQueues) {
         this.flushQueues = flushQueues;

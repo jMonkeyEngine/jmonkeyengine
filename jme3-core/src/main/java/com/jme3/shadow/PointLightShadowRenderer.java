@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -226,7 +226,7 @@ public class PointLightShadowRenderer extends AbstractShadowRenderer {
     
     /**
      *
-     * @param viewCam
+     * @param viewCam a Camera to define the view frustum
      * @return true if intersects
      */
     @Override
