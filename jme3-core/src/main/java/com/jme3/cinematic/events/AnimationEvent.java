@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -233,6 +233,7 @@ public class AnimationEvent extends AbstractCinematicEvent {
      *
      * @param model the model on which the animation will be played
      * @param animationName the name of the animation to play
+     * @param loopMode the desired mode (Loop/DontLoop/Cycle)
      * @param channelIndex the index of the channel default is 0. Events on the
      * @param blendTime the time during the animation are gonna be blended
      * same channelIndex will use the same channel.

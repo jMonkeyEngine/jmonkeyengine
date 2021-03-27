@@ -74,7 +74,8 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
 
     /**
      * Construct a cinematic event with the given initial duration.
-     * @param initialDuration 
+     *
+     * @param initialDuration the desired duration (in seconds, default=10)
      */
     public AbstractCinematicEvent(float initialDuration) {
         this.initialDuration = initialDuration;
@@ -82,7 +83,8 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
 
     /**
      * Construct a cinematic event with the given loopMode.
-     * @param loopMode 
+     *
+     * @param loopMode the desired mode (Loop/DontLoop/Cycle)
      */
     public AbstractCinematicEvent(LoopMode loopMode) {
         this.loopMode = loopMode;

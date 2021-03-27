@@ -223,7 +223,7 @@ public class SpotLightShadowRenderer extends AbstractShadowRenderer {
     
     /**
      *
-     * @param viewCam
+     * @param viewCam the viewing Camera to check against
      * @return true if intersects, otherwise false
      */
     @Override

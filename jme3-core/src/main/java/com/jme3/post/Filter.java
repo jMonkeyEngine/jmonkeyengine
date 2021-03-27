@@ -100,9 +100,10 @@ public abstract class Filter implements Savable {
          * @param renderer (not null)
          * @param width the width (in pixels, &ge;0)
          * @param height the height (in pixels, &ge;0)
-         * @param textureFormat
-         * @param depthBufferFormat
-         * @param numSamples
+         * @param textureFormat format of the rendered texture
+         * @param depthBufferFormat format of the depth buffer
+         * @param numSamples the number of samples per pixel (for multisampling)
+         * @param renderDepth true to create a depth texture, false for none
          */
         public void init(Renderer renderer, int width, int height, Format textureFormat, Format depthBufferFormat, int numSamples, boolean renderDepth) {
             Collection<Caps> caps = renderer.getCaps();
@@ -131,11 +132,12 @@ public abstract class Filter implements Savable {
 
         /**
          *  init the pass called internally
-         * @param renderer
-         * @param width
-         * @param height
-         * @param textureFormat
-         * @param depthBufferFormat
+         *
+         * @param renderer (not null)
+         * @param width the image width (in pixels, &ge;0)
+         * @param height the image height (in pixels, &ge;0)
+         * @param textureFormat the format of the rendered texture
+         * @param depthBufferFormat the format of the depth buffer
          */
         public void init(Renderer renderer, int width, int height, Format textureFormat, Format depthBufferFormat) {
             init(renderer, width, height, textureFormat, depthBufferFormat, 1);
@@ -147,13 +149,14 @@ public abstract class Filter implements Savable {
 
         /**
          *  init the pass called internally
-         * @param renderer
-         * @param width
-         * @param height
-         * @param textureFormat
-         * @param depthBufferFormat
-         * @param numSample
-         * @param material
+         *
+         * @param renderer (not null)
+         * @param width the image width (in pixels, &ge;0)
+         * @param height the image height (in pixels, &ge;0)
+         * @param textureFormat the format of the rendered texture
+         * @param depthBufferFormat the format of the depth buffer
+         * @param numSample the number of samples per pixel (for multisampling)
+         * @param material the Material for this pass
          */
         public void init(Renderer renderer, int width, int height, Format textureFormat, Format depthBufferFormat, int numSample, Material material) {
             init(renderer, width, height, textureFormat, depthBufferFormat, numSample);

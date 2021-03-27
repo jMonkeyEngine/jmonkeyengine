@@ -122,7 +122,8 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
 
     /**
      * removes this filters from the filters list
-     * @param filter 
+     *
+     * @param filter the Filter to remove (not null)
      */
     public void removeFilter(Filter filter) {
         if (filter == null) {
@@ -378,8 +379,9 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
 
     /**
      * sets the filter to enabled or disabled
-     * @param filter
-     * @param enabled 
+     *
+     * @param filter the Filter to modify (not null)
+     * @param enabled true to enable, false to disable
      */
     protected void setFilterState(Filter filter, boolean enabled) {
         if (filters.contains(filter)) {
@@ -540,7 +542,8 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
 
     /**
      * Sets the asset manager for this processor
-     * @param assetManager
+     *
+     * @param assetManager to load assets
      */
     public void setAssetManager(AssetManager assetManager) {
         this.assetManager = assetManager;
@@ -590,8 +593,9 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
     }
     
     /**
-     * returns the first filter in the list assignable form the given type 
-     * @param <T> 
+     * returns the first filter in the list assignable form the given type
+     *
+     * @param <T> the filter type
      * @param filterType the filter type
      * @return a filter assignable form the given type 
      */
