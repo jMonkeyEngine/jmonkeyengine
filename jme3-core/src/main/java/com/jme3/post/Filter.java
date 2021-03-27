@@ -214,7 +214,7 @@ public abstract class Filter implements Savable {
     }
 
     /**
-     * returns the default pass texture format.
+     * @return the default pass texture format
      */
     protected Format getDefaultPassTextureFormat() {
         return processor.getDefaultPassTextureFormat();
@@ -254,7 +254,8 @@ public abstract class Filter implements Savable {
 
     /**
      * cleanup this filter
-     * @param r
+     *
+     * @param r the Renderer
      */
     protected final void cleanup(Renderer r) {   
         processor = null;
@@ -299,7 +300,8 @@ public abstract class Filter implements Savable {
     
     /**
      * Override if you want to do something special with the depth texture;
-     * @param depthTexture 
+     *
+     * @param depthTexture the desired Texture
      */
     protected void setDepthTexture(Texture depthTexture){
         getMaterial().setTexture("DepthTexture", depthTexture);
@@ -307,7 +309,8 @@ public abstract class Filter implements Savable {
 
     /**
      * Override this method if you want to make a pre pass, before the actual rendering of the frame
-     * @param queue
+     *
+     * @param queue the RenderQueue
      */
     protected void postQueue(RenderQueue queue) {
     }
@@ -323,10 +326,11 @@ public abstract class Filter implements Savable {
 
     /**
      * Override this method if you want to make a pass just after the frame has been rendered and just before the filter rendering
-     * @param renderManager
-     * @param viewPort
-     * @param prevFilterBuffer
-     * @param sceneBuffer
+     *
+     * @param renderManager for rendering
+     * @param viewPort for rendering
+     * @param prevFilterBuffer the FrameBuffer of the previous filter
+     * @param sceneBuffer the FrameBuffer of the scene
      */
     protected void postFrame(RenderManager renderManager, ViewPort viewPort, FrameBuffer prevFilterBuffer, FrameBuffer sceneBuffer) {
     }
@@ -367,7 +371,8 @@ public abstract class Filter implements Savable {
 
     /**
      * Sets the name of the filter
-     * @param name
+     *
+     * @param name the desired name (alias created)
      */
     public void setName(String name) {
         this.name = name;
@@ -383,7 +388,8 @@ public abstract class Filter implements Savable {
 
     /**
      * sets the default pass frame buffer
-     * @param renderFrameBuffer
+     *
+     * @param renderFrameBuffer the buffer to use (alias created)
      */
     protected void setRenderFrameBuffer(FrameBuffer renderFrameBuffer) {
         this.defaultPass.renderFrameBuffer = renderFrameBuffer;
@@ -399,7 +405,7 @@ public abstract class Filter implements Savable {
 
     /**
      * sets the rendered texture of this filter
-     * @param renderedTexture
+     * @param renderedTexture the desired Texture (alias created)
      */
     protected void setRenderedTexture(Texture2D renderedTexture) {
         this.defaultPass.renderedTexture = renderedTexture;
@@ -466,7 +472,8 @@ public abstract class Filter implements Savable {
 
     /**
      * sets a reference to the FilterPostProcessor ti which this filter is attached
-     * @param proc
+     *
+     * @param proc the desired FPP (alias created)
      */
     protected void setProcessor(FilterPostProcessor proc) {
         processor = proc;

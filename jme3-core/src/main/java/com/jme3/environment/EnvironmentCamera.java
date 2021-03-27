@@ -352,8 +352,8 @@ public class EnvironmentCamera extends BaseAppState {
     /**
      * creates an offsceen VP
      *
-     * @param name
-     * @param offCamera
+     * @param name the desired name for the offscreen viewport
+     * @param offCamera the Camera to be used (alias created)
      * @return a new instance
      */
     protected ViewPort createOffViewPort(final String name, final Camera offCamera) {
@@ -366,8 +366,8 @@ public class EnvironmentCamera extends BaseAppState {
     /**
      * create an offscreen frame buffer.
      *
-     * @param mapSize
-     * @param offView
+     * @param mapSize the desired size (pixels per side)
+     * @param offView the off-screen viewport to be used (alias created)
      * @return a new instance
      */
     protected FrameBuffer createOffScreenFrameBuffer(int mapSize, ViewPort offView) {

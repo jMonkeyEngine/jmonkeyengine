@@ -64,11 +64,15 @@ public interface AudioSource {
     
     /**
      * Do not use.
+     *
+     * @param channel the desired channel index, or -1 if stopped
      */
     public void setChannel(int channel);
 
     /**
      * Do not use.
+     *
+     * @return the channel index, or -1 if stopped
      */
     public int getChannel();
 
@@ -87,6 +91,8 @@ public interface AudioSource {
 
     /**
      * Do not use.
+     * 
+     * @param status the desired Status
      */
     public void setStatus(Status status);
     
