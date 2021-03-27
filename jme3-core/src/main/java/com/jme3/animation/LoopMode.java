@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,7 +35,6 @@ package com.jme3.animation;
  * <code>LoopMode</code> determines how animations repeat, or if they
  * do not repeat.
  */
-@Deprecated
 public enum LoopMode {
     /**
      * The animation will play repeatedly, when it reaches the end
