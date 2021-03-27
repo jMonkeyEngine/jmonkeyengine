@@ -236,7 +236,7 @@ public class PssmShadowRenderer implements SceneProcessor {
 
             postshadowMat.setTexture("ShadowMap" + i, shadowMaps[i]);
 
-            //quads for debuging purpose
+            //quads for debugging purposes
             dispPic[i] = new Picture("Picture" + i);
             dispPic[i].setTexture(manager, shadowMaps[i], false);
         }

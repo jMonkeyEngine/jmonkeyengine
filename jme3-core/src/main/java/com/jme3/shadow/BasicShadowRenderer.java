@@ -126,7 +126,7 @@ public class BasicShadowRenderer implements SceneProcessor {
     }
 
     /**
-     * sets the light direction to use to computs shadows
+     * sets the light direction to use to compute shadows
      * @param direction 
      */
     public void setDirection(Vector3f direction) {

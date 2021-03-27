@@ -1,5 +1,5 @@
  /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,7 +44,7 @@ import java.nio.ShortBuffer;
 
 /**
  * 
- * A debuging shape for a BoundingSphere 
+ * A debugging shape for a BoundingSphere 
  * Consists of 3 axis aligned circles.
  * 
  * @author nehon
@@ -158,7 +158,7 @@ public class BoundingSphereDebug extends Mesh {
 
     
     /**
-     * Convenience factory method that creates a debuging bounding sphere geometry
+     * Convenience factory method that creates a debug bounding-sphere geometry
      * @param assetManager the assetManager
      * @return the bounding sphere debug geometry.
      */

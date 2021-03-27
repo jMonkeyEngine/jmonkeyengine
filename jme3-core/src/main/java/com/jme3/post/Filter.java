@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -463,7 +463,7 @@ public abstract class Filter implements Savable {
     }
 
     /**
-     * sets a reference to the FilterPostProcessor ti which this filter is attached
+     * sets a reference to the FilterPostProcessor to which this filter is attached
      * @param proc
      */
     protected void setProcessor(FilterPostProcessor proc) {

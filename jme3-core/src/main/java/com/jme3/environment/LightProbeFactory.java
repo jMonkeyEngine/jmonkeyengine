@@ -214,7 +214,7 @@ public class LightProbeFactory {
     }
 
     /**
-     * For debuging purposes only.
+     * For debugging purposes only.
      * Will return a Node meant to be added to a GUI presenting the 2 cube maps in a cross pattern with all the mip maps.
      *
      * @param manager the asset manager
