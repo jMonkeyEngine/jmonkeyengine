@@ -75,7 +75,7 @@ public final class PssmShadowUtil {
     }
 
     /**
-     * Compute the Zfar in the model vieuw to adjust the Zfar distance for the splits calculation
+     * Compute the Zfar in the model view to adjust the Zfar distance for the splits calculation
      */
     public static float computeZFar(GeometryList occ, GeometryList recv, Camera cam) {
         Matrix4f mat = cam.getViewMatrix();

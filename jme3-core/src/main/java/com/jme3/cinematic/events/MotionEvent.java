@@ -363,7 +363,7 @@ public class MotionEvent extends AbstractCinematicEvent implements Control, JmeC
     /**
      * Sets the direction of the spatial, using the Y axis as the up vector.
      * Use MotionEvent#setDirection((Vector3f direction,Vector3f upVector) if 
-     * you want a custum up vector.
+     * you want a custom up vector.
      * This method is used by the motion path.
      * @param direction
      */
