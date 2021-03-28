@@ -9,7 +9,6 @@ import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.util.AttributeSet;
 import android.widget.RelativeLayout;
-
 import com.jme3.audio.AudioRenderer;
 import com.jme3.input.JoyInput;
 import com.jme3.input.android.AndroidSensorJoyInput;
@@ -18,7 +17,6 @@ import com.jme3.system.SystemListener;
 import com.jme3.system.android.JmeAndroidSystem;
 import com.jme3.system.android.OGLESContext;
 import org.jetbrains.annotations.Nullable;
-
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -26,7 +24,6 @@ import java.util.logging.Logger;
 /**
  * A RelativeLayout Class Holder that holds a #{{@link GLSurfaceView}} using #{{@link OGLESContext}} as a renderer to render
  * a JME game on an android view for custom xmL designs.
- *
  * @apiNote the main idea of #{@link JmeSurfaceView} class is to start a jMonkeyEngine application in a SystemListener#{@link SystemListener} context in a GL_ES thread ,
  * then the GLSurfaceView holding the GL_ES thread joins the UI thread with a delay of user's choice using a #{@link Handler} , during the delay , the game runs normally in the GL_ES thread(but without coming up on the UI)
  * and the user has the ability to handle a couple of actions asynchronously as displaying a progress bar on a SplashScreen or
@@ -113,7 +110,6 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener,Dia
             }
         }
     }
-
     /**
      * Custom thread that delays the appearance of the display of jme game on the screen for the sake of initial frame pacing & splash screens.
      */
@@ -125,7 +121,6 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener,Dia
             jmeSurfaceViewLogger.log(Level.CONFIG,"JmeSurfaceView's joined the UI thread.......");
         }
     }
-
     @Override
     public synchronized void initialize() {
         if( legacyApplication !=null){
@@ -134,53 +129,49 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener,Dia
             jmeSurfaceViewLogger.log(Level.INFO,"JmeGame started in GLThread Asynchronously......");
         }
     }
-
     @Override
     public void reshape(int width, int height) {
         if( legacyApplication !=null){
             legacyApplication.reshape(width, height);
         }
     }
-
     @Override
     public synchronized void update() {
-        if( legacyApplication ==null){
+        if(legacyApplication==null){
             return;
         }
-        if ( glSurfaceView != null ){
+        if (glSurfaceView!=null){
             legacyApplication.update();
         }
         int timeToPlay=synthesizedTime.addAndGet(1);
         if(timeToPlay==(delayMillis>100?(delayMillis-TOLERANCE_TIMER) :delayMillis)){
             ((Activity)getContext()).runOnUiThread(() -> {
                 jmeSurfaceViewLogger.log(Level.INFO,"SplashScreen Dismissed , User Delay completed with 0 errors.......");
-                if ( onRendererCompleted != null ){
+                if (onRendererCompleted!=null){
                     onRendererCompleted.onRenderCompletion(legacyApplication);
                 }
             });
         }
     }
-
     @Override
     public void requestClose(boolean esc) {
-        if( legacyApplication !=null){
+        if(legacyApplication!=null){
             legacyApplication.enqueue(() -> legacyApplication.requestClose(esc));
         }
     }
-
     @Override
     public void gainFocus() {
-        if ( legacyApplication != null) {
+        if (legacyApplication!=null){
             /*resume the audio*/
             AudioRenderer audioRenderer = legacyApplication.getAudioRenderer();
-            if (audioRenderer != null) {
+            if (audioRenderer!=null){
                 audioRenderer.resumeAll();
             }
             /*resume the sensors (aka joysticks)*/
-            if ( legacyApplication.getContext() != null) {
+            if (legacyApplication.getContext()!=null){
                 JoyInput joyInput = legacyApplication.getContext().getJoyInput();
-                if (joyInput != null) {
-                    if (joyInput instanceof AndroidSensorJoyInput ) {
+                if (joyInput!=null){
+                    if (joyInput instanceof AndroidSensorJoyInput){
                         AndroidSensorJoyInput androidJoyInput = (AndroidSensorJoyInput) joyInput;
                         androidJoyInput.resumeSensors();
                     }
@@ -190,21 +181,20 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener,Dia
         }
         setGLThreadPaused(false);
     }
-
     @Override
     public void loseFocus() {
-        if ( legacyApplication != null) {
+        if (legacyApplication!=null){
             /*pause the audio*/
             legacyApplication.loseFocus();
             AudioRenderer audioRenderer = legacyApplication.getAudioRenderer();
-            if (audioRenderer != null) {
+            if (audioRenderer!=null){
                 audioRenderer.pauseAll();
             }
             /*pause the sensors (aka joysticks)*/
-            if ( legacyApplication.getContext() != null) {
+            if (legacyApplication.getContext()!=null){
                 JoyInput joyInput = legacyApplication.getContext().getJoyInput();
-                if (joyInput != null) {
-                    if (joyInput instanceof AndroidSensorJoyInput) {
+                if (joyInput!=null){
+                    if (joyInput instanceof AndroidSensorJoyInput){
                         AndroidSensorJoyInput androidJoyInput = (AndroidSensorJoyInput) joyInput;
                         androidJoyInput.pauseSensors();
                     }
@@ -213,20 +203,17 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener,Dia
         }
         setGLThreadPaused(true);
     }
-
     @Override
-    public void handleError(String errorMsg, Throwable t) {
+    public void handleError(String errorMsg,Throwable t) {
         System.out.println(errorMsg);
     }
-
     @Override
     public void destroy() {
-        if ( legacyApplication != null) {
+        if (legacyApplication!=null){
             legacyApplication.stop(isGLThreadPaused());
             legacyApplication.destroy();
         }
     }
-
     /**
      * Displays an error dialog with a throwable message(error/exception) & with 2 buttons.
      * @param throwable the throwable stack.
@@ -297,7 +284,6 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener,Dia
     public int getEglBitsPerPixel() {
         return eglBitsPerPixel;
     }
-
     /**
      * sets the memory representing the alpha of embedded gl in bits.
      * @param eglAlphaBits the alpha bits.
