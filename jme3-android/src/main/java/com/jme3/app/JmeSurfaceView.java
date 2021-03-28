@@ -62,7 +62,6 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener,Dia
     public JmeSurfaceView(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
     }
-
     public JmeSurfaceView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }
@@ -72,7 +71,7 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener,Dia
      */
     public synchronized void startRenderer(int delayMillis) {
         this.delayMillis=delayMillis;
-        if ( legacyApplication != null ){
+        if (legacyApplication!=null){
             try {
                 /*initialize App Settings & start the Game*/
                 appSettings = new AppSettings(true);
