@@ -842,6 +842,8 @@ public class ParticleEmitter extends Geometry {
 
     /**
      * @deprecated Use ParticleEmitter.getParticleInfluencer().getInitialVelocity() instead.
+     * 
+     * @return the pre-existing velocity vector
      */
     @Deprecated
     public Vector3f getInitialVelocity() {
@@ -855,6 +857,7 @@ public class ParticleEmitter extends Geometry {
      * The particle will move with this velocity unless it is affected by
      * gravity.
      *
+     * @param initialVelocity a velocity vector (not null, unaffected)
      * @deprecated
      * This method is deprecated.
      * Use ParticleEmitter.getParticleInfluencer().setInitialVelocity(initialVelocity); instead.
@@ -868,6 +871,7 @@ public class ParticleEmitter extends Geometry {
     }
 
     /**
+     * @return the velocity variation
      * @deprecated
      * This method is deprecated.
      * Use ParticleEmitter.getParticleInfluencer().getVelocityVariation(); instead.
@@ -886,6 +890,7 @@ public class ParticleEmitter extends Geometry {
      * {@link com.jme3.effect.influencers.ParticleInfluencer#setInitialVelocity(com.jme3.math.Vector3f)},
      * and 1 means particles are to spawn with a completely random velocity.
      *
+     * @param variation the desired velocity variation
      * @deprecated
      * This method is deprecated.
      * Use ParticleEmitter.getParticleInfluencer().setVelocityVariation(variation); instead.
@@ -944,6 +949,8 @@ public class ParticleEmitter extends Geometry {
 
     /**
      * Instantly emits available particles, up to num.
+     * 
+     * @param num the maximum number of particles to emit
      */
     public void emitParticles(int num) {
         // Force world transform to update
@@ -1143,7 +1150,8 @@ public class ParticleEmitter extends Geometry {
 
     /**
      * Callback from Control.update(), do not use.
-     * @param tpf
+     *
+     * @param tpf time per frame (in seconds)
      */
     public void updateFromControl(float tpf) {
         if (enabled) {

@@ -42,12 +42,16 @@ public class Primitives {
     /**
      * Returns the corresponding wrapper type of {@code type} if it is a primitive type; otherwise
      * returns {@code type} itself. Idempotent.
-     * <p>
+     *
      * <pre>
      *     wrap(int.class) == Integer.class
      *     wrap(Integer.class) == Integer.class
      *     wrap(String.class) == String.class
      * </pre>
+     *
+     * @param <T> type
+     * @param type the type to be boxed (not null)
+     * @return the boxed type
      */
     public static <T> Class<T> wrap(Class<T> type) {
         if (type == null) {

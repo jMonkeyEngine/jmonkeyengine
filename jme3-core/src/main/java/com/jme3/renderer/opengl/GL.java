@@ -215,12 +215,12 @@ public interface GL {
      * <p><a target="_blank" href="http://docs.gl/gl4/glAttachShader">Reference Page</a></p>
      * <p>
      * Attaches a shader object to a program object.
-     * <p>
+     *
      * <p>In order to create a complete shader program, there must be a way to specify the list of things that will be linked together. Program objects provide
      * this mechanism. Shaders that are to be linked together in a program object must first be attached to that program object. glAttachShader attaches the
      * shader object specified by shader to the program object specified by program. This indicates that shader will be included in link operations that will
      * be performed on program.</p>
-     * <p>
+     *
      * <p>All operations that can be performed on a shader object are valid whether or not the shader object is attached to a program object. It is permissible to
      * attach a shader object to a program object before source code has been loaded into the shader object or before the shader object has been compiled. It
      * is permissible to attach multiple shader objects of the same type because each may contain a portion of the complete shader. It is also permissible to
@@ -256,7 +256,7 @@ public interface GL {
      * <p><a target="_blank" href="http://docs.gl/gl4/glBindTexture">Reference Page</a></p>
      * <p>
      * Binds the a texture to a texture target.
-     * <p>
+     *
      * <p>While a texture object is bound, GL operations on the target to which it is bound affect the bound object, and queries of the target to which it is
      * bound return state from the bound object. If texture mapping of the dimensionality of the target to which a texture object is bound is enabled, the
      * state of the bound texture object directs the texturing operation.</p>
@@ -302,20 +302,20 @@ public interface GL {
      * <p><a target="_blank" href="http://docs.gl/gl4/glBufferData">Reference Page</a></p>
      * <p>
      * Creates and initializes a buffer object's data store.
-     * <p>
+     *
      * <p>{@code usage} is a hint to the GL implementation as to how a buffer object's data store will be accessed. This enables the GL implementation to make
      * more intelligent decisions that may significantly impact buffer object performance. It does not, however, constrain the actual usage of the data store.
      * {@code usage} can be broken down into two parts: first, the frequency of access (modification and usage), and second, the nature of that access. The
      * frequency of access may be one of these:</p>
-     * <p>
+     *
      * <ul>
      * <li><em>STREAM</em> - The data store contents will be modified once and used at most a few times.</li>
      * <li><em>STATIC</em> - The data store contents will be modified once and used many times.</li>
      * <li><em>DYNAMIC</em> - The data store contents will be modified repeatedly and used many times.</li>
      * </ul>
-     * <p>
+     *
      * <p>The nature of access may be one of these:</p>
-     * <p>
+     *
      * <ul>
      * <li><em>DRAW</em> - The data store contents are modified by the application, and used as the source for GL drawing and image specification commands.</li>
      * <li><em>READ</em> - The data store contents are modified by reading data from the GL, and used to return that data when queried by the application.</li>
@@ -332,20 +332,20 @@ public interface GL {
      * <p><a target="_blank" href="http://docs.gl/gl4/glBufferData">Reference Page</a></p>
      * <p>
      * Creates and initializes a buffer object's data store.
-     * <p>
+     *
      * <p>{@code usage} is a hint to the GL implementation as to how a buffer object's data store will be accessed. This enables the GL implementation to make
      * more intelligent decisions that may significantly impact buffer object performance. It does not, however, constrain the actual usage of the data store.
      * {@code usage} can be broken down into two parts: first, the frequency of access (modification and usage), and second, the nature of that access. The
      * frequency of access may be one of these:</p>
-     * <p>
+     *
      * <ul>
      * <li><em>STREAM</em> - The data store contents will be modified once and used at most a few times.</li>
      * <li><em>STATIC</em> - The data store contents will be modified once and used many times.</li>
      * <li><em>DYNAMIC</em> - The data store contents will be modified repeatedly and used many times.</li>
      * </ul>
-     * <p>
+     *
      * <p>The nature of access may be one of these:</p>
-     * <p>
+     *
      * <ul>
      * <li><em>DRAW</em> - The data store contents are modified by the application, and used as the source for GL drawing and image specification commands.</li>
      * <li><em>READ</em> - The data store contents are modified by reading data from the GL, and used to return that data when queried by the application.</li>
@@ -362,20 +362,20 @@ public interface GL {
      * <p><a target="_blank" href="http://docs.gl/gl4/glBufferData">Reference Page</a></p>
      * <p>
      * Creates and initializes a buffer object's data store.
-     * <p>
+     *
      * <p>{@code usage} is a hint to the GL implementation as to how a buffer object's data store will be accessed. This enables the GL implementation to make
      * more intelligent decisions that may significantly impact buffer object performance. It does not, however, constrain the actual usage of the data store.
      * {@code usage} can be broken down into two parts: first, the frequency of access (modification and usage), and second, the nature of that access. The
      * frequency of access may be one of these:</p>
-     * <p>
+     *
      * <ul>
      * <li><em>STREAM</em> - The data store contents will be modified once and used at most a few times.</li>
      * <li><em>STATIC</em> - The data store contents will be modified once and used many times.</li>
      * <li><em>DYNAMIC</em> - The data store contents will be modified repeatedly and used many times.</li>
      * </ul>
-     * <p>
+     *
      * <p>The nature of access may be one of these:</p>
-     * <p>
+     *
      * <ul>
      * <li><em>DRAW</em> - The data store contents are modified by the application, and used as the source for GL drawing and image specification commands.</li>
      * <li><em>READ</em> - The data store contents are modified by reading data from the GL, and used to return that data when queried by the application.</li>
@@ -392,20 +392,20 @@ public interface GL {
      * <p><a target="_blank" href="http://docs.gl/gl4/glBufferData">Reference Page</a></p>
      * <p>
      * Creates and initializes a buffer object's data store.
-     * <p>
+     *
      * <p>{@code usage} is a hint to the GL implementation as to how a buffer object's data store will be accessed. This enables the GL implementation to make
      * more intelligent decisions that may significantly impact buffer object performance. It does not, however, constrain the actual usage of the data store.
      * {@code usage} can be broken down into two parts: first, the frequency of access (modification and usage), and second, the nature of that access. The
      * frequency of access may be one of these:</p>
-     * <p>
+     *
      * <ul>
      * <li><em>STREAM</em> - The data store contents will be modified once and used at most a few times.</li>
      * <li><em>STATIC</em> - The data store contents will be modified once and used many times.</li>
      * <li><em>DYNAMIC</em> - The data store contents will be modified repeatedly and used many times.</li>
      * </ul>
-     * <p>
+     *
      * <p>The nature of access may be one of these:</p>
-     * <p>
+     *
      * <ul>
      * <li><em>DRAW</em> - The data store contents are modified by the application, and used as the source for GL drawing and image specification commands.</li>
      * <li><em>READ</em> - The data store contents are modified by reading data from the GL, and used to return that data when queried by the application.</li>
@@ -596,7 +596,7 @@ public interface GL {
      * currently bound to any of the target bindings of {@link #glBindTexture BindTexture} is deleted, it is as though {@link #glBindTexture BindTexture} had been executed with the
      * same target and texture zero. Additionally, special care must be taken when deleting a texture if any of the images of the texture are attached to a
      * framebuffer object.
-     * <p>
+     *
      * <p>Unused names in textures that have been marked as used for the purposes of {@link #glGenTextures GenTextures} are marked as unused again. Unused names in textures are
      * silently ignored, as is the name zero.</p>
      *
@@ -673,7 +673,7 @@ public interface GL {
      * <p>
      * Constructs a sequence of geometric primitives by successively transferring elements for {@code count} vertices. Elements {@code first} through
      * <code>first + count &ndash; 1</code> of each enabled non-instanced array are transferred to the GL.
-     * <p>
+     *
      * <p>If an array corresponding to an attribute required by a vertex shader is not enabled, then the corresponding element is taken from the current attribute
      * state. If an array is enabled, the corresponding current vertex attribute value is unaffected by the execution of this function.</p>
      *
@@ -685,25 +685,25 @@ public interface GL {
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glDrawRangeElements">Reference Page</a></p>
-     * <p>
+     *
      * <p>Implementations denote recommended maximum amounts of vertex and index data, which may be queried by calling glGet with argument
      * {@link GL2#GL_MAX_ELEMENTS_VERTICES MAX_ELEMENTS_VERTICES} and {@link GL2#GL_MAX_ELEMENTS_INDICES MAX_ELEMENTS_INDICES}. If end - start + 1 is greater than the value of GL_MAX_ELEMENTS_VERTICES, or if
      * count is greater than the value of GL_MAX_ELEMENTS_INDICES, then the call may operate at reduced performance. There is no requirement that all vertices
      * in the range start end be referenced. However, the implementation may partially process unused vertices, reducing performance from what could be
      * achieved with an optimal index set.</p>
-     * <p>
+     *
      * <p>When glDrawRangeElements is called, it uses count sequential elements from an enabled array, starting at start to construct a sequence of geometric
      * primitives. mode specifies what kind of primitives are constructed, and how the array elements construct these primitives. If more than one array is
      * enabled, each is used.</p>
-     * <p>
+     *
      * <p>Vertex attributes that are modified by glDrawRangeElements have an unspecified value after glDrawRangeElements returns. Attributes that aren't modified
      * maintain their previous values.</p>
-     * <p>
+     *
      * Errors
-     * <p>
+     *
      * <p>It is an error for indices to lie outside the range start end, but implementations may not check for this situation. Such indices cause
      * implementation-dependent behavior.</p>
-     * <p>
+     *
      * <ul>
      * <li>GL_INVALID_ENUM is generated if mode is not an accepted value.</li>
      * <li>GL_INVALID_VALUE is generated if count is negative.</li>
@@ -780,7 +780,7 @@ public interface GL {
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glGetAttribLocation">Reference Page</a></p>
-     * <p>
+     *
      * Returns the location of an attribute variable.
      *
      * @param program the program object to be queried.
@@ -790,9 +790,9 @@ public interface GL {
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glGetBooleanv">Reference Page</a></p>
-     * <p>
+     *
      * Returns the current boolean value of the specified state variable.
-     * <p>
+     *
      * <p><b>LWJGL note</b>: The state that corresponds to the state variable may be a single value or an array of values. In the case of an array of values,
      * LWJGL will <b>not</b> validate if {@code params} has enough space to store that array. Doing so would introduce significant overhead, as the
      * OpenGL state variables are too many. It is the user's responsibility to avoid JVM crashes by ensuring enough space for the returned values.</p>
@@ -804,7 +804,7 @@ public interface GL {
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glGetBufferSubData">Reference Page</a></p>
-     * <p>
+     *
      * Returns a subset of a buffer object's data store.
      *
      * @param target the target buffer object.
@@ -815,7 +815,7 @@ public interface GL {
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glGetError">Reference Page</a></p>
-     * <p>
+     *
      * Returns error information. Each detectable error is assigned a numeric code. When an error is detected, a flag is set and the code is recorded. Further
      * errors, if they occur, do not affect this recorded code. When {@code GetError} is called, the code is returned and the flag is cleared, so that a
      * further error will again record its code. If a call to {@code GetError} returns {@link #GL_NO_ERROR NO_ERROR}, then there has been no detectable error since
@@ -825,9 +825,9 @@ public interface GL {
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glGetIntegerv">Reference Page</a></p>
-     * <p>
+     *
      * Returns the current integer value of the specified state variable.
-     * <p>
+     *
      * <p><b>LWJGL note</b>: The state that corresponds to the state variable may be a single value or an array of values. In the case of an array of values,
      * LWJGL will <b>not</b> validate if {@code params} has enough space to store that array. Doing so would introduce significant overhead, as the
      * OpenGL state variables are too many. It is the user's responsibility to avoid JVM crashes by ensuring enough space for the returned values.</p>
@@ -962,10 +962,10 @@ public interface GL {
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glPolygonOffset">Reference Page</a></p>
-     * <p>
+     *
      * The depth values of all fragments generated by the rasterization of a polygon may be offset by a single value that is computed for that polygon. This
      * function determines that value.
-     * <p>
+     *
      * <p>{@code factor} scales the maximum depth slope of the polygon, and {@code units} scales an implementation-dependent constant that relates to the usable
      * resolution of the depth buffer. The resulting values are summed to produce the polygon offset value.</p>
      *

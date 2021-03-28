@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -198,9 +198,9 @@ public final class BoneTrack implements JmeCloneable, Track {
      *
      * @param time the current time of the animation
      * @param weight the weight of the animation
-     * @param control
-     * @param channel
-     * @param vars
+     * @param control to access the Skeleton
+     * @param channel which bones can be affected
+     * @param vars storage for temporary values
      */
     @Override
     public void setTime(float time, float weight, AnimControl control, AnimChannel channel, TempVars vars) {

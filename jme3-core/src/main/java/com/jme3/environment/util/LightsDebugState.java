@@ -125,7 +125,8 @@ public class LightsDebugState extends BaseAppState {
 
     /**
      * Set the scenes for which to render light gizmos.
-     * @param scene 
+     *
+     * @param scene the root of the desired scene (alias created)
      */
     public void setScene(Spatial scene) {
         this.scene = scene;
@@ -165,7 +166,8 @@ public class LightsDebugState extends BaseAppState {
 
     /**
      * sets the scale of the probe's debug sphere
-     * @param probeScale 
+     *
+     * @param probeScale the scale factor (default=1)
      */
     public void setProbeScale(float probeScale) {
         this.probeScale = probeScale;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -185,7 +185,8 @@ public class SkinningControl extends AbstractControl implements Cloneable, JmeCl
      * supported by GPU, it shall be enabled, if its not preferred, or not
      * supported by GPU, then it shall be disabled.
      *
-     * @param preferred
+     * @param preferred true to prefer hardware skinning, false to prefer 
+     * software skinning (default=true)
      * @see #isHardwareSkinningUsed()
      */
     public void setHardwareSkinningPreferred(boolean preferred) {

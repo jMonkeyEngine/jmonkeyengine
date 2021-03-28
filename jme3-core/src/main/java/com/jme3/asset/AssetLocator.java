@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -51,8 +51,8 @@ public interface AssetLocator {
      * The {@link AssetInfo} implementation provided should have a proper
      * return value for its {@link AssetInfo#openStream() } method.
      * 
-     * @param manager
-     * @param key
+     * @param manager for managing assets
+     * @param key identifies the asset to be located
      * @return The {@link AssetInfo} that was located, or null if not found.
      */
     public AssetInfo locate(AssetManager manager, AssetKey key);

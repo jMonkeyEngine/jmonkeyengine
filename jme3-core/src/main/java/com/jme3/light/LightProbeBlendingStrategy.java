@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,7 +43,8 @@ public interface LightProbeBlendingStrategy {
     
     /**
      * Registers a probe with this strategy
-     * @param probe 
+     *
+     * @param probe the probe to be registered
      */
     public void registerProbe(LightProbe probe);
     /**
