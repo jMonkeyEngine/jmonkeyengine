@@ -60,7 +60,7 @@ public class PBRTerrainTest extends SimpleApplication {
     public void simpleInitApp() {
         setupKeys();
         
-        keybindingsText = new BitmapText(getAssetManager().loadFont("Interface/Fonts/Nyala_Small.fnt"));
+        keybindingsText = new BitmapText(assetManager.loadFont("Interface/Fonts/Default.fnt"));
         keybindingsText.setText("Press 'N' to toggle day/night fade (takes a moment) \nPress 'P' to toggle tri-planar mode");
         getGuiNode().attachChild(keybindingsText);
         keybindingsText.move(new Vector3f(200,120,0));
