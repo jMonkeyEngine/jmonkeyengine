@@ -198,8 +198,8 @@ public class PBRTerrainTest extends SimpleApplication {
         terrain.setLocalScale(1f, 1f, 1f);
         rootNode.attachChild(terrain);
 
-    //    Node probeNode = (Node) assetManager.loadModel("Scenes/lightprobe/fantasy-sky.j3o");  //blue-ish tinted probe
-        Node probeNode = (Node) assetManager.loadModel("Scenes/lightprobe/sunset_Probe.j3o");  //beige sunset tinted probe
+    //    Node probeNode = (Node) assetManager.loadModel("Scenes/LightProbes/fantasy-sky_Probe.j3o");  //blue-ish tinted probe
+        Node probeNode = (Node) assetManager.loadModel("Scenes/LightProbes/sunset_Probe.j3o");  //beige sunset tinted probe
         
         LightProbe probe = (LightProbe) probeNode.getLocalLightList().iterator().next();
         probe.setPosition(new Vector3f(0, 0, 0));
