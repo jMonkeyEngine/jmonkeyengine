@@ -512,7 +512,7 @@ public interface GL {
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glCompressedTexSubImage2D">Reference Page</a></p>
-     * <p>
+     *
      * Respecifies only a rectangular subregion of an existing 2D texel array, with incoming data stored in a specific compressed image format.
      *
      * @param target  the target texture.
@@ -529,14 +529,16 @@ public interface GL {
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glCreateProgram">Reference Page</a></p>
-     * <p>
+     *
      * Creates a program object.
+     *
+     * @return the ID of the new program, or 0 if unsuccessful
      */
     public int glCreateProgram();
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glCreateShader">Reference Page</a></p>
-     * <p>
+     *
      * Creates a shader object.
      *
      * @param shaderType the type of shader to be created. One of:
@@ -545,6 +547,7 @@ public interface GL {
      *  {@link GL3#GL_GEOMETRY_SHADER GEOMETRY_SHADER}
      *  {@link GL4#GL_TESS_CONTROL_SHADER TESS_CONTROL_SHADER}
      *  {@link GL4#GL_TESS_EVALUATION_SHADER TESS_EVALUATION_SHADER}
+     * @return the ID of the new shader, or 0 if unsuccessful
      */
     public int glCreateShader(int shaderType);
 
@@ -771,9 +774,10 @@ public interface GL {
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glGenQueries">Reference Page</a></p>
-     * <p>
+     *
      * Generates query object names.
      *
+     * @param number the number of query object names to be generated
      * @param ids a buffer in which the generated query object names are stored.
      */
     public void glGenQueries(int number, IntBuffer ids);
@@ -785,6 +789,7 @@ public interface GL {
      *
      * @param program the program object to be queried.
      * @param name    a null terminated string containing the name of the attribute variable whose location is to be queried.
+     * @return        the location
      */
     public int glGetAttribLocation(int program, String name);
 
@@ -820,6 +825,7 @@ public interface GL {
      * errors, if they occur, do not affect this recorded code. When {@code GetError} is called, the code is returned and the flag is cleared, so that a
      * further error will again record its code. If a call to {@code GetError} returns {@link #GL_NO_ERROR NO_ERROR}, then there has been no detectable error since
      * the last call to {@code GetError} (or since the GL was initialized).
+     * @return the error code, or NO_ERROR if none
      */
     public int glGetError();
 
@@ -855,6 +861,7 @@ public interface GL {
      *
      * @param program the program object whose information log is to be queried.
      * @param maxSize the size of the character buffer for storing the returned information log.
+     * @return the contents of the information log
      */
     public String glGetProgramInfoLog(int program, int maxSize);
 
@@ -863,6 +870,7 @@ public interface GL {
      *
      * @param query the name of a query object
      * @param pname the symbolic name of a query object parameter
+     * @return the value of the parameter
      */
     public long glGetQueryObjectui64(int query, int pname);
 
@@ -875,6 +883,7 @@ public interface GL {
      * @param pname the symbolic name of a query object parameter. One of:
      *  {@link #GL_QUERY_RESULT QUERY_RESULT}
      *  {@link #GL_QUERY_RESULT_AVAILABLE QUERY_RESULT_AVAILABLE}
+     * @return the value of the parameter
      */
     public int glGetQueryObjectiv(int query, int pname);
 
@@ -896,6 +905,7 @@ public interface GL {
      *
      * @param shader  the shader object whose information log is to be queried.
      * @param maxSize the size of the character buffer for storing the returned information log.
+     * @return the contents of the information log
      */
     public String glGetShaderInfoLog(int shader, int maxSize);
 
@@ -910,6 +920,7 @@ public interface GL {
      *  {@link #GL_EXTENSIONS EXTENSIONS}
      *  {@link #GL_VERSION VERSION}
      *  {@link GL2#GL_SHADING_LANGUAGE_VERSION SHADING_LANGUAGE_VERSION}
+     * @return the value of the property
      */
     public String glGetString(int name);
 
@@ -920,6 +931,7 @@ public interface GL {
      *
      * @param program the program object to be queried.
      * @param name    a null terminated string containing the name of the uniform variable whose location is to be queried.
+     * @return the location
      */
     public int glGetUniformLocation(int program, String name);
 
@@ -929,6 +941,7 @@ public interface GL {
      * Determines if {@code cap} is currently enabled (as with {@link #glEnable Enable}) or disabled.
      *
      * @param cap the enable state to query.
+     * @return true if enabled, otherwise false
      */
     public boolean glIsEnabled(int cap);
 
@@ -1040,6 +1053,8 @@ public interface GL {
      *
      * @param shader  the shader object whose source code is to be replaced,
      * @param strings an array of pointers to strings containing the source code to be loaded into the shader
+     * @param length  storage for the string lengths, or null for
+     * null-terminated strings
      */
     public void glShaderSource(int shader, String[] strings, IntBuffer length);
 
@@ -1335,9 +1350,9 @@ public interface GL {
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glViewport">Reference Page</a></p>
-     * <p>
+     *
      * Specifies the viewport transformation parameters for all viewports.
-     * <p>
+     * 
      * <p>In the initial state, {@code width} and {@code height} for each viewport are set to the width and height, respectively, of the window into which the GL is to do
      * its rendering. If the default framebuffer is bound but no default framebuffer is associated with the GL context, then {@code width} and {@code height} are
      * initially set to zero.</p>

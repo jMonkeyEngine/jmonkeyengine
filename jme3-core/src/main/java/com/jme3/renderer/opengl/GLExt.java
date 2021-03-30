@@ -196,6 +196,7 @@ public interface GLExt {
      *
      * @param condition the condition that must be met to set the sync object's state to signaled.
      * @param flags     a bitwise combination of flags controlling the behavior of the sync object. No flags are presently defined for this operation and {@code flags} must be zero.
+     * @return          a new instance
      */
     public Object glFenceSync(int condition, int flags);
 
