@@ -66,7 +66,7 @@ public class PBRTerrainTest extends SimpleApplication {
         keybindingsText.move(new Vector3f(200,120,0));
 
         // TERRAIN TEXTURE material
-        matTerrain = new Material(assetManager, "MatDefs/shaders/AfflictedPBRTerrain.j3md");
+        matTerrain = new Material(assetManager, "Common/MatDefs/Terrain/PBRTerrain.j3md");
                
         
         matTerrain.setBoolean("useTriPlanarMapping", false);
