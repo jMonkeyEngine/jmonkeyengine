@@ -901,8 +901,6 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
      * @param multiSamples Set the number of samples to use for this image,
      * setting this to a value higher than 1 turns this image/texture
      * into a multisample texture (on OpenGL3.1 and higher).
-     * 
-     * @param multiSamples the desired degree of multi-sampling (&ge;1)
      */
     public void setMultiSamples(int multiSamples) {
         if (multiSamples <= 0)

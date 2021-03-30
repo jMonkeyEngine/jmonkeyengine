@@ -857,7 +857,6 @@ public class ParticleEmitter extends Geometry {
      * The particle will move with this velocity unless it is affected by
      * gravity.
      *
-     * @param initialVelocity a velocity vector (not null, unaffected)
      * @deprecated
      * This method is deprecated.
      * Use ParticleEmitter.getParticleInfluencer().setInitialVelocity(initialVelocity); instead.
@@ -890,7 +889,6 @@ public class ParticleEmitter extends Geometry {
      * {@link com.jme3.effect.influencers.ParticleInfluencer#setInitialVelocity(com.jme3.math.Vector3f)},
      * and 1 means particles are to spawn with a completely random velocity.
      *
-     * @param variation the desired velocity variation
      * @deprecated
      * This method is deprecated.
      * Use ParticleEmitter.getParticleInfluencer().setVelocityVariation(variation); instead.
