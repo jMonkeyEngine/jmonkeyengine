@@ -972,7 +972,7 @@ public class InputManager implements RawInputListener {
     /**
      * Add a listener that reports when a joystick has been added or removed.
      * Currently only implemented in LWJGL3
-     * @param listener the listner.
+     * @param listener the listener
      * @return true
      */
     public boolean addJoystickConnectionListener(JoystickConnectionListener listener) {

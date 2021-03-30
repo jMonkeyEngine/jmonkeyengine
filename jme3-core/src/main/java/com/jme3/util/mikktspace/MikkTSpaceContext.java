@@ -80,7 +80,7 @@ public interface MikkTSpaceContext {
      *
      * Note that the results are returned unindexed. It is possible to generate
      * a new index list But averaging/overwriting tangent spaces by using an
-     * already existing index list WILL produce INCRORRECT results. DO NOT! use
+     * already existing index list WILL produce INCORRECT results. DO NOT! use
      * an already existing index list.
      *
      * @param tangent the desired tangent vector (unaffected)
@@ -107,7 +107,7 @@ public interface MikkTSpaceContext {
      *
      * Note that the results are returned unindexed. It is possible to generate
      * a new index list. But averaging/overwriting tangent spaces by using an
-     * already existing index list WILL produce INCRORRECT results. DO NOT! use
+     * already existing index list WILL produce INCORRECT results. DO NOT! use
      * an already existing index list.
      *
      * @param tangent the desired tangent vector (unaffected)

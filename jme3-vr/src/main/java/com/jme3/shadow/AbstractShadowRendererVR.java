@@ -178,7 +178,7 @@ public abstract class AbstractShadowRendererVR implements SceneProcessor, Savabl
 
             postshadowMat.setTexture(shadowMapStringCache[i], shadowMaps[i]);
 
-            //quads for debuging purpose
+            //quads for debugging purposes
             dispPic[i] = new Picture("Picture" + i);
             dispPic[i].setTexture(assetManager, shadowMaps[i], false);
         }

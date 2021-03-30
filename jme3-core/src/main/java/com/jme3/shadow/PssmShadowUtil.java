@@ -81,7 +81,7 @@ public final class PssmShadowUtil {
     }
 
     /**
-     * Compute the Zfar in the model vieuw to adjust the Zfar distance for the splits calculation
+     * Compute the Zfar in the model view to adjust the Zfar distance for the splits calculation
      *
      * @param occ a list of occluders
      * @param recv a list of receivers

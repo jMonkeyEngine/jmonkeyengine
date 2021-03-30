@@ -622,7 +622,7 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
     }
          
     /**
-     * Sets the spacial for the camera control, should only be used internally
+     * Sets the spatial for the camera control, should only be used internally
      *
      * @param spatial the desired camera target, or null for none
      */
@@ -798,8 +798,8 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
     }
 
     /**
-     * Sets the trailing rotation inertia : default is 0.1. This prevent the camera to roughtly stop when the target stops moving
-     * before the camera reached the trail position.
+     * Sets the trailing rotation inertia : default is 0.1. This causes the camera to stop roughly when the target stops moving
+     * before the camera reaches the trail position.
      * Only has an effect if smoothMotion is set to true and trailing is enabled
      *
      * @param trailingRotationInertia the desired value (default=0.05)

@@ -593,11 +593,11 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
     }
     
     /**
-     * returns the first filter in the list assignable form the given type
+     * returns the first filter in the list assignable from the given type 
      *
      * @param <T> the filter type
      * @param filterType the filter type
-     * @return a filter assignable form the given type 
+     * @return a filter assignable from the given type 
      */
     @SuppressWarnings("unchecked")
     public <T extends Filter> T getFilter(Class<T> filterType) {

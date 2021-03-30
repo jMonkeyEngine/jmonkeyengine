@@ -474,7 +474,7 @@ public abstract class Filter implements Savable {
     }
 
     /**
-     * sets a reference to the FilterPostProcessor ti which this filter is attached
+     * sets a reference to the FilterPostProcessor to which this filter is attached
      *
      * @param proc the desired FPP (alias created)
      */
