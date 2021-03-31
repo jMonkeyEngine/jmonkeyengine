@@ -607,15 +607,17 @@ public class Camera implements Savable, Cloneable {
         {
             throw new IllegalArgumentException("Field of view must be greater than 0");
         }
-        if (!this.parallelProjection) {
-            float h = FastMath.tan(fovY * FastMath.DEG_TO_RAD * .5f) * frustumNear;
-            float w = h * getAspect();
-            frustumLeft = -w;
-            frustumRight = w;
-            frustumBottom = -h;
-            frustumTop = h;
-            onFrustumChange();
+        if (this.parallelProjection)
+        {
+            throw new IllegalArgumentException("Cannot set field of view on orthogonal camera");
         }
+        float h = FastMath.tan(fovY * FastMath.DEG_TO_RAD * .5f) * frustumNear;
+        float w = h * getAspect();
+        frustumLeft = -w;
+        frustumRight = w;
+        frustumBottom = -h;
+        frustumTop = h;
+        onFrustumChange();
     }
 
     /**
