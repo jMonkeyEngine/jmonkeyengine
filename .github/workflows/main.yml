@@ -329,7 +329,7 @@ jobs:
             -PossrhUsername=${{ secrets.OSSRH_USERNAME }} \
             -PsigningKey='${{ secrets.SIGNING_KEY }}' \
             -PsigningPassword='${{ secrets.SIGNING_PASSWORD }}' \
-            -PskipPrebuildLibraries=true -PuseCommitHashAsVersionName=true \
+            -PuseCommitHashAsVersionName=true \
             --console=plain --stacktrace
           fi
 
