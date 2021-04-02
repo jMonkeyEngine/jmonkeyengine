@@ -104,10 +104,11 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener , D
     /**
      * starts the jmeRenderer on a GlSurfaceView attached to a RelativeLayout.
      * @param delayMillis delay of the appearance of jme game on the screen , this doesn't delay the renderer though.
-     * @apiNote use #{@link JmeSurfaceView#NO_DELAY} to disable the delay.
+     * @apiNote use #{@link JmeSurfaceView#NO_DELAY} to disable the delay ,
+     * any values less than 1ms#{@link JmeSurfaceView#NO_DELAY} would be ignored & the delay would be disabled.
      */
     public void startRenderer(int delayMillis) {
-        this.delayMillis = delayMillis;
+        this.delayMillis = Math.max(NO_DELAY , delayMillis);
         if (legacyApplication != null) {
             try {
                 /*initialize App Settings & start the Game*/
