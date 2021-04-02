@@ -57,7 +57,7 @@ public class ConstantVerifierState extends BaseAppState {
     // Note: I've used actual constructed objects for the good values
     //       instead of clone just to better catch cases where the values
     //       might have been corrupted even before the app state was touched. -pspeed
-    public static final Checker[] DEFAULT_CHECKS = new Checker[] {
+    private static final Checker[] DEFAULT_CHECKS = new Checker[] {
             new Checker(Vector3f.ZERO, new Vector3f(0, 0, 0)),
             new Checker(Vector3f.NAN, new Vector3f(NaN, NaN, NaN)),
             new Checker(Vector3f.UNIT_X, new Vector3f(1, 0, 0)),
@@ -111,7 +111,7 @@ public class ConstantVerifierState extends BaseAppState {
      *  Creates a verifier app state that will check all of the specified
      *  checks and report errors using the specified error type.
      */
-    public ConstantVerifierState( ErrorType errorType, Checker... checkers ) {
+    private ConstantVerifierState( ErrorType errorType, Checker... checkers ) {
         this.errorType = errorType;
         this.checkers.addAll(Arrays.asList(checkers));
     }
@@ -126,10 +126,6 @@ public class ConstantVerifierState extends BaseAppState {
     
     public ErrorType getErrorType() {
         return errorType;
-    }
-    
-    protected SafeArrayList<Checker> getCheckers() {
-        return checkers;
     }
     
     @Override

@@ -173,7 +173,7 @@ public class InstancedNode extends GeometryGroupNode {
         }
     }
 
-    protected InstancedNodeControl control;
+    private InstancedNodeControl control;
 
     protected HashMap<Geometry, InstancedGeometry> igByGeom
             = new HashMap<>();
