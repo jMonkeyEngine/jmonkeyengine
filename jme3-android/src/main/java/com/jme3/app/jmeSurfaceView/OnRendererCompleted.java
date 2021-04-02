@@ -29,16 +29,22 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.app;
+package com.jme3.app.jmeSurfaceView;
+
+import com.jme3.app.LegacyApplication;
+import com.jme3.system.AppSettings;
 
 /**
- * Embedded interface designed to listen to exceptions & fire when an exception is thrown.
- * @see JmeSurfaceView#setOnExceptionThrown(OnExceptionThrown).
+ * Embedded interface class(abstract) to listen for the moment when when the GL thread holding the #{@link JmeSurfaceView}
+ * joins the UI thread , after asynchronous rendering.
+ * @see JmeSurfaceView#setOnRendererCompleted(OnRendererCompleted).
  */
-public interface OnExceptionThrown {
+public interface OnRendererCompleted {
     /**
-     * Listens for a thrown exception or a thrown error.
-     * @param e the exception or the error that is throwable.
+     * Listens for the the moment when when the GL thread holding the #{@link JmeSurfaceView}
+     * joins the UI thread , after asynchronous rendering.
+     * @param application the current jme game instance.
+     * @param appSettings the current window settings of the running jme game.
      */
-    void onExceptionThrown(Throwable e);
+    void onRenderCompletion(LegacyApplication application , AppSettings appSettings);
 }

@@ -29,7 +29,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.app;
+package com.jme3.app.jmeSurfaceView;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -41,6 +41,7 @@ import android.util.AttributeSet;
 import android.widget.RelativeLayout;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import com.jme3.app.LegacyApplication;
 import com.jme3.audio.AudioRenderer;
 import com.jme3.input.JoyInput;
 import com.jme3.input.android.AndroidSensorJoyInput;
