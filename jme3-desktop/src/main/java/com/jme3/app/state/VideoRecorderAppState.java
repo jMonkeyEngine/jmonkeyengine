@@ -222,7 +222,6 @@ public class VideoRecorderAppState extends AbstractAppState {
         private LinkedBlockingQueue<WorkItem> freeItems;
         private LinkedBlockingQueue<WorkItem> usedItems = new LinkedBlockingQueue<>();
         private MjpegFileWriter writer;
-        private AppProfiler prof;
 
         public void addImage(Renderer renderer, FrameBuffer out) {
             if (freeItems == null) {
@@ -312,7 +311,7 @@ public class VideoRecorderAppState extends AbstractAppState {
 
         @Override
         public void setProfiler(AppProfiler profiler) {
-            this.prof = profiler;
+            // not implemented
         }
     }
 

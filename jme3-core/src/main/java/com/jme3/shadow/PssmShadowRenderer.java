@@ -76,8 +76,6 @@ import java.util.List;
 @Deprecated
 public class PssmShadowRenderer implements SceneProcessor {
 
-    private AppProfiler prof;
-
     /**
      * <code>FilterMode</code> specifies how shadows are filtered
      * @deprecated use {@link EdgeFilteringMode}
@@ -734,7 +732,7 @@ public class PssmShadowRenderer implements SceneProcessor {
 
     @Override
     public void setProfiler(AppProfiler profiler) {
-        this.prof = profiler;
+        // not implemented
     }
 
     /**

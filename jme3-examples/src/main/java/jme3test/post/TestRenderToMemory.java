@@ -264,7 +264,7 @@ public class TestRenderToMemory extends SimpleApplication implements SceneProces
 
     @Override
     public void setProfiler(AppProfiler profiler) {
-
+        // not implemented
     }
 
 
