@@ -121,10 +121,9 @@ public class TestAttachmentsNode extends SimpleApplication
 
     @Override
     public void onAction(String binding, boolean value, float tpf) {
-        if (binding.equals("Attack") && value) {
-            if (control.getCurrentAction() != punchesOnce) {
-                control.setCurrentAction("PunchesOnce");
-            }
+        if (value && binding.equals("Attack")
+                && control.getCurrentAction() != punchesOnce) {
+            control.setCurrentAction("PunchesOnce");
         }
     }
 }
