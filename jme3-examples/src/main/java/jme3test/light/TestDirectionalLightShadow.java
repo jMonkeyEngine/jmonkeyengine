@@ -63,8 +63,6 @@ import com.jme3.util.TangentBinormalGenerator;
 public class TestDirectionalLightShadow extends SimpleApplication implements ActionListener, AnalogListener {
 
     public static final int SHADOWMAP_SIZE = 1024;
-    private Spatial[] obj;
-    private Material[] mat;
     private DirectionalLightShadowRenderer dlsr;
     private DirectionalLightShadowFilter dlsf;
     private Geometry ground;
@@ -94,11 +92,11 @@ public class TestDirectionalLightShadow extends SimpleApplication implements Act
     }
 
     public void loadScene() {
-        obj = new Spatial[2];
+        Spatial[] obj = new Spatial[2];
         // Setup first view
 
 
-        mat = new Material[2];
+        Material[] mat = new Material[2];
         mat[0] = assetManager.loadMaterial("Common/Materials/RedColor.j3m");
         mat[1] = assetManager.loadMaterial("Textures/Terrain/Pond/Pond.j3m");
         mat[1].setBoolean("UseMaterialColors", true);

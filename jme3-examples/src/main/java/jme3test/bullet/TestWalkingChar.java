@@ -83,16 +83,11 @@ public class TestWalkingChar extends SimpleApplication implements ActionListener
     private Node model;
     //temp vectors
     final private Vector3f walkDirection = new Vector3f();
-    //terrain
-    private TerrainQuad terrain;
-    private RigidBodyControl terrainPhysicsNode;
     //Materials
-    private Material matRock;
     private Material matBullet;
     //animation
     private AnimChannel animationChannel;
     private AnimChannel shootingChannel;
-    private AnimControl animationControl;
     private float airTime = 0;
     //camera
     private boolean left = false, right = false, up = false, down = false;
@@ -236,7 +231,7 @@ public class TestWalkingChar extends SimpleApplication implements ActionListener
     }
 
     private void createTerrain() {
-        matRock = new Material(assetManager, "Common/MatDefs/Terrain/TerrainLighting.j3md");
+        Material matRock = new Material(assetManager, "Common/MatDefs/Terrain/TerrainLighting.j3md");
         matRock.setBoolean("useTriPlanarMapping", false);
         matRock.setBoolean("WardIso", true);
         matRock.setTexture("AlphaMap", assetManager.loadTexture("Textures/Terrain/splat/alphamap.png"));
@@ -272,7 +267,8 @@ public class TestWalkingChar extends SimpleApplication implements ActionListener
             e.printStackTrace();
         }
 
-        terrain = new TerrainQuad("terrain", 65, 513, heightmap.getHeightMap());
+        TerrainQuad terrain
+                = new TerrainQuad("terrain", 65, 513, heightmap.getHeightMap());
         List<Camera> cameras = new ArrayList<>();
         cameras.add(getCamera());
         TerrainLodControl control = new TerrainLodControl(terrain, cameras);
@@ -280,7 +276,8 @@ public class TestWalkingChar extends SimpleApplication implements ActionListener
         terrain.setMaterial(matRock);
         terrain.setLocalScale(new Vector3f(2, 2, 2));
 
-        terrainPhysicsNode = new RigidBodyControl(CollisionShapeFactory.createMeshShape(terrain), 0);
+        RigidBodyControl terrainPhysicsNode
+                = new RigidBodyControl(CollisionShapeFactory.createMeshShape(terrain), 0);
         terrain.addControl(terrainPhysicsNode);
         rootNode.attachChild(terrain);
         getPhysicsSpace().add(terrainPhysicsNode);
@@ -303,7 +300,7 @@ public class TestWalkingChar extends SimpleApplication implements ActionListener
     }
 
     private void setupAnimationController() {
-        animationControl = model.getControl(AnimControl.class);
+        AnimControl animationControl = model.getControl(AnimControl.class);
         animationControl.addListener(this);
         animationChannel = animationControl.createChannel();
         shootingChannel = animationControl.createChannel();

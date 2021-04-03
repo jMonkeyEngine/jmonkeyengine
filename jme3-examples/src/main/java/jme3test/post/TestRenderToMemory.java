@@ -75,8 +75,6 @@ public class TestRenderToMemory extends SimpleApplication implements SceneProces
     private float angle = 0;
 
     private FrameBuffer offBuffer;
-    private ViewPort offView;
-    private Camera offCamera;
     private ImageDisplay display;
 
     private static final int width = 800, height = 600;
@@ -169,10 +167,11 @@ public class TestRenderToMemory extends SimpleApplication implements SceneProces
     }
 
     public void setupOffscreenView(){
-        offCamera = new Camera(width, height);
+        Camera offCamera = new Camera(width, height);
 
         // create a pre-view. a view that is rendered before the main view
-        offView = renderManager.createPreView("Offscreen View", offCamera);
+        ViewPort offView
+                = renderManager.createPreView("Offscreen View", offCamera);
         offView.setBackgroundColor(ColorRGBA.DarkGray);
         offView.setClearFlags(true, true, true);
         

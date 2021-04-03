@@ -45,8 +45,6 @@ import com.jme3.texture.Texture;
 
 public class TestSSAO extends SimpleApplication {
 
-    private Geometry model;
-
     public static void main(String[] args) {
         TestSSAO app = new TestSSAO();
         app.start();
@@ -75,7 +73,8 @@ public class TestSSAO extends SimpleApplication {
 
         rootNode.addLight(al);
 
-        model = (Geometry) assetManager.loadModel("Models/Sponza/Sponza.j3o");
+        Geometry model
+                = (Geometry) assetManager.loadModel("Models/Sponza/Sponza.j3o");
         model.getMesh().scaleTextureCoordinates(new Vector2f(2, 2));
 
         model.setMaterial(mat);

@@ -70,8 +70,6 @@ public class TestHoveringTank extends SimpleApplication implements AnalogListene
     private BulletAppState bulletAppState;
     private PhysicsHoverControl hoverControl;
     private Spatial spaceCraft;
-    private TerrainQuad terrain;
-    private Material matRock;
     /**
      * initial location of the tank (in world/physics-space coordinates)
      */
@@ -252,7 +250,8 @@ public class TestHoveringTank extends SimpleApplication implements AnalogListene
     }
 
     private void createTerrain() {
-        matRock = new Material(assetManager, "Common/MatDefs/Terrain/TerrainLighting.j3md");
+        Material matRock = new Material(assetManager,
+                "Common/MatDefs/Terrain/TerrainLighting.j3md");
         matRock.setBoolean("useTriPlanarMapping", false);
         matRock.setBoolean("WardIso", true);
         matRock.setTexture("AlphaMap", assetManager.loadTexture("Textures/Terrain/splat/alphamap.png"));
@@ -286,7 +285,8 @@ public class TestHoveringTank extends SimpleApplication implements AnalogListene
         } catch (Exception e) {
             e.printStackTrace();
         }
-        terrain = new TerrainQuad("terrain", 65, 513, heightmap.getHeightMap());
+        TerrainQuad terrain
+                = new TerrainQuad("terrain", 65, 513, heightmap.getHeightMap());
         List<Camera> cameras = new ArrayList<>();
         cameras.add(getCamera());
         TerrainLodControl control = new TerrainLodControl(terrain, cameras);

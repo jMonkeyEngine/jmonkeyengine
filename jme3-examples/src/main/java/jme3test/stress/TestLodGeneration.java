@@ -59,7 +59,6 @@ public class TestLodGeneration extends SimpleApplication {
     private boolean wireFrame = false;
     private float reductionvalue = 0.0f;
     private int lodLevel = 0;
-    private Node model;
     private BitmapText hudText;
     final private List<Geometry> listGeoms = new ArrayList<>();
     final private ScheduledThreadPoolExecutor exec = new ScheduledThreadPoolExecutor(5);
@@ -75,7 +74,7 @@ public class TestLodGeneration extends SimpleApplication {
         rootNode.addLight(al);
 
        // model = (Node) assetManager.loadModel("Models/Sinbad/Sinbad.mesh.xml");
-       model = (Node) assetManager.loadModel("Models/Jaime/Jaime.j3o");
+        Node model = (Node) assetManager.loadModel("Models/Jaime/Jaime.j3o");
         BoundingBox b = ((BoundingBox) model.getWorldBound());
         model.setLocalScale(1.2f / (b.getYExtent() * 2));
         //  model.setLocalTranslation(0,-(b.getCenter().y - b.getYExtent())* model.getLocalScale().y, 0);

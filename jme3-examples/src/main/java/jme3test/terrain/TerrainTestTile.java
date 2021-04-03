@@ -69,7 +69,6 @@ public class TerrainTestTile extends SimpleApplication {
     private Material matTerrain;
     private Material matWire;
     private boolean wireframe = false;
-    private BitmapText hintText;
     final private float grassScale = 256;
     
 
@@ -130,7 +129,7 @@ public class TerrainTestTile extends SimpleApplication {
     }
     
     public void loadHintText() {
-        hintText = new BitmapText(guiFont, false);
+        BitmapText hintText = new BitmapText(guiFont, false);
         hintText.setLocalTranslation(0, getCamera().getHeight(), 0);
         hintText.setText("Press T to toggle wireframe");
         guiNode.attachChild(hintText);
