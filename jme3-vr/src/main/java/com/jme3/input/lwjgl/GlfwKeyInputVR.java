@@ -145,9 +145,9 @@ public class GlfwKeyInputVR implements KeyInput {
     }
 
     @Override
-    public String getKeyName(int jmeKey){
-        int glfwkey=GlfwKeyMap.fromJmeKeyCode(jmeKey);
-        return glfwGetKeyName(glfwkey,0);
+    public String getKeyName(int jmeKey) {
+        int glfwkey = GlfwKeyMap.fromJmeKeyCode(jmeKey);
+        return glfwGetKeyName(glfwkey, 0);
     }
 
 }
