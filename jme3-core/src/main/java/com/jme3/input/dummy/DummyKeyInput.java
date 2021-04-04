@@ -50,7 +50,7 @@ public class DummyKeyInput extends DummyInput implements KeyInput {
 
     
     public String getKeyName(int key){
-        return null;
+        return "Unknown";
     }
 
 }
