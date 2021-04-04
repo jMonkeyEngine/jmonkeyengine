@@ -33,7 +33,7 @@ package com.jme3.system;
 
 import com.jme3.asset.AssetConfig;
 import com.jme3.asset.AssetManager;
-import com.jme3.asset.DesktopAssetManager;
+import com.jme3.asset.DefaultAssetManager;
 import com.jme3.renderer.RenderManager;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -52,7 +52,7 @@ public class TestUtil {
 
     public static AssetManager createAssetManager() {
         Logger.getLogger(AssetConfig.class.getName()).setLevel(Level.OFF);
-        return new DesktopAssetManager(true);
+        return new DefaultAssetManager(true);
     }
     
     public static RenderManager createRenderManager() {

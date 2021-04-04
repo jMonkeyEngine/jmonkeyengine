@@ -63,7 +63,7 @@ import java.util.logging.Logger;
  *
  * @author Kirill Vainer
  */
-public class DesktopAssetManager implements AssetManager {
+public class DefaultAssetManager implements AssetManager {
 
     private static final Logger logger = Logger.getLogger(AssetManager.class.getName());
     private ShaderGenerator shaderGenerator;
@@ -76,19 +76,19 @@ public class DesktopAssetManager implements AssetManager {
     final private List<ClassLoader> classLoaders =
             Collections.synchronizedList(new ArrayList<>());
 
-    public DesktopAssetManager(){
+    public DefaultAssetManager(){
         this(null);
     }
     
-    public DesktopAssetManager(boolean usePlatformConfig){
+    public DefaultAssetManager(boolean usePlatformConfig){
         this(usePlatformConfig ? JmeSystem.getPlatformAssetConfigURL() : null);
     }
 
-    public DesktopAssetManager(URL configFile){
+    public DefaultAssetManager(URL configFile){
         if (configFile != null){
             loadConfigFile(configFile);
         }        
-        logger.fine("DesktopAssetManager created.");
+        logger.fine("DefaultAssetManager created.");
     }
 
     private void loadConfigFile(URL configFile) {

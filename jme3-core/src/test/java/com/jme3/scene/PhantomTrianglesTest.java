@@ -32,7 +32,7 @@
 package com.jme3.scene;
 
 import com.jme3.asset.AssetManager;
-import com.jme3.asset.DesktopAssetManager;
+import com.jme3.asset.DefaultAssetManager;
 import com.jme3.asset.plugins.ClasspathLocator;
 import com.jme3.collision.CollisionResult;
 import com.jme3.collision.CollisionResults;
@@ -117,7 +117,7 @@ public class PhantomTrianglesTest {
     @Test
     public void testPhantomTriangles() {
         JmeSystem.setSystemDelegate(new MockJmeSystemDelegate());
-        assetManager = new DesktopAssetManager();
+        assetManager = new DefaultAssetManager();
         assetManager.registerLocator(null, ClasspathLocator.class);
         assetManager.registerLoader(J3MLoader.class, "j3m", "j3md");
         rootNode = new Node();

@@ -32,7 +32,7 @@
 package com.jme3.system;
 
 import com.jme3.asset.AssetManager;
-import com.jme3.asset.DesktopAssetManager;
+import com.jme3.asset.DefaultAssetManager;
 import com.jme3.audio.AudioRenderer;
 import com.jme3.input.SoftTextDialogInput;
 import java.io.File;
@@ -122,11 +122,11 @@ public abstract class JmeSystemDelegate {
     }
 
     public final AssetManager newAssetManager(URL configFile) {
-        return new DesktopAssetManager(configFile);
+        return new DefaultAssetManager(configFile);
     }
 
     public final AssetManager newAssetManager() {
-        return new DesktopAssetManager(null);
+        return new DefaultAssetManager(null);
     }
     
     public abstract void writeImageFile(OutputStream outStream, String format, ByteBuffer imageData, int width, int height) throws IOException;
