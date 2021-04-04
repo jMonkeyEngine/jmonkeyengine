@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -51,7 +51,9 @@ import com.jme3.math.Vector3f;
  * If you want to change that you have to replace this keyFrame with any transform you want.
  * 
  * @author Nehon
+ * @deprecated use {@link com.jme3.anim.AnimFactory}
  */
+@Deprecated
 public class AnimationFactory {
 
     /**
@@ -70,6 +72,7 @@ public class AnimationFactory {
     /**
      * Inner Rotation type class to kep track on a rotation Euler angle
      */
+    @Deprecated
     protected class Rotation {
 
         /**
