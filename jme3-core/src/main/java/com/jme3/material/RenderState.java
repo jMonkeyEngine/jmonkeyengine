@@ -705,33 +705,6 @@ public class RenderState implements Cloneable, Savable {
     }
 
     /**
-     * @deprecated Does nothing. Point sprite is already enabled by default for
-     * all supported platforms. jME3 does not support rendering conventional
-     * point clouds.
-     */
-    @Deprecated
-    public void setPointSprite(boolean pointSprite) {
-    }
-
-    /**
-     * @deprecated Does nothing. To use alpha test, set the
-     * <code>AlphaDiscardThreshold</code> material parameter.
-     * @param alphaFallOff does nothing
-     */
-    @Deprecated
-    public void setAlphaFallOff(float alphaFallOff) {
-    }
-
-    /**
-     * @deprecated Does nothing. To use alpha test, set the
-     * <code>AlphaDiscardThreshold</code> material parameter.
-     * @param alphaTest does nothing
-     */
-    @Deprecated
-    public void setAlphaTest(boolean alphaTest) {
-    }
-
-    /**
      * Enable writing color.
      *
      * <p>When color write is enabled, the result of a fragment shader, the
@@ -980,13 +953,6 @@ public class RenderState implements Cloneable, Savable {
     }
 
     /**
-     * @deprecated
-     */
-    @Deprecated
-    public void setAlphaFunc(TestFunction alphaFunc) {
-    }
-
-    /**
      * Sets the mesh line width.
      * Use this in conjunction with {@link #setWireframe(boolean)} or with a mesh in
      * {@link com.jme3.scene.Mesh.Mode#Lines} mode.
@@ -1232,7 +1198,6 @@ public class RenderState implements Cloneable, Savable {
     /**
      * @return true
      * @deprecated Always returns true since point sprite is always enabled.
-     * @see #setPointSprite(boolean)
      */
     @Deprecated
     public boolean isPointSprite() {

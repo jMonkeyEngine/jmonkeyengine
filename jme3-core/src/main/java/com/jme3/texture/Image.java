@@ -959,13 +959,6 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
      * @deprecated This feature is no longer used by the engine
      */
     @Deprecated
-    public void setEfficentData(Object efficientData){
-    }
-
-    /**
-     * @deprecated This feature is no longer used by the engine
-     */
-    @Deprecated
     public Object getEfficentData(){
         return null;
     }

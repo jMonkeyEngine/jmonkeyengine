@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -57,8 +57,6 @@ import java.util.ArrayList;
  * Meshes may contain three types of geometric primitives:
  * <ul>
  * <li>Points - Every vertex represents a single point in space.
- * Points can also be used for {@link RenderState#setPointSprite(boolean) point
- * sprite} mode.</li>
  * <li>Lines - 2 vertices represent a line segment, with the width specified
  * via {@link Material#getAdditionalRenderState()} and {@link RenderState#setLineWidth(float)}.</li>
  * <li>Triangles - 3 vertices represent a solid triangle primitive. </li>
@@ -613,22 +611,10 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
      * determined in the vertex shader.
      *
      * @return <code>1.0</code>
-     *
-     * @see #setPointSize(float)
      */
     @Deprecated
     public float getPointSize() {
         return 1.0f;
-    }
-
-    /**
-     * @deprecated Does nothing, since the size of {@link Mode#Points points} is
-     * determined via the vertex shader's <code>gl_PointSize</code> output.
-     *
-     * @param pointSize ignored
-     */
-    @Deprecated
-    public void setPointSize(float pointSize) {
     }
 
     /**

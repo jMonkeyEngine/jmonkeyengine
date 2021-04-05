@@ -1,7 +1,7 @@
 package com.jme3.shadow;
 
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -232,14 +232,6 @@ public abstract class AbstractShadowFilterVR<T extends AbstractShadowRendererVR>
     public boolean isFlushQueues() {
         return shadowRenderer.isFlushQueues();
     }
-
-    /**
-     * setFlushQueues does nothing now and is kept only for backward compatibility.
-     * @param flushQueues can be <code>true</code> or <code>false</code>.
-     * @deprecated does nothing now and is kept only for backward compatibility.
-     */
-    @Deprecated
-    public void setFlushQueues(boolean flushQueues) {}
 
     /**
      * Sets the shadow compare mode (see {@link CompareMode} for more info).

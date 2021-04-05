@@ -756,15 +756,6 @@ public abstract class AbstractShadowRendererVR implements SceneProcessor, Savabl
     public boolean isFlushQueues() { return false; }
 
     /**
-     * This method does nothing now and is kept only for backward compatibility.
-     * @param flushQueues any boolean.
-     * @deprecated This method does nothing now and is kept only for backward compatibility.
-     */
-    @Deprecated
-    public void setFlushQueues(boolean flushQueues) {}
-
-
-    /**
      * Returns the pre shadows pass render state.
      * use it to adjust the RenderState parameters of the pre shadow pass.
      * Note that this will be overridden if the preShadow technique in the material has a ForcedRenderState

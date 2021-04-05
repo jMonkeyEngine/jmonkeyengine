@@ -664,16 +664,6 @@ public final class Bone implements Savable, JmeCloneable {
     }
 
     /**
-     * 
-     * @param translation -
-     * @param rotation -
-     * @deprecated use {@link #setUserTransformsInModelSpace(com.jme3.math.Vector3f, com.jme3.math.Quaternion) }
-     */
-    @Deprecated
-    public void setUserTransformsWorld(Vector3f translation, Quaternion rotation) {
-        
-    }
-    /**
      * Sets the transforms of this bone in model space (relative to the root bone)
      * 
      * Must update all bones in skeleton for this to work.

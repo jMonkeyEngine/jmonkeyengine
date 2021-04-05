@@ -769,12 +769,6 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
     public boolean isFlushQueues() { return false; }
 
     /**
-     * setFlushQueues does nothing now and is kept only for backward compatibility
-     */
-    @Deprecated
-    public void setFlushQueues(boolean flushQueues) {}
-
-    /**
      * returns the pre shadows pass render state.
      * use it to adjust the RenderState parameters of the pre shadow pass.
      * Note that this will be overridden if the preShadow technique in the material has a ForcedRenderState
