@@ -7,6 +7,7 @@ import com.jme3.font.BitmapText;
 import com.jme3.input.Joystick;
 import com.jme3.input.JoystickAxis;
 import com.jme3.input.JoystickButton;
+import com.jme3.input.MouseInput;
 import com.jme3.input.RawInputListener;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.MouseButtonTrigger;
@@ -84,7 +85,7 @@ public class TestJoystick extends SimpleApplication {
         
         // add action listener for mouse click 
         // to all easier custom mapping
-        inputManager.addMapping("mouseClick", new MouseButtonTrigger(mouseInput.BUTTON_LEFT));
+        inputManager.addMapping("mouseClick", new MouseButtonTrigger(MouseInput.BUTTON_LEFT));
         inputManager.addListener(new ActionListener() {
             @Override
             public void onAction(String name, boolean isPressed, float tpf) {

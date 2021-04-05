@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -339,10 +339,10 @@ public class AnimationEvent extends AbstractCinematicEvent {
             channel.setAnim(animationName, blendTime);
         }
         float t = time;
-        if (loopMode == loopMode.Loop) {
+        if (loopMode == LoopMode.Loop) {
             t = t % channel.getAnimMaxTime();
         }
-        if (loopMode == loopMode.Cycle) {
+        if (loopMode == LoopMode.Cycle) {
             float parity = (float) Math.ceil(time / channel.getAnimMaxTime());
             if (parity > 0 && parity % 2 == 0) {
                 t = channel.getAnimMaxTime() - t % channel.getAnimMaxTime();

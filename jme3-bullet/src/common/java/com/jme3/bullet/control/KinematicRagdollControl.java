@@ -283,7 +283,7 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
         }
         if(mode == Mode.IK){
             ikUpdate(tpf);
-        } else if (mode == mode.Ragdoll && targetModel.getLocalTranslation().equals(modelPosition)) {
+        } else if (mode == Mode.Ragdoll && targetModel.getLocalTranslation().equals(modelPosition)) {
             //if the ragdoll has the control of the skeleton, we update each bone with its position in physics world space.
             ragDollUpdate(tpf);
         } else {
