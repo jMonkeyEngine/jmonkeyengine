@@ -109,13 +109,18 @@ public class TestAspectFov extends SimpleApplication implements AnalogListener {
 
     @Override
     public void onAnalog(String name, float value, float tpf) {
+        final float CHANGE_VALUE = tpf * 10;
+        float newFov = cam.getFov();
         switch (name) {
             case FOV_IN:
-                cam.setFov(cam.getFov() - tpf * 10);
+                newFov -= CHANGE_VALUE;
                 break;
             case FOV_OUT:
-                cam.setFov(cam.getFov() + tpf * 10);
+                newFov += CHANGE_VALUE;
                 break;
+        }
+        if (newFov > 0 && newFov != cam.getFov()) {
+            cam.setFov(newFov);
         }
     }
 }
