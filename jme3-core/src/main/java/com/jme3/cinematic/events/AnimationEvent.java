@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -437,7 +437,7 @@ public class AnimationEvent extends AbstractCinematicEvent {
 //        if (im.getFormatVersion() == 0) {
             modelName = ic.readString("modelName", "");
 //        }
-        //FIXME always the same issue, because of the clonning of assets, this won't work
+        //FIXME always the same issue, because of the cloning of assets, this won't work
         //we have to somehow store userdata in the spatial and then recurse the 
         //scene sub scenegraph to find the correct instance of the model
         //This brings a reflaxion about the cinematic being an appstate, 
