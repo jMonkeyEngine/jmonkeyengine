@@ -33,6 +33,15 @@ package com.jme3.input;
 
 import static com.jme3.input.KeyInput.*;
 
+/**
+ * Translate key codes (from {@link KeyInput}) to descriptive names.
+ *
+ * This class has no static methods, yet it can be instantiated. Here's why:
+ *
+ * It used to be that there was no static getName() method, so the only way to
+ * get names was to instantiate a KeyNames. As a consequence, we have
+ * applications and libraries that rely on being able to instantiate this class.
+ */
 public class KeyNames {
 
     private static final String[] KEY_NAMES = new String[0xFF];
@@ -178,12 +187,6 @@ public class KeyNames {
         KEY_NAMES[KEY_KANJI] = "Kanji";
         KEY_NAMES[KEY_AX] = "Ax";
         KEY_NAMES[KEY_UNLABELED] = "Unlabeled";
-    }
-
-    /**
-     * A private constructor to inhibit instantiation of this class.
-     */
-    private KeyNames() {
     }
 
     public static String getName(int keyId) {
