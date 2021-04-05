@@ -272,8 +272,11 @@ public class AnimFactory {
      */
     public AnimClip buildAnimation(HasLocalTransform target) {
         Set<Float> times = new TreeSet<>();
-        float tpf = 1f / fps;
-        for (float time = 0f; time <= duration; time += tpf) {
+        for (int frameI = 0;; ++frameI) {
+            float time = frameI / fps;
+            if (time > duration) {
+                break;
+            }
             times.add(time);
         }
         times.addAll(rotations.keySet());
