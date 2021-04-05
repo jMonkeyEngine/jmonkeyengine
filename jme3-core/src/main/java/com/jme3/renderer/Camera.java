@@ -586,8 +586,7 @@ public class Camera implements Savable, Cloneable {
      * @return Frame of view angle along the Y in degrees, or 0 if the camera is in orthogonal mode.
      */
     public float getFov() {
-        if (!this.parallelProjection)
-        {
+        if (!this.parallelProjection) {
             float fovY = frustumTop / frustumNear;
             fovY = FastMath.atan(fovY);
             fovY /= 0.5F * FastMath.DEG_TO_RAD;
@@ -603,12 +602,10 @@ public class Camera implements Savable, Cloneable {
      * @param fovY   Frame of view angle along the Y in degrees. This must be greater than 0.
      */
     public void setFov(float fovY) {
-        if (fovY <= 0)
-        {
+        if (fovY <= 0) {
             throw new IllegalArgumentException("Field of view must be greater than 0");
         }
-        if (this.parallelProjection)
-        {
+        if (this.parallelProjection) {
             throw new IllegalArgumentException("Cannot set field of view on orthogonal camera");
         }
         float h = FastMath.tan(fovY * FastMath.DEG_TO_RAD * .5f) * frustumNear;

@@ -50,7 +50,8 @@ import com.jme3.util.TempVars;
  * @author Markil 3
  */
 public class TestAspectFov extends SimpleApplication implements AnalogListener {
-    final String FOV_IN = "fovIn", FOV_OUT = "fovOut";
+    private static final String FOV_IN = "fovIn";
+    private static final String FOV_OUT = "fovOut";
     private BitmapText header, fov;
 
     public static void main(String[] args) {
