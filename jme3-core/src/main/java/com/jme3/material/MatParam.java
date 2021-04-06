@@ -55,6 +55,10 @@ public class MatParam implements Savable, Cloneable {
 
     /**
      * Create a new material parameter. For internal use only.
+     *
+     * @param type the type of the parameter
+     * @param name the desired parameter name
+     * @param value the desired parameter value (alias created)
      */
     public MatParam(VarType type, String name, Object value) {
         this.type = type;

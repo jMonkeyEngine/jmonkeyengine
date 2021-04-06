@@ -123,7 +123,7 @@ public class FlyByCamera implements AnalogListener, ActionListener {
     /**
      * Sets the up vector that should be used for the camera.
      *
-     * @param upVec
+     * @param upVec the desired direction (not null, unaffected)
      */
     public void setUpVector(Vector3f upVec) {
         initialUpVec.set(upVec);
@@ -249,7 +249,7 @@ public class FlyByCamera implements AnalogListener, ActionListener {
      * Register this controller to receive input events from the specified input
      * manager.
      *
-     * @param inputManager
+     * @param inputManager (not null, alias created)
      */
     public void registerWithInput(InputManager inputManager){
         this.inputManager = inputManager;

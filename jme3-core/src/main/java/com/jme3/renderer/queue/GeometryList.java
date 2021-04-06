@@ -75,6 +75,8 @@ public class GeometryList implements Iterable<Geometry>{
     /**
      * Returns the GeometryComparator that this Geometry list uses
      * for sorting.
+     *
+     * @return the pre-existing instance
      */
     public GeometryComparator getComparator() {
         return comparator;

@@ -93,6 +93,8 @@ public interface AppState {
     /**
      *  Returns the unique ID for this AppState or null if it has no
      *  unique ID.
+     *
+     * @return the ID, or null if none
      */
     public String getId();
 

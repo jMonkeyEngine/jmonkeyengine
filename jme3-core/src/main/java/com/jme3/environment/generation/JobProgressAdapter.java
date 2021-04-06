@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,7 @@ package com.jme3.environment.generation;
  * only a subset of method implemented.
  * 
  * @author nehon
- * @param <T>
+ * @param <T> the type of result
  */
 public abstract class JobProgressAdapter<T> implements JobProgressListener<T>{
 

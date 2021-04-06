@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -65,10 +65,13 @@ public class MorphTrack implements AnimTrack<float[]> {
     /**
      * Creates a morph track with the given Geometry as a target
      *
+     * @param target   the desired target (alias created)
      * @param times    a float array with the time of each frame (alias created
      *                 -- do not modify after passing it to this constructor)
      * @param weights  the morphs for each frames (alias created -- do not
      *                 modify after passing it to this constructor)
+     * @param nbMorphTargets
+     *                 the desired number of morph targets
      */
     public MorphTrack(Geometry target, float[] times, float[] weights, int nbMorphTargets) {
         this.target = target;

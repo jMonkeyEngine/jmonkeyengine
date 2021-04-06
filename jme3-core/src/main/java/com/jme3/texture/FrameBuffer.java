@@ -122,6 +122,7 @@ public class FrameBuffer extends NativeObject {
 
         /**
          * Do not use.
+         * @return the buffer's ID
          */
         public int getId() {
             return id;
@@ -129,6 +130,8 @@ public class FrameBuffer extends NativeObject {
 
         /**
          * Do not use.
+         *
+         * @param id the desired ID
          */
         public void setId(int id) {
             this.id = id;
@@ -136,6 +139,8 @@ public class FrameBuffer extends NativeObject {
 
         /**
          * Do not use.
+         *
+         * @return the slot code, such as SLOT_DEPTH_STENCIL
          */
         public int getSlot() {
             return slot;
@@ -470,6 +475,7 @@ public class FrameBuffer extends NativeObject {
      * only target.
      *
      * @param tex The color texture array to set.
+     * @param layer (default=-1)
      * @deprecated Use addColorTarget
      */
     @Deprecated
@@ -565,6 +571,7 @@ public class FrameBuffer extends NativeObject {
      * is rendered to by the shader.
      *
      * @param tex The texture array to add.
+     * @param layer (default=-1)
      * @deprecated Use addColorTarget
      */
     @Deprecated
@@ -637,8 +644,8 @@ public class FrameBuffer extends NativeObject {
 
     /**
      * 
-     * @param tex
-     * @param layer
+     * @param tex the TextureArray to apply
+     * @param layer (default=-1)
      * @deprecated Use setDepthTarget
      */
     @Deprecated
@@ -667,7 +674,7 @@ public class FrameBuffer extends NativeObject {
     }
 
     /**
-     * @param index
+     * @param index the zero-base index (&ge;0)
      * @return The color buffer at the given index.
      * @deprecated Use getColorTarget(int)
      */

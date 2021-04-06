@@ -499,6 +499,7 @@ public class Geometry extends Spatial {
 
     /**
      * @deprecated Use {@link #isGrouped()} instead.
+     * @return true if managed by a {@link GeometryGroupNode}
      */
     @Deprecated
     public boolean isBatched() {
@@ -630,7 +631,7 @@ public class Geometry extends Spatial {
      * Seting this to true will stop this geometry morph buffer to be updated,
      * unless the morph state changes
      *
-     * @param dirtyMorph
+     * @param dirtyMorph true&rarr;prevent updating, false&rarr;allow updating
      */
     public void setDirtyMorph(boolean dirtyMorph) {
         this.dirtyMorph = dirtyMorph;

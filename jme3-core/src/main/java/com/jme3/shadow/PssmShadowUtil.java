@@ -59,6 +59,12 @@ public final class PssmShadowUtil {
 
     /**
      * Updates the frustum splits stores in <code>splits</code> using PSSM.
+     *
+     * @param splits the array of splits (modified)
+     * @param near the distance to the camera's near plane
+     * @param far the distance to the camera's far plane
+     * @param lambda the mixing parameter (0&rarr;purely linear,
+     * 1&rarr;purely logarithmic) 
      */
     public static void updateFrustumSplits(float[] splits, float near, float far, float lambda) {
         for (int i = 0; i < splits.length; i++) {
@@ -76,6 +82,11 @@ public final class PssmShadowUtil {
 
     /**
      * Compute the Zfar in the model view to adjust the Zfar distance for the splits calculation
+     *
+     * @param occ a list of occluders
+     * @param recv a list of receivers
+     * @param cam the Camera (not null, unaffected)
+     * @return the Z-far distance
      */
     public static float computeZFar(GeometryList occ, GeometryList recv, Camera cam) {
         Matrix4f mat = cam.getViewMatrix();

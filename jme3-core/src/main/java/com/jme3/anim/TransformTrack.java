@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -69,6 +69,7 @@ public class TransformTrack implements AnimTrack<Transform> {
     /**
      * Creates a transform track for the given bone index
      *
+     * @param target       the target Joint or Spatial of the new track
      * @param times        a float array with the time of each frame
      * @param translations the translation of the bone for each frame
      * @param rotations    the rotation of the bone for each frame

@@ -80,7 +80,8 @@ public final class BufferUtils {
      * purpose. Default is false. To print direct memory usage use
      * BufferUtils.printCurrentDirectMemory(StringBuilder store);
      *
-     * @param enabled
+     * @param enabled true to enable tracking, false to disable it
+     * (default=false)
      */
     public static void setTrackDirectMemoryEnabled(boolean enabled) {
         trackDirectMemory = enabled;

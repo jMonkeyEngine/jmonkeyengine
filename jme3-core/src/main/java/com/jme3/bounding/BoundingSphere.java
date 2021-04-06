@@ -126,9 +126,9 @@ public class BoundingSphere extends BoundingVolume {
      * <code>computeFromTris</code> creates a new Bounding Box from a given
      * set of triangles. It is used in OBBTree calculations.
      *
-     * @param tris
-     * @param start
-     * @param end
+     * @param tris triangle data (unaffected)
+     * @param start the index of the first triangle to be used
+     * @param end the index of the triangle after the last one to be used
      */
     public void computeFromTris(Triangle[] tris, int start, int end) {
         if (end - start <= 0) {

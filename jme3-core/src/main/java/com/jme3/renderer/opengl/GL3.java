@@ -165,13 +165,14 @@ public interface GL3 extends GL2 {
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glGetStringi">Reference Page</a></p>
-     * <p>
+     *
      * Queries indexed string state.
      *
      * @param name  the indexed state to query. One of:
      *  {@link GL#GL_EXTENSIONS EXTENSIONS}
      *  {@link GL2#GL_SHADING_LANGUAGE_VERSION SHADING_LANGUAGE_VERSION}
      * @param index the index of the particular element being queried.
+     * @return the value of the string state
      */
     public String glGetString(int name, int index); /// GL3+
 

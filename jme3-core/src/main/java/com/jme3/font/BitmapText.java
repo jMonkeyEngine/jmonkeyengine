@@ -213,6 +213,8 @@ public class BitmapText extends Node {
      *  to default... which will be 1 for anything unspecified
      *  and color tags will be reset to 1 or their encoded
      *  alpha.
+     *
+     * @param alpha the desired alpha, or -1 to revert to the default
      */
     public void setAlpha(float alpha) {
         letters.setBaseAlpha(alpha);
@@ -285,7 +287,8 @@ public class BitmapText extends Node {
 
     /**
      * Set horizontal alignment. Applicable only when text bound is set.
-     * @param align
+     *
+     * @param align the desired alignment (such as Align.Left)
      */
     public void setAlignment(BitmapFont.Align align) {
         if (block.getTextBox() == null && align != Align.Left) {
@@ -298,7 +301,8 @@ public class BitmapText extends Node {
 
     /**
      * Set vertical alignment. Applicable only when text bound is set.
-     * @param align
+     *
+     * @param align the desired alignment (such as Align.Top)
      */
     public void setVerticalAlignment(BitmapFont.VAlign align) {
         if (block.getTextBox() == null && align != VAlign.Top) {
@@ -321,7 +325,7 @@ public class BitmapText extends Node {
      * Set the font style of substring. If font doesn't contain style, default style is used
      * @param start start index to set style. inclusive.
      * @param end   end index to set style. EXCLUSIVE.
-     * @param style
+     * @param style the style to apply
      */
     public void setStyle(int start, int end, int style) {
         letters.setStyle(start, end, style);
@@ -330,7 +334,7 @@ public class BitmapText extends Node {
     /**
      * Set the font style of substring. If font doesn't contain style, default style is applied
      * @param regexp regular expression
-     * @param style
+     * @param style  the style to apply
      */
     public void setStyle(String regexp, int style) {
         Pattern p = Pattern.compile(regexp);
@@ -344,7 +348,7 @@ public class BitmapText extends Node {
      * Set the color of substring.
      * @param start start index to set style. inclusive.
      * @param end   end index to set style. EXCLUSIVE.
-     * @param color
+     * @param color the desired color
      */
     public void setColor(int start, int end, ColorRGBA color) {
         letters.setColor(start, end, color);
@@ -355,7 +359,7 @@ public class BitmapText extends Node {
     /**
      * Set the color of substring.
      * @param regexp regular expression
-     * @param color
+     * @param color  the desired color
      */
     public void setColor(String regexp, ColorRGBA color) {
         Pattern p = Pattern.compile(regexp);
@@ -389,7 +393,8 @@ public class BitmapText extends Node {
     /**
      * for setLineWrapType(LineWrapType.NoWrap),
      * set the last character when the text exceeds the bound.
-     * @param c
+     *
+     * @param c the character to indicate truncated text
      */
     public void setEllipsisChar(char c) {
         block.setEllipsisChar(c);

@@ -708,6 +708,8 @@ public class RenderState implements Cloneable, Savable {
      * @deprecated Does nothing. Point sprite is already enabled by default for
      * all supported platforms. jME3 does not support rendering conventional
      * point clouds.
+     *
+     * @param pointSprite ignored 
      */
     @Deprecated
     public void setPointSprite(boolean pointSprite) {
@@ -981,6 +983,7 @@ public class RenderState implements Cloneable, Savable {
 
     /**
      * @deprecated
+     * @param alphaFunc ignored
      */
     @Deprecated
     public void setAlphaFunc(TestFunction alphaFunc) {
@@ -1416,7 +1419,7 @@ public class RenderState implements Cloneable, Savable {
     }
 
     /**
-     *
+     * @return value for use in hashing
      */
     public int contentHashCode() {
         if (cachedHashCode == -1){

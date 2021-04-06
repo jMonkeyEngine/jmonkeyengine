@@ -85,6 +85,8 @@ public class UniformBindingManager {
      * Internal use only.
      * Updates the given list of uniforms with {@link UniformBinding uniform bindings}
      * based on the current world state.
+     *
+     * @param shader (not null)
      */
     public void updateUniformBindings(Shader shader) {
         ArrayList<Uniform> params = shader.getBoundUniforms();

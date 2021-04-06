@@ -1024,9 +1024,9 @@ final public class FastMath {
     /**
      * Take a float input and clamp it between min and max.
      *
-     * @param input
-     * @param min
-     * @param max
+     * @param input the value to be clamped
+     * @param min the minimum output value
+     * @param max the maximum output value
      * @return clamped input
      */
     public static float clamp(float input, float min, float max) {
@@ -1036,7 +1036,7 @@ final public class FastMath {
     /**
      * Clamps the given float to be between 0 and 1.
      *
-     * @param input
+     * @param input the value to be clamped
      * @return input clamped between 0 and 1.
      */
     public static float saturate(float input) {

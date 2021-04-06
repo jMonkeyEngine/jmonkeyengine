@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -99,12 +99,16 @@ public interface AssetManager {
 
     /**
      * Remove a {@link ClassLoader} from the list of registered ClassLoaders
+     * 
+     * @param loader the ClassLoader to be removed
      */
     public void removeClassLoader(ClassLoader loader);
 
     /**
      * Retrieve the list of registered ClassLoaders that are used for loading 
      * {@link Class classes} from asset files.
+     * 
+     * @return an unmodifiable list
      */
     public List<ClassLoader> getClassLoaders();
     
@@ -355,6 +359,8 @@ public interface AssetManager {
     
     /**
      * Returns the shaderGenerator responsible for generating the shaders
+     *
+     * @param caps a set of required capabilities
      * @return the shaderGenerator 
      */
     public ShaderGenerator getShaderGenerator(EnumSet<Caps> caps);

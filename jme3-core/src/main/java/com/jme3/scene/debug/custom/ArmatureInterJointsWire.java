@@ -97,6 +97,9 @@ public class ArmatureInterJointsWire extends Mesh {
 
     /**
      * Update the start and end points of the line.
+     * 
+     * @param start location vector (not null, unaffected)
+     * @param ends array of location vectors (not null, unaffected)
      */
     public void updatePoints(Vector3f start, Vector3f[] ends) {
         VertexBuffer posBuf = getBuffer(Type.Position);

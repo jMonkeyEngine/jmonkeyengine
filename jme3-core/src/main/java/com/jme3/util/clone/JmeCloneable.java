@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2018 jMonkeyEngine
+ * Copyright (c) 2016-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -74,6 +74,8 @@ public interface JmeCloneable extends Cloneable {
      *  fields and instead get at the superclass protected clone() methods.
      *  For example, through super.jmeClone() or another protected clone
      *  method that some base class eventually calls super.clone() in.</p>
+     *
+     * @return a new instance
      */
     public Object jmeClone();     
 

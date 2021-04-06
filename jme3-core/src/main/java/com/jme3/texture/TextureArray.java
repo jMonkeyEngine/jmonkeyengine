@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -62,7 +62,8 @@ public class TextureArray extends Texture {
      * Construct a TextureArray from the given list of images.
      * To check if a hardware supports TextureArray check : 
      * renderManager.getRenderer().getCaps().contains(Caps.TextureArray)
-     * @param images 
+     *
+     * @param images the images to use (not null)
      */
     public TextureArray(List<Image> images) {
         super();

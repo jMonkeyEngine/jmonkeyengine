@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,9 +50,10 @@ public class Grid extends Mesh {
 
     /**
      * Creates a grid debug shape.
-     * @param xLines
-     * @param yLines
-     * @param lineDist 
+     *
+     * @param xLines number of lines parallel to the X axis
+     * @param yLines number of lines parallel to the Y axis
+     * @param lineDist the separation between consecutive lines (in world units)
      */
     public Grid(int xLines, int yLines, float lineDist){
         xLines -= 2;
