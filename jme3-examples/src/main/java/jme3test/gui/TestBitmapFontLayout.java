@@ -109,7 +109,7 @@ public class TestBitmapFontLayout extends SimpleApplication {
         }
     }
     
-    protected Texture renderAwtFont( TestConfig test, int width, int height, BitmapFont bitmapFont ) {
+    private Texture renderAwtFont( TestConfig test, int width, int height, BitmapFont bitmapFont ) {
  
         BitmapCharacterSet charset = bitmapFont.getCharSet();
           
@@ -156,7 +156,7 @@ public class TestBitmapFontLayout extends SimpleApplication {
         return new Texture2D(jmeImage);
     }
     
-    protected Node createVisual( TestConfig test ) {
+    private Node createVisual( TestConfig test ) {
         Node result = new Node(test.name);
         
         // For reasons I have trouble articulating, I want the visual's 0,0,0 to be

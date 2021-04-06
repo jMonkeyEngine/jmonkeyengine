@@ -100,7 +100,7 @@ public class JoystickCompatibilityMappings {
      * @return The various axis remappings for the requested joystick, or null of there are none.
      * @author Markil3
      */
-    protected static Map<String, AxisData> getAxisMappings(String joystickName, boolean create) {
+    private static Map<String, AxisData> getAxisMappings(String joystickName, boolean create) {
         Map<String, AxisData> result = axisMappings.get(joystickName.trim());
         if (result == null && create) {
             result = new HashMap<String, AxisData>();
@@ -299,21 +299,6 @@ public class JoystickCompatibilityMappings {
         }
         logger.log(Level.FINE, "returning remapped:" + map.get(componentId));
         return map.get(componentId);
-    }
-
-    /**
-     * Returns a set of Joystick axis name remappings if they exist otherwise
-     * it returns an empty map.
-     *
-     * @param joystickName which joystick (not null)
-     * @return an unmodifiable map
-     * @author Markil3
-     */
-    public static Map<String, AxisData> getJoystickAxisMappings(String joystickName) {
-        Map<String, AxisData> result = getAxisMappings(joystickName.trim(), false);
-        if (result == null)
-            return Collections.emptyMap();
-        return Collections.unmodifiableMap(result);
     }
 
     /**
