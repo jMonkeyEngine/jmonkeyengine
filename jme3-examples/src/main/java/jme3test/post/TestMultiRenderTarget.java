@@ -242,7 +242,7 @@ public class TestMultiRenderTarget extends SimpleApplication implements ScenePro
 
     @Override
     public void setProfiler(AppProfiler profiler) {
-
+        // not implemented
     }
 
 }

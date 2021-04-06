@@ -76,7 +76,6 @@ public class BasicShadowRenderer implements SceneProcessor {
 
     protected GeometryList lightReceivers = new GeometryList(new OpaqueComparator());
     protected GeometryList shadowOccluders = new GeometryList(new OpaqueComparator());
-    private AppProfiler prof;
 
     /**
      * Creates a BasicShadowRenderer
@@ -232,7 +231,7 @@ public class BasicShadowRenderer implements SceneProcessor {
 
     @Override
     public void setProfiler(AppProfiler profiler) {
-        this.prof = profiler;
+        // not implemented
     }
 
     @Override

@@ -313,6 +313,7 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
 
     @Override
     public void setProfiler(AppProfiler profiler) {
+        // not implemented
     }
 
     /**

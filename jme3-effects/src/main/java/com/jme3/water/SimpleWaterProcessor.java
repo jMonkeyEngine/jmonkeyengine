@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -120,8 +120,6 @@ public class SimpleWaterProcessor implements SceneProcessor {
     private float distortionScale = 0.2f;
     private float distortionMix = 0.5f;
     private float texScale = 1f;
-    private AppProfiler prof;
-
 
     /**
      * Creates a SimpleWaterProcessor
@@ -227,7 +225,7 @@ public class SimpleWaterProcessor implements SceneProcessor {
 
     @Override
     public void setProfiler(AppProfiler profiler) {
-        this.prof = profiler;
+        // not implemented
     }
 
     //debug only : displays maps
@@ -593,7 +591,6 @@ public class SimpleWaterProcessor implements SceneProcessor {
 
         RenderManager rm;
         ViewPort vp;
-        private AppProfiler prof;
 
         @Override
         public void initialize(RenderManager rm, ViewPort vp) {
@@ -630,7 +627,7 @@ public class SimpleWaterProcessor implements SceneProcessor {
 
         @Override
         public void setProfiler(AppProfiler profiler) {
-            this.prof = profiler;
+            // not implemented
         }
     }
 }
