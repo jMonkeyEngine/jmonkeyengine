@@ -5,6 +5,13 @@ varying vec2 texCoord;
 
 #ifdef DIFFUSEMAP_ALPHA
     uniform sampler2D m_DiffuseMap;
+#endif
+
+#ifdef COLORMAP_ALPHA
+    uniform sampler2D m_ColorMap;
+#endif
+
+#if defined DIFFUSEMAP_ALPHA || defined COLORMAP_ALPHA
     uniform float m_AlphaDiscardThreshold;
 #endif
 
@@ -13,6 +20,11 @@ void main(void)
 
     #ifdef DIFFUSEMAP_ALPHA
         if(texture2D(m_DiffuseMap,texCoord).a<m_AlphaDiscardThreshold){
+            discard;
+        }
+    #endif
+    #ifdef COLORMAP_ALPHA
+        if(texture2D(m_ColorMap,texCoord).a<m_AlphaDiscardThreshold){
             discard;
         }
     #endif
