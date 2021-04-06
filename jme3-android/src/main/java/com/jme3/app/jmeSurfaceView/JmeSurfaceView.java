@@ -63,7 +63,7 @@ import java.util.logging.Logger;
  *
  * @author pavl_g.
  */
-public class JmeSurfaceView extends RelativeLayout implements SystemListener , DialogInterface.OnClickListener {
+public class JmeSurfaceView extends RelativeLayout implements SystemListener, DialogInterface.OnClickListener {
 
     /*using #{@link LegacyApplication} instead of #{@link SimpleApplication} to include all classes extends LegacyApplication*/
     private LegacyApplication legacyApplication;
@@ -108,13 +108,13 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener , D
      * any values less than 1ms#{@link JmeSurfaceView#NO_DELAY} would be ignored & the delay would be disabled.
      */
     public void startRenderer(int delayMillis) {
-        this.delayMillis = Math.max(NO_DELAY , delayMillis);
+        this.delayMillis = Math.max(NO_DELAY, delayMillis);
         if (legacyApplication != null) {
             try {
                 /*initialize App Settings & start the Game*/
                 appSettings = new AppSettings(true);
                 appSettings.setAudioRenderer(audioRendererType);
-                appSettings.setResolution(JmeSurfaceView.this.getLayoutParams().width , JmeSurfaceView.this.getLayoutParams().height);
+                appSettings.setResolution(JmeSurfaceView.this.getLayoutParams().width, JmeSurfaceView.this.getLayoutParams().height);
                 appSettings.setAlphaBits(eglAlphaBits);
                 appSettings.setDepthBits(eglDepthBits);
                 appSettings.setSamples(eglSamples);
@@ -135,12 +135,12 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener , D
                 /*set JME system Listener to initialize game , update , requestClose & destroy on closure*/
                 oglesContext.setSystemListener(JmeSurfaceView.this);
                 /* set the glSurfaceView to fit the widget */
-                glSurfaceView.setLayoutParams(new LayoutParams(JmeSurfaceView.this.getLayoutParams().width , JmeSurfaceView.this.getLayoutParams().height));
+                glSurfaceView.setLayoutParams(new LayoutParams(JmeSurfaceView.this.getLayoutParams().width, JmeSurfaceView.this.getLayoutParams().height));
                 /*post delay the renderer join into the UI thread*/
-                handler.postDelayed(new RendererThread() , delayMillis);
+                handler.postDelayed(new RendererThread(), delayMillis);
             } catch (Exception e) {
-                jmeSurfaceViewLogger.log(Level.WARNING , e.getMessage());
-                showErrorDialog(e , e.getMessage());
+                jmeSurfaceViewLogger.log(Level.WARNING, e.getMessage());
+                showErrorDialog(e, e.getMessage());
                 if (onExceptionThrown != null) {
                     onExceptionThrown.onExceptionThrown(e);
                 }
@@ -161,7 +161,7 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener , D
         public void run() {
             /*jme Renderer joins the UIThread at that point*/
             JmeSurfaceView.this.addView(glSurfaceView);
-            jmeSurfaceViewLogger.log(Level.CONFIG , "JmeSurfaceView's joined the UI thread.......");
+            jmeSurfaceViewLogger.log(Level.CONFIG, "JmeSurfaceView's joined the UI thread.......");
         }
     }
 
@@ -170,14 +170,14 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener , D
         if (legacyApplication != null) {
             legacyApplication.initialize();
             /*log for display*/
-            jmeSurfaceViewLogger.log(Level.INFO , "JmeGame started in GLThread Asynchronously.......");
+            jmeSurfaceViewLogger.log(Level.INFO, "JmeGame started in GLThread Asynchronously.......");
         }
     }
 
     @Override
-    public void reshape(int width , int height) {
+    public void reshape(int width, int height) {
         if (legacyApplication != null) {
-            legacyApplication.reshape(width , height);
+            legacyApplication.reshape(width, height);
         }
     }
 
@@ -192,9 +192,9 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener , D
         int timeToPlay = synthesizedTime.addAndGet(1);
         if (timeToPlay == (delayMillis>100 ? (delayMillis-TOLERANCE_TIMER) : delayMillis)) {
             ((Activity)getContext()).runOnUiThread(() -> {
-                jmeSurfaceViewLogger.log(Level.INFO,"SplashScreen Dismissed , User Delay completed with 0 errors.......");
+                jmeSurfaceViewLogger.log(Level.INFO, "SplashScreen Dismissed, User Delay completed with 0 errors.......");
                 if (onRendererCompleted != null) {
-                    onRendererCompleted.onRenderCompletion(legacyApplication , legacyApplication.getContext().getSettings());
+                    onRendererCompleted.onRenderCompletion(legacyApplication, legacyApplication.getContext().getSettings());
                 }
             });
         }
@@ -254,9 +254,9 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener , D
     }
 
     @Override
-    public void handleError(String errorMsg , Throwable throwable) {
-        jmeSurfaceViewLogger.log(Level.WARNING , throwable.getMessage());
-        showErrorDialog(throwable , throwable.getMessage());
+    public void handleError(String errorMsg, Throwable throwable) {
+        jmeSurfaceViewLogger.log(Level.WARNING, throwable.getMessage());
+        showErrorDialog(throwable, throwable.getMessage());
         if (onExceptionThrown != null) {
             onExceptionThrown.onExceptionThrown(throwable);
         }
@@ -275,20 +275,20 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener , D
      * @param throwable the throwable stack.
      * @param message the string message.
      */
-    protected void showErrorDialog(Throwable throwable , String message) {
+    protected void showErrorDialog(Throwable throwable, String message) {
         ((Activity)getContext()).runOnUiThread(() -> {
             AlertDialog alertDialog = new AlertDialog.Builder(getContext()).create();
             alertDialog.setTitle(new StringBuffer(String.valueOf(throwable)));
             alertDialog.setMessage(message);
             alertDialog.setCancelable(true);
-            alertDialog.setButton(DialogInterface.BUTTON_NEGATIVE , "EXIT" , this);
-            alertDialog.setButton(DialogInterface.BUTTON_POSITIVE , "DISMISS",  this);
+            alertDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "EXIT", this);
+            alertDialog.setButton(DialogInterface.BUTTON_POSITIVE, "DISMISS", this);
             alertDialog.show();
         });
     }
 
     @Override
-    public void onClick(DialogInterface dialog , int which) {
+    public void onClick(DialogInterface dialog, int which) {
         switch (which) {
             case DialogInterface.BUTTON_NEGATIVE:
                 dialog.dismiss();

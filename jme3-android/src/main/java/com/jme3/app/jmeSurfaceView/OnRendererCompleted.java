@@ -46,5 +46,5 @@ public interface OnRendererCompleted {
      * @param application the current jme game instance.
      * @param appSettings the current window settings of the running jme game.
      */
-    void onRenderCompletion(LegacyApplication application , AppSettings appSettings);
+    void onRenderCompletion(LegacyApplication application, AppSettings appSettings);
 }
