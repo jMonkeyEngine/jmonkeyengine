@@ -65,7 +65,6 @@ import java.util.List;
 
 public class TestSkeletonControlRefresh extends SimpleApplication implements ActionListener{
 
-    private AnimComposer animComposer;
     private final static int SIZE = 10;
     private boolean hwSkinningEnable = true;
     final private List<SkinningControl> skinningControls = new ArrayList<>();
@@ -100,7 +99,8 @@ public class TestSkeletonControlRefresh extends SimpleApplication implements Act
                 model.setLocalScale(0.1f);
                 model.setLocalTranslation(i - SIZE / 2, 0, j - SIZE / 2);
 
-                animComposer = model.getControl(AnimComposer.class);
+                AnimComposer animComposer
+                        = model.getControl(AnimComposer.class);
                 for (AnimClip animClip : animComposer.getAnimClips()) {
                     Action action = animComposer.action(animClip.getName());
                     animComposer.addAction(animClip.getName(), new BaseAction(

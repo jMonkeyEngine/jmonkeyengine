@@ -88,16 +88,18 @@ public interface ALC {
      *  {@link #ALC_EXTENSIONS EXTENSIONS}
      *  {@link #ALC_CAPTURE_DEFAULT_DEVICE_SPECIFIER CAPTURE_DEFAULT_DEVICE_SPECIFIER}
      *  {@link #ALC_CAPTURE_DEVICE_SPECIFIER CAPTURE_DEVICE_SPECIFIER}
+     * @return the parameter value
      */
     public String alcGetString(int parameter);
 
     /**
      * Verifies that a given extension is available for the current context and the device it is associated with.
-     * <p>
+     *
      * <p>Invalid and unsupported string tokens return ALC_FALSE. A {@code NULL} deviceHandle is acceptable. {@code extName} is not case sensitive – the implementation
      * will convert the name to all upper-case internally (and will express extension names in upper-case).</p>
      *
      * @param extension the extension name.
+     * @return true if the extension is available, otherwise false
      */
     public boolean alcIsExtensionPresent(String extension);
 
@@ -117,7 +119,7 @@ public interface ALC {
 
     /**
      * Pauses a playback device.
-     * <p>
+     *
      * <p>When paused, no contexts associated with the device will be processed or updated. Playing sources will not produce sound, have their offsets
      * incremented, or process any more buffers, until the device is resumed. Pausing a device that is already paused is a legal no-op.</p>
      */
@@ -125,10 +127,10 @@ public interface ALC {
 
     /**
      * Resumes playback of a paused device.
-     * <p>
+     *
      * <p>This will restart processing on the device -- sources will resume playing sound as normal. Resuming playback on a device that is not paused is a legal
      * no-op.</p>
-     * <p>
+     *
      * <p>These functions are not reference counted. alcDeviceResumeSOFT only needs to be called once to resume playback, regardless of how many times
      * {@link #alcDevicePauseSOFT DevicePauseSOFT} was called.</p>
      */

@@ -335,6 +335,8 @@ public class AudioNode extends Node implements AudioSource {
 
     /**
      * Do not use.
+     *
+     * @param status the desired status
      */
     @Override
     public final void setStatus(AudioSource.Status status) {
@@ -652,7 +654,7 @@ public class AudioNode extends Node implements AudioSource {
      * Set the direction of this audio node.
      * Does nothing if the audio node is not directional.
      *
-     * @param direction
+     * @param direction a direction vector (alias created)
      * @see AudioNode#setDirectional(boolean)
      */
     public void setDirection(Vector3f direction) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -186,7 +186,7 @@ public class VariableMapping implements Savable, Cloneable {
      * jme serialization (not used)
      *
      * @param ex the exporter
-     * @throws IOException
+     * @throws IOException from the exporter
      */
     @Override
     public void write(JmeExporter ex) throws IOException {
@@ -203,7 +203,7 @@ public class VariableMapping implements Savable, Cloneable {
      * jme serialization (not used)
      *
      * @param im the importer
-     * @throws IOException
+     * @throws IOException from the importer
      */
     @Override
     public void read(JmeImporter im) throws IOException {

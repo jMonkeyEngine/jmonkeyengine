@@ -202,6 +202,7 @@ public class AnimComposer extends AbstractControl {
      * Returns current time of the specified layer.
      * 
      * @param layerName The layer from which to get the time.
+     * @return the time (in seconds)
      */
     public double getTime(String layerName) {
         Layer l = layers.get(layerName);
@@ -213,6 +214,8 @@ public class AnimComposer extends AbstractControl {
     
     /**
      * Sets current time on the default layer.
+     *
+     * @param time the desired time (in seconds)
      */
     public void setTime(double time) {
         setTime(DEFAULT_LAYER, time);
@@ -220,6 +223,9 @@ public class AnimComposer extends AbstractControl {
 
     /**
      * Sets current time on the specified layer.
+     *
+     * @param layerName the name of the Layer to modify
+     * @param time the desired time (in seconds)
      */
     public void setTime(String layerName, double time) {
         Layer l = layers.get(layerName);
@@ -326,6 +332,10 @@ public class AnimComposer extends AbstractControl {
     /**
      * Creates an action that will interpolate over an entire sequence
      * of tweens in order.
+     *
+     * @param name a name for the new Action
+     * @param tweens the desired sequence of tweens
+     * @return a new instance
      */
     public BaseAction actionSequence(String name, Tween... tweens) {
         BaseAction action = new BaseAction(Tweens.sequence(tweens));
@@ -336,6 +346,11 @@ public class AnimComposer extends AbstractControl {
     /**
      * Creates an action that blends the named clips using the given blend
      * space.
+     *
+     * @param name a name for the new Action
+     * @param blendSpace how to blend the clips (not null, alias created)
+     * @param clips the names of the clips to be used (not null)
+     * @return a new instance
      */
     public BlendAction actionBlended(String name, BlendSpace blendSpace, String... clips) {
         BlendableAction[] acts = new BlendableAction[clips.length];

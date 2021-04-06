@@ -51,7 +51,6 @@ import com.jme3.util.SkyFactory;
 
 public class TestPosterization extends SimpleApplication {
 
-    private Spatial teapot;
     private PosterizationFilter pf;
     
     public static void main(String[] args){
@@ -79,7 +78,7 @@ public class TestPosterization extends SimpleApplication {
         matSoil.setColor("Diffuse", ColorRGBA.Black);
         matSoil.setColor("Specular", ColorRGBA.Gray);
 
-        teapot = assetManager.loadModel("Models/Teapot/Teapot.obj");
+        Spatial teapot = assetManager.loadModel("Models/Teapot/Teapot.obj");
         teapot.setLocalTranslation(0,0,10);
 
         teapot.setMaterial(mat);

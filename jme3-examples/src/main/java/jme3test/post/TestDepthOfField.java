@@ -62,10 +62,8 @@ import java.util.List;
  */
 public class TestDepthOfField extends SimpleApplication {
 
-    private FilterPostProcessor fpp;
     final private Vector3f lightDir = new Vector3f(-4.9236743f, -1.27054665f, 5.896916f);
     private TerrainQuad terrain;
-    private Material matRock;
     private DepthOfFieldFilter dofFilter;
 
     public static void main(String[] args) {
@@ -102,9 +100,7 @@ public class TestDepthOfField extends SimpleApplication {
         sky.setLocalScale(350);
         mainScene.attachChild(sky);
 
-
-
-        fpp = new FilterPostProcessor(assetManager);
+        FilterPostProcessor fpp = new FilterPostProcessor(assetManager);
         //     fpp.setNumSamples(4);
         int numSamples = getContext().getSettings().getSamples();
         if( numSamples > 0 ) {
@@ -175,7 +171,8 @@ public class TestDepthOfField extends SimpleApplication {
     }
 
     private void createTerrain(Node rootNode) {
-        matRock = new Material(assetManager, "Common/MatDefs/Terrain/TerrainLighting.j3md");
+        Material matRock = new Material(assetManager,
+                "Common/MatDefs/Terrain/TerrainLighting.j3md");
         matRock.setBoolean("useTriPlanarMapping", false);
         matRock.setBoolean("WardIso", true);
         matRock.setTexture("AlphaMap", assetManager.loadTexture("Textures/Terrain/splat/alphamap.png"));

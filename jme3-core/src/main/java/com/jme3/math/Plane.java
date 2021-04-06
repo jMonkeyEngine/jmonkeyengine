@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -266,8 +266,8 @@ public class Plane implements Savable, Cloneable, java.io.Serializable {
     /**
      * Initialize this plane using a point of origin and a normal.
      *
-     * @param origin
-     * @param normal
+     * @param origin the desired origin location (not null, unaffected)
+     * @param normal the desired normal vector (not null, unaffected)
      */
     public void setOriginNormal(Vector3f origin, Vector3f normal) {
         this.normal.set(normal);

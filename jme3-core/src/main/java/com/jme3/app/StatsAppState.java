@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -80,6 +80,8 @@ public class StatsAppState extends AbstractAppState {
      *  so that the fpsText can be created before init.  This
      *  is because several applications expect to directly access
      *  fpsText... unfortunately.
+     * 
+     * @param guiFont the desired font (not null, alias created)
      */
     public void setFont( BitmapFont guiFont ) {
         this.guiFont = guiFont;

@@ -218,6 +218,7 @@ public class LightProbeFactory {
      * Will return a Node meant to be added to a GUI presenting the 2 cube maps in a cross pattern with all the mip maps.
      *
      * @param manager the asset manager
+     * @param probe the LightProbe to be debugged (not null)
      * @return a debug node
      */
     public static Node getDebugGui(AssetManager manager, LightProbe probe) {

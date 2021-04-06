@@ -51,9 +51,7 @@ import com.jme3.system.AppSettings;
  */
 public class TestCameraNode extends SimpleApplication implements AnalogListener, ActionListener {
 
-  private Geometry teaGeom;
   private Node teaNode;
-  private CameraNode camNode;
   private boolean rotate = false;
   final private Vector3f direction = new Vector3f();
 
@@ -68,7 +66,8 @@ public class TestCameraNode extends SimpleApplication implements AnalogListener,
   @Override
   public void simpleInitApp() {
     // load a teapot model 
-    teaGeom = (Geometry) assetManager.loadModel("Models/Teapot/Teapot.obj");
+    Geometry teaGeom 
+            = (Geometry) assetManager.loadModel("Models/Teapot/Teapot.obj");
     Material mat = new Material(assetManager, "Common/MatDefs/Misc/ShowNormals.j3md");
     teaGeom.setMaterial(mat);
     //create a node to attach the geometry and the camera node
@@ -85,12 +84,12 @@ public class TestCameraNode extends SimpleApplication implements AnalogListener,
     rootNode.attachChild(ground);
 
     //creating the camera Node
-    camNode = new CameraNode("CamNode", cam);
+    CameraNode camNode = new CameraNode("CamNode", cam);
     //Setting the direction to Spatial to camera, this means the camera will copy the movements of the Node
     camNode.setControlDir(ControlDirection.SpatialToCamera);
     //attaching the camNode to the teaNode
     teaNode.attachChild(camNode);
-    //setting the local translation of the cam node to move it away from the teanNode a bit
+    //setting the local translation of the cam node to move it away from the tea Node a bit
     camNode.setLocalTranslation(new Vector3f(-10, 0, 0));
     //setting the camNode to look at the teaNode
     camNode.lookAt(teaNode.getLocalTranslation(), Vector3f.UNIT_Y);

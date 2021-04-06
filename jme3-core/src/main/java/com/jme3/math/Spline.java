@@ -341,7 +341,7 @@ public class Spline implements Savable {
     /**
      * set to true to make the spline cycle
      *
-     * @param cycle
+     * @param cycle true for cyclic, false for acyclic
      */
     public void setCycle(boolean cycle) {
         if (type != SplineType.Nurb) {
@@ -379,7 +379,7 @@ public class Spline implements Savable {
     /**
      * Sets the type of the spline
      *
-     * @param type
+     * @param type Linear/CatmullRom/Bezier/Nurb
      */
     public void setType(SplineType type) {
         this.type = type;

@@ -48,7 +48,6 @@ import com.jme3.scene.shape.Sphere.TextureMode;
 public class TestCollisionListener extends SimpleApplication implements PhysicsCollisionListener {
 
     private BulletAppState bulletAppState;
-    private Sphere bullet;
 
     public static void main(String[] args) {
         TestCollisionListener app = new TestCollisionListener();
@@ -60,7 +59,7 @@ public class TestCollisionListener extends SimpleApplication implements PhysicsC
         bulletAppState = new BulletAppState();
         stateManager.attach(bulletAppState);
         bulletAppState.setDebugEnabled(true);
-        bullet = new Sphere(32, 32, 0.4f, true, false);
+        Sphere bullet = new Sphere(32, 32, 0.4f, true, false);
         bullet.setTextureMode(TextureMode.Projected);
 
         PhysicsTestHelper.createPhysicsTestWorld(rootNode, assetManager, bulletAppState.getPhysicsSpace());

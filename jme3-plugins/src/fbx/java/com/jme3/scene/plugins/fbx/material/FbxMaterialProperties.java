@@ -191,13 +191,4 @@ public class FbxMaterialProperties {
     public Object getProperty(String name) { 
         return propertyValueMap.get(name);
     }
-    
-    public static Type getPropertyType(String name) {
-        FBXMaterialProperty prop = propertyMetaMap.get(name);
-        if (prop == null) { 
-            return null;
-        } else {
-            return prop.type;
-        }
-    }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -744,10 +744,10 @@ public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable
      */
     public ColorRGBA getAsSrgb() {
         ColorRGBA srgb = new ColorRGBA();
-        float invGama = 1f / GAMMA;
-        srgb.r = (float) Math.pow(r, invGama);
-        srgb.g = (float) Math.pow(g, invGama);
-        srgb.b = (float) Math.pow(b, invGama);
+        float invGamma = 1f / GAMMA;
+        srgb.r = (float) Math.pow(r, invGamma);
+        srgb.g = (float) Math.pow(g, invGamma);
+        srgb.b = (float) Math.pow(b, invGamma);
         srgb.a = a;
         return srgb;
     }

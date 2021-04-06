@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -465,10 +465,10 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
      * internally, and returns a handle to this vector for easy chaining of
      * calls.
      *
-     * @param x
-     * @param y
-     * @param z
-     * @param w
+     * @param x the scaling factor for the X component
+     * @param y the scaling factor for the Y component
+     * @param z the scaling factor for the Z component
+     * @param w the scaling factor for the W component
      * @return this
      */
     public Vector4f multLocal(float x, float y, float z, float w) {
@@ -741,7 +741,7 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
      * component in this and <code>other</code> vector. The result is stored
      * in this vector.
      *
-     * @param other
+     * @param other the vector to compare with (not null, unaffected)
      * @return this
      */
     public Vector4f maxLocal(Vector4f other) {
@@ -757,7 +757,7 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
      * component in this and <code>other</code> vector. The result is stored
      * in this vector.
      *
-     * @param other
+     * @param other the vector to compare with (not null, unaffected)
      * @return this
      */
     public Vector4f minLocal(Vector4f other) {
@@ -1088,7 +1088,7 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * @param index
+     * @param index which component (&ge;0, &lt;4)
      * @return x value if index == 0, y value if index == 1 or z value if index == 2
      * @throws IllegalArgumentException
      *             if index is not one of 0, 1, 2.

@@ -178,7 +178,7 @@ public class ShaderNodeDefinition implements Savable {
 
     /**
      * sets the path of this definition
-     * @param path 
+     * @param path the desired path
      */
     public void setPath(String path) {
         this.path = path;
@@ -190,7 +190,7 @@ public class ShaderNodeDefinition implements Savable {
      * jme serialization (not used)
      *
      * @param ex the exporter
-     * @throws IOException
+     * @throws IOException from the exporter
      */
     @Override
     public void write(JmeExporter ex) throws IOException {
@@ -226,7 +226,7 @@ public class ShaderNodeDefinition implements Savable {
      * jme serialization (not used)
      *
      * @param im the importer
-     * @throws IOException
+     * @throws IOException from the importer
      */
     @Override
     @SuppressWarnings("unchecked")

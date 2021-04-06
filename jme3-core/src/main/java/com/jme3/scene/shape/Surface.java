@@ -115,6 +115,7 @@ public class Surface extends Mesh {
      * @param vSegments the amount of V segments
      * @param basisUFunctionDegree the degree of basis U function
      * @param basisVFunctionDegree the degree of basis V function
+     * @param smooth true for a smooth mesh
      * @return an instance of NURBS surface
      */
     public static final Surface createNurbsSurface(List<List<Vector4f>> controlPoints, List<Float>[] nurbKnots, int uSegments, int vSegments, int basisUFunctionDegree, int basisVFunctionDegree, boolean smooth) {

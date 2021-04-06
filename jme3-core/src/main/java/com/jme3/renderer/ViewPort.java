@@ -285,6 +285,8 @@ public class ViewPort {
 
     /**
      * Internal use only.
+     * 
+     * @return the pre-existing instance
      */
     public RenderQueue getQueue() {
         return queue;

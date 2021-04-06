@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -102,7 +102,7 @@ public final class TGALoader implements AssetLoader {
      *            Flip the image vertically
      * @return <code>Image</code> object that contains the
      *         image, either as a RGB888 or RGBA8888
-     * @throws java.io.IOException
+     * @throws java.io.IOException if an I/O error occurs
      */
     public static Image load(InputStream in, boolean flip) throws IOException {
         boolean flipH = false;

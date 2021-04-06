@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,7 +48,6 @@ import com.jme3.scene.shape.Quad;
 public class TestChaseCamera extends SimpleApplication implements AnalogListener, ActionListener {
 
   private Geometry teaGeom;
-  private ChaseCamera chaseCam;
 
   public static void main(String[] args) {
     TestChaseCamera app = new TestChaseCamera();
@@ -76,7 +75,7 @@ public class TestChaseCamera extends SimpleApplication implements AnalogListener
     flyCam.setEnabled(false);
 
     // Enable a chase cam
-    chaseCam = new ChaseCamera(cam, teaGeom, inputManager);
+    ChaseCamera chaseCam = new ChaseCamera(cam, teaGeom, inputManager);
 
     //Uncomment this to invert the camera's vertical rotation Axis 
     //chaseCam.setInvertVerticalAxis(true);

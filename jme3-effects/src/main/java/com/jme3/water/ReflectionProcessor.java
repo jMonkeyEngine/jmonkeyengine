@@ -110,6 +110,7 @@ public class ReflectionProcessor implements SceneProcessor {
 
     @Override
     public void setProfiler(AppProfiler profiler) {
+        // not implemented
     }
 
     /**

@@ -338,6 +338,8 @@ public class Node extends Spatial {
      *
      * @param child
      *            the child to attach to this node.
+     * @param index
+     *            the position where the child should be attached
      * @return the number of children maintained by this node.
      * @throws IllegalArgumentException if child is null or this
      */
@@ -640,6 +642,7 @@ public class Node extends Spatial {
      * <code>node.descendantMatches(aClass, aRegex)</code>.
      * <P>
      *
+     * @param <T> the type of Spatial returned
      * @param spatialSubclass Subclass which matching Spatials must implement.
      *                        Null causes all Spatials to qualify.
      * @param nameRegex  Regular expression to match Spatial name against.
@@ -672,6 +675,10 @@ public class Node extends Spatial {
     /**
      * Convenience wrapper.
      *
+     * @param <T> the type of Spatial returned
+     * @param spatialSubclass the type of Spatial returned, or null for all
+     * spatials
+     * @return a new list of pre-existing spatials (may be empty)
      * @see #descendantMatches(java.lang.Class, java.lang.String)
      */
     public <T extends Spatial> List<T> descendantMatches(
@@ -682,6 +689,9 @@ public class Node extends Spatial {
     /**
      * Convenience wrapper.
      *
+     * @param <T> the type of Spatial returned
+     * @param nameRegex regular expression to match Spatial names against, or null for all spatials
+     * @return a new list of pre-existing spatials (may be empty)
      * @see #descendantMatches(java.lang.Class, java.lang.String)
      */
     public <T extends Spatial> List<T> descendantMatches(String nameRegex) {

@@ -175,7 +175,7 @@ public class SavableClassUtil {
      * @return the Savable instance of the class.
      * @throws InstantiationException thrown if the class does not have an empty constructor.
      * @throws IllegalAccessException thrown if the class is not accessable.
-     * @throws java.lang.reflect.InvocationTargetException
+     * @throws InvocationTargetException if the underlying constructor throws an exception
      * @throws ClassNotFoundException thrown if the class name is not in the classpath.
      */
     public static Savable fromName(String className)

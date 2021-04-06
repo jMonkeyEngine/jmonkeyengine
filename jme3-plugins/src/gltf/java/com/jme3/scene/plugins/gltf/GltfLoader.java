@@ -509,7 +509,7 @@ public class GltfLoader implements AssetLoader {
         return buffs;
     }
 
-    public <R> R readAccessorData(int accessorIndex, Populator<R> populator) throws IOException {
+    private <R> R readAccessorData(int accessorIndex, Populator<R> populator) throws IOException {
 
         assertNotNull(accessors, "No accessor attribute in the gltf file");
 

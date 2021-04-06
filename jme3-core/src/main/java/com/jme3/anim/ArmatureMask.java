@@ -28,6 +28,9 @@ public class ArmatureMask implements AnimationMask {
 
     /**
      * Add joints to be influenced by this animation mask.
+     * 
+     * @param armature the Armature containing the joints
+     * @param jointNames the names of the joints to be influenced
      */
     public void addBones(Armature armature, String... jointNames) {
         for (String jointName : jointNames) {
@@ -46,6 +49,9 @@ public class ArmatureMask implements AnimationMask {
 
     /**
      * Add a joint and all its sub armature joints to be influenced by this animation mask.
+     * 
+     * @param armature the Armature containing the ancestor joint
+     * @param jointName the names of the ancestor joint
      */
     public void addFromJoint(Armature armature, String jointName) {
         Joint joint = findJoint(armature, jointName);

@@ -62,8 +62,6 @@ public class HDRRenderer implements SceneProcessor {
     private RenderManager renderManager;
     private ViewPort viewPort;
     private static final Logger logger = Logger.getLogger(HDRRenderer.class.getName());
-    private AppProfiler prof;
-
     private Camera fbCam = new Camera(1, 1);
 
     private FrameBuffer msFB;
@@ -429,7 +427,7 @@ public class HDRRenderer implements SceneProcessor {
 
     @Override
     public void setProfiler(AppProfiler profiler) {
-        this.prof = profiler;
+        // not implemented
     }
 
 }
