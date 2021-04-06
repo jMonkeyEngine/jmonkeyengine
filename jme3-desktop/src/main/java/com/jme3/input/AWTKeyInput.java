@@ -236,6 +236,6 @@ public class AWTKeyInput extends AWTInput implements KeyInput, KeyListener{
     }
 
     public String getKeyName(int key){
-      return null;
-  }
+      throw new UnsupportedOperationException("getKeyName is not implemented in AWTKeyInput");
+    }
 }
