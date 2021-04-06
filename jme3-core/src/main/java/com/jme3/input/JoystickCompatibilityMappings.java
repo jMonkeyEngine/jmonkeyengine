@@ -98,7 +98,6 @@ public class JoystickCompatibilityMappings {
      * @param joystickName - The name of the joystick type to obtain mappings for.
      * @param create       - If there are no mappings present and this parameter is true, then a new entry for this joystick is created.
      * @return The various axis remappings for the requested joystick, or null of there are none.
-     * @author Markil3
      */
     private static Map<String, AxisData> getAxisMappings(String joystickName, boolean create) {
         Map<String, AxisData> result = axisMappings.get(joystickName.trim());
@@ -115,7 +114,6 @@ public class JoystickCompatibilityMappings {
      * @param joystickName - The name of the joystick type to obtain mappings for.
      * @param create       - If there are no mappings present and this parameter is true, then a new entry for this joystick is created.
      * @return The various button remappings for the requested joystick, or null of there are none.
-     * @author Markil3
      */
     protected static Map<String, String> getButtonMappings(String joystickName, boolean create) {
         Map<String, String> result = buttonMappings.get(joystickName.trim());
@@ -132,7 +130,6 @@ public class JoystickCompatibilityMappings {
      * @param axis         - The axis to remap.
      * @param currentValue - The raw value the system is outputting, on a scale of -1.0 to 1.0.
      * @return The new value that will be provided to listeners, on a scale specified by the remappings file.
-     * @author Markil3
      */
     public static float remapAxisRange(JoystickAxis axis, float currentValue) {
         String joyName = axis.getJoystick().getName();
@@ -177,7 +174,6 @@ public class JoystickCompatibilityMappings {
      * @param joystickName - The joystick type the axis comes from.
      * @param componentId  - The system-provided name for the axis.
      * @return The new name for the axis, or just componentId if no remapping was provided.
-     * @author Markil3
      */
     public static String remapAxis(String joystickName, String componentId) {
         logger.log(Level.FINE, "remapAxis(" + joystickName + ", " + componentId + ")");
@@ -224,7 +220,6 @@ public class JoystickCompatibilityMappings {
      * @param joystickName - The joystick type the axis comes from.
      * @param componentId  - The system-provided name for the button.
      * @return The new name for the button, or just componentId if no remapping was provided.
-     * @author Markil3
      */
     public static String remapButton(String joystickName, String componentId) {
         logger.log(Level.FINE, "remapAxis(" + joystickName + ", " + componentId + ")");
@@ -307,7 +302,6 @@ public class JoystickCompatibilityMappings {
      *
      * @param joystickName which joystick (not null)
      * @return an unmodifiable map
-     * @author Markil3
      */
     public static Map<String, String> getJoystickButtonMappings(String joystickName) {
         Map<String, String> result = getButtonMappings(joystickName.trim(), false);
@@ -338,7 +332,6 @@ public class JoystickCompatibilityMappings {
      * @param stickName which joystick (not null)
      * @param sourceComponentId the name to be remapped
      * @param remapId the remapped name
-     * @author Markil3
      */
     public static void addAxisMapping(String stickName, String sourceComponentId, String remapId) {
         logger.log(Level.FINE, "addAxisMapping(" + stickName + ", " + sourceComponentId + ", " + remapId + ")");
@@ -354,7 +347,6 @@ public class JoystickCompatibilityMappings {
      * @param sourceComponentId the name to be remapped
      * @param remapId the remapped name
      * @param range the desired range (not null, exactly 2 elements)
-     * @author Markil3
      */
     public static void addAxisMapping(String stickName, String sourceComponentId, String remapId, float[] range) {
         logger.log(Level.FINE, "addAxisMapping(" + stickName + ", " + sourceComponentId + ", " + remapId + ")");
@@ -372,7 +364,6 @@ public class JoystickCompatibilityMappings {
      * @param stickName which joystick (not null)
      * @param sourceComponentId the name to be remapped
      * @param remapId the remapped name
-     * @author Markil3
      */
     public static void addButtonMapping(String stickName, String sourceComponentId, String remapId) {
         logger.log(Level.FINE, "addButtonMapping(" + stickName + ", " + sourceComponentId + ", " + remapId + ")");
@@ -402,8 +393,6 @@ public class JoystickCompatibilityMappings {
      * that it is able to parse.
      *
      * @param p (not null)
-     * @author Paul Speed
-     * @author Markil 3
      */
     public static void addMappings(Properties p) {
         final String AXIS_LABEL = "axis";
