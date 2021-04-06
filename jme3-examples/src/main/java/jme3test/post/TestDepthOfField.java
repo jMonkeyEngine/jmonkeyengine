@@ -34,6 +34,7 @@ package jme3test.post;
 import com.jme3.app.SimpleApplication;
 import com.jme3.collision.CollisionResult;
 import com.jme3.collision.CollisionResults;
+import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.AnalogListener;
 import com.jme3.input.controls.KeyTrigger;
@@ -160,13 +161,13 @@ public class TestDepthOfField extends SimpleApplication {
         }, "blurScaleUp", "blurScaleDown", "focusRangeUp", "focusRangeDown", "focusDistanceUp", "focusDistanceDown");
 
 
-        inputManager.addMapping("toggle", new KeyTrigger(keyInput.KEY_SPACE));
-        inputManager.addMapping("blurScaleUp", new KeyTrigger(keyInput.KEY_U));
-        inputManager.addMapping("blurScaleDown", new KeyTrigger(keyInput.KEY_J));
-        inputManager.addMapping("focusRangeUp", new KeyTrigger(keyInput.KEY_I));
-        inputManager.addMapping("focusRangeDown", new KeyTrigger(keyInput.KEY_K));
-        inputManager.addMapping("focusDistanceUp", new KeyTrigger(keyInput.KEY_O));
-        inputManager.addMapping("focusDistanceDown", new KeyTrigger(keyInput.KEY_L));
+        inputManager.addMapping("toggle", new KeyTrigger(KeyInput.KEY_SPACE));
+        inputManager.addMapping("blurScaleUp", new KeyTrigger(KeyInput.KEY_U));
+        inputManager.addMapping("blurScaleDown", new KeyTrigger(KeyInput.KEY_J));
+        inputManager.addMapping("focusRangeUp", new KeyTrigger(KeyInput.KEY_I));
+        inputManager.addMapping("focusRangeDown", new KeyTrigger(KeyInput.KEY_K));
+        inputManager.addMapping("focusDistanceUp", new KeyTrigger(KeyInput.KEY_O));
+        inputManager.addMapping("focusDistanceDown", new KeyTrigger(KeyInput.KEY_L));
 
     }
 
