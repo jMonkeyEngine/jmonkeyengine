@@ -461,9 +461,19 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             return;
         }
 
-        // NOTE: this is required for Mac OS X!
-        mainThread = Thread.currentThread();
-        run();
+        String os = System.getProperty("os.name").toLowerCase();
+        if (os.contains("mac os x") || os.contains("darwin")){
+            // NOTE: this is required for Mac OS X!
+            mainThread = Thread.currentThread();
+            run();
+
+        } else {
+            new Thread(this, THREAD_NAME).start();
+
+            if (waitFor) {
+                waitFor(true);
+            }    
+        }
     }
 
     /**

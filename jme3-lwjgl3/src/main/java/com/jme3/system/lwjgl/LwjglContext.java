@@ -89,6 +89,8 @@ import java.util.logging.Logger;
 public abstract class LwjglContext implements JmeContext {
 
     private static final Logger logger = Logger.getLogger(LwjglContext.class.getName());
+    
+    protected static final String THREAD_NAME = "jME3 Main";
 
     static {
 
