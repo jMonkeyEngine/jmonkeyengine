@@ -86,7 +86,8 @@ public class AudioBuffer extends AudioData {
 
     /**
      * Update the data in the buffer with new data.
-     * @param data
+     *
+     * @param data the audio data provided (not null, direct, alias created)
      * @throws IllegalArgumentException if the provided buffer is not a direct buffer
      */
     public void updateData(ByteBuffer data){

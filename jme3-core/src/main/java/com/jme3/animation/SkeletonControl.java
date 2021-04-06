@@ -167,7 +167,8 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
      * supported by GPU, it shall be enabled, if it's not preferred, or not
      * supported by GPU, then it shall be disabled.
      * 
-     * @param preferred
+     * @param preferred true to prefer hardware skinning, false to prefer 
+     * software skinning (default=true)
      * @see #isHardwareSkinningUsed() 
      */
     public void setHardwareSkinningPreferred(boolean preferred) {

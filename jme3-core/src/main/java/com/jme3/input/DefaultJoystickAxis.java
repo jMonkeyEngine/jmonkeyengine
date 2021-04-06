@@ -51,6 +51,15 @@ public class DefaultJoystickAxis implements JoystickAxis {
 
     /**
      *  Creates a new joystick axis instance. Only used internally.
+     *
+     * @param inputManager (alias created)
+     * @param parent (alias created)
+     * @param axisIndex index for the new axis
+     * @param name name for the new axis
+     * @param logicalId logical identifier for the new axis
+     * @param isAnalog true&rarr;continuous range, false&rarr;discrete values
+     * @param isRelative true&rarr;presents relative values
+     * @param deadZone the radius of the dead zone
      */
     public DefaultJoystickAxis(InputManager inputManager, Joystick parent,
                                int axisIndex, String name, String logicalId,
@@ -146,6 +155,8 @@ public class DefaultJoystickAxis implements JoystickAxis {
     /**
      *  Sets/overrides the dead zone for this axis.  This indicates that values
      *  within +/- deadZone should be ignored.
+     *
+     * @param f the desired radius
      */
     public void setDeadZone( float f ) {
         this.deadZone = f;

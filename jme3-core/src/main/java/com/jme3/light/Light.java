@@ -277,6 +277,8 @@ public abstract class Light implements Savable, Cloneable {
 
     /**
      * Used internally to compute the last distance value.
+     *
+     * @param owner the Spatial whose distance is to be determined
      */
     protected abstract void computeLastDistance(Spatial owner);
     

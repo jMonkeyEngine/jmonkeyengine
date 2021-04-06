@@ -270,10 +270,11 @@ public class KTXLoader implements AssetLoader {
     /**
      * Parse the file metaData to select the PixelReader that suits the file 
      * coordinates orientation
-     * @param bytesOfKeyValueData
-     * @param in
-     * @return
-     * @throws IOException 
+     *
+     * @param bytesOfKeyValueData number of bytes to read
+     * @param in the input stream (not null)
+     * @return a new instance or null
+     * @throws IOException from the input stream
      */
     private PixelReader parseMetaData(int bytesOfKeyValueData, DataInput in) throws IOException {
         PixelReader pixelReader = null;

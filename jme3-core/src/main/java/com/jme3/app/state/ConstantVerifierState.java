@@ -102,6 +102,8 @@ public class ConstantVerifierState extends BaseAppState {
     /**
      *  Creates a verifier app state that will check all of the default
      *  constant checks using the specified error reporting mechanism.
+     * 
+     * @param errorType the mechanism to use
      */
     public ConstantVerifierState( ErrorType errorType ) {
         this(errorType, DEFAULT_CHECKS);
@@ -110,6 +112,9 @@ public class ConstantVerifierState extends BaseAppState {
     /**
      *  Creates a verifier app state that will check all of the specified
      *  checks and report errors using the specified error type.
+     * 
+     * @param errorType the mechanism to use
+     * @param checkers which checks to perform
      */
     private ConstantVerifierState( ErrorType errorType, Checker... checkers ) {
         this.errorType = errorType;

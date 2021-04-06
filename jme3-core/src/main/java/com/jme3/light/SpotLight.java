@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012, 2015-2016, 2018 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -378,7 +378,8 @@ public class SpotLight extends Light {
      * Must be between 0 and pi/2.
      * <p>
      * This angle is the angle between the spot direction axis and the inner border of the cone of influence.
-     * @param spotInnerAngle 
+     *
+     * @param spotInnerAngle the desired angle (in radians, &ge;0, &le;Pi/2)
      */
     public void setSpotInnerAngle(float spotInnerAngle) {
         if (spotInnerAngle < 0f || spotInnerAngle >= FastMath.HALF_PI) {
@@ -403,7 +404,8 @@ public class SpotLight extends Light {
      * <p>
      * This angle is the angle between the spot direction axis and the outer border of the cone of influence.
      * this should be greater than the inner angle or the result will be unexpected.
-     * @param spotOuterAngle 
+     *
+     * @param spotOuterAngle the desired angle (in radians, &ge;0, &le;Pi/2)
      */
     public void setSpotOuterAngle(float spotOuterAngle) {
         if (spotOuterAngle < 0f || spotOuterAngle >= FastMath.HALF_PI) {

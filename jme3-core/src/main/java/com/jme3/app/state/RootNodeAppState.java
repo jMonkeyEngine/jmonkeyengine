@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2014 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -88,6 +88,8 @@ public class RootNodeAppState extends AbstractAppState {
     /**
      * Creates the AppState with the given unique ID, ViewPort, and root Node, attaches
      * the root Node to the ViewPort and updates it.
+     *
+     * @param id the desired AppState ID
      * @param viewPort An existing ViewPort
      * @param rootNode An existing root Node
      */

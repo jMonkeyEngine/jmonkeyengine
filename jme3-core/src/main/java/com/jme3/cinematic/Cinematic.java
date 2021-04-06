@@ -214,8 +214,8 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
     /**
      * used internally for serialization
      *
-     * @param ex
-     * @throws IOException
+     * @param ex the exporter (not null)
+     * @throws IOException from the exporter
      */
     @Override
     public void write(JmeExporter ex) throws IOException {
@@ -230,8 +230,8 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
     /**
      * used internally for serialization
      *
-     * @param im
-     * @throws IOException
+     * @param im the importer (not null)
+     * @throws IOException from the importer
      */
     @Override
     @SuppressWarnings("unchecked")
@@ -299,6 +299,8 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
      *  Sets the unique ID of this app state.  Note: that setting
      *  this while an app state is attached to the state manager will
      *  have no effect on ID-based lookups.
+     *
+     * @param id the desired ID
      */
     protected void setId( String id ) {
         this.id = id;
@@ -355,7 +357,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
     /**
      * called internally don't call it directly.
      *
-     * @param tpf
+     * @param tpf time per frame (in seconds)
      */
     @Override
     public void update(float tpf) {
@@ -367,7 +369,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
     /**
      * used internally, don't call this directly.
      *
-     * @param tpf
+     * @param tpf time per frame (in seconds)
      */
     @Override
     public void onUpdate(float tpf) {

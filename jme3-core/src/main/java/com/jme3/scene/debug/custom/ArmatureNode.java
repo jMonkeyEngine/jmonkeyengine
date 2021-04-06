@@ -76,6 +76,10 @@ public class ArmatureNode extends Node {
      * wires will show each full bone (from head to tail).
      *
      * @param armature the armature that will be shown
+     * @param joints the Node to visualize joints
+     * @param wires the Node to visualize wires
+     * @param outlines the Node to visualize outlines
+     * @param deformingJoints a list of joints
      */
     public ArmatureNode(Armature armature, Node joints, Node wires, Node outlines, List<Joint> deformingJoints) {
         this.armature = armature;

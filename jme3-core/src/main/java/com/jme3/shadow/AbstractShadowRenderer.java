@@ -201,7 +201,7 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
     /**
      * set the post shadow material for this renderer
      *
-     * @param postShadowMat
+     * @param postShadowMat the desired Material (alias created)
      */
     protected final void setPostShadowMaterial(Material postShadowMat) {
         this.postshadowMat = postShadowMat;
@@ -293,6 +293,10 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
 
     /**
      * debug function to create a visible frustum
+     * 
+     * @param pts optional storage for vertex positions (may be null)
+     * @param i the index of the desired wire color (default=White)
+     * @return a new Geometry
      */
     protected Geometry createFrustum(Vector3f[] pts, int i) {
         WireFrustum frustum = new WireFrustum(pts);
@@ -386,7 +390,7 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
      * responsible for displaying the frustum of the shadow cam for debug
      * purpose
      *
-     * @param shadowMapIndex
+     * @param shadowMapIndex the index of the shadow map
      */
     protected void doDisplayFrustumDebug(int shadowMapIndex) {
     }
@@ -450,6 +454,8 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
 
     /**
      * For debugging purposes, display depth shadow maps.
+     *
+     * @param r ignored
      */
     protected void displayShadowMap(Renderer r) {
         Camera cam = viewPort.getCamera();
@@ -684,6 +690,7 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
     }
     
     /**
+     * @param viewCam a Camera to define the view frustum
      * @return true if the light source bounding box is in the view frustum
      */
     protected abstract boolean checkCulling(Camera viewCam);
@@ -754,7 +761,7 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
      * Sets the shadow edges thickness. default is 10, setting it to lower values
      * can help to reduce the jagged effect of the shadow edges
      *
-     * @param edgesThickness
+     * @param edgesThickness the desired thickness (in tenths of a pixel, default=10)
      */
     public void setEdgesThickness(int edgesThickness) {
         this.edgesThickness = Math.max(1, Math.min(edgesThickness, 10));
@@ -764,12 +771,16 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
 
     /**
      *  isFlushQueues does nothing now and is kept only for backward compatibility
+     *
+     * @return false
      */
     @Deprecated
     public boolean isFlushQueues() { return false; }
 
     /**
      * setFlushQueues does nothing now and is kept only for backward compatibility
+     *
+     * @param flushQueues ignored
      */
     @Deprecated
     public void setFlushQueues(boolean flushQueues) {}
@@ -840,6 +851,7 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
      * De-serialize this instance, for example when loading from a J3O file.
      *
      * @param im importer (not null)
+     * @throws IOException from the importer
      */
     @Override
     public void read(JmeImporter im) throws IOException {
@@ -860,6 +872,7 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
      * Serialize this instance, for example when saving to a J3O file.
      *
      * @param ex exporter (not null)
+     * @throws IOException from the exporter
      */
     @Override
     public void write(JmeExporter ex) throws IOException {

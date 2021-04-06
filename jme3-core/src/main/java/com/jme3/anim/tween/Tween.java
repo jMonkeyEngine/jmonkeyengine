@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020 jMonkeyEngine
+ * Copyright (c) 2015-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,6 +46,8 @@ public interface Tween extends Cloneable {
      * will run.  Note: all of the caveats are because tweens may be
      * externally scaled in such a way that 't' no longer represents
      * actual time.
+     *
+     * @return the duration (in de-scaled seconds)
      */
     public double getLength();
 
@@ -56,6 +58,9 @@ public interface Tween extends Cloneable {
      * then it is internally clamped and the method returns false.
      * If 't' is still in the tween's range then this method returns
      * true.
+     *
+     * @param t animation time (in de-scaled seconds)
+     * @return true if t&gt;length(), otherwise false
      */
     public boolean interpolate(double t);
 

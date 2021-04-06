@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -136,7 +136,8 @@ public class DirectionalLightShadowFilter extends AbstractShadowFilter<Direction
      * Enables the stabilization of the shadow's edges. (default is true)
      * This prevents shadow edges from flickering when the camera moves.
      * However it can lead to some shadow quality loss in some particular scenes.
-     * @param stabilize 
+     *
+     * @param stabilize true to stabilize, false to disable stabilization
      */
     public void setEnabledStabilization(boolean stabilize) {
         shadowRenderer.setEnabledStabilization(stabilize);        

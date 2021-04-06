@@ -49,7 +49,7 @@ public interface MikkTSpaceContext {
      * Returns the number of vertices on face number iFace iFace is a number in
      * the range {0, 1, ..., getNumFaces()-1}
      *
-     * @param face
+     * @param face which face (&ge;0, &lt;numFaces)
      * @return the count (&ge;0)
      */
     public int getNumVerticesOfFace(int face);
@@ -59,9 +59,9 @@ public interface MikkTSpaceContext {
      * number iVert. iVert is in the range {0,1,2} for triangles and {0,1,2,3}
      * for quads.
      *
-     * @param posOut
-     * @param face
-     * @param vert
+     * @param posOut storage for the results (modified)
+     * @param face which face (&ge;0, &lt;numFaces)
+     * @param vert which vertex in the face (&ge;0, &lt;numVertices)
      */
     public void getPosition(float posOut[], int face, int vert);
 
@@ -83,10 +83,10 @@ public interface MikkTSpaceContext {
      * already existing index list WILL produce INCORRECT results. DO NOT! use
      * an already existing index list.
      *
-     * @param tangent
-     * @param sign
-     * @param face
-     * @param vert
+     * @param tangent the desired tangent vector (unaffected)
+     * @param sign the desired sign
+     * @param face which face (&ge;0, &lt;numFaces)
+     * @param vert which vertex in the face (&ge;0, &lt;numVertices)
      */
     public void setTSpaceBasic(float tangent[], float sign, int face, int vert);
 
@@ -110,13 +110,14 @@ public interface MikkTSpaceContext {
      * already existing index list WILL produce INCORRECT results. DO NOT! use
      * an already existing index list.
      *
-     * @param tangent
-     * @param biTangent
-     * @param magS
-     * @param magT
-     * @param isOrientationPreserving
-     * @param face
-     * @param vert
+     * @param tangent the desired tangent vector (unaffected)
+     * @param biTangent the desired bitangent vector (unaffected)
+     * @param magS true magnitude of S
+     * @param magT true magnitude of T
+     * @param isOrientationPreserving true&rarr;preserves, false&rarr;doesn't
+     * preserve
+     * @param face which face (&ge;0, &lt;numFaces)
+     * @param vert which vertex in the face (&ge;0, &lt;numVertices)
      */
     void setTSpace(float tangent[], float biTangent[], float magS, float magT,
             boolean isOrientationPreserving, int face, int vert);

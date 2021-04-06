@@ -71,6 +71,7 @@ public class JoyAxisEvent extends InputEvent {
     /**
      * Returns the JoystickAxis that triggered this event.
      *
+     * @return the pre-existing instance
      * @see com.jme3.input.JoystickAxis#assignAxis(java.lang.String, java.lang.String)
      */
     public JoystickAxis getAxis() {

@@ -126,7 +126,8 @@ public class BitmapFont implements Savable {
     
     /**
      * Gets the line height of a StringBlock.
-     * @param sb
+     *
+     * @param sb the block to measure (not null, unaffected)
      * @return the line height
      */
     float getLineHeight(StringBlock sb) {

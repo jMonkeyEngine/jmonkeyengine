@@ -265,7 +265,8 @@ public class DirectionalLightShadowRenderer extends AbstractShadowRenderer {
      * Enables the stabilization of the shadow's edges. (default is true)
      * This prevents shadow edges from flickering when the camera moves.
      * However it can lead to some shadow quality loss in some particular scenes.
-     * @param stabilize 
+     *
+     * @param stabilize true to stabilize, false to disable stabilization
      */
     public void setEnabledStabilization(boolean stabilize) {
         this.stabilize = stabilize;
@@ -303,7 +304,8 @@ public class DirectionalLightShadowRenderer extends AbstractShadowRenderer {
 
     /**
      * Directional light are always in the view frustum
-     * @param viewCam
+     *
+     * @param viewCam a Camera to define the view frustum
      * @return true
      */
     @Override

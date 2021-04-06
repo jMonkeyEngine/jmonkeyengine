@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2014 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -104,22 +104,22 @@ public interface GLExt {
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glBufferData">Reference Page</a></p>
-     * <p>
+     *
      * Creates and initializes a buffer object's data store.
-     * <p>
+     *
      * <p>{@code usage} is a hint to the GL implementation as to how a buffer object's data store will be accessed. This enables the GL implementation to make
      * more intelligent decisions that may significantly impact buffer object performance. It does not, however, constrain the actual usage of the data store.
      * {@code usage} can be broken down into two parts: first, the frequency of access (modification and usage), and second, the nature of that access. The
      * frequency of access may be one of these:</p>
-     * <p>
+     *
      * <ul>
      * <li><em>STREAM</em> - The data store contents will be modified once and used at most a few times.</li>
      * <li><em>STATIC</em> - The data store contents will be modified once and used many times.</li>
      * <li><em>DYNAMIC</em> - The data store contents will be modified repeatedly and used many times.</li>
      * </ul>
-     * <p>
+     *
      * <p>The nature of access may be one of these:</p>
-     * <p>
+     *
      * <ul>
      * <li><em>DRAW</em> - The data store contents are modified by the application, and used as the source for GL drawing and image specification commands.</li>
      * <li><em>READ</em> - The data store contents are modified by reading data from the GL, and used to return that data when queried by the application.</li>
@@ -196,6 +196,7 @@ public interface GLExt {
      *
      * @param condition the condition that must be met to set the sync object's state to signaled.
      * @param flags     a bitwise combination of flags controlling the behavior of the sync object. No flags are presently defined for this operation and {@code flags} must be zero.
+     * @return          a new instance
      */
     public Object glFenceSync(int condition, int flags);
 
