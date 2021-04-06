@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -79,6 +79,10 @@ public abstract class ParticleMesh extends Mesh {
     
     /**
      * Update the particle visual data. Typically called every frame.
+     *
+     * @param particles the particles to update
+     * @param cam the camera to use for billboarding
+     * @param inverseRotation the inverse rotation matrix
      */
     public abstract void updateParticleData(Particle[] particles, Camera cam, Matrix3f inverseRotation);
 

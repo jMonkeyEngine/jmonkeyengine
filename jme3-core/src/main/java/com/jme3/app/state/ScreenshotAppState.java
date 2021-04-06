@@ -161,6 +161,8 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
 
     /**
      * Sets the base index that will used for subsequent screen shots. 
+     *
+     * @param index the desired base index
      */
     public void setShotIndex(long index) {
         this.shotIndex = index;
@@ -315,6 +317,9 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
 
     /**
      *  Called by postFrame() once the screen has been captured to outBuf.
+     * 
+     * @param file the output file
+     * @throws IOException if an I/O error occurs
      */
     protected void writeImageFile( File file ) throws IOException {
         OutputStream outStream = new FileOutputStream(file);

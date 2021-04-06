@@ -566,9 +566,9 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      * internally, and returns a handle to this vector for easy chaining of
      * calls.
      *
-     * @param x
-     * @param y
-     * @param z
+     * @param x the scale factor for the X component
+     * @param y the scale factor for the Y component
+     * @param z the scale factor for the Z component
      * @return this
      */
     public Vector3f multLocal(float x, float y, float z) {
@@ -829,7 +829,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      * component in this and <code>other</code> vector. The result is stored
      * in this vector.
      *
-     * @param other
+     * @param other the vector to compare with (not null, unaffected)
      * @return this
      */
     public Vector3f maxLocal(Vector3f other) {
@@ -844,7 +844,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      * component in this and <code>other</code> vector. The result is stored
      * in this vector.
      *
-     * @param other
+     * @param other the vector to compare with (not null, unaffected)
      * @return this
      */
     public Vector3f minLocal(Vector3f other) {

@@ -123,7 +123,7 @@ public class FlyByCamera implements AnalogListener, ActionListener {
     /**
      * Sets the up vector that should be used for the camera.
      *
-     * @param upVec
+     * @param upVec the desired direction (not null, unaffected)
      */
     public void setUpVector(Vector3f upVec) {
         initialUpVec.set(upVec);
@@ -249,7 +249,7 @@ public class FlyByCamera implements AnalogListener, ActionListener {
      * Register this controller to receive input events from the specified input
      * manager.
      *
-     * @param inputManager
+     * @param inputManager (not null, alias created)
      */
     public void registerWithInput(InputManager inputManager){
         this.inputManager = inputManager;
@@ -382,28 +382,10 @@ public class FlyByCamera implements AnalogListener, ActionListener {
      * @param value zoom amount
      */
     protected void zoomCamera(float value){
-        // derive fovY value
-        float h = cam.getFrustumTop();
-        float w = cam.getFrustumRight();
-        float aspect = w / h;
-
-        float near = cam.getFrustumNear();
-
-        float fovY = FastMath.atan(h / near)
-                / (FastMath.DEG_TO_RAD * .5f);
-        float newFovY = fovY + value * 0.1f * zoomSpeed;
-        if (newFovY > 0f) {
-            // Don't let the FOV go zero or negative.
-            fovY = newFovY;
+        float newFov = cam.getFov() + value * 0.1F * zoomSpeed;
+        if (newFov > 0) {
+            cam.setFov(newFov);
         }
-
-        h = FastMath.tan( fovY * FastMath.DEG_TO_RAD * .5f) * near;
-        w = h * aspect;
-
-        cam.setFrustumTop(h);
-        cam.setFrustumBottom(-h);
-        cam.setFrustumLeft(-w);
-        cam.setFrustumRight(w);
     }
 
     /**

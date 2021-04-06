@@ -34,7 +34,6 @@ package com.jme3.scene.plugins.gltf;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.jme3.asset.AssetKey;
 import com.jme3.asset.AssetLoadException;
 import com.jme3.light.DirectionalLight;
 import com.jme3.light.Light;
@@ -45,13 +44,8 @@ import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
 import com.jme3.scene.control.LightControl;
-
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
-
-import static com.jme3.scene.plugins.gltf.GltfUtils.getAsColor;
-import static com.jme3.scene.plugins.gltf.GltfUtils.getAsFloat;
 
 /**
  * Extension loader for KHR_lights_punctual extension which allows

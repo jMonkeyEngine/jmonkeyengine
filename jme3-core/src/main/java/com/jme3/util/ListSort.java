@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -129,7 +129,7 @@ public class ListSort<T> {
      * at least once, but only if the length of the list to sort changed before
      * sorting
      *
-     * @param len
+     * @param len the size of the array to sort
      */
     @SuppressWarnings("unchecked")
     public final void allocateStack(int len) {
@@ -995,6 +995,8 @@ public class ListSort<T> {
     
     /**
      * test case
+     *
+     * @param argv ignored
      */
     @SuppressWarnings("unchecked")
     public static void main(String[] argv) {

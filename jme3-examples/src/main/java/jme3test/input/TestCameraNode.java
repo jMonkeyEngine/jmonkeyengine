@@ -89,7 +89,7 @@ public class TestCameraNode extends SimpleApplication implements AnalogListener,
     camNode.setControlDir(ControlDirection.SpatialToCamera);
     //attaching the camNode to the teaNode
     teaNode.attachChild(camNode);
-    //setting the local translation of the cam node to move it away from the teanNode a bit
+    //setting the local translation of the cam node to move it away from the tea Node a bit
     camNode.setLocalTranslation(new Vector3f(-10, 0, 0));
     //setting the camNode to look at the teaNode
     camNode.lookAt(teaNode.getLocalTranslation(), Vector3f.UNIT_Y);

@@ -251,7 +251,7 @@ public final class AnimControl extends AbstractControl implements Cloneable, Jme
     /**
      * Removes the given listener from listening to events.
      *
-     * @param listener
+     * @param listener the listener to remove
      * @see AnimControl#addListener(com.jme3.animation.AnimEventListener)
      */
     public void removeListener(AnimEventListener listener) {

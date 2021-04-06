@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -82,6 +82,7 @@ public class CameraControl extends AbstractControl {
 
     /**
      * @param camera The Camera to be synced.
+     * @param controlDir SpatialToCamera or CameraToSpatial
      */
     public CameraControl(Camera camera, ControlDirection controlDir) {
         this.camera = camera;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -86,6 +86,10 @@ public abstract class Buffer extends AbstractOpenCLObject {
     /**
      * Alternative version of {@link #read(com.jme3.opencl.CommandQueue, java.nio.ByteBuffer, long, long) },
      * sets {@code offset} to zero.
+     *
+     * @param queue the command queue
+     * @param dest the target buffer
+     * @param size the number of bytes to read
      */
     public void read(CommandQueue queue, ByteBuffer dest, long size) {
         read(queue, dest, size, 0);
@@ -94,6 +98,9 @@ public abstract class Buffer extends AbstractOpenCLObject {
     /**
      * Alternative version of {@link #read(com.jme3.opencl.CommandQueue, java.nio.ByteBuffer, long) },
      * sets {@code size} to {@link #getSize() }.
+     *
+     * @param queue the command queue
+     * @param dest the target buffer
      */
     public void read(CommandQueue queue, ByteBuffer dest) {
         read(queue, dest, getSize());
@@ -115,6 +122,11 @@ public abstract class Buffer extends AbstractOpenCLObject {
     /**
      * Alternative version of {@link #readAsync(com.jme3.opencl.CommandQueue, java.nio.ByteBuffer, long, long) },
      * sets {@code offset} to zero.
+     *
+     * @param queue the command queue
+     * @param dest the target buffer
+     * @param size the number of bytes to read
+     * @return an Event to indicate completion
      */
     public Event readAsync(CommandQueue queue, ByteBuffer dest, long size) {
         return readAsync(queue, dest, size, 0);
@@ -123,6 +135,10 @@ public abstract class Buffer extends AbstractOpenCLObject {
     /**
      * Alternative version of {@link #readAsync(com.jme3.opencl.CommandQueue, java.nio.ByteBuffer, long) },
      * sets {@code size} to {@link #getSize() }
+     *
+     * @param queue the command queue
+     * @param dest the target buffer
+     * @return an Event to indicate completion
      */
     public Event readAsync(CommandQueue queue, ByteBuffer dest) {
         return readAsync(queue, dest, getSize());
@@ -143,6 +159,10 @@ public abstract class Buffer extends AbstractOpenCLObject {
     /**
      * Alternative version of {@link #write(com.jme3.opencl.CommandQueue, java.nio.ByteBuffer, long, long) },
      * sets {@code offset} to zero.
+     *
+     * @param queue the command queue
+     * @param src the source buffer, its data is written to this buffer
+     * @param size the number of bytes to write
      */
     public void write(CommandQueue queue, ByteBuffer src, long size) {
         write(queue, src, size, 0);
@@ -151,6 +171,9 @@ public abstract class Buffer extends AbstractOpenCLObject {
     /**
      * Alternative version of {@link #write(com.jme3.opencl.CommandQueue, java.nio.ByteBuffer, long) },
      * sets {@code size} to {@link #getSize() }.
+     *
+     * @param queue the command queue
+     * @param src the source buffer, its data is written to this buffer
      */
     public void write(CommandQueue queue, ByteBuffer src) {
         write(queue, src, getSize());
@@ -165,13 +188,18 @@ public abstract class Buffer extends AbstractOpenCLObject {
      * @param src the source buffer, its data is written to this buffer
      * @param size the size in bytes to write
      * @param offset the offset into the target buffer
-     * @return the event object indicating when the write operation is completed
+     * @return an Event to indicate completion
      */
     public abstract Event writeAsync(CommandQueue queue, ByteBuffer src, long size, long offset);
 
     /**
      * Alternative version of {@link #writeAsync(com.jme3.opencl.CommandQueue, java.nio.ByteBuffer, long, long) },
      * sets {@code offset} to zero.
+     *
+     * @param queue the command queue
+     * @param src the source buffer, its data is written to this buffer
+     * @param size the number of bytes to write
+     * @return an Event to indicate completion
      */
     public Event writeAsync(CommandQueue queue, ByteBuffer src, long size) {
         return writeAsync(queue, src, size, 0);
@@ -180,6 +208,10 @@ public abstract class Buffer extends AbstractOpenCLObject {
     /**
      * Alternative version of {@link #writeAsync(com.jme3.opencl.CommandQueue, java.nio.ByteBuffer, long) },
      * sets {@code size} to {@link #getSize() }.
+     *
+     * @param queue the command queue
+     * @param src the source buffer, its data is written to this buffer
+     * @return an Event to indicate completion
      */
     public Event writeAsync(CommandQueue queue, ByteBuffer src) {
         return writeAsync(queue, src, getSize());
@@ -199,6 +231,10 @@ public abstract class Buffer extends AbstractOpenCLObject {
     /**
      * Alternative version of {@link #copyTo(com.jme3.opencl.CommandQueue, com.jme3.opencl.Buffer, long, long, long) },
      * sets {@code srcOffset} and {@code destOffset} to zero.
+     *
+     * @param queue the command queue
+     * @param dest the target buffer
+     * @param size the number of bytes to copy
      */
     public void copyTo(CommandQueue queue, Buffer dest, long size) {
         copyTo(queue, dest, size, 0, 0);
@@ -207,6 +243,9 @@ public abstract class Buffer extends AbstractOpenCLObject {
     /**
      * Alternative version of {@link #copyTo(com.jme3.opencl.CommandQueue, com.jme3.opencl.Buffer, long) },
      * sets {@code size} to {@code this.getSize()}.
+     *
+     * @param queue the command queue
+     * @param dest the target buffer
      */
     public void copyTo(CommandQueue queue, Buffer dest) {
         copyTo(queue, dest, getSize());
@@ -227,6 +266,11 @@ public abstract class Buffer extends AbstractOpenCLObject {
     /**
      * Alternative version of {@link #copyToAsync(com.jme3.opencl.CommandQueue, com.jme3.opencl.Buffer, long, long, long) },
      * sets {@code srcOffset} and {@code destOffset} to zero.
+     *
+     * @param queue the command queue
+     * @param dest the target buffer
+     * @param size the number of bytes to copy
+     * @return an Event to indicate completion
      */
     public Event copyToAsync(CommandQueue queue, Buffer dest, long size) {
         return copyToAsync(queue, dest, size, 0, 0);
@@ -235,6 +279,10 @@ public abstract class Buffer extends AbstractOpenCLObject {
     /**
      * Alternative version of {@link #copyToAsync(com.jme3.opencl.CommandQueue, com.jme3.opencl.Buffer, long) },
      * sets {@code size} to {@code this.getSize()}.
+     *
+     * @param queue the command queue
+     * @param dest the target buffer
+     * @return an Event to indicate completion
      */
     public Event copyToAsync(CommandQueue queue, Buffer dest) {
         return copyToAsync(queue, dest, getSize());
@@ -260,6 +308,11 @@ public abstract class Buffer extends AbstractOpenCLObject {
      * sets {@code offset} to zero.
      * <b>Important:</b> The mapped memory MUST be released by calling
      * {@link #unmap(com.jme3.opencl.CommandQueue, java.nio.ByteBuffer) }.
+     *
+     * @param queue the command queue
+     * @param size the number of bytes to map
+     * @param access specifies the possible access to the memory: READ_ONLY, WRITE_ONLY, READ_WRITE
+     * @return the byte buffer directly reflecting the buffer contents
      */
     public ByteBuffer map(CommandQueue queue, long size, MappingAccess access) {
         return map(queue, size, 0, access);
@@ -270,6 +323,10 @@ public abstract class Buffer extends AbstractOpenCLObject {
      * sets {@code size} to {@link #getSize() }.
      * <b>Important:</b> The mapped memory MUST be released by calling
      * {@link #unmap(com.jme3.opencl.CommandQueue, java.nio.ByteBuffer) }.
+     *
+     * @param queue the command queue
+     * @param access specifies the possible access to the memory: READ_ONLY, WRITE_ONLY, READ_WRITE
+     * @return the byte buffer directly reflecting the buffer contents
      */
     public ByteBuffer map(CommandQueue queue, MappingAccess access) {
         return map(queue, getSize(), access);
@@ -306,6 +363,12 @@ public abstract class Buffer extends AbstractOpenCLObject {
      * sets {@code offset} to zero.
      * <b>Important:</b> The mapped memory MUST be released by calling
      * {@link #unmap(com.jme3.opencl.CommandQueue, java.nio.ByteBuffer) }.
+     *
+     * @param queue the command queue
+     * @param size the size in bytes to map
+     * @param access specifies the possible access to the memory: READ_ONLY, WRITE_ONLY, READ_WRITE
+     * @return the byte buffer directly reflecting the buffer contents
+     * and the event indicating when the buffer contents are available
      */
     public AsyncMapping mapAsync(CommandQueue queue, long size, MappingAccess access) {
         return mapAsync(queue, size, 0, access);
@@ -316,6 +379,11 @@ public abstract class Buffer extends AbstractOpenCLObject {
      * sets {@code size} to {@link #getSize() }.
      * <b>Important:</b> The mapped memory MUST be released by calling
      * {@link #unmap(com.jme3.opencl.CommandQueue, java.nio.ByteBuffer) }.
+     *
+     * @param queue the command queue
+     * @param access specifies the possible access to the memory: READ_ONLY, WRITE_ONLY, READ_WRITE
+     * @return the byte buffer directly reflecting the buffer contents
+     * and the event indicating when the buffer contents are available
      */
     public AsyncMapping mapAsync(CommandQueue queue, MappingAccess access) {
         return mapAsync(queue, getSize(), 0, access);

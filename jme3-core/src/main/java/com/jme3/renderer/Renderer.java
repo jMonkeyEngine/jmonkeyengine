@@ -81,6 +81,8 @@ public interface Renderer {
      * These are updated when the Renderer's methods are used, make sure
      * to call {@link Statistics#clearFrame() } at the appropriate time
      * to get accurate info per frame.
+     * 
+     * @return a new instance
      */
     public Statistics getStatistics();
 
@@ -110,6 +112,8 @@ public interface Renderer {
     /**
      * Applies the given {@link RenderState}, making the necessary
      * GL calls so that the state is applied.
+     * 
+     * @param state the RenderState to apply
      */
     public void applyRenderState(RenderState state);
 
@@ -188,11 +192,18 @@ public interface Renderer {
      * Copies contents from src to dst, scaling if necessary.
      * set copyDepth to false to only copy the color buffers.
      * @deprecated  Use {@link Renderer#copyFrameBuffer(com.jme3.texture.FrameBuffer, com.jme3.texture.FrameBuffer, boolean, boolean)}.
+     * @param src the source FrameBuffer (unaffected)
+     * @param dst the destination FrameBuffer (modified)
+     * @param copyDepth true&rarr;copy depth info, false&rarr;don't copy it
      */
     @Deprecated public void copyFrameBuffer(FrameBuffer src, FrameBuffer dst, boolean copyDepth);
 
     /**
      * Copies contents from src to dst, scaling if necessary.
+     * @param src the source FrameBuffer (unaffected)
+     * @param dst the destination FrameBuffer (modified)
+     * @param copyColor true&rarr;copy color info, false&rarr;don't copy it
+     * @param copyDepth true&rarr;copy depth info, false&rarr;don't copy it
      */
     public void copyFrameBuffer(FrameBuffer src, FrameBuffer dst, boolean copyColor, boolean copyDepth);
 
@@ -241,11 +252,16 @@ public interface Renderer {
 
     /**
      * Deletes a framebuffer and all attached renderbuffers
+     *
+     * @param fb the FrameBuffer to be deleted
      */
     public void deleteFrameBuffer(FrameBuffer fb);
 
     /**
      * Sets the texture to use for the given texture unit.
+     *
+     * @param unit which unit
+     * @param tex the Texture to use
      */
     public void setTexture(int unit, Texture tex);
 
@@ -264,6 +280,8 @@ public interface Renderer {
 
     /**
      * Deletes a texture from the GPU.
+     *
+     * @param image the texture to delete
      */
     public void deleteImage(Image image);
 
@@ -358,6 +376,8 @@ public interface Renderer {
      * Alpha-to-coverage is useful for rendering transparent objects
      * without having to worry about sorting them.
      * </p>
+     *
+     * @param value true to enable alpha coverage, otherwise false
      */
     public void setAlphaToCoverage(boolean value);
     
@@ -375,6 +395,7 @@ public interface Renderer {
      * {@link Renderer#setMainFrameBufferSrgb(boolean)} if the
      * {@link Caps#Srgb} is supported by the GPU.
      *
+     * @param srgb true for sRGB colorspace, false for linear colorspace
      * @throws RendererException If the GPU hardware does not support sRGB.
      *
      * @see FrameBuffer#setSrgb(boolean)
@@ -452,12 +473,14 @@ public interface Renderer {
     /**
      * Gets the alpha to coverage state.
      *
+     * @return true if alpha coverage is enabled, otherwise false
      */
     public boolean getAlphaToCoverage();
 
     /**
      * Get the default anisotropic filter level for textures.
      *
+     * @return the default filter level
      */
     public int getDefaultAnisotropicFilter();
 

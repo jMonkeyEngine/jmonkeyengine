@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -113,7 +113,7 @@ public class Armature implements JmeCloneable, Savable {
      * Sets the JointModelTransform implementation
      * Default is {@link MatrixJointModelTransform}
      *
-     * @param modelTransformClass
+     * @param modelTransformClass which implementation to use
      * @see JointModelTransform
      * @see MatrixJointModelTransform
      * @see SeparateJointModelTransform
@@ -152,7 +152,7 @@ public class Armature implements JmeCloneable, Savable {
     /**
      * return a joint for the given index
      *
-     * @param index
+     * @param index a zero-based joint index (&ge;0)
      * @return the pre-existing instance
      */
     public Joint getJoint(int index) {
@@ -162,7 +162,7 @@ public class Armature implements JmeCloneable, Savable {
     /**
      * returns the joint with the given name
      *
-     * @param name
+     * @param name the name to search for
      * @return the pre-existing instance or null if not found
      */
     public Joint getJoint(String name) {
@@ -177,7 +177,7 @@ public class Armature implements JmeCloneable, Savable {
     /**
      * returns the bone index of the given bone
      *
-     * @param joint
+     * @param joint the Joint to search for
      * @return the index (&ge;0) or -1 if not found
      */
     public int getJointIndex(Joint joint) {
@@ -193,7 +193,7 @@ public class Armature implements JmeCloneable, Savable {
     /**
      * returns the joint index of the joint that has the given name
      *
-     * @param name
+     * @param name the name to search for
      * @return the index (&ge;0) or -1 if not found
      */
     public int getJointIndex(String name) {

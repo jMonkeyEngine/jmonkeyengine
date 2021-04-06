@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -79,6 +79,8 @@ public interface JoystickAxis {
     
     /**
      *  Returns the joystick to which this axis object belongs.
+     *
+     * @return the pre-existing instance
      */
     public Joystick getJoystick(); 
 
@@ -107,17 +109,23 @@ public interface JoystickAxis {
     /**
      *  Returns true if this is an analog axis, meaning the values
      *  are a continuous range instead of 1, 0, and -1.
+     *
+     * @return true if analog, otherwise false
      */
     public boolean isAnalog(); 
     
     /**
      *  Returns true if this axis presents relative values.
+     * 
+     * @return true if relative, otherwise false
      */
     public boolean isRelative(); 
     
     /**
      *  Returns the suggested dead zone for this axis.  Values less than this
      *  can be safely ignored.
+     * 
+     * @return the radius of the dead zone
      */
     public float getDeadZone();
 }

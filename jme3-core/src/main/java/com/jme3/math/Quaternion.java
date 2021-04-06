@@ -855,8 +855,8 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     /**
      * Sets the values of this quaternion to the nlerp from itself to q2 by blend.
      *
-     * @param q2
-     * @param blend
+     * @param q2 the desired final value when blend=1 (not null, unaffected)
+     * @param blend the fractional weight applied to q2 (0&rarr;this, 1&rarr;q2)
      */
     public void nlerp(Quaternion q2, float blend) {
         float dot = dot(q2);

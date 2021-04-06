@@ -98,7 +98,6 @@ public class FieldSerializer extends Serializer {
         for (Field field : fields) {
             int modifiers = field.getModifiers();
             if (Modifier.isTransient(modifiers)) continue;
-            if (Modifier.isFinal(modifiers)) continue;
             if (Modifier.isStatic(modifiers)) continue;
             if (field.isSynthetic()) continue;
             field.setAccessible(true);

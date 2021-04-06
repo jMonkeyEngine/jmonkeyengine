@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -237,6 +237,8 @@ public final class Shader extends NativeObject {
 
     /**
      * Do not use this constructor. Used for destructible clones only.
+     *
+     * @param s (not null)
      */
     protected Shader(Shader s){
         super(s.id);
@@ -258,6 +260,7 @@ public final class Shader extends NativeObject {
      * Adds source code to a certain pipeline.
      *
      * @param type The pipeline to control
+     * @param name a name for the new shader object
      * @param source The shader source code (in GLSL).
      * @param defines Preprocessor defines (placed at the beginning of the shader)
      * @param language The shader source language, currently accepted is GLSL###

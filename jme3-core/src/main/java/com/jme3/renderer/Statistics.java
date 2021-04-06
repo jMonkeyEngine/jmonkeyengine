@@ -122,6 +122,10 @@ public class Statistics {
 
     /**
      * Called by the Renderer when a mesh has been drawn.
+     *
+     * @param mesh the Mesh that was drawn (not null)
+     * @param lod which level of detail
+     * @param count multiplier for triangles and vertices
      */
     public void onMeshDrawn(Mesh mesh, int lod, int count){
         if( !enabled )
@@ -134,6 +138,9 @@ public class Statistics {
     
     /**
      * Called by the Renderer when a mesh has been drawn.
+     *
+     * @param mesh the Mesh that was drawn (not null)
+     * @param lod which level of detail
      */
     public void onMeshDrawn(Mesh mesh, int lod){
         onMeshDrawn(mesh, lod, 1);

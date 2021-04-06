@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -56,35 +56,35 @@ public interface RawInputListener {
     /**
      * Invoked on joystick axis events.
      *
-     * @param evt
+     * @param evt information about the event
      */
     public void onJoyAxisEvent(JoyAxisEvent evt);
 
     /**
      * Invoked on joystick button presses.
      *
-     * @param evt
+     * @param evt information about the event
      */
     public void onJoyButtonEvent(JoyButtonEvent evt);
 
     /**
      * Invoked on mouse movement/motion events.
      *
-     * @param evt
+     * @param evt information about the event
      */
     public void onMouseMotionEvent(MouseMotionEvent evt);
 
     /**
      * Invoked on mouse button events.
      *
-     * @param evt
+     * @param evt information about the event
      */
     public void onMouseButtonEvent(MouseButtonEvent evt);
 
     /**
      * Invoked on keyboard key press or release events.
      *
-     * @param evt
+     * @param evt information about the event
      */
     public void onKeyEvent(KeyInputEvent evt);
 
@@ -92,7 +92,7 @@ public interface RawInputListener {
     /**
      * Invoked on touchscreen touch events.
      *
-     * @param evt
+     * @param evt information about the event
      */
     public void onTouchEvent(TouchEvent evt);
 

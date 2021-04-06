@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -567,6 +567,7 @@ public abstract class Texture implements CloneableSmartAsset, Savable, Cloneable
    /** Retrieve a basic clone of this Texture (ie, clone everything but the
      * image data, which is shared)
      *
+     * @param rVal storage for the clone (not null, modified)
      * @return Texture
      * 
      * @deprecated Use {@link Texture#clone()} instead.
@@ -584,6 +585,7 @@ public abstract class Texture implements CloneableSmartAsset, Savable, Cloneable
     }
 
     /**
+     * @return a new Texture
      * @deprecated Use {@link Texture#clone()} instead.
      */
     @Deprecated

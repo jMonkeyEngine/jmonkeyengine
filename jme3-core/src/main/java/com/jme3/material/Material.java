@@ -295,6 +295,8 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
 
     /**
      * Works like {@link Object#hashCode() } except it may change together with the material as the material is mutable by definition.
+     * 
+     * @return value for use in hashing
      */
     public int contentHashCode() {
         int hash = 7;
@@ -413,6 +415,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
     /**
      * Returns the current parameter's value.
      *
+     * @param <T> the expected type of the parameter value
      * @param name the parameter name to look up.
      * @return current value or null if the parameter wasn't set.
      */
@@ -888,6 +891,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
      * been already been setup for rendering.
      *
      * @param renderManager The render manager to preload for
+     * @param geometry to determine the applicable parameter overrides, if any
      */
     public void preload(RenderManager renderManager, Geometry geometry) {
         if (technique == null) {

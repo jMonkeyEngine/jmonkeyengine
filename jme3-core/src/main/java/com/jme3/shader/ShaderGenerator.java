@@ -77,7 +77,7 @@ public abstract class ShaderGenerator {
     /**
      * Build a shaderGenerator
      *
-     * @param assetManager
+     * @param assetManager for loading assets (alias created)
      */
     protected ShaderGenerator(AssetManager assetManager) {
         this.assetManager = assetManager;        
@@ -90,6 +90,7 @@ public abstract class ShaderGenerator {
     /**
      * Generate vertex and fragment shaders for the given technique
      *
+     * @param definesSourceCode (may be null)
      * @return a Shader program
      */
     public Shader generateShader(String definesSourceCode) {
@@ -348,7 +349,7 @@ public abstract class ShaderGenerator {
      * @param type the shaderType
      * @return the index of the shader path in ShaderNodeDefinition shadersPath
      * list
-     * @throws NumberFormatException
+     * @throws NumberFormatException for an invalid version
      */
     protected int findShaderIndexFromVersion(ShaderNode shaderNode, ShaderType type) throws NumberFormatException {
         int index = 0;

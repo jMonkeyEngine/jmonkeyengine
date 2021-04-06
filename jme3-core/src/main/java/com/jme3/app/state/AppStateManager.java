@@ -103,6 +103,8 @@ public class AppStateManager {
 
     /**
      *  Returns the Application to which this AppStateManager belongs.
+     *
+     * @return the pre-existing instance
      */
     public Application getApplication() {
         return app;
@@ -224,8 +226,9 @@ public class AppStateManager {
 
     /**
      * Returns the first state that is an instance of subclass of the specified class.
-     * @param <T>
-     * @param stateClass
+     *
+     * @param <T> the desired type of AppState
+     * @param stateClass the desired type of AppState
      * @return First attached state that is an instance of stateClass
      */
     public <T extends AppState> T getState(Class<T> stateClass){
@@ -234,9 +237,10 @@ public class AppStateManager {
     
     /**
      * Returns the first state that is an instance of subclass of the specified class.
-     * @param <T>
-     * @param stateClass
-     * @param failOnMiss 
+     *
+     * @param <T> the desired type of AppState
+     * @param stateClass the desired type of AppState
+     * @param failOnMiss true to thrown an exception, false to return null
      * @return First attached state that is an instance of stateClass. If failOnMiss is true 
      * then an IllegalArgumentException is thrown if the state is not attached.
      */
@@ -271,6 +275,11 @@ public class AppStateManager {
     /**
      *  Returns the state associated with the specified ID at the time it was
      *  attached or null if not state was attached with that ID.
+     *
+     * @param <T> the desired type of AppState
+     * @param id the AppState ID
+     * @param stateClass the desired type of AppState
+     * @return the pre-existing instance, or null if not found
      */
     public <T extends AppState> T getState( String id, Class<T> stateClass ) {
         return stateClass.cast(stateIndex.get(id));
@@ -279,6 +288,9 @@ public class AppStateManager {
     /**
      *  Returns true if there is currently a state associated with the specified
      *  ID.
+     *
+     * @param id the AppState ID
+     * @return true if found, otherwise false
      */
     public boolean hasState( String id ) {
         return stateIndex.containsKey(id);
@@ -288,6 +300,11 @@ public class AppStateManager {
      *  Returns the state associated with the specified ID at the time it
      *  was attached or throws an IllegalArgumentException if the ID was 
      *  not found.
+     *
+     * @param <T> the desired type of AppState
+     * @param id the AppState ID
+     * @param stateClass the desired type of AppState
+     * @return the pre-existing instance (not null)
      */   
     public <T extends AppState> T stateForId( String id, Class<T> stateClass ) {
         T result = getState(id, stateClass);
