@@ -153,6 +153,10 @@ public class InputManager implements RawInputListener {
         keys.getInputTimeNanos();
     }
 
+    public String getKeyName(int key){
+        return keys.getKeyName(key);
+    }
+
     private void invokeActions(int hash, boolean pressed) {
         ArrayList<Mapping> maps = bindings.get(hash);
         if (maps == null) {

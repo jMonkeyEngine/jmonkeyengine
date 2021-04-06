@@ -140,7 +140,7 @@ public class LWJGLBufferAllocator implements BufferAllocator {
 
     static {
         CLEAN_THREAD.setDaemon(true);
-        CLEAN_THREAD.setName("Thread to free LWJGL byte buffers");
+        CLEAN_THREAD.setName("LWJGL Deallocator");
         CLEAN_THREAD.start();
     }
 
