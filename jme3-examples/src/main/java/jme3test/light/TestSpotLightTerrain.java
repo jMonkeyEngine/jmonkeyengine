@@ -57,9 +57,6 @@ import com.jme3.util.SkyFactory;
  */
 public class TestSpotLightTerrain extends SimpleApplication {
 
-    private TerrainQuad terrain;
-    private Material matTerrain;
-    private Material matWire;
     final private float grassScale = 64;
     final private float dirtScale = 16;
     final private float rockScale = 128;
@@ -105,7 +102,8 @@ public class TestSpotLightTerrain extends SimpleApplication {
 
     private void makeTerrain() {
         // TERRAIN TEXTURE material
-        matTerrain = new Material(assetManager, "Common/MatDefs/Terrain/TerrainLighting.j3md");
+        Material matTerrain = new Material(assetManager,
+                "Common/MatDefs/Terrain/TerrainLighting.j3md");
         matTerrain.setBoolean("useTriPlanarMapping", false);
         matTerrain.setBoolean("WardIso", true);
 
@@ -160,7 +158,8 @@ public class TestSpotLightTerrain extends SimpleApplication {
         matTerrain.setTexture("NormalMap_4", normalMap2);
 
         // WIREFRAME material
-        matWire = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        Material matWire = new Material(assetManager,
+                "Common/MatDefs/Misc/Unshaded.j3md");
         matWire.getAdditionalRenderState().setWireframe(true);
         matWire.setColor("Color", ColorRGBA.Green);
 
@@ -178,7 +177,8 @@ public class TestSpotLightTerrain extends SimpleApplication {
             e.printStackTrace();
         }
 
-        terrain = new TerrainQuad("terrain", 65, 513, heightmap.getHeightMap());//, new LodPerspectiveCalculatorFactory(getCamera(), 4)); // add this in to see it use entropy for LOD calculations
+        TerrainQuad terrain
+                = new TerrainQuad("terrain", 65, 513, heightmap.getHeightMap());//, new LodPerspectiveCalculatorFactory(getCamera(), 4)); // add this in to see it use entropy for LOD calculations
         TerrainLodControl control = new TerrainLodControl(terrain, getCamera());
         control.setLodCalculator( new DistanceLodCalculator(65, 2.7f) );
         terrain.addControl(control);

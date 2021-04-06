@@ -69,12 +69,9 @@ public class HelloPhysics extends SimpleApplication {
   private Material stone_mat;
   private Material floor_mat;
 
-  /** Prepare geometries and physical nodes for bricks and cannon balls. */
-  private RigidBodyControl    brick_phy;
+  /** Prepare geometries for bricks and cannon balls. */
   private static final Box    box;
-  private RigidBodyControl    ball_phy;
   private static final Sphere sphere;
-  private RigidBodyControl    floor_phy;
   private static final Box    floor;
   
   /** dimensions used for bricks and wall */
@@ -159,7 +156,7 @@ public class HelloPhysics extends SimpleApplication {
     floor_geo.setLocalTranslation(0, -0.1f, 0);
     this.rootNode.attachChild(floor_geo);
     /* Make the floor physical with mass 0.0f! */
-    floor_phy = new RigidBodyControl(0.0f);
+    RigidBodyControl floor_phy = new RigidBodyControl(0.0f);
     floor_geo.addControl(floor_phy);
     bulletAppState.getPhysicsSpace().add(floor_phy);
   }
@@ -188,7 +185,7 @@ public class HelloPhysics extends SimpleApplication {
     /** Position the brick geometry  */
     brick_geo.setLocalTranslation(loc);
     /** Make brick physical with a mass > 0.0f. */
-    brick_phy = new RigidBodyControl(2f);
+    RigidBodyControl brick_phy = new RigidBodyControl(2f);
     /** Add physical brick to physics space. */
     brick_geo.addControl(brick_phy);
     bulletAppState.getPhysicsSpace().add(brick_phy);
@@ -205,7 +202,7 @@ public class HelloPhysics extends SimpleApplication {
     /** Position the cannon ball  */
     ball_geo.setLocalTranslation(cam.getLocation());
     /** Make the ball physical with a mass > 0.0f */
-    ball_phy = new RigidBodyControl(1f);
+    RigidBodyControl ball_phy = new RigidBodyControl(1f);
     /** Add physical ball to physics space. */
     ball_geo.addControl(ball_phy);
     bulletAppState.getPhysicsSpace().add(ball_phy);

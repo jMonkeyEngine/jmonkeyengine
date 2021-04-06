@@ -102,15 +102,10 @@ public class RollingTheMonkey extends SimpleApplication implements ActionListene
     private boolean keyBackward;
     private boolean keyLeft;
     private boolean keyRight;
-    
-    private PhysicsSpace space;
-    
     private RigidBodyControl player;
     private int score;
     
     private Node pickUps;
-    
-    private BitmapText infoText;
     private BitmapText scoreText;
     private BitmapText messageText;
     
@@ -123,7 +118,7 @@ public class RollingTheMonkey extends SimpleApplication implements ActionListene
         // init physics
         BulletAppState bulletState = new BulletAppState();
         stateManager.attach(bulletState);
-        space = bulletState.getPhysicsSpace();
+        PhysicsSpace space = bulletState.getPhysicsSpace();
         space.addCollisionListener(this);
         
         // create light
@@ -277,7 +272,7 @@ public class RollingTheMonkey extends SimpleApplication implements ActionListene
                 , INPUT_MAPPING_LEFT, INPUT_MAPPING_RIGHT, INPUT_MAPPING_RESET);
         
         // init UI
-        infoText = new BitmapText(guiFont, false);
+        BitmapText infoText = new BitmapText(guiFont, false);
         infoText.setText(INFO_MESSAGE);
         guiNode.attachChild(infoText);
         

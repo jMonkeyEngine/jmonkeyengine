@@ -67,7 +67,6 @@ public class TerrainTestAdvanced extends SimpleApplication {
     private Material matWire;
     private boolean wireframe = false;
     private boolean triPlanar = false;
-    private BitmapText hintText;
     private float dirtScale = 16;
     private float darkRockScale = 32;
     private float pinkRockScale = 32;
@@ -226,7 +225,7 @@ public class TerrainTestAdvanced extends SimpleApplication {
     }
 
     public void loadHintText() {
-        hintText = new BitmapText(guiFont, false);
+        BitmapText hintText = new BitmapText(guiFont, false);
         hintText.setSize(guiFont.getCharSet().getRenderedSize());
         hintText.setLocalTranslation(0, getCamera().getHeight(), 0);
         hintText.setText("Press T to toggle wireframe,  P to toggle tri-planar texturing");

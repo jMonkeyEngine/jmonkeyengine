@@ -57,9 +57,6 @@ import com.jme3.scene.Spatial;
 public class HelloCollision extends SimpleApplication
         implements ActionListener {
 
-  private Spatial sceneModel;
-  private BulletAppState bulletAppState;
-  private RigidBodyControl landscape;
   private CharacterControl player;
   final private Vector3f walkDirection = new Vector3f();
   private boolean left = false, right = false, up = false, down = false;
@@ -77,7 +74,7 @@ public class HelloCollision extends SimpleApplication
   @Override
   public void simpleInitApp() {
     /** Set up Physics */
-    bulletAppState = new BulletAppState();
+    BulletAppState bulletAppState = new BulletAppState();
     stateManager.attach(bulletAppState);
 
     // We re-use the flyby camera for rotation, while positioning is handled by physics
@@ -90,14 +87,14 @@ public class HelloCollision extends SimpleApplication
     assetManager.registerLocator(
                     "https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/jmonkeyengine/town.zip",
                     HttpZipLocator.class);
-    sceneModel = assetManager.loadModel("main.scene");
+    Spatial sceneModel = assetManager.loadModel("main.scene");
     sceneModel.setLocalScale(2f);
 
     // We set up collision detection for the scene by creating a
     // compound collision shape and a static RigidBodyControl with mass zero.
     CollisionShape sceneShape =
             CollisionShapeFactory.createMeshShape(sceneModel);
-    landscape = new RigidBodyControl(sceneShape, 0);
+    RigidBodyControl landscape = new RigidBodyControl(sceneShape, 0);
     sceneModel.addControl(landscape);
 
     // We set up collision detection for the player by creating

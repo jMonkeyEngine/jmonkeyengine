@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -57,11 +57,9 @@ public class TestCinematic extends SimpleApplication {
 
     private Spatial model;
     private Spatial teapot;
-    private MotionPath path;
     private MotionEvent cameraMotionEvent;
     private Cinematic cinematic;
     private ChaseCamera chaseCam;
-    private FilterPostProcessor fpp;
     private FadeFilter fade;
     private float time = 0;
 
@@ -181,7 +179,7 @@ public class TestCinematic extends SimpleApplication {
         camNode.lookAt(teapot.getLocalTranslation(), Vector3f.UNIT_Y);
 
         CameraNode camNode2 = cinematic.bindCamera("aroundCam", cam);
-        path = new MotionPath();
+        MotionPath path = new MotionPath();
         path.setCycle(true);
         path.addWayPoint(new Vector3f(20, 3, 0));
         path.addWayPoint(new Vector3f(0, 3, 20));
@@ -227,7 +225,7 @@ public class TestCinematic extends SimpleApplication {
         light.setColor(ColorRGBA.White.mult(1.5f));
         rootNode.addLight(light);
 
-        fpp = new FilterPostProcessor(assetManager);
+        FilterPostProcessor fpp = new FilterPostProcessor(assetManager);
         fade = new FadeFilter();
         fpp.addFilter(fade);
 

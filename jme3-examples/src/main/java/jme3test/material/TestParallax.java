@@ -59,11 +59,9 @@ public class TestParallax extends SimpleApplication {
     public void setupSkyBox() {
         rootNode.attachChild(SkyFactory.createSky(assetManager, "Scenes/Beach/FullskiesSunset0068.dds", SkyFactory.EnvMapType.CubeMap));
     }
-    private DirectionalLight dl;
 
     public void setupLighting() {
-
-        dl = new DirectionalLight();
+        DirectionalLight dl = new DirectionalLight();
         dl.setDirection(lightDir);
         dl.setColor(new ColorRGBA(.9f, .9f, .9f, 1));
         rootNode.addLight(dl);

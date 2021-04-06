@@ -55,7 +55,6 @@ import java.io.File;
 public class TestQ3 extends SimpleApplication implements ActionListener {
 
     private BulletAppState bulletAppState;
-    private Node gameLevel;
     private PhysicsCharacter player;
     final private Vector3f walkDirection = new Vector3f();
     private static boolean useHttp = false;
@@ -101,7 +100,7 @@ public class TestQ3 extends SimpleApplication implements ActionListener {
         // create the geometry and attach it
         MaterialList matList = (MaterialList) assetManager.loadAsset("Scene.material");
         OgreMeshKey key = new OgreMeshKey("main.meshxml", matList);
-        gameLevel = (Node) assetManager.loadAsset(key);
+        Node gameLevel = (Node) assetManager.loadAsset(key);
         gameLevel.setLocalScale(0.1f);
 
         // add a physics control, it will generate a MeshCollisionShape based on the gameLevel

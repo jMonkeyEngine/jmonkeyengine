@@ -52,7 +52,6 @@ public class TestSplitScreen extends SimpleApplication implements ActionListener
 
     private boolean splitScreen = false;
     final private Box mesh = new Box(1f, 1f, 1f);
-    private Camera leftCam, rightCam;
     final private Node leftScene = new Node("left scene");
     private ViewPort leftView, rightView;
 
@@ -66,7 +65,7 @@ public class TestSplitScreen extends SimpleApplication implements ActionListener
         blueBox.setMaterial(blueMat);
         rootNode.attachChild(blueBox);
 
-        rightCam = cam.clone();
+        Camera rightCam = cam.clone();
         rightCam.setViewPort(0.5f, 1f, 0f, 1f);
 
         rightView = renderManager.createMainView("right", rightCam);
@@ -80,7 +79,7 @@ public class TestSplitScreen extends SimpleApplication implements ActionListener
         redBox.setMaterial(redMat);
         leftScene.attachChild(redBox);
 
-        leftCam = cam.clone();
+        Camera leftCam = cam.clone();
         leftCam.setViewPort(0f, 0.5f, 0f, 1f);
 
         leftView = renderManager.createMainView("left", leftCam);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -61,7 +61,6 @@ public class TestWriteToTexture extends SimpleApplication implements AnalogListe
     private int initCounter;
     private Context clContext;
     private CommandQueue clQueue;
-    private ProgramCache programCache;
     private Kernel kernel;
     private Vector2f C;
     private Image texCL;
@@ -123,7 +122,7 @@ public class TestWriteToTexture extends SimpleApplication implements AnalogListe
     private void initOpenCL1() {
         clContext = context.getOpenCLContext();
         clQueue = clContext.createQueue().register();
-        programCache = new ProgramCache(clContext);
+        ProgramCache programCache = new ProgramCache(clContext);
         //create kernel
         String cacheID = getClass().getName()+".Julia";
         Program program = programCache.loadFromCache(cacheID);

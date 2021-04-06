@@ -64,9 +64,6 @@ import java.util.List;
 public class TestMultiPostWater extends SimpleApplication {
 
     final private Vector3f lightDir = new Vector3f(-4.9236743f, -1.27054665f, 5.896916f);
-    private WaterFilter water;
-    private TerrainQuad terrain;
-    private Material matRock;    
     final private static float WATER_HEIGHT = 90;
 
     public static void main(String[] args) {
@@ -113,7 +110,7 @@ public class TestMultiPostWater extends SimpleApplication {
 
         FilterPostProcessor fpp = new FilterPostProcessor(assetManager);
 
-        water = new WaterFilter(rootNode, lightDir);
+        WaterFilter water = new WaterFilter(rootNode, lightDir);
         water.setCenter(new Vector3f(9.628218f, -15.830074f, 199.23595f));
         water.setRadius(260);
         water.setWaveScale(0.003f);
@@ -164,7 +161,8 @@ public class TestMultiPostWater extends SimpleApplication {
     }
 
     private void createTerrain(Node rootNode) {
-        matRock = new Material(assetManager, "Common/MatDefs/Terrain/TerrainLighting.j3md");
+        Material matRock = new Material(assetManager,
+                "Common/MatDefs/Terrain/TerrainLighting.j3md");
         matRock.setBoolean("useTriPlanarMapping", false);
         matRock.setBoolean("WardIso", true);
         matRock.setTexture("AlphaMap", assetManager.loadTexture("Textures/Terrain/splat/alphamap.png"));
@@ -198,7 +196,8 @@ public class TestMultiPostWater extends SimpleApplication {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        terrain = new TerrainQuad("terrain", 65, 513, heightmap.getHeightMap());
+        TerrainQuad terrain
+                = new TerrainQuad("terrain", 65, 513, heightmap.getHeightMap());
         List<Camera> cameras = new ArrayList<>();
         cameras.add(getCamera());
         terrain.setMaterial(matRock);

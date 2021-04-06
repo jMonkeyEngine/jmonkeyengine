@@ -80,10 +80,7 @@ public class TerrainTestCollision extends SimpleApplication {
     private Material matRock;
     private Material matWire;
     private boolean wireframe = false;
-    private BitmapText hintText;
     private List<Geometry> collisionMarkers;
-    private BulletAppState bulletAppState;
-    private Geometry collisionBox;
     private Geometry selectedCollisionObject;
 
     public static void main(String[] args) {
@@ -101,7 +98,7 @@ public class TerrainTestCollision extends SimpleApplication {
     @Override
     public void simpleInitApp() {
         collisionMarkers = new ArrayList<>();
-        bulletAppState = new BulletAppState();
+        BulletAppState bulletAppState = new BulletAppState();
         bulletAppState.setThreadingType(BulletAppState.ThreadingType.PARALLEL);
         stateManager.attach(bulletAppState);
         setupKeys();
@@ -165,7 +162,7 @@ public class TerrainTestCollision extends SimpleApplication {
             bulletAppState.getPhysicsSpace().add(sphere);
         }
 
-        collisionBox = new Geometry("collisionBox", new Box(2, 2, 2));
+        Geometry collisionBox = new Geometry("collisionBox", new Box(2, 2, 2));
         collisionBox.setModelBound(new BoundingBox());
         collisionBox.setLocalTranslation(new Vector3f(20, 95, 30));
         collisionBox.setMaterial(matWire);
@@ -182,7 +179,7 @@ public class TerrainTestCollision extends SimpleApplication {
     }
 
     public void loadHintText() {
-        hintText = new BitmapText(guiFont, false);
+        BitmapText hintText = new BitmapText(guiFont, false);
         hintText.setSize(guiFont.getCharSet().getRenderedSize());
         hintText.setLocalTranslation(0, getCamera().getHeight(), 0);
         hintText.setText("Press T to toggle wireframe");

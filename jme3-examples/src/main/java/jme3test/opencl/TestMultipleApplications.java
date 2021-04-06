@@ -53,13 +53,10 @@ public class TestMultipleApplications extends SimpleApplication {
     private static List<? extends Device> availableDevices;
     private static int currentDeviceIndex;
     
-    private Context clContext;
     private CommandQueue clQueue;
     private Kernel kernel;
     private Buffer buffer;
     private boolean failed;
-    
-    private BitmapText infoText;
     private BitmapText statusText;
 
     /**
@@ -115,7 +112,7 @@ public class TestMultipleApplications extends SimpleApplication {
     
     @Override
     public void simpleInitApp() {
-        clContext = context.getOpenCLContext();
+        Context clContext = context.getOpenCLContext();
         if (clContext == null) {
             LOG.severe("No OpenCL context found");
             stop();
@@ -144,7 +141,7 @@ public class TestMultipleApplications extends SimpleApplication {
         inputManager.setCursorVisible(true);
         
         BitmapFont fnt = assetManager.loadFont("Interface/Fonts/Default.fnt");
-        infoText = new BitmapText(fnt, false);
+        BitmapText infoText = new BitmapText(fnt, false);
         //infoText.setBox(new Rectangle(0, 0, settings.getWidth(), settings.getHeight()));
         infoText.setText("Device: "+clContext.getDevices());
         infoText.setLocalTranslation(0, settings.getHeight(), 0);

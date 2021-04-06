@@ -90,11 +90,7 @@ public class TestWalkingChar extends SimpleApplication
     private Node model;
     //temp vectors
     final private Vector3f walkDirection = new Vector3f();
-    //terrain
-    private TerrainQuad terrain;
-    private RigidBodyControl terrainPhysicsNode;
     //Materials
-    private Material matRock;
     private Material matBullet;
     //animation
     private Action standAction;
@@ -243,7 +239,7 @@ public class TestWalkingChar extends SimpleApplication
     }
 
     private void createTerrain() {
-        matRock = new Material(assetManager, "Common/MatDefs/Terrain/TerrainLighting.j3md");
+        Material matRock = new Material(assetManager, "Common/MatDefs/Terrain/TerrainLighting.j3md");
         matRock.setBoolean("useTriPlanarMapping", false);
         matRock.setBoolean("WardIso", true);
         matRock.setTexture("AlphaMap", assetManager.loadTexture("Textures/Terrain/splat/alphamap.png"));
@@ -279,7 +275,8 @@ public class TestWalkingChar extends SimpleApplication
             e.printStackTrace();
         }
 
-        terrain = new TerrainQuad("terrain", 65, 513, heightmap.getHeightMap());
+        TerrainQuad terrain
+                = new TerrainQuad("terrain", 65, 513, heightmap.getHeightMap());
         List<Camera> cameras = new ArrayList<>();
         cameras.add(getCamera());
         TerrainLodControl control = new TerrainLodControl(terrain, cameras);
@@ -287,7 +284,8 @@ public class TestWalkingChar extends SimpleApplication
         terrain.setMaterial(matRock);
         terrain.setLocalScale(new Vector3f(2, 2, 2));
 
-        terrainPhysicsNode = new RigidBodyControl(CollisionShapeFactory.createMeshShape(terrain), 0);
+        RigidBodyControl terrainPhysicsNode
+                = new RigidBodyControl(CollisionShapeFactory.createMeshShape(terrain), 0);
         terrain.addControl(terrainPhysicsNode);
         rootNode.attachChild(terrain);
         getPhysicsSpace().add(terrainPhysicsNode);

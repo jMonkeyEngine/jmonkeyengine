@@ -92,8 +92,6 @@ public class TestGimpactShape extends SimpleApplication {
     private static TestGimpactShape test;
     private BulletAppState bulletAppState;
     private int solverNumIterations = 10;
-    private BitmapFont font;
-    private final BitmapText[] testInfo = new BitmapText[2];
     private BitmapText timeElapsedTxt;
     private BitmapText solverNumIterationsTxt;
     private BitmapText testScale;
@@ -129,7 +127,8 @@ public class TestGimpactShape extends SimpleApplication {
 
         //Setup test instructions
         guiNode = getGuiNode();
-        font = assetManager.loadFont("Interface/Fonts/Default.fnt");
+        BitmapFont font = assetManager.loadFont("Interface/Fonts/Default.fnt");
+        BitmapText[] testInfo = new BitmapText[2];
         testInfo[0] = new BitmapText(font);
         testInfo[1] = new BitmapText(font);
         timeElapsedTxt = new BitmapText(font);
