@@ -236,7 +236,7 @@ public class WorldOfInception extends SimpleApplication implements AnalogListene
                     return;
                 }
                 //give to parent
-                logger.log(Level.INFO, "give to parent");;
+                logger.log(Level.INFO, "give to parent");
                 parent.takeOverChild(inParentPosition.add(playerPos.normalize()));
                 application.getStateManager().attach(parent);
                 currentReturnLevel = parent;

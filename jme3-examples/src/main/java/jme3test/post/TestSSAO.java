@@ -82,7 +82,7 @@ public class TestSSAO extends SimpleApplication {
         rootNode.attachChild(model);
 
         FilterPostProcessor fpp = new FilterPostProcessor(assetManager);
-        SSAOFilter ssaoFilter = new SSAOFilter(2.9299974f,32.920483f,5.8100376f,0.091000035f);;
+        SSAOFilter ssaoFilter = new SSAOFilter(2.9299974f,32.920483f,5.8100376f,0.091000035f);
         ssaoFilter.setApproximateNormals(true);
         fpp.addFilter(ssaoFilter);
         SSAOUI ui = new SSAOUI(inputManager, ssaoFilter);
