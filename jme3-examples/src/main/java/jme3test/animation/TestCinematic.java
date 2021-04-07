@@ -31,9 +31,9 @@
  */
 package jme3test.animation;
 
+import com.jme3.anim.AnimClip;
 import com.jme3.anim.AnimComposer;
-import com.jme3.animation.AnimControl;
-import com.jme3.animation.AnimationFactory;
+import com.jme3.anim.AnimFactory;
 import com.jme3.animation.LoopMode;
 import com.jme3.app.SimpleApplication;
 import com.jme3.cinematic.*;
@@ -100,28 +100,43 @@ public class TestCinematic extends SimpleApplication {
         createCameraMotion();
 
         //creating spatial animation for the teapot
-        AnimationFactory factory = new AnimationFactory(20, "teapotAnim");
+        AnimFactory factory = new AnimFactory(20f, "teapotAnim", 30f);
         factory.addTimeTranslation(0, new Vector3f(10, 0, 10));
         factory.addTimeTranslation(20, new Vector3f(10, 0, -10));
         factory.addTimeScale(10, new Vector3f(4, 4, 4));
         factory.addTimeScale(20, new Vector3f(1, 1, 1));
-        factory.addTimeRotationAngles(20, 0, 4 * FastMath.TWO_PI, 0);
-        AnimControl control = new AnimControl();
-        control.addAnim(factory.buildAnimation());
-        teapot.addControl(control);
+        for (int iStep = 1; iStep <= 12; ++iStep) {
+            float animationTime = iStep * 20f / 12; // in seconds
+            float yRotationAngle = iStep * FastMath.TWO_PI / 3; // in radians
+            factory.addTimeRotation(animationTime, 0f, yRotationAngle, 0f);
+        }
+        AnimClip spatialAnimation = factory.buildAnimation(teapot);
+        AnimComposer teapotComposer = new AnimComposer();
+        teapotComposer.addAnimClip(spatialAnimation);
+        teapot.addControl(teapotComposer);
 
         //fade in
         cinematic.addCinematicEvent(0, new FadeEvent(true));
         // cinematic.activateCamera(0, "aroundCam");
-        cinematic.addCinematicEvent(0, new AnimationEvent(teapot, "teapotAnim", LoopMode.DontLoop));
+
+        // 20-second spatial animation begins at t=0 seconds
+        AnimEvent teapotAnimEvent = new AnimEvent(teapotComposer, "teapotAnim",
+                AnimComposer.DEFAULT_LAYER);
+        cinematic.addCinematicEvent(0f, teapotAnimEvent);
+
         cinematic.addCinematicEvent(0, cameraMotionEvent);
         cinematic.addCinematicEvent(0, new SoundEvent("Sound/Environment/Nature.ogg", LoopMode.Loop));
         cinematic.addCinematicEvent(3f, new SoundEvent("Sound/Effects/kick.wav"));
         cinematic.addCinematicEvent(3, new SubtitleTrack(nifty, "start", 3, "jMonkey engine really kicks A..."));
         cinematic.addCinematicEvent(5.1f, new SoundEvent("Sound/Effects/Beep.ogg", 1));
-        AnimComposer composer = model.getControl(AnimComposer.class);
-        cinematic.addCinematicEvent(2f,
-                new AnimEvent(composer, "Walk", AnimComposer.DEFAULT_LAYER));
+
+        // 1.24-second bone animation loop begins at t=2 seconds
+        AnimComposer otoComposer = model.getControl(AnimComposer.class);
+        AnimEvent walkEvent = new AnimEvent(otoComposer, "Walk",
+                AnimComposer.DEFAULT_LAYER);
+        walkEvent.setLoopMode(LoopMode.Loop);
+        cinematic.addCinematicEvent(2f, walkEvent);
+
         cinematic.activateCamera(0, "topView");
         //  cinematic.activateCamera(10, "aroundCam");
 
