@@ -51,6 +51,7 @@ import java.util.logging.Logger;
  *
  *
  * @author Nehon
+ * @deprecated use {@link AnimEvent}
  */
 @Deprecated
 public class AnimationEvent extends AbstractCinematicEvent {

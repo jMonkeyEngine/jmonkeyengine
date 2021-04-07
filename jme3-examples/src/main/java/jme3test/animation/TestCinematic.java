@@ -31,7 +31,10 @@
  */
 package jme3test.animation;
 
-import com.jme3.animation.*;
+import com.jme3.anim.AnimComposer;
+import com.jme3.animation.AnimControl;
+import com.jme3.animation.AnimationFactory;
+import com.jme3.animation.LoopMode;
 import com.jme3.app.SimpleApplication;
 import com.jme3.cinematic.*;
 import com.jme3.cinematic.events.*;
@@ -53,7 +56,6 @@ import com.jme3.scene.shape.Box;
 import com.jme3.shadow.DirectionalLightShadowRenderer;
 import de.lessvoid.nifty.Nifty;
 
-//TODO rework this Test when the new animation system is done.
 public class TestCinematic extends SimpleApplication {
 
     private Spatial model;
@@ -117,7 +119,9 @@ public class TestCinematic extends SimpleApplication {
         cinematic.addCinematicEvent(3f, new SoundEvent("Sound/Effects/kick.wav"));
         cinematic.addCinematicEvent(3, new SubtitleTrack(nifty, "start", 3, "jMonkey engine really kicks A..."));
         cinematic.addCinematicEvent(5.1f, new SoundEvent("Sound/Effects/Beep.ogg", 1));
-        cinematic.addCinematicEvent(2, new AnimationEvent(model, "Walk", LoopMode.Loop));
+        AnimComposer composer = model.getControl(AnimComposer.class);
+        cinematic.addCinematicEvent(2f,
+                new AnimEvent(composer, "Walk", AnimComposer.DEFAULT_LAYER));
         cinematic.activateCamera(0, "topView");
         //  cinematic.activateCamera(10, "aroundCam");
 
@@ -196,7 +200,7 @@ public class TestCinematic extends SimpleApplication {
 
     private void createScene() {
 
-        model = assetManager.loadModel("Models/Oto/OtoOldAnim.j3o");
+        model = assetManager.loadModel("Models/Oto/Oto.mesh.xml");
         model.center();
         model.setShadowMode(ShadowMode.CastAndReceive);
         rootNode.attachChild(model);
