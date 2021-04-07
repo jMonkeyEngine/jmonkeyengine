@@ -74,7 +74,8 @@ public class AnimEvent extends AbstractCinematicEvent {
     private String layerName;
 
     /**
-     * Instantiate an event.
+     * Instantiate a non-looping event to play the named action on the named
+     * layer of the specified AnimComposer.
      *
      * @param composer the Control that will play the animation (not null)
      * @param actionName the name of the animation action to be played
@@ -86,6 +87,14 @@ public class AnimEvent extends AbstractCinematicEvent {
         this.composer = composer;
         this.actionName = actionName;
         this.layerName = layerName;
+        /*
+         * Override initialDuration, which defaults to 10 seconds.
+         */
+        Action eventAction = composer.action(actionName);
+        if (eventAction == null) {
+            throw new IllegalStateException("No action named: " + actionName);
+        }
+        initialDuration = (float) eventAction.getLength();
     }
 
     /**
