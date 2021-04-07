@@ -141,7 +141,7 @@ public class AnimEvent extends AbstractCinematicEvent {
         }
 
         if (currentAction != eventAction) {
-            composer.setCurrentAction(actionName);
+            composer.setCurrentAction(actionName, layerName);
             assert composer.getCurrentAction(layerName) == eventAction;
         }
 
@@ -218,7 +218,7 @@ public class AnimEvent extends AbstractCinematicEvent {
         Action currentAction = composer.getCurrentAction(layerName);
         Action eventAction = composer.action(actionName);
         if (currentAction != eventAction) {
-            composer.setCurrentAction(actionName);
+            composer.setCurrentAction(actionName, layerName);
             assert composer.getCurrentAction(layerName) == eventAction;
         }
 
