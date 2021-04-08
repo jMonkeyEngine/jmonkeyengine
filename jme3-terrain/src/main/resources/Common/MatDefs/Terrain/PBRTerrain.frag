@@ -3,7 +3,7 @@
 #import "Common/ShaderLib/Parallax.glsllib"
 #import "Common/ShaderLib/Lighting.glsllib"
 
-#import "MatDefs/ShaderLib/AfflictionLib.glsllib"
+#import "Common/MatDefs/Terrain/AfflictionLib.glsllib"
 
 #ifdef DEBUG_VALUES_MODE
   uniform int m_DebugValuesMode;
