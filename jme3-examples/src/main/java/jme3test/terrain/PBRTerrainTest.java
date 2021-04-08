@@ -29,7 +29,7 @@ public class PBRTerrainTest extends SimpleApplication {
 
     private TerrainQuad terrain;
     private Material matTerrain;
-    boolean triPlanar = false;
+    private boolean triPlanar = false;
     private float dirtScale = 24;
     private float darkRockScale = 24;
     private float snowScale = 64;
@@ -81,7 +81,7 @@ public class PBRTerrainTest extends SimpleApplication {
         Texture heightMapImage = assetManager.loadTexture(hmKey);
 
         // DIRT texture, Diffuse textures 0 to 3 use the first AlphaMap
-        Texture dirt = assetManager.loadTexture("Textures/Ground037_1K_Color.png");
+        Texture dirt = assetManager.loadTexture("Textures/Terrain/PBR/Ground037_1K_Color.png");
         dirt.setWrap(WrapMode.Repeat);
         matTerrain.setTexture("AlbedoMap_0", dirt);
         matTerrain.setFloat("AlbedoMap_0_scale", dirtScale);
@@ -90,7 +90,7 @@ public class PBRTerrainTest extends SimpleApplication {
         //matTerrain.setInt("AfflictionMode_0", 0);
 
         // DARK ROCK texture
-        Texture darkRock = assetManager.loadTexture("Textures/Rock035_1K_Color.png");
+        Texture darkRock = assetManager.loadTexture("Textures/Terrain/PBR/Rock035_1K_Color.png");
         darkRock.setWrap(WrapMode.Repeat);
         matTerrain.setTexture("AlbedoMap_1", darkRock);
         matTerrain.setFloat("AlbedoMap_1_scale", darkRockScale);
@@ -99,7 +99,7 @@ public class PBRTerrainTest extends SimpleApplication {
         //matTerrain.setInt("AfflictionMode_1", 0);
 
         // SNOW texture
-        Texture snow = assetManager.loadTexture("Textures/Snow006_1K_Color.png");
+        Texture snow = assetManager.loadTexture("Textures/Terrain/PBR/Snow006_1K_Color.png");
         snow.setWrap(WrapMode.Repeat);
         matTerrain.setTexture("AlbedoMap_2", snow);
         matTerrain.setFloat("AlbedoMap_2_scale", snowScale);
@@ -108,7 +108,7 @@ public class PBRTerrainTest extends SimpleApplication {
         //matTerrain.setInt("AfflictionMode_2", 0);S
 
         // RIVER ROCK texture, this texture will use the next alphaMap: AlphaMap_1
-        Texture riverRock = assetManager.loadTexture("Textures/Tiles083_1K_Color.png");
+        Texture riverRock = assetManager.loadTexture("Textures/Terrain/PBR/Tiles083_1K_Color.png");
         riverRock.setWrap(WrapMode.Repeat);
         matTerrain.setTexture("AlbedoMap_3", riverRock);
         matTerrain.setFloat("AlbedoMap_3_scale", riverRockScale);
@@ -126,7 +126,7 @@ public class PBRTerrainTest extends SimpleApplication {
         //matTerrain.setInt("AfflictionMode_4", 0);
 
         // MARBLE texture
-        Texture marble = assetManager.loadTexture("Textures/Marble013_1K_Color.png");
+        Texture marble = assetManager.loadTexture("Textures/Terrain/PBR/Marble013_1K_Color.png");
         marble.setWrap(WrapMode.Repeat);
         matTerrain.setTexture("AlbedoMap_5", marble);
         matTerrain.setFloat("AlbedoMap_5_scale", marbleScale);
@@ -135,7 +135,7 @@ public class PBRTerrainTest extends SimpleApplication {
         //matTerrain.setInt("AfflictionMode_5", 0);
 
         // ROAD texture
-        Texture road = assetManager.loadTexture("Textures/Gravel015_1K_Color.png");
+        Texture road = assetManager.loadTexture("Textures/Terrain/PBR/Gravel015_1K_Color.png");
         road.setWrap(WrapMode.Repeat);
         matTerrain.setTexture("AlbedoMap_6", road);
         matTerrain.setFloat("AlbedoMap_6_scale", roadScale);
@@ -144,25 +144,25 @@ public class PBRTerrainTest extends SimpleApplication {
         //matTerrain.setInt("AfflictionMode_6", 0);
 
         // NORMAL MAPS
-        Texture normalMapDirt = assetManager.loadTexture("Textures/Ground036_1K_Normal.png");
+        Texture normalMapDirt = assetManager.loadTexture("Textures/Terrain/PBR/Ground036_1K_Normal.png");
         normalMapDirt.setWrap(WrapMode.Repeat);
         
-        Texture normalMapDarkRock = assetManager.loadTexture("Textures/Rock035_1K_Normal.png");
+        Texture normalMapDarkRock = assetManager.loadTexture("Textures/Terrain/PBR/Rock035_1K_Normal.png");
         normalMapDarkRock.setWrap(WrapMode.Repeat);
         
-        Texture normalMapSnow = assetManager.loadTexture("Textures/Snow006_1K_Normal.png");
+        Texture normalMapSnow = assetManager.loadTexture("Textures/Terrain/PBR/Snow006_1K_Normal.png");
         normalMapSnow.setWrap(WrapMode.Repeat);
         
-        Texture normalMapGravel = assetManager.loadTexture("Textures/Gravel015_1K_Normal.png");
+        Texture normalMapGravel = assetManager.loadTexture("Textures/Terrain/PBR/Gravel015_1K_Normal.png");
         normalMapGravel.setWrap(WrapMode.Repeat);
         
-        Texture normalMapGrass = assetManager.loadTexture("Textures/Ground037_1K_Normal.png");
+        Texture normalMapGrass = assetManager.loadTexture("Textures/Terrain/PBR/Ground037_1K_Normal.png");
         normalMapGrass.setWrap(WrapMode.Repeat);
         
-        Texture normalMapMarble = assetManager.loadTexture("Textures/Marble013_1K_Normal.png");
+        Texture normalMapMarble = assetManager.loadTexture("Textures/Terrain/PBR/Marble013_1K_Normal.png");
         normalMapGrass.setWrap(WrapMode.Repeat);
         
-        Texture normalMapRoad = assetManager.loadTexture("Textures/Tiles083_1K_Normal.png");
+        Texture normalMapRoad = assetManager.loadTexture("Textures/Terrain/PBR/Tiles083_1K_Normal.png");
         normalMapRoad.setWrap(WrapMode.Repeat);
         
 
@@ -172,7 +172,7 @@ public class PBRTerrainTest extends SimpleApplication {
         matTerrain.setTexture("NormalMap_2", normalMapSnow);
         matTerrain.setTexture("NormalMap_3", normalMapRoad);
         matTerrain.setTexture("NormalMap_4", normalMapGrass);
-   //     matTerrain.setTexture("NormalMap_5", normalMapMarble);
+   //     matTerrain.setTexture("NormalMap_5", normalMapMarble);  //cannot be used due to 16 texture limit - consider using AdvancedPBRTerrain.j3md to surpass this limit using textureArrays
         matTerrain.setTexture("NormalMap_6", normalMapGravel);
 
         // CREATE HEIGHTMAP
@@ -198,8 +198,7 @@ public class PBRTerrainTest extends SimpleApplication {
         terrain.setLocalScale(1f, 1f, 1f);
         rootNode.attachChild(terrain);
 
-    //    Node probeNode = (Node) assetManager.loadModel("Scenes/LightProbes/fantasy-sky_Probe.j3o");  //blue-ish tinted probe
-        Node probeNode = (Node) assetManager.loadModel("Scenes/LightProbes/sunset_Probe.j3o");  //beige sunset tinted probe
+        Node probeNode = (Node) assetManager.loadModel("Scenes/LightProbes/quarry_Probe.j3o");  
         
         LightProbe probe = (LightProbe) probeNode.getLocalLightList().iterator().next();
         probe.setPosition(new Vector3f(0, 0, 0));
