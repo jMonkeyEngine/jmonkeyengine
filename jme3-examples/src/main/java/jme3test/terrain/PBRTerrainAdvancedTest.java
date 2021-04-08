@@ -40,8 +40,8 @@ public class PBRTerrainAdvancedTest extends SimpleApplication {
     //results look better with anti-aliasing, especially at far distances. 
     
     private TerrainQuad terrain;
-    Material matTerrain;
-    boolean triPlanar = false;
+    private Material matTerrain;
+    private boolean triPlanar = false;
     private float dirtScale = 24;
     private float darkRockScale = 24;
     private float snowScale = 64;
