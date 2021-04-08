@@ -1,0 +1,9 @@
+Licensing history for files in "src/main/resources/Textures/Terrain/PBR"
+
+All textures were downloaded and derrived from:
+* downloaded from:   https://cc0textures.com/
+* license type:      CC0
+* license URL:       https://docs.cc0textures.com/licensing.html
+
+
+Contains assets from CC0Textures.com, licensed under CC0 1.0 Universal.
