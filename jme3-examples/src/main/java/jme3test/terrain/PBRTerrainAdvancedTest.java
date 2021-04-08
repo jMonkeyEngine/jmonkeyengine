@@ -1,4 +1,4 @@
-package mygame;
+package jme3test.terrain;
 
 
 
@@ -73,7 +73,7 @@ public class PBRTerrainAdvancedTest extends SimpleApplication {
         setupKeys();
 
         // advanced pbr terrain matdef
-        matTerrain = new Material(assetManager, "MatDefs/shaders/AfflictedAdvancedPBRTerrain.j3md");
+        matTerrain = new Material(assetManager, "Common/MatDefs/Terrain/AdvancedPBRTerrain.j3md");
         
         
         matTerrain.setBoolean("useTriPlanarMapping", false);
@@ -93,31 +93,31 @@ public class PBRTerrainAdvancedTest extends SimpleApplication {
         //metallic/roughness maps anyways..
         
         //ALBEDO MAPS
-        Texture dirt = assetManager.loadTexture("Textures/Ground037_1K_Color.png");
-        Texture darkRock = assetManager.loadTexture("Textures/Rock035_1K_Color.png");
-        Texture snow = assetManager.loadTexture("Textures/Snow006_1K_Color.png");
-        Texture tileRoad = assetManager.loadTexture("Textures/Tiles083_1K_Color.png");     
-        Texture grass = assetManager.loadTexture("Textures/Ground037_1K_Color.png");
-        Texture marble = assetManager.loadTexture("Textures/Marble013_1K_Color.png");
-        Texture gravel = assetManager.loadTexture("Textures/Gravel015_1K_Color.png");
+        Texture dirt = assetManager.loadTexture("Textures/Terrain/PBR/Ground037_1K_Color.png");
+        Texture darkRock = assetManager.loadTexture("Textures/Terrain/PBR/Rock035_1K_Color.png");
+        Texture snow = assetManager.loadTexture("Textures/Terrain/PBR/Snow006_1K_Color.png");
+        Texture tileRoad = assetManager.loadTexture("Textures/Terrain/PBR/Tiles083_1K_Color.png");     
+        Texture grass = assetManager.loadTexture("Textures/Terrain/PBR/Ground037_1K_Color.png");
+        Texture marble = assetManager.loadTexture("Textures/Terrain/PBR/Marble013_1K_Color.png");
+        Texture gravel = assetManager.loadTexture("Textures/Terrain/PBR/Gravel015_1K_Color.png");
          
         // NORMAL MAPS
-        Texture normalMapDirt = assetManager.loadTexture("Textures/Ground036_1K_Normal.png");
-        Texture normalMapDarkRock = assetManager.loadTexture("Textures/Rock035_1K_Normal.png");        
-        Texture normalMapSnow = assetManager.loadTexture("Textures/Snow006_1K_Normal.png");        
-        Texture normalMapGravel = assetManager.loadTexture("Textures/Gravel015_1K_Normal.png");        
-        Texture normalMapGrass = assetManager.loadTexture("Textures/Ground037_1K_Normal.png");        
-        Texture normalMapMarble = assetManager.loadTexture("Textures/Marble013_1K_Normal.png");        
-        Texture normalMapRoad = assetManager.loadTexture("Textures/Tiles083_1K_Normal.png");
+        Texture normalMapDirt = assetManager.loadTexture("Textures/Terrain/PBR/Ground036_1K_Normal.png");
+        Texture normalMapDarkRock = assetManager.loadTexture("Textures/Terrain/PBR/Rock035_1K_Normal.png");        
+        Texture normalMapSnow = assetManager.loadTexture("Textures/Terrain/PBR/Snow006_1K_Normal.png");        
+        Texture normalMapGravel = assetManager.loadTexture("Textures/Terrain/PBR/Gravel015_1K_Normal.png");        
+        Texture normalMapGrass = assetManager.loadTexture("Textures/Terrain/PBR/Ground037_1K_Normal.png");        
+        Texture normalMapMarble = assetManager.loadTexture("Textures/Terrain/PBR/Marble013_1K_Normal.png");        
+        Texture normalMapRoad = assetManager.loadTexture("Textures/Terrain/PBR/Tiles083_1K_Normal.png");
         
         //PACKED METALLIC/ROUGHNESS / AMBIENT OCCLUSION / EMISSIVE INTENSITY MAPS
-        Texture metallicRoughnessAoEiMapDirt = assetManager.loadTexture("Textures/Ground036_PackedMetallicRoughnessMap.png");
-        Texture metallicRoughnessAoEiMapDarkRock = assetManager.loadTexture("Textures/Rock035_PackedMetallicRoughnessMap.png");        
-        Texture metallicRoughnessAoEiMapSnow = assetManager.loadTexture("Textures/Snow006_PackedMetallicRoughnessMap.png");        
-        Texture metallicRoughnessAoEiMapGravel = assetManager.loadTexture("Textures/Gravel_015_PackedMetallicRoughnessMap.png");        
-        Texture metallicRoughnessAoEiMapGrass = assetManager.loadTexture("Textures/Ground037_PackedMetallicRoughnessMap.png");        
-        Texture metallicRoughnessAoEiMapMarble = assetManager.loadTexture("Textures/Marble013_PackedMetallicRoughnessMap.png");        
-        Texture metallicRoughnessAoEiMapRoad = assetManager.loadTexture("Textures/Tiles083_PackedMetallicRoughnessMap.png");
+        Texture metallicRoughnessAoEiMapDirt = assetManager.loadTexture("Textures/Terrain/PBR/Ground036_PackedMetallicRoughnessMap.png");
+        Texture metallicRoughnessAoEiMapDarkRock = assetManager.loadTexture("Textures/Terrain/PBR/Rock035_PackedMetallicRoughnessMap.png");        
+        Texture metallicRoughnessAoEiMapSnow = assetManager.loadTexture("Textures/Terrain/PBR/Snow006_PackedMetallicRoughnessMap.png");        
+        Texture metallicRoughnessAoEiMapGravel = assetManager.loadTexture("Textures/Terrain/PBR/Gravel_015_PackedMetallicRoughnessMap.png");        
+        Texture metallicRoughnessAoEiMapGrass = assetManager.loadTexture("Textures/Terrain/PBR/Ground037_PackedMetallicRoughnessMap.png");        
+        Texture metallicRoughnessAoEiMapMarble = assetManager.loadTexture("Textures/Terrain/PBR/Marble013_PackedMetallicRoughnessMap.png");        
+        Texture metallicRoughnessAoEiMapRoad = assetManager.loadTexture("Textures/Terrain/PBR/Tiles083_PackedMetallicRoughnessMap.png");
         
         
         // put all images into lists to create texture arrays.
@@ -273,8 +273,7 @@ public class PBRTerrainAdvancedTest extends SimpleApplication {
         terrain.setLocalScale(1f, 1f, 1f);
         rootNode.attachChild(terrain);
 
-        Node probeNode = (Node) assetManager.loadModel("Scenes/lightprobe/fantasy-sky.j3o");  //blue-ish tinted probe
-   //     Node probeNode = (Node) assetManager.loadModel("Scenes/lightprobe/sunset_Probe.j3o");  //beige sunset tinted probe
+        Node probeNode = (Node) assetManager.loadModel("Scenes/lightprobe/quarry_Probe.j3o");  
         
         LightProbe probe = (LightProbe) probeNode.getLocalLightList().iterator().next();
         probe.setPosition(new Vector3f(0, 0, 0));
