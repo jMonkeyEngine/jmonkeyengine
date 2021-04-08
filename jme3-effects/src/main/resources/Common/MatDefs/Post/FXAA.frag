@@ -84,6 +84,6 @@ vec3 FxaaPixelShader(
 
 void main()
 {
-
-    gl_FragColor = vec4(FxaaPixelShader(posPos, m_Texture, g_ResolutionInverse), 1.0);
+    vec4 texVal = texture2D(m_Texture, texCoord);
+    gl_FragColor = vec4(FxaaPixelShader(posPos, m_Texture, g_ResolutionInverse), texVal.a);
 }
