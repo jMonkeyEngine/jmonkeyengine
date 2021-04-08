@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -559,10 +559,11 @@ public interface KeyInput extends Input {
      */
     public static final int KEY_LAST = 0xE0;
 
-
     /**
-    * Returns the name of the specified keycode in the current system language.
-    * @param key The keycode from {@link com.jme3.input.KeyInput}
-    */
+     * Determine the name of the specified key in the current system language.
+     *
+     * @param key The keycode from {@link com.jme3.input.KeyInput}
+     * @return the name of the key
+     */
     public String getKeyName(int key);
 }
