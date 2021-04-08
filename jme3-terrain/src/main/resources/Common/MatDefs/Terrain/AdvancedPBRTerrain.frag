@@ -2,7 +2,7 @@
 #import "Common/ShaderLib/GLSLCompat.glsllib"
 #import "Common/ShaderLib/PBR.glsllib"
 #import "Common/ShaderLib/Lighting.glsllib"
-#import "MatDefs/ShaderLib/AfflictionLib.glsllib"
+#import "Common/MatDefs/Terrain/AfflictionLib.glsllib"
 
 
 
@@ -41,19 +41,19 @@ uniform vec3 g_CameraPosition;
 
 
 #ifdef USE_FOG
-#import "Common/ShaderLib/MaterialFog.glsllib"
-uniform vec4 m_FogColor;
-float fogDistance;
+  #import "Common/ShaderLib/MaterialFog.glsllib"
+  uniform vec4 m_FogColor;
+  float fogDistance;
 
-uniform vec2 m_LinearFog;
+  uniform vec2 m_LinearFog;
 #endif
 
 #ifdef FOG_EXP
-uniform float m_ExpFog;
+  uniform float m_ExpFog;
 #endif
 
 #ifdef FOG_EXPSQ
-uniform float m_ExpSqFog;
+  uniform float m_ExpSqFog;
 #endif
 
 
