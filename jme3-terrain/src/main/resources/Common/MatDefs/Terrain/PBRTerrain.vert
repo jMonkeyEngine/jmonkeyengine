@@ -25,8 +25,7 @@ void main(){
 
     texCoord = inTexCoord;
 
-    wPosition = TransformWorld(modelSpacePos).xyz;
-    
+    wPosition = (g_WorldMatrix * vec4(inPosition, 1.0)).xyz;    
     
     wNormal  = normalize(TransformWorldNormal(inNormal));
 

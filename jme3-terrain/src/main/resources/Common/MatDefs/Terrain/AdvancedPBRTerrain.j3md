@@ -1,5 +1,5 @@
 // NOTE: Doesn't support OpenGL1
-MaterialDef Advanced PBR Terrain {
+MaterialDef Advanced PBR AfflictedTerrain {
 
     MaterialParameters {
 
@@ -17,23 +17,25 @@ MaterialDef Advanced PBR Terrain {
 
 
 
-        Int PlaguedMapScale : 8
+        Int AfflictionSplatScale : 8
         Float AfflictionRoughnessValue : 1.0
         Float AfflictionMetallicValue : 0.0
         Float AfflictionEmissiveValue : 0.0   //note that this is simplified into one value, rather than 2 with power and intensity like the regular pbr values.
 
 
-
+     // affliction texture splatting & desaturation functionality
         Boolean UseTriplanarAfflictionMapping
 
-        Texture2D AfflictionTexture
+        Texture2D AfflictionAlphaMap
 
-        Texture2D PlaguedAlbedoMap  -LINEAR
-        Texture2D PlaguedNormalMap  -LINEAR
-        Texture2D PlaguedRoughnessMetallicMap -LINEAR
-        Texture2D PlaguedEmissiveMap -LINEAR
+        Texture2D SplatAlbedoMap  -LINEAR
+        Texture2D SplatNormalMap  -LINEAR
+        Texture2D SplatRoughnessMetallicMap -LINEAR
+        Texture2D SplatEmissiveMap -LINEAR
 
-        Color AfflictionEmissiveColor : 1.0 1.0 1.0 1.0
+        Color AfflictionEmissiveColor : 0.0 0.0 0.0 0.0
+
+        Float SplatNoiseVar
 
 
         Int AfflictionMode_0 : 1
@@ -159,7 +161,16 @@ MaterialDef Advanced PBR Terrain {
 
 
 
+        // debug the final value of the selected layer as a color output            
         Int DebugValuesMode
+
+            // Layers:
+            //   0 - albedo (un-shaded)
+            //   1 - normals
+            //   2 - roughness
+            //   3 - metallic
+            //   4 - ao
+            //   5  - emissive
 
 
         // use tri-planar mapping
@@ -244,8 +255,8 @@ MaterialDef Advanced PBR Terrain {
 
         LightMode SinglePassAndImageBased
 
-        VertexShader  GLSL150:   Common/MatDefs/Terrain/PBRTerrain.vert
-        FragmentShader GLSL150: Common/MatDefs/Terrain/AdvancedPBRTerrain.frag
+        VertexShader  GLSL150:   MatDefs/vert/AfflictedPBRTerrain.vert
+        FragmentShader GLSL150: MatDefs/frag/AfflictedAdvancedPBRTerrain.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -260,11 +271,12 @@ MaterialDef Advanced PBR Terrain {
 
         Defines {
                 
-            AFFLICTIONTEXTURE : AfflictionTexture
-            AFFLICTIONALBEDOMAP: PlaguedAlbedoMap 
-            AFFLICTIONNORMALMAP : PlaguedNormalMap 
-            AFFLICTIONROUGHNESSMETALLICMAP : PlaguedRoughnessMetallicMap
-            AFFLICTIONEMISSIVEMAP : PlaguedEmissiveMap
+            AFFLICTIONTEXTURE : AfflictionAlphaMap
+            AFFLICTIONALBEDOMAP: SplatAlbedoMap 
+            AFFLICTIONNORMALMAP : SplatNormalMap 
+            AFFLICTIONROUGHNESSMETALLICMAP : SplatRoughnessMetallicMap
+            AFFLICTIONEMISSIVEMAP : SplatEmissiveMap
+            USE_SPLAT_NOISE : SplatNoiseVar
 
             HORIZON_FADE: HorizonFade
 
@@ -321,6 +333,8 @@ MaterialDef Advanced PBR Terrain {
             METALLICROUGHNESSMAP_11 : MetallicRoughnessMap_11
 
             DEBUG_VALUES_MODE : DebugValuesMode
+
+
 
         }
     }

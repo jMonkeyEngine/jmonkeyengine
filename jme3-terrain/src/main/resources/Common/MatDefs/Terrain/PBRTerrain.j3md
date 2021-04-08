@@ -1,5 +1,5 @@
 // NOTE: Doesn't support OpenGL1
-MaterialDef PBR Terrain {
+MaterialDef Afflicted PBR Terrain {
 
     MaterialParameters {
 
@@ -11,19 +11,21 @@ MaterialDef PBR Terrain {
         Boolean BrightenIndoorShadows  //set true if shadows are enabled and indoor areas withour full sun exposure are too dark compared to when shadows are turned off in settings
 
 
-        Int PlaguedMapScale : 8
+        Int AfflictionSplatScale : 8
 
         Float AfflictionRoughnessValue : 1.0
         Float AfflictionMetallicValue : 0.0
         Float AfflictionEmissiveValue : 0.0 //note that this is simplified into one value, rather than 2 with power and intensity like the regular pbr values.
 
-        Texture2D AfflictionTexture
-        Texture2D PlaguedAlbedoMap  -LINEAR
-        Texture2D PlaguedNormalMap  -LINEAR
-        Texture2D PlaguedRoughnessMetallicMap -LINEAR
-        Texture2D PlaguedEmissiveMap -LINEAR
+        Texture2D AfflictionAlphaMap
+        Texture2D SplatAlbedoMap  -LINEAR
+        Texture2D SplatNormalMap  -LINEAR
+        Texture2D SplatRoughnessMetallicMap -LINEAR
+        Texture2D SplatEmissiveMap -LINEAR
 
-        Color AfflictionEmissiveColor : 1.0 1.0 1.0 1.0
+        Color AfflictionEmissiveColor : 0.0 0.0 0.0 0.0
+
+        Float SplatNoiseVar
 
         //used for decal mapping with afflictionMap, in order to convert world coords to tex coords so afflictionTexture accurately represents the world
         Float TileWidth : 0
@@ -69,7 +71,17 @@ MaterialDef PBR Terrain {
         Float Metallic_11 : 0.0
 
 
+        // debug the final value of the selected layer as a color output            
         Int DebugValuesMode
+
+            // Layers:
+            //   0 - albedo (un-shaded)
+            //   1 - normals
+            //   2 - roughness
+            //   3 - metallic
+            //   4 - ao
+            //   5  - emissive
+
 
         // use tri-planar mapping
         Boolean useTriPlanarMapping
@@ -216,8 +228,8 @@ MaterialDef PBR Terrain {
 
         LightMode SinglePassAndImageBased
 
-        VertexShader GLSL100 GLSL130 GLSL150:   Common/MatDefs/Terrain/PBRTerrain.vert
-        FragmentShader GLSL100 GLSL130 GLSL150: Common/MatDefs/Terrain/PBRTerrain.frag
+        VertexShader GLSL100 GLSL130 GLSL150:   MatDefs/vert/AfflictedPBRTerrain.vert
+        FragmentShader GLSL100 GLSL130 GLSL150: MatDefs/frag/AfflictedPBRTerrain.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -233,12 +245,14 @@ MaterialDef PBR Terrain {
         Defines {
                 
             TILELOCATION : TileLocation
-            AFFLICTIONTEXTURE : AfflictionTexture
+            AFFLICTIONTEXTURE : AfflictionAlphaMap
 
-            AFFLICTIONALBEDOMAP: PlaguedAlbedoMap 
-            AFFLICTIONNORMALMAP : PlaguedNormalMap 
-            AFFLICTIONROUGHNESSMETALLICMAP : PlaguedRoughnessMetallicMap
-            AFFLICTIONEMISSIVEMAP : PlaguedEmissiveMap
+            AFFLICTIONALBEDOMAP: SplatAlbedoMap 
+            AFFLICTIONNORMALMAP : SplatNormalMap 
+            AFFLICTIONROUGHNESSMETALLICMAP : SplatRoughnessMetallicMap
+            AFFLICTIONEMISSIVEMAP : SplatEmissiveMap
+
+            USE_SPLAT_NOISE : SplatNoiseVar
 
 
             USE_VERTEX_COLORS_AS_SUN_INTENSITY : UseVertexColorsAsSunIntensity

@@ -2,7 +2,8 @@
 #import "Common/ShaderLib/GLSLCompat.glsllib"
 #import "Common/ShaderLib/PBR.glsllib"
 #import "Common/ShaderLib/Lighting.glsllib"
-#import "Common/MatDefs/Terrain/AfflictionLib.glsllib"
+#import "MatDefs/ShaderLib/AfflictionLib.glsllib"
+
 
 
 #ifdef DEBUG_VALUES_MODE
@@ -14,7 +15,8 @@ uniform vec4 g_LightData[NB_LIGHTS];
 uniform vec4 g_AmbientLightColor;
 
 varying vec3 wPosition;
-
+varying vec3 vNormal;
+varying vec2 texCoord;
 
 #if NB_PROBES >= 1
   uniform samplerCube g_PrefEnvMap;
@@ -32,39 +34,10 @@ varying vec3 wPosition;
   uniform mat4 g_LightProbeData3;
 #endif
 
-
-#ifdef EMISSIVE
-    uniform vec4 m_Emissive;
-#endif
-#ifdef EMISSIVEMAP
-    uniform sampler2D m_EmissiveMap;
-#endif
-#if defined(EMISSIVE) || defined(EMISSIVEMAP)
-    uniform float m_EmissivePower;
-    uniform float m_EmissiveIntensity;
-#endif 
-
-#ifdef SPECGLOSSPIPELINE
-  uniform sampler2D m_SpecularMap;
-  uniform sampler2D m_GlossMap;
-#endif
-
-#ifdef LIGHTMAP
-  uniform sampler2D m_LightMap;
-#endif
-
-varying vec3 vNormal;
-
-
-
-
-varying vec2 texCoord;
-
 vec2 newTexCoord;
 
 
 uniform vec3 g_CameraPosition;
-
 
 
 #ifdef USE_FOG
@@ -94,46 +67,7 @@ varying vec4 vnLightDir;
 varying vec3 lightVec;
 varying vec3 inNormal;
 
-
-
 vec3 norm;
-
-
-
-
-#ifdef AFFLICTIONTEXTURE
-    uniform sampler2D m_AfflictionTexture;
-#endif
-
-//defined for sub terrains that arent equal to each map tile size
-#ifdef TILELOCATION
-    uniform float m_TileWidth;
-    uniform vec3 m_TileLocation;
-#endif
-
-uniform int m_PlaguedMapScale;
-#ifdef AFFLICTIONALBEDOMAP
-    uniform sampler2D m_PlaguedAlbedoMap ;
-#endif
-
-#ifdef AFFLICTIONNORMALMAP
-    uniform sampler2D m_PlaguedNormalMap ;
-#endif
-
-#ifdef AFFLICTIONROUGHNESSMETALLICMAP
-    uniform sampler2D m_PlaguedRoughnessMetallicMap;
-#endif
-
-#ifdef AFFLICTIONEMISSIVEMAP
-    uniform sampler2D m_PlaguedEmissiveMap;
-#endif
-
-uniform float m_AfflictionRoughnessValue;
-uniform float m_AfflictionMetallicValue;
-uniform float m_AfflictionEmissiveValue;
-uniform vec4 m_AfflictionEmissiveColor;
-
-
 
 uniform sampler2DArray m_AlbedoTextureArray;
 uniform sampler2DArray m_NormalParallaxTextureArray;
@@ -141,6 +75,10 @@ uniform sampler2DArray m_MetallicRoughnessAoEiTextureArray;
 
 
 // mat3 tbnMat;
+
+#ifdef DISCARD_ALPHA
+    uniform float m_AlphaDiscardThreshold;
+#endif
 
 
 #ifdef ALPHAMAP
@@ -154,20 +92,6 @@ uniform sampler2DArray m_MetallicRoughnessAoEiTextureArray;
 #endif
 
 
-
-
-uniform int m_AfflictionMode_0;
-uniform int m_AfflictionMode_1;
-uniform int m_AfflictionMode_2;
-uniform int m_AfflictionMode_3;
-uniform int m_AfflictionMode_4;
-uniform int m_AfflictionMode_5;
-uniform int m_AfflictionMode_6;
-uniform int m_AfflictionMode_7;
-uniform int m_AfflictionMode_8;
-uniform int m_AfflictionMode_9;
-uniform int m_AfflictionMode_10;
-uniform int m_AfflictionMode_11;
 
 uniform float m_Roughness_0;
 uniform float m_Roughness_1;
@@ -195,79 +119,19 @@ uniform float m_Metallic_9;
 uniform float m_Metallic_10;
 uniform float m_Metallic_11;
 
-#ifdef PARALLAXHEIGHT_0
-  uniform float m_ParallaxHeight_0;
-#endif
-#ifdef PARALLAXHEIGHT_1
-  uniform float m_ParallaxHeight_1;
-#endif
-#ifdef PARALLAXHEIGHT_2
-  uniform float m_ParallaxHeight_2;
-#endif
-#ifdef PARALLAXHEIGHT_3
-  uniform float m_ParallaxHeight_3;
-#endif
-#ifdef PARALLAXHEIGHT_4
-  uniform float m_ParallaxHeight_4;
-#endif
-#ifdef PARALLAXHEIGHT_5
-  uniform float m_ParallaxHeight_5;
-#endif
-#ifdef PARALLAXHEIGHT_6
-  uniform float m_ParallaxHeight_6;
-#endif
-#ifdef PARALLAXHEIGHT_7
-  uniform float m_ParallaxHeight_7;
-#endif
-#ifdef PARALLAXHEIGHT_8
-  uniform float m_ParallaxHeight_8;
-#endif
-#ifdef PARALLAXHEIGHT_9
-  uniform float m_ParallaxHeight_9;
-#endif
-#ifdef PARALLAXHEIGHT_10
-  uniform float m_ParallaxHeight_10;
-#endif
-#ifdef PARALLAXHEIGHT_11
-  uniform float m_ParallaxHeight_11;
-#endif
 
-//#ifdef EMISSIVECOLOR_0
-    uniform vec4 EmissiveColor_0;
-//#endif
-//#ifdef EMISSIVECOLOR_1
-    uniform vec4 EmissiveColor_1;
-//#endif
-//#ifdef EMISSIVECOLOR_2
-    uniform vec4 EmissiveColor_2;
-//#endif
-//#ifdef EMISSIVECOLOR_3
-    uniform vec4 EmissiveColor_3;
-//#endif
-//#ifdef EMISSIVECOLOR_4
-    uniform vec4 EmissiveColor_4;
-//#endif
-//#ifdef EMISSIVECOLOR_5
-    uniform vec4 EmissiveColor_5;
-//#endif
-//#ifdef EMISSIVECOLOR_6
-    uniform vec4 EmissiveColor_6;
-//#endif
-//#ifdef EMISSIVECOLOR_7
-    uniform vec4 EmissiveColor_7;
-//#endif
-//#ifdef EMISSIVECOLOR_8
-    uniform vec4 EmissiveColor_8;
-//#endif
-//#ifdef EMISSIVECOLOR_9
-    uniform vec4 EmissiveColor_9;
-//#endif
-//#ifdef EMISSIVECOLOR_10
-    uniform vec4 EmissiveColor_10;
-//#endif
-//#ifdef EMISSIVECOLOR_11
-    uniform vec4 EmissiveColor_11;
-//#endif
+uniform vec4 m_EmissiveColor_0;
+uniform vec4 m_EmissiveColor_1;
+uniform vec4 m_EmissiveColor_2;
+uniform vec4 m_EmissiveColor_3;
+uniform vec4 m_EmissiveColor_4;
+uniform vec4 m_EmissiveColor_5;
+uniform vec4 m_EmissiveColor_6;
+uniform vec4 m_EmissiveColor_7;
+uniform vec4 m_EmissiveColor_8;
+uniform vec4 m_EmissiveColor_9;
+uniform vec4 m_EmissiveColor_10;
+uniform vec4 m_EmissiveColor_11;
 
 
 
@@ -309,42 +173,20 @@ uniform float m_Metallic_11;
 #endif
 
 
-//#ifdef ALBEDOMAP_0_SCALE
-  uniform float m_AlbedoMap_0_scale;
-//#endif
-//#ifdef ALBEDOMAP_1_SCALE
-  uniform float m_AlbedoMap_1_scale;
-//#endif
-//#ifdef ALBEDOMAP_2_SCALE
-  uniform float m_AlbedoMap_2_scale;
-//#endif
-//#ifdef ALBEDOMAP_3_SCALE
-  uniform float m_AlbedoMap_3_scale;
-//#endif
-//#ifdef ALBEDOMAP_4_SCALE
-  uniform float m_AlbedoMap_4_scale;
-//#endif
-//#ifdef ALBEDOMAP_5_SCALE
-  uniform float m_AlbedoMap_5_scale;
-//#endif
-//#ifdef ALBEDOMAP_6_SCALE
-  uniform float m_AlbedoMap_6_scale;
-//#endif
-//#ifdef ALBEDOMAP_7_SCALE
-  uniform float m_AlbedoMap_7_scale;
-//#endif
-//#ifdef ALBEDOMAP_8_SCALE
-  uniform float m_AlbedoMap_8_scale;
-//#endif
-//#ifdef ALBEDOMAP_9_SCALE
-  uniform float m_AlbedoMap_9_scale;
-//#endif
-//#ifdef ALBEDOMAP_10_SCALE
-  uniform float m_AlbedoMap_10_scale;
-//#endif
-//#ifdef ALBEDOMAP_11_SCALE
-  uniform float m_AlbedoMap_11_scale;
-//#endif
+
+
+uniform float m_AlbedoMap_0_scale;
+uniform float m_AlbedoMap_1_scale;
+uniform float m_AlbedoMap_2_scale;
+uniform float m_AlbedoMap_3_scale;
+uniform float m_AlbedoMap_4_scale;
+uniform float m_AlbedoMap_5_scale;
+uniform float m_AlbedoMap_6_scale;
+uniform float m_AlbedoMap_7_scale;
+uniform float m_AlbedoMap_8_scale;
+uniform float m_AlbedoMap_9_scale;
+uniform float m_AlbedoMap_10_scale;
+uniform float m_AlbedoMap_11_scale;
 
 
 #ifdef NORMALMAP_0
@@ -423,11 +265,73 @@ uniform float m_Metallic_11;
 #endif
 
 
+#if defined(USE_VERTEX_COLORS_AS_SUN_INTENSITY) 
+    varying vec4 vertColors;
+#endif
 
+#ifdef STATIC_SUN_INTENSITY
+    uniform float m_StaticSunIntensity;
+#endif
+
+float brightestPointLight = 0.0;
 
 
 
 vec4 afflictionVector;
+//Optional 'Affliction' variables (used for dynamic desaturation and texture splatting)
+#ifdef AFFLICTIONTEXTURE
+    uniform sampler2D m_AfflictionAlphaMap;
+#endif
+
+#ifdef USE_SPLAT_NOISE
+     uniform float m_SplatNoiseVar;
+#endif
+
+//defined for sub terrains that arent equal to each map tile size
+#ifdef TILELOCATION
+    uniform float m_TileWidth;
+    uniform vec3 m_TileLocation;
+#endif
+
+uniform int m_AfflictionSplatScale;
+#ifdef AFFLICTIONALBEDOMAP
+    uniform sampler2D m_SplatAlbedoMap ;
+#endif
+
+#ifdef AFFLICTIONNORMALMAP
+    uniform sampler2D m_SplatNormalMap;
+#endif
+
+#ifdef AFFLICTIONROUGHNESSMETALLICMAP
+    uniform sampler2D m_SplatRoughnessMetallicMap;
+#endif
+
+#ifdef AFFLICTIONEMISSIVEMAP
+    uniform sampler2D m_SplatEmissiveMap;
+#endif
+
+uniform float m_AfflictionRoughnessValue;
+uniform float m_AfflictionMetallicValue;
+uniform float m_AfflictionEmissiveValue;
+uniform vec4 m_AfflictionEmissiveColor;
+
+
+
+uniform int m_AfflictionMode_0;
+uniform int m_AfflictionMode_1;
+uniform int m_AfflictionMode_2;
+uniform int m_AfflictionMode_3;
+uniform int m_AfflictionMode_4;
+uniform int m_AfflictionMode_5;
+uniform int m_AfflictionMode_6;
+uniform int m_AfflictionMode_7;
+uniform int m_AfflictionMode_8;
+uniform int m_AfflictionMode_9;
+uniform int m_AfflictionMode_10;
+uniform int m_AfflictionMode_11;
+
+
+
 
 
 
@@ -456,16 +360,13 @@ float emissiveIntensity = 1.0;
 vec4 packedMetallicRoughnessAoEiVec;
 vec4 packedNormalParallaxVec;
 
-vec4 tempAlbedo, tempNormal;
+vec4 tempAlbedo, tempNormal, tempEmissiveColor;
 float tempParallax, tempMetallic, tempRoughness, tempAo, tempEmissiveIntensity;
 
 float noiseHash;
 float livelinessValue;
 float afflictionValue;
 int afflictionMode = 1;
-
-
-
 
 
 #define DEFINE_COORD(index) vec2 coord##index = texCoord * m_AlbedoMap##index##_scale;
@@ -476,7 +377,8 @@ int afflictionMode = 1;
 #define BLEND_MR_VALUES(index, ab)\
     packedAoValue = mix(packedAoValue , 1, ab);\
     Metallic = mix(Metallic, m_Metallic##index, ab);\
-    Roughness = mix(Roughness, m_Roughness##index, ab);
+    Roughness = mix(Roughness, m_Roughness##index, ab);\
+    emissive = mix(emissive, m_EmissiveColor##index, ab);
     
 #define BLEND_MRAOEI_MAP(index, ab)\
     packedMetallicRoughnessAoEiVec.rgba = texture2DArray(m_MetallicRoughnessAoEiTextureArray, vec3(coord##index, m_MetallicRoughnessMap##index)).rgba;\
@@ -485,9 +387,13 @@ int afflictionMode = 1;
     tempMetallic = tempMetallic * packedMetallicRoughnessAoEiVec.b;\
     tempAo = packedMetallicRoughnessAoEiVec.r;\
     tempEmissiveIntensity = packedMetallicRoughnessAoEiVec.a;\
+    emissiveIntensity = mix(emissiveIntensity, tempEmissiveIntensity, ab);\
+    tempEmissiveColor = m_EmissiveColor##index;\
+    tempEmissiveColor *= tempEmissiveIntensity;\
     packedAoValue = mix(packedAoValue, tempAo, ab);\
     Metallic = mix(Metallic, tempMetallic, ab);\
-    Roughness = mix(Roughness, tempRoughness, ab);
+    Roughness = mix(Roughness, tempRoughness, ab);\
+    emissive = mix(emissive, tempEmissiveColor, ab);
     
 
 
@@ -507,14 +413,15 @@ int afflictionMode = 1;
     tempAlbedo.rgb = alterLiveliness(tempAlbedo.rgb, livelinessValue, afflictionMode);\
     albedo.rgb = mix( albedo.rgb, tempAlbedo.rgb ,ab );\
     packedNormalParallaxVec.rgba = texture2DArray(m_NormalParallaxTextureArray, vec3(coord##index,  m_NormalMap##index)).rgba;\
-    tempNormal.xyz = mixNormals(packedNormalParallaxVec.xyz, wNormal);\
+    tempNormal.xyz = calculateTangentsAndApplyToNormals(packedNormalParallaxVec.xyz, wNormal);\
     normal.xyz = mix(normal.xyz, tempNormal.xyz, ab);
     
     
 #define TRI_BLEND_MR_VALUES(index, ab)\
     packedAoValue = mix(packedAoValue , 1, ab);\
     Metallic = mix(Metallic, m_Metallic##index, ab);\
-    Roughness = mix(Roughness, m_Roughness##index, ab);
+    Roughness = mix(Roughness, m_Roughness##index, ab);\
+    emissive = mix(emissive, m_EmissiveColor##index, ab);
     
 #define TRI_BLEND_MRAOEI_MAP(worldCoords, index, ab, blending)\
     packedMetallicRoughnessAoEiVec.rgba = getTriPlanarBlendFromTexArray(worldCoords, blending, m_MetallicRoughnessMap##index, m_AlbedoMap##index##_scale, m_MetallicRoughnessAoEiTextureArray).rgba;\
@@ -523,9 +430,13 @@ int afflictionMode = 1;
     tempMetallic = tempMetallic * packedMetallicRoughnessAoEiVec.b;\
     tempAo = packedMetallicRoughnessAoEiVec.r;\
     tempEmissiveIntensity = packedMetallicRoughnessAoEiVec.a;\
+    emissiveIntensity = mix(emissiveIntensity, tempEmissiveIntensity, ab);\
+    tempEmissiveColor = m_EmissiveColor##index;\
+    tempEmissiveColor *= tempEmissiveIntensity;\
     packedAoValue = mix(packedAoValue, tempAo, ab);\
     Metallic = mix(Metallic, tempMetallic, ab);\
-    Roughness = mix(Roughness, tempRoughness, ab);
+    Roughness = mix(Roughness, tempRoughness, ab);\
+    emissive = mix(emissive, tempEmissiveColor, ab);
 
 #define TRI_BLEND(index, ab, worldCoords, blending)\
     afflictionMode = m_AfflictionMode##index;\
@@ -543,7 +454,7 @@ int afflictionMode = 1;
     tempAlbedo.rgb = alterLiveliness(tempAlbedo.rgb, livelinessValue, afflictionMode);\
     albedo.rgb = mix( albedo.rgb, tempAlbedo.rgb ,ab );\
     tempNormal.xyz = packedNormalParallaxVec.xyz;\
-    tempNormal.xyz = mixNormals(tempNormal.xyz, wNormal);\
+    tempNormal.xyz = calculateTangentsAndApplyToNormals(tempNormal.xyz, wNormal);\
     normal.xyz = mix(normal.xyz, tempNormal.xyz, ab);
     
     
@@ -558,9 +469,7 @@ int afflictionMode = 1;
 
 #ifdef ALPHAMAP
 
-//parallax removed for now, would been in BLEND_PARALLAX above..but that would be an extra texture read if the normal map was already read elsewhere, so eventually
-// nest a method in the BLEND_NORMAL method defs, and see if the regular method can take in the float for tha alpha channel where parallax is packed and check for the packed parallax boolean
-
+//parallax removed for now
 // calculateParallax(coord##index, m_ParallaxHeight##index, ab, m_NormalMap##index);
 
 void calculateParallax(inout vec2 parallaxTexCoord, in float parallaxHeight, in float intensity, in int texIndex) {
@@ -653,7 +562,7 @@ vec4 calculateAlbedoBlend(in vec2 texCoord) {
       vec4 alphaBlend2   = texture2D( m_AlphaMap_2, texCoord.xy );
     #endif
     #ifdef ALBEDOMAP_0   
-                    //NOTE! the old (phong) terrain shaders do not have an "_0" for the first diffuse map, it is just "DiffuseMap"
+                    //NOTE! the old (phong) TerrainLighting.j3md shadesr do not have an "_0" for the first diffuse map, it is just "DiffuseMap"
         DEFINE_COORD(_0)
         #ifdef PARALLAXHEIGHT_0
             BLEND_PARALLAX(_0, alphaBlend.r)
@@ -693,7 +602,7 @@ vec4 calculateAlbedoBlend(in vec2 texCoord) {
         DEFINE_COORD(_2)
         
         #ifdef PARALLAXHEIGHT_2
-       //     BLEND_PARALLAX(_2, alphaBlend.b)
+            BLEND_PARALLAX(_2, alphaBlend.b)
         #endif
         
         #ifdef NORMALMAP_2
@@ -705,9 +614,7 @@ vec4 calculateAlbedoBlend(in vec2 texCoord) {
             BLEND_MRAOEI_MAP(_2,  alphaBlend.b)
         #else
             BLEND_MR_VALUES(_2,  alphaBlend.b)
-        #endif
-        
-        tempParallax = packedNormalParallaxVec.a;
+        #endif        
         
         
     #endif
@@ -1078,37 +985,26 @@ vec4 calculateAlbedoBlend(in vec2 texCoord) {
 
 
 
-
-#if defined(USE_VERTEX_COLORS_AS_SUN_INTENSITY) 
-    varying vec4 vertColors; //probably wont happen for rock tower, but leave code here so its consistent to afflictedPbr.frag and just in case you make a custom rock tower with vert colors ever
-#endif
-
-#ifdef STATIC_SUN_INTENSITY
-    uniform float m_StaticSunIntensity;
-#endif
-
-float brightestPointLight = 0.0;
-
-
 void main(){    
     
-    float indoorSunLightExposure = 1.0;//scale this to match R channel of vertex colors
-
-     
+    #ifdef USE_FOG
+        fogDistance = distance(g_CameraPosition, wPosition.xyz);
+    #endif
     
+    float indoorSunLightExposure = 1.0;
     
     viewDir = normalize(g_CameraPosition - wPosition);
 
     norm  = normalize(wNormal);
     normal = norm;
 
-//    #endif
 
-    afflictionVector = vec4(1.0, 0.0, 1.0, 0.0);
+    afflictionVector = vec4(1.0, 0.0, 1.0, 0.0); //r channel is sturation, g channel is affliction splat texture intensity, b and a unused (might use b channel for wetness eventually)
+    
     #ifdef AFFLICTIONTEXTURE
     
         #ifdef TILELOCATION 
-        //subterrains that are not centred in tile or equal to tile width in total size need to have m_TileWidth pre-set.
+        //subterrains that are not centred in tile or equal to tile width in total size need to have m_TileWidth pre-set. (tileWidth is the x,z dimesnions that the AfflictionAlphaMap represents)..
             vec2 tileCoords;
             float xPos, zPos;
 
@@ -1121,12 +1017,13 @@ void main(){
 
             tileCoords = vec2(xPos, zPos);
 
-            afflictionVector = texture2D(m_AfflictionTexture, tileCoords).rgba;
+            afflictionVector = texture2D(m_AfflictionAlphaMap, tileCoords).rgba;
         
         
-        //othrewise, the terrain's texCoords can be used for easiest texel fetching
+     
         #else
-            afflictionVector = texture2D(m_AfflictionTexture, texCoord.xy).rgba;
+           // ..othrewise when terrain size matches tileWidth, the terrain's texCoords can be used for simple texel fetching of the AfflictionAlphaMap
+            afflictionVector = texture2D(m_AfflictionAlphaMap, texCoord.xy).rgba;
         #endif
     #endif
 
@@ -1134,13 +1031,8 @@ void main(){
     afflictionValue = afflictionVector.g;
 
 
-//get the 0,0 pixel at first corner of texture, and use this as sunlight value
 
-    //----------------------
-    // albedo calculations
-    //----------------------
-    
-//always calculated since the
+
     vec3 blending;
     #ifdef ALBEDOMAP_0
       #ifdef ALPHAMAP
@@ -1162,198 +1054,135 @@ void main(){
       #endif
     #endif
 
-        if(albedo.a <= 0.1){
-            albedo.r = 1.0;
-            
+    float alpha = albedo.a;
+    #ifdef DISCARD_ALPHA
+        if(alpha < m_AlphaDiscardThreshold){
             discard;
-         }
-
-
-
-
-
-
-
-
-    #ifdef ROUGHNESSMAP
-        Roughness = texture2D(m_RoughnessMap, texCoord).r * Roughness;
-    #endif
-    Roughness = max(Roughness, 1e-4);
-    #ifdef METALLICMAP   
-        Metallic = texture2D(m_MetallicMap, texCoord).r;
+        }
     #endif
 
-    #ifdef METALLICMAP
-        Metallic =  max(Metallic, 0.0);
-    //    Metallic = texture2D(m_MetallicMap, texCoord).r * max(Metallic, 0.0);
-    #else
-        Metallic =  max(Metallic, 0.0);
-    #endif
-    
 
        
 
-    //---------------------
-    // normal calculations
-    //---------------------
-    #if defined(NORMALMAP_0) || defined(NORMALMAP_1) || defined(NORMALMAP_2) || defined(NORMALMAP_3) || defined(NORMALMAP_4) || defined(NORMALMAP_5) || defined(NORMALMAP_6) || defined(NORMALMAP_7) || defined(NORMALMAP_8) || defined(NORMALMAP_9) || defined(NORMALMAP_10) || defined(NORMALMAP_11)
-
-
-    
-
-    #ifdef TRI_PLANAR_MAPPING
-    //    normal = calculateNormalTriPlanar(wNormal, wVertex, texCoord);
-      #else
-    //    normal = calculateNormal(texCoord);
-      #endif
-
- //     normal += norm * 0.9;
-
-//    normal = normalize(normal * vec3(2.0) - vec3(1.0));
-
-    #else
-
-      
-//       normal = normalize(norm * vec3(2.0) - vec3(1.0));
-
-       normal = norm;
-    #endif
-
- //   normal = normalize(normal * vec3(2.0) - vec3(1.0));
-
-//APPLY AFFLICTIONNESS TO THE PIXEL
-
+//APPLY AFFLICTIONN TO THE PIXEL
+#ifdef AFFLICTIONTEXTURE
 vec4 afflictionAlbedo;    
 
 
-float newAfflictionScale = m_PlaguedMapScale; //manually assigned as of now, since running into bugs...
+float newAfflictionScale = m_AfflictionSplatScale; 
 vec2 newScaledCoords;
 
-#ifdef AFFLICTIONALBEDOMAP
-    #ifdef TRI_PLANAR_MAPPING
-        newAfflictionScale = newAfflictionScale / 256;
-        afflictionAlbedo = getTriPlanarBlend(wVertex, blending, m_PlaguedAlbedoMap , newAfflictionScale);
 
-    #else
-        newScaledCoords = mod(wPosition.xz / m_PlaguedMapScale, 0.985);
-        afflictionAlbedo = texture2D(m_PlaguedAlbedoMap , newScaledCoords);
-    #endif
-   
-#else
-    afflictionAlbedo = vec4(0.55, 0.8, 0.00, 1.0);
-#endif
-
-vec3 afflictionNormal;
-#ifdef AFFLICTIONNORMALMAP
-    #ifdef TRI_PLANAR_MAPPING
-
-        afflictionNormal = getTriPlanarBlend(wVertex, blending, m_PlaguedNormalMap , newAfflictionScale).rgb;
-
-    #else
-        afflictionNormal = texture2D(m_PlaguedNormalMap , newScaledCoords).rgb;
-    #endif
-
-#else
-    afflictionNormal = norm; 
-
-#endif
-float afflictionMetallic = m_AfflictionMetallicValue;
-float afflictionRoughness = m_AfflictionRoughnessValue;
-float afflictionAo = 1.0;
-
-
-vec4 afflictionEmissive = m_AfflictionEmissiveColor;
-float afflictionEmissiveIntensity = m_AfflictionEmissiveValue;
-
-
-#ifdef AFFLICTIONROUGHNESSMETALLICMAP    
-    vec4 metallicRoughnessAoEiVec = texture2D(m_PlaguedRoughnessMetallicMap, newScaledCoords);
-    afflictionRoughness *= metallicRoughnessAoEiVec.g;
-    afflictionMetallic *= metallicRoughnessAoEiVec.b;
-    afflictionAo = metallicRoughnessAoEiVec.r;
-    afflictionEmissiveIntensity *= metallicRoughnessAoEiVec.a; //important not to leave this channel all black by accident in the mraoei map if using affliction emissiveness    
-    
-#endif
-
-#ifdef AFFLICTIONEMISSIVEMAP
-    vec4 emissiveMapColor = texture2D(m_PlaguedEmissiveMap, newScaledCoords);
-    afflictionEmissive *= emissiveMapColor;
-#endif
-
-
-
-    noiseHash = getStaticNoiseVar0(wPosition, afflictionValue);
-    Roughness = alterAfflictionRoughness(afflictionValue, Roughness, afflictionRoughness, noiseHash * afflictionAlbedo.a);
-    Metallic = alterAfflictionMetallic(afflictionValue, Metallic,  afflictionMetallic, noiseHash * afflictionAlbedo.a);//use the alpha channel of albedo map to alter opcaity for the matching affliction normals, roughness, and metalicness at each pixel
-    albedo = alterAfflictionColor(afflictionValue, albedo, afflictionAlbedo, noiseHash * afflictionAlbedo.a);
-    normal = alterAfflictionNormalsForTerrain(afflictionValue, normal, afflictionNormal, noiseHash * afflictionAlbedo.a, wNormal);
-    afflictionEmissive = alterAfflictionGlow(afflictionValue, afflictionEmissive, noiseHash);
-    //affliction ao value blended below after specular calculation
-
-
-
-// spec gloss pipeline most likely will not be supported for this terrain shader anytime soon..
- #ifdef SPECGLOSSPIPELINE
-
-        #ifdef USE_PACKED_SG
-            vec4 specularColor = texture2D(m_SpecularGlossinessMap, newTexCoord);
-            float glossiness = specularColor.a * m_Glossiness;
-            specularColor *= m_Specular;
+    #ifdef AFFLICTIONALBEDOMAP
+        #ifdef TRI_PLANAR_MAPPING
+            newAfflictionScale = newAfflictionScale / 256;
+            afflictionAlbedo = getTriPlanarBlend(wVertex, blending, m_SplatAlbedoMap , newAfflictionScale);
         #else
-            #ifdef SPECULARMAP
-                vec4 specularColor = texture2D(m_SpecularMap, newTexCoord);
-            #else
-                vec4 specularColor = vec4(1.0);
-            #endif
-            #ifdef GLOSSINESSMAP
-                float glossiness = texture2D(m_GlossinesMap, newTexCoord).r * m_Glossiness;
-            #else
-                float glossiness = m_Glossiness;
-            #endif
-            specularColor *= m_Specular;
+            newScaledCoords = mod(wPosition.xz / m_AfflictionSplatScale, 0.985);
+            afflictionAlbedo = texture2D(m_SplatAlbedoMap , newScaledCoords);
         #endif
-        vec4 diffuseColor = albedo;// * (1.0 - max(max(specularColor.r, specularColor.g), specularColor.b));
-        Roughness = 1.0 - glossiness;
-        vec3 fZero = specularColor.xyz;
-    #else      
-        float specular = 0.5;
-        float nonMetalSpec = 0.08 * specular;
-        vec4 specularColor = (nonMetalSpec - nonMetalSpec * Metallic) + albedo * Metallic;
-        vec4 diffuseColor = albedo - albedo * Metallic;
-        vec3 fZero = vec3(specular);
+
+    #else
+        afflictionAlbedo = vec4(1.0, 1.0, 1.0, 1.0);
     #endif
 
-    gl_FragColor.rgb = vec3(0.0);
+    vec3 afflictionNormal;
+    #ifdef AFFLICTIONNORMALMAP
+        #ifdef TRI_PLANAR_MAPPING
+
+            afflictionNormal = getTriPlanarBlend(wVertex, blending, m_SplatNormalMap , newAfflictionScale).rgb;
+
+        #else
+            afflictionNormal = texture2D(m_SplatNormalMap , newScaledCoords).rgb;
+        #endif
+
+    #else
+        afflictionNormal = norm; 
+
+    #endif
+    float afflictionMetallic = m_AfflictionMetallicValue;
+    float afflictionRoughness = m_AfflictionRoughnessValue;
+    float afflictionAo = 1.0;
+
+
+    vec4 afflictionEmissive = m_AfflictionEmissiveColor;
+    float afflictionEmissiveIntensity = m_AfflictionEmissiveValue;
+
+
+    #ifdef AFFLICTIONROUGHNESSMETALLICMAP    
+        vec4 metallicRoughnessAoEiVec = texture2D(m_SplatRoughnessMetallicMap, newScaledCoords);
+        afflictionRoughness *= metallicRoughnessAoEiVec.g;
+        afflictionMetallic *= metallicRoughnessAoEiVec.b;
+        afflictionAo = metallicRoughnessAoEiVec.r;
+        afflictionEmissiveIntensity *= metallicRoughnessAoEiVec.a; //important not to leave this channel all black by accident when creating the mraoei map if using affliction emissiveness    
+
+    #endif
+
+    #ifdef AFFLICTIONEMISSIVEMAP
+        vec4 emissiveMapColor = texture2D(m_SplatEmissiveMap, newScaledCoords);
+        afflictionEmissive *= emissiveMapColor;
+    #endif
+    
+    float adjustedAfflictionValue = afflictionValue;
+        #ifdef USE_SPLAT_NOISE
+            noiseHash = getStaticNoiseVar0(wPosition, afflictionValue * m_SplatNoiseVar);
+            
+            adjustedAfflictionValue = getAdjustedAfflictionVar(afflictionValue);
+            if(afflictionValue >= 0.99){
+                adjustedAfflictionValue = afflictionValue;
+            }
+        #else
+            noiseHash = 1.0;
+        #endif        
+        
+        Roughness = alterAfflictionRoughness(adjustedAfflictionValue, Roughness, afflictionRoughness, noiseHash);
+        Metallic = alterAfflictionMetallic(adjustedAfflictionValue, Metallic,  afflictionMetallic, noiseHash);
+        albedo = alterAfflictionColor(adjustedAfflictionValue, albedo, afflictionAlbedo, noiseHash );
+        normal = alterAfflictionNormalsForTerrain(adjustedAfflictionValue, normal, afflictionNormal, noiseHash , wNormal);
+        emissive = alterAfflictionGlow(adjustedAfflictionValue, emissive, afflictionEmissive, noiseHash);
+        emissiveIntensity = alterAfflictionEmissiveIntensity(adjustedAfflictionValue, emissiveIntensity, afflictionEmissiveIntensity, noiseHash);
+        emissiveIntensity *= afflictionEmissive.a;
+        //affliction ao value blended below after specular calculation
+#endif
+
+// spec gloss pipeline code would go here if supported, but likely will not be for terrain shaders as defines are limited and heavily used
+
+float specular = 0.5;
+float nonMetalSpec = 0.08 * specular;
+vec4 specularColor = (nonMetalSpec - nonMetalSpec * Metallic) + albedo * Metallic;
+vec4 diffuseColor = albedo - albedo * Metallic;
+vec3 fZero = vec3(specular);
+
+
+gl_FragColor.rgb = vec3(0.0);
 
 
  
- 
-//simple ao calculation (no support for lightmaps like stock pbr shader)
+//simple ao calculation, no support for lightmaps like stock pbr shader.. (probably could add lightmap support with another texture array, but
+//                                                                         that would add another texture read per slot and require removing 12 other defines to make room...)
     vec3 ao = vec3(packedAoValue);
     
-    ao = alterAfflictionAo(afflictionValue, ao, vec3(afflictionAo), noiseHash); // alter the AO map for affliction values
-    
+    #ifdef AFFLICTIONTEXTURE
+        ao = alterAfflictionAo(afflictionValue, ao, vec3(afflictionAo), noiseHash); // alter the AO map for affliction values
+    #endif
     ao.rgb = ao.rrr;
     specularColor.rgb *= ao;
  
  
-  //finalLightingScale ACCOUNTS FOR SUN EXPOSURE FOR INDOOR AND SHADED AREAS OUT OF THE SUN'S FULL LIGHTING.
-    float finalLightingScale = 1.0; 
+  
     #ifdef STATIC_SUN_INTENSITY
         indoorSunLightExposure = m_StaticSunIntensity; //single float value to indicate percentage of
-                           //sunlight hitting the model (only works for small models or models with 100% consistent sunlighting)
+                           //sunlight hitting the model (only works for small models or models with 100% consistent sunlighting accross every pixel)
     #endif
     #ifdef USE_VERTEX_COLORS_AS_SUN_INTENSITY
         indoorSunLightExposure = vertColors.r * indoorSunLightExposure;      //use R channel of vertexColors for..       
     #endif 
-                                                               // similar purpose as above... *^.  
+                                                               // similar purpose as above...
                                                              //but uses r channel vert colors like an AO map specifically
                                                                  //for sunlight (solution for scaling lighting for indoor
-                                                                  // and shadey/dimly lit models, especially big ones)
+                                                                  // and shadey/dimly lit models, especially big ones with)
     brightestPointLight = 0.0;
     
-    
-    finalLightingScale *= indoorSunLightExposure; 
      
     float ndotv = max( dot( normal, viewDir ),0.0);
     for( int i = 0;i < NB_LIGHTS; i+=3){
@@ -1385,9 +1214,8 @@ float afflictionEmissiveIntensity = m_AfflictionEmissiveValue;
 
         vec3 directLighting = diffuseColor.rgb *directDiffuse + directSpecular;
             
-     //   #if defined(USE_VERTEX_COLORS_AS_SUN_INTENSITY) || defined(STATIC_SUN_INTENSITY)
-            
-            if(fallOff == 1.0){
+        #if defined(USE_VERTEX_COLORS_AS_SUN_INTENSITY) || defined(STATIC_SUN_INTENSITY)
+           if(fallOff == 1.0){
                 directLighting.rgb *= indoorSunLightExposure;// ... *^. to scale down how intense just the sun is (ambient and direct light are 1.0 fallOff)
                 
             }
@@ -1395,7 +1223,8 @@ float afflictionEmissiveIntensity = m_AfflictionEmissiveValue;
                     brightestPointLight = max(fallOff, brightestPointLight);
           
            }
-   //     #endif
+
+       #endif
         
         
         
@@ -1407,18 +1236,16 @@ float afflictionEmissiveIntensity = m_AfflictionEmissiveValue;
     
     float minVertLighting;
     #ifdef BRIGHTEN_INDOOR_SHADOWS
-        minVertLighting = 0.0833; //brighten shadows so that caves which are naturally covered from the DL shadows are not way too dark compared to when shadows are off
+        minVertLighting = 0.0833; //brighten shadows so that caves which are naturally covered from the DL shadows are not way too dark compared to when shadows are off (mostly only necessary for naturally dark scenes, or dark areas when using the sun intensity code above)
     #else
         minVertLighting = 0.0533;
     
     #endif
     
-    finalLightingScale = max(finalLightingScale, brightestPointLight);
+    indoorSunLightExposure = max(indoorSunLightExposure, brightestPointLight);   
+    indoorSunLightExposure = max(indoorSunLightExposure, minVertLighting);       //scale the indoorSunLightExposure back up to account for the brightest point light nearby before scaling light probes by this value below   
     
-    finalLightingScale = max(finalLightingScale, minVertLighting); //essentially just the vertColors.r (aka indoor liht exposure) multiplied by the time of day scale.
-    
-    //IMPORTANT NOTE: You used to multiply finalLightingScale by the indirectLighting value, and need to do that here still
-    //no need for anymore time of day code (also remove probe color scale ) as thats in ambient light now.
+
 
     #if NB_PROBES >= 1
         vec3 color1 = vec3(0.0);
@@ -1464,39 +1291,33 @@ float afflictionEmissiveIntensity = m_AfflictionEmissiveValue;
             color3.rgb *= g_AmbientLightColor.rgb;
         #endif
 
-// multiply probes by the finalLightingScale, as determined by pixel's 
-// sunlightExposure and adjusted for nearby point/spot lights
-        color1.rgb *= finalLightingScale;
-        color2.rgb *= finalLightingScale;
-        color3.rgb *= finalLightingScale;
+
+// multiply probes by the indoorSunLightExposure, as determined by pixel's  sunlightExposure and adjusted for 
+// nearby point/spot lights ( will be multiplied by 1.0 and left unchanged if you are not defining any of the sunlight exposure variables for dimming indoors areas)
+        color1.rgb *= indoorSunLightExposure;
+        color2.rgb *= indoorSunLightExposure;
+        color3.rgb *= indoorSunLightExposure;
         
         
         gl_FragColor.rgb += color1 * clamp(weight1,0.0,1.0) + color2 * clamp(weight2,0.0,1.0) + color3 * clamp(weight3,0.0,1.0);
 
     #endif
+
+
+
+    if(emissive.a > 0){
     
-    #if defined(EMISSIVE) || defined (EMISSIVEMAP)
-        #ifdef EMISSIVEMAP
-            emissive = texture2D(m_EmissiveMap, texCoord);
-        #else
-            emissive = m_Emissive;
-        #endif
-
-        gl_FragColor += emissive * pow(emissive.a, m_EmissivePower) * m_EmissiveIntensity;
-
-    #else
-   //     gl_FragColor += emissive * pow(emissive.a,  2) * 1;
+        emissive = emissive * pow(emissive.a * 5, emissiveIntensity) * emissiveIntensity * 20 * emissive.a;
     
-    #endif
+    }
+    
+  //  emissive = emissive * pow(emissiveIntensity * 2.3, emissive.a);
 
-    gl_FragColor += emissive * pow(emissiveIntensity * 1.3, emissive.a) * (emissiveIntensity *1.5);
+    gl_FragColor += emissive;
 
 
-   //  gl_FragColor.rgb = afflictionVector.rgb;
    
-   
-   
-           // add fog after the lighting because shadows will cause the fog to darken
+     // add fog after the lighting because shadows will cause the fog to darken
     // which just results in the geometry looking like it's changed color
     #ifdef USE_FOG
         #ifdef FOG_LINEAR
@@ -1510,7 +1331,7 @@ float afflictionEmissiveIntensity = m_AfflictionEmissiveValue;
         #endif
     #endif 
     
-    
+    //outputs the final value of the selected layer as a color for debug purposes. 
     #ifdef DEBUG_VALUES_MODE
         if(m_DebugValuesMode == 0){
                 gl_FragColor.rgb = vec3(albedo);
@@ -1536,8 +1357,9 @@ float afflictionEmissiveIntensity = m_AfflictionEmissiveValue;
                 gl_FragColor.rgb = vec3(emissive.rgb);               
 
         }
+        
     #endif
     
-    gl_FragColor.a = 1.0;
-    
+    gl_FragColor.a = albedo.a;
+
 }
