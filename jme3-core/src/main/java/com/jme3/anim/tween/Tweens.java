@@ -47,7 +47,7 @@ import java.util.logging.Logger;
  */
 public class Tweens {
 
-    static Logger log = Logger.getLogger(Tweens.class.getName());
+    private static final Logger log = Logger.getLogger(Tweens.class.getName());
 
     private static final CurveFunction SMOOTH = new SmoothStep();
     private static final CurveFunction SINE = new Sine();

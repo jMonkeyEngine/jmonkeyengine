@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -64,7 +64,7 @@ import java.util.logging.Logger;
  */
 public class KernelAdapter extends Thread
 {
-    static Logger log = Logger.getLogger(KernelAdapter.class.getName());
+    private static final Logger log = Logger.getLogger(KernelAdapter.class.getName());
     
     private DefaultServer server; // this is unfortunate
     private Kernel kernel;

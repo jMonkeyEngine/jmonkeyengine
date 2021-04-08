@@ -52,7 +52,7 @@ import java.util.logging.Logger;
  */
 public class UdpKernel extends AbstractKernel
 {
-    static Logger log = Logger.getLogger(UdpKernel.class.getName());
+    private static final Logger log = Logger.getLogger(UdpKernel.class.getName());
 
     private InetSocketAddress address;
     private HostThread thread;

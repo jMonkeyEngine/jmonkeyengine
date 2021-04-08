@@ -73,7 +73,7 @@ import java.util.logging.Logger;
  */
 public abstract class BaseAppState implements AppState {
 
-    static final Logger log = Logger.getLogger(BaseAppState.class.getName());
+    private static final Logger log = Logger.getLogger(BaseAppState.class.getName());
 
     private Application app;
     private boolean initialized;

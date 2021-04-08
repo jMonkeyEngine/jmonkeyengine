@@ -46,7 +46,7 @@ import java.util.logging.Logger;
  */
 public abstract class ServiceManager<T> {
 
-    static final Logger log = Logger.getLogger(ServiceManager.class.getName());
+    private static final Logger log = Logger.getLogger(ServiceManager.class.getName());
     
     private final List<Service<T>> services = new CopyOnWriteArrayList<>();
     private volatile boolean started = false;

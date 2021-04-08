@@ -51,7 +51,7 @@ import java.util.logging.Logger;
  */
 public class RpcConnection {
 
-    static final Logger log = Logger.getLogger(RpcConnection.class.getName());
+    private static final Logger log = Logger.getLogger(RpcConnection.class.getName());
  
     /**
      *  The underlying connection upon which RPC call messages are sent

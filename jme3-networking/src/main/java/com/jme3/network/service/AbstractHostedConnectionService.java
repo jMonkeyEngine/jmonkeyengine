@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 jMonkeyEngine
+ * Copyright (c) 2015-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -57,7 +57,7 @@ import java.util.logging.Logger;
  */
 public abstract class AbstractHostedConnectionService extends AbstractHostedService { 
  
-    static final Logger log = Logger.getLogger(AbstractHostedConnectionService.class.getName());
+    private static final Logger log = Logger.getLogger(AbstractHostedConnectionService.class.getName());
 
     private boolean autoHost;
     

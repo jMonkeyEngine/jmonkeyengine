@@ -57,7 +57,7 @@ import java.util.logging.Logger;
  */
 public class DefaultClient implements Client
 {
-    static final Logger log = Logger.getLogger(DefaultClient.class.getName());
+    private static final Logger log = Logger.getLogger(DefaultClient.class.getName());
     
     // First two channels are reserved for reliable and
     // unreliable.  Note: channels are endpoint specific so these
