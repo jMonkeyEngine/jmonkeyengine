@@ -1,4 +1,4 @@
-Licensing history for files in "src/main/resources/Textures/Sky/quarry_03"
+Licensing history for files in "src/main/resources/Scenes/LightProbes"
 
 Based on "Quarry 03":
 * download file:     quarry_03.jpg
