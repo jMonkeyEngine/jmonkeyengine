@@ -57,6 +57,8 @@ import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
 
 
+// Uses assets from CC0Textures.com, licensed under CC0 1.0 Universal.
+
 public class PBRTerrainTest extends SimpleApplication {
 
     private TerrainQuad terrain;
