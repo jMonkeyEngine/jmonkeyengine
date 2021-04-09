@@ -245,6 +245,7 @@ MaterialDef PBR Lighting {
         }
 
         Defines {
+            BASECOLORMAP_ALPHA : BaseColorMap            
             NUM_BONES : NumberOfBones
             INSTANCING : UseInstancing
             NUM_MORPH_TARGETS: NumberOfMorphTargets

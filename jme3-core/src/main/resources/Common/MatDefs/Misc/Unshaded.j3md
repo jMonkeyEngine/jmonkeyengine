@@ -104,6 +104,7 @@ MaterialDef Unshaded {
         }
 
         Defines {
+            COLORMAP_ALPHA : ColorMap
             NUM_BONES : NumberOfBones
             INSTANCING : UseInstancing
             NUM_MORPH_TARGETS: NumberOfMorphTargets
