@@ -143,4 +143,11 @@ public class GlfwKeyInputVR implements KeyInput {
     public long getInputTimeNanos() {
         return (long) (glfwGetTime() * 1000000000);
     }
+
+    @Override
+    public String getKeyName(int jmeKey) {
+        int glfwkey = GlfwKeyMap.fromJmeKeyCode(jmeKey);
+        return glfwGetKeyName(glfwkey, 0);
+    }
+
 }

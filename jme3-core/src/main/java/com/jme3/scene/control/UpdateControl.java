@@ -59,6 +59,10 @@ public class UpdateControl extends AbstractControl {
     /**
      * Enqueues a task/callable object to execute in the jME3
      * rendering thread.
+     *
+     * @param <V> type of result returned by the Callable
+     * @param callable the Callable to run
+     * @return a new instance
      */
     public <V> Future<V> enqueue(Callable<V> callable) {
         AppTask<V> task = new AppTask<>(callable);

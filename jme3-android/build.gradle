@@ -5,6 +5,8 @@ if (!hasProperty('mainClass')) {
 }
 
 dependencies {
+    //added annotations used by JmeSurfaceView.
+    implementation 'androidx.appcompat:appcompat:1.2.0'
     compile project(':jme3-core')
     compile project(':jme3-plugins')
     compileOnly 'android:android'

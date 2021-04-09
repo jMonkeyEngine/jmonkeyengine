@@ -51,7 +51,9 @@ import com.jme3.math.Vector3f;
  * If you want to change that you have to replace this keyFrame with the transform you want.
  * 
  * @author Nehon
+ * @deprecated use {@link com.jme3.anim.AnimFactory}
  */
+@Deprecated
 public class AnimationFactory {
 
     /**
@@ -70,6 +72,7 @@ public class AnimationFactory {
     /**
      * inner class to keep track of a rotation using Euler angles
      */
+    @Deprecated
     protected class Rotation {
 
         /**

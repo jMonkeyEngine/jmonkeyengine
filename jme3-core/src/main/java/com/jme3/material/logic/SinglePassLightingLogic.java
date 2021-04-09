@@ -96,6 +96,14 @@ public final class SinglePassLightingLogic extends DefaultTechniqueDefLogic {
      * // or the direction of the light (for directional lights).<br> //
      * g_LightPosition.w is the inverse radius (1/r) of the light (for
      * attenuation)</p>
+     *
+     * @param shader the Shader being used
+     * @param g the Geometry being rendered
+     * @param lightList the list of lights
+     * @param numLights the number of lights to upload
+     * @param rm to manage rendering
+     * @param startIndex the starting index in the LightList
+     * @return the next starting index in the LightList
      */
     protected int updateLightListUniforms(Shader shader, Geometry g, LightList lightList, int numLights, RenderManager rm, int startIndex) {
         if (numLights == 0) { // this shader does not do lighting, ignore.

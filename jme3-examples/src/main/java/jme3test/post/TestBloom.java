@@ -52,7 +52,6 @@ import com.jme3.util.SkyFactory.EnvMapType;
 
 public class TestBloom extends SimpleApplication {
 
-    private Spatial teapot;
     private boolean active=true;
     private FilterPostProcessor fpp;
     
@@ -87,8 +86,7 @@ public class TestBloom extends SimpleApplication {
         matSoil.setColor("Specular", ColorRGBA.Gray);
        
 
-
-        teapot = assetManager.loadModel("Models/Teapot/Teapot.obj");
+        Spatial teapot = assetManager.loadModel("Models/Teapot/Teapot.obj");
         teapot.setLocalTranslation(0,0,10);
 
         teapot.setMaterial(mat);

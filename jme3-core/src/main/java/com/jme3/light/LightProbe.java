@@ -145,6 +145,8 @@ public class LightProbe extends Light implements Savable {
      * <p>
      * The radius is obvious for a SphereProbeArea,
      * but in the case of a OrientedBoxProbeArea it's the max of the extent vector's components.
+     *
+     * @return the pre-existing matrix
      */
     public Matrix4f getUniformMatrix(){
 

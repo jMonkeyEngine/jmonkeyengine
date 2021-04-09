@@ -347,7 +347,7 @@ public class EffectTrack implements ClonableTrack {
     /**
      * Sets the Emitter to use in this track
      *
-     * @param emitter
+     * @param emitter the emitter to be controlled (alias created)
      */
     public void setEmitter(ParticleEmitter emitter) {
         if (this.emitter != null) {
@@ -373,7 +373,7 @@ public class EffectTrack implements ClonableTrack {
     /**
      * set the start offset of the track
      *
-     * @param startOffset
+     * @param startOffset the start offset (in seconds)
      */
     public void setStartOffset(float startOffset) {
         this.startOffset = startOffset;

@@ -78,7 +78,6 @@ public class TestBatchNodeTower extends SimpleApplication {
     private Material mat;
     private Material mat2;
     private Material mat3;
-    private DirectionalLightShadowFilter shadowRenderer;
     private Sphere bullet;
     private Box brick;
     private SphereCollisionShape bulletCollisionShape;
@@ -120,9 +119,9 @@ public class TestBatchNodeTower extends SimpleApplication {
         batchNode.batch();
         batchNode.setShadowMode(ShadowMode.CastAndReceive);
         rootNode.attachChild(batchNode);
-        
-        
-        shadowRenderer = new DirectionalLightShadowFilter(assetManager, 1024, 2);
+
+        DirectionalLightShadowFilter shadowRenderer
+                = new DirectionalLightShadowFilter(assetManager, 1024, 2);
         DirectionalLight dl = new DirectionalLight();
         dl.setDirection(new Vector3f(-1, -1, -1).normalizeLocal());
         shadowRenderer.setLight(dl);

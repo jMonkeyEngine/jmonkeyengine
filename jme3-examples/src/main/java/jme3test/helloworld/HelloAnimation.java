@@ -54,7 +54,6 @@ public class HelloAnimation extends SimpleApplication {
 
   private Action advance;
   private AnimComposer control;
-  private Node player;
 
   public static void main(String[] args) {
     HelloAnimation app = new HelloAnimation();
@@ -72,7 +71,7 @@ public class HelloAnimation extends SimpleApplication {
     rootNode.addLight(dl);
 
     /** Load a model that contains animation */
-    player = (Node) assetManager.loadModel("Models/Oto/Oto.mesh.xml");
+    Node player = (Node) assetManager.loadModel("Models/Oto/Oto.mesh.xml");
     player.setLocalScale(0.5f);
     rootNode.attachChild(player);
 

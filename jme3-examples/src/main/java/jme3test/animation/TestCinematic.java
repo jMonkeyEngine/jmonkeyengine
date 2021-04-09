@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,12 +31,16 @@
  */
 package jme3test.animation;
 
-import com.jme3.animation.*;
+import com.jme3.anim.AnimComposer;
+import com.jme3.animation.AnimControl;
+import com.jme3.animation.AnimationFactory;
+import com.jme3.animation.LoopMode;
 import com.jme3.app.SimpleApplication;
 import com.jme3.cinematic.*;
 import com.jme3.cinematic.events.*;
 import com.jme3.font.BitmapText;
 import com.jme3.input.ChaseCamera;
+import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.DirectionalLight;
@@ -52,16 +56,13 @@ import com.jme3.scene.shape.Box;
 import com.jme3.shadow.DirectionalLightShadowRenderer;
 import de.lessvoid.nifty.Nifty;
 
-//TODO rework this Test when the new animation system is done.
 public class TestCinematic extends SimpleApplication {
 
     private Spatial model;
     private Spatial teapot;
-    private MotionPath path;
     private MotionEvent cameraMotionEvent;
     private Cinematic cinematic;
     private ChaseCamera chaseCam;
-    private FilterPostProcessor fpp;
     private FadeFilter fade;
     private float time = 0;
 
@@ -118,7 +119,9 @@ public class TestCinematic extends SimpleApplication {
         cinematic.addCinematicEvent(3f, new SoundEvent("Sound/Effects/kick.wav"));
         cinematic.addCinematicEvent(3, new SubtitleTrack(nifty, "start", 3, "jMonkey engine really kicks A..."));
         cinematic.addCinematicEvent(5.1f, new SoundEvent("Sound/Effects/Beep.ogg", 1));
-        cinematic.addCinematicEvent(2, new AnimationEvent(model, "Walk", LoopMode.Loop));
+        AnimComposer composer = model.getControl(AnimComposer.class);
+        cinematic.addCinematicEvent(2f,
+                new AnimEvent(composer, "Walk", AnimComposer.DEFAULT_LAYER));
         cinematic.activateCamera(0, "topView");
         //  cinematic.activateCamera(10, "aroundCam");
 
@@ -181,7 +184,7 @@ public class TestCinematic extends SimpleApplication {
         camNode.lookAt(teapot.getLocalTranslation(), Vector3f.UNIT_Y);
 
         CameraNode camNode2 = cinematic.bindCamera("aroundCam", cam);
-        path = new MotionPath();
+        MotionPath path = new MotionPath();
         path.setCycle(true);
         path.addWayPoint(new Vector3f(20, 3, 0));
         path.addWayPoint(new Vector3f(0, 3, 20));
@@ -197,7 +200,7 @@ public class TestCinematic extends SimpleApplication {
 
     private void createScene() {
 
-        model = assetManager.loadModel("Models/Oto/OtoOldAnim.j3o");
+        model = assetManager.loadModel("Models/Oto/Oto.mesh.xml");
         model.center();
         model.setShadowMode(ShadowMode.CastAndReceive);
         rootNode.attachChild(model);
@@ -227,7 +230,7 @@ public class TestCinematic extends SimpleApplication {
         light.setColor(ColorRGBA.White.mult(1.5f));
         rootNode.addLight(light);
 
-        fpp = new FilterPostProcessor(assetManager);
+        FilterPostProcessor fpp = new FilterPostProcessor(assetManager);
         fade = new FadeFilter();
         fpp.addFilter(fade);
 
@@ -242,9 +245,9 @@ public class TestCinematic extends SimpleApplication {
     }
 
     private void initInputs() {
-        inputManager.addMapping("togglePause", new KeyTrigger(keyInput.KEY_RETURN));
-        inputManager.addMapping("navFwd", new KeyTrigger(keyInput.KEY_RIGHT));
-        inputManager.addMapping("navBack", new KeyTrigger(keyInput.KEY_LEFT));
+        inputManager.addMapping("togglePause", new KeyTrigger(KeyInput.KEY_RETURN));
+        inputManager.addMapping("navFwd", new KeyTrigger(KeyInput.KEY_RIGHT));
+        inputManager.addMapping("navBack", new KeyTrigger(KeyInput.KEY_LEFT));
         ActionListener acl = new ActionListener() {
 
             @Override

@@ -124,10 +124,10 @@ public class InputManager implements RawInputListener {
      *
      * <p>This should only be called internally in {@link Application}.
      *
-     * @param mouse
-     * @param keys
-     * @param joystick
-     * @param touch
+     * @param mouse (not null, alias created)
+     * @param keys (not null, alias created)
+     * @param joystick (may be null, alias created)
+     * @param touch (may be null, alias created)
      * @throws IllegalArgumentException If either mouseInput or keyInput are null.
      */
     public InputManager(MouseInput mouse, KeyInput keys, JoyInput joystick, TouchInput touch) {
@@ -151,6 +151,10 @@ public class InputManager implements RawInputListener {
         }
 
         keys.getInputTimeNanos();
+    }
+
+    public String getKeyName(int key){
+        return keys.getKeyName(key);
     }
 
     private void invokeActions(int hash, boolean pressed) {
@@ -594,7 +598,7 @@ public class InputManager implements RawInputListener {
      * for the given mappingName.
      *
      * @param mappingName The mapping name to check.
-     *
+     * @return true if the mapping is registered, otherwise false
      * @see InputManager#addMapping(java.lang.String, com.jme3.input.controls.Trigger[])
      * @see InputManager#deleteMapping(java.lang.String)
      */
@@ -774,6 +778,7 @@ public class InputManager implements RawInputListener {
      * @deprecated Use isSimulateMouse
      * Returns state of simulation of mouse events. Used for touchscreen input only.
      *
+     * @return true if a mouse is simulated, otherwise false
      */
     @Deprecated
     public boolean getSimulateMouse() {
@@ -787,6 +792,7 @@ public class InputManager implements RawInputListener {
     /**
      * Returns state of simulation of mouse events. Used for touchscreen input only.
      *
+     * @return true if a mouse is simulated, otherwise false
      */
     public boolean isSimulateMouse() {
         if (touch != null) {
@@ -810,6 +816,7 @@ public class InputManager implements RawInputListener {
     /**
      * Returns state of simulation of key events. Used for touchscreen input only.
      *
+     * @return true if a keyboard is simulated, otherwise false
      */
     public boolean isSimulateKeyboard() {
         if (touch != null) {
@@ -960,7 +967,7 @@ public class InputManager implements RawInputListener {
      * Re-sets the joystick list when a joystick is added or removed.
      * This should only be called internally.
      *
-     * @param joysticks
+     * @param joysticks (alias created)
      */
     public void setJoysticks(Joystick[] joysticks) {
         this.joysticks = joysticks;
@@ -970,6 +977,7 @@ public class InputManager implements RawInputListener {
      * Add a listener that reports when a joystick has been added or removed.
      * Currently only implemented in LWJGL3
      * @param listener the listener
+     * @return true
      */
     public boolean addJoystickConnectionListener(JoystickConnectionListener listener) {
         return joystickConnectionListeners.add(listener);

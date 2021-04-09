@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -364,8 +364,9 @@ public final class Ray implements Savable, Cloneable, Collidable, java.io.Serial
     }
 
     /**
-     * @param p
-     * @param loc
+     * @param p the Plane to test for collision (not null, unaffected)
+     * @param loc storage for the location of the intersection (not null,
+     * modified when returning true)
      * @return true if the ray collides with the given Plane
      */
     public boolean intersectsWherePlane(Plane p, Vector3f loc) {

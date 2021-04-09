@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -77,11 +77,16 @@ public abstract class AbstractControl implements Control, JmeCloneable {
 
     /**
      * To be implemented in subclass.
+     *
+     * @param tpf time per frame (in seconds)
      */
     protected abstract void controlUpdate(float tpf);
 
     /**
      * To be implemented in subclass.
+     *
+     * @param rm the RenderManager rendering the controlled Spatial (not null)
+     * @param vp the ViewPort being rendered (not null)
      */
     protected abstract void controlRender(RenderManager rm, ViewPort vp);
 

@@ -1164,9 +1164,16 @@ public final class GLRenderer implements Renderer {
         }
     }
 
-    /*********************************************************************\
-     |* Shaders                                                           *|
-     \*********************************************************************/
+    /*=========*\
+    |* Shaders *|
+    \*=========*/
+ 
+    /**
+     * Update the location of the specified Uniform in the specified Shader.
+     *
+     * @param shader the Shader containing the Uniform (not null)
+     * @param uniform the Uniform to update (not null)
+     */
     protected void updateUniformLocation(Shader shader, Uniform uniform) {
         int loc = gl.glGetUniformLocation(shader.getId(), uniform.getName());
         if (loc < 0) {
@@ -1642,9 +1649,17 @@ public final class GLRenderer implements Renderer {
         shader.resetObject();
     }
 
-    /*********************************************************************\
-     |* Framebuffers                                                      *|
-     \*********************************************************************/
+    /*==============*\
+    |* Framebuffers *|
+    \*==============*/
+
+    /**
+     * Copy the source buffer to the destination buffer, including both color
+     * and depth.
+     *
+     * @param src the source buffer (unaffected)
+     * @param dst the destination buffer
+     */
     public void copyFrameBuffer(FrameBuffer src, FrameBuffer dst) {
         copyFrameBuffer(src, dst, true, true);
     }
@@ -3057,9 +3072,16 @@ public final class GLRenderer implements Renderer {
         }
     }
 
-    /*********************************************************************\
-     |* Render Calls                                                      *|
-     \*********************************************************************/
+    /*==============*\
+    |* Render Calls *|
+    \*==============*/
+    
+    /**
+     * Convert a mesh mode to the corresponding GL value.
+     *
+     * @param mode input enum value (not null)
+     * @return the corresponding GL value
+     */
     public int convertElementMode(Mesh.Mode mode) {
         switch (mode) {
             case Points:

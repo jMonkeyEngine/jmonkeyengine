@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -51,6 +51,7 @@ import java.util.logging.Logger;
  *
  *
  * @author Nehon
+ * @deprecated use {@link AnimEvent}
  */
 @Deprecated
 public class AnimationEvent extends AbstractCinematicEvent {
@@ -233,6 +234,7 @@ public class AnimationEvent extends AbstractCinematicEvent {
      *
      * @param model the model on which the animation will be played
      * @param animationName the name of the animation to play
+     * @param loopMode the desired mode (Loop/DontLoop/Cycle)
      * @param channelIndex the index of the channel default is 0. Events on the
      * @param blendTime the time during the animation are gonna be blended
      * same channelIndex will use the same channel.
@@ -339,10 +341,10 @@ public class AnimationEvent extends AbstractCinematicEvent {
             channel.setAnim(animationName, blendTime);
         }
         float t = time;
-        if (loopMode == loopMode.Loop) {
+        if (loopMode == LoopMode.Loop) {
             t = t % channel.getAnimMaxTime();
         }
-        if (loopMode == loopMode.Cycle) {
+        if (loopMode == LoopMode.Cycle) {
             float parity = (float) Math.ceil(time / channel.getAnimMaxTime());
             if (parity > 0 && parity % 2 == 0) {
                 t = channel.getAnimMaxTime() - t % channel.getAnimMaxTime();
@@ -437,7 +439,7 @@ public class AnimationEvent extends AbstractCinematicEvent {
 //        if (im.getFormatVersion() == 0) {
             modelName = ic.readString("modelName", "");
 //        }
-        //FIXME always the same issue, because of the clonning of assets, this won't work
+        //FIXME always the same issue, because of the cloning of assets, this won't work
         //we have to somehow store userdata in the spatial and then recurse the 
         //scene sub scenegraph to find the correct instance of the model
         //This brings a reflaxion about the cinematic being an appstate, 

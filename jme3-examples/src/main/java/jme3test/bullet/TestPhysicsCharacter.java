@@ -56,8 +56,6 @@ public class TestPhysicsCharacter extends SimpleApplication implements ActionLis
 
   private BulletAppState bulletAppState;
   private CharacterControl physicsCharacter;
-  private Node characterNode;
-  private CameraNode camNode;
   final private Vector3f walkDirection = new Vector3f(0,0,0);
   final private Vector3f viewDirection = new Vector3f(0,0,0);
   private boolean leftStrafe = false, rightStrafe = false, forward = false, backward = false, 
@@ -110,7 +108,7 @@ public class TestPhysicsCharacter extends SimpleApplication implements ActionLis
     // Add a physics character to the world
     physicsCharacter = new CharacterControl(new CapsuleCollisionShape(0.5f, 1.8f), .1f);
     physicsCharacter.setPhysicsLocation(new Vector3f(0, 1, 0));
-    characterNode = new Node("character node");
+    Node characterNode = new Node("character node");
     Spatial model = assetManager.loadModel("Models/Sinbad/Sinbad.mesh.xml");
     model.scale(0.25f);
     characterNode.addControl(physicsCharacter);
@@ -119,7 +117,7 @@ public class TestPhysicsCharacter extends SimpleApplication implements ActionLis
     characterNode.attachChild(model);
 
     // set forward camera node that follows the character
-    camNode = new CameraNode("CamNode", cam);
+    CameraNode camNode = new CameraNode("CamNode", cam);
     camNode.setControlDir(ControlDirection.SpatialToCamera);
     camNode.setLocalTranslation(new Vector3f(0, 1, -5));
     camNode.lookAt(model.getLocalTranslation(), Vector3f.UNIT_Y);

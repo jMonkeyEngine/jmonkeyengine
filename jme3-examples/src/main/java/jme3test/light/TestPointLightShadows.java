@@ -55,9 +55,7 @@ public class TestPointLightShadows extends SimpleApplication implements ActionLi
         TestPointLightShadows app = new TestPointLightShadows();
         app.start();
     }
-    private Node lightNode;
     private PointLightShadowRenderer plsr;
-    private PointLightShadowFilter plsf;
     private AmbientLight al;
 
     @Override
@@ -76,7 +74,7 @@ public class TestPointLightShadows extends SimpleApplication implements ActionLi
         scene.setShadowMode(RenderQueue.ShadowMode.CastAndReceive);
         rootNode.attachChild(scene);
         rootNode.getChild("Cube").setShadowMode(RenderQueue.ShadowMode.Receive);
-        lightNode = (Node) rootNode.getChild("Lamp");
+        Node lightNode = (Node) rootNode.getChild("Lamp");
         Geometry lightMdl = new Geometry("Light", new Sphere(10, 10, 0.1f));
         //Geometry  lightMdl = new Geometry("Light", new Box(.1f,.1f,.1f));
         lightMdl.setMaterial(assetManager.loadMaterial("Common/Materials/RedColor.j3m"));
@@ -104,8 +102,8 @@ public class TestPointLightShadows extends SimpleApplication implements ActionLi
         plsr.displayDebug();
         viewPort.addProcessor(plsr);
 
-
-        plsf = new PointLightShadowFilter(assetManager, SHADOWMAP_SIZE);
+        PointLightShadowFilter plsf
+                = new PointLightShadowFilter(assetManager, SHADOWMAP_SIZE);
         plsf.setLight((PointLight) scene.getLocalLightList().get(0));    
         plsf.setShadowZExtend(15);
         plsf.setShadowZFadeLength(5);

@@ -54,7 +54,6 @@ public class TestFancyCar extends SimpleApplication implements ActionListener {
 
     private BulletAppState bulletAppState;
     private VehicleControl player;
-    private float wheelRadius;
     private float steeringValue = 0;
     private float accelerationValue = 0;
     private Node carNode;
@@ -174,7 +173,7 @@ public class TestFancyCar extends SimpleApplication implements ActionListener {
         Geometry wheel_fr = findGeom(carNode, "WheelFrontRight");
         wheel_fr.center();
         box = (BoundingBox) wheel_fr.getModelBound();
-        wheelRadius = box.getYExtent();
+        float wheelRadius = box.getYExtent();
         float back_wheel_h = (wheelRadius * 1.7f) - 1f;
         float front_wheel_h = (wheelRadius * 1.9f) - 1f;
         player.addWheel(wheel_fr.getParent(), box.getCenter().add(0, -front_wheel_h, 0),

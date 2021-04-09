@@ -72,8 +72,6 @@ public class TestPostWater extends SimpleApplication {
 
     final private Vector3f lightDir = new Vector3f(-4.9236743f, -1.27054665f, 5.896916f);
     private WaterFilter water;
-    private TerrainQuad terrain;
-    private Material matRock;
     private AudioNode waves;
     final private LowPassFilter aboveWaterAudioFilter = new LowPassFilter(1, 1);
 
@@ -218,7 +216,8 @@ public class TestPostWater extends SimpleApplication {
     }
 
     private void createTerrain(Node rootNode) {
-        matRock = new Material(assetManager, "Common/MatDefs/Terrain/TerrainLighting.j3md");
+        Material matRock = new Material(assetManager,
+                "Common/MatDefs/Terrain/TerrainLighting.j3md");
         matRock.setBoolean("useTriPlanarMapping", false);
         matRock.setBoolean("WardIso", true);
         matRock.setTexture("AlphaMap", assetManager.loadTexture("Textures/Terrain/splat/alphamap.png"));
@@ -252,7 +251,8 @@ public class TestPostWater extends SimpleApplication {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        terrain = new TerrainQuad("terrain", 65, 513, heightmap.getHeightMap());
+        TerrainQuad terrain
+                = new TerrainQuad("terrain", 65, 513, heightmap.getHeightMap());
         terrain.setMaterial(matRock);
         terrain.setLocalScale(new Vector3f(5, 5, 5));
         terrain.setLocalTranslation(new Vector3f(0, -30, 0));

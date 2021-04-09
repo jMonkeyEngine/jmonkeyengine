@@ -54,8 +54,6 @@ import com.jme3.util.SkyFactory.EnvMapType;
 
 public class TestBloomAlphaThreshold extends SimpleApplication
 {
-
-	private Spatial teapot;
 	private boolean active = true;
 	private FilterPostProcessor fpp;
 
@@ -89,7 +87,8 @@ public class TestBloomAlphaThreshold extends SimpleApplication
 		matSoil.setColor("Diffuse", ColorRGBA.Black);
 		matSoil.setColor("Specular", ColorRGBA.Gray);
 
-		teapot = assetManager.loadModel("Models/Teapot/Teapot.obj");
+		Spatial teapot
+                        = assetManager.loadModel("Models/Teapot/Teapot.obj");
 		teapot.setLocalTranslation(0, 0, 10);
 
 		teapot.setMaterial(mat);

@@ -532,6 +532,7 @@ public class DDSLoader implements AssetLoader {
     /**
      * Reads a DXT compressed image from the InputStream
      *
+     * @param flip true&rarr;flip image along the Y axis, false&rarr;don't flip
      * @param totalSize Total size of the image in bytes, including mipmaps
      * @return ByteBuffer containing compressed DXT image in the format specified by pixelFormat_
      * @throws java.io.IOException If an error occurred while reading from InputStream
@@ -675,6 +676,7 @@ public class DDSLoader implements AssetLoader {
     /**
      * Reads a DXT compressed image from the InputStream
      *
+     * @param flip true&rarr;flip image along the Y axis, false&rarr;don't flip
      * @param totalSize Total size of the image in bytes, including mipmaps
      * @return ByteBuffer containing compressed DXT image in the format specified by pixelFormat_
      * @throws java.io.IOException If an error occurred while reading from InputStream

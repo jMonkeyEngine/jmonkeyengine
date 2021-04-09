@@ -219,19 +219,15 @@ public class TestConeVSFrustum extends SimpleApplication {
          * library!
          */
         Box boxMesh = new Box(1f, 1f, 1f);
-        boxGeo = new Geometry("A Textured Box", boxMesh);
+        Geometry boxGeo = new Geometry("A Textured Box", boxMesh);
         Material boxMat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         Texture monkeyTex = assetManager.loadTexture("Interface/Logo/Monkey.jpg");
         boxMat.setTexture("ColorMap", monkeyTex);
         boxGeo.setMaterial(boxMat);
-//        rootNode.attachChild(boxGeo);
-//
-//boxGeo2 = boxGeo.clone();
-//rootNode.attachChild(boxGeo2); 
         System.err.println("light " + spotLight.getPosition());
 
     }
-    private Geometry boxGeo;
+
     private final static float MOVE_SPEED = 60;
     final private Vector3f tmp = new Vector3f();
     final private Quaternion tmpQuat = new Quaternion();
@@ -263,7 +259,5 @@ public class TestConeVSFrustum extends SimpleApplication {
 
 
         vars.release();
-//        boxGeo.setLocalTranslation(spotLight.getPosition());
-        //  boxGeo.setLocalTranslation(projectedPoint);
     }
 }

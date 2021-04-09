@@ -48,4 +48,9 @@ public class DummyKeyInput extends DummyInput implements KeyInput {
         return 0;
     }
 
+    
+    public String getKeyName(int key){
+        return "Unknown";
+    }
+
 }

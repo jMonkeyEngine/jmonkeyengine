@@ -1381,7 +1381,7 @@ public class RenderState implements Cloneable, Savable {
     }
 
     /**
-     *
+     * @return value for use in hashing
      */
     public int contentHashCode() {
         if (cachedHashCode == -1){

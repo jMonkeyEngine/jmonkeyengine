@@ -140,6 +140,9 @@ public class SortUtil {
 
     /**
      * Quick sorts the supplied array using the specified comparator.
+     * 
+     * @param a the array to sort (not null, modified)
+     * @param comp the Comparator to use (not null)
      */
     public static void qsort(Object[] a, Comparator comp) {
         qsort(a, 0, a.length - 1, comp);
@@ -148,8 +151,10 @@ public class SortUtil {
     /**
      * Quick sorts the supplied array using the specified comparator.
      *
+     * @param a the array to sort (modified)
      * @param lo0 the index of the lowest element to include in the sort.
      * @param hi0 the index of the highest element to include in the sort.
+     * @param comp the Comparator to use (not null)
      */
     @SuppressWarnings("unchecked")
     public static void qsort(Object[] a, int lo0, int hi0, Comparator comp) {
@@ -269,6 +274,10 @@ public class SortUtil {
     
     /**
      * Merge sort
+     *
+     * @param src the source array (not null)
+     * @param dest the destination array (not null)
+     * @param comp the Comparator to use
      */
     public static void msort(Object[] src, Object[] dest, Comparator comp){
         msort(src, dest, 0, src.length - 1, comp);

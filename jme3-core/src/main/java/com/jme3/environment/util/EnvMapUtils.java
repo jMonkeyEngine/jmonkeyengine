@@ -147,7 +147,7 @@ public class EnvMapUtils {
      * the same area of the buffer. The position, limit and mark are not an
      * issue.
      *
-     * @param sourceMap
+     * @param sourceMap the map to be copied (not null, unaffected)
      * @return a new instance
      */
     public static TextureCubeMap duplicateCubeMap(TextureCubeMap sourceMap) {
@@ -485,8 +485,8 @@ public class EnvMapUtils {
      * Computes SH coefficient for a given textel dir The method used is the one
      * from this article : http://graphics.stanford.edu/papers/envmap/envmap.pdf
      *
-     * @param texelVect
-     * @param shDir
+     * @param texelVect the input texel (not null, unaffected)
+     * @param shDir storage for the results
      */
     public static void evalShBasis(Vector3f texelVect, float[] shDir) {
 

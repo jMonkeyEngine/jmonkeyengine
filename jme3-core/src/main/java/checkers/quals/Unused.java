@@ -38,6 +38,8 @@ public @interface Unused {
     /**
      * The field that is annotated with @Unused may not be accessed via a
      * receiver that is annotated with the "when" annotation.
+     *
+     * @return the annotation class
      */
     Class<? extends Annotation> when();
 }

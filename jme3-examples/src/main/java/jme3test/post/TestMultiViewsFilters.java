@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -150,7 +150,7 @@ public class TestMultiViewsFilters extends SimpleApplication {
         fpp.addFilter(rbf);
 
 
-        SSAOFilter f = new SSAOFilter(1.8899765f, 20.490374f, 0.4699998f, 0.1f);;
+        SSAOFilter f = new SSAOFilter(1.8899765f, 20.490374f, 0.4699998f, 0.1f);
         fpp4.addFilter(f);
         SSAOUI ui = new SSAOUI(inputManager, f);
         
