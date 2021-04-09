@@ -82,9 +82,7 @@ public class PBRTerrainTest extends SimpleApplication {
         PBRTerrainTest app = new PBRTerrainTest();
         AppSettings s = new AppSettings(true);
         
-        s.put("FrameRate", 140);
-        s.put("GammaCorrection", true);
-        
+        s.put("GammaCorrection", true);        
                 
         app.setSettings(s);
         app.start();
