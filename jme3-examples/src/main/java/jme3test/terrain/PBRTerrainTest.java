@@ -149,7 +149,7 @@ public class PBRTerrainTest extends SimpleApplication {
         //matTerrain.setInt("AfflictionMode_3", 0);
 
         // GRASS texture
-        Texture grass = assetManager.loadTexture("Textures/Ground037_1K_Color.png");
+        Texture grass = assetManager.loadTexture("Textures/Terrain/PBR/Ground037_1K_Color.png");
         grass.setWrap(WrapMode.Repeat);
         matTerrain.setTexture("AlbedoMap_4", grass);
         matTerrain.setFloat("AlbedoMap_4_scale", grassScale);
