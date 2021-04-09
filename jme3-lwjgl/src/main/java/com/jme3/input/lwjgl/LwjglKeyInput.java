@@ -114,5 +114,8 @@ public class LwjglKeyInput implements KeyInput {
     public long getInputTimeNanos() {
         return Sys.getTime() * LwjglTimer.LWJGL_TIME_TO_NANOS;
     }
-
+    
+    public String getKeyName(int key){
+        throw new UnsupportedOperationException("getKeyName not implemented for lwjgl input");    
+    }
 }

@@ -51,9 +51,6 @@ import java.nio.ShortBuffer;
  */
 public class TestArmature extends SimpleApplication {
 
-    private Joint j1;
-    private Joint j2;
-
     public static void main(String... argv) {
         TestArmature app = new TestArmature();
         app.start();
@@ -68,8 +65,8 @@ public class TestArmature extends SimpleApplication {
 
         //create armature
         Joint root = new Joint("Root_Joint");
-        j1 = new Joint("Joint_1");
-        j2 = new Joint("Joint_2");
+        Joint j1 = new Joint("Joint_1");
+        Joint j2 = new Joint("Joint_2");
         Joint j3 = new Joint("Joint_3");
         root.addChild(j1);
         j1.addChild(j2);

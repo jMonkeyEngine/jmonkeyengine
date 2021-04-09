@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,7 +41,6 @@ public class TestExpandingTorus extends SimpleApplication {
     private float outerRadius = 1.5f;
     private float rate = 1;
     private Torus torus;
-    private Geometry geom;
     
     public static void main(String[] args) {
         TestExpandingTorus app = new TestExpandingTorus();
@@ -51,7 +50,7 @@ public class TestExpandingTorus extends SimpleApplication {
     @Override
     public void simpleInitApp() {
         torus = new Torus(30, 10, .5f, 1f);
-        geom = new Geometry("Torus", torus);
+        Geometry geom = new Geometry("Torus", torus);
         Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         geom.setMaterial(mat);
         rootNode.attachChild(geom);

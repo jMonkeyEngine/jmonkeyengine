@@ -34,6 +34,7 @@ package jme3test.post;
 import com.jme3.app.SimpleApplication;
 import com.jme3.collision.CollisionResult;
 import com.jme3.collision.CollisionResults;
+import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.AnalogListener;
 import com.jme3.input.controls.KeyTrigger;
@@ -62,10 +63,8 @@ import java.util.List;
  */
 public class TestDepthOfField extends SimpleApplication {
 
-    private FilterPostProcessor fpp;
     final private Vector3f lightDir = new Vector3f(-4.9236743f, -1.27054665f, 5.896916f);
     private TerrainQuad terrain;
-    private Material matRock;
     private DepthOfFieldFilter dofFilter;
 
     public static void main(String[] args) {
@@ -102,9 +101,7 @@ public class TestDepthOfField extends SimpleApplication {
         sky.setLocalScale(350);
         mainScene.attachChild(sky);
 
-
-
-        fpp = new FilterPostProcessor(assetManager);
+        FilterPostProcessor fpp = new FilterPostProcessor(assetManager);
         //     fpp.setNumSamples(4);
         int numSamples = getContext().getSettings().getSamples();
         if( numSamples > 0 ) {
@@ -164,18 +161,19 @@ public class TestDepthOfField extends SimpleApplication {
         }, "blurScaleUp", "blurScaleDown", "focusRangeUp", "focusRangeDown", "focusDistanceUp", "focusDistanceDown");
 
 
-        inputManager.addMapping("toggle", new KeyTrigger(keyInput.KEY_SPACE));
-        inputManager.addMapping("blurScaleUp", new KeyTrigger(keyInput.KEY_U));
-        inputManager.addMapping("blurScaleDown", new KeyTrigger(keyInput.KEY_J));
-        inputManager.addMapping("focusRangeUp", new KeyTrigger(keyInput.KEY_I));
-        inputManager.addMapping("focusRangeDown", new KeyTrigger(keyInput.KEY_K));
-        inputManager.addMapping("focusDistanceUp", new KeyTrigger(keyInput.KEY_O));
-        inputManager.addMapping("focusDistanceDown", new KeyTrigger(keyInput.KEY_L));
+        inputManager.addMapping("toggle", new KeyTrigger(KeyInput.KEY_SPACE));
+        inputManager.addMapping("blurScaleUp", new KeyTrigger(KeyInput.KEY_U));
+        inputManager.addMapping("blurScaleDown", new KeyTrigger(KeyInput.KEY_J));
+        inputManager.addMapping("focusRangeUp", new KeyTrigger(KeyInput.KEY_I));
+        inputManager.addMapping("focusRangeDown", new KeyTrigger(KeyInput.KEY_K));
+        inputManager.addMapping("focusDistanceUp", new KeyTrigger(KeyInput.KEY_O));
+        inputManager.addMapping("focusDistanceDown", new KeyTrigger(KeyInput.KEY_L));
 
     }
 
     private void createTerrain(Node rootNode) {
-        matRock = new Material(assetManager, "Common/MatDefs/Terrain/TerrainLighting.j3md");
+        Material matRock = new Material(assetManager,
+                "Common/MatDefs/Terrain/TerrainLighting.j3md");
         matRock.setBoolean("useTriPlanarMapping", false);
         matRock.setBoolean("WardIso", true);
         matRock.setTexture("AlphaMap", assetManager.loadTexture("Textures/Terrain/splat/alphamap.png"));

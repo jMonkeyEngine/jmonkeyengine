@@ -251,6 +251,7 @@ public final class UserData implements Savable {
      * @param list
      *            the list to be stored
      * @throws IOException
+     *            from the capsule
      */
     private void writeList(OutputCapsule oc, Collection<?> list, String listName) throws IOException {
         if (list != null) {
@@ -313,6 +314,7 @@ public final class UserData implements Savable {
      *            the input capsule
      * @return loaded list (an empty list in case its size is 0)
      * @throws IOException
+     *            from the capsule
      */
     private List<?> readList(InputCapsule ic, String listName) throws IOException {
         int size = ic.readInt(listName + "size", 0);

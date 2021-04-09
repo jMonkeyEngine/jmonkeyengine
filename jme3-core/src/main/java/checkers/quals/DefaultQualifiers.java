@@ -30,6 +30,6 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({CONSTRUCTOR, METHOD, FIELD, LOCAL_VARIABLE, PARAMETER, TYPE})
 public @interface DefaultQualifiers {
-    /** The default qualifier settings */
+    /** @return the default qualifier settings */
     DefaultQualifier[] value() default { };
 }

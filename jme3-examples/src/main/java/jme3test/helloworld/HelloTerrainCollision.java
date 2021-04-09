@@ -64,8 +64,6 @@ public class HelloTerrainCollision extends SimpleApplication
   private CharacterControl player;
   final private Vector3f walkDirection = new Vector3f();
   private boolean left = false, right = false, up = false, down = false;
-  private TerrainQuad terrain;
-  private Material mat_terrain;
   //Temporary vectors used on each frame.
   //They here to avoid instanciating new vectors on each frame
   final private Vector3f camDir = new Vector3f();
@@ -86,7 +84,7 @@ public class HelloTerrainCollision extends SimpleApplication
     setUpKeys();
 
     /** 1. Create terrain material and load four textures into it. */
-    mat_terrain = new Material(assetManager, 
+    Material mat_terrain = new Material(assetManager, 
             "Common/MatDefs/Terrain/Terrain.j3md");
 
     /** 1.1) Add ALPHA map (for red-blue-green coded splat textures) */
@@ -129,7 +127,8 @@ public class HelloTerrainCollision extends SimpleApplication
      * 3.4) As LOD step scale we supply Vector3f(1,1,1).
      * 3.5) We supply the prepared heightmap itself.
      */
-    terrain = new TerrainQuad("my terrain", 65, 513, heightmap.getHeightMap());
+    TerrainQuad terrain
+            = new TerrainQuad("my terrain", 65, 513, heightmap.getHeightMap());
 
     /** 4. We give the terrain its material, position & scale it, and attach it. */
     terrain.setMaterial(mat_terrain);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,6 +33,7 @@ package jme3test.input;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.input.ChaseCamera;
+import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.AnalogListener;
 import com.jme3.input.controls.KeyTrigger;
@@ -48,7 +49,6 @@ import com.jme3.scene.shape.Quad;
 public class TestChaseCamera extends SimpleApplication implements AnalogListener, ActionListener {
 
   private Geometry teaGeom;
-  private ChaseCamera chaseCam;
 
   public static void main(String[] args) {
     TestChaseCamera app = new TestChaseCamera();
@@ -76,7 +76,7 @@ public class TestChaseCamera extends SimpleApplication implements AnalogListener
     flyCam.setEnabled(false);
 
     // Enable a chase cam
-    chaseCam = new ChaseCamera(cam, teaGeom, inputManager);
+    ChaseCamera chaseCam = new ChaseCamera(cam, teaGeom, inputManager);
 
     //Uncomment this to invert the camera's vertical rotation Axis 
     //chaseCam.setInvertVerticalAxis(true);
@@ -108,11 +108,11 @@ public class TestChaseCamera extends SimpleApplication implements AnalogListener
   }
 
   public void registerInput() {
-    inputManager.addMapping("moveForward", new KeyTrigger(keyInput.KEY_UP), new KeyTrigger(keyInput.KEY_W));
-    inputManager.addMapping("moveBackward", new KeyTrigger(keyInput.KEY_DOWN), new KeyTrigger(keyInput.KEY_S));
-    inputManager.addMapping("moveRight", new KeyTrigger(keyInput.KEY_RIGHT), new KeyTrigger(keyInput.KEY_D));
-    inputManager.addMapping("moveLeft", new KeyTrigger(keyInput.KEY_LEFT), new KeyTrigger(keyInput.KEY_A));
-    inputManager.addMapping("displayPosition", new KeyTrigger(keyInput.KEY_P));
+    inputManager.addMapping("moveForward", new KeyTrigger(KeyInput.KEY_UP), new KeyTrigger(KeyInput.KEY_W));
+    inputManager.addMapping("moveBackward", new KeyTrigger(KeyInput.KEY_DOWN), new KeyTrigger(KeyInput.KEY_S));
+    inputManager.addMapping("moveRight", new KeyTrigger(KeyInput.KEY_RIGHT), new KeyTrigger(KeyInput.KEY_D));
+    inputManager.addMapping("moveLeft", new KeyTrigger(KeyInput.KEY_LEFT), new KeyTrigger(KeyInput.KEY_A));
+    inputManager.addMapping("displayPosition", new KeyTrigger(KeyInput.KEY_P));
     inputManager.addListener(this, "moveForward", "moveBackward", "moveRight", "moveLeft");
     inputManager.addListener(this, "displayPosition");
   }

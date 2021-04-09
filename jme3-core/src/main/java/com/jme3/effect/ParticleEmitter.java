@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -842,6 +842,8 @@ public class ParticleEmitter extends Geometry {
 
     /**
      * @deprecated Use ParticleEmitter.getParticleInfluencer().getInitialVelocity() instead.
+     * 
+     * @return the pre-existing velocity vector
      */
     @Deprecated
     public Vector3f getInitialVelocity() {
@@ -868,6 +870,7 @@ public class ParticleEmitter extends Geometry {
     }
 
     /**
+     * @return the velocity variation
      * @deprecated
      * This method is deprecated.
      * Use ParticleEmitter.getParticleInfluencer().getVelocityVariation(); instead.
@@ -944,6 +947,8 @@ public class ParticleEmitter extends Geometry {
 
     /**
      * Instantly emits available particles, up to num.
+     * 
+     * @param num the maximum number of particles to emit
      */
     public void emitParticles(int num) {
         // Force world transform to update
@@ -1143,7 +1148,8 @@ public class ParticleEmitter extends Geometry {
 
     /**
      * Callback from Control.update(), do not use.
-     * @param tpf
+     *
+     * @param tpf time per frame (in seconds)
      */
     public void updateFromControl(float tpf) {
         if (enabled) {
@@ -1154,8 +1160,8 @@ public class ParticleEmitter extends Geometry {
     /**
      * Callback from Control.render(), do not use.
      *
-     * @param rm
-     * @param vp
+     * @param rm the RenderManager rendering this Emitter (not null)
+     * @param vp the ViewPort being rendered (not null)
      */
     private void renderFromControl(RenderManager rm, ViewPort vp) {
         Camera cam = vp.getCamera();

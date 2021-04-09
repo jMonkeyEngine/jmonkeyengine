@@ -98,6 +98,8 @@ public class NativeObjectManager {
 
     /**
      * (Internal use only) Register a <code>NativeObject</code> with the manager.
+     *
+     * @param obj the object to register (not null)
      */
     public void registerObject(NativeObject obj) {
         if (obj.getId() <= 0) {
@@ -196,6 +198,8 @@ public class NativeObjectManager {
     /**
      * (Internal use only) Deletes all objects. 
      * Must only be called when display is destroyed.
+     *
+     * @param rendererObject the renderer object
      */
     public void deleteAllObjects(Object rendererObject){
         deleteUnused(rendererObject);

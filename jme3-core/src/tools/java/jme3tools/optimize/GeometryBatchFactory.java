@@ -91,8 +91,8 @@ public class GeometryBatchFactory {
      * Merges all geometries in the collection into
      * the output mesh. Creates a new material using the TextureAtlas.
      * 
-     * @param geometries
-     * @param outMesh
+     * @param geometries the geometries to merge
+     * @param outMesh a Mesh to receive the geometries
      */
     public static void mergeGeometries(Collection<Geometry> geometries, Mesh outMesh) {
         int[] compsForBuf = new int[VertexBuffer.Type.values().length];
@@ -309,6 +309,8 @@ public class GeometryBatchFactory {
     /**
      * Batches a collection of Geometries so that all with the same material get combined.
      * @param geometries The Geometries to combine
+     * @param useLods true&rarr;generate levels of detail, false&rarr;don't
+     * generate them
      * @return A List of newly created Geometries, each with a  distinct material
      */
     public static List<Geometry> makeBatches(Collection<Geometry> geometries, boolean useLods) {

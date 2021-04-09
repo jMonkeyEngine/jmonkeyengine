@@ -56,7 +56,7 @@ import java.util.logging.Logger;
 /**
  * <b>A RelativeLayout Class Holder that holds a #{{@link GLSurfaceView}} using #{{@link OGLESContext}} as a renderer to render
  * a JME game on an android view for custom xmL designs.</b>
- * @apiNote The main idea of #{@link JmeSurfaceView} class is to start a jMonkeyEngine application in a SystemListener#{@link SystemListener} context in a GL_ES thread ,
+ * The main idea of #{@link JmeSurfaceView} class is to start a jMonkeyEngine application in a SystemListener#{@link SystemListener} context in a GL_ES thread ,
  * then the GLSurfaceView holding the GL_ES thread joins the UI thread with a delay of user's choice using a #{@link Handler} , during the delay , the game runs normally in the GL_ES thread(but without coming up on the UI)
  * and the user has the ability to handle a couple of actions asynchronously as displaying a progress bar on a SplashScreen or
  * an image or even play a preface game music of choice.
@@ -106,6 +106,8 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener, Di
      * @param delayMillis delay of the appearance of jme game on the screen , this doesn't delay the renderer though.
      * @apiNote use #{@link JmeSurfaceView#NO_DELAY} to disable the delay ,
      * any values less than 1ms#{@link JmeSurfaceView#NO_DELAY} would be ignored & the delay would be disabled.
+     * Use #{@link JmeSurfaceView#NO_DELAY} to disable the delay ,
+     * any values less than 1ms#{@link JmeSurfaceView#NO_DELAY} would be ignored and the delay would be disabled.
      */
     public void startRenderer(int delayMillis) {
         this.delayMillis = Math.max(NO_DELAY, delayMillis);
@@ -272,6 +274,7 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener, Di
 
     /**
      * Displays an error dialog with a throwable message(error/exception) & with 2 buttons.
+     * Displays an error dialog with a throwable message(error/exception) and 2 buttons.
      * @param throwable the throwable stack.
      * @param message the string message.
      */
@@ -370,6 +373,7 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener, Di
      * usually 8bits stencilBuffer + 24bits depthBuffer = 32bits shared memory.
      * @param eglDepthBits the depth bits.
      * @see JmeSurfaceView#setEglStencilBits(int).
+     * @see JmeSurfaceView#setEglStencilBits(int)
      */
     public void setEglDepthBits(int eglDepthBits) {
         this.eglDepthBits = eglDepthBits;
@@ -408,6 +412,11 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener, Di
      * (default = 0)
      * @param eglStencilBits the desired number of stencil bits.
      * @see JmeSurfaceView#setEglDepthBits(int).
+     * Stencil buffer is used in depth-based shadow maps and shadow rendering as it limits rendering,
+     * it's coupled with Z-buffer or depth buffer,usually 8bits stencilBuffer + 24bits depthBuffer = 32bits shared memory.
+     * (default = 0)
+     * @param eglStencilBits the desired number of stencil bits.
+     * @see JmeSurfaceView#setEglDepthBits(int)
      */
     public void setEglStencilBits(int eglStencilBits) {
         this.eglStencilBits = eglStencilBits;
@@ -431,7 +440,6 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener, Di
 
     /**
      * gets the limited FrameRate level for egl config.
-     * @implNote
      * @return the limit frameRate in integers.
      */
     public int getFrameRate() {

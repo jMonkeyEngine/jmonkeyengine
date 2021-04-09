@@ -331,7 +331,6 @@ public class TestBatchNodeCluster extends SimpleApplication {
         return zPosition.get(i);
     }
     private float time = 0;
-    private Spatial box;
 
     @Override
     public void simpleUpdate(float tpf) {
@@ -352,7 +351,7 @@ public class TestBatchNodeCluster extends SimpleApplication {
             mult1 = -1.0f;
             mult2 = -1.0f;
         }
-        box = batchNode.getChild("Box" + random);
+        Spatial box = batchNode.getChild("Box" + random);
         if (box != null) {
             Vector3f v = box.getLocalTranslation();
             box.setLocalTranslation(v.x + FastMath.sin(time * mult1) * 20, v.y + (FastMath.sin(time * mult1) * FastMath.cos(time * mult1) * 20), v.z + FastMath.cos(time * mult2) * 20);

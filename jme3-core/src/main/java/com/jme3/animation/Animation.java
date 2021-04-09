@@ -99,7 +99,7 @@ public class Animation implements Savable, Cloneable, JmeCloneable {
     /**
      * Set the length of the animation
      *
-     * @param length
+     * @param length the desired duration (in seconds)
      */
     public void setLength(float length) {
         this.length = length;
@@ -108,7 +108,7 @@ public class Animation implements Savable, Cloneable, JmeCloneable {
     /**
      * Sets the name of the animation
      *
-     * @param name
+     * @param name the desired name
      */
     public void setName(String name) {
         this.name = name;
@@ -193,7 +193,7 @@ public class Animation implements Savable, Cloneable, JmeCloneable {
 
     /**
      * 
-     * @param spat
+     * @param spat the Spatial to clone for
      * @return a new instance
      */
     public Animation cloneForSpatial(Spatial spat) {

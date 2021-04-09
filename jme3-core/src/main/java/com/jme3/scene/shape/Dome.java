@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -142,6 +142,8 @@ public class Dome extends Mesh {
 
     /** 
      * Get the number of planar segments along the z-axis of the dome. 
+     *
+     * @return the count
      */
     public int getPlanes() {
         return planes;
@@ -149,6 +151,8 @@ public class Dome extends Mesh {
 
     /** 
      * Get the number of samples radially around the main axis of the dome. 
+     *
+     * @return the count
      */
     public int getRadialSamples() {
         return radialSamples;
@@ -156,6 +160,8 @@ public class Dome extends Mesh {
 
     /** 
      * Get the radius of the dome. 
+     *
+     * @return the radius (in mesh units)
      */
     public float getRadius() {
         return radius;
@@ -163,6 +169,8 @@ public class Dome extends Mesh {
 
     /**
      * Are the triangles connected in such a way as to present a view out from the dome or not.
+     * 
+     * @return true if visible from inside, false if visible from outside
      */
     public boolean isInsideView() {
         return insideView;

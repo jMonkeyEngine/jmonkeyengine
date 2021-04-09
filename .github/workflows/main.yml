@@ -317,6 +317,12 @@ jobs:
           name: release
           path: dist/release
 
+      - name: Download natives for android
+        uses: actions/download-artifact@master
+        with:
+          name: android-natives
+          path: build/native
+
       - name: Rebuild the maven artifacts and deploy them to Sonatype OSSRH
         run: |
           if [ "${{ secrets.OSSRH_PASSWORD }}" = "" ];
@@ -329,7 +335,7 @@ jobs:
             -PossrhUsername=${{ secrets.OSSRH_USERNAME }} \
             -PsigningKey='${{ secrets.SIGNING_KEY }}' \
             -PsigningPassword='${{ secrets.SIGNING_PASSWORD }}' \
-            -PskipPrebuildLibraries=true -PuseCommitHashAsVersionName=true \
+            -PuseCommitHashAsVersionName=true \
             --console=plain --stacktrace
           fi
 
@@ -351,12 +357,12 @@ jobs:
           --data-binary @"$filename" \
           "$url"
 
-      # - name: Deploy to github package registry
-      #   run: |
-      #     source .github/actions/tools/uploadToMaven.sh
-      #     registry="https://maven.pkg.github.com/$GITHUB_REPOSITORY"
-      #     echo "Deploy to github package registry $registry"
-      #     uploadAllToMaven dist/maven/ $registry "token" ${{ secrets.GITHUB_TOKEN }}
+      - name: Deploy to github package registry
+        run: |
+          source .github/actions/tools/uploadToMaven.sh
+          registry="https://maven.pkg.github.com/$GITHUB_REPOSITORY"
+          echo "Deploy to github package registry $registry"
+          uploadAllToMaven dist/maven/ $registry "token" ${{ secrets.GITHUB_TOKEN }}
 
   # Deploy the javadoc
   DeployJavaDoc:

@@ -38,6 +38,7 @@ import com.jme3.system.AppSettings;
  * Embedded interface class(abstract) to listen for the moment when when the GL thread holding the #{@link JmeSurfaceView}
  * joins the UI thread , after asynchronous rendering.
  * @see JmeSurfaceView#setOnRendererCompleted(OnRendererCompleted).
+ * @see JmeSurfaceView#setOnRendererCompleted(OnRendererCompleted)
  */
 public interface OnRendererCompleted {
     /**

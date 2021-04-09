@@ -132,7 +132,7 @@ public class TestJaime  extends SimpleApplication {
 
         
         FilterPostProcessor fpp = new FilterPostProcessor(assetManager);
-        SSAOFilter filter = new SSAOFilter(0.10997847f,0.440001f,0.39999998f,-0.008000026f);;
+        SSAOFilter filter = new SSAOFilter(0.10997847f,0.440001f,0.39999998f,-0.008000026f);
         fpp.addFilter(filter);
         fpp.addFilter(new FXAAFilter());
         fpp.addFilter(new FXAAFilter());     

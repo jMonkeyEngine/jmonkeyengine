@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,11 +33,6 @@ package com.jme3.scene.plugins.gltf;
 
 import com.google.gson.JsonElement;
 import com.jme3.asset.AssetKey;
-
-import java.io.IOException;
-
-import static com.jme3.scene.plugins.gltf.GltfUtils.getAsColor;
-import static com.jme3.scene.plugins.gltf.GltfUtils.getAsFloat;
 
 /**
  * Material adapter for the Unlit pipeline

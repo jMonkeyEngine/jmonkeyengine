@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,8 +38,6 @@ import de.lessvoid.nifty.Nifty;
 
 public class TestNiftyExamples extends SimpleApplication {
 
-    private Nifty nifty;
-
     public static void main(String[] args){
         TestNiftyExamples app = new TestNiftyExamples();
         app.setPauseOnLostFocus(false);
@@ -52,8 +50,7 @@ public class TestNiftyExamples extends SimpleApplication {
                                                           inputManager,
                                                           audioRenderer,
                                                           guiViewPort);
-        nifty = niftyDisplay.getNifty();
-
+        Nifty nifty = niftyDisplay.getNifty();
         nifty.fromXml("all/intro.xml", "start");
 
         // attach the nifty display to the gui view port as a processor

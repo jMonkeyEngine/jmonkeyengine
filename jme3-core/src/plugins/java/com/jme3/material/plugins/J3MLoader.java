@@ -488,7 +488,7 @@ public class J3MLoader implements AssetLoader {
         }else if (split[0].equals("DepthFunc")){
             renderState.setDepthFunc(RenderState.TestFunction.valueOf(split[1]));
         }else if (split[0].equals("AlphaFunc")){
-            renderState.setAlphaFunc(RenderState.TestFunction.valueOf(split[1]));
+            // ignore for backwards compatbility
         }else if (split[0].equals("LineWidth")){
             renderState.setLineWidth(Float.parseFloat(split[1]));
         } else {

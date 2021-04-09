@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,8 +43,6 @@ import com.jme3.scene.shape.Box;
 
 public class TestAmbient extends SimpleApplication {
 
-  private AudioNode nature, waves;
-
   public static void main(String[] args) {
     TestAmbient test = new TestAmbient();
     test.start();
@@ -59,15 +57,15 @@ public class TestAmbient extends SimpleApplication {
     Environment env = new Environment(eax);
     audioRenderer.setEnvironment(env);
 
-    waves = new AudioNode(assetManager, "Sound/Environment/Ocean Waves.ogg",
-            DataType.Buffer);
+    AudioNode waves = new AudioNode(assetManager,
+            "Sound/Environment/Ocean Waves.ogg", DataType.Buffer);
     waves.setPositional(true);
     waves.setLocalTranslation(new Vector3f(0, 0,0));
     waves.setMaxDistance(100);
     waves.setRefDistance(5);
 
-    nature = new AudioNode(assetManager, "Sound/Environment/Nature.ogg",
-            DataType.Stream);
+    AudioNode nature = new AudioNode(assetManager,
+            "Sound/Environment/Nature.ogg", DataType.Stream);
     nature.setPositional(false);
     nature.setVolume(3);
     

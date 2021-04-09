@@ -54,6 +54,6 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.ANNOTATION_TYPE)
 public @interface SubtypeOf {
-    /** An array of the supertype qualifiers of the annotated qualifier **/
+    /** @return supertype qualifiers of the annotated qualifier **/
     Class<? extends Annotation>[] value();
 }

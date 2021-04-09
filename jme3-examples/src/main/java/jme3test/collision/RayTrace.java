@@ -50,7 +50,6 @@ public class RayTrace {
     final private Camera cam;
     final private Spatial scene;
     final private CollisionResults results = new CollisionResults();
-    private JFrame frame;
     private JLabel label;
 
     public RayTrace(Spatial scene, Camera cam, int width, int height){
@@ -60,7 +59,7 @@ public class RayTrace {
     }
 
     public void show(){
-        frame = new JFrame("HDR View");
+        JFrame frame = new JFrame("HDR View");
         label = new JLabel(new ImageIcon(image));
         frame.getContentPane().add(label);
         frame.setLayout(new FlowLayout());

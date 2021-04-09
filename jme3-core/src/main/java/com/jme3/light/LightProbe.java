@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -145,6 +145,8 @@ public class LightProbe extends Light implements Savable {
      * <p>
      * The radius is obvious for a SphereProbeArea,
      * but in the case of a OrientedBoxProbeArea it's the max of the extent vector's components.
+     *
+     * @return the pre-existing matrix
      */
     public Matrix4f getUniformMatrix(){
 
@@ -207,17 +209,6 @@ public class LightProbe extends Light implements Savable {
     @Deprecated
     public BoundingVolume getBounds() {
         return new BoundingSphere(area.getRadius(), ((SphereProbeArea)area).getCenter());
-    }
-
-    /**
-     * Sets the bounds of this LightProbe
-     * Note that for now only BoundingSphere is supported and this method will
-     * throw an UnsupportedOperationException with any other BoundingVolume type
-     * @param bounds the bounds of the LightProbe
-     * @deprecated
-     */
-    @Deprecated
-    public void setBounds(BoundingVolume bounds) {
     }
 
     public ProbeArea getArea() {
