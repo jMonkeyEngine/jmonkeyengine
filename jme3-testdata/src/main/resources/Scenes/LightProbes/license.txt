@@ -9,8 +9,7 @@ Based on "Quarry 03":
 * license URL:       https://creativecommons.org/publicdomain/zero/1.0/
 
 Derived files (also licensed CC0):
-* equirec_4k.jpg
-* probe.j3o
+* quarry_Probe.j3o
 
 Added files (also licensed CC0):
 * license.txt
