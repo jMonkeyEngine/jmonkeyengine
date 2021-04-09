@@ -1,0 +1,4 @@
+include ':jbullet'
+include ':stack-alloc'
+include ':app'
+rootProject.name = "jme3androidexamples"
