@@ -30,6 +30,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 /**
- * rendering code specific to the iOS mobile operating system
+ * graphics-rendering code specific to the iOS mobile operating system
  */
 package com.jme3.renderer.ios;

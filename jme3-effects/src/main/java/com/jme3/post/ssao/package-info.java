@@ -30,6 +30,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 /**
- * filter for screen-space ambient occlusion (SSAO) effects
+ * screen-space ambient occlusion (SSAO) effects
  */
 package com.jme3.post.ssao;
