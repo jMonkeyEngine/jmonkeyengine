@@ -74,8 +74,6 @@ uniform sampler2DArray m_NormalParallaxTextureArray;
 uniform sampler2DArray m_MetallicRoughnessAoEiTextureArray;
 
 
-// mat3 tbnMat;
-
 #ifdef DISCARD_ALPHA
     uniform float m_AlphaDiscardThreshold;
 #endif
@@ -1305,16 +1303,11 @@ gl_FragColor.rgb = vec3(0.0);
 
 
 
-    if(emissive.a > 0){
-    
-        emissive = emissive * pow(emissive.a * 5, emissiveIntensity) * emissiveIntensity * 20 * emissive.a;
-    
+    if(emissive.a > 0){    
+        emissive = emissive * pow(emissive.a * 5, emissiveIntensity) * emissiveIntensity * 20 * emissive.a;    
     }
-    
-  //  emissive = emissive * pow(emissiveIntensity * 2.3, emissive.a);
 
     gl_FragColor += emissive;
-
 
    
      // add fog after the lighting because shadows will cause the fog to darken
