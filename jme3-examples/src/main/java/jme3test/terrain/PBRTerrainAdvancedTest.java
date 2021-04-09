@@ -91,7 +91,8 @@ public class PBRTerrainAdvancedTest extends SimpleApplication {
     public static void main(String[] args) {
         PBRTerrainAdvancedTest app = new PBRTerrainAdvancedTest();
         AppSettings s = new AppSettings(true);
-        s.put("FrameRate", 140);
+        
+        s.put("GammaCorrection", true);
         
         app.setSettings(s);
         app.start();
