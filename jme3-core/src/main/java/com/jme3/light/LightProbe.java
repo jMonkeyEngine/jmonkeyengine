@@ -211,17 +211,6 @@ public class LightProbe extends Light implements Savable {
         return new BoundingSphere(area.getRadius(), ((SphereProbeArea)area).getCenter());
     }
 
-    /**
-     * Sets the bounds of this LightProbe
-     * Note that for now only BoundingSphere is supported and this method will
-     * throw an UnsupportedOperationException with any other BoundingVolume type
-     * @param bounds the bounds of the LightProbe
-     * @deprecated
-     */
-    @Deprecated
-    public void setBounds(BoundingVolume bounds) {
-    }
-
     public ProbeArea getArea() {
         return area;
     }

@@ -227,14 +227,6 @@ public abstract class AbstractShadowFilter<T extends AbstractShadowRenderer> ext
     }
 
     /**
-     * setFlushQueues does nothing now and is kept only for backward compatibility
-     *
-     * @param flushQueues ignored
-     */
-    @Deprecated
-    public void setFlushQueues(boolean flushQueues) {}
-
-    /**
      * sets the shadow compare mode see {@link CompareMode} for more info
      *
      * @param compareMode the desired mode
