@@ -75,6 +75,8 @@ public class PBRTerrainTest extends SimpleApplication {
     private AmbientLight ambientLight;
     private DirectionalLight directionalLight;
     private boolean isNight = false;
+    private final float dayLightIntensity = 1.0f;
+    private final float nightLightIntensity = 0.03f;
     
     private BitmapText keybindingsText;
 
@@ -88,6 +90,46 @@ public class PBRTerrainTest extends SimpleApplication {
         app.start();
        
     }
+    
+    private final ActionListener actionListener = new ActionListener() {
+
+        @Override
+        public void onAction(String name, boolean pressed, float tpf) {
+            if (name.equals("triPlanar") && !pressed) {
+                triPlanar = !triPlanar;
+                if (triPlanar) {
+                    matTerrain.setBoolean("useTriPlanarMapping", true);
+                    // planar textures don't use the mesh's texture coordinates but real world coordinates,
+                    // so we need to convert these texture coordinate scales into real world scales so it looks
+                    // the same when we switch to/from tr-planar mode (1024f is the alphamap size)
+                    matTerrain.setFloat("AlbedoMap_0_scale", 1f / (1024f / dirtScale));
+                    matTerrain.setFloat("AlbedoMap_1_scale", 1f / (1024f / darkRockScale));
+                    matTerrain.setFloat("AlbedoMap_2_scale", 1f / (1024f / snowScale));
+                    matTerrain.setFloat("AlbedoMap_3_scale", 1f / (1024f / riverRockScale));
+                    matTerrain.setFloat("AlbedoMap_4_scale", 1f / (1024f / grassScale));
+                    matTerrain.setFloat("AlbedoMap_5_scale", 1f / (1024f / marbleScale));
+                    matTerrain.setFloat("AlbedoMap_6_scale", 1f / (1024f / roadScale));
+                } else {
+                    matTerrain.setBoolean("useTriPlanarMapping", false);
+
+                    matTerrain.setFloat("AlbedoMap_0_scale", dirtScale);
+                    matTerrain.setFloat("AlbedoMap_1_scale", darkRockScale);
+                    matTerrain.setFloat("AlbedoMap_2_scale", snowScale);
+                    matTerrain.setFloat("AlbedoMap_3_scale", riverRockScale);
+                    matTerrain.setFloat("AlbedoMap_4_scale", grassScale);
+                    matTerrain.setFloat("AlbedoMap_5_scale", marbleScale);
+                    matTerrain.setFloat("AlbedoMap_6_scale", roadScale);
+
+                }
+            }
+            if (name.equals("toggleNight") && !pressed) {
+                isNight = !isNight;
+                //ambient and direcitonal light are faded smoothly in update loop below !
+                
+            }
+        }
+    };
+    
     @Override
     public void simpleInitApp() {
         setupKeys();
@@ -224,18 +266,17 @@ public class PBRTerrainTest extends SimpleApplication {
         control.setLodCalculator(new DistanceLodCalculator(65, 2.7f)); // patch size, and a multiplier
         terrain.addControl(control);
         terrain.setMaterial(matTerrain);
-        terrain.setModelBound(new BoundingBox());
-        terrain.updateModelBound();
         terrain.setLocalTranslation(0, -100, 0);
         terrain.setLocalScale(1f, 1f, 1f);
         rootNode.attachChild(terrain);
 
-        Node probeNode = (Node) assetManager.loadModel("Scenes/LightProbes/quarry_Probe.j3o");  
-        
+        Node probeNode = (Node) assetManager.loadModel("Scenes/lightprobe/quarry_Probe.j3o");          
         LightProbe probe = (LightProbe) probeNode.getLocalLightList().iterator().next();
-        probe.setPosition(new Vector3f(0, 0, 0));
         
-        probe.setBounds(new BoundingSphere(5000, probe.getPosition()));
+        probe.setAreaType(AreaType.Spherical);      
+        probe.getArea().setRadius(2000);
+        probe.getArea().setPosition(new Vector3f(0, 0, 0));        
+        rootNode.addLight(probe);
         
         rootNode.addLight(probe);
         
@@ -263,47 +304,7 @@ public class PBRTerrainTest extends SimpleApplication {
         inputManager.addListener(actionListener, "triPlanar");
         inputManager.addListener(actionListener, "toggleNight");
     }
-    private ActionListener actionListener = new ActionListener() {
 
-        public void onAction(String name, boolean pressed, float tpf) {
-            if (name.equals("triPlanar") && !pressed) {
-                triPlanar = !triPlanar;
-                if (triPlanar) {
-                    matTerrain.setBoolean("useTriPlanarMapping", true);
-                    // planar textures don't use the mesh's texture coordinates but real world coordinates,
-                    // so we need to convert these texture coordinate scales into real world scales so it looks
-                    // the same when we switch to/from tr-planar mode (1024f is the alphamap size)
-                    matTerrain.setFloat("AlbedoMap_0_scale", 1f / (float) (1024f / dirtScale));
-                    matTerrain.setFloat("AlbedoMap_1_scale", 1f / (float) (1024f / darkRockScale));
-                    matTerrain.setFloat("AlbedoMap_2_scale", 1f / (float) (1024f / snowScale));
-                    matTerrain.setFloat("AlbedoMap_3_scale", 1f / (float) (1024f / riverRockScale));
-                    matTerrain.setFloat("AlbedoMap_4_scale", 1f / (float) (1024f / grassScale));
-                    matTerrain.setFloat("AlbedoMap_5_scale", 1f / (float) (1024f / marbleScale));
-                    matTerrain.setFloat("AlbedoMap_6_scale", 1f / (float) (1024f / roadScale));
-                } else {
-                    matTerrain.setBoolean("useTriPlanarMapping", false);
-
-                    matTerrain.setFloat("AlbedoMap_0_scale", dirtScale);
-                    matTerrain.setFloat("AlbedoMap_1_scale", darkRockScale);
-                    matTerrain.setFloat("AlbedoMap_2_scale", snowScale);
-                    matTerrain.setFloat("AlbedoMap_3_scale", riverRockScale);
-                    matTerrain.setFloat("AlbedoMap_4_scale", grassScale);
-                    matTerrain.setFloat("AlbedoMap_5_scale", marbleScale);
-                    matTerrain.setFloat("AlbedoMap_6_scale", roadScale);
-
-                }
-            }
-            if (name.equals("toggleNight") && !pressed) {
-                isNight = !isNight;
-                //ambient and direcitonal light are faded smoothly in update loop below !
-                
-            }
-        }
-    };
-
-
-    private float dayLightIntensity = 1.0f;
-    private float nightLightIntensity = 0.03f;
     
     @Override
     public void simpleUpdate(float tpf) {
