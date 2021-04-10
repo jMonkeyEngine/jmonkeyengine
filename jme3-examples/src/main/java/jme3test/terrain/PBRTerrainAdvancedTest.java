@@ -165,8 +165,6 @@ public class PBRTerrainAdvancedTest extends SimpleApplication {
 
         // load textures 
         // it is IMPORTANT that these MUST all have the same dimensions and format in order to be put into a texture array
-        //currently they do not, so I guess I will upload replacement images from my own project that can be used instead... since I'll have to do that for 
-        //metallic/roughness maps anyways..
         
         //ALBEDO MAPS
         Texture dirt = assetManager.loadTexture("Textures/Terrain/PBR/Ground037_1K_Color.png");
