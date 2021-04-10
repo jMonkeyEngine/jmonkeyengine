@@ -352,7 +352,7 @@ public class PBRTerrainAdvancedTest extends SimpleApplication {
         
         probe.setAreaType(AreaType.Spherical);      
         probe.getArea().setRadius(2000);
-        probe.getArea().setPosition(new Vector3f(0, 0, 0));        
+        probe.getArea().setCenter(new Vector3f(0, 0, 0));        
         rootNode.addLight(probe);
         
         directionalLight = new DirectionalLight();
