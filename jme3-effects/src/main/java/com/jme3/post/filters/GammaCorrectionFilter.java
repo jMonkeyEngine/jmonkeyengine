@@ -76,7 +76,7 @@ public class GammaCorrectionFilter extends Filter {
     /**
      * set to 0.0 to disable gamma correction
      *
-     * @param gamma
+     * @param gamma the desired exponent (&gt;0, default=2.2)
      */
     public final void setGamma(float gamma) {
         if(gamma<=0){

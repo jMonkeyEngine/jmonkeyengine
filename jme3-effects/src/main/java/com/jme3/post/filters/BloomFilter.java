@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -109,7 +109,8 @@ public class BloomFilter extends Filter {
 
     /**
      * Creates the bloom filter with the specific glow mode
-     * @param glowMode
+     *
+     * @param glowMode the desired mode (default=Scene)
      */
     public BloomFilter(GlowMode glowMode) {
         this();
@@ -234,7 +235,8 @@ public class BloomFilter extends Filter {
 
     /**
      * intensity of the bloom effect default is 2.0
-     * @param bloomIntensity
+     *
+     * @param bloomIntensity the desired intensity (default=2)
      */
     public void setBloomIntensity(float bloomIntensity) {
         this.bloomIntensity = bloomIntensity;
@@ -250,7 +252,8 @@ public class BloomFilter extends Filter {
 
     /**
      * sets The spread of the bloom default is 1.5f
-     * @param blurScale
+     *
+     * @param blurScale the desired scale (default=1.5)
      */
     public void setBlurScale(float blurScale) {
         this.blurScale = blurScale;
@@ -267,7 +270,8 @@ public class BloomFilter extends Filter {
 
     /**
      * Define the color threshold on which the bloom will be applied (0.0 to 1.0)
-     * @param exposureCutOff
+     *
+     * @param exposureCutOff the desired threshold (&ge;0, &le;1, default=0)
      */
     public void setExposureCutOff(float exposureCutOff) {
         this.exposureCutOff = exposureCutOff;
@@ -284,8 +288,9 @@ public class BloomFilter extends Filter {
 
     /**
      * defines how many time the bloom extracted color will be multiplied by itself. default id 5.0<br>
-     * a high value will reduce rough edges in the bloom and somhow the range of the bloom area     * 
-     * @param exposurePower
+     * a high value will reduce rough edges in the bloom and somhow the range of the bloom area
+     *
+     * @param exposurePower the desired exponent (default=5)
      */
     public void setExposurePower(float exposurePower) {
         this.exposurePower = exposurePower;
@@ -303,7 +308,8 @@ public class BloomFilter extends Filter {
     /**
      * Sets the downSampling factor : the size of the computed texture will be divided by this factor. default is 1 for no downsampling
      * A 2 value is a good way of widening the blur
-     * @param downSamplingFactor
+     *
+     * @param downSamplingFactor the desired factor (default=1)
      */
     public void setDownSamplingFactor(float downSamplingFactor) {
         this.downSamplingFactor = downSamplingFactor;

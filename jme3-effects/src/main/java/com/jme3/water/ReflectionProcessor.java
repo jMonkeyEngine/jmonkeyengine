@@ -125,7 +125,8 @@ public class ReflectionProcessor implements SceneProcessor {
     /**
      * Internal use only<br>
      * sets the frame buffer
-     * @param reflectionBuffer 
+     *
+     * @param reflectionBuffer the FrameBuffer to use (alias created)
      */
     public void setReflectionBuffer(FrameBuffer reflectionBuffer) {
         this.reflectionBuffer = reflectionBuffer;
@@ -141,7 +142,8 @@ public class ReflectionProcessor implements SceneProcessor {
 
     /**
      * sets the reflection cam
-     * @param reflectionCam 
+     *
+     * @param reflectionCam the Camera to use (alias created)
      */
     public void setReflectionCam(Camera reflectionCam) {
         this.reflectionCam = reflectionCam;
@@ -157,7 +159,8 @@ public class ReflectionProcessor implements SceneProcessor {
 
     /**
      * Sets the reflection clip plane
-     * @param reflectionClipPlane 
+     *
+     * @param reflectionClipPlane the Plane to use (alias created)
      */
     public void setReflectionClipPlane(Plane reflectionClipPlane) {
         this.reflectionClipPlane = reflectionClipPlane;

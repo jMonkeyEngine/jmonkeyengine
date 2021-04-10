@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -89,7 +89,8 @@ public class RadialBlurFilter extends Filter {
 
     /**
      * sets the samples distances default is 1
-     * @param sampleDist 
+     *
+     * @param sampleDist the desired distance (default=1)
      */
     public void setSampleDistance(float sampleDist) {
         this.sampleDist = sampleDist;
@@ -107,7 +108,7 @@ public class RadialBlurFilter extends Filter {
 
     /**
      * 
-     * @param sampleDist
+     * @param sampleDist the desired distance (default=1)
      * @deprecated use {@link #setSampleDistance(float sampleDist)}
      */
     @Deprecated
@@ -125,7 +126,8 @@ public class RadialBlurFilter extends Filter {
 
     /**
      * sets the sample strength default is 2.2
-     * @param sampleStrength 
+     *
+     * @param sampleStrength the desired strength (default=2.2)
      */
     public void setSampleStrength(float sampleStrength) {
         this.sampleStrength = sampleStrength;
