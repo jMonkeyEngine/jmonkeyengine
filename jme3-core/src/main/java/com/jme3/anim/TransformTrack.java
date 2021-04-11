@@ -271,7 +271,7 @@ public class TransformTrack implements AnimTrack<Transform> {
     /**
      * Replace the frame interpolator.
      *
-     * @param interpolator the interpolator to use
+     * @param interpolator the interpolator to use (alias created)
      */
     public void setFrameInterpolator(FrameInterpolator interpolator) {
         this.interpolator = interpolator;
@@ -290,7 +290,7 @@ public class TransformTrack implements AnimTrack<Transform> {
     /**
      * Replace the target of this track, which might be a Joint or a Spatial.
      *
-     * @param target the target to use
+     * @param target the target to use (alias created)
      */
     public void setTarget(HasLocalTransform target) {
         this.target = target;
