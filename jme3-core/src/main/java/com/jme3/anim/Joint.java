@@ -88,10 +88,17 @@ public class Joint implements Savable, JmeCloneable, HasLocalTransform {
      */
     private Matrix4f inverseModelBindMatrix = new Matrix4f();
 
-
+    /**
+     * Instantiate a nameless Joint.
+     */
     public Joint() {
     }
 
+    /**
+     * Instantiate a Joint with the specified name.
+     *
+     * @param name the desired name
+     */
     public Joint(String name) {
         this.name = name;
     }
@@ -206,64 +213,139 @@ public class Joint implements Savable, JmeCloneable, HasLocalTransform {
         }
     }
 
+    /**
+     * Access the accumulated model transform.
+     *
+     * @return the pre-existing instance
+     */
     protected JointModelTransform getJointModelTransform() {
         return jointModelTransform;
     }
 
+    /**
+     * Replace the accumulated model transform.
+     *
+     * @param jointModelTransform the transform to use (alias created)
+     */
     protected void setJointModelTransform(JointModelTransform jointModelTransform) {
         this.jointModelTransform = jointModelTransform;
     }
 
+    /**
+     * Access the local translation vector.
+     *
+     * @return the pre-existing vector
+     */
     public Vector3f getLocalTranslation() {
         return localTransform.getTranslation();
     }
 
+    /**
+     * Access the local rotation.
+     *
+     * @return the pre-existing Quaternion
+     */
     public Quaternion getLocalRotation() {
         return localTransform.getRotation();
     }
 
+    /**
+     * Access the local scale vector.
+     *
+     * @return the pre-existing vector
+     */
     public Vector3f getLocalScale() {
         return localTransform.getScale();
     }
 
+    /**
+     * Alter the local translation vector.
+     *
+     * @param translation the desired offset vector (not null, unaffected)
+     */
     public void setLocalTranslation(Vector3f translation) {
         localTransform.setTranslation(translation);
     }
 
+    /**
+     * Alter the local rotation.
+     *
+     * @param rotation the desired rotation (not null, unaffected)
+     */
     public void setLocalRotation(Quaternion rotation) {
         localTransform.setRotation(rotation);
     }
 
+    /**
+     * Alter the local scale vector.
+     *
+     * @param scale the desired scale factors (not null, unaffected)
+     */
     public void setLocalScale(Vector3f scale) {
         localTransform.setScale(scale);
     }
 
+    /**
+     * Add the specified Joint as a child.
+     *
+     * @param child the Joint to add (not null, modified)
+     */
     public void addChild(Joint child) {
         children.add(child);
         child.parent = this;
     }
 
+    /**
+     * Alter the name.
+     *
+     * @param name the desired name
+     */
     public void setName(String name) {
         this.name = name;
     }
 
+    /**
+     * Alter the local transform.
+     *
+     * @param localTransform the desired Transform (not null, unaffected)
+     */
     @Override
     public void setLocalTransform(Transform localTransform) {
         this.localTransform.set(localTransform);
     }
 
+    /**
+     * Replace the inverse model bind matrix.
+     *
+     * @param inverseModelBindMatrix the matrix to use (alias created)
+     */
     public void setInverseModelBindMatrix(Matrix4f inverseModelBindMatrix) {
         this.inverseModelBindMatrix = inverseModelBindMatrix;
     }
 
+    /**
+     * Determine the name.
+     *
+     * @return the name
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * Access the parent joint.
+     *
+     * @return the pre-existing instance, or null if this is a root joint
+     */
     public Joint getParent() {
         return parent;
     }
 
+    /**
+     * Access the list of child joints.
+     *
+     * @return the pre-existing list
+     */
     public List<Joint> getChildren() {
         return children;
     }
@@ -300,31 +382,66 @@ public class Joint implements Savable, JmeCloneable, HasLocalTransform {
         return attachedNode;
     }
 
+    /**
+     * Access the initial transform.
+     *
+     * @return the pre-existing instance
+     */
     public Transform getInitialTransform() {
         return initialTransform;
     }
 
+    /**
+     * Access the local transform.
+     *
+     * @return the pre-existing instance
+     */
     @Override
     public Transform getLocalTransform() {
         return localTransform;
     }
 
+    /**
+     * Determine the model transform.
+     *
+     * @return a shared instance
+     */
     public Transform getModelTransform() {
         return jointModelTransform.getModelTransform();
     }
 
+    /**
+     * Determine the inverse model bind matrix.
+     *
+     * @return the pre-existing instance
+     */
     public Matrix4f getInverseModelBindMatrix() {
         return inverseModelBindMatrix;
     }
 
+    /**
+     * Determine this joint's index in the Armature that contains it.
+     *
+     * @return an index (&ge;0)
+     */
     public int getId() {
         return id;
     }
 
+    /**
+     * Alter this joint's index in the Armature that contains it.
+     *
+     * @param id the desired index (&ge;0)
+     */
     public void setId(int id) {
         this.id = id;
     }
 
+    /**
+     * Create a shallow clone for the JME cloner.
+     *
+     * @return a new instance
+     */
     @Override
     public Object jmeClone() {
         try {
@@ -335,6 +452,15 @@ public class Joint implements Savable, JmeCloneable, HasLocalTransform {
         }
     }
 
+    /**
+     * Callback from {@link com.jme3.util.clone.Cloner} to convert this
+     * shallow-cloned Joint into a deep-cloned one, using the specified Cloner
+     * and original to resolve copied fields.
+     *
+     * @param cloner the Cloner that's cloning this Joint (not null)
+     * @param original the instance from which this Joint was shallow-cloned
+     * (not null, unaffected)
+     */
     @Override
     public void cloneFields(Cloner cloner, Object original) {
         this.children = cloner.clone(children);
@@ -346,7 +472,13 @@ public class Joint implements Savable, JmeCloneable, HasLocalTransform {
         this.inverseModelBindMatrix = cloner.clone(inverseModelBindMatrix);
     }
 
-
+    /**
+     * De-serialize this Joint from the specified importer, for example when
+     * loading from a J3O file.
+     *
+     * @param im the importer to use (not null)
+     * @throws IOException from the importer
+     */
     @Override
     @SuppressWarnings("unchecked")
     public void read(JmeImporter im) throws IOException {
@@ -364,6 +496,13 @@ public class Joint implements Savable, JmeCloneable, HasLocalTransform {
         }
     }
 
+    /**
+     * Serialize this Joint to the specified exporter, for example when saving
+     * to a J3O file.
+     *
+     * @param ex the exporter to write to (not null)
+     * @throws IOException from the exporter
+     */
     @Override
     @SuppressWarnings("unchecked")
     public void write(JmeExporter ex) throws IOException {

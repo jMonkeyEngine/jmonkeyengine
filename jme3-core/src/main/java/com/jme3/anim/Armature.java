@@ -145,6 +145,11 @@ public class Armature implements JmeCloneable, Savable {
         return rootJoints;
     }
 
+    /**
+     * Access all joints in this Armature.
+     *
+     * @return a new list of pre-existing joints
+     */
     public List<Joint> getJointList() {
         return Arrays.asList(jointList);
     }
@@ -290,7 +295,13 @@ public class Armature implements JmeCloneable, Savable {
         }
     }
 
-
+    /**
+     * De-serialize this Armature from the specified importer, for example when
+     * loading from a J3O file.
+     *
+     * @param im the importer to read from (not null)
+     * @throws IOException from the importer
+     */
     @Override
     @SuppressWarnings("unchecked")
     public void read(JmeImporter im) throws IOException {
@@ -324,6 +335,13 @@ public class Armature implements JmeCloneable, Savable {
         applyInitialPose();
     }
 
+    /**
+     * Serialize this Armature to the specified exporter, for example when
+     * saving to a J3O file.
+     *
+     * @param ex the exporter to write to (not null)
+     * @throws IOException from the exporter
+     */
     @Override
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule output = ex.getCapsule(this);

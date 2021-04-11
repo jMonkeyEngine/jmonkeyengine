@@ -2,6 +2,9 @@ package com.jme3.anim;
 
 import java.util.BitSet;
 
+/**
+ * An AnimationMask to select joints from a single Armature.
+ */
 public class ArmatureMask implements AnimationMask {
 
     final private BitSet affectedJoints = new BitSet();
@@ -62,12 +65,27 @@ public class ArmatureMask implements AnimationMask {
         return affectedJoints.get(((Joint) target).getId());
     }
 
+    /**
+     * Create an ArmatureMask that selects the named Joint and all its
+     * descendants.
+     *
+     * @param armature the Armature containing the joints (not null)
+     * @param fromJoint the name of the ancestor joint
+     * @return a new mask
+     */
     public static ArmatureMask createMask(Armature armature, String fromJoint) {
         ArmatureMask mask = new ArmatureMask();
         mask.addFromJoint(armature, fromJoint);
         return mask;
     }
 
+    /**
+     * Create an ArmatureMask that selects the named joints.
+     *
+     * @param armature the Armature containing the joints (not null)
+     * @param joints the names of the joints to be included
+     * @return a new mask
+     */
     public static ArmatureMask createMask(Armature armature, String... joints) {
         ArmatureMask mask = new ArmatureMask();
         mask.addBones(armature, joints);
