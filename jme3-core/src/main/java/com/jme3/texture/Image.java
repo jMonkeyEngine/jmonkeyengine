@@ -960,7 +960,7 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
     }
 
     /**
-     * @param efficientData ignored
+     * @return null
      * @deprecated This feature is no longer used by the engine
      */
     @Deprecated
