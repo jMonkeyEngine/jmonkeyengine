@@ -54,7 +54,7 @@ import java.util.logging.Logger;
  */
 public class RmiRegistry {
 
-    static final Logger log = Logger.getLogger(RmiRegistry.class.getName());
+    private static final Logger log = Logger.getLogger(RmiRegistry.class.getName());
 
     // RPC IDs for calling our remote endpoint
     private static final short NEW_CLASS = 0;

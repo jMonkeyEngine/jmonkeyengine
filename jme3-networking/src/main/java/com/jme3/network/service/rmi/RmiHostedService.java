@@ -75,7 +75,7 @@ import java.util.logging.Logger;
  */
 public class RmiHostedService extends AbstractHostedService {
 
-    static final Logger log = Logger.getLogger(RpcHostedService.class.getName());
+    private static final Logger log = Logger.getLogger(RpcHostedService.class.getName());
     
     public static final String ATTRIBUTE_NAME = "rmi";
 

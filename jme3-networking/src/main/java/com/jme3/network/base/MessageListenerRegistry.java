@@ -50,7 +50,7 @@ import java.util.logging.Logger;
  */
 public class MessageListenerRegistry<S> implements MessageListener<S>
 {
-    static final Logger log = Logger.getLogger(MessageListenerRegistry.class.getName());
+    private static final Logger log = Logger.getLogger(MessageListenerRegistry.class.getName());
     
     private final List<MessageListener<? super S>> listeners = new CopyOnWriteArrayList<>();
     private final Map<Class,List<MessageListener<? super S>>> typeListeners 

@@ -49,7 +49,7 @@ import java.util.logging.Logger;
  */
 public abstract class AbstractKernel implements Kernel
 {
-    static Logger log = Logger.getLogger(AbstractKernel.class.getName());
+    private static final Logger log = Logger.getLogger(AbstractKernel.class.getName());
 
     private AtomicLong nextId = new AtomicLong(1);
 

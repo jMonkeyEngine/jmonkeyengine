@@ -99,7 +99,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class Cloner {
 
-    final static Logger log = Logger.getLogger(Cloner.class.getName());
+    private static final Logger log = Logger.getLogger(Cloner.class.getName());
 
     /**
      *  Keeps track of the objects that have been cloned so far.

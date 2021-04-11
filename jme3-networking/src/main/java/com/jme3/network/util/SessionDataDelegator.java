@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020 jMonkeyEngine
+ * Copyright (c) 2015-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,7 +48,7 @@ import java.util.logging.Logger;
  */
 public class SessionDataDelegator extends AbstractMessageDelegator<HostedConnection> {
  
-    static final Logger log = Logger.getLogger(SessionDataDelegator.class.getName());
+    private static final Logger log = Logger.getLogger(SessionDataDelegator.class.getName());
     
     private String attributeName;
  

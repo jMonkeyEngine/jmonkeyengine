@@ -65,7 +65,7 @@ import java.util.logging.Logger;
 @Serializable
 public class SerializerRegistrationsMessage extends AbstractMessage {
 
-    static final Logger log = Logger.getLogger(SerializerRegistrationsMessage.class.getName());
+    private static final Logger log = Logger.getLogger(SerializerRegistrationsMessage.class.getName());
 
     public static final Set<Class> ignore = new HashSet<Class>();
     static {

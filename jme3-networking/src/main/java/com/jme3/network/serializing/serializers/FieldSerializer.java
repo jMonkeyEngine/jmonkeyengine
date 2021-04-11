@@ -50,7 +50,7 @@ import java.util.logging.Logger;
  */
 public class FieldSerializer extends Serializer {
     
-    static final Logger log = Logger.getLogger(FieldSerializer.class.getName());
+    private static final Logger log = Logger.getLogger(FieldSerializer.class.getName());
 
     private static Map<Class, SavedField[]> savedFields = new HashMap<Class, SavedField[]>();
     private static Map<Class, Constructor> savedCtors = new HashMap<Class, Constructor>();

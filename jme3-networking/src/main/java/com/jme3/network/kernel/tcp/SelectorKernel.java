@@ -56,7 +56,7 @@ import java.util.logging.Logger;
  */
 public class SelectorKernel extends AbstractKernel
 {
-    static Logger log = Logger.getLogger(SelectorKernel.class.getName());
+    private static final Logger log = Logger.getLogger(SelectorKernel.class.getName());
 
     private InetSocketAddress address;
     private SelectorThread thread;

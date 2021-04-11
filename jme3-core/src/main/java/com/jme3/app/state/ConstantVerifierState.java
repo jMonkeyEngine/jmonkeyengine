@@ -52,7 +52,7 @@ import static java.lang.Float.NEGATIVE_INFINITY;
  */
 public class ConstantVerifierState extends BaseAppState {
 
-    static final Logger log = Logger.getLogger(BaseAppState.class.getName());
+    private static final Logger log = Logger.getLogger(BaseAppState.class.getName());
 
     // Note: I've used actual constructed objects for the good values
     //       instead of clone just to better catch cases where the values

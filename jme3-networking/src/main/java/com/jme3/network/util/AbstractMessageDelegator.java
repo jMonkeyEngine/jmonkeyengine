@@ -57,7 +57,7 @@ import java.util.logging.Logger;
 public abstract class AbstractMessageDelegator<S extends MessageConnection> 
                                 implements MessageListener<S> {
                                 
-    static final Logger log = Logger.getLogger(AbstractMessageDelegator.class.getName());                                
+    private static final Logger log = Logger.getLogger(AbstractMessageDelegator.class.getName());                                
                                 
     private Class delegateType;
     private Map<Class, Method> methods = new HashMap<>();

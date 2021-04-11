@@ -58,7 +58,7 @@ import java.util.logging.Logger;
  */
 public class DefaultServer implements Server
 {
-    static final Logger log = Logger.getLogger(DefaultServer.class.getName());
+    private static final Logger log = Logger.getLogger(DefaultServer.class.getName());
 
     // First two channels are reserved for reliable and
     // unreliable
