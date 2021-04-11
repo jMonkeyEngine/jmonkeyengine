@@ -366,7 +366,7 @@ public class MorphControl extends AbstractControl implements Savable {
     /**
      * Test whether this Control approximates tangents.
      *
-     * @return true if approximating tangents, false if get them from a
+     * @return true if approximating tangents, false if getting them from a
      * VertexBuffer
      */
     public boolean isApproximateTangents() {
