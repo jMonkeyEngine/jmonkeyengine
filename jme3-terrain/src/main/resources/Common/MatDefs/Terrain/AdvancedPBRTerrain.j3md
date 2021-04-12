@@ -278,8 +278,6 @@ MaterialDef Advanced PBR Terrain {
             AFFLICTIONEMISSIVEMAP : SplatEmissiveMap
             USE_SPLAT_NOISE : SplatNoiseVar
 
-            HORIZON_FADE: HorizonFade
-
             TRI_PLANAR_MAPPING : useTriPlanarMapping
 
             DISCARD_ALPHA : AlphaDiscardThreshold
