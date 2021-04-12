@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -75,7 +75,9 @@ public class LightScatteringFilter extends Filter {
 
     /**
      * Creates a lightScatteringFilter
-     * @param lightPosition 
+     *
+     * @param lightPosition the desired location (in world coordinates, alias
+     * created)
      */
     public LightScatteringFilter(Vector3f lightPosition) {
         this();
@@ -142,7 +144,9 @@ public class LightScatteringFilter extends Filter {
     /**
      * sets the blur start<br>
      * at which distance from the light source the effect starts default is 0.02
-     * @param blurStart 
+     *
+     * @param blurStart the desired start distance (in world units,
+     * default=0.02)
      */
     public void setBlurStart(float blurStart) {
         this.blurStart = blurStart;
@@ -159,7 +163,8 @@ public class LightScatteringFilter extends Filter {
 
     /**
      * sets the blur width default is 0.9
-     * @param blurWidth 
+     *
+     * @param blurWidth the desired width (default=0.9)
      */
     public void setBlurWidth(float blurWidth) {
         this.blurWidth = blurWidth;
@@ -177,7 +182,8 @@ public class LightScatteringFilter extends Filter {
 
     /**
      * sets how much the effect is visible over the rendered scene default is 1.4
-     * @param lightDensity 
+     *
+     * @param lightDensity the desired density (default=1.4)
      */
     public void setLightDensity(float lightDensity) {
         this.lightDensity = lightDensity;
@@ -193,7 +199,9 @@ public class LightScatteringFilter extends Filter {
 
     /**
      * sets the light position
-     * @param lightPosition 
+     *
+     * @param lightPosition the desired location (in world coordinates, alias
+     * created)
      */
     public void setLightPosition(Vector3f lightPosition) {
         this.lightPosition = lightPosition;
@@ -210,7 +218,8 @@ public class LightScatteringFilter extends Filter {
     /**
      * sets the number of samples for the radial blur default is 50
      * the higher the value the higher the quality, but the slower the performance.
-     * @param nbSamples 
+     *
+     * @param nbSamples the desired number of samples (default=50)
      */
     public void setNbSamples(int nbSamples) {
         this.nbSamples = nbSamples;

@@ -64,7 +64,8 @@ public class PosterizationFilter extends Filter {
 
     /**
      * Creates a posterization Filter with the given number of colors
-     * @param numColors 
+     *
+     * @param numColors the desired number of colors (&gt;0, default=8)
      */
     public PosterizationFilter(int numColors) {
         this();
@@ -73,8 +74,9 @@ public class PosterizationFilter extends Filter {
 
     /**
      * Creates a posterization Filter with the given number of colors and gamma
-     * @param numColors
-     * @param gamma 
+     *
+     * @param numColors the desired number of colors (&gt;0, default=8)
+     * @param gamma the desired exponent (default=0.6)
      */
     public PosterizationFilter(int numColors, float gamma) {
         this(numColors);
@@ -96,6 +98,8 @@ public class PosterizationFilter extends Filter {
 
     /**
      * Sets number of color levels used to draw the screen
+     * 
+     * @param numColors the desired number of colors (&gt;0, default=8)
      */
     public void setNumColors(int numColors) {
         this.numColors = numColors;
@@ -106,6 +110,8 @@ public class PosterizationFilter extends Filter {
 
     /**
      * Sets gamma level used to enhange visual quality
+     * 
+     * @param gamma the desired exponent (default=0.6)
      */
     public void setGamma(float gamma) {
         this.gamma = gamma;
@@ -116,6 +122,8 @@ public class PosterizationFilter extends Filter {
 
     /**
      * Sets current strength value, i.e. influence on final image
+     *
+     * @param strength the desired influence factor (default=1)
      */
     public void setStrength(float strength) {
         this.strength = strength;
@@ -126,6 +134,8 @@ public class PosterizationFilter extends Filter {
 
     /**
      * Returns number of color levels used
+     *
+     * @return the count (&gt;0)
      */
     public int getNumColors() {
         return numColors;
@@ -133,6 +143,8 @@ public class PosterizationFilter extends Filter {
 
     /**
      * Returns current gamma value
+     *
+     * @return the exponent
      */
     public float getGamma() {
         return gamma;
@@ -140,6 +152,8 @@ public class PosterizationFilter extends Filter {
 
     /**
      * Returns current strength value, i.e. influence on final image
+     *
+     * @return the influence factor
      */
     public float getStrength() {
         return strength;

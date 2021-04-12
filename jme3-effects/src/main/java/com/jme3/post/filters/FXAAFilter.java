@@ -86,7 +86,7 @@ public class FXAAFilter extends Filter {
     /**
      * set to 0.0f for higher quality
      *
-     * @param subPixelShift
+     * @param subPixelShift the desired shift (default=0.25)
      */
     public void setSubPixelShift(float subPixelShift) {
         this.subPixelShift = subPixelShift;
@@ -98,7 +98,7 @@ public class FXAAFilter extends Filter {
     /**
      * set to 0.0f for higher quality
      *
-     * @param reduceMul
+     * @param reduceMul the desired value (default=0.125)
      */
     public void setReduceMul(float reduceMul) {
         this.reduceMul = reduceMul;
