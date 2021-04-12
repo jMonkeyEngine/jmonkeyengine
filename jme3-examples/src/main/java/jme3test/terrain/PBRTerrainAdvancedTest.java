@@ -425,7 +425,7 @@ public class PBRTerrainAdvancedTest extends SimpleApplication {
         
         terrain = new TerrainQuad("terrain", patchSize + 1, terrainSize + 1, heightmap.getHeightMap());//, new LodPerspectiveCalculatorFactory(getCamera(), 4)); // add this in to see it use entropy for LOD calculations
         TerrainLodControl control = new TerrainLodControl(terrain, getCamera());
-        control.setLodCalculator(new DistanceLodCalculator(65, 2.7f)); // patch size, and a multiplier
+        control.setLodCalculator(new DistanceLodCalculator(patchSize + 1, 2.7f)); // patch size, and a multiplier
         terrain.addControl(control);
         terrain.setMaterial(matTerrain);
         terrain.setLocalTranslation(0, -100, 0);
