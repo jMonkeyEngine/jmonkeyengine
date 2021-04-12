@@ -167,7 +167,7 @@ public class CartoonEdgeFilter extends Filter {
 
     /**
      * sets the edge intensity<br>
-     * Defineshow visible will be the outlined edges
+     * Defines how visible the outlined edges will be
      *
      * @param edgeIntensity the desired intensity (default=1)
      */
@@ -187,7 +187,7 @@ public class CartoonEdgeFilter extends Filter {
     }
 
     /**
-     * sets the witdh of the edge in pixels default is 1
+     * sets the width of the edge in pixels default is 1
      *
      * @param edgeWidth the desired width (in pixels, default=1)
      */

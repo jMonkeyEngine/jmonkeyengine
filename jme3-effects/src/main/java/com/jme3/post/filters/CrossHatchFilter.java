@@ -176,9 +176,9 @@ public class CrossHatchFilter extends Filter {
     /**
      *
      * Sets minimum luminance levels for lines drawn
-     * @param luminance1 Top-left to down right 1
+     * @param luminance1 Top-left to bottom right 1
      * @param luminance2 Top-right to bottom left 1
-     * @param luminance3 Top-left to down right 2
+     * @param luminance3 Top-left to bottom right 2
      * @param luminance4 Top-right to bottom left 2
      * @param luminance5 Blobs
      */

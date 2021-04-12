@@ -109,7 +109,7 @@ public class PosterizationFilter extends Filter {
     }
 
     /**
-     * Sets gamma level used to enhange visual quality
+     * Sets gamma level used to enhance visual quality
      * 
      * @param gamma the desired exponent (default=0.6)
      */

@@ -550,7 +550,7 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
     /**
      * Sets the normal scaling factors to apply to the normal map.
      * the higher the value the more small ripples will be visible on the waves.
-     * default is 1.0
+     * default is 3
      *
      * @param normalScale the scaling factor (default=3)
      */
@@ -574,7 +574,7 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
      * F = R0 + (1-R0)( 1 - N.V)^5
      * where F is the fresnel term, R0 the constant, N the normal vector and V the view vector.
      * It usually depend on the material you are looking through (here water).
-     * Default value is 0.3f
+     * Default value is 0.5
      * In practice, the lowest the value and the less the reflection can be seen on water
      *
      * @param refractionConstant the desired R0 value (default=0.5)
@@ -596,7 +596,7 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
 
     /**
      * Sets the maximum waves amplitude
-     * default is 1.0
+     * default is 1.5
      *
      * @param maxAmplitude the desired maximum amplitude (default=1.5)
      */
@@ -650,7 +650,7 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
     }
 
     /**
-     * Return the shoreHardeness
+     * Return the shore hardness.
      * @return the hardness value
      */
     public float getShoreHardness() {
@@ -921,7 +921,7 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
     /**
      * Sets the color of the water
      * see setDeepWaterColor for deep water color
-     * default is (0.0078f, 0.5176f, 0.5f,1.0f) (greenish blue)
+     * default is (0.0078f, 0.3176f, 0.5f,1.0f) (greenish blue)
      *
      * @param waterColor the color to use (alias created,
      * default=(0.0078,0.3176,0.5,1))

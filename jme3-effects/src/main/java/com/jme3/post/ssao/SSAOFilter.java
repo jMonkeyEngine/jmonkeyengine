@@ -227,7 +227,7 @@ public class SSAOFilter extends Filter {
     }
 
     /**
-     * Sets the Ambient occlusion intensity default is 1.2f
+     * Sets the Ambient occlusion intensity default is 1.5
      *
      * @param intensity the desired intensity (default=1.5)
      */

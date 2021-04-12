@@ -142,7 +142,7 @@ public class FogFilter extends Filter {
     }
 
     /**
-     * the distance of the fog. the higer the value the distant the fog looks
+     * the distance of the fog. the higher the value the distant the fog looks
      *
      * @param fogDistance the desired distance (in world units, default=1000)
      */

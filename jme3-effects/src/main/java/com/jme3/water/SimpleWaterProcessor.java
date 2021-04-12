@@ -418,7 +418,7 @@ public class SimpleWaterProcessor implements SceneProcessor {
 
     /**
      * Higher values make the refraction texture shine through earlier.
-     * Default is 4
+     * Default is 1
      *
      * @param depth the desired depth (default=1)
      */
@@ -444,7 +444,7 @@ public class SimpleWaterProcessor implements SceneProcessor {
     }
 
     /**
-     * sets the water transparency default os 0.1f
+     * sets the water transparency default is 0.4f
      *
      * @param waterTransparency the desired transparency (default=0.4)
      */
@@ -575,7 +575,7 @@ public class SimpleWaterProcessor implements SceneProcessor {
 
     /**
      * sets the reflection clipping plane offset
-     * set a nagetive value to lower the clipping plane for relection texture rendering.
+     * set a negative value to lower the clipping plane for relection texture rendering.
      *
      * @param reflectionClippingOffset the desired offset (default=-5)
      */

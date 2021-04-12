@@ -51,7 +51,7 @@ import java.util.ArrayList;
  * BloomFilter is used to make objects in the scene have a glow effect.<br>
  * There are 2 mode : Scene and Objects.<br>
  * Scene mode extracts the bright parts of the scene to make them glow<br>
- * Object mode make objects glow according to their material's glowMap or their GlowColor<br>
+ * Object mode makes objects glow according to their material's glowMap or their GlowColor<br>
  * See <a href="http://jmonkeyengine.github.io/wiki/jme3/advanced/bloom_and_glow.html">advanced:bloom_and_glow</a> for more details
  * 
  * @author Rémy Bouquet aka Nehon
@@ -59,7 +59,7 @@ import java.util.ArrayList;
 public class BloomFilter extends Filter {
 
     /**
-     * GlowMode specifies if the glow will be applied to the whole scene,or to objects that have aglow color or a glow map
+     * GlowMode specifies if the glow will be applied to the whole scene or to objects that have a glow color or a glow map
      */
     public enum GlowMode {
 
@@ -108,7 +108,7 @@ public class BloomFilter extends Filter {
     }
 
     /**
-     * Creates the bloom filter with the specific glow mode
+     * Creates the bloom filter with the specified glow mode
      *
      * @param glowMode the desired mode (default=Scene)
      */
@@ -287,8 +287,8 @@ public class BloomFilter extends Filter {
     }
 
     /**
-     * defines how many time the bloom extracted color will be multiplied by itself. default id 5.0<br>
-     * a high value will reduce rough edges in the bloom and somhow the range of the bloom area
+     * defines how many times the bloom extracted color will be multiplied by itself. default is 5.0<br>
+     * a high value will reduce rough edges in the bloom and somehow the range of the bloom area
      *
      * @param exposurePower the desired exponent (default=5)
      */
