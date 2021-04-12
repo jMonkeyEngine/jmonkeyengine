@@ -73,7 +73,8 @@ public class DebugShapeFactory {
     /**
      * Creates a debug shape from the given collision shape. This is mostly used internally.<br>
      * To attach a debug shape to a physics object, call <code>attachDebugShape(AssetManager manager);</code> on it.
-     * @param collisionShape
+     *
+     * @param collisionShape the CollisionShape to use or null
      * @return a new Spatial or null
      */
     public static Spatial getDebugShape(CollisionShape collisionShape) {

@@ -192,7 +192,8 @@ public class PhysicsSpace {
 
     /**
      * Used internally
-     * @param space
+     *
+     * @param space which space to simulate on the current thread
      */
     public static void setLocalThreadPhysicsSpace(PhysicsSpace space) {
         physicsSpaceTL.set(space);
@@ -381,7 +382,8 @@ public class PhysicsSpace {
     /**
      * updates the physics space, uses maxSteps<br>
      * @param time the current time value
-     * @param maxSteps
+     * @param maxSteps the maximum number of steps of size accuracy (&ge;1) or 0
+     * for a single step of size timeInterval
      */
     public void update(float time, int maxSteps) {
         if (getDynamicsWorld() == null) {
@@ -413,8 +415,9 @@ public class PhysicsSpace {
 
     /**
      * calls the callable on the next physics tick (ensuring e.g. force applying)
-     * @param <V>
-     * @param callable
+     *
+     * @param <V> the return type of the Callable
+     * @param callable the Callable to invoke
      * @return a new AppTask
      */
     public <V> Future<V> enqueue(Callable<V> callable) {
@@ -682,7 +685,9 @@ public class PhysicsSpace {
 
     /**
      * Sets the gravity of the PhysicsSpace, set before adding physics objects!
-     * @param gravity
+     *
+     * @param gravity the desired acceleration vector
+     * (in physics-space coordinates, not null, unaffected, default=0,-10,0)
      */
     public void setGravity(Vector3f gravity) {
         dynamicsWorld.setGravity(Converter.convert(gravity));
@@ -690,7 +695,10 @@ public class PhysicsSpace {
 
     /**
      * Gets the gravity of the PhysicsSpace
-     * @param gravity
+     *
+     * @param gravity storage for the result (modified if not null)
+     * @return the acceleration vector (in physics-space coordinates, either
+     * gravity or a new instance)
      */
     public Vector3f getGravity(Vector3f gravity) {
         javax.vecmath.Vector3f tempVec = new javax.vecmath.Vector3f();
@@ -716,7 +724,8 @@ public class PhysicsSpace {
      * Adds the specified listener to the physics tick listeners.
      * The listeners are called on each physics step, which is not necessarily
      * each frame but is determined by the accuracy of the physics space.
-     * @param listener
+     *
+     * @param listener the listener to register (not null, alias created)
      */
     public void addTickListener(PhysicsTickListener listener) {
         tickListeners.add(listener);
@@ -745,8 +754,10 @@ public class PhysicsSpace {
     /**
      * Adds a listener for a specific collision group, such a listener can disable collisions when they happen.<br>
      * There can be only one listener per collision group.
-     * @param listener
-     * @param collisionGroup
+     *
+     * @param listener the listener to register (not null, alias created)
+     * @param collisionGroup which group it should listen for (bitmask with
+     * exactly one bit set)
      */
     public void addCollisionGroupListener(PhysicsCollisionGroupListener listener, int collisionGroup) {
         collisionGroupListeners.put(collisionGroup, listener);
@@ -758,6 +769,12 @@ public class PhysicsSpace {
 
     /**
      * Performs a ray collision test and returns the results as a list of PhysicsRayTestResults
+     *
+     * @param from the starting location (physics-space coordinates, not null,
+     * unaffected)
+     * @param to the ending location (in physics-space coordinates, not null,
+     * unaffected)
+     * @return a new list of results (not null)
      */
     public List<PhysicsRayTestResult> rayTest(Vector3f from, Vector3f to) {
         List<PhysicsRayTestResult> results = new LinkedList<>();
@@ -767,6 +784,13 @@ public class PhysicsSpace {
 
     /**
      * Performs a ray collision test and returns the results as a list of PhysicsRayTestResults
+     *
+     * @param from the starting location (in physics-space coordinates, not
+     * null, unaffected)
+     * @param to the ending location (in physics-space coordinates, not null,
+     * unaffected)
+     * @param results the list to hold results (not null, modified)
+     * @return results
      */
     public List<PhysicsRayTestResult> rayTest(Vector3f from, Vector3f to, List<PhysicsRayTestResult> results) {
         results.clear();
@@ -794,6 +818,11 @@ public class PhysicsSpace {
      * Performs a sweep collision test and returns the results as a list of PhysicsSweepTestResults<br>
      * You have to use different Transforms for start and end (at least distance greater than 0.4f).
      * SweepTest will not see a collision if it starts INSIDE an object and is moving AWAY from its center.
+     *
+     * @param shape the shape to sweep (not null, convex, unaffected)
+     * @param start the starting physics-space transform (not null, unaffected)
+     * @param end the ending physics-space transform (not null, unaffected)
+     * @return a new list of results
      */
     public List<PhysicsSweepTestResult> sweepTest(CollisionShape shape, Transform start, Transform end) {
         List<PhysicsSweepTestResult> results = new LinkedList<>();
@@ -810,6 +839,12 @@ public class PhysicsSpace {
      * Performs a sweep collision test and returns the results as a list of PhysicsSweepTestResults<br>
      * You have to use different Transforms for start and end (at least distance greater than 0.4f).
      * SweepTest will not see a collision if it starts INSIDE an object and is moving AWAY from its center.
+     * 
+     * @param shape the shape to sweep (not null, convex, unaffected)
+     * @param start the starting physics-space transform (not null, unaffected)
+     * @param end the ending physics-space transform (not null, unaffected)
+     * @param results the list to hold results (not null, modified)
+     * @return results
      */
     public List<PhysicsSweepTestResult> sweepTest(CollisionShape shape, Transform start, Transform end, List<PhysicsSweepTestResult> results) {
         results.clear();
@@ -886,7 +921,8 @@ public class PhysicsSpace {
 
     /**
      * sets the accuracy of the physics computation, default=1/60s<br>
-     * @param accuracy
+     *
+     * @param accuracy the desired time step (in seconds, default=1/60)
      */
     public void setAccuracy(float accuracy) {
         this.accuracy = accuracy;
@@ -898,7 +934,9 @@ public class PhysicsSpace {
 
     /**
      * only applies for AXIS_SWEEP broadphase
-     * @param worldMin
+     *
+     * @param worldMin the desired minimum coordinates values (not null,
+     * unaffected, default=-10k,-10k,-10k)
      */
     public void setWorldMin(Vector3f worldMin) {
         this.worldMin.set(worldMin);
@@ -910,7 +948,9 @@ public class PhysicsSpace {
 
     /**
      * only applies for AXIS_SWEEP broadphase
-     * @param worldMax
+     *
+     * @param worldMax the desired maximum coordinates values (not null,
+     * unaffected, default=10k,10k,10k)
      */
     public void setWorldMax(Vector3f worldMax) {
         this.worldMax.set(worldMax);

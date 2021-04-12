@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -61,6 +61,9 @@ public abstract class CollisionShape implements Savable {
 
     /**
      * used internally, not safe
+     * 
+     * @param mass the desired mass for the body
+     * @param vector storage for the result (not null, modified)
      */
     public void calculateLocalInertia(float mass, javax.vecmath.Vector3f vector) {
         if (cShape == null) {
@@ -75,6 +78,8 @@ public abstract class CollisionShape implements Savable {
 
     /**
      * used internally
+     *
+     * @return the pre-existing instance
      */
     public com.bulletphysics.collision.shapes.CollisionShape getCShape() {
         return cShape;
@@ -82,6 +87,8 @@ public abstract class CollisionShape implements Savable {
 
     /**
      * used internally
+     *
+     * @param cShape the shape to use (alias created)
      */
     public void setCShape(com.bulletphysics.collision.shapes.CollisionShape cShape) {
         this.cShape = cShape;

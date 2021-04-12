@@ -298,7 +298,9 @@ public class CollisionShapeFactory {
 
     /**
      * This method moves each child shape of a compound shape by the given vector
-     * @param vector
+     *
+     * @param compoundShape the shape to modify (not null)
+     * @param vector the offset vector (not null, unaffected)
      */
     public static void shiftCompoundShapeContents(CompoundCollisionShape compoundShape, Vector3f vector) {
         for (Iterator<ChildCollisionShape> it = new LinkedList<>(compoundShape.getChildren()).iterator(); it.hasNext();) {

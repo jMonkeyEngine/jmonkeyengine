@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -97,7 +97,8 @@ public class PhysicsCharacter extends PhysicsCollisionObject {
 
     /**
      * Sets the location of this physics character
-     * @param location
+     *
+     * @param location the desired physics location (not null, unaffected)
      */
     public void warp(Vector3f location) {
         character.warp(Converter.convert(location, tempVec));
@@ -219,6 +220,7 @@ public class PhysicsCharacter extends PhysicsCollisionObject {
     }
 
     /**
+     * @param trans storage for the result (modified if not null)
      * @return the physicsLocation
      */
     public Vector3f getPhysicsLocation(Vector3f trans) {
@@ -261,6 +263,8 @@ public class PhysicsCharacter extends PhysicsCollisionObject {
 
     /**
      * used internally
+     *
+     * @return the pre-existing object
      */
     public KinematicCharacterController getControllerId() {
         return character;
@@ -268,6 +272,8 @@ public class PhysicsCharacter extends PhysicsCollisionObject {
 
     /**
      * used internally
+     *
+     * @return the pre-existing object
      */
     public PairCachingGhostObject getObjectId() {
         return gObject;
