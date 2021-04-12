@@ -36,8 +36,6 @@ package jme3test.terrain;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.asset.TextureKey;
-import com.jme3.bounding.BoundingBox;
-import com.jme3.bounding.BoundingSphere;
 import com.jme3.font.BitmapText;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
@@ -52,7 +50,9 @@ import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
 import com.jme3.shader.VarType;
 import com.jme3.system.AppSettings;
+import com.jme3.terrain.geomipmap.TerrainLodControl;
 import com.jme3.terrain.geomipmap.TerrainQuad;
+import com.jme3.terrain.geomipmap.lodcalc.DistanceLodCalculator;
 import com.jme3.terrain.heightmap.AbstractHeightMap;
 import com.jme3.terrain.heightmap.ImageBasedHeightMap;
 import com.jme3.texture.Image;
@@ -63,33 +63,81 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-// Uses assets from CC0Textures.com, licensed under CC0 1.0 Universal.
+
+/**
+    * This test uses the MatDef titled 'AdvancedPBRTerrain.j3md' to create a terrain Material that is capable of using more textures than a standard terrain shader by utilizing TextureArrays.
+    * This shader is still subject to the GLSL max limit of 16 textures, however each TextureArray counts as a single texture, and each TextureArray can store multiple Images
+    * 
+    * Upon running the app, the user should see a mountainous, terrain-based landscape with some grassy areas, some snowy areas, and some tiled roads and gravel paths weaving between the valleys. Snow should
+    * be slightly shiney/reflective, and marble texture should be even shinier. If you would like to know what each texture is supposed to look like, you can find the textures used for this test case
+    * located in jme-test-data 
+    * (Screenshots showing how this test-case should look will also be available soon so you can compare your results, and I will replace this comment with a link to their location as soon as they are posted)
+    *
+    * Users can press 'p' to toggle between tri-planar mode. Enabling tri-planar mode should prevent stretching of textures on the steep areas of the terrain
+    * 
+    * Users can press 'n' to toggle between night and day. Pressing 'n' will cause the light to gradually fade darker/brighter until the min/max lighting levels are reached.
+    * At night the scene should be noticibly darker, and the marble and tiled-road texture should be noticibly glowing from their emissiveColors and emissiveIntesnity map that is packed into
+    * the alpha channel of their MetallicRoughness maps
+    * 
+    * The MetallicRoughness map stores:
+    * - AmbientOcclusion in the Red channel
+    * - Roughness in the Green channel
+    * - Metallic in the Blue channel
+    * - EmissiveIntensity in the Alpha channel
+    * 
+    * This shader is still subject to the GLSL max limit of 16 textures, however each TextureArray counts as a single texture, and each TextureArray can store multiple Images 
+    * For more information on texture arrays see: https://www.khronos.org/opengl/wiki/Array_Texture    
+    * For more information on the TextureArray class/objcet in JME3 see: https://javadoc.jmonkeyengine.org/v3.3.0-beta2/com/jme3/texture/TextureArray.html
+    * 
+    *  Uses assets from CC0Textures.com, licensed under CC0 1.0 Universal. For more information on the textures this test case uses, 
+    *  view the license.txt file located in the jme3-test-data directory where these textures are located: jmonkeyengine/jme3-testdata/src/main/resources/Textures/Terrain/PBR
+    * 
+    * <p> 
+    * Notes: (as of 12 April, 2021)
+    * <ol>
+    * <li>
+    * results look better with anti-aliasing, especially at far distances. This may be due to the way that the terrain is generated from a heightmap,     
+    * as these same textures do not have this issue in my other project
+    * </li>    
+    * <li>
+    * The amount of images per texture array may still be limited by the value set to GL_MAX_ARRAY_TEXTURE_LAYERS, however this value should be high enough that users will likely run into issues with extremely low FPS
+    * from too many texture-reads long before you surpass the limit of texture-layers per textureArray. 
+    * If this ever becomes an issue, a secondary set of Albedo/Normal/MetallicRoughness texture arrays could be added to the shader to store any textures that surpass the limit of the primary textureArrays.   
+    * </li>
+    * </ol>
+    * author @yaRnMcDonuts
+    * </p>
+*/
+
 
 public class PBRTerrainAdvancedTest extends SimpleApplication {    
     
-    
-    //similar to PRBTerrainTest, but this one uses texture arrays to allow for more texture slots. beware that GPUs for older devices and mobile devices may be less likely to support texture arrays
-        
-    //results look better with anti-aliasing, especially at far distances. 
-    
-    private TerrainQuad terrain;
+
+    private TerrainQuad terrain;    
     private Material matTerrain;
     private boolean triPlanar = false;
-    private float dirtScale = 24;
-    private float darkRockScale = 24;
-    private float snowScale = 64;
-    private float tileRoadScale = 64;
-    private float grassScale = 24;
-    private float marbleScale = 64;
-    private float gravelScale = 64;
+    
+    private final int terrainSize = 512;
+    private final int patchSize = 256;
+    private final float dirtScale = 24;
+    private final float darkRockScale = 24;
+    private final float snowScale = 64;
+    private final float tileRoadScale = 64;
+    private final float grassScale = 24;
+    private final float marbleScale = 64;
+    private final float gravelScale = 64;
+    
     
     private AmbientLight ambientLight;
     private DirectionalLight directionalLight;
     private boolean isNight = false;
+    
     private final float dayLightIntensity = 1.0f;
     private final float nightLightIntensity = 0.03f;
     
     private BitmapText keybindingsText;
+    
+    private final float camMoveSpeed = 50f;
 
     public static void main(String[] args) {
         PBRTerrainAdvancedTest app = new PBRTerrainAdvancedTest();
@@ -99,8 +147,6 @@ public class PBRTerrainAdvancedTest extends SimpleApplication {
         
         app.setSettings(s);
         app.start();
-        
- 
        
     }
     
@@ -111,16 +157,16 @@ public class PBRTerrainAdvancedTest extends SimpleApplication {
                 triPlanar = !triPlanar;
                 if (triPlanar) {
                     matTerrain.setBoolean("useTriPlanarMapping", true);
-                    // planar textures don't use the mesh's texture coordinates but real world coordinates,
+                    // tri-planar textures don't use the mesh's texture coordinates but real world coordinates,
                     // so we need to convert these texture coordinate scales into real world scales so it looks
-                    // the same when we switch to/from tr-planar mode (1024f is the alphamap size)
-                    matTerrain.setFloat("AlbedoMap_0_scale", 1f /  (1024f / dirtScale));
-                    matTerrain.setFloat("AlbedoMap_1_scale", 1f /  (1024f / darkRockScale));
-                    matTerrain.setFloat("AlbedoMap_2_scale", 1f /  (1024f / snowScale));
-                    matTerrain.setFloat("AlbedoMap_3_scale", 1f /  (1024f / tileRoadScale));
-                    matTerrain.setFloat("AlbedoMap_4_scale", 1f /  (1024f / grassScale));
-                    matTerrain.setFloat("AlbedoMap_5_scale", 1f /  (1024f / marbleScale));
-                    matTerrain.setFloat("AlbedoMap_6_scale", 1f /  (1024f / gravelScale));
+                    // the same when we switch to/from tr-planar mode 
+                    matTerrain.setFloat("AlbedoMap_0_scale", (dirtScale / terrainSize));
+                    matTerrain.setFloat("AlbedoMap_1_scale", (darkRockScale / terrainSize));
+                    matTerrain.setFloat("AlbedoMap_2_scale", (snowScale / terrainSize));
+                    matTerrain.setFloat("AlbedoMap_3_scale", (tileRoadScale / terrainSize));
+                    matTerrain.setFloat("AlbedoMap_4_scale", (grassScale / terrainSize));
+                    matTerrain.setFloat("AlbedoMap_5_scale", (marbleScale / terrainSize));
+                    matTerrain.setFloat("AlbedoMap_6_scale", (gravelScale / terrainSize));
                 } else {
                     matTerrain.setBoolean("useTriPlanarMapping", false);
 
@@ -142,15 +188,18 @@ public class PBRTerrainAdvancedTest extends SimpleApplication {
         }
     };
     
-    
-    
     @Override
-    public void simpleInitApp() {
-        setupKeys();
+    public void simpleInitApp() {              
+        setupKeys();        
+        setUpTerrain();        
+        setUpTerrainMaterial(); // <- this method contains the important info about using 'AdvancedPBRTerrain.j3md'
+        setUpLights();        
+        setUpCamera();
+    }
 
+     private void setUpTerrainMaterial() {
         // advanced pbr terrain matdef
-        matTerrain = new Material(assetManager, "Common/MatDefs/Terrain/AdvancedPBRTerrain.j3md");
-        
+        matTerrain = new Material(assetManager, "Common/MatDefs/Terrain/AdvancedPBRTerrain.j3md");        
         
         matTerrain.setBoolean("useTriPlanarMapping", false);
 
@@ -159,11 +208,8 @@ public class PBRTerrainAdvancedTest extends SimpleApplication {
         matTerrain.setTexture("AlphaMap_1", assetManager.loadTexture("Textures/Terrain/splat/alpha2.png"));
         // this material also supports 'AlphaMap_2', so you can get up to 12 texture slots
 
-        // HEIGHTMAP image (for the terrain heightmap)
-        TextureKey hmKey = new TextureKey("Textures/Terrain/splat/mountains512.png", false);
-        Texture heightMapImage = assetManager.loadTexture(hmKey);
-
-        // load textures 
+        
+        // load textures for texture arrays
         // it is IMPORTANT that these MUST all have the same dimensions and format in order to be put into a texture array
         
         //ALBEDO MAPS
@@ -223,25 +269,19 @@ public class PBRTerrainAdvancedTest extends SimpleApplication {
         metallicRoughnessAoEiMapImages.add(metallicRoughnessAoEiMapRoad.getImage());   //3
         metallicRoughnessAoEiMapImages.add(metallicRoughnessAoEiMapGrass.getImage());   //4
         metallicRoughnessAoEiMapImages.add(metallicRoughnessAoEiMapMarble.getImage());   //5
-        metallicRoughnessAoEiMapImages.add(metallicRoughnessAoEiMapGravel.getImage());   //6
-
-                
-                
-                
+        metallicRoughnessAoEiMapImages.add(metallicRoughnessAoEiMapGravel.getImage());   //6                
         
-        
+        //initiate texture arrays using 
         TextureArray albedoTextureArray = new TextureArray(albedoImages);
         TextureArray normalParallaxTextureArray = new TextureArray(normalMapImages); // parallax is not used currently
         TextureArray metallicRoughnessAoEiTextureArray = new TextureArray(metallicRoughnessAoEiMapImages);  
         
-        
+        // important to apply wrapMode to the whole texture array, rather than each individual texture in the array
         albedoTextureArray.setWrap(WrapMode.Repeat);
         normalParallaxTextureArray.setWrap(WrapMode.Repeat);
-        metallicRoughnessAoEiTextureArray.setWrap(WrapMode.Repeat);
-        
+        metallicRoughnessAoEiTextureArray.setWrap(WrapMode.Repeat);        
         
         //assign texture array to materials
-        
         matTerrain.setParam("AlbedoTextureArray", VarType.TextureArray, albedoTextureArray);
         matTerrain.setParam("NormalParallaxTextureArray", VarType.TextureArray, normalParallaxTextureArray);
         matTerrain.setParam("MetallicRoughnessAoEiTextureArray", VarType.TextureArray, metallicRoughnessAoEiTextureArray);
@@ -254,49 +294,38 @@ public class PBRTerrainAdvancedTest extends SimpleApplication {
         matTerrain.setFloat("AlbedoMap_0_scale", dirtScale);
         matTerrain.setFloat("Roughness_0", 1);
         matTerrain.setFloat("Metallic_0", 0.02f);
-        //matTerrain.setInt("AfflictionMode_0", 0);
 
         matTerrain.setInt("AlbedoMap_1", 1);   // darkRock is index 1 in the albedo image list
         matTerrain.setFloat("AlbedoMap_1_scale", darkRockScale);
         matTerrain.setFloat("Roughness_1", 1);
         matTerrain.setFloat("Metallic_1", 0.04f);
-        //matTerrain.setInt("AfflictionMode_1", 0);
 
-        matTerrain.setInt("AlbedoMap_2", 2);
+        matTerrain.setInt("AlbedoMap_2", 2); 
         matTerrain.setFloat("AlbedoMap_2_scale", snowScale);
         matTerrain.setFloat("Roughness_2", 0.8f);
         matTerrain.setFloat("Metallic_2", 0.12f);
-        //matTerrain.setInt("AfflictionMode_2", 0);
 
         matTerrain.setInt("AlbedoMap_3", 3);
         matTerrain.setFloat("AlbedoMap_3_scale", tileRoadScale);
         matTerrain.setFloat("Roughness_3", 1);
         matTerrain.setFloat("Metallic_3", 0.04f);
-        //matTerrain.setInt("AfflictionMode_3", 0);
 
         matTerrain.setInt("AlbedoMap_4", 4);
         matTerrain.setFloat("AlbedoMap_4_scale", grassScale);
         matTerrain.setFloat("Roughness_4", 1);
         matTerrain.setFloat("Metallic_4", 0);
-        //matTerrain.setInt("AfflictionMode_4", 0);
-
 
         matTerrain.setInt("AlbedoMap_5", 5);
         matTerrain.setFloat("AlbedoMap_5_scale", marbleScale);
         matTerrain.setFloat("Roughness_5", 1);
         matTerrain.setFloat("Metallic_5", 0.2f);
-        //matTerrain.setInt("AfflictionMode_5", 0);
 
         matTerrain.setInt("AlbedoMap_6", 6);
         matTerrain.setFloat("AlbedoMap_6_scale", gravelScale);
         matTerrain.setFloat("Roughness_6", 1);
-        matTerrain.setFloat("Metallic_6", 0.01f);
-        //matTerrain.setInt("AfflictionMode_6", 0);
-
+        matTerrain.setFloat("Metallic_6", 0.01f);        
         
-        
-        // NORMAL MAPS  //(int being passed to shader corresponds to the index of the texture's image in the List of images used to create normalParallaxTextureArray)
-      
+        // NORMAL MAPS  (int being passed to shader corresponds to the index of the texture's image in the List of images used to create its texture array)      
         matTerrain.setInt("NormalMap_0", 0);
         matTerrain.setInt("NormalMap_1", 1);  
         matTerrain.setInt("NormalMap_2", 2); 
@@ -306,7 +335,7 @@ public class PBRTerrainAdvancedTest extends SimpleApplication {
         matTerrain.setInt("NormalMap_6", 6);
                 
                 
-        //METALLIC/ROUGHNESS/AO/EI 
+        //METALLIC/ROUGHNESS/AO/EI MAPS 
         matTerrain.setInt("MetallicRoughnessMap_0", 0);
         matTerrain.setInt("MetallicRoughnessMap_1", 1);  
         matTerrain.setInt("MetallicRoughnessMap_2", 2); 
@@ -317,77 +346,31 @@ public class PBRTerrainAdvancedTest extends SimpleApplication {
         
         
         //EMISSIVE
-//        matTerrain.setColor("EmissiveColor_5", ColorRGBA.Blue);
-//        matTerrain.setColor("EmissiveColor_6", ColorRGBA.Red); //these two texture slots (marble & tiledRoad) have packed MRAoEi maps with an emissiveTexture packed into the alpha channel
-//        
-//       
-//        matTerrain.setColor("EmissiveColor_1", new ColorRGBA(0.08f, 0.01f, 0.1f, 0.4f)); //this texture slot does not have a unique emissiveIntensityMap packed into its MRAoEi map, so setting an emissiveColor will apply equal intensity to every pixel
+        matTerrain.setColor("EmissiveColor_5", ColorRGBA.Blue);
+        matTerrain.setColor("EmissiveColor_6", ColorRGBA.Red); //these two texture slots (marble & tiledRoad, indexed in each texturea array at 5 and 6 respectively) both 
+                                                                    // have packed MRAoEi maps with an emissiveTexture packed into the alpha channel
+    
+//        matTerrain.setColor("EmissiveColor_1", new ColorRGBA(0.08f, 0.01f, 0.1f, 0.4f)); //this texture slot does not have a unique emissiveIntensityMap packed into its MRAoEi map, 
+                                                                                            // so setting an emissiveColor will apply equal intensity to every pixel 
         
-
-        // CREATE HEIGHTMAP
-        AbstractHeightMap heightmap = null;
-        try {
-            heightmap = new ImageBasedHeightMap(heightMapImage.getImage(), 0.3f);
-            heightmap.load();
-            heightmap.smooth(0.9f, 1);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        
-        terrain = new TerrainQuad("terrain", 65, 513, heightmap.getHeightMap());//, new LodPerspectiveCalculatorFactory(getCamera(), 4)); // add this in to see it use entropy for LOD calculations
-   //     TerrainLodControl control = new TerrainLodControl(terrain, getCamera());
-  //      control.setLodCalculator(new DistanceLodCalculator(65, 2.7f)); // patch size, and a multiplier
-     //   terrain.addControl(control);
-        terrain.setMaterial(matTerrain);
-        terrain.setLocalTranslation(0, -100, 0);
-        terrain.setLocalScale(1f, 1f, 1f);
-        rootNode.attachChild(terrain);
-
-        Node probeNode = (Node) assetManager.loadModel("Scenes/lightprobe/quarry_Probe.j3o");          
-        LightProbe probe = (LightProbe) probeNode.getLocalLightList().iterator().next();
-        
-        probe.setAreaType(AreaType.Spherical);      
-        probe.getArea().setRadius(2000);
-        probe.getArea().setCenter(new Vector3f(0, 0, 0));        
-        rootNode.addLight(probe);
-        
-        directionalLight = new DirectionalLight();
-        directionalLight.setDirection((new Vector3f(-0.3f, -0.5f, -0.3f)).normalize());
-        directionalLight.setColor(ColorRGBA.White);
-        rootNode.addLight(directionalLight);
-        
-        ambientLight = new AmbientLight();
-        directionalLight.setColor(ColorRGBA.White);
-        rootNode.addLight(ambientLight);
-        
-
-        cam.setLocation(new Vector3f(0, 10, -10));
-        cam.lookAtDirection(new Vector3f(0, -1.5f, -1).normalizeLocal(), Vector3f.UNIT_Y);
-       
-        
+        terrain.setMaterial(matTerrain);        
     }
-
+    
     private void setupKeys() {
         flyCam.setMoveSpeed(50);
         inputManager.addMapping("triPlanar", new KeyTrigger(KeyInput.KEY_P));
         inputManager.addMapping("toggleNight", new KeyTrigger(KeyInput.KEY_N));
         
         inputManager.addListener(actionListener, "triPlanar");
-        inputManager.addListener(actionListener, "toggleNight");
-        
+        inputManager.addListener(actionListener, "toggleNight");        
         
         keybindingsText = new BitmapText(assetManager.loadFont("Interface/Fonts/Default.fnt"));
         keybindingsText.setText("Press 'N' to toggle day/night fade (takes a moment) \nPress 'P' to toggle tri-planar mode");
+        
         getGuiNode().attachChild(keybindingsText);
         keybindingsText.move(new Vector3f(200,120,0));
         
     }
-    
-  
-    
-
     
     @Override
     public void simpleUpdate(float tpf) {
@@ -420,10 +403,62 @@ public class PBRTerrainAdvancedTest extends SimpleApplication {
                 
                 ambientLight.getColor().set(currentLightIntensity, currentLightIntensity, currentLightIntensity, 1.0f);
                 directionalLight.getColor().set(currentLightIntensity, currentLightIntensity, currentLightIntensity, 1.0f);
-            }
-            
+            }            
+        }        
+    }
+
+    private void setUpTerrain() {
+        // HEIGHTMAP image (for the terrain heightmap)
+        TextureKey hmKey = new TextureKey("Textures/Terrain/splat/mountains512.png", false);
+        Texture heightMapImage = assetManager.loadTexture(hmKey);
+
+        // CREATE HEIGHTMAP
+        AbstractHeightMap heightmap = null;
+        try {
+            heightmap = new ImageBasedHeightMap(heightMapImage.getImage(), 0.3f);
+            heightmap.load();
+            heightmap.smooth(0.9f, 1);
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         
+        terrain = new TerrainQuad("terrain", patchSize + 1, terrainSize + 1, heightmap.getHeightMap());//, new LodPerspectiveCalculatorFactory(getCamera(), 4)); // add this in to see it use entropy for LOD calculations
+        TerrainLodControl control = new TerrainLodControl(terrain, getCamera());
+        control.setLodCalculator(new DistanceLodCalculator(65, 2.7f)); // patch size, and a multiplier
+        terrain.addControl(control);
+        terrain.setMaterial(matTerrain);
+        terrain.setLocalTranslation(0, -100, 0);
+        terrain.setLocalScale(1f, 1f, 1f);
+        rootNode.attachChild(terrain);
+        
+        
     }
-    
+
+    private void setUpLights() {
+        
+        Node probeNode = (Node) assetManager.loadModel("Scenes/LightProbe/quarry_Probe.j3o");          
+        LightProbe probe = (LightProbe) probeNode.getLocalLightList().iterator().next();
+        
+        probe.setAreaType(AreaType.Spherical);      
+        probe.getArea().setRadius(2000);
+        probe.getArea().setCenter(new Vector3f(0, 0, 0));        
+        rootNode.addLight(probe);
+        
+        directionalLight = new DirectionalLight();
+        directionalLight.setDirection((new Vector3f(-0.3f, -0.5f, -0.3f)).normalize());
+        directionalLight.setColor(ColorRGBA.White);
+        rootNode.addLight(directionalLight);
+        
+        ambientLight = new AmbientLight();
+        directionalLight.setColor(ColorRGBA.White);
+        rootNode.addLight(ambientLight);        
+    }
+
+    private void setUpCamera() {
+        cam.setLocation(new Vector3f(0, 10, -10));
+        cam.lookAtDirection(new Vector3f(0, -1.5f, -1).normalizeLocal(), Vector3f.UNIT_Y);
+        
+        getFlyByCamera().setMoveSpeed(camMoveSpeed);        
+    }    
 }
