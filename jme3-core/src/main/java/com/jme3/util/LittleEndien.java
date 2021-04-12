@@ -35,7 +35,7 @@ import java.io.*;
 
 /**
  * <code>LittleEndien</code> is a class to read little-endian stored data
- * via a InputStream.  All functions work as defined in DataInput, but
+ * via an InputStream.  All functions work as defined in DataInput, but
  * assume they come from a LittleEndien input stream.  Currently used to read .ms3d and .3ds files.
  * @author Jack Lindamood
  */

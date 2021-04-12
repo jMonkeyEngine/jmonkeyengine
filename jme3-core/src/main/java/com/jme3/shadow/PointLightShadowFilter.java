@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,7 +44,7 @@ import java.io.IOException;
  * This Filter does basically the same as a PointLightShadowRenderer except it
  * renders the post shadow pass as a fullscreen quad pass instead of a geometry
  * pass. It's mostly faster than PointLightShadowRenderer as long as you have
- * more than a about ten shadow receiving objects. The expense is the draw back
+ * more than about ten shadow receiving objects. The expense is the drawback
  * that the shadow Receive mode set on spatial is ignored. So basically all and
  * only objects that render depth in the scene receive shadows. See this post
  * for more details

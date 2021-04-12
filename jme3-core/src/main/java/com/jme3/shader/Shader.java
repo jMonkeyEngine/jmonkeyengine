@@ -88,7 +88,7 @@ public final class Shader extends NativeObject {
          */
         Geometry("geom"),
         /**
-         * Controls tessellation factor (e.g how often a input patch should be
+         * Controls tessellation factor (e.g how often an input patch should be
          * subdivided)
          */
         TessellationControl("tsctrl"),

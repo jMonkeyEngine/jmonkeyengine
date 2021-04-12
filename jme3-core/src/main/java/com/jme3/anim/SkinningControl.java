@@ -119,7 +119,7 @@ public class SkinningControl extends AbstractControl implements Cloneable, JmeCl
     }
 
     /**
-     * Creates a armature control. The list of targets will be acquired
+     * Creates an armature control. The list of targets will be acquired
      * automatically when the control is attached to a node.
      *
      * @param armature the armature

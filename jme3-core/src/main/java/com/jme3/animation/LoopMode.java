@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,7 +46,7 @@ public enum LoopMode {
     /**
      * The animation will not loop. It will play until the last frame, and then
      * freeze at that frame. It is possible to decide to play a new animation
-     * when that happens by using a AnimEventListener.
+     * when that happens by using an AnimEventListener.
      */
     DontLoop,
 

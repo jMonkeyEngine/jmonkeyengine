@@ -1178,7 +1178,7 @@ public interface GL {
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glUniform">Reference Page</a></p>
      * <p>
-     * Specifies the value of a single int uniform variable or a int uniform variable array for the current program object.
+     * Specifies the value of a single int uniform variable or an int uniform variable array for the current program object.
      *
      * @param location the location of the uniform variable to be modified.
      * @param value    a pointer to an array of {@code count} values that will be used to update the specified uniform variable.

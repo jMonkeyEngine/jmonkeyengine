@@ -97,7 +97,7 @@ public class Joint implements Savable, JmeCloneable, HasLocalTransform {
     }
 
     /**
-     * Updates world transforms for this bone and it's children.
+     * Updates world transforms for this bone and its children.
      */
     public final void update() {
         this.updateModelTransforms();

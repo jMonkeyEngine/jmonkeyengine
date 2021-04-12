@@ -184,7 +184,7 @@ public class MorphControl extends AbstractControl implements Savable {
 
         MatParam param = mat.getParam("MorphWeights");
         if (param == null) {
-            // init the mat param if it doesn't exists.
+            // init the mat param if it doesn't exist.
             float[] wts = new float[maxGPUTargets];
             mat.setParam("MorphWeights", VarType.FloatArray, wts);
         }
@@ -203,7 +203,7 @@ public class MorphControl extends AbstractControl implements Savable {
                 compilationOk = true;
             } catch (RendererException e) {
                 logger.log(Level.FINE, geom.getName() + ": failed at " + maxGPUTargets);
-                // the compilation failed let's decrement the number of targets an try again.
+                // the compilation failed let's decrement the number of targets and try again.
                 maxGPUTargets--;
             }
         }

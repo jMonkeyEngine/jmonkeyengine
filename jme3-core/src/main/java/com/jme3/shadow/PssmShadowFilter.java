@@ -53,8 +53,8 @@ import java.io.IOException;
  * 
  * This Filter does basically the same as a PssmShadowRenderer except it renders 
  * the post shadow pass as a fullscreen quad pass instead of a geometry pass.
- * It's mostly faster than PssmShadowRenderer as long as you have more than a about ten shadow receiving objects.
- * The expense is the draw back that the shadow Receive mode set on spatial is ignored.
+ * It's mostly faster than PssmShadowRenderer as long as you have more than about ten shadow receiving objects.
+ * The expense is the drawback that the shadow Receive mode set on spatial is ignored.
  * So basically all and only objects that render depth in the scene receive shadows.
  * See this post for more details http://jmonkeyengine.org/groups/general-2/forum/topic/silly-question-about-shadow-rendering/#post-191599
  * 

@@ -815,7 +815,7 @@ public class DDSLoader implements AssetLoader {
     }
 
     /**
-     * Converts a int representing a FourCC into a String
+     * Converts an int representing a FourCC into a String
      */
     private static String string(int value) {
         StringBuilder buf = new StringBuilder();

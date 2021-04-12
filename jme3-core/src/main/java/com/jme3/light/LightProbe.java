@@ -144,7 +144,7 @@ public class LightProbe extends Light implements Savable {
      * (ie: for 6 mip maps and a radius of 3, sp= 6.3333333)
      * <p>
      * The radius is obvious for a SphereProbeArea,
-     * but in the case of a OrientedBoxProbeArea it's the max of the extent vector's components.
+     * but in the case of an OrientedBoxProbeArea it's the max of the extent vector's components.
      *
      * @return the pre-existing matrix
      */

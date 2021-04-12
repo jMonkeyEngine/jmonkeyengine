@@ -39,8 +39,8 @@ import java.util.List;
  * This strategy returns the closest probe from the rendered object.
  * 
  * This is the most basic strategy : The fastest and the easiest.
- * Though it has severe graphical draw backs as there might be very visible seams
- * on static object and some "poping" on dynamic objects.
+ * Though it has severe graphical drawbacks as there might be very visible seams
+ * on static object and some "popping" on dynamic objects.
  *
  * @author Nehon
  */
