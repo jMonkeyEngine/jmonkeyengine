@@ -701,6 +701,13 @@ public class SkinningControl extends AbstractControl implements Cloneable, JmeCl
         tb.updateData(ftb);
     }
 
+    /**
+     * Serialize this Control to the specified exporter, for example when saving
+     * to a J3O file.
+     *
+     * @param ex the exporter to write to (not null)
+     * @throws IOException from the exporter
+     */
     @Override
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
@@ -711,6 +718,13 @@ public class SkinningControl extends AbstractControl implements Cloneable, JmeCl
         oc.write(jointMatricesParam, "boneMatricesParam", null);
     }
 
+    /**
+     * De-serialize this Control from the specified importer, for example when
+     * loading from a J3O file.
+     *
+     * @param im the importer to read from (not null)
+     * @throws IOException from the importer
+     */
     @Override
     public void read(JmeImporter im) throws IOException {
         super.read(im);

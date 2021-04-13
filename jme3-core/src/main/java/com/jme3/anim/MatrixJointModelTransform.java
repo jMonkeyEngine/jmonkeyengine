@@ -36,6 +36,11 @@ public class MatrixJointModelTransform implements JointModelTransform {
         localTransform.fromTransformMatrix(modelTransformMatrix);
     }
 
+    /**
+     * Access the model transform.
+     *
+     * @return the pre-existing instance 
+     */
     public Matrix4f getModelTransformMatrix() {
         return modelTransformMatrix;
     }

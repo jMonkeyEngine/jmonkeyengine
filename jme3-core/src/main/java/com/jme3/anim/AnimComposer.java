@@ -65,6 +65,9 @@ public class AnimComposer extends AbstractControl {
     private float globalSpeed = 1f;
     private Map<String, Layer> layers = new LinkedHashMap<>();
 
+    /**
+     * Instantiate a composer with a single layer, no actions, and no clips.
+     */
     public AnimComposer() {
         layers.put(DEFAULT_LAYER, new Layer(this));
     }
@@ -314,6 +317,12 @@ public class AnimComposer extends AbstractControl {
         return actions.remove(name);
     }
 
+    /**
+     * Add a layer to this composer.
+     *
+     * @param name the desired name for the new layer
+     * @param mask the desired mask for the new layer (alias created)
+     */
     public void makeLayer(String name, AnimationMask mask) {
         Layer l = new Layer(this);
         l.mask = mask;
@@ -363,6 +372,9 @@ public class AnimComposer extends AbstractControl {
         return action;
     }
 
+    /**
+     * Reset all layers to t=0 with no current action.
+     */
     public void reset() {
         for (Layer layer : layers.values()) {
             layer.currentAction = null;
@@ -391,6 +403,11 @@ public class AnimComposer extends AbstractControl {
         return Collections.unmodifiableSet(animClipMap.keySet());
     }
 
+    /**
+     * used internally
+     *
+     * @param tpf time per frame (in seconds)
+     */
     @Override
     protected void controlUpdate(float tpf) {
         for (Layer layer : layers.values()) {
@@ -410,19 +427,40 @@ public class AnimComposer extends AbstractControl {
         }
     }
 
+    /**
+     * used internally
+     *
+     * @param rm the RenderManager rendering the controlled Spatial (not null)
+     * @param vp the ViewPort being rendered (not null)
+     */
     @Override
     protected void controlRender(RenderManager rm, ViewPort vp) {
 
     }
 
+    /**
+     * Determine the global speed applied to all layers.
+     *
+     * @return the speed factor (1=normal speed)
+     */
     public float getGlobalSpeed() {
         return globalSpeed;
     }
 
+    /**
+     * Alter the global speed applied to all layers.
+     *
+     * @param globalSpeed the desired speed factor (1=normal speed, default=1)
+     */
     public void setGlobalSpeed(float globalSpeed) {
         this.globalSpeed = globalSpeed;
     }
 
+    /**
+     * Create a shallow clone for the JME cloner.
+     *
+     * @return a new instance
+     */
     @Override
     public Object jmeClone() {
         try {
@@ -433,6 +471,15 @@ public class AnimComposer extends AbstractControl {
         }
     }
 
+    /**
+     * Callback from {@link com.jme3.util.clone.Cloner} to convert this
+     * shallow-cloned composer into a deep-cloned one, using the specified
+     * Cloner and original to resolve copied fields.
+     *
+     * @param cloner the Cloner that's cloning this composer (not null)
+     * @param original the instance from which this composer was shallow-cloned
+     * (not null, unaffected)
+     */
     @Override
     public void cloneFields(Cloner cloner, Object original) {
         super.cloneFields(cloner, original);
@@ -456,6 +503,13 @@ public class AnimComposer extends AbstractControl {
 
     }
 
+    /**
+     * De-serialize this composer from the specified importer, for example when
+     * loading from a J3O file.
+     *
+     * @param im the importer to use (not null)
+     * @throws IOException from the importer
+     */
     @Override
     @SuppressWarnings("unchecked")
     public void read(JmeImporter im) throws IOException {
@@ -465,6 +519,13 @@ public class AnimComposer extends AbstractControl {
         globalSpeed = ic.readFloat("globalSpeed", 1f);
     }
 
+    /**
+     * Serialize this composer to the specified exporter, for example when
+     * saving to a J3O file.
+     *
+     * @param ex the exporter to use (not null)
+     * @throws IOException from the exporter
+     */
     @Override
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);

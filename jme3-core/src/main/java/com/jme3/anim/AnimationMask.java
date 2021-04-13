@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,6 +38,12 @@ package com.jme3.anim;
  */
 public interface AnimationMask {
 
+    /**
+     * Test whether the animation should applied to the specified element.
+     *
+     * @param target the target element
+     * @return true if animation should be applied, otherwise false
+     */
     boolean contains(Object target);
 
 }

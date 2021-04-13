@@ -353,10 +353,22 @@ public class MorphControl extends AbstractControl implements Savable {
         return renderer.getLimits().get(Limits.VertexAttributes) - nbUsedBuffers;
     }
 
+    /**
+     * Alter whether this Control approximates tangents.
+     *
+     * @param approximateTangents true to approximate tangents, false to get
+     * them from a VertexBuffer
+     */
     public void setApproximateTangents(boolean approximateTangents) {
         this.approximateTangents = approximateTangents;
     }
 
+    /**
+     * Test whether this Control approximates tangents.
+     *
+     * @return true if approximating tangents, false if getting them from a
+     * VertexBuffer
+     */
     public boolean isApproximateTangents() {
         return approximateTangents;
     }
