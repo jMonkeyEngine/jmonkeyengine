@@ -126,6 +126,9 @@ public class PBRTerrainAdvancedTest extends SimpleApplication {
     private final float grassScale = 24;
     private final float marbleScale = 64;
     private final float gravelScale = 64;
+   
+    private final ColorRGBA tilesEmissiveColor = new ColorRGBA(0.12f, 0.02f, 0.23f, 0.85f); //dim magents emssiveness
+    private final ColorRGBA marbleEmissiveColor = new ColorRGBA(0.0f, 0.0f, 1.0f, 1.0f); //fully saturated blue emissiveness
     
     
     private AmbientLight ambientLight;
@@ -302,7 +305,7 @@ public class PBRTerrainAdvancedTest extends SimpleApplication {
 
         matTerrain.setInt("AlbedoMap_2", 2); 
         matTerrain.setFloat("AlbedoMap_2_scale", snowScale);
-        matTerrain.setFloat("Roughness_2", 0.8f);
+        matTerrain.setFloat("Roughness_2", 0.72f);
         matTerrain.setFloat("Metallic_2", 0.12f);
 
         matTerrain.setInt("AlbedoMap_3", 3);
@@ -346,8 +349,8 @@ public class PBRTerrainAdvancedTest extends SimpleApplication {
         
         
         //EMISSIVE        
-        matTerrain.setColor("EmissiveColor_5", ColorRGBA.Blue);
-        matTerrain.setColor("EmissiveColor_3", new ColorRGBA(0.12f, 0.02f, 0.23f, 0.85f)); //these two texture slots (marble & tiledRoad, indexed in each texturea array at 5 and 3 respectively) both 
+        matTerrain.setColor("EmissiveColor_5", marbleEmissiveColor);
+        matTerrain.setColor("EmissiveColor_3", tilesEmissiveColor); //these two texture slots (marble & tiledRoad, indexed in each texturea array at 5 and 3 respectively) both 
                                                                     // have packed MRAoEi maps with an emissiveTexture packed into the alpha channel
     
 //        matTerrain.setColor("EmissiveColor_1", new ColorRGBA(0.08f, 0.01f, 0.1f, 0.4f)); //this texture slot does not have a unique emissiveIntensityMap packed into its MRAoEi map, 
@@ -437,8 +440,7 @@ public class PBRTerrainAdvancedTest extends SimpleApplication {
 
     private void setUpLights() {
         
-        Node probeNode = (Node) assetManager.loadModel("Scenes/LightProbe/quarry_Probe.j3o");          
-        LightProbe probe = (LightProbe) probeNode.getLocalLightList().iterator().next();
+        LightProbe probe = (LightProbe) assetManager.loadAsset("Scenes/LightProbes/quarry_Probe.j3o");
         
         probe.setAreaType(AreaType.Spherical);      
         probe.getArea().setRadius(2000);
