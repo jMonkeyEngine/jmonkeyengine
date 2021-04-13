@@ -2,6 +2,7 @@ package com.jme3.anim;
 
 import java.util.ArrayList;
 
+@Deprecated
 public class Weights {//}  extends Savable, JmeCloneable{
 
 
