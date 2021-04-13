@@ -176,10 +176,6 @@ public class PBRTerrainTest extends SimpleApplication {
         matTerrain.setTexture("AlphaMap_1", assetManager.loadTexture("Textures/Terrain/splat/alpha2.png"));
         // this material also supports 'AlphaMap_2', so you can get up to 12 diffuse textures
 
-        // HEIGHTMAP image (for the terrain heightmap)
-        TextureKey hmKey = new TextureKey("Textures/Terrain/splat/mountains512.png", false);
-        Texture heightMapImage = assetManager.loadTexture(hmKey);
-
         // DIRT texture, Diffuse textures 0 to 3 use the first AlphaMap
         Texture dirt = assetManager.loadTexture("Textures/Terrain/PBR/Ground037_1K_Color.png");
         dirt.setWrap(WrapMode.Repeat);
