@@ -53,30 +53,29 @@ import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
 
 /**
- * This test uses the MatDef titled 'PBRTerrain.j3md' to create a terrain
- * Material using the PBR workflow
+ * This test uses 'PBRTerrain.j3md' to create a terrain Material for PBR.
  *
  * Upon running the app, the user should see a mountainous, terrain-based
  * landscape with some grassy areas, some snowy areas, and some tiled roads and
  * gravel paths weaving between the valleys. Snow should be slightly
- * shiney/reflective, and marble texture should be even shinier. If you would
+ * shiny/reflective, and marble texture should be even shinier. If you would
  * like to know what each texture is supposed to look like, you can find the
- * textures used for this test case located in jme-test-data (Screenshots
+ * textures used for this test case located in jme3-testdata. (Screenshots
  * showing how this test-case should look will also be available soon so you can
  * compare your results, and I will replace this comment with a link to their
- * location as soon as they are posted)
+ * location as soon as they are posted.)
  *
- * Users can press 'p' to toggle between tri-planar mode. Enabling tri-planar
- * mode should prevent stretching of textures on the steep areas of the terrain
+ * Press 'p' to toggle tri-planar mode. Enabling tri-planar mode should prevent
+ * stretching of textures in steep areas of the terrain.
  *
- * Users can press 'n' to toggle between night and day. Pressing 'n' will cause
- * the light to gradually fade darker/brighter until the min/max lighting levels
- * are reached. At night the scene should be noticeably darker.
+ * Press 'n' to toggle between night and day. Pressing 'n' will cause the light
+ * to gradually fade darker/brighter until the min/max lighting levels are
+ * reached. At night the scene should be noticeably darker.
  *
  * Uses assets from CC0Textures.com, licensed under CC0 1.0 Universal. For more
  * information on the textures this test case uses, view the license.txt file
- * located in the jme3-test-data directory where these textures are located:
- * jmonkeyengine/jme3-testdata/src/main/resources/Textures/Terrain/PBR
+ * located in the jme3-testdata directory where these textures are located:
+ * jme3-testdata/src/main/resources/Textures/Terrain/PBR
  *
  * <p>
  * Notes: (as of 12 April, 2021)
@@ -84,11 +83,11 @@ import com.jme3.texture.Texture.WrapMode;
  * <li>
  * This shader is subject to the GLSL max limit of 16 textures, and users should
  * consider using "AdvancedPBRTerrain.j3md" instead if they need additional
- * texture slots
+ * texture slots.
  * </li>
  * </ol>
- * </p>
- * author @yaRnMcDonuts
+ *
+ * @author yaRnMcDonuts
  */
 public class PBRTerrainTest extends SimpleApplication {
 
@@ -135,9 +134,9 @@ public class PBRTerrainTest extends SimpleApplication {
                 triPlanar = !triPlanar;
                 if (triPlanar) {
                     matTerrain.setBoolean("useTriPlanarMapping", true);
-                    // tri-planar textures don't use the mesh's texture coordinates but real world coordinates,
+                    // Tri-planar textures don't use the mesh's texture coordinates but real world coordinates,
                     // so we need to convert these texture coordinate scales into real world scales so it looks
-                    // the same when we switch to/from tr-planar mode
+                    // the same when we switch to/from tr-planar mode.
                     matTerrain.setFloat("AlbedoMap_0_scale", (dirtScale / terrainSize));
                     matTerrain.setFloat("AlbedoMap_1_scale", (darkRockScale / terrainSize));
                     matTerrain.setFloat("AlbedoMap_2_scale", (snowScale / terrainSize));
@@ -160,7 +159,7 @@ public class PBRTerrainTest extends SimpleApplication {
             }
             if (name.equals("toggleNight") && !pressed) {
                 isNight = !isNight;
-                //ambient and direcitonal light are faded smoothly in update loop below !
+                // Ambient and directional light are faded smoothly in update loop below.
             }
         }
     };
@@ -169,13 +168,13 @@ public class PBRTerrainTest extends SimpleApplication {
     public void simpleInitApp() {
         setupKeys();
         setUpTerrain();
-        setUpTerrainMaterial(); // <- this method contains the important info about using 'AdvancedPBRTerrain.j3md'
+        setUpTerrainMaterial();
         setUpLights();
         setUpCamera();
     }
 
     private void setUpTerrainMaterial() {
-        // TERRAIN TEXTURE material
+        // PBR terrain matdef
         matTerrain = new Material(assetManager, "Common/MatDefs/Terrain/PBRTerrain.j3md");
 
         matTerrain.setBoolean("useTriPlanarMapping", false);
@@ -272,7 +271,7 @@ public class PBRTerrainTest extends SimpleApplication {
         matTerrain.setTexture("NormalMap_2", normalMapSnow);
         matTerrain.setTexture("NormalMap_3", normalMapTiles);
         matTerrain.setTexture("NormalMap_4", normalMapGrass);
-        //     matTerrain.setTexture("NormalMap_5", normalMapMarble);  //using this texture will surpass the 16 texture limit
+        //     matTerrain.setTexture("NormalMap_5", normalMapMarble);  // Adding this texture would exceed the 16 texture limit.
         matTerrain.setTexture("NormalMap_6", normalMapGravel);
 
         terrain.setMaterial(matTerrain);

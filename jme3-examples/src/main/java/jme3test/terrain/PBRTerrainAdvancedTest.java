@@ -59,59 +59,58 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This test uses the MatDef titled 'AdvancedPBRTerrain.j3md' to create a
- * terrain Material that is capable of using more textures than a standard
- * terrain shader by utilizing TextureArrays. This shader is still subject to
- * the GLSL max limit of 16 textures, however each TextureArray counts as a
- * single texture, and each TextureArray can store multiple Images
+ * This test uses 'AdvancedPBRTerrain.j3md' to create a terrain Material with
+ * more textures than 'PBRTerrain.j3md' can handle.
  *
  * Upon running the app, the user should see a mountainous, terrain-based
  * landscape with some grassy areas, some snowy areas, and some tiled roads and
  * gravel paths weaving between the valleys. Snow should be slightly
- * shiney/reflective, and marble texture should be even shinier. If you would
+ * shiny/reflective, and marble texture should be even shinier. If you would
  * like to know what each texture is supposed to look like, you can find the
- * textures used for this test case located in jme-test-data (Screenshots
+ * textures used for this test case located in jme3-testdata. (Screenshots
  * showing how this test-case should look will also be available soon so you can
  * compare your results, and I will replace this comment with a link to their
- * location as soon as they are posted)
+ * location as soon as they are posted.)
  *
- * Users can press 'p' to toggle between tri-planar mode. Enabling tri-planar
- * mode should prevent stretching of textures on the steep areas of the terrain
+ * Press 'p' to toggle tri-planar mode. Enabling tri-planar mode should prevent
+ * stretching of textures in steep areas of the terrain.
  *
- * Users can press 'n' to toggle between night and day. Pressing 'n' will cause
- * the light to gradually fade darker/brighter until the min/max lighting levels
- * are reached. At night the scene should be noticeably darker, and the marble
- * and tiled-road texture should be noticeably glowing from their emissiveColors
- * and emissiveIntesnity map that is packed into the alpha channel of their
- * MetallicRoughness maps
+ * Press 'n' to toggle between night and day. Pressing 'n' will cause the light
+ * to gradually fade darker/brighter until the min/max lighting levels are
+ * reached. At night the scene should be noticeably darker, and the marble and
+ * tiled-road texture should be noticeably glowing from the emissiveColors and
+ * the emissiveIntensity map that is packed into the alpha channel of the
+ * MetallicRoughness maps.
  *
- * The MetallicRoughness map stores: - AmbientOcclusion in the Red channel -
- * Roughness in the Green channel - Metallic in the Blue channel -
- * EmissiveIntensity in the Alpha channel
+ * The MetallicRoughness map stores:
+ * <ul>
+ * <li> AmbientOcclusion in the Red channel </li>
+ * <li> Roughness in the Green channel </li>
+ * <li> Metallic in the Blue channel </li>
+ * <li> EmissiveIntensity in the Alpha channel </li>
+ * </ul>
  *
- * This shader is still subject to the GLSL max limit of 16 textures, however
+ * The shaders are still subject to the GLSL max limit of 16 textures, however
  * each TextureArray counts as a single texture, and each TextureArray can store
- * multiple Images For more information on texture arrays see:
- * https://www.khronos.org/opengl/wiki/Array_Texture For more information on the
- * TextureArray class/objcet in JME3 see:
- * https://javadoc.jmonkeyengine.org/v3.3.0-beta2/com/jme3/texture/TextureArray.html
+ * multiple images. For more information on texture arrays see:
+ * https://www.khronos.org/opengl/wiki/Array_Texture
  *
  * Uses assets from CC0Textures.com, licensed under CC0 1.0 Universal. For more
  * information on the textures this test case uses, view the license.txt file
- * located in the jme3-test-data directory where these textures are located:
- * jmonkeyengine/jme3-testdata/src/main/resources/Textures/Terrain/PBR
+ * located in the jme3-testdata directory where these textures are located:
+ * jme3-testdata/src/main/resources/Textures/Terrain/PBR
  *
  * <p>
  * Notes: (as of 12 April, 2021)
  * <ol>
  * <li>
- * results look better with anti-aliasing, especially at far distances. This may
- * be due to the way that the terrain is generated from a heightmap, as these
- * same textures do not have this issue in my other project
+ * The results look better with anti-aliasing, especially from a distance. This
+ * may be due to the way that the terrain is generated from a heightmap, as
+ * these same textures do not have this issue in my other project.
  * </li>
  * <li>
- * The amount of images per texture array may still be limited by the value set
- * to GL_MAX_ARRAY_TEXTURE_LAYERS, however this value should be high enough that
+ * The number of images per texture array may still be limited by
+ * GL_MAX_ARRAY_TEXTURE_LAYERS, however this value should be high enough that
  * users will likely run into issues with extremely low FPS from too many
  * texture-reads long before you surpass the limit of texture-layers per
  * textureArray. If this ever becomes an issue, a secondary set of
@@ -119,8 +118,8 @@ import java.util.List;
  * to store any textures that surpass the limit of the primary textureArrays.
  * </li>
  * </ol>
- * </p>
- * author @yaRnMcDonuts
+ *
+ * @author yaRnMcDonuts
  */
 public class PBRTerrainAdvancedTest extends SimpleApplication {
 
@@ -138,8 +137,8 @@ public class PBRTerrainAdvancedTest extends SimpleApplication {
     private final float marbleScale = 64;
     private final float gravelScale = 64;
 
-    private final ColorRGBA tilesEmissiveColor = new ColorRGBA(0.12f, 0.02f, 0.23f, 0.85f); //dim magents emssiveness
-    private final ColorRGBA marbleEmissiveColor = new ColorRGBA(0.0f, 0.0f, 1.0f, 1.0f); //fully saturated blue emissiveness
+    private final ColorRGBA tilesEmissiveColor = new ColorRGBA(0.12f, 0.02f, 0.23f, 0.85f); //dim magenta emission
+    private final ColorRGBA marbleEmissiveColor = new ColorRGBA(0.0f, 0.0f, 1.0f, 1.0f); //fully saturated blue emission
 
     private AmbientLight ambientLight;
     private DirectionalLight directionalLight;
@@ -169,9 +168,9 @@ public class PBRTerrainAdvancedTest extends SimpleApplication {
                 triPlanar = !triPlanar;
                 if (triPlanar) {
                     matTerrain.setBoolean("useTriPlanarMapping", true);
-                    // tri-planar textures don't use the mesh's texture coordinates but real world coordinates,
+                    // Tri-planar textures don't use the mesh's texture coordinates but real world coordinates,
                     // so we need to convert these texture coordinate scales into real world scales so it looks
-                    // the same when we switch to/from tr-planar mode
+                    // the same when we switch to/from tr-planar mode.
                     matTerrain.setFloat("AlbedoMap_0_scale", (dirtScale / terrainSize));
                     matTerrain.setFloat("AlbedoMap_1_scale", (darkRockScale / terrainSize));
                     matTerrain.setFloat("AlbedoMap_2_scale", (snowScale / terrainSize));
@@ -194,7 +193,7 @@ public class PBRTerrainAdvancedTest extends SimpleApplication {
             }
             if (name.equals("toggleNight") && !pressed) {
                 isNight = !isNight;
-                //ambient and direcitonal light are faded smoothly in update loop below !
+                // Ambient and directional light are faded smoothly in update loop below.
             }
         }
     };
@@ -203,13 +202,13 @@ public class PBRTerrainAdvancedTest extends SimpleApplication {
     public void simpleInitApp() {
         setupKeys();
         setUpTerrain();
-        setUpTerrainMaterial(); // <- this method contains the important info about using 'AdvancedPBRTerrain.j3md'
+        setUpTerrainMaterial(); // <- This method contains the important info about using 'AdvancedPBRTerrain.j3md'
         setUpLights();
         setUpCamera();
     }
 
     private void setUpTerrainMaterial() {
-        // advanced pbr terrain matdef
+        // advanced PBR terrain matdef
         matTerrain = new Material(assetManager, "Common/MatDefs/Terrain/AdvancedPBRTerrain.j3md");
 
         matTerrain.setBoolean("useTriPlanarMapping", false);
@@ -220,7 +219,7 @@ public class PBRTerrainAdvancedTest extends SimpleApplication {
         // this material also supports 'AlphaMap_2', so you can get up to 12 texture slots
 
         // load textures for texture arrays
-        // it is IMPORTANT that these MUST all have the same dimensions and format in order to be put into a texture array
+        // These MUST all have the same dimensions and format in order to be put into a texture array.
         //ALBEDO MAPS
         Texture dirt = assetManager.loadTexture("Textures/Terrain/PBR/Ground037_1K_Color.png");
         Texture darkRock = assetManager.loadTexture("Textures/Terrain/PBR/Rock035_1K_Color.png");
@@ -250,9 +249,9 @@ public class PBRTerrainAdvancedTest extends SimpleApplication {
 
         // put all images into lists to create texture arrays.
         //
-        // IMPORTANT to note that the index of each image in its list will be
+        // The index of each image in its list will be
         // sent to the material to tell the shader to choose that texture from
-        // the textureArray when setting up a texture slot's mat parans
+        // the textureArray when setting up a texture slot's mat params.
         //
         List<Image> albedoImages = new ArrayList<>();
         List<Image> normalMapImages = new ArrayList<>();
@@ -282,12 +281,12 @@ public class PBRTerrainAdvancedTest extends SimpleApplication {
         metallicRoughnessAoEiMapImages.add(metallicRoughnessAoEiMapMarble.getImage());   //5
         metallicRoughnessAoEiMapImages.add(metallicRoughnessAoEiMapGravel.getImage());   //6
 
-        //initiate texture arrays using
+        //initiate texture arrays
         TextureArray albedoTextureArray = new TextureArray(albedoImages);
         TextureArray normalParallaxTextureArray = new TextureArray(normalMapImages); // parallax is not used currently
         TextureArray metallicRoughnessAoEiTextureArray = new TextureArray(metallicRoughnessAoEiMapImages);
 
-        // important to apply wrapMode to the whole texture array, rather than each individual texture in the array
+        //apply wrapMode to the whole texture array, rather than each individual texture in the array
         albedoTextureArray.setWrap(WrapMode.Repeat);
         normalParallaxTextureArray.setWrap(WrapMode.Repeat);
         metallicRoughnessAoEiTextureArray.setWrap(WrapMode.Repeat);
@@ -355,10 +354,12 @@ public class PBRTerrainAdvancedTest extends SimpleApplication {
 
         //EMISSIVE
         matTerrain.setColor("EmissiveColor_5", marbleEmissiveColor);
-        matTerrain.setColor("EmissiveColor_3", tilesEmissiveColor); //these two texture slots (marble & tiledRoad, indexed in each texturea array at 5 and 3 respectively) both
+        matTerrain.setColor("EmissiveColor_3", tilesEmissiveColor);
+        //these two texture slots (marble & tiledRoad, indexed in each texturea array at 5 and 3 respectively) both
         // have packed MRAoEi maps with an emissiveTexture packed into the alpha channel
 
-//        matTerrain.setColor("EmissiveColor_1", new ColorRGBA(0.08f, 0.01f, 0.1f, 0.4f)); //this texture slot does not have a unique emissiveIntensityMap packed into its MRAoEi map,
+//        matTerrain.setColor("EmissiveColor_1", new ColorRGBA(0.08f, 0.01f, 0.1f, 0.4f));
+//this texture slot does not have a unique emissiveIntensityMap packed into its MRAoEi map,
         // so setting an emissiveColor will apply equal intensity to every pixel
         terrain.setMaterial(matTerrain);
     }
