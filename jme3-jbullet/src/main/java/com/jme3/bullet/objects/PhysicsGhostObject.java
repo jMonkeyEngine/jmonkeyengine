@@ -138,6 +138,7 @@ public class PhysicsGhostObject extends PhysicsCollisionObject {
     }
 
     /**
+     * @param trans storage for the result (modified if not null)
      * @return the physicsLocation
      */
     public Vector3f getPhysicsLocation(Vector3f trans) {
@@ -150,6 +151,7 @@ public class PhysicsGhostObject extends PhysicsCollisionObject {
     }
 
     /**
+     * @param rot storage for the result (modified if not null)
      * @return the physicsLocation
      */
     public Quaternion getPhysicsRotation(Quaternion rot) {
@@ -162,6 +164,7 @@ public class PhysicsGhostObject extends PhysicsCollisionObject {
     }
 
     /**
+     * @param rot storage for the result (modified if not null)
      * @return the physicsLocation
      */
     public Matrix3f getPhysicsRotationMatrix(Matrix3f rot) {
@@ -199,6 +202,8 @@ public class PhysicsGhostObject extends PhysicsCollisionObject {
 
     /**
      * used internally
+     * 
+     * @return the pre-existing instance
      */
     public PairCachingGhostObject getObjectId() {
         return gObject;

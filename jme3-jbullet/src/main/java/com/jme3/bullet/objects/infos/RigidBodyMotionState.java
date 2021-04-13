@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -79,7 +79,8 @@ public class RigidBodyMotionState extends MotionState {
 
     /**
      * called from bullet when the transform of the rigidbody changes
-     * @param worldTrans
+     *
+     * @param worldTrans the new value (not null, unaffected)
      */
     @Override
     public void setWorldTransform(Transform worldTrans) {
@@ -102,7 +103,9 @@ public class RigidBodyMotionState extends MotionState {
 
     /**
      * applies the current transform to the given jme Node if the location has been updated on the physics side
-     * @param spatial
+     *
+     * @param spatial where to apply the physics transform (not null, modified)
+     * @return true if changed
      */
     public boolean applyTransform(Spatial spatial) {
         if (!physicsLocationDirty) {

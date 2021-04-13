@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -514,6 +514,8 @@ public class BetterCharacterControl extends AbstractPhysicsControl implements Ph
     /**
      * This checks if the character can go from ducked to unducked state by
      * doing a ray test.
+     * 
+     * @return true if able to unduck, otherwise false
      */
     protected boolean checkCanUnDuck() {
         TempVars vars = TempVars.get();

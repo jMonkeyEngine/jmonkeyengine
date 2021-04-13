@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -74,6 +74,11 @@ public class PhysicsCollisionEvent extends EventObject {
 
     /**
      * used by event factory, called when event reused
+     *
+     * @param type the desired type
+     * @param source the desired first object (alias created)
+     * @param nodeB the desired 2nd object (alias created)
+     * @param cp the desired manifold (alias created)
      */
     public void refactor(int type, PhysicsCollisionObject source, PhysicsCollisionObject nodeB, ManifoldPoint cp) {
         this.source = source;

@@ -77,6 +77,8 @@ public class CompoundCollisionShape extends CollisionShape {
      * adds a child shape at the given local translation
      * @param shape the child shape to add
      * @param location the local location of the child shape
+     * @param rotation the local orientation of the child shape (not null,
+     * unaffected)
      */
     public void addChildShape(CollisionShape shape, Vector3f location, Matrix3f rotation) {
         if(shape instanceof CompoundCollisionShape){

@@ -72,8 +72,15 @@ public class SixDofJoint extends PhysicsJoint {
     }
 
     /**
+     * @param nodeA the body for the A end (not null, alias created)
+     * @param nodeB the body for the B end (not null, alias created)
      * @param pivotA local translation of the joint connection point in node A
      * @param pivotB local translation of the joint connection point in node B
+     * @param rotA the joint orientation in A's local coordinates (rotation
+     * matrix, unaffected)
+     * @param rotB the joint orientation in B's local coordinates (rotation
+     * matrix, unaffected)
+     * @param useLinearReferenceFrameA true&rarr;use body A, false&rarr;use body
      */
     public SixDofJoint(PhysicsRigidBody nodeA, PhysicsRigidBody nodeB, Vector3f pivotA, Vector3f pivotB, Matrix3f rotA, Matrix3f rotB, boolean useLinearReferenceFrameA) {
         super(nodeA, nodeB, pivotA, pivotB);
@@ -92,8 +99,12 @@ public class SixDofJoint extends PhysicsJoint {
     }
 
     /**
+     * @param nodeA the body for the A end (not null, alias created)
+     * @param nodeB the body for the B end (not null, alias created)
      * @param pivotA local translation of the joint connection point in node A
      * @param pivotB local translation of the joint connection point in node B
+     * @param useLinearReferenceFrameA true&rarr;use body A, false&rarr;use body
+     * B
      */
     public SixDofJoint(PhysicsRigidBody nodeA, PhysicsRigidBody nodeB, Vector3f pivotA, Vector3f pivotB, boolean useLinearReferenceFrameA) {
         super(nodeA, nodeB, pivotA, pivotB);
