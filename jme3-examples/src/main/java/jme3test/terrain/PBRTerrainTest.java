@@ -33,7 +33,7 @@ import com.jme3.texture.Texture.WrapMode;
     * Users can press 'p' to toggle between tri-planar mode. Enabling tri-planar mode should prevent stretching of textures on the steep areas of the terrain
     * 
     * Users can press 'n' to toggle between night and day. Pressing 'n' will cause the light to gradually fade darker/brighter until the min/max lighting levels are reached.
-    * At night the scene should be noticibly darker.
+    * At night the scene should be noticeably darker.
     * 
     *  Uses assets from CC0Textures.com, licensed under CC0 1.0 Universal. For more information on the textures this test case uses, 
     *  view the license.txt file located in the jme3-test-data directory where these textures are located: jmonkeyengine/jme3-testdata/src/main/resources/Textures/Terrain/PBR
