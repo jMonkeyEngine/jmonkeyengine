@@ -75,7 +75,7 @@ import java.util.List;
     * Users can press 'p' to toggle between tri-planar mode. Enabling tri-planar mode should prevent stretching of textures on the steep areas of the terrain
     * 
     * Users can press 'n' to toggle between night and day. Pressing 'n' will cause the light to gradually fade darker/brighter until the min/max lighting levels are reached.
-    * At night the scene should be noticibly darker, and the marble and tiled-road texture should be noticibly glowing from their emissiveColors and emissiveIntesnity map that is packed into
+    * At night the scene should be noticeably darker, and the marble and tiled-road texture should be noticeably glowing from their emissiveColors and emissiveIntesnity map that is packed into
     * the alpha channel of their MetallicRoughness maps
     * 
     * The MetallicRoughness map stores:
