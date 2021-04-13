@@ -45,12 +45,9 @@ name: Build jMonkeyEngine
 on:
   push:
     branches:
-      - gsw
       - master
-      - newbuild
-      - v3.3.*
-      - v3.2
-      - v3.2.*
+      - v3.4
+      - v3.3
   pull_request:
   release:
     types: [published]
