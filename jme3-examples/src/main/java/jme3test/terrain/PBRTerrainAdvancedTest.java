@@ -40,12 +40,10 @@ import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
 import com.jme3.light.LightProbe;
-import com.jme3.light.LightProbe.AreaType;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.shader.VarType;
-import com.jme3.system.AppSettings;
 import com.jme3.terrain.geomipmap.TerrainLodControl;
 import com.jme3.terrain.geomipmap.TerrainQuad;
 import com.jme3.terrain.geomipmap.lodcalc.DistanceLodCalculator;
@@ -153,11 +151,6 @@ public class PBRTerrainAdvancedTest extends SimpleApplication {
 
     public static void main(String[] args) {
         PBRTerrainAdvancedTest app = new PBRTerrainAdvancedTest();
-        AppSettings s = new AppSettings(true);
-
-        s.put("GammaCorrection", true);
-
-        app.setSettings(s);
         app.start();
     }
 
@@ -188,7 +181,6 @@ public class PBRTerrainAdvancedTest extends SimpleApplication {
                     matTerrain.setFloat("AlbedoMap_4_scale", grassScale);
                     matTerrain.setFloat("AlbedoMap_5_scale", marbleScale);
                     matTerrain.setFloat("AlbedoMap_6_scale", gravelScale);
-
                 }
             }
             if (name.equals("toggleNight") && !pressed) {
@@ -361,6 +353,7 @@ public class PBRTerrainAdvancedTest extends SimpleApplication {
 //        matTerrain.setColor("EmissiveColor_1", new ColorRGBA(0.08f, 0.01f, 0.1f, 0.4f));
 //this texture slot does not have a unique emissiveIntensityMap packed into its MRAoEi map,
         // so setting an emissiveColor will apply equal intensity to every pixel
+
         terrain.setMaterial(matTerrain);
     }
 
@@ -440,7 +433,7 @@ public class PBRTerrainAdvancedTest extends SimpleApplication {
     private void setUpLights() {
         LightProbe probe = (LightProbe) assetManager.loadAsset("Scenes/LightProbes/quarry_Probe.j3o");
 
-        probe.setAreaType(AreaType.Spherical);
+        probe.setAreaType(LightProbe.AreaType.Spherical);
         probe.getArea().setRadius(2000);
         probe.getArea().setCenter(new Vector3f(0, 0, 0));
         rootNode.addLight(probe);

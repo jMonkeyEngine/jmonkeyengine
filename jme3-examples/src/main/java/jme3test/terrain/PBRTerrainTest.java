@@ -43,7 +43,6 @@ import com.jme3.light.LightProbe;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
-import com.jme3.system.AppSettings;
 import com.jme3.terrain.geomipmap.TerrainLodControl;
 import com.jme3.terrain.geomipmap.TerrainQuad;
 import com.jme3.terrain.geomipmap.lodcalc.DistanceLodCalculator;
@@ -118,12 +117,6 @@ public class PBRTerrainTest extends SimpleApplication {
 
     public static void main(String[] args) {
         PBRTerrainTest app = new PBRTerrainTest();
-        AppSettings s = new AppSettings(true);
-
-        s.put("FrameRate", 140);
-        s.put("GammaCorrection", true);
-
-        app.setSettings(s);
         app.start();
     }
 
@@ -154,7 +147,6 @@ public class PBRTerrainTest extends SimpleApplication {
                     matTerrain.setFloat("AlbedoMap_4_scale", grassScale);
                     matTerrain.setFloat("AlbedoMap_5_scale", marbleScale);
                     matTerrain.setFloat("AlbedoMap_6_scale", gravelScale);
-
                 }
             }
             if (name.equals("toggleNight") && !pressed) {
@@ -260,8 +252,8 @@ public class PBRTerrainTest extends SimpleApplication {
         Texture normalMapGrass = assetManager.loadTexture("Textures/Terrain/PBR/Ground037_1K_Normal.png");
         normalMapGrass.setWrap(WrapMode.Repeat);
 
-        Texture normalMapMarble = assetManager.loadTexture("Textures/Terrain/PBR/Marble013_1K_Normal.png");
-        normalMapGrass.setWrap(WrapMode.Repeat);
+//        Texture normalMapMarble = assetManager.loadTexture("Textures/Terrain/PBR/Marble013_1K_Normal.png");
+//        normalMapMarble.setWrap(WrapMode.Repeat);
 
         Texture normalMapTiles = assetManager.loadTexture("Textures/Terrain/PBR/Tiles083_1K_Normal.png");
         normalMapTiles.setWrap(WrapMode.Repeat);
@@ -271,7 +263,7 @@ public class PBRTerrainTest extends SimpleApplication {
         matTerrain.setTexture("NormalMap_2", normalMapSnow);
         matTerrain.setTexture("NormalMap_3", normalMapTiles);
         matTerrain.setTexture("NormalMap_4", normalMapGrass);
-        //     matTerrain.setTexture("NormalMap_5", normalMapMarble);  // Adding this texture would exceed the 16 texture limit.
+//        matTerrain.setTexture("NormalMap_5", normalMapMarble);  // Adding this texture would exceed the 16 texture limit.
         matTerrain.setTexture("NormalMap_6", normalMapGravel);
 
         terrain.setMaterial(matTerrain);
