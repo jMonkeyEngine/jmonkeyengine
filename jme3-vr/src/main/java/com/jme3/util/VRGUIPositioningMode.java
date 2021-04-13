@@ -1,7 +1,7 @@
 package com.jme3.util;
 
 /**
- * A enumeration that describes the GUI display positioning modes.
+ * An enumeration that describes the GUI display positioning modes.
  * @author Julien Seinturier - COMEX SA - <a href="http://www.seinturier.fr">http://www.seinturier.fr</a>
  *
  */

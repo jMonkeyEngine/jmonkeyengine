@@ -48,7 +48,7 @@ import com.jme3.shadow.DirectionalLightShadowRenderer;
 public class VRDirectionalLightShadowRenderer extends DirectionalLightShadowRenderer {
 
     /**
-     * Create a OculusDirectionalLightShadowRenderer More info on the technique at <a
+     * Create an OculusDirectionalLightShadowRenderer More info on the technique at <a
      * href="http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html">http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html</a>
      *
      * @param assetManager the application asset manager

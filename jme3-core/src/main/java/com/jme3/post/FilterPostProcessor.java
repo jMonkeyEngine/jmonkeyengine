@@ -358,7 +358,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
 
         } else {
            setupViewPortFrameBuffer();
-           //if we are ina multiview situation we need to resize the camera 
+           //if we are in a multiview situation we need to resize the camera 
            //to the viewportsize so that the backbuffer is rendered correctly
            if (multiView) {
                 viewPort.getCamera().resize(width, height, false);

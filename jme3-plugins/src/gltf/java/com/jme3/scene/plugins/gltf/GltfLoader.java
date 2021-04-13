@@ -936,7 +936,7 @@ public class GltfLoader implements AssetLoader {
         anim = customContentManager.readExtensionAndExtras("animations", animation, anim);
 
         if (skinIndex != -1) {
-            //we have a armature animation.
+            //we have an armature animation.
             SkinData skin = fetchFromCache("skins", skinIndex, SkinData.class);
             skin.animComposer.addAnimClip(anim);
         }

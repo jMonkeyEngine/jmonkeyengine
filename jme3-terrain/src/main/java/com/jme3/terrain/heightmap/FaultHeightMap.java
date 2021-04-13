@@ -52,7 +52,7 @@ public class FaultHeightMap extends AbstractHeightMap {
     public static final int FAULTTYPE_STEP = 0;
     /**
      * Values on one side are lowered, then increase lineary while crossing
-     * the fault line to the other side. The fault line will be a inclined
+     * the fault line to the other side. The fault line will be an inclined
      * plane
      */
     public static final int FAULTTYPE_LINEAR = 1;

@@ -328,7 +328,7 @@ public class ObjectStore {
 
     private void onConnection(HostedConnection conn) {
         if (localObjects.size() > 0){
-            // send a object definition message
+            // send an object definition message
             ObjectDef[] defs = new ObjectDef[localObjects.size()];
             int i = 0;
             for (Entry<LocalObject> entry : localObjects){
