@@ -51,7 +51,8 @@ public class TestContextRestart extends SimpleApplication implements ActionListe
         TestContextRestart app = new TestContextRestart();
         AppSettings settings = new AppSettings(true);
         settings.setGammaCorrection(true);
-        settings.setRenderer(AppSettings.LWJGL_OPENGL32);
+        // Still need to see why setting this to anything higher than OPENGL2 causes the screen to blank in redisplay.
+//        settings.setRenderer(AppSettings.LWJGL_OPENGL32);
         app.setSettings(settings);
         app.start();
     }
