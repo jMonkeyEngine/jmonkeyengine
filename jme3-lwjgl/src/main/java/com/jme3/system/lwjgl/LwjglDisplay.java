@@ -185,6 +185,8 @@ public class LwjglDisplay extends LwjglAbstractDisplay {
                 logger.log(Level.SEVERE, "Failed to set display settings!", ex);
             }
             listener.reshape(settings.getWidth(), settings.getHeight());
+            // Re-enable gamma correction as needed
+            renderer.setMainFrameBufferSrgb(settings.isGammaCorrection());
             logger.fine("Display restarted.");
         } else if (Display.wasResized()) {
             int newWidth = Display.getWidth();

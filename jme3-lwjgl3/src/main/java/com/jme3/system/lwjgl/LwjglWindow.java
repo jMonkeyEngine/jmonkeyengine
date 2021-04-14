@@ -577,6 +577,9 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             LOGGER.log(Level.SEVERE, "Failed to set display settings!", ex);
         }
 
+        // Re-enable gamma correction
+        this.renderer.setMainFrameBufferSrgb(settings.isGammaCorrection());
+
         // We need to reinit the mouse and keyboard input as they are tied to a window handle
         if (keyInput != null && keyInput.isInitialized()) {
             keyInput.resetContext();
