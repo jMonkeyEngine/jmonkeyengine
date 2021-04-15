@@ -174,15 +174,28 @@ public abstract class LwjglContext implements JmeContext {
         return samples;
     }
 
+    /**
+     * Reinitializes the relevent details of the context. For internal use only.
+     */
     protected void reinitContext() {
         initContext(false);
     }
 
+    /**
+     * Initializes the LWJGL renderer and input for the first time. For internal
+     * use only.
+     */
     protected void initContextFirstTime() {
         initContext(true);
     }
 
-    protected void initContext(boolean first) {
+    /**
+     * Initializes the LWJGL renderer and input.
+     * @param first - Whether this is the first time we are initializing and we
+     * need to create the renderer or not. Otherwise, we'll just reset the
+     * renderer as needed.
+     */
+    private void initContext(boolean first) {
 
         final String renderer = settings.getRenderer();
         final GLCapabilities capabilities = createCapabilities(!renderer.equals(AppSettings.LWJGL_OPENGL2));

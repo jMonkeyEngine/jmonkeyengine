@@ -251,14 +251,27 @@ public abstract class LwjglContext implements JmeContext {
         return samples;
     }
 
+    /**
+     * Reinitializes the relevent details of the context. For internal use only.
+     */
     protected void reinitContext() {
         initContext(false);
     }
 
+    /**
+     * Initializes the LWJGL renderer and input for the first time. For internal
+     * use only.
+     */
     protected void initContextFirstTime() {
         initContext(true);
     }
 
+    /**
+     * Initializes the LWJGL renderer and input.
+     * @param first - Whether this is the first time we are initializing and we
+     * need to create the renderer or not. Otherwise, we'll just reset the
+     * renderer as needed.
+     */
     private void initContext(boolean first) {
         if (!GLContext.getCapabilities().OpenGL20) {
             throw new RendererException("OpenGL 2.0 or higher is "
