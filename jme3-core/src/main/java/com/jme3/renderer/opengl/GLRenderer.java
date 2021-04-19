@@ -2852,7 +2852,8 @@ public final class GLRenderer implements Renderer {
         for (int i = 0; i < attribList.oldLen; i++) {
             int idx = attribList.oldList[i];
             gl.glDisableVertexAttribArray(idx);
-            if (context.boundAttribs[idx].get().isInstanced()) {
+            VertexBuffer buffer = context.boundAttribs[idx].get();
+            if (buffer != null && buffer.isInstanced()) {
                 glext.glVertexAttribDivisorARB(idx, 0);
             }
             context.boundAttribs[idx] = null;
