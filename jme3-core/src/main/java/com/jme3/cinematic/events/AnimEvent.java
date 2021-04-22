@@ -91,9 +91,6 @@ public class AnimEvent extends AbstractCinematicEvent {
          * Override initialDuration, which defaults to 10 seconds.
          */
         Action eventAction = composer.action(actionName);
-        if (eventAction == null) {
-            throw new IllegalStateException("No action named: " + actionName);
-        }
         initialDuration = (float) eventAction.getLength();
     }
 
