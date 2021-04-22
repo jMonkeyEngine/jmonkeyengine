@@ -46,7 +46,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * An CinematicEvent that plays a canned animation action in an
+ * A CinematicEvent that plays a canned animation action in an
  * {@link com.jme3.anim.AnimComposer}.
  *
  * Inspired by Nehon's {@link AnimationEvent}.
