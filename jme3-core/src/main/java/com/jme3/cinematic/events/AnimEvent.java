@@ -133,10 +133,6 @@ public class AnimEvent extends AbstractCinematicEvent {
 
         Action currentAction = composer.getCurrentAction(layerName);
         Action eventAction = composer.action(actionName);
-        if (eventAction == null) {
-            throw new IllegalStateException("No action named: " + actionName);
-        }
-
         if (currentAction != eventAction) {
             composer.setCurrentAction(actionName, layerName);
             assert composer.getCurrentAction(layerName) == eventAction;
