@@ -24,6 +24,7 @@ The engine is used by several commercial game studios and computer-science cours
  - [Nine Circles of Hell (on Steam)](https://store.steampowered.com/app/1200600/Nine_Circles_of_Hell/)
  - [Leap](https://gamejolt.com/games/leap/313308)
  - [Jumping Jack Flag](http://timealias.bplaced.net/jack/)
+ - [PapaSpace Flight Simulation](https://www.papaspace.at/)
 
 ## Getting started
 
