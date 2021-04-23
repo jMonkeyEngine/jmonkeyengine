@@ -179,6 +179,8 @@ public abstract class JmeSystemDelegate {
         } else if (os.contains("mac os x") || os.contains("darwin")) {
             if (arch.startsWith("ppc")) {
                 return is64 ? Platform.MacOSX_PPC64 : Platform.MacOSX_PPC32;
+            } else if (arch.startsWith("aarch")) {
+                return Platform.MacOSX_ARM64; // no 32-bit version
             } else {
                 return is64 ? Platform.MacOSX64 : Platform.MacOSX32;
             }
