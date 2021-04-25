@@ -168,7 +168,11 @@ public abstract class JmeSystemDelegate {
         String arch = System.getProperty("os.arch").toLowerCase();
         boolean is64 = is64Bit(arch);
         if (os.contains("windows")) {
-            return is64 ? Platform.Windows64 : Platform.Windows32;
+            if (arch.startsWith("arm") || arch.startsWith("aarch")) {
+                return is64 ? Platform.Windows_ARM64 : Platform.Windows_ARM32;
+            } else {
+                return is64 ? Platform.Windows64 : Platform.Windows32;
+            }
         } else if (os.contains("linux") || os.contains("freebsd") 
                 || os.contains("sunos") || os.contains("unix")) {
             if (arch.startsWith("arm") || arch.startsWith("aarch")) {

@@ -34,15 +34,25 @@ package com.jme3.system;
 public enum Platform {
 
     /**
-     * Microsoft Windows 32 bit
+     * Microsoft Windows 32-bit AMD/Intel
      */
     Windows32,
     
     /**
-     * Microsoft Windows 64 bit
+     * Microsoft Windows 64-bit AMD/Intel
      */
     Windows64(true),
     
+    /**
+     * Microsoft Windows 32-bit ARM
+     */
+    Windows_ARM32,
+
+    /**
+     * Microsoft Windows 64-bit ARM
+     */
+    Windows_ARM64(true),
+
     /**
      * Linux 32-bit Intel
      */
