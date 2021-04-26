@@ -63,7 +63,7 @@ public class TransformTrack implements AnimTrack<Transform> {
     /**
      * Serialization-only. Do not use.
      */
-    public TransformTrack() {
+    protected TransformTrack() {
     }
 
     /**
