@@ -168,7 +168,11 @@ public abstract class JmeSystemDelegate {
         String arch = System.getProperty("os.arch").toLowerCase();
         boolean is64 = is64Bit(arch);
         if (os.contains("windows")) {
-            return is64 ? Platform.Windows64 : Platform.Windows32;
+            if (arch.startsWith("arm") || arch.startsWith("aarch")) {
+                return is64 ? Platform.Windows_ARM64 : Platform.Windows_ARM32;
+            } else {
+                return is64 ? Platform.Windows64 : Platform.Windows32;
+            }
         } else if (os.contains("linux") || os.contains("freebsd") 
                 || os.contains("sunos") || os.contains("unix")) {
             if (arch.startsWith("arm") || arch.startsWith("aarch")) {
@@ -179,6 +183,8 @@ public abstract class JmeSystemDelegate {
         } else if (os.contains("mac os x") || os.contains("darwin")) {
             if (arch.startsWith("ppc")) {
                 return is64 ? Platform.MacOSX_PPC64 : Platform.MacOSX_PPC32;
+            } else if (arch.startsWith("aarch")) {
+                return Platform.MacOSX_ARM64; // no 32-bit version
             } else {
                 return is64 ? Platform.MacOSX64 : Platform.MacOSX32;
             }
