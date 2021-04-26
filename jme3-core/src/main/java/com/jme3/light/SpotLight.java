@@ -168,7 +168,7 @@ public class SpotLight extends Light {
         packedAngleCos = (int) (innerCos * 1000);
         
         //due to approximations, very close angles can give the same cos
-        //here we make sure outer cos is bellow inner cos.
+        //here we make sure outer cos is below inner cos.
         if (((int) packedAngleCos) == ((int) (outerAngleCos * 1000))) {
             outerAngleCos -= 0.001f;
         }
