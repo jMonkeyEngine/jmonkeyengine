@@ -200,7 +200,7 @@ public class ListSort<T> {
         int remaining = high - low;
 
         /*
-         * If array's size is bellow min_size we perform a binary insertion sort 
+         * If array's size is below min_size we perform a binary insertion sort 
          * but first we check if some existing ordered pattern exists to reduce 
          * the size of data to be sorted
          */
@@ -219,7 +219,7 @@ public class ListSort<T> {
         while (remaining != 0) {
             int runLength = getRunLength(array, low, high, comparator);
 
-            /* if runlength is bellow the threshold we binary sort the remaining 
+            /* if runlength is below the threshold we binary sort the remaining 
              * elements
              */
             if (runLength < minLength) {
