@@ -223,7 +223,8 @@ public class LightProbeFactory {
      */
     public static Node getDebugGui(AssetManager manager, LightProbe probe) {
         if (!probe.isReady()) {
-            throw new UnsupportedOperationException("This EnvProbe is not ready yet, try to test isReady()");
+            throw new IllegalStateException(
+                    "The LightProbe is not ready yet, please test isReady().");
         }
 
         Node debugNode = new Node("debug gui probe");
