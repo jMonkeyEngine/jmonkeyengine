@@ -39,7 +39,7 @@ import com.jme3.renderer.queue.RenderQueue.Bucket;
 /**
  *  Can be hooked into the application (and render manager)
  *  to receive callbacks about specific frame steps.  It is up
- *  to the specific implememtation to decide what to do with
+ *  to the specific implementation to decide what to do with
  *  the information.
  *
  *  @author    Paul Speed
