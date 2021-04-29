@@ -175,7 +175,7 @@ public abstract class LwjglContext implements JmeContext {
     }
 
     /**
-     * Reinitializes the relevent details of the context. For internal use only.
+     * Reinitializes the relevant details of the context. For internal use only.
      */
     protected void reinitContext() {
         initContext(false);

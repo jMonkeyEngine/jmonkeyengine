@@ -69,7 +69,6 @@ public abstract class SimpleApplication extends LegacyApplication {
     public static final String INPUT_MAPPING_CAMERA_POS = DebugKeysAppState.INPUT_MAPPING_CAMERA_POS;
     public static final String INPUT_MAPPING_MEMORY = DebugKeysAppState.INPUT_MAPPING_MEMORY;
     public static final String INPUT_MAPPING_HIDE_STATS = "SIMPLEAPP_HideStats";
-    public static final String INPUT_RESTART_CONTEXT = "SIMPLEAPP_Restart";
 
     protected Node rootNode = new Node("Root Node");
     protected Node guiNode = new Node("Gui Node");
@@ -93,8 +92,6 @@ public abstract class SimpleApplication extends LegacyApplication {
                 if (stateManager.getState(StatsAppState.class) != null) {
                     stateManager.getState(StatsAppState.class).toggleStats();
                 }
-            }else if (name.equals(INPUT_RESTART_CONTEXT)){
-                restart();
             }
         }
     }
@@ -222,7 +219,6 @@ public abstract class SimpleApplication extends LegacyApplication {
 
             if (context.getType() == Type.Display) {
                 inputManager.addMapping(INPUT_MAPPING_EXIT, new KeyTrigger(KeyInput.KEY_ESCAPE));
-                inputManager.addMapping(INPUT_RESTART_CONTEXT, new KeyTrigger(KeyInput.KEY_TAB));
             }
 
             if (stateManager.getState(StatsAppState.class) != null) {
@@ -231,7 +227,6 @@ public abstract class SimpleApplication extends LegacyApplication {
             }
 
             inputManager.addListener(actionListener, INPUT_MAPPING_EXIT);
-            inputManager.addListener(actionListener, INPUT_RESTART_CONTEXT);
         }
 
         if (stateManager.getState(StatsAppState.class) != null) {
