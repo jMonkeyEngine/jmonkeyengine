@@ -40,6 +40,7 @@ import com.jme3.input.MouseInput;
 import com.jme3.input.controls.*;
 import com.jme3.light.DirectionalLight;
 import com.jme3.math.*;
+import com.jme3.renderer.Camera;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.*;
 
@@ -158,8 +159,11 @@ public class ArmatureDebugAppState extends BaseAppState {
                 Vector2f click2d = app.getInputManager().getCursorPosition();
                 CollisionResults results = new CollisionResults();
 
-                Vector3f click3d = app.getCamera().getWorldCoordinates(new Vector2f(click2d.x, click2d.y), 0f, tmp);
-                Vector3f dir = app.getCamera().getWorldCoordinates(new Vector2f(click2d.x, click2d.y), 1f, tmp2).subtractLocal(click3d);
+                Camera camera = app.getCamera();
+                Vector3f click3d = camera.getWorldCoordinates(click2d, 0f, tmp);
+                Vector3f dir = camera.getWorldCoordinates(click2d, 1f, tmp2)
+                        .subtractLocal(click3d)
+                        .normalizeLocal();
                 Ray ray = new Ray(click3d, dir);
                 debugNode.collideWith(ray, results);
 
