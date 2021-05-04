@@ -150,7 +150,12 @@ public class AnimEvent extends AbstractCinematicEvent {
     @Override
     public void onStop() {
         logger.log(Level.INFO, "");
-        composer.removeCurrentAction(layerName);
+
+        Action currentAction = composer.getCurrentAction(layerName);
+        Action eventAction = composer.action(actionName);
+        if (currentAction == eventAction) {
+            composer.removeCurrentAction(layerName);
+        }
     }
 
     /**
