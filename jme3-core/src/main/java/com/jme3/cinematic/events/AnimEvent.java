@@ -121,7 +121,8 @@ public class AnimEvent extends AbstractCinematicEvent {
      */
     @Override
     public void onPause() {
-        logger.log(Level.SEVERE, "");
+        logger.log(Level.INFO, "layer={0} action={1}",
+                new Object[]{layerName, actionName});
 
         Object layerManager = composer.getLayerManager(layerName);
         if (layerManager == this) {
@@ -135,7 +136,8 @@ public class AnimEvent extends AbstractCinematicEvent {
      */
     @Override
     public void onPlay() {
-        logger.log(Level.INFO, "");
+        logger.log(Level.INFO, "layer={0} action={1}",
+                new Object[]{layerName, actionName});
 
         Action currentAction = composer.getCurrentAction(layerName);
         Action eventAction = composer.action(actionName);
@@ -221,7 +223,8 @@ public class AnimEvent extends AbstractCinematicEvent {
      */
     @Override
     public void setTime(float time) {
-        logger.log(Level.INFO, "time = {0}", time);
+        logger.log(Level.INFO, "layer={0} action={1} time={2}",
+                new Object[]{layerName, actionName, time});
         super.setTime(time);
 
         Action currentAction = composer.getCurrentAction(layerName);
