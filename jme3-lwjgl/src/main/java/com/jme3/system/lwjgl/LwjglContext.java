@@ -251,42 +251,65 @@ public abstract class LwjglContext implements JmeContext {
         return samples;
     }
 
+    /**
+     * Reinitializes the relevent details of the context. For internal use only.
+     */
+    protected void reinitContext() {
+        initContext(false);
+    }
+
+    /**
+     * Initializes the LWJGL renderer and input for the first time. For internal
+     * use only.
+     */
     protected void initContextFirstTime() {
+        initContext(true);
+    }
+
+    /**
+     * Initializes the LWJGL renderer and input.
+     * @param first - Whether this is the first time we are initializing and we
+     * need to create the renderer or not. Otherwise, we'll just reset the
+     * renderer as needed.
+     */
+    private void initContext(boolean first) {
         if (!GLContext.getCapabilities().OpenGL20) {
             throw new RendererException("OpenGL 2.0 or higher is "
                     + "required for jMonkeyEngine");
         }
-        
+
         int vers[] = getGLVersion(settings.getRenderer());
         if (vers != null) {
-            GL gl = new LwjglGL();
-            GLExt glext = new LwjglGLExt();
-            GLFbo glfbo;
-            
-            if (GLContext.getCapabilities().OpenGL30) {
-                glfbo = new LwjglGLFboGL3();
-            } else {
-                glfbo = new LwjglGLFboEXT();
+            if (first) {
+                GL gl = new LwjglGL();
+                GLExt glext = new LwjglGLExt();
+                GLFbo glfbo;
+
+                if (GLContext.getCapabilities().OpenGL30) {
+                    glfbo = new LwjglGLFboGL3();
+                } else {
+                    glfbo = new LwjglGLFboEXT();
+                }
+
+                if (settings.getBoolean("GraphicsDebug")) {
+                    gl = (GL) GLDebug.createProxy(gl, gl, GL.class, GL2.class, GL3.class, GL4.class);
+                    glext = (GLExt) GLDebug.createProxy(gl, glext, GLExt.class);
+                    glfbo = (GLFbo) GLDebug.createProxy(gl, glfbo, GLFbo.class);
+                }
+                if (settings.getBoolean("GraphicsTiming")) {
+                    GLTimingState timingState = new GLTimingState();
+                    gl = (GL) GLTiming.createGLTiming(gl, timingState, GL.class, GL2.class, GL3.class, GL4.class);
+                    glext = (GLExt) GLTiming.createGLTiming(glext, timingState, GLExt.class);
+                    glfbo = (GLFbo) GLTiming.createGLTiming(glfbo, timingState, GLFbo.class);
+                }
+                if (settings.getBoolean("GraphicsTrace")) {
+                    gl = (GL) GLTracer.createDesktopGlTracer(gl, GL.class, GL2.class, GL3.class, GL4.class);
+                    glext = (GLExt) GLTracer.createDesktopGlTracer(glext, GLExt.class);
+                    glfbo = (GLFbo) GLTracer.createDesktopGlTracer(glfbo, GLFbo.class);
+                }
+                renderer = new GLRenderer(gl, glext, glfbo);
+                renderer.initialize();
             }
-            
-            if (settings.getBoolean("GraphicsDebug")) {
-                gl = (GL) GLDebug.createProxy(gl, gl, GL.class, GL2.class, GL3.class, GL4.class);
-                glext = (GLExt) GLDebug.createProxy(gl, glext, GLExt.class);
-                glfbo = (GLFbo) GLDebug.createProxy(gl, glfbo, GLFbo.class);
-            }
-            if (settings.getBoolean("GraphicsTiming")) {
-                GLTimingState timingState = new GLTimingState();
-                gl = (GL) GLTiming.createGLTiming(gl, timingState, GL.class, GL2.class, GL3.class, GL4.class);
-                glext = (GLExt) GLTiming.createGLTiming(glext, timingState, GLExt.class);
-                glfbo = (GLFbo) GLTiming.createGLTiming(glfbo, timingState, GLFbo.class);
-            }
-            if (settings.getBoolean("GraphicsTrace")) {
-                gl = (GL) GLTracer.createDesktopGlTracer(gl, GL.class, GL2.class, GL3.class, GL4.class);
-                glext = (GLExt) GLTracer.createDesktopGlTracer(glext, GLExt.class);
-                glfbo = (GLFbo) GLTracer.createDesktopGlTracer(glfbo, GLFbo.class);
-            }
-            renderer = new GLRenderer(gl, glext, glfbo);
-            renderer.initialize();
         } else {
             throw new UnsupportedOperationException("Unsupported renderer: " + settings.getRenderer());
         }
@@ -296,19 +319,20 @@ public abstract class LwjglContext implements JmeContext {
         renderer.setMainFrameBufferSrgb(settings.isGammaCorrection());
         renderer.setLinearizeSrgbImages(settings.isGammaCorrection());
 
-        // Init input
-        if (keyInput != null) {
-            keyInput.initialize();
-        }
+        if (first) {
+            // Init input
+            if (keyInput != null) {
+                keyInput.initialize();
+            }
 
-        if (mouseInput != null) {
-            mouseInput.initialize();
-        }
+            if (mouseInput != null) {
+                mouseInput.initialize();
+            }
 
-        if (joyInput != null) {
-            joyInput.initialize();
+            if (joyInput != null) {
+                joyInput.initialize();
+            }
         }
-        
     }
 
     @SuppressWarnings("unchecked")

@@ -185,6 +185,11 @@ public class LwjglDisplay extends LwjglAbstractDisplay {
                 logger.log(Level.SEVERE, "Failed to set display settings!", ex);
             }
             listener.reshape(settings.getWidth(), settings.getHeight());
+            if (renderable.get()) {
+                reinitContext();
+            } else {
+                assert getType() == Type.Canvas;
+            }
             logger.fine("Display restarted.");
         } else if (Display.wasResized()) {
             int newWidth = Display.getWidth();

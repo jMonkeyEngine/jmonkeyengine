@@ -576,6 +576,8 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, "Failed to set display settings!", ex);
         }
+        // Reinitialize context flags and such
+        reinitContext();
 
         // We need to reinit the mouse and keyboard input as they are tied to a window handle
         if (keyInput != null && keyInput.isInitialized()) {
