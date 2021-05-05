@@ -152,7 +152,7 @@ public class AnimEvent extends AbstractCinematicEvent {
         logger.log(Level.INFO, "");
 
         Action currentAction = composer.getCurrentAction(layerName);
-        Action eventAction = composer.action(actionName);
+        Action eventAction = composer.getAction(actionName);
         if (currentAction == eventAction) {
             composer.removeCurrentAction(layerName);
         }
