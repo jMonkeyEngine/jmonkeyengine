@@ -174,7 +174,28 @@ public abstract class LwjglContext implements JmeContext {
         return samples;
     }
 
+    /**
+     * Reinitializes the relevant details of the context. For internal use only.
+     */
+    protected void reinitContext() {
+        initContext(false);
+    }
+
+    /**
+     * Initializes the LWJGL renderer and input for the first time. For internal
+     * use only.
+     */
     protected void initContextFirstTime() {
+        initContext(true);
+    }
+
+    /**
+     * Initializes the LWJGL renderer and input.
+     * @param first - Whether this is the first time we are initializing and we
+     * need to create the renderer or not. Otherwise, we'll just reset the
+     * renderer as needed.
+     */
+    private void initContext(boolean first) {
 
         final String renderer = settings.getRenderer();
         final GLCapabilities capabilities = createCapabilities(!renderer.equals(AppSettings.LWJGL_OPENGL2));
@@ -185,36 +206,38 @@ public abstract class LwjglContext implements JmeContext {
             throw new UnsupportedOperationException("Unsupported renderer: " + renderer);
         }
 
-        GL gl = new LwjglGL();
-        GLExt glext = new LwjglGLExt();
-        GLFbo glfbo;
+        if (first) {
+            GL gl = new LwjglGL();
+            GLExt glext = new LwjglGLExt();
+            GLFbo glfbo;
 
-        if (capabilities.OpenGL30) {
-            glfbo = new LwjglGLFboGL3();
-        } else {
-            glfbo = new LwjglGLFboEXT();
+            if (capabilities.OpenGL30) {
+                glfbo = new LwjglGLFboGL3();
+            } else {
+                glfbo = new LwjglGLFboEXT();
+            }
+
+            if (settings.getBoolean("GraphicsDebug")) {
+                gl = (GL) GLDebug.createProxy(gl, gl, GL.class, GL2.class, GL3.class, GL4.class);
+                glext = (GLExt) GLDebug.createProxy(gl, glext, GLExt.class);
+                glfbo = (GLFbo) GLDebug.createProxy(gl, glfbo, GLFbo.class);
+            }
+
+            if (settings.getBoolean("GraphicsTiming")) {
+                GLTimingState timingState = new GLTimingState();
+                gl = (GL) GLTiming.createGLTiming(gl, timingState, GL.class, GL2.class, GL3.class, GL4.class);
+                glext = (GLExt) GLTiming.createGLTiming(glext, timingState, GLExt.class);
+                glfbo = (GLFbo) GLTiming.createGLTiming(glfbo, timingState, GLFbo.class);
+            }
+
+            if (settings.getBoolean("GraphicsTrace")) {
+                gl = (GL) GLTracer.createDesktopGlTracer(gl, GL.class, GL2.class, GL3.class, GL4.class);
+                glext = (GLExt) GLTracer.createDesktopGlTracer(glext, GLExt.class);
+                glfbo = (GLFbo) GLTracer.createDesktopGlTracer(glfbo, GLFbo.class);
+            }
+
+            this.renderer = new GLRenderer(gl, glext, glfbo);
         }
-
-        if (settings.getBoolean("GraphicsDebug")) {
-            gl = (GL) GLDebug.createProxy(gl, gl, GL.class, GL2.class, GL3.class, GL4.class);
-            glext = (GLExt) GLDebug.createProxy(gl, glext, GLExt.class);
-            glfbo = (GLFbo) GLDebug.createProxy(gl, glfbo, GLFbo.class);
-        }
-
-        if (settings.getBoolean("GraphicsTiming")) {
-            GLTimingState timingState = new GLTimingState();
-            gl = (GL) GLTiming.createGLTiming(gl, timingState, GL.class, GL2.class, GL3.class, GL4.class);
-            glext = (GLExt) GLTiming.createGLTiming(glext, timingState, GLExt.class);
-            glfbo = (GLFbo) GLTiming.createGLTiming(glfbo, timingState, GLFbo.class);
-        }
-
-        if (settings.getBoolean("GraphicsTrace")) {
-            gl = (GL) GLTracer.createDesktopGlTracer(gl, GL.class, GL2.class, GL3.class, GL4.class);
-            glext = (GLExt) GLTracer.createDesktopGlTracer(glext, GLExt.class);
-            glfbo = (GLFbo) GLTracer.createDesktopGlTracer(glfbo, GLFbo.class);
-        }
-
-        this.renderer = new GLRenderer(gl, glext, glfbo);
         this.renderer.initialize();
 
         if (capabilities.GL_ARB_debug_output && settings.getBoolean("GraphicsDebug")) {
@@ -224,36 +247,38 @@ public abstract class LwjglContext implements JmeContext {
         this.renderer.setMainFrameBufferSrgb(settings.isGammaCorrection());
         this.renderer.setLinearizeSrgbImages(settings.isGammaCorrection());
 
-        // Init input
-        if (keyInput != null) {
-            keyInput.initialize();
-        }
-
-        if (mouseInput != null) {
-            mouseInput.initialize();
-        }
-
-        if (joyInput != null) {
-            joyInput.initialize();
-        }
-
-        GLFW.glfwSetJoystickCallback(new GLFWJoystickCallback() {
-            @Override
-            public void invoke(int jid, int event) {
-
-                // Invoke the disconnected event before we reload the joysticks or we lose the reference to it.
-                // Invoke the connected event after we reload the joysticks to obtain the reference to it.
-
-                if ( event == GLFW.GLFW_CONNECTED ) {
-                    joyInput.reloadJoysticks();
-                    joyInput.fireJoystickConnectedEvent(jid);
-                }
-                else {
-                    joyInput.fireJoystickDisconnectedEvent(jid);
-                    joyInput.reloadJoysticks();
-                }
+        if (first) {
+            // Init input
+            if (keyInput != null) {
+                keyInput.initialize();
             }
-        });
+
+            if (mouseInput != null) {
+                mouseInput.initialize();
+            }
+
+            if (joyInput != null) {
+                joyInput.initialize();
+            }
+
+            GLFW.glfwSetJoystickCallback(new GLFWJoystickCallback() {
+                @Override
+                public void invoke(int jid, int event) {
+
+                    // Invoke the disconnected event before we reload the joysticks or we lose the reference to it.
+                    // Invoke the connected event after we reload the joysticks to obtain the reference to it.
+
+                    if ( event == GLFW.GLFW_CONNECTED ) {
+                        joyInput.reloadJoysticks();
+                        joyInput.fireJoystickConnectedEvent(jid);
+                    }
+                    else {
+                        joyInput.fireJoystickDisconnectedEvent(jid);
+                        joyInput.reloadJoysticks();
+                    }
+                }
+            });
+        }
 
         renderable.set(true);
     }
