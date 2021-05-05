@@ -93,8 +93,7 @@ public class SkeletonLoader extends DefaultHandler implements AssetLoader {
             assert elementStack.peek().equals("tracks");
             String jointName = SAXUtil.parseString(attribs.getValue("bone"));
             joint = nameToJoint.get(jointName);
-            track = new TransformTrack();
-            track.setTarget(joint);
+            track = new TransformTrack(joint, null, null, null, null);
         } else if (qName.equals("boneparent")) {
             assert elementStack.peek().equals("bonehierarchy");
             String jointName = attribs.getValue("bone");
