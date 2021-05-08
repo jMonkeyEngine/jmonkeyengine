@@ -457,6 +457,37 @@ public class AnimComposer extends AbstractControl {
     }
 
     /**
+     * Access the manager of the named layer.
+     *
+     * @param layerName the name of the layer to access
+     * @return the current manager (typically an AnimEvent) or null for none
+     */
+    public Object getLayerManager(String layerName) {
+        Layer layer = layers.get(layerName);
+        if (layer == null) {
+            throw new IllegalArgumentException("Unknown layer " + layerName);
+        }
+
+        return layer.manager;
+    }
+
+    /**
+     * Assign a manager to the named layer.
+     *
+     * @param layerName the name of the layer to modify
+     * @param manager the desired manager (typically an AnimEvent) or null for
+     * none
+     */
+    public void setLayerManager(String layerName, Object manager) {
+        Layer layer = layers.get(layerName);
+        if (layer == null) {
+            throw new IllegalArgumentException("Unknown layer " + layerName);
+        }
+
+        layer.manager = manager;
+    }
+
+    /**
      * Create a shallow clone for the JME cloner.
      *
      * @return a new instance
@@ -539,6 +570,7 @@ public class AnimComposer extends AbstractControl {
         private Action currentAction;
         private AnimationMask mask;
         private double time;
+        private Object manager;
 
         public Layer(AnimComposer ac) {
             this.ac = ac;

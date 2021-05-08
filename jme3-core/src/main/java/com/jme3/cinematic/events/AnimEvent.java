@@ -123,8 +123,11 @@ public class AnimEvent extends AbstractCinematicEvent {
     public void onPause() {
         logger.log(Level.SEVERE, "");
 
-        Action eventAction = composer.action(actionName);
-        eventAction.setSpeed(0f);
+        Object layerManager = composer.getLayerManager(layerName);
+        if (layerManager == this) {
+            Action eventAction = composer.action(actionName);
+            eventAction.setSpeed(0f);
+        }
     }
 
     /**
@@ -149,6 +152,7 @@ public class AnimEvent extends AbstractCinematicEvent {
             composer.setTime(layerName, 0.0);
         }
         eventAction.setSpeed(speed);
+        composer.setLayerManager(layerName, this);
     }
 
     /**
@@ -157,7 +161,12 @@ public class AnimEvent extends AbstractCinematicEvent {
     @Override
     public void onStop() {
         logger.log(Level.INFO, "");
-        composer.removeCurrentAction(layerName);
+
+        Object layerManager = composer.getLayerManager(layerName);
+        if (layerManager == this) {
+            composer.removeCurrentAction(layerName);
+            composer.setLayerManager(layerName, null);
+        }
     }
 
     /**

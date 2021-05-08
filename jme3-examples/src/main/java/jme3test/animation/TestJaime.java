@@ -159,10 +159,19 @@ public class TestJaime  extends SimpleApplication {
         AnimClip forwardClip = af.buildAnimation(jaime);
         AnimComposer composer = jaime.getControl(AnimComposer.class);
         composer.addAnimClip(forwardClip);
+        /*
+         * Add a clip that warps the model to its starting position.
+         */
+        AnimFactory af2 = new AnimFactory(0.01f, "StartingPosition", 30f);
+        af2.addTimeTranslation(0f, new Vector3f(0f, 0f, -3f));
+        AnimClip startClip = af2.buildAnimation(jaime);
+        composer.addAnimClip(startClip);
 
         composer.makeLayer("SpatialLayer", null);
         String boneLayer = AnimComposer.DEFAULT_LAYER;
 
+        cinematic.addCinematicEvent(0f,
+                new AnimEvent(composer, "StartingPosition", "SpatialLayer"));
         cinematic.enqueueCinematicEvent(
                 new AnimEvent(composer, "Idle", boneLayer));
         float jumpStart = cinematic.enqueueCinematicEvent(
