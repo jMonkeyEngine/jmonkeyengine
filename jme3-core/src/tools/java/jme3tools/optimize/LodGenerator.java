@@ -70,9 +70,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * This is an utility class that allows to generated the lod levels for an
- * arbitrary mesh. It computes a collapse cost for each vertex and each edges.
- * The higher the cost the most likely collapsing the edge or the vertex will
+ * This is a utility class that adds the ability to generate the lod levels
+ * for an arbitrary mesh. It computes a collapse cost for each vertex and each edge.
+ * The higher the cost the more likely collapsing the edge or the vertex will
  * produce artifacts on the mesh. <p>This class is the java implementation of
  * the enhanced version of Ogre engine Lod generator, by Péter Szücs, originally
  * based on Stan Melax "easy mesh simplification". The MIT licenced C++ source
@@ -81,8 +81,8 @@ import java.util.logging.Logger;
  * informations can be found here http://www.melax.com/polychop
  * http://sajty.elementfx.com/progressivemesh/GSoC2012.pdf </p>
  *
- * <p>The algorithm sort vertices according to their collapse cost
- * ascending. It collapse from the "cheapest" vertex to the more expensive.<br>
+ * <p>The algorithm sorts vertices according to their collapse cost in
+ * ascending order. It collapses from the "cheapest" vertex to the more expensive.<br>
  * <strong>Usage : </strong><br>
  * <pre>
  *      LodGenerator lODGenerator = new LodGenerator(geometry);
