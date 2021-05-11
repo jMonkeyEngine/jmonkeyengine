@@ -40,11 +40,11 @@ import java.util.logging.Logger;
 
 /**
  * <code>Matrix4f</code> represents a single-precision 4x4 matrix for use as a
- * 3-D coordinate transform. It provides convenience methods for creating
- * instances and loading data from many sources.
+ * 3-D coordinate transform or perspective transform. It provides convenience
+ * methods for loading data from many sources.
  *
- * The rightmost column stores the translation vector. Element numbering is
- * row,column, so m03 is the zeroth row, third column, which is the X
+ * The rightmost column (column 3) stores the translation vector. Element
+ * numbering is (row,column), so m03 is the row 0, column 3, which is the X
  * translation. This means that the implicit storage order is column-major.
  * However, the get() and set() functions on float arrays default to row-major
  * order!
@@ -193,8 +193,8 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * Create a <code>Matrix4f</code> that duplicates the specified matrix. If
-     * the specified matrix is null, the new matrix is initialized to identity
-     * (diagonals = 1, other elements = 0).
+     * null is specified, the new matrix is initialized to identity (diagonals =
+     * 1, other elements = 0).
      *
      * @param mat the source matrix (unaffected, may be null)
      */
@@ -203,9 +203,8 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Copy all elements of the specified matrix to this matrix. If the
-     * specified matrix is null, load identity (diagonals = 1, other elements =
-     * 0).
+     * Copy all elements of the specified matrix to this matrix. If null is
+     * specified, load identity (diagonals = 1, other elements = 0).
      *
      * @param matrix the source matrix (may be null, unaffected)
      */
@@ -387,7 +386,7 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
      * Copy the specified column to a new float array.
      *
      * @param i the index of the column to copy (0, 1, 2, or 3)
-     * @return a new float array with length=4
+     * @return a new array with length=4
      */
     public float[] getColumn(int i) {
         return getColumn(i, null);
@@ -441,7 +440,7 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
      * Load the specified column from the specified array.
      *
      * @param i the index of the column to fill (0, 1, 2, or 3)
-     * @param column the source array (unaffected)
+     * @param column the source array (unaffected) or null
      */
     public void setColumn(int i, float[] column) {
 
@@ -731,7 +730,7 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     /**
      * Transpose in place.
      *
-     * @return this (modified)
+     * @return this (transposed)
      */
     public Matrix4f transposeLocal() {
         float tmp = m01;
@@ -786,7 +785,7 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Copy all elements to an existing FloatBuffer, starting at the current
+     * Copy all elements to an existing FloatBuffer, starting at its current
      * position, in row-major order.
      *
      * @param fb the destination buffer (not null, must have space remaining for
@@ -798,7 +797,7 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Copy all elements to an existing FloatBuffer, starting at the current
+     * Copy all elements to an existing FloatBuffer, starting at its current
      * position.
      *
      * @param fb the destination buffer (not null, must have space remaining for
@@ -876,7 +875,7 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Load from the specified FloatBuffer.
+     * Load from the specified FloatBuffer, in row-major order.
      *
      * @param fb the source buffer, must have 16 floats remaining to get
      * @return this (modified)
@@ -889,8 +888,8 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
      * Load from the specified FloatBuffer.
      *
      * @param fb the source buffer, must have 16 floats remaining to get
-     * @param columnMajor if true, this buffer should be filled with column
-     * major data, otherwise it will be filled row major.
+     * @param columnMajor if true, the buffer contains column-major data,
+     * otherwise it contains row-major data.
      * @return this (modified)
      */
     public Matrix4f readFloatBuffer(FloatBuffer fb, boolean columnMajor) {
@@ -945,8 +944,7 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Load a perspective-view frustrum or rectangular solid with the specified
-     * clipping planes.
+     * Load a perspective-view transform with the specified clipping planes.
      *
      * @param near the coordinate of the near plane
      * @param far the coordinate of the far plane
@@ -1079,9 +1077,9 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Multiply by a scalar.
+     * Multiply by the specified scalar.
      *
-     * @param scalar the scale factor
+     * @param scalar the scale factor to apply to all elements
      * @param store storage for the result (modified) or null to create a new
      * matrix
      * @return a scaled matrix (either store or a new instance)
@@ -1095,8 +1093,8 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     /**
      * Right-multiply by the specified matrix. (This matrix is the left factor.)
      *
-     * @param in2 the right factor (not null)
-     * @return the product, this times in2 (a new matrix)
+     * @param in2 the right factor (not null, unaffected)
+     * @return the product, this times in2 (a new instance)
      */
     public Matrix4f mult(Matrix4f in2) {
         return mult(in2, null);
@@ -1207,22 +1205,20 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * <code>mult</code> multiplies this matrix with another matrix. The results
-     * are stored internally and a handle to this matrix will then be returned.
-     * This matrix will be on the left hand side, while the parameter matrix
-     * will be on the right.
+     * Right-multiply in place, by the specified matrix. (This matrix is the
+     * left factor.)
      *
-     * @param in2 the matrix to multiply this matrix by.
-     * @return the resultant matrix
+     * @param in2 the right factor (not null)
+     * @return this (modified)
      */
     public Matrix4f multLocal(Matrix4f in2) {
         return mult(in2, this);
     }
 
     /**
-     * <code>mult</code> multiplies a vector about a rotation matrix.
+     * Apply this 3-D coordinate transform to the specified Vector3f.
      *
-     * @param vec vec to multiply against.
+     * @param vec the vector to transform (not null)
      * @return a new vector
      */
     public Vector3f mult(Vector3f vec) {
@@ -1230,13 +1226,12 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * <code>mult</code> multiplies a vector about a rotation matrix and adds
-     * translation. The resulting vector is returned.
+     * Apply this 3-D coordinate transform to the specified Vector3f.
      *
-     * @param vec vec to multiply against.
+     * @param vec the vector to transform (not null)
      * @param store storage for the result (modified) or null to create a new
      * vector
-     * @return the rotated vector (either store or a new vector)
+     * @return the transformed vector (either store or a new vector)
      */
     public Vector3f mult(Vector3f vec, Vector3f store) {
         if (store == null) {
@@ -1252,24 +1247,22 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * <code>mult</code> multiplies a <code>Vector4f</code> about a rotation
-     * matrix.
+     * Multiply the specified Vector4f by this matrix.
      *
-     * @param vec vec to multiply against.
-     * @return a new vector
+     * @param vec the vector to multiply (unaffected) or null
+     * @return a new vector or null
      */
     public Vector4f mult(Vector4f vec) {
         return mult(vec, null);
     }
 
     /**
-     * <code>mult</code> multiplies a <code>Vector4f</code> about a rotation
-     * matrix.
+     * Multiply the specified Vector4f by this matrix.
      *
-     * @param vec vec to multiply against.
+     * @param vec the vector to multiply (unaffected) or null
      * @param store storage for the result (modified) or null to create a new
      * vector
-     * @return the rotated vector (either store or a new vector) or null
+     * @return the product (either store or a new vector) or null
      */
     public Vector4f mult(Vector4f vec, Vector4f store) {
         if (null == vec) {
@@ -1290,23 +1283,22 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * <code>mult</code> multiplies a vector about a rotation matrix. The
-     * resulting vector is returned.
+     * Multiply the specified Vector4f by the transform of this matrix.
      *
-     * @param vec vec to multiply against.
-     * @return a new vector
+     * @param vec the vector to multiply (unaffected) or null
+     * @return a new vector or null
      */
     public Vector4f multAcross(Vector4f vec) {
         return multAcross(vec, null);
     }
 
     /**
-     * Rotate and scale the specified vector, but don't translate it.
+     * Multiply the specified Vector4f by the transform of this matrix.
      *
-     * @param vec the vector to rotate and scale (not null, unaffected)
+     * @param vec the vector to multiply (unaffected) or null
      * @param store storage for the result (modified) or null to create a new
      * vector
-     * @return the rotated vector (either store or a new instance) or null
+     * @return the product (either store or a new vector) or null
      */
     public Vector4f multAcross(Vector4f vec, Vector4f store) {
         if (null == vec) {
@@ -1329,10 +1321,10 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     /**
      * Rotate and scale the specified vector, but don't translate it.
      *
-     * @param vec the vector to rotate and scale (not null, unaffected)
+     * @param vec the vector to transform (not null, unaffected)
      * @param store storage for the result (modified) or null to create a new
      * vector
-     * @return the rotated vector (either store or a new vector)
+     * @return the transformed vector (either store or a new vector)
      */
     public Vector3f multNormal(Vector3f vec, Vector3f store) {
         if (store == null) {
@@ -1348,13 +1340,13 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * <code>multNormal</code> multiplies a vector about a rotation matrix, but
-     * doesn't add translation.
+     * Rotate and scale the specified vector by the transpose, but don't
+     * translate it.
      *
-     * @param vec vec to multiply against.
+     * @param vec the vector to transform (not null, unaffected)
      * @param store storage for the result (modified) or null to create a new
      * vector
-     * @return the rotated vector (either store or a new vector)
+     * @return the transformed vector (either store or a new vector)
      */
     public Vector3f multNormalAcross(Vector3f vec, Vector3f store) {
         if (store == null) {
@@ -1370,11 +1362,10 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * <code>mult</code> multiplies a vector about a rotation matrix and adds
-     * translation. The w value is returned as a result of multiplying the last
-     * column of the matrix by 1.0
+     * Apply this perspective transform to the specified Vector3f. Return the W
+     * value, calculated by dotting the vector with the last row.
      *
-     * @param vec vec to multiply against.
+     * @param vec the vector to transform (not null, unaffected)
      * @param store storage for the result (not null, modified)
      * @return the W value
      */
@@ -1387,12 +1378,13 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * <code>mult</code> multiplies a vector about a rotation matrix.
+     * Apply the transform of this 3-D coordinate transform to the specified
+     * Vector3f.
      *
-     * @param vec vec to multiply against.
+     * @param vec the vector to transform (unaffected) or null
      * @param store storage for the result (modified) or null to create a new
      * vector
-     * @return the rotated vector (either store or a new vector) or null
+     * @return the transformed vector (either store or a new vector) or null
      */
     public Vector3f multAcross(Vector3f vec, Vector3f store) {
         if (null == vec) {
@@ -1412,9 +1404,9 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * <code>mult</code> multiplies a quaternion about a matrix.
+     * Multiply the specified Quaternion by this matrix.
      *
-     * @param vec vec to multiply against.
+     * @param vec the Quaternion to multiply (unaffected) or null
      * @param store storage for the result (modified) or null to create a new
      * Quaternion
      * @return the product (either store or a new Quaternion) or null
@@ -1442,11 +1434,10 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * <code>mult</code> multiplies an array of 4 floats against this rotation
-     * matrix. The results are stored directly in the array. (vec4f x mat4f)
+     * Multiply the specified float array by this matrix.
      *
-     * @param vec4f float array (length=4) to multiply against the matrix.
-     * @return the vec4f for chaining.
+     * @param vec4f the array to multiply or null
+     * @return vec4f (modified) or null
      */
     public float[] mult(float[] vec4f) {
         if (null == vec4f || vec4f.length != 4) {
@@ -1465,11 +1456,10 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * <code>mult</code> multiplies an array of 4 floats against this rotation
-     * matrix. The results are stored directly in the array. (vec4f x mat4f)
+     * Multiply the specified float array by the transform of this matrix.
      *
-     * @param vec4f float array (length=4) to multiply against the matrix.
-     * @return vec4f
+     * @param vec4f the array to multiply or null
+     * @return vec4f (modified) or null
      */
     public float[] multAcross(float[] vec4f) {
         if (null == vec4f || vec4f.length != 4) {
@@ -1490,7 +1480,7 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     /**
      * Generate the inverse.
      *
-     * @return a new matrix
+     * @return a new instance
      */
     public Matrix4f invert() {
         return invert(null);
@@ -1501,7 +1491,8 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
      *
      * @param store storage for the result (modified) or null to create a new
      * matrix
-     * @return either store or a new matrix
+     * @return either store or a new instance
+     * @throws ArithmeticException if cannot be inverted
      */
     public Matrix4f invert(Matrix4f store) {
         if (store == null) {
@@ -1552,7 +1543,7 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     /**
      * Invert in place.
      *
-     * @return this matrix (modified)
+     * @return this matrix (inverted)
      */
     public Matrix4f invertLocal() {
 
@@ -1617,7 +1608,7 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     /**
      * Generate the adjoint.
      *
-     * @return a new matrix
+     * @return a new instance
      */
     public Matrix4f adjoint() {
         return adjoint(null);
@@ -1663,7 +1654,7 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
      *
      * @param store storage for the result (modified) or null to create a new
      * matrix
-     * @return either store or a new matrix
+     * @return either store or a new instance
      */
     public Matrix4f adjoint(Matrix4f store) {
         if (store == null) {
@@ -1726,9 +1717,9 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Sets all of the values in this matrix to zero.
+     * Set all elements to zero.
      *
-     * @return this matrix (modified)
+     * @return this (zeroed)
      */
     public Matrix4f zero() {
         m00 = m01 = m02 = m03 = 0.0f;
@@ -1739,10 +1730,10 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Generate the sum of this matrix and another.
+     * Add the specified matrix.
      *
      * @param mat the matrix to add (not null)
-     * @return a new Matrix4f
+     * @return the sum (a new instance)
      */
     public Matrix4f add(Matrix4f mat) {
         Matrix4f result = new Matrix4f();
@@ -1766,9 +1757,9 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * <code>add</code> adds the values of a parameter matrix to this matrix.
+     * Sum in place, with the specified matrix.
      *
-     * @param mat the matrix to add to this.
+     * @param mat the matrix to add (not null)
      */
     public void addLocal(Matrix4f mat) {
         m00 += mat.m00;
@@ -2369,7 +2360,7 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Test for identity.
+     * Test for exact identity.
      *
      * @return true if this is an exact identity, otherwise false
      */
@@ -2381,9 +2372,9 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Scale by the specified factor.
+     * Scale by the specified Vector3f.
      *
-     * @param scale the scale factor to apply
+     * @param scale the scale factors to apply
      */
     public void scale(Vector3f scale) {
         m00 *= scale.getX();
@@ -2469,7 +2460,7 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     /**
      * Create a copy.
      *
-     * @return a new matrix, equivalent to this one
+     * @return a new instance with the same element values
      */
     @Override
     public Matrix4f clone() {
