@@ -198,9 +198,6 @@ public class TestDirectionalLightShadow extends SimpleApplication implements Act
     }
 
     private void initInputs() {
-
-        inputManager.addMapping("ThicknessUp", new KeyTrigger(KeyInput.KEY_Y));
-        inputManager.addMapping("ThicknessDown", new KeyTrigger(KeyInput.KEY_H));
         inputManager.addMapping("lambdaUp", new KeyTrigger(KeyInput.KEY_U));
         inputManager.addMapping("lambdaDown", new KeyTrigger(KeyInput.KEY_J));
         inputManager.addMapping("switchGroundMat", new KeyTrigger(KeyInput.KEY_M));
