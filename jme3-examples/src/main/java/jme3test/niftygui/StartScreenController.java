@@ -29,50 +29,64 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package jme3test.niftygui;
 
-import com.jme3.app.SimpleApplication;
-import com.jme3.material.Material;
-import com.jme3.niftygui.NiftyJmeDisplay;
-import com.jme3.scene.Geometry;
-import com.jme3.scene.shape.Box;
+import com.jme3.app.Application;
 import de.lessvoid.nifty.Nifty;
+import de.lessvoid.nifty.screen.Screen;
+import de.lessvoid.nifty.screen.ScreenController;
 
-public class TestNiftyGui extends SimpleApplication {
+/**
+ * A ScreenController for the "start" screen defined in
+ * "Interfaces/Nifty/HelloJme.xml", which is used in the TestAppStates and
+ * TestNiftyGui applications.
+ */
+public class StartScreenController implements ScreenController {
 
-    private Nifty nifty;
+    final private Application application;
 
-    public static void main(String[] args){
-        TestNiftyGui app = new TestNiftyGui();
-        app.setPauseOnLostFocus(false);
-        app.start();
+    /**
+     * Instantiate a ScreenController for the specified Application.
+     *
+     * @param app the Application
+     */
+    public StartScreenController(Application app) {
+        this.application = app;
     }
 
+    /**
+     * Nifty invokes this method when the screen gets enabled for the first
+     * time.
+     *
+     * @param nifty (not null)
+     * @param screen (not null)
+     */
     @Override
-    public void simpleInitApp() {
-        Box b = new Box(1, 1, 1);
-        Geometry geom = new Geometry("Box", b);
-        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        mat.setTexture("ColorMap", assetManager.loadTexture("Interface/Logo/Monkey.jpg"));
-        geom.setMaterial(mat);
-        rootNode.attachChild(geom);
+    public void bind(Nifty nifty, Screen screen) {
+        System.out.println("bind(" + screen.getScreenId() + ")");
+    }
 
-        NiftyJmeDisplay niftyDisplay = NiftyJmeDisplay.newNiftyJmeDisplay(
-                assetManager,
-                inputManager,
-                audioRenderer,
-                guiViewPort);
-        nifty = niftyDisplay.getNifty();
-        StartScreenController startScreen = new StartScreenController(this);
-        nifty.fromXml("Interface/Nifty/HelloJme.xml", "start", startScreen);
+    /**
+     * Nifty invokes this method each time the screen starts up.
+     */
+    @Override
+    public void onStartScreen() {
+        System.out.println("onStartScreen");
+    }
 
-        // attach the nifty display to the gui view port as a processor
-        guiViewPort.addProcessor(niftyDisplay);
+    /**
+     * Nifty invokes this method each time the screen shuts down.
+     */
+    @Override
+    public void onEndScreen() {
+        System.out.println("onEndScreen");
+    }
 
-        // disable the fly cam
-//        flyCam.setEnabled(false);
-//        flyCam.setDragToRotate(true);
-        inputManager.setCursorVisible(true);
+    /**
+     * Stop the Application. Nifty invokes this method (via reflection) after
+     * the user clicks on the flashing orange panel.
+     */
+    public void quit() {
+        application.stop();
     }
 }
