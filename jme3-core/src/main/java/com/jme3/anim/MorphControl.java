@@ -31,6 +31,10 @@
  */
 package com.jme3.anim;
 
+import com.jme3.export.InputCapsule;
+import com.jme3.export.JmeExporter;
+import com.jme3.export.JmeImporter;
+import com.jme3.export.OutputCapsule;
 import com.jme3.export.Savable;
 import com.jme3.material.*;
 import com.jme3.renderer.*;
@@ -40,7 +44,8 @@ import com.jme3.scene.mesh.MorphTarget;
 import com.jme3.shader.VarType;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.SafeArrayList;
-
+import com.jme3.util.clone.Cloner;
+import java.io.IOException;
 import java.nio.FloatBuffer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -59,11 +64,13 @@ public class MorphControl extends AbstractControl implements Savable {
     private static final int MAX_MORPH_BUFFERS = 14;
     private final static float MIN_WEIGHT = 0.005f;
 
-    final private SafeArrayList<Geometry> targets = new SafeArrayList<>(Geometry.class);
-    final private TargetLocator targetLocator = new TargetLocator();
+    private static final String TAG_APPROXIMATE = "approximateTangents";
+
+    private SafeArrayList<Geometry> targets = new SafeArrayList<>(Geometry.class);
+    private TargetLocator targetLocator = new TargetLocator();
 
     private boolean approximateTangents = true;
-    final private MatParamOverride nullNumberOfBones = new MatParamOverride(VarType.Int, "NumberOfBones", null);
+    private MatParamOverride nullNumberOfBones = new MatParamOverride(VarType.Int, "NumberOfBones", null);
 
     private float[] tmpPosArray;
     private float[] tmpNormArray;
@@ -371,6 +378,70 @@ public class MorphControl extends AbstractControl implements Savable {
      */
     public boolean isApproximateTangents() {
         return approximateTangents;
+    }
+
+    /**
+     * Callback from {@link com.jme3.util.clone.Cloner} to convert this
+     * shallow-cloned Control into a deep-cloned one, using the specified Cloner
+     * and original to resolve copied fields.
+     *
+     * @param cloner the Cloner that's cloning this Control (not null, modified)
+     * @param original the instance from which this Control was shallow-cloned
+     * (not null, unaffected)
+     */
+    @Override
+    public void cloneFields(Cloner cloner, Object original) {
+        super.cloneFields(cloner, original);
+
+        targets = cloner.clone(targets);
+        targetLocator = new TargetLocator();
+        nullNumberOfBones = cloner.clone(nullNumberOfBones);
+        tmpPosArray = null;
+        tmpNormArray = null;
+        tmpTanArray = null;
+    }
+
+    /**
+     * Create a shallow clone for the JME cloner.
+     *
+     * @return a new instance
+     */
+    @Override
+    public MorphControl jmeClone() {
+        try {
+            MorphControl clone = (MorphControl) super.clone();
+            return clone;
+        } catch (CloneNotSupportedException exception) {
+            throw new RuntimeException(exception);
+        }
+    }
+
+    /**
+     * De-serialize this Control from the specified importer, for example when
+     * loading from a J3O file.
+     *
+     * @param importer (not null)
+     * @throws IOException from the importer
+     */
+    @Override
+    public void read(JmeImporter importer) throws IOException {
+        super.read(importer);
+        InputCapsule capsule = importer.getCapsule(this);
+        approximateTangents = capsule.readBoolean(TAG_APPROXIMATE, true);
+    }
+
+    /**
+     * Serialize this Control to the specified exporter, for example when saving
+     * to a J3O file.
+     *
+     * @param exporter (not null)
+     * @throws IOException from the exporter
+     */
+    @Override
+    public void write(JmeExporter exporter) throws IOException {
+        super.write(exporter);
+        OutputCapsule capsule = exporter.getCapsule(this);
+        capsule.write(approximateTangents, TAG_APPROXIMATE, true);
     }
 
     private class TargetLocator extends SceneGraphVisitorAdapter {
