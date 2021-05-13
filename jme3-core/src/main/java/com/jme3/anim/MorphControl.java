@@ -54,6 +54,9 @@ import java.util.logging.Logger;
  * All stock shaders only support morphing these 3 buffers, but note that MorphTargets can have any type of buffers.
  * If you want to use other types of buffers you will need a custom MorphControl and a custom shader.
  *
+ * Note that if morphed children are attached to or detached from the sub graph after the MorphControl is added to
+ * spatial, you must detach and attach the control again for the changes to get reflected.
+ *
  * @author Rémy Bouquet
  */
 public class MorphControl extends AbstractControl implements Savable {
@@ -88,7 +91,8 @@ public class MorphControl extends AbstractControl implements Savable {
         }
 
         // gathering geometries in the sub graph.
-        // This must be done in the update phase as the gathering might add a matparam override
+        // This must be done in the update phase as the gathering might add a matparam override otherwise it will
+        // throw an IllegalStateException if done in the render phase.
         targets.clear();
         if (spatial != null) {
             spatial.depthFirstTraversal(targetLocator);
