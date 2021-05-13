@@ -79,10 +79,9 @@ public class MorphControl extends AbstractControl implements Savable {
     private static final VertexBuffer.Type bufferTypes[] = VertexBuffer.Type.values();
 
     @Override
-    protected void controlUpdate(float tpf) {
-        if (!enabled) {
-            return;
-        }
+    public void setSpatial(Spatial spatial) {
+        super.setSpatial(spatial);
+
         // gathering geometries in the sub graph.
         // This must be done in the update phase as the gathering might add a matparam override
         targets.clear();
@@ -90,11 +89,13 @@ public class MorphControl extends AbstractControl implements Savable {
     }
 
     @Override
+    protected void controlUpdate(float tpf) {
+
+    }
+
+    @Override
     protected void controlRender(RenderManager rm, ViewPort vp) {
-        if (!enabled) {
-            return;
-        }
-        for (Geometry geom : targets) {
+        for (Geometry geom : targets.getArray()) {
             Mesh mesh = geom.getMesh();
             if (!geom.isDirtyMorph()) {
                 continue;
