@@ -31,12 +31,10 @@
  */
 package com.jme3.anim;
 
-import com.jme3.export.InputCapsule;
-import com.jme3.export.JmeExporter;
-import com.jme3.export.JmeImporter;
-import com.jme3.export.OutputCapsule;
-import com.jme3.export.Savable;
-import com.jme3.material.*;
+import com.jme3.export.*;
+import com.jme3.material.MatParam;
+import com.jme3.material.MatParamOverride;
+import com.jme3.material.Material;
 import com.jme3.renderer.*;
 import com.jme3.scene.*;
 import com.jme3.scene.control.AbstractControl;
@@ -47,6 +45,7 @@ import com.jme3.util.SafeArrayList;
 import com.jme3.util.clone.Cloner;
 import java.io.IOException;
 import java.nio.FloatBuffer;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -65,6 +64,7 @@ public class MorphControl extends AbstractControl implements Savable {
     private final static float MIN_WEIGHT = 0.005f;
 
     private static final String TAG_APPROXIMATE = "approximateTangents";
+    private static final String TAG_TARGETS = "targets";
 
     private SafeArrayList<Geometry> targets = new SafeArrayList<>(Geometry.class);
     private TargetLocator targetLocator = new TargetLocator();
@@ -82,10 +82,17 @@ public class MorphControl extends AbstractControl implements Savable {
     public void setSpatial(Spatial spatial) {
         super.setSpatial(spatial);
 
+        // Remove matparam override from the old targets
+        for (Geometry target : targets.getArray()) {
+            target.removeMatParamOverride(nullNumberOfBones);
+        }
+
         // gathering geometries in the sub graph.
         // This must be done in the update phase as the gathering might add a matparam override
         targets.clear();
-        this.spatial.depthFirstTraversal(targetLocator);
+        if (spatial != null) {
+            spatial.depthFirstTraversal(targetLocator);
+        }
     }
 
     @Override
@@ -429,6 +436,7 @@ public class MorphControl extends AbstractControl implements Savable {
         super.read(importer);
         InputCapsule capsule = importer.getCapsule(this);
         approximateTangents = capsule.readBoolean(TAG_APPROXIMATE, true);
+        targets.addAll(capsule.readSavableArrayList(TAG_TARGETS, null));
     }
 
     /**
@@ -443,6 +451,7 @@ public class MorphControl extends AbstractControl implements Savable {
         super.write(exporter);
         OutputCapsule capsule = exporter.getCapsule(this);
         capsule.write(approximateTangents, TAG_APPROXIMATE, true);
+        capsule.writeSavableArrayList(new ArrayList(targets), TAG_TARGETS, null);
     }
 
     private class TargetLocator extends SceneGraphVisitorAdapter {
