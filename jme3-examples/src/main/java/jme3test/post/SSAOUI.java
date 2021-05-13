@@ -56,7 +56,7 @@ public class SSAOUI {
         System.out.println("-- Sample Radius : press Y to increase, H to decrease");
         System.out.println("-- AO Intensity : press U to increase, J to decrease");
         System.out.println("-- AO scale : press I to increase, K to decrease");
-        System.out.println("-- AO bias : press O to increase, P to decrease");
+        System.out.println("-- AO bias : press O to increase, L to decrease");
         System.out.println("-- Toggle AO on/off : press space bar");
         System.out.println("-- Use only AO : press Num pad 0");
         System.out.println("-- Output config declaration : press P");
