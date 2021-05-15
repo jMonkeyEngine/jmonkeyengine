@@ -275,8 +275,11 @@ public class TestAttachDriver extends SimpleApplication implements ActionListene
             }
         } else if (binding.equals("Space")) {
             if (value) {
-                getPhysicsSpace().remove(slider);
-                slider.destroy();
+                if (slider != null) {
+                    getPhysicsSpace().remove(slider);
+                    slider.destroy();
+                    slider = null;
+                }
                 vehicle.applyImpulse(jumpForce, Vector3f.ZERO);
             }
         } else if (binding.equals("Reset")) {
