@@ -60,7 +60,7 @@ public class TestMousePick extends SimpleApplication {
     @Override
     public void simpleInitApp() {
         flyCam.setEnabled(false);
-        initMark();       // a red sphere to mark the hit
+        initMark();
 
         /** create four colored boxes and a floor to shoot at: */
         shootables = new Node("Shootables");
@@ -127,20 +127,18 @@ public class TestMousePick extends SimpleApplication {
         return floor;
     }
 
-    /** A red ball that marks the last spot that was "hit" by the "shot". */
-    protected void initMark() {
+    /**
+     * A red arrow to mark the spot being picked.
+     */
+    private void initMark() {
         Arrow arrow = new Arrow(Vector3f.UNIT_Z.mult(2f));
-
-        //Sphere sphere = new Sphere(30, 30, 0.2f);
         mark = new Geometry("BOOM!", arrow);
-        //mark = new Geometry("BOOM!", sphere);
         Material mark_mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        mark_mat.getAdditionalRenderState().setLineWidth(3);
         mark_mat.setColor("Color", ColorRGBA.Red);
         mark.setMaterial(mark_mat);
     }
 
-    protected Spatial makeCharacter() {
+    private Spatial makeCharacter() {
         // load a character from jme3test-test-data
         Spatial golem = assetManager.loadModel("Models/Oto/Oto.mesh.xml");
         golem.scale(0.5f);
