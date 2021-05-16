@@ -91,8 +91,8 @@ public class MorphControl extends AbstractControl implements Savable {
         }
 
         // gathering geometries in the sub graph.
-        // This must be done in the update phase as the gathering might add a matparam override otherwise it will
-        // throw an IllegalStateException if done in the render phase.
+        // This must not be done in the render phase as the gathering might add a matparam override
+        // which then will throw an IllegalStateException if done in the render phase.
         targets.clear();
         if (spatial != null) {
             spatial.depthFirstTraversal(targetLocator);
