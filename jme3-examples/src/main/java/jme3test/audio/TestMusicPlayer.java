@@ -260,7 +260,7 @@ public class TestMusicPlayer extends javax.swing.JFrame {
     }//GEN-LAST:event_btnStopActionPerformed
 
     private void btnFFActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFFActionPerformed
-        if (musicSource.getStatus() == Status.Playing){
+        if (musicSource != null && musicSource.getStatus() == Status.Playing) {
             musicSource.setPitch(2);
         }
     }//GEN-LAST:event_btnFFActionPerformed
