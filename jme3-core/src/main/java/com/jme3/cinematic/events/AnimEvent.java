@@ -155,7 +155,8 @@ public class AnimEvent extends AbstractCinematicEvent {
      */
     @Override
     public void onStop() {
-        logger.log(Level.INFO, "");
+        logger.log(Level.INFO, "layer={0} action={1}",
+                new Object[]{layerName, actionName});
 
         Object layerManager = composer.getLayerManager(layerName);
         if (layerManager == this) {
