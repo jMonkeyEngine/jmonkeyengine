@@ -70,7 +70,7 @@ public class TestGltfLoading extends SimpleApplication {
     you can find them here :
     https://github.com/KhronosGroup/glTF-Sample-Models/tree/master/2.0
     https://sketchfab.com/features/gltf
-    You have to copy them in Model/gltf folder in the test-data project.
+    You have to copy them in Model/gltf folder in the jme3-testdata project.
      */
     @Override
     public void simpleInitApp() {
