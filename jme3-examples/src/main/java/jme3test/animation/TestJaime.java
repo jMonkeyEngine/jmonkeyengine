@@ -152,7 +152,7 @@ public class TestJaime  extends SimpleApplication {
         stateManager.attach(cinematic);
         
         jaime.move(0, 0, -3);
-        AnimFactory af = new AnimFactory(0.7f, "JumpForward", 30f);
+        AnimFactory af = new AnimFactory(1f, "JumpForward", 30f);
         af.addTimeTranslation(0, new Vector3f(0, 0, -3));
         af.addTimeTranslation(0.35f, new Vector3f(0, 1, -1.5f));
         af.addTimeTranslation(0.7f, new Vector3f(0, 0, 0));
