@@ -69,7 +69,7 @@ public class TestTriangleCollision extends SimpleApplication {
         geom1.setMaterial(m1);
         rootNode.attachChild(geom1);
 
-        // load a character from jme3test-test-data
+        // load a character from jme3-testdata
         golem = assetManager.loadModel("Models/Oto/Oto.mesh.xml");
         golem.scale(0.5f);
         golem.setLocalTranslation(-1.0f, -1.5f, -0.6f);

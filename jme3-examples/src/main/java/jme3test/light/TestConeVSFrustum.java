@@ -215,8 +215,8 @@ public class TestConeVSFrustum extends SimpleApplication {
             }
         }, "click", "middleClick", "shift");
         /**
-         * An unshaded textured cube. // * Uses texture from jme3-test-data
-         * library!
+         * An unshaded textured cube.
+         * Uses texture from jme3-testdata library!
          */
         Box boxMesh = new Box(1f, 1f, 1f);
         Geometry boxGeo = new Geometry("A Textured Box", boxMesh);
