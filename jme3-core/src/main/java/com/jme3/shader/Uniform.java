@@ -251,8 +251,8 @@ public class Uniform extends ShaderVariable {
                     this.value = BufferUtils.createIntBuffer(ia);
                 } else {
                     this.value = BufferUtils.ensureLargeEnough((IntBuffer)this.value, ia.length);
+                    ((IntBuffer)this.value).put(ia);
                 }
-                ((IntBuffer)this.value).put(ia);
                 ((IntBuffer)this.value).clear();
                 break;
             case FloatArray:
@@ -261,8 +261,8 @@ public class Uniform extends ShaderVariable {
                     multiData = BufferUtils.createFloatBuffer(fa);
                 } else {
                     multiData = BufferUtils.ensureLargeEnough(multiData, fa.length);
+                    multiData.put(fa);
                 }
-                multiData.put(fa);
                 multiData.clear();
                 break;
             case Vector2Array:
@@ -271,9 +271,9 @@ public class Uniform extends ShaderVariable {
                     multiData = BufferUtils.createFloatBuffer(v2a);
                 } else {
                     multiData = BufferUtils.ensureLargeEnough(multiData, v2a.length * 2);
-                }
-                for (int i = 0; i < v2a.length; i++) {
-                    BufferUtils.setInBuffer(v2a[i], multiData, i);
+                    for (int i = 0; i < v2a.length; i++) {
+                        BufferUtils.setInBuffer(v2a[i], multiData, i);
+                    }
                 }
                 multiData.clear();
                 break;
@@ -283,9 +283,9 @@ public class Uniform extends ShaderVariable {
                     multiData = BufferUtils.createFloatBuffer(v3a);
                 } else {
                     multiData = BufferUtils.ensureLargeEnough(multiData, v3a.length * 3);
-                }
-                for (int i = 0; i < v3a.length; i++) {
-                    BufferUtils.setInBuffer(v3a[i], multiData, i);
+                    for (int i = 0; i < v3a.length; i++) {
+                        BufferUtils.setInBuffer(v3a[i], multiData, i);
+                    }
                 }
                 multiData.clear();
                 break;
@@ -295,9 +295,9 @@ public class Uniform extends ShaderVariable {
                     multiData = BufferUtils.createFloatBuffer(v4a);
                 } else {
                     multiData = BufferUtils.ensureLargeEnough(multiData, v4a.length * 4);
-                }
-                for (int i = 0; i < v4a.length; i++) {
-                    BufferUtils.setInBuffer(v4a[i], multiData, i);
+                    for (int i = 0; i < v4a.length; i++) {
+                        BufferUtils.setInBuffer(v4a[i], multiData, i);
+                    }
                 }
                 multiData.clear();
                 break;
