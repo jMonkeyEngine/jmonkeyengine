@@ -252,6 +252,7 @@ public class Uniform extends ShaderVariable {
                 } else {
                     this.value = BufferUtils.ensureLargeEnough((IntBuffer)this.value, ia.length);
                 }
+                ((IntBuffer)this.value).put(ia);
                 ((IntBuffer)this.value).clear();
                 break;
             case FloatArray:
