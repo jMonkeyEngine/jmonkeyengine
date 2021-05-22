@@ -31,312 +31,297 @@
  */
 package com.jme3.shader;
 
-import com.jme3.math.FastMath;
+import com.jme3.math.*;
+import org.hamcrest.MatcherAssert;
+import org.junit.Test;
+
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import org.junit.Test;
 
 import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
-public class DefineListTest {
-
-    private static final List<String> DEFINE_NAMES = Arrays.asList("BOOL_VAR", "INT_VAR", "FLOAT_VAR");
-    private static final List<VarType> DEFINE_TYPES = Arrays.asList(VarType.Boolean, VarType.Int, VarType.Float);
-    private static final int NUM_DEFINES = DEFINE_NAMES.size();
-    private static final int BOOL_VAR = 0;
-    private static final int INT_VAR = 1;
-    private static final int FLOAT_VAR = 2;
+public class UniformTest {
 
     @Test
-    public void testHashCollision() {
-        DefineList dl1 = new DefineList(64);
-        DefineList dl2 = new DefineList(64);
+    public void testSetValue_IntArray() {
+        Uniform uniform = new Uniform();
 
-        // Try to cause a hash collision
-        // (since bit #32 is aliased to bit #1 in 32-bit ints)
-        dl1.set(0, 123);
-        dl1.set(32, 0);
+        // Set value for the first time
+        int[] intArray1 = new int[] {1, 2, 4, 8};
+        uniform.setValue(VarType.IntArray, intArray1);
 
-        dl2.set(32, 0);
-        dl2.set(0, 123);
+        assertTrue(uniform.getValue() instanceof IntBuffer);
+        verifyIntBufferContent((IntBuffer) uniform.getValue(), intArray1);
 
-        assert dl1.hashCode() == dl2.hashCode();
-        assert dl1.equals(dl2);
+        // Overriding the previous value
+        int[] intArray2 = new int[] {3, 5, 7, 11, 13};
+        uniform.setValue(VarType.IntArray, intArray2);
+
+        assertTrue(uniform.getValue() instanceof IntBuffer);
+        verifyIntBufferContent((IntBuffer) uniform.getValue(), intArray2);
     }
 
-    @Test
-    public void testGetSet() {
-        DefineList dl = new DefineList(NUM_DEFINES);
+    private void verifyIntBufferContent(IntBuffer intBuffer, int[] intArray) {
+        assertEquals(0, intBuffer.position());
+        assertEquals(intArray.length, intBuffer.capacity());
+        assertEquals(intArray.length, intBuffer.limit());
 
-        assertFalse(dl.getBoolean(BOOL_VAR));
-        assertEquals(dl.getInt(INT_VAR), 0);
-        assertEquals(dl.getFloat(FLOAT_VAR), 0f, 0f);
-
-        dl.set(BOOL_VAR, true);
-        dl.set(INT_VAR, -1);
-        dl.set(FLOAT_VAR, Float.NaN);
-
-        assertTrue(dl.getBoolean(BOOL_VAR));
-        assertEquals(dl.getInt(INT_VAR), -1);
-        assertTrue(Float.isNaN(dl.getFloat(FLOAT_VAR)));
-    }
-
-    private String generateSource(DefineList dl) {
-        StringBuilder sb = new StringBuilder();
-        dl.generateSource(sb, DEFINE_NAMES, DEFINE_TYPES);
-        return sb.toString();
-    }
-
-    @Test
-    public void testSourceInitial() {
-        DefineList dl = new DefineList(NUM_DEFINES);
-        assert dl.hashCode() == 0;
-        assert generateSource(dl).equals("");
-    }
-
-    @Test
-    public void testSourceBooleanDefine() {
-        DefineList dl = new DefineList(NUM_DEFINES);
-
-        dl.set(BOOL_VAR, true);
-        assert dl.hashCode() == 1;
-        assert generateSource(dl).equals("#define BOOL_VAR 1\n");
-
-        dl.set(BOOL_VAR, false);
-        assert dl.hashCode() == 0;
-        assert generateSource(dl).equals("");
-
-        dl.set(BOOL_VAR, true);
-        assert dl.hashCode() == 1;
-        assert generateSource(dl).equals("#define BOOL_VAR 1\n");
-
-        dl.unset(BOOL_VAR);
-        assert dl.hashCode() == 0;
-        assert generateSource(dl).equals("");
-    }
-
-    @Test
-    public void testSourceIntDefine() {
-        DefineList dl = new DefineList(NUM_DEFINES);
-
-        int hashCodeWithInt = 1 << INT_VAR;
-
-        dl.set(INT_VAR, 123);
-        assert dl.hashCode() == hashCodeWithInt;
-        assert generateSource(dl).equals("#define INT_VAR 123\n");
-
-        dl.set(INT_VAR, 0);
-        assert dl.hashCode() == hashCodeWithInt;
-        assert generateSource(dl).equals("#define INT_VAR 0\n");
-
-        dl.set(INT_VAR, -99);
-        assert dl.hashCode() == hashCodeWithInt;
-        assert generateSource(dl).equals("#define INT_VAR -99\n");
-
-        dl.set(INT_VAR, Integer.MAX_VALUE);
-        assert dl.hashCode() == hashCodeWithInt;
-        assert generateSource(dl).equals("#define INT_VAR 2147483647\n");
-
-        dl.unset(INT_VAR);
-        assert dl.hashCode() == 0;
-        assert generateSource(dl).equals("");
-    }
-
-    @Test
-    public void testSourceFloatDefine() {
-        DefineList dl = new DefineList(NUM_DEFINES);
-
-        dl.set(FLOAT_VAR, 1f);
-        assert dl.hashCode() == (1 << FLOAT_VAR);
-        assert generateSource(dl).equals("#define FLOAT_VAR 1.0\n");
-
-        dl.set(FLOAT_VAR, 0f);
-        assert dl.hashCode() == (1 << FLOAT_VAR);
-        assert generateSource(dl).equals("#define FLOAT_VAR 0.0\n");
-
-        dl.set(FLOAT_VAR, -1f);
-        assert generateSource(dl).equals("#define FLOAT_VAR -1.0\n");
-
-        dl.set(FLOAT_VAR, FastMath.FLT_EPSILON);
-        assert generateSource(dl).equals("#define FLOAT_VAR 1.1920929E-7\n");
-
-        dl.set(FLOAT_VAR, FastMath.PI);
-        assert generateSource(dl).equals("#define FLOAT_VAR 3.1415927\n");
-
-        try {
-            dl.set(FLOAT_VAR, Float.NaN);
-            generateSource(dl);
-            assert false;
-        } catch (IllegalArgumentException ex) {
-        }
-
-        try {
-            dl.set(FLOAT_VAR, Float.POSITIVE_INFINITY);
-            generateSource(dl);
-            assert false;
-        } catch (IllegalArgumentException ex) {
-        }
-
-        try {
-            dl.set(FLOAT_VAR, Float.NEGATIVE_INFINITY);
-            generateSource(dl);
-            assert false;
-        } catch (IllegalArgumentException ex) {
+        for (int i = 0; i < intArray.length; i++) {
+            assertEquals(intArray[i], intBuffer.get(i));
         }
     }
 
-    @Test
-    public void testEqualsAndHashCode() {
-        DefineList dl1 = new DefineList(NUM_DEFINES);
-        DefineList dl2 = new DefineList(NUM_DEFINES);
-
-        assertEquals(0, dl1.hashCode());
-        assertEquals(0, dl2.hashCode());
-        assertEquals(dl1, dl2);
-
-        dl1.set(BOOL_VAR, true);
-
-        assertEquals(1, dl1.hashCode());
-        assertEquals(0, dl2.hashCode());
-        assertNotEquals(dl1, dl2);
-
-        dl2.set(BOOL_VAR, true);
-
-        assertEquals(1, dl1.hashCode());
-        assertEquals(1, dl2.hashCode());
-        assertEquals(dl1, dl2);
-
-        dl1.set(INT_VAR, 2);
-
-        assertEquals(1 | 2, dl1.hashCode());
-        assertEquals(1, dl2.hashCode());
-        assertNotEquals(dl1, dl2);
-
-        dl2.set(INT_VAR, 2);
-
-        assertEquals(1 | 2, dl1.hashCode());
-        assertEquals(1 | 2, dl2.hashCode());
-        assertEquals(dl1, dl2);
-
-        dl1.set(BOOL_VAR, false);
-
-        assertEquals(2, dl1.hashCode());
-        assertEquals(1 | 2, dl2.hashCode());
-        assertNotEquals(dl1, dl2);
-
-        dl2.unset(BOOL_VAR);
-
-        assertEquals(2, dl1.hashCode());
-        assertEquals(2, dl2.hashCode());
-        assertEquals(dl1, dl2); // unset is the same as false
-
-        dl1.unset(BOOL_VAR);
-        assertEquals(2, dl1.hashCode());
-        assertEquals(2, dl2.hashCode());
-        assertEquals(dl1, dl2);
-    }
 
     @Test
-    public void testDeepClone() {
-        DefineList dl1 = new DefineList(NUM_DEFINES);
-        DefineList dl2 = dl1.deepClone();
+    public void testSetValue_FloatArray() {
+        Uniform uniform = new Uniform();
 
-        assertNotSame(dl1, dl2);
-        assertEquals(dl1, dl2);
-        assertEquals(dl1.hashCode(), dl2.hashCode());
+        // Set value for the first time
+        float[] floatArray1 = new float[] {1.1f, 2.2f, 4.4f, 8.8f};
+        uniform.setValue(VarType.FloatArray, floatArray1);
 
-        dl1.set(BOOL_VAR, true);
-        dl2 = dl1.deepClone();
+        verifyFloatBufferContent(uniform.getMultiData(), floatArray1);
 
-        assertEquals(dl1, dl2);
-        assertEquals(dl1.hashCode(), dl2.hashCode());
+        // Overriding the previous value
+        float[] floatArray2 = new float[] {3.3f, 5.5f, 7.7f, 11.11f, 13.13f};
+        uniform.setValue(VarType.FloatArray, floatArray2);
 
-        dl1.set(BOOL_VAR, false);
-        dl2 = dl1.deepClone();
-
-        assertEquals(dl1, dl2);
-        assertEquals(dl1.hashCode(), dl2.hashCode());
-
-        dl1.set(INT_VAR, 123);
-
-        assertNotEquals(dl1, dl2);
-        assertNotEquals(dl1.hashCode(), dl2.hashCode());
-
-        dl2 = dl1.deepClone();
-
-        assertEquals(dl1, dl2);
-        assertEquals(dl1.hashCode(), dl2.hashCode());
+        verifyFloatBufferContent(uniform.getMultiData(), floatArray2);
     }
+
 
     @Test
-    public void testGenerateSource() {
-        DefineList dl = new DefineList(NUM_DEFINES);
+    public void testSetValue_Vector2Array() {
+        Uniform uniform = new Uniform();
 
-        assertEquals("", generateSource(dl));
+        // Set value for the first time
+        float[] expectedData1 = new float[] {
+                1.1f, 2.2f,
+                3.3f, 4.4f
+        };
+        Vector2f[] vector2Array1 = new Vector2f[] {
+                new Vector2f(expectedData1[0], expectedData1[1]),
+                new Vector2f(expectedData1[2], expectedData1[3])
+        };
+        uniform.setValue(VarType.Vector2Array, vector2Array1);
 
-        dl.set(BOOL_VAR, true);
+        verifyFloatBufferContent(uniform.getMultiData(), expectedData1);
 
-        assertEquals("#define BOOL_VAR 1\n", generateSource(dl));
+        // Overriding the previous value
+        float[] expectedData2 = new float[] {
+                1.2f, 2.3f,
+                3.4f, 4.5f,
+                5.6f, 6.7f
+        };
+        Vector2f[] vector2Array2 = new Vector2f[] {
+                new Vector2f(expectedData2[0], expectedData2[1]),
+                new Vector2f(expectedData2[2], expectedData2[3]),
+                new Vector2f(expectedData2[4], expectedData2[5])
+        };
+        uniform.setValue(VarType.Vector2Array, vector2Array2);
 
-        dl.set(INT_VAR, 123);
-
-        assertEquals("#define BOOL_VAR 1\n"
-                + "#define INT_VAR 123\n", generateSource(dl));
-
-        dl.set(BOOL_VAR, false);
-
-        assertEquals("#define INT_VAR 123\n", generateSource(dl));
-
-        dl.set(BOOL_VAR, true);
-
-        // should have predictable ordering based on defineId
-        assertEquals("#define BOOL_VAR 1\n"
-                + "#define INT_VAR 123\n", generateSource(dl));
-
-        dl.unset(BOOL_VAR);
-        assertEquals("#define INT_VAR 123\n", generateSource(dl));
+        verifyFloatBufferContent(uniform.getMultiData(), expectedData2);
     }
 
-    private static String doLookup(HashMap<DefineList, String> map, Boolean boolVal, Integer intVal, Float floatVal) {
-        DefineList dl = new DefineList(NUM_DEFINES);
-        dl.set(BOOL_VAR, VarType.Boolean, boolVal);
-        dl.set(INT_VAR, VarType.Int, intVal);
-        dl.set(FLOAT_VAR, VarType.Float, floatVal);
-        return map.get(dl);
-    }
 
     @Test
-    public void testHashLookup() {
-        String STR_EMPTY = "This is an empty define list";
-        String STR_INT = "This define list has an int value";
-        String STR_BOOL = "This define list just has boolean value set";
-        String STR_BOOL_INT = "This define list has both a boolean and int value";
-        String STR_BOOL_INT_FLOAT = "This define list has a boolean, int, and float value";
+    public void testSetValue_Vector3Array() {
+        Uniform uniform = new Uniform();
 
-        HashMap<DefineList, String> map = new HashMap<>();
+        // Set value for the first time
+        float[] expectedData1 = new float[] {
+                1.1f, 2.2f, 3.3f,
+                4.4f, 5.5f, 6.6f
+        };
+        Vector3f[] vector3Array1 = new Vector3f[] {
+                new Vector3f(expectedData1[0], expectedData1[1], expectedData1[2]),
+                new Vector3f(expectedData1[3], expectedData1[4], expectedData1[5])
+        };
+        uniform.setValue(VarType.Vector3Array, vector3Array1);
 
-        DefineList lookup = new DefineList(NUM_DEFINES);
+        verifyFloatBufferContent(uniform.getMultiData(), expectedData1);
 
-        map.put(lookup.deepClone(), STR_EMPTY);
+        // Overriding the previous value
+        float[] expectedData2 = new float[] {
+                1.2f, 2.3f, 3.4f,
+                4.5f, 5.6f, 6.7f,
+                7.8f, 8.9f, 9.1f
+        };
+        Vector3f[] vector3Array2 = new Vector3f[] {
+                new Vector3f(expectedData2[0], expectedData2[1], expectedData2[2]),
+                new Vector3f(expectedData2[3], expectedData2[4], expectedData2[5]),
+                new Vector3f(expectedData2[6], expectedData2[7], expectedData2[8])
+        };
+        uniform.setValue(VarType.Vector3Array, vector3Array2);
 
-        lookup.set(BOOL_VAR, true);
-        map.put(lookup.deepClone(), STR_BOOL);
-
-        lookup.set(BOOL_VAR, false);
-        lookup.set(INT_VAR, 123);
-        map.put(lookup.deepClone(), STR_INT);
-
-        lookup.set(BOOL_VAR, true);
-        map.put(lookup.deepClone(), STR_BOOL_INT);
-
-        lookup.set(FLOAT_VAR, FastMath.PI);
-        map.put(lookup.deepClone(), STR_BOOL_INT_FLOAT);
-
-        assertEquals(STR_EMPTY, doLookup(map, null, null, null));
-        assertEquals(STR_INT, doLookup(map, false, 123, null));
-        assertEquals(STR_BOOL, doLookup(map, true, null, null));
-        assertEquals(STR_BOOL_INT, doLookup(map, true, 123, null));
-        assertEquals(STR_BOOL_INT_FLOAT, doLookup(map, true, 123, FastMath.PI));
+        verifyFloatBufferContent(uniform.getMultiData(), expectedData2);
     }
+
+
+    @Test
+    public void testSetValue_Vector4Array() {
+        Uniform uniform = new Uniform();
+
+        // Set value for the first time
+        float[] expectedData1 = new float[] {
+                1.1f, 2.2f, 3.3f, 4.4f,
+                5.5f, 6.6f, 7.7f, 8.8f
+        };
+        Vector4f[] vector4Array1 = new Vector4f[] {
+                new Vector4f(expectedData1[0], expectedData1[1], expectedData1[2], expectedData1[3]),
+                new Vector4f(expectedData1[4], expectedData1[5], expectedData1[6], expectedData1[7])
+        };
+        uniform.setValue(VarType.Vector4Array, vector4Array1);
+
+        verifyFloatBufferContent(uniform.getMultiData(), expectedData1);
+
+        // Overriding the previous value
+        float[] expectedData2 = new float[] {
+                1.2f, 2.3f, 3.4f, 4.5f,
+                5.6f, 6.7f, 7.8f, 8.9f,
+                9.10f, 10.11f, 11.12f, 12.13f
+        };
+        Vector4f[] vector4Array2 = new Vector4f[] {
+                new Vector4f(expectedData2[0], expectedData2[1], expectedData2[2], expectedData2[3]),
+                new Vector4f(expectedData2[4], expectedData2[5], expectedData2[6], expectedData2[7]),
+                new Vector4f(expectedData2[8], expectedData2[9], expectedData2[10], expectedData2[11])
+        };
+        uniform.setValue(VarType.Vector4Array, vector4Array2);
+
+        verifyFloatBufferContent(uniform.getMultiData(), expectedData2);
+    }
+
+
+    @Test
+    public void testSetValue_Matrix3Array() {
+        Uniform uniform = new Uniform();
+
+        // Set value for the first time
+        float[] expectedData1 = new float[] {
+                1.1f, 2.2f, 3.3f,
+                4.4f, 5.5f, 6.6f,
+                7.7f, 8.8f, 9.9f,
+
+                10.10f, 11.11f, 12.12f,
+                13.13f, 14.14f, 15.15f,
+                16.16f, 17.17f, 18.18f
+        };
+        Matrix3f[] matrix3Array1 = new Matrix3f[] {
+                new Matrix3f(
+                        expectedData1[0], expectedData1[3], expectedData1[6],
+                        expectedData1[1], expectedData1[4], expectedData1[7],
+                        expectedData1[2], expectedData1[5], expectedData1[8]
+                ),
+                new Matrix3f(
+                        expectedData1[9], expectedData1[12], expectedData1[15],
+                        expectedData1[10], expectedData1[13], expectedData1[16],
+                        expectedData1[11], expectedData1[14], expectedData1[17]
+                )
+        };
+        uniform.setValue(VarType.Matrix3Array, matrix3Array1);
+
+        verifyFloatBufferContent(uniform.getMultiData(), expectedData1);
+
+        // Overriding the previous value
+        float[] expectedData2 = new float[] {
+                1.2f, 2.3f, 3.4f,
+                4.5f, 5.6f, 6.7f,
+                7.8f, 8.9f, 9.1f,
+
+                10.11f, 11.12f, 12.13f,
+                13.14f, 14.15f, 15.16f,
+                16.17f, 17.18f, 18.19f,
+
+                19.20f, 20.21f, 21.22f,
+                22.23f, 23.24f, 24.25f,
+                25.26f, 26.27f, 27.28f
+        };
+        Matrix3f[] matrix3Array2 = new Matrix3f[] {
+                new Matrix3f(
+                        expectedData2[0], expectedData2[3], expectedData2[6],
+                        expectedData2[1], expectedData2[4], expectedData2[7],
+                        expectedData2[2], expectedData2[5], expectedData2[8]
+                ),
+                new Matrix3f(
+                        expectedData2[9], expectedData2[12], expectedData2[15],
+                        expectedData2[10], expectedData2[13], expectedData2[16],
+                        expectedData2[11], expectedData2[14], expectedData2[17]
+                ),
+                new Matrix3f(
+                        expectedData2[18], expectedData2[21], expectedData2[24],
+                        expectedData2[19], expectedData2[22], expectedData2[25],
+                        expectedData2[20], expectedData2[23], expectedData2[26]
+                )
+        };
+        uniform.setValue(VarType.Matrix3Array, matrix3Array2);
+
+        verifyFloatBufferContent(uniform.getMultiData(), expectedData2);
+    }
+
+
+    @Test
+    public void testSetValue_Matrix4Array() {
+        Uniform uniform = new Uniform();
+
+        // Set value for the first time
+        float[] expectedData1 = new float[] {
+                1.1f, 2.2f, 3.3f, 4.4f,
+                5.5f, 6.6f, 7.7f, 8.8f,
+                9.9f, 10.10f, 11.11f, 12.12f,
+                13.13f, 14.14f, 15.15f, 16.16f,
+
+                17.17f, 18.18f, 19.19f, 20.20f,
+                21.21f, 22.22f, 23.23f, 24.24f,
+                25.25f, 26.26f, 27.27f, 28.28f,
+                29.29f, 30.30f, 31.31f, 32.32f
+        };
+        Matrix4f[] matrix4Array1 = new Matrix4f[] {
+                new Matrix4f(Arrays.copyOfRange(expectedData1, 0, 16)),
+                new Matrix4f(Arrays.copyOfRange(expectedData1, 16, 32))
+        };
+        uniform.setValue(VarType.Matrix4Array, matrix4Array1);
+
+        verifyFloatBufferContent(uniform.getMultiData(), expectedData1);
+
+        // Overriding the previous value
+        float[] expectedData2 = new float[] {
+                1.2f, 2.3f, 3.4f, 4.5f,
+                5.6f, 6.7f, 7.8f, 8.9f,
+                9.1f, 10.11f, 11.12f, 12.13f,
+                13.14f, 14.15f, 15.16f, 16.17f,
+
+                17.18f, 18.19f, 19.20f, 20.21f,
+                21.22f, 22.23f, 23.24f, 24.25f,
+                25.26f, 26.27f, 27.28f, 28.29f,
+                29.30f, 30.31f, 31.32f, 32.33f,
+
+                33.34f, 34.35f, 35.36f, 36.37f,
+                37.38f, 38.39f, 39.40f, 40.41f,
+                41.42f, 42.43f, 43.44f, 44.45f,
+                45.46f, 46.47f, 47.48f, 48.49f
+        };
+        Matrix4f[] matrix4Array2 = new Matrix4f[] {
+                new Matrix4f(Arrays.copyOfRange(expectedData2, 0, 16)),
+                new Matrix4f(Arrays.copyOfRange(expectedData2, 16, 32)),
+                new Matrix4f(Arrays.copyOfRange(expectedData2, 32, 48))
+        };
+        uniform.setValue(VarType.Matrix4Array, matrix4Array2);
+
+        verifyFloatBufferContent(uniform.getMultiData(), expectedData2);
+    }
+
+    private void verifyFloatBufferContent(FloatBuffer floatBuffer, float[] floatArray) {
+        assertEquals(0, floatBuffer.position());
+        assertEquals(floatArray.length, floatBuffer.capacity());
+        assertEquals(floatArray.length, floatBuffer.limit());
+
+        for (int i = 0; i < floatArray.length; i++) {
+            assertEquals(floatArray[i], floatBuffer.get(i), 0f);
+        }
+    }
+
 }
