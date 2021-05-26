@@ -2416,12 +2416,10 @@ public final class GLRenderer implements Renderer {
 
         //ArrayIndexOutOfBoundException thrown when
         //more than 16 units are used per material
-        if (unit >= 17) {
-            if (logger.isLoggable(Level.WARNING)) {
-                logger.log(Level.WARNING,
-                        "Limit of 16 textures have been exceeded for this material.");
-            }
-            return;
+
+        if (unit >= 16) { // base index = 0
+            throw new ArrayIndexOutOfBoundsException("Due to the limitation of GL2, only 16 units are guaranteed to " +
+                    "be supported. Failed to bind the texture");
         }
 
         if (context.boundTextures[unit] == null || context.boundTextures[unit].get() != img.getWeakRef().get()) {
@@ -2431,6 +2429,7 @@ public final class GLRenderer implements Renderer {
         } else {
             statistics.onTextureUse(img, false);
         }
+
     }
     
     /**
