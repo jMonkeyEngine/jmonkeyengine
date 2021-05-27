@@ -31,8 +31,15 @@
  */
 package com.jme3.anim;
 
+import com.jme3.anim.tween.action.Action;
+import com.jme3.anim.tween.action.ClipAction;
+import com.jme3.cinematic.Cinematic;
+import com.jme3.cinematic.events.AnimEvent;
 import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.awt.event.ActionEvent;
 
 /**
  * @author Remy Van Doosselaer
@@ -69,4 +76,25 @@ public class AnimComposerTest {
         composer.getAnimClipsNames().add("test");
     }
 
+    /**
+     * Verify that issue#1537 was resolved : onStop() kills prior event on the same layer
+     */
+    @Test
+    public void testGetLayerManagerReturnsRightEvent(){
+        AnimComposer composer = new AnimComposer();
+        composer.makeLayer("testLayer", null);
+
+        composer.addAnimClip(new AnimClip("testClip"));
+        AnimEvent ev1 = new AnimEvent(composer, "testClip", "testLayer");
+        AnimEvent ev2 = new AnimEvent(composer, "testClip", "testLayer");
+
+        ev1.onPlay();
+        Assert.assertEquals(composer.getLayerManager("testLayer"), ev1);
+        ev2.onPlay();
+        Assert.assertEquals(composer.getLayerManager("testLayer"), ev2);
+        ev1.onStop();
+        Assert.assertEquals(composer.getLayerManager("testLayer"), ev2);
+        ev2.onStop();
+        Assert.assertNull(composer.getLayerManager("testLayer"));
+    }
 }
