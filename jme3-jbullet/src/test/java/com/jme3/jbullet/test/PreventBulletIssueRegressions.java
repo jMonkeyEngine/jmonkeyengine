@@ -49,7 +49,11 @@ import com.jme3.export.JmeImporter;
 import com.jme3.export.binary.BinaryExporter;
 import com.jme3.export.binary.BinaryImporter;
 import com.jme3.math.Vector3f;
-import com.jme3.scene.*;
+import com.jme3.scene.Geometry;
+import com.jme3.scene.Mesh;
+import com.jme3.scene.Node;
+import com.jme3.scene.Spatial;
+import com.jme3.scene.VertexBuffer;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -71,7 +75,7 @@ public class PreventBulletIssueRegressions {
      * physics space.
      */
     @Test
-    public void TestIssue889() throws IllegalAccessException, NoSuchFieldException {
+    public void testIssue889() throws IllegalAccessException, NoSuchFieldException {
         // throws are added so that we don't have to catch them just to assert them again.
         // If they throw, the Unit Test should fail
         Field f1 = PhysicsSpace.class.getDeclaredField("tickListeners");
@@ -118,7 +122,7 @@ public class PreventBulletIssueRegressions {
      * non-animated ones.
      */
     @Test
-    public void TestIssue931() {
+    public void testIssue931() {
         Node sinbad = (Node)new DesktopAssetManager(true).loadModel("Models/Sinbad/SinbadOldAnim.j3o");
         Node extender = new Node();
         for (Spatial child : sinbad.getChildren()) {
@@ -136,7 +140,7 @@ public class PreventBulletIssueRegressions {
      * Clone a body that implements Control by saving and then loading it.
      * */
     @Test
-    public void TestIssue970() throws IOException {
+    public void testIssue970() throws IOException {
         // throws are added so that we don't have to catch them just to assert them again.
         // If they throw, the Unit Test should fail
         CollisionShape shape = new SphereCollisionShape(1f);
@@ -170,7 +174,7 @@ public class PreventBulletIssueRegressions {
      *  Test case for JME issue #1004: RagdollUtils can't handle 16-bit bone indices.
      */
     @Test
-    public void TestIssue1004() {
+    public void testIssue1004() {
         Node sinbad = (Node)new DesktopAssetManager(true).loadModel("Models/Sinbad/SinbadOldAnim.j3o");
 
         Geometry geometry = (Geometry) sinbad.getChild(0);
