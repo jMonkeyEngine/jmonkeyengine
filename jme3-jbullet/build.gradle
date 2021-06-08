@@ -9,6 +9,13 @@ sourceSets {
             srcDir '../jme3-bullet/src/common/java'
         }
     }
+    test {
+        java {
+            srcDir 'src/test/java'
+        }
+
+        System.setProperty "java.awt.headless", "true"
+    }
 }
 
 dependencies {
@@ -16,4 +23,6 @@ dependencies {
     compile 'javax.vecmath:vecmath:1.5.2'
     compile project(':jme3-core')
     compile project(':jme3-terrain')
+    testRuntime project(':jme3-desktop')
+    testRuntime project(':jme3-testdata')
 }
