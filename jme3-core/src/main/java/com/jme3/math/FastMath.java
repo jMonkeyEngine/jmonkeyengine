@@ -173,7 +173,7 @@ final public class FastMath {
      * @return The interpolated value between startValue and endValue.
      */
     public static Vector3f interpolateLinear(float scale, Vector3f startValue,
-            Vector3f endValue, Vector3f store) {
+                                             Vector3f endValue, Vector3f store) {
         if (store == null) {
             store = new Vector3f();
         }
@@ -230,7 +230,7 @@ final public class FastMath {
      * @return an extrapolation for the given parameters
      */
     public static Vector3f extrapolateLinear(float scale, Vector3f startValue,
-            Vector3f endValue, Vector3f store) {
+                                             Vector3f endValue, Vector3f store) {
         if (store == null) {
             store = new Vector3f();
         }
@@ -306,7 +306,7 @@ final public class FastMath {
      * @return Catmull–Rom interpolation
      */
     public static Vector3f interpolateCatmullRom(float u, float T, Vector3f p0,
-            Vector3f p1, Vector3f p2, Vector3f p3, Vector3f store) {
+                                                 Vector3f p1, Vector3f p2, Vector3f p3, Vector3f store) {
         if (store == null) {
             store = new Vector3f();
         }
@@ -335,7 +335,7 @@ final public class FastMath {
      * @return Catmull–Rom interpolation
      */
     public static Vector3f interpolateCatmullRom(float u, float T, Vector3f p0,
-            Vector3f p1, Vector3f p2, Vector3f p3) {
+                                                 Vector3f p1, Vector3f p2, Vector3f p3) {
         return interpolateCatmullRom(u, T, p0, p1, p2, p3, null);
     }
 
@@ -384,7 +384,7 @@ final public class FastMath {
      * @return Bezier interpolation
      */
     public static Vector3f interpolateBezier(float u, Vector3f p0, Vector3f p1,
-            Vector3f p2, Vector3f p3, Vector3f store) {
+                                             Vector3f p2, Vector3f p3, Vector3f store) {
         if (store == null) {
             store = new Vector3f();
         }
@@ -428,7 +428,7 @@ final public class FastMath {
      * @return the length of the segment
      */
     public static float getCatmullRomP1toP2Length(Vector3f p0, Vector3f p1,
-            Vector3f p2, Vector3f p3, float startRange, float endRange, float curveTension) {
+                                                  Vector3f p2, Vector3f p3, float startRange, float endRange, float curveTension) {
 
         float epsilon = 0.001f;
         float middleValue = (startRange + endRange) * 0.5f;
@@ -827,9 +827,9 @@ final public class FastMath {
      * @return the determinant
      */
     public static float determinant(double m00, double m01, double m02,
-            double m03, double m10, double m11, double m12, double m13,
-            double m20, double m21, double m22, double m23, double m30,
-            double m31, double m32, double m33) {
+                                    double m03, double m10, double m11, double m12, double m13,
+                                    double m20, double m21, double m22, double m23, double m30,
+                                    double m31, double m32, double m33) {
 
         double det01 = m20 * m31 - m21 * m30;
         double det02 = m20 * m32 - m22 * m30;
@@ -886,7 +886,7 @@ final public class FastMath {
      * @return the Cartesian coordinates (either store or a new vector)
      */
     public static Vector3f sphericalToCartesian(Vector3f sphereCoords,
-            Vector3f store) {
+                                                Vector3f store) {
         if (store == null) {
             store = new Vector3f();
         }
@@ -909,7 +909,7 @@ final public class FastMath {
      * radians, z=latitude in radians (either store or a new vector)
      */
     public static Vector3f cartesianToSpherical(Vector3f cartCoords,
-            Vector3f store) {
+                                                Vector3f store) {
         if (store == null) {
             store = new Vector3f();
         }
@@ -939,16 +939,17 @@ final public class FastMath {
      * @return the Cartesian coordinates (either store or a new vector)
      */
     public static Vector3f sphericalToCartesianZ(Vector3f sphereCoords,
-            Vector3f store) {
+                                                 Vector3f store) {
         if (store == null) {
             store = new Vector3f();
         }
-        store.z = sphereCoords.x * FastMath.sin(sphereCoords.z);
-        float a = sphereCoords.x * FastMath.cos(sphereCoords.z);
-        store.x = a * FastMath.cos(sphereCoords.y);
-        store.y = a * FastMath.sin(sphereCoords.y);
+        store.y = sphereCoords.x * FastMath.sin(sphereCoords.y);
+        float a = sphereCoords.x * FastMath.cos(sphereCoords.y);
+        store.x = a * FastMath.cos(sphereCoords.z);
+        store.z = a * FastMath.sin(sphereCoords.z);
 
         return store;
+
     }
 
     /**
@@ -962,7 +963,7 @@ final public class FastMath {
      * radians, z=longitude in radians (either store or a new vector)
      */
     public static Vector3f cartesianZToSpherical(Vector3f cartCoords,
-            Vector3f store) {
+                                                 Vector3f store) {
         if (store == null) {
             store = new Vector3f();
         }
@@ -979,6 +980,7 @@ final public class FastMath {
         }
         store.y = FastMath.asin(cartCoords.y / store.x);
         return store;
+
     }
 
     /**

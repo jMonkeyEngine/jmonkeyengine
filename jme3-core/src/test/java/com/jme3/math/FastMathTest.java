@@ -43,17 +43,17 @@ import org.junit.rules.ExpectedException;
 
 /**
  * Verifies that algorithms in {@link FastMath} are working correctly.
- * 
+ *
  * @author Kirill Vainer
  */
 public class FastMathTest {
 
     @Rule public ExpectedException thrown = ExpectedException.none();
-    
+
     private int nearestPowerOfTwoSlow(int number) {
         return (int) Math.pow(2, Math.ceil(Math.log(number) / Math.log(2)));
     }
-    
+
     @Test
     public void testNearestPowerOfTwo() {
         for (int i = -100; i < 1; i++) {
@@ -66,15 +66,15 @@ public class FastMathTest {
             assert nextPowerOf2 == nearestPowerOfTwoSlow(i);
         }
     }
-    
+
     private static int fastCounterClockwise(Vector2f p0, Vector2f p1, Vector2f p2) {
         float result = (p1.x - p0.x) * (p2.y - p1.y) - (p1.y - p0.y) * (p2.x - p1.x);
         return (int) Math.signum(result);
     }
-    
+
     private static Vector2f randomVector() {
         return new Vector2f(FastMath.nextRandomFloat(),
-                            FastMath.nextRandomFloat());
+                FastMath.nextRandomFloat());
     }
 
     @Ignore
@@ -87,18 +87,18 @@ public class FastMathTest {
 
             int fastResult = fastCounterClockwise(p0, p1, p2);
             int slowResult = FastMath.counterClockwise(p0, p1, p2);
-            
+
             assert fastResult == slowResult;
         }
-        
+
         // duplicate test
         Vector2f p0 = new Vector2f(0,0);
         Vector2f p1 = new Vector2f(0,0);
         Vector2f p2 = new Vector2f(0,1);
-        
+
         int fastResult = fastCounterClockwise(p0, p1, p2);
         int slowResult = FastMath.counterClockwise(p0, p1, p2);
-        
+
         assertEquals(slowResult, fastResult);
     }
 
@@ -227,7 +227,6 @@ public class FastMathTest {
         assertEquals(in0.z, out0.z, 1e-5f);
     }
 
-    @Ignore // test fails due to issue #1349
     @Test
     public void testCartesianZToSpherical() {
         final Vector3f cartCoords = new Vector3f(1.1f, 5.8f, 8.1f);
@@ -430,7 +429,7 @@ public class FastMathTest {
         assertEquals(20.0f, FastMath.determinant(
                 5.0,  -7.0,  2.0,  2.0,
                 0.0,   3.0,  0.0, -4.0,
-               -5.0,  -8.0,  0.0,  3.0,
+                -5.0,  -8.0,  0.0,  3.0,
                 0.0,   5.0,  0.0, -6.0), 0.0f);
 
         assertEquals(0.0f, FastMath.determinant(
