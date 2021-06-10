@@ -57,9 +57,9 @@ public class LineTest {
         /*
          * Setup the tested point and line.
          */
-        Vector3f origin = new Vector3f(0,10,0);
-        Vector3f direction = new Vector3f(2,0,0).normalizeLocal();
-        Vector3f point = new Vector3f(10,5,10);
+        Vector3f origin = new Vector3f(0,70,0);
+        Vector3f direction = new Vector3f(1,8,0);
+        Vector3f point = new Vector3f(32,1,8);
 
         Line line = new Line();
         line.setOrigin(origin);
@@ -77,7 +77,7 @@ public class LineTest {
         float disByLineClass = line.distance(point); // Get the distance by Line class
         float distanceByVectorEquation = distanceByVectorEquation(line,point); // Get the distance by vector equation in the above method
         float distanceByCrossProduct = distanceByCrossProduct(line, point);
-        System.out.println("disByLineClass: "+disByLineClass+", distanceByVectorEquation: "+distanceByVectorEquation+", distanceByCrossProduct: "+distanceByCrossProduct);
+
         /*
          * Verify that the distance that calculated by different methods are the same.
          */

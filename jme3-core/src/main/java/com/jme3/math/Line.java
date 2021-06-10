@@ -122,8 +122,6 @@ public class Line implements Savable, Cloneable, java.io.Serializable {
 
         point.subtract(origin, compVec1);
         float lineParameter = direction.dot(compVec1);
-//        System.out.println("x: "+compVec1.x+", y: "+compVec1.y+", z: "+compVec1.z);
-//        lineParameter /= (direction.x*direction.x+direction.y*direction.y+direction.z+direction.z);
         origin.add(direction.mult(lineParameter, compVec2), compVec2);
         compVec2.subtract(point, compVec1);
         float len = compVec1.lengthSquared();
