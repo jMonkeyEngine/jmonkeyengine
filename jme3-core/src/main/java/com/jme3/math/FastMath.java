@@ -943,10 +943,10 @@ final public class FastMath {
         if (store == null) {
             store = new Vector3f();
         }
-        store.z = sphereCoords.x * FastMath.sin(sphereCoords.z);
-        float a = sphereCoords.x * FastMath.cos(sphereCoords.z);
-        store.x = a * FastMath.cos(sphereCoords.y);
-        store.y = a * FastMath.sin(sphereCoords.y);
+        store.y = sphereCoords.x * FastMath.sin(sphereCoords.y);
+        float a = sphereCoords.x * FastMath.cos(sphereCoords.y);
+        store.x = a * FastMath.cos(sphereCoords.z);
+        store.z = a * FastMath.sin(sphereCoords.z);
 
         return store;
     }
