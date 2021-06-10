@@ -2413,23 +2413,13 @@ public final class GLRenderer implements Renderer {
             gl.glActiveTexture(GL.GL_TEXTURE0 + unit);
             context.boundTextureUnit = unit;
         }
-
-        //ArrayIndexOutOfBoundException thrown when
-        //more than 16 units are used per material
-
-        if (unit >= 16) { // base index = 0
-            throw new ArrayIndexOutOfBoundsException("Due to the limitation of GL2, only 16 units are guaranteed to " +
-                    "be supported. Failed to bind the texture");
-        }
-
-        if (context.boundTextures[unit] == null || context.boundTextures[unit].get() != img.getWeakRef().get()) {
+        if (context.boundTextures[unit]==null||context.boundTextures[unit].get() != img.getWeakRef().get()) {
             gl.glBindTexture(target, img.getId());
             context.boundTextures[unit] = img.getWeakRef();
             statistics.onTextureUse(img, true);
         } else {
             statistics.onTextureUse(img, false);
         }
-
     }
     
     /**
