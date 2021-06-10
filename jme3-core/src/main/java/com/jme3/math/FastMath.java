@@ -933,7 +933,7 @@ final public class FastMath {
      * Z as up) and stores the results in the store var.
      *
      * @param sphereCoords the input spherical coordinates: x=distance from
-     * origin, y=longitude in radians, z=latitude in radians (not null,
+     * origin, y=latitude in radians, z=longitude in radians (not null,
      * unaffected)
      * @param store storage for the result (modified if not null)
      * @return the Cartesian coordinates (either store or a new vector)
