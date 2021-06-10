@@ -227,7 +227,6 @@ public class FastMathTest {
         assertEquals(in0.z, out0.z, 1e-5f);
     }
 
-    @Ignore // test fails due to issue #1349
     @Test
     public void testCartesianZToSpherical() {
         final Vector3f cartCoords = new Vector3f(1.1f, 5.8f, 8.1f);
