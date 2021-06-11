@@ -1,0 +1,41 @@
+MaterialDef TestIssue37 {
+    MaterialParameters {
+        // For instancing
+        Boolean UseInstancing
+
+        Texture2D ColorMap0
+        Texture2D ColorMap1
+        Texture2D ColorMap2
+        Texture2D ColorMap3
+        Texture2D ColorMap4
+        Texture2D ColorMap5
+        Texture2D ColorMap6
+        Texture2D ColorMap7
+        Texture2D ColorMap8
+        Texture2D ColorMap9
+        Texture2D ColorMap10
+        Texture2D ColorMap11
+        Texture2D ColorMap12
+        Texture2D ColorMap13
+        Texture2D ColorMap14
+        Texture2D ColorMap15
+        Texture2D ColorMap16
+        Texture2D ColorMap17
+    }
+
+    Technique {
+        VertexShader GLSL100 GLSL150:   Common/MatDefs/Misc/ShowNormals.vert
+        FragmentShader GLSL100 GLSL150: Common/MatDefs/Misc/ShowNormals.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+            ViewProjectionMatrix
+            ViewMatrix
+            ProjectionMatrix
+        }
+
+        Defines {
+            INSTANCING : UseInstancing
+        }
+    }
+}
