@@ -2057,7 +2057,12 @@ public final class GLRenderer implements Renderer {
                 RenderBuffer rb = context.boundFB.getColorBuffer(i);
                 Texture tex = rb.getTexture();
                 if (tex != null && tex.getMinFilter().usesMipMapLevels()) {
-                    setTexture(0, rb.getTexture());
+                    try {
+                        final int textureUnitIndex = 0;
+                        setTexture(textureUnitIndex, rb.getTexture());
+                    } catch (TextureUnitException exception) {
+                        throw new RuntimeException("Renderer lacks texture units?");
+                    }
                     if (tex.getType() == Texture.Type.CubeMap) {
                         glfbo.glGenerateMipmapEXT(GL.GL_TEXTURE_CUBE_MAP);
                     } else {
@@ -2583,7 +2588,11 @@ public final class GLRenderer implements Renderer {
     }
 
     @Override
-    public void setTexture(int unit, Texture tex) {
+    public void setTexture(int unit, Texture tex) throws TextureUnitException {
+        if (unit < 0 || unit >= RenderContext.maxTextureUnits) {
+            throw new TextureUnitException();
+        }
+
         Image image = tex.getImage();
         if (image.isUpdateNeeded() || (image.isGeneratedMipmapsRequired() && !image.isMipmapsGenerated())) {
             // Check NPOT requirements
@@ -2619,7 +2628,13 @@ public final class GLRenderer implements Renderer {
     @Deprecated
     @Override
     public void modifyTexture(Texture tex, Image pixels, int x, int y) {
-        setTexture(0, tex);
+        final int textureUnitIndex = 0;
+        try {
+            setTexture(textureUnitIndex, tex);
+        } catch (TextureUnitException exception) {
+            throw new RuntimeException("Renderer lacks texture units?");
+        }
+
         if(caps.contains(Caps.OpenGLES20) && pixels.getFormat()!=tex.getImage().getFormat() ) {
             logger.log(Level.WARNING, "Incompatible texture subimage");
         }
@@ -2639,7 +2654,13 @@ public final class GLRenderer implements Renderer {
      * @param areaH Height of the area to copy
      */
     public void modifyTexture(Texture2D dest, Image src, int destX, int destY, int srcX, int srcY, int areaW, int areaH) {
-        setTexture(0, dest);
+        final int textureUnitIndex = 0;
+        try {
+            setTexture(textureUnitIndex, dest);
+        } catch (TextureUnitException exception) {
+            throw new RuntimeException("Renderer lacks texture units?");
+        }
+
         if(caps.contains(Caps.OpenGLES20) && src.getFormat()!=dest.getImage().getFormat() ) {
             logger.log(Level.WARNING, "Incompatible texture subimage");
         }

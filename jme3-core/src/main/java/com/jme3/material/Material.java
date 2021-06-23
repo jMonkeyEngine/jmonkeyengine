@@ -43,6 +43,7 @@ import com.jme3.math.*;
 import com.jme3.renderer.Caps;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
+import com.jme3.renderer.TextureUnitException;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.scene.Geometry;
 import com.jme3.shader.*;
@@ -806,7 +807,14 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
 
             if (override.getValue() != null) {
                 if (type.isTextureType()) {
-                    renderer.setTexture(unit, (Texture) override.getValue());
+                    try {
+                        renderer.setTexture(unit, (Texture) override.getValue());
+                    } catch (TextureUnitException exception) {
+                        int numTexParams = unit + 1;
+                        String message = "Too many texture parameters ("
+                                + numTexParams + ") assigned\n to " + toString();
+                        throw new IllegalStateException(message);
+                    }
                     uniform.setValue(VarType.Int, unit);
                     unit++;
                 } else {
@@ -848,7 +856,14 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
                 }
 
                 if (type.isTextureType()) {
-                    renderer.setTexture(unit, (Texture) param.getValue());
+                    try {
+                        renderer.setTexture(unit, (Texture) param.getValue());
+                    } catch (TextureUnitException exception) {
+                        int numTexParams = unit + 1;
+                        String message = "Too many texture parameters ("
+                                + numTexParams + ") assigned\n to " + toString();
+                        throw new IllegalStateException(message);
+                    }
                     uniform.setValue(VarType.Int, unit);
                     unit++;
                 } else {
