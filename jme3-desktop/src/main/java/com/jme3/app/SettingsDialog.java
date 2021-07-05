@@ -169,6 +169,7 @@ public final class SettingsDialog extends JFrame {
             logger.log(Level.WARNING,
                     "Failed to load settings", ex);
         }
+        registrySettings.setTitle(appTitle);
 
         if (loadSettings) {
             source.copyFrom(registrySettings);
