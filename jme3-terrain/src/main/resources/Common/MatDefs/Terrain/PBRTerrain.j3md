@@ -6,9 +6,9 @@ MaterialDef PBR Terrain {
 
         Boolean UseVertexColorsAsSunIntensity //set true to make the vertex color's R channel how exposed a vertex is to the sun
         Float StaticSunIntensity              //used for setting the sun exposure value for a whole material
-                                             //these are usually generated at run time or setup in a level editor per-geometry, so that models indooes can have the DirectionalLight dimmed accordingly.
+                                             //these are usually generated at run time or setup in a level editor per-geometry, so that models indoors can have the DirectionalLight dimmed accordingly.
 
-        Boolean BrightenIndoorShadows  //set true if shadows are enabled and indoor areas withour full sun exposure are too dark compared to when shadows are turned off in settings
+        Boolean BrightenIndoorShadows  //set true if shadows are enabled and indoor areas without full sun exposure are too dark compared to when shadows are turned off in settings
 
 
         Int AfflictionSplatScale : 8

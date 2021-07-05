@@ -167,7 +167,7 @@ inline float2 randGaussianf(__global ulong* seed) {
  * <code>
  *  __kernel void TestRandom(__global ulong* seeds) {
  *    // ...
- *    double2 f2 = randGausian(seeds + get_global_id(0));
+ *    double2 f2 = randGaussian(seeds + get_global_id(0));
  *    // ---
  * }
  * </code>

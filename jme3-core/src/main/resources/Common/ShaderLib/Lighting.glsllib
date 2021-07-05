@@ -3,7 +3,7 @@
 
 /*
 * Computes light direction 
-* lightType should be 0.0,1.0,2.0, repectively for Directional, point and spot lights.
+* lightType should be 0.0,1.0,2.0, respectively for Directional, point and spot lights.
 * Outputs the light direction and the light half vector. 
 */
 void lightComputeDir(in vec3 worldPos, in float lightType, in vec4 position, out vec4 lightDir, out vec3 lightVec){

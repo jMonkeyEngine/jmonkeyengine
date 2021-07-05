@@ -6,7 +6,7 @@ ShaderNodesDefinitions {
                 This Node is responsible for computing the fog factor of a vertex in the vertex shader.
                 It computes the fogFactor according to view space z (distance from cam to vertex) and a fogDensity parameter.
                 This Node should be used with a FogOutput for the fragment shader to effectively output the fog color.                      
-                @input modelPostion the vertex position in model space
+                @input modelPosition the vertex position in model space
                 @input modelViewMatrix the model view matrix responsible to transform a vertex position from model space to view space.              
                 @input fogDensity the fog density (usually assigned with a material parameter)                
                 @output fogFactor the fog factor of the vertex output as a varying
