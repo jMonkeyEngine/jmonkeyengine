@@ -181,18 +181,18 @@ gradle.rootProject.ext.set("usePrebuildNatives", buildNativeProjects!="true");
 if (skipPrebuildLibraries != "true" && buildNativeProjects != "true") {
     String rootPath = rootProject.projectDir.absolutePath
 
-    Properties nativesSnasphotProp = new Properties()
-    File nativesSnasphotPropF = new File("${rootPath}/natives-snapshot.properties");
+    Properties nativesSnapshotProp = new Properties()
+    File nativesSnapshotPropF = new File("${rootPath}/natives-snapshot.properties");
 
-    if (nativesSnasphotPropF.exists()) {
+    if (nativesSnapshotPropF.exists()) {
 
-        nativesSnasphotPropF.withInputStream { nativesSnasphotProp.load(it) }
+        nativesSnapshotPropF.withInputStream { nativesSnapshotProp.load(it) }
 
-        String nativesSnasphot = nativesSnasphotProp.getProperty("natives.snapshot");
-        String nativesUrl = PREBUILD_NATIVES_URL.replace('${natives.snapshot}', nativesSnasphot)
+        String nativesSnapshot = nativesSnapshotProp.getProperty("natives.snapshot");
+        String nativesUrl = PREBUILD_NATIVES_URL.replace('${natives.snapshot}', nativesSnapshot)
         println "Use natives snapshot: " + nativesUrl
 
-        String nativesZipFile = "${rootPath}" + File.separator + "build" + File.separator + nativesSnasphot + "-natives.zip"
+        String nativesZipFile = "${rootPath}" + File.separator + "build" + File.separator + nativesSnapshot + "-natives.zip"
         String nativesPath = "${rootPath}" + File.separator + "build" + File.separator + "native"
 
 
