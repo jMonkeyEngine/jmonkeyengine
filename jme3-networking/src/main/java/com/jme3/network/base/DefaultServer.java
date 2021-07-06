@@ -94,7 +94,7 @@ public class DefaultServer implements Server
     public DefaultServer( String gameName, int version, Kernel reliable, Kernel fast )
     {
         if( reliable == null )
-            throw new IllegalArgumentException( "Default server reqiures a reliable kernel instance." );
+            throw new IllegalArgumentException( "Default server requires a reliable kernel instance." );
             
         this.gameName = gameName;
         this.version = version;

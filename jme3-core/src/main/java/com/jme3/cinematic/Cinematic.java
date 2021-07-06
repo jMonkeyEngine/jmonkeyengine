@@ -570,7 +570,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
      */
     public CameraNode bindCamera(String cameraName, Camera cam) {
         if (cameras.containsKey(cameraName)) {
-            throw new IllegalArgumentException("Camera " + cameraName + " is already binded to this cinematic");
+            throw new IllegalArgumentException("Camera " + cameraName + " is already bound to this cinematic");
         }
         CameraNode node = new CameraNode(cameraName, cam);
         node.setControlDir(ControlDirection.SpatialToCamera);

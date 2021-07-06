@@ -381,7 +381,7 @@ public final class IrUtils {
                 if (vertex.boneWeightsIndices != null) {
                     if (vertex.boneWeightsIndices.length > 4) {
                         throw new UnsupportedOperationException("Mesh uses more than 4 weights per bone. " +
-                                                                "Call trimBoneWeights() to allieviate this");
+                                                                "Call trimBoneWeights() to alleviate this");
                     }
                     for (int i = 0; i < vertex.boneWeightsIndices.length; i++) {
                         boneIndices.put((byte) (vertex.boneWeightsIndices[i].boneIndex & 0xFF));

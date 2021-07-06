@@ -416,7 +416,7 @@ public class DefaultClient implements Client
         // If there are no listeners then close the connection with
         // a reason
         if( errorListeners.isEmpty() ) {
-            log.log( Level.SEVERE, "Termining connection due to unhandled error", t );
+            log.log( Level.SEVERE, "Terminating connection due to unhandled error", t );
             DisconnectInfo info = new DisconnectInfo();
             info.reason = "Connection Error";
             info.error = t;

@@ -247,7 +247,7 @@ public class RpcConnection {
                     wait();                
                 }
             } catch( InterruptedException e ) {
-                throw new RuntimeException("Interrupted waiting for respone to:" + msg, e);
+                throw new RuntimeException("Interrupted waiting for response to:" + msg, e);
             }
             if( error != null ) {
                 throw new RuntimeException("Error calling remote procedure:" + msg + "\n" + error);

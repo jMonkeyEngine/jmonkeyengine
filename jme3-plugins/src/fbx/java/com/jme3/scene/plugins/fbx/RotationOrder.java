@@ -38,7 +38,7 @@ public enum RotationOrder {
 			return toQuat(x, Vector3f.UNIT_X, z, Vector3f.UNIT_Z, y, Vector3f.UNIT_Y);
 		case SPHERIC_XYZ:
 		default:
-			throw new IllegalArgumentException("Spheric rotation is unsupported in this importer");
+			throw new IllegalArgumentException("Spherical rotation is unsupported in this importer");
 		}
 	}
 	

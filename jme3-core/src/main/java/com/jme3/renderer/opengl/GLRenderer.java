@@ -653,7 +653,7 @@ public final class GLRenderer implements Renderer {
 
     @Override
     public void resetGLObjects() {
-        logger.log(Level.FINE, "Reseting objects and invalidating state");
+        logger.log(Level.FINE, "Resetting objects and invalidating state");
         objManager.resetObjects();
         statistics.clearMemory();
         invalidateState();
@@ -1755,7 +1755,7 @@ public final class GLRenderer implements Renderer {
                 throw new IllegalStateException("Framebuffer object format is "
                         + "unsupported by the video hardware.");
             case GLFbo.GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT:
-                throw new IllegalStateException("Framebuffer has erronous attachment.");
+                throw new IllegalStateException("Framebuffer has erroneous attachment.");
             case GLFbo.GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT:
                 throw new IllegalStateException("Framebuffer doesn't have any renderbuffers attached.");
             case GLFbo.GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT:
@@ -2401,7 +2401,7 @@ public final class GLRenderer implements Renderer {
                 }
                 break;
             default:
-                throw new UnsupportedOperationException("unrecongized texture type");
+                throw new UnsupportedOperationException("unrecognized texture type");
         }
     }
 

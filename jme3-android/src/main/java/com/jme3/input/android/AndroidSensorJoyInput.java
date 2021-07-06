@@ -163,7 +163,7 @@ public class AndroidSensorJoyInput implements SensorEventListener {
             if (sensorData.sensor != null) {
                 if (sensorManager.registerListener(this, sensorData.sensor, sensorData.androidSensorSpeed)) {
                     sensorData.enabled = true;
-                    logger.log(Level.FINE, "SensorType: {0}, actived: {1}",
+                    logger.log(Level.FINE, "SensorType: {0}, enabled: {1}",
                             new Object[]{sensorType, sensorData.enabled});
                     return true;
                 } else {

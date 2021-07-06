@@ -158,7 +158,7 @@ public class TestContextSwitching extends SimpleApplication implements ScreenCon
 
     @NiftyEventSubscriber(id="ApplyButton")
     public void onButton(String id, ButtonClickedEvent event) {
-        LOG.log(Level.INFO, "Change context: platorm={0}, device={1}", new Object[]{selectedPlatform, selectedDevice});
+        LOG.log(Level.INFO, "Change context: platform={0}, device={1}", new Object[]{selectedPlatform, selectedDevice});
         restart();
     }
     

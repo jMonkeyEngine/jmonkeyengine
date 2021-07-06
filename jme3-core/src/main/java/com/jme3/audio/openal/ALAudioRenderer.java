@@ -737,7 +737,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
                 active = fillBuffer(stream, buffer);
                 if (!active) {
                     throw new IllegalStateException("Looping streaming source " +
-                            "was rewinded but could not be filled");
+                            "was rewound but could not be filled");
                 }
             }
             
@@ -779,7 +779,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
                 active = fillBuffer(stream, id);
                 if (!active) {
                     throw new IllegalStateException("Looping streaming source " +
-                            "was rewinded but could not be filled");
+                            "was rewound but could not be filled");
                 }
             }
             if (active) {

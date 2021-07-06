@@ -225,8 +225,8 @@ public class MaterialDebugAppState extends AbstractAppState {
             return null;
         }
 
-        Logger.getLogger(MaterialDebugAppState.class.getName()).log(Level.INFO, "Material succesfully reloaded");
-        //System.out.println("Material succesfully reloaded");
+        Logger.getLogger(MaterialDebugAppState.class.getName()).log(Level.INFO, "Material successfully reloaded");
+        //System.out.println("Material successfully reloaded");
         return dummy;
     }
    
