@@ -832,7 +832,7 @@ gl_FragColor.rgb = vec3(0.0);
   
     #ifdef STATIC_SUN_INTENSITY
         indoorSunLightExposure = m_StaticSunIntensity; //single float value to indicate percentage of
-                           //sunlight hitting the model (only works for small models or models with 100% consistent sunlighting accross every pixel)
+                           //sunlight hitting the model (only works for small models or models with 100% consistent sunlight across every pixel)
     #endif
     #ifdef USE_VERTEX_COLORS_AS_SUN_INTENSITY
         indoorSunLightExposure = vertColors.r * indoorSunLightExposure;      //use R channel of vertexColors for..       
@@ -840,7 +840,7 @@ gl_FragColor.rgb = vec3(0.0);
                                                                // similar purpose as above...
                                                              //but uses r channel vert colors like an AO map specifically
                                                                  //for sunlight (solution for scaling lighting for indoor
-                                                                  // and shadey/dimly lit models, especially big ones with)
+                                                                  // and shady/dimly lit models, especially big ones with)
     brightestPointLight = 0.0;
     
      

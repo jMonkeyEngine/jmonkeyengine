@@ -3,7 +3,7 @@ MaterialDef Phong Lighting Deferred {
 
     MaterialParameters {
 
-        // Use more efficent algorithms to improve performance
+        // Use more efficient algorithms to improve performance
         Boolean LowQuality
 
         // Improve quality at the cost of performance

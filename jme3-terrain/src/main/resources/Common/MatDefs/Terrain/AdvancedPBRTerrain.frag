@@ -1062,7 +1062,7 @@ void main(){
 
        
 
-//APPLY AFFLICTIONN TO THE PIXEL
+//APPLY AFFLICTION TO THE PIXEL
 #ifdef AFFLICTIONTEXTURE
 vec4 afflictionAlbedo;    
 
