@@ -272,7 +272,7 @@ public class ShaderNodeVariable implements Savable, Cloneable {
         InputCapsule ic = im.getCapsule(this);
         name = ic.readString("name", "");
         type = ic.readString("type", "");
-        prefix = ic.readString("pefix", "");
+        prefix = ic.readString("prefix", "");
         nameSpace = ic.readString("nameSpace", "");
         condition = ic.readString("condition", null);
         shaderOutput = ic.readBoolean("shaderOutput", false);
