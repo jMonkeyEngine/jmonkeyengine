@@ -262,6 +262,7 @@ public interface Renderer {
      *
      * @param unit the index of the texture unit (&ge;0)
      * @param tex the Texture to assign
+     * @throws TextureUnitException if the texture unit doesn't exist
      */
     public void setTexture(int unit, Texture tex)
             throws TextureUnitException;
