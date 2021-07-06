@@ -57,7 +57,7 @@ import java.util.logging.Logger;
  * AndroidTouchInput is the base class that receives touch inputs from the
  * Android system and creates the TouchEvents for jME.  This class is designed
  * to handle the base touch events for Android rev 9 (Android 2.3).  This is
- * extended by other classes to add features that were introducted after
+ * extended by other classes to add features that were introduced after
  * Android rev 9.
  *
  * @author iwgeric

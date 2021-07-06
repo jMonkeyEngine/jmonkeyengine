@@ -378,7 +378,7 @@ public class PhysicsVehicle extends PhysicsRigidBody {
     /**
      * Use before adding wheels, this is the default used when adding wheels.
      * After adding the wheel, use direct wheel access.<br>
-     * The stiffness constant for the suspension.  10.0 - Offroad buggy, 50.0 - Sports car, 200.0 - F1 Car
+     * The stiffness constant for the suspension.  10.0 - Off-road buggy, 50.0 - Sports car, 200.0 - F1 Car
      *
      * @param suspensionStiffness the desired stiffness coefficient
      * (10&rarr;off-road buggy, 50&rarr;sports car, 200&rarr;Formula-1 race car,
@@ -389,7 +389,7 @@ public class PhysicsVehicle extends PhysicsRigidBody {
     }
 
     /**
-     * The stiffness constant for the suspension.  10.0 - Offroad buggy, 50.0 - Sports car, 200.0 - F1 Car
+     * The stiffness constant for the suspension.  10.0 - Off-road buggy, 50.0 - Sports car, 200.0 - F1 Car
      *
      * @param wheel the index of the wheel to modify (&ge;0, &lt;count)
      * @param suspensionStiffness the desired stiffness coefficient

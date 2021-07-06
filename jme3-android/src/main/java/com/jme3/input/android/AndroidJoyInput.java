@@ -59,7 +59,7 @@ import java.util.logging.Logger;
  * case, when joystick.rumble(rumbleAmount) is called, the Android device will vibrate
  * if the device has a built in vibrate motor.
  *
- * Because Andorid does not allow for the user to define the intensity of the
+ * Because Android does not allow for the user to define the intensity of the
  * vibration, the rumble amount (ie strength) is converted into vibration pulses
  * The stronger the strength amount, the shorter the delay between pulses.  If
  * amount is 1, then the vibration stays on the whole time.  If amount is 0.5,

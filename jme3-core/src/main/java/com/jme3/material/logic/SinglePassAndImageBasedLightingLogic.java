@@ -233,7 +233,7 @@ public final class SinglePassAndImageBasedLightingLogic extends DefaultTechnique
         }
         vars.release();
 
-        //Padding of unsued buffer space
+        // pad unused buffer space
         while(lightDataIndex < numLights * 3) {
             lightData.setVector4InArray(0f, 0f, 0f, 0f, lightDataIndex);
             lightDataIndex++;

@@ -254,7 +254,7 @@ public class ShaderNodeDefinition implements Savable {
     }
 
     /**
-     * convenience tostring
+     * convenience toString
      *
      * @return a string
      */

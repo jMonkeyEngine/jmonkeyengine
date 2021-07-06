@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -177,7 +177,7 @@ public class LwjglDisplay extends LwjglAbstractDisplay {
 
     @Override
     public void runLoop(){
-        // This method is overriden to do restart
+        // This method is overridden to do restart
         if (needRestart.getAndSet(false)) {
             try {
                 createContext(settings);

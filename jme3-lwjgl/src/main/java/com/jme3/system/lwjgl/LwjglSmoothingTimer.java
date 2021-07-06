@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -139,7 +139,7 @@ public class LwjglSmoothingTimer extends Timer {
     }
 
     /**
-     * <code>update</code> recalulates the frame rate based on the previous
+     * <code>update</code> recalculates the frame rate based on the previous
      * call to update. It is assumed that update is called each frame.
      */
     @Override

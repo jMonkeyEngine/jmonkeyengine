@@ -12,7 +12,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
 /**
- * Simple dialog for diplaying error messages,
+ * Simple dialog for displaying error messages,
  * 
  * @author kwando
  */

@@ -192,7 +192,7 @@ public class HelloPhysics extends SimpleApplication {
   }
 
   /** This method creates one individual physical cannon ball.
-   * By defaul, the ball is accelerated and flies
+   * By default, the ball is accelerated and flies
    * from the camera position in the camera direction.*/
    public void makeCannonBall() {
     /** Create a cannon ball geometry and attach to scene graph. */

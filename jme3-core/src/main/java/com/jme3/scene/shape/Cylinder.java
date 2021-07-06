@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -280,7 +280,7 @@ public class Cylinder extends Mesh {
             float currentRadius = bottomRadius + (topRadius - bottomRadius) * axisSample / (axisSamples-1);
             
             for (int circlePoint = 0; circlePoint < radialSamples + 1; circlePoint++) {
-                // Position, by multipliying the position on a unit circle with the current radius.
+                // Position, by multiplying the position on a unit circle with the current radius.
                 vertices[currentIndex*3] = circlePoints[circlePoint][0] * currentRadius;
                 vertices[currentIndex*3 +1] = circlePoints[circlePoint][1] * currentRadius;
                 vertices[currentIndex*3 +2] = currentHeight;

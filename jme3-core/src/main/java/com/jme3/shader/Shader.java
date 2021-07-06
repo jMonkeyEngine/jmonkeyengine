@@ -439,7 +439,7 @@ public final class Shader extends NativeObject {
 
     /**
      * Called by the object manager to reset all object IDs. This causes
-     * the shader to be reuploaded to the GPU incase the display was restarted.
+     * the shader to be reuploaded to the GPU in case the display was restarted.
      */
     @Override
     public void resetObject() {

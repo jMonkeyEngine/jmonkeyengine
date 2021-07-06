@@ -118,7 +118,7 @@ public class RpcConnection {
         }
         
         // Prevent non-async messages from being send as UDP
-        // because there is a high probabilty that this would block
+        // because there is a high probability that this would block
         // forever waiting for a response.  For async calls it's ok
         // so it doesn't do the check.
         if( channel >= 0 ) {        

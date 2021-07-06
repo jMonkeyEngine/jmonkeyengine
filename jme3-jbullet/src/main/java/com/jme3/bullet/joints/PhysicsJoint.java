@@ -38,7 +38,7 @@ import com.jme3.math.Vector3f;
 import java.io.IOException;
 
 /**
- * <p>PhysicsJoint - Basic Phyiscs Joint</p>
+ * <p>PhysicsJoint - Basic Physics Joint</p>
  * @author normenhansen
  */
 public abstract class PhysicsJoint implements Savable {

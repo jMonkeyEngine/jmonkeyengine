@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020 jMonkeyEngine
+ * Copyright (c) 2015-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,7 +36,7 @@ import com.jme3.util.clone.JmeCloneable;
 
 /**
  * Base implementation of the Tween interface that provides
- * default implementations of the getLength() and interopolate()
+ * default implementations of the getLength() and interpolate()
  * methods that provide common tween clamping and bounds checking.
  * Subclasses need only override the doInterpolate() method and
  * the rest is handled for them.

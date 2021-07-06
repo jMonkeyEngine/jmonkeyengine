@@ -42,7 +42,7 @@ import java.nio.Buffer;
  * into a list based mode such as {@link Mode#Triangles} or {@link Mode#Lines}.
  * As it is often more convenient to read vertex data in list format
  * than in a non-list format, using this class is recommended to avoid
- * convoluting classes used to process mesh data from an external source.
+ * complicating classes used to process mesh data from an external source.
  * 
  * @author Kirill Vainer
  */

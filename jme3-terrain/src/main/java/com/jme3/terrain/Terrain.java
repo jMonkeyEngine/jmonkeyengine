@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -49,7 +49,7 @@ import java.util.List;
 public interface Terrain {
 
     /**
-     * Get the real-world height of the terrain at the specified X-Z coorindate.
+     * Get the real-world height of the terrain at the specified X-Z coordinate.
      * @param xz the X-Z world coordinate
      * @return the height at the given point
      */

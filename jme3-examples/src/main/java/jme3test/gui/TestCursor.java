@@ -68,7 +68,7 @@ public class TestCursor extends SimpleApplication {
             }
             sysTime = currentTime;
             // 8 seconds have passed,
-            // tell jME3 to swith to a different cursor.
+            // tell jME3 to switch to a different cursor.
             inputManager.setMouseCursor(cursors.get(count));
         }
 

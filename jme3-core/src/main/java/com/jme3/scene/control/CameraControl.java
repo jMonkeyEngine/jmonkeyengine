@@ -105,7 +105,7 @@ public class CameraControl extends AbstractControl {
         this.controlDir = controlDir;
     }
 
-    // fields used, when inversing ControlDirection:
+    // fields used, when inverting ControlDirection:
     @Override
     protected void controlUpdate(float tpf) {
         if (spatial != null && camera != null) {

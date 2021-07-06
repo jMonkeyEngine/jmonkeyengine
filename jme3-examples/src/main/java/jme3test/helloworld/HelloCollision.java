@@ -62,7 +62,7 @@ public class HelloCollision extends SimpleApplication
   private boolean left = false, right = false, up = false, down = false;
   
   //Temporary vectors used on each frame.
-  //They here to avoid instanciating new vectors on each frame
+  //They here to avoid instantiating new vectors on each frame
   final private Vector3f camDir = new Vector3f();
   final private Vector3f camLeft = new Vector3f();
 

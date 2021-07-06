@@ -62,7 +62,7 @@ public final class BinaryImporter implements JmeImporter {
     //Key - savable, object - capsule
     final private IdentityHashMap<Savable, BinaryInputCapsule> capsuleTable
              = new IdentityHashMap<>();
-    //Key - id, opject - location in the file
+    //Key - id, object - location in the file
     final private HashMap<Integer, Integer> locationTable
              = new HashMap<>();
 

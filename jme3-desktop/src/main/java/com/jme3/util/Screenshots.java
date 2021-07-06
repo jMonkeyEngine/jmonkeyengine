@@ -92,7 +92,7 @@ public final class Screenshots {
 
         // flip the components the way AWT likes them
         
-        // calcuate half of height such that all rows of the array are written to
+        // calculate half of height such that all rows of the array are written to
         // e.g. for odd heights, write 1 more scanline
         int heightdiv2ceil = height % 2 == 1 ? (height / 2) + 1 : height / 2;
         for (int y = 0; y < heightdiv2ceil; y++){

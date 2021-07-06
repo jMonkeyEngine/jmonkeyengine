@@ -228,7 +228,7 @@ public class Node extends Spatial {
         super.updateLogicalState(tpf);
 
         // Only perform updates on children if we are the
-        // root and then only peform updates on children we
+        // root and then only perform updates on children we
         // know to require updates.
         // So if this isn't the root, abort.
         if (parent != null) {

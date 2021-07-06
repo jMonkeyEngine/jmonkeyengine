@@ -708,7 +708,7 @@ public class CursorLoader implements AssetLoader {
         }
 
         void assembleCursor(ArrayList<byte[]> icons, int[] rate, int[] animSeq, int jiffy, int steps, int width, int height) throws IOException {
-            // Jiffy multiplicator for LWJGL's delay, which is in milisecond.
+            // Jiffy multiplier for LWJGL's delay, which is in milliseconds.
             final int MULT = 17;
             numImages = icons.size();
             int frRate = 0;

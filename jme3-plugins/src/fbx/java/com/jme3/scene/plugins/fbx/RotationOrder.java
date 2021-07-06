@@ -8,7 +8,7 @@ public enum RotationOrder {
 	
 	EULER_XYZ, EULER_XZY, EULER_YZX, EULER_YXZ, EULER_ZXY, EULER_ZYX, SPHERIC_XYZ;
 	
-	// Static values field for fast access by an oridinal without Enum.values() overhead
+	// Static values field for fast access by ordinal without Enum.values() overhead
 	public static final RotationOrder[] values = values();
 	
 	private RotationOrder() {

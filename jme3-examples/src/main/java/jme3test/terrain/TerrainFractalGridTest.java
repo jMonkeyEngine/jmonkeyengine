@@ -44,7 +44,7 @@ public class TerrainFractalGridTest extends SimpleApplication {
                 "Common/MatDefs/Terrain/HeightBasedTerrain.j3md");
 
         // Parameters to material:
-        // regionXColorMap: X = 1..4 the texture that should be appliad to state X
+        // regionXColorMap: X = 1..4 the texture that should be applied to state X
         // regionX: a Vector3f containing the following information:
         //      regionX.x: the start height of the region
         //      regionX.y: the end height of the region

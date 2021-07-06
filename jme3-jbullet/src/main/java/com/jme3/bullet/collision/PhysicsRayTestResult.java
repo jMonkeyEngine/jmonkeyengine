@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -71,7 +71,7 @@ public class PhysicsRayTestResult {
 
     /**
      * The hitFraction is the fraction of the ray length (yeah, I know) at which the collision occurred.
-     * If e.g. the raytest was from 0,0,0 to 0,6,0 and the hitFraction is 0.5 then the collision occurred at 0,3,0
+     * If e.g. the ray test was from 0,0,0 to 0,6,0 and the hitFraction is 0.5 then the collision occurred at 0,3,0
      * @return the hitFraction
      */
     public float getHitFraction() {

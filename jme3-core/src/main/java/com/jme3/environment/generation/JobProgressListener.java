@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,7 +48,7 @@ public interface JobProgressListener<T> {
     
     /**
      * Can be called when a step of the process has been completed with a relevant message.
-     * @param message the message stating of the paricular step completion.
+     * @param message the message stating of the particular step completion.
      */
     public void step(String message);
     

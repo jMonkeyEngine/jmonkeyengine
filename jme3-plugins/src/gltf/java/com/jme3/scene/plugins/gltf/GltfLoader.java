@@ -943,7 +943,7 @@ public class GltfLoader implements AssetLoader {
 
         if (!spatials.isEmpty()) {
             if (skinIndex != -1) {
-                //there are some spatial or moph tracks in this bone animation... or the other way around. Let's add the spatials in the skinnedSpatials.
+                //there are some spatial or morph tracks in this bone animation... or the other way around. Let's add the spatials in the skinnedSpatials.
                 SkinData skin = fetchFromCache("skins", skinIndex, SkinData.class);
                 List<Spatial> spat = skinnedSpatials.get(skin);
                 spat.addAll(spatials);
@@ -1323,7 +1323,7 @@ public class GltfLoader implements AssetLoader {
 
     }
 //
-//    private class FloaGridPopulator implements Populator<float[]> {
+//    private class FloatGridPopulator implements Populator<float[]> {
 //
 //        @Override
 //        public float[][] populate(Integer bufferViewIndex, int componentType, String type, int count, int byteOffset, boolean normalized) throws IOException {

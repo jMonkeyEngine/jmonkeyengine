@@ -940,7 +940,7 @@ public class RenderState implements Cloneable, Savable {
     }
 
     /**
-     * Set the depth conparison function to the given TestFunction 
+     * Set the depth comparison function to the given TestFunction
      * default is LessOrEqual (GL_LEQUAL)
      * @see TestFunction
      * @see RenderState#setDepthTest(boolean) 

@@ -417,7 +417,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
                 weights.updateData(arrayWeight);
             }
             weights.setUsage(Usage.CpuOnly);
-            // position, normal, and tanget buffers to be in "Stream" mode
+            // position, normal, and tangent buffers to be in "Stream" mode
             VertexBuffer positions = getBuffer(Type.Position);
             VertexBuffer normals = getBuffer(Type.Normal);
             VertexBuffer tangents = getBuffer(Type.Tangent);
@@ -467,7 +467,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
                         weights.getFormat(), directWeight);
             }
 
-            // position, normal, and tanget buffers to be in "Static" mode
+            // position, normal, and tangent buffers to be in "Static" mode
             VertexBuffer positions = getBuffer(Type.Position);
             VertexBuffer normals = getBuffer(Type.Normal);
             VertexBuffer tangents = getBuffer(Type.Tangent);
@@ -903,7 +903,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
         if (pb != null && pb.getFormat() == Format.Float && pb.getNumComponents() == 3) {
             FloatBuffer fpb = (FloatBuffer) pb.getData();
 
-            // aquire triangle's vertex indices
+            // acquire triangle's vertex indices
             int vertIndex = index * 3;
             int vert1 = ib.get(vertIndex);
             int vert2 = ib.get(vertIndex + 1);
@@ -1335,7 +1335,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
         // Copy max weights per vertex as well
         setMaxNumWeights(other.getMaxNumWeights());
 
-        // The data has been copied over, update informations
+        // The data has been copied over, update information
         updateCounts();
         updateBound();
     }

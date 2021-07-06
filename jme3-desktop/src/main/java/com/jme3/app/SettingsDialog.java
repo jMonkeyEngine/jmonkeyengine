@@ -277,12 +277,12 @@ public final class SettingsDialog extends JFrame {
      */
     public void setImage(URL image) {
         icon.setIcon(new ImageIcon(image));
-        pack(); // Resize to accomodate the new image
+        pack(); // Resize to accommodate the new image
         setLocationRelativeTo(null); // put in center
     }
 
     /**
-     * <code>showDialog</code> sets this dialog as visble, and brings it to
+     * <code>showDialog</code> sets this dialog as visible, and brings it to
      * the front.
      */
     public void showDialog() {

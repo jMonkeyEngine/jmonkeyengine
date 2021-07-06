@@ -126,7 +126,7 @@ public class RmiHostedService extends AbstractHostedService {
      *  channel.  All connections with RMI hosting started will have access to this shared 
      *  object as soon as they connect and they will all share the same instance.  It is up 
      *  to the shared object to handle any multithreading that might be required.
-     *  All network communcation associated with the shared object will be done over
+     *  All network communication associated with the shared object will be done over
      *  the specified channel. 
      */     
     public <T> void shareGlobal( byte channel, String name, T object, Class<? super T> type ) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,7 +39,7 @@ import com.jme3.renderer.RenderManager;
  *  Resets (clearFrame()) the render's stats object every frame
  *  during AppState.render().  This state is registered once
  *  with Application to ensure that the stats are cleared once
- *  a frame.  Using this makes sure that any Appliction based
+ *  a frame.  Using this makes sure that any Application-based
  *  application that properly runs its state manager will have
  *  stats reset no matter how many views it has or if it even
  *  has views.

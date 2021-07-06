@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -49,7 +49,7 @@ public class RmiSerializer extends Serializer {
 
     private static final Logger logger = Logger.getLogger(RmiSerializer.class.getName());
 
-    // not good for multithread applications
+    // not good for multithreaded applications
     private char[] chrBuf = new char[256];
 
     private void writeString(ByteBuffer buffer, String string) throws IOException{

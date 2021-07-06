@@ -136,7 +136,7 @@ public class HDRLoader implements AssetLoader {
     }
     
     private boolean decodeScanlineRLE(InputStream in, int width) throws IOException{
-        // must deocde RLE data into temp buffer before converting to float
+        // must decode RLE data into temp buffer before converting to float
         if (rleTempBuffer == null){
             rleTempBuffer = BufferUtils.createByteBuffer(width * 4);
         }else{

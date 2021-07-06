@@ -184,7 +184,7 @@ public class UdpKernel extends AbstractKernel
         // So the tricky part here is figuring out the endpoint and
         // whether it's new or not.  In these UDP schemes, firewalls have
         // to be ported back to a specific machine so we will consider
-        // the address + port (ie: SocketAddress) the defacto unique
+        // the address + port (ie: SocketAddress) the de facto unique
         // ID.
         Endpoint p = getEndpoint( packet.getSocketAddress(), true );
 

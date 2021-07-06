@@ -208,7 +208,7 @@ public final class OBJLoader implements AssetLoader {
         Vertex v2 = f.verticies[2];
         Vertex v3 = f.verticies[3];
 
-        // find the pair of verticies that is closest to each over
+        // find the pair of vertices that is closest to each over
         // v0 and v2
         // OR
         // v1 and v3
@@ -490,7 +490,7 @@ public final class OBJLoader implements AssetLoader {
 
         IndexBuffer indexBuf = null;
         if (vertIndexMap.size() >= 65536){
-            // too many verticies: use intbuffer instead of shortbuffer
+            // too many vertices: use IntBuffer instead of ShortBuffer
             IntBuffer ib = BufferUtils.createIntBuffer(newFaces.size() * 3);
             m.setBuffer(VertexBuffer.Type.Index, 3, ib);
             indexBuf = new IndexIntBuffer(ib);

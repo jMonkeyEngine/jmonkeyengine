@@ -88,7 +88,7 @@ public class WeakRefAssetCache implements AssetCache {
     public <T> void addToCache(AssetKey<T> key, T obj) {
         removeCollectedAssets();
         
-        // NOTE: Some thread issues can hapen if another
+        // NOTE: Some thread issues can happen if another
         // thread is loading an asset with the same key ..
         AssetRef ref = new AssetRef(key, obj, refQueue);
         assetCache.put(key, ref);

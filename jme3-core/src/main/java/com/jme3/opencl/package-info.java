@@ -115,7 +115,7 @@
  * terrain based on height maps, post processing effects and so forth.
  * <br>
  * <i>Important:</i> Before shared objects can be used by any OpenCL function
- * like kernel calls or read/write/copy methods, they must be aquired explicitly
+ * like kernel calls or read/write/copy methods, they must be acquired explicitly
  * by {@link com.jme3.opencl.Buffer#acquireBufferForSharingAsync(com.jme3.opencl.CommandQueue) }
  * or {@link com.jme3.opencl.Image#acquireImageForSharingAsync(com.jme3.opencl.CommandQueue) }.
  * After the work is done, release the resource with

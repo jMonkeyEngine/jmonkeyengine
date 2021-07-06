@@ -169,13 +169,13 @@ public interface Application {
 
     /**
      * Starts the application.
-     * A bug occuring when using LWJGL3 prevents this method from returning until after the application is stopped.
+     * A bug occurring when using LWJGL3 prevents this method from returning until after the application is stopped.
      */
     public void start();
 
     /**
      * Starts the application.
-     * A bug occuring when using LWJGL3 prevents this method from returning until after the application is stopped.
+     * A bug occurring when using LWJGL3 prevents this method from returning until after the application is stopped.
      *
      * @param waitFor true&rarr;wait for the context to be initialized,
      * false&rarr;don't wait

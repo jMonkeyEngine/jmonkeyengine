@@ -192,7 +192,7 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
      * Appends an output assignment to a shader globalOutputName =
      * nameSpace_varName;
      *
-     * @param source the source StringBuilter to append the code.
+     * @param source the source StringBuilder to append the code.
      * @param globalOutputName the name of the global output (can be gl_Position
      * or gl_FragColor etc...).
      * @param var the variable to assign to the output.
@@ -242,7 +242,7 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
 
         final List<String> declaredInputs = new ArrayList<>();
 
-        // Decalring variables with default values first
+        // Declaring variables with default values first
         final ShaderNodeDefinition definition = shaderNode.getDefinition();
 
         for (final ShaderNodeVariable var : definition.getInputs()) {

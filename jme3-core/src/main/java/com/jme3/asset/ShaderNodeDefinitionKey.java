@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,7 +38,7 @@ import java.util.List;
 /**
  * Used for loading {@link ShaderNodeDefinition shader nodes definition}
  *
- * Tells if the defintion has to be loaded with or without its documentation
+ * Determines whether the definition will be loaded with or without its documentation
  */
 public class ShaderNodeDefinitionKey extends AssetKey<List<ShaderNodeDefinition>> {
 

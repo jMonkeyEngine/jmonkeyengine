@@ -427,7 +427,7 @@ public class BitmapText extends Node {
     }
 
     private void assemble() {
-        // first generate quadlist
+        // first generate quad list
         letters.update();
         for (int i = 0; i < textPages.length; i++) {
             textPages[i].assemble(letters);

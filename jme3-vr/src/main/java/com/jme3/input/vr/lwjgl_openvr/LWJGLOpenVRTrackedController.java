@@ -15,7 +15,7 @@ import com.jme3.math.Vector3f;
 public class LWJGLOpenVRTrackedController implements VRTrackedController{
 
 	/**
-	 * The index of the controller within the unserlying VR API.
+	 * The index of the controller within the underlying VR API.
 	 */
 	private int controllerIndex = -1;
 	

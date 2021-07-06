@@ -49,7 +49,7 @@ import java.util.logging.Logger;
  * usage is
  * <pre>
  * AnimControl control model.getControl(AnimControl.class);
- * AudioTrack track = new AudioTrack(existionAudioNode, control.getAnim("TheAnim").getLength());
+ * AudioTrack track = new AudioTrack(existingAudioNode, control.getAnim("TheAnim").getLength());
  * control.getAnim("TheAnim").addTrack(track);
  * </pre>
  *

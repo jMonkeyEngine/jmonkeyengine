@@ -322,7 +322,7 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
             //if the bone is the root bone, we apply the physic's transform to the model, so its position and rotation are correctly updated
             if (link.bone.getParent() == null) {
 
-                //offsetting the physic's position/rotation by the root bone inverse model space position/rotaion
+                //offsetting the physics position/rotation by the root bone inverse model space position/rotation
                 modelPosition.set(p).subtractLocal(link.bone.getBindPosition());
                 targetModel.getParent().getWorldTransform().transformInverseVector(modelPosition, modelPosition);
                 modelRotation.set(q).multLocal(tmpRot2.set(link.bone.getBindRotation()).inverseLocal());
@@ -337,8 +337,8 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
                 link.bone.setUserTransformsInModelSpace(position, tmpRot1);
 
             } else {
-                //some bones of the skeleton might not be associated with a collision shape.
-                //So we update them recusively
+                //some bones of the skeleton might not be associated with a collision shape
+                //so we update them recursively
                 RagdollUtils.setTransform(link.bone, position, tmpRot1, false, boneList);
             }
         }
@@ -351,7 +351,7 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
      * @param tpf the time interval between frames (in seconds, &ge;0)
      */
     protected void kinematicUpdate(float tpf) {
-        //the ragdoll does not have control, so the keyframed animation updates the physics position of the physics bonces
+        //the ragdoll does not have control, so the keyframe animation updates the physics position of the physics bones
         TempVars vars = TempVars.get();
         Quaternion tmpRot1 = vars.quat1;
         Quaternion tmpRot2 = vars.quat2;
@@ -360,7 +360,7 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
 //            if(link.usedbyIK){
 //                continue;
 //            }
-            //if blended control this means, keyframed animation is updating the skeleton,
+            //blended control means keyframe animation is updating the skeleton,
             //but to allow smooth transition, we blend this transformation with the saved position of the ragdoll
             if (blendedControl) {
                 Vector3f position2 = vars.vect2;
@@ -368,7 +368,7 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
                 position.set(link.startBlendingPos);
                 tmpRot1.set(link.startBlendingRot);
 
-                //interpolating between ragdoll position/rotation and keyframed position/rotation
+                //interpolate between ragdoll position/rotation and keyframe position/rotation
                 tmpRot2.set(tmpRot1).nlerp(link.bone.getModelSpaceRotation(), blendStart / blendTime);
                 position2.set(position).interpolateLocal(link.bone.getModelSpacePosition(), blendStart / blendTime);
                 tmpRot1.set(tmpRot2);

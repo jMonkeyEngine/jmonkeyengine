@@ -117,7 +117,7 @@ public class KTXWriter {
             out.writeInt(1);
             //glFormat
             out.writeInt(format.format);
-            //glInernalFormat
+            //glInternalFormat
             out.writeInt(format.internalFormat);
             //glBaseInternalFormat
             out.writeInt(format.format);

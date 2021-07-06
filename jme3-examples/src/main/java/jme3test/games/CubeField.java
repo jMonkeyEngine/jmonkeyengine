@@ -146,7 +146,7 @@ public class CubeField extends SimpleApplication implements AnalogListener {
     }
     /**
      * Forcefully takes over Camera adding functionality and placing it behind the character
-     * @param tpf Tickes Per Frame
+     * @param tpf Ticks Per Frame
      */
     private void camTakeOver(float tpf) {
         cam.setLocation(player.getLocalTranslation().add(-8, 2, 0));

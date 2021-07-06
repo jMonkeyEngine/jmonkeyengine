@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -111,7 +111,7 @@ public final class MultiPassLightingLogic extends DefaultTechniqueDefLogic {
                 case Directional:
                     DirectionalLight dl = (DirectionalLight) l;
                     Vector3f dir = dl.getDirection();
-                    //FIXME : there is an inconstency here due to backward
+                    //FIXME : there is an inconsistency here due to backward
                     //compatibility of the lighting shader.
                     //The directional light direction is passed in the
                     //LightPosition uniform. The lighting shader needs to be

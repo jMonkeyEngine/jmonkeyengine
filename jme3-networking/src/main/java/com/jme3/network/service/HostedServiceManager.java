@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 jMonkeyEngine
+ * Copyright (c) 2015-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -67,7 +67,7 @@ public class HostedServiceManager extends ServiceManager<HostedServiceManager> {
 
     /**
      *  Returns 'this' and is what is passed to HostedService.initialize()
-     *  and HostedService.termnate();
+     *  and HostedService.terminate();
      */
     @Override
     protected final HostedServiceManager getParent() {

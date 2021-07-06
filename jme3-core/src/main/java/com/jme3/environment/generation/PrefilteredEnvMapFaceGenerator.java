@@ -147,7 +147,7 @@ public class PrefilteredEnvMapFaceGenerator extends RunnableWithProgress {
 
     /**
      * Generates the prefiltered env map (used for image based specular
-     * lighting) With the GGX/Shlick brdf
+     * lighting) With the GGX/Schlick brdf
      * {@link EnvMapUtils#getSphericalHarmonicsCoefficents(com.jme3.texture.TextureCubeMap)}
      * Note that the output cube map is in RGBA8 format.
      *

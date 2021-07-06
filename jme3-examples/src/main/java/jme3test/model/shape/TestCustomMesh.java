@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -127,7 +127,7 @@ public class TestCustomMesh extends SimpleApplication {
         coloredMesh.setLocalTranslation(4, 0, 0);
         rootNode.attachChild(coloredMesh);
 
-//        /** Alternatively, you can show the mesh vertixes as points
+//        /** Alternatively, you can show the mesh vertices as points
 //          * instead of coloring the faces. */
 //        cMesh.setMode(Mesh.Mode.Points);
 //        cMesh.setPointSize(10f);

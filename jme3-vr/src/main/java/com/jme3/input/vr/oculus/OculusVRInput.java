@@ -69,7 +69,7 @@ public class OculusVRInput implements VRInputAPI {
 
     @Override
     public void updateControllerStates() {
-        // Handle buttons, axies
+        // Handle buttons, axes
         ovr_GetInputState(session, ovrControllerType_Touch, inputState);
         buttons = inputState.Buttons();
         touch = inputState.Touches();

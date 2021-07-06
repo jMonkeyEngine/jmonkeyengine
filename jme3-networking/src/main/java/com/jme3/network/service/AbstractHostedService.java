@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 jMonkeyEngine
+ * Copyright (c) 2015-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -62,7 +62,7 @@ public abstract class AbstractHostedService extends AbstractService<HostedServic
 
     /**
      *  Default implementation does nothing.  Implementations can
-     *  override this to peform custom new connection behavior.
+     *  override this to perform custom new connection behavior.
      */
     @Override
     public void connectionAdded(Server server, HostedConnection hc) {
@@ -70,7 +70,7 @@ public abstract class AbstractHostedService extends AbstractService<HostedServic
 
     /**
      *  Default implementation does nothing.  Implementations can
-     *  override this to peform custom leaving connection behavior.
+     *  override this to perform custom leaving connection behavior.
      */
     @Override
     public void connectionRemoved(Server server, HostedConnection hc) {

@@ -40,7 +40,7 @@ import java.nio.ByteBuffer;
  * <br>
  * Buffers are created by the {@link Context}.
  * <br>
- * All access methods (read/write/copy/map) are available in both sychronized/blocking versions
+ * All access methods (read/write/copy/map) are available in both synchronized/blocking versions
  * and in async/non-blocking versions. The later ones always return an {@link Event} object
  * and have the prefix -Async in their name.
  *
@@ -404,7 +404,7 @@ public abstract class Buffer extends AbstractOpenCLObject {
 
     /**
      * Result of an async mapping operation, contains the event and the target byte buffer.
-     * This is a work-around since no generic pair-structure is avaiable.
+     * This is a work-around since no generic pair-structure is available.
      *
      * @author shaman
      */
@@ -439,7 +439,7 @@ public abstract class Buffer extends AbstractOpenCLObject {
      * Copies this buffer to the specified image.
      * Note that no format conversion is done.
      * <br>
-     * For detailed description of the origin and region paramenter, see the
+     * For detailed description of the origin and region parameter, see the
      * documentation of the {@link Image} class.
      *
      * @param queue the command queue
@@ -452,7 +452,7 @@ public abstract class Buffer extends AbstractOpenCLObject {
     public abstract Event copyToImageAsync(CommandQueue queue, Image dest, long srcOffset, long[] destOrigin, long[] destRegion);
 
     /**
-     * Aquires this buffer object for using. Only call this method if this buffer
+     * Acquires this buffer object for using. Only call this method if this buffer
      * represents a shared object from OpenGL, created with e.g.
      * {@link Context#bindVertexBuffer(com.jme3.scene.VertexBuffer, com.jme3.opencl.MemoryAccess) }.
      * This method must be called before the buffer is used. After the work is
@@ -466,7 +466,7 @@ public abstract class Buffer extends AbstractOpenCLObject {
     public abstract Event acquireBufferForSharingAsync(CommandQueue queue);
 
     /**
-     * Aquires this buffer object for using. Only call this method if this buffer
+     * Acquires this buffer object for using. Only call this method if this buffer
      * represents a shared object from OpenGL, created with e.g.
      * {@link Context#bindVertexBuffer(com.jme3.scene.VertexBuffer, com.jme3.opencl.MemoryAccess) }.
      * This method must be called before the buffer is used. After the work is

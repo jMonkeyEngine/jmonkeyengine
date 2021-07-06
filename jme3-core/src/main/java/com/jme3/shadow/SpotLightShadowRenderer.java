@@ -57,7 +57,7 @@ import java.io.IOException;
  * map for each one.<br> splits are distributed so that the closer they are from
  * the camera, the smaller they are to maximize the resolution used of the
  * shadow map.<br> This results in a better quality shadow than standard shadow
- * mapping.<br> for more informations on this read this <a
+ * mapping.<br> for more information on this read <a
  * href="http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html">http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html</a><br>
  *
  * @author Rémy Bouquet aka Nehon

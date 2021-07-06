@@ -469,7 +469,7 @@ public interface AL {
     public int alGetSourcei(int source, int param);
 
     /**
-     * Removes a number of buffer entries that have finished processing, in the order of apperance, from the queue of the specified source.
+     * Removes a number of buffer entries that have finished processing, in the order of appearance, from the queue of the specified source.
      *
      * <p>Once a queue entry for a buffer has been appended to a queue and is pending processing, it should not be changed. Removal of a given queue entry is not
      * possible unless either the source is stopped (in which case then entire queue is considered processed), or if the queue entry has already been processed

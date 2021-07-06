@@ -1,7 +1,7 @@
 package com.jme3.app;
 
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -398,7 +398,7 @@ public class VRAppState extends AbstractAppState {
 
         if( environment.isInVR() == false || environment.getVRGUIManager().getPositioningMode() == VRGUIPositioningMode.MANUAL ) {
             // only update geometric state here if GUI is in manual mode, or not in VR
-            // it will get updated automatically in the viewmanager update otherwise
+            // it will get updated automatically in the view manager update otherwise
             // TODO isn't this done by SimpleApplication?
             for (Spatial spatial : application.getGuiViewPort().getScenes()) {
             	//spatial.updateLogicalState(tpf);

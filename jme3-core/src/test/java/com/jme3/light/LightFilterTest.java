@@ -236,7 +236,7 @@ public class LightFilterTest {
         sl.setSpotRange(0);
         checkFilteredLights(1);
        
-        //the geommetry is outside the infinite cone (cone direction going away from the geom)
+        //the geometry is outside the infinite cone (cone direction going away from the geom)
         sl.setPosition(Vector3f.UNIT_Z.mult(1+FastMath.ZERO_TOLERANCE));
         checkFilteredLights(0);
        

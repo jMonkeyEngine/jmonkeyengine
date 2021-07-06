@@ -293,7 +293,7 @@ public class MotionPath implements Savable {
      */
     public void enableDebugShape(AssetManager manager, Node rootNode) {
         assetManager = manager;
-        // computeTotalLentgh();
+        // computeTotalLength();
         attachDebugNode(rootNode);
     }
 

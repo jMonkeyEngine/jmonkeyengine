@@ -306,7 +306,7 @@ public class AWTComponentRenderer {
   }
 
   /**
-   * Write the current rendered frame to the component graphics contex.
+   * Write the current rendered frame to the component graphics context.
    */
   protected void writeFrame() {
 

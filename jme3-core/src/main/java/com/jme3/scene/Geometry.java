@@ -628,7 +628,7 @@ public class Geometry extends Spatial {
     }
 
     /**
-     * Seting this to true will stop this geometry morph buffer to be updated,
+     * Setting this to true will stop this geometry morph buffer to be updated,
      * unless the morph state changes
      *
      * @param dirtyMorph true&rarr;prevent updating, false&rarr;allow updating

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2016 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,7 +33,7 @@ package com.jme3.opencl;
 
 /**
  * Base interface of all native OpenCL objects.
- * This interface provides the functionality for savely release the object.
+ * This interface provides the functionality to safely release the object.
  * @author shaman
  */
 public interface OpenCLObject {

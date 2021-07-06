@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -140,7 +140,7 @@ public final class Intersection {
         //  1) the {x,y,z}-directions (actually, since we use the AABB of the triangle
         //     we do not even need to test these)
         //  2) normal of the triangle
-        //  3) crossproduct(edge from tri, {x,y,z}-directin)
+        //  3) cross product (edge from tri, {x,y,z}-direction)
         //       this gives 3x3=9 more tests
 
         TempVars vars = TempVars.get();

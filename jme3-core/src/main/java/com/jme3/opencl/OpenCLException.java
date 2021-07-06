@@ -45,7 +45,7 @@ public class OpenCLException extends RuntimeException {
     private final int errorCode;
 
     /**
-     * Creates a new instance of <code>OpenCLExceptionn</code> without detail
+     * Creates a new instance of <code>OpenCLException</code> without detail
      * message.
      */
     public OpenCLException() {
@@ -53,7 +53,7 @@ public class OpenCLException extends RuntimeException {
     }
 
     /**
-     * Constructs an instance of <code>OpenCLExceptionn</code> with the
+     * Constructs an instance of <code>OpenCLException</code> with the
      * specified detail message.
      *
      * @param msg the detail message.

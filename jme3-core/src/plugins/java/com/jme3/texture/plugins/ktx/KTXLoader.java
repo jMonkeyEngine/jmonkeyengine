@@ -55,7 +55,7 @@ import java.util.logging.Logger;
 /**
  *
  * A KTX file loader
- * KTX file format is an image container defined by the Kronos group
+ * KTX file format is an image container defined by the Khronos group
  * See specs here https://www.khronos.org/opengles/sdk/tools/KTX/file_format_spec/
  * 
  * This loader doesn't support compressed files yet.

@@ -334,7 +334,7 @@ public class RenderManager {
      * the given width and height.
      *
      * @param w the new width (in pixels)
-     * @param h the new heigh (in pixels)
+     * @param h the new height (in pixels)
      */
     public void notifyReshape(int w, int h) {
         for (ViewPort vp : preViewPorts) {

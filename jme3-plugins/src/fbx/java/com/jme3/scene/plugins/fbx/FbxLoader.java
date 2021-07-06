@@ -115,7 +115,7 @@ public class FbxLoader implements AssetLoader {
             // Need world transforms for skeleton creation.
             updateWorldTransforms();
             
-            // Need skeletons for meshs to be created in scene graph construction.
+            // Need skeletons for meshes to be created in scene graph construction.
             // Mesh bone indices require skeletons to determine bone index.
             constructSkeletons();
             

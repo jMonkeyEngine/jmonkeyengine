@@ -262,7 +262,7 @@ public class TestPostWater extends SimpleApplication {
         rootNode.attachChild(terrain);
 
     }
-    //This part is to emulate tides, slightly varrying the height of the water plane
+    //This part is to emulate tides, slightly varying the height of the water plane
     private float time = 0.0f;
     private float waterHeight = 0.0f;
     final private float initialWaterHeight = 90f;//0.8f;

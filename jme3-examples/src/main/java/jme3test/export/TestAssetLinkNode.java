@@ -95,7 +95,7 @@ public class TestAssetLinkNode extends SimpleApplication {
         lightMdl.setMaterial(assetManager.loadAsset(new MaterialKey("Common/Materials/RedColor.j3m")));
         rootNode.attachChild(lightMdl);
 
-        // flourescent main light
+        // fluorescent main light
         pl = new PointLight();
         pl.setColor(new ColorRGBA(0.88f, 0.92f, 0.95f, 1.0f));
         rootNode.addLight(pl);

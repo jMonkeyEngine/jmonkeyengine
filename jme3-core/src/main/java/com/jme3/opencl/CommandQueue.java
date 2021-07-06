@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,7 @@ package com.jme3.opencl;
  * queue to OpenCL function (buffer, image operations, kernel calls), it is
  * ensured that they are executed in the order in which they are passed.
  * <br>
- * Each command queue is associtated with exactly one device: that device
+ * Each command queue is associated with exactly one device: that device
  * is specified on creation ({@link Context#createQueue(com.jme3.opencl.Device) })
  * and all commands are sent to this device.
  *

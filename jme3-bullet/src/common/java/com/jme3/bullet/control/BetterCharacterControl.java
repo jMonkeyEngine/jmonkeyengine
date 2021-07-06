@@ -219,7 +219,7 @@ public class BetterCharacterControl extends AbstractPhysicsControl implements Ph
         float designatedVelocity = walkDirection.length();
         if (designatedVelocity > 0) {
             Vector3f localWalkDirection = vars.vect1;
-            //normalize walkdirection
+            //normalize walkDirection
             localWalkDirection.set(walkDirection).normalizeLocal();
             //check for the existing velocity in the desired direction
             float existingVelocity = velocity.dot(localWalkDirection);

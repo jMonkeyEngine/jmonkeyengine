@@ -121,7 +121,7 @@ public class GLDebug implements InvocationHandler {
      * @param gl The GL Context, required to call {@link GL#glGetError()}
      * @param obj The object which methods will be proxied
      * @param implementedInterfaces The interfaces/class this object implements
-     * @return The Proxy object (or null if an error occured)
+     * @return The Proxy object (or null if an error occurred)
      */
     public static Object createProxy(GL gl, Object obj, Class<?>... implementedInterfaces) {
         try {

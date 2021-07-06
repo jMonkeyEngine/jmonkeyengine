@@ -1135,7 +1135,7 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
      * contain any color space information and the most frequently used colors 
      * space is sRGB
      *
-     * The material loader may override this attribute to Lineat if it determines that
+     * The material loader may override this attribute to Linear if it determines that
      * such conversion must not be performed, for example, when loading normal
      * maps.
      *

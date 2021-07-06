@@ -151,7 +151,7 @@ public class DebugShapeFactory {
         BufferedTriangleCallback triangleProcessor = new BufferedTriangleCallback();
         concaveShape.processAllTriangles(triangleProcessor, aabbMin, aabbMax);
 
-        // Retrieve the vextex and index buffers
+        // Retrieve the vertex and index buffers
         return triangleProcessor.getVertices();
     }
 
@@ -199,7 +199,7 @@ public class DebugShapeFactory {
             vertexB = hullVertices.get(hullIndicies.get(index++));
             vertexC = hullVertices.get(hullIndicies.get(index++));
 
-            // Put the verticies into the vertex buffer
+            // Put the vertices into the vertex buffer
             vertices.put(vertexA.x).put(vertexA.y).put(vertexA.z);
             vertices.put(vertexB.x).put(vertexB.y).put(vertexB.z);
             vertices.put(vertexC.x).put(vertexC.y).put(vertexC.z);

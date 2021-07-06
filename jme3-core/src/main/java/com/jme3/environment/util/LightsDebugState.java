@@ -46,7 +46,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * A debug state that will display LIght gizmos on screen.
+ * A debug state that will display Light gizmos on screen.
  * Still a wip and for now it only displays light probes.
  * 
  * @author nehon

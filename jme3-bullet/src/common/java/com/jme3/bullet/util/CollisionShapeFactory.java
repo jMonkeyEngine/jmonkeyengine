@@ -185,7 +185,7 @@ public class CollisionShapeFactory {
      * @param spatial the spatial on which to base the shape (not null)
      * @return A MeshCollisionShape or a CompoundCollisionShape with
      * MeshCollisionShapes as children if the supplied spatial is a Node. A
-     * HeightieldCollisionShape if a TerrainQuad was supplied.
+     * HeightfieldCollisionShape if a TerrainQuad was supplied.
      */
     public static CollisionShape createMeshShape(Spatial spatial) {
         if (spatial instanceof TerrainQuad) {

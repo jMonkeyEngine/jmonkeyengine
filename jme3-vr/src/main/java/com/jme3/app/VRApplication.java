@@ -819,7 +819,7 @@ public abstract class VRApplication implements Application, SystemListener {
 
         logger.log(Level.FINE, "Starting application: {0}", getClass().getName());
         
-        // Create VR decicated context
+        // Create VR dedicated context
         if (contextType == Type.Display){
           context = new LwjglDisplayVR();
           context.setSettings(settings);
@@ -1238,7 +1238,7 @@ public abstract class VRApplication implements Application, SystemListener {
     
 
     private void initDisplay(){
-        // aquire important objects
+        // acquire important objects
         // from the context
         settings = context.getSettings();
 
@@ -1274,7 +1274,7 @@ public abstract class VRApplication implements Application, SystemListener {
         cam.lookAt(new Vector3f(0f, 0f, 0f), Vector3f.UNIT_Y);
 
         renderManager = new RenderManager(renderer);
-        //Remy - 09/14/2010 setted the timer in the renderManager
+        //Remy - 09/14/2010 set the timer in the renderManager
         renderManager.setTimer(timer);
 
         viewPort = renderManager.createMainView("Default", cam);

@@ -323,7 +323,7 @@ public class RagdollUtils {
                 setTransform(childBone, t.getTranslation(), t.getRotation(), restoreBoneControl, boneList);
             }
         }
-        //we give back the control to the keyframed animation
+        // return control to the keyframe animation
         if (restoreBoneControl) {
             bone.setUserControl(false);
         }

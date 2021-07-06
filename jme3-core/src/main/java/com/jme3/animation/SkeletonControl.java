@@ -453,7 +453,7 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
      * Method to apply skinning transforms to a mesh's buffers
      *
      * @param mesh the mesh
-     * @param offsetMatrices the offset matices to apply
+     * @param offsetMatrices the offset matrices to apply
      */
     private void applySkinning(Mesh mesh, Matrix4f[] offsetMatrices) {
         int maxWeightsPerVert = mesh.getMaxNumWeights();
@@ -560,7 +560,7 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
      *
      * @param maxWeightsPerVert maximum number of weights per vertex
      * @param mesh the mesh
-     * @param offsetMatrices the offsetMaytrices to apply
+     * @param offsetMatrices the offset matrices to apply
      * @param tb the tangent vertexBuffer
      */
     private void applySkinningTangents(Mesh mesh, Matrix4f[] offsetMatrices, VertexBuffer tb) {

@@ -1402,7 +1402,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     }
 
     /**
-     * <code>lookAt</code> is a convienence method for auto-setting the
+     * <code>lookAt</code> is a convenience method for auto-setting the
      * quaternion based on a direction and an up vector. It computes
      * the rotation to transform the z-axis to point into 'direction'
      * and the y-axis to 'up'.

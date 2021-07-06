@@ -1282,7 +1282,7 @@ public class TerrainQuad extends Node implements Terrain {
     }
 
 
-    // a position can be in multiple quadrants, so use a bit anded value.
+    // a position can be in multiple quadrants, so return a bitmask.
     private int findQuadrant(int x, int y) {
         int split = (size + 1) >> 1;
         int quads = 0;

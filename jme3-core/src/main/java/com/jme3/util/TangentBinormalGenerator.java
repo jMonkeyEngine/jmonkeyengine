@@ -270,7 +270,7 @@ public class TangentBinormalGenerator {
         return vertices;
     }
     
-    //Don't remove splitmirorred boolean. It's not used right now, but I intend to
+    //Don't remove split mirrored boolean. It's not used right now, but I intend to
     //make this method also split vertices with rotated tangent space and I'll
     //add another splitRotated boolean 
     private static List<VertexData> splitVertices(Mesh mesh, List<VertexData> vertexData, boolean splitMirorred) {
@@ -337,7 +337,7 @@ public class TangentBinormalGenerator {
                 if(vb==null || vb.getNumComponents() == 0) continue;
                 
                 Buffer buffer = vb.getData();   
-                //IndexBuffer has special treatement, only swapping the vertex indices is needed                
+                //IndexBuffer has special treatment, only swapping the vertex indices is needed
                 if(type == Type.Index){
                     boolean isShortBuffer = vb.getFormat() == VertexBuffer.Format.UnsignedShort;                     
                     for (VertexData vertex : newVertices) {

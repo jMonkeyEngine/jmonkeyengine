@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -378,7 +378,7 @@ public enum Caps {
     PartialNonPowerOfTwoTextures,
     
     /**
-     * When sampling cubemap edges, interpolate between the adjecent faces
+     * When sampling cubemap edges, interpolate between the adjacent faces
      * instead of just sampling one face.
      * <p>
      * Improves the quality of environment mapping.

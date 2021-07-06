@@ -112,7 +112,7 @@ public class SkeletonWire extends Mesh {
     }
 
     /**
-     * The method updates the geometry according to the poitions of the bones.
+     * This method updates the geometry according to the positions of the bones.
      */
     public void updateGeometry() {
         VertexBuffer vb = this.getBuffer(Type.Position);
@@ -135,7 +135,7 @@ public class SkeletonWire extends Mesh {
     }
 
     /**
-     * Th method couns the connections between bones.
+     * This method counts the connections between bones.
      * @param bone
      *            the bone where counting starts
      */

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -61,7 +61,7 @@ public enum EdgeFilteringMode {
      * is used. 
      * http://devmag.org.za/2009/05/03/poisson-disk-sampling/
      * The principle is to eliminate the regular blurring pattern that can be 
-     * seen with pcf4x4 by randomizing the samble position with a poisson disc.
+     * seen with pcf4x4 by randomizing the sample position with a poisson disc.
      * Shadows will look smoother than 4x4 PCF but with slightly better or 
      * similar performance.
      */

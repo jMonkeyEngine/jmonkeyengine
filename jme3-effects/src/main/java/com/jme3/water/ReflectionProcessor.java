@@ -85,12 +85,12 @@ public class ReflectionProcessor implements SceneProcessor {
 
     @Override
     public void postQueue(RenderQueue rq) {
-        //we need special treatement for the sky because it must not be clipped
+        //we need special treatment for the sky because it must not be clipped
         rm.getRenderer().setFrameBuffer(reflectionBuffer);
         reflectionCam.setProjectionMatrix(null);
         rm.setCamera(reflectionCam, false);
         rm.getRenderer().clearBuffers(true, true, true);
-        //Rendering the sky whithout clipping
+        //Rendering the sky without clipping
         rm.getRenderer().setDepthRange(1, 1);
         vp.getQueue().renderQueue(RenderQueue.Bucket.Sky, rm, reflectionCam, true);
         rm.getRenderer().setDepthRange(0, 1);

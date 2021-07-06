@@ -41,7 +41,7 @@ import com.jme3.scene.VertexBuffer.Type;
 import java.nio.FloatBuffer;
 
 /**
- * A class that displays a dotted line between a bone tail and its childrens' heads.
+ * A class that displays a dotted line between a bone tail and its children's heads.
  *
  * @author Marcin Roguski (Kaelthas)
  */

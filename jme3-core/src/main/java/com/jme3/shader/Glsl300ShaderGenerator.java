@@ -38,7 +38,7 @@ import com.jme3.shader.Shader.ShaderType;
 /**
  * This shader Generator can generate Vertex and Fragment shaders from
  * ShaderNodes for GLESSL 3.0
- * Nowdays it's just a subclass of Glsl150ShaderGenerator overriding the version
+ * Nowadays it's just a subclass of Glsl150ShaderGenerator overriding the version
  * string because GLSL 1.5 is mostly compatible with GLESSL 3.0
  *
  * @author Nehon

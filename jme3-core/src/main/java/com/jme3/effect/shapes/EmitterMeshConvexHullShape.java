@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -69,7 +69,7 @@ public class EmitterMeshConvexHullShape extends EmitterMeshFaceShape {
     @Override
     public void getRandomPoint(Vector3f store) {
         super.getRandomPoint(store);
-        // now move the point from the meshe's face towards the center of the mesh
+        // now move the point from the mesh's face toward the center of the mesh
         // the center is in (0, 0, 0) in the local coordinates
         store.multLocal(FastMath.nextRandomFloat());
     }
@@ -87,7 +87,7 @@ public class EmitterMeshConvexHullShape extends EmitterMeshFaceShape {
     @Override
     public void getRandomPointAndNormal(Vector3f store, Vector3f normal) {
         super.getRandomPointAndNormal(store, normal);
-        // now move the point from the meshe's face towards the center of the mesh
+        // now move the point from the mesh's face toward the center of the mesh
         // the center is in (0, 0, 0) in the local coordinates
         store.multLocal(FastMath.nextRandomFloat());
     }

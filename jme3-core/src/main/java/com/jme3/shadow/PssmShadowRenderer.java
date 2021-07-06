@@ -67,7 +67,7 @@ import java.util.List;
  * one.<br> splits are distributed so that the closer they are from the camera,
  * the smaller they are to maximize the resolution used of the shadow map.<br>
  * This results in a better quality shadow than standard shadow mapping.<br> for
- * more informations on this read this <a
+ * more information on this read <a
  * href="http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html">http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html</a><br>
  *
  * @author Rémy Bouquet aka Nehon
@@ -436,9 +436,9 @@ public class PssmShadowRenderer implements SceneProcessor {
             renderManager.setCamera(shadowCam, false);
 
             if (debugfrustums) {
-//                    frustrumFromBound(b.casterBB,ColorRGBA.Blue );
-//                    frustrumFromBound(b.receiverBB,ColorRGBA.Green );
-//                    frustrumFromBound(b.splitBB,ColorRGBA.Yellow );
+//                    frustumFromBound(b.casterBB,ColorRGBA.Blue );
+//                    frustumFromBound(b.receiverBB,ColorRGBA.Green );
+//                    frustumFromBound(b.splitBB,ColorRGBA.Yellow );
                 ((Node) viewPort.getScenes().get(0)).attachChild(createFrustum(points, i));
                 ShadowUtil.updateFrustumPoints2(shadowCam, points);
                 ((Node) viewPort.getScenes().get(0)).attachChild(createFrustum(points, i));
@@ -524,7 +524,7 @@ public class PssmShadowRenderer implements SceneProcessor {
 
         GeometryList l = lightReceivers;
 
-        //iteration throught all the geometries of the list to gather the materials
+        //iterate through all the geometries in the list to gather the materials
 
         matCache.clear();
         for (int i = 0; i < l.size(); i++) {

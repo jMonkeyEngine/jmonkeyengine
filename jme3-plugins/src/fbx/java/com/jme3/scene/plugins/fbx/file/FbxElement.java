@@ -51,7 +51,7 @@ public class FbxElement {
 	 * i - array of ints
 	 * d - array of doubles
 	 * l - array of longs
-	 * b - array of boleans
+	 * b - array of booleans
 	 * c - array of unsigned bytes (represented as array of ints)
 	 */
 	public char[] propertiesTypes;
