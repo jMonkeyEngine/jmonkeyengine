@@ -3,5 +3,5 @@ if (!hasProperty('mainClass')) {
 }
 
 dependencies {
-    compile project(':jme3-core')
+    implementation project(':jme3-core')
 }

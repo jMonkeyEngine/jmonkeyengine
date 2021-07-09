@@ -12,8 +12,8 @@ sourceSets {
 }
 
 dependencies {
-    compile 'com.github.stephengold:jbullet:1.0.1'
-    compile 'javax.vecmath:vecmath:1.5.2'
-    compile project(':jme3-core')
-    compile project(':jme3-terrain')
+    implementation 'com.github.stephengold:jbullet:1.0.1'
+    implementation 'javax.vecmath:vecmath:1.5.2'
+    implementation project(':jme3-core')
+    implementation project(':jme3-terrain')
 }

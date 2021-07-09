@@ -18,7 +18,7 @@ sourceSets {
 }
 
 dependencies {
-    testCompile project(':jme3-testdata')
+    testImplementation project(':jme3-testdata')
 }
 
 task updateVersionPropertiesFile {

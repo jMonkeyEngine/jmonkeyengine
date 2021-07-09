@@ -16,8 +16,7 @@ sourceCompatibility = '1.8'
 
 if(JavaVersion.current() >= JavaVersion.VERSION_1_9) {
     compileJava {
-	options.compilerArgs.addAll(['--release', '8'])
-        //Replace previous with "options.release = 8" if updated to gradle 6.6 or newer
+		options.release = 8
     }
 }
 
@@ -36,9 +35,9 @@ repositories {
 
 dependencies {
     // Adding dependencies here will add the dependencies to each subproject.
-    testCompile 'junit:junit:4.13.2'
-    testCompile 'org.mockito:mockito-core:3.8.0'
-    testCompile 'org.codehaus.groovy:groovy-all:3.0.7'
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.mockito:mockito-core:3.8.0'
+    testImplementation 'org.codehaus.groovy:groovy-all:3.0.7'
 }
 
 

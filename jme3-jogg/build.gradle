@@ -3,6 +3,6 @@ if (!hasProperty('mainClass')) {
 }
 
 dependencies {
-    compile project(':jme3-core')
-    compile 'com.github.stephengold:j-ogg-all:1.0.1'
+    implementation project(':jme3-core')
+    implementation 'com.github.stephengold:j-ogg-all:1.0.1'
 }

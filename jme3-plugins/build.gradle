@@ -14,7 +14,7 @@ sourceSets {
 }
 
 dependencies {
-    compile project(':jme3-core')
-    compile 'com.google.code.gson:gson:2.8.1'
-    testCompile project(':jme3-desktop')
+    implementation project(':jme3-core')
+    implementation 'com.google.code.gson:gson:2.8.1'
+    testImplementation project(':jme3-desktop')
 }

@@ -5,6 +5,6 @@ if (!hasProperty('mainClass')) {
 def niftyVersion = '1.4.3'
 
 dependencies {
-    runtime "com.github.nifty-gui:nifty-examples:$niftyVersion"
-    runtime "com.github.nifty-gui:nifty-style-black:$niftyVersion"
+    runtimeOnly "com.github.nifty-gui:nifty-examples:$niftyVersion"
+    runtimeOnly "com.github.nifty-gui:nifty-style-black:$niftyVersion"
 }
