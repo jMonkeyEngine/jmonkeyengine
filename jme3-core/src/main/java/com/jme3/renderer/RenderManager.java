@@ -85,7 +85,7 @@ public class RenderManager {
     private int viewX, viewY, viewWidth, viewHeight;
     private final Matrix4f orthoMatrix = new Matrix4f();
     private final LightList filteredLightList = new LightList(null);
-    private boolean handleTranlucentBucket = true;
+    private boolean handleTranslucentBucket = true;
     private AppProfiler prof;
     private LightFilter lightFilter = new DefaultLightFilter();
     private TechniqueDef.LightMode preferredLightMode = TechniqueDef.LightMode.MultiPass;
@@ -506,7 +506,7 @@ public class RenderManager {
      * @see #setHandleTranslucentBucket(boolean) 
      */
     public boolean isHandleTranslucentBucket() {
-        return handleTranlucentBucket;
+        return handleTranslucentBucket;
     }
 
     /**
@@ -518,7 +518,7 @@ public class RenderManager {
      * be rendered.
      */
     public void setHandleTranslucentBucket(boolean handleTranslucentBucket) {
-        this.handleTranlucentBucket = handleTranslucentBucket;
+        this.handleTranslucentBucket = handleTranslucentBucket;
     }
 
     /**
@@ -949,7 +949,7 @@ public class RenderManager {
         if (prof!=null) prof.vpStep(VpStep.RenderBucket, vp, Bucket.Translucent);
         
         RenderQueue rq = vp.getQueue();
-        if (!rq.isQueueEmpty(Bucket.Translucent) && handleTranlucentBucket) {
+        if (!rq.isQueueEmpty(Bucket.Translucent) && handleTranslucentBucket) {
             rq.renderQueue(Bucket.Translucent, this, vp.getCamera(), true);
         }
     }
