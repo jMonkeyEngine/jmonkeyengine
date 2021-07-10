@@ -36,7 +36,7 @@ dependencies {
 ext {
     // stores the native project classpath to be used in each native
     // build to generate native header files
-    projectClassPath = configurations.runtime.asFileTree.matching {
+    projectClassPath = configurations.runtimeClasspath.asFileTree.matching {
         exclude ".gradle"
     }.asPath
 }

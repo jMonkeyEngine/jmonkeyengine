@@ -56,7 +56,7 @@ jar.doFirst{
 task dist (dependsOn: ['build', ':jme3-android:jar', ':jme3-android-native:jar']) {
     doLast {
         // Copy all dependencies to ../dist/lib, remove versions from jar files
-        configurations.compile.resolvedConfiguration.resolvedArtifacts.each { artifact ->
+        configurations.compileClasspath.resolvedConfiguration.resolvedArtifacts.each { artifact ->
             copy {
                 from artifact.file
                 into '../dist/lib'
