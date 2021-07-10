@@ -53,7 +53,7 @@ public class Armature implements JmeCloneable, Savable {
      * Contains the skinning matrices, multiplying it by a vertex effected by a bone
      * will cause it to go to the animated position.
      */
-    private transient Matrix4f[] skinningMatrixes;
+    private transient Matrix4f[] skinningMatrices;
     private Class<? extends JointModelTransform> modelTransformClass = SeparateJointModelTransform.class;
 
     /**
@@ -78,7 +78,7 @@ public class Armature implements JmeCloneable, Savable {
         for (int i = jointList.length - 1; i >= 0; i--) {
             Joint joint = jointList[i];
             joint.setId(i);
-            instanciateJointModelTransform(joint);
+            instantiateJointModelTransform(joint);
             if (joint.getParent() == null) {
                 rootJointList.add(joint);
             }
@@ -103,9 +103,9 @@ public class Armature implements JmeCloneable, Savable {
     }
 
     private void createSkinningMatrices() {
-        skinningMatrixes = new Matrix4f[jointList.length];
-        for (int i = 0; i < skinningMatrixes.length; i++) {
-            skinningMatrixes[i] = new Matrix4f();
+        skinningMatrices = new Matrix4f[jointList.length];
+        for (int i = 0; i < skinningMatrices.length; i++) {
+            skinningMatrices[i] = new Matrix4f();
         }
     }
 
@@ -124,11 +124,11 @@ public class Armature implements JmeCloneable, Savable {
             return;
         }
         for (Joint joint : jointList) {
-            instanciateJointModelTransform(joint);
+            instantiateJointModelTransform(joint);
         }
     }
 
-    private void instanciateJointModelTransform(Joint joint) {
+    private void instantiateJointModelTransform(Joint joint) {
         try {
             joint.setJointModelTransform(modelTransformClass.newInstance());
         } catch (InstantiationException | IllegalAccessException e) {
@@ -261,9 +261,9 @@ public class Armature implements JmeCloneable, Savable {
      */
     public Matrix4f[] computeSkinningMatrices() {
         for (int i = 0; i < jointList.length; i++) {
-            jointList[i].getOffsetTransform(skinningMatrixes[i]);
+            jointList[i].getOffsetTransform(skinningMatrices[i]);
         }
-        return skinningMatrixes;
+        return skinningMatrices;
     }
 
     /**
@@ -289,9 +289,9 @@ public class Armature implements JmeCloneable, Savable {
     public void cloneFields(Cloner cloner, Object original) {
         this.rootJoints = cloner.clone(rootJoints);
         this.jointList = cloner.clone(jointList);
-        this.skinningMatrixes = cloner.clone(skinningMatrixes);
+        this.skinningMatrices = cloner.clone(skinningMatrices);
         for (Joint joint : jointList) {
-            instanciateJointModelTransform(joint);
+            instantiateJointModelTransform(joint);
         }
     }
 
@@ -325,7 +325,7 @@ public class Armature implements JmeCloneable, Savable {
         int i = 0;
         for (Joint joint : jointList) {
             joint.setId(i++);
-            instanciateJointModelTransform(joint);
+            instantiateJointModelTransform(joint);
         }
         createSkinningMatrices();
 
