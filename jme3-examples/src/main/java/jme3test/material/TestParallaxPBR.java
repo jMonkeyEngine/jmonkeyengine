@@ -119,13 +119,13 @@ public class TestParallaxPBR extends SimpleApplication {
             @Override
             public void onAnalog(String name, float value, float tpf) {
                 if ("heightUP".equals(name)) {
-                    parallaxHeigh += 0.01;
+                    parallaxHeight += 0.01;
                     mat.setFloat("ParallaxHeight", parallaxHeigh);
                 }
                 if ("heightDown".equals(name)) {
-                    parallaxHeigh -= 0.01;
-                    parallaxHeigh = Math.max(parallaxHeigh, 0);
-                    mat.setFloat("ParallaxHeight", parallaxHeigh);
+                    parallaxHeight -= 0.01;
+                    parallaxHeight = Math.max(parallaxHeight, 0);
+                    mat.setFloat("ParallaxHeight", parallaxHeight);
                 }
 
             }
@@ -145,7 +145,7 @@ public class TestParallaxPBR extends SimpleApplication {
         }, "toggleSteep");
         inputManager.addMapping("toggleSteep", new KeyTrigger(KeyInput.KEY_SPACE));
     }
-    private float parallaxHeigh = 0.05f;
+    private float parallaxHeight = 0.05f;
     private boolean steep = false;
 
     @Override
