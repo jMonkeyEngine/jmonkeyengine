@@ -106,7 +106,7 @@ public class FbxSkin extends FbxObject {
 						boneWeightData.put(offset, (float) cluster.weights[i]);
 						boneIndicesData.put(offset, (byte) limb.boneIndex);
 					} else {
-						if((float) cluster.weights[i] > smalestW) { // If current weight more than smallest, discard smallest
+						if((float) cluster.weights[i] > smallestW) { // If current weight more than smallest, discard smallest
 							boneWeightData.put(smallestOffset, (float) cluster.weights[i]);
 							boneIndicesData.put(smallestOffset, (byte) limb.boneIndex);
 						}

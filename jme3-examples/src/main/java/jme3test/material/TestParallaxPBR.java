@@ -120,7 +120,7 @@ public class TestParallaxPBR extends SimpleApplication {
             public void onAnalog(String name, float value, float tpf) {
                 if ("heightUP".equals(name)) {
                     parallaxHeight += 0.01;
-                    mat.setFloat("ParallaxHeight", parallaxHeigh);
+                    mat.setFloat("ParallaxHeight", parallaxHeight);
                 }
                 if ("heightDown".equals(name)) {
                     parallaxHeight -= 0.01;
