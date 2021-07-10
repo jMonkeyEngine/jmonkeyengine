@@ -792,37 +792,37 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Sets this vector to the interpolation by changeAmnt from this to the finalVec
-     * this=(1-changeAmnt)*this + changeAmnt * finalVec
+     * Sets this vector to the interpolation by changeAmount from this to the finalVec
+     * this=(1-changeAmount)*this + changeAmount * finalVec
      *
      * @param finalVec The final vector to interpolate towards
-     * @param changeAmnt An amount between 0.0 - 1.0 representing a percentage
+     * @param changeAmount An amount between 0.0 - 1.0 representing a percentage
      *  change from this towards finalVec
      * @return this
      */
-    public Vector4f interpolateLocal(Vector4f finalVec, float changeAmnt) {
-        this.x = (1 - changeAmnt) * this.x + changeAmnt * finalVec.x;
-        this.y = (1 - changeAmnt) * this.y + changeAmnt * finalVec.y;
-        this.z = (1 - changeAmnt) * this.z + changeAmnt * finalVec.z;
-        this.w = (1 - changeAmnt) * this.w + changeAmnt * finalVec.w;
+    public Vector4f interpolateLocal(Vector4f finalVec, float changeAmount) {
+        this.x = (1 - changeAmount) * this.x + changeAmount * finalVec.x;
+        this.y = (1 - changeAmount) * this.y + changeAmount * finalVec.y;
+        this.z = (1 - changeAmount) * this.z + changeAmount * finalVec.z;
+        this.w = (1 - changeAmount) * this.w + changeAmount * finalVec.w;
         return this;
     }
 
     /**
-     * Sets this vector to the interpolation by changeAmnt from beginVec to finalVec
-     * this=(1-changeAmnt)*beginVec + changeAmnt * finalVec
+     * Sets this vector to the interpolation by changeAmount from beginVec to finalVec
+     * this=(1-changeAmount)*beginVec + changeAmount * finalVec
      *
-     * @param beginVec the beginning vector (changeAmnt=0)
+     * @param beginVec the beginning vector (changeAmount=0)
      * @param finalVec The final vector to interpolate towards
-     * @param changeAmnt An amount between 0.0 - 1.0 representing a percentage
+     * @param changeAmount An amount between 0.0 - 1.0 representing a percentage
      *  change from beginVec towards finalVec
      * @return this
      */
-    public Vector4f interpolateLocal(Vector4f beginVec, Vector4f finalVec, float changeAmnt) {
-        this.x = (1 - changeAmnt) * beginVec.x + changeAmnt * finalVec.x;
-        this.y = (1 - changeAmnt) * beginVec.y + changeAmnt * finalVec.y;
-        this.z = (1 - changeAmnt) * beginVec.z + changeAmnt * finalVec.z;
-        this.w = (1 - changeAmnt) * beginVec.w + changeAmnt * finalVec.w;
+    public Vector4f interpolateLocal(Vector4f beginVec, Vector4f finalVec, float changeAmount) {
+        this.x = (1 - changeAmount) * beginVec.x + changeAmount * finalVec.x;
+        this.y = (1 - changeAmount) * beginVec.y + changeAmount * finalVec.y;
+        this.z = (1 - changeAmount) * beginVec.z + changeAmount * finalVec.z;
+        this.w = (1 - changeAmount) * beginVec.w + changeAmount * finalVec.w;
         return this;
     }
 
