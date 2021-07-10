@@ -898,8 +898,8 @@ public class MikktspaceTangentGenerator {
                     assert (iNrActiveGroups < iNrMaxGroups);
                     pTriInfos[f].assignedGroup[i] = new Group(); 
                     pGroups[iNrActiveGroups] = pTriInfos[f].assignedGroup[i];
-                    pTriInfos[f].assignedGroup[i].vertexRepresentitive = vert_index;
-                    pTriInfos[f].assignedGroup[i].orientPreservering = (pTriInfos[f].flag & ORIENT_PRESERVING) != 0;
+                    pTriInfos[f].assignedGroup[i].vertexRepresentative = vert_index;
+                    pTriInfos[f].assignedGroup[i].orientationPreserving = (pTriInfos[f].flag & ORIENT_PRESERVING) != 0;
                     pTriInfos[f].assignedGroup[i].nrFaces = 0;
                     
                     ++iNrActiveGroups;
@@ -962,7 +962,7 @@ public class MikktspaceTangentGenerator {
         TriInfo pMyTriInfo = psTriInfos[iMyTriIndex];
 
         // track down vertex
-        final int iVertRep = pGroup.vertexRepresentitive;
+        final int iVertRep = pGroup.vertexRepresentative;
         int index = 3 * iMyTriIndex;
         int i = -1;
         if (piTriListIn[index] == iVertRep) {
@@ -988,12 +988,12 @@ public class MikktspaceTangentGenerator {
                     && pMyTriInfo.assignedGroup[1] == null
                     && pMyTriInfo.assignedGroup[2] == null) {
                 pMyTriInfo.flag &= (~ORIENT_PRESERVING);
-                pMyTriInfo.flag |= (pGroup.orientPreservering ? ORIENT_PRESERVING : 0);
+                pMyTriInfo.flag |= (pGroup.orientationPreserving ? ORIENT_PRESERVING : 0);
             }
         }
         {
             final boolean bOrient = (pMyTriInfo.flag & ORIENT_PRESERVING) != 0;
-            if (bOrient != pGroup.orientPreservering) {
+            if (bOrient != pGroup.orientationPreserving) {
                 return false;
             }
         }
@@ -1060,7 +1060,7 @@ public class MikktspaceTangentGenerator {
                 assert (index >= 0 && index < 3);
 
                 iVertIndex = piTriListIn[f * 3 + index];
-                assert (iVertIndex == pGroup.vertexRepresentitive);
+                assert (iVertIndex == pGroup.vertexRepresentative);
 
                 // is normalized already
                 n = getNormal(mikkTSpace, iVertIndex);
@@ -1131,7 +1131,7 @@ public class MikktspaceTangentGenerator {
                     System.arraycopy(tmp_group.triMembers, 0, pIndices, 0, iMembers);
                     //memcpy(pIndices, tmp_group.pTriMembers, iMembers*sizeof(int));
                     pSubGroupTspace[iUniqueSubGroups]
-                            = evalTspace(tmp_group.triMembers, iMembers, piTriListIn, pTriInfos, mikkTSpace, pGroup.vertexRepresentitive);
+                            = evalTspace(tmp_group.triMembers, iMembers, piTriListIn, pTriInfos, mikkTSpace, pGroup.vertexRepresentative);
                     ++iUniqueSubGroups;
                 }
 
@@ -1141,16 +1141,16 @@ public class MikktspaceTangentGenerator {
                     final int iVert = pTriInfos[f].vertNum[index];
                     TSpace pTS_out = psTspace[iOffs + iVert];
                     assert (pTS_out.counter < 2);
-                    assert (((pTriInfos[f].flag & ORIENT_PRESERVING) != 0) == pGroup.orientPreservering);
+                    assert (((pTriInfos[f].flag & ORIENT_PRESERVING) != 0) == pGroup.orientationPreserving);
                     if (pTS_out.counter == 1) {
                         pTS_out.set(avgTSpace(pTS_out, pSubGroupTspace[l]));
                         pTS_out.counter = 2;  // update counter
-                        pTS_out.orient = pGroup.orientPreservering;
+                        pTS_out.orient = pGroup.orientationPreserving;
                     } else {
                         assert (pTS_out.counter == 0);
                         pTS_out.set(pSubGroupTspace[l]);
                         pTS_out.counter = 1;  // update counter
-                        pTS_out.orient = pGroup.orientPreservering;
+                        pTS_out.orient = pGroup.orientationPreserving;
                     }
                 }
             }
@@ -1673,8 +1673,8 @@ public class MikktspaceTangentGenerator {
     private static class Group {
         int nrFaces;
         List<Integer> faceIndices = new ArrayList<>();
-        int vertexRepresentitive;
-        boolean orientPreservering;
+        int vertexRepresentative;
+        boolean orientationPreserving;
     }
 
     private static class TriInfo {
