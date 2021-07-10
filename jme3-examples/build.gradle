@@ -44,7 +44,7 @@ jar.doFirst{
 //                'Implementation-Vendor'  : vendor,
                 'Main-Class'             : getProperty('mainClass'),
                 // Add dependencies to manifest, remove version
-                'Class-Path'             : configurations.compile.resolvedConfiguration.resolvedArtifacts.collect {
+                'Class-Path'             : configurations.compileClasspath.resolvedConfiguration.resolvedArtifacts.collect {
                                                         'lib/' +
                                                         it.name +
                                                         (it.classifier != null ? '-' + it.classifier : '') +
