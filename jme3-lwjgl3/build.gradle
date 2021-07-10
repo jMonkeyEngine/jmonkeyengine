@@ -7,15 +7,15 @@ def lwjglVersion = '3.2.3'
 sourceCompatibility = '1.8'
 
 dependencies {
-    implementation project(':jme3-core')
-    implementation project(':jme3-desktop')
+    compile project(':jme3-core')
+    compile project(':jme3-desktop')
 
-    implementation "org.lwjgl:lwjgl:${lwjglVersion}"
-    implementation "org.lwjgl:lwjgl-glfw:${lwjglVersion}"
-    implementation "org.lwjgl:lwjgl-jemalloc:${lwjglVersion}"
-    implementation "org.lwjgl:lwjgl-openal:${lwjglVersion}"
-    implementation "org.lwjgl:lwjgl-opencl:${lwjglVersion}"
-    implementation "org.lwjgl:lwjgl-opengl:${lwjglVersion}"
+    compile "org.lwjgl:lwjgl:${lwjglVersion}"
+    compile "org.lwjgl:lwjgl-glfw:${lwjglVersion}"
+    compile "org.lwjgl:lwjgl-jemalloc:${lwjglVersion}"
+    compile "org.lwjgl:lwjgl-openal:${lwjglVersion}"
+    compile "org.lwjgl:lwjgl-opencl:${lwjglVersion}"
+    compile "org.lwjgl:lwjgl-opengl:${lwjglVersion}"
 
     runtimeOnly "org.lwjgl:lwjgl:${lwjglVersion}:natives-windows"
     runtimeOnly "org.lwjgl:lwjgl:${lwjglVersion}:natives-windows-x86"

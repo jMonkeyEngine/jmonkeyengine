@@ -6,7 +6,7 @@ def niftyVersion = '1.4.3'
 
 dependencies {
     implementation project(':jme3-core')
-    implementation "com.github.nifty-gui:nifty:${niftyVersion}"
-    implementation "com.github.nifty-gui:nifty-default-controls:${niftyVersion}"
-    implementation "com.github.nifty-gui:nifty-style-black:${niftyVersion}"
+    compile "com.github.nifty-gui:nifty:${niftyVersion}"
+    compile "com.github.nifty-gui:nifty-default-controls:${niftyVersion}"
+    compile "com.github.nifty-gui:nifty-style-black:${niftyVersion}"
 }
