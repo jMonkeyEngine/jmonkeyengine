@@ -341,8 +341,8 @@ public class FbxMesh extends FbxObject {
 		}
 		if(vertices != null) {
 			// Unroll vertices data array
-			FloatBuffer posBuf = BufferUtils.createFloatBuffer(vCount * 3);
-			mesh.setBuffer(VertexBuffer.Type.Position, 3, posBuf);
+			FloatBuffer positionBuffer = BufferUtils.createFloatBuffer(vCount * 3);
+			mesh.setBuffer(VertexBuffer.Type.Position, 3, positionBuffer);
 			int srcCount = vertices.length / 3;
 			for(int i = 0; i < vCount; ++i) {
 				int index = vertexMap.get(i);
@@ -351,13 +351,13 @@ public class FbxMesh extends FbxObject {
 				float x = (float) vertices[3 * index + 0] / scene.unitSize * scene.xAxis; // XXX Why we should scale by unit size?
 				float y = (float) vertices[3 * index + 1] / scene.unitSize * scene.yAxis;
 				float z = (float) vertices[3 * index + 2] / scene.unitSize * scene.zAxis;
-				posBuf.put(x).put(y).put(z);
+				positionBuffer.put(x).put(y).put(z);
 			}
 		}
 		if(normals != null) {
 			// Unroll normals data array
-			FloatBuffer normBuf = BufferUtils.createFloatBuffer(vCount * 3);
-			mesh.setBuffer(VertexBuffer.Type.Normal, 3, normBuf);
+			FloatBuffer normalBuffer = BufferUtils.createFloatBuffer(vCount * 3);
+			mesh.setBuffer(VertexBuffer.Type.Normal, 3, normalBuffer);
 			List<Integer> mapping = null;
 			if(normalsMapping.equals("ByVertice"))
 				mapping = vertexMap;
@@ -373,13 +373,13 @@ public class FbxMesh extends FbxObject {
 				float x = (float) normals[3 * index + 0] * scene.xAxis;
 				float y = (float) normals[3 * index + 1] * scene.yAxis;
 				float z = (float) normals[3 * index + 2] * scene.zAxis;
-				normBuf.put(x).put(y).put(z);
+				normalBuffer.put(x).put(y).put(z);
 			}
 		}
 		if(tangents != null) {
 			// Unroll normals data array
-			FloatBuffer tanBuf = BufferUtils.createFloatBuffer(vCount * 4);
-			mesh.setBuffer(VertexBuffer.Type.Tangent, 4, tanBuf);
+			FloatBuffer tangentBuffer = BufferUtils.createFloatBuffer(vCount * 4);
+			mesh.setBuffer(VertexBuffer.Type.Tangent, 4, tangentBuffer);
 			List<Integer> mapping = null;
 			if(tangentsMapping.equals("ByVertice"))
 				mapping = vertexMap;
@@ -395,13 +395,13 @@ public class FbxMesh extends FbxObject {
 				float x = (float) tangents[3 * index + 0] * scene.xAxis;
 				float y = (float) tangents[3 * index + 1] * scene.yAxis;
 				float z = (float) tangents[3 * index + 2] * scene.zAxis;
-				tanBuf.put(x).put(y).put(z).put(-1.0f);
+				tangentBuffer.put(x).put(y).put(z).put(-1.0f);
 			}
 		}
 		if(binormals != null) {
 			// Unroll normals data array
-			FloatBuffer binormBuf = BufferUtils.createFloatBuffer(vCount * 3);
-			mesh.setBuffer(VertexBuffer.Type.Binormal, 3, binormBuf);
+			FloatBuffer binormalBuffer = BufferUtils.createFloatBuffer(vCount * 3);
+			mesh.setBuffer(VertexBuffer.Type.Binormal, 3, binormalBuffer);
 			List<Integer> mapping = null;
 			if(binormalsMapping.equals("ByVertice"))
 				mapping = vertexMap;
@@ -417,7 +417,7 @@ public class FbxMesh extends FbxObject {
 				float x = (float) binormals[3 * index + 0] * scene.xAxis;
 				float y = (float) binormals[3 * index + 1] * scene.yAxis;
 				float z = (float) binormals[3 * index + 2] * scene.zAxis;
-				binormBuf.put(x).put(y).put(z);
+				binormalBuffer.put(x).put(y).put(z);
 			}
 		}
 		for(int uvLayer = 0; uvLayer < uvs.size(); ++uvLayer) {
@@ -452,7 +452,7 @@ public class FbxMesh extends FbxObject {
 				}
 			}
 			// Unroll UV data array
-			FloatBuffer tcBuf = BufferUtils.createFloatBuffer(vCount * 2);
+			FloatBuffer uvBuffer = BufferUtils.createFloatBuffer(vCount * 2);
 			VertexBuffer.Type type = VertexBuffer.Type.TexCoord;
 			switch(uvLayer) {
 			case 1:
@@ -477,7 +477,7 @@ public class FbxMesh extends FbxObject {
 				type = VertexBuffer.Type.TexCoord8;
 				break;
 			}
-			mesh.setBuffer(type, 2, tcBuf);
+			mesh.setBuffer(type, 2, uvBuffer);
 			int srcCount = uv.length / 2;
 			for(int i = 0; i < vCount; ++i) {
 				int index = unIndexMap.get(i);
@@ -485,7 +485,7 @@ public class FbxMesh extends FbxObject {
 					throw new AssetLoadException("Invalid texcoord mapping. Unexpected lookup texcoord " + index + " from " + srcCount);
 				float u = (index >= 0) ? (float) uv[2 * index + 0] : 0;
 				float v = (index >= 0) ? (float) uv[2 * index + 1] : 0;
-				tcBuf.put(u).put(v);
+				uvBuffer.put(u).put(v);
 			}
 		}
 		List<Geometry> geometries = new ArrayList<>();
