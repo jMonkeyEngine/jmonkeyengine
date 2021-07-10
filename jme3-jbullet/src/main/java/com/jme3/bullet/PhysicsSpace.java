@@ -395,10 +395,10 @@ public class PhysicsSpace {
 
     public void distributeEvents() {
         //add collision callbacks
-        int clistsize = collisionListeners.size();
+        int cListSize = collisionListeners.size();
         while( collisionEvents.isEmpty() == false ) {
             PhysicsCollisionEvent physicsCollisionEvent = collisionEvents.pop();
-            for(int i=0;i<clistsize;i++) {
+            for(int i=0;i<cListSize;i++) {
                 collisionListeners.get(i).collision(physicsCollisionEvent);
             }
             //recycle events
