@@ -60,7 +60,7 @@ public final class Skeleton implements Savable, JmeCloneable {
      * Contains the skinning matrices, multiplying it by a vertex affected by a bone
      * will cause it to go to the animated position.
      */
-    private transient Matrix4f[] skinningMatrixes;
+    private transient Matrix4f[] skinningMatrices;
 
     /**
      * Creates a skeleton from a bone list. 
@@ -138,13 +138,13 @@ public final class Skeleton implements Savable, JmeCloneable {
     public void cloneFields( Cloner cloner, Object original ) {
         this.rootBones = cloner.clone(rootBones);
         this.boneList = cloner.clone(boneList);
-        this.skinningMatrixes = cloner.clone(skinningMatrixes);    
+        this.skinningMatrices = cloner.clone(skinningMatrices);
     }
 
     private void createSkinningMatrices() {
-        skinningMatrixes = new Matrix4f[boneList.length];
-        for (int i = 0; i < skinningMatrixes.length; i++) {
-            skinningMatrixes[i] = new Matrix4f();
+        skinningMatrices = new Matrix4f[boneList.length];
+        for (int i = 0; i < skinningMatrices.length; i++) {
+            skinningMatrices[i] = new Matrix4f();
         }
     }
 
@@ -273,10 +273,10 @@ public final class Skeleton implements Savable, JmeCloneable {
     public Matrix4f[] computeSkinningMatrices() {
         TempVars vars = TempVars.get();
         for (int i = 0; i < boneList.length; i++) {
-            boneList[i].getOffsetTransform(skinningMatrixes[i], vars.quat1, vars.vect1, vars.vect2, vars.tempMat3);
+            boneList[i].getOffsetTransform(skinningMatrices[i], vars.quat1, vars.vect1, vars.vect2, vars.tempMat3);
         }
         vars.release();
-        return skinningMatrixes;
+        return skinningMatrices;
     }
 
     /**
