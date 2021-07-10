@@ -60,7 +60,7 @@ public class LightScatteringFilter extends Filter {
     private float blurStart = 0.02f;
     private float blurWidth = 0.9f;
     private float lightDensity = 1.4f;
-    private boolean adaptative = true;
+    private boolean adaptive = true;
     Vector3f viewLightPos = new Vector3f();
     private boolean display = true;
     private float innerLightDensity;
@@ -104,7 +104,7 @@ public class LightScatteringFilter extends Filter {
     protected void postQueue(RenderQueue queue) {
         getClipCoordinates(lightPosition, screenLightPos, viewPort.getCamera());
         viewPort.getCamera().getViewMatrix().mult(lightPosition, viewLightPos);        
-        if (adaptative) {
+        if (adaptive) {
             float densityX = 1f - FastMath.clamp(FastMath.abs(screenLightPos.x - 0.5f), 0, 1);
             float densityY = 1f - FastMath.clamp(FastMath.abs(screenLightPos.y - 0.5f), 0, 1);
             innerLightDensity = lightDensity * densityX * densityY;
@@ -234,7 +234,7 @@ public class LightScatteringFilter extends Filter {
         oc.write(blurStart, "blurStart", 0.02f);
         oc.write(blurWidth, "blurWidth", 0.9f);
         oc.write(lightDensity, "lightDensity", 1.4f);
-        oc.write(adaptative, "adaptative", true);
+        oc.write(adaptive, "adaptative", true);
     }
 
     @Override
@@ -246,6 +246,6 @@ public class LightScatteringFilter extends Filter {
         blurStart = ic.readFloat("blurStart", 0.02f);
         blurWidth = ic.readFloat("blurWidth", 0.9f);
         lightDensity = ic.readFloat("lightDensity", 1.4f);
-        adaptative = ic.readBoolean("adaptative", true);
+        adaptive = ic.readBoolean("adaptative", true);
     }
 }
