@@ -484,15 +484,15 @@ public class WorldOfInception extends SimpleApplication implements AnalogListene
 
         public String getCoordinates() {
             InceptionLevel cur = this;
-            StringBuilder strb = new StringBuilder();
-            strb.insert(0, this.getPlayerPosition());
-            strb.insert(0, this.getPositionInParent() + " / ");
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.insert(0, this.getPlayerPosition());
+            stringBuilder.insert(0, this.getPositionInParent() + " / ");
             cur = cur.getParent();
             while (cur != null) {
-                strb.insert(0, cur.getPositionInParent() + " / ");
+                stringBuilder.insert(0, cur.getPositionInParent() + " / ");
                 cur = cur.getParent();
             }
-            return strb.toString();
+            return stringBuilder.toString();
         }
     }
 
