@@ -53,7 +53,7 @@ public class Armature implements JmeCloneable, Savable {
      * Contains the skinning matrices, multiplying it by a vertex effected by a bone
      * will cause it to go to the animated position.
      */
-    private transient Matrix4f[] skinningMatrices;
+    private transient Matrix4f[] skinningMatrixes;
     private Class<? extends JointModelTransform> modelTransformClass = SeparateJointModelTransform.class;
 
     /**
@@ -103,9 +103,9 @@ public class Armature implements JmeCloneable, Savable {
     }
 
     private void createSkinningMatrices() {
-        skinningMatrices = new Matrix4f[jointList.length];
-        for (int i = 0; i < skinningMatrices.length; i++) {
-            skinningMatrices[i] = new Matrix4f();
+        skinningMatrixes = new Matrix4f[jointList.length];
+        for (int i = 0; i < skinningMatrixes.length; i++) {
+            skinningMatrixes[i] = new Matrix4f();
         }
     }
 
@@ -261,9 +261,9 @@ public class Armature implements JmeCloneable, Savable {
      */
     public Matrix4f[] computeSkinningMatrices() {
         for (int i = 0; i < jointList.length; i++) {
-            jointList[i].getOffsetTransform(skinningMatrices[i]);
+            jointList[i].getOffsetTransform(skinningMatrixes[i]);
         }
-        return skinningMatrices;
+        return skinningMatrixes;
     }
 
     /**
@@ -289,7 +289,7 @@ public class Armature implements JmeCloneable, Savable {
     public void cloneFields(Cloner cloner, Object original) {
         this.rootJoints = cloner.clone(rootJoints);
         this.jointList = cloner.clone(jointList);
-        this.skinningMatrices = cloner.clone(skinningMatrices);
+        this.skinningMatrixes = cloner.clone(skinningMatrixes);
         for (Joint joint : jointList) {
             instantiateJointModelTransform(joint);
         }
