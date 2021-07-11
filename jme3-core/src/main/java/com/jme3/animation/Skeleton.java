@@ -45,7 +45,7 @@ import java.util.List;
 /**
  * <code>Skeleton</code> is a convenience class for managing a bone hierarchy.
  * Skeleton updates the world transforms to reflect the current local
- * animated matrices.
+ * animated matrixes.
  * 
  * @author Kirill Vainer
  * @deprecated use {@link Armature}
