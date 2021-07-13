@@ -242,7 +242,7 @@ public final class AnimControl extends AbstractControl implements Cloneable, Jme
     public void addListener(AnimEventListener listener) {
         if (listeners.contains(listener)) {
             throw new IllegalArgumentException("The given listener is already "
-                    + "registed at this AnimControl");
+                    + "registered at this AnimControl");
         }
 
         listeners.add(listener);
@@ -257,7 +257,7 @@ public final class AnimControl extends AbstractControl implements Cloneable, Jme
     public void removeListener(AnimEventListener listener) {
         if (!listeners.remove(listener)) {
             throw new IllegalArgumentException("The given listener is not "
-                    + "registed at this AnimControl");
+                    + "registered at this AnimControl");
         }
     }
 

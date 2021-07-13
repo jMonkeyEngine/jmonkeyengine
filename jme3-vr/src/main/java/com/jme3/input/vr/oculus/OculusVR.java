@@ -215,7 +215,7 @@ public class OculusVR implements VRAPI {
                 + "\t Resolution (total): " + resolutionW + "," + resolutionH);
 
         if (resolutionW == 0) {
-            LOGGER.severe("HMD witdth=0 : aborting");
+            LOGGER.severe("HMD width=0 : aborting");
             return false; // TODO fix memory leak - destroy() is not called
         }
 

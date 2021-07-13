@@ -408,7 +408,7 @@ public class TangentBinormalGenerator {
                 break;
 
             default:
-                throw new UnsupportedOperationException("Unrecoginized buffer format: " + format);
+                throw new UnsupportedOperationException("Unrecognized buffer format: " + format);
         }
     }
     
@@ -440,7 +440,7 @@ public class TangentBinormalGenerator {
                 ((DoubleBuffer) buf1).put(d);              
                 break;                 
             default:
-                throw new UnsupportedOperationException("Unrecoginized buffer format: " + format);
+                throw new UnsupportedOperationException("Unrecognized buffer format: " + format);
         }
     }
     
@@ -557,7 +557,7 @@ public class TangentBinormalGenerator {
             
             boolean normalize = false;
             if (Math.abs(det) < ZERO_TOLERANCE) {
-                log.log(Level.WARNING, "Colinear uv coordinates for triangle "
+                log.log(Level.WARNING, "Collinear uv coordinates for triangle "
                         + "[{0}, {1}, {2}]; tex0 = [{3}, {4}], "
                         + "tex1 = [{5}, {6}], tex2 = [{7}, {8}]",
                         new Object[]{index[0], index[1], index[2],

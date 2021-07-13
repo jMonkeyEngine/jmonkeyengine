@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -83,7 +83,7 @@ public class AWTInput implements Input {
 
     public void bind(final Component component) {
         this.component = component;
-        Objects.requireNonNull(this.component, "binded Component cannot be null");
+        Objects.requireNonNull(this.component, "bound Component cannot be null");
     }
 
     public void unbind() {

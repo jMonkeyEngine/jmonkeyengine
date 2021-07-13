@@ -231,7 +231,7 @@ public class KernelAdapter extends Thread
                 for( int i = 0; i < len; i++ ) {
                     sb.append( "[" + Integer.toHexString(data[i]) + "]" ); 
                 }
-                log.log( Level.FINE, "First 10 bytes of incomplete nessage:" + sb );         
+                log.log( Level.FINE, "First 10 bytes of incomplete message:" + sb );
                 throw new RuntimeException( "Envelope contained incomplete data:" + env );
             }                
         }            

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -80,7 +80,7 @@ public class HillHeightMap extends AbstractHeightMap {
                     + "or minimum radius is greater than maximum radius, "
                     + "or power of flattening is below one");
         }
-        logger.fine("Contructing hill heightmap using seed: " + seed);
+        logger.fine("Constructing hill heightmap using seed: " + seed);
         this.size = size;
         this.seed = seed;
         this.iterations = iterations;

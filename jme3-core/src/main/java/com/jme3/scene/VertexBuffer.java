@@ -1021,7 +1021,7 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
             case Double:
                 return BufferUtils.createDoubleBuffer(total);
             default:
-                throw new UnsupportedOperationException("Unrecoginized buffer format: " + format);
+                throw new UnsupportedOperationException("Unrecognized buffer format: " + format);
         }
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2017 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -357,7 +357,7 @@ public class Uniform extends ShaderVariable {
                     try {
                         this.value = value.getClass().newInstance();
                     } catch (InstantiationException | IllegalAccessException e) {
-                        throw new IllegalArgumentException("Cannot instanciate param of class " + value.getClass().getCanonicalName());
+                        throw new IllegalArgumentException("Cannot instantiate param of class " + value.getClass().getCanonicalName());
                     }
                 }
                 //feed the pivot vec 4 with the correct value

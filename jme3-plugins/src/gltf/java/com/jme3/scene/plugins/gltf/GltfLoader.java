@@ -685,7 +685,7 @@ public class GltfLoader implements AssetLoader {
                 Float yfov = getAsFloat(camData, "yfov");
                 assertNotNull(yfov, "No yfov for perspective camera");
                 Float znear = getAsFloat(camData, "znear");
-                assertNotNull(znear, "No znear for perspective camere");
+                assertNotNull(znear, "No znear for perspective camera");
                 Float zfar = getAsFloat(camData, "zfar", znear * 1000f);
 
                 cam.setFrustumPerspective(yfov * FastMath.RAD_TO_DEG, aspectRatio, znear, zfar);
