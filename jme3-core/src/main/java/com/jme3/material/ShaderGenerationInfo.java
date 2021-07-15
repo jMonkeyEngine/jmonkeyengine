@@ -42,7 +42,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * this class is basically a struct that contains the ShaderNodes informations
+ * This class is basically a struct that contains the ShaderNodes information
  * in an appropriate way to ease the shader generation process and make it
  * faster.
  *
@@ -105,7 +105,7 @@ public class ShaderGenerationInfo implements Savable, Cloneable {
 
     /**
      *
-     * @return the vertex shader global ouput
+     * @return the vertex shader global output
      */
     public ShaderNodeVariable getVertexGlobal() {
         return vertexGlobal;
@@ -156,7 +156,7 @@ public class ShaderGenerationInfo implements Savable, Cloneable {
     /**
      * convenient toString method
      *
-     * @return the informations
+     * @return the information
      */
     @Override
     public String toString() {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -308,7 +308,7 @@ public abstract class AbstractHeightMap implements HeightMap {
         currentMin = heightData[0];
         currentMax = heightData[0];
 
-        //find the min/max values of the height fTemptemptempBuffer
+        //find the min/max values of the height data
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
                 if (heightData[i + j * size] > currentMax) {
@@ -326,7 +326,7 @@ public abstract class AbstractHeightMap implements HeightMap {
 
         height = currentMax - currentMin;
 
-        //scale the values to a range of 0-255
+        //scale the values to a range of 0-value
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
                 heightData[i + j * size] = ((heightData[i + j * size] - currentMin) / height) * value;
@@ -436,7 +436,7 @@ public abstract class AbstractHeightMap implements HeightMap {
             }
         }
 
-        // re-normalize back to its oraginal height range
+        // re-normalize back to its original height range
         float height = minmax[1] - minmax[0];
         normalizeTerrain(height);
     }

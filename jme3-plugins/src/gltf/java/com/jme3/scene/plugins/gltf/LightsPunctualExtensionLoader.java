@@ -220,7 +220,7 @@ public class LightsPunctualExtensionLoader implements ExtensionLoader {
      * represents both color and brightness of the light.
      *
      * @param color The base color of the light
-     * @param lumens The lumnes value to convert to a color
+     * @param lumens The lumens value to convert to a color
      * @return A color representing the intensity of the given lumens encoded into the given color
      */
     private ColorRGBA lumensToColor(ColorRGBA color, float lumens) {
@@ -232,7 +232,7 @@ public class LightsPunctualExtensionLoader implements ExtensionLoader {
      * Convert a floating point lumens value into a grayscale color that
      * represents a brightness.
      *
-     * @param lumens The lumnes value to convert to a color
+     * @param lumens The lumens value to convert to a color
      * @return A color representing the intensity of the given lumens
      */
     private ColorRGBA lumensToColor(float lumens) {

@@ -96,7 +96,7 @@ if (ndkExists && buildNativeProjects == "true") {
 
 jar.into("lib") { from decodeBuildLibsDir }
 
-// Helper class to wrap ant dowload task
+// Helper class to wrap ant download task
 class MyDownload extends DefaultTask {
     @Input
     String sourceUrl

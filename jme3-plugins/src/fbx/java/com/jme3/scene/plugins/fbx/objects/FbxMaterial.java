@@ -105,7 +105,7 @@ public class FbxMaterial extends FbxObject {
 		m.setColor("Specular", new ColorRGBA(specularColor.x, specularColor.y, specularColor.z, 1));
 		m.setFloat("Shininess", shininessExponent);
 		m.setBoolean("UseMaterialColors", true);
-		m.setFloat("AlphaDiscardThreshold", 0.5f); // TODO replace with right way in JME to set "Aplha Test"
+		m.setFloat("AlphaDiscardThreshold", 0.5f); // TODO replace with right way in JME to set "Alpha Test"
 		m.getAdditionalRenderState().setBlendMode(BlendMode.Alpha);
 		return m;
 	}

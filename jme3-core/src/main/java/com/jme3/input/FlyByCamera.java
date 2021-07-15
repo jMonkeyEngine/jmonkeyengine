@@ -307,7 +307,7 @@ public class FlyByCamera implements AnalogListener, ActionListener {
             joystick.getPovYAxis().assignAxis(CameraInput.FLYCAM_RISE, CameraInput.FLYCAM_LOWER);
 
             if( joystick.getButton( "Button 8" ) != null ) {
-                // Let the stanard select button be the y invert toggle
+                // Let the standard select button be the y invert toggle
                 joystick.getButton( "Button 8" ).assignButton( CameraInput.FLYCAM_INVERTY );
             }
 

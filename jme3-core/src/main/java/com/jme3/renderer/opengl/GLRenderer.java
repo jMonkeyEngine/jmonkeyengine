@@ -1463,7 +1463,7 @@ public final class GLRenderer implements Renderer {
 
         if(insertPrecision){
             // default precision could be defined in GLSLCompat.glsllib so final users can use custom defined precision instead
-            // precision token is not a preprocessor dirrective therefore it must be placed after #extension tokens to avoid
+            // precision token is not a preprocessor directive therefore it must be placed after #extension tokens to avoid
             // Error P0001: Extension directive must occur before any non-preprocessor tokens
             int idx = stringBuf.lastIndexOf("#extension");
             idx = stringBuf.indexOf("\n", idx);

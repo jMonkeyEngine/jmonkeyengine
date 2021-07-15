@@ -14,7 +14,7 @@ void main(void)
    //float samples[10] =   float[](-0.08,-0.05,-0.03,-0.02,-0.01,0.01,0.02,0.03,0.05,0.08);
 
     // 0.5,0.5 is the center of the screen
-    // so substracting texCoord from it will result in
+    // so subtracting texCoord from it will result in
     // a vector pointing to the middle of the screen
     vec2 dir = 0.5 - texCoord;
 
@@ -39,7 +39,7 @@ void main(void)
     // we have taken eleven samples
     sum *= 1.0/11.0;
 
-    // weighten the blur effect with the distance to the
+    // weight the blur effect by the distance to the
     // center of the screen ( further out is blurred more)
     float t = dist * m_SampleStrength;
     t = clamp( t ,0.0,1.0); //0 &lt;= t &lt;= 1

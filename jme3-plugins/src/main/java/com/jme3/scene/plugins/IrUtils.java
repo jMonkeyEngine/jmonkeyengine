@@ -71,7 +71,7 @@ public final class IrUtils {
         IrVertex v2 = quad.vertices[2];
         IrVertex v3 = quad.vertices[3];
         
-        // find the pair of verticies that is closest to each over
+        // find the pair of vertices that is closest to each over
         // v0 and v2
         // OR
         // v1 and v3
@@ -344,7 +344,7 @@ public final class IrUtils {
             jmeMesh.setBuffer(indicesHW);
         }
         if (vertices.size() >= 65536) {
-            // too many verticies: use intbuffer instead of shortbuffer
+            // too many vertices: use IntBuffer instead of ShortBuffer
             IntBuffer ib = BufferUtils.createIntBuffer(indexes.size());
             jmeMesh.setBuffer(VertexBuffer.Type.Index, 3, ib);
             indexBuf = new IndexIntBuffer(ib);

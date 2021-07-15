@@ -141,9 +141,9 @@ public class TestWriteToTexture extends SimpleApplication implements AnalogListe
         texCL = clContext.bindImage(tex, MemoryAccess.WRITE_ONLY).register();
     }
     private void updateOpenCL(float tpf) {
-        //aquire resource
+        //acquire resource
         texCL.acquireImageForSharingNoEvent(clQueue);
-        //no need to wait for the returned event, since the kernel implicitely waits for it (same command queue)
+        //no need to wait for the returned event, since the kernel implicitly waits for it (same command queue)
         
         //execute kernel
         Kernel.WorkSize ws = new Kernel.WorkSize(settings.getWidth(), settings.getHeight());

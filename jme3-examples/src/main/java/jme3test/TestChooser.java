@@ -198,9 +198,9 @@ public class TestChooser extends JDialog {
      * @param allClasses
      *            add loaded classes to this collection
      * @param packageName
-     *            current package name for the diven directory
+     *            current package name for the given directory
      * @param recursive
-     *            true to descent into subdirectories
+     *            true to descend into subdirectories
      */
     private void addAllFilesInDirectory(File directory,
             Collection<Class> allClasses, String packageName, boolean recursive) {

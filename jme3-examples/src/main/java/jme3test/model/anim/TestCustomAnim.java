@@ -102,7 +102,7 @@ public class TestCustomAnim extends SimpleApplication {
 		bone.setLocalTransform(new Transform(Vector3f.ZERO, Quaternion.IDENTITY, Vector3f.UNIT_XYZ));
 		armature = new Armature(new Joint[] { bone });
 
-		// Assign all verticies to bone 0 with weight 1
+		// Assign all vertices to bone 0 with weight 1
 		for (int i = 0; i < box.getVertexCount() * 4; i += 4) {
 			// assign vertex to bone index 0
 			indices.array()[i + 0] = 0;

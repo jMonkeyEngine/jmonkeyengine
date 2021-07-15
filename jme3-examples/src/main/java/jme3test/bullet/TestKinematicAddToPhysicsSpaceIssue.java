@@ -82,7 +82,7 @@ public class TestKinematicAddToPhysicsSpaceIssue extends SimpleApplication {
         getPhysicsSpace().add(physicsSphere2);
         //making it kinematic
         physicsSphere2.getControl(RigidBodyControl.class).setKinematic(false);
-        //Making it not kinematic again, it works properly, the rigidbody is affected by grvity.
+        //Making it not kinematic again, it works properly, the rigid body is affected by gravity.
         physicsSphere2.getControl(RigidBodyControl.class).setKinematic(false);
 
 

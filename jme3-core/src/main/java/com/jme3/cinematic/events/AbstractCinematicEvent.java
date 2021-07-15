@@ -235,7 +235,7 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
     }
 
     /**
-     * Returns the current playstate of the animation (playing or paused or stopped).
+     * Returns the current play state of the animation (playing or paused or stopped).
      * @return the enum value
      */
     @Override

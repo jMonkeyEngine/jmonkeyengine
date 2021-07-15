@@ -113,7 +113,7 @@ public abstract class AbstractKernel implements Kernel
     }
 
     /**
-     *  Removes and returnsn one endpoint event from the event queue or
+     *  Removes and returns one endpoint event from the event queue or
      *  null if there are no endpoint events.
      */
     @Override

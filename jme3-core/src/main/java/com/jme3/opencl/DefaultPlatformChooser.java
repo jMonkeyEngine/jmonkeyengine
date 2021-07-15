@@ -53,7 +53,7 @@ public class DefaultPlatformChooser implements PlatformChooser {
             }
             for (Device d : p.getDevices()) {
                 if (d.hasOpenGLInterop() && d.getDeviceType()==Device.DeviceType.GPU) {
-                    result.add(d); //GPU prefered
+                    result.add(d); //GPU preferred
                 }
             }
             if (!result.isEmpty()) {

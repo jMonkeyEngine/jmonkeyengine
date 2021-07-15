@@ -5,7 +5,7 @@ MaterialDef PBR Lighting {
         // Alpha threshold for fragment discarding
         Float AlphaDiscardThreshold (AlphaTestFallOff)
 
-        //metalness of the material
+        //metallicity of the material
         Float Metallic : 1.0
         //Roughness of the material
         Float Roughness : 1.0        

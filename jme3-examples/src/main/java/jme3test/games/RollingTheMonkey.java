@@ -321,7 +321,7 @@ public class RollingTheMonkey extends SimpleApplication implements ActionListene
         if(keyRight) centralForce.addLocal(cam.getLeft().negate());
         
         if(!Vector3f.ZERO.equals(centralForce)) {
-            centralForce.setY(0);                   // stop ball from pusing down or flying up
+            centralForce.setY(0);                   // stop ball from pushing down or flying up
             centralForce.normalizeLocal();          // normalize force
             centralForce.multLocal(PLAYER_FORCE);   // scale vector to force
 

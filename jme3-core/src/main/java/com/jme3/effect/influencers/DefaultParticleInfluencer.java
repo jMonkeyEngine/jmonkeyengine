@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,7 +50,7 @@ import java.io.IOException;
  */
 public class DefaultParticleInfluencer implements ParticleInfluencer {
 
-    //Version #1 : changed startVelocity to initialvelocity for consistency with accessors
+    //Version #1 : changed startVelocity to initialVelocity for consistency with accessors
     //and also changed it in serialization
     public static final int SAVABLE_VERSION = 1;
     /** Temporary variable used to help with calculations. */

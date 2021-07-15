@@ -274,7 +274,7 @@ public class LegacyApplication implements Application, SystemListener {
     }
 
     private void initDisplay(){
-        // aquire important objects
+        // acquire important objects
         // from the context
         settings = context.getSettings();
 
@@ -310,7 +310,7 @@ public class LegacyApplication implements Application, SystemListener {
         cam.lookAt(new Vector3f(0f, 0f, 0f), Vector3f.UNIT_Y);
 
         renderManager = new RenderManager(renderer);
-        //Remy - 09/14/2010 setted the timer in the renderManager
+        //Remy - 09/14/2010 set the timer in the renderManager
         renderManager.setTimer(timer);
 
         if (prof != null) {

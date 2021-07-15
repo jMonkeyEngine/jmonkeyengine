@@ -35,7 +35,7 @@ import com.jme3.app.Application;
 import com.jme3.renderer.RenderManager;
 
 /**
- * AppState represents continously executing code inside the main loop.
+ * AppState represents continuously executing code inside the main loop.
  * 
  * An <code>AppState</code> can track when it is attached to the 
  * {@link AppStateManager} or when it is detached. 

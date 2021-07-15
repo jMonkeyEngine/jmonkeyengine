@@ -236,7 +236,7 @@ public class LightProbe extends Light implements Savable {
 
     /**
      * return true if the LightProbe is ready, meaning the Environment maps have
-     * been loaded or rnedered and are ready to be used by a material
+     * been loaded or rendered and are ready to be used by a material
      * @return the LightProbe ready state
      */
     public boolean isReady() {
@@ -263,7 +263,7 @@ public class LightProbe extends Light implements Savable {
 
     /**
      * Returns the position of the LightProbe in world space
-     * @return the wolrd space position
+     * @return the world-space position
      */
     public Vector3f getPosition() {
         return position;
@@ -271,7 +271,7 @@ public class LightProbe extends Light implements Savable {
 
     /**
      * Sets the position of the LightProbe in world space
-     * @param position the wolrd space position
+     * @param position the world-space position
      */
     public void setPosition(Vector3f position) {
         this.position.set(position);

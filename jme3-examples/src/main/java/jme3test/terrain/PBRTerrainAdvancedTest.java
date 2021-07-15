@@ -347,7 +347,7 @@ public class PBRTerrainAdvancedTest extends SimpleApplication {
         //EMISSIVE
         matTerrain.setColor("EmissiveColor_5", marbleEmissiveColor);
         matTerrain.setColor("EmissiveColor_3", tilesEmissiveColor);
-        //these two texture slots (marble & tiledRoad, indexed in each texturea array at 5 and 3 respectively) both
+        //these two texture slots (marble & tiledRoad, indexed in each texture array at 5 and 3 respectively) both
         // have packed MRAoEi maps with an emissiveTexture packed into the alpha channel
 
 //        matTerrain.setColor("EmissiveColor_1", new ColorRGBA(0.08f, 0.01f, 0.1f, 0.4f));

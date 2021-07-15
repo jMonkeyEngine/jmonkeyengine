@@ -156,7 +156,7 @@ public class OrientedBoxProbeArea implements ProbeArea {
         for (int i = 0; i < 3; i++) {
             // extract the axis from the 3x3 matrix
             Vector3f axis = getScaledAxis(i, vars.vect1);
-            // nomalize (here we just divide by the extent
+            // normalize (here we just divide by the extent)
             axis.divideLocal(r[i]);
             // distance to the closest point on this axis.
             float d = FastMath.clamp(dir.dot(axis), -r[i], r[i]);

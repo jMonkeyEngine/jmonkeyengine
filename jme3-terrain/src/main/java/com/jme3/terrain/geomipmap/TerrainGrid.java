@@ -278,7 +278,7 @@ public class TerrainGrid extends TerrainQuad {
 
     /**
      * Get the location in cell-coordinates of the specified location.
-     * Cell coordinates are integer corrdinates, usually with y=0, each 
+     * Cell coordinates are integer coordinates, usually with y=0, each
      * representing a cell in the world.
      * For example, moving right in the +X direction:
      * (0,0,0) (1,0,0) (2,0,0), (3,0,0)

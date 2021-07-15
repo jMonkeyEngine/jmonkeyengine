@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -139,7 +139,7 @@ public class RawHeightMap extends AbstractHeightMap {
      * <code>load</code> fills the height data array with the appropriate data
      * from the set RAW image.
      *
-     * @return true if the load is successfull, false otherwise.
+     * @return true if the load is successful, false otherwise.
      * @throws RuntimeException if the RAW image has not been set
      */
     @Override

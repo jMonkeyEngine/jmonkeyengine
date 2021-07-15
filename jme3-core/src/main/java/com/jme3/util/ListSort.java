@@ -88,7 +88,7 @@ public class ListSort<T> {
 
     /* Try to used a kind of structure like in the original implementation.
      * Ended up using 2 arrays as done in the java 7 Timsort. 
-     * Original implementation use a struct, but instanciation of this inner 
+     * Original implementation used a struct, but instantiation of this inner
      * class + array was a convoluted pain.
      */
     /**
@@ -281,8 +281,8 @@ public class ListSort<T> {
                     runEnd++;
                 }
                 // the run's order is descending, it has to be reversed
-                // original algorithmm return a descending = 1 value and the 
-                //reverse is done in the sort method. Looks good to have it here though
+                // original algorithm returned a descending = 1 value and the
+                // reverse was done in the sort method. Looks good to have it here though
                 reverseArray(array, firstId, runEnd);
             }
 

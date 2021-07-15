@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -69,7 +69,7 @@ public class IDList {
             // add item to newList first
             newList[newLen++] = idx;
 
-        // find idx in oldList, if removed successfuly, return true.
+        // find idx in oldList, if removed successfully, return true.
         for (int i = 0; i < oldLen; i++){
             if (oldList[i] == idx){
                 // found index in slot i

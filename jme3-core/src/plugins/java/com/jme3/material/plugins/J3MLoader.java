@@ -476,7 +476,7 @@ public class J3MLoader implements AssetLoader {
         }else if (split[0].equals("BlendEquationAlpha")){
             renderState.setBlendEquationAlpha(RenderState.BlendEquationAlpha.valueOf(split[1]));
         }else if (split[0].equals("AlphaTestFalloff")){
-            // Ignore for backwards compatbility
+            // ignore for backwards compatibility
         }else if (split[0].equals("PolyOffset")){
             float factor = Float.parseFloat(split[1]);
             float units = Float.parseFloat(split[2]);
@@ -484,11 +484,11 @@ public class J3MLoader implements AssetLoader {
         }else if (split[0].equals("ColorWrite")){
             renderState.setColorWrite(parseBoolean(split[1]));
         }else if (split[0].equals("PointSprite")){
-            // Ignore for backwards compatbility
+            // ignore for backwards compatibility
         }else if (split[0].equals("DepthFunc")){
             renderState.setDepthFunc(RenderState.TestFunction.valueOf(split[1]));
         }else if (split[0].equals("AlphaFunc")){
-            // ignore for backwards compatbility
+            // ignore for backwards compatibility
         }else if (split[0].equals("LineWidth")){
             renderState.setLineWidth(Float.parseFloat(split[1]));
         } else {

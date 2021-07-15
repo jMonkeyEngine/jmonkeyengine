@@ -12,7 +12,7 @@ vec4 getTriPlanarBlend(in vec4 coords, in vec3 blending, in sampler2D map, in fl
 }
 
 
-//used for mixing normal map normals with the world normals. texure slots without a normal map use wNormal as their blending value instead
+//used for mixing normal map normals with the world normals. texture slots without a normal map use wNormal as their blending value instead
 vec3 calculateTangentsAndApplyToNormals(in vec3 normalIn, in vec3 worldNorm){
     
     

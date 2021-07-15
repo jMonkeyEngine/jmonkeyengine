@@ -119,7 +119,7 @@ public class Texture3D extends Texture {
      * particular axis.
      *
      * @param axis
-     *            the texture axis to define a wrapmode on.
+     *            the texture axis to apply wrap mode to.
      * @param mode
      *            the wrap mode for the given axis of the texture.
      * @throws IllegalArgumentException

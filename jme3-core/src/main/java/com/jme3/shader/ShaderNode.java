@@ -205,7 +205,7 @@ public class ShaderNode implements Savable, Cloneable {
     }
 
     /**
-     * convenience tostring
+     * convenience toString
      *
      * @return a string
      */

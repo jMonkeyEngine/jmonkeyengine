@@ -553,7 +553,7 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
     protected abstract void setMaterialParameters(Material material);
 
     private void setMatParams(GeometryList l) {
-        //iteration throught all the geometries of the list to gather the materials
+        //iterate through all the geometries of the list to gather the materials
 
         buildMatCache(l);
 

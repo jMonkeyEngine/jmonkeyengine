@@ -3,7 +3,7 @@ ShaderNodeDefinitions{
         Type: Fragment
         Shader GLSL100: Common/MatDefs/ShaderNodes/Basic/colorSplitter.frag
         Documentation{
-            Retrives the individual color channels
+            Retrieves the individual color channels
             @input color the color
             @output red the red channel
             @output green the green channel

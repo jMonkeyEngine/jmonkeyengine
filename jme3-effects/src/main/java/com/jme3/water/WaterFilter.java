@@ -1140,7 +1140,7 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
     }
 
     /**
-     * Set to true to use specular lightings on the water
+     * Set to true to use specular lighting on the water
      *
      * @param useSpecular true to enable the specular effect, false to disable
      * it (default=true)

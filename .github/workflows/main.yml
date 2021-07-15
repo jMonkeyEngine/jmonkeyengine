@@ -26,7 +26,7 @@
 #   is running the build.
 # >> Configure  JAVADOC
 #     JAVADOC_GHPAGES_REPO="riccardoblsandbox/javadoc.jmonkeyengine.org.git"
-#   Generate a deloy key
+#   Generate a deploy key
 #       ssh-keygen -t rsa -b 4096 -C "actions@users.noreply.github.com" -f javadoc_deploy
 #   Set
 #     JAVADOC_GHPAGES_DEPLOY_PRIVKEY="......."

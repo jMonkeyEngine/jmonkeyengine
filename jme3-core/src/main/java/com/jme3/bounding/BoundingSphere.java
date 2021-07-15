@@ -66,7 +66,7 @@ public class BoundingSphere extends BoundingVolume {
     private static final float RADIUS_EPSILON = 1f + 0.00001f;
 
     /**
-     * Default contstructor instantiates a new <code>BoundingSphere</code>
+     * Default constructor instantiates a new <code>BoundingSphere</code>
      * object.
      */
     public BoundingSphere() {
@@ -206,7 +206,7 @@ public class BoundingSphere extends BoundingVolume {
      *            The number of points currently considering to include with the
      *            sphere.
      * @param ap
-     *            A variable simulating pointer arithmatic from C++, and offset
+     *            A variable simulating pointer arithmetic from C++, and offset
      *            in <code>points</code>.
      */
     private void recurseMini(FloatBuffer points, int p, int b, int ap) {

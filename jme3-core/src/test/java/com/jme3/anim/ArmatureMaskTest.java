@@ -59,7 +59,7 @@ public class ArmatureMaskTest {
     }
 
     /**
-     * Test varous ways to instantiate a mask that affects all joints.
+     * Test various ways to instantiate a mask that affects all joints.
      */
     @Test
     public void testMaskAll() {

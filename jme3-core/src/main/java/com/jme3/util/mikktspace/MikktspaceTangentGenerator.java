@@ -49,7 +49,7 @@ import java.util.logging.Logger;
  * https://developer.blender.org/diffusion/B/browse/master/intern/mikktspace/mikktspace.c
  * https://developer.blender.org/diffusion/B/browse/master/intern/mikktspace/mikktspace.h
  * 
- * MikkTspace looks like the new standard of tangent generation in 3D softwares.
+ * MikkTspace looks like the new standard of tangent generation in 3D software.
  * Xnormal, Blender, Substance painter, and many more use it.
  * 
  * Usage is :
@@ -614,7 +614,7 @@ public class MikktspaceTangentGenerator {
                 ++iDstTriIndex;  // next
             } else {
                 //Note, Nehon: we should never get there with JME, because we don't support quads... 
-                //but I'm going to let it there incase someone needs it... Just know this code is not tested.
+                //but I'm going to let it there in case someone needs it... Just know this code is not tested.
                 {//TODO remove those useless brackets...
                     pTriInfos[iDstTriIndex + 1].orgFaceNumber = f;
                     pTriInfos[iDstTriIndex + 1].tSpacesOffs = iTSpacesOffs;
@@ -1305,7 +1305,7 @@ public class MikktspaceTangentGenerator {
             }
         }
 
-        // sort over all edges by i0, this is the pricy one.
+        // sort over all edges by i0, this is the pricey one.
         quickSortEdges(pEdges, 0, iNrTrianglesIn * 3 - 1, 0, uSeed);  // sort channel 0 which is i0
 
         // sub sort over i1, should be fast.

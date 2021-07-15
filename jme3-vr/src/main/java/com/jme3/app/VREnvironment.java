@@ -405,7 +405,7 @@ public class VREnvironment {
     	this.application = application;
     	this.app         = appState;
     	
-    	// Instanciate view manager
+    	// Instantiate view manager
     	if (vrBinding == VRConstants.SETTING_VRAPI_OPENVR_VALUE){
     		viewmanager = new OpenVRViewManager(this);
     	} else if (vrBinding == VRConstants.SETTING_VRAPI_OSVR_VALUE){

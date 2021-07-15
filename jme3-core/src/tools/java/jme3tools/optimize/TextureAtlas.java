@@ -87,7 +87,7 @@ import java.util.logging.Logger;
  * 
  * <p>Also note that textures are not scaled and the atlas needs to be large enough to hold all textures.
  * All methods that allow adding textures return false if the texture could not be added due to the
- * atlas being full. Furthermore secondary textures (normal, spcular maps etc.) have to be the same size
+ * atlas being full. Furthermore secondary textures (normal, specular maps etc.) have to be the same size
  * as the main (e.g. DiffuseMap) texture.</p>
  * 
  * <p><b>Usage examples</b></p>

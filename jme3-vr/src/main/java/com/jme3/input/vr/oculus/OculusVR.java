@@ -567,7 +567,7 @@ public class OculusVR implements VRAPI {
      * @return The {@code to} argument.
      */
     public static Matrix4f matrixO2J(OVRMatrix4f from, Matrix4f to) {
-        to.loadIdentity(); // For the additional columns (unless I'm badly misunderstanding matricies)
+        to.loadIdentity(); // For the additional columns (unless I'm badly misunderstanding matrices)
 
         for (int x = 0; x < 4; x++) {
             for (int y = 0; y < 4; y++) {

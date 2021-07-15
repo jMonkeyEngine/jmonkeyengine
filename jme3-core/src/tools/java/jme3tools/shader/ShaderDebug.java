@@ -46,7 +46,7 @@ public class ShaderDebug {
     /**
      * Append the line numbers to the source code of a shader to output it
      * @param source the source
-     * @return the formated source code
+     * @return the formatted source code
      */
     public static String formatShaderSource(String source) {      
         String[] sourceLines = source.split("\n");
