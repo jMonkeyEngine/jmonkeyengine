@@ -296,12 +296,12 @@ public abstract class ShaderGenerator {
      * @see ShaderNode#getDefinition()
      * @see ShaderNodeDefinition#getType()
      * 
-     * @param nodeDecalarationSource the declaration part of the node
+     * @param nodeDeclarationSource the declaration part of the node
      * @param source the StringBuilder to append generated code.
      * @param shaderNode the shaderNode.
      * @param info the ShaderGenerationInfo.
      */
-    protected abstract void generateDeclarativeSection(StringBuilder source, ShaderNode shaderNode, String nodeDecalarationSource, ShaderGenerationInfo info);
+    protected abstract void generateDeclarativeSection(StringBuilder source, ShaderNode shaderNode, String nodeDeclarationSource, ShaderGenerationInfo info);
 
     /**
      * generates the start of the shader main section. this method is

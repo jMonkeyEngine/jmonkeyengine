@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -63,7 +63,7 @@ public class MaterialLoader implements AssetLoader {
     private Texture[] textures = new Texture[4];
     private String texName;
     private String matName;
-    private float shinines;
+    private float shininess;
     private boolean vcolor = false;
     private boolean blend = false;
     private boolean twoSide = false;
@@ -247,11 +247,11 @@ public class MaterialLoader implements AssetLoader {
             if (subsplit.length >= 5){
                 // using 5 float values
                 specular.a = unknown;
-                shinines = Float.parseFloat(subsplit[4]);
+                shininess = Float.parseFloat(subsplit[4]);
             }else{
                 // using 4 float values
                 specular.a = 1f;
-                shinines = unknown;
+                shininess = unknown;
             }
         }else if (keyword.equals("texture_unit")){
             readTextureUnit(statement);
@@ -363,8 +363,8 @@ public class MaterialLoader implements AssetLoader {
         }
 
         if (!noLight){
-            if (shinines > 0f) {
-                mat.setFloat("Shininess", shinines);
+            if (shininess > 0f) {
+                mat.setFloat("Shininess", shininess);
             } else {
                 mat.setFloat("Shininess", 16f); // set shininess to some value anyway..
             }
@@ -432,7 +432,7 @@ public class MaterialLoader implements AssetLoader {
         diffuse = null;
         specular = null;
         emissive = null;
-        shinines = 0f;
+        shininess = 0f;
         vcolor = false;
         blend = false;
         texUnit = 0;

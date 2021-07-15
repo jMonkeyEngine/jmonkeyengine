@@ -87,12 +87,12 @@ public abstract class PhysicsJoint implements Savable {
     }
 
     /**
-     * toggles collisions between linked bodys<br>
-     * joint has to be removed from and added to PhyiscsSpace to apply this.
-     * @param collisionBetweenLinkedBodys set to false to have no collisions between linked bodys
+     * toggles collisions between linked bodies<br>
+     * joint has to be removed from and added to PhysicsSpace to apply this.
+     * @param collisionBetweenLinkedBodies set to false to have no collisions between linked bodies
      */
-    public void setCollisionBetweenLinkedBodys(boolean collisionBetweenLinkedBodys) {
-        this.collisionBetweenLinkedBodys = collisionBetweenLinkedBodys;
+    public void setCollisionBetweenLinkedBodys(boolean collisionBetweenLinkedBodies) {
+        this.collisionBetweenLinkedBodys = collisionBetweenLinkedBodies;
     }
 
     public PhysicsRigidBody getBodyA() {

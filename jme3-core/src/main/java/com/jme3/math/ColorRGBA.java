@@ -317,39 +317,39 @@ public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Sets this <code>ColorRGBA</code> to the interpolation by changeAmnt from
+     * Sets this <code>ColorRGBA</code> to the interpolation by changeAmount from
      * this to the finalColor:
-     * this=(1-changeAmnt)*this + changeAmnt * finalColor
+     * this=(1-changeAmount)*this + changeAmount * finalColor
      *
      * @param finalColor The final color to interpolate towards.
-     * @param changeAmnt An amount between 0.0 - 1.0 representing a percentage
+     * @param changeAmount An amount between 0.0 - 1.0 representing a percentage
      * change from this towards finalColor.
      * @return this ColorRGBA
      */
-    public ColorRGBA interpolateLocal(ColorRGBA finalColor, float changeAmnt) {
-        this.r = (1 - changeAmnt) * this.r + changeAmnt * finalColor.r;
-        this.g = (1 - changeAmnt) * this.g + changeAmnt * finalColor.g;
-        this.b = (1 - changeAmnt) * this.b + changeAmnt * finalColor.b;
-        this.a = (1 - changeAmnt) * this.a + changeAmnt * finalColor.a;
+    public ColorRGBA interpolateLocal(ColorRGBA finalColor, float changeAmount) {
+        this.r = (1 - changeAmount) * this.r + changeAmount * finalColor.r;
+        this.g = (1 - changeAmount) * this.g + changeAmount * finalColor.g;
+        this.b = (1 - changeAmount) * this.b + changeAmount * finalColor.b;
+        this.a = (1 - changeAmount) * this.a + changeAmount * finalColor.a;
         return this;
     }
 
     /**
-     * Sets this <code>ColorRGBA</code> to the interpolation by changeAmnt from
+     * Sets this <code>ColorRGBA</code> to the interpolation by changeAmount from
      * beginColor to finalColor:
-     * this=(1-changeAmnt)*beginColor + changeAmnt * finalColor
+     * this=(1-changeAmount)*beginColor + changeAmount * finalColor
      *
-     * @param beginColor The beginning color (changeAmnt=0).
-     * @param finalColor The final color to interpolate towards (changeAmnt=1).
-     * @param changeAmnt An amount between 0.0 - 1.0 representing a percentage
+     * @param beginColor The beginning color (changeAmount=0).
+     * @param finalColor The final color to interpolate towards (changeAmount=1).
+     * @param changeAmount An amount between 0.0 - 1.0 representing a percentage
      *  change from beginColor towards finalColor.
      * @return this ColorRGBA
      */
-    public ColorRGBA interpolateLocal(ColorRGBA beginColor, ColorRGBA finalColor, float changeAmnt) {
-        this.r = (1 - changeAmnt) * beginColor.r + changeAmnt * finalColor.r;
-        this.g = (1 - changeAmnt) * beginColor.g + changeAmnt * finalColor.g;
-        this.b = (1 - changeAmnt) * beginColor.b + changeAmnt * finalColor.b;
-        this.a = (1 - changeAmnt) * beginColor.a + changeAmnt * finalColor.a;
+    public ColorRGBA interpolateLocal(ColorRGBA beginColor, ColorRGBA finalColor, float changeAmount) {
+        this.r = (1 - changeAmount) * beginColor.r + changeAmount * finalColor.r;
+        this.g = (1 - changeAmount) * beginColor.g + changeAmount * finalColor.g;
+        this.b = (1 - changeAmount) * beginColor.b + changeAmount * finalColor.b;
+        this.a = (1 - changeAmount) * beginColor.a + changeAmount * finalColor.a;
         return this;
     }
 

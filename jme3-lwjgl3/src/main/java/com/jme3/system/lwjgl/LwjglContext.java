@@ -380,8 +380,8 @@ public abstract class LwjglContext implements JmeContext {
             chooser = new DefaultPlatformChooser();
         }
 
-        final List<? extends Device> choosenDevices = chooser.chooseDevices(platforms);
-        final Optional<? extends Device> unsupportedDevice = choosenDevices.stream()
+        final List<? extends Device> chosenDevices = chooser.chooseDevices(platforms);
+        final Optional<? extends Device> unsupportedDevice = chosenDevices.stream()
                 .filter(dev -> !(dev instanceof LwjglDevice))
                 .findAny();
 
@@ -391,7 +391,7 @@ public abstract class LwjglContext implements JmeContext {
             return;
         }
 
-        final Set<LwjglPlatform> lwjglPlatforms = choosenDevices.stream()
+        final Set<LwjglPlatform> lwjglPlatforms = chosenDevices.stream()
                 .map(LwjglDevice.class::cast)
                 .map(LwjglDevice::getPlatform)
                 .collect(toSet());
@@ -401,7 +401,7 @@ public abstract class LwjglContext implements JmeContext {
             return;
         }
 
-        final long[] deviceIds = choosenDevices.stream()
+        final long[] deviceIds = chosenDevices.stream()
                 .map(LwjglDevice.class::cast)
                 .mapToLong(LwjglDevice::getDevice)
                 .toArray();
@@ -416,12 +416,12 @@ public abstract class LwjglContext implements JmeContext {
                 .orElseThrow(() -> new RuntimeException("not found a platform"));
 
         logger.log(Level.INFO, "chosen platform: {0}", platform.getName());
-        logger.log(Level.INFO, "chosen devices: {0}", choosenDevices);
+        logger.log(Level.INFO, "chosen devices: {0}", chosenDevices);
         
         // create context
         try {
             long context = createContext(platform.getPlatform(), deviceIds, window);
-            clContext = new com.jme3.opencl.lwjgl.LwjglContext(context, (List<LwjglDevice>) choosenDevices);
+            clContext = new com.jme3.opencl.lwjgl.LwjglContext(context, (List<LwjglDevice>) chosenDevices);
         } catch (final Exception ex) {
             logger.log(Level.SEVERE, "Unable to create OpenCL context", ex);
             return;

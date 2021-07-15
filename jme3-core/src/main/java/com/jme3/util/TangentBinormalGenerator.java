@@ -276,7 +276,7 @@ public class TangentBinormalGenerator {
     private static List<VertexData> splitVertices(Mesh mesh, List<VertexData> vertexData, boolean splitMirorred) {
         int nbVertices = mesh.getBuffer(Type.Position).getNumElements();
         List<VertexData> newVertices = new ArrayList<>();
-        Map<Integer, Integer> indiceMap = new HashMap<>();
+        Map<Integer, Integer> indexMap = new HashMap<>();
         FloatBuffer normalBuffer = mesh.getFloatBuffer(Type.Normal);
 
         for (int i = 0; i < vertexData.size(); i++) {
@@ -309,7 +309,7 @@ public class TangentBinormalGenerator {
                 
                 newVertices.add(newVert);
                 //keep vertex index to fix the index buffers later
-                indiceMap.put(nbVertices, i);
+                indexMap.put(nbVertices, i);
                 for (TriangleData tri : newVert.triangles) {
                     for (int j = 0; j < tri.index.length; j++) {
                         if(tri.index[j] == i){
@@ -362,7 +362,7 @@ public class TangentBinormalGenerator {
                         int index = vertexData.size();                      
                         newVerts.position(vertexData.size() * vb.getNumComponents());
                         for (int j = 0; j < newVertices.size(); j++) {
-                            int oldInd = indiceMap.get(index) ;
+                            int oldInd = indexMap.get(index) ;
                             for (int i = 0; i < vb.getNumComponents(); i++) {                                
                                     putValue(vb.getFormat(), newVerts, buffer, oldInd* vb.getNumComponents() + i);
                             }                            

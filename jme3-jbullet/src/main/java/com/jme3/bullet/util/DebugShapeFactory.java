@@ -188,16 +188,16 @@ public class DebugShapeFactory {
         vertices.limit(numberOfFloats);
 
         // Loop variables
-        final IntArrayList hullIndicies = hull.getIndexPointer();
+        final IntArrayList hullIndices = hull.getIndexPointer();
         final List<Vector3f> hullVertices = hull.getVertexPointer();
         Vector3f vertexA, vertexB, vertexC;
         int index = 0;
 
         for (int i = 0; i < numberOfTriangles; i++) {
             // Grab the data for this triangle from the hull
-            vertexA = hullVertices.get(hullIndicies.get(index++));
-            vertexB = hullVertices.get(hullIndicies.get(index++));
-            vertexC = hullVertices.get(hullIndicies.get(index++));
+            vertexA = hullVertices.get(hullIndices.get(index++));
+            vertexB = hullVertices.get(hullIndices.get(index++));
+            vertexC = hullVertices.get(hullIndices.get(index++));
 
             // Put the vertices into the vertex buffer
             vertices.put(vertexA.x).put(vertexA.y).put(vertexA.z);

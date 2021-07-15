@@ -78,7 +78,7 @@ public class Armature implements JmeCloneable, Savable {
         for (int i = jointList.length - 1; i >= 0; i--) {
             Joint joint = jointList[i];
             joint.setId(i);
-            instanciateJointModelTransform(joint);
+            instantiateJointModelTransform(joint);
             if (joint.getParent() == null) {
                 rootJointList.add(joint);
             }
@@ -124,11 +124,11 @@ public class Armature implements JmeCloneable, Savable {
             return;
         }
         for (Joint joint : jointList) {
-            instanciateJointModelTransform(joint);
+            instantiateJointModelTransform(joint);
         }
     }
 
-    private void instanciateJointModelTransform(Joint joint) {
+    private void instantiateJointModelTransform(Joint joint) {
         try {
             joint.setJointModelTransform(modelTransformClass.newInstance());
         } catch (InstantiationException | IllegalAccessException e) {
@@ -291,7 +291,7 @@ public class Armature implements JmeCloneable, Savable {
         this.jointList = cloner.clone(jointList);
         this.skinningMatrixes = cloner.clone(skinningMatrixes);
         for (Joint joint : jointList) {
-            instanciateJointModelTransform(joint);
+            instantiateJointModelTransform(joint);
         }
     }
 
@@ -325,7 +325,7 @@ public class Armature implements JmeCloneable, Savable {
         int i = 0;
         for (Joint joint : jointList) {
             joint.setId(i++);
-            instanciateJointModelTransform(joint);
+            instantiateJointModelTransform(joint);
         }
         createSkinningMatrices();
 

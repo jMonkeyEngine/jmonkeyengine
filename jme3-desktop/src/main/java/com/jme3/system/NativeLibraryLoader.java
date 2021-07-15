@@ -605,7 +605,7 @@ public final class NativeLibraryLoader {
             loadedAsFileName = fileNameInJar;
         }
         
-        File extactionDirectory = getExtractionFolder();
+        File extractionDirectory = getExtractionFolder();
         URLConnection conn;
         InputStream in;
         
@@ -618,7 +618,7 @@ public final class NativeLibraryLoader {
                                            "'. Error: " + ex, ex);
         }
         
-        File targetFile = new File(extactionDirectory, loadedAsFileName);
+        File targetFile = new File(extractionDirectory, loadedAsFileName);
         OutputStream out = null;
         try {
             if (targetFile.exists()) {
@@ -663,10 +663,10 @@ public final class NativeLibraryLoader {
             // lwjgl and jinput handle loading by themselves.
             if (name.equals("lwjgl") || name.equals("lwjgl3")) {
                 System.setProperty("org.lwjgl.librarypath", 
-                                   extactionDirectory.getAbsolutePath());
+                                   extractionDirectory.getAbsolutePath());
             } else if (name.equals("jinput")) {
                 System.setProperty("net.java.games.input.librarypath", 
-                                   extactionDirectory.getAbsolutePath());
+                                   extractionDirectory.getAbsolutePath());
             } else {
                 // all other libraries (openal, bulletjme, custom)
                 // will load directly in here.

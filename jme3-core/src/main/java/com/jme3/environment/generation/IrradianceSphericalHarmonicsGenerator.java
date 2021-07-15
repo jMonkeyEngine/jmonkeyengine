@@ -91,9 +91,9 @@ public class IrradianceSphericalHarmonicsGenerator extends RunnableWithProgress 
             }
         });
         try {
-            Vector3f[] shCoeffs = EnvMapUtils.getSphericalHarmonicsCoefficents(sourceMap);
-            EnvMapUtils.prepareShCoefs(shCoeffs);
-            store.setShCoeffs(shCoeffs);
+            Vector3f[] shCoefficients = EnvMapUtils.getSphericalHarmonicsCoefficents(sourceMap);
+            EnvMapUtils.prepareShCoefs(shCoefficients);
+            store.setShCoeffs(shCoefficients);
 
         } catch (Exception e) {
             e.printStackTrace();

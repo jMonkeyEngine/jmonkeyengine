@@ -96,12 +96,12 @@ public class TestChooser extends JDialog {
      * @return classes vector, list of all the classes in a given package (must
      *         be found in classpath).
      */
-    private Vector<Class> find(String pckgname, boolean recursive,
+    private Vector<Class> find(String packageName, boolean recursive,
             Vector<Class> classes) {
         URL url;
 
         // Translate the package name into an absolute path
-        String name = pckgname;
+        String name = packageName;
         if (!name.startsWith("/")) {
             name = "/" + name;
         }
@@ -111,7 +111,7 @@ public class TestChooser extends JDialog {
         // URL url = UPBClassLoader.get().getResource(name);
         url = this.getClass().getResource(name);
         // URL url = ClassLoader.getSystemClassLoader().getResource(name);
-        pckgname = pckgname + ".";
+        packageName = packageName + ".";
 
         File directory;
         try {
@@ -123,7 +123,7 @@ public class TestChooser extends JDialog {
         if (directory.exists()) {
             logger.fine("Searching for Demo classes in \""
                     + directory.getName() + "\".");
-            addAllFilesInDirectory(directory, classes, pckgname, recursive);
+            addAllFilesInDirectory(directory, classes, packageName, recursive);
         } else {
             try {
                 // It does not work with the filesystem: we must
@@ -145,10 +145,10 @@ public class TestChooser extends JDialog {
                 }
             } catch (IOException e) {
                 logger.logp(Level.SEVERE, this.getClass().toString(),
-                        "find(pckgname, recursive, classes)", "Exception", e);
+                        "find(packageName, recursive, classes)", "Exception", e);
             } catch (Exception e) {
                 logger.logp(Level.SEVERE, this.getClass().toString(),
-                        "find(pckgname, recursive, classes)", "Exception", e);
+                        "find(packageName, recursive, classes)", "Exception", e);
             }
         }
         return classes;

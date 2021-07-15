@@ -294,8 +294,8 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
         mesh = sharedMesh;
     }
 
-    private void startGeometry(String vertexcount) throws SAXException {
-        vertCount = parseInt(vertexcount);
+    private void startGeometry(String vertexCount) throws SAXException {
+        vertCount = parseInt(vertexCount);
     }
 
     /**

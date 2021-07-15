@@ -131,13 +131,13 @@ public class MotionPath implements Savable {
             }
             switch (spline.getType()) {
                 case CatmullRom:
-                    debugNode.attachChild(CreateCatmullRomPath());
+                    debugNode.attachChild(createCatmullRomPath());
                     break;
                 case Linear:
-                    debugNode.attachChild(CreateLinearPath());
+                    debugNode.attachChild(createLinearPath());
                     break;
                 default:
-                    debugNode.attachChild(CreateLinearPath());
+                    debugNode.attachChild(createLinearPath());
                     break;
             }
 
@@ -145,7 +145,7 @@ public class MotionPath implements Savable {
         }
     }
 
-    private Geometry CreateLinearPath() {
+    private Geometry createLinearPath() {
 
         Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         mat.getAdditionalRenderState().setWireframe(true);
@@ -155,7 +155,7 @@ public class MotionPath implements Savable {
         return lineGeometry;
     }
 
-    private Geometry CreateCatmullRomPath() {
+    private Geometry createCatmullRomPath() {
 
         Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         mat.getAdditionalRenderState().setWireframe(true);

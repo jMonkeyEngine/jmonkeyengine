@@ -138,7 +138,7 @@ public final class Skeleton implements Savable, JmeCloneable {
     public void cloneFields( Cloner cloner, Object original ) {
         this.rootBones = cloner.clone(rootBones);
         this.boneList = cloner.clone(boneList);
-        this.skinningMatrixes = cloner.clone(skinningMatrixes);    
+        this.skinningMatrixes = cloner.clone(skinningMatrixes);
     }
 
     private void createSkinningMatrices() {

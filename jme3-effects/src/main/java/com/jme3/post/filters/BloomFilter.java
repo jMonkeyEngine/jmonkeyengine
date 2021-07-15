@@ -87,7 +87,7 @@ public class BloomFilter extends Filter {
     private Pass preGlowPass;
     private Pass extractPass;
     private Pass horizontalBlur = new Pass();
-    private Pass verticalalBlur = new Pass();
+    private Pass verticalBlur = new Pass();
     private Material extractMat;
     private Material vBlurMat;
     private Material hBlurMat;
@@ -97,8 +97,8 @@ public class BloomFilter extends Filter {
     private ViewPort viewPort;
 
     private AssetManager assetManager;
-    private int initalWidth;
-    private int initalHeight;
+    private int initialWidth;
+    private int initialHeight;
     
     /**
      * Creates a Bloom filter
@@ -123,8 +123,8 @@ public class BloomFilter extends Filter {
         this.viewPort = vp;
 
         this.assetManager = manager;
-        this.initalWidth = w;
-        this.initalHeight = h;
+        this.initialWidth = w;
+        this.initialHeight = h;
                 
         screenWidth = (int) Math.max(1, (w / downSamplingFactor));
         screenHeight = (int) Math.max(1, (h / downSamplingFactor));
@@ -175,7 +175,7 @@ public class BloomFilter extends Filter {
 
         //configuring vertical blur pass
         vBlurMat = new Material(manager, "Common/MatDefs/Blur/VGaussianBlur.j3md");
-        verticalalBlur = new Pass() {
+        verticalBlur = new Pass() {
 
             @Override
             public void beforeRender() {
@@ -185,18 +185,18 @@ public class BloomFilter extends Filter {
             }
         };
 
-        verticalalBlur.init(renderManager.getRenderer(), screenWidth, screenHeight, Format.RGBA8, Format.Depth, 1, vBlurMat);
-        postRenderPasses.add(verticalalBlur);
+        verticalBlur.init(renderManager.getRenderer(), screenWidth, screenHeight, Format.RGBA8, Format.Depth, 1, vBlurMat);
+        postRenderPasses.add(verticalBlur);
 
 
         //final material
         material = new Material(manager, "Common/MatDefs/Post/BloomFinal.j3md");
-        material.setTexture("BloomTex", verticalalBlur.getRenderedTexture());
+        material.setTexture("BloomTex", verticalBlur.getRenderedTexture());
     }
 
 
     protected void reInitFilter() {
-        initFilter(assetManager, renderManager, viewPort, initalWidth, initalHeight);
+        initFilter(assetManager, renderManager, viewPort, initialWidth, initialHeight);
     }
     
     @Override

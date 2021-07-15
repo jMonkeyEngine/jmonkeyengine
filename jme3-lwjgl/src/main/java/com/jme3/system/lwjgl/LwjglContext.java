@@ -397,10 +397,10 @@ public abstract class LwjglContext implements JmeContext {
         if (chooser == null) {
             chooser = new DefaultPlatformChooser();
         }
-        List<? extends Device> choosenDevices = chooser.chooseDevices(platforms);
-        List<CLDevice> devices = new ArrayList<>(choosenDevices.size());
+        List<? extends Device> chosenDevices = chooser.chooseDevices(platforms);
+        List<CLDevice> devices = new ArrayList<>(chosenDevices.size());
         LwjglPlatform platform = null;
-        for (Device d : choosenDevices) {
+        for (Device d : chosenDevices) {
             if (!(d instanceof LwjglDevice)) {
                 logger.log(Level.SEVERE, "attempt to return a custom Device implementation from PlatformChooser: {0}", d);
                 return;
@@ -420,12 +420,12 @@ public abstract class LwjglContext implements JmeContext {
         }
         clPlatform = platform;
         logger.log(Level.INFO, "chosen platform: {0}", platform.getName());
-        logger.log(Level.INFO, "chosen devices: {0}", choosenDevices);
+        logger.log(Level.INFO, "chosen devices: {0}", chosenDevices);
         
         //create context
         try {
             CLContext c = CLContext.create(platform.getPlatform(), devices, null, Display.getDrawable(), null);
-            clContext = new com.jme3.opencl.lwjgl.LwjglContext(c, (List<LwjglDevice>) choosenDevices);
+            clContext = new com.jme3.opencl.lwjgl.LwjglContext(c, (List<LwjglDevice>) chosenDevices);
         } catch (LWJGLException ex) {
             logger.log(Level.SEVERE, "Unable to create OpenCL context", ex);
             return;
