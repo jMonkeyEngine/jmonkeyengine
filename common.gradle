@@ -4,7 +4,6 @@
 
 apply plugin: 'java-library'
 apply plugin: 'groovy'
-apply plugin: 'maven'
 apply plugin: 'maven-publish'
 apply plugin: 'signing'
 
@@ -113,28 +112,12 @@ ext.pomConfig = {
     }
 }
 
-// workaround to be able to use same custom pom with 'maven' and 'bintray' plugin
-task writeFullPom {
-    ext.pomFile = "$mavenPomDir/${project.name}-${project.version}.pom"
-    outputs.file pomFile
-    doLast {
-        pom {
-            project pomConfig
-        }.writeTo(pomFile)
-    }
-}
-
-assemble.dependsOn(writeFullPom)
-install.dependsOn(writeFullPom)
-uploadArchives.dependsOn(writeFullPom)
-
 artifacts {
     archives jar
     archives sourcesJar
     if (buildJavaDoc == "true") {
         archives javadocJar
     }
-    archives writeFullPom.outputs.files[0]
 }
 
 publishing {
