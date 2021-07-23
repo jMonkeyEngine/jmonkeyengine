@@ -97,7 +97,9 @@ task libDist(dependsOn: subprojects.build, description: 'Builds and copies the e
 }
 
 task createZipDistribution(type:Zip,dependsOn:["dist","libDist"], description:"Package the nightly zip distribution"){
-    archiveName "jME" + jmeFullVersion + ".zip"
+    archiveFileName = provider {
+        "jME" + jmeFullVersion + ".zip"
+    }
     into("/") {
          from {"./dist"}
     }
