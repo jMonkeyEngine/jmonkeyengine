@@ -9,6 +9,7 @@ sourceCompatibility = '1.8'
 dependencies {
     implementation project(':jme3-core')
     implementation project(':jme3-lwjgl3')
+    implementation project(':jme3-desktop')
     implementation project(':jme3-effects')
 	
 	// https://mvnrepository.com/artifact/net.java.dev.jna/jna
