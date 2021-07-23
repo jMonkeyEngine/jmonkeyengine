@@ -17,11 +17,11 @@ dependencies {
     implementation 'com.nativelibs4java:jnaerator-runtime:0.12'
 
     // Native LibOVR/Oculus support
-    implementation "org.lwjgl:lwjgl-ovr:${lwjglVersion}"
+    api "org.lwjgl:lwjgl-ovr:${lwjglVersion}"
     runtimeOnly "org.lwjgl:lwjgl-ovr:${lwjglVersion}:natives-windows"
     
     // Native OpenVR/LWJGL support
-    implementation "org.lwjgl:lwjgl-openvr:${lwjglVersion}"
+    api "org.lwjgl:lwjgl-openvr:${lwjglVersion}"
     implementation "org.lwjgl:lwjgl-openvr:${lwjglVersion}:natives-linux"
     implementation "org.lwjgl:lwjgl-openvr:${lwjglVersion}:natives-macos"
     runtimeOnly "org.lwjgl:lwjgl-openvr:${lwjglVersion}:natives-windows"
