@@ -12,7 +12,7 @@ sourceSets {
 }
 
 dependencies {
-    compile 'com.github.stephengold:jbullet:1.0.1'
+    api 'com.github.stephengold:jbullet:1.0.1'
     implementation 'javax.vecmath:vecmath:1.5.2'
     implementation project(':jme3-core')
     implementation project(':jme3-terrain')
