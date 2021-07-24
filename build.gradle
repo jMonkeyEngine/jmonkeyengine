@@ -21,6 +21,9 @@ allprojects {
         mavenCentral()
         google()
     }
+    tasks.withType(Jar) {
+        duplicatesStrategy = 'include'
+    }
 }
 
 // Set the license for IDEs that understand this
