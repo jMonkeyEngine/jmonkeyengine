@@ -7,8 +7,8 @@ if (!hasProperty('mainClass')) {
 dependencies {
     //added annotations used by JmeSurfaceView.
     compileOnly 'androidx.annotation:annotation:1.2.0'
-    implementation project(':jme3-core')
-    implementation project(':jme3-plugins')
+    api project(':jme3-core')
+    api project(':jme3-plugins')
     compileOnly 'android:android'
 }
 

@@ -3,13 +3,13 @@ if (!hasProperty('mainClass')) {
 }
 
 dependencies {
-    implementation project(':jme3-core')
-    implementation project(':jme3-desktop')
+    api project(':jme3-core')
+    api project(':jme3-desktop')
     api 'org.lwjgl.lwjgl:lwjgl:2.9.3'
     /*
      * Upgrades the default jinput-2.0.5 to jinput-2.0.9 to fix a bug with gamepads on Linux.
      * See https://hub.jmonkeyengine.org/t/linux-gamepad-input-on-jme3-lwjgl-splits-input-between-two-logical-gamepads
      */
-    implementation 'net.java.jinput:jinput:2.0.9'
-    implementation 'net.java.jinput:jinput:2.0.9:natives-all'
+    api 'net.java.jinput:jinput:2.0.9'
+    api 'net.java.jinput:jinput:2.0.9:natives-all'
 }

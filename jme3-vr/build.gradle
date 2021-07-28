@@ -7,12 +7,12 @@ def lwjglVersion = '3.2.3'
 sourceCompatibility = '1.8'
 
 dependencies {
-    implementation project(':jme3-core')
-    implementation project(':jme3-lwjgl3')
-    implementation project(':jme3-desktop')
-    implementation project(':jme3-effects')
+    api project(':jme3-core')
+    api project(':jme3-lwjgl3')
+    api project(':jme3-desktop')
+    api project(':jme3-effects')
 	
-	// https://mvnrepository.com/artifact/net.java.dev.jna/jna
+    // https://mvnrepository.com/artifact/net.java.dev.jna/jna
     implementation group: 'net.java.dev.jna', name: 'jna', version: '4.3.0'
     implementation 'com.nativelibs4java:jnaerator-runtime:0.12'
 

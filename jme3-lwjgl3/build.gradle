@@ -7,8 +7,8 @@ def lwjglVersion = '3.2.3'
 sourceCompatibility = '1.8'
 
 dependencies {
-    implementation project(':jme3-core')
-    implementation project(':jme3-desktop')
+    api project(':jme3-core')
+    api project(':jme3-desktop')
 
     api "org.lwjgl:lwjgl:${lwjglVersion}"
     api "org.lwjgl:lwjgl-glfw:${lwjglVersion}"

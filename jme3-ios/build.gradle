@@ -6,6 +6,6 @@ sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
 
 dependencies {
-    implementation project(':jme3-core')
-    implementation project(':jme3-plugins')
+    api project(':jme3-core')
+    api project(':jme3-plugins')
 }

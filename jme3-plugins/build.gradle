@@ -14,7 +14,7 @@ sourceSets {
 }
 
 dependencies {
-    implementation project(':jme3-core')
-    implementation 'com.google.code.gson:gson:2.8.1'
+    api project(':jme3-core')
+    api 'com.google.code.gson:gson:2.8.1'
     testImplementation project(':jme3-desktop')
 }
