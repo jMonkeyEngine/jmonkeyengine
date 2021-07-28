@@ -72,7 +72,7 @@ task libDist(dependsOn: subprojects.build, description: 'Builds and copies the e
         File sourceFolder = mkdir("$buildDir/libDist/sources")
         File javadocFolder = mkdir("$buildDir/libDist/javadoc")
         subprojects.each {project ->
-            if(project.ext.mainClass == ''){
+            if(!project.hasProperty('mainClassName')){
                 project.tasks.withType(Jar).each {archiveTask ->
                     if(archiveTask.classifier == "sources"){
                         copy {

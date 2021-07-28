@@ -1,7 +1,3 @@
-if (!hasProperty('mainClass')) {
-    ext.mainClass = ''
-}
-
 sourceSets {
     main {
         java {

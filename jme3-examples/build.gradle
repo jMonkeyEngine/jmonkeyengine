@@ -1,7 +1,4 @@
-
-if (!hasProperty('mainClass')) {
-    ext.mainClassName = 'jme3test.TestChooser'
-}
+ext.mainClassName = 'jme3test.TestChooser'
 
 task run(dependsOn: 'build', type:JavaExec) {
     mainClass = mainClassName

@@ -1,9 +1,5 @@
 apply plugin: 'java'
 
-if (!hasProperty('mainClass')) {
-    ext.mainClass = ''
-}
-
 dependencies {
     //added annotations used by JmeSurfaceView.
     compileOnly 'androidx.annotation:annotation:1.2.0'
