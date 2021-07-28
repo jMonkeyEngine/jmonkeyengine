@@ -1,11 +1,10 @@
-//apply plugin:'application'
 
 if (!hasProperty('mainClass')) {
-    ext.mainClass = 'jme3test.TestChooser'
+    ext.mainClassName = 'jme3test.TestChooser'
 }
 
 task run(dependsOn: 'build', type:JavaExec) {
-    main = mainClass
+    mainClass = mainClassName
     classpath = sourceSets.main.runtimeClasspath
 
     if (System.properties['java.util.logging.config.file'] != null) {
@@ -42,7 +41,7 @@ jar.doFirst{
 //                'Implementation-Title'   : appName,
 //                'Implementation-Version' : version,
 //                'Implementation-Vendor'  : vendor,
-                'Main-Class'             : getProperty('mainClass'),
+                'Main-Class'             : getProperty('mainClassName'),
                 // Add dependencies to manifest, remove version
                 'Class-Path'             : configurations.compileClasspath.resolvedConfiguration.resolvedArtifacts.collect {
                                                         'lib/' +
