@@ -72,7 +72,7 @@ import javax.swing.event.ListSelectionListener;
  * Class with a main method that displays a dialog to choose any jME demo to be
  * started.
  */
-public class TestChooser extends JDialog {
+public class TestChooser extends JFrame {
     private static final Logger logger = Logger.getLogger(TestChooser.class
             .getName());
 
@@ -90,7 +90,7 @@ public class TestChooser extends JDialog {
      * Constructs a new TestChooser that is initially invisible.
      */
     public TestChooser() throws HeadlessException {
-        super((JFrame) null, "TestChooser");
+        super("TestChooser");
         /** This listener ends application when window is closed (x button on top right corner of test chooser).
          * @see issue#85 https://github.com/jMonkeyEngine/jmonkeyengine/issues/85
          */
