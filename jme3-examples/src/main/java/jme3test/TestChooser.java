@@ -235,10 +235,11 @@ public class TestChooser extends JFrame {
 
             @Override
             public boolean accept(Path entry) throws IOException {
-                return (Files.isDirectory(entry) && !entry.getFileName().startsWith("."))
-                        || (entry.getFileName().toString().endsWith(".class")
-                        && (entry.getFileName().toString().contains("Test"))
-                        && !entry.getFileName().toString().contains("$"));
+                String fileName = entry.getFileName().toString();
+                return (Files.isDirectory(entry) && !fileName.startsWith("."))
+                        || (fileName.endsWith(".class")
+                        && (fileName.contains("Test"))
+                        && !fileName.contains("$"));
             }
         };
     }
