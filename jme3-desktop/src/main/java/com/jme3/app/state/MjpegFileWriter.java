@@ -41,7 +41,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
 import java.nio.channels.SeekableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
@@ -66,9 +65,9 @@ public class MjpegFileWriter implements AutoCloseable {
     int numFrames = 0;
     File aviFile = null;
     OutputStream aviOutput = null;
-    FileChannel aviChannel = null;
     long riffOffset = 0;
     long aviMovieOffset = 0;
+    long position = 0;
     AVIIndexList indexlist = null;
 
     public MjpegFileWriter(File aviFile, int width, int height, double framerate) throws Exception {
@@ -83,19 +82,23 @@ public class MjpegFileWriter implements AutoCloseable {
         this.numFrames = numFrames;
         FileOutputStream fos = new FileOutputStream(aviFile);
         aviOutput = new BufferedOutputStream(fos);
-        aviChannel = fos.getChannel();
 
         RIFFHeader rh = new RIFFHeader();
-        aviOutput.write(rh.toBytes());
-        aviOutput.write(new AVIMainHeader().toBytes());
-        aviOutput.write(new AVIStreamList().toBytes());
-        aviOutput.write(new AVIStreamHeader().toBytes());
-        aviOutput.write(new AVIStreamFormat().toBytes());
-        aviOutput.write(new AVIJunk().toBytes());
-        aviOutput.flush();
-        aviMovieOffset = aviChannel.position();
-        aviOutput.write(new AVIMovieList().toBytes());
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        baos.write(rh.toBytes());
+        baos.write(new AVIMainHeader().toBytes());
+        baos.write(new AVIStreamList().toBytes());
+        baos.write(new AVIStreamHeader().toBytes());
+        baos.write(new AVIStreamFormat().toBytes());
+        baos.write(new AVIJunk().toBytes());
+        byte[] headerBytes = baos.toByteArray();
+        aviOutput.write(headerBytes);
+        aviMovieOffset = headerBytes.length;
+        byte[] listBytes = new AVIMovieList().toBytes();
+        aviOutput.write(listBytes);
         indexlist = new AVIIndexList();
+
+        position = headerBytes.length + listBytes.length;
     }
 
     public void addImage(Image image) throws Exception {
@@ -109,8 +112,6 @@ public class MjpegFileWriter implements AutoCloseable {
     public void addImage(byte[] imagedata) throws Exception {
         byte[] fcc = new byte[]{'0', '0', 'd', 'b'};
         int useLength = imagedata.length;
-        aviOutput.flush();
-        long position = aviChannel.position();
         int extra = (useLength + (int) position) % 4;
         if (extra > 0) {
             useLength = useLength + extra;
@@ -129,6 +130,7 @@ public class MjpegFileWriter implements AutoCloseable {
         imagedata = null;
 
         numFrames++; //add a frame
+        position += fcc.length + 4 + useLength;
     }
 
     public void finishAVI() throws IOException {
