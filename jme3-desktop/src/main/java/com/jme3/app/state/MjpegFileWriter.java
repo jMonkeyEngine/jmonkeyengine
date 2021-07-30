@@ -34,11 +34,17 @@ package com.jme3.app.state;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.RandomAccessFile;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.channels.SeekableByteChannel;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -52,14 +58,14 @@ import javax.imageio.stream.ImageOutputStream;
  * Released under BSD License
  * @author monceaux, normenhansen, entrusC
  */
-public class MjpegFileWriter {
+public class MjpegFileWriter implements AutoCloseable {
 
     int width = 0;
     int height = 0;
     double framerate = 0;
     int numFrames = 0;
     File aviFile = null;
-    FileOutputStream aviOutput = null;
+    OutputStream aviOutput = null;
     FileChannel aviChannel = null;
     long riffOffset = 0;
     long aviMovieOffset = 0;
@@ -75,8 +81,9 @@ public class MjpegFileWriter {
         this.height = height;
         this.framerate = framerate;
         this.numFrames = numFrames;
-        aviOutput = new FileOutputStream(aviFile);
-        aviChannel = aviOutput.getChannel();
+        FileOutputStream fos = new FileOutputStream(aviFile);
+        aviOutput = new BufferedOutputStream(fos);
+        aviChannel = fos.getChannel();
 
         RIFFHeader rh = new RIFFHeader();
         aviOutput.write(rh.toBytes());
@@ -85,6 +92,7 @@ public class MjpegFileWriter {
         aviOutput.write(new AVIStreamHeader().toBytes());
         aviOutput.write(new AVIStreamFormat().toBytes());
         aviOutput.write(new AVIJunk().toBytes());
+        aviOutput.flush();
         aviMovieOffset = aviChannel.position();
         aviOutput.write(new AVIMovieList().toBytes());
         indexlist = new AVIIndexList();
@@ -93,7 +101,7 @@ public class MjpegFileWriter {
     public void addImage(Image image) throws Exception {
         addImage(image, 0.8f);
     }
-    
+
     public void addImage(Image image, float quality) throws Exception {
         addImage(writeImageToBytes(image, quality));
     }
@@ -101,6 +109,7 @@ public class MjpegFileWriter {
     public void addImage(byte[] imagedata) throws Exception {
         byte[] fcc = new byte[]{'0', '0', 'd', 'b'};
         int useLength = imagedata.length;
+        aviOutput.flush();
         long position = aviChannel.position();
         int extra = (useLength + (int) position) % 4;
         if (extra > 0) {
@@ -118,30 +127,31 @@ public class MjpegFileWriter {
             }
         }
         imagedata = null;
-        
+
         numFrames++; //add a frame
     }
 
-    public void finishAVI() throws Exception {
+    public void finishAVI() throws IOException {
         byte[] indexlistBytes = indexlist.toBytes();
         aviOutput.write(indexlistBytes);
         aviOutput.close();
-        int fileSize = (int)aviFile.length();
+        int fileSize = (int) aviFile.length();
         int listSize = (int) (fileSize - 8 - aviMovieOffset - indexlistBytes.length);
-        
-        RandomAccessFile raf = new RandomAccessFile(aviFile, "rw");
-        
+
         //add header and length by writing the headers again
         //with the now available information
-        raf.write(new RIFFHeader(fileSize).toBytes());
-        raf.write(new AVIMainHeader().toBytes());
-        raf.write(new AVIStreamList().toBytes());
-        raf.write(new AVIStreamHeader().toBytes());
-        raf.write(new AVIStreamFormat().toBytes());
-        raf.write(new AVIJunk().toBytes());
-        raf.write(new AVIMovieList(listSize).toBytes());     
-        
-        raf.close();
+        try (SeekableByteChannel sbc = Files.newByteChannel(aviFile.toPath(), StandardOpenOption.WRITE);
+                ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+            baos.write(new RIFFHeader(fileSize).toBytes());
+            baos.write(new AVIMainHeader().toBytes());
+            baos.write(new AVIStreamList().toBytes());
+            baos.write(new AVIStreamHeader().toBytes());
+            baos.write(new AVIStreamFormat().toBytes());
+            baos.write(new AVIJunk().toBytes());
+            baos.write(new AVIMovieList(listSize).toBytes());
+
+            sbc.write(ByteBuffer.wrap(baos.toByteArray()));
+        }
     }
 
     // public void writeAVI(File file) throws Exception
@@ -181,6 +191,11 @@ public class MjpegFileWriter {
         return b;
     }
 
+    @Override
+    public void close() throws Exception {
+        finishAVI();
+    }
+
     private class RIFFHeader {
 
         public byte[] fcc = new byte[]{'R', 'I', 'F', 'F'};
@@ -192,12 +207,12 @@ public class MjpegFileWriter {
 
         public RIFFHeader() {
         }
-        
+
         public RIFFHeader(int fileSize) {
             this.fileSize = fileSize;
         }
 
-        public byte[] toBytes() throws Exception {
+        public byte[] toBytes() throws IOException {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             baos.write(fcc);
             baos.write(intBytes(swapInt(fileSize)));
@@ -212,7 +227,7 @@ public class MjpegFileWriter {
 
     private class AVIMainHeader {
         /*
-         * 
+         *
          * FOURCC fcc; DWORD cb; DWORD dwMicroSecPerFrame; DWORD
          * dwMaxBytesPerSec; DWORD dwPaddingGranularity; DWORD dwFlags; DWORD
          * dwTotalFrames; DWORD dwInitialFrames; DWORD dwStreams; DWORD
@@ -256,7 +271,7 @@ public class MjpegFileWriter {
             dwTotalFrames = numFrames;
         }
 
-        public byte[] toBytes() throws Exception {
+        public byte[] toBytes() throws IOException {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             baos.write(fcc);
             baos.write(intBytes(swapInt(cb)));
@@ -288,7 +303,7 @@ public class MjpegFileWriter {
         public AVIStreamList() {
         }
 
-        public byte[] toBytes() throws Exception {
+        public byte[] toBytes() throws IOException {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             baos.write(fcc);
             baos.write(intBytes(swapInt(size)));
@@ -341,7 +356,7 @@ public class MjpegFileWriter {
             dwLength = numFrames;
         }
 
-        public byte[] toBytes() throws Exception {
+        public byte[] toBytes() throws IOException {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             baos.write(fcc);
             baos.write(intBytes(swapInt(cb)));
@@ -401,7 +416,7 @@ public class MjpegFileWriter {
             biSizeImage = width * height;
         }
 
-        public byte[] toBytes() throws Exception {
+        public byte[] toBytes() throws IOException {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             baos.write(fcc);
             baos.write(intBytes(swapInt(cb)));
@@ -434,8 +449,8 @@ public class MjpegFileWriter {
         public AVIMovieList(int listSize) {
             this.listSize = listSize;
         }
-        
-        public byte[] toBytes() throws Exception {
+
+        public byte[] toBytes() throws IOException {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             baos.write(fcc);
             baos.write(intBytes(swapInt(listSize)));
@@ -490,7 +505,7 @@ public class MjpegFileWriter {
             this.dwSize = dwSize;
         }
 
-        public byte[] toBytes() throws Exception {
+        public byte[] toBytes() throws IOException {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             baos.write(fcc);
             baos.write(intBytes(swapInt(dwFlags)));
@@ -511,7 +526,7 @@ public class MjpegFileWriter {
             Arrays.fill(data, (byte) 0);
         }
 
-        public byte[] toBytes() throws Exception {
+        public byte[] toBytes() throws IOException {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             baos.write(fcc);
             baos.write(intBytes(swapInt(size)));
@@ -532,16 +547,16 @@ public class MjpegFileWriter {
         }
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-        ImageWriter imgWrtr = ImageIO.getImageWritersByFormatName("jpg").next();        
-        ImageOutputStream imgOutStrm = ImageIO.createImageOutputStream(baos);
-        imgWrtr.setOutput(imgOutStrm);
-        
-        ImageWriteParam jpgWrtPrm = imgWrtr.getDefaultWriteParam();
-        jpgWrtPrm.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
-        jpgWrtPrm.setCompressionQuality(quality);        
-        imgWrtr.write(null, new IIOImage(bi, null, null), jpgWrtPrm);
-        imgOutStrm.close();
-        
+        ImageWriter imgWrtr = ImageIO.getImageWritersByFormatName("jpg").next();
+        try (ImageOutputStream imgOutStrm = ImageIO.createImageOutputStream(baos)) {
+            imgWrtr.setOutput(imgOutStrm);
+
+            ImageWriteParam jpgWrtPrm = imgWrtr.getDefaultWriteParam();
+            jpgWrtPrm.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+            jpgWrtPrm.setCompressionQuality(quality);
+            imgWrtr.write(null, new IIOImage(bi, null, null), jpgWrtPrm);
+        }
+
         return baos.toByteArray();
     }
 }
