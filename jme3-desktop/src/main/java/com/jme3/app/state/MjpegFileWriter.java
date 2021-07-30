@@ -478,7 +478,7 @@ public class MjpegFileWriter implements AutoCloseable {
             ind.add(new AVIIndex(dwOffset, dwSize));
         }
 
-        public byte[] toBytes() throws Exception {
+        public byte[] toBytes() throws IOException {
             cb = 16 * ind.size();
 
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
