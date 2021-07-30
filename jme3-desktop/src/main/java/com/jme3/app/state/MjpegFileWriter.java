@@ -84,7 +84,7 @@ public class MjpegFileWriter implements AutoCloseable {
         aviOutput = new BufferedOutputStream(fos);
 
         RIFFHeader rh = new RIFFHeader();
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ByteArrayOutputStream baos = new ByteArrayOutputStream(2048);
         baos.write(rh.toBytes());
         baos.write(new AVIMainHeader().toBytes());
         baos.write(new AVIStreamList().toBytes());
@@ -119,18 +119,21 @@ public class MjpegFileWriter implements AutoCloseable {
 
         indexlist.addAVIIndex((int) position, useLength);
 
-        aviOutput.write(fcc);
-        aviOutput.write(intBytes(swapInt(useLength)));
-        aviOutput.write(imagedata);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream(fcc.length + 4 + useLength);
+        baos.write(fcc);
+        baos.write(intBytes(swapInt(useLength)));
+        baos.write(imagedata);
         if (extra > 0) {
             for (int i = 0; i < extra; i++) {
-                aviOutput.write(0);
+                baos.write(0);
             }
         }
+        byte[] data = baos.toByteArray();
+        aviOutput.write(data);
         imagedata = null;
 
         numFrames++; //add a frame
-        position += fcc.length + 4 + useLength;
+        position += data.length;
     }
 
     public void finishAVI() throws IOException {
