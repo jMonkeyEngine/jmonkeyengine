@@ -2,9 +2,8 @@
 // This file is to be applied to every subproject.
 //
 
-apply plugin: 'java'
+apply plugin: 'java-library'
 apply plugin: 'groovy'
-apply plugin: 'maven'
 apply plugin: 'maven-publish'
 apply plugin: 'signing'
 
@@ -16,8 +15,7 @@ sourceCompatibility = '1.8'
 
 if(JavaVersion.current() >= JavaVersion.VERSION_1_9) {
     compileJava {
-	options.compilerArgs.addAll(['--release', '8'])
-        //Replace previous with "options.release = 8" if updated to gradle 6.6 or newer
+		options.release = 8
     }
 }
 
@@ -29,9 +27,6 @@ gradle.projectsEvaluated {
 
 repositories {
     mavenCentral()
-    maven {
-        url "http://nifty-gui.sourceforge.net/nifty-maven-repo"
-    }
     flatDir {
         dirs rootProject.file('lib')
     }
@@ -39,9 +34,9 @@ repositories {
 
 dependencies {
     // Adding dependencies here will add the dependencies to each subproject.
-    testCompile 'junit:junit:4.13.2'
-    testCompile 'org.mockito:mockito-core:3.8.0'
-    testCompile 'org.codehaus.groovy:groovy-all:3.0.7'
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.mockito:mockito-core:3.8.0'
+    testImplementation 'org.codehaus.groovy:groovy-all:3.0.7'
 }
 
 
@@ -117,28 +112,12 @@ ext.pomConfig = {
     }
 }
 
-// workaround to be able to use same custom pom with 'maven' and 'bintray' plugin
-task writeFullPom {
-    ext.pomFile = "$mavenPomDir/${project.name}-${project.version}.pom"
-    outputs.file pomFile
-    doLast {
-        pom {
-            project pomConfig
-        }.writeTo(pomFile)
-    }
-}
-
-assemble.dependsOn(writeFullPom)
-install.dependsOn(writeFullPom)
-uploadArchives.dependsOn(writeFullPom)
-
 artifacts {
     archives jar
     archives sourcesJar
     if (buildJavaDoc == "true") {
         archives javadocJar
     }
-    archives writeFullPom.outputs.files[0]
 }
 
 publishing {

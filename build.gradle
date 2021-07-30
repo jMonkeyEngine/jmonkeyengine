@@ -10,7 +10,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.5.3'
+        classpath 'com.android.tools.build:gradle:4.2.0'
         classpath 'me.tatarka:gradle-retrolambda:3.7.1'
         classpath "gradle.plugin.com.github.spotbugs.snom:spotbugs-gradle-plugin:4.5.1"
     }
@@ -20,6 +20,9 @@ allprojects {
     repositories {
         mavenCentral()
         google()
+    }
+    tasks.withType(Jar) {
+        duplicatesStrategy = 'include'
     }
 }
 
@@ -69,7 +72,7 @@ task libDist(dependsOn: subprojects.build, description: 'Builds and copies the e
         File sourceFolder = mkdir("$buildDir/libDist/sources")
         File javadocFolder = mkdir("$buildDir/libDist/javadoc")
         subprojects.each {project ->
-            if(project.ext.mainClass == ''){
+            if(!project.hasProperty('mainClassName')){
                 project.tasks.withType(Jar).each {archiveTask ->
                     if(archiveTask.classifier == "sources"){
                         copy {
@@ -97,7 +100,9 @@ task libDist(dependsOn: subprojects.build, description: 'Builds and copies the e
 }
 
 task createZipDistribution(type:Zip,dependsOn:["dist","libDist"], description:"Package the nightly zip distribution"){
-    archiveName "jME" + jmeFullVersion + ".zip"
+    archiveFileName = provider {
+        "jME" + jmeFullVersion + ".zip"
+    }
     into("/") {
          from {"./dist"}
     }
@@ -269,7 +274,7 @@ if (skipPrebuildLibraries != "true" && buildNativeProjects != "true") {
 //}
 
 wrapper {
-    gradleVersion = '5.6.4'
+    gradleVersion = '6.9'
 }
 
 
