@@ -169,6 +169,13 @@ publishing {
     }
 }
 
+publishToMavenLocal.doLast {
+    println 'published ' + project.getName() + ' to mavenLocal'
+}
+task('install') {
+    dependsOn 'publishToMavenLocal'
+}
+
 signing {
     def signingKey = gradle.rootProject.findProperty('signingKey')
     def signingPassword = gradle.rootProject.findProperty('signingPassword')
