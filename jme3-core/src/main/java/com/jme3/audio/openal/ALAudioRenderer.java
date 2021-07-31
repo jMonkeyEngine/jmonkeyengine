@@ -33,18 +33,16 @@ package com.jme3.audio.openal;
 
 import com.jme3.audio.*;
 import com.jme3.audio.AudioSource.Status;
+import static com.jme3.audio.openal.AL.*;
 import com.jme3.math.Vector3f;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.NativeObjectManager;
-
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import static com.jme3.audio.openal.AL.*;
 
 public class ALAudioRenderer implements AudioRenderer, Runnable {
 
@@ -70,6 +68,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
     private boolean audioDisabled = false;
     private boolean supportEfx = false;
     private boolean supportPauseDevice = false;
+    private boolean supportDisconnect = false;
     private int auxSends = 0;
     private int reverbFx = -1;
     private int reverbFxSlot = -1;
@@ -146,7 +145,11 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
         if (!supportPauseDevice) {
             logger.log(Level.WARNING, "Pausing audio device not supported.");
         }
-        
+
+        // Disconnected audio devices (such as USB sound cards, headphones...)
+        // never reconnect, the whole context must be re-created
+        supportDisconnect = alc.alcIsExtensionPresent("ALC_EXT_disconnect");
+
         supportEfx = alc.alcIsExtensionPresent("ALC_EXT_EFX");
         if (supportEfx) {
             ib.position(0).limit(1);
@@ -250,6 +253,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
             }
 
             synchronized (threadLock) {
+                checkDevice();
                 updateInDecoderThread(UPDATE_RATE);
             }
 
@@ -856,6 +860,29 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
         synchronized (threadLock) {
             updateInRenderThread(tpf);
         }
+    }
+
+    private void checkDevice() {
+
+        // If the device is disconnected, pick a new one
+        if (isZombieDevice()) {
+            logger.log(Level.INFO, "Current audio device disconnected.");
+            restartAudioRenderer();
+        }
+    }
+
+    private boolean isZombieDevice() {
+        if (!supportDisconnect) {
+            return false;
+        }
+
+        alc.alcGetInteger(ALC.ALC_CONNECTED, ib, 1);
+        return ib.get(0) == 0;
+    }
+
+    private void restartAudioRenderer() {
+        destroyOpenAL();
+        initOpenAL();
     }
 
     public void updateInRenderThread(float tpf) {
