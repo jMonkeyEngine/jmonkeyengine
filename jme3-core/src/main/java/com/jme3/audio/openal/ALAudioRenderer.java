@@ -865,13 +865,13 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
     private void checkDevice() {
 
         // If the device is disconnected, pick a new one
-        if (isZombieDevice()) {
+        if (isDisconnected()) {
             logger.log(Level.INFO, "Current audio device disconnected.");
             restartAudioRenderer();
         }
     }
 
-    private boolean isZombieDevice() {
+    private boolean isDisconnected() {
         if (!supportDisconnect) {
             return false;
         }
