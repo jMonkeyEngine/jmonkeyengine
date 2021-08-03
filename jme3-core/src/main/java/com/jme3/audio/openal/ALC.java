@@ -61,6 +61,7 @@ public interface ALC {
     public static final int ALC_ALL_DEVICES_SPECIFIER = 0x1013;
 
     //public static ALCCapabilities createCapabilities(long device);
+    public static final int ALC_CONNECTED = 0x313;
 
     /**
      * Creates an AL context.
