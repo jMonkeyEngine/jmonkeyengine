@@ -623,6 +623,7 @@ public class AwtKeyInput implements KeyInput, KeyListener {
         return 0;
     }
 
+    @Override
     public String getKeyName(int key){
         throw new UnsupportedOperationException("getKeyName not implemented for awt input");
     }

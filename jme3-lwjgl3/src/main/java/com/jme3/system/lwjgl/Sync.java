@@ -110,6 +110,7 @@ class Sync {
 			// be a bit more accurate by running a separate sleeping daemon
 			// thread.
 			Thread timerAccuracyThread = new Thread(new Runnable() {
+                                @Override
 				public void run() {
 					try {
 						while(true)Thread.sleep(Long.MAX_VALUE);
