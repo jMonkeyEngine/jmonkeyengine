@@ -50,7 +50,7 @@ public class WaterUtils {
     public static void updateReflectionCam(Camera reflectionCam, Plane plane, Camera sceneCam){
         
         TempVars vars = TempVars.get();
-         //Temp vects for reflection cam orientation calculation
+        // temporary vectors for reflection cam orientation calculation:
         Vector3f sceneTarget =  vars.vect1;
         Vector3f  reflectDirection =  vars.vect2;
         Vector3f  reflectUp =  vars.vect3;

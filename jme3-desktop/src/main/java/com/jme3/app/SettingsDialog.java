@@ -712,7 +712,7 @@ public final class SettingsDialog extends JFrame {
 
     private void updateAntialiasChoices() {
         // maybe in the future will add support for determining this info
-        // through pbuffer
+        // through PBuffer
         String[] choices = new String[]{resourceBundle.getString("antialias.disabled"), "2x", "4x", "6x", "8x", "16x"};
         antialiasCombo.setModel(new DefaultComboBoxModel<>(choices));
         antialiasCombo.setSelectedItem(choices[Math.min(source.getSamples()/2,5)]);

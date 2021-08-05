@@ -219,7 +219,7 @@ public class ListSort<T> {
         while (remaining != 0) {
             int runLength = getRunLength(array, low, high, comparator);
 
-            /* if runlength is below the threshold we binary sort the remaining 
+            /* if run length is below the threshold we binary sort the remaining
              * elements
              */
             if (runLength < minLength) {
@@ -293,7 +293,7 @@ public class ListSort<T> {
     }
 
     /**
-     * binarysort is the best method for sorting small arrays: it does few
+     * Binary sort is the best method for sorting small arrays: it does few
      * compares, but can do data movement quadratic in the number of elements.
      * [firstId, lastId] is a contiguous slice of a list, and is sorted via
      * binary insertion. This sort is stable. On entry, must have firstId <=

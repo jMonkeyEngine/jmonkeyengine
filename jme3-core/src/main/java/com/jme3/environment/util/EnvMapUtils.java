@@ -388,7 +388,7 @@ public class EnvMapUtils {
     }
 
 
-    //see lagarde's paper https://seblagarde.files.wordpress.com/2015/07/course_notes_moving_frostbite_to_pbr_v32.pdf
+    //see Lagarde's paper https://seblagarde.files.wordpress.com/2015/07/course_notes_moving_frostbite_to_pbr_v32.pdf
     //linear roughness
     public static float getRoughnessFromMip(int miplevel, int miptot) {
         float step = 1f / ((float) miptot - 1);

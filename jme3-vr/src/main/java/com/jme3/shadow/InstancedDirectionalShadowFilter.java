@@ -6,7 +6,7 @@ import com.jme3.math.Vector4f;
 import com.jme3.renderer.Camera;
 
 /**
- * An instanced version of the {@link DirectionalLightShadowFilterVR directional light shadow filter} dedi.
+ * An instanced version of the {@link DirectionalLightShadowFilterVR directional light shadow filter}.
  * @author reden - phr00t - https://github.com/phr00t
  * @author Julien Seinturier - COMEX SA - <a href="http://www.seinturier.fr">http://www.seinturier.fr</a>
  */

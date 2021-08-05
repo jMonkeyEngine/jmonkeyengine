@@ -975,11 +975,11 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
      * <li>Set the {@link RenderState} to use for rendering. The render states are
      * applied in this order (later RenderStates override earlier RenderStates):<ol>
      * <li>{@link TechniqueDef#getRenderState() Technique Definition's RenderState}
-     * - i.e. specific renderstate that is required for the shader.</li>
+     * - i.e. specific RenderState that is required for the shader.</li>
      * <li>{@link #getAdditionalRenderState() Material Instance Additional RenderState}
-     * - i.e. ad-hoc renderstate set per model</li>
+     * - i.e. ad-hoc RenderState set per model</li>
      * <li>{@link RenderManager#getForcedRenderState() RenderManager's Forced RenderState}
-     * - i.e. renderstate requested by a {@link com.jme3.post.SceneProcessor} or
+     * - i.e. RenderState requested by a {@link com.jme3.post.SceneProcessor} or
      * post-processing filter.</li></ol>
      * <li>If the technique uses a shader, then the uniforms of the shader must be updated.<ul>
      * <li>Uniforms bound to material parameters are updated based on the current material parameter values.</li>
@@ -1116,7 +1116,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
                 // Using SimpleTextured/SolidColor, just switch to Unshaded
                 defName = "Common/MatDefs/Misc/Unshaded.j3md";
             } else if (defName.equalsIgnoreCase("Common/MatDefs/Misc/WireColor.j3md")) {
-                // Using WireColor, set wireframe renderstate = true and use Unshaded
+                // Using WireColor, set wireframe render state = true and use Unshaded
                 getAdditionalRenderState().setWireframe(true);
                 defName = "Common/MatDefs/Misc/Unshaded.j3md";
             } else if (defName.equalsIgnoreCase("Common/MatDefs/Misc/Unshaded.j3md")) {
