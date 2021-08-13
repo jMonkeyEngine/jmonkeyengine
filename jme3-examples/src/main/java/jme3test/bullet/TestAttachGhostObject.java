@@ -47,7 +47,7 @@ import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
 
 /**
- * Tests attaching ghost nodes to physicsnodes via the scenegraph
+ * Tests attaching ghost nodes to physics nodes via the scene graph
  * @author normenhansen
  */
 public class TestAttachGhostObject extends SimpleApplication implements AnalogListener {

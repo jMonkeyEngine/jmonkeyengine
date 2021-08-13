@@ -299,7 +299,7 @@ public class FrameBuffer extends NativeObject {
      * @param width The width to use
      * @param height The height to use
      * @param samples The number of samples to use for a multisampled
-     * framebuffer, or 1 if the framebuffer should be singlesampled.
+     * framebuffer, or 1 if the framebuffer should be single-sampled.
      *
      * @throws IllegalArgumentException If width or height are not positive.
      */
@@ -726,7 +726,7 @@ public class FrameBuffer extends NativeObject {
 
     /**
      * @return The number of samples when using a multisample framebuffer, or
-     * 1 if this is a singlesampled framebuffer.
+     * 1 if this is a single-sampled framebuffer.
      */
     public int getSamples() {
         return samples;

@@ -77,7 +77,7 @@ public class TestAssetLinkNode extends SimpleApplication {
             //export to byte array
             ByteArrayOutputStream bout=new ByteArrayOutputStream();
             BinaryExporter.getInstance().save(loaderNode, bout);
-            //import from byte array, automatically loads the monkeyhead from file
+            //import from byte array, automatically loads the monkey head from file
             ByteArrayInputStream bin=new ByteArrayInputStream(bout.toByteArray());
             BinaryImporter imp=BinaryImporter.getInstance();
             imp.setAssetManager(assetManager);

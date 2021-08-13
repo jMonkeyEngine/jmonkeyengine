@@ -334,7 +334,7 @@ public abstract class LwjglWindowVR extends LwjglContextVR implements Runnable {
             loadNatives();
             timer = new NanoTimer();
 
-            // For canvas, this will create a pbuffer,
+            // For canvas, this will create a PBuffer,
             // allowing us to query information.
             // When the canvas context becomes available, it will
             // be replaced seamlessly.

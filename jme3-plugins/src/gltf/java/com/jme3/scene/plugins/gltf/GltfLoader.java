@@ -543,7 +543,7 @@ public class GltfLoader implements AssetLoader {
         assertNotNull(byteLength, "No byte length defined for bufferView " + bufferViewIndex);
         int byteStride = getAsInteger(bufferView, "byteStride", 0);
 
-        //target defines ELEMENT_ARRAY_BUFFER or ARRAY_BUFFER, but we already know that since we know we load the indexbuffer or any other...
+        //target defines ELEMENT_ARRAY_BUFFER or ARRAY_BUFFER, but we already know that since we know we load the index buffer or any other...
         //not sure it's useful for us, but I guess it's useful when you map data directly to the GPU.
         //int target = getAsInteger(bufferView, "target", 0);
 

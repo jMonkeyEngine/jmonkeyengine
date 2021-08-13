@@ -502,7 +502,7 @@ public class GltfUtils {
                 }
 
                 if (sum != 1f) {
-                    // compute new vals based on sum
+                    // compute new values based on sum
                     float sumToB = sum == 0 ? 0 : 1f / sum;
                     weightsArray[i] *= sumToB;
                     weightsArray[i + 1] *= sumToB;

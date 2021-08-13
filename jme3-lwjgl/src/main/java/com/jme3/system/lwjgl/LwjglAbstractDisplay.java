@@ -113,7 +113,7 @@ public abstract class LwjglAbstractDisplay extends LwjglContext implements Runna
                 });
             }
 
-            // For canvas, this will create a pbuffer,
+            // For canvas, this will create a Pbuffer,
             // allowing us to query information.
             // When the canvas context becomes available, it will
             // be replaced seamlessly.

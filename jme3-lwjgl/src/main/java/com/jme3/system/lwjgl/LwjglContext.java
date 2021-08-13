@@ -194,11 +194,11 @@ public abstract class LwjglContext implements JmeContext {
             listener.handleError("Failed to check if display is current", ex);
         }
         if ((Pbuffer.getCapabilities() & Pbuffer.PBUFFER_SUPPORTED) == 0) {
-            // No pbuffer, assume everything is supported.
+            // No PBuffer, assume everything is supported.
             return Integer.MAX_VALUE;
         } else {
             Pbuffer pb = null;
-            // OpenGL2 method: Create pbuffer and query samples
+            // OpenGL2 method: Create PBuffer and query samples
             // from GL_ARB_framebuffer_object or GL_EXT_framebuffer_multisample.
             try {
                 pb = new Pbuffer(1, 1, new PixelFormat(0, 0, 0), null);

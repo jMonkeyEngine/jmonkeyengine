@@ -92,7 +92,7 @@ import java.util.logging.Logger;
  * an empty (non-loaded) area, it will trigger the system to load in the next tiles.
  * </p><p>
  * The tile loading is done on a background thread, and once the tile is loaded, then it is
- * attached to the qrid quad tree, back on the OGL thread. It will grab the terrain quad from
+ * attached to the grid quad tree, back on the OGL thread. It will grab the terrain quad from
  * the LRU cache if it exists. If it does not exist, it will load in the new TerrainQuad tile.
  * </p><p>
  * The loading of new tiles triggers events for any TerrainGridListeners. The events are:
@@ -349,7 +349,7 @@ public class TerrainGrid extends TerrainQuad {
             }
             q.setQuadrant((short)0);
             this.detachChild(q);
-            cellsLoaded++; // For gridoffset calc., maybe the run() method is a better location for this.
+            cellsLoaded++; // For gridOffset calculation, maybe the run() method is a better location for this.
         }
     }
 
