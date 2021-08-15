@@ -31,6 +31,9 @@
  */
 package com.jme3.system;
 
+/**
+ * Enumerate known operating system/architecture pairs.
+ */
 public enum Platform {
 
     /**
@@ -122,9 +125,15 @@ public enum Platform {
      * Android x86
      */
     Android_X86,
-    
+
+    /**
+     * iOS on x86
+     */
     iOS_X86,
-    
+
+    /**
+     * iOS on ARM
+     */
     iOS_ARM,
     
     /**
@@ -133,7 +142,12 @@ public enum Platform {
     Android_Other;
     
     private final boolean is64bit;
-    
+
+    /**
+     * Test for a 64-bit address space.
+     *
+     * @return true if 64 bits, otherwise false
+     */
     public boolean is64Bit() {
         return is64bit;
     }
