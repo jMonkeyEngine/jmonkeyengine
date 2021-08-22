@@ -274,7 +274,7 @@ if (skipPrebuildLibraries != "true" && buildNativeProjects != "true") {
 //}
 
 wrapper {
-    gradleVersion = '6.9'
+    gradleVersion = '6.9.1'
 }
 
 
