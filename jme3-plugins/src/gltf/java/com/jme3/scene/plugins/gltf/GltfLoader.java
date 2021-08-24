@@ -684,11 +684,11 @@ public class GltfLoader implements AssetLoader {
                 float aspectRatio = getAsFloat(camData, "aspectRation", 1f);
                 Float yfov = getAsFloat(camData, "yfov");
                 assertNotNull(yfov, "No yfov for perspective camera");
-                Float znear = getAsFloat(camData, "znear");
-                assertNotNull(znear, "No znear for perspective camera");
-                Float zfar = getAsFloat(camData, "zfar", znear * 1000f);
+                Float zNear = getAsFloat(camData, "znear");
+                assertNotNull(zNear, "No znear for perspective camera");
+                Float zFar = getAsFloat(camData, "zfar", zNear * 1000f);
 
-                cam.setFrustumPerspective(yfov * FastMath.RAD_TO_DEG, aspectRatio, znear, zfar);
+                cam.setFrustumPerspective(yfov * FastMath.RAD_TO_DEG, aspectRatio, zNear, zFar);
                 cam = customContentManager.readExtensionAndExtras("camera.perspective", camData, cam);
 
             } else {
@@ -696,13 +696,13 @@ public class GltfLoader implements AssetLoader {
                 assertNotNull(xmag, "No xmag for orthographic camera");
                 Float ymag = getAsFloat(camData, "ymag");
                 assertNotNull(ymag, "No ymag for orthographic camera");
-                Float znear = getAsFloat(camData, "znear");
-                assertNotNull(znear, "No znear for orthographic camere");
-                Float zfar = getAsFloat(camData, "zfar", znear * 1000f);
-                assertNotNull(zfar, "No zfar for orthographic camera");
+                Float zNear = getAsFloat(camData, "znear");
+                assertNotNull(zNear, "No znear for orthographic camere");
+                Float zFar = getAsFloat(camData, "zfar", zNear * 1000f);
+                assertNotNull(zFar, "No zfar for orthographic camera");
 
                 cam.setParallelProjection(true);
-                cam.setFrustum(znear, zfar, -xmag, xmag, ymag, -ymag);
+                cam.setFrustum(zNear, zFar, -xmag, xmag, ymag, -ymag);
 
                 cam = customContentManager.readExtensionAndExtras("camera.orthographic", camData, cam);
             }
