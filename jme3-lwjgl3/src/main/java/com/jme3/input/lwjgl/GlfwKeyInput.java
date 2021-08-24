@@ -111,8 +111,8 @@ public class GlfwKeyInput implements KeyInput {
 
     @Override
     public String getKeyName(int jmeKey) {
-        int glfwkey = GlfwKeyMap.fromJmeKeyCode(jmeKey);
-        return glfwGetKeyName(glfwkey, 0);
+        int glfwKey = GlfwKeyMap.fromJmeKeyCode(jmeKey);
+        return glfwGetKeyName(glfwKey, 0);
     }
 
     private void initCallbacks() {
