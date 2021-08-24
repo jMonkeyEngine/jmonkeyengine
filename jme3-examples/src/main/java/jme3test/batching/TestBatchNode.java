@@ -81,8 +81,8 @@ public class TestBatchNode extends SimpleApplication {
          * A cube with a color "bleeding" through transparent texture. Uses
          * Texture from jme3-testdata library!
          */
-        Box boxshape4 = new Box(1f, 1f, 1f);
-        Geometry cube = new Geometry("cube1", boxshape4);
+        Box boxShape4 = new Box(1f, 1f, 1f);
+        Geometry cube = new Geometry("cube1", boxShape4);
         Material mat = assetManager.loadMaterial("Textures/Terrain/Pond/Pond.j3m");
         cube.setMaterial(mat);
         //Material mat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
