@@ -263,14 +263,14 @@ public class MathUtils {
         double d4343 = p43.x * (double) p43.x + (double) p43.y * p43.y + (double) p43.z * p43.z;
         double d2121 = p21.x * (double) p21.x + (double) p21.y * p21.y + (double) p21.z * p21.z;
 
-        double denom = d2121 * d4343 - d4321 * d4321;
-        if (Math.abs(denom) < 0.0001) {
+        double denominator = d2121 * d4343 - d4321 * d4321;
+        if (Math.abs(denominator) < 0.0001) {
             vars.release();
             return -1;
         }
-        double numer = d1343 * d4321 - d1321 * d4343;
+        double numerator = d1343 * d4321 - d1321 * d4343;
 
-        double mua = numer / denom;
+        double mua = numerator / denominator;
         double mub = (d1343 + d4321 * (mua)) / d4343;
 
         resultSegmentPoint1.x = (float) (p1.x + mua * p21.x);

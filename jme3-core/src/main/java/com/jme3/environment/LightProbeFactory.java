@@ -260,8 +260,8 @@ public class LightProbeFactory {
 
         float getProgress() {
             float mean = 0;
-            for (double progres : progress) {
-                mean += progres;
+            for (double faceProgress : progress) {
+                mean += faceProgress;
             }
             return mean / 7f;
         }

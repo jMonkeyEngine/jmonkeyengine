@@ -278,8 +278,8 @@ public abstract class LwjglContext implements JmeContext {
                     + "required for jMonkeyEngine");
         }
 
-        int vers[] = getGLVersion(settings.getRenderer());
-        if (vers != null) {
+        int version[] = getGLVersion(settings.getRenderer());
+        if (version != null) {
             if (first) {
                 GL gl = new LwjglGL();
                 GLExt glext = new LwjglGLExt();
