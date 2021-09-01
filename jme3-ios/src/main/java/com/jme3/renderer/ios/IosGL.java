@@ -147,13 +147,13 @@ public class IosGL implements GL, GL2, GLES_30, GLExt, GLFbo {
     }
 
     @Override
-    public void glBlendFunc(int sfactor, int dfactor) {
-        JmeIosGLES.glBlendFunc(sfactor, dfactor);
+    public void glBlendFunc(int sFactor, int dFactor) {
+        JmeIosGLES.glBlendFunc(sFactor, dFactor);
     }
     
     @Override
-    public void glBlendFuncSeparate(int sfactorRGB, int dfactorRGB, int sfactorAlpha, int dfactorAlpha) {
-        JmeIosGLES.glBlendFuncSeparate(sfactorRGB, dfactorRGB, sfactorAlpha, dfactorAlpha);
+    public void glBlendFuncSeparate(int sFactorRGB, int dFactorRGB, int sFactorAlpha, int dFactorAlpha) {
+        JmeIosGLES.glBlendFuncSeparate(sFactorRGB, dFactorRGB, sFactorAlpha, dFactorAlpha);
     }
 
 
@@ -623,7 +623,7 @@ public class IosGL implements GL, GL2, GLES_30, GLExt, GLFbo {
     }
 
     @Override
-    public void glTexImage2DMultisample(int target, int samples, int internalformat, int width, int height, boolean fixedsamplelocations) {
+    public void glTexImage2DMultisample(int target, int samples, int internalformat, int width, int height, boolean fixedSampleLocations) {
         throw new UnsupportedOperationException("Multisample textures not available on iOS");
     }
 

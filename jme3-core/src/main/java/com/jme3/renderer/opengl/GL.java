@@ -281,22 +281,22 @@ public interface GL {
      * <p>
      * Specifies the weighting factors used by the blend equation, for both RGB and alpha functions and for all draw buffers.
      *
-     * @param sfactor the source weighting factor.
-     * @param dfactor the destination weighting factor.
+     * @param sFactor the source weighting factor.
+     * @param dFactor the destination weighting factor.
      */
-    public void glBlendFunc(int sfactor, int dfactor);
+    public void glBlendFunc(int sFactor, int dFactor);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glBlendFuncSeparate">Reference Page</a></p>
      * <p>
      * Specifies pixel arithmetic for RGB and alpha components separately.
      *
-     * @param sfactorRGB   how the red, green, and blue blending factors are computed. The initial value is GL_ONE.
-     * @param dfactorRGB   how the red, green, and blue destination blending factors are computed. The initial value is GL_ZERO.
-     * @param sfactorAlpha how the alpha source blending factor is computed. The initial value is GL_ONE.
-     * @param dfactorAlpha how the alpha destination blending factor is computed. The initial value is GL_ZERO.
+     * @param sFactorRGB   how the red, green, and blue blending factors are computed. The initial value is GL_ONE.
+     * @param dFactorRGB   how the red, green, and blue destination blending factors are computed. The initial value is GL_ZERO.
+     * @param sFactorAlpha how the alpha source blending factor is computed. The initial value is GL_ONE.
+     * @param dFactorAlpha how the alpha destination blending factor is computed. The initial value is GL_ZERO.
      */
-    public void glBlendFuncSeparate(int sfactorRGB, int dfactorRGB, int sfactorAlpha, int dfactorAlpha);
+    public void glBlendFuncSeparate(int sFactorRGB, int dFactorRGB, int sFactorAlpha, int dFactorAlpha);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glBufferData">Reference Page</a></p>
