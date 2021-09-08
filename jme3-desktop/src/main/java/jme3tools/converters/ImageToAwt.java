@@ -375,7 +375,7 @@ public class ImageToAwt {
         }
     }
 
-    public static BufferedImage convert(Image image, boolean do16bit, boolean fullalpha, int mipLevel){
+    public static BufferedImage convert(Image image, boolean do16bit, boolean fullAlpha, int mipLevel){
         Format format = image.getFormat();
         DecodeParams p = params.get(image.getFormat());
         if (p == null)
@@ -411,7 +411,7 @@ public class ImageToAwt {
             out = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
         }else if ( (rgb && alpha) || (luminance && alpha) ){
             if (do16bit){
-                if (fullalpha){
+                if (fullAlpha){
                     ColorModel model = AWTLoader.AWT_RGBA4444;
                     WritableRaster raster = model.createCompatibleWritableRaster(width, width);
                     out = new BufferedImage(model, raster, false, null);

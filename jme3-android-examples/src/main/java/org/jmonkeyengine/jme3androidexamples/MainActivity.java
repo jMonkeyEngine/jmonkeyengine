@@ -364,7 +364,7 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
         setSelection(-1);
     }
 
-    public void afterTextChanged(Editable edtbl) {
+    public void afterTextChanged(Editable editable) {
     }
 
     @Override

@@ -62,8 +62,8 @@ public final class LwjglGLExt implements GLExt {
     }
 
     @Override
-    public void glTexImage2DMultisample(int target, int samples, int internalformat, int width, int height, boolean fixedsamplelocations) {
-        ARBTextureMultisample.glTexImage2DMultisample(target, samples, internalformat, width, height, fixedsamplelocations);
+    public void glTexImage2DMultisample(int target, int samples, int internalformat, int width, int height, boolean fixedSampleLocations) {
+        ARBTextureMultisample.glTexImage2DMultisample(target, samples, internalformat, width, height, fixedSampleLocations);
     }
 
     @Override
