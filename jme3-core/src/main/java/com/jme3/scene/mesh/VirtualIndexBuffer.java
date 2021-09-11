@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -67,7 +67,7 @@ public class VirtualIndexBuffer extends IndexBuffer {
                 numIndices = numVerts;
                 return;
             case LineLoop:
-                numIndices = (numVerts - 1) * 2 + 1;
+                numIndices = numVerts * 2;
                 return;
             case LineStrip:
                 numIndices = (numVerts - 1) * 2;
@@ -113,7 +113,7 @@ public class VirtualIndexBuffer extends IndexBuffer {
         } else if (meshMode == Mode.LineStrip) {
             return (i + 1) / 2;
         } else if (meshMode == Mode.LineLoop) {
-            return (i == (numVerts - 1)) ? 0 : ((i + 1) / 2);
+            return (i == (numIndices - 1)) ? 0 : ((i + 1) / 2);
         } else if (meshMode == Mode.TriangleStrip) {
             int triIndex = i / 3;
             int vertIndex = i % 3;
