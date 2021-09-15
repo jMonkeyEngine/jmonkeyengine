@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2016 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,16 +52,14 @@ import java.util.logging.Logger;
 public class TestContextSwitching extends SimpleApplication implements ScreenController {
     private static final Logger LOG = Logger.getLogger(TestContextSwitching.class.getName());
     
-    private Nifty nifty;
     private Label infoLabel;
     private Button applyButton;
-    private ListBox<String> platformListBox;
     private ListBox<String> deviceListBox;
     
     private static String selectedPlatform;
     private static String selectedDevice;
     private Context clContext;
-    private static List<? extends Platform> availabePlatforms;
+    private static List<? extends Platform> availablePlatforms;
     private Buffer testBuffer;
     private boolean bufferCreated;
 
@@ -95,7 +93,7 @@ public class TestContextSwitching extends SimpleApplication implements ScreenCon
                 inputManager,
                 audioRenderer,
                 guiViewPort);
-        nifty = niftyDisplay.getNifty();
+        Nifty nifty = niftyDisplay.getNifty();
         nifty.fromXml("jme3test/opencl/ContextSwitchingScreen.xml", "Screen", this);
         guiViewPort.addProcessor(niftyDisplay);
         inputManager.setCursorVisible(true);
@@ -113,14 +111,15 @@ public class TestContextSwitching extends SimpleApplication implements ScreenCon
     @SuppressWarnings("unchecked")
     public void bind(Nifty nifty, Screen screen) {
         applyButton = screen.findNiftyControl("ApplyButton", Button.class);
-        platformListBox = screen.findNiftyControl("PlatformListBox", ListBox.class);
+        ListBox<String> platformListBox
+                = screen.findNiftyControl("PlatformListBox", ListBox.class);
         deviceListBox = screen.findNiftyControl("DeviceListBox", ListBox.class);
         infoLabel = screen.findNiftyControl("InfoLabel", Label.class);
         
         updateInfos();
         
         platformListBox.clear();
-        for (Platform p : availabePlatforms) {
+        for (Platform p : availablePlatforms) {
             platformListBox.addItem(p.getName());
         }
         platformListBox.selectItem(selectedPlatform);
@@ -159,14 +158,14 @@ public class TestContextSwitching extends SimpleApplication implements ScreenCon
 
     @NiftyEventSubscriber(id="ApplyButton")
     public void onButton(String id, ButtonClickedEvent event) {
-        LOG.log(Level.INFO, "Change context: platorm={0}, device={1}", new Object[]{selectedPlatform, selectedDevice});
+        LOG.log(Level.INFO, "Change context: platform={0}, device={1}", new Object[]{selectedPlatform, selectedDevice});
         restart();
     }
     
     private void changePlatform(String platform) {
         selectedPlatform = platform;
         Platform p = null;
-        for (Platform p2 : availabePlatforms) {
+        for (Platform p2 : availablePlatforms) {
             if (p2.getName().equals(selectedPlatform)) {
                 p = p2;
                 break;
@@ -213,7 +212,7 @@ public class TestContextSwitching extends SimpleApplication implements ScreenCon
         
         @Override
         public List<? extends Device> chooseDevices(List<? extends Platform> platforms) {
-            availabePlatforms = platforms;
+            availablePlatforms = platforms;
             
             Platform platform = null;
             for (Platform p : platforms) {

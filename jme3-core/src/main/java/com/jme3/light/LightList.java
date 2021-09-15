@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -90,7 +90,8 @@ public final class LightList implements Iterable<Light>, Savable, Cloneable, Jme
 
     /**
      * Set the owner of the LightList. Only used for cloning.
-     * @param owner
+     *
+     * @param owner the desired owner (alias created)
      */
     public void setOwner(Spatial owner){
         this.owner = owner;
@@ -122,7 +123,7 @@ public final class LightList implements Iterable<Light>, Savable, Cloneable, Jme
     /**
      * Remove the light at the given index.
      *
-     * @param index
+     * @param index the zero-based index of the Light to be removed (&ge;0)
      */
     public void remove(int index){
         if (index >= listSize || index < 0)
@@ -162,6 +163,7 @@ public final class LightList implements Iterable<Light>, Savable, Cloneable, Jme
     }
 
     /**
+     * @param num the zero-based index of the light to be accessed (&ge;0)
      * @return the light at the given index.
      * @throws IndexOutOfBoundsException If the given index is outside bounds.
      */
@@ -224,8 +226,8 @@ public final class LightList implements Iterable<Light>, Savable, Cloneable, Jme
      * Updates a "world-space" light list, using the spatial's local-space
      * light list and its parent's world-space light list.
      *
-     * @param local
-     * @param parent
+     * @param local the local-space LightList (not null)
+     * @param parent the parent's world-space LightList
      */
     public void update(LightList local, LightList parent){
         // clear the list as it will be reconstructed
@@ -332,7 +334,7 @@ public final class LightList implements Iterable<Light>, Savable, Cloneable, Jme
         OutputCapsule oc = ex.getCapsule(this);
 //        oc.write(owner, "owner", null);
 
-        ArrayList<Light> lights = new ArrayList<Light>();
+        ArrayList<Light> lights = new ArrayList<>();
         for (int i = 0; i < listSize; i++){
             lights.add(list[i]);
         }

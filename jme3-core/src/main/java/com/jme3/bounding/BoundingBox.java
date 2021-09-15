@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -102,6 +102,14 @@ public class BoundingBox extends BoundingVolume {
         this.zExtent = source.zExtent;
     }
 
+    /**
+     * Instantiate a BoundingBox with the specified extremes.
+     *
+     * @param min the desired minimum coordinate value for each axis (not null,
+     * not altered)
+     * @param max the desired maximum coordinate value for each axis (not null,
+     * not altered)
+     */
     public BoundingBox(Vector3f min, Vector3f max) {
         setMinMax(min, max);
     }
@@ -127,9 +135,9 @@ public class BoundingBox extends BoundingVolume {
      * <code>computeFromTris</code> creates a new Bounding Box from a given
      * set of triangles. It is used in OBBTree calculations.
      *
-     * @param tris
-     * @param start
-     * @param end
+     * @param tris triangle data (unaffected)
+     * @param start the index of the first triangle to be used
+     * @param end the index of the triangle after the last one to be used
      */
     public void computeFromTris(Triangle[] tris, int start, int end) {
         if (end - start <= 0) {
@@ -581,7 +589,7 @@ public class BoundingBox extends BoundingVolume {
 
     /**
      * <code>toString</code> returns the string representation of this object.
-     * The form is: "[Center: <Vector> xExtent: X.XX yExtent: Y.YY zExtent:
+     * The form is: "[Center: vector xExtent: X.XX yExtent: Y.YY zExtent:
      * Z.ZZ]".
      *
      * @return the string representation of this.
@@ -1009,18 +1017,38 @@ public class BoundingBox extends BoundingVolume {
         return store;
     }
 
+    /**
+     * Determine the X-axis distance between the center and the boundary.
+     *
+     * @return the distance
+     */
     public float getXExtent() {
         return xExtent;
     }
 
+    /**
+     * Determine the Y-axis distance between the center and the boundary.
+     *
+     * @return the distance
+     */
     public float getYExtent() {
         return yExtent;
     }
 
+    /**
+     * Determine the Z-axis distance between the center and the boundary.
+     *
+     * @return the distance
+     */
     public float getZExtent() {
         return zExtent;
     }
 
+    /**
+     * Alter the X-axis distance between the center and the boundary.
+     *
+     * @param xExtent the desired distance (&ge;0)
+     */
     public void setXExtent(float xExtent) {
         if (xExtent < 0) {
             throw new IllegalArgumentException();
@@ -1029,6 +1057,11 @@ public class BoundingBox extends BoundingVolume {
         this.xExtent = xExtent;
     }
 
+    /**
+     * Alter the Y-axis distance between the center and the boundary.
+     *
+     * @param yExtent the desired distance (&ge;0)
+     */
     public void setYExtent(float yExtent) {
         if (yExtent < 0) {
             throw new IllegalArgumentException();
@@ -1037,6 +1070,11 @@ public class BoundingBox extends BoundingVolume {
         this.yExtent = yExtent;
     }
 
+    /**
+     * Alter the Z-axis distance between the center and the boundary.
+     *
+     * @param zExtent the desired distance (&ge;0)
+     */
     public void setZExtent(float zExtent) {
         if (zExtent < 0) {
             throw new IllegalArgumentException();
@@ -1045,6 +1083,12 @@ public class BoundingBox extends BoundingVolume {
         this.zExtent = zExtent;
     }
 
+    /**
+     * Determine the minimum coordinate value for each axis.
+     *
+     * @param store storage for the result (modified if not null)
+     * @return either storeResult or a new vector
+     */
     public Vector3f getMin(Vector3f store) {
         if (store == null) {
             store = new Vector3f();
@@ -1053,6 +1097,12 @@ public class BoundingBox extends BoundingVolume {
         return store;
     }
 
+    /**
+     * Determine the maximum coordinate value for each axis.
+     *
+     * @param store storage for the result (modified if not null)
+     * @return either storeResult or a new vector
+     */
     public Vector3f getMax(Vector3f store) {
         if (store == null) {
             store = new Vector3f();
@@ -1061,6 +1111,14 @@ public class BoundingBox extends BoundingVolume {
         return store;
     }
 
+    /**
+     * Reconfigure with the specified extremes.
+     *
+     * @param min the desired minimum coordinate value for each axis (not null,
+     * not altered)
+     * @param max the desired maximum coordinate value for each axis (not null,
+     * not altered)
+     */
     public void setMinMax(Vector3f min, Vector3f max) {
         this.center.set(max).addLocal(min).multLocal(0.5f);
         xExtent = FastMath.abs(max.x - center.x);

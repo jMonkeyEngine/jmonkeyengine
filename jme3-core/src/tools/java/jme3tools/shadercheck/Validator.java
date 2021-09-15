@@ -9,11 +9,15 @@ public interface Validator {
     
     /**
      * Returns the name of the validation tool
+     *
+     * @return the name
      */
     public String getName();
 
     /**
      * Returns true if the tool is installed on the system, false otherwise.
+     *
+     * @return true if installed, otherwise false
      */
     public boolean isInstalled();
 

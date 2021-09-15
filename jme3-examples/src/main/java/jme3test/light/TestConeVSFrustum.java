@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,9 +47,9 @@ import com.jme3.material.Material;
 import com.jme3.math.*;
 import com.jme3.renderer.Camera;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.LightNode;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
+import com.jme3.scene.control.LightControl;
 import com.jme3.scene.debug.Grid;
 import com.jme3.scene.debug.WireFrustum;
 import com.jme3.scene.shape.Box;
@@ -108,8 +108,12 @@ public class TestConeVSFrustum extends SimpleApplication {
         geom.getMaterial().setColor("Diffuse", ColorRGBA.White);
         geom.getMaterial().setColor("Ambient", ColorRGBA.DarkGray);
         geom.getMaterial().setBoolean("UseMaterialColors", true);
-        final LightNode ln = new LightNode("lb", spotLight);
+
+        final Node ln = new Node("lb");
+        LightControl lightControl = new LightControl(spotLight);
+        ln.addControl(lightControl);
         ln.attachChild(geom);
+
         geom.setLocalTranslation(0, -spotLight.getSpotRange() / 2f, 0);
         geom.rotate(-FastMath.HALF_PI, 0, 0);
         rootNode.attachChild(ln);
@@ -211,31 +215,27 @@ public class TestConeVSFrustum extends SimpleApplication {
             }
         }, "click", "middleClick", "shift");
         /**
-         * An unshaded textured cube. // * Uses texture from jme3-test-data
-         * library!
+         * An unshaded textured cube.
+         * Uses texture from jme3-testdata library!
          */
         Box boxMesh = new Box(1f, 1f, 1f);
-        boxGeo = new Geometry("A Textured Box", boxMesh);
+        Geometry boxGeo = new Geometry("A Textured Box", boxMesh);
         Material boxMat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         Texture monkeyTex = assetManager.loadTexture("Interface/Logo/Monkey.jpg");
         boxMat.setTexture("ColorMap", monkeyTex);
         boxGeo.setMaterial(boxMat);
-//        rootNode.attachChild(boxGeo);
-//
-//boxGeo2 = boxGeo.clone();
-//rootNode.attachChild(boxGeo2); 
         System.err.println("light " + spotLight.getPosition());
 
     }
-    Geometry boxGeo, boxGeo2;
+
     private final static float MOVE_SPEED = 60;
-    Vector3f tmp = new Vector3f();
-    Quaternion tmpQuat = new Quaternion();
-    boolean moving, shift;
-    boolean panning;
-    Geometry geom;
-    SpotLight spotLight;
-    Camera frustumCam;
+    final private Vector3f tmp = new Vector3f();
+    final private Quaternion tmpQuat = new Quaternion();
+    private boolean moving, shift;
+    private boolean panning;
+    private Geometry geom;
+    private SpotLight spotLight;
+    private Camera frustumCam;
 
     @Override
     public void simpleUpdate(float tpf) {
@@ -259,7 +259,5 @@ public class TestConeVSFrustum extends SimpleApplication {
 
 
         vars.release();
-//        boxGeo.setLocalTranslation(spotLight.getPosition());
-        //  boxGeo.setLocalTranslation(projectedPoint);
     }
 }

@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.jme3.input.vr.openvr;
 
 import java.util.ArrayList;
@@ -285,7 +280,7 @@ public class OpenVRInput implements VRInputAPI {
             lastCallAxis[i] = new Vector2f();
             needsNewVelocity[i] = true;
             needsNewAngVelocity[i] = true;
-            logger.config("  Input "+(i+1)+"/"+JOpenVRLibrary.k_unMaxTrackedDeviceCount+" binded.");
+            logger.config("  Input "+(i+1)+"/"+JOpenVRLibrary.k_unMaxTrackedDeviceCount+" bound.");
         }        
         
         return true;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,11 +40,11 @@ import com.jme3.input.controls.JoyButtonTrigger;
  */
 public class DefaultJoystickButton implements JoystickButton {
     
-    private InputManager inputManager;
-    private Joystick parent;
-    private int buttonIndex;
-    private String name;
-    private String logicalId;
+    final private InputManager inputManager;
+    final private Joystick parent;
+    final private int buttonIndex;
+    final private String name;
+    final private String logicalId;
 
     public DefaultJoystickButton( InputManager inputManager, Joystick parent, int buttonIndex,
                                   String name, String logicalId ) {

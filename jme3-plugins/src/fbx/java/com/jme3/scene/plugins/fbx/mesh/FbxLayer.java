@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -49,7 +49,7 @@ public final class FbxLayer {
     
     int layer;
     final EnumMap<FbxLayerElement.Type, FbxLayerElementRef> references = 
-            new EnumMap<FbxLayerElement.Type, FbxLayerElementRef>(FbxLayerElement.Type.class);
+            new EnumMap<>(FbxLayerElement.Type.class);
     
     private FbxLayer() { }
     

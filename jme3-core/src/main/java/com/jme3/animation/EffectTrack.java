@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -53,7 +53,7 @@ import java.util.logging.Logger;
  * usage is
  * <pre>
  * AnimControl control model.getControl(AnimControl.class);
- * EffectTrack track = new EffectTrack(existingEmmitter, control.getAnim("TheAnim").getLength());
+ * EffectTrack track = new EffectTrack(existingEmitter, control.getAnim("TheAnim").getLength());
  * control.getAnim("TheAnim").addTrack(track);
  * </pre>
  *
@@ -75,7 +75,7 @@ public class EffectTrack implements ClonableTrack {
     private boolean emitted = false;
     private boolean initialized = false;
     //control responsible for disable and cull the emitter once all particles are gone
-    private KillParticleControl killParticles = new KillParticleControl();
+    final private KillParticleControl killParticles = new KillParticleControl();
 
     public static class KillParticleControl extends AbstractControl {
 
@@ -130,7 +130,7 @@ public class EffectTrack implements ClonableTrack {
         }
     }
 
-    //Anim listener that stops the Emmitter when the animation is finished or changed.
+    //Anim listener that stops the emitter when the animation is finished or changed.
     private class OnEndListener implements AnimEventListener {
 
         @Override
@@ -160,7 +160,7 @@ public class EffectTrack implements ClonableTrack {
         this.emitter = emitter;
         //saving particles per second value
         this.particlesPerSeconds = emitter.getParticlesPerSec();
-        //setting the emmitter to not emmit.
+        //setting the emitter to not emit.
         this.emitter.setParticlesPerSec(0);
         this.length = length;
         //Marking the emitter with a reference to this track for further use in deserialization.
@@ -204,7 +204,7 @@ public class EffectTrack implements ClonableTrack {
             emitted = true;
             emitter.setCullHint(CullHint.Dynamic);
             emitter.setEnabled(true);
-            //if the emitter has 0 particles per seconds emmit all particles in one shot
+            //if the emitter has 0 particles per second, emit all particles in one shot
             if (particlesPerSeconds == 0) {
                 emitter.emitAllParticles();
                 if (!killParticles.stopRequested) {
@@ -212,13 +212,13 @@ public class EffectTrack implements ClonableTrack {
                     killParticles.stopRequested = true;
                 }
             } else {
-                //else reset its former particlePerSec value to let it emmit.
+                //else reset its former particlePerSec value to let it emit.
                 emitter.setParticlesPerSec(particlesPerSeconds);
             }
         }
     }
 
-    //stops the emmiter to emit.
+    // Stop the emitter from emitting.
     private void stop() {
         emitter.setParticlesPerSec(0);
         emitted = false;
@@ -278,7 +278,7 @@ public class EffectTrack implements ClonableTrack {
         }
 
         removeUserData(this);
-        //setting user data on the new emmitter and marking it with a reference to the cloned Track.
+        //setting user data on the new emitter and marking it with a reference to the cloned Track.
         setUserData(effectTrack);
         effectTrack.emitter.setParticlesPerSec(0);
         return effectTrack;
@@ -347,7 +347,7 @@ public class EffectTrack implements ClonableTrack {
     /**
      * Sets the Emitter to use in this track
      *
-     * @param emitter
+     * @param emitter the emitter to be controlled (alias created)
      */
     public void setEmitter(ParticleEmitter emitter) {
         if (this.emitter != null) {
@@ -357,7 +357,7 @@ public class EffectTrack implements ClonableTrack {
         this.emitter = emitter;
         //saving particles per second value
         this.particlesPerSeconds = emitter.getParticlesPerSec();
-        //setting the emmitter to not emmit.
+        //setting the emitter to not emit.
         this.emitter.setParticlesPerSec(0);
         setUserData(this);
     }
@@ -373,7 +373,7 @@ public class EffectTrack implements ClonableTrack {
     /**
      * set the start offset of the track
      *
-     * @param startOffset
+     * @param startOffset the start offset (in seconds)
      */
     public void setStartOffset(float startOffset) {
         this.startOffset = startOffset;

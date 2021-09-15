@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -98,8 +98,8 @@ public class MaterialDebugAppState extends AbstractAppState {
     private RenderManager renderManager;
     private AssetManager assetManager;
     private InputManager inputManager;
-    private List<Binding> bindings = new ArrayList<Binding>();
-    private Map<Trigger,List<Binding>> fileTriggers = new HashMap<Trigger,List<Binding>> ();
+    final private List<Binding> bindings = new ArrayList<>();
+    final private Map<Trigger,List<Binding>> fileTriggers = new HashMap<> ();
     
 
     @Override
@@ -160,7 +160,7 @@ public class MaterialDebugAppState extends AbstractAppState {
     }
 
     /**
-     * Will reload the spatials's materials whenever the shader file is changed 
+     * Will reload the spatial's materials whenever the shader file is changed
      * on the hard drive
      * @param shaderName the shader name (relative path to the asset folder or 
      * to a registered asset path)
@@ -225,8 +225,8 @@ public class MaterialDebugAppState extends AbstractAppState {
             return null;
         }
 
-        Logger.getLogger(MaterialDebugAppState.class.getName()).log(Level.INFO, "Material succesfully reloaded");
-        //System.out.println("Material succesfully reloaded");
+        Logger.getLogger(MaterialDebugAppState.class.getName()).log(Level.INFO, "Material successfully reloaded");
+        //System.out.println("Material successfully reloaded");
         return dummy;
     }
    
@@ -304,7 +304,7 @@ public class MaterialDebugAppState extends AbstractAppState {
             Field[] fields1 = filter.getClass().getDeclaredFields();
             Field[] fields2 = filter.getClass().getSuperclass().getDeclaredFields();
 
-            List<Field> fields = new ArrayList<Field>();
+            List<Field> fields = new ArrayList<>();
             fields.addAll(Arrays.asList(fields1));
             fields.addAll(Arrays.asList(fields2));
             Material m = new Material();
@@ -335,7 +335,7 @@ public class MaterialDebugAppState extends AbstractAppState {
                     }
                     if (field.getName().equals("postRenderPasses")) {
                         field.setAccessible(true);
-                        List<Pass> passes = new ArrayList<Pass>();
+                        List<Pass> passes = new ArrayList<>();
                         passes = (List<Pass>) field.get(filter);
                         if (passes != null) {
                             for (Pass pass : passes) {
@@ -349,9 +349,7 @@ public class MaterialDebugAppState extends AbstractAppState {
                         }
                     }
                 }
-            } catch (IllegalArgumentException ex) {
-                Logger.getLogger(MaterialDebugAppState.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (IllegalAccessException ex) {
+            } catch (IllegalArgumentException | IllegalAccessException ex) {
                 Logger.getLogger(MaterialDebugAppState.class.getName()).log(Level.SEVERE, null, ex);
             }
 
@@ -388,13 +386,10 @@ public class MaterialDebugAppState extends AbstractAppState {
                     file = new File(url.getFile());
                     fileLastM = file.lastModified();
 
-                } catch (NoSuchFieldException ex) {
-                    Logger.getLogger(MaterialDebugAppState.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (SecurityException ex) {
-                    Logger.getLogger(MaterialDebugAppState.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (IllegalArgumentException ex) {
-                    Logger.getLogger(MaterialDebugAppState.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (IllegalAccessException ex) {
+                } catch (NoSuchFieldException
+                        | SecurityException
+                        | IllegalArgumentException
+                        | IllegalAccessException ex) {
                     Logger.getLogger(MaterialDebugAppState.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }

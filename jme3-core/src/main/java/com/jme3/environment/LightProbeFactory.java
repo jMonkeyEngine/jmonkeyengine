@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -65,12 +65,18 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
  * Note that in case you are using a {@link JobProgressListener} all the its 
  * method will be called inside and app.enqueue callable.
  * This means that it's completely safe to modify the scenegraph within the 
- * Listener method, but also means that the even will be delayed until next update loop.
+ * Listener method, but also means that the event will be delayed until next update loop.
  * 
  * @see EnvironmentCamera
  * @author bouquet
  */
 public class LightProbeFactory {
+
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private LightProbeFactory() {
+    }
 
     /**
      * Creates a LightProbe with the giver EnvironmentCamera in the given scene.
@@ -208,15 +214,17 @@ public class LightProbeFactory {
     }
 
     /**
-     * For debuging porpose only
+     * For debugging purposes only.
      * Will return a Node meant to be added to a GUI presenting the 2 cube maps in a cross pattern with all the mip maps.
      *
      * @param manager the asset manager
+     * @param probe the LightProbe to be debugged (not null)
      * @return a debug node
      */
     public static Node getDebugGui(AssetManager manager, LightProbe probe) {
         if (!probe.isReady()) {
-            throw new UnsupportedOperationException("This EnvProbe is not ready yet, try to test isReady()");
+            throw new IllegalStateException(
+                    "The LightProbe is not ready yet, please test isReady().");
         }
 
         Node debugNode = new Node("debug gui probe");
@@ -252,8 +260,8 @@ public class LightProbeFactory {
 
         float getProgress() {
             float mean = 0;
-            for (double progres : progress) {
-                mean += progres;
+            for (double faceProgress : progress) {
+                mean += faceProgress;
             }
             return mean / 7f;
         }

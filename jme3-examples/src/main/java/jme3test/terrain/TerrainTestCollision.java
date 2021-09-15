@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,6 @@ import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.input.controls.MouseButtonTrigger;
 import com.jme3.light.DirectionalLight;
-import com.jme3.light.PointLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Quaternion;
@@ -53,7 +52,6 @@ import com.jme3.math.Ray;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.Node;
 import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Sphere;
 import com.jme3.terrain.geomipmap.TerrainLodControl;
@@ -78,19 +76,12 @@ import java.util.List;
  */
 public class TerrainTestCollision extends SimpleApplication {
 
-    TerrainQuad terrain;
-    Node terrainPhysicsNode;
-    Material matRock;
-    Material matWire;
-    boolean wireframe = false;
-    protected BitmapText hintText;
-    PointLight pl;
-    Geometry lightMdl;
-    List<Geometry> collisionMarkers;
-    private BulletAppState bulletAppState;
-    Geometry collisionSphere;
-    Geometry collisionBox;
-    Geometry selectedCollisionObject;
+    private TerrainQuad terrain;
+    private Material matRock;
+    private Material matWire;
+    private boolean wireframe = false;
+    private List<Geometry> collisionMarkers;
+    private Geometry selectedCollisionObject;
 
     public static void main(String[] args) {
         TerrainTestCollision app = new TerrainTestCollision();
@@ -107,7 +98,7 @@ public class TerrainTestCollision extends SimpleApplication {
     @Override
     public void simpleInitApp() {
         collisionMarkers = new ArrayList<>();
-        bulletAppState = new BulletAppState();
+        BulletAppState bulletAppState = new BulletAppState();
         bulletAppState.setThreadingType(BulletAppState.ThreadingType.PARALLEL);
         stateManager.attach(bulletAppState);
         setupKeys();
@@ -171,7 +162,7 @@ public class TerrainTestCollision extends SimpleApplication {
             bulletAppState.getPhysicsSpace().add(sphere);
         }
 
-        collisionBox = new Geometry("collisionBox", new Box(2, 2, 2));
+        Geometry collisionBox = new Geometry("collisionBox", new Box(2, 2, 2));
         collisionBox.setModelBound(new BoundingBox());
         collisionBox.setLocalTranslation(new Vector3f(20, 95, 30));
         collisionBox.setMaterial(matWire);
@@ -188,7 +179,7 @@ public class TerrainTestCollision extends SimpleApplication {
     }
 
     public void loadHintText() {
-        hintText = new BitmapText(guiFont, false);
+        BitmapText hintText = new BitmapText(guiFont, false);
         hintText.setSize(guiFont.getCharSet().getRenderedSize());
         hintText.setLocalTranslation(0, getCamera().getHeight(), 0);
         hintText.setText("Press T to toggle wireframe");
@@ -246,7 +237,7 @@ public class TerrainTestCollision extends SimpleApplication {
         }
     }
 
-    private ActionListener actionListener = new ActionListener() {
+    final private ActionListener actionListener = new ActionListener() {
 
         @Override
         public void onAction(String binding, boolean keyPressed, float tpf) {

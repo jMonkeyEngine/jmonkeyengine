@@ -1,12 +1,6 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.jme3.material.plugin.export.materialdef;
 
 import com.jme3.material.*;
-
 import java.io.*;
 import java.util.List;
 
@@ -68,8 +62,9 @@ public class J3mdExporter {
 
 
     public void save(MaterialDef matDef, File f) throws IOException {
-        try (FileOutputStream fos = new FileOutputStream(f)) {
-            save(matDef, fos);
+        try (FileOutputStream fos = new FileOutputStream(f);
+                BufferedOutputStream bos = new BufferedOutputStream(fos)) {
+            save(matDef, bos);
         }
     }
 

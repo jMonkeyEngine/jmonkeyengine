@@ -125,13 +125,13 @@ public class CustomArrayAdapter extends ArrayAdapter<String> {
             String prefix = constraint.toString().toLowerCase();
             Log.i(TAG, "performFiltering: entries size: " + entries.size());
             if (prefix == null || prefix.length() == 0){
-                ArrayList<String> list = new ArrayList<String>(entries);
+                ArrayList<String> list = new ArrayList<>(entries);
                 results.values = list;
                 results.count = list.size();
                 Log.i(TAG, "clearing filter with size: " + list.size());
             }else{
-                final ArrayList<String> list = new ArrayList<String>(entries);
-                final ArrayList<String> nlist = new ArrayList<String>();
+                final ArrayList<String> list = new ArrayList<>(entries);
+                final ArrayList<String> nlist = new ArrayList<>();
                 int count = list.size();
 
                 for (int i = 0; i<count; i++){

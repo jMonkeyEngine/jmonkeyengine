@@ -4,7 +4,7 @@ ShaderNodeDefinitions{
         Shader GLSL100: Common/MatDefs/ShaderNodes/Basic/texture.frag
 		Shader GLSL150: Common/MatDefs/ShaderNodes/Basic/texture15.frag
         Documentation{
-            Fetches a color value in the given texture acording to given texture coordinates
+            Fetches a color value in the given texture according to given texture coordinates
             @input textureMap the texture to read
             @input texCoord the texture coordinates
             @output outColor the fetched color

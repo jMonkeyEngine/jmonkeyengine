@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -112,21 +112,21 @@ public class Utils {
     }
     public static void checkError(int error, String callName) {
         if (error != CL10.CL_SUCCESS) {
-            String errname = getErrorName(error);
-            if (errname == null) {
-                errname = "UNKNOWN";
+            String errorName = getErrorName(error);
+            if (errorName == null) {
+                errorName = "UNKNOWN";
             }
-            throw new OpenCLException("OpenCL error in " + callName + ": " + errname + " (0x" + Integer.toHexString(error) + ")", error);
+            throw new OpenCLException("OpenCL error in " + callName + ": " + errorName + " (0x" + Integer.toHexString(error) + ")", error);
         }
     }
     
     public static void reportError(int error, String callName) {
         if (error != CL10.CL_SUCCESS) {
-            String errname = getErrorName(error);
-            if (errname == null) {
-                errname = "UNKNOWN";
+            String errorName = getErrorName(error);
+            if (errorName == null) {
+                errorName = "UNKNOWN";
             }
-            LOG.log(Level.WARNING, "OpenCL error in {0}: {1} (0x{2})", new Object[]{callName, errname, Integer.toHexString(error)});
+            LOG.log(Level.WARNING, "OpenCL error in {0}: {1} (0x{2})", new Object[]{callName, errorName, Integer.toHexString(error)});
         }
     }
     

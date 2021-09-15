@@ -1,7 +1,7 @@
 package com.jme3.shadow;
 
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -108,7 +108,7 @@ public abstract class AbstractShadowRendererVR implements SceneProcessor, Savabl
     /**
      * list of materials for post shadow queue geometries
      */
-    protected List<Material> matCache = new ArrayList<Material>();
+    protected List<Material> matCache = new ArrayList<>();
     protected GeometryList lightReceivers = new GeometryList(new OpaqueComparator());
     protected GeometryList shadowMapOccluders = new GeometryList(new OpaqueComparator());
     private String[] shadowMapStringCache;
@@ -178,7 +178,7 @@ public abstract class AbstractShadowRendererVR implements SceneProcessor, Savabl
 
             postshadowMat.setTexture(shadowMapStringCache[i], shadowMaps[i]);
 
-            //quads for debuging purpose
+            //quads for debugging purposes
             dispPic[i] = new Picture("Picture" + i);
             dispPic[i].setTexture(assetManager, shadowMaps[i], false);
         }
@@ -221,7 +221,7 @@ public abstract class AbstractShadowRendererVR implements SceneProcessor, Savabl
      */
     final public void setEdgeFilteringMode(EdgeFilteringMode filterMode) {
         if (filterMode == null) {
-            throw new NullPointerException();
+            throw new IllegalArgumentException("filterMode cannot be null");
         }
 
         this.edgeFilteringMode = filterMode;
@@ -552,7 +552,7 @@ public abstract class AbstractShadowRendererVR implements SceneProcessor, Savabl
     protected abstract void setMaterialParameters(Material material);
 
     private void setMatParams(GeometryList l) {
-        //iteration throught all the geometries of the list to gather the materials
+        //iterate through all the geometries of the list to gather the materials
 
         buildMatCache(l);
 
@@ -754,15 +754,6 @@ public abstract class AbstractShadowRendererVR implements SceneProcessor, Savabl
      */
     @Deprecated
     public boolean isFlushQueues() { return false; }
-
-    /**
-     * This method does nothing now and is kept only for backward compatibility.
-     * @param flushQueues any boolean.
-     * @deprecated This method does nothing now and is kept only for backward compatibility.
-     */
-    @Deprecated
-    public void setFlushQueues(boolean flushQueues) {}
-
 
     /**
      * Returns the pre shadows pass render state.

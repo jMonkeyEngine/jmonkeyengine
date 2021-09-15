@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,10 +41,10 @@ import com.jme3.math.*;
 @Deprecated
 class SweepSphere implements Collidable {
 
-    private Vector3f velocity = new Vector3f();
-    private Vector3f center = new Vector3f();
-    private Vector3f dimension = new Vector3f();
-    private Vector3f invDim = new Vector3f();
+    final private Vector3f velocity = new Vector3f();
+    final private Vector3f center = new Vector3f();
+    final private Vector3f dimension = new Vector3f();
+    final private Vector3f invDim = new Vector3f();
 
     private final Triangle scaledTri = new Triangle();
     private final Plane triPlane = new Plane();

@@ -90,6 +90,9 @@ public class AndroidLogHandler extends Handler {
      * Returns the short logger tag for the given logger name.
      * Traditionally loggers are named by fully-qualified Java classes; this
      * method attempts to return a concise identifying part of such names.
+     * 
+     * @param loggerName the logger name, or null for anonymous
+     * @return the short logger tag
      */
     public static String loggerNameToTag(String loggerName) {
         // Anonymous logger.

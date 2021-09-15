@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,11 +37,11 @@ package com.jme3.cinematic;
  */
 public enum PlayState {
 
-        /**The CinematicEvent is currently beeing played*/
+        /** The CinematicEvent is currently being played. */
         Playing,
-        /**The animatable has been paused*/
+        /** The CinematicEvent is paused. */
         Paused,
-        /**the animatable is stoped*/
+        /** The CinematicEvent is stopped. */
         Stopped
 }
     

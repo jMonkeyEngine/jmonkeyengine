@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -96,12 +96,12 @@ public class TestChooser extends JDialog {
      * @return classes vector, list of all the classes in a given package (must
      *         be found in classpath).
      */
-    protected Vector<Class> find(String pckgname, boolean recursive,
+    private Vector<Class> find(String packageName, boolean recursive,
             Vector<Class> classes) {
         URL url;
 
         // Translate the package name into an absolute path
-        String name = pckgname;
+        String name = packageName;
         if (!name.startsWith("/")) {
             name = "/" + name;
         }
@@ -111,7 +111,7 @@ public class TestChooser extends JDialog {
         // URL url = UPBClassLoader.get().getResource(name);
         url = this.getClass().getResource(name);
         // URL url = ClassLoader.getSystemClassLoader().getResource(name);
-        pckgname = pckgname + ".";
+        packageName = packageName + ".";
 
         File directory;
         try {
@@ -123,7 +123,7 @@ public class TestChooser extends JDialog {
         if (directory.exists()) {
             logger.fine("Searching for Demo classes in \""
                     + directory.getName() + "\".");
-            addAllFilesInDirectory(directory, classes, pckgname, recursive);
+            addAllFilesInDirectory(directory, classes, packageName, recursive);
         } else {
             try {
                 // It does not work with the filesystem: we must
@@ -145,10 +145,10 @@ public class TestChooser extends JDialog {
                 }
             } catch (IOException e) {
                 logger.logp(Level.SEVERE, this.getClass().toString(),
-                        "find(pckgname, recursive, classes)", "Exception", e);
+                        "find(packageName, recursive, classes)", "Exception", e);
             } catch (Exception e) {
                 logger.logp(Level.SEVERE, this.getClass().toString(),
-                        "find(pckgname, recursive, classes)", "Exception", e);
+                        "find(packageName, recursive, classes)", "Exception", e);
             }
         }
         return classes;
@@ -180,17 +180,10 @@ public class TestChooser extends JDialog {
                 if (!getClass().equals(cls)) {
                     return cls;
                 }
-            } catch (NoClassDefFoundError e) {
-                // class has unresolved dependencies
-                return null;
-            } catch (ClassNotFoundException e) {
-                // class not in classpath
-                return null;
-            } catch (NoSuchMethodException e) {
-                // class does not have a main method
-                return null;
-            } catch (UnsupportedClassVersionError e){
-                // unsupported version
+            } catch (NoClassDefFoundError // class has unresolved dependencies
+                    | ClassNotFoundException // class not in classpath
+                    | NoSuchMethodException // class does not have a main method
+                    | UnsupportedClassVersionError e) { // unsupported version             
                 return null;
             }
         }
@@ -205,9 +198,9 @@ public class TestChooser extends JDialog {
      * @param allClasses
      *            add loaded classes to this collection
      * @param packageName
-     *            current package name for the diven directory
+     *            current package name for the given directory
      * @param recursive
-     *            true to descent into subdirectories
+     *            true to descend into subdirectories
      */
     private void addAllFilesInDirectory(File directory,
             Collection<Class> allClasses, String packageName, boolean recursive) {
@@ -461,7 +454,7 @@ public class TestChooser extends JDialog {
     }
 
     protected void start(String[] args) {
-        final Vector<Class> classes = new Vector<Class>();
+        final Vector<Class> classes = new Vector<>();
         logger.fine("Composing Test list...");
         addDisplayedClasses(classes);
         setup(classes);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -181,6 +181,10 @@ public class RenderQueue {
      *                     at all.
      *  <li>Bucket.Gui: {@link com.jme3.renderer.queue.GuiComparator} sorts geometries back to
      *                     front based on their Z values.
+     *  </ul>
+     *
+     * @param bucket which Bucket to modify (not null)
+     * @param c the comparator to use (alias created)
      */
     public void setGeometryComparator(Bucket bucket, GeometryComparator c) {
         switch (bucket) {
@@ -207,6 +211,9 @@ public class RenderQueue {
     /**
      *  Returns the current GeometryComparator used by the specified bucket,
      *  one of Gui, Opaque, Sky, Transparent, or Translucent.
+     *
+     * @param bucket which Bucket to access (not null)
+     * @return the pre-existing instance
      */
     public GeometryComparator getGeometryComparator(Bucket bucket) {
         switch (bucket) {

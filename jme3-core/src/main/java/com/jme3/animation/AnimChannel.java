@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -244,6 +244,8 @@ public final class AnimChannel {
 
     /**
      * Add a single bone to be influenced by this animation channel.
+     * 
+     * @param name the name of the Bone to be influenced
      */
     public void addBone(String name) {
         addBone(control.getSkeleton().getBone(name));
@@ -251,6 +253,8 @@ public final class AnimChannel {
 
     /**
      * Add a single bone to be influenced by this animation channel.
+     *
+     * @param bone the Bone to be influenced
      */
     public void addBone(Bone bone) {
         int boneIndex = control.getSkeleton().getBoneIndex(bone);
@@ -263,6 +267,8 @@ public final class AnimChannel {
     /**
      * Add bones to be influenced by this animation channel starting from the
      * given bone name and going toward the root bone.
+     *
+     * @param name the name of the Bone to use as a starting point
      */
     public void addToRootBone(String name) {
         addToRootBone(control.getSkeleton().getBone(name));
@@ -271,6 +277,8 @@ public final class AnimChannel {
     /**
      * Add bones to be influenced by this animation channel starting from the
      * given bone and going toward the root bone.
+     *
+     * @param bone the Bone to use as a starting point
      */
     public void addToRootBone(Bone bone) {
         addBone(bone);
@@ -283,6 +291,8 @@ public final class AnimChannel {
     /**
      * Add bones to be influenced by this animation channel, starting
      * from the given named bone and going toward its children.
+     *
+     * @param name the name of the Bone to use as a starting point
      */
     public void addFromRootBone(String name) {
         addFromRootBone(control.getSkeleton().getBone(name));
@@ -291,6 +301,8 @@ public final class AnimChannel {
     /**
      * Add bones to be influenced by this animation channel, starting
      * from the given bone and going toward its children.
+     *
+     * @param bone the Bone to use as a starting point
      */
     public void addFromRootBone(Bone bone) {
         addBone(bone);

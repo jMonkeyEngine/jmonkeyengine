@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -88,7 +88,7 @@ public class ListSort<T> {
 
     /* Try to used a kind of structure like in the original implementation.
      * Ended up using 2 arrays as done in the java 7 Timsort. 
-     * Original implementation use a struct, but instanciation of this inner 
+     * Original implementation used a struct, but instantiation of this inner
      * class + array was a convoluted pain.
      */
     /**
@@ -129,7 +129,7 @@ public class ListSort<T> {
      * at least once, but only if the length of the list to sort changed before
      * sorting
      *
-     * @param len
+     * @param len the size of the array to sort
      */
     @SuppressWarnings("unchecked")
     public final void allocateStack(int len) {
@@ -200,7 +200,7 @@ public class ListSort<T> {
         int remaining = high - low;
 
         /*
-         * If array's size is bellow min_size we perform a binary insertion sort 
+         * If array's size is below min_size we perform a binary insertion sort 
          * but first we check if some existing ordered pattern exists to reduce 
          * the size of data to be sorted
          */
@@ -219,7 +219,7 @@ public class ListSort<T> {
         while (remaining != 0) {
             int runLength = getRunLength(array, low, high, comparator);
 
-            /* if runlength is bellow the threshold we binary sort the remaining 
+            /* if run length is below the threshold we binary sort the remaining
              * elements
              */
             if (runLength < minLength) {
@@ -281,8 +281,8 @@ public class ListSort<T> {
                     runEnd++;
                 }
                 // the run's order is descending, it has to be reversed
-                // original algorithmm return a descending = 1 value and the 
-                //reverse is done in the sort method. Looks good to have it here though
+                // original algorithm returned a descending = 1 value and the
+                // reverse was done in the sort method. Looks good to have it here though
                 reverseArray(array, firstId, runEnd);
             }
 
@@ -293,7 +293,7 @@ public class ListSort<T> {
     }
 
     /**
-     * binarysort is the best method for sorting small arrays: it does few
+     * Binary sort is the best method for sorting small arrays: it does few
      * compares, but can do data movement quadratic in the number of elements.
      * [firstId, lastId] is a contiguous slice of a list, and is sorted via
      * binary insertion. This sort is stable. On entry, must have firstId <=
@@ -993,8 +993,10 @@ public class ListSort<T> {
         return length;
     }
     
-    /*
+    /**
      * test case
+     *
+     * @param argv ignored
      */
     @SuppressWarnings("unchecked")
     public static void main(String[] argv) {

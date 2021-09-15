@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,6 +39,7 @@ import com.jme3.math.*;
 import com.jme3.renderer.*;
 import com.jme3.scene.Geometry;
 import com.jme3.shader.*;
+import com.jme3.texture.TextureCubeMap;
 import com.jme3.util.TempVars;
 
 import java.util.*;
@@ -53,7 +54,7 @@ public final class SinglePassAndImageBasedLightingLogic extends DefaultTechnique
 
     private boolean useAmbientLight;
     private final ColorRGBA ambientLightColor = new ColorRGBA(0, 0, 0, 1);
-    private List<LightProbe> lightProbes = new ArrayList<>(3);
+    final private List<LightProbe> lightProbes = new ArrayList<>(3);
 
     static {
         ADDITIVE_LIGHT.setBlendMode(BlendMode.AlphaAdditive);
@@ -94,17 +95,25 @@ public final class SinglePassAndImageBasedLightingLogic extends DefaultTechnique
     }
 
     /**
-     * Uploads the lights in the light list as two uniform arrays.<br/><br/> *
+     * Uploads the lights in the light list as two uniform arrays.
      * <p>
-     * <code>uniform vec4 g_LightColor[numLights];</code><br/> //
-     * g_LightColor.rgb is the diffuse/specular color of the light.<br/> //
-     * g_Lightcolor.a is the type of light, 0 = Directional, 1 = Point, <br/> //
-     * 2 = Spot. <br/> <br/>
-     * <code>uniform vec4 g_LightPosition[numLights];</code><br/> //
-     * g_LightPosition.xyz is the position of the light (for point lights)<br/>
-     * // or the direction of the light (for directional lights).<br/> //
+     * <code>uniform vec4 g_LightColor[numLights];</code> //
+     * g_LightColor.rgb is the diffuse/specular color of the light. //
+     * g_Lightcolor.a is the type of light, 0 = Directional, 1 = Point, 2 = Spot.
+     * <code>uniform vec4 g_LightPosition[numLights];</code> //
+     * g_LightPosition.xyz is the position of the light (for point lights)
+     * // or the direction of the light (for directional lights). //
      * g_LightPosition.w is the inverse radius (1/r) of the light (for
-     * attenuation) <br/> </p>
+     * attenuation) </p>
+     *
+     * @param shader the Shader being used
+     * @param g the Geometry being rendered
+     * @param lightList the list of lights
+     * @param numLights the number of lights to upload
+     * @param rm to manage rendering
+     * @param startIndex the starting index in the LightList
+     * @param lastTexUnit the index of the most recently-used texture unit
+     * @return the next starting index in the LightList
      */
     protected int updateLightListUniforms(Shader shader, Geometry g, LightList lightList, int numLights, RenderManager rm, int startIndex, int lastTexUnit) {
         if (numLights == 0) { // this shader does not do lighting, ignore.
@@ -224,7 +233,7 @@ public final class SinglePassAndImageBasedLightingLogic extends DefaultTechnique
         }
         vars.release();
 
-        //Padding of unsued buffer space
+        // pad unused buffer space
         while(lightDataIndex < numLights * 3) {
             lightData.setVector4InArray(0f, 0f, 0f, 0f, lightDataIndex);
             lightDataIndex++;
@@ -237,9 +246,19 @@ public final class SinglePassAndImageBasedLightingLogic extends DefaultTechnique
         lightProbeData.setValue(VarType.Matrix4, lightProbe.getUniformMatrix());
                 //setVector4InArray(lightProbe.getPosition().x, lightProbe.getPosition().y, lightProbe.getPosition().z, 1f / area.getRadius() + lightProbe.getNbMipMaps(), 0);
         shCoeffs.setValue(VarType.Vector3Array, lightProbe.getShCoeffs());
-        //assigning new texture indexes
+        /*
+         * Assign the prefiltered env map to the next available texture unit.
+         */
         int pemUnit = lastTexUnit++;
-        rm.getRenderer().setTexture(pemUnit, lightProbe.getPrefilteredEnvMap());
+        Renderer renderer = rm.getRenderer();
+        TextureCubeMap pemTexture = lightProbe.getPrefilteredEnvMap();
+        try {
+            renderer.setTexture(pemUnit, pemTexture);
+        } catch (TextureUnitException exception) {
+            String message = "Can't assign texture unit for LightProbe."
+                    + " lastTexUnit=" + lastTexUnit;
+            throw new IllegalArgumentException(message);
+        }
         lightProbePemMap.setValue(VarType.Int, pemUnit);
         return lastTexUnit;
     }

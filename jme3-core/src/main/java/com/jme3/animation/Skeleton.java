@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -138,7 +138,7 @@ public final class Skeleton implements Savable, JmeCloneable {
     public void cloneFields( Cloner cloner, Object original ) {
         this.rootBones = cloner.clone(rootBones);
         this.boneList = cloner.clone(boneList);
-        this.skinningMatrixes = cloner.clone(skinningMatrixes);    
+        this.skinningMatrixes = cloner.clone(skinningMatrixes);
     }
 
     private void createSkinningMatrices() {
@@ -211,7 +211,8 @@ public final class Skeleton implements Savable, JmeCloneable {
 
     /**
      * return a bone for the given index
-     * @param index
+     *
+     * @param index the (zero-based) bone index (&ge;0)
      * @return the pre-existing instance
      */
     public Bone getBone(int index) {
@@ -220,7 +221,8 @@ public final class Skeleton implements Savable, JmeCloneable {
 
     /**
      * returns the bone with the given name
-     * @param name
+     *
+     * @param name the name to search for
      * @return the pre-existing instance, or null if not found
      */
     public Bone getBone(String name) {
@@ -234,7 +236,8 @@ public final class Skeleton implements Savable, JmeCloneable {
 
     /**
      * returns the bone index of the given bone
-     * @param bone
+     *
+     * @param bone the Bone to search for (unaffected)
      * @return the index (&ge;0) or -1 if not found
      */
     public int getBoneIndex(Bone bone) {
@@ -249,7 +252,8 @@ public final class Skeleton implements Savable, JmeCloneable {
 
     /**
      * returns the bone index of the bone that has the given name
-     * @param name
+     *
+     * @param name the name to search for
      * @return the index (&ge;0) or -1 if not found 
      */
     public int getBoneIndex(String name) {

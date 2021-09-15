@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -80,6 +80,12 @@ public class SkyFactory {
         EquirectMap
     }
     
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private SkyFactory() {
+    }
+
     /**
      * Create a sky with radius=10 using the given cubemap or spheremap texture.
      *
@@ -186,24 +192,32 @@ public class SkyFactory {
         sky.setCullHint(Spatial.CullHint.Never);
         sky.setModelBound(new BoundingSphere(Float.POSITIVE_INFINITY, Vector3f.ZERO));
 
-        Material skyMat = new Material(assetManager, "Common/MatDefs/Misc/Sky.j3md");
-        skyMat.setVector3("NormalScale", normalScale);
-        switch (envMapType){
-            case CubeMap : 
+        Material skyMat;
+        switch (envMapType) {
+            case CubeMap:
                 // make sure it's a cubemap
                 if (!(texture instanceof TextureCubeMap)) {
                     Image img = texture.getImage();
                     texture = new TextureCubeMap();
                     texture.setImage(img);
                 }
+                skyMat = new Material(assetManager,
+                        "Common/MatDefs/Misc/Sky.j3md");
                 break;
-            case SphereMap :     
+            case SphereMap:
+                skyMat = new Material(assetManager,
+                        "Common/MatDefs/Misc/SkyNonCube.j3md");
                 skyMat.setBoolean("SphereMap", true);
                 break;
-            case EquirectMap : 
+            case EquirectMap:
+                skyMat = new Material(assetManager,
+                        "Common/MatDefs/Misc/SkyNonCube.j3md");
                 skyMat.setBoolean("EquirectMap", true);
                 break;
+            default:
+                throw new IllegalArgumentException("envMapType=" + envMapType);
         }
+        skyMat.setVector3("NormalScale", normalScale);
         texture.setMagFilter(Texture.MagFilter.Bilinear);
         texture.setMinFilter(Texture.MinFilter.BilinearNoMipMaps);
         texture.setAnisotropicFilter(0);

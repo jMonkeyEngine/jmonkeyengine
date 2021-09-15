@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -67,16 +67,14 @@ import java.util.List;
  * one.<br> splits are distributed so that the closer they are from the camera,
  * the smaller they are to maximize the resolution used of the shadow map.<br>
  * This results in a better quality shadow than standard shadow mapping.<br> for
- * more informations on this read this <a
+ * more information on this read <a
  * href="http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html">http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html</a><br>
- * <p/>
+ *
  * @author Rémy Bouquet aka Nehon
  * @deprecated use {@link DirectionalLightShadowRenderer}
  */
 @Deprecated
 public class PssmShadowRenderer implements SceneProcessor {
-
-    private AppProfiler prof;
 
     /**
      * <code>FilterMode</code> specifies how shadows are filtered
@@ -171,7 +169,7 @@ public class PssmShadowRenderer implements SceneProcessor {
     protected boolean applyPCFEdge = true;
     protected boolean applyShadowIntensity = true;
     //a list of material of the post shadow queue geometries.
-    protected List<Material> matCache = new ArrayList<Material>();
+    protected List<Material> matCache = new ArrayList<>();
     //Holding the info for fading shadows in the far distance 
     protected Vector2f fadeInfo;
     protected float fadeLength;
@@ -236,7 +234,7 @@ public class PssmShadowRenderer implements SceneProcessor {
 
             postshadowMat.setTexture("ShadowMap" + i, shadowMaps[i]);
 
-            //quads for debuging purpose
+            //quads for debugging purposes
             dispPic[i] = new Picture("Picture" + i);
             dispPic[i].setTexture(manager, shadowMaps[i], false);
         }
@@ -258,11 +256,11 @@ public class PssmShadowRenderer implements SceneProcessor {
      * Sets the filtering mode for shadow edges see {@link FilterMode} for more
      * info
      *
-     * @param filterMode
+     * @param filterMode the desired mode (not null)
      */
     final public void setFilterMode(FilterMode filterMode) {
         if (filterMode == null) {
-            throw new NullPointerException();
+            throw new IllegalArgumentException("filterMode cannot be null");
         }
 
         if (this.filterMode == filterMode) {
@@ -289,11 +287,11 @@ public class PssmShadowRenderer implements SceneProcessor {
     /**
      * sets the shadow compare mode see {@link CompareMode} for more info
      *
-     * @param compareMode
+     * @param compareMode the desired mode (not null)
      */
     final public void setCompareMode(CompareMode compareMode) {
         if (compareMode == null) {
-            throw new NullPointerException();
+            throw new IllegalArgumentException("compareMode cannot be null");
         }
 
         if (this.compareMode == compareMode) {
@@ -376,7 +374,7 @@ public class PssmShadowRenderer implements SceneProcessor {
     /**
      * Sets the light direction to use to compute shadows
      *
-     * @param direction
+     * @param direction a direction vector (not null, unaffected)
      */
     public void setDirection(Vector3f direction) {
         this.direction.set(direction).normalizeLocal();
@@ -438,9 +436,9 @@ public class PssmShadowRenderer implements SceneProcessor {
             renderManager.setCamera(shadowCam, false);
 
             if (debugfrustums) {
-//                    frustrumFromBound(b.casterBB,ColorRGBA.Blue );
-//                    frustrumFromBound(b.receiverBB,ColorRGBA.Green );
-//                    frustrumFromBound(b.splitBB,ColorRGBA.Yellow );
+//                    frustumFromBound(b.casterBB,ColorRGBA.Blue );
+//                    frustumFromBound(b.receiverBB,ColorRGBA.Green );
+//                    frustumFromBound(b.splitBB,ColorRGBA.Yellow );
                 ((Node) viewPort.getScenes().get(0)).attachChild(createFrustum(points, i));
                 ShadowUtil.updateFrustumPoints2(shadowCam, points);
                 ((Node) viewPort.getScenes().get(0)).attachChild(createFrustum(points, i));
@@ -526,7 +524,7 @@ public class PssmShadowRenderer implements SceneProcessor {
 
         GeometryList l = lightReceivers;
 
-        //iteration throught all the geometries of the list to gather the materials
+        //iterate through all the geometries in the list to gather the materials
 
         matCache.clear();
         for (int i = 0; i < l.size(); i++) {
@@ -606,7 +604,7 @@ public class PssmShadowRenderer implements SceneProcessor {
         return lambda;
     }
 
-    /*
+    /**
      * Adjust the repartition of the different shadow maps in the shadow extend
      * usually goes from 0.0 to 1.0
      * a low value give a more linear repartition resulting in a constant quality in the shadow over the extends, but near shadows could look very jagged
@@ -680,7 +678,7 @@ public class PssmShadowRenderer implements SceneProcessor {
      * Sets the shadow edges thickness. default is 1, setting it to lower values
      * can help to reduce the jagged effect of the shadow edges
      *
-     * @param edgesThickness
+     * @param edgesThickness the desired thickness (in tenths of a pixel, default=10)
      */
     public void setEdgesThickness(int edgesThickness) {
         this.edgesThickness = Math.max(1, Math.min(edgesThickness, 10));
@@ -703,7 +701,7 @@ public class PssmShadowRenderer implements SceneProcessor {
      * multiple shadows cast by multiple light sources. Make sure the last
      * PssmRenderer in the stack DOES flush the queues, but not the others
      *
-     * @param flushQueues
+     * @param flushQueues true to flush the queues, false to avoid flushing them
      */
     public void setFlushQueues(boolean flushQueues) {
         this.flushQueues = flushQueues;
@@ -734,7 +732,7 @@ public class PssmShadowRenderer implements SceneProcessor {
 
     @Override
     public void setProfiler(AppProfiler profiler) {
-        this.prof = profiler;
+        // not implemented
     }
 
     /**

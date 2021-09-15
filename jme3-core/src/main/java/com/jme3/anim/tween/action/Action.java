@@ -30,7 +30,13 @@ public abstract class Action implements JmeCloneable, Tween {
         return length;
     }
 
-    protected void setLength(double length) {
+    /**
+     * Alter the length (duration) of this Action.  This can be used to extend
+     * or truncate an Action.
+     *
+     * @param length the desired length (in unscaled seconds, default=0)
+     */
+    public void setLength(double length) {
         this.length = length;
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -561,7 +561,7 @@ final class BinaryInputCapsule implements InputCapsule {
         if(savables == null) {
             return null;
         }
-        ArrayList<Savable> arrayList = new ArrayList<Savable>(savables.length);
+        ArrayList<Savable> arrayList = new ArrayList<>(savables.length);
         for (int x = 0; x < savables.length; x++) {
             arrayList.add(savables[x]);
         }
@@ -573,7 +573,7 @@ final class BinaryInputCapsule implements InputCapsule {
         if(savables == null) {
             return null;
         }
-        Map<Savable, Savable> map = new HashMap<Savable, Savable>(savables.length);
+        Map<Savable, Savable> map = new HashMap<>(savables.length);
         for (int x = 0; x < savables.length; x++) {
             map.put(savables[x][0], savables[x][1]);
         }
@@ -585,7 +585,7 @@ final class BinaryInputCapsule implements InputCapsule {
             return null;
         }
 
-        Map<String, Savable> map = new HashMap<String, Savable>(keys.length);
+        Map<String, Savable> map = new HashMap<>(keys.length);
         for (int x = 0; x < keys.length; x++)
             map.put(keys[x], values[x]);
 
@@ -597,7 +597,7 @@ final class BinaryInputCapsule implements InputCapsule {
             return null;
         }
 
-        IntMap<Savable> map = new IntMap<Savable>(keys.length);
+        IntMap<Savable> map = new IntMap<>(keys.length);
         for (int x = 0; x < keys.length; x++)
             map.put(keys[x], values[x]);
 
@@ -1168,7 +1168,7 @@ final class BinaryInputCapsule implements InputCapsule {
         if (length == BinaryOutputCapsule.NULL_OBJECT) {
             return null;
         }
-        ArrayList<FloatBuffer> rVal = new ArrayList<FloatBuffer>(length);
+        ArrayList<FloatBuffer> rVal = new ArrayList<>(length);
         for (int x = 0; x < length; x++) {
             rVal.add(readFloatBuffer(content));
         }
@@ -1183,7 +1183,7 @@ final class BinaryInputCapsule implements InputCapsule {
         if (length == BinaryOutputCapsule.NULL_OBJECT) {
             return null;
         }
-        ArrayList<ByteBuffer> rVal = new ArrayList<ByteBuffer>(length);
+        ArrayList<ByteBuffer> rVal = new ArrayList<>(length);
         for (int x = 0; x < length; x++) {
             rVal.add(readByteBuffer(content));
         }

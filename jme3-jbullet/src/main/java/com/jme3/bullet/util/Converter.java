@@ -259,11 +259,11 @@ public class Converter {
         jmeMesh.setBuffer(Type.Index, 3, BufferUtils.createShortBuffer(mesh.numTriangles * 3));
         jmeMesh.setBuffer(Type.Position, 3, BufferUtils.createFloatBuffer(mesh.numVertices * 3));
 
-        IndexBuffer indicess = jmeMesh.getIndexBuffer();
+        IndexBuffer indices = jmeMesh.getIndexBuffer();
         FloatBuffer vertices = jmeMesh.getFloatBuffer(Type.Position);
 
         for (int i = 0; i < mesh.numTriangles * 3; i++) {
-            indicess.put(i, mesh.triangleIndexBase.getInt(i * 4));
+            indices.put(i, mesh.triangleIndexBase.getInt(i * 4));
         }
 
         for (int i = 0; i < mesh.numVertices * 3; i++) {

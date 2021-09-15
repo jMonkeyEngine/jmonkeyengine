@@ -10,9 +10,9 @@ ShaderNodesDefinitions {
             This shader node doesn't take Normals and Tangent into account for full support use FullGPUSkinning
             IMPORTANT NOTE : for this node to work properly, you must declare a Int NumberOfBones material parameter to which the number of bones will be passed.
             @input modelPosition the vertex position in model space (usually assigned with Attr.inPosition or Global.position)
-            @input boneMatrices an array of matrice holding the transforms of the bones assigned to this vertex. Its size is defined by the NumberOfBones material parameter
+            @input boneMatrices an array of matrices holding the transforms of the bones assigned to this vertex. Its size is defined by the NumberOfBones material parameter
             @input boneWeight a vec4 holding the bone weights applied to this vertex (4 weights max).
-            @input boneIndex a vec4 holding the bone indices assignes to this vertex (4 bones max).            
+            @input boneIndex a vec4 holding the bone indices assigned to this vertex (4 bones max).
             @output modModelPosition transformed position of the vertex in model space.            
         }
         Input{
@@ -37,9 +37,9 @@ ShaderNodesDefinitions {
             @input modelPosition the vertex position in model space (usually assigned with Attr.inPosition or Global.position)
             @input modelNormal the vertex normal in model space (usually assigned with Attr.inNormal)
             @input modelTangent the vertex tangent in model space (usually assigned with Attr.inTangent)
-            @input boneMatrices an array of matrice holding the transforms of the bones assigned to this vertex. Its size is defined by the NumberOfBones material parameter
+            @input boneMatrices an array of matrices holding the transforms of the bones assigned to this vertex. Its size is defined by the NumberOfBones material parameter
             @input boneWeight a vec4 holding the bone weights applied to this vertex (4 weights max).
-            @input boneIndex a vec4 holding the bone indices assignes to this vertex (4 bones max).            
+            @input boneIndex a vec4 holding the bone indices assigned to this vertex (4 bones max).
             @output modModelPosition transformed position of the vertex in model space. 
             @output modModelNormal transformed normal of the vertex in model space. 
             @output modModelTangent transformed tangent of the vertex in model space.            

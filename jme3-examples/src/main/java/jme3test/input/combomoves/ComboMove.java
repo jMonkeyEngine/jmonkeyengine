@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,9 +39,9 @@ public class ComboMove {
 
     public static class ComboMoveState {
         
-        private String[] pressedMappings;
-        private String[] unpressedMappings;
-        private float timeElapsed;
+        final private String[] pressedMappings;
+        final private String[] unpressedMappings;
+        final private float timeElapsed;
 
         public ComboMoveState(String[] pressedMappings, String[] unpressedMappings, float timeElapsed) {
             this.pressedMappings = pressedMappings;
@@ -63,8 +63,8 @@ public class ComboMove {
         
     }
 
-    private String moveName;
-    private List<ComboMoveState> states = new ArrayList<ComboMoveState>();
+    final private String moveName;
+    final private List<ComboMoveState> states = new ArrayList<>();
     private boolean useFinalState = true;
     private float priority = 1;
     private float castTime = 0.8f;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,7 +50,7 @@ public interface Control extends Savable {
      * Creates a clone of the Control, the given Spatial is the cloned version
      * of the spatial to which this control is attached to.
      *
-     * @param spatial
+     * @param spatial the Spatial to be controlled by the clone
      * @return A clone of this control for the spatial
      * @deprecated Use
      * {@link com.jme3.util.clone.JmeCloneable#cloneFields(com.jme3.util.clone.Cloner, java.lang.Object)}
@@ -74,8 +74,8 @@ public interface Control extends Savable {
      * Should be called prior to queuing the spatial by the RenderManager. This
      * should not be called from user code.
      *
-     * @param rm
-     * @param vp
+     * @param rm the caller (not null)
+     * @param vp the relevant ViewPort (not null)
      */
     public void render(RenderManager rm, ViewPort vp);
 }

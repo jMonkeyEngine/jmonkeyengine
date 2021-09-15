@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -51,7 +51,7 @@ public class GeometryList implements Iterable<Geometry>{
     private static final int DEFAULT_SIZE = 32;
 
     private Geometry[] geometries;    
-    private ListSort listSort;
+    final private ListSort listSort;
     private int size;
     private GeometryComparator comparator;
 
@@ -75,6 +75,8 @@ public class GeometryList implements Iterable<Geometry>{
     /**
      * Returns the GeometryComparator that this Geometry list uses
      * for sorting.
+     *
+     * @return the pre-existing instance
      */
     public GeometryComparator getComparator() {
         return comparator;

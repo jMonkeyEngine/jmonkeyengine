@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -63,12 +63,13 @@ public class TransformTrack implements AnimTrack<Transform> {
     /**
      * Serialization-only. Do not use.
      */
-    public TransformTrack() {
+    protected TransformTrack() {
     }
 
     /**
      * Creates a transform track for the given bone index
      *
+     * @param target       the target Joint or Spatial of the new track
      * @param times        a float array with the time of each frame
      * @param translations the translation of the bone for each frame
      * @param rotations    the rotation of the bone for each frame
@@ -82,10 +83,10 @@ public class TransformTrack implements AnimTrack<Transform> {
     /**
      * return the array of rotations of this track
      *
-     * @return an array
+     * @return an array, or null if no rotations
      */
     public Quaternion[] getRotations() {
-        return rotations.toObjectArray();
+        return rotations == null ? null : rotations.toObjectArray();
     }
 
     /**
@@ -109,10 +110,10 @@ public class TransformTrack implements AnimTrack<Transform> {
     /**
      * returns the array of translations of this track
      *
-     * @return an array
+     * @return an array, or null if no translations
      */
     public Vector3f[] getTranslations() {
-        return translations.toObjectArray();
+        return translations == null ? null : translations.toObjectArray();
     }
 
 
@@ -196,7 +197,9 @@ public class TransformTrack implements AnimTrack<Transform> {
      * @param scales       the scale of the bone for each frame
      */
     public void setKeyframes(float[] times, Vector3f[] translations, Quaternion[] rotations, Vector3f[] scales) {
-        setTimes(times);
+        if (times != null) {
+            setTimes(times);
+        }
         if (translations != null) {
             setKeyframesTranslation(translations);
         }
@@ -267,18 +270,41 @@ public class TransformTrack implements AnimTrack<Transform> {
         }
     }
 
+    /**
+     * Replace the frame interpolator.
+     *
+     * @param interpolator the interpolator to use (alias created)
+     */
     public void setFrameInterpolator(FrameInterpolator interpolator) {
         this.interpolator = interpolator;
     }
 
+    /**
+     * Access the target affected by this track, which might be a Joint or a
+     * Spatial.
+     *
+     * @return the pre-existing instance
+     */
     public HasLocalTransform getTarget() {
         return target;
     }
 
+    /**
+     * Replace the target of this track, which might be a Joint or a Spatial.
+     *
+     * @param target the target to use (alias created)
+     */
     public void setTarget(HasLocalTransform target) {
         this.target = target;
     }
 
+    /**
+     * Serialize this track to the specified exporter, for example when
+     * saving to a J3O file.
+     *
+     * @param ex the exporter to write to (not null)
+     * @throws IOException from the exporter
+     */
     @Override
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = ex.getCapsule(this);
@@ -289,6 +315,13 @@ public class TransformTrack implements AnimTrack<Transform> {
         oc.write(target, "target", null);
     }
 
+    /**
+     * De-serialize this track from the specified importer, for example when
+     * loading from a J3O file.
+     *
+     * @param im the importer to read from (not null)
+     * @throws IOException from the importer
+     */
     @Override
     public void read(JmeImporter im) throws IOException {
         InputCapsule ic = im.getCapsule(this);

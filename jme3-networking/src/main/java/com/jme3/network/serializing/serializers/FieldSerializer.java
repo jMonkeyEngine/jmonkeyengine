@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine, Java Game Networking
+ * Copyright (c) 2009-2021 jMonkeyEngine, Java Game Networking
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,7 +50,7 @@ import java.util.logging.Logger;
  */
 public class FieldSerializer extends Serializer {
     
-    static final Logger log = Logger.getLogger(FieldSerializer.class.getName());
+    private static final Logger log = Logger.getLogger(FieldSerializer.class.getName());
 
     private static Map<Class, SavedField[]> savedFields = new HashMap<Class, SavedField[]>();
     private static Map<Class, Constructor> savedCtors = new HashMap<Class, Constructor>();
@@ -86,7 +86,7 @@ public class FieldSerializer extends Serializer {
 
         checkClass(clazz);   
     
-        List<Field> fields = new ArrayList<Field>();
+        List<Field> fields = new ArrayList<>();
 
         Class processingClass = clazz;
         while (processingClass != Object.class ) {
@@ -94,11 +94,10 @@ public class FieldSerializer extends Serializer {
             processingClass = processingClass.getSuperclass();
         }
 
-        List<SavedField> cachedFields = new ArrayList<SavedField>(fields.size());
+        List<SavedField> cachedFields = new ArrayList<>(fields.size());
         for (Field field : fields) {
             int modifiers = field.getModifiers();
             if (Modifier.isTransient(modifiers)) continue;
-            if (Modifier.isFinal(modifiers)) continue;
             if (Modifier.isStatic(modifiers)) continue;
             if (field.isSynthetic()) continue;
             field.setAccessible(true);

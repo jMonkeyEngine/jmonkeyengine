@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -483,7 +483,7 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
     /**
      * Copy all elements of this matrix to a float array.
      *
-     * @param f   the array to fill (not null, length >= 9)
+     * @param f   the array to fill (not null, length&ge;9)
      * @param columnMajor
      *            true &rarr; column-major order, false &rarr; row-major order
      */
@@ -643,7 +643,7 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * <code>set</code> sets the values of the matrix to those supplied by the
-     * 3x3 two dimenion array.
+     * 3x3 two-dimensional array.
      *
      * @param matrix
      *            the new values of the matrix.
@@ -1318,8 +1318,9 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
      *            normalized non-zero starting vector
      * @param end
      *            normalized non-zero ending vector
-     * @see "Tomas M�ller, John Hughes \"Efficiently Building a Matrix to Rotate \
-     *      One Vector to Another\" Journal of Graphics Tools, 4(4):1-4, 1999"
+     *
+     * See Tomas M�ller, John Hughes "Efficiently Building a Matrix to Rotate
+     *      One Vector to Another" Journal of Graphics Tools, 4(4):1-4, 1999.
      */
     public void fromStartEndVectors(Vector3f start, Vector3f end) {
         Vector3f v = new Vector3f();

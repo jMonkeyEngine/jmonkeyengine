@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -67,7 +67,6 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
     private String shotName;
     private long shotIndex = 0;
     private int width, height;
-    private AppProfiler prof;
     /**
      * InputManager to which the ActionListener and the mapping are added
      */
@@ -162,6 +161,8 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
 
     /**
      * Sets the base index that will used for subsequent screen shots. 
+     *
+     * @param index the desired base index
      */
     public void setShotIndex(long index) {
         this.shotIndex = index;
@@ -312,11 +313,14 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
 
     @Override
     public void setProfiler(AppProfiler profiler) {
-        this.prof = profiler;
+        // not implemented
     }
 
     /**
      *  Called by postFrame() once the screen has been captured to outBuf.
+     * 
+     * @param file the output file
+     * @throws IOException if an I/O error occurs
      */
     protected void writeImageFile( File file ) throws IOException {
         OutputStream outStream = new FileOutputStream(file);

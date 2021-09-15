@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -171,6 +171,7 @@ public class TechniqueDef implements Savable, Cloneable {
      * Used internally by the J3M/J3MD loader.
      *
      * @param name The name of the technique
+     * @param sortId a unique ID for sorting
      */
     public TechniqueDef(String name, int sortId){
         this();
@@ -438,6 +439,7 @@ public class TechniqueDef implements Savable, Cloneable {
      * configure the shader internally before rendering.
      * 
      * @param defineName The define name to create
+     * @param defineType the type for the new define
      * @return The define ID of the created define
      */
     public int addShaderUnmappedDefine(String defineName, VarType defineType) {
@@ -582,6 +584,8 @@ public class TechniqueDef implements Savable, Cloneable {
 
     /**
      * Returns the language of the fragment shader used in this technique.
+     * 
+     * @return the name of the language (such as "GLSL100")
      */
     public String getFragmentShaderLanguage() {
         return shaderLanguages.get(Shader.ShaderType.Fragment);
@@ -589,19 +593,23 @@ public class TechniqueDef implements Savable, Cloneable {
 
     /**
      * Returns the language of the vertex shader used in this technique.
+     * 
+     * @return the name of the language (such as "GLSL100")
      */
     public String getVertexShaderLanguage() {
         return shaderLanguages.get(Shader.ShaderType.Vertex);
     }
 
     /**Returns the language for each shader program
-     * @param shaderType
+     * @param shaderType Fragment/Vertex/etcetera
+     * @return the name of the language
      */
     public String getShaderProgramLanguage(Shader.ShaderType shaderType){
         return shaderLanguages.get(shaderType);
     }
     /**Returns the name for each shader program
-     * @param shaderType
+     * @param shaderType Fragment/Vertex/etcetera
+     * @return the name of the program
      */
     public String getShaderProgramName(Shader.ShaderType shaderType){
         return shaderNames.get(shaderType);

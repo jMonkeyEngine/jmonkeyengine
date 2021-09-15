@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,6 +46,7 @@ public interface AssetLoader {
      * Loads asset from the given input stream, parsing it into
      * an application-usable object.
      *
+     * @param assetInfo the located asset
      * @return An object representing the resource.
      * @throws java.io.IOException If an I/O error occurs while loading
      */

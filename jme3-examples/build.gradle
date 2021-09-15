@@ -1,11 +1,7 @@
-//apply plugin:'application'
-
-if (!hasProperty('mainClass')) {
-    ext.mainClass = 'jme3test.TestChooser'
-}
+ext.mainClassName = 'jme3test.TestChooser'
 
 task run(dependsOn: 'build', type:JavaExec) {
-    main = mainClass
+    mainClass = mainClassName
     classpath = sourceSets.main.runtimeClasspath
 
     if (System.properties['java.util.logging.config.file'] != null) {
@@ -18,23 +14,18 @@ task run(dependsOn: 'build', type:JavaExec) {
 }
 
 dependencies {
-    compile project(':jme3-core')
-    compile project(':jme3-desktop')
-    compile project(':jme3-effects')
-
-    // EITHER use jme3-bullet + jme3-bullet-native OR ELSE jme3-jbullet
-    compile project(':jme3-bullet')
-    compile project(':jme3-bullet-native')
-//    compile project(':jme3-jbullet')
-
-    compile project(':jme3-jogg')
-    compile project(':jme3-lwjgl')
-//    compile project(':jme3-lwjgl3')
-    compile project(':jme3-networking')
-    compile project(':jme3-niftygui')
-    compile project(':jme3-plugins')
-    compile project(':jme3-terrain')
-    compile project(':jme3-testdata')
+    implementation project(':jme3-core')
+    implementation project(':jme3-desktop')
+    implementation project(':jme3-effects')
+    implementation project(':jme3-jbullet')
+    implementation project(':jme3-jogg')
+    implementation project(':jme3-lwjgl')
+//    implementation project(':jme3-lwjgl3')
+    implementation project(':jme3-networking')
+    implementation project(':jme3-niftygui')
+    implementation project(':jme3-plugins')
+    implementation project(':jme3-terrain')
+    implementation project(':jme3-testdata')
 }
 
 jar.doFirst{
@@ -47,9 +38,9 @@ jar.doFirst{
 //                'Implementation-Title'   : appName,
 //                'Implementation-Version' : version,
 //                'Implementation-Vendor'  : vendor,
-                'Main-Class'             : getProperty('mainClass'),
+                'Main-Class'             : getProperty('mainClassName'),
                 // Add dependencies to manifest, remove version
-                'Class-Path'             : configurations.compile.resolvedConfiguration.resolvedArtifacts.collect {
+                'Class-Path'             : configurations.compileClasspath.resolvedConfiguration.resolvedArtifacts.collect {
                                                         'lib/' +
                                                         it.name +
                                                         (it.classifier != null ? '-' + it.classifier : '') +
@@ -58,12 +49,10 @@ jar.doFirst{
     }
 }
 
-task dist (dependsOn: ['build', ':jme3-bullet:jar', ':jme3-android:jar', \
-                       ':jme3-android-native:jar', ':jme3-bullet-native-android:jar', \
-                       ':jme3-bullet-native:jar']) {
+task dist (dependsOn: ['build', ':jme3-android:jar', ':jme3-android-native:jar']) {
     doLast {
         // Copy all dependencies to ../dist/lib, remove versions from jar files
-        configurations.compile.resolvedConfiguration.resolvedArtifacts.each { artifact ->
+        configurations.compileClasspath.resolvedConfiguration.resolvedArtifacts.each { artifact ->
             copy {
                 from artifact.file
                 into '../dist/lib'
@@ -80,18 +69,6 @@ task dist (dependsOn: ['build', ':jme3-bullet:jar', ':jme3-android:jar', \
             rename { "jMonkeyEngine3.jar" }
         }
 
-        // Copy bullet packages, remove version
-        copy {
-            from project(':jme3-bullet').jar.archivePath
-            into '../dist/opt/native-bullet'
-            rename {project(':jme3-bullet').name+".jar"}
-        }
-        copy {
-            from project(':jme3-bullet-native').jar.archivePath
-            into '../dist/opt/native-bullet'
-            rename {project(':jme3-bullet-native').name+".jar"}
-        }
-
         // Copy android packages, remove version
         copy {
             from project(':jme3-android').jar.archivePath
@@ -102,11 +79,6 @@ task dist (dependsOn: ['build', ':jme3-bullet:jar', ':jme3-android:jar', \
             from project(':jme3-android-native').jar.archivePath
             into '../dist/opt/android'
             rename {project(':jme3-android-native').name+".jar"}
-        }
-        copy {
-            from project(':jme3-bullet-native-android').jar.archivePath
-            into '../dist/opt/native-bullet'
-            rename {project(':jme3-bullet-native-android').name+".jar"}
         }
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -49,13 +49,10 @@ public class PreDepthProcessor implements SceneProcessor {
 
     private RenderManager rm;
     private ViewPort vp;
-    private AssetManager assetManager;
-    private Material preDepth;
-    private RenderState forcedRS;
-    private AppProfiler prof;
+    final private Material preDepth;
+    final private RenderState forcedRS;
 
     public PreDepthProcessor(AssetManager assetManager){
-        this.assetManager = assetManager;
         preDepth = new Material(assetManager, "Common/MatDefs/Shadow/PreShadow.j3md");
         preDepth.getAdditionalRenderState().setPolyOffset(0, 0);
         preDepth.getAdditionalRenderState().setFaceCullMode(FaceCullMode.Back);
@@ -107,7 +104,7 @@ public class PreDepthProcessor implements SceneProcessor {
 
     @Override
     public void setProfiler(AppProfiler profiler) {
-        this.prof = profiler;
+        // not implemented
     }
 
 }

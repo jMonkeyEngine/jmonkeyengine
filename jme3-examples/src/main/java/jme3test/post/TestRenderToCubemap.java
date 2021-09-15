@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -58,7 +58,6 @@ public class TestRenderToCubemap  extends SimpleApplication {
  
     private Geometry offBox;
     private float angle = 0;
-    private ViewPort offView;
  
     public static void main(String[] args){
         TestRenderToCubemap app = new TestRenderToCubemap();
@@ -68,7 +67,8 @@ public class TestRenderToCubemap  extends SimpleApplication {
     public Texture setupOffscreenView(){
         Camera offCamera = new Camera(512, 512);
  
-        offView = renderManager.createPreView("Offscreen View", offCamera);
+        ViewPort offView
+                = renderManager.createPreView("Offscreen View", offCamera);
         offView.setClearFlags(true, true, true);
         offView.setBackgroundColor(ColorRGBA.DarkGray);
  

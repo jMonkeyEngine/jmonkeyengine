@@ -1,7 +1,10 @@
-if (!hasProperty('mainClass')) {
-    ext.mainClass = ''
+dependencies {
+    api project(':jme3-core')
 }
 
-dependencies {
-    compile project(':jme3-core')
+javadoc {
+    // Disable doclint for JDK8+.
+    if (JavaVersion.current().isJava8Compatible()){
+        options.addStringOption('Xdoclint:none', '-quiet')
+    }
 }

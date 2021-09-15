@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -65,12 +65,9 @@ import java.util.logging.Logger;
 public class TerrainTestReadWrite extends SimpleApplication {
 
     private Terrain terrain;
-    protected BitmapText hintText;
-    private float grassScale = 64;
-    private float dirtScale = 16;
-    private float rockScale = 128;
-    private Material matTerrain;
-    private Material matWire;
+    final private float grassScale = 64;
+    final private float dirtScale = 16;
+    final private float rockScale = 128;
 
     public static void main(String[] args) {
         TerrainTestReadWrite app = new TerrainTestReadWrite();
@@ -94,7 +91,8 @@ public class TerrainTestReadWrite extends SimpleApplication {
     }
 
     private void createMap() {
-        matTerrain = new Material(assetManager, "Common/MatDefs/Terrain/TerrainLighting.j3md");
+        Material matTerrain = new Material(assetManager,
+                "Common/MatDefs/Terrain/TerrainLighting.j3md");
         matTerrain.setBoolean("useTriPlanarMapping", false);
         matTerrain.setBoolean("WardIso", true);
 
@@ -134,7 +132,8 @@ public class TerrainTestReadWrite extends SimpleApplication {
         matTerrain.setTexture("NormalMap_1", normalMap1);
         matTerrain.setTexture("NormalMap_2", normalMap2);
 
-        matWire = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        Material matWire = new Material(assetManager,
+                "Common/MatDefs/Misc/Unshaded.j3md");
         matWire.getAdditionalRenderState().setWireframe(true);
         matWire.setColor("Color", ColorRGBA.Green);
 
@@ -189,13 +188,13 @@ public class TerrainTestReadWrite extends SimpleApplication {
     }
 
     public void loadHintText() {
-        hintText = new BitmapText(guiFont, false);
+        BitmapText hintText = new BitmapText(guiFont, false);
         hintText.setSize(guiFont.getCharSet().getRenderedSize());
         hintText.setLocalTranslation(0, getCamera().getHeight(), 0);
         hintText.setText("Hit T to save, and Y to load");
         guiNode.attachChild(hintText);
     }
-    private ActionListener saveActionListener = new ActionListener() {
+    final private ActionListener saveActionListener = new ActionListener() {
 
         @Override
         public void onAction(String name, boolean pressed, float tpf) {
@@ -268,7 +267,7 @@ public class TerrainTestReadWrite extends SimpleApplication {
             }
         }
     }
-    private ActionListener loadActionListener = new ActionListener() {
+    final private ActionListener loadActionListener = new ActionListener() {
 
         @Override
         public void onAction(String name, boolean pressed, float tpf) {
@@ -277,7 +276,7 @@ public class TerrainTestReadWrite extends SimpleApplication {
             }
         }
     };
-    private ActionListener cloneActionListener = new ActionListener() {
+    final private ActionListener cloneActionListener = new ActionListener() {
 
         @Override
         public void onAction(String name, boolean pressed, float tpf) {
@@ -290,45 +289,4 @@ public class TerrainTestReadWrite extends SimpleApplication {
             }
         }
     };
-
-    // no junit tests, so this has to be hand-tested:
-    private static void testHeightmapBuilding() {
-        int s = 9;
-        int b = 3;
-        float[] hm = new float[s * s];
-        for (int i = 0; i < s; i++) {
-            for (int j = 0; j < s; j++) {
-                hm[(i * s) + j] = i * j;
-            }
-        }
-
-        for (int i = 0; i < s; i++) {
-            for (int j = 0; j < s; j++) {
-                System.out.print(hm[i * s + j] + " ");
-            }
-            System.out.println("");
-        }
-
-        TerrainQuad terrain = new TerrainQuad("terrain", b, s, hm);
-        float[] hm2 = terrain.getHeightMap();
-        boolean failed = false;
-        for (int i = 0; i < s * s; i++) {
-            if (hm[i] != hm2[i]) {
-                failed = true;
-            }
-        }
-
-        System.out.println("");
-        if (failed) {
-            System.out.println("Terrain heightmap building FAILED!!!");
-            for (int i = 0; i < s; i++) {
-                for (int j = 0; j < s; j++) {
-                    System.out.print(hm2[i * s + j] + " ");
-                }
-                System.out.println("");
-            }
-        } else {
-            System.out.println("Terrain heightmap building PASSED");
-        }
-    }
 }

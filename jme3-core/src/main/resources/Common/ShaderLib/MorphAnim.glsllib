@@ -105,7 +105,7 @@ Note that it only handles morphing position, normals and tangents.
 
     void Morph_Compute_Pos_Norm(inout vec4 pos, inout vec3 norm){
         #if (NUM_TARGETS_BUFFERS == 2)
-            // weight sum may be over 1.0. It's totallyvalid for position
+            // weight sum may be over 1.0. It's totally valid for position
             // but for normals. the weights needs to be normalized.
             float invWeightsSum = Get_Inverse_Weights_Sum();
             #if (NUM_BUFFERS > 1)
@@ -141,7 +141,7 @@ Note that it only handles morphing position, normals and tangents.
 
     void Morph_Compute_Pos_Norm_Tan(inout vec4 pos, inout vec3 norm, inout vec3 tan){
         #if (NUM_TARGETS_BUFFERS == 3)
-            // weight sum may be over 1.0. It's totallyvalid for position
+            // weight sum may be over 1.0. It's totally valid for position
             // but for normals. the weights needs to be normalized.
             float invWeightsSum = Get_Inverse_Weights_Sum();
             #if (NUM_BUFFERS > 2)

@@ -1,15 +1,13 @@
 package jme3test.input;
 
-import java.util.*;
-
 import com.jme3.app.SimpleApplication;
 import com.jme3.collision.CollisionResult;
 import com.jme3.collision.CollisionResults;
 import com.jme3.font.BitmapText;
-import com.jme3.input.DefaultJoystickAxis;
 import com.jme3.input.Joystick;
 import com.jme3.input.JoystickAxis;
 import com.jme3.input.JoystickButton;
+import com.jme3.input.MouseInput;
 import com.jme3.input.RawInputListener;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.MouseButtonTrigger;
@@ -87,7 +85,7 @@ public class TestJoystick extends SimpleApplication {
         
         // add action listener for mouse click 
         // to all easier custom mapping
-        inputManager.addMapping("mouseClick", new MouseButtonTrigger(mouseInput.BUTTON_LEFT));
+        inputManager.addMapping("mouseClick", new MouseButtonTrigger(MouseInput.BUTTON_LEFT));
         inputManager.addListener(new ActionListener() {
             @Override
             public void onAction(String name, boolean isPressed, float tpf) {
@@ -163,7 +161,7 @@ public class TestJoystick extends SimpleApplication {
      */   
     protected class JoystickEventListener implements RawInputListener {
 
-        private Map<JoystickAxis, Float> lastValues = new HashMap<>();
+        final private Map<JoystickAxis, Float> lastValues = new HashMap<>();
 
         @Override
         public void onJoyAxisEvent(JoyAxisEvent evt) {
@@ -211,18 +209,18 @@ public class TestJoystick extends SimpleApplication {
 
     protected class GamepadView extends Node {
     
-        float xAxis = 0;
-        float yAxis = 0;
-        float zAxis = 0;
-        float zRotation = 0;
+        private float xAxis = 0;
+        private float yAxis = 0;
+        private float zAxis = 0;
+        private float zRotation = 0;
         
-        float lastPovX = 0;
-        float lastPovY = 0;
+        private float lastPovX = 0;
+        private float lastPovY = 0;
  
-        Geometry leftStick;
-        Geometry rightStick;
+        final private Geometry leftStick;
+        final private Geometry rightStick;
             
-        Map<String, ButtonView> buttons = new HashMap<String, ButtonView>();
+        final private Map<String, ButtonView> buttons = new HashMap<>();
     
         public GamepadView() {
             super( "gamepad" );
@@ -422,8 +420,8 @@ public class TestJoystick extends SimpleApplication {
     protected class ButtonView extends Node {
  
         private int state = 0;
-        private Material material;
-        private ColorRGBA hilite = new ColorRGBA( 0.0f, 0.75f, 0.75f, 0.5f );
+        final private Material material;
+        final private ColorRGBA hilite = new ColorRGBA( 0.0f, 0.75f, 0.75f, 0.5f );
         
         public ButtonView( String name, float x, float y, float width, float height ) {
             super( "Button:" + name );

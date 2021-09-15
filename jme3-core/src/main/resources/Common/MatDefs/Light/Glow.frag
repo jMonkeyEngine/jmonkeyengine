@@ -17,10 +17,16 @@
 
 void main(){
     #ifdef HAS_GLOWMAP
+        #ifdef HAS_GLOWCOLOR
+           vec4 color = m_GlowColor;
+        #else
+           vec4 color = vec4(1.0);
+        #endif
+
         #if defined(NEED_TEXCOORD1) 
-           gl_FragColor = texture2D(m_GlowMap, texCoord1);
+           gl_FragColor = texture2D(m_GlowMap, texCoord1) * color;
         #else 
-           gl_FragColor = texture2D(m_GlowMap, texCoord);
+           gl_FragColor = texture2D(m_GlowMap, texCoord) * color;
         #endif
     #else
         #ifdef HAS_GLOWCOLOR

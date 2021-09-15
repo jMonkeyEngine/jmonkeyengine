@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -51,6 +51,12 @@ import java.util.logging.Logger;
 public class GltfUtils {
 
     private static final Logger logger = Logger.getLogger(GltfUtils.class.getName());
+
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private GltfUtils() {
+    }
 
     public static Mesh.Mode getMeshMode(Integer mode) {
         if (mode == null) {
@@ -496,7 +502,7 @@ public class GltfUtils {
                 }
 
                 if (sum != 1f) {
-                    // compute new vals based on sum
+                    // compute new values based on sum
                     float sumToB = sum == 0 ? 0 : 1f / sum;
                     weightsArray[i] *= sumToB;
                     weightsArray[i + 1] *= sumToB;

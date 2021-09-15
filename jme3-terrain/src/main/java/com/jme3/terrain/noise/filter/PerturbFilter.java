@@ -61,25 +61,25 @@ public class PerturbFilter extends AbstractFilter {
 				"Found origSize : " + origSize + " and offset: " + offset + " for workSize : " + workSize + " and magnitude : "
 						+ this.magnitude);
 		float[] retval = new float[workSize * workSize];
-		float[] perturbx = new FractalSum().setOctaves(8).setScale(5f).getBuffer(sx, sy, base, workSize).array();
-		float[] perturby = new FractalSum().setOctaves(8).setScale(5f).getBuffer(sx, sy, base + 1, workSize).array();
+		float[] perturbX = new FractalSum().setOctaves(8).setScale(5f).getBuffer(sx, sy, base, workSize).array();
+		float[] perturbY = new FractalSum().setOctaves(8).setScale(5f).getBuffer(sx, sy, base + 1, workSize).array();
 		for (int y = 0; y < workSize; y++) {
 			for (int x = 0; x < workSize; x++) {
 				// Perturb our coordinates
-				float noisex = perturbx[y * workSize + x];
-				float noisey = perturby[y * workSize + x];
+				float noiseX = perturbX[y * workSize + x];
+				float noiseY = perturbY[y * workSize + x];
 
-				int px = (int) (origSize * noisex * this.magnitude);
-				int py = (int) (origSize * noisey * this.magnitude);
+				int px = (int) (origSize * noiseX * this.magnitude);
+				int py = (int) (origSize * noiseY * this.magnitude);
 
 				float c00 = arr[this.wrap(y - py, workSize) * workSize + this.wrap(x - px, workSize)];
 				float c01 = arr[this.wrap(y - py, workSize) * workSize + this.wrap(x + px, workSize)];
 				float c10 = arr[this.wrap(y + py, workSize) * workSize + this.wrap(x - px, workSize)];
 				float c11 = arr[this.wrap(y + py, workSize) * workSize + this.wrap(x + px, workSize)];
 
-				float c0 = ShaderUtils.mix(c00, c01, noisex);
-				float c1 = ShaderUtils.mix(c10, c11, noisex);
-				retval[y * workSize + x] = ShaderUtils.mix(c0, c1, noisey);
+				float c0 = ShaderUtils.mix(c00, c01, noiseX);
+				float c1 = ShaderUtils.mix(c10, c11, noiseX);
+				retval[y * workSize + x] = ShaderUtils.mix(c0, c1, noiseY);
 			}
 		}
 		return FloatBuffer.wrap(retval);

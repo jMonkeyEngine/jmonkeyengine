@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -903,7 +903,7 @@ public class TerrainQuad extends Node implements Terrain {
                 int row = z;
                 boolean match = false;
 
-                // get the childs quadrant
+                // get the child's quadrant
                 int childQuadrant = 0;
                 if (spat instanceof TerrainQuad) {
                     childQuadrant = ((TerrainQuad) spat).getQuadrant();
@@ -948,7 +948,7 @@ public class TerrainQuad extends Node implements Terrain {
                 int row = z;
                 boolean match = false;
 
-                // get the childs quadrant
+                // get the child's quadrant
                 int childQuadrant = 0;
                 if (spat instanceof TerrainQuad) {
                     childQuadrant = ((TerrainQuad) spat).getQuadrant();
@@ -1020,7 +1020,7 @@ public class TerrainQuad extends Node implements Terrain {
                 int row = z;
                 boolean match = false;
 
-                // get the childs quadrant
+                // get the child's quadrant
                 int childQuadrant = 0;
                 if (spat instanceof TerrainQuad) {
                     childQuadrant = ((TerrainQuad) spat).getQuadrant();
@@ -1065,7 +1065,7 @@ public class TerrainQuad extends Node implements Terrain {
         return height;
     }
 
-    /*
+    /**
      * gets an interpolated value at the specified point
      */
     protected float getHeight(int x, int z, float xm, float zm) {
@@ -1116,9 +1116,9 @@ public class TerrainQuad extends Node implements Terrain {
 
     @Override
     public void setHeight(Vector2f xz, float height) {
-        List<Vector2f> coord = new ArrayList<Vector2f>();
+        List<Vector2f> coord = new ArrayList<>();
         coord.add(xz);
-        List<Float> h = new ArrayList<Float>();
+        List<Float> h = new ArrayList<>();
         h.add(height);
 
         setHeight(coord, h);
@@ -1126,9 +1126,9 @@ public class TerrainQuad extends Node implements Terrain {
 
     @Override
     public void adjustHeight(Vector2f xz, float delta) {
-        List<Vector2f> coord = new ArrayList<Vector2f>();
+        List<Vector2f> coord = new ArrayList<>();
         coord.add(xz);
-        List<Float> h = new ArrayList<Float>();
+        List<Float> h = new ArrayList<>();
         h.add(delta);
 
         adjustHeight(coord, h);
@@ -1150,7 +1150,7 @@ public class TerrainQuad extends Node implements Terrain {
 
         int halfSize = totalSize / 2;
 
-        List<LocationHeight> locations = new ArrayList<LocationHeight>();
+        List<LocationHeight> locations = new ArrayList<>();
 
         // offset
         for (int i=0; i<xz.size(); i++) {
@@ -1186,10 +1186,10 @@ public class TerrainQuad extends Node implements Terrain {
         if (children == null)
             return;
 
-        List<LocationHeight> quadLH1 = new ArrayList<LocationHeight>();
-        List<LocationHeight> quadLH2 = new ArrayList<LocationHeight>();
-        List<LocationHeight> quadLH3 = new ArrayList<LocationHeight>();
-        List<LocationHeight> quadLH4 = new ArrayList<LocationHeight>();
+        List<LocationHeight> quadLH1 = new ArrayList<>();
+        List<LocationHeight> quadLH2 = new ArrayList<>();
+        List<LocationHeight> quadLH3 = new ArrayList<>();
+        List<LocationHeight> quadLH4 = new ArrayList<>();
         Spatial quad1 = null;
         Spatial quad2 = null;
         Spatial quad3 = null;
@@ -1282,7 +1282,7 @@ public class TerrainQuad extends Node implements Terrain {
     }
 
 
-    // a position can be in multiple quadrants, so use a bit anded value.
+    // a position can be in multiple quadrants, so return a bitmask.
     private int findQuadrant(int x, int y) {
         int split = (size + 1) >> 1;
         int quads = 0;
@@ -1734,6 +1734,7 @@ public class TerrainQuad extends Node implements Terrain {
         offsetAmount = c.readFloat("offsetAmount", 0);
         quadrant = c.readInt("quadrant", 0);
         totalSize = c.readInt("totalSize", 0);
+        patchSize = c.readInt("patchSize", 0);
         //lodCalculator = (LodCalculator) c.readSavable("lodCalculator", createDefaultLodCalculator());
         //lodCalculatorFactory = (LodCalculatorFactory) c.readSavable("lodCalculatorFactory", null);
 
@@ -1750,6 +1751,7 @@ public class TerrainQuad extends Node implements Terrain {
         OutputCapsule c = e.getCapsule(this);
         c.write(size, "size", 0);
         c.write(totalSize, "totalSize", 0);
+        c.write(patchSize, "patchSize", 0);
         c.write(stepScale, "stepScale", null);
         c.write(offset, "offset", new Vector2f(0,0));
         c.write(offsetAmount, "offsetAmount", 0);
@@ -1926,8 +1928,7 @@ public class TerrainQuad extends Node implements Terrain {
      */
     public void setSupportMultipleCollisions(boolean set) {
         if (picker == null) {
-            // This is so that it doesn't fail at the IllegalStateException because null !instanceof Anything
-            throw new NullPointerException("TerrainPicker is null");
+            throw new IllegalStateException("The TerrainPicker is null.");
         } else if (picker instanceof BresenhamTerrainPicker) {
             ((BresenhamTerrainPicker)picker).setSupportMultipleCollisions(set);
         } else {

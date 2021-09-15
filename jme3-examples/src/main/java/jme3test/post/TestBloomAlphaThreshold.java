@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,21 +48,14 @@ import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
-import com.jme3.scene.debug.WireFrustum;
 import com.jme3.scene.shape.Box;
 import com.jme3.util.SkyFactory;
 import com.jme3.util.SkyFactory.EnvMapType;
 
 public class TestBloomAlphaThreshold extends SimpleApplication
 {
-
-	float angle;
-	Spatial lightMdl;
-	Spatial teapot;
-	Geometry frustumMdl;
-	WireFrustum frustum;
-	boolean active = true;
-	FilterPostProcessor fpp;
+	private boolean active = true;
+	private FilterPostProcessor fpp;
 
 	public static void main(String[] args)
 	{
@@ -94,7 +87,8 @@ public class TestBloomAlphaThreshold extends SimpleApplication
 		matSoil.setColor("Diffuse", ColorRGBA.Black);
 		matSoil.setColor("Specular", ColorRGBA.Gray);
 
-		teapot = assetManager.loadModel("Models/Teapot/Teapot.obj");
+		Spatial teapot
+                        = assetManager.loadModel("Models/Teapot/Teapot.obj");
 		teapot.setLocalTranslation(0, 0, 10);
 
 		teapot.setMaterial(mat);

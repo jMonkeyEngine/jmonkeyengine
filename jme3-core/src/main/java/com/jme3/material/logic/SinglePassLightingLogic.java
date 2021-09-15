@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -85,17 +85,25 @@ public final class SinglePassLightingLogic extends DefaultTechniqueDefLogic {
     }
 
     /**
-     * Uploads the lights in the light list as two uniform arrays.<br/><br/> *
+     * Uploads the lights in the light list as two uniform arrays.
      * <p>
-     * <code>uniform vec4 g_LightColor[numLights];</code><br/> //
-     * g_LightColor.rgb is the diffuse/specular color of the light.<br/> //
-     * g_Lightcolor.a is the type of light, 0 = Directional, 1 = Point, <br/> //
-     * 2 = Spot. <br/> <br/>
-     * <code>uniform vec4 g_LightPosition[numLights];</code><br/> //
-     * g_LightPosition.xyz is the position of the light (for point lights)<br/>
-     * // or the direction of the light (for directional lights).<br/> //
+     * <code>uniform vec4 g_LightColor[numLights];</code><br> //
+     * g_LightColor.rgb is the diffuse/specular color of the light.<br> //
+     * g_Lightcolor.a is the type of light, 0 = Directional, 1 = Point, <br> //
+     * 2 = Spot. <br> <br>
+     * <code>uniform vec4 g_LightPosition[numLights];</code><br> //
+     * g_LightPosition.xyz is the position of the light (for point lights)<br>
+     * // or the direction of the light (for directional lights).<br> //
      * g_LightPosition.w is the inverse radius (1/r) of the light (for
-     * attenuation) <br/> </p>
+     * attenuation)</p>
+     *
+     * @param shader the Shader being used
+     * @param g the Geometry being rendered
+     * @param lightList the list of lights
+     * @param numLights the number of lights to upload
+     * @param rm to manage rendering
+     * @param startIndex the starting index in the LightList
+     * @return the next starting index in the LightList
      */
     protected int updateLightListUniforms(Shader shader, Geometry g, LightList lightList, int numLights, RenderManager rm, int startIndex) {
         if (numLights == 0) { // this shader does not do lighting, ignore.
@@ -189,7 +197,7 @@ public final class SinglePassLightingLogic extends DefaultTechniqueDefLogic {
             }
         }
         vars.release();
-        //Padding of unsued buffer space
+        // pad unused buffer space
         while(lightDataIndex < numLights * 3) {
             lightData.setVector4InArray(0f, 0f, 0f, 0f, lightDataIndex);
             lightDataIndex++;

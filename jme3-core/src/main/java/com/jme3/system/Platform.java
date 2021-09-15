@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,18 +31,31 @@
  */
 package com.jme3.system;
 
+/**
+ * Enumerate known operating system/architecture pairs.
+ */
 public enum Platform {
 
     /**
-     * Microsoft Windows 32 bit
+     * Microsoft Windows 32-bit AMD/Intel
      */
     Windows32,
     
     /**
-     * Microsoft Windows 64 bit
+     * Microsoft Windows 64-bit AMD/Intel
      */
     Windows64(true),
     
+    /**
+     * Microsoft Windows 32-bit ARM
+     */
+    Windows_ARM32,
+
+    /**
+     * Microsoft Windows 64-bit ARM
+     */
+    Windows_ARM64(true),
+
     /**
      * Linux 32-bit Intel
      */
@@ -73,6 +86,11 @@ public enum Platform {
      */
     MacOSX64(true),
     
+    /**
+     * Apple Mac OS X 64-bit ARM
+     */
+    MacOSX_ARM64(true),
+
     /**
      * Apple Mac OS X 32 bit PowerPC
      */
@@ -107,9 +125,15 @@ public enum Platform {
      * Android x86
      */
     Android_X86,
-    
+
+    /**
+     * iOS on x86
+     */
     iOS_X86,
-    
+
+    /**
+     * iOS on ARM
+     */
     iOS_ARM,
     
     /**
@@ -118,7 +142,12 @@ public enum Platform {
     Android_Other;
     
     private final boolean is64bit;
-    
+
+    /**
+     * Test for a 64-bit address space.
+     *
+     * @return true if 64 bits, otherwise false
+     */
     public boolean is64Bit() {
         return is64bit;
     }

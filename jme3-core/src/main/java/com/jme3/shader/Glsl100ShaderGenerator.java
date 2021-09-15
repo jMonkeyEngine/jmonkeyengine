@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -192,7 +192,7 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
      * Appends an output assignment to a shader globalOutputName =
      * nameSpace_varName;
      *
-     * @param source the source StringBuilter to append the code.
+     * @param source the source StringBuilder to append the code.
      * @param globalOutputName the name of the global output (can be gl_Position
      * or gl_FragColor etc...).
      * @param var the variable to assign to the output.
@@ -242,7 +242,7 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
 
         final List<String> declaredInputs = new ArrayList<>();
 
-        // Decalring variables with default values first
+        // Declaring variables with default values first
         final ShaderNodeDefinition definition = shaderNode.getDefinition();
 
         for (final ShaderNodeVariable var : definition.getInputs()) {
@@ -422,6 +422,7 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
      *
      * @param mapping the VariableMapping to append
      * @param source  the StringBuilder to use
+     * @param declare true to declare the variable, false if already declared
      */
     protected void map(VariableMapping mapping, StringBuilder source, boolean declare) {
 
@@ -605,7 +606,7 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
 
     /**
      * appends indentation.
-     * @param source 
+     * @param source the builder to append to
      */
     protected void appendIndent(StringBuilder source) {
         source.append(INDENTCHAR.substring(0, indent));

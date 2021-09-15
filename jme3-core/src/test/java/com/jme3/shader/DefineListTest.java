@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,7 +47,6 @@ public class DefineListTest {
     private static final int BOOL_VAR = 0;
     private static final int INT_VAR = 1;
     private static final int FLOAT_VAR = 2;
-    private static final DefineList EMPTY = new DefineList(NUM_DEFINES);
 
     @Test
     public void testHashCollision() {

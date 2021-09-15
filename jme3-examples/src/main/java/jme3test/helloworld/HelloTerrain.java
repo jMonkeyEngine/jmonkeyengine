@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,9 +44,6 @@ import com.jme3.texture.Texture.WrapMode;
 
 public class HelloTerrain extends SimpleApplication {
 
-  private TerrainQuad terrain;
-  Material mat_terrain;
-
   public static void main(String[] args) {
     HelloTerrain app = new HelloTerrain();
     app.start();
@@ -57,7 +54,7 @@ public class HelloTerrain extends SimpleApplication {
     flyCam.setMoveSpeed(50);
 
     /** 1. Create terrain material and load four textures into it. */
-    mat_terrain = new Material(assetManager, 
+    Material mat_terrain = new Material(assetManager, 
             "Common/MatDefs/Terrain/Terrain.j3md");
 
     /** 1.1) Add ALPHA map (for red-blue-green coded splat textures) */
@@ -111,7 +108,8 @@ public class HelloTerrain extends SimpleApplication {
      * 3.5) We supply the prepared heightmap itself.
      */
     int patchSize = 65;
-    terrain = new TerrainQuad("my terrain", patchSize, 513, heightmap.getHeightMap());
+    TerrainQuad terrain
+            = new TerrainQuad("my terrain", patchSize, 513, heightmap.getHeightMap());
 
     /** 4. We give the terrain its material, position & scale it, and attach it. */
     terrain.setMaterial(mat_terrain);

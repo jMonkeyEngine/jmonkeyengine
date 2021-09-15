@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,39 +40,6 @@ import java.util.Comparator;
  */
 public class SortUtil {
 
-    /** 
-     * The size at or below which we will use insertion sort because it's
-     * probably faster. 
-     */
-    private static final int INSERTION_SORT_THRESHOLD = 7;
-    
-    
-    /*
- procedure optimizedGnomeSort(a[])
-    pos := 1
-    last := 0
-    while pos < length(a)
-        if (a[pos] >= a[pos-1])
-            if (last != 0)
-                pos := last
-                last := 0
-            end if
-            pos := pos + 1
-        else
-            swap a[pos] and a[pos-1]
-            if (pos > 1)
-                if (last == 0)
-                    last := pos
-                end if
-                pos := pos - 1
-            else
-                pos := pos + 1
-            end if
-        end if
-    end while
-end procedure
-     */
-    
     @SuppressWarnings("unchecked")
     public static void gsort(Object[] a, Comparator comp) {
         int pos = 1;
@@ -173,6 +140,9 @@ end procedure
 
     /**
      * Quick sorts the supplied array using the specified comparator.
+     * 
+     * @param a the array to sort (not null, modified)
+     * @param comp the Comparator to use (not null)
      */
     public static void qsort(Object[] a, Comparator comp) {
         qsort(a, 0, a.length - 1, comp);
@@ -181,8 +151,10 @@ end procedure
     /**
      * Quick sorts the supplied array using the specified comparator.
      *
+     * @param a the array to sort (modified)
      * @param lo0 the index of the lowest element to include in the sort.
      * @param hi0 the index of the highest element to include in the sort.
+     * @param comp the Comparator to use (not null)
      */
     @SuppressWarnings("unchecked")
     public static void qsort(Object[] a, int lo0, int hi0, Comparator comp) {
@@ -302,6 +274,10 @@ end procedure
     
     /**
      * Merge sort
+     *
+     * @param src the source array (not null)
+     * @param dest the destination array (not null)
+     * @param comp the Comparator to use
      */
     public static void msort(Object[] src, Object[] dest, Comparator comp){
         msort(src, dest, 0, src.length - 1, comp);

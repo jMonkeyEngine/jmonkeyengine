@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,7 +43,7 @@ public class BitmapCharacterSet implements Savable {
     private int renderedSize;
     private int width;
     private int height;
-    private IntMap<IntMap<BitmapCharacter>> characters;
+    final private IntMap<IntMap<BitmapCharacter>> characters;
     private int pageSize;
 
     @Override
@@ -100,7 +100,7 @@ public class BitmapCharacterSet implements Savable {
     }
 
     private IntMap<BitmapCharacter> readCharset(InputCapsule ic, int style) throws IOException {
-        IntMap<BitmapCharacter> charset = new IntMap<BitmapCharacter>();
+        IntMap<BitmapCharacter> charset = new IntMap<>();
         short[] indexes = ic.readShortArray("indexes"+style, null);
         Savable[] chars = ic.readSavableArray("chars"+style, null);
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,6 +39,12 @@ import com.jme3.bounding.BoundingVolume;
  * @author Kirill Vainer
  */
 final class CollisionUtil {
+
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private CollisionUtil() {
+    }
 
     private static void checkCollisionBase(Collidable a, Collidable b, int expected) {
         // Test bounding volume methods

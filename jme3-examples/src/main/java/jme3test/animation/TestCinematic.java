@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,12 +31,16 @@
  */
 package jme3test.animation;
 
-import com.jme3.animation.*;
+import com.jme3.anim.AnimClip;
+import com.jme3.anim.AnimComposer;
+import com.jme3.anim.AnimFactory;
+import com.jme3.animation.LoopMode;
 import com.jme3.app.SimpleApplication;
 import com.jme3.cinematic.*;
 import com.jme3.cinematic.events.*;
 import com.jme3.font.BitmapText;
 import com.jme3.input.ChaseCamera;
+import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.DirectionalLight;
@@ -52,16 +56,13 @@ import com.jme3.scene.shape.Box;
 import com.jme3.shadow.DirectionalLightShadowRenderer;
 import de.lessvoid.nifty.Nifty;
 
-//TODO rework this Test when the new animation system is done.
 public class TestCinematic extends SimpleApplication {
 
     private Spatial model;
     private Spatial teapot;
-    private MotionPath path;
     private MotionEvent cameraMotionEvent;
     private Cinematic cinematic;
     private ChaseCamera chaseCam;
-    private FilterPostProcessor fpp;
     private FadeFilter fade;
     private float time = 0;
 
@@ -99,26 +100,43 @@ public class TestCinematic extends SimpleApplication {
         createCameraMotion();
 
         //creating spatial animation for the teapot
-        AnimationFactory factory = new AnimationFactory(20, "teapotAnim");
+        AnimFactory factory = new AnimFactory(20f, "teapotAnim", 30f);
         factory.addTimeTranslation(0, new Vector3f(10, 0, 10));
         factory.addTimeTranslation(20, new Vector3f(10, 0, -10));
         factory.addTimeScale(10, new Vector3f(4, 4, 4));
         factory.addTimeScale(20, new Vector3f(1, 1, 1));
-        factory.addTimeRotationAngles(20, 0, 4 * FastMath.TWO_PI, 0);
-        AnimControl control = new AnimControl();
-        control.addAnim(factory.buildAnimation());
-        teapot.addControl(control);
+        for (int iStep = 1; iStep <= 12; ++iStep) {
+            float animationTime = iStep * 20f / 12; // in seconds
+            float yRotationAngle = iStep * FastMath.TWO_PI / 3; // in radians
+            factory.addTimeRotation(animationTime, 0f, yRotationAngle, 0f);
+        }
+        AnimClip spatialAnimation = factory.buildAnimation(teapot);
+        AnimComposer teapotComposer = new AnimComposer();
+        teapotComposer.addAnimClip(spatialAnimation);
+        teapot.addControl(teapotComposer);
 
         //fade in
         cinematic.addCinematicEvent(0, new FadeEvent(true));
         // cinematic.activateCamera(0, "aroundCam");
-        cinematic.addCinematicEvent(0, new AnimationEvent(teapot, "teapotAnim", LoopMode.DontLoop));
+
+        // 20-second spatial animation begins at t=0 seconds
+        AnimEvent teapotAnimEvent = new AnimEvent(teapotComposer, "teapotAnim",
+                AnimComposer.DEFAULT_LAYER);
+        cinematic.addCinematicEvent(0f, teapotAnimEvent);
+
         cinematic.addCinematicEvent(0, cameraMotionEvent);
         cinematic.addCinematicEvent(0, new SoundEvent("Sound/Environment/Nature.ogg", LoopMode.Loop));
         cinematic.addCinematicEvent(3f, new SoundEvent("Sound/Effects/kick.wav"));
         cinematic.addCinematicEvent(3, new SubtitleTrack(nifty, "start", 3, "jMonkey engine really kicks A..."));
         cinematic.addCinematicEvent(5.1f, new SoundEvent("Sound/Effects/Beep.ogg", 1));
-        cinematic.addCinematicEvent(2, new AnimationEvent(model, "Walk", LoopMode.Loop));
+
+        // 1.24-second bone animation loop begins at t=2 seconds
+        AnimComposer otoComposer = model.getControl(AnimComposer.class);
+        AnimEvent walkEvent = new AnimEvent(otoComposer, "Walk",
+                AnimComposer.DEFAULT_LAYER);
+        walkEvent.setLoopMode(LoopMode.Loop);
+        cinematic.addCinematicEvent(2f, walkEvent);
+
         cinematic.activateCamera(0, "topView");
         //  cinematic.activateCamera(10, "aroundCam");
 
@@ -181,7 +199,7 @@ public class TestCinematic extends SimpleApplication {
         camNode.lookAt(teapot.getLocalTranslation(), Vector3f.UNIT_Y);
 
         CameraNode camNode2 = cinematic.bindCamera("aroundCam", cam);
-        path = new MotionPath();
+        MotionPath path = new MotionPath();
         path.setCycle(true);
         path.addWayPoint(new Vector3f(20, 3, 0));
         path.addWayPoint(new Vector3f(0, 3, 20));
@@ -197,7 +215,7 @@ public class TestCinematic extends SimpleApplication {
 
     private void createScene() {
 
-        model = assetManager.loadModel("Models/Oto/OtoOldAnim.j3o");
+        model = assetManager.loadModel("Models/Oto/Oto.mesh.xml");
         model.center();
         model.setShadowMode(ShadowMode.CastAndReceive);
         rootNode.attachChild(model);
@@ -227,7 +245,7 @@ public class TestCinematic extends SimpleApplication {
         light.setColor(ColorRGBA.White.mult(1.5f));
         rootNode.addLight(light);
 
-        fpp = new FilterPostProcessor(assetManager);
+        FilterPostProcessor fpp = new FilterPostProcessor(assetManager);
         fade = new FadeFilter();
         fpp.addFilter(fade);
 
@@ -242,9 +260,9 @@ public class TestCinematic extends SimpleApplication {
     }
 
     private void initInputs() {
-        inputManager.addMapping("togglePause", new KeyTrigger(keyInput.KEY_RETURN));
-        inputManager.addMapping("navFwd", new KeyTrigger(keyInput.KEY_RIGHT));
-        inputManager.addMapping("navBack", new KeyTrigger(keyInput.KEY_LEFT));
+        inputManager.addMapping("togglePause", new KeyTrigger(KeyInput.KEY_RETURN));
+        inputManager.addMapping("navFwd", new KeyTrigger(KeyInput.KEY_RIGHT));
+        inputManager.addMapping("navBack", new KeyTrigger(KeyInput.KEY_LEFT));
         ActionListener acl = new ActionListener() {
 
             @Override

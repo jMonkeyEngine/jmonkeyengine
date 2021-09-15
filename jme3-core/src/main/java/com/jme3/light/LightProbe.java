@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -73,7 +73,7 @@ public class LightProbe extends Light implements Savable {
     private static final Logger logger = Logger.getLogger(LightProbe.class.getName());
     public static final Matrix4f FALLBACK_MATRIX = new Matrix4f(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1);
 
-    private Vector3f[] shCoeffs;
+    private Vector3f[] shCoefficients;
     private TextureCubeMap prefilteredEnvMap;
     private ProbeArea area = new SphereProbeArea(Vector3f.ZERO, 1.0f);
     private boolean ready = false;
@@ -105,10 +105,10 @@ public class LightProbe extends Light implements Savable {
 
     /**
      * Sets the prefiltered environment map
-     * @param prefileteredEnvMap the prefiltered environment map
+     * @param prefilteredEnvMap the prefiltered environment map
      */
-    public void setPrefilteredMap(TextureCubeMap prefileteredEnvMap) {
-        this.prefilteredEnvMap = prefileteredEnvMap;
+    public void setPrefilteredMap(TextureCubeMap prefilteredEnvMap) {
+        this.prefilteredEnvMap = prefilteredEnvMap;
     }
 
     /**
@@ -144,7 +144,9 @@ public class LightProbe extends Light implements Savable {
      * (ie: for 6 mip maps and a radius of 3, sp= 6.3333333)
      * <p>
      * The radius is obvious for a SphereProbeArea,
-     * but in the case of a OrientedBoxProbeArea it's the max of the extent vector's components.
+     * but in the case of an OrientedBoxProbeArea it's the max of the extent vector's components.
+     *
+     * @return the pre-existing matrix
      */
     public Matrix4f getUniformMatrix(){
 
@@ -161,7 +163,7 @@ public class LightProbe extends Light implements Savable {
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
         OutputCapsule oc = ex.getCapsule(this);
-        oc.write(shCoeffs, "shCoeffs", null);
+        oc.write(shCoefficients, "shCoeffs", null);
         oc.write(prefilteredEnvMap, "prefilteredEnvMap", null);
         oc.write(position, "position", null);
         oc.write(area, "area", new SphereProbeArea(Vector3f.ZERO, 1.0f));
@@ -191,9 +193,9 @@ public class LightProbe extends Light implements Savable {
             ready = false;
             logger.log(Level.WARNING, "LightProbe is missing parameters, it should be recomputed. Please use lightProbeFactory.updateProbe()");
         } else {
-            shCoeffs = new Vector3f[coeffs.length];
+            shCoefficients = new Vector3f[coeffs.length];
             for (int i = 0; i < coeffs.length; i++) {
-                shCoeffs[i] = (Vector3f) coeffs[i];
+                shCoefficients[i] = (Vector3f) coeffs[i];
             }
         }
     }
@@ -209,17 +211,6 @@ public class LightProbe extends Light implements Savable {
         return new BoundingSphere(area.getRadius(), ((SphereProbeArea)area).getCenter());
     }
 
-    /**
-     * Sets the bounds of this LightProbe
-     * Note that for now only BoundingSphere is supported and this method will
-     * throw an UnsupportedOperationException with any other BoundingVolume type
-     * @param bounds the bounds of the LightProbe
-     * @deprecated
-     */
-    @Deprecated
-    public void setBounds(BoundingVolume bounds) {
-    }
-
     public ProbeArea getArea() {
         return area;
     }
@@ -231,9 +222,9 @@ public class LightProbe extends Light implements Savable {
                 break;
             case OrientedBox:
                 area = new OrientedBoxProbeArea(new Transform());
-                area.setCenter(position);
                 break;
         }
+        area.setCenter(position);
     }
 
     public AreaType getAreaType(){
@@ -245,7 +236,7 @@ public class LightProbe extends Light implements Savable {
 
     /**
      * return true if the LightProbe is ready, meaning the Environment maps have
-     * been loaded or rnedered and are ready to be used by a material
+     * been loaded or rendered and are ready to be used by a material
      * @return the LightProbe ready state
      */
     public boolean isReady() {
@@ -263,16 +254,16 @@ public class LightProbe extends Light implements Savable {
     }
 
     public Vector3f[] getShCoeffs() {
-        return shCoeffs;
+        return shCoefficients;
     }
 
-    public void setShCoeffs(Vector3f[] shCoeffs) {
-        this.shCoeffs = shCoeffs;
+    public void setShCoeffs(Vector3f[] shCoefficients) {
+        this.shCoefficients = shCoefficients;
     }
 
     /**
      * Returns the position of the LightProbe in world space
-     * @return the wolrd space position
+     * @return the world-space position
      */
     public Vector3f getPosition() {
         return position;
@@ -280,7 +271,7 @@ public class LightProbe extends Light implements Savable {
 
     /**
      * Sets the position of the LightProbe in world space
-     * @param position the wolrd space position
+     * @param position the world-space position
      */
     public void setPosition(Vector3f position) {
         this.position.set(position);

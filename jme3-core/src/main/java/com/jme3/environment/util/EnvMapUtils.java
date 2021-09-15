@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -49,8 +49,8 @@ import static com.jme3.math.FastMath.*;
 
 /**
  *
- * This class holds several utility method unseful for Physically Based
- * Rendering. It alloaws to compute useful pre filtered maps from an env map.
+ * This class holds several utility method useful for Physically Based
+ * Rendering. It allows us to compute useful prefiltered maps from an env map.
  *
  * @author Nehon
  */
@@ -88,6 +88,12 @@ public class EnvMapUtils {
     public static enum GenerationType {
         Fast,
         HighQuality
+    }
+
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private EnvMapUtils() {
     }
 
     /**
@@ -141,7 +147,7 @@ public class EnvMapUtils {
      * the same area of the buffer. The position, limit and mark are not an
      * issue.
      *
-     * @param sourceMap
+     * @param sourceMap the map to be copied (not null, unaffected)
      * @return a new instance
      */
     public static TextureCubeMap duplicateCubeMap(TextureCubeMap sourceMap) {
@@ -174,7 +180,7 @@ public class EnvMapUtils {
      *
      *
      * Original solid angle calculation code is from Ignacio Castaño. This
-     * formula is from Manne Öhrström's thesis. It takes two coordiantes in the
+     * formula is from Manne Öhrström's thesis. It takes two coordinates in the
      * range [-1, 1] that define a portion of a cube face and return the area of
      * the projection of that portion on the surface of the sphere.
      *
@@ -291,10 +297,10 @@ public class EnvMapUtils {
 
     /**
      *
-     * Computes the texture coortinates and the face of the cube map from the
+     * Computes the texture coordinates and the face of the cube map from the
      * given vector
      *
-     * @param texelVect the vector to fetch texelt from the cube map
+     * @param texelVect the vector to fetch texels from the cube map
      * @param fixSeamsMethod the method to fix the seams
      * @param mapSize the size of one face of the cube map
      * @param store a Vector2f where the texture coordinates will be stored
@@ -382,7 +388,7 @@ public class EnvMapUtils {
     }
 
 
-    //see lagarde's paper https://seblagarde.files.wordpress.com/2015/07/course_notes_moving_frostbite_to_pbr_v32.pdf
+    //see Lagarde's paper https://seblagarde.files.wordpress.com/2015/07/course_notes_moving_frostbite_to_pbr_v32.pdf
     //linear roughness
     public static float getRoughnessFromMip(int miplevel, int miptot) {
         float step = 1f / ((float) miptot - 1);
@@ -479,8 +485,8 @@ public class EnvMapUtils {
      * Computes SH coefficient for a given textel dir The method used is the one
      * from this article : http://graphics.stanford.edu/papers/envmap/envmap.pdf
      *
-     * @param texelVect
-     * @param shDir
+     * @param texelVect the input texel (not null, unaffected)
+     * @param shDir storage for the results
      */
     public static void evalShBasis(Vector3f texelVect, float[] shDir) {
 
@@ -710,7 +716,7 @@ public class EnvMapUtils {
     }
     
      /**
-     * initialize the Irradiancemap
+     * initialize the irradiance map
      * @param size the size of the map
      * @param imageFormat the format of the image
      * @return the initialized Irradiance map

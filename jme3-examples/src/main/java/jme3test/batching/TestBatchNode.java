@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,7 +41,6 @@ import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.BatchNode;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.debug.WireFrustum;
 import com.jme3.scene.shape.Box;
@@ -49,22 +48,24 @@ import com.jme3.system.NanoTimer;
 import com.jme3.util.TangentBinormalGenerator;
 
 /**
- *
+ * A test to demonstrate the usage and functionality of the {@link BatchNode}
  * @author Nehon
  */
 public class TestBatchNode extends SimpleApplication {
+    private BatchNode batch;
+    private WireFrustum frustum;
+    private final Vector3f[] points;
+    private Geometry cube2;
+    private float time = 0;
+    private DirectionalLight dl;
+    private boolean done = false;
 
     public static void main(String[] args) {
-
         TestBatchNode app = new TestBatchNode();
         app.start();
     }
-    BatchNode batch;
-    WireFrustum frustum;
-    Geometry frustumMdl;
-    private Vector3f[] points;
 
-    {
+    public TestBatchNode() {
         points = new Vector3f[8];
         for (int i = 0; i < points.length; i++) {
             points[i] = new Vector3f();
@@ -76,22 +77,20 @@ public class TestBatchNode extends SimpleApplication {
         timer = new NanoTimer();
         batch = new BatchNode("theBatchNode");
 
-
-
-        /**
+        /*
          * A cube with a color "bleeding" through transparent texture. Uses
-         * Texture from jme3-test-data library!
+         * Texture from jme3-testdata library!
          */
-        Box boxshape4 = new Box(1f, 1f, 1f);
-        cube = new Geometry("cube1", boxshape4);
+        Box boxShape4 = new Box(1f, 1f, 1f);
+        Geometry cube = new Geometry("cube1", boxShape4);
         Material mat = assetManager.loadMaterial("Textures/Terrain/Pond/Pond.j3m");
         cube.setMaterial(mat);
-//        Material mat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");        
-//        mat.setColor("Diffuse", ColorRGBA.Blue);
-//        mat.setBoolean("UseMaterialColors", true);
-        /**
+        //Material mat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
+        //mat.setColor("Diffuse", ColorRGBA.Blue);
+        //mat.setBoolean("UseMaterialColors", true);
+        /*
          * A cube with a color "bleeding" through transparent texture. Uses
-         * Texture from jme3-test-data library!
+         * Texture from jme3-testdata library!
          */
         Box box = new Box(1f, 1f, 1f);
         cube2 = new Geometry("cube2", box);
@@ -100,9 +99,6 @@ public class TestBatchNode extends SimpleApplication {
         TangentBinormalGenerator.generate(cube);
         TangentBinormalGenerator.generate(cube2);
 
-
-        n = new Node("aNode");
-        // n.attachChild(cube2);
         batch.attachChild(cube);
         //  batch.attachChild(cube2);
         //  batch.setMaterial(mat);
@@ -111,10 +107,9 @@ public class TestBatchNode extends SimpleApplication {
         cube.setLocalTranslation(3, 0, 0);
         cube2.setLocalTranslation(0, 20, 0);
 
-
-        updateBoindPoints(points);
+        updateBoundingPoints(points);
         frustum = new WireFrustum(points);
-        frustumMdl = new Geometry("f", frustum);
+        Geometry frustumMdl = new Geometry("f", frustum);
         frustumMdl.setCullHint(Spatial.CullHint.Never);
         frustumMdl.setMaterial(new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md"));
         frustumMdl.getMaterial().getAdditionalRenderState().setWireframe(true);
@@ -126,12 +121,6 @@ public class TestBatchNode extends SimpleApplication {
         rootNode.addLight(dl);
         flyCam.setMoveSpeed(10);
     }
-    Node n;
-    Geometry cube;
-    Geometry cube2;
-    float time = 0;
-    DirectionalLight dl;
-    boolean done = false;
 
     @Override
     public void simpleUpdate(float tpf) {
@@ -140,7 +129,7 @@ public class TestBatchNode extends SimpleApplication {
             batch.attachChild(cube2);
             batch.batch();
         }
-        updateBoindPoints(points);
+        updateBoundingPoints(points);
         frustum.update(points);
         time += tpf;
         dl.setDirection(cam.getDirection());
@@ -148,12 +137,10 @@ public class TestBatchNode extends SimpleApplication {
         cube2.setLocalRotation(new Quaternion().fromAngleAxis(time, Vector3f.UNIT_Z));
         cube2.setLocalScale(Math.max(FastMath.sin(time), 0.5f));
 
-//        batch.setLocalRotation(new Quaternion().fromAngleAxis(time, Vector3f.UNIT_Z));
-
+        // batch.setLocalRotation(new Quaternion().fromAngleAxis(time, Vector3f.UNIT_Z));
     }
-//    
 
-    public void updateBoindPoints(Vector3f[] points) {
+    public void updateBoundingPoints(Vector3f[] points) {
         BoundingBox bb = (BoundingBox) batch.getWorldBound();
         float xe = bb.getXExtent();
         float ye = bb.getYExtent();

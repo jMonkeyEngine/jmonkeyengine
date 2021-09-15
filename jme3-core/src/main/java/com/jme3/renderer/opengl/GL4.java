@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2014 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -89,7 +89,7 @@ public interface GL4 extends GL3 {
     public int glGetProgramResourceIndex(int program, int programInterface, String name);
 
     /**
-     * Cchanges the active shader storage block with an assigned index of storageBlockIndex in program object program.
+     * Changes the active shader storage block with an assigned index of storageBlockIndex in program object program.
      * storageBlockIndex must be an active shader storage block index in program. storageBlockBinding must be less
      * than the value of {@code #GL_MAX_SHADER_STORAGE_BUFFER_BINDINGS}. If successful, glShaderStorageBlockBinding specifies
      * that program will use the data store of the buffer object bound to the binding point storageBlockBinding to

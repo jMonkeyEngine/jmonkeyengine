@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2017 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,6 @@ import com.jme3.input.controls.AnalogListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.input.controls.MouseAxisTrigger;
 import com.jme3.input.controls.MouseButtonTrigger;
-import com.jme3.math.FastMath;
 import com.jme3.math.Matrix3f;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
@@ -57,7 +56,7 @@ import com.jme3.renderer.Camera;
  */
 public class FlyByCamera implements AnalogListener, ActionListener {
 
-    private static String[] mappings = new String[]{
+    final private static String[] mappings = new String[]{
         CameraInput.FLYCAM_LEFT,
         CameraInput.FLYCAM_RIGHT,
         CameraInput.FLYCAM_UP,
@@ -123,7 +122,7 @@ public class FlyByCamera implements AnalogListener, ActionListener {
     /**
      * Sets the up vector that should be used for the camera.
      *
-     * @param upVec
+     * @param upVec the desired direction (not null, unaffected)
      */
     public void setUpVector(Vector3f upVec) {
         initialUpVec.set(upVec);
@@ -249,7 +248,7 @@ public class FlyByCamera implements AnalogListener, ActionListener {
      * Register this controller to receive input events from the specified input
      * manager.
      *
-     * @param inputManager
+     * @param inputManager (not null, alias created)
      */
     public void registerWithInput(InputManager inputManager){
         this.inputManager = inputManager;
@@ -308,7 +307,7 @@ public class FlyByCamera implements AnalogListener, ActionListener {
             joystick.getPovYAxis().assignAxis(CameraInput.FLYCAM_RISE, CameraInput.FLYCAM_LOWER);
 
             if( joystick.getButton( "Button 8" ) != null ) {
-                // Let the stanard select button be the y invert toggle
+                // Let the standard select button be the y invert toggle
                 joystick.getButton( "Button 8" ).assignButton( CameraInput.FLYCAM_INVERTY );
             }
 
@@ -382,28 +381,10 @@ public class FlyByCamera implements AnalogListener, ActionListener {
      * @param value zoom amount
      */
     protected void zoomCamera(float value){
-        // derive fovY value
-        float h = cam.getFrustumTop();
-        float w = cam.getFrustumRight();
-        float aspect = w / h;
-
-        float near = cam.getFrustumNear();
-
-        float fovY = FastMath.atan(h / near)
-                / (FastMath.DEG_TO_RAD * .5f);
-        float newFovY = fovY + value * 0.1f * zoomSpeed;
-        if (newFovY > 0f) {
-            // Don't let the FOV go zero or negative.
-            fovY = newFovY;
+        float newFov = cam.getFov() + value * 0.1F * zoomSpeed;
+        if (newFov > 0) {
+            cam.setFov(newFov);
         }
-
-        h = FastMath.tan( fovY * FastMath.DEG_TO_RAD * .5f) * near;
-        w = h * aspect;
-
-        cam.setFrustumTop(h);
-        cam.setFrustumBottom(-h);
-        cam.setFrustumLeft(-w);
-        cam.setFrustumRight(w);
     }
 
     /**

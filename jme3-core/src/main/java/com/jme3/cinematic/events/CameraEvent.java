@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2017 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -116,8 +116,8 @@ public class CameraEvent extends AbstractCinematicEvent{
     /**
      * used internally for serialization
      *
-     * @param ex
-     * @throws IOException
+     * @param ex the exporter (not null)
+     * @throws IOException from the exporter
      */
     @Override
     public void write(JmeExporter ex) throws IOException {
@@ -130,8 +130,8 @@ public class CameraEvent extends AbstractCinematicEvent{
     /**
      * used internally for serialization
      *
-     * @param im
-     * @throws IOException
+     * @param im the importer (not null)
+     * @throws IOException from the importer
      */
     @Override
     public void read(JmeImporter im) throws IOException {

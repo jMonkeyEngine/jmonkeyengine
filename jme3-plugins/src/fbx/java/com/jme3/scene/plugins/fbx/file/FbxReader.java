@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2014 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,10 +45,16 @@ public class FbxReader {
 	public static final int BLOCK_SENTINEL_LENGTH = 13;
 	public static final byte[] BLOCK_SENTINEL_DATA = new byte[BLOCK_SENTINEL_LENGTH];
 	/**
-	 * Majic string at start:
+	 * magic string at start:
 	 * "Kaydara FBX Binary\x20\x20\x00\x1a\x00"
 	 */
 	public static final byte[] HEAD_MAGIC = new byte[]{0x4b, 0x61, 0x79, 0x64, 0x61, 0x72, 0x61, 0x20, 0x46, 0x42, 0x58, 0x20, 0x42, 0x69, 0x6e, 0x61, 0x72, 0x79, 0x20, 0x20, 0x00, 0x1a, 0x00};
+
+        /**
+         * A private constructor to inhibit instantiation of this class.
+         */
+        private FbxReader() {
+        }
 
 	public static FbxFile readFBX(InputStream stream) throws IOException {
 		FbxFile fbxFile = new FbxFile();
@@ -58,9 +64,9 @@ public class FbxReader {
 			stream.close();
 		} catch(IOException e) {
 		}
-		// Check majic header
-		byte[] majic = getBytes(byteBuffer, HEAD_MAGIC.length);
-		if(!Arrays.equals(HEAD_MAGIC, majic))
+		// Check magic header
+		byte[] magic = getBytes(byteBuffer, HEAD_MAGIC.length);
+		if(!Arrays.equals(HEAD_MAGIC, magic))
 			throw new IOException("Either ASCII FBX or corrupt file. "
                                             + "Only binary FBX files are supported");
 
@@ -146,7 +152,7 @@ public class FbxReader {
 		if(encoding == 1)
 			data = inflate(data);
 		if(data.length != count * bytes)
-			throw new IOException("Wrong data lenght. Expected: " + count * bytes + ", got: " + data.length);
+			throw new IOException("Wrong data length. Expected: " + count * bytes + ", got: " + data.length);
 		ByteBuffer dis = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN);
 		switch(type) {
 		case 'f':

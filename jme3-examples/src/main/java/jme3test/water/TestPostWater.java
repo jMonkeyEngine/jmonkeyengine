@@ -1,18 +1,46 @@
+/*
+ * Copyright (c) 2009-2021 jMonkeyEngine
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ * * Redistributions of source code must retain the above copyright
+ *   notice, this list of conditions and the following disclaimer.
+ *
+ * * Redistributions in binary form must reproduce the above copyright
+ *   notice, this list of conditions and the following disclaimer in the
+ *   documentation and/or other materials provided with the distribution.
+ *
+ * * Neither the name of 'jMonkeyEngine' nor the names of its contributors
+ *   may be used to endorse or promote products derived from this software
+ *   without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package jme3test.water;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.audio.AudioData.DataType;
 import com.jme3.audio.AudioNode;
 import com.jme3.audio.LowPassFilter;
-import com.jme3.effect.ParticleEmitter;
-import com.jme3.effect.ParticleMesh;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
-import com.jme3.material.RenderState.BlendMode;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
@@ -22,13 +50,9 @@ import com.jme3.post.filters.BloomFilter;
 import com.jme3.post.filters.DepthOfFieldFilter;
 import com.jme3.post.filters.FXAAFilter;
 import com.jme3.post.filters.LightScatteringFilter;
-import com.jme3.renderer.Camera;
-import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
-import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
-import com.jme3.scene.shape.Box;
 import com.jme3.terrain.geomipmap.TerrainQuad;
 import com.jme3.terrain.heightmap.AbstractHeightMap;
 import com.jme3.terrain.heightmap.ImageBasedHeightMap;
@@ -38,8 +62,6 @@ import com.jme3.texture.Texture2D;
 import com.jme3.util.SkyFactory;
 import com.jme3.util.SkyFactory.EnvMapType;
 import com.jme3.water.WaterFilter;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * test
@@ -48,14 +70,10 @@ import java.util.List;
  */
 public class TestPostWater extends SimpleApplication {
 
-    private Vector3f lightDir = new Vector3f(-4.9236743f, -1.27054665f, 5.896916f);
+    final private Vector3f lightDir = new Vector3f(-4.9236743f, -1.27054665f, 5.896916f);
     private WaterFilter water;
-    TerrainQuad terrain;
-    Material matRock;
-    AudioNode waves;
-    LowPassFilter underWaterAudioFilter = new LowPassFilter(0.5f, 0.1f);
-    LowPassFilter underWaterReverbFilter = new LowPassFilter(0.5f, 0.1f);
-    LowPassFilter aboveWaterAudioFilter = new LowPassFilter(1, 1);
+    private AudioNode waves;
+    final private LowPassFilter aboveWaterAudioFilter = new LowPassFilter(1, 1);
 
     public static void main(String[] args) {
         TestPostWater app = new TestPostWater();
@@ -195,65 +213,11 @@ public class TestPostWater extends SimpleApplication {
         inputManager.addMapping("foam3", new KeyTrigger(KeyInput.KEY_3));
         inputManager.addMapping("upRM", new KeyTrigger(KeyInput.KEY_PGUP));
         inputManager.addMapping("downRM", new KeyTrigger(KeyInput.KEY_PGDN));
-//        createBox();
-//        createFire();
-    }
-    Geometry box;
-
-    private void createBox() {
-        //creating a transluscent box
-        box = new Geometry("box", new Box(50, 50, 50));
-        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        mat.setColor("Color", new ColorRGBA(1.0f, 0, 0, 0.3f));
-        mat.getAdditionalRenderState().setBlendMode(BlendMode.Alpha);
-        //mat.getAdditionalRenderState().setDepthWrite(false);
-        //mat.getAdditionalRenderState().setDepthTest(false);
-        box.setMaterial(mat);
-        box.setQueueBucket(Bucket.Translucent);
-
-
-        //creating a post view port
-//        ViewPort post=renderManager.createPostView("transpPost", cam);
-//        post.setClearFlags(false, true, true);
-
-
-        box.setLocalTranslation(-600, 0, 300);
-
-        //attaching the box to the post viewport
-        //Don't forget to updateGeometricState() the box in the simpleUpdate
-        //  post.attachScene(box);
-
-        rootNode.attachChild(box);
-    }
-
-    private void createFire() {
-        /**
-         * Uses Texture from jme3-test-data library!
-         */
-        ParticleEmitter fire = new ParticleEmitter("Emitter", ParticleMesh.Type.Triangle, 30);
-        Material mat_red = new Material(assetManager, "Common/MatDefs/Misc/Particle.j3md");
-        mat_red.setTexture("Texture", assetManager.loadTexture("Effects/Explosion/flame.png"));
-
-        fire.setMaterial(mat_red);
-        fire.setImagesX(2);
-        fire.setImagesY(2); // 2x2 texture animation
-        fire.setEndColor(new ColorRGBA(1f, 0f, 0f, 1f));   // red
-        fire.setStartColor(new ColorRGBA(1f, 1f, 0f, 0.5f)); // yellow
-        fire.getParticleInfluencer().setInitialVelocity(new Vector3f(0, 2, 0));
-        fire.setStartSize(10f);
-        fire.setEndSize(1f);
-        fire.setGravity(0, 0, 0);
-        fire.setLowLife(0.5f);
-        fire.setHighLife(1.5f);
-        fire.getParticleInfluencer().setVelocityVariation(0.3f);
-        fire.setLocalTranslation(-600, 50, 300);
-
-        fire.setQueueBucket(Bucket.Translucent);
-        rootNode.attachChild(fire);
     }
 
     private void createTerrain(Node rootNode) {
-        matRock = new Material(assetManager, "Common/MatDefs/Terrain/TerrainLighting.j3md");
+        Material matRock = new Material(assetManager,
+                "Common/MatDefs/Terrain/TerrainLighting.j3md");
         matRock.setBoolean("useTriPlanarMapping", false);
         matRock.setBoolean("WardIso", true);
         matRock.setTexture("AlphaMap", assetManager.loadTexture("Textures/Terrain/splat/alphamap.png"));
@@ -287,9 +251,8 @@ public class TestPostWater extends SimpleApplication {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        terrain = new TerrainQuad("terrain", 65, 513, heightmap.getHeightMap());
-        List<Camera> cameras = new ArrayList<Camera>();
-        cameras.add(getCamera());
+        TerrainQuad terrain
+                = new TerrainQuad("terrain", 65, 513, heightmap.getHeightMap());
         terrain.setMaterial(matRock);
         terrain.setLocalScale(new Vector3f(5, 5, 5));
         terrain.setLocalTranslation(new Vector3f(0, -30, 0));
@@ -299,10 +262,10 @@ public class TestPostWater extends SimpleApplication {
         rootNode.attachChild(terrain);
 
     }
-    //This part is to emulate tides, slightly varrying the height of the water plane
+    //This part is to emulate tides, slightly varying the height of the water plane
     private float time = 0.0f;
     private float waterHeight = 0.0f;
-    private float initialWaterHeight = 90f;//0.8f;
+    final private float initialWaterHeight = 90f;//0.8f;
     private boolean uw = false;
 
     @Override

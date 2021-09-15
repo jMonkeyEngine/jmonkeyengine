@@ -88,7 +88,7 @@ public class FbxImage extends FbxObject {
 				filename = new File(this.filename).getName();
 			if(filename != null && this.relativeFilename != null)
 				filename = this.relativeFilename;
-			// Filename is required to aquire asset loader by extension
+			// Filename is required to acquire asset loader by extension
 			if(filename != null) {
 				String locatorPath = scene.sceneFilename;
 				filename = scene.sceneFilename + File.separatorChar + filename; // Unique path

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -88,7 +88,7 @@ public final class Shader extends NativeObject {
          */
         Geometry("geom"),
         /**
-         * Controls tessellation factor (e.g how often a input patch should be
+         * Controls tessellation factor (e.g how often an input patch should be
          * subdivided)
          */
         TessellationControl("tsctrl"),
@@ -237,6 +237,8 @@ public final class Shader extends NativeObject {
 
     /**
      * Do not use this constructor. Used for destructible clones only.
+     *
+     * @param s (not null)
      */
     protected Shader(Shader s){
         super(s.id);
@@ -258,6 +260,7 @@ public final class Shader extends NativeObject {
      * Adds source code to a certain pipeline.
      *
      * @param type The pipeline to control
+     * @param name a name for the new shader object
      * @param source The shader source code (in GLSL).
      * @param defines Preprocessor defines (placed at the beginning of the shader)
      * @param language The shader source language, currently accepted is GLSL###
@@ -436,7 +439,7 @@ public final class Shader extends NativeObject {
 
     /**
      * Called by the object manager to reset all object IDs. This causes
-     * the shader to be reuploaded to the GPU incase the display was restarted.
+     * the shader to be reuploaded to the GPU in case the display was restarted.
      */
     @Override
     public void resetObject() {

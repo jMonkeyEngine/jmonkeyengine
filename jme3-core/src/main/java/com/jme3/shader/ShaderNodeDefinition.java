@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,11 +52,11 @@ public class ShaderNodeDefinition implements Savable {
 
     private String name;
     private Shader.ShaderType type;
-    private List<String> shadersLanguage = new ArrayList<String>();
-    private List<String> shadersPath = new ArrayList<String>();
+    private List<String> shadersLanguage = new ArrayList<>();
+    private List<String> shadersPath = new ArrayList<>();
     private String documentation;
-    private List<ShaderNodeVariable> inputs = new ArrayList<ShaderNodeVariable>();
-    private List<ShaderNodeVariable> outputs = new ArrayList<ShaderNodeVariable>();
+    private List<ShaderNodeVariable> inputs = new ArrayList<>();
+    private List<ShaderNodeVariable> outputs = new ArrayList<>();
     private String path = null;
     private boolean noOutput = false;
 
@@ -178,7 +178,7 @@ public class ShaderNodeDefinition implements Savable {
 
     /**
      * sets the path of this definition
-     * @param path 
+     * @param path the desired path
      */
     public void setPath(String path) {
         this.path = path;
@@ -190,7 +190,7 @@ public class ShaderNodeDefinition implements Savable {
      * jme serialization (not used)
      *
      * @param ex the exporter
-     * @throws IOException
+     * @throws IOException from the exporter
      */
     @Override
     public void write(JmeExporter ex) throws IOException {
@@ -226,7 +226,7 @@ public class ShaderNodeDefinition implements Savable {
      * jme serialization (not used)
      *
      * @param im the importer
-     * @throws IOException
+     * @throws IOException from the importer
      */
     @Override
     @SuppressWarnings("unchecked")
@@ -254,7 +254,7 @@ public class ShaderNodeDefinition implements Savable {
     }
 
     /**
-     * convenience tostring
+     * convenience toString
      *
      * @return a string
      */

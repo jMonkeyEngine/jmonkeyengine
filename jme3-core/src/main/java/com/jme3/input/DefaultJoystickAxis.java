@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,17 +40,26 @@ import com.jme3.input.controls.JoyAxisTrigger;
  */
 public class DefaultJoystickAxis implements JoystickAxis {
 
-    private InputManager inputManager;
-    private Joystick parent;
-    private int axisIndex;
-    private String name;
-    private String logicalId;
-    private boolean isAnalog;
-    private boolean isRelative;
+    final private InputManager inputManager;
+    final private Joystick parent;
+    final private int axisIndex;
+    final private String name;
+    final private String logicalId;
+    final private boolean isAnalog;
+    final private boolean isRelative;
     private float deadZone;
 
     /**
      *  Creates a new joystick axis instance. Only used internally.
+     *
+     * @param inputManager (alias created)
+     * @param parent (alias created)
+     * @param axisIndex index for the new axis
+     * @param name name for the new axis
+     * @param logicalId logical identifier for the new axis
+     * @param isAnalog true&rarr;continuous range, false&rarr;discrete values
+     * @param isRelative true&rarr;presents relative values
+     * @param deadZone the radius of the dead zone
      */
     public DefaultJoystickAxis(InputManager inputManager, Joystick parent,
                                int axisIndex, String name, String logicalId,
@@ -146,6 +155,8 @@ public class DefaultJoystickAxis implements JoystickAxis {
     /**
      *  Sets/overrides the dead zone for this axis.  This indicates that values
      *  within +/- deadZone should be ignored.
+     *
+     * @param f the desired radius
      */
     public void setDeadZone( float f ) {
         this.deadZone = f;

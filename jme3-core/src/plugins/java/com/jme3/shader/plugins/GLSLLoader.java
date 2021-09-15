@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,7 +43,7 @@ import java.util.*;
 public class GLSLLoader implements AssetLoader {
 
     private AssetManager assetManager;
-    private Map<String, ShaderDependencyNode> dependCache = new HashMap<>();
+    final private Map<String, ShaderDependencyNode> dependCache = new HashMap<>();
 
     /**
      * Used to load {@link ShaderDependencyNode}s.
@@ -122,27 +122,6 @@ public class GLSLLoader implements AssetLoader {
         node.setExtensions(sbExt.toString());
         dependCache.put(nodeName, node);
         return node;
-    }
-
-    private ShaderDependencyNode nextIndependentNode() throws IOException {
-        Collection<ShaderDependencyNode> allNodes = dependCache.values();
-
-        if (allNodes.isEmpty()) {
-            return null;
-        }
-
-        for (ShaderDependencyNode node : allNodes) {
-            if (node.getDependOnMe().isEmpty()) {
-                return node;
-            }
-        }
-
-        // Circular dependency found..
-        for (ShaderDependencyNode node : allNodes){
-            System.out.println(node.getName());
-        }
-
-        throw new IOException("Circular dependency.");
     }
 
     private String resolveDependencies(ShaderDependencyNode node, Set<ShaderDependencyNode> alreadyInjectedSet, StringBuilder extensions, boolean injectDependencies) {

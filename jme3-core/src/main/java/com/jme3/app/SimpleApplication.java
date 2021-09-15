@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -54,13 +54,11 @@ import com.jme3.system.JmeSystem;
  * <code>SimpleApplication</code> will display a statistics view
  * using the {@link com.jme3.app.StatsAppState} AppState. It will display
  * the current frames-per-second value on-screen in addition to the statistics.
- * Several keys have special functionality in <code>SimpleApplication</code>:<br/>
+ * Several keys have special functionality in <code>SimpleApplication</code>:<br>
  *
- * <table>
- * <tr><td>Esc</td><td>- Close the application</td></tr>
- * <tr><td>C</td><td>- Display the camera position and rotation in the console.</td></tr>
- * <tr><td>M</td><td>- Display memory usage in the console.</td></tr>
- * </table>
+ *  Esc - Close the application.<br>
+ *  C - Display the camera position and rotation in the console.<br>
+ *  M - Display memory usage in the console.<br>
  *
  * A {@link com.jme3.app.FlyCamAppState} is by default attached as well and can
  * be removed by calling <code>stateManager.detach( stateManager.getState(FlyCamAppState.class) );</code>
@@ -78,7 +76,7 @@ public abstract class SimpleApplication extends LegacyApplication {
     protected BitmapFont guiFont;
     protected FlyByCamera flyCam;
     protected boolean showSettings = true;
-    private AppActionListener actionListener = new AppActionListener();
+    final private AppActionListener actionListener = new AppActionListener();
 
     private class AppActionListener implements ActionListener {
 
@@ -188,6 +186,8 @@ public abstract class SimpleApplication extends LegacyApplication {
     /**
      *  Creates the font that will be set to the guiFont field
      *  and subsequently set as the font for the stats text.
+     * 
+     * @return the loaded BitmapFont
      */
     protected BitmapFont loadGuiFont() {
         return assetManager.loadFont("Interface/Fonts/Default.fnt");

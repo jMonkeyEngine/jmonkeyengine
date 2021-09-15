@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,9 +41,9 @@ class ShaderDependencyNode {
     private String shaderSource;
     private String shaderName;
 
-    private final List<ShaderDependencyNode> dependencies = new ArrayList<ShaderDependencyNode>();
-    private final List<Integer> dependencyInjectIndices   = new ArrayList<Integer>();
-    private final List<ShaderDependencyNode> dependOnMe   = new ArrayList<ShaderDependencyNode>();
+    private final List<ShaderDependencyNode> dependencies = new ArrayList<>();
+    private final List<Integer> dependencyInjectIndices   = new ArrayList<>();
+    private final List<ShaderDependencyNode> dependOnMe   = new ArrayList<>();
 
     public ShaderDependencyNode(String shaderName){
         this.shaderName = shaderName;

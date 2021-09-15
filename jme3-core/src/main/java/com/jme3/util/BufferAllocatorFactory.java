@@ -17,6 +17,12 @@ public class BufferAllocatorFactory {
 
     private static final Logger LOGGER = Logger.getLogger(BufferAllocatorFactory.class.getName());
 
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private BufferAllocatorFactory() {
+    }
+
     @Internal
     protected static BufferAllocator create() {
 

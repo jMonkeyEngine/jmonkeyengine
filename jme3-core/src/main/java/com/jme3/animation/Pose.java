@@ -76,9 +76,9 @@ public final class Pose implements Savable, Cloneable {
      * Applies the offsets of this pose to the vertex buffer given by the blend factor.
      *
      * @param blend Blend factor, 0 = no change to vertex buffer, 1 = apply full offsets
-     * @param vertbuf Vertex buffer to apply this pose to
+     * @param vertexBuffer Vertex buffer to apply this pose to
      */
-    public void apply(float blend, FloatBuffer vertbuf){
+    public void apply(float blend, FloatBuffer vertexBuffer){
         for (int i = 0; i < indices.length; i++){
             Vector3f offset = offsets[i];
             int vertIndex   = indices[i];
@@ -86,13 +86,13 @@ public final class Pose implements Savable, Cloneable {
             tempVec.set(offset).multLocal(blend);
 
             // acquire vertex
-            BufferUtils.populateFromBuffer(tempVec2, vertbuf, vertIndex);
+            BufferUtils.populateFromBuffer(tempVec2, vertexBuffer, vertIndex);
 
             // add offset multiplied by factor
             tempVec2.addLocal(tempVec);
 
             // write modified vertex
-            BufferUtils.setInBuffer(tempVec2, vertbuf, vertIndex);
+            BufferUtils.setInBuffer(tempVec2, vertexBuffer, vertIndex);
         }
     }
     

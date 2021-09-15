@@ -2,15 +2,22 @@
 // This file is to be applied to every subproject.
 //
 
-apply plugin: 'java'
+apply plugin: 'java-library'
 apply plugin: 'groovy'
-apply plugin: 'maven'
+apply plugin: 'maven-publish'
+apply plugin: 'signing'
 
 group = 'org.jmonkeyengine'
 version = jmeFullVersion
 
 sourceCompatibility = '1.8'
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+
+if(JavaVersion.current() >= JavaVersion.VERSION_1_9) {
+    compileJava {
+		options.release = 8
+    }
+}
 
 gradle.projectsEvaluated {
     tasks.withType(JavaCompile) { // compile-time options:
@@ -20,9 +27,6 @@ gradle.projectsEvaluated {
 
 repositories {
     mavenCentral()
-    maven {
-        url "http://nifty-gui.sourceforge.net/nifty-maven-repo"
-    }
     flatDir {
         dirs rootProject.file('lib')
     }
@@ -30,10 +34,9 @@ repositories {
 
 dependencies {
     // Adding dependencies here will add the dependencies to each subproject.
-    testCompile group: 'junit', name: 'junit', version: '4.12'
-    testCompile group: 'org.mockito', name: 'mockito-core', version: '3.0.0'
-    testCompile group: 'org.easytesting', name: 'fest-assert-core', version: '2.0M10'
-    testCompile 'org.codehaus.groovy:groovy-all:2.5.8'
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.mockito:mockito-core:3.8.0'
+    testImplementation 'org.codehaus.groovy:groovy-all:3.0.7'
 }
 
 
@@ -65,10 +68,7 @@ javadoc {
     options.use = "true"
     options.charSet = "UTF-8"
     options.encoding = "UTF-8"
-    //disable doclint for JDK8, more quiet output
-    if (JavaVersion.current().isJava8Compatible()){
-        options.addStringOption('Xdoclint:none', '-quiet')
-    }
+    source = sourceSets.main.allJava // main only, exclude tests
 }
 
 test {
@@ -112,27 +112,78 @@ ext.pomConfig = {
     }
 }
 
-// workaround to be able to use same custom pom with 'maven' and 'bintray' plugin
-task writeFullPom {
-    ext.pomFile = "$mavenPomDir/${project.name}-${project.version}.pom"
-    outputs.file pomFile
-    doLast {
-        pom {
-            project pomConfig
-        }.writeTo(pomFile)
-    }
-}
-
-assemble.dependsOn(writeFullPom)
-install.dependsOn(writeFullPom)
-uploadArchives.dependsOn(writeFullPom)
-
 artifacts {
     archives jar
     archives sourcesJar
     if (buildJavaDoc == "true") {
         archives javadocJar
     }
-    archives writeFullPom.outputs.files[0]
 }
 
+publishing {
+    publications {
+        maven(MavenPublication) {
+            artifact javadocJar
+            artifact sourcesJar
+            from components.java
+            pom {
+                description = POM_DESCRIPTION
+                developers {
+                    developer {
+                        id = 'jMonkeyEngine'
+                        name = 'jMonkeyEngine Team'
+                    }
+                }
+                inceptionYear = POM_INCEPTION_YEAR
+                licenses {
+                    license {
+                        distribution = POM_LICENSE_DISTRIBUTION
+                        name = POM_LICENSE_NAME
+                        url = POM_LICENSE_URL
+                    }
+                }
+                name = POM_NAME
+                scm {
+                    connection = POM_SCM_CONNECTION
+                    developerConnection = POM_SCM_DEVELOPER_CONNECTION
+                    url = POM_SCM_URL
+                }
+                url = POM_URL
+            }
+            version project.version
+        }
+    }
+    repositories {
+        maven {
+            name = 'Dist'
+            url = gradle.rootProject.projectDir.absolutePath + '/dist/maven'
+        }
+        maven {
+            credentials {
+                username = gradle.rootProject.hasProperty('ossrhUsername') ? ossrhUsername : 'Unknown user'
+                password = gradle.rootProject.hasProperty('ossrhPassword') ? ossrhPassword : 'Unknown password'
+            }
+            name = 'OSSRH'
+            url = 'https://oss.sonatype.org/service/local/staging/deploy/maven2'
+        }
+    }
+}
+
+publishToMavenLocal.doLast {
+    println 'published ' + project.getName() + ' to mavenLocal'
+}
+task('install') {
+    dependsOn 'publishToMavenLocal'
+}
+
+signing {
+    def signingKey = gradle.rootProject.findProperty('signingKey')
+    def signingPassword = gradle.rootProject.findProperty('signingPassword')
+    useInMemoryPgpKeys(signingKey, signingPassword)
+
+    sign configurations.archives
+    sign publishing.publications.maven
+}
+tasks.withType(Sign) {
+    onlyIf { gradle.rootProject.hasProperty('signingKey') }
+}

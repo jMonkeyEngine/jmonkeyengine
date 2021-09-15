@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,7 +31,13 @@
  */
 package jme3test.bullet;
 
-import com.jme3.animation.*;
+import com.jme3.anim.AnimComposer;
+import com.jme3.anim.Armature;
+import com.jme3.anim.ArmatureMask;
+import com.jme3.anim.SkinningControl;
+import com.jme3.anim.tween.Tween;
+import com.jme3.anim.tween.Tweens;
+import com.jme3.anim.tween.action.Action;
 import com.jme3.app.SimpleApplication;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.PhysicsSpace;
@@ -75,39 +81,34 @@ import java.util.List;
  * A walking animated character followed by a 3rd person camera on a terrain with LOD.
  * @author normenhansen
  */
-public class TestWalkingChar extends SimpleApplication implements ActionListener, PhysicsCollisionListener, AnimEventListener {
+public class TestWalkingChar extends SimpleApplication
+        implements ActionListener, PhysicsCollisionListener {
 
     private BulletAppState bulletAppState;
     //character
-    CharacterControl character;
-    Node model;
+    private CharacterControl character;
+    private Node model;
     //temp vectors
-    Vector3f walkDirection = new Vector3f();
-    //terrain
-    TerrainQuad terrain;
-    RigidBodyControl terrainPhysicsNode;
+    final private Vector3f walkDirection = new Vector3f();
     //Materials
-    Material matRock;
-    Material matBullet;
+    private Material matBullet;
     //animation
-    AnimChannel animationChannel;
-    AnimChannel shootingChannel;
-    AnimControl animationControl;
-    float airTime = 0;
+    private Action standAction;
+    private Action walkAction;
+    private AnimComposer composer;
+    private float airTime = 0;
     //camera
-    boolean left = false, right = false, up = false, down = false;
-    ChaseCamera chaseCam;
+    private boolean left = false, right = false, up = false, down = false;
     //bullet
-    Sphere bullet;
-    SphereCollisionShape bulletCollisionShape;
+    private Sphere bullet;
+    private SphereCollisionShape bulletCollisionShape;
     //explosion
-    ParticleEmitter effect;
+    private ParticleEmitter effect;
     //brick wall
-    Box brick;
-    float bLength = 0.8f;
-    float bWidth = 0.4f;
-    float bHeight = 0.4f;
-    FilterPostProcessor fpp;
+    private Box brick;
+    final private float bLength = 0.8f;
+    final private float bWidth = 0.4f;
+    final private float bHeight = 0.4f;
 
     public static void main(String[] args) {
         TestWalkingChar app = new TestWalkingChar();
@@ -238,7 +239,7 @@ public class TestWalkingChar extends SimpleApplication implements ActionListener
     }
 
     private void createTerrain() {
-        matRock = new Material(assetManager, "Common/MatDefs/Terrain/TerrainLighting.j3md");
+        Material matRock = new Material(assetManager, "Common/MatDefs/Terrain/TerrainLighting.j3md");
         matRock.setBoolean("useTriPlanarMapping", false);
         matRock.setBoolean("WardIso", true);
         matRock.setTexture("AlphaMap", assetManager.loadTexture("Textures/Terrain/splat/alphamap.png"));
@@ -274,15 +275,17 @@ public class TestWalkingChar extends SimpleApplication implements ActionListener
             e.printStackTrace();
         }
 
-        terrain = new TerrainQuad("terrain", 65, 513, heightmap.getHeightMap());
-        List<Camera> cameras = new ArrayList<Camera>();
+        TerrainQuad terrain
+                = new TerrainQuad("terrain", 65, 513, heightmap.getHeightMap());
+        List<Camera> cameras = new ArrayList<>();
         cameras.add(getCamera());
         TerrainLodControl control = new TerrainLodControl(terrain, cameras);
         terrain.addControl(control);
         terrain.setMaterial(matRock);
         terrain.setLocalScale(new Vector3f(2, 2, 2));
 
-        terrainPhysicsNode = new RigidBodyControl(CollisionShapeFactory.createMeshShape(terrain), 0);
+        RigidBodyControl terrainPhysicsNode
+                = new RigidBodyControl(CollisionShapeFactory.createMeshShape(terrain), 0);
         terrain.addControl(terrainPhysicsNode);
         rootNode.attachChild(terrain);
         getPhysicsSpace().add(terrainPhysicsNode);
@@ -291,8 +294,7 @@ public class TestWalkingChar extends SimpleApplication implements ActionListener
     private void createCharacter() {
         CapsuleCollisionShape capsule = new CapsuleCollisionShape(3f, 4f);
         character = new CharacterControl(capsule, 0.01f);
-        model = (Node) assetManager.loadModel("Models/Oto/OtoOldAnim.j3o");
-        //model.setLocalScale(0.5f);
+        model = (Node) assetManager.loadModel("Models/Oto/Oto.mesh.xml");
         model.addControl(character);
         character.setPhysicsLocation(new Vector3f(-140, 40, -10));
         rootNode.attachChild(model);
@@ -301,17 +303,43 @@ public class TestWalkingChar extends SimpleApplication implements ActionListener
 
     private void setupChaseCamera() {
         flyCam.setEnabled(false);
-        chaseCam = new ChaseCamera(cam, model, inputManager);
+        new ChaseCamera(cam, model, inputManager);
     }
 
     private void setupAnimationController() {
-        animationControl = model.getControl(AnimControl.class);
-        animationControl.addListener(this);
-        animationChannel = animationControl.createChannel();
-        shootingChannel = animationControl.createChannel();
-        shootingChannel.addBone(animationControl.getSkeleton().getBone("uparm.right"));
-        shootingChannel.addBone(animationControl.getSkeleton().getBone("arm.right"));
-        shootingChannel.addBone(animationControl.getSkeleton().getBone("hand.right"));
+        composer = model.getControl(AnimComposer.class);
+        standAction = composer.action("stand");
+        walkAction = composer.action("Walk");
+        /*
+         * Add a "shootOnce" animation action
+         * that performs the "Dodge" action one time only.
+         */
+        Action dodgeAction = composer.action("Dodge");
+        Tween doneTween = Tweens.callMethod(this, "onShootDone");
+        composer.actionSequence("shootOnce", dodgeAction, doneTween);
+        /*
+         * Define a shooting animation layer
+         * that animates only the joints of the right arm.
+         */
+        SkinningControl skinningControl
+                = model.getControl(SkinningControl.class);
+        Armature armature = skinningControl.getArmature();
+        ArmatureMask shootingMask
+                = ArmatureMask.createMask(armature, "uparm.right");
+        composer.makeLayer("shootingLayer", shootingMask);
+        /*
+         * Define a walking animation layer
+         * that animates all joints except those used for shooting.
+         */
+        ArmatureMask walkingMask = new ArmatureMask();
+        walkingMask.addBones(armature, "head", "spine", "spinehigh");
+        walkingMask.addFromJoint(armature, "hip.left");
+        walkingMask.addFromJoint(armature, "hip.right");
+        walkingMask.addFromJoint(armature, "uparm.left");
+        composer.makeLayer("walkingLayer", walkingMask);
+
+        composer.setCurrentAction("stand", "shootingLayer");
+        composer.setCurrentAction("stand", "walkingLayer");
     }
 
     @Override
@@ -338,18 +366,20 @@ public class TestWalkingChar extends SimpleApplication implements ActionListener
         } else {
             airTime = 0;
         }
-        if (walkDirection.length() == 0) {
-            if (!"stand".equals(animationChannel.getAnimationName())) {
-                animationChannel.setAnim("stand", 1f);
+
+        Action action = composer.getCurrentAction("walkingLayer");
+        if (walkDirection.length() == 0f) {
+            if (action != standAction) {
+                composer.setCurrentAction("stand", "walkingLayer");
             }
         } else {
             character.setViewDirection(walkDirection);
-            if (airTime > .3f) {
-                if (!"stand".equals(animationChannel.getAnimationName())) {
-                    animationChannel.setAnim("stand");
+            if (airTime > 0.3f) {
+                if (action != standAction) {
+                    composer.setCurrentAction("stand", "walkingLayer");
                 }
-            } else if (!"Walk".equals(animationChannel.getAnimationName())) {
-                animationChannel.setAnim("Walk", 0.7f);
+            } else if (action != walkAction) {
+                composer.setCurrentAction("Walk", "walkingLayer");
             }
         }
         character.setWalkDirection(walkDirection);
@@ -389,8 +419,8 @@ public class TestWalkingChar extends SimpleApplication implements ActionListener
     }
 
     private void bulletControl() {
-        shootingChannel.setAnim("Dodge", 0.1f);
-        shootingChannel.setLoopMode(LoopMode.DontLoop);
+        composer.setCurrentAction("shootOnce", "shootingLayer");
+
         Geometry bulletg = new Geometry("bullet", bullet);
         bulletg.setMaterial(matBullet);
         bulletg.setShadowMode(ShadowMode.CastAndReceive);
@@ -418,14 +448,13 @@ public class TestWalkingChar extends SimpleApplication implements ActionListener
         }
     }
 
-    @Override
-    public void onAnimCycleDone(AnimControl control, AnimChannel channel, String animName) {
-        if (channel == shootingChannel) {
-            channel.setAnim("stand");
-        }
-    }
-
-    @Override
-    public void onAnimChange(AnimControl control, AnimChannel channel, String animName) {
+    /**
+     * Callback to indicate that the "shootOnce" animation action has completed.
+     */
+    void onShootDone() {
+        /**
+         * Play the "stand" animation action on the shooting layer.
+         */
+        composer.setCurrentAction("stand", "shootingLayer");
     }
 }

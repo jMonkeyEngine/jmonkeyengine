@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -98,7 +98,7 @@ public class MipMapGenerator {
         int height = image.getHeight();
 
         Image current = image;
-        ArrayList<ByteBuffer> output = new ArrayList<ByteBuffer>();
+        ArrayList<ByteBuffer> output = new ArrayList<>();
         int totalSize = 0;
         
         while (height >= 1 || width >= 1){

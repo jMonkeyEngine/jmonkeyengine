@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 jMonkeyEngine
+ * Copyright (c) 2018-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,13 +50,13 @@ import com.jme3.scene.Node;
 
 public class TestIssue877 extends SimpleApplication {
 
-    BulletAppState bulletAppState = new BulletAppState();
-    int numPendulums = 6;
-    int numFalling = 6;
-    Node pivots[] = new Node[numPendulums];
-    Node bobs[] = new Node[numPendulums];
-    Node falling[] = new Node[numFalling];
-    float timeToNextPrint = 1f; // in seconds
+    final private BulletAppState bulletAppState = new BulletAppState();
+    final private int numPendulums = 6;
+    final private int numFalling = 6;
+    final private Node pivots[] = new Node[numPendulums];
+    final private Node bobs[] = new Node[numPendulums];
+    final private Node falling[] = new Node[numFalling];
+    private float timeToNextPrint = 1f; // in seconds
 
     public static void main(String[] args) {
         TestIssue877 app = new TestIssue877();

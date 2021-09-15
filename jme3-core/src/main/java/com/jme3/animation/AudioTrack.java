@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -49,7 +49,7 @@ import java.util.logging.Logger;
  * usage is
  * <pre>
  * AnimControl control model.getControl(AnimControl.class);
- * AudioTrack track = new AudioTrack(existionAudioNode, control.getAnim("TheAnim").getLength());
+ * AudioTrack track = new AudioTrack(existingAudioNode, control.getAnim("TheAnim").getLength());
  * control.getAnim("TheAnim").addTrack(track);
  * </pre>
  *
@@ -279,7 +279,7 @@ public class AudioTrack implements ClonableTrack {
     /**
      * sets the audio node to be used for this track
      *
-     * @param audio
+     * @param audio the desired AudioNode (alias created)
      */
     public void setAudio(AudioNode audio) {
         if (this.audio != null) {
@@ -301,7 +301,7 @@ public class AudioTrack implements ClonableTrack {
     /**
      * set the start offset of the track
      *
-     * @param startOffset
+     * @param startOffset the desired start offset
      */
     public void setStartOffset(float startOffset) {
         this.startOffset = startOffset;

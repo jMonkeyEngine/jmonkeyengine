@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -51,7 +51,7 @@ public class SkeletonLoader extends DefaultHandler implements AssetLoader {
 
     private static final Logger logger = Logger.getLogger(SceneLoader.class.getName());
     //private AssetManager assetManager;
-    private Stack<String> elementStack = new Stack<String>();
+    private Stack<String> elementStack = new Stack<>();
     private HashMap<Integer, Joint> indexToJoint = new HashMap<>();
     private HashMap<String, Joint> nameToJoint = new HashMap<>();
     private TransformTrack track;
@@ -93,8 +93,7 @@ public class SkeletonLoader extends DefaultHandler implements AssetLoader {
             assert elementStack.peek().equals("tracks");
             String jointName = SAXUtil.parseString(attribs.getValue("bone"));
             joint = nameToJoint.get(jointName);
-            track = new TransformTrack();
-            track.setTarget(joint);
+            track = new TransformTrack(joint, null, null, null, null);
         } else if (qName.equals("boneparent")) {
             assert elementStack.peek().equals("bonehierarchy");
             String jointName = attribs.getValue("bone");
@@ -277,12 +276,7 @@ public class SkeletonLoader extends DefaultHandler implements AssetLoader {
             armature = null;
             animClips = null;
             return data;
-        } catch (SAXException ex) {
-            IOException ioEx = new IOException("Error while parsing Ogre3D dotScene");
-            ioEx.initCause(ex);
-            fullReset();
-            throw ioEx;
-        } catch (ParserConfigurationException ex) {
+        } catch (SAXException | ParserConfigurationException ex) {
             IOException ioEx = new IOException("Error while parsing Ogre3D dotScene");
             ioEx.initCause(ex);
             fullReset();

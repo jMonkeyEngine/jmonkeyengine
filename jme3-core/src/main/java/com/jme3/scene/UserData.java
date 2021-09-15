@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -219,7 +219,7 @@ public final class UserData implements Savable {
                 value = this.readList(ic, "0");
                 break;
             case TYPE_MAP:
-                Map<Object, Object> map = new HashMap<Object, Object>();
+                Map<Object, Object> map = new HashMap<>();
                 List<?> keys = this.readList(ic, "0");
                 List<?> values = this.readList(ic, "1");
                 for (int i = 0; i < keys.size(); ++i) {
@@ -251,6 +251,7 @@ public final class UserData implements Savable {
      * @param list
      *            the list to be stored
      * @throws IOException
+     *            from the capsule
      */
     private void writeList(OutputCapsule oc, Collection<?> list, String listName) throws IOException {
         if (list != null) {
@@ -267,7 +268,7 @@ public final class UserData implements Savable {
                 } else if (o instanceof Boolean) {
                     oc.write(TYPE_BOOLEAN, listName + "t" + counter, 0);
                     oc.write((Boolean) o, listName + "v" + counter, false);
-                } else if (o instanceof String || o == null) {// treat null's like Strings just to store them and keep the List like the user intended
+                } else if (o instanceof String || o == null) {// treat nulls like Strings just to store them and keep the List like the user intended
                     oc.write(TYPE_STRING, listName + "t" + counter, 0);
                     oc.write((String) o, listName + "v" + counter, null);
                 } else if (o instanceof Long) {
@@ -313,10 +314,11 @@ public final class UserData implements Savable {
      *            the input capsule
      * @return loaded list (an empty list in case its size is 0)
      * @throws IOException
+     *            from the capsule
      */
     private List<?> readList(InputCapsule ic, String listName) throws IOException {
         int size = ic.readInt(listName + "size", 0);
-        List<Object> list = new ArrayList<Object>(size);
+        List<Object> list = new ArrayList<>(size);
         for (int i = 0; i < size; ++i) {
             int type = ic.readInt(listName + "t" + i, 0);
             switch (type) {
@@ -345,7 +347,7 @@ public final class UserData implements Savable {
                     list.add(this.readList(ic, listName + "v" + i));
                     break;
                 case TYPE_MAP:
-                    Map<Object, Object> map = new HashMap<Object, Object>();
+                    Map<Object, Object> map = new HashMap<>();
                     List<?> keys = this.readList(ic, listName + "v(keys)" + i);
                     List<?> values = this.readList(ic, listName + "v(vals)" + i);
                     for (int j = 0; j < keys.size(); ++j) {

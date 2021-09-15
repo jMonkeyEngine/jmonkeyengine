@@ -1,26 +1,33 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine All rights reserved. <p/>
+ * Copyright (c) 2009-2021 jMonkeyEngine
+ * All rights reserved.
+ *
  * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- * 
- * * Redistributions of source code must retain the above copyright notice,
- * this list of conditions and the following disclaimer. <p/> * Redistributions
- * in binary form must reproduce the above copyright notice, this list of
- * conditions and the following disclaimer in the documentation and/or other
- * materials provided with the distribution. <p/> * Neither the name of
- * 'jMonkeyEngine' nor the names of its contributors may be used to endorse or
- * promote products derived from this software without specific prior written
- * permission. <p/> THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
- * CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT
- * NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
- * PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ * * Redistributions of source code must retain the above copyright
+ *   notice, this list of conditions and the following disclaimer.
+ *
+ * * Redistributions in binary form must reproduce the above copyright
+ *   notice, this list of conditions and the following disclaimer in the
+ *   documentation and/or other materials provided with the distribution.
+ *
+ * * Neither the name of 'jMonkeyEngine' nor the names of its contributors
+ *   may be used to endorse or promote products derived from this software
+ *   without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
  * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
  * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
- * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
- * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
- * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
- * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
- * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package jme3test.bullet;
 
@@ -49,12 +56,9 @@ public class TestPhysicsCharacter extends SimpleApplication implements ActionLis
 
   private BulletAppState bulletAppState;
   private CharacterControl physicsCharacter;
-  private Node characterNode;
-  private CameraNode camNode;
-  boolean rotate = false;
-  private Vector3f walkDirection = new Vector3f(0,0,0);
-  private Vector3f viewDirection = new Vector3f(0,0,0);
-  boolean leftStrafe = false, rightStrafe = false, forward = false, backward = false, 
+  final private Vector3f walkDirection = new Vector3f(0,0,0);
+  final private Vector3f viewDirection = new Vector3f(0,0,0);
+  private boolean leftStrafe = false, rightStrafe = false, forward = false, backward = false, 
           leftRotate = false, rightRotate = false;
 
   public static void main(String[] args) {
@@ -104,7 +108,7 @@ public class TestPhysicsCharacter extends SimpleApplication implements ActionLis
     // Add a physics character to the world
     physicsCharacter = new CharacterControl(new CapsuleCollisionShape(0.5f, 1.8f), .1f);
     physicsCharacter.setPhysicsLocation(new Vector3f(0, 1, 0));
-    characterNode = new Node("character node");
+    Node characterNode = new Node("character node");
     Spatial model = assetManager.loadModel("Models/Sinbad/Sinbad.mesh.xml");
     model.scale(0.25f);
     characterNode.addControl(physicsCharacter);
@@ -113,7 +117,7 @@ public class TestPhysicsCharacter extends SimpleApplication implements ActionLis
     characterNode.attachChild(model);
 
     // set forward camera node that follows the character
-    camNode = new CameraNode("CamNode", cam);
+    CameraNode camNode = new CameraNode("CamNode", cam);
     camNode.setControlDir(ControlDirection.SpatialToCamera);
     camNode.setLocalTranslation(new Vector3f(0, 1, -5));
     camNode.lookAt(model.getLocalTranslation(), Vector3f.UNIT_Y);

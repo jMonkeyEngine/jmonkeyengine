@@ -109,6 +109,12 @@ public class GlfwKeyInput implements KeyInput {
         charCallback.close();
     }
 
+    @Override
+    public String getKeyName(int jmeKey) {
+        int glfwKey = GlfwKeyMap.fromJmeKeyCode(jmeKey);
+        return glfwGetKeyName(glfwKey, 0);
+    }
+
     private void initCallbacks() {
         glfwSetKeyCallback(context.getWindowHandle(), keyCallback = new GLFWKeyCallback() {
             @Override

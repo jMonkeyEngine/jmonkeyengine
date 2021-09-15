@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,7 +47,7 @@ public class AwtPanelsContext implements JmeContext {
     protected JmeContext actualContext;
     protected AppSettings settings = new AppSettings(true);
     protected SystemListener listener;
-    protected ArrayList<AwtPanel> panels = new ArrayList<AwtPanel>();
+    protected ArrayList<AwtPanel> panels = new ArrayList<>();
     protected AwtPanel inputSource;
 
     protected AwtMouseInput mouseInput = new AwtMouseInput();

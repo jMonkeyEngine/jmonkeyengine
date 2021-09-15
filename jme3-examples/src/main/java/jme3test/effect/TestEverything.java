@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -54,7 +54,7 @@ public class TestEverything extends SimpleApplication {
 
     private DirectionalLightShadowRenderer dlsr;
     private ToneMapFilter toneMapFilter;
-    private Vector3f lightDir = new Vector3f(-1, -1, .5f).normalizeLocal();
+    final private Vector3f lightDir = new Vector3f(-1, -1, .5f).normalizeLocal();
 
     public static void main(String[] args){
         TestEverything app = new TestEverything();

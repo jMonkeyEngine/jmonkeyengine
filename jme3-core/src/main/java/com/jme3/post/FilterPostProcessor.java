@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -85,7 +85,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
     private AppProfiler prof;
 
     private Format fbFormat = Format.RGB111110F;
-    private Format depthFormat = Format.Depth;
+    final private Format depthFormat = Format.Depth;
     
     /**
      * Create a FilterProcessor 
@@ -122,7 +122,8 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
 
     /**
      * removes this filters from the filters list
-     * @param filter 
+     *
+     * @param filter the Filter to remove (not null)
      */
     public void removeFilter(Filter filter) {
         if (filter == null) {
@@ -156,7 +157,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         
         Camera cam = vp.getCamera();
 
-        //save view port diensions
+        //save view port dimensions
         left = cam.getViewPortLeft();
         right = cam.getViewPortRight();
         top = cam.getViewPortTop();
@@ -357,8 +358,8 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
 
         } else {
            setupViewPortFrameBuffer();
-           //if we are ina multiview situation we need to resize the camera 
-           //to the viewportsize so that the backbuffer is rendered correctly
+           //if we are in a multiview situation we need to resize the camera 
+           //to the viewport size so that the back buffer is rendered correctly
            if (multiView) {
                 viewPort.getCamera().resize(width, height, false);
                 viewPort.getCamera().setViewPort(0, 1, 0, 1);
@@ -378,8 +379,9 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
 
     /**
      * sets the filter to enabled or disabled
-     * @param filter
-     * @param enabled 
+     *
+     * @param filter the Filter to modify (not null)
+     * @param enabled true to enable, false to disable
      */
     protected void setFilterState(Filter filter, boolean enabled) {
         if (filters.contains(filter)) {
@@ -396,7 +398,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         for (int i = filters.size() - 1; i >= 0 && lastFilterIndex == -1; i--) {
             if (filters.get(i).isEnabled()) {
                 lastFilterIndex = i;
-                //the Fpp is initialized, but the viwport framebuffer is the 
+                //the Fpp is initialized, but the viewport framebuffer is the
                 //original out framebuffer so we must recover from a situation 
                 //where no filter was enabled. So we set the correct framebuffer 
                 //on the viewport
@@ -540,7 +542,8 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
 
     /**
      * Sets the asset manager for this processor
-     * @param assetManager
+     *
+     * @param assetManager to load assets
      */
     public void setAssetManager(AssetManager assetManager) {
         this.assetManager = assetManager;
@@ -563,7 +566,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
     public void read(JmeImporter im) throws IOException {
         InputCapsule ic = im.getCapsule(this);
         numSamples = ic.readInt("numSamples", 0);
-        filters = new SafeArrayList<Filter>(Filter.class, ic.readSavableArrayList("filters", null));
+        filters = new SafeArrayList<>(Filter.class, ic.readSavableArrayList("filters", null));
         for (Filter filter : filters.getArray()) {
             filter.setProcessor(this);
             setFilterState(filter, filter.isEnabled());
@@ -590,10 +593,11 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
     }
     
     /**
-     * returns the first filter in the list assignable form the given type 
-     * @param <T> 
+     * returns the first filter in the list assignable from the given type 
+     *
+     * @param <T> the filter type
      * @param filterType the filter type
-     * @return a filter assignable form the given type 
+     * @return a filter assignable from the given type 
      */
     @SuppressWarnings("unchecked")
     public <T extends Filter> T getFilter(Class<T> filterType) {

@@ -1,0 +1,58 @@
+Licensing history for files in "src/main/resources/Textures/Terrain/PBR"
+
+All textures were downloaded and derived from:
+* downloaded from:   https://cc0textures.com/
+* license type:      CC0
+* license URL:       https://docs.cc0textures.com/licensing.html
+
+* Files Downloaded:
+Gravel015_1K_Color.png
+Gravel015_1K_Normal.png
+Ground036_1K_Color.png
+Ground036_1K_Normal.png
+Ground037_1K_Color.png
+Ground037_1K_Normal.png
+Marble013_1K_Color.png
+Marble013_1K_Normal.png
+Rock035_1K_Color.png
+Rock035_1K_Normal.png
+Snow006_1K_Color.png
+Snow006_1K_Normal.png
+Tiles083_1K_Color.png
+Tiles083_1K_Normal.png
+Gravel015_1K_Displacement.png
+Gravel015_1K_AmbientOcclusion.png
+Ground036_1K_Displacement.png
+Ground036_1K_AmbientOcclusion.png
+Ground037_1K_Displacement.png
+Ground037_1K_AmbientOcclusion.png
+Marble013_1K_Displacement.png
+Marble013_1K_AmbientOcclusion.png
+Rock035_1K_Displacement.png
+Rock035_1K_AmbientOcclusion.png
+Snow006_1K_Displacement.png
+Snow006_1K_AmbientOcclusion.png
+Tiles083_1K_Displacement.png
+Tiles083_1K_AmbientOcclusion.png
+Gravel015_1K_Roughness.png
+Ground036_1K_Roughness.png
+Ground037_1K_Roughness.png
+Marble013_1K_Roughness.png
+Rock035_1K_Roughness.png
+Snow006_1K_Roughness.png
+Tiles083_1K_Roughness.png
+
+
+
+*Files Derived:
+Gravel_015_PackedMetallicRoughnessMap.png
+Ground036_PackedMetallicRoughnessMap.png
+Ground037_PackedMetallicRoughnessMap.png
+Marble013_PackedMetallicRoughnessMap.png
+Rock035_PackedMetallicRoughnessMap.png
+Snow006_PackedMetallicRoughnessMap.png
+Tiles083_PackedMetallicRoughnessMap.png
+
+
+
+Contains assets from CC0Textures.com, licensed under CC0 1.0 Universal.

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -70,14 +70,15 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
     protected javax.vecmath.Matrix3f tempMatrix = new javax.vecmath.Matrix3f();
     //TEMP VARIABLES
     protected javax.vecmath.Vector3f localInertia = new javax.vecmath.Vector3f();
-    protected ArrayList<PhysicsJoint> joints = new ArrayList<PhysicsJoint>();
+    protected ArrayList<PhysicsJoint> joints = new ArrayList<>();
 
     protected PhysicsRigidBody() {
     }
 
     /**
      * Creates a new PhysicsRigidBody with the supplied collision shape
-     * @param shape
+     *
+     * @param shape the desired shape (not null, alias created)
      */
     public PhysicsRigidBody(CollisionShape shape) {
         collisionShape = shape;
@@ -91,7 +92,7 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
     }
 
     /**
-     * Builds/rebuilds the phyiscs body when parameters have changed
+     * Builds/rebuilds the physics body when parameters have changed
      */
     protected void rebuildRigidBody() {
         boolean removed = false;
@@ -175,6 +176,8 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
 
     /**
      * Gets the physics object location, instantiates a new Vector3f object
+     * 
+     * @return a new location vector (in physics-space coordinates, not null)
      */
     public Vector3f getPhysicsLocation() {
         return getPhysicsLocation(null);
@@ -182,6 +185,8 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
 
     /**
      * Gets the physics object rotation
+     *
+     * @return a new rotation matrix (in physics-space coordinates, not null)
      */
     public Matrix3f getPhysicsRotationMatrix() {
         return getPhysicsRotationMatrix(null);
@@ -190,6 +195,8 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
     /**
      * Gets the physics object location, no object instantiation
      * @param location the location of the actual physics object is stored in this Vector3f
+     * @return a location vector (in physics-space coordinates, either
+     * location or a new vector)
      */
     public Vector3f getPhysicsLocation(Vector3f location) {
         if (location == null) {
@@ -202,6 +209,8 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
     /**
      * Gets the physics object rotation as a matrix, no conversions and no object instantiation
      * @param rotation the rotation of the actual physics object is stored in this Matrix3f
+     * @return a rotation matrix (in physics-space coordinates, either
+     * rotation or a new matrix)
      */
     public Matrix3f getPhysicsRotationMatrix(Matrix3f rotation) {
         if (rotation == null) {
@@ -214,6 +223,8 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
     /**
      * Gets the physics object rotation as a quaternion, converts the bullet Matrix3f value,
      * instantiates new object
+     *
+     * @return a new rotation Quaternion (in physics-space coordinates)
      */
     public Quaternion getPhysicsRotation(){
         return getPhysicsRotation(null);
@@ -222,6 +233,8 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
     /**
      * Gets the physics object rotation as a quaternion, converts the bullet Matrix3f value
      * @param rotation the rotation of the actual physics object is stored in this Quaternion
+     * @return a rotation Quaternion (in physics-space coordinates, either
+     * rotation or a new instance)
      */
     public Quaternion getPhysicsRotation(Quaternion rotation){
         if (rotation == null) {
@@ -234,6 +247,8 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
     /**
      * Gets the physics object location
      * @param location the location of the actual physics object is stored in this Vector3f
+     * @return a location vector (in physics-space coordinates, either
+     * location or a new vector)
      */
     public Vector3f getInterpolatedPhysicsLocation(Vector3f location) {
         if (location == null) {
@@ -246,6 +261,8 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
     /**
      * Gets the physics object rotation
      * @param rotation the rotation of the actual physics object is stored in this Matrix3f
+     * @return a rotation matrix (in physics-space coordinates, either
+     * rotation or a new matrix)
      */
     public Matrix3f getInterpolatedPhysicsRotation(Matrix3f rotation) {
         if (rotation == null) {
@@ -259,7 +276,9 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
      * Sets the node to kinematic mode. in this mode the node is not affected by physics
      * but affects other physics objects. Its kinetic force is calculated by the amount
      * of movement it is exposed to and its weight.
-     * @param kinematic
+     *
+     * @param kinematic true&rarr;set kinematic mode, false&rarr;set dynamic
+     * (default=false)
      */
     public void setKinematic(boolean kinematic) {
         this.kinematic = kinematic;
@@ -308,9 +327,11 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
     }
 
     /**
-     * Sets the amount of motion that has to happen in one physics tick to trigger the continuous motion detection<br/>
+     * Sets the amount of motion that has to happen in one physics tick to trigger the continuous motion detection<br>
      * This avoids the problem of fast objects moving through other objects, set to zero to disable (default)
-     * @param threshold
+     *
+     * @param threshold the desired minimum distance per timestep to trigger CCD
+     * (in physics-space units, &gt;0) or zero to disable CCD (default=0)
      */
     public void setCcdMotionThreshold(float threshold) {
         rBody.setCcdMotionThreshold(threshold);
@@ -334,7 +355,8 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
 
     /**
      * Sets the mass of this PhysicsRigidBody, objects with mass=0 are static.
-     * @param mass
+     *
+     * @param mass the desired mass (&gt;0) or 0 for a static body (default=1)
      */
     public void setMass(float mass) {
         this.mass = mass;
@@ -367,7 +389,7 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
     }
 
     /**
-     * Set the local gravity of this PhysicsRigidBody<br/>
+     * Set the local gravity of this PhysicsRigidBody<br>
      * Set this after adding the node to the PhysicsSpace,
      * the PhysicsSpace assigns its current gravity to the physics node when its added.
      * @param gravity the gravity vector to set
@@ -418,8 +440,9 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
     }
 
     /**
-     * The "bouncyness" of the PhysicsRigidBody, best performance if restitution=0
-     * @param restitution
+     * The "bounciness" of the PhysicsRigidBody, best performance if restitution=0
+     *
+     * @param restitution the desired value (default=0)
      */
     public void setRestitution(float restitution) {
         constructionInfo.restitution = restitution;
@@ -524,7 +547,9 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
 
     /**
      * Apply a torque impulse to the PhysicsRigidBody in the next physics update.
-     * @param vec
+     *
+     * @param vec the torque impulse vector (in physics-space coordinates,
+     * not null, unaffected)
      */
     public void applyTorqueImpulse(final Vector3f vec) {
         rBody.applyTorqueImpulse(Converter.convert(vec, tempVec));
@@ -567,7 +592,7 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
 
     /**
      * sets the sleeping thresholds, these define when the object gets deactivated
-     * to save ressources. Low values keep the object active when it barely moves
+     * to save resources. Low values keep the object active when it barely moves
      * @param linear the linear sleeping threshold
      * @param angular the angular sleeping threshold
      */
@@ -605,6 +630,8 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
 
     /**
      * do not use manually, joints are added automatically
+     *
+     * @param joint the joint to add (not null, alias created)
      */
     public void addJoint(PhysicsJoint joint) {
         if (!joints.contains(joint)) {
@@ -613,7 +640,7 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
     }
 
     /**
-     * 
+     * @param joint the joint to remove (not null, unaffected)
      */
     public void removeJoint(PhysicsJoint joint) {
         joints.remove(joint);
@@ -630,6 +657,8 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
 
     /**
      * used internally
+     * 
+     * @return the pre-existing object
      */
     public RigidBody getObjectId() {
         return rBody;

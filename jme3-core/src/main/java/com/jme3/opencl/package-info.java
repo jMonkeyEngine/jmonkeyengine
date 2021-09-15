@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,7 +30,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.jme3.opencl;
 /**
  * This package contains an API for using OpenCL together with jME3.
  * <p>
@@ -64,7 +63,7 @@ package com.jme3.opencl;
  * On the programming side, a {@link com.jme3.opencl.Kernel} instance is obtained
  * by calling {@link com.jme3.opencl.Program#createKernel(java.lang.String) }.
  * To execute the kernel, the method
- * {@link Kernel#Run1(com.jme3.opencl.CommandQueue, com.jme3.opencl.Kernel.WorkSize, java.lang.Object...)}
+ * {@link com.jme3.opencl.Kernel#Run1(com.jme3.opencl.CommandQueue, com.jme3.opencl.Kernel.WorkSize, java.lang.Object...)}
  * is provided. You first pass the command queue and the work size (i.e. the number of parallel executed threads)
  * followed by the kernel arguments.
  * <br>
@@ -116,7 +115,7 @@ package com.jme3.opencl;
  * terrain based on height maps, post processing effects and so forth.
  * <br>
  * <i>Important:</i> Before shared objects can be used by any OpenCL function
- * like kernel calls or read/write/copy methods, they must be aquired explicitly
+ * like kernel calls or read/write/copy methods, they must be acquired explicitly
  * by {@link com.jme3.opencl.Buffer#acquireBufferForSharingAsync(com.jme3.opencl.CommandQueue) }
  * or {@link com.jme3.opencl.Image#acquireImageForSharingAsync(com.jme3.opencl.CommandQueue) }.
  * After the work is done, release the resource with
@@ -155,5 +154,6 @@ package com.jme3.opencl;
  * OpenCL specification for the meanings of these errors for that particular function.</li>
  * </ul>
  */
+package com.jme3.opencl;
 
 //TODO: add profiling to Kernel, CommandQueue

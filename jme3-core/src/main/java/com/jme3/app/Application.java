@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -115,6 +115,8 @@ public interface Application {
      * Sets the Timer implementation that will be used for calculating
      * frame times.  By default, Application will use the Timer as returned
      * by the current JmeContext implementation.
+     * 
+     * @param timer the desired timer (alias created)
      */
     public void setTimer(Timer timer);
 
@@ -167,13 +169,16 @@ public interface Application {
 
     /**
      * Starts the application.
-     * A bug occuring when using LWJGL3 prevents this method from returning until after the application is stopped.
+     * A bug occurring when using LWJGL3 prevents this method from returning until after the application is stopped.
      */
     public void start();
 
     /**
      * Starts the application.
-     * A bug occuring when using LWJGL3 prevents this method from returning until after the application is stopped.
+     * A bug occurring when using LWJGL3 prevents this method from returning until after the application is stopped.
+     *
+     * @param waitFor true&rarr;wait for the context to be initialized,
+     * false&rarr;don't wait
      */
     public void start(boolean waitFor);
 
@@ -181,11 +186,16 @@ public interface Application {
      * Sets an AppProfiler hook that will be called back for
      * specific steps within a single update frame.  Value defaults
      * to null.
+     * 
+     * @param prof the profiler to use (alias created) or null for none
+     * (default=null)
      */
     public void setAppProfiler(AppProfiler prof);
 
     /**
      * Returns the current AppProfiler hook, or null if none is set.
+     *
+     * @return the pre-existing instance, or null if none
      */
     public AppProfiler getAppProfiler();
 
@@ -212,6 +222,9 @@ public interface Application {
      * Requests the context to close, shutting down the main loop
      * and making necessary cleanup operations.
      * After the application has stopped, it cannot be used anymore.
+     * 
+     @param waitFor true&rarr;wait for the context to be fully destroyed,
+     * true&rarr;don't wait
      */
     public void stop(boolean waitFor);
 
@@ -223,7 +236,9 @@ public interface Application {
      * They are executed even if the application is currently paused
      * or out of focus.
      *
+     * @param <V> type of result returned by the Callable
      * @param callable The callable to run in the main jME3 thread
+     * @return a new instance
      */
     public <V> Future<V> enqueue(Callable<V> callable);
 

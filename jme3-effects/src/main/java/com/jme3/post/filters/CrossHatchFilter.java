@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,7 +44,7 @@ import com.jme3.renderer.ViewPort;
  * Try combining this with a cartoon edge filter to obtain manga style visuals.
  *
  * Based on an article from Geeks3D:
- *    <a href="http://www.geeks3d.com/20110219/shader-library-crosshatching-glsl-filter/" rel="nofollow">http://www.geeks3d.com/20110219/shader-library-crosshatching-glsl-filter/</a>
+ *    <a href="http://www.geeks3d.com/20110219/shader-library-crosshatching-glsl-filter/">http://www.geeks3d.com/20110219/shader-library-crosshatching-glsl-filter/</a>
  *
  * @author Roy Straver a.k.a. Baal Garnaal
  */
@@ -114,7 +114,8 @@ public class CrossHatchFilter extends Filter {
 
     /**
      * Sets color used to draw lines
-     * @param lineColor 
+     *
+     * @param lineColor the desired color (alias created, default=(0,0,0,1))
      */
     public void setLineColor(ColorRGBA lineColor) {
         this.lineColor = lineColor;
@@ -125,7 +126,8 @@ public class CrossHatchFilter extends Filter {
 
     /**
      * Sets color used as background
-     * @param paperColor 
+     *
+     * @param paperColor the desired color (alias created, default=(1,1,1,1))
      */
     public void setPaperColor(ColorRGBA paperColor) {
         this.paperColor = paperColor;
@@ -136,7 +138,8 @@ public class CrossHatchFilter extends Filter {
 
     /**
      * Sets color influence of original image on lines drawn
-     * @param colorInfluenceLine 
+     *
+     * @param colorInfluenceLine the desired factor (default=0.8) 
      */
     public void setColorInfluenceLine(float colorInfluenceLine) {
         this.colorInfluenceLine = colorInfluenceLine;
@@ -147,7 +150,8 @@ public class CrossHatchFilter extends Filter {
 
     /**
      * Sets color influence of original image on non-line areas
-     * @param colorInfluencePaper 
+     *
+     * @param colorInfluencePaper the desired factor (default=0.1)
      */
     public void setColorInfluencePaper(float colorInfluencePaper) {
         this.colorInfluencePaper = colorInfluencePaper;
@@ -159,7 +163,8 @@ public class CrossHatchFilter extends Filter {
     /**
      * Sets line/paper color ratio for areas with values less than luminance5,
      * really dark areas get no lines but a filled blob instead
-     * @param fillValue 
+     *
+     * @param fillValue the desired ratio (default=0.9)
      */
     public void setFillValue(float fillValue) {
         this.fillValue = fillValue;
@@ -171,9 +176,9 @@ public class CrossHatchFilter extends Filter {
     /**
      *
      * Sets minimum luminance levels for lines drawn
-     * @param luminance1 Top-left to down right 1
+     * @param luminance1 Top-left to bottom right 1
      * @param luminance2 Top-right to bottom left 1
-     * @param luminance3 Top-left to down right 2
+     * @param luminance3 Top-left to bottom right 2
      * @param luminance4 Top-right to bottom left 2
      * @param luminance5 Blobs
      */
@@ -195,7 +200,8 @@ public class CrossHatchFilter extends Filter {
 
     /**
      * Sets the thickness of lines drawn
-     * @param lineThickness 
+     *
+     * @param lineThickness the desired thickness (in pixels, default=1)
      */
     public void setLineThickness(float lineThickness) {
         this.lineThickness = lineThickness;
@@ -208,7 +214,8 @@ public class CrossHatchFilter extends Filter {
      * Sets minimum distance between lines drawn
      * Primary lines are drawn at 2*lineDistance
      * Secondary lines are drawn at lineDistance
-     * @param lineDistance 
+     *
+     * @param lineDistance the desired distance (in pixels, default=4)
      */
     public void setLineDistance(float lineDistance) {
         this.lineDistance = lineDistance;
@@ -235,6 +242,8 @@ public class CrossHatchFilter extends Filter {
 
     /**
      * Returns current influence of image colors on lines
+     *
+     * @return the influence factor
      */
     public float getColorInfluenceLine() {
         return colorInfluenceLine;
@@ -242,6 +251,8 @@ public class CrossHatchFilter extends Filter {
 
     /**
      * Returns current influence of image colors on paper background
+     *
+     * @return the influence factor
      */
     public float getColorInfluencePaper() {
         return colorInfluencePaper;
@@ -249,6 +260,8 @@ public class CrossHatchFilter extends Filter {
 
     /**
      * Returns line/paper color ratio for blobs
+     *
+     * @return the ratio
      */
     public float getFillValue() {
         return fillValue;
@@ -256,6 +269,8 @@ public class CrossHatchFilter extends Filter {
 
     /**
      * Returns the thickness of the lines drawn
+     *
+     * @return the thickness (in pixels)
      */
     public float getLineThickness() {
         return lineThickness;
@@ -263,6 +278,8 @@ public class CrossHatchFilter extends Filter {
 
     /**
      * Returns minimum distance between lines
+     *
+     * @return the distance (in pixels)
      */
     public float getLineDistance() {
         return lineDistance;
@@ -270,6 +287,8 @@ public class CrossHatchFilter extends Filter {
 
     /**
      * Returns threshold for lines 1
+     *
+     * @return the first luminance threshold
      */
     public float getLuminance1() {
         return luminance1;
@@ -277,6 +296,8 @@ public class CrossHatchFilter extends Filter {
 
     /**
      * Returns threshold for lines 2
+     *
+     * @return the 2nd luminance threshold
      */
     public float getLuminance2() {
         return luminance2;
@@ -284,6 +305,8 @@ public class CrossHatchFilter extends Filter {
 
     /**
      * Returns threshold for lines 3
+     *
+     * @return the 3rd luminance threshold
      */
     public float getLuminance3() {
         return luminance3;
@@ -291,6 +314,8 @@ public class CrossHatchFilter extends Filter {
 
     /**
      * Returns threshold for lines 4
+     *
+     * @return the 4th luminance threshold
      */
     public float getLuminance4() {
         return luminance4;
@@ -298,6 +323,8 @@ public class CrossHatchFilter extends Filter {
 
     /**
      * Returns threshold for blobs
+     *
+     * @return the 5th luminance threshold
      */
     public float getLuminance5() {
         return luminance5;

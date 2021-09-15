@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,7 +48,7 @@ public class BitmapCharacter implements Savable, Cloneable {
     private int xOffset;
     private int yOffset;
     private int xAdvance;
-    private IntMap<Integer> kerning = new IntMap<Integer>();
+    private IntMap<Integer> kerning = new IntMap<>();
     private int page;
     
     public BitmapCharacter() {}

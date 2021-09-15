@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -67,8 +67,8 @@ public class ViewPort {
     protected final String name;
     protected final Camera cam;
     protected final RenderQueue queue = new RenderQueue();
-    protected final SafeArrayList<Spatial> sceneList = new SafeArrayList<Spatial>(Spatial.class);
-    protected final SafeArrayList<SceneProcessor> processors = new SafeArrayList<SceneProcessor>(SceneProcessor.class);
+    protected final SafeArrayList<Spatial> sceneList = new SafeArrayList<>(Spatial.class);
+    protected final SafeArrayList<SceneProcessor> processors = new SafeArrayList<>(SceneProcessor.class);
     protected FrameBuffer out = null;
 
     protected final ColorRGBA backColor = new ColorRGBA(0,0,0,0);
@@ -285,6 +285,8 @@ public class ViewPort {
 
     /**
      * Internal use only.
+     * 
+     * @return the pre-existing instance
      */
     public RenderQueue getQueue() {
         return queue;

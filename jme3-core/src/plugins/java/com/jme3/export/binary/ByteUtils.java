@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,6 +43,12 @@ import java.io.OutputStream;
  * @author Joshua Slack
  */
 public class ByteUtils {
+
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private ByteUtils() {
+    }
 
     /**
      * Takes an InputStream and returns the complete byte content of it

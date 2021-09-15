@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 jMonkeyEngine
+ * Copyright (c) 2016-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -57,6 +57,7 @@ public interface CloneFunction<T> {
      *
      *  @param cloner The cloner performing the cloning operation.
      *  @param original The original object that needs to be cloned.
+     *  @return a new instance
      */
     public T cloneObject( Cloner cloner, T original );
  

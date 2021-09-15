@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -84,13 +84,13 @@ public final class GLRenderer implements Renderer {
     private final StringBuilder stringBuf = new StringBuilder(250);
     private final IntBuffer intBuf1 = BufferUtils.createIntBuffer(1);
     private final IntBuffer intBuf16 = BufferUtils.createIntBuffer(16);
-    private final FloatBuffer floatBuf16 = BufferUtils.createFloatBuffer(16);
     private final RenderContext context = new RenderContext();
     private final NativeObjectManager objManager = new NativeObjectManager();
     private final EnumSet<Caps> caps = EnumSet.noneOf(Caps.class);
-    private final EnumMap<Limits, Integer> limits = new EnumMap<Limits, Integer>(Limits.class);
+    private final EnumMap<Limits, Integer> limits = new EnumMap<>(Limits.class);
 
     private FrameBuffer mainFbOverride = null;
+    private int defaultFBO = 0;
     private final Statistics statistics = new Statistics();
     private int vpX, vpY, vpW, vpH;
     private int clipX, clipY, clipW, clipH;
@@ -133,7 +133,7 @@ public final class GLRenderer implements Renderer {
     }
 
     private HashSet<String> loadExtensions() {
-        HashSet<String> extensionSet = new HashSet<String>(64);
+        HashSet<String> extensionSet = new HashSet<>(64);
         if (caps.contains(Caps.OpenGL30)) {
             // If OpenGL3+ is available, use the non-deprecated way
             // of getting supported extensions.
@@ -630,6 +630,16 @@ public final class GLRenderer implements Renderer {
                 gl2.glEnable(GL2.GL_POINT_SPRITE);
             }
         }
+
+	IntBuffer tmp = BufferUtils.createIntBuffer(16);
+	gl.glGetInteger(GL.GL_FRAMEBUFFER_BINDING, tmp);
+	tmp.rewind();
+	int fbOnLoad = tmp.get();
+	if(fbOnLoad > 0)
+	{
+            // Overriding default FB to fbOnLoad. Mostly iOS fix for scene processors and filters
+	    defaultFBO = fbOnLoad;
+	}
     }
 
     @Override
@@ -643,7 +653,7 @@ public final class GLRenderer implements Renderer {
 
     @Override
     public void resetGLObjects() {
-        logger.log(Level.FINE, "Reseting objects and invalidating state");
+        logger.log(Level.FINE, "Resetting objects and invalidating state");
         objManager.resetObjects();
         statistics.clearMemory();
         invalidateState();
@@ -1154,9 +1164,16 @@ public final class GLRenderer implements Renderer {
         }
     }
 
-    /*********************************************************************\
-     |* Shaders                                                           *|
-     \*********************************************************************/
+    /*=========*\
+    |* Shaders *|
+    \*=========*/
+ 
+    /**
+     * Update the location of the specified Uniform in the specified Shader.
+     *
+     * @param shader the Shader containing the Uniform (not null)
+     * @param uniform the Uniform to update (not null)
+     */
     protected void updateUniformLocation(Shader shader, Uniform uniform) {
         int loc = gl.glGetUniformLocation(shader.getId(), uniform.getName());
         if (loc < 0) {
@@ -1446,7 +1463,7 @@ public final class GLRenderer implements Renderer {
 
         if(insertPrecision){
             // default precision could be defined in GLSLCompat.glsllib so final users can use custom defined precision instead
-            // precision token is not a preprocessor dirrective therefore it must be placed after #extension tokens to avoid
+            // precision token is not a preprocessor directive therefore it must be placed after #extension tokens to avoid
             // Error P0001: Extension directive must occur before any non-preprocessor tokens
             int idx = stringBuf.lastIndexOf("#extension");
             idx = stringBuf.indexOf("\n", idx);
@@ -1632,9 +1649,17 @@ public final class GLRenderer implements Renderer {
         shader.resetObject();
     }
 
-    /*********************************************************************\
-     |* Framebuffers                                                      *|
-     \*********************************************************************/
+    /*==============*\
+    |* Framebuffers *|
+    \*==============*/
+
+    /**
+     * Copy the source buffer to the destination buffer, including both color
+     * and depth.
+     *
+     * @param src the source buffer (unaffected)
+     * @param dst the destination buffer
+     */
     public void copyFrameBuffer(FrameBuffer src, FrameBuffer dst) {
         copyFrameBuffer(src, dst, true, true);
     }
@@ -1730,7 +1755,7 @@ public final class GLRenderer implements Renderer {
                 throw new IllegalStateException("Framebuffer object format is "
                         + "unsupported by the video hardware.");
             case GLFbo.GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT:
-                throw new IllegalStateException("Framebuffer has erronous attachment.");
+                throw new IllegalStateException("Framebuffer has erroneous attachment.");
             case GLFbo.GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT:
                 throw new IllegalStateException("Framebuffer doesn't have any renderbuffers attached.");
             case GLFbo.GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT:
@@ -1856,10 +1881,10 @@ public final class GLRenderer implements Renderer {
     
     private void bindFrameBuffer(FrameBuffer fb) {
         if (fb == null) {
-            if (context.boundFBO != 0) {
-                glfbo.glBindFramebufferEXT(GLFbo.GL_FRAMEBUFFER_EXT, 0);
+            if (context.boundFBO != defaultFBO) {
+                glfbo.glBindFramebufferEXT(GLFbo.GL_FRAMEBUFFER_EXT, defaultFBO);
                 statistics.onFrameBufferUse(null, true);
-                context.boundFBO = 0;
+                context.boundFBO = defaultFBO;
                 context.boundFB = null;
             }
         } else {
@@ -2032,7 +2057,12 @@ public final class GLRenderer implements Renderer {
                 RenderBuffer rb = context.boundFB.getColorBuffer(i);
                 Texture tex = rb.getTexture();
                 if (tex != null && tex.getMinFilter().usesMipMapLevels()) {
-                    setTexture(0, rb.getTexture());
+                    try {
+                        final int textureUnitIndex = 0;
+                        setTexture(textureUnitIndex, rb.getTexture());
+                    } catch (TextureUnitException exception) {
+                        throw new RuntimeException("Renderer lacks texture units?");
+                    }
                     if (tex.getType() == Texture.Type.CubeMap) {
                         glfbo.glGenerateMipmapEXT(GL.GL_TEXTURE_CUBE_MAP);
                     } else {
@@ -2371,7 +2401,7 @@ public final class GLRenderer implements Renderer {
                 }
                 break;
             default:
-                throw new UnsupportedOperationException("unrecongized texture type");
+                throw new UnsupportedOperationException("unrecognized texture type");
         }
     }
 
@@ -2558,7 +2588,11 @@ public final class GLRenderer implements Renderer {
     }
 
     @Override
-    public void setTexture(int unit, Texture tex) {
+    public void setTexture(int unit, Texture tex) throws TextureUnitException {
+        if (unit < 0 || unit >= RenderContext.maxTextureUnits) {
+            throw new TextureUnitException();
+        }
+
         Image image = tex.getImage();
         if (image.isUpdateNeeded() || (image.isGeneratedMipmapsRequired() && !image.isMipmapsGenerated())) {
             // Check NPOT requirements
@@ -2594,7 +2628,13 @@ public final class GLRenderer implements Renderer {
     @Deprecated
     @Override
     public void modifyTexture(Texture tex, Image pixels, int x, int y) {
-        setTexture(0, tex);
+        final int textureUnitIndex = 0;
+        try {
+            setTexture(textureUnitIndex, tex);
+        } catch (TextureUnitException exception) {
+            throw new RuntimeException("Renderer lacks texture units?");
+        }
+
         if(caps.contains(Caps.OpenGLES20) && pixels.getFormat()!=tex.getImage().getFormat() ) {
             logger.log(Level.WARNING, "Incompatible texture subimage");
         }
@@ -2614,7 +2654,13 @@ public final class GLRenderer implements Renderer {
      * @param areaH Height of the area to copy
      */
     public void modifyTexture(Texture2D dest, Image src, int destX, int destY, int srcX, int srcY, int areaW, int areaH) {
-        setTexture(0, dest);
+        final int textureUnitIndex = 0;
+        try {
+            setTexture(textureUnitIndex, dest);
+        } catch (TextureUnitException exception) {
+            throw new RuntimeException("Renderer lacks texture units?");
+        }
+
         if(caps.contains(Caps.OpenGLES20) && src.getFormat()!=dest.getImage().getFormat() ) {
             logger.log(Level.WARNING, "Incompatible texture subimage");
         }
@@ -2827,7 +2873,8 @@ public final class GLRenderer implements Renderer {
         for (int i = 0; i < attribList.oldLen; i++) {
             int idx = attribList.oldList[i];
             gl.glDisableVertexAttribArray(idx);
-            if (context.boundAttribs[idx].get().isInstanced()) {
+            VertexBuffer buffer = context.boundAttribs[idx].get();
+            if (buffer != null && buffer.isInstanced()) {
                 glext.glVertexAttribDivisorARB(idx, 0);
             }
             context.boundAttribs[idx] = null;
@@ -3047,9 +3094,16 @@ public final class GLRenderer implements Renderer {
         }
     }
 
-    /*********************************************************************\
-     |* Render Calls                                                      *|
-     \*********************************************************************/
+    /*==============*\
+    |* Render Calls *|
+    \*==============*/
+    
+    /**
+     * Convert a mesh mode to the corresponding GL value.
+     *
+     * @param mode input enum value (not null)
+     * @return the corresponding GL value
+     */
     public int convertElementMode(Mesh.Mode mode) {
         switch (mode) {
             case Points:
@@ -3111,33 +3165,6 @@ public final class GLRenderer implements Renderer {
                 setVertexAttrib(vb, interleavedData);
             }
         }
-    }
-
-    private void renderMeshVertexArray(Mesh mesh, int lod, int count, VertexBuffer instanceData) {
-        if (mesh.getId() == -1) {
-            updateVertexArray(mesh, instanceData);
-        } else {
-            // TODO: Check if it was updated
-        }
-
-        if (context.boundVertexArray != mesh.getId()) {
-            gl3.glBindVertexArray(mesh.getId());
-            context.boundVertexArray = mesh.getId();
-        }
-
-//        IntMap<VertexBuffer> buffers = mesh.getBuffers();
-        VertexBuffer indices;
-        if (mesh.getNumLodLevels() > 0) {
-            indices = mesh.getLodLevel(lod);
-        } else {
-            indices = mesh.getBuffer(Type.Index);
-        }
-        if (indices != null) {
-            drawTriangleList(indices, mesh, count);
-        } else {
-            drawTriangleArray(mesh.getMode(), count, mesh.getVertexCount());
-        }
-        clearVertexAttribs();
     }
 
     private void renderMeshDefault(Mesh mesh, int lod, int count, VertexBuffer[] instanceData) {
@@ -3288,5 +3315,31 @@ public final class GLRenderer implements Renderer {
     @Override
     public int getDefaultAnisotropicFilter() {
         return this.defaultAnisotropicFilter;
+    }
+
+    /**
+     * Test whether images with the sRGB flag will be linearized when read by a
+     * shader.
+     *
+     * @return true for linearization, false for no linearization
+     */
+    @Override
+    public boolean isLinearizeSrgbImages() {
+        return linearizeSrgbImages;
+    }
+
+    /**
+     * Test whether colors rendered to the main framebuffer undergo
+     * linear-to-sRGB conversion.
+     *
+     * @return true for conversion, false for no conversion
+     */
+    @Override
+    public boolean isMainFrameBufferSrgb() {
+        if (!caps.contains(Caps.Srgb)) {
+            return false;
+        } else {
+            return gl.glIsEnabled(GLExt.GL_FRAMEBUFFER_SRGB_EXT);
+        }
     }
 }

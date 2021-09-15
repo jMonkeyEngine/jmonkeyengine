@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -54,7 +54,7 @@ public abstract class RunnableWithProgress implements Runnable {
     /**
      * set the end step value of the process.
      *
-     * @param end
+     * @param end the desired end value (default=0)
      */
     protected void setEnd(int end) {
         this.end = end;

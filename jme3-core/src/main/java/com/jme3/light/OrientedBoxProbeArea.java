@@ -17,7 +17,7 @@ public class OrientedBoxProbeArea implements ProbeArea {
      * for this Area type, the matrix is updated when the probe is transformed,
      * and its data is used for bound checks in the light culling process.
      */
-    private Matrix4f uniformMatrix = new Matrix4f();
+    private final Matrix4f uniformMatrix = new Matrix4f();
 
     public OrientedBoxProbeArea() {
     }
@@ -61,9 +61,7 @@ public class OrientedBoxProbeArea implements ProbeArea {
 
         p.setNormal(1, 0, 0);
         p.setConstant(c.x - box.getXExtent());
-        if (!insidePlane(p, axis1, axis2, axis3, tn)) return false;
-
-        return true;
+        return insidePlane(p, axis1, axis2, axis3, tn);
 
     }
 
@@ -79,18 +77,13 @@ public class OrientedBoxProbeArea implements ProbeArea {
 
     @Override
     public boolean intersectsSphere(BoundingSphere sphere, TempVars vars) {
-
         Vector3f closestPoint = getClosestPoint(vars, sphere.getCenter());
         // check if the point intersects with the sphere bound
-        if (sphere.intersects(closestPoint)) {
-            return true;
-        }
-        return false;
+        return sphere.intersects(closestPoint);
     }
 
     @Override
     public boolean intersectsFrustum(Camera camera, TempVars vars) {
-
         // extract the scaled axis
         // this allows a small optimization.
         Vector3f axis1 = getScaledAxis(0, vars.vect1);
@@ -108,7 +101,7 @@ public class OrientedBoxProbeArea implements ProbeArea {
 
     private Vector3f getScaledAxis(int index, Vector3f store) {
         Matrix4f u = uniformMatrix;
-        float x = 0, y = 0, z = 0, s = 1;
+        float x, y, z, s;
         switch (index) {
             case 0:
                 x = u.m00;
@@ -127,6 +120,9 @@ public class OrientedBoxProbeArea implements ProbeArea {
                 y = u.m12;
                 z = u.m22;
                 s = u.m32;
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid axis, not in range [0, 2]");
         }
         return store.set(x, y, z).multLocal(s);
     }
@@ -141,11 +137,7 @@ public class OrientedBoxProbeArea implements ProbeArea {
                 FastMath.abs(tn.z);
 
         float distance = p.pseudoDistance(transform.getTranslation());
-
-        if (distance < -radius) {
-            return false;
-        }
-        return true;
+        return distance >= -radius;
     }
 
     private Vector3f getClosestPoint(TempVars vars, Vector3f point) {
@@ -164,7 +156,7 @@ public class OrientedBoxProbeArea implements ProbeArea {
         for (int i = 0; i < 3; i++) {
             // extract the axis from the 3x3 matrix
             Vector3f axis = getScaledAxis(i, vars.vect1);
-            // nomalize (here we just divide by the extent
+            // normalize (here we just divide by the extent)
             axis.divideLocal(r[i]);
             // distance to the closest point on this axis.
             float d = FastMath.clamp(dir.dot(axis), -r[i], r[i]);
@@ -252,5 +244,4 @@ public class OrientedBoxProbeArea implements ProbeArea {
         transform = (Transform) ic.readSavable("transform", new Transform());
         updateMatrix();
     }
-
 }

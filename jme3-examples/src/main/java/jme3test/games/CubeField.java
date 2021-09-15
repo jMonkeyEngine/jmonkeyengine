@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -65,7 +65,7 @@ public class CubeField extends SimpleApplication implements AnalogListener {
     private BitmapFont defaultFont;
 
     private boolean START;
-    private int difficulty, Score, colorInt, highCap, lowCap,diffHelp;
+    private int difficulty, Score, colorInt, lowCap;
     private Node player;
     private Geometry fcube;
     private ArrayList<Geometry> cubeField;
@@ -78,7 +78,7 @@ public class CubeField extends SimpleApplication implements AnalogListener {
     private Material playerMaterial;
     private Material floorMaterial;
 
-    private float fpsRate = 1000f / 1f;
+    final private float fpsRate = 1000f / 1f;
 
     /**
      * Initializes game 
@@ -113,8 +113,7 @@ public class CubeField extends SimpleApplication implements AnalogListener {
         Score = 0;
         lowCap = 10;
         colorInt = 0;
-        highCap = 40;
-        difficulty = highCap;
+        difficulty = 40;
 
         for (Geometry cube : cubeField){
             cube.removeFromParent();
@@ -134,7 +133,6 @@ public class CubeField extends SimpleApplication implements AnalogListener {
         speed = lowCap / 400f;
         coreTime = 20.0f;
         coreTime2 = 10.0f;
-        diffHelp=lowCap;
         player.setLocalTranslation(0,0,0);
     }
 
@@ -148,7 +146,7 @@ public class CubeField extends SimpleApplication implements AnalogListener {
     }
     /**
      * Forcefully takes over Camera adding functionality and placing it behind the character
-     * @param tpf Tickes Per Frame
+     * @param tpf Ticks Per Frame
      */
     private void camTakeOver(float tpf) {
         cam.setLocation(player.getLocalTranslation().add(-8, 2, 0));
@@ -258,7 +256,6 @@ public class CubeField extends SimpleApplication implements AnalogListener {
 			}
 			else if(difficulty>lowCap){
 				difficulty-=5;
-				diffHelp+=1;
 			}
 		}
     	

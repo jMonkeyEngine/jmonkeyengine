@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -110,6 +110,8 @@ public abstract class AbstractBox extends Mesh {
 
     /** 
      * Get the center point of this box. 
+     *
+     * @return the pre-existing location vector (in mesh coordinates)
      */
     public final Vector3f getCenter() {
         return center;
@@ -117,6 +119,8 @@ public abstract class AbstractBox extends Mesh {
 
     /** 
      * Get the x-axis size (extent) of this box. 
+     *
+     * @return the radius parallel to the X axis (in mesh units)
      */
     public final float getXExtent() {
         return xExtent;
@@ -124,6 +128,8 @@ public abstract class AbstractBox extends Mesh {
 
     /** 
      * Get the y-axis size (extent) of this box. 
+     *
+     * @return the radius parallel to the Y axis (in mesh units)
      */
     public final float getYExtent() {
         return yExtent;
@@ -131,6 +137,8 @@ public abstract class AbstractBox extends Mesh {
 
     /** 
      * Get the z-axis size (extent) of this box.
+     *
+     * @return the radius parallel to the Z axis (in mesh units)
      */
     public final float getZExtent() {
         return zExtent;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -111,11 +111,13 @@ public final class SettingsDialog extends JFrame {
      *
      * @param source
      *            the <code>AppSettings</code> object to use for working with
-     *            the properties file.
+     *            the properties file (not null)
      * @param imageFile
      *            the image file to use as the title of the dialog;
      *            <code>null</code> will result in to image being displayed
-     * @throws NullPointerException
+     * @param loadSettings
+     *            if true, copy the settings, otherwise merge them
+     * @throws IllegalArgumentException
      *             if the source is <code>null</code>
      */
     public SettingsDialog(AppSettings source, String imageFile, boolean loadSettings) {
@@ -128,17 +130,18 @@ public final class SettingsDialog extends JFrame {
      * 
      * @param source
      *            the <code>GameSettings</code> object to use for working with
-     *            the properties file.
+     *            the properties file (not null)
      * @param imageFile
      *            the image file to use as the title of the dialog;
      *            <code>null</code> will result in to image being displayed
-     * @param loadSettings 
-     * @throws NullPointerException
+     * @param loadSettings
+     *            if true, copy the settings, otherwise merge them
+     * @throws IllegalArgumentException
      *             if the source is <code>null</code>
      */
     public SettingsDialog(AppSettings source, URL imageFile, boolean loadSettings) {
         if (source == null) {
-            throw new NullPointerException("Settings source cannot be null");
+            throw new IllegalArgumentException("Settings source cannot be null");
         }
 
         this.source = source;
@@ -274,12 +277,12 @@ public final class SettingsDialog extends JFrame {
      */
     public void setImage(URL image) {
         icon.setIcon(new ImageIcon(image));
-        pack(); // Resize to accomodate the new image
+        pack(); // Resize to accommodate the new image
         setLocationRelativeTo(null); // put in center
     }
 
     /**
-     * <code>showDialog</code> sets this dialog as visble, and brings it to
+     * <code>showDialog</code> sets this dialog as visible, and brings it to
      * the front.
      */
     public void showDialog() {
@@ -709,7 +712,7 @@ public final class SettingsDialog extends JFrame {
 
     private void updateAntialiasChoices() {
         // maybe in the future will add support for determining this info
-        // through pbuffer
+        // through PBuffer
         String[] choices = new String[]{resourceBundle.getString("antialias.disabled"), "2x", "4x", "6x", "8x", "16x"};
         antialiasCombo.setModel(new DefaultComboBoxModel<>(choices));
         antialiasCombo.setSelectedItem(choices[Math.min(source.getSamples()/2,5)]);
@@ -747,7 +750,7 @@ public final class SettingsDialog extends JFrame {
         heightLimit -= insets.top + insets.bottom;
         widthLimit -= insets.left + insets.right;
         
-        ArrayList<String> resolutions = new ArrayList<String>(modes.length);
+        ArrayList<String> resolutions = new ArrayList<>(modes.length);
         for (int i = 0; i < modes.length; i++) {
             int height = modes[i].getHeight();
             int width = modes[i].getWidth();
@@ -796,7 +799,7 @@ public final class SettingsDialog extends JFrame {
      * Returns every possible bit depth for the given resolution.
      */
     private static String[] getDepths(String resolution, DisplayMode[] modes) {
-        ArrayList<String> depths = new ArrayList<String>(4);
+        ArrayList<String> depths = new ArrayList<>(4);
         for (int i = 0; i < modes.length; i++) {
             // Filter out all bit depths lower than 16 - Java incorrectly
             // reports
@@ -828,7 +831,7 @@ public final class SettingsDialog extends JFrame {
      */
     private static String[] getFrequencies(String resolution,
             DisplayMode[] modes) {
-        ArrayList<String> freqs = new ArrayList<String>(4);
+        ArrayList<String> freqs = new ArrayList<>(4);
         for (int i = 0; i < modes.length; i++) {
             String res = modes[i].getWidth() + " x " + modes[i].getHeight();
             String freq;

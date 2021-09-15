@@ -1,34 +1,58 @@
-if (!hasProperty('mainClass')) {
-    ext.mainClass = ''
-}
-
 def lwjglVersion = '3.2.3'
 
 sourceCompatibility = '1.8'
 
 dependencies {
-    compile project(':jme3-core')
-    compile project(':jme3-desktop')
+    api project(':jme3-core')
+    api project(':jme3-desktop')
 
-    compile "org.lwjgl:lwjgl:${lwjglVersion}"
-    compile "org.lwjgl:lwjgl-glfw:${lwjglVersion}"
-    compile "org.lwjgl:lwjgl-jemalloc:${lwjglVersion}"
-    compile "org.lwjgl:lwjgl-openal:${lwjglVersion}"
-    compile "org.lwjgl:lwjgl-opencl:${lwjglVersion}"
-    compile "org.lwjgl:lwjgl-opengl:${lwjglVersion}"
-    runtime "org.lwjgl:lwjgl:${lwjglVersion}:natives-windows"
-    runtime "org.lwjgl:lwjgl:${lwjglVersion}:natives-linux"
-    runtime "org.lwjgl:lwjgl:${lwjglVersion}:natives-macos"
-    runtime "org.lwjgl:lwjgl-glfw:${lwjglVersion}:natives-windows"
-    runtime "org.lwjgl:lwjgl-glfw:${lwjglVersion}:natives-linux"
-    runtime "org.lwjgl:lwjgl-glfw:${lwjglVersion}:natives-macos"
-    runtime "org.lwjgl:lwjgl-jemalloc:${lwjglVersion}:natives-windows"
-    runtime "org.lwjgl:lwjgl-jemalloc:${lwjglVersion}:natives-linux"
-    runtime "org.lwjgl:lwjgl-jemalloc:${lwjglVersion}:natives-macos"
-    runtime "org.lwjgl:lwjgl-opengl:${lwjglVersion}:natives-windows"
-    runtime "org.lwjgl:lwjgl-opengl:${lwjglVersion}:natives-linux"
-    runtime "org.lwjgl:lwjgl-opengl:${lwjglVersion}:natives-macos"
-    runtime "org.lwjgl:lwjgl-openal:${lwjglVersion}:natives-windows"
-    runtime "org.lwjgl:lwjgl-openal:${lwjglVersion}:natives-linux"
-    runtime "org.lwjgl:lwjgl-openal:${lwjglVersion}:natives-macos"
+    api "org.lwjgl:lwjgl:${lwjglVersion}"
+    api "org.lwjgl:lwjgl-glfw:${lwjglVersion}"
+    api "org.lwjgl:lwjgl-jemalloc:${lwjglVersion}"
+    api "org.lwjgl:lwjgl-openal:${lwjglVersion}"
+    api "org.lwjgl:lwjgl-opencl:${lwjglVersion}"
+    api "org.lwjgl:lwjgl-opengl:${lwjglVersion}"
+
+    runtimeOnly "org.lwjgl:lwjgl:${lwjglVersion}:natives-windows"
+    runtimeOnly "org.lwjgl:lwjgl:${lwjglVersion}:natives-windows-x86"
+    runtimeOnly "org.lwjgl:lwjgl:${lwjglVersion}:natives-linux"
+    runtimeOnly "org.lwjgl:lwjgl:${lwjglVersion}:natives-linux-arm32"
+    runtimeOnly "org.lwjgl:lwjgl:${lwjglVersion}:natives-linux-arm64"
+    runtimeOnly "org.lwjgl:lwjgl:${lwjglVersion}:natives-macos"
+
+    runtimeOnly "org.lwjgl:lwjgl-glfw:${lwjglVersion}:natives-windows"
+    runtimeOnly "org.lwjgl:lwjgl-glfw:${lwjglVersion}:natives-windows-x86"
+    runtimeOnly "org.lwjgl:lwjgl-glfw:${lwjglVersion}:natives-linux"
+    runtimeOnly "org.lwjgl:lwjgl-glfw:${lwjglVersion}:natives-linux-arm32"
+    runtimeOnly "org.lwjgl:lwjgl-glfw:${lwjglVersion}:natives-linux-arm64"
+    runtimeOnly "org.lwjgl:lwjgl-glfw:${lwjglVersion}:natives-macos"
+
+    runtimeOnly "org.lwjgl:lwjgl-jemalloc:${lwjglVersion}:natives-windows"
+    runtimeOnly "org.lwjgl:lwjgl-jemalloc:${lwjglVersion}:natives-windows-x86"
+    runtimeOnly "org.lwjgl:lwjgl-jemalloc:${lwjglVersion}:natives-linux"
+    runtimeOnly "org.lwjgl:lwjgl-jemalloc:${lwjglVersion}:natives-linux-arm32"
+    runtimeOnly "org.lwjgl:lwjgl-jemalloc:${lwjglVersion}:natives-linux-arm64"
+    runtimeOnly "org.lwjgl:lwjgl-jemalloc:${lwjglVersion}:natives-macos"
+
+    runtimeOnly "org.lwjgl:lwjgl-opengl:${lwjglVersion}:natives-windows"
+    runtimeOnly "org.lwjgl:lwjgl-opengl:${lwjglVersion}:natives-windows-x86"
+    runtimeOnly "org.lwjgl:lwjgl-opengl:${lwjglVersion}:natives-linux"
+    runtimeOnly "org.lwjgl:lwjgl-opengl:${lwjglVersion}:natives-linux-arm32"
+    runtimeOnly "org.lwjgl:lwjgl-opengl:${lwjglVersion}:natives-linux-arm64"
+    runtimeOnly "org.lwjgl:lwjgl-opengl:${lwjglVersion}:natives-macos"
+
+    runtimeOnly "org.lwjgl:lwjgl-openal:${lwjglVersion}:natives-windows"
+    runtimeOnly "org.lwjgl:lwjgl-openal:${lwjglVersion}:natives-windows-x86"
+    runtimeOnly "org.lwjgl:lwjgl-openal:${lwjglVersion}:natives-linux"
+    runtimeOnly "org.lwjgl:lwjgl-openal:${lwjglVersion}:natives-linux-arm32"
+    runtimeOnly "org.lwjgl:lwjgl-openal:${lwjglVersion}:natives-linux-arm64"
+    runtimeOnly "org.lwjgl:lwjgl-openal:${lwjglVersion}:natives-macos"
 }
+
+javadoc {
+    // Disable doclint for JDK8+.
+    if (JavaVersion.current().isJava8Compatible()){
+        options.addStringOption('Xdoclint:none', '-quiet')
+    }
+}
+

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,21 +52,11 @@ import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.debug.Arrow;
 import com.jme3.scene.shape.Sphere;
-import com.jme3.terrain.geomipmap.TerrainGrid;
 import com.jme3.terrain.geomipmap.TerrainLodControl;
 import com.jme3.terrain.geomipmap.TerrainQuad;
-import com.jme3.terrain.geomipmap.grid.FractalTileLoader;
 import com.jme3.terrain.geomipmap.lodcalc.DistanceLodCalculator;
 import com.jme3.terrain.heightmap.AbstractHeightMap;
 import com.jme3.terrain.heightmap.ImageBasedHeightMap;
-import com.jme3.terrain.noise.ShaderUtils;
-import com.jme3.terrain.noise.basis.FilteredBasis;
-import com.jme3.terrain.noise.filter.IterativeFilter;
-import com.jme3.terrain.noise.filter.OptimizedErode;
-import com.jme3.terrain.noise.filter.PerturbFilter;
-import com.jme3.terrain.noise.filter.SmoothFilter;
-import com.jme3.terrain.noise.fractal.FractalSum;
-import com.jme3.terrain.noise.modulator.NoiseModulator;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
 import java.util.ArrayList;
@@ -79,16 +69,13 @@ import java.util.List;
 public class TerrainTestModifyHeight extends SimpleApplication {
 
     private TerrainQuad terrain;
-    Material matTerrain;
-    Material matWire;
-    boolean wireframe = false;
-    boolean triPlanar = false;
-    boolean wardiso = false;
-    boolean minnaert = false;
-    protected BitmapText hintText;
-    private float grassScale = 64;
-    private float dirtScale = 16;
-    private float rockScale = 128;
+    private Material matTerrain;
+    private Material matWire;
+    private boolean wireframe = false;
+    private BitmapText hintText;
+    final private float grassScale = 64;
+    final private float dirtScale = 16;
+    final private float rockScale = 128;
     
     private boolean raiseTerrain = false;
     private boolean lowerTerrain = false;
@@ -192,7 +179,7 @@ public class TerrainTestModifyHeight extends SimpleApplication {
         inputManager.addMapping("Lower", new MouseButtonTrigger(MouseInput.BUTTON_RIGHT));
         inputManager.addListener(actionListener, "Lower");
     }
-    private ActionListener actionListener = new ActionListener() {
+    final private ActionListener actionListener = new ActionListener() {
 
         @Override
         public void onAction(String name, boolean pressed, float tpf) {
@@ -220,8 +207,8 @@ public class TerrainTestModifyHeight extends SimpleApplication {
         float xStepAmount = terrain.getLocalScale().x;
         float zStepAmount = terrain.getLocalScale().z;
         long start = System.currentTimeMillis();
-        List<Vector2f> locs = new ArrayList<Vector2f>();
-        List<Float> heights = new ArrayList<Float>();
+        List<Vector2f> locs = new ArrayList<>();
+        List<Float> heights = new ArrayList<>();
         
         for (int z = -radiusStepsZ; z < radiusStepsZ; z++) {
             for (int x = -radiusStepsX; x < radiusStepsX; x++) {
@@ -326,95 +313,6 @@ public class TerrainTestModifyHeight extends SimpleApplication {
         terrain.setLocalTranslation(0, -100, 0);
         terrain.setLocalScale(2.5f, 0.5f, 2.5f);
         rootNode.attachChild(terrain);
-    }
-
-    private void createTerrainGrid() {
-        
-        // TERRAIN TEXTURE material
-        matTerrain = new Material(this.assetManager, "Common/MatDefs/Terrain/HeightBasedTerrain.j3md");
-
-        // Parameters to material:
-        // regionXColorMap: X = 1..4 the texture that should be appliad to state X
-        // regionX: a Vector3f containing the following information:
-        //      regionX.x: the start height of the region
-        //      regionX.y: the end height of the region
-        //      regionX.z: the texture scale for the region
-        //  it might not be the most elegant way for storing these 3 values, but it packs the data nicely :)
-        // slopeColorMap: the texture to be used for cliffs, and steep mountain sites
-        // slopeTileFactor: the texture scale for slopes
-        // terrainSize: the total size of the terrain (used for scaling the texture)
-        // GRASS texture
-        Texture grass = assetManager.loadTexture("Textures/Terrain/splat/grass.jpg");
-        grass.setWrap(WrapMode.Repeat);
-        matTerrain.setTexture("region1ColorMap", grass);
-        matTerrain.setVector3("region1", new Vector3f(88, 200, this.grassScale));
-
-        // DIRT texture
-        Texture dirt = assetManager.loadTexture("Textures/Terrain/splat/dirt.jpg");
-        dirt.setWrap(WrapMode.Repeat);
-        matTerrain.setTexture("region2ColorMap", dirt);
-        matTerrain.setVector3("region2", new Vector3f(0, 90, this.dirtScale));
-
-        // ROCK texture
-        Texture rock = assetManager.loadTexture("Textures/Terrain/Rock2/rock.jpg");
-        rock.setWrap(WrapMode.Repeat);
-        matTerrain.setTexture("region3ColorMap", rock);
-        matTerrain.setVector3("region3", new Vector3f(198, 260, this.rockScale));
-
-        matTerrain.setTexture("region4ColorMap", rock);
-        matTerrain.setVector3("region4", new Vector3f(198, 260, this.rockScale));
-
-        matTerrain.setTexture("slopeColorMap", rock);
-        matTerrain.setFloat("slopeTileFactor", 32);
-
-        matTerrain.setFloat("terrainSize", 513);
-
-        FractalSum base = new FractalSum();
-        base.setRoughness(0.7f);
-        base.setFrequency(1.0f);
-        base.setAmplitude(1.0f);
-        base.setLacunarity(2.12f);
-        base.setOctaves(8);
-        base.setScale(0.02125f);
-        base.addModulator(new NoiseModulator() {
-            @Override
-            public float value(float... in) {
-                return ShaderUtils.clamp(in[0] * 0.5f + 0.5f, 0, 1);
-            }
-        });
-
-        FilteredBasis ground = new FilteredBasis(base);
-
-        PerturbFilter perturb = new PerturbFilter();
-        perturb.setMagnitude(0.119f);
-
-        OptimizedErode therm = new OptimizedErode();
-        therm.setRadius(5);
-        therm.setTalus(0.011f);
-
-        SmoothFilter smooth = new SmoothFilter();
-        smooth.setRadius(1);
-        smooth.setEffect(0.7f);
-
-        IterativeFilter iterate = new IterativeFilter();
-        iterate.addPreFilter(perturb);
-        iterate.addPostFilter(smooth);
-        iterate.setFilter(therm);
-        iterate.setIterations(1);
-
-        ground.addPreFilter(iterate);
-
-        this.terrain = new TerrainGrid("terrain", 65, 257, new FractalTileLoader(ground, 256f));
-
-
-        terrain.setMaterial(matTerrain);
-        terrain.setLocalTranslation(0, 0, 0);
-        terrain.setLocalScale(2f, 1f, 2f);
-        
-        rootNode.attachChild(this.terrain);
-
-        TerrainLodControl control = new TerrainLodControl(this.terrain, getCamera());
-        this.terrain.addControl(control);
     }
 
     private void createMarker() {

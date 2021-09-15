@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -473,7 +473,8 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
     /**
      * Sets the height of the water plane
      * default is 0.0
-     * @param waterHeight
+     *
+     * @param waterHeight the desired height (default=0)
      */
     public void setWaterHeight(float waterHeight) {
         this.waterHeight = waterHeight;
@@ -528,7 +529,8 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
      * values as how clear water is. Therefore use smaller values (eg. 0.05)
      * to have crystal clear water and bigger to achieve "muddy" water.
      * default is 0.1f
-     * @param waterTransparency
+     *
+     * @param waterTransparency the desired muddiness (default=0.1)
      */
     public void setWaterTransparency(float waterTransparency) {
         this.waterTransparency = waterTransparency;
@@ -548,8 +550,9 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
     /**
      * Sets the normal scaling factors to apply to the normal map.
      * the higher the value the more small ripples will be visible on the waves.
-     * default is 1.0
-     * @param normalScale
+     * default is 3
+     *
+     * @param normalScale the scaling factor (default=3)
      */
     public void setNormalScale(float normalScale) {
         this.normalScale = normalScale;
@@ -571,9 +574,10 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
      * F = R0 + (1-R0)( 1 - N.V)^5
      * where F is the fresnel term, R0 the constant, N the normal vector and V the view vector.
      * It usually depend on the material you are looking through (here water).
-     * Default value is 0.3f
+     * Default value is 0.5
      * In practice, the lowest the value and the less the reflection can be seen on water
-     * @param refractionConstant
+     *
+     * @param refractionConstant the desired R0 value (default=0.5)
      */
     public void setRefractionConstant(float refractionConstant) {
         this.refractionConstant = refractionConstant;
@@ -592,8 +596,9 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
 
     /**
      * Sets the maximum waves amplitude
-     * default is 1.0
-     * @param maxAmplitude
+     * default is 1.5
+     *
+     * @param maxAmplitude the desired maximum amplitude (default=1.5)
      */
     public void setMaxAmplitude(float maxAmplitude) {
         this.maxAmplitude = maxAmplitude;
@@ -612,7 +617,9 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
 
     /**
      * Sets the light direction
-     * @param lightDirection
+     *
+     * @param lightDirection the direction vector to use (alias created,
+     * default=(0,-1,0))
      */
     public void setLightDirection(Vector3f lightDirection) {
         this.lightDirection = lightDirection;
@@ -632,7 +639,8 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
     /**
      * Sets the light color to use
      * default is white
-     * @param lightColor
+     *
+     * @param lightColor the color to use (alias created, default=(1,1,1,1))
      */
     public void setLightColor(ColorRGBA lightColor) {
         this.lightColor = lightColor;
@@ -642,7 +650,7 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
     }
 
     /**
-     * Return the shoreHardeness
+     * Return the shore hardness.
      * @return the hardness value
      */
     public float getShoreHardness() {
@@ -653,7 +661,8 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
      * The smaller this value is, the softer the transition between
      * shore and water. If you want hard edges use very big value.
      * Default is 0.1f.
-     * @param shoreHardness
+     *
+     * @param shoreHardness the desired hardness (default=0.1)
      */
     public void setShoreHardness(float shoreHardness) {
         this.shoreHardness = shoreHardness;
@@ -673,7 +682,8 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
     /**
      * Sets the foam hardness : How much the foam will blend with the shore to avoid hard edged water plane.
      * Default is 1.0
-     * @param foamHardness
+     *
+     * @param foamHardness the desired hardness (default=1)
      */
     public void setFoamHardness(float foamHardness) {
         this.foamHardness = foamHardness;
@@ -694,7 +704,8 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
      * This value modifies current fresnel term. If you want to weaken
      * reflections use bigger value. If you want to emphasize them use
      * value smaller then 0. Default is 0.0f.
-     * @param refractionStrength
+     *
+     * @param refractionStrength the desired strength (default=0)
      */
     public void setRefractionStrength(float refractionStrength) {
         this.refractionStrength = refractionStrength;
@@ -715,7 +726,8 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
      * Sets the scale factor of the waves height map
      * the smaller the value the bigger the waves
      * default is 0.005f
-     * @param waveScale
+     *
+     * @param waveScale the desired scale factor (default=0.005)
      */
     public void setWaveScale(float waveScale) {
         this.waveScale = waveScale;
@@ -737,7 +749,8 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
      * at what it is completely invisible. The third value is at
      * what height foam for waves appear (+ waterHeight).
      * default is (0.45, 4.35, 1.0);
-     * @param foamExistence
+     *
+     * @param foamExistence the desired parameters (alias created)
      */
     public void setFoamExistence(Vector3f foamExistence) {
         this.foamExistence = foamExistence;
@@ -756,7 +769,8 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
 
     /**
      * Sets the scale of the sun for specular effect
-     * @param sunScale
+     *
+     * @param sunScale the desired scale factor (default=3)
      */
     public void setSunScale(float sunScale) {
         this.sunScale = sunScale;
@@ -780,7 +794,9 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
      * the third is for blue
      * Play with those parameters to "trouble" the water
      * default is (5.0, 20.0, 30.0f);
-     * @param colorExtinction
+     *
+     * @param colorExtinction the desired depth for each color component (alias
+     * created, default=(5,20,30))
      */
     public void setColorExtinction(Vector3f colorExtinction) {
         this.colorExtinction = colorExtinction;
@@ -814,7 +830,7 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
     /**
      * Sets the height texture
      *
-     * @param heightTexture
+     * @param heightTexture the texture to use (alias created)
      */
     public void setHeightTexture(Texture2D heightTexture) {
         this.heightTexture = heightTexture;
@@ -866,7 +882,8 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
     /**
      * Sets the shininess factor of the water
      * default is 0.7f
-     * @param shininess
+     *
+     * @param shininess the desired factor (default=0.7)
      */
     public void setShininess(float shininess) {
         this.shininess = shininess;
@@ -885,7 +902,8 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
 
     /**
      * Set the speed of the waves (0.0 is still) default is 1.0
-     * @param speed
+     *
+     * @param speed the desired speedup factor (default=1)
      */
     public void setSpeed(float speed) {
         this.speed = speed;
@@ -903,8 +921,10 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
     /**
      * Sets the color of the water
      * see setDeepWaterColor for deep water color
-     * default is (0.0078f, 0.5176f, 0.5f,1.0f) (greenish blue)
-     * @param waterColor
+     * default is (0.0078f, 0.3176f, 0.5f,1.0f) (greenish blue)
+     *
+     * @param waterColor the color to use (alias created,
+     * default=(0.0078,0.3176,0.5,1))
      */
     public void setWaterColor(ColorRGBA waterColor) {
         this.waterColor = waterColor;
@@ -925,7 +945,9 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
      * sets the deep water color
      * see setWaterColor for general color
      * default is (0.0039f, 0.00196f, 0.145f,1.0f) (very dark blue)
-     * @param deepWaterColor
+     *
+     * @param deepWaterColor the color to use (alias created,
+     * default=(0.0039,0.00196,0.145,1))
      */
     public void setDeepWaterColor(ColorRGBA deepWaterColor) {
         this.deepWaterColor = deepWaterColor;
@@ -946,7 +968,9 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
      * sets the wind direction
      * the direction where the waves move
      * default is (0.0f, -1.0f)
-     * @param windDirection
+     *
+     * @param windDirection the direction vector to use (alias created,
+     * default=(0,-1))
      */
     public void setWindDirection(Vector2f windDirection) {
         this.windDirection = windDirection;
@@ -966,7 +990,9 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
     /**
      * Sets the size of the reflection map
      * default is 512, the higher, the better quality, but the slower the effect.
-     * @param reflectionMapSize
+     *
+     * @param reflectionMapSize the desired size (in pixels per side,
+     * default=512)
      */
     public void setReflectionMapSize(int reflectionMapSize) {
         this.reflectionMapSize = reflectionMapSize;
@@ -991,7 +1017,8 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
     /**
      * set to true to use foam with water
      * default true
-     * @param useFoam
+     *
+     * @param useFoam true for foam, false for no foam (default=true)
      */
     public void setUseFoam(boolean useFoam) {
         this.useFoam = useFoam;
@@ -1032,7 +1059,9 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
 
     /**
      * set to true if you want caustics to be rendered on the ground underwater, false otherwise
-     * @param useCaustics 
+     *
+     * @param useCaustics true to enable rendering fo caustics, false to disable
+     * it (default=true)
      */
     public void setUseCaustics(boolean useCaustics) {
         this.useCaustics = useCaustics;
@@ -1067,7 +1096,9 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
 
     /**
      * set to true to use refraction (default is true)
-     * @param useRefraction 
+     *
+     * @param useRefraction true to enable refraction, false to disable it
+     * (default=true)
      */
     public void setUseRefraction(boolean useRefraction) {
         this.useRefraction = useRefraction;
@@ -1088,7 +1119,9 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
     /**
      * 
      * Set to true to use ripples
-     * @param useRipples 
+     *
+     * @param useRipples true to enable ripples, false to disable them
+     * (default=true)
      */
     public void setUseRipples(boolean useRipples) {
         this.useRipples = useRipples;
@@ -1107,8 +1140,10 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
     }
 
     /**
-     * Set to true to use specular lightings on the water
-     * @param useSpecular 
+     * Set to true to use specular lighting on the water
+     *
+     * @param useSpecular true to enable the specular effect, false to disable
+     * it (default=true)
      */
     public void setUseSpecular(boolean useSpecular) {
         this.useSpecular = useSpecular;
@@ -1127,7 +1162,8 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
 
     /**
      * sets the foam intensity default is 0.5f
-     * @param foamIntensity 
+     *
+     * @param foamIntensity the desired intensity (default=0.5)
      */
     public void setFoamIntensity(float foamIntensity) {
         this.foamIntensity = foamIntensity;
@@ -1148,7 +1184,8 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
 
     /**
      * Sets the reflection displace. define how troubled will look the reflection in the water. default is 30
-     * @param reflectionDisplace 
+     *
+     * @param reflectionDisplace the desired displacement (default=30)
      */
     public void setReflectionDisplace(float reflectionDisplace) {
         this.reflectionDisplace = reflectionDisplace;
@@ -1176,7 +1213,9 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
     /**
      * sets the distance of the fog when under water.
      * default is 120 (120 world units) use a high value to raise the view range under water
-     * @param underWaterFogDistance 
+     *
+     * @param underWaterFogDistance the desired distance (in world units,
+     * default=120)
      */
     public void setUnderWaterFogDistance(float underWaterFogDistance) {
         this.underWaterFogDistance = underWaterFogDistance;
@@ -1195,7 +1234,9 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
 
     /**
      * sets the intensity of caustics under water. goes from 0 to 1, default is 0.5f
-     * @param causticsIntensity 
+     *
+     * @param causticsIntensity the desired intensity (&ge;0, &le;1,
+     * default=0.5)
      */
     public void setCausticsIntensity(float causticsIntensity) {
         this.causticsIntensity = causticsIntensity;

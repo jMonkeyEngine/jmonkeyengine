@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -232,7 +232,8 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
 
     /**
      * Registers inputs with the input manager
-     * @param inputManager
+     *
+     * @param inputManager (alias created)
      */
     public final void registerWithInput(InputManager inputManager) {
 
@@ -288,7 +289,8 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
      * default are
      * new MouseButtonTrigger(MouseInput.BUTTON_LEFT)  left mouse button
      * new MouseButtonTrigger(MouseInput.BUTTON_RIGHT)  right mouse button
-     * @param triggers
+     *
+     * @param triggers the triggers to assign
      */
     public void setToggleRotationTrigger(Trigger... triggers) {
         inputManager.deleteMapping(CameraInput.CHASECAM_TOGGLEROTATE);
@@ -300,7 +302,8 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
      * Sets custom triggers for zooming in the cam
      * default is
      * new MouseAxisTrigger(MouseInput.AXIS_WHEEL, true)  mouse wheel up
-     * @param triggers
+     *
+     * @param triggers the triggers to assign
      */
     public void setZoomInTrigger(Trigger... triggers) {
         inputManager.deleteMapping(CameraInput.CHASECAM_ZOOMIN);
@@ -312,7 +315,8 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
      * Sets custom triggers for zooming out the cam
      * default is
      * new MouseAxisTrigger(MouseInput.AXIS_WHEEL, false)  mouse wheel down
-     * @param triggers
+     *
+     * @param triggers the triggers to assign
      */
     public void setZoomOutTrigger(Trigger... triggers) {
         inputManager.deleteMapping(CameraInput.CHASECAM_ZOOMOUT);
@@ -385,6 +389,8 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
 
     /**
      * Updates the camera, should only be called internally
+     *
+     * @param tpf time per frame (in seconds)
      */
     protected void updateCamera(float tpf) {
         if (enabled) {
@@ -395,7 +401,7 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
                 targetDir.set(targetLocation).subtractLocal(prevPos);
                 float dist = targetDir.length();
 
-                //Low pass filtering on the target postition to avoid shaking when physics are enabled.
+                //Low pass filtering on the target position to avoid shaking when physics are enabled.
                 if (offsetDistance < dist) {
                     //target moves, start chasing.
                     chasing = true;
@@ -406,8 +412,8 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
                     //target moves...
                     targetMoves = true;
                 } else {
-                    //if target was moving, we compute a slight offset in rotation to avoid a rought stop of the cam
-                    //We do not if the player is rotationg the cam
+                    //if target was moving, we compute a slight offset in rotation to avoid a rough stop of the cam
+                    //We do not if the player is rotating the cam
                     if (targetMoves && !canRotate) {
                         if (targetRotation - rotation > trailingRotationInertia) {
                             targetRotation = rotation + trailingRotationInertia;
@@ -546,7 +552,8 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
 
     /**
      * Returns the max zoom distance of the camera (default is 40)
-     * @return maxDistance
+     *
+     * @return maxDistance the configured distance (in world units)
      */
     public float getMaxDistance() {
         return maxDistance;
@@ -554,7 +561,8 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
 
     /**
      * Sets the max zoom distance of the camera (default is 40)
-     * @param maxDistance
+     *
+     * @param maxDistance the desired distance (in world units, default=40)
      */
     public void setMaxDistance(float maxDistance) {
         this.maxDistance = maxDistance;
@@ -565,7 +573,8 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
 
     /**
      * Returns the min zoom distance of the camera (default is 1)
-     * @return minDistance
+     *
+     * @return minDistance the configured distance (in world units)
      */
     public float getMinDistance() {
         return minDistance;
@@ -573,6 +582,8 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
 
     /**
      * Sets the min zoom distance of the camera (default is 1)
+     *
+     * @param minDistance the desired distance (in world units, default=1)
      */
     public void setMinDistance(float minDistance) {
         this.minDistance = minDistance;
@@ -584,7 +595,7 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
     /**
      * clone this camera for a spatial
      *
-     * @param spatial
+     * @param spatial ignored
      * @return never
      */
     @Deprecated
@@ -611,8 +622,9 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
     }
          
     /**
-     * Sets the spacial for the camera control, should only be used internally
-     * @param spatial
+     * Sets the spatial for the camera control, should only be used internally
+     *
+     * @param spatial the desired camera target, or null for none
      */
     @Override
     public void setSpatial(Spatial spatial) {
@@ -627,7 +639,8 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
 
     /**
      * update the camera control, should only be used internally
-     * @param tpf
+     *
+     * @param tpf time per frame (in seconds)
      */
     @Override
     public void update(float tpf) {
@@ -636,8 +649,9 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
 
     /**
      * renders the camera control, should only be used internally
-     * @param rm
-     * @param vp
+     *
+     * @param rm ignored
+     * @param vp ignored
      */
     @Override
     public void render(RenderManager rm, ViewPort vp) {
@@ -647,7 +661,7 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
     /**
      * Write the camera
      * @param ex the exporter
-     * @throws IOException
+     * @throws IOException from the exporter
      */
     @Override
     public void write(JmeExporter ex) throws IOException {
@@ -656,8 +670,9 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
 
     /**
      * Read the camera
-     * @param im
-     * @throws IOException
+     *
+     * @param im the importer (not null)
+     * @throws IOException from the importer
      */
     @Override
     public void read(JmeImporter im) throws IOException {
@@ -675,7 +690,8 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
 
     /**
      * Sets the maximal vertical rotation angle in radian of the camera around the target. Default is Pi/2;
-     * @param maxVerticalRotation
+     *
+     * @param maxVerticalRotation the desired angle (in radians, default=Pi/2)
      */
     public void setMaxVerticalRotation(float maxVerticalRotation) {
         this.maxVerticalRotation = maxVerticalRotation;
@@ -691,7 +707,8 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
 
     /**
      * Sets the minimal vertical rotation angle in radian of the camera around the target default is 0;
-     * @param minHeight
+     *
+     * @param minHeight the desired angle (in radians, default=0)
      */
     public void setMinVerticalRotation(float minHeight) {
         this.minVerticalRotation = minHeight;
@@ -706,7 +723,8 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
 
     /**
      * Enables smooth motion for this chase camera
-     * @param smoothMotion
+     *
+     * @param smoothMotion true to enable, false to disable (default=false)
      */
     public void setSmoothMotion(boolean smoothMotion) {
         this.smoothMotion = smoothMotion;
@@ -725,7 +743,8 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
      * Sets the chasing sensitivity, the lower the value the slower the camera will follow the target when it moves
      * default is 5
      * Only has an effect if smoothMotion is set to true and trailing is enabled
-     * @param chasingSensitivity
+     *
+     * @param chasingSensitivity the desired value (default=5)
      */
     public void setChasingSensitivity(float chasingSensitivity) {
         this.chasingSensitivity = chasingSensitivity;
@@ -744,7 +763,8 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
      * default is 5, values over 5 should have no effect.
      * If you want a significant slow down try values below 1.
      * Only has an effect if smoothMotion is set to true
-     * @param rotationSensitivity
+     *
+     * @param rotationSensitivity the desired value (default=5)
      */
     public void setRotationSensitivity(float rotationSensitivity) {
         this.rotationSensitivity = rotationSensitivity;
@@ -761,7 +781,8 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
     /**
      * Enable the camera trailing : The camera smoothly go in the targets trail when it moves.
      * Only has an effect if smoothMotion is set to true
-     * @param trailingEnabled
+     *
+     * @param trailingEnabled true to enable, false to disable (default=true)
      */
     public void setTrailingEnabled(boolean trailingEnabled) {
         this.trailingEnabled = trailingEnabled;
@@ -777,10 +798,11 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
     }
 
     /**
-     * Sets the trailing rotation inertia : default is 0.1. This prevent the camera to roughtly stop when the target stops moving
-     * before the camera reached the trail position.
+     * Sets the trailing rotation inertia : default is 0.1. This causes the camera to stop roughly when the target stops moving
+     * before the camera reaches the trail position.
      * Only has an effect if smoothMotion is set to true and trailing is enabled
-     * @param trailingRotationInertia
+     *
+     * @param trailingRotationInertia the desired value (default=0.05)
      */
     public void setTrailingRotationInertia(float trailingRotationInertia) {
         this.trailingRotationInertia = trailingRotationInertia;
@@ -798,7 +820,8 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
      * Only has an effect if smoothMotion is set to true and trailing is enabled
      * Sets the trailing sensitivity, the lower the value, the slower the camera will go in the target trail when it moves.
      * default is 0.5;
-     * @param trailingSensitivity
+     *
+     * @param trailingSensitivity the desired value (default=0.5)
      */
     public void setTrailingSensitivity(float trailingSensitivity) {
         this.trailingSensitivity = trailingSensitivity;
@@ -815,7 +838,8 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
     /**
      * Sets the zoom sensitivity, the lower the value, the slower the camera will zoom in and out.
      * default is 2.
-     * @param zoomSensitivity
+     *
+     * @param zoomSensitivity the desired factor (default=2)
      */
     public void setZoomSensitivity(float zoomSensitivity) {
         this.zoomSensitivity = zoomSensitivity;
@@ -842,7 +866,8 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
 
     /**
      * Sets the default distance at start of application
-     * @param defaultDistance
+     *
+     * @param defaultDistance the desired distance (in world units, default=20)
      */
     public void setDefaultDistance(float defaultDistance) {
         distance = defaultDistance;
@@ -851,7 +876,8 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
 
     /**
      * sets the default horizontal rotation in radian of the camera at start of the application
-     * @param angleInRad
+     *
+     * @param angleInRad the desired angle (in radians, default=0)
      */
     public void setDefaultHorizontalRotation(float angleInRad) {
         rotation = angleInRad;
@@ -860,7 +886,8 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
 
     /**
      * sets the default vertical rotation in radian of the camera at start of the application
-     * @param angleInRad
+     *
+     * @param angleInRad the desired angle (in radians, default=Pi/6)
      */
     public void setDefaultVerticalRotation(float angleInRad) {
         vRotation = angleInRad;
@@ -943,7 +970,8 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
 
     /**
      * Sets the offset from the target's position where the camera looks at
-     * @param lookAtOffset
+     *
+     * @param lookAtOffset the desired offset (alias created)
      */
     public void setLookAtOffset(Vector3f lookAtOffset) {
         this.lookAtOffset = lookAtOffset;
@@ -951,7 +979,8 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
 
     /**
      * Sets the up vector of the camera used for the lookAt on the target
-     * @param up
+     *
+     * @param up the desired direction (alias created)
      */
     public void setUpVector(Vector3f up) {
         initialUpVec = up;
@@ -975,7 +1004,8 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
 
     /**
      * invert the vertical axis movement of the mouse
-     * @param invertYaxis
+     *
+     * @param invertYaxis true&rarr;invert, false&rarr;don't invert
      */
     public void setInvertVerticalAxis(boolean invertYaxis) {
         this.invertYaxis = invertYaxis;
@@ -993,7 +1023,8 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
 
     /**
      * invert the Horizontal axis movement of the mouse
-     * @param invertXaxis
+     *
+     * @param invertXaxis true&rarr;invert, false&rarr;don't invert
      */
     public void setInvertHorizontalAxis(boolean invertXaxis) {
         this.invertXaxis = invertXaxis;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,7 +32,6 @@
 package jme3test.stress;
 
 import com.jme3.anim.SkinningControl;
-import com.jme3.animation.AnimChannel;
 import com.jme3.app.SimpleApplication;
 import com.jme3.bounding.BoundingBox;
 import com.jme3.font.BitmapText;
@@ -57,14 +56,12 @@ public class TestLodGeneration extends SimpleApplication {
         TestLodGeneration app = new TestLodGeneration();
         app.start();
     }
-    boolean wireFrame = false;
-    float reductionvalue = 0.0f;
+    private boolean wireFrame = false;
+    private float reductionvalue = 0.0f;
     private int lodLevel = 0;
-    private Node model;
     private BitmapText hudText;
-    private List<Geometry> listGeoms = new ArrayList<Geometry>();
-    private ScheduledThreadPoolExecutor exec = new ScheduledThreadPoolExecutor(5);
-    private AnimChannel ch;
+    final private List<Geometry> listGeoms = new ArrayList<>();
+    final private ScheduledThreadPoolExecutor exec = new ScheduledThreadPoolExecutor(5);
 
     @Override
     public void simpleInitApp() {
@@ -77,7 +74,7 @@ public class TestLodGeneration extends SimpleApplication {
         rootNode.addLight(al);
 
        // model = (Node) assetManager.loadModel("Models/Sinbad/Sinbad.mesh.xml");
-       model = (Node) assetManager.loadModel("Models/Jaime/Jaime.j3o");
+        Node model = (Node) assetManager.loadModel("Models/Jaime/Jaime.j3o");
         BoundingBox b = ((BoundingBox) model.getWorldBound());
         model.setLocalScale(1.2f / (b.getYExtent() * 2));
         //  model.setLocalTranslation(0,-(b.getCenter().y - b.getYExtent())* model.getLocalScale().y, 0);

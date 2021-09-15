@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -51,8 +51,8 @@ public class FaultHeightMap extends AbstractHeightMap {
      */
     public static final int FAULTTYPE_STEP = 0;
     /**
-     * Values on one side are lowered, then increase lineary while crossing
-     * the fault line to the other side. The fault line will be a inclined
+     * Values on one side are lowered, then increase linearly while crossing
+     * the fault line to the other side. The fault line will be an inclined
      * plane
      */
     public static final int FAULTTYPE_LINEAR = 1;
@@ -187,7 +187,7 @@ public class FaultHeightMap extends AbstractHeightMap {
     protected void addCircleFault(float[][] tempBuffer, Random random, float faultHeight, float range) {
         float radius = random.nextFloat() * (maxRadius - minRadius) + minRadius;
         int intRadius = (int) FastMath.floor(radius);
-        // Allox circle center to be out of map if not by more than radius.
+        // Allow circle center to be out of map if not by more than radius.
         // Unlucky cases will put them in the far corner, with the circle
         // entirely outside heightmap
         int x = random.nextInt(size + 2 * intRadius) - intRadius;

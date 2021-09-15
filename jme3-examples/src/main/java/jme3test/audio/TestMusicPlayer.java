@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,7 +50,7 @@ public class TestMusicPlayer extends javax.swing.JFrame {
     private AudioNode musicSource;
     private float musicLength = 0;
     private float curTime = 0;
-    private Listener listener = new Listener();
+    final private Listener listener = new Listener();
 
     public TestMusicPlayer() {
         initComponents();
@@ -206,6 +206,8 @@ public class TestMusicPlayer extends javax.swing.JFrame {
             }
 
             musicSource = new AudioNode(musicData, key);
+            // A positional AudioNode would prohibit stereo sound!
+            musicSource.setPositional(false);
             musicLength = musicData.getDuration();
             updateTime();
         }
@@ -258,24 +260,13 @@ public class TestMusicPlayer extends javax.swing.JFrame {
     }//GEN-LAST:event_btnStopActionPerformed
 
     private void btnFFActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFFActionPerformed
-        if (musicSource.getStatus() == Status.Playing){
+        if (musicSource != null && musicSource.getStatus() == Status.Playing) {
             musicSource.setPitch(2);
         }
     }//GEN-LAST:event_btnFFActionPerformed
 
     private void sldBarStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_sldBarStateChanged
-        if (musicSource != null && !sldBar.getValueIsAdjusting()){
-            curTime = sldBar.getValue() / 100f;
-            if (curTime < 0)
-                curTime = 0;
-            
-            musicSource.setTimeOffset(curTime);
-//            if (musicSource.getStatus() == Status.Playing){
-//                musicSource.stop();               
-//                musicSource.play();
-//            }
-            updateTime();
-        }
+        // do nothing: OGG/Vorbis supports seeking, but only for time = 0!
     }//GEN-LAST:event_sldBarStateChanged
 
     /**

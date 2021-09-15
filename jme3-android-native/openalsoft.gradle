@@ -1,11 +1,12 @@
-// OpenAL Soft r1.16
-String openALSoftUrl = 'https://github.com/jMonkeyEngine/openal-soft/archive/e5016f814a265ed592a88acea95cf912c4bfdf12.zip'
+// OpenAL Soft r1.21.1
+// TODO: update URL to jMonkeyEngine fork once it's updated with latest kcat's changes
+String openALSoftUrl = 'https://github.com/kcat/openal-soft/archive/1.21.1.zip'
 String openALSoftZipFile = 'OpenALSoft.zip'
 
 // OpenAL Soft directory the download is extracted into
 // Typically, the downloaded OpenAL Soft zip file will extract to a directory
 // called "openal-soft"
-String openALSoftFolder = 'openal-soft-e5016f814a265ed592a88acea95cf912c4bfdf12'
+String openALSoftFolder = 'openal-soft-1.21.1'
 
 //Working directories for the ndk build.
 String openalsoftBuildDir = "${buildDir}" + File.separator + 'openalsoft'
@@ -56,7 +57,7 @@ task copyOpenALSoft(type: Copy) {
     into outputDir
 }
 copyOpenALSoft.dependsOn {
-    def openALSoftUnzipDir = new File(project.projectDir.absolutePath + File.separator + openALSoftFolder)
+    def openALSoftUnzipDir = new File(openalsoftBuildDir + File.separator + openALSoftFolder)
 //    println "openALSoftUnzipDir path: " + openALSoftUnzipDir.absolutePath
 //    println "openALSoftUnzipDir exists: " + openALSoftUnzipDir.isDirectory()
     if (!openALSoftUnzipDir.isDirectory()) {
@@ -123,7 +124,7 @@ if (ndkExists && buildNativeProjects == "true") {
 
 jar.into("lib") { from openalsoftBuildLibsDir }
 
-// Helper class to wrap ant dowload task
+// Helper class to wrap ant download task
 class MyDownload extends DefaultTask {
     @Input
     String sourceUrl

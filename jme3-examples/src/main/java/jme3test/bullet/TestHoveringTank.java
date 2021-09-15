@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,19 +40,16 @@ import com.jme3.bullet.collision.shapes.BoxCollisionShape;
 import com.jme3.bullet.collision.shapes.CollisionShape;
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.bullet.util.CollisionShapeFactory;
-import com.jme3.font.BitmapText;
 import com.jme3.input.ChaseCamera;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.AnalogListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.DirectionalLight;
-import com.jme3.light.PointLight;
 import com.jme3.material.Material;
 import com.jme3.math.*;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
-import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
 import com.jme3.shadow.DirectionalLightShadowRenderer;
 import com.jme3.shadow.EdgeFilteringMode;
@@ -73,13 +70,6 @@ public class TestHoveringTank extends SimpleApplication implements AnalogListene
     private BulletAppState bulletAppState;
     private PhysicsHoverControl hoverControl;
     private Spatial spaceCraft;
-    TerrainQuad terrain;
-    Material matRock;
-    boolean wireframe = false;
-    protected BitmapText hintText;
-    PointLight pl;
-    Geometry lightMdl;
-    Geometry collisionMarker;
     /**
      * initial location of the tank (in world/physics-space coordinates)
      */
@@ -119,7 +109,6 @@ public class TestHoveringTank extends SimpleApplication implements AnalogListene
         bulletAppState = new BulletAppState();
         bulletAppState.setThreadingType(BulletAppState.ThreadingType.PARALLEL);
         stateManager.attach(bulletAppState);
-//        bulletAppState.getPhysicsSpace().enableDebug(assetManager);
         bulletAppState.getPhysicsSpace().setAccuracy(1f/30f);
         rootNode.attachChild(SkyFactory.createSky(assetManager, 
                 "Textures/Sky/Bright/BrightSky.dds", EnvMapType.CubeMap));
@@ -261,7 +250,8 @@ public class TestHoveringTank extends SimpleApplication implements AnalogListene
     }
 
     private void createTerrain() {
-        matRock = new Material(assetManager, "Common/MatDefs/Terrain/TerrainLighting.j3md");
+        Material matRock = new Material(assetManager,
+                "Common/MatDefs/Terrain/TerrainLighting.j3md");
         matRock.setBoolean("useTriPlanarMapping", false);
         matRock.setBoolean("WardIso", true);
         matRock.setTexture("AlphaMap", assetManager.loadTexture("Textures/Terrain/splat/alphamap.png"));
@@ -295,8 +285,9 @@ public class TestHoveringTank extends SimpleApplication implements AnalogListene
         } catch (Exception e) {
             e.printStackTrace();
         }
-        terrain = new TerrainQuad("terrain", 65, 513, heightmap.getHeightMap());
-        List<Camera> cameras = new ArrayList<Camera>();
+        TerrainQuad terrain
+                = new TerrainQuad("terrain", 65, 513, heightmap.getHeightMap());
+        List<Camera> cameras = new ArrayList<>();
         cameras.add(getCamera());
         TerrainLodControl control = new TerrainLodControl(terrain, cameras);
         terrain.addControl(control);

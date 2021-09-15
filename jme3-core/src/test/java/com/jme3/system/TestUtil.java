@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,6 +44,12 @@ public class TestUtil {
         JmeSystem.setSystemDelegate(new MockJmeSystemDelegate());
     }
     
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private TestUtil() {
+    }
+
     public static AssetManager createAssetManager() {
         Logger.getLogger(AssetConfig.class.getName()).setLevel(Level.OFF);
         return new DesktopAssetManager(true);

@@ -72,7 +72,7 @@ public abstract class GeometryGroupNode extends Node {
     
     /**
      * Called by {@link Geometry geom} to specify that it
-     * has been unassociated from its <code>GeoemtryGroupNode</code>.
+     * has been unassociated from its <code>GeometryGroupNode</code>.
      * 
      * Unassociation occurs when the {@link Geometry} is 
      * {@link Spatial#removeFromParent() detached} from its parent

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 jMonkeyEngine
+ * Copyright (c) 2014-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -67,7 +67,6 @@ public class BasicProfiler implements AppProfiler {
     private long[] frames;
     private long startTime;
     private long renderTime;
-    private long previousFrame;
     private long updateInterval = 1000000L; // once a millisecond
     private long lastUpdate = 0;
     
@@ -84,6 +83,8 @@ public class BasicProfiler implements AppProfiler {
     /**
      *  Sets the number of frames to display and track.  By default
      *  this is 1280.
+     * 
+     * @param size the desired number of frames (&ge;0, default=1280)
      */
     public final void setFrameCount( int size ) {
         if( this.size == size ) {
@@ -107,6 +108,8 @@ public class BasicProfiler implements AppProfiler {
     /**
      *  Sets the number of nanoseconds to wait before updating the
      *  mesh.  By default this is once a millisecond, ie: 1000000 nanoseconds.
+     * 
+     * @param nanos the desired update interval (in nanoseconds, default=1e6)
      */
     public void setUpdateInterval( long nanos ) {
         this.updateInterval = nanos;
@@ -119,6 +122,8 @@ public class BasicProfiler implements AppProfiler {
     /**
      *  Returns the mesh that contains the bar chart of tracked frame
      *  timings.
+     * 
+     * @return the pre-existing Mesh
      */
     public Mesh getMesh() {
         return mesh;
@@ -174,7 +179,6 @@ public class BasicProfiler implements AppProfiler {
             case EndFrame:
                 long time = System.nanoTime();
                 frames[frameIndex * 2 + 1] = time - renderTime;
-                previousFrame = startTime; 
                 frameIndex++;
                 if( frameIndex >= size ) {
                     frameIndex = 0;

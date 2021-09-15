@@ -41,6 +41,12 @@ import java.nio.FloatBuffer;
 
 public class WireFrustum extends Mesh {
 
+    /**
+     * This constructor is for serialization only. Do not use.
+     */
+    protected WireFrustum() {
+    }
+
     public WireFrustum(Vector3f[] points){
         initGeom(this, points);
     }

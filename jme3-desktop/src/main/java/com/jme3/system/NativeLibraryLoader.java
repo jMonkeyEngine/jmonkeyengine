@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,19 +50,19 @@ import java.util.logging.Logger;
  * using {@link #loadNativeLibrary(java.lang.String, boolean) }.
  * <br>
  * Example:<br>
- * <code><pre>
+ * <pre>
  * NativeLibraryLoader.registerNativeLibrary("mystuff", Platform.Windows32, "native/windows/mystuff.dll");
  * NativeLibraryLoader.registerNativeLibrary("mystuff", Platform.Windows64, "native/windows/mystuff64.dll");
  * NativeLibraryLoader.registerNativeLibrary("mystuff", Platform.Linux32,   "native/linux/libmystuff.so");
  * NativeLibraryLoader.registerNativeLibrary("mystuff", Platform.Linux64,   "native/linux/libmystuff64.so");
  * NativeLibraryLoader.registerNativeLibrary("mystuff", Platform.MacOSX32,  "native/macosx/libmystuff.jnilib");
  * NativeLibraryLoader.registerNativeLibrary("mystuff", Platform.MacOSX64,  "native/macosx/libmystuff.jnilib");
- * </pre></code>
+ * </pre>
  * <br>
  * This will register the library. Load it via: <br>
- * <code><pre>
+ * <pre>
  * NativeLibraryLoader.loadNativeLibrary("mystuff", true);
- * </pre></code>
+ * </pre>
  * It will load the right library automatically based on the platform.
  * 
  * @author Kirill Vainer
@@ -246,6 +246,7 @@ public final class NativeLibraryLoader {
      * called <code>natives_&lt;hash&gt;</code> where &lt;hash&gt;
      * is computed automatically as the XOR of the classpath hash code
      * and the last modified date of this class.
+     * </ul>
      * 
      * @return Path where natives will be extracted to.
      */
@@ -368,7 +369,7 @@ public final class NativeLibraryLoader {
     }
     
     public static File[] getJarsWithNatives() {
-        HashSet<File> jarFiles = new HashSet<File>();
+        HashSet<File> jarFiles = new HashSet<>();
         for (Map.Entry<NativeLibrary.Key, NativeLibrary> lib : nativeLibraryMap.entrySet()) {
             File jarFile = getJarForNativeLibrary(lib.getValue().getPlatform(), lib.getValue().getName());
             if (jarFile != null) {
@@ -386,19 +387,6 @@ public final class NativeLibraryLoader {
                 }
                 extractNativeLibrary(platform, lib.getValue().getName(), targetDir);
             }
-        }
-    }
-    
-    private static String mapLibraryName_emulated(String name, Platform platform) {
-        switch (platform) {
-            case MacOSX32:
-            case MacOSX64:
-                return name + ".dylib";
-            case Windows32:
-            case Windows64:
-                return name + ".dll";
-            default:
-                return name + ".so";
         }
     }
     
@@ -617,7 +605,7 @@ public final class NativeLibraryLoader {
             loadedAsFileName = fileNameInJar;
         }
         
-        File extactionDirectory = getExtractionFolder();
+        File extractionDirectory = getExtractionFolder();
         URLConnection conn;
         InputStream in;
         
@@ -630,7 +618,7 @@ public final class NativeLibraryLoader {
                                            "'. Error: " + ex, ex);
         }
         
-        File targetFile = new File(extactionDirectory, loadedAsFileName);
+        File targetFile = new File(extractionDirectory, loadedAsFileName);
         OutputStream out = null;
         try {
             if (targetFile.exists()) {
@@ -675,10 +663,10 @@ public final class NativeLibraryLoader {
             // lwjgl and jinput handle loading by themselves.
             if (name.equals("lwjgl") || name.equals("lwjgl3")) {
                 System.setProperty("org.lwjgl.librarypath", 
-                                   extactionDirectory.getAbsolutePath());
+                                   extractionDirectory.getAbsolutePath());
             } else if (name.equals("jinput")) {
                 System.setProperty("net.java.games.input.librarypath", 
-                                   extactionDirectory.getAbsolutePath());
+                                   extractionDirectory.getAbsolutePath());
             } else {
                 // all other libraries (openal, bulletjme, custom)
                 // will load directly in here.

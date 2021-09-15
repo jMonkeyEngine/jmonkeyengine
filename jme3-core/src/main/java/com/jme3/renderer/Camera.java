@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -207,7 +207,7 @@ public class Camera implements Savable, Cloneable {
     /**
      * Serialization only. Do not use.
      */
-    public Camera() {
+    protected Camera() {
         worldPlane = new Plane[MAX_WORLD_PLANES];
         for (int i = 0; i < MAX_WORLD_PLANES; i++) {
             worldPlane[i] = new Plane();
@@ -217,6 +217,9 @@ public class Camera implements Savable, Cloneable {
     /**
      * Constructor instantiates a new <code>Camera</code> object. All
      * values of the camera are set to default.
+     * 
+     * @param width the desired width (in pixels)
+     * @param height the desired height (in pixels)
      */
     public Camera(int width, int height) {
         this();
@@ -581,6 +584,54 @@ public class Camera implements Savable, Cloneable {
     }
 
     /**
+     * Obtains field of view when the camera is in perspective mode.
+     *
+     * @return Frame of view angle along the Y in degrees, or 0 if the camera is in orthogonal mode.
+     */
+    public float getFov() {
+        if (!this.parallelProjection) {
+            float fovY = frustumTop / frustumNear;
+            fovY = FastMath.atan(fovY);
+            fovY /= 0.5F * FastMath.DEG_TO_RAD;
+            return fovY;
+        }
+        return 0;
+    }
+
+    /**
+     * Sets the field of view when the camera is in perspective mode. Note that this method has no
+     * effect when the camera is in orthogonal mode.
+     *
+     * @param fovY   Frame of view angle along the Y in degrees. This must be greater than 0.
+     */
+    public void setFov(float fovY) {
+        if (fovY <= 0) {
+            throw new IllegalArgumentException("Field of view must be greater than 0");
+        }
+        if (this.parallelProjection) {
+            throw new IllegalArgumentException("Cannot set field of view on orthogonal camera");
+        }
+        float h = FastMath.tan(fovY * FastMath.DEG_TO_RAD * .5f) * frustumNear;
+        float w = h * getAspect();
+        frustumLeft = -w;
+        frustumRight = w;
+        frustumBottom = -h;
+        frustumTop = h;
+        onFrustumChange();
+    }
+
+    /**
+     * Obtains the aspect ratio.
+     *
+     * @return Width:Height ratio.
+     */
+    public float getAspect() {
+        float h = height * (viewPortTop - viewPortBottom);
+        float w = width * (viewPortRight - viewPortLeft);
+        return w / h;
+    }
+
+    /**
      * <code>getLocation</code> retrieves the location vector of the camera.
      *
      * @return the position of the camera.
@@ -634,6 +685,7 @@ public class Camera implements Savable, Cloneable {
      * <code>getDirection</code> retrieves the direction vector the camera is
      * facing.
      *
+     * @param store storage for the result (modified if not null)
      * @return the direction the camera is facing.
      * @see Camera#getDirection()
      */
@@ -644,6 +696,7 @@ public class Camera implements Savable, Cloneable {
     /**
      * <code>getLeft</code> retrieves the left axis of the camera.
      *
+     * @param store storage for the result (modified if not null)
      * @return the left axis of the camera.
      * @see Camera#getLeft()
      */
@@ -654,6 +707,7 @@ public class Camera implements Savable, Cloneable {
     /**
      * <code>getUp</code> retrieves the up axis of the camera.
      *
+     * @param store storage for the result (modified if not null)
      * @return the up axis of the camera.
      * @see Camera#getUp()
      */
@@ -692,6 +746,8 @@ public class Camera implements Savable, Cloneable {
      * given a direction and an up vector.
      *
      * @param direction the direction this camera is facing.
+     * @param up the desired "up" direction for the camera (not null,
+     * unaffected, typically (0,1,0))
      */
     public void lookAtDirection(Vector3f direction, Vector3f up) {
         this.rotation.lookAt(direction, up);
@@ -1089,7 +1145,8 @@ public class Camera implements Savable, Cloneable {
      * use the matrix for computing the view projection matrix as well.
      * Use null argument to return to normal functionality.
      *
-     * @param projMatrix
+     * @param projMatrix the desired projection matrix (unaffected) or null
+     * to cease the override
      */
     public void setProjectionMatrix(Matrix4f projMatrix) {
         if (projMatrix == null) {
@@ -1350,6 +1407,11 @@ public class Camera implements Savable, Cloneable {
     }
 
     /**
+     * @param screenPosition a (2-D) location in screen space (not null)
+     * @param projectionZPos a (non-linear) Z value in projection space
+     * @param store storage for the result (modified if not null)
+     * @return a location vector (in world coordinates, either 
+     * <code>store</code> or a new vector)
      * @see Camera#getWorldCoordinates
      */
     public Vector3f getWorldCoordinates(Vector2f screenPosition,
@@ -1375,6 +1437,8 @@ public class Camera implements Savable, Cloneable {
     /**
      * Converts the given position from world space to screen space.
      * 
+     * @param worldPos a location in world coordinates (not null, unaffected)
+     * @return a new (3-D) location vector (in screen coordinates)
      * @see Camera#getScreenCoordinates
      */
     public Vector3f getScreenCoordinates(Vector3f worldPos) {
@@ -1384,6 +1448,10 @@ public class Camera implements Savable, Cloneable {
     /**
      * Converts the given position from world space to screen space.
      *
+     * @param worldPosition a location in world coordinates (not null, unaffected)
+     * @param store storage for the result (modified if not null)
+     * @return a (3-D) location vector (in screen coordinates, either 
+     * <code>store</code> or a new vector)
      * @see Camera#getScreenCoordinates(Vector3f, Vector3f)
      */
     public Vector3f getScreenCoordinates(Vector3f worldPosition, Vector3f store) {

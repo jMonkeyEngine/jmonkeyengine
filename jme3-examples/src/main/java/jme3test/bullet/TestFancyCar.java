@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,6 @@ import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.PhysicsSpace;
 import com.jme3.bullet.collision.shapes.CollisionShape;
 import com.jme3.bullet.control.VehicleControl;
-import com.jme3.bullet.objects.VehicleWheel;
 import com.jme3.bullet.util.CollisionShapeFactory;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
@@ -55,15 +54,12 @@ public class TestFancyCar extends SimpleApplication implements ActionListener {
 
     private BulletAppState bulletAppState;
     private VehicleControl player;
-    private VehicleWheel fr, fl, br, bl;
-    private Node node_fr, node_fl, node_br, node_bl;
-    private float wheelRadius;
     private float steeringValue = 0;
     private float accelerationValue = 0;
     private Node carNode;
 
     public static void main(String[] args) {
-        TestFancyCar app = new TestFancyCar();       
+        TestFancyCar app = new TestFancyCar();
         app.start();
     }
 
@@ -72,13 +68,11 @@ public class TestFancyCar extends SimpleApplication implements ActionListener {
         inputManager.addMapping("Rights", new KeyTrigger(KeyInput.KEY_K));
         inputManager.addMapping("Ups", new KeyTrigger(KeyInput.KEY_U));
         inputManager.addMapping("Downs", new KeyTrigger(KeyInput.KEY_J));
-        inputManager.addMapping("Space", new KeyTrigger(KeyInput.KEY_SPACE));
         inputManager.addMapping("Reset", new KeyTrigger(KeyInput.KEY_RETURN));
         inputManager.addListener(this, "Lefts");
         inputManager.addListener(this, "Rights");
         inputManager.addListener(this, "Ups");
         inputManager.addListener(this, "Downs");
-        inputManager.addListener(this, "Space");
         inputManager.addListener(this, "Reset");
     }
 
@@ -86,46 +80,21 @@ public class TestFancyCar extends SimpleApplication implements ActionListener {
     public void simpleInitApp() {
         bulletAppState = new BulletAppState();
         stateManager.attach(bulletAppState);
-//        bulletAppState.getPhysicsSpace().enableDebug(assetManager);
         cam.setFrustumFar(150f);
         flyCam.setMoveSpeed(10);
 
         setupKeys();
-        PhysicsTestHelper.createPhysicsTestWorld(rootNode, assetManager, bulletAppState.getPhysicsSpace());
-//        setupFloor();
+        PhysicsTestHelper.createPhysicsTestWorld(rootNode, assetManager, getPhysicsSpace());
         buildPlayer();
 
         DirectionalLight dl = new DirectionalLight();
         dl.setDirection(new Vector3f(-0.5f, -1f, -0.3f).normalizeLocal());
         rootNode.addLight(dl);
-
-        dl = new DirectionalLight();
-        dl.setDirection(new Vector3f(0.5f, -0.1f, 0.3f).normalizeLocal());
-     //   rootNode.addLight(dl);
     }
 
     private PhysicsSpace getPhysicsSpace() {
         return bulletAppState.getPhysicsSpace();
     }
-
-//    public void setupFloor() {
-//        Material mat = assetManager.loadMaterial("Textures/Terrain/BrickWall/BrickWall.j3m");
-//        mat.getTextureParam("DiffuseMap").getTextureValue().setWrap(WrapMode.Repeat);
-////        mat.getTextureParam("NormalMap").getTextureValue().setWrap(WrapMode.Repeat);
-////        mat.getTextureParam("ParallaxMap").getTextureValue().setWrap(WrapMode.Repeat);
-//
-//        Box floor = new Box(Vector3f.ZERO, 140, 1f, 140);
-//        floor.scaleTextureCoordinates(new Vector2f(112.0f, 112.0f));
-//        Geometry floorGeom = new Geometry("Floor", floor);
-//        floorGeom.setShadowMode(ShadowMode.Receive);
-//        floorGeom.setMaterial(mat);
-//
-//        PhysicsNode tb = new PhysicsNode(floorGeom, new MeshCollisionShape(floorGeom.getMesh()), 0);
-//        tb.setLocalTranslation(new Vector3f(0f, -6, 0f));
-////        tb.attachDebugShape(assetManager);
-//        rootNode.attachChild(tb);
-//        getPhysicsSpace().add(tb);
-//    }
 
     private Geometry findGeom(Spatial spatial, String name) {
         if (spatial instanceof Node) {
@@ -152,13 +121,12 @@ public class TestFancyCar extends SimpleApplication implements ActionListener {
         final float mass = 400;
 
         //Load model and get chassis Geometry
-        carNode = (Node)assetManager.loadModel("Models/Ferrari/Car.scene");
+        carNode = (Node) assetManager.loadModel("Models/Ferrari/Car.scene");
         carNode.setShadowMode(ShadowMode.Cast);
-        Geometry chasis = findGeom(carNode, "Car");
-        BoundingBox box = (BoundingBox) chasis.getModelBound();
+        Geometry chassis = findGeom(carNode, "Car");
 
         //Create a hull collision shape for the chassis
-        CollisionShape carHull = CollisionShapeFactory.createDynamicMeshShape(chasis);
+        CollisionShape carHull = CollisionShapeFactory.createDynamicMeshShape(chassis);
 
         //Create a vehicle control
         player = new VehicleControl(carHull, mass);
@@ -177,8 +145,8 @@ public class TestFancyCar extends SimpleApplication implements ActionListener {
 
         Geometry wheel_fr = findGeom(carNode, "WheelFrontRight");
         wheel_fr.center();
-        box = (BoundingBox) wheel_fr.getModelBound();
-        wheelRadius = box.getYExtent();
+        BoundingBox box = (BoundingBox) wheel_fr.getModelBound();
+        float wheelRadius = box.getYExtent();
         float back_wheel_h = (wheelRadius * 1.7f) - 1f;
         float front_wheel_h = (wheelRadius * 1.9f) - 1f;
         player.addWheel(wheel_fr.getParent(), box.getCenter().add(0, -front_wheel_h, 0),
@@ -233,7 +201,6 @@ public class TestFancyCar extends SimpleApplication implements ActionListener {
                 accelerationValue += 800;
             }
             player.accelerate(accelerationValue);
-            player.setCollisionShape(CollisionShapeFactory.createDynamicMeshShape(findGeom(carNode, "Car")));
         } else if (binding.equals("Downs")) {
             if (value) {
                 player.brake(40f);
@@ -248,7 +215,6 @@ public class TestFancyCar extends SimpleApplication implements ActionListener {
                 player.setLinearVelocity(Vector3f.ZERO);
                 player.setAngularVelocity(Vector3f.ZERO);
                 player.resetSuspension();
-            } else {
             }
         }
     }

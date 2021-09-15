@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -96,7 +96,7 @@ public class LegacyApplication implements Application, SystemListener {
 
     protected AppProfiler prof;
 
-    private final ConcurrentLinkedQueue<AppTask<?>> taskQueue = new ConcurrentLinkedQueue<AppTask<?>>();
+    private final ConcurrentLinkedQueue<AppTask<?>> taskQueue = new ConcurrentLinkedQueue<>();
 
     /**
      * Create a new instance of <code>LegacyApplication</code>.
@@ -108,6 +108,8 @@ public class LegacyApplication implements Application, SystemListener {
     /**
      * Create a new instance of <code>LegacyApplication</code>, preinitialized
      * with the specified set of app states.
+     *
+     * @param initialStates app states to pre-attach, or null for none
      */
     public LegacyApplication( AppState... initialStates ) {
         initStateManager();
@@ -272,7 +274,7 @@ public class LegacyApplication implements Application, SystemListener {
     }
 
     private void initDisplay(){
-        // aquire important objects
+        // acquire important objects
         // from the context
         settings = context.getSettings();
 
@@ -308,7 +310,7 @@ public class LegacyApplication implements Application, SystemListener {
         cam.lookAt(new Vector3f(0f, 0f, 0f), Vector3f.UNIT_Y);
 
         renderManager = new RenderManager(renderer);
-        //Remy - 09/14/2010 setted the timer in the renderManager
+        //Remy - 09/14/2010 set the timer in the renderManager
         renderManager.setTimer(timer);
 
         if (prof != null) {
@@ -444,6 +446,8 @@ public class LegacyApplication implements Application, SystemListener {
     /**
      * Starts the application in {@link Type#Display display} mode.
      *
+     * @param waitFor true&rarr;wait for the context to be initialized,
+     * false&rarr;don't wait
      * @see #start(com.jme3.system.JmeContext.Type)
      */
     @Override
@@ -455,6 +459,8 @@ public class LegacyApplication implements Application, SystemListener {
      * Starts the application.
      * Creating a rendering context and executing
      * the main loop in a separate thread.
+     *
+     * @param contextType the type of context to create
      */
     public void start(JmeContext.Type contextType) {
         start(contextType, false);
@@ -464,6 +470,10 @@ public class LegacyApplication implements Application, SystemListener {
      * Starts the application.
      * Creating a rendering context and executing
      * the main loop in a separate thread.
+     *
+     * @param contextType the type of context to create
+     * @param waitFor true&rarr;wait for the context to be initialized,
+     * false&rarr;don't wait
      */
     public void start(JmeContext.Type contextType, boolean waitFor){
         if (context != null && context.isCreated()){
@@ -485,6 +495,8 @@ public class LegacyApplication implements Application, SystemListener {
      * Sets an AppProfiler hook that will be called back for
      * specific steps within a single update frame.  Value defaults
      * to null.
+     * 
+     * @param prof the profiler to use (alias created) or null for none
      */
     @Override
     public void setAppProfiler(AppProfiler prof) {
@@ -595,6 +607,9 @@ public class LegacyApplication implements Application, SystemListener {
      * Requests the context to close, shutting down the main loop
      * and making necessary cleanup operations.
      * After the application has stopped, it cannot be used anymore.
+     *
+     * @param waitFor true&rarr;wait for the context to be fully destroyed,
+     * true&rarr;don't wait
      */
     @Override
     public void stop(boolean waitFor){
@@ -698,11 +713,13 @@ public class LegacyApplication implements Application, SystemListener {
      * They are executed even if the application is currently paused
      * or out of focus.
      *
+     * @param <V> type of result returned by the Callable
      * @param callable The callable to run in the main jME3 thread
+     * @return a new instance
      */
     @Override
     public <V> Future<V> enqueue(Callable<V> callable) {
-        AppTask<V> task = new AppTask<V>(callable);
+        AppTask<V> task = new AppTask<>(callable);
         taskQueue.add(task);
         return task;
     }

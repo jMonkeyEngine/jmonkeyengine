@@ -1,37 +1,36 @@
 ######################################################################################
-# JME CI/CD 
+# JME CI/CD
 ######################################################################################
 # Quick overview of what is going on in this script:
 #   - Build natives for android
-#   - Build natives for linux arm
-#   - Build natives for windows,mac,linux x86_64 and x86
 #   - Merge the natives, build the engine, create the zip release, maven artifacts, javadoc and native snapshot
-#   - (only when there is a change in the native code) Deploy the native snapshot to bintray
-#   - (only when building a release) Deploy everything else to github releases, github packet registry and bintray
+#   - (only when native code changes) Deploy the natives snapshot to the MinIO instance
+#   - (only when building a release) Deploy everything else to github releases and Sonatype
 #   - (only when building a release) Update javadoc.jmonkeyengine.org
 # Note:
-#   All the actions/upload-artifact and actions/download-artifact steps are used to pass 
+#   All the actions/upload-artifact and actions/download-artifact steps are used to pass
 #   stuff between jobs, github actions has some sort of storage that is local to the
 #   running workflow, we use it to store the result of each job since the filesystem
 #   is not maintained between jobs.
 ################# CONFIGURATIONS #####################################################
-# >> Configure BINTRAY RELEASE & NATIVE SNAPSHOT
-#   Configure the following secrets/variables (customize the values with your own)
-#     BINTRAY_GENERIC_REPO=riccardoblsandbox/jmonkeyengine-files
-#     BINTRAY_MAVEN_REPO=riccardoblsandbox/jmonkeyengine
-#     BINTRAY_USER=riccardo
-#     BINTRAY_APIKEY=XXXXXX
-#     BINTRAY_LICENSE="BSD 3-Clause"
+# >> Configure MINIO NATIVES SNAPSHOT
+#     OBJECTS_KEY=XXXXXX
+# >> Configure SONATYPE RELEASE
+#     OSSRH_PASSWORD=XXXXXX
+#     OSSRH_USERNAME=XXXXXX
+# >> Configure SIGNING
+#     SIGNING_KEY=XXXXXX
+#     SIGNING_PASSWORD=XXXXXX
 # >> Configure  PACKAGE REGISTRY RELEASE
-#   Nothing to do here, everything is autoconfigured to work with the account/org that 
+#   Nothing to do here, everything is autoconfigured to work with the account/org that
 #   is running the build.
 # >> Configure  JAVADOC
 #     JAVADOC_GHPAGES_REPO="riccardoblsandbox/javadoc.jmonkeyengine.org.git"
-#   Generate a deloy key
+#   Generate a deploy key
 #       ssh-keygen -t rsa -b 4096 -C "actions@users.noreply.github.com" -f javadoc_deploy
 #   Set
 #     JAVADOC_GHPAGES_DEPLOY_PRIVKEY="......."
-#   In github repo -> Settings, use javadoc_deploy.pub as Deploy key with write access  
+#   In github repo -> Settings, use javadoc_deploy.pub as Deploy key with write access
 ######################################################################################
 # Resources:
 #   - Github actions docs: https://help.github.com/en/articles/about-github-actions
@@ -47,54 +46,24 @@ on:
   push:
     branches:
       - master
-      - newbuild
-      - v3.3.*
-      - v3.2
-      - v3.2.*
+      - v3.4
+      - v3.3
   pull_request:
   release:
     types: [published]
-  
-jobs:
-  
-  # Builds the natives on linux arm
-  BuildLinuxArmNatives:
-    name: Build natives for linux (arm)
-    runs-on: ubuntu-18.04
-    container:
-      image: riccardoblb/buildenv-jme3:linuxArm
-   
-    steps:
-      - name: Clone the repo
-        uses: actions/checkout@v2     
-        with:
-          fetch-depth: 1
-      - name: Validate the Gradle wrapper
-        uses: gradle/wrapper-validation-action@v1
-      - name: Build
-        run: |
-          # Build
-          # Note: since this is crossbuild we use the buildForPlatforms filter to tell
-          # the buildscript wich platforms it should build for.
-          ./gradlew -PuseCommitHashAsVersionName=true --no-daemon -PbuildForPlatforms=LinuxArm,LinuxArmHF,LinuxArm64 -PbuildNativeProjects=true \
-          :jme3-bullet-native:assemble 
 
-      - name: Upload natives
-        uses: actions/upload-artifact@master
-        with:
-          name: linuxarm-natives
-          path: build/native 
+jobs:
 
   # Build the natives on android
   BuildAndroidNatives:
     name: Build natives for android
     runs-on: ubuntu-18.04
     container:
-      image: riccardoblb/buildenv-jme3:android
-  
+      image: jmonkeyengine/buildenv-jme3:android
+
     steps:
       - name: Clone the repo
-        uses: actions/checkout@v2     
+        uses: actions/checkout@v2
         with:
           fetch-depth: 1
       - name: Validate the Gradle wrapper
@@ -102,128 +71,48 @@ jobs:
       - name: Build
         run: |
           ./gradlew -PuseCommitHashAsVersionName=true --no-daemon -PbuildNativeProjects=true \
-          :jme3-android-native:assemble \
-          :jme3-bullet-native-android:assemble 
-     
+          :jme3-android-native:assemble
+
       - name: Upload natives
         uses: actions/upload-artifact@master
         with:
           name: android-natives
           path: build/native
 
-  # Build the natives
-  BuildNatives:
-    strategy:
-      fail-fast: true
-      matrix:
-        os: [ubuntu-18.04,windows-2019,macOS-latest] 
-        jdk: [8.x.x]
-        include:
-          - os: ubuntu-18.04
-            osName: linux
-          - os: windows-2019
-            osName: windows
-          - os: macOS-latest
-            osName: mac
-              
-    name: Build natives for ${{ matrix.osName }}
-    runs-on: ${{ matrix.os }}    
-    steps:    
-    
-      - name: Clone the repo
-        uses: actions/checkout@v2     
-        with:
-          fetch-depth: 1
-           
-      - name: Prepare java environment
-        uses: actions/setup-java@v1
-        with:
-          java-version: ${{ matrix.jdk }}
-          architecture: x64
-      - name: Validate the Gradle wrapper
-        uses: gradle/wrapper-validation-action@v1
-      - name: Build Natives
-        shell: bash
-        env:
-          OS_NAME: ${{ matrix.osName }}
-        run: |
-          # Install dependencies
-          if [ "$OS_NAME" = "mac" ];
-          then
-            echo "Prepare mac"        
-          
-          elif [ "$OS_NAME" = "linux" ];
-          then
-            echo "Prepare linux"
-            sudo apt-get update
-            sudo apt-get install -y gcc-multilib g++-multilib
-          else
-            echo "Prepare windows"
-          fi
-          
-          # Build
-          ./gradlew  -PuseCommitHashAsVersionName=true --no-daemon  -PbuildNativeProjects=true -Dmaven.repo.local="$PWD/dist/maven" \
-          build \
-          :jme3-bullet-native:build
-                  
-      # Upload natives to be used later by the BuildJMonkey job
-      - name: Upload natives
-        uses: actions/upload-artifact@master
-        with:
-          name: ${{ matrix.osName }}-natives
-          path: build/native
- 
-
   # Build the engine, we only deploy from ubuntu-18.04 jdk8
-  BuildJMonkey:  
-    needs: [BuildNatives,BuildAndroidNatives]
+  BuildJMonkey:
+    needs: [BuildAndroidNatives]
     name: Build on ${{ matrix.osName }} jdk${{ matrix.jdk }}
-    runs-on: ${{ matrix.os }}    
+    runs-on: ${{ matrix.os }}
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
-        os: [ubuntu-18.04,windows-2019,macOS-latest]
+        os: [ubuntu-18.04,ubuntu-20.04,windows-2019,macOS-latest]
         jdk: [8.x.x,11.x.x]
         include:
+          - os: ubuntu-20.04
+            osName: linux-next
           - os: ubuntu-18.04
             osName: linux
             deploy: true
           - os: windows-2019
             osName: windows
           - os: macOS-latest
-            osName: mac 
+            osName: mac
           - jdk: 11.x.x
-            deploy: false 
+            deploy: false
 
-    steps:          
+    steps:
       - name: Clone the repo
         uses: actions/checkout@v2
         with:
           fetch-depth: 1
-          
+
       - name: Setup the java environment
         uses: actions/setup-java@v1
         with:
           java-version: ${{ matrix.jdk }}
           architecture: x64
-
-      - name: Download natives for linux
-        uses: actions/download-artifact@master
-        with:
-          name: linux-natives
-          path: build/native
-
-      - name: Download natives for windows
-        uses: actions/download-artifact@master
-        with:
-          name: windows-natives
-          path: build/native
-
-      - name: Download natives for mac
-        uses: actions/download-artifact@master
-        with:
-          name: mac-natives
-          path: build/native
 
       - name: Download natives for android
         uses: actions/download-artifact@master
@@ -231,44 +120,52 @@ jobs:
           name: android-natives
           path: build/native
 
-      - name: Download natives for linux (arm)
-        uses: actions/download-artifact@master
-        with:
-          name: linuxarm-natives
-          path: build/native
       - name: Validate the Gradle wrapper
         uses: gradle/wrapper-validation-action@v1
       - name: Build Engine
         shell: bash
         run: |
           # Build
-          ./gradlew -PuseCommitHashAsVersionName=true -PskipPrebuildLibraries=true build
-          
+          ./gradlew -i -PuseCommitHashAsVersionName=true -PskipPrebuildLibraries=true build
+
           if [ "${{ matrix.deploy }}" = "true" ];
-          then  
+          then
             # We are going to need "zip"
             sudo apt-get update
             sudo apt-get install -y zip
 
             # Create the zip release and the javadoc
             ./gradlew -PuseCommitHashAsVersionName=true -PskipPrebuildLibraries=true mergedJavadoc createZipDistribution
-          
+
             # We prepare the release for deploy
             mkdir -p ./dist/release/
             mv build/distributions/*.zip dist/release/
-            
-            # Create the maven artifacts
-            mkdir -p ./dist/maven/
-            ./gradlew -PuseCommitHashAsVersionName=true -PskipPrebuildLibraries=true install -Dmaven.repo.local="$PWD/dist/maven"
+
+            # Install maven artifacts to ./dist/maven and sign them if possible
+            if [ "${{ secrets.SIGNING_PASSWORD }}" = "" ];
+            then
+              echo "Configure the following secrets to enable signing:"
+              echo "SIGNING_KEY, SIGNING_PASSWORD"
+
+              ./gradlew publishMavenPublicationToDistRepository \
+              -PskipPrebuildLibraries=true -PuseCommitHashAsVersionName=true \
+              --console=plain --stacktrace
+            else
+              ./gradlew publishMavenPublicationToDistRepository \
+              -PsigningKey='${{ secrets.SIGNING_KEY }}' \
+              -PsigningPassword='${{ secrets.SIGNING_PASSWORD }}' \
+              -PskipPrebuildLibraries=true -PuseCommitHashAsVersionName=true \
+              --console=plain --stacktrace
+            fi
 
             # Zip the natives into a single archive (we are going to use this to deploy native snapshots)
             echo "Create native zip"
             cdir="$PWD"
             cd "build/native"
-            zip -r "$cdir/dist/jme3-natives.zip" *       
+            zip -r "$cdir/dist/jme3-natives.zip" *
             cd "$cdir"
             echo "Done"
-          fi         
+          fi
 
       # Used later by DeploySnapshot
       - name: Upload merged natives
@@ -277,29 +174,29 @@ jobs:
         with:
           name: natives
           path: dist/jme3-natives.zip
-          
+
       # Upload maven artifacts to be used later by the deploy job
       - name: Upload maven artifacts
         if: matrix.deploy==true
         uses: actions/upload-artifact@master
         with:
           name: maven
-          path: dist/maven          
+          path: dist/maven
 
       - name: Upload javadoc
         if:  matrix.deploy==true
         uses: actions/upload-artifact@master
         with:
           name: javadoc
-          path: dist/javadoc        
-          
-      # Upload release archive to be used later by the deploy job    
+          path: dist/javadoc
+
+      # Upload release archive to be used later by the deploy job
       - name: Upload release
         if: github.event_name == 'release' && matrix.deploy==true
         uses: actions/upload-artifact@master
         with:
           name: release
-          path: dist/release             
+          path: dist/release
 
   # This job deploys the native snapshot.
   # The snapshot is downloaded when people build the engine without setting buildNativeProject
@@ -320,7 +217,7 @@ jobs:
           then
             git clone --single-branch --branch "$branch" https://github.com/${GITHUB_REPOSITORY}.git .
           fi
-      
+
       - name: Download merged natives
         uses: actions/download-artifact@master
         with:
@@ -329,7 +226,7 @@ jobs:
 
       - name: Deploy natives snapshot
         run: |
-          source .github/actions/tools/bintray.sh
+          source .github/actions/tools/minio.sh
           NATIVE_CHANGES="yes"
           branch="${GITHUB_REF//refs\/heads\//}"
           if [ "$branch" != "" ];
@@ -338,7 +235,7 @@ jobs:
             then
               nativeSnapshot=`cat "natives-snapshot.properties"`
               nativeSnapshot="${nativeSnapshot#*=}"
-              
+
               # We deploy ONLY if GITHUB_SHA (the current commit hash) is newer than $nativeSnapshot
               if [ "`git rev-list --count $nativeSnapshot..$GITHUB_SHA`" = "0" ];
               then
@@ -346,12 +243,7 @@ jobs:
               else
                 # We check if the native code changed.
                 echo "Detect changes"
-                NATIVE_CHANGES="$(git diff-tree --name-only "$GITHUB_SHA" "$nativeSnapshot" -- jme3-bullet-native/)"
-                if [ "$NATIVE_CHANGES" = "" ];then NATIVE_CHANGES="$(git diff-tree --name-only "$GITHUB_SHA" "$nativeSnapshot"  --  jme3-android-native/)"; fi
-                if [ "$NATIVE_CHANGES" = "" ];then NATIVE_CHANGES="$(git diff-tree --name-only "$GITHUB_SHA" "$nativeSnapshot"  --  jme3-bullet-native-android/)"; fi
-                if [ "$NATIVE_CHANGES" = "" ];then NATIVE_CHANGES="$(git diff-tree --name-only "$GITHUB_SHA" "$nativeSnapshot"  --  jme3-bullet/)"; fi
-                # The bulletUrl (in gradle.properties) might have changed.
-                if [ "$NATIVE_CHANGES" = "" ];then NATIVE_CHANGES="$(git diff-tree --name-only "$GITHUB_SHA" "$nativeSnapshot"  --  gradle.properties)"; fi
+                NATIVE_CHANGES="$(git diff-tree --name-only "$GITHUB_SHA" "$nativeSnapshot"  --  jme3-android-native/)"
               fi
             fi
 
@@ -360,31 +252,28 @@ jobs:
             then
               echo "No changes, skip."
             else
-              if [ "${{ secrets.BINTRAY_GENERIC_REPO }}" = "" ];
-              then               
-                echo "Configure the following secrets to enable native snapshot deployment"
-                echo "BINTRAY_GENERIC_REPO, BINTRAY_USER, BINTRAY_APIKEY"           
+              if [ "${{ secrets.OBJECTS_KEY }}" = "" ];
+              then
+                echo "Configure the OBJECTS_KEY secret to enable natives snapshot deployment to MinIO"
               else
-                # Deploy snapshot
-                bintray_uploadFile dist/jme3-natives.zip \
-                  $GITHUB_SHA/$GITHUB_SHA/jme3-natives.zip \
-                  ${{ secrets.BINTRAY_GENERIC_REPO }} "content" "natives" \
-                  ${{ secrets.BINTRAY_USER }} \
-                  ${{ secrets.BINTRAY_APIKEY }}  \
-                  "https://github.com/${GITHUB_REPOSITORY}" \
-                  "${{ secrets.BINTRAY_LICENSE }}" "true"
+                # Deploy natives snapshot to a MinIO instance using function in minio.sh
+                minio_uploadFile dist/jme3-natives.zip \
+                  native-snapshots/$GITHUB_SHA/jme3-natives.zip \
+                  https://objects.jmonkeyengine.org \
+                  jmonkeyengine \
+                  ${{ secrets.OBJECTS_KEY }}
 
-                # We reference the snapshot by writing its commit hash in  natives-snapshot.properties 
+                # We reference the snapshot by writing its commit hash in  natives-snapshot.properties
                 echo "natives.snapshot=$GITHUB_SHA" > natives-snapshot.properties
-                
+
                 # We commit the updated  natives-snapshot.properties
                 git config --global user.name "Github Actions"
                 git config --global user.email "actions@users.noreply.github.com"
-      
+
                 git add natives-snapshot.properties
-              
+
                 git commit -m "[skip ci] update natives snapshot"
-                
+
                 # Pull rebase from the remote repo, just in case there was a push in the meantime
                 git pull -q --rebase
 
@@ -393,39 +282,61 @@ jobs:
 
                 # Push
                 (git -c http.extraheader="AUTHORIZATION: basic $header" push origin "$branch" || true)
-              
+
               fi
             fi
           fi
 
   # This job deploys the release
-  DeployRelease:  
+  DeployRelease:
     needs: [BuildJMonkey]
     name: Deploy Release
     runs-on: ubuntu-18.04
     if: github.event_name == 'release'
-    steps:   
-    
+    steps:
+
       # We need to clone everything again for uploadToMaven.sh ...
       - name: Clone the repo
         uses: actions/checkout@v2
         with:
           fetch-depth: 1
-    
+
       # Download all the stuff...
       - name: Download maven artifacts
         uses: actions/download-artifact@master
         with:
           name: maven
           path: dist/maven
-      
+
       - name: Download release
         uses: actions/download-artifact@master
         with:
           name: release
-          path: dist/release      
-      
-      - name: Deploy to github releases    
+          path: dist/release
+
+      - name: Download natives for android
+        uses: actions/download-artifact@master
+        with:
+          name: android-natives
+          path: build/native
+
+      - name: Rebuild the maven artifacts and deploy them to Sonatype OSSRH
+        run: |
+          if [ "${{ secrets.OSSRH_PASSWORD }}" = "" ];
+          then
+            echo "Configure the following secrets to enable deployment to Sonatype:"
+            echo "OSSRH_PASSWORD, OSSRH_USERNAME, SIGNING_KEY, SIGNING_PASSWORD"
+          else
+            ./gradlew publishMavenPublicationToOSSRHRepository \
+            -PossrhPassword=${{ secrets.OSSRH_PASSWORD }} \
+            -PossrhUsername=${{ secrets.OSSRH_USERNAME }} \
+            -PsigningKey='${{ secrets.SIGNING_KEY }}' \
+            -PsigningPassword='${{ secrets.SIGNING_PASSWORD }}' \
+            -PuseCommitHashAsVersionName=true \
+            --console=plain --stacktrace
+          fi
+
+      - name: Deploy to GitHub Releases
         run: |
           # We need to get the release id (yeah, it's not the same as the tag)
           echo "${GITHUB_EVENT_PATH}"
@@ -442,33 +353,22 @@ jobs:
           -H "Content-Type: application/zip" \
           --data-binary @"$filename" \
           "$url"
-            
-      - name: Deploy to bintray
+
+      - name: Deploy to github package registry
         run: |
           source .github/actions/tools/uploadToMaven.sh
-          if [ "${{ secrets.BINTRAY_MAVEN_REPO }}" = "" ];
-          then
-            echo "Configure the following secrets to enable bintray deployment"
-            echo "BINTRAY_MAVEN_REPO, BINTRAY_USER, BINTRAY_APIKEY"
-          else
-            uploadAllToMaven dist/maven/ https://api.bintray.com/maven/${{ secrets.BINTRAY_MAVEN_REPO }} ${{ secrets.BINTRAY_USER }} ${{ secrets.BINTRAY_APIKEY }} "https://github.com/${GITHUB_REPOSITORY}" "${{ secrets.BINTRAY_LICENSE }}"
-          fi
-      
-      # - name: Deploy to github package registry
-      #   run: |
-      #     source .github/actions/tools/uploadToMaven.sh
-      #     registry="https://maven.pkg.github.com/$GITHUB_REPOSITORY"
-      #     echo "Deploy to github package registry $registry"
-      #     uploadAllToMaven dist/maven/ $registry "token" ${{ secrets.GITHUB_TOKEN }}
-          
+          registry="https://maven.pkg.github.com/$GITHUB_REPOSITORY"
+          echo "Deploy to github package registry $registry"
+          uploadAllToMaven dist/maven/ $registry "token" ${{ secrets.GITHUB_TOKEN }}
+
   # Deploy the javadoc
-  DeployJavaDoc:  
+  DeployJavaDoc:
     needs: [BuildJMonkey]
     name: Deploy Javadoc
     runs-on: ubuntu-18.04
     if: github.event_name == 'release'
-    steps:   
-      
+    steps:
+
       # We are going to need a deploy key for this, since we need
       # to push to a different repo
       - name: Set ssh key
@@ -483,16 +383,16 @@ jobs:
           branch="gh-pages"
           export GIT_SSH_COMMAND="ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i $HOME/.ssh/deploy.key"
           git clone --single-branch --branch "$branch" git@github.com:${{ secrets.JAVADOC_GHPAGES_REPO }} .
-          
+
       # Download the javadoc in the new directory "newdoc"
       - name: Download javadoc
         uses: actions/download-artifact@master
         with:
           name: javadoc
           path: newdoc
-      
+
       # The actual deploy
-      - name: Deploy to github pages    
+      - name: Deploy to github pages
         run: |
           set -f
           IFS=$'\n'
@@ -514,10 +414,10 @@ jobs:
             # if there isn't an index.txt we create one (we need this to list the versions)
             if [ ! -f "index.txt" ]; then echo "" > index.txt ; fi
             index="`cat index.txt`"
-         
+
             # Check if this version is already in index.txt
             addNew=true
-            for v in $index; 
+            for v in $index;
             do
               if [ "$v" = "$version" ];
               then
@@ -544,11 +444,11 @@ jobs:
             # Commit the changes
             git config --global user.name "Github Actions"
             git config --global user.email "actions@users.noreply.github.com"
-      
+
             git add . || true
             git commit -m "$version" || true
 
-            branch="gh-pages"                   
+            branch="gh-pages"
             git push origin "$branch" --force || true
 
           fi

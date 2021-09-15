@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -93,7 +93,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
     private Node scene;
     protected TimeLine timeLine = new TimeLine();
     private int lastFetchedKeyFrame = -1;
-    private List<CinematicEvent> cinematicEvents = new ArrayList<>();
+    final private List<CinematicEvent> cinematicEvents = new ArrayList<>();
     private Map<String, CameraNode> cameras = new HashMap<>();
     private CameraNode currentCam;
     private boolean initialized = false;
@@ -214,8 +214,8 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
     /**
      * used internally for serialization
      *
-     * @param ex
-     * @throws IOException
+     * @param ex the exporter (not null)
+     * @throws IOException from the exporter
      */
     @Override
     public void write(JmeExporter ex) throws IOException {
@@ -230,8 +230,8 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
     /**
      * used internally for serialization
      *
-     * @param im
-     * @throws IOException
+     * @param im the importer (not null)
+     * @throws IOException from the importer
      */
     @Override
     @SuppressWarnings("unchecked")
@@ -299,6 +299,8 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
      *  Sets the unique ID of this app state.  Note: that setting
      *  this while an app state is attached to the state manager will
      *  have no effect on ID-based lookups.
+     *
+     * @param id the desired ID
      */
     protected void setId( String id ) {
         this.id = id;
@@ -355,7 +357,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
     /**
      * called internally don't call it directly.
      *
-     * @param tpf
+     * @param tpf time per frame (in seconds)
      */
     @Override
     public void update(float tpf) {
@@ -367,7 +369,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
     /**
      * used internally, don't call this directly.
      *
-     * @param tpf
+     * @param tpf time per frame (in seconds)
      */
     @Override
     public void onUpdate(float tpf) {
@@ -568,7 +570,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
      */
     public CameraNode bindCamera(String cameraName, Camera cam) {
         if (cameras.containsKey(cameraName)) {
-            throw new IllegalArgumentException("Camera " + cameraName + " is already binded to this cinematic");
+            throw new IllegalArgumentException("Camera " + cameraName + " is already bound to this cinematic");
         }
         CameraNode node = new CameraNode(cameraName, cam);
         node.setControlDir(ControlDirection.SpatialToCamera);

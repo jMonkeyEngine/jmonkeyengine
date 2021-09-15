@@ -59,7 +59,7 @@ public class TerrainGridLodControl extends TerrainLodControl {
         // 2: grids are associated with locations, and no incremental update is done, we load new grids for new locations, and unload those that are not needed anymore
         Vector3f cam = locations.isEmpty() ? Vector3f.ZERO.clone() : locations.get(0);
         Vector3f camCell = terrainGrid.getCamCell(cam); // get the grid index value of where the camera is (ie. 2,1)
-        if (terrainGrid.cellsLoaded > 1) {                  // Check if cells are updated before updating gridoffset.
+        if (terrainGrid.cellsLoaded > 1) {                  // Check if cells are updated before updating gridOffset.
             terrainGrid.gridOffset[0] = Math.round(camCell.x * (terrainGrid.size / 2));
             terrainGrid.gridOffset[1] = Math.round(camCell.z * (terrainGrid.size / 2));
             terrainGrid.cellsLoaded = 0;

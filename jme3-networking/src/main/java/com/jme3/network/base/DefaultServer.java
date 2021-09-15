@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -58,7 +58,7 @@ import java.util.logging.Logger;
  */
 public class DefaultServer implements Server
 {
-    static final Logger log = Logger.getLogger(DefaultServer.class.getName());
+    private static final Logger log = Logger.getLogger(DefaultServer.class.getName());
 
     // First two channels are reserved for reliable and
     // unreliable
@@ -73,20 +73,20 @@ public class DefaultServer implements Server
     private final KernelFactory kernelFactory = KernelFactory.DEFAULT;
     private KernelAdapter reliableAdapter;
     private KernelAdapter fastAdapter;
-    private final List<KernelAdapter> channels = new ArrayList<KernelAdapter>();
-    private final List<Integer> alternatePorts = new ArrayList<Integer>();
+    private final List<KernelAdapter> channels = new ArrayList<>();
+    private final List<Integer> alternatePorts = new ArrayList<>();
     private final Redispatch dispatcher = new Redispatch();
-    private final Map<Integer,HostedConnection> connections = new ConcurrentHashMap<Integer,HostedConnection>();
+    private final Map<Integer,HostedConnection> connections = new ConcurrentHashMap<>();
     private final Map<Endpoint,HostedConnection> endpointConnections 
-                            = new ConcurrentHashMap<Endpoint,HostedConnection>();
+                            = new ConcurrentHashMap<>();
     
     // Keeps track of clients for whom we've only received the UDP
     // registration message
-    private final Map<Long,Connection> connecting = new ConcurrentHashMap<Long,Connection>();
+    private final Map<Long,Connection> connecting = new ConcurrentHashMap<>();
     
     private final MessageListenerRegistry<HostedConnection> messageListeners 
-                            = new MessageListenerRegistry<HostedConnection>();                        
-    private final List<ConnectionListener> connectionListeners = new CopyOnWriteArrayList<ConnectionListener>();
+                            = new MessageListenerRegistry<>();                        
+    private final List<ConnectionListener> connectionListeners = new CopyOnWriteArrayList<>();
     
     private HostedServiceManager services;
     private MessageProtocol protocol = new SerializerMessageProtocol();
@@ -94,7 +94,7 @@ public class DefaultServer implements Server
     public DefaultServer( String gameName, int version, Kernel reliable, Kernel fast )
     {
         if( reliable == null )
-            throw new IllegalArgumentException( "Default server reqiures a reliable kernel instance." );
+            throw new IllegalArgumentException( "Default server requires a reliable kernel instance." );
             
         this.gameName = gameName;
         this.version = version;
@@ -210,7 +210,7 @@ public class DefaultServer implements Server
         services.stop();
  
         try {
-            // Kill the adpaters, they will kill the kernels
+            // Kill the adapters, they will kill the kernels
             for( KernelAdapter ka : channels ) {
                 ka.close();
             }
@@ -523,7 +523,7 @@ public class DefaultServer implements Server
         private Endpoint[] channels;
         private int setChannelCount = 0; 
        
-        private final Map<String,Object> sessionData = new ConcurrentHashMap<String,Object>();       
+        private final Map<String,Object> sessionData = new ConcurrentHashMap<>();       
         
         public Connection( int channelCount )
         {

@@ -6,7 +6,7 @@ ShaderNodeDefinitions{
             mixes two colors according to a mix factor 
             @input color1 the first color to mix
             @input color2 the second color to mix
-            @input factor the mix factor (from 0.0 to 1.0) fpr more information see the gsls mix function
+            @input factor the mix factor (from 0.0 to 1.0) fpr more information see the glsl mix function
             @output outColor the mixed color
         }
         Input {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2017 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -251,6 +251,7 @@ public class Uniform extends ShaderVariable {
                     this.value = BufferUtils.createIntBuffer(ia);
                 } else {
                     this.value = BufferUtils.ensureLargeEnough((IntBuffer)this.value, ia.length);
+                    ((IntBuffer)this.value).put(ia);
                 }
                 ((IntBuffer)this.value).clear();
                 break;
@@ -260,8 +261,8 @@ public class Uniform extends ShaderVariable {
                     multiData = BufferUtils.createFloatBuffer(fa);
                 } else {
                     multiData = BufferUtils.ensureLargeEnough(multiData, fa.length);
+                    multiData.put(fa);
                 }
-                multiData.put(fa);
                 multiData.clear();
                 break;
             case Vector2Array:
@@ -270,9 +271,9 @@ public class Uniform extends ShaderVariable {
                     multiData = BufferUtils.createFloatBuffer(v2a);
                 } else {
                     multiData = BufferUtils.ensureLargeEnough(multiData, v2a.length * 2);
-                }
-                for (int i = 0; i < v2a.length; i++) {
-                    BufferUtils.setInBuffer(v2a[i], multiData, i);
+                    for (int i = 0; i < v2a.length; i++) {
+                        BufferUtils.setInBuffer(v2a[i], multiData, i);
+                    }
                 }
                 multiData.clear();
                 break;
@@ -282,9 +283,9 @@ public class Uniform extends ShaderVariable {
                     multiData = BufferUtils.createFloatBuffer(v3a);
                 } else {
                     multiData = BufferUtils.ensureLargeEnough(multiData, v3a.length * 3);
-                }
-                for (int i = 0; i < v3a.length; i++) {
-                    BufferUtils.setInBuffer(v3a[i], multiData, i);
+                    for (int i = 0; i < v3a.length; i++) {
+                        BufferUtils.setInBuffer(v3a[i], multiData, i);
+                    }
                 }
                 multiData.clear();
                 break;
@@ -294,9 +295,9 @@ public class Uniform extends ShaderVariable {
                     multiData = BufferUtils.createFloatBuffer(v4a);
                 } else {
                     multiData = BufferUtils.ensureLargeEnough(multiData, v4a.length * 4);
-                }
-                for (int i = 0; i < v4a.length; i++) {
-                    BufferUtils.setInBuffer(v4a[i], multiData, i);
+                    for (int i = 0; i < v4a.length; i++) {
+                        BufferUtils.setInBuffer(v4a[i], multiData, i);
+                    }
                 }
                 multiData.clear();
                 break;
@@ -356,7 +357,7 @@ public class Uniform extends ShaderVariable {
                     try {
                         this.value = value.getClass().newInstance();
                     } catch (InstantiationException | IllegalAccessException e) {
-                        throw new IllegalArgumentException("Cannot instanciate param of class " + value.getClass().getCanonicalName());
+                        throw new IllegalArgumentException("Cannot instantiate param of class " + value.getClass().getCanonicalName());
                     }
                 }
                 //feed the pivot vec 4 with the correct value

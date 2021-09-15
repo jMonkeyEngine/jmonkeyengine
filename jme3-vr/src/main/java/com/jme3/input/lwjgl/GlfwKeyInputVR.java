@@ -1,7 +1,7 @@
 package com.jme3.input.lwjgl;
 
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -59,7 +59,7 @@ public class GlfwKeyInputVR implements KeyInput {
     private RawInputListener listener;
     private boolean initialized, shift_pressed;
     private GLFWKeyCallback keyCallback;
-    private Queue<KeyInputEvent> keyInputEvents = new LinkedList<KeyInputEvent>();
+    private Queue<KeyInputEvent> keyInputEvents = new LinkedList<>();
 
     /**
      * Create a new input attached to the given {@link LwjglWindowVR context}.
@@ -143,4 +143,11 @@ public class GlfwKeyInputVR implements KeyInput {
     public long getInputTimeNanos() {
         return (long) (glfwGetTime() * 1000000000);
     }
+
+    @Override
+    public String getKeyName(int jmeKey) {
+        int glfwKey = GlfwKeyMap.fromJmeKeyCode(jmeKey);
+        return glfwGetKeyName(glfwKey, 0);
+    }
+
 }

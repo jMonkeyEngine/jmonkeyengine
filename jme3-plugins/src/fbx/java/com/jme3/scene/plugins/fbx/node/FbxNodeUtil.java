@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,6 +35,12 @@ import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
 
 public class FbxNodeUtil {
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private FbxNodeUtil() {
+    }
+
     public static Quaternion quatFromBoneAngles(float xAngle, float yAngle, float zAngle) {
         float angle;
         float sinY, sinZ, sinX, cosY, cosZ, cosX;

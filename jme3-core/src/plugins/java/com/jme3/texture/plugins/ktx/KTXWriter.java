@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -70,7 +70,8 @@ public class KTXWriter {
 
     /**
      * Creates a KTXWriter that will write files in the given path
-     * @param path 
+     *
+     * @param path the desired filesystem path (alias created)
      */
     public KTXWriter(String path) {
         filePath = path;
@@ -116,7 +117,7 @@ public class KTXWriter {
             out.writeInt(1);
             //glFormat
             out.writeInt(format.format);
-            //glInernalFormat
+            //glInternalFormat
             out.writeInt(format.internalFormat);
             //glBaseInternalFormat
             out.writeInt(format.format);
@@ -228,9 +229,10 @@ public class KTXWriter {
 
     /**
      * writes padding data to the output padding times.
-     * @param padding
-     * @param out
-     * @throws IOException 
+     *
+     * @param padding the number of bytes to be written
+     * @param out the output stream
+     * @throws IOException from the output stream
      */
     private void pad(int padding, DataOutput out) throws IOException {
         //padding

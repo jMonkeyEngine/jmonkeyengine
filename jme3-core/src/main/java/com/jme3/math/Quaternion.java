@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -185,12 +185,13 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     }
 
     /**
-     * Constructor instantiates a new <code>Quaternion</code> object from a
-     * collection of rotation angles.
+     * Instantiate a new <code>Quaternion</code> from Tait-Bryan angles,
+     * applying the rotations in x-z-y extrinsic order or y-z'-x" intrinsic
+     * order.
      *
-     * @param angles
-     *            the angles of rotation (x, y, z) that will define the
-     *            <code>Quaternion</code>.
+     * @param angles an array of Tait-Bryan angles (in radians, exactly 3
+     * elements, the X angle in angles[0], the Y angle in angles[1], and the Z
+     * angle in angles[2], unaffected)
      */
     public Quaternion(float[] angles) {
         fromAngles(angles);
@@ -244,11 +245,13 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     }
 
     /**
-     * <code>fromAngles</code> builds a quaternion from the Euler rotation
-     * angles (x,y,z) aka (pitch, yaw, roll).
+     * Reconfigure this <code>Quaternion</code> based on Tait-Bryan angles,
+     * applying the rotations in x-z-y extrinsic order or y-z'-x" intrinsic
+     * order.
      *
-     * @param angles
-     *            the Euler angles of rotation (in radians).
+     * @param angles an array of Tait-Bryan angles (in radians, exactly 3
+     * elements, the X angle in angles[0], the Y angle in angles[1], and the Z
+     * angle in angles[2], unaffected)
      * @return this
      */
     public Quaternion fromAngles(float[] angles) {
@@ -261,22 +264,15 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     }
 
     /**
-     * <code>fromAngles</code> builds a Quaternion from the Euler rotation
-     * angles (x,y,z) aka (pitch, yaw, roll)).
-     * Note that we are applying in order: (y, x, z) aka (yaw, pitch, roll)
-     * but we've ordered them in x, y, and z for convenience.
+     * Reconfigure this Quaternion based on Tait-Bryan rotations, applying the
+     * rotations in x-z-y extrinsic order or y-z'-x" intrinsic order.
      *
-     * @see <a href="http://www.euclideanspace.com/maths/geometry/rotations/conversions/eulerToQuaternion/index.htm">http://www.euclideanspace.com/maths/geometry/rotations/conversions/eulerToQuaternion/index.htm</a>
+     * @see
+     * <a href="http://www.euclideanspace.com/maths/geometry/rotations/conversions/eulerToQuaternion/index.htm">http://www.euclideanspace.com/maths/geometry/rotations/conversions/eulerToQuaternion/index.htm</a>
      *
-     * @param xAngle
-     *            the Euler pitch of rotation (in radians). (aka Attitude, often rot
-     *            around x)
-     * @param yAngle
-     *            the Euler yaw of rotation (in radians). (aka Heading, often
-     *            rot around y)
-     * @param zAngle
-     *            the Euler roll of rotation (in radians). (aka Bank, often
-     *            rot around z)
+     * @param xAngle the X angle (in radians)
+     * @param yAngle the Y angle (in radians)
+     * @param zAngle the Z angle (in radians)
      * @return this
      */
     public Quaternion fromAngles(float xAngle, float yAngle, float zAngle) {
@@ -308,16 +304,20 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     }
 
     /**
-     * <code>toAngles</code> returns this quaternion converted to Euler rotation
-     * angles (x,y,z) aka (pitch, yaw, roll).
+     * Convert this <code>Quaternion</code> to Tait-Bryan angles, to be applied
+     * in x-z-y intrinsic order or y-z'-x" extrinsic order, for instance by
+     * {@link #fromAngles(float[])}.
      *
-     * Note that the result is not always 100% accurate due to the implications of euler angles.
-     * @see <a href="http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToEuler/index.htm">http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToEuler/index.htm</a>
+     * Note that the result is not always 100% accurate due to the implications
+     * of Tait-Bryan angles.
      *
-     * @param angles
-     *            the float[] in which the angles should be stored, or null if
-     *            you want a new float[] to be created
-     * @return the float[] in which the angles are stored.
+     * @see
+     * <a href="http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToEuler/index.htm">http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToEuler/index.htm</a>
+     *
+     * @param angles an array of 3 floats in which to store the result, or else
+     * null (If null, a new array will be allocated.)
+     * @return an array of 3 angles (in radians, the X angle in angles[0], the Y
+     * angle in angles[1], and the Z angle in angles[2])
      */
     public float[] toAngles(float[] angles) {
         if (angles == null) {
@@ -855,8 +855,8 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     /**
      * Sets the values of this quaternion to the nlerp from itself to q2 by blend.
      *
-     * @param q2
-     * @param blend
+     * @param q2 the desired final value when blend=1 (not null, unaffected)
+     * @param blend the fractional weight applied to q2 (0&rarr;this, 1&rarr;q2)
      */
     public void nlerp(Quaternion q2, float blend) {
         float dot = dot(q2);
@@ -1023,18 +1023,21 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     }
 
     /**
+     * <code>toAxes</code> determines the axes of the coordinate system
+     * described by this Quaternion.
      *
-     * <code>toAxes</code> takes in an array of three vectors. Each vector
-     * corresponds to an axis of the coordinate system defined by the quaternion
-     * rotation.
-     *
-     * @param axis the array of vectors to be filled.
+     * @param axes an array to store the results (not null, length=3, modified)
      */
-    public void toAxes(Vector3f axis[]) {
+    public void toAxes(Vector3f axes[]) {
+        if (axes.length != 3) {
+            throw new IllegalArgumentException(
+                    "Axes array must have three elements");
+        }
+
         Matrix3f tempMat = toRotationMatrix();
-        axis[0] = tempMat.getColumn(0, axis[0]);
-        axis[1] = tempMat.getColumn(1, axis[1]);
-        axis[2] = tempMat.getColumn(2, axis[2]);
+        axes[0] = tempMat.getColumn(0, axes[0]);
+        axes[1] = tempMat.getColumn(1, axes[1]);
+        axes[2] = tempMat.getColumn(2, axes[2]);
     }
 
     /**
@@ -1399,10 +1402,12 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     }
 
     /**
-     * <code>lookAt</code> is a convienence method for auto-setting the
+     * <code>lookAt</code> is a convenience method for auto-setting the
      * quaternion based on a direction and an up vector. It computes
      * the rotation to transform the z-axis to point into 'direction'
-     * and the y-axis to 'up'.
+     * and the y-axis to 'up'.  Note that the results will be invalid
+     * if a zero length direction vector (0,0,0) is supplied, or if the 
+     * direction and up vectors are parallel.
      *
      * @param direction
      *            where to look at in terms of local coordinates

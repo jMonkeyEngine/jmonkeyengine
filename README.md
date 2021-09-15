@@ -3,7 +3,8 @@ jMonkeyEngine
 
 [![Build Status](https://github.com/jMonkeyEngine/jmonkeyengine/workflows/Build%20jMonkeyEngine/badge.svg)](https://github.com/jMonkeyEngine/jmonkeyengine/actions)
 
-jMonkeyEngine is a 3-D game engine for adventurous Java developers. It’s open-source, cross-platform, and cutting-edge. 3.2.4 is the latest stable version of the jMonkeyEngine 3 SDK, a complete game development suite. We'll release 3.2.x updates until the major 3.3 release arrives.
+jMonkeyEngine is a 3-D game engine for adventurous Java developers. It’s open-source, cross-platform, and cutting-edge.
+v3.3.2 is the latest stable version of the jMonkeyEngine SDK.
 
 The engine is used by several commercial game studios and computer-science courses. Here's a taste:
 
@@ -23,6 +24,7 @@ The engine is used by several commercial game studios and computer-science cours
  - [Nine Circles of Hell (on Steam)](https://store.steampowered.com/app/1200600/Nine_Circles_of_Hell/)
  - [Leap](https://gamejolt.com/games/leap/313308)
  - [Jumping Jack Flag](http://timealias.bplaced.net/jack/)
+ - [PapaSpace Flight Simulation](https://www.papaspace.at/)
 
 ## Getting started
 

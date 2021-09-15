@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -72,9 +72,9 @@ public class Texture2D extends Texture {
      *
      * @see com.jme3.texture.FrameBuffer
      *
-     * @param width
-     * @param height
-     * @param format
+     * @param width the desired width (in pixels)
+     * @param height the desired height (in pixels)
+     * @param format the desired format
      */
     public Texture2D(int width, int height, Image.Format format){
         this(new Image(format, width, height, null, ColorSpace.Linear));
@@ -86,10 +86,10 @@ public class Texture2D extends Texture {
      *
      * @see com.jme3.texture.FrameBuffer
      *
-     * @param width
-     * @param height
-     * @param format
-     * @param numSamples
+     * @param width the desired width (in pixels)
+     * @param height the desired height (in pixels)
+     * @param numSamples the desired degree of multi-sampling (&ge;1)
+     * @param format the desired format
      */
     public Texture2D(int width, int height, int numSamples, Image.Format format){
         this(new Image(format, width, height, null, ColorSpace.Linear));
@@ -115,7 +115,7 @@ public class Texture2D extends Texture {
      * particular axis.
      *
      * @param axis
-     *            the texture axis to define a wrapmode on.
+     *            the texture axis to apply the wrap mode to.
      * @param mode
      *            the wrap mode for the given axis of the texture.
      * @throws IllegalArgumentException

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 jMonkeyEngine
+ * Copyright (c) 2020-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,7 +40,7 @@ import java.util.List;
 /**
  * Test case for JME issue #1421: ScreenshotAppState never cleans up.
  * <p>
- * If successful, the application will complete without thowing an Exception.
+ * If successful, the application will complete without throwing an Exception.
  *
  * @author Stephen Gold
  */
@@ -88,12 +88,13 @@ public class TestIssue1421 extends SimpleApplication {
             List<SceneProcessor> processorList = lastViewPort.getProcessors();
             int numProcessors = processorList.size();
             if (numProcessors != 0) {
-                throw new RuntimeException("SceneProcessor is still attached.");
+                throw new IllegalStateException(
+                        "SceneProcessor is still attached.");
             }
 
             // Check whether KEY_SYSRQ is still mapped.
             if (inputManager.hasMapping("ScreenShot")) {
-                throw new RuntimeException("KEY_SYSRQ is still mapped.");
+                throw new IllegalStateException("KEY_SYSRQ is still mapped.");
             }
             stop();
         }

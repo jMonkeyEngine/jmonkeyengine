@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019 jMonkeyEngine
+ * Copyright (c) 2018-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -468,7 +468,7 @@ public class RagUtils {
      */
     private static List<Geometry> listGeometries(Spatial subtree,
             List<Geometry> addResult) {
-        List<Geometry> result = (addResult == null) ? new ArrayList<Geometry>(50) : addResult;
+        List<Geometry> result = (addResult == null) ? new ArrayList<>(50) : addResult;
 
         if (subtree instanceof Geometry) {
             Geometry geometry = (Geometry) subtree;

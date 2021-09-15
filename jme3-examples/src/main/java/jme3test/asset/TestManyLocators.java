@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,28 +43,29 @@ public class TestManyLocators {
     public static void main(String[] args){
         AssetManager am = JmeSystem.newAssetManager();
 
-        am.registerLocator("http://wiki.jmonkeyengine.org/jme3/beginner",
-                           UrlLocator.class);
+        am.registerLocator(
+                "https://github.com/jMonkeyEngine/wiki/raw/master/docs/modules/tutorials/assets/images/beginner/",
+                UrlLocator.class);
 
         am.registerLocator("town.zip", ZipLocator.class);
         am.registerLocator(
-                    "https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/jmonkeyengine/wildhouse.zip", 
-                    HttpZipLocator.class);       
-        
+                "https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/jmonkeyengine/wildhouse.zip",
+                HttpZipLocator.class);
+
         am.registerLocator("/", ClasspathLocator.class);
         
         
 
-        // Try loading from Core-Data source package
+        // Try loading from jme3-core resources using the ClasspathLocator.
         AssetInfo a = am.locateAsset(new AssetKey<Object>("Interface/Fonts/Default.fnt"));
 
-        // Try loading from town scene zip file
+        // Try loading from the "town.zip" file using the ZipLocator.
         AssetInfo b = am.locateAsset(new ModelKey("casaamarela.jpg"));
 
-        // Try loading from wildhouse online scene zip file
+        // Try loading from the Google Code Archive website using the HttpZipLocator.
         AssetInfo c = am.locateAsset(new ModelKey("glasstile2.png"));
 
-        // Try loading directly from HTTP
+        // Try loading from the GitHub website using the UrlLocator.
         AssetInfo d = am.locateAsset(new TextureKey("beginner-physics.png"));
 
         if (a == null)

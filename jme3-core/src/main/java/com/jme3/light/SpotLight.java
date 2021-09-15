@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012, 2015-2016, 2018 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -168,7 +168,7 @@ public class SpotLight extends Light {
         packedAngleCos = (int) (innerCos * 1000);
         
         //due to approximations, very close angles can give the same cos
-        //here we make sure outer cos is bellow inner cos.
+        //here we make sure outer cos is below inner cos.
         if (((int) packedAngleCos) == ((int) (outerAngleCos * 1000))) {
             outerAngleCos -= 0.001f;
         }
@@ -207,16 +207,16 @@ public class SpotLight extends Light {
         Vector3f U = position.subtract(E, vars.vect2);
         Vector3f D = otherCenter.subtract(U, vars.vect3);
 
-        float dsqr = D.dot(D);
+        float dSquared = D.dot(D);
         float e = direction.dot(D);
 
-        if (e > 0f && e * e >= dsqr * outerAngleCosSqr) {
+        if (e > 0f && e * e >= dSquared * outerAngleCosSqr) {
             D = otherCenter.subtract(position, vars.vect3);
-            dsqr = D.dot(D);
+            dSquared = D.dot(D);
             e = -direction.dot(D);
 
-            if (e > 0f && e * e >= dsqr * outerAngleSinSqr) {
-                return dsqr <= otherRadiusSquared;
+            if (e > 0f && e * e >= dSquared * outerAngleSinSqr) {
+                return dSquared <= otherRadiusSquared;
             } else {
                 return true;
             }
@@ -378,7 +378,8 @@ public class SpotLight extends Light {
      * Must be between 0 and pi/2.
      * <p>
      * This angle is the angle between the spot direction axis and the inner border of the cone of influence.
-     * @param spotInnerAngle 
+     *
+     * @param spotInnerAngle the desired angle (in radians, &ge;0, &le;Pi/2)
      */
     public void setSpotInnerAngle(float spotInnerAngle) {
         if (spotInnerAngle < 0f || spotInnerAngle >= FastMath.HALF_PI) {
@@ -403,7 +404,8 @@ public class SpotLight extends Light {
      * <p>
      * This angle is the angle between the spot direction axis and the outer border of the cone of influence.
      * this should be greater than the inner angle or the result will be unexpected.
-     * @param spotOuterAngle 
+     *
+     * @param spotOuterAngle the desired angle (in radians, &ge;0, &le;Pi/2)
      */
     public void setSpotOuterAngle(float spotOuterAngle) {
         if (spotOuterAngle < 0f || spotOuterAngle >= FastMath.HALF_PI) {

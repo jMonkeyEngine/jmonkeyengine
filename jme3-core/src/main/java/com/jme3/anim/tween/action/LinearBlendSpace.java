@@ -4,8 +4,8 @@ public class LinearBlendSpace implements BlendSpace {
 
     private BlendAction action;
     private float value;
-    private float maxValue;
-    private float minValue;
+    final private float maxValue;
+    final private float minValue;
     private float step;
 
     public LinearBlendSpace(float minValue, float maxValue) {

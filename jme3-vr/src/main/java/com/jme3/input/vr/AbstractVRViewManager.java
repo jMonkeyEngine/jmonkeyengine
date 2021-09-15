@@ -204,7 +204,7 @@ public abstract class AbstractVRViewManager implements VRViewManager {
                                 } else if (f instanceof DirectionalLightShadowFilter){
                                     f2 = FilterUtil.cloneDirectionalLightShadowFilter(environment.getApplication().getAssetManager(), (DirectionalLightShadowFilter)f);
                                 } else {
-                                    f2 = f; // dof, bloom, lightscattering etc.
+                                    f2 = f; // dof, bloom, light scattering etc.
                                 }                    
                                 getRightPostProcessor().addFilter(f2);
                             }

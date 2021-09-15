@@ -18,8 +18,8 @@ public class TestInstanceNodeWithLight extends SimpleApplication {
         app.start();
     }
 
-    Geometry box;
-    PointLight pointLight;
+    private Geometry box;
+    private PointLight pointLight;
 
     @Override
     public void simpleInitApp() {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 jMonkeyEngine
+ * Copyright (c) 2015-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -70,11 +70,9 @@ public final class MethodInfo {
     public Object invoke( Object target, Object... parms ) {
         try {
             return method.invoke(target, parms);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException("Error invoking:" + method + " on:" + target, e);
-        } catch (IllegalArgumentException e) {
-            throw new RuntimeException("Error invoking:" + method + " on:" + target, e);
-        } catch (InvocationTargetException e) {
+        } catch (IllegalAccessException
+                | IllegalArgumentException
+                | InvocationTargetException e) {
             throw new RuntimeException("Error invoking:" + method + " on:" + target, e);
         }
     }

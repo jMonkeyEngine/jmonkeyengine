@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -58,7 +58,7 @@ public class TestPhysicsCar extends SimpleApplication implements ActionListener 
     private final float brakeForce = 100.0f;
     private float steeringValue = 0;
     private float accelerationValue = 0;
-    private Vector3f jumpForce = new Vector3f(0, 3000, 0);
+    final private Vector3f jumpForce = new Vector3f(0, 3000, 0);
 
     public static void main(String[] args) {
         TestPhysicsCar app = new TestPhysicsCar();

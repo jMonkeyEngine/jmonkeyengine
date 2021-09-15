@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -66,7 +66,7 @@ public class BoundingSphere extends BoundingVolume {
     private static final float RADIUS_EPSILON = 1f + 0.00001f;
 
     /**
-     * Default contstructor instantiates a new <code>BoundingSphere</code>
+     * Default constructor instantiates a new <code>BoundingSphere</code>
      * object.
      */
     public BoundingSphere() {
@@ -126,9 +126,9 @@ public class BoundingSphere extends BoundingVolume {
      * <code>computeFromTris</code> creates a new Bounding Box from a given
      * set of triangles. It is used in OBBTree calculations.
      *
-     * @param tris
-     * @param start
-     * @param end
+     * @param tris triangle data (unaffected)
+     * @param start the index of the first triangle to be used
+     * @param end the index of the triangle after the last one to be used
      */
     public void computeFromTris(Triangle[] tris, int start, int end) {
         if (end - start <= 0) {
@@ -206,7 +206,7 @@ public class BoundingSphere extends BoundingVolume {
      *            The number of points currently considering to include with the
      *            sphere.
      * @param ap
-     *            A variable simulating pointer arithmatic from C++, and offset
+     *            A variable simulating pointer arithmetic from C++, and offset
      *            in <code>points</code>.
      */
     private void recurseMini(FloatBuffer points, int p, int b, int ap) {
@@ -615,7 +615,7 @@ public class BoundingSphere extends BoundingVolume {
         if (rCenter == null) {
             rVal.setCenter(rCenter = new Vector3f());
         }
-        if (length > RADIUS_EPSILON) {
+        if (length > RADIUS_EPSILON && Float.isFinite(length)) {
             float coeff = (length + radiusDiff) / (2.0f * length);
             rCenter.set(center.addLocal(diff.multLocal(coeff)));
         } else {
@@ -654,7 +654,7 @@ public class BoundingSphere extends BoundingVolume {
 
     /**
      * <code>toString</code> returns the string representation of this object.
-     * The form is: "Radius: RRR.SSSS Center: <Vector>".
+     * The form is: "Radius: RRR.SSSS Center: vector".
      *
      * @return the string representation of this.
      */

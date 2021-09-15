@@ -1,29 +1,33 @@
-if (!hasProperty('mainClass')) {
-    ext.mainClass = ''
-}
-
 def lwjglVersion = '3.2.3'
 
 sourceCompatibility = '1.8'
 
 dependencies {
-    compile project(':jme3-core')
-    compile project(':jme3-lwjgl3')
-    compile project(':jme3-effects')
+    api project(':jme3-core')
+    api project(':jme3-lwjgl3')
+    api project(':jme3-desktop')
+    api project(':jme3-effects')
 	
-	// https://mvnrepository.com/artifact/net.java.dev.jna/jna
-    compile group: 'net.java.dev.jna', name: 'jna', version: '4.3.0'
-    compile 'com.nativelibs4java:jnaerator-runtime:0.12'
+    // https://mvnrepository.com/artifact/net.java.dev.jna/jna
+    implementation group: 'net.java.dev.jna', name: 'jna', version: '5.8.0'
+    implementation 'com.nativelibs4java:jnaerator-runtime:0.12'
 
     // Native LibOVR/Oculus support
-    compile "org.lwjgl:lwjgl-ovr:${lwjglVersion}"
-    runtime "org.lwjgl:lwjgl-ovr:${lwjglVersion}:natives-windows"
+    api "org.lwjgl:lwjgl-ovr:${lwjglVersion}"
+    runtimeOnly "org.lwjgl:lwjgl-ovr:${lwjglVersion}:natives-windows"
     
-        // Native OpenVR/LWJGL support
-    compile "org.lwjgl:lwjgl-openvr:${lwjglVersion}"
-    compile "org.lwjgl:lwjgl-openvr:${lwjglVersion}:natives-linux"
-    compile "org.lwjgl:lwjgl-openvr:${lwjglVersion}:natives-macos"
-    runtime "org.lwjgl:lwjgl-openvr:${lwjglVersion}:natives-windows"
-    runtime "org.lwjgl:lwjgl-openvr:${lwjglVersion}:natives-linux"
-    runtime "org.lwjgl:lwjgl-openvr:${lwjglVersion}:natives-macos"
+    // Native OpenVR/LWJGL support
+    api "org.lwjgl:lwjgl-openvr:${lwjglVersion}"
+    implementation "org.lwjgl:lwjgl-openvr:${lwjglVersion}:natives-linux"
+    implementation "org.lwjgl:lwjgl-openvr:${lwjglVersion}:natives-macos"
+    runtimeOnly "org.lwjgl:lwjgl-openvr:${lwjglVersion}:natives-windows"
+    runtimeOnly "org.lwjgl:lwjgl-openvr:${lwjglVersion}:natives-linux"
+    runtimeOnly "org.lwjgl:lwjgl-openvr:${lwjglVersion}:natives-macos"
+}
+
+javadoc {
+    // Disable doclint for JDK8+.
+    if (JavaVersion.current().isJava8Compatible()){
+        options.addStringOption('Xdoclint:none', '-quiet')
+    }
 }

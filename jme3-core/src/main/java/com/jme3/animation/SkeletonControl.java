@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -71,7 +71,7 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
     /**
      * List of geometries affected by this control.
      */
-    private SafeArrayList<Geometry> targets = new SafeArrayList<Geometry>(Geometry.class);
+    private SafeArrayList<Geometry> targets = new SafeArrayList<>(Geometry.class);
 
     /**
      * Used to track when a mesh was updated. Meshes are only updated if they
@@ -167,7 +167,8 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
      * supported by GPU, it shall be enabled, if it's not preferred, or not
      * supported by GPU, then it shall be disabled.
      * 
-     * @param preferred
+     * @param preferred true to prefer hardware skinning, false to prefer 
+     * software skinning (default=true)
      * @see #isHardwareSkinningUsed() 
      */
     public void setHardwareSkinningPreferred(boolean preferred) {
@@ -452,7 +453,7 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
      * Method to apply skinning transforms to a mesh's buffers
      *
      * @param mesh the mesh
-     * @param offsetMatrices the offset matices to apply
+     * @param offsetMatrices the offset matrices to apply
      */
     private void applySkinning(Mesh mesh, Matrix4f[] offsetMatrices) {
         int maxWeightsPerVert = mesh.getMaxNumWeights();
@@ -559,7 +560,7 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
      *
      * @param maxWeightsPerVert maximum number of weights per vertex
      * @param mesh the mesh
-     * @param offsetMatrices the offsetMaytrices to apply
+     * @param offsetMatrices the offset matrices to apply
      * @param tb the tangent vertexBuffer
      */
     private void applySkinningTangents(Mesh mesh, Matrix4f[] offsetMatrices, VertexBuffer tb) {

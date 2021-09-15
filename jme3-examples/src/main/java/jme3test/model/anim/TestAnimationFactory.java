@@ -1,7 +1,8 @@
 package jme3test.model.anim;
 
-import com.jme3.animation.AnimControl;
-import com.jme3.animation.AnimationFactory;
+import com.jme3.anim.AnimClip;
+import com.jme3.anim.AnimComposer;
+import com.jme3.anim.AnimFactory;
 import com.jme3.app.SimpleApplication;
 import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
@@ -16,7 +17,7 @@ import com.jme3.util.TangentBinormalGenerator;
 public class TestAnimationFactory extends SimpleApplication {
 
     public static void main(String[] args) {
-        TestSpatialAnim app = new TestSpatialAnim();
+        TestAnimationFactory app = new TestAnimationFactory();
         app.start();
     }
 
@@ -46,9 +47,9 @@ public class TestAnimationFactory extends SimpleApplication {
         model.attachChild(childModel);
         TangentBinormalGenerator.generate(model);
 
-        //creating quite complex animation with the AnimationHelper
-        // animation of 6 seconds named "anim" and with 25 frames per second
-        AnimationFactory animationFactory = new AnimationFactory(6, "anim", 25);
+        // Construct a complex animation using AnimFactory:
+        // 6 seconds in duration, named "anim", running at 25 frames per second
+        AnimFactory animationFactory = new AnimFactory(6f, "anim", 25f);
         
         //creating a translation keyFrame at time = 3 with a translation on the x axis of 5 WU        
         animationFactory.addTimeTranslation(3, new Vector3f(5, 0, 0));
@@ -67,19 +68,23 @@ public class TestAnimationFactory extends SimpleApplication {
         animationFactory.addTimeRotation(0.5f,new Quaternion().fromAngleAxis(FastMath.QUARTER_PI, Vector3f.UNIT_Z));
         //rotating back to initial rotation value at time = 1
         animationFactory.addTimeRotation(1,Quaternion.IDENTITY);
-        //Creating a rotation keyFrame at time = 2. Note that i used the Euler angle version because the angle is higher than PI
-        //this should result in a complete revolution of the spatial around the x axis in 1 second (from 1 to 2)
-        animationFactory.addTimeRotationAngles(2, FastMath.TWO_PI,0, 0);
+        /*
+         * Perform a 360-degree rotation around the X axis between t=1 and t=2.
+         */
+        for (int i = 1; i <= 3; ++i) {
+            float rotTime = i / 3f;
+            float xAngle = FastMath.TWO_PI * rotTime;
+            animationFactory.addTimeRotation(1f + rotTime, xAngle, 0f, 0f);
+        }
 
-
-        AnimControl control = new AnimControl();
-        control.addAnim(animationFactory.buildAnimation());
-
+        AnimClip clip = animationFactory.buildAnimation(model);
+        AnimComposer control = new AnimComposer();
+        control.addAnimClip(clip);
         model.addControl(control);
 
         rootNode.attachChild(model);
 
         //run animation
-        control.createChannel().setAnim("anim");
+        control.setCurrentAction("anim");
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -85,7 +85,7 @@ public class TextureCubeMap extends Texture {
 
     private static Image createEmptyLayeredImage(int width, int height,
             int layerCount, Image.Format format) {
-        ArrayList<ByteBuffer> layers = new ArrayList<ByteBuffer>();
+        ArrayList<ByteBuffer> layers = new ArrayList<>();
         for(int i = 0; i < layerCount; i++) {
             layers.add(null);
         }
@@ -111,7 +111,7 @@ public class TextureCubeMap extends Texture {
      * particular axis.
      * 
      * @param axis
-     *            the texture axis to define a wrapmode on.
+     *            the texture axis to apply the wrap mode to.
      * @param mode
      *            the wrap mode for the given axis of the texture.
      * @throws IllegalArgumentException

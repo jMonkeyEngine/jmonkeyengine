@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,7 +41,7 @@ import com.jme3.renderer.ViewPort;
  *
  * @author Phate666
  * @version 1.0 initial version
- * @deprecated use the Gama Correction setting instead.
+ * @deprecated use the Gamma Correction setting instead.
  */
 @Deprecated
 public class GammaCorrectionFilter extends Filter {
@@ -76,7 +76,7 @@ public class GammaCorrectionFilter extends Filter {
     /**
      * set to 0.0 to disable gamma correction
      *
-     * @param gamma
+     * @param gamma the desired exponent (&gt;0, default=2.2)
      */
     public final void setGamma(float gamma) {
         if(gamma<=0){

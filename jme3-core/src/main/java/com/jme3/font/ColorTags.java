@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,7 +47,7 @@ import java.util.regex.Pattern;
 class ColorTags {
     private static final Pattern colorPattern = Pattern.compile("\\\\#([0-9a-fA-F]{8})#|\\\\#([0-9a-fA-F]{6})#|" +
                                                                 "\\\\#([0-9a-fA-F]{4})#|\\\\#([0-9a-fA-F]{3})#");
-    private LinkedList<Range> colors = new LinkedList<Range>();
+    final private LinkedList<Range> colors = new LinkedList<>();
     private String text;
     private String original;
     private float baseAlpha = -1;

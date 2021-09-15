@@ -1,12 +1,10 @@
 apply plugin: 'java'
 
-if (!hasProperty('mainClass')) {
-    ext.mainClass = ''
-}
-
 dependencies {
-    compile project(':jme3-core')
-    compile project(':jme3-plugins')
+    //added annotations used by JmeSurfaceView.
+    compileOnly 'androidx.annotation:annotation:1.2.0'
+    api project(':jme3-core')
+    api project(':jme3-plugins')
     compileOnly 'android:android'
 }
 

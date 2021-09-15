@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -53,7 +53,7 @@ public class LightScatteringUI {
         System.out.println("-- Sample number : press Y to increase, H to decrease");
         System.out.println("-- blur start : press U to increase, J to decrease");
         System.out.println("-- blur width : press I to increase, K to decrease");
-        System.out.println("-- Light density : press O to increase, P to decrease");
+        System.out.println("-- Light density : press O to increase, L to decrease");
         System.out.println("-- Toggle LS on/off : press space bar");
         System.out.println("-------------------------------------------------------");
     

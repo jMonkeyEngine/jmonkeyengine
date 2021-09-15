@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,7 +41,7 @@ import java.util.List;
 public class BlockLanguageParser {
     
     private Reader reader;
-    private ArrayList<Statement> statementStack = new ArrayList<Statement>();
+    final private ArrayList<Statement> statementStack = new ArrayList<>();
     private Statement lastStatement;
     private int lineNumber = 1;
     

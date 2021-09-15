@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -55,7 +55,7 @@ import com.jme3.ui.Picture;
 public class TestMultiRenderTarget extends SimpleApplication implements SceneProcessor {
 
     private FrameBuffer fb;
-    private Texture2D diffuseData, normalData, specularData, depthData;
+    private Texture2D diffuseData;
     private Picture display1, display2, display3, display4;
     
     private Picture display;
@@ -138,9 +138,9 @@ public class TestMultiRenderTarget extends SimpleApplication implements ScenePro
     @Override
     public void reshape(ViewPort vp, int w, int h) {
         diffuseData  = new Texture2D(w, h, Format.RGBA8);
-        normalData   = new Texture2D(w, h, Format.RGBA8);
-        specularData = new Texture2D(w, h, Format.RGBA8);
-        depthData    = new Texture2D(w, h, Format.Depth);
+        Texture2D normalData = new Texture2D(w, h, Format.RGBA8);
+        Texture2D specularData = new Texture2D(w, h, Format.RGBA8);
+        Texture2D depthData = new Texture2D(w, h, Format.Depth);
 
         mat = new Material(assetManager, "Common/MatDefs/Light/Deferred.j3md");
         mat.setTexture("DiffuseData",  diffuseData);
@@ -242,7 +242,7 @@ public class TestMultiRenderTarget extends SimpleApplication implements ScenePro
 
     @Override
     public void setProfiler(AppProfiler profiler) {
-
+        // not implemented
     }
 
 }

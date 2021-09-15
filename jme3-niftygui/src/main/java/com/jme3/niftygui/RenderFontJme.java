@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,7 +44,7 @@ public class RenderFontJme implements RenderFont {
     /**
      * Initialize the font.
      * @param name font filename
-     * @param display
+     * @param display (not null)
      */
     public RenderFontJme(String name, NiftyJmeDisplay display) {
         font = display.getAssetManager().loadFont(name);

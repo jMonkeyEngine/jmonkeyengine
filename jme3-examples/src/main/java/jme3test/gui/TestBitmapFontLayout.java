@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020 jMonkeyEngine
+ * Copyright (c) 2018-2021 jMonkeyEngine
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -84,10 +84,10 @@ public class TestBitmapFontLayout extends SimpleApplication {
     public static final float ZOOM_SPEED = 0.1f;
     public static final float SCROLL_SPEED = 50;
  
-    private Node testRoot = new Node("test root");
-    private Node scrollRoot = new Node("scroll root");
-    private Vector3f scroll = new Vector3f(0, 0, 0);
-    private Vector3f zoom = new Vector3f(0, 0, 0);
+    final private Node testRoot = new Node("test root");
+    final private Node scrollRoot = new Node("scroll root");
+    final private Vector3f scroll = new Vector3f(0, 0, 0);
+    final private Vector3f zoom = new Vector3f(0, 0, 0);
     
     public static void main(String[] args){
         TestBitmapFontLayout app = new TestBitmapFontLayout();
@@ -109,7 +109,7 @@ public class TestBitmapFontLayout extends SimpleApplication {
         }
     }
     
-    protected Texture renderAwtFont( TestConfig test, int width, int height, BitmapFont bitmapFont ) {
+    private Texture renderAwtFont( TestConfig test, int width, int height, BitmapFont bitmapFont ) {
  
         BitmapCharacterSet charset = bitmapFont.getCharSet();
           
@@ -156,7 +156,7 @@ public class TestBitmapFontLayout extends SimpleApplication {
         return new Texture2D(jmeImage);
     }
     
-    protected Node createVisual( TestConfig test ) {
+    private Node createVisual( TestConfig test ) {
         Node result = new Node(test.name);
         
         // For reasons I have trouble articulating, I want the visual's 0,0,0 to be

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -124,7 +124,7 @@ public class TestAssetCache {
     
     private static void runTest(boolean cloneAssets, boolean smartCache, boolean keepRefs, int limit) {
         counter = 0;
-        List<Object> refs = new ArrayList<Object>(limit);
+        List<Object> refs = new ArrayList<>(limit);
         
         AssetCache cache;
         AssetProcessor proc = null;

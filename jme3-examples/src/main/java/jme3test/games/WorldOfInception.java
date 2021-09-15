@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -236,7 +236,7 @@ public class WorldOfInception extends SimpleApplication implements AnalogListene
                     return;
                 }
                 //give to parent
-                logger.log(Level.INFO, "give to parent");;
+                logger.log(Level.INFO, "give to parent");
                 parent.takeOverChild(inParentPosition.add(playerPos.normalize()));
                 application.getStateManager().attach(parent);
                 currentReturnLevel = parent;
@@ -484,15 +484,15 @@ public class WorldOfInception extends SimpleApplication implements AnalogListene
 
         public String getCoordinates() {
             InceptionLevel cur = this;
-            StringBuilder strb = new StringBuilder();
-            strb.insert(0, this.getPlayerPosition());
-            strb.insert(0, this.getPositionInParent() + " / ");
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.insert(0, this.getPlayerPosition());
+            stringBuilder.insert(0, this.getPositionInParent() + " / ");
             cur = cur.getParent();
             while (cur != null) {
-                strb.insert(0, cur.getPositionInParent() + " / ");
+                stringBuilder.insert(0, cur.getPositionInParent() + " / ");
                 cur = cur.getParent();
             }
-            return strb.toString();
+            return stringBuilder.toString();
         }
     }
 
@@ -515,7 +515,7 @@ public class WorldOfInception extends SimpleApplication implements AnalogListene
      * @param max
      * @return the mapped value
      */
-    public static float mapValue(float x, float min, float max) {
+    private static float mapValue(float x, float min, float max) {
         return mapValue(x, 0, 1, min, max);
     }
 
@@ -529,7 +529,7 @@ public class WorldOfInception extends SimpleApplication implements AnalogListene
      * @param max
      * @return the mapped value
      */
-    public static float mapValue(float x, float inputMin, float inputMax, float min, float max) {
+    private static float mapValue(float x, float inputMin, float inputMax, float min, float max) {
         return (x - inputMin) * (max - min) / (inputMax - inputMin) + min;
     }
 }

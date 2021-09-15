@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,15 +42,15 @@ import java.util.HashSet;
 public final class DefaultLightFilter implements LightFilter {
 
     private Camera camera;
-    private final HashSet<Light> processedLights = new HashSet<Light>();
-    private LightProbeBlendingStrategy probeBlendStrat;
+    private final HashSet<Light> processedLights = new HashSet<>();
+    private LightProbeBlendingStrategy probeBlendStrategy;
 
     public DefaultLightFilter() {
-        probeBlendStrat = new WeightedProbeBlendingStrategy();
+        probeBlendStrategy = new WeightedProbeBlendingStrategy();
     }
 
-    public DefaultLightFilter(LightProbeBlendingStrategy probeBlendStrat) {
-        this.probeBlendStrat = probeBlendStrat;
+    public DefaultLightFilter(LightProbeBlendingStrategy probeBlendStrategy) {
+        this.probeBlendStrategy = probeBlendStrategy;
     }
     
     @Override
@@ -100,14 +100,14 @@ public final class DefaultLightFilter implements LightFilter {
                 }
                 
                 if (light.getType() == Light.Type.Probe) {
-                    probeBlendStrat.registerProbe((LightProbe) light);
+                    probeBlendStrategy.registerProbe((LightProbe) light);
                 } else {
                     filteredLightList.add(light);
                 }
                 
             }
             
-            probeBlendStrat.populateProbes(geometry, filteredLightList);
+            probeBlendStrategy.populateProbes(geometry, filteredLightList);
 
         } finally {
             vars.release();
@@ -115,7 +115,7 @@ public final class DefaultLightFilter implements LightFilter {
     }
 
     public void setLightProbeBlendingStrategy(LightProbeBlendingStrategy strategy){
-        probeBlendStrat = strategy;
+        probeBlendStrategy = strategy;
     }
 
 }

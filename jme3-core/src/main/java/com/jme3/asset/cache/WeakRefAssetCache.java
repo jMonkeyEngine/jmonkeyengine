@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,7 +40,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * A garbage collector bound asset cache that handles non-clonable objects.
+ * A garbage collector bound asset cache that handles non-cloneable objects.
  * This cache assumes that the asset given to the user is the same asset
  * that has been stored in the cache, in other words, 
  * {@link AssetProcessor#createClone(java.lang.Object) } for that asset
@@ -55,10 +55,10 @@ public class WeakRefAssetCache implements AssetCache {
 
     private static final Logger logger = Logger.getLogger(WeakRefAssetCache.class.getName());
     
-    private final ReferenceQueue<Object> refQueue = new ReferenceQueue<Object>();
+    private final ReferenceQueue<Object> refQueue = new ReferenceQueue<>();
     
     private final ConcurrentHashMap<AssetKey, AssetRef> assetCache 
-            = new ConcurrentHashMap<AssetKey, AssetRef>();
+            = new ConcurrentHashMap<>();
 
     private static class AssetRef extends WeakReference<Object> {
         
@@ -88,7 +88,7 @@ public class WeakRefAssetCache implements AssetCache {
     public <T> void addToCache(AssetKey<T> key, T obj) {
         removeCollectedAssets();
         
-        // NOTE: Some thread issues can hapen if another
+        // NOTE: Some thread issues can happen if another
         // thread is loading an asset with the same key ..
         AssetRef ref = new AssetRef(key, obj, refQueue);
         assetCache.put(key, ref);

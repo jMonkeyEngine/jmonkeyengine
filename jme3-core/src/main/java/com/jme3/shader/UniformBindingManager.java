@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -55,36 +55,38 @@ public class UniformBindingManager {
     private float near, far;
     private Float time, tpf;
     private int viewX, viewY, viewWidth, viewHeight;
-    private Vector3f camUp = new Vector3f(),
+    final private Vector3f camUp = new Vector3f(),
             camLeft = new Vector3f(),
             camDir = new Vector3f(),
             camLoc = new Vector3f();
-    private Matrix4f tempMatrix = new Matrix4f();
-    private Matrix4f viewMatrix = new Matrix4f();
-    private Matrix4f projMatrix = new Matrix4f();
-    private Matrix4f viewProjMatrix = new Matrix4f();
-    private Matrix4f worldMatrix = new Matrix4f();
-    private Matrix4f worldViewMatrix = new Matrix4f();
-    private Matrix4f worldViewProjMatrix = new Matrix4f();
-    private Matrix3f normalMatrix = new Matrix3f();
-    private Matrix3f worldNormalMatrix = new Matrix3f();
-    private Matrix4f worldMatrixInv = new Matrix4f();
-    private Matrix3f worldMatrixInvTrsp = new Matrix3f();
-    private Matrix4f viewMatrixInv = new Matrix4f();
-    private Matrix4f projMatrixInv = new Matrix4f();
-    private Matrix4f viewProjMatrixInv = new Matrix4f();
-    private Matrix4f worldViewMatrixInv = new Matrix4f();
-    private Matrix3f normalMatrixInv = new Matrix3f();
-    private Matrix4f worldViewProjMatrixInv = new Matrix4f();
-    private Vector4f viewPort = new Vector4f();
-    private Vector2f resolution = new Vector2f();
-    private Vector2f resolutionInv = new Vector2f();
-    private Vector2f nearFar = new Vector2f();
+    final private Matrix4f tempMatrix = new Matrix4f();
+    final private Matrix4f viewMatrix = new Matrix4f();
+    final private Matrix4f projMatrix = new Matrix4f();
+    final private Matrix4f viewProjMatrix = new Matrix4f();
+    final private Matrix4f worldMatrix = new Matrix4f();
+    final private Matrix4f worldViewMatrix = new Matrix4f();
+    final private Matrix4f worldViewProjMatrix = new Matrix4f();
+    final private Matrix3f normalMatrix = new Matrix3f();
+    final private Matrix3f worldNormalMatrix = new Matrix3f();
+    final private Matrix4f worldMatrixInv = new Matrix4f();
+    final private Matrix3f worldMatrixInvTrsp = new Matrix3f();
+    final private Matrix4f viewMatrixInv = new Matrix4f();
+    final private Matrix4f projMatrixInv = new Matrix4f();
+    final private Matrix4f viewProjMatrixInv = new Matrix4f();
+    final private Matrix4f worldViewMatrixInv = new Matrix4f();
+    final private Matrix3f normalMatrixInv = new Matrix3f();
+    final private Matrix4f worldViewProjMatrixInv = new Matrix4f();
+    final private Vector4f viewPort = new Vector4f();
+    final private Vector2f resolution = new Vector2f();
+    final private Vector2f resolutionInv = new Vector2f();
+    final private Vector2f nearFar = new Vector2f();
 
     /**
      * Internal use only.
      * Updates the given list of uniforms with {@link UniformBinding uniform bindings}
      * based on the current world state.
+     *
+     * @param shader (not null)
      */
     public void updateUniformBindings(Shader shader) {
         ArrayList<Uniform> params = shader.getBoundUniforms();

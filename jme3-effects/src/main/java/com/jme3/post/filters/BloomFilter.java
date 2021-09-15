@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -51,7 +51,7 @@ import java.util.ArrayList;
  * BloomFilter is used to make objects in the scene have a glow effect.<br>
  * There are 2 mode : Scene and Objects.<br>
  * Scene mode extracts the bright parts of the scene to make them glow<br>
- * Object mode make objects glow according to their material's glowMap or their GlowColor<br>
+ * Object mode makes objects glow according to their material's glowMap or their GlowColor<br>
  * See <a href="http://jmonkeyengine.github.io/wiki/jme3/advanced/bloom_and_glow.html">advanced:bloom_and_glow</a> for more details
  * 
  * @author Rémy Bouquet aka Nehon
@@ -59,7 +59,7 @@ import java.util.ArrayList;
 public class BloomFilter extends Filter {
 
     /**
-     * GlowMode specifies if the glow will be applied to the whole scene,or to objects that have aglow color or a glow map
+     * GlowMode specifies if the glow will be applied to the whole scene or to objects that have a glow color or a glow map
      */
     public enum GlowMode {
 
@@ -87,7 +87,7 @@ public class BloomFilter extends Filter {
     private Pass preGlowPass;
     private Pass extractPass;
     private Pass horizontalBlur = new Pass();
-    private Pass verticalalBlur = new Pass();
+    private Pass verticalBlur = new Pass();
     private Material extractMat;
     private Material vBlurMat;
     private Material hBlurMat;
@@ -97,8 +97,8 @@ public class BloomFilter extends Filter {
     private ViewPort viewPort;
 
     private AssetManager assetManager;
-    private int initalWidth;
-    private int initalHeight;
+    private int initialWidth;
+    private int initialHeight;
     
     /**
      * Creates a Bloom filter
@@ -108,8 +108,9 @@ public class BloomFilter extends Filter {
     }
 
     /**
-     * Creates the bloom filter with the specific glow mode
-     * @param glowMode
+     * Creates the bloom filter with the specified glow mode
+     *
+     * @param glowMode the desired mode (default=Scene)
      */
     public BloomFilter(GlowMode glowMode) {
         this();
@@ -122,8 +123,8 @@ public class BloomFilter extends Filter {
         this.viewPort = vp;
 
         this.assetManager = manager;
-        this.initalWidth = w;
-        this.initalHeight = h;
+        this.initialWidth = w;
+        this.initialHeight = h;
                 
         screenWidth = (int) Math.max(1, (w / downSamplingFactor));
         screenHeight = (int) Math.max(1, (h / downSamplingFactor));
@@ -174,7 +175,7 @@ public class BloomFilter extends Filter {
 
         //configuring vertical blur pass
         vBlurMat = new Material(manager, "Common/MatDefs/Blur/VGaussianBlur.j3md");
-        verticalalBlur = new Pass() {
+        verticalBlur = new Pass() {
 
             @Override
             public void beforeRender() {
@@ -184,18 +185,18 @@ public class BloomFilter extends Filter {
             }
         };
 
-        verticalalBlur.init(renderManager.getRenderer(), screenWidth, screenHeight, Format.RGBA8, Format.Depth, 1, vBlurMat);
-        postRenderPasses.add(verticalalBlur);
+        verticalBlur.init(renderManager.getRenderer(), screenWidth, screenHeight, Format.RGBA8, Format.Depth, 1, vBlurMat);
+        postRenderPasses.add(verticalBlur);
 
 
         //final material
         material = new Material(manager, "Common/MatDefs/Post/BloomFinal.j3md");
-        material.setTexture("BloomTex", verticalalBlur.getRenderedTexture());
+        material.setTexture("BloomTex", verticalBlur.getRenderedTexture());
     }
 
 
     protected void reInitFilter() {
-        initFilter(assetManager, renderManager, viewPort, initalWidth, initalHeight);
+        initFilter(assetManager, renderManager, viewPort, initialWidth, initialHeight);
     }
     
     @Override
@@ -234,7 +235,8 @@ public class BloomFilter extends Filter {
 
     /**
      * intensity of the bloom effect default is 2.0
-     * @param bloomIntensity
+     *
+     * @param bloomIntensity the desired intensity (default=2)
      */
     public void setBloomIntensity(float bloomIntensity) {
         this.bloomIntensity = bloomIntensity;
@@ -250,7 +252,8 @@ public class BloomFilter extends Filter {
 
     /**
      * sets The spread of the bloom default is 1.5f
-     * @param blurScale
+     *
+     * @param blurScale the desired scale (default=1.5)
      */
     public void setBlurScale(float blurScale) {
         this.blurScale = blurScale;
@@ -267,7 +270,8 @@ public class BloomFilter extends Filter {
 
     /**
      * Define the color threshold on which the bloom will be applied (0.0 to 1.0)
-     * @param exposureCutOff
+     *
+     * @param exposureCutOff the desired threshold (&ge;0, &le;1, default=0)
      */
     public void setExposureCutOff(float exposureCutOff) {
         this.exposureCutOff = exposureCutOff;
@@ -283,9 +287,10 @@ public class BloomFilter extends Filter {
     }
 
     /**
-     * defines how many time the bloom extracted color will be multiplied by itself. default id 5.0<br>
-     * a high value will reduce rough edges in the bloom and somhow the range of the bloom area     * 
-     * @param exposurePower
+     * defines how many times the bloom extracted color will be multiplied by itself. default is 5.0<br>
+     * a high value will reduce rough edges in the bloom and somehow the range of the bloom area
+     *
+     * @param exposurePower the desired exponent (default=5)
      */
     public void setExposurePower(float exposurePower) {
         this.exposurePower = exposurePower;
@@ -303,7 +308,8 @@ public class BloomFilter extends Filter {
     /**
      * Sets the downSampling factor : the size of the computed texture will be divided by this factor. default is 1 for no downsampling
      * A 2 value is a good way of widening the blur
-     * @param downSamplingFactor
+     *
+     * @param downSamplingFactor the desired factor (default=1)
      */
     public void setDownSamplingFactor(float downSamplingFactor) {
         this.downSamplingFactor = downSamplingFactor;

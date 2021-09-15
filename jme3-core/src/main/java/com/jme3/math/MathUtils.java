@@ -1,3 +1,34 @@
+/*
+ * Copyright (c) 2017-2021 jMonkeyEngine
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ * * Redistributions of source code must retain the above copyright
+ *   notice, this list of conditions and the following disclaimer.
+ *
+ * * Redistributions in binary form must reproduce the above copyright
+ *   notice, this list of conditions and the following disclaimer in the
+ *   documentation and/or other materials provided with the distribution.
+ *
+ * * Neither the name of 'jMonkeyEngine' nor the names of its contributors
+ *   may be used to endorse or promote products derived from this software
+ *   without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package com.jme3.math;
 
 import com.jme3.renderer.Camera;
@@ -7,6 +38,12 @@ import com.jme3.util.TempVars;
  * Created by Nehon on 23/04/2017.
  */
 public class MathUtils {
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private MathUtils() {
+    }
+
     /**
      * Calculate the natural logarithm of a unit quaternion.
      *
@@ -226,14 +263,14 @@ public class MathUtils {
         double d4343 = p43.x * (double) p43.x + (double) p43.y * p43.y + (double) p43.z * p43.z;
         double d2121 = p21.x * (double) p21.x + (double) p21.y * p21.y + (double) p21.z * p21.z;
 
-        double denom = d2121 * d4343 - d4321 * d4321;
-        if (Math.abs(denom) < 0.0001) {
+        double denominator = d2121 * d4343 - d4321 * d4321;
+        if (Math.abs(denominator) < 0.0001) {
             vars.release();
             return -1;
         }
-        double numer = d1343 * d4321 - d1321 * d4343;
+        double numerator = d1343 * d4321 - d1321 * d4343;
 
-        double mua = numer / denom;
+        double mua = numerator / denominator;
         double mub = (d1343 + d4321 * (mua)) / d4343;
 
         resultSegmentPoint1.x = (float) (p1.x + mua * p21.x);

@@ -1,24 +1,19 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.jme3.material.plugin.export.material;
 
 import com.jme3.export.OutputCapsule;
 import com.jme3.export.Savable;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.util.HashMap;
 
 /**
  *
  * @author tsr
  */
-public class J3MRenderStateOutputCapsule extends J3MOutputCapsule {    
+public class J3MRenderStateOutputCapsule extends J3MOutputCapsule {
     protected final static HashMap<String, String> NAME_MAP;
     protected String offsetUnit;
-    
+
     static {
         NAME_MAP = new HashMap<>();
         NAME_MAP.put( "wireframe", "Wireframe");
@@ -41,7 +36,7 @@ public class J3MRenderStateOutputCapsule extends J3MOutputCapsule {
     public OutputCapsule getCapsule(Savable object) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-    
+
     @Override
     public void clear() {
         super.clear();
@@ -49,34 +44,34 @@ public class J3MRenderStateOutputCapsule extends J3MOutputCapsule {
     }
 
     @Override
-    public void writeToStream(OutputStreamWriter out) throws IOException {
+    public void writeToStream(Writer out) throws IOException {
         out.write("    AdditionalRenderState {\n");
         super.writeToStream(out);
         out.write("    }\n");
-    }  
-    
+    }
+
     @Override
-    protected void writeParameter(OutputStreamWriter out, String name, String value) throws IOException {
+    protected void writeParameter(Writer out, String name, String value) throws IOException {
         out.write(name);
-        out.write(" ");        
+        out.write(" ");
         out.write(value);
-        
+
         if( "PolyOffset".equals(name) ) {
             out.write(" ");
             out.write(offsetUnit);
-        }        
+        }
     }
-    
+
     @Override
     protected void putParameter(String name, String value ) {
         if( "offsetUnits".equals(name) ) {
             offsetUnit = value;
             return;
         }
-        
+
         if( !NAME_MAP.containsKey(name) )
             return;
-        
+
         super.putParameter(NAME_MAP.get(name), value);
     }
 }

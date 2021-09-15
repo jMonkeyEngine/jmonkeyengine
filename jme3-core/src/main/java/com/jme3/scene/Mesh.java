@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -57,8 +57,6 @@ import java.util.ArrayList;
  * Meshes may contain three types of geometric primitives:
  * <ul>
  * <li>Points - Every vertex represents a single point in space.
- * Points can also be used for {@link RenderState#setPointSprite(boolean) point
- * sprite} mode.</li>
  * <li>Lines - 2 vertices represent a line segment, with the width specified
  * via {@link Material#getAdditionalRenderState()} and {@link RenderState#setLineWidth(float)}.</li>
  * <li>Triangles - 3 vertices represent a solid triangle primitive. </li>
@@ -322,7 +320,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
     }
 
     /**
-     * @param forSoftwareAnim
+     * @param forSoftwareAnim ignored
      * @deprecated use generateBindPose();
      */
     @Deprecated
@@ -419,7 +417,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
                 weights.updateData(arrayWeight);
             }
             weights.setUsage(Usage.CpuOnly);
-            // position, normal, and tanget buffers to be in "Stream" mode
+            // position, normal, and tangent buffers to be in "Stream" mode
             VertexBuffer positions = getBuffer(Type.Position);
             VertexBuffer normals = getBuffer(Type.Normal);
             VertexBuffer tangents = getBuffer(Type.Tangent);
@@ -469,7 +467,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
                         weights.getFormat(), directWeight);
             }
 
-            // position, normal, and tanget buffers to be in "Static" mode
+            // position, normal, and tangent buffers to be in "Static" mode
             VertexBuffer positions = getBuffer(Type.Position);
             VertexBuffer normals = getBuffer(Type.Normal);
             VertexBuffer tangents = getBuffer(Type.Tangent);
@@ -558,6 +556,8 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
 
     /**
      * Get the mode start indices for {@link Mode#Hybrid} mesh mode.
+     *
+     * @param modeStart the pre-existing array
      */
     public void setModeStart(int[] modeStart) {
         this.modeStart = modeStart;
@@ -602,7 +602,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
      * Only relevant if this mesh has bone index/weight buffers.
      * This value should be between 0 and 4.
      *
-     * @param maxNumWeights
+     * @param maxNumWeights the desired number (between 0 and 4, inclusive)
      */
     public void setMaxNumWeights(int maxNumWeights) {
         this.maxNumWeights = maxNumWeights;
@@ -613,22 +613,10 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
      * determined in the vertex shader.
      *
      * @return <code>1.0</code>
-     *
-     * @see #setPointSize(float)
      */
     @Deprecated
     public float getPointSize() {
         return 1.0f;
-    }
-
-    /**
-     * @deprecated Does nothing, since the size of {@link Mode#Points points} is
-     * determined via the vertex shader's <code>gl_PointSize</code> output.
-     *
-     * @param pointSize ignored
-     */
-    @Deprecated
-    public void setPointSize(float pointSize) {
     }
 
     /**
@@ -891,6 +879,8 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
     /**
      * Returns the number of instances this mesh contains.  The instance
      * count is based on any VertexBuffers with instancing set.
+     *
+     * @return the number of instances
      */
     public int getInstanceCount() {
         return instanceCount;
@@ -913,7 +903,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
         if (pb != null && pb.getFormat() == Format.Float && pb.getNumComponents() == 3) {
             FloatBuffer fpb = (FloatBuffer) pb.getData();
 
-            // aquire triangle's vertex indices
+            // acquire triangle's vertex indices
             int vertIndex = index * 3;
             int vert1 = ib.get(vertIndex);
             int vert2 = ib.get(vertIndex + 1);
@@ -965,6 +955,8 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
 
     /**
      * Returns the mesh's VAO ID. Internal use only.
+     *
+     * @return the array ID
      */
     public int getId() {
         return vertexArrayID;
@@ -972,6 +964,8 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
 
     /**
      * Sets the mesh's VAO ID. Internal use only.
+     *
+     * @param id the array ID
      */
     public void setId(int id) {
         if (vertexArrayID != -1) {
@@ -1007,6 +1001,12 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
      * Handles collision detection, internal use only.
      * User code should only use collideWith() on scene
      * graph elements such as {@link Spatial}s.
+     *
+     * @param other the other Collidable
+     * @param worldMatrix the world matrix
+     * @param worldBound the world bound
+     * @param results storage for the results
+     * @return the number of collisions detected (&ge;0)
      */
     public int collideWith(Collidable other,
             Matrix4f worldMatrix,
@@ -1335,7 +1335,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
         // Copy max weights per vertex as well
         setMaxNumWeights(other.getMaxNumWeights());
 
-        // The data has been copied over, update informations
+        // The data has been copied over, update information
         updateCounts();
         updateBound();
     }
@@ -1458,7 +1458,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
 
     /**
      * @deprecated use isAnimatedByJoint
-     * @param boneIndex
+     * @param boneIndex the bone's index in its skeleton
      * @return true if animated by that bone, otherwise false
      */
     @Deprecated
@@ -1508,7 +1508,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
     /**
      * Sets the count of vertices used for each tessellation patch
      *
-     * @param patchVertexCount
+     * @param patchVertexCount the desired count
      */
     public void setPatchVertexCount(int patchVertexCount) {
         this.patchVertexCount = patchVertexCount;

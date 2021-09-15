@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -71,6 +71,12 @@ public class PlaceholderAssets {
         (byte)0xFF, (byte)0xFF, (byte)0xFF,
     };
     
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private PlaceholderAssets() {
+    }
+
     @Deprecated
     public static Image getPlaceholderImage(){
         ByteBuffer tempData = BufferUtils.createByteBuffer(3 * 4 * 4);

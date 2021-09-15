@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -49,7 +49,6 @@ public class TestBitmapFont extends SimpleApplication {
     "ABCDEFGHIKLMNOPQRSTUVWXYZ1234567 890`~!@#$%^&*()-=_+[]\\;',./{}|:<>?";
 
     private BitmapText txt;
-    private BitmapText txt2;
     private BitmapText txt3;
 
     public static void main(String[] args){
@@ -71,7 +70,7 @@ public class TestBitmapFont extends SimpleApplication {
         txt.setLocalTranslation(0, txt.getHeight(), 0);
         guiNode.attachChild(txt);
 
-        txt2 = new BitmapText(fnt, false);
+        BitmapText txt2 = new BitmapText(fnt, false);
         txt2.setSize(fnt.getPreferredSize() * 1.2f);
         txt2.setText("Text without restriction. \nText without restriction. Text without restriction. Text without restriction");
         txt2.setLocalTranslation(0, txt2.getHeight(), 0);
@@ -94,8 +93,8 @@ public class TestBitmapFont extends SimpleApplication {
         }
     };
 
-    private RawInputListener textListener = new RawInputListener() {
-        private StringBuilder str = new StringBuilder();
+    final private RawInputListener textListener = new RawInputListener() {
+        final private StringBuilder str = new StringBuilder();
 
         @Override
         public void onMouseMotionEvent(MouseMotionEvent evt) { }

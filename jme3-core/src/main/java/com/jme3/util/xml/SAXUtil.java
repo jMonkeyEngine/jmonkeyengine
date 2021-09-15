@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,13 +42,19 @@ import org.xml.sax.SAXException;
 public final class SAXUtil {
 
     /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private SAXUtil() {
+    }
+
+    /**
      * Parses an integer from a string, if the string is null returns
      * def.
      * 
      * @param i The string to parse
      * @param def The default value if the string is null
      * @return the parsed value or def
-     * @throws SAXException 
+     * @throws SAXException in case of a syntax error
      */
     public static int parseInt(String i, int def) throws SAXException{
         if (i == null)

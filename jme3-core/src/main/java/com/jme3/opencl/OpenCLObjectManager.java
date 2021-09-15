@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2016 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -53,12 +53,12 @@ public class OpenCLObjectManager {
         return INSTANCE;
     }
     
-    private ReferenceQueue<Object> refQueue = new ReferenceQueue<Object>();
-    private HashSet<OpenCLObjectRef> activeObjects = new HashSet<OpenCLObjectRef>();
+    final private ReferenceQueue<Object> refQueue = new ReferenceQueue<>();
+    final private HashSet<OpenCLObjectRef> activeObjects = new HashSet<>();
     
     private static class OpenCLObjectRef extends PhantomReference<Object> {
         
-        private OpenCLObject.ObjectReleaser releaser;
+        final private OpenCLObject.ObjectReleaser releaser;
 
         public OpenCLObjectRef(ReferenceQueue<Object> refQueue, OpenCLObject obj){
             super(obj, refQueue);

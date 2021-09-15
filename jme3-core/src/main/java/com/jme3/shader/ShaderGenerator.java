@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -72,12 +72,12 @@ public abstract class ShaderGenerator {
      */
     Pattern extensions = Pattern.compile("(#extension.*\\s+)");
 
-    private Map<String, String> imports = new LinkedHashMap<>();
+    final private Map<String, String> imports = new LinkedHashMap<>();
 
     /**
      * Build a shaderGenerator
      *
-     * @param assetManager
+     * @param assetManager for loading assets (alias created)
      */
     protected ShaderGenerator(AssetManager assetManager) {
         this.assetManager = assetManager;        
@@ -90,6 +90,7 @@ public abstract class ShaderGenerator {
     /**
      * Generate vertex and fragment shaders for the given technique
      *
+     * @param definesSourceCode (may be null)
      * @return a Shader program
      */
     public Shader generateShader(String definesSourceCode) {
@@ -295,12 +296,12 @@ public abstract class ShaderGenerator {
      * @see ShaderNode#getDefinition()
      * @see ShaderNodeDefinition#getType()
      * 
-     * @param nodeDecalarationSource the declaration part of the node
+     * @param nodeDeclarationSource the declaration part of the node
      * @param source the StringBuilder to append generated code.
      * @param shaderNode the shaderNode.
      * @param info the ShaderGenerationInfo.
      */
-    protected abstract void generateDeclarativeSection(StringBuilder source, ShaderNode shaderNode, String nodeDecalarationSource, ShaderGenerationInfo info);
+    protected abstract void generateDeclarativeSection(StringBuilder source, ShaderNode shaderNode, String nodeDeclarationSource, ShaderGenerationInfo info);
 
     /**
      * generates the start of the shader main section. this method is
@@ -348,7 +349,7 @@ public abstract class ShaderGenerator {
      * @param type the shaderType
      * @return the index of the shader path in ShaderNodeDefinition shadersPath
      * list
-     * @throws NumberFormatException
+     * @throws NumberFormatException for an invalid version
      */
     protected int findShaderIndexFromVersion(ShaderNode shaderNode, ShaderType type) throws NumberFormatException {
         int index = 0;

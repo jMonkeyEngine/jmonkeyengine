@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -57,9 +57,9 @@ import java.io.IOException;
  * map for each one.<br> splits are distributed so that the closer they are from
  * the camera, the smaller they are to maximize the resolution used of the
  * shadow map.<br> This results in a better quality shadow than standard shadow
- * mapping.<br> for more informations on this read this <a
+ * mapping.<br> for more information on this read <a
  * href="http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html">http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html</a><br>
- * <p/>
+ *
  * @author Rémy Bouquet aka Nehon
  */
 public class SpotLightShadowRenderer extends AbstractShadowRenderer {
@@ -223,7 +223,7 @@ public class SpotLightShadowRenderer extends AbstractShadowRenderer {
     
     /**
      *
-     * @param viewCam
+     * @param viewCam the viewing Camera to check against
      * @return true if intersects, otherwise false
      */
     @Override

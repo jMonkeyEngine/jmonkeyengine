@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,12 +37,10 @@ import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.DirectionalLight;
-import com.jme3.light.PointLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
-import com.jme3.scene.Geometry;
 import com.jme3.terrain.geomipmap.TerrainLodControl;
 import com.jme3.terrain.geomipmap.TerrainQuad;
 import com.jme3.terrain.geomipmap.lodcalc.DistanceLodCalculator;
@@ -61,13 +59,10 @@ import com.jme3.texture.Texture.WrapMode;
 public class TerrainTestAndroid extends SimpleApplication {
 
     private TerrainQuad terrain;
-    Material matRock;
-    Material matWire;
-    boolean wireframe = false;
-    boolean triPlanar = false;
-    protected BitmapText hintText;
-    PointLight pl;
-    Geometry lightMdl;
+    private Material matRock;
+    private Material matWire;
+    private boolean wireframe = false;
+    private boolean triPlanar = false;
     private float grassScale = 64;
     private float dirtScale = 16;
     private float rockScale = 128;
@@ -155,7 +150,7 @@ public class TerrainTestAndroid extends SimpleApplication {
     }
 
     public void loadHintText() {
-        hintText = new BitmapText(guiFont, false);
+        BitmapText hintText = new BitmapText(guiFont, false);
         hintText.setSize(guiFont.getCharSet().getRenderedSize());
         hintText.setLocalTranslation(0, getCamera().getHeight(), 0);
         hintText.setText("Press T to toggle wireframe,  P to toggle tri-planar texturing");
@@ -169,7 +164,7 @@ public class TerrainTestAndroid extends SimpleApplication {
         inputManager.addMapping("triPlanar", new KeyTrigger(KeyInput.KEY_P));
         inputManager.addListener(actionListener, "triPlanar");
     }
-    private ActionListener actionListener = new ActionListener() {
+    final private ActionListener actionListener = new ActionListener() {
 
         @Override
         public void onAction(String name, boolean pressed, float tpf) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -62,8 +62,6 @@ public class HDRRenderer implements SceneProcessor {
     private RenderManager renderManager;
     private ViewPort viewPort;
     private static final Logger logger = Logger.getLogger(HDRRenderer.class.getName());
-    private AppProfiler prof;
-
     private Camera fbCam = new Camera(1, 1);
 
     private FrameBuffer msFB;
@@ -97,7 +95,7 @@ public class HDRRenderer implements SceneProcessor {
 
     private MinFilter fbMinFilter = MinFilter.BilinearNoMipMaps;
     private MagFilter fbMagFilter = MagFilter.Bilinear;
-    private AssetManager manager;
+    final private AssetManager manager;
 
     private boolean enabled = true;
 
@@ -429,7 +427,7 @@ public class HDRRenderer implements SceneProcessor {
 
     @Override
     public void setProfiler(AppProfiler profiler) {
-        this.prof = profiler;
+        // not implemented
     }
 
 }

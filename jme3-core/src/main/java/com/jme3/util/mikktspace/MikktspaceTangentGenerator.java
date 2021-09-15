@@ -1,7 +1,33 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Copyright (c) 2009-2021 jMonkeyEngine
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ * * Redistributions of source code must retain the above copyright
+ *   notice, this list of conditions and the following disclaimer.
+ *
+ * * Redistributions in binary form must reproduce the above copyright
+ *   notice, this list of conditions and the following disclaimer in the
+ *   documentation and/or other materials provided with the distribution.
+ *
+ * * Neither the name of 'jMonkeyEngine' nor the names of its contributors
+ *   may be used to endorse or promote products derived from this software
+ *   without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package com.jme3.util.mikktspace;
 
@@ -23,7 +49,7 @@ import java.util.logging.Logger;
  * https://developer.blender.org/diffusion/B/browse/master/intern/mikktspace/mikktspace.c
  * https://developer.blender.org/diffusion/B/browse/master/intern/mikktspace/mikktspace.h
  * 
- * MikkTspace looks like the new standard of tangent generation in 3D softwares.
+ * MikkTspace looks like the new standard of tangent generation in 3D software.
  * Xnormal, Blender, Substance painter, and many more use it.
  * 
  * Usage is :
@@ -41,6 +67,12 @@ public class MikktspaceTangentGenerator {
     private final static int ORIENT_PRESERVING = 8;
     private final static long INTERNAL_RND_SORT_SEED = 39871946 & 0xffffffffL;
     static final int CELLS = 2048;
+
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private MikktspaceTangentGenerator() {
+    }
 
     static int makeIndex(final int face, final int vert) {
         assert (vert >= 0 && vert < 4 && face >= 0);
@@ -434,7 +466,7 @@ public class MikktspaceTangentGenerator {
                 boolean bReadyLeftSwap = false, bReadyRightSwap = false;
                 while ((!bReadyLeftSwap) && iL < iR) {
                     assert (iL >= iL_in && iL <= iR_in);
-                    bReadyLeftSwap = !(pTmpVert[iL].vert[channel] < fSep);
+                    bReadyLeftSwap = pTmpVert[iL].vert[channel] >= fSep;
                     if (!bReadyLeftSwap) {
                         ++iL;
                     }
@@ -582,7 +614,7 @@ public class MikktspaceTangentGenerator {
                 ++iDstTriIndex;  // next
             } else {
                 //Note, Nehon: we should never get there with JME, because we don't support quads... 
-                //but I'm going to let it there incase someone needs it... Just know this code is not tested.
+                //but I'm going to let it there in case someone needs it... Just know this code is not tested.
                 {//TODO remove those useless brackets...
                     pTriInfos[iDstTriIndex + 1].orgFaceNumber = f;
                     pTriInfos[iDstTriIndex + 1].tSpacesOffs = iTSpacesOffs;
@@ -866,8 +898,8 @@ public class MikktspaceTangentGenerator {
                     assert (iNrActiveGroups < iNrMaxGroups);
                     pTriInfos[f].assignedGroup[i] = new Group(); 
                     pGroups[iNrActiveGroups] = pTriInfos[f].assignedGroup[i];
-                    pTriInfos[f].assignedGroup[i].vertexRepresentitive = vert_index;
-                    pTriInfos[f].assignedGroup[i].orientPreservering = (pTriInfos[f].flag & ORIENT_PRESERVING) != 0;
+                    pTriInfos[f].assignedGroup[i].vertexRepresentative = vert_index;
+                    pTriInfos[f].assignedGroup[i].orientationPreserving = (pTriInfos[f].flag & ORIENT_PRESERVING) != 0;
                     pTriInfos[f].assignedGroup[i].nrFaces = 0;
                     
                     ++iNrActiveGroups;
@@ -930,7 +962,7 @@ public class MikktspaceTangentGenerator {
         TriInfo pMyTriInfo = psTriInfos[iMyTriIndex];
 
         // track down vertex
-        final int iVertRep = pGroup.vertexRepresentitive;
+        final int iVertRep = pGroup.vertexRepresentative;
         int index = 3 * iMyTriIndex;
         int i = -1;
         if (piTriListIn[index] == iVertRep) {
@@ -956,12 +988,12 @@ public class MikktspaceTangentGenerator {
                     && pMyTriInfo.assignedGroup[1] == null
                     && pMyTriInfo.assignedGroup[2] == null) {
                 pMyTriInfo.flag &= (~ORIENT_PRESERVING);
-                pMyTriInfo.flag |= (pGroup.orientPreservering ? ORIENT_PRESERVING : 0);
+                pMyTriInfo.flag |= (pGroup.orientationPreserving ? ORIENT_PRESERVING : 0);
             }
         }
         {
             final boolean bOrient = (pMyTriInfo.flag & ORIENT_PRESERVING) != 0;
-            if (bOrient != pGroup.orientPreservering) {
+            if (bOrient != pGroup.orientationPreserving) {
                 return false;
             }
         }
@@ -1028,7 +1060,7 @@ public class MikktspaceTangentGenerator {
                 assert (index >= 0 && index < 3);
 
                 iVertIndex = piTriListIn[f * 3 + index];
-                assert (iVertIndex == pGroup.vertexRepresentitive);
+                assert (iVertIndex == pGroup.vertexRepresentative);
 
                 // is normalized already
                 n = getNormal(mikkTSpace, iVertIndex);
@@ -1099,7 +1131,7 @@ public class MikktspaceTangentGenerator {
                     System.arraycopy(tmp_group.triMembers, 0, pIndices, 0, iMembers);
                     //memcpy(pIndices, tmp_group.pTriMembers, iMembers*sizeof(int));
                     pSubGroupTspace[iUniqueSubGroups]
-                            = evalTspace(tmp_group.triMembers, iMembers, piTriListIn, pTriInfos, mikkTSpace, pGroup.vertexRepresentitive);
+                            = evalTspace(tmp_group.triMembers, iMembers, piTriListIn, pTriInfos, mikkTSpace, pGroup.vertexRepresentative);
                     ++iUniqueSubGroups;
                 }
 
@@ -1109,16 +1141,16 @@ public class MikktspaceTangentGenerator {
                     final int iVert = pTriInfos[f].vertNum[index];
                     TSpace pTS_out = psTspace[iOffs + iVert];
                     assert (pTS_out.counter < 2);
-                    assert (((pTriInfos[f].flag & ORIENT_PRESERVING) != 0) == pGroup.orientPreservering);
+                    assert (((pTriInfos[f].flag & ORIENT_PRESERVING) != 0) == pGroup.orientationPreserving);
                     if (pTS_out.counter == 1) {
                         pTS_out.set(avgTSpace(pTS_out, pSubGroupTspace[l]));
                         pTS_out.counter = 2;  // update counter
-                        pTS_out.orient = pGroup.orientPreservering;
+                        pTS_out.orient = pGroup.orientationPreserving;
                     } else {
                         assert (pTS_out.counter == 0);
                         pTS_out.set(pSubGroupTspace[l]);
                         pTS_out.counter = 1;  // update counter
-                        pTS_out.orient = pGroup.orientPreservering;
+                        pTS_out.orient = pGroup.orientationPreserving;
                     }
                 }
             }
@@ -1273,7 +1305,7 @@ public class MikktspaceTangentGenerator {
             }
         }
 
-        // sort over all edges by i0, this is the pricy one.
+        // sort over all edges by i0, this is the pricey one.
         quickSortEdges(pEdges, 0, iNrTrianglesIn * 3 - 1, 0, uSeed);  // sort channel 0 which is i0
 
         // sub sort over i1, should be fast.
@@ -1640,9 +1672,9 @@ public class MikktspaceTangentGenerator {
 
     private static class Group {
         int nrFaces;
-        List<Integer> faceIndices = new ArrayList<Integer>();
-        int vertexRepresentitive;
-        boolean orientPreservering;
+        List<Integer> faceIndices = new ArrayList<>();
+        int vertexRepresentative;
+        boolean orientationPreserving;
     }
 
     private static class TriInfo {

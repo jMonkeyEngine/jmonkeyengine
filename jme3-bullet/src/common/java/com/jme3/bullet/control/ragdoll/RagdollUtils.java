@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -155,7 +155,7 @@ public class RagdollUtils {
      */
     public static HullCollisionShape makeShapeFromPointMap(Map<Integer, List<Float>> pointsMap, List<Integer> boneIndices, Vector3f initialScale, Vector3f initialPosition) {
 
-        ArrayList<Float> points = new ArrayList<Float>();
+        ArrayList<Float> points = new ArrayList<>();
         for (Integer index : boneIndices) {
             List<Float> l = pointsMap.get(index);
             if (l != null) {
@@ -192,7 +192,7 @@ public class RagdollUtils {
      * @return a new list (not null)
      */
     public static List<Integer> getBoneIndices(Bone bone, Skeleton skeleton, Set<String> boneList) {
-        List<Integer> list = new LinkedList<Integer>();
+        List<Integer> list = new LinkedList<>();
         if (boneList.isEmpty()) {
             list.add(skeleton.getBoneIndex(bone));
         } else {
@@ -265,7 +265,7 @@ public class RagdollUtils {
         boneIndices.rewind();
         boneWeight.rewind();
 
-        ArrayList<Float> results = new ArrayList<Float>();
+        ArrayList<Float> results = new ArrayList<>();
 
         int vertexComponents = mesh.getVertexCount() * 3;
 
@@ -323,7 +323,7 @@ public class RagdollUtils {
                 setTransform(childBone, t.getTranslation(), t.getRotation(), restoreBoneControl, boneList);
             }
         }
-        //we give back the control to the keyframed animation
+        // return control to the keyframe animation
         if (restoreBoneControl) {
             bone.setUserControl(false);
         }

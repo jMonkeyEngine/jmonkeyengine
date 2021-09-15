@@ -1,0 +1,380 @@
+// NOTE: Doesn't support OpenGL1
+MaterialDef PBR Terrain {
+
+    MaterialParameters {
+
+
+        Boolean UseVertexColorsAsSunIntensity //set true to make the vertex color's R channel how exposed a vertex is to the sun
+        Float StaticSunIntensity              //used for setting the sun exposure value for a whole material
+                                             //these are usually generated at run time or setup in a level editor per-geometry, so that models indoors can have the DirectionalLight dimmed accordingly.
+
+        Boolean BrightenIndoorShadows  //set true if shadows are enabled and indoor areas without full sun exposure are too dark compared to when shadows are turned off in settings
+
+
+        Int AfflictionSplatScale : 8
+
+        Float AfflictionRoughnessValue : 1.0
+        Float AfflictionMetallicValue : 0.0
+        Float AfflictionEmissiveValue : 0.0 //note that this is simplified into one value, rather than 2 with power and intensity like the regular pbr values.
+
+        Texture2D AfflictionAlphaMap
+        Texture2D SplatAlbedoMap  -LINEAR
+        Texture2D SplatNormalMap  -LINEAR
+        Texture2D SplatRoughnessMetallicMap -LINEAR
+        Texture2D SplatEmissiveMap -LINEAR
+
+        Color AfflictionEmissiveColor : 0.0 0.0 0.0 0.0
+
+        Float SplatNoiseVar
+
+        //used for decal mapping with afflictionMap, in order to convert world coords to tex coords so afflictionTexture accurately represents the world
+        Float TileWidth : 0
+        Vector3 TileLocation
+
+        Int AfflictionMode_0 : 1
+        Int AfflictionMode_1 : 1
+        Int AfflictionMode_2 : 1
+        Int AfflictionMode_3 : 1
+        Int AfflictionMode_4 : 1
+        Int AfflictionMode_5 : 1
+        Int AfflictionMode_6 : 1
+        Int AfflictionMode_7 : 1
+        Int AfflictionMode_8 : 1
+        Int AfflictionMode_9 : 1
+        Int AfflictionMode_10 : 1
+        Int AfflictionMode_11 : 1
+
+        Float Roughness_0 : 0.0
+        Float Roughness_1 : 0.0
+        Float Roughness_2 : 0.0
+        Float Roughness_3 : 0.0
+        Float Roughness_4 : 0.0
+        Float Roughness_5 : 0.0
+        Float Roughness_6 : 0.0
+        Float Roughness_7 : 0.0
+        Float Roughness_8 : 0.0
+        Float Roughness_9 : 0.0
+        Float Roughness_10 : 0.0
+        Float Roughness_11 : 0.0
+
+        Float Metallic_0 : 0.0
+        Float Metallic_1 : 0.0
+        Float Metallic_2 : 0.0
+        Float Metallic_3 : 0.0
+        Float Metallic_4 : 0.0
+        Float Metallic_5 : 0.0
+        Float Metallic_6 : 0.0
+        Float Metallic_7 : 0.0
+        Float Metallic_8 : 0.0
+        Float Metallic_9 : 0.0
+        Float Metallic_10 : 0.0
+        Float Metallic_11 : 0.0
+
+
+        // debug the final value of the selected layer as a color output            
+        Int DebugValuesMode
+
+            // Layers:
+            //   0 - albedo (un-shaded)
+            //   1 - normals
+            //   2 - roughness
+            //   3 - metallic
+            //   4 - ao
+            //   5  - emissive
+
+
+        // use tri-planar mapping
+        Boolean useTriPlanarMapping
+
+        // Texture map #0
+        Texture2D AlbedoMap_0
+        Float AlbedoMap_0_scale
+        Texture2D NormalMap_0 -LINEAR
+
+        // Texture map #1
+        Texture2D AlbedoMap_1
+        Float AlbedoMap_1_scale
+        Texture2D NormalMap_1 -LINEAR
+
+        // Texture map #2
+        Texture2D AlbedoMap_2
+        Float AlbedoMap_2_scale
+        Texture2D NormalMap_2 -LINEAR
+
+        // Texture map #3
+        Texture2D AlbedoMap_3
+        Float AlbedoMap_3_scale
+        Texture2D NormalMap_3 -LINEAR
+
+        // Texture map #4
+        Texture2D AlbedoMap_4
+        Float AlbedoMap_4_scale
+        Texture2D NormalMap_4 -LINEAR
+
+        // Texture map #5
+        Texture2D AlbedoMap_5
+        Float AlbedoMap_5_scale
+        Texture2D NormalMap_5 -LINEAR
+
+        // Texture map #6
+        Texture2D AlbedoMap_6
+        Float AlbedoMap_6_scale
+        Texture2D NormalMap_6 -LINEAR
+
+        // Texture map #7
+        Texture2D AlbedoMap_7
+        Float AlbedoMap_7_scale
+        Texture2D NormalMap_7 -LINEAR
+
+        // Texture map #8
+        Texture2D AlbedoMap_8
+        Float AlbedoMap_8_scale
+        Texture2D NormalMap_8 -LINEAR
+
+        // Texture map #9
+        Texture2D AlbedoMap_9
+        Float AlbedoMap_9_scale
+        Texture2D NormalMap_9 -LINEAR
+
+        // Texture map #10
+        Texture2D AlbedoMap_10
+        Float AlbedoMap_10_scale
+        Texture2D NormalMap_10 -LINEAR
+
+        // Texture map #11
+        Texture2D AlbedoMap_11
+        Float AlbedoMap_11_scale
+        Texture2D NormalMap_11 -LINEAR
+
+
+
+        // Texture that specifies alpha values
+        Texture2D AlphaMap -LINEAR
+        Texture2D AlphaMap_1 -LINEAR
+        Texture2D AlphaMap_2 -LINEAR
+
+        // For Spec gloss pipeline
+        Boolean UseSpecGloss
+        Texture2D SpecularMap
+        Texture2D GlossinessMap
+        Texture2D SpecularGlossinessMap
+        Color Specular : 1.0 1.0 1.0 1.0
+        Float Glossiness : 1.0
+
+        Vector4 ProbeData
+
+        // Prefiltered Env Map for indirect specular lighting
+        TextureCubeMap PrefEnvMap -LINEAR
+        
+        // Irradiance map for indirect diffuse lighting
+        TextureCubeMap IrradianceMap -LINEAR
+
+        //integrate BRDF map for indirect Lighting
+        Texture2D IntegrateBRDF -LINEAR
+
+        //shadows
+        Int FilterMode
+        Boolean HardwareShadows
+
+        Texture2D ShadowMap0
+        Texture2D ShadowMap1
+        Texture2D ShadowMap2
+        Texture2D ShadowMap3
+        //pointLights
+        Texture2D ShadowMap4
+        Texture2D ShadowMap5
+        
+        Float ShadowIntensity
+        Vector4 Splits
+        Vector2 FadeInfo
+
+        Matrix4 LightViewProjectionMatrix0
+        Matrix4 LightViewProjectionMatrix1
+        Matrix4 LightViewProjectionMatrix2
+        Matrix4 LightViewProjectionMatrix3
+        //pointLight
+        Matrix4 LightViewProjectionMatrix4
+        Matrix4 LightViewProjectionMatrix5   
+        Vector3 LightPos
+        Vector3 LightDir
+
+        Float PCFEdge
+        Float ShadowMapSize
+
+        // For hardware skinning
+        Int NumberOfBones
+        Matrix4Array BoneMatrices
+                
+        //For instancing
+        Boolean UseInstancing
+
+        //For Vertex Color
+        Boolean UseVertexColor
+
+        Boolean BackfaceShadows : false
+
+
+        Boolean UseFog
+        Color FogColor
+        Vector2 LinearFog
+        Float ExpFog
+        Float ExpSqFog
+
+        // Alpha threshold for fragment discarding
+        Float AlphaDiscardThreshold (AlphaTestFallOff)
+    }
+
+    Technique {
+
+        LightMode SinglePassAndImageBased
+
+        VertexShader GLSL100 GLSL130 GLSL150:   Common/MatDefs/Terrain/PBRTerrain.vert
+        FragmentShader GLSL100 GLSL130 GLSL150: Common/MatDefs/Terrain/PBRTerrain.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+            CameraPosition
+            WorldMatrix
+            WorldNormalMatrix
+            ViewProjectionMatrix
+            ViewMatrix
+            Time
+
+        }
+
+        Defines {
+                
+            TILELOCATION : TileLocation
+            AFFLICTIONTEXTURE : AfflictionAlphaMap
+
+            AFFLICTIONALBEDOMAP: SplatAlbedoMap 
+            AFFLICTIONNORMALMAP : SplatNormalMap 
+            AFFLICTIONROUGHNESSMETALLICMAP : SplatRoughnessMetallicMap
+            AFFLICTIONEMISSIVEMAP : SplatEmissiveMap
+
+            USE_SPLAT_NOISE : SplatNoiseVar
+
+
+            USE_VERTEX_COLORS_AS_SUN_INTENSITY : UseVertexColorsAsSunIntensity
+            STATIC_SUN_INTENSITY : StaticSunIntensity
+            BRIGHTEN_INDOOR_SHADOWS : BrightenIndoorShadows
+
+            DISCARD_ALPHA : AlphaDiscardThreshold
+
+            USE_FOG : UseFog
+            FOG_LINEAR : LinearFog
+            FOG_EXP : ExpFog
+            FOG_EXPSQ : ExpSqFog
+
+            TRI_PLANAR_MAPPING : useTriPlanarMapping
+
+            ALBEDOMAP_0 : AlbedoMap_0
+            ALBEDOMAP_1 : AlbedoMap_1
+            ALBEDOMAP_2 : AlbedoMap_2
+            ALBEDOMAP_3 : AlbedoMap_3
+            ALBEDOMAP_4 : AlbedoMap_4
+            ALBEDOMAP_5 : AlbedoMap_5
+            ALBEDOMAP_6 : AlbedoMap_6
+            ALBEDOMAP_7 : AlbedoMap_7
+            ALBEDOMAP_8 : AlbedoMap_8
+            ALBEDOMAP_9 : AlbedoMap_9
+            ALBEDOMAP_10 : AlbedoMap_10
+            ALBEDOMAP_11 : AlbedoMap_11
+
+            NORMALMAP_0 : NormalMap_0
+            NORMALMAP_1 : NormalMap_1
+            NORMALMAP_2 : NormalMap_2
+            NORMALMAP_3 : NormalMap_3
+            NORMALMAP_4 : NormalMap_4
+            NORMALMAP_5 : NormalMap_5
+            NORMALMAP_6 : NormalMap_6
+            NORMALMAP_7 : NormalMap_7
+            NORMALMAP_8 : NormalMap_8
+            NORMALMAP_9 : NormalMap_9
+            NORMALMAP_10 : NormalMap_10
+            NORMALMAP_11 : NormalMap_11
+
+            ALPHAMAP : AlphaMap
+            ALPHAMAP_1 : AlphaMap_1
+            ALPHAMAP_2 : AlphaMap_2
+            ALBEDOMAP_0_SCALE : AlbedoMap_0_scale
+            ALBEDOMAP_1_SCALE : AlbedoMap_1_scale
+            ALBEDOMAP_2_SCALE : AlbedoMap_2_scale
+            ALBEDOMAP_3_SCALE : AlbedoMap_3_scale
+            ALBEDOMAP_4_SCALE : AlbedoMap_4_scale
+            ALBEDOMAP_5_SCALE : AlbedoMap_5_scale
+            ALBEDOMAP_6_SCALE : AlbedoMap_6_scale
+            ALBEDOMAP_7_SCALE : AlbedoMap_7_scale
+            ALBEDOMAP_8_SCALE : AlbedoMap_8_scale
+            ALBEDOMAP_9_SCALE : AlbedoMap_9_scale
+            ALBEDOMAP_10_SCALE : AlbedoMap_10_scale
+            ALBEDOMAP_11_SCALE : AlbedoMap_11_scale
+
+            DEBUG_VALUES_MODE : DebugValuesMode
+            
+        }
+    }
+
+
+    Technique PreShadow {
+
+        VertexShader GLSL100 GLSL150 :   Common/MatDefs/Shadow/PreShadow.vert
+        FragmentShader GLSL100 GLSL150 : Common/MatDefs/Shadow/PreShadow.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+            WorldViewMatrix
+            ViewProjectionMatrix
+            ViewMatrix
+        }
+
+        Defines {
+            DISCARD_ALPHA : AlphaDiscardThreshold
+            NUM_BONES : NumberOfBones
+            INSTANCING : UseInstancing
+        }
+
+        ForcedRenderState {
+            FaceCull Off
+            DepthTest On
+            DepthWrite On
+            PolyOffset 5 3
+            ColorWrite Off
+        }
+
+    }
+
+
+    Technique PostShadow{
+        VertexShader GLSL100 GLSL150:   Common/MatDefs/Shadow/PostShadow.vert
+        FragmentShader GLSL100 GLSL150: Common/MatDefs/Shadow/PostShadow.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+            WorldMatrix
+            ViewProjectionMatrix
+            ViewMatrix
+        }
+
+        Defines {
+            HARDWARE_SHADOWS : HardwareShadows
+            FILTER_MODE : FilterMode
+            PCFEDGE : PCFEdge
+            DISCARD_ALPHA : AlphaDiscardThreshold           
+            SHADOWMAP_SIZE : ShadowMapSize
+            FADE : FadeInfo
+            PSSM : Splits
+            POINTLIGHT : LightViewProjectionMatrix5
+            NUM_BONES : NumberOfBones
+            INSTANCING : UseInstancing
+            BACKFACE_SHADOWS: BackfaceShadows
+        }
+
+        ForcedRenderState {
+            Blend Modulate
+            DepthWrite Off   
+            PolyOffset -0.1 0  
+        }
+    }
+    
+}

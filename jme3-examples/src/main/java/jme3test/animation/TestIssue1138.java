@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 jMonkeyEngine
+ * Copyright (c) 2019-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,7 +50,7 @@ import com.jme3.scene.Node;
  */
 public class TestIssue1138 extends SimpleApplication {
 
-    SkinningControl sControl;
+    private SkinningControl sControl;
 
     public static void main(String... argv) {
         new TestIssue1138().start();

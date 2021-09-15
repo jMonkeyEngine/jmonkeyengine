@@ -36,6 +36,8 @@ public @interface DefaultQualifier {
      * To prevent affecting other type systems, always specify an annotation
      * in your own type hierarchy.  (For example, do not set
      * "checkers.quals.Unqualified" as the default.)
+     * 
+     * @return the name of the default annotation
      */
     String value();
 

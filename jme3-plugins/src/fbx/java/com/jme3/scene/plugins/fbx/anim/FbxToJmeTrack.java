@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -58,7 +58,7 @@ public final class FbxToJmeTrack {
     public transient final Map<String, FbxAnimCurveNode> animCurves = new HashMap<String, FbxAnimCurveNode>();
 
     public long[] getKeyTimes() {
-        Set<Long> keyFrameTimesSet = new HashSet<Long>();
+        Set<Long> keyFrameTimesSet = new HashSet<>();
         for (FbxAnimCurveNode curveNode : animCurves.values()) {
             for (FbxAnimCurve curve : curveNode.getCurves()) {
                 for (long keyTime : curve.getKeyTimes()) {

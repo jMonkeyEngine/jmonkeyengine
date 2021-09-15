@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -303,7 +303,7 @@ public class Geometry extends Spatial {
     protected void updateWorldBound() {
         super.updateWorldBound();
         if (mesh == null) {
-            throw new NullPointerException("Geometry: " + getName() + " has null mesh");
+            throw new IllegalStateException("Geometry \"" + getName() + "\" has null mesh.");
         }
 
         if (mesh.getBound() != null) {
@@ -499,6 +499,7 @@ public class Geometry extends Spatial {
 
     /**
      * @deprecated Use {@link #isGrouped()} instead.
+     * @return true if managed by a {@link GeometryGroupNode}
      */
     @Deprecated
     public boolean isBatched() {
@@ -627,10 +628,10 @@ public class Geometry extends Spatial {
     }
 
     /**
-     * Seting this to true will stop this geometry morph buffer to be updated,
+     * Setting this to true will stop this geometry morph buffer to be updated,
      * unless the morph state changes
      *
-     * @param dirtyMorph
+     * @param dirtyMorph true&rarr;prevent updating, false&rarr;allow updating
      */
     public void setDirtyMorph(boolean dirtyMorph) {
         this.dirtyMorph = dirtyMorph;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -219,7 +219,7 @@ public class BetterCharacterControl extends AbstractPhysicsControl implements Ph
         float designatedVelocity = walkDirection.length();
         if (designatedVelocity > 0) {
             Vector3f localWalkDirection = vars.vect1;
-            //normalize walkdirection
+            //normalize walkDirection
             localWalkDirection.set(walkDirection).normalizeLocal();
             //check for the existing velocity in the desired direction
             float existingVelocity = velocity.dot(localWalkDirection);
@@ -514,6 +514,8 @@ public class BetterCharacterControl extends AbstractPhysicsControl implements Ph
     /**
      * This checks if the character can go from ducked to unducked state by
      * doing a ray test.
+     * 
+     * @return true if able to unduck, otherwise false
      */
     protected boolean checkCanUnDuck() {
         TempVars vars = TempVars.get();

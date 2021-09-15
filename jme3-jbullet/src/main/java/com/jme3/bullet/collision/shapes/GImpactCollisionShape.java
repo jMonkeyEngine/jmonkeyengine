@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -81,6 +81,8 @@ public class GImpactCollisionShape extends CollisionShape{
 
     /**
      * creates a jme mesh from the collision shape, only needed for debugging
+     *
+     * @return a new Mesh
      */
     public Mesh createJmeMesh(){
         return Converter.convert(bulletMesh);

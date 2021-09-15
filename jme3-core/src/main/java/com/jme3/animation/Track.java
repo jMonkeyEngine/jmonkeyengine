@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,6 +48,7 @@ public interface Track extends Savable, Cloneable {
      * @param weight The weight from 0 to 1 on how much to apply the track
      * @param control The control which the track should affect
      * @param channel The channel which the track should affect
+     * @param vars temporary storage
      */
     public void setTime(float time, float weight, AnimControl control, AnimChannel channel, TempVars vars);
 

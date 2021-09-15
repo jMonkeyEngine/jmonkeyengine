@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -56,12 +56,12 @@ import java.util.logging.Logger;
  */
 public class SelectorKernel extends AbstractKernel
 {
-    static Logger log = Logger.getLogger(SelectorKernel.class.getName());
+    private static final Logger log = Logger.getLogger(SelectorKernel.class.getName());
 
     private InetSocketAddress address;
     private SelectorThread thread;
 
-    private Map<Long,NioEndpoint> endpoints = new ConcurrentHashMap<Long,NioEndpoint>();
+    private Map<Long,NioEndpoint> endpoints = new ConcurrentHashMap<>();
 
     public SelectorKernel( InetAddress host, int port )
     {
@@ -227,7 +227,7 @@ public class SelectorKernel extends AbstractKernel
          *  Because we want to keep the keys to ourselves, we'll do
          *  the endpoint -&gt; key mapping internally.
          */
-        private Map<NioEndpoint,SelectionKey> endpointKeys = new ConcurrentHashMap<NioEndpoint,SelectionKey>();
+        private Map<NioEndpoint,SelectionKey> endpointKeys = new ConcurrentHashMap<>();
 
         public SelectorThread()
         {

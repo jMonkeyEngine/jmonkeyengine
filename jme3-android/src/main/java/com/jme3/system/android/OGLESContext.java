@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -101,6 +101,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
      * GLSurfaceView. Only one GLSurfaceView can be created at this time. The
      * given configType specifies how to determine the display configuration.
      *
+     * @param context (not null)
      * @return GLSurfaceView The newly created view
      */
     public GLSurfaceView createView(Context context) {

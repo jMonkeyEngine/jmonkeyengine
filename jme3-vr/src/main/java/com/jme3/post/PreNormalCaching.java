@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.jme3.post;
 
 import com.jme3.post.Filter.Pass;
@@ -22,6 +17,12 @@ public class PreNormalCaching {
     private static FrameBuffer cachedPreNormals;
     private static int lastNormalPassesCount, curCount;
     
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private PreNormalCaching() {
+    }
+
     /**
      * Get pre-normals from the given rendering.
      * @param renderManager the render manager.

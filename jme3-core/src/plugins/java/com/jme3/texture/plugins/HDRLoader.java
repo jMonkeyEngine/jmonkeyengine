@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -113,10 +113,6 @@ public class HDRLoader implements AssetLoader {
         rgbf[2] = B * e;
     }
 
-    private short flip(int in){
-        return (short) ((in << 8 & 0xFF00) | (in >> 8));
-    }
-    
     private void writeRGBE(byte[] rgbe){
         if (writeRGBE){
             dataStore.put(rgbe);
@@ -140,7 +136,7 @@ public class HDRLoader implements AssetLoader {
     }
     
     private boolean decodeScanlineRLE(InputStream in, int width) throws IOException{
-        // must deocde RLE data into temp buffer before converting to float
+        // must decode RLE data into temp buffer before converting to float
         if (rleTempBuffer == null){
             rleTempBuffer = BufferUtils.createByteBuffer(width * 4);
         }else{

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -55,7 +55,7 @@ import java.util.logging.Logger;
  */
 public class CompoundCollisionShape extends CollisionShape {
 
-    protected ArrayList<ChildCollisionShape> children = new ArrayList<ChildCollisionShape>();
+    protected ArrayList<ChildCollisionShape> children = new ArrayList<>();
 
     public CompoundCollisionShape() {
         cShape = new CompoundShape();
@@ -77,6 +77,8 @@ public class CompoundCollisionShape extends CollisionShape {
      * adds a child shape at the given local translation
      * @param shape the child shape to add
      * @param location the local location of the child shape
+     * @param rotation the local orientation of the child shape (not null,
+     * unaffected)
      */
     public void addChildShape(CollisionShape shape, Vector3f location, Matrix3f rotation) {
         if(shape instanceof CompoundCollisionShape){

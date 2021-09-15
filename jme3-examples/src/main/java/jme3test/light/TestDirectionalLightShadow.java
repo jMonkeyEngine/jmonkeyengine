@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -63,8 +63,6 @@ import com.jme3.util.TangentBinormalGenerator;
 public class TestDirectionalLightShadow extends SimpleApplication implements ActionListener, AnalogListener {
 
     public static final int SHADOWMAP_SIZE = 1024;
-    private Spatial[] obj;
-    private Material[] mat;
     private DirectionalLightShadowRenderer dlsr;
     private DirectionalLightShadowFilter dlsf;
     private Geometry ground;
@@ -94,11 +92,11 @@ public class TestDirectionalLightShadow extends SimpleApplication implements Act
     }
 
     public void loadScene() {
-        obj = new Spatial[2];
+        Spatial[] obj = new Spatial[2];
         // Setup first view
 
 
-        mat = new Material[2];
+        Material[] mat = new Material[2];
         mat[0] = assetManager.loadMaterial("Common/Materials/RedColor.j3m");
         mat[1] = assetManager.loadMaterial("Textures/Terrain/Pond/Pond.j3m");
         mat[1].setBoolean("UseMaterialColors", true);
@@ -161,7 +159,7 @@ public class TestDirectionalLightShadow extends SimpleApplication implements Act
 
         rootNode.attachChild(sky);
     }
-    DirectionalLight l;
+    private DirectionalLight l;
 
     @Override
     public void simpleInitApp() {
@@ -200,9 +198,6 @@ public class TestDirectionalLightShadow extends SimpleApplication implements Act
     }
 
     private void initInputs() {
-
-        inputManager.addMapping("ThicknessUp", new KeyTrigger(KeyInput.KEY_Y));
-        inputManager.addMapping("ThicknessDown", new KeyTrigger(KeyInput.KEY_H));
         inputManager.addMapping("lambdaUp", new KeyTrigger(KeyInput.KEY_U));
         inputManager.addMapping("lambdaDown", new KeyTrigger(KeyInput.KEY_J));
         inputManager.addMapping("switchGroundMat", new KeyTrigger(KeyInput.KEY_M));
@@ -221,7 +216,7 @@ public class TestDirectionalLightShadow extends SimpleApplication implements Act
         inputManager.addMapping("backShadows", new KeyTrigger(KeyInput.KEY_K));
 
 
-        inputManager.addListener(this, "lambdaUp", "lambdaDown", "ThicknessUp", "ThicknessDown",
+        inputManager.addListener(this, "lambdaUp", "lambdaDown",
                 "switchGroundMat", "debug", "up", "down", "right", "left", "fwd", "back", "pp", "stabilize", "distance", "ShadowUp", "ShadowDown", "backShadows");
 
         ShadowTestUIManager uiMan = new ShadowTestUIManager(assetManager, dlsr, dlsf, guiNode, inputManager, viewPort);
@@ -333,14 +328,13 @@ public class TestDirectionalLightShadow extends SimpleApplication implements Act
         }
 
     }
-    boolean up = false;
-    boolean down = false;
-    boolean left = false;
-    boolean right = false;
-    boolean fwd = false;
-    boolean back = false;
-    float time = 0;
-    float s = 1f;
+    private boolean up = false;
+    private boolean down = false;
+    private boolean left = false;
+    private boolean right = false;
+    private boolean fwd = false;
+    private boolean back = false;
+    final private float s = 1f;
 
     @Override
     public void simpleUpdate(float tpf) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,7 +32,6 @@
 package com.jme3.app.state;
  
 import com.jme3.app.Application;
-import com.jme3.profile.AppProfiler;
 import com.jme3.renderer.RenderManager;
 import com.jme3.util.SafeArrayList;
 import java.util.Arrays;
@@ -42,7 +41,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * The <code>AppStateManager</code> holds a list of {@link AppState}s which
- * it will update and render.<br/>
+ * it will update and render.<br>
  * When an {@link AppState} is attached or detached, the
  * {@link AppState#stateAttached(com.jme3.app.state.AppStateManager) } and
  * {@link AppState#stateDetached(com.jme3.app.state.AppStateManager) } methods
@@ -72,18 +71,18 @@ public class AppStateManager {
      *  initialization.  Once initialized they will be added to
      *  the running app states.  
      */
-    private final SafeArrayList<AppState> initializing = new SafeArrayList<AppState>(AppState.class);
+    private final SafeArrayList<AppState> initializing = new SafeArrayList<>(AppState.class);
     
     /**
      *  Holds the active states once they are initialized.  
      */
-    private final SafeArrayList<AppState> states = new SafeArrayList<AppState>(AppState.class);
+    private final SafeArrayList<AppState> states = new SafeArrayList<>(AppState.class);
     
     /**
      *  List holding the detached app states that are pending
      *  cleanup.  
      */
-    private final SafeArrayList<AppState> terminating = new SafeArrayList<AppState>(AppState.class);
+    private final SafeArrayList<AppState> terminating = new SafeArrayList<>(AppState.class);
 
     /**
      *  Thread-safe index of every state that is currently attached and has
@@ -97,7 +96,6 @@ public class AppStateManager {
     // is that they are all modified from the same thread anyway.
     
     private final Application app;
-    private AppState[] stateArray;
 
     public AppStateManager(Application app){
         this.app = app;
@@ -105,6 +103,8 @@ public class AppStateManager {
 
     /**
      *  Returns the Application to which this AppStateManager belongs.
+     *
+     * @return the pre-existing instance
      */
     public Application getApplication() {
         return app;
@@ -226,8 +226,9 @@ public class AppStateManager {
 
     /**
      * Returns the first state that is an instance of subclass of the specified class.
-     * @param <T>
-     * @param stateClass
+     *
+     * @param <T> the desired type of AppState
+     * @param stateClass the desired type of AppState
      * @return First attached state that is an instance of stateClass
      */
     public <T extends AppState> T getState(Class<T> stateClass){
@@ -236,9 +237,10 @@ public class AppStateManager {
     
     /**
      * Returns the first state that is an instance of subclass of the specified class.
-     * @param <T>
-     * @param stateClass
-     * @param failOnMiss 
+     *
+     * @param <T> the desired type of AppState
+     * @param stateClass the desired type of AppState
+     * @param failOnMiss true to thrown an exception, false to return null
      * @return First attached state that is an instance of stateClass. If failOnMiss is true 
      * then an IllegalArgumentException is thrown if the state is not attached.
      */
@@ -273,6 +275,11 @@ public class AppStateManager {
     /**
      *  Returns the state associated with the specified ID at the time it was
      *  attached or null if not state was attached with that ID.
+     *
+     * @param <T> the desired type of AppState
+     * @param id the AppState ID
+     * @param stateClass the desired type of AppState
+     * @return the pre-existing instance, or null if not found
      */
     public <T extends AppState> T getState( String id, Class<T> stateClass ) {
         return stateClass.cast(stateIndex.get(id));
@@ -281,6 +288,9 @@ public class AppStateManager {
     /**
      *  Returns true if there is currently a state associated with the specified
      *  ID.
+     *
+     * @param id the AppState ID
+     * @return true if found, otherwise false
      */
     public boolean hasState( String id ) {
         return stateIndex.containsKey(id);
@@ -290,6 +300,11 @@ public class AppStateManager {
      *  Returns the state associated with the specified ID at the time it
      *  was attached or throws an IllegalArgumentException if the ID was 
      *  not found.
+     *
+     * @param <T> the desired type of AppState
+     * @param id the AppState ID
+     * @param stateClass the desired type of AppState
+     * @return the pre-existing instance (not null)
      */   
     public <T extends AppState> T stateForId( String id, Class<T> stateClass ) {
         T result = getState(id, stateClass);
@@ -367,6 +382,9 @@ public class AppStateManager {
         AppState[] array = getStates();
         for (AppState state : array){
             if (state.isEnabled()) {
+                if (app.getAppProfiler() != null) {
+                    app.getAppProfiler().appSubStep(state.getClass().getSimpleName());
+                }
                 state.render(rm);
             }
         }
@@ -379,6 +397,9 @@ public class AppStateManager {
         AppState[] array = getStates();
         for (AppState state : array){
             if (state.isEnabled()) {
+                if (app.getAppProfiler() != null) {
+                    app.getAppProfiler().appSubStep(state.getClass().getSimpleName());
+                }
                 state.postRender();
             }
         }

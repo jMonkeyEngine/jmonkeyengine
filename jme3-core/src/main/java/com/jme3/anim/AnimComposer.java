@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -65,6 +65,9 @@ public class AnimComposer extends AbstractControl {
     private float globalSpeed = 1f;
     private Map<String, Layer> layers = new LinkedHashMap<>();
 
+    /**
+     * Instantiate a composer with a single layer, no actions, and no clips.
+     */
     public AnimComposer() {
         layers.put(DEFAULT_LAYER, new Layer(this));
     }
@@ -202,6 +205,7 @@ public class AnimComposer extends AbstractControl {
      * Returns current time of the specified layer.
      * 
      * @param layerName The layer from which to get the time.
+     * @return the time (in seconds)
      */
     public double getTime(String layerName) {
         Layer l = layers.get(layerName);
@@ -213,6 +217,8 @@ public class AnimComposer extends AbstractControl {
     
     /**
      * Sets current time on the default layer.
+     *
+     * @param time the desired time (in seconds)
      */
     public void setTime(double time) {
         setTime(DEFAULT_LAYER, time);
@@ -220,6 +226,9 @@ public class AnimComposer extends AbstractControl {
 
     /**
      * Sets current time on the specified layer.
+     *
+     * @param layerName the name of the Layer to modify
+     * @param time the desired time (in seconds)
      */
     public void setTime(String layerName, double time) {
         Layer l = layers.get(layerName);
@@ -308,6 +317,12 @@ public class AnimComposer extends AbstractControl {
         return actions.remove(name);
     }
 
+    /**
+     * Add a layer to this composer.
+     *
+     * @param name the desired name for the new layer
+     * @param mask the desired mask for the new layer (alias created)
+     */
     public void makeLayer(String name, AnimationMask mask) {
         Layer l = new Layer(this);
         l.mask = mask;
@@ -326,6 +341,10 @@ public class AnimComposer extends AbstractControl {
     /**
      * Creates an action that will interpolate over an entire sequence
      * of tweens in order.
+     *
+     * @param name a name for the new Action
+     * @param tweens the desired sequence of tweens
+     * @return a new instance
      */
     public BaseAction actionSequence(String name, Tween... tweens) {
         BaseAction action = new BaseAction(Tweens.sequence(tweens));
@@ -336,6 +355,11 @@ public class AnimComposer extends AbstractControl {
     /**
      * Creates an action that blends the named clips using the given blend
      * space.
+     *
+     * @param name a name for the new Action
+     * @param blendSpace how to blend the clips (not null, alias created)
+     * @param clips the names of the clips to be used (not null)
+     * @return a new instance
      */
     public BlendAction actionBlended(String name, BlendSpace blendSpace, String... clips) {
         BlendableAction[] acts = new BlendableAction[clips.length];
@@ -348,6 +372,9 @@ public class AnimComposer extends AbstractControl {
         return action;
     }
 
+    /**
+     * Reset all layers to t=0 with no current action.
+     */
     public void reset() {
         for (Layer layer : layers.values()) {
             layer.currentAction = null;
@@ -376,6 +403,11 @@ public class AnimComposer extends AbstractControl {
         return Collections.unmodifiableSet(animClipMap.keySet());
     }
 
+    /**
+     * used internally
+     *
+     * @param tpf time per frame (in seconds)
+     */
     @Override
     protected void controlUpdate(float tpf) {
         for (Layer layer : layers.values()) {
@@ -395,19 +427,71 @@ public class AnimComposer extends AbstractControl {
         }
     }
 
+    /**
+     * used internally
+     *
+     * @param rm the RenderManager rendering the controlled Spatial (not null)
+     * @param vp the ViewPort being rendered (not null)
+     */
     @Override
     protected void controlRender(RenderManager rm, ViewPort vp) {
 
     }
 
+    /**
+     * Determine the global speed applied to all layers.
+     *
+     * @return the speed factor (1=normal speed)
+     */
     public float getGlobalSpeed() {
         return globalSpeed;
     }
 
+    /**
+     * Alter the global speed applied to all layers.
+     *
+     * @param globalSpeed the desired speed factor (1=normal speed, default=1)
+     */
     public void setGlobalSpeed(float globalSpeed) {
         this.globalSpeed = globalSpeed;
     }
 
+    /**
+     * Access the manager of the named layer.
+     *
+     * @param layerName the name of the layer to access
+     * @return the current manager (typically an AnimEvent) or null for none
+     */
+    public Object getLayerManager(String layerName) {
+        Layer layer = layers.get(layerName);
+        if (layer == null) {
+            throw new IllegalArgumentException("Unknown layer " + layerName);
+        }
+
+        return layer.manager;
+    }
+
+    /**
+     * Assign a manager to the named layer.
+     *
+     * @param layerName the name of the layer to modify
+     * @param manager the desired manager (typically an AnimEvent) or null for
+     * none
+     */
+    public void setLayerManager(String layerName, Object manager) {
+        Layer layer = layers.get(layerName);
+        if (layer == null) {
+            throw new IllegalArgumentException("Unknown layer " + layerName);
+        }
+
+        layer.manager = manager;
+    }
+
+    /**
+     * Create a shallow clone for the JME cloner.
+     *
+     * @return a new instance
+     */
     @Override
     public Object jmeClone() {
         try {
@@ -418,6 +502,15 @@ public class AnimComposer extends AbstractControl {
         }
     }
 
+    /**
+     * Callback from {@link com.jme3.util.clone.Cloner} to convert this
+     * shallow-cloned composer into a deep-cloned one, using the specified
+     * Cloner and original to resolve copied fields.
+     *
+     * @param cloner the Cloner that's cloning this composer (not null)
+     * @param original the instance from which this composer was shallow-cloned
+     * (not null, unaffected)
+     */
     @Override
     public void cloneFields(Cloner cloner, Object original) {
         super.cloneFields(cloner, original);
@@ -441,6 +534,13 @@ public class AnimComposer extends AbstractControl {
 
     }
 
+    /**
+     * De-serialize this composer from the specified importer, for example when
+     * loading from a J3O file.
+     *
+     * @param im the importer to use (not null)
+     * @throws IOException from the importer
+     */
     @Override
     @SuppressWarnings("unchecked")
     public void read(JmeImporter im) throws IOException {
@@ -450,6 +550,13 @@ public class AnimComposer extends AbstractControl {
         globalSpeed = ic.readFloat("globalSpeed", 1f);
     }
 
+    /**
+     * Serialize this composer to the specified exporter, for example when
+     * saving to a J3O file.
+     *
+     * @param ex the exporter to use (not null)
+     * @throws IOException from the exporter
+     */
     @Override
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
@@ -462,8 +569,8 @@ public class AnimComposer extends AbstractControl {
         private AnimComposer ac;
         private Action currentAction;
         private AnimationMask mask;
-        private float weight;
         private double time;
+        private Object manager;
 
         public Layer(AnimComposer ac) {
             this.ac = ac;

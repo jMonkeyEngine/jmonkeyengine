@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -51,7 +51,7 @@ import java.util.logging.Logger;
 /**
  * Main class that manages various joystick devices.  Joysticks can be many forms
  * including a simulated joystick to communicate the device orientation as well
- * as physical gamepads. </br>
+ * as physical gamepads. <br>
  * This class manages all the joysticks and feeds the inputs from each back
  * to jME's InputManager.
  *
@@ -59,7 +59,7 @@ import java.util.logging.Logger;
  * case, when joystick.rumble(rumbleAmount) is called, the Android device will vibrate
  * if the device has a built in vibrate motor.
  *
- * Because Andorid does not allow for the user to define the intensity of the
+ * Because Android does not allow for the user to define the intensity of the
  * vibration, the rumble amount (ie strength) is converted into vibration pulses
  * The stronger the strength amount, the shorter the delay between pulses.  If
  * amount is 1, then the vibration stays on the whole time.  If amount is 0.5,
@@ -83,14 +83,14 @@ public class AndroidJoyInput implements JoyInput {
     public static boolean disableSensors = false;
 
     protected AndroidInputHandler inputHandler;
-    protected List<Joystick> joystickList = new ArrayList<Joystick>();
+    protected List<Joystick> joystickList = new ArrayList<>();
 //    private boolean dontSendHistory = false;
 
 
     // Internal
     private boolean initialized = false;
     private RawInputListener listener = null;
-    private ConcurrentLinkedQueue<InputEvent> eventQueue = new ConcurrentLinkedQueue<InputEvent>();
+    private ConcurrentLinkedQueue<InputEvent> eventQueue = new ConcurrentLinkedQueue<>();
     private AndroidSensorJoyInput sensorJoyInput;
     private Vibrator vibrator = null;
     private boolean vibratorActive = false;

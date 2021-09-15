@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -51,6 +51,7 @@ public interface ExtensionLoader {
      * @param extension  the content of the extension found in the element being read
      * @param input      an object containing already loaded data from the element, this is most probably a JME object
      * @return An object of the same type as input, containing the data from the input object and the eventual additional data read from the extension
+     * @throws IOException for various error conditions
      */
     Object handleExtension(GltfLoader loader, String parentName, JsonElement parent, JsonElement extension, Object input) throws IOException;
 

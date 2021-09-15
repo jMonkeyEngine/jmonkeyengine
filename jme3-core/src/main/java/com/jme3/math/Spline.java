@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,7 +50,7 @@ public class Spline implements Savable {
         Nurb
     }
 
-    private List<Vector3f> controlPoints = new ArrayList<Vector3f>();
+    private List<Vector3f> controlPoints = new ArrayList<>();
     private List<Float> knots;       //knots of NURBS spline
     private float[] weights;         //weights of NURBS spline
     private int basisFunctionDegree; //degree of NURBS spline basis function (computed automatically)
@@ -341,7 +341,7 @@ public class Spline implements Savable {
     /**
      * set to true to make the spline cycle
      *
-     * @param cycle
+     * @param cycle true for cyclic, false for acyclic
      */
     public void setCycle(boolean cycle) {
         if (type != SplineType.Nurb) {
@@ -379,7 +379,7 @@ public class Spline implements Savable {
     /**
      * Sets the type of the spline
      *
-     * @param type
+     * @param type Linear/CatmullRom/Bezier/Nurb
      */
     public void setType(SplineType type) {
         this.type = type;

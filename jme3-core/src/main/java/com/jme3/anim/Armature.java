@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -78,7 +78,7 @@ public class Armature implements JmeCloneable, Savable {
         for (int i = jointList.length - 1; i >= 0; i--) {
             Joint joint = jointList[i];
             joint.setId(i);
-            instanciateJointModelTransform(joint);
+            instantiateJointModelTransform(joint);
             if (joint.getParent() == null) {
                 rootJointList.add(joint);
             }
@@ -113,7 +113,7 @@ public class Armature implements JmeCloneable, Savable {
      * Sets the JointModelTransform implementation
      * Default is {@link MatrixJointModelTransform}
      *
-     * @param modelTransformClass
+     * @param modelTransformClass which implementation to use
      * @see JointModelTransform
      * @see MatrixJointModelTransform
      * @see SeparateJointModelTransform
@@ -124,11 +124,11 @@ public class Armature implements JmeCloneable, Savable {
             return;
         }
         for (Joint joint : jointList) {
-            instanciateJointModelTransform(joint);
+            instantiateJointModelTransform(joint);
         }
     }
 
-    private void instanciateJointModelTransform(Joint joint) {
+    private void instantiateJointModelTransform(Joint joint) {
         try {
             joint.setJointModelTransform(modelTransformClass.newInstance());
         } catch (InstantiationException | IllegalAccessException e) {
@@ -145,6 +145,11 @@ public class Armature implements JmeCloneable, Savable {
         return rootJoints;
     }
 
+    /**
+     * Access all joints in this Armature.
+     *
+     * @return a new list of pre-existing joints
+     */
     public List<Joint> getJointList() {
         return Arrays.asList(jointList);
     }
@@ -152,7 +157,7 @@ public class Armature implements JmeCloneable, Savable {
     /**
      * return a joint for the given index
      *
-     * @param index
+     * @param index a zero-based joint index (&ge;0)
      * @return the pre-existing instance
      */
     public Joint getJoint(int index) {
@@ -162,7 +167,7 @@ public class Armature implements JmeCloneable, Savable {
     /**
      * returns the joint with the given name
      *
-     * @param name
+     * @param name the name to search for
      * @return the pre-existing instance or null if not found
      */
     public Joint getJoint(String name) {
@@ -177,7 +182,7 @@ public class Armature implements JmeCloneable, Savable {
     /**
      * returns the bone index of the given bone
      *
-     * @param joint
+     * @param joint the Joint to search for
      * @return the index (&ge;0) or -1 if not found
      */
     public int getJointIndex(Joint joint) {
@@ -193,7 +198,7 @@ public class Armature implements JmeCloneable, Savable {
     /**
      * returns the joint index of the joint that has the given name
      *
-     * @param name
+     * @param name the name to search for
      * @return the index (&ge;0) or -1 if not found
      */
     public int getJointIndex(String name) {
@@ -286,11 +291,17 @@ public class Armature implements JmeCloneable, Savable {
         this.jointList = cloner.clone(jointList);
         this.skinningMatrixes = cloner.clone(skinningMatrixes);
         for (Joint joint : jointList) {
-            instanciateJointModelTransform(joint);
+            instantiateJointModelTransform(joint);
         }
     }
 
-
+    /**
+     * De-serialize this Armature from the specified importer, for example when
+     * loading from a J3O file.
+     *
+     * @param im the importer to read from (not null)
+     * @throws IOException from the importer
+     */
     @Override
     @SuppressWarnings("unchecked")
     public void read(JmeImporter im) throws IOException {
@@ -314,7 +325,7 @@ public class Armature implements JmeCloneable, Savable {
         int i = 0;
         for (Joint joint : jointList) {
             joint.setId(i++);
-            instanciateJointModelTransform(joint);
+            instantiateJointModelTransform(joint);
         }
         createSkinningMatrices();
 
@@ -324,6 +335,13 @@ public class Armature implements JmeCloneable, Savable {
         applyInitialPose();
     }
 
+    /**
+     * Serialize this Armature to the specified exporter, for example when
+     * saving to a J3O file.
+     *
+     * @param ex the exporter to write to (not null)
+     * @throws IOException from the exporter
+     */
     @Override
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule output = ex.getCapsule(this);

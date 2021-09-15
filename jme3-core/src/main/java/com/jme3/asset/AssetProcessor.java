@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,7 +48,8 @@ public interface AssetProcessor {
      * Applies post processing to an asset.
      * The method may return an object that is not the same
      * instance as the parameter object, and it could be from a different class.
-     * 
+     *
+     * @param key the key used to load the asset
      * @param obj The asset that was loaded from an {@link AssetLoader}.
      * @return Either the same object with processing applied, or an instance
      * of a new object.

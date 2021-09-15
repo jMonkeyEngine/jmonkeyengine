@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -124,7 +124,8 @@ public class CartoonEdgeFilter extends Filter {
     /**
      * sets the depth sensitivity<br>
      * defines how much depth will influence edges, default is 10
-     * @param depthSensitivity 
+     *
+     * @param depthSensitivity the desired sensitivity (default=10)
      */
     public void setDepthSensitivity(float depthSensitivity) {
         this.depthSensitivity = depthSensitivity;
@@ -145,7 +146,8 @@ public class CartoonEdgeFilter extends Filter {
     /**
      * sets the depth threshold<br>
      * Defines at what threshold of difference of depth an edge is outlined default is 0.1f
-     * @param depthThreshold 
+     *
+     * @param depthThreshold the desired threshold (default=0.1)
      */
     public void setDepthThreshold(float depthThreshold) {
         this.depthThreshold = depthThreshold;
@@ -165,8 +167,9 @@ public class CartoonEdgeFilter extends Filter {
 
     /**
      * sets the edge intensity<br>
-     * Defineshow visible will be the outlined edges
-     * @param edgeIntensity 
+     * Defines how visible the outlined edges will be
+     *
+     * @param edgeIntensity the desired intensity (default=1)
      */
     public void setEdgeIntensity(float edgeIntensity) {
         this.edgeIntensity = edgeIntensity;
@@ -184,8 +187,9 @@ public class CartoonEdgeFilter extends Filter {
     }
 
     /**
-     * sets the witdh of the edge in pixels default is 1
-     * @param edgeWidth 
+     * sets the width of the edge in pixels default is 1
+     *
+     * @param edgeWidth the desired width (in pixels, default=1)
      */
     public void setEdgeWidth(float edgeWidth) {
         this.edgeWidth = edgeWidth;
@@ -206,7 +210,8 @@ public class CartoonEdgeFilter extends Filter {
 
     /**
      * sets the normals sensitivity default is 1
-     * @param normalSensitivity 
+     *
+     * @param normalSensitivity the desired sensitivity (default=1)
      */
     public void setNormalSensitivity(float normalSensitivity) {
         this.normalSensitivity = normalSensitivity;
@@ -227,7 +232,8 @@ public class CartoonEdgeFilter extends Filter {
 
     /**
      * sets the normal threshold default is 0.5
-     * @param normalThreshold 
+     *
+     * @param normalThreshold the desired threshold (default=0.5)
      */
     public void setNormalThreshold(float normalThreshold) {
         this.normalThreshold = normalThreshold;
@@ -246,7 +252,8 @@ public class CartoonEdgeFilter extends Filter {
 
     /**
      * Sets the edge color, default is black
-     * @param edgeColor
+     *
+     * @param edgeColor the desired color (alias created, default=(0,0,0,1))
      */
     public void setEdgeColor(ColorRGBA edgeColor) {
         this.edgeColor = edgeColor;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,6 +43,9 @@ import java.nio.ByteBuffer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Utility class to access platform-dependant features.
+ */
 public class JmeSystem {
 
     private static final Logger logger = Logger.getLogger(JmeSystem.class.getName());
@@ -52,6 +55,12 @@ public class JmeSystem {
     }
 
     private static JmeSystemDelegate systemDelegate;
+
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private JmeSystem() {
+    }
 
     public static void setSystemDelegate(JmeSystemDelegate systemDelegate) {
         JmeSystem.systemDelegate = systemDelegate;
@@ -149,6 +158,12 @@ public class JmeSystem {
         return systemDelegate.showSettingsDialog(sourceSettings, loadFromRegistry);
     }
 
+    /**
+     * Determine which Platform (operating system and architecture) the
+     * application is running on.
+     *
+     * @return an enum value (not null)
+     */
     public static Platform getPlatform() {
         checkDelegate();
         return systemDelegate.getPlatform();
@@ -212,9 +227,7 @@ public class JmeSystem {
                         }
                     }
                 }
-            } catch (InstantiationException ex) {
-                Logger.getLogger(JmeSystem.class.getName()).log(Level.SEVERE, "Failed to create JmeSystem delegate:\n{0}", ex);
-            } catch (IllegalAccessException ex) {
+            } catch (InstantiationException | IllegalAccessException ex) {
                 Logger.getLogger(JmeSystem.class.getName()).log(Level.SEVERE, "Failed to create JmeSystem delegate:\n{0}", ex);
             }
         }

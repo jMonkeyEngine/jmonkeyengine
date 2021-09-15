@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -93,10 +93,6 @@ public class GltfLoader implements AssetLoader {
     private static Map<String, MaterialAdapter> defaultMaterialAdapters = new HashMap<>();
     private CustomContentManager customContentManager = new CustomContentManager();
     private boolean useNormalsFlag = false;
-    private Quaternion tmpQuat = new Quaternion();
-    private Transform tmpTransforms = new Transform();
-    private Transform tmpTransforms2 = new Transform();
-    private Matrix4f tmpMat = new Matrix4f();
 
     Map<SkinData, List<Spatial>> skinnedSpatials = new HashMap<>();
     IntMap<SkinBuffers> skinBuffers = new IntMap<>();
@@ -128,7 +124,7 @@ public class GltfLoader implements AssetLoader {
             docRoot = new JsonParser().parse(new JsonReader(new InputStreamReader(stream))).getAsJsonObject();
 
             JsonObject asset = docRoot.getAsJsonObject().get("asset").getAsJsonObject();
-            String generator = getAsString(asset, "generator");
+            getAsString(asset, "generator");
             String version = getAsString(asset, "version");
             String minVersion = getAsString(asset, "minVersion");
             if (!isSupported(version, minVersion)) {
@@ -171,7 +167,10 @@ public class GltfLoader implements AssetLoader {
 
             //only one scene let's not return the root.
             if (rootNode.getChildren().size() == 1) {
-                rootNode = (Node) rootNode.getChild(0);
+                Node child = (Node) rootNode.getChild(0);
+                //Migrate lights that were in the parent to the child.
+                rootNode.getLocalLightList().forEach(child::addLight);
+                rootNode = child;
             }
             //no name for the scene... let's set the file name.
             if (rootNode.getName() == null) {
@@ -208,6 +207,10 @@ public class GltfLoader implements AssetLoader {
             sceneNode.setCullHint(Spatial.CullHint.Always);
 
             sceneNode.setName(getAsString(scene.getAsJsonObject(), "name"));
+            // If the scene is empty, ignore it.
+            if (!scene.getAsJsonObject().has("nodes")) {
+                continue;
+            }
             JsonArray sceneNodes = scene.getAsJsonObject().getAsJsonArray("nodes");
             sceneNode = customContentManager.readExtensionAndExtras("scene", scene, sceneNode);
             rootNode.attachChild(sceneNode);
@@ -506,7 +509,7 @@ public class GltfLoader implements AssetLoader {
         return buffs;
     }
 
-    public <R> R readAccessorData(int accessorIndex, Populator<R> populator) throws IOException {
+    private <R> R readAccessorData(int accessorIndex, Populator<R> populator) throws IOException {
 
         assertNotNull(accessors, "No accessor attribute in the gltf file");
 
@@ -540,7 +543,7 @@ public class GltfLoader implements AssetLoader {
         assertNotNull(byteLength, "No byte length defined for bufferView " + bufferViewIndex);
         int byteStride = getAsInteger(bufferView, "byteStride", 0);
 
-        //target defines ELEMENT_ARRAY_BUFFER or ARRAY_BUFFER, but we already know that since we know we load the indexbuffer or any other...
+        //target defines ELEMENT_ARRAY_BUFFER or ARRAY_BUFFER, but we already know that since we know we load the index buffer or any other...
         //not sure it's useful for us, but I guess it's useful when you map data directly to the GPU.
         //int target = getAsInteger(bufferView, "target", 0);
 
@@ -681,11 +684,11 @@ public class GltfLoader implements AssetLoader {
                 float aspectRatio = getAsFloat(camData, "aspectRation", 1f);
                 Float yfov = getAsFloat(camData, "yfov");
                 assertNotNull(yfov, "No yfov for perspective camera");
-                Float znear = getAsFloat(camData, "znear");
-                assertNotNull(znear, "No znear for perspective camere");
-                Float zfar = getAsFloat(camData, "zfar", znear * 1000f);
+                Float zNear = getAsFloat(camData, "znear");
+                assertNotNull(zNear, "No znear for perspective camera");
+                Float zFar = getAsFloat(camData, "zfar", zNear * 1000f);
 
-                cam.setFrustumPerspective(yfov * FastMath.RAD_TO_DEG, aspectRatio, znear, zfar);
+                cam.setFrustumPerspective(yfov * FastMath.RAD_TO_DEG, aspectRatio, zNear, zFar);
                 cam = customContentManager.readExtensionAndExtras("camera.perspective", camData, cam);
 
             } else {
@@ -693,13 +696,13 @@ public class GltfLoader implements AssetLoader {
                 assertNotNull(xmag, "No xmag for orthographic camera");
                 Float ymag = getAsFloat(camData, "ymag");
                 assertNotNull(ymag, "No ymag for orthographic camera");
-                Float znear = getAsFloat(camData, "znear");
-                assertNotNull(znear, "No znear for orthographic camere");
-                Float zfar = getAsFloat(camData, "zfar", znear * 1000f);
-                assertNotNull(zfar, "No zfar for orthographic camera");
+                Float zNear = getAsFloat(camData, "znear");
+                assertNotNull(zNear, "No znear for orthographic camere");
+                Float zFar = getAsFloat(camData, "zfar", zNear * 1000f);
+                assertNotNull(zFar, "No zfar for orthographic camera");
 
                 cam.setParallelProjection(true);
-                cam.setFrustum(znear, zfar, -xmag, xmag, ymag, -ymag);
+                cam.setFrustum(zNear, zFar, -xmag, xmag, ymag, -ymag);
 
                 cam = customContentManager.readExtensionAndExtras("camera.orthographic", camData, cam);
             }
@@ -933,14 +936,14 @@ public class GltfLoader implements AssetLoader {
         anim = customContentManager.readExtensionAndExtras("animations", animation, anim);
 
         if (skinIndex != -1) {
-            //we have a armature animation.
+            //we have an armature animation.
             SkinData skin = fetchFromCache("skins", skinIndex, SkinData.class);
             skin.animComposer.addAnimClip(anim);
         }
 
         if (!spatials.isEmpty()) {
             if (skinIndex != -1) {
-                //there are some spatial or moph tracks in this bone animation... or the other way around. Let's add the spatials in the skinnedSpatials.
+                //there are some spatial or morph tracks in this bone animation... or the other way around. Let's add the spatials in the skinnedSpatials.
                 SkinData skin = fetchFromCache("skins", skinIndex, SkinData.class);
                 List<Spatial> spat = skinnedSpatials.get(skin);
                 spat.addAll(spatials);
@@ -1320,7 +1323,7 @@ public class GltfLoader implements AssetLoader {
 
     }
 //
-//    private class FloaGridPopulator implements Populator<float[]> {
+//    private class FloatGridPopulator implements Populator<float[]> {
 //
 //        @Override
 //        public float[][] populate(Integer bufferViewIndex, int componentType, String type, int count, int byteOffset, boolean normalized) throws IOException {

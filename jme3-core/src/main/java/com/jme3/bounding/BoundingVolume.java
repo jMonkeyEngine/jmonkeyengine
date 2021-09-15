@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -78,7 +78,9 @@ public abstract class BoundingVolume implements Savable, Cloneable, Collidable {
     }
 
     /**
-     * Grabs the checkplane we should check first.
+     * Grabs the plane we should check first.
+     *
+     * @return the index of the plane to be checked first
      */
     public int getCheckPlane() {
         return checkPlane;
@@ -87,7 +89,7 @@ public abstract class BoundingVolume implements Savable, Cloneable, Collidable {
     /**
      * Sets the index of the plane that should be first checked during rendering.
      *
-     * @param value
+     * @param value the index of the plane to be checked first
      */
     public final void setCheckPlane(int value) {
         checkPlane = value;
@@ -95,6 +97,8 @@ public abstract class BoundingVolume implements Savable, Cloneable, Collidable {
 
     /**
      * getType returns the type of bounding volume this is.
+     * 
+     * @return an enum value
      */
     public abstract Type getType();
 

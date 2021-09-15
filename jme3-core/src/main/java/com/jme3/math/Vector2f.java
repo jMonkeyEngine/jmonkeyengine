@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -586,7 +586,7 @@ public final class Vector2f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * <code>angleBetween</code> returns (in radians) the angle required to
-     * rotate a ray represented by this vector to be colinear with a ray
+     * rotate a ray represented by this vector to be collinear with a ray
      * described by the given vector. It is assumed that both this vector and
      * the given vector are unit vectors (iow, normalized).
      *
@@ -773,8 +773,8 @@ public final class Vector2f implements Savable, Cloneable, java.io.Serializable 
      *
      * @param in
      *            ObjectInput
-     * @throws IOException
-     * @throws ClassNotFoundException
+     * @throws IOException if an I/O error occurs
+     * @throws ClassNotFoundException when?
      * @see java.io.Externalizable
      */
     public void readExternal(ObjectInput in) throws IOException,
@@ -788,7 +788,7 @@ public final class Vector2f implements Savable, Cloneable, java.io.Serializable 
      *
      * @param out
      *            ObjectOutput
-     * @throws IOException
+     * @throws IOException if an I/O error occurs
      * @see java.io.Externalizable
      */
     public void writeExternal(ObjectOutput out) throws IOException {

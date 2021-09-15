@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,6 +34,7 @@ package com.jme3.export.binary;
 import com.jme3.asset.AssetManager;
 import com.jme3.export.FormatVersion;
 import com.jme3.export.JmeExporter;
+import com.jme3.export.OutputCapsule;
 import com.jme3.export.Savable;
 import com.jme3.export.SavableClassUtil;
 import com.jme3.math.FastMath;
@@ -147,17 +148,17 @@ public class BinaryExporter implements JmeExporter {
     protected int aliasCount = 1;
     protected int idCount = 1;
 
-    protected IdentityHashMap<Savable, BinaryIdContentPair> contentTable
-             = new IdentityHashMap<Savable, BinaryIdContentPair>();
+    final private IdentityHashMap<Savable, BinaryIdContentPair> contentTable
+             = new IdentityHashMap<>();
 
     protected HashMap<Integer, Integer> locationTable
-             = new HashMap<Integer, Integer>();
+             = new HashMap<>();
 
     // key - class name, value = bco
-    private HashMap<String, BinaryClassObject> classes
-             = new HashMap<String, BinaryClassObject>();
+    final private HashMap<String, BinaryClassObject> classes
+             = new HashMap<>();
 
-    private ArrayList<Savable> contentKeys = new ArrayList<Savable>();
+    final private ArrayList<Savable> contentKeys = new ArrayList<>();
 
     public static boolean debug = false;
     public static boolean useFastBufs = true;
@@ -259,7 +260,7 @@ public class BinaryExporter implements JmeExporter {
         // write out data to a separate stream
         int location = 0;
         // keep track of location for each piece
-        HashMap<String, ArrayList<BinaryIdContentPair>> alreadySaved = new HashMap<String, ArrayList<BinaryIdContentPair>>(
+        HashMap<String, ArrayList<BinaryIdContentPair>> alreadySaved = new HashMap<>(
                 contentTable.size());
         for (Savable savable : contentKeys) {
             // look back at previous written data for matches
@@ -323,12 +324,12 @@ public class BinaryExporter implements JmeExporter {
         }
     }
 
-    protected String getChunk(BinaryIdContentPair pair) {
+    private String getChunk(BinaryIdContentPair pair) {
         return new String(pair.getContent().bytes, 0, Math.min(64, pair
                 .getContent().bytes.length));
     }
 
-    protected int findPrevMatch(BinaryIdContentPair oldPair,
+    private int findPrevMatch(BinaryIdContentPair oldPair,
             ArrayList<BinaryIdContentPair> bucket) {
         if (bucket == null)
             return -1;
@@ -364,7 +365,7 @@ public class BinaryExporter implements JmeExporter {
     }
 
     @Override
-    public BinaryOutputCapsule getCapsule(Savable object) {
+    public OutputCapsule getCapsule(Savable object) {
         return contentTable.get(object).getContent();
     }
 
@@ -419,7 +420,7 @@ public class BinaryExporter implements JmeExporter {
         return bytes;
     }
 
-    protected BinaryIdContentPair generateIdContentPair(BinaryClassObject bco) {
+    private BinaryIdContentPair generateIdContentPair(BinaryClassObject bco) {
         BinaryIdContentPair pair = new BinaryIdContentPair(idCount++,
                 new BinaryOutputCapsule(this, bco));
         return pair;

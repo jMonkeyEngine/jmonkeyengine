@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -57,7 +57,7 @@ import java.util.logging.Logger;
  */
 public class DefaultClient implements Client
 {
-    static final Logger log = Logger.getLogger(DefaultClient.class.getName());
+    private static final Logger log = Logger.getLogger(DefaultClient.class.getName());
     
     // First two channels are reserved for reliable and
     // unreliable.  Note: channels are endpoint specific so these
@@ -68,18 +68,18 @@ public class DefaultClient implements Client
     private static final int CH_UNRELIABLE = 1;
     private static final int CH_FIRST = 2;
         
-    private final ThreadLocal<ByteBuffer> dataBuffer = new ThreadLocal<ByteBuffer>();
+    private final ThreadLocal<ByteBuffer> dataBuffer = new ThreadLocal<>();
     
     private int id = -1;
     private boolean isRunning = false;
     private final CountDownLatch connecting = new CountDownLatch(1);
     private String gameName;
     private int version;
-    private final MessageListenerRegistry<Client> messageListeners = new MessageListenerRegistry<Client>();
-    private final List<ClientStateListener> stateListeners = new CopyOnWriteArrayList<ClientStateListener>();
-    private final List<ErrorListener<? super Client>> errorListeners = new CopyOnWriteArrayList<ErrorListener<? super Client>>();
+    private final MessageListenerRegistry<Client> messageListeners = new MessageListenerRegistry<>();
+    private final List<ClientStateListener> stateListeners = new CopyOnWriteArrayList<>();
+    private final List<ErrorListener<? super Client>> errorListeners = new CopyOnWriteArrayList<>();
     private final Redispatch dispatcher = new Redispatch();
-    private final List<ConnectorAdapter> channels = new ArrayList<ConnectorAdapter>();    
+    private final List<ConnectorAdapter> channels = new ArrayList<>();    
  
     private ConnectorFactory connectorFactory;
     
@@ -155,7 +155,7 @@ public class DefaultClient implements Client
         // their UDP ports mapped all over the place.
         //
         // Since currentTimeMillis() is absolute time and nano time
-        // is roughtly related to system start time, adding these two
+        // is roughly related to system start time, adding these two
         // together should be plenty unique for our purposes.  It wouldn't
         // hurt to reconcile with IP on the server side, though.
         long tempId = System.currentTimeMillis() + System.nanoTime();
@@ -416,7 +416,7 @@ public class DefaultClient implements Client
         // If there are no listeners then close the connection with
         // a reason
         if( errorListeners.isEmpty() ) {
-            log.log( Level.SEVERE, "Termining connection due to unhandled error", t );
+            log.log( Level.SEVERE, "Terminating connection due to unhandled error", t );
             DisconnectInfo info = new DisconnectInfo();
             info.reason = "Connection Error";
             info.error = t;
@@ -482,7 +482,7 @@ public class DefaultClient implements Client
             }
             return;
         } else if( m instanceof ChannelInfoMessage ) {
-            // This is an interum step in the connection process and
+            // This is an interim step in the connection process and
             // now we need to add a bunch of connections
             configureChannels( ((ChannelInfoMessage)m).getId(), ((ChannelInfoMessage)m).getPorts() );
             return; 

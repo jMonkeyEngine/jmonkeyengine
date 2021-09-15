@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -166,7 +166,7 @@ public class ShaderNodeVariable implements Savable, Cloneable {
     /**
      * Sets the variable prefix (m_ or g_)
      *
-     * @param prefix
+     * @param prefix the desired prefix
      */
     public void setPrefix(String prefix) {
         this.prefix = prefix;
@@ -176,7 +176,7 @@ public class ShaderNodeVariable implements Savable, Cloneable {
      * sets the nameSpace (can be the name of the shaderNode or
      * Global,Attr,MatParam,WorldParam)
      *
-     * @param nameSpace
+     * @param nameSpace the desired nameSpace
      */
     public void setNameSpace(String nameSpace) {
         this.nameSpace = nameSpace;
@@ -246,7 +246,7 @@ public class ShaderNodeVariable implements Savable, Cloneable {
      * jme serialization (not used)
      *
      * @param ex the exporter
-     * @throws IOException
+     * @throws IOException from the exporter
      */
     @Override
     public void write(JmeExporter ex) throws IOException {
@@ -265,14 +265,14 @@ public class ShaderNodeVariable implements Savable, Cloneable {
      * jme serialization (not used)
      *
      * @param im the importer
-     * @throws IOException
+     * @throws IOException from the importer
      */
     @Override
     public void read(JmeImporter im) throws IOException {
         InputCapsule ic = im.getCapsule(this);
         name = ic.readString("name", "");
         type = ic.readString("type", "");
-        prefix = ic.readString("pefix", "");
+        prefix = ic.readString("prefix", "");
         nameSpace = ic.readString("nameSpace", "");
         condition = ic.readString("condition", null);
         shaderOutput = ic.readBoolean("shaderOutput", false);
@@ -330,7 +330,8 @@ public class ShaderNodeVariable implements Savable, Cloneable {
     /**
      * sets the number of elements of this variable making it an array
      * this value can be a number of can be a define
-     * @param multiplicity 
+     *
+     * @param multiplicity the desired expression
      */
     public void setMultiplicity(String multiplicity) {
         this.multiplicity = multiplicity;

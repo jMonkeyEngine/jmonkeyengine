@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,16 +35,16 @@ import com.jme3.app.Application;
 import com.jme3.renderer.RenderManager;
 
 /**
- * AppState represents continously executing code inside the main loop.
+ * AppState represents continuously executing code inside the main loop.
  * 
  * An <code>AppState</code> can track when it is attached to the 
  * {@link AppStateManager} or when it is detached. 
  * 
- * <br/><code>AppState</code>s are initialized in the render thread, upon a call to 
+ * <code>AppState</code>s are initialized in the render thread, upon a call to 
  * {@link AppState#initialize(com.jme3.app.state.AppStateManager, com.jme3.app.Application) }
  * and are de-initialized upon a call to {@link AppState#cleanup()}. 
  * Implementations should return the correct value with a call to 
- * {@link AppState#isInitialized() } as specified above.<br/>
+ * {@link AppState#isInitialized() } as specified above.
  * 
  * <ul>
  * <li>If a detached AppState is attached then <code>initialize()</code> will be called
@@ -93,6 +93,8 @@ public interface AppState {
     /**
      *  Returns the unique ID for this AppState or null if it has no
      *  unique ID.
+     *
+     * @return the ID, or null if none
      */
     public String getId();
 

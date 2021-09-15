@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -119,7 +119,7 @@ public class SkinningControl extends AbstractControl implements Cloneable, JmeCl
     }
 
     /**
-     * Creates a armature control. The list of targets will be acquired
+     * Creates an armature control. The list of targets will be acquired
      * automatically when the control is attached to a node.
      *
      * @param armature the armature
@@ -185,7 +185,8 @@ public class SkinningControl extends AbstractControl implements Cloneable, JmeCl
      * supported by GPU, it shall be enabled, if its not preferred, or not
      * supported by GPU, then it shall be disabled.
      *
-     * @param preferred
+     * @param preferred true to prefer hardware skinning, false to prefer 
+     * software skinning (default=true)
      * @see #isHardwareSkinningUsed()
      */
     public void setHardwareSkinningPreferred(boolean preferred) {
@@ -336,7 +337,7 @@ public class SkinningControl extends AbstractControl implements Cloneable, JmeCl
                 bpb.clear();
                 bnb.clear();
 
-                //reseting bind tangents if there is a bind tangent buffer
+                //resetting bind tangents if there is a bind tangent buffer
                 VertexBuffer bindTangents = mesh.getBuffer(Type.BindPoseTangent);
                 if (bindTangents != null) {
                     VertexBuffer tangents = mesh.getBuffer(Type.Tangent);
@@ -456,7 +457,7 @@ public class SkinningControl extends AbstractControl implements Cloneable, JmeCl
      * Method to apply skinning transforms to a mesh's buffers
      *
      * @param mesh           the mesh
-     * @param offsetMatrices the offset matices to apply
+     * @param offsetMatrices the offset matrices to apply
      */
     private void applySkinning(Mesh mesh, Matrix4f[] offsetMatrices) {
         int maxWeightsPerVert = mesh.getMaxNumWeights();
@@ -700,6 +701,13 @@ public class SkinningControl extends AbstractControl implements Cloneable, JmeCl
         tb.updateData(ftb);
     }
 
+    /**
+     * Serialize this Control to the specified exporter, for example when saving
+     * to a J3O file.
+     *
+     * @param ex the exporter to write to (not null)
+     * @throws IOException from the exporter
+     */
     @Override
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
@@ -710,6 +718,13 @@ public class SkinningControl extends AbstractControl implements Cloneable, JmeCl
         oc.write(jointMatricesParam, "boneMatricesParam", null);
     }
 
+    /**
+     * De-serialize this Control from the specified importer, for example when
+     * loading from a J3O file.
+     *
+     * @param im the importer to read from (not null)
+     * @throws IOException from the importer
+     */
     @Override
     public void read(JmeImporter im) throws IOException {
         super.read(im);

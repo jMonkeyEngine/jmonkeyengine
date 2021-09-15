@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -56,7 +56,7 @@ public interface AssetEventListener {
      * In contrast to the assetLoaded() method, this one will be called even
      * if the asset has failed to load, or if it was retrieved from the cache.
      *
-     * @param key
+     * @param key the key of the requested asset
      */
     public void assetRequested(AssetKey key);
     

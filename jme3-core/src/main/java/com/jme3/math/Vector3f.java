@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -435,7 +435,18 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      * @return the length or magnitude of the vector.
      */
     public float length() {
-        return FastMath.sqrt(lengthSquared());
+        /*
+         * Use double-precision arithmetic to reduce the chance of overflow
+         * (when lengthSquared > Float.MAX_VALUE) or underflow (when
+         * lengthSquared is < Float.MIN_VALUE).
+         */
+        double xx = x;
+        double yy = y;
+        double zz = z;
+        double lengthSquared = xx * xx + yy * yy + zz * zz;
+        float result = (float) Math.sqrt(lengthSquared);
+
+        return result;
     }
 
     /**
@@ -470,7 +481,18 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      * @return the distance between the two vectors.
      */
     public float distance(Vector3f v) {
-        return FastMath.sqrt(distanceSquared(v));
+        /*
+         * Use double-precision arithmetic to reduce the chance of overflow 
+         * (when distanceSquared > Float.MAX_VALUE) or underflow (when 
+         * distanceSquared is < Float.MIN_VALUE).
+         */
+        double dx = x - v.x;
+        double dy = y - v.y;
+        double dz = z - v.z;
+        double distanceSquared = dx * dx + dy * dy + dz * dz;
+        float result = (float) Math.sqrt(distanceSquared);
+
+        return result;
     }
 
     /**
@@ -544,9 +566,9 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      * internally, and returns a handle to this vector for easy chaining of
      * calls.
      *
-     * @param x
-     * @param y
-     * @param z
+     * @param x the scale factor for the X component
+     * @param y the scale factor for the Y component
+     * @param z the scale factor for the Z component
      * @return this
      */
     public Vector3f multLocal(float x, float y, float z) {
@@ -807,7 +829,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      * component in this and <code>other</code> vector. The result is stored
      * in this vector.
      *
-     * @param other
+     * @param other the vector to compare with (not null, unaffected)
      * @return this
      */
     public Vector3f maxLocal(Vector3f other) {
@@ -822,7 +844,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      * component in this and <code>other</code> vector. The result is stored
      * in this vector.
      *
-     * @param other
+     * @param other the vector to compare with (not null, unaffected)
      * @return this
      */
     public Vector3f minLocal(Vector3f other) {
@@ -1148,7 +1170,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * @param index
+     * @param index 0, 1, or 2
      * @return x value if index == 0, y value if index == 1 or z value if index == 2
      * @throws IllegalArgumentException
      *             if index is not one of 0, 1, 2.

@@ -534,7 +534,7 @@ public class OsvrDisplayLibrary implements Library {
 	 * @param eye Eye ID<br>
 	 * @param surface Surface ID<br>
 	 * @param displayInput Zero-based index of the display input pixels for<br>
-	 * this surface are tranmitted over.<br>
+	 * this surface are transmitted over.<br>
 	 * This association is **constant** throughout the active, valid lifetime of a<br>
 	 * display config object.<br>
          * @see #osvrClientGetNumDisplayInputs(com.jme3.system.osvr.osvrdisplay.OsvrDisplayLibrary.OSVR_DisplayConfig, java.nio.ByteBuffer) 
@@ -560,7 +560,7 @@ public class OsvrDisplayLibrary implements Library {
 	 * @param eye Eye ID<br>
 	 * @param surface Surface ID<br>
 	 * @param displayInput Zero-based index of the display input pixels for<br>
-	 * this surface are tranmitted over.<br>
+	 * this surface are transmitted over.<br>
 	 * This association is **constant** throughout the active, valid lifetime of a<br>
 	 * display config object.<br>
          * @see #osvrClientGetNumDisplayInputs(com.jme3.system.osvr.osvrdisplay.OsvrDisplayLibrary.OSVR_DisplayConfig, java.nio.ByteBuffer) 

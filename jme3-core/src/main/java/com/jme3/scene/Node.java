@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -62,7 +62,7 @@ public class Node extends Spatial {
     /**
      * This node's children.
      */
-    protected SafeArrayList<Spatial> children = new SafeArrayList<Spatial>(Spatial.class);
+    protected SafeArrayList<Spatial> children = new SafeArrayList<>(Spatial.class);
     /**
      * If this node is a root, this list will contain the current
      * set of children (and children of children) that require
@@ -212,7 +212,7 @@ public class Node extends Spatial {
             return updateList;
         }
         if (updateList == null) {
-            updateList = new SafeArrayList<Spatial>(Spatial.class);
+            updateList = new SafeArrayList<>(Spatial.class);
         } else {
             updateList.clear();
         }
@@ -228,7 +228,7 @@ public class Node extends Spatial {
         super.updateLogicalState(tpf);
 
         // Only perform updates on children if we are the
-        // root and then only peform updates on children we
+        // root and then only perform updates on children we
         // know to require updates.
         // So if this isn't the root, abort.
         if (parent != null) {
@@ -338,8 +338,10 @@ public class Node extends Spatial {
      *
      * @param child
      *            the child to attach to this node.
+     * @param index
+     *            the position where the child should be attached
      * @return the number of children maintained by this node.
-     * @throws NullPointerException if child is null.
+     * @throws IllegalArgumentException if child is null or this
      */
     public int attachChildAt(Spatial child, int index) {
         if (child == null) {
@@ -374,12 +376,12 @@ public class Node extends Spatial {
      * This child will no longer be maintained.
      *
      * @param child
-     *            the child to remove.
+     *            the child to remove (not null)
      * @return the index the child was at. -1 if the child was not in the list.
      */
     public int detachChild(Spatial child) {
         if (child == null) {
-            throw new NullPointerException();
+            throw new IllegalArgumentException("child cannot be null");
         }
 
         if (child.getParent() == this) {
@@ -395,16 +397,16 @@ public class Node extends Spatial {
 
     /**
      * <code>detachChild</code> removes a given child from the node's list.
-     * This child will no longe be maintained. Only the first child with a
+     * This child will no longer be maintained. Only the first child with a
      * matching name is removed.
      *
      * @param childName
-     *            the child to remove.
+     *            the child to remove (not null)
      * @return the index the child was at. -1 if the child was not in the list.
      */
     public int detachChildNamed(String childName) {
         if (childName == null) {
-            throw new NullPointerException();
+            throw new IllegalArgumentException("childName cannot be null");
         }
 
         for (int x = 0, max = children.size(); x < max; x++) {
@@ -623,23 +625,24 @@ public class Node extends Spatial {
      /**
      * Returns flat list of Spatials implementing the specified class AND
      * with name matching the specified pattern.
-     * </P> <P>
+     * <P>
      * Note that we are <i>matching</i> the pattern, therefore the pattern
      * must match the entire pattern (i.e. it behaves as if it is sandwiched
      * between "^" and "$").
      * You can set regex modes, like case insensitivity, by using the (?X)
      * or (?X:Y) constructs.
      * </P> <P>
-     * By design, it is always safe to code loops like:<CODE><PRE>
+     * By design, it is always safe to code loops like:<PRE>
      *     for (Spatial spatial : node.descendantMatches(AClass.class, "regex"))
-     * </PRE></CODE>
-     * </P> <P>
+     * </PRE>
+     * <P>
      * "Descendants" does not include self, per the definition of the word.
      * To test for descendants AND self, you must do a
      * <code>node.matches(aClass, aRegex)</code> +
      * <code>node.descendantMatches(aClass, aRegex)</code>.
      * <P>
      *
+     * @param <T> the type of Spatial returned
      * @param spatialSubclass Subclass which matching Spatials must implement.
      *                        Null causes all Spatials to qualify.
      * @param nameRegex  Regular expression to match Spatial name against.
@@ -653,7 +656,7 @@ public class Node extends Spatial {
     @SuppressWarnings("unchecked")
     public <T extends Spatial> List<T> descendantMatches(
             Class<T> spatialSubclass, String nameRegex) {
-        List<T> newList = new ArrayList<T>();
+        List<T> newList = new ArrayList<>();
         if (getQuantity() < 1) {
             return newList;
         }
@@ -672,6 +675,10 @@ public class Node extends Spatial {
     /**
      * Convenience wrapper.
      *
+     * @param <T> the type of Spatial returned
+     * @param spatialSubclass the type of Spatial returned, or null for all
+     * spatials
+     * @return a new list of pre-existing spatials (may be empty)
      * @see #descendantMatches(java.lang.Class, java.lang.String)
      */
     public <T extends Spatial> List<T> descendantMatches(
@@ -682,6 +689,9 @@ public class Node extends Spatial {
     /**
      * Convenience wrapper.
      *
+     * @param <T> the type of Spatial returned
+     * @param nameRegex regular expression to match Spatial names against, or null for all spatials
+     * @return a new list of pre-existing spatials (may be empty)
      * @see #descendantMatches(java.lang.Class, java.lang.String)
      */
     public <T extends Spatial> List<T> descendantMatches(String nameRegex) {
@@ -717,7 +727,7 @@ public class Node extends Spatial {
 
     public Spatial oldDeepClone() {
         Node nodeClone = (Node) super.clone();
-        nodeClone.children = new SafeArrayList<Spatial>(Spatial.class);
+        nodeClone.children = new SafeArrayList<>(Spatial.class);
         for (Spatial child : children) {
             Spatial childClone = child.deepClone();
             childClone.parent = nodeClone;

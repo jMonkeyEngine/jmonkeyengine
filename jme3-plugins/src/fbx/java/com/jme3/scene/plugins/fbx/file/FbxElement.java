@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2014 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -51,11 +51,11 @@ public class FbxElement {
 	 * i - array of ints
 	 * d - array of doubles
 	 * l - array of longs
-	 * b - array of boleans
+	 * b - array of booleans
 	 * c - array of unsigned bytes (represented as array of ints)
 	 */
 	public char[] propertiesTypes;
-	public List<FbxElement> children = new ArrayList<FbxElement>();
+	public List<FbxElement> children = new ArrayList<>();
 	
 	public FbxElement(int propsCount) {
 		this.properties = new ArrayList<Object>(propsCount);
@@ -72,7 +72,7 @@ public class FbxElement {
         }
         
         public List<FbxElement> getFbxProperties() {
-            List<FbxElement> props = new ArrayList<FbxElement>();
+            List<FbxElement> props = new ArrayList<>();
             FbxElement propsElement = null;
             boolean legacy = false;
             
@@ -99,7 +99,7 @@ public class FbxElement {
                         types[1] = prop.propertiesTypes[0];
                         System.arraycopy(prop.propertiesTypes, 1, types, 2, types.length - 2);
                         
-                        List<Object> values = new ArrayList<Object>(prop.properties);
+                        List<Object> values = new ArrayList<>(prop.properties);
                         values.add(1, values.get(0));
                         
                         FbxElement dummyProp = new FbxElement(types.length);

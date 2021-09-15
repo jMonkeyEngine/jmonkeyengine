@@ -33,8 +33,11 @@ package com.jme3.renderer.ios;
 
 import com.jme3.renderer.RendererException;
 import com.jme3.renderer.opengl.GL;
+import com.jme3.renderer.opengl.GL2;
+import com.jme3.renderer.opengl.GLES_30;
 import com.jme3.renderer.opengl.GLExt;
 import com.jme3.renderer.opengl.GLFbo;
+import com.jme3.util.BufferUtils;
 import java.nio.Buffer;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
@@ -43,13 +46,14 @@ import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 
 /**
- * Implements OpenGL ES 2.0 for iOS. 
+ * Implements OpenGL ES 2.0 and 3.0 for iOS. 
  * 
- * @author Kirill Vainer
+ * @author Kirill Vainer, Jesus Oliver
  */
-public class IosGL implements GL, GLExt, GLFbo {
+public class IosGL implements GL, GL2, GLES_30, GLExt, GLFbo {
     
     private final int[] temp_array = new int[16];
+    private final IntBuffer tmpBuff = BufferUtils.createIntBuffer(1);
     
     @Override
     public void resetStats() {
@@ -129,7 +133,7 @@ public class IosGL implements GL, GLExt, GLFbo {
 
     @Override
     public void glBeginQuery(int target, int query) {
-        throw new UnsupportedOperationException("Today is not a good day for this");
+        JmeIosGLES.glBeginQuery(target, query);
     }
 
     @Override
@@ -143,13 +147,13 @@ public class IosGL implements GL, GLExt, GLFbo {
     }
 
     @Override
-    public void glBlendFunc(int sfactor, int dfactor) {
-        JmeIosGLES.glBlendFunc(sfactor, dfactor);
+    public void glBlendFunc(int sFactor, int dFactor) {
+        JmeIosGLES.glBlendFunc(sFactor, dFactor);
     }
     
     @Override
-    public void glBlendFuncSeparate(int sfactorRGB, int dfactorRGB, int sfactorAlpha, int dfactorAlpha) {
-        JmeIosGLES.glBlendFuncSeparate(sfactorRGB, dfactorRGB, sfactorAlpha, dfactorAlpha);
+    public void glBlendFuncSeparate(int sFactorRGB, int dFactorRGB, int sFactorAlpha, int dFactorAlpha) {
+        JmeIosGLES.glBlendFuncSeparate(sFactorRGB, dFactorRGB, sFactorAlpha, dFactorAlpha);
     }
 
 
@@ -314,7 +318,7 @@ public class IosGL implements GL, GLExt, GLFbo {
 
     @Override
     public void glEndQuery(int target) {
-        throw new UnsupportedOperationException("Today is not a good day for this");
+        JmeIosGLES.glEndQuery(target);
     }
 
     @Override
@@ -333,7 +337,7 @@ public class IosGL implements GL, GLExt, GLFbo {
 
     @Override
     public void glGenQueries(int num, IntBuffer buff) {
-        throw new UnsupportedOperationException("Today is not a good day for this");
+        JmeIosGLES.glGenQueries(num, buff);
     }
 
     @Override
@@ -343,9 +347,7 @@ public class IosGL implements GL, GLExt, GLFbo {
 
     @Override
     public void glGetBoolean(int pname, ByteBuffer params) {
-        // TODO: fix me!!!
-        // JmeIosGLES.glGetBoolean(pname, params);
-        throw new UnsupportedOperationException("Today is not a good day for this");
+        JmeIosGLES.glGetBoolean(pname, params);
     }
 
     @Override
@@ -374,12 +376,14 @@ public class IosGL implements GL, GLExt, GLFbo {
 
     @Override
     public long glGetQueryObjectui64(int query, int pname) {
-        throw new UnsupportedOperationException("Today is not a good day for this");
+        JmeIosGLES.glGetQueryObjectuiv(query, pname, temp_array);
+        return temp_array[0];
     }
 
     @Override
     public int glGetQueryObjectiv(int query, int pname) {
-        throw new UnsupportedOperationException("Today is not a good day for this");
+        JmeIosGLES.glGetQueryiv(query, pname, temp_array);
+        return temp_array[0];
     }
 
     @Override
@@ -406,11 +410,11 @@ public class IosGL implements GL, GLExt, GLFbo {
 
     @Override
     public boolean glIsEnabled(int cap) {
-        // TODO: fix me!!!
+        // kept this always returning true for compatibility
         if (cap == GLExt.GL_MULTISAMPLE_ARB) {
             return true;
         } else {
-            throw new UnsupportedOperationException();
+            return JmeIosGLES.glIsEnabled(cap);
         }
     }
 
@@ -454,25 +458,22 @@ public class IosGL implements GL, GLExt, GLFbo {
 
     @Override
     public void glStencilFuncSeparate(int face, int func, int ref, int mask) {
-        // TODO: fix me!!!
-        // JmeIosGLES.glStencilFuncSeparate(face, func, ref, mask);
+        JmeIosGLES.glStencilFuncSeparate(face, func, ref, mask);
     }
 
     @Override
     public void glStencilOpSeparate(int face, int sfail, int dpfail, int dppass) {
-        // TODO: fix me!!!
-        // JmeIosGLES.glStencilOpSeparate(face, sfail, dpfail, dppass);
+        JmeIosGLES.glStencilOpSeparate(face, sfail, dpfail, dppass);
     }
 
     @Override
     public void glTexImage2D(int target, int level, int internalFormat, int width, int height, int border, int format, int type, ByteBuffer data) {
-        JmeIosGLES.glTexImage2D(target, level, format, width, height, 0, format, type, data);
+        JmeIosGLES.glTexImage2D(target, level, internalFormat, width, height, 0, format, type, data);
     }
 
     @Override
     public void glTexParameterf(int target, int pname, float param) {
-        // TODO: fix me!!!
-        // JmeIosGLES.glTexParameterf(target, pname, param);
+        JmeIosGLES.glTexParameterf(target, pname, param);
     }
 
     @Override
@@ -583,7 +584,7 @@ public class IosGL implements GL, GLExt, GLFbo {
 
     @Override
     public void glBlitFramebufferEXT(int srcX0, int srcY0, int srcX1, int srcY1, int dstX0, int dstY0, int dstX1, int dstY1, int mask, int filter) {
-        throw new UnsupportedOperationException("FBO blit not available on iOS");
+        JmeIosGLES.glBlitFramebuffer(srcX0, srcY0, srcX1, srcY1, dstX0, dstY0, dstX1, dstY1, mask, filter);
     }
 
     @Override
@@ -598,17 +599,17 @@ public class IosGL implements GL, GLExt, GLFbo {
 
     @Override
     public void glDrawArraysInstancedARB(int mode, int first, int count, int primcount) {
-        throw new UnsupportedOperationException("Instancing not available on iOS");
+        JmeIosGLES.glDrawArraysInstanced(mode, first, count, primcount);
     }
 
     @Override
     public void glDrawBuffers(IntBuffer bufs) {
-        throw new UnsupportedOperationException("MRT not available on iOS");
+        JmeIosGLES.glDrawBuffers(getLimitBytes(bufs), bufs);
     }
 
     @Override
     public void glDrawElementsInstancedARB(int mode, int indices_count, int type, long indices_buffer_offset, int primcount) {
-        throw new UnsupportedOperationException("Instancing not available on iOS");
+        JmeIosGLES.glDrawElementsInstanced(mode, indices_count, type, indices_buffer_offset, primcount);
     }
 
     @Override
@@ -622,13 +623,13 @@ public class IosGL implements GL, GLExt, GLFbo {
     }
 
     @Override
-    public void glTexImage2DMultisample(int target, int samples, int internalformat, int width, int height, boolean fixedsamplelocations) {
+    public void glTexImage2DMultisample(int target, int samples, int internalformat, int width, int height, boolean fixedSampleLocations) {
         throw new UnsupportedOperationException("Multisample textures not available on iOS");
     }
 
     @Override
     public void glVertexAttribDivisorARB(int index, int divisor) {
-        throw new UnsupportedOperationException("Instancing not available on iOS");
+        JmeIosGLES.glVertexAttribDivisor(index, divisor);
     }
 
     @Override
@@ -717,6 +718,59 @@ public class IosGL implements GL, GLExt, GLFbo {
     
     @Override
     public void glFramebufferTextureLayerEXT(int target, int attachment, int texture, int level, int layer) {
-        throw new UnsupportedOperationException("OpenGL ES 2 does not support texture arrays");
+        JmeIosGLES.glFramebufferTextureLayer(target, attachment, texture, level, layer);
     }
+
+    // New methods from GL2 interface which are supported in GLES30
+    @Override
+    public void glAlphaFunc(int func, float ref) {
+    }
+    
+    @Override
+    public void glPointSize(float size) {
+    }
+
+    @Override
+    public void glPolygonMode(int face, int mode) {
+    }
+
+    // Wrapper to DrawBuffers as there's no DrawBuffer method in GLES
+    @Override
+    public void glDrawBuffer(int mode) {
+        ((Buffer)tmpBuff).clear();
+        tmpBuff.put(0, mode);
+        tmpBuff.rewind();
+        glDrawBuffers(tmpBuff);
+    }
+
+    @Override
+    public void glReadBuffer(int mode) {
+        JmeIosGLES.glReadBuffer(mode);
+    }
+
+    @Override
+    public void glCompressedTexImage3D(int target, int level, int internalFormat, int width, int height, int depth,
+                                           int border, ByteBuffer data) {
+        JmeIosGLES.glCompressedTexImage3D(target, level, internalFormat, width, height, depth, border, getLimitBytes(data), data);
+    }
+
+    @Override
+    public void glCompressedTexSubImage3D(int target, int level, int xoffset, int yoffset, int zoffset, int width,
+                                              int height, int depth, int format, ByteBuffer data) {
+        JmeIosGLES.glCompressedTexSubImage3D(target, level, xoffset, yoffset, zoffset, width, height, depth, format, getLimitBytes(data), data);
+    }
+
+    @Override
+    public void glTexImage3D(int target, int level, int internalFormat, int width, int height, int depth, int border,
+                                 int format, int type, ByteBuffer data) {
+        JmeIosGLES.glTexImage3D(target, level, internalFormat, width, height, depth, border, format, type, data);
+    }
+
+    @Override
+    public void glTexSubImage3D(int target, int level, int xoffset, int yoffset, int zoffset, int width, int height,
+                                    int depth, int format, int type, ByteBuffer data) {
+        JmeIosGLES.glTexSubImage3D(target, level, xoffset, yoffset, zoffset, width, height, depth, format, type, data);
+    }
+
+
 }

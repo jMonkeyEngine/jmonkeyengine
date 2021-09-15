@@ -48,7 +48,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class ClassInfoRegistry {
  
     //private final LoadingCache<Class, ClassInfo> cache;  // Guava version
-    private final Map<Class, ClassInfo> cache = new HashMap<Class, ClassInfo>();
+    private final Map<Class, ClassInfo> cache = new HashMap<>();
     private final AtomicInteger nextClassId = new AtomicInteger();
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
  
@@ -78,7 +78,7 @@ public class ClassInfoRegistry {
                 result = new ClassInfo((short)nextClassId.getAndIncrement(), type);
                 cache.put(type, result);
                 
-                // Regrab the read lock before leaving... kind of unnecessary but
+                // Re-grab the read lock before leaving... kind of unnecessary but
                 // it makes the method cleaner and widens the gap of lock races.
                 // Downgrading a write lock to read is ok.
                 lock.readLock().lock();

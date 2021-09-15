@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -94,26 +94,25 @@ public class InputManager implements RawInputListener {
     private long lastLastUpdateTime = 0;
     private long lastUpdateTime = 0;
     private long frameDelta = 0;
-    private long firstTime = 0;
     private boolean eventsPermitted = false;
     private boolean mouseVisible = true;
     private boolean safeMode = false;
     private float globalAxisDeadZone = 0.05f;
     private final Vector2f cursorPos = new Vector2f();
     private Joystick[] joysticks;
-    private final IntMap<ArrayList<Mapping>> bindings = new IntMap<ArrayList<Mapping>>();
-    private final HashMap<String, Mapping> mappings = new HashMap<String, Mapping>();
-    private final IntMap<Long> pressedButtons = new IntMap<Long>();
-    private final IntMap<Float> axisValues = new IntMap<Float>();
-    private final SafeArrayList<RawInputListener> rawListeners = new SafeArrayList<RawInputListener>(RawInputListener.class);
-    private final ArrayList<InputEvent> inputQueue = new ArrayList<InputEvent>();
+    private final IntMap<ArrayList<Mapping>> bindings = new IntMap<>();
+    private final HashMap<String, Mapping> mappings = new HashMap<>();
+    private final IntMap<Long> pressedButtons = new IntMap<>();
+    private final IntMap<Float> axisValues = new IntMap<>();
+    private final SafeArrayList<RawInputListener> rawListeners = new SafeArrayList<>(RawInputListener.class);
+    private final ArrayList<InputEvent> inputQueue = new ArrayList<>();
     private final List<JoystickConnectionListener> joystickConnectionListeners = new ArrayList<>();
 
     private static class Mapping {
 
         private final String name;
-        private final ArrayList<Integer> triggers = new ArrayList<Integer>();
-        private final ArrayList<InputListener> listeners = new ArrayList<InputListener>();
+        private final ArrayList<Integer> triggers = new ArrayList<>();
+        private final ArrayList<InputListener> listeners = new ArrayList<>();
 
         public Mapping(String name) {
             this.name = name;
@@ -125,10 +124,10 @@ public class InputManager implements RawInputListener {
      *
      * <p>This should only be called internally in {@link Application}.
      *
-     * @param mouse
-     * @param keys
-     * @param joystick
-     * @param touch
+     * @param mouse (not null, alias created)
+     * @param keys (not null, alias created)
+     * @param joystick (may be null, alias created)
+     * @param touch (may be null, alias created)
      * @throws IllegalArgumentException If either mouseInput or keyInput are null.
      */
     public InputManager(MouseInput mouse, KeyInput keys, JoyInput joystick, TouchInput touch) {
@@ -151,7 +150,11 @@ public class InputManager implements RawInputListener {
             touch.setInputListener(this);
         }
 
-        firstTime = keys.getInputTimeNanos();
+        keys.getInputTimeNanos();
+    }
+
+    public String getKeyName(int key){
+        return keys.getKeyName(key);
     }
 
     private void invokeActions(int hash, boolean pressed) {
@@ -595,7 +598,7 @@ public class InputManager implements RawInputListener {
      * for the given mappingName.
      *
      * @param mappingName The mapping name to check.
-     *
+     * @return true if the mapping is registered, otherwise false
      * @see InputManager#addMapping(java.lang.String, com.jme3.input.controls.Trigger[])
      * @see InputManager#deleteMapping(java.lang.String)
      */
@@ -775,6 +778,7 @@ public class InputManager implements RawInputListener {
      * @deprecated Use isSimulateMouse
      * Returns state of simulation of mouse events. Used for touchscreen input only.
      *
+     * @return true if a mouse is simulated, otherwise false
      */
     @Deprecated
     public boolean getSimulateMouse() {
@@ -788,6 +792,7 @@ public class InputManager implements RawInputListener {
     /**
      * Returns state of simulation of mouse events. Used for touchscreen input only.
      *
+     * @return true if a mouse is simulated, otherwise false
      */
     public boolean isSimulateMouse() {
         if (touch != null) {
@@ -811,6 +816,7 @@ public class InputManager implements RawInputListener {
     /**
      * Returns state of simulation of key events. Used for touchscreen input only.
      *
+     * @return true if a keyboard is simulated, otherwise false
      */
     public boolean isSimulateKeyboard() {
         if (touch != null) {
@@ -961,7 +967,7 @@ public class InputManager implements RawInputListener {
      * Re-sets the joystick list when a joystick is added or removed.
      * This should only be called internally.
      *
-     * @param joysticks
+     * @param joysticks (alias created)
      */
     public void setJoysticks(Joystick[] joysticks) {
         this.joysticks = joysticks;
@@ -970,7 +976,8 @@ public class InputManager implements RawInputListener {
     /**
      * Add a listener that reports when a joystick has been added or removed.
      * Currently only implemented in LWJGL3
-     * @param listener the listner.
+     * @param listener the listener
+     * @return true
      */
     public boolean addJoystickConnectionListener(JoystickConnectionListener listener) {
         return joystickConnectionListeners.add(listener);

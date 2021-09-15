@@ -91,8 +91,8 @@ public class GeometryBatchFactory {
      * Merges all geometries in the collection into
      * the output mesh. Creates a new material using the TextureAtlas.
      * 
-     * @param geometries
-     * @param outMesh
+     * @param geometries the geometries to merge
+     * @param outMesh a Mesh to receive the geometries
      */
     public static void mergeGeometries(Collection<Geometry> geometries, Mesh outMesh) {
         int[] compsForBuf = new int[VertexBuffer.Type.values().length];
@@ -309,11 +309,13 @@ public class GeometryBatchFactory {
     /**
      * Batches a collection of Geometries so that all with the same material get combined.
      * @param geometries The Geometries to combine
+     * @param useLods true&rarr;generate levels of detail, false&rarr;don't
+     * generate them
      * @return A List of newly created Geometries, each with a  distinct material
      */
     public static List<Geometry> makeBatches(Collection<Geometry> geometries, boolean useLods) {
-        ArrayList<Geometry> retVal = new ArrayList<Geometry>();
-        HashMap<Material, List<Geometry>> matToGeom = new HashMap<Material, List<Geometry>>();
+        ArrayList<Geometry> retVal = new ArrayList<>();
+        HashMap<Material, List<Geometry>> matToGeom = new HashMap<>();
 
         for (Geometry geom : geometries) {
             List<Geometry> outList = matToGeom.get(geom.getMaterial());
@@ -384,7 +386,7 @@ public class GeometryBatchFactory {
      * @return The newly created optimized geometries attached to a node
      */
     public static Node optimize(Node scene, boolean useLods) {
-        ArrayList<Geometry> geoms = new ArrayList<Geometry>();
+        ArrayList<Geometry> geoms = new ArrayList<>();
 
         gatherGeoms(scene, geoms);
 
@@ -447,7 +449,7 @@ public class GeometryBatchFactory {
 
         Geometry g1 = new Geometry("g1", mesh);
 
-        ArrayList<Geometry> geoms = new ArrayList<Geometry>();
+        ArrayList<Geometry> geoms = new ArrayList<>();
         geoms.add(g1);
 
         Mesh outMesh = new Mesh();
@@ -481,12 +483,12 @@ public class GeometryBatchFactory {
      * Very experimental for now.
      */
     public static void alignBuffers(Node n, AlignOption option) {
-        List<Geometry> geoms = new ArrayList<Geometry>();
+        List<Geometry> geoms = new ArrayList<>();
         gatherGeoms(n, geoms);
 
         //gather buffer types
-        Map<VertexBuffer.Type, VertexBuffer> types = new EnumMap<VertexBuffer.Type, VertexBuffer>(VertexBuffer.Type.class);
-        Map<VertexBuffer.Type, Integer> typesCount = new EnumMap<VertexBuffer.Type, Integer>(VertexBuffer.Type.class);
+        Map<VertexBuffer.Type, VertexBuffer> types = new EnumMap<>(VertexBuffer.Type.class);
+        Map<VertexBuffer.Type, Integer> typesCount = new EnumMap<>(VertexBuffer.Type.class);
         for (Geometry geom : geoms) {
             for (VertexBuffer buffer : geom.getMesh().getBufferList()) {
                 if (types.get(buffer.getBufferType()) == null) {

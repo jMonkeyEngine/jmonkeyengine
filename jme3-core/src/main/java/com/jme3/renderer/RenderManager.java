@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -85,7 +85,7 @@ public class RenderManager {
     private int viewX, viewY, viewWidth, viewHeight;
     private final Matrix4f orthoMatrix = new Matrix4f();
     private final LightList filteredLightList = new LightList(null);
-    private boolean handleTranlucentBucket = true;
+    private boolean handleTranslucentBucket = true;
     private AppProfiler prof;
     private LightFilter lightFilter = new DefaultLightFilter();
     private TechniqueDef.LightMode preferredLightMode = TechniqueDef.LightMode.MultiPass;
@@ -95,7 +95,8 @@ public class RenderManager {
     /**
      * Create a high-level rendering interface over the
      * low-level rendering interface.
-     * @param renderer
+     *
+     * @param renderer (alias created)
      */
     public RenderManager(Renderer renderer) {
         this.renderer = renderer;
@@ -274,6 +275,10 @@ public class RenderManager {
      * Creates a new pre ViewPort, to display the given camera's content.
      * <p>
      * The view will be processed before the main and post viewports.
+     *
+     * @param viewName the desired viewport name
+     * @param cam the Camera to use for rendering (alias created)
+     * @return a new instance
      */
     public ViewPort createPreView(String viewName, Camera cam) {
         ViewPort vp = new ViewPort(viewName, cam);
@@ -286,6 +291,10 @@ public class RenderManager {
      * <p>
      * The view will be processed before the post viewports but after
      * the pre viewports.
+     *
+     * @param viewName the desired viewport name
+     * @param cam the Camera to use for rendering (alias created)
+     * @return a new instance
      */
     public ViewPort createMainView(String viewName, Camera cam) {
         ViewPort vp = new ViewPort(viewName, cam);
@@ -297,6 +306,10 @@ public class RenderManager {
      * Creates a new post ViewPort, to display the given camera's content.
      * <p>
      * The view will be processed after the pre and main viewports.
+     *
+     * @param viewName the desired viewport name
+     * @param cam the Camera to use for rendering (alias created)
+     * @return a new instance
      */
     public ViewPort createPostView(String viewName, Camera cam) {
         ViewPort vp = new ViewPort(viewName, cam);
@@ -319,6 +332,9 @@ public class RenderManager {
      * Internal use only.
      * Updates the resolution of all on-screen cameras to match
      * the given width and height.
+     *
+     * @param w the new width (in pixels)
+     * @param h the new height (in pixels)
      */
     public void notifyReshape(int w, int h) {
         for (ViewPort vp : preViewPorts) {
@@ -392,6 +408,8 @@ public class RenderManager {
      * Sets an AppProfiler hook that will be called back for
      * specific steps within a single update frame.  Value defaults
      * to null.
+     *
+     * @param prof the AppProfiler to use (alias created, default=null)
      */
     public void setAppProfiler(AppProfiler prof) {
         this.prof = prof;
@@ -488,7 +506,7 @@ public class RenderManager {
      * @see #setHandleTranslucentBucket(boolean) 
      */
     public boolean isHandleTranslucentBucket() {
-        return handleTranlucentBucket;
+        return handleTranslucentBucket;
     }
 
     /**
@@ -500,7 +518,7 @@ public class RenderManager {
      * be rendered.
      */
     public void setHandleTranslucentBucket(boolean handleTranslucentBucket) {
-        this.handleTranlucentBucket = handleTranslucentBucket;
+        this.handleTranslucentBucket = handleTranslucentBucket;
     }
 
     /**
@@ -520,6 +538,8 @@ public class RenderManager {
      * Internal use only.
      * Updates the given list of uniforms with {@link UniformBinding uniform bindings}
      * based on the current world state.
+     * 
+     * @param shader (not null)
      */
     public void updateUniformBindings(Shader shader) {
         uniformBindingManager.updateUniformBindings(shader);
@@ -929,7 +949,7 @@ public class RenderManager {
         if (prof!=null) prof.vpStep(VpStep.RenderBucket, vp, Bucket.Translucent);
         
         RenderQueue rq = vp.getQueue();
-        if (!rq.isQueueEmpty(Bucket.Translucent) && handleTranlucentBucket) {
+        if (!rq.isQueueEmpty(Bucket.Translucent) && handleTranslucentBucket) {
             rq.renderQueue(Bucket.Translucent, this, vp.getCamera(), true);
         }
     }
@@ -1135,6 +1155,8 @@ public class RenderManager {
      * </ul>
      * 
      * @param tpf Time per frame value
+     * @param mainFrameBufferActive true to render viewports with no output
+     * FrameBuffer, false to skip them
      */
     public void render(float tpf, boolean mainFrameBufferActive) {
         if (renderer instanceof NullRenderer) {

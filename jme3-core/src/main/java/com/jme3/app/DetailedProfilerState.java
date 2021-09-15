@@ -1,3 +1,34 @@
+/*
+ * Copyright (c) 2017-2021 jMonkeyEngine
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ * * Redistributions of source code must retain the above copyright
+ *   notice, this list of conditions and the following disclaimer.
+ *
+ * * Redistributions in binary form must reproduce the above copyright
+ *   notice, this list of conditions and the following disclaimer in the
+ *   documentation and/or other materials provided with the distribution.
+ *
+ * * Neither the name of 'jMonkeyEngine' nor the names of its contributors
+ *   may be used to endorse or promote products derived from this software
+ *   without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package com.jme3.app;
 
 import com.jme3.app.state.BaseAppState;
@@ -29,13 +60,13 @@ public class DetailedProfilerState extends BaseAppState {
     private static final String TOGGLE_KEY = "Toggle_Detailed_Profiler";
     private static final String CLICK_KEY = "Click_Detailed_Profiler";
     private static final String INSIGNIFICANT = "Hide insignificant stat";
-    private DetailedProfiler prof = new DetailedProfiler();
+    final private DetailedProfiler prof = new DetailedProfiler();
 
     private float time = 0;
     private BitmapFont font;
     private BitmapFont bigFont;
-    private Node ui = new Node("Stats ui");
-    private Map<String, StatLineView> lines = new HashMap<>();
+    final private Node ui = new Node("Stats ui");
+    final private Map<String, StatLineView> lines = new HashMap<>();
     private double totalTimeCpu;
     private double totalTimeGpu;
     private int maxLevel = 0;
@@ -52,14 +83,14 @@ public class DetailedProfilerState extends BaseAppState {
 
     private StatLineView rootLine;
     private int height = 0;
-    private DecimalFormat df = new DecimalFormat("##0.00", new DecimalFormatSymbols(Locale.US));
+    final private DecimalFormat df = new DecimalFormat("##0.00", new DecimalFormatSymbols(Locale.US));
 
-    private ColorRGBA dimmedWhite = ColorRGBA.White.mult(0.7f);
-    private ColorRGBA dimmedGreen = ColorRGBA.Green.mult(0.7f);
-    private ColorRGBA dimmedOrange = ColorRGBA.Orange.mult(0.7f);
-    private ColorRGBA dimmedRed = ColorRGBA.Red.mult(0.7f);
+    final private ColorRGBA dimmedWhite = ColorRGBA.White.mult(0.7f);
+    final private ColorRGBA dimmedGreen = ColorRGBA.Green.mult(0.7f);
+    final private ColorRGBA dimmedOrange = ColorRGBA.Orange.mult(0.7f);
+    final private ColorRGBA dimmedRed = ColorRGBA.Red.mult(0.7f);
 
-    private ProfilerInputListener inputListener = new ProfilerInputListener();
+    final private ProfilerInputListener inputListener = new ProfilerInputListener();
 
     public DetailedProfilerState() {
 

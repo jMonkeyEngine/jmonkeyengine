@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -53,8 +53,8 @@ import java.io.IOException;
  * 
  * This Filter does basically the same as a PssmShadowRenderer except it renders 
  * the post shadow pass as a fullscreen quad pass instead of a geometry pass.
- * It's mostly faster than PssmShadowRenderer as long as you have more than a about ten shadow receiving objects.
- * The expense is the draw back that the shadow Receive mode set on spatial is ignored.
+ * It's mostly faster than PssmShadowRenderer as long as you have more than about ten shadow receiving objects.
+ * The expense is the drawback that the shadow Receive mode set on spatial is ignored.
  * So basically all and only objects that render depth in the scene receive shadows.
  * See this post for more details http://jmonkeyengine.org/groups/general-2/forum/topic/silly-question-about-shadow-rendering/#post-191599
  * 
@@ -143,7 +143,8 @@ public class PssmShadowFilter extends Filter {
 
     /**
      * Sets the light direction to use to compute shadows
-     * @param direction 
+     *
+     * @param direction a direction vector (not null, unaffected)
      */
     public void setDirection(Vector3f direction) {
         pssmRenderer.setDirection(direction);
@@ -219,7 +220,7 @@ public class PssmShadowFilter extends Filter {
 
     /**
      * Sets the shadow edges thickness. default is 1, setting it to lower values can help to reduce the jagged effect of the shadow edges
-     * @param edgesThickness 
+     * @param edgesThickness the desired thickness (in tenths of a pixel, default=10)
      */
     public void setEdgesThickness(int edgesThickness) {
         pssmRenderer.setEdgesThickness(edgesThickness);
@@ -236,7 +237,8 @@ public class PssmShadowFilter extends Filter {
     /**
      * Set this to false if you want to use several PssmRenderers to have multiple shadows cast by multiple light sources.
      * Make sure the last PssmRenderer in the stack DOES flush the queues, but not the others
-     * @param flushQueues 
+     *
+     * @param flushQueues true to flush the queues, false to avoid flushing them
      */
     public void setFlushQueues(boolean flushQueues) {
         pssmRenderer.setFlushQueues(flushQueues);
@@ -244,7 +246,8 @@ public class PssmShadowFilter extends Filter {
 
     /**
      * sets the shadow compare mode see {@link CompareMode} for more info
-     * @param compareMode 
+     *
+     * @param compareMode the desired mode (not null)
      */
     final public void setCompareMode(CompareMode compareMode) {
         pssmRenderer.setCompareMode(compareMode);
@@ -252,7 +255,8 @@ public class PssmShadowFilter extends Filter {
     
     /**
      * Sets the filtering mode for shadow edges see {@link FilterMode} for more info
-     * @param filterMode 
+     *
+     * @param filterMode the desired mode (not null)
      */
     final public void setFilterMode(FilterMode filterMode) {
         pssmRenderer.setFilterMode(filterMode);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -73,6 +73,8 @@ public class MotionPath implements Savable {
      * this methods sets the new localTranslation to the spatial of the MotionEvent control.
      * @param time the time since the animation started
      * @param control the control over the moving spatial
+     * @param tpf time per frame (in seconds)
+     * @return the distance travelled (in world units)
      */
     public float interpolatePath(float time, MotionEvent control, float tpf) {
 
@@ -129,13 +131,13 @@ public class MotionPath implements Savable {
             }
             switch (spline.getType()) {
                 case CatmullRom:
-                    debugNode.attachChild(CreateCatmullRomPath());
+                    debugNode.attachChild(createCatmullRomPath());
                     break;
                 case Linear:
-                    debugNode.attachChild(CreateLinearPath());
+                    debugNode.attachChild(createLinearPath());
                     break;
                 default:
-                    debugNode.attachChild(CreateLinearPath());
+                    debugNode.attachChild(createLinearPath());
                     break;
             }
 
@@ -143,7 +145,7 @@ public class MotionPath implements Savable {
         }
     }
 
-    private Geometry CreateLinearPath() {
+    private Geometry createLinearPath() {
 
         Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         mat.getAdditionalRenderState().setWireframe(true);
@@ -153,7 +155,7 @@ public class MotionPath implements Savable {
         return lineGeometry;
     }
 
-    private Geometry CreateCatmullRomPath() {
+    private Geometry createCatmullRomPath() {
 
         Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         mat.getAdditionalRenderState().setWireframe(true);
@@ -180,6 +182,7 @@ public class MotionPath implements Savable {
      * compute the index of the waypoint and the interpolation value according to a distance
      * returns a vector 2 containing the index in the x field and the interpolation value in the y field
      * @param distance the distance traveled on this path
+     * @param store storage for the result (not null, modified)
      * @return the waypoint index and the interpolation value in a vector2
      */
     public Vector2f getWayPointIndexForDistance(float distance, Vector2f store) {
@@ -260,7 +263,7 @@ public class MotionPath implements Savable {
 
     /**
      * sets the type of spline used for the path interpolation for this path
-     * @param pathSplineType
+     * @param pathSplineType the desired type
      */
     public void setPathSplineType(SplineType pathSplineType) {
         spline.setType(pathSplineType);
@@ -290,7 +293,7 @@ public class MotionPath implements Savable {
      */
     public void enableDebugShape(AssetManager manager, Node rootNode) {
         assetManager = manager;
-        // computeTotalLentgh();
+        // computeTotalLength();
         attachDebugNode(rootNode);
     }
 
@@ -342,7 +345,8 @@ public class MotionPath implements Savable {
 
     /**
      * sets the tension of the curve (only for catmull rom) 0.0 will give a linear curve, 1.0 a round curve
-     * @param curveTension
+     *
+     * @param curveTension the desired value
      */
     public void setCurveTension(float curveTension) {
         spline.setCurveTension(curveTension);
@@ -361,7 +365,8 @@ public class MotionPath implements Savable {
 
     /**
      * Sets the path to be a cycle
-     * @param cycle
+     *
+     * @param cycle true for a cycle, false for a non-cycle
      */
     public void setCycle(boolean cycle) {
 

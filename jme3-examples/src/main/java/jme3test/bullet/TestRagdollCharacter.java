@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -66,7 +66,6 @@ public class TestRagdollCharacter
     private AnimComposer composer;
     private boolean forward = false, backward = false,
             leftRotate = false, rightRotate = false;
-    private DynamicAnimControl ragdoll;
     private Node model;
     private PhysicsSpace physicsSpace;
 
@@ -173,7 +172,7 @@ public class TestRagdollCharacter
         composer.actionSequence("SliceOnce",
                 slice, Tweens.callMethod(this, "onSliceDone"));
 
-        ragdoll = new DynamicAnimControl();
+        DynamicAnimControl ragdoll = new DynamicAnimControl();
         setupSinbad(ragdoll);
         model.addControl(ragdoll);
         physicsSpace.add(ragdoll);

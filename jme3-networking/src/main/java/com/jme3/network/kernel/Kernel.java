@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -86,7 +86,7 @@ public interface Kernel
     public Envelope read() throws InterruptedException;
     
     /**
-     *  Removes and returnsn one endpoint event from the event queue or
+     *  Removes and returns one endpoint event from the event queue or
      *  null if there are no endpoint events.     
      */
     public EndpointEvent nextEvent();     

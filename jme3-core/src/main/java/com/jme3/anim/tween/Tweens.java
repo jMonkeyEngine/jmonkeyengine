@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020 jMonkeyEngine
+ * Copyright (c) 2015-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,14 +47,23 @@ import java.util.logging.Logger;
  */
 public class Tweens {
 
-    static Logger log = Logger.getLogger(Tweens.class.getName());
+    private static final Logger log = Logger.getLogger(Tweens.class.getName());
 
     private static final CurveFunction SMOOTH = new SmoothStep();
     private static final CurveFunction SINE = new Sine();
 
     /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private Tweens() {
+    }
+
+    /**
      * Creates a tween that will interpolate over an entire sequence
      * of tweens in order.
+     *
+     * @param delegates the desired sequence of tweens
+     * @return a new instance
      */
     public static Tween sequence(Tween... delegates) {
         return new Sequence(delegates);
@@ -64,6 +73,9 @@ public class Tweens {
      * Creates a tween that will interpolate over an entire list
      * of tweens in parallel, ie: all tweens will be run at the same
      * time.
+     *
+     * @param delegates the tweens to be interpolated
+     * @return a new instance
      */
     public static Tween parallel(Tween... delegates) {
         return new Parallel(delegates);
@@ -72,6 +84,9 @@ public class Tweens {
     /**
      * Creates a tween that will perform a no-op until the length
      * has expired.
+     *
+     * @param length the desired duration (in seconds)
+     * @return a new instance
      */
     public static Tween delay(double length) {
         return new Delay(length);
@@ -81,6 +96,10 @@ public class Tweens {
      * Creates a tween that scales the specified delegate tween or tweens
      * to the desired length.  If more than one tween is specified then they
      * are wrapped in a sequence using the sequence() method.
+     *
+     * @param desiredLength the desired duration (in seconds)
+     * @param delegates the desired sequence of tweens
+     * @return a new instance
      */
     public static Tween stretch(double desiredLength, Tween... delegates) {
         if (delegates.length == 1) {
@@ -93,6 +112,9 @@ public class Tweens {
      * Creates a tween that uses a sine function to smooth step the time value
      * for the specified delegate tween or tweens.  These 'curved' wrappers
      * can be used to smooth the interpolation of another tween.
+     *
+     * @param delegates the desired sequence of tweens
+     * @return a new instance
      */
     public static Tween sineStep(Tween... delegates) {
         if (delegates.length == 1) {
@@ -106,6 +128,9 @@ public class Tweens {
      * for the specified delegate tween or tweens.  This is similar to GLSL's
      * smoothstep().  These 'curved' wrappers can be used to smooth the interpolation
      * of another tween.
+     *
+     * @param delegates the desired sequence of tweens
+     * @return a new instance
      */
     public static Tween smoothStep(Tween... delegates) {
         if (delegates.length == 1) {
@@ -118,6 +143,11 @@ public class Tweens {
      * Creates a Tween that will call the specified method and optional arguments
      * whenever supplied a time value greater than or equal to 0.  This creates
      * an "instant" tween of length 0.
+     *
+     * @param target object on which the method is to be invoked
+     * @param method name of the method to be invoked
+     * @param args arguments to be passed to the method
+     * @return a new instance
      */
     public static Tween callMethod(Object target, String method, Object... args) {
         return new CallMethod(target, method, args);
@@ -128,7 +158,7 @@ public class Tweens {
      * including the time value scaled between 0 and 1.  The method must take
      * a float or double value as its first or last argument, in addition to whatever
      * optional arguments are specified.
-     * <p>
+     *
      * <p>For example:</p>
      * <pre>Tweens.callTweenMethod(1, myObject, "foo", "bar")</pre>
      * <p>Would work for any of the following method signatures:</p>
@@ -138,6 +168,12 @@ public class Tweens {
      *    void foo( String arg, float t )
      *    void foo( String arg, double t )
      *  </pre>
+     *
+     * @param length the desired duration (in seconds)
+     * @param target object on which the method is to be invoked
+     * @param method name of the method to be invoked
+     * @param args additional arguments to be passed to the method
+     * @return a new instance
      */
     public static Tween callTweenMethod(double length, Object target, String method, Object... args) {
         return new CallTweenMethod(length, target, method, args);
@@ -469,9 +505,7 @@ public class Tweens {
         protected void doInterpolate(double t) {
             try {
                 method.invoke(target, args);
-            } catch (IllegalAccessException e) {
-                throw new RuntimeException("Error running method:" + method + " for object:" + target, e);
-            } catch (InvocationTargetException e) {
+            } catch (IllegalAccessException | InvocationTargetException e) {
                 throw new RuntimeException("Error running method:" + method + " for object:" + target, e);
             }
         }
@@ -533,7 +567,7 @@ public class Tweens {
                 Class[] paramTypes = m.getParameterTypes();
                 if (paramTypes.length != args.length + 1) {
                     if (log.isLoggable(Level.FINE)) {
-                        log.log(Level.FINE, "Param lengths of [" + m + "] differ.  method arg count:" + paramTypes.length + "  lookging for:" + (args.length + 1));
+                        log.log(Level.FINE, "Param lengths of [" + m + "] differ.  method arg count:" + paramTypes.length + "  looking for:" + (args.length + 1));
                     }
                     continue;
                 }
@@ -600,9 +634,7 @@ public class Tweens {
                     args[tIndex] = t;
                 }
                 method.invoke(target, args);
-            } catch (IllegalAccessException e) {
-                throw new RuntimeException("Error running method:" + method + " for object:" + target, e);
-            } catch (InvocationTargetException e) {
+            } catch (IllegalAccessException | InvocationTargetException e) {
                 throw new RuntimeException("Error running method:" + method + " for object:" + target, e);
             }
         }

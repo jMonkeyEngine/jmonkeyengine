@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,16 +42,21 @@ import java.util.*;
  */
 public abstract class AbstractJoystick implements Joystick {
 
-    private InputManager inputManager;
-    private JoyInput joyInput;
-    private int joyId;
-    private String name;
+    final private InputManager inputManager;
+    final private JoyInput joyInput;
+    final private int joyId;
+    final private String name;
     
-    private List<JoystickAxis> axes = new ArrayList<JoystickAxis>();       
-    private List<JoystickButton> buttons = new ArrayList<JoystickButton>();       
+    final private List<JoystickAxis> axes = new ArrayList<>();       
+    final private List<JoystickButton> buttons = new ArrayList<>();       
 
     /**
      * Creates a new joystick instance. Only used internally.
+     *
+     * @param inputManager (alias created)
+     * @param joyInput (alias created)
+     * @param joyId ID to assign to the instance
+     * @param name name to assign to the instance
      */
     protected AbstractJoystick(InputManager inputManager, JoyInput joyInput,
                                int joyId, String name) {

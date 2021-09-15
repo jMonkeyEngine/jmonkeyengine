@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,8 +48,6 @@ import de.lessvoid.nifty.Nifty;
 
 public class TestNiftyToMesh extends SimpleApplication{
 
-    private Nifty nifty;
-
     public static void main(String[] args){
         TestNiftyToMesh app = new TestNiftyToMesh();
         app.start();
@@ -63,7 +61,7 @@ public class TestNiftyToMesh extends SimpleApplication{
                                                           inputManager,
                                                           audioRenderer,
                                                           niftyView);
-        nifty = niftyDisplay.getNifty();
+        Nifty nifty = niftyDisplay.getNifty();
         nifty.fromXml("all/intro.xml", "start");
         niftyView.addProcessor(niftyDisplay);
 

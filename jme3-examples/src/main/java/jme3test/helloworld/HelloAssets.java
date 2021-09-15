@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -53,13 +53,13 @@ public class HelloAssets extends SimpleApplication {
     @Override
     public void simpleInitApp() {
 
-        /** Load a teapot model (OBJ file from test-data) */
+        /* Load a teapot model (OBJ file from jme3-testdata) */
         Spatial teapot = assetManager.loadModel("Models/Teapot/Teapot.obj");
         Material mat_default = new Material( assetManager, "Common/MatDefs/Misc/ShowNormals.j3md");
         teapot.setMaterial(mat_default);
         rootNode.attachChild(teapot);
 
-        /** Create a wall (Box with material and texture from test-data) */
+        /* Create a wall (Box with material and texture from jme3-testdata) */
         Box box = new Box(2.5f, 2.5f, 1.0f);
         Spatial wall = new Geometry("Box", box );
         Material mat_brick = new Material( assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
@@ -68,7 +68,7 @@ public class HelloAssets extends SimpleApplication {
         wall.setLocalTranslation(2.0f,-2.5f,0.0f);
         rootNode.attachChild(wall);
 
-        /** Display a line of text (default font from test-data) */
+        /* Display a line of text (default font from jme3-testdata) */
         setDisplayStatView(false);
         guiFont = assetManager.loadFont("Interface/Fonts/Default.fnt");
         BitmapText helloText = new BitmapText(guiFont, false);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -68,8 +68,6 @@ public class TestIssue1120 extends SimpleApplication {
     private static TestIssue1120 test;
     private BulletAppState bulletAppState;
     private final boolean physicsDebug = true;
-    protected BitmapFont font;
-    private final BitmapText[] testInfo = new BitmapText[2];
     private BitmapText speedText;
     private final List<Spatial> testObjects = new ArrayList<>();
     private static final boolean SKIP_SETTINGS = false;//Used for repeated runs of this test during dev
@@ -133,7 +131,8 @@ public class TestIssue1120 extends SimpleApplication {
         }, "pause", "restart", "+", "-");
 
         guiNode = getGuiNode();
-        font = assetManager.loadFont("Interface/Fonts/Default.fnt");
+        BitmapFont font = assetManager.loadFont("Interface/Fonts/Default.fnt");
+        BitmapText[] testInfo = new BitmapText[2];
         testInfo[0] = new BitmapText(font);
         testInfo[1] = new BitmapText(font);
         speedText = new BitmapText(font);

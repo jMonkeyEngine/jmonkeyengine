@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,6 +37,7 @@ import com.jme3.niftygui.NiftyJmeDisplay;
 import com.jme3.scene.Spatial;
 import com.jme3.system.AppSettings;
 import com.jme3.system.JmeContext;
+import jme3test.niftygui.StartScreenController;
 
 public class TestAppStates extends LegacyApplication {
 
@@ -70,10 +71,12 @@ public class TestAppStates extends LegacyApplication {
         state.getRootNode().attachChild(model);
 
         NiftyJmeDisplay niftyDisplay = new NiftyJmeDisplay(assetManager,
-                                                           inputManager,
-                                                           audioRenderer,
-                                                           guiViewPort);
-        niftyDisplay.getNifty().fromXml("Interface/Nifty/HelloJme.xml", "start");
+                inputManager,
+                audioRenderer,
+                guiViewPort);
+        StartScreenController startScreen = new StartScreenController(this);
+        niftyDisplay.getNifty().fromXml("Interface/Nifty/HelloJme.xml", "start",
+                startScreen);
         guiViewPort.addProcessor(niftyDisplay);
     }
 

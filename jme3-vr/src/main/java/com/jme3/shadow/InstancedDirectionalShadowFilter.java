@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.jme3.shadow;
 
 import com.jme3.app.Application;
@@ -11,7 +6,7 @@ import com.jme3.math.Vector4f;
 import com.jme3.renderer.Camera;
 
 /**
- * An instanced version of the {@link DirectionalLightShadowFilterVR directional light shadow filter} dedi.
+ * An instanced version of the {@link DirectionalLightShadowFilterVR directional light shadow filter}.
  * @author reden - phr00t - https://github.com/phr00t
  * @author Julien Seinturier - COMEX SA - <a href="http://www.seinturier.fr">http://www.seinturier.fr</a>
  */

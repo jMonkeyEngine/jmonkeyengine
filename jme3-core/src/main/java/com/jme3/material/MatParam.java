@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -55,6 +55,10 @@ public class MatParam implements Savable, Cloneable {
 
     /**
      * Create a new material parameter. For internal use only.
+     *
+     * @param type the type of the parameter
+     * @param name the desired parameter name
+     * @param value the desired parameter value (alias created)
      */
     public MatParam(VarType type, String name, Object value) {
         this.type = type;
@@ -132,15 +136,15 @@ public class MatParam implements Savable, Cloneable {
 
     /**
      * Returns the material parameter value as it would appear in a J3M
-     * file. E.g.<br/>
-     * <code>
-     * MaterialParameters {<br/>
-     *     ABC : 1 2 3 4<br/>
-     * }<br/>
-     * </code>
+     * file. E.g.
+     * <pre>
+     * MaterialParameters {
+     *     ABC : 1 2 3 4
+     * }
+     * </pre>
      * Assuming "ABC" is a Vector4 parameter, then the value
      * "1 2 3 4" would be returned by this method.
-     * <br/><br/>
+     *
      * @return material parameter value as it would appear in a J3M file.
      */
     public String getValueAsString() {

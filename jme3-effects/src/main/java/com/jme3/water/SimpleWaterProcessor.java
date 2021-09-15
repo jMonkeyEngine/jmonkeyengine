@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -120,8 +120,6 @@ public class SimpleWaterProcessor implements SceneProcessor {
     private float distortionScale = 0.2f;
     private float distortionMix = 0.5f;
     private float texScale = 1f;
-    private AppProfiler prof;
-
 
     /**
      * Creates a SimpleWaterProcessor
@@ -227,7 +225,7 @@ public class SimpleWaterProcessor implements SceneProcessor {
 
     @Override
     public void setProfiler(AppProfiler profiler) {
-        this.prof = profiler;
+        // not implemented
     }
 
     //debug only : displays maps
@@ -326,7 +324,8 @@ public class SimpleWaterProcessor implements SceneProcessor {
     /**
      * Sets the reflected scene, should not include the water quad!
      * Set before adding processor.
-     * @param spat
+     *
+     * @param spat the scene-graph subtree to be reflected (alias created)
      */
     public void setReflectionScene(Spatial spat) {
         reflectionScene = spat;
@@ -351,8 +350,9 @@ public class SimpleWaterProcessor implements SceneProcessor {
     /**
      * Set the reflection Texture render size,
      * set before adding the processor!
-     * @param width
-     * @param height
+     *
+     * @param width the desired width (in pixels, default=512)
+     * @param height the desired height (in pixels, default=512)
      */
     public void setRenderSize(int width, int height) {
         renderWidth = width;
@@ -369,7 +369,8 @@ public class SimpleWaterProcessor implements SceneProcessor {
 
     /**
      * Set the water plane for this processor.
-     * @param plane
+     *
+     * @param plane the Plane to use (not null, unaffected)
      */
     public void setPlane(Plane plane) {
         this.plane.setConstant(plane.getConstant());
@@ -397,7 +398,9 @@ public class SimpleWaterProcessor implements SceneProcessor {
 
     /**
      * Set the light Position for the processor
-     * @param position
+     *
+     * @param position the desired location (in world coordinates,
+     * alias created)
      */
     //TODO maybe we should provide a convenient method to compute position from direction
     public void setLightPosition(Vector3f position) {
@@ -406,7 +409,8 @@ public class SimpleWaterProcessor implements SceneProcessor {
 
     /**
      * Set the color that will be added to the refraction texture.
-     * @param color
+     *
+     * @param color the desired color (alias created)
      */
     public void setWaterColor(ColorRGBA color) {
         material.setColor("waterColor", color);
@@ -414,8 +418,9 @@ public class SimpleWaterProcessor implements SceneProcessor {
 
     /**
      * Higher values make the refraction texture shine through earlier.
-     * Default is 4
-     * @param depth
+     * Default is 1
+     *
+     * @param depth the desired depth (default=1)
      */
     public void setWaterDepth(float depth) {
         waterDepth = depth;
@@ -439,8 +444,9 @@ public class SimpleWaterProcessor implements SceneProcessor {
     }
 
     /**
-     * sets the water transparency default os 0.1f
-     * @param waterTransparency
+     * sets the water transparency default is 0.4f
+     *
+     * @param waterTransparency the desired transparency (default=0.4)
      */
     public void setWaterTransparency(float waterTransparency) {
         this.waterTransparency = Math.max(0, waterTransparency);
@@ -449,7 +455,8 @@ public class SimpleWaterProcessor implements SceneProcessor {
 
     /**
      * Sets the speed of the wave animation, default = 0.05f.
-     * @param speed
+     *
+     * @param speed the desired animation speed (default=0.05)
      */
     public void setWaveSpeed(float speed) {
         this.speed = speed;
@@ -465,6 +472,8 @@ public class SimpleWaterProcessor implements SceneProcessor {
     
     /**
      * Sets the scale of distortion by the normal map, default = 0.2
+     *
+     * @param value the desired scale factor (default=0.2)
      */
     public void setDistortionScale(float value) {
         distortionScale  = value;
@@ -473,6 +482,8 @@ public class SimpleWaterProcessor implements SceneProcessor {
 
     /**
      * Sets how the normal and dudv map are mixed to create the wave effect, default = 0.5
+     *
+     * @param value the desired mix fraction (default=0.5)
      */
     public void setDistortionMix(float value) {
         distortionMix = value;
@@ -483,6 +494,8 @@ public class SimpleWaterProcessor implements SceneProcessor {
      * Sets the scale of the normal/dudv texture, default = 1.
      * Note that the waves should be scaled by the texture coordinates of the quad to avoid animation artifacts,
      * use mesh.scaleTextureCoordinates(Vector2f) for that.
+     *
+     * @param value the desired scale factor (default=1)
      */
     public void setTexScale(float value) {
         texScale = value;
@@ -521,7 +534,7 @@ public class SimpleWaterProcessor implements SceneProcessor {
 
 
     /**
-     * returns true if the waterprocessor is in debug mode
+     * returns true if the water processor is in debug mode
      * @return true if in debug mode, otherwise false
      */
     public boolean isDebug() {
@@ -530,7 +543,8 @@ public class SimpleWaterProcessor implements SceneProcessor {
 
     /**
      * set to true to display reflection and refraction textures in the GUI for debug purpose
-     * @param debug
+     *
+     * @param debug true to enable display, false to disable it (default=false)
      */
     public void setDebug(boolean debug) {
         this.debug = debug;
@@ -538,8 +552,9 @@ public class SimpleWaterProcessor implements SceneProcessor {
 
     /**
      * Creates a quad with the water material applied to it.
-     * @param width
-     * @param height
+     *
+     * @param width the desired width (in mesh coordinates)
+     * @param height the desired height (in mesh coordinates)
      * @return a new Geometry
      */
     public Geometry createWaterGeometry(float width, float height) {
@@ -560,8 +575,9 @@ public class SimpleWaterProcessor implements SceneProcessor {
 
     /**
      * sets the reflection clipping plane offset
-     * set a nagetive value to lower the clipping plane for relection texture rendering.
-     * @param reflectionClippingOffset
+     * set a negative value to lower the clipping plane for reflection texture rendering.
+     *
+     * @param reflectionClippingOffset the desired offset (default=-5)
      */
     public void setReflectionClippingOffset(float reflectionClippingOffset) {
         this.reflectionClippingOffset = reflectionClippingOffset;
@@ -579,7 +595,8 @@ public class SimpleWaterProcessor implements SceneProcessor {
     /**
      * Sets the refraction clipping plane offset
      * set a positive value to raise the clipping plane for refraction texture rendering
-     * @param refractionClippingOffset
+     *
+     * @param refractionClippingOffset the desired offset (default=0.3)
      */
     public void setRefractionClippingOffset(float refractionClippingOffset) {
         this.refractionClippingOffset = refractionClippingOffset;
@@ -593,7 +610,6 @@ public class SimpleWaterProcessor implements SceneProcessor {
 
         RenderManager rm;
         ViewPort vp;
-        private AppProfiler prof;
 
         @Override
         public void initialize(RenderManager rm, ViewPort vp) {
@@ -630,7 +646,7 @@ public class SimpleWaterProcessor implements SceneProcessor {
 
         @Override
         public void setProfiler(AppProfiler profiler) {
-            this.prof = profiler;
+            // not implemented
         }
     }
 }

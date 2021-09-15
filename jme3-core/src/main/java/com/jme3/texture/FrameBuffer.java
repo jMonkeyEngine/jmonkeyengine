@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -80,7 +80,7 @@ public class FrameBuffer extends NativeObject {
     private int width = 0;
     private int height = 0;
     private int samples = 1;
-    private ArrayList<RenderBuffer> colorBufs = new ArrayList<RenderBuffer>();
+    final private ArrayList<RenderBuffer> colorBufs = new ArrayList<>();
     private RenderBuffer depthBuf = null;
     private int colorBufIndex = 0;
     private boolean srgb;
@@ -122,6 +122,7 @@ public class FrameBuffer extends NativeObject {
 
         /**
          * Do not use.
+         * @return the buffer's ID
          */
         public int getId() {
             return id;
@@ -129,6 +130,8 @@ public class FrameBuffer extends NativeObject {
 
         /**
          * Do not use.
+         *
+         * @param id the desired ID
          */
         public void setId(int id) {
             this.id = id;
@@ -136,6 +139,8 @@ public class FrameBuffer extends NativeObject {
 
         /**
          * Do not use.
+         *
+         * @return the slot code, such as SLOT_DEPTH_STENCIL
          */
         public int getSlot() {
             return slot;
@@ -214,6 +219,7 @@ public class FrameBuffer extends NativeObject {
     }
 
     public static class FrameBufferTarget {
+        private FrameBufferTarget(){}
         public static FrameBufferTextureTarget newTarget(Texture tx){
             FrameBufferTextureTarget t=new FrameBufferTextureTarget();
             t.setTexture(tx);
@@ -227,6 +233,11 @@ public class FrameBuffer extends NativeObject {
         }
     }
 
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private FrameBuffer() {
+    }
 
     public void addColorTarget(FrameBufferBufferTarget colorBuf){
         colorBuf.slot=colorBufs.size();
@@ -288,7 +299,7 @@ public class FrameBuffer extends NativeObject {
      * @param width The width to use
      * @param height The height to use
      * @param samples The number of samples to use for a multisampled
-     * framebuffer, or 1 if the framebuffer should be singlesampled.
+     * framebuffer, or 1 if the framebuffer should be single-sampled.
      *
      * @throws IllegalArgumentException If width or height are not positive.
      */
@@ -464,6 +475,7 @@ public class FrameBuffer extends NativeObject {
      * only target.
      *
      * @param tex The color texture array to set.
+     * @param layer (default=-1)
      * @deprecated Use addColorTarget
      */
     @Deprecated
@@ -559,6 +571,7 @@ public class FrameBuffer extends NativeObject {
      * is rendered to by the shader.
      *
      * @param tex The texture array to add.
+     * @param layer (default=-1)
      * @deprecated Use addColorTarget
      */
     @Deprecated
@@ -631,8 +644,8 @@ public class FrameBuffer extends NativeObject {
 
     /**
      * 
-     * @param tex
-     * @param layer
+     * @param tex the TextureArray to apply
+     * @param layer (default=-1)
      * @deprecated Use setDepthTarget
      */
     @Deprecated
@@ -661,7 +674,7 @@ public class FrameBuffer extends NativeObject {
     }
 
     /**
-     * @param index
+     * @param index the zero-base index (&ge;0)
      * @return The color buffer at the given index.
      * @deprecated Use getColorTarget(int)
      */
@@ -713,7 +726,7 @@ public class FrameBuffer extends NativeObject {
 
     /**
      * @return The number of samples when using a multisample framebuffer, or
-     * 1 if this is a singlesampled framebuffer.
+     * 1 if this is a single-sampled framebuffer.
      */
     public int getSamples() {
         return samples;

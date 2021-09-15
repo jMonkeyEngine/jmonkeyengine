@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -94,7 +94,7 @@ public final class AppSettings extends HashMap<String, Object> {
      * initialization will throw an exception. Note that currently jMonkeyEngine
      * does not have any shaders that support OpenGL3.0 therefore this 
      * option is not useful.
-     * <p>
+     * </p>
      *
      * @see AppSettings#setRenderer(java.lang.String)
      */
@@ -107,7 +107,7 @@ public final class AppSettings extends HashMap<String, Object> {
      * initialization will throw an exception. Note that currently jMonkeyEngine
      * does not have any shaders that support OpenGL3.0 therefore this
      * option is not useful.
-     * <p>
+     * </p>
      *
      * @see AppSettings#setRenderer(java.lang.String)
      */
@@ -494,6 +494,9 @@ public final class AppSettings extends HashMap<String, Object> {
      * Get an integer from the settings.
      * <p>
      * If the key is not set, then 0 is returned.
+     *
+     * @param key the key of an integer setting 
+     * @return the corresponding value, or 0 if not set
      */
     public int getInteger(String key) {
         Integer i = (Integer) get(key);
@@ -508,6 +511,9 @@ public final class AppSettings extends HashMap<String, Object> {
      * Get a boolean from the settings.
      * <p>
      * If the key is not set, then false is returned.
+     *
+     * @param key the key of a boolean setting 
+     * @return the corresponding value, or false if not set
      */
     public boolean getBoolean(String key) {
         Boolean b = (Boolean) get(key);
@@ -522,6 +528,9 @@ public final class AppSettings extends HashMap<String, Object> {
      * Get a string from the settings.
      * <p>
      * If the key is not set, then null is returned.
+     *
+     * @param key the key of a string setting 
+     * @return the corresponding value, or null if not set
      */
     public String getString(String key) {
         String s = (String) get(key);
@@ -536,6 +545,9 @@ public final class AppSettings extends HashMap<String, Object> {
      * Get a float from the settings.
      * <p>
      * If the key is not set, then 0.0 is returned.
+     *
+     * @param key the key of a float setting 
+     * @return the corresponding value, or 0 if not set
      */
     public float getFloat(String key) {
         Float f = (Float) get(key);
@@ -548,6 +560,9 @@ public final class AppSettings extends HashMap<String, Object> {
 
     /**
      * Set an integer on the settings.
+     *
+     * @param key the desired key
+     * @param value the desired integer value
      */
     public void putInteger(String key, int value) {
         put(key, Integer.valueOf(value));
@@ -555,6 +570,9 @@ public final class AppSettings extends HashMap<String, Object> {
 
     /**
      * Set a boolean on the settings.
+     *
+     * @param key the desired key
+     * @param value the desired boolean value
      */
     public void putBoolean(String key, boolean value) {
         put(key, Boolean.valueOf(value));
@@ -562,6 +580,9 @@ public final class AppSettings extends HashMap<String, Object> {
 
     /**
      * Set a string on the settings.
+     *
+     * @param key the desired key
+     * @param value the desired string value
      */
     public void putString(String key, String value) {
         put(key, value);
@@ -569,6 +590,9 @@ public final class AppSettings extends HashMap<String, Object> {
 
     /**
      * Set a float on the settings.
+     *
+     * @param key the desired key
+     * @param value the desired float value
      */
     public void putFloat(String key, float value) {
         put(key, Float.valueOf(value));
@@ -877,7 +901,8 @@ public final class AppSettings extends HashMap<String, Object> {
      * See <a href="http://en.wikipedia.org/wiki/Quad_buffering">http://en.wikipedia.org/wiki/Quad_buffering</a><br>
      * Once enabled, filters or scene processors that handle 3D stereo rendering
      * could use this feature to render using hardware 3D stereo.</p>
-     * (Default: false)
+     *
+     * @param value true to enable 3-D stereo, false to disable (default=false)
      */
     public void setStereo3D(boolean value){
         putBoolean("Stereo3D", value);
@@ -889,7 +914,7 @@ public final class AppSettings extends HashMap<String, Object> {
      * the latter for the alt-tab icon.
      * Linux (and similar platforms) expect one 32x32 icon.
      * Mac OS X should be supplied one 128x128 icon.
-     * <br/>
+     * <br>
      * The icon is used for the settings window, and the LWJGL render window.
      * Note that a bug in Java 6 (bug ID 6445278, currently hidden but available in Google cache) currently prevents
      * the icon working for alt-tab on the settings dialog in Windows.
@@ -930,6 +955,8 @@ public final class AppSettings extends HashMap<String, Object> {
 
     /**
      * Get the framerate.
+     *
+     * @return the maximum rate (in frames per second), or -1 for unlimited
      * @see #setFrameRate(int)
      */
     public int getFrameRate() {
@@ -938,6 +965,8 @@ public final class AppSettings extends HashMap<String, Object> {
 
     /**
      * Get the use input state.
+     *
+     * @return true if input is enabled, false if it's disabled
      * @see #setUseInput(boolean)
      */
     public boolean useInput() {
@@ -946,6 +975,9 @@ public final class AppSettings extends HashMap<String, Object> {
 
     /**
      * Get the renderer
+     *
+     * @return the graphics renderer's name and version,
+     * for example "LWJGL-OpenGL33"
      * @see #setRenderer(java.lang.String)
      */
     public String getRenderer() {
@@ -954,6 +986,8 @@ public final class AppSettings extends HashMap<String, Object> {
 
     /**
      * Get the width
+     *
+     * @return the width of the rendering display (in pixels)
      * @see #setWidth(int)
      */
     public int getWidth() {
@@ -962,6 +996,8 @@ public final class AppSettings extends HashMap<String, Object> {
 
     /**
      * Get the height
+     *
+     * @return the height of the rendering display (in pixels)
      * @see #setHeight(int)
      */
     public int getHeight() {
@@ -970,6 +1006,8 @@ public final class AppSettings extends HashMap<String, Object> {
 
     /**
      * Get the width
+     *
+     * @return the minimum width for the rendering display (in pixels)
      * @see #setWidth(int)
      */
     public int getMinWidth() {
@@ -978,6 +1016,8 @@ public final class AppSettings extends HashMap<String, Object> {
 
     /**
      * Get the height
+     *
+     * @return the minimum height for the rendering display (in pixels)
      * @see #setHeight(int)
      */
     public int getMinHeight() {
@@ -986,6 +1026,8 @@ public final class AppSettings extends HashMap<String, Object> {
 
     /**
      * Get the bits per pixel
+     *
+     * @return the number of color bits per rendered pixel
      * @see #setBitsPerPixel(int)
      */
     public int getBitsPerPixel() {
@@ -994,6 +1036,8 @@ public final class AppSettings extends HashMap<String, Object> {
 
     /**
      * Get the frequency
+     *
+     * @return the refresh rate of the (full-screen) display (in Hertz)
      * @see #setFrequency(int)
      */
     public int getFrequency() {
@@ -1002,6 +1046,8 @@ public final class AppSettings extends HashMap<String, Object> {
 
     /**
      * Get the number of depth bits
+     *
+     * @return the number of depth bits per rendered pixel
      * @see #setDepthBits(int)
      */
     public int getDepthBits() {
@@ -1011,6 +1057,8 @@ public final class AppSettings extends HashMap<String, Object> {
     /**
      * Android Only
      * Get the number of alpha bits for the surface view to use.
+     *
+     * @return the number of alpha bits per rendered pixel
      * @see #setAlphaBits(int)
      */
     public int getAlphaBits() {
@@ -1019,6 +1067,8 @@ public final class AppSettings extends HashMap<String, Object> {
 
     /**
      * Get the number of stencil bits
+     *
+     * @return the number of stencil bits per rendered pixel
      * @see #setStencilBits(int)
      */
     public int getStencilBits() {
@@ -1027,6 +1077,8 @@ public final class AppSettings extends HashMap<String, Object> {
 
     /**
      * Get the number of samples
+     * 
+     * @return the number of samples per pixel (for multisample anti-aliasing)
      * @see #setSamples(int)
      */
     public int getSamples() {
@@ -1035,6 +1087,8 @@ public final class AppSettings extends HashMap<String, Object> {
 
     /**
      * Get the application title
+     *
+     * @return the title text
      * @see #setTitle(java.lang.String)
      */
     public String getTitle() {
@@ -1053,6 +1107,8 @@ public final class AppSettings extends HashMap<String, Object> {
 
     /**
      * Get the fullscreen state
+     *
+     * @return true for fullscreen display, false for windowed display
      * @see #setFullscreen(boolean)
      */
     public boolean isFullscreen() {
@@ -1061,6 +1117,8 @@ public final class AppSettings extends HashMap<String, Object> {
 
     /**
      * Get the use joysticks state
+     *
+     * @return true to enable joystick input, false to disable it
      * @see #setUseJoysticks(boolean)
      */
     public boolean useJoysticks() {
@@ -1069,6 +1127,8 @@ public final class AppSettings extends HashMap<String, Object> {
 
     /**
      * Get the audio renderer
+     *
+     * @return the audio renderer's name, for example "LWJGL"
      * @see #setAudioRenderer(java.lang.String)
      */
     public String getAudioRenderer() {
@@ -1077,6 +1137,8 @@ public final class AppSettings extends HashMap<String, Object> {
 
     /**
      * Get the stereo 3D state
+     *
+     * @return true if 3-D stereo is enabled, otherwise false
      * @see #setStereo3D(boolean)
      */
     public boolean useStereo3D(){
@@ -1085,6 +1147,8 @@ public final class AppSettings extends HashMap<String, Object> {
 
     /**
      * Get the icon array
+     *
+     * @return the pre-existing array
      * @see #setIcons(java.lang.Object[])
      */
     public Object[] getIcons() {
@@ -1093,6 +1157,8 @@ public final class AppSettings extends HashMap<String, Object> {
 
     /**
      * Get the settings dialog image
+     *
+     * @return a path to the image asset
      * @see #setSettingsDialogImage(java.lang.String)
      */
     public String getSettingsDialogImage() {
@@ -1192,7 +1258,7 @@ public final class AppSettings extends HashMap<String, Object> {
 
     /**
      * Determine if the renderer will be run in Graphics Debug mode, which means every openGL call is checked and
-     * if it returns an error code, throw a {@link com.jme3.renderer.RendererException}.<br />
+     * if it returns an error code, throw a {@link com.jme3.renderer.RendererException}.<br>
      * Without this, many openGL calls might fail without notice, so turning it on is recommended for development.
      *
      * @return whether the context will be run in Graphics Debug Mode or not
@@ -1204,7 +1270,7 @@ public final class AppSettings extends HashMap<String, Object> {
 
     /**
      * Set whether the renderer will be run in Graphics Debug mode, which means every openGL call is checked and
-     * if it returns an error code, throw a {@link com.jme3.renderer.RendererException}.<br />
+     * if it returns an error code, throw a {@link com.jme3.renderer.RendererException}.<br>
      * Without this, many openGL calls might fail without notice, so turning it on is recommended for development.
      *
      * @param debug whether the context will be run in Graphics Debug Mode or not
@@ -1216,9 +1282,9 @@ public final class AppSettings extends HashMap<String, Object> {
 
     /**
      * Determine if the renderer will be run in Graphics Timing mode, which means every openGL call is checked and
-     * if it runs for longer than a millisecond, log it.<br />
+     * if it runs for longer than a millisecond, log it.<br>
      * It also keeps track of the time spent in GL Calls in general and displays them when
-     * {@link com.jme3.renderer.opengl.GL#resetStats()} is called.<br />
+     * {@link com.jme3.renderer.opengl.GL#resetStats()} is called.
      *
      * @return whether the context will be run in Graphics Timing Mode or not
      * @see #setGraphicsTiming(boolean)
@@ -1230,9 +1296,9 @@ public final class AppSettings extends HashMap<String, Object> {
 
     /**
      * Set whether the renderer will be run in Graphics Timing mode, which means every openGL call is checked and
-     * if it runs for longer than a millisecond, log it.<br />
+     * if it runs for longer than a millisecond, log it.<br>
      * It also keeps track of the time spent in GL Calls in general and displays them when
-     * {@link com.jme3.renderer.opengl.GL#resetStats()} is called.<br />
+     * {@link com.jme3.renderer.opengl.GL#resetStats()} is called.
      *
      * @param timing whether the context will be run in Graphics Timing Mode or not
      * @see #isGraphicsTiming()
@@ -1244,7 +1310,7 @@ public final class AppSettings extends HashMap<String, Object> {
 
     /**
      * Determine if the renderer will be run in Graphics Trace mode, which means every openGL call is logged so one
-     * can trace what openGL commands where executed in which order by the engine.<br />
+     * can trace what openGL commands where executed in which order by the engine.
      *
      * @return whether the context will be run in Graphics Trace Mode or not
      * @see #setGraphicsTrace(boolean)
@@ -1256,7 +1322,7 @@ public final class AppSettings extends HashMap<String, Object> {
 
     /**
      * Set whether the renderer will be run in Graphics Trace mode, which means every openGL call is logged so one
-     * can trace what openGL commands where executed in which order by the engine.<br />
+     * can trace what openGL commands where executed in which order by the engine.
      *
      * @param trace whether the context will be run in Graphics Trace Mode or not
      * @see #isGraphicsTrace()

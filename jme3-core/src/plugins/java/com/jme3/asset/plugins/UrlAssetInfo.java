@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,7 +47,7 @@ import java.net.URLConnection;
  */
 public class UrlAssetInfo extends AssetInfo {
     
-    private URL url;
+    final private URL url;
     private InputStream in;
     
     public static UrlAssetInfo create(AssetManager assetManager, AssetKey key, URL url) throws IOException {

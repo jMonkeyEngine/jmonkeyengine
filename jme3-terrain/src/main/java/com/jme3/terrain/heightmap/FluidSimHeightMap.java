@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -134,7 +134,7 @@ public class FluidSimHeightMap extends AbstractHeightMap {
     }
 
 
-    /*
+    /**
      * Generates a heightmap using fluid simulation and the attributes set by
      * the constructor or the setters.
      */
@@ -278,7 +278,7 @@ public class FluidSimHeightMap extends AbstractHeightMap {
 
     /**
      * Sets the time-speed between each iteration of the fluid
-     * simulation algortithm.
+     * simulation algorithm.
      *
      * @param timeStep
      *                       the time-step between each iteration
@@ -288,7 +288,7 @@ public class FluidSimHeightMap extends AbstractHeightMap {
     }
 
     /**
-     * Sets the viscosity of the simulated fuid.
+     * Sets the viscosity of the simulated fluid.
      *
      * @param viscosity
      *                      the viscosity of the fluid
@@ -298,7 +298,7 @@ public class FluidSimHeightMap extends AbstractHeightMap {
     }
 
     /**
-     * Sets the speed at which the waves trave.
+     * Sets the speed at which the waves travel.
      *
      * @param waveSpeed
      *                      the speed at which the waves travel

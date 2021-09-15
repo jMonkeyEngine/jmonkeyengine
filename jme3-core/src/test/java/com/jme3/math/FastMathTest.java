@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -227,7 +227,6 @@ public class FastMathTest {
         assertEquals(in0.z, out0.z, 1e-5f);
     }
 
-    @Ignore // test fails due to issue #1349
     @Test
     public void testCartesianZToSpherical() {
         final Vector3f cartCoords = new Vector3f(1.1f, 5.8f, 8.1f);
@@ -774,7 +773,7 @@ public class FastMathTest {
         final Vector2f t0 = new Vector2f(-0.43f, 2.54f);
         final Vector2f t1 = new Vector2f(Float.NEGATIVE_INFINITY, 2.54f);
         final Vector2f t2 = new Vector2f(Float.NaN, Float.POSITIVE_INFINITY);
-        final Vector2f p = new Vector2f(-3.19f, -0.001f);;
+        final Vector2f p = new Vector2f(-3.19f, -0.001f);
 
         assertEquals(0, FastMath.pointInsideTriangle(t0, t1, t2, p));
     }

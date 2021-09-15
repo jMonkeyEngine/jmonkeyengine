@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,15 +40,15 @@ import com.jme3.shadow.DirectionalLightShadowRenderer;
  * a shadow map for each one.<br> splits are distributed so that the closer they
  * are from the camera, the smaller they are to maximize the resolution used of
  * the shadow map.<br> This results in a better quality shadow than standard
- * shadow mapping.<br> for more informations on this read this <a
+ * shadow mapping.<br> for more information on this read <a
  * href="http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html">http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html</a><br>
- * <p/>
+ *
  * @author Rémy Bouquet aka Nehon
  */
 public class VRDirectionalLightShadowRenderer extends DirectionalLightShadowRenderer {
 
     /**
-     * Create a OculusDirectionalLightShadowRenderer More info on the technique at <a
+     * Create an OculusDirectionalLightShadowRenderer More info on the technique at <a
      * href="http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html">http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html</a>
      *
      * @param assetManager the application asset manager

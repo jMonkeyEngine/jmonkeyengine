@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -55,7 +55,7 @@ public class NioEndpoint implements Endpoint
     private long id;
     private SocketChannel socket;
     private SelectorKernel kernel;
-    private ConcurrentLinkedQueue<ByteBuffer> outbound = new ConcurrentLinkedQueue<ByteBuffer>();
+    private ConcurrentLinkedQueue<ByteBuffer> outbound = new ConcurrentLinkedQueue<>();
     private boolean closing = false;
 
     public NioEndpoint( SelectorKernel kernel, long id, SocketChannel socket )

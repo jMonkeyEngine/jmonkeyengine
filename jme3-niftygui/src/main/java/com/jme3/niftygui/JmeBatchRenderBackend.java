@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -202,7 +202,7 @@ public class JmeBatchRenderBackend implements BatchRenderBackend {
             return atlasId;
         } catch (Exception e) {
             log.log(Level.WARNING, e.getMessage(), e);
-            return 0; // TODO Nifty always expects this call to be successfull
+            return 0; // TODO Nifty always expects this call to be successful
             // there currently is no way to return failure or something :/
         }
     }
@@ -347,7 +347,8 @@ public class JmeBatchRenderBackend implements BatchRenderBackend {
      * {@link de.lessvoid.nifty.render.batch.spi.BatchRenderBackend}
      * implementation
      *
-     * @param shouldUseHighQualityTextures
+     * @param shouldUseHighQualityTextures true&rarr;higher quality,
+     * false&rarr;lower quality
      */
     @Override
     public void useHighQualityTextures(final boolean shouldUseHighQualityTextures) {
@@ -362,7 +363,8 @@ public class JmeBatchRenderBackend implements BatchRenderBackend {
      * debugging when visually inspecting the atlas, since there will not be
      * portions of old images visible in currently unused atlas space.
      *
-     * @param shouldFill
+     * @param shouldFill true&rarr;overwrite with blank data, false&rarr;don't
+     * overwrite
      */
     @Override
     public void fillRemovedImagesInAtlas(final boolean shouldFill) {

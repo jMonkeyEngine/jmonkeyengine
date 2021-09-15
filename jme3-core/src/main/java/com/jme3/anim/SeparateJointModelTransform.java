@@ -13,7 +13,7 @@ import com.jme3.math.Transform;
  */
 public class SeparateJointModelTransform implements JointModelTransform {
 
-    private Transform modelTransform = new Transform();
+    final private Transform modelTransform = new Transform();
 
     @Override
     public void updateModelTransform(Transform localTransform, Joint parent) {

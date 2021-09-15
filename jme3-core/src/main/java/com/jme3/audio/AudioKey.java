@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -110,6 +110,8 @@ public class AudioKey extends AssetKey<AudioData> {
      * When enabled, the audio stream will
      * be read entirely but not decoded, allowing features such as 
      * seeking, looping and determining duration.
+     * 
+     * @return true if stream cache is in use, otherwise false
      */
     public boolean useStreamCache(){
         return streamCache;

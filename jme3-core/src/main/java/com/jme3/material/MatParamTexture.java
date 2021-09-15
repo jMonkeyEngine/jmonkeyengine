@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -83,7 +83,8 @@ public class MatParamTexture extends MatParam {
     /**
      * Set to {@link ColorSpace#Linear} if the texture color space has to be forced to linear 
      * instead of sRGB
-     * @param colorSpace @see ColorSpace
+     * @param colorSpace the desired color space
+     * @see ColorSpace
      */
     public void setColorSpace(ColorSpace colorSpace) {
         this.colorSpace = colorSpace;

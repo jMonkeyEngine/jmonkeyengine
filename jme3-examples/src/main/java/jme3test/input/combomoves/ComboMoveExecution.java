@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,7 +40,7 @@ public class ComboMoveExecution {
 
     private static final float TIME_LIMIT = 0.3f;
 
-    private ComboMove moveDef;
+    final private ComboMove moveDef;
     private int state;
     private float moveTime;
     private boolean finalState = false;

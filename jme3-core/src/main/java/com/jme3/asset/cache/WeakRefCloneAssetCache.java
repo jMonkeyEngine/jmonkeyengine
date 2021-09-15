@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -54,14 +54,14 @@ public class WeakRefCloneAssetCache implements AssetCache {
 
     private static final Logger logger = Logger.getLogger(WeakRefAssetCache.class.getName());
     
-    private final ReferenceQueue<AssetKey> refQueue = new ReferenceQueue<AssetKey>();
+    private final ReferenceQueue<AssetKey> refQueue = new ReferenceQueue<>();
     
     /**
      * Maps cloned key to AssetRef which has a weak ref to the original 
      * key and a strong ref to the original asset.
      */
     private final ConcurrentHashMap<AssetKey, AssetRef> smartCache 
-            = new ConcurrentHashMap<AssetKey, AssetRef>();
+            = new ConcurrentHashMap<>();
     
     /**
      * Stored in the ReferenceQueue to find out when originalKey is collected
@@ -98,7 +98,7 @@ public class WeakRefCloneAssetCache implements AssetCache {
             = new ThreadLocal<ArrayList<AssetKey>>() {
         @Override
         protected ArrayList<AssetKey> initialValue() {
-            return new ArrayList<AssetKey>();
+            return new ArrayList<>();
         }
     };
     

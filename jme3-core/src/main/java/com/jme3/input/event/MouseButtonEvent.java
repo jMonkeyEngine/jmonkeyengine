@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,10 +40,10 @@ import com.jme3.input.MouseInput;
  */
 public class MouseButtonEvent extends InputEvent {
 
-    private int x;
-    private int y;
-    private int btnIndex;
-    private boolean pressed;
+    final private int x;
+    final private int y;
+    final private int btnIndex;
+    final private boolean pressed;
 
     public MouseButtonEvent(int btnIndex, boolean pressed, int x, int y) {
         this.btnIndex = btnIndex;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,7 +35,6 @@ import java.lang.ref.WeakReference;
 
 import com.jme3.material.RenderState;
 import com.jme3.math.ColorRGBA;
-import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.shader.Shader;
 import com.jme3.texture.FrameBuffer;
@@ -46,6 +45,10 @@ import com.jme3.texture.Image;
  * internally to reduce state changes. NOTE: This class is specific to OpenGL.
  */
 public class RenderContext {
+    /**
+     * number of texture units that JME supports
+     */
+    final public static int maxTextureUnits = 16;
 
     /**
      * @see RenderState#setFaceCullMode(com.jme3.material.RenderState.FaceCullMode)
@@ -87,9 +90,6 @@ public class RenderContext {
      */
     public float polyOffsetUnits;
 
-    /**
-     * @see Mesh#setPointSize(float)
-     */
     public float pointSize;
 
     /**
@@ -221,7 +221,8 @@ public class RenderContext {
      *
      * @see Renderer#setTexture(int, com.jme3.texture.Texture)
      */
-    public final WeakReference<Image> boundTextures[] = new WeakReference[16];
+    public final WeakReference<Image> boundTextures[]
+            = new WeakReference[maxTextureUnits];
 
     /**
      * IDList for texture units

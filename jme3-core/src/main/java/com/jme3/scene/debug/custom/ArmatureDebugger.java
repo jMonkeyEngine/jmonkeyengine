@@ -1,7 +1,7 @@
 package com.jme3.scene.debug.custom;
 
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -80,6 +80,7 @@ public class ArmatureDebugger extends Node {
      *
      * @param name     the name of the debugger's node
      * @param armature the armature that will be shown
+     * @param deformingJoints a list of joints
      */
     public ArmatureDebugger(String name, Armature armature, List<Joint> deformingJoints) {
         super(name);

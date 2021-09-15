@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -64,8 +64,7 @@ public final class ReflectionAllocator implements BufferAllocator {
         Class<?> clazz = bb.getClass();
         try {
             freeMethod = clazz.getMethod("free");
-        } catch (NoSuchMethodException ex) {
-        } catch (SecurityException ex) {
+        } catch (NoSuchMethodException | SecurityException ex) {
         }
     }
 
@@ -74,12 +73,10 @@ public final class ReflectionAllocator implements BufferAllocator {
             Method method = Class.forName(className).getMethod(methodName);
             method.setAccessible(true);// according to the Java documentation, by default, a reflected object is not accessible
             return method;
-        } catch (NoSuchMethodException ex) {
-            return null; // the method was not found
-        } catch (SecurityException ex) {
-            return null; // setAccessible not allowed by security policy
-        } catch (ClassNotFoundException ex) {
-            return null; // the direct buffer implementation was not found
+        } catch (NoSuchMethodException // the method was not found
+                | SecurityException // setAccessible not allowed by security policy
+                | ClassNotFoundException ex) { // the direct buffer implementation was not found
+            return null;
         } catch (Throwable t) {
             if (t.getClass().getName().equals("java.lang.reflect.InaccessibleObjectException")) {
                 return null;// the class is in an unexported module
@@ -162,13 +159,10 @@ public final class ReflectionAllocator implements BufferAllocator {
                     }
                 }
             }
-        } catch (IllegalAccessException ex) {
-            Logger.getLogger(BufferUtils.class.getName()).log(Level.SEVERE, "{0}", ex);
-        } catch (IllegalArgumentException ex) {
-            Logger.getLogger(BufferUtils.class.getName()).log(Level.SEVERE, "{0}", ex);
-        } catch (InvocationTargetException ex) {
-            Logger.getLogger(BufferUtils.class.getName()).log(Level.SEVERE, "{0}", ex);
-        } catch (SecurityException ex) {
+        } catch (IllegalAccessException
+                | IllegalArgumentException
+                | InvocationTargetException
+                | SecurityException ex) {
             Logger.getLogger(BufferUtils.class.getName()).log(Level.SEVERE, "{0}", ex);
         }
     }

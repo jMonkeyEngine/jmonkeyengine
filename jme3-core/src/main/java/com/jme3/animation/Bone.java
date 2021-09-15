@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -76,7 +76,7 @@ public final class Bone implements Savable, JmeCloneable {
     public static final int SAVABLE_VERSION = 2;
     private String name;
     private Bone parent;
-    private ArrayList<Bone> children = new ArrayList<Bone>();
+    private ArrayList<Bone> children = new ArrayList<>();
     /**
      * If enabled, user can control bone transform with setUserTransforms.
      * Animation transforms are not applied to this bone when enabled.
@@ -297,7 +297,8 @@ public final class Bone implements Savable, JmeCloneable {
         return modelScale;
     }
 
-    /**     
+    /**
+     * @return the pre-existing vector
      * @deprecated use {@link #getModelBindInversePosition()}
      */
     @Deprecated 
@@ -317,7 +318,8 @@ public final class Bone implements Savable, JmeCloneable {
         return modelBindInversePos;
     }
 
-    /**     
+    /**
+     * @return the pre-existing Quaternion
      * @deprecated use {@link #getModelBindInverseRotation()}
      */
     @Deprecated
@@ -338,7 +340,8 @@ public final class Bone implements Savable, JmeCloneable {
     }
 
 
-    /**     
+    /**
+     * @return the pre-existing vector
      * @deprecated use {@link #getModelBindInverseScale()}
      */
     @Deprecated
@@ -378,7 +381,8 @@ public final class Bone implements Savable, JmeCloneable {
         return t.invert();
     }
     
-    /**    
+    /**
+     * @return the pre-existing vector
      * @deprecated use {@link #getBindPosition()}
      */
     @Deprecated
@@ -398,7 +402,8 @@ public final class Bone implements Savable, JmeCloneable {
         return bindPos;
     }
 
-    /**  
+    /**
+     * @return the pre-existing Quaternion
      * @deprecated use {@link #getBindRotation() }
      */    
     @Deprecated
@@ -419,6 +424,7 @@ public final class Bone implements Savable, JmeCloneable {
     }  
     
     /**
+     * @return the pre-existing vector
      * @deprecated use {@link #getBindScale() }
      */
     @Deprecated
@@ -441,6 +447,8 @@ public final class Bone implements Savable, JmeCloneable {
     /**
      * If enabled, user can control bone transform with setUserTransforms.
      * Animation transforms are not applied to this bone when enabled.
+     *
+     * @param enable true for direct control, false for canned animations
      */
     public void setUserControl(boolean enable) {
         userControl = enable;
@@ -664,16 +672,6 @@ public final class Bone implements Savable, JmeCloneable {
     }
 
     /**
-     * 
-     * @param translation -
-     * @param rotation -
-     * @deprecated use {@link #setUserTransformsInModelSpace(com.jme3.math.Vector3f, com.jme3.math.Quaternion) }
-     */
-    @Deprecated
-    public void setUserTransformsWorld(Vector3f translation, Quaternion rotation) {
-        
-    }
-    /**
      * Sets the transforms of this bone in model space (relative to the root bone)
      * 
      * Must update all bones in skeleton for this to work.
@@ -700,6 +698,7 @@ public final class Bone implements Savable, JmeCloneable {
      * Returns the local transform of this bone combined with the given position and rotation
      * @param position a position
      * @param rotation a rotation
+     * @return the resulting Transform (in reusable temporary storage!)
      */
     public Transform getCombinedTransform(Vector3f position, Quaternion rotation) {
         if(tmpTransform == null){
@@ -840,6 +839,10 @@ public final class Bone implements Savable, JmeCloneable {
     /**
      * Sets local bind transform for bone.
      * Call setBindingPose() after all of the skeleton bones' bind transforms are set to save them.
+     *
+     * @param translation the desired bind translation (not null, unaffected)
+     * @param rotation the desired bind rotation (not null, unaffected)
+     * @param scale the desired bind scale (unaffected) or null for no scaling
      */
     public void setBindTransforms(Vector3f translation, Quaternion rotation, Vector3f scale) {
         bindPos.set(translation);
@@ -925,7 +928,8 @@ public final class Bone implements Savable, JmeCloneable {
     /**
      * Sets the rotation of the bone in object space.
      * Warning: you need to call {@link #setUserControl(boolean)} with true to be able to do that operation
-     * @param rot
+     *
+     * @param rot the desired rotation (not null, unaffected)
      */
     public void setLocalRotation(Quaternion rot){
         if (!userControl) {
@@ -937,7 +941,8 @@ public final class Bone implements Savable, JmeCloneable {
     /**
      * Sets the position of the bone in object space.
      * Warning: you need to call {@link #setUserControl(boolean)} with true to be able to do that operation
-     * @param pos
+     *
+     * @param pos the desired translation (not null, unaffected)
      */
     public void setLocalTranslation(Vector3f pos){
         if (!userControl) {

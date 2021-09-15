@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,19 +50,15 @@ import java.util.*;
 
 public class TestGltfLoading extends SimpleApplication {
 
-    Node autoRotate = new Node("autoRotate");
-    List<Spatial> assets = new ArrayList<>();
-    Node probeNode;
-    float time = 0;
-    int assetIndex = 0;
-    boolean useAutoRotate = false;
+    final private Node autoRotate = new Node("autoRotate");
+    final private List<Spatial> assets = new ArrayList<>();
+    private Node probeNode;
+    private float time = 0;
+    private int assetIndex = 0;
+    private boolean useAutoRotate = false;
     private final static String indentString = "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t";
-    int duration = 1;
-    boolean playAnim = true;
-
-    Geometry g;
-    int morphIndex = 0;
-
+    final private int duration = 1;
+    private boolean playAnim = true;
 
     public static void main(String[] args) {
         TestGltfLoading app = new TestGltfLoading();
@@ -74,7 +70,7 @@ public class TestGltfLoading extends SimpleApplication {
     you can find them here :
     https://github.com/KhronosGroup/glTF-Sample-Models/tree/master/2.0
     https://sketchfab.com/features/gltf
-    You have to copy them in Model/gltf folder in the test-data project.
+    You have to copy them in Model/gltf folder in the jme3-testdata project.
      */
     @Override
     public void simpleInitApp() {
@@ -264,8 +260,8 @@ public class TestGltfLoading extends SimpleApplication {
 
     }
 
-    Queue<String> anims = new LinkedList<>();
-    AnimComposer composer;
+    final private Queue<String> anims = new LinkedList<>();
+    private AnimComposer composer;
 
     private void playFirstAnim(Spatial s) {
 

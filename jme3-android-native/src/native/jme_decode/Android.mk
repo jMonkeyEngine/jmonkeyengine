@@ -10,7 +10,7 @@ LOCAL_C_INCLUDES:= \
 		$(LOCAL_PATH) \
 		$(LOCAL_PATH)/Tremor
 
-LOCAL_CFLAGS := -std=gnu99 -DLIMIT_TO_64kHz
+LOCAL_CFLAGS := -std=gnu99 -DLIMIT_TO_64kHz -O0
 LOCAL_LDLIBS := -lz -llog -Wl,-s
 	
 ifeq ($(TARGET_ARCH),arm)

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,7 +38,7 @@ import java.util.List;
 
 public class FbxSkinDeformer extends FbxObject<List<FbxCluster>> {
 
-    private final List<FbxCluster> clusters = new ArrayList<FbxCluster>();
+    private final List<FbxCluster> clusters = new ArrayList<>();
     
     public FbxSkinDeformer(AssetManager assetManager, String sceneFolderName) {
         super(assetManager, sceneFolderName);

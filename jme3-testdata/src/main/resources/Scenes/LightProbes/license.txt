@@ -1,0 +1,15 @@
+Licensing history for files in "src/main/resources/Scenes/LightProbes"
+
+Based on "Quarry 03":
+* download file:     quarry_03.jpg
+* downloaded from:   https://hdrihaven.com/hdri/?h=quarry_03
+* author:            Sergej Majboroda
+* author URL:        https://hdrihaven.com/hdris/?a=Sergej%20Majboroda
+* license type:      CC0
+* license URL:       https://creativecommons.org/publicdomain/zero/1.0/
+
+Derived files (also licensed CC0):
+* quarry_Probe.j3o
+
+Added files (also licensed CC0):
+* license.txt

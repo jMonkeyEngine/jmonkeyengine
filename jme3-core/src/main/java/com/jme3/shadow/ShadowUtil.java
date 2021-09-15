@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -62,10 +62,17 @@ import java.util.List;
 public class ShadowUtil {
 
     /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private ShadowUtil() {
+    }
+
+    /**
      * Updates a points arrays with the frustum corners of the provided camera.
      *
-     * @param viewCam
-     * @param points
+     * @param viewCam the viewing Camera (not null, unaffected)
+     * @param points storage for the corner coordinates (not null, length&ge;8,
+     * modified)
      */
     public static void updateFrustumPoints2(Camera viewCam, Vector3f[] points) {
         int w = viewCam.getWidth();
@@ -89,9 +96,12 @@ public class ShadowUtil {
      *
      * TODO: Reduce creation of new vectors
      *
-     * @param viewCam
-     * @param nearOverride
-     * @param farOverride
+     * @param viewCam the viewing Camera (not null, unaffected)
+     * @param nearOverride distance to the near plane (in world units)
+     * @param farOverride distance to the far plane (in world units)
+     * @param scale scale factor
+     * @param points storage for the corner coordinates (not null, length&ge;8,
+     * modified)
      */
     public static void updateFrustumPoints(Camera viewCam,
             float nearOverride,
@@ -169,8 +179,9 @@ public class ShadowUtil {
 
     /**
      * Compute bounds of a geomList
-     * @param list
-     * @param transform
+     *
+     * @param list a list of geometries (not null)
+     * @param transform a coordinate transform
      * @return a new instance
      */
     public static BoundingBox computeUnionBound(GeometryList list, Transform transform) {
@@ -190,8 +201,9 @@ public class ShadowUtil {
 
     /**
      * Compute bounds of a geomList
-     * @param list
-     * @param mat
+     *
+     * @param list a list of geometries (not null)
+     * @param mat a coordinate-transform matrix
      * @return a new instance
      */
     public static BoundingBox computeUnionBound(GeometryList list, Matrix4f mat) {
@@ -212,7 +224,7 @@ public class ShadowUtil {
     /**
      * Computes the bounds of multiple bounding volumes
      *
-     * @param bv
+     * @param bv a list of bounding volumes (not null)
      * @return a new instance
      */
     public static BoundingBox computeUnionBound(List<BoundingVolume> bv) {
@@ -227,8 +239,8 @@ public class ShadowUtil {
     /**
      * Compute bounds from an array of points
      *
-     * @param pts
-     * @param transform
+     * @param pts an array of location vectors (not null, unaffected)
+     * @param transform a coordinate transform
      * @return a new instance
      */
     public static BoundingBox computeBoundForPoints(Vector3f[] pts, Transform transform) {
@@ -248,8 +260,9 @@ public class ShadowUtil {
 
     /**
      * Compute bounds from an array of points
-     * @param pts
-     * @param mat
+     *
+     * @param pts an array of location vectors (not null, unaffected)
+     * @param mat a coordinate-transform matrix (not null, unaffected)
      * @return a new BoundingBox
      */
     public static BoundingBox computeBoundForPoints(Vector3f[] pts, Matrix4f mat) {
@@ -280,8 +293,8 @@ public class ShadowUtil {
      * Updates the shadow camera to properly contain the given points (which
      * contain the eye camera frustum corners)
      *
-     * @param shadowCam
-     * @param points
+     * @param shadowCam the shadow camera (not null, modified)
+     * @param points an array of location vectors (not null, unaffected)
      */
     public static void updateShadowCamera(Camera shadowCam, Vector3f[] points) {
         boolean ortho = shadowCam.isParallelProjection();
@@ -363,6 +376,9 @@ public class ShadowUtil {
          * Check the rootScene against camera frustum and if intersects process it recursively.
          * The global OccludersExtractor variables need to be initialized first.
          * Variables are updated and used in {@link ShadowUtil#updateShadowCamera} at last.
+         * 
+         * @param scene the root of the scene to check (may be null)
+         * @return the number of shadow casters found
          */
         public int addOccluders(Spatial scene) {
             if ( scene != null ) process(scene);
@@ -452,6 +468,13 @@ public class ShadowUtil {
      * Updates the shadow camera to properly contain the given points (which
      * contain the eye camera frustum corners) and the shadow occluder objects
      * collected through the traverse of the scene hierarchy
+     *
+     * @param viewPort the ViewPort
+     * @param receivers a list of receiving geometries
+     * @param shadowCam the shadow camera (not null, modified)
+     * @param points an array of location vectors (not null, unaffected)
+     * @param splitOccluders a list of occluding geometries
+     * @param shadowMapSize the size of each edge of the shadow map (in pixels)
      */
     public static void updateShadowCamera(ViewPort viewPort,
             GeometryList receivers,
@@ -622,6 +645,7 @@ public class ShadowUtil {
      *
      * @param rootScene the rootNode of the scene to traverse
      * @param camera the camera to check geometries against
+     * @param mode the ShadowMode to test for
      * @param outputGeometryList the list of all geometries that are in the
      * camera frustum
      */    
@@ -661,7 +685,8 @@ public class ShadowUtil {
      * with geometry children of scene node
      * 
      * @param camera
-     * @param scene
+     * @param scene the root of the scene to traverse (may be null)
+     * @param mode the ShadowMode to test for
      * @param outputGeometryList 
      */
     private static void addGeometriesInCamFrustumFromNode(Camera camera, Node scene, RenderQueue.ShadowMode mode, GeometryList outputGeometryList) {
@@ -718,9 +743,10 @@ public class ShadowUtil {
      * of OccludersExtractor.rootScene node that are both in the frustum of the given vpCamera and some camera inside cameras array.
      * The array of cameras must be initialized to represent the light viewspace of some light like pointLight or spotLight
      *
-     * @param rootScene
+     * @param rootScene the root of the scene to traverse (may be null)
      * @param vpCamera the viewPort camera 
      * @param cameras the camera array to check geometries against, representing the light viewspace
+     * @param mode the ShadowMode to test for
      * @param outputGeometryList the output list of all geometries that are in the camera frustum
      */
     public static void getLitGeometriesInViewPort(Spatial rootScene, Camera vpCamera, Camera[] cameras, RenderQueue.ShadowMode mode, GeometryList outputGeometryList) {

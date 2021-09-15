@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -73,8 +73,8 @@ public class TestDepthFuncChange extends SimpleApplication {
         rootNode.attachChild(cube2);
         
         //Bottom of the screen
-        //here the 2 cubes are clonned and the depthFunc for the red cube's material is set to Less
-        //You should see the whole bleu cube and a small part of the red cube on the right
+        //here the 2 cubes are cloned and the depthFunc for the red cube's material is set to Less
+        //You should see the whole blue cube and a small part of the red cube on the right
         Geometry cube3 = cube1.clone();
         Geometry cube4 = cube2.clone(true);
         cube4.getMaterial().getAdditionalRenderState().setDepthFunc(RenderState.TestFunction.Less);       

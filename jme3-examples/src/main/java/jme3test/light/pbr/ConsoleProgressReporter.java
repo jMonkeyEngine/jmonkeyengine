@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,7 +44,7 @@ public class ConsoleProgressReporter extends JobProgressAdapter<LightProbe>{
 
     private static final Logger logger = Logger.getLogger(ConsoleProgressReporter.class.getName());
     
-    long time;
+    private long time;
 
     @Override
     public void start() {

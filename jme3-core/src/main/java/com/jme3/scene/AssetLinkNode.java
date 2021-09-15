@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -55,8 +55,8 @@ import java.util.logging.Logger;
  */
 public class AssetLinkNode extends Node {
 
-    protected ArrayList<ModelKey> assetLoaderKeys = new ArrayList<ModelKey>();
-    protected Map<ModelKey, Spatial> assetChildren = new HashMap<ModelKey, Spatial>();
+    protected ArrayList<ModelKey> assetLoaderKeys = new ArrayList<>();
+    protected Map<ModelKey, Spatial> assetChildren = new HashMap<>();
 
     public AssetLinkNode() {
     }
@@ -87,7 +87,8 @@ public class AssetLinkNode extends Node {
     /**
      * Add a "linked" child. These are loaded from the assetManager when the
      * AssetLinkNode is loaded from a binary file.
-     * @param key
+     *
+     * @param key the ModelKey to add
      */
     public void addLinkedChild(ModelKey key) {
         if (assetLoaderKeys.contains(key)) {
@@ -135,7 +136,8 @@ public class AssetLinkNode extends Node {
     /**
      * Loads the linked children AssetKeys from the AssetManager and attaches them to the Node<br>
      * If they are already attached, they will be reloaded.
-     * @param manager
+     *
+     * @param manager for loading assets
      */
     public void attachLinkedChildren(AssetManager manager) {
         detachLinkedChildren();
@@ -188,11 +190,11 @@ public class AssetLinkNode extends Node {
 
     @Override
     public void write(JmeExporter e) throws IOException {
-        SafeArrayList<Spatial> childs = children;
+        SafeArrayList<Spatial> childList = children;
         children = new SafeArrayList<>(Spatial.class);
         super.write(e);
         OutputCapsule capsule = e.getCapsule(this);
         capsule.writeSavableArrayList(assetLoaderKeys, "assetLoaderKeyList", null);
-        children = childs;
+        children = childList;
     }
 }

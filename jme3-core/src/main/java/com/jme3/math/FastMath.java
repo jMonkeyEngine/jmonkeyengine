@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -532,8 +532,8 @@ final public class FastMath {
     /**
      * A direct call to Math.atan2.
      *
-     * @param fY
-     * @param fX
+     * @param fY ordinate
+     * @param fX abscissa
      * @return Math.atan2(fY,fX)
      * @see java.lang.Math#atan2(double, double)
      */
@@ -933,7 +933,7 @@ final public class FastMath {
      * Z as up) and stores the results in the store var.
      *
      * @param sphereCoords the input spherical coordinates: x=distance from
-     * origin, y=longitude in radians, z=latitude in radians (not null,
+     * origin, y=latitude in radians, z=longitude in radians (not null,
      * unaffected)
      * @param store storage for the result (modified if not null)
      * @return the Cartesian coordinates (either store or a new vector)
@@ -943,10 +943,10 @@ final public class FastMath {
         if (store == null) {
             store = new Vector3f();
         }
-        store.z = sphereCoords.x * FastMath.sin(sphereCoords.z);
-        float a = sphereCoords.x * FastMath.cos(sphereCoords.z);
-        store.x = a * FastMath.cos(sphereCoords.y);
-        store.y = a * FastMath.sin(sphereCoords.y);
+        store.y = sphereCoords.x * FastMath.sin(sphereCoords.y);
+        float a = sphereCoords.x * FastMath.cos(sphereCoords.y);
+        store.x = a * FastMath.cos(sphereCoords.z);
+        store.z = a * FastMath.sin(sphereCoords.z);
 
         return store;
     }
@@ -1024,9 +1024,9 @@ final public class FastMath {
     /**
      * Take a float input and clamp it between min and max.
      *
-     * @param input
-     * @param min
-     * @param max
+     * @param input the value to be clamped
+     * @param min the minimum output value
+     * @param max the maximum output value
      * @return clamped input
      */
     public static float clamp(float input, float min, float max) {
@@ -1036,7 +1036,7 @@ final public class FastMath {
     /**
      * Clamps the given float to be between 0 and 1.
      *
-     * @param input
+     * @param input the value to be clamped
      * @return input clamped between 0 and 1.
      */
     public static float saturate(float input) {

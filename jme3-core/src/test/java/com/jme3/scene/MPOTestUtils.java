@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2016 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,15 +52,21 @@ public class MPOTestUtils {
         }
     };
 
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private MPOTestUtils() {
+    }
+
     private static void validateSubScene(Spatial scene) {
         scene.checkCulling(DUMMY_CAM);
 
-        Set<MatParamOverride> actualOverrides = new HashSet<MatParamOverride>();
+        Set<MatParamOverride> actualOverrides = new HashSet<>();
         for (MatParamOverride override : scene.getWorldMatParamOverrides()) {
             actualOverrides.add(override);
         }
 
-        Set<MatParamOverride> expectedOverrides = new HashSet<MatParamOverride>();
+        Set<MatParamOverride> expectedOverrides = new HashSet<>();
         Spatial current = scene;
         while (current != null) {
             for (MatParamOverride override : current.getLocalMatParamOverrides()) {
@@ -102,13 +108,10 @@ public class MPOTestUtils {
             Field refreshFlagsField = Spatial.class.getDeclaredField("refreshFlags");
             refreshFlagsField.setAccessible(true);
             return (Integer) refreshFlagsField.get(scene);
-        } catch (NoSuchFieldException ex) {
-            throw new AssertionError(ex);
-        } catch (SecurityException ex) {
-            throw new AssertionError(ex);
-        } catch (IllegalArgumentException ex) {
-            throw new AssertionError(ex);
-        } catch (IllegalAccessException ex) {
+        } catch (NoSuchFieldException
+                | SecurityException
+                | IllegalArgumentException
+                | IllegalAccessException ex) {
             throw new AssertionError(ex);
         }
     }

@@ -20,6 +20,21 @@ public class LWJGLBufferAllocator implements BufferAllocator {
     private static final Logger LOGGER = Logger.getLogger(LWJGLBufferAllocator.class.getName());
 
     public static final String PROPERTY_CONCURRENT_BUFFER_ALLOCATOR = "com.jme3.lwjgl3.ConcurrentBufferAllocator";
+    
+    /**
+     * The reference queue.
+     */
+    private static final ReferenceQueue<Buffer> DUMMY_QUEUE = new ReferenceQueue<>();
+        
+    /**
+     * The cleaner thread.
+     */
+    private static final Thread CLEAN_THREAD = new Thread(LWJGLBufferAllocator::freeByteBuffers);
+
+    /**
+     * The map with created deallocators.
+     */
+    private static final Map<Long, Deallocator> DEALLOCATORS = new ConcurrentHashMap<>();
 
     /**
      * Threadsafe implementation of the {@link LWJGLBufferAllocator}.
@@ -62,11 +77,6 @@ public class LWJGLBufferAllocator implements BufferAllocator {
             return new ConcurrentDeallocator(byteBuffer, DUMMY_QUEUE, address, stampedLock);
         }
     }
-
-    /**
-     * The reference queue.
-     */
-    private static final ReferenceQueue<Buffer> DUMMY_QUEUE = new ReferenceQueue<>();
 
     /**
      * The LWJGL byte buffer deallocator.
@@ -128,19 +138,9 @@ public class LWJGLBufferAllocator implements BufferAllocator {
         }
     }
 
-    /**
-     * The cleaner thread.
-     */
-    private static final Thread CLEAN_THREAD = new Thread(LWJGLBufferAllocator::freeByteBuffers);
-
-    /**
-     * The map with created deallocators.
-     */
-    private static final Map<Long, Deallocator> DEALLOCATORS = new ConcurrentHashMap<>();
-
     static {
         CLEAN_THREAD.setDaemon(true);
-        CLEAN_THREAD.setName("Thread to free LWJGL byte buffers");
+        CLEAN_THREAD.setName("LWJGL Deallocator");
         CLEAN_THREAD.start();
     }
 

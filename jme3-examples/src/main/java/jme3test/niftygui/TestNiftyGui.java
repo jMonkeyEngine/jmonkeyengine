@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,10 +38,8 @@ import com.jme3.niftygui.NiftyJmeDisplay;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
 import de.lessvoid.nifty.Nifty;
-import de.lessvoid.nifty.screen.Screen;
-import de.lessvoid.nifty.screen.ScreenController;
 
-public class TestNiftyGui extends SimpleApplication implements ScreenController {
+public class TestNiftyGui extends SimpleApplication {
 
     private Nifty nifty;
 
@@ -66,7 +64,8 @@ public class TestNiftyGui extends SimpleApplication implements ScreenController 
                 audioRenderer,
                 guiViewPort);
         nifty = niftyDisplay.getNifty();
-        nifty.fromXml("Interface/Nifty/HelloJme.xml", "start", this);
+        StartScreenController startScreen = new StartScreenController(this);
+        nifty.fromXml("Interface/Nifty/HelloJme.xml", "start", startScreen);
 
         // attach the nifty display to the gui view port as a processor
         guiViewPort.addProcessor(niftyDisplay);
@@ -76,24 +75,4 @@ public class TestNiftyGui extends SimpleApplication implements ScreenController 
 //        flyCam.setDragToRotate(true);
         inputManager.setCursorVisible(true);
     }
-
-    @Override
-    public void bind(Nifty nifty, Screen screen) {
-        System.out.println("bind( " + screen.getScreenId() + ")");
-    }
-
-    @Override
-    public void onStartScreen() {
-        System.out.println("onStartScreen");
-    }
-
-    @Override
-    public void onEndScreen() {
-        System.out.println("onEndScreen");
-    }
-
-    public void quit(){
-        nifty.gotoScreen("end");
-    }
-
 }

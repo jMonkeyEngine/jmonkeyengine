@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -55,9 +55,8 @@ import java.io.File;
 public class TestQ3 extends SimpleApplication implements ActionListener {
 
     private BulletAppState bulletAppState;
-    private Node gameLevel;
     private PhysicsCharacter player;
-    private Vector3f walkDirection = new Vector3f();
+    final private Vector3f walkDirection = new Vector3f();
     private static boolean useHttp = false;
     private boolean left=false,right=false,up=false,down=false;
 
@@ -101,7 +100,7 @@ public class TestQ3 extends SimpleApplication implements ActionListener {
         // create the geometry and attach it
         MaterialList matList = (MaterialList) assetManager.loadAsset("Scene.material");
         OgreMeshKey key = new OgreMeshKey("main.meshxml", matList);
-        gameLevel = (Node) assetManager.loadAsset(key);
+        Node gameLevel = (Node) assetManager.loadAsset(key);
         gameLevel.setLocalScale(0.1f);
 
         // add a physics control, it will generate a MeshCollisionShape based on the gameLevel

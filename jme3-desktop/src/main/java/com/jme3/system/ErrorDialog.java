@@ -12,7 +12,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
 /**
- * Simple dialog for diplaying error messages,
+ * Simple dialog for displaying error messages,
  * 
  * @author kwando
  */
@@ -22,8 +22,9 @@ public class ErrorDialog extends JDialog {
     
     /**
      * Create a new Dialog with a title and a message.
-     * @param message
-     * @param title 
+     *
+     * @param message the message to display
+     * @param title the title to display
      */
     public ErrorDialog(String message, String title) {
         setTitle(title);
@@ -55,10 +56,11 @@ public class ErrorDialog extends JDialog {
     }
     
     /**
-     * Show a dialog with the proved message.
-     * @param message 
+     * Show a dialog with the provided message.
+     *
+     * @param message the message to display
      */
-    public static void showDialog(String message){
+    public static void showDialog(String message) {
         ErrorDialog dialog = new ErrorDialog(message);
         dialog.setVisible(true);
     }

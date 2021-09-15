@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -465,10 +465,10 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
      * internally, and returns a handle to this vector for easy chaining of
      * calls.
      *
-     * @param x
-     * @param y
-     * @param z
-     * @param w
+     * @param x the scaling factor for the X component
+     * @param y the scaling factor for the Y component
+     * @param z the scaling factor for the Z component
+     * @param w the scaling factor for the W component
      * @return this
      */
     public Vector4f multLocal(float x, float y, float z, float w) {
@@ -741,7 +741,7 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
      * component in this and <code>other</code> vector. The result is stored
      * in this vector.
      *
-     * @param other
+     * @param other the vector to compare with (not null, unaffected)
      * @return this
      */
     public Vector4f maxLocal(Vector4f other) {
@@ -757,7 +757,7 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
      * component in this and <code>other</code> vector. The result is stored
      * in this vector.
      *
-     * @param other
+     * @param other the vector to compare with (not null, unaffected)
      * @return this
      */
     public Vector4f minLocal(Vector4f other) {
@@ -792,37 +792,37 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Sets this vector to the interpolation by changeAmnt from this to the finalVec
-     * this=(1-changeAmnt)*this + changeAmnt * finalVec
+     * Sets this vector to the interpolation by changeAmount from this to the finalVec
+     * this=(1-changeAmount)*this + changeAmount * finalVec
      *
      * @param finalVec The final vector to interpolate towards
-     * @param changeAmnt An amount between 0.0 - 1.0 representing a percentage
+     * @param changeAmount An amount between 0.0 - 1.0 representing a percentage
      *  change from this towards finalVec
      * @return this
      */
-    public Vector4f interpolateLocal(Vector4f finalVec, float changeAmnt) {
-        this.x = (1 - changeAmnt) * this.x + changeAmnt * finalVec.x;
-        this.y = (1 - changeAmnt) * this.y + changeAmnt * finalVec.y;
-        this.z = (1 - changeAmnt) * this.z + changeAmnt * finalVec.z;
-        this.w = (1 - changeAmnt) * this.w + changeAmnt * finalVec.w;
+    public Vector4f interpolateLocal(Vector4f finalVec, float changeAmount) {
+        this.x = (1 - changeAmount) * this.x + changeAmount * finalVec.x;
+        this.y = (1 - changeAmount) * this.y + changeAmount * finalVec.y;
+        this.z = (1 - changeAmount) * this.z + changeAmount * finalVec.z;
+        this.w = (1 - changeAmount) * this.w + changeAmount * finalVec.w;
         return this;
     }
 
     /**
-     * Sets this vector to the interpolation by changeAmnt from beginVec to finalVec
-     * this=(1-changeAmnt)*beginVec + changeAmnt * finalVec
+     * Sets this vector to the interpolation by changeAmount from beginVec to finalVec
+     * this=(1-changeAmount)*beginVec + changeAmount * finalVec
      *
-     * @param beginVec the beginning vector (changeAmnt=0)
+     * @param beginVec the beginning vector (changeAmount=0)
      * @param finalVec The final vector to interpolate towards
-     * @param changeAmnt An amount between 0.0 - 1.0 representing a percentage
+     * @param changeAmount An amount between 0.0 - 1.0 representing a percentage
      *  change from beginVec towards finalVec
      * @return this
      */
-    public Vector4f interpolateLocal(Vector4f beginVec, Vector4f finalVec, float changeAmnt) {
-        this.x = (1 - changeAmnt) * beginVec.x + changeAmnt * finalVec.x;
-        this.y = (1 - changeAmnt) * beginVec.y + changeAmnt * finalVec.y;
-        this.z = (1 - changeAmnt) * beginVec.z + changeAmnt * finalVec.z;
-        this.w = (1 - changeAmnt) * beginVec.w + changeAmnt * finalVec.w;
+    public Vector4f interpolateLocal(Vector4f beginVec, Vector4f finalVec, float changeAmount) {
+        this.x = (1 - changeAmount) * beginVec.x + changeAmount * finalVec.x;
+        this.y = (1 - changeAmount) * beginVec.y + changeAmount * finalVec.y;
+        this.z = (1 - changeAmount) * beginVec.z + changeAmount * finalVec.z;
+        this.w = (1 - changeAmount) * beginVec.w + changeAmount * finalVec.w;
         return this;
     }
 
@@ -1088,7 +1088,7 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * @param index
+     * @param index which component (&ge;0, &lt;4)
      * @return x value if index == 0, y value if index == 1 or z value if index == 2
      * @throws IllegalArgumentException
      *             if index is not one of 0, 1, 2.

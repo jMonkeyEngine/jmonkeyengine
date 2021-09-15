@@ -44,7 +44,9 @@ import java.io.IOException;
  * with a {@link Node} object.
  *
  * @author Tim8Dev
+ * @deprecated Use a {@link LightControl} attached to a {@link Node} directly.
  */
+@Deprecated
 public class LightNode extends Node {
 
     private LightControl lightControl;

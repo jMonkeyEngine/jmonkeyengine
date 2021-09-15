@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.jme3.input.vr.lwjgl_openvr;
 
 import com.jme3.app.VREnvironment;
@@ -55,29 +50,29 @@ public class LWJGLOpenVRMouseManager extends AbstractVRMouseManager {
     	            tpDelta = getVREnvironment().getVRinput().getAxisDeltaSinceLastCall(inputIndex, VRInputType.ViveTrackpadAxis);            
     	        }
     	        
-    	        float Xamount = (float)Math.pow(Math.abs(tpDelta.x) * getSpeedSensitivity(), getSpeedAcceleration());
-    	        float Yamount = (float)Math.pow(Math.abs(tpDelta.y) * getSpeedSensitivity(), getSpeedAcceleration());
+    	        float xAmount = (float)Math.pow(Math.abs(tpDelta.x) * getSpeedSensitivity(), getSpeedAcceleration());
+    	        float yAmount = (float)Math.pow(Math.abs(tpDelta.y) * getSpeedSensitivity(), getSpeedAcceleration());
     	        
     	        if( tpDelta.x < 0f ){
-    	        	Xamount = -Xamount;
+    	        	xAmount = -xAmount;
     	        }
     	        
     	        if( tpDelta.y < 0f ){
-    	        	Yamount = -Yamount;
+    	        	yAmount = -yAmount;
     	        }
     	        
-    	        Xamount *= getMouseMoveScale(); 
-    	        Yamount *= getMouseMoveScale();
+    	        xAmount *= getMouseMoveScale();
+    	        yAmount *= getMouseMoveScale();
     	        
     	        if( mouseListener != null ) {
-    	            if( tpDelta.x != 0f && mouseXName != null ) mouseListener.onAnalog(mouseXName, Xamount * 0.2f, tpf);
-    	            if( tpDelta.y != 0f && mouseYName != null ) mouseListener.onAnalog(mouseYName, Yamount * 0.2f, tpf);            
+    	            if( tpDelta.x != 0f && mouseXName != null ) mouseListener.onAnalog(mouseXName, xAmount * 0.2f, tpf);
+    	            if( tpDelta.y != 0f && mouseYName != null ) mouseListener.onAnalog(mouseYName, yAmount * 0.2f, tpf);
     	        }
     	        
     	        if( getVREnvironment().getApplication().getInputManager().isCursorVisible() ) {
     	            int index = (avgCounter+1) % AVERAGE_AMNT;
-    	            lastXmv[index] = Xamount * 133f;
-    	            lastYmv[index] = Yamount * 133f;
+    	            lastXmv[index] = xAmount * 133f;
+    	            lastYmv[index] = yAmount * 133f;
     	            cursorPos.x -= avg(lastXmv);
     	            cursorPos.y -= avg(lastYmv);
     	            Vector2f maxsize = getVREnvironment().getVRGUIManager().getCanvasSize();

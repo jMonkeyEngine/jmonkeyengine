@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -55,7 +55,7 @@ public class TestInstanceNode extends SimpleApplication  {
     private final Material[] materials = new Material[6];
     private Node instancedNode;
     private float time = 0;
-    private boolean INSTANCING = true;
+    final private boolean INSTANCING = true;
     
     public static void main(String[] args){
         TestInstanceNode app = new TestInstanceNode();

@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.jme3.post;
 
 import com.jme3.asset.AssetManager;
@@ -14,7 +10,12 @@ import com.jme3.shadow.DirectionalLightShadowFilter;
  * @author Rickard
  */
 public class FilterUtil {
-    
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private FilterUtil() {
+    }
+
     public static FogFilter cloneFogFilter(FogFilter fogFilter){
         FogFilter filterClone = new FogFilter();
         filterClone.setFogColor(fogFilter.getFogColor());

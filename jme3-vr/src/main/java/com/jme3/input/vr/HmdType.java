@@ -18,7 +18,7 @@ public enum HmdType {
     VALVE_INDEX,
 
     /**
-     * <a href="https://www3.oculus.com/en-us/rift/">Occulus Rift</a> Head Mounted Device (HMD).
+     * <a href="https://www3.oculus.com/en-us/rift/">Oculus Rift</a> Head Mounted Device (HMD).
      */
     OCULUS_RIFT, 
     
@@ -43,7 +43,7 @@ public enum HmdType {
     GAMEFACE, 
     
     /**
-     * <a href="https://www.playstation.com/en-us/explore/playstation-vr/">PlayStation VR</a> (formely Morpheus) Head Mounted Device (HMD).
+     * <a href="https://www.playstation.com/en-us/explore/playstation-vr/">PlayStation VR</a> (formerly Morpheus) Head Mounted Device (HMD).
      */
     MORPHEUS, 
     

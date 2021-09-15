@@ -92,7 +92,7 @@ public final class ClassInfo {
     }
     
     private MethodInfo[] toMethodInfo( Class type, Method[] methods ) {
-        List<MethodInfo> result = new ArrayList<MethodInfo>();
+        List<MethodInfo> result = new ArrayList<>();
         short methodId = 0;
         for( Method m : methods ) {
             // Simple... add all methods exposed through the interface

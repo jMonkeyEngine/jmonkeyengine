@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -67,24 +67,23 @@ import jme3test.bullet.BombControl;
  */
 public class TestBatchNodeTower extends SimpleApplication {
 
-    int bricksPerLayer = 8;
-    int brickLayers = 30;
+    final private int bricksPerLayer = 8;
+    final private int brickLayers = 30;
 
-    static float brickWidth = .75f, brickHeight = .25f, brickDepth = .25f;
-    float radius = 3f;
-    float angle = 0;
+    final private static float brickWidth = .75f, brickHeight = .25f, brickDepth = .25f;
+    final private float radius = 3f;
+    private float angle = 0;
 
 
-    Material mat;
-    Material mat2;
-    Material mat3;
-    DirectionalLightShadowFilter shadowRenderer;
+    private Material mat;
+    private Material mat2;
+    private Material mat3;
     private Sphere bullet;
     private Box brick;
     private SphereCollisionShape bulletCollisionShape;
 
     private BulletAppState bulletAppState;
-    BatchNode batchNode = new BatchNode("batch Node");
+    final private BatchNode batchNode = new BatchNode("batch Node");
     
     public static void main(String args[]) {
         TestBatchNodeTower f = new TestBatchNodeTower();
@@ -106,7 +105,6 @@ public class TestBatchNodeTower extends SimpleApplication {
 
         brick = new Box(brickWidth, brickHeight, brickDepth);
         brick.scaleTextureCoordinates(new Vector2f(1f, .5f));
-        //bulletAppState.getPhysicsSpace().enableDebug(assetManager);
         initMaterial();
         initTower();
         initFloor();
@@ -121,9 +119,9 @@ public class TestBatchNodeTower extends SimpleApplication {
         batchNode.batch();
         batchNode.setShadowMode(ShadowMode.CastAndReceive);
         rootNode.attachChild(batchNode);
-        
-        
-        shadowRenderer = new DirectionalLightShadowFilter(assetManager, 1024, 2);
+
+        DirectionalLightShadowFilter shadowRenderer
+                = new DirectionalLightShadowFilter(assetManager, 1024, 2);
         DirectionalLight dl = new DirectionalLight();
         dl.setDirection(new Vector3f(-1, -1, -1).normalizeLocal());
         shadowRenderer.setLight(dl);
@@ -139,7 +137,7 @@ public class TestBatchNodeTower extends SimpleApplication {
     private PhysicsSpace getPhysicsSpace() {
         return bulletAppState.getPhysicsSpace();
     }
-    private ActionListener actionListener = new ActionListener() {
+    final private ActionListener actionListener = new ActionListener() {
 
         @Override
         public void onAction(String name, boolean keyPressed, float tpf) {
@@ -226,7 +224,7 @@ public class TestBatchNodeTower extends SimpleApplication {
         tex3.setWrap(WrapMode.Repeat);
         mat3.setTexture("ColorMap", tex3);
     }
-int nbBrick =0;
+
     public void addBrick(Vector3f ori) {
         Geometry reBoxg = new Geometry("brick", brick);
         reBoxg.setMaterial(mat);
@@ -237,7 +235,6 @@ int nbBrick =0;
         reBoxg.getControl(RigidBodyControl.class).setFriction(1.6f);
         this.batchNode.attachChild(reBoxg);
         this.getPhysicsSpace().add(reBoxg);
-        nbBrick++;
     }
 
     protected void initCrossHairs() {

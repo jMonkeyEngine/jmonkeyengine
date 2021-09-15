@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -79,7 +79,7 @@ public class TangentBinormalGenerator {
         public final Vector3f position;
         public final Vector3f normal;
         public final Vector2f texCoord;
-        public final ArrayList<Integer> indices = new ArrayList<Integer>();
+        public final ArrayList<Integer> indices = new ArrayList<>();
         
         public VertexInfo(Vector3f position, Vector3f normal, Vector2f texCoord) {
             this.position = position;
@@ -91,7 +91,7 @@ public class TangentBinormalGenerator {
     /** Collects all the triangle data for one vertex.
      */
     private static class VertexData {
-        public final ArrayList<TriangleData> triangles = new ArrayList<TriangleData>();
+        public final ArrayList<TriangleData> triangles = new ArrayList<>();
         
         public VertexData() { }
     }
@@ -117,8 +117,14 @@ public class TangentBinormalGenerator {
         }
     }
     
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private TangentBinormalGenerator() {
+    }
+
     private static List<VertexData> initVertexData(int size) {
-        List<VertexData> vertices = new ArrayList<VertexData>(size);        
+        List<VertexData> vertices = new ArrayList<>(size);        
         for (int i = 0; i < size; i++) {
             vertices.add(new VertexData());
         }
@@ -152,7 +158,7 @@ public class TangentBinormalGenerator {
     }
     
     public static void generateParallel(Spatial scene, ExecutorService executor) {
-        final Set<Mesh> meshes = new HashSet<Mesh>();
+        final Set<Mesh> meshes = new HashSet<>();
         scene.breadthFirstTraversal(new SceneGraphVisitor() {
             @Override
             public void visit(Spatial spatial) {
@@ -168,7 +174,7 @@ public class TangentBinormalGenerator {
                 }
             }
         });
-        List<Future<?>> futures = new ArrayList<Future<?>>();
+        List<Future<?>> futures = new ArrayList<>();
         for (final Mesh m : meshes) {
             futures.add(executor.submit(new Runnable() {
                 @Override
@@ -264,13 +270,13 @@ public class TangentBinormalGenerator {
         return vertices;
     }
     
-    //Don't remove splitmirorred boolean. It's not used right now, but I intend to
+    //Don't remove split mirrored boolean. It's not used right now, but I intend to
     //make this method also split vertices with rotated tangent space and I'll
     //add another splitRotated boolean 
     private static List<VertexData> splitVertices(Mesh mesh, List<VertexData> vertexData, boolean splitMirorred) {
         int nbVertices = mesh.getBuffer(Type.Position).getNumElements();
-        List<VertexData> newVertices = new ArrayList<VertexData>();
-        Map<Integer, Integer> indiceMap = new HashMap<Integer, Integer>();
+        List<VertexData> newVertices = new ArrayList<>();
+        Map<Integer, Integer> indexMap = new HashMap<>();
         FloatBuffer normalBuffer = mesh.getFloatBuffer(Type.Normal);
 
         for (int i = 0; i < vertexData.size(); i++) {
@@ -278,8 +284,8 @@ public class TangentBinormalGenerator {
             Vector3f givenNormal = new Vector3f();
             populateFromBuffer(givenNormal, normalBuffer, i);
           
-            ArrayList<TriangleData> trianglesUp = new ArrayList<TriangleData>();
-            ArrayList<TriangleData> trianglesDown = new ArrayList<TriangleData>();  
+            ArrayList<TriangleData> trianglesUp = new ArrayList<>();
+            ArrayList<TriangleData> trianglesDown = new ArrayList<>();  
             for (int j = 0; j < triangles.size(); j++) {
                 TriangleData triangleData = triangles.get(j);
                 if(parity(givenNormal, triangleData.normal) > 0){
@@ -303,7 +309,7 @@ public class TangentBinormalGenerator {
                 
                 newVertices.add(newVert);
                 //keep vertex index to fix the index buffers later
-                indiceMap.put(nbVertices, i);
+                indexMap.put(nbVertices, i);
                 for (TriangleData tri : newVert.triangles) {
                     for (int j = 0; j < tri.index.length; j++) {
                         if(tri.index[j] == i){
@@ -331,7 +337,7 @@ public class TangentBinormalGenerator {
                 if(vb==null || vb.getNumComponents() == 0) continue;
                 
                 Buffer buffer = vb.getData();   
-                //IndexBuffer has special treatement, only swapping the vertex indices is needed                
+                //IndexBuffer has special treatment, only swapping the vertex indices is needed
                 if(type == Type.Index){
                     boolean isShortBuffer = vb.getFormat() == VertexBuffer.Format.UnsignedShort;                     
                     for (VertexData vertex : newVertices) {
@@ -356,7 +362,7 @@ public class TangentBinormalGenerator {
                         int index = vertexData.size();                      
                         newVerts.position(vertexData.size() * vb.getNumComponents());
                         for (int j = 0; j < newVertices.size(); j++) {
-                            int oldInd = indiceMap.get(index) ;
+                            int oldInd = indexMap.get(index) ;
                             for (int i = 0; i < vb.getNumComponents(); i++) {                                
                                     putValue(vb.getFormat(), newVerts, buffer, oldInd* vb.getNumComponents() + i);
                             }                            
@@ -402,7 +408,7 @@ public class TangentBinormalGenerator {
                 break;
 
             default:
-                throw new UnsupportedOperationException("Unrecoginized buffer format: " + format);
+                throw new UnsupportedOperationException("Unrecognized buffer format: " + format);
         }
     }
     
@@ -434,7 +440,7 @@ public class TangentBinormalGenerator {
                 ((DoubleBuffer) buf1).put(d);              
                 break;                 
             default:
-                throw new UnsupportedOperationException("Unrecoginized buffer format: " + format);
+                throw new UnsupportedOperationException("Unrecognized buffer format: " + format);
         }
     }
     
@@ -551,7 +557,7 @@ public class TangentBinormalGenerator {
             
             boolean normalize = false;
             if (Math.abs(det) < ZERO_TOLERANCE) {
-                log.log(Level.WARNING, "Colinear uv coordinates for triangle "
+                log.log(Level.WARNING, "Collinear uv coordinates for triangle "
                         + "[{0}, {1}, {2}]; tex0 = [{3}, {4}], "
                         + "tex1 = [{5}, {6}], tex2 = [{7}, {8}]",
                         new Object[]{index[0], index[1], index[2],
@@ -625,7 +631,7 @@ public class TangentBinormalGenerator {
     }
     
     private static ArrayList<VertexInfo> linkVertices(Mesh mesh, boolean splitMirrored) {
-        ArrayList<VertexInfo> vertexMap = new ArrayList<VertexInfo>();
+        ArrayList<VertexInfo> vertexMap = new ArrayList<>();
         
         FloatBuffer vertexBuffer = mesh.getFloatBuffer(Type.Position);
         FloatBuffer normalBuffer = mesh.getFloatBuffer(Type.Normal);

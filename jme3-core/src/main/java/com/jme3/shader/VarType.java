@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -62,7 +62,7 @@ public enum VarType {
 
     private boolean usesMultiData = false;
     private boolean textureType = false;
-    private String glslType;
+    final private String glslType;
 
     
     VarType(String glslType){

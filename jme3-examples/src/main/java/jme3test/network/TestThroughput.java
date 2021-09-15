@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011-2020 jMonkeyEngine
+ * Copyright (c) 2011-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,8 +42,8 @@ public class TestThroughput implements MessageListener<MessageConnection> { //ex
     private static long counter = 0;
     private static long total = 0;
     // Change this flag to test UDP instead of TCP
-    private static boolean testReliable = false;
-    private boolean isOnServer;
+    final private static boolean testReliable = false;
+    final private boolean isOnServer;
 
     public TestThroughput(boolean isOnServer) {
         this.isOnServer = isOnServer;

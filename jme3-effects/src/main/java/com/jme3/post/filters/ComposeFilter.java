@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -68,7 +68,7 @@ public class ComposeFilter extends Filter {
     /**
      * creates a ComposeFilter with the given texture
      *
-     * @param compositeTexture
+     * @param compositeTexture the texture to use (alias created)
      */
     public ComposeFilter(Texture2D compositeTexture) {
         this();
@@ -93,7 +93,7 @@ public class ComposeFilter extends Filter {
     /**
      * sets the compositeTexture
      *
-     * @param compositeTexture
+     * @param compositeTexture the desired texture (alias created)
      */
     public void setCompositeTexture(Texture2D compositeTexture) {
         this.compositeTexture = compositeTexture;

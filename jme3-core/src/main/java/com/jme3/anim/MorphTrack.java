@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -65,10 +65,13 @@ public class MorphTrack implements AnimTrack<float[]> {
     /**
      * Creates a morph track with the given Geometry as a target
      *
+     * @param target   the desired target (alias created)
      * @param times    a float array with the time of each frame (alias created
      *                 -- do not modify after passing it to this constructor)
      * @param weights  the morphs for each frames (alias created -- do not
      *                 modify after passing it to this constructor)
+     * @param nbMorphTargets
+     *                 the desired number of morph targets
      */
     public MorphTrack(Geometry target, float[] times, float[] weights, int nbMorphTargets) {
         this.target = target;
@@ -171,18 +174,40 @@ public class MorphTrack implements AnimTrack<float[]> {
         interpolator.interpolateWeights(blend, startFrame, weights, nbMorphTargets, store);
     }
 
+    /**
+     * Replace the FrameInterpolator.
+     *
+     * @param interpolator the interpolator to use (alias created)
+     */
     public void setFrameInterpolator(FrameInterpolator interpolator) {
         this.interpolator = interpolator;
     }
 
+    /**
+     * Access the target geometry.
+     *
+     * @return the pre-existing instance
+     */
     public Geometry getTarget() {
         return target;
     }
 
+    /**
+     * Replace the target geometry.
+     *
+     * @param target the Geometry to use as the target (alias created)
+     */
     public void setTarget(Geometry target) {
         this.target = target;
     }
 
+    /**
+     * Serialize this track to the specified exporter, for example when saving
+     * to a J3O file.
+     *
+     * @param ex the exporter to write to (not null)
+     * @throws IOException from the exporter
+     */
     @Override
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = ex.getCapsule(this);
@@ -192,6 +217,13 @@ public class MorphTrack implements AnimTrack<float[]> {
         oc.write(nbMorphTargets, "nbMorphTargets", 0);
     }
 
+    /**
+     * De-serialize this track from the specified importer, for example when
+     * loading from a J3O file.
+     *
+     * @param im the importer to use (not null)
+     * @throws IOException from the importer
+     */
     @Override
     public void read(JmeImporter im) throws IOException {
         InputCapsule ic = im.getCapsule(this);

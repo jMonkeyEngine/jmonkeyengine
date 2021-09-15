@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2016 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -61,7 +61,7 @@ public class DOMOutputCapsule implements OutputCapsule {
     private Document doc;
     private Element currentElement;
     private JmeExporter exporter;
-    private Map<Savable, Element> writtenSavables = new IdentityHashMap<Savable, Element>();
+    private Map<Savable, Element> writtenSavables = new IdentityHashMap<>();
 
     public DOMOutputCapsule(Document doc, JmeExporter exporter) {
         this.doc = doc;

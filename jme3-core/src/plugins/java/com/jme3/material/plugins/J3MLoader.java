@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -73,10 +73,10 @@ public class J3MLoader implements AssetLoader {
     private Material material;
     private TechniqueDef technique;
     private RenderState renderState;
-    private ArrayList<String> presetDefines = new ArrayList<String>();
+    final private ArrayList<String> presetDefines = new ArrayList<>();
 
-    private List<EnumMap<Shader.ShaderType, String>> shaderLanguages;
-    private EnumMap<Shader.ShaderType, String> shaderNames;
+    final private List<EnumMap<Shader.ShaderType, String>> shaderLanguages;
+    final private EnumMap<Shader.ShaderType, String> shaderNames;
 
     private static final String whitespacePattern = "\\p{javaWhitespace}+";
 
@@ -151,7 +151,7 @@ public class J3MLoader implements AssetLoader {
     }
 
     private List<String> tokenizeTextureValue(final String value) {
-        final List<String> matchList = new ArrayList<String>();
+        final List<String> matchList = new ArrayList<>();
         final Pattern regex = Pattern.compile("[^\\s\"']+|\"([^\"]*)\"|'([^']*)'");
         final Matcher regexMatcher = regex.matcher(value.trim());
 
@@ -169,7 +169,7 @@ public class J3MLoader implements AssetLoader {
     }
 
     private List<TextureOptionValue> parseTextureOptions(final List<String> values) {
-        final List<TextureOptionValue> matchList = new ArrayList<TextureOptionValue>();
+        final List<TextureOptionValue> matchList = new ArrayList<>();
 
         if (values.isEmpty() || values.size() == 1) {
             return matchList;
@@ -476,7 +476,7 @@ public class J3MLoader implements AssetLoader {
         }else if (split[0].equals("BlendEquationAlpha")){
             renderState.setBlendEquationAlpha(RenderState.BlendEquationAlpha.valueOf(split[1]));
         }else if (split[0].equals("AlphaTestFalloff")){
-            // Ignore for backwards compatbility
+            // ignore for backwards compatibility
         }else if (split[0].equals("PolyOffset")){
             float factor = Float.parseFloat(split[1]);
             float units = Float.parseFloat(split[2]);
@@ -484,11 +484,11 @@ public class J3MLoader implements AssetLoader {
         }else if (split[0].equals("ColorWrite")){
             renderState.setColorWrite(parseBoolean(split[1]));
         }else if (split[0].equals("PointSprite")){
-            // Ignore for backwards compatbility
+            // ignore for backwards compatibility
         }else if (split[0].equals("DepthFunc")){
             renderState.setDepthFunc(RenderState.TestFunction.valueOf(split[1]));
         }else if (split[0].equals("AlphaFunc")){
-            renderState.setAlphaFunc(RenderState.TestFunction.valueOf(split[1]));
+            // ignore for backwards compatibility
         }else if (split[0].equals("LineWidth")){
             renderState.setLineWidth(Float.parseFloat(split[1]));
         } else {

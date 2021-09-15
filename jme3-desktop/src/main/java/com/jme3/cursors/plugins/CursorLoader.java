@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,7 +32,6 @@
 package com.jme3.cursors.plugins;
 
 import com.jme3.asset.AssetInfo;
-import com.jme3.asset.AssetKey;
 import com.jme3.asset.AssetLoader;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.LittleEndien;
@@ -579,7 +578,7 @@ public class CursorLoader implements AssetLoader {
             // 1 - ICO
             // 2 - CUR
             IntBuffer singleCursor = null;
-            ArrayList<IntBuffer> cursors = new ArrayList<IntBuffer>();
+            ArrayList<IntBuffer> cursors = new ArrayList<>();
             int bwidth = 0;
             int bheight = 0;
             boolean multIcons = false;
@@ -709,7 +708,7 @@ public class CursorLoader implements AssetLoader {
         }
 
         void assembleCursor(ArrayList<byte[]> icons, int[] rate, int[] animSeq, int jiffy, int steps, int width, int height) throws IOException {
-            // Jiffy multiplicator for LWJGL's delay, which is in milisecond.
+            // Jiffy multiplier for LWJGL's delay, which is in milliseconds.
             final int MULT = 17;
             numImages = icons.size();
             int frRate = 0;

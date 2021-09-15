@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,6 +48,12 @@ public class DXTFlipper {
 
     static {
         bb.order(ByteOrder.LITTLE_ENDIAN);
+    }
+
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private DXTFlipper() {
     }
 
     private static long readCode5(long data, int x, int y){
@@ -235,7 +241,7 @@ public class DXTFlipper {
             byte[] colorBlock = new byte[8];
             byte[] alphaBlock = type != 1 && type != 5 ? new byte[8] : null;
             for (int x = 0; x < blocksX; x++){
-                // prepeare for block reading
+                // prepare for block reading
                 int blockByteOffset = x * bpb;
                 img.position(blockByteOffset);
                 img.limit(blockByteOffset + bpb);
@@ -270,7 +276,7 @@ public class DXTFlipper {
             byte[] alphaBlock = type != 1 && type != 5 ? new byte[8] : null;
             for (int y = 0; y < blocksY; y++){
                 for (int x = 0; x < blocksX; x++){
-                    // prepeare for block reading
+                    // prepare for block reading
                     int blockIdx = y * blocksX + x;
                     int blockByteOffset = blockIdx * bpb;
 

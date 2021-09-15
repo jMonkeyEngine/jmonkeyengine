@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 jMonkeyEngine
+ * Copyright (c) 2015-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -95,7 +95,7 @@ public class RpcClientService extends AbstractClientService {
  
     /**
      *  Performs a synchronous call on the server against the specified
-     *  object using the specified procedure ID.  Both inboud and outbound
+     *  object using the specified procedure ID.  Both inbound and outbound
      *  communication is done on the specified channel.
      */
     public Object callAndWait( byte channel, short objId, short procId, Object... args ) {

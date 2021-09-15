@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -51,6 +51,11 @@ import java.util.LinkedList;
  * @author normenhansen, tim8dev
  */
 public class CollisionShapeFactory {
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private CollisionShapeFactory() {
+    }
 
     /**
      * Calculate the correct transform for a collision shape relative to the
@@ -180,7 +185,7 @@ public class CollisionShapeFactory {
      * @param spatial the spatial on which to base the shape (not null)
      * @return A MeshCollisionShape or a CompoundCollisionShape with
      * MeshCollisionShapes as children if the supplied spatial is a Node. A
-     * HeightieldCollisionShape if a TerrainQuad was supplied.
+     * HeightfieldCollisionShape if a TerrainQuad was supplied.
      */
     public static CollisionShape createMeshShape(Spatial spatial) {
         if (spatial instanceof TerrainQuad) {
@@ -293,7 +298,9 @@ public class CollisionShapeFactory {
 
     /**
      * This method moves each child shape of a compound shape by the given vector
-     * @param vector
+     *
+     * @param compoundShape the shape to modify (not null)
+     * @param vector the offset vector (not null, unaffected)
      */
     public static void shiftCompoundShapeContents(CompoundCollisionShape compoundShape, Vector3f vector) {
         for (Iterator<ChildCollisionShape> it = new LinkedList<>(compoundShape.getChildren()).iterator(); it.hasNext();) {

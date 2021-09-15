@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -175,7 +175,7 @@ public class ShaderNode implements Savable, Cloneable {
      * jme serialization
      *
      * @param ex the exporter
-     * @throws IOException
+     * @throws IOException from the exporter
      */
     @Override
     public void write(JmeExporter ex) throws IOException {
@@ -191,7 +191,7 @@ public class ShaderNode implements Savable, Cloneable {
      * jme serialization
      *
      * @param im the importer
-     * @throws IOException
+     * @throws IOException from the importer
      */
     @Override
     @SuppressWarnings("unchecked")
@@ -205,7 +205,7 @@ public class ShaderNode implements Savable, Cloneable {
     }
 
     /**
-     * convenience tostring
+     * convenience toString
      *
      * @return a string
      */

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -78,7 +78,7 @@ public class AndroidSensorJoyInput implements SensorEventListener {
     private AndroidJoyInput joyInput;
     private SensorManager sensorManager = null;
     private WindowManager windowManager = null;
-    private IntMap<SensorData> sensors = new IntMap<SensorData>();
+    private IntMap<SensorData> sensors = new IntMap<>();
     private int lastRotation = 0;
     private boolean loaded = false;
 
@@ -96,7 +96,7 @@ public class AndroidSensorJoyInput implements SensorEventListener {
         int sensorAccuracy = -1;
         float[] lastValues;
         final Object valuesLock = new Object();
-        ArrayList<AndroidSensorJoystickAxis> axes = new ArrayList<AndroidSensorJoystickAxis>();
+        ArrayList<AndroidSensorJoystickAxis> axes = new ArrayList<>();
         boolean enabled = false;
         boolean haveData = false;
 
@@ -163,7 +163,7 @@ public class AndroidSensorJoyInput implements SensorEventListener {
             if (sensorData.sensor != null) {
                 if (sensorManager.registerListener(this, sensorData.sensor, sensorData.androidSensorSpeed)) {
                     sensorData.enabled = true;
-                    logger.log(Level.FINE, "SensorType: {0}, actived: {1}",
+                    logger.log(Level.FINE, "SensorType: {0}, enabled: {1}",
                             new Object[]{sensorType, sensorData.enabled});
                     return true;
                 } else {
@@ -374,7 +374,7 @@ public class AndroidSensorJoyInput implements SensorEventListener {
                                 sensorData.haveData = true;
                             } else {
                                 if (axis.isChanged()) {
-                                    joyInput.addEvent(new JoyAxisEvent(axis, axis.getJoystickAxisValue()));
+                                    joyInput.addEvent(new JoyAxisEvent(axis, axis.getJoystickAxisValue(), axis.getJoystickAxisValue()));
                                 }
                             }
                         }
@@ -553,7 +553,7 @@ public class AndroidSensorJoyInput implements SensorEventListener {
                             sensorData.haveData = true;
                         } else {
                             if (axis.isChanged()) {
-                                JoyAxisEvent event = new JoyAxisEvent(axis, axis.getJoystickAxisValue());
+                                JoyAxisEvent event = new JoyAxisEvent(axis, axis.getJoystickAxisValue(), axis.getJoystickAxisValue());
 //                                logger.log(Level.INFO, "adding JoyAxisEvent: {0}", event);
                                 joyInput.addEvent(event);
 //                                joyHandler.addEvent(new JoyAxisEvent(axis, axis.getJoystickAxisValue()));

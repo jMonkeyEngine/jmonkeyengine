@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -346,12 +346,12 @@ public class RenderState implements Cloneable, Savable {
          * <p>
          * These attributes can be set by using the following methods:
          * <ul>
-         * <li>{@link RenderState#setBlendEquation(BlendEquation)}<br/>
-         * <li>{@link RenderState#setBlendEquationAlpha(BlendEquationAlpha)}<br/>
-         * <li>{@link RenderState#setCustomBlendFactors(BlendFunc, BlendFunc, BlendFunc, BlendFunc)}<br/>
+         * <li>{@link RenderState#setBlendEquation(BlendEquation)}
+         * <li>{@link RenderState#setBlendEquationAlpha(BlendEquationAlpha)}
+         * <li>{@link RenderState#setCustomBlendFactors(BlendFunc, BlendFunc, BlendFunc, BlendFunc)}
          * </ul>
          * <p>
-         * Result.RGB = BlendEquation( sfactorRGB * Source.RGB , dfactorRGB * Destination.RGB )<br/>
+         * Result.RGB = BlendEquation( sfactorRGB * Source.RGB , dfactorRGB * Destination.RGB )<br>
          * Result.A = BlendEquationAlpha( sfactorAlpha * Source.A , dfactorAlpha * Destination.A )
          */
         Custom
@@ -705,33 +705,6 @@ public class RenderState implements Cloneable, Savable {
     }
 
     /**
-     * @deprecated Does nothing. Point sprite is already enabled by default for
-     * all supported platforms. jME3 does not support rendering conventional
-     * point clouds.
-     */
-    @Deprecated
-    public void setPointSprite(boolean pointSprite) {
-    }
-
-    /**
-     * @deprecated Does nothing. To use alpha test, set the
-     * <code>AlphaDiscardThreshold</code> material parameter.
-     * @param alphaFallOff does nothing
-     */
-    @Deprecated
-    public void setAlphaFallOff(float alphaFallOff) {
-    }
-
-    /**
-     * @deprecated Does nothing. To use alpha test, set the
-     * <code>AlphaDiscardThreshold</code> material parameter.
-     * @param alphaTest does nothing
-     */
-    @Deprecated
-    public void setAlphaTest(boolean alphaTest) {
-    }
-
-    /**
      * Enable writing color.
      *
      * <p>When color write is enabled, the result of a fragment shader, the
@@ -772,7 +745,7 @@ public class RenderState implements Cloneable, Savable {
      * already in the color buffer. The blending operation is determined
      * by the {@link BlendMode}. For example, the {@link BlendMode#Additive}
      * will add the input pixel's color to the color already in the color buffer:
-     * <br/>
+     * <br>
      * <code>Result = Source Color + Destination Color</code>
      *
      * @param blendMode The blend mode to use. Set to {@link BlendMode#Off}
@@ -788,10 +761,10 @@ public class RenderState implements Cloneable, Savable {
      * Set the blending equation for the color component (RGB).
      * <p>
      * The blending equation determines, how the RGB values of the input pixel
-     * will be blended with the RGB values of the pixel already in the color buffer.<br/>
+     * will be blended with the RGB values of the pixel already in the color buffer.<br>
      * For example, {@link BlendEquation#Add} will add the input pixel's color
      * to the color already in the color buffer:
-     * <br/>
+     * <br>
      * <code>Result = Source Color + Destination Color</code>
      * <p>
      * <b>Note:</b> This gets only used in {@link BlendMode#Custom} mode.
@@ -808,10 +781,10 @@ public class RenderState implements Cloneable, Savable {
      * Set the blending equation for the alpha component.
      * <p>
      * The alpha blending equation determines, how the alpha values of the input pixel
-     * will be blended with the alpha values of the pixel already in the color buffer.<br/>
+     * will be blended with the alpha values of the pixel already in the color buffer.<br>
      * For example, {@link BlendEquationAlpha#Add} will add the input pixel's color
      * to the color already in the color buffer:
-     * <br/>
+     * <br>
      * <code>Result = Source Color + Destination Color</code>
      * <p>
      * <b>Note:</b> This gets only used in {@link BlendMode#Custom} mode.
@@ -901,7 +874,7 @@ public class RenderState implements Cloneable, Savable {
      * typically with positive Z pointing into the screen.
      * Typical values are (1.0f, 1.0f) or (-1.0f, -1.0f)
      *
-     * @see <a href="http://www.opengl.org/resources/faq/technical/polygonoffset.htm" rel="nofollow">http://www.opengl.org/resources/faq/technical/polygonoffset.htm</a>
+     * @see <a href="http://www.opengl.org/resources/faq/technical/polygonoffset.htm">http://www.opengl.org/resources/faq/technical/polygonoffset.htm</a>
      * @param factor scales the maximum Z slope, with respect to X or Y of the polygon
      * @param units scales the minimum resolvable depth buffer value
      **/
@@ -967,7 +940,7 @@ public class RenderState implements Cloneable, Savable {
     }
 
     /**
-     * Set the depth conparison function to the given TestFunction 
+     * Set the depth comparison function to the given TestFunction
      * default is LessOrEqual (GL_LEQUAL)
      * @see TestFunction
      * @see RenderState#setDepthTest(boolean) 
@@ -977,13 +950,6 @@ public class RenderState implements Cloneable, Savable {
         applyDepthFunc = true;
         this.depthFunc = depthFunc;
         cachedHashCode = -1;
-    }
-
-    /**
-     * @deprecated
-     */
-    @Deprecated
-    public void setAlphaFunc(TestFunction alphaFunc) {
     }
 
     /**
@@ -1232,7 +1198,6 @@ public class RenderState implements Cloneable, Savable {
     /**
      * @return true
      * @deprecated Always returns true since point sprite is always enabled.
-     * @see #setPointSprite(boolean)
      */
     @Deprecated
     public boolean isPointSprite() {
@@ -1416,7 +1381,7 @@ public class RenderState implements Cloneable, Savable {
     }
 
     /**
-     *
+     * @return value for use in hashing
      */
     public int contentHashCode() {
         if (cachedHashCode == -1){
@@ -1457,7 +1422,7 @@ public class RenderState implements Cloneable, Savable {
      * Merges <code>this</code> state and <code>additionalState</code> into
      * the parameter <code>state</code> based on a specific criteria.
      *
-     * <p>The criteria for this merge is the following:<br/>
+     * <p>The criteria for this merge is the following:<br>
      * For every given property, such as alpha test or depth write, check
      * if it was modified from the original in the <code>additionalState</code>
      * if it was modified, then copy the property from the <code>additionalState</code>

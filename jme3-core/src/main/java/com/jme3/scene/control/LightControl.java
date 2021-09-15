@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,6 +39,7 @@ import com.jme3.light.DirectionalLight;
 import com.jme3.light.Light;
 import com.jme3.light.PointLight;
 import com.jme3.light.SpotLight;
+import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
@@ -51,6 +52,7 @@ import java.io.IOException;
  * This Control maintains a reference to a Camera,
  * which will be synched with the position (worldTranslation)
  * of the current spatial.
+ *
  * @author tim
  */
 public class LightControl extends AbstractControl {
@@ -69,7 +71,7 @@ public class LightControl extends AbstractControl {
          * Means, that the Spatial's transform is "copied"
          * to the Transform of the light.
          */
-        SpatialToLight;
+        SpatialToLight
     }
 
     private Light light;
@@ -90,6 +92,7 @@ public class LightControl extends AbstractControl {
 
     /**
      * @param light The light to be synced.
+     * @param controlDir SpatialToCamera or CameraToSpatial
      */
     public LightControl(Light light, ControlDirection controlDir) {
         this.light = light;
@@ -112,7 +115,7 @@ public class LightControl extends AbstractControl {
         this.controlDir = controlDir;
     }
 
-    // fields used, when inversing ControlDirection:
+    // fields used when inverting ControlDirection:
     @Override
     protected void controlUpdate(float tpf) {
         if (spatial != null && light != null) {
@@ -127,49 +130,73 @@ public class LightControl extends AbstractControl {
         }
     }
 
+    /**
+     * Sets the light to adopt the spatial's world transformations.
+     *
+     * @author Markil 3
+     * @author pspeed42
+     */
     private void spatialToLight(Light light) {
+        TempVars vars = TempVars.get();
 
-        final Vector3f worldTranslation = spatial.getWorldTranslation();
+        final Vector3f worldTranslation = vars.vect1;
+        worldTranslation.set(spatial.getWorldTranslation());
+        final Vector3f worldDirection = vars.vect2;
+        spatial.getWorldRotation().mult(Vector3f.UNIT_Z, worldDirection).negateLocal();
 
         if (light instanceof PointLight) {
             ((PointLight) light).setPosition(worldTranslation);
-            return;
-        }
-
-        final TempVars vars = TempVars.get();
-        final Vector3f vec = vars.vect1;
-
-        if (light instanceof DirectionalLight) {
-            ((DirectionalLight) light).setDirection(vec.set(worldTranslation).multLocal(-1.0f));
-        }
-
-        if (light instanceof SpotLight) {
+        } else if (light instanceof DirectionalLight) {
+            ((DirectionalLight) light).setDirection(worldDirection);
+        } else if (light instanceof SpotLight) {
             final SpotLight spotLight = (SpotLight) light;
             spotLight.setPosition(worldTranslation);
-            spotLight.setDirection(spatial.getWorldRotation().multLocal(vec.set(Vector3f.UNIT_Y).multLocal(-1)));
+            spotLight.setDirection(worldDirection);
         }
-
         vars.release();
     }
 
+    /**
+     * Sets the spatial to adopt the light's world transformations.
+     *
+     * @author Markil 3
+     */
     private void lightToSpatial(Light light) {
         TempVars vars = TempVars.get();
+        Vector3f translation = vars.vect1;
+        Vector3f direction = vars.vect2;
+        Quaternion rotation = vars.quat1;
+        boolean rotateSpatial = false, translateSpatial = false;
+
         if (light instanceof PointLight) {
-
             PointLight pLight = (PointLight) light;
-
-            Vector3f vecDiff = vars.vect1.set(pLight.getPosition()).subtractLocal(spatial.getWorldTranslation());
-            spatial.setLocalTranslation(vecDiff.addLocal(spatial.getLocalTranslation()));
+            translation.set(pLight.getPosition());
+            translateSpatial = true;
+        } else if (light instanceof DirectionalLight) {
+            DirectionalLight dLight = (DirectionalLight) light;
+            direction.set(dLight.getDirection()).negateLocal();
+            rotateSpatial = true;
+        } else if (light instanceof SpotLight) {
+            SpotLight sLight = (SpotLight) light;
+            translation.set(sLight.getPosition());
+            direction.set(sLight.getDirection()).negateLocal();
+            translateSpatial = rotateSpatial = true;
+        }
+        if (spatial.getParent() != null) {
+            spatial.getParent().getLocalToWorldMatrix(vars.tempMat4).invertLocal();
+            vars.tempMat4.rotateVect(translation);
+            vars.tempMat4.translateVect(translation);
+            vars.tempMat4.rotateVect(direction);
         }
 
-        if (light instanceof DirectionalLight) {
-            DirectionalLight dLight = (DirectionalLight) light;
-            vars.vect1.set(dLight.getDirection()).multLocal(-1.0f);
-            Vector3f vecDiff = vars.vect1.subtractLocal(spatial.getWorldTranslation());
-            spatial.setLocalTranslation(vecDiff.addLocal(spatial.getLocalTranslation()));
+        if (rotateSpatial) {
+            rotation.lookAt(direction, Vector3f.UNIT_Y).normalizeLocal();
+            spatial.setLocalRotation(rotation);
+        }
+        if (translateSpatial) {
+            spatial.setLocalTranslation(translation);
         }
         vars.release();
-        //TODO add code for Spot light here when it's done
     }
 
     @Override

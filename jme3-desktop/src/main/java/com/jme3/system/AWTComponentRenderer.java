@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -216,7 +216,7 @@ public class AWTComponentRenderer {
 
   /**
    * Get the graphics context of the given component.
-   * @param destination the AWT component used for rendering.
+   * @param destination the AWT component used for rendering (not null)
    * @return the graphics context of the given component.
    */
   protected Graphics getGraphics(Component destination) {
@@ -230,7 +230,7 @@ public class AWTComponentRenderer {
         //throw new IllegalArgumentException("AWT component "+destination.getClass().getSimpleName()+" does not provide 2D graphics capabilities.");
       }
     } else {
-      throw new NullPointerException("Component cannot be null.");
+      throw new IllegalArgumentException("destination component cannot be null");
     }
   }
 
@@ -306,7 +306,7 @@ public class AWTComponentRenderer {
   }
 
   /**
-   * Write the current rendered frame to the component graphics contex.
+   * Write the current rendered frame to the component graphics context.
    */
   protected void writeFrame() {
 

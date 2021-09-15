@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -147,7 +147,7 @@ public class AssetKey<T> implements Savable, Cloneable {
             return path;
         }
         String[] parts = path.split("/");
-        LinkedList<String> list = new LinkedList<String>();
+        LinkedList<String> list = new LinkedList<>();
         for (int i = 0; i < parts.length; i++) {
             String string = parts[i];
             if (string.length() == 0 || string.equals(".")) {

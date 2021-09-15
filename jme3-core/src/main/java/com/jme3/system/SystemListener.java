@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,8 +46,8 @@ public interface SystemListener {
 
     /**
      * Called to notify the application that the resolution has changed.
-     * @param width
-     * @param height
+     * @param width the new width of the display (in pixels, &ge;0)
+     * @param height the new height of the display (in pixels, &ge;0)
      */
     public void reshape(int width, int height);
 

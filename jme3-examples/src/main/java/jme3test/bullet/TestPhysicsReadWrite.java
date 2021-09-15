@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -59,7 +59,7 @@ import java.util.logging.Logger;
  */
 public class TestPhysicsReadWrite extends SimpleApplication{
     private BulletAppState bulletAppState;
-    private Node physicsRootNode;
+
     public static void main(String[] args){
         TestPhysicsReadWrite app = new TestPhysicsReadWrite();
         app.start();
@@ -70,7 +70,7 @@ public class TestPhysicsReadWrite extends SimpleApplication{
         bulletAppState = new BulletAppState();
         stateManager.attach(bulletAppState);
         bulletAppState.setDebugEnabled(true);
-        physicsRootNode=new Node("PhysicsRootNode");
+        Node physicsRootNode = new Node("PhysicsRootNode");
         rootNode.attachChild(physicsRootNode);
 
         // Add a physics sphere to the world

@@ -54,8 +54,6 @@ import com.jme3.util.clone.Cloner;
 import java.io.IOException;
 import java.nio.Buffer;
 import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
-import java.nio.ShortBuffer;
 import java.util.HashMap;
 import java.util.List;
 
@@ -153,7 +151,7 @@ public class TerrainPatch extends Geometry {
     /**
      * Constructor instantiates a new <code>TerrainPatch</code> object. The
      * parameters and heightmap data are then processed to generate a
-     * <code>TriMesh</code> object for renderering.
+     * <code>TriMesh</code> object for rendering.
      *
      * @param name
      *			the name of the terrain patch.

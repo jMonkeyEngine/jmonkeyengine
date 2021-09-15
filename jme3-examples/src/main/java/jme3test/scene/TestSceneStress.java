@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -59,10 +59,10 @@ import java.util.Random;
  */
 public class TestSceneStress extends SimpleApplication {
  
-    private static Box BOX = new Box(2f, 0.5f, 0.5f);
+    final private static Box BOX = new Box(2f, 0.5f, 0.5f);
  
     private Material mat;
-    private Random random = new Random(0);
+    final private Random random = new Random(0);
  
     private int totalNodes = 0;
     private int totalGeometry = 0;
@@ -142,7 +142,7 @@ public class TestSceneStress extends SimpleApplication {
     }
     
     private class RotatorControl extends AbstractControl {
-        private float[] rotate;
+        final private float[] rotate;
         
         public RotatorControl( float... rotate ) {
             this.rotate = rotate;

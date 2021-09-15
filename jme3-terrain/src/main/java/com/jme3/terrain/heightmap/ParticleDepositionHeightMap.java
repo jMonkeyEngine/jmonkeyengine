@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -173,7 +173,7 @@ public class ParticleDepositionHeightMap extends AbstractHeightMap {
                     + minParticles));
             //drop particles.
             for (int j = 0; j < numberParticles; j++) {
-                //check to see if we should aggitate the drop point.
+                //check to see if we should agitate the drop point.
                 if (peakWalk != 0 && j % peakWalk == 0) {
                     m = (int) (Math.rint(Math.random() * 7));
                     x = (x + dx[m] + size) % size;
@@ -181,7 +181,7 @@ public class ParticleDepositionHeightMap extends AbstractHeightMap {
                 }
 
 
-                //add the particle to the piont.
+                //add the particle to the point.
                 tempBuffer[x][y] += 1;
 
 
@@ -340,10 +340,10 @@ public class ParticleDepositionHeightMap extends AbstractHeightMap {
 
     /**
      * <code>setPeakWalk</code> sets how often the jump point will be
-     * aggitated. The lower the peakWalk, the more often the point will
-     * be aggitated.
+     * agitated. The lower the peakWalk, the more often the point will
+     * be agitated.
      *
-     * @param peakWalk the amount to aggitate the jump point.
+     * @param peakWalk the amount to agitate the jump point.
      * @throws Exception if peakWalk is negative or zero.
      */
     public void setPeakWalk(int peakWalk) throws Exception {
@@ -374,8 +374,6 @@ public class ParticleDepositionHeightMap extends AbstractHeightMap {
      * <code>setMaxParticles</code> sets the maximum number of particles
      * for a single jump.
      * @param maxParticles the maximum number of particles for a single jump.
-     * @throws Exception if maxParticles is negative or less than
-     *              the current number of minParticles.
      */
     public void setMaxParticles(int maxParticles) {
         this.maxParticles = maxParticles;

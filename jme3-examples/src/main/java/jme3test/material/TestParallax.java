@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -59,16 +59,14 @@ public class TestParallax extends SimpleApplication {
     public void setupSkyBox() {
         rootNode.attachChild(SkyFactory.createSky(assetManager, "Scenes/Beach/FullskiesSunset0068.dds", SkyFactory.EnvMapType.CubeMap));
     }
-    DirectionalLight dl;
 
     public void setupLighting() {
-
-        dl = new DirectionalLight();
+        DirectionalLight dl = new DirectionalLight();
         dl.setDirection(lightDir);
         dl.setColor(new ColorRGBA(.9f, .9f, .9f, 1));
         rootNode.addLight(dl);
     }
-    Material mat;
+    private Material mat;
 
     public void setupFloor() {
         mat = assetManager.loadMaterial("Textures/Terrain/BrickWall/BrickWall.j3m");
@@ -117,13 +115,13 @@ public class TestParallax extends SimpleApplication {
             @Override
             public void onAnalog(String name, float value, float tpf) {
                 if ("heightUP".equals(name)) {
-                    parallaxHeigh += 0.01;
-                    mat.setFloat("ParallaxHeight", parallaxHeigh);
+                    parallaxHeight += 0.01;
+                    mat.setFloat("ParallaxHeight", parallaxHeight);
                 }
                 if ("heightDown".equals(name)) {
-                    parallaxHeigh -= 0.01;
-                    parallaxHeigh = Math.max(parallaxHeigh, 0);
-                    mat.setFloat("ParallaxHeight", parallaxHeigh);
+                    parallaxHeight -= 0.01;
+                    parallaxHeight = Math.max(parallaxHeight, 0);
+                    mat.setFloat("ParallaxHeight", parallaxHeight);
                 }
 
             }
@@ -143,9 +141,8 @@ public class TestParallax extends SimpleApplication {
         }, "toggleSteep");
         inputManager.addMapping("toggleSteep", new KeyTrigger(KeyInput.KEY_SPACE));
     }
-    float parallaxHeigh = 0.05f;
-    float time = 0;
-    boolean steep = false;
+    private float parallaxHeight = 0.05f;
+    private boolean steep = false;
 
     @Override
     public void simpleUpdate(float tpf) {

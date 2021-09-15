@@ -57,7 +57,7 @@ public class SceneWithAnimationLoader implements AssetLoader {
 	}
 	
 	private String[] split(String src) {
-		List<String> list = new ArrayList<String>();
+		List<String> list = new ArrayList<>();
 		Matcher m = splitStrings.matcher(src);
 		while(m.find())
 			list.add(m.group(1).replace("\"", ""));

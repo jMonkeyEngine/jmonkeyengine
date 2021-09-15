@@ -75,8 +75,8 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
     protected int eglDepthBits = 16;
 
     /**
-     * Sets the number of samples to use for multisampling.</br>
-     * Leave 0 (default) to disable multisampling.</br>
+     * Sets the number of samples to use for multisampling.<br>
+     * Leave 0 (default) to disable multisampling.<br>
      * Set to 2 or 4 to enable multisampling.
      */
     protected int eglSamples = 0;
@@ -211,7 +211,7 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
             logger.log(Level.FINE, "Using Retained App");
             this.app = data.app;
         } else {
-            // Discover the screen reolution
+            // Discover the screen resolution
             //TODO try to find a better way to get a hand on the resolution
             WindowManager wind = this.getWindowManager();
             Display disp = wind.getDefaultDisplay();
@@ -358,8 +358,8 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
      * Called by the android alert dialog, terminate the activity and OpenGL
      * rendering
      *
-     * @param dialog
-     * @param whichButton
+     * @param dialog ignored
+     * @param whichButton the button index
      */
     @Override
     public void onClick(DialogInterface dialog, int whichButton) {

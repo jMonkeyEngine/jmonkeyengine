@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -62,6 +62,8 @@ public class ConeJoint extends PhysicsJoint {
     }
 
     /**
+     * @param nodeA the body for the A end (not null, alias created)
+     * @param nodeB the body for the B end (not null, alias created)
      * @param pivotA local translation of the joint connection point in node A
      * @param pivotB local translation of the joint connection point in node B
      */
@@ -73,8 +75,14 @@ public class ConeJoint extends PhysicsJoint {
     }
 
     /**
+     * @param nodeA the body for the A end (not null, alias created)
+     * @param nodeB the body for the B end (not null, alias created)
      * @param pivotA local translation of the joint connection point in node A
      * @param pivotB local translation of the joint connection point in node B
+     * @param rotA the joint orientation in A's local coordinates (rotation
+     * matrix, alias created)
+     * @param rotB the joint orientation in B's local coordinates (rotation
+     * matrix, alias created)
      */
     public ConeJoint(PhysicsRigidBody nodeA, PhysicsRigidBody nodeB, Vector3f pivotA, Vector3f pivotB, Matrix3f rotA, Matrix3f rotB) {
         super(nodeA, nodeB, pivotA, pivotB);

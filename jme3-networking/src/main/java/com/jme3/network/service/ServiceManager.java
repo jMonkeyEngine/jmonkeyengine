@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2019 jMonkeyEngine
+ * Copyright (c) 2015-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,9 +46,9 @@ import java.util.logging.Logger;
  */
 public abstract class ServiceManager<T> {
 
-    static final Logger log = Logger.getLogger(ServiceManager.class.getName());
+    private static final Logger log = Logger.getLogger(ServiceManager.class.getName());
     
-    private final List<Service<T>> services = new CopyOnWriteArrayList<Service<T>>();
+    private final List<Service<T>> services = new CopyOnWriteArrayList<>();
     private volatile boolean started = false;
     
     protected ServiceManager() {

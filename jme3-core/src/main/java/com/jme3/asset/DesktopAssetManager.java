@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -70,11 +70,11 @@ public class DesktopAssetManager implements AssetManager {
     
     private final ImplHandler handler = new ImplHandler(this);
 
-    private CopyOnWriteArrayList<AssetEventListener> eventListeners = 
-            new CopyOnWriteArrayList<AssetEventListener>();
+    final private CopyOnWriteArrayList<AssetEventListener> eventListeners = 
+            new CopyOnWriteArrayList<>();
     
-    private List<ClassLoader> classLoaders =
-            Collections.synchronizedList(new ArrayList<ClassLoader>());
+    final private List<ClassLoader> classLoaders =
+            Collections.synchronizedList(new ArrayList<>());
 
     public DesktopAssetManager(){
         this(null);
@@ -148,9 +148,7 @@ public class DesktopAssetManager implements AssetManager {
         Class<? extends AssetLoader> clazz = null;
         try{
             clazz = (Class<? extends AssetLoader>) Class.forName(clsName);
-        }catch (ClassNotFoundException ex){
-            logger.log(Level.WARNING, "Failed to find loader: "+clsName, ex);
-        }catch (NoClassDefFoundError ex){
+        } catch (ClassNotFoundException | NoClassDefFoundError ex) {
             logger.log(Level.WARNING, "Failed to find loader: "+clsName, ex);
         }
         if (clazz != null){

@@ -5,7 +5,7 @@ MaterialDef PBR Lighting {
         // Alpha threshold for fragment discarding
         Float AlphaDiscardThreshold (AlphaTestFallOff)
 
-        //metalness of the material
+        //metallicity of the material
         Float Metallic : 1.0
         //Roughness of the material
         Float Roughness : 1.0        
@@ -70,7 +70,7 @@ MaterialDef PBR Lighting {
 
         // Set to use TexCoord2 for the lightmap sampling
         Boolean SeparateTexCoord
-        // the light map is a gray scale ao map, on ly the r channel will be read.
+        // the light map is a grayscale ao map, only the r channel will be read.
         Boolean LightMapAsAOMap
         Boolean AoPackedInMRMap
         //shadows
@@ -245,6 +245,7 @@ MaterialDef PBR Lighting {
         }
 
         Defines {
+            BASECOLORMAP_ALPHA : BaseColorMap            
             NUM_BONES : NumberOfBones
             INSTANCING : UseInstancing
             NUM_MORPH_TARGETS: NumberOfMorphTargets

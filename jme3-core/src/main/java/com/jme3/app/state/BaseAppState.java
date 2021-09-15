@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 jMonkeyEngine
+ * Copyright (c) 2014-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -73,7 +73,7 @@ import java.util.logging.Logger;
  */
 public abstract class BaseAppState implements AppState {
 
-    static final Logger log = Logger.getLogger(BaseAppState.class.getName());
+    private static final Logger log = Logger.getLogger(BaseAppState.class.getName());
 
     private Application app;
     private boolean initialized;
@@ -145,6 +145,8 @@ public abstract class BaseAppState implements AppState {
      *  Sets the unique ID of this app state.  Note: that setting
      *  this while an app state is attached to the state manager will
      *  have no effect on ID-based lookups.
+     *
+     * @param id the desired ID
      */
     protected void setId( String id ) {
         this.id = id;
@@ -169,6 +171,17 @@ public abstract class BaseAppState implements AppState {
     
     public final <T extends AppState> T getState( Class<T> type, boolean failOnMiss ) {
         return getStateManager().getState( type, failOnMiss );
+    }
+
+    public final <T extends AppState> T getState( String id, Class<T> type ) {
+        return getState(id, type, false);
+    }
+    
+    public final <T extends AppState> T getState( String id, Class<T> type, boolean failOnMiss ) {
+        if( failOnMiss ) {
+            return getStateManager().stateForId(id, type);
+        }
+        return getStateManager().getState(id, type);
     }
 
     @Override

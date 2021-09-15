@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,7 +48,7 @@ public class WaterUI {
         processor=proc;
 
 
-        System.out.println("----------------- SSAO UI Debugger --------------------");
+        System.out.println("----------------- Water UI Debugger --------------------");
         System.out.println("-- Water transparency : press Y to increase, H to decrease");
         System.out.println("-- Water depth : press U to increase, J to decrease");
 //        System.out.println("-- AO scale : press I to increase, K to decrease");

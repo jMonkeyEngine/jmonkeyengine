@@ -26,9 +26,6 @@ include 'jme3-android'
 include 'jme3-ios'
 
 //native builds
-include 'jme3-bullet' //java
-include 'jme3-bullet-native' //cpp
-include 'jme3-bullet-native-android' //cpp
 include 'jme3-android-native' //cpp
 
 // Test Data project

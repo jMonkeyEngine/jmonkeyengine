@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018 jMonkeyEngine
+ * Copyright (c) 2015-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -75,7 +75,7 @@ import java.util.logging.Logger;
  */
 public class RmiHostedService extends AbstractHostedService {
 
-    static final Logger log = Logger.getLogger(RpcHostedService.class.getName());
+    private static final Logger log = Logger.getLogger(RpcHostedService.class.getName());
     
     public static final String ATTRIBUTE_NAME = "rmi";
 
@@ -83,7 +83,7 @@ public class RmiHostedService extends AbstractHostedService {
     private short rmiId;
     private byte defaultChannel;
     private boolean autoHost;
-    private final Map<String, GlobalShare> globalShares = new ConcurrentHashMap<String, GlobalShare>();
+    private final Map<String, GlobalShare> globalShares = new ConcurrentHashMap<>();
 
     public RmiHostedService() {
         this((short)-1, (byte)MessageConnection.CHANNEL_DEFAULT_RELIABLE, true);
@@ -126,7 +126,7 @@ public class RmiHostedService extends AbstractHostedService {
      *  channel.  All connections with RMI hosting started will have access to this shared 
      *  object as soon as they connect and they will all share the same instance.  It is up 
      *  to the shared object to handle any multithreading that might be required.
-     *  All network communcation associated with the shared object will be done over
+     *  All network communication associated with the shared object will be done over
      *  the specified channel. 
      */     
     public <T> void shareGlobal( byte channel, String name, T object, Class<? super T> type ) {

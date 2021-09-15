@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,8 +42,6 @@ import com.jme3.scene.*;
 import com.jme3.scene.shape.Box;
 
 public class TestSSAO2 extends SimpleApplication {
-
-    Geometry model;
 
     public static void main(String[] args) {
         TestSSAO2 app = new TestSSAO2();

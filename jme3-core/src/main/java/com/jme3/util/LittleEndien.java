@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,7 +35,7 @@ import java.io.*;
 
 /**
  * <code>LittleEndien</code> is a class to read little-endian stored data
- * via a InputStream.  All functions work as defined in DataInput, but
+ * via an InputStream.  All functions work as defined in DataInput, but
  * assume they come from a LittleEndien input stream.  Currently used to read .ms3d and .3ds files.
  * @author Jack Lindamood
  */
@@ -74,6 +74,9 @@ public class LittleEndien extends InputStream implements DataInput {
 
     /**
      * read an unsigned int as a long
+     *
+     * @return the value that was read
+     * @throws IOException if an I/O error occurs while reading
      */
     public long readUInt() throws IOException {
         return ((in.read() & 0xff)
