@@ -144,8 +144,8 @@ public class GlfwMouseInput implements MouseInput {
 
         int xDelta;
         int yDelta;
-        int x = (int) Math.round(xpos);
-        int y = currentHeight - (int) Math.round(ypos);
+        int x = (int) Math.round(xpos * context.getContentScaleX());
+        int y = (int) Math.round((currentHeight - ypos) * context.getContentScaleY());
 
         xDelta = x - mouseX;
         yDelta = y - mouseY;

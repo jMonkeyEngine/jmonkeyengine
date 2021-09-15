@@ -39,6 +39,7 @@ import com.jme3.input.TouchInput;
 import com.jme3.input.lwjgl.GlfwJoystickInput;
 import com.jme3.input.lwjgl.GlfwKeyInput;
 import com.jme3.input.lwjgl.GlfwMouseInput;
+import com.jme3.math.Vector2f;
 import com.jme3.system.AppSettings;
 import com.jme3.system.JmeContext;
 import com.jme3.system.JmeSystem;
@@ -127,6 +128,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
     private GLFWErrorCallback errorCallback;
     private GLFWWindowSizeCallback windowSizeCallback;
     private GLFWFramebufferSizeCallback framebufferSizeCallback;
+    private GLFWWindowContentScaleCallback windowContentScaleCallback;
     private GLFWWindowFocusCallback windowFocusCallback;
 
     private Thread mainThread;
@@ -137,6 +139,11 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
     protected boolean wasActive = false;
     protected boolean autoFlush = true;
     protected boolean allowSwapBuffers = false;
+
+    // window content scale, for HiDPI support
+    // https://www.glfw.org/docs/latest/window_guide.html#window_scale
+    private float contentScaleX = 1.0f;
+    private float contentScaleY = 1.0f;
 
     public LwjglWindow(final JmeContext.Type type) {
 
@@ -291,6 +298,19 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             glfwSwapInterval(0);
         }
 
+        // Get window content scale
+        // The content scale is the ratio between the current DPI and the platform's default DPI.
+        // This is especially important for text and any UI elements. If the pixel dimensions of
+        // your UI scaled by this look appropriate on your machine then it should appear at a
+        // reasonable size on other machines regardless of their DPI and scaling settings. This
+        // relies on the system DPI and scaling settings being somewhat correct.
+        // https://www.glfw.org/docs/latest/window_guide.html#window_scale
+        float[] xScale = new float[1];
+        float[] yScale = new float[1];
+        glfwGetWindowContentScale(window, xScale, yScale);
+        contentScaleX = xScale[0];
+        contentScaleY = yScale[0];
+
         setWindowIcon(settings);
         showWindow();
 
@@ -321,6 +341,14 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
 
                 // https://www.glfw.org/docs/latest/window_guide.html#window_fbsize
                 listener.reshape(width, height);
+            }
+        });
+
+        glfwSetWindowContentScaleCallback(window, windowContentScaleCallback = new GLFWWindowContentScaleCallback() {
+            @Override
+            public void invoke (long window, float xscale, float yscale) {
+                contentScaleX = xscale;
+                contentScaleY = yscale;
             }
         });
 
@@ -687,5 +715,17 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
 
     public long getWindowHandle() {
         return window;
+    }
+
+    public float getContentScaleX() {
+        return contentScaleX;
+    }
+
+    public float getContentScaleY() {
+        return contentScaleY;
+    }
+
+    public Vector2f getWindowContentScale() {
+        return new Vector2f(contentScaleX, contentScaleY);
     }
 }
