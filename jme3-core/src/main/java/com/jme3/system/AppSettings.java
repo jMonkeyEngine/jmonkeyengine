@@ -289,6 +289,7 @@ public final class AppSettings extends HashMap<String, Object> {
         defaults.put("SwapBuffers", true);
         defaults.put("OpenCL", false);
         defaults.put("OpenCLPlatformChooser", DefaultPlatformChooser.class.getName());
+        defaults.put("UseRetinaFrameBuffer", false);// MacOS spec
         //  defaults.put("Icons", null);
     }
 
@@ -1330,5 +1331,23 @@ public final class AppSettings extends HashMap<String, Object> {
      */
     public void setGraphicsTrace(boolean trace) {
         putBoolean("GraphicsTrace", trace);
+    }
+
+    /**
+     * Determine whether to use full resolution framebuffers on Retina displays.
+     *
+     * @return whether to use full resolution framebuffers on Retina displays.
+     */
+    public boolean isUseRetinaFrameBuffer() {
+        return getBoolean("UseRetinaFrameBuffer");
+    }
+
+    /**
+     * Specifies whether to use full resolution framebuffers on Retina displays. This is ignored on other platforms.
+     *
+     * @param useRetinaFrameBuffer whether to use full resolution framebuffers on Retina displays.
+     */
+    public void setUseRetinaFrameBuffer(boolean useRetinaFrameBuffer) {
+        putBoolean("UseRetinaFrameBuffer", useRetinaFrameBuffer);
     }
 }
