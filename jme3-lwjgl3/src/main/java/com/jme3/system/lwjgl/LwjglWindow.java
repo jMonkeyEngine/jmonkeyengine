@@ -332,6 +332,8 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         if (settings.isOpenCLSupport()) {
             initOpenCL(window);
         }
+
+        framesAfterContextStarted = 0;
     }
 
     private void onWindowSizeChanged(final int width, final int height) {
@@ -523,6 +525,8 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         return true;
     }
 
+    private int framesAfterContextStarted = 0;
+
     /**
      * execute one iteration of the render loop in the OpenGL thread
      */
@@ -534,6 +538,18 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
 
         if (!created.get()) {
             throw new IllegalStateException();
+        }
+
+        // Update the frame buffer size from 2nd frame since the initial value
+        // of frame buffer size from glfw maybe incorrect when HiDPI display is in use
+        if (framesAfterContextStarted < 2) {
+            framesAfterContextStarted++;
+            if (framesAfterContextStarted == 2) {
+                int[] width = new int[1];
+                int[] height = new int[1];
+                glfwGetFramebufferSize(window, width, height);
+                listener.reshape(width[0], height[0]);
+            }
         }
 
         listener.update();
