@@ -104,7 +104,7 @@ public class MorphTrack implements AnimTrack<float[]> {
 
         this.weights = weights;
 
-        assert times != null && times.length == weights.length;
+        assert times != null && times.length == weights.length * nbMorphTargets;
     }
 
     /**
@@ -132,10 +132,13 @@ public class MorphTrack implements AnimTrack<float[]> {
 
 
     /**
-     * Sets the weights for this morph track
+     * Sets the times and weights for this morph track. Note that the number of weights
+     * must equal the number of frames times the number of morph targets.
      *
-     * @param times        a float array with the time of each frame
-     * @param weights      the weight for each frame
+     * @param times        a float array with the time of each frame (alias created
+     *                     -- do not modify after passing it to this setter)
+     * @param weights      the weight for each frame (alias created
+     *                     -- do not modify after passing it to this setter)
      */
     public void setKeyframes(float[] times, float[] weights) {
         if(times != null){
@@ -154,10 +157,15 @@ public class MorphTrack implements AnimTrack<float[]> {
     }
 
     /**
-     * Sets the desired number of morph targets
+     * Sets the desired number of morph targets and the corresponding weights.
+     * Note that the number of weights must equal the number of frames times the number of morph targets.
+     *
+     * @param weights        the weight for each frame (alias created
+     *                       -- do not modify after passing it to this setter)
      * @param nbMorphTargets the desired number of morph targets
      */
-    public void setNbMorphTargets(int nbMorphTargets){
+    public void setNbMorphTargets(float[] weights, int nbMorphTargets){
+        setWeights(weights);
         this.nbMorphTargets = nbMorphTargets;
     }
 
