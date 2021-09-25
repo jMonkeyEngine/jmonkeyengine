@@ -1151,7 +1151,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      * result is returned as a new quaternion.
      *
      * @param scalar
-     *            the quaternion to multiply this quaternion by.
+     *            the scalar to multiply this quaternion by.
      * @return the new quaternion.
      */
     public Quaternion mult(float scalar) {
@@ -1163,7 +1163,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      * result is stored locally.
      *
      * @param scalar
-     *            the quaternion to multiply this quaternion by.
+     *            the scalar to multiply this quaternion by.
      * @return this.
      */
     public Quaternion multLocal(float scalar) {
