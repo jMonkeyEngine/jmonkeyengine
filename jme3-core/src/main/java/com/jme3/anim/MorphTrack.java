@@ -89,6 +89,25 @@ public class MorphTrack implements AnimTrack<float[]> {
     }
 
     /**
+     * Set the weight for this morph track
+     *
+     * @param weights  the weights of the morphs for each frame (alias created
+     *                 -- do not modify after passing it to this setter)
+     */
+    public void setKeyframesWeight(float[] weights){
+        if (times == null) {
+            throw new RuntimeException("MorphTrack doesn't have any time for key frames, please call setTimes first");
+        }
+        if (weights.length == 0) {
+            throw new RuntimeException("MorphTrack with no weight keyframes!");
+        }
+
+        this.weights = weights;
+
+        assert times != null && times.length == weights.length;
+    }
+
+    /**
      * returns the arrays of time for this track
      *
      * @return the pre-existing array -- do not modify
@@ -113,24 +132,33 @@ public class MorphTrack implements AnimTrack<float[]> {
 
 
     /**
-     * Set the weight for this morph track
+     * Sets the weights for this morph track
      *
-     * @param times    a float array with the time of each frame (alias created
-     *                 -- do not modify after passing it to this setter)
-     * @param weights  the weights of the morphs for each frame (alias created
-     *                 -- do not modify after passing it to this setter)
+     * @param times        a float array with the time of each frame
+     * @param weights      the weight for each frame
      */
     public void setKeyframes(float[] times, float[] weights) {
-        setTimes(times);
-        if (weights != null) {
-            if (times == null) {
-                throw new RuntimeException("MorphTrack doesn't have any time for key frames, please call setTimes first");
-            }
-
-            this.weights = weights;
-
-            assert times.length == weights.length;
+        if(times != null){
+            setTimes(times);
         }
+        if(weights != null){
+            setKeyframesWeight(weights);
+        }
+    }
+
+    /**
+     * @return the desired number of morph targets
+     */
+    public int getNbMorphTargets(){
+        return nbMorphTargets;
+    }
+
+    /**
+     * Sets the desired number of morph targets
+     * @param nbMorphTargets the desired number of morph targets
+     */
+    public void setNbMorphTargets(int nbMorphTargets){
+        this.nbMorphTargets = nbMorphTargets;
     }
 
     @Override
