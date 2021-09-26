@@ -101,10 +101,13 @@ public class MorphTrack implements AnimTrack<float[]> {
         if (weights.length == 0) {
             throw new RuntimeException("MorphTrack with no weight keyframes!");
         }
+        if(times.length * nbMorphTargets != weights.length){
+            throw new RuntimeException("weights.length must equal nbMorphTargets * times.length");
+        }
 
         this.weights = weights;
 
-        assert times != null && times.length == weights.length * nbMorphTargets;
+        assert times.length * nbMorphTargets == weights.length;
     }
 
     /**
@@ -165,8 +168,11 @@ public class MorphTrack implements AnimTrack<float[]> {
      * @param nbMorphTargets the desired number of morph targets
      */
     public void setNbMorphTargets(float[] weights, int nbMorphTargets){
-        setKeyframesWeight(weights);
+        if(times.length * nbMorphTargets != weights.length){
+            throw new RuntimeException("weights.length must equal nbMorphTargets * times.length");
+        }
         this.nbMorphTargets = nbMorphTargets;
+        setKeyframesWeight(weights);
     }
 
     @Override
@@ -285,6 +291,5 @@ public class MorphTrack implements AnimTrack<float[]> {
         this.target = cloner.clone(target);
         // Note: interpolator, times, and weights are not cloned
     }
-
 
 }
