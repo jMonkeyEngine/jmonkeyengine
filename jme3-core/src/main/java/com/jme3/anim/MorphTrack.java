@@ -165,7 +165,7 @@ public class MorphTrack implements AnimTrack<float[]> {
      * @param nbMorphTargets the desired number of morph targets
      */
     public void setNbMorphTargets(float[] weights, int nbMorphTargets){
-        setWeights(weights);
+        setKeyframesWeight(weights);
         this.nbMorphTargets = nbMorphTargets;
     }
 
