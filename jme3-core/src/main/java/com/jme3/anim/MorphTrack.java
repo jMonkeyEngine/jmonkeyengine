@@ -89,20 +89,25 @@ public class MorphTrack implements AnimTrack<float[]> {
     }
 
     /**
-     * Set the weight for this morph track
+     * Set the weight for this morph track. Note that the number of weights
+     * must equal the number of frames times the number of morph targets.
      *
      * @param weights  the weights of the morphs for each frame (alias created
      *                 -- do not modify after passing it to this setter)
+     *
+     * @throws IllegalStateException if this track does not have times set
+     * @throws IllegalArgumentException if weights is an empty array or if
+     *         the number of weights violates the frame count constraint
      */
     public void setKeyframesWeight(float[] weights){
         if (times == null) {
-            throw new RuntimeException("MorphTrack doesn't have any time for key frames, please call setTimes first");
+            throw new IllegalStateException("MorphTrack doesn't have any time for key frames, please call setTimes first");
         }
         if (weights.length == 0) {
-            throw new RuntimeException("MorphTrack with no weight keyframes!");
+            throw new IllegalArgumentException("MorphTrack with no weight keyframes!");
         }
         if(times.length * nbMorphTargets != weights.length){
-            throw new RuntimeException("weights.length must equal nbMorphTargets * times.length");
+            throw new IllegalArgumentException("weights.length must equal nbMorphTargets * times.length");
         }
 
         this.weights = weights;
@@ -122,10 +127,11 @@ public class MorphTrack implements AnimTrack<float[]> {
      *
      * @param times  the keyframes times (alias created -- do not modify after
      *               passing it to this setter)
+     * @throws IllegalArgumentException if times is empty
      */
     public void setTimes(float[] times) {
         if (times.length == 0) {
-            throw new RuntimeException("TransformTrack with no keyframes!");
+            throw new IllegalArgumentException("TransformTrack with no keyframes!");
         }
         this.times = times;
         length = times[times.length - 1] - times[0];
@@ -164,10 +170,12 @@ public class MorphTrack implements AnimTrack<float[]> {
      * @param weights        the weight for each frame (alias created
      *                       -- do not modify after passing it to this setter)
      * @param nbMorphTargets the desired number of morph targets
+     * @throws IllegalArgumentException if the number of weights and the new
+     *         number of morph targets violate the frame count constraint
      */
     public void setNbMorphTargets(float[] weights, int nbMorphTargets){
         if(times.length * nbMorphTargets != weights.length){
-            throw new RuntimeException("weights.length must equal nbMorphTargets * times.length");
+            throw new IllegalArgumentException("weights.length must equal nbMorphTargets * times.length");
         }
         this.nbMorphTargets = nbMorphTargets;
         setKeyframesWeight(weights);

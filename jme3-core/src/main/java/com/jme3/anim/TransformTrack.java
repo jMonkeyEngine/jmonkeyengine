@@ -121,10 +121,11 @@ public class TransformTrack implements AnimTrack<Transform> {
      * Sets the keyframes times for this Joint track
      *
      * @param times the keyframes times
+     * @throws IllegalArgumentException if times is empty
      */
     public void setTimes(float[] times) {
         if (times.length == 0) {
-            throw new RuntimeException("TransformTrack with no keyframes!");
+            throw new IllegalArgumentException("TransformTrack with no keyframes!");
         }
         this.times = times;
         length = times[times.length - 1] - times[0];
@@ -134,13 +135,15 @@ public class TransformTrack implements AnimTrack<Transform> {
      * Set the translations for this joint track
      *
      * @param translations the translation of the bone for each frame
+     * @throws IllegalStateException if this track does not have times set
+     * @throws IllegalArgumentException if the translations array is empty
      */
     public void setKeyframesTranslation(Vector3f[] translations) {
         if (times == null) {
-            throw new RuntimeException("TransformTrack doesn't have any time for key frames, please call setTimes first");
+            throw new IllegalStateException("TransformTrack doesn't have any time for key frames, please call setTimes first");
         }
         if (translations.length == 0) {
-            throw new RuntimeException("TransformTrack with no translation keyframes!");
+            throw new IllegalArgumentException("TransformTrack with no translation keyframes!");
         }
         this.translations = new CompactVector3Array();
         this.translations.add(translations);
@@ -153,13 +156,15 @@ public class TransformTrack implements AnimTrack<Transform> {
      * Set the scales for this joint track
      *
      * @param scales the scales of the bone for each frame
+     * @throws IllegalStateException if this track does not have times set
+     * @throws IllegalArgumentException if the scales array is empty
      */
     public void setKeyframesScale(Vector3f[] scales) {
         if (times == null) {
-            throw new RuntimeException("TransformTrack doesn't have any time for key frames, please call setTimes first");
+            throw new IllegalStateException("TransformTrack doesn't have any time for key frames, please call setTimes first");
         }
         if (scales.length == 0) {
-            throw new RuntimeException("TransformTrack with no scale keyframes!");
+            throw new IllegalArgumentException("TransformTrack with no scale keyframes!");
         }
         this.scales = new CompactVector3Array();
         this.scales.add(scales);
@@ -172,13 +177,15 @@ public class TransformTrack implements AnimTrack<Transform> {
      * Set the rotations for this joint track
      *
      * @param rotations the rotations of the bone for each frame
+     * @throws IllegalStateException if this track does not have times set
+     * @throws IllegalArgumentException if the rotations array is empty
      */
     public void setKeyframesRotation(Quaternion[] rotations) {
         if (times == null) {
-            throw new RuntimeException("TransformTrack doesn't have any time for key frames, please call setTimes first");
+            throw new IllegalStateException("TransformTrack doesn't have any time for key frames, please call setTimes first");
         }
         if (rotations.length == 0) {
-            throw new RuntimeException("TransformTrack with no rotation keyframes!");
+            throw new IllegalArgumentException("TransformTrack with no rotation keyframes!");
         }
         this.rotations = new CompactQuaternionArray();
         this.rotations.add(rotations);
