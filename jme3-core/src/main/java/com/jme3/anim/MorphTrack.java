@@ -65,12 +65,13 @@ public class MorphTrack implements AnimTrack<float[]> {
     /**
      * Creates a morph track with the given Geometry as a target
      *
-     * @param target   the target (alias created)
+     * @param target   the desired target (alias created)
      * @param times    a float array with the time of each frame (alias created
      *                 -- do not modify after passing it to this constructor)
      * @param weights  the morphs for each frames (alias created -- do not
      *                 modify after passing it to this constructor)
-     * @param nbMorphTargets the number of morph targets
+     * @param nbMorphTargets
+     *                 the desired number of morph targets
      */
     public MorphTrack(Geometry target, float[] times, float[] weights, int nbMorphTargets) {
         this.target = target;
@@ -141,10 +142,10 @@ public class MorphTrack implements AnimTrack<float[]> {
      * Sets the times and weights for this morph track. Note that the number of weights
      * must equal the number of frames times the number of morph targets.
      *
-     * @param times        a float array with the time of each frame (alias created
-     *                     -- do not modify after passing it to this setter)
-     * @param weights      the weight for each frame (alias created
-     *                     -- do not modify after passing it to this setter)
+     * @param times    a float array with the time of each frame (alias created
+     *                 -- do not modify after passing it to this setter)
+     * @param weights  the weights of the morphs for each frame (alias created
+     *                 -- do not modify after passing it to this setter)
      */
     public void setKeyframes(float[] times, float[] weights) {
         if(times != null){
@@ -166,9 +167,9 @@ public class MorphTrack implements AnimTrack<float[]> {
      * Sets the number of morph targets and the corresponding weights.
      * Note that the number of weights must equal the number of frames times the number of morph targets.
      *
-     * @param weights        the weight for each frame (alias created
+     * @param weights        the weights for each frame (alias created
      *                       -- do not modify after passing it to this setter)
-     * @param nbMorphTargets the number of morph targets
+     * @param nbMorphTargets the desired number of morph targets
      * @throws IllegalArgumentException if the number of weights and the new
      *         number of morph targets violate the frame count constraint
      */
