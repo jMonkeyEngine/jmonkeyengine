@@ -99,14 +99,14 @@ public class MorphTrack implements AnimTrack<float[]> {
      * @throws IllegalArgumentException if weights is an empty array or if
      *         the number of weights violates the frame count constraint
      */
-    public void setKeyframesWeight(float[] weights){
+    public void setKeyframesWeight(float[] weights) {
         if (times == null) {
             throw new IllegalStateException("MorphTrack doesn't have any time for key frames, please call setTimes first");
         }
         if (weights.length == 0) {
             throw new IllegalArgumentException("MorphTrack with no weight keyframes!");
         }
-        if(times.length * nbMorphTargets != weights.length){
+        if (times.length * nbMorphTargets != weights.length) {
             throw new IllegalArgumentException("weights.length must equal nbMorphTargets * times.length");
         }
 
@@ -148,10 +148,10 @@ public class MorphTrack implements AnimTrack<float[]> {
      *                 -- do not modify after passing it to this setter)
      */
     public void setKeyframes(float[] times, float[] weights) {
-        if(times != null){
+        if (times != null) {
             setTimes(times);
         }
-        if(weights != null){
+        if (weights != null) {
             setKeyframesWeight(weights);
         }
     }
@@ -159,7 +159,7 @@ public class MorphTrack implements AnimTrack<float[]> {
     /**
      * @return the number of morph targets
      */
-    public int getNbMorphTargets(){
+    public int getNbMorphTargets() {
         return nbMorphTargets;
     }
 
@@ -173,8 +173,8 @@ public class MorphTrack implements AnimTrack<float[]> {
      * @throws IllegalArgumentException if the number of weights and the new
      *         number of morph targets violate the frame count constraint
      */
-    public void setNbMorphTargets(float[] weights, int nbMorphTargets){
-        if(times.length * nbMorphTargets != weights.length){
+    public void setNbMorphTargets(float[] weights, int nbMorphTargets) {
+        if (times.length * nbMorphTargets != weights.length) {
             throw new IllegalArgumentException("weights.length must equal nbMorphTargets * times.length");
         }
         this.nbMorphTargets = nbMorphTargets;
