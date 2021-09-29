@@ -112,7 +112,7 @@ public class TestGltfLoading extends SimpleApplication {
 //        rootNode.addLight(pl1);
 
         //loadModel("Models/gltf/polly/project_polly.gltf", new Vector3f(0, 0, 0), 0.5f);
-        //loadModel("Models/gltf/zophrac/scene.gltf", new Vector3f(0, 0, 0), 0.1f);
+        //loadModel("Models/gltf/zophrac/scene.gltf", new Vector3f(0, 0, 0), 0.01f);
     //    loadModel("Models/gltf/scifigirl/scene.gltf", new Vector3f(0, -1, 0), 0.1f);
         //loadModel("Models/gltf/man/scene.gltf", new Vector3f(0, -1, 0), 0.1f);
        //loadModel("Models/gltf/torus/scene.gltf", new Vector3f(0, -1, 0), 0.1f);
