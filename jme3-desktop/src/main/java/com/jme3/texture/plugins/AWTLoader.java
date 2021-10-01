@@ -41,6 +41,7 @@ import com.jme3.util.BufferUtils;
 import java.awt.Transparency;
 import java.awt.color.ColorSpace;
 import java.awt.image.*;
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
@@ -176,7 +177,7 @@ public class AWTLoader implements AssetLoader {
 
     public Image load(InputStream in, boolean flipY) throws IOException{
         ImageIO.setUseCache(false);
-        BufferedImage img = ImageIO.read(in);
+        BufferedImage img = ImageIO.read(new BufferedInputStream(in));
         if (img == null){
             return null;
         }
