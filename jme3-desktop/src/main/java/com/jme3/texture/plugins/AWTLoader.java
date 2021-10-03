@@ -177,7 +177,7 @@ public class AWTLoader implements AssetLoader {
 
     public Image load(InputStream in, boolean flipY) throws IOException{
         ImageIO.setUseCache(false);
-        BufferedImage img = ImageIO.read(new BufferedInputStream(in));
+        BufferedImage img = ImageIO.read(in);
         if (img == null){
             return null;
         }
@@ -188,18 +188,13 @@ public class AWTLoader implements AssetLoader {
     public Object load(AssetInfo info) throws IOException {
         if (ImageIO.getImageReadersBySuffix(info.getKey().getExtension()) != null){
             boolean flip = ((TextureKey) info.getKey()).isFlipY();
-            InputStream in = null;
-            try {
-                in = info.openStream();
-                Image img = load(in, flip);
+            try (InputStream in = info.openStream();
+                    BufferedInputStream bin = new BufferedInputStream(in)) {
+                Image img = load(bin, flip);
                 if (img == null){
                     throw new AssetLoadException("The given image cannot be loaded " + info.getKey());
                 }
                 return img;
-            } finally {
-                if (in != null){
-                    in.close();
-                }
             }
         }else{
             throw new AssetLoadException("The extension " + info.getKey().getExtension() + " is not supported");
