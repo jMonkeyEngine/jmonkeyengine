@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,6 +41,7 @@ import com.jme3.util.BufferUtils;
 import java.awt.Transparency;
 import java.awt.color.ColorSpace;
 import java.awt.image.*;
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
@@ -187,18 +188,13 @@ public class AWTLoader implements AssetLoader {
     public Object load(AssetInfo info) throws IOException {
         if (ImageIO.getImageReadersBySuffix(info.getKey().getExtension()) != null){
             boolean flip = ((TextureKey) info.getKey()).isFlipY();
-            InputStream in = null;
-            try {
-                in = info.openStream();
-                Image img = load(in, flip);
+            try (InputStream in = info.openStream();
+                    BufferedInputStream bin = new BufferedInputStream(in)) {
+                Image img = load(bin, flip);
                 if (img == null){
                     throw new AssetLoadException("The given image cannot be loaded " + info.getKey());
                 }
                 return img;
-            } finally {
-                if (in != null){
-                    in.close();
-                }
             }
         }else{
             throw new AssetLoadException("The extension " + info.getKey().getExtension() + " is not supported");
