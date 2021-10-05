@@ -82,7 +82,7 @@ public class TestAttachmentsNode extends SimpleApplication
          * from the old animation system to the new one.
          */
         Spatial model = assetManager.loadModel("Models/Jaime/Jaime.j3o");
-        model = AnimMigrationUtils.migrate(model);
+        AnimMigrationUtils.migrate(model);
         /*
          * Play the "Idle" animation at half speed.
          */
