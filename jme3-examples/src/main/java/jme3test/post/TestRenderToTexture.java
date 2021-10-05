@@ -49,6 +49,9 @@ import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image.Format;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture2D;
+import com.jme3.texture.FrameBuffer.FrameBufferBufferTarget;
+import com.jme3.texture.FrameBuffer.FrameBufferTarget;
+import com.jme3.texture.FrameBuffer.FrameBufferTextureTarget;
 
 /**
  * This test renders a scene to a texture, then displays the texture on a cube.
@@ -80,14 +83,25 @@ public class TestRenderToTexture extends SimpleApplication implements ActionList
         offCamera.setLocation(new Vector3f(0f, 0f, -5f));
         offCamera.lookAt(new Vector3f(0f, 0f, 0f), Vector3f.UNIT_Y);
 
-        //setup framebuffer's texture
+        //setup framebuffer's target
+        // texture target -> render to texture
+        //    create a new texture
         Texture2D offTex = new Texture2D(512, 512, Format.RGBA8);
         offTex.setMinFilter(Texture.MinFilter.Trilinear);
         offTex.setMagFilter(Texture.MagFilter.Bilinear);
-
-        //setup framebuffer to use texture
-        offBuffer.setDepthBuffer(Format.Depth);
-        offBuffer.setColorTexture(offTex);
+        //    create a new target that renders on this texture
+        FrameBufferTextureTarget colorTarget= FrameBufferTarget.newTarget(offTex);
+        //    bind target to framebuffer as a color target (a framebuffer can have multiple color targets)
+        offBuffer.addColorTarget(colorTarget);
+        // enable MRT -> Renders on multiple color targets at the same time
+        // offBuffer.setMultiTarget(true);
+        
+        // buffer target
+        //    create a new buffer target
+        FrameBufferBufferTarget depthTarget= FrameBufferTarget.newTarget(Format.Depth);
+        //    bind target to framebuffer as depth target 
+        offBuffer.setDepthTarget(depthTarget);
+        
         
         //set viewport to render to offscreen framebuffer
         offView.setOutputFrameBuffer(offBuffer);
