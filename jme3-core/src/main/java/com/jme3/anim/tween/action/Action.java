@@ -44,8 +44,8 @@ import com.jme3.util.clone.JmeCloneable;
  * to the #{@link BlendableAction} class.</h3>
  * Subclasses need to make a constructor call passing in the Tween Actions to enclose them & override #{@link Action#interpolate(double)}.<br/>
  * <u>Example of operation(Uses Abstract Factory Pattern Method(interpolate/doInterpolate)) :</u><br/>
- * <br/>
- * #Check out #{@link BlendableAction} class.<br/>
+ * <li>#Check out #{@link BlendableAction} class.</li>
+ * <li>#Custom Code : </li>
  * <code>
  *  public abstract class AbstractAction extends Action {<br/>
  *      private double length;
