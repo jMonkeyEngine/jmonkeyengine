@@ -38,55 +38,55 @@ import com.jme3.util.clone.Cloner;
 import com.jme3.util.clone.JmeCloneable;
 
 /**
- * <h2>Base implementation interface(1st level impl/prototype) for the interface #{@link Tween} specialized to the new animation system.
+ * <h2> Base implementation interface(1st level impl/prototype) for the interface #{@link Tween} specialized to the new animation system.
  * The Action class encloses an array of {@link Tween} and converts them into jme animation actions if they actually aren't.</h2>
- * <h3>NB : this interface mimics the {@link com.jme3.anim.tween.AbstractTween}, but it delegates the interpolation method #{@link Tween#interpolate(double)}
+ *
+ * <h3> NB : this interface mimics the {@link com.jme3.anim.tween.AbstractTween}, but it delegates the interpolation method #{@link Tween#interpolate(double)}
  * to the #{@link BlendableAction} class.</h3>
- * Subclasses need to make a constructor call passing in the Tween Actions to enclose them & override #{@link Action#interpolate(double)}.<br/>
- * <u>Example of operation(Uses Abstract Factory Pattern Method(interpolate/doInterpolate)) :</u><br/>
+ *
+ * Subclasses need to make a constructor call passing in the Tween Actions to enclose them & override #{@link Action#interpolate(double)}.
+ *
+ * Example of operation(Uses Abstract Factory Pattern Method(interpolate/doInterpolate)) :
+ *
  * <li>#Check out #{@link BlendableAction} class.</li>
  * <li>#Custom Code : </li>
- * <code>
- *  public abstract class AbstractAction extends Action {<br/>
+ * <pre class="prettyprint">
+ *  public abstract class AbstractAction extends Action {
  *      private double length;
  *      private volatile float interpolationDelta = 0f;
- *      public ActionImpl(Tween... tweenActions){<br/>
- *          super(tweenActions);<br/>
- *      }<br/>
- *      <code>@</code>Override<br/>
- *      public boolean interpolate(double t){<br/>
- *          //animation is out or in a reverse order.<br/>
- *          if(t < 0){<br/>
- *              return true;<br/>
- *          }<br/>
- *          //find where is the interpolation slider for transition.<br/>
- *          //interpolationDelta would be -plugged into the interpolateTransforms(transformI, transformII, delta)- as a shared value.<br/>
- *          interpolationDelta = t / length;<br/>
- *          doInterpolate(t);<br/>
- *          //interpolate as long as the interpolation slider haven't reached the full strength.<br/>
- *          return interpolationDelta < 1.0d;<br/>
- *      }<br/>
- *       <code>@</code>Override<br/>
- *      public double getLength(){<br/>
- *           return length;<br/>
- *      }<br/>
- *       <code>@</code>Override<br/>
- *      public void cloneFields(Cloner cloner, Object original) {<br/>
+ *      public ActionImpl(Tween... tweenActions){
+ *          super(tweenActions);
+ *      }
+ *      public boolean interpolate(double t){
+ *          //animation is out or in a reverse order.
+ *          if(t < 0){
+ *              return true;
+ *          }
+ *          //find where is the interpolation slider for transition.
+ *          //interpolationDelta would be -plugged into the interpolateTransforms(transformI, transformII, delta)- as a shared value.
+ *          interpolationDelta = t / length;
+ *          doInterpolate(t);
+ *          //interpolate as long as the interpolation slider haven't reached the full strength.
+ *          return interpolationDelta < 1.0d;
+ *      }
+ *      public double getLength(){
+ *           return length;
+ *      }
+ *      public void cloneFields(Cloner cloner, Object original) {
  *         //deep clone fields
- *      }<br/>
- *      <code>@</code>Override<br/>
- *      public Action jmeClone() {<br/>
- *          //shallow clone<br/>
- *         try {<br/>
- *             return (Action) super.clone();<br/>
- *         } catch (CloneNotSupportedException exception) {<br/>
- *             throw new RuntimeException(exception);<br/>
- *         }<br/>
- *     }<br/>
- *      //override this factory method to do interpolation<br/>
- *      protected abstract void doInterpolate(double t);<br/>
- *  }<br/>
- * </code>
+ *      }
+ *      public Action jmeClone() {
+ *          //shallow clone
+ *         try {
+ *             return (Action) super.clone();
+ *         } catch (CloneNotSupportedException exception) {
+ *             throw new RuntimeException(exception);
+ *         }
+ *     }
+ *      //override this factory method to do interpolation
+ *      protected abstract void doInterpolate(double t);
+ *  }
+ * </pre>
  * <b>Created by Nehon.</b>
  */
 public abstract class Action implements JmeCloneable, Tween {

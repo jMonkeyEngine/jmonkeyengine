@@ -7,22 +7,23 @@ import com.jme3.util.SafeArrayList;
 import java.util.List;
 
 /**
- * <h2>A Concrete fast Implementation for the interface #{@link Action},
+ * <h2> A Concrete fast Implementation for the interface #{@link Action},
  * used to create a subset of actions gathered from the extracted actions of the assigned tween.</h2>
- * <u>Example of operation :</u><br/>
- * <code>
- * //create a base action from a tween.<br/>
- * final BaseAction action = new BaseAction(Tweens.parallel(clipAction0, clipAction1));<br/>
- * //set the action properties - utilized within the #{@link Action} class.<br/>
- * baseAction.setLength(10f);<br/>
- * baseAction.setSpeed(2f);<br/>
- * //register the action as an observer to the animComposer control.<br/>
- * animComposer.addAction("basicAction", action);<br/>
- * //make a new Layer for a basic armature mask<br/>
- * animComposer.makeLayer(ActionState.class.getSimpleName(), new ArmatureMask());<br/>
- * //run the action within this layer<br/>
+ *
+ * Example of operation :
+ * <pre class="prettyprint">
+ * //create a base action from a tween.
+ * final BaseAction action = new BaseAction(Tweens.parallel(clipAction0, clipAction1));
+ * //set the action properties - utilized within the #{@link Action} class.
+ * baseAction.setLength(10f);
+ * baseAction.setSpeed(2f);
+ * //register the action as an observer to the animComposer control.
+ * animComposer.addAction("basicAction", action);
+ * //make a new Layer for a basic armature mask
+ * animComposer.makeLayer(ActionState.class.getSimpleName(), new ArmatureMask());
+ * //run the action within this layer
  * animComposer.setCurrentAction("basicAction", ActionState.class.getSimpleName());
- * </Code><br/>
+ * </pre>
  * <b>Created by Nehon.</b>
  */
 public class BaseAction extends Action {
