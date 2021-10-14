@@ -179,10 +179,8 @@ public abstract class Action implements JmeCloneable, Tween {
     }
 
     /**
-     * The forward flag, controls the animation action directionality.
-     * <br/>
-     * <b>forward = true : ensures that animation would seek in a forward manner.</b>
-     * <b>forward = false : ensures that animation would seek in a backward manner.</b>
+     * The forward flag, controls the animation action directionality, forward = true : ensures that animation would seek in a forward manner, however
+     * forward = false : ensures that animation would seek in a backward manner.
      * @param forward true if the animation is meant to be seek forward, false otherwise.
      */
     protected void setForward(boolean forward) {
