@@ -87,7 +87,7 @@ import com.jme3.util.clone.JmeCloneable;
  *      protected abstract void doInterpolate(double t);<br/>
  *  }<br/>
  * </code>
- * <b>Inspired by Nehon.</b>
+ * <b>Created by Nehon.</b>
  */
 public abstract class Action implements JmeCloneable, Tween {
 

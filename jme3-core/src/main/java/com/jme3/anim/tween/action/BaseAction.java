@@ -23,7 +23,7 @@ import java.util.List;
  * //run the action within this layer<br/>
  * animComposer.setCurrentAction("basicAction", ActionState.class.getSimpleName());
  * </Code><br/>
- * <b>Inspired by Nehon.</b>
+ * <b>Created by Nehon.</b>
  */
 public class BaseAction extends Action {
 
