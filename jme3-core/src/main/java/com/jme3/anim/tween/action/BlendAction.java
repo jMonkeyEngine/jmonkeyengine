@@ -135,13 +135,6 @@ public class BlendAction extends BlendableAction {
         if (blendWeight < 1f) {
             interpolateAction(firstActiveAction, 1f, t * timeFactor[firstActiveIndex]);
         }
-        //blend weight is zero, then start collecting data interpolated from the first action only
-        if (blendWeight == 0) {
-            for (final HasLocalTransform target : targetMap.keySet()) {
-                //callback for the collect method passing in, the operative target & the interpolated value of the local transformations,
-                collect(target, targetMap.get(target));
-            }
-        }
         //protect the second action from extrapolation & negative values.
         interpolateAction(secondActiveAction, Math.min(Math.max(blendWeight, 0f), 1f), t * timeFactor[secondActiveIndex]);
         //release the resources.
@@ -244,7 +237,8 @@ public class BlendAction extends BlendableAction {
 
         //if the delegation source is the 2nd action clip, as the interpolation reaches the 2nd action,
         //then, collect the interpolated values & finalize by interpolating with the current transform and applying the values.
-        if (source == actions[secondActiveIndex]) {
+        //if the weight is zero, then skip the second action & collect the data.
+        if (source == actions[secondActiveIndex] || blendSpace.getWeight() == 0) {
             collect(target, tr);
         }
     }
