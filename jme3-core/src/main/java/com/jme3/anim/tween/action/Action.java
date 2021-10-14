@@ -38,7 +38,7 @@ import com.jme3.util.clone.Cloner;
 import com.jme3.util.clone.JmeCloneable;
 
 /**
- * Base implementation (1st level impl/prototype) for the interface #{@link Tween} for the new animation system.
+ * Base implementation (1st level impl/prototype) of the interface #{@link Tween} for the new animation system.
  * The Action class encloses an array of {@link Tween} and converts them into jme animation actions if they actually aren't.
  *
  * NB : this implementation mimics the {@link com.jme3.anim.tween.AbstractTween}, but it delegates the interpolation method #{@link Tween#interpolate(double)}
