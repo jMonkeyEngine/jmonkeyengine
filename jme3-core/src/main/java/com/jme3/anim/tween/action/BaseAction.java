@@ -7,8 +7,8 @@ import com.jme3.util.SafeArrayList;
 import java.util.List;
 
 /**
- * <h2> A Concrete fast Implementation for the interface #{@link Action},
- * used to create a subset of actions gathered from the extracted actions of the assigned tween.</h2>
+ * A Concrete fast Implementation for the interface #{@link Action},
+ * used to create a subset of actions gathered from the extracted actions of the assigned tween.
  *
  * Example of operation :
  * <pre class="prettyprint">
