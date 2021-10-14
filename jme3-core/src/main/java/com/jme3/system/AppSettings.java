@@ -289,7 +289,7 @@ public final class AppSettings extends HashMap<String, Object> {
         defaults.put("SwapBuffers", true);
         defaults.put("OpenCL", false);
         defaults.put("OpenCLPlatformChooser", DefaultPlatformChooser.class.getName());
-        defaults.put("UseRetinaFrameBuffer", false);// MacOS spec
+        defaults.put("UseRetinaFrameBuffer", true);// MacOS spec
         //  defaults.put("Icons", null);
     }
 
