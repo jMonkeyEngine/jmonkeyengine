@@ -197,12 +197,12 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
         /**
          * BPTC compression BC6 signed float RGB
          */
-        BC6H_SF16(16, false, true, true), 
+        BC6H_SF16(8, false, true, true), 
         
         /**
          * BPTC compression BC6 unsigned float RGB
          */
-        BC6H_UF16(16, false, true, true),
+        BC6H_UF16(8, false, true, true),
         
         /**
          * BPTC compression BC7 RGBA
