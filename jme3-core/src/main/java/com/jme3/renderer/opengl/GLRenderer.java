@@ -395,6 +395,10 @@ public final class GLRenderer implements Renderer {
             caps.add(Caps.TextureCompressionS3TC);
         }
 
+        if (hasExtension("GL_ARB_texture_compression_bptc")) {
+            caps.add(Caps.TextureCompressionBPTC);
+        }
+
         if (hasExtension("GL_ARB_ES3_compatibility")) {
             caps.add(Caps.TextureCompressionETC2);
             caps.add(Caps.TextureCompressionETC1);
