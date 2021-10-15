@@ -101,6 +101,12 @@ public interface GLExt {
     public static final int GL_UNSIGNED_INT_24_8_EXT = 0x84FA;
     public static final int GL_UNSIGNED_INT_5_9_9_9_REV_EXT = 0x8C3E;
     public static final int GL_WAIT_FAILED = 0x911D;
+    
+    // OpenGL 4.2 texture compression, we now check these through the extension
+    public static final int GL_COMPRESSED_RGB_BPTC_SIGNED_FLOAT = 0x8E8E;
+    public static final int GL_COMPRESSED_RGB_BPTC_UNSIGNED_FLOAT = 0x8E8F;
+    public static final int GL_COMPRESSED_RGBA_BPTC_UNORM = 0x8E8C;
+    public static final int GL_COMPRESSED_SRGB_ALPHA_BPTC_UNORM = 0x8E8D;
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glBufferData">Reference Page</a></p>
