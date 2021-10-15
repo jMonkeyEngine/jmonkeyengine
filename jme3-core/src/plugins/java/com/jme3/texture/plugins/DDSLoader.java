@@ -142,14 +142,10 @@ public class DDSLoader implements AssetLoader {
 
     private void loadDX10Header() throws IOException {
         int dxgiFormat = in.readInt();
-        if (dxgiFormat == 0) {
-                pixelFormat = Format.ETC1;
-                bpp = 4;
-        } else {
-                throw new IOException("Unsupported DX10 format: " + dxgiFormat);
-        }
+        setPixelFormat(dxgiFormat);
+
         compressed = true;
-        
+
         int resDim = in.readInt();
         if (resDim == DX10DIM_TEXTURE3D) {
             texture3D = true;
@@ -164,6 +160,51 @@ public class DDSLoader implements AssetLoader {
         }
 
         in.skipBytes(4); // skip reserved value
+    }
+
+    private void setPixelFormat(int dxgiFormat) throws IOException {
+        switch(dxgiFormat) {
+            case DXGIFormat.DXGI_FORMAT_UNKNOWN:
+                pixelFormat = Format.ETC1;
+                break;
+            case DXGIFormat.DXGI_FORMAT_BC1_UNORM:
+                pixelFormat = Format.DXT1;
+                break;
+            case DXGIFormat.DXGI_FORMAT_BC2_UNORM:
+                pixelFormat = Format.DXT3;
+                break;
+            case DXGIFormat.DXGI_FORMAT_BC3_UNORM:
+                pixelFormat = Format.DXT5;
+                break;
+            case DXGIFormat.DXGI_FORMAT_BC4_UNORM:
+//                pixelFormat = Format.ETC1;
+                break;
+            case DXGIFormat.DXGI_FORMAT_BC4_SNORM:
+//                pixelFormat = Format.ETC1;
+                break;
+            case DXGIFormat.DXGI_FORMAT_BC5_UNORM:
+//                pixelFormat = Format.ETC1;
+                break;
+            case DXGIFormat.DXGI_FORMAT_BC5_SNORM:
+//                pixelFormat = Format.ETC1;
+                break;
+            case DXGIFormat.DXGI_FORMAT_BC6H_UF16:
+                pixelFormat = Format.BC6H_UF16;
+                break;
+            case DXGIFormat.DXGI_FORMAT_BC6H_SF16:
+                pixelFormat = Format.BC6H_SF16;
+                break;
+            case DXGIFormat.DXGI_FORMAT_BC7_UNORM:
+                pixelFormat = Format.BC7_UNORM;
+                break;
+            case DXGIFormat.DXGI_FORMAT_BC7_UNORM_SRGB:
+                pixelFormat = Format.BC7_UNORM_SRGB;
+                break;
+            default:
+                throw new IOException("Unsupported DX10 format: " + dxgiFormat);
+        }
+        
+        bpp = DXGIFormat.getBitsPerPixel(dxgiFormat);
     }
 
     /**
