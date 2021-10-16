@@ -279,7 +279,7 @@ public final class GLImageFormats {
             formatComp(formatToGL, Format.ETC1, GLExt.GL_ETC1_RGB8_OES,        GL.GL_RGB, GL.GL_UNSIGNED_BYTE);
         }
         
-        if(caps.contains(Caps.TextureCompressionBPTC)) {
+        if(caps.contains(Caps.OpenGL42) || caps.contains(Caps.TextureCompressionBPTC)) {
             formatComp(formatToGL, Format.BC6H_SF16, GLExt.GL_COMPRESSED_RGB_BPTC_SIGNED_FLOAT, GL.GL_RGB, GL.GL_UNSIGNED_BYTE);
             formatComp(formatToGL, Format.BC6H_UF16, GLExt.GL_COMPRESSED_RGB_BPTC_UNSIGNED_FLOAT, GL.GL_RGB, GL.GL_UNSIGNED_BYTE);
             formatComp(formatToGL, Format.BC7_UNORM, GLExt.GL_COMPRESSED_RGBA_BPTC_UNORM, GL.GL_RGBA, GL.GL_UNSIGNED_INT);
