@@ -84,8 +84,8 @@ public class DDSLoader implements AssetLoader {
     private static final int PF_ATI1 = 0x31495441;
     private static final int PF_ATI2 = 0x32495441; // 0x41544932;
     private static final int PF_DX10 = 0x30315844; // a DX10 format
-    private static final int PF_BC4 = 0x53344342; // a DX9 file format for BC4 signed
-    private static final int PF_BC5 = 0x53354342; // a DX9 file format for BC5 signed
+    private static final int PF_BC4S = 0x53344342; // a DX9 file format for BC4 signed
+    private static final int PF_BC5S = 0x53354342; // a DX9 file format for BC5 signed
     private static final int DX10DIM_TEXTURE3D = 0x4;
     private static final int DX10MISC_TEXTURECUBE = 0x4;
     private static final double LOG2 = Math.log(2);
@@ -333,12 +333,12 @@ public class DDSLoader implements AssetLoader {
                     pixelFormat = Format.Luminance16F;
                     grayscaleOrAlpha = true;
                     break;
-                case PF_BC4:
+                case PF_BC4S:
                     bpp = 4;
                     pixelFormat = Format.SIGNED_RGTC1;
                     break;
-                case PF_BC5:
-                    bpp = 4;
+                case PF_BC5S:
+                    bpp = 8;
                     pixelFormat = Format.SIGNED_RGTC2;
                     break;
                 default:
