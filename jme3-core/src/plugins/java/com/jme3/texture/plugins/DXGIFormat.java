@@ -285,5 +285,16 @@ final class DXGIFormat {
                 return 0;
         }
     }
+    
+    static int getBlockSize(int dxgiFormat) {
+        switch (dxgiFormat) {
+            case DXGI_FORMAT_BC1_UNORM:
+            case DXGI_FORMAT_BC4_UNORM:
+            case DXGI_FORMAT_BC4_SNORM:
+                return 8;
+        }
+        
+        return 16;
+    }
 
     }
