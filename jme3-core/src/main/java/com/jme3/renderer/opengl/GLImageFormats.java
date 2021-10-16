@@ -266,7 +266,7 @@ public final class GLImageFormats {
             formatComp(formatToGL, Format.DXT5,  GLExt.GL_COMPRESSED_RGBA_S3TC_DXT5_EXT, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE);
         }
 
-        if(caps.contains(Caps.OpenGL30)){
+        if(caps.contains(Caps.OpenGL30) || caps.contains(Caps.TextureCompressionRGTC)){
             formatComp(formatToGL, Format.RGTC2,  GL3.GL_COMPRESSED_RG_RGTC2,  GL3.GL_RG,  GL.GL_UNSIGNED_BYTE);
             formatComp(formatToGL, Format.SIGNED_RGTC2,  GL3.GL_COMPRESSED_SIGNED_RG_RGTC2,  GL3.GL_RG,  GL.GL_BYTE);
             formatComp(formatToGL, Format.RGTC1,  GL3.GL_COMPRESSED_RED_RGTC1,  GL3.GL_RED,  GL.GL_UNSIGNED_BYTE);

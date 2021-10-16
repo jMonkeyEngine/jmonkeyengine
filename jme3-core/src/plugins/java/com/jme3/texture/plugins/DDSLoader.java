@@ -84,6 +84,8 @@ public class DDSLoader implements AssetLoader {
     private static final int PF_ATI1 = 0x31495441;
     private static final int PF_ATI2 = 0x32495441; // 0x41544932;
     private static final int PF_DX10 = 0x30315844; // a DX10 format
+    private static final int PF_BC4 = 0x53344342; // a DX9 file format for BC4 signed
+    private static final int PF_BC5 = 0x53354342; // a DX9 file format for BC5 signed
     private static final int DX10DIM_TEXTURE3D = 0x4;
     private static final int DX10MISC_TEXTURECUBE = 0x4;
     private static final double LOG2 = Math.log(2);
@@ -172,16 +174,16 @@ public class DDSLoader implements AssetLoader {
                 pixelFormat = Format.DXT5;
                 break;
             case DXGIFormat.DXGI_FORMAT_BC4_UNORM:
-//                pixelFormat = Format.ETC1;
+                pixelFormat = Image.Format.RGTC1;
                 break;
             case DXGIFormat.DXGI_FORMAT_BC4_SNORM:
-//                pixelFormat = Format.ETC1;
+                pixelFormat = Format.SIGNED_RGTC1;
                 break;
             case DXGIFormat.DXGI_FORMAT_BC5_UNORM:
-//                pixelFormat = Format.ETC1;
+                pixelFormat = Image.Format.RGTC2;
                 break;
             case DXGIFormat.DXGI_FORMAT_BC5_SNORM:
-//                pixelFormat = Format.ETC1;
+                pixelFormat = Image.Format.SIGNED_RGTC2;
                 break;
             case DXGIFormat.DXGI_FORMAT_BC6H_UF16:
                 pixelFormat = Format.BC6H_UF16;
@@ -330,6 +332,14 @@ public class DDSLoader implements AssetLoader {
                     bpp = 16;
                     pixelFormat = Format.Luminance16F;
                     grayscaleOrAlpha = true;
+                    break;
+                case PF_BC4:
+                    bpp = 4;
+                    pixelFormat = Format.SIGNED_RGTC1;
+                    break;
+                case PF_BC5:
+                    bpp = 4;
+                    pixelFormat = Format.SIGNED_RGTC2;
                     break;
                 default:
                     throw new IOException("Unknown fourcc: " + string(fourcc) + ", " + Integer.toHexString(fourcc));
