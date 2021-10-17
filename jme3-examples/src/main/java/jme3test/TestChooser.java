@@ -81,7 +81,7 @@ public class TestChooser extends JFrame {
     /**
      * Only accessed from EDT
      */
-    private java.util.List<Class> selectedClass = null;
+    private java.util.List<Class<?>> selectedClass = null;
     private boolean showSetting = true;
 
     private ExecutorService executorService;
@@ -113,7 +113,7 @@ public class TestChooser extends JFrame {
      *         be found in classpath).
      */
     private void find(String packageName, boolean recursive,
-            Set<Class> classes) {
+            Set<Class<?>> classes) {
 
         // Translate the package name into an absolute path
         String name = packageName;
@@ -204,7 +204,7 @@ public class TestChooser extends JFrame {
      *            true to descend into subdirectories
      */
     private void addAllFilesInDirectory(final Path directory,
-            final Collection<Class> allClasses, final String packageName, final boolean recursive) {
+            final Set<Class<?>> allClasses, final String packageName, final boolean recursive) {
         // Get the list of the files contained in the package
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(directory, getFileFilter())) {
             for (Path file : stream) {
@@ -215,7 +215,7 @@ public class TestChooser extends JFrame {
                         addAllFilesInDirectory(file, allClasses, packageName + file.getFileName() + ".", true);
                     }
                 } else {
-                    Class result = load(packageName + file.getFileName());
+                    Class<?> result = load(packageName + file.getFileName());
                     if (result != null && !allClasses.contains(result)) {
                         allClasses.add(result);
                     }
@@ -244,7 +244,7 @@ public class TestChooser extends JFrame {
         };
     }
 
-    private void startApp(final java.util.List<Class> appClass) {
+    private void startApp(final java.util.List<Class<?>> appClass) {
         if (appClass == null || appClass.isEmpty()) {
             JOptionPane.showMessageDialog(rootPane,
                                           "Please select a test from the list",
@@ -256,7 +256,7 @@ public class TestChooser extends JFrame {
         executorService.submit(getAppRunner(appClass));
     }
 
-    private Runnable getAppRunner(final java.util.List<Class> appClass) {
+    private Runnable getAppRunner(final java.util.List<Class<?>> appClass) {
         return new Runnable() {
             @Override
             public void run() {
@@ -314,7 +314,7 @@ public class TestChooser extends JFrame {
      * @param classes
      *            what Classes to show in the list box
      */
-    private void setup(Collection<Class> classes) {
+    private void setup(Collection<Class<?>> classes) {
         final JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BorderLayout());
         getContentPane().setLayout(new BorderLayout());
@@ -323,9 +323,9 @@ public class TestChooser extends JFrame {
 
         final FilteredJList list = new FilteredJList();
         list.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-        DefaultListModel<Class> model = new DefaultListModel<>();
+        DefaultListModel<Class<?>> model = new DefaultListModel<>();
         model.ensureCapacity(classes.size());
-        for (Class c : classes) {
+        for (Class<?> c : classes) {
             model.addElement(c);
         }
         list.setModel(model);
@@ -387,7 +387,7 @@ public class TestChooser extends JFrame {
         center();
     }
 
-    private class FilteredJList extends JList<Class> {
+    private class FilteredJList extends JList<Class<?>> {
         private static final long serialVersionUID = 1L;
 
         private String filter;
@@ -468,14 +468,14 @@ public class TestChooser extends JFrame {
                 return new Thread(r, "AppStarter");
             }
         });
-        final Set<Class> classes = new LinkedHashSet<>();
+        final Set<Class<?>> classes = new LinkedHashSet<>();
         logger.fine("Composing Test list...");
         addDisplayedClasses(classes);
         setup(classes);
         setVisible(true);
     }
 
-    protected void addDisplayedClasses(Set<Class> classes) {
+    protected void addDisplayedClasses(Set<Class<?>> classes) {
         find("jme3test", true, classes);
     }
 
