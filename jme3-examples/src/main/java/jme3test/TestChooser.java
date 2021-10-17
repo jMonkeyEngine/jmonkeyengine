@@ -35,7 +35,11 @@ package jme3test;
 import com.jme3.app.LegacyApplication;
 import com.jme3.app.SimpleApplication;
 import com.jme3.system.JmeContext;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.HeadlessException;
+import java.awt.Toolkit;
 import java.awt.event.*;
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -52,6 +56,7 @@ import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.SynchronousQueue;
@@ -81,7 +86,7 @@ public class TestChooser extends JFrame {
     /**
      * Only accessed from EDT
      */
-    private java.util.List<Class<?>> selectedClass = null;
+    private List<Class<?>> selectedClass = null;
     private boolean showSetting = true;
 
     private ExecutorService executorService;
@@ -244,7 +249,7 @@ public class TestChooser extends JFrame {
         };
     }
 
-    private void startApp(final java.util.List<Class<?>> appClass) {
+    private void startApp(final List<Class<?>> appClass) {
         if (appClass == null || appClass.isEmpty()) {
             JOptionPane.showMessageDialog(rootPane,
                                           "Please select a test from the list",
@@ -256,7 +261,7 @@ public class TestChooser extends JFrame {
         executorService.submit(getAppRunner(appClass));
     }
 
-    private Runnable getAppRunner(final java.util.List<Class<?>> appClass) {
+    private Runnable getAppRunner(final List<Class<?>> appClass) {
         return new Runnable() {
             @Override
             public void run() {
