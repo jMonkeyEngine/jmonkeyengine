@@ -138,7 +138,7 @@ public class BitmapText extends Node {
      */
     public void setText(String text) {
         text = text == null ? "" : text;
-
+        if (letters.getQuad().isRightToLeft()) text = reverseText(text);
         if (text == block.getText() || block.getText().equals(text)) {
             return;
         }
@@ -187,7 +187,27 @@ public class BitmapText extends Node {
      * @return returns text
      */
     public String getText() {
+        if (letters.getQuad().isRightToLeft()) return reverseText(block.getText());
         return block.getText();
+    }
+
+    /*
+      An assumption is that, if a righttoleft (RtL) text is applied, that its already written
+      in RtL form e.g. "CBA". To work properly with the current Letters.class it has to be stored like "ABC"
+      Each letter starting from A will be calculated from the right to the left.
+      In the end the text will be displayed as "CBA" as intended. Getting the text would need
+      a reverting of the internal stored text as well
+      ToDo
+      Answer the question: Is a RtL text always provided as "CBA" otherwise this procedures are not needed
+      or the user need to have a choice to choose the input form of the text
+     */
+    private String reverseText(String intext) {
+        StringBuilder outtext = new StringBuilder();
+        char[] textstore = intext.toCharArray();
+        for (int i = textstore.length-1; i >=0 ; i--) {
+            outtext.append(textstore[i]);
+        }
+        return outtext.toString();
     }
 
     /**

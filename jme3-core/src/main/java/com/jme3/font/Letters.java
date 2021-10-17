@@ -114,7 +114,6 @@ class Letters {
         while (!l.isTail()) {
             if (l.isInvalid()) {
                 l.update(block);
-
                 if (l.isInvalid(block)) {
                     switch (block.getLineWrapMode()) {
                     case Character:
@@ -164,6 +163,7 @@ class Letters {
                         l.clip(block);
 
                         // Clear the rest up to the next line feed.
+                        // = for texts attached to a textblock all coming characters are cleared except a linefeed is explicitly used
                         for( LetterQuad q = l.getNext(); !q.isTail() && !q.isLineFeed(); q = q.getNext() ) {
                             q.setBitmapChar(null);
                             q.update(block);
@@ -188,42 +188,66 @@ class Letters {
     private void align() {
         final Align alignment = block.getAlignment();
         final VAlign valignment = block.getVerticalAlignment();
-        if (block.getTextBox() == null || (alignment == Align.Left && valignment == VAlign.Top))
-            return;
-        LetterQuad cursor = tail.getPrevious();
-        cursor.setEndOfLine();
-        final float width = block.getTextBox().width;
-        final float height = block.getTextBox().height;
         float lineWidth = 0;
         float gapX = 0;
         float gapY = 0;
+
+        if (block.getTextBox() == null) return;
+        final float width = block.getTextBox().width;
+        final float height = block.getTextBox().height;
         validateSize();
         if (totalHeight < height) { // align vertically only for no overflow
             switch (valignment) {
-            case Top:
-                gapY = 0;
-                break;
-            case Center:
-                gapY = (height - totalHeight) * 0.5f;
-                break;
-            case Bottom:
-                gapY = height - totalHeight;
-                break;
+                case Top:
+                    gapY = 0;
+                    break;
+                case Center:
+                    gapY = (height - totalHeight) * 0.5f;
+                    break;
+                case Bottom:
+                    gapY = height - totalHeight;
+                    break;
             }
         }
-        while (!cursor.isHead()) {
-            if (cursor.isEndOfLine()) {
-                lineWidth = cursor.getX1()-block.getTextBox().x;
-                if (alignment == Align.Center) {
-                    gapX = (width-lineWidth)/2;
-                } else if (alignment == Align.Right) {
-                    gapX = width-lineWidth;
-                } else {
-                    gapX = 0;
+
+        if (!(tail.isRightToLeft())) {
+            if (alignment == Align.Left && valignment == VAlign.Top) return;
+            LetterQuad cursor = tail.getPrevious();
+            cursor.setEndOfLine();
+            while (!cursor.isHead()) {
+                if (cursor.isEndOfLine()) {
+                    lineWidth = cursor.getX1()-block.getTextBox().x;
+                    if (alignment == Align.Center) {
+                        gapX = (width-lineWidth)/2;
+                    } else if (alignment == Align.Right) {
+                        gapX = width-lineWidth;
+                    } else {
+                        gapX = 0;
+                    }
                 }
+                cursor.setAlignment(gapX, gapY);
+                cursor = cursor.getPrevious();
             }
-            cursor.setAlignment(gapX, gapY);
-            cursor = cursor.getPrevious();
+        } else { // right to left
+            if ((alignment == Align.Right && valignment == VAlign.Top)) return;
+            // ToDO RtL text without a Textbox will not show. The element is attached to Gui Node but its position is close to  x0 = Integer.MIN_VALUE;
+            //  so to far on the right, that is can be seen I have no idea where in code its finally set
+            //  From a technical point this seems to be correct. But maybe the text should be shown ?
+            //  A suggestion would be to add an textbox with the size of the screen ?
+            if ((block.getTextBox() == null)) return;
+            LetterQuad cursor = tail.getPrevious();
+            gapX = (cursor.getX0()-block.getTextBox().x)*-1;
+            if (alignment == Align.Center) gapX = gapX/2; // left gap / 2
+       //    if (alignment == Align.Right) gapX = gapX;
+            while (!cursor.isHead()) {
+               if (cursor.isEndOfLine()) {
+                   gapX = (cursor.getX0()-block.getTextBox().x)*-1; // new gapX
+                   if (alignment == Align.Center) gapX = gapX/2;
+                   //    if (alignment == Align.Right) gapX = gapX;
+               }
+                cursor.setAlignment(gapX, gapY);
+                cursor = cursor.getPrevious();
+            }
         }
     }
 
@@ -233,6 +257,7 @@ class Letters {
         l.getPrevious().setEndOfLine();
         l.invalidate();
         l.update(block); // TODO: update from l
+        // --> whats does this mean ? Update from left done ! but from l ???
     }
 
     float getCharacterX0() {
