@@ -138,7 +138,7 @@ public class BitmapText extends Node {
      */
     public void setText(String text) {
         text = text == null ? "" : text;
-        if (letters.getQuad().isRightToLeft()) text = reverseText(text);
+ //       if (letters.getQuad().isRightToLeft()) text = reverseText(text);
         if (text == block.getText() || block.getText().equals(text)) {
             return;
         }
@@ -187,7 +187,7 @@ public class BitmapText extends Node {
      * @return returns text
      */
     public String getText() {
-        if (letters.getQuad().isRightToLeft()) return reverseText(block.getText());
+ //       if (letters.getQuad().isRightToLeft()) return reverseText(block.getText());
         return block.getText();
     }
 
@@ -200,7 +200,7 @@ public class BitmapText extends Node {
       ToDo
       Answer the question: Is a RtL text always provided as "CBA" otherwise this procedures are not needed
       or the user need to have a choice to choose the input form of the text
-     */
+      Edit: Seems it is not needed. So commented out for the moment.
     private String reverseText(String intext) {
         StringBuilder outtext = new StringBuilder();
         char[] textstore = intext.toCharArray();
@@ -209,6 +209,7 @@ public class BitmapText extends Node {
         }
         return outtext.toString();
     }
+*/
 
     /**
      * @return color of the text
