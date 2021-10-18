@@ -53,7 +53,7 @@ public class BitmapText extends Node {
     private Letters letters;
 
     public BitmapText(BitmapFont font) {
-        this(font, false, false);
+        this(font, font.isRtL(), false);
     }
 
     public BitmapText(BitmapFont font, boolean rightToLeft) {

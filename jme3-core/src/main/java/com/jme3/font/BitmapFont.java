@@ -88,6 +88,16 @@ public class BitmapFont implements Savable {
 
     private BitmapCharacterSet charSet;
     private Material[] pages;
+    private boolean RtL = false;
+
+    public boolean isRtL() {
+        return RtL;
+    }
+
+    public void setRtL(boolean rtL) {
+        RtL = rtL;
+    }
+
 
     public BitmapFont() {
     }
