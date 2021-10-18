@@ -32,10 +32,9 @@
 package jme3test.gui;
 
 import com.jme3.app.SimpleApplication;
-import com.jme3.font.BitmapFont;
-import com.jme3.font.BitmapText;
-import com.jme3.font.LineWrapMode;
-import com.jme3.font.Rectangle;
+import com.jme3.app.StatsAppState;
+import com.jme3.font.*;
+import com.jme3.math.ColorRGBA;
 
 /**
  * Test case for JME issue #1158: BitmapText right to left line wrapping not work
@@ -43,23 +42,57 @@ import com.jme3.font.Rectangle;
 public class TestRtlBitmapText extends SimpleApplication {
 
     // A right to left text.
-    final private String text = ".text left to right test a is This";
+    private String text = " check check check linelenght all for  possible .text left to right test a is This";
+    String text2 = "to right test a is This text left.";
+    BitmapFont fnt;
+
 
     public static void main(String[] args) {
         TestRtlBitmapText app = new TestRtlBitmapText();
         app.start();
     }
-
+    BitmapText txt;
     @Override
     public void simpleInitApp() {
-        BitmapFont fnt = assetManager.loadFont("Interface/Fonts/Default.fnt");
+        float H = 500;
+        float X = 400;
+        getStateManager().detach(stateManager.getState(StatsAppState.class));
+        fnt = assetManager.loadFont("Interface/Fonts/Default.fnt");
+
         // A right to left BitmapText
-        BitmapText txt = new BitmapText(fnt, true);
+
+        txt = new BitmapText(fnt, true);
         txt.setBox(new Rectangle(0, 0, 150, 0));
-        txt.setLineWrapMode(LineWrapMode.Word);
+        txt.setLineWrapMode(LineWrapMode.Character);
         txt.setAlignment(BitmapFont.Align.Right);
         txt.setText(text);
-        txt.setLocalTranslation(cam.getWidth() / 2, cam.getHeight() / 2, 0);
+
+        txt.setLocalTranslation(X, H, 0);
+        txt.setColor(new ColorRGBA(ColorRGBA.Blue));
         guiNode.attachChild(txt);
+
+        BitmapText txt2 = new BitmapText(fnt);
+        txt2.setBox(new Rectangle(0, 0, 150, 0));
+        txt2.setLineWrapMode(LineWrapMode.Word);
+        txt2.setAlignment(BitmapFont.Align.Left);
+    //    txt2.setVerticalAlignment(BitmapFont.VAlign.Top);
+
+        txt2.setText(text2);
+        txt2.setLocalTranslation(X,H + 200, 0);
+
+        guiNode.attachChild(txt2);
+
+
+    }
+    int i =35;
+    float d = 0;
+    @Override
+    public void simpleUpdate(float tpf) {
+ //       BitmapCharacter c = fnt.getCharSet().getCharacter(i);
+ //       c.getKerning(i+1);
+ //       i++;
+  //      txt.setLocalTranslation(d ,300,0);
+  //      d += + 1.01f*tpf;
+   //     System.out.println(cam.getHeight() / 2);
     }
 }
