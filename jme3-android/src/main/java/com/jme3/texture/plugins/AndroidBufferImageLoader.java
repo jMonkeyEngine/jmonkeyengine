@@ -84,7 +84,7 @@ public class AndroidBufferImageLoader implements AssetLoader {
         options.inPurgeable = true;
         options.inSampleSize = 1;
         
-        try(final BufferedInputStream bin = new BufferedInputStream(assetInfo.openStream())) {
+        try (final BufferedInputStream bin = new BufferedInputStream(assetInfo.openStream())) {
             bitmap = BitmapFactory.decodeStream(bin, null, options);
             if (bitmap == null) {
                 throw new IOException("Failed to load image: " + assetInfo.getKey().getName());
