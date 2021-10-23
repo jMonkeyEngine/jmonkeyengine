@@ -1,0 +1,14 @@
+MaterialDef ExtractRGB {
+    MaterialParameters {
+        Color   Albedo
+    }
+
+    Technique {
+        VertexShader GLSL100 : TestMRT/MatDefs/ExtractRGB.vert
+        FragmentShader GLSL330 : TestMRT/MatDefs/ExtractRGB.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+        }
+    }
+}
