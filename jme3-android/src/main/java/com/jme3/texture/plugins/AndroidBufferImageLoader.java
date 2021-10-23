@@ -154,6 +154,6 @@ public class AndroidBufferImageLoader implements AssetLoader {
         
         bitmap.recycle();
        
-        return new Image(format, width, height, data, ColorSpace.sRGB);;
+        return new Image(format, width, height, data, ColorSpace.sRGB);
     }
 }
