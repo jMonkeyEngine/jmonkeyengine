@@ -40,6 +40,7 @@ import com.jme3.asset.TextureKey;
 import com.jme3.texture.Image;
 import com.jme3.texture.image.ColorSpace;
 import com.jme3.util.BufferUtils;
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
@@ -83,16 +84,11 @@ public class AndroidBufferImageLoader implements AssetLoader {
         options.inInputShareable = true;
         options.inPurgeable = true;
         options.inSampleSize = 1;
-        
-        try {
-            in = assetInfo.openStream();
-            bitmap = BitmapFactory.decodeStream(in, null, options);
+
+        try (final BufferedInputStream bin = new BufferedInputStream(assetInfo.openStream())){
+            bitmap = BitmapFactory.decodeStream(bin, null, options);
             if (bitmap == null) {
                 throw new IOException("Failed to load image: " + assetInfo.getKey().getName());
-            }
-        } finally {
-            if (in != null) {
-                in.close();
             }
         }
 
