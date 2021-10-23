@@ -4,6 +4,7 @@ import com.jme3.asset.AssetInfo;
 import com.jme3.asset.AssetLoader;
 import com.jme3.asset.TextureKey;
 import com.jme3.texture.Image;
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -28,14 +29,8 @@ public class AndroidNativeImageLoader  implements AssetLoader {
     @Override
     public Image load(AssetInfo info) throws IOException {
         boolean flip = ((TextureKey) info.getKey()).isFlipY();
-        InputStream in = null;
-        try {
-            in = info.openStream();
-            return load(in, flip, tmpArray);
-        } finally {
-            if (in != null){
-                in.close();
-            }
+        try (final BufferedInputStream bin = new BufferedInputStream(info.openStream())) {
+            return load(bin, flip, tmpArray);
         }
     }
 }
