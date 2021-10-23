@@ -5,6 +5,7 @@ import com.jme3.asset.AssetLoader;
 import com.jme3.asset.TextureKey;
 import com.jme3.texture.Image;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.BufferedInputStream;
 
 /**
