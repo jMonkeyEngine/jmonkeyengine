@@ -41,7 +41,7 @@ import com.jme3.texture.Image;
 import com.jme3.texture.image.ColorSpace;
 import com.jme3.util.BufferUtils;
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.BufferedInputStream;
 import java.nio.ByteBuffer;
 
 /**
