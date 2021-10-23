@@ -69,9 +69,8 @@ public class AndroidBufferImageLoader implements AssetLoader {
     
     @Override
     public Object load(AssetInfo assetInfo) throws IOException {
-        Bitmap bitmap = null;
+        Bitmap bitmap;
         Image.Format format;
-        InputStream in = null;
         int bpp;
         
         BitmapFactory.Options options = new BitmapFactory.Options();
@@ -84,15 +83,10 @@ public class AndroidBufferImageLoader implements AssetLoader {
         options.inPurgeable = true;
         options.inSampleSize = 1;
         
-        try {
-            in = assetInfo.openStream();
-            bitmap = BitmapFactory.decodeStream(in, null, options);
+        try (final BufferedInputStream bin = new BufferedInputStream(assetInfo.openStream())){
+            bitmap = BitmapFactory.decodeStream(bin, null, options);
             if (bitmap == null) {
                 throw new IOException("Failed to load image: " + assetInfo.getKey().getName());
-            }
-        } finally {
-            if (in != null) {
-                in.close();
             }
         }
 
@@ -158,8 +152,7 @@ public class AndroidBufferImageLoader implements AssetLoader {
         data.flip();
         
         bitmap.recycle();
-        
-        Image image = new Image(format, width, height, data, ColorSpace.sRGB);
-        return image;
+       
+        return new Image(format, width, height, data, ColorSpace.sRGB);;
     }
 }
