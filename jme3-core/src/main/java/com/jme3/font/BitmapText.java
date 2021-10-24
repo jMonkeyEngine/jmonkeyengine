@@ -55,8 +55,7 @@ public class BitmapText extends Node {
     public BitmapText(BitmapFont font) {
         this(font, font.isRtL(), false);
     }
-    // ToDo would that be still needed if that info is coming from the font ?
-    public BitmapText(BitmapFont font, boolean rightToLeft) {
+        public BitmapText(BitmapFont font, boolean rightToLeft) {
         this(font, rightToLeft, false);
     }
 

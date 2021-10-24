@@ -114,6 +114,7 @@ class Letters {
         while (!l.isTail()) {
             if (l.isInvalid()) {
                 l.update(block);
+                // Without a textblock the next line returns always false = no textwrap at all will be applied
                 if (l.isInvalid(block)) {
                     switch (block.getLineWrapMode()) {
                     case Character:
@@ -192,7 +193,13 @@ class Letters {
         float gapX = 0;
         float gapY = 0;
 
-        if (block.getTextBox() == null) return;
+        // Without a textblock there is no alignment
+        // For Left to Right texts the letters will simply be shown starting from left
+        // as linelenght is considered to be Integer.Maxvalue width
+        // with the changes in LetterQuad Right to Left texts will be starting at the same position as LtR texts
+        // but move to the left from there. Not sure if that is right. Another solution would be
+        // to have x set to the size of the screen. In the end its a question of taste
+        if (block.getTextBox() == null) return; // no alignment
         final float width = block.getTextBox().width;
         final float height = block.getTextBox().height;
         validateSize();
@@ -230,11 +237,6 @@ class Letters {
             }
         } else { // right to left
             if ((alignment == Align.Right && valignment == VAlign.Top)) return;
-            // ToDO RtL text without a Textbox will not show. The element is attached to Gui Node but its position is close to  x0 = Integer.MIN_VALUE;
-            //  so to far on the right, that is can be seen I have no idea where in code its finally set
-            //  From a technical point this seems to be correct. But maybe the text should be shown ?
-            //  A suggestion would be to add an textbox with the size of the screen ?
-            if ((block.getTextBox() == null)) return;
             LetterQuad cursor = tail.getPrevious();
             gapX = (cursor.getX0()-block.getTextBox().x)*-1;
             if (alignment == Align.Center) gapX = gapX/2; // left gap / 2
@@ -348,6 +350,13 @@ class Letters {
             LetterQuad l = head;
             while (!l.isTail()) {
                 totalWidth = Math.max(totalWidth, l.getX1());
+                /* ToDo implement this
+                if (l.getX0() < 0) {
+                     totalWidth = Math.max(totalWidth, Math.abs(l.getX0()));
+                } else {
+                     totalWidth = Math.max(totalWidth, l.getX1());
+                }
+                 */
                 l = l.getNext();
             }
         }

@@ -94,6 +94,10 @@ public class BitmapFont implements Savable {
         return RtL;
     }
 
+    // setting the parameter with the font will change it for all!! texts using the fint
+    // the parameter is applied by simply using public BitmapText(BitmapFont font)
+    // it can be "overwritten" by using the old way public BitmapText(BitmapFont font, boolean rightToLeft)
+    // This way one fnt can be used LtR and RtL in one application
     public void setRtL(boolean rtL) {
         RtL = rtL;
     }

@@ -320,7 +320,10 @@ class LetterQuad {
 
         if (isHead()) {
             x0 = getBound(block).x;
-            if (isRightToLeft()) x0 += getBound(block).width;
+           // if (isRightToLeft()) x0 += getBound(block).width;
+            if (isRightToLeft() && getBound(block) != UNBOUNDED) {
+                x0 += getBound(block).width;
+            }
             y0 = lineY;
             width = 0;
             height = 0;
@@ -361,7 +364,10 @@ class LetterQuad {
                     // first letter of a line is always on the right end of the textbox (getBound(block).x + getBound(block).width = getX0 as calculated above)
                     // we need to move it for xadvance
                     if (previous.isHead())  x0 = previous.getX0()-xAdvance;
-                    if (previous.eol)     x0 = getBound(block).x + getBound(block).width - xAdvance;
+               //     if (previous.eol)     x0 = getBound(block).x + getBound(block).width - xAdvance;
+                    if (previous.eol) {
+                        x0 = getBound(block).x + (getBound(block) != UNBOUNDED ? getBound(block).width : 0) - xAdvance;
+                    }
                 } else {
                     x0 = bound.x;
                     // The first letter quad will be drawn right at the first
