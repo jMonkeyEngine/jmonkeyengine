@@ -349,14 +349,13 @@ class Letters {
         if (totalWidth < 0) {
             LetterQuad l = head;
             while (!l.isTail()) {
-                totalWidth = Math.max(totalWidth, l.getX1());
-                /* ToDo implement this
+             //   totalWidth = Math.max(totalWidth, l.getX1());
                 if (l.getX0() < 0) {
+                    // unbound texts
                      totalWidth = Math.max(totalWidth, Math.abs(l.getX0()));
                 } else {
                      totalWidth = Math.max(totalWidth, l.getX1());
                 }
-                 */
                 l = l.getNext();
             }
         }
