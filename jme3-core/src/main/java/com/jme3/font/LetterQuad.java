@@ -392,7 +392,7 @@ class LetterQuad {
                 if (isRightToLeft()) {
                     // xadvance as calculated above will be needed for both left to right- and right to left text
                     // for RtL text the xadvance of the current!! letter is deducted, while for LtR text the advance of the letter before is added!
-                    // Todo currently the xoffset is nettet of, what is the right behaviour here ?
+                    // Todo currently the xoffset is netted of, what is the right behaviour here ?
                     x0 = previous.getX0() - xAdvance - xOffset * incrScale;
                 } else {
                     x0 = previous.getNextX() + xOffset * incrScale;
