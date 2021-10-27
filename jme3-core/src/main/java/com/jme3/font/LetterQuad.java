@@ -390,9 +390,10 @@ class LetterQuad {
                 // the left, for example.
                 xAdvance -= xOffset * incrScale;
                 if (isRightToLeft()) {
-                    // xadvance as calculated above will be needed for both left to right text as well as right to left text
+                    // xadvance as calculated above will be needed for both left to right- and right to left text
                     // for RtL text the xadvance of the current!! letter is deducted, while for LtR text the advance of the letter before is added!
-                    x0 = previous.getX0() - xAdvance + xOffset * incrScale;
+                    // Todo currently the xoffset is nettet of, what is the right behaviour here ?
+                    x0 = previous.getX0() - xAdvance - xOffset * incrScale;
                 } else {
                     x0 = previous.getNextX() + xOffset * incrScale;
                 }
