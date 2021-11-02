@@ -1086,11 +1086,10 @@ public class GltfLoader implements AssetLoader {
 
     private void findChildren(int nodeIndex) throws IOException {
         JointWrapper jw = fetchFromCache("nodes", nodeIndex, JointWrapper.class);
-        
-        if(jw == null) {
+        if (jw == null) {
             return;
         }
-        
+
         JsonObject nodeData = nodes.get(nodeIndex).getAsJsonObject();
         JsonArray children = nodeData.getAsJsonArray("children");
 
