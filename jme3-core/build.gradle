@@ -16,8 +16,7 @@ sourceSets {
 }
 
 dependencies {
-    testImplementation project(':jme3-testdata')
-    testImplementation project(':jme3-testdata')
+    testRuntime project(':jme3-testdata')
     testImplementation project(':jme3-desktop')
     testRuntime project(':jme3-plugins')
 }
