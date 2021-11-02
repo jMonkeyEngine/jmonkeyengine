@@ -226,7 +226,7 @@ public class DXTFlipper {
                 type = 5;
                 break;
             default:
-                throw new IllegalArgumentException();
+                throw new IllegalArgumentException("No flip support for texture format " + format);
         }
 
         // DXT1 uses 8 bytes per block,

@@ -266,7 +266,7 @@ public final class GLImageFormats {
             formatComp(formatToGL, Format.DXT5,  GLExt.GL_COMPRESSED_RGBA_S3TC_DXT5_EXT, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE);
         }
 
-        if(caps.contains(Caps.OpenGL30)){
+        if(caps.contains(Caps.OpenGL30) || caps.contains(Caps.TextureCompressionRGTC)){
             formatComp(formatToGL, Format.RGTC2,  GL3.GL_COMPRESSED_RG_RGTC2,  GL3.GL_RG,  GL.GL_UNSIGNED_BYTE);
             formatComp(formatToGL, Format.SIGNED_RGTC2,  GL3.GL_COMPRESSED_SIGNED_RG_RGTC2,  GL3.GL_RG,  GL.GL_BYTE);
             formatComp(formatToGL, Format.RGTC1,  GL3.GL_COMPRESSED_RED_RGTC1,  GL3.GL_RED,  GL.GL_UNSIGNED_BYTE);
@@ -277,6 +277,13 @@ public final class GLImageFormats {
             formatComp(formatToGL, Format.ETC1, GLExt.GL_COMPRESSED_RGB8_ETC2, GL.GL_RGB, GL.GL_UNSIGNED_BYTE);
         } else if (caps.contains(Caps.TextureCompressionETC1)) {
             formatComp(formatToGL, Format.ETC1, GLExt.GL_ETC1_RGB8_OES,        GL.GL_RGB, GL.GL_UNSIGNED_BYTE);
+        }
+        
+        if(caps.contains(Caps.OpenGL42) || caps.contains(Caps.TextureCompressionBPTC)) {
+            formatComp(formatToGL, Format.BC6H_SF16, GLExt.GL_COMPRESSED_RGB_BPTC_SIGNED_FLOAT, GL.GL_RGB, GL.GL_UNSIGNED_BYTE);
+            formatComp(formatToGL, Format.BC6H_UF16, GLExt.GL_COMPRESSED_RGB_BPTC_UNSIGNED_FLOAT, GL.GL_RGB, GL.GL_UNSIGNED_BYTE);
+            formatComp(formatToGL, Format.BC7_UNORM, GLExt.GL_COMPRESSED_RGBA_BPTC_UNORM, GL.GL_RGBA, GL.GL_UNSIGNED_INT);
+            formatComp(formatToGL, Format.BC7_UNORM_SRGB, GLExt.GL_COMPRESSED_SRGB_ALPHA_BPTC_UNORM, GL.GL_RGBA, GL.GL_UNSIGNED_INT);
         }
         
         // Integer formats

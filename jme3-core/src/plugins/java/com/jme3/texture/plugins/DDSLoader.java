@@ -84,6 +84,8 @@ public class DDSLoader implements AssetLoader {
     private static final int PF_ATI1 = 0x31495441;
     private static final int PF_ATI2 = 0x32495441; // 0x41544932;
     private static final int PF_DX10 = 0x30315844; // a DX10 format
+    private static final int PF_BC4S = 0x53344342; // a DX9 file format for BC4 signed
+    private static final int PF_BC5S = 0x53354342; // a DX9 file format for BC5 signed
     private static final int DX10DIM_TEXTURE3D = 0x4;
     private static final int DX10MISC_TEXTURECUBE = 0x4;
     private static final double LOG2 = Math.log(2);
@@ -114,22 +116,17 @@ public class DDSLoader implements AssetLoader {
             throw new IllegalArgumentException("Texture assets must be loaded using a TextureKey");
         }
 
-        InputStream stream = null;
-        try {
-            stream = info.openStream();
+        TextureKey textureKey = (TextureKey) info.getKey();
+        try (InputStream stream = info.openStream()) {
             in = new LittleEndien(stream);
             loadHeader();
             if (texture3D) {
-                ((TextureKey) info.getKey()).setTextureTypeHint(Texture.Type.ThreeDimensional);
+                textureKey.setTextureTypeHint(Texture.Type.ThreeDimensional);
             } else if (depth > 1) {
-                ((TextureKey) info.getKey()).setTextureTypeHint(Texture.Type.CubeMap);
+                textureKey.setTextureTypeHint(Texture.Type.CubeMap);
             }
-            ArrayList<ByteBuffer> data = readData(((TextureKey) info.getKey()).isFlipY());
+            ArrayList<ByteBuffer> data = readData(textureKey.isFlipY());
             return new Image(pixelFormat, width, height, depth, data, sizes, ColorSpace.sRGB);
-        } finally {
-            if (stream != null){
-                stream.close();
-            }
         }
     }
 
@@ -142,14 +139,10 @@ public class DDSLoader implements AssetLoader {
 
     private void loadDX10Header() throws IOException {
         int dxgiFormat = in.readInt();
-        if (dxgiFormat == 0) {
-                pixelFormat = Format.ETC1;
-                bpp = 4;
-        } else {
-                throw new IOException("Unsupported DX10 format: " + dxgiFormat);
-        }
+        setPixelFormat(dxgiFormat);
+
         compressed = true;
-        
+
         int resDim = in.readInt();
         if (resDim == DX10DIM_TEXTURE3D) {
             texture3D = true;
@@ -164,6 +157,51 @@ public class DDSLoader implements AssetLoader {
         }
 
         in.skipBytes(4); // skip reserved value
+    }
+
+    private void setPixelFormat(int dxgiFormat) throws IOException {
+        switch(dxgiFormat) {
+            case DXGIFormat.DXGI_FORMAT_UNKNOWN:
+                pixelFormat = Format.ETC1;
+                break;
+            case DXGIFormat.DXGI_FORMAT_BC1_UNORM:
+                pixelFormat = Format.DXT1;
+                break;
+            case DXGIFormat.DXGI_FORMAT_BC2_UNORM:
+                pixelFormat = Format.DXT3;
+                break;
+            case DXGIFormat.DXGI_FORMAT_BC3_UNORM:
+                pixelFormat = Format.DXT5;
+                break;
+            case DXGIFormat.DXGI_FORMAT_BC4_UNORM:
+                pixelFormat = Image.Format.RGTC1;
+                break;
+            case DXGIFormat.DXGI_FORMAT_BC4_SNORM:
+                pixelFormat = Format.SIGNED_RGTC1;
+                break;
+            case DXGIFormat.DXGI_FORMAT_BC5_UNORM:
+                pixelFormat = Image.Format.RGTC2;
+                break;
+            case DXGIFormat.DXGI_FORMAT_BC5_SNORM:
+                pixelFormat = Image.Format.SIGNED_RGTC2;
+                break;
+            case DXGIFormat.DXGI_FORMAT_BC6H_UF16:
+                pixelFormat = Format.BC6H_UF16;
+                break;
+            case DXGIFormat.DXGI_FORMAT_BC6H_SF16:
+                pixelFormat = Format.BC6H_SF16;
+                break;
+            case DXGIFormat.DXGI_FORMAT_BC7_UNORM:
+                pixelFormat = Format.BC7_UNORM;
+                break;
+            case DXGIFormat.DXGI_FORMAT_BC7_UNORM_SRGB:
+                pixelFormat = Format.BC7_UNORM_SRGB;
+                break;
+            default:
+                throw new IOException("Unsupported DX10 format: " + dxgiFormat);
+        }
+        
+        bpp = DXGIFormat.getBitsPerPixel(dxgiFormat);
     }
 
     /**
@@ -294,6 +332,14 @@ public class DDSLoader implements AssetLoader {
                     bpp = 16;
                     pixelFormat = Format.Luminance16F;
                     grayscaleOrAlpha = true;
+                    break;
+                case PF_BC4S:
+                    bpp = 4;
+                    pixelFormat = Format.SIGNED_RGTC1;
+                    break;
+                case PF_BC5S:
+                    bpp = 8;
+                    pixelFormat = Format.SIGNED_RGTC2;
                     break;
                 default:
                     throw new IOException("Unknown fourcc: " + string(fourcc) + ", " + Integer.toHexString(fourcc));

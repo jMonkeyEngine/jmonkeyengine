@@ -342,6 +342,16 @@ public enum Caps {
     TextureCompressionETC2,
     
     /**
+     * Supports {@link Format#BPTC} and sister formats.
+     */
+    TextureCompressionBPTC,
+    
+    /**
+     * Supports {@link Format#RGTC1} and other RGTC compressed formats.
+     */
+    TextureCompressionRGTC,
+    
+    /**
      * Supports OpenGL ES 2
      */
     OpenGLES20,
