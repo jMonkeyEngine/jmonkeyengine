@@ -10,11 +10,16 @@ sourceSets {
         java {
             srcDir 'src/test/java'
         }
+
+        System.setProperty "java.awt.headless", "true"
     }
 }
 
 dependencies {
     testImplementation project(':jme3-testdata')
+    testImplementation project(':jme3-testdata')
+    testImplementation project(':jme3-desktop')
+    testRuntime project(':jme3-plugins')
 }
 
 task updateVersionPropertiesFile {
