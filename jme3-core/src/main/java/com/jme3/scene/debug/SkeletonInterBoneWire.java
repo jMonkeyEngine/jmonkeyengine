@@ -45,7 +45,7 @@ import com.jme3.scene.VertexBuffer.Usage;
 import com.jme3.util.BufferUtils;
 
 /**
- * A class that displays a dotted line between a bone tail and its childrens' heads.
+ * A class that displays a dotted line between a bone tail and its children's heads.
  * 
  * @author Marcin Roguski (Kaelthas)
  */
@@ -84,7 +84,7 @@ public class SkeletonInterBoneWire extends Mesh {
     }
 
     /**
-     * The method updates the geometry according to the poitions of the bones.
+     * This method updates the geometry according to the positions of the bones.
      */
     public void updateGeometry() {
         VertexBuffer vb = this.getBuffer(Type.Position);
@@ -113,7 +113,7 @@ public class SkeletonInterBoneWire extends Mesh {
     }
 
     /**
-     * Th method couns the connections between bones.
+     * This method counts the connections between bones.
      * @param bone
      *            the bone where counting starts
      */

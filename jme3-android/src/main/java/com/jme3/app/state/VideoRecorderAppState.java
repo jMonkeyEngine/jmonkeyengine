@@ -227,7 +227,7 @@ public class VideoRecorderAppState extends AbstractAppState {
         private int width;
         private int height;
         private RenderManager renderManager;
-        private boolean isInitilized = false;
+        private boolean isInitialized = false;
         private LinkedBlockingQueue<WorkItem> freeItems;
         private LinkedBlockingQueue<WorkItem> usedItems = new LinkedBlockingQueue<>();
         private MjpegFileWriter writer;
@@ -273,7 +273,7 @@ public class VideoRecorderAppState extends AbstractAppState {
             this.width = camera.getWidth();
             this.height = camera.getHeight();
             this.renderManager = rm;
-            this.isInitilized = true;
+            this.isInitialized = true;
             if (freeItems == null) {
                 freeItems = new LinkedBlockingQueue<WorkItem>();
                 for (int i = 0; i < numCpus; i++) {
@@ -288,7 +288,7 @@ public class VideoRecorderAppState extends AbstractAppState {
 
         @Override
         public boolean isInitialized() {
-            return this.isInitilized;
+            return this.isInitialized;
         }
 
         @Override

@@ -337,7 +337,7 @@ public class SkinningControl extends AbstractControl implements Cloneable, JmeCl
                 bpb.clear();
                 bnb.clear();
 
-                //reseting bind tangents if there is a bind tangent buffer
+                //resetting bind tangents if there is a bind tangent buffer
                 VertexBuffer bindTangents = mesh.getBuffer(Type.BindPoseTangent);
                 if (bindTangents != null) {
                     VertexBuffer tangents = mesh.getBuffer(Type.Tangent);
@@ -457,7 +457,7 @@ public class SkinningControl extends AbstractControl implements Cloneable, JmeCl
      * Method to apply skinning transforms to a mesh's buffers
      *
      * @param mesh           the mesh
-     * @param offsetMatrices the offset matices to apply
+     * @param offsetMatrices the offset matrices to apply
      */
     private void applySkinning(Mesh mesh, Matrix4f[] offsetMatrices) {
         int maxWeightsPerVert = mesh.getMaxNumWeights();

@@ -449,7 +449,7 @@ public abstract class Texture implements CloneableSmartAsset, Savable, Cloneable
      * particular axis.
      *
      * @param axis
-     *            the texture axis to define a wrapmode on.
+     *            the texture axis to apply the wrap mode to.
      * @param mode
      *            the wrap mode for the given axis of the texture.
      * @throws IllegalArgumentException

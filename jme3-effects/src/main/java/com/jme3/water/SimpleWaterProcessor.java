@@ -534,7 +534,7 @@ public class SimpleWaterProcessor implements SceneProcessor {
 
 
     /**
-     * returns true if the waterprocessor is in debug mode
+     * returns true if the water processor is in debug mode
      * @return true if in debug mode, otherwise false
      */
     public boolean isDebug() {
@@ -575,7 +575,7 @@ public class SimpleWaterProcessor implements SceneProcessor {
 
     /**
      * sets the reflection clipping plane offset
-     * set a negative value to lower the clipping plane for relection texture rendering.
+     * set a negative value to lower the clipping plane for reflection texture rendering.
      *
      * @param reflectionClippingOffset the desired offset (default=-5)
      */

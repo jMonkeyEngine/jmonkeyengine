@@ -160,7 +160,7 @@ public class MaterialDebugAppState extends AbstractAppState {
     }
 
     /**
-     * Will reload the spatials's materials whenever the shader file is changed 
+     * Will reload the spatial's materials whenever the shader file is changed
      * on the hard drive
      * @param shaderName the shader name (relative path to the asset folder or 
      * to a registered asset path)
@@ -225,8 +225,8 @@ public class MaterialDebugAppState extends AbstractAppState {
             return null;
         }
 
-        Logger.getLogger(MaterialDebugAppState.class.getName()).log(Level.INFO, "Material succesfully reloaded");
-        //System.out.println("Material succesfully reloaded");
+        Logger.getLogger(MaterialDebugAppState.class.getName()).log(Level.INFO, "Material successfully reloaded");
+        //System.out.println("Material successfully reloaded");
         return dummy;
     }
    

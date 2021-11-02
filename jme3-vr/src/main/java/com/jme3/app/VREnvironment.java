@@ -39,7 +39,7 @@ public class VREnvironment {
     private VRAPI hardware              = null;
     private VRGuiManager guiManager     = null;
     private VRMouseManager mouseManager = null;
-    private VRViewManager viewmanager   = null;
+    private VRViewManager viewManager = null;
     
     private VRBounds bounds             = null;
     
@@ -132,7 +132,7 @@ public class VREnvironment {
 	 * @return the VR view manager.
 	 */
 	public VRViewManager getVRViewManager() {
-	    return viewmanager;
+	    return viewManager;
 	}
 	
 	/**
@@ -190,8 +190,8 @@ public class VREnvironment {
      * @see #getVRHeightAdjustment()
      */
     public void setVRHeightAdjustment(float amount) {
-        if( viewmanager != null ){
-        	viewmanager.setHeightAdjustment(amount);
+        if( viewManager != null ){
+        	viewManager.setHeightAdjustment(amount);
         }
     }
     
@@ -201,8 +201,8 @@ public class VREnvironment {
      * @see #setVRHeightAdjustment(float)
      */
     public float getVRHeightAdjustment() {
-        if( viewmanager != null ){
-        	return viewmanager.getHeightAdjustment();
+        if( viewManager != null ){
+        	return viewManager.getHeightAdjustment();
         }
         return 0f;
     }
@@ -405,17 +405,17 @@ public class VREnvironment {
     	this.application = application;
     	this.app         = appState;
     	
-    	// Instanciate view manager
+    	// Instantiate view manager
     	if (vrBinding == VRConstants.SETTING_VRAPI_OPENVR_VALUE){
-    		viewmanager = new OpenVRViewManager(this);
+    		viewManager = new OpenVRViewManager(this);
     	} else if (vrBinding == VRConstants.SETTING_VRAPI_OSVR_VALUE){
-    		viewmanager = new OSVRViewManager(this);
+    		viewManager = new OSVRViewManager(this);
     	} else if (vrBinding == VRConstants.SETTING_VRAPI_OCULUSVR_VALUE) {
-    		viewmanager = new OculusViewManager(this);
+    		viewManager = new OculusViewManager(this);
     	} else if (vrBinding == VRConstants.SETTING_VRAPI_OPENVR_LWJGL_VALUE) {
-    		viewmanager = new LWJGLOpenVRViewManager(this);
+    		viewManager = new LWJGLOpenVRViewManager(this);
     	} else {
-    		logger.severe("Cannot instanciate view manager, unknown VRAPI type: "+vrBinding);
+    		logger.severe("Cannot instantiate view manager, unknown VRAPI type: "+vrBinding);
     	}
     }
     
@@ -465,7 +465,7 @@ public class VREnvironment {
             	
                 hardware = new OculusVR(this);
             	initialized = true;
-            	logger.config("Creating Occulus Rift wrapper [SUCCESS]");
+            	logger.config("Creating Oculus Rift wrapper [SUCCESS]");
             } else if (vrBinding == VRConstants.SETTING_VRAPI_OPENVR_LWJGL_VALUE) {
             	
             	guiManager   = new VRGuiManager(this);

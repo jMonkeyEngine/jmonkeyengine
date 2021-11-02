@@ -395,10 +395,10 @@ public class PhysicsSpace {
 
     public void distributeEvents() {
         //add collision callbacks
-        int clistsize = collisionListeners.size();
+        int cListSize = collisionListeners.size();
         while( collisionEvents.isEmpty() == false ) {
             PhysicsCollisionEvent physicsCollisionEvent = collisionEvents.pop();
-            for(int i=0;i<clistsize;i++) {
+            for(int i=0;i<cListSize;i++) {
                 collisionListeners.get(i).collision(physicsCollisionEvent);
             }
             //recycle events
@@ -902,7 +902,7 @@ public class PhysicsSpace {
     /**
      * Sets the maximum amount of extra steps that will be used to step the physics
      * when the fps is below the physics fps. Doing this maintains determinism in physics.
-     * For example a maximum number of 2 can compensate for framerates as low as 30fps
+     * For example a maximum number of 2 can compensate for frame rates as low as 30fps
      * when the physics has the default accuracy of 60 fps. Note that setting this
      * value too high can make the physics drive down its own fps in case it's overloaded.
      * @param steps The maximum number of extra steps, default is 4.

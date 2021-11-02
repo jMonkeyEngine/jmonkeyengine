@@ -1,6 +1,6 @@
 Licensing history for files in "src/main/resources/Textures/Terrain/PBR"
 
-All textures were downloaded and derrived from:
+All textures were downloaded and derived from:
 * downloaded from:   https://cc0textures.com/
 * license type:      CC0
 * license URL:       https://docs.cc0textures.com/licensing.html
@@ -44,7 +44,7 @@ Tiles083_1K_Roughness.png
 
 
 
-*Files Derrived:
+*Files Derived:
 Gravel_015_PackedMetallicRoughnessMap.png
 Ground036_PackedMetallicRoughnessMap.png
 Ground037_PackedMetallicRoughnessMap.png

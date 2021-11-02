@@ -172,7 +172,7 @@ public abstract class VRApplication implements Application, SystemListener {
     private VRAPI VRhardware            = null;
     private VRGuiManager guiManager     = null;
     private OpenVRMouseManager mouseManager = null;
-    private OpenVRViewManager viewmanager   = null;
+    private OpenVRViewManager viewManager = null;
     
     private String OS;
      
@@ -259,7 +259,7 @@ public abstract class VRApplication implements Application, SystemListener {
         guiManager = new VRGuiManager(null);
         
         // Create a new view manager.
-        viewmanager = new OpenVRViewManager(null);
+        viewManager = new OpenVRViewManager(null);
         
         // Create a new mouse manager.
         mouseManager = new OpenVRMouseManager(null);
@@ -312,7 +312,7 @@ public abstract class VRApplication implements Application, SystemListener {
      * @return the VR view manager.
      */
     public OpenVRViewManager getVRViewManager() {
-        return viewmanager;
+        return viewManager;
     }
     
     /**
@@ -357,7 +357,7 @@ public abstract class VRApplication implements Application, SystemListener {
      */
     public void setResolutionMultiplier(float val) {
         resMult = val;
-        if( viewmanager != null ) viewmanager.setResolutionMultiplier(resMult);
+        if( viewManager != null ) viewManager.setResolutionMultiplier(resMult);
     }
     
     
@@ -399,7 +399,7 @@ public abstract class VRApplication implements Application, SystemListener {
     */
     @Override
     public Camera getCamera() {
-        if( isInVR() && viewmanager != null && viewmanager.getLeftCamera() != null ) {
+        if( isInVR() && viewManager != null && viewManager.getLeftCamera() != null ) {
             return dummyCam;
         }
         return cam;
@@ -819,7 +819,7 @@ public abstract class VRApplication implements Application, SystemListener {
 
         logger.log(Level.FINE, "Starting application: {0}", getClass().getName());
         
-        // Create VR decicated context
+        // Create VR dedicated context
         if (contextType == Type.Display){
           context = new LwjglDisplayVR();
           context.setSettings(settings);
@@ -841,7 +841,7 @@ public abstract class VRApplication implements Application, SystemListener {
      */
     public void moveScreenProcessingToVR() {
         if( isInVR() ) {
-        	viewmanager.moveScreenProcessingToEyes();
+        	viewManager.moveScreenProcessingToEyes();
         }
     }
     
@@ -1037,7 +1037,7 @@ public abstract class VRApplication implements Application, SystemListener {
      * @see #getFinalObserverPosition()
      */
     public Quaternion getFinalObserverRotation() {
-        if( viewmanager == null ) {
+        if( viewManager == null ) {
             if( observer == null ) {
                 return getCamera().getRotation();
             } else return observer.getWorldRotation();
@@ -1056,7 +1056,7 @@ public abstract class VRApplication implements Application, SystemListener {
      * @see #getFinalObserverRotation()
      */
     public Vector3f getFinalObserverPosition() {
-        if( viewmanager == null ) {
+        if( viewManager == null ) {
             if( observer == null ) {
                 return getCamera().getLocation();
             } else return observer.getWorldTranslation();            
@@ -1077,7 +1077,7 @@ public abstract class VRApplication implements Application, SystemListener {
      * @see #getVRHeightAdjustment()
      */
     public void setVRHeightAdjustment(float amount) {
-        if( viewmanager != null ) viewmanager.setHeightAdjustment(amount);
+        if( viewManager != null ) viewManager.setHeightAdjustment(amount);
     }
     
     /**
@@ -1086,7 +1086,7 @@ public abstract class VRApplication implements Application, SystemListener {
      * @see #setVRHeightAdjustment(float)
      */
     public float getVRHeightAdjustment() {
-        if( viewmanager != null ) return viewmanager.getHeightAdjustment();
+        if( viewManager != null ) return viewManager.getHeightAdjustment();
         return 0f;
     }
       
@@ -1096,8 +1096,8 @@ public abstract class VRApplication implements Application, SystemListener {
      * @see #getRightViewPort()
      */
     public ViewPort getLeftViewPort() {
-        if( viewmanager == null ) return getViewPort();
-        return viewmanager.getLeftViewPort();
+        if( viewManager == null ) return getViewPort();
+        return viewManager.getLeftViewPort();
     }
     
     /**
@@ -1106,8 +1106,8 @@ public abstract class VRApplication implements Application, SystemListener {
      * @see #getLeftViewPort()
      */
     public ViewPort getRightViewPort() {
-        if( viewmanager == null ) return getViewPort();
-        return viewmanager.getRightViewPort();
+        if( viewManager == null ) return getViewPort();
+        return viewManager.getRightViewPort();
     }
     
     
@@ -1116,11 +1116,11 @@ public abstract class VRApplication implements Application, SystemListener {
      * @param clr the background color.
      */
     public void setBackgroundColors(ColorRGBA clr) {
-        if( viewmanager == null ) {
+        if( viewManager == null ) {
             getViewPort().setBackgroundColor(clr);
-        } else if( viewmanager.getLeftViewPort() != null ) {
-        	viewmanager.getLeftViewPort().setBackgroundColor(clr);
-            if( viewmanager.getRightViewPort() != null ) viewmanager.getRightViewPort().setBackgroundColor(clr);
+        } else if( viewManager.getLeftViewPort() != null ) {
+        	viewManager.getLeftViewPort().setBackgroundColor(clr);
+            if( viewManager.getRightViewPort() != null ) viewManager.getRightViewPort().setBackgroundColor(clr);
         }
     }
     
@@ -1179,8 +1179,8 @@ public abstract class VRApplication implements Application, SystemListener {
         stateManager.render(renderManager);
         
         // update VR pose & cameras
-        if( viewmanager != null ) {
-        	viewmanager.update(tpf);    
+        if( viewManager != null ) {
+        	viewManager.update(tpf);
         } else if( observer != null ) {
             getCamera().setFrame(observer.getWorldTranslation(), observer.getWorldRotation());
         }
@@ -1203,8 +1203,8 @@ public abstract class VRApplication implements Application, SystemListener {
         stateManager.postRender();
         
         // update compositor?
-        if( viewmanager != null ) {
-        	viewmanager.postRender();
+        if( viewManager != null ) {
+        	viewManager.postRender();
         }
     }
 
@@ -1238,7 +1238,7 @@ public abstract class VRApplication implements Application, SystemListener {
     
 
     private void initDisplay(){
-        // aquire important objects
+        // acquire important objects
         // from the context
         settings = context.getSettings();
 
@@ -1274,7 +1274,7 @@ public abstract class VRApplication implements Application, SystemListener {
         cam.lookAt(new Vector3f(0f, 0f, 0f), Vector3f.UNIT_Y);
 
         renderManager = new RenderManager(renderer);
-        //Remy - 09/14/2010 setted the timer in the renderManager
+        //Remy - 09/14/2010 set the timer in the renderManager
         renderManager.setTimer(timer);
 
         viewPort = renderManager.createMainView("Default", cam);
@@ -1371,8 +1371,8 @@ public abstract class VRApplication implements Application, SystemListener {
             }
             
             //FIXME: WARNING !!
-            viewmanager = new OpenVRViewManager(null);
-            viewmanager.setResolutionMultiplier(resMult);
+            viewManager = new OpenVRViewManager(null);
+            viewManager.setResolutionMultiplier(resMult);
             inputManager.addMapping(RESET_HMD, new KeyTrigger(KeyInput.KEY_F9));
             setLostFocusBehavior(LostFocusBehavior.Disabled);
         } else {
@@ -1381,25 +1381,25 @@ public abstract class VRApplication implements Application, SystemListener {
             guiViewPort.attachScene(guiNode);
         }
         
-        if( viewmanager != null ) {
-        	viewmanager.initialize();
+        if( viewManager != null ) {
+        	viewManager.initialize();
         }
         
         simpleInitApp();
         
         // any filters created, move them now
-        if( viewmanager != null ) {
-        	viewmanager.moveScreenProcessingToEyes();
+        if( viewManager != null ) {
+        	viewManager.moveScreenProcessingToEyes();
             
             // print out camera information
             if( isInVR() ) {
                 logger.info("VR Initialization Information");
-                if( viewmanager.getLeftCamera() != null ){ 
-                  logger.info("camLeft: " + viewmanager.getLeftCamera().toString());
+                if( viewManager.getLeftCamera() != null ){
+                  logger.info("camLeft: " + viewManager.getLeftCamera().toString());
                 }
                 
-                if( viewmanager.getRightCamera() != null ){ 
-                  logger.info("camRight: " + viewmanager.getRightCamera().toString());
+                if( viewManager.getRightCamera() != null ){
+                  logger.info("camRight: " + viewManager.getRightCamera().toString());
                 }
             }
         }

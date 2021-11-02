@@ -1,8 +1,4 @@
-if (!hasProperty('mainClass')) {
-    ext.mainClass = ''
-}
-
 dependencies {
-    compile project(':jme3-core')
-    compile 'com.github.stephengold:j-ogg-all:1.0.1'
+    api project(':jme3-core')
+    api 'com.github.stephengold:j-ogg-all:1.0.1'
 }

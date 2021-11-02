@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -108,7 +108,7 @@ package com.jme3.bounding;
 //    public final Vector3f[] vectorStore = new Vector3f[8];
 //
 //    private final Vector3f tempVk = new Vector3f();
-//    private final Vector3f tempForword = new Vector3f(0, 0, 1);
+//    private final Vector3f tempForward = new Vector3f(0, 0, 1);
 //    private final Vector3f tempLeft = new Vector3f(1, 0, 0);
 //    private final Vector3f tempUp = new Vector3f(0, 1, 0);
 //
@@ -880,7 +880,7 @@ package com.jme3.bounding;
 //
 //        // convenience variables
 //        Vector3f akA[] = new Vector3f[] { xAxis, yAxis, zAxis };
-//        Vector3f[] akB = new Vector3f[] { tempForword, tempLeft, tempUp };
+//        Vector3f[] akB = new Vector3f[] { tempForward, tempLeft, tempUp };
 //        Vector3f afEA = extent;
 //        Vector3f afEB = tempVk.set(bb.xExtent, bb.yExtent, bb.zExtent);
 //

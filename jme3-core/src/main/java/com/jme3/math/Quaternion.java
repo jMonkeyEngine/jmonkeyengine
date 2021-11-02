@@ -1151,7 +1151,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      * result is returned as a new quaternion.
      *
      * @param scalar
-     *            the quaternion to multiply this quaternion by.
+     *            the scalar to multiply this quaternion by.
      * @return the new quaternion.
      */
     public Quaternion mult(float scalar) {
@@ -1163,7 +1163,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      * result is stored locally.
      *
      * @param scalar
-     *            the quaternion to multiply this quaternion by.
+     *            the scalar to multiply this quaternion by.
      * @return this.
      */
     public Quaternion multLocal(float scalar) {
@@ -1402,10 +1402,12 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     }
 
     /**
-     * <code>lookAt</code> is a convienence method for auto-setting the
+     * <code>lookAt</code> is a convenience method for auto-setting the
      * quaternion based on a direction and an up vector. It computes
      * the rotation to transform the z-axis to point into 'direction'
-     * and the y-axis to 'up'.
+     * and the y-axis to 'up'.  Note that the results will be invalid
+     * if a zero length direction vector (0,0,0) is supplied, or if the 
+     * direction and up vectors are parallel.
      *
      * @param direction
      *            where to look at in terms of local coordinates

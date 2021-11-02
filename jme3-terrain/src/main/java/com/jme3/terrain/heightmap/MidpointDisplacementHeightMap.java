@@ -50,8 +50,8 @@ public class MidpointDisplacementHeightMap extends AbstractHeightMap {
 
     /**
      * The constructor generates the heightmap. After the first 4 corners are
-     * randomly given a height, the center will be heighted to the average of
-     * the 4 corners to which a random value is added. Then other passes fill
+     * randomly given a height, the center height will be set to the average of
+     * the 4 corners plus a random value. Then other passes fill
      * the heightmap by the same principle.
      * The random value is generated between the values <code>-range</code>
      * and <code>range</code>. The <code>range</code> parameter is multiplied by
@@ -87,8 +87,8 @@ public class MidpointDisplacementHeightMap extends AbstractHeightMap {
 
     /**
      * The constructor generates the heightmap. After the first 4 corners are
-     * randomly given a height, the center will be heighted to the average of
-     * the 4 corners to which a random value is added. Then other passes fill
+     * randomly given a height, the center height will be set to the average of
+     * the 4 corners plus a random value. Then other passes fill
      * the heightmap by the same principle.
      * The random value is generated between the values <code>-range</code>
      * and <code>range</code>. The <code>range</code> parameter is multiplied by

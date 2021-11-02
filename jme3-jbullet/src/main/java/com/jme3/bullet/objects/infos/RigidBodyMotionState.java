@@ -42,7 +42,7 @@ import com.jme3.scene.Spatial;
 
 /**
  * stores transform info of a PhysicsNode in a threadsafe manner to
- * allow multithreaded access from the jme scenegraph and the bullet physicsspace
+ * allow multithreaded access from the jme scenegraph and the bullet physics space
  * @author normenhansen
  */
 public class RigidBodyMotionState extends MotionState {

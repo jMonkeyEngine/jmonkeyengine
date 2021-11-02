@@ -215,7 +215,7 @@ public class OculusVR implements VRAPI {
                 + "\t Resolution (total): " + resolutionW + "," + resolutionH);
 
         if (resolutionW == 0) {
-            LOGGER.severe("HMD witdth=0 : aborting");
+            LOGGER.severe("HMD width=0 : aborting");
             return false; // TODO fix memory leak - destroy() is not called
         }
 
@@ -567,7 +567,7 @@ public class OculusVR implements VRAPI {
      * @return The {@code to} argument.
      */
     public static Matrix4f matrixO2J(OVRMatrix4f from, Matrix4f to) {
-        to.loadIdentity(); // For the additional columns (unless I'm badly misunderstanding matricies)
+        to.loadIdentity(); // For the additional columns (unless I'm badly misunderstanding matrices)
 
         for (int x = 0; x < 4; x++) {
             for (int y = 0; y < 4; y++) {

@@ -84,7 +84,7 @@ public class AnimationFactory {
          */
         Vector3f eulerAngles = new Vector3f();
         /**
-         * the index of the parent key frame is this keyFrame is a splitted rotation
+         * the index of the parent key frame is this keyFrame is a split rotation
          */
         int masterKeyFrame = -1;
 
@@ -425,11 +425,11 @@ public class AnimationFactory {
             if (key != -1) {
                 //computing the frame span to interpolate over
                 int span = key - i;
-                //interating over the frames
+                //iterating over the frames
                 for (int j = i; j <= key; j++) {
                     // computing interpolation value
                     float val = (j - i) / (float) span;
-                    //interpolationg depending on the transform type
+                    //interpolating depending on the transform type
                     switch (type) {
                         case Translation:
                             translations[j] = FastMath.interpolateLinear(val, (Vector3f) keyFrames[i], (Vector3f) keyFrames[key]);

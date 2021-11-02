@@ -63,7 +63,7 @@ public class SessionDataDelegator extends AbstractMessageDelegator<HostedConnect
      *  <li>void someName(Message msg)
      *  </ul>
      *  Where S is the type of MessageConnection and SomeMessage is some
-     *  specific concreate Message subclass.
+     *  specific concrete Message subclass.
      */   
     public SessionDataDelegator( Class delegateType, String attributeName, boolean automap ) {
         super(delegateType, automap);

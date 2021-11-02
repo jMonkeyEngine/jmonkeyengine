@@ -72,7 +72,7 @@ public class SceneLoader implements AssetLoader {
 	// Scene objects
 	private Map<Long, FbxObject> allObjects = new HashMap<>(); // All supported FBX objects
 	private Map<Long, FbxSkin> skinMap = new HashMap<>(); // Skin for bone clusters
-	private Map<Long, FbxObject> alayerMap = new HashMap<>(); // Animation layers
+	private Map<Long, FbxObject> aLayerMap = new HashMap<>(); // Animation layers
 	public Map<Long, FbxNode> modelMap = new HashMap<>(); // Nodes
 	private Map<Long, FbxNode> limbMap = new HashMap<>(); // Nodes that are actually bones
 	private Map<Long, FbxBindPose> bindMap = new HashMap<>(); // Node bind poses
@@ -197,7 +197,7 @@ public class SceneLoader implements AssetLoader {
 			case "AnimationLayer":
 				FbxObject layer = new FbxObject(this, e);
 				obj = layer;
-				alayerMap.put(layer.id, layer);
+				aLayerMap.put(layer.id, layer);
 				break;
 			case "AnimationCurve":
 				obj = new FbxAnimCurve(this, e);
@@ -304,8 +304,8 @@ public class SceneLoader implements AssetLoader {
 			return;
 		if(animList == null || animList.list.size() == 0) {
 			animList = new AnimationList();
-			for(long layerId : alayerMap.keySet()) {
-				FbxObject layer = alayerMap.get(layerId);
+			for(long layerId : aLayerMap.keySet()) {
+				FbxObject layer = aLayerMap.get(layerId);
 				animList.add(layer.name, layer.name, 0, -1);
 			}
 		}
@@ -319,8 +319,8 @@ public class SceneLoader implements AssetLoader {
 			Animation anim = new Animation(animInfo.name, length);
 			// Search source layer for animation nodes
 			long sourceLayerId = 0L;
-			for(long layerId : alayerMap.keySet()) {
-				FbxObject layer = alayerMap.get(layerId);
+			for(long layerId : aLayerMap.keySet()) {
+				FbxObject layer = aLayerMap.get(layerId);
 				if(layer.name.equals(animInfo.layerName)) {
 					sourceLayerId = layerId;
 					break;
@@ -448,7 +448,7 @@ public class SceneLoader implements AssetLoader {
 		// Clear objects
 		allObjects.clear();
 		skinMap.clear();
-		alayerMap.clear();
+		aLayerMap.clear();
 		modelMap.clear();
 		limbMap.clear();
 		bindMap.clear();

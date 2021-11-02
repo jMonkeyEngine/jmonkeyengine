@@ -54,9 +54,9 @@ import com.jme3.texture.Texture.WrapMode;
  * The base terrain class it uses is TerrainQuad, which is a quad tree of actual
  * meshes called TerrainPatches.
  * There are a couple options for the terrain in this test:
- * The first is wireframe mode. Here you can see the underlying trianglestrip structure.
+ * The first is wireframe mode. Here you can see the underlying triangle strip structure.
  * You will notice some off lines; these are degenerate triangles and are part of the
- * trianglestrip. They are only noticeable in wireframe mode.
+ * triangle strip. They are only noticeable in wireframe mode.
  * Second is Tri-Planar texture mode. Here the textures are rendered on all 3 axes and
  * then blended together to reduce distortion and stretching.
  * Third, which you have to modify the code to see, is Entropy LOD calculations.

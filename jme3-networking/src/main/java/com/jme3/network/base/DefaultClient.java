@@ -155,7 +155,7 @@ public class DefaultClient implements Client
         // their UDP ports mapped all over the place.
         //
         // Since currentTimeMillis() is absolute time and nano time
-        // is roughtly related to system start time, adding these two
+        // is roughly related to system start time, adding these two
         // together should be plenty unique for our purposes.  It wouldn't
         // hurt to reconcile with IP on the server side, though.
         long tempId = System.currentTimeMillis() + System.nanoTime();
@@ -416,7 +416,7 @@ public class DefaultClient implements Client
         // If there are no listeners then close the connection with
         // a reason
         if( errorListeners.isEmpty() ) {
-            log.log( Level.SEVERE, "Termining connection due to unhandled error", t );
+            log.log( Level.SEVERE, "Terminating connection due to unhandled error", t );
             DisconnectInfo info = new DisconnectInfo();
             info.reason = "Connection Error";
             info.error = t;
@@ -482,7 +482,7 @@ public class DefaultClient implements Client
             }
             return;
         } else if( m instanceof ChannelInfoMessage ) {
-            // This is an interum step in the connection process and
+            // This is an interim step in the connection process and
             // now we need to add a bunch of connections
             configureChannels( ((ChannelInfoMessage)m).getId(), ((ChannelInfoMessage)m).getPorts() );
             return; 

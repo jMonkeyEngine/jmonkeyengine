@@ -190,11 +190,11 @@ public class AssetLinkNode extends Node {
 
     @Override
     public void write(JmeExporter e) throws IOException {
-        SafeArrayList<Spatial> childs = children;
+        SafeArrayList<Spatial> childList = children;
         children = new SafeArrayList<>(Spatial.class);
         super.write(e);
         OutputCapsule capsule = e.getCapsule(this);
         capsule.writeSavableArrayList(assetLoaderKeys, "assetLoaderKeyList", null);
-        children = childs;
+        children = childList;
     }
 }

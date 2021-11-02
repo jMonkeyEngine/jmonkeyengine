@@ -77,7 +77,7 @@ public class TestAssetLinkNode extends SimpleApplication {
             //export to byte array
             ByteArrayOutputStream bout=new ByteArrayOutputStream();
             BinaryExporter.getInstance().save(loaderNode, bout);
-            //import from byte array, automatically loads the monkeyhead from file
+            //import from byte array, automatically loads the monkey head from file
             ByteArrayInputStream bin=new ByteArrayInputStream(bout.toByteArray());
             BinaryImporter imp=BinaryImporter.getInstance();
             imp.setAssetManager(assetManager);
@@ -95,7 +95,7 @@ public class TestAssetLinkNode extends SimpleApplication {
         lightMdl.setMaterial(assetManager.loadAsset(new MaterialKey("Common/Materials/RedColor.j3m")));
         rootNode.attachChild(lightMdl);
 
-        // flourescent main light
+        // fluorescent main light
         pl = new PointLight();
         pl.setColor(new ColorRGBA(0.88f, 0.92f, 0.95f, 1.0f));
         rootNode.addLight(pl);

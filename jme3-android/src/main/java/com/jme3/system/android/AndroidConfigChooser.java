@@ -35,70 +35,70 @@ public class AndroidConfigChooser implements EGLConfigChooser {
         EGLConfig[] configs = getConfigs(egl, display);
 
         // First try to find an exact match, but allowing a higher stencil
-        EGLConfig choosenConfig = chooseConfig(egl, display, configs, requestedConfig, false, false, false, true);
-        if (choosenConfig == null && requestedConfig.d > 16) {
+        EGLConfig chosenConfig = chooseConfig(egl, display, configs, requestedConfig, false, false, false, true);
+        if (chosenConfig == null && requestedConfig.d > 16) {
             logger.log(Level.INFO, "EGL configuration not found, reducing depth");
             requestedConfig.d = 16;
-            choosenConfig = chooseConfig(egl, display, configs, requestedConfig, false, false, false, true);
+            chosenConfig = chooseConfig(egl, display, configs, requestedConfig, false, false, false, true);
         }
 
-        if (choosenConfig == null) {
+        if (chosenConfig == null) {
             logger.log(Level.INFO, "EGL configuration not found, allowing higher RGB");
-            choosenConfig = chooseConfig(egl, display, configs, requestedConfig, true, false, false, true);
+            chosenConfig = chooseConfig(egl, display, configs, requestedConfig, true, false, false, true);
         }
 
-        if (choosenConfig == null && requestedConfig.a > 0) {
+        if (chosenConfig == null && requestedConfig.a > 0) {
             logger.log(Level.INFO, "EGL configuration not found, allowing higher alpha");
-            choosenConfig = chooseConfig(egl, display, configs, requestedConfig, true, true, false, true);
+            chosenConfig = chooseConfig(egl, display, configs, requestedConfig, true, true, false, true);
         }
 
-        if (choosenConfig == null && requestedConfig.s > 0) {
+        if (chosenConfig == null && requestedConfig.s > 0) {
             logger.log(Level.INFO, "EGL configuration not found, allowing higher samples");
-            choosenConfig = chooseConfig(egl, display, configs, requestedConfig, true, true, true, true);
+            chosenConfig = chooseConfig(egl, display, configs, requestedConfig, true, true, true, true);
         }
 
-        if (choosenConfig == null && requestedConfig.a > 0) {
+        if (chosenConfig == null && requestedConfig.a > 0) {
             logger.log(Level.INFO, "EGL configuration not found, reducing alpha");
             requestedConfig.a = 1;
-            choosenConfig = chooseConfig(egl, display, configs, requestedConfig, true, true, false, true);
+            chosenConfig = chooseConfig(egl, display, configs, requestedConfig, true, true, false, true);
         }
 
-        if (choosenConfig == null && requestedConfig.s > 0) {
+        if (chosenConfig == null && requestedConfig.s > 0) {
             logger.log(Level.INFO, "EGL configuration not found, reducing samples");
             requestedConfig.s = 1;
             if (requestedConfig.a > 0) {
-                choosenConfig = chooseConfig(egl, display, configs, requestedConfig, true, true, true, true);
+                chosenConfig = chooseConfig(egl, display, configs, requestedConfig, true, true, true, true);
             } else {
-                choosenConfig = chooseConfig(egl, display, configs, requestedConfig, true, false, true, true);
+                chosenConfig = chooseConfig(egl, display, configs, requestedConfig, true, false, true, true);
             }
         }
 
-        if (choosenConfig == null && requestedConfig.getBitsPerPixel() > 16) {
+        if (chosenConfig == null && requestedConfig.getBitsPerPixel() > 16) {
             logger.log(Level.INFO, "EGL configuration not found, setting to RGB565");
             requestedConfig.r = 5;
             requestedConfig.g = 6;
             requestedConfig.b = 5;
-            choosenConfig = chooseConfig(egl, display, configs, requestedConfig, true, false, false, true);
+            chosenConfig = chooseConfig(egl, display, configs, requestedConfig, true, false, false, true);
 
-            if (choosenConfig == null) {
+            if (chosenConfig == null) {
                 logger.log(Level.INFO, "EGL configuration not found, allowing higher alpha");
-                choosenConfig = chooseConfig(egl, display, configs, requestedConfig, true, true, false, true);
+                chosenConfig = chooseConfig(egl, display, configs, requestedConfig, true, true, false, true);
             }
         }
 
-        if (choosenConfig == null) {
+        if (chosenConfig == null) {
             logger.log(Level.INFO, "EGL configuration not found, looking for best config with >= 16 bit Depth");
             //failsafe, should pick best config with at least 16 depth
             requestedConfig = new Config(0, 0, 0, 0, 16, 0, 0);
-            choosenConfig = chooseConfig(egl, display, configs, requestedConfig, true, false, false, true);
+            chosenConfig = chooseConfig(egl, display, configs, requestedConfig, true, false, false, true);
         }
 
-        if (choosenConfig != null) {
+        if (chosenConfig != null) {
             logger.fine("GLSurfaceView asks for egl config, returning: ");
-            logEGLConfig(choosenConfig, display, egl, Level.FINE);
+            logEGLConfig(chosenConfig, display, egl, Level.FINE);
 
-            storeSelectedConfig(egl, display, choosenConfig);
-            return choosenConfig;
+            storeSelectedConfig(egl, display, chosenConfig);
+            return chosenConfig;
         } else {
             logger.severe("No EGL Config found");
             return null;

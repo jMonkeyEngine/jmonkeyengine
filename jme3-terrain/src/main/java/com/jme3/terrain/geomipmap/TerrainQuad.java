@@ -903,7 +903,7 @@ public class TerrainQuad extends Node implements Terrain {
                 int row = z;
                 boolean match = false;
 
-                // get the childs quadrant
+                // get the child's quadrant
                 int childQuadrant = 0;
                 if (spat instanceof TerrainQuad) {
                     childQuadrant = ((TerrainQuad) spat).getQuadrant();
@@ -948,7 +948,7 @@ public class TerrainQuad extends Node implements Terrain {
                 int row = z;
                 boolean match = false;
 
-                // get the childs quadrant
+                // get the child's quadrant
                 int childQuadrant = 0;
                 if (spat instanceof TerrainQuad) {
                     childQuadrant = ((TerrainQuad) spat).getQuadrant();
@@ -1020,7 +1020,7 @@ public class TerrainQuad extends Node implements Terrain {
                 int row = z;
                 boolean match = false;
 
-                // get the childs quadrant
+                // get the child's quadrant
                 int childQuadrant = 0;
                 if (spat instanceof TerrainQuad) {
                     childQuadrant = ((TerrainQuad) spat).getQuadrant();
@@ -1282,7 +1282,7 @@ public class TerrainQuad extends Node implements Terrain {
     }
 
 
-    // a position can be in multiple quadrants, so use a bit anded value.
+    // a position can be in multiple quadrants, so return a bitmask.
     private int findQuadrant(int x, int y) {
         int split = (size + 1) >> 1;
         int quads = 0;

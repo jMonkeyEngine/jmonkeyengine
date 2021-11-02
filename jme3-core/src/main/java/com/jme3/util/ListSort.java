@@ -88,7 +88,7 @@ public class ListSort<T> {
 
     /* Try to used a kind of structure like in the original implementation.
      * Ended up using 2 arrays as done in the java 7 Timsort. 
-     * Original implementation use a struct, but instanciation of this inner 
+     * Original implementation used a struct, but instantiation of this inner
      * class + array was a convoluted pain.
      */
     /**
@@ -219,7 +219,7 @@ public class ListSort<T> {
         while (remaining != 0) {
             int runLength = getRunLength(array, low, high, comparator);
 
-            /* if runlength is below the threshold we binary sort the remaining 
+            /* if run length is below the threshold we binary sort the remaining
              * elements
              */
             if (runLength < minLength) {
@@ -281,8 +281,8 @@ public class ListSort<T> {
                     runEnd++;
                 }
                 // the run's order is descending, it has to be reversed
-                // original algorithmm return a descending = 1 value and the 
-                //reverse is done in the sort method. Looks good to have it here though
+                // original algorithm returned a descending = 1 value and the
+                // reverse was done in the sort method. Looks good to have it here though
                 reverseArray(array, firstId, runEnd);
             }
 
@@ -293,7 +293,7 @@ public class ListSort<T> {
     }
 
     /**
-     * binarysort is the best method for sorting small arrays: it does few
+     * Binary sort is the best method for sorting small arrays: it does few
      * compares, but can do data movement quadratic in the number of elements.
      * [firstId, lastId] is a contiguous slice of a list, and is sorted via
      * binary insertion. This sort is stable. On entry, must have firstId <=

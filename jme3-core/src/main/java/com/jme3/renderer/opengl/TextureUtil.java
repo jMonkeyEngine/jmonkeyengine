@@ -351,7 +351,7 @@ final class TextureUtil {
         }
 
         if (src.getMipMapSizes() != null) {
-            throw new UnsupportedOperationException("Updating mip-mappped images is not supported");
+            throw new UnsupportedOperationException("Updating mip-mapped images is not supported");
         }
 
         if (src.getMultiSamples() > 1) {

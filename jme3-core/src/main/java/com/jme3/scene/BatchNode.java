@@ -254,7 +254,7 @@ public class BatchNode extends GeometryGroupNode {
         }
     }
 
-    //in case the detached spatial is a node, we unbatch all geometries in its subegraph
+    //in case the detached spatial is a node, we unbatch all geometries in its subgraph
     @Override
     public Spatial detachChildAt(int index) {
         Spatial s = super.detachChildAt(index);

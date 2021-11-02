@@ -363,7 +363,7 @@ public class EnvironmentCamera extends BaseAppState {
     }
 
     /**
-     * creates an offsceen VP
+     * creates an off-screen VP
      *
      * @param name the desired name for the offscreen viewport
      * @param offCamera the Camera to be used (alias created)

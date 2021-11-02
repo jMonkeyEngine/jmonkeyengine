@@ -53,7 +53,7 @@ import java.util.ArrayList;
  * vehicle model as provided in btRaycastVehicle. Instead of simulation each wheel
  * and chassis as separate rigid bodies, connected by constraints, it uses a simplified model.
  * This simplified model has many benefits, and is widely used in commercial driving games.<br>
- * The entire vehicle is represented as a single rigidbody, the chassis.
+ * The entire vehicle is represented as a single rigid body, the chassis.
  * The collision detection of the wheels is approximated by ray casts,
  * and the tire friction is a basic anisotropic friction model.
  * </p>
@@ -115,7 +115,7 @@ public class PhysicsVehicle extends PhysicsRigidBody {
     }
 
     /**
-     * Used internally, creates the actual vehicle constraint when vehicle is added to phyicsspace
+     * Used internally, creates the actual vehicle constraint when vehicle is added to physics space
      * 
      * @param space the PhysicsSpace to use (alias created) or null for none
      */
@@ -378,7 +378,7 @@ public class PhysicsVehicle extends PhysicsRigidBody {
     /**
      * Use before adding wheels, this is the default used when adding wheels.
      * After adding the wheel, use direct wheel access.<br>
-     * The stiffness constant for the suspension.  10.0 - Offroad buggy, 50.0 - Sports car, 200.0 - F1 Car
+     * The stiffness constant for the suspension.  10.0 - Off-road buggy, 50.0 - Sports car, 200.0 - F1 Car
      *
      * @param suspensionStiffness the desired stiffness coefficient
      * (10&rarr;off-road buggy, 50&rarr;sports car, 200&rarr;Formula-1 race car,
@@ -389,7 +389,7 @@ public class PhysicsVehicle extends PhysicsRigidBody {
     }
 
     /**
-     * The stiffness constant for the suspension.  10.0 - Offroad buggy, 50.0 - Sports car, 200.0 - F1 Car
+     * The stiffness constant for the suspension.  10.0 - Off-road buggy, 50.0 - Sports car, 200.0 - F1 Car
      *
      * @param wheel the index of the wheel to modify (&ge;0, &lt;count)
      * @param suspensionStiffness the desired stiffness coefficient

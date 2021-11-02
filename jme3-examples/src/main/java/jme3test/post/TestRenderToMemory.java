@@ -66,7 +66,7 @@ import javax.swing.SwingUtilities;
 
 /**
  * This test renders a scene to an offscreen framebuffer, then copies
- * the contents to a Swing JFrame. Note that some parts are done inefficently,
+ * the contents to a Swing JFrame. Note that some parts are done inefficiently,
  * this is done to make the code more readable.
  */
 public class TestRenderToMemory extends SimpleApplication implements SceneProcessor {

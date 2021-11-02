@@ -253,7 +253,7 @@ public class ParticleEmitter extends Geometry {
         setMeshType(meshType);
 
         // change in behavior: temp and lastPos were not cloned before...
-        // perhaps because it was believed that 'transient' fields were exluded
+        // perhaps because it was believed that 'transient' fields were excluded
         // from cloning?  (they aren't)
         // If it was ok for these to be shared because of how they are used
         // then they could just as well be made static... else I think it's clearer

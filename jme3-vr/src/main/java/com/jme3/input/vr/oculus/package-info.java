@@ -30,6 +30,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 /**
- * user-input classes for Occulus Rift headsets
+ * user-input classes for Oculus Rift headsets
  */
 package com.jme3.input.vr.oculus;

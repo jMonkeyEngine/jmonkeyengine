@@ -163,7 +163,7 @@ public class LwjglContext extends Context {
     }
 
     @Override
-    public Image bindImage(com.jme3.texture.Image image, Texture.Type textureType, int miplevel, MemoryAccess access) {
+    public Image bindImage(com.jme3.texture.Image image, Texture.Type textureType, int mipLevel, MemoryAccess access) {
         int imageID = image.getId();
         if (imageID == -1) {
             throw new IllegalArgumentException("image was not yet uploaded to the GPU");
@@ -171,7 +171,7 @@ public class LwjglContext extends Context {
         long memFlags = Utils.getMemoryAccessFlags(access);
         int textureTarget = convertTextureType(textureType);
         Utils.errorBuffer.rewind();
-        CLMem mem = CL12GL.clCreateFromGLTexture(context, memFlags, textureTarget, miplevel, imageID, Utils.errorBuffer);
+        CLMem mem = CL12GL.clCreateFromGLTexture(context, memFlags, textureTarget, mipLevel, imageID, Utils.errorBuffer);
         Utils.checkError(Utils.errorBuffer, "clCreateFromGLTexture");
         return new LwjglImage(mem);
     }

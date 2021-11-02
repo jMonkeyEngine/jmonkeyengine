@@ -52,7 +52,7 @@ import java.util.logging.Logger;
  * An AudioNode is either positional or ambient, with positional being the
  * default. Once a positional node is attached to the scene, its location and
  * velocity relative to the {@link Listener} affect how it sounds when played.
- * Positional nodes can only play monoaural (single-channel) assets, not stereo
+ * Positional nodes can only play monaural (single-channel) assets, not stereo
  * ones.
  *
  * An ambient AudioNode plays in "headspace", meaning that the node's location

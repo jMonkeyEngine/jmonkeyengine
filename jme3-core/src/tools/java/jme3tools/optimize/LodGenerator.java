@@ -78,7 +78,7 @@ import java.util.logging.Logger;
  * based on Stan Melax "easy mesh simplification". The MIT licenced C++ source
  * code can be found here
  * https://github.com/worldforge/ember/tree/master/src/components/ogre/lod more
- * informations can be found here http://www.melax.com/polychop
+ * information can be found here http://www.melax.com/polychop
  * http://sajty.elementfx.com/progressivemesh/GSoC2012.pdf </p>
  *
  * <p>The algorithm sorts vertices according to their collapse cost in
@@ -86,8 +86,8 @@ import java.util.logging.Logger;
  * <strong>Usage : </strong><br>
  * <pre>
  *      LodGenerator lODGenerator = new LodGenerator(geometry);
- *      lODGenerator.bakeLods(reductionMethod,reductionvalue);
- * </pre> redutionMethod type is VertexReductionMethod described here
+ *      lODGenerator.bakeLods(reductionMethod,reductionValue);
+ * </pre> reductionMethod type is VertexReductionMethod described here
  * {@link TriangleReductionMethod} reduction value depends on the
  * reductionMethod<p>
  *
@@ -456,7 +456,7 @@ public class LodGenerator {
                 // Collapsing ALONG a border
                 // We can't use curvature to measure the effect on the model
                 // Instead, see what effect it has on 'pulling' the other border edges
-                // The more colinear, the less effect it will have
+                // The more collinear, the less effect it will have
                 // So measure the 'kinkiness' (for want of a better term)
 
                 // Find the only triangle using this edge.

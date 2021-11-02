@@ -152,7 +152,7 @@ public class FbxReader {
 		if(encoding == 1)
 			data = inflate(data);
 		if(data.length != count * bytes)
-			throw new IOException("Wrong data lenght. Expected: " + count * bytes + ", got: " + data.length);
+			throw new IOException("Wrong data length. Expected: " + count * bytes + ", got: " + data.length);
 		ByteBuffer dis = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN);
 		switch(type) {
 		case 'f':

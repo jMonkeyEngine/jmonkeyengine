@@ -202,7 +202,7 @@ public class JmeBatchRenderBackend implements BatchRenderBackend {
             return atlasId;
         } catch (Exception e) {
             log.log(Level.WARNING, e.getMessage(), e);
-            return 0; // TODO Nifty always expects this call to be successfull
+            return 0; // TODO Nifty always expects this call to be successful
             // there currently is no way to return failure or something :/
         }
     }

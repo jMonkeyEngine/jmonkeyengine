@@ -45,6 +45,10 @@ import com.jme3.texture.Image;
  * internally to reduce state changes. NOTE: This class is specific to OpenGL.
  */
 public class RenderContext {
+    /**
+     * number of texture units that JME supports
+     */
+    final public static int maxTextureUnits = 16;
 
     /**
      * @see RenderState#setFaceCullMode(com.jme3.material.RenderState.FaceCullMode)
@@ -217,7 +221,8 @@ public class RenderContext {
      *
      * @see Renderer#setTexture(int, com.jme3.texture.Texture)
      */
-    public final WeakReference<Image> boundTextures[] = new WeakReference[16];
+    public final WeakReference<Image> boundTextures[]
+            = new WeakReference[maxTextureUnits];
 
     /**
      * IDList for texture units

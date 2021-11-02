@@ -140,6 +140,7 @@ public class NativeObjectManager {
                 }
 
                 assert ref == null || ref == ref2;
+                ref2.clear();
 
                 int id = obj.getId();
 

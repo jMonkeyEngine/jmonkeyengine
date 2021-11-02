@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,7 +39,7 @@ class ByteAlignedImageCodec extends ImageCodec {
     boolean be;
     
     public ByteAlignedImageCodec(int bpp, int flags, int az, int rz, int gz, int bz, int ap, int rp, int gp, int bp) {
-        // Cast to long to compute max vals, since some components could be as high as 32 bits.
+        // Cast to long to compute max values, since some components could be as high as 32 bits.
         super(bpp, flags, 
                 (int)(((long)1 << (az << 3)) - 1), 
                 (int)(((long)1 << (rz << 3)) - 1), 

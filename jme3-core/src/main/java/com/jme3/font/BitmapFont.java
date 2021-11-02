@@ -191,7 +191,7 @@ public class BitmapFont implements Savable {
         //
         // The way BitmapText ultimately works is that the first character
         // starts with xOffset included (ie: it is rendered at -xOffset).
-        // Its xAdvance is wider to accomodate that initial offset.
+        // Its xAdvance is wider to accommodate that initial offset.
         // The cursor position is advanced by xAdvance each time.
         //
         // So, a width should be calculated in a similar way.  Start with
@@ -231,7 +231,7 @@ public class BitmapFont implements Savable {
                     lineWidth += findKerningAmount(lastChar, theChar) * sizeScale;                    
                 } else {
                     // The first character needs to add in its xOffset but it
-                    // is the only one... and negative offsets = postive width
+                    // is the only one... and negative offsets = positive width
                     // because we're trying to account for the part that hangs
                     // over the left.  So we subtract. 
                     lineWidth -= c.getXOffset() * sizeScale;                    

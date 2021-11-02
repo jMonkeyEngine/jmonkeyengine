@@ -268,7 +268,7 @@ public final class UserData implements Savable {
                 } else if (o instanceof Boolean) {
                     oc.write(TYPE_BOOLEAN, listName + "t" + counter, 0);
                     oc.write((Boolean) o, listName + "v" + counter, false);
-                } else if (o instanceof String || o == null) {// treat null's like Strings just to store them and keep the List like the user intended
+                } else if (o instanceof String || o == null) {// treat nulls like Strings just to store them and keep the List like the user intended
                     oc.write(TYPE_STRING, listName + "t" + counter, 0);
                     oc.write((String) o, listName + "v" + counter, null);
                 } else if (o instanceof Long) {

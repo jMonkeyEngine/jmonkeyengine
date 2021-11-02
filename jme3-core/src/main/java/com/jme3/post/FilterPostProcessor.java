@@ -157,7 +157,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         
         Camera cam = vp.getCamera();
 
-        //save view port diensions
+        //save view port dimensions
         left = cam.getViewPortLeft();
         right = cam.getViewPortRight();
         top = cam.getViewPortTop();
@@ -359,7 +359,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         } else {
            setupViewPortFrameBuffer();
            //if we are in a multiview situation we need to resize the camera 
-           //to the viewportsize so that the backbuffer is rendered correctly
+           //to the viewport size so that the back buffer is rendered correctly
            if (multiView) {
                 viewPort.getCamera().resize(width, height, false);
                 viewPort.getCamera().setViewPort(0, 1, 0, 1);
@@ -398,7 +398,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         for (int i = filters.size() - 1; i >= 0 && lastFilterIndex == -1; i--) {
             if (filters.get(i).isEnabled()) {
                 lastFilterIndex = i;
-                //the Fpp is initialized, but the viwport framebuffer is the 
+                //the Fpp is initialized, but the viewport framebuffer is the
                 //original out framebuffer so we must recover from a situation 
                 //where no filter was enabled. So we set the correct framebuffer 
                 //on the viewport

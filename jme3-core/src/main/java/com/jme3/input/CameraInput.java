@@ -78,7 +78,7 @@ public class CameraInput {
     
         
     
-    //fly cameara constants
+    //fly camera constants
     /**
      * Fly camera mapping to look left. Default assigned to MouseInput.AXIS_X,
      * direction negative

@@ -80,7 +80,7 @@ public abstract class Serializer {
     
     public static void initialize() {
 
-        // Reset all of the inexes and tracking variables just in case
+        // Reset all of the indices and tracking variables just in case
         idRegistrations.clear();
         classRegistrations.clear();
         registrations.clear();        
@@ -446,7 +446,7 @@ public abstract class Serializer {
         // In that case, the SerializerRegistration object we get back isn't
         // really going to be capable of recreating the object on the other
         // end because it won't know what class to use.  This only comes up
-        // in writeclassAndObejct() because we just wrote an ID to a more generic
+        // in writeClassAndObject() because we just wrote an ID to a more generic
         // class than will be readable on the other end.  The check is simple, though.
         if( reg.getType() != object.getClass() ) {
             throw new IllegalArgumentException("Class has not been registered:" 

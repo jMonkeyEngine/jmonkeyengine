@@ -543,7 +543,7 @@ public class GltfLoader implements AssetLoader {
         assertNotNull(byteLength, "No byte length defined for bufferView " + bufferViewIndex);
         int byteStride = getAsInteger(bufferView, "byteStride", 0);
 
-        //target defines ELEMENT_ARRAY_BUFFER or ARRAY_BUFFER, but we already know that since we know we load the indexbuffer or any other...
+        //target defines ELEMENT_ARRAY_BUFFER or ARRAY_BUFFER, but we already know that since we know we load the index buffer or any other...
         //not sure it's useful for us, but I guess it's useful when you map data directly to the GPU.
         //int target = getAsInteger(bufferView, "target", 0);
 
@@ -684,11 +684,11 @@ public class GltfLoader implements AssetLoader {
                 float aspectRatio = getAsFloat(camData, "aspectRation", 1f);
                 Float yfov = getAsFloat(camData, "yfov");
                 assertNotNull(yfov, "No yfov for perspective camera");
-                Float znear = getAsFloat(camData, "znear");
-                assertNotNull(znear, "No znear for perspective camere");
-                Float zfar = getAsFloat(camData, "zfar", znear * 1000f);
+                Float zNear = getAsFloat(camData, "znear");
+                assertNotNull(zNear, "No znear for perspective camera");
+                Float zFar = getAsFloat(camData, "zfar", zNear * 1000f);
 
-                cam.setFrustumPerspective(yfov * FastMath.RAD_TO_DEG, aspectRatio, znear, zfar);
+                cam.setFrustumPerspective(yfov * FastMath.RAD_TO_DEG, aspectRatio, zNear, zFar);
                 cam = customContentManager.readExtensionAndExtras("camera.perspective", camData, cam);
 
             } else {
@@ -696,13 +696,13 @@ public class GltfLoader implements AssetLoader {
                 assertNotNull(xmag, "No xmag for orthographic camera");
                 Float ymag = getAsFloat(camData, "ymag");
                 assertNotNull(ymag, "No ymag for orthographic camera");
-                Float znear = getAsFloat(camData, "znear");
-                assertNotNull(znear, "No znear for orthographic camere");
-                Float zfar = getAsFloat(camData, "zfar", znear * 1000f);
-                assertNotNull(zfar, "No zfar for orthographic camera");
+                Float zNear = getAsFloat(camData, "znear");
+                assertNotNull(zNear, "No znear for orthographic camere");
+                Float zFar = getAsFloat(camData, "zfar", zNear * 1000f);
+                assertNotNull(zFar, "No zfar for orthographic camera");
 
                 cam.setParallelProjection(true);
-                cam.setFrustum(znear, zfar, -xmag, xmag, ymag, -ymag);
+                cam.setFrustum(zNear, zFar, -xmag, xmag, ymag, -ymag);
 
                 cam = customContentManager.readExtensionAndExtras("camera.orthographic", camData, cam);
             }
@@ -943,7 +943,7 @@ public class GltfLoader implements AssetLoader {
 
         if (!spatials.isEmpty()) {
             if (skinIndex != -1) {
-                //there are some spatial or moph tracks in this bone animation... or the other way around. Let's add the spatials in the skinnedSpatials.
+                //there are some spatial or morph tracks in this bone animation... or the other way around. Let's add the spatials in the skinnedSpatials.
                 SkinData skin = fetchFromCache("skins", skinIndex, SkinData.class);
                 List<Spatial> spat = skinnedSpatials.get(skin);
                 spat.addAll(spatials);
@@ -1323,7 +1323,7 @@ public class GltfLoader implements AssetLoader {
 
     }
 //
-//    private class FloaGridPopulator implements Populator<float[]> {
+//    private class FloatGridPopulator implements Populator<float[]> {
 //
 //        @Override
 //        public float[][] populate(Integer bufferViewIndex, int componentType, String type, int count, int byteOffset, boolean normalized) throws IOException {

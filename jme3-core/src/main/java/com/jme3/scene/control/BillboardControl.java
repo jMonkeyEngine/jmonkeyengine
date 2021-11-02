@@ -148,7 +148,7 @@ public class BillboardControl extends AbstractControl {
     private void rotateCameraAligned(Camera camera) {
         look.set(camera.getLocation()).subtractLocal(
                 spatial.getWorldTranslation());
-        // coopt left for our own purposes.
+        // co-opt left for our own purposes.
         Vector3f xzp = left;
         // The xzp vector is the projection of the look vector on the xz plane
         xzp.set(look.x, 0, look.z);
@@ -187,9 +187,9 @@ public class BillboardControl extends AbstractControl {
      *            Camera
      */
     private void rotateScreenAligned(Camera camera) {
-        // coopt diff for our in direction:
+        // co-opt diff for our in direction:
         look.set(camera.getDirection()).negateLocal();
-        // coopt loc for our left direction:
+        // co-opt loc for our left direction:
         left.set(camera.getLeft()).negateLocal();
         orient.fromAxes(left, camera.getUp(), look);
         Node parent = spatial.getParent();
@@ -214,8 +214,7 @@ public class BillboardControl extends AbstractControl {
         // the model space of the billboard.
         look.set(camera.getLocation()).subtractLocal(
                 spatial.getWorldTranslation());   
-        spatial.getParent().getWorldRotation().mult(look, left); // coopt left for our own
-        // purposes.
+        spatial.getParent().getWorldRotation().mult(look, left); // co-opt left for our own purposes.
         left.x *= 1.0f / spatial.getWorldScale().x;
         left.y *= 1.0f / spatial.getWorldScale().y;
         left.z *= 1.0f / spatial.getWorldScale().z;

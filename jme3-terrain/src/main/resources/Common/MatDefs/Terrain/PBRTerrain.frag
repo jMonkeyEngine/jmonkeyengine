@@ -660,12 +660,12 @@ void main(){
     normal = norm;
 
 
-    afflictionVector = vec4(1.0, 0.0, 1.0, 0.0); //r channel is sturation, g channel is affliction splat texture intensity, b and a unused (might use b channel for wetness eventually)
+    afflictionVector = vec4(1.0, 0.0, 1.0, 0.0); //r channel is saturation, g channel is affliction splat texture intensity, b and a unused (might use b channel for wetness eventually)
     
     #ifdef AFFLICTIONTEXTURE
     
         #ifdef TILELOCATION 
-        //subterrains that are not centred in tile or equal to tile width in total size need to have m_TileWidth pre-set. (tileWidth is the x,z dimesnions that the AfflictionAlphaMap represents)..
+        //subterrains that are not centred in tile or equal to tile width in total size need to have m_TileWidth pre-set. (tileWidth is the x,z dimensions that the AfflictionAlphaMap represents)..
             vec2 tileCoords;
             float xPos, zPos;
 
@@ -683,7 +683,7 @@ void main(){
         
      
         #else
-           // ..othrewise when terrain size matches tileWidth, the terrain's texCoords can be used for simple texel fetching of the AfflictionAlphaMap
+           // .. otherwise when terrain size matches tileWidth, the terrain's texCoords can be used for simple texel fetching of the AfflictionAlphaMap
             afflictionVector = texture2D(m_AfflictionAlphaMap, texCoord.xy).rgba;
         #endif
     #endif
@@ -832,7 +832,7 @@ gl_FragColor.rgb = vec3(0.0);
   
     #ifdef STATIC_SUN_INTENSITY
         indoorSunLightExposure = m_StaticSunIntensity; //single float value to indicate percentage of
-                           //sunlight hitting the model (only works for small models or models with 100% consistent sunlighting accross every pixel)
+                           //sunlight hitting the model (only works for small models or models with 100% consistent sunlight across every pixel)
     #endif
     #ifdef USE_VERTEX_COLORS_AS_SUN_INTENSITY
         indoorSunLightExposure = vertColors.r * indoorSunLightExposure;      //use R channel of vertexColors for..       
@@ -840,7 +840,7 @@ gl_FragColor.rgb = vec3(0.0);
                                                                // similar purpose as above...
                                                              //but uses r channel vert colors like an AO map specifically
                                                                  //for sunlight (solution for scaling lighting for indoor
-                                                                  // and shadey/dimly lit models, especially big ones with)
+                                                                  // and shady/dimly lit models, especially big ones with)
     brightestPointLight = 0.0;
     
      

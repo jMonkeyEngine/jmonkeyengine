@@ -151,7 +151,7 @@ public class TerrainPatch extends Geometry {
     /**
      * Constructor instantiates a new <code>TerrainPatch</code> object. The
      * parameters and heightmap data are then processed to generate a
-     * <code>TriMesh</code> object for renderering.
+     * <code>TriMesh</code> object for rendering.
      *
      * @param name
      *			the name of the terrain patch.

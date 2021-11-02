@@ -220,8 +220,8 @@ public class RollingTheMonkey extends SimpleApplication implements ActionListene
         Quaternion rotation = new Quaternion();
         Vector3f translation = new Vector3f(0.0f, PICKUP_SIZE * 1.5f, -PICKUP_RADIUS);
         int index = 0;
-        float ammount = FastMath.TWO_PI / PICKUP_COUNT;
-        for(float angle = 0; angle < FastMath.TWO_PI; angle += ammount) {
+        float amount = FastMath.TWO_PI / PICKUP_COUNT;
+        for(float angle = 0; angle < FastMath.TWO_PI; angle += amount) {
             Geometry pickUp = new Geometry("pickUp" + (index++), new Box(PICKUP_SIZE,PICKUP_SIZE, PICKUP_SIZE));
             pickUp.setShadowMode(ShadowMode.CastAndReceive);
             pickUp.setMaterial(materialYellow);
@@ -321,7 +321,7 @@ public class RollingTheMonkey extends SimpleApplication implements ActionListene
         if(keyRight) centralForce.addLocal(cam.getLeft().negate());
         
         if(!Vector3f.ZERO.equals(centralForce)) {
-            centralForce.setY(0);                   // stop ball from pusing down or flying up
+            centralForce.setY(0);                   // stop ball from pushing down or flying up
             centralForce.normalizeLocal();          // normalize force
             centralForce.multLocal(PLAYER_FORCE);   // scale vector to force
 

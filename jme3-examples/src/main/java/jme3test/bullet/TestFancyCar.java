@@ -123,10 +123,10 @@ public class TestFancyCar extends SimpleApplication implements ActionListener {
         //Load model and get chassis Geometry
         carNode = (Node) assetManager.loadModel("Models/Ferrari/Car.scene");
         carNode.setShadowMode(ShadowMode.Cast);
-        Geometry chasis = findGeom(carNode, "Car");
+        Geometry chassis = findGeom(carNode, "Car");
 
         //Create a hull collision shape for the chassis
-        CollisionShape carHull = CollisionShapeFactory.createDynamicMeshShape(chasis);
+        CollisionShape carHull = CollisionShapeFactory.createDynamicMeshShape(chassis);
 
         //Create a vehicle control
         player = new VehicleControl(carHull, mass);

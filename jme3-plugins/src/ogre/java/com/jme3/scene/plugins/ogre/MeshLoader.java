@@ -285,17 +285,17 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
         geoms.add(geom);
     }
 
-    private void startSharedGeom(String vertexcount) throws SAXException {
+    private void startSharedGeom(String vertexCount) throws SAXException {
         sharedMesh = new Mesh();
-        vertCount = parseInt(vertexcount);
+        vertCount = parseInt(vertexCount);
         usesSharedVerts = false;
 
         geom = null;
         mesh = sharedMesh;
     }
 
-    private void startGeometry(String vertexcount) throws SAXException {
-        vertCount = parseInt(vertexcount);
+    private void startGeometry(String vertexCount) throws SAXException {
+        vertCount = parseInt(vertexCount);
     }
 
     /**

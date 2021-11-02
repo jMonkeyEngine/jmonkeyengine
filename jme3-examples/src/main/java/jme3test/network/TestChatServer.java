@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011 jMonkeyEngine
+ * Copyright (c) 2011-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -129,7 +129,7 @@ public class TestChatServer {
 
     public static void main(String... args) throws Exception {
  
-        // Increate the logging level for networking...
+        // Increase the logging level for networking...
         System.out.println("Setting logging to max");
         Logger networkLog = Logger.getLogger("com.jme3.network"); 
         networkLog.setLevel(Level.FINEST);

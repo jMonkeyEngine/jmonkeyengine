@@ -90,25 +90,25 @@ public class FbxSkin extends FbxObject {
 					int v = dstVertices.get(j);
 					// Append bone index and weight to vertex
 					int offset;
-					int smalestOffset = 0;
+					int smallestOffset = 0;
 					float w = 0;
-					float smalestW = Float.MAX_VALUE;
+					float smallestW = Float.MAX_VALUE;
 					for(offset = v * 4; offset < v * 4 + 4; ++offset) {
 						w = boneWeightData.get(offset);
 						if(w == 0)
 							break;
-						if(w < smalestW) {
-							smalestW = w;
-							smalestOffset = offset;
+						if(w < smallestW) {
+							smallestW = w;
+							smallestOffset = offset;
 						}
 					}
 					if(w == 0) {
 						boneWeightData.put(offset, (float) cluster.weights[i]);
 						boneIndicesData.put(offset, (byte) limb.boneIndex);
 					} else {
-						if((float) cluster.weights[i] > smalestW) { // If current weight more than smallest, discard smallest
-							boneWeightData.put(smalestOffset, (float) cluster.weights[i]);
-							boneIndicesData.put(smalestOffset, (byte) limb.boneIndex);
+						if((float) cluster.weights[i] > smallestW) { // If current weight more than smallest, discard smallest
+							boneWeightData.put(smallestOffset, (float) cluster.weights[i]);
+							boneIndicesData.put(smallestOffset, (byte) limb.boneIndex);
 						}
 						bonesLimitExceeded++;
 					}

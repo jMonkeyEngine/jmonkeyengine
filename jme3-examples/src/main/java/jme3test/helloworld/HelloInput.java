@@ -45,7 +45,7 @@ import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
 
-/** Sample 5 - how to map keys and mousebuttons to actions */
+/** Sample 5 - how to map keys and mouse buttons to actions */
 public class HelloInput extends SimpleApplication {
 
   public static void main(String[] args) {

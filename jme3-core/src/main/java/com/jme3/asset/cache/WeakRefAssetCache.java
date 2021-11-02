@@ -40,7 +40,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * A garbage collector bound asset cache that handles non-clonable objects.
+ * A garbage collector bound asset cache that handles non-cloneable objects.
  * This cache assumes that the asset given to the user is the same asset
  * that has been stored in the cache, in other words, 
  * {@link AssetProcessor#createClone(java.lang.Object) } for that asset
@@ -88,7 +88,7 @@ public class WeakRefAssetCache implements AssetCache {
     public <T> void addToCache(AssetKey<T> key, T obj) {
         removeCollectedAssets();
         
-        // NOTE: Some thread issues can hapen if another
+        // NOTE: Some thread issues can happen if another
         // thread is loading an asset with the same key ..
         AssetRef ref = new AssetRef(key, obj, refQueue);
         assetCache.put(key, ref);

@@ -4,7 +4,7 @@ ShaderNodesDefinitions {
         Shader GLSL100: Common/MatDefs/ShaderNodes/Common/commonVert.vert
         Documentation {
             This Node is responsible for computing vertex position in projection space.
-            It also can pass texture coordinates 1 & 2, and vertexColor to the frgment shader as varying (or inputs for glsl >=1.3)                   
+            It also can pass texture coordinates 1 & 2, and vertexColor to the fragment shader as varying (or inputs for glsl >=1.3)
             @input modelPosition the vertex position in model space (usually assigned with Attr.inPosition or Global.position)
             @input worldViewProjectionMatrix the World View Projection Matrix transforms model space to projection space.
             @input texCoord1 The first texture coordinates of the vertex (usually assigned with Attr.inTexCoord)

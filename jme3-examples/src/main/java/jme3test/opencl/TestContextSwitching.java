@@ -59,7 +59,7 @@ public class TestContextSwitching extends SimpleApplication implements ScreenCon
     private static String selectedPlatform;
     private static String selectedDevice;
     private Context clContext;
-    private static List<? extends Platform> availabePlatforms;
+    private static List<? extends Platform> availablePlatforms;
     private Buffer testBuffer;
     private boolean bufferCreated;
 
@@ -119,7 +119,7 @@ public class TestContextSwitching extends SimpleApplication implements ScreenCon
         updateInfos();
         
         platformListBox.clear();
-        for (Platform p : availabePlatforms) {
+        for (Platform p : availablePlatforms) {
             platformListBox.addItem(p.getName());
         }
         platformListBox.selectItem(selectedPlatform);
@@ -158,14 +158,14 @@ public class TestContextSwitching extends SimpleApplication implements ScreenCon
 
     @NiftyEventSubscriber(id="ApplyButton")
     public void onButton(String id, ButtonClickedEvent event) {
-        LOG.log(Level.INFO, "Change context: platorm={0}, device={1}", new Object[]{selectedPlatform, selectedDevice});
+        LOG.log(Level.INFO, "Change context: platform={0}, device={1}", new Object[]{selectedPlatform, selectedDevice});
         restart();
     }
     
     private void changePlatform(String platform) {
         selectedPlatform = platform;
         Platform p = null;
-        for (Platform p2 : availabePlatforms) {
+        for (Platform p2 : availablePlatforms) {
             if (p2.getName().equals(selectedPlatform)) {
                 p = p2;
                 break;
@@ -212,7 +212,7 @@ public class TestContextSwitching extends SimpleApplication implements ScreenCon
         
         @Override
         public List<? extends Device> chooseDevices(List<? extends Platform> platforms) {
-            availabePlatforms = platforms;
+            availablePlatforms = platforms;
             
             Platform platform = null;
             for (Platform p : platforms) {

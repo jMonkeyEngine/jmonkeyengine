@@ -93,10 +93,10 @@ class BitmapTextPage extends Geometry {
          * - Skye (sbook)
          */
         if (arrayBased) {
-            pos = new float[4 * 3];  // 4 verticies * 3 floats
-            tc = new float[4 * 2];  // 4 verticies * 2 floats
+            pos = new float[4 * 3];  // 4 vertices * 3 floats
+            tc = new float[4 * 2];  // 4 vertices * 2 floats
             idx = new short[2 * 3];  // 2 triangles * 3 indices
-            color = new byte[4 * 4];   // 4 verticies * 4 bytes
+            color = new byte[4 * 4];   // 4 vertices * 4 bytes
         } else {
             pos = null;
             tc = null;

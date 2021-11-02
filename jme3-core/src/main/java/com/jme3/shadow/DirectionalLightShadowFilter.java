@@ -57,7 +57,7 @@ import java.io.IOException;
 public class DirectionalLightShadowFilter extends AbstractShadowFilter<DirectionalLightShadowRenderer> {
 
     /**
-     * Used for serialzation.
+     * Used for serialization.
      * Use DirectionalLightShadowFilter#DirectionalLightShadowFilter
      * (AssetManager assetManager, int shadowMapSize, int nbSplits)
      * instead.

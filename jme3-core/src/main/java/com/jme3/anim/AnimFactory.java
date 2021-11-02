@@ -58,7 +58,7 @@ import java.util.TreeSet;
  * it's possible for
  * {@link #buildAnimation(com.jme3.anim.util.HasLocalTransform)} to negate the
  * final rotation. To prevent an unwanted rotation at the end of the loop, you
- * may need to add intemediate rotation keyframes.
+ * may need to add intermediate rotation keyframes.
  *
  * Inspired by Nehon's {@link com.jme3.animation.AnimationFactory}.
  */

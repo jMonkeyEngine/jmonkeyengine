@@ -92,7 +92,7 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
     }
 
     /**
-     * Builds/rebuilds the phyiscs body when parameters have changed
+     * Builds/rebuilds the physics body when parameters have changed
      */
     protected void rebuildRigidBody() {
         boolean removed = false;
@@ -440,7 +440,7 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
     }
 
     /**
-     * The "bouncyness" of the PhysicsRigidBody, best performance if restitution=0
+     * The "bounciness" of the PhysicsRigidBody, best performance if restitution=0
      *
      * @param restitution the desired value (default=0)
      */
@@ -592,7 +592,7 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
 
     /**
      * sets the sleeping thresholds, these define when the object gets deactivated
-     * to save ressources. Low values keep the object active when it barely moves
+     * to save resources. Low values keep the object active when it barely moves
      * @param linear the linear sleeping threshold
      * @param angular the angular sleeping threshold
      */

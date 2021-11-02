@@ -156,7 +156,7 @@ public class LazyMessageBuffer implements MessageBuffer {
                 // change.  We are already creating per-message byte buffers.
                 // ...so we might as well just buffer this in our queue instead.
                 // The alternative is to somehow have an open-ended working buffer
-                // that expands/shrinks as needed to accomodate the 'unknown' number
+                // that expands/shrinks as needed to accommodate the 'unknown' number
                 // of messages that must be buffered before the caller asks for
                 // one.  Obviously, that's way more wasteful than just keeping
                 // per-message byte buffers around.  We already had them anyway.

@@ -8,8 +8,8 @@ uniform vec3 m_FogColor;
 
 // x == density
 // y == factor
-// z == ystart
-// w == yend
+// z == yStart
+// w == yEnd
 uniform vec4 m_FogParams;
 
 varying vec3 fogCoord;

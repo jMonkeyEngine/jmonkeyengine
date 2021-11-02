@@ -66,14 +66,14 @@ public class CurveAndSurfaceMath {
         List<Float> knots = nurbSpline.getKnots();
         int controlPointAmount = controlPoints.size();
         store.set(Vector3f.ZERO);
-        float delimeter = 0;
+        float delimiter = 0;
         for (int i = 0; i < controlPointAmount; ++i) {
             float val = weights[i] * CurveAndSurfaceMath.computeBaseFunctionValue(i, nurbSpline.getBasisFunctionDegree(), u, knots);
             store.addLocal(nurbSpline.getControlPoints().get(i)
                     .mult(val));
-            delimeter += val;
+            delimiter += val;
         }
-        store.divideLocal(delimeter);
+        store.divideLocal(delimiter);
     }
 
     /**
@@ -95,7 +95,7 @@ public class CurveAndSurfaceMath {
     public static void interpolate(float u, float v, List<List<Vector4f>> controlPoints, List<Float>[] knots,
             int basisUFunctionDegree, int basisVFunctionDegree, Vector3f store) {
         store.set(Vector3f.ZERO);
-        float delimeter = 0;
+        float delimiter = 0;
         int vControlPointsAmount = controlPoints.size();
         int uControlPointsAmount = controlPoints.get(0).size();
         for (int i = 0; i < vControlPointsAmount; ++i) {
@@ -105,10 +105,10 @@ public class CurveAndSurfaceMath {
                         * CurveAndSurfaceMath.computeBaseFunctionValue(i, basisVFunctionDegree, v, knots[1])
                         * CurveAndSurfaceMath.computeBaseFunctionValue(j, basisUFunctionDegree, u, knots[0]);
                 store.addLocal(controlPoint.x * val, controlPoint.y * val, controlPoint.z * val);
-                delimeter += val;
+                delimiter += val;
             }
         }
-        store.divideLocal(delimeter);
+        store.divideLocal(delimiter);
     }
 
     /**

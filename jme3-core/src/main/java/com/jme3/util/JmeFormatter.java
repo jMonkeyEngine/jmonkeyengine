@@ -46,13 +46,13 @@ import java.util.logging.LogRecord;
 public class JmeFormatter extends Formatter {
 
     final private Date calendar = new Date();
-    final private String lineSeperator;
+    final private String lineSeparator;
     final private MessageFormat format;
     final private Object args[] = new Object[1];
     final private StringBuffer store = new StringBuffer();
 
     public JmeFormatter(){
-        lineSeperator = System.getProperty("line.separator");
+        lineSeparator = System.getProperty("line.separator");
         format = new MessageFormat("{0,time}");
     }
 
@@ -74,7 +74,7 @@ public class JmeFormatter extends Formatter {
         sb.append(record.getLevel().getLocalizedName()).append(" ");
         sb.append(clazz).append(" ");
         sb.append(store.toString()).append(" ");
-        sb.append(formatMessage(record)).append(lineSeperator);
+        sb.append(formatMessage(record)).append(lineSeparator);
 
         if (record.getThrown() != null) {
             try {

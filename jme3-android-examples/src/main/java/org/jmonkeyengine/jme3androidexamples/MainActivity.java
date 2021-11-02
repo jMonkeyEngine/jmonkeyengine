@@ -263,7 +263,7 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
         boolean include = true;
         /* check to see if the class in inside the rootPackage package */
         if (className.startsWith(rootPackage)) {
-            /* check to see if the class contains any of the exlusion strings */
+            /* check to see if the class contains any of the exclusion strings */
             for (int i = 0; i < exclusions.size(); i++) {
                 if (className.contains(exclusions.get(i))) {
                     Log.d(TAG, "Skipping Class " + className + ". Includes exclusion string: " + exclusions.get(i) + ".");
@@ -364,7 +364,7 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
         setSelection(-1);
     }
 
-    public void afterTextChanged(Editable edtbl) {
+    public void afterTextChanged(Editable editable) {
     }
 
     @Override

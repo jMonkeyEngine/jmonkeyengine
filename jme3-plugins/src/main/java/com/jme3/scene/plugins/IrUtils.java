@@ -71,7 +71,7 @@ public final class IrUtils {
         IrVertex v2 = quad.vertices[2];
         IrVertex v3 = quad.vertices[3];
         
-        // find the pair of verticies that is closest to each over
+        // find the pair of vertices that is closest to each over
         // v0 and v2
         // OR
         // v1 and v3
@@ -344,7 +344,7 @@ public final class IrUtils {
             jmeMesh.setBuffer(indicesHW);
         }
         if (vertices.size() >= 65536) {
-            // too many verticies: use intbuffer instead of shortbuffer
+            // too many vertices: use IntBuffer instead of ShortBuffer
             IntBuffer ib = BufferUtils.createIntBuffer(indexes.size());
             jmeMesh.setBuffer(VertexBuffer.Type.Index, 3, ib);
             indexBuf = new IndexIntBuffer(ib);
@@ -381,7 +381,7 @@ public final class IrUtils {
                 if (vertex.boneWeightsIndices != null) {
                     if (vertex.boneWeightsIndices.length > 4) {
                         throw new UnsupportedOperationException("Mesh uses more than 4 weights per bone. " +
-                                                                "Call trimBoneWeights() to allieviate this");
+                                                                "Call trimBoneWeights() to alleviate this");
                     }
                     for (int i = 0; i < vertex.boneWeightsIndices.length; i++) {
                         boneIndices.put((byte) (vertex.boneWeightsIndices[i].boneIndex & 0xFF));

@@ -73,7 +73,7 @@ public abstract class AbstractKernel implements Kernel
     {
         // Should really be queued up so the outer thread can
         // retrieve them.  For now we'll just log it.  FIXME
-        log.log( Level.SEVERE, "Unhanddled kernel error", e );
+        log.log( Level.SEVERE, "Unhandled kernel error", e );
     }
 
     protected void wakeupReader() {
@@ -113,7 +113,7 @@ public abstract class AbstractKernel implements Kernel
     }
 
     /**
-     *  Removes and returnsn one endpoint event from the event queue or
+     *  Removes and returns one endpoint event from the event queue or
      *  null if there are no endpoint events.
      */
     @Override

@@ -494,7 +494,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
 
             timer = new NanoTimer();
 
-            // For canvas, this will create a pbuffer,
+            // For canvas, this will create a PBuffer,
             // allowing us to query information.
             // When the canvas context becomes available, it will
             // be replaced seamlessly.

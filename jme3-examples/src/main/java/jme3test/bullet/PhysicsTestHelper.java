@@ -221,7 +221,7 @@ public class PhysicsTestHelper {
     }
 
     /**
-     * creates the necessary inputlistener and action to shoot balls from the camera
+     * creates the necessary input listener and action to shoot balls from the camera
      *
      * @param app the application that's running
      * @param rootNode where ball geometries should be added

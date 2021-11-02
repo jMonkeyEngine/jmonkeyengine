@@ -183,7 +183,7 @@ public class OSVR implements VRAPI {
      * Grab the current GLFW context.
      */
     public void grabGLFWContext() {
-        // get current conext
+        // get current context
         wglGLFW = org.lwjgl.opengl.WGL.wglGetCurrentContext();
         glfwContext = org.lwjgl.glfw.GLFW.glfwGetCurrentContext();
     }

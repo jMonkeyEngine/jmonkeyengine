@@ -66,7 +66,7 @@ public abstract class ParticleMesh extends Mesh {
      * Initialize mesh data.
      * 
      * @param emitter The emitter which will use this <code>ParticleMesh</code>.
-     * @param numParticles The maxmimum number of particles to simulate
+     * @param numParticles The maximum number of particles to simulate
      */
     public abstract void initParticleData(ParticleEmitter emitter, int numParticles);
     

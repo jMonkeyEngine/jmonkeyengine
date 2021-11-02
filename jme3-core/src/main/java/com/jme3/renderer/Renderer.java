@@ -258,12 +258,14 @@ public interface Renderer {
     public void deleteFrameBuffer(FrameBuffer fb);
 
     /**
-     * Sets the texture to use for the given texture unit.
+     * Assign a Texture to the specified texture unit.
      *
-     * @param unit which unit
-     * @param tex the Texture to use
+     * @param unit the index of the texture unit (&ge;0)
+     * @param tex the Texture to assign
+     * @throws TextureUnitException if the texture unit doesn't exist
      */
-    public void setTexture(int unit, Texture tex);
+    public void setTexture(int unit, Texture tex)
+            throws TextureUnitException;
 
     /**
      * Modify the given Texture with the given Image.

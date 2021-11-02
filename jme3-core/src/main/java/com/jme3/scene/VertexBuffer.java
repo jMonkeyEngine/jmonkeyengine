@@ -198,7 +198,7 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
          * So we can support up to
          * 14 simultaneous POSITION targets
          * 7 simultaneous POSITION and NORMAL targets
-         * 4 simultaneous POSTION, NORMAL and TANGENT targets.
+         * 4 simultaneous POSITION, NORMAL and TANGENT targets.
          * <p>
          * Note that the MorphControl will find how many buffers
          * can be supported for each mesh/material combination.
@@ -932,7 +932,7 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
         int outPos = outIndex * components;
         int elementSz = components;
         if (format == Format.Half) {
-            // because half is stored as bytebuf but its 2 bytes long
+            // because half is stored as ByteBuffer but it's 2 bytes long
             inPos *= 2;
             outPos *= 2;
             elementSz *= 2;
@@ -1021,7 +1021,7 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
             case Double:
                 return BufferUtils.createDoubleBuffer(total);
             default:
-                throw new UnsupportedOperationException("Unrecoginized buffer format: " + format);
+                throw new UnsupportedOperationException("Unrecognized buffer format: " + format);
         }
     }
 

@@ -117,7 +117,7 @@ public class VRConstants {
      * <li>{@link VRConstants#SETTING_VRAPI_OPENVR_VALUE SETTING_VRAPI_OPENVR_VALUE}: Use OpenVR binding.
      * <li>{@link VRConstants#SETTING_VRAPI_OSVR_VALUE SETTING_VRAPI_OSVR_VALUE}: Use OSVR binding.
      * <li>{@link VRConstants#SETTING_VRAPI_OPENVR_LWJGL_VALUE SETTING_VRAPI_OPENVR_LWJGL_VALUE}: Use OpenVR binding from LWJGL.
-     * <li>{@link VRConstants#SETTING_VRAPI_OCULUSVR_VALUE SETTING_VRAPI_OCULUSVR_VALUE}: Use Occulus Rift binding binding.
+     * <li>{@link VRConstants#SETTING_VRAPI_OCULUSVR_VALUE SETTING_VRAPI_OCULUSVR_VALUE}: Use Oculus Rift binding binding.
      * </ul>
      * <b>Type: </b><code>int</code><br>
 	 * <b>Usage: </b><code>{@link AppSettings appSettings}.{@link HashMap#put(Object, Object) put}(VRConstants.SETTING_VRAPI, value)</code>

@@ -61,7 +61,7 @@ import java.util.*;
  *  <li>The ListIterators returned by this class only support the remove()
  *  modification method.  add() and set() are not supported on the iterator.
  *  Even after ListIterator.remove() or Iterator.remove() is called, this change
- *  is not reflected in the iterator instance as it is still refering to its
+ *  is not reflected in the iterator instance as it is still referring to its
  *  original snapshot.
  *  </ul>
  *

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 jMonkeyEngine
+ * Copyright (c) 2015-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -57,7 +57,7 @@ public class ObjectMessageDelegator<S extends MessageConnection> extends Abstrac
      *  <li>void someName(Message msg)
      *  </ul>
      *  Where S is the type of MessageConnection and SomeMessage is some
-     *  specific concreate Message subclass.
+     *  specific concrete Message subclass.
      */   
     public ObjectMessageDelegator( Object delegate, boolean automap ) {
         super(delegate.getClass(), automap);

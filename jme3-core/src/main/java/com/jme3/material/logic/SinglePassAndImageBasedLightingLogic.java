@@ -39,6 +39,7 @@ import com.jme3.math.*;
 import com.jme3.renderer.*;
 import com.jme3.scene.Geometry;
 import com.jme3.shader.*;
+import com.jme3.texture.TextureCubeMap;
 import com.jme3.util.TempVars;
 
 import java.util.*;
@@ -232,7 +233,7 @@ public final class SinglePassAndImageBasedLightingLogic extends DefaultTechnique
         }
         vars.release();
 
-        //Padding of unsued buffer space
+        // pad unused buffer space
         while(lightDataIndex < numLights * 3) {
             lightData.setVector4InArray(0f, 0f, 0f, 0f, lightDataIndex);
             lightDataIndex++;
@@ -245,9 +246,19 @@ public final class SinglePassAndImageBasedLightingLogic extends DefaultTechnique
         lightProbeData.setValue(VarType.Matrix4, lightProbe.getUniformMatrix());
                 //setVector4InArray(lightProbe.getPosition().x, lightProbe.getPosition().y, lightProbe.getPosition().z, 1f / area.getRadius() + lightProbe.getNbMipMaps(), 0);
         shCoeffs.setValue(VarType.Vector3Array, lightProbe.getShCoeffs());
-        //assigning new texture indexes
+        /*
+         * Assign the prefiltered env map to the next available texture unit.
+         */
         int pemUnit = lastTexUnit++;
-        rm.getRenderer().setTexture(pemUnit, lightProbe.getPrefilteredEnvMap());
+        Renderer renderer = rm.getRenderer();
+        TextureCubeMap pemTexture = lightProbe.getPrefilteredEnvMap();
+        try {
+            renderer.setTexture(pemUnit, pemTexture);
+        } catch (TextureUnitException exception) {
+            String message = "Can't assign texture unit for LightProbe."
+                    + " lastTexUnit=" + lastTexUnit;
+            throw new IllegalArgumentException(message);
+        }
         lightProbePemMap.setValue(VarType.Int, pemUnit);
         return lastTexUnit;
     }

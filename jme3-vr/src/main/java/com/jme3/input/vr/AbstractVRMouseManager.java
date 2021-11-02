@@ -16,7 +16,7 @@ import com.jme3.texture.Texture2D;
 import com.jme3.ui.Picture;
 
 /**
- * An abstract implementation of a {@link VRMouseManager}. This class should be overrided by specific hardware implementation of VR devices.
+ * An abstract implementation of a {@link VRMouseManager}. This class should be overridden by specific hardware implementation of VR devices.
  * @author Julien Seinturier - COMEX SA - <a href="http://www.seinturier.fr">http://www.seinturier.fr</a>
  *
  */

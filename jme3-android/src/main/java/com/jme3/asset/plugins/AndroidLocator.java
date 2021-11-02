@@ -26,11 +26,12 @@ public class AndroidLocator implements AssetLocator {
     public AssetInfo locate(AssetManager manager, AssetKey key) {
         String assetPath = rootPath + key.getName();
         // Fix path issues
+        assetPath = assetPath.replace("//", "/");
         if (assetPath.startsWith("/")) {
             // Remove leading /
             assetPath = assetPath.substring(1);
         }
-        assetPath = assetPath.replace("//", "/");
+        
 
         // Not making this a property and storing for future use in case the view stored in JmeAndroidSystem
         // is replaced due to device orientation change.  Not sure it is necessary to do this yet, but am for now.

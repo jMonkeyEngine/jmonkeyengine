@@ -270,13 +270,13 @@ public class TangentBinormalGenerator {
         return vertices;
     }
     
-    //Don't remove splitmirorred boolean. It's not used right now, but I intend to
+    //Don't remove split mirrored boolean. It's not used right now, but I intend to
     //make this method also split vertices with rotated tangent space and I'll
     //add another splitRotated boolean 
     private static List<VertexData> splitVertices(Mesh mesh, List<VertexData> vertexData, boolean splitMirorred) {
         int nbVertices = mesh.getBuffer(Type.Position).getNumElements();
         List<VertexData> newVertices = new ArrayList<>();
-        Map<Integer, Integer> indiceMap = new HashMap<>();
+        Map<Integer, Integer> indexMap = new HashMap<>();
         FloatBuffer normalBuffer = mesh.getFloatBuffer(Type.Normal);
 
         for (int i = 0; i < vertexData.size(); i++) {
@@ -309,7 +309,7 @@ public class TangentBinormalGenerator {
                 
                 newVertices.add(newVert);
                 //keep vertex index to fix the index buffers later
-                indiceMap.put(nbVertices, i);
+                indexMap.put(nbVertices, i);
                 for (TriangleData tri : newVert.triangles) {
                     for (int j = 0; j < tri.index.length; j++) {
                         if(tri.index[j] == i){
@@ -337,7 +337,7 @@ public class TangentBinormalGenerator {
                 if(vb==null || vb.getNumComponents() == 0) continue;
                 
                 Buffer buffer = vb.getData();   
-                //IndexBuffer has special treatement, only swapping the vertex indices is needed                
+                //IndexBuffer has special treatment, only swapping the vertex indices is needed
                 if(type == Type.Index){
                     boolean isShortBuffer = vb.getFormat() == VertexBuffer.Format.UnsignedShort;                     
                     for (VertexData vertex : newVertices) {
@@ -362,7 +362,7 @@ public class TangentBinormalGenerator {
                         int index = vertexData.size();                      
                         newVerts.position(vertexData.size() * vb.getNumComponents());
                         for (int j = 0; j < newVertices.size(); j++) {
-                            int oldInd = indiceMap.get(index) ;
+                            int oldInd = indexMap.get(index) ;
                             for (int i = 0; i < vb.getNumComponents(); i++) {                                
                                     putValue(vb.getFormat(), newVerts, buffer, oldInd* vb.getNumComponents() + i);
                             }                            
@@ -408,7 +408,7 @@ public class TangentBinormalGenerator {
                 break;
 
             default:
-                throw new UnsupportedOperationException("Unrecoginized buffer format: " + format);
+                throw new UnsupportedOperationException("Unrecognized buffer format: " + format);
         }
     }
     
@@ -440,7 +440,7 @@ public class TangentBinormalGenerator {
                 ((DoubleBuffer) buf1).put(d);              
                 break;                 
             default:
-                throw new UnsupportedOperationException("Unrecoginized buffer format: " + format);
+                throw new UnsupportedOperationException("Unrecognized buffer format: " + format);
         }
     }
     
@@ -557,7 +557,7 @@ public class TangentBinormalGenerator {
             
             boolean normalize = false;
             if (Math.abs(det) < ZERO_TOLERANCE) {
-                log.log(Level.WARNING, "Colinear uv coordinates for triangle "
+                log.log(Level.WARNING, "Collinear uv coordinates for triangle "
                         + "[{0}, {1}, {2}]; tex0 = [{3}, {4}], "
                         + "tex1 = [{5}, {6}], tex2 = [{7}, {8}]",
                         new Object[]{index[0], index[1], index[2],

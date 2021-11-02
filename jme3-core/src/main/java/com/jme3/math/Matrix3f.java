@@ -643,7 +643,7 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * <code>set</code> sets the values of the matrix to those supplied by the
-     * 3x3 two dimenion array.
+     * 3x3 two-dimensional array.
      *
      * @param matrix
      *            the new values of the matrix.

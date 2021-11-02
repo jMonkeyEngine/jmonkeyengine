@@ -280,7 +280,7 @@ public class OpenVRInput implements VRInputAPI {
             lastCallAxis[i] = new Vector2f();
             needsNewVelocity[i] = true;
             needsNewAngVelocity[i] = true;
-            logger.config("  Input "+(i+1)+"/"+JOpenVRLibrary.k_unMaxTrackedDeviceCount+" binded.");
+            logger.config("  Input "+(i+1)+"/"+JOpenVRLibrary.k_unMaxTrackedDeviceCount+" bound.");
         }        
         
         return true;

@@ -34,7 +34,7 @@ import com.jme3.terrain.noise.Basis;
 /**
  * Interface for a general fractal basis.
  * 
- * Takes any number of basis funcions to work with and a few common parameters
+ * Takes any number of basis functions to work with and a few common parameters
  * for noise fractals
  * 
  * @author Anthyon

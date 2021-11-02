@@ -65,7 +65,7 @@ public class HelloTerrainCollision extends SimpleApplication
   final private Vector3f walkDirection = new Vector3f();
   private boolean left = false, right = false, up = false, down = false;
   //Temporary vectors used on each frame.
-  //They here to avoid instanciating new vectors on each frame
+  //They here to avoid instantiating new vectors on each frame
   final private Vector3f camDir = new Vector3f();
   final private Vector3f camLeft = new Vector3f();
 
@@ -150,7 +150,7 @@ public class HelloTerrainCollision extends SimpleApplication
     // We set up collision detection for the player by creating
     // a capsule collision shape and a CharacterControl.
     // The CharacterControl offers extra settings for
-    // size, stepheight, jumping, falling, and gravity.
+    // size, step height, jumping, falling, and gravity.
     // We also put the player in its starting position.
     CapsuleCollisionShape capsuleShape = new CapsuleCollisionShape(1.5f, 6f, 1);
     player = new CharacterControl(capsuleShape, 0.05f);

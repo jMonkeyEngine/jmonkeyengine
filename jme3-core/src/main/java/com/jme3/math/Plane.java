@@ -171,9 +171,9 @@ public class Plane implements Savable, Cloneable, java.io.Serializable {
     /**
      * Find the point in this plane that's nearest to the specified point.
      *
-     * @param point location vector of the input point (not null, unaffected)
-     * @param store storage for the result (not null, modififed)
-     * @return a location in this plane (store)
+     * @param point the location of the input point (not null, unaffected)
+     * @param store storage for the result (not null, modified)
+     * @return the location of the nearest point (store)
      */
     public Vector3f getClosestPoint(Vector3f point, Vector3f store) {
 //        float t = constant - normal.dot(point);
@@ -196,7 +196,7 @@ public class Plane implements Savable, Cloneable, java.io.Serializable {
      * Reflect the specified point in this plane.
      *
      * @param point location vector of the input point (not null, unaffected)
-     * @param store storage for the result (modififed if not null)
+     * @param store storage for the result (modified if not null)
      * @return a location vector for the reflected point (either store or a new
      * vector)
      */

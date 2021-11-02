@@ -78,7 +78,7 @@ public abstract class BoundingVolume implements Savable, Cloneable, Collidable {
     }
 
     /**
-     * Grabs the checkplane we should check first.
+     * Grabs the plane we should check first.
      *
      * @return the index of the plane to be checked first
      */

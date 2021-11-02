@@ -307,7 +307,7 @@ public class AnimationEvent extends AbstractCinematicEvent {
                 if (model == null) {
                     //the model is null we try to find it according to the name
                     //this should occur only when loading an old saved cinematic
-                    //othewise it's an error
+                    //otherwise it's an error
                     model = cinematic.getScene().getChild(modelName);
                 }
                 if (model != null) {
@@ -442,7 +442,7 @@ public class AnimationEvent extends AbstractCinematicEvent {
         //FIXME always the same issue, because of the cloning of assets, this won't work
         //we have to somehow store userdata in the spatial and then recurse the 
         //scene sub scenegraph to find the correct instance of the model
-        //This brings a reflaxion about the cinematic being an appstate, 
+        //This brings a reflection about the cinematic being an appstate,
         //shouldn't it be a control over the scene
         // this would allow to use the cloneForSpatial method and automatically 
         //rebind cloned references of original objects.

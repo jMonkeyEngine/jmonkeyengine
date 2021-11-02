@@ -241,7 +241,7 @@ public class DXTFlipper {
             byte[] colorBlock = new byte[8];
             byte[] alphaBlock = type != 1 && type != 5 ? new byte[8] : null;
             for (int x = 0; x < blocksX; x++){
-                // prepeare for block reading
+                // prepare for block reading
                 int blockByteOffset = x * bpb;
                 img.position(blockByteOffset);
                 img.limit(blockByteOffset + bpb);
@@ -276,7 +276,7 @@ public class DXTFlipper {
             byte[] alphaBlock = type != 1 && type != 5 ? new byte[8] : null;
             for (int y = 0; y < blocksY; y++){
                 for (int x = 0; x < blocksX; x++){
-                    // prepeare for block reading
+                    // prepare for block reading
                     int blockIdx = y * blocksX + x;
                     int blockByteOffset = blockIdx * bpb;
 

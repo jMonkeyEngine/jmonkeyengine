@@ -43,6 +43,9 @@ import java.nio.ByteBuffer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Utility class to access platform-dependant features.
+ */
 public class JmeSystem {
 
     private static final Logger logger = Logger.getLogger(JmeSystem.class.getName());
@@ -155,6 +158,12 @@ public class JmeSystem {
         return systemDelegate.showSettingsDialog(sourceSettings, loadFromRegistry);
     }
 
+    /**
+     * Determine which Platform (operating system and architecture) the
+     * application is running on.
+     *
+     * @return an enum value (not null)
+     */
     public static Platform getPlatform() {
         checkDelegate();
         return systemDelegate.getPlatform();

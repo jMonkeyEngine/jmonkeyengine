@@ -87,7 +87,7 @@ import java.util.logging.Logger;
  * 
  * <p>Also note that textures are not scaled and the atlas needs to be large enough to hold all textures.
  * All methods that allow adding textures return false if the texture could not be added due to the
- * atlas being full. Furthermore secondary textures (normal, spcular maps etc.) have to be the same size
+ * atlas being full. Furthermore secondary textures (normal, specular maps etc.) have to be the same size
  * as the main (e.g. DiffuseMap) texture.</p>
  * 
  * <p><b>Usage examples</b></p>
@@ -487,7 +487,7 @@ public class TextureAtlas {
      * Creates one geometry out of the given root spatial and merges all single
      * textures into one texture of the given size.
      * @param spat The root spatial of the scene to batch
-     * @param mgr An assetmanager that can be used to create the material.
+     * @param mgr An asset manager that can be used to create the material.
      * @param atlasSize A size for the atlas texture, it has to be large enough to hold all single textures.
      * @return A new geometry that uses the generated texture atlas and merges all meshes of the root spatial, null if the atlas cannot be created because not all textures fit.
      */

@@ -401,7 +401,7 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
                 targetDir.set(targetLocation).subtractLocal(prevPos);
                 float dist = targetDir.length();
 
-                //Low pass filtering on the target postition to avoid shaking when physics are enabled.
+                //Low pass filtering on the target position to avoid shaking when physics are enabled.
                 if (offsetDistance < dist) {
                     //target moves, start chasing.
                     chasing = true;
@@ -412,8 +412,8 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
                     //target moves...
                     targetMoves = true;
                 } else {
-                    //if target was moving, we compute a slight offset in rotation to avoid a rought stop of the cam
-                    //We do not if the player is rotationg the cam
+                    //if target was moving, we compute a slight offset in rotation to avoid a rough stop of the cam
+                    //We do not if the player is rotating the cam
                     if (targetMoves && !canRotate) {
                         if (targetRotation - rotation > trailingRotationInertia) {
                             targetRotation = rotation + trailingRotationInertia;

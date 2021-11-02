@@ -139,7 +139,7 @@ public class KernelAdapter extends Thread
     protected void connectionClosed( Endpoint p )
     {
         // Remove any message buffer we've been accumulating 
-        // on behalf of this endpoing
+        // on behalf of this endpoint
         messageBuffers.remove(p);
 
         log.log( Level.FINE, "Buffers size:{0}", messageBuffers.size() );
@@ -231,7 +231,7 @@ public class KernelAdapter extends Thread
                 for( int i = 0; i < len; i++ ) {
                     sb.append( "[" + Integer.toHexString(data[i]) + "]" ); 
                 }
-                log.log( Level.FINE, "First 10 bytes of incomplete nessage:" + sb );         
+                log.log( Level.FINE, "First 10 bytes of incomplete message:" + sb );
                 throw new RuntimeException( "Envelope contained incomplete data:" + env );
             }                
         }            

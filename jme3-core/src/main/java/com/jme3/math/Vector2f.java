@@ -586,7 +586,7 @@ public final class Vector2f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * <code>angleBetween</code> returns (in radians) the angle required to
-     * rotate a ray represented by this vector to be colinear with a ray
+     * rotate a ray represented by this vector to be collinear with a ray
      * described by the given vector. It is assumed that both this vector and
      * the given vector are unit vectors (iow, normalized).
      *

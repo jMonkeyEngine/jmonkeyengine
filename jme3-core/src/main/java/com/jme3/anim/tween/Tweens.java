@@ -567,7 +567,7 @@ public class Tweens {
                 Class[] paramTypes = m.getParameterTypes();
                 if (paramTypes.length != args.length + 1) {
                     if (log.isLoggable(Level.FINE)) {
-                        log.log(Level.FINE, "Param lengths of [" + m + "] differ.  method arg count:" + paramTypes.length + "  lookging for:" + (args.length + 1));
+                        log.log(Level.FINE, "Param lengths of [" + m + "] differ.  method arg count:" + paramTypes.length + "  looking for:" + (args.length + 1));
                     }
                     continue;
                 }
