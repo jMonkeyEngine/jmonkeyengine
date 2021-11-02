@@ -1087,6 +1087,8 @@ public class GltfLoader implements AssetLoader {
     private void findChildren(int nodeIndex) throws IOException {
         JointWrapper jw = fetchFromCache("nodes", nodeIndex, JointWrapper.class);
         if (jw == null) {
+            logger.log(Level.WARNING,
+                    "No JointWrapper found for nodeIndex={0}.", nodeIndex);
             return;
         }
 
