@@ -3,6 +3,7 @@
 //
 
 apply plugin: 'java'
+apply plugin: 'java-library'
 apply plugin: 'groovy'
 apply plugin: 'maven'
 apply plugin: 'maven-publish'
