@@ -165,7 +165,7 @@ public class SkyFactory {
         return createSky(assetManager, texture, normalScale, sphereMap ? EnvMapType.SphereMap : EnvMapType.CubeMap, sphereRadius);
     }
     
-     /**
+    /**
      * Create a sky using the given cubemap or spheremap texture.
      *
      * @param assetManager from which to load materials
@@ -180,7 +180,7 @@ public class SkyFactory {
      * @return a new spatial representing the sky, ready to be attached to the
      * scene graph     
      */
-     public static Spatial createSky(AssetManager assetManager, Texture texture,
+    public static Spatial createSky(AssetManager assetManager, Texture texture,
             Vector3f normalScale, EnvMapType envMapType, float sphereRadius) {
         if (texture == null) {
             throw new IllegalArgumentException("texture cannot be null");
@@ -229,73 +229,73 @@ public class SkyFactory {
     }
      
     /**
-    * Create a sky using the given cubemap or spheremap texture.
-    *
-    * @param assetManager from which to load materials
-    * @param texture to use    *
-    * @param sphereMap determines how the texture is used:<br>
-    * <ul>
-    * <li>true: The texture is a Texture2D with the pixels arranged for
-    * <a href="http://en.wikipedia.org/wiki/Sphere_mapping">sphere
-    * mapping</a>.</li>
-    * <li>false: The texture is either a TextureCubeMap or Texture2D. If it is
-    * a Texture2D then the image is taken from it and is inserted into a
-    * TextureCubeMap</li>
-    * </ul> 
-    * @return a new spatial representing the sky, ready to be attached to the
-    * scene graph
-    * @deprecated use {@link SkyFactory#createSky(com.jme3.asset.AssetManager, com.jme3.texture.Texture, com.jme3.math.Vector3f, com.jme3.util.SkyFactory.EnvMapType)}
-    */  
+     * Create a sky using the given cubemap or spheremap texture.
+     *
+     * @param assetManager from which to load materials
+     * @param texture to use    *
+     * @param sphereMap determines how the texture is used:<br>
+     * <ul>
+     * <li>true: The texture is a Texture2D with the pixels arranged for
+     * <a href="http://en.wikipedia.org/wiki/Sphere_mapping">sphere
+     * mapping</a>.</li>
+     * <li>false: The texture is either a TextureCubeMap or Texture2D. If it is
+     * a Texture2D then the image is taken from it and is inserted into a
+     * TextureCubeMap</li>
+     * </ul> 
+     * @return a new spatial representing the sky, ready to be attached to the
+     * scene graph
+     * @deprecated use {@link SkyFactory#createSky(com.jme3.asset.AssetManager, com.jme3.texture.Texture, com.jme3.math.Vector3f, com.jme3.util.SkyFactory.EnvMapType)}
+     */  
     @Deprecated
     public static Spatial createSky(AssetManager assetManager, Texture texture, boolean sphereMap) {
         return createSky(assetManager, texture, Vector3f.UNIT_XYZ,  sphereMap ? EnvMapType.SphereMap : EnvMapType.CubeMap);
     }
 
     /**
-    * Create a sky using the given cubemap or spheremap texture.
-    *
-    * @param assetManager from which to load materials
-    * @param textureName the path to the texture asset to use    
-    * @param sphereMap determines how the texture is used:<br>
-    * <ul>
-    * <li>true: The texture is a Texture2D with the pixels arranged for
-    * <a href="http://en.wikipedia.org/wiki/Sphere_mapping">sphere
-    * mapping</a>.</li>
-    * <li>false: The texture is either a TextureCubeMap or Texture2D. If it is
-    * a Texture2D then the image is taken from it and is inserted into a
-    * TextureCubeMap</li>
-    * </ul> 
-    * @return a new spatial representing the sky, ready to be attached to the
-    * scene graph
-    * @deprecated use {@link #createSky(com.jme3.asset.AssetManager, java.lang.String, com.jme3.util.SkyFactory.EnvMapType)}
-    */  
+     * Create a sky using the given cubemap or spheremap texture.
+     *
+     * @param assetManager from which to load materials
+     * @param textureName the path to the texture asset to use    
+     * @param sphereMap determines how the texture is used:<br>
+     * <ul>
+     * <li>true: The texture is a Texture2D with the pixels arranged for
+     * <a href="http://en.wikipedia.org/wiki/Sphere_mapping">sphere
+     * mapping</a>.</li>
+     * <li>false: The texture is either a TextureCubeMap or Texture2D. If it is
+     * a Texture2D then the image is taken from it and is inserted into a
+     * TextureCubeMap</li>
+     * </ul> 
+     * @return a new spatial representing the sky, ready to be attached to the
+     * scene graph
+     * @deprecated use {@link #createSky(com.jme3.asset.AssetManager, java.lang.String, com.jme3.util.SkyFactory.EnvMapType)}
+     */  
     @Deprecated
     public static Spatial createSky(AssetManager assetManager, String textureName, boolean sphereMap) {
         return createSky(assetManager, textureName,  sphereMap ? EnvMapType.SphereMap : EnvMapType.CubeMap);
     }
     
     /**
-    * Create a sky using the given cubemap or spheremap texture.
-    *
-    * @param assetManager from which to load materials
-    * @param texture to use  
-    * @param envMapType see {@link EnvMapType}
-    * @return a new spatial representing the sky, ready to be attached to the
-    * scene graph    
-    */  
+     * Create a sky using the given cubemap or spheremap texture.
+     *
+     * @param assetManager from which to load materials
+     * @param texture to use  
+     * @param envMapType see {@link EnvMapType}
+     * @return a new spatial representing the sky, ready to be attached to the
+     * scene graph    
+     */  
     public static Spatial createSky(AssetManager assetManager, Texture texture, EnvMapType envMapType) {
         return createSky(assetManager, texture, Vector3f.UNIT_XYZ, envMapType);
     }
     
     /**
-    * Create a sky using the given cubemap or spheremap texture.
-    *
-    * @param assetManager from which to load materials
-    * @param textureName the path to the texture asset to use    
-    * @param envMapType see {@link EnvMapType}
-    * @return a new spatial representing the sky, ready to be attached to the
-    * scene graph    
-    */  
+     * Create a sky using the given cubemap or spheremap texture.
+     *
+     * @param assetManager from which to load materials
+     * @param textureName the path to the texture asset to use    
+     * @param envMapType see {@link EnvMapType}
+     * @return a new spatial representing the sky, ready to be attached to the
+     * scene graph    
+     */  
     public static Spatial createSky(AssetManager assetManager, String textureName, EnvMapType envMapType) {
         TextureKey key = new TextureKey(textureName, true);
         key.setGenerateMips(false);
@@ -423,18 +423,18 @@ public class SkyFactory {
     }
 
     /**
-    * Create a cube-mapped sky using six textures.
-    *
-    * @param assetManager from which to load materials
-    * @param west texture for the western face of the cube
-    * @param east texture for the eastern face of the cube
-    * @param north texture for the northern face of the cube
-    * @param south texture for the southern face of the cube
-    * @param up texture for the top face of the cube
-    * @param down texture for the bottom face of the cube     * 
-    * @return a new spatial representing the sky, ready to be attached to the
-    * scene graph
-    */
+     * Create a cube-mapped sky using six textures.
+     *
+     * @param assetManager from which to load materials
+     * @param west texture for the western face of the cube
+     * @param east texture for the eastern face of the cube
+     * @param north texture for the northern face of the cube
+     * @param south texture for the southern face of the cube
+     * @param up texture for the top face of the cube
+     * @param down texture for the bottom face of the cube     * 
+     * @return a new spatial representing the sky, ready to be attached to the
+     * scene graph
+     */
     public static Spatial createSky(AssetManager assetManager, Texture west, Texture east, Texture north, Texture south, Texture up, Texture down) {
         return createSky(assetManager, west, east, north, south, up, down, Vector3f.UNIT_XYZ);
     }
