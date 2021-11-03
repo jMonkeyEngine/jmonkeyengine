@@ -231,7 +231,7 @@ public class SkyFactory {
      * Create a sky using the given cubemap or spheremap texture.
      *
      * @param assetManager from which to load materials
-     * @param texture to use    *
+     * @param texture to use
      * @param sphereMap determines how the texture is used:<br>
      * <ul>
      * <li>true: The texture is a Texture2D with the pixels arranged for
@@ -430,7 +430,7 @@ public class SkyFactory {
      * @param north texture for the northern face of the cube
      * @param south texture for the southern face of the cube
      * @param up texture for the top face of the cube
-     * @param down texture for the bottom face of the cube     *
+     * @param down texture for the bottom face of the cube
      * @return a new spatial representing the sky, ready to be attached to the
      * scene graph
      */
