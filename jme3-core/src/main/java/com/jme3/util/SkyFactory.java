@@ -135,6 +135,7 @@ public class SkyFactory {
             Vector3f normalScale, EnvMapType envMapType) {
         return createSky(assetManager, texture, normalScale, envMapType, 10);
     }
+
     /**
      * Create a sky using the given cubemap or spheremap texture.
      *
