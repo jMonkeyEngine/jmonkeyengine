@@ -58,7 +58,7 @@ public class SkyFactory {
     /**
      * The type of map fed to the shader 
      */
-    public enum EnvMapType{
+    public enum EnvMapType {
         /**
          * The env map is a cube map see {@link TextureCubeMap} or 6 separate images that form a cube map
          * The texture is either a {@link TextureCubeMap} or 6 {@link com.jme3.texture.Texture2D}. 
@@ -162,7 +162,7 @@ public class SkyFactory {
     @Deprecated
     public static Spatial createSky(AssetManager assetManager, Texture texture,
             Vector3f normalScale, boolean sphereMap, int sphereRadius) {
-        return createSky(assetManager, texture, normalScale, sphereMap?EnvMapType.SphereMap:EnvMapType.CubeMap, sphereRadius);
+        return createSky(assetManager, texture, normalScale, sphereMap ? EnvMapType.SphereMap : EnvMapType.CubeMap, sphereRadius);
     }
     
      /**
@@ -248,7 +248,7 @@ public class SkyFactory {
     */  
     @Deprecated
     public static Spatial createSky(AssetManager assetManager, Texture texture, boolean sphereMap) {
-        return createSky(assetManager, texture, Vector3f.UNIT_XYZ,  sphereMap?EnvMapType.SphereMap:EnvMapType.CubeMap);
+        return createSky(assetManager, texture, Vector3f.UNIT_XYZ,  sphereMap ? EnvMapType.SphereMap : EnvMapType.CubeMap);
     }
 
     /**
@@ -271,7 +271,7 @@ public class SkyFactory {
     */  
     @Deprecated
     public static Spatial createSky(AssetManager assetManager, String textureName, boolean sphereMap) {
-        return createSky(assetManager, textureName,  sphereMap?EnvMapType.SphereMap:EnvMapType.CubeMap);
+        return createSky(assetManager, textureName,  sphereMap ? EnvMapType.SphereMap : EnvMapType.CubeMap);
     }
     
     /**
@@ -343,7 +343,7 @@ public class SkyFactory {
                 throw new IllegalArgumentException("Images must have same resolution");
             }
             ByteBuffer data2 = image.getData(0);
-            if (data2 != null){
+            if (data2 != null) {
                 if (data2.capacity() != size) {
                     throw new IllegalArgumentException("Images must have same size");
                 }
