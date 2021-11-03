@@ -107,7 +107,8 @@ public class SkyFactory {
      * </ul>
      * @return a new spatial representing the sky, ready to be attached to the
      * scene graph
-     * @deprecated use {@link SkyFactory#createSky(com.jme3.asset.AssetManager, com.jme3.texture.Texture, com.jme3.math.Vector3f, com.jme3.util.SkyFactory.EnvMapType)}
+     * @deprecated use {@link SkyFactory#createSky(com.jme3.asset.AssetManager, com.jme3.texture.Texture,
+     * com.jme3.math.Vector3f, com.jme3.util.SkyFactory.EnvMapType)}
      */
     @Deprecated
     public static Spatial createSky(AssetManager assetManager, Texture texture,
@@ -156,12 +157,14 @@ public class SkyFactory {
      * frustum
      * @return a new spatial representing the sky, ready to be attached to the
      * scene graph
-     * @deprecated use {@link #createSky(com.jme3.asset.AssetManager, com.jme3.texture.Texture, com.jme3.math.Vector3f, com.jme3.util.SkyFactory.EnvMapType, float)}
+     * @deprecated use {@link #createSky(com.jme3.asset.AssetManager, com.jme3.texture.Texture,
+     * com.jme3.math.Vector3f, com.jme3.util.SkyFactory.EnvMapType, float)}
      */
     @Deprecated
     public static Spatial createSky(AssetManager assetManager, Texture texture,
             Vector3f normalScale, boolean sphereMap, int sphereRadius) {
-        return createSky(assetManager, texture, normalScale, sphereMap ? EnvMapType.SphereMap : EnvMapType.CubeMap, sphereRadius);
+        return createSky(assetManager, texture, normalScale,
+                sphereMap ? EnvMapType.SphereMap : EnvMapType.CubeMap, sphereRadius);
     }
 
     /**
@@ -243,11 +246,13 @@ public class SkyFactory {
      * </ul>
      * @return a new spatial representing the sky, ready to be attached to the
      * scene graph
-     * @deprecated use {@link SkyFactory#createSky(com.jme3.asset.AssetManager, com.jme3.texture.Texture, com.jme3.math.Vector3f, com.jme3.util.SkyFactory.EnvMapType)}
+     * @deprecated use {@link SkyFactory#createSky(com.jme3.asset.AssetManager, com.jme3.texture.Texture,
+     * com.jme3.math.Vector3f, com.jme3.util.SkyFactory.EnvMapType)}
      */
     @Deprecated
     public static Spatial createSky(AssetManager assetManager, Texture texture, boolean sphereMap) {
-        return createSky(assetManager, texture, Vector3f.UNIT_XYZ,  sphereMap ? EnvMapType.SphereMap : EnvMapType.CubeMap);
+        return createSky(assetManager, texture, Vector3f.UNIT_XYZ,
+                sphereMap ? EnvMapType.SphereMap : EnvMapType.CubeMap);
     }
 
     /**
@@ -266,7 +271,8 @@ public class SkyFactory {
      * </ul>
      * @return a new spatial representing the sky, ready to be attached to the
      * scene graph
-     * @deprecated use {@link #createSky(com.jme3.asset.AssetManager, java.lang.String, com.jme3.util.SkyFactory.EnvMapType)}
+     * @deprecated use {@link #createSky(com.jme3.asset.AssetManager, java.lang.String,
+     * com.jme3.util.SkyFactory.EnvMapType)}
      */
     @Deprecated
     public static Spatial createSky(AssetManager assetManager, String textureName, boolean sphereMap) {
@@ -408,7 +414,8 @@ public class SkyFactory {
 
         checkImagesForCubeMap(westImg, eastImg, northImg, southImg, upImg, downImg);
 
-        Image cubeImage = new Image(westImg.getFormat(), westImg.getWidth(), westImg.getHeight(), null, westImg.getColorSpace());
+        Image cubeImage = new Image(westImg.getFormat(), westImg.getWidth(), westImg.getHeight(),
+                null, westImg.getColorSpace());
 
         cubeImage.addData(westImg.getData(0));
         cubeImage.addData(eastImg.getData(0));
@@ -434,7 +441,8 @@ public class SkyFactory {
      * @return a new spatial representing the sky, ready to be attached to the
      * scene graph
      */
-    public static Spatial createSky(AssetManager assetManager, Texture west, Texture east, Texture north, Texture south, Texture up, Texture down) {
+    public static Spatial createSky(AssetManager assetManager,
+            Texture west, Texture east, Texture north, Texture south, Texture up, Texture down) {
         return createSky(assetManager, west, east, north, south, up, down, Vector3f.UNIT_XYZ);
     }
 }
