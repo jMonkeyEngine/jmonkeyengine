@@ -120,7 +120,7 @@ public class TransformTrack implements AnimTrack<Transform> {
     /**
      * Set the keyframe times
      *
-     * @param times the keyframe times
+     * @param times the keyframe times (alias created)
      */
     public void setTimes(float[] times) {
         if (times.length == 0) {
