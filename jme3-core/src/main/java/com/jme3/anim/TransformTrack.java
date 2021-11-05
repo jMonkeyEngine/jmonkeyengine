@@ -81,25 +81,25 @@ public class TransformTrack implements AnimTrack<Transform> {
     }
 
     /**
-     * return the array of rotations
+     * Copy the rotations
      *
-     * @return an array, or null if no rotations
+     * @return a new array, or null if no rotations
      */
     public Quaternion[] getRotations() {
         return rotations == null ? null : rotations.toObjectArray();
     }
 
     /**
-     * returns the array of scales
+     * Copy the scales
      *
-     * @return an array or null
+     * @return a new array, or null if no scales
      */
     public Vector3f[] getScales() {
         return scales == null ? null : scales.toObjectArray();
     }
 
     /**
-     * returns the arrays of time
+     * Access the keyframe times
      *
      * @return the pre-existing array
      */
@@ -108,9 +108,9 @@ public class TransformTrack implements AnimTrack<Transform> {
     }
 
     /**
-     * returns the array of translations
+     * Copy the translations
      *
-     * @return an array, or null if no translations
+     * @return a new array, or null if no translations
      */
     public Vector3f[] getTranslations() {
         return translations == null ? null : translations.toObjectArray();
