@@ -118,7 +118,7 @@ public class TransformTrack implements AnimTrack<Transform> {
 
 
     /**
-     * Sets the keyframes times for this Joint track
+     * Sets the keyframes times for this track
      *
      * @param times the keyframes times
      */
@@ -131,7 +131,7 @@ public class TransformTrack implements AnimTrack<Transform> {
     }
 
     /**
-     * Set the translations for this joint track
+     * Set the translations for this track
      *
      * @param translations the translation of the target for each frame
      */
@@ -150,7 +150,7 @@ public class TransformTrack implements AnimTrack<Transform> {
     }
 
     /**
-     * Set the scales for this joint track
+     * Set the scales for this track
      *
      * @param scales the scales of the target for each frame
      */
@@ -169,7 +169,7 @@ public class TransformTrack implements AnimTrack<Transform> {
     }
 
     /**
-     * Set the rotations for this joint track
+     * Set the rotations for this track
      *
      * @param rotations the rotations of the target for each frame
      */
