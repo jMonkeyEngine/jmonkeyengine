@@ -42,22 +42,23 @@ import com.jme3.util.clone.Cloner;
 import java.io.IOException;
 
 /**
- * Contains a list of transforms and times for each keyframe.
+ * An AnimTrack that transforms a Joint or Spatial
+ * using a list of transforms and times for keyframes.
  *
  * @author Rémy Bouquet
  */
 public class TransformTrack implements AnimTrack<Transform> {
 
     private double length;
+    private FrameInterpolator interpolator = FrameInterpolator.DEFAULT;
     private HasLocalTransform target;
 
     /**
-     * Transforms and times for track.
+     * transforms and times for keyframes
      */
     private CompactVector3Array translations;
     private CompactQuaternionArray rotations;
     private CompactVector3Array scales;
-    private FrameInterpolator interpolator = FrameInterpolator.DEFAULT;
     private float[] times;
 
     /**
