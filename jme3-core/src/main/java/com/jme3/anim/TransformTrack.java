@@ -124,7 +124,7 @@ public class TransformTrack implements AnimTrack<Transform> {
      */
     public void setTimes(float[] times) {
         if (times == null || times.length == 0) {
-            throw new RuntimeException(
+            throw new IllegalArgumentException(
                     "No keyframe times were provided.");
         }
         this.times = times;
@@ -138,12 +138,12 @@ public class TransformTrack implements AnimTrack<Transform> {
      */
     public void setKeyframesTranslation(Vector3f[] translations) {
         if (times == null) {
-            throw new RuntimeException(
+            throw new IllegalStateException(
                     "TransformTrack lacks keyframe times.  "
                     + "Please invoke setTimes() first.");
         }
         if (translations == null || translations.length == 0) {
-            throw new RuntimeException(
+            throw new IllegalArgumentException(
                     "No translations were provided.");
         }
         this.translations = new CompactVector3Array();
@@ -160,12 +160,12 @@ public class TransformTrack implements AnimTrack<Transform> {
      */
     public void setKeyframesScale(Vector3f[] scales) {
         if (times == null) {
-            throw new RuntimeException(
+            throw new IllegalStateException(
                     "TransformTrack lacks keyframe times.  "
                     + "Please invoke setTimes() first.");
         }
         if (scales == null || scales.length == 0) {
-            throw new RuntimeException(
+            throw new IllegalArgumentException(
                     "No scale vectors were provided.");
         }
         this.scales = new CompactVector3Array();
@@ -182,12 +182,12 @@ public class TransformTrack implements AnimTrack<Transform> {
      */
     public void setKeyframesRotation(Quaternion[] rotations) {
         if (times == null) {
-            throw new RuntimeException(
+            throw new IllegalStateException(
                     "TransformTrack lacks keyframe times.  "
                     + "Please invoke setTimes() first.");
         }
         if (rotations == null || rotations.length == 0) {
-            throw new RuntimeException(
+            throw new IllegalArgumentException(
                     "No rotations were provided.");
         }
         this.rotations = new CompactQuaternionArray();
