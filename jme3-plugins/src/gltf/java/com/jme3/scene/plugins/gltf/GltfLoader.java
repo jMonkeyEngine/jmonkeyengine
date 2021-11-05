@@ -1147,8 +1147,16 @@ public class GltfLoader implements AssetLoader {
             if (bw == null || bw.attachedSpatial == null) {
                 continue;
             }
+            String jointName = bw.joint.getName();
             SkinData skinData = fetchFromCache("skins", bw.skinIndex, SkinData.class);
-            skinData.skinningControl.getAttachmentsNode(bw.joint.getName()).attachChild(bw.attachedSpatial);
+            SkinningControl skinControl = skinData.skinningControl;
+            if (skinControl.getSpatial() == null) {
+                logger.log(Level.WARNING,
+                        "No skinned Spatial for joint \"{0}\" -- will skin the model's root node!",
+                        jointName);
+                rootNode.addControl(skinControl);
+            }
+            skinControl.getAttachmentsNode(jointName).attachChild(bw.attachedSpatial);
         }
     }
 
