@@ -74,6 +74,7 @@ public class PreventBulletIssueRegressions {
      * Test case for JME issue #889: disabled physics control gets added to a
      * physics space.
      */
+    @SuppressWarnings("unchecked")
     @Test
     public void testIssue889() throws IllegalAccessException, NoSuchFieldException {
         // throws are added so that we don't have to catch them just to assert them again.
