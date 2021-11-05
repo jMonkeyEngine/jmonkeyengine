@@ -342,7 +342,7 @@ public enum Caps {
     TextureCompressionETC2,
     
     /**
-     * Supports {@link Format#BPTC} and sister formats.
+     * Supports BPTC and sister formats.
      */
     TextureCompressionBPTC,
     
