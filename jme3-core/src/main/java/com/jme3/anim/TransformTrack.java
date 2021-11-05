@@ -81,7 +81,7 @@ public class TransformTrack implements AnimTrack<Transform> {
     }
 
     /**
-     * return the array of rotations of this track
+     * return the array of rotations
      *
      * @return an array, or null if no rotations
      */
@@ -90,7 +90,7 @@ public class TransformTrack implements AnimTrack<Transform> {
     }
 
     /**
-     * returns the array of scales for this track
+     * returns the array of scales
      *
      * @return an array or null
      */
@@ -99,7 +99,7 @@ public class TransformTrack implements AnimTrack<Transform> {
     }
 
     /**
-     * returns the arrays of time for this track
+     * returns the arrays of time
      *
      * @return the pre-existing array
      */
@@ -108,7 +108,7 @@ public class TransformTrack implements AnimTrack<Transform> {
     }
 
     /**
-     * returns the array of translations of this track
+     * returns the array of translations
      *
      * @return an array, or null if no translations
      */
@@ -118,7 +118,7 @@ public class TransformTrack implements AnimTrack<Transform> {
 
 
     /**
-     * Sets the keyframes times for this track
+     * Sets the keyframes times
      *
      * @param times the keyframes times
      */
@@ -131,7 +131,7 @@ public class TransformTrack implements AnimTrack<Transform> {
     }
 
     /**
-     * Set the translations for this track
+     * Set the translations
      *
      * @param translations the translation of the target for each frame
      */
@@ -150,7 +150,7 @@ public class TransformTrack implements AnimTrack<Transform> {
     }
 
     /**
-     * Set the scales for this track
+     * Set the scales
      *
      * @param scales the scales of the target for each frame
      */
@@ -169,7 +169,7 @@ public class TransformTrack implements AnimTrack<Transform> {
     }
 
     /**
-     * Set the rotations for this track
+     * Set the rotations
      *
      * @param rotations the rotations of the target for each frame
      */
@@ -189,7 +189,7 @@ public class TransformTrack implements AnimTrack<Transform> {
 
 
     /**
-     * Set the translations, rotations and scales for this track
+     * Set the translations, rotations and scales
      *
      * @param times        a float array with the time of each frame
      * @param translations the translation of the target for each frame
@@ -280,8 +280,7 @@ public class TransformTrack implements AnimTrack<Transform> {
     }
 
     /**
-     * Access the target affected by this track, which might be a Joint or a
-     * Spatial.
+     * Access the target, which might be a Joint or a Spatial.
      *
      * @return the pre-existing instance
      */
@@ -290,7 +289,7 @@ public class TransformTrack implements AnimTrack<Transform> {
     }
 
     /**
-     * Replace the target of this track, which might be a Joint or a Spatial.
+     * Replace the target, which might be a Joint or a Spatial.
      *
      * @param target the target to use (alias created)
      */
