@@ -70,7 +70,7 @@ public class TransformTrack implements AnimTrack<Transform> {
      * Create a transform track for the given target
      *
      * @param target       the target Joint or Spatial of the new track
-     * @param times        a float array with the time of each frame
+     * @param times        the time of each frame
      * @param translations the translation of the target for each frame
      * @param rotations    the rotation of the target for each frame
      * @param scales       the scale of the target for each frame
@@ -191,7 +191,7 @@ public class TransformTrack implements AnimTrack<Transform> {
     /**
      * Set the translations, rotations, and scales
      *
-     * @param times        a float array with the time of each frame
+     * @param times        the time of each frame
      * @param translations the translation of the target for each frame
      * @param rotations    the rotation of the target for each frame
      * @param scales       the scale of the target for each frame
