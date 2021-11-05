@@ -123,7 +123,7 @@ public class TransformTrack implements AnimTrack<Transform> {
      * @param times the keyframes times
      */
     public void setTimes(float[] times) {
-        if (times.length == 0) {
+        if (times == null || times.length == 0) {
             throw new RuntimeException(
                     "No keyframe times were provided.");
         }
@@ -142,7 +142,7 @@ public class TransformTrack implements AnimTrack<Transform> {
                     "TransformTrack lacks keyframe times.  "
                     + "Please invoke setTimes() first.");
         }
-        if (translations.length == 0) {
+        if (translations == null || translations.length == 0) {
             throw new RuntimeException(
                     "No translations were provided.");
         }
@@ -164,7 +164,7 @@ public class TransformTrack implements AnimTrack<Transform> {
                     "TransformTrack lacks keyframe times.  "
                     + "Please invoke setTimes() first.");
         }
-        if (scales.length == 0) {
+        if (scales == null || scales.length == 0) {
             throw new RuntimeException(
                     "No scale vectors were provided.");
         }
@@ -186,7 +186,7 @@ public class TransformTrack implements AnimTrack<Transform> {
                     "TransformTrack lacks keyframe times.  "
                     + "Please invoke setTimes() first.");
         }
-        if (rotations.length == 0) {
+        if (rotations == null || rotations.length == 0) {
             throw new RuntimeException(
                     "No rotations were provided.");
         }
