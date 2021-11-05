@@ -67,13 +67,13 @@ public class TransformTrack implements AnimTrack<Transform> {
     }
 
     /**
-     * Creates a transform track for the given bone index
+     * Creates a transform track for the given target
      *
      * @param target       the target Joint or Spatial of the new track
      * @param times        a float array with the time of each frame
-     * @param translations the translation of the bone for each frame
-     * @param rotations    the rotation of the bone for each frame
-     * @param scales       the scale of the bone for each frame
+     * @param translations the translation of the target for each frame
+     * @param rotations    the rotation of the target for each frame
+     * @param scales       the scale of the target for each frame
      */
     public TransformTrack(HasLocalTransform target, float[] times, Vector3f[] translations, Quaternion[] rotations, Vector3f[] scales) {
         this.target = target;
@@ -133,7 +133,7 @@ public class TransformTrack implements AnimTrack<Transform> {
     /**
      * Set the translations for this joint track
      *
-     * @param translations the translation of the bone for each frame
+     * @param translations the translation of the target for each frame
      */
     public void setKeyframesTranslation(Vector3f[] translations) {
         if (times == null) {
@@ -152,7 +152,7 @@ public class TransformTrack implements AnimTrack<Transform> {
     /**
      * Set the scales for this joint track
      *
-     * @param scales the scales of the bone for each frame
+     * @param scales the scales of the target for each frame
      */
     public void setKeyframesScale(Vector3f[] scales) {
         if (times == null) {
@@ -171,7 +171,7 @@ public class TransformTrack implements AnimTrack<Transform> {
     /**
      * Set the rotations for this joint track
      *
-     * @param rotations the rotations of the bone for each frame
+     * @param rotations the rotations of the target for each frame
      */
     public void setKeyframesRotation(Quaternion[] rotations) {
         if (times == null) {
@@ -189,12 +189,12 @@ public class TransformTrack implements AnimTrack<Transform> {
 
 
     /**
-     * Set the translations, rotations and scales for this bone track
+     * Set the translations, rotations and scales for this track
      *
      * @param times        a float array with the time of each frame
-     * @param translations the translation of the bone for each frame
-     * @param rotations    the rotation of the bone for each frame
-     * @param scales       the scale of the bone for each frame
+     * @param translations the translation of the target for each frame
+     * @param rotations    the rotation of the target for each frame
+     * @param scales       the scale of the target for each frame
      */
     public void setKeyframes(float[] times, Vector3f[] translations, Quaternion[] rotations, Vector3f[] scales) {
         if (times != null) {
