@@ -830,6 +830,15 @@ public interface GL {
     public int glGetError();
 
     /**
+     * Determine the current single-precision floating-point value(s) of the
+     * specified parameter.
+     *
+     * @param parameterId which parameter
+     * @param storeValues storage for the value(s)
+     */
+    public void glGetFloat(int parameterId, FloatBuffer storeValues);
+
+    /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glGetIntegerv">Reference Page</a></p>
      *
      * Returns the current integer value of the specified state variable.
