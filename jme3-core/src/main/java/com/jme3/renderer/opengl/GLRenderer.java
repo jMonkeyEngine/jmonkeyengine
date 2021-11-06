@@ -81,6 +81,7 @@ public final class GLRenderer implements Renderer {
     private static final Pattern GLVERSION_PATTERN = Pattern.compile(".*?(\\d+)\\.(\\d+).*");
 
     private final ByteBuffer nameBuf = BufferUtils.createByteBuffer(250);
+    private final FloatBuffer floatBuf16 = BufferUtils.createFloatBuffer(16);
     private final StringBuilder stringBuf = new StringBuilder(250);
     private final IntBuffer intBuf1 = BufferUtils.createIntBuffer(1);
     private final IntBuffer intBuf16 = BufferUtils.createIntBuffer(16);
@@ -3323,6 +3324,26 @@ public final class GLRenderer implements Renderer {
     @Override
     public int getDefaultAnisotropicFilter() {
         return this.defaultAnisotropicFilter;
+    }
+
+    /**
+     * Determine the maximum allowed width for lines.
+     *
+     * @return the maximum width (in pixels)
+     */
+    @Override
+    public float getMaxLineWidth() {
+        // Since neither JMonkeyEngine nor LWJGL ever enables GL_LINE_SMOOTH,
+        // all lines are aliased, but just in case...
+        assert !gl.glIsEnabled(GL.GL_LINE_SMOOTH);
+
+        floatBuf16.clear();
+        gl.glGetFloat(GL.GL_ALIASED_LINE_WIDTH_RANGE, floatBuf16);
+        System.out.println("minLineWidth = " + floatBuf16.get(0));
+        System.out.println("maxLineWidth = " + floatBuf16.get(1));
+        float result = floatBuf16.get(1);
+
+        return result;
     }
 
     /**

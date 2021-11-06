@@ -45,6 +45,7 @@ import java.nio.ShortBuffer;
  */
 public interface GL {
 
+    public static final int GL_ALIASED_LINE_WIDTH_RANGE = 0x846E;
     public static final int GL_ALPHA = 0x1906;
     public static final int GL_ALWAYS = 0x207;
     public static final int GL_ARRAY_BUFFER = 0x8892;
@@ -97,6 +98,7 @@ public interface GL {
     public static final int GL_LINEAR_MIPMAP_NEAREST = 0x2701;
     public static final int GL_LINES = 0x1;
     public static final int GL_LINE_LOOP = 0x2;
+    public static final int GL_LINE_SMOOTH = 0xB20;
     public static final int GL_LINE_STRIP = 0x3;
     public static final int GL_LINK_STATUS = 0x8B82;
     public static final int GL_LUMINANCE = 0x1909;
