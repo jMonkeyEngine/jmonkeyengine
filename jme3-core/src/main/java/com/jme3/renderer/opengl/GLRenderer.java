@@ -3337,6 +3337,12 @@ public final class GLRenderer implements Renderer {
         // all lines are aliased, but just in case...
         assert !gl.glIsEnabled(GL.GL_LINE_SMOOTH);
 
+        // When running with OpenGL 3.2+ core profile,
+        // compatibility features such as multipixel lines aren't available.
+        if (caps.contains(Caps.CoreProfile)) {
+            return 1f;
+        }
+
         floatBuf16.clear();
         gl.glGetFloat(GL.GL_ALIASED_LINE_WIDTH_RANGE, floatBuf16);
         System.out.println("minLineWidth = " + floatBuf16.get(0));
