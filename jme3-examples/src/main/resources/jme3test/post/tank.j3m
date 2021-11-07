@@ -1,0 +1,15 @@
+Material My Material : jme3test/post/MRTLighting.j3md {
+     MaterialParameters {
+        DiffuseMap : Repeat "Models/HoverTank/tank_diffuse.jpg"
+        NormalMap : Repeat "Models/HoverTank/tank_normals.png"
+        SpecularMap : Repeat "Models/HoverTank/tank_specular.jpg"
+        Ambient : 0.4 0.4 0.4 1.0
+        Diffuse : 0.6 0.6 0.6 1.0
+        Specular : 1.0 1.0 1.0 1.0
+        GlowColor : 1.0 1.0 1.0 1.0
+        UseMaterialColors : true
+        Shininess : 32.0
+     }
+    AdditionalRenderState {
+    }
+}
