@@ -3345,8 +3345,6 @@ public final class GLRenderer implements Renderer {
 
         floatBuf16.clear();
         gl.glGetFloat(GL.GL_ALIASED_LINE_WIDTH_RANGE, floatBuf16);
-        System.out.println("minLineWidth = " + floatBuf16.get(0));
-        System.out.println("maxLineWidth = " + floatBuf16.get(1));
         float result = floatBuf16.get(1);
 
         return result;
