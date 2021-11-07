@@ -126,7 +126,7 @@ jobs:
         shell: bash
         run: |
           # Build
-          ./gradlew -i -PuseCommitHashAsVersionName=true -PskipPrebuildLibraries=true build
+          ./gradlew -PuseCommitHashAsVersionName=true -PskipPrebuildLibraries=true build
 
           if [ "${{ matrix.deploy }}" = "true" ];
           then
