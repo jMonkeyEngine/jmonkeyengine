@@ -71,12 +71,12 @@ public class TransformTrack implements AnimTrack<Transform> {
      * Create a transform track for the given target
      *
      * @param target       the target Joint or Spatial of the new track
-     * @param times        the time for each frame, or null for none
-     * @param translations the translation of the target for each frame,
+     * @param times        the time for each keyframe, or null for none
+     * @param translations the translation of the target for each keyframe,
      *                     or null for no translation
-     * @param rotations    the rotation of the target for each frame,
+     * @param rotations    the rotation of the target for each keyframe,
      *                     or null for no rotation
-     * @param scales       the scale of the target for each frame,
+     * @param scales       the scale of the target for each keyframe,
      *                     or null for no scaling
      */
     public TransformTrack(HasLocalTransform target, float[] times, Vector3f[] translations, Quaternion[] rotations, Vector3f[] scales) {
@@ -138,8 +138,8 @@ public class TransformTrack implements AnimTrack<Transform> {
     /**
      * Set the translations
      *
-     * @param translations the desired translation of the target for each frame
-     * (not null, not empty)
+     * @param translations the desired translation of the target for each
+     * keyframe (not null, not empty)
      */
     public void setKeyframesTranslation(Vector3f[] translations) {
         if (times == null) {
@@ -158,8 +158,8 @@ public class TransformTrack implements AnimTrack<Transform> {
     /**
      * Set the scales
      *
-     * @param scales the desired scale of the target for each frame (not null,
-     * not empty)
+     * @param scales the desired scale of the target for each keyframe (not
+     * null, not empty)
      */
     public void setKeyframesScale(Vector3f[] scales) {
         if (times == null) {
@@ -178,8 +178,8 @@ public class TransformTrack implements AnimTrack<Transform> {
     /**
      * Set the rotations
      *
-     * @param rotations the desired rotation of the target for each frame (not
-     * null, not empty)
+     * @param rotations the desired rotation of the target for each keyframe
+     * (not null, not empty)
      */
     public void setKeyframesRotation(Quaternion[] rotations) {
         if (times == null) {
@@ -199,13 +199,14 @@ public class TransformTrack implements AnimTrack<Transform> {
     /**
      * Set the translations, rotations, and/or scales
      *
-     * @param times        the desired time for each frame,
+     * @param times        the desired time for each keyframe,
      *                     or null to leave the times unchanged
-     * @param translations the desired translation of the target for each frame,
+     * @param translations the desired translation of the target for each
+     *                     keyframe,
      *                     or null to leave the translations unchanged
-     * @param rotations    the desired rotation of the target for each frame,
+     * @param rotations    the desired rotation of the target for each keyframe,
      *                     or null to leave the rotations unchanged
-     * @param scales       the desired scale of the target for each frame,
+     * @param scales       the desired scale of the target for each keyframe,
      *                     or null to leave the scales unchanged
      */
     public void setKeyframes(float[] times, Vector3f[] translations, Quaternion[] rotations, Vector3f[] scales) {
@@ -250,7 +251,7 @@ public class TransformTrack implements AnimTrack<Transform> {
         int endFrame = 1;
         float blend = 0;
         if (time >= times[lastFrame]) {
-            // extrapolate beyond the final frame of the animation
+            // extrapolate beyond the final keyframe of the animation
             startFrame = lastFrame;
 
             float inferredInterval = times[lastFrame] - times[lastFrame - 1];
