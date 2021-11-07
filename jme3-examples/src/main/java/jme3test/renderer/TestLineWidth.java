@@ -84,13 +84,17 @@ public class TestLineWidth extends SimpleApplication {
          * Display a vertical green line on the left side of the display.
          */
         float lineWidth = Math.min(maxWidth, leftX);
-        assert lineWidth >= 1f : lineWidth;
+        drawVerticalLine(lineWidth, leftX / 2, ColorRGBA.Green);
+    }
+
+    private void drawVerticalLine(float lineWidth, float x, ColorRGBA color) {
         Material material = new Material(assetManager, Materials.UNSHADED);
-        material.setColor("Color", ColorRGBA.Green.clone());
+        material.setColor("Color", color.clone());
         material.getAdditionalRenderState().setLineWidth(lineWidth);
 
-        Vector3f startLocation = new Vector3f(leftX / 2, 0.1f * topY, 0f);
-        Vector3f endLocation = new Vector3f(leftX / 2, 0.9f * topY, 0f);
+        float viewportHeight = cam.getHeight();
+        Vector3f startLocation = new Vector3f(x, 0.1f * viewportHeight, 0f);
+        Vector3f endLocation = new Vector3f(x, 0.9f * viewportHeight, 0f);
         Mesh wireMesh = new Line(startLocation, endLocation);
         Geometry wire = new Geometry("wire", wireMesh);
         wire.setMaterial(material);
