@@ -123,8 +123,9 @@ public class TransformTrack implements AnimTrack<Transform> {
      * @param times the keyframes times
      */
     public void setTimes(float[] times) {
-        if (times.length == 0) {
-            throw new RuntimeException("TransformTrack with no keyframes!");
+        if (times == null || times.length == 0) {
+            throw new IllegalArgumentException(
+                    "No keyframe times were provided.");
         }
         this.times = times;
         length = times[times.length - 1] - times[0];
@@ -137,10 +138,13 @@ public class TransformTrack implements AnimTrack<Transform> {
      */
     public void setKeyframesTranslation(Vector3f[] translations) {
         if (times == null) {
-            throw new RuntimeException("TransformTrack doesn't have any time for key frames, please call setTimes first");
+            throw new IllegalStateException(
+                    "TransformTrack lacks keyframe times.  "
+                    + "Please invoke setTimes() first.");
         }
-        if (translations.length == 0) {
-            throw new RuntimeException("TransformTrack with no translation keyframes!");
+        if (translations == null || translations.length == 0) {
+            throw new IllegalArgumentException(
+                    "No translations were provided.");
         }
         this.translations = new CompactVector3Array();
         this.translations.add(translations);
@@ -156,10 +160,13 @@ public class TransformTrack implements AnimTrack<Transform> {
      */
     public void setKeyframesScale(Vector3f[] scales) {
         if (times == null) {
-            throw new RuntimeException("TransformTrack doesn't have any time for key frames, please call setTimes first");
+            throw new IllegalStateException(
+                    "TransformTrack lacks keyframe times.  "
+                    + "Please invoke setTimes() first.");
         }
-        if (scales.length == 0) {
-            throw new RuntimeException("TransformTrack with no scale keyframes!");
+        if (scales == null || scales.length == 0) {
+            throw new IllegalArgumentException(
+                    "No scale vectors were provided.");
         }
         this.scales = new CompactVector3Array();
         this.scales.add(scales);
@@ -175,10 +182,13 @@ public class TransformTrack implements AnimTrack<Transform> {
      */
     public void setKeyframesRotation(Quaternion[] rotations) {
         if (times == null) {
-            throw new RuntimeException("TransformTrack doesn't have any time for key frames, please call setTimes first");
+            throw new IllegalStateException(
+                    "TransformTrack lacks keyframe times.  "
+                    + "Please invoke setTimes() first.");
         }
-        if (rotations.length == 0) {
-            throw new RuntimeException("TransformTrack with no rotation keyframes!");
+        if (rotations == null || rotations.length == 0) {
+            throw new IllegalArgumentException(
+                    "No rotations were provided.");
         }
         this.rotations = new CompactQuaternionArray();
         this.rotations.add(rotations);
