@@ -37,7 +37,6 @@ import com.jme3.asset.TextureKey;
 import com.jme3.texture.Image;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.BufferedInputStream;
 
 /**
  * Native image loader to deal with filetypes that support alpha channels.
@@ -60,8 +59,8 @@ public class AndroidNativeImageLoader  implements AssetLoader {
     @Override
     public Image load(AssetInfo info) throws IOException {
         boolean flip = ((TextureKey) info.getKey()).isFlipY();
-        try (final BufferedInputStream bin = new BufferedInputStream(info.openStream())) {
-            return load(bin, flip, tmpArray);
+        try (final InputStream in = info.openStream()) {
+            return load(in, flip, tmpArray);
         }
     }
 }
