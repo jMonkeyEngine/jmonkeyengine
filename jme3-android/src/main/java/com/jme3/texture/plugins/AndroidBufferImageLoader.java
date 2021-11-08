@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,6 +42,7 @@ import com.jme3.texture.image.ColorSpace;
 import com.jme3.util.BufferUtils;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.BufferedInputStream;
 import java.nio.ByteBuffer;
 
 /**
@@ -69,9 +70,8 @@ public class AndroidBufferImageLoader implements AssetLoader {
     
     @Override
     public Object load(AssetInfo assetInfo) throws IOException {
-        Bitmap bitmap = null;
+        Bitmap bitmap;
         Image.Format format;
-        InputStream in = null;
         int bpp;
         
         BitmapFactory.Options options = new BitmapFactory.Options();
@@ -84,15 +84,10 @@ public class AndroidBufferImageLoader implements AssetLoader {
         options.inPurgeable = true;
         options.inSampleSize = 1;
         
-        try {
-            in = assetInfo.openStream();
-            bitmap = BitmapFactory.decodeStream(in, null, options);
+        try (final BufferedInputStream bin = new BufferedInputStream(assetInfo.openStream())) {
+            bitmap = BitmapFactory.decodeStream(bin, null, options);
             if (bitmap == null) {
                 throw new IOException("Failed to load image: " + assetInfo.getKey().getName());
-            }
-        } finally {
-            if (in != null) {
-                in.close();
             }
         }
 
@@ -160,6 +155,7 @@ public class AndroidBufferImageLoader implements AssetLoader {
         bitmap.recycle();
         
         Image image = new Image(format, width, height, data, ColorSpace.sRGB);
+        
         return image;
     }
 }
