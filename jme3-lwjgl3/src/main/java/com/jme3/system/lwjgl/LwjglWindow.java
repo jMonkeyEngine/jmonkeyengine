@@ -548,7 +548,10 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
                 int[] width = new int[1];
                 int[] height = new int[1];
                 glfwGetFramebufferSize(window, width, height);
-                listener.reshape(width[0], height[0]);
+
+                if (settings.getWidth() != width[0] || settings.getHeight() != height[0]) {
+                    listener.reshape(width[0], height[0]);
+                }
             }
         }
 
