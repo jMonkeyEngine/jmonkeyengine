@@ -15,8 +15,8 @@ public enum DefaultLocation {
     ALL_EXCEPT_LOCALS,
 
     /** Apply default annotations to unannotated upper bounds:  both
-     * explicit ones in <tt>extends</tt> clauses, and implicit upper bounds
-     * when no explicit <tt>extends</tt> or <tt>super</tt> clause is
+     * explicit ones in <code>extends</code> clauses, and implicit upper bounds
+     * when no explicit <code>extends</code> or <code>super</code> clause is
      * present. */
     // Especially useful for parameterized classes that provide a lot of
     // static methods with the same generic parameters as the class.
