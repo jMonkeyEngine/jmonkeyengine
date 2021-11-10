@@ -569,54 +569,67 @@ public enum Caps {
                         if (!caps.contains(Caps.GLSL100)) {
                             return false;
                         }
+                        // fall through
                     case 110:
                         if (!caps.contains(Caps.GLSL110)) {
                             return false;
                         }
+                        // fall through
                     case 120:
                         if (!caps.contains(Caps.GLSL120)) {
                             return false;
                         }
+                        // fall through
                     case 130:
                         if (!caps.contains(Caps.GLSL130)) {
                             return false;
                         }
+                        // fall through
                     case 140:
                         if (!caps.contains(Caps.GLSL140)) {
                             return false;
                         }
+                        // fall through
                     case 150:
                         if (!caps.contains(Caps.GLSL150)) {
                             return false;
                         }
+                        // fall through
                     case 330:
                         if (!caps.contains(Caps.GLSL330)) {
                             return false;
                         }
+                        // fall through
                     case 400:
                         if (!caps.contains(Caps.GLSL400)) {
                             return false;
                         }
+                        // fall through
                     case 410:
                         if (!caps.contains(Caps.GLSL410)) {
                             return false;
                         }
+                        // fall through
                     case 420:
                         if (!caps.contains(Caps.GLSL420)) {
                             return false;
                         }
+                        // fall through
                     case 430:
                         if (!caps.contains(Caps.GLSL430)) {
                             return false;
                         }
+                        // fall through
                     case 440:
                         if (!caps.contains(Caps.GLSL440)) {
                             return false;
                         }
+                        // fall through
                     case 450:
                         if (!caps.contains(Caps.GLSL450)) {
                             return false;
                         }
+                        // fall through
                     default:
                         return false;
                 }
