@@ -2597,7 +2597,7 @@ public final class GLRenderer implements Renderer {
 
     @Override
     public void setTexture(int unit, Texture tex) throws TextureUnitException {
-        if (unit < 0 || unit >= RenderContext.maxTextureUnits) {
+        if (unit < 0 || unit >= RenderContext.MAX_TEXTURE_UNITS) {
             throw new TextureUnitException();
         }
 

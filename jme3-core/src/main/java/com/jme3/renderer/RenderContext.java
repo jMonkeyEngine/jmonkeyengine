@@ -47,7 +47,7 @@ public class RenderContext {
     /**
      * number of texture units that JME supports
      */
-    public static final int maxTextureUnits = 16;
+    public static final int MAX_TEXTURE_UNITS = 16;
 
     /**
      * @see RenderState#setFaceCullMode(com.jme3.material.RenderState.FaceCullMode)
@@ -225,7 +225,7 @@ public class RenderContext {
      * @see Renderer#setTexture(int, com.jme3.texture.Texture)
      */
     public final WeakReference<Image> boundTextures[]
-            = new WeakReference[maxTextureUnits];
+            = new WeakReference[MAX_TEXTURE_UNITS];
 
     /**
      * IDList for texture units
