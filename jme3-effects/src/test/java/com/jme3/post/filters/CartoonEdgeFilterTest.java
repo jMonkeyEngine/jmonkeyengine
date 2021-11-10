@@ -16,7 +16,7 @@ public class CartoonEdgeFilterTest {
 
     @Test
     public void testSaveAndLoad() {
-        AssetManager assetManager = new DesktopAssetManager(true);
+        AssetManager assetManager = new DesktopAssetManager();
 
         CartoonEdgeFilter cartoon = new CartoonEdgeFilter();
         cartoon.setEdgeColor(ColorRGBA.Red);
