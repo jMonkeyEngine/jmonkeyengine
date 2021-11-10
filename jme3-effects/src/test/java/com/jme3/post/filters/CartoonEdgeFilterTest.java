@@ -14,6 +14,9 @@ import com.jme3.math.ColorRGBA;
  */
 public class CartoonEdgeFilterTest {
 
+    /**
+     * Test saving/loading a CartoonEdgeFilter
+     */
     @Test
     public void testSaveAndLoad() {
         AssetManager assetManager = new DesktopAssetManager();
