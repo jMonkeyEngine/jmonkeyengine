@@ -47,7 +47,7 @@ public class RenderContext {
     /**
      * number of texture units that JME supports
      */
-    final public static int maxTextureUnits = 16;
+    public static final int maxTextureUnits = 16;
 
     /**
      * @see RenderState#setFaceCullMode(com.jme3.material.RenderState.FaceCullMode)
