@@ -31,11 +31,16 @@
  */
 package com.jme3.post.filters;
 
+import java.io.IOException;
+
 import com.jme3.asset.AssetManager;
+import com.jme3.export.InputCapsule;
+import com.jme3.export.JmeExporter;
+import com.jme3.export.JmeImporter;
+import com.jme3.export.OutputCapsule;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.post.Filter;
-import com.jme3.post.Filter.Pass;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
@@ -109,8 +114,6 @@ public class CartoonEdgeFilter extends Filter {
     protected void cleanUpFilter(Renderer r) {
         normalPass.cleanup(r);
     }
-
-    
     
     /**
      * Return the depth sensitivity<br>
@@ -196,7 +199,6 @@ public class CartoonEdgeFilter extends Filter {
         if (material != null) {
             material.setFloat("EdgeWidth", edgeWidth);
         }
-
     }
 
     /**
@@ -260,5 +262,31 @@ public class CartoonEdgeFilter extends Filter {
         if (material != null) {
             material.setColor("EdgeColor", edgeColor);
         }
+    }
+    
+    @Override
+    public void write(JmeExporter ex) throws IOException {
+        super.write(ex);
+        OutputCapsule oc = ex.getCapsule(this);
+        oc.write(edgeWidth, "edgeWidth", 1.0f);
+        oc.write(edgeIntensity, "edgeIntensity", 1.0f);
+        oc.write(normalThreshold, "normalThreshold", 0.5f);
+        oc.write(depthThreshold, "depthThreshold", 0.1f);
+        oc.write(normalSensitivity, "normalSensitivity", 1.0f);
+        oc.write(depthSensitivity, "depthSensitivity", 10.0f);
+        oc.write(edgeColor, "edgeColor", ColorRGBA.Black);
+    }
+
+    @Override
+    public void read(JmeImporter im) throws IOException {
+        super.read(im);
+        InputCapsule ic = im.getCapsule(this);
+        edgeWidth = ic.readFloat("edgeWidth", 1.0f);
+        edgeIntensity = ic.readFloat("edgeIntensity", 1.0f);
+        normalThreshold = ic.readFloat("normalThreshold", 0.5f);
+        depthThreshold = ic.readFloat("depthThreshold", 0.1f);
+        normalSensitivity = ic.readFloat("normalSensitivity", 1.0f);
+        depthSensitivity = ic.readFloat("depthSensitivity", 10.0f);
+        edgeColor = (ColorRGBA) ic.readSavable("edgeColor", ColorRGBA.Black.clone());
     }
 }
