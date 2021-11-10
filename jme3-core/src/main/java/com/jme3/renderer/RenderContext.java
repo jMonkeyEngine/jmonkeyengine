@@ -232,7 +232,7 @@ public class RenderContext {
      *
      * @see Renderer#setTexture(int, com.jme3.texture.Texture)
      */
-    public final IDList textureIndexList = new IDList();
+    public final IdList textureIndexList = new IdList();
 
     /**
      * Currently bound texture unit
@@ -263,7 +263,7 @@ public class RenderContext {
     /**
      * IDList for vertex attributes
      */
-    public final IDList attribIndexList = new IDList();
+    public final IdList attribIndexList = new IdList();
 
     /**
      * depth test function

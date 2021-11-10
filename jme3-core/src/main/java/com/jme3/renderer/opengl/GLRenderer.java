@@ -2877,7 +2877,7 @@ public final class GLRenderer implements Renderer {
     }
 
     public void clearVertexAttribs() {
-        IDList attribList = context.attribIndexList;
+        IdList attribList = context.attribIndexList;
         for (int i = 0; i < attribList.oldLen; i++) {
             int idx = attribList.oldList[i];
             gl.glDisableVertexAttribArray(idx);

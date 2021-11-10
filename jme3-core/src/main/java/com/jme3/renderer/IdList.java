@@ -37,7 +37,7 @@ import java.util.Arrays;
  * A specialized data-structure used to optimize state changes of "slot"
  * based state. 
  */
-public class IDList {
+public class IdList {
 
     public int[] newList = new int[16];
     public int[] oldList = new int[16];
