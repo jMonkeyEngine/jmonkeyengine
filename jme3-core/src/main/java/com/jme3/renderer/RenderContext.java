@@ -255,7 +255,7 @@ public class RenderContext {
      * Vertex attribs currently bound and enabled. If a slot is null, then
      * it is disabled.
      */
-    public final WeakReference<VertexBuffer> [] boundAttribs = new WeakReference[16];
+    public final WeakReference<VertexBuffer>[] boundAttribs = new WeakReference[16];
 
     /**
      * IDList for vertex attributes
@@ -336,7 +336,7 @@ public class RenderContext {
     /**
      * Reset the RenderContext to default GL state
      */
-    public void reset(){
+    public void reset() {
         init();
 
         for (int i = 0; i < boundTextures.length; i++) {

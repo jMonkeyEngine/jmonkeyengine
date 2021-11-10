@@ -451,17 +451,19 @@ public enum Caps {
      * @param tex The texture to check
      * @return True if it is supported, false otherwise.
      */
-    public static boolean supports(Collection<Caps> caps, Texture tex){
+    public static boolean supports(Collection<Caps> caps, Texture tex) {
         if (tex.getType() == Texture.Type.TwoDimensionalArray
-         && !caps.contains(Caps.TextureArray))
+                && !caps.contains(Caps.TextureArray)) {
             return false;
+        }
 
         Image img = tex.getImage();
-        if (img == null)
+        if (img == null) {
             return true;
+        }
 
         Format fmt = img.getFormat();
-        switch (fmt){
+        switch (fmt) {
             case Depth24Stencil8:
                 return caps.contains(Caps.PackedDepthStencilBuffer);
             case Depth32F:
@@ -473,22 +475,25 @@ public enum Caps {
             case RGB9E5:
                 return caps.contains(Caps.SharedExponentTexture);
             default:
-                if (fmt.isFloatingPont())
+                if (fmt.isFloatingPont()) {
                     return caps.contains(Caps.FloatTexture);
-                        
+                }
+
                 return true;
         }
     }
-    
-    private static boolean supportsColorBuffer(Collection<Caps> caps, RenderBuffer colorBuf){
+
+    private static boolean supportsColorBuffer(Collection<Caps> caps, RenderBuffer colorBuf) {
         Format colorFmt = colorBuf.getFormat();
-        if (colorFmt.isDepthFormat())
+        if (colorFmt.isDepthFormat()) {
             return false;
+        }
 
-        if (colorFmt.isCompressed())
+        if (colorFmt.isCompressed()) {
             return false;
+        }
 
-        switch (colorFmt){
+        switch (colorFmt) {
             case RGB111110F:
                 return caps.contains(Caps.PackedFloatColorBuffer);
             case RGB16F_to_RGB111110F:
@@ -496,8 +501,9 @@ public enum Caps {
             case RGB9E5:
                 return false;
             default:
-                if (colorFmt.isFloatingPont())
+                if (colorFmt.isFloatingPont()) {
                     return caps.contains(Caps.FloatColorBuffer);
+                }
 
                 return true;
         }
@@ -511,31 +517,35 @@ public enum Caps {
      * @param fb The framebuffer to check
      * @return True if it is supported, false otherwise.
      */
-    public static boolean supports(Collection<Caps> caps, FrameBuffer fb){
-        if (!caps.contains(Caps.FrameBuffer))
+    public static boolean supports(Collection<Caps> caps, FrameBuffer fb) {
+        if (!caps.contains(Caps.FrameBuffer)) {
             return false;
+        }
 
         if (fb.getSamples() > 1
-         && !caps.contains(Caps.FrameBufferMultisample))
+                && !caps.contains(Caps.FrameBufferMultisample)) {
             return false;
+        }
 
         RenderBuffer depthBuf = fb.getDepthBuffer();
-        if (depthBuf != null){
+        if (depthBuf != null) {
             Format depthFmt = depthBuf.getFormat();
-            if (!depthFmt.isDepthFormat()){
+            if (!depthFmt.isDepthFormat()) {
                 return false;
-            }else{
+            } else {
                 if (depthFmt == Format.Depth32F
-                 && !caps.contains(Caps.FloatDepthBuffer))
+                        && !caps.contains(Caps.FloatDepthBuffer)) {
                     return false;
-                
+                }
+
                 if (depthFmt == Format.Depth24Stencil8
-                 && !caps.contains(Caps.PackedDepthStencilBuffer))
+                        && !caps.contains(Caps.PackedDepthStencilBuffer)) {
                     return false;
+                }
             }
         }
-        for (int i = 0; i < fb.getNumColorBuffers(); i++){
-            if (!supportsColorBuffer(caps, fb.getColorBuffer(i))){
+        for (int i = 0; i < fb.getNumColorBuffers(); i++) {
+            if (!supportsColorBuffer(caps, fb.getColorBuffer(i))) {
                 return false;
             }
         }
@@ -550,37 +560,63 @@ public enum Caps {
      * @param shader The shader to check
      * @return True if it is supported, false otherwise.
      */
-    public static boolean supports(Collection<Caps> caps, Shader shader){
+    public static boolean supports(Collection<Caps> caps, Shader shader) {
         for (ShaderSource source : shader.getSources()) {
             if (source.getLanguage().startsWith("GLSL")) {
                 int ver = Integer.parseInt(source.getLanguage().substring(4));
                 switch (ver) {
                     case 100:
-                        if (!caps.contains(Caps.GLSL100)) return false;
+                        if (!caps.contains(Caps.GLSL100)) {
+                            return false;
+                        }
                     case 110:
-                        if (!caps.contains(Caps.GLSL110)) return false;
+                        if (!caps.contains(Caps.GLSL110)) {
+                            return false;
+                        }
                     case 120:
-                        if (!caps.contains(Caps.GLSL120)) return false;
+                        if (!caps.contains(Caps.GLSL120)) {
+                            return false;
+                        }
                     case 130:
-                        if (!caps.contains(Caps.GLSL130)) return false;
+                        if (!caps.contains(Caps.GLSL130)) {
+                            return false;
+                        }
                     case 140:
-                        if (!caps.contains(Caps.GLSL140)) return false;
+                        if (!caps.contains(Caps.GLSL140)) {
+                            return false;
+                        }
                     case 150:
-                        if (!caps.contains(Caps.GLSL150)) return false;
+                        if (!caps.contains(Caps.GLSL150)) {
+                            return false;
+                        }
                     case 330:
-                        if (!caps.contains(Caps.GLSL330)) return false;
+                        if (!caps.contains(Caps.GLSL330)) {
+                            return false;
+                        }
                     case 400:
-                        if (!caps.contains(Caps.GLSL400)) return false;
+                        if (!caps.contains(Caps.GLSL400)) {
+                            return false;
+                        }
                     case 410:
-                        if (!caps.contains(Caps.GLSL410)) return false;
+                        if (!caps.contains(Caps.GLSL410)) {
+                            return false;
+                        }
                     case 420:
-                        if (!caps.contains(Caps.GLSL420)) return false;
+                        if (!caps.contains(Caps.GLSL420)) {
+                            return false;
+                        }
                     case 430:
-                        if (!caps.contains(Caps.GLSL430)) return false;
+                        if (!caps.contains(Caps.GLSL430)) {
+                            return false;
+                        }
                     case 440:
-                        if (!caps.contains(Caps.GLSL440)) return false;
+                        if (!caps.contains(Caps.GLSL440)) {
+                            return false;
+                        }
                     case 450:
-                        if (!caps.contains(Caps.GLSL450)) return false;
+                        if (!caps.contains(Caps.GLSL450)) {
+                            return false;
+                        }
                     default:
                         return false;
                 }

@@ -893,12 +893,16 @@ public class RenderManager {
 
         // render opaque objects with default depth range
         // opaque objects are sorted front-to-back, reducing overdraw
-        if (prof!=null) prof.vpStep(VpStep.RenderBucket, vp, Bucket.Opaque);
+        if (prof != null) {
+            prof.vpStep(VpStep.RenderBucket, vp, Bucket.Opaque);
+        }
         rq.renderQueue(Bucket.Opaque, this, cam, flush);
 
         // render the sky, with depth range set to the farthest
         if (!rq.isQueueEmpty(Bucket.Sky)) {
-            if (prof!=null) prof.vpStep(VpStep.RenderBucket, vp, Bucket.Sky);
+            if (prof != null) {
+                prof.vpStep(VpStep.RenderBucket, vp, Bucket.Sky);
+            }
             renderer.setDepthRange(1, 1);
             rq.renderQueue(Bucket.Sky, this, cam, flush);
             depthRangeChanged = true;
@@ -909,7 +913,9 @@ public class RenderManager {
         // rest of the scene's objects. Consequently, they are sorted
         // back-to-front.
         if (!rq.isQueueEmpty(Bucket.Transparent)) {
-            if (prof!=null) prof.vpStep(VpStep.RenderBucket, vp, Bucket.Transparent);
+            if (prof != null) {
+                prof.vpStep(VpStep.RenderBucket, vp, Bucket.Transparent);
+            }
             if (depthRangeChanged) {
                 renderer.setDepthRange(0, 1);
                 depthRangeChanged = false;
@@ -919,7 +925,9 @@ public class RenderManager {
         }
 
         if (!rq.isQueueEmpty(Bucket.Gui)) {
-            if (prof!=null) prof.vpStep(VpStep.RenderBucket, vp, Bucket.Gui);
+            if (prof != null) {
+                prof.vpStep(VpStep.RenderBucket, vp, Bucket.Gui);
+            }
             renderer.setDepthRange(0, 0);
             setCamera(cam, true);
             rq.renderQueue(Bucket.Gui, this, cam, flush);
@@ -946,8 +954,10 @@ public class RenderManager {
      * @see #setHandleTranslucentBucket(boolean) 
      */
     public void renderTranslucentQueue(ViewPort vp) {
-        if (prof!=null) prof.vpStep(VpStep.RenderBucket, vp, Bucket.Translucent);
-        
+        if (prof != null) {
+            prof.vpStep(VpStep.RenderBucket, vp, Bucket.Translucent);
+        }
+
         RenderQueue rq = vp.getQueue();
         if (!rq.isQueueEmpty(Bucket.Translucent) && handleTranslucentBucket) {
             rq.renderQueue(Bucket.Translucent, this, vp.getCamera(), true);
@@ -1080,21 +1090,27 @@ public class RenderManager {
         if (!vp.isEnabled()) {
             return;
         }
-        if (prof!=null) prof.vpStep(VpStep.BeginRender, vp, null);
-                
+        if (prof != null) {
+            prof.vpStep(VpStep.BeginRender, vp, null);
+        }
+
         SafeArrayList<SceneProcessor> processors = vp.getProcessors();
         if (processors.isEmpty()) {
             processors = null;
         }
 
         if (processors != null) {
-            if (prof != null) prof.vpStep(VpStep.PreFrame, vp, null);
+            if (prof != null) {
+                prof.vpStep(VpStep.PreFrame, vp, null);
+            }
             for (SceneProcessor proc : processors.getArray()) {
                 if (!proc.isInitialized()) {
                     proc.initialize(this, vp);
                 }
                 proc.setProfiler(this.prof);
-                if (prof != null) prof.spStep(SpStep.ProcPreFrame, proc.getClass().getSimpleName());
+                if (prof != null) {
+                    prof.spStep(SpStep.ProcPreFrame, proc.getClass().getSimpleName());
+                }
                 proc.preFrame(tpf);
             }
         }
@@ -1110,37 +1126,53 @@ public class RenderManager {
                     vp.isClearStencil());
         }
 
-        if (prof!=null) prof.vpStep(VpStep.RenderScene, vp, null);
+        if (prof != null) {
+            prof.vpStep(VpStep.RenderScene, vp, null);
+        }
         List<Spatial> scenes = vp.getScenes();
         for (int i = scenes.size() - 1; i >= 0; i--) {            
             renderScene(scenes.get(i), vp);
         }
 
         if (processors != null) {
-            if (prof!=null) prof.vpStep(VpStep.PostQueue, vp, null);
+            if (prof != null) {
+                prof.vpStep(VpStep.PostQueue, vp, null);
+            }
             for (SceneProcessor proc : processors.getArray()) {
-                if (prof != null) prof.spStep(SpStep.ProcPostQueue, proc.getClass().getSimpleName());
+                if (prof != null) {
+                    prof.spStep(SpStep.ProcPostQueue, proc.getClass().getSimpleName());
+                }
                 proc.postQueue(vp.getQueue());
             }
         }
 
-        if (prof!=null) prof.vpStep(VpStep.FlushQueue, vp, null);
+        if (prof != null) {
+            prof.vpStep(VpStep.FlushQueue, vp, null);
+        }
         flushQueue(vp);
 
         if (processors != null) {
-            if (prof!=null) prof.vpStep(VpStep.PostFrame, vp, null);
+            if (prof != null) {
+                prof.vpStep(VpStep.PostFrame, vp, null);
+            }
             for (SceneProcessor proc : processors.getArray()) {
-                if (prof != null) prof.spStep(SpStep.ProcPostFrame, proc.getClass().getSimpleName());
+                if (prof != null) {
+                    prof.spStep(SpStep.ProcPostFrame, proc.getClass().getSimpleName());
+                }
                 proc.postFrame(vp.getOutputFrameBuffer());
             }
-            if (prof != null) prof.vpStep(VpStep.ProcEndRender, vp, null);
+            if (prof != null) {
+                prof.vpStep(VpStep.ProcEndRender, vp, null);
+            }
         }
         //renders the translucent objects queue after processors have been rendered
         renderTranslucentQueue(vp);
         // clear any remaining spatials that were not rendered.
         clearQueue(vp);
 
-        if (prof!=null) prof.vpStep(VpStep.EndRender, vp, null);
+        if (prof != null) {
+            prof.vpStep(VpStep.EndRender, vp, null);
+        }
     }
     
     /**
@@ -1165,23 +1197,29 @@ public class RenderManager {
 
         uniformBindingManager.newFrame();        
 
-        if (prof!=null) prof.appStep(AppStep.RenderPreviewViewPorts);        
+        if (prof != null) {
+            prof.appStep(AppStep.RenderPreviewViewPorts);
+        }
         for (int i = 0; i < preViewPorts.size(); i++) {
             ViewPort vp = preViewPorts.get(i);
             if (vp.getOutputFrameBuffer() != null || mainFrameBufferActive) {
                 renderViewPort(vp, tpf);
             }
         }
-        
-        if (prof!=null) prof.appStep(AppStep.RenderMainViewPorts);
+
+        if (prof != null) {
+            prof.appStep(AppStep.RenderMainViewPorts);
+        }
         for (int i = 0; i < viewPorts.size(); i++) {
             ViewPort vp = viewPorts.get(i);
             if (vp.getOutputFrameBuffer() != null || mainFrameBufferActive) {
                 renderViewPort(vp, tpf);
             }
         }
-        
-        if (prof!=null) prof.appStep(AppStep.RenderPostViewPorts);
+
+        if (prof != null) {
+            prof.appStep(AppStep.RenderPostViewPorts);
+        }
         for (int i = 0; i < postViewPorts.size(); i++) {
             ViewPort vp = postViewPorts.get(i);
             if (vp.getOutputFrameBuffer() != null || mainFrameBufferActive) {

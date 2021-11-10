@@ -71,7 +71,7 @@ public class ViewPort {
     protected final SafeArrayList<SceneProcessor> processors = new SafeArrayList<>(SceneProcessor.class);
     protected FrameBuffer out = null;
 
-    protected final ColorRGBA backColor = new ColorRGBA(0,0,0,0);
+    protected final ColorRGBA backColor = new ColorRGBA(0, 0, 0, 0);
     protected boolean clearDepth = false, clearColor = false, clearStencil = false;
     private boolean enabled = true;
 
@@ -111,7 +111,7 @@ public class ViewPort {
      * 
      * @see #addProcessor(com.jme3.post.SceneProcessor) 
      */
-    public SafeArrayList<SceneProcessor> getProcessors(){
+    public SafeArrayList<SceneProcessor> getProcessors() {
         return processors;
     }
 
@@ -125,9 +125,9 @@ public class ViewPort {
      * 
      * @see SceneProcessor
      */
-    public void addProcessor(SceneProcessor processor){
+    public void addProcessor(SceneProcessor processor) {
         if (processor == null) {
-            throw new IllegalArgumentException( "Processor cannot be null." );
+            throw new IllegalArgumentException("Processor cannot be null.");
         }
         processors.add(processor);
     }
@@ -141,9 +141,9 @@ public class ViewPort {
      * 
      * @see SceneProcessor
      */
-    public void removeProcessor(SceneProcessor processor){
+    public void removeProcessor(SceneProcessor processor) {
         if (processor == null) {
-            throw new IllegalArgumentException( "Processor cannot be null." );
+            throw new IllegalArgumentException("Processor cannot be null.");
         }
         processors.remove(processor);
         processor.cleanup();
@@ -239,7 +239,7 @@ public class ViewPort {
      * @see #setClearDepth(boolean) 
      * @see #setClearStencil(boolean) 
      */
-    public void setClearFlags(boolean color, boolean depth, boolean stencil){
+    public void setClearFlags(boolean color, boolean depth, boolean stencil) {
         this.clearColor = color;
         this.clearDepth = depth;
         this.clearStencil = stencil;
@@ -299,9 +299,9 @@ public class ViewPort {
      * 
      * @see Spatial
      */
-    public void attachScene(Spatial scene){
+    public void attachScene(Spatial scene) {
         if (scene == null) {
-            throw new IllegalArgumentException( "Scene cannot be null." );
+            throw new IllegalArgumentException("Scene cannot be null.");
         }
         sceneList.add(scene);
         if (scene instanceof Geometry) {
@@ -316,9 +316,9 @@ public class ViewPort {
      * 
      * @see #attachScene(com.jme3.scene.Spatial) 
      */
-    public void detachScene(Spatial scene){
+    public void detachScene(Spatial scene) {
         if (scene == null) {
-            throw new IllegalArgumentException( "Scene cannot be null." );
+            throw new IllegalArgumentException("Scene cannot be null.");
         }
         sceneList.remove(scene);
         if (scene instanceof Geometry) {
@@ -342,7 +342,7 @@ public class ViewPort {
      * 
      * @see #attachScene(com.jme3.scene.Spatial) 
      */
-    public SafeArrayList<Spatial> getScenes(){
+    public SafeArrayList<Spatial> getScenes() {
         return sceneList;
     }
 
@@ -356,7 +356,7 @@ public class ViewPort {
      * 
      * @param background the background color.
      */
-    public void setBackgroundColor(ColorRGBA background){
+    public void setBackgroundColor(ColorRGBA background) {
         backColor.set(background);
     }
 
@@ -367,7 +367,7 @@ public class ViewPort {
      * 
      * @see #setBackgroundColor(com.jme3.math.ColorRGBA) 
      */
-    public ColorRGBA getBackgroundColor(){
+    public ColorRGBA getBackgroundColor() {
         return backColor;
     }
     

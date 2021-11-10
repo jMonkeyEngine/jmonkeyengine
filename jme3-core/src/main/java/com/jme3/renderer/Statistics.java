@@ -101,7 +101,7 @@ public class Statistics {
      * 
      * @param data The data array to write to
      */
-    public void getData(int[] data){
+    public void getData(int[] data) {
         data[0] = numVertices;
         data[1] = numTriangles;
         data[2] = numUniformsSet;
@@ -127,10 +127,11 @@ public class Statistics {
      * @param lod which level of detail
      * @param count multiplier for triangles and vertices
      */
-    public void onMeshDrawn(Mesh mesh, int lod, int count){
-        if( !enabled )
+    public void onMeshDrawn(Mesh mesh, int lod, int count) {
+        if (!enabled) {
             return;
-            
+        }
+
         numObjects += 1;
         numTriangles += mesh.getTriangleCount(lod) * count;
         numVertices += mesh.getVertexCount() * count;
@@ -142,7 +143,7 @@ public class Statistics {
      * @param mesh the Mesh that was drawn (not null)
      * @param lod which level of detail
      */
-    public void onMeshDrawn(Mesh mesh, int lod){
+    public void onMeshDrawn(Mesh mesh, int lod) {
         onMeshDrawn(mesh, lod, 1);
     }
 
@@ -152,12 +153,13 @@ public class Statistics {
      * @param shader The shader that was used
      * @param wasSwitched If true, the shader has required a state switch
      */
-    public void onShaderUse(Shader shader, boolean wasSwitched){
+    public void onShaderUse(Shader shader, boolean wasSwitched) {
         assert shader.getId() >= 1;
 
-        if( !enabled )
+        if (!enabled) {
             return;
-        
+        }
+
         // Reduces unnecessary hashmap lookups if
         // we already considered this shader.
         if (lastShader != shader.getId()) {
@@ -167,17 +169,19 @@ public class Statistics {
             }
         }
 
-        if (wasSwitched)
+        if (wasSwitched) {
             numShaderSwitches++;
+        }
     }
 
     /**
      * Called by the Renderer when a uniform was set.
      */
-    public void onUniformSet(){
-        if( !enabled )
+    public void onUniformSet() {
+        if (!enabled) {
             return;
-        numUniformsSet ++;
+        }
+        numUniformsSet++;
     }
 
     /**
@@ -186,17 +190,20 @@ public class Statistics {
      * @param image The image that was set
      * @param wasSwitched If true, the texture has required a state switch
      */
-    public void onTextureUse(Image image, boolean wasSwitched){
+    public void onTextureUse(Image image, boolean wasSwitched) {
         assert image.getId() >= 1;
 
-        if( !enabled )
+        if (!enabled) {
             return;
-            
-        if (!texturesUsed.containsKey(image.getId()))
-            texturesUsed.put(image.getId(), null);
+        }
 
-        if (wasSwitched)
-            numTextureBinds ++;
+        if (!texturesUsed.containsKey(image.getId())) {
+            texturesUsed.put(image.getId(), null);
+        }
+
+        if (wasSwitched) {
+            numTextureBinds++;
+        }
     }
 
     /**
@@ -205,25 +212,28 @@ public class Statistics {
      * @param fb The framebuffer that was set
      * @param wasSwitched If true, the framebuffer required a state switch
      */
-    public void onFrameBufferUse(FrameBuffer fb, boolean wasSwitched){
-        if( !enabled )
+    public void onFrameBufferUse(FrameBuffer fb, boolean wasSwitched) {
+        if (!enabled) {
             return;
-            
-        if (fb != null){
-            assert fb.getId() >= 1;
-
-            if (!fbosUsed.containsKey(fb.getId()))
-                fbosUsed.put(fb.getId(), null);
         }
 
-        if (wasSwitched)
-            numFboSwitches ++;
+        if (fb != null) {
+            assert fb.getId() >= 1;
+
+            if (!fbosUsed.containsKey(fb.getId())) {
+                fbosUsed.put(fb.getId(), null);
+            }
+        }
+
+        if (wasSwitched) {
+            numFboSwitches++;
+        }
     }
     
     /**
      * Clears all frame-specific statistics such as objects used per frame.
      */
-    public void clearFrame(){
+    public void clearFrame() {
         shadersUsed.clear();
         texturesUsed.clear();
         fbosUsed.clear();
@@ -242,67 +252,73 @@ public class Statistics {
     /**
      * Called by the Renderer when it creates a new shader
      */
-    public void onNewShader(){
-        if( !enabled )
+    public void onNewShader() {
+        if (!enabled) {
             return;
-        memoryShaders ++;
+        }
+        memoryShaders++;
     }
 
     /**
      * Called by the Renderer when it creates a new texture
      */
-    public void onNewTexture(){
-        if( !enabled )
+    public void onNewTexture() {
+        if (!enabled) {
             return;
-        memoryTextures ++;
+        }
+        memoryTextures++;
     }
 
     /**
      * Called by the Renderer when it creates a new framebuffer
      */
-    public void onNewFrameBuffer(){
-        if( !enabled )
+    public void onNewFrameBuffer() {
+        if (!enabled) {
             return;
-        memoryFrameBuffers ++;
+        }
+        memoryFrameBuffers++;
     }
 
     /**
      * Called by the Renderer when it deletes a shader
      */
-    public void onDeleteShader(){
-        if( !enabled )
+    public void onDeleteShader() {
+        if (!enabled) {
             return;
-        memoryShaders --;
+        }
+        memoryShaders--;
     }
 
     /**
      * Called by the Renderer when it deletes a texture
      */
-    public void onDeleteTexture(){
-        if( !enabled )
+    public void onDeleteTexture() {
+        if (!enabled) {
             return;
-        memoryTextures --;
+        }
+        memoryTextures--;
     }
 
     /**
      * Called by the Renderer when it deletes a framebuffer
      */
-    public void onDeleteFrameBuffer(){
-        if( !enabled )
+    public void onDeleteFrameBuffer() {
+        if (!enabled) {
             return;
-        memoryFrameBuffers --;
+        }
+        memoryFrameBuffers--;
     }
 
     /**
      * Called when video memory is cleared.
      */
-    public void clearMemory(){
+    public void clearMemory() {
         memoryFrameBuffers = 0;
         memoryShaders = 0;
         memoryTextures = 0;
     }
 
-    public void setEnabled( boolean f ) {
+    public void setEnabled(boolean f) {
         this.enabled = f;
     }
     

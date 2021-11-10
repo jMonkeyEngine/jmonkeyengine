@@ -44,7 +44,7 @@ public class RendererException extends RuntimeException {
      *
      * @param message the desired message text 
      */
-    public RendererException(String message){
+    public RendererException(String message) {
         super(message);
     }
 }
