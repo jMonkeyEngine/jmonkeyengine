@@ -383,10 +383,12 @@ public class Camera implements Savable, Cloneable {
      * <ul>
      * <li><a href="http://www.terathon.com/code/oblique.html">http://www.terathon.com/code/oblique.html</a>
      * <li><a href="http://aras-p.info/texts/obliqueortho.html">http://aras-p.info/texts/obliqueortho.html</a>
-     * <li><a href="http://hacksoflife.blogspot.com/2008/12/every-now-and-then-i-come-across.html">http://hacksoflife.blogspot.com/2008/12/every-now-and-then-i-come-across.html</a>
+     * <li><a href="http://hacksoflife.blogspot.com/2008/12/every-now-and-then-i-come-across.html">
+     * http://hacksoflife.blogspot.com/2008/12/every-now-and-then-i-come-across.html</a>
      * </ul>
      *
-     * Note that this will work properly only if it's called on each update, and be aware that it won't work properly with the sky bucket.
+     * Note that this will work properly only if it's called on each update,
+     * and be aware that it won't work properly with the sky bucket.
      * if you want to handle the sky bucket, look at how it's done in SimpleWaterProcessor.java
      * @param clipPlane the plane
      * @param side the side the camera stands from the plane
@@ -410,7 +412,8 @@ public class Camera implements Savable, Cloneable {
             Vector3f point = clipPlane.getNormal().mult(clipPlane.getConstant(), vars.vect1);
             Vector3f pp = ivm.mult(point, vars.vect2);
             Vector3f pn = ivm.multNormal(clipPlane.getNormal(), vars.vect3);
-            Vector4f clipPlaneV = vars.vect4f1.set(pn.x * sideFactor, pn.y * sideFactor, pn.z * sideFactor, -(pp.dot(pn)) * sideFactor);
+            Vector4f clipPlaneV = vars.vect4f1.set(pn.x * sideFactor, pn.y * sideFactor, pn.z * sideFactor,
+                    -(pp.dot(pn)) * sideFactor);
     
             Vector4f v = vars.vect4f2.set(0, 0, 0, 0);
     
@@ -419,7 +422,8 @@ public class Camera implements Savable, Cloneable {
             v.z = -1.0f;
             v.w = (1.0f + p.m22) / p.m23;
     
-            float dot = clipPlaneV.dot(v);//clipPlaneV.x * v.x + clipPlaneV.y * v.y + clipPlaneV.z * v.z + clipPlaneV.w * v.w;
+            float dot = clipPlaneV.dot(v);
+            //clipPlaneV.x * v.x + clipPlaneV.y * v.y + clipPlaneV.z * v.z + clipPlaneV.w * v.w;
             Vector4f c = clipPlaneV.multLocal(2.0f / dot);
     
             p.m20 = c.x - p.m30;
@@ -438,13 +442,16 @@ public class Camera implements Savable, Cloneable {
      * This technique is known as the oblique near-plane clipping method introduced by Eric Lengyel
      * more info here
      * <ul>
-     * <li><a href="http://www.terathon.com/code/oblique.html">http://www.terathon.com/code/oblique.html</a></li>
-     * <li><a href="http://aras-p.info/texts/obliqueortho.html">http://aras-p.info/texts/obliqueortho.html</a></li>
+     * <li><a href="http://www.terathon.com/code/oblique.html">
+     * http://www.terathon.com/code/oblique.html</a></li>
+     * <li><a href="http://aras-p.info/texts/obliqueortho.html">
+     * http://aras-p.info/texts/obliqueortho.html</a></li>
      * <li><a href="http://hacksoflife.blogspot.com/2008/12/every-now-and-then-i-come-across.html">
      * http://hacksoflife.blogspot.com/2008/12/every-now-and-then-i-come-across.html</a></li>
      * </ul>
      *
-     * Note that this will work properly only if it's called on each update, and be aware that it won't work properly with the sky bucket.
+     * Note that this will work properly only if it's called on each update,
+     * and be aware that it won't work properly with the sky bucket.
      * if you want to handle the sky bucket, look at how it's done in SimpleWaterProcessor.java
      * @param clipPlane the plane
      */
@@ -1285,7 +1292,8 @@ public class Camera implements Savable, Cloneable {
             coeffTop[1] = 0;
         }
 
-        projectionMatrix.fromFrustum(frustumNear, frustumFar, frustumLeft, frustumRight, frustumTop, frustumBottom, parallelProjection);
+        projectionMatrix.fromFrustum(frustumNear, frustumFar, frustumLeft, frustumRight,
+                frustumTop, frustumBottom, parallelProjection);
 //        projectionMatrix.transposeLocal();
 
         // The frame is affected by the frustum values
@@ -1376,7 +1384,8 @@ public class Camera implements Savable, Cloneable {
     /**
      * Enable/disable parallel projection.
      *
-     * @param value true to set up this camera for parallel projection is enable, false to enter normal perspective mode
+     * @param value true to set up this camera for parallel projection is enable,
+     * false to enter normal perspective mode
      */
     public void setParallelProjection(final boolean value) {
         this.parallelProjection = value;
@@ -1406,7 +1415,8 @@ public class Camera implements Savable, Cloneable {
      * for more explanations on non linear z buffer see
      * http://www.sjbaker.org/steve/omniv/love_your_z_buffer.html
      * 
-     * To compute the projection space z from the view space z (distance from cam to object) @see Camera#getViewToProjectionZ
+     * To compute the projection space z from the view space z (distance from cam to object)
+     * @see Camera#getViewToProjectionZ
      * 
      * @param screenPos 2d coordinate in screen space
      * @param projectionZPos non linear z value in projection space
@@ -1474,8 +1484,10 @@ public class Camera implements Savable, Cloneable {
 //        tmp_quat.set( worldPosition.x, worldPosition.y, worldPosition.z, 1 );
 //        viewProjectionMatrix.mult(tmp_quat, tmp_quat);
 //        tmp_quat.multLocal( 1.0f / tmp_quat.getW() );
-//        store.x = ( ( tmp_quat.getX() + 1 ) * ( viewPortRight - viewPortLeft ) / 2 + viewPortLeft ) * getWidth();
-//        store.y = ( ( tmp_quat.getY() + 1 ) * ( viewPortTop - viewPortBottom ) / 2 + viewPortBottom ) * getHeight();
+//        store.x = ( ( tmp_quat.getX() + 1 ) * ( viewPortRight - viewPortLeft ) / 2 + viewPortLeft )
+//                  * getWidth();
+//        store.y = ( ( tmp_quat.getY() + 1 ) * ( viewPortTop - viewPortBottom ) / 2 + viewPortBottom )
+//                  * getHeight();
 //        store.z = ( tmp_quat.getZ() + 1 ) / 2;
 //        vars.release();
 

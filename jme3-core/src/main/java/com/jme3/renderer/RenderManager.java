@@ -88,7 +88,8 @@ public class RenderManager {
     private Material forcedMaterial = null;
     private String forcedTechnique = null;
     private RenderState forcedRenderState = null;
-    private final SafeArrayList<MatParamOverride> forcedOverrides = new SafeArrayList<>(MatParamOverride.class);
+    private final SafeArrayList<MatParamOverride> forcedOverrides
+            = new SafeArrayList<>(MatParamOverride.class);
     private int viewX, viewY, viewWidth, viewHeight;
     private final Matrix4f orthoMatrix = new Matrix4f();
     private final LightList filteredLightList = new LightList(null);
@@ -619,7 +620,8 @@ public class RenderManager {
                 RenderState tmpRs = forcedRenderState;
                 if (geom.getMaterial().getActiveTechnique().getDef().getForcedRenderState() != null) {
                     //forcing forced technique renderState
-                    forcedRenderState = geom.getMaterial().getActiveTechnique().getDef().getForcedRenderState();
+                    forcedRenderState
+                            = geom.getMaterial().getActiveTechnique().getDef().getForcedRenderState();
                 }
                 // use geometry's material
                 material.render(geom, lightList, this);
@@ -629,7 +631,8 @@ public class RenderManager {
                 forcedRenderState = tmpRs;
 
                 //Reverted this part from revision 6197
-                //If forcedTechnique does not exists, and forcedMaterial is not set, the geom MUST NOT be rendered
+                //If forcedTechnique does not exists, and forcedMaterial is not set,
+                //the geom MUST NOT be rendered
             } else if (forcedMaterial != null) {
                 // use forced material
                 forcedMaterial.render(geom, lightList, this);
@@ -731,7 +734,8 @@ public class RenderManager {
      * contain the flattened scene graph.
      */
     public void renderScene(Spatial scene, ViewPort vp) {
-        //reset of the camera plane state for proper culling (must be 0 for the first note of the scene to be rendered)
+        //reset of the camera plane state for proper culling
+        //(must be 0 for the first note of the scene to be rendered)
         vp.getCamera().setPlaneState(0);
         //rendering the scene
         renderSubScene(scene, vp);
@@ -799,7 +803,8 @@ public class RenderManager {
      * 
      * @param vp The ViewPort of which the queue will be flushed
      * 
-     * @see RenderQueue#renderQueue(com.jme3.renderer.queue.RenderQueue.Bucket, com.jme3.renderer.RenderManager, com.jme3.renderer.Camera) 
+     * @see RenderQueue#renderQueue(com.jme3.renderer.queue.RenderQueue.Bucket,
+     * com.jme3.renderer.RenderManager, com.jme3.renderer.Camera)
      * @see #renderGeometryList(com.jme3.renderer.queue.GeometryList) 
      */
     public void flushQueue(ViewPort vp) {
@@ -878,7 +883,8 @@ public class RenderManager {
      * <p>
      * Changes the {@link Renderer#setDepthRange(float, float) depth range}
      * appropriately as expected by each queue and then calls 
-     * {@link RenderQueue#renderQueue(com.jme3.renderer.queue.RenderQueue.Bucket, com.jme3.renderer.RenderManager, com.jme3.renderer.Camera, boolean) }
+     * {@link RenderQueue#renderQueue(com.jme3.renderer.queue.RenderQueue.Bucket,
+     * com.jme3.renderer.RenderManager, com.jme3.renderer.Camera, boolean) }
      * on the queue. Makes sure to restore the depth range to [0, 1] 
      * at the end of the call.
      * Note that the {@link Bucket#Translucent translucent bucket} is NOT
@@ -1005,7 +1011,8 @@ public class RenderManager {
         if (ortho) {
             uniformBindingManager.setCamera(cam, Matrix4f.IDENTITY, orthoMatrix, orthoMatrix);
         } else {
-            uniformBindingManager.setCamera(cam, cam.getViewMatrix(), cam.getProjectionMatrix(), cam.getViewProjectionMatrix());
+            uniformBindingManager.setCamera(cam, cam.getViewMatrix(), cam.getProjectionMatrix(),
+                    cam.getViewProjectionMatrix());
         }
     }
 
@@ -1060,7 +1067,8 @@ public class RenderManager {
      * the following process:<br>
      * <ul>
      * <li>All {@link SceneProcessor scene processors} that are attached
-     * to the ViewPort are {@link SceneProcessor#initialize(com.jme3.renderer.RenderManager, com.jme3.renderer.ViewPort) initialized}.
+     * to the ViewPort are {@link SceneProcessor#initialize(com.jme3.renderer.RenderManager,
+     * com.jme3.renderer.ViewPort) initialized}.
      * </li>
      * <li>The SceneProcessors' {@link SceneProcessor#preFrame(float) } method 
      * is called.</li>
@@ -1085,7 +1093,8 @@ public class RenderManager {
      * (see {@link #renderTranslucentQueue(com.jme3.renderer.ViewPort) })</li>
      * <li>If any objects remained in the render queue, they are removed
      * from the queue. This is generally objects added to the 
-     * {@link RenderQueue#renderQueue(com.jme3.renderer.queue.RenderQueue.Bucket, com.jme3.renderer.RenderManager, com.jme3.renderer.Camera) 
+     * {@link RenderQueue#renderQueue(com.jme3.renderer.queue.RenderQueue.Bucket,
+     * com.jme3.renderer.RenderManager, com.jme3.renderer.Camera)
      * shadow queue}
      * which were not rendered because of a missing shadow renderer.</li>
      * </ul>

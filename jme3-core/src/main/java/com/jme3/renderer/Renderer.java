@@ -191,7 +191,8 @@ public interface Renderer {
     /**
      * Copies contents from src to dst, scaling if necessary.
      * set copyDepth to false to only copy the color buffers.
-     * @deprecated  Use {@link Renderer#copyFrameBuffer(com.jme3.texture.FrameBuffer, com.jme3.texture.FrameBuffer, boolean, boolean)}.
+     * @deprecated  Use {@link Renderer#copyFrameBuffer(com.jme3.texture.FrameBuffer,
+     * com.jme3.texture.FrameBuffer, boolean, boolean)}.
      * @param src the source FrameBuffer (unaffected)
      * @param dst the destination FrameBuffer (modified)
      * @param copyDepth true&rarr;copy depth info, false&rarr;don't copy it
@@ -406,7 +407,8 @@ public interface Renderer {
     public void setMainFrameBufferSrgb(boolean srgb);
      
     /**
-     * If enabled, all {@link Image images} with the {@link Image#setColorSpace(com.jme3.texture.image.ColorSpace) sRGB flag}
+     * If enabled, all {@link Image images} with the
+     * {@link Image#setColorSpace(com.jme3.texture.image.ColorSpace) sRGB flag}
      * set shall undergo an sRGB to linear RGB color conversion when read by a shader.
      *
      * The conversion is performed for the following formats:
@@ -457,7 +459,8 @@ public interface Renderer {
      * Note that the result may not be available right after stopProfiling has been called.
      * You need to check if the result is available with isTaskResultAvailable.
      * Also note that it's guaranteed that the result will be available on next frame.
-     * If you use getProfilingTime on the next frame you called stopProfiling, you don't need to check the result availability with isTaskResultAvailable
+     * If you use getProfilingTime on the next frame you called stopProfiling,
+     * you don't need to check the result availability with isTaskResultAvailable
      *
      * @param taskId the id of the task given by startProfiling.
      * @return the time in nano second of the profiling task with the given id.

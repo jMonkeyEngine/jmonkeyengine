@@ -112,25 +112,29 @@ public class RenderContext {
     public RenderState.BlendEquationAlpha blendEquationAlpha;
 
     /**
-     * @see RenderState#setCustomBlendFactors(com.jme3.material.RenderState.BlendFunc, com.jme3.material.RenderState.BlendFunc,
+     * @see RenderState#setCustomBlendFactors(com.jme3.material.RenderState.BlendFunc,
+     *      com.jme3.material.RenderState.BlendFunc,
      *      com.jme3.material.RenderState.BlendFunc, com.jme3.material.RenderState.BlendFunc)
      */
     public RenderState.BlendFunc sfactorRGB;
 
     /**
-     * @see RenderState#setCustomBlendFactors(com.jme3.material.RenderState.BlendFunc, com.jme3.material.RenderState.BlendFunc,
+     * @see RenderState#setCustomBlendFactors(com.jme3.material.RenderState.BlendFunc,
+     *      com.jme3.material.RenderState.BlendFunc,
      *      com.jme3.material.RenderState.BlendFunc, com.jme3.material.RenderState.BlendFunc)
      */
     public RenderState.BlendFunc dfactorRGB;
 
     /**
-     * @see RenderState#setCustomBlendFactors(com.jme3.material.RenderState.BlendFunc, com.jme3.material.RenderState.BlendFunc,
+     * @see RenderState#setCustomBlendFactors(com.jme3.material.RenderState.BlendFunc,
+     *      com.jme3.material.RenderState.BlendFunc,
      *      com.jme3.material.RenderState.BlendFunc, com.jme3.material.RenderState.BlendFunc)
      */
     public RenderState.BlendFunc sfactorAlpha;
 
     /**
-     * @see RenderState#setCustomBlendFactors(com.jme3.material.RenderState.BlendFunc, com.jme3.material.RenderState.BlendFunc,
+     * @see RenderState#setCustomBlendFactors(com.jme3.material.RenderState.BlendFunc,
+     *      com.jme3.material.RenderState.BlendFunc,
      *      com.jme3.material.RenderState.BlendFunc, com.jme3.material.RenderState.BlendFunc)
      */
     public RenderState.BlendFunc dfactorAlpha;
