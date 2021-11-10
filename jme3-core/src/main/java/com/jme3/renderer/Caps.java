@@ -53,21 +53,6 @@ public enum Caps {
      * <p>
      * OpenGL: Renderer exposes the GL_EXT_framebuffer_object extension.<br>
      * OpenGL ES: Renderer supports OpenGL ES 2.0.
-     *//**
-     * Supports {@link FrameBuffer FrameBuffers}.
-     * <p>
-     * OpenGL: Renderer exposes the GL_EXT_framebuffer_object extension.<br>
-     * OpenGL ES: Renderer supports OpenGL ES 2.0.
-     *//**
-     * Supports {@link FrameBuffer FrameBuffers}.
-     * <p>
-     * OpenGL: Renderer exposes the GL_EXT_framebuffer_object extension.<br>
-     * OpenGL ES: Renderer supports OpenGL ES 2.0.
-     *//**
-     * Supports {@link FrameBuffer FrameBuffers}.
-     * <p>
-     * OpenGL: Renderer exposes the GL_EXT_framebuffer_object extension.<br>
-     * OpenGL ES: Renderer supports OpenGL ES 2.0.
      */
     FrameBuffer,
 
