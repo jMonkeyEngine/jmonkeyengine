@@ -72,7 +72,9 @@ public class ViewPort {
     protected FrameBuffer out = null;
 
     protected final ColorRGBA backColor = new ColorRGBA(0, 0, 0, 0);
-    protected boolean clearDepth = false, clearColor = false, clearStencil = false;
+    protected boolean clearDepth = false;
+    protected boolean clearColor = false;
+    protected boolean clearStencil = false;
     private boolean enabled = true;
 
     /**

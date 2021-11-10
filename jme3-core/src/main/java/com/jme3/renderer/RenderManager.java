@@ -90,7 +90,10 @@ public class RenderManager {
     private RenderState forcedRenderState = null;
     private final SafeArrayList<MatParamOverride> forcedOverrides
             = new SafeArrayList<>(MatParamOverride.class);
-    private int viewX, viewY, viewWidth, viewHeight;
+    private int viewX;
+    private int viewY;
+    private int viewWidth;
+    private int viewHeight;
     private final Matrix4f orthoMatrix = new Matrix4f();
     private final LightList filteredLightList = new LightList(null);
     private boolean handleTranslucentBucket = true;
