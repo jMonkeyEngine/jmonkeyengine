@@ -87,7 +87,7 @@ public class ViewPort {
      * 
      * @param name The name of the viewport. Used for debugging only.
      * @param cam The camera through which the viewport is rendered. The camera
-     * cannot be swapped to a different one after creating the viewport.
+     *     cannot be swapped to a different one after creating the viewport.
      */
     public ViewPort(String name, Camera cam) {
         this.name = name;
@@ -252,7 +252,7 @@ public class ViewPort {
      * rendered to.
      * 
      * @return the framebuffer where this ViewPort's scenes are
-     * rendered to.
+     *     rendered to.
      * 
      * @see #setOutputFrameBuffer(com.jme3.texture.FrameBuffer) 
      */
@@ -268,7 +268,7 @@ public class ViewPort {
      * which indicates the scenes are rendered to the display window.
      * 
      * @param out The framebuffer to render scenes to, or null if to render
-     * to the screen.
+     *     to the screen.
      */
     public void setOutputFrameBuffer(FrameBuffer out) {
         this.out = out;

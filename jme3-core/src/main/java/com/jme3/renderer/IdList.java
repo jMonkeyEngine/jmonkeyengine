@@ -61,7 +61,7 @@ public class IdList {
      * 
      * @param idx The index to move
      * @return True if it existed in old list and was removed
-     * from there, false otherwise.
+     *     from there, false otherwise.
      */
     public boolean moveToNew(int idx) {
         if (newLen == 0 || newList[newLen - 1] != idx) {

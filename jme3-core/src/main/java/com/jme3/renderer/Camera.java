@@ -465,7 +465,7 @@ public class Camera implements Savable, Cloneable {
      * @param width the new width of the display, in pixels
      * @param height the new height of the display, in pixels
      * @param fixAspect if true, recompute the camera's frustum to preserve its
-     * prior aspect ratio
+     *     prior aspect ratio
      */
     public void resize(int width, int height, boolean fixAspect) {
         this.width = width;
@@ -762,7 +762,7 @@ public class Camera implements Savable, Cloneable {
      *
      * @param direction the direction this camera is facing.
      * @param up the desired "up" direction for the camera (not null,
-     * unaffected, typically (0,1,0))
+     *     unaffected, typically (0,1,0))
      */
     public void lookAtDirection(Vector3f direction, Vector3f up) {
         this.rotation.lookAt(direction, up);
@@ -1163,7 +1163,7 @@ public class Camera implements Savable, Cloneable {
      * Use null argument to return to normal functionality.
      *
      * @param projMatrix the desired projection matrix (unaffected) or null
-     * to cease the override
+     *     to cease the override
      */
     public void setProjectionMatrix(Matrix4f projMatrix) {
         if (projMatrix == null) {
@@ -1207,8 +1207,8 @@ public class Camera implements Savable, Cloneable {
     /**
      * Provides access to the view projection matrix.
      * @return The result of multiplying the projection matrix by the view
-     * matrix. This matrix is required for rendering an object. It is
-     * precomputed so as to not compute it every time an object is rendered.
+     *     matrix. This matrix is required for rendering an object. It is
+     *     precomputed so as to not compute it every time an object is rendered.
      */
     public Matrix4f getViewProjectionMatrix() {
         return viewProjectionMatrix;
@@ -1392,7 +1392,7 @@ public class Camera implements Savable, Cloneable {
      * Enables/disables parallel projection.
      *
      * @param value true to set up this camera for parallel projection is enable,
-     * false to enter normal perspective mode
+     *     false to enter normal perspective mode
      */
     public void setParallelProjection(final boolean value) {
         this.parallelProjection = value;
@@ -1440,7 +1440,7 @@ public class Camera implements Savable, Cloneable {
      * @param projectionZPos a (non-linear) Z value in projection space
      * @param store storage for the result (modified if not null)
      * @return a location vector (in world coordinates, either 
-     * <code>store</code> or a new vector)
+     *     <code>store</code> or a new vector)
      * @see Camera#getWorldCoordinates
      */
     public Vector3f getWorldCoordinates(Vector2f screenPosition,
@@ -1480,7 +1480,7 @@ public class Camera implements Savable, Cloneable {
      * @param worldPosition a location in world coordinates (not null, unaffected)
      * @param store storage for the result (modified if not null)
      * @return a (3-D) location vector (in screen coordinates, either 
-     * <code>store</code> or a new vector)
+     *     <code>store</code> or a new vector)
      * @see Camera#getScreenCoordinates(Vector3f, Vector3f)
      */
     public Vector3f getScreenCoordinates(Vector3f worldPosition, Vector3f store) {

@@ -399,7 +399,7 @@ public class RenderManager {
      * rendered. Set to null to return to normal functionality.
      * 
      * @param forcedRenderState The forced render state to set, or null
-     * to return to normal
+     *     to return to normal
      */
     public void setForcedRenderState(RenderState forcedRenderState) {
         this.forcedRenderState = forcedRenderState;
@@ -447,7 +447,7 @@ public class RenderManager {
      * be found on the material, the geometry will <em>not</em> be rendered.
      * 
      * @param forcedTechnique The forced technique name to use, set to null
-     * to return to normal functionality.
+     *     to return to normal functionality.
      * 
      * @see #renderGeometry(com.jme3.scene.Geometry) 
      */
@@ -526,7 +526,7 @@ public class RenderManager {
      * by the RenderManager. The default is enabled.
      * 
      * @param handleTranslucentBucket Whether or not the translucent bucket should
-     * be rendered.
+     *     be rendered.
      */
     public void setHandleTranslucentBucket(boolean handleTranslucentBucket) {
         this.handleTranslucentBucket = handleTranslucentBucket;
@@ -733,8 +733,8 @@ public class RenderManager {
      * 
      * @param scene The scene to flatten into the queue
      * @param vp The ViewPort provides the {@link ViewPort#getCamera() camera}
-     * used for culling and the {@link ViewPort#getQueue() queue} used to 
-     * contain the flattened scene graph.
+     *     used for culling and the {@link ViewPort#getQueue() queue} used to 
+     *     contain the flattened scene graph.
      */
     public void renderScene(Spatial scene, ViewPort vp) {
         //reset of the camera plane state for proper culling
@@ -807,7 +807,7 @@ public class RenderManager {
      * @param vp The ViewPort of which the queue will be flushed
      * 
      * @see RenderQueue#renderQueue(com.jme3.renderer.queue.RenderQueue.Bucket,
-     * com.jme3.renderer.RenderManager, com.jme3.renderer.Camera)
+     *     com.jme3.renderer.RenderManager, com.jme3.renderer.Camera)
      * @see #renderGeometryList(com.jme3.renderer.queue.GeometryList) 
      */
     public void flushQueue(ViewPort vp) {
@@ -897,7 +897,7 @@ public class RenderManager {
      * 
      * @param vp the viewport of which queue should be rendered
      * @param flush If true, the queues will be cleared after
-     * rendering.
+     *     rendering.
      * 
      * @see RenderQueue
      * @see #renderTranslucentQueue(com.jme3.renderer.ViewPort) 
@@ -1034,7 +1034,7 @@ public class RenderManager {
      * 
      * @param cam The camera to set
      * @param ortho True if to use orthographic projection (for GUI rendering),
-     * false if to use the camera's view and projection matrices.
+     *     false if to use the camera's view and projection matrices.
      */
     public void setCamera(Camera cam, boolean ortho) {
         // Tell the light filter which camera to use for filtering.
@@ -1207,7 +1207,7 @@ public class RenderManager {
      * 
      * @param tpf Time per frame value
      * @param mainFrameBufferActive true to render viewports with no output
-     * FrameBuffer, false to skip them
+     *     FrameBuffer, false to skip them
      */
     public void render(float tpf, boolean mainFrameBufferActive) {
         if (renderer instanceof NullRenderer) {
