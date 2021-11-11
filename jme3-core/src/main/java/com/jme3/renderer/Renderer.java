@@ -64,6 +64,7 @@ public interface Renderer {
 
     /**
      * Gets the capabilities of the renderer.
+     *
      * @return The capabilities of the renderer.
      */
     public EnumSet<Caps> getCaps();
@@ -193,6 +194,7 @@ public interface Renderer {
     /**
      * Copies contents from src to dst, scaling if necessary.
      * set copyDepth to false to only copy the color buffers.
+     *
      * @param src the source FrameBuffer (unaffected)
      * @param dst the destination FrameBuffer (modified)
      * @param copyDepth true&rarr;copy depth info, false&rarr;don't copy it
@@ -203,6 +205,7 @@ public interface Renderer {
 
     /**
      * Copies contents from src to dst, scaling if necessary.
+     *
      * @param src the source FrameBuffer (unaffected)
      * @param dst the destination FrameBuffer (modified)
      * @param copyColor true&rarr;copy color info, false&rarr;don't copy it
@@ -306,6 +309,7 @@ public interface Renderer {
 
     /**
      * Deletes a vertex buffer from the GPU.
+     *
      * @param vb The vertex buffer to delete
      */
     public void deleteBuffer(VertexBuffer vb);

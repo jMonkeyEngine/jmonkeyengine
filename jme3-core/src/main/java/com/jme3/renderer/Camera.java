@@ -358,6 +358,7 @@ public class Camera implements Savable, Cloneable {
 
     /**
      * Sets the cameras name.
+     *
      * @param name the cameras name
      */
     public void setName(String name) {
@@ -366,6 +367,7 @@ public class Camera implements Savable, Cloneable {
 
     /**
      * Returns the cameras name.
+     *
      * @return the cameras name
      */
     public String getName() {
@@ -388,6 +390,7 @@ public class Camera implements Savable, Cloneable {
      * <p>Note that this will work properly only if it's called on each update,
      * and be aware that it won't work properly with the sky bucket.
      * if you want to handle the sky bucket, look at how it's done in SimpleWaterProcessor.java
+     *
      * @param clipPlane the plane
      * @param side the side the camera stands from the plane
      */
@@ -451,6 +454,7 @@ public class Camera implements Savable, Cloneable {
      * <p>Note that this will work properly only if it's called on each update,
      * and be aware that it won't work properly with the sky bucket.
      * if you want to handle the sky bucket, look at how it's done in SimpleWaterProcessor.java
+     *
      * @param clipPlane the plane
      */
     public void setClipPlane(Plane clipPlane) {

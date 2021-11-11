@@ -257,6 +257,7 @@ public class RenderManager {
 
     /**
      * Returns a read-only list of all pre ViewPorts
+     *
      * @return a read-only list of all pre ViewPorts
      * @see #createPreView(java.lang.String, com.jme3.renderer.Camera) 
      */
@@ -266,6 +267,7 @@ public class RenderManager {
 
     /**
      * Returns a read-only list of all main ViewPorts.
+     *
      * @return a read-only list of all main ViewPorts
      * @see #createMainView(java.lang.String, com.jme3.renderer.Camera) 
      */
@@ -275,6 +277,7 @@ public class RenderManager {
 
     /**
      * Returns a read-only list of all post ViewPorts.
+     *
      * @return a read-only list of all post ViewPorts
      * @see #createPostView(java.lang.String, com.jme3.renderer.Camera) 
      */
@@ -377,6 +380,7 @@ public class RenderManager {
      * with the provided material instead.
      * Use null to clear the material and return renderer to normal
      * functionality.
+     *
      * @param mat The forced material to set, or null to return to normal
      */
     public void setForcedMaterial(Material mat) {
@@ -386,6 +390,7 @@ public class RenderManager {
     /**
      * Returns the forced render state previously set with 
      * {@link #setForcedRenderState(com.jme3.material.RenderState) }.
+     *
      * @return the forced render state
      */
     public RenderState getForcedRenderState() {
@@ -849,6 +854,7 @@ public class RenderManager {
 
     /**
      * Defines what light mode will be selected when a technique offers several light modes.
+     *
      * @param preferredLightMode The light mode to use.
      */
     public void setPreferredLightMode(TechniqueDef.LightMode preferredLightMode) {
@@ -857,6 +863,7 @@ public class RenderManager {
 
     /**
      * Returns the preferred light mode.
+     *
      * @return the light mode.
      */
     public TechniqueDef.LightMode getPreferredLightMode() {
@@ -865,6 +872,7 @@ public class RenderManager {
 
     /**
      * Returns the number of lights used for each pass when the light mode is single pass.
+     *
      * @return the number of lights.
      */
     public int getSinglePassLightBatchSize() {
@@ -873,6 +881,7 @@ public class RenderManager {
 
     /**
      * Sets the number of lights to use for each pass when the light mode is single pass.
+     *
      * @param singlePassLightBatchSize the number of lights.
      */
     public void setSinglePassLightBatchSize(int singlePassLightBatchSize) {

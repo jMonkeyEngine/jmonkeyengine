@@ -389,6 +389,7 @@ public class ViewPort {
     
     /**
      * Returns true if the viewport is enabled, false otherwise.
+     *
      * @return true if the viewport is enabled, false otherwise.
      * @see #setEnabled(boolean) 
      */
