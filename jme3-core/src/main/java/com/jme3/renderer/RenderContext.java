@@ -337,7 +337,7 @@ public class RenderContext {
     }
 
     /**
-     * Reset the RenderContext to default GL state
+     * Resets the RenderContext to default GL state.
      */
     public void reset() {
         init();

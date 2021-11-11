@@ -32,10 +32,10 @@
 package com.jme3.renderer;
 
 /**
- * <code>Limits</code> allows querying the limits of certain features in
+ * Represents the limits of certain features in
  * {@link Renderer}.
- * <p>
- * For example, maximum texture sizes or number of samples.
+ *
+ * <p>For example, maximum texture sizes or number of samples.
  *
  * @author Kirill Vainer
  */

@@ -40,10 +40,10 @@ import com.jme3.texture.FrameBuffer;
 import com.jme3.util.SafeArrayList;
 
 /**
- * A <code>ViewPort</code> represents a view inside the display
+ * Represents a view inside the display
  * window or a {@link FrameBuffer} to which scenes will be rendered. 
- * <p>
- * A viewport has a {@link #ViewPort(java.lang.String, com.jme3.renderer.Camera) camera}
+ *
+ * <p>A viewport has a {@link #ViewPort(java.lang.String, com.jme3.renderer.Camera) camera}
  * which is used to render a set of {@link #attachScene(com.jme3.scene.Spatial) scenes}.
  * A view port has a location on the screen as set by the 
  * {@link Camera#setViewPort(float, float, float, float) } method.
@@ -51,8 +51,8 @@ import com.jme3.util.SafeArrayList;
  * set to {@link #setClearFlags(boolean, boolean, boolean) clear the framebuffer}.
  * The background color which the color buffer is cleared to can be specified 
  * via the {@link #setBackgroundColor(com.jme3.math.ColorRGBA)} method.
- * <p>
- * A ViewPort has a list of {@link SceneProcessor}s which can
+ *
+ * <p>A ViewPort has a list of {@link SceneProcessor}s which can
  * control how the ViewPort is rendered by the {@link RenderManager}.
  * 
  * @author Kirill Vainer
@@ -78,7 +78,7 @@ public class ViewPort {
     private boolean enabled = true;
 
     /**
-     * Create a new viewport. User code should generally use these methods instead:<br>
+     * Creates a new viewport. User code should generally use these methods instead:<br>
      * <ul>
      * <li>{@link RenderManager#createPreView(java.lang.String, com.jme3.renderer.Camera) }</li>
      * <li>{@link RenderManager#createMainView(java.lang.String, com.jme3.renderer.Camera)  }</li>
@@ -106,7 +106,7 @@ public class ViewPort {
     }
 
     /**
-     * Get the list of {@link SceneProcessor scene processors} that were
+     * Gets the list of {@link SceneProcessor scene processors} that were
      * added to this <code>ViewPort</code>
      * 
      * @return the list of processors attached to this ViewPort
@@ -119,8 +119,8 @@ public class ViewPort {
 
     /**
      * Adds a {@link SceneProcessor} to this ViewPort.
-     * <p>
-     * SceneProcessors that are added to the ViewPort will be notified
+     *
+     * <p>SceneProcessors that are added to the ViewPort will be notified
      * of events as the ViewPort is being rendered by the {@link RenderManager}.
      * 
      * @param processor The processor to add
@@ -136,8 +136,8 @@ public class ViewPort {
 
     /**
      * Removes a {@link SceneProcessor} from this ViewPort.
-     * <p>
-     * The processor will no longer receive events occurring to this ViewPort.
+     *
+     * <p>The processor will no longer receive events occurring to this ViewPort.
      * 
      * @param processor The processor to remove
      * 
@@ -165,7 +165,7 @@ public class ViewPort {
     }
 
     /**
-     * Check if depth buffer clearing is enabled.
+     * Checks if depth buffer clearing is enabled.
      * 
      * @return true if depth buffer clearing is enabled.
      * 
@@ -176,9 +176,9 @@ public class ViewPort {
     }
 
     /**
-     * Enable or disable clearing of the depth buffer for this ViewPort.
-     * <p>
-     * By default depth clearing is disabled.
+     * Enables or disables clearing of the depth buffer for this ViewPort.
+     *
+     * <p>By default depth clearing is disabled.
      * 
      * @param clearDepth Enable/disable depth buffer clearing.
      */
@@ -187,7 +187,7 @@ public class ViewPort {
     }
 
     /**
-     * Check if color buffer clearing is enabled.
+     * Checks if color buffer clearing is enabled.
      * 
      * @return true if color buffer clearing is enabled.
      * 
@@ -198,9 +198,9 @@ public class ViewPort {
     }
 
     /**
-     * Enable or disable clearing of the color buffer for this ViewPort.
-     * <p>
-     * By default color clearing is disabled.
+     * Enables or disables clearing of the color buffer for this ViewPort.
+     *
+     * <p>By default color clearing is disabled.
      * 
      * @param clearColor Enable/disable color buffer clearing.
      */
@@ -209,7 +209,7 @@ public class ViewPort {
     }
 
     /**
-     * Check if stencil buffer clearing is enabled.
+     * Checks if stencil buffer clearing is enabled.
      * 
      * @return true if stencil buffer clearing is enabled.
      * 
@@ -220,9 +220,9 @@ public class ViewPort {
     }
 
     /**
-     * Enable or disable clearing of the stencil buffer for this ViewPort.
-     * <p>
-     * By default stencil clearing is disabled.
+     * Enables or disables clearing of the stencil buffer for this ViewPort.
+     *
+     * <p>By default stencil clearing is disabled.
      * 
      * @param clearStencil Enable/disable stencil buffer clearing.
      */
@@ -231,7 +231,7 @@ public class ViewPort {
     }
 
     /**
-     * Set the clear flags (color, depth, stencil) in one call.
+     * Sets the clear flags (color, depth, stencil) in one call.
      * 
      * @param color If color buffer clearing should be enabled.
      * @param depth If depth buffer clearing should be enabled.
@@ -262,8 +262,8 @@ public class ViewPort {
 
     /**
      * Sets the output framebuffer for the ViewPort.
-     * <p>
-     * The output framebuffer specifies where the scenes attached
+     *
+     * <p>The output framebuffer specifies where the scenes attached
      * to this ViewPort are rendered to. By default this is <code>null</code>
      * which indicates the scenes are rendered to the display window.
      * 
@@ -286,7 +286,9 @@ public class ViewPort {
     }
 
     /**
-     * Internal use only.
+     * Returns the RenderQueue.
+     *
+     * <p>Internal use only.
      * 
      * @return the pre-existing instance
      */
@@ -350,8 +352,8 @@ public class ViewPort {
 
     /**
      * Sets the background color.
-     * <p>
-     * When the ViewPort's color buffer is cleared 
+     *
+     * <p>When the ViewPort's color buffer is cleared 
      * (if {@link #setClearColor(boolean) color clearing} is enabled), 
      * this specifies the color to which the color buffer is set to.
      * By default the background color is black without alpha.
@@ -374,9 +376,9 @@ public class ViewPort {
     }
     
     /**
-     * Enable or disable this ViewPort.
-     * <p>
-     * Disabled ViewPorts are skipped by the {@link RenderManager} when
+     * Enables or disables this ViewPort.
+     *
+     * <p>Disabled ViewPorts are skipped by the {@link RenderManager} when
      * rendering. By default all ViewPorts are enabled.
      * 
      * @param enable If the viewport should be disabled or enabled.

@@ -41,7 +41,7 @@ import com.jme3.texture.Texture;
 import java.util.Collection;
 
 /**
- * <code>Caps</code> is an enum specifying a capability that the {@link Renderer}
+ * Specifies a capability that the {@link Renderer}
  * supports.
  * 
  * @author Kirill Vainer
@@ -50,23 +50,23 @@ public enum Caps {
 
     /**
      * Supports {@link FrameBuffer FrameBuffers}.
-     * <p>
-     * OpenGL: Renderer exposes the GL_EXT_framebuffer_object extension.<br>
+     *
+     * <p>OpenGL: Renderer exposes the GL_EXT_framebuffer_object extension.<br>
      * OpenGL ES: Renderer supports OpenGL ES 2.0.
      */
     FrameBuffer,
 
     /**
      * Supports framebuffer Multiple Render Targets (MRT)
-     * <p>
-     * OpenGL: Renderer exposes the GL_ARB_draw_buffers extension
+     *
+     * <p>OpenGL: Renderer exposes the GL_ARB_draw_buffers extension
      */
     FrameBufferMRT,
 
     /**
      * Supports framebuffer multi-sampling
-     * <p>
-     * OpenGL: Renderer exposes the GL EXT framebuffer multisample extension<br>
+     *
+     * <p>OpenGL: Renderer exposes the GL EXT framebuffer multisample extension<br>
      * OpenGL ES: Renderer exposes GL_APPLE_framebuffer_multisample or
      * GL_ANGLE_framebuffer_multisample.
      */
@@ -74,8 +74,8 @@ public enum Caps {
 
     /**
      * Supports texture multi-sampling
-     * <p>
-     * OpenGL: Renderer exposes the GL_ARB_texture_multisample extension<br>
+     *
+     * <p>OpenGL: Renderer exposes the GL_ARB_texture_multisample extension<br>
      * OpenGL ES: Renderer exposes the GL_IMG_multisampled_render_to_texture
      * extension.
      */
@@ -359,8 +359,8 @@ public enum Caps {
     /**
      * Partial support for non-power-of-2 textures, typically found
      * on OpenGL ES 2 devices.
-     * <p>
-     * Use of NPOT textures is allowed iff:
+     *
+     * <p>Use of NPOT textures is allowed iff:
      * <ul>
      * <li>The {@link com.jme3.texture.Texture.WrapMode} is set to 
      * {@link com.jme3.texture.Texture.WrapMode#EdgeClamp}.</li>
@@ -375,8 +375,8 @@ public enum Caps {
     /**
      * When sampling cubemap edges, interpolate between the adjacent faces
      * instead of just sampling one face.
-     * <p>
-     * Improves the quality of environment mapping.
+     *
+     * <p>Improves the quality of environment mapping.
      */
     SeamlessCubemap,
     
@@ -442,8 +442,8 @@ public enum Caps {
     /**
      * Returns true if given the renderer capabilities, the texture
      * can be supported by the renderer.
-     * <p>
-     * This only checks the format of the texture, non-power-of-2
+     *
+     * <p>This only checks the format of the texture, non-power-of-2
      * textures are scaled automatically inside the renderer 
      * if are not supported natively.
      * 

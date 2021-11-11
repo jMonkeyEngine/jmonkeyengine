@@ -38,9 +38,9 @@ import com.jme3.texture.Image;
 import com.jme3.util.IntMap;
 
 /**
- * The statistics class allows tracking of real-time rendering statistics.
- * <p>
- * The <code>Statistics</code> can be retrieved by using {@link Renderer#getStatistics() }.
+ * Tracks real-time rendering statistics.
+ *
+ * <p>The <code>Statistics</code> can be retrieved by using {@link Renderer#getStatistics() }.
  * 
  * @author Kirill Vainer
  */
@@ -121,7 +121,7 @@ public class Statistics {
     }
 
     /**
-     * Called by the Renderer when a mesh has been drawn.
+     * Updates the counts after a mesh has been drawn.
      *
      * @param mesh the Mesh that was drawn (not null)
      * @param lod which level of detail
@@ -138,7 +138,7 @@ public class Statistics {
     }
     
     /**
-     * Called by the Renderer when a mesh has been drawn.
+     * Updates the counts after a mesh has been drawn.
      *
      * @param mesh the Mesh that was drawn (not null)
      * @param lod which level of detail
@@ -148,7 +148,7 @@ public class Statistics {
     }
 
     /**
-     * Called by the Renderer when a shader has been utilized.
+     * Updates the counts after a shader has been utilized.
      * 
      * @param shader The shader that was used
      * @param wasSwitched If true, the shader has required a state switch
@@ -175,7 +175,7 @@ public class Statistics {
     }
 
     /**
-     * Called by the Renderer when a uniform was set.
+     * Updates the counts after a uniform has been set.
      */
     public void onUniformSet() {
         if (!enabled) {
@@ -185,7 +185,7 @@ public class Statistics {
     }
 
     /**
-     * Called by the Renderer when a texture has been set.
+     * Updates the counts after a texture has been set.
      * 
      * @param image The image that was set
      * @param wasSwitched If true, the texture has required a state switch
@@ -207,7 +207,7 @@ public class Statistics {
     }
 
     /**
-     * Called by the Renderer when a framebuffer has been set.
+     * Updates the counts after a framebuffer has been set.
      * 
      * @param fb The framebuffer that was set
      * @param wasSwitched If true, the framebuffer required a state switch
@@ -250,7 +250,7 @@ public class Statistics {
     }
 
     /**
-     * Called by the Renderer when it creates a new shader
+     * Updates the counts after the Renderer creates a new shader.
      */
     public void onNewShader() {
         if (!enabled) {
@@ -260,7 +260,7 @@ public class Statistics {
     }
 
     /**
-     * Called by the Renderer when it creates a new texture
+     * Updates the counts after the Renderer creates a new texture.
      */
     public void onNewTexture() {
         if (!enabled) {
@@ -270,7 +270,7 @@ public class Statistics {
     }
 
     /**
-     * Called by the Renderer when it creates a new framebuffer
+     * Updates the counts after the Renderer creates a new framebuffer.
      */
     public void onNewFrameBuffer() {
         if (!enabled) {
@@ -280,7 +280,7 @@ public class Statistics {
     }
 
     /**
-     * Called by the Renderer when it deletes a shader
+     * Updates the counts after the Renderer deletes a shader.
      */
     public void onDeleteShader() {
         if (!enabled) {
@@ -290,7 +290,7 @@ public class Statistics {
     }
 
     /**
-     * Called by the Renderer when it deletes a texture
+     * Updates the counts after the Renderer deletes a texture.
      */
     public void onDeleteTexture() {
         if (!enabled) {
@@ -300,7 +300,7 @@ public class Statistics {
     }
 
     /**
-     * Called by the Renderer when it deletes a framebuffer
+     * Updates the counts after the Renderer deletes a framebuffer.
      */
     public void onDeleteFrameBuffer() {
         if (!enabled) {
@@ -310,7 +310,7 @@ public class Statistics {
     }
 
     /**
-     * Called when video memory is cleared.
+     * Updates the counts after video memory is cleared.
      */
     public void clearMemory() {
         memoryFrameBuffers = 0;

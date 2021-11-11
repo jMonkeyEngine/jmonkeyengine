@@ -51,16 +51,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * <code>Camera</code> is a standalone, purely mathematical class for doing
- * camera-related computations.
+ * Represents a viewport rectangle and frustum for rendering with or without perspective.
  *
- * <p>
- * Given input data such as location, orientation (direction, left, up),
+ * <p>Given input data such as location, orientation (direction, left, up),
  * and viewport settings, it can compute data necessary to render objects
  * with the graphics library. Two matrices are generated, the view matrix
  * transforms objects from world space into eye space, while the projection
- * matrix transforms objects from eye space into clip space.
- * </p>
+ * matrix transforms objects from eye space into clip space.</p>
+ *
  * <p>Another purpose of the camera class is to do frustum culling operations,
  * defined by six planes which define a 3D frustum shape, it is possible to
  * test if an object bounded by a mathematically defined volume is inside
@@ -225,7 +223,7 @@ public class Camera implements Savable, Cloneable {
     }
 
     /**
-     * Constructor instantiates a new <code>Camera</code> object. All
+     * Instantiates a new <code>Camera</code> object. All
      * values of the camera are set to default.
      * 
      * @param width the desired width (in pixels)
@@ -301,7 +299,7 @@ public class Camera implements Savable, Cloneable {
     }
     
     /**
-     * This method copies the settings of the given camera.
+     * Copies the settings of the given camera.
      * 
      * @param cam
      *            the camera we copy the settings from
@@ -359,7 +357,7 @@ public class Camera implements Savable, Cloneable {
     }
 
     /**
-     * This method sets the cameras name.
+     * Sets the cameras name.
      * @param name the cameras name
      */
     public void setName(String name) {
@@ -367,7 +365,7 @@ public class Camera implements Savable, Cloneable {
     }
 
     /**
-     * This method returns the cameras name.
+     * Returns the cameras name.
      * @return the cameras name
      */
     public String getName() {
@@ -387,7 +385,7 @@ public class Camera implements Savable, Cloneable {
      * http://hacksoflife.blogspot.com/2008/12/every-now-and-then-i-come-across.html</a>
      * </ul>
      *
-     * Note that this will work properly only if it's called on each update,
+     * <p>Note that this will work properly only if it's called on each update,
      * and be aware that it won't work properly with the sky bucket.
      * if you want to handle the sky bucket, look at how it's done in SimpleWaterProcessor.java
      * @param clipPlane the plane
@@ -450,7 +448,7 @@ public class Camera implements Savable, Cloneable {
      * http://hacksoflife.blogspot.com/2008/12/every-now-and-then-i-come-across.html</a></li>
      * </ul>
      *
-     * Note that this will work properly only if it's called on each update,
+     * <p>Note that this will work properly only if it's called on each update,
      * and be aware that it won't work properly with the sky bucket.
      * if you want to handle the sky bucket, look at how it's done in SimpleWaterProcessor.java
      * @param clipPlane the plane
@@ -460,7 +458,7 @@ public class Camera implements Savable, Cloneable {
     }
 
     /**
-     * Resize this camera's view for the specified display size. Invoked by an
+     * Resizes this camera's view for the specified display size. Invoked by an
      * associated {@link RenderManager} to notify the camera of changes to the
      * display dimensions.
      *
@@ -485,7 +483,7 @@ public class Camera implements Savable, Cloneable {
     }
 
     /**
-     * <code>getFrustumBottom</code> returns the value of the bottom frustum
+     * Returns the value of the bottom frustum
      * plane.
      *
      * @return the value of the bottom frustum plane.
@@ -495,7 +493,7 @@ public class Camera implements Savable, Cloneable {
     }
 
     /**
-     * <code>setFrustumBottom</code> sets the value of the bottom frustum
+     * Sets the value of the bottom frustum
      * plane.
      *
      * @param frustumBottom the value of the bottom frustum plane.
@@ -506,7 +504,7 @@ public class Camera implements Savable, Cloneable {
     }
 
     /**
-     * <code>getFrustumFar</code> gets the value of the far frustum plane.
+     * Gets the value of the far frustum plane.
      *
      * @return the value of the far frustum plane.
      */
@@ -515,7 +513,7 @@ public class Camera implements Savable, Cloneable {
     }
 
     /**
-     * <code>setFrustumFar</code> sets the value of the far frustum plane.
+     * Sets the value of the far frustum plane.
      *
      * @param frustumFar the value of the far frustum plane.
      */
@@ -525,7 +523,7 @@ public class Camera implements Savable, Cloneable {
     }
 
     /**
-     * <code>getFrustumLeft</code> gets the value of the left frustum plane.
+     * Gets the value of the left frustum plane.
      *
      * @return the value of the left frustum plane.
      */
@@ -534,7 +532,7 @@ public class Camera implements Savable, Cloneable {
     }
 
     /**
-     * <code>setFrustumLeft</code> sets the value of the left frustum plane.
+     * Sets the value of the left frustum plane.
      *
      * @param frustumLeft the value of the left frustum plane.
      */
@@ -544,7 +542,7 @@ public class Camera implements Savable, Cloneable {
     }
 
     /**
-     * <code>getFrustumNear</code> gets the value of the near frustum plane.
+     * Gets the value of the near frustum plane.
      *
      * @return the value of the near frustum plane.
      */
@@ -553,7 +551,7 @@ public class Camera implements Savable, Cloneable {
     }
 
     /**
-     * <code>setFrustumNear</code> sets the value of the near frustum plane.
+     * Sets the value of the near frustum plane.
      *
      * @param frustumNear the value of the near frustum plane.
      */
@@ -563,7 +561,7 @@ public class Camera implements Savable, Cloneable {
     }
 
     /**
-     * <code>getFrustumRight</code> gets the value of the right frustum plane.
+     * Gets the value of the right frustum plane.
      *
      * @return frustumRight the value of the right frustum plane.
      */
@@ -572,7 +570,7 @@ public class Camera implements Savable, Cloneable {
     }
 
     /**
-     * <code>setFrustumRight</code> sets the value of the right frustum plane.
+     * Sets the value of the right frustum plane.
      *
      * @param frustumRight the value of the right frustum plane.
      */
@@ -582,7 +580,7 @@ public class Camera implements Savable, Cloneable {
     }
 
     /**
-     * <code>getFrustumTop</code> gets the value of the top frustum plane.
+     * Gets the value of the top frustum plane.
      *
      * @return the value of the top frustum plane.
      */
@@ -591,7 +589,7 @@ public class Camera implements Savable, Cloneable {
     }
 
     /**
-     * <code>setFrustumTop</code> sets the value of the top frustum plane.
+     * Sets the value of the top frustum plane.
      *
      * @param frustumTop the value of the top frustum plane.
      */
@@ -649,7 +647,7 @@ public class Camera implements Savable, Cloneable {
     }
 
     /**
-     * <code>getLocation</code> retrieves the location vector of the camera.
+     * Retrieves the location vector of the camera.
      *
      * @return the position of the camera.
      * @see Camera#getLocation()
@@ -659,7 +657,7 @@ public class Camera implements Savable, Cloneable {
     }
 
     /**
-     * <code>getRotation</code> retrieves the rotation quaternion of the camera.
+     * Retrieves the rotation quaternion of the camera.
      *
      * @return the rotation of the camera.
      */
@@ -668,7 +666,7 @@ public class Camera implements Savable, Cloneable {
     }
 
     /**
-     * <code>getDirection</code> retrieves the direction vector the camera is
+     * Retrieves the direction vector the camera is
      * facing.
      *
      * @return the direction the camera is facing.
@@ -679,7 +677,7 @@ public class Camera implements Savable, Cloneable {
     }
 
     /**
-     * <code>getLeft</code> retrieves the left axis of the camera.
+     * Retrieves the left axis of the camera.
      *
      * @return the left axis of the camera.
      * @see Camera#getLeft()
@@ -689,7 +687,7 @@ public class Camera implements Savable, Cloneable {
     }
 
     /**
-     * <code>getUp</code> retrieves the up axis of the camera.
+     * Retrieves the up axis of the camera.
      *
      * @return the up axis of the camera.
      * @see Camera#getUp()
@@ -699,7 +697,7 @@ public class Camera implements Savable, Cloneable {
     }
 
     /**
-     * <code>getDirection</code> retrieves the direction vector the camera is
+     * Retrieves the direction vector the camera is
      * facing.
      *
      * @param store storage for the result (modified if not null)
@@ -711,7 +709,7 @@ public class Camera implements Savable, Cloneable {
     }
 
     /**
-     * <code>getLeft</code> retrieves the left axis of the camera.
+     * Retrieves the left axis of the camera.
      *
      * @param store storage for the result (modified if not null)
      * @return the left axis of the camera.
@@ -722,7 +720,7 @@ public class Camera implements Savable, Cloneable {
     }
 
     /**
-     * <code>getUp</code> retrieves the up axis of the camera.
+     * Retrieves the up axis of the camera.
      *
      * @param store storage for the result (modified if not null)
      * @return the up axis of the camera.
@@ -733,7 +731,7 @@ public class Camera implements Savable, Cloneable {
     }
 
     /**
-     * <code>setLocation</code> sets the position of the camera.
+     * Sets the position of the camera.
      *
      * @param location the position of the camera.
      */
@@ -743,7 +741,7 @@ public class Camera implements Savable, Cloneable {
     }
 
     /**
-     * <code>setRotation</code> sets the orientation of this camera. This will
+     * Sets the orientation of this camera. This will
      * be equivalent to setting each of the axes:
      * <code><br>
      * cam.setLeft(rotation.getRotationColumn(0));<br>
@@ -759,7 +757,7 @@ public class Camera implements Savable, Cloneable {
     }
 
     /**
-     * <code>lookAtDirection</code> sets the direction the camera is facing
+     * Sets the direction the camera is facing
      * given a direction and an up vector.
      *
      * @param direction the direction this camera is facing.
@@ -772,7 +770,7 @@ public class Camera implements Savable, Cloneable {
     }
 
     /**
-     * <code>setAxes</code> sets the axes (left, up and direction) for this
+     * Sets the axes (left, up and direction) for this
      * camera.
      *
      * @param left      the left axis of the camera.
@@ -787,7 +785,7 @@ public class Camera implements Savable, Cloneable {
     }
 
     /**
-     * <code>setAxes</code> uses a rotational matrix to set the axes of the
+     * Uses a rotational matrix to set the axes of the
      * camera.
      *
      * @param axes the matrix that defines the orientation of the camera.
@@ -798,7 +796,7 @@ public class Camera implements Savable, Cloneable {
     }
 
     /**
-     * normalize normalizes the camera vectors.
+     * Normalizes the camera vectors.
      */
     public void normalize() {
         this.rotation.normalizeLocal();
@@ -806,7 +804,7 @@ public class Camera implements Savable, Cloneable {
     }
 
     /**
-     * <code>setFrustum</code> sets the frustum of this camera object.
+     * Sets the frustum of this camera object.
      *
      * @param near   the near plane.
      * @param far    the far plane.
@@ -830,7 +828,7 @@ public class Camera implements Savable, Cloneable {
     }
 
     /**
-     * <code>setFrustumPerspective</code> defines the frustum for the camera.  This
+     * Defines the frustum for the camera.  This
      * frustum is defined by a viewing angle, aspect ratio, and near/far planes
      *
      * @param fovY   Frame of view angle along the Y in degrees.
@@ -862,7 +860,7 @@ public class Camera implements Savable, Cloneable {
     }
 
     /**
-     * <code>setFrame</code> sets the orientation and location of the camera.
+     * Sets the orientation and location of the camera.
      *
      * @param location  the point position of the camera.
      * @param left      the left axis of the camera.
@@ -880,7 +878,7 @@ public class Camera implements Savable, Cloneable {
     }
 
     /**
-     * <code>lookAt</code> is a convenience method for auto-setting the frame
+     * Sets the frame
      * based on a world position the user desires the camera to look at. It
      * repoints the camera towards the given position using the difference
      * between the position and the current camera location as a direction
@@ -922,7 +920,7 @@ public class Camera implements Savable, Cloneable {
     }
 
     /**
-     * <code>setFrame</code> sets the orientation and location of the camera.
+     * Sets the orientation and location of the camera.
      * 
      * @param location
      *            the point position of the camera.
@@ -936,7 +934,7 @@ public class Camera implements Savable, Cloneable {
     }
 
     /**
-     * <code>update</code> updates the camera parameters by calling
+     * Updates the camera parameters by calling
      * <code>onFrustumChange</code>,<code>onViewPortChange</code> and
      * <code>onFrameChange</code>.
      *
@@ -950,7 +948,7 @@ public class Camera implements Savable, Cloneable {
     }
 
     /**
-     * <code>getPlaneState</code> returns the state of the frustum planes. So
+     * Returns the state of the frustum planes. So
      * checks can be made as to which frustum plane has been examined for
      * culling thus far.
      *
@@ -961,7 +959,7 @@ public class Camera implements Savable, Cloneable {
     }
 
     /**
-     * <code>setPlaneState</code> sets the state to keep track of tested
+     * Sets the state to keep track of tested
      * planes for culling.
      *
      * @param planeState the updated state.
@@ -971,7 +969,7 @@ public class Camera implements Savable, Cloneable {
     }
 
     /**
-     * <code>getViewPortLeft</code> gets the left boundary of the viewport
+     * Gets the left boundary of the viewport.
      *
      * @return the left boundary of the viewport
      */
@@ -980,7 +978,7 @@ public class Camera implements Savable, Cloneable {
     }
 
     /**
-     * <code>setViewPortLeft</code> sets the left boundary of the viewport
+     * Sets the left boundary of the viewport.
      *
      * @param left the left boundary of the viewport
      */
@@ -990,7 +988,7 @@ public class Camera implements Savable, Cloneable {
     }
 
     /**
-     * <code>getViewPortRight</code> gets the right boundary of the viewport
+     * Gets the right boundary of the viewport.
      *
      * @return the right boundary of the viewport
      */
@@ -999,7 +997,7 @@ public class Camera implements Savable, Cloneable {
     }
 
     /**
-     * <code>setViewPortRight</code> sets the right boundary of the viewport
+     * Sets the right boundary of the viewport.
      *
      * @param right the right boundary of the viewport
      */
@@ -1009,7 +1007,7 @@ public class Camera implements Savable, Cloneable {
     }
 
     /**
-     * <code>getViewPortTop</code> gets the top boundary of the viewport
+     * Gets the top boundary of the viewport.
      *
      * @return the top boundary of the viewport
      */
@@ -1018,7 +1016,7 @@ public class Camera implements Savable, Cloneable {
     }
 
     /**
-     * <code>setViewPortTop</code> sets the top boundary of the viewport
+     * Sets the top boundary of the viewport.
      *
      * @param top the top boundary of the viewport
      */
@@ -1028,7 +1026,7 @@ public class Camera implements Savable, Cloneable {
     }
 
     /**
-     * <code>getViewPortBottom</code> gets the bottom boundary of the viewport
+     * Gets the bottom boundary of the viewport.
      *
      * @return the bottom boundary of the viewport
      */
@@ -1037,7 +1035,7 @@ public class Camera implements Savable, Cloneable {
     }
 
     /**
-     * <code>setViewPortBottom</code> sets the bottom boundary of the viewport
+     * Sets the bottom boundary of the viewport.
      *
      * @param bottom the bottom boundary of the viewport
      */
@@ -1047,7 +1045,7 @@ public class Camera implements Savable, Cloneable {
     }
 
     /**
-     * <code>setViewPort</code> sets the boundaries of the viewport
+     * Sets the boundaries of the viewport.
      *
      * @param left   the left boundary of the viewport (default: 0)
      * @param right  the right boundary of the viewport (default: 1)
@@ -1073,7 +1071,7 @@ public class Camera implements Savable, Cloneable {
     }
 
     /**
-     * <code>contains</code> tests a bounding volume against the planes of the
+     * Tests a bounding volume against the planes of the
      * camera's frustum. The frustum's planes are set such that the normals all
      * face in towards the viewable scene. Therefore, if the bounding volume is
      * on the negative side of the plane is can be culled out.
@@ -1132,7 +1130,7 @@ public class Camera implements Savable, Cloneable {
     }
     
     /**
-     * <code>containsGui</code> tests a bounding volume against the ortho
+     * Tests a bounding volume against the ortho
      * bounding box of the camera. A bounding box spanning from
      * 0, 0 to Width, Height. Constrained by the viewport settings on the
      * camera.
@@ -1148,8 +1146,10 @@ public class Camera implements Savable, Cloneable {
     }
 
     /**
+     * Provides access to the view matrix.
      * @return the view matrix of the camera.
-     * The view matrix transforms world space into eye space.
+     *
+     * <p>The view matrix transforms world space into eye space.
      * This matrix is usually defined by the position and
      * orientation of the camera.
      */
@@ -1177,8 +1177,10 @@ public class Camera implements Savable, Cloneable {
     }
 
     /**
+     * Provides access to the projection matrix.
      * @return the projection matrix of the camera.
-     * The view projection matrix  transforms eye space into clip space.
+     *
+     * <p>The view projection matrix  transforms eye space into clip space.
      * This matrix is usually defined by the viewport and perspective settings
      * of the camera.
      */
@@ -1203,6 +1205,7 @@ public class Camera implements Savable, Cloneable {
     }
 
     /**
+     * Provides access to the view projection matrix.
      * @return The result of multiplying the projection matrix by the view
      * matrix. This matrix is required for rendering an object. It is
      * precomputed so as to not compute it every time an object is rendered.
@@ -1212,9 +1215,11 @@ public class Camera implements Savable, Cloneable {
     }
 
     /**
-     * @return True if the viewport (width, height, left, right, bottom, up)
+     * Tests whether the viewport (width, height, left, right, bottom, up)
      * has been changed. This is needed in the renderer so that the proper
      * viewport can be set-up.
+     *
+     * @return true if changed, otherwise false
      */
     public boolean isViewportChanged() {
         return viewportChanged;
@@ -1229,7 +1234,7 @@ public class Camera implements Savable, Cloneable {
     }
 
     /**
-     * Called when the viewport has been changed.
+     * Marks the viewport as having been changed.
      */
     public void onViewPortChange() {
         viewportChanged = true;
@@ -1250,7 +1255,7 @@ public class Camera implements Savable, Cloneable {
     }
 
     /**
-     * <code>onFrustumChange</code> updates the frustum to reflect any changes
+     * Updates the frustum to reflect any changes
      * made to the planes. The new frustum values are kept in a temporary
      * location for use when calculating the new frame. The projection
      * matrix is updated to reflect the current values of the frustum.
@@ -1302,7 +1307,7 @@ public class Camera implements Savable, Cloneable {
     }
 
     /**
-     * <code>onFrameChange</code> updates the view frame of the camera.
+     * Updates the view frame of the camera.
      */
     public void onFrameChange() {
         TempVars vars = TempVars.get();
@@ -1374,6 +1379,8 @@ public class Camera implements Savable, Cloneable {
     }
 
     /**
+     * Determines whether the projection is parallel or perspective.
+     *
      * @return true if parallel projection is enable, false if in normal perspective mode
      * @see #setParallelProjection(boolean)
      */
@@ -1382,7 +1389,7 @@ public class Camera implements Savable, Cloneable {
     }
 
     /**
-     * Enable/disable parallel projection.
+     * Enables/disables parallel projection.
      *
      * @param value true to set up this camera for parallel projection is enable,
      * false to enter normal perspective mode
@@ -1415,7 +1422,7 @@ public class Camera implements Savable, Cloneable {
      * for more explanations on non linear z buffer see
      * http://www.sjbaker.org/steve/omniv/love_your_z_buffer.html
      * 
-     * To compute the projection space z from the view space z (distance from cam to object)
+     * <p>To compute the projection space z from the view space z (distance from cam to object)
      * @see Camera#getViewToProjectionZ
      * 
      * @param screenPos 2d coordinate in screen space
@@ -1427,6 +1434,8 @@ public class Camera implements Savable, Cloneable {
     }
 
     /**
+     * Converts the given position from screen space to world space.
+     *
      * @param screenPosition a (2-D) location in screen space (not null)
      * @param projectionZPos a (non-linear) Z value in projection space
      * @param store storage for the result (modified if not null)
@@ -1502,6 +1511,8 @@ public class Camera implements Savable, Cloneable {
     }
 
     /**
+     * Determines the display width.
+     *
      * @return the width/resolution of the display.
      */
     public int getWidth() {
@@ -1509,6 +1520,8 @@ public class Camera implements Savable, Cloneable {
     }
 
     /**
+     * Determines the display height.
+     *
      * @return the height/resolution of the display.
      */
     public int getHeight() {

@@ -34,8 +34,7 @@ package com.jme3.renderer;
 import java.util.Arrays;
 
 /**
- * A specialized data-structure used to optimize state changes of "slot"
- * based state. 
+ * Represents a list of indices, such as the texture units and vertex attributes in a RenderContext.
  */
 public class IdList {
 
@@ -45,7 +44,7 @@ public class IdList {
     public int oldLen = 0;
 
     /**
-     * Reset all states to zero
+     * Resets all states to zero.
      */
     public void reset() {
         newLen = 0;
@@ -95,7 +94,7 @@ public class IdList {
     }
 
     /**
-     * Prints the contents of the lists
+     * Prints the contents of the lists.
      */
     public void print() {
         if (newLen > 0) {

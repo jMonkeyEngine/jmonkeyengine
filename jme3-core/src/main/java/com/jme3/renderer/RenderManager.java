@@ -67,10 +67,10 @@ import java.util.List;
 import java.util.logging.Logger;
 
 /**
- * <code>RenderManager</code> is a high-level rendering interface that is
- * above the Renderer implementation. RenderManager takes care
+ * Takes care
  * of rendering the scene graphs attached to each viewport and
- * handling SceneProcessors.
+ * handling SceneProcessors. A high-level rendering interface
+ * above the Renderer implementation.
  *
  * @see SceneProcessor
  * @see ViewPort
@@ -104,7 +104,7 @@ public class RenderManager {
 
 
     /**
-     * Create a high-level rendering interface over the
+     * Creates a high-level rendering interface over the
      * low-level rendering interface.
      *
      * @param renderer (alias created)
@@ -265,7 +265,7 @@ public class RenderManager {
     }
 
     /**
-     * Returns a read-only list of all main ViewPorts
+     * Returns a read-only list of all main ViewPorts.
      * @return a read-only list of all main ViewPorts
      * @see #createMainView(java.lang.String, com.jme3.renderer.Camera) 
      */
@@ -274,7 +274,7 @@ public class RenderManager {
     }
 
     /**
-     * Returns a read-only list of all post ViewPorts
+     * Returns a read-only list of all post ViewPorts.
      * @return a read-only list of all post ViewPorts
      * @see #createPostView(java.lang.String, com.jme3.renderer.Camera) 
      */
@@ -284,8 +284,8 @@ public class RenderManager {
 
     /**
      * Creates a new pre ViewPort, to display the given camera's content.
-     * <p>
-     * The view will be processed before the main and post viewports.
+     *
+     * <p>The view will be processed before the main and post viewports.
      *
      * @param viewName the desired viewport name
      * @param cam the Camera to use for rendering (alias created)
@@ -299,8 +299,8 @@ public class RenderManager {
 
     /**
      * Creates a new main ViewPort, to display the given camera's content.
-     * <p>
-     * The view will be processed before the post viewports but after
+     *
+     * <p>The view will be processed before the post viewports but after
      * the pre viewports.
      *
      * @param viewName the desired viewport name
@@ -315,8 +315,8 @@ public class RenderManager {
 
     /**
      * Creates a new post ViewPort, to display the given camera's content.
-     * <p>
-     * The view will be processed after the pre and main viewports.
+     *
+     * <p>The view will be processed after the pre and main viewports.
      *
      * @param viewName the desired viewport name
      * @param cam the Camera to use for rendering (alias created)
@@ -340,9 +340,9 @@ public class RenderManager {
     }
 
     /**
-     * Internal use only.
      * Updates the resolution of all on-screen cameras to match
      * the given width and height.
+     * Internal use only.
      *
      * @param w the new width (in pixels)
      * @param h the new height (in pixels)
@@ -372,7 +372,7 @@ public class RenderManager {
     }
 
     /**
-     * Set the material to use to render all future objects.
+     * Sets the material to use to render all future objects.
      * This overrides the material set on the geometry and renders
      * with the provided material instead.
      * Use null to clear the material and return renderer to normal
@@ -393,7 +393,7 @@ public class RenderManager {
     }
 
     /**
-     * Set the render state to use for all future objects.
+     * Sets the render state to use for all future objects.
      * This overrides the render state set on the material and instead
      * forces this render state to be applied for all future materials
      * rendered. Set to null to return to normal functionality.
@@ -406,7 +406,7 @@ public class RenderManager {
     }
 
     /**
-     * Set the timer that should be used to query the time based
+     * Sets the timer that should be used to query the time based
      * {@link UniformBinding}s for material world parameters.
      * 
      * @param timer The timer to query time world parameters
@@ -439,8 +439,8 @@ public class RenderManager {
 
     /**
      * Sets the forced technique to use when rendering geometries.
-     * <p>
-     * If the specified technique name is available on the geometry's
+     *
+     * <p>If the specified technique name is available on the geometry's
      * material, then it is used, otherwise, the 
      * {@link #setForcedMaterial(com.jme3.material.Material) forced material} is used.
      * If a forced material is not set and the forced technique name cannot
@@ -457,8 +457,8 @@ public class RenderManager {
 
     /**
      * Adds a forced material parameter to use when rendering geometries.
-     * <p>
-     * The provided parameter takes precedence over parameters set on the
+     *
+     * <p>The provided parameter takes precedence over parameters set on the
      * material or any overrides that exist in the scene graph that have the
      * same name.
      *
@@ -471,7 +471,7 @@ public class RenderManager {
     }
 
     /**
-     * Remove a forced material parameter previously added.
+     * Removes a forced material parameter previously added.
      *
      * @param override The override to remove.
      * @see #addForcedMatParam(com.jme3.material.MatParamOverride)
@@ -481,9 +481,9 @@ public class RenderManager {
     }
 
     /**
-     * Get the forced material parameters applied to rendered geometries.
-     * <p>
-     * Forced parameters can be added via
+     * Gets the forced material parameters applied to rendered geometries.
+     *
+     * <p>Forced parameters can be added via
      * {@link #addForcedMatParam(com.jme3.material.MatParamOverride)} or removed
      * via {@link #removeForcedMatParam(com.jme3.material.MatParamOverride)}.
      *
@@ -494,9 +494,9 @@ public class RenderManager {
     }
 
     /**
-     * Enable or disable alpha-to-coverage. 
-     * <p>
-     * When alpha to coverage is enabled and the renderer implementation
+     * Enables or disables alpha-to-coverage. 
+     *
+     * <p>When alpha to coverage is enabled and the renderer implementation
      * supports it, then alpha blending will be replaced with alpha dissolve
      * if multi-sampling is also set on the renderer.
      * This feature allows avoiding of alpha blending artifacts due to
@@ -509,7 +509,7 @@ public class RenderManager {
     }
 
     /**
-     * True if the translucent bucket should automatically be rendered
+     * Test whether the translucent bucket should automatically be rendered
      * by the RenderManager.
      * 
      * @return Whether or not the translucent bucket is rendered.
@@ -521,7 +521,7 @@ public class RenderManager {
     }
 
     /**
-     * Enable or disable rendering of the 
+     * Enables or disables rendering of the 
      * {@link Bucket#Translucent translucent bucket}
      * by the RenderManager. The default is enabled.
      * 
@@ -533,11 +533,11 @@ public class RenderManager {
     }
 
     /**
-     * Internal use only. Sets the world matrix to use for future
+     * Sets the world matrix to use for future
      * rendering. This has no effect unless objects are rendered manually
      * using {@link Material#render(com.jme3.scene.Geometry, com.jme3.renderer.RenderManager) }.
      * Using {@link #renderGeometry(com.jme3.scene.Geometry) } will 
-     * override this value.
+     * override this value. Internal use only.
      * 
      * @param mat The world matrix to set
      */
@@ -546,9 +546,9 @@ public class RenderManager {
     }
 
     /**
-     * Internal use only.
      * Updates the given list of uniforms with {@link UniformBinding uniform bindings}
      * based on the current world state.
+     * Internal use only.
      * 
      * @param shader (not null)
      */
@@ -558,24 +558,24 @@ public class RenderManager {
 
     /**
      * Renders the given geometry.
-     * <p>
-     * First the proper world matrix is set, if 
+     *
+     * <p>First the proper world matrix is set, if 
      * the geometry's {@link Geometry#setIgnoreTransform(boolean) ignore transform}
      * feature is enabled, the identity world matrix is used, otherwise, the 
      * geometry's {@link Geometry#getWorldMatrix() world transform matrix} is used. 
-     * <p>
-     * Once the world matrix is applied, the proper material is chosen for rendering.
+     *
+     * <p>Once the world matrix is applied, the proper material is chosen for rendering.
      * If a {@link #setForcedMaterial(com.jme3.material.Material) forced material} is
      * set on this RenderManager, then it is used for rendering the geometry,
      * otherwise, the {@link Geometry#getMaterial() geometry's material} is used.
-     * <p>
-     * If a {@link #setForcedTechnique(java.lang.String) forced technique} is
+     *
+     * <p>If a {@link #setForcedTechnique(java.lang.String) forced technique} is
      * set on this RenderManager, then it is selected automatically
      * on the geometry's material and is used for rendering. Otherwise, one
      * of the {@link com.jme3.material.MaterialDef#getTechniqueDefsNames() default techniques} is
      * used.
-     * <p>
-     * If a {@link #setForcedRenderState(com.jme3.material.RenderState) forced
+     *
+     * <p>If a {@link #setForcedRenderState(com.jme3.material.RenderState) forced
      * render state} is set on this RenderManager, then it is used
      * for rendering the material, and the material's own render state is ignored.
      * Otherwise, the material's render state is used as intended.
@@ -650,8 +650,8 @@ public class RenderManager {
 
     /**
      * Renders the given GeometryList.
-     * <p>
-     * For every geometry in the list, the 
+     *
+     * <p>For every geometry in the list, the 
      * {@link #renderGeometry(com.jme3.scene.Geometry) } method is called.
      * 
      * @param gl The geometry list to render.
@@ -667,8 +667,8 @@ public class RenderManager {
 
     /**
      * Preloads a scene for rendering.
-     * <p>
-     * After invocation of this method, the underlying
+     *
+     * <p>After invocation of this method, the underlying
      * renderer would have uploaded any textures, shaders and meshes
      * used by the given scene to the video driver. 
      * Using this method is useful when wishing to avoid the initial pause
@@ -710,17 +710,17 @@ public class RenderManager {
     /**
      * Flattens the given scene graph into the ViewPort's RenderQueue,
      * checking for culling as the call goes down the graph recursively.
-     * <p>
-     * First, the scene is checked for culling based on the <code>Spatial</code>s
+     *
+     * <p>First, the scene is checked for culling based on the <code>Spatial</code>s
      * {@link Spatial#setCullHint(com.jme3.scene.Spatial.CullHint) cull hint},
      * if the camera frustum contains the scene, then this method is recursively
      * called on its children.
-     * <p>
-     * When the scene's leaves or {@link Geometry geometries} are reached,
+     *
+     * <p>When the scene's leaves or {@link Geometry geometries} are reached,
      * they are each enqueued into the 
      * {@link ViewPort#getQueue() ViewPort's render queue}.
-     * <p>
-     * In addition to enqueuing the visible geometries, this method
+     *
+     * <p>In addition to enqueuing the visible geometries, this method
      * also scenes which cast or receive shadows, by putting them into the
      * RenderQueue's 
      * {@link RenderQueue#addToQueue(com.jme3.scene.Geometry, com.jme3.renderer.queue.RenderQueue.Bucket) 
@@ -777,8 +777,8 @@ public class RenderManager {
 
     /**
      * Returns the camera currently used for rendering.
-     * <p>
-     * The camera can be set with {@link #setCamera(com.jme3.renderer.Camera, boolean) }.
+     *
+     * <p>The camera can be set with {@link #setCamera(com.jme3.renderer.Camera, boolean) }.
      * 
      * @return the camera currently used for rendering.
      */
@@ -856,7 +856,7 @@ public class RenderManager {
     }
 
     /**
-     * returns the preferred light mode.
+     * Returns the preferred light mode.
      * @return the light mode.
      */
     public TechniqueDef.LightMode getPreferredLightMode() {
@@ -864,7 +864,7 @@ public class RenderManager {
     }
 
     /**
-     * returns the number of lights used for each pass when the light mode is single pass.
+     * Returns the number of lights used for each pass when the light mode is single pass.
      * @return the number of lights.
      */
     public int getSinglePassLightBatchSize() {
@@ -882,9 +882,9 @@ public class RenderManager {
     
     
     /**
-     * Render the given viewport queues.
-     * <p>
-     * Changes the {@link Renderer#setDepthRange(float, float) depth range}
+     * Renders the given viewport queues.
+     *
+     * <p>Changes the {@link Renderer#setDepthRange(float, float) depth range}
      * appropriately as expected by each queue and then calls 
      * {@link RenderQueue#renderQueue(com.jme3.renderer.queue.RenderQueue.Bucket,
      * com.jme3.renderer.RenderManager, com.jme3.renderer.Camera, boolean) }
@@ -959,8 +959,8 @@ public class RenderManager {
 
     /**
      * Renders the {@link Bucket#Translucent translucent queue} on the viewPort.
-     * <p>
-     * This call does nothing unless {@link #setHandleTranslucentBucket(boolean) }
+     *
+     * <p>This call does nothing unless {@link #setHandleTranslucentBucket(boolean) }
      * is set to true. This method clears the translucent queue after rendering
      * it.
      * 
@@ -1020,9 +1020,9 @@ public class RenderManager {
     }
 
     /**
-     * Set the camera to use for rendering.
-     * <p>
-     * First, the camera's 
+     * Sets the camera to use for rendering.
+     *
+     * <p>First, the camera's 
      * {@link Camera#setViewPort(float, float, float, float) view port parameters}
      * are applied. Then, the camera's {@link Camera#getViewMatrix() view} and 
      * {@link Camera#getProjectionMatrix() projection} matrices are set
@@ -1064,8 +1064,8 @@ public class RenderManager {
 
     /**
      * Renders the {@link ViewPort}.
-     * <p>
-     * If the ViewPort is {@link ViewPort#isEnabled() disabled}, this method
+     *
+     * <p>If the ViewPort is {@link ViewPort#isEnabled() disabled}, this method
      * returns immediately. Otherwise, the ViewPort is rendered by 
      * the following process:<br>
      * <ul>
@@ -1195,10 +1195,10 @@ public class RenderManager {
     }
     
     /**
-     * Called by the application to render any ViewPorts
-     * added to this RenderManager.
-     * <p>
-     * Renders any viewports that were added using the following methods:
+     * Renders any ViewPorts
+     * added to this RenderManager. Called by the application.
+     *
+     * <p>Renders any viewports that were added using the following methods:
      * <ul>
      * <li>{@link #createPreView(java.lang.String, com.jme3.renderer.Camera) }</li>
      * <li>{@link #createMainView(java.lang.String, com.jme3.renderer.Camera) }</li>
