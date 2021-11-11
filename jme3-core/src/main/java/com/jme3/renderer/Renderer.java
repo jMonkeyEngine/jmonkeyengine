@@ -193,11 +193,11 @@ public interface Renderer {
     /**
      * Copies contents from src to dst, scaling if necessary.
      * set copyDepth to false to only copy the color buffers.
-     * @deprecated  Use {@link Renderer#copyFrameBuffer(com.jme3.texture.FrameBuffer,
-     * com.jme3.texture.FrameBuffer, boolean, boolean)}.
      * @param src the source FrameBuffer (unaffected)
      * @param dst the destination FrameBuffer (modified)
      * @param copyDepth true&rarr;copy depth info, false&rarr;don't copy it
+     * @deprecated  Use {@link Renderer#copyFrameBuffer(com.jme3.texture.FrameBuffer,
+     * com.jme3.texture.FrameBuffer, boolean, boolean)}.
      */
     @Deprecated public void copyFrameBuffer(FrameBuffer src, FrameBuffer dst, boolean copyDepth);
 
@@ -426,9 +426,8 @@ public interface Renderer {
      *
      * <p>If this option is toggled at runtime, textures must be reloaded for the change to take effect.
      *
-     * @throws RendererException If the GPU hardware does not support sRGB.
-     *
      * @param linearize If sRGB images undergo sRGB -&gt; linear conversion prior to rendering.
+     * @throws RendererException If the GPU hardware does not support sRGB.
      *
      * @see Caps#Srgb
      */
