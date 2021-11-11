@@ -586,7 +586,7 @@ public class RenderManager {
      * Otherwise, the material's render state is used as intended.
      * 
      * @param geom The geometry to render
-       * 
+     * 
      * @see Technique
      * @see RenderState
      * @see com.jme3.material.Material#selectTechnique(java.lang.String, com.jme3.renderer.RenderManager) 

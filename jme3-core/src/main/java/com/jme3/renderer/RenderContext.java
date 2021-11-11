@@ -270,7 +270,7 @@ public class RenderContext {
      */
     public RenderState.TestFunction depthFunc;
 
-     /**
+    /**
      * alpha test function
      */
     public RenderState.TestFunction alphaFunc;
