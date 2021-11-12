@@ -54,7 +54,7 @@ public class TransformTrack implements AnimTrack<Transform> {
     private HasLocalTransform target;
 
     /**
-     * transforms and times for keyframes
+     * Transforms and times for keyframes.
      */
     private CompactVector3Array translations;
     private CompactQuaternionArray rotations;
@@ -68,7 +68,7 @@ public class TransformTrack implements AnimTrack<Transform> {
     }
 
     /**
-     * Creates a transform track for the given target
+     * Creates a transform track for the given target.
      *
      * @param target       the target Joint or Spatial of the new track
      * @param times        the time for each keyframe, or null for none
@@ -85,7 +85,7 @@ public class TransformTrack implements AnimTrack<Transform> {
     }
 
     /**
-     * Copies the rotations
+     * Copies the rotations.
      *
      * @return a new array, or null if no rotations
      */
@@ -94,7 +94,7 @@ public class TransformTrack implements AnimTrack<Transform> {
     }
 
     /**
-     * Copies the scales
+     * Copies the scales.
      *
      * @return a new array, or null if no scales
      */
@@ -103,7 +103,7 @@ public class TransformTrack implements AnimTrack<Transform> {
     }
 
     /**
-     * Gives access to the keyframe times
+     * Gives access to the keyframe times.
      *
      * @return the pre-existing array
      */
@@ -112,7 +112,7 @@ public class TransformTrack implements AnimTrack<Transform> {
     }
 
     /**
-     * Copies the translations
+     * Copies the translations.
      *
      * @return a new array, or null if no translations
      */
@@ -122,7 +122,7 @@ public class TransformTrack implements AnimTrack<Transform> {
 
 
     /**
-     * Sets the keyframe times
+     * Sets the keyframe times.
      *
      * @param times the desired keyframe times (alias created, not null, not
      * empty)
@@ -136,7 +136,7 @@ public class TransformTrack implements AnimTrack<Transform> {
     }
 
     /**
-     * Sets the translations
+     * Sets the translations.
      *
      * @param translations the desired translation of the target for each
      * keyframe (not null, same length as "times")
@@ -156,7 +156,7 @@ public class TransformTrack implements AnimTrack<Transform> {
     }
 
     /**
-     * Sets the scales
+     * Sets the scales.
      *
      * @param scales the desired scale of the target for each keyframe (not
      * null, same length as "times")
@@ -176,7 +176,7 @@ public class TransformTrack implements AnimTrack<Transform> {
     }
 
     /**
-     * Sets the rotations
+     * Sets the rotations.
      *
      * @param rotations the desired rotation of the target for each keyframe
      * (not null, same length as "times")
@@ -197,7 +197,7 @@ public class TransformTrack implements AnimTrack<Transform> {
 
 
     /**
-     * Sets the translations, rotations, and/or scales
+     * Sets the translations, rotations, and/or scales.
      *
      * @param times        the desired time for each keyframe,
      *                     or null to leave the times unchanged
