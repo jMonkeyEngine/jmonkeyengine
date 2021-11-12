@@ -67,10 +67,10 @@ import java.util.List;
 import java.util.logging.Logger;
 
 /**
- * Takes care
+ * A high-level rendering interface that is
+ * above the Renderer implementation. RenderManager takes care
  * of rendering the scene graphs attached to each viewport and
- * handling SceneProcessors. A high-level rendering interface
- * above the Renderer implementation.
+ * handling SceneProcessors.
  *
  * @see SceneProcessor
  * @see ViewPort
@@ -256,7 +256,7 @@ public class RenderManager {
     }
 
     /**
-     * Returns a read-only list of all pre ViewPorts
+     * Returns a read-only list of all pre ViewPorts.
      *
      * @return a read-only list of all pre ViewPorts
      * @see #createPreView(java.lang.String, com.jme3.renderer.Camera) 
@@ -343,9 +343,9 @@ public class RenderManager {
     }
 
     /**
+     * Internal use only.
      * Updates the resolution of all on-screen cameras to match
      * the given width and height.
-     * Internal use only.
      *
      * @param w the new width (in pixels)
      * @param h the new height (in pixels)
@@ -514,9 +514,9 @@ public class RenderManager {
     }
 
     /**
-     * Test whether the translucent bucket should automatically be rendered
+     * True if the translucent bucket should automatically be rendered
      * by the RenderManager.
-     * 
+     *
      * @return Whether or not the translucent bucket is rendered.
      * 
      * @see #setHandleTranslucentBucket(boolean) 
@@ -538,11 +538,11 @@ public class RenderManager {
     }
 
     /**
-     * Sets the world matrix to use for future
+     * Internal use only. Sets the world matrix to use for future
      * rendering. This has no effect unless objects are rendered manually
      * using {@link Material#render(com.jme3.scene.Geometry, com.jme3.renderer.RenderManager) }.
      * Using {@link #renderGeometry(com.jme3.scene.Geometry) } will 
-     * override this value. Internal use only.
+     * override this value.
      * 
      * @param mat The world matrix to set
      */
@@ -551,9 +551,9 @@ public class RenderManager {
     }
 
     /**
+     * Internal use only.
      * Updates the given list of uniforms with {@link UniformBinding uniform bindings}
      * based on the current world state.
-     * Internal use only.
      * 
      * @param shader (not null)
      */
@@ -1204,8 +1204,8 @@ public class RenderManager {
     }
     
     /**
-     * Renders any ViewPorts
-     * added to this RenderManager. Called by the application.
+     * Called by the application to render any ViewPorts
+     * added to this RenderManager.
      *
      * <p>Renders any viewports that were added using the following methods:
      * <ul>

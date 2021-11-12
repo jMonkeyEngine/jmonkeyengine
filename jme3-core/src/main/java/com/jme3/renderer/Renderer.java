@@ -48,7 +48,8 @@ import java.util.EnumMap;
 import java.util.EnumSet;
 
 /**
- * Takes rendering commands and
+ * Responsible for taking rendering commands and
+ * executing them on the underlying video hardware.
  * executes them on the underlying video hardware.
  *
  * @author Kirill Vainer
@@ -121,7 +122,7 @@ public interface Renderer {
     public void applyRenderState(RenderState state);
 
     /**
-     * Set the range of the depth values for objects. All rendered
+     * Sets the range of the depth values for objects. All rendered
      * objects will have their depth clamped to this range.
      *
      * @param start The range start
@@ -130,7 +131,7 @@ public interface Renderer {
     public void setDepthRange(float start, float end);
 
     /**
-     * Does what's necessary after a new frame has been rendered.
+     * Called when a new frame has been rendered.
      *
      * Currently, this will simply delete any OpenGL objects from the GPU
      * which have been garbage collected by the GC.
@@ -199,7 +200,7 @@ public interface Renderer {
      * @param dst the destination FrameBuffer (modified)
      * @param copyDepth true&rarr;copy depth info, false&rarr;don't copy it
      * @deprecated  Use {@link Renderer#copyFrameBuffer(com.jme3.texture.FrameBuffer,
-     * com.jme3.texture.FrameBuffer, boolean, boolean)}.
+     *     com.jme3.texture.FrameBuffer, boolean, boolean)}.
      */
     @Deprecated public void copyFrameBuffer(FrameBuffer src, FrameBuffer dst, boolean copyDepth);
 
@@ -224,7 +225,7 @@ public interface Renderer {
     public void setFrameBuffer(FrameBuffer fb);
 
     /**
-     * Set the framebuffer that will be set instead of the main framebuffer
+     * Sets the framebuffer that will be set instead of the main framebuffer
      * when a call to setFrameBuffer(null) is made.
      *
      * @param fb The framebuffer to override the main framebuffer.
@@ -390,7 +391,9 @@ public interface Renderer {
     public void setAlphaToCoverage(boolean value);
     
     /**
-     * If enabled, color values rendered to the main framebuffer undergo
+     * Specifies whether color values in the main framebuffer are in SRGB format.
+     *
+     * <p>If enabled, color values rendered to the main framebuffer undergo
      * linear -&gt; sRGB conversion.
      *
      * <p>This is identical to {@link FrameBuffer#setSrgb(boolean)} except it is toggled
@@ -438,7 +441,7 @@ public interface Renderer {
     public void setLinearizeSrgbImages(boolean linearize);
 
     /**
-     * Generates a pool of gpu queries meant to use as profiling tasks
+     * Generates a pool of gpu queries meant to use as profiling tasks.
      *
      * @param numTasks the number of task ids to generate
      * @return an array of tasks ids.
@@ -454,7 +457,7 @@ public interface Renderer {
     public void startProfiling(int taskId);
 
     /**
-     * Stops the last profiling task started with startProfiling.
+     * Will stop the last profiling task started with startProfiling.
      */
     public void stopProfiling();
 

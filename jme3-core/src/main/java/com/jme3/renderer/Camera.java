@@ -51,7 +51,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Represents a viewport rectangle and frustum for rendering with or without perspective.
+ * A standalone, purely mathematical class for doing
+ * camera-related computations.
  *
  * <p>Given input data such as location, orientation (direction, left, up),
  * and viewport settings, it can compute data necessary to render objects
@@ -74,24 +75,23 @@ public class Camera implements Savable, Cloneable {
     private static final Logger logger = Logger.getLogger(Camera.class.getName());
 
     /**
-     * The <code>FrustumIntersect</code> enum is returned as a result
-     * of a culling check operation, 
+     * The result of a culling check operation. 
      * see {@link #contains(com.jme3.bounding.BoundingVolume) }
      */
     public enum FrustumIntersect {
 
         /**
-         * defines a constant assigned to spatials that are completely outside
+         * Defines a constant assigned to spatials that are completely outside
          * of this camera's view frustum.
          */
         Outside,
         /**
-         * defines a constant assigned to spatials that are completely inside
+         * Defines a constant assigned to spatials that are completely inside
          * the camera's view frustum.
          */
         Inside,
         /**
-         * defines a constant assigned to spatials that are intersecting one of
+         * Defines a constant assigned to spatials that are intersecting one of
          * the six planes that define the view frustum.
          */
         Intersects;
@@ -101,7 +101,7 @@ public class Camera implements Savable, Cloneable {
      */
     private static final int LEFT_PLANE = 0;
     /**
-     * RIGHT_PLANE represents the right plane of the camera frustum.
+     * LEFT_PLANE represents the left plane of the camera frustum.
      */
     private static final int RIGHT_PLANE = 1;
     /**
@@ -129,7 +129,7 @@ public class Camera implements Savable, Cloneable {
      */
     private static final int MAX_WORLD_PLANES = 6;
     /**
-     * Camera's location
+     * Camera's location.
      */
     protected Vector3f location;
     /**
@@ -882,7 +882,7 @@ public class Camera implements Savable, Cloneable {
     }
 
     /**
-     * Sets the frame
+     * A convenience method for auto-setting the frame
      * based on a world position the user desires the camera to look at. It
      * repoints the camera towards the given position using the difference
      * between the position and the current camera location as a direction
@@ -1238,7 +1238,7 @@ public class Camera implements Savable, Cloneable {
     }
 
     /**
-     * Marks the viewport as having been changed.
+     * Called when the viewport has been changed.
      */
     public void onViewPortChange() {
         viewportChanged = true;
@@ -1408,6 +1408,7 @@ public class Camera implements Savable, Cloneable {
      * Note that the returned value is going non linearly from 0 to 1.
      * for more explanations on non linear z buffer see
      * http://www.sjbaker.org/steve/omniv/love_your_z_buffer.html
+     *
      * @param viewZPos the z value in view space.
      * @return the z value in projection space.
      */

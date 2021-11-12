@@ -57,14 +57,14 @@ public enum Caps {
     FrameBuffer,
 
     /**
-     * Supports framebuffer Multiple Render Targets (MRT)
+     * Supports framebuffer Multiple Render Targets (MRT).
      *
      * <p>OpenGL: Renderer exposes the GL_ARB_draw_buffers extension
      */
     FrameBufferMRT,
 
     /**
-     * Supports framebuffer multi-sampling
+     * Supports framebuffer multi-sampling.
      *
      * <p>OpenGL: Renderer exposes the GL EXT framebuffer multisample extension<br>
      * OpenGL ES: Renderer exposes GL_APPLE_framebuffer_multisample or
@@ -73,7 +73,7 @@ public enum Caps {
     FrameBufferMultisample,
 
     /**
-     * Supports texture multi-sampling
+     * Supports texture multi-sampling.
      *
      * <p>OpenGL: Renderer exposes the GL_ARB_texture_multisample extension<br>
      * OpenGL ES: Renderer exposes the GL_IMG_multisampled_render_to_texture
@@ -87,50 +87,50 @@ public enum Caps {
     OpenGL20,
     
     /**
-     * Supports OpenGL 2.1
+     * Supports OpenGL 2.1.
      */
     OpenGL21,
     
     /**
-     * Supports OpenGL 3.0
+     * Supports OpenGL 3.0.
      */
     OpenGL30,
     
     /**
-     * Supports OpenGL 3.1
+     * Supports OpenGL 3.1.
      */
     OpenGL31,
     
     /**
-     * Supports OpenGL 3.2
+     * Supports OpenGL 3.2.
      */
     OpenGL32,
     /**
-     * Supports OpenGL 3.3
+     * Supports OpenGL 3.3.
      */
     OpenGL33,
     /**
-     * Supports OpenGL 4.0
+     * Supports OpenGL 4.0.
      */
     OpenGL40,
     /**
-     * Supports OpenGL 4.1
+     * Supports OpenGL 4.1.
      */
     OpenGL41,
     /**
-     * Supports OpenGL 4.2
+     * Supports OpenGL 4.2.
      */
     OpenGL42,
     /**
-     * Supports OpenGL 4.3
+     * Supports OpenGL 4.3.
      */
     OpenGL43,
     /**
-     * Supports OpenGL 4.4
+     * Supports OpenGL 4.4.
      */
     OpenGL44,
     /**
-     * Supports OpenGL 4.5
+     * Supports OpenGL 4.5.
      */
     OpenGL45,
     /**
@@ -142,61 +142,61 @@ public enum Caps {
     Reserved0,
     
     /**
-     * Supports GLSL 1.0
+     * Supports GLSL 1.0.
      */
     GLSL100,
     
     /**
-     * Supports GLSL 1.1
+     * Supports GLSL 1.1.
      */
     GLSL110,
     
     /**
-     * Supports GLSL 1.2
+     * Supports GLSL 1.2.
      */
     GLSL120,
     
     /**
-     * Supports GLSL 1.3
+     * Supports GLSL 1.3.
      */
     GLSL130,
     
     /**
-     * Supports GLSL 1.4
+     * Supports GLSL 1.4.
      */
     GLSL140,
     
     /**
-     * Supports GLSL 1.5
+     * Supports GLSL 1.5.
      */
     GLSL150,
     
     /**
-     * Supports GLSL 3.3
+     * Supports GLSL 3.3.
      */
     GLSL330,
     /**
-     * Supports GLSL 4.0
+     * Supports GLSL 4.0.
      */
     GLSL400,
     /**
-     * Supports GLSL 4.1
+     * Supports GLSL 4.1.
      */
     GLSL410,
     /**
-     * Supports GLSL 4.2
+     * Supports GLSL 4.2.
      */
     GLSL420,
     /**
-     * Supports GLSL 4.3
+     * Supports GLSL 4.3.
      */
     GLSL430,
     /**
-     * Supports GLSL 4.4
+     * Supports GLSL 4.4.
      */
     GLSL440,
     /**
-     * Supports GLSL 4.5
+     * Supports GLSL 4.5.
      */
     GLSL450,
     /**
@@ -209,56 +209,56 @@ public enum Caps {
      */
     GeometryShader,
     /**
-     * Supports Tessellation shader
+     * Supports Tessellation shader.
      */
     TesselationShader,
     /**
-     * Supports texture arrays
+     * Supports texture arrays.
      */
     TextureArray,
 
     /**
-     * Supports texture buffers
+     * Supports texture buffers.
      */
     TextureBuffer,
 
     /**
-     * Supports floating point and half textures (Format.RGB16F)
+     * Supports floating point and half textures (Format.RGB16F).
      */
     FloatTexture,
     
     /**
-     * Supports integer textures
+     * Supports integer textures.
      */
     IntegerTexture,
     
     /**
-     * Supports floating point FBO color buffers (Format.RGB16F)
+     * Supports floating point FBO color buffers (Format.RGB16F).
      */
     FloatColorBuffer,
 
     /**
-     * Supports floating point depth buffer
+     * Supports floating point depth buffer.
      */
     FloatDepthBuffer,
 
     /**
-     * Supports Format.RGB111110F for textures
+     * Supports Format.RGB111110F for textures.
      */
     PackedFloatTexture,
 
     /**
-     * Supports Format.RGB9E5 for textures
+     * Supports Format.RGB9E5 for textures.
      */
     SharedExponentTexture,
 
     /**
-     * Supports Format.RGB111110F for FBO color buffers
+     * Supports Format.RGB111110F for FBO color buffers.
      */
     PackedFloatColorBuffer,
 
     /**
-     * Supports Format.RGB9E5 for FBO color buffers
+     * Supports Format.RGB9E5 for FBO color buffers.
      */
     SharedExponentColorBuffer,
     
@@ -271,7 +271,7 @@ public enum Caps {
     Reserved1,
 
     /**
-     * Supports Non-Power-Of-Two (NPOT) textures and framebuffers
+     * Supports Non-Power-Of-Two (NPOT) textures and framebuffers.
      */
     NonPowerOfTwoTextures,
 
@@ -281,22 +281,22 @@ public enum Caps {
     MeshInstancing,
 
     /**
-     * Supports VAO, or vertex buffer arrays
+     * Supports VAO, or vertex buffer arrays.
      */
     VertexBufferArray,
 
     /**
-     * Supports multisampling on the screen
+     * Supports multisampling on the screen.
      */
     Multisample,
     
     /**
-     * Supports FBO with Depth24Stencil8 image format
+     * Supports FBO with Depth24Stencil8 image format.
      */
     PackedDepthStencilBuffer,
     
     /**
-     * Supports sRGB framebuffers and sRGB texture format
+     * Supports sRGB framebuffers and sRGB texture format.
      */
     Srgb,
     
@@ -337,12 +337,12 @@ public enum Caps {
     TextureCompressionRGTC,
     
     /**
-     * Supports OpenGL ES 2
+     * Supports OpenGL ES 2.
      */
     OpenGLES20,
     
     /**
-     * Supports RGB8 / RGBA8 textures
+     * Supports RGB8 / RGBA8 textures.
      */
     Rgba8,
     
@@ -373,7 +373,7 @@ public enum Caps {
     PartialNonPowerOfTwoTextures,
     
     /**
-     * When sampling cubemap edges, interpolate between the adjacent faces
+     * When sampling cubemap edges, interpolates between the adjacent faces
      * instead of just sampling one face.
      *
      * <p>Improves the quality of environment mapping.
@@ -388,7 +388,7 @@ public enum Caps {
     CoreProfile,
     
     /**
-     * GPU can provide and accept binary shaders.
+     * GPU support for binary shaders.
      */
     BinaryShader,
     /**
@@ -401,37 +401,37 @@ public enum Caps {
     ShaderStorageBufferObject,
 
     /**
-     * Supports OpenGL ES 3.0
+     * Supports OpenGL ES 3.0.
      */
     OpenGLES30,
 
     /**
-     * Supports GLSL 3.0
+     * Supports GLSL 3.0.
      */
     GLSL300,
 
     /**
-     * Supports OpenGL ES 3.1
+     * Supports OpenGL ES 3.1.
      */
     OpenGLES31,
 
     /**
-     * Supports GLSL 3.1
+     * Supports GLSL 3.1.
      */
     GLSL310,
 
     /**
-     * Supports OpenGL ES 3.2
+     * Supports OpenGL ES 3.2.
      */
     OpenGLES32,
 
     /**
-     * Supports GLSL 3.2
+     * Supports GLSL 3.2.
      */
     GLSL320,
 
     /**
-     * Explicit support of depth 24 textures
+     * Explicit support of depth 24 textures.
      */
     Depth24,     
 

@@ -45,7 +45,7 @@ import java.lang.ref.WeakReference;
  */
 public class RenderContext {
     /**
-     * number of texture units that JME supports
+     * Number of texture units that JME supports.
      */
     public static final int MAX_TEXTURE_UNITS = 16;
 
@@ -165,14 +165,14 @@ public class RenderContext {
     public FrameBuffer boundFB;
 
     /**
-     * Currently bound Renderbuffer
+     * Currently bound Renderbuffer.
      *
      * @see Renderer#setFrameBuffer(com.jme3.texture.FrameBuffer)
      */
     public int boundRB;
 
     /**
-     * Currently bound draw buffer
+     * Currently bound draw buffer.
      * -2 = GL_NONE
      * -1 = GL_BACK
      *  0 = GL_COLOR_ATTACHMENT0
@@ -185,7 +185,7 @@ public class RenderContext {
     public int boundDrawBuf;
 
     /**
-     * Currently bound read buffer
+     * Currently bound read buffer.
      *
      * @see RenderContext#boundDrawBuf
      * @see Renderer#setFrameBuffer(com.jme3.texture.FrameBuffer)
@@ -228,21 +228,21 @@ public class RenderContext {
             = new WeakReference[MAX_TEXTURE_UNITS];
 
     /**
-     * IDList for texture units
+     * IDList for texture units.
      *
      * @see Renderer#setTexture(int, com.jme3.texture.Texture)
      */
     public final IdList textureIndexList = new IdList();
 
     /**
-     * Currently bound texture unit
+     * Currently bound texture unit.
      *
      * @see Renderer#setTexture(int, com.jme3.texture.Texture)
      */
     public int boundTextureUnit;
 
     /**
-     * Stencil Buffer state
+     * Stencil Buffer state.
      */
     public boolean stencilTest;
     public RenderState.StencilOperation frontStencilStencilFailOperation;
@@ -261,17 +261,17 @@ public class RenderContext {
     public final WeakReference<VertexBuffer>[] boundAttribs = new WeakReference[16];
 
     /**
-     * IDList for vertex attributes
+     * IDList for vertex attributes.
      */
     public final IdList attribIndexList = new IdList();
 
     /**
-     * depth test function
+     * Depth test function.
      */
     public RenderState.TestFunction depthFunc;
 
     /**
-     * alpha test function
+     * Alpha test function.
      */
     public RenderState.TestFunction alphaFunc;
 

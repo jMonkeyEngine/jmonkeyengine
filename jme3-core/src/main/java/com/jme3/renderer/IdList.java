@@ -34,7 +34,8 @@ package com.jme3.renderer;
 import java.util.Arrays;
 
 /**
- * Represents a list of indices, such as the texture units and vertex attributes in a RenderContext.
+ * A specialized data-structure used to optimize state changes of "slot"
+ * based state.
  */
 public class IdList {
 

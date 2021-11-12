@@ -107,7 +107,7 @@ public class ViewPort {
 
     /**
      * Gets the list of {@link SceneProcessor scene processors} that were
-     * added to this <code>ViewPort</code>
+     * added to this <code>ViewPort</code>.
      * 
      * @return the list of processors attached to this ViewPort
      * 
@@ -286,10 +286,8 @@ public class ViewPort {
     }
 
     /**
-     * Returns the RenderQueue.
+     * Internal use only.
      *
-     * <p>Internal use only.
-     * 
      * @return the pre-existing instance
      */
     public RenderQueue getQueue() {
@@ -365,7 +363,7 @@ public class ViewPort {
     }
 
     /**
-     * Returns the background color of this ViewPort
+     * Returns the background color of this ViewPort.
      * 
      * @return the background color of this ViewPort
      * 

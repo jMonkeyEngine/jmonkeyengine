@@ -32,7 +32,8 @@
 package com.jme3.renderer;
 
 /**
- * Represents a fatal rendering error encountered by a renderer.
+ * Raised when a renderer encounters
+ * a fatal rendering error.
  * 
  * @author Kirill Vainer
  */

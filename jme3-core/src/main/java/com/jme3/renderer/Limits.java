@@ -32,7 +32,7 @@
 package com.jme3.renderer;
 
 /**
- * Represents the limits of certain features in
+ * Allows querying the limits of certain features in
  * {@link Renderer}.
  *
  * <p>For example, maximum texture sizes or number of samples.
