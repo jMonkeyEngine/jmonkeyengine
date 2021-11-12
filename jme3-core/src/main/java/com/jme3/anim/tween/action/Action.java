@@ -38,68 +38,42 @@ import com.jme3.util.clone.Cloner;
 import com.jme3.util.clone.JmeCloneable;
 
 /**
- * Base implementation (1st level impl/prototype) of the interface #{@link Tween} for the new animation system.
- * The Action class encloses an array of {@link Tween} and converts them into jme animation actions if they actually aren't.
+ * Base implementation of the interface {@link Tween} for the new animation system.
  *
- * NB : this implementation mimics the {@link com.jme3.anim.tween.AbstractTween}, but it delegates the interpolation method #{@link Tween#interpolate(double)}
- * to the #{@link BlendableAction} class.
+ * The Action class gathers the animation actions from a {@link Tween} array argument into {@link Action#actions}, and it extracts the plain {@link Tween} instances (non-action tween)
+ * into a {@link BaseAction}, the net result is creating a holder that holds the Animation Actions and controls their properties including {@link Action#speed}, {@link Action#length},
+ * {@link Action#mask}, {@link Action#forward}.
+ * <br/>
  *
- * Subclasses need to make a constructor call passing in the Tween Actions to enclose them & override #{@link Action#interpolate(double)}.
+ * Notes :
+ * - The sequence of tweens is determined by {@link com.jme3.anim.tween.Tweens} utility class and {@link BaseAction} interpolates that sequence.
+ * - This implementation mimics the {@link com.jme3.anim.tween.AbstractTween}, but it delegates the interpolation method {@link Tween#interpolate(double)}
+ * to the {@link BlendableAction} class.
  *
- * Example of operation(Uses Abstract Factory Pattern Method(interpolate/doInterpolate)) :
- *
- * <li>#Check out #{@link BlendableAction} class.</li>
- * <li>#Custom Code : </li>
- * <pre class="prettyprint">
- *  public abstract class AbstractAction extends Action {
- *      private double length;
- *      private volatile float interpolationDelta = 0f;
- *      public ActionImpl(Tween... tweenActions){
- *          super(tweenActions);
- *      }
- *      public boolean interpolate(double t){
- *          //animation is out or in a reverse order.
- *          if(t < 0){
- *              return true;
- *          }
- *          //find where is the interpolation slider for transition.
- *          //interpolationDelta would be -plugged into the interpolateTransforms(transformI, transformII, delta)- as a shared value.
- *          interpolationDelta = t / length;
- *          doInterpolate(t);
- *          //interpolate as long as the interpolation slider haven't reached the full strength.
- *          return interpolationDelta < 1.0d;
- *      }
- *      public double getLength(){
- *           return length;
- *      }
- *      public void cloneFields(Cloner cloner, Object original) {
- *         //deep clone fields
- *      }
- *      public Action jmeClone() {
- *          //shallow clone
- *         try {
- *             return (Action) super.clone();
- *         } catch (CloneNotSupportedException exception) {
- *             throw new RuntimeException(exception);
- *         }
- *     }
- *      //override this factory method to do interpolation
- *      protected abstract void doInterpolate(double t);
- *  }
- * </pre>
  * <b>Created by Nehon.</b>
+ *
+ * @see BlendableAction
+ * @see BaseAction
  */
 public abstract class Action implements JmeCloneable, Tween {
 
     protected Action[] actions;
     private double length;
-    //the default speed is 1, which results in a normal tpf.
+    //the default speed is 1, which play the animation clips at their normal speed.
     private double speed = 1;
     private AnimationMask mask;
     private boolean forward = true;
 
     /**
-     * Instantiate an action object which encloses a couple of tween animation actions.
+     * Instantiate an action object which holds one or more tweens.
+     * If the tweens are {@link Action}, they would be added directly to {@link Action#actions}.
+     * If the tweens aren't {@link Action}, the Action class would delegate that to {@link BaseAction}, and {@link BaseAction} would try to extract the
+     * tween actions from the tweens arg and interpolate them.
+     * Notes :
+     * - If intentions are to make a holder class, then subclasses have to call this constructor, examples : {@link BlendableAction}, {@link BaseAction}.
+     * - If intentions are to make an implementation of {@link Action} that shouldn't hold tweens of actions, then subclasses shouldn't call this
+     * constructor, examples : {@link ClipAction}, {@link BlendAction}.
+     *
      * @param tweens the tween actions to enclose.
      */
     protected Action(Tween... tweens) {
@@ -117,7 +91,7 @@ public abstract class Action implements JmeCloneable, Tween {
 
     /**
      * Gets the length aka the duration of the current whole action that encloses Tweens.
-     * @return the length of the action.
+     * @return the length of the action in seconds.
      */
     @Override
     public double getLength() {
@@ -125,8 +99,8 @@ public abstract class Action implements JmeCloneable, Tween {
     }
 
     /**
-     * Alter the length (duration) of this Action.  This can be used to extend
-     * or truncate an Action.
+     * Alter the length (duration) of this Action.
+     * This can be used to extend or truncate an Action.
      * @param length the desired length (in unscaled seconds, default=0)
      */
     public void setLength(double length) {
@@ -135,7 +109,8 @@ public abstract class Action implements JmeCloneable, Tween {
 
     /**
      * Gets the speed of the frames of this action which gets applied for the Layer enclosing this action.
-     * Gets applied each advance() by this formula : time += tpf * currentAction.getSpeed() * ac.globalSpeed.
+     * Gets applied each Layer#advance() by this formula : time += tpf * currentAction.getSpeed() * ac.globalSpeed.
+     * Default speed is 1.0, it plays the animation clips at their normal speed.
      * @return the speed of frames.
      */
     public double getSpeed() {
@@ -144,7 +119,8 @@ public abstract class Action implements JmeCloneable, Tween {
 
     /**
      * Sets the speed of the frames of this action which gets applied for the Layer enclosing this action.
-     * Gets applied each advance() by this formula : time += tpf * currentAction.getSpeed() * ac.globalSpeed.
+     * Gets applied each Layer#advance() by this formula : time += tpf * currentAction.getSpeed() * ac.globalSpeed.
+     * Default speed is 1.0, it plays the animation clips at their normal speed.
      * @param speed the speed of frames.
      */
     public void setSpeed(double speed) {
@@ -154,7 +130,7 @@ public abstract class Action implements JmeCloneable, Tween {
 
     /**
      * Gets the animation mask for this action.
-     * the animation mask holds data(subsets of an object) about which part of the animation would be played.
+     * the animation mask holds data (subsets of an object) about which part of the animation would be played.
      * @return the animation mask instance.
      */
     public AnimationMask getMask() {
@@ -163,7 +139,7 @@ public abstract class Action implements JmeCloneable, Tween {
 
     /**
      * Sets the animation mask for this action.
-     * the animation mask holds the info about which part(subsets of an object) of the animation to play, like joints in #{@link com.jme3.anim.ArmatureMask#addFromJoint(Armature, String)}
+     * the animation mask holds the info about which part (subsets of an object) of the animation to play, such as joints in {@link com.jme3.anim.ArmatureMask#addFromJoint(Armature, String)}.
      * @param mask the animation mask instance.
      */
     public void setMask(AnimationMask mask) {
@@ -171,17 +147,17 @@ public abstract class Action implements JmeCloneable, Tween {
     }
 
     /**
-     * Checks for the forward boolean flag.
-     * @return true if the animation action meant to be seek in a forward manner, false otherwise.
+     * Tests the value of the forward flag.
+     * @return true if the animation action is in a forward manner state.
      */
     protected boolean isForward() {
         return forward;
     }
 
     /**
-     * The forward flag, controls the animation action directionality, forward = true : ensures that animation would seek in a forward manner, however
+     * The forward flag controls the animation action directionality, forward = true : ensures that animation would seek in a forward manner, however
      * forward = false : ensures that animation would seek in a backward manner.
-     * @param forward true if the animation is meant to be seek forward, false otherwise.
+     * @param forward true if the animation action is in a forward manner state, false otherwise.
      */
     protected void setForward(boolean forward) {
         if(this.forward == forward){
@@ -201,7 +177,8 @@ public abstract class Action implements JmeCloneable, Tween {
     @Override
     public Action jmeClone() {
         try {
-            return (Action) super.clone();
+            final Action clone = (Action) super.clone();
+            return clone;
         } catch (CloneNotSupportedException exception) {
             throw new RuntimeException(exception);
         }
