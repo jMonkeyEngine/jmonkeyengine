@@ -124,8 +124,7 @@ public class TransformTrack implements AnimTrack<Transform> {
     /**
      * Sets the keyframe times.
      *
-     * @param times the desired keyframe times (alias created, not null, not
-     * empty)
+     * @param times the desired keyframe times (alias created, not null, not empty)
      */
     public void setTimes(float[] times) {
         if (times.length == 0) {
@@ -139,7 +138,7 @@ public class TransformTrack implements AnimTrack<Transform> {
      * Sets the translations.
      *
      * @param translations the desired translation of the target for each
-     * keyframe (not null, same length as "times")
+     *     keyframe (not null, same length as "times")
      */
     public void setKeyframesTranslation(Vector3f[] translations) {
         if (times == null) {
@@ -159,7 +158,7 @@ public class TransformTrack implements AnimTrack<Transform> {
      * Sets the scales.
      *
      * @param scales the desired scale of the target for each keyframe (not
-     * null, same length as "times")
+     *     null, same length as "times")
      */
     public void setKeyframesScale(Vector3f[] scales) {
         if (times == null) {
@@ -179,7 +178,7 @@ public class TransformTrack implements AnimTrack<Transform> {
      * Sets the rotations.
      *
      * @param rotations the desired rotation of the target for each keyframe
-     * (not null, same length as "times")
+     *     (not null, same length as "times")
      */
     public void setKeyframesRotation(Quaternion[] rotations) {
         if (times == null) {
