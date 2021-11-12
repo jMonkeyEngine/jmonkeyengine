@@ -68,7 +68,7 @@ public class TransformTrack implements AnimTrack<Transform> {
     }
 
     /**
-     * Create a transform track for the given target
+     * Creates a transform track for the given target
      *
      * @param target       the target Joint or Spatial of the new track
      * @param times        the time for each keyframe, or null for none
@@ -85,7 +85,7 @@ public class TransformTrack implements AnimTrack<Transform> {
     }
 
     /**
-     * Copy the rotations
+     * Copies the rotations
      *
      * @return a new array, or null if no rotations
      */
@@ -94,7 +94,7 @@ public class TransformTrack implements AnimTrack<Transform> {
     }
 
     /**
-     * Copy the scales
+     * Copies the scales
      *
      * @return a new array, or null if no scales
      */
@@ -103,7 +103,7 @@ public class TransformTrack implements AnimTrack<Transform> {
     }
 
     /**
-     * Access the keyframe times
+     * Gives access to the keyframe times
      *
      * @return the pre-existing array
      */
@@ -112,7 +112,7 @@ public class TransformTrack implements AnimTrack<Transform> {
     }
 
     /**
-     * Copy the translations
+     * Copies the translations
      *
      * @return a new array, or null if no translations
      */
@@ -122,7 +122,7 @@ public class TransformTrack implements AnimTrack<Transform> {
 
 
     /**
-     * Set the keyframe times
+     * Sets the keyframe times
      *
      * @param times the desired keyframe times (alias created, not null, not
      * empty)
@@ -136,7 +136,7 @@ public class TransformTrack implements AnimTrack<Transform> {
     }
 
     /**
-     * Set the translations
+     * Sets the translations
      *
      * @param translations the desired translation of the target for each
      * keyframe (not null, same length as "times")
@@ -156,7 +156,7 @@ public class TransformTrack implements AnimTrack<Transform> {
     }
 
     /**
-     * Set the scales
+     * Sets the scales
      *
      * @param scales the desired scale of the target for each keyframe (not
      * null, same length as "times")
@@ -176,7 +176,7 @@ public class TransformTrack implements AnimTrack<Transform> {
     }
 
     /**
-     * Set the rotations
+     * Sets the rotations
      *
      * @param rotations the desired rotation of the target for each keyframe
      * (not null, same length as "times")
@@ -197,7 +197,7 @@ public class TransformTrack implements AnimTrack<Transform> {
 
 
     /**
-     * Set the translations, rotations, and/or scales
+     * Sets the translations, rotations, and/or scales
      *
      * @param times        the desired time for each keyframe,
      *                     or null to leave the times unchanged
@@ -286,7 +286,7 @@ public class TransformTrack implements AnimTrack<Transform> {
     }
 
     /**
-     * Replace the frame interpolator.
+     * Replaces the frame interpolator.
      *
      * @param interpolator the interpolator to use (alias created)
      */
@@ -295,7 +295,7 @@ public class TransformTrack implements AnimTrack<Transform> {
     }
 
     /**
-     * Access the target, which might be a Joint or a Spatial.
+     * Gives access to the target, which might be a Joint or a Spatial.
      *
      * @return the pre-existing instance
      */
@@ -304,7 +304,7 @@ public class TransformTrack implements AnimTrack<Transform> {
     }
 
     /**
-     * Replace the target, which might be a Joint or a Spatial.
+     * Replaces the target, which might be a Joint or a Spatial.
      *
      * @param target the target to use (alias created)
      */
@@ -313,7 +313,7 @@ public class TransformTrack implements AnimTrack<Transform> {
     }
 
     /**
-     * Serialize this track to the specified exporter, for example when
+     * Serializes this track to the specified exporter, for example when
      * saving to a J3O file.
      *
      * @param ex the exporter to write to (not null)
@@ -330,7 +330,7 @@ public class TransformTrack implements AnimTrack<Transform> {
     }
 
     /**
-     * De-serialize this track from the specified importer, for example when
+     * De-serializes this track from the specified importer, for example when
      * loading from a J3O file.
      *
      * @param im the importer to read from (not null)
