@@ -70,9 +70,9 @@ public abstract class Action implements JmeCloneable, Tween {
      * If the tweens aren't {@link Action}, the Action class would delegate that to {@link BaseAction}, and {@link BaseAction} would try to extract the
      * tween actions from the tweens arg and interpolate them.
      * Notes :
-     * - If intentions are to make a holder class, then subclasses have to call this constructor, examples : {@link BlendableAction}, {@link BaseAction}.
+     * - If intentions are to make a holder class, then subclasses have to call this constructor, examples : {@link BlendableAction}, {@link BaseAction}, {@link BlendAction}.
      * - If intentions are to make an implementation of {@link Action} that shouldn't hold tweens of actions, then subclasses shouldn't call this
-     * constructor, examples : {@link ClipAction}, {@link BlendAction}.
+     * constructor, examples : {@link ClipAction}.
      *
      * @param tweens the tween actions to enclose.
      */
