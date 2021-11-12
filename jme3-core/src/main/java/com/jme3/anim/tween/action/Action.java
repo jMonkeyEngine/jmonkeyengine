@@ -59,7 +59,7 @@ public abstract class Action implements JmeCloneable, Tween {
 
     protected Action[] actions;
     private double length;
-    //the default speed is 1, which play the animation clips at their normal speed.
+    //the default speed is 1, it plays the animation clips at their normal speed.
     private double speed = 1;
     private AnimationMask mask;
     private boolean forward = true;
