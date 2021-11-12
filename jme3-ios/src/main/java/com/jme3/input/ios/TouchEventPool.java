@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,7 @@ import java.util.logging.Logger;
 
 /**
  * TouchEventPool provides a RingBuffer of jME TouchEvents to help with garbage
- * collection on Android.  Each TouchEvent is stored in the RingBuffer and is 
+ * collection on iOS.  Each TouchEvent is stored in the RingBuffer and is 
  * reused if the TouchEvent has been consumed.
  * 
  * If a TouchEvent has not been consumed, it is placed back into the pool at the 
