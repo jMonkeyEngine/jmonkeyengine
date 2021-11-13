@@ -202,7 +202,8 @@ public interface Renderer {
      * @deprecated  Use {@link Renderer#copyFrameBuffer(com.jme3.texture.FrameBuffer,
      *     com.jme3.texture.FrameBuffer, boolean, boolean)}.
      */
-    @Deprecated public void copyFrameBuffer(FrameBuffer src, FrameBuffer dst, boolean copyDepth);
+    @Deprecated
+    public void copyFrameBuffer(FrameBuffer src, FrameBuffer dst, boolean copyDepth);
 
     /**
      * Copies contents from src to dst, scaling if necessary.
