@@ -46,24 +46,69 @@ import com.jme3.util.IntMap;
  */
 public class Statistics {
 
+    /**
+     * Enables or disables updates.
+     */
     protected boolean enabled = false;
 
+    /**
+     * Number of object used during the current frame.
+     */
     protected int numObjects;
+    /**
+     * Number of mesh primitives rendered during the current frame.
+     */
     protected int numTriangles;
+    /**
+     * Number of mesh vertices rendered during the current frame.
+     */
     protected int numVertices;
+    /**
+     * Number of shader switches during the current frame.
+     */
     protected int numShaderSwitches;
+    /**
+     * Number of texture binds during the current frame.
+     */
     protected int numTextureBinds;
+    /**
+     * Number of FBO switches during the current frame.
+     */
     protected int numFboSwitches;
+    /**
+     * Number of uniforms set during the current frame.
+     */
     protected int numUniformsSet;
 
+    /**
+     * Number of active shaders.
+     */
     protected int memoryShaders;
+    /**
+     * Number of active frame buffers.
+     */
     protected int memoryFrameBuffers;
+    /**
+     * Number of active textures.
+     */
     protected int memoryTextures;
 
+    /**
+     * IDs of all shaders in use.
+     */
     protected IntMap<Void> shadersUsed = new IntMap<>();
+    /**
+     * IDs of all textures in use.
+     */
     protected IntMap<Void> texturesUsed = new IntMap<>();
+    /**
+     * IDs of all FBOs in use.
+     */
     protected IntMap<Void> fbosUsed = new IntMap<>();
 
+    /**
+     * ID of the most recently used shader.
+     */
     protected int lastShader = -1;
     
     /**
@@ -318,10 +363,20 @@ public class Statistics {
         memoryTextures = 0;
     }
 
+    /**
+     * Enables or disables updates.
+     *
+     * @param f true to enable, false to disable
+     */
     public void setEnabled(boolean f) {
         this.enabled = f;
     }
     
+    /**
+     * Tests whether updates are enabled.
+     *
+     * @return true if enabled, otherwise false
+     */
     public boolean isEnabled() {
         return enabled;
     }

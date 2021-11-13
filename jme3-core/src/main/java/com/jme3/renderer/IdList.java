@@ -39,9 +39,21 @@ import java.util.Arrays;
  */
 public class IdList {
 
+    /**
+     * Indices belonging to the "new list". Valid data in elements 0 through newLen-1 only!
+     */
     public int[] newList = new int[16];
+    /**
+     * Indices belonging to the "old list". Valid data in elements 0 through oldLen-1 only!
+     */
     public int[] oldList = new int[16];
+    /**
+     * The number of valid elements in the new list.
+     */
     public int newLen = 0;
+    /**
+     * The number of valid elements in the old list.
+     */
     public int oldLen = 0;
 
     /**

@@ -64,16 +64,46 @@ import com.jme3.util.SafeArrayList;
  */
 public class ViewPort {
 
+    /**
+     * Name for this viewport.
+     */
     protected final String name;
+    /**
+     * Camera used for rendering.
+     */
     protected final Camera cam;
+    /**
+     * Geometries for rendering, sorted.
+     */
     protected final RenderQueue queue = new RenderQueue();
+    /**
+     * Scene-graph hierarchies for rendering.
+     */
     protected final SafeArrayList<Spatial> sceneList = new SafeArrayList<>(Spatial.class);
+    /**
+     * Scene processors currently applied.
+     */
     protected final SafeArrayList<SceneProcessor> processors = new SafeArrayList<>(SceneProcessor.class);
+    /**
+     * FrameBuffer for output.
+     */
     protected FrameBuffer out = null;
 
+    /**
+     * Color applied when the color buffer is cleared.
+     */
     protected final ColorRGBA backColor = new ColorRGBA(0, 0, 0, 0);
+    /**
+     * Enables clearing the depth buffer.
+     */
     protected boolean clearDepth = false;
+    /**
+     * Enables clearing the color buffer.
+     */
     protected boolean clearColor = false;
+    /**
+     * Enables clearing the stencil buffer.
+     */
     protected boolean clearStencil = false;
     private boolean enabled = true;
 

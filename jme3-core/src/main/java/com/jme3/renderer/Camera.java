@@ -160,11 +160,21 @@ public class Camera implements Savable, Cloneable {
      * Distance from camera to bottom frustum plane.
      */
     protected float frustumBottom;
-    //Temporary values computed in onFrustumChange that are needed if a
-    //call is made to onFrameChange.
+    /**
+     * Temporary values computed in onFrustumChange that are needed if a call is made to onFrameChange.
+     */
     protected float[] coeffLeft;
+    /**
+     * Temporary values computed in onFrustumChange that are needed if a call is made to onFrameChange.
+     */
     protected float[] coeffRight;
+    /**
+     * Temporary values computed in onFrustumChange that are needed if a call is made to onFrameChange.
+     */
     protected float[] coeffBottom;
+    /**
+     * Temporary values computed in onFrustumChange that are needed if a call is made to onFrameChange.
+     */
     protected float[] coeffTop;
     //view port coordinates
     /**
@@ -196,17 +206,38 @@ public class Camera implements Savable, Cloneable {
      * children.
      */
     private int planeState;
+    /**
+     * The width of the viewport in pixels.
+     */
     protected int width;
+    /**
+     * The height of the viewport in pixels.
+     */
     protected int height;
+    /**
+     * True if the renderer needs to update its viewport boundaries.
+     */
     protected boolean viewportChanged = true;
     /**
      * store the value for field parallelProjection
      */
     private boolean parallelProjection = true;
+    /**
+     * Temporarily overrides the projection matrix.
+     */
     protected Matrix4f projectionMatrixOverride = new Matrix4f();
     private boolean overrideProjection;
+    /**
+     * Transforms world space into eye space.
+     */
     protected Matrix4f viewMatrix = new Matrix4f();
+    /**
+     * Transforms eye space into clip space, unless overridden by projectionMatrixOverride.
+     */
     protected Matrix4f projectionMatrix = new Matrix4f();
+    /**
+     * Transforms world space into clip space.
+     */
     protected Matrix4f viewProjectionMatrix = new Matrix4f();
     private BoundingBox guiBounding = new BoundingBox();
     /** The camera's name. */
@@ -1129,6 +1160,13 @@ public class Camera implements Savable, Cloneable {
         return rVal;
     }
     
+    /**
+     * Provides access to one of the planes used for culling.
+     *
+     * @param planeId the index of the Plane to access (0&rarr;left, 1&rarr;right, 2&rarr;bottom, 3&rarr;top,
+     *     4&rarr;far, 5&rarr;near)
+     * @return the pre-existing instance
+     */
     public Plane getWorldPlane(int planeId) {
         return worldPlane[planeId];
     }
