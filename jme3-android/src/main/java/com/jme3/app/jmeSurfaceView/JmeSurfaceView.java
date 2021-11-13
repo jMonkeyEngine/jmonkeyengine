@@ -311,7 +311,7 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener, Di
         if(onLayoutDrawn != null){
             onLayoutDrawn.onLayoutDrawn(legacyApplication, this);
         }
-        /*set the static memory to hold the game state, only if the game life cycle is not bounded to the activity life cycle*/
+        /*set the static memory to hold the game state, only if the destruction policy uses KEEP_WHEN_FINISHED policy*/
         if (destructionPolicy == DestructionPolicy.KEEP_WHEN_FINISH){
             GameState.setLegacyApplication(legacyApplication);
         }else{
