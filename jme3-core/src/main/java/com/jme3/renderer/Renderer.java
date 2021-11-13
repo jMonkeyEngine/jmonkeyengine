@@ -498,6 +498,13 @@ public interface Renderer {
     public int getDefaultAnisotropicFilter();
 
     /**
+     * Determines the maximum allowed width for lines.
+     *
+     * @return the maximum width (in pixels)
+     */
+    public float getMaxLineWidth();
+
+    /**
      * Tests whether images with the sRGB flag will be linearized when read by a
      * shader.
      *

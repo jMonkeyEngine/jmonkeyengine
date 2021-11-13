@@ -193,6 +193,7 @@ public class JmeIosGLES {
 	public static native int glGetAttribLocation(int program, String name);
 	public static native void glGetBoolean(int pname, ByteBuffer params);
 	public static native int glGetError();
+	public static native void glGetFloatv (int pname, float[] params, int offset);
 	public static native void glGetFramebufferAttachmentParameteriv(int target, int attachment, int pname, int[] params, int offset);
 	public static native void glGetIntegerv (int pname, int[] params, int offset);
 	public static native String glGetProgramInfoLog(int program);
