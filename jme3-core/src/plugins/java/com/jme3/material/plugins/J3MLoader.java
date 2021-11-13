@@ -128,6 +128,17 @@ public class J3MLoader implements AssetLoader {
         LightMode lm = LightMode.valueOf(split[1]);
         technique.setLightMode(lm);
     }
+
+    // Pipeline <MODE>
+    private void readPipeline(String statement) throws IOException{
+        String[] split = statement.split(whitespacePattern);
+        if (split.length != 2){
+            throw new IOException("Pipeline statement syntax incorrect");
+        }
+
+        TechniqueDef.Pipeline lm = TechniqueDef.Pipeline.valueOf(split[1]);
+//        technique.setLightMode(lm);
+    }
     
     
     // LightMode <SPACE>
@@ -562,6 +573,8 @@ public class J3MLoader implements AssetLoader {
                 split[0].equals("TessellationControlShader") ||
                 split[0].equals("TessellationEvaluationShader")) {
             readShaderStatement(statement.getLine());
+        }else if(split[0].equals("Pipeline")){
+            readPipeline(statement.getLine());
         }else if (split[0].equals("LightMode")){
             readLightMode(statement.getLine());
         }else if (split[0].equals("LightSpace")){
@@ -775,6 +788,7 @@ public class J3MLoader implements AssetLoader {
                     readTransparentStatement(statement.getLine());
                 }
             }else{
+                // 考虑在这里加入SubPass
                 if (statType.equals("Technique")){
                     readTechnique(statement);
                 }else if (statType.equals("MaterialParameters")){

@@ -63,6 +63,47 @@ public class TechniqueDef implements Savable, Cloneable {
     public static final String DEFAULT_TECHNIQUE_NAME = "Default";
 
     /**
+     * RenderPipeline.
+     */
+    public enum Pipeline{
+        /**
+         * Default, most basic rendering
+         */
+        Forward("Forward"),
+
+        /**
+         * Forward based on Cluster
+         */
+        ForwardPlus("ForwardPlus"),
+
+        /**
+         * Standard Deferred Rendering
+         */
+        Deferred("Deferred"),
+
+        /**
+         * Tiled Based Deferred Rendering
+         */
+        TiledBasedDeferred("TiledBasedDeferred"),
+
+        /**
+         * Clustered Based Deferred Rendering
+         */
+        ClusteredBasedDeferred("ClusteredBasedDeferred"),
+        ;
+
+        private String text;
+        Pipeline(String t){
+            text = t;
+        }
+
+        @Override
+        public String toString() {
+            return text;
+        }
+    }
+
+    /**
      * Describes light rendering mode.
      */
     public enum LightMode {
@@ -155,6 +196,7 @@ public class TechniqueDef implements Savable, Cloneable {
     private RenderState forcedRenderState;
 
     private LightMode lightMode = LightMode.Disable;
+    private Pipeline pipeline = Pipeline.Forward;
     private ShadowMode shadowMode = ShadowMode.Disable;
     private TechniqueDefLogic logic;
 

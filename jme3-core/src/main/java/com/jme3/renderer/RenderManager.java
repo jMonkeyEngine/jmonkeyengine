@@ -43,6 +43,7 @@ import com.jme3.material.TechniqueDef;
 import com.jme3.math.*;
 import com.jme3.post.SceneProcessor;
 import com.jme3.profile.*;
+import com.jme3.renderer.pipeline.RenderPipeline;
 import com.jme3.renderer.queue.GeometryList;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
@@ -73,6 +74,8 @@ public class RenderManager {
 
     private static final Logger logger = Logger.getLogger(RenderManager.class.getName());
     private final Renderer renderer;
+    // Forward Or Deferred
+    private final RenderPipeline renderPipelines[] = new RenderPipeline[2];
     private final UniformBindingManager uniformBindingManager = new UniformBindingManager();
     private final ArrayList<ViewPort> preViewPorts = new ArrayList<>();
     private final ArrayList<ViewPort> viewPorts = new ArrayList<>();
@@ -100,6 +103,33 @@ public class RenderManager {
      */
     public RenderManager(Renderer renderer) {
         this.renderer = renderer;
+        // init pipeline
+        setForward(TechniqueDef.Pipeline.Forward);
+        setDeferred(TechniqueDef.Pipeline.TiledBasedDeferred);
+    }
+
+    /**
+     * Set up forward pipeline.<br/>
+     * @param pipeline Set the Deferred Pipeline to be enabled. It can only be one of the following values:<br/>
+     *                 TechniqueDef.Pipeline.Forward,TechniqueDef.Pipeline.ForwardPlus.<br/>
+     */
+    public final void setForward(TechniqueDef.Pipeline pipeline){
+        if(pipeline != TechniqueDef.Pipeline.Forward && pipeline != TechniqueDef.Pipeline.ForwardPlus){
+            throw new IllegalStateException(pipeline + " is not a legal forward mode!");
+        }
+        this.renderPipelines[1] = RenderPipeline.getPipeline(pipeline);
+    }
+
+    /**
+     * Set up deferred pipeline.<br/>
+     * @param pipeline Set the Deferred Pipeline to be enabled. It can only be one of the following values:<br/>
+     *                 TechniqueDef.Pipeline.Deferred,TechniqueDef.Pipeline.TiledBasedDeferred,TechniqueDef.Pipeline.ClusteredBasedDeferred.<br/>
+     */
+    public final void setDeferred(TechniqueDef.Pipeline pipeline){
+        if(pipeline != TechniqueDef.Pipeline.Deferred && pipeline != TechniqueDef.Pipeline.TiledBasedDeferred && pipeline != TechniqueDef.Pipeline.ClusteredBasedDeferred){
+            throw new IllegalStateException(pipeline + " is not a legal deferred mode!");
+        }
+        this.renderPipelines[0] = RenderPipeline.getPipeline(pipeline);
     }
 
     /**
@@ -413,6 +443,14 @@ public class RenderManager {
      */
     public void setAppProfiler(AppProfiler prof) {
         this.prof = prof;
+    }
+
+    /**
+     * Get the currently used AppProfiler hook
+     * @return AppProfiler
+     */
+    public AppProfiler getAppProfiler(){
+        return this.prof;
     }
 
     /**
@@ -757,6 +795,7 @@ public class RenderManager {
                 throw new IllegalStateException("No material is set for Geometry: " + gm.getName());
             }
 
+            // 根据pipeline管理
             vp.getQueue().addToQueue(gm, scene.getQueueBucket());
         }
     }
@@ -887,50 +926,55 @@ public class RenderManager {
      * @see #renderTranslucentQueue(com.jme3.renderer.ViewPort) 
      */
     public void renderViewPortQueues(ViewPort vp, boolean flush) {
-        RenderQueue rq = vp.getQueue();
-        Camera cam = vp.getCamera();
-        boolean depthRangeChanged = false;
-
-        // render opaque objects with default depth range
-        // opaque objects are sorted front-to-back, reducing overdraw
-        if (prof!=null) prof.vpStep(VpStep.RenderBucket, vp, Bucket.Opaque);
-        rq.renderQueue(Bucket.Opaque, this, cam, flush);
-
-        // render the sky, with depth range set to the farthest
-        if (!rq.isQueueEmpty(Bucket.Sky)) {
-            if (prof!=null) prof.vpStep(VpStep.RenderBucket, vp, Bucket.Sky);
-            renderer.setDepthRange(1, 1);
-            rq.renderQueue(Bucket.Sky, this, cam, flush);
-            depthRangeChanged = true;
+        for(RenderPipeline renderPipeline : renderPipelines){
+            renderPipeline.begin();
+            renderPipeline.draw(this, vp.getQueue(), vp, flush);
+            renderPipeline.end();
         }
-
-
-        // transparent objects are last because they require blending with the
-        // rest of the scene's objects. Consequently, they are sorted
-        // back-to-front.
-        if (!rq.isQueueEmpty(Bucket.Transparent)) {
-            if (prof!=null) prof.vpStep(VpStep.RenderBucket, vp, Bucket.Transparent);
-            if (depthRangeChanged) {
-                renderer.setDepthRange(0, 1);
-                depthRangeChanged = false;
-            }
-
-            rq.renderQueue(Bucket.Transparent, this, cam, flush);
-        }
-
-        if (!rq.isQueueEmpty(Bucket.Gui)) {
-            if (prof!=null) prof.vpStep(VpStep.RenderBucket, vp, Bucket.Gui);
-            renderer.setDepthRange(0, 0);
-            setCamera(cam, true);
-            rq.renderQueue(Bucket.Gui, this, cam, flush);
-            setCamera(cam, false);
-            depthRangeChanged = true;
-        }
-
-        // restore range to default
-        if (depthRangeChanged) {
-            renderer.setDepthRange(0, 1);
-        }
+//        RenderQueue rq = vp.getQueue();
+//        Camera cam = vp.getCamera();
+//        boolean depthRangeChanged = false;
+//
+//        // render opaque objects with default depth range
+//        // opaque objects are sorted front-to-back, reducing overdraw
+//        if (prof!=null) prof.vpStep(VpStep.RenderBucket, vp, Bucket.Opaque);
+//        rq.renderQueue(Bucket.Opaque, this, cam, flush);
+//
+//        // render the sky, with depth range set to the farthest
+//        if (!rq.isQueueEmpty(Bucket.Sky)) {
+//            if (prof!=null) prof.vpStep(VpStep.RenderBucket, vp, Bucket.Sky);
+//            renderer.setDepthRange(1, 1);
+//            rq.renderQueue(Bucket.Sky, this, cam, flush);
+//            depthRangeChanged = true;
+//        }
+//
+//
+//        // transparent objects are last because they require blending with the
+//        // rest of the scene's objects. Consequently, they are sorted
+//        // back-to-front.
+//        if (!rq.isQueueEmpty(Bucket.Transparent)) {
+//            if (prof!=null) prof.vpStep(VpStep.RenderBucket, vp, Bucket.Transparent);
+//            if (depthRangeChanged) {
+//                renderer.setDepthRange(0, 1);
+//                depthRangeChanged = false;
+//            }
+//
+//            rq.renderQueue(Bucket.Transparent, this, cam, flush);
+//        }
+//
+//        if (!rq.isQueueEmpty(Bucket.Gui)) {
+//            if (prof!=null) prof.vpStep(VpStep.RenderBucket, vp, Bucket.Gui);
+//            renderer.setDepthRange(0, 0);
+//            setCamera(cam, true);
+//            rq.renderQueue(Bucket.Gui, this, cam, flush);
+//            setCamera(cam, false);
+//            depthRangeChanged = true;
+//        }
+//
+//        // restore range to default
+//        if (depthRangeChanged) {
+//            renderer.setDepthRange(0, 1);
+//        }
     }
 
     /**
