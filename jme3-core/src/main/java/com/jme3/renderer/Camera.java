@@ -101,7 +101,7 @@ public class Camera implements Savable, Cloneable {
      */
     private static final int LEFT_PLANE = 0;
     /**
-     * LEFT_PLANE represents the left plane of the camera frustum.
+     * RIGHT_PLANE represents the right plane of the camera frustum.
      */
     private static final int RIGHT_PLANE = 1;
     /**
