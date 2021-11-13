@@ -1189,6 +1189,7 @@ public class Camera implements Savable, Cloneable {
 
     /**
      * Provides access to the view matrix.
+     *
      * @return the view matrix of the camera.
      *
      * <p>The view matrix transforms world space into eye space.
