@@ -74,7 +74,7 @@ public class TestPieChartSpace extends SimpleApplication {
 
     @Override
     public void simpleInitApp() {
-        //the mesh
+        //the mesh.
         final Cylinder cylinder = new Cylinder(100,10,1,5f, true);
         final Geometry bamboo = new Geometry("Bamboo Plant", cylinder);
         final Material material = new Material(assetManager, "Common/MatDefs/Misc/fakeLighting.j3md");
@@ -83,7 +83,7 @@ public class TestPieChartSpace extends SimpleApplication {
         bambooNode.attachChild(bamboo);
         bambooNode.setLocalRotation(new Quaternion().fromAngleAxis(FastMath.HALF_PI, Vector3f.UNIT_Y));
 
-        //the camera
+        //the camera.
         final ChaseCamera chaseCamera = new ChaseCamera(cam, bamboo, inputManager);
         chaseCamera.setDefaultDistance(-10f);
         chaseCamera.setDefaultHorizontalRotation(-FastMath.HALF_PI);
@@ -91,19 +91,19 @@ public class TestPieChartSpace extends SimpleApplication {
         chaseCamera.setEnabled(true);
         chaseCamera.setSmoothMotion(true);
 
-        //add the composer control
+        //add the composer control.
         bamboo.addControl(composer);
         composer.setEnabled(true);
 
         rootNode.attachChild(bambooNode);
-        //do the blending between 2 actions
+        //do the blending between 2 actions.
         startBlendAction();
     }
     private void startBlendAction(){
         //key frames timings
         final float[] times = new float[]{2, 4, 8, 16};
 
-        //first action -- vertical traction
+        //first action -- vertical traction.
         final Quaternion[] verticalTraction = new Quaternion[] {
                 new Quaternion().fromAngleAxis(0, Vector3f.UNIT_Z),
                 bambooNode.getLocalRotation().fromAngleAxis((float)Math.toRadians(120), Vector3f.UNIT_Z),
@@ -117,7 +117,7 @@ public class TestPieChartSpace extends SimpleApplication {
         verticalTractionAction.setSpeed(8f);
         verticalTractionAction.setLength(10f);
 
-        //second action -- horizontal traction
+        //second action -- horizontal traction.
         final Quaternion[] traction = new Quaternion[] {
                 new Quaternion().fromAngleAxis(0, Vector3f.UNIT_X),
                 bambooNode.getLocalRotation().fromAngleAxis((float)Math.toRadians(30), Vector3f.UNIT_X),
@@ -141,10 +141,11 @@ public class TestPieChartSpace extends SimpleApplication {
     public void simpleUpdate(float tpf) {
         progress += tpf;
         if(progress >= blendAction.getLength()){
-            //advance the angles and the radius
-            //the angle would increase the sector area of the step
-            //the radius would increase the scale factor applied to the sector area
-            //the radius approximates the scaleFactor from 1.0
+            //advances the angles and the radius when the blend action finishes.
+            //incrementing the angle would increase the sector area of the step.
+            //the sector area represents an unscaled blending step.
+            //incrementing the radius would increase the scale factor applied to the sector area .
+            //the radius approximates the scaleFactor to 1.0.
             final float newAngle = pieChartSpace.getAngle() + (progress * 4);
             final float newRadius = pieChartSpace.getRadius() + (tpf * 2);
             pieChartSpace.setAngle(newAngle);
