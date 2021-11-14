@@ -128,13 +128,66 @@ MaterialDef Deferred Phong Lighting {
         Float ExpFog
         Float ExpSqFog
 
-    }
 
-    Technique {
+        // Context GBuffer Data
+        Texture2D Context_InGBuff0
+        Texture2D Context_InGBuff1
+        Texture2D Context_InGBuff2
+        Texture2D Context_InGBuff3
+
+    }
+    Technique GBufferPass{
         LightMode SinglePass
 
         VertexShader GLSL310 GLSL300 GLSL100 GLSL150:   Common/MatDefs/Light/SPLighting.vert
-        FragmentShader GLSL310 GLSL300 GLSL100 GLSL150: Common/MatDefs/Light/SPLighting.frag
+        FragmentShader GLSL310 GLSL300 GLSL100 GLSL150: Common/MatDefs/Light/SPLightingGBufferPack.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+            NormalMatrix
+            WorldViewMatrix
+            ViewMatrix
+            CameraPosition
+            WorldMatrix
+            ViewProjectionMatrix
+        }
+
+        Defines {
+            VERTEX_COLOR : UseVertexColor
+            VERTEX_LIGHTING : VertexLighting
+            MATERIAL_COLORS : UseMaterialColors
+            DIFFUSEMAP : DiffuseMap
+            NORMALMAP : NormalMap
+            SPECULARMAP : SpecularMap
+            PARALLAXMAP : ParallaxMap
+            NORMALMAP_PARALLAX : PackedNormalParallax
+            STEEP_PARALLAX : SteepParallax
+            ALPHAMAP : AlphaMap
+            COLORRAMP : ColorRamp
+            LIGHTMAP : LightMap
+            SEPARATE_TEXCOORD : SeparateTexCoord
+            DISCARD_ALPHA : AlphaDiscardThreshold
+            USE_REFLECTION : EnvMap
+            SPHERE_MAP : EnvMapAsSphereMap
+            NUM_BONES : NumberOfBones
+            INSTANCING : UseInstancing
+            NUM_MORPH_TARGETS: NumberOfMorphTargets
+            NUM_TARGETS_BUFFERS: NumberOfTargetsBuffers
+
+            // fog - jayfella
+            USE_FOG : UseFog
+            FOG_LINEAR : LinearFog
+            FOG_EXP : ExpFog
+            FOG_EXPSQ : ExpSqFog
+        }
+    }
+
+    Technique {
+        Pipeline Deferred
+        LightMode SinglePass
+
+        VertexShader GLSL310 GLSL300 GLSL100 GLSL150:   Common/MatDefs/Light/SPDeferredLighting.vert
+        FragmentShader GLSL310 GLSL300 GLSL100 GLSL150: Common/MatDefs/Light/SPDeferredLighting.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -176,52 +229,7 @@ MaterialDef Deferred Phong Lighting {
         }
     }
 
-    Technique {
-        Pipeline Deferred
-        LightMode MultiPass
 
-        VertexShader GLSL310 GLSL300 GLSL100 GLSL150:   Common/MatDefs/Light/Lighting.vert
-        FragmentShader GLSL310 GLSL300 GLSL100 GLSL150: Common/MatDefs/Light/Lighting.frag
-
-        WorldParameters {
-            WorldViewProjectionMatrix
-            NormalMatrix
-            WorldViewMatrix
-            ViewMatrix
-            CameraPosition
-            WorldMatrix
-            ViewProjectionMatrix            
-        }
-
-        Defines {
-            VERTEX_COLOR : UseVertexColor
-            VERTEX_LIGHTING : VertexLighting            
-            MATERIAL_COLORS : UseMaterialColors
-            DIFFUSEMAP : DiffuseMap
-            NORMALMAP : NormalMap
-            SPECULARMAP : SpecularMap
-            PARALLAXMAP : ParallaxMap
-            NORMALMAP_PARALLAX : PackedNormalParallax
-            STEEP_PARALLAX : SteepParallax
-            ALPHAMAP : AlphaMap
-            COLORRAMP : ColorRamp
-            LIGHTMAP : LightMap
-            SEPARATE_TEXCOORD : SeparateTexCoord
-            DISCARD_ALPHA : AlphaDiscardThreshold
-            USE_REFLECTION : EnvMap
-            SPHERE_MAP : EnvMapAsSphereMap  
-            NUM_BONES : NumberOfBones                        
-            INSTANCING : UseInstancing
-            NUM_MORPH_TARGETS: NumberOfMorphTargets
-            NUM_TARGETS_BUFFERS: NumberOfTargetsBuffers
-
-            // fog - jayfella
-            USE_FOG : UseFog
-            FOG_LINEAR : LinearFog
-            FOG_EXP : ExpFog
-            FOG_EXPSQ : ExpSqFog
-        }
-    }
 
     Technique PreShadow {
 

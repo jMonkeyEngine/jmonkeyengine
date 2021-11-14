@@ -280,6 +280,19 @@ public class TechniqueDef implements Savable, Cloneable {
             }
         }
     }
+
+    public Pipeline getPipeline() {
+        return pipeline;
+    }
+
+    /**
+     * Set the pipeline
+     * @param pipeline the render pipeline
+     * @see Pipeline
+     */
+    public void setPipeline(Pipeline pipeline){
+        this.pipeline = pipeline;
+    }
     
     public void setLogic(TechniqueDefLogic logic) {
         this.logic = logic;

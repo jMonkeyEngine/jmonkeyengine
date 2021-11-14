@@ -270,7 +270,7 @@ public class RenderQueue {
         for (int i = 0; i < list.size(); i++) {
             Geometry obj = list.get(i);
             assert obj != null;
-            rm.renderGeometry(obj);
+            rm.submitRenderGeometry(obj);
             obj.queueDistance = Float.NEGATIVE_INFINITY;
         }
         if (clear) {

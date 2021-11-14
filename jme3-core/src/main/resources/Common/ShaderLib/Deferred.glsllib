@@ -1,0 +1,34 @@
+#ifdef _JME_CONTEXT_
+#define _JME_CONTEXT_
+
+#define Context_OutGBuff0 gl_FragData[0]
+#define Context_OutGBuff1 gl_FragData[1]
+#define Context_OutGBuff2 gl_FragData[2]
+#define Context_OutGBuff3 gl_FragData[3]
+
+
+uniform sampler2D Context_InGBuff0;
+uniform sampler2D Context_InGBuff1;
+uniform sampler2D Context_InGBuff2;
+uniform sampler2D Context_InGBuff3;
+
+#endif
+
+vec3 decodeNormal(in vec4 enc){
+    vec4 nn = enc * vec4(2.0,2.0,0.0,0.0) + vec4(-1.0,-1.0,1.0,-1.0);
+    float l = dot(nn.xyz, -nn.xyw);
+    nn.z = l;
+    nn.xy *= sqrt(l);
+    return nn.xyz * vec3(2.0) + vec3(0.0,0.0,-1.0);
+}
+
+vec3 getPosition(in vec2 texCoord, in mat4 viewProjectionMatrixInverse){
+  float depth = texture2D(Context_OutGBuff3, texCoord).r;
+  vec4 pos;
+  pos.xy = (texCoord * vec2(2.0)) - vec2(1.0);
+  pos.z  = depth * 2.0 - 1.0;
+  pos.w  = 1.0;
+  pos    = viewProjectionMatrixInverse * pos;
+  pos.xyz   /= pos.w;
+  return pos.xyz;
+}

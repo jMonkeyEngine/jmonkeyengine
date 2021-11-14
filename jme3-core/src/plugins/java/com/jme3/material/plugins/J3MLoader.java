@@ -136,8 +136,8 @@ public class J3MLoader implements AssetLoader {
             throw new IOException("Pipeline statement syntax incorrect");
         }
 
-        TechniqueDef.Pipeline lm = TechniqueDef.Pipeline.valueOf(split[1]);
-//        technique.setLightMode(lm);
+        TechniqueDef.Pipeline pl = TechniqueDef.Pipeline.valueOf(split[1]);
+        technique.setPipeline(pl);
     }
     
     

@@ -4,10 +4,15 @@ import com.jme3.material.TechniqueDef;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue;
+import com.jme3.scene.Geometry;
 
 public class TiledBasedDeferred extends RenderPipeline{
+    public TiledBasedDeferred(TechniqueDef.Pipeline pipeline) {
+        super(pipeline);
+    }
+
     @Override
-    public void begin() {
+    public void begin(RenderManager rm, ViewPort vp) {
 
     }
 
@@ -17,7 +22,12 @@ public class TiledBasedDeferred extends RenderPipeline{
     }
 
     @Override
-    public void end() {
+    public void drawGeometry(RenderManager rm, Geometry geom) {
+
+    }
+
+    @Override
+    public void end(RenderManager rm, ViewPort vp) {
 
     }
 }

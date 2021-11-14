@@ -8,10 +8,15 @@ import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue;
+import com.jme3.scene.Geometry;
 
 public class Forward extends RenderPipeline{
+    public Forward(TechniqueDef.Pipeline pipeline) {
+        super(pipeline);
+    }
+
     @Override
-    public void begin() {
+    public void begin(RenderManager rm, ViewPort vp) {
 
     }
 
@@ -65,7 +70,12 @@ public class Forward extends RenderPipeline{
     }
 
     @Override
-    public void end() {
+    public void drawGeometry(RenderManager rm, Geometry geom) {
+        rm.renderGeometry(geom);
+    }
+
+    @Override
+    public void end(RenderManager rm, ViewPort vp) {
 
     }
 }

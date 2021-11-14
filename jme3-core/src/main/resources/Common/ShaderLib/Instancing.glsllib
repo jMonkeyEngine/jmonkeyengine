@@ -62,6 +62,10 @@ vec4 TransformWorldViewProjection(vec4 position)
     return g_ViewProjectionMatrix * TransformWorld(position);
 }
 
+mat4 GetViewProjectionMatrixInverse(){
+    return inverse(g_ViewProjectionMatrix);
+}
+
 vec3 TransformWorldNormal(vec3 vec) {
     vec4 quat = vec4(inInstanceData[0].w, inInstanceData[1].w,
                      inInstanceData[2].w, inInstanceData[3].w);

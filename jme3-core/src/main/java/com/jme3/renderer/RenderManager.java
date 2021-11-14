@@ -80,6 +80,7 @@ public class RenderManager {
     private final ArrayList<ViewPort> preViewPorts = new ArrayList<>();
     private final ArrayList<ViewPort> viewPorts = new ArrayList<>();
     private final ArrayList<ViewPort> postViewPorts = new ArrayList<>();
+    private RenderPipeline activePipeline = null;
     private Camera prevCam = null;
     private Material forcedMaterial = null;
     private String forcedTechnique = null;
@@ -106,6 +107,23 @@ public class RenderManager {
         // init pipeline
         setForward(TechniqueDef.Pipeline.Forward);
         setDeferred(TechniqueDef.Pipeline.TiledBasedDeferred);
+    }
+
+    /**
+     * Determine whether to join the currently active Pipeline.<br/>
+     * @param pipeline
+     * @return
+     */
+    public final boolean joinPipeline(TechniqueDef.Pipeline pipeline){
+        return activePipeline.getPipeline() == pipeline;
+    }
+
+    /**
+     * Active the pipeline
+     * @param pipeline
+     */
+    private final void activePipeline(RenderPipeline pipeline){
+        this.activePipeline = pipeline;
     }
 
     /**
@@ -388,6 +406,11 @@ public class RenderManager {
             }
             notifyReshape(vp, w, h);
         }
+
+        // other
+        for(RenderPipeline renderPipeline : renderPipelines){
+
+        }
     }
 
     /**
@@ -581,6 +604,15 @@ public class RenderManager {
      */
     public void updateUniformBindings(Shader shader) {
         uniformBindingManager.updateUniformBindings(shader);
+    }
+
+    /**
+     * Submit the given Geometry to the Pipeline for rendering.
+     * <p>
+     * @param geom The geometry to render
+     */
+    public void submitRenderGeometry(Geometry geom) {
+        activePipeline.drawGeometry(this, geom);
     }
 
     /**
@@ -927,54 +959,11 @@ public class RenderManager {
      */
     public void renderViewPortQueues(ViewPort vp, boolean flush) {
         for(RenderPipeline renderPipeline : renderPipelines){
-            renderPipeline.begin();
+            activePipeline(renderPipeline);
+            renderPipeline.begin(this, vp);
             renderPipeline.draw(this, vp.getQueue(), vp, flush);
-            renderPipeline.end();
+            renderPipeline.end(this, vp);
         }
-//        RenderQueue rq = vp.getQueue();
-//        Camera cam = vp.getCamera();
-//        boolean depthRangeChanged = false;
-//
-//        // render opaque objects with default depth range
-//        // opaque objects are sorted front-to-back, reducing overdraw
-//        if (prof!=null) prof.vpStep(VpStep.RenderBucket, vp, Bucket.Opaque);
-//        rq.renderQueue(Bucket.Opaque, this, cam, flush);
-//
-//        // render the sky, with depth range set to the farthest
-//        if (!rq.isQueueEmpty(Bucket.Sky)) {
-//            if (prof!=null) prof.vpStep(VpStep.RenderBucket, vp, Bucket.Sky);
-//            renderer.setDepthRange(1, 1);
-//            rq.renderQueue(Bucket.Sky, this, cam, flush);
-//            depthRangeChanged = true;
-//        }
-//
-//
-//        // transparent objects are last because they require blending with the
-//        // rest of the scene's objects. Consequently, they are sorted
-//        // back-to-front.
-//        if (!rq.isQueueEmpty(Bucket.Transparent)) {
-//            if (prof!=null) prof.vpStep(VpStep.RenderBucket, vp, Bucket.Transparent);
-//            if (depthRangeChanged) {
-//                renderer.setDepthRange(0, 1);
-//                depthRangeChanged = false;
-//            }
-//
-//            rq.renderQueue(Bucket.Transparent, this, cam, flush);
-//        }
-//
-//        if (!rq.isQueueEmpty(Bucket.Gui)) {
-//            if (prof!=null) prof.vpStep(VpStep.RenderBucket, vp, Bucket.Gui);
-//            renderer.setDepthRange(0, 0);
-//            setCamera(cam, true);
-//            rq.renderQueue(Bucket.Gui, this, cam, flush);
-//            setCamera(cam, false);
-//            depthRangeChanged = true;
-//        }
-//
-//        // restore range to default
-//        if (depthRangeChanged) {
-//            renderer.setDepthRange(0, 1);
-//        }
     }
 
     /**

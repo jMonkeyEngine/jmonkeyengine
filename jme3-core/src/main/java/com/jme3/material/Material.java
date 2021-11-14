@@ -1019,7 +1019,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         Renderer renderer = renderManager.getRenderer();
         EnumSet<Caps> rendererCaps = renderer.getCaps();
         
-        if (techniqueDef.isNoRender()) {
+        if (!renderManager.joinPipeline(techniqueDef.getPipeline()) || techniqueDef.isNoRender()) {
             return;
         }
 
