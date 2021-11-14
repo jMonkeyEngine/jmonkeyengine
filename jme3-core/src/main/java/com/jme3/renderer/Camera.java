@@ -1555,7 +1555,7 @@ public class Camera implements Savable, Cloneable {
     }
 
     /**
-     * Determines the display width.
+     * Returns the display width.
      *
      * @return the width/resolution of the display.
      */
@@ -1564,7 +1564,7 @@ public class Camera implements Savable, Cloneable {
     }
 
     /**
-     * Determines the display height.
+     * Returns the display height.
      *
      * @return the height/resolution of the display.
      */
