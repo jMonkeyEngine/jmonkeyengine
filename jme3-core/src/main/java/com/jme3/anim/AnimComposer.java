@@ -451,6 +451,24 @@ public class AnimComposer extends AbstractControl {
     }
 
     /**
+     * Find the name of the specified layer.
+     *
+     * @param layer the layer to find
+     * @return the layer's name, or null if not found
+     */
+    public String getLayerName(AnimLayer layer) {
+        String result = null;
+        for (Map.Entry<String, AnimLayer> entry : layers.entrySet()) {
+            if (entry.getValue() == layer) {
+                result = entry.getKey();
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    /**
      * Enumerates the names of all layers.
      *
      * @return an unmodifiable set of names
