@@ -71,7 +71,7 @@ public class IdList {
      * If the index was not in the old list, false is returned,
      * if the index was in the old list, it is removed from the old
      * list and true is returned.
-     * 
+     *
      * @param idx The index to move
      * @return True if it existed in old list and was removed
      *     from there, false otherwise.

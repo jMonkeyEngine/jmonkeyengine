@@ -43,7 +43,7 @@ import java.util.Collection;
 /**
  * Specifies a capability that the {@link Renderer}
  * supports.
- * 
+ *
  * @author Kirill Vainer
  */
 public enum Caps {
@@ -85,22 +85,22 @@ public enum Caps {
      * Supports OpenGL 2.0 or OpenGL ES 2.0.
      */
     OpenGL20,
-    
+
     /**
      * Supports OpenGL 2.1.
      */
     OpenGL21,
-    
+
     /**
      * Supports OpenGL 3.0.
      */
     OpenGL30,
-    
+
     /**
      * Supports OpenGL 3.1.
      */
     OpenGL31,
-    
+
     /**
      * Supports OpenGL 3.2.
      */
@@ -135,42 +135,42 @@ public enum Caps {
     OpenGL45,
     /**
      * Do not use.
-     * 
+     *
      * @deprecated do not use.
      */
     @Deprecated
     Reserved0,
-    
+
     /**
      * Supports GLSL 1.0.
      */
     GLSL100,
-    
+
     /**
      * Supports GLSL 1.1.
      */
     GLSL110,
-    
+
     /**
      * Supports GLSL 1.2.
      */
     GLSL120,
-    
+
     /**
      * Supports GLSL 1.3.
      */
     GLSL130,
-    
+
     /**
      * Supports GLSL 1.4.
      */
     GLSL140,
-    
+
     /**
      * Supports GLSL 1.5.
      */
     GLSL150,
-    
+
     /**
      * Supports GLSL 3.3.
      */
@@ -226,12 +226,12 @@ public enum Caps {
      * Supports floating point and half textures (Format.RGB16F).
      */
     FloatTexture,
-    
+
     /**
      * Supports integer textures.
      */
     IntegerTexture,
-    
+
     /**
      * Supports floating point FBO color buffers (Format.RGB16F).
      */
@@ -261,10 +261,10 @@ public enum Caps {
      * Supports Format.RGB9E5 for FBO color buffers.
      */
     SharedExponentColorBuffer,
-    
+
     /**
      * Do not use.
-     * 
+     *
      * @deprecated do not use.
      */
     @Deprecated
@@ -289,89 +289,89 @@ public enum Caps {
      * Supports multisampling on the screen.
      */
     Multisample,
-    
+
     /**
      * Supports FBO with Depth24Stencil8 image format.
      */
     PackedDepthStencilBuffer,
-    
+
     /**
      * Supports sRGB framebuffers and sRGB texture format.
      */
     Srgb,
-    
+
     /**
      * Supports blitting framebuffers.
      */
     FrameBufferBlit,
-    
+
     /**
      * Supports {@link Format#DXT1} and sister formats.
      */
     TextureCompressionS3TC,
-    
+
     /**
      * Supports anisotropic texture filtering.
      */
     TextureFilterAnisotropic,
-    
+
     /**
      * Supports {@link Format#ETC1} texture compression.
      */
     TextureCompressionETC1,
-    
+
     /**
      * Supports {@link Format#ETC1} texture compression by uploading
      * the texture as ETC2 (they are backwards compatible).
      */
     TextureCompressionETC2,
-    
+
     /**
      * Supports BPTC and sister formats.
      */
     TextureCompressionBPTC,
-    
+
     /**
      * Supports {@link Format#RGTC1} and other RGTC compressed formats.
      */
     TextureCompressionRGTC,
-    
+
     /**
      * Supports OpenGL ES 2.
      */
     OpenGLES20,
-    
+
     /**
      * Supports RGB8 / RGBA8 textures.
      */
     Rgba8,
-    
+
     /**
      * Supports depth textures.
      */
     DepthTexture,
-    
+
     /**
      * Supports 32-bit index buffers.
      */
     IntegerIndexBuffer,
-    
+
     /**
      * Partial support for non-power-of-2 textures, typically found
      * on OpenGL ES 2 devices.
      *
      * <p>Use of NPOT textures is allowed iff:
      * <ul>
-     * <li>The {@link com.jme3.texture.Texture.WrapMode} is set to 
+     * <li>The {@link com.jme3.texture.Texture.WrapMode} is set to
      * {@link com.jme3.texture.Texture.WrapMode#EdgeClamp}.</li>
-     * <li>Mip-mapping is not used, meaning 
+     * <li>Mip-mapping is not used, meaning
      * {@link com.jme3.texture.Texture.MinFilter} is set to
-     * {@link com.jme3.texture.Texture.MinFilter#BilinearNoMipMaps} or 
+     * {@link com.jme3.texture.Texture.MinFilter#BilinearNoMipMaps} or
      * {@link com.jme3.texture.Texture.MinFilter#NearestNoMipMaps}</li>
      * </ul>
      */
     PartialNonPowerOfTwoTextures,
-    
+
     /**
      * When sampling cubemap edges, interpolates between the adjacent faces
      * instead of just sampling one face.
@@ -379,14 +379,14 @@ public enum Caps {
      * <p>Improves the quality of environment mapping.
      */
     SeamlessCubemap,
-    
+
     /**
      * Running with OpenGL 3.2+ core profile.
-     * 
+     *
      * Compatibility features will not be available.
      */
     CoreProfile,
-    
+
     /**
      * GPU support for binary shaders.
      */
@@ -433,9 +433,9 @@ public enum Caps {
     /**
      * Explicit support of depth 24 textures.
      */
-    Depth24,     
+    Depth24,
 
-    
+
     UnpackRowLength
     ;
 
@@ -444,9 +444,9 @@ public enum Caps {
      * can be supported by the renderer.
      *
      * <p>This only checks the format of the texture, non-power-of-2
-     * textures are scaled automatically inside the renderer 
+     * textures are scaled automatically inside the renderer
      * if are not supported natively.
-     * 
+     *
      * @param caps The collection of renderer capabilities {@link Renderer#getCaps() }.
      * @param tex The texture to check
      * @return True if it is supported, false otherwise.
@@ -512,7 +512,7 @@ public enum Caps {
     /**
      * Returns true if given the renderer capabilities, the framebuffer
      * can be supported by the renderer.
-     * 
+     *
      * @param caps The collection of renderer capabilities {@link Renderer#getCaps() }.
      * @param fb The framebuffer to check
      * @return True if it is supported, false otherwise.
@@ -555,7 +555,7 @@ public enum Caps {
     /**
      * Returns true if given the renderer capabilities, the shader
      * can be supported by the renderer.
-     * 
+     *
      * @param caps The collection of renderer capabilities {@link Renderer#getCaps() }.
      * @param shader The shader to check
      * @return True if it is supported, false otherwise.

@@ -41,7 +41,7 @@ import com.jme3.util.IntMap;
  * Allows tracking of real-time rendering statistics.
  *
  * <p>The <code>Statistics</code> can be retrieved by using {@link Renderer#getStatistics() }.
- * 
+ *
  * @author Kirill Vainer
  */
 public class Statistics {
@@ -110,13 +110,13 @@ public class Statistics {
      * ID of the most recently used shader.
      */
     protected int lastShader = -1;
-    
+
     /**
      * Returns a list of labels corresponding to each statistic.
-     * 
+     *
      * @return a list of labels corresponding to each statistic.
-     * 
-     * @see #getData(int[]) 
+     *
+     * @see #getData(int[])
      */
     public String[] getLabels(){
         return new String[]{ "Vertices",
@@ -141,9 +141,9 @@ public class Statistics {
 
     /**
      * Retrieves the statistics data into the given array.
-     * The array should be as large as the array given in 
+     * The array should be as large as the array given in
      * {@link #getLabels() }.
-     * 
+     *
      * @param data The data array to write to
      */
     public void getData(int[] data) {
@@ -159,7 +159,7 @@ public class Statistics {
         data[7] = numTextureBinds;
         data[8] = texturesUsed.size();
         data[9] = memoryTextures;
-        
+
         data[10] = numFboSwitches;
         data[11] = fbosUsed.size();
         data[12] = memoryFrameBuffers;
@@ -181,7 +181,7 @@ public class Statistics {
         numTriangles += mesh.getTriangleCount(lod) * count;
         numVertices += mesh.getVertexCount() * count;
     }
-    
+
     /**
      * Called by the Renderer when a mesh has been drawn.
      *
@@ -194,7 +194,7 @@ public class Statistics {
 
     /**
      * Called by the Renderer when a shader has been utilized.
-     * 
+     *
      * @param shader The shader that was used
      * @param wasSwitched If true, the shader has required a state switch
      */
@@ -231,7 +231,7 @@ public class Statistics {
 
     /**
      * Called by the Renderer when a texture has been set.
-     * 
+     *
      * @param image The image that was set
      * @param wasSwitched If true, the texture has required a state switch
      */
@@ -253,7 +253,7 @@ public class Statistics {
 
     /**
      * Called by the Renderer when a framebuffer has been set.
-     * 
+     *
      * @param fb The framebuffer that was set
      * @param wasSwitched If true, the framebuffer required a state switch
      */
@@ -274,7 +274,7 @@ public class Statistics {
             numFboSwitches++;
         }
     }
-    
+
     /**
      * Clears all frame-specific statistics such as objects used per frame.
      */
@@ -290,7 +290,7 @@ public class Statistics {
         numTextureBinds = 0;
         numFboSwitches = 0;
         numUniformsSet = 0;
-        
+
         lastShader = -1;
     }
 
@@ -371,7 +371,7 @@ public class Statistics {
     public void setEnabled(boolean f) {
         this.enabled = f;
     }
-    
+
     /**
      * Tests whether updates are enabled.
      *

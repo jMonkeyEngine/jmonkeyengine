@@ -85,7 +85,7 @@ public interface Renderer {
      * These are updated when the Renderer's methods are used, make sure
      * to call {@link Statistics#clearFrame() } at the appropriate time
      * to get accurate info per frame.
-     * 
+     *
      * @return a new instance
      */
     public Statistics getStatistics();
@@ -116,7 +116,7 @@ public interface Renderer {
     /**
      * Applies the given {@link RenderState}, making the necessary
      * GL calls so that the state is applied.
-     * 
+     *
      * @param state the RenderState to apply
      */
     public void applyRenderState(RenderState state);
@@ -390,7 +390,7 @@ public interface Renderer {
      * @param value true to enable alpha coverage, otherwise false
      */
     public void setAlphaToCoverage(boolean value);
-    
+
     /**
      * Specifies whether color values in the main framebuffer are in SRGB format.
      *
@@ -414,7 +414,7 @@ public interface Renderer {
      * @see Caps#Srgb
      */
     public void setMainFrameBufferSrgb(boolean srgb);
-     
+
     /**
      * If enabled, all {@link Image images} with the
      * {@link Image#setColorSpace(com.jme3.texture.image.ColorSpace) sRGB flag}

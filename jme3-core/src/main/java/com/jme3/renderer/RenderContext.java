@@ -240,22 +240,22 @@ public class RenderContext {
 
     /**
      * Currently bound element array vertex buffer.
-     * 
-     * @see Renderer#renderMesh(com.jme3.scene.Mesh, int, int, com.jme3.scene.VertexBuffer[]) 
+     *
+     * @see Renderer#renderMesh(com.jme3.scene.Mesh, int, int, com.jme3.scene.VertexBuffer[])
      */
     public int boundElementArrayVBO;
 
     /**
      * ID of the bound vertex array.
      *
-     * @see Renderer#renderMesh(com.jme3.scene.Mesh, int, int, com.jme3.scene.VertexBuffer[]) 
+     * @see Renderer#renderMesh(com.jme3.scene.Mesh, int, int, com.jme3.scene.VertexBuffer[])
      */
     public int boundVertexArray;
 
     /**
      * Currently bound array vertex buffer.
-     * 
-     * @see Renderer#renderMesh(com.jme3.scene.Mesh, int, int, com.jme3.scene.VertexBuffer[]) 
+     *
+     * @see Renderer#renderMesh(com.jme3.scene.Mesh, int, int, com.jme3.scene.VertexBuffer[])
      */
     public int boundArrayVBO;
 

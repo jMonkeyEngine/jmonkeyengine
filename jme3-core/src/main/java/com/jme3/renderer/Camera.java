@@ -75,7 +75,7 @@ public class Camera implements Savable, Cloneable {
     private static final Logger logger = Logger.getLogger(Camera.class.getName());
 
     /**
-     * The result of a culling check operation. 
+     * The result of a culling check operation.
      * see {@link #contains(com.jme3.bounding.BoundingVolume) }
      */
     public enum FrustumIntersect {
@@ -256,7 +256,7 @@ public class Camera implements Savable, Cloneable {
     /**
      * Instantiates a new <code>Camera</code> object. All
      * values of the camera are set to default.
-     * 
+     *
      * @param width the desired width (in pixels)
      * @param height the desired height (in pixels)
      */
@@ -328,10 +328,10 @@ public class Camera implements Savable, Cloneable {
             throw new AssertionError();
         }
     }
-    
+
     /**
      * Copies the settings of the given camera.
-     * 
+     *
      * @param cam
      *            the camera we copy the settings from
      */
@@ -362,18 +362,18 @@ public class Camera implements Savable, Cloneable {
 
         this.width = cam.width;
         this.height = cam.height;
-        
+
         this.planeState = 0;
         this.viewportChanged = true;
         for (int i = 0; i < MAX_WORLD_PLANES; ++i) {
             worldPlane[i].setNormal(cam.worldPlane[i].getNormal());
             worldPlane[i].setConstant(cam.worldPlane[i].getConstant());
         }
-        
+
         this.parallelProjection = cam.parallelProjection;
         this.overrideProjection = cam.overrideProjection;
         this.projectionMatrixOverride.set(cam.projectionMatrixOverride);
-        
+
         this.viewMatrix.set(cam.viewMatrix);
         this.projectionMatrix.set(cam.projectionMatrix);
         this.viewProjectionMatrix.set(cam.viewProjectionMatrix);
@@ -408,7 +408,7 @@ public class Camera implements Savable, Cloneable {
     /**
      * Sets a clipPlane for this camera.
      * The clipPlane is used to recompute the
-     * projectionMatrix using the plane as the near plane     
+     * projectionMatrix using the plane as the near plane
      * This technique is known as the oblique near-plane clipping method introduced by Eric Lengyel
      * more info here
      * <ul>
@@ -425,7 +425,7 @@ public class Camera implements Savable, Cloneable {
      * @param clipPlane the plane
      * @param side the side the camera stands from the plane
      */
-    public void setClipPlane(Plane clipPlane, Plane.Side side) {     
+    public void setClipPlane(Plane clipPlane, Plane.Side side) {
         float sideFactor = 1;
         if (side == Plane.Side.Negative) {
             sideFactor = -1;
@@ -434,9 +434,9 @@ public class Camera implements Savable, Cloneable {
         if (clipPlane.whichSide(location) == side) {
             return;
         }
-        
+
         TempVars vars = TempVars.get();
-        try {        
+        try {
             Matrix4f p = projectionMatrixOverride.set(projectionMatrix);
 
             Matrix4f ivm = viewMatrix;
@@ -446,18 +446,18 @@ public class Camera implements Savable, Cloneable {
             Vector3f pn = ivm.multNormal(clipPlane.getNormal(), vars.vect3);
             Vector4f clipPlaneV = vars.vect4f1.set(pn.x * sideFactor, pn.y * sideFactor, pn.z * sideFactor,
                     -(pp.dot(pn)) * sideFactor);
-    
+
             Vector4f v = vars.vect4f2.set(0, 0, 0, 0);
-    
+
             v.x = (Math.signum(clipPlaneV.x) + p.m02) / p.m00;
             v.y = (Math.signum(clipPlaneV.y) + p.m12) / p.m11;
             v.z = -1.0f;
             v.w = (1.0f + p.m22) / p.m23;
-    
+
             float dot = clipPlaneV.dot(v);
             //clipPlaneV.x * v.x + clipPlaneV.y * v.y + clipPlaneV.z * v.z + clipPlaneV.w * v.w;
             Vector4f c = clipPlaneV.multLocal(2.0f / dot);
-    
+
             p.m20 = c.x - p.m30;
             p.m21 = c.y - p.m31;
             p.m22 = c.z - p.m32;
@@ -465,7 +465,7 @@ public class Camera implements Savable, Cloneable {
             setProjectionMatrix(p);
         } finally {
             vars.release();
-        }            
+        }
     }
 
     /**
@@ -811,8 +811,8 @@ public class Camera implements Savable, Cloneable {
      * @param left      the left axis of the camera.
      * @param up        the up axis of the camera.
      * @param direction the direction the camera is facing.
-     * 
-     * @see Camera#setAxes(com.jme3.math.Quaternion) 
+     *
+     * @see Camera#setAxes(com.jme3.math.Quaternion)
      */
     public void setAxes(Vector3f left, Vector3f up, Vector3f direction) {
         this.rotation.fromAxes(left, up, direction);
@@ -956,7 +956,7 @@ public class Camera implements Savable, Cloneable {
 
     /**
      * Sets the orientation and location of the camera.
-     * 
+     *
      * @param location
      *            the point position of the camera.
      * @param axes
@@ -1159,7 +1159,7 @@ public class Camera implements Savable, Cloneable {
 
         return rVal;
     }
-    
+
     /**
      * Provides access to one of the planes used for culling.
      *
@@ -1170,7 +1170,7 @@ public class Camera implements Savable, Cloneable {
     public Plane getWorldPlane(int planeId) {
         return worldPlane[planeId];
     }
-    
+
     /**
      * Tests a bounding volume against the ortho
      * bounding box of the camera. A bounding box spanning from
@@ -1211,11 +1211,11 @@ public class Camera implements Savable, Cloneable {
     public void setProjectionMatrix(Matrix4f projMatrix) {
         if (projMatrix == null) {
             overrideProjection = false;
-            projectionMatrixOverride.loadIdentity();   
+            projectionMatrixOverride.loadIdentity();
         } else {
-            overrideProjection = true;            
+            overrideProjection = true;
             projectionMatrixOverride.set(projMatrix);
-        }            
+        }
         updateViewProjection();
     }
 
@@ -1354,7 +1354,7 @@ public class Camera implements Savable, Cloneable {
      */
     public void onFrameChange() {
         TempVars vars = TempVars.get();
-        
+
         Vector3f left = getLeft(vars.vect1);
         Vector3f direction = getDirection(vars.vect2);
         Vector3f up = getUp(vars.vect3);
@@ -1414,9 +1414,9 @@ public class Camera implements Savable, Cloneable {
         worldPlane[NEAR_PLANE].setConstant(dirDotLocation + frustumNear);
 
         viewMatrix.fromFrame(location, direction, up, left);
-        
+
         vars.release();
-        
+
 //        viewMatrix.transposeLocal();
         updateViewProjection();
     }
@@ -1443,7 +1443,7 @@ public class Camera implements Savable, Cloneable {
     }
 
     /**
-     * Computes the z value in projection space from the z value in view space 
+     * Computes the z value in projection space from the z value in view space
      * Note that the returned value is going non linearly from 0 to 1.
      * for more explanations on non linear z buffer see
      * http://www.sjbaker.org/steve/omniv/love_your_z_buffer.html
@@ -1465,10 +1465,10 @@ public class Camera implements Savable, Cloneable {
      * This former value is also known as the Z buffer value or non linear depth buffer.
      * for more explanations on non linear z buffer see
      * http://www.sjbaker.org/steve/omniv/love_your_z_buffer.html
-     * 
+     *
      * <p>To compute the projection space z from the view space z (distance from cam to object)
      * @see Camera#getViewToProjectionZ
-     * 
+     *
      * @param screenPos 2d coordinate in screen space
      * @param projectionZPos non linear z value in projection space
      * @return the position in world space.
@@ -1483,7 +1483,7 @@ public class Camera implements Savable, Cloneable {
      * @param screenPosition a (2-D) location in screen space (not null)
      * @param projectionZPos a (non-linear) Z value in projection space
      * @param store storage for the result (modified if not null)
-     * @return a location vector (in world coordinates, either 
+     * @return a location vector (in world coordinates, either
      *     <code>store</code> or a new vector)
      * @see Camera#getWorldCoordinates
      */
@@ -1492,7 +1492,7 @@ public class Camera implements Savable, Cloneable {
         if (store == null) {
             store = new Vector3f();
         }
- 
+
         Matrix4f inverseMat = new Matrix4f(viewProjectionMatrix);
         inverseMat.invertLocal();
 
@@ -1501,7 +1501,7 @@ public class Camera implements Savable, Cloneable {
                 (screenPosition.y / getHeight() - viewPortBottom) / (viewPortTop - viewPortBottom) * 2 - 1,
                 projectionZPos * 2 - 1);
 
-        float w = inverseMat.multProj(store, store);      
+        float w = inverseMat.multProj(store, store);
         store.multLocal(1f / w);
 
         return store;
@@ -1509,7 +1509,7 @@ public class Camera implements Savable, Cloneable {
 
     /**
      * Converts the given position from world space to screen space.
-     * 
+     *
      * @param worldPos a location in world coordinates (not null, unaffected)
      * @return a new (3-D) location vector (in screen coordinates)
      * @see Camera#getScreenCoordinates
@@ -1523,7 +1523,7 @@ public class Camera implements Savable, Cloneable {
      *
      * @param worldPosition a location in world coordinates (not null, unaffected)
      * @param store storage for the result (modified if not null)
-     * @return a (3-D) location vector (in screen coordinates, either 
+     * @return a (3-D) location vector (in screen coordinates, either
      *     <code>store</code> or a new vector)
      * @see Camera#getScreenCoordinates(Vector3f, Vector3f)
      */
