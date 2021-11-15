@@ -451,6 +451,16 @@ public class AnimComposer extends AbstractControl {
     }
 
     /**
+     * Enumerates the names of all layers.
+     *
+     * @return an unmodifiable set of names
+     */
+    public Set<String> getLayerNames() {
+        Set<String> result = Collections.unmodifiableSet(layers.keySet());
+        return result;
+    }
+
+    /**
      * Assign a manager to the named layer.
      *
      * @param layerName the name of the layer to modify
