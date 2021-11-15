@@ -441,6 +441,20 @@ public class AnimComposer extends AbstractControl {
     }
 
     /**
+     * Provides access to the named layer.
+     *
+     * @param layerName the name of the layer to access
+     * @return the pre-existing instance
+     */
+    public AnimLayer getLayer(String layerName) {
+        AnimLayer result = layers.get(layerName);
+        if (result == null) {
+            throw new IllegalArgumentException("Unknown layer " + layerName);
+        }
+        return result;
+    }
+
+    /**
      * Access the manager of the named layer.
      *
      * @param layerName the name of the layer to access
