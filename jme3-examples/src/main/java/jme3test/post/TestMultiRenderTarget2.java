@@ -60,7 +60,7 @@ import com.jme3.util.mikktspace.MikktspaceTangentGenerator;
  */
 public class TestMultiRenderTarget extends SimpleApplication implements SceneProcessor {
 
-    private FrameBuffer fb;
+    private FrameBuffer gBuffFrameBuffer;
     private Texture2D diffuseData, normalData, specularData, depthData;
     private Picture display1, display2, display3, display4;
 
@@ -117,17 +117,16 @@ public class TestMultiRenderTarget extends SimpleApplication implements ScenePro
             pls[i] = pl;
         }
 
-        reshape(viewPort, viewPort.getCamera().getWidth(), viewPort.getCamera().getHeight());
         // test model
         Node scene = new Node("TestScene");
         Geometry model = (Geometry) ((Node)assetManager.loadModel("Models/HoverTank/Tank2.mesh.xml")).getChild(0);
         MikktspaceTangentGenerator.generate(model);
-        // MRTLightingMaterial
         // GBuffer Pass
-        Material mrtLightingMaterial = assetManager.loadMaterial("jme3test/post/tank.j3m");
-        model.setMaterial(mrtLightingMaterial);
+        Material tankMat = assetManager.loadMaterial("jme3test/post/tank.j3m");
+        model.setMaterial(tankMat);
         scene.attachChild(model);
-
+        // Create FrameBuffer for multi-target rendering
+        initGBufferInfos();
 
         rootNode.attachChild(scene);
         guiViewPort.setClearFlags(true, true, true);
@@ -141,7 +140,7 @@ public class TestMultiRenderTarget extends SimpleApplication implements ScenePro
 
     @Override
     public void simpleUpdate(float tpf) {
-        super.simpleUpdate(tpf);
+        super.simpleUpdate(tpf);//To change body of generated methods, choose Tools | Templates.
         // Motion light source
         for (int i = 0; i < pls.length; i++){
             PointLight pl = pls[i];
@@ -151,11 +150,17 @@ public class TestMultiRenderTarget extends SimpleApplication implements ScenePro
         }
     }
 
+    @Override
     public void initialize(RenderManager rm, ViewPort vp) {
-        // ...
+        // do nothing
     }
 
+    @Override
     public void reshape(ViewPort vp, int w, int h) {
+        // Delete FrameBuffer
+        // ...
+
+        // ReCreate GBuffer FrameBuffer
         diffuseData  = new Texture2D(w, h, Format.RGBA8);
         normalData   = new Texture2D(w, h, Format.RGBA8);
         specularData = new Texture2D(w, h, Format.RGBA8);
@@ -164,13 +169,14 @@ public class TestMultiRenderTarget extends SimpleApplication implements ScenePro
         // MRTLightingMaterial
         // Light Pass
         mrtLightingMaterial = new Material(assetManager, "jme3test/post/MRTLighting.j3md");
-        mrtLightingMaterial.setName("mrtLightMaterial light pass");
         mrtLightingMaterial.selectTechnique("LightPass", renderManager);
         mrtLightingMaterial.setTexture("DiffuseMap",  diffuseData);
         mrtLightingMaterial.setTexture("SpecularMap", specularData);
         mrtLightingMaterial.setTexture("NormalMap",   normalData);
         mrtLightingMaterial.setTexture("DepthMap",    depthData);
 
+
+        // display1,2,3,4 are used to display independent information in GBuff, and display is used to display the combined result.
         display.setMaterial(mrtLightingMaterial);
         display.setPosition(0, 0);
         display.setWidth(w);
@@ -200,68 +206,53 @@ public class TestMultiRenderTarget extends SimpleApplication implements ScenePro
 
         guiNode.updateGeometricState();
 
-        fb = new FrameBuffer(w, h, 1);
-        fb.setDepthTexture(depthData);
-        fb.addColorTexture(diffuseData);
-        fb.addColorTexture(normalData);
-        fb.addColorTexture(specularData);
-        fb.setMultiTarget(true);
-
-        /*
-         * Marks pixels in front of the far light boundary
-            Render back-faces of light volume
-            Depth test GREATER-EQUAL
-            Write to stencil on depth pass
-            Skipped for very small distant lights
-         */
-
-        /*
-         * Find amount of lit pixels inside the volume
-             Start pixel query
-             Render front faces of light volume
-             Depth test LESS-EQUAL
-             Don’t write anything – only EQUAL stencil test
-         */
-
-        /*
-         * Enable conditional rendering
-            Based on query results from previous stage
-            GPU skips rendering for invisible lights
-         */
-
-        /*
-         * Render front-faces of light volume
-            Depth test - LESS-EQUAL
-            Stencil test - EQUAL
-            Runs only on marked pixels inside light
-         */
+        gBuffFrameBuffer = new FrameBuffer(w, h, 1);
+        gBuffFrameBuffer.setDepthTarget(FrameBuffer.FrameBufferTarget.newTarget(depthData));
+        gBuffFrameBuffer.addColorTarget(FrameBuffer.FrameBufferTarget.newTarget(diffuseData));
+        gBuffFrameBuffer.addColorTarget(FrameBuffer.FrameBufferTarget.newTarget(normalData));
+        gBuffFrameBuffer.addColorTarget(FrameBuffer.FrameBufferTarget.newTarget(specularData));
+        gBuffFrameBuffer.setMultiTarget(true);
     }
 
+    private void initGBufferInfos(){
+        // the first time
+        reshape(viewPort, viewPort.getCamera().getWidth(), viewPort.getCamera().getHeight());
+    }
+
+    @Override
     public boolean isInitialized() {
         return diffuseData != null;
     }
 
+    @Override
     public void preFrame(float tpf) {
-        viewPort.setOutputFrameBuffer(fb);
+        viewPort.setOutputFrameBuffer(gBuffFrameBuffer);
+
+        // Since ViewProjectionMatrixInverse is used in MRTLighting, I set it directly here.
         Matrix4f inverseViewProj = cam.getViewProjectionMatrix().invert();
         mrtLightingMaterial.setMatrix4("ViewProjectionMatrixInverse", inverseViewProj);
         techOrig = renderManager.getForcedTechnique();
+
+        // use GBufPass Tech
         renderManager.setForcedTechnique("GBufPass");
     }
 
+    @Override
     public void postQueue(RenderQueue rq) {
     }
 
+    @Override
     public void postFrame(FrameBuffer out) {
+        // use Orig Tech
         renderManager.setForcedTechnique(techOrig);
     }
 
+    @Override
     public void cleanup() {
     }
 
     @Override
     public void setProfiler(AppProfiler profiler) {
-
     }
 
 }
