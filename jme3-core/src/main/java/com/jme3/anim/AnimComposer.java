@@ -42,8 +42,6 @@ import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.control.AbstractControl;
 import com.jme3.util.clone.Cloner;
-import com.jme3.util.clone.JmeCloneable;
-
 import java.io.IOException;
 import java.util.*;
 
