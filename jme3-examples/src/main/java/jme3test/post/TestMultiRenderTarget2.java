@@ -58,7 +58,7 @@ import com.jme3.util.mikktspace.MikktspaceTangentGenerator;
  * @author JhonKkk
  * @date 2021年11月7日10点18分
  */
-public class TestMultiRenderTarget extends SimpleApplication implements SceneProcessor {
+public class TestMultiRenderTarget2 extends SimpleApplication implements SceneProcessor {
 
     private FrameBuffer gBuffFrameBuffer;
     private Texture2D diffuseData, normalData, specularData, depthData;
@@ -71,7 +71,7 @@ public class TestMultiRenderTarget extends SimpleApplication implements ScenePro
     private PointLight[] pls;
 
     public static void main(String[] args){
-        TestMultiRenderTarget app = new TestMultiRenderTarget();
+        TestMultiRenderTarget2 app = new TestMultiRenderTarget2();
         app.start();
     }
 
