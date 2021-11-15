@@ -106,9 +106,9 @@ public class TestPieChartSpace extends SimpleApplication {
         //first action -- vertical traction.
         final Quaternion[] verticalTraction = new Quaternion[] {
                 new Quaternion().fromAngleAxis(0, Vector3f.UNIT_Z),
-                bambooNode.getLocalRotation().fromAngleAxis((float)Math.toRadians(120), Vector3f.UNIT_Z),
-                bambooNode.getLocalRotation().fromAngleAxis((float)Math.toRadians(120), Vector3f.UNIT_Z),
-                bambooNode.getLocalRotation().fromAngleAxis((float)Math.toRadians(120), Vector3f.UNIT_Z)
+                bambooNode.getLocalRotation().fromAngleAxis(0.6667f * FastMath.PI, Vector3f.UNIT_Z),
+                bambooNode.getLocalRotation().fromAngleAxis(0.6667f * FastMath.PI, Vector3f.UNIT_Z),
+                bambooNode.getLocalRotation().fromAngleAxis(0.6667f * FastMath.PI, Vector3f.UNIT_Z)
         };
         final TransformTrack bambooVerticalTraction = new TransformTrack(bambooNode, times, null, verticalTraction, null);
         final AnimClip verticalTractionClip = new AnimClip("Bamboo Rotation");
@@ -120,9 +120,9 @@ public class TestPieChartSpace extends SimpleApplication {
         //second action -- horizontal traction.
         final Quaternion[] traction = new Quaternion[] {
                 new Quaternion().fromAngleAxis(0, Vector3f.UNIT_X),
-                bambooNode.getLocalRotation().fromAngleAxis((float)Math.toRadians(30), Vector3f.UNIT_X),
-                bambooNode.getLocalRotation().fromAngleAxis((float)Math.toRadians(30), Vector3f.UNIT_X),
-                bambooNode.getLocalRotation().fromAngleAxis((float)Math.toRadians(30), Vector3f.UNIT_X)
+                bambooNode.getLocalRotation().fromAngleAxis(0.1667f * FastMath.PI, Vector3f.UNIT_X),
+                bambooNode.getLocalRotation().fromAngleAxis(0.1667f * FastMath.PI, Vector3f.UNIT_X),
+                bambooNode.getLocalRotation().fromAngleAxis(0.1667f * FastMath.PI, Vector3f.UNIT_X)
         };
         final TransformTrack bambooHorizontalTraction = new TransformTrack(bambooNode, times, null, traction, null);
         final AnimClip tractionClip = new AnimClip("Bamboo Traction");
