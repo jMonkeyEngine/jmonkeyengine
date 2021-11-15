@@ -27,6 +27,14 @@ uniform mat4 g_ViewProjectionMatrix;
 uniform mat3 g_NormalMatrix;
 uniform mat3 g_WorldNormalMatrix;
 
+mat4 GetViewProjectionMatrixInverse(){
+    return inverse(g_ViewProjectionMatrix);
+}
+
+mat4 GetProjectionMatrixInverse(){
+    return inverse(g_ProjectionMatrix);
+}
+
 #if defined INSTANCING
 
 // World Matrix + Normal Rotation Quaternion. 
@@ -62,9 +70,7 @@ vec4 TransformWorldViewProjection(vec4 position)
     return g_ViewProjectionMatrix * TransformWorld(position);
 }
 
-mat4 GetViewProjectionMatrixInverse(){
-    return inverse(g_ViewProjectionMatrix);
-}
+
 
 vec3 TransformWorldNormal(vec3 vec) {
     vec4 quat = vec4(inInstanceData[0].w, inInstanceData[1].w,

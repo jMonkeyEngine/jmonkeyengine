@@ -1,5 +1,5 @@
-#import "Common/ShaderLib/Deferred.glsllib"
 #import "Common/ShaderLib/GLSLCompat.glsllib"
+#import "Common/ShaderLib/Deferred.glsllib"
 #import "Common/ShaderLib/Parallax.glsllib"
 #import "Common/ShaderLib/Optics.glsllib"
 #ifndef VERTEX_LIGHTING
@@ -90,21 +90,6 @@ uniform float m_Shininess;
 #endif
 
 void main(){
-//    #if !defined(VERTEX_LIGHTING)
-//        #if defined(NORMALMAP)
-//             mat3 tbnMat = mat3(vTangent.xyz, vTangent.w * cross( (vNormal), (vTangent.xyz)), vNormal.xyz);
-//
-//            if (!gl_FrontFacing)
-//            {
-//                tbnMat[2] = -tbnMat[2];
-//            }
-//
-//            vec3 viewDir = normalize(-vPos.xyz * tbnMat);
-//        #else
-//            vec3 viewDir = normalize(-vPos.xyz);
-//        #endif
-//    #endif
-
     vec2 newTexCoord;
      
     #if (defined(PARALLAXMAP) || (defined(NORMALMAP_PARALLAX) && defined(NORMALMAP))) && !defined(VERTEX_LIGHTING) 
@@ -191,107 +176,29 @@ void main(){
         Context_OutGBuff0.rgb = diffuseColor.rgb * DiffuseSum.rgb;
         Context_OutGBuff2.rgb = specularColor.rgb * SpecularSum.rgb * 10.0f + AmbientSum * 0.1f;
     #else
-        #ifdef USE_REFLECTION
-             vec4 refColor = Optics_GetEnvColor(m_EnvMap, refVec.xyz);
-        #endif
-        // Workaround, since it is not possible to modify varying variables
-        vec4 SpecularSum2 = vec4(SpecularSum, 1.0);
-        #ifdef USE_REFLECTION
-             // Interpolate light specularity toward reflection color
-             // Multiply result by specular map
-             specularColor = mix(SpecularSum2 * light.y, refColor, refVec.w) * specularColor;
 
-             SpecularSum2 = vec4(1.0);
-        #endif
-
-        vec3 DiffuseSum2 = DiffuseSum.rgb;
-        #ifdef COLORRAMP
-           DiffuseSum2.rgb  *= texture2D(m_ColorRamp, vec2(light.x, 0.0)).rgb;
-           SpecularSum2.rgb *= texture2D(m_ColorRamp, vec2(light.y, 0.0)).rgb;
-           light.xy = vec2(1.0);
-        #endif
-        Context_OutGBuff0.rgb = diffuseColor.rgb * DiffuseSum2.rgb;
-        Context_OutGBuff2.rgb = specularColor.rgb * SpecularSum2.rgb * 10.0f + AmbientSum * 0.1f;
-        Context_OutGBuff2.a = m_Shininess;
     #endif
 
-//    #ifdef VERTEX_LIGHTING
-//        gl_FragColor.rgb = AmbientSum.rgb  * diffuseColor.rgb
-//                         + DiffuseSum.rgb  * diffuseColor.rgb
-//                         + SpecularSum.rgb * specularColor.rgb;
-//    #else
-        
-//        int i = 0;
-//        gl_FragColor.rgb = AmbientSum * diffuseColor.rgb;
+//    #ifdef USE_REFLECTION
+//        vec4 refColor = Optics_GetEnvColor(m_EnvMap, refVec.xyz);
+//    #endif
+//        // Workaround, since it is not possible to modify varying variables
+//        vec4 SpecularSum2 = vec4(SpecularSum, 1.0);
+//    #ifdef USE_REFLECTION
+//       // Interpolate light specularity toward reflection color
+//       // Multiply result by specular map
+//       specularColor = mix(SpecularSum2 * light.y, refColor, refVec.w) * specularColor;
 //
-//        #ifdef USE_REFLECTION
-//             vec4 refColor = Optics_GetEnvColor(m_EnvMap, refVec.xyz);
-//        #endif
+//       SpecularSum2 = vec4(1.0);
+//    #endif
 //
-//        for( int i = 0;i < NB_LIGHTS; i+=3){
-//            vec4 lightColor = g_LightData[i];
-//            vec4 lightData1 = g_LightData[i+1];
-//            vec4 lightDir;
-//            vec3 lightVec;
-//            lightComputeDir(vPos, lightColor.w, lightData1, lightDir,lightVec);
-//
-//            float spotFallOff = 1.0;
-//            #if __VERSION__ >= 110
-//                // allow use of control flow
-//            if(lightColor.w > 1.0){
-//            #endif
-//                spotFallOff =  computeSpotFalloff(g_LightData[i+2], lightVec);
-//            #if __VERSION__ >= 110
-//            }
-//            #endif
-//
-//            #ifdef NORMALMAP
-//                //Normal map -> lighting is computed in tangent space
-//                lightDir.xyz = normalize(lightDir.xyz * tbnMat);
-//            #else
-//                //no Normal map -> lighting is computed in view space
-//                lightDir.xyz = normalize(lightDir.xyz);
-//            #endif
-//
-//            vec2 light = computeLighting(normal, viewDir, lightDir.xyz, lightDir.w * spotFallOff , m_Shininess);
-//
-//            // Workaround, since it is not possible to modify varying variables
-//            vec4 SpecularSum2 = vec4(SpecularSum, 1.0);
-//            #ifdef USE_REFLECTION
-//                 // Interpolate light specularity toward reflection color
-//                 // Multiply result by specular map
-//                 specularColor = mix(SpecularSum2 * light.y, refColor, refVec.w) * specularColor;
-//
-//                 SpecularSum2 = vec4(1.0);
-//                 light.y = 1.0;
-//            #endif
-//
-//            vec3 DiffuseSum2 = DiffuseSum.rgb;
-//            #ifdef COLORRAMP
-//               DiffuseSum2.rgb  *= texture2D(m_ColorRamp, vec2(light.x, 0.0)).rgb;
-//               SpecularSum2.rgb *= texture2D(m_ColorRamp, vec2(light.y, 0.0)).rgb;
-//               light.xy = vec2(1.0);
-//            #endif
-//
-//            gl_FragColor.rgb += DiffuseSum2.rgb   * lightColor.rgb * diffuseColor.rgb  * vec3(light.x) +
-//                                SpecularSum2.rgb * lightColor.rgb * specularColor.rgb * vec3(light.y);
-//        }
-//
-//     #endif
-
-    // add fog after the lighting because shadows will cause the fog to darken
-    // which just results in the geometry looking like it's changed color
-//    #ifdef USE_FOG
-//        #ifdef FOG_LINEAR
-//            gl_FragColor = getFogLinear(gl_FragColor, m_FogColor, m_LinearFog.x, m_LinearFog.y, fog_distance);
-//        #endif
-//        #ifdef FOG_EXP
-//            gl_FragColor = getFogExp(gl_FragColor, m_FogColor, m_ExpFog, fog_distance);
-//        #endif
-//        #ifdef FOG_EXPSQ
-//            gl_FragColor = getFogExpSquare(gl_FragColor, m_FogColor, m_ExpSqFog, fog_distance);
-//        #endif
-//    #endif // end fog
-//
-//    gl_FragColor.a = alpha;
+//    vec3 DiffuseSum2 = DiffuseSum.rgb;
+//    #ifdef COLORRAMP
+//       DiffuseSum2.rgb  *= texture2D(m_ColorRamp, vec2(light.x, 0.0)).rgb;
+//       SpecularSum2.rgb *= texture2D(m_ColorRamp, vec2(light.y, 0.0)).rgb;
+//       light.xy = vec2(1.0);
+//    #endif
+    Context_OutGBuff0.rgb = diffuseColor.rgb * DiffuseSum.rgb;
+    Context_OutGBuff2.rgb = specularColor.rgb * SpecularSum.rgb * 10.0f + AmbientSum * 0.1f;
+    Context_OutGBuff2.a = m_Shininess;
 }

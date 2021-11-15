@@ -121,6 +121,14 @@ public class TechniqueDef implements Savable, Cloneable {
         SinglePass,
 
         /**
+         * Enable light rendering by using a deferred single pass.
+         * <p>
+         * An array of light positions and light colors is passed to the shader
+         * containing the world light list for the geometry being rendered.
+         */
+        DeferredSinglePass,
+
+        /**
          * Enable light rendering by using multi-pass rendering.
          * <p>
          * The geometry will be rendered once for each light. Each time the

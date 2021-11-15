@@ -106,7 +106,7 @@ public class RenderManager {
         this.renderer = renderer;
         // init pipeline
         setForward(TechniqueDef.Pipeline.Forward);
-        setDeferred(TechniqueDef.Pipeline.TiledBasedDeferred);
+        setDeferred(TechniqueDef.Pipeline.Deferred);
     }
 
     /**
