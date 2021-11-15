@@ -135,11 +135,7 @@ public class AnimComposer extends AbstractControl {
      * @return The action corresponding to the given name.
      */
     public Action setCurrentAction(String actionName, String layerName) {
-        AnimLayer l = layers.get(layerName);
-        if (l == null) {
-            throw new IllegalArgumentException("Unknown layer " + layerName);
-        }
-        
+        AnimLayer l = getLayer(layerName);
         Action currentAction = action(actionName);
         l.setCurrentAction(currentAction);
 
@@ -162,12 +158,9 @@ public class AnimComposer extends AbstractControl {
      * @return The action corresponding to the given name.
      */
     public Action getCurrentAction(String layerName) {
-        AnimLayer l = layers.get(layerName);
-        if (l == null) {
-            throw new IllegalArgumentException("Unknown layer " + layerName);
-        }
-
+        AnimLayer l = getLayer(layerName);
         Action result = l.getCurrentAction();
+
         return result;
     }
     
@@ -184,11 +177,7 @@ public class AnimComposer extends AbstractControl {
      * @param layerName The name of the layer we want to remove its action.
      */
     public void removeCurrentAction(String layerName) {
-        AnimLayer l = layers.get(layerName);
-        if (l == null) {
-            throw new IllegalArgumentException("Unknown layer " + layerName);
-        }
-
+        AnimLayer l = getLayer(layerName);
         l.setCurrentAction(null);
     }
     
@@ -208,12 +197,9 @@ public class AnimComposer extends AbstractControl {
      * @return the time (in seconds)
      */
     public double getTime(String layerName) {
-        AnimLayer l = layers.get(layerName);
-        if (l == null) {
-            throw new IllegalArgumentException("Unknown layer " + layerName);
-        }
-
+        AnimLayer l = getLayer(layerName);
         double result = l.getTime();
+
         return result;
     }
     
@@ -233,10 +219,7 @@ public class AnimComposer extends AbstractControl {
      * @param time the desired time (in seconds)
      */
     public void setTime(String layerName, double time) {
-        AnimLayer l = layers.get(layerName);
-        if (l == null) {
-            throw new IllegalArgumentException("Unknown layer " + layerName);
-        }
+        AnimLayer l = getLayer(layerName);
         if (l.getCurrentAction() == null) {
             throw new RuntimeException("There is no action running in layer " + layerName);
         }
@@ -461,12 +444,9 @@ public class AnimComposer extends AbstractControl {
      * @return the current manager (typically an AnimEvent) or null for none
      */
     public Object getLayerManager(String layerName) {
-        AnimLayer layer = layers.get(layerName);
-        if (layer == null) {
-            throw new IllegalArgumentException("Unknown layer " + layerName);
-        }
-
+        AnimLayer layer = getLayer(layerName);
         Object result = layer.getManager();
+
         return result;
     }
 
@@ -478,11 +458,7 @@ public class AnimComposer extends AbstractControl {
      * none
      */
     public void setLayerManager(String layerName, Object manager) {
-        AnimLayer layer = layers.get(layerName);
-        if (layer == null) {
-            throw new IllegalArgumentException("Unknown layer " + layerName);
-        }
-
+        AnimLayer layer = getLayer(layerName);
         layer.setManager(manager);
     }
 
