@@ -60,7 +60,7 @@ public class PieChartSpace implements BlendSpace{
      * Instantiates a default pie chart space implementation.
      * Default radius = 1f.
      * Default angle = 45 degrees.
-     * Default area = 0.125 of unit circle area.
+     * Default area = 0.125 of unit circle area (0.125 * PI).
      */
     public PieChartSpace(){
         this(1f, 45f);
@@ -182,6 +182,16 @@ public class PieChartSpace implements BlendSpace{
      */
     public float getRadius() {
         return radius;
+    }
+
+    /**
+     * Gets the sector area, sector area depends on both {@link PieChartSpace#angle}, {@link PieChartSpace#radius}.
+     * To change the sector area on runtime use : {@link PieChartSpace#setAngle(float)} and {@link PieChartSpace#setRadius(float)}
+     * or use {@link PieChartSpace#setValue(float)} to directly alter the sector area.
+     * @return the sector area.
+     */
+    public float getSectorArea() {
+        return sectorArea;
     }
 
     /**
