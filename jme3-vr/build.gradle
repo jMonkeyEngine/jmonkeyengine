@@ -1,5 +1,3 @@
-def lwjglVersion = '3.2.3'
-
 sourceCompatibility = '1.8'
 
 dependencies {
@@ -13,16 +11,16 @@ dependencies {
     implementation 'com.nativelibs4java:jnaerator-runtime:0.12'
 
     // Native LibOVR/Oculus support
-    api "org.lwjgl:lwjgl-ovr:${lwjglVersion}"
-    runtimeOnly "org.lwjgl:lwjgl-ovr:${lwjglVersion}:natives-windows"
+    api "org.lwjgl:lwjgl-ovr:${lwjgl3Version}"
+    runtimeOnly "org.lwjgl:lwjgl-ovr:${lwjgl3Version}:natives-windows"
     
     // Native OpenVR/LWJGL support
-    api "org.lwjgl:lwjgl-openvr:${lwjglVersion}"
-    implementation "org.lwjgl:lwjgl-openvr:${lwjglVersion}:natives-linux"
-    implementation "org.lwjgl:lwjgl-openvr:${lwjglVersion}:natives-macos"
-    runtimeOnly "org.lwjgl:lwjgl-openvr:${lwjglVersion}:natives-windows"
-    runtimeOnly "org.lwjgl:lwjgl-openvr:${lwjglVersion}:natives-linux"
-    runtimeOnly "org.lwjgl:lwjgl-openvr:${lwjglVersion}:natives-macos"
+    api "org.lwjgl:lwjgl-openvr:${lwjgl3Version}"
+    implementation "org.lwjgl:lwjgl-openvr:${lwjgl3Version}:natives-linux"
+    implementation "org.lwjgl:lwjgl-openvr:${lwjgl3Version}:natives-macos"
+    runtimeOnly "org.lwjgl:lwjgl-openvr:${lwjgl3Version}:natives-windows"
+    runtimeOnly "org.lwjgl:lwjgl-openvr:${lwjgl3Version}:natives-linux"
+    runtimeOnly "org.lwjgl:lwjgl-openvr:${lwjgl3Version}:natives-macos"
 }
 
 javadoc {

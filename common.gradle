@@ -21,8 +21,13 @@ if(JavaVersion.current() >= JavaVersion.VERSION_1_9) {
 
 gradle.projectsEvaluated {
     tasks.withType(JavaCompile) { // compile-time options:
+        //options.compilerArgs << '-Xlint:deprecation' // to show deprecation warnings
         options.compilerArgs << '-Xlint:unchecked'
     }
+}
+
+ext {
+    lwjgl3Version = '3.2.3' // used in both the jme3-lwjgl3 and jme3-vr build scripts
 }
 
 repositories {
