@@ -53,8 +53,10 @@ public class PieChartSpace implements BlendSpace{
     protected float area;
     //pie-chart sector area
     protected float sectorArea;
-    protected int firstActionIndex;
     protected boolean sectorAreaManualAdjustment;
+    //exposing the action indices
+    private int firstActionIndex = 0;
+    private int secondActionIndex = 0;
 
     /**
      * Instantiates a default pie chart space implementation.
@@ -62,7 +64,7 @@ public class PieChartSpace implements BlendSpace{
      * Default angle = 45 degrees.
      * Default area = 0.125 of unit circle area (0.125 * PI).
      */
-    public PieChartSpace(){
+    public PieChartSpace() {
         this(1f, 45f);
     }
 
@@ -73,7 +75,7 @@ public class PieChartSpace implements BlendSpace{
      * @param radius circle radius.
      * @param angle sector angle in degrees.
      */
-    public PieChartSpace(final float radius, final float angle){
+    public PieChartSpace(final float radius, final float angle) {
         //implicit suppression to extrapolation
         //clamp values in the range :  r = [0, 1] and angle = [0, 360].
         this.radius = radius % 1.1f;
@@ -83,17 +85,16 @@ public class PieChartSpace implements BlendSpace{
     @Override
     public void setBlendAction(BlendAction action) {
         this.action = action;
-        //calculate the area of the pieChart
-        area = FastMath.PI * FastMath.pow(radius, 2f);
-        //calculate the sector area
-        sectorArea = (angle / 360f) * area;
+        //use default actions indices
+        action.setFirstActiveIndex(action.getActions().length - 2);
+        action.setSecondActiveIndex(action.getActions().length - 1);
     }
 
     @Override
     public float getWeight() {
-        //keep the values updated with the loop (coherent update) as long as the manual adjustment is false.
+        calculatePieChartTotalArea();
         if(!sectorAreaManualAdjustment) {
-            setBlendAction(action);
+            calculateSectorArea();
         }
         //calculate the unit circle area.
         final float areaOfUnitCircle = FastMath.PI;
@@ -103,25 +104,34 @@ public class PieChartSpace implements BlendSpace{
         final float scaledSector = sectorArea * scaleFactor;
         //converting the step value to percentage from 0% (no stepping) to 100% (unitCircleArea).
         final float step = scaledSector / areaOfUnitCircle;
-        //assign 2 successive actions to blend between them using the step value.
-        //successive actions can be altered using setFirstActionIndex(int firstActionIndex).
-        if(firstActionIndex < action.getActions().length - 1) {
-            action.setFirstActiveIndex(firstActionIndex++);
-            action.setSecondActiveIndex(firstActionIndex);
-        }else{
-            firstActionIndex = 0;
-        }
+        //use the step as a delta value of interpolation
         return step;
+    }
+
+    /**
+     * Calculate the sector area from {@link PieChartSpace#area} and {@link PieChartSpace#angle}.
+     */
+    protected void calculateSectorArea() {
+        //calculate the sector area
+        sectorArea = (angle / 360f) * area;
+    }
+
+    /**
+     * Calculate pie chart total area from {@link PieChartSpace#radius}.
+     */
+    protected void calculatePieChartTotalArea() {
+        //calculate the area of the pieChart
+        area = FastMath.PI * FastMath.pow(radius, 2f);
     }
 
     /**
      * Manually alters the value of the sector area.
      * Notes :
      * - Altering the value of the sector area manually would
-     * ignore both {@link PieChartSpace#radius} and {@link PieChartSpace#angle}.
+     * ignore both {@link PieChartSpace#area} and {@link PieChartSpace#angle}.
      *
      * - Adjust {@link PieChartSpace#setSectorAreaManualAdjustment(boolean)} to false
-     * to neutralize the manual effect and return back to using both (the radius and the angle).
+     * to neutralize the manual effect and return back to using both (the pie chart area and the angle).
      *
      * @param sectorArea a sector area to use.
      */
@@ -135,8 +145,8 @@ public class PieChartSpace implements BlendSpace{
     /**
      * Enables/Disables the manual area adjustment flag.
      *
-     * @param sectorAreaManualAdjustment true to enable manual adjustment of the sector area ignoring both the radius and the angle,
-     *                                   false to use the radius and the angle to calculate the sector area and ignore {@link PieChartSpace#setValue(float)}.
+     * @param sectorAreaManualAdjustment true to enable manual adjustment of the sector area ignoring both the pie chart area and the angle,
+     *                                   false to use the pie chart area and the angle to calculate the sector area and ignore {@link PieChartSpace#setValue(float)}.
      */
     public void setSectorAreaManualAdjustment(boolean sectorAreaManualAdjustment) {
         this.sectorAreaManualAdjustment = sectorAreaManualAdjustment;
@@ -195,21 +205,62 @@ public class PieChartSpace implements BlendSpace{
     }
 
     /**
-     * Explicitly alters the index of the first action.
+     * Alters the index of the first action.
      * Usually values represented here depends on the number of {@link com.jme3.anim.tween.action.BlendableAction}s used within
      * {@link com.jme3.anim.tween.action.BlendAction} arguments.
-     * Indices of other actions are auto obtained by the {@link PieChartSpace#getWeight()}.
+     * Default index of the second action is : action.getActions().length - 2
      * @param firstActionIndex the index of the first action.
      */
-    public void setFirstActionIndex(int firstActionIndex) {
+    public void setFirstAction(int firstActionIndex) {
+        //sanity check the inputs
+        if(action == null){
+            throw new IllegalStateException("A BlendAction instance hasn't been assigned to this blendSpace yet, use this setter after instantiating a BlendAction on this space !");
+        }
+        assert (firstActionIndex < action.getActions().length);
+        action.setFirstActiveIndex(firstActionIndex);
         this.firstActionIndex = firstActionIndex;
     }
 
     /**
-     * Gets the index of the first action.
-     * @return the index of first action in integers.
+     * Alters the index of the second action.
+     * Usually values represented here depends on the number of {@link com.jme3.anim.tween.action.BlendableAction}s used within
+     * {@link com.jme3.anim.tween.action.BlendAction} arguments.
+     * Default index of the second action is : action.getActions().length - 1
+     * @param secondActionIndex the index of the second action.
+     */
+    public void setSecondAction(int secondActionIndex) {
+        //sanity check the inputs
+        if(action == null){
+            throw new IllegalStateException("A BlendAction instance hasn't been assigned to this blendSpace yet, use this setter after instantiating a BlendAction on this space!");
+        }
+        assert (secondActionIndex < action.getActions().length);
+        action.setSecondActiveIndex(secondActionIndex);
+        this.secondActionIndex = secondActionIndex;
+    }
+
+    /**
+     * Gets the actions involved in the space blend action.
+     * @return the actions of the space blend action.
+     */
+    public Action[] getActions(){
+        return action.getActions();
+    }
+
+    /**
+     * Gets the first action index.
+     * Default index of the first action is : action.getActions().length - 2
+     * @return the first action index.
      */
     public int getFirstActionIndex() {
         return firstActionIndex;
+    }
+
+    /**
+     * Gets the second action index.
+     * Default index of the second action is : action.getActions().length - 1
+     * @return the second action index.
+     */
+    public int getSecondActionIndex() {
+        return secondActionIndex;
     }
 }
