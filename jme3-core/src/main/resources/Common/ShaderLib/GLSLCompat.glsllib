@@ -1,3 +1,7 @@
+#if __VERSION__ >= 130
+#extension GL_ARB_explicit_attrib_location : enable
+#endif
+
 #if defined GL_ES
 #  define hfloat highp float
 #  define hvec2  highp vec2

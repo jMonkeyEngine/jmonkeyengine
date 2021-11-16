@@ -1,16 +1,31 @@
 #ifndef _JME_CONTEXT_
 #define _JME_CONTEXT_
 
+#if __VERSION__ >= 130
+layout(location = 0) out vec4 outColor0;
+layout(location = 1) out vec4 outColor1;
+layout(location = 2) out vec4 outColor2;
+layout(location = 3) out vec4 outColor3;
+#define Context_OutGBuff0 outColor0
+#define Context_OutGBuff1 outColor1
+#define Context_OutGBuff2 outColor2
+#define Context_OutGBuff3 outColor3
+#else
 #define Context_OutGBuff0 gl_FragData[0]
 #define Context_OutGBuff1 gl_FragData[1]
 #define Context_OutGBuff2 gl_FragData[2]
 #define Context_OutGBuff3 gl_FragData[3]
+#endif
 
 
-uniform sampler2D Context_InGBuff0;
-uniform sampler2D Context_InGBuff1;
-uniform sampler2D Context_InGBuff2;
-uniform sampler2D Context_InGBuff3;
+uniform sampler2D m_Context_InGBuff0;
+uniform sampler2D m_Context_InGBuff1;
+uniform sampler2D m_Context_InGBuff2;
+uniform sampler2D m_Context_InGBuff3;
+#define Context_InGBuff0 m_Context_InGBuff0
+#define Context_InGBuff1 m_Context_InGBuff1
+#define Context_InGBuff2 m_Context_InGBuff2
+#define Context_InGBuff3 m_Context_InGBuff3
 
 #endif
 

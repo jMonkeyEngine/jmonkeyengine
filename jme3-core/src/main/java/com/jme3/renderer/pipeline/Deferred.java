@@ -1,5 +1,6 @@
 package com.jme3.renderer.pipeline;
 
+import com.jme3.light.LightList;
 import com.jme3.material.Material;
 import com.jme3.material.MaterialDef;
 import com.jme3.material.TechniqueDef;
@@ -32,6 +33,8 @@ public class Deferred extends RenderPipeline{
     private Material fsMat;
     private Picture fsQuad;
     private boolean reshape;
+    private boolean drawing;
+    private LightList lights;
 
     public Deferred(TechniqueDef.Pipeline pipeline) {
         super(pipeline);
@@ -42,8 +45,8 @@ public class Deferred extends RenderPipeline{
         // Make sure to create gBuffer only when needed
         if(gBuffer == null){
             fsQuad = new Picture("filter full screen quad");
-            fsQuad.setWidth(vp.getCamera().getWidth());
-            fsQuad.setHeight(vp.getCamera().getHeight());
+            fsQuad.setWidth(1);
+            fsQuad.setHeight(1);
             reshape(vp.getCamera().getWidth(), vp.getCamera().getHeight());
         }
     }
@@ -52,8 +55,8 @@ public class Deferred extends RenderPipeline{
     public void reshape(int w, int h) {
         gBufferData0 = new Texture2D(w, h, Image.Format.RGBA16F);
         gBufferData1 = new Texture2D(w, h, Image.Format.RGBA16F);
-        gBufferData2 = new Texture2D(w, h, Image.Format.RGBA16F);
-        gBufferData3 = new Texture2D(w, h, Image.Format.Depth16);
+        gBufferData2 = new Texture2D(w, h, Image.Format.RGBA32F);   // The third buffer provides 32-bit floating point to store high-precision information, such as normals
+        gBufferData3 = new Texture2D(w, h, Image.Format.Depth24Stencil8);
         gBuffer = new FrameBuffer(w, h, 1);
         gBuffer.addColorTarget(FrameBuffer.FrameBufferTarget.newTarget(gBufferData0));
         gBuffer.addColorTarget(FrameBuffer.FrameBufferTarget.newTarget(gBufferData1));
@@ -65,6 +68,11 @@ public class Deferred extends RenderPipeline{
 
     @Override
     public void draw(RenderManager rm, RenderQueue rq, ViewPort vp, boolean flush) {
+        if (rq.isQueueEmpty(RenderQueue.Bucket.Opaque)) {
+            drawing = false;
+            return;
+        }
+        drawing = true;
         Camera cam = vp.getCamera();
         Renderer renderer = rm.getRenderer();
         AppProfiler prof = rm.getAppProfiler();
@@ -74,17 +82,30 @@ public class Deferred extends RenderPipeline{
         if (prof!=null) prof.vpStep(VpStep.RenderBucket, vp, RenderQueue.Bucket.Opaque);
 
         // G-Buffer Pass
+        FrameBuffer opfb = vp.getOutputFrameBuffer();
+        vp.setOutputFrameBuffer(gBuffer);
         renderer.setFrameBuffer(gBuffer);
+        renderer.clearBuffers(vp.isClearColor(), vp.isClearDepth(), vp.isClearStencil());
         String techOrig = rm.getForcedTechnique();
         rm.setForcedTechnique(S_GBUFFER_PASS);
         rq.renderQueue(RenderQueue.Bucket.Opaque, rm, cam, false);
         rm.setForcedTechnique(techOrig);
+        vp.setOutputFrameBuffer(opfb);
         renderer.setFrameBuffer(vp.getOutputFrameBuffer());
 
         // Deferred Pass
-        fsQuad.setMaterial(fsMat);
-        fsQuad.updateGeometricState();
-        rm.renderGeometry(fsQuad);
+        if(fsMat != null){
+            boolean depthWrite = fsMat.getAdditionalRenderState().isDepthWrite();
+            fsMat.getAdditionalRenderState().setDepthWrite(false);
+            fsQuad.setMaterial(fsMat);
+            fsQuad.updateGeometricState();
+            fsMat.render(fsQuad, lights, rm);
+    //        rm.renderGeometry(fsQuad);
+            fsMat.getAdditionalRenderState().setDepthWrite(depthWrite);
+        }
+        else{
+            drawing = false;
+        }
 
         reshape = false;
     }
@@ -92,7 +113,6 @@ public class Deferred extends RenderPipeline{
     @Override
     public void drawGeometry(RenderManager rm, Geometry geom) {
         Material material = geom.getMaterial();
-        fsMat = material;
         // Check context parameters
         MaterialDef matDef = material.getMaterialDef();
         if(matDef.getMaterialParam(S_CONTEXT_InGBUFF_0) != null && (reshape || material.getTextureParam(S_CONTEXT_InGBUFF_0) == null)){
@@ -107,10 +127,18 @@ public class Deferred extends RenderPipeline{
         if(matDef.getMaterialParam(S_CONTEXT_InGBUFF_3) != null && (reshape || material.getTextureParam(S_CONTEXT_InGBUFF_3) == null)){
             material.setTexture(S_CONTEXT_InGBUFF_3, gBufferData3);
         }
+        rm.renderGeometry(geom);
+        if(material.getActiveTechnique() != null){
+            if(rm.joinPipeline(material.getActiveTechnique().getDef().getPipeline())){
+                fsMat = material;
+                lights = geom.getWorldLightList();
+            }
+        }
     }
 
     @Override
     public void end(RenderManager rm, ViewPort vp) {
-        rm.getRenderer().copyFrameBuffer(gBuffer, vp.getOutputFrameBuffer(), false, true);
+        if(drawing)
+            rm.getRenderer().copyFrameBuffer(gBuffer, vp.getOutputFrameBuffer(), false, true);
     }
 }

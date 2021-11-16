@@ -38,6 +38,7 @@ import com.jme3.light.PointLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
+import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Sphere;
@@ -64,6 +65,7 @@ public class TestDeferredLights extends SimpleApplication {
 //        g.move(0, 1, 0);
         
         Material mat = new Material(assetManager, "Common/MatDefs/Light/DeferredLighting.j3md");
+//        Material mat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
         mat.setFloat("Shininess", 32f);
         mat.setBoolean("UseMaterialColors", true);
         mat.setColor("Ambient",  ColorRGBA.Black);
@@ -101,7 +103,7 @@ public class TestDeferredLights extends SimpleApplication {
         }else if (pos < -15){
             vel *= -1;
         }
-        
+
         pl.setPosition(new Vector3f(pos, 2, 0));
         lightMdl.setLocalTranslation(pl.getPosition());
     }

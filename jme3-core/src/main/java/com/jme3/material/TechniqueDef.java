@@ -764,6 +764,7 @@ public class TechniqueDef implements Savable, Cloneable {
         shaderNames.put(Shader.ShaderType.TessellationEvaluation,ic.readString("tsevalName", null));
         shaderPrologue = ic.readString("shaderPrologue", null);
         lightMode = ic.readEnum("lightMode", LightMode.class, LightMode.Disable);
+        pipeline = ic.readEnum("Pipeline", Pipeline.class, Pipeline.Forward);
         shadowMode = ic.readEnum("shadowMode", ShadowMode.class, ShadowMode.Disable);
         renderState = (RenderState) ic.readSavable("renderState", null);
         noRender = ic.readBoolean("noRender", false);
@@ -853,6 +854,7 @@ public class TechniqueDef implements Savable, Cloneable {
 
         clone.noRender = noRender;
         clone.lightMode = lightMode;
+        clone.pipeline = pipeline;
         clone.shadowMode = shadowMode;
         clone.lightSpace = lightSpace;
         clone.usesNodes = usesNodes;
