@@ -36,14 +36,14 @@ import com.jme3.util.clone.Cloner;
 import com.jme3.util.clone.JmeCloneable;
 
 /**
- * A portion of an AnimComposer that can run (at most) one Action at a time.
+ * A named portion of an AnimComposer that can run (at most) one Action at a
+ * time.
  *
  * <p>A composer with multiple layers can run multiple actions simultaneously.
  * For instance, one layer could run a "wave" action on the model's upper body
  * while another ran a "walk" action on the model's lower body.
  *
- * <p>Each layer has a name, which is stored in the composer, not in the layer
- * itself.  A layer cannot be shared between multiple composers.
+ * <p>A layer cannot be shared between multiple composers.
  *
  * <p>Animation time may advance at a different rate from real time, based on
  * speedup factors set in the composer and the current Action.
@@ -72,18 +72,26 @@ public class AnimLayer implements JmeCloneable {
      * layer, or null if unknown.
      */
     private Object manager;
+    /**
+     * The name of this layer.
+     */
+    final private String name;
 
     /**
      * Instantiates a layer without a manager or a current Action, owned by the
      * specified composer.
      *
      * @param composer the owner (not null, alias created)
+     * @param name the layer name (not null)
      * @param mask the AnimationMask (alias created) or null to allow this layer
      *     to animate the entire model
      */
-    AnimLayer(AnimComposer composer, AnimationMask mask) {
+    AnimLayer(AnimComposer composer, String name, AnimationMask mask) {
         assert composer != null;
         this.composer = composer;
+
+        assert name != null;
+        this.name = name;
 
         this.mask = mask;
     }
@@ -115,6 +123,15 @@ public class AnimLayer implements JmeCloneable {
      */
     public AnimationMask getMask() {
         return mask;
+    }
+
+    /**
+     * Returns the layer name.
+     *
+     * @return the name of this layer
+     */
+    public String getName() {
+        return name;
     }
 
     /**

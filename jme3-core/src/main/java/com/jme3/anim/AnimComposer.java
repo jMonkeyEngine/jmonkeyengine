@@ -67,7 +67,7 @@ public class AnimComposer extends AbstractControl {
      * Instantiate a composer with a single layer, no actions, and no clips.
      */
     public AnimComposer() {
-        layers.put(DEFAULT_LAYER, new AnimLayer(this, null));
+        layers.put(DEFAULT_LAYER, new AnimLayer(this, DEFAULT_LAYER, null));
     }
 
     /**
@@ -303,7 +303,7 @@ public class AnimComposer extends AbstractControl {
      * @param mask the desired mask for the new layer (alias created)
      */
     public void makeLayer(String name, AnimationMask mask) {
-        AnimLayer l = new AnimLayer(this, mask);
+        AnimLayer l = new AnimLayer(this, name, mask);
         layers.put(name, l);
     }
 
@@ -444,24 +444,6 @@ public class AnimComposer extends AbstractControl {
     public Object getLayerManager(String layerName) {
         AnimLayer layer = getLayer(layerName);
         Object result = layer.getManager();
-
-        return result;
-    }
-
-    /**
-     * Find the name of the specified layer.
-     *
-     * @param layer the layer to find
-     * @return the layer's name, or null if not found
-     */
-    public String getLayerName(AnimLayer layer) {
-        String result = null;
-        for (Map.Entry<String, AnimLayer> entry : layers.entrySet()) {
-            if (entry.getValue() == layer) {
-                result = entry.getKey();
-                break;
-            }
-        }
 
         return result;
     }
