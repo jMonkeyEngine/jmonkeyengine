@@ -11,7 +11,6 @@ group = 'org.jmonkeyengine'
 version = jmeFullVersion
 
 sourceCompatibility = '1.8'
-[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
 if(JavaVersion.current() >= JavaVersion.VERSION_1_9) {
     compileJava {
@@ -19,11 +18,10 @@ if(JavaVersion.current() >= JavaVersion.VERSION_1_9) {
     }
 }
 
-gradle.projectsEvaluated {
-    tasks.withType(JavaCompile) { // compile-time options:
-        //options.compilerArgs << '-Xlint:deprecation' // to show deprecation warnings
-        options.compilerArgs << '-Xlint:unchecked'
-    }
+tasks.withType(JavaCompile) { // compile-time options:
+    //options.compilerArgs << '-Xlint:deprecation' // to show deprecation warnings
+    options.compilerArgs << '-Xlint:unchecked'
+    options.encoding = 'UTF-8'
 }
 
 ext {
