@@ -74,7 +74,7 @@ public class TestPieChartSpace extends SimpleApplication {
     private final Vector3f originalScale = new Vector3f();
     private final Vector3f originalTranslation = new Vector3f();
     //key frames timings in seconds
-    private final float[] times = new float[]{1, 2, 3, 4};
+    private final float[] times = new float[] {1, 2, 3, 4};
 
     public static void main(String[] args) {
         new TestPieChartSpace().start();
@@ -109,8 +109,8 @@ public class TestPieChartSpace extends SimpleApplication {
         //do the blending between 2 actions.
         startBlendAction();
     }
-    private void startBlendAction(){
 
+    private void startBlendAction() {
         //first action -- vertical traction.
         final Quaternion[] verticalTraction = new Quaternion[] {
                 new Quaternion().fromAngleAxis(0, Vector3f.UNIT_Z),
@@ -138,7 +138,7 @@ public class TestPieChartSpace extends SimpleApplication {
         horizontalTractionAction.setSpeed(5f);
 
         //third action -- scales action.
-        final Vector3f[] scales = new Vector3f[]{
+        final Vector3f[] scales = new Vector3f[] {
                 originalScale,
                 bambooNode.getLocalScale().add(0.5f, 0.5f, 0.5f),
                 bambooNode.getLocalScale().add(0.5f, 0.5f, 0.5f),
@@ -151,7 +151,7 @@ public class TestPieChartSpace extends SimpleApplication {
         scalesAction.setSpeed(2f);
 
         //forth action -- translation action.
-        final Vector3f[] translations = new Vector3f[]{
+        final Vector3f[] translations = new Vector3f[] {
                 originalTranslation,
                 bambooNode.getLocalTranslation().add(0,0, -0.1f),
                 bambooNode.getLocalTranslation().add(0,0, -0.2f),
@@ -159,7 +159,7 @@ public class TestPieChartSpace extends SimpleApplication {
         };
         final TransformTrack bambooTranslations = new TransformTrack(bambooNode, times, null, null, translations);
         final AnimClip bambooTranslationsClip = new AnimClip("Bamboo Translations");
-        bambooTranslationsClip.setTracks(new AnimTrack[]{ bambooTranslations });
+        bambooTranslationsClip.setTracks(new AnimTrack[] {bambooTranslations});
         final ClipAction translationsAction = new ClipAction(bambooTranslationsClip);
         translationsAction.setSpeed(2f);
 
@@ -172,6 +172,7 @@ public class TestPieChartSpace extends SimpleApplication {
         composer.addAction("Bamboo Clip", blendAction);
         composer.setCurrentAction("Bamboo Clip", AnimComposer.DEFAULT_LAYER);
     }
+
     @Override
     public void simpleUpdate(float tpf) {
         progressToSwitch += tpf;
@@ -195,7 +196,7 @@ public class TestPieChartSpace extends SimpleApplication {
         }
 
         progress += tpf;
-        if(progress >= blendAction.getLength()){
+        if (progress >= blendAction.getLength()) {
             //advances the angles and the radius when the blend action finishes.
             //incrementing the angle would increase the sector area of the step.
             //the sector area represents an unscaled blending step.
