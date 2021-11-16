@@ -151,7 +151,7 @@ public class AnimLayer implements JmeCloneable {
 
     /**
      * Changes the animation time, wrapping the specified time to fit the
-     * current Action. An Action be running.
+     * current Action. An Action must be running.
      *
      * @param animationTime the desired time (in scaled seconds)
      */
