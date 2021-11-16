@@ -142,25 +142,25 @@ public class AnimLayer implements JmeCloneable {
      * Assigns the specified manager. This cancels any manager previously
      * assigned.
      *
-     * @param desiredManager the desired manager (such as an AnimEvent, alias
-     *     created) or null for unknown manager
+     * @param manager the desired manager (such as an AnimEvent, alias created)
+     *     or null for unknown manager
      */
-    public void setManager(Object desiredManager) {
-        this.manager = desiredManager;
+    public void setManager(Object manager) {
+        this.manager = manager;
     }
 
     /**
      * Changes the animation time, wrapping the specified time to fit the
      * current Action. An Action be running.
      *
-     * @param desiredAnimationTime the desired time (in scaled seconds)
+     * @param animationTime the desired time (in scaled seconds)
      */
-    public void setTime(double desiredAnimationTime) {
+    public void setTime(double animationTime) {
         double length = currentAction.getLength();
-        if (desiredAnimationTime >= 0.0) {
-            time = desiredAnimationTime % length;
+        if (animationTime >= 0.0) {
+            time = animationTime % length;
         } else {
-            time = (desiredAnimationTime % length) + length;
+            time = (animationTime % length) + length;
         }
     }
 
