@@ -52,7 +52,10 @@ import com.jme3.scene.shape.Cylinder;
 /**
  * Tests {@link com.jme3.anim.tween.action.PieChartSpace} on a primitive geometry.
  *
- * The test increments the angle (starting from angle 180 degrees) and the radius (starting from 0.5) on each run based on the time per frames and
+ * This test blends between 4 successive blendable actions, by changing the firstActionIndex and the secondActionIndex when the track times finishes
+ * using the exposed functions of the pie chart blend space {@link PieChartSpace#setFirstAction(int)}, {@link PieChartSpace#setSecondAction(int)}.
+ *
+ * It increments the angle (starting from angle 180 degrees) and the radius (starting from 0.5) on each run based on the time per frames and
  * the progressive time {@link TestPieChartSpace#progress}.
  *
  * The sector angle is clamped in the range [0, 360] in degrees and the pie chart radius is
@@ -67,6 +70,11 @@ public class TestPieChartSpace extends SimpleApplication {
     private float progress = 0f;
     private BlendAction blendAction;
     private final Node bambooNode = new Node();
+    private float progressToSwitch = 0f;
+    private final Vector3f originalScale = new Vector3f();
+    private final Vector3f originalTranslation = new Vector3f();
+    //key frames timings in seconds
+    private final float[] times = new float[]{1, 2, 3, 4};
 
     public static void main(String[] args) {
         new TestPieChartSpace().start();
@@ -94,14 +102,14 @@ public class TestPieChartSpace extends SimpleApplication {
         //add the composer control.
         bamboo.addControl(composer);
         composer.setEnabled(true);
+        originalScale.set(bambooNode.getLocalScale());
+        originalTranslation.set(bambooNode.getLocalTranslation());
 
         rootNode.attachChild(bambooNode);
         //do the blending between 2 actions.
         startBlendAction();
     }
     private void startBlendAction(){
-        //key frames timings
-        final float[] times = new float[]{2, 4, 8, 16};
 
         //first action -- vertical traction.
         final Quaternion[] verticalTraction = new Quaternion[] {
@@ -115,7 +123,6 @@ public class TestPieChartSpace extends SimpleApplication {
         verticalTractionClip.setTracks(new AnimTrack[]{ bambooVerticalTraction });
         final ClipAction verticalTractionAction = new ClipAction(verticalTractionClip);
         verticalTractionAction.setSpeed(8f);
-        verticalTractionAction.setLength(10f);
 
         //second action -- horizontal traction.
         final Quaternion[] traction = new Quaternion[] {
@@ -129,16 +136,64 @@ public class TestPieChartSpace extends SimpleApplication {
         tractionClip.setTracks(new AnimTrack[]{ bambooHorizontalTraction });
         final ClipAction horizontalTractionAction = new ClipAction(tractionClip);
         horizontalTractionAction.setSpeed(5f);
-        horizontalTractionAction.setLength(10f);
+
+        //third action -- scales action.
+        final Vector3f[] scales = new Vector3f[]{
+                originalScale,
+                bambooNode.getLocalScale().add(0.5f, 0.5f, 0.5f),
+                bambooNode.getLocalScale().add(0.5f, 0.5f, 0.5f),
+                bambooNode.getLocalScale().add(0.5f, 0.5f, 0.5f),
+        };
+        final TransformTrack bambooScales = new TransformTrack(bambooNode, times, null, null, scales);
+        final AnimClip bambooScalesClip = new AnimClip("Bamboo Scales");
+        bambooScalesClip.setTracks(new AnimTrack[]{ bambooScales });
+        final ClipAction scalesAction = new ClipAction(bambooScalesClip);
+        scalesAction.setSpeed(2f);
+
+        //forth action -- translation action.
+        final Vector3f[] translations = new Vector3f[]{
+                originalTranslation,
+                bambooNode.getLocalTranslation().add(0,0, -0.1f),
+                bambooNode.getLocalTranslation().add(0,0, -0.2f),
+                bambooNode.getLocalTranslation().add(0, 0, -0.5f),
+        };
+        final TransformTrack bambooTranslations = new TransformTrack(bambooNode, times, null, null, translations);
+        final AnimClip bambooTranslationsClip = new AnimClip("Bamboo Translations");
+        bambooTranslationsClip.setTracks(new AnimTrack[]{ bambooTranslations });
+        final ClipAction translationsAction = new ClipAction(bambooTranslationsClip);
+        translationsAction.setSpeed(2f);
 
         //apply the pie chart blend space
         pieChartSpace = new PieChartSpace(0.5f, 180f);
-        blendAction = new BlendAction(pieChartSpace, verticalTractionAction, horizontalTractionAction);
+        blendAction = new BlendAction(pieChartSpace, verticalTractionAction, horizontalTractionAction, scalesAction, translationsAction);
+        //setup the initial firstActionIndex and the initial secondActionIndex
+        pieChartSpace.setFirstAction(0);
+        pieChartSpace.setSecondAction(1);
         composer.addAction("Bamboo Clip", blendAction);
         composer.setCurrentAction("Bamboo Clip", AnimComposer.DEFAULT_LAYER);
     }
     @Override
     public void simpleUpdate(float tpf) {
+        progressToSwitch += tpf;
+        //manipulate actions manually when the time passes the last frame times
+        if(pieChartSpace.getFirstActionIndex() == 0 && pieChartSpace.getSecondActionIndex() == 1) {
+            // 5 seconds represents more than the times[] of the transform tracks
+            if (progressToSwitch >= times[times.length - 1] + 1f) {
+                //re-switch them
+                pieChartSpace.setFirstAction(2);
+                pieChartSpace.setSecondAction(3);
+                progressToSwitch = 0f;
+            }
+        } else if (pieChartSpace.getFirstActionIndex() == 2 && pieChartSpace.getSecondActionIndex() == 3) {
+            // 5 seconds represents more than the times[] of the transform tracks
+            if (progressToSwitch >= times[times.length - 1] + 1f) {
+                //switch the actions
+                pieChartSpace.setFirstAction(0);
+                pieChartSpace.setSecondAction(1);
+                progressToSwitch = 0f;
+            }
+        }
+
         progress += tpf;
         if(progress >= blendAction.getLength()){
             //advances the angles and the radius when the blend action finishes.
