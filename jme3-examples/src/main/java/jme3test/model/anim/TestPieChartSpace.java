@@ -106,7 +106,7 @@ public class TestPieChartSpace extends SimpleApplication {
         originalTranslation.set(bambooNode.getLocalTranslation());
 
         rootNode.attachChild(bambooNode);
-        //do the blending between 2 actions.
+        //do the blending between 4 actions.
         startBlendAction();
     }
 
