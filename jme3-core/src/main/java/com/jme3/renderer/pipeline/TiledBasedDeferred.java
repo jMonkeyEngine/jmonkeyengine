@@ -22,8 +22,8 @@ public class TiledBasedDeferred extends RenderPipeline{
     }
 
     @Override
-    public void drawGeometry(RenderManager rm, Geometry geom) {
-
+    public boolean drawGeometry(RenderManager rm, Geometry geom) {
+        return true;
     }
 
     @Override

@@ -611,8 +611,8 @@ public class RenderManager {
      * <p>
      * @param geom The geometry to render
      */
-    public void submitRenderGeometry(Geometry geom) {
-        activePipeline.drawGeometry(this, geom);
+    public boolean submitRenderGeometry(Geometry geom) {
+        return activePipeline.drawGeometry(this, geom);
     }
 
     /**

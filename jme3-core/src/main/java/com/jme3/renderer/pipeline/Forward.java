@@ -70,8 +70,9 @@ public class Forward extends RenderPipeline{
     }
 
     @Override
-    public void drawGeometry(RenderManager rm, Geometry geom) {
+    public boolean drawGeometry(RenderManager rm, Geometry geom) {
         rm.renderGeometry(geom);
+        return true;
     }
 
     @Override

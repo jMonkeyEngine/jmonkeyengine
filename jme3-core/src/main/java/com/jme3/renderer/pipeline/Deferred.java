@@ -1,5 +1,6 @@
 package com.jme3.renderer.pipeline;
 
+import com.jme3.light.Light;
 import com.jme3.light.LightList;
 import com.jme3.material.Material;
 import com.jme3.material.MaterialDef;
@@ -16,6 +17,9 @@ import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image;
 import com.jme3.texture.Texture2D;
 import com.jme3.ui.Picture;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Deferred extends RenderPipeline{
     public final static String S_CONTEXT_InGBUFF_0 = "Context_InGBuff0";
@@ -34,7 +38,8 @@ public class Deferred extends RenderPipeline{
     private Picture fsQuad;
     private boolean reshape;
     private boolean drawing;
-    private LightList lights;
+    private final List<Light> tempLights = new ArrayList<Light>();
+    private final LightList filteredLightList = new LightList(null);
 
     public Deferred(TechniqueDef.Pipeline pipeline) {
         super(pipeline);
@@ -49,6 +54,8 @@ public class Deferred extends RenderPipeline{
             fsQuad.setHeight(1);
             reshape(vp.getCamera().getWidth(), vp.getCamera().getHeight());
         }
+        tempLights.clear();
+        filteredLightList.clear();
     }
 
     @Override
@@ -88,18 +95,21 @@ public class Deferred extends RenderPipeline{
         renderer.clearBuffers(vp.isClearColor(), vp.isClearDepth(), vp.isClearStencil());
         String techOrig = rm.getForcedTechnique();
         rm.setForcedTechnique(S_GBUFFER_PASS);
-        rq.renderQueue(RenderQueue.Bucket.Opaque, rm, cam, false);
+        rq.renderQueue(RenderQueue.Bucket.Opaque, rm, cam, flush);
         rm.setForcedTechnique(techOrig);
         vp.setOutputFrameBuffer(opfb);
         renderer.setFrameBuffer(vp.getOutputFrameBuffer());
 
         // Deferred Pass
         if(fsMat != null){
+            for(Light l : tempLights){
+                filteredLightList.add(l);
+            }
             boolean depthWrite = fsMat.getAdditionalRenderState().isDepthWrite();
             fsMat.getAdditionalRenderState().setDepthWrite(false);
             fsQuad.setMaterial(fsMat);
             fsQuad.updateGeometricState();
-            fsMat.render(fsQuad, lights, rm);
+            fsMat.render(fsQuad, filteredLightList, rm);
     //        rm.renderGeometry(fsQuad);
             fsMat.getAdditionalRenderState().setDepthWrite(depthWrite);
         }
@@ -111,7 +121,7 @@ public class Deferred extends RenderPipeline{
     }
 
     @Override
-    public void drawGeometry(RenderManager rm, Geometry geom) {
+    public boolean drawGeometry(RenderManager rm, Geometry geom) {
         Material material = geom.getMaterial();
         // Check context parameters
         MaterialDef matDef = material.getMaterialDef();
@@ -131,14 +141,23 @@ public class Deferred extends RenderPipeline{
         if(material.getActiveTechnique() != null){
             if(rm.joinPipeline(material.getActiveTechnique().getDef().getPipeline())){
                 fsMat = material;
-                lights = geom.getWorldLightList();
+                LightList lights = geom.getWorldLightList();
+                for(Light light : lights){
+                    if(!tempLights.contains(light)){
+                        tempLights.add(light);
+                    }
+                }
+                return true;
             }
         }
+        return false;
     }
 
     @Override
     public void end(RenderManager rm, ViewPort vp) {
-        if(drawing)
+        if(drawing){
+            System.out.println("copy depth!");
             rm.getRenderer().copyFrameBuffer(gBuffer, vp.getOutputFrameBuffer(), false, true);
+        }
     }
 }

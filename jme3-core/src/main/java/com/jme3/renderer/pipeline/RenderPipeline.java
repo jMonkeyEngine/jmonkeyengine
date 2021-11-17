@@ -44,7 +44,7 @@ public abstract class RenderPipeline {
      * @param rm
      * @param geom
      */
-    public abstract void drawGeometry(RenderManager rm, Geometry geom);
+    public abstract boolean drawGeometry(RenderManager rm, Geometry geom);
 
     /**
      * End of pipeline execution.<br/>

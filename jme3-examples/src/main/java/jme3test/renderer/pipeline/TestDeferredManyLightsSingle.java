@@ -78,6 +78,7 @@ public class TestDeferredManyLightsSingle extends SimpleApplication {
         final LightList lightList = n.getWorldLightList();
         final Geometry g = (Geometry) n.getChild("Grid-geom-1");
 
+        g.getMaterial().selectTechnique("DeferredLighting", getRenderManager());
         g.getMaterial().setColor("Ambient", new ColorRGBA(0.2f, 0.2f, 0.2f, 1f));
 
         /* A colored lit cube. Needs light source! */
@@ -96,7 +97,7 @@ public class TestDeferredManyLightsSingle extends SimpleApplication {
         for (Light light : lightList) {
             nb++;
             PointLight p = (PointLight) light;
-            if (nb > 60) {
+            if (nb > 1000) {
                 n.removeLight(light);
             } else {
                 int rand = FastMath.nextRandomInt(0, 3);
@@ -206,7 +207,7 @@ public class TestDeferredManyLightsSingle extends SimpleApplication {
         guiFont = assetManager.loadFont("Interface/Fonts/Default.fnt");
         helloText = new BitmapText(guiFont, false);
         helloText.setSize(guiFont.getCharSet().getRenderedSize());
-        helloText.setText("(Single pass) nb lights per batch : " + renderManager.getSinglePassLightBatchSize());
+        helloText.setText("(Single pass Deferred) nb lights per batch : " + renderManager.getSinglePassLightBatchSize());
         helloText.setLocalTranslation(300, helloText.getLineHeight(), 0);
         guiNode.attachChild(helloText);
     }

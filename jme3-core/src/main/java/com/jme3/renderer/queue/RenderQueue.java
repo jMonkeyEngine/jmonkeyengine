@@ -50,12 +50,14 @@ public class RenderQueue {
     private GeometryList transparentList;
     private GeometryList translucentList;
     private GeometryList skyList;
+    private GeometryList tempList;
 
     /**
      * Creates a new RenderQueue, the default {@link GeometryComparator comparators}
      * are used for all {@link GeometryList geometry lists}.
      */
     public RenderQueue() {
+        this.tempList = new GeometryList(new NullComparator());
         this.opaqueList = new GeometryList(new OpaqueComparator());
         this.guiList = new GeometryList(new GuiComparator());
         this.transparentList = new GeometryList(new TransparentComparator());
@@ -267,14 +269,23 @@ public class RenderQueue {
     private void renderGeometryList(GeometryList list, RenderManager rm, Camera cam, boolean clear) {
         list.setCamera(cam); // select camera for sorting
         list.sort();
+        tempList.clear();
         for (int i = 0; i < list.size(); i++) {
             Geometry obj = list.get(i);
             assert obj != null;
-            rm.submitRenderGeometry(obj);
+            // Check if it is actually rendered
+            if(!rm.submitRenderGeometry(obj)){
+                tempList.add(obj);
+            }
             obj.queueDistance = Float.NEGATIVE_INFINITY;
         }
         if (clear) {
             list.clear();
+            if(tempList.size() > 0){
+                for(int i = 0;i < tempList.size();i++){
+                    list.add(tempList.get(i));
+                }
+            }
         }
     }
 
