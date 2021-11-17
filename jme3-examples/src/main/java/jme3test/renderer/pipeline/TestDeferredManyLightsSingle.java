@@ -77,6 +77,8 @@ public class TestDeferredManyLightsSingle extends SimpleApplication {
         Node n = (Node) rootNode.getChild(0);
         final LightList lightList = n.getWorldLightList();
         final Geometry g = (Geometry) n.getChild("Grid-geom-1");
+//        g.addControl(new MoveControl(0.1f));
+        System.out.println("lightList:" + lightList.size());
 
         g.getMaterial().selectTechnique("DeferredLighting", getRenderManager());
         g.getMaterial().setColor("Ambient", new ColorRGBA(0.2f, 0.2f, 0.2f, 1f));
@@ -97,6 +99,7 @@ public class TestDeferredManyLightsSingle extends SimpleApplication {
         for (Light light : lightList) {
             nb++;
             PointLight p = (PointLight) light;
+            p.setRadius(5);
             if (nb > 1000) {
                 n.removeLight(light);
             } else {

@@ -144,7 +144,6 @@ public final class DeferredSinglePassLightingLogic extends DefaultTechniqueDefLo
                 case Directional:
                     DirectionalLight dl = (DirectionalLight) l;
                     Vector3f dir = dl.getDirection();
-                    tmpVec.set(dir.getX(), dir.getY(), dir.getZ(), 0.0f);
                     lightData.setVector4InArray(dir.getX(), dir.getY(), dir.getZ(), -1, lightDataIndex);
                     lightDataIndex++;
                     //PADDING

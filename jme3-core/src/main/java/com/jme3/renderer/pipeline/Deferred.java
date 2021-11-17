@@ -156,7 +156,7 @@ public class Deferred extends RenderPipeline{
     @Override
     public void end(RenderManager rm, ViewPort vp) {
         if(drawing){
-            System.out.println("copy depth!");
+//            System.out.println("copy depth!");
             rm.getRenderer().copyFrameBuffer(gBuffer, vp.getOutputFrameBuffer(), false, true);
         }
     }
