@@ -144,7 +144,7 @@ public class BulletDebugAppState extends AbstractAppState {
     /**
      * Alter which objects are visualized.
      *
-     * @param filter the desired filter, or or null to visualize all objects
+     * @param filter the desired filter, or null to visualize all objects
      */
     public void setFilter(DebugAppStateFilter filter) {
         this.filter = filter;

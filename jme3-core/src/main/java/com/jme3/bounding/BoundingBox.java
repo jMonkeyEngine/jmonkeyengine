@@ -943,7 +943,7 @@ public class BoundingBox extends BoundingVolume {
      */
     private boolean clip(float denom, float numer, float[] t) {
         // Return value is 'true' if line segment intersects the current test
-        // plane. Otherwise 'false' is returned in which case the line segment
+        // plane. Otherwise 'false' is returned, in which case the line segment
         // is entirely clipped.
         if (denom > 0.0f) {
             // This is the old if statement...

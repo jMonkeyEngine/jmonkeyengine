@@ -759,7 +759,7 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
     }
 
     /**
-     * Sets the rotation sensitivity, the lower the value the slower the camera will rotates around the target when dragging with the mouse
+     * Sets the rotation sensitivity. The lower the value, the slower the camera will rotate around the target when dragging with the mouse.
      * default is 5, values over 5 should have no effect.
      * If you want a significant slow down try values below 1.
      * Only has an effect if smoothMotion is set to true

@@ -49,7 +49,7 @@ import java.nio.FloatBuffer;
  * or a more complex perlin noise ({@link ImprovedNoise}
  * 
  * Fractals use these functions to generate a more complex result based on some
- * frequency, roughness, etc values.
+ * frequency, roughness, etcetera values.
  * 
  * Fractals themselves are implementing the Basis interface as well, opening
  * an infinite range of results.

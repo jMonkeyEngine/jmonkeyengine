@@ -1356,7 +1356,7 @@ public class Camera implements Savable, Cloneable {
     }
 
     /**
-     * @return true if parallel projection is enable, false if in normal perspective mode
+     * @return true if parallel projection is enabled, false if in normal perspective mode
      * @see #setParallelProjection(boolean)
      */
     public boolean isParallelProjection() {
@@ -1366,7 +1366,7 @@ public class Camera implements Savable, Cloneable {
     /**
      * Enable/disable parallel projection.
      *
-     * @param value true to set up this camera for parallel projection is enable, false to enter normal perspective mode
+     * @param value true to set up this camera for parallel projection, false to enter normal perspective mode
      */
     public void setParallelProjection(final boolean value) {
         this.parallelProjection = value;
@@ -1375,8 +1375,8 @@ public class Camera implements Savable, Cloneable {
 
     /**
      * Computes the z value in projection space from the z value in view space 
-     * Note that the returned value is going non linearly from 0 to 1.
-     * for more explanations on non linear z buffer see
+     * Note that the returned value is going non-linearly from 0 to 1.
+     * for more explanations on non-linear z buffer see
      * http://www.sjbaker.org/steve/omniv/love_your_z_buffer.html
      * @param viewZPos the z value in view space.
      * @return the z value in projection space.
@@ -1391,9 +1391,9 @@ public class Camera implements Savable, Cloneable {
 
     /**
      * Computes a position in World space given a screen position in screen space (0,0 to width, height)
-     * and a z position in projection space ( 0 to 1 non linear).
-     * This former value is also known as the Z buffer value or non linear depth buffer.
-     * for more explanations on non linear z buffer see
+     * and a z position in projection space ( 0 to 1 non-linear).
+     * This former value is also known as the Z buffer value or non-linear depth buffer.
+     * For more explanation of non-linear Z buffer see
      * http://www.sjbaker.org/steve/omniv/love_your_z_buffer.html
      * 
      * To compute the projection space z from the view space z (distance from cam to object) @see Camera#getViewToProjectionZ

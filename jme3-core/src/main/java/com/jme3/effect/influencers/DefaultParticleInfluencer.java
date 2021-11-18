@@ -44,7 +44,7 @@ import java.io.IOException;
 
 /**
  * This emitter influences the particles so that they move all in the same direction.
- * The direction may vary a little if the velocity variation is non zero.
+ * The direction may vary a little if the velocity variation is non-zero.
  * This influencer is default for the particle emitter.
  * @author Marcin Roguski (Kaelthas)
  */

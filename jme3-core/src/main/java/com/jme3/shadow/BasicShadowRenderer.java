@@ -88,7 +88,7 @@ public class BasicShadowRenderer implements SceneProcessor {
         shadowFB.setDepthTexture(shadowMap);
         shadowCam = new Camera(size, size);
         
-         //DO NOT COMMENT THIS (it prevent the OSX incomplete read buffer crash)
+         //DO NOT COMMENT THIS (It prevents the OSX incomplete read buffer crash.)
         dummyTex = new Texture2D(size, size, Format.RGBA8);        
         shadowFB.setColorTexture(dummyTex);
         shadowMapSize = size;

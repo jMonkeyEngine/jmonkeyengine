@@ -41,9 +41,9 @@ import com.jme3.util.BufferUtils;
 import static com.jme3.math.FastMath.pow;
 
 /**
- * Wraps a Cube map and allows to read from or write pixels into it.
+ * Wraps a cube map and allows reading or writing pixels.
  * 
- * It uses the ImageRaster class to tailor the read write operations.
+ * It uses the ImageRaster class to tailor the read/write operations.
  * 
  * @author Nehon
  */

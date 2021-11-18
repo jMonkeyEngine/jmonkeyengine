@@ -125,7 +125,7 @@ public class BoundingCollisionTest {
         ray.setOrigin(new Vector3f(0, 0, -5));
         checkCollision(box, ray, 2);
         
-        // XXX: is this right? the ray origin is on the box's side..
+        // XXX: is this right? the ray origin is on the box's side.
         ray.setOrigin(new Vector3f(0, 0, 2f));
         checkCollision(box, ray, 0);
         
@@ -151,7 +151,7 @@ public class BoundingCollisionTest {
         box.setCenter(new Vector3f(-1f, 0, 0));
         checkCollision(box, geom, 2);
         
-        // Move it slightly farther..
+        // Move it slightly farther.
         box.setCenter(new Vector3f(-1f - FastMath.ZERO_TOLERANCE, 0, 0));
         checkCollision(box, geom, 0);
         
@@ -181,7 +181,7 @@ public class BoundingCollisionTest {
         sphere.setCenter(new Vector3f(-1f + FastMath.ZERO_TOLERANCE, 0, 0));
         checkCollision(sphere, geom, 2);
         
-        // Move it slightly farther..
+        // Move it slightly farther.
         sphere.setCenter(new Vector3f(-1f - FastMath.ZERO_TOLERANCE, 0, 0));
         checkCollision(sphere, geom, 0);
         
