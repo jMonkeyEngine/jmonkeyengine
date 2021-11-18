@@ -34,7 +34,7 @@ package com.jme3.scene.debug;
 import com.jme3.animation.Bone;
 import com.jme3.animation.Skeleton;
 import com.jme3.asset.AssetManager;
-import com.jme3.asset.DesktopAssetManager;
+import com.jme3.asset.DefaultAssetManager;
 import com.jme3.export.binary.BinaryExporter;
 import com.jme3.math.Vector3f;
 import com.jme3.util.clone.Cloner;
@@ -63,7 +63,7 @@ public class TestCloneMesh {
         Assert.assertNotNull(deepClone);
         Assert.assertNotEquals(deepClone, arrow);
 
-        AssetManager assetManager = new DesktopAssetManager();
+        AssetManager assetManager = new DefaultAssetManager();
         Arrow saveAndLoad = BinaryExporter.saveAndLoad(assetManager, arrow);
         Assert.assertNotNull(saveAndLoad);
         Assert.assertNotEquals(deepClone, saveAndLoad);
@@ -80,7 +80,7 @@ public class TestCloneMesh {
         Assert.assertNotNull(deepClone);
         Assert.assertNotEquals(deepClone, grid);
 
-        AssetManager assetManager = new DesktopAssetManager();
+        AssetManager assetManager = new DefaultAssetManager();
         Grid saveAndLoad = BinaryExporter.saveAndLoad(assetManager, grid);
         Assert.assertNotNull(saveAndLoad);
         Assert.assertNotEquals(deepClone, saveAndLoad);
@@ -103,7 +103,7 @@ public class TestCloneMesh {
         Assert.assertNotNull(deepClone);
         Assert.assertNotEquals(deepClone, skeletonDebugger);
 
-        AssetManager assetManager = new DesktopAssetManager();
+        AssetManager assetManager = new DefaultAssetManager();
         SkeletonDebugger saveAndLoad
                 = BinaryExporter.saveAndLoad(assetManager, skeletonDebugger);
         Assert.assertNotNull(saveAndLoad);
@@ -130,7 +130,7 @@ public class TestCloneMesh {
         Assert.assertNotNull(deepClone);
         Assert.assertNotEquals(deepClone, sibw);
 
-        AssetManager assetManager = new DesktopAssetManager();
+        AssetManager assetManager = new DefaultAssetManager();
         SkeletonInterBoneWire saveAndLoad
                 = BinaryExporter.saveAndLoad(assetManager, sibw);
         Assert.assertNotNull(saveAndLoad);
@@ -153,7 +153,7 @@ public class TestCloneMesh {
         Assert.assertNotNull(deepClone);
         Assert.assertNotEquals(deepClone, skeletonPoints);
 
-        AssetManager assetManager = new DesktopAssetManager();
+        AssetManager assetManager = new DefaultAssetManager();
         SkeletonPoints saveAndLoad
                 = BinaryExporter.saveAndLoad(assetManager, skeletonPoints);
         Assert.assertNotNull(saveAndLoad);
@@ -175,7 +175,7 @@ public class TestCloneMesh {
         Assert.assertNotNull(deepClone);
         Assert.assertNotEquals(deepClone, skeletonWire);
 
-        AssetManager assetManager = new DesktopAssetManager();
+        AssetManager assetManager = new DefaultAssetManager();
         SkeletonWire saveAndLoad
                 = BinaryExporter.saveAndLoad(assetManager, skeletonWire);
         Assert.assertNotNull(saveAndLoad);
@@ -193,7 +193,7 @@ public class TestCloneMesh {
         Assert.assertNotNull(deepClone);
         Assert.assertNotEquals(deepClone, box);
 
-        AssetManager assetManager = new DesktopAssetManager();
+        AssetManager assetManager = new DefaultAssetManager();
         WireBox saveAndLoad = BinaryExporter.saveAndLoad(assetManager, box);
         Assert.assertNotNull(saveAndLoad);
         Assert.assertNotEquals(deepClone, saveAndLoad);
@@ -210,7 +210,7 @@ public class TestCloneMesh {
         Assert.assertNotNull(deepClone);
         Assert.assertNotEquals(deepClone, sphere);
 
-        AssetManager assetManager = new DesktopAssetManager();
+        AssetManager assetManager = new DefaultAssetManager();
         WireSphere saveAndLoad
                 = BinaryExporter.saveAndLoad(assetManager, sphere);
         Assert.assertNotNull(saveAndLoad);
@@ -231,7 +231,7 @@ public class TestCloneMesh {
         Assert.assertNotNull(deepClone);
         Assert.assertNotEquals(deepClone, wireFrustum);
 
-        AssetManager assetManager = new DesktopAssetManager();
+        AssetManager assetManager = new DefaultAssetManager();
         WireFrustum saveAndLoad
                 = BinaryExporter.saveAndLoad(assetManager, wireFrustum);
         Assert.assertNotNull(saveAndLoad);

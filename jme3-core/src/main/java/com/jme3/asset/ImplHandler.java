@@ -132,7 +132,7 @@ final class ImplHandler {
 
     /**
      * Establishes the asset key that is used for tracking dependent assets
-     * that have failed to load. When set, the {@link DesktopAssetManager}
+     * that have failed to load. When set, the {@link DefaultAssetManager}
      * gets a hint that it should suppress {@link AssetNotFoundException}s
      * and instead call the listener callback (if set).
      * 

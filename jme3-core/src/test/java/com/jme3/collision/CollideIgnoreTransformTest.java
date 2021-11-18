@@ -32,7 +32,7 @@
 package com.jme3.collision;
 
 import com.jme3.asset.AssetManager;
-import com.jme3.asset.DesktopAssetManager;
+import com.jme3.asset.DefaultAssetManager;
 import com.jme3.asset.plugins.ClasspathLocator;
 import com.jme3.material.Material;
 import com.jme3.material.plugins.J3MLoader;
@@ -90,7 +90,7 @@ public class CollideIgnoreTransformTest {
     @Test
     public void testPhantomTriangles() {
         JmeSystem.setSystemDelegate(new MockJmeSystemDelegate());
-        assetManager = new DesktopAssetManager();
+        assetManager = new DefaultAssetManager();
         assetManager.registerLocator(null, ClasspathLocator.class);
         assetManager.registerLoader(J3MLoader.class, "j3m", "j3md");
         rootNode = new Node();

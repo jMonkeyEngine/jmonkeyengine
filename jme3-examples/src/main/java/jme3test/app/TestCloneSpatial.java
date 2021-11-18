@@ -100,7 +100,7 @@ public class TestCloneSpatial {
         dump("", clone);
         
         System.out.println("-------- cloning BitmapText ------------");
-        DesktopAssetManager assets = new DesktopAssetManager(true);
+        DefaultAssetManager assets = new DefaultAssetManager(true);
         BitmapFont font = assets.loadFont("Interface/Fonts/Console.fnt");
         BitmapText text1 = new BitmapText(font);
         text1.setText("Testing");
