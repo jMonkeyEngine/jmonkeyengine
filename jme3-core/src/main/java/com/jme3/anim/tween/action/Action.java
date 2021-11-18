@@ -65,7 +65,7 @@ public abstract class Action implements JmeCloneable, Tween {
     private boolean forward = true;
 
     /**
-     * Instantiate an action object which holds one or more tweens.
+     * Instantiates an action object which holds one or more tweens.
      * If the tweens are {@link Action}, they would be added directly to {@link Action#actions}.
      * If the tweens aren't {@link Action}, the Action class would delegate that to {@link BaseAction}, and {@link BaseAction} would try to extract the
      * tween actions from the tweens arg and interpolate them.
@@ -169,7 +169,7 @@ public abstract class Action implements JmeCloneable, Tween {
     }
 
     /**
-     * Create a shallow clone for the JME cloner.
+     * Creates a shallow clone for the JME cloner.
      *
      * @return a new action (not null)
      */
