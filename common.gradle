@@ -12,12 +12,6 @@ version = jmeFullVersion
 
 sourceCompatibility = '1.7'
 
-if(JavaVersion.current() >= JavaVersion.VERSION_1_9) {
-    compileJava {
-		options.release = 8
-    }
-}
-
 tasks.withType(JavaCompile) { // compile-time options:
     //options.compilerArgs << '-Xlint:deprecation' // to show deprecation warnings
     options.compilerArgs << '-Xlint:unchecked'
