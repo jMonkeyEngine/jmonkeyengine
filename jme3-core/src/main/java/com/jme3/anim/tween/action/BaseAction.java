@@ -31,8 +31,8 @@ public class BaseAction extends Action {
     final private Tween tween;
 
     /**
-     * Gathers the actions from a tween into #{@link Action#actions},
-     * which joins anim actions hierarchy later on when instantiated by #{@link BlendableAction} implementation subclasses.
+     * Extracts the actions from a tween into #{@link Action#actions}, in order to have
+     * their properties (as speed/length/forward flag) processed by {@link Action}.
      * @param tween the tween to join the actions collection, either raw tween using #{@link com.jme3.anim.tween.Tweens} utility or #{@link Action} tween.
      */
     public BaseAction(Tween tween) {
