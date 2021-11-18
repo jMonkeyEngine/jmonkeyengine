@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,7 +48,7 @@ public class BitmapFontLoader implements AssetLoader {
 
     private BitmapFont load(AssetManager assetManager, String folder, InputStream in) throws IOException{
         MaterialDef spriteMat = 
-                assetManager.loadAsset(new AssetKey<>("Common/MatDefs/Misc/Unshaded.j3md"));
+                assetManager.loadAsset(new AssetKey<MaterialDef>("Common/MatDefs/Misc/Unshaded.j3md"));
         BitmapCharacterSet charSet = new BitmapCharacterSet();
         Material[] matPages = null;
         BitmapFont font = new BitmapFont();

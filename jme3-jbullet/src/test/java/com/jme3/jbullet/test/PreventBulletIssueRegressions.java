@@ -153,7 +153,7 @@ public class PreventBulletIssueRegressions {
         Assert.assertEquals(new Vector3f(0.26f, 0.27f, 0.28f), rbc.getLinearVelocity());
 
         // Write/Serialize the RBC
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
         JmeExporter exporter = BinaryExporter.getInstance();
         exporter.save(rbc, baos);
 

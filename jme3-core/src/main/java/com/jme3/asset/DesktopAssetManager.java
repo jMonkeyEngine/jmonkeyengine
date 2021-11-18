@@ -74,7 +74,7 @@ public class DesktopAssetManager implements AssetManager {
             new CopyOnWriteArrayList<>();
     
     final private List<ClassLoader> classLoaders =
-            Collections.synchronizedList(new ArrayList<>());
+            Collections.synchronizedList(new ArrayList<ClassLoader>());
 
     public DesktopAssetManager(){
         this(null);

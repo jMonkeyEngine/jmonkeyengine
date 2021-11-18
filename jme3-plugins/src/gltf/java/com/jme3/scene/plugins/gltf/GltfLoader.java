@@ -35,6 +35,7 @@ import com.google.gson.*;
 import com.google.gson.stream.JsonReader;
 import com.jme3.anim.*;
 import com.jme3.asset.*;
+import com.jme3.light.Light;
 import com.jme3.material.Material;
 import com.jme3.material.RenderState;
 import com.jme3.math.*;
@@ -169,7 +170,9 @@ public class GltfLoader implements AssetLoader {
             if (rootNode.getChildren().size() == 1) {
                 Node child = (Node) rootNode.getChild(0);
                 //Migrate lights that were in the parent to the child.
-                rootNode.getLocalLightList().forEach(child::addLight);
+                for (Light light : rootNode.getLocalLightList()) {
+                    child.addLight(light);
+                }
                 rootNode = child;
             }
             //no name for the scene... let's set the file name.

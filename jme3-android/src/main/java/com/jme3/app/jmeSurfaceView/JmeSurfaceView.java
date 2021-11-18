@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -190,11 +190,14 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener, Di
             legacyApplication.update();
         }
         int timeToPlay = synthesizedTime.addAndGet(1);
-        if (timeToPlay == (delayMillis>100 ? (delayMillis-TOLERANCE_TIMER) : delayMillis)) {
-            ((Activity)getContext()).runOnUiThread(() -> {
-                jmeSurfaceViewLogger.log(Level.INFO, "SplashScreen Dismissed, User Delay completed with 0 errors.......");
-                if (onRendererCompleted != null) {
-                    onRendererCompleted.onRenderCompletion(legacyApplication, legacyApplication.getContext().getSettings());
+        if (timeToPlay == (delayMillis > 100 ? (delayMillis - TOLERANCE_TIMER) : delayMillis)) {
+            ((Activity) getContext()).runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    jmeSurfaceViewLogger.log(Level.INFO, "SplashScreen Dismissed, User Delay completed with 0 errors.......");
+                    if (onRendererCompleted != null) {
+                        onRendererCompleted.onRenderCompletion(legacyApplication, legacyApplication.getContext().getSettings());
+                    }
                 }
             });
         }
@@ -275,15 +278,18 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener, Di
      * @param throwable the throwable stack.
      * @param message the string message.
      */
-    protected void showErrorDialog(Throwable throwable, String message) {
-        ((Activity)getContext()).runOnUiThread(() -> {
-            AlertDialog alertDialog = new AlertDialog.Builder(getContext()).create();
-            alertDialog.setTitle(new StringBuffer(String.valueOf(throwable)));
-            alertDialog.setMessage(message);
-            alertDialog.setCancelable(true);
-            alertDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "EXIT", this);
-            alertDialog.setButton(DialogInterface.BUTTON_POSITIVE, "DISMISS", this);
-            alertDialog.show();
+    protected void showErrorDialog(final Throwable throwable, final String message) {
+        ((Activity) getContext()).runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                AlertDialog alertDialog = new AlertDialog.Builder(getContext()).create();
+                alertDialog.setTitle(new StringBuffer(String.valueOf(throwable)));
+                alertDialog.setMessage(message);
+                alertDialog.setCancelable(true);
+                alertDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "EXIT", JmeSurfaceView.this);
+                alertDialog.setButton(DialogInterface.BUTTON_POSITIVE, "DISMISS", JmeSurfaceView.this);
+                alertDialog.show();
+            }
         });
     }
 
