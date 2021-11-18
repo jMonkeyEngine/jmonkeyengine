@@ -1,0 +1,29 @@
+ // Utilized by the ContrastAdjustmentFilter.java to adjust the color contrast and brightness values
+ // to be utilized by the ColorContrast.frag to change the contrast and the brightness of textures colors.
+
+
+MaterialDef ColorContrast {
+
+    MaterialParameters {
+        //texture samplers produced by post.vert
+        Int NumSamples
+        Texture2D Texture
+        //uniform values for contrast adjustment
+        Float exp_r
+        Float exp_g
+        Float exp_b
+        //uniform values for brightness adjustment
+        Float minBrightness
+        Float maxBrightness
+    }
+
+    Technique {
+        VertexShader GLSL150:   Common/MatDefs/Post/Post15.vert
+        FragmentShader GLSL150: Common/MatDefs/Post/ColorContrast15.frag
+    }
+
+    Technique {
+        VertexShader GLSL100 GLSL110 GLSL130 :   Common/MatDefs/Post/Post.vert
+        FragmentShader GLSL100 GLSL110 GLSL130 : Common/MatDefs/Post/ColorContrast.frag
+    }
+}
