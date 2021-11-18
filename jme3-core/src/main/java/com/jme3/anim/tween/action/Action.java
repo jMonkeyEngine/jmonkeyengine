@@ -148,16 +148,15 @@ public abstract class Action implements JmeCloneable, Tween {
 
     /**
      * Tests the value of the forward flag.
-     * @return true if the animation action is in a forward manner state.
+     * @return true if the animation action is running forward, false otherwise.
      */
     protected boolean isForward() {
         return forward;
     }
 
     /**
-     * The forward flag controls the animation action directionality, forward = true : ensures that animation would seek in a forward manner, however
-     * forward = false : ensures that animation would seek in a backward manner.
-     * @param forward true if the animation action is in a forward manner state, false otherwise.
+     * The forward flag controls the animation action directionality.
+     * @param forward true to run the animation forward, false otherwise.
      */
     protected void setForward(boolean forward) {
         if(this.forward == forward){
@@ -177,7 +176,7 @@ public abstract class Action implements JmeCloneable, Tween {
     @Override
     public Action jmeClone() {
         try {
-            final Action clone = (Action) super.clone();
+            Action clone = (Action) super.clone();
             return clone;
         } catch (CloneNotSupportedException exception) {
             throw new RuntimeException(exception);
