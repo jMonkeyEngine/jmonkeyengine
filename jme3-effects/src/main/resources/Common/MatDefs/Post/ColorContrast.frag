@@ -70,8 +70,8 @@ void main() {
 
     //1) apply brightness to color.rgb.
     color.r = (color.r - minBrightness) / (maxBrightness - minBrightness);
-    color.g = (color.r - minBrightness) / (maxBrightness - minBrightness);
-    color.b = (color.r - minBrightness) / (maxBrightness - minBrightness);
+    color.g = (color.g - minBrightness) / (maxBrightness - minBrightness);
+    color.b = (color.b - minBrightness) / (maxBrightness - minBrightness);
 
 
     color.r = max(color.r, 0.0);
