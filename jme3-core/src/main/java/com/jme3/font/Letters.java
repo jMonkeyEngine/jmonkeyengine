@@ -346,17 +346,22 @@ class Letters {
     }
 
     void validateSize() {
+       // also called from BitMaptext.getLineWidth() via getTotalWidth()
         if (totalWidth < 0) {
-            LetterQuad l = head;
-            while (!l.isTail()) {
-             //   totalWidth = Math.max(totalWidth, l.getX1());
-                if (l.getX0() < 0) {
-                    // unbound texts
-                     totalWidth = Math.max(totalWidth, Math.abs(l.getX0()));
-                } else {
-                     totalWidth = Math.max(totalWidth, l.getX1());
+            if (font.isRtL()) {
+                LetterQuad l = tail;
+                l = l.getPrevious();
+                if (l.getX0() < 0) { // unbound RtL texts
+                    totalWidth = Math.abs(l.getPrevious().getX0()-l.getWidth());
+                } else { // bound  RtL texts
+                    totalWidth = block.getTextBox().width- l.getPrevious().getX0()+l.getWidth();
                 }
-                l = l.getNext();
+            } else { //LtR texts
+                LetterQuad l = head;
+                while (!l.isTail()) {
+                    totalWidth = Math.max(totalWidth, l.getX1());
+                    l = l.getNext();
+                }
             }
         }
         totalHeight = font.getLineHeight(block) * block.getLineCount();

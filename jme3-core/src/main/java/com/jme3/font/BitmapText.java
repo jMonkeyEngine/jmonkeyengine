@@ -286,8 +286,15 @@ public class BitmapText extends Node {
         }
         Rectangle textBox = block.getTextBox();
         if (textBox != null) {
+            // ToDo this method for bounded BitMaptexts will always return the width of the box
+            //  no matter if the text is shorter or stretched for more then one line
+            //  letters.getTotalWidth currently returns the lenght of the LAST line (depending on the last letter before Tail) !
+            //  Question is that the desired behaviour ?
+            //  We will get linelenght only for unbound texs or by using the Font.getLineWidth on the other side
+            //  changing something here would require knowledge of number of lines or to get the max lenght etc.
             return Math.max(letters.getTotalWidth(), textBox.width);
         }
+      //  Please also note that BitMaptext.getLineWidth() might differ from Font.getLineWidth() -->   scale it with Font.getPreferredSize()/BitMaptext.getSize()
         return letters.getTotalWidth();
     }
 

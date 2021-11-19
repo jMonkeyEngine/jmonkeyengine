@@ -203,7 +203,6 @@ class LetterQuad {
     float getX1() {
         return x0+width;
     }
-    
     float getNextX() {
         return x0+xAdvance;
     }
