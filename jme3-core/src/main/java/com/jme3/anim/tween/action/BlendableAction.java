@@ -61,8 +61,10 @@ public abstract class BlendableAction extends Action {
     private TransitionTween transition = new TransitionTween(transitionLength);
 
     /**
-     * Instantiate a factory interface of the Action class.
-     * @param tweens actions in raw tween {@link AbstractTween} and its descendants( ex : {@link com.jme3.anim.tween.Tweens#parallel(Tween...)}, or an array of {@link Action} and its descendants(ex : {@link ClipAction} and {@link BaseAction}.
+     * Callback to the constructor of the super class to add some actions to {@link Action#actions}.
+     * @param tweens actions in raw tween {@link AbstractTween} and its descendants( ex : {@link com.jme3.anim.tween.Tweens#parallel(Tween...)},
+     *               or an array of {@link Action} and its descendants(ex : {@link ClipAction} and {@link BaseAction}.
+     * @see Action#Action(Tween...)
      */
     public BlendableAction(Tween... tweens) {
         super(tweens);
