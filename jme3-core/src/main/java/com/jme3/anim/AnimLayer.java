@@ -45,8 +45,8 @@ import com.jme3.util.clone.JmeCloneable;
  *
  * <p>A layer cannot be shared between multiple composers.
  *
- * <p>Animation time may advance at a different rate from real time, based on
- * speedup factors set in the composer and the current Action.
+ * <p>Animation time may advance at a different rate from application time,
+ * based on speedup factors in the composer and the current Action.
  */
 public class AnimLayer implements JmeCloneable {
     /**
@@ -185,17 +185,17 @@ public class AnimLayer implements JmeCloneable {
      * Updates the animation time and the current Action during a
      * controlUpdate().
      *
-     * @param realSeconds the amount to advance the current Action, in real
-     *     seconds
+     * @param appDeltaTimeInSeconds the amount application time to advance the
+     *     current Action, in seconds
      */
-    void update(float realSeconds) {
+    void update(float appDeltaTimeInSeconds) {
         if (currentAction == null) {
             return;
         }
 
         double speedup = currentAction.getSpeed() * composer.getGlobalSpeed();
-        double scaledSeconds = speedup * realSeconds;
-        time += scaledSeconds;
+        double scaledDeltaTime = speedup * appDeltaTimeInSeconds;
+        time += scaledDeltaTime;
 
         // wrap negative times to the [0, length] range:
         if (time < 0.0) {
