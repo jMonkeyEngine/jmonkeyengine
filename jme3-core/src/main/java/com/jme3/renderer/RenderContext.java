@@ -47,7 +47,7 @@ public class RenderContext {
     /**
      * Number of texture units that JME supports.
      */
-    public static final int MAX_TEXTURE_UNITS = 16;
+    public static final int maxTextureUnits = 16;
 
     /**
      * Criteria for culling faces.
@@ -275,14 +275,14 @@ public class RenderContext {
      * @see Renderer#setTexture(int, com.jme3.texture.Texture)
      */
     public final WeakReference<Image> boundTextures[]
-            = new WeakReference[MAX_TEXTURE_UNITS];
+            = new WeakReference[maxTextureUnits];
 
     /**
      * IDList for texture units.
      *
      * @see Renderer#setTexture(int, com.jme3.texture.Texture)
      */
-    public final IdList textureIndexList = new IdList();
+    public final IDList textureIndexList = new IDList();
 
     /**
      * Currently bound texture unit.
@@ -337,7 +337,7 @@ public class RenderContext {
     /**
      * IDList for vertex attributes.
      */
-    public final IdList attribIndexList = new IdList();
+    public final IDList attribIndexList = new IDList();
 
     /**
      * Depth test function.

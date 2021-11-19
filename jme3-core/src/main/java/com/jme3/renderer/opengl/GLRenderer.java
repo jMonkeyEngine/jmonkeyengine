@@ -2598,7 +2598,7 @@ public final class GLRenderer implements Renderer {
 
     @Override
     public void setTexture(int unit, Texture tex) throws TextureUnitException {
-        if (unit < 0 || unit >= RenderContext.MAX_TEXTURE_UNITS) {
+        if (unit < 0 || unit >= RenderContext.maxTextureUnits) {
             throw new TextureUnitException();
         }
 
@@ -2878,7 +2878,7 @@ public final class GLRenderer implements Renderer {
     }
 
     public void clearVertexAttribs() {
-        IdList attribList = context.attribIndexList;
+        IDList attribList = context.attribIndexList;
         for (int i = 0; i < attribList.oldLen; i++) {
             int idx = attribList.oldList[i];
             gl.glDisableVertexAttribArray(idx);

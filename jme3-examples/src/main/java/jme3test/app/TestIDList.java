@@ -32,7 +32,7 @@
 
 package jme3test.app;
 
-import com.jme3.renderer.IdList;
+import com.jme3.renderer.IDList;
 import java.util.*;
 
 public class TestIDList {
@@ -74,7 +74,7 @@ public class TestIDList {
 
     }
 
-    final private static IdList list = new IdList();   
+    final private static IDList list = new IDList();   
     final private static Object[] slots = new Object[16];
     final private static boolean[] enabledSlots = new boolean[16];
 

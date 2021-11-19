@@ -37,7 +37,7 @@ import java.util.Arrays;
  * A specialized data-structure used to optimize state changes of "slot"
  * based state.
  */
-public class IdList {
+public class IDList {
 
     /**
      * Indices belonging to the "new list". Valid data in elements 0 through newLen-1 only!
