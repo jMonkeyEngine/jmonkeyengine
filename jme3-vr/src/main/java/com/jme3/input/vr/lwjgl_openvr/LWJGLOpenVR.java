@@ -15,12 +15,7 @@ import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.lwjgl.BufferUtils;
-import org.lwjgl.openvr.HmdMatrix34;
-import org.lwjgl.openvr.HmdMatrix44;
-import org.lwjgl.openvr.TrackedDevicePose;
-import org.lwjgl.openvr.VR;
-import org.lwjgl.openvr.VRCompositor;
-import org.lwjgl.openvr.VRSystem;
+import org.lwjgl.openvr.*;
 
 /**
  * A class that wraps an <a href="https://github.com/ValveSoftware/openvr/wiki/API-Documentation">OpenVR</a> system. 
@@ -235,7 +230,7 @@ public class LWJGLOpenVR implements VRAPI {
 
     @Override
     public void reset() {
-        VRSystem.VRSystem_ResetSeatedZeroPose();
+        VRChaperone.VRChaperone_ResetZeroPose(VR.ETrackingUniverseOrigin_TrackingUniverseSeated);
         hmdSeatToStand = null;
     }
 
