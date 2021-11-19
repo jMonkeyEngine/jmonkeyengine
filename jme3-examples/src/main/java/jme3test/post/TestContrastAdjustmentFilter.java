@@ -60,14 +60,14 @@ public class TestContrastAdjustmentFilter extends SimpleApplication {
     @Override
     public void simpleInitApp() {
         //setup a spatial and a texture
-        final Sphere quad = new Sphere(40, 40, 5f);
-        final Geometry quadGeo = new Geometry("Ball", quad);
+        final Sphere globe = new Sphere(40, 40, 5f);
+        final Geometry earth = new Geometry("Globe", globe);
         final Material material = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         final Texture texture = assetManager.loadTexture("Textures/Sky/Earth/Earth.jpg");
         material.setTexture("ColorMap", texture);
-        quadGeo.setMaterial(material);
+        earth.setMaterial(material);
 
-        rootNode.attachChild(quadGeo);
+        rootNode.attachChild(earth);
 
         //add light
         final AmbientLight ambientLight = new AmbientLight(ColorRGBA.White);
