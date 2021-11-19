@@ -72,7 +72,7 @@ public abstract class BlendableAction extends Action {
 
     //******************The Abstract Methods used by this abstract pattern****************************
     /**
-     * Override this method to manage the interpolation code inside.
+     * Override this method and manage the interpolation code inside.
      * Called by {@link BlendableAction#interpolate(double)}, after clamping time(t) to a ratio between (0)
      * and (1) based on the action length.
      * @param t the current time of frames.
@@ -80,13 +80,13 @@ public abstract class BlendableAction extends Action {
     protected abstract void doInterpolate(double t);
 
     /**
-     * Override this method to be able to collect the target objects for this action that we would apply the interpolation on them.
+     * Override this method and collect the target objects for this action that the interpolation would be applied on them.
      * @return the current involved targets.
      */
     public abstract Collection<HasLocalTransform> getTargets();
 
     /**
-     * Override this method to be able to interpolate collected tracks based on the custom weight {@link BlendableAction#weight} from a delegated source.
+     * Override this method and interpolate collected transforms based on the custom weight {@link BlendableAction#weight} from a delegated source.
      * This method is called indirectly by delegating from another BlendableActions sources using {@link BlendableAction#setCollectTransformDelegate(BlendableAction)}.
      * @param target the target involved for interpolation.
      * @param t the transform to be used in interpolation.
@@ -98,7 +98,7 @@ public abstract class BlendableAction extends Action {
     //******************End of Abstract Methods****************************
 
     /**
-     * Delegates the interpolation to a specific entity of type {@link BlendableAction} based on its weight attribute.
+     * Delegates the interpolation to a specific instance of type {@link BlendableAction} based on its weight attribute.
      * @param delegate the instance, of type {@link BlendableAction}, used for delegation.
      */
     public void setCollectTransformDelegate(BlendableAction delegate) {
