@@ -39,22 +39,16 @@ import com.jme3.util.clone.Cloner;
 import java.util.Collection;
 
 /**
- * A second level implementation (an abstract factory class based on the factory pattern) for the animation action.
+ * An implementation of the Action interface, used to manage the interpolation code
+ * for its subclasses based on the action length (duration) and time per frames in seconds.
  *
- * Used to interpolate between concurrent actions according to some parameters including :
+ * Example of its implementation :
+ * <li> {@link ClipAction} and {@link BlendAction}. </li>
  *
- * <li> the current time(t) of animation frames. </li>
- * <li> the collectTransformDelegate flag instance & weight. </li>
- * <li> the default transition time named transitionWeight. </li>
- * <li> the length of the global action. </li>
- *
- * Example of subclasses impl :
- * <li> #{@link ClipAction} & #{@link BlendAction}. </li>
- *
- * To implement this interface, override the factory methods :
- * <li>#{@link BlendableAction#doInterpolate(double)} and place your interpolation management code.</li>
- * <li>#{@link BlendableAction#collectTransform(HasLocalTransform, Transform, float, BlendableAction)} and place your interpolation code based on the #{@link BlendableAction#weight}.</li>
- * <li>#{@link BlendableAction#getTargets()} and place the code to get target objects subjected to interpolation.</li>
+ * To implement this interface, override the methods :
+ * <li>{@link BlendableAction#doInterpolate(double)} and place your interpolation management code.</li>
+ * <li>{@link BlendableAction#collectTransform(HasLocalTransform, Transform, float, BlendableAction)} and place your interpolation code based on the #{@link BlendableAction#weight}.</li>
+ * <li>{@link BlendableAction#getTargets()} and place the code to get target objects subjected to interpolation.</li>
  *
  * <b>Created by Nehon.</b>
  */
@@ -68,30 +62,30 @@ public abstract class BlendableAction extends Action {
 
     /**
      * Instantiate a factory interface of the Action class.
-     * @param tweens actions in raw tween #{@link AbstractTween} & its descendants( ex : #{@link com.jme3.anim.tween.Tweens#parallel(Tween...)}, or an array of #{@link Action} & its descendants(ex : #{@link ClipAction} & #{@link BaseAction}.
+     * @param tweens actions in raw tween {@link AbstractTween} and its descendants( ex : {@link com.jme3.anim.tween.Tweens#parallel(Tween...)}, or an array of {@link Action} and its descendants(ex : {@link ClipAction} and {@link BaseAction}.
      */
     public BlendableAction(Tween... tweens) {
         super(tweens);
     }
 
-    //******************The Factory Methods used by this abstract factory pattern****************************
+    //******************The Abstract Methods used by this abstract pattern****************************
     /**
-     * Override this factory method to manage the interpolation code inside.
+     * Override this method to manage the interpolation code inside.
      * Called by {@link BlendableAction#interpolate(double)}, after clamping time(t) to a ratio between (0)
-     * and (1) based on the action length, then time(t) get passed as a param to notify the user about the current frame time of the action.
+     * and (1) based on the action length.
      * @param t the current time of frames.
      */
     protected abstract void doInterpolate(double t);
 
     /**
-     * Override this factory method to be able to collect the target objects for this action that we would apply the interpolation on them.
+     * Override this method to be able to collect the target objects for this action that we would apply the interpolation on them.
      * @return the current involved targets.
      */
     public abstract Collection<HasLocalTransform> getTargets();
 
     /**
-     * Override this factory method to be able to interpolate collected tracks based on the custom weight #{@link BlendableAction#weight} from a delegated source.
-     * This method is intended to be called indirectly by delegating from another BlendableActions sources using #{@link BlendableAction#setCollectTransformDelegate(BlendableAction)}.
+     * Override this method to be able to interpolate collected tracks based on the custom weight {@link BlendableAction#weight} from a delegated source.
+     * This method is called indirectly by delegating from another BlendableActions sources using {@link BlendableAction#setCollectTransformDelegate(BlendableAction)}.
      * @param target the target involved for interpolation.
      * @param t the transform to be used in interpolation.
      * @param weight the scale factor(delta) used for interpolation.
@@ -99,11 +93,11 @@ public abstract class BlendableAction extends Action {
      */
     public abstract void collectTransform(HasLocalTransform target, Transform t, float weight, BlendableAction source);
 
-    //******************End of Factory Methods****************************
+    //******************End of Abstract Methods****************************
 
     /**
-     * Delegates the interpolation to a specific entity of type #{@link BlendableAction} based on its weight attribute.
-     * @param delegate the instance, of type #{@link BlendableAction}, used for delegation.
+     * Delegates the interpolation to a specific entity of type {@link BlendableAction} based on its weight attribute.
+     * @param delegate the instance, of type {@link BlendableAction}, used for delegation.
      */
     public void setCollectTransformDelegate(BlendableAction delegate) {
         this.collectTransformDelegate = delegate;
@@ -138,15 +132,16 @@ public abstract class BlendableAction extends Action {
             //weight is 0 let's not interpolate
             return t < getLength();
         }
-        //callback for the factory method doInterpolate()
-        // -- example : ClipAction class(Single Action) & BlendAction class(blending between 2 actions).
+        //callback for the abstract method doInterpolate()
+        // -- example : ClipAction class (Single Action) and BlendAction class (blending between 2 actions).
         doInterpolate(t);
-        //return true & interpolate again as long as the frame time hasn't exceeded the action length in fps.
+        //return true and interpolate again as long as the frame time hasn't exceeded the action length in fps.
         return t < getLength();
     }
 
     /**
      * Gets the action weight, which acts as a scale factor for the action transformations.
+     * Default value is 1.0f.
      * @return the action weight.
      */
     public float getWeight() {
@@ -161,6 +156,7 @@ public abstract class BlendableAction extends Action {
      * <b> Notes : </b>
      * <li> Valid animation weight is between (0) and (1) </li>
      * <li> Weight attribute is used for interpolation only if the delegation flag is activated, otherwise the default transitionWeight is utilized. </li>
+     * Default value = 1.0f.
      * @param weight the weight/scaleFactor of the action.
      */
     public void setWeight(float weight) {
@@ -169,6 +165,7 @@ public abstract class BlendableAction extends Action {
 
     /**
      * Gets the interpolation transition duration.
+     * Default value is 0.4f.
      * @return the transition length.
      */
     public double getTransitionLength() {
@@ -177,6 +174,7 @@ public abstract class BlendableAction extends Action {
 
     /**
      * Sets the interpolation transition duration used to calculate the transitionWeight.
+     * Default value is 0.4f.
      * @param transitionLength the value of the transition length to settle.
      */
     public void setTransitionLength(double transitionLength) {
@@ -184,8 +182,9 @@ public abstract class BlendableAction extends Action {
         this.transition.setLength(transitionLength);
     }
     /**
-     * Gets the default transitionWeight calculated by the default tween along (0 - #{@link BlendableAction#getTransitionLength()})
+     * Gets the default transitionWeight calculated by the default tween along (0 - {@link BlendableAction#getTransitionLength()})
      * The transition weight is used as the default (undelegated) delta value of interpolation between subsequent transformations.
+     * Default value is 1.0f.
      * @return the interpolation transition weight.
      */
     protected float getTransitionWeight() {
@@ -200,7 +199,8 @@ public abstract class BlendableAction extends Action {
     @Override
     public BlendableAction jmeClone() {
         try {
-            return (BlendableAction) super.clone();
+            BlendableAction blendableAction = (BlendableAction) super.clone();
+            return blendableAction;
         } catch (CloneNotSupportedException exception) {
             throw new RuntimeException(exception);
         }
@@ -223,8 +223,8 @@ public abstract class BlendableAction extends Action {
     }
 
     /**
-     * A default implementation of a Tween used to qualify the value of #{@link BlendableAction#transitionWeight}
-     * based on the formula (t / length), where transitionWeight is a scale factor between (0 and 1) representing a time step towards the transitionLength(maxTime).
+     * A default implementation of a Tween used to qualify the value of {@link BlendableAction#transitionWeight}
+     * based on the formula (t = t / length), where transitionWeight is a scale factor between (0 and 1) representing a time step towards the transitionLength (maxTime).
      */
     private class TransitionTween extends AbstractTween {
 
