@@ -48,7 +48,7 @@ import java.io.IOException;
  * A color filter used to change the contrast for each color channel independently and the brightness of colors
  * of the scene textures based on a simple transfer function.
  *
- * The transfer function involves setting the brightness of colors from 0 to 1 based on a maxValue and a minValue,
+ * The transfer function involves setting the brightness of colors based on a maxValue and a minValue,
  * then setting the contrast of each color channel independently using a power law function before the textures' colors are processed by the
  * rasterizer and the final result can be scaled again on runtime using scale factors from 0.0 to 1.0.
  *
@@ -164,9 +164,9 @@ public class ContrastAdjustmentFilter extends Filter {
     /**
      * Sets the color channels brightness using a maxValue and a minValue based on this equation :
      * color.rgb = (color.rgb - minBrightness) / (maxBrightness - minBrightness)
-     * where, increasing the minBrightness value and increasing the difference between maxBrightness and minBrightness would decrease the brightness.
-     * decreasing the minBrightness value and increasing the difference between maxBrightness and minBrightness would increase the brightness.
-     * the values are clamped in range from 0 to 1.
+     * where; increasing the minBrightness value and increasing the difference between maxBrightness and minBrightness would decrease the brightness,
+     * while decreasing the minBrightness value and increasing the difference between maxBrightness and minBrightness would increase the brightness.
+     * The final brightness value is always above 0.0.
      * @param minValue the minimum brightness value to use, default is 0f.
      * @param maxValue the maximum brightness value to use, default is 1f.
      */
