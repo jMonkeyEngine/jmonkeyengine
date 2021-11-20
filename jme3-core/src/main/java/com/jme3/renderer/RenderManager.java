@@ -749,7 +749,12 @@ public class RenderManager {
         renderSubScene(scene, vp);
     }
 
-    // recursively renders the scene
+    /**
+     * Recursively renders the scene.
+     *
+     * @param scene the scene to be rendered (not null)
+     * @param vp the ViewPort to render in (not null)
+     */
     private void renderSubScene(Spatial scene, ViewPort vp) {
 
         // check culling first.

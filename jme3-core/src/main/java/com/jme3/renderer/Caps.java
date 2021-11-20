@@ -435,7 +435,9 @@ public enum Caps {
      */
     Depth24,
 
-
+    /**
+     * Supports unpack row length (stride).
+     */
     UnpackRowLength
     ;
 
