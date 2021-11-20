@@ -71,7 +71,7 @@ public class ContrastAdjustmentFilter extends Filter {
     /**
      * Instantiates a default color contrast filter, default brightness and default scale.
      * Default values :
-     * - Contrast = color.rgb (exp = 2.2 on all channels).
+     * - Exponents = 2.2 on all channels.
      * - Brightness = 1.0f (normal).
      * - Scale = 1.0f.
      */
