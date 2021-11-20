@@ -56,9 +56,9 @@ import java.io.IOException;
  */
 public class ContrastAdjustmentFilter extends Filter {
     //the different channels exponents
-    protected float exp_r = 1f;
-    protected float exp_g = 1f;
-    protected float exp_b = 1f;
+    protected float exp_r = 2.2f;
+    protected float exp_g = 2.2f;
+    protected float exp_b = 2.2f;
     //the minimum value and the maximum value of the brightness parameter
     protected float minBrightness = 0f;
     protected float maxBrightness = 1f;
@@ -71,7 +71,7 @@ public class ContrastAdjustmentFilter extends Filter {
     /**
      * Instantiates a default color contrast filter, default brightness and default scale.
      * Default values :
-     * - Contrast = color.rgb (exp = 1 on all channels).
+     * - Contrast = color.rgb (exp = 2.2 on all channels).
      * - Brightness = 1.0f (normal).
      * - Scale = 1.0f.
      */
@@ -115,7 +115,7 @@ public class ContrastAdjustmentFilter extends Filter {
 
     /**
      * Sets the exponents used to adjust the contrast of the color channels.
-     * Default values are 1.0f.
+     * Default values are 2.2f.
      * @param exp_r the red channel exponent.
      * @param exp_b the blue channel exponent.
      * @param exp_g the green channel exponent.
@@ -136,6 +136,7 @@ public class ContrastAdjustmentFilter extends Filter {
 
     /**
      * Retrieves the blue channel exponent.
+     * Default value = 2.2.
      * @return the blue channel exponent.
      */
     public float getExp_b() {
@@ -144,6 +145,7 @@ public class ContrastAdjustmentFilter extends Filter {
 
     /**
      * Retrieves the green channel exponent.
+     * Default value = 2.2.
      * @return the green channel exponent.
      */
     public float getExp_g() {
@@ -152,6 +154,7 @@ public class ContrastAdjustmentFilter extends Filter {
 
     /**
      * Retrieves the red channel exponent.
+     * Default value = 2.2.
      * @return the red channel exponent.
      */
     public float getExp_r() {
@@ -200,6 +203,7 @@ public class ContrastAdjustmentFilter extends Filter {
 
     /**
      * Adjusts the scales of different channels.
+     * Default values = 1.0.
      * @param scale_r the rea channel scale.
      * @param scale_b the blue channel scale.
      * @param scale_g the green channel scale.
@@ -221,6 +225,7 @@ public class ContrastAdjustmentFilter extends Filter {
 
     /**
      * Retrieves the value of the red channel scale that's applied on the final pass.
+     * Default value = 1.0.
      * @return the scale of the red channel.
      */
     public float getScale_r() {
@@ -229,6 +234,7 @@ public class ContrastAdjustmentFilter extends Filter {
 
     /**
      * Retrieves the value of the green channel scale that's applied on the final pass.
+     * Default value = 1.0.
      * @return the scale of the green channel.
      */
     public float getScale_g() {
@@ -237,6 +243,7 @@ public class ContrastAdjustmentFilter extends Filter {
 
     /**
      * Retrieves the value of the blue channel scale that's applied on the final pass.
+     * Default value = 1.0.
      * @return the scale of the blue channel.
      */
     public float getScale_b() {
@@ -273,9 +280,9 @@ public class ContrastAdjustmentFilter extends Filter {
     public void read(JmeImporter im) throws IOException {
         super.read(im);
         final InputCapsule inputCapsule = im.getCapsule(this);
-        exp_r = inputCapsule.readFloat("exp_r", 1f);
-        exp_g = inputCapsule.readFloat("exp_g", 1f);
-        exp_b = inputCapsule.readFloat("exp_b", 1f);
+        exp_r = inputCapsule.readFloat("exp_r", 2.2f);
+        exp_g = inputCapsule.readFloat("exp_g", 2.2f);
+        exp_b = inputCapsule.readFloat("exp_b", 2.2f);
         minBrightness = inputCapsule.readFloat("minBrightness", 0f);
         maxBrightness = inputCapsule.readFloat("maxBrightness", 1f);
         scale_r = inputCapsule.readFloat("scale_r", 1f);
@@ -287,9 +294,9 @@ public class ContrastAdjustmentFilter extends Filter {
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
         final OutputCapsule outputCapsule = ex.getCapsule(this);
-        outputCapsule.write(exp_r, "exp_r", 1f);
-        outputCapsule.write(exp_g, "exp_g", 1f);
-        outputCapsule.write(exp_b, "exp_b", 1f);
+        outputCapsule.write(exp_r, "exp_r", 2.2f);
+        outputCapsule.write(exp_g, "exp_g", 2.2f);
+        outputCapsule.write(exp_b, "exp_b", 2.2f);
         outputCapsule.write(minBrightness, "minBrightness", 0f);
         outputCapsule.write(maxBrightness, "maxBrightness", 1f);
         outputCapsule.write(scale_r, "scale_r", 1f);
