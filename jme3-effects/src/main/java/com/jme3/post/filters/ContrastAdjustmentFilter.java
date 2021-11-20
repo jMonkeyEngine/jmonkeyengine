@@ -42,6 +42,7 @@ import com.jme3.math.Vector3f;
 import com.jme3.post.Filter;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
+
 import java.io.IOException;
 
 /**
@@ -84,11 +85,12 @@ public class ContrastAdjustmentFilter extends Filter {
      * Default values :
      * - Brightness = 1.0f (normal).
      * - Scale = 1.0f.
+     *
      * @param exp_r the red color exponent.
      * @param exp_b the blue color exponent.
      * @param exp_g the green color exponent.
      */
-    public ContrastAdjustmentFilter(float exp_r, float exp_b, float exp_g){
+    public ContrastAdjustmentFilter(float exp_r, float exp_b, float exp_g) {
         super(ContrastAdjustmentFilter.class.getName());
         this.exp_r = exp_r;
         this.exp_g = exp_g;
@@ -97,11 +99,12 @@ public class ContrastAdjustmentFilter extends Filter {
 
     /**
      * Instantiates a color contrast filter by adjusting different parameters.
-     * @param exponents the exponents applied to the colors in order, where x = r, y = g, z = b.
+     *
+     * @param exponents  the exponents applied to the colors in order, where x = r, y = g, z = b.
      * @param brightness the brightness applied to the textures in order, where x = minBrightness, y = maxBrightness.
-     * @param scales the final pass scales that would be applied on the color channels before being processed in order, where x = scale_r, y = scale_g, z = scale_b.
+     * @param scales     the final pass scales that would be applied on the color channels before being processed in order, where x = scale_r, y = scale_g, z = scale_b.
      */
-    public ContrastAdjustmentFilter(Vector3f exponents, Vector2f brightness, Vector3f scales){
+    public ContrastAdjustmentFilter(Vector3f exponents, Vector2f brightness, Vector3f scales) {
         super(ContrastAdjustmentFilter.class.getName());
         this.exp_r = exponents.x;
         this.exp_b = exponents.y;
@@ -116,16 +119,17 @@ public class ContrastAdjustmentFilter extends Filter {
     /**
      * Sets the exponents used to adjust the contrast of the color channels.
      * Default values are 2.2f.
+     *
      * @param exp_r the red channel exponent.
      * @param exp_b the blue channel exponent.
      * @param exp_g the green channel exponent.
      */
-    public void setExponents(float exp_r, float exp_b, float exp_g){
+    public void setExponents(float exp_r, float exp_b, float exp_g) {
         this.exp_r = exp_r;
         this.exp_b = exp_b;
         this.exp_g = exp_g;
 
-        if(material == null){
+        if (material == null) {
             return;
         }
         //different channels exp for different transfer functions
@@ -174,7 +178,7 @@ public class ContrastAdjustmentFilter extends Filter {
         this.minBrightness = minValue;
         this.maxBrightness = maxValue;
 
-        if(material == null){
+        if (material == null) {
             return;
         }
 
@@ -213,7 +217,7 @@ public class ContrastAdjustmentFilter extends Filter {
         this.scale_g = scale_g;
         this.scale_b = scale_b;
 
-        if(material == null){
+        if (material == null) {
             return;
         }
 
@@ -253,7 +257,7 @@ public class ContrastAdjustmentFilter extends Filter {
     @Override
     protected void initFilter(AssetManager manager, RenderManager renderManager, ViewPort vp, int w, int h) {
         //validate app
-        if(manager == null || renderManager == null || vp == null || w == 0 || h == 0){
+        if (manager == null || renderManager == null || vp == null || w == 0 || h == 0) {
             return;
         }
         material = new Material(manager, "Common/MatDefs/Post/ColorContrast.j3md");
@@ -270,7 +274,7 @@ public class ContrastAdjustmentFilter extends Filter {
 
     @Override
     protected Material getMaterial() {
-        if(material == null){
+        if (material == null) {
             throw new IllegalStateException("Cannot create a color filter from a null reference !");
         }
         return material;

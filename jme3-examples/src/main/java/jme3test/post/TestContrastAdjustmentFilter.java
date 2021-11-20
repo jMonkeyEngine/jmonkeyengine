@@ -88,14 +88,14 @@ public class TestContrastAdjustmentFilter extends SimpleApplication {
     @Override
     public void simpleUpdate(float tpf) {
         counter += tpf;
-        if(counter >= 4f){
+        if (counter >= 4f) {
             counter = 0f;
         }
-        if(contrastAdjustmentFilter != null){
+        if (contrastAdjustmentFilter != null) {
             //adjust the transfer function during runtime
             contrastAdjustmentFilter.setScales(counter * 0.5f, counter, counter * 0.5f);
             contrastAdjustmentFilter.setExponents(counter, counter * 2f, counter);
-            contrastAdjustmentFilter.setBrightness(0, 1/counter);
+            contrastAdjustmentFilter.setBrightness(0, 1 / counter);
         }
     }
 }
