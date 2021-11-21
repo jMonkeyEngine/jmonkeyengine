@@ -46,7 +46,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Imports and exports savable objects in jMonkeyEngine's native binary format.
+ * Exports savable objects in jMonkeyEngine's native binary format.
  *
  * <p>Format description: (Each numbered item
  * describes a series of bytes that follow sequentially, one after the other.)
