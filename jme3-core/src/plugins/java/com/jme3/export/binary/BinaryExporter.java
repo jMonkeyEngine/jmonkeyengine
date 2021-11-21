@@ -46,97 +46,73 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Exports to the jME Binary Format. Format descriptor: (each numbered item
- * denotes a series of bytes that follows sequentially one after the next.)
- * <p>
- * 1. "number of classes" - four bytes - int value representing the number of
- * entries in the class lookup table.
- * </p>
- * <p>
- * CLASS TABLE: There will be X blocks each consisting of numbers 2 thru 9,
- * where X = the number read in 1.
- * </p>
- * <p>
- * 2. "class alias" - 1...X bytes, where X = ((int) FastMath.log(aliasCount,
- * 256) + 1) - an alias used when writing object data to match an object to its
- * appropriate object class type.
- * </p>
- * <p>
- * 3. "full class name size" - four bytes - int value representing number of
- * bytes to read in for next field.
- * </p>
- * <p>
- * 4. "full class name" - 1...X bytes representing a String value, where X = the
- * number read in 3. The String is the fully qualified class name of the Savable
- * class, eg "<code>com.jme.math.Vector3f</code>"
- * </p>
- * <p>
- * 5. "number of fields" - four bytes - int value representing number of blocks
- * to read in next (numbers 6 - 9), where each block represents a field in this
- * class.
- * </p>
- * <p>
- * 6. "field alias" - 1 byte - the alias used when writing out fields in a
- * class. Because it is a single byte, a single class can not save out more than
- * a total of 256 fields.
- * </p>
- * <p>
- * 7. "field type" - 1 byte - a value representing the type of data a field
- * contains. This value is taken from the static fields of
+ * Imports and exports savable objects in jMonkeyEngine's native binary format.
+ *
+ * <p>Format description: (Each numbered item
+ * describes a series of bytes that follow sequentially, one after the other.)
+ *
+ * <p>1. "signature" - 4 bytes - 0x4A4D4533
+ *
+ * <p>2. "version" - 4 bytes - 0x00000002
+ *
+ * <p>3. "number of classes" - 4 bytes - number of entries in the class table
+ *
+ * <p>CLASS TABLE: X blocks, each consisting of items 4 thru 11,
+ * where X = the number of Savable classes from item 3
+ *
+ * <p>4. "class alias" - X bytes, where X = ((int) FastMath.log(aliasCount,
+ * 256) + 1)
+ * - a numeric ID used to refer to a Savable class when reading or writing
+ *
+ * <p>5. "full class-name size" - 4 bytes - the number of bytes in item 6
+ *
+ * <p>6. "full class name" - X bytes of text, where X = the size from item 5
+ * - the fully qualified class name of the Savable class,
+ * e.g. <code>"com.jme.math.Vector3f"</code>
+ *
+ * <p>7. "number of fields" - 4 bytes
+ * - the number of saved fields in the Savable class
+ *
+ * <p>8. "field alias" - 1 byte
+ * - a numeric ID used to refer to a saved field when reading or writing.
+ * Because field aliases are only a single byte,
+ * no Savable class can save more than 256 fields.
+ *
+ * <p>9. "field type" - 1 byte
+ * - the type of data in the saved field. Values are defined in
  * <code>com.jme.util.export.binary.BinaryClassField</code>.
- * </p>
- * <p>
- * 8. "field name size" - 4 bytes - int value representing the size of the next
- * field.
- * </p>
- * <p>
- * 9. "field name" - 1...X bytes representing a String value, where X = the
- * number read in 8. The String is the full String value used when writing the
- * current field.
- * </p>
- * <p>
- * 10. "number of unique objects" - four bytes - int value representing the
- * number of data entries in this file.
- * </p>
- * <p>
- * DATA LOOKUP TABLE: There will be X blocks each consisting of numbers 11 and
- * 12, where X = the number read in 10.
- * </p>
- * <p>
- * 11. "data id" - four bytes - int value identifying a single unique object
- * that was saved in this data file.
- * </p>
- * <p>
- * 12. "data location" - four bytes - int value representing the offset in the
- * object data portion of this file where the object identified in 11 is
- * located.
- * </p>
- * <p>
- * 13. "future use" - four bytes - hardcoded int value 1.
- * </p>
- * <p>
- * 14. "root id" - four bytes - int value identifying the top level object.
- * </p>
- * <p>
- * OBJECT DATA SECTION: There will be X blocks each consisting of numbers 15
- * thru 19, where X = the number of unique location values named in 12.
- * <p>
- * 15. "class alias" - see 2.
- * </p>
- * <p>
- * 16. "data length" - four bytes - int value representing the length in bytes
- * of data stored in fields 17 and 18 for this object.
- * </p>
- * <p>
- * FIELD ENTRY: There will be X blocks each consisting of numbers 18 and 19
- * </p>
- * <p>
- * 17. "field alias" - see 6.
- * </p>
- * <p>
- * 18. "field data" - 1...X bytes representing the field data. The data length
- * is dependent on the field type and contents.
- * </p>
+ *
+ * <p>10. "field-name size" - 4 bytes - the number of bytes in item 11
+ *
+ * <p>11. "field name" - X bytes of text, where X = the size from item 10
+ * - the tag specified when reading or writing the saved field
+ *
+ * <p>12. "number of capsules" - 4 bytes
+ * - the number of capsules in this stream
+ *
+ * <p>LOCATION TABLE: X blocks, each consisting of items 13 and 14,
+ * where X = the number of capsules from item 12
+ *
+ * <p>13. "data id" - 4 bytes
+ * - numeric ID of an object that was saved to this stream
+ *
+ * <p>14. "data location" - 4 bytes
+ * - the offset in the capsule-data section where the savable object identified
+ * in item 13 is stored
+ *
+ * <p>15. "future use" - 4 bytes - 0x00000001
+ *
+ * <p>16. "root id" - 4 bytes - numeric ID of the top-level savable object
+ *
+ * CAPSULE-DATA SECTION: X blocks, each consisting of items 17
+ * thru 19, where X = the number of capsules from item 12
+ *
+ * <p>17. "class alias" - 4 bytes - see item 4
+ *
+ * <p>18. "capsule length" - 4 bytes - the length in bytes of item 19
+ *
+ * <p>19. "capsule data" - X bytes of data, where X = the number of bytes from
+ * item 18
  *
  * @author Joshua Slack
  */
