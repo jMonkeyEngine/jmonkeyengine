@@ -55,7 +55,9 @@ import com.jme3.util.clone.JmeCloneable;
  * @see BaseAction
  */
 public abstract class Action implements JmeCloneable, Tween {
-
+    /**
+     * A collection of sub-actions
+     */
     protected Action[] actions;
     private double length;
     //the default speed is 1, it plays the animation clips at their normal speed.
