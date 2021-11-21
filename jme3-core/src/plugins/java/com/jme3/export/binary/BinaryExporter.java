@@ -183,8 +183,8 @@ public class BinaryExporter implements JmeExporter {
         contentKeys.clear();
 
         // write signature and version
-        os.write(ByteUtils.convertToBytes(FormatVersion.SIGNATURE));
-        os.write(ByteUtils.convertToBytes(FormatVersion.VERSION));
+        os.write(ByteUtils.convertToBytes(FormatVersion.SIGNATURE)); // 1. "signature"
+        os.write(ByteUtils.convertToBytes(FormatVersion.VERSION));   // 2. "version"
 
         int id = processBinarySavable(object);
 
@@ -195,14 +195,14 @@ public class BinaryExporter implements JmeExporter {
                                                                   // aliases a
                                                                   // fixed width
 
-        os.write(ByteUtils.convertToBytes(classNum));
+        os.write(ByteUtils.convertToBytes(classNum)); // 3. "number of classes"
         for (String key : classes.keySet()) {
             BinaryClassObject bco = classes.get(key);
 
             // write alias
             byte[] aliasBytes = fixClassAlias(bco.alias,
                     aliasSize);
-            os.write(aliasBytes);
+            os.write(aliasBytes);                     // 4. "class alias"
             classTableSize += aliasSize;
 
             // jME3 NEW: Write class hierarchy version numbers
@@ -214,21 +214,20 @@ public class BinaryExporter implements JmeExporter {
 
             // write classname size & classname
             byte[] classBytes = key.getBytes();
-            os.write(ByteUtils.convertToBytes(classBytes.length));
-            os.write(classBytes);
+            os.write(ByteUtils.convertToBytes(classBytes.length)); // 5. "full class-name size"
+            os.write(classBytes);                                  // 6. "full class name"
             classTableSize += 4 + classBytes.length;
 
             // for each field, write alias, type, and name
-            os.write(ByteUtils.convertToBytes(bco.nameFields.size()));
+            os.write(ByteUtils.convertToBytes(bco.nameFields.size())); // 7. "number of fields"
             for (String fieldName : bco.nameFields.keySet()) {
                 BinaryClassField bcf = bco.nameFields.get(fieldName);
-                os.write(bcf.alias);
-                os.write(bcf.type);
+                os.write(bcf.alias);                                   // 8. "field alias"
+                os.write(bcf.type);                                    // 9. "field type"
 
-                // write classname size & classname
                 byte[] fNameBytes = fieldName.getBytes();
-                os.write(ByteUtils.convertToBytes(fNameBytes.length));
-                os.write(fNameBytes);
+                os.write(ByteUtils.convertToBytes(fNameBytes.length)); // 10. "field-name size"
+                os.write(fNameBytes);                                  // 11. "field name"
                 classTableSize += 2 + 4 + fNameBytes.length;
             }
         }
@@ -258,31 +257,31 @@ public class BinaryExporter implements JmeExporter {
             }
             bucket.add(pair);
             byte[] aliasBytes = fixClassAlias(classes.get(savableName).alias, aliasSize);
-            out.write(aliasBytes);
+            out.write(aliasBytes);            // 17. "class alias"
             location += aliasSize;
             BinaryOutputCapsule cap = contentTable.get(savable).getContent();
-            out.write(ByteUtils.convertToBytes(cap.bytes.length));
+            out.write(ByteUtils.convertToBytes(cap.bytes.length)); // 18. "capsule length"
             location += 4; // length of bytes
-            out.write(cap.bytes);
+            out.write(cap.bytes);             // 19. "capsule data"
             location += cap.bytes.length;
         }
 
         // write out location table
         // tag/location
         int numLocations = locationTable.keySet().size();
-        os.write(ByteUtils.convertToBytes(numLocations));
+        os.write(ByteUtils.convertToBytes(numLocations)); // 12. "number of capsules"
         int locationTableSize = 0;
         for (Integer key : locationTable.keySet()) {
-            os.write(ByteUtils.convertToBytes(key));
-            os.write(ByteUtils.convertToBytes(locationTable.get(key)));
+            os.write(ByteUtils.convertToBytes(key));                    // 13. "data id"
+            os.write(ByteUtils.convertToBytes(locationTable.get(key))); // 14. "data location"
             locationTableSize += 8;
         }
 
         // write out number of root ids - hardcoded 1 for now
-        os.write(ByteUtils.convertToBytes(1));
+        os.write(ByteUtils.convertToBytes(1));  // 15. "future use"
 
         // write out root id
-        os.write(ByteUtils.convertToBytes(id));
+        os.write(ByteUtils.convertToBytes(id)); // 16. "root id"
 
         // append stream to the output stream
         out.writeTo(os);
