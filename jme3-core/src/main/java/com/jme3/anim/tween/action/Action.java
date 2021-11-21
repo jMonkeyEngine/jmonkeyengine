@@ -32,7 +32,6 @@
 package com.jme3.anim.tween.action;
 
 import com.jme3.anim.AnimationMask;
-import com.jme3.anim.Armature;
 import com.jme3.anim.tween.Tween;
 import com.jme3.util.clone.Cloner;
 import com.jme3.util.clone.JmeCloneable;
@@ -40,15 +39,15 @@ import com.jme3.util.clone.JmeCloneable;
 /**
  * Base implementation of the interface {@link Tween} for the new animation system.
  *
- * The Action class gathers the animation actions from a {@link Tween} array argument into {@link Action#actions}, and it extracts the plain {@link Tween} instances (non-action tween)
- * into a {@link BaseAction}, the net result is creating a holder that holds the Animation Actions and controls their properties including {@link Action#speed}, {@link Action#length},
- * {@link Action#mask}, {@link Action#forward}.
+ * The Action class collects the animation actions from an array of {@link Tween}s into {@link Action#actions}, and it extracts the non-action {@link Tween}s
+ * into a {@link BaseAction}. The net result is creating a holder that holds the Animation Actions and controls their properties including {@link Action#speed}, {@link Action#length},
+ * {@link Action#mask} and {@link Action#forward}.
  * <br/>
  *
  * Notes :
- * - The sequence of tweens is determined by {@link com.jme3.anim.tween.Tweens} utility class and {@link BaseAction} interpolates that sequence.
- * - This implementation mimics the {@link com.jme3.anim.tween.AbstractTween}, but it delegates the interpolation method {@link Tween#interpolate(double)}
- * to the {@link BlendableAction} class.
+ * <li> The sequence of tweens is determined by {@link com.jme3.anim.tween.Tweens} utility class and {@link BaseAction} interpolates that sequence. </li>
+ * <li> This implementation mimics the {@link com.jme3.anim.tween.AbstractTween}, but it delegates the interpolation method {@link Tween#interpolate(double)}
+ * to the {@link BlendableAction} class.</li>
  *
  * <b>Created by Nehon.</b>
  *
@@ -90,7 +89,7 @@ public abstract class Action implements JmeCloneable, Tween {
     }
 
     /**
-     * Gets the length aka the duration of the current whole action that encloses Tweens.
+     * Gets the length (the duration) of the current action.
      * @return the length of the action in seconds.
      */
     @Override
@@ -99,7 +98,7 @@ public abstract class Action implements JmeCloneable, Tween {
     }
 
     /**
-     * Alter the length (duration) of this Action.
+     * Alters the length (duration) of this Action.
      * This can be used to extend or truncate an Action.
      * @param length the desired length (in unscaled seconds, default=0)
      */
@@ -108,8 +107,8 @@ public abstract class Action implements JmeCloneable, Tween {
     }
 
     /**
-     * Gets the speed of the frames of this action which gets applied for the Layer enclosing this action.
-     * Gets applied each Layer#advance() by this formula : time += tpf * currentAction.getSpeed() * ac.globalSpeed.
+     * Gets the speedup factor applied by the Layer for this action.
+     * The speed factor gets applied on each interpolation by this formula : time += tpf * currentAction.getSpeed() * ac.globalSpeed.
      * Default speed is 1.0, it plays the animation clips at their normal speed.
      * @return the speed of frames.
      */
@@ -118,8 +117,9 @@ public abstract class Action implements JmeCloneable, Tween {
     }
 
     /**
-     * Sets the speed of the frames of this action which gets applied for the Layer enclosing this action.
-     * Gets applied each Layer#advance() by this formula : time += tpf * currentAction.getSpeed() * ac.globalSpeed.
+     * Sets the speedup factor applied by the Layer running this action.
+     * This factor controls the animation direction, so if the speed is a positive value then the animation would run forward and vice versa.
+     * The speed factor gets applied on each interpolation by this formula : time += tpf * currentAction.getSpeed() * ac.globalSpeed.
      * Default speed is 1.0, it plays the animation clips at their normal speed.
      * @param speed the speed of frames.
      */
@@ -130,7 +130,8 @@ public abstract class Action implements JmeCloneable, Tween {
 
     /**
      * Gets the animation mask for this action.
-     * the animation mask holds data (subsets of an object) about which part of the animation would be played.
+     * The animation mask controls which part of the model would be animated. A model part can be
+     * registered using a {@link com.jme3.anim.Joint}.
      * @return the animation mask instance.
      */
     public AnimationMask getMask() {
@@ -139,7 +140,8 @@ public abstract class Action implements JmeCloneable, Tween {
 
     /**
      * Sets the animation mask for this action.
-     * the animation mask holds the info about which part (subsets of an object) of the animation to play, such as joints in {@link com.jme3.anim.ArmatureMask#addFromJoint(Armature, String)}.
+     * The animation mask controls which part of the model would be animated. A model part can be
+     * registered using a {@link com.jme3.anim.Joint}.
      * @param mask the animation mask instance.
      */
     public void setMask(AnimationMask mask) {
