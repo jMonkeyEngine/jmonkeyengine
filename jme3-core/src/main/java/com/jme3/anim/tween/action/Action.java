@@ -125,7 +125,7 @@ public abstract class Action implements JmeCloneable, Tween {
      */
     public void setSpeed(double speed) {
         this.speed = speed;
-        setForward(speed < 0);
+        setForward(!(speed < 0));
     }
 
     /**
@@ -159,6 +159,7 @@ public abstract class Action implements JmeCloneable, Tween {
     /**
      * The forward flag controls the animation action directionality.
      * @param forward true to run the animation forward, false otherwise.
+     * @see Action#setSpeed(double)
      */
     protected void setForward(boolean forward) {
         if(this.forward == forward){
