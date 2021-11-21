@@ -289,6 +289,7 @@ public final class AppSettings extends HashMap<String, Object> {
         defaults.put("SwapBuffers", true);
         defaults.put("OpenCL", false);
         defaults.put("OpenCLPlatformChooser", DefaultPlatformChooser.class.getName());
+        defaults.put("CenterWindow", true);
         //  defaults.put("Icons", null);
     }
 
@@ -1330,5 +1331,64 @@ public final class AppSettings extends HashMap<String, Object> {
      */
     public void setGraphicsTrace(boolean trace) {
         putBoolean("GraphicsTrace", trace);
+    }
+
+    /**
+     * Get the Center Window state
+     *
+     * @return true for center the window in the middle of the screen
+     * @see #setCenterWindow(boolean)
+     */
+    public boolean getCenterWindow() {
+        return getBoolean("CenterWindow");
+    }
+    
+    /**
+     * True to enable center the window.
+     *
+     * @param center whether to center the window or not.
+     */
+    public void setCenterWindow(boolean center) {
+        putBoolean("CenterWindow", center);
+    }
+
+    
+    /**
+     * Get the position of the window's X Position
+     *
+     * @return int screen coordinates of the X Position of the window
+     * @see #setWindowXPosition(int)
+     */
+    public int getWindowXPosition() {
+        return getInteger("windowXpos");
+    }
+    
+    /**
+     * The position of the window's X Position.
+     *
+     * @param pos screen coordinates for the X position.
+     */
+    public void setWindowXPosition(int pos) {
+        putInteger("windowXpos", pos);
+    }
+
+
+    /**
+     * Get the position of the window's Y Position
+     *
+     * @return int screen coordinates of the Y Position of the window
+     * @see #setWindowXPosition(int)
+     */
+    public int getWindowYPosition() {
+        return getInteger("windowYpos");
+    }
+    
+    /**
+     * The position of the window's Y Position.
+     *
+     * @param pos screen coordinates for the Y position.
+     */
+    public void setWindowYPosition(int pos) {
+        putInteger("windowYpos", pos);
     }
 }
