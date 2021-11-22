@@ -49,9 +49,29 @@ Developers in the Contributors team can push directly to Main instead of submitt
 
 general testing tips? WIP
 
+### Coding Style
+
++ Our preferred style for Java source code is
+  [Google style](https://google.github.io/styleguide/javaguide.html) with the following 8 modifications:
+  1. No blank line before a `package` statement. (Section 3)
+  2. Logical ordering of class contents is encouraged but not required. (Section 3.4.2)
+  3. Block indentation of +4 spaces instead of +2. (Section 4.2)
+  4. Column limit of 110 instead of 100. (Section 4.4)
+  5. Continuation line indentation of +8 spaces instead of +4. (Section 4.5.2)
+  6. Commented-out code need not be indented at the same level as surrounding code. (Section 4.8.6.1)
+  7. The names of test classes need not end in "Test". (Section 5.2.2)
+  8. No trailing whitespace.
++ Any pull request that adds new Java source files shall apply our preferred style to those files.
++ Any pull request that has style improvement as its primary purpose
+  shall apply our preferred style, or specific aspect(s) thereof, to every file it modifies.
++ Any pull request that modifies a pre-existing source file AND
+  doesn't have style improvement as it's primary purpose shall either:
+  1. conform to the prevailing style of that file OR
+  2. apply our preferred style, but only to the portions modified for the PR's primary purpose.
+
 ### Code Quality
 
-We generally abide by the standard Java Code Conventions. Besides that, just make an effort to write elegant code:
+Make an effort to write elegant code:
 
  1. Handles errors gracefully
  2. Only reinvents the wheel when there is a measurable benefit in doing so.
