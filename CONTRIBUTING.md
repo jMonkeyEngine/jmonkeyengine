@@ -22,7 +22,7 @@ p.s. We will try hold ourselves to a [certain standard](http://www.defmacro.org/
 There are many ways
 to submit a pull request (PR) to the "jmonkeyengine" project repository,
 depending on your knowledge of Git and which tools you prefer.
-Here are step-by-step instructions for a sophisticated setup
+Here are step-by-step instructions for a reusable setup
 using a web browser and a command-line tool such as Bash:
 
 1. Create a personal account at GitHub, if you don't already have one:
@@ -64,10 +64,12 @@ using a web browser and a command-line tool such as Bash:
   + `./gradlew clean build`
 10. Add and commit your changes to your local PR branch.
 11. Push the PR commits to your fork at GitHub:
-  + `git push --set-upstream origin myPrBranch`
+  + `git push --set-upstream origin ` ***yourPrBranchName***
+  + Type your GitHub user name at the "Username" prompt.
+  + Paste your access token (from step 3) at the "Password" prompt.
 12. Initiate the pull request:
   + Browse to [https://github.com/ ***yourGitHubUserName*** /jmonkeyengine]()
-  + Clicking on the "Compare & pull request" button at the top.
+  + Click on the "Compare & pull request" button at the top.
   + The "base repository:" should be "jMonkeyEngine/jmonkeyengine".
   + The "base:" should "master".
   + The "head repository:" should be your personal fork at GitHub.
@@ -75,11 +77,11 @@ using a web browser and a command-line tool such as Bash:
 13. Fill in the text boxes for the PR name and PR description, and
     click on the "Create pull request" button.
 
-To make changes to an existing PR:
+To amend an existing PR:
   + `git checkout myPrBranch`
   + repeat steps 8 through 11.
 
-To submit another PR using your existing local repository,
+To submit another PR using the existing local repository,
 repeat steps 7 through 13, using a different name in place of "myPrBranch".
 
 If you have an integrated development environment (IDE),
