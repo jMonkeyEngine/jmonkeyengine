@@ -13,14 +13,82 @@ Check out the [Projects](https://github.com/jMonkeyEngine/jmonkeyengine/projects
 
 When you're ready to submit your code, just make a [pull request](https://help.github.com/articles/using-pull-requests).
 
-- Do not commit your code until you have received proper feedback.
 - In your commit log message, please refer back to the originating forum thread (example) for a ‘full circle’ reference. Also please [reference related issues](https://help.github.com/articles/closing-issues-via-commit-messages) by typing the issue hashtag.
 - When committing, always be sure to run an update before you commit. If there is a conflict between the latest revision and your patch after the update, then it is your responsibility to track down the update that caused the conflict and determine the issue (and fix it). In the case where the breaking commit has no thread linked (and one cannot be found in the forum), then the contributor should contact an administrator and wait for feedback before committing.
 - If your code is committed and it introduces new functionality, please edit the wiki accordingly. We can easily roll back to previous revisions, so just do your best; point us to it and we’ll see if it sticks!
 
 p.s. We will try hold ourselves to a [certain standard](http://www.defmacro.org/2013/04/03/issue-etiquette.html) when it comes to GitHub etiquette. If at any point we fail to uphold this standard, let us know.
 
-#### Core Contributors
+There are many ways
+to submit a pull request (PR) to the "jmonkeyengine" project repository,
+depending on your knowledge of Git and which tools you prefer.
+Here are step-by-step instructions for a sophisticated setup
+using a web browser and a command-line tool such as Bash:
+
+1. Create a personal account at GitHub, if you don't already have one:
+  + Browse to https://github.com/
+  + Click on the "Sign up" button in the upper right.
+  + Follow the instructions.
+2. Sign into your GitHub account, if you're not already signed in:
+  + Browse to https://github.com/
+  + Click on the "Sign in" button in the upper right.
+  + Follow the instructions.
+3. Create a GitHub access token, if you don't already have one:
+  + Browse to https://github.com/settings/tokens
+  + Click on the "Generate new token" button in the upper right.
+  + Follow the instructions.
+  + When specifying the scope of the token, check the box labeled "repo".
+  + Copy the generated token to a secure location from which you can
+    easily paste it into your command-line tool.
+4. Create your personal fork of the "jmonkeyengine" repository at GitHub,
+   if you don't already have one:
+  + Browse to https://github.com/jMonkeyEngine/jmonkeyengine
+  + Click on the "Fork" button (upper right)
+  + Follow the instructions.
+  + If offered a choice of locations, choose your personal account.
+5. Clone the fork to your development system:
+  + `git clone https://github.com/` ***yourGitHubUserName*** `/jmonkeyengine.git`
+  + As of 2021, this step consumes about 1.3 GBytes of filesystem storage.
+6. Create a local branch for tracking the project repository:
+  + `cd jmonkeyengine`
+  + `git remote add project https://github.com/jMonkeyEngine/jmonkeyengine.git`
+  + `git fetch project`
+  + `git checkout -b project-master project/master`
+7. Create a local branch for your PR changes:
+  + `git checkout project-master`
+  + `git pull`
+  + `git checkout -b myPrBranch` (replace "myPrBranch" with a descriptive name)
+8. Make your changes in the working tree.
+9. Test your changes.
+   Testing should, at a minimum, include building the Engine from scratch:
+  + `./gradlew clean build`
+10. Add and commit your changes to your local PR branch.
+11. Push the PR commits to your fork at GitHub:
+  + `git push --set-upstream origin myPrBranch`
+12. Initiate the pull request:
+  + Browse to [https://github.com/ ***yourGitHubUserName*** /jmonkeyengine]()
+  + Clicking on the "Compare & pull request" button at the top.
+  + The "base repository:" should be "jMonkeyEngine/jmonkeyengine".
+  + The "base:" should "master".
+  + The "head repository:" should be your personal fork at GitHub.
+  + The "compare:" should be your PR branch, such as "myPrBranch".
+13. Fill in the text boxes for the PR name and PR description, and
+    click on the "Create pull request" button.
+
+To make changes to an existing PR:
+  + `git checkout myPrBranch`
+  + repeat steps 8 through 11.
+
+To submit another PR using your existing local repository,
+repeat steps 7 through 13, using a different name in place of "myPrBranch".
+
+If you have an integrated development environment (IDE),
+it may provide an interface to Git that's more intuitive than a command line.
+
+Generic instructions for creating GitHub pull requests can be found at
+https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request
+
+### Core Contributors
 
 Developers in the Contributors team can push directly to Main instead of submitting pull requests, however for new features it is often a good idea to do a pull request as a means to get a last code review.
 
