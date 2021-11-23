@@ -51,13 +51,13 @@ import com.jme3.scene.shape.Cylinder;
 
 /**
  * Tests {@link com.jme3.anim.tween.action.PieChartSpace} on a primitive geometry.
- *
+ * <p>
  * This test blends between 4 successive blendable actions, by changing the firstActionIndex and the secondActionIndex when the track times finishes
  * using the exposed functions of the pie chart blend space {@link PieChartSpace#setFirstAction(int)}, {@link PieChartSpace#setSecondAction(int)}.
- *
+ * <p>
  * It increments the angle (starting from angle 180 degrees) and the radius (starting from 0.5) on each run based on the time per frames and
  * the progressive time {@link TestPieChartSpace#progress}.
- *
+ * <p>
  * The sector angle is clamped in the range [0, 360] in degrees and the pie chart radius is
  * clamped in the range [0, 1].
  *
@@ -66,15 +66,15 @@ import com.jme3.scene.shape.Cylinder;
 public class TestPieChartSpace extends SimpleApplication {
 
     private final AnimComposer composer = new AnimComposer();
-    private PieChartSpace pieChartSpace;
-    private float progress = 0f;
-    private BlendAction blendAction;
     private final Node bambooNode = new Node();
-    private float progressToSwitch = 0f;
     private final Vector3f originalScale = new Vector3f();
     private final Vector3f originalTranslation = new Vector3f();
     //key frames timings in seconds
-    private final float[] times = new float[] {1, 2, 3, 4};
+    private final float[] times = new float[]{1, 2, 3, 4};
+    private PieChartSpace pieChartSpace;
+    private float progress = 0f;
+    private BlendAction blendAction;
+    private float progressToSwitch = 0f;
 
     public static void main(String[] args) {
         new TestPieChartSpace().start();
@@ -83,7 +83,7 @@ public class TestPieChartSpace extends SimpleApplication {
     @Override
     public void simpleInitApp() {
         //the mesh.
-        final Cylinder cylinder = new Cylinder(100,10,1,5f, true);
+        final Cylinder cylinder = new Cylinder(100, 10, 1, 5f, true);
         final Geometry bamboo = new Geometry("Bamboo Plant", cylinder);
         final Material material = new Material(assetManager, "Common/MatDefs/Misc/fakeLighting.j3md");
         material.setColor("Color", new ColorRGBA(0f, 0.15f, 0f, 1f));
@@ -95,7 +95,7 @@ public class TestPieChartSpace extends SimpleApplication {
         final ChaseCamera chaseCamera = new ChaseCamera(cam, bamboo, inputManager);
         chaseCamera.setDefaultDistance(-10f);
         chaseCamera.setDefaultHorizontalRotation(-FastMath.HALF_PI);
-        chaseCamera.setDefaultVerticalRotation(FastMath.PI/3f);
+        chaseCamera.setDefaultVerticalRotation(FastMath.PI / 3f);
         chaseCamera.setEnabled(true);
         chaseCamera.setSmoothMotion(true);
 
@@ -112,7 +112,7 @@ public class TestPieChartSpace extends SimpleApplication {
 
     private void startBlendAction() {
         //first action -- vertical traction.
-        final Quaternion[] verticalTraction = new Quaternion[] {
+        final Quaternion[] verticalTraction = new Quaternion[]{
                 new Quaternion().fromAngleAxis(0, Vector3f.UNIT_Z),
                 bambooNode.getLocalRotation().fromAngleAxis(0.6667f * FastMath.PI, Vector3f.UNIT_Z),
                 bambooNode.getLocalRotation().fromAngleAxis(0.6667f * FastMath.PI, Vector3f.UNIT_Z),
@@ -120,12 +120,12 @@ public class TestPieChartSpace extends SimpleApplication {
         };
         final TransformTrack bambooVerticalTraction = new TransformTrack(bambooNode, times, null, verticalTraction, null);
         final AnimClip verticalTractionClip = new AnimClip("Bamboo Rotation");
-        verticalTractionClip.setTracks(new AnimTrack[]{ bambooVerticalTraction });
+        verticalTractionClip.setTracks(new AnimTrack[]{bambooVerticalTraction});
         final ClipAction verticalTractionAction = new ClipAction(verticalTractionClip);
         verticalTractionAction.setSpeed(8f);
 
         //second action -- horizontal traction.
-        final Quaternion[] traction = new Quaternion[] {
+        final Quaternion[] traction = new Quaternion[]{
                 new Quaternion().fromAngleAxis(0, Vector3f.UNIT_X),
                 bambooNode.getLocalRotation().fromAngleAxis(0.1667f * FastMath.PI, Vector3f.UNIT_X),
                 bambooNode.getLocalRotation().fromAngleAxis(0.1667f * FastMath.PI, Vector3f.UNIT_X),
@@ -133,12 +133,12 @@ public class TestPieChartSpace extends SimpleApplication {
         };
         final TransformTrack bambooHorizontalTraction = new TransformTrack(bambooNode, times, null, traction, null);
         final AnimClip tractionClip = new AnimClip("Bamboo Traction");
-        tractionClip.setTracks(new AnimTrack[]{ bambooHorizontalTraction });
+        tractionClip.setTracks(new AnimTrack[]{bambooHorizontalTraction});
         final ClipAction horizontalTractionAction = new ClipAction(tractionClip);
         horizontalTractionAction.setSpeed(5f);
 
         //third action -- scales action.
-        final Vector3f[] scales = new Vector3f[] {
+        final Vector3f[] scales = new Vector3f[]{
                 originalScale,
                 bambooNode.getLocalScale().add(0.5f, 0.5f, 0.5f),
                 bambooNode.getLocalScale().add(0.5f, 0.5f, 0.5f),
@@ -146,20 +146,20 @@ public class TestPieChartSpace extends SimpleApplication {
         };
         final TransformTrack bambooScales = new TransformTrack(bambooNode, times, null, null, scales);
         final AnimClip bambooScalesClip = new AnimClip("Bamboo Scales");
-        bambooScalesClip.setTracks(new AnimTrack[]{ bambooScales });
+        bambooScalesClip.setTracks(new AnimTrack[]{bambooScales});
         final ClipAction scalesAction = new ClipAction(bambooScalesClip);
         scalesAction.setSpeed(2f);
 
         //forth action -- translation action.
-        final Vector3f[] translations = new Vector3f[] {
+        final Vector3f[] translations = new Vector3f[]{
                 originalTranslation,
-                bambooNode.getLocalTranslation().add(0,0, -0.1f),
-                bambooNode.getLocalTranslation().add(0,0, -0.2f),
+                bambooNode.getLocalTranslation().add(0, 0, -0.1f),
+                bambooNode.getLocalTranslation().add(0, 0, -0.2f),
                 bambooNode.getLocalTranslation().add(0, 0, -0.5f),
         };
         final TransformTrack bambooTranslations = new TransformTrack(bambooNode, times, null, null, translations);
         final AnimClip bambooTranslationsClip = new AnimClip("Bamboo Translations");
-        bambooTranslationsClip.setTracks(new AnimTrack[] {bambooTranslations});
+        bambooTranslationsClip.setTracks(new AnimTrack[]{bambooTranslations});
         final ClipAction translationsAction = new ClipAction(bambooTranslationsClip);
         translationsAction.setSpeed(2f);
 
@@ -177,7 +177,7 @@ public class TestPieChartSpace extends SimpleApplication {
     public void simpleUpdate(float tpf) {
         progressToSwitch += tpf;
         //manipulate actions manually when the time passes the last frame times
-        if(pieChartSpace.getFirstActionIndex() == 0 && pieChartSpace.getSecondActionIndex() == 1) {
+        if (pieChartSpace.getFirstActionIndex() == 0 && pieChartSpace.getSecondActionIndex() == 1) {
             // 5 seconds represents more than the times[] of the transform tracks
             if (progressToSwitch >= times[times.length - 1] + 1f) {
                 //re-switch them

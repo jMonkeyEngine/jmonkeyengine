@@ -42,7 +42,7 @@ import com.jme3.math.FastMath;
  *
  * @author pavl_g.
  */
-public class PieChartSpace implements BlendSpace{
+public class PieChartSpace implements BlendSpace {
 
     protected BlendAction action;
     //pie-chart radius -- max is 1f
@@ -72,8 +72,9 @@ public class PieChartSpace implements BlendSpace{
      * Instantiates a pie chart space with a radius and a sector angle,
      * radius is clamped in the range [0, 1] and angle is clamped
      * in the range [0, 360].
+     *
      * @param radius circle radius.
-     * @param angle sector angle in degrees.
+     * @param angle  sector angle in degrees.
      */
     public PieChartSpace(final float radius, final float angle) {
         //implicit suppression to extrapolation
@@ -93,7 +94,7 @@ public class PieChartSpace implements BlendSpace{
     @Override
     public float getWeight() {
         calculatePieChartTotalArea();
-        if(!sectorAreaManualAdjustment) {
+        if (!sectorAreaManualAdjustment) {
             calculateSectorArea();
         }
         //calculate the unit circle area.
@@ -129,7 +130,7 @@ public class PieChartSpace implements BlendSpace{
      * Notes :
      * - Altering the value of the sector area manually would
      * ignore both {@link PieChartSpace#area} and {@link PieChartSpace#angle}.
-     *
+     * <p>
      * - Adjust {@link PieChartSpace#setSectorAreaManualAdjustment(boolean)} to false
      * to neutralize the manual effect and return back to using both (the pie chart area and the angle).
      *
@@ -143,6 +144,15 @@ public class PieChartSpace implements BlendSpace{
     }
 
     /**
+     * Tests whether the manual adjustment is activated.
+     *
+     * @return true if manual adjustment is enabled, false otherwise.
+     */
+    public boolean isSectorAreaManualAdjustment() {
+        return sectorAreaManualAdjustment;
+    }
+
+    /**
      * Enables/Disables the manual area adjustment flag.
      *
      * @param sectorAreaManualAdjustment true to enable manual adjustment of the sector area ignoring both the pie chart area and the angle,
@@ -153,24 +163,8 @@ public class PieChartSpace implements BlendSpace{
     }
 
     /**
-     * Tests whether the manual adjustment is activated.
-     * @return true if manual adjustment is enabled, false otherwise.
-     */
-    public boolean isSectorAreaManualAdjustment() {
-        return sectorAreaManualAdjustment;
-    }
-
-    /**
-     * Alters the angle value of the pie-chart sector.
-     * Values are internally clamped in the range of [0, 360].
-     * @param angle the angle in degrees.
-     */
-    public void setAngle(float angle) {
-        this.angle = angle % 360.1f;
-    }
-
-    /**
      * Gets the angle value of the pie-chart sector in degrees.
+     *
      * @return the angle in degrees.
      */
     public float getAngle() {
@@ -178,16 +172,18 @@ public class PieChartSpace implements BlendSpace{
     }
 
     /**
-     * Alters the radius of the pie-chart.
-     * Values are internally clamped in the range of [0, 1].
-     * @param radius the circle radius.
+     * Alters the angle value of the pie-chart sector.
+     * Values are internally clamped in the range of [0, 360].
+     *
+     * @param angle the angle in degrees.
      */
-    public void setRadius(float radius) {
-        this.radius = radius % 1.1f;
+    public void setAngle(float angle) {
+        this.angle = angle % 360.1f;
     }
 
     /**
      * Gets the radius of the pie-chart.
+     *
      * @return the radius of the circle.
      */
     public float getRadius() {
@@ -195,9 +191,20 @@ public class PieChartSpace implements BlendSpace{
     }
 
     /**
+     * Alters the radius of the pie-chart.
+     * Values are internally clamped in the range of [0, 1].
+     *
+     * @param radius the circle radius.
+     */
+    public void setRadius(float radius) {
+        this.radius = radius % 1.1f;
+    }
+
+    /**
      * Gets the sector area, sector area depends on both {@link PieChartSpace#angle}, {@link PieChartSpace#radius}.
      * To change the sector area on runtime use : {@link PieChartSpace#setAngle(float)} and {@link PieChartSpace#setRadius(float)}
      * or use {@link PieChartSpace#setValue(float)} to directly alter the sector area.
+     *
      * @return the sector area.
      */
     public float getSectorArea() {
@@ -209,11 +216,12 @@ public class PieChartSpace implements BlendSpace{
      * Usually values represented here depends on the number of {@link com.jme3.anim.tween.action.BlendableAction}s used within
      * {@link com.jme3.anim.tween.action.BlendAction} arguments.
      * Default index of the second action is : action.getActions().length - 2
+     *
      * @param firstActionIndex the index of the first action.
      */
     public void setFirstAction(int firstActionIndex) {
         //sanity check the inputs
-        if(action == null){
+        if (action == null) {
             throw new IllegalStateException("A BlendAction instance hasn't been assigned to this blendSpace yet, use this setter after instantiating a BlendAction on this space !");
         }
         assert (firstActionIndex < action.getActions().length);
@@ -226,11 +234,12 @@ public class PieChartSpace implements BlendSpace{
      * Usually values represented here depends on the number of {@link com.jme3.anim.tween.action.BlendableAction}s used within
      * {@link com.jme3.anim.tween.action.BlendAction} arguments.
      * Default index of the second action is : action.getActions().length - 1
+     *
      * @param secondActionIndex the index of the second action.
      */
     public void setSecondAction(int secondActionIndex) {
         //sanity check the inputs
-        if(action == null){
+        if (action == null) {
             throw new IllegalStateException("A BlendAction instance hasn't been assigned to this blendSpace yet, use this setter after instantiating a BlendAction on this space!");
         }
         assert (secondActionIndex < action.getActions().length);
@@ -240,15 +249,17 @@ public class PieChartSpace implements BlendSpace{
 
     /**
      * Gets the actions involved in the space blend action.
+     *
      * @return the actions of the space blend action.
      */
-    public Action[] getActions(){
+    public Action[] getActions() {
         return action.getActions();
     }
 
     /**
      * Gets the first action index.
      * Default index of the first action is : action.getActions().length - 2
+     *
      * @return the first action index.
      */
     public int getFirstActionIndex() {
@@ -258,6 +269,7 @@ public class PieChartSpace implements BlendSpace{
     /**
      * Gets the second action index.
      * Default index of the second action is : action.getActions().length - 1
+     *
      * @return the second action index.
      */
     public int getSecondActionIndex() {
