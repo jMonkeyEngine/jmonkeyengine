@@ -22,8 +22,15 @@ p.s. We will try hold ourselves to a [certain standard](http://www.defmacro.org/
 There are many ways
 to submit a pull request (PR) to the "jmonkeyengine" project repository,
 depending on your knowledge of Git and which tools you prefer.
-Here are step-by-step instructions for a reusable setup
-using a web browser and a command-line tool such as Bash:
+
+<details>
+    <summary>
+        Click to view step-by-step instructions for a reusable setup
+        using a web browser and a command-line tool such as Bash.
+    </summary>
+
+The setup described here allows you to reuse the same local repo for many PRs.
+Steps 1 through 6 only need to be done once...
 
 1. Create a personal account at GitHub, if you don't already have one:
   + Browse to https://github.com/
@@ -79,13 +86,14 @@ using a web browser and a command-line tool such as Bash:
 
 To amend an existing PR:
   + `git checkout myPrBranch`
-  + repeat steps 8 through 11.
+  + Repeat steps 8 through 11.
 
 To submit another PR using the existing local repository,
 repeat steps 7 through 13, using a different name in place of "myPrBranch".
 
 If you have an integrated development environment (IDE),
 it may provide an interface to Git that's more intuitive than a command line.
+</details>
 
 Generic instructions for creating GitHub pull requests can be found at
 https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request
