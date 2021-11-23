@@ -65,7 +65,7 @@ public class ContrastAdjustmentFilter extends Filter {
     protected Material material;
 
     /**
-     * Instantiates a default color contrast filter, default brightness and default scale.
+     * Instantiates a default color contrast filter, default input range and default scale.
      * Default values :
      * - Exponents = 1.0f on all channels.
      * - Input Range Lower Limit = 0f.

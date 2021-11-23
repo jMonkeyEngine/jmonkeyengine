@@ -1,4 +1,4 @@
-//Utilized by the jme3-effects/src/main/java/com.jme3/post/filters/ColorAdjustmentFilter.java to adjust the textures color contrast and brightness
+//Utilized by the jme3-effects/src/main/java/com.jme3/post/filters/ColorAdjustmentFilter.java to adjust the rendered scene color contrast
 //supports both OGL and OGLES glsl
 
 MaterialDef ColorContrast {
