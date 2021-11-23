@@ -30,7 +30,10 @@ depending on your knowledge of Git and which tools you prefer.
     </summary>
 
 The setup described here allows you to reuse the same local repo for many PRs.
-Steps 1 through 6 only need to be done once...
+
+#### Prerequisites
+
+These steps need only be done once...
 
 1. Create a personal account at GitHub, if you don't already have one:
   + Browse to https://github.com/
@@ -61,35 +64,38 @@ Steps 1 through 6 only need to be done once...
   + `git remote add project https://github.com/jMonkeyEngine/jmonkeyengine.git`
   + `git fetch project`
   + `git checkout -b project-master project/master`
-7. Create a local branch for your PR changes:
+
+#### PR process
+
+1. Create an up-to-date local branch for your PR changes:
   + `git checkout project-master`
   + `git pull`
   + `git checkout -b myPrBranch` (replace "myPrBranch" with a descriptive name)
-8. Make your changes in the working tree.
-9. Test your changes.
+2. Make your changes in the working tree.
+3. Test your changes.
    Testing should, at a minimum, include building the Engine from scratch:
   + `./gradlew clean build`
-10. Add and commit your changes to your local PR branch.
-11. Push the PR commits to your fork at GitHub:
+4. Add and commit your changes to your local PR branch.
+5. Push the PR commits to your fork at GitHub:
   + `git push --set-upstream origin ` ***yourPrBranchName***
   + Type your GitHub user name at the "Username" prompt.
   + Paste your access token (from step 3) at the "Password" prompt.
-12. Initiate the pull request:
+6. Initiate the pull request:
   + Browse to [https://github.com/ ***yourGitHubUserName*** /jmonkeyengine]()
   + Click on the "Compare & pull request" button at the top.
   + The "base repository:" should be "jMonkeyEngine/jmonkeyengine".
   + The "base:" should "master".
   + The "head repository:" should be your personal fork at GitHub.
   + The "compare:" should be your PR branch, such as "myPrBranch".
-13. Fill in the text boxes for the PR name and PR description, and
+7. Fill in the text boxes for the PR name and PR description, and
     click on the "Create pull request" button.
 
 To amend an existing PR:
   + `git checkout myPrBranch`
-  + Repeat steps 8 through 11.
+  + Repeat steps 2 through 5.
 
 To submit another PR using the existing local repository,
-repeat steps 7 through 13, using a different name in place of "myPrBranch".
+repeat the PR process using a different name in place of "myPrBranch".
 
 If you have an integrated development environment (IDE),
 it may provide an interface to Git that's more intuitive than a command line.
