@@ -33,10 +33,36 @@ Developers in the Contributors team can push directly to Main instead of submitt
 - In general, library changes that plausibly might break existing apps appear only in major releases, not minor ones.
 
 
-## Building the engine
+## How to build the Engine from source
 
-1. Install [Gradle](http://www.gradle.org/)
-2. Navigate to the project directory and run 'gradle build' from command line to build the engine.
+### Prerequisites
+
+These steps need only be done once...
+
+1. Install a Java Development Kit (JDK), if you don't already have one.
+2. Set the `JAVA_HOME` environment variable:
+  + using Bash: `export JAVA_HOME="` *path to your JDK* `"`
+  + using PowerShell: `$env:JAVA_HOME = '` *path to your JDK* `'`
+  + using Windows Command Prompt: `set JAVA_HOME="` *path to your JDK* `"`
+
+   The path points to a directory containing "bin" and "lib" subdirectories.
+   On Linux it might be something like "/usr/lib/jvm/java-17-openjdk-amd64"
+
+3. Clone the project repository from GitHub:
+  + `git clone https://github.com/jmonkeyengine/jmonkeyengine.git`
+  + `cd jmonkeyengine`
+  + As of 2021, this step consumes about 1.3 GBytes of filesystem storage.
+
+### Build command
+
+Run the Gradle wrapper:
+
++ using Bash or PowerShell: `./gradlew build`
++ using Windows Command Prompt: `.\gradlew build`
+
+After a successful build,
+snapshot jars will be found in the "*/build/libs" subfolders.
+
 
 ## Best Practices
 
