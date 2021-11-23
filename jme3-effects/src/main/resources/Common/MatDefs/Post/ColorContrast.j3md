@@ -6,14 +6,14 @@ MaterialDef ColorContrast {
     MaterialParameters {
         Int NumSamples
         Texture2D Texture
-        Float exp_r
-        Float exp_g
-        Float exp_b
-        Float minBrightness
-        Float maxBrightness
-        Float scale_r
-        Float scale_g
-        Float scale_b
+        Float redChannelExponent
+        Float greenChannelExponent
+        Float blueChannelExponent
+        Float lowerLimit
+        Float upperLimit
+        Float redChannelScale
+        Float greenChannelScale
+        Float blueChannelScale
     }
 
     Technique {

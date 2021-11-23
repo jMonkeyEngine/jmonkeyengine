@@ -31,26 +31,25 @@
  */
 
 /**
- * Utilized by the ColorContrast.j3md to adjust the textures color contrast and brightness
- * based on a transfer function that uses a simple power law on color.rgb before processing those colors as a fragment
- * shader by the rasterizer, the color channels can be scaled independently again at the final pass using
- * a scale factor from 0 to 1.0.
+ * Utilized by the ColorContrast.j3md to adjust the color channels contrast by adjusting the input range of the color channels based on
+ * an upper and a lower limit, adjusting the exponent of different color channels and scaling the output values.
  *
  * Supports GLSL100 GLSL110 GLSL120 GLSL130.
  */
 
 //constant inputs from java source
-uniform float m_exp_r;
-uniform float m_exp_g;
-uniform float m_exp_b;
+uniform float m_redChannelExponent;
+uniform float m_greenChannelExponent;
+uniform float m_blueChannelExponent;
 
 //final scale values
-uniform float m_scale_r;
-uniform float m_scale_g;
-uniform float m_scale_b;
+uniform float m_redChannelScale;
+uniform float m_greenChannelScale;
+uniform float m_blueChannelScale;
 
-uniform float m_minBrightness;
-uniform float m_maxBrightness;
+//input range
+uniform float m_lowerLimit;
+uniform float m_upperLimit;
 
 //container for the input from post.vert
 uniform sampler2D m_Texture;
@@ -65,20 +64,20 @@ void main() {
 
     //apply the color transfer function.
 
-    //1) apply brightness to color.rgb.
-    color.rgb = (color.rgb - vec3(m_minBrightness)) / (vec3(m_maxBrightness) - vec3(m_minBrightness));
-    //limit the chromaticity space into the +ve quadrant
+    //1) adjust the channels input range
+    color.rgb = (color.rgb - vec3(m_lowerLimit)) / (vec3(m_upperLimit) - vec3(m_lowerLimit));
+    // limit the chromaticity space into the +ve quadrant
     color.rgb = abs(color.rgb);
 
     //2) apply transfer functions on different channels.
-    color.r = pow(color.r, m_exp_r);
-    color.g = pow(color.g, m_exp_g);
-    color.b = pow(color.b, m_exp_b);
+    color.r = pow(color.r, m_redChannelExponent);
+    color.g = pow(color.g, m_greenChannelExponent);
+    color.b = pow(color.b, m_blueChannelExponent);
 
     //3) apply a final scale factor, between 0.0 and 1.0.
-    color.r = color.r * min(max(m_scale_r, 0.0), 1.0);
-    color.b = color.b * min(max(m_scale_b, 0.0), 1.0);
-    color.g = color.g * min(max(m_scale_g, 0.0), 1.0);
+    color.r = color.r * min(max(m_redChannelScale, 0.0), 1.0);
+    color.b = color.b * min(max(m_blueChannelScale, 0.0), 1.0);
+    color.g = color.g * min(max(m_greenChannelScale, 0.0), 1.0);
 
     //4) process the textures colors.
     gl_FragColor = color;
