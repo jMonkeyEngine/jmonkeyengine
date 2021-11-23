@@ -183,7 +183,7 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener, Di
     }
 
     /**
-     * Custom thread that delays the attachment surface view on the UI for the sake of initial frame pacing and splash screens,
+     * Delays the attachment surface view on the UI for the sake of initial frame pacing and splash screens,
      * delaying the display of the game (GlSurfaceView) would lead to a substantial delay in the {@link GLSurfaceView.Renderer#onDrawFrame(GL10)} which would
      * delay invoking both {@link LegacyApplication#initialize()} and {@link LegacyApplication#update()}.
      * @see JmeSurfaceView#startRenderer(int)
