@@ -37,220 +37,207 @@ import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.material.Material;
-import com.jme3.math.Vector2f;
-import com.jme3.math.Vector3f;
 import com.jme3.post.Filter;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import java.io.IOException;
 
 /**
- * A color filter used to change the contrast for each color channel independently and the brightness of colors
- * of the scene textures based on a simple transfer function.
- *
- * The transfer function involves setting the brightness of colors based on a maxValue and a minValue,
- * then setting the contrast of each color channel independently using a power law function before the textures' colors are processed by the
- * rasterizer and the final result can be scaled again on runtime using scale factors from 0.0 to 1.0.
+ * A color filter used to adjust the contrast for color channels of the rendered scene by using a
+ * simple transfer function which involves adjusting the input range of the color channels based on
+ * an upper and a lower limit, adjusting the exponent of different color channels and scaling the output values
+ * before being processed by the fragment shader.
  *
  * @author pavl_g.
  */
 public class ContrastAdjustmentFilter extends Filter {
-    //the different channels exponents
-    protected float exp_r = 2.2f;
-    protected float exp_g = 2.2f;
-    protected float exp_b = 2.2f;
-    //the minimum value and the maximum value of the brightness parameter
-    protected float minBrightness = 0f;
-    protected float maxBrightness = 1f;
+
+    protected float redChannelExponent;
+    protected float greenChannelExponent;
+    protected float blueChannelExponent;
+    //the lower value and the upper value of the inputRange
+    protected float lowerLimit;
+    protected float upperLimit;
     //the final pass scale factor
-    protected float scale_r = 1f;
-    protected float scale_b = 1f;
-    protected float scale_g = 1f;
+    protected float redChannelScale;
+    protected float greenChannelScale;
+    protected float blueChannelScale;
     protected Material material;
 
     /**
      * Instantiates a default color contrast filter, default brightness and default scale.
      * Default values :
-     * - Exponents = 2.2 on all channels.
-     * - Brightness = 1.0f (normal).
-     * - Scale = 1.0f.
+     * - Exponents = 1.0f on all channels.
+     * - Input Range Lower Limit = 0f.
+     * - Input Range Upper Limit = 1f.
+     * - Scale = 1.0f on all channels.
      */
     public ContrastAdjustmentFilter() {
-        super(ContrastAdjustmentFilter.class.getName());
+        this(1f);
     }
 
     /**
-     * Instantiates a color contrast filter with a default brightness and default scale.
-     * Default values :
-     * - Brightness = 1.0f (normal).
-     * - Scale = 1.0f.
+     * Instantiates a color contrast filter with a specific exponent, default scale and default input range.
      *
-     * @param exp_r the red color exponent.
-     * @param exp_b the blue color exponent.
-     * @param exp_g the green color exponent.
+     * @param exponent an exponent to apply on all channels.
      */
-    public ContrastAdjustmentFilter(float exp_r, float exp_b, float exp_g) {
-        super(ContrastAdjustmentFilter.class.getName());
-        this.exp_r = exp_r;
-        this.exp_g = exp_g;
-        this.exp_b = exp_b;
+    public ContrastAdjustmentFilter(float exponent) {
+        setExponents(exponent, exponent, exponent);
     }
 
-    /**
-     * Instantiates a color contrast filter by adjusting different parameters.
-     *
-     * @param exponents  the exponents applied to the colors in order, where x = r, y = g, z = b.
-     * @param brightness the brightness applied to the textures in order, where x = minBrightness, y = maxBrightness.
-     * @param scales     the final pass scales that would be applied on the color channels before being processed in order, where x = scale_r, y = scale_g, z = scale_b.
-     */
-    public ContrastAdjustmentFilter(Vector3f exponents, Vector2f brightness, Vector3f scales) {
-        super(ContrastAdjustmentFilter.class.getName());
-        this.exp_r = exponents.x;
-        this.exp_b = exponents.y;
-        this.exp_g = exponents.z;
-        this.minBrightness = brightness.x;
-        this.maxBrightness = brightness.y;
-        this.scale_r = scales.x;
-        this.scale_b = scales.y;
-        this.scale_g = scales.z;
-    }
 
     /**
      * Sets the exponents used to adjust the contrast of the color channels.
-     * Default values are 2.2f.
+     * Default values are 1f.
      *
-     * @param exp_r the red channel exponent.
-     * @param exp_b the blue channel exponent.
-     * @param exp_g the green channel exponent.
+     * @param redChannelExponent   the red channel exponent.
+     * @param greenChannelExponent the green channel exponent.
+     * @param blueChannelExponent  the blue channel exponent.
+     * @return this filter instance for a chain call.
      */
-    public void setExponents(float exp_r, float exp_b, float exp_g) {
-        this.exp_r = exp_r;
-        this.exp_b = exp_b;
-        this.exp_g = exp_g;
+    public ContrastAdjustmentFilter setExponents(float redChannelExponent, float greenChannelExponent, float blueChannelExponent) {
+        this.redChannelExponent = redChannelExponent;
+        this.greenChannelExponent = greenChannelExponent;
+        this.blueChannelExponent = blueChannelExponent;
 
         if (material == null) {
-            return;
+            return this;
         }
         //different channels exp for different transfer functions
-        material.setFloat("exp_r", exp_r);
-        material.setFloat("exp_g", exp_g);
-        material.setFloat("exp_b", exp_b);
-    }
-
-    /**
-     * Retrieves the blue channel exponent.
-     * Default value = 2.2.
-     * @return the blue channel exponent.
-     */
-    public float getExp_b() {
-        return exp_b;
-    }
-
-    /**
-     * Retrieves the green channel exponent.
-     * Default value = 2.2.
-     * @return the green channel exponent.
-     */
-    public float getExp_g() {
-        return exp_g;
+        material.setFloat("redChannelExponent", redChannelExponent);
+        material.setFloat("greenChannelExponent", greenChannelExponent);
+        material.setFloat("blueChannelExponent", blueChannelExponent);
+        return this;
     }
 
     /**
      * Retrieves the red channel exponent.
-     * Default value = 2.2.
+     * Default value = 1.0f
+     *
      * @return the red channel exponent.
      */
-    public float getExp_r() {
-        return exp_r;
+    public float getRedChannelExponent() {
+        return redChannelExponent;
     }
 
     /**
-     * Sets the color channels brightness using a maxValue and a minValue based on this equation :
-     * color.rgb = (color.rgb - minBrightness) / (maxBrightness - minBrightness)
-     * where; increasing the minBrightness value and increasing the difference between maxBrightness and minBrightness would decrease the brightness,
-     * while decreasing the minBrightness value and increasing the difference between maxBrightness and minBrightness would increase the brightness.
-     * The final brightness value is always above 0.0.
-     * @param minValue the minimum brightness value to use, default is 0f.
-     * @param maxValue the maximum brightness value to use, default is 1f.
+     * Retrieves the green channel exponent.
+     * Default value = 1.0f.
+     *
+     * @return the green channel exponent.
      */
-    public void setBrightness(float minValue, float maxValue) {
-        this.minBrightness = minValue;
-        this.maxBrightness = maxValue;
+    public float getGreenChannelExponent() {
+        return greenChannelExponent;
+    }
+
+    /**
+     * Retrieves the blue channel exponent.
+     * Default value = 1.0f
+     *
+     * @return the blue channel exponent.
+     */
+    public float getBlueChannelExponent() {
+        return blueChannelExponent;
+    }
+
+    /**
+     * Sets the color channels input range using a lowerLimit and an upperLimit based on this equation :
+     * color.rgb = (color.rgb - lowerLimit) / (upperLimit - lowerLimit)
+     * where; increasing the lowerLimit value and increasing the difference between upperLimit and lowerLimit would decrease the input range,
+     * while decreasing the lowerLimit value and increasing the difference between upperLimit and lowerLimit would increase the input range.
+     * The final input range value is always above 0.0.
+     *
+     * @param lowerLimit the lower value of the color channels input range, default is 0f.
+     * @param upperLimit the higher value of the color channels input range, default is 1f.
+     * @return this filter instance for a chain call.
+     */
+    public ContrastAdjustmentFilter setInputRange(float lowerLimit, float upperLimit) {
+        this.lowerLimit = lowerLimit;
+        this.upperLimit = upperLimit;
 
         if (material == null) {
-            return;
+            return this;
         }
 
-        //brightness minValue and maxValue
-        material.setFloat("minBrightness", minBrightness);
-        material.setFloat("maxBrightness", maxBrightness);
+        //inputRange values
+        material.setFloat("lowerLimit", lowerLimit);
+        material.setFloat("upperLimit", upperLimit);
+        return this;
     }
 
     /**
-     * Retrieves the value of the minimum brightness that is applied on the color channels.
+     * Retrieves the channels input range lower limit.
      * Default value = 0.0.
-     * @return the minimum adjusted brightness.
+     *
+     * @return the lower limit of the channels input range.
      */
-    public float getMinBrightness() {
-        return minBrightness;
+    public float getInputRangeLowerLimit() {
+        return lowerLimit;
     }
 
     /**
-     * Retrieves the value of the maximum brightness that is applied on the color channels.
+     * Retrieves the channels input range upper limit.
      * Default value = 1.0.
-     * @return the maximum adjusted brightness.
+     *
+     * @return the upper limit of the channels input range.
      */
-    public float getMaxBrightness() {
-        return maxBrightness;
+    public float getInputRangeUpperLimit() {
+        return upperLimit;
     }
 
     /**
      * Adjusts the scales of different channels.
      * Default values = 1.0.
-     * @param scale_r the rea channel scale.
-     * @param scale_b the blue channel scale.
-     * @param scale_g the green channel scale.
+     *
+     * @param redChannelScale   the red channel scale.
+     * @param greenChannelScale the green channel scale.
+     * @param blueChannelScale  the blue channel scale.
+     * @return this filter instance for a chain call.
      */
-    public void setScales(float scale_r, float scale_b, float scale_g) {
-        this.scale_r = scale_r;
-        this.scale_g = scale_g;
-        this.scale_b = scale_b;
+    public ContrastAdjustmentFilter setScales(float redChannelScale, float greenChannelScale, float blueChannelScale) {
+        this.redChannelScale = redChannelScale;
+        this.greenChannelScale = greenChannelScale;
+        this.blueChannelScale = blueChannelScale;
 
         if (material == null) {
-            return;
+            return this;
         }
 
         //adjust the scales of different channels through the material file
-        material.setFloat("scale_r", scale_r);
-        material.setFloat("scale_g", scale_g);
-        material.setFloat("scale_b", scale_b);
+        material.setFloat("redChannelScale", redChannelScale);
+        material.setFloat("greenChannelScale", greenChannelScale);
+        material.setFloat("blueChannelScale", blueChannelScale);
+        return this;
     }
 
     /**
      * Retrieves the value of the red channel scale that's applied on the final pass.
      * Default value = 1.0.
+     *
      * @return the scale of the red channel.
      */
-    public float getScale_r() {
-        return scale_r;
+    public float getRedChannelScale() {
+        return redChannelScale;
     }
 
     /**
      * Retrieves the value of the green channel scale that's applied on the final pass.
      * Default value = 1.0.
+     *
      * @return the scale of the green channel.
      */
-    public float getScale_g() {
-        return scale_g;
+    public float getGreenChannelScale() {
+        return greenChannelScale;
     }
 
     /**
      * Retrieves the value of the blue channel scale that's applied on the final pass.
      * Default value = 1.0.
+     *
      * @return the scale of the blue channel.
      */
-    public float getScale_b() {
-        return scale_b;
+    public float getBlueChannelScale() {
+        return blueChannelScale;
     }
 
     @Override
@@ -262,13 +249,13 @@ public class ContrastAdjustmentFilter extends Filter {
         material = new Material(manager, "Common/MatDefs/Post/ColorContrast.j3md");
 
         //different channels exp for different transfer functions
-        setExponents(exp_r, exp_b, exp_b);
+        setExponents(redChannelExponent, greenChannelExponent, blueChannelExponent);
 
-        //brightness minValue and maxValue
-        setBrightness(minBrightness, maxBrightness);
+        //input range
+        setInputRange(lowerLimit, upperLimit);
 
         //final pass scales
-        setScales(scale_r, scale_g, scale_b);
+        setScales(redChannelScale, greenChannelScale, blueChannelScale);
     }
 
     @Override
@@ -283,27 +270,27 @@ public class ContrastAdjustmentFilter extends Filter {
     public void read(JmeImporter im) throws IOException {
         super.read(im);
         final InputCapsule inputCapsule = im.getCapsule(this);
-        exp_r = inputCapsule.readFloat("exp_r", 2.2f);
-        exp_g = inputCapsule.readFloat("exp_g", 2.2f);
-        exp_b = inputCapsule.readFloat("exp_b", 2.2f);
-        minBrightness = inputCapsule.readFloat("minBrightness", 0f);
-        maxBrightness = inputCapsule.readFloat("maxBrightness", 1f);
-        scale_r = inputCapsule.readFloat("scale_r", 1f);
-        scale_g = inputCapsule.readFloat("scale_g", 1f);
-        scale_b = inputCapsule.readFloat("scale_b", 1f);
+        redChannelExponent = inputCapsule.readFloat("redChannelExponent", 1f);
+        greenChannelExponent = inputCapsule.readFloat("greenChannelExponent", 1f);
+        blueChannelExponent = inputCapsule.readFloat("blueChannelExponent", 1f);
+        lowerLimit = inputCapsule.readFloat("lowerLimit", 0f);
+        upperLimit = inputCapsule.readFloat("upperLimit", 1f);
+        redChannelScale = inputCapsule.readFloat("redChannelScale", 1f);
+        greenChannelScale = inputCapsule.readFloat("greenChannelScale", 1f);
+        blueChannelScale = inputCapsule.readFloat("blueChannelScale", 1f);
     }
 
     @Override
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
         final OutputCapsule outputCapsule = ex.getCapsule(this);
-        outputCapsule.write(exp_r, "exp_r", 2.2f);
-        outputCapsule.write(exp_g, "exp_g", 2.2f);
-        outputCapsule.write(exp_b, "exp_b", 2.2f);
-        outputCapsule.write(minBrightness, "minBrightness", 0f);
-        outputCapsule.write(maxBrightness, "maxBrightness", 1f);
-        outputCapsule.write(scale_r, "scale_r", 1f);
-        outputCapsule.write(scale_g, "scale_g", 1f);
-        outputCapsule.write(scale_b, "scale_b", 1f);
+        outputCapsule.write(redChannelExponent, "redChannelExponent", 1f);
+        outputCapsule.write(greenChannelExponent, "greenChannelExponent", 1f);
+        outputCapsule.write(blueChannelExponent, "blueChannelExponent", 1f);
+        outputCapsule.write(lowerLimit, "lowerLimit", 0f);
+        outputCapsule.write(upperLimit, "upperLimit", 1f);
+        outputCapsule.write(redChannelScale, "redChannelScale", 1f);
+        outputCapsule.write(greenChannelScale, "greenChannelScale", 1f);
+        outputCapsule.write(blueChannelScale, "blueChannelScale", 1f);
     }
 }

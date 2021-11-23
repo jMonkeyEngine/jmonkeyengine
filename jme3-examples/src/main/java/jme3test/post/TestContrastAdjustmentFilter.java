@@ -45,7 +45,7 @@ import com.jme3.texture.Texture;
 
 /**
  * Tests {@link ContrastAdjustmentFilter} on different color channels with an
- * adjustable scale and brightness during runtime.
+ * adjustable exponents, scales and input range during runtime.
  * @author pavl_g.
  */
 public class TestContrastAdjustmentFilter extends SimpleApplication {
@@ -75,11 +75,11 @@ public class TestContrastAdjustmentFilter extends SimpleApplication {
 
         //setup the filter
         final FilterPostProcessor postProcessor = new FilterPostProcessor(assetManager);
-        //setting up some parameters
-        final Vector3f exponents = new Vector3f(1.8f, 1.8f, 2.1f);
-        final Vector3f scales = new Vector3f(0.25f, 0.25f, 1f);
-        final Vector2f brightness = new Vector2f(0, 0.367f);
-        contrastAdjustmentFilter = new ContrastAdjustmentFilter(exponents, brightness, scales);
+        contrastAdjustmentFilter = new ContrastAdjustmentFilter();
+        //adjusting some parameters
+        contrastAdjustmentFilter.setExponents(1.8f, 1.8f, 2.1f)
+                                .setInputRange(0, 0.367f)
+                                .setScales(0.25f, 0.25f, 1f);
         postProcessor.addFilter(contrastAdjustmentFilter);
         viewPort.addProcessor(postProcessor);
 
@@ -93,9 +93,9 @@ public class TestContrastAdjustmentFilter extends SimpleApplication {
         }
         if (contrastAdjustmentFilter != null) {
             //adjust the transfer function during runtime
-            contrastAdjustmentFilter.setScales(counter * 0.5f, counter, counter * 0.5f);
-            contrastAdjustmentFilter.setExponents(counter, counter * 2f, counter);
-            contrastAdjustmentFilter.setBrightness(0, 1 / counter);
+            contrastAdjustmentFilter.setScales(counter * 0.5f, counter, counter * 0.5f)
+                                    .setExponents(counter, counter * 2f, counter)
+                                    .setInputRange(0, 1 / counter);
         }
     }
 }
