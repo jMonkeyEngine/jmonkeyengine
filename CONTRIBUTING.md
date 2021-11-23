@@ -25,8 +25,8 @@ depending on your knowledge of Git and which tools you prefer.
 
 <details>
     <summary>
-        Click to view step-by-step instructions for a reusable setup
-        using a web browser and a command-line tool such as Bash.
+        ***Click to view step-by-step instructions for a reusable setup
+        using a web browser and a command-line tool such as Bash.***
     </summary>
 
 The setup described here allows you to reuse the same local repo for many PRs.
