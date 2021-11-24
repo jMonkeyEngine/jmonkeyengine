@@ -67,27 +67,27 @@ These steps need only be done once...
 
 #### PR process
 
-1. Create an up-to-date local branch for your PR changes:
+1. Create a temporary, up-to-date, local branch for your PR changes:
   + `git checkout project-master`
   + `git pull`
-  + `git checkout -b myPrBranch` (replace "myPrBranch" with a descriptive name)
+  + `git checkout -b tmpBranch` (replace "tmpBranch" with a descriptive name)
 2. Make your changes in the working tree.
 3. Test your changes.
    Testing should, at a minimum, include building the Engine from scratch:
   + `./gradlew clean build`
-4. Add and commit your changes to your local PR branch.
+4. Add and commit your changes to your temporary local branch.
 5. Push the PR commits to your fork at GitHub:
-  + `git push --set-upstream origin ` ***yourPrBranchName***
+  + `git push --set-upstream origin ` ***tmpBranchName***
   + Type your GitHub user name at the "Username" prompt.
-  + Paste your access token (from step 3) at the "Password" prompt.
+  + Paste your access token (from prerequisite step 3) at the "Password" prompt.
 6. Initiate the pull request:
   + Browse to [https://github.com/ ***yourGitHubUserName*** /jmonkeyengine]()
   + Click on the "Compare & pull request" button at the top.
   + The "base repository:" should be "jMonkeyEngine/jmonkeyengine".
-  + The "base:" should "master".
+  + The "base:" should be "master".
   + The "head repository:" should be your personal fork at GitHub.
-  + The "compare:" should be your PR branch, such as "myPrBranch".
-7. Fill in the text boxes for the PR name and PR description, and
+  + The "compare:" should be the name of your temporary branch.
+7. Fill in the textboxes for the PR name and PR description, and
     click on the "Create pull request" button.
 
 To amend an existing PR:
@@ -95,7 +95,7 @@ To amend an existing PR:
   + Repeat steps 2 through 5.
 
 To submit another PR using the existing local repository,
-repeat the PR process using a different name in place of "myPrBranch".
+repeat the PR process using a new temporary branch with a different name.
 
 If you have an integrated development environment (IDE),
 it may provide an interface to Git that's more intuitive than a command line.
