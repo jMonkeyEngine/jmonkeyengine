@@ -85,7 +85,7 @@ These steps need only be done once...
     click on the "Create pull request" button.
 
 To amend an existing PR:
-  + `git checkout myPrBranch`
+  + `git checkout tmpBranch`
   + Repeat steps 2 through 5.
 
 To submit another PR using the existing local repository,
