@@ -1188,7 +1188,10 @@ public final class GLRenderer implements Renderer {
         if (loc < 0) {
             uniform.setLocation(-1);
             // uniform is not declared in shader
-            logger.log(Level.FINE, "Uniform {0} is not declared in shader {1}.", new Object[]{uniform.getName(), shader.getSources()});
+            if (logger.isLoggable(Level.FINE)) {
+                logger.log(Level.FINE, "Uniform {0} is not declared in shader {1}.",
+                        new Object[]{uniform.getName(), shader.getSources()});
+            }
         } else {
             uniform.setLocation(loc);
         }

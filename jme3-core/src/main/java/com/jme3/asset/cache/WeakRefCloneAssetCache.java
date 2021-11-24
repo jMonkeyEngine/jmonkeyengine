@@ -114,7 +114,7 @@ public class WeakRefCloneAssetCache implements AssetCache {
                 removedAssets ++;
             }
         }
-        if (removedAssets >= 1) {
+        if (removedAssets >= 1 && logger.isLoggable(Level.FINE)) {
             logger.log(Level.FINE, "WeakRefCloneAssetCache: {0} assets were purged from the cache.", removedAssets);
         }
     }
