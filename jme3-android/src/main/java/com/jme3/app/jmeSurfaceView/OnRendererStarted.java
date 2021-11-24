@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,22 +31,25 @@
  */
 package com.jme3.app.jmeSurfaceView;
 
+import android.view.View;
 import com.jme3.app.LegacyApplication;
 import com.jme3.system.AppSettings;
 
 /**
- * An interface used for invoking an event when the user delay finishes, on the first update of the game.
- * @see JmeSurfaceView#setOnRendererCompleted(OnRendererCompleted)
+ * An interface used for invoking an event when the application is started explicitly from {@link JmeSurfaceView#startRenderer(int)}.
+ * NB : This listener must be utilized before using {@link JmeSurfaceView#startRenderer(int)}, ie : it would be ignored if you try to use {@link JmeSurfaceView#setOnRendererStarted(OnRendererStarted)} after
+ * {@link JmeSurfaceView#startRenderer(int)}.
+ * @see JmeSurfaceView#setOnRendererStarted(OnRendererStarted)
  *
  * @author pavl_g.
  */
-public interface OnRendererCompleted {
+public interface OnRendererStarted {
     /**
-     * Invoked when the user delay finishes, on the first update of the game, the event is dispatched on the
-     * enclosing Activity context thread.
-     * @see JmeSurfaceView#update()
-     * @param application the current jme game instance.
-     * @param appSettings the current window settings of the running jme game.
+     * Invoked when the game application is started by the {@link LegacyApplication#start()}, the event is dispatched on the
+     * holder Activity context thread.
+     * @see JmeSurfaceView#startRenderer(int)
+     * @param application the game instance.
+     * @param layout the enclosing layout.
      */
-    void onRenderCompletion(LegacyApplication application, AppSettings appSettings);
+    void onRenderStart(LegacyApplication application, View layout);
 }
