@@ -40,14 +40,14 @@ Developers in the Contributors team can push directly to Main instead of submitt
 These steps need only be done once...
 
 1. Install a Java Development Kit (JDK), if you don't already have one.
-2. Set the `JAVA_HOME` environment variable:
+2. Set the JAVA_HOME environment variable:
   + using Bash: `export JAVA_HOME="` *path to your JDK* `"`
   + using PowerShell: `$env:JAVA_HOME = '` *path to your JDK* `'`
   + using Windows Command Prompt: `set JAVA_HOME="` *path to your JDK* `"`
-
-   The path points to a directory containing "bin" and "lib" subdirectories.
-   On Linux it might be something like "/usr/lib/jvm/java-17-openjdk-amd64"
-
+  + Tip: The path names a directory containing "bin" and "lib" subdirectories.
+    On Linux it might be something like "/usr/lib/jvm/java-17-openjdk-amd64"
+  + Tip: You may be able to skip this step
+    if the JDK binaries are in your system path.
 3. Clone the project repository from GitHub:
   + `git clone https://github.com/jmonkeyengine/jmonkeyengine.git`
   + `cd jmonkeyengine`
@@ -56,13 +56,21 @@ These steps need only be done once...
 ### Build command
 
 Run the Gradle wrapper:
-
 + using Bash or PowerShell: `./gradlew build`
 + using Windows Command Prompt: `.\gradlew build`
 
 After a successful build,
 snapshot jars will be found in the "*/build/libs" subfolders.
 
+### Related Gradle tasks
+
+You can install the Maven artifacts to your local repository:
+ + using Bash or PowerShell:  `./gradlew install`
+ + using Windows Command Prompt:  `.\gradlew install`
+
+You can restore the project to a pristine state:
+ + using Bash or PowerShell: `./gradlew clean`
+ + using Windows Command Prompt: `.\gradlew clean`
 
 ## Best Practices
 
