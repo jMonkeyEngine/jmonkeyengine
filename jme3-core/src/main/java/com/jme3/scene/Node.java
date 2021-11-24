@@ -431,9 +431,7 @@ public class Node extends Spatial {
         Spatial child = children.remove(index);
         if (child != null) {
             child.setParent(null);
-            if (logger.isLoggable(Level.FINE)) {
-                logger.log(Level.FINE, "{0}: Child removed.", this.toString());
-            }
+            logger.log(Level.FINE, "{0}: Child removed.", this);
 
             // since a child with a bound was detached;
             // our own bound will probably change.
@@ -463,9 +461,7 @@ public class Node extends Spatial {
         for (int i = children.size() - 1; i >= 0; i--) {
             detachChildAt(i);
         }
-        if (logger.isLoggable(Level.FINE)) {
-            logger.log(Level.FINE, "{0}: All children removed.", this.toString());
-        }
+        logger.log(Level.FINE, "{0}: All children removed.", this);
     }
 
     /**
