@@ -478,7 +478,8 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         // NOTE: this is required for Mac OS X!
         mainThread = Thread.currentThread();
         mainThread.setName("jME3 Main");
-        run();
+        new Thread(this, "jME3 Main").start();
+//        run();
     }
 
     /**
