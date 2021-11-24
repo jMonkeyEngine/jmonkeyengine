@@ -291,6 +291,8 @@ public final class AppSettings extends HashMap<String, Object> {
         defaults.put("OpenCL", false);
         defaults.put("OpenCLPlatformChooser", DefaultPlatformChooser.class.getName());
         defaults.put("UseRetinaFrameBuffer", true);// MacOS spec
+        defaults.put("windowYpos", 0);
+        defaults.put("windowXpos", 0);
         //  defaults.put("Icons", null);
     }
 
@@ -1353,9 +1355,9 @@ public final class AppSettings extends HashMap<String, Object> {
     }
     
     /**
-     * Get the Center Window state
+     * Get the Centering Window state
      *
-     * @return true for center the window in the middle of the screen
+     * @return true to center the window in the middle of the screen
      * @see #setCenterWindow(boolean)
      */
     public boolean getCenterWindow() {
@@ -1363,7 +1365,7 @@ public final class AppSettings extends HashMap<String, Object> {
     }
     
     /**
-     * True to enable center the window.
+     * True to enable centering the window.
      *
      * @param center whether to center the window or not.
      */
@@ -1373,7 +1375,9 @@ public final class AppSettings extends HashMap<String, Object> {
 
     
     /**
-     * Get the position of the window's X Position
+     * Get the window's X Position on the screen.
+     * This value is ignored when CenterWindow is set to true
+     * @see #setCenterWindow(boolean)
      *
      * @return int screen coordinates of the X Position of the window
      * @see #setWindowXPosition(int)
@@ -1383,7 +1387,9 @@ public final class AppSettings extends HashMap<String, Object> {
     }
     
     /**
-     * The position of the window's X Position.
+     * Set the window's X Position on the screen.
+     * This value is ignored when CenterWindow is set to true
+     * @see #setCenterWindow(boolean)
      *
      * @param pos screen coordinates for the X position.
      */
@@ -1393,7 +1399,9 @@ public final class AppSettings extends HashMap<String, Object> {
 
 
     /**
-     * Get the position of the window's Y Position
+     * Get the window's Y Position on the screen.
+     * This value is ignored when CenterWindow is set to true
+     * @see #setCenterWindow(boolean)
      *
      * @return int screen coordinates of the Y Position of the window
      * @see #setWindowXPosition(int)
@@ -1403,9 +1411,11 @@ public final class AppSettings extends HashMap<String, Object> {
     }
     
     /**
-     * The position of the window's Y Position.
+     * Set the window's Y Position on the screen.
+     * This value is ignored when CenterWindow is set to true
+     * @see #setCenterWindow(boolean)
      *
-     * @param pos screen coordinates for the Y position.
+     * @param pos screen coordinates for the Y position of the window.
      */
     public void setWindowYPosition(int pos) {
         putInteger("windowYpos", pos);
