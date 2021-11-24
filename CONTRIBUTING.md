@@ -35,31 +35,25 @@ The setup described here allows you to reuse the same local repo for many PRs.
 
 These steps need only be done once...
 
-1. Create a personal account at GitHub, if you don't already have one:
-  + Browse to https://github.com/
-  + Click on the "Sign up" button in the upper right.
-  + Follow the instructions.
-2. Sign into your GitHub account, if you're not already signed in:
-  + Browse to https://github.com/
-  + Click on the "Sign in" button in the upper right.
-  + Follow the instructions.
-3. Create a GitHub access token, if you don't already have one:
+1. You'll need a personal account on https://github.com/ .
+   The "Sign up" and "Sign in" buttons are in the upper-right corner.
+2. Create a GitHub access token, if you don't already have one:
   + Browse to https://github.com/settings/tokens
   + Click on the "Generate new token" button in the upper right.
   + Follow the instructions.
   + When specifying the scope of the token, check the box labeled "repo".
   + Copy the generated token to a secure location from which you can
     easily paste it into your command-line tool.
-4. Create your personal fork of the "jmonkeyengine" repository at GitHub,
+3. Create your personal fork of the "jmonkeyengine" repository at GitHub,
    if you don't already have one:
   + Browse to https://github.com/jMonkeyEngine/jmonkeyengine
   + Click on the "Fork" button (upper right)
   + Follow the instructions.
   + If offered a choice of locations, choose your personal account.
-5. Clone the fork to your development system:
+4. Clone the fork to your development system:
   + `git clone https://github.com/` ***yourGitHubUserName*** `/jmonkeyengine.git`
   + As of 2021, this step consumes about 1.3 GBytes of filesystem storage.
-6. Create a local branch for tracking the project repository:
+5. Create a local branch for tracking the project repository:
   + `cd jmonkeyengine`
   + `git remote add project https://github.com/jMonkeyEngine/jmonkeyengine.git`
   + `git fetch project`
@@ -79,7 +73,7 @@ These steps need only be done once...
 5. Push the PR commits to your fork at GitHub:
   + `git push --set-upstream origin ` ***tmpBranchName***
   + Type your GitHub user name at the "Username" prompt.
-  + Paste your access token (from prerequisite step 3) at the "Password" prompt.
+  + Paste your access token (from prerequisite step 2) at the "Password" prompt.
 6. Initiate the pull request:
   + Browse to [https://github.com/ ***yourGitHubUserName*** /jmonkeyengine]()
   + Click on the "Compare & pull request" button at the top.
