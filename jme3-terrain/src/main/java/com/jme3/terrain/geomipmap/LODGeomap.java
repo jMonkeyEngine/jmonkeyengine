@@ -165,7 +165,7 @@ public class LODGeomap extends GeoMap {
 
         // generate center squares minus the edges
         //System.out.println("for (x="+lod+"; x<"+(getWidth()-(2*lod))+"; x+="+lod+")");
-        //System.out.println("	for (z="+lod+"; z<"+(getWidth()-(1*lod))+"; z+="+lod+")");
+        //System.out.println("    for (z="+lod+"; z<"+(getWidth()-(1*lod))+"; z+="+lod+")");
         for (int r = lod; r < getWidth() - (2 * lod); r += lod) { // row
             int rowIdx = r * getWidth();
             int nextRowIdx = (r + 1 * lod) * getWidth();
@@ -195,7 +195,7 @@ public class LODGeomap extends GeoMap {
         int br = getWidth() * (getWidth() - lod) - 1 - lod;
         buffer.put(br); // bottom right -1
         int corner = getWidth() * getWidth() - 1;
-        buffer.put(corner);	// bottom right corner
+        buffer.put(corner);    // bottom right corner
         if (rightLod) { // if lower LOD
             for (int row = getWidth() - lod; row >= 1 + lod; row -= 2 * lod) {
                 int idx = (row) * getWidth() - 1 - lod;
@@ -229,7 +229,7 @@ public class LODGeomap extends GeoMap {
 
         //System.out.println("\ntop:");
 
-        // top 			(the order gets reversed here so the diagonals line up)
+        // top (the order gets reversed here so the diagonals line up)
         if (topLod) { // if lower LOD
             if (rightLod) {
                 buffer.put(getWidth() - 1);
@@ -364,7 +364,7 @@ public class LODGeomap extends GeoMap {
 
         // generate center squares minus the edges
         //System.out.println("for (x="+lod+"; x<"+(getWidth()-(2*lod))+"; x+="+lod+")");
-        //System.out.println("	for (z="+lod+"; z<"+(getWidth()-(1*lod))+"; z+="+lod+")");
+        //System.out.println("    for (z="+lod+"; z<"+(getWidth()-(1*lod))+"; z+="+lod+")");
         for (int r = lod; r < getWidth() - (2 * lod); r += lod) { // row
             int rowIdx = r * getWidth();
             int nextRowIdx = (r + 1 * lod) * getWidth();
@@ -394,7 +394,7 @@ public class LODGeomap extends GeoMap {
         int br = getWidth() * (getWidth() - lod) - 1 - lod;
         buffer.put(br); // bottom right -1
         int corner = getWidth() * getWidth() - 1;
-        buffer.put(corner);	// bottom right corner
+        buffer.put(corner);    // bottom right corner
         if (rightLod > lod) { // if lower LOD
             int idx = corner;
             int it = (getWidth() - 1) / rightLod; // iterations
@@ -436,7 +436,7 @@ public class LODGeomap extends GeoMap {
 
         //System.out.println("\ntop:");
 
-        // top 			(the order gets reversed here so the diagonals line up)
+        // top (the order gets reversed here so the diagonals line up)
         if (topLod > lod) { // if lower LOD
             if (rightLod > lod) {
                 // need to flip winding order
@@ -608,7 +608,7 @@ public class LODGeomap extends GeoMap {
         //System.out.println("side: "+side);
         int num = side * side * 2;
         //System.out.println("num: "+num);
-        num -= 2 * side;	// remove one first row and one last row (they are only hit once each)
+        num -= 2 * side;    // remove one first row and one last row (they are only hit once each)
         //System.out.println("num2: "+num);
         // now get the degenerate indexes that exist between strip rows
         int degenerates = 2 * (side - (2)); // every row except the first and last
