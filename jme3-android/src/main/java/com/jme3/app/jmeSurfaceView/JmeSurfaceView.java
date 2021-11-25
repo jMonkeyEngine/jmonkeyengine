@@ -211,18 +211,46 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener, Di
 
     //******************End of Helper Classes************************
 
+    //******************Constructors************************
+
+    /**
+     * Instantiates a default surface view holder without XML attributes.
+     * On instantiating this surface view, the holder is bound directly to the
+     * parent context life cycle.
+     *
+     * @param context the parent context.
+     */
     public JmeSurfaceView(@NonNull Context context) {
         super(context);
         //binds the view component to the holder activity life cycle
         bindAppStateToActivityLifeCycle(bindAppState);
     }
 
+    /**
+     * Instantiates a surface view holder with XML attributes from an XML document.
+     * On instantiating this surface view, the holder is bound directly to the
+     * parent context life cycle.
+     *
+     * @param context the parent context.
+     * @param attrs   a collection of attributes describes the tags in an XML document.
+     * @see android.content.res.Resources.Theme#obtainAttributes(AttributeSet, int[])
+     */
     public JmeSurfaceView(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         //binds the view component to the holder activity life cycle
         bindAppStateToActivityLifeCycle(bindAppState);
     }
 
+    /**
+     * Instantiates a surface view holder with XML attributes and a default style attribute.
+     *
+     * @param context      the parent context.
+     * @param attrs        a collection of attributes describes the tags in an XML document.
+     * @param defStyleAttr an attribute in the current theme that contains a
+     *                     reference to a style resource that supplies
+     *                     defaults values.
+     * @see android.content.res.Resources.Theme#obtainStyledAttributes(AttributeSet, int[], int, int)
+     */
     public JmeSurfaceView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         //binds the view component to the holder activity life cycle
@@ -230,7 +258,26 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener, Di
     }
 
     /**
+     * Instantiates a surface view holder with XML attributes, default style attribute and a default style resource.
+     *
+     * @param context      the parent context.
+     * @param attrs        a collection of attributes describes the tags in an XML document.
+     * @param defStyleAttr an attribute in the current theme that contains defaults.
+     * @param defStyleRes  a resource identifier of a style resource that
+     *                     supplies default values, used only if defStyleAttr is 0 or can not be found in the theme.
+     * @see android.content.res.Resources.Theme#obtainStyledAttributes(AttributeSet, int[], int, int)
+     */
+    public JmeSurfaceView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+        super(context, attrs, defStyleAttr, defStyleRes);
+        //binds the view component to the holder activity life cycle
+        bindAppStateToActivityLifeCycle(bindAppState);
+    }
+
+    //******************End of constructors************************
+
+    /**
      * Starts the jmeRenderer on a GlSurfaceView attached to a RelativeLayout.
+     *
      * @param delayMillis delays the attachment of the surface view to the UI (RelativeLayout).
      */
     public void startRenderer(int delayMillis) {
