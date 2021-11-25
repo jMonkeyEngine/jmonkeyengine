@@ -32,8 +32,10 @@
 package com.jme3.app.jmeSurfaceView;
 
 /**
- * Embedded interface designed to listen to exceptions and fire when an exception is thrown.
+ * An interface designed to listen for exceptions and fire an event when an exception is thrown.
  * @see JmeSurfaceView#setOnExceptionThrown(OnExceptionThrown)
+ *
+ * @author pavl_g.
  */
 public interface OnExceptionThrown {
     /**
