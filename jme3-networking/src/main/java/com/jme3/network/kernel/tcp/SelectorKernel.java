@@ -205,7 +205,7 @@ public class SelectorKernel extends AbstractKernel
 
         // Must copy the shared data before we use it
         byte[] dataCopy = new byte[size];
-		System.arraycopy(shared.array(), 0, dataCopy, 0, size);
+        System.arraycopy(shared.array(), 0, dataCopy, 0, size);
 
         Envelope env = new Envelope( p, dataCopy, true );
         addEnvelope( env );

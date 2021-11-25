@@ -610,7 +610,7 @@ public class AwtKeyInput implements KeyInput, KeyListener {
             case KeyEvent.VK_ALT:
                 return KEY_LMENU; //Left vs. Right need to improve
             case KeyEvent.VK_META:
-            	return KEY_RCONTROL;
+                return KEY_RCONTROL;
             case KeyEvent.VK_PRINTSCREEN:
                 return KEY_PRTSCR;
 
