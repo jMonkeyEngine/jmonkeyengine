@@ -291,8 +291,8 @@ public final class AppSettings extends HashMap<String, Object> {
         defaults.put("OpenCL", false);
         defaults.put("OpenCLPlatformChooser", DefaultPlatformChooser.class.getName());
         defaults.put("UseRetinaFrameBuffer", true);// MacOS spec
-        defaults.put("windowYpos", 0);
-        defaults.put("windowXpos", 0);
+        defaults.put("windowYPosition", 0);
+        defaults.put("windowXPosition", 0);
         //  defaults.put("Icons", null);
     }
 
@@ -1383,7 +1383,7 @@ public final class AppSettings extends HashMap<String, Object> {
      * @see #setWindowXPosition(int)
      */
     public int getWindowXPosition() {
-        return getInteger("windowXpos");
+        return getInteger("windowXPosition");
     }
     
     /**
@@ -1394,7 +1394,7 @@ public final class AppSettings extends HashMap<String, Object> {
      * @param pos screen coordinates for the X position.
      */
     public void setWindowXPosition(int pos) {
-        putInteger("windowXpos", pos);
+        putInteger("windowXPosition", pos);
     }
 
 
@@ -1407,7 +1407,7 @@ public final class AppSettings extends HashMap<String, Object> {
      * @see #setWindowXPosition(int)
      */
     public int getWindowYPosition() {
-        return getInteger("windowYpos");
+        return getInteger("windowYPosition");
     }
     
     /**
@@ -1418,7 +1418,7 @@ public final class AppSettings extends HashMap<String, Object> {
      * @param pos screen coordinates for the Y position of the window.
      */
     public void setWindowYPosition(int pos) {
-        putInteger("windowYpos", pos);
+        putInteger("windowYPosition", pos);
     }
 
     
