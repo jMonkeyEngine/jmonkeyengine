@@ -730,8 +730,10 @@ public class Geometry extends Spatial {
                 material = im.getAssetManager().loadMaterial(matName);
             } catch (AssetNotFoundException ex) {
                 // Cannot find J3M file.
-                logger.log(Level.FINE, "Cannot locate {0} for geometry {1}",
-                        new Object[]{matName, key});
+                if (logger.isLoggable(Level.FINE)) {
+                    logger.log(Level.FINE, "Cannot locate {0} for geometry {1}",
+                            new Object[]{matName, key});
+                }
             }
         }
         // If material is NULL, try to load it from the geometry

@@ -1517,7 +1517,7 @@ public final class GLRenderer implements Renderer {
             if (infoLog != null) {
                 logger.log(Level.WARNING, "{0} compiled successfully, compiler warnings: \n{1}",
                         new Object[]{source.getName(), infoLog});
-            } else {
+            } else if (logger.isLoggable(Level.FINE)) {
                 logger.log(Level.FINE, "{0} compiled successfully.", source.getName());
             }
             source.clearUpdateNeeded();

@@ -673,8 +673,10 @@ public class AndroidHarnessFragment extends Fragment implements
                 int newHeight = bottom-top;
 
                 if (viewWidth != newWidth || viewHeight != newHeight) {
-                    logger.log(Level.FINE, "SurfaceView layout changed: old width: {0}, old height: {1}, new width: {2}, new height: {3}",
-                            new Object[]{viewWidth, viewHeight, newWidth, newHeight});
+                    if (logger.isLoggable(Level.FINE)) {
+                        logger.log(Level.FINE, "SurfaceView layout changed: old width: {0}, old height: {1}, new width: {2}, new height: {3}",
+                                new Object[]{viewWidth, viewHeight, newWidth, newHeight});
+                    }
                     viewWidth = newWidth;
                     viewHeight = newHeight;
 
@@ -694,8 +696,10 @@ public class AndroidHarnessFragment extends Fragment implements
                     }
                     // set the surfaceview resolution if the size != current view size
                     if (fixedSizeWidth != viewWidth || fixedSizeHeight != viewHeight) {
-                        logger.log(Level.FINE, "setting surfaceview resolution to width: {0}, height: {1}",
-                                new Object[]{fixedSizeWidth, fixedSizeHeight});
+                        if (logger.isLoggable(Level.FINE)) {
+                            logger.log(Level.FINE, "setting surfaceview resolution to width: {0}, height: {1}",
+                                    new Object[]{fixedSizeWidth, fixedSizeHeight});
+                        }
                         view.getHolder().setFixedSize(fixedSizeWidth, fixedSizeHeight);
                     }
                 }

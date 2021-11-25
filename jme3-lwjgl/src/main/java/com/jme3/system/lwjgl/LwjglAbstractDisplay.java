@@ -217,7 +217,9 @@ public abstract class LwjglAbstractDisplay extends LwjglContext implements Runna
         }
 
         loadNatives();
-        logger.log(Level.FINE, "Using LWJGL {0}", Sys.getVersion());
+        if (logger.isLoggable(Level.FINE)) {
+            logger.log(Level.FINE, "Using LWJGL {0}", Sys.getVersion());
+        }
         if (!initInThread()) {
             logger.log(Level.SEVERE, "Display initialization failed. Cannot continue.");
             return;

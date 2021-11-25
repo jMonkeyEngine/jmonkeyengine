@@ -485,7 +485,9 @@ public class LegacyApplication implements Application, SystemListener {
             settings = new AppSettings(true);
         }
 
-        logger.log(Level.FINE, "Starting application: {0}", getClass().getName());
+        if (logger.isLoggable(Level.FINE)) {
+            logger.log(Level.FINE, "Starting application: {0}", getClass().getName());
+        }
         context = JmeSystem.newContext(settings, contextType);
         context.setSystemListener(this);
         context.create(waitFor);
@@ -538,7 +540,9 @@ public class LegacyApplication implements Application, SystemListener {
             settings = new AppSettings(true);
         }
 
-        logger.log(Level.FINE, "Starting application: {0}", getClass().getName());
+        if (logger.isLoggable(Level.FINE)) {
+            logger.log(Level.FINE, "Starting application: {0}", getClass().getName());
+        }
         context = JmeSystem.newContext(settings, JmeContext.Type.Canvas);
         context.setSystemListener(this);
     }
@@ -613,7 +617,9 @@ public class LegacyApplication implements Application, SystemListener {
      */
     @Override
     public void stop(boolean waitFor){
-        logger.log(Level.FINE, "Closing application: {0}", getClass().getName());
+        if (logger.isLoggable(Level.FINE)) {
+            logger.log(Level.FINE, "Closing application: {0}", getClass().getName());
+        }
         context.destroy(waitFor);
     }
 

@@ -193,7 +193,9 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
         created.set(true);
 
         logger.fine("OGLESContext create");
-        logger.log(Level.FINE, "Running on thread: {0}", Thread.currentThread().getName());
+        if (logger.isLoggable(Level.FINE)) {
+            logger.log(Level.FINE, "Running on thread: {0}", Thread.currentThread().getName());
+        }
 
         // Setup unhandled Exception Handler
         Thread.currentThread().setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
@@ -314,7 +316,9 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
     // SystemListener:reshape
     @Override
     public void onSurfaceChanged(GL10 gl, int width, int height) {
-        logger.log(Level.FINE, "GL Surface changed, width: {0} height: {1}", new Object[]{width, height});
+        if (logger.isLoggable(Level.FINE)) {
+            logger.log(Level.FINE, "GL Surface changed, width: {0} height: {1}", new Object[]{width, height});
+        }
         // update the application settings with the new resolution
         settings.setResolution(width, height);
         // reload settings in androidInput so the correct touch event scaling can be
@@ -412,8 +416,10 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
 
     @Override
     public void requestDialog(final int id, final String title, final String initialValue, final SoftTextDialogInputListener listener) {
-        logger.log(Level.FINE, "requestDialog: title: {0}, initialValue: {1}",
-                new Object[]{title, initialValue});
+        if (logger.isLoggable(Level.FINE)) {
+            logger.log(Level.FINE, "requestDialog: title: {0}, initialValue: {1}",
+                    new Object[]{title, initialValue});
+        }
 
         final View view = JmeAndroidSystem.getView();
         view.getHandler().post(new Runnable() {

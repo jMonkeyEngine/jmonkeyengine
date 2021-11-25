@@ -752,7 +752,9 @@ public class LodGenerator {
                 if (!tri.isRemoved) {
                     tri.isRemoved = true;
                     indexCount -= 3;
-                    logger.log(Level.FINE, "duplicate triangle found{0}{1} It will be excluded from Lod level calculations.", new Object[]{tri, duplicate});
+                    if (logger.isLoggable(Level.FINE)) {
+                        logger.log(Level.FINE, "duplicate triangle found{0}{1} It will be excluded from Lod level calculations.", new Object[]{tri, duplicate});
+                    }
                 }
             }
         }

@@ -133,9 +133,11 @@ public class AndroidTouchInput implements TouchInput {
             scaleX = settings.getWidth() / (float)androidInput.getView().getWidth();
             scaleY = settings.getHeight() / (float)androidInput.getView().getHeight();
         }
-        logger.log(Level.FINE, "Setting input scaling, scaleX: {0}, scaleY: {1}",
-                new Object[]{scaleX, scaleY});
 
+        if (logger.isLoggable(Level.FINE)) {
+            logger.log(Level.FINE, "Setting input scaling, scaleX: {0}, scaleY: {1}",
+                    new Object[]{scaleX, scaleY});
+        }
 
     }
 
