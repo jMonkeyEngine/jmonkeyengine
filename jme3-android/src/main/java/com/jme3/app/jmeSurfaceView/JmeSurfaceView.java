@@ -131,9 +131,9 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener, Di
         private static boolean firstUpdatePassed = false;
 
         /**
-         * Protected constructor to inhibit instantiation of this class.
+         * Private constructor to inhibit instantiation of this class.
          */
-        protected GameState() {
+        private GameState() {
         }
 
         /**
