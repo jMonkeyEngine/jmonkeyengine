@@ -121,13 +121,20 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener, Di
     /**
      * Used as a static memory to protect the game context from destruction by Activity#onDestroy().
      * For usages :
+     *
      * @see DestructionPolicy
      * @see JmeSurfaceView#setDestructionPolicy(DestructionPolicy)
      */
-    protected enum GameState {
-        ;
+    protected static final class GameState {
+
         private static LegacyApplication legacyApplication;
         private static boolean firstUpdatePassed = false;
+
+        /**
+         * Protected constructor to inhibit instantiation of this class.
+         */
+        protected GameState() {
+        }
 
         /**
          * Replaces the current application state.
