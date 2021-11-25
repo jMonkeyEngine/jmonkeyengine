@@ -143,7 +143,7 @@ public class NewtonianParticleInfluencer extends DefaultParticleInfluencer {
     }
 
     @Override
-    public ParticleInfluencer clone() {
+    public NewtonianParticleInfluencer clone() {
         NewtonianParticleInfluencer result = new NewtonianParticleInfluencer();
         result.normalVelocity = normalVelocity;
         result.initialVelocity = initialVelocity;

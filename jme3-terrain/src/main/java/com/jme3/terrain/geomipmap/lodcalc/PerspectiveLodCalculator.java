@@ -132,9 +132,9 @@ public class PerspectiveLodCalculator implements LodCalculator {
     }
 
     @Override
-    public LodCalculator clone() {
+    public PerspectiveLodCalculator clone() {
         try {
-            return (LodCalculator) super.clone();
+            return (PerspectiveLodCalculator) super.clone();
         } catch (CloneNotSupportedException ex) {
             throw new AssertionError();
         }

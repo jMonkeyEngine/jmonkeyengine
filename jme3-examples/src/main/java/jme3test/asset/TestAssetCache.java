@@ -59,7 +59,7 @@ public class TestAssetCache {
         private byte[] data = new byte[10 * 1024];
 
         @Override
-        public Object clone(){
+        public DummyData clone(){
             try {
                 DummyData clone = (DummyData) super.clone();
                 clone.data = data.clone();
