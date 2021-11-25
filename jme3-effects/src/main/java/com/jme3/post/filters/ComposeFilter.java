@@ -44,8 +44,8 @@ import com.jme3.texture.Texture2D;
 import java.io.IOException;
 
 /**
- * This filter compose a texture with the viewport texture. This is used to
- * compose post processed texture from another viewport.
+ * This filter composes a texture with the viewport texture. This is used to
+ * compose post-processed texture from another viewport.
  *
  * the compositing is done using the alpha value of the viewportTexture :
  * mix(compositeTextureColor, viewPortColor, viewportColor.alpha);

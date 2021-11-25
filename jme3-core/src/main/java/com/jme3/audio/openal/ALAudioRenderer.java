@@ -377,12 +377,12 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
             // There is a race condition in AudioSource that can
             // cause this to be called for a node that has been
             // detached from its channel.  For example, setVolume()
-            // called from the render thread may see that that AudioSource
+            // called from the render thread may see that the AudioSource
             // still has a channel value but the audio thread may
             // clear that channel before setVolume() gets to call
             // updateSourceParam() (because the audio stopped playing
             // on its own right as the volume was set).  In this case, 
-            // it should be safe to just ignore the update
+            // it should be safe to just ignore the update.
             if (src.getChannel() < 0) {
                 return;
             }

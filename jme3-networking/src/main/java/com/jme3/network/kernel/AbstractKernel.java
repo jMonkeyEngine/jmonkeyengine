@@ -82,7 +82,7 @@ public abstract class AbstractKernel implements Kernel
         // envelopes.
         if( !hasEnvelopes() ) {
             // Note: this is not really a race condition.  At worst, our
-            // event has already been handled by now and it does no harm
+            // event has already been handled, and it does no harm
             // to check again.
             addEnvelope( EVENTS_PENDING );
         }

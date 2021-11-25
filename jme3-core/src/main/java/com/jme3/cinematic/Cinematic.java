@@ -77,7 +77,7 @@ import java.util.logging.Logger;
  * @see Cinematic#stop()
  *
  * A cinematic is itself a CinematicEvent, meaning you can embed several
- * Cinematics Embed cinematics must not be added to the stateManager though.
+ * Cinematics. Embedded cinematics must not be added to the stateManager though.
  *
  * Cinematic has a way to handle several point of view by creating CameraNode
  * over a cam and activating them on schedule.
@@ -727,7 +727,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
     }
 
     /**
-     * used internally to cleanup the cinematic. Called when the clear() method
+     * used internally to clean up the cinematic. Called when the clear() method
      * is called
      */
     @Override

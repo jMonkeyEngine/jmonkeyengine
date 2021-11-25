@@ -257,7 +257,7 @@ public class DDSLoader implements AssetLoader {
                 mipMapCount = expectedMipmaps;
             } else if (mipMapCount != expectedMipmaps) {
                 // changed to warning- images often do not have the required amount,
-                // or specify that they have mipmaps but include only the top level..
+                // or specify that they have mipmaps but include only the top level.
                 logger.log(Level.WARNING, "Got {0} mipmaps, expected {1}",
                         new Object[]{mipMapCount, expectedMipmaps});
             }
