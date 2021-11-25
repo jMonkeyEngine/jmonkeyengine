@@ -243,12 +243,14 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener, Di
 
     /**
      * Instantiates a surface view holder with XML attributes and a default style attribute.
+     * On instantiating this surface view, the holder is bound directly to the
+     * parent context life cycle.
      *
      * @param context      the parent context.
      * @param attrs        a collection of attributes describes the tags in an XML document.
      * @param defStyleAttr an attribute in the current theme that contains a
      *                     reference to a style resource that supplies
-     *                     defaults values.
+     *                     defaults values. Can be 0 to not look for defaults.
      * @see android.content.res.Resources.Theme#obtainStyledAttributes(AttributeSet, int[], int, int)
      */
     public JmeSurfaceView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
@@ -259,12 +261,15 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener, Di
 
     /**
      * Instantiates a surface view holder with XML attributes, default style attribute and a default style resource.
+     * On instantiating this surface view, the holder is bound directly to the
+     * parent context life cycle.
      *
      * @param context      the parent context.
      * @param attrs        a collection of attributes describes the tags in an XML document.
-     * @param defStyleAttr an attribute in the current theme that contains defaults.
+     * @param defStyleAttr an attribute in the current theme that contains defaults. Can be 0 to not look for defaults.
      * @param defStyleRes  a resource identifier of a style resource that
      *                     supplies default values, used only if defStyleAttr is 0 or can not be found in the theme.
+     *                     Can be 0 to not look for defaults.
      * @see android.content.res.Resources.Theme#obtainStyledAttributes(AttributeSet, int[], int, int)
      */
     public JmeSurfaceView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
