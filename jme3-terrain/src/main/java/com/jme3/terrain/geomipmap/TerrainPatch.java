@@ -133,15 +133,15 @@ public class TerrainPatch extends Geometry {
      * <code>TriMesh</code> object for rendering.
      *
      * @param name
-     *			the name of the terrain patch.
+     *            the name of the terrain patch.
      * @param size
-     *			the size of the heightmap.
+     *            the size of the heightmap.
      * @param stepScale
-     *			the scale for the axes.
+     *            the scale for the axes.
      * @param heightMap
-     *			the height data.
+     *            the height data.
      * @param origin
-     *			the origin offset of the patch.
+     *            the origin offset of the patch.
      */
     public TerrainPatch(String name, int size, Vector3f stepScale,
                     float[] heightMap, Vector3f origin) {
@@ -154,22 +154,22 @@ public class TerrainPatch extends Geometry {
      * <code>TriMesh</code> object for rendering.
      *
      * @param name
-     *			the name of the terrain patch.
+     *            the name of the terrain patch.
      * @param size
-     *			the size of the patch.
+     *            the size of the patch.
      * @param stepScale
-     *			the scale for the axes.
+     *            the scale for the axes.
      * @param heightMap
-     *			the height data.
+     *            the height data.
      * @param origin
-     *			the origin offset of the patch.
+     *            the origin offset of the patch.
      * @param totalSize
-     *			the total size of the terrain. (Higher if the patch is part of
-     *			a <code>TerrainQuad</code> tree.
+     *            the total size of the terrain. (Higher if the patch is part of
+     *            a <code>TerrainQuad</code> tree.
      * @param offset
-     *			the offset for texture coordinates.
+     *            the offset for texture coordinates.
      * @param offsetAmount
-     *			the total offset amount. Used for texture coordinates.
+     *            the total offset amount. Used for texture coordinates.
      */
     public TerrainPatch(String name, int size, Vector3f stepScale,
                     float[] heightMap, Vector3f origin, int totalSize,
@@ -672,7 +672,7 @@ public class TerrainPatch extends Geometry {
      * This is mostly used for outside constructors of terrain patches.
      *
      * @param offset
-     *			The new texture offset.
+     *            The new texture offset.
      */
     public void setOffset(Vector2f offset) {
         this.offset = offset;
@@ -684,7 +684,7 @@ public class TerrainPatch extends Geometry {
      * of terrain patches.
      *
      * @param size
-     *			The new size.
+     *            The new size.
      */
     public void setSize(int size) {
         this.size = size;
@@ -698,7 +698,7 @@ public class TerrainPatch extends Geometry {
      * of terrain patches.
      *
      * @param totalSize
-     *			The new total size.
+     *            The new total size.
      */
     public void setTotalSize(int totalSize) {
         this.totalSize = totalSize;
@@ -710,7 +710,7 @@ public class TerrainPatch extends Geometry {
      * outside constructors of terrain patches.
      *
      * @param stepScale
-     *			The new step scale.
+     *            The new step scale.
      */
     public void setStepScale(Vector3f stepScale) {
         this.stepScale = stepScale;
@@ -722,7 +722,7 @@ public class TerrainPatch extends Geometry {
      * constructors of terrain patches.
      *
      * @param offsetAmount
-     *			The new texture offset.
+     *            The new texture offset.
      */
     public void setOffsetAmount(float offsetAmount) {
         this.offsetAmount = offsetAmount;
@@ -737,7 +737,7 @@ public class TerrainPatch extends Geometry {
 
     /**
      * @param quadrant
-     *			The quadrant to set.
+     *            The quadrant to set.
      */
     public void setQuadrant(short quadrant) {
         this.quadrant = quadrant;

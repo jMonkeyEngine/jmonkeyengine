@@ -34,21 +34,21 @@ package com.jme3.scene.plugins.fbx;
 import com.jme3.asset.ModelKey;
 
 public class SceneKey extends ModelKey {
-	
-	private final AnimationList animList;
-	
-	public SceneKey(String name) {
-		super(name);
-		this.animList = null;
-	}
-	
-	public SceneKey(String name, AnimationList animationList) {
-		super(name);
-		this.animList = animationList;
-	}
-	
-	public AnimationList getAnimations() {
-		return this.animList;
-	}
-	
+
+    private final AnimationList animList;
+
+    public SceneKey(String name) {
+        super(name);
+        this.animList = null;
+    }
+
+    public SceneKey(String name, AnimationList animationList) {
+        super(name);
+        this.animList = animationList;
+    }
+
+    public AnimationList getAnimations() {
+        return this.animList;
+    }
+
 }

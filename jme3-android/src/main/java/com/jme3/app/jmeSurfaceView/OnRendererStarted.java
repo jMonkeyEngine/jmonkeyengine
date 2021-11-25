@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,44 +29,26 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.system.ios;
+package com.jme3.app.jmeSurfaceView;
 
-import com.jme3.asset.AssetInfo;
-import com.jme3.asset.AssetLoader;
-import com.jme3.asset.TextureKey;
-import com.jme3.texture.Image;
-import com.jme3.texture.Image.Format;
-import java.io.IOException;
-import java.io.InputStream;
+import android.view.View;
+import com.jme3.app.LegacyApplication;
 
 /**
+ * An interface used for invoking an event when the application is started explicitly from {@link JmeSurfaceView#startRenderer(int)}.
+ * NB : This listener must be utilized before using {@link JmeSurfaceView#startRenderer(int)}, ie : it would be ignored if you try to use {@link JmeSurfaceView#setOnRendererStarted(OnRendererStarted)} after
+ * {@link JmeSurfaceView#startRenderer(int)}.
+ * @see JmeSurfaceView#setOnRendererStarted(OnRendererStarted)
  *
- * @author normenhansen
+ * @author pavl_g.
  */
-public class IosImageLoader implements AssetLoader {
-
-    @Override
-    public Object load(AssetInfo info) throws IOException {
-        boolean flip = ((TextureKey) info.getKey()).isFlipY();
-        Image img = null;
-        InputStream in = null;
-        try {
-            in = info.openStream();
-            img = loadImageData(Format.RGBA8, flip, in);
-        } finally {
-            if (in != null) {
-                in.close();
-            }
-        }
-        return img;
-    }
-
+public interface OnRendererStarted {
     /**
-     * Loads images via iOS native API
-     *
-     * @param format has to be Image.Format.RGBA8
-     * @param inputStream the InputStream to load the image data from
-     * @return the loaded Image
+     * Invoked when the game application is started by the {@link LegacyApplication#start()}, the event is dispatched on the
+     * holder Activity context thread.
+     * @see JmeSurfaceView#startRenderer(int)
+     * @param application the game instance.
+     * @param layout the enclosing layout.
      */
-    private static native Image loadImageData(Format format, boolean flipY, InputStream inputStream);
+    void onRenderStart(LegacyApplication application, View layout);
 }

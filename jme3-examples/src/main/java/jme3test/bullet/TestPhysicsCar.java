@@ -183,12 +183,12 @@ public class TestPhysicsCar extends SimpleApplication implements ActionListener 
             if (value) {
                 steeringValue += .5f;
             } else {
-                steeringValue += -.5f;
+                steeringValue -= .5f;
             }
             vehicle.steer(steeringValue);
         } else if (binding.equals("Rights")) {
             if (value) {
-                steeringValue += -.5f;
+                steeringValue -= .5f;
             } else {
                 steeringValue += .5f;
             }

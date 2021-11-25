@@ -71,7 +71,7 @@ public class ImageBasedHeightMap extends AbstractHeightMap {
     }
     
     public ImageBasedHeightMap(Image colorImage, float heightScale) {
-    	this.colorImage = colorImage;
+        this.colorImage = colorImage;
         this.heightScale = heightScale;
     }
 
