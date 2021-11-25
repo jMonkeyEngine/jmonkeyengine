@@ -33,7 +33,6 @@ package com.jme3.app.jmeSurfaceView;
 
 import android.view.View;
 import com.jme3.app.LegacyApplication;
-import com.jme3.system.AppSettings;
 
 /**
  * An interface used for invoking an event when the application is started explicitly from {@link JmeSurfaceView#startRenderer(int)}.
