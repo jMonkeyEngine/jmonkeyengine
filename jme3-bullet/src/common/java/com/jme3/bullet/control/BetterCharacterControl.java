@@ -617,13 +617,17 @@ public class BetterCharacterControl extends AbstractPhysicsControl implements Ph
             } else {
                 newLeft.set(0f, direction.z, -direction.y).normalizeLocal();
             }
-            logger.log(Level.INFO, "Zero left for direction {0}, up {1}", new Object[]{direction, worldUpVector});
+            if (logger.isLoggable(Level.INFO)) {
+                logger.log(Level.INFO, "Zero left for direction {0}, up {1}", new Object[]{direction, worldUpVector});
+            }
         }
         newLeftNegate.set(newLeft).negateLocal();
         direction.set(worldUpVector).crossLocal(newLeftNegate).normalizeLocal();
         if (direction.equals(Vector3f.ZERO)) {
             direction.set(Vector3f.UNIT_Z);
-            logger.log(Level.INFO, "Zero left for left {0}, up {1}", new Object[]{newLeft, worldUpVector});
+            if (logger.isLoggable(Level.INFO)) {
+                logger.log(Level.INFO, "Zero left for left {0}, up {1}", new Object[]{newLeft, worldUpVector});
+            }
         }
         if (rotation != null) {
             rotation.fromAxes(newLeft, worldUpVector, direction);

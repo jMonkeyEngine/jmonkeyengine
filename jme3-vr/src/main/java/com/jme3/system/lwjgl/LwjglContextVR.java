@@ -85,9 +85,11 @@ public abstract class LwjglContextVR implements JmeContext {
     }
 
     protected void printContextInitInfo() {
-        logger.log(Level.INFO, "LWJGL {0} context running on thread {1}\n"
-                + " * Graphics Adapter: GLFW {2}",
-                new Object[]{Integer.toString(org.lwjgl.Version.VERSION_MAJOR), Thread.currentThread().getName(), GLFW.glfwGetVersionString()});
+        if (logger.isLoggable(Level.INFO)) {
+            logger.log(Level.INFO, "LWJGL {0} context running on thread {1}\n"
+                            + " * Graphics Adapter: GLFW {2}",
+                    new Object[]{Integer.toString(org.lwjgl.Version.VERSION_MAJOR), Thread.currentThread().getName(), GLFW.glfwGetVersionString()});
+        }
     }
 
     protected int determineMaxSamples() {

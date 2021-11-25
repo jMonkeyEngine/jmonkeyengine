@@ -272,7 +272,9 @@ public class FbxLoader implements AssetLoader {
     private void applyBindPoses() {
         for (FbxBindPose bindPose : bindPoses) {
             Map<FbxId, Matrix4f> bindPoseData = bindPose.getJmeObject();
-            logger.log(Level.INFO, "Applying {0} bind poses", bindPoseData.size());
+            if (logger.isLoggable(Level.INFO)) {
+                logger.log(Level.INFO, "Applying {0} bind poses", bindPoseData.size());
+            }
             for (Map.Entry<FbxId, Matrix4f> entry : bindPoseData.entrySet()) {
                 FbxObject obj = objectMap.get(entry.getKey());
                 if (obj instanceof FbxNode) {

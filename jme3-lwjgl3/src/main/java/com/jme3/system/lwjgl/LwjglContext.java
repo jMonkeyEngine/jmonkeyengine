@@ -141,8 +141,10 @@ public abstract class LwjglContext implements JmeContext {
     }
 
     protected void printContextInitInfo() {
-        logger.log(Level.INFO, "LWJGL {0} context running on thread {1}\n * Graphics Adapter: GLFW {2}",
-                APIUtil.toArray(Version.getVersion(), Thread.currentThread().getName(), GLFW.glfwGetVersionString()));
+        if (logger.isLoggable(Level.INFO)) {
+            logger.log(Level.INFO, "LWJGL {0} context running on thread {1}\n * Graphics Adapter: GLFW {2}",
+                    APIUtil.toArray(Version.getVersion(), Thread.currentThread().getName(), GLFW.glfwGetVersionString()));
+        }
     }
 
     protected int determineMaxSamples() {
@@ -415,9 +417,11 @@ public abstract class LwjglContext implements JmeContext {
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("not found a platform"));
 
-        logger.log(Level.INFO, "chosen platform: {0}", platform.getName());
-        logger.log(Level.INFO, "chosen devices: {0}", chosenDevices);
-        
+        if (logger.isLoggable(Level.INFO)) {
+            logger.log(Level.INFO, "chosen platform: {0}", platform.getName());
+            logger.log(Level.INFO, "chosen devices: {0}", chosenDevices);
+        }
+
         // create context
         try {
             long context = createContext(platform.getPlatform(), deviceIds, window);

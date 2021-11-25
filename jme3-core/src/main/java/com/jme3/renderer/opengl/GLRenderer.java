@@ -555,19 +555,21 @@ public final class GLRenderer implements Renderer {
         }
 
         // Print context information
-        logger.log(Level.INFO, "OpenGL Renderer Information\n" +
-                        " * Vendor: {0}\n" +
-                        " * Renderer: {1}\n" +
-                        " * OpenGL Version: {2}\n" +
-                        " * GLSL Version: {3}\n" +
-                        " * Profile: {4}",
-                new Object[]{
-                        gl.glGetString(GL.GL_VENDOR),
-                        gl.glGetString(GL.GL_RENDERER),
-                        gl.glGetString(GL.GL_VERSION),
-                        gl.glGetString(GL.GL_SHADING_LANGUAGE_VERSION),
-                        caps.contains(Caps.CoreProfile) ? "Core" : "Compatibility"
-                });
+        if (logger.isLoggable(Level.INFO)) {
+            logger.log(Level.INFO, "OpenGL Renderer Information\n" +
+                            " * Vendor: {0}\n" +
+                            " * Renderer: {1}\n" +
+                            " * OpenGL Version: {2}\n" +
+                            " * GLSL Version: {3}\n" +
+                            " * Profile: {4}",
+                    new Object[]{
+                            gl.glGetString(GL.GL_VENDOR),
+                            gl.glGetString(GL.GL_RENDERER),
+                            gl.glGetString(GL.GL_VERSION),
+                            gl.glGetString(GL.GL_SHADING_LANGUAGE_VERSION),
+                            caps.contains(Caps.CoreProfile) ? "Core" : "Compatibility"
+                    });
+        }
 
         // Print capabilities (if fine logging is enabled)
         if (logger.isLoggable(Level.FINE)) {

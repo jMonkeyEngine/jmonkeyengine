@@ -146,10 +146,14 @@ public class AndroidJoystickJoyInput14 {
                     // type reported by Android into the jME Joystick axis
                     List<MotionRange> motionRanges = dev.getMotionRanges();
                     for (MotionRange motionRange: motionRanges) {
-                        logger.log(Level.INFO, "motion range: {0}", motionRange.toString());
-                        logger.log(Level.INFO, "axis: {0}", motionRange.getAxis());
+                        if (logger.isLoggable(Level.INFO)) {
+                            logger.log(Level.INFO, "motion range: {0}", motionRange);
+                            logger.log(Level.INFO, "axis: {0}", motionRange.getAxis());
+                        }
                         JoystickAxis axis = joystick.addAxis(motionRange);
-                        logger.log(Level.INFO, "added axis: {0}", axis);
+                        if (logger.isLoggable(Level.INFO)) {
+                            logger.log(Level.INFO, "added axis: {0}", axis);
+                        }
                     }
 
                     // InputDevice has a method for determining if a keyCode is
@@ -160,8 +164,10 @@ public class AndroidJoystickJoyInput14 {
                     // buttons being configured that don't exist on the specific
                     // device, but I haven't found a better way yet.
                     for (int keyCode: AndroidGamepadButtons) {
-                        logger.log(Level.INFO, "button[{0}]: {1}",
-                                new Object[]{keyCode, KeyCharacterMap.deviceHasKey(keyCode)});
+                        if (logger.isLoggable(Level.INFO)) {
+                            logger.log(Level.INFO, "button[{0}]: {1}",
+                                    new Object[]{keyCode, KeyCharacterMap.deviceHasKey(keyCode)});
+                        }
                         if (KeyCharacterMap.deviceHasKey(keyCode)) {
                             // add button even though we aren't sure if the button
                             // actually exists on this InputDevice

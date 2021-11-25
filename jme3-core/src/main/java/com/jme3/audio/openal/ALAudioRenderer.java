@@ -158,7 +158,9 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
             ib.position(0).limit(1);
             alc.alcGetInteger(EFX.ALC_EFX_MINOR_VERSION, ib, 1);
             int minor = ib.get(0);
-            logger.log(Level.INFO, "Audio effect extension version: {0}.{1}", new Object[]{major, minor});
+            if (logger.isLoggable(Level.INFO)) {
+                logger.log(Level.INFO, "Audio effect extension version: {0}.{1}", new Object[]{major, minor});
+            }
 
             alc.alcGetInteger(EFX.ALC_MAX_AUXILIARY_SENDS, ib, 1);
             auxSends = ib.get(0);
