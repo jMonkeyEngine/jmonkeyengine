@@ -3,6 +3,7 @@ apply plugin: 'java'
 dependencies {
     //added annotations used by JmeSurfaceView.
     compileOnly 'androidx.annotation:annotation:1.2.0'
+    compileOnly 'androidx.lifecycle:lifecycle-common:2.1.0'
     api project(':jme3-core')
     api project(':jme3-plugins')
     compileOnly 'android:android'

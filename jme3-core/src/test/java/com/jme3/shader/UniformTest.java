@@ -32,14 +32,11 @@
 package com.jme3.shader;
 
 import com.jme3.math.*;
-import org.hamcrest.MatcherAssert;
 import org.junit.Test;
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
 
 import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
