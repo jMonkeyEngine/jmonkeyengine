@@ -283,7 +283,8 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
                 		(videoMode.width() - settings.getWidth()) / 2,
                 		(videoMode.height() - settings.getHeight()) / 2);
             } else {
-            	glfwSetWindowPos(window,settings.getWindowXPosition(), settings.getWindowYPosition());
+            	glfwSetWindowPos(window,settings.getWindowXPosition(), 
+            			settings.getWindowYPosition());
             }
         }
 
