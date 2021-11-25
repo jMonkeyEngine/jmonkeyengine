@@ -280,8 +280,8 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             if (settings.getCenterWindow()) {
                 // Center the window
                 glfwSetWindowPos(window,
-                    (videoMode.width() - settings.getWidth()) / 2,
-                    (videoMode.height() - settings.getHeight()) / 2);
+                		(videoMode.width() - settings.getWidth()) / 2,
+                		(videoMode.height() - settings.getHeight()) / 2);
             } else {
             	glfwSetWindowPos(window,settings.getWindowXPosition(), settings.getWindowYPosition());
             }
@@ -478,8 +478,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         // NOTE: this is required for Mac OS X!
         mainThread = Thread.currentThread();
         mainThread.setName("jME3 Main");
-        new Thread(this, "jME3 Main").start();
-//        run();
+        run();
     }
 
     /**
