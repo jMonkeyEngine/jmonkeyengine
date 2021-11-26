@@ -170,7 +170,7 @@ public class BitmapFont implements Savable {
     public float getLineWidth(CharSequence text){
 
         // This method will probably always be a bit of a maintenance
-        // nightmare since it basis its calculation on a different 
+        // nightmare since it bases its calculation on a different
         // routine than the Letters class.  The ideal situation would
         // be to abstract out letter position and size into its own
         // class that both BitmapFont and Letters could use for
@@ -230,7 +230,7 @@ public class BitmapFont implements Savable {
                 if (!firstCharOfLine){
                     lineWidth += findKerningAmount(lastChar, theChar) * sizeScale;                    
                 } else {
-                    // The first character needs to add in its xOffset but it
+                    // The first character needs to add in its xOffset, but it
                     // is the only one... and negative offsets = positive width
                     // because we're trying to account for the part that hangs
                     // over the left.  So we subtract. 
@@ -240,7 +240,7 @@ public class BitmapFont implements Savable {
                 float xAdvance = c.getXAdvance() * sizeScale;
                 
                 // If this is the last character, then we really should have
-                // only add its width.  The advance may include extra spacing
+                // only added its width.  The advance may include extra spacing
                 // that we don't care about.
                 if (i == text.length() - 1) {
                     lineWidth += c.getWidth() * sizeScale;

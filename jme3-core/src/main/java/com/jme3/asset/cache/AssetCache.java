@@ -56,8 +56,8 @@ public interface AssetCache {
      * Adds an asset to the cache.
      * Once added, it should be possible to retrieve the asset
      * by using the {@link #getFromCache(com.jme3.asset.AssetKey) } method.
-     * However the caching criteria may at some point choose that the asset
-     * should be removed from the cache to save memory, in that case, 
+     * However, the caching criteria may at some point decide that the asset
+     * should be removed from the cache to save memory. In that case,
      * {@link #getFromCache(com.jme3.asset.AssetKey) } will return null.
      * <p>Thread-Safe</p>
      * 
@@ -98,7 +98,7 @@ public interface AssetCache {
      * <p>Thread-Safe</p>
      * 
      * @param <T> The type of the asset to retrieve
-     * @param key The key used to lookup the asset.
+     * @param key The key used to look up the asset.
      * @return The asset that was previously cached, or null if not found.
      */
     public <T> T getFromCache(AssetKey<T> key);

@@ -308,7 +308,7 @@ public class BetterCharacterControl extends AbstractPhysicsControl implements Ph
      * Toggle character ducking. When ducked the characters capsule collision
      * shape height will be multiplied by duckedFactor to make the capsule
      * smaller. When unducking, the character will check with a ray test if it
-     * can in fact unduck and only do so when its possible. You can test the
+     * can in fact unduck and only do so when it's possible. You can test the
      * state using isDucked().
      *
      * @param enabled true&rarr;duck, false&rarr;unduck

@@ -226,7 +226,7 @@ public class Armature implements JmeCloneable, Savable {
     }
 
     /**
-     * This methods sets this armature in its bind pose (aligned with the mesh to deform)
+     * This method sets this armature to its bind pose (aligned with the mesh to deform).
      * Note that this is only useful for debugging purpose.
      */
     public void applyBindPose() {

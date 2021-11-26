@@ -870,7 +870,6 @@ public class ParticleEmitter extends Geometry {
     }
 
     /**
-     * @return the velocity variation
      * @deprecated
      * This method is deprecated.
      * Use ParticleEmitter.getParticleInfluencer().getVelocityVariation(); instead.

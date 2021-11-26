@@ -118,6 +118,8 @@ public class TestBetterCharacter extends SimpleApplication implements ActionList
         // Add character node to the rootNode
         rootNode.attachChild(characterNode);
 
+        cam.setLocation(new Vector3f(10f, 6f, -5f));
+
         // Set forward camera node that follows the character, only used when
         // view is "locked"
         camNode = new CameraNode("CamNode", cam);

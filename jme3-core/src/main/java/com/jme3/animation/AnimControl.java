@@ -381,7 +381,7 @@ public final class AnimControl extends AbstractControl implements Cloneable, Jme
 
             // If we find a target mesh array the AnimControl creates the 
             // SkeletonControl for old files and add it to the spatial.        
-            // When backward compatibility won't be needed anymore this can deleted        
+            // When backward compatibility isn't needed anymore, this can be deleted.
             Savable[] sav = in.readSavableArray("targets", null);
             if (sav != null) {
                 // NOTE: allow the targets to be gathered automatically

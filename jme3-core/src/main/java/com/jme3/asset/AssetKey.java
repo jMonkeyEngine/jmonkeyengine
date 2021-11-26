@@ -122,7 +122,7 @@ public class AssetKey<T> implements Savable, Cloneable {
 
     /**
      * @return The preferred cache class for this asset type. Specify "null"
-     * if caching is to be disabled. By default the 
+     * if caching is to be disabled. By default, the
      * {@link SimpleAssetCache} is returned.
      */
     public Class<? extends AssetCache> getCacheType(){

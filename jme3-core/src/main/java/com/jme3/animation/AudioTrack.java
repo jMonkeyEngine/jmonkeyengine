@@ -44,9 +44,9 @@ import java.util.logging.Logger;
 
 /**
  * AudioTrack is a track to add to an existing animation, to play a sound during
- * an animations for example : gun shot, foot step, shout, etc...
+ * an animations for example : gunshot, footstep, shout, etcetera.
  *
- * usage is
+ * Typical usage is:
  * <pre>
  * AnimControl control model.getControl(AnimControl.class);
  * AudioTrack track = new AudioTrack(existingAudioNode, control.getAnim("TheAnim").getLength());

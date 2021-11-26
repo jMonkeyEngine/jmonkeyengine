@@ -382,8 +382,7 @@ public class BoundingSphere extends BoundingVolume {
      *            the transform to apply
      * @param store
      *            sphere to store result in
-     * @return BoundingVolume
-     * @return ref
+     * @return either store or a new BoundingSphere
      */
     @Override
     public BoundingVolume transform(Transform trans, BoundingVolume store) {
@@ -953,7 +952,7 @@ public class BoundingSphere extends BoundingVolume {
                 return 1;              
             }
  
-            // Finally check each of the triangle corners
+            // Finally, check each of the triangle corners.
             
             // Vert A
             base = a;

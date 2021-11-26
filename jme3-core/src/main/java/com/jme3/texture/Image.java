@@ -195,6 +195,26 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
         SIGNED_RGTC1(4,false,true, false),
         
         /**
+         * BPTC compression BC6 signed float RGB
+         */
+        BC6H_SF16(8, false, true, true), 
+        
+        /**
+         * BPTC compression BC6 unsigned float RGB
+         */
+        BC6H_UF16(8, false, true, true),
+        
+        /**
+         * BPTC compression BC7 RGBA
+         */
+        BC7_UNORM(8, false, true, false),
+        
+        /**
+         * BPTC compression BC7 SRGB Alpha
+         */
+        BC7_UNORM_SRGB(8, false, true, false),
+        
+        /**
          * Luminance-Alpha Texture Compression. 
          * 
          * @deprecated Not supported by OpenGL 3.0.

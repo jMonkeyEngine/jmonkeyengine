@@ -436,6 +436,7 @@ public class MorphControl extends AbstractControl implements Savable {
      * @throws IOException from the importer
      */
     @Override
+    @SuppressWarnings("unchecked")
     public void read(JmeImporter importer) throws IOException {
         super.read(importer);
         InputCapsule capsule = importer.getCapsule(this);
@@ -451,6 +452,7 @@ public class MorphControl extends AbstractControl implements Savable {
      * @throws IOException from the exporter
      */
     @Override
+    @SuppressWarnings("unchecked")
     public void write(JmeExporter exporter) throws IOException {
         super.write(exporter);
         OutputCapsule capsule = exporter.getCapsule(this);

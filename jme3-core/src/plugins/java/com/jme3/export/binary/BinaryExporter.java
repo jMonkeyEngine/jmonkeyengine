@@ -181,6 +181,7 @@ public class BinaryExporter implements JmeExporter {
      * @return A new instance that has been saved and loaded from the
      * original object.
      */
+    @SuppressWarnings("unchecked")
     public static <T extends Savable> T saveAndLoad(AssetManager assetManager, T object) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try {

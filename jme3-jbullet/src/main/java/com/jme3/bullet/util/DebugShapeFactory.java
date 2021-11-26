@@ -184,7 +184,7 @@ public class DebugShapeFactory {
         final int numberOfFloats = 3 * 3 * numberOfTriangles;
         FloatBuffer vertices = BufferUtils.createFloatBuffer(numberOfFloats); 
 
-        // Force the limit, set the cap - most number of floats we will use the buffer for
+        // Force the limit, set the cap - the largest number of floats we will use the buffer for
         vertices.limit(numberOfFloats);
 
         // Loop variables
@@ -242,7 +242,7 @@ class BufferedTriangleCallback extends TriangleCallback {
         final int numberOfFloats = vertices.size() * 3;
         FloatBuffer verticesBuffer = BufferUtils.createFloatBuffer(numberOfFloats); 
 
-        // Force the limit, set the cap - most number of floats we will use the buffer for
+        // Force the limit, set the cap - the largest number of floats we will use the buffer for
         verticesBuffer.limit(numberOfFloats);
 
         // Copy the values from the list to the direct float buffer

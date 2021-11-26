@@ -363,11 +363,11 @@ public class BufferObject extends NativeObject {
     }
 
     /**
-     * Estimates bytes count to present the value on GPU.
+     * Estimates byte count to present the value on the GPU.
      *
      * @param value      the value.
      * @param multiplier the multiplier.
-     * @return the estimated bytes cunt.
+     * @return the estimated byte count.
      */
     protected int estimateArray(final Object value, final int multiplier) {
 
@@ -381,20 +381,20 @@ public class BufferObject extends NativeObject {
     }
 
     /**
-     * Estimates bytes count to present the values on GPU.
+     * Estimates byte count to present the values on the GPU.
      *
      * @param values the values.
-     * @return the estimated bytes cunt.
+     * @return the estimated byte count.
      */
     protected int estimate(final float[] values) {
         return values.length * 4;
     }
 
     /**
-     * Estimates bytes count to present the values on GPU.
+     * Estimates byte count to present the values on the GPU.
      *
      * @param values the values.
-     * @return the estimated bytes cunt.
+     * @return the estimated byte count.
      */
     protected int estimate(final int[] values) {
         return values.length * 4;

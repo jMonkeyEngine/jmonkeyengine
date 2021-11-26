@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,48 +29,22 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package jme3test.bullet;
+package com.jme3.app.jmeSurfaceView;
 
-import com.jme3.app.SimpleApplication;
-import com.jme3.bullet.BulletAppState;
-import com.jme3.bullet.control.KinematicRagdollControl;
-import com.jme3.scene.Node;
-import com.jme3.scene.Spatial;
+import android.view.View;
+import com.jme3.app.LegacyApplication;
 
 /**
- * Test case for JME issue #931: RagdollUtils can miss model meshes or use the
- * non-animated ones.
- * <p>
- * If successful, no AssertionError will be thrown.
+ * An interface used for dispatching an event when the layout holding the {@link android.opengl.GLSurfaceView} is drawn,
+ * the event is dispatched on the user activity context thread.
+ *
+ * @author pavl_g.
  */
-public class TestIssue931 extends SimpleApplication {
-    // *************************************************************************
-    // new methods exposed
-
-    public static void main(String[] args) {
-        TestIssue931 app = new TestIssue931();
-        app.start();
-    }
-    // *************************************************************************
-    // SimpleApplication methods
-
-    @Override
-    public void simpleInitApp() {
-        BulletAppState bulletAppState = new BulletAppState();
-        stateManager.attach(bulletAppState);
-        String sinbadPath = "Models/Sinbad/SinbadOldAnim.j3o";
-        Node sinbad = (Node) assetManager.loadModel(sinbadPath);
-
-        Node extender = new Node();
-        for (Spatial child : sinbad.getChildren()) {
-            extender.attachChild(child);
-        }
-        sinbad.attachChild(extender);
-
-        //Note: PhysicsRagdollControl is still a WIP, constructor will change
-        KinematicRagdollControl ragdoll = new KinematicRagdollControl(0.5f);
-        sinbad.addControl(ragdoll);
-
-        stop();
-    }
+public interface OnLayoutDrawn {
+    /**
+     * Dispatched when the layout is drawn on the screen.
+     * @param legacyApplication the application instance.
+     * @param layout the current layout.
+     */
+    void onLayoutDrawn(LegacyApplication legacyApplication, View layout);
 }
