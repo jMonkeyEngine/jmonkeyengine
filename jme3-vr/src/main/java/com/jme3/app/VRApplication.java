@@ -817,9 +817,7 @@ public abstract class VRApplication implements Application, SystemListener {
             settings = new AppSettings(true);
         }
 
-        if (logger.isLoggable(Level.FINE)) {
-            logger.log(Level.FINE, "Starting application: {0}", getClass().getName());
-        }
+        logger.log(Level.FINE, "Starting application: {0}", getClass().getName());
 
         // Create VR dedicated context
         if (contextType == Type.Display){
@@ -1515,9 +1513,7 @@ public abstract class VRApplication implements Application, SystemListener {
      */
     @Override
     public void stop(boolean waitFor){
-        if (logger.isLoggable(Level.FINE)) {
-            logger.log(Level.FINE, "Closing application: {0}", getClass().getName());
-        }
+        logger.log(Level.FINE, "Closing application: {0}", getClass().getName());
         context.destroy(waitFor);
     }
 

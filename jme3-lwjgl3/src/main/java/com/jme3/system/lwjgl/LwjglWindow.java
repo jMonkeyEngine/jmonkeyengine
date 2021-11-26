@@ -635,9 +635,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
                     + "Must set with JmeContext.setSystemListener().");
         }
 
-        if (LOGGER.isLoggable(Level.FINE)) {
-            LOGGER.log(Level.FINE, "Using LWJGL {0}", Version.getVersion());
-        }
+        LOGGER.log(Level.FINE, "Using LWJGL {0}", Version.getVersion());
 
         if (!initInThread()) {
             LOGGER.log(Level.SEVERE, "Display initialization failed. Cannot continue.");

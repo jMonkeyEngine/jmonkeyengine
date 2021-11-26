@@ -148,10 +148,7 @@ public class TestChooser extends JFrame {
 
         try {
             Path directory = Paths.get(uri);
-            if (logger.isLoggable(Level.FINE)) {
-                logger.log(Level.FINE, "Searching for Demo classes in \"{0}\".",
-                        directory.getFileName());
-            }
+            logger.log(Level.FINE, "Searching for Demo classes in \"{0}\".", directory.getFileName().toString());
             addAllFilesInDirectory(directory, classes, packageName, recursive);
         } catch (Exception e) {
             logger.logp(Level.SEVERE, this.getClass().toString(),
