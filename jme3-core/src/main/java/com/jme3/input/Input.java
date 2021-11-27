@@ -77,8 +77,6 @@ public interface Input {
     /**
      * @return The current absolute time as nanoseconds. This time is expected
      * to be relative to the time given in InputEvents time property.
-     *
-     * @return the current time (in nanoseconds)
      */
     public long getInputTimeNanos();
 }

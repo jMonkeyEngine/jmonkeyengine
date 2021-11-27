@@ -290,7 +290,13 @@ public final class LwjglGL implements GL, GL2, GL3, GL4 {
     public int glGetError() {
         return GL11.glGetError();
     }
-    
+
+    @Override
+    public void glGetFloat(int parameterId, FloatBuffer storeValues) {
+        checkLimit(storeValues);
+        GL11.glGetFloat(parameterId, storeValues);
+    }
+
     @Override
     public void glGetInteger(int param1, IntBuffer param2) {
         checkLimit(param2);

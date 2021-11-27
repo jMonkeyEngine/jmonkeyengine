@@ -49,7 +49,7 @@ import com.jme3.scene.Node;
  */
 public class TestRagDoll extends SimpleApplication implements ActionListener {
 
-    private BulletAppState bulletAppState = new BulletAppState();
+    private BulletAppState bulletAppState;
     final private Node ragDoll = new Node();
     private Node shoulders;
     final private Vector3f upforce = new Vector3f(0, 200, 0);

@@ -42,22 +42,23 @@ import com.jme3.util.clone.Cloner;
 import java.io.IOException;
 
 /**
- * Contains a list of transforms and times for each keyframe.
+ * An AnimTrack that transforms a Joint or Spatial
+ * using a list of transforms and times for keyframes.
  *
  * @author Rémy Bouquet
  */
 public class TransformTrack implements AnimTrack<Transform> {
 
     private double length;
+    private FrameInterpolator interpolator = FrameInterpolator.DEFAULT;
     private HasLocalTransform target;
 
     /**
-     * Transforms and times for track.
+     * Transforms and times for keyframes.
      */
     private CompactVector3Array translations;
     private CompactQuaternionArray rotations;
     private CompactVector3Array scales;
-    private FrameInterpolator interpolator = FrameInterpolator.DEFAULT;
     private float[] times;
 
     /**
@@ -67,13 +68,16 @@ public class TransformTrack implements AnimTrack<Transform> {
     }
 
     /**
-     * Creates a transform track for the given bone index
+     * Creates a transform track for the given target.
      *
      * @param target       the target Joint or Spatial of the new track
-     * @param times        a float array with the time of each frame
-     * @param translations the translation of the bone for each frame
-     * @param rotations    the rotation of the bone for each frame
-     * @param scales       the scale of the bone for each frame
+     * @param times        the time for each keyframe, or null for none
+     * @param translations the translation of the target for each keyframe
+     *                     (same length as times) or null for no translation
+     * @param rotations    the rotation of the target for each keyframe
+     *                     (same length as times) or null for no rotation
+     * @param scales       the scale of the target for each keyframe
+     *                     (same length as times) or null for no scaling
      */
     public TransformTrack(HasLocalTransform target, float[] times, Vector3f[] translations, Quaternion[] rotations, Vector3f[] scales) {
         this.target = target;
@@ -81,25 +85,25 @@ public class TransformTrack implements AnimTrack<Transform> {
     }
 
     /**
-     * return the array of rotations of this track
+     * Copies the rotations.
      *
-     * @return an array, or null if no rotations
+     * @return a new array, or null if no rotations
      */
     public Quaternion[] getRotations() {
         return rotations == null ? null : rotations.toObjectArray();
     }
 
     /**
-     * returns the array of scales for this track
+     * Copies the scales.
      *
-     * @return an array or null
+     * @return a new array, or null if no scales
      */
     public Vector3f[] getScales() {
         return scales == null ? null : scales.toObjectArray();
     }
 
     /**
-     * returns the arrays of time for this track
+     * Gives access to the keyframe times.
      *
      * @return the pre-existing array
      */
@@ -108,9 +112,9 @@ public class TransformTrack implements AnimTrack<Transform> {
     }
 
     /**
-     * returns the array of translations of this track
+     * Copies the translations.
      *
-     * @return an array, or null if no translations
+     * @return a new array, or null if no translations
      */
     public Vector3f[] getTranslations() {
         return translations == null ? null : translations.toObjectArray();
@@ -118,29 +122,34 @@ public class TransformTrack implements AnimTrack<Transform> {
 
 
     /**
-     * Sets the keyframes times for this Joint track
+     * Sets the keyframe times.
      *
-     * @param times the keyframes times
+     * @param times the desired keyframe times (alias created, not null, not empty)
      */
     public void setTimes(float[] times) {
-        if (times.length == 0) {
-            throw new RuntimeException("TransformTrack with no keyframes!");
+        if (times == null || times.length == 0) {
+            throw new IllegalArgumentException(
+                    "No keyframe times were provided.");
         }
         this.times = times;
         length = times[times.length - 1] - times[0];
     }
 
     /**
-     * Set the translations for this joint track
+     * Sets the translations.
      *
-     * @param translations the translation of the bone for each frame
+     * @param translations the desired translation of the target for each
+     *     keyframe (not null, same length as "times")
      */
     public void setKeyframesTranslation(Vector3f[] translations) {
         if (times == null) {
-            throw new RuntimeException("TransformTrack doesn't have any time for key frames, please call setTimes first");
+            throw new IllegalStateException(
+                    "TransformTrack lacks keyframe times.  "
+                    + "Please invoke setTimes() first.");
         }
-        if (translations.length == 0) {
-            throw new RuntimeException("TransformTrack with no translation keyframes!");
+        if (translations == null || translations.length == 0) {
+            throw new IllegalArgumentException(
+                    "No translations were provided.");
         }
         this.translations = new CompactVector3Array();
         this.translations.add(translations);
@@ -150,16 +159,20 @@ public class TransformTrack implements AnimTrack<Transform> {
     }
 
     /**
-     * Set the scales for this joint track
+     * Sets the scales.
      *
-     * @param scales the scales of the bone for each frame
+     * @param scales the desired scale of the target for each keyframe (not
+     *     null, same length as "times")
      */
     public void setKeyframesScale(Vector3f[] scales) {
         if (times == null) {
-            throw new RuntimeException("TransformTrack doesn't have any time for key frames, please call setTimes first");
+            throw new IllegalStateException(
+                    "TransformTrack lacks keyframe times.  "
+                    + "Please invoke setTimes() first.");
         }
-        if (scales.length == 0) {
-            throw new RuntimeException("TransformTrack with no scale keyframes!");
+        if (scales == null || scales.length == 0) {
+            throw new IllegalArgumentException(
+                    "No scale vectors were provided.");
         }
         this.scales = new CompactVector3Array();
         this.scales.add(scales);
@@ -169,16 +182,20 @@ public class TransformTrack implements AnimTrack<Transform> {
     }
 
     /**
-     * Set the rotations for this joint track
+     * Sets the rotations.
      *
-     * @param rotations the rotations of the bone for each frame
+     * @param rotations the desired rotation of the target for each keyframe
+     *     (not null, same length as "times")
      */
     public void setKeyframesRotation(Quaternion[] rotations) {
         if (times == null) {
-            throw new RuntimeException("TransformTrack doesn't have any time for key frames, please call setTimes first");
+            throw new IllegalStateException(
+                    "TransformTrack lacks keyframe times.  "
+                    + "Please invoke setTimes() first.");
         }
-        if (rotations.length == 0) {
-            throw new RuntimeException("TransformTrack with no rotation keyframes!");
+        if (rotations == null || rotations.length == 0) {
+            throw new IllegalArgumentException(
+                    "No rotations were provided.");
         }
         this.rotations = new CompactQuaternionArray();
         this.rotations.add(rotations);
@@ -189,12 +206,19 @@ public class TransformTrack implements AnimTrack<Transform> {
 
 
     /**
-     * Set the translations, rotations and scales for this bone track
+     * Sets the translations, rotations, and/or scales.
      *
-     * @param times        a float array with the time of each frame
-     * @param translations the translation of the bone for each frame
-     * @param rotations    the rotation of the bone for each frame
-     * @param scales       the scale of the bone for each frame
+     * @param times        the desired time for each keyframe,
+     *                     or null to leave the times unchanged
+     * @param translations the desired translation of the target for each
+     *                     keyframe (same length as times)
+     *                     or null to leave the translations unchanged
+     * @param rotations    the desired rotation of the target for each keyframe
+     *                     (same length as times)
+     *                     or null to leave the rotations unchanged
+     * @param scales       the desired scale of the target for each keyframe
+     *                     (same length as times)
+     *                     or null to leave the scales unchanged
      */
     public void setKeyframes(float[] times, Vector3f[] translations, Quaternion[] rotations, Vector3f[] scales) {
         if (times != null) {
@@ -238,7 +262,7 @@ public class TransformTrack implements AnimTrack<Transform> {
         int endFrame = 1;
         float blend = 0;
         if (time >= times[lastFrame]) {
-            // extrapolate beyond the final frame of the animation
+            // extrapolate beyond the final keyframe of the animation
             startFrame = lastFrame;
 
             float inferredInterval = times[lastFrame] - times[lastFrame - 1];
@@ -271,7 +295,7 @@ public class TransformTrack implements AnimTrack<Transform> {
     }
 
     /**
-     * Replace the frame interpolator.
+     * Replaces the frame interpolator.
      *
      * @param interpolator the interpolator to use (alias created)
      */
@@ -280,8 +304,7 @@ public class TransformTrack implements AnimTrack<Transform> {
     }
 
     /**
-     * Access the target affected by this track, which might be a Joint or a
-     * Spatial.
+     * Gives access to the target, which might be a Joint or a Spatial.
      *
      * @return the pre-existing instance
      */
@@ -290,7 +313,7 @@ public class TransformTrack implements AnimTrack<Transform> {
     }
 
     /**
-     * Replace the target of this track, which might be a Joint or a Spatial.
+     * Replaces the target, which might be a Joint or a Spatial.
      *
      * @param target the target to use (alias created)
      */
@@ -299,7 +322,7 @@ public class TransformTrack implements AnimTrack<Transform> {
     }
 
     /**
-     * Serialize this track to the specified exporter, for example when
+     * Serializes this track to the specified exporter, for example when
      * saving to a J3O file.
      *
      * @param ex the exporter to write to (not null)
@@ -316,7 +339,7 @@ public class TransformTrack implements AnimTrack<Transform> {
     }
 
     /**
-     * De-serialize this track from the specified importer, for example when
+     * De-serializes this track from the specified importer, for example when
      * loading from a J3O file.
      *
      * @param im the importer to read from (not null)

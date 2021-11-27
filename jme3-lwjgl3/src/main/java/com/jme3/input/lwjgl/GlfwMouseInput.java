@@ -39,7 +39,6 @@ import com.jme3.input.event.MouseMotionEvent;
 import com.jme3.system.lwjgl.LwjglWindow;
 import com.jme3.util.BufferUtils;
 import java.nio.ByteBuffer;
-import java.nio.DoubleBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayDeque;
 import java.util.HashMap;
@@ -141,11 +140,14 @@ public class GlfwMouseInput implements MouseInput {
     }
 
     private void onCursorPos(final long window, final double xpos, final double ypos) {
+        float[] xScale = new float[1];
+        float[] yScale = new float[1];
+        glfwGetWindowContentScale(window, xScale, yScale);
 
         int xDelta;
         int yDelta;
-        int x = (int) Math.round(xpos);
-        int y = currentHeight - (int) Math.round(ypos);
+        int x = (int) Math.round(xpos * xScale[0]);
+        int y = (int) Math.round((currentHeight - ypos) * yScale[0]);
 
         xDelta = x - mouseX;
         yDelta = y - mouseY;
@@ -243,11 +245,16 @@ public class GlfwMouseInput implements MouseInput {
     }
 
     private void initCurrentMousePosition(long window) {
-        DoubleBuffer x = BufferUtils.createDoubleBuffer(1);
-        DoubleBuffer y = BufferUtils.createDoubleBuffer(1);
+        double[] x = new double[1];
+        double[] y = new double[1];
         glfwGetCursorPos(window, x, y);
-        mouseX = (int) Math.round(x.get());
-        mouseY = currentHeight - (int) Math.round(y.get());
+
+        float[] xScale = new float[1];
+        float[] yScale = new float[1];
+        glfwGetWindowContentScale(window, xScale, yScale);
+
+        mouseX = (int) Math.round(x[0] * xScale[0]);
+        mouseY = (int) Math.round((currentHeight - y[0]) * yScale[0]);
     }
 
     /**

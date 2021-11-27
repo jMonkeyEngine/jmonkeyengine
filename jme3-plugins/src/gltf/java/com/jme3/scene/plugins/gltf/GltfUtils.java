@@ -378,11 +378,11 @@ public class GltfUtils {
     public static float readAsFloat(LittleEndien stream, VertexBuffer.Format format) throws IOException {
         //We may have packed data so depending on the format, we need to read data differently and unpack it
         // Implementations must use following equations to get corresponding floating-point value f from a normalized integer c and vise-versa:
-        // accessor.componentType	int-to-float	            float-to-int
-        // 5120 (BYTE)	            f = max(c / 127.0, -1.0)	c = round(f * 127.0)
-        // 5121 (UNSIGNED_BYTE)	    f = c / 255.0	            c = round(f * 255.0)
-        // 5122 (SHORT)	            f = max(c / 32767.0, -1.0)	c = round(f * 32767.0)
-        // 5123 (UNSIGNED_SHORT)	f = c / 65535.0	            c = round(f * 65535.0)
+        // accessor.componentType    int-to-float                float-to-int
+        // 5120 (BYTE)               f = max(c / 127.0, -1.0)    c = round(f * 127.0)
+        // 5121 (UNSIGNED_BYTE)      f = c / 255.0               c = round(f * 255.0)
+        // 5122 (SHORT)              f = max(c / 32767.0, -1.0)  c = round(f * 32767.0)
+        // 5123 (UNSIGNED_SHORT)     f = c / 65535.0             c = round(f * 65535.0)
         byte b;
         switch (format) {
             case Byte:

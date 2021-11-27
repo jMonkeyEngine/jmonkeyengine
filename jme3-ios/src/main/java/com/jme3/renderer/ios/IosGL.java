@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,6 +52,7 @@ import java.nio.ShortBuffer;
  */
 public class IosGL implements GL, GL2, GLES_30, GLExt, GLFbo {
     
+    private final float[] tmpFloatArray = new float[16];
     private final int[] temp_array = new int[16];
     private final IntBuffer tmpBuff = BufferUtils.createIntBuffer(1);
     
@@ -98,6 +99,15 @@ public class IosGL implements GL, GL2, GLES_30, GLExt, GLFbo {
         buffer.get(temp_array, 0, remain);
         buffer.position(pos);
         return remain;
+    }
+    
+    private void fromArray(int n, float[] array, FloatBuffer buffer) {
+        if (buffer.remaining() < n) { 
+            throw new BufferOverflowException();
+        }
+        int pos = buffer.position();
+        buffer.put(array, 0, n);
+        buffer.position(pos);
     }
     
     private void fromArray(int n, int[] array, IntBuffer buffer) {
@@ -353,6 +363,13 @@ public class IosGL implements GL, GL2, GLES_30, GLExt, GLFbo {
     @Override
     public int glGetError() {
         return JmeIosGLES.glGetError();
+    }
+
+    @Override
+    public void glGetFloat(int parameterId, FloatBuffer storeValues) {
+        checkLimit(storeValues);
+        JmeIosGLES.glGetFloatv(parameterId, tmpFloatArray, 0);
+        fromArray(storeValues.remaining(), tmpFloatArray, storeValues);
     }
 
     @Override

@@ -81,6 +81,7 @@ public final class GLRenderer implements Renderer {
     private static final Pattern GLVERSION_PATTERN = Pattern.compile(".*?(\\d+)\\.(\\d+).*");
 
     private final ByteBuffer nameBuf = BufferUtils.createByteBuffer(250);
+    private final FloatBuffer floatBuf16 = BufferUtils.createFloatBuffer(16);
     private final StringBuilder stringBuf = new StringBuilder(250);
     private final IntBuffer intBuf1 = BufferUtils.createIntBuffer(1);
     private final IntBuffer intBuf16 = BufferUtils.createIntBuffer(16);
@@ -395,6 +396,14 @@ public final class GLRenderer implements Renderer {
             caps.add(Caps.TextureCompressionS3TC);
         }
 
+        if (hasExtension("GL_ARB_texture_compression_bptc")) {
+            caps.add(Caps.TextureCompressionBPTC);
+        }
+
+        if (hasExtension("GL_EXT_texture_compression_rgtc")) {
+            caps.add(Caps.TextureCompressionRGTC);
+        }
+
         if (hasExtension("GL_ARB_ES3_compatibility")) {
             caps.add(Caps.TextureCompressionETC2);
             caps.add(Caps.TextureCompressionETC1);
@@ -631,15 +640,15 @@ public final class GLRenderer implements Renderer {
             }
         }
 
-	IntBuffer tmp = BufferUtils.createIntBuffer(16);
-	gl.glGetInteger(GL.GL_FRAMEBUFFER_BINDING, tmp);
-	tmp.rewind();
-	int fbOnLoad = tmp.get();
-	if(fbOnLoad > 0)
-	{
+        IntBuffer tmp = BufferUtils.createIntBuffer(16);
+        gl.glGetInteger(GL.GL_FRAMEBUFFER_BINDING, tmp);
+        tmp.rewind();
+        int fbOnLoad = tmp.get();
+        if(fbOnLoad > 0)
+        {
             // Overriding default FB to fbOnLoad. Mostly iOS fix for scene processors and filters
-	    defaultFBO = fbOnLoad;
-	}
+            defaultFBO = fbOnLoad;
+        }
     }
 
     @Override
@@ -3315,6 +3324,30 @@ public final class GLRenderer implements Renderer {
     @Override
     public int getDefaultAnisotropicFilter() {
         return this.defaultAnisotropicFilter;
+    }
+
+    /**
+     * Determine the maximum allowed width for lines.
+     *
+     * @return the maximum width (in pixels)
+     */
+    @Override
+    public float getMaxLineWidth() {
+        // Since neither JMonkeyEngine nor LWJGL ever enables GL_LINE_SMOOTH,
+        // all lines are aliased, but just in case...
+        assert !gl.glIsEnabled(GL.GL_LINE_SMOOTH);
+
+        // When running with OpenGL 3.2+ core profile,
+        // compatibility features such as multipixel lines aren't available.
+        if (caps.contains(Caps.CoreProfile)) {
+            return 1f;
+        }
+
+        floatBuf16.clear();
+        gl.glGetFloat(GL.GL_ALIASED_LINE_WIDTH_RANGE, floatBuf16);
+        float result = floatBuf16.get(1);
+
+        return result;
     }
 
     /**

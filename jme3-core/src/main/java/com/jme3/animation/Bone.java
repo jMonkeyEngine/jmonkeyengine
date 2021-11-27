@@ -170,7 +170,7 @@ public final class Bone implements Savable, JmeCloneable {
         modelBindInverseRot = source.modelBindInverseRot.clone();
         modelBindInverseScale = source.modelBindInverseScale.clone();
 
-        // parent and children will be assigned manually..
+        // Parent and children will be assigned manually.
     }
 
     /**
@@ -476,11 +476,11 @@ public final class Bone implements Savable, JmeCloneable {
             
             
     /**
-     * Updates the model transforms for this bone, and, possibly the attach node
+     * Updates the model transforms for this bone and, possibly, the attachments node
      * if not null.
      * <p>
      * The model transform of this bone is computed by combining the parent's
-     * model transform with this bones' local transform.
+     * model transform with this bone's local transform.
      */
     public final void updateModelTransforms() {
         if (currentWeightSum == 1f) {
@@ -642,7 +642,7 @@ public final class Bone implements Savable, JmeCloneable {
         Quaternion rotate = modelRot.mult(modelBindInverseRot, tmp1);
 
         // Computing translation
-        // Translation depend on rotation and scale
+        // Translation depends on rotation and scale.
         Vector3f translate = modelPos.add(rotate.mult(scale.mult(modelBindInversePos, tmp2), tmp2), tmp2);
 
         // Populating the matrix
@@ -734,7 +734,7 @@ public final class Bone implements Savable, JmeCloneable {
         if (attachNode == null) {
             attachNode = new Node(name + "_attachnode");
             attachNode.setUserData("AttachedBone", this);
-            //We don't want the node to have a numBone set by a parent node so we force it to null
+            //We don't want the node to have NumberOfBones set by a parent node, so we force it to null.
             attachNode.addMatParamOverride(new MatParamOverride(VarType.Int, "NumberOfBones", null));
         }
 
@@ -966,7 +966,7 @@ public final class Bone implements Savable, JmeCloneable {
     /**
      * returns true if this bone can be directly manipulated by the user.
      * @see #setUserControl(boolean)
-     * @return true if can be manipulated
+     * @return true if it can be manipulated
      */
     public boolean hasUserControl(){
         return userControl;

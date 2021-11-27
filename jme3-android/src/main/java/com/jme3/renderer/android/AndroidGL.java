@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -315,6 +315,12 @@ public class AndroidGL implements GL, GL2, GLES_30, GLExt, GLFbo {
     @Override
     public int glGetError() {
         return GLES20.glGetError();
+    }
+
+    @Override
+    public void glGetFloat(int parameterId, FloatBuffer storeValues) {
+        checkLimit(storeValues);
+        GLES20.glGetFloatv(parameterId, storeValues);
     }
 
     @Override

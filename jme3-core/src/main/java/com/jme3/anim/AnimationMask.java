@@ -39,7 +39,7 @@ package com.jme3.anim;
 public interface AnimationMask {
 
     /**
-     * Test whether the animation should applied to the specified element.
+     * Test whether the animation should be applied to the specified element.
      *
      * @param target the target element
      * @return true if animation should be applied, otherwise false

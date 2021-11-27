@@ -78,7 +78,7 @@ public class ClassInfoRegistry {
                 result = new ClassInfo((short)nextClassId.getAndIncrement(), type);
                 cache.put(type, result);
                 
-                // Re-grab the read lock before leaving... kind of unnecessary but
+                // Re-grab the read lock before leaving... kind of unnecessary, but
                 // it makes the method cleaner and widens the gap of lock races.
                 // Downgrading a write lock to read is ok.
                 lock.readLock().lock();
@@ -94,7 +94,7 @@ public class ClassInfoRegistry {
     }
     
     /*
-    would be more straight-forward with guava  Guava version  
+    would be more straight-forward with Guava.  Guava version:
     private class ClassInfoLoader extends CacheLoader<Class, ClassInfo> {
         @Override
         public ClassInfo load( Class type ) {

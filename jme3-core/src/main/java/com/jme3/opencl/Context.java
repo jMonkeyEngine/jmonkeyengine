@@ -213,7 +213,7 @@ public abstract class Context extends AbstractOpenCLObject {
      * The returned image shares the same memory with the jME3-image, changes
      * in one view are visible in the other view.
      * This can be used to modify textures and images directly from OpenCL
-     * (e.g. for post processing effects and other texture effects).
+     * (e.g. for post-processing effects and other texture effects).
      * <br>
      * <b>Note:</b> The image must already been uploaded to the GPU,
      * i.e. it must be used at least once for drawing.
@@ -236,7 +236,7 @@ public abstract class Context extends AbstractOpenCLObject {
      * The returned image shares the same memory with the jME3 texture, changes
      * in one view are visible in the other view.
      * This can be used to modify textures and images directly from OpenCL
-     * (e.g. for post processing effects and other texture effects).
+     * (e.g. for post-processing effects and other texture effects).
      * <br>
      * <b>Note:</b> The image must already been uploaded to the GPU,
      * i.e. it must be used at least once for drawing.
@@ -275,7 +275,7 @@ public abstract class Context extends AbstractOpenCLObject {
      * The returned image shares the same memory with the jME3 render buffer, changes
      * in one view are visible in the other view.
      * <br>
-     * This can be used as an alternative to post processing effects
+     * This can be used as an alternative to post-processing effects
      * (e.g. reduce sum operations, needed e.g. for tone mapping).
      * <br>
      * <b>Note:</b> The renderbuffer must already been uploaded to the GPU,

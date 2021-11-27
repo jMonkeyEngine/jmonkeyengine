@@ -138,7 +138,7 @@ public class IGLESContext implements JmeContext {
     @Override
     public boolean isCreated() {
         logger.log(Level.FINE, "IGLESContext isCreated");
-		return created.get();
+        return created.get();
     }
 
     @Override
@@ -191,8 +191,8 @@ public class IGLESContext implements JmeContext {
     @Override
     public void destroy(boolean waitFor) {
         logger.log(Level.FINE, "IGLESContext destroy");
-		listener.destroy();
-		needClose.set(true);
+        listener.destroy();
+        needClose.set(true);
         if (waitFor) {
             //waitFor(false);
         }

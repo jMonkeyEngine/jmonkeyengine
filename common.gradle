@@ -10,19 +10,17 @@ apply plugin: 'signing'
 group = 'org.jmonkeyengine'
 version = jmeFullVersion
 
-sourceCompatibility = '1.8'
-[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
 
-if(JavaVersion.current() >= JavaVersion.VERSION_1_9) {
-    compileJava {
-		options.release = 8
-    }
+tasks.withType(JavaCompile) { // compile-time options:
+    //options.compilerArgs << '-Xlint:deprecation' // to show deprecation warnings
+    options.compilerArgs << '-Xlint:unchecked'
+    options.encoding = 'UTF-8'
 }
 
-gradle.projectsEvaluated {
-    tasks.withType(JavaCompile) { // compile-time options:
-        options.compilerArgs << '-Xlint:unchecked'
-    }
+ext {
+    lwjgl3Version = '3.3.0' // used in both the jme3-lwjgl3 and jme3-vr build scripts
 }
 
 repositories {
@@ -35,8 +33,8 @@ repositories {
 dependencies {
     // Adding dependencies here will add the dependencies to each subproject.
     testImplementation 'junit:junit:4.13.2'
-    testImplementation 'org.mockito:mockito-core:3.8.0'
-    testImplementation 'org.codehaus.groovy:groovy-all:3.0.7'
+    testImplementation 'org.mockito:mockito-core:3.12.4'
+    testImplementation 'org.codehaus.groovy:groovy-test:3.0.9'
 }
 
 
@@ -54,7 +52,7 @@ jar {
     manifest {
         attributes 'Implementation-Title': 'jMonkeyEngine',
                    'Implementation-Version': jmeFullVersion,
-                   'Automatic-Module-Name': "${project.name.replace("-", ".")}" 
+                   'Automatic-Module-Name': "${project.name.replace("-", ".")}"
     }
 }
 

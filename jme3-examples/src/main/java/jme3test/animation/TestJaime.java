@@ -101,7 +101,7 @@ public class TestJaime  extends SimpleApplication {
     
     public Node LoadModel() {
         Node jaime = (Node)assetManager.loadModel("Models/Jaime/Jaime.j3o");
-        jaime = (Node) AnimMigrationUtils.migrate(jaime);
+        AnimMigrationUtils.migrate(jaime);
         jaime.setShadowMode(RenderQueue.ShadowMode.CastAndReceive);
         rootNode.attachChild(jaime);
         return jaime;

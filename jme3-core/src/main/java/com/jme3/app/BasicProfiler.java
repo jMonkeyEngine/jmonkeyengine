@@ -81,7 +81,7 @@ public class BasicProfiler implements AppProfiler {
     }
 
     /**
-     *  Sets the number of frames to display and track.  By default
+     *  Sets the number of frames to display and track.  By default,
      *  this is 1280.
      * 
      * @param size the desired number of frames (&ge;0, default=1280)
@@ -107,7 +107,7 @@ public class BasicProfiler implements AppProfiler {
 
     /**
      *  Sets the number of nanoseconds to wait before updating the
-     *  mesh.  By default this is once a millisecond, ie: 1000000 nanoseconds.
+     *  mesh.  By default, this is once a millisecond, i.e. 1000000 nanoseconds.
      * 
      * @param nanos the desired update interval (in nanoseconds, default=1e6)
      */

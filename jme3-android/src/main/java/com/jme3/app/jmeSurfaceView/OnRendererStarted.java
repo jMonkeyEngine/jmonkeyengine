@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,43 +29,26 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+package com.jme3.app.jmeSurfaceView;
 
-package jme3test.asset;
+import android.view.View;
+import com.jme3.app.LegacyApplication;
 
-import com.jme3.asset.AssetManager;
-import com.jme3.asset.plugins.ClasspathLocator;
-import com.jme3.audio.AudioData;
-import com.jme3.audio.plugins.WAVLoader;
-import com.jme3.system.JmeSystem;
-import com.jme3.texture.Texture;
-import com.jme3.texture.plugins.AWTLoader;
-
-public class TestAbsoluteLocators {
-    public static void main(String[] args){
-        AssetManager am = JmeSystem.newAssetManager();
-
-        am.registerLoader(AWTLoader.class, "jpg");
-        am.registerLoader(WAVLoader.class, "wav");
-
-        // register absolute locator
-        am.registerLocator("/",  ClasspathLocator.class);
-
-        // find a sound
-        AudioData audio = am.loadAudio("Sound/Effects/Gun.wav");
-
-        // find a texture
-        Texture tex = am.loadTexture("Textures/Terrain/Pond/Pond.jpg");
-
-        if (audio == null)
-            throw new RuntimeException("Cannot find audio!");
-        else
-            System.out.println("Audio loaded from Sounds/Effects/Gun.wav");
-
-        if (tex == null)
-            throw new RuntimeException("Cannot find texture!");
-        else
-            System.out.println("Texture loaded from Textures/Terrain/Pond/Pond.jpg");
-
-        System.out.println("Success!");
-    }
+/**
+ * An interface used for invoking an event when the application is started explicitly from {@link JmeSurfaceView#startRenderer(int)}.
+ * NB : This listener must be utilized before using {@link JmeSurfaceView#startRenderer(int)}, ie : it would be ignored if you try to use {@link JmeSurfaceView#setOnRendererStarted(OnRendererStarted)} after
+ * {@link JmeSurfaceView#startRenderer(int)}.
+ * @see JmeSurfaceView#setOnRendererStarted(OnRendererStarted)
+ *
+ * @author pavl_g.
+ */
+public interface OnRendererStarted {
+    /**
+     * Invoked when the game application is started by the {@link LegacyApplication#start()}, the event is dispatched on the
+     * holder Activity context thread.
+     * @see JmeSurfaceView#startRenderer(int)
+     * @param application the game instance.
+     * @param layout the enclosing layout.
+     */
+    void onRenderStart(LegacyApplication application, View layout);
 }

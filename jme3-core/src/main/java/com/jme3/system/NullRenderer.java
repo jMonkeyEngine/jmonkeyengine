@@ -252,6 +252,16 @@ public class NullRenderer implements Renderer {
     public void setDefaultAnisotropicFilter(int level) {
     }
 
+    /**
+     * Determine the maximum allowed width for lines.
+     *
+     * @return the maximum width (in pixels)
+     */
+    @Override
+    public float getMaxLineWidth() {
+        return Float.MAX_VALUE;
+    }
+
     @Override
     public boolean getAlphaToCoverage() {
         return false;

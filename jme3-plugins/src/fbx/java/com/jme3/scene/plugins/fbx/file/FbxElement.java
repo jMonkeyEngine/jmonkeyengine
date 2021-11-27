@@ -35,32 +35,32 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FbxElement {
-	
-	public String id;
-	public List<Object> properties;
-	/*
-	 * Y - signed short
-	 * C - boolean
-	 * I - signed integer
-	 * F - float
-	 * D - double
-	 * L - long
-	 * R - byte array
-	 * S - string
-	 * f - array of floats
-	 * i - array of ints
-	 * d - array of doubles
-	 * l - array of longs
-	 * b - array of booleans
-	 * c - array of unsigned bytes (represented as array of ints)
-	 */
-	public char[] propertiesTypes;
-	public List<FbxElement> children = new ArrayList<>();
-	
-	public FbxElement(int propsCount) {
-		this.properties = new ArrayList<Object>(propsCount);
-		this.propertiesTypes = new char[propsCount];
-	}
+
+    public String id;
+    public List<Object> properties;
+    /*
+     * Y - signed short
+     * C - boolean
+     * I - signed integer
+     * F - float
+     * D - double
+     * L - long
+     * R - byte array
+     * S - string
+     * f - array of floats
+     * i - array of ints
+     * d - array of doubles
+     * l - array of longs
+     * b - array of booleans
+     * c - array of unsigned bytes (represented as array of ints)
+     */
+    public char[] propertiesTypes;
+    public List<FbxElement> children = new ArrayList<>();
+
+    public FbxElement(int propsCount) {
+        this.properties = new ArrayList<Object>(propsCount);
+        this.propertiesTypes = new char[propsCount];
+    }
         
         public FbxElement getChildById(String name) {
             for (FbxElement element : children) {
