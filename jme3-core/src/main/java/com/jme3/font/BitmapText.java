@@ -185,29 +185,8 @@ public class BitmapText extends Node {
      * @return returns text
      */
     public String getText() {
- //       if (letters.getQuad().isRightToLeft()) return reverseText(block.getText());
         return block.getText();
     }
-
-    /*
-      An assumption is that, if a righttoleft (RtL) text is applied, that its already written
-      in RtL form e.g. "CBA". To work properly with the current Letters.class it has to be stored like "ABC"
-      Each letter starting from A will be calculated from the right to the left.
-      In the end the text will be displayed as "CBA" as intended. Getting the text would need
-      a reverting of the internal stored text as well
-      ToDo
-      Answer the question: Is a RtL text always provided as "CBA" otherwise this procedures are not needed
-      or the user need to have a choice to choose the input form of the text
-      Edit: Seems it is not needed. So commented out for the moment.
-    private String reverseText(String intext) {
-        StringBuilder outtext = new StringBuilder();
-        char[] textstore = intext.toCharArray();
-        for (int i = textstore.length-1; i >=0 ; i--) {
-            outtext.append(textstore[i]);
-        }
-        return outtext.toString();
-    }
-*/
 
     /**
      * @return color of the text
@@ -285,15 +264,9 @@ public class BitmapText extends Node {
         }
         Rectangle textBox = block.getTextBox();
         if (textBox != null) {
-            // ToDo this method for bounded BitMaptexts will always return the width of the box
-            //  no matter if the text is shorter or stretched for more then one line
-            //  letters.getTotalWidth currently returns the lenght of the LAST line (depending on the last letter before Tail) !
-            //  Question is that the desired behaviour ?
-            //  We will get linelenght only for unbound texs or by using the Font.getLineWidth on the other side
-            //  changing something here would require knowledge of number of lines or to get the max lenght etc.
             return Math.max(letters.getTotalWidth(), textBox.width);
         }
-      //  Please also note that BitMaptext.getLineWidth() might differ from Font.getLineWidth() -->   scale it with Font.getPreferredSize()/BitMaptext.getSize()
+      //  Please note that BitMaptext.getLineWidth() might differ from Font.getLineWidth() -->   scale it with Font.getPreferredSize()/BitMaptext.getSize()
         return letters.getTotalWidth();
     }
 
