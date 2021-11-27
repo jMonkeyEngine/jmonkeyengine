@@ -201,10 +201,10 @@ class LetterQuad {
     }
 
     float getX1() {
-        return x0+width;
+        return x0 + width;
     }
     float getNextX() {
-        return x0+xAdvance;
+        return rightToLeft ? x0 - xAdvance : x0 + xAdvance;
     }
 
     float getNextLine() {
@@ -319,7 +319,6 @@ class LetterQuad {
 
         if (isHead()) {
             x0 = getBound(block).x;
-           // if (isRightToLeft()) x0 += getBound(block).width;
             if (isRightToLeft() && getBound(block) != UNBOUNDED) {
                 x0 += getBound(block).width;
             }
@@ -328,7 +327,6 @@ class LetterQuad {
             height = 0;
             xAdvance = 0;
         } else if (isTab()) {
-            // ToDo Test: with rtl text, should be at least x0 = previous.getX0
             x0 = previous.getNextX();
             width = tabWidth;
             y0 = lineY;
@@ -358,17 +356,25 @@ class LetterQuad {
             float kernAmount = 0f;
 
             if (previous.isHead() || previous.eol) {
-                xAdvance -= xOffset * incrScale; // Todo Test: if offset > 0 then for ltr text it would move the letter to the left. Is that a correct behaviour
-                if (isRightToLeft()) {
-                    // first letter of a line is always on the right end of the textbox (getBound(block).x + getBound(block).width = getX0 as calculated above)
-                    // we need to move it for xadvance
-                    if (previous.isHead())  x0 = previous.getX0()-xAdvance;
-               //     if (previous.eol)     x0 = getBound(block).x + getBound(block).width - xAdvance;
-                    if (previous.eol) {
-                        x0 = getBound(block).x + (getBound(block) != UNBOUNDED ? getBound(block).width : 0) - xAdvance;
+                if (rightToLeft) {
+                    // In RTL text we advance toward left by the letter xAdvance. (subtract xAdvance)
+                    // Note, positive offset will move the letter quad toward right and negative offset
+                    // will move it toward left.
+                    if (previous.isHead()) {
+                        x0 = previous.getNextX() - xAdvance - xOffset * incrScale;
+                    } else if (previous.eol) {
+                        // For bounded bitmap text the first letter of a line is always
+                        // on the right end of the textbox and for unbounded bitmap text
+                        // we start from the x=0 and advance toward left.
+                        x0 = getBound(block).x + (getBound(block) != UNBOUNDED ? getBound(block).width : 0) - xAdvance - xOffset * incrScale;
                     }
+                    // Since x0 has xAdvance baked into it, we need to zero out xAdvance.
+                    // Since x0 will have offset baked into it we need to counteract that in xAdvance.
+                    // The next x position will be (x0 - xAdvance)
+                    xAdvance = -xOffset * incrScale;
                 } else {
                     x0 = bound.x;
+
                     // The first letter quad will be drawn right at the first
                     // position... but it does not offset by the characters offset
                     // amount.  This means that we've potentially accumulated extra
@@ -378,23 +384,28 @@ class LetterQuad {
                     // technically baked the offset in just like below.  It doesn't
                     // look like it at first glance so I'm keeping it separate with
                     // this comment.
+                    xAdvance -= xOffset * incrScale;
                 }
-            } else {
-                // Since x0 will have offset baked into it then we
-                // need to counteract that in xAdvance.  This is better
-                // than removing it in getNextX() because we also need
-                // to take kerning into account below... which will also
-                // get baked in.
-                // Without this, getNextX() will return values too far to
-                // the left, for example.
-                xAdvance -= xOffset * incrScale;
-                if (isRightToLeft()) {
-                    // xadvance as calculated above will be needed for both left to right- and right to left text
-                    // for RtL text the xadvance of the current!! letter is deducted, while for LtR text the advance of the letter before is added!
-                    // Todo currently the xoffset is netted of, what is the right behaviour here ?
-                    x0 = previous.getX0() - xAdvance - xOffset * incrScale;
+            }else {
+               if (isRightToLeft()) {
+                   // For RTL text the xAdvance of the current letter is deducted,
+                   // while for LTR text the advance of the letter before is added.
+                   x0 = previous.getNextX() - xAdvance - xOffset * incrScale;
+                   // Since x0 has xAdvance baked into it we need to zero out xAdvance.
+                   // Since x0 will have offset baked into it then we
+                   // need to counteract that in xAdvance.
+                   // The next x position will be (x0 - xAdvance)
+                   xAdvance = - xOffset * incrScale;
                 } else {
                     x0 = previous.getNextX() + xOffset * incrScale;
+                   // Since x0 will have offset baked into it then we
+                   // need to counteract that in xAdvance.  This is better
+                   // than removing it in getNextX() because we also need
+                   // to take kerning into account below... which will also
+                   // get baked in.
+                   // Without this, getNextX() will return values too far to
+                   // the left, for example.
+                   xAdvance -= xOffset * incrScale;
                 }
             }
             y0 = lineY + LINE_DIR*yOffset;

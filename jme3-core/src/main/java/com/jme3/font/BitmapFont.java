@@ -88,18 +88,21 @@ public class BitmapFont implements Savable {
 
     private BitmapCharacterSet charSet;
     private Material[] pages;
-    private boolean RtL = false;
+    private boolean rightToLeft = false;
+    // For cursive bitmap fonts (e.g. RTL fonts) in which
+    // letter shape changes depending on its position
+    private GlyphParser glyphParser;
 
-    public boolean isRtL() {
-        return RtL;
+    public boolean isRightToLeft() {
+        return rightToLeft;
     }
 
-    // setting the parameter with the font will change it for all!! texts using the fint
+    // setting the parameter with the font will change it for all!! texts using the font
     // the parameter is applied by simply using public BitmapText(BitmapFont font)
-    // it can be "overwritten" by using the old way public BitmapText(BitmapFont font, boolean rightToLeft)
+    // it can be "overwritten" by using the available public BitmapText(BitmapFont font, boolean rightToLeft)
     // This way one fnt can be used LtR and RtL in one application
-    public void setRtL(boolean rtL) {
-        RtL = rtL;
+    public void setRightToLeft(boolean rightToLeft) {
+        this.rightToLeft = rightToLeft;
     }
 
 
@@ -137,7 +140,14 @@ public class BitmapFont implements Savable {
     public BitmapCharacterSet getCharSet() {
         return charSet;
     }
-    
+
+    public void setGlyphParser(GlyphParser glyphParser) {
+        this.glyphParser = glyphParser;
+    }
+
+    public GlyphParser getGlyphParser() {
+        return glyphParser;
+    }
     /**
      * Gets the line height of a StringBlock.
      *
@@ -222,6 +232,11 @@ public class BitmapFont implements Savable {
         boolean firstCharOfLine = true;
 //        float sizeScale = (float) block.getSize() / charSet.getRenderedSize();
         float sizeScale = 1f;
+
+        if (glyphParser != null) {
+            text = glyphParser.parse(text);
+        }
+
         for (int i = 0; i < text.length(); i++){
             char theChar = text.charAt(i);
             if (theChar == '\n'){
@@ -244,25 +259,37 @@ public class BitmapFont implements Savable {
                 if (!firstCharOfLine){
                     lineWidth += findKerningAmount(lastChar, theChar) * sizeScale;                    
                 } else {
-                    // The first character needs to add in its xOffset, but it
-                    // is the only one... and negative offsets = positive width
-                    // because we're trying to account for the part that hangs
-                    // over the left.  So we subtract. 
-                    lineWidth -= c.getXOffset() * sizeScale;                    
+                    if (rightToLeft) {
+                        // Ignore offset, so it will be compatible with BitmapText.getLineWidth().
+                    } else {
+                        // The first character needs to add in its xOffset but it
+                        // is the only one... and negative offsets = positive width
+                        // because we're trying to account for the part that hangs
+                        // over the left.  So we subtract.
+                        lineWidth -= c.getXOffset() * sizeScale;
+                    }
                     firstCharOfLine = false;
                 }
                 float xAdvance = c.getXAdvance() * sizeScale;
-                
-                // If this is the last character, then we really should have
-                // only added its width.  The advance may include extra spacing
+
+                // If this is the last character of a line, then we really should
+                // have only add its width. The advance may include extra spacing
                 // that we don't care about.
-                if (i == text.length() - 1) {
-                    lineWidth += c.getWidth() * sizeScale;
- 
-                    // Since the width includes the xOffset then we need
-                    // to take it out again by adding it, ie: offset the width
-                    // we just added by the appropriate amount.
-                    lineWidth += c.getXOffset() * sizeScale;                      
+                if (i == text.length() - 1 || text.charAt(i + 1) == '\n') {
+                    if (rightToLeft) {
+                        // In RTL text we move the letter x0 by it's xAdvance so
+                        // we should add it to lineWidth
+                        lineWidth += xAdvance;
+                        // Then we move letter by it's xOffset.
+                        // Negative offsets = positive width.
+                        lineWidth -= c.getXOffset() * sizeScale;
+                    } else {
+                        lineWidth += c.getWidth() * sizeScale;
+                        // Since the width includes the xOffset then we need
+                        // to take it out again by adding it, ie: offset the width
+                        // we just added by the appropriate amount.
+                        lineWidth += c.getXOffset() * sizeScale;
+                    }
                 } else {                 
                     lineWidth += xAdvance;
                 }

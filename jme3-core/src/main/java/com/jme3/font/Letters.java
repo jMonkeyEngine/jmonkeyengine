@@ -73,8 +73,13 @@ class Letters {
         current = head;
         if (text != null && plainText.length() > 0) {
             LetterQuad l = head;
-            for (int i = 0; i < plainText.length(); i++) {
-                l = l.addNextCharacter(plainText.charAt(i));
+            CharSequence characters = plainText;
+            if (font.getGlyphParser() != null) {
+                characters = font.getGlyphParser().parse(plainText);
+            }
+
+            for (int i = 0; i < characters.length(); i++) {
+                l = l.addNextCharacter(characters.charAt(i));
                 if (baseColor != null) {
                     // Give the letter a default color if
                     // one has been provided.
@@ -346,25 +351,19 @@ class Letters {
     }
 
     void validateSize() {
-       // also called from BitMaptext.getLineWidth() via getTotalWidth()
+        // also called from BitMaptext.getLineWidth() via getTotalWidth()
         if (totalWidth < 0) {
-            if (font.isRtL()) {
-                LetterQuad l = tail;
-                l = l.getPrevious();
-                if (l.getX0() < 0) { // unbound RtL texts
-                    totalWidth = Math.abs(l.getPrevious().getX0()-l.getWidth());
-                } else { // bound  RtL texts
-                    totalWidth = block.getTextBox().width- l.getPrevious().getX0()+l.getWidth();
-                }
-            } else { //LtR texts
-                LetterQuad l = head;
-                while (!l.isTail()) {
+            LetterQuad l = head;
+            while (!l.isTail()) {
+                if (font.isRightToLeft()) {
+                    totalWidth = Math.max(totalWidth, Math.abs(l.getX0()));
+                } else {
                     totalWidth = Math.max(totalWidth, l.getX1());
-                    l = l.getNext();
                 }
+                l = l.getNext();
             }
+            totalHeight = font.getLineHeight(block) * block.getLineCount();
         }
-        totalHeight = font.getLineHeight(block) * block.getLineCount();
     }
 
     /**

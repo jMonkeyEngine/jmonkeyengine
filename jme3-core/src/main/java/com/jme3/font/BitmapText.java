@@ -53,7 +53,7 @@ public class BitmapText extends Node {
     private Letters letters;
 
     public BitmapText(BitmapFont font) {
-        this(font, font.isRtL(), false);
+        this(font, font.isRightToLeft(), false);
     }
         public BitmapText(BitmapFont font, boolean rightToLeft) {
         this(font, rightToLeft, false);
@@ -137,7 +137,6 @@ public class BitmapText extends Node {
      */
     public void setText(String text) {
         text = text == null ? "" : text;
- //       if (letters.getQuad().isRightToLeft()) text = reverseText(text);
         if (text == block.getText() || block.getText().equals(text)) {
             return;
         }
