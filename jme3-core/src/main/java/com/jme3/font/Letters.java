@@ -250,8 +250,7 @@ class Letters {
                if (cursor.isEndOfLine()) {
                    gapX = (cursor.getX0()-block.getTextBox().x)*-1; // new gapX
                    if (alignment == Align.Center) gapX = gapX/2;
-                   //    if (alignment == Align.Right) gapX = gapX;
-               }
+                }
                 cursor.setAlignment(gapX, gapY);
                 cursor = cursor.getPrevious();
             }
@@ -263,8 +262,7 @@ class Letters {
             return;
         l.getPrevious().setEndOfLine();
         l.invalidate();
-        l.update(block); // TODO: update from l
-        // --> whats does this mean ? Update from left done ! but from l ???
+        l.update(block); // TODO: update from l    // --> whats does this mean ? Update from left done ! but from l ???
     }
 
     float getCharacterX0() {
@@ -362,8 +360,8 @@ class Letters {
                 }
                 l = l.getNext();
             }
-            totalHeight = font.getLineHeight(block) * block.getLineCount();
         }
+        totalHeight = font.getLineHeight(block) * block.getLineCount();
     }
 
     /**

@@ -414,8 +414,7 @@ class LetterQuad {
             if (lastChar != null && block.isKerning()) {
                 kernAmount = lastChar.getKerning(c) * sizeScale;
                 x0 += kernAmount * incrScale;
-                // ToDo Test: with kernAmount <> 0 but it should already work as incrScale gives the direction
-                // Need to unbake the kerning from xAdvance since it
+                 // Need to unbake the kerning from xAdvance since it
                 // is baked into x0... see above.
                 //xAdvance -= kernAmount * incrScale;
                 // No, kerning is an inter-character spacing and _does_ affect
