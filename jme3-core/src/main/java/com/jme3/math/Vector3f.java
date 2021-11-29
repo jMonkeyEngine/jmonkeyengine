@@ -92,21 +92,21 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
             Float.NEGATIVE_INFINITY,
             Float.NEGATIVE_INFINITY);
     /**
-     * The x value of the vector.
+     * The x component of the vector.
      */
     public float x;
     /**
-     * The y value of the vector.
+     * The y component of the vector.
      */
     public float y;
     /**
-     * The z value of the vector.
+     * The z component of the vector.
      */
     public float z;
 
     /**
-     * Instantiates a new <code>Vector3f</code> with default
-     * values of (0,0,0).
+     * Instantiates a new <code>Vector3f</code> with the default
+     * value of (0,0,0).
      *
      */
     public Vector3f() {
@@ -115,11 +115,11 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * Instantiates a new <code>Vector3f</code> with the provided
-     * values.
+     * components.
      *
-     * @param x   the x value of the vector.
-     * @param y   the y value of the vector.
-     * @param z   the z value of the vector.
+     * @param x   the x component of the vector.
+     * @param y   the y component of the vector.
+     * @param z   the z component of the vector.
      */
     public Vector3f(float x, float y, float z) {
         this.x = x;
@@ -138,12 +138,12 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Sets the x,y,z values of the vector based on passed
+     * Sets the x,y,z components of the vector based on passed
      * parameters.
      *
-     * @param x   the x value of the vector.
-     * @param y   the y value of the vector.
-     * @param z   the z value of the vector.
+     * @param x   the x component of the vector.
+     * @param y   the y component of the vector.
+     * @param z   the z component of the vector.
      * @return this vector (modified)
      */
     public Vector3f set(float x, float y, float z) {
@@ -154,7 +154,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Sets the x,y,z values of the vector by copying the
+     * Sets the x,y,z components of the vector by copying the
      * supplied vector.
      *
      * @param vect the Vector3f to copy (unaffected)
@@ -185,8 +185,8 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Adds the values of a provided vector, storing the
-     * values in the supplied vector. The current instance is unaffected unless it is
+     * Adds the components of a provided vector, storing the
+     * sum in the supplied vector. The current instance is unaffected unless it is
      * <code>result</code>.
      *
      * @param vec the vector to add to this (unaffected unless it is
@@ -222,15 +222,12 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Adds the provided values to this vector, creating a
+     * Adds the provided offsets to this vector, creating a
      * new vector that is then returned. The current instance is unaffected.
      *
-     * @param addX
-     *            the x value to add.
-     * @param addY
-     *            the y value to add.
-     * @param addZ
-     *            the z value to add.
+     * @param addX the amount to add to the X component
+     * @param addY the amount to add to the Y component
+     * @param addZ the amount to add to the Z component
      * @return the result vector.
      */
     public Vector3f add(float addX, float addY, float addZ) {
@@ -238,16 +235,13 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Adds the provided values to this vector
+     * Adds the provided offsets to this vector
      * internally and returns a handle to this (modified) vector for easy chaining of
      * calls.
      *
-     * @param addX
-     *            value to add to x
-     * @param addY
-     *            value to add to y
-     * @param addZ
-     *            value to add to z
+     * @param addX the amount to add to the X component
+     * @param addY the amount to add to the Y component
+     * @param addZ the amount to add to the Z component
      * @return this (modified)
      */
     public Vector3f addLocal(float addX, float addY, float addZ) {
@@ -279,9 +273,9 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      * the given vector, storing the result in the current instance.
      *
      * @param scalar the scaling factor
-     * @param mult the value to multiply the scalar by (unaffected unless it is
+     * @param mult the vector to multiply the scalar by (unaffected unless it is
      *     <code>this</code>)
-     * @param add the value to add (unaffected unless it is <code>this</code>)
+     * @param add the vector to add (unaffected unless it is <code>this</code>)
      * @return this
      */
     public Vector3f scaleAdd(float scalar, Vector3f mult, Vector3f add) {
@@ -616,8 +610,8 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Divides the values of this vector by a scalar and
-     * returns the result. The values of this vector remain untouched.
+     * Divides the vector by a scalar and
+     * returns the result. The current instance remains untouched.
      *
      * @param scalar
      *            the value to divide this vectors attributes by.
@@ -645,8 +639,8 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Divides the values of this vector component-wise by the argument and
-     * returns the result. The values of this vector remain untouched.
+     * Divides this vector component-wise by the argument and
+     * returns the result. The current instance remains untouched.
      *
      * @param scalar the divisor (unaffected) TODO rename argument!
      * @return the result <code>Vector</code>.
@@ -670,7 +664,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Returns the negative of this vector. All values are
+     * Returns the negative of this vector. All components are
      * negated. The current instance is unaffected.
      *
      * @return a new Vector3f
@@ -680,7 +674,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Negates the internal values of this vector.
+     * Negates the components of this vector.
      *
      * @return this (modified)
      */
@@ -692,8 +686,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Subtracts the values of a given vector from those
-     * of this vector creating a new vector object.
+     * Subtracts the given vector from this vector creating a new vector object.
      * The current instance is unaffected.
      *
      * @param vec
@@ -749,12 +742,9 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      * Subtracts the provided values from this vector,
      * creating a new vector that is then returned. The current instance is unaffected.
      *
-     * @param subtractX
-     *            the x value to subtract.
-     * @param subtractY
-     *            the y value to subtract.
-     * @param subtractZ
-     *            the z value to subtract.
+     * @param subtractX the amount to subtract from the X component
+     * @param subtractY the amount to subtract from the Y component
+     * @param subtractZ the amount to subtract from the Z component
      * @return the result vector.
      */
     public Vector3f subtract(float subtractX, float subtractY, float subtractZ) {
@@ -766,12 +756,9 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      * internally and returns a handle to this (modified) vector for easy chaining of
      * calls.
      *
-     * @param subtractX
-     *            the x value to subtract.
-     * @param subtractY
-     *            the y value to subtract.
-     * @param subtractZ
-     *            the z value to subtract.
+     * @param subtractX the amount to subtract from the X component
+     * @param subtractY the amount to subtract from the Y component
+     * @param subtractZ the amount to subtract from the Z component
      * @return this (modified)
      */
     public Vector3f subtractLocal(float subtractX, float subtractY, float subtractZ) {
@@ -854,7 +841,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Resets this vector's data to zero.
+     * Resets this vector's components to zero.
      *
      * @return this (modified)
      */
@@ -915,7 +902,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Checks a vector. If it is null or its floats are NaN or infinite,
+     * Checks a vector. If it is null or if any component is NaN or infinite,
      * return false.  Else return true.
      *
      * @param vector the vector to check (unaffected)
@@ -988,7 +975,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      *
      * @param floats storage for the components (must have length&ge;3. If null, a new float[3] is
      *            created.
-     * @return an array, with X, Y, Z float values in that order (either <code>floats</code> or a new float[3])
+     * @return an array, with X, Y, Z float components in that order (either <code>floats</code> or a new float[3])
      */
     public float[] toArray(float[] floats) {
         if (floats == null) {
@@ -1056,11 +1043,11 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * Returns a hash code for this vector object based
-     * on its values. If two vectors are logically equivalent, they will return
-     * the same hash code value. The current instance is
+     * on its components. If two vectors are logically equivalent, they will return
+     * the same hash code. The current instance is
      * unaffected.
      *
-     * @return the hash code value of this vector.
+     * @return the hash code value
      */
     @Override
     public int hashCode() {
@@ -1178,7 +1165,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      * Returns the indexed component. The vector is unaffected.
      *
      * @param index 0, 1, or 2
-     * @return x value if index == 0, y value if index == 1 or z value if index == 2
+     * @return x component if index == 0, y component if index == 1 or z component if index == 2
      * @throws IllegalArgumentException
      *             if index is not one of 0, 1, 2.
      */
