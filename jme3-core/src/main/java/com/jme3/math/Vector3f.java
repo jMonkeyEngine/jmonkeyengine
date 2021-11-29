@@ -129,7 +129,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * Instantiates a new <code>Vector3f</code> that is a copy
-     * of the provided vector.
+     * of the argument.
      *
      * @param copy the Vector3f to copy (not null, unaffected)
      */
@@ -154,8 +154,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Sets the X, Y, and Z components of the vector by copying the
-     * supplied vector.
+     * Sets the X, Y, and Z components of the vector by copying the argument.
      *
      * @param vect the Vector3f to copy (not null, unaffected)
      * @return the (modified) current instance (for chaining)
@@ -168,8 +167,8 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Adds a provided vector to this vector, creating a
-     * resultant vector which is returned. If the provided vector is null, null
+     * Adds the argument to this vector, creating a
+     * resultant vector which is returned. If the argument is null, null
      * is returned. Either way, the current instance is unaffected.
      *
      * @param vec
@@ -203,9 +202,8 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Adds a provided vector to this vector
-     * and returns the (modified) current instance. If the
-     * provided vector is null, null is returned.
+     * Adds the argument to this vector and returns the (modified) current
+     * instance. If the argument is null, null is returned.
      *
      * @param vec the vector to add to this vector (unaffected unless it is <code>this</code>)
      *     or null for none
@@ -287,8 +285,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Calculates the dot product of this vector with a
-     * provided vector. If the provided vector is null, 0 is returned.
+     * Calculates the dot product of this vector with the argument. If the argument is null, 0 is returned.
      * Either way, the current instance is unaffected.
      *
      * @param vec the vector to dot with this vector (unaffected) or null for none
@@ -303,8 +300,8 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Calculates the cross product of this vector with a
-     * parameter vector v. The current instance is unaffected.
+     * Calculates the cross product of this vector with the argument. The current
+     * instance is unaffected.
      *
      * @param v the right factor (not null, unaffected)
      * @return the cross product (a new Vector3f)
@@ -352,7 +349,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Calculates the cross product of this vector with a parameter vector v and returns
+     * Calculates the cross product of this vector with the argument and returns
      * the (modified) current instance.
      *
      * @param v the right factor (not null, unaffected unless it is
@@ -382,7 +379,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Projects this vector onto another vector and returns the result. The current instance is
+     * Projects this vector onto the argument and returns the result. The current instance is
      * unaffected.
      *
      * @param other The vector to project this vector onto (not null, unaffected)
@@ -395,7 +392,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Projects this vector onto another vector and stores the result in this
+     * Projects this vector onto the argument and stores the result in this
      * vector.
      *
      * @param other The vector to project this vector onto (not null)
@@ -452,7 +449,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * Calculates the distance squared between
-     * this vector and vector v. The current instance is unaffected.
+     * this vector and the argument. The current instance is unaffected.
      *
      * @param v the second vector to determine the distance squared.
      * @return the square of the Euclidean distance between the two vectors.
@@ -466,7 +463,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * Returns the distance between this vector and
-     * vector v. The current instance is unaffected.
+     * the argument. The current instance is unaffected.
      *
      * @param v the second vector to determine the distance (not null, unaffected)
      * @return the Euclidean distance between the two vectors.
@@ -487,7 +484,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Multiplies this vector by a scalar and returns the product as a new
+     * Multiplies this vector by the argument and returns the product as a new
      * instance. The current instance is unaffected.
      *
      * @param scalar
@@ -519,7 +516,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Multiplies this vector by a scalar and returns the (modified) current
+     * Multiplies this vector by the argument and returns the (modified) current
      * instance.
      *
      * @param scalar
@@ -534,9 +531,9 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Multiplies a provided vector component-wise by this vector and returns
+     * Multiplies the argument component-wise by this vector and returns
      * the (modified) current instance.
-     * If the provided vector is null, null is returned.
+     * If the argument is null, null is returned.
      *
      * @param vec the vector to mult to this vector (unaffected unless it is <code>this</code>)
      *     or null for none
@@ -570,9 +567,9 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Multiplies a provided vector component-wise with this vector and returns the
+     * Multiplies the argument component-wise with this vector and returns the
      * product as a new instance.
-     * If the provided vector is null, null is returned.
+     * If the argument is null, null is returned.
      * Either way, the current instance is unaffected.
      *
      * @param vec
@@ -588,9 +585,9 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Multiplies a provided vector component-wise with
-     * this vector and stores the result in a 3rd vector. If the provided
-     * vector is null, null is returned. Either way, the current instance is unaffected, unless it is
+     * Multiplies the specified vector component-wise with
+     * this vector and stores the result in a 3rd vector. If the argument
+     * is null, null is returned. Either way, the current instance is unaffected, unless it is
      * <code>store</code>.
      *
      * @param vec the vector to mult to this vector (unaffected unless it is <code>store</code>)
@@ -610,7 +607,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Divides the vector by a scalar and returns the quotient as a new
+     * Divides the vector by the argument and returns the quotient as a new
      * instance. The current instance remains untouched.
      *
      * @param scalar
@@ -623,7 +620,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Divides this vector by a scalar and returns the (modified) current
+     * Divides this vector by the argument and returns the (modified) current
      * instance.
      *
      * @param scalar
@@ -650,7 +647,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Divides this vector component-wise by a vector and returns the
+     * Divides this vector component-wise by the argument and returns the
      * (modified) current instance.
      *
      * @param scalar the divisor (not null) TODO rename argument!
@@ -686,7 +683,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Subtracts the given vector from this vector and returns the difference as a
+     * Subtracts the argument from this vector and returns the difference as a
      * new instance. The current instance is unaffected.
      *
      * @param vec the vector to subtract from this vector (not null, unaffected)
@@ -697,8 +694,8 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Subtracts a provided vector to this vector and returns the (modified)
-     * current instance. If the provided vector is null, null is returned.
+     * Subtracts the argument to this vector and returns the (modified)
+     * current instance. If the argument is null, null is returned.
      *
      * @param vec the vector to subtract (unaffected unless it is
      *     <code>this</code>) or null for none
@@ -809,7 +806,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * Computes the maximum value for each
-     * component in this and <code>other</code> vector and returns the (modified) current
+     * component in this and the argument and returns the (modified) current
      * instance.
      *
      * @param other the vector to compare with (not null, unaffected)
@@ -824,7 +821,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * Computes the minimum value for each
-     * component in this and <code>other</code> vector and returns the (modified) current
+     * component in this and the argument and returns the (modified) current
      * instance.
      *
      * @param other the vector to compare with (not null, unaffected)
@@ -848,8 +845,8 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Returns (in radians) the angle between two vectors.
-     * It is assumed that both this vector and the given vector are unit vectors (iow, normalized).
+     * Returns (in radians) the angle between this vector and the argument.
+     * It is assumed that both this vector and the argument are unit vectors (iow, normalized).
      * The current instance is unaffected.
      *
      * @param otherVector a unit vector to find the angle against (not null, unaffected)
@@ -899,7 +896,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Checks a vector. If it is null or if any component is NaN or infinite,
+     * Checks the argument. If it is null or if any component is NaN or infinite,
      * return false.  Else return true.
      *
      * @param vector the vector to check (unaffected)
@@ -967,7 +964,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Saves this Vector3f into the given float[] object. The current instance is
+     * Saves this Vector3f into the argument. The current instance is
      * unaffected.
      *
      * @param floats storage for the components (must have length&ge;3. If null, a new float[3] is
@@ -1070,7 +1067,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Serializes this vector to the specified exporter, for example when
+     * Serializes this vector to the argument, for example when
      * saving to a J3O file. The current instance is unaffected.
      *
      * @param e the exporter to use (not null)
@@ -1085,7 +1082,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * De-serializes this vector from the specified importer, for example
+     * De-serializes this vector from the argument, for example
      * when loading from a J3O file.
      *
      * @param e the importer to use (not null)
