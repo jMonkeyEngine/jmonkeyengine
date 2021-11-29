@@ -203,7 +203,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Adds a provided vector to this vector internally
+     * Adds a provided vector to this vector
      * and returns the (modified) current instance. If the
      * provided vector is null, null is returned.
      *
@@ -237,7 +237,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * Adds the provided offsets to this vector
-     * internally and returns the (modified) current
+     * and returns the (modified) current
      * instance.
      *
      * @param addX the amount to add to the X component
@@ -519,7 +519,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Multiplies this vector by a scalar internally and returns the (modified) current
+     * Multiplies this vector by a scalar and returns the (modified) current
      * instance.
      *
      * @param scalar
@@ -534,7 +534,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Multiplies a provided vector component-wise by this vector internally and returns
+     * Multiplies a provided vector component-wise by this vector and returns
      * the (modified) current instance.
      * If the provided vector is null, null is returned.
      *
@@ -554,8 +554,8 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Multiplies this vector component-wise by 3 scalars
-     * internally, and returns the (modified) current instance.
+     * Multiplies this vector component-wise by 3 scalars, and returns the
+     * (modified) current instance.
      *
      * @param x the scale factor for the X component
      * @param y the scale factor for the Y component
@@ -623,7 +623,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Divides this vector by a scalar internally and returns the (modified) current
+     * Divides this vector by a scalar and returns the (modified) current
      * instance.
      *
      * @param scalar
@@ -650,7 +650,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Divides this vector component-wise by a vector internally, and returns the
+     * Divides this vector component-wise by a vector and returns the
      * (modified) current instance.
      *
      * @param scalar the divisor (not null) TODO rename argument!
@@ -697,7 +697,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Subtracts a provided vector to this vector internally and returns the (modified)
+     * Subtracts a provided vector to this vector and returns the (modified)
      * current instance. If the provided vector is null, null is returned.
      *
      * @param vec the vector to subtract (unaffected unless it is
@@ -750,7 +750,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Subtracts the provided values from this vector internally and returns the
+     * Subtracts the provided values from this vector and returns the
      * (modified) current instance.
      *
      * @param subtractX the amount to subtract from the X component
