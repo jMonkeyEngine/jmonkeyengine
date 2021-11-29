@@ -35,15 +35,14 @@ import com.jme3.export.*;
 import java.io.IOException;
 import java.util.logging.Logger;
 
-/*
- * -- Added *Local methods to cut down on object creation - JS
- */
-
 /**
  * A Vector for a three float value tuple.
  * <code>Vector3f</code> can represent any three dimensional value, such as a
  * vertex, a normal, etc. Utility methods are also included to aid in
  * mathematical calculations.
+ *
+ * <p>Methods with names ending in "Local" modify the current instance. They are
+ * used to cut down on the creation of new instances.
  *
  * @author Mark Powell
  * @author Joshua Slack
@@ -132,7 +131,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      * Instantiates a new <code>Vector3f</code> that is a copy
      * of the provided vector.
      *
-     * @param copy The Vector3f to copy
+     * @param copy the Vector3f to copy (unaffected)
      */
     public Vector3f(Vector3f copy) {
         this.set(copy);
@@ -145,7 +144,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      * @param x   the x value of the vector.
      * @param y   the y value of the vector.
      * @param z   the z value of the vector.
-     * @return this vector
+     * @return this vector (modified)
      */
     public Vector3f set(float x, float y, float z) {
         this.x = x;
@@ -158,9 +157,8 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      * Sets the x,y,z values of the vector by copying the
      * supplied vector.
      *
-     * @param vect
-     *            the vector to copy.
-     * @return this vector
+     * @param vect the Vector3f to copy (unaffected)
+     * @return this vector (modified)
      */
     public Vector3f set(Vector3f vect) {
         this.x = vect.x;
@@ -172,10 +170,10 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     /**
      * Adds a provided vector to this vector, creating a
      * resultant vector which is returned. If the provided vector is null, null
-     * is returned.
+     * is returned. Either way, the current instance is unaffected.
      *
      * @param vec
-     *            the vector to add to this.
+     *            the vector to add to this (unaffected) or null for none
      * @return the resultant vector.
      */
     public Vector3f add(Vector3f vec) {
@@ -188,10 +186,11 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * Adds the values of a provided vector, storing the
-     * values in the supplied vector.
+     * values in the supplied vector. The current instance is unaffected unless it is
+     * <code>result</code>.
      *
-     * @param vec
-     *            the vector to add to this
+     * @param vec the vector to add to this (unaffected unless it is
+     *     <code>result</code>)
      * @param result
      *            the vector to store the result in
      * @return result returns the supplied result vector.
@@ -205,12 +204,11 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * Adds a provided vector to this vector internally
-     * and returns a handle to this vector for easy chaining of calls. If the
+     * and returns a handle to this (modified) vector for easy chaining of calls. If the
      * provided vector is null, null is returned.
      *
-     * @param vec
-     *            the vector to add to this vector.
-     * @return this
+     * @param vec the vector to add to this vector (unaffected unless it is <code>this</code>)
+     * @return this (modified)
      */
     public Vector3f addLocal(Vector3f vec) {
         if (null == vec) {
@@ -225,7 +223,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * Adds the provided values to this vector, creating a
-     * new vector that is then returned.
+     * new vector that is then returned. The current instance is unaffected.
      *
      * @param addX
      *            the x value to add.
@@ -241,7 +239,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * Adds the provided values to this vector
-     * internally and returns a handle to this vector for easy chaining of
+     * internally and returns a handle to this (modified) vector for easy chaining of
      * calls.
      *
      * @param addX
@@ -250,7 +248,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      *            value to add to y
      * @param addZ
      *            value to add to z
-     * @return this
+     * @return this (modified)
      */
     public Vector3f addLocal(float addX, float addY, float addZ) {
         x += addX;
@@ -267,7 +265,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      *            the value to multiply this vector by.
      * @param add
      *            the value to add
-     * @return this
+     * @return this (modified)
      */
     public Vector3f scaleAdd(float scalar, Vector3f add) {
         x = x * scalar + add.x;
@@ -281,10 +279,9 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      * the given vector, storing the result in the current instance.
      *
      * @param scalar the scaling factor
-     * @param mult
-     *            the value to multiply the scalar by
-     * @param add
-     *            the value to add
+     * @param mult the value to multiply the scalar by (unaffected unless it is
+     *     <code>this</code>)
+     * @param add the value to add (unaffected unless it is <code>this</code>)
      * @return this
      */
     public Vector3f scaleAdd(float scalar, Vector3f mult, Vector3f add) {
@@ -297,9 +294,10 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     /**
      * Calculates the dot product of this vector with a
      * provided vector. If the provided vector is null, 0 is returned.
+     * Either way, the current instance is unaffected.
      *
      * @param vec
-     *            the vector to dot with this vector.
+     *            the vector to dot with this vector (unaffected)
      * @return the resultant dot product of this vector and a given vector.
      */
     public float dot(Vector3f vec) {
@@ -312,9 +310,9 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * Calculates the cross product of this vector with a
-     * parameter vector v.
+     * parameter vector v. The current instance is unaffected.
      *
-     * @param v the right factor
+     * @param v the right factor (unaffected)
      * @return the cross product (a new Vector3f)
      */
     public Vector3f cross(Vector3f v) {
@@ -323,9 +321,10 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * Calculates the cross product of this vector with a
-     * parameter vector v.  The result is stored in <code>result</code>
+     * parameter vector v.  The result is stored in <code>result</code>.
+     * The current instance is unaffected unless it is <code>result</code>.
      *
-     * @param v the right factor
+     * @param v the right factor (unaffected unless it is <code>result</code>)
      * @param result
      *            the vector to store the cross product result, or null for a new Vector3f
      * @return result, after receiving the cross product vector.
@@ -336,7 +335,8 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * Calculates the cross product of this vector with
-     * specified components.  The result is stored in <code>result</code>
+     * specified components.  The result is stored in <code>result</code>.
+     * The current instance is unaffected unless it is <code>result</code>.
      *
      * @param otherX
      *            x component of the right factor
@@ -363,8 +363,8 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      * Calculates the cross product of this vector
      * with a parameter vector v.
      *
-     * @param v the right factor
-     * @return this.
+     * @param v the right factor (unaffected unless it is <code>this</code>)
+     * @return this (modified)
      */
     public Vector3f crossLocal(Vector3f v) {
         return crossLocal(v.x, v.y, v.z);
@@ -377,7 +377,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      * @param otherX the X component of the right factor
      * @param otherY the Y component of the right factor
      * @param otherZ the Z component of the right factor
-     * @return this.
+     * @return this (modified)
      */
     public Vector3f crossLocal(float otherX, float otherY, float otherZ) {
         float tempx = (y * otherZ) - (z * otherY);
@@ -389,9 +389,10 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Projects this vector onto another vector.
+     * Projects this vector onto another vector. The current instance is
+     * unaffected.
      *
-     * @param other The vector to project this vector onto
+     * @param other The vector to project this vector onto (unaffected)
      * @return A new vector with the projection result
      */
     public Vector3f project(Vector3f other) {
@@ -405,7 +406,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      * vector.
      *
      * @param other The vector to project this vector onto
-     * @return This Vector3f, set to the projection result
+     * @return This Vector3f (modified)
      */
     public Vector3f projectLocal(Vector3f other) {
         float n = this.dot(other); // A . B
@@ -415,7 +416,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * Returns true if this vector is a unit vector, with 1% tolerance.
-     * Returns false otherwise.
+     * Returns false otherwise. The current instance is unaffected.
      *
      * @return true if the current vector's length is between 0.99 and 1.01
      *     inclusive, or false otherwise.
@@ -426,7 +427,8 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Calculates the magnitude of this vector.
+     * Calculates the magnitude of this vector. The current instance is
+     * unaffected.
      *
      * @return the length or magnitude of the vector.
      */
@@ -447,7 +449,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * Calculates the squared value of the
-     * magnitude of the vector.
+     * magnitude of the vector. The current instance is unaffected.
      *
      * @return the magnitude squared of the vector.
      */
@@ -457,7 +459,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * Calculates the distance squared between
-     * this vector and vector v.
+     * this vector and vector v. The current instance is unaffected.
      *
      * @param v the second vector to determine the distance squared.
      * @return the square of the Euclidean distance between the two vectors.
@@ -471,9 +473,9 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * Calculates the distance between this vector and
-     * vector v.
+     * vector v. The current instance is unaffected.
      *
-     * @param v the second vector to determine the distance.
+     * @param v the second vector to determine the distance (unaffected)
      * @return the Euclidean distance between the two vectors.
      */
     public float distance(Vector3f v) {
@@ -493,7 +495,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * Multiplies this vector by a scalar. The resultant
-     * vector is returned.
+     * vector is returned. The current instance is unaffected.
      *
      * @param scalar
      *            the value to multiply this vector by.
@@ -506,6 +508,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     /**
      * Multiplies this vector by a scalar. The resultant
      * vector is stored in the second parameter and returned.
+     * The current instance is unaffected, unless it is <code>product</code>.
      *
      * @param scalar the scalar to multiply this vector by.
      * @param product storage for the product, or null for a new Vector3f
@@ -524,11 +527,11 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * Multiplies this vector by a scalar internally,
-     * and returns a handle to this vector for easy chaining of calls.
+     * and returns a handle to this (modified) vector for easy chaining of calls.
      *
      * @param scalar
      *            the value to multiply this vector by.
-     * @return this
+     * @return this (modified)
      */
     public Vector3f multLocal(float scalar) {
         x *= scalar;
@@ -539,12 +542,11 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * Multiplies a provided vector component-wise by this vector
-     * internally, and returns a handle to this vector for easy chaining of
+     * internally, and returns a handle to this (modified) vector for easy chaining of
      * calls. If the provided vector is null, null is returned.
      *
-     * @param vec
-     *            the vector to mult to this vector.
-     * @return this
+     * @param vec the vector to mult to this vector (unaffected unless it is <code>this</code>)
+     * @return this (modified)
      */
     public Vector3f multLocal(Vector3f vec) {
         if (null == vec) {
@@ -559,13 +561,13 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * Multiplies this vector component-wise by 3 scalars
-     * internally, and returns a handle to this vector for easy chaining of
+     * internally, and returns a handle to this (modified) vector for easy chaining of
      * calls.
      *
      * @param x the scale factor for the X component
      * @param y the scale factor for the Y component
      * @param z the scale factor for the Z component
-     * @return this
+     * @return this (modified)
      */
     public Vector3f multLocal(float x, float y, float z) {
         this.x *= x;
@@ -578,6 +580,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      * Multiplies a provided vector component-wise with
      * this vector and returns a handle to this vector for easy chaining of
      * calls. If the provided vector is null, null is returned.
+     * Either way, the current instance is unaffected.
      *
      * @param vec
      *            the vector to multiply with this vector, or null for none
@@ -594,10 +597,10 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     /**
      * Multiplies a provided vector component-wise with
      * this vector and stores the result in a 3rd vector. If the provided
-     * vector is null, null is returned.
+     * vector is null, null is returned. Either way, the current instance is unaffected, unless it is
+     * <code>store</code>.
      *
-     * @param vec
-     *            the vector to mult to this vector.
+     * @param vec the vector to mult to this vector (unaffected unless it is <code>store</code>)
      * @param store result vector (null to create a new vector)
      * @return either <code>store</code> or a new Vector3f or null
      */
@@ -627,11 +630,11 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * Divides this vector by a scalar internally
-     * and returns a handle to this vector for easy chaining of calls.
+     * and returns a handle to this (modified) vector for easy chaining of calls.
      *
      * @param scalar
      *            the value to divide this vector by.
-     * @return this
+     * @return this (modified)
      */
     public Vector3f divideLocal(float scalar) {
         scalar = 1f / scalar;
@@ -645,7 +648,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      * Divides the values of this vector component-wise by the argument and
      * returns the result. The values of this vector remain untouched.
      *
-     * @param scalar the divisor TODO rename argument!
+     * @param scalar the divisor (unaffected) TODO rename argument!
      * @return the result <code>Vector</code>.
      */
     public Vector3f divide(Vector3f scalar) {
@@ -654,10 +657,10 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * Divides this vector component-wise by a vector internally,
-     * and returns a handle to this vector for easy chaining of calls.
+     * and returns a handle to this (modified) vector for easy chaining of calls.
      *
      * @param scalar the divisor TODO rename argument!
-     * @return this
+     * @return this (modified)
      */
     public Vector3f divideLocal(Vector3f scalar) {
         x /= scalar.x;
@@ -668,7 +671,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * Returns the negative of this vector. All values are
-     * negated.
+     * negated. The current instance is unaffected.
      *
      * @return a new Vector3f
      */
@@ -679,7 +682,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     /**
      * Negates the internal values of this vector.
      *
-     * @return this.
+     * @return this (modified)
      */
     public Vector3f negateLocal() {
         x = -x;
@@ -691,9 +694,10 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     /**
      * Subtracts the values of a given vector from those
      * of this vector creating a new vector object.
+     * The current instance is unaffected.
      *
      * @param vec
-     *            the vector to subtract from this vector.
+     *            the vector to subtract from this vector (unaffected)
      * @return the result vector.
      */
     public Vector3f subtract(Vector3f vec) {
@@ -702,12 +706,12 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * Subtracts a provided vector to this vector
-     * internally and returns a handle to this vector for easy chaining of
+     * internally and returns a handle to this (modified) vector for easy chaining of
      * calls. If the provided vector is null, null is returned.
      *
-     * @param vec
-     *            the vector to subtract or null for none
-     * @return this or null
+     * @param vec the vector to subtract (unaffected unless it is
+     *     <code>this</code>) or null for none
+     * @return this (modified) or null
      */
     public Vector3f subtractLocal(Vector3f vec) {
         if (null == vec) {
@@ -722,10 +726,11 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * Subtracts the specified vector from this vector, storing the difference
-     * in a 3rd vector.
+     * in a 3rd vector. The current instnace is unaffected unless it is
+     * <code>result</code>.
      *
-     * @param vec
-     *            the vector to subtract from this
+     * @param vec the vector to subtract from this (unaffected unless it is
+     *     <code>result</code>)
      * @param result
      *            the vector to store the result in, or null for a new Vector3f
      * @return result or a new Vector3f
@@ -742,7 +747,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * Subtracts the provided values from this vector,
-     * creating a new vector that is then returned.
+     * creating a new vector that is then returned. The current instance is unaffected.
      *
      * @param subtractX
      *            the x value to subtract.
@@ -758,7 +763,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * Subtracts the provided values from this vector
-     * internally and returns a handle to this vector for easy chaining of
+     * internally and returns a handle to this (modified) vector for easy chaining of
      * calls.
      *
      * @param subtractX
@@ -767,7 +772,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      *            the y value to subtract.
      * @param subtractZ
      *            the z value to subtract.
-     * @return this
+     * @return this (modified)
      */
     public Vector3f subtractLocal(float subtractX, float subtractY, float subtractZ) {
         x -= subtractX;
@@ -778,7 +783,8 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * Normalizes the vector to length=1 and returns the result as a new
-     * instance. If the vector has length=0, a clone is returned.
+     * instance. If the vector has length=0, a clone is returned. Either way,
+     * the current instance is unaffected.
      *
      * @return unit vector of this vector.
      */
@@ -801,7 +807,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      * Normalizes the vector to length=1 and returns the (modified) current
      * instance. If the vector has length=0, it is unchanged.
      *
-     * @return this.
+     * @return this (modified)
      */
     public Vector3f normalizeLocal() {
         // NOTE: this implementation is more optimized
@@ -823,7 +829,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      * in this vector.
      *
      * @param other the vector to compare with (not null, unaffected)
-     * @return this
+     * @return this (modified)
      */
     public Vector3f maxLocal(Vector3f other) {
         x = other.x > x ? other.x : x;
@@ -838,7 +844,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      * in this vector.
      *
      * @param other the vector to compare with (not null, unaffected)
-     * @return this
+     * @return this (modified)
      */
     public Vector3f minLocal(Vector3f other) {
         x = other.x < x ? other.x : x;
@@ -850,7 +856,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     /**
      * Resets this vector's data to zero.
      *
-     * @return this
+     * @return this (modified)
      */
     public Vector3f zero() {
         x = y = z = 0;
@@ -860,8 +866,9 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     /**
      * Returns (in radians) the angle between two vectors.
      * It is assumed that both this vector and the given vector are unit vectors (iow, normalized).
+     * The current instance is unaffected.
      *
-     * @param otherVector a unit vector to find the angle against
+     * @param otherVector a unit vector to find the angle against (unaffected)
      * @return the angle (in radians, not negative)
      */
     public float angleBetween(Vector3f otherVector) {
@@ -876,9 +883,9 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      *
      * <p>this = (1 - changeAmnt) * this + changeAmnt * finalVec
      *
-     * @param finalVec the desired value when changeAmnt=1
+     * @param finalVec the desired value when changeAmnt=1 (unaffected)
      * @param changeAmnt the fractional change amount
-     * @return this
+     * @return this (modified)
      */
     public Vector3f interpolateLocal(Vector3f finalVec, float changeAmnt) {
         this.x = (1 - changeAmnt) * this.x + changeAmnt * finalVec.x;
@@ -893,10 +900,12 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      *
      * <p>this = (1 - changeAmnt) * beginVec + changeAmnt * finalVec
      *
-     * @param beginVec the desired value when changeAmnt=0
-     * @param finalVec the desired value when changeAmnt=1
+     * @param beginVec the desired value when changeAmnt=0 (unaffected
+     *     unless it's this)
+     * @param finalVec the desired value when changeAmnt=1 (unaffected
+     *     unless it's this)
      * @param changeAmnt the fractional change amount
-     * @return this
+     * @return this (modified)
      */
     public Vector3f interpolateLocal(Vector3f beginVec, Vector3f finalVec, float changeAmnt) {
         this.x = (1 - changeAmnt) * beginVec.x + changeAmnt * finalVec.x;
@@ -909,7 +918,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      * Checks a vector. If it is null or its floats are NaN or infinite,
      * return false.  Else return true.
      *
-     * @param vector the vector to check
+     * @param vector the vector to check (unaffected)
      * @return true or false as stated above.
      */
     public static boolean isValidVector(Vector3f vector) {
@@ -960,7 +969,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Creates a copy of this vector.
+     * Creates a copy of this vector. The current instance is unaffected.
      *
      * @return a new instance, equivalent to this one
      */
@@ -974,7 +983,8 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Saves this Vector3f into the given float[] object.
+     * Saves this Vector3f into the given float[] object. The current instance is
+     * unaffected.
      *
      * @param floats storage for the components (must have length&ge;3. If null, a new float[3] is
      *            created.
@@ -992,9 +1002,9 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * Tests whether the vector is equal to the argument, distinguishing -0
-     * from 0.
+     * from 0. The current instance is unaffected.
      *
-     * @param o   the object to compare for equality
+     * @param o   the object to compare for equality (unaffected)
      * @return true if they are equal
      */
     @Override
@@ -1022,7 +1032,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * Returns true if this vector is approximately equal to the specified vector within
-     * the specified tolerance.
+     * the specified tolerance. The current instance is unaffected.
      *
      * @param other the vector to compare with (not null, unaffected)
      * @param epsilon the desired error tolerance for each component
@@ -1047,7 +1057,8 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     /**
      * Returns a hash code for this vector object based
      * on its values. If two vectors are logically equivalent, they will return
-     * the same hash code value.
+     * the same hash code value. The current instance is
+     * unaffected.
      *
      * @return the hash code value of this vector.
      */
@@ -1061,8 +1072,8 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Returns a string representation of this vector.
-     * The format is:
+     * Returns a string representation of this vector. The current instance is
+     * unaffected. The format is:
      *
      * (XX.XXXX, YY.YYYY, ZZ.ZZZZ)
      *
@@ -1075,7 +1086,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * Serializes this vector to the specified exporter, for example when
-     * saving to a J3O file.
+     * saving to a J3O file. The current instance is unaffected.
      *
      * @param e the exporter to use (not null)
      * @throws IOException from the exporter
@@ -1104,7 +1115,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Determines the X component of this vector.
+     * Determines the X component of this vector. The vector is unaffected.
      *
      * @return x
      */
@@ -1124,7 +1135,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Determines the Y component of this vector.
+     * Determines the Y component of this vector. The vector is unaffected.
      *
      * @return y
      */
@@ -1144,7 +1155,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Determines the Z component of this vector.
+     * Determines the Z component of this vector. The vector is unaffected.
      *
      * @return z
      */
@@ -1164,7 +1175,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Returns the indexed component.
+     * Returns the indexed component. The vector is unaffected.
      *
      * @param index 0, 1, or 2
      * @return x value if index == 0, y value if index == 1 or z value if index == 2
