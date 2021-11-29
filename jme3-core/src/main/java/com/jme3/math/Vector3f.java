@@ -204,7 +204,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * Adds a provided vector to this vector internally
-     * and returns a handle to this (modified) vector for easy chaining of calls. If the
+     * and returns a handle to this (modified) vector for chaining. If the
      * provided vector is null, null is returned.
      *
      * @param vec the vector to add to this vector (unaffected unless it is <code>this</code>)
@@ -237,8 +237,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * Adds the provided offsets to this vector
-     * internally and returns a handle to this (modified) vector for easy chaining of
-     * calls.
+     * internally and returns a handle to this (modified) vector for chaining.
      *
      * @param addX the amount to add to the X component
      * @param addY the amount to add to the Y component
@@ -523,7 +522,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * Multiplies this vector by a scalar internally,
-     * and returns a handle to this (modified) vector for easy chaining of calls.
+     * and returns a handle to this (modified) vector for chaining.
      *
      * @param scalar
      *            the value to multiply this vector by.
@@ -538,8 +537,8 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * Multiplies a provided vector component-wise by this vector
-     * internally, and returns a handle to this (modified) vector for easy chaining of
-     * calls. If the provided vector is null, null is returned.
+     * internally, and returns a handle to this (modified) vector for chaining.
+     * If the provided vector is null, null is returned.
      *
      * @param vec the vector to mult to this vector (unaffected unless it is <code>this</code>)
      *     or null for none
@@ -558,8 +557,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * Multiplies this vector component-wise by 3 scalars
-     * internally, and returns a handle to this (modified) vector for easy chaining of
-     * calls.
+     * internally, and returns a handle to this (modified) vector for chaining.
      *
      * @param x the scale factor for the X component
      * @param y the scale factor for the Y component
@@ -575,8 +573,8 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * Multiplies a provided vector component-wise with
-     * this vector and returns a handle to this vector for easy chaining of
-     * calls. If the provided vector is null, null is returned.
+     * this vector and returns a handle to this vector for chaining.
+     * If the provided vector is null, null is returned.
      * Either way, the current instance is unaffected.
      *
      * @param vec
@@ -628,7 +626,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * Divides this vector by a scalar internally
-     * and returns a handle to this (modified) vector for easy chaining of calls.
+     * and returns a handle to this (modified) vector for chaining.
      *
      * @param scalar
      *            the value to divide this vector by.
@@ -655,7 +653,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * Divides this vector component-wise by a vector internally,
-     * and returns a handle to this (modified) vector for easy chaining of calls.
+     * and returns a handle to this (modified) vector for chaining.
      *
      * @param scalar the divisor (not null) TODO rename argument!
      * @return this (modified)
@@ -702,8 +700,8 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * Subtracts a provided vector to this vector
-     * internally and returns a handle to this (modified) vector for easy chaining of
-     * calls. If the provided vector is null, null is returned.
+     * internally and returns a handle to this (modified) vector for chaining.
+     * If the provided vector is null, null is returned.
      *
      * @param vec the vector to subtract (unaffected unless it is
      *     <code>this</code>) or null for none
@@ -756,8 +754,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * Subtracts the provided values from this vector
-     * internally and returns a handle to this (modified) vector for easy chaining of
-     * calls.
+     * internally and returns a handle to this (modified) vector for chaining.
      *
      * @param subtractX the amount to subtract from the X component
      * @param subtractY the amount to subtract from the Y component
