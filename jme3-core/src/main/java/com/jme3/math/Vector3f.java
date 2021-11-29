@@ -184,8 +184,8 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Adds the components of a provided vector, storing the
-     * sum in the supplied vector. The current instance is unaffected unless it is
+     * Adds the provided vector, storing the
+     * sum in a 3rd vector. The current instance is unaffected unless it is
      * <code>result</code>.
      *
      * @param vec the vector to add to this (not null, unaffected unless it is
@@ -268,7 +268,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * Multiplies the given vector by a scalar, then adds
-     * the given vector, storing the result in the current instance.
+     * another vector to it, storing the result in the current instance.
      *
      * @param scalar the scaling factor
      * @param mult the vector to multiply the scalar by (not null, unaffected unless it is
@@ -395,7 +395,8 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      * Projects this vector onto the argument and stores the result in this
      * vector.
      *
-     * @param other The vector to project this vector onto (not null)
+     * @param other The vector to project this vector onto (not null, unaffected unless it
+     * is <code>this</code>)
      * @return the (modified) current instance (for chaining)
      */
     public Vector3f projectLocal(Vector3f other) {
@@ -496,7 +497,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Multiplies this vector by a scalar. The resultant
+     * Multiplies this vector by the specified scalar. The resultant
      * vector is stored in the second parameter and returned.
      * The current instance is unaffected, unless it is <code>product</code>.
      *
@@ -551,7 +552,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Multiplies this vector component-wise by 3 scalars, and returns the
+     * Multiplies this vector component-wise by the specified components and returns the
      * (modified) current instance.
      *
      * @param x the scale factor for the X component
@@ -661,8 +662,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Returns the negative of this vector. All components are
-     * negated. The current instance is unaffected.
+     * Returns the negative of this vector. The current instance is unaffected.
      *
      * @return a new Vector3f
      */
@@ -694,7 +694,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Subtracts the argument to this vector and returns the (modified)
+     * Subtracts the argument from this vector and returns the (modified)
      * current instance. If the argument is null, null is returned.
      *
      * @param vec the vector to subtract (unaffected unless it is
@@ -714,7 +714,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * Subtracts the specified vector from this vector, storing the difference
-     * in a 3rd vector. The current instnace is unaffected unless it is
+     * in a 3rd vector. The current instance is unaffected unless it is
      * <code>result</code>.
      *
      * @param vec the vector to subtract from this (not null, unaffected unless it is
@@ -805,8 +805,8 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Computes the maximum value for each
-     * component in this and the argument and returns the (modified) current
+     * Compares this vector component-wise with the argument (keeping the most
+     * positive value for each component) and returns the (modified) current
      * instance.
      *
      * @param other the vector to compare with (not null, unaffected)
@@ -820,8 +820,8 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Computes the minimum value for each
-     * component in this and the argument and returns the (modified) current
+     * Compares this vector component-wise with the argument (keeping the most
+     * negative value for each component) and returns the (modified) current
      * instance.
      *
      * @param other the vector to compare with (not null, unaffected)
@@ -864,7 +864,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      *
      * <p>this = (1 - changeAmnt) * this + changeAmnt * finalVec
      *
-     * @param finalVec the desired value when changeAmnt=1 (not null, unaffected)
+     * @param finalVec the desired value when changeAmnt=1 (not null, unaffected unless it's this)
      * @param changeAmnt the fractional change amount
      * @return the (modified) current instance (for chaining)
      */
@@ -967,7 +967,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      * Saves this Vector3f into the argument. The current instance is
      * unaffected.
      *
-     * @param floats storage for the components (must have length&ge;3. If null, a new float[3] is
+     * @param floats storage for the components (must have length&ge;3). If null, a new float[3] is
      *            created.
      * @return an array containing the X, Y, and Z in that order
      *     (either <code>floats</code> or a new float[3])
