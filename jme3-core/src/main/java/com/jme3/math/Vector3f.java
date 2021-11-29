@@ -92,15 +92,15 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
             Float.NEGATIVE_INFINITY,
             Float.NEGATIVE_INFINITY);
     /**
-     * The x component of the vector.
+     * The X component of the vector.
      */
     public float x;
     /**
-     * The y component of the vector.
+     * The Y component of the vector.
      */
     public float y;
     /**
-     * The z component of the vector.
+     * The Z component of the vector.
      */
     public float z;
 
@@ -117,9 +117,9 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      * Instantiates a new <code>Vector3f</code> with the provided
      * components.
      *
-     * @param x   the x component of the vector.
-     * @param y   the y component of the vector.
-     * @param z   the z component of the vector.
+     * @param x   the X component of the vector.
+     * @param y   the Y component of the vector.
+     * @param z   the Z component of the vector.
      */
     public Vector3f(float x, float y, float z) {
         this.x = x;
@@ -138,12 +138,12 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Sets the x,y,z components of the vector based on passed
+     * Sets the X, Y, and Z components of the vector based on passed
      * parameters.
      *
-     * @param x   the x component of the vector.
-     * @param y   the y component of the vector.
-     * @param z   the z component of the vector.
+     * @param x   the X component of the vector.
+     * @param y   the Y component of the vector.
+     * @param z   the Z component of the vector.
      * @return this vector (modified)
      */
     public Vector3f set(float x, float y, float z) {
@@ -154,7 +154,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Sets the x,y,z components of the vector by copying the
+     * Sets the X, Y, and Z components of the vector by copying the
      * supplied vector.
      *
      * @param vect the Vector3f to copy (not null, unaffected)
@@ -332,12 +332,9 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      * specified components.  The result is stored in <code>result</code>.
      * The current instance is unaffected unless it is <code>result</code>.
      *
-     * @param otherX
-     *            x component of the right factor
-     * @param otherY
-     *            y component of the right factor
-     * @param otherZ
-     *            z component of the right factor
+     * @param otherX the X component of the right factor
+     * @param otherY the Y component of the right factor
+     * @param otherZ the Z component of the right factor
      * @param result
      *            the vector to store the product, or null for a new Vector3f
      * @return result, after receiving the cross product (either <code>result</code> or a new Vector3f)
@@ -1104,7 +1101,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     /**
      * Determines the X component of this vector. The vector is unaffected.
      *
-     * @return x
+     * @return the X component
      */
     public float getX() {
         return x;
@@ -1124,7 +1121,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     /**
      * Determines the Y component of this vector. The vector is unaffected.
      *
-     * @return y
+     * @return the Y component
      */
     public float getY() {
         return y;
@@ -1144,7 +1141,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     /**
      * Determines the Z component of this vector. The vector is unaffected.
      *
-     * @return z
+     * @return the Z component
      */
     public float getZ() {
         return z;
@@ -1165,7 +1162,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      * Returns the indexed component. The vector is unaffected.
      *
      * @param index 0, 1, or 2
-     * @return x component if index == 0, y component if index == 1 or z component if index == 2
+     * @return the X component if index == 0, the Y component if index == 1 or the Z component if index == 2
      * @throws IllegalArgumentException
      *             if index is not one of 0, 1, 2.
      */
