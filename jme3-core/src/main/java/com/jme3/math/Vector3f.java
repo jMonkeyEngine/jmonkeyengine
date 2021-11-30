@@ -177,9 +177,9 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * Adds a specified vector and returns the sum in a 3rd vector. The current
-     * instance is unaffected unless it is <code>result</code>.
+     * instance is unaffected unless it's <code>result</code>.
      *
-     * @param vec the vector to add (not null, unaffected unless it is
+     * @param vec the vector to add (not null, unaffected unless it's
      *     <code>result</code>)
      * @param result storage for the sum (not null)
      * @return <code>result</code> (for chaining)
@@ -195,7 +195,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      * Adds the argument and returns the (modified) current instance. If the
      * argument is null, null is returned.
      *
-     * @param vec the vector to add (unaffected unless it is <code>this</code>)
+     * @param vec the vector to add (unaffected unless it's <code>this</code>)
      *     or null for none
      * @return the (modified) current instance or null
      */
@@ -246,7 +246,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      * <p>this = scalar * this + add
      *
      * @param scalar the scaling factor
-     * @param add the vector to add (not null, unaffected unless it is
+     * @param add the vector to add (not null, unaffected unless it's
      *     <code>this</code>)
      * @return the (modified) current instance (for chaining)
      */
@@ -265,9 +265,9 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      * <p>this = scalar * mult + add
      *
      * @param scalar the scaling factor
-     * @param mult the vector to scale (not null, unaffected unless it is
+     * @param mult the vector to scale (not null, unaffected unless it's
      *     <code>this</code>)
-     * @param add the vector to add (not null, unaffected unless it is
+     * @param add the vector to add (not null, unaffected unless it's
      *     <code>this</code>)
      * @return the (modified) current instance (for chaining)
      */
@@ -306,10 +306,10 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * Calculates a cross product with a specified vector and returns the
-     * product in a 3rd vector. The current instance is unaffected unless it is
+     * product in a 3rd vector. The current instance is unaffected unless it's
      * <code>result</code>.
      *
-     * @param v the right factor (not null, unaffected unless it is
+     * @param v the right factor (not null, unaffected unless it's
      *     <code>result</code>)
      * @param result storage for the product, or null for a new Vector3f
      * @return <code>this</code> cross <code>v</code> (either
@@ -322,7 +322,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     /**
      * Calculates a cross product with specified components and returns the
      * product in the specified vector. The current instance is unaffected
-     * unless it is <code>result</code>.
+     * unless it's <code>result</code>.
      *
      * @param otherX the X component of the right factor
      * @param otherY the Y component of the right factor
@@ -346,7 +346,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      * Right multiplies by the argument (cross product) and returns the
      * (modified) current instance.
      *
-     * @param v the right factor (not null, unaffected unless it is
+     * @param v the right factor (not null, unaffected unless it's
      *     <code>this</code>)
      * @return the (modified) current instance (for chaining)
      */
@@ -388,8 +388,8 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     /**
      * Projects onto the argument and returns the (modified) current instance.
      *
-     * @param other the vector to project onto (not null, unaffected unless it
-     *     is <code>this</code>)
+     * @param other the vector to project onto (not null, unaffected unless it's
+     *     <code>this</code>)
      * @return the (modified) current instance (for chaining)
      */
     public Vector3f projectLocal(Vector3f other) {
@@ -488,7 +488,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * Multiplies with the specified scalar and returns the product in the
-     * specified vector. The current instance is unaffected, unless it is
+     * specified vector. The current instance is unaffected, unless it's
      * <code>product</code>.
      *
      * @param scalar the scaling factor
@@ -523,7 +523,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      * Multiplies component-wise by the argument and returns the (modified)
      * current instance. If the argument is null, null is returned.
      *
-     * @param vec the scale vector (unaffected unless it is <code>this</code>)
+     * @param vec the scale vector (unaffected unless it's <code>this</code>)
      *     or null for none
      * @return the (modified) current instance (for chaining) or null
      */
@@ -573,10 +573,10 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     /**
      * Multiplies component-wise with the specified vector and returns the
      * product in a 3rd vector. If the argument is null, null is returned.
-     * Either way, the current instance is unaffected, unless it is
+     * Either way, the current instance is unaffected, unless it's
      * <code>store</code>.
      *
-     * @param vec the scale vector (unaffected unless it is <code>store</code>)
+     * @param vec the scale vector (unaffected unless it's <code>store</code>)
      *     or null for none
      * @param store storage for the product, or null for a new Vector3f
      * @return either <code>store</code> or a new Vector3f or null
@@ -679,7 +679,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      * Subtracts the argument and returns the (modified) current instance. If
      * the argument is null, null is returned.
      *
-     * @param vec the vector to subtract (unaffected unless it is
+     * @param vec the vector to subtract (unaffected unless it's
      *     <code>this</code>) or null for none
      * @return the (modified) current instance or null
      */
@@ -696,10 +696,10 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * Subtracts the specified vector and returns the difference in a 3rd
-     * vector. The current instance is unaffected unless it is
+     * vector. The current instance is unaffected unless it's
      * <code>result</code>.
      *
-     * @param vec the vector to subtract (not null, unaffected unless it is
+     * @param vec the vector to subtract (not null, unaffected unless it's
      *     <code>result</code>)
      * @param result storage for the difference, or null for a new Vector3f
      * @return either <code>result</code> or a new Vector3f
@@ -767,7 +767,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * Normalizes the vector to length=1 and returns the (modified) current
-     * instance. If the vector has length=0, it is unchanged.
+     * instance. If the vector has length=0, it's unchanged.
      *
      * @return the (modified) current instance (for chaining)
      */
