@@ -1387,10 +1387,9 @@ public final class AppSettings extends HashMap<String, Object> {
      * <p>This setting is used only with LWJGL3, has no effect on fullscreen
      * windows, and is ignored if the Center Window flag is true.
      *
-     * @see #setCenterWindow(boolean)
-     *
      * @return the initial position of the window's left edge relative to the
      *     left edge of the desktop
+     * @see #setCenterWindow(boolean)
      * @see #setWindowXPosition(int)
      */
     public int getWindowXPosition() {
@@ -1404,10 +1403,9 @@ public final class AppSettings extends HashMap<String, Object> {
      * windows, and is ignored if the Center Window flag is true. Its default
      * value is 0.
      *
-     * @see #setCenterWindow(boolean)
-     *
      * @param pos the desired initial position of the window's left edge
      *     relative to the left edge of the desktop
+     * @see #setCenterWindow(boolean)
      */
     public void setWindowXPosition(int pos) {
         putInteger("WindowXPosition", pos);
@@ -1419,10 +1417,9 @@ public final class AppSettings extends HashMap<String, Object> {
      * <p>This setting is used only with LWJGL3, has no effect on fullscreen
      * windows, and is ignored if the Center Window flag is true.
      *
-     * @see #setCenterWindow(boolean)
-     *
      * @return the initial position of the window's upper edge relative to the
      *     upper edge of the desktop
+     * @see #setCenterWindow(boolean)
      * @see #setWindowYPosition(int)
      */
     public int getWindowYPosition() {
@@ -1436,10 +1433,9 @@ public final class AppSettings extends HashMap<String, Object> {
      * windows, and is ignored if the Center Window flag is true. Its default
      * value is 0.
      *
-     * @see #setCenterWindow(boolean)
-     *
      * @param pos the desired initial position of the window's upper edge
      *     relative to the upper edge of the desktop
+     * @see #setCenterWindow(boolean)
      */
     public void setWindowYPosition(int pos) {
         putInteger("WindowYPosition", pos);
