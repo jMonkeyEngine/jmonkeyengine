@@ -375,7 +375,7 @@ public class VideoRecorderAppState extends AbstractAppState {
                     Thread.sleep(difference);
                 } catch (InterruptedException ex) {
                 }
-            } else {
+            } else if (logger.isLoggable(Level.INFO)) {
                 logger.log(Level.INFO, "actual tpf(ms): {0}, 1/framerate(ms): {1}",
                         new Object[]{difference, (1.0f / this.framerate) * 1000.0f});
             }

@@ -156,8 +156,10 @@ abstract public class PhysicsLink
         this.bone = bone;
         rigidBody = createRigidBody(mass, collisionShape);
 
-        logger.log(Level.FINE, "Creating link for bone {0} with mass={1}",
-                new Object[]{bone.getName(), rigidBody.getMass()});
+        if (logger.isLoggable(Level.FINE)) {
+            logger.log(Level.FINE, "Creating link for bone {0} with mass={1}",
+                    new Object[]{bone.getName(), rigidBody.getMass()});
+        }
 
         this.localOffset = localOffset.clone();
         updateKPTransform();

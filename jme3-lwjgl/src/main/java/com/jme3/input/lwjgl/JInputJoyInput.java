@@ -48,6 +48,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.java.games.input.*;
@@ -246,9 +247,9 @@ public class JInputJoyInput implements JoyInput {
         }
 
         protected void addButton( Component comp ) {
-
-            logger.log(Level.FINE, "Adding button: \"{0}\" id:" + comp.getIdentifier(), comp);
-
+            if (logger.isLoggable(Level.FINE)) {
+                logger.log(Level.FINE, "Adding button: \"{0}\" id:" + comp.getIdentifier(), comp);
+            }
             Identifier id = comp.getIdentifier();
             if( !(id instanceof Button) ) {
                 throw new IllegalArgumentException( "Component is not an button:" + comp );
@@ -262,7 +263,7 @@ public class JInputJoyInput implements JoyInput {
                 original = String.valueOf(buttonIndex.size());
             }
             String logicalId = JoystickCompatibilityMappings.remapButton( controller.getName(), original );
-            if( logicalId != original ) {
+            if (logger.isLoggable(Level.FINE) && !Objects.equals(logicalId, original)) {
                 logger.log(Level.FINE, "Remapped:" + original + " to:" + logicalId);
             }
 
@@ -273,8 +274,9 @@ public class JInputJoyInput implements JoyInput {
         }
 
         protected void addAxis( Component comp ) {
-
-            logger.log(Level.FINE, "Adding axis: \"{0}\" id:" + comp.getIdentifier(), comp );
+            if (logger.isLoggable(Level.FINE)) {
+                logger.log(Level.FINE, "Adding axis: \"{0}\" id:" + comp.getIdentifier(), comp );
+            }
 
             Identifier id = comp.getIdentifier();
             if( !(id instanceof Axis) ) {
@@ -284,7 +286,7 @@ public class JInputJoyInput implements JoyInput {
             String name = comp.getName();
             String original = id.getName();
             String logicalId = JoystickCompatibilityMappings.remapAxis( controller.getName(), original );
-            if( logicalId != original ) {
+            if(logger.isLoggable(Level.FINE) && !Objects.equals(logicalId, original)) {
                 logger.log(Level.FINE, "Remapped:" + original + " to:" + logicalId);
             }
 
@@ -308,13 +310,17 @@ public class JInputJoyInput implements JoyInput {
                                                 this, getAxisCount(), JoystickAxis.POV_X,
                                                 id.getName() + "_x",
                                                 comp.isAnalog(), comp.isRelative(), comp.getDeadZone() );
-                logger.log(Level.FINE, "Adding axis: \"{0}\" id:" + id.getName() + "_x", povX.getName() );
+                if (logger.isLoggable(Level.FINE)) {
+                    logger.log(Level.FINE, "Adding axis: \"{0}\" id:" + id.getName() + "_x", povX.getName() );
+                }
                 addAxis(povX);
                 povY = new DefaultJoystickAxis( getInputManager(),
                                                 this, getAxisCount(), JoystickAxis.POV_Y,
                                                 id.getName() + "_y",
                                                 comp.isAnalog(), comp.isRelative(), comp.getDeadZone() );
-                logger.log(Level.FINE, "Adding axis: \"{0}\" id:" + id.getName() + "_y", povY.getName() );
+                if (logger.isLoggable(Level.FINE)) {
+                    logger.log(Level.FINE, "Adding axis: \"{0}\" id:" + id.getName() + "_y", povY.getName() );
+                }
                 addAxis(povY);
             }
 

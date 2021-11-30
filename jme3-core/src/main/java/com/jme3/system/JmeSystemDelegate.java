@@ -82,7 +82,9 @@ public abstract class JmeSystemDelegate {
                 break;
         }
         if (storageFolder != null) {
-            logger.log(Level.FINE, "Storage Folder Path: {0}", storageFolder.getAbsolutePath());
+            if (logger.isLoggable(Level.FINE)) {
+                logger.log(Level.FINE, "Storage Folder Path: {0}", storageFolder.getAbsolutePath());
+            }
         } else {
             logger.log(Level.FINE, "Storage Folder not found!");
         }
