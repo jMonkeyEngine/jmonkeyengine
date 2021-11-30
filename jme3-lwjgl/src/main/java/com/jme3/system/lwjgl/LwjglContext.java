@@ -99,12 +99,12 @@ public abstract class LwjglContext implements JmeContext {
 
     protected void printContextInitInfo() {
         logger.log(Level.INFO, "LWJGL {0} context running on thread {1}\n"
-                        + " * Graphics Adapter: {2}\n"
-                        + " * Driver Version: {3}\n"
-                        + " * Scaling Factor: {4}",
+                + " * Graphics Adapter: {2}\n"
+                + " * Driver Version: {3}\n"
+                + " * Scaling Factor: {4}",
                 new Object[]{Sys.getVersion(), Thread.currentThread().getName(),
-                        Display.getAdapter(), Display.getVersion(),
-                        Display.getPixelScaleFactor()});
+                    Display.getAdapter(), Display.getVersion(),
+                    Display.getPixelScaleFactor()});
     }
 
     protected int[] getGLVersion(String renderer) {

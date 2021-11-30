@@ -419,7 +419,7 @@ public abstract class LwjglContext implements JmeContext {
 
         logger.log(Level.INFO, "chosen platform: {0}", platform.getName());
         logger.log(Level.INFO, "chosen devices: {0}", chosenDevices);
-
+        
         // create context
         try {
             long context = createContext(platform.getPlatform(), deviceIds, window);
