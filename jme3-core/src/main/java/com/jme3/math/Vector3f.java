@@ -184,14 +184,13 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Adds the provided vector, storing the
+     * Adds the provided vector and returns the
      * sum in a 3rd vector. The current instance is unaffected unless it is
      * <code>result</code>.
      *
      * @param vec the vector to add to this (not null, unaffected unless it is
      *     <code>result</code>)
-     * @param result
-     *            the vector to store the result in (not null)
+     * @param result storage for the sum (not null)
      * @return <code>result</code> (for chaining)
      */
     public Vector3f add(Vector3f vec, Vector3f result) {
@@ -312,13 +311,12 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * Calculates the cross product of this vector with a
-     * parameter vector v.  The result is stored in <code>result</code>.
+     * parameter vector v and returns the product in a 3rd vector.
      * The current instance is unaffected unless it is <code>result</code>.
      *
      * @param v the right factor (not null, unaffected unless it is
      *     <code>result</code>)
-     * @param result
-     *            the vector to store the cross product result, or null for a new Vector3f
+     * @param result storage for the product, or null for a new Vector3f
      * @return the product (either <code>result</code> or a new Vector3f)
      */
     public Vector3f cross(Vector3f v, Vector3f result) {
@@ -326,15 +324,14 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Calculates the cross product of this vector with
-     * specified components.  The result is stored in <code>result</code>.
+     * Calculates the cross product of this vector with specified components and
+     * returns the product in the specified vector.
      * The current instance is unaffected unless it is <code>result</code>.
      *
      * @param otherX the X component of the right factor
      * @param otherY the Y component of the right factor
      * @param otherZ the Z component of the right factor
-     * @param result
-     *            the vector to store the product, or null for a new Vector3f
+     * @param result storage for the product, or null for a new Vector3f
      * @return the product (either <code>result</code> or a new Vector3f)
      */
     public Vector3f cross(float otherX, float otherY, float otherZ, Vector3f result) {
@@ -497,8 +494,8 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Multiplies this vector by the specified scalar. The resultant
-     * vector is stored in the second parameter and returned.
+     * Multiplies this vector by the specified scalar and returns the product in
+     * the specified vector.
      * The current instance is unaffected, unless it is <code>product</code>.
      *
      * @param scalar the scalar to multiply this vector by.
@@ -587,13 +584,13 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * Multiplies the specified vector component-wise with
-     * this vector and stores the result in a 3rd vector. If the argument
+     * this vector and returns the product in a 3rd vector. If the argument
      * is null, null is returned. Either way, the current instance is unaffected, unless it is
      * <code>store</code>.
      *
      * @param vec the vector to mult to this vector (unaffected unless it is <code>store</code>)
      *     or null for none
-     * @param store result vector (null to create a new vector)
+     * @param store storage for the product, or null for a new Vector3f
      * @return either <code>store</code> or a new Vector3f or null
      */
     public Vector3f mult(Vector3f vec, Vector3f store) {
@@ -713,14 +710,13 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Subtracts the specified vector from this vector, storing the difference
+     * Subtracts the specified vector from this vector and returns the difference
      * in a 3rd vector. The current instance is unaffected unless it is
      * <code>result</code>.
      *
      * @param vec the vector to subtract from this (not null, unaffected unless it is
      *     <code>result</code>)
-     * @param result
-     *            the vector to store the result in, or null for a new Vector3f
+     * @param result storage for the difference, or null for a new Vector3f
      * @return either <code>result</code> or a new Vector3f
      */
     public Vector3f subtract(Vector3f vec, Vector3f result) {
@@ -967,8 +963,8 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      * Saves this Vector3f into the argument. The current instance is
      * unaffected.
      *
-     * @param floats storage for the components (must have length&ge;3). If null, a new float[3] is
-     *            created.
+     * @param floats storage for the components (must have length&ge;3) or null
+     *     for a new float[3]
      * @return an array containing the X, Y, and Z in that order
      *     (either <code>floats</code> or a new float[3])
      */
