@@ -109,9 +109,7 @@ public class JmeAndroidSystem extends JmeSystemDelegate {
         }
         initialized = true;
         System.setProperty("org.xml.sax.driver", "org.xmlpull.v1.sax2.Driver");
-        if (logger.isLoggable(Level.INFO)) {
-            logger.log(Level.INFO, getBuildInfo());
-        }
+        logger.log(Level.INFO, getBuildInfo());
     }
 
     @Override

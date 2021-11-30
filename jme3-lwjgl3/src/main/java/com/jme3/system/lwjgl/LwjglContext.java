@@ -417,10 +417,8 @@ public abstract class LwjglContext implements JmeContext {
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("not found a platform"));
 
-        if (logger.isLoggable(Level.INFO)) {
-            logger.log(Level.INFO, "chosen platform: {0}", platform.getName());
-            logger.log(Level.INFO, "chosen devices: {0}", chosenDevices);
-        }
+        logger.log(Level.INFO, "chosen platform: {0}", platform.getName());
+        logger.log(Level.INFO, "chosen devices: {0}", chosenDevices);
 
         // create context
         try {

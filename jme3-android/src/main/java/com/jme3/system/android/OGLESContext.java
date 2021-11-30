@@ -193,9 +193,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
         created.set(true);
 
         logger.fine("OGLESContext create");
-        if (logger.isLoggable(Level.FINE)) {
-            logger.log(Level.FINE, "Running on thread: {0}", Thread.currentThread().getName());
-        }
+        logger.log(Level.FINE, "Running on thread: {0}", Thread.currentThread().getName());
 
         // Setup unhandled Exception Handler
         Thread.currentThread().setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {

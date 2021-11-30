@@ -455,7 +455,7 @@ public abstract class LwjglWindowVR extends LwjglContextVR implements Runnable {
                     + "Must set with JmeContext.setSystemListener().");
         }
 
-
+ 
         LOGGER.log(Level.FINE, "Using LWJGL {0}", Version.getVersion());
 
         if (!initInThread()) {

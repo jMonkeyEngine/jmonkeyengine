@@ -818,7 +818,7 @@ public abstract class VRApplication implements Application, SystemListener {
         }
 
         logger.log(Level.FINE, "Starting application: {0}", getClass().getName());
-
+        
         // Create VR dedicated context
         if (contextType == Type.Display){
           context = new LwjglDisplayVR();
