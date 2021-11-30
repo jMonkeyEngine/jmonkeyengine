@@ -1355,9 +1355,13 @@ public final class AppSettings extends HashMap<String, Object> {
     }
     
     /**
-     * Get the Centering Window state
+     * Tests the state of the Center Window flag.
      *
-     * @return true to center the window in the middle of the screen
+     * <p>The Center Window flag is used only with LWJGL3 and has no effect on
+     * fullscreen windows.
+     *
+     * @return true to center the window on the desktop, false to position the
+     *    window at (WindowXPosition, WindowYPosition)
      * @see #setCenterWindow(boolean)
      */
     public boolean getCenterWindow() {
@@ -1365,61 +1369,79 @@ public final class AppSettings extends HashMap<String, Object> {
     }
     
     /**
-     * True to enable centering the window.
+     * Enables or disables the Center Window flag.
      *
-     * @param center whether to center the window or not.
+     * <p>The Center Window flag is used only with LWJGL3 and has no effect on
+     * fullscreen windows. It defaults to true.
+     *
+     * @param center true to center the window on the desktop, false to position
+     *     the window at (WindowXPosition, WindowYPosition)
      */
     public void setCenterWindow(boolean center) {
         putBoolean("CenterWindow", center);
     }
 
-    
     /**
-     * Get the window's X Position on the screen.
-     * This value is ignored when CenterWindow is set to true
+     * Gets the window's initial X position on the desktop.
+     *
+     * <p>This setting is used only with LWJGL3, has no effect on fullscreen
+     * windows, and is ignored if the Center Window flag is true.
+     *
      * @see #setCenterWindow(boolean)
      *
-     * @return int screen coordinates of the X Position of the window
+     * @return the initial position of the window's left edge relative to the
+     *     left edge of the desktop
      * @see #setWindowXPosition(int)
      */
     public int getWindowXPosition() {
         return getInteger("windowXPosition");
     }
-    
+
     /**
-     * Set the window's X Position on the screen.
-     * This value is ignored when CenterWindow is set to true
+     * Sets the window's initial X position on the desktop.
+     *
+     * <p>This setting is used only with LWJGL3, has no effect on fullscreen
+     * windows, and is ignored if the Center Window flag is true. Its default
+     * value is 0.
+     *
      * @see #setCenterWindow(boolean)
      *
-     * @param pos screen coordinates for the X position.
+     * @param pos the desired initial position of the window's left edge
+     *     relative to the left edge of the desktop
      */
     public void setWindowXPosition(int pos) {
         putInteger("windowXPosition", pos);
     }
 
-
     /**
-     * Get the window's Y Position on the screen.
-     * This value is ignored when CenterWindow is set to true
+     * Gets the window's initial Y position on the desktop.
+     *
+     * <p>This setting is used only with LWJGL3, has no effect on fullscreen
+     * windows, and is ignored if the Center Window flag is true.
+     *
      * @see #setCenterWindow(boolean)
      *
-     * @return int screen coordinates of the Y Position of the window
-     * @see #setWindowXPosition(int)
+     * @return the initial position of the window's upper edge relative to the
+     *     upper edge of the desktop
+     * @see #setWindowYPosition(int)
      */
     public int getWindowYPosition() {
         return getInteger("windowYPosition");
     }
-    
+
     /**
-     * Set the window's Y Position on the screen.
-     * This value is ignored when CenterWindow is set to true
+     * Sets the window's initial Y position on the desktop.
+     *
+     * <p>This setting is used only with LWJGL3, has no effect on fullscreen
+     * windows, and is ignored if the Center Window flag is true. Its default
+     * value is 0.
+     *
      * @see #setCenterWindow(boolean)
      *
-     * @param pos screen coordinates for the Y position of the window.
+     * @param pos the desired initial position of the window's upper edge
+     *     relative to the upper edge of the desktop
      */
     public void setWindowYPosition(int pos) {
         putInteger("windowYPosition", pos);
     }
-
-    
 }
