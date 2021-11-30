@@ -90,15 +90,15 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
             Float.NEGATIVE_INFINITY,
             Float.NEGATIVE_INFINITY);
     /**
-     * The X component.
+     * The first (X) component.
      */
     public float x;
     /**
-     * The Y component.
+     * The 2nd (Y) component.
      */
     public float y;
     /**
-     * The Z component.
+     * The 3rd (Z) component.
      */
     public float z;
 
@@ -112,9 +112,9 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     /**
      * Instantiates a vector with specified components.
      *
-     * @param x the X component
-     * @param y the Y component
-     * @param z the Z component
+     * @param x the desired X component
+     * @param y the desired Y component
+     * @param z the desired Z component
      */
     public Vector3f(float x, float y, float z) {
         this.x = x;
@@ -134,9 +134,9 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     /**
      * Sets all 3 components to specified values.
      *
-     * @param x the X component
-     * @param y the Y component
-     * @param z the Z component
+     * @param x the desired X component
+     * @param y the desired Y component
+     * @param z the desired Z component
      * @return the (modified) current instance (for chaining)
      */
     public Vector3f set(float x, float y, float z) {
@@ -212,7 +212,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Adds specified amounts to the vector and returns the sum as a
+     * Adds specified amounts to the vector's components and returns the sum as a
      * new instance. The current instance is unaffected.
      *
      * @param addX the amount to add to the X component
@@ -225,7 +225,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Adds specified amounts to the vector
+     * Adds specified amounts to the vector's components
      * and returns the (modified) current
      * instance.
      *
@@ -242,11 +242,14 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Multiplies by a scalar, adds a
-     * specified vector, and returns the (modified) current instance.
+     * Multiplies by the specified scalar, adds the specified
+     * vector, and returns the (modified) current instance.
+     *
+     * <p>this = scalar * this + add
      *
      * @param scalar the scaling factor
-     * @param add the value to add (not null)
+     * @param add the vector to add (not null, unaffected unless it is
+     *     <code>this</code>)
      * @return the (modified) current instance (for chaining)
      */
     public Vector3f scaleAdd(float scalar, Vector3f add) {
@@ -257,8 +260,10 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Multiplies a specified vector by a scalar, then adds
-     * another vector to it, storing the result in the current instance.
+     * Multiplies a specified vector by a specified scalar, then adds another
+     * specified vector to it, before storing the result in the current instance.
+     *
+     * <p>this = scalar * mult + add
      *
      * @param scalar the scaling factor
      * @param mult the vector to scale (not null, unaffected unless it is
@@ -275,7 +280,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Returns the dot product with the argument. If the argument is null, 0 is returned.
+     * Returns the dot (or inner) product with the argument. If the argument is null, 0 is returned.
      * Either way, the current instance is unaffected.
      *
      * @param vec the vector to multiply (unaffected) or null for none
@@ -290,11 +295,12 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Calculates a cross product with the argument. The current
+     * Calculates a cross product with the argument and returns the product as a
+     * new instance. The current
      * instance is unaffected.
      *
      * @param v the right factor (not null, unaffected)
-     * @return the product (a new Vector3f)
+     * @return <code>this</code> cross <code>v</code> (a new Vector3f)
      */
     public Vector3f cross(Vector3f v) {
         return cross(v, null);
@@ -308,7 +314,8 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      * @param v the right factor (not null, unaffected unless it is
      *     <code>result</code>)
      * @param result storage for the product, or null for a new Vector3f
-     * @return the product (either <code>result</code> or a new Vector3f)
+     * @return <code>this</code> cross <code>v</code> (either
+     *     <code>result</code> or a new Vector3f)
      */
     public Vector3f cross(Vector3f v, Vector3f result) {
         return cross(v.x, v.y, v.z, result);
@@ -323,7 +330,8 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      * @param otherY the Y component of the right factor
      * @param otherZ the Z component of the right factor
      * @param result storage for the product, or null for a new Vector3f
-     * @return the product (either <code>result</code> or a new Vector3f)
+     * @return <code>this</code> cross <code>v</code> (either
+     *     <code>result</code> or a new Vector3f)
      */
     public Vector3f cross(float otherX, float otherY, float otherZ, Vector3f result) {
         if (result == null) {
@@ -367,10 +375,10 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Projects onto the argument and returns the result. The current instance is
+     * Projects onto the argument and returns the result as a new vector. The current instance is
      * unaffected.
      *
-     * @param other The vector to project onto (not null, unaffected)
+     * @param other the vector to project onto (not null, unaffected)
      * @return a new Vector3f
      */
     public Vector3f project(Vector3f other) {
@@ -380,10 +388,10 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Projects onto the argument and stores the result in this
-     * vector.
+     * Projects onto the argument and returns the (modified)
+     * current instance.
      *
-     * @param other The vector to project onto (not null, unaffected unless it
+     * @param other the vector to project onto (not null, unaffected unless it
      * is <code>this</code>)
      * @return the (modified) current instance (for chaining)
      */
@@ -406,10 +414,10 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Returns the magnitude. The current instance is
+     * Returns the length (or magnitude). The current instance is
      * unaffected.
      *
-     * @return the length
+     * @return the root-sum of the squared components (not negative)
      */
     public float length() {
         /*
@@ -430,18 +438,18 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      * Returns the square of the length. The current instance is
      * unaffected.
      *
-     * @return the magnitude squared of the vector.
+     * @return the sum of the squared components (not negative)
      */
     public float lengthSquared() {
         return x * x + y * y + z * z;
     }
 
     /**
-     * Returns the distance squared between
+     * Returns the square of the distance between
      * this vector and the argument. The current instance is unaffected.
      *
-     * @param v the vector to compare
-     * @return the square of the Euclidean distance
+     * @param v the vector to compare (not null, unaffected)
+     * @return the square of the Euclidean distance (not negative)
      */
     public float distanceSquared(Vector3f v) {
         double dx = x - v.x;
@@ -455,7 +463,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      * the argument. The current instance is unaffected.
      *
      * @param v the vector to compare (not null, unaffected)
-     * @return the Euclidean distance
+     * @return the Euclidean distance (not negative)
      */
     public float distance(Vector3f v) {
         /*
@@ -484,7 +492,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Multiplies by the specified scalar and returns the product in
+     * Multiplies with the specified scalar and returns the product in
      * the specified vector.
      * The current instance is unaffected, unless it is <code>product</code>.
      *
@@ -524,7 +532,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      *
      * @param vec the scale vector (unaffected unless it is <code>this</code>)
      *     or null for none
-     * @return this (modified) or null
+     * @return the (modified) current instance (for chaining) or null
      */
     public Vector3f multLocal(Vector3f vec) {
         if (null == vec) {
@@ -559,7 +567,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      * If the argument is null, null is returned.
      * Either way, the current instance is unaffected.
      *
-     * @param vec the scale vector or null for none
+     * @param vec the scale vector (unaffected) or null for none
      * @return a new Vector3f or null
      */
     public Vector3f mult(Vector3f vec) {
@@ -594,7 +602,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * Divides by the argument and returns the quotient as a new
-     * instance. The current instance remains untouched.
+     * instance. The current instance is unaffected.
      *
      * @param scalar the divisor
      * @return a new Vector3f
@@ -621,7 +629,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * Divides component-wise by the argument and
-     * returns the quotient as a new instance. The current instance remains untouched.
+     * returns the quotient as a new instance. The current instance is unaffected.
      *
      * @param scalar the divisor (not null, unaffected) TODO rename argument!
      * @return a new Vector3f
@@ -634,7 +642,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      * Divides component-wise by the argument and returns the
      * (modified) current instance.
      *
-     * @param scalar the divisor (not null) TODO rename argument!
+     * @param scalar the divisor (not null, unaffected) TODO rename argument!
      * @return the (modified) current instance (for chaining)
      */
     public Vector3f divideLocal(Vector3f scalar) {
@@ -654,7 +662,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Negates the components and returns the (modified) current instance.
+     * Negates all 3 components and returns the (modified) current instance.
      *
      * @return the (modified) current instance (for chaining)
      */
@@ -716,7 +724,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Subtracts the specified values from the vector and returns the
+     * Subtracts the specified amounts from the vector's components and returns the
      * difference as a new instance. The current instance is unaffected.
      *
      * @param subtractX the amount to subtract from the X component
@@ -729,7 +737,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Subtracts the specified values from the vector and returns the
+     * Subtracts the specified amounts from the vector's components and returns the
      * (modified) current instance.
      *
      * @param subtractX the amount to subtract from the X component
@@ -817,7 +825,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Sets all components to zero.
+     * Sets all 3 components to zero.
      *
      * @return the (modified) current instance (for chaining)
      */
@@ -827,7 +835,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Returns (in radians) the angle between this vector and the argument,
+     * Returns the angle (in radians) between this vector and the argument,
      * provided both vectors have length=1.
      * The current instance is unaffected.
      *
@@ -882,7 +890,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      * null or if any component is NaN or infinite.
      *
      * @param vector the vector to test (unaffected)
-     * @return if non-null and finite, otherwise false
+     * @return true if non-null and finite, otherwise false
      */
     public static boolean isValidVector(Vector3f vector) {
         if (vector == null) {
@@ -951,7 +959,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      *
      * @param floats storage for the components (must have length&ge;3) or null
      *     for a new float[3]
-     * @return an array containing the X, Y, and Z in that order
+     * @return an array containing the X, Y, and Z components in that order
      *     (either <code>floats</code> or a new float[3])
      */
     public float[] toArray(float[] floats) {
@@ -965,7 +973,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Tests for equality with the argument, distinguishing -0
+     * Tests for exact equality with the argument, distinguishing -0
      * from 0. The current instance is unaffected.
      *
      * @param o the object to compare (may be null, unaffected)
@@ -1038,7 +1046,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      * Returns a string representation. The current instance is
      * unaffected. The format is:
      *
-     * (XX.XXXX, YY.YYYY, ZZ.ZZZZ)
+     * <p>(XX.XXXX, YY.YYYY, ZZ.ZZZZ)
      *
      * @return the string representation
      */
@@ -1143,7 +1151,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      * @param index 0, 1, or 2
      * @return the X component if index=0, the Y component if index=1, or the Z
      *     component if index=2
-     * @throws IllegalArgumentException if index is not 0, 1, 2
+     * @throws IllegalArgumentException if index is not 0, 1, or 2
      */
     public float get(int index) {
         switch (index) {
@@ -1163,7 +1171,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      * @param index which component to set: 0 &rarr; the X component, 1 &rarr;
      *     the Ycomponent, 2 &rarr; the Z component
      * @param value the desired component value
-     * @throws IllegalArgumentException if index is not 0, 1, 2
+     * @throws IllegalArgumentException if index is not 0, 1, or 2
      */
     public void set(int index, float value) {
         switch (index) {
