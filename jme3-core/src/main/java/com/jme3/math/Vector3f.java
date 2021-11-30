@@ -523,8 +523,8 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      * Multiplies component-wise by the argument and returns the (modified)
      * current instance. If the argument is null, null is returned.
      *
-     * @param vec the scale vector (unaffected unless it's <code>this</code>)
-     *     or null for none
+     * @param vec the scale vector (unaffected unless it's <code>this</code>) or
+     *     null for none
      * @return the (modified) current instance (for chaining) or null
      */
     public Vector3f multLocal(Vector3f vec) {
@@ -555,7 +555,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Multiplies component-wise with this vector and returns the product as a
+     * Multiplies component-wise with the argument and returns the product as a
      * new instance. If the argument is null, null is returned. Either way, the
      * current instance is unaffected.
      *
@@ -594,7 +594,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * Divides by the argument and returns the quotient as a new instance. The
-     *     current instance is unaffected.
+     * current instance is unaffected.
      *
      * @param scalar the divisor
      * @return a new Vector3f
@@ -845,7 +845,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      * <p>this = (1 - changeAmnt) * this + changeAmnt * finalVec
      *
      * @param finalVec the desired value when changeAmnt=1 (not null, unaffected
-     *     unless it's this)
+     *     unless it's <code>this</code>)
      * @param changeAmnt the fractional change amount
      * @return the (modified) current instance (for chaining)
      */
@@ -863,9 +863,9 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      * <p>this = (1 - changeAmnt) * beginVec + changeAmnt * finalVec
      *
      * @param beginVec the desired value when changeAmnt=0 (not null, unaffected
-     *     unless it's this)
+     *     unless it's <code>this</code>)
      * @param finalVec the desired value when changeAmnt=1 (not null, unaffected
-     *     unless it's this)
+     *     unless it's <code>this</code>)
      * @param changeAmnt the fractional change amount
      * @return the (modified) current instance (for chaining)
      */
@@ -1158,7 +1158,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      * Sets the indexed component.
      *
      * @param index which component to set: 0 &rarr; the X component, 1 &rarr;
-     *     the Ycomponent, 2 &rarr; the Z component
+     *     the Y component, 2 &rarr; the Z component
      * @param value the desired component value
      * @throws IllegalArgumentException if index is not 0, 1, or 2
      */
