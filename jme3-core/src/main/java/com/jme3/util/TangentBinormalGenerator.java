@@ -273,7 +273,7 @@ public class TangentBinormalGenerator {
     //add another splitRotated boolean 
     private static List<VertexData> splitVertices(Mesh mesh, List<VertexData> vertexData, boolean splitMirorred) {
         
-    	int nbVertices = mesh.getBuffer(Type.Position).getNumElements();
+        int nbVertices = mesh.getBuffer(Type.Position).getNumElements();
         List<VertexData> newVertices = new ArrayList<>();
         Map<Integer, Integer> indexMap = new HashMap<>();
         FloatBuffer normalBuffer = mesh.getFloatBuffer(Type.Normal);

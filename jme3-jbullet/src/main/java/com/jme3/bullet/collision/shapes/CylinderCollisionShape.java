@@ -90,9 +90,9 @@ public class CylinderCollisionShape extends CollisionShape {
      */
     @Override
     public void setScale(Vector3f scale) {
-    	 if (!scale.equals(Vector3f.UNIT_XYZ)) {
-    		 Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "CylinderCollisionShape cannot be scaled");
-    	 }
+        if (!scale.equals(Vector3f.UNIT_XYZ)) {
+            Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "CylinderCollisionShape cannot be scaled");
+        }
     }
 
     @Override

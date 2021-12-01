@@ -879,21 +879,21 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
         animControl.setEnabled(mode == Mode.Kinematic);
 
         baseRigidBody.setKinematic(mode == Mode.Kinematic);
-		if (mode != Mode.IK) {
-			TempVars vars = TempVars.get();
+        if (mode != Mode.IK) {
+            TempVars vars = TempVars.get();
 
-			for (PhysicsBoneLink link : boneLinks.values()) {
-				link.rigidBody.setKinematic(mode == Mode.Kinematic);
-				if (mode == Mode.Ragdoll) {
-					Quaternion tmpRot1 = vars.quat1;
-					Vector3f position = vars.vect1;
-					//making sure that the ragdoll is at the correct place.
-					matchPhysicObjectToBone(link, position, tmpRot1);
-				}
+            for (PhysicsBoneLink link : boneLinks.values()) {
+                link.rigidBody.setKinematic(mode == Mode.Kinematic);
+                if (mode == Mode.Ragdoll) {
+                    Quaternion tmpRot1 = vars.quat1;
+                    Vector3f position = vars.vect1;
+                    //making sure that the ragdoll is at the correct place.
+                    matchPhysicObjectToBone(link, position, tmpRot1);
+                }
 
-			}
-			vars.release();
-		}
+            }
+            vars.release();
+        }
 
         if(mode != Mode.IK){
             for (Bone bone : skeleton.getRoots()) {

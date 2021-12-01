@@ -118,11 +118,15 @@ public class AndroidConfigChooser implements EGLConfigChooser {
             g = 6;
             b = 5;
         }
-        logger.log(Level.FINE, "Requested Display Config:");
-        logger.log(Level.FINE, "RGB: {0}, alpha: {1}, depth: {2}, samples: {3}, stencil: {4}",
-                new Object[]{settings.getBitsPerPixel(),
-                    settings.getAlphaBits(), settings.getDepthBits(),
-                    settings.getSamples(), settings.getStencilBits()});
+
+        if (logger.isLoggable(Level.FINE)) {
+            logger.log(Level.FINE, "Requested Display Config:");
+            logger.log(Level.FINE, "RGB: {0}, alpha: {1}, depth: {2}, samples: {3}, stencil: {4}",
+                    new Object[]{settings.getBitsPerPixel(),
+                            settings.getAlphaBits(), settings.getDepthBits(),
+                            settings.getSamples(), settings.getStencilBits()});
+        }
+
         return new Config(
                 r, g, b,
                 settings.getAlphaBits(),
@@ -214,8 +218,10 @@ public class AndroidConfigChooser implements EGLConfigChooser {
             int st = eglGetConfigAttribSafe(egl, display, config,
                     EGL10.EGL_STENCIL_SIZE);
 
-            logger.log(Level.FINE, "Checking Config r: {0}, g: {1}, b: {2}, alpha: {3}, depth: {4}, samples: {5}, stencil: {6}",
-                    new Object[]{r, g, b, a, d, s, st});
+            if (logger.isLoggable(Level.FINE)) {
+                logger.log(Level.FINE, "Checking Config r: {0}, g: {1}, b: {2}, alpha: {3}, depth: {4}, samples: {5}, stencil: {6}",
+                        new Object[]{r, g, b, a, d, s, st});
+            }
 
             if (higherRGB && r < requestedConfig.r) { continue; }
             if (!higherRGB && r != requestedConfig.r) { continue; }
@@ -243,8 +249,10 @@ public class AndroidConfigChooser implements EGLConfigChooser {
                 kr = r; kg = g; kb = b; ka = a;
                 kd = d; ks = s; kst = st;
                 keptConfig = config;
-                logger.log(Level.FINE, "Keeping Config r: {0}, g: {1}, b: {2}, alpha: {3}, depth: {4}, samples: {5}, stencil: {6}",
-                        new Object[]{r, g, b, a, d, s, st});
+                if (logger.isLoggable(Level.FINE)) {
+                    logger.log(Level.FINE, "Keeping Config r: {0}, g: {1}, b: {2}, alpha: {3}, depth: {4}, samples: {5}, stencil: {6}",
+                            new Object[]{r, g, b, a, d, s, st});
+                }
             }
 
         }

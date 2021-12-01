@@ -237,9 +237,7 @@ public class NativeObjectManager {
             }
             
             realObj.resetObject();
-            if (logger.isLoggable(Level.FINEST)) {
-                logger.log(Level.FINEST, "Reset: {0}", realObj);
-            }
+            logger.log(Level.FINEST, "Reset: {0}", realObj);
         }
         refMap.clear();
         refQueue = new ReferenceQueue<Object>();

@@ -96,11 +96,13 @@ public abstract class RagdollPreset {
         JointPreset preset = boneMap.get(resultName);
 
         if (preset != null && resultScore >= 50) {
-            logger.log(Level.FINE, "Found matching joint for bone {0} : {1} with score {2}", new Object[]{boneName, resultName, resultScore});
+            if (logger.isLoggable(Level.FINE)) {
+                logger.log(Level.FINE, "Found matching joint for bone {0} : {1} with score {2}", new Object[]{boneName, resultName, resultScore});
+            }
             preset.setupJoint(joint);
         } else {
             logger.log(Level.FINE, "No joint match found for bone {0}", boneName);
-            if (resultScore > 0) {
+            if (resultScore > 0 && logger.isLoggable(Level.FINE)) {
                 logger.log(Level.FINE, "Best match found is {0} with score {1}", new Object[]{resultName, resultScore});
             }
             new JointPreset().setupJoint(joint);

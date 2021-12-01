@@ -53,8 +53,10 @@ public class ConsoleProgressReporter extends JobProgressAdapter<LightProbe>{
     }
 
     @Override
-    public void progress(double value) {       
-        logger.log(Level.INFO, "Progress : {0}%", (value * 100));
+    public void progress(double value) {
+        if (logger.isLoggable(Level.INFO)) {
+            logger.log(Level.INFO, "Progress : {0}%", (value * 100));
+        }
     }
 
     @Override
@@ -65,7 +67,9 @@ public class ConsoleProgressReporter extends JobProgressAdapter<LightProbe>{
     @Override
     public void done(LightProbe result) {
         long end = System.currentTimeMillis();
-        logger.log(Level.INFO, "Generation done in {0}", (end - time) / 1000f);
+        if (logger.isLoggable(Level.INFO)) {
+            logger.log(Level.INFO, "Generation done in {0}", (end - time) / 1000f);
+        }
     }
     
 }

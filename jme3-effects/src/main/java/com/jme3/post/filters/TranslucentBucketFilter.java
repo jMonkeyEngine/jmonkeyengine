@@ -172,12 +172,16 @@ public final class TranslucentBucketFilter extends Filter {
                 emitter.getMaterial().setTexture("DepthTexture", processor.getDepthTexture());               
                 emitter.setQueueBucket(RenderQueue.Bucket.Translucent);
 
-                logger.log(Level.FINE, "Made particle Emitter {0} soft.", emitter.getName());
+                if (logger.isLoggable(Level.FINE)) {
+                    logger.log(Level.FINE, "Made particle Emitter {0} soft.", emitter.getName());
+                }
             } else {
                 emitter.getMaterial().clearParam("DepthTexture");
                 emitter.getMaterial().selectTechnique("Default", renderManager);
                // emitter.setQueueBucket(RenderQueue.Bucket.Transparent);
-                logger.log(Level.FINE, "Particle Emitter {0} is not soft anymore.", emitter.getName());
+                if (logger.isLoggable(Level.FINE)) {
+                    logger.log(Level.FINE, "Particle Emitter {0} is not soft anymore.", emitter.getName());
+                }
             }
         }
     }

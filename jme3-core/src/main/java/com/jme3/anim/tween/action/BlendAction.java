@@ -57,7 +57,7 @@ public class BlendAction extends BlendableAction {
         firstActiveAction.setCollectTransformDelegate(this);
         secondActiveAction.setCollectTransformDelegate(this);
 
-        //only interpolate the first action if the weight if below 1.
+        // Only interpolate the first action if the weight is below 1.
         if (blendWeight < 1f) {
             firstActiveAction.setWeight(1f);
             firstActiveAction.interpolate(t * timeFactor[firstActiveIndex]);

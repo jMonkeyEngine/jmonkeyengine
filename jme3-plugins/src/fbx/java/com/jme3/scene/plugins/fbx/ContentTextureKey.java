@@ -45,41 +45,41 @@ import java.io.IOException;
  * <p>Filename is required to acquire proper type asset loader according to extension.</p>
  */
 public class ContentTextureKey extends TextureKey {
-	
-	private byte[] content;
-	
-	public ContentTextureKey(String name, byte[] content) {
-		super(name);
-		this.content = content;
-	}
-	
-	public byte[] getContent() {
-		return content;
-	}
-	
-        @Override
-        public Class<? extends AssetCache> getCacheType(){
-            // Need to override this so that textures embedded in FBX
-            // don't get cached by the asset manager.
-            return null;
-        }
+
+    private byte[] content;
+
+    public ContentTextureKey(String name, byte[] content) {
+        super(name);
+        this.content = content;
+    }
+
+    public byte[] getContent() {
+        return content;
+    }
+
+    @Override
+    public Class<? extends AssetCache> getCacheType(){
+        // Need to override this so that textures embedded in FBX
+        // don't get cached by the asset manager.
+        return null;
+    }
         
-	@Override
-	public String toString() {
-		return super.toString() + " " + content.length + " bytes";
-	}
-	
-	@Override
-	public void write(JmeExporter ex) throws IOException {
-		super.write(ex);
-		OutputCapsule oc = ex.getCapsule(this);
-		oc.write(content, "content", new byte[0]);
-	}
-	
-	@Override
-	public void read(JmeImporter im) throws IOException {
-		super.read(im);
-		InputCapsule ic = im.getCapsule(this);
-		content = ic.readByteArray("content", new byte[0]);
-	}
+    @Override
+    public String toString() {
+        return super.toString() + " " + content.length + " bytes";
+    }
+
+    @Override
+    public void write(JmeExporter ex) throws IOException {
+        super.write(ex);
+        OutputCapsule oc = ex.getCapsule(this);
+        oc.write(content, "content", new byte[0]);
+    }
+
+    @Override
+    public void read(JmeImporter im) throws IOException {
+        super.read(im);
+        InputCapsule ic = im.getCapsule(this);
+        content = ic.readByteArray("content", new byte[0]);
+    }
 }

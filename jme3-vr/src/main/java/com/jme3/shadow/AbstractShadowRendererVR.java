@@ -158,7 +158,7 @@ public abstract class AbstractShadowRendererVR implements SceneProcessor, Savabl
         shadowMapStringCache = new String[nbShadowMaps];
         lightViewStringCache = new String[nbShadowMaps];
 
-        //DO NOT COMMENT THIS (it prevent the OSX incomplete read buffer crash)
+        //DO NOT COMMENT THIS (It prevents the OSX incomplete read buffer crash.)
         dummyTex = new Texture2D(shadowMapSize, shadowMapSize, Format.RGBA8);
 
         preshadowMat = new Material(assetManager, "Common/MatDefs/Shadow/PreShadow.j3md");
@@ -171,7 +171,7 @@ public abstract class AbstractShadowRendererVR implements SceneProcessor, Savabl
 
             shadowFB[i].setDepthTexture(shadowMaps[i]);
 
-            //DO NOT COMMENT THIS (it prevent the OSX incomplete read buffer crash)
+            //DO NOT COMMENT THIS (It prevents the OSX incomplete read buffer crash.)
             shadowFB[i].setColorTexture(dummyTex);
             shadowMapStringCache[i] = "ShadowMap" + i; 
             lightViewStringCache[i] = "LightViewProjectionMatrix" + i;
@@ -495,7 +495,7 @@ public abstract class AbstractShadowRendererVR implements SceneProcessor, Savabl
             setMatParams(lightReceivers);
 
             Camera cam = viewPort.getCamera();
-            //some materials in the scene does not have a post shadow technique so we're using the fall back material
+            //If some materials in the scene do not have a post shadow technique, use the fallback material.
             if (needsfallBackMaterial) {
                 renderManager.setForcedMaterial(postshadowMat);
             }
@@ -580,8 +580,8 @@ public abstract class AbstractShadowRendererVR implements SceneProcessor, Savabl
             setMaterialParameters(mat);
         }
 
-        //At least one material of the receiving geoms does not support the post shadow techniques
-        //so we fall back to the forced material solution (transparent shadows won't be supported for these objects)
+        //At least one material of the receiving geoms does not support the post shadow technique,
+        //so we fall back to the forced material solution. (Transparent shadows won't be supported for these objects.)
         if (needsfallBackMaterial) {
             setPostShadowParams();
         }
@@ -737,9 +737,9 @@ public abstract class AbstractShadowRendererVR implements SceneProcessor, Savabl
     }
 
     /**
-     * Sets the shadow edges thickness. default is 1, setting it to lower values
-     * can help to reduce the jagged effect of the shadow edges
-     * @param edgesThickness the shadow edges thickness.
+     * Sets the shadow edge thickness. Default is 1. Setting it to lower values
+     * can help to reduce the jagged effect of the shadow edges.
+     * @param edgesThickness the shadow edge thickness.
      */
     public void setEdgesThickness(int edgesThickness) {
         this.edgesThickness = Math.max(1, Math.min(edgesThickness, 10));

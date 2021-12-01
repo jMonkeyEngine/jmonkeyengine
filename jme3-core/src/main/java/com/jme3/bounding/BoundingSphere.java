@@ -952,7 +952,7 @@ public class BoundingSphere extends BoundingVolume {
                 return 1;              
             }
  
-            // Finally check each of the triangle corners
+            // Finally, check each of the triangle corners.
             
             // Vert A
             base = a;

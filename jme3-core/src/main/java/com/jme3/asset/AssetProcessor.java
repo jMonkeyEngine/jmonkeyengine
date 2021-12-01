@@ -37,7 +37,7 @@ import com.jme3.shader.Shader;
 /**
  * <code>AssetProcessor</code> is used to apply processing to assets
  * after they have been loaded. They are assigned to a particular
- * asset type (which is represented by a {@link Class} and any assets
+ * asset type (which is represented by a {@link Class}) and any assets
  * loaded that are of that class will be processed by the assigned
  * processor.
  * 

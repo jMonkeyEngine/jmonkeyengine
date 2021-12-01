@@ -49,8 +49,8 @@ import java.util.prefs.Preferences;
  * By default only the {@link JmeContext context} uses the configuration,
  * however the user may set and retrieve the settings as well.
  * The settings can be stored either in the Java preferences
- * (using {@link #save(java.lang.String) } or
- * a .properties file (using {@link #save(java.io.OutputStream) }.
+ * (using {@link #save(java.lang.String) }) or
+ * a .properties file (using {@link #save(java.io.OutputStream) }).
  *
  * @author Kirill Vainer
  */
@@ -914,7 +914,7 @@ public final class AppSettings extends HashMap<String, Object> {
 
     /**
      * Sets the application icons to be used, with the most preferred first.
-     * For Windows you should supply at least one 16x16 icon and one 32x32. The former is used for the title/task bar,
+     * For Windows, you should supply at least one 16x16 icon and one 32x32. The former is used for the title/task bar,
      * the latter for the alt-tab icon.
      * Linux (and similar platforms) expect one 32x32 icon.
      * Mac OS X should be supplied one 128x128 icon.
@@ -1209,9 +1209,9 @@ public final class AppSettings extends HashMap<String, Object> {
      * This may need to be disabled when integrating with an external
      * library that handles buffer swapping on its own, e.g. Oculus Rift.
      * When disabled, the engine will process window messages
-     * after each frame but it will not swap buffers - note that this
+     * after each frame, but it will not swap buffers. Note that this
      * will cause 100% CPU usage normally as there's no VSync or any framerate
-     * caps (unless set via {@link #setFrameRate(int) }.
+     * caps (unless set via {@link #setFrameRate(int) }).
      * The default is <code>true</code>.
      * 
      * @param swapBuffers True to enable buffer swapping, false to disable it.

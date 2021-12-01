@@ -45,45 +45,45 @@ import java.util.logging.Logger;
  * Used to locate a resource based on a {@link ContentTextureKey}.
  */
 public class ContentTextureLocator implements AssetLocator {
-	
-	private static final Logger logger = Logger.getLogger(ContentTextureLocator.class.getName());
-	
-	@Override
-	public void setRootPath(String rootPath) {
-	}
-	
-	@SuppressWarnings("rawtypes")
-	@Override
-	public AssetInfo locate(AssetManager manager, AssetKey key) {
-		if(key instanceof ContentTextureKey) {
-			String name = key.getName();
-			byte[] content = ((ContentTextureKey) key).getContent();
-			if(content != null) {
-				return new ContentAssetInfo(manager, key, content);
-			} else {
-				logger.log(Level.WARNING, "No content for " + name);
-				return null;
-			}
-		} else {
-			logger.log(Level.SEVERE, "AssetKey should be TextureContentKey instance");
-			return null;
-		}
-	}
-	
-	private class ContentAssetInfo extends AssetInfo {
-		
-		private InputStream stream;
-		
-		@SuppressWarnings("rawtypes")
-		public ContentAssetInfo(AssetManager assetManager, AssetKey key, byte[] content) {
-			super(assetManager, key);
-			this.stream = (content != null) ? new ByteArrayInputStream(content) : null;
-		}
-		
-		@Override
-		public InputStream openStream() {
-			return stream;
-		}
-	}
-	
+
+    private static final Logger logger = Logger.getLogger(ContentTextureLocator.class.getName());
+
+    @Override
+    public void setRootPath(String rootPath) {
+    }
+
+    @SuppressWarnings("rawtypes")
+    @Override
+    public AssetInfo locate(AssetManager manager, AssetKey key) {
+        if(key instanceof ContentTextureKey) {
+            String name = key.getName();
+            byte[] content = ((ContentTextureKey) key).getContent();
+            if(content != null) {
+                return new ContentAssetInfo(manager, key, content);
+            } else {
+                logger.log(Level.WARNING, "No content for " + name);
+                return null;
+            }
+        } else {
+            logger.log(Level.SEVERE, "AssetKey should be TextureContentKey instance");
+            return null;
+        }
+    }
+
+    private class ContentAssetInfo extends AssetInfo {
+
+        private InputStream stream;
+
+        @SuppressWarnings("rawtypes")
+        public ContentAssetInfo(AssetManager assetManager, AssetKey key, byte[] content) {
+            super(assetManager, key);
+            this.stream = (content != null) ? new ByteArrayInputStream(content) : null;
+        }
+
+        @Override
+        public InputStream openStream() {
+            return stream;
+        }
+    }
+
 }

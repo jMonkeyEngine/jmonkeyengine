@@ -63,7 +63,7 @@ public interface ClonableTrack extends Track, JmeCloneable {
     public Track cloneForSpatial(Spatial spatial);
     
     /**
-     * Method responsible of cleaning UserData on referenced Spatials when the Track is deleted
+     * Method responsible for cleaning UserData on referenced Spatials when the Track is deleted
      */
     public void cleanUp();
 }

@@ -188,8 +188,8 @@ public class LwjglKernel extends Kernel {
         }
         long q = ((LwjglCommandQueue) queue).getQueue();
         int ret = CL10.clEnqueueNDRangeKernel(q, kernel,
-			globalWorkSize.getDimension(), null, Utils.pointerBuffers[1],
-			p2, null, Utils.pointerBuffers[0]);
+            globalWorkSize.getDimension(), null, Utils.pointerBuffers[1],
+            p2, null, Utils.pointerBuffers[0]);
         Utils.checkError(ret, "clEnqueueNDRangeKernel");
         return new LwjglEvent(Utils.pointerBuffers[0].get(0));
     }
@@ -206,8 +206,8 @@ public class LwjglKernel extends Kernel {
         }
         long q = ((LwjglCommandQueue) queue).getQueue();
         int ret = CL10.clEnqueueNDRangeKernel(q, kernel,
-			globalWorkSize.getDimension(), null, Utils.pointerBuffers[1],
-			p2, null, null);
+            globalWorkSize.getDimension(), null, Utils.pointerBuffers[1],
+            p2, null, null);
         Utils.checkError(ret, "clEnqueueNDRangeKernel");
     }
 

@@ -49,7 +49,7 @@ import java.io.IOException;
  * @author bowens
  */
 public class SimpleLodThreshold implements LodThreshold {
-	
+
     private int size; // size of a terrain patch
     private float lodMultiplier = 2;
 
@@ -81,7 +81,6 @@ public class SimpleLodThreshold implements LodThreshold {
     public void setSize(int size) {
         this.size = size;
     }
-	
 
     @Override
     public float getLodDistanceThreshold() {

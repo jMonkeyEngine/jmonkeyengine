@@ -538,7 +538,9 @@ public class LegacyApplication implements Application, SystemListener {
             settings = new AppSettings(true);
         }
 
-        logger.log(Level.FINE, "Starting application: {0}", getClass().getName());
+        if (logger.isLoggable(Level.FINE)) {
+            logger.log(Level.FINE, "Starting application: {0}", getClass().getName());
+        }
         context = JmeSystem.newContext(settings, JmeContext.Type.Canvas);
         context.setSystemListener(this);
     }
