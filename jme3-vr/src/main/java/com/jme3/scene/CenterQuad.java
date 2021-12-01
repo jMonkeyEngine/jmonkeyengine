@@ -39,13 +39,11 @@ import com.jme3.scene.VertexBuffer.Type;
  * A static, indexed, Triangles-mode mesh for an axis-aligned rectangle in the
  * X-Y plane.
  *
- * <p>
- * The rectangle extends from (-width/2, -height/2, 0) to (width/2, height/2, 0)
- * with normals set to (0,0,1).
+ * <p>The rectangle extends from (-width/2, -height/2, 0) to
+ * (width/2, height/2, 0) with normals set to (0,0,1).
  *
- * <p>
- * This differs from {@link com.jme3.scene.shape.Quad} because it puts (0,0,0)
- * at the rectangle's center instead of in a corner.
+ * <p>This differs from {@link com.jme3.scene.shape.Quad} because it puts
+ * (0,0,0) at the rectangle's center instead of in a corner.
  *
  * @author Kirill Vainer
  */
