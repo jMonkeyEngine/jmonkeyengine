@@ -268,7 +268,7 @@ public abstract class CompactArray<T> implements JmeCloneable {
      * @throws CloneNotSupportedException never
      */
     @Override
-    public Object clone() throws CloneNotSupportedException {
+    public CompactArray clone() throws CloneNotSupportedException {
         return Cloner.deepClone(this);
     }
 
