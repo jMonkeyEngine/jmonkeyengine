@@ -291,7 +291,7 @@ public class MotionEvent extends AbstractCinematicEvent implements Control, JmeC
     }
 
     @Override   
-    public Object jmeClone() {
+    public MotionEvent jmeClone() {
         MotionEvent control = new MotionEvent();
         control.path = path;
         control.playState = playState;

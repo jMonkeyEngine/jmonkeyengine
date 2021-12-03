@@ -278,9 +278,9 @@ public abstract class CompactArray<T> implements JmeCloneable {
      * @return a new array
      */
     @Override
-    public Object jmeClone() {
+    public CompactArray jmeClone() {
         try {
-            return super.clone();
+            return (CompactArray) super.clone();
         } catch (CloneNotSupportedException exception) {
             throw new RuntimeException("Can't clone array", exception);
         }

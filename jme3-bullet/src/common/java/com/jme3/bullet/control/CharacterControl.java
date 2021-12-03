@@ -98,7 +98,7 @@ public class CharacterControl extends PhysicsCharacter implements PhysicsControl
     }
 
     @Override
-    public Object jmeClone() {
+    public CharacterControl jmeClone() {
         CharacterControl control = new CharacterControl(collisionShape, stepHeight);
         control.setCcdMotionThreshold(getCcdMotionThreshold());
         control.setCcdSweptSphereRadius(getCcdSweptSphereRadius());

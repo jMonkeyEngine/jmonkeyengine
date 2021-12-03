@@ -476,7 +476,7 @@ public class AnimComposer extends AbstractControl {
      * @return a new instance
      */
     @Override
-    public Object jmeClone() {
+    public AnimComposer jmeClone() {
         try {
             AnimComposer clone = (AnimComposer) super.clone();
             return clone;

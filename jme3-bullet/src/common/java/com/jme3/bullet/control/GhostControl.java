@@ -162,7 +162,7 @@ public class GhostControl extends PhysicsGhostObject implements PhysicsControl, 
      * @return a new control (not null)
      */
     @Override
-    public Object jmeClone() {
+    public GhostControl jmeClone() {
         GhostControl control = new GhostControl(collisionShape);
         control.setCcdMotionThreshold(getCcdMotionThreshold());
         control.setCcdSweptSphereRadius(getCcdSweptSphereRadius());

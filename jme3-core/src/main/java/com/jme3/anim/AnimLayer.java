@@ -231,7 +231,7 @@ public class AnimLayer implements JmeCloneable {
     }
 
     @Override
-    public Object jmeClone() {
+    public AnimLayer jmeClone() {
         try {
             AnimLayer clone = (AnimLayer) super.clone();
             return clone;

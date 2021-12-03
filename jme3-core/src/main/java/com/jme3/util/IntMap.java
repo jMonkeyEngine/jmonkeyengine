@@ -100,9 +100,10 @@ public final class IntMap<T> implements Iterable<Entry<T>>, Cloneable, JmeClonea
      *  Called internally by com.jme3.util.clone.Cloner.  Do not call directly.
      */
     @Override
-    public Object jmeClone() {
+    @SuppressWarnings("unchecked")
+    public IntMap<T> jmeClone() {
         try {
-            return super.clone();
+            return (IntMap<T>) super.clone();
         } catch (CloneNotSupportedException ex) {
             throw new AssertionError();
         }
@@ -337,9 +338,10 @@ public final class IntMap<T> implements Iterable<Entry<T>>, Cloneable, JmeClonea
         }
 
         @Override
-        public Object jmeClone() {
+        @SuppressWarnings("unchecked")
+        public Entry<T> jmeClone() {
             try {
-                return super.clone();
+                return (Entry<T>) super.clone();
             } catch (CloneNotSupportedException ex) {
                 throw new AssertionError();
             }

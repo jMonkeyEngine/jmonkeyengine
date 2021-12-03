@@ -77,7 +77,7 @@ public interface JmeCloneable extends Cloneable {
      *
      * @return a new instance
      */
-    public Object jmeClone();     
+    public JmeCloneable jmeClone();     
 
     /**
      *  Implemented to perform deep cloning for this object, resolving

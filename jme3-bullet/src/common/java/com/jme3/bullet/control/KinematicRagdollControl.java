@@ -1112,7 +1112,7 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
      * @return a new control (not null)
      */
     @Override   
-    public Object jmeClone() {
+    public KinematicRagdollControl jmeClone() {
         KinematicRagdollControl control = new KinematicRagdollControl(preset, weightThreshold);        
         control.setMode(mode);
         control.setRootMass(rootMass);

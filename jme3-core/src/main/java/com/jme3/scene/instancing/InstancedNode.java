@@ -105,9 +105,9 @@ public class InstancedNode extends GeometryGroupNode {
         }
 
         @Override
-        public Object jmeClone() {
+        public InstanceTypeKey jmeClone() {
             try {
-                return super.clone();
+                return (InstanceTypeKey) super.clone();
             } catch( CloneNotSupportedException e ) {
                 throw new AssertionError();
             }
@@ -138,9 +138,9 @@ public class InstancedNode extends GeometryGroupNode {
         }
 
         @Override
-        public Object jmeClone() {
+        public InstancedNodeControl jmeClone() {
             try {
-                return super.clone();
+                return (InstancedNodeControl) super.clone();
             } catch( CloneNotSupportedException e ) {
                 throw new RuntimeException("Error cloning control", e);
             }

@@ -89,9 +89,9 @@ public class EmptyParticleInfluencer implements ParticleInfluencer {
      *  Called internally by com.jme3.util.clone.Cloner.  Do not call directly.
      */
     @Override
-    public Object jmeClone() {
+    public EmptyParticleInfluencer jmeClone() {
         try {
-            return super.clone();
+            return (EmptyParticleInfluencer) super.clone();
         } catch (CloneNotSupportedException ex) {
             throw new AssertionError();
         }

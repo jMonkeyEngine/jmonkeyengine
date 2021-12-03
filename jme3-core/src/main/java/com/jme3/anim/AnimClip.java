@@ -112,9 +112,9 @@ public class AnimClip implements JmeCloneable, Savable {
      * @return a new instance
      */
     @Override
-    public Object jmeClone() {
+    public AnimClip jmeClone() {
         try {
-            return super.clone();
+            return (AnimClip) super.clone();
         } catch (CloneNotSupportedException e) {
             throw new RuntimeException("Error cloning", e);
         }

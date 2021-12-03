@@ -76,9 +76,9 @@ public class EmitterSphereShape implements EmitterShape {
      *  Called internally by com.jme3.util.clone.Cloner.  Do not call directly.
      */
     @Override
-    public Object jmeClone() {
+    public EmitterSphereShape jmeClone() {
         try {
-            return super.clone();
+            return (EmitterSphereShape) super.clone();
         } catch (CloneNotSupportedException ex) {
             throw new AssertionError();
         }

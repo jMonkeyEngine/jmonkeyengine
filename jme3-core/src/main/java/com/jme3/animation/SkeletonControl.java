@@ -352,8 +352,8 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
     }
 
     @Override   
-    public Object jmeClone() {
-        return super.jmeClone();
+    public SkeletonControl jmeClone() {
+        return (SkeletonControl) super.jmeClone();
     }     
 
     @Override   

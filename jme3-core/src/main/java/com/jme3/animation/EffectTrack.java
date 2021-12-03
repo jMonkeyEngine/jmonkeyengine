@@ -115,7 +115,7 @@ public class EffectTrack implements ClonableTrack {
         }
 
         @Override
-        public Object jmeClone() {
+        public KillParticleControl jmeClone() {
             KillParticleControl c = new KillParticleControl();
             //this control should be removed as it shouldn't have been persisted in the first place
             //In the quest to find the less hackish solution to achieve this,
@@ -285,9 +285,9 @@ public class EffectTrack implements ClonableTrack {
     }
 
     @Override
-    public Object jmeClone() {
+    public EffectTrack jmeClone() {
         try {
-            return super.clone();
+            return (EffectTrack) super.clone();
         } catch( CloneNotSupportedException e ) {
             throw new RuntimeException("Error cloning", e);
         }

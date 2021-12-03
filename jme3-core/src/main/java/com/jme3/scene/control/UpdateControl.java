@@ -89,7 +89,7 @@ public class UpdateControl extends AbstractControl {
     }
 
     @Override
-    public Object jmeClone() {
+    public UpdateControl jmeClone() {
         UpdateControl clone = (UpdateControl)super.jmeClone();
         clone.taskQueue = new ConcurrentLinkedQueue<>();
         

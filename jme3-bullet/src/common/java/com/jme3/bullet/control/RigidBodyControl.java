@@ -142,7 +142,7 @@ public class RigidBodyControl extends PhysicsRigidBody implements PhysicsControl
      * @return a new control (not null)
      */
     @Override   
-    public Object jmeClone() {
+    public RigidBodyControl jmeClone() {
         RigidBodyControl control = new RigidBodyControl(collisionShape, mass);
         control.setAngularFactor(getAngularFactor());
         control.setAngularSleepingThreshold(getAngularSleepingThreshold());

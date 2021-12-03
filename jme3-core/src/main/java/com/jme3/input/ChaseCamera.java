@@ -605,7 +605,7 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
     }
 
     @Override
-    public Object jmeClone() {
+    public ChaseCamera jmeClone() {
         ChaseCamera cc = new ChaseCamera(cam, inputManager);
         cc.target = target;
         cc.setMaxDistance(getMaxDistance());

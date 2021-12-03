@@ -386,9 +386,9 @@ public class TerrainLodControl extends AbstractControl {
     }
 
     @Override
-    public Object jmeClone() {
+    public TerrainLodControl jmeClone() {
         try {
-            return super.clone();
+            return (TerrainLodControl) super.clone();
         } catch (final CloneNotSupportedException e) {
             throw new RuntimeException(e);
         }

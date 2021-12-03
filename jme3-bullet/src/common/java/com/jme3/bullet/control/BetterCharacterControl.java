@@ -714,7 +714,7 @@ public class BetterCharacterControl extends AbstractPhysicsControl implements Ph
      * @return a new control (not null)
      */
     @Override
-    public Object jmeClone() {
+    public BetterCharacterControl jmeClone() {
         BetterCharacterControl control = new BetterCharacterControl(radius, height, mass);
         control.setJumpForce(jumpForce);
         control.spatial = this.spatial;

@@ -64,9 +64,9 @@ public class EmitterPointShape implements EmitterShape {
      *  Called internally by com.jme3.util.clone.Cloner.  Do not call directly.
      */
     @Override
-    public Object jmeClone() {
+    public EmitterPointShape jmeClone() {
         try {
-            return super.clone();
+            return (EmitterPointShape) super.clone();
         } catch (CloneNotSupportedException ex) {
             throw new AssertionError();
         }

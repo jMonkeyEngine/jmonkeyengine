@@ -198,9 +198,9 @@ public class AudioTrack implements ClonableTrack {
     }
 
     @Override   
-    public Object jmeClone() {
+    public AudioTrack jmeClone() {
         try {
-            return super.clone();
+            return (AudioTrack) super.clone();
         } catch( CloneNotSupportedException e ) {
             throw new RuntimeException("Error cloning", e);
         }

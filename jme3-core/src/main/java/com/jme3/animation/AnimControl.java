@@ -110,7 +110,7 @@ public final class AnimControl extends AbstractControl implements Cloneable, Jme
     }
 
     @Override   
-    public Object jmeClone() {
+    public AnimControl jmeClone() {
         AnimControl clone = (AnimControl) super.jmeClone();
         clone.channels = new ArrayList<AnimChannel>();
         clone.listeners = new ArrayList<AnimEventListener>();

@@ -71,7 +71,7 @@ public class NormalRecalcControl extends AbstractControl {
      *  Called internally by com.jme3.util.clone.Cloner.  Do not call directly.
      */
     @Override
-    public Object jmeClone() {
+    public NormalRecalcControl jmeClone() {
         NormalRecalcControl control = (NormalRecalcControl)super.jmeClone();
         control.setEnabled(true);
         return control;

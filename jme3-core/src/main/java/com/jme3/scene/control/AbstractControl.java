@@ -97,9 +97,9 @@ public abstract class AbstractControl implements Control, JmeCloneable {
     }
 
     @Override
-    public Object jmeClone() {
+    public AbstractControl jmeClone() {
         try {
-            return super.clone();
+            return (AbstractControl) super.clone();
         } catch( CloneNotSupportedException e ) {
             throw new RuntimeException( "Can't clone control for spatial", e );
         }

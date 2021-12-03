@@ -125,7 +125,7 @@ public final class Skeleton implements Savable, JmeCloneable {
     }
 
     @Override   
-    public Object jmeClone() {
+    public Skeleton jmeClone() {
         try {
             Skeleton clone = (Skeleton)super.clone();
             return clone;

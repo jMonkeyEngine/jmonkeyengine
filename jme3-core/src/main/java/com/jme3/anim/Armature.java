@@ -276,7 +276,7 @@ public class Armature implements JmeCloneable, Savable {
     }
 
     @Override
-    public Object jmeClone() {
+    public Armature jmeClone() {
         try {
             Armature clone = (Armature) super.clone();
             return clone;

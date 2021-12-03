@@ -103,7 +103,7 @@ public class PhysicsHoverControl extends PhysicsVehicle implements PhysicsContro
     }
 
     @Override   
-    public Object jmeClone() {
+    public PhysicsHoverControl jmeClone() {
         throw new UnsupportedOperationException("Not yet implemented.");
     }     
 

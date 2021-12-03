@@ -214,9 +214,9 @@ public class Animation implements Savable, Cloneable, JmeCloneable {
     }
 
     @Override   
-    public Object jmeClone() {
+    public Animation jmeClone() {
         try {
-            return super.clone();
+            return (Animation) super.clone();
         } catch( CloneNotSupportedException e ) {
             throw new RuntimeException("Error cloning", e);
         }

@@ -356,8 +356,8 @@ public class SkinningControl extends AbstractControl implements Cloneable, JmeCl
     }
 
     @Override
-    public Object jmeClone() {
-        return super.jmeClone();
+    public SkinningControl jmeClone() {
+        return (SkinningControl) super.jmeClone();
     }
 
     @Override

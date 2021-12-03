@@ -283,7 +283,7 @@ public class MorphTrack implements AnimTrack<float[]> {
     }
 
     @Override
-    public Object jmeClone() {
+    public MorphTrack jmeClone() {
         try {
             MorphTrack clone = (MorphTrack) super.clone();
             return clone;

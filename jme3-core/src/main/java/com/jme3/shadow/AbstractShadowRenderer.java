@@ -820,9 +820,9 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
     }
 
     @Override
-    public Object jmeClone() {
+    public AbstractShadowRenderer jmeClone() {
         try {
-            return super.clone();
+            return (AbstractShadowRenderer) super.clone();
         } catch (final CloneNotSupportedException e) {
             throw new RuntimeException(e);
         }

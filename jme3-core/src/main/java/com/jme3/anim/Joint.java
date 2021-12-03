@@ -444,7 +444,7 @@ public class Joint implements Savable, JmeCloneable, HasLocalTransform {
      * @return a new instance
      */
     @Override
-    public Object jmeClone() {
+    public Joint jmeClone() {
         try {
             Joint clone = (Joint) super.clone();
             return clone;

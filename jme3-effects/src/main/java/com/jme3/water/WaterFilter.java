@@ -1309,9 +1309,9 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
     }
 
     @Override
-    public Object jmeClone() {
+    public WaterFilter jmeClone() {
         try {
-            return super.clone();
+            return (WaterFilter) super.clone();
         } catch (final CloneNotSupportedException e) {
             throw new RuntimeException(e);
         }

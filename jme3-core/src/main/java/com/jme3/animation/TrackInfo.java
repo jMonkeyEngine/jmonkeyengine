@@ -77,9 +77,9 @@ public class TrackInfo implements Savable, JmeCloneable {
     }
     
     @Override   
-    public Object jmeClone() {
+    public TrackInfo jmeClone() {
         try {
-            return super.clone();
+            return (TrackInfo) super.clone();
         } catch( CloneNotSupportedException e ) {
             throw new RuntimeException("Error cloning", e);
         }

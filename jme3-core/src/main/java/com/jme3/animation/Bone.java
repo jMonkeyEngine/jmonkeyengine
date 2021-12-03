@@ -180,7 +180,7 @@ public final class Bone implements Savable, JmeCloneable {
     }
     
     @Override   
-    public Object jmeClone() {
+    public Bone jmeClone() {
         try {
             Bone clone = (Bone)super.clone();
             return clone;

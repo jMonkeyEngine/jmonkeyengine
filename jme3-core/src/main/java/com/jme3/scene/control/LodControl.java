@@ -141,7 +141,7 @@ public class LodControl extends AbstractControl implements Cloneable, JmeCloneab
     }
 
     @Override
-    public Object jmeClone() {
+    public LodControl jmeClone() {
         LodControl clone = (LodControl)super.jmeClone();
         clone.lastDistance = 0;
         clone.lastLevel = 0;

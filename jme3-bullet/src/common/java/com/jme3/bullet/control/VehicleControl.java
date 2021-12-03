@@ -160,7 +160,7 @@ public class VehicleControl extends PhysicsVehicle implements PhysicsControl, Jm
      * @return a new control (not null)
      */
     @Override
-    public Object jmeClone() {
+    public VehicleControl jmeClone() {
         VehicleControl control = new VehicleControl(collisionShape, mass);
         control.setAngularFactor(getAngularFactor());
         control.setAngularSleepingThreshold(getAngularSleepingThreshold());

@@ -128,9 +128,9 @@ public class ParticleEmitter extends Geometry {
         }
 
         @Override
-        public Object jmeClone() {
+        public ParticleEmitterControl jmeClone() {
             try {
-                return super.clone();
+                return (ParticleEmitterControl) super.clone();
             } catch( CloneNotSupportedException e ) {
                 throw new RuntimeException("Error cloning", e);
             }
