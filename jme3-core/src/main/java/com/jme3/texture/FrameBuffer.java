@@ -231,6 +231,24 @@ public class FrameBuffer extends NativeObject {
             t.setFormat(format);
             return t;
         }
+        
+        /**
+         * Creates a frame buffer texture and sets the face position
+         * by using the face parameter.
+         * It uses {@link TextureCubeMap} ordinal number for the 
+         * face position.
+         * 
+         * @param tx     texture to add to the frame buffer
+         * @param face   face to add to the color buffer to
+         * @return  FrameBufferTexture Target
+         */
+        public static FrameBufferTextureTarget newTarget(Texture tx, TextureCubeMap.Face face){
+            FrameBufferTextureTarget t=new FrameBufferTextureTarget();
+            t.face = face.ordinal();
+            t.setTexture(tx);
+            return t;
+        }
+
     }
 
     /**
@@ -250,6 +268,23 @@ public class FrameBuffer extends NativeObject {
         colorBufs.add(colorBuf);
     }
 
+
+    /**
+     * Adds a texture to one of the color Buffers Array.
+     * It uses {@link TextureCubeMap} ordinal number for the 
+     * position in the color buffer ArrayList.
+     * 
+     * @param colorBuf  texture to add to the color Buffer
+     * @param face      position to add to the color buffer
+     */
+    public void addColorTarget(FrameBufferTextureTarget colorBuf, TextureCubeMap.Face face){
+        // checkSetTexture(colorBuf.getTexture(), false);  // TODO: this won't work for levels.
+        colorBuf.slot=colorBufs.size();
+        colorBuf.face = face.ordinal();
+        colorBufs.add(colorBuf);
+    }
+
+    
     public void setDepthTarget(FrameBufferBufferTarget depthBuf){
         if (!depthBuf.getFormat().isDepthFormat())
             throw new IllegalArgumentException("Depth buffer format must be depth.");

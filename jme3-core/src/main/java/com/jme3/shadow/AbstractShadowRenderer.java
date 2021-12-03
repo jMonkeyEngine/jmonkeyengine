@@ -58,6 +58,7 @@ import com.jme3.texture.Texture.MagFilter;
 import com.jme3.texture.Texture.MinFilter;
 import com.jme3.texture.Texture.ShadowCompareMode;
 import com.jme3.texture.Texture2D;
+import com.jme3.texture.FrameBuffer.FrameBufferTarget;
 import com.jme3.ui.Picture;
 import com.jme3.util.clone.Cloner;
 import com.jme3.util.clone.JmeCloneable;
@@ -170,10 +171,10 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
             shadowFB[i] = new FrameBuffer(shadowMapSize, shadowMapSize, 1);
             shadowMaps[i] = new Texture2D(shadowMapSize, shadowMapSize, Format.Depth);
 
-            shadowFB[i].setDepthTexture(shadowMaps[i]);
+            shadowFB[i].setDepthTarget(FrameBufferTarget.newTarget(shadowMaps[i]));
 
             //DO NOT COMMENT THIS (it prevent the OSX incomplete read buffer crash)
-            shadowFB[i].setColorTexture(dummyTex);
+            shadowFB[i].addColorTarget(FrameBufferTarget.newTarget(dummyTex));
             shadowMapStringCache[i] = "ShadowMap" + i; 
             lightViewStringCache[i] = "LightViewProjectionMatrix" + i;
 

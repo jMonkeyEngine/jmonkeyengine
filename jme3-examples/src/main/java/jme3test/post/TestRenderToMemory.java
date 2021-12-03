@@ -49,6 +49,9 @@ import com.jme3.scene.shape.Box;
 import com.jme3.system.AppSettings;
 import com.jme3.system.JmeContext.Type;
 import com.jme3.texture.FrameBuffer;
+import com.jme3.texture.FrameBuffer.FrameBufferBufferTarget;
+import com.jme3.texture.FrameBuffer.FrameBufferTarget;
+import com.jme3.texture.FrameBuffer.FrameBufferTextureTarget;
 import com.jme3.texture.Image.Format;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.Screenshots;
@@ -192,9 +195,8 @@ public class TestRenderToMemory extends SimpleApplication implements SceneProces
 
         //setup framebuffer to use renderbuffer
         // this is faster for gpu -> cpu copies
-        offBuffer.setDepthBuffer(Format.Depth);
-        offBuffer.setColorBuffer(Format.RGBA8);
-//        offBuffer.setColorTexture(offTex);
+        offBuffer.setDepthTarget(FrameBufferTarget.newTarget(Format.Depth));
+        offBuffer.addColorTarget(FrameBufferTarget.newTarget(Format.RGBA8));
         
         //set viewport to render to offscreen framebuffer
         offView.setOutputFrameBuffer(offBuffer);

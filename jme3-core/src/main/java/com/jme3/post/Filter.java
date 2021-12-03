@@ -43,6 +43,8 @@ import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image.Format;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture2D;
+import com.jme3.texture.FrameBuffer.FrameBufferTarget;
+
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
@@ -110,22 +112,22 @@ public abstract class Filter implements Savable {
             if (numSamples > 1 && caps.contains(Caps.FrameBufferMultisample) && caps.contains(Caps.OpenGL31)) {
                 renderFrameBuffer = new FrameBuffer(width, height, numSamples);                
                 renderedTexture = new Texture2D(width, height, numSamples, textureFormat);
-                renderFrameBuffer.setDepthBuffer(depthBufferFormat);
+                renderFrameBuffer.setDepthTarget(FrameBufferTarget.newTarget(depthBufferFormat));
                 if (renderDepth) {
                     depthTexture = new Texture2D(width, height, numSamples, depthBufferFormat);
-                    renderFrameBuffer.setDepthTexture(depthTexture);
+                    renderFrameBuffer.setDepthTarget(FrameBufferTarget.newTarget(depthTexture));
                 }
             } else {
                 renderFrameBuffer = new FrameBuffer(width, height, 1);
                 renderedTexture = new Texture2D(width, height, textureFormat);
-                renderFrameBuffer.setDepthBuffer(depthBufferFormat);
+                renderFrameBuffer.setDepthTarget(FrameBufferTarget.newTarget(depthBufferFormat));
                 if (renderDepth) {
                     depthTexture = new Texture2D(width, height, depthBufferFormat);
-                    renderFrameBuffer.setDepthTexture(depthTexture);
+                    renderFrameBuffer.setDepthTarget(FrameBufferTarget.newTarget(depthTexture));
                 }
             }
 
-            renderFrameBuffer.setColorTexture(renderedTexture);
+            renderFrameBuffer.addColorTarget(FrameBufferTarget.newTarget(renderedTexture));
 
 
         }
