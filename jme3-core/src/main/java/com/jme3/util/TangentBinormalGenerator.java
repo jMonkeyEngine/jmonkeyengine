@@ -269,8 +269,8 @@ public class TangentBinormalGenerator {
     }
 
     //Don't remove split mirrored boolean. It's not used right now, but I intend to
-    //make this method also split vertices with rotated tangent space and I'll
-    //add another splitRotated boolean 
+    // make this method also split vertices with rotated tangent space, and I'll
+    // add another splitRotated boolean.
     private static List<VertexData> splitVertices(Mesh mesh, List<VertexData> vertexData, boolean splitMirorred) {
         
         int nbVertices = mesh.getBuffer(Type.Position).getNumElements();

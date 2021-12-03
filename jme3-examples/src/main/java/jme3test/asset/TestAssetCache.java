@@ -157,7 +157,7 @@ public class TestAssetCache {
             // Create some data
             DummyData data = new DummyData();
             
-            // Post process the data before placing it in the cache
+            // Postprocess the data before placing it in the cache.
             if (proc != null){
                 data = (DummyData) proc.postProcess(key, data);
             }
@@ -202,7 +202,7 @@ public class TestAssetCache {
             // collections of the asset in the cache thus causing
             // an out of memory error.
             if (keepRefs){
-                // Prevent the saved references from taking too much memory ..
+                // Prevent the saved references from taking too much memory.
                 if (cloneAssets) {
                     data.data = null;
                 }

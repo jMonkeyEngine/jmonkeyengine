@@ -54,7 +54,7 @@ public class TestCloneSpatial {
 
     public static void main( String... args ) throws Exception {
 
-        // Setup a test node with some children, controls, etc.
+        // Set up a test node with some children, controls, etc.
         Node root = new Node("rootNode");
 
         // A root light

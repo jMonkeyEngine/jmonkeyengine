@@ -96,7 +96,7 @@ public class TechniqueDef implements Savable, Cloneable {
          * <p>
          * An array of light positions and light colors is passed to the shader
          * containing the world light list for the geometry being rendered.
-         * Also Light probes are passed to the shader.
+         * Light probes are also passed to the shader.
          */
         SinglePassAndImageBased,
 
@@ -299,7 +299,7 @@ public class TechniqueDef implements Savable, Cloneable {
 
     /**
      * Returns true if this technique should not be used to render.
-     * (eg. to not render a material with default technique)
+     * (e.g. to not render a material with default technique)
      *
      * @return true if this technique should not be rendered, false otherwise.
      *
@@ -413,7 +413,7 @@ public class TechniqueDef implements Savable, Cloneable {
      * the appropriate define on the technique will be modified as well.
      * When set, the material parameter will be mapped to an integer define, 
      * typically <code>1</code> if it is set, unless it is an integer or a float,
-     * in which case it will converted into an integer.
+     * in which case it will be converted into an integer.
      *
      * @param paramName The name of the material parameter to link to.
      * @param paramType The type of the material parameter to link to.

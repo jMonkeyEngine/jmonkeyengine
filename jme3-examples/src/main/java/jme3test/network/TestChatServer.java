@@ -163,8 +163,8 @@ public class TestChatServer {
         public void messageReceived(HostedConnection source, Message m) {
             if (m instanceof ChatMessage) {
                 // Keep track of the name just in case we 
-                // want to know it for some other reason later and it's
-                // a good example of session data
+                // want to know it for some other reason later, and it's
+                // a good example of session data.
                 ChatMessage cm = (ChatMessage)m;
                 source.setAttribute("name", cm.getName());
 

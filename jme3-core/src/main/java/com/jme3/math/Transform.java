@@ -326,8 +326,8 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
             store = new Vector3f();
         }
 
-        // The author of this code should look above and take the inverse of that
-        // But for some reason, they didn't ..
+        // The author of this code should've looked above and taken the inverse of that,
+        // but for some reason, they didn't.
 //        in.subtract(translation, store).divideLocal(scale);
 //        rot.inverse().mult(store, store);
         in.subtract(translation, store);

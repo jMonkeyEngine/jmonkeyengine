@@ -51,7 +51,7 @@ public interface VRAPI {
     public VRInputAPI getVRinput();
     
     /**
-     * Flip the left and right eye..
+     * Flip the left and right eye.
      * @param set <code>true</code> if the eyes has to be flipped and <code>false</code> otherwise.
      */
     public void setFlipEyes(boolean set);

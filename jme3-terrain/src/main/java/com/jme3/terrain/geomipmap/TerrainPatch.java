@@ -69,7 +69,7 @@ import java.util.List;
  * LOD. If this doesn't happen, you will see gaps.
  *
  * The LOD value is most detailed at zero. It gets less detailed the higher the LOD value until you reach maxLod, which
- * is a mathematical limit on the number of times the 'size' of the patch can be divided by two. However there is a -1 to that
+ * is a mathematical limit on the number of times the 'size' of the patch can be divided by two. However, there is a -1 to that
  * for now until I add in a custom index buffer calculation for that max level, the current algorithm does not go that far.
  *
  * You can supply a LodThresholdCalculator for use in determining when the LOD should change. Its API will no doubt change
@@ -165,7 +165,7 @@ public class TerrainPatch extends Geometry {
      *            the origin offset of the patch.
      * @param totalSize
      *            the total size of the terrain. (Higher if the patch is part of
-     *            a <code>TerrainQuad</code> tree.
+     *            a <code>TerrainQuad</code> tree.)
      * @param offset
      *            the offset for texture coordinates.
      * @param offsetAmount
@@ -319,7 +319,7 @@ public class TerrainPatch extends Geometry {
     }
 
     /**
-     * recalculate all of the normal vectors in this terrain patch
+     * Recalculates all normal vectors in this terrain patch.
      */
     protected void updateNormals() {
         FloatBuffer newNormalBuffer = geomap.writeNormalArray(null, getWorldScale());
@@ -350,7 +350,7 @@ public class TerrainPatch extends Geometry {
      * Computes the normals for the right, bottom, left, and top edges of the
      * patch, and saves those normals in the neighbour's edges too.
      *
-     * Takes 4 points (if has neighbour on that side) for each
+     * Takes 4 points (if it has a neighbour on that side) for each
      * point on the edge of the patch:
      *              *
      *              |
@@ -605,7 +605,7 @@ public class TerrainPatch extends Geometry {
 
     /**
      * Locks the mesh (sets it static) to improve performance.
-     * But it it not editable then. Set unlock to make it editable.
+     * If it is not editable, then unlock to make it editable.
      */
     public void lockMesh() {
         getMesh().setStatic();
@@ -966,14 +966,14 @@ public class TerrainPatch extends Geometry {
         this.rightNeighbour = null;
         this.bottomNeighbour = null;
 
-        // Don't feel like making geomap cloneable tonight
+        // Don't feel like making geomap cloneable tonight,
         // so I'll copy the old logic.
         this.geomap = new LODGeomap(size, geomap.getHeightArray());
         Mesh m = geomap.createMesh(stepScale, Vector2f.UNIT_XY, offset, offsetAmount, totalSize, false);
         this.setMesh(m);
 
-        // In this case, we always clone material even if the cloner is setup
-        // not to clone it.  Terrain uses mutable textures and stuff so it's important
+        // In this case, we always clone material even if the cloner is set up
+        // not to clone it.  Terrain uses mutable textures and stuff, so it's important
         // to clone it.  (At least that's my understanding and is evidenced by the old
         // clone code specifically cloning material.)  -pspeed
         // Also note that Geometry will have potentially already cloned this but the pre-JmeCloner

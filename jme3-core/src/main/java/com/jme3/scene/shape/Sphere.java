@@ -337,7 +337,7 @@ public class Sphere extends Mesh {
             }
         }
 
-        // south pole triangles
+        // south-pole triangles
         for (int i = 0; i < radialSamples; i++, index += 3) {
             if (!interior) {
                 idxBuf.put((short) i);
@@ -350,7 +350,7 @@ public class Sphere extends Mesh {
             }
         }
 
-        // north pole triangles
+        // north-pole triangles
         int iOffset = (zSamples - 3) * (radialSamples + 1);
         for (int i = 0; i < radialSamples; i++, index += 3) {
             if (!interior) {

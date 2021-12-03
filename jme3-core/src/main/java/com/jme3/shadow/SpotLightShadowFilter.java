@@ -71,7 +71,7 @@ public class SpotLightShadowFilter extends AbstractShadowFilter<SpotLightShadowR
      *
      * @param assetManager the application asset manager
      * @param shadowMapSize the size of the rendered shadowmaps (512,1024,2048,
-     * etc...) the more quality, the less fps).
+     * etc...) The more quality, the fewer fps.
      */
     public SpotLightShadowFilter(AssetManager assetManager, int shadowMapSize) {
         super(assetManager, shadowMapSize, new SpotLightShadowRenderer(assetManager, shadowMapSize));

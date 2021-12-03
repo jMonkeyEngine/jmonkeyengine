@@ -157,14 +157,14 @@ public class TerrainLodControl extends AbstractControl {
     }
 
     /**
-     * @param useRenderCamera true if need to use a camera from render view port.
+     * @param useRenderCamera true to use camera from the render viewport
      */
     public void setUseRenderCamera(final boolean useRenderCamera) {
         this.useRenderCamera = useRenderCamera;
     }
 
     /**
-     * @return true if need to use a camera from render view port.
+     * @return true to use camera from the render viewport
      */
     public boolean isUseRenderCamera() {
         return useRenderCamera;
@@ -236,7 +236,7 @@ public class TerrainLodControl extends AbstractControl {
         getSpatial().removeControl(this);
     }
 
-    // do all of the LOD calculations
+    // Do all the LOD calculations.
     protected void updateLOD(final LodCalculator lodCalculator) {
 
         if (getSpatial() == null || camera == null) {
@@ -270,7 +270,7 @@ public class TerrainLodControl extends AbstractControl {
         indexer = executorService.submit(createLodUpdateTask(singletonList(currentLocation), lodCalculator));
     }
 
-    // do all of the LOD calculations
+    // Do all the LOD calculations.
     protected void updateLOD(final SafeArrayList<Vector3f> locations, final LodCalculator lodCalculator) {
 
         if (getSpatial() == null || locations.isEmpty()) {

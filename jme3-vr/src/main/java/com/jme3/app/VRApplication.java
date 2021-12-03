@@ -68,7 +68,7 @@ import org.lwjgl.system.Platform;
 
 
 /**
- * A JMonkey application dedicated to Virtual Reality. An application that use VR devices (HTC vive, ...) has to extends this one.<br>
+ * A JMonkey application dedicated to Virtual Reality. An application that use VR devices (HTC vive, ...) has to extend this one.<br>
  * <p>
  * <b>This class is no more functional and is deprecated. Please use {@link VRAppState VRAppState} instead.</b>
  * @author reden - phr00t - https://github.com/phr00t
@@ -378,7 +378,7 @@ public abstract class VRApplication implements Application, SystemListener {
     }
     
     /**
-     * Simple update of the application, this method should contains {@link #getRootNode() root node} updates.
+     * Simple update of the application, this method should contain {@link #getRootNode() root node} updates.
      * This method is called by the {@link #update() update()} method and should not be called manually.
      * @param tpf the application time.
      */
@@ -1348,7 +1348,7 @@ public abstract class VRApplication implements Application, SystemListener {
 //        timer.update();
         timer.reset();
 
-        // user code here..
+        // user code here
     }
     
     @Override

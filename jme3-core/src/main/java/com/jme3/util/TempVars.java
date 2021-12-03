@@ -45,7 +45,7 @@ import java.util.ArrayList;
  * these temp variables with TempVars.get(), all retrieved TempVars
  * instances must be returned via TempVars.release().
  * This returns an available instance of the TempVar class ensuring this 
- * particular instance is never used elsewhere in the mean time.
+ * particular instance is never used elsewhere in the meantime.
  */
 public class TempVars {
 
