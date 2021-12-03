@@ -42,16 +42,16 @@ import com.jme3.terrain.noise.Basis;
  */
 public interface Fractal extends Basis {
 
-	public Fractal setOctaves(final float octaves);
+    public Fractal setOctaves(final float octaves);
 
-	public Fractal setFrequency(final float frequency);
+    public Fractal setFrequency(final float frequency);
 
-	public Fractal setRoughness(final float roughness);
+    public Fractal setRoughness(final float roughness);
 
-	public Fractal setAmplitude(final float amplitude);
+    public Fractal setAmplitude(final float amplitude);
 
-	public Fractal setLacunarity(final float lacunarity);
+    public Fractal setLacunarity(final float lacunarity);
 
-	public Fractal addBasis(Basis basis);
+    public Fractal addBasis(Basis basis);
 
 }

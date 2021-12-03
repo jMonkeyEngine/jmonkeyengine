@@ -275,8 +275,8 @@ public class FrameBuffer extends NativeObject {
         if (colorBufs.isEmpty())
             return null;
         if (colorBufIndex<0 || colorBufIndex>=colorBufs.size()) {
-			return colorBufs.get(0);
-		}
+            return colorBufs.get(0);
+        }
         return colorBufs.get(colorBufIndex);
     }
 

@@ -50,11 +50,11 @@ import javax.xml.parsers.ParserConfigurationException;
  */
 public class XMLExporter implements JmeExporter {
     
-    public static final String ELEMENT_MAPENTRY = "MapEntry";	
-    public static final String ELEMENT_KEY = "Key";	
+    public static final String ELEMENT_MAPENTRY = "MapEntry";
+    public static final String ELEMENT_KEY = "Key";
     public static final String ELEMENT_VALUE = "Value";
     public static final String ELEMENT_FLOATBUFFER = "FloatBuffer";
-    public static final String ATTRIBUTE_SIZE = "size";		
+    public static final String ATTRIBUTE_SIZE = "size";
 
     private DOMOutputCapsule domOut;
     

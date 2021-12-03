@@ -240,7 +240,9 @@ public class BatchNode extends GeometryGroupNode {
         }
 
 
-        logger.log(Level.FINE, "Batched {0} geometries in {1} batches.", new Object[]{nbGeoms, batches.size()});
+        if (logger.isLoggable(Level.FINE)) {
+            logger.log(Level.FINE, "Batched {0} geometries in {1} batches.", new Object[]{nbGeoms, batches.size()});
+        }
 
         //init the temp arrays if something has been batched only.
         if (matMap.size() > 0) {

@@ -353,7 +353,9 @@ public class LodGenerator {
             }
             if (tri.isMalformed()) {
                 if (!tri.isRemoved) {
-                    logger.log(Level.FINE, "malformed triangle found with ID:{0}\n{1} It will be excluded from Lod level calculations.", new Object[]{triangleList.indexOf(tri), tri.toString()});
+                    if (logger.isLoggable(Level.FINE)) {
+                        logger.log(Level.FINE, "malformed triangle found with ID:{0}\n{1} It will be excluded from Lod level calculations.", new Object[]{triangleList.indexOf(tri), tri.toString()});
+                    }
                     tri.isRemoved = true;
                     indexCount -= 3;
                 }
@@ -750,7 +752,9 @@ public class LodGenerator {
                 if (!tri.isRemoved) {
                     tri.isRemoved = true;
                     indexCount -= 3;
-                    logger.log(Level.FINE, "duplicate triangle found{0}{1} It will be excluded from Lod level calculations.", new Object[]{tri, duplicate});
+                    if (logger.isLoggable(Level.FINE)) {
+                        logger.log(Level.FINE, "duplicate triangle found{0}{1} It will be excluded from Lod level calculations.", new Object[]{tri, duplicate});
+                    }
                 }
             }
         }

@@ -51,11 +51,11 @@ public class IosImageLoader implements AssetLoader {
         Image img = null;
         InputStream in = null;
         try {
-        	in = info.openStream();
+            in = info.openStream();
             img = loadImageData(Format.RGBA8, flip, in);
         } finally {
-        	if (in != null) {
-            	in.close();
+            if (in != null) {
+                in.close();
             }
         }
         return img;

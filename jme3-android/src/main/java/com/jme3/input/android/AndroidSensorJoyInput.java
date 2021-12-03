@@ -155,16 +155,20 @@ public class AndroidSensorJoyInput implements SensorEventListener {
         SensorData sensorData = sensors.get(sensorType);
         if (sensorData != null) {
             if (sensorData.enabled) {
-                logger.log(Level.FINE, "Sensor Already Active: SensorType: {0}, active: {1}",
-                        new Object[]{sensorType, sensorData.enabled});
+                if (logger.isLoggable(Level.FINE)) {
+                    logger.log(Level.FINE, "Sensor Already Active: SensorType: {0}, active: {1}",
+                            new Object[]{sensorType, sensorData.enabled});
+                }
                 return true;
             }
             sensorData.haveData = false;
             if (sensorData.sensor != null) {
                 if (sensorManager.registerListener(this, sensorData.sensor, sensorData.androidSensorSpeed)) {
                     sensorData.enabled = true;
-                    logger.log(Level.FINE, "SensorType: {0}, enabled: {1}",
-                            new Object[]{sensorType, sensorData.enabled});
+                    if (logger.isLoggable(Level.FINE)) {
+                        logger.log(Level.FINE, "SensorType: {0}, enabled: {1}",
+                                new Object[]{sensorType, sensorData.enabled});
+                    }
                     return true;
                 } else {
                     sensorData.enabled = false;
@@ -183,8 +187,10 @@ public class AndroidSensorJoyInput implements SensorEventListener {
             }
             sensorData.enabled = false;
             sensorData.haveData = false;
-            logger.log(Level.FINE, "SensorType: {0} deactivated, active: {1}",
-                    new Object[]{sensorType, sensorData.enabled});
+            if (logger.isLoggable(Level.FINE)) {
+                logger.log(Level.FINE, "SensorType: {0} deactivated, active: {1}",
+                        new Object[]{sensorType, sensorData.enabled});
+            }
         }
     }
 
@@ -409,9 +415,11 @@ public class AndroidSensorJoyInput implements SensorEventListener {
                                     "AndroidSensorsJoystick");
 
         List<Sensor> availSensors = sensorManager.getSensorList(Sensor.TYPE_ALL);
-        for (Sensor sensor: availSensors) {
-            logger.log(Level.FINE, "{0} Sensor is available, Type: {1}, Vendor: {2}, Version: {3}",
-                    new Object[]{sensor.getName(), sensor.getType(), sensor.getVendor(), sensor.getVersion()});
+        if (logger.isLoggable(Level.FINE)) {
+            for (Sensor sensor : availSensors) {
+                logger.log(Level.FINE, "{0} Sensor is available, Type: {1}, Vendor: {2}, Version: {3}",
+                        new Object[]{sensor.getName(), sensor.getType(), sensor.getVendor(), sensor.getVersion()});
+            }
         }
 
         // manually create orientation sensor data since orientation is not a physical sensor
@@ -575,10 +583,12 @@ public class AndroidSensorJoyInput implements SensorEventListener {
         int sensorType = sensor.getType();
         SensorData sensorData = sensors.get(sensorType);
         if (sensorData != null) {
-            logger.log(Level.FINE, "onAccuracyChanged for {0}: accuracy: {1}",
-                    new Object[]{sensor.getName(), i});
-            logger.log(Level.FINE, "MaxRange: {0}, Resolution: {1}",
-                    new Object[]{sensor.getMaximumRange(), sensor.getResolution()});
+            if (logger.isLoggable(Level.FINE)) {
+                logger.log(Level.FINE, "onAccuracyChanged for {0}: accuracy: {1}",
+                        new Object[]{sensor.getName(), i});
+                logger.log(Level.FINE, "MaxRange: {0}, Resolution: {1}",
+                        new Object[]{sensor.getMaximumRange(), sensor.getResolution()});
+            }
             sensorData.sensorAccuracy = i;
         }
     }
@@ -705,8 +715,10 @@ public class AndroidSensorJoyInput implements SensorEventListener {
         @Override
         public void calibrateCenter() {
             zeroRawValue = lastRawValue;
-            logger.log(Level.FINE, "Calibrating axis {0} to {1}",
-                    new Object[]{getName(), zeroRawValue});
+            if (logger.isLoggable(Level.FINE)) {
+                logger.log(Level.FINE, "Calibrating axis {0} to {1}",
+                        new Object[]{getName(), zeroRawValue});
+            }
         }
 
     }

@@ -209,7 +209,9 @@ public class AndroidJoyInput implements JoyInput {
 
     @Override
     public Joystick[] loadJoysticks(InputManager inputManager) {
-        logger.log(Level.INFO, "loading joysticks for {0}", this.getClass().getName());
+        if (logger.isLoggable(Level.INFO)) {
+            logger.log(Level.INFO, "loading joysticks for {0}", this.getClass().getName());
+        }
         if (!disableSensors) {
             joystickList.add(sensorJoyInput.loadJoystick(joystickList.size(), inputManager));
         }

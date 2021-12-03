@@ -10,13 +10,8 @@ apply plugin: 'signing'
 group = 'org.jmonkeyengine'
 version = jmeFullVersion
 
-sourceCompatibility = '1.8'
-
-if(JavaVersion.current() >= JavaVersion.VERSION_1_9) {
-    compileJava {
-		options.release = 8
-    }
-}
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
 
 tasks.withType(JavaCompile) { // compile-time options:
     //options.compilerArgs << '-Xlint:deprecation' // to show deprecation warnings

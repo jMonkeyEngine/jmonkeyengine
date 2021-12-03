@@ -57,7 +57,7 @@ public interface CinematicEvent extends Savable {
      * this method can be implemented if the event needs different handling when 
      * stopped naturally (when the event reach its end)
      * or when it was forced stopped during playback
-     * otherwise it just call regular stop()
+     * otherwise it just calls regular stop()
      */
     public void forceStop();
 

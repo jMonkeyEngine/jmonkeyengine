@@ -180,10 +180,12 @@ public class JmeAndroidSystem extends JmeSystemDelegate {
             default:
                 break;
         }
-        if (storageFolder != null) {
-            logger.log(Level.FINE, "Base Storage Folder Path: {0}", storageFolder.getAbsolutePath());
-        } else {
-            logger.log(Level.FINE, "Base Storage Folder not found!");
+        if (logger.isLoggable(Level.FINE)) {
+            if (storageFolder != null) {
+                logger.log(Level.FINE, "Base Storage Folder Path: {0}", storageFolder.getAbsolutePath());
+            } else {
+                logger.log(Level.FINE, "Base Storage Folder not found!");
+            }
         }
         return storageFolder;
     }

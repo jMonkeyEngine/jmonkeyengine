@@ -61,16 +61,16 @@ public class AWTComponentAppState extends AbstractAppState {
   @Override
   public void stateAttached(final AppStateManager stateManager) {
     processor = new AWTFrameProcessor();
-	processor.setTransferMode(transferMode);
+    processor.setTransferMode(transferMode);
 
-	AWTTaskExecutor.getInstance().addToExecute(new Runnable() {
+    AWTTaskExecutor.getInstance().addToExecute(new Runnable() {
 
-	  @Override
-	  public void run() {
-	    processor.bind(component, stateManager.getApplication(), stateManager.getApplication().getViewPort());
-	  }
-	      
-	});
+      @Override
+      public void run() {
+        processor.bind(component, stateManager.getApplication(), stateManager.getApplication().getViewPort());
+      }
+      
+    });
   }
   
   @Override
@@ -80,7 +80,7 @@ public class AWTComponentAppState extends AbstractAppState {
   
   @Override
   public void update(float tpf) {
-	executor.execute();
+    executor.execute();
     super.update(tpf);
   }
   
@@ -121,7 +121,7 @@ public class AWTComponentAppState extends AbstractAppState {
    * @see #setTransferMode(com.jme3.system.AWTFrameProcessor.TransferMode)
    */
   public AWTFrameProcessor.TransferMode getTransferMode(){
-	  return transferMode;
+    return transferMode;
   }
   
   /**
@@ -130,6 +130,6 @@ public class AWTComponentAppState extends AbstractAppState {
    * @see #getTransferMode()
    */
   public void setTransferMode(AWTFrameProcessor.TransferMode mode) {
-	  this.transferMode = mode;
+    this.transferMode = mode;
   }
 }

@@ -60,7 +60,7 @@ final class CollisionUtil {
         assert results.size() == numCollisions;
         assert numCollisions == expected;
 
-        // force the results to be sorted here..
+        // Force the results to be sorted here.
         results.getClosestCollision();
 
         if (results.size() > 0) {

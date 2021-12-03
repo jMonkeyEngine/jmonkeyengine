@@ -29,47 +29,26 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package jme3test.light.pbr;
+package com.jme3.app.jmeSurfaceView;
 
-import com.jme3.environment.generation.JobProgressAdapter;
-import com.jme3.light.LightProbe;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import android.view.View;
+import com.jme3.app.LegacyApplication;
 
 /**
- * A basic logger for environment map rendering progress.
- * @author nehon
+ * An interface used for invoking an event when the application is started explicitly from {@link JmeSurfaceView#startRenderer(int)}.
+ * NB : This listener must be utilized before using {@link JmeSurfaceView#startRenderer(int)}, ie : it would be ignored if you try to use {@link JmeSurfaceView#setOnRendererStarted(OnRendererStarted)} after
+ * {@link JmeSurfaceView#startRenderer(int)}.
+ * @see JmeSurfaceView#setOnRendererStarted(OnRendererStarted)
+ *
+ * @author pavl_g.
  */
-public class ConsoleProgressReporter extends JobProgressAdapter<LightProbe>{
-
-    private static final Logger logger = Logger.getLogger(ConsoleProgressReporter.class.getName());
-    
-    private long time;
-
-    @Override
-    public void start() {
-        time = System.currentTimeMillis();
-        logger.log(Level.INFO,"Starting generation");
-    }
-
-    @Override
-    public void progress(double value) {
-        if (logger.isLoggable(Level.INFO)) {
-            logger.log(Level.INFO, "Progress : {0}%", (value * 100));
-        }
-    }
-
-    @Override
-    public void step(String message) {       
-        logger.info(message);
-    }
-    
-    @Override
-    public void done(LightProbe result) {
-        long end = System.currentTimeMillis();
-        if (logger.isLoggable(Level.INFO)) {
-            logger.log(Level.INFO, "Generation done in {0}", (end - time) / 1000f);
-        }
-    }
-    
+public interface OnRendererStarted {
+    /**
+     * Invoked when the game application is started by the {@link LegacyApplication#start()}, the event is dispatched on the
+     * holder Activity context thread.
+     * @see JmeSurfaceView#startRenderer(int)
+     * @param application the game instance.
+     * @param layout the enclosing layout.
+     */
+    void onRenderStart(LegacyApplication application, View layout);
 }

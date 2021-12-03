@@ -211,7 +211,7 @@ public class ListSort<T> {
         }
 
         /*
-         * main iteration : compute minrun length, then iterate through the 
+         * main iteration : compute minimum run length, then iterate through the
          * array to find runs and merge them until they can be binary sorted 
          * if their length < minLength
          */

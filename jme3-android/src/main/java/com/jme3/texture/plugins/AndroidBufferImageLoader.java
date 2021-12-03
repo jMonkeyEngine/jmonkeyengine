@@ -41,17 +41,18 @@ import com.jme3.texture.Image;
 import com.jme3.texture.image.ColorSpace;
 import com.jme3.util.BufferUtils;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.BufferedInputStream;
 import java.nio.ByteBuffer;
 
 /**
  * Loads textures using Android's Bitmap class, but does not have the 
  * RGBA8 alpha bug.
+ *
+ * See below link for supported image formats:
+ * https://developer.android.com/guide/topics/media/media-formats#image-formats
  * 
  * @author Kirill Vainer
  */
-@Deprecated
 public class AndroidBufferImageLoader implements AssetLoader {
     
     private final byte[] tempData = new byte[16 * 1024];
@@ -83,7 +84,15 @@ public class AndroidBufferImageLoader implements AssetLoader {
         options.inInputShareable = true;
         options.inPurgeable = true;
         options.inSampleSize = 1;
-        
+        // Do not premultiply alpha channel as it is not intended
+        // to be directly drawn by the android view system.
+        options.inPremultiplied = false;
+
+        // TODO: It is more GC friendly to reuse the Bitmap class instead of recycling
+        //  it on every image load. Android has introduced inBitmap option For this purpose.
+        //  However, there are certain restrictions with how inBitmap can be used.
+        //  See https://developer.android.com/topic/performance/graphics/manage-memory#inBitmap.
+
         try (final BufferedInputStream bin = new BufferedInputStream(assetInfo.openStream())) {
             bitmap = BitmapFactory.decodeStream(bin, null, options);
             if (bitmap == null) {

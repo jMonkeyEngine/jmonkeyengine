@@ -92,7 +92,7 @@ public abstract class AudioData extends NativeObject {
     }
 
     /**
-     * Setup the format of the audio data.
+     * Sets the format of the audio data.
      * @param channels # of channels, 1 = mono, 2 = stereo
      * @param bitsPerSample Bits per sample, e.g 8 bits, 16 bits.
      * @param sampleRate Sample rate, 44100, 22050, etc.

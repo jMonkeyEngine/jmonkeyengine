@@ -225,7 +225,7 @@ public class Animation implements Savable, Cloneable, JmeCloneable {
     @Override   
     public void cloneFields( Cloner cloner, Object original ) {
          
-        // There is some logic here that I'm copying but I'm not sure if
+        // There is some logic here that I'm copying, but I'm not sure if
         // it's a mistake or not.  If a track is not a CloneableTrack then it
         // isn't cloned at all... even though they all implement clone() methods. -pspeed
         SafeArrayList<Track> newTracks = new SafeArrayList<>(Track.class);
@@ -261,8 +261,8 @@ public class Animation implements Savable, Cloneable, JmeCloneable {
 
         Savable[] arr = in.readSavableArray("tracks", null);
         if (arr != null) {
-            // NOTE: Backward compat only .. Some animations have no
-            // tracks set at all even though it makes no sense.
+            // NOTE: Backward compatibility only. Some animations have no
+            // tracks set at all, even though it makes no sense.
             // Since there's a null check in setTime(),
             // it's only appropriate that the check is made here as well.
             tracks = new SafeArrayList<>(Track.class);

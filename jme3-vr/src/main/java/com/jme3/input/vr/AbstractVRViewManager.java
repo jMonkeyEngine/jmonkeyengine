@@ -17,7 +17,7 @@ import com.jme3.texture.Texture2D;
 
 /**
  * A VR view manager. This class holds methods that enable to submit 3D views to the VR compositor. 
- * System dependent classes should extends from this one.
+ * System-dependent classes should extend this one.
  * @author Julien Seinturier - COMEX SA - <a href="http://www.seinturier.fr">http://www.seinturier.fr</a>
  */
 public abstract class AbstractVRViewManager implements VRViewManager {
@@ -168,7 +168,7 @@ public abstract class AbstractVRViewManager implements VRViewManager {
     		}
     		
     		if (environment.getApplication() != null){
-    			// setup post processing filters
+    			// set up post-processing filters
                 if( getRightPostProcessor() == null ) {
                     rightPostProcessor = new FilterPostProcessor(environment.getApplication().getAssetManager());               
                     leftPostProcessor =  new FilterPostProcessor(environment.getApplication().getAssetManager());

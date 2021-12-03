@@ -493,7 +493,9 @@ public class GeometryBatchFactory {
             for (VertexBuffer buffer : geom.getMesh().getBufferList()) {
                 if (types.get(buffer.getBufferType()) == null) {
                     types.put(buffer.getBufferType(), buffer);
-                    logger.log(Level.FINE, buffer.getBufferType().toString());
+                    if (logger.isLoggable(Level.FINE)) {
+                        logger.log(Level.FINE, buffer.getBufferType().toString());
+                    }
                 }
                 Integer count = typesCount.get(buffer.getBufferType());
                 if (count == null) {
@@ -512,8 +514,9 @@ public class GeometryBatchFactory {
                         Integer count = typesCount.get(buffer.getBufferType());
                         if (count != null && count < geoms.size()) {
                             geom.getMesh().clearBuffer(buffer.getBufferType());
-                            logger.log(Level.FINE, "removing {0} from {1}", new Object[]{buffer.getBufferType(), geom.getName()});
-
+                            if (logger.isLoggable(Level.FINE)) {
+                                logger.log(Level.FINE, "removing {0} from {1}", new Object[]{buffer.getBufferType(), geom.getName()});
+                            }
                         }
                     }
                 }
@@ -538,7 +541,9 @@ public class GeometryBatchFactory {
                             }
                             vb.setupData(types.get(type).getUsage(), types.get(type).getNumComponents(), types.get(type).getFormat(), b);
                             geom.getMesh().setBuffer(vb);
-                            logger.log(Level.FINE, "geom {0} misses buffer {1}. Creating", new Object[]{geom.getName(), type});
+                            if (logger.isLoggable(Level.FINE)) {
+                                logger.log(Level.FINE, "geom {0} misses buffer {1}. Creating", new Object[]{geom.getName(), type});
+                            }
                         }
                     }
                 }

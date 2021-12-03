@@ -70,8 +70,10 @@ public class IosTouchHandler {
     }
     
     public void actionDown(int pointerId, long time, float x, float y) {
-        logger.log(Level.FINE, "Inject input pointer: {0}, time: {1}, x: {2}, y: {3}", 
-                new Object[]{pointerId, time, x, y});
+        if (logger.isLoggable(Level.FINE)) {
+            logger.log(Level.FINE, "Inject input pointer: {0}, time: {1}, x: {2}, y: {3}",
+                    new Object[]{pointerId, time, x, y});
+        }
         float jmeX = iosInput.getJmeX(x);
         float jmeY = iosInput.invertY(iosInput.getJmeY(y));
         TouchEvent touch = iosInput.getFreeTouchEvent();

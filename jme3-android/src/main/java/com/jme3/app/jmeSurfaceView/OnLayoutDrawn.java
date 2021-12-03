@@ -29,47 +29,22 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package jme3test.light.pbr;
+package com.jme3.app.jmeSurfaceView;
 
-import com.jme3.environment.generation.JobProgressAdapter;
-import com.jme3.light.LightProbe;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import android.view.View;
+import com.jme3.app.LegacyApplication;
 
 /**
- * A basic logger for environment map rendering progress.
- * @author nehon
+ * An interface used for dispatching an event when the layout holding the {@link android.opengl.GLSurfaceView} is drawn,
+ * the event is dispatched on the user activity context thread.
+ *
+ * @author pavl_g.
  */
-public class ConsoleProgressReporter extends JobProgressAdapter<LightProbe>{
-
-    private static final Logger logger = Logger.getLogger(ConsoleProgressReporter.class.getName());
-    
-    private long time;
-
-    @Override
-    public void start() {
-        time = System.currentTimeMillis();
-        logger.log(Level.INFO,"Starting generation");
-    }
-
-    @Override
-    public void progress(double value) {
-        if (logger.isLoggable(Level.INFO)) {
-            logger.log(Level.INFO, "Progress : {0}%", (value * 100));
-        }
-    }
-
-    @Override
-    public void step(String message) {       
-        logger.info(message);
-    }
-    
-    @Override
-    public void done(LightProbe result) {
-        long end = System.currentTimeMillis();
-        if (logger.isLoggable(Level.INFO)) {
-            logger.log(Level.INFO, "Generation done in {0}", (end - time) / 1000f);
-        }
-    }
-    
+public interface OnLayoutDrawn {
+    /**
+     * Dispatched when the layout is drawn on the screen.
+     * @param legacyApplication the application instance.
+     * @param layout the current layout.
+     */
+    void onLayoutDrawn(LegacyApplication legacyApplication, View layout);
 }

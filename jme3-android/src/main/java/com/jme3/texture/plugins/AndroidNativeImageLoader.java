@@ -40,8 +40,6 @@ import java.io.InputStream;
 
 /**
  * Native image loader to deal with filetypes that support alpha channels.
- * The Android Bitmap class premultiplies the channels by the alpha when
- * loading.  This loader does not.
  *
  * @author iwgeric
  * @author Kirill Vainer

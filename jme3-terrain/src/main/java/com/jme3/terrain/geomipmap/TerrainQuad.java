@@ -549,9 +549,9 @@ public class TerrainQuad extends Node implements Terrain {
      * size, then patches are created, otherwise, quads are created.
      *
      * @param blockSize
-     *			the blocks size to test against.
+     *            the blocks size to test against.
      * @param heightMap
-     *			the height data.
+     *            the height data.
      */
     protected void split(int blockSize, float[] heightMap) {
         if ((size >> 1) + 1 <= blockSize) {
@@ -1765,7 +1765,7 @@ public class TerrainQuad extends Node implements Terrain {
         return this.clone(true);
     }
 
-	@Override
+    @Override
     public TerrainQuad clone(boolean cloneMaterials) {
         TerrainQuad quadClone = (TerrainQuad) super.clone(cloneMaterials);
         quadClone.name = name.toString();

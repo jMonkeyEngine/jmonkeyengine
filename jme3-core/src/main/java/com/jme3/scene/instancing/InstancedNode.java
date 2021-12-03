@@ -326,12 +326,12 @@ public class InstancedNode extends GeometryGroupNode {
     }
 
     @Override
-    public Node clone() {
+    public InstancedNode clone() {
         return clone(true);
     }
 
     @Override
-    public Node clone(boolean cloneMaterials) {
+    public InstancedNode clone(boolean cloneMaterials) {
         InstancedNode clone = (InstancedNode)super.clone(cloneMaterials);
 
         if (instancesMap.size() > 0) {

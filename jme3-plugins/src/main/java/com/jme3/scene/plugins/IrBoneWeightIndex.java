@@ -42,9 +42,9 @@ public class IrBoneWeightIndex implements Cloneable, Comparable<IrBoneWeightInde
     }
 
     @Override
-    public Object clone() {
+    public IrBoneWeightIndex clone() {
         try {
-            return super.clone();
+            return (IrBoneWeightIndex)super.clone();
         } catch (CloneNotSupportedException ex) {
             throw new AssertionError(ex);
         }
