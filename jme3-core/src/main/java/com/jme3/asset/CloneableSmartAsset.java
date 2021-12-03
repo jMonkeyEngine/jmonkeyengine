@@ -62,7 +62,7 @@ public interface CloneableSmartAsset extends Cloneable {
      * @return A clone of this asset. 
      * The cloned asset cannot reference equal this asset.
      */
-    public Object clone();
+    public CloneableSmartAsset clone();
     
     /**
      * Set by the {@link AssetManager} to track this asset. 
