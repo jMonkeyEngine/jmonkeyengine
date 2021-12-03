@@ -57,6 +57,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.*;
+import org.lwjgl.system.Platform;
+
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.GL_FALSE;
 import static org.lwjgl.system.MemoryUtil.NULL;
@@ -478,8 +480,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         }
 
 
-        String osName = System.getProperty("os.name");
-        if ( osName.contains("Mac") ) {
+        if (Platform.get() == Platform.MACOSX) {
            // NOTE: this is required for Mac OS X!
            mainThread = Thread.currentThread();
            mainThread.setName("jME3 Main");
