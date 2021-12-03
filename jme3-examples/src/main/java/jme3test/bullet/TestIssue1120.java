@@ -65,7 +65,7 @@ import java.util.List;
  */
 public class TestIssue1120 extends SimpleApplication {
 
-    private static TestIssue1120 test;
+//    private static TestIssue1120 test;
     private BulletAppState bulletAppState;
     private final boolean physicsDebug = true;
     private BitmapText speedText;
@@ -74,7 +74,7 @@ public class TestIssue1120 extends SimpleApplication {
     private float bulletSpeed = 0.5f;
 
     public static void main(String[] args) {
-        test = new TestIssue1120();
+        TestIssue1120 test = new TestIssue1120();
         test.setSettings(new AppSettings(true));
         test.settings.setFrameRate(60);
         if (SKIP_SETTINGS) {
@@ -139,10 +139,10 @@ public class TestIssue1120 extends SimpleApplication {
 
         float lineHeight = testInfo[0].getLineHeight();
         testInfo[0].setText("Camera move: W/A/S/D/Q/Z     +/-: Increase/Decrease Speed");
-        testInfo[0].setLocalTranslation(5, test.settings.getHeight(), 0);
+        testInfo[0].setLocalTranslation(5, settings.getHeight(), 0);
         guiNode.attachChild(testInfo[0]);
         testInfo[1].setText("Left Click: Toggle pause            Space: Restart test");
-        testInfo[1].setLocalTranslation(5, test.settings.getHeight() - lineHeight, 0);
+        testInfo[1].setLocalTranslation(5, settings.getHeight() - lineHeight, 0);
         guiNode.attachChild(testInfo[1]);
 
         speedText.setLocalTranslation(202, lineHeight * 1, 0);
