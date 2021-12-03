@@ -486,7 +486,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
            mainThread.setName("jME3 Main");
            if (waitFor)
               LOGGER.warning("create() called with unsupported waitFor command!");
-           mainThread.run();
+           run();
         } else {
            new Thread(this, "jME3 Main").start();
            if (waitFor)
