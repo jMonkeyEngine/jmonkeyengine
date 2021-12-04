@@ -230,7 +230,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable,
      * avoid exposing it to the public API since it is only used by Node.
      */
     boolean requiresUpdates() {
-        return requiresUpdates | !controls.isEmpty();
+        return requiresUpdates || !controls.isEmpty();
     }
 
     /**
