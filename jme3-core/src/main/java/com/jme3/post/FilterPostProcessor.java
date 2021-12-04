@@ -41,7 +41,6 @@ import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image.Format;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture2D;
-import com.jme3.texture.FrameBuffer.FrameBufferBufferTarget;
 import com.jme3.texture.FrameBuffer.FrameBufferTarget;
 import com.jme3.ui.Picture;
 import com.jme3.util.SafeArrayList;

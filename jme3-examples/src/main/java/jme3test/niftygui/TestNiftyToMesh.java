@@ -44,7 +44,6 @@ import com.jme3.texture.Image.Format;
 import com.jme3.texture.Texture.MagFilter;
 import com.jme3.texture.Texture.MinFilter;
 import com.jme3.texture.Texture2D;
-import com.jme3.texture.FrameBuffer.FrameBufferBufferTarget;
 import com.jme3.texture.FrameBuffer.FrameBufferTarget;
 
 import de.lessvoid.nifty.Nifty;

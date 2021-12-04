@@ -47,9 +47,7 @@ import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image.Format;
 import com.jme3.texture.Texture;
 import com.jme3.texture.TextureCubeMap;
-import com.jme3.texture.FrameBuffer.FrameBufferBufferTarget;
 import com.jme3.texture.FrameBuffer.FrameBufferTarget;
-import com.jme3.texture.FrameBuffer.FrameBufferTextureTarget;
 import com.jme3.util.SkyFactory;
 import com.jme3.util.SkyFactory.EnvMapType;
 

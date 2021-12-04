@@ -44,7 +44,6 @@ import com.jme3.texture.Image.Format;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture2D;
 import com.jme3.texture.FrameBuffer.FrameBufferTarget;
-
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
