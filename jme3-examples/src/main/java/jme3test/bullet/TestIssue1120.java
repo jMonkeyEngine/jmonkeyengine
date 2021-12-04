@@ -65,7 +65,6 @@ import java.util.List;
  */
 public class TestIssue1120 extends SimpleApplication {
 
-//    private static TestIssue1120 test;
     private BulletAppState bulletAppState;
     private final boolean physicsDebug = true;
     private BitmapText speedText;
