@@ -59,9 +59,7 @@ import com.jme3.texture.Texture.MagFilter;
 import com.jme3.texture.Texture.MinFilter;
 import com.jme3.texture.Texture.ShadowCompareMode;
 import com.jme3.texture.Texture2D;
-import com.jme3.texture.FrameBuffer.FrameBufferBufferTarget;
 import com.jme3.texture.FrameBuffer.FrameBufferTarget;
-import com.jme3.texture.FrameBuffer.FrameBufferTextureTarget;
 import com.jme3.ui.Picture;
 
 import java.io.IOException;
