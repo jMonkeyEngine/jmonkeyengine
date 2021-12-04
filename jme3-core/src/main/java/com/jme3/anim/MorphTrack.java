@@ -128,8 +128,6 @@ public class MorphTrack implements AnimTrack<float[]> {
             }
 
             this.weights = weights;
-
-            assert times.length == weights.length;
         }
     }
 
