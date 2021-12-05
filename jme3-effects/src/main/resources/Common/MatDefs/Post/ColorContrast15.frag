@@ -79,10 +79,10 @@ void main() {
     color.g = pow(color.g, m_greenChannelExponent);
     color.b = pow(color.b, m_blueChannelExponent);
 
-    //3) apply a final scale factor, between 0.0 and 1.0.
-    color.r = color.r * min(max(m_redChannelScale, 0.0), 1.0);
-    color.b = color.b * min(max(m_blueChannelScale, 0.0), 1.0);
-    color.g = color.g * min(max(m_greenChannelScale, 0.0), 1.0);
+    //3) scale the output levels
+    color.r = color.r * m_redChannelScale;
+    color.b = color.b * m_blueChannelScale;
+    color.g = color.g * m_greenChannelScale;
 
     //4) process the textures colors.
     fragColor = color;
