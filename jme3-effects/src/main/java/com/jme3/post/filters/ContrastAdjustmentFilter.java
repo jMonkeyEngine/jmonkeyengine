@@ -261,9 +261,6 @@ public class ContrastAdjustmentFilter extends Filter {
 
     @Override
     protected Material getMaterial() {
-        if (material == null) {
-            throw new IllegalStateException("Cannot create a color filter from a null reference !");
-        }
         return material;
     }
 
