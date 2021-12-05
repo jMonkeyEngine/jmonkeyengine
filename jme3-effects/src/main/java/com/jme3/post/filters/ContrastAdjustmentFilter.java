@@ -99,18 +99,54 @@ public class ContrastAdjustmentFilter extends Filter {
      * @param blueChannelExponent  the blue channel exponent.
      * @return this filter instance for a chain call.
      */
-    public ContrastAdjustmentFilter setExponents(float redChannelExponent, float greenChannelExponent, float blueChannelExponent) {
-        this.redChannelExponent = redChannelExponent;
-        this.greenChannelExponent = greenChannelExponent;
-        this.blueChannelExponent = blueChannelExponent;
+    public ContrastAdjustmentFilter setExponents(float redChannelExponent, float greenChannelExponent,
+            float blueChannelExponent) {
+        setRedExponent(redChannelExponent);
+        setGreenExponent(greenChannelExponent);
+        setBlueExponent(blueChannelExponent);
 
-        if (material == null) {
-            return this;
+        return this;
+    }
+
+    /**
+     * Sets the power-law exponent for the red channel.
+     *
+     * @param exponent the desired exponent (default=1)
+     * @return this filter instance, for chaining
+     */
+    public ContrastAdjustmentFilter setRedExponent(float exponent) {
+        this.redChannelExponent = exponent;
+        if (material != null) {
+            material.setFloat("redChannelExponent", redChannelExponent);
         }
-        //different channels exp for different transfer functions
-        material.setFloat("redChannelExponent", redChannelExponent);
-        material.setFloat("greenChannelExponent", greenChannelExponent);
-        material.setFloat("blueChannelExponent", blueChannelExponent);
+        return this;
+    }
+
+    /**
+     * Sets the power-law exponent for the green channel.
+     *
+     * @param exponent the desired exponent (default=1)
+     * @return this filter instance, for chaining
+     */
+    public ContrastAdjustmentFilter setGreenExponent(float exponent) {
+        this.greenChannelExponent = exponent;
+        if (material != null) {
+            material.setFloat("greenChannelExponent", greenChannelExponent);
+        }
+        return this;
+    }
+
+    /**
+     * Sets the power-law exponent for the blue channel.
+     *
+     * @param exponent the desired exponent (default=1)
+     * @return this filter instance, for chaining
+     */
+    public ContrastAdjustmentFilter setBlueExponent(float exponent) {
+        this.blueChannelExponent = exponent;
+        if (material != null) {
+            material.setFloat("blueChannelExponent", blueChannelExponent);
+        }
         return this;
     }
 
@@ -153,16 +189,36 @@ public class ContrastAdjustmentFilter extends Filter {
      * @return this filter instance for a chain call.
      */
     public ContrastAdjustmentFilter setInputRange(float lowerLimit, float upperLimit) {
-        this.lowerLimit = lowerLimit;
-        this.upperLimit = upperLimit;
+        setLowerLimit(lowerLimit);
+        setUpperLimit(upperLimit);
+        return this;
+    }
 
-        if (material == null) {
-            return this;
+    /**
+     * Sets the upper limit of the input range.
+     *
+     * @param level the input level that should be normalized to 1 (default=1)
+     * @return this filter instance, for chaining
+     */
+    public ContrastAdjustmentFilter setUpperLimit(float level) {
+        this.upperLimit = level;
+        if (material != null) {
+            material.setFloat("upperLimit", upperLimit);
         }
+        return this;
+    }
 
-        //inputRange values
-        material.setFloat("lowerLimit", lowerLimit);
-        material.setFloat("upperLimit", upperLimit);
+    /**
+     * Sets the lower limit of the input range.
+     *
+     * @param level the input level that should be normalized to 0 (default=0)
+     * @return this filter instance, for chaining
+     */
+    public ContrastAdjustmentFilter setLowerLimit(float level) {
+        this.lowerLimit = level;
+        if (material != null) {
+            material.setFloat("lowerLimit", lowerLimit);
+        }
         return this;
     }
 
@@ -195,19 +251,54 @@ public class ContrastAdjustmentFilter extends Filter {
      * @param blueChannelScale  the blue channel scale.
      * @return this filter instance for a chain call.
      */
-    public ContrastAdjustmentFilter setScales(float redChannelScale, float greenChannelScale, float blueChannelScale) {
-        this.redChannelScale = redChannelScale;
-        this.greenChannelScale = greenChannelScale;
-        this.blueChannelScale = blueChannelScale;
+    public ContrastAdjustmentFilter setScales(float redChannelScale, float greenChannelScale,
+            float blueChannelScale) {
+        setRedScale(redChannelScale);
+        setGreenScale(greenChannelScale);
+        setBlueScale(blueChannelScale);
 
-        if (material == null) {
-            return this;
+        return this;
+    }
+
+    /**
+     * Sets the output scale factor for the red channel.
+     *
+     * @param factor the desired scale factor (default=1)
+     * @return this filter instance, for chaining
+     */
+    public ContrastAdjustmentFilter setRedScale(float factor) {
+        this.redChannelScale = factor;
+        if (material != null) {
+            material.setFloat("redChannelScale", redChannelScale);
         }
+        return this;
+    }
 
-        //adjust the scales of different channels through the material file
-        material.setFloat("redChannelScale", redChannelScale);
-        material.setFloat("greenChannelScale", greenChannelScale);
-        material.setFloat("blueChannelScale", blueChannelScale);
+    /**
+     * Sets the output scale factor for the green channel.
+     *
+     * @param factor the desired scale factor (default=1)
+     * @return this filter instance, for chaining
+     */
+    public ContrastAdjustmentFilter setGreenScale(float factor) {
+        this.greenChannelScale = factor;
+        if (material != null) {
+            material.setFloat("greenChannelScale", greenChannelScale);
+        }
+        return this;
+    }
+
+    /**
+     * Sets the output scale factor for the blue channel.
+     *
+     * @param factor the desired scale factor (default=1)
+     * @return this filter instance, for chaining
+     */
+    public ContrastAdjustmentFilter setBlueScale(float factor) {
+        this.blueChannelScale = factor;
+        if (material != null) {
+            material.setFloat("blueChannelScale", blueChannelScale);
+        }
         return this;
     }
 
