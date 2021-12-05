@@ -43,10 +43,8 @@ import com.jme3.renderer.ViewPort;
 import java.io.IOException;
 
 /**
- * A color filter used to adjust the contrast for color channels of the rendered scene by using a
- * simple transfer function which involves adjusting the input range of the color channels based on
- * an upper and a lower limit, adjusting the exponent of different color channels and scaling the output values
- * before being processed by the fragment shader.
+ * A filter to adjust the colors of a rendered scene by normalizing each color channel to a specified range,
+ * applying a power law, and scaling the output. The alpha channel is unaffected.
  *
  * @author pavl_g.
  */
