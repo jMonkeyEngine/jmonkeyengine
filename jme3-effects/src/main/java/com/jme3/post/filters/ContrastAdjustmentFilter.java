@@ -66,7 +66,6 @@ public class ContrastAdjustmentFilter extends Filter {
     protected float redChannelScale = 1f;
     protected float greenChannelScale = 1f;
     protected float blueChannelScale = 1f;
-    protected Material material;
 
     /**
      * Instantiates a default color contrast filter, default input range and default scale.
