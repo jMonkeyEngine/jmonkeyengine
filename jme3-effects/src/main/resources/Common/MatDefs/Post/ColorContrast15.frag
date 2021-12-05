@@ -71,8 +71,11 @@ void main() {
 
     //1) adjust the channels input range
     color.rgb = (color.rgb - vec3(m_lowerLimit)) / (vec3(m_upperLimit) - vec3(m_lowerLimit));
-    // limit the chromaticity space into the +ve quadrant
-    color.rgb = abs(color.rgb);
+
+    // avoid negative levels
+    color.r = max(color.r, 0.0);
+    color.g = max(color.g, 0.0);
+    color.b = max(color.b, 0.0);
 
     //2) apply transfer functions on different channels.
     color.r = pow(color.r, m_redChannelExponent);
