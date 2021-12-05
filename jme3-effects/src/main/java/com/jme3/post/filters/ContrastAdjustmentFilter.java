@@ -382,4 +382,19 @@ public class ContrastAdjustmentFilter extends Filter {
         outputCapsule.write(greenChannelScale, "greenChannelScale", 1f);
         outputCapsule.write(blueChannelScale, "blueChannelScale", 1f);
     }
+
+    /**
+     * Represent this Filter as a String.
+     *
+     * @return a descriptive string of text (not null)
+     */
+    @Override
+    public String toString() {
+        String result = String.format(
+                "input(%.3f, %.3f) exp(%.3f, %.3f, %.3f) scale(%.3f, %.3f, %.3f)",
+                lowerLimit, upperLimit,
+                redChannelExponent, greenChannelExponent, blueChannelExponent,
+                redChannelScale, greenChannelScale, blueChannelScale);
+        return result;
+    }
 }
