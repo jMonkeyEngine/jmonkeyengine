@@ -86,7 +86,9 @@ public class ContrastAdjustmentFilter extends Filter {
      */
     public ContrastAdjustmentFilter(float exponent) {
         this();
-        setExponents(exponent, exponent, exponent);
+        this.redChannelExponent = exponent;
+        this.greenChannelExponent = exponent;
+        this.blueChannelExponent = exponent;
     }
 
 
