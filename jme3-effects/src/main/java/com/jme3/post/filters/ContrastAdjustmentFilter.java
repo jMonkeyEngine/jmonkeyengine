@@ -50,22 +50,22 @@ import java.io.IOException;
  */
 public class ContrastAdjustmentFilter extends Filter {
 
-    protected float redChannelExponent;
-    protected float greenChannelExponent;
-    protected float blueChannelExponent;
+    protected float redChannelExponent = 1f;
+    protected float greenChannelExponent = 1f;
+    protected float blueChannelExponent = 1f;
     /**
      * Lower limit of the input range for all color channels: a level that the filter normalizes to 0.
      */
-    protected float lowerLimit;
+    protected float lowerLimit = 0f;
     /**
      * Upper limit of the input range for all color channels: the level that the filter normalizes to 1
      * (before output scaling).
      */
-    protected float upperLimit;
+    protected float upperLimit = 1f;
     //the final pass scale factor
-    protected float redChannelScale;
-    protected float greenChannelScale;
-    protected float blueChannelScale;
+    protected float redChannelScale = 1f;
+    protected float greenChannelScale = 1f;
+    protected float blueChannelScale = 1f;
     protected Material material;
 
     /**
@@ -77,7 +77,7 @@ public class ContrastAdjustmentFilter extends Filter {
      * - Scale = 1.0f on all channels.
      */
     public ContrastAdjustmentFilter() {
-        this(1f);
+        super("Contrast Adjustment");
     }
 
     /**
@@ -86,6 +86,7 @@ public class ContrastAdjustmentFilter extends Filter {
      * @param exponent an exponent to apply on all channels.
      */
     public ContrastAdjustmentFilter(float exponent) {
+        this();
         setExponents(exponent, exponent, exponent);
     }
 
