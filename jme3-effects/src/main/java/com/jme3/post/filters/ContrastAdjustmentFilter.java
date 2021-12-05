@@ -53,8 +53,14 @@ public class ContrastAdjustmentFilter extends Filter {
     protected float redChannelExponent;
     protected float greenChannelExponent;
     protected float blueChannelExponent;
-    //the lower value and the upper value of the inputRange
+    /**
+     * Lower limit of the input range for all color channels: a level that the filter normalizes to 0.
+     */
     protected float lowerLimit;
+    /**
+     * Upper limit of the input range for all color channels: the level that the filter normalizes to 1
+     * (before output scaling).
+     */
     protected float upperLimit;
     //the final pass scale factor
     protected float redChannelScale;
@@ -139,14 +145,11 @@ public class ContrastAdjustmentFilter extends Filter {
     }
 
     /**
-     * Sets the color channels input range using a lowerLimit and an upperLimit based on this equation :
-     * color.rgb = (color.rgb - lowerLimit) / (upperLimit - lowerLimit)
-     * where; increasing the lowerLimit value and increasing the difference between upperLimit and lowerLimit would decrease the input range,
-     * while decreasing the lowerLimit value and increasing the difference between upperLimit and lowerLimit would increase the input range.
-     * The final input range value is always above 0.0.
+     * Sets the input range for all color channels. Before applying the power law, the input levels get
+     * normalized so that lowerLimit becomes 0 and upperLimit becomes 1.
      *
-     * @param lowerLimit the lower value of the color channels input range, default is 0f.
-     * @param upperLimit the higher value of the color channels input range, default is 1f.
+     * @param lowerLimit the desired lower limit (default=0)
+     * @param upperLimit the desired upper limit (default=1)
      * @return this filter instance for a chain call.
      */
     public ContrastAdjustmentFilter setInputRange(float lowerLimit, float upperLimit) {
@@ -164,20 +167,20 @@ public class ContrastAdjustmentFilter extends Filter {
     }
 
     /**
-     * Retrieves the channels input range lower limit.
+     * Returns the lower limit of the input range.
      * Default value = 0.0.
      *
-     * @return the lower limit of the channels input range.
+     * @return the lower limit
      */
     public float getInputRangeLowerLimit() {
         return lowerLimit;
     }
 
     /**
-     * Retrieves the channels input range upper limit.
+     * Returns the upper limit of the input range.
      * Default value = 1.0.
      *
-     * @return the upper limit of the channels input range.
+     * @return the upper limit
      */
     public float getInputRangeUpperLimit() {
         return upperLimit;
