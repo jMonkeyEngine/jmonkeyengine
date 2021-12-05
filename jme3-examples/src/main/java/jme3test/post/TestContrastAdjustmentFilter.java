@@ -32,11 +32,12 @@
 package jme3test.post;
 
 import com.jme3.app.SimpleApplication;
+import com.jme3.input.KeyInput;
+import com.jme3.input.controls.AnalogListener;
+import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.AmbientLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
-import com.jme3.math.Vector2f;
-import com.jme3.math.Vector3f;
 import com.jme3.post.FilterPostProcessor;
 import com.jme3.post.filters.ContrastAdjustmentFilter;
 import com.jme3.scene.Geometry;
@@ -50,7 +51,6 @@ import com.jme3.texture.Texture;
  */
 public class TestContrastAdjustmentFilter extends SimpleApplication {
 
-    private float counter = 0f;
     private ContrastAdjustmentFilter contrastAdjustmentFilter;
 
     public static void main(String[] args) {
@@ -83,19 +83,92 @@ public class TestContrastAdjustmentFilter extends SimpleApplication {
         postProcessor.addFilter(contrastAdjustmentFilter);
         viewPort.addProcessor(postProcessor);
 
+        setUpUserInterface();
     }
 
-    @Override
-    public void simpleUpdate(float tpf) {
-        counter += tpf;
-        if (counter >= 4f) {
-            counter = 0f;
-        }
-        if (contrastAdjustmentFilter != null) {
-            //adjust the transfer function during runtime
-            contrastAdjustmentFilter.setScales(counter * 0.5f, counter, counter * 0.5f)
-                                    .setExponents(counter, counter * 2f, counter)
-                                    .setInputRange(0, 1 / counter);
-        }
+    private void setUpUserInterface() {
+        AnalogListener analog = new AnalogListener() {
+            @Override
+            public void onAnalog(String name, float value, float tpf) {
+                float increment = name.endsWith("+") ? 0.01f : -0.01f;
+
+                if (name.startsWith("lower")) {
+                    float newValue = contrastAdjustmentFilter.getInputRangeLowerLimit() + increment;
+                    contrastAdjustmentFilter.setLowerLimit(newValue);
+
+                } else if (name.startsWith("upper")) {
+                    float newValue = contrastAdjustmentFilter.getInputRangeUpperLimit() + increment;
+                    contrastAdjustmentFilter.setUpperLimit(newValue);
+
+                } else if (name.startsWith("re")) {
+                    float newValue = contrastAdjustmentFilter.getRedChannelExponent() + increment;
+                    contrastAdjustmentFilter.setRedExponent(newValue);
+
+                } else if (name.startsWith("ge")) {
+                    float newValue = contrastAdjustmentFilter.getGreenChannelExponent() + increment;
+                    contrastAdjustmentFilter.setGreenExponent(newValue);
+
+                } else if (name.startsWith("be")) {
+                    float newValue = contrastAdjustmentFilter.getBlueChannelExponent() + increment;
+                    contrastAdjustmentFilter.setBlueExponent(newValue);
+
+                } else if (name.startsWith("rs")) {
+                    float newValue = contrastAdjustmentFilter.getRedChannelScale() + increment;
+                    contrastAdjustmentFilter.setRedScale(newValue);
+
+                } else if (name.startsWith("gs")) {
+                    float newValue = contrastAdjustmentFilter.getGreenChannelScale() + increment;
+                    contrastAdjustmentFilter.setGreenScale(newValue);
+
+                } else if (name.startsWith("bs")) {
+                    float newValue = contrastAdjustmentFilter.getBlueChannelScale() + increment;
+                    contrastAdjustmentFilter.setBlueScale(newValue);
+                }
+                
+                System.out.println(contrastAdjustmentFilter);
+            }
+        };
+
+        System.out.println("lower limit:     press R to increase, F to decrease");
+        inputManager.addMapping("lower+", new KeyTrigger(KeyInput.KEY_R));
+        inputManager.addMapping("lower-", new KeyTrigger(KeyInput.KEY_F));
+        inputManager.addListener(analog, "lower+", "lower-");
+
+        System.out.println("upper limit:     press T to increase, G to decrease");
+        inputManager.addMapping("upper+", new KeyTrigger(KeyInput.KEY_T));
+        inputManager.addMapping("upper-", new KeyTrigger(KeyInput.KEY_G));
+        inputManager.addListener(analog, "upper+", "upper-");
+
+        System.out.println("red exponent:    press Y to increase, H to decrease");
+        inputManager.addMapping("re+", new KeyTrigger(KeyInput.KEY_Y));
+        inputManager.addMapping("re-", new KeyTrigger(KeyInput.KEY_H));
+        inputManager.addListener(analog, "re+", "re-");
+
+        System.out.println("green exponent:  press U to increase, J to decrease");
+        inputManager.addMapping("ge+", new KeyTrigger(KeyInput.KEY_U));
+        inputManager.addMapping("ge-", new KeyTrigger(KeyInput.KEY_J));
+        inputManager.addListener(analog, "ge+", "ge-");
+
+        System.out.println("blue exponent:   press I to increase, K to decrease");
+        inputManager.addMapping("be+", new KeyTrigger(KeyInput.KEY_I));
+        inputManager.addMapping("be-", new KeyTrigger(KeyInput.KEY_K));
+        inputManager.addListener(analog, "be+", "be-");
+
+        System.out.println("red scale:       press O to increase, L to decrease");
+        inputManager.addMapping("rs+", new KeyTrigger(KeyInput.KEY_O));
+        inputManager.addMapping("rs-", new KeyTrigger(KeyInput.KEY_L));
+        inputManager.addListener(analog, "rs+", "rs-");
+
+        System.out.println("green scale:     press P to increase, ; to decrease");
+        inputManager.addMapping("gs+", new KeyTrigger(KeyInput.KEY_P));
+        inputManager.addMapping("gs-", new KeyTrigger(KeyInput.KEY_SEMICOLON));
+        inputManager.addListener(analog, "gs+", "gs-");
+
+        System.out.println("blue scale:      press [ to increase, ' to decrease");
+        inputManager.addMapping("bs+", new KeyTrigger(KeyInput.KEY_LBRACKET));
+        inputManager.addMapping("bs-", new KeyTrigger(KeyInput.KEY_APOSTROPHE));
+        inputManager.addListener(analog, "bs+", "bs-");
+
+        System.out.println();
     }
 }
