@@ -118,7 +118,7 @@ public class TestContrastAdjustmentFilter extends SimpleApplication {
         AnalogListener analog = new AnalogListener() {
             @Override
             public void onAnalog(String name, float value, float tpf) {
-                float increment = name.endsWith("+") ? 0.01f : -0.01f;
+                float increment = name.endsWith("+") ? 0.3f * tpf : -0.3f * tpf;
 
                 if (name.startsWith("lower")) {
                     float newValue = contrastAdjustmentFilter.getLowerLimit() + increment;
