@@ -39,6 +39,7 @@ import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.AmbientLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
+import com.jme3.math.FastMath;
 import com.jme3.post.FilterPostProcessor;
 import com.jme3.post.filters.ContrastAdjustmentFilter;
 import com.jme3.scene.Geometry;
@@ -67,14 +68,16 @@ public class TestContrastAdjustmentFilter extends SimpleApplication {
 
     @Override
     public void simpleInitApp() {
-        //setup a spatial and a texture
-        final Sphere globe = new Sphere(40, 40, 5f);
-        final Geometry earth = new Geometry("Globe", globe);
+        /*
+         * Attach an unshaded globe to the scene.
+         */
+        final Sphere globe = new Sphere(40, 40, 3.5f);
+        final Geometry earth = new Geometry("Earth", globe);
+        earth.rotate(-FastMath.HALF_PI, 0f, 0f);
         final Material material = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         final Texture texture = assetManager.loadTexture("Textures/Sky/Earth/Earth.jpg");
         material.setTexture("ColorMap", texture);
         earth.setMaterial(material);
-
         rootNode.attachChild(earth);
 
         //add light
