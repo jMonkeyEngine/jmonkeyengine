@@ -50,22 +50,22 @@ import java.io.IOException;
  */
 public class ContrastAdjustmentFilter extends Filter {
 
-    protected float redExponent = 1f;
-    protected float greenExponent = 1f;
-    protected float blueExponent = 1f;
+    private float redExponent = 1f;
+    private float greenExponent = 1f;
+    private float blueExponent = 1f;
     /**
      * Lower limit of the input range for all color channels: a level that the filter normalizes to 0.
      */
-    protected float lowerLimit = 0f;
+    private float lowerLimit = 0f;
     /**
      * Upper limit of the input range for all color channels: the level that the filter normalizes to 1
      * (before output scaling).
      */
-    protected float upperLimit = 1f;
+    private float upperLimit = 1f;
     //the final pass scale factor
-    protected float redScale = 1f;
-    protected float greenScale = 1f;
-    protected float blueScale = 1f;
+    private float redScale = 1f;
+    private float greenScale = 1f;
+    private float blueScale = 1f;
 
     /**
      * Instantiates a default color contrast filter, default input range and default scale.
