@@ -80,10 +80,6 @@ public class TestContrastAdjustmentFilter extends SimpleApplication {
         earth.setMaterial(material);
         rootNode.attachChild(earth);
 
-        //add light
-        final AmbientLight ambientLight = new AmbientLight(ColorRGBA.White);
-        rootNode.addLight(ambientLight);
-
         //setup the filter
         final FilterPostProcessor postProcessor = new FilterPostProcessor(assetManager);
         contrastAdjustmentFilter = new ContrastAdjustmentFilter();
