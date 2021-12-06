@@ -79,15 +79,19 @@ public class TestContrastAdjustmentFilter extends SimpleApplication {
         earth.setMaterial(material);
         rootNode.attachChild(earth);
 
-        //setup the filter
         final FilterPostProcessor postProcessor = new FilterPostProcessor(assetManager);
+        int numSamples = settings.getSamples();
+        postProcessor.setNumSamples(numSamples);
+        viewPort.addProcessor(postProcessor);
+        /*
+         * Add the filter to be tested.
+         */
         contrastAdjustmentFilter = new ContrastAdjustmentFilter();
         //adjusting some parameters
         contrastAdjustmentFilter.setExponents(1.8f, 1.8f, 2.1f)
                                 .setInputRange(0, 0.367f)
                                 .setScales(0.25f, 0.25f, 1f);
         postProcessor.addFilter(contrastAdjustmentFilter);
-        viewPort.addProcessor(postProcessor);
 
         setUpUserInterface();
     }
