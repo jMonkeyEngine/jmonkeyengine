@@ -32,6 +32,7 @@
 package jme3test.post;
 
 import com.jme3.app.SimpleApplication;
+import com.jme3.font.BitmapText;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.AnalogListener;
 import com.jme3.input.controls.KeyTrigger;
@@ -51,6 +52,13 @@ import com.jme3.texture.Texture;
  */
 public class TestContrastAdjustmentFilter extends SimpleApplication {
 
+    /**
+     * Display filter status.
+     */
+    private BitmapText statusText;
+    /**
+     * The filter being tested.
+     */
     private ContrastAdjustmentFilter contrastAdjustmentFilter;
 
     public static void main(String[] args) {
@@ -86,7 +94,27 @@ public class TestContrastAdjustmentFilter extends SimpleApplication {
         setUpUserInterface();
     }
 
+    /**
+     * Update the status text.
+     *
+     * @param tpf unused
+     */
+    @Override
+    public void simpleUpdate(float tpf) {
+        String status = contrastAdjustmentFilter.toString();
+        statusText.setText(status);
+    }
+
     private void setUpUserInterface() {
+        /*
+         * Attach a BitmapText to display the status of the ContrastAdjustmentFilter.
+         */
+        statusText = new BitmapText(guiFont);
+        guiNode.attachChild(statusText);
+        statusText.setLocalTranslation(0f, cam.getHeight(), 0f);
+        /*
+         * Create a listener for user keypresses.
+         */
         AnalogListener analog = new AnalogListener() {
             @Override
             public void onAnalog(String name, float value, float tpf) {
@@ -124,8 +152,6 @@ public class TestContrastAdjustmentFilter extends SimpleApplication {
                     float newValue = contrastAdjustmentFilter.getBlueScale() + increment;
                     contrastAdjustmentFilter.setBlueScale(newValue);
                 }
-                
-                System.out.println(contrastAdjustmentFilter);
             }
         };
 
