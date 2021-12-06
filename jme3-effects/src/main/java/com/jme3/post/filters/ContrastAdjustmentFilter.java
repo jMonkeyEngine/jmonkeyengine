@@ -345,10 +345,6 @@ public class ContrastAdjustmentFilter extends Filter {
 
     @Override
     protected void initFilter(AssetManager manager, RenderManager renderManager, ViewPort vp, int w, int h) {
-        //validate app
-        if (manager == null || renderManager == null || vp == null || w == 0 || h == 0) {
-            return;
-        }
         material = new Material(manager, "Common/MatDefs/Post/ColorContrast.j3md");
 
         //different channels exp for different transfer functions
