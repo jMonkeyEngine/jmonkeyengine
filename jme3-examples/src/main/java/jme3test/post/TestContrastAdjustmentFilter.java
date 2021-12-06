@@ -46,8 +46,8 @@ import com.jme3.scene.shape.Sphere;
 import com.jme3.texture.Texture;
 
 /**
- * Tests {@link ContrastAdjustmentFilter} on different color channels with an
- * adjustable exponents, scales and an input range during runtime.
+ * A {@link ContrastAdjustmentFilter} with user-controlled exponents, scales, and input range.
+ *
  * @author pavl_g.
  */
 public class TestContrastAdjustmentFilter extends SimpleApplication {
