@@ -81,7 +81,9 @@ public class TestContrastAdjustmentFilter extends SimpleApplication {
 
         final FilterPostProcessor postProcessor = new FilterPostProcessor(assetManager);
         int numSamples = settings.getSamples();
-        postProcessor.setNumSamples(numSamples);
+        if (numSamples > 0) {
+            postProcessor.setNumSamples(numSamples);
+        }
         viewPort.addProcessor(postProcessor);
         /*
          * Add the filter to be tested.
