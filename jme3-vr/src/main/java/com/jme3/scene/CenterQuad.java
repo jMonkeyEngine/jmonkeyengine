@@ -29,10 +29,8 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package com.jme3.scene;
 
-import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer.Type;
 
 /**
@@ -42,7 +40,7 @@ import com.jme3.scene.VertexBuffer.Type;
  * <p>The rectangle extends from (-width/2, -height/2, 0) to
  * (width/2, height/2, 0) with normals set to (0,0,1).
  *
- * <p>This differs from {@link com.jme3.scene.shape.Quad} because it puts
+ * <p>This differs from com.jme3.scene.shape.Quad because it puts
  * (0,0,0) at the rectangle's center instead of in a corner.
  *
  * @author Kirill Vainer
