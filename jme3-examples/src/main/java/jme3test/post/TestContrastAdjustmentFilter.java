@@ -34,11 +34,10 @@ package jme3test.post;
 import com.jme3.app.SimpleApplication;
 import com.jme3.font.BitmapText;
 import com.jme3.input.KeyInput;
+import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.AnalogListener;
 import com.jme3.input.controls.KeyTrigger;
-import com.jme3.light.AmbientLight;
 import com.jme3.material.Material;
-import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.post.FilterPostProcessor;
 import com.jme3.post.filters.ContrastAdjustmentFilter;
@@ -112,8 +111,18 @@ public class TestContrastAdjustmentFilter extends SimpleApplication {
         guiNode.attachChild(statusText);
         statusText.setLocalTranslation(0f, cam.getHeight(), 0f);
         /*
-         * Create a listener for user keypresses.
+         * Create listeners for user keypresses.
          */
+        ActionListener action = new ActionListener() {
+            @Override
+            public void onAction(String name, boolean keyPressed, float tpf) {
+                if (name.equals("reset") && keyPressed) {
+                    contrastAdjustmentFilter.setExponents(1f, 1f, 1f)
+                            .setInputRange(0f, 1f)
+                            .setScales(1f, 1f, 1f);
+                }
+            }
+        };
         AnalogListener analog = new AnalogListener() {
             @Override
             public void onAnalog(String name, float value, float tpf) {
@@ -153,6 +162,12 @@ public class TestContrastAdjustmentFilter extends SimpleApplication {
                 }
             }
         };
+        /*
+         * Add mappings and listeners for user keypresses.
+         */
+        System.out.println("Press Enter to reset the filter to defaults.");
+        inputManager.addMapping("reset", new KeyTrigger(KeyInput.KEY_RETURN));
+        inputManager.addListener(action, "reset");
 
         System.out.println("lower limit:     press R to increase, F to decrease");
         inputManager.addMapping("lower+", new KeyTrigger(KeyInput.KEY_R));
