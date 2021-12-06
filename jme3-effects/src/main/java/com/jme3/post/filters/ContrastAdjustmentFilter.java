@@ -343,6 +343,15 @@ public class ContrastAdjustmentFilter extends Filter {
         return blueScale;
     }
 
+    /**
+     * Initializes the Filter when it is added to a FilterPostProcessor.
+     *
+     * @param assetManager for loading assets (not null)
+     * @param renderManager unused
+     * @param viewPort unused
+     * @param width unused
+     * @param height unused
+     */
     @Override
     protected void initFilter(AssetManager manager, RenderManager renderManager, ViewPort vp, int w, int h) {
         material = new Material(manager, "Common/MatDefs/Post/ColorContrast.j3md");
@@ -357,6 +366,11 @@ public class ContrastAdjustmentFilter extends Filter {
         setScales(redScale, greenScale, blueScale);
     }
 
+    /**
+     * Returns the Material used in this Filter. This method is invoked on every frame.
+     *
+     * @return the pre-existing instance, or null if the Filter hasn't been initialized
+     */
     @Override
     protected Material getMaterial() {
         return material;
