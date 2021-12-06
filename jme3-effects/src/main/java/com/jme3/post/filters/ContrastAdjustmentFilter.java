@@ -49,40 +49,58 @@ import java.io.IOException;
  * @author pavl_g.
  */
 public class ContrastAdjustmentFilter extends Filter {
-
+    /**
+     * Power-law exponent for the red channel.
+     */
     private float redExponent = 1f;
+    /**
+     * Power-law exponent for the green channel.
+     */
     private float greenExponent = 1f;
+    /**
+     * Power-law exponent for the blue channel.
+     */
     private float blueExponent = 1f;
     /**
-     * Lower limit of the input range for all color channels: a level that the filter normalizes to 0.
+     * Lower limit of the input range for all color channels:
+     * the highest level that the filter normalizes to 0.
      */
     private float lowerLimit = 0f;
     /**
-     * Upper limit of the input range for all color channels: the level that the filter normalizes to 1
-     * (before output scaling).
+     * Upper limit of the input range for all color channels:
+     * the level that the filter normalizes to 1 (before output scaling).
      */
     private float upperLimit = 1f;
-    //the final pass scale factor
+    /**
+     * Output scale factor for the red channel.
+     */
     private float redScale = 1f;
+    /**
+     * Output scale factor for the green channel.
+     */
     private float greenScale = 1f;
+    /**
+     * Output scale factor for the blue channel.
+     */
     private float blueScale = 1f;
 
     /**
-     * Instantiates a default color contrast filter, default input range and default scale.
-     * Default values :
-     * - Exponents = 1.0f on all channels.
-     * - Input Range Lower Limit = 0f.
-     * - Input Range Upper Limit = 1f.
-     * - Scale = 1.0f on all channels.
+     * Instantiates a contrast-adjustment filter with the default parameters:
+     *
+     * <p>input range from 0 to 1
+     * <p>power-law exponent=1 for all color channels
+     * <p>output scale factor=1 for all color channels
+     *
+     * Such a filter has no effect.
      */
     public ContrastAdjustmentFilter() {
         super("Contrast Adjustment");
     }
 
     /**
-     * Instantiates a color contrast filter with a specific exponent, default scale and default input range.
+     * Instantiates a contrast-adjustment filter with the default input range and output scaling.
      *
-     * @param exponent an exponent to apply on all channels.
+     * @param exponent the desired power-law exponent for all color channels
      */
     public ContrastAdjustmentFilter(float exponent) {
         this();
@@ -92,13 +110,13 @@ public class ContrastAdjustmentFilter extends Filter {
     }
 
     /**
-     * Sets the exponents used to adjust the contrast of the color channels.
-     * Default values are 1f.
+     * Sets the power-law exponent for each color channel.
+     * The default value for each exponent is 1, which produces a linear filter.
      *
-     * @param redExponent the red channel exponent.
-     * @param greenExponent the green channel exponent.
-     * @param blueExponent the blue channel exponent.
-     * @return this filter instance for a chain call.
+     * @param redExponent the desired red-channel exponent
+     * @param greenExponent the desired green-channel exponent
+     * @param blueExponent the desired blue-channel exponent
+     * @return this filter instance, for chaining
      */
     public ContrastAdjustmentFilter setExponents(float redExponent, float greenExponent, float blueExponent) {
         setRedExponent(redExponent);
@@ -111,7 +129,7 @@ public class ContrastAdjustmentFilter extends Filter {
     /**
      * Sets the power-law exponent for the red channel.
      *
-     * @param exponent the desired exponent (default=1)
+     * @param exponent the desired exponent (default=1 for linear)
      * @return this filter instance, for chaining
      */
     public ContrastAdjustmentFilter setRedExponent(float exponent) {
@@ -125,7 +143,7 @@ public class ContrastAdjustmentFilter extends Filter {
     /**
      * Sets the power-law exponent for the green channel.
      *
-     * @param exponent the desired exponent (default=1)
+     * @param exponent the desired exponent (default=1 for linear)
      * @return this filter instance, for chaining
      */
     public ContrastAdjustmentFilter setGreenExponent(float exponent) {
@@ -139,7 +157,7 @@ public class ContrastAdjustmentFilter extends Filter {
     /**
      * Sets the power-law exponent for the blue channel.
      *
-     * @param exponent the desired exponent (default=1)
+     * @param exponent the desired exponent (default=1 for linear)
      * @return this filter instance, for chaining
      */
     public ContrastAdjustmentFilter setBlueExponent(float exponent) {
@@ -151,42 +169,41 @@ public class ContrastAdjustmentFilter extends Filter {
     }
 
     /**
-     * Retrieves the red channel exponent.
-     * Default value = 1.0f
+     * Retrieves the red-channel exponent.
      *
-     * @return the red channel exponent.
+     * @return the power-law exponent (default=1 for linear)
      */
     public float getRedExponent() {
         return redExponent;
     }
 
     /**
-     * Retrieves the green channel exponent.
-     * Default value = 1.0f.
+     * Retrieves the green-channel exponent.
      *
-     * @return the green channel exponent.
+     * @return the power-law exponent (default=1 for linear)
      */
     public float getGreenExponent() {
         return greenExponent;
     }
 
     /**
-     * Retrieves the blue channel exponent.
-     * Default value = 1.0f
+     * Retrieves the blue-channel exponent.
      *
-     * @return the blue channel exponent.
+     * @return the power-law exponent (default=1 for linear)
      */
     public float getBlueExponent() {
         return blueExponent;
     }
 
     /**
-     * Sets the input range for all color channels. Before applying the power law, the input levels get
-     * normalized so that lowerLimit becomes 0 and upperLimit becomes 1.
+     * Sets the input range for each color channel.
+     *
+     * <p>Before applying the power law, the input levels get normalized:
+     * lowerLimit and below normalize to 0 and upperLimit normalizes to 1.
      *
      * @param lowerLimit the desired lower limit (default=0)
      * @param upperLimit the desired upper limit (default=1)
-     * @return this filter instance for a chain call.
+     * @return this filter instance, for chaining
      */
     public ContrastAdjustmentFilter setInputRange(float lowerLimit, float upperLimit) {
         setLowerLimit(lowerLimit);
@@ -211,7 +228,7 @@ public class ContrastAdjustmentFilter extends Filter {
     /**
      * Sets the lower limit of the input range.
      *
-     * @param level the input level that should be normalized to 0 (default=0)
+     * @param level the highest input level that should be normalized to 0 (default=0)
      * @return this filter instance, for chaining
      */
     public ContrastAdjustmentFilter setLowerLimit(float level) {
@@ -224,9 +241,8 @@ public class ContrastAdjustmentFilter extends Filter {
 
     /**
      * Returns the lower limit of the input range.
-     * Default value = 0.0.
      *
-     * @return the lower limit
+     * @return the input level (default=0)
      */
     public float getLowerLimit() {
         return lowerLimit;
@@ -234,22 +250,21 @@ public class ContrastAdjustmentFilter extends Filter {
 
     /**
      * Returns the upper limit of the input range.
-     * Default value = 1.0.
      *
-     * @return the upper limit
+     * @return the input level (default=1)
      */
     public float getUpperLimit() {
         return upperLimit;
     }
 
     /**
-     * Adjusts the scales of different channels.
-     * Default values = 1.0.
+     * Adjusts the output scaling for each color channel.
+     * The default for each scale factor is 1, which has no effect.
      *
-     * @param redScale the red channel scale.
-     * @param greenScale the green channel scale.
-     * @param blueScale the blue channel scale.
-     * @return this filter instance for a chain call.
+     * @param redScale the red-channel scale factor
+     * @param greenScale the green-channel scale factor
+     * @param blueScale the blue-channel scale factor
+     * @return this filter instance, for chaining
      */
     public ContrastAdjustmentFilter setScales(float redScale, float greenScale, float blueScale) {
         setRedScale(redScale);
@@ -302,30 +317,27 @@ public class ContrastAdjustmentFilter extends Filter {
     }
 
     /**
-     * Retrieves the value of the red channel scale that's applied on the final pass.
-     * Default value = 1.0.
+     * Retrieves the output scale factor for the red channel.
      *
-     * @return the scale of the red channel.
+     * @return the scale factor (default=1 for no effect)
      */
     public float getRedScale() {
         return redScale;
     }
 
     /**
-     * Retrieves the value of the green channel scale that's applied on the final pass.
-     * Default value = 1.0.
+     * Retrieves the output scale factor for the green channel.
      *
-     * @return the scale of the green channel.
+     * @return the scale factor (default=1 for no effect)
      */
     public float getGreenScale() {
         return greenScale;
     }
 
     /**
-     * Retrieves the value of the blue channel scale that's applied on the final pass.
-     * Default value = 1.0.
+     * Retrieves the output scale factor for the blue channel.
      *
-     * @return the scale of the blue channel.
+     * @return the scale factor (default=1 for no effect)
      */
     public float getBlueScale() {
         return blueScale;
@@ -354,6 +366,12 @@ public class ContrastAdjustmentFilter extends Filter {
         return material;
     }
 
+    /**
+     * De-serializes this filter, for example when loading from a J3O file.
+     *
+     * @param im the importer to use (not null)
+     * @throws IOException from the importer
+     */
     @Override
     public void read(JmeImporter im) throws IOException {
         super.read(im);
@@ -368,6 +386,12 @@ public class ContrastAdjustmentFilter extends Filter {
         blueScale = inputCapsule.readFloat("blueScale", 1f);
     }
 
+    /**
+     * Serializes this filter, for example when saving to a J3O file.
+     *
+     * @param ex the exporter to use (not null)
+     * @throws IOException from the exporter
+     */
     @Override
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
