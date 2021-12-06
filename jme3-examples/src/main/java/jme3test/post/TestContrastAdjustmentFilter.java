@@ -93,35 +93,35 @@ public class TestContrastAdjustmentFilter extends SimpleApplication {
                 float increment = name.endsWith("+") ? 0.01f : -0.01f;
 
                 if (name.startsWith("lower")) {
-                    float newValue = contrastAdjustmentFilter.getInputRangeLowerLimit() + increment;
+                    float newValue = contrastAdjustmentFilter.getLowerLimit() + increment;
                     contrastAdjustmentFilter.setLowerLimit(newValue);
 
                 } else if (name.startsWith("upper")) {
-                    float newValue = contrastAdjustmentFilter.getInputRangeUpperLimit() + increment;
+                    float newValue = contrastAdjustmentFilter.getUpperLimit() + increment;
                     contrastAdjustmentFilter.setUpperLimit(newValue);
 
                 } else if (name.startsWith("re")) {
-                    float newValue = contrastAdjustmentFilter.getRedChannelExponent() + increment;
+                    float newValue = contrastAdjustmentFilter.getRedExponent() + increment;
                     contrastAdjustmentFilter.setRedExponent(newValue);
 
                 } else if (name.startsWith("ge")) {
-                    float newValue = contrastAdjustmentFilter.getGreenChannelExponent() + increment;
+                    float newValue = contrastAdjustmentFilter.getGreenExponent() + increment;
                     contrastAdjustmentFilter.setGreenExponent(newValue);
 
                 } else if (name.startsWith("be")) {
-                    float newValue = contrastAdjustmentFilter.getBlueChannelExponent() + increment;
+                    float newValue = contrastAdjustmentFilter.getBlueExponent() + increment;
                     contrastAdjustmentFilter.setBlueExponent(newValue);
 
                 } else if (name.startsWith("rs")) {
-                    float newValue = contrastAdjustmentFilter.getRedChannelScale() + increment;
+                    float newValue = contrastAdjustmentFilter.getRedScale() + increment;
                     contrastAdjustmentFilter.setRedScale(newValue);
 
                 } else if (name.startsWith("gs")) {
-                    float newValue = contrastAdjustmentFilter.getGreenChannelScale() + increment;
+                    float newValue = contrastAdjustmentFilter.getGreenScale() + increment;
                     contrastAdjustmentFilter.setGreenScale(newValue);
 
                 } else if (name.startsWith("bs")) {
-                    float newValue = contrastAdjustmentFilter.getBlueChannelScale() + increment;
+                    float newValue = contrastAdjustmentFilter.getBlueScale() + increment;
                     contrastAdjustmentFilter.setBlueScale(newValue);
                 }
                 

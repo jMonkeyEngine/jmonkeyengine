@@ -50,9 +50,9 @@ import java.io.IOException;
  */
 public class ContrastAdjustmentFilter extends Filter {
 
-    protected float redChannelExponent = 1f;
-    protected float greenChannelExponent = 1f;
-    protected float blueChannelExponent = 1f;
+    protected float redExponent = 1f;
+    protected float greenExponent = 1f;
+    protected float blueExponent = 1f;
     /**
      * Lower limit of the input range for all color channels: a level that the filter normalizes to 0.
      */
@@ -63,9 +63,9 @@ public class ContrastAdjustmentFilter extends Filter {
      */
     protected float upperLimit = 1f;
     //the final pass scale factor
-    protected float redChannelScale = 1f;
-    protected float greenChannelScale = 1f;
-    protected float blueChannelScale = 1f;
+    protected float redScale = 1f;
+    protected float greenScale = 1f;
+    protected float blueScale = 1f;
 
     /**
      * Instantiates a default color contrast filter, default input range and default scale.
@@ -86,26 +86,24 @@ public class ContrastAdjustmentFilter extends Filter {
      */
     public ContrastAdjustmentFilter(float exponent) {
         this();
-        this.redChannelExponent = exponent;
-        this.greenChannelExponent = exponent;
-        this.blueChannelExponent = exponent;
+        this.redExponent = exponent;
+        this.greenExponent = exponent;
+        this.blueExponent = exponent;
     }
-
 
     /**
      * Sets the exponents used to adjust the contrast of the color channels.
      * Default values are 1f.
      *
-     * @param redChannelExponent   the red channel exponent.
-     * @param greenChannelExponent the green channel exponent.
-     * @param blueChannelExponent  the blue channel exponent.
+     * @param redExponent the red channel exponent.
+     * @param greenExponent the green channel exponent.
+     * @param blueExponent the blue channel exponent.
      * @return this filter instance for a chain call.
      */
-    public ContrastAdjustmentFilter setExponents(float redChannelExponent, float greenChannelExponent,
-            float blueChannelExponent) {
-        setRedExponent(redChannelExponent);
-        setGreenExponent(greenChannelExponent);
-        setBlueExponent(blueChannelExponent);
+    public ContrastAdjustmentFilter setExponents(float redExponent, float greenExponent, float blueExponent) {
+        setRedExponent(redExponent);
+        setGreenExponent(greenExponent);
+        setBlueExponent(blueExponent);
 
         return this;
     }
@@ -117,9 +115,9 @@ public class ContrastAdjustmentFilter extends Filter {
      * @return this filter instance, for chaining
      */
     public ContrastAdjustmentFilter setRedExponent(float exponent) {
-        this.redChannelExponent = exponent;
+        this.redExponent = exponent;
         if (material != null) {
-            material.setFloat("redChannelExponent", redChannelExponent);
+            material.setFloat("redChannelExponent", redExponent);
         }
         return this;
     }
@@ -131,9 +129,9 @@ public class ContrastAdjustmentFilter extends Filter {
      * @return this filter instance, for chaining
      */
     public ContrastAdjustmentFilter setGreenExponent(float exponent) {
-        this.greenChannelExponent = exponent;
+        this.greenExponent = exponent;
         if (material != null) {
-            material.setFloat("greenChannelExponent", greenChannelExponent);
+            material.setFloat("greenChannelExponent", greenExponent);
         }
         return this;
     }
@@ -145,9 +143,9 @@ public class ContrastAdjustmentFilter extends Filter {
      * @return this filter instance, for chaining
      */
     public ContrastAdjustmentFilter setBlueExponent(float exponent) {
-        this.blueChannelExponent = exponent;
+        this.blueExponent = exponent;
         if (material != null) {
-            material.setFloat("blueChannelExponent", blueChannelExponent);
+            material.setFloat("blueChannelExponent", blueExponent);
         }
         return this;
     }
@@ -158,8 +156,8 @@ public class ContrastAdjustmentFilter extends Filter {
      *
      * @return the red channel exponent.
      */
-    public float getRedChannelExponent() {
-        return redChannelExponent;
+    public float getRedExponent() {
+        return redExponent;
     }
 
     /**
@@ -168,8 +166,8 @@ public class ContrastAdjustmentFilter extends Filter {
      *
      * @return the green channel exponent.
      */
-    public float getGreenChannelExponent() {
-        return greenChannelExponent;
+    public float getGreenExponent() {
+        return greenExponent;
     }
 
     /**
@@ -178,8 +176,8 @@ public class ContrastAdjustmentFilter extends Filter {
      *
      * @return the blue channel exponent.
      */
-    public float getBlueChannelExponent() {
-        return blueChannelExponent;
+    public float getBlueExponent() {
+        return blueExponent;
     }
 
     /**
@@ -230,7 +228,7 @@ public class ContrastAdjustmentFilter extends Filter {
      *
      * @return the lower limit
      */
-    public float getInputRangeLowerLimit() {
+    public float getLowerLimit() {
         return lowerLimit;
     }
 
@@ -240,7 +238,7 @@ public class ContrastAdjustmentFilter extends Filter {
      *
      * @return the upper limit
      */
-    public float getInputRangeUpperLimit() {
+    public float getUpperLimit() {
         return upperLimit;
     }
 
@@ -248,16 +246,15 @@ public class ContrastAdjustmentFilter extends Filter {
      * Adjusts the scales of different channels.
      * Default values = 1.0.
      *
-     * @param redChannelScale   the red channel scale.
-     * @param greenChannelScale the green channel scale.
-     * @param blueChannelScale  the blue channel scale.
+     * @param redScale the red channel scale.
+     * @param greenScale the green channel scale.
+     * @param blueScale the blue channel scale.
      * @return this filter instance for a chain call.
      */
-    public ContrastAdjustmentFilter setScales(float redChannelScale, float greenChannelScale,
-            float blueChannelScale) {
-        setRedScale(redChannelScale);
-        setGreenScale(greenChannelScale);
-        setBlueScale(blueChannelScale);
+    public ContrastAdjustmentFilter setScales(float redScale, float greenScale, float blueScale) {
+        setRedScale(redScale);
+        setGreenScale(greenScale);
+        setBlueScale(blueScale);
 
         return this;
     }
@@ -269,9 +266,9 @@ public class ContrastAdjustmentFilter extends Filter {
      * @return this filter instance, for chaining
      */
     public ContrastAdjustmentFilter setRedScale(float factor) {
-        this.redChannelScale = factor;
+        this.redScale = factor;
         if (material != null) {
-            material.setFloat("redChannelScale", redChannelScale);
+            material.setFloat("redChannelScale", redScale);
         }
         return this;
     }
@@ -283,9 +280,9 @@ public class ContrastAdjustmentFilter extends Filter {
      * @return this filter instance, for chaining
      */
     public ContrastAdjustmentFilter setGreenScale(float factor) {
-        this.greenChannelScale = factor;
+        this.greenScale = factor;
         if (material != null) {
-            material.setFloat("greenChannelScale", greenChannelScale);
+            material.setFloat("greenChannelScale", greenScale);
         }
         return this;
     }
@@ -297,9 +294,9 @@ public class ContrastAdjustmentFilter extends Filter {
      * @return this filter instance, for chaining
      */
     public ContrastAdjustmentFilter setBlueScale(float factor) {
-        this.blueChannelScale = factor;
+        this.blueScale = factor;
         if (material != null) {
-            material.setFloat("blueChannelScale", blueChannelScale);
+            material.setFloat("blueChannelScale", blueScale);
         }
         return this;
     }
@@ -310,8 +307,8 @@ public class ContrastAdjustmentFilter extends Filter {
      *
      * @return the scale of the red channel.
      */
-    public float getRedChannelScale() {
-        return redChannelScale;
+    public float getRedScale() {
+        return redScale;
     }
 
     /**
@@ -320,8 +317,8 @@ public class ContrastAdjustmentFilter extends Filter {
      *
      * @return the scale of the green channel.
      */
-    public float getGreenChannelScale() {
-        return greenChannelScale;
+    public float getGreenScale() {
+        return greenScale;
     }
 
     /**
@@ -330,8 +327,8 @@ public class ContrastAdjustmentFilter extends Filter {
      *
      * @return the scale of the blue channel.
      */
-    public float getBlueChannelScale() {
-        return blueChannelScale;
+    public float getBlueScale() {
+        return blueScale;
     }
 
     @Override
@@ -343,13 +340,13 @@ public class ContrastAdjustmentFilter extends Filter {
         material = new Material(manager, "Common/MatDefs/Post/ColorContrast.j3md");
 
         //different channels exp for different transfer functions
-        setExponents(redChannelExponent, greenChannelExponent, blueChannelExponent);
+        setExponents(redExponent, greenExponent, blueExponent);
 
         //input range
         setInputRange(lowerLimit, upperLimit);
 
         //final pass scales
-        setScales(redChannelScale, greenChannelScale, blueChannelScale);
+        setScales(redScale, greenScale, blueScale);
     }
 
     @Override
@@ -361,28 +358,28 @@ public class ContrastAdjustmentFilter extends Filter {
     public void read(JmeImporter im) throws IOException {
         super.read(im);
         final InputCapsule inputCapsule = im.getCapsule(this);
-        redChannelExponent = inputCapsule.readFloat("redChannelExponent", 1f);
-        greenChannelExponent = inputCapsule.readFloat("greenChannelExponent", 1f);
-        blueChannelExponent = inputCapsule.readFloat("blueChannelExponent", 1f);
+        redExponent = inputCapsule.readFloat("redExponent", 1f);
+        greenExponent = inputCapsule.readFloat("greenExponent", 1f);
+        blueExponent = inputCapsule.readFloat("blueExponent", 1f);
         lowerLimit = inputCapsule.readFloat("lowerLimit", 0f);
         upperLimit = inputCapsule.readFloat("upperLimit", 1f);
-        redChannelScale = inputCapsule.readFloat("redChannelScale", 1f);
-        greenChannelScale = inputCapsule.readFloat("greenChannelScale", 1f);
-        blueChannelScale = inputCapsule.readFloat("blueChannelScale", 1f);
+        redScale = inputCapsule.readFloat("redScale", 1f);
+        greenScale = inputCapsule.readFloat("greenScale", 1f);
+        blueScale = inputCapsule.readFloat("blueScale", 1f);
     }
 
     @Override
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
         final OutputCapsule outputCapsule = ex.getCapsule(this);
-        outputCapsule.write(redChannelExponent, "redChannelExponent", 1f);
-        outputCapsule.write(greenChannelExponent, "greenChannelExponent", 1f);
-        outputCapsule.write(blueChannelExponent, "blueChannelExponent", 1f);
+        outputCapsule.write(redExponent, "redExponent", 1f);
+        outputCapsule.write(greenExponent, "greenExponent", 1f);
+        outputCapsule.write(blueExponent, "blueExponent", 1f);
         outputCapsule.write(lowerLimit, "lowerLimit", 0f);
         outputCapsule.write(upperLimit, "upperLimit", 1f);
-        outputCapsule.write(redChannelScale, "redChannelScale", 1f);
-        outputCapsule.write(greenChannelScale, "greenChannelScale", 1f);
-        outputCapsule.write(blueChannelScale, "blueChannelScale", 1f);
+        outputCapsule.write(redScale, "redScale", 1f);
+        outputCapsule.write(greenScale, "greenScale", 1f);
+        outputCapsule.write(blueScale, "blueScale", 1f);
     }
 
     /**
@@ -395,8 +392,8 @@ public class ContrastAdjustmentFilter extends Filter {
         String result = String.format(
                 "input(%.3f, %.3f) exp(%.3f, %.3f, %.3f) scale(%.3f, %.3f, %.3f)",
                 lowerLimit, upperLimit,
-                redChannelExponent, greenChannelExponent, blueChannelExponent,
-                redChannelScale, greenChannelScale, blueChannelScale);
+                redExponent, greenExponent, blueExponent,
+                redScale, greenScale, blueScale);
         return result;
     }
 }
