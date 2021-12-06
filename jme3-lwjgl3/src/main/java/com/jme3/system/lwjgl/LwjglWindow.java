@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -479,19 +479,19 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             return;
         }
 
-
         if (Platform.get() == Platform.MACOSX) {
-           // NOTE: this is required for Mac OS X!
-           mainThread = Thread.currentThread();
-           mainThread.setName("jME3 Main");
-           if (waitFor) {
-              LOGGER.warning("create() called with unsupported waitFor command!");
-           }
-           run();
+            // NOTE: this is required for Mac OS X!
+            mainThread = Thread.currentThread();
+            mainThread.setName("jME3 Main");
+            if (waitFor) {
+                LOGGER.warning("create(true) is not supported for macOS!");
+            }
+            run();
         } else {
-           new Thread(this, "jME3 Main").start();
-           if (waitFor)
-              waitFor(true);
+            new Thread(this, "jME3 Main").start();
+            if (waitFor) {
+                waitFor(true);
+            }
         }
 
     }
