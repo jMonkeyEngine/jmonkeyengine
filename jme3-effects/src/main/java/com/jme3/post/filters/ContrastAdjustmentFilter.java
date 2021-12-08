@@ -353,8 +353,9 @@ public class ContrastAdjustmentFilter extends Filter {
      * @param height unused
      */
     @Override
-    protected void initFilter(AssetManager manager, RenderManager renderManager, ViewPort vp, int w, int h) {
-        material = new Material(manager, "Common/MatDefs/Post/ContrastAdjustment.j3md");
+    protected void initFilter(AssetManager assetManager, RenderManager renderManager,
+            ViewPort viewPort, int width, int height) {
+        material = new Material(assetManager, "Common/MatDefs/Post/ContrastAdjustment.j3md");
 
         //different channels exp for different transfer functions
         setExponents(redExponent, greenExponent, blueExponent);
