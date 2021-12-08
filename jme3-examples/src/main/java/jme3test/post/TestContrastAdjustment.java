@@ -50,7 +50,7 @@ import com.jme3.texture.Texture;
  *
  * @author pavl_g.
  */
-public class TestContrastAdjustmentFilter extends SimpleApplication {
+public class TestContrastAdjustment extends SimpleApplication {
 
     /**
      * Display filter status.
@@ -62,7 +62,7 @@ public class TestContrastAdjustmentFilter extends SimpleApplication {
     private ContrastAdjustmentFilter contrastAdjustmentFilter;
 
     public static void main(String[] args) {
-        new TestContrastAdjustmentFilter().start();
+        new TestContrastAdjustment().start();
     }
 
     @Override
