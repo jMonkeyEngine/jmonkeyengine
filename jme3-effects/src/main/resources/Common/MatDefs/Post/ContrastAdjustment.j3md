@@ -1,7 +1,7 @@
-//Utilized by the jme3-effects/src/main/java/com.jme3/post/filters/ColorAdjustmentFilter.java to adjust the rendered scene color contrast
+//Used by com.jme3.post.filters.ColorAdjustmentFilter.java
 //supports both OGL and OGLES glsl
 
-MaterialDef ColorContrast {
+MaterialDef ColorAdjustmentFilter {
 
     MaterialParameters {
         Int NumSamples
@@ -18,11 +18,11 @@ MaterialDef ColorContrast {
 
     Technique {
         VertexShader GLSL150 GLSL300 GLSL310 GLSL320:   Common/MatDefs/Post/Post15.vert
-        FragmentShader GLSL150 GLSL300 GLSL310 GLSL320: Common/MatDefs/Post/ColorContrast15.frag
+        FragmentShader GLSL150 GLSL300 GLSL310 GLSL320: Common/MatDefs/Post/ContrastAdjustment15.frag
     }
 
     Technique {
         VertexShader  GLSL100 GLSL110 GLSL120 GLSL130:   Common/MatDefs/Post/Post.vert
-        FragmentShader GLSL100 GLSL110 GLSL120 GLSL130: Common/MatDefs/Post/ColorContrast.frag
+        FragmentShader GLSL100 GLSL110 GLSL120 GLSL130: Common/MatDefs/Post/ConstrastAdjustment.frag
     }
 }

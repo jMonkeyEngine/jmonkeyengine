@@ -30,9 +30,12 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/**
- * Utilized by the ColorContrast.j3md to adjust the color channels contrast by adjusting the input range of the color channels based on
- * an upper and a lower limit, adjusting the exponent of different color channels and scaling the output values.
+/*
+ * Used by ContrastAdjustment.j3md to adjust the color channels.
+ *
+ * First, the input range is normalized to upper and lower limits.
+ * Then a power law is applied, using the exponent for each channel.
+ * Finally, the output value is scaled linearly, using the scaling factor for each channel.
  *
  * Supports GLSL100 GLSL110 GLSL120 GLSL130.
  */
