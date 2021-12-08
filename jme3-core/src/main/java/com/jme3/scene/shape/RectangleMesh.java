@@ -43,9 +43,9 @@ import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer.Type;
 
 /**
- * {@code RectangleMesh} is a rectangular plane in space similar to
- * {@link com.jme3.scene.shape.Quad}, but it uses a
- * {@link com.jme3.math.Rectangle} as its coordinates system.
+ * {@code RectangleMesh} is a rectangle in space similar to
+ * {@link com.jme3.scene.shape.Quad}. It uses a
+ * {@link com.jme3.math.Rectangle} to position its vertices.
  * 
  * @author Francivan Bezerra
  */
