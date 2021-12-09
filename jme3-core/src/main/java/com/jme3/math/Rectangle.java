@@ -149,7 +149,7 @@ public final class Rectangle implements Savable, Cloneable, java.io.Serializable
 
         Vector3f v1 = c.subtract(b);
         Vector3f v2 = a.subtract(b);
-        normal = v1.cross(v2).normalizeLocal();
+        normal.set(v1.crossLocal(v2).normalizeLocal());
 
         return normal;
     }
