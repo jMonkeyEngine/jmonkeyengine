@@ -38,7 +38,6 @@ import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.math.Rectangle;
-import com.jme3.math.Triangle;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Mesh;
@@ -59,7 +58,7 @@ public class RectangleMesh extends Mesh {
 
     private Vector2f[] texCoords;
 
-    private Vector3f[] normals;
+    private Vector3f normal;
 
     /**
      * Creates a new rectangular mesh with sides of equal length (a.k.a. a square).
@@ -140,63 +139,39 @@ public class RectangleMesh extends Mesh {
     }
 
     /**
-     * Returns the normal vectors of this mesh.
+     * Returns the normal vector of this mesh.
      * 
-     * @return a {@link Vector3f} array containing the normals of this mesh.
+     * @return the normal vector of this mesh.
      */
-    public Vector3f[] getNormals() {
-        return normals;
+    public Vector3f getNormal() {
+        return normal;
     }
 
     /**
-     * Sets the normals of this mesh.
+     * Sets the normal vector of this mesh.
      * 
-     * @param normals a {@link Vector3f} array containing the normals of this mesh.
-     * @throws IllegalArgumentException if the array length is not equal to 4.
+     * @param normal the normal vector of this mesh.
      */
-    public void setNormals(Vector3f[] normals) {
-        if (normals.length != 4) {
-            throw new IllegalArgumentException(
-                    "A RectangularMesh has 4 vertices, therefore a Vector3f array of length 4 must be provided for its normals");
-        }
-        this.normals = normals;
+    public void setNormal(Vector3f normal) {
+        this.normal = normal;
         updateMesh();
     }
 
-    /**
-     * Computes the normals of each vertex on this mesh.
-     *
-     */
-    public void calculateNormals() {
-        normals = new Vector3f[] { new Vector3f(), new Vector3f(), new Vector3f(), new Vector3f() };
-
-        // the fourth point defining the rectangle (C - B) + A.
-        final Vector3f fourthPoint = rectangle.getC().subtract(rectangle.getB()).addLocal(rectangle.getA());
-
-        Triangle.computeTriangleNormal(rectangle.getA(), rectangle.getB(), fourthPoint, normals[0]);
-        Triangle.computeTriangleNormal(rectangle.getB(), rectangle.getC(), rectangle.getA(), normals[1]);
-        Triangle.computeTriangleNormal(rectangle.getC(), fourthPoint, rectangle.getB(), normals[2]);
-        Triangle.computeTriangleNormal(fourthPoint, rectangle.getA(), rectangle.getC(), normals[3]);
-    }
-
     public void updateMesh() {
-        // the fourth point defining the rectangle (C - B) + A.
-        final Vector3f fourthPoint = rectangle.getC().subtract(rectangle.getB()).addLocal(rectangle.getA());
-
         setBuffer(Type.Position, 3,
                 new float[] {
                         rectangle.getA().x, rectangle.getA().y, rectangle.getA().z,
                         rectangle.getB().x, rectangle.getB().y, rectangle.getB().z,
                         rectangle.getC().x, rectangle.getC().y, rectangle.getC().z,
-                        fourthPoint.x, fourthPoint.y, fourthPoint.z
+                        rectangle.getD().x, rectangle.getD().y, rectangle.getD().z
                 });
 
         setBuffer(Type.TexCoord, 2, BufferUtils.createFloatBuffer(texCoords));
 
-        if (normals == null) {
-            calculateNormals();
+        if (normal == null) {
+            normal = rectangle.calculateNormal(null);
         }
-        setBuffer(Type.Normal, 3, BufferUtils.createFloatBuffer(normals));
+        setBuffer(Type.Normal, 3, BufferUtils.createFloatBuffer(normal, normal, normal, normal));
 
         setBuffer(Type.Index, 3, new short[] { 3, 0, 1, 1, 2, 3 });
 
@@ -212,7 +187,7 @@ public class RectangleMesh extends Mesh {
         super.cloneFields(cloner, original);
         this.rectangle = cloner.clone(rectangle);
         this.texCoords = cloner.clone(texCoords);
-        this.normals = cloner.clone(normals);
+        this.normal = cloner.clone(normal);
     }
 
     @Override
@@ -221,7 +196,7 @@ public class RectangleMesh extends Mesh {
         final InputCapsule capsule = e.getCapsule(this);
         capsule.readSavable("rectangle", rectangle);
         capsule.readSavableArray("texCoords", texCoords);
-        capsule.readSavableArray("normals", normals);
+        capsule.readSavable("normal", normal);
     }
 
     @Override
@@ -235,6 +210,6 @@ public class RectangleMesh extends Mesh {
                 new Vector2f(1, 1),
                 new Vector2f(0, 1)
         });
-        capsule.write(normals, "normals", null);
+        capsule.write(normal, "normal", null);
     }
 }
