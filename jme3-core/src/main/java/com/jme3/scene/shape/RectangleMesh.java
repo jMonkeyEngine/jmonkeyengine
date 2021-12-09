@@ -38,14 +38,18 @@ import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.math.Rectangle;
+import com.jme3.math.Triangle;
+import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer.Type;
+import com.jme3.util.BufferUtils;
+import com.jme3.util.clone.Cloner;
 
 /**
  * {@code RectangleMesh} is a rectangle in space similar to
- * {@link com.jme3.scene.shape.Quad}. It uses a
- * {@link com.jme3.math.Rectangle} to position its vertices.
+ * {@link com.jme3.scene.shape.Quad}. It uses a {@link com.jme3.math.Rectangle}
+ * to position its vertices.
  * 
  * @author Francivan Bezerra
  */
@@ -53,8 +57,16 @@ public class RectangleMesh extends Mesh {
 
     private Rectangle rectangle;
 
+    private Vector2f[] texCoords;
+
+    private Vector3f[] normals;
+
+    /**
+     * Creates a new rectangular mesh with sides of equal length (a.k.a. a square).
+     * 
+     */
     public RectangleMesh() {
-        rectangle = new Rectangle();
+        this(new Rectangle(new Vector3f(), new Vector3f(1, 0, 0), new Vector3f(1, 1, 0)));
     }
 
     /**
@@ -64,6 +76,12 @@ public class RectangleMesh extends Mesh {
      */
     public RectangleMesh(Rectangle rectangle) {
         this.rectangle = rectangle;
+        this.texCoords = new Vector2f[] {
+                new Vector2f(0, 0),
+                new Vector2f(1, 0),
+                new Vector2f(1, 1),
+                new Vector2f(0, 1)
+        };
         updateMesh();
     }
 
@@ -97,11 +115,71 @@ public class RectangleMesh extends Mesh {
         updateMesh();
     }
 
-    public void updateMesh() {
-        updateMesh(false);
+    /**
+     * Returns the texture coordinates.
+     * 
+     * @return the texture coordinates
+     */
+    public Vector2f[] getTexCoords() {
+        return texCoords;
     }
 
-    public void updateMesh(boolean flipCoords) {
+    /**
+     * Sets the texture coordinates.
+     * 
+     * @param texCoords a {@link Vector2f} array containing the texture coordinates.
+     * @throws IllegalArgumentException if the array length is not equal to 4.
+     */
+    public void setTexCoords(Vector2f[] texCoords) throws IllegalArgumentException {
+        if (texCoords.length != 4) {
+            throw new IllegalArgumentException(
+                    "Texture coordinates are 4 vertices, therefore a Vector2f array of length 4 must be provided.");
+        }
+        this.texCoords = texCoords;
+        updateMesh();
+    }
+
+    /**
+     * Returns the normal vectors of this mesh.
+     * 
+     * @return a {@link Vector3f} array containing the normals of this mesh.
+     */
+    public Vector3f[] getNormals() {
+        return normals;
+    }
+
+    /**
+     * Sets the normals of this mesh.
+     * 
+     * @param normals a {@link Vector3f} array containing the normals of this mesh.
+     * @throws IllegalArgumentException if the array length is not equal to 4.
+     */
+    public void setNormals(Vector3f[] normals) {
+        if (normals.length != 4) {
+            throw new IllegalArgumentException(
+                    "A RectangularMesh has 4 vertices, therefore a Vector3f array of length 4 must be provided for its normals");
+        }
+        this.normals = normals;
+        updateMesh();
+    }
+
+    /**
+     * Computes the normals of each vertex on this mesh.
+     *
+     */
+    public void calculateNormals() {
+        normals = new Vector3f[] { new Vector3f(), new Vector3f(), new Vector3f(), new Vector3f() };
+
+        // the fourth point defining the rectangle (C - B) + A.
+        final Vector3f fourthPoint = rectangle.getC().subtract(rectangle.getB()).addLocal(rectangle.getA());
+
+        Triangle.computeTriangleNormal(rectangle.getA(), rectangle.getB(), fourthPoint, normals[0]);
+        Triangle.computeTriangleNormal(rectangle.getB(), rectangle.getC(), rectangle.getA(), normals[1]);
+        Triangle.computeTriangleNormal(rectangle.getC(), fourthPoint, rectangle.getB(), normals[2]);
+        Triangle.computeTriangleNormal(fourthPoint, rectangle.getA(), rectangle.getC(), normals[3]);
+    }
+
+    public void updateMesh() {
         // the fourth point defining the rectangle (C - B) + A.
         final Vector3f fourthPoint = rectangle.getC().subtract(rectangle.getB()).addLocal(rectangle.getA());
 
@@ -113,38 +191,28 @@ public class RectangleMesh extends Mesh {
                         fourthPoint.x, fourthPoint.y, fourthPoint.z
                 });
 
-        if (flipCoords) {
-            setBuffer(Type.TexCoord, 2, new float[] {
-                    0, 1,
-                    1, 1,
-                    1, 0,
-                    0, 0
-            });
-        } else {
-            setBuffer(Type.TexCoord, 2, new float[] {
-                    0, 0,
-                    1, 0,
-                    1, 1,
-                    0, 1
-            });
+        setBuffer(Type.TexCoord, 2, BufferUtils.createFloatBuffer(texCoords));
+
+        if (normals == null) {
+            calculateNormals();
         }
+        setBuffer(Type.Normal, 3, BufferUtils.createFloatBuffer(normals));
 
-        setBuffer(Type.Normal, 3, new float[] {
-                0, 0,
-                1, 0,
-                0, 1,
-                0, 0,
-                1, 0,
-                0, 1
-        });
-
-        setBuffer(Type.Index, 3, new short[] {
-                0, 1, 2,
-                0, 2, 3
-        });
+        setBuffer(Type.Index, 3, new short[] { 3, 0, 1, 1, 2, 3 });
 
         updateBound();
         setStatic();
+    }
+
+    /**
+     * Called internally by com.jme3.util.clone.Cloner. Do not call directly.
+     */
+    @Override
+    public void cloneFields(Cloner cloner, Object original) {
+        super.cloneFields(cloner, original);
+        this.rectangle = cloner.clone(rectangle);
+        this.texCoords = cloner.clone(texCoords);
+        this.normals = cloner.clone(normals);
     }
 
     @Override
@@ -152,6 +220,8 @@ public class RectangleMesh extends Mesh {
         super.read(e);
         final InputCapsule capsule = e.getCapsule(this);
         capsule.readSavable("rectangle", rectangle);
+        capsule.readSavableArray("texCoords", texCoords);
+        capsule.readSavableArray("normals", normals);
     }
 
     @Override
@@ -159,5 +229,12 @@ public class RectangleMesh extends Mesh {
         super.write(e);
         final OutputCapsule capsule = e.getCapsule(this);
         capsule.write(rectangle, "rectangle", new Rectangle());
+        capsule.write(texCoords, "texCoords", new Vector2f[] {
+                new Vector2f(0, 0),
+                new Vector2f(1, 0),
+                new Vector2f(1, 1),
+                new Vector2f(0, 1)
+        });
+        capsule.write(normals, "normals", null);
     }
 }
