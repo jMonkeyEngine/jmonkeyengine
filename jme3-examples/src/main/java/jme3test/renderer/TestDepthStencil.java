@@ -73,7 +73,7 @@ public class TestDepthStencil extends SimpleApplication {
 
         Texture2D fbTex = new Texture2D(w, h, Format.RGB8);
         fb.setDepthTarget(FrameBufferTarget.newTarget(Format.Depth24Stencil8));
-	    fb.addColorTarget(FrameBufferTarget.newTarget(fbTex));
+        fb.addColorTarget(FrameBufferTarget.newTarget(fbTex));
 
         // setup framebuffer's scene
         Sphere sphMesh = new Sphere(20, 20, 1);

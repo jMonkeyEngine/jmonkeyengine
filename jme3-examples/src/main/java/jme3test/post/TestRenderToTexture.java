@@ -90,7 +90,6 @@ public class TestRenderToTexture extends SimpleApplication implements ActionList
         offBuffer.setDepthTarget(FrameBufferTarget.newTarget(Format.Depth));
         offBuffer.addColorTarget(FrameBufferTarget.newTarget(offTex));
 
-        
         //set viewport to render to offscreen framebuffer
         offView.setOutputFrameBuffer(offBuffer);
 

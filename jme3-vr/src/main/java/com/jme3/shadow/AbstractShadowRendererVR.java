@@ -171,7 +171,7 @@ public abstract class AbstractShadowRendererVR implements SceneProcessor, Savabl
             shadowMaps[i] = new Texture2D(shadowMapSize, shadowMapSize, Format.Depth);
 
             shadowFB[i].setDepthTarget(FrameBufferTarget.newTarget(shadowMaps[i]));
-            
+
             //DO NOT COMMENT THIS (It prevents the OSX incomplete read buffer crash.)
             shadowFB[i].addColorTarget(FrameBufferTarget.newTarget(dummyTex));
             shadowMapStringCache[i] = "ShadowMap" + i; 

@@ -72,7 +72,7 @@ public class TestFBOPassthrough extends SimpleApplication {
 
         Texture2D fbTex = new Texture2D(w, h, Format.RGBA8);
         fb.setDepthTarget(FrameBufferTarget.newTarget(Format.Depth));
-	    fb.addColorTarget(FrameBufferTarget.newTarget(fbTex));
+        fb.addColorTarget(FrameBufferTarget.newTarget(fbTex));
 
         // setup framebuffer's scene
         Sphere sphMesh = new Sphere(20, 20, 1);

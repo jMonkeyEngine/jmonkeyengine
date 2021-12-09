@@ -45,7 +45,6 @@ import com.jme3.texture.Texture.MagFilter;
 import com.jme3.texture.Texture.MinFilter;
 import com.jme3.texture.Texture2D;
 import com.jme3.texture.FrameBuffer.FrameBufferTarget;
-
 import de.lessvoid.nifty.Nifty;
 
 public class TestNiftyToMesh extends SimpleApplication{
@@ -75,7 +74,7 @@ public class TestNiftyToMesh extends SimpleApplication{
         tex.setMinFilter(MinFilter.Trilinear);
         tex.setMagFilter(MagFilter.Bilinear);
 
-	    fb.addColorTarget(FrameBufferTarget.newTarget(tex));
+        fb.addColorTarget(FrameBufferTarget.newTarget(tex));
         niftyView.setClearFlags(true, true, true);
         niftyView.setOutputFrameBuffer(fb);
 
