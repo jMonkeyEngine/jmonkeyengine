@@ -44,6 +44,7 @@ import com.jme3.texture.Image.Format;
 import com.jme3.texture.Texture.MagFilter;
 import com.jme3.texture.Texture.MinFilter;
 import com.jme3.texture.Texture2D;
+import com.jme3.texture.FrameBuffer.FrameBufferTarget;
 import de.lessvoid.nifty.Nifty;
 
 public class TestNiftyToMesh extends SimpleApplication{
@@ -67,13 +68,13 @@ public class TestNiftyToMesh extends SimpleApplication{
 
         Texture2D depthTex = new Texture2D(1024, 768, Format.Depth);
         FrameBuffer fb = new FrameBuffer(1024, 768, 1);
-        fb.setDepthTexture(depthTex);
+        fb.setDepthTarget(FrameBufferTarget.newTarget(depthTex));
 
         Texture2D tex = new Texture2D(1024, 768, Format.RGBA8);
         tex.setMinFilter(MinFilter.Trilinear);
         tex.setMagFilter(MagFilter.Bilinear);
 
-        fb.setColorTexture(tex);
+        fb.addColorTarget(FrameBufferTarget.newTarget(tex));
         niftyView.setClearFlags(true, true, true);
         niftyView.setOutputFrameBuffer(fb);
 

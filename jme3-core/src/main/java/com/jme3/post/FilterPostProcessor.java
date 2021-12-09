@@ -41,6 +41,7 @@ import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image.Format;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture2D;
+import com.jme3.texture.FrameBuffer.FrameBufferTarget;
 import com.jme3.ui.Picture;
 import com.jme3.util.SafeArrayList;
 import java.io.IOException;
@@ -182,7 +183,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         if (filter.isRequiresDepthTexture()) {
             if (!computeDepth && renderFrameBuffer != null) {
                 depthTexture = new Texture2D(width, height, depthFormat);
-                renderFrameBuffer.setDepthTexture(depthTexture);
+                renderFrameBuffer.setDepthTarget(FrameBufferTarget.newTarget(depthTexture));
             }
             computeDepth = true;
             filter.init(assetManager, renderManager, vp, width, height);
@@ -488,21 +489,21 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
             if (caps.contains(Caps.OpenGL32)) {
                 Texture2D msColor = new Texture2D(width, height, numSamples, fbFormat);
                 Texture2D msDepth = new Texture2D(width, height, numSamples, depthFormat);
-                renderFrameBufferMS.setDepthTexture(msDepth);
-                renderFrameBufferMS.setColorTexture(msColor);
+                renderFrameBufferMS.setDepthTarget(FrameBufferTarget.newTarget(msDepth));
+                renderFrameBufferMS.addColorTarget(FrameBufferTarget.newTarget(msColor));
                 filterTexture = msColor;
                 depthTexture = msDepth;
             } else {
-                renderFrameBufferMS.setDepthBuffer(depthFormat);
-                renderFrameBufferMS.setColorBuffer(fbFormat);
+                renderFrameBufferMS.setDepthTarget(FrameBufferTarget.newTarget(depthFormat));
+                renderFrameBufferMS.addColorTarget(FrameBufferTarget.newTarget(fbFormat));
             }
         }
 
         if (numSamples <= 1 || !caps.contains(Caps.OpenGL32)) {
             renderFrameBuffer = new FrameBuffer(width, height, 1);
-            renderFrameBuffer.setDepthBuffer(depthFormat);
+            renderFrameBuffer.setDepthTarget(FrameBufferTarget.newTarget(depthFormat));
             filterTexture = new Texture2D(width, height, fbFormat);
-            renderFrameBuffer.setColorTexture(filterTexture);
+            renderFrameBuffer.addColorTarget(FrameBufferTarget.newTarget(filterTexture));
         }
 
         for (Filter filter : filters.getArray()) {

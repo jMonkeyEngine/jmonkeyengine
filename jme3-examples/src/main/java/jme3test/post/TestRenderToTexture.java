@@ -49,6 +49,7 @@ import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image.Format;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture2D;
+import com.jme3.texture.FrameBuffer.FrameBufferTarget;
 
 /**
  * This test renders a scene to a texture, then displays the texture on a cube.
@@ -86,9 +87,9 @@ public class TestRenderToTexture extends SimpleApplication implements ActionList
         offTex.setMagFilter(Texture.MagFilter.Bilinear);
 
         //setup framebuffer to use texture
-        offBuffer.setDepthBuffer(Format.Depth);
-        offBuffer.setColorTexture(offTex);
-        
+        offBuffer.setDepthTarget(FrameBufferTarget.newTarget(Format.Depth));
+        offBuffer.addColorTarget(FrameBufferTarget.newTarget(offTex));
+
         //set viewport to render to offscreen framebuffer
         offView.setOutputFrameBuffer(offBuffer);
 
