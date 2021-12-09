@@ -33,6 +33,7 @@ package com.jme3.font;
 
 import com.jme3.export.*;
 import com.jme3.material.Material;
+
 import java.io.IOException;
 
 /**
@@ -89,22 +90,23 @@ public class BitmapFont implements Savable {
     private BitmapCharacterSet charSet;
     private Material[] pages;
     private boolean rightToLeft = false;
-    // For cursive bitmap fonts (e.g. RTL fonts) in which
-    // letter shape changes depending on its position
+    // For cursive bitmap fonts in which letter shape is determined by the adjacent glyphs.
     private GlyphParser glyphParser;
 
+    /**
+     * @return true, if this is a right-to-left font, otherwise it will return false.
+     */
     public boolean isRightToLeft() {
         return rightToLeft;
     }
 
-    // setting the parameter with the font will change it for all!! texts using the font
-    // the parameter is applied by simply using public BitmapText(BitmapFont font)
-    // it can be "overwritten" by using the available public BitmapText(BitmapFont font, boolean rightToLeft)
-    // This way one fnt can be used LtR and RtL in one application
+    /**
+     * Specify if this is a right-to-left font. By default it is set to false.
+     * This can be "overwritten" in the BitmapText constructor.
+     */
     public void setRightToLeft(boolean rightToLeft) {
         this.rightToLeft = rightToLeft;
     }
-
 
     public BitmapFont() {
     }
@@ -141,13 +143,22 @@ public class BitmapFont implements Savable {
         return charSet;
     }
 
+    /**
+     * For cursive fonts a GlyphParser needs to be specified which is used
+     * to determine glyph shape by the adjacent glyphs. If nothing is set,
+     * all glyphs will be rendered isolated.
+     */
     public void setGlyphParser(GlyphParser glyphParser) {
         this.glyphParser = glyphParser;
     }
 
+    /**
+     * @return The GlyphParser set on the font, or null if it has no glyph parser.
+     */
     public GlyphParser getGlyphParser() {
         return glyphParser;
     }
+
     /**
      * Gets the line height of a StringBlock.
      *
@@ -232,13 +243,10 @@ public class BitmapFont implements Savable {
         boolean firstCharOfLine = true;
 //        float sizeScale = (float) block.getSize() / charSet.getRenderedSize();
         float sizeScale = 1f;
+        CharSequence characters = glyphParser != null ? glyphParser.parse(text) : text;
 
-        if (glyphParser != null) {
-            text = glyphParser.parse(text);
-        }
-
-        for (int i = 0; i < text.length(); i++){
-            char theChar = text.charAt(i);
+        for (int i = 0; i < characters.length(); i++){
+            char theChar = characters.charAt(i);
             if (theChar == '\n'){
                 maxLineWidth = Math.max(maxLineWidth, lineWidth);
                 lineWidth = 0f;
@@ -246,18 +254,18 @@ public class BitmapFont implements Savable {
                 continue;
             }
             BitmapCharacter c = charSet.getCharacter(theChar);
-            if (c != null){
-                if (theChar == '\\' && i<text.length()-1 && text.charAt(i+1)=='#'){
-                    if (i+5<text.length() && text.charAt(i+5)=='#'){
-                        i+=5;
+            if (c != null) {
+                if (theChar == '\\' && i < characters.length() - 1 && characters.charAt(i + 1) == '#') {
+                    if (i + 5 < characters.length() && characters.charAt(i + 5) == '#') {
+                        i += 5;
                         continue;
-                    }else if (i+8<text.length() && text.charAt(i+8)=='#'){
-                        i+=8;
+                    } else if (i + 8 < characters.length() && characters.charAt(i + 8) == '#') {
+                        i += 8;
                         continue;
                     }
                 }
-                if (!firstCharOfLine){
-                    lineWidth += findKerningAmount(lastChar, theChar) * sizeScale;                    
+                if (!firstCharOfLine) {
+                    lineWidth += findKerningAmount(lastChar, theChar) * sizeScale;
                 } else {
                     if (rightToLeft) {
                         // Ignore offset, so it will be compatible with BitmapText.getLineWidth().
@@ -273,9 +281,9 @@ public class BitmapFont implements Savable {
                 float xAdvance = c.getXAdvance() * sizeScale;
 
                 // If this is the last character of a line, then we really should
-                // have only add its width. The advance may include extra spacing
+                // have only added its width. The advance may include extra spacing
                 // that we don't care about.
-                if (i == text.length() - 1 || text.charAt(i + 1) == '\n') {
+                if (i == characters.length() - 1 || characters.charAt(i + 1) == '\n') {
                     if (rightToLeft) {
                         // In RTL text we move the letter x0 by it's xAdvance so
                         // we should add it to lineWidth
