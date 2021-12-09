@@ -191,6 +191,7 @@ public class BitmapFont implements Savable {
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(charSet, "charSet", null);
         oc.write(pages, "pages", null);
+        oc.write(rightToLeft, "rightToLeft", false);
     }
 
     @Override
@@ -200,6 +201,7 @@ public class BitmapFont implements Savable {
         Savable[] pagesSavable = ic.readSavableArray("pages", null);
         pages = new Material[pagesSavable.length];
         System.arraycopy(pagesSavable, 0, pages, 0, pages.length);
+        rightToLeft = ic.readBoolean("rightToLeft", false);
     }
 
     public float getLineWidth(CharSequence text){
