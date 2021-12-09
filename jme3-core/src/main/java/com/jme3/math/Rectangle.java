@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,7 @@ import java.io.IOException;
 /**
  * <code>Rectangle</code> defines a finite plane within three dimensional space
  * that is specified via three points (A, B, C). These three points define a
- * triangle with the fourth point defining the rectangle ((B + C) - A.
+ * triangle with the fourth point defining the rectangle (C - B) + A.
  *
  * @author Mark Powell
  * @author Joshua Slack
@@ -126,8 +126,37 @@ public final class Rectangle implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
+     * <code>getD</code> returns the fourth point of the rectangle.
+     * The fourth point is given by calculating (C - B) + A.
+     *
+     * @return the fourth point of this rectangle.
+     */
+    public Vector3f getD() {
+        return c.subtract(b).addLocal(a);
+    }
+
+    /**
+     * Computes the normal vector of this <code>Rectangle</code>.
+     * 
+     * @param normal the vector to store the result in
+     * @return the normal vector of this <code>Rectangle</code>
+     * @see https://web.ma.utexas.edu/users/m408m/Display12-5-4.shtml
+     */
+    public Vector3f calculateNormal(Vector3f normal) {
+        if (normal == null) {
+            normal = new Vector3f();
+        }
+
+        Vector3f v1 = c.subtract(b);
+        Vector3f v2 = a.subtract(b);
+        normal = v1.cross(v2).normalizeLocal();
+
+        return normal;
+    }
+
+    /**
      * <code>random</code> returns a random point within the plane defined by:
-     * A, B, C, and (B + C) - A.
+     * A, B, C, and (C - B) + A.
      *
      * @return a random point within the rectangle.
      */
@@ -137,7 +166,7 @@ public final class Rectangle implements Savable, Cloneable, java.io.Serializable
 
     /**
      * <code>random</code> returns a random point within the plane defined by:
-     * A, B, C, and (B + C) - A.
+     * A, B, C, and (C - B) + A.
      *
      * @param result
      *            Vector to store result in
