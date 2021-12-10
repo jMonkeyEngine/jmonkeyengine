@@ -41,9 +41,8 @@ import com.jme3.material.Material;
 import com.jme3.math.*;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
-import com.jme3.scene.shape.Quad;
+import com.jme3.scene.shape.RectangleMesh;
 import com.jme3.util.SkyFactory;
 import com.jme3.util.TangentBinormalGenerator;
 
@@ -73,20 +72,18 @@ public class TestParallaxPBR extends SimpleApplication {
     public void setupFloor() {
         mat = assetManager.loadMaterial("Textures/Terrain/BrickWall/BrickWallPBR.j3m");
         //mat = assetManager.loadMaterial("Textures/Terrain/BrickWall/BrickWallPBR2.j3m");
-                
-        Node floorGeom = new Node("floorGeom");
-        Quad q = new Quad(100, 100);
-        q.scaleTextureCoordinates(new Vector2f(10, 10));
-        Geometry g = new Geometry("geom", q);
-        g.setLocalRotation(new Quaternion().fromAngleAxis(-FastMath.HALF_PI, Vector3f.UNIT_X));
-        floorGeom.attachChild(g);
-        
-        
+
+        RectangleMesh rm = new RectangleMesh(
+                new Vector3f(-50, 22, 60),
+                new Vector3f(50, 22, 60),
+                new Vector3f(-50, 22, -40));
+        rm.scaleTextureCoordinates(new Vector2f(10, 10));
+
+        Geometry floorGeom = new Geometry("floorGeom", rm);
         TangentBinormalGenerator.generate(floorGeom);
-        floorGeom.setLocalTranslation(-50, 22, 60);
         //floorGeom.setLocalScale(100);
 
-        floorGeom.setMaterial(mat);        
+        floorGeom.setMaterial(mat);
         rootNode.attachChild(floorGeom);
     }
 
