@@ -31,6 +31,8 @@
  */
 package com.jme3.font;
 
+import com.jme3.export.Savable;
+
 /**
  * Used for selecting character shape in cursive bitmap text. In cursive scripts,
  * the appearance of a letter changes depending on its position:
@@ -39,7 +41,7 @@ package com.jme3.font;
  *
  * @author Ali-RS
  */
-public interface GlyphParser {
+public interface GlyphParser extends Savable {
 
     public CharSequence parse(CharSequence text);
 
