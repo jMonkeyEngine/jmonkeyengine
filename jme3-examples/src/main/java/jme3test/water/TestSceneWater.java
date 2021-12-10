@@ -42,7 +42,7 @@ import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
-import com.jme3.scene.shape.Quad;
+import com.jme3.scene.shape.RectangleMesh;
 import com.jme3.scene.shape.Sphere;
 import com.jme3.util.SkyFactory;
 import com.jme3.water.SimpleWaterProcessor;
@@ -125,16 +125,17 @@ public class TestSceneWater extends SimpleApplication {
         //lower the speed of the waves if they are too fast
 //        waterProcessor.setWaveSpeed(0.01f);
 
-        Quad quad = new Quad(400,400);
+        RectangleMesh rect = new RectangleMesh(
+                new Vector3f(-200, -20, 250),
+                new Vector3f(200, -20, 250),
+                new Vector3f(-200, -20, -150));
 
         //the texture coordinates define the general size of the waves
-        quad.scaleTextureCoordinates(new Vector2f(6f,6f));
+        rect.scaleTextureCoordinates(new Vector2f(6f, 6f));
 
-        Geometry water=new Geometry("water", quad);
+        Geometry water = new Geometry("water", rect);
         water.setShadowMode(ShadowMode.Receive);
-        water.setLocalRotation(new Quaternion().fromAngleAxis(-FastMath.HALF_PI, Vector3f.UNIT_X));
         water.setMaterial(waterProcessor.getMaterial());
-        water.setLocalTranslation(-200, -20, 250);
 
         rootNode.attachChild(water);
 
