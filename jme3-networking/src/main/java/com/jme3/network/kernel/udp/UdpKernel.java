@@ -183,7 +183,7 @@ public class UdpKernel extends AbstractKernel
     {
         // So the tricky part here is figuring out the endpoint and
         // whether it's new or not.  In these UDP schemes, firewalls have
-        // to be ported back to a specific machine so we will consider
+        // to be ported back to a specific machine, so we will consider
         // the address + port (ie: SocketAddress) the de facto unique
         // ID.
         Endpoint p = getEndpoint( packet.getSocketAddress(), true );
@@ -275,8 +275,8 @@ public class UdpKernel extends AbstractKernel
             // An atomic is safest and costs almost nothing
             while( go.get() ) {
                 try {
-                    // Could reuse the packet but I don't see the
-                    // point and it may lead to subtle bugs if not properly
+                    // Could reuse the packet, but I don't see the
+                    // point, and it may lead to subtle bugs if not properly
                     // reset.
                     DatagramPacket packet = new DatagramPacket( buffer, buffer.length );
                     socket.receive(packet);

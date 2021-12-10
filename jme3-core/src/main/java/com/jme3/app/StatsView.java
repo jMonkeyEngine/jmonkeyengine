@@ -113,7 +113,7 @@ public class StatsView extends Node implements Control, JmeCloneable {
 
         // Moved to ResetStatsState to make sure it is
         // done even if there is no StatsView or the StatsView
-        // is disable.
+        // is disabled.
         //statistics.clearFrame();
     }
 

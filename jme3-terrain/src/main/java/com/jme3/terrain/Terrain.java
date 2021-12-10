@@ -37,7 +37,7 @@ import com.jme3.math.Vector3f;
 import java.util.List;
 
 /**
- * Terrain can be one or many meshes comprising of a, probably large, piece of land.
+ * Terrain can be one or many meshes comprising a (probably large) piece of land.
  * Terrain is Y-up in the grid axis, meaning gravity acts in the -Y direction.
  * Level of Detail (LOD) is supported and expected as terrains can get very large. LOD can
  * also be disabled if you so desire, however some terrain implementations can choose to ignore
@@ -166,7 +166,7 @@ public interface Terrain {
     /**
      * Used for painting to get the number of vertices along the edge of the
      * terrain.
-     * This is an un-scaled size, and should represent the vertex count (ie. the
+     * This is an un-scaled size, and should represent the vertex count (i.e. the
      * texture coord count) along an edge of a square terrain.
      * 
      * In the standard TerrainQuad default implementation, this will return

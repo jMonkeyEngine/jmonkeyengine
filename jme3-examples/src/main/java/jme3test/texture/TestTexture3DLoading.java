@@ -68,7 +68,7 @@ public class TestTexture3DLoading extends SimpleApplication {
 
         q.scaleTextureCoordinates(new Vector2f(rows, rows));
 
-        //The image only have 8 pictures and we have 16 thumbs, the data will be interpolated by the GPU
+        // The image has only 8 pictures, and we have 16 thumbs, so the data will be interpolated by the GPU.
         material.setFloat("InvDepth", 1f / 16f);
         material.setInt("Rows", rows);
         material.setTexture("Texture", t);

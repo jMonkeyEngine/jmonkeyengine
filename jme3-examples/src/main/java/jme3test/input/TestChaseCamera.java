@@ -95,11 +95,11 @@ public class TestChaseCamera extends SimpleApplication implements AnalogListener
     //chaseCam.setLookAtOffset(Vector3f.UNIT_Y.mult(3));
 
     //Uncomment this to enable rotation when the middle mouse button is pressed (like Blender)
-    //WARNING : setting this trigger disable the rotation on right and left mouse button click
+    // WARNING: setting this trigger disables the rotation on right and left mouse button click
     //chaseCam.setToggleRotationTrigger(new MouseButtonTrigger(MouseInput.BUTTON_MIDDLE));
 
     //Uncomment this to set multiple triggers to enable rotation of the cam
-    //Here spade bar and middle mouse button
+    // Here spacebar and middle mouse button
     //chaseCam.setToggleRotationTrigger(new MouseButtonTrigger(MouseInput.BUTTON_MIDDLE),new KeyTrigger(KeyInput.KEY_SPACE));
 
     //registering inputs for target's movement

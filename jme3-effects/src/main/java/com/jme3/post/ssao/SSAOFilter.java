@@ -53,7 +53,7 @@ import java.util.ArrayList;
 
 /**
  * SSAO stands for screen space ambient occlusion
- * It's a technique that fakes ambient lighting by computing shadows that near by objects would casts on each others 
+ * It's a technique that fakes ambient lighting by computing shadows that nearby objects would cast on each other.
  * under the effect of an ambient light
  * more info on this in this blog post <a href="http://jmonkeyengine.org/2010/08/16/screen-space-ambient-occlusion-for-jmonkeyengine-3-0/">http://jmonkeyengine.org/2010/08/16/screen-space-ambient-occlusion-for-jmonkeyengine-3-0/</a>
  * 

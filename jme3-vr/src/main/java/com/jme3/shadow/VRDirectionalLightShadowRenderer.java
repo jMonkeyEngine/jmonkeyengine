@@ -54,8 +54,8 @@ public class VRDirectionalLightShadowRenderer extends DirectionalLightShadowRend
      * @param assetManager the application asset manager
      * @param shadowMapSize the size of the rendered shadowmaps (512,1024,2048,
      * etc...)
-     * @param nbSplits the number of shadow maps rendered (the more shadow maps
-     * the more quality, the less fps).
+     * @param nbSplits the number of shadow maps rendered (More shadow maps
+     * result in higher quality, fewer fps.)
      */
     public VRDirectionalLightShadowRenderer(AssetManager assetManager, int shadowMapSize, int nbSplits) {
         super(assetManager, shadowMapSize, nbSplits);

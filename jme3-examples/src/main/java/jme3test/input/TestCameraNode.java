@@ -86,7 +86,7 @@ public class TestCameraNode extends SimpleApplication implements AnalogListener,
 
     //creating the camera Node
     CameraNode camNode = new CameraNode("CamNode", cam);
-    //Setting the direction to Spatial to camera, this means the camera will copy the movements of the Node
+    // Set the direction to SpatialToCamera, which means the camera will copy the movements of the Node.
     camNode.setControlDir(ControlDirection.SpatialToCamera);
     //attaching the camNode to the teaNode
     teaNode.attachChild(camNode);

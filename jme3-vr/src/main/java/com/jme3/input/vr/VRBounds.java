@@ -3,7 +3,7 @@ package com.jme3.input.vr;
 import com.jme3.math.Vector2f;
 
 /**
- * This interface describe the VR playground bounds.
+ * This interface describes the VR playground bounds.
  * @author Julien Seinturier - COMEX SA - <a href="http://www.seinturier.fr">http://www.seinturier.fr</a>
  *
  */

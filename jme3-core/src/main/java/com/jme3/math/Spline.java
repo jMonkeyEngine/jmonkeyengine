@@ -99,7 +99,7 @@ public class Spline implements Savable {
      *
      * @param splineType the type of the spline @see {SplineType}
      * @param controlPoints a list of vector to use as control points of the spline
-     * If the type of the curve is Bezier curve the control points should be provided
+     * If the curve is a Bezier curve, the control points should be provided
      * in the appropriate way. Each point 'p' describing control position in the scene
      * should be surrounded by two handler points. This applies to every point except
      * for the border points of the curve, who should have only one handle point.
@@ -407,7 +407,7 @@ public class Spline implements Savable {
     //////////// NURBS getters /////////////////////
     /**
      * This method returns the minimum nurb curve knot value. Check the nurb
-     * type before calling this method. It the curve is not of a Nurb type - NPE
+     * type before calling this method. If the curve is not of a Nurb type, an NPE
      * will be thrown.
      *
      * @return the minimum nurb curve knot value
@@ -418,7 +418,7 @@ public class Spline implements Savable {
 
     /**
      * This method returns the maximum nurb curve knot value. Check the nurb
-     * type before calling this method. It the curve is not of a Nurb type - NPE
+     * type before calling this method. If the curve is not of a Nurb type, an NPE
      * will be thrown.
      *
      * @return the maximum nurb curve knot value

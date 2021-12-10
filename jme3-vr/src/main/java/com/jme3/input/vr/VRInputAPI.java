@@ -169,7 +169,7 @@ public interface VRInputAPI {
     
     /**
      * Get where is the controller pointing, after all rotations are combined.
-     * This position should include includes observer rotation from the VR application.
+     * This position should include observer rotation from the VR application.
      * @param index the index of the controller.
      * @return the rotation of the input after all positional tracking is complete.
      */
@@ -177,7 +177,7 @@ public interface VRInputAPI {
     
     /**
      * Get the position of the input after all positional tracking is complete.
-     * This position should include includes observer position from the VR application.
+     * This position should include observer position from the VR application.
      * @param index the index of the controller.
      * @return the position of the input after all positional tracking is complete.
      */

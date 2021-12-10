@@ -128,7 +128,7 @@ public class VRAppState extends AbstractAppState {
 
     
     /**
-     * Simple update of the app state, this method should contains any spatial updates.
+     * Simple update of the app state, this method should contain any spatial updates.
      * This method is called by the {@link #update(float) update()} method and should not be called manually.
      * @param tpf the application time.
      */

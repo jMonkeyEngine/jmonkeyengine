@@ -34,7 +34,7 @@ package com.jme3.collision;
 import com.jme3.math.*;
 
 /**
- * No longer public ..
+ * No longer public.
  *
  * @author Kirill Vainer
  */
