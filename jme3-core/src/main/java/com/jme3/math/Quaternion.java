@@ -1264,12 +1264,27 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
 
     /**
      * Flip the signs of all components of this Quaternion.
+     *
+     * @deprecated The naming of this method doesn't follow convention. Please
+     *     use {@link #normalizeLocal()} instead.
      */
+    @Deprecated
     public void negate() {
+        negateLocal();
+    }
+
+    /**
+     * Flip the signs of all components.
+     *
+     * @return the (modified) current instance (for chaining)
+     */
+    public Quaternion negateLocal() {
         x *= -1;
         y *= -1;
         z *= -1;
         w *= -1;
+
+        return this;
     }
 
     /**
@@ -1370,10 +1385,9 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      * <code>ObjectInput</code> object. <br>
      * NOTE: Used with serialization. Not to be called manually.
      *
-     * @param in
-     *            the ObjectInput value to read from.
-     * @throws IOException
-     *             if the ObjectInput value has problems reading a float.
+     * @param in the ObjectInput value to read from.
+     * @throws IOException if the ObjectInput value has problems reading a
+     * float.
      * @see java.io.Externalizable
      */
     public void readExternal(ObjectInput in) throws IOException {
@@ -1388,10 +1402,8 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      * <code>ObjectOutput</code> object. NOTE: Used with serialization. Not to
      * be called manually.
      *
-     * @param out
-     *            the object to write to.
-     * @throws IOException
-     *             if writing to the ObjectOutput fails.
+     * @param out the object to write to.
+     * @throws IOException if writing to the ObjectOutput fails.
      * @see java.io.Externalizable
      */
     public void writeExternal(ObjectOutput out) throws IOException {
@@ -1403,17 +1415,15 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
 
     /**
      * <code>lookAt</code> is a convenience method for auto-setting the
-     * quaternion based on a direction and an up vector. It computes
-     * the rotation to transform the z-axis to point into 'direction'
-     * and the y-axis to 'up'.  Note that the results will be invalid
-     * if a zero length direction vector (0,0,0) is supplied, or if the 
-     * direction and up vectors are parallel.
+     * quaternion based on a direction and an up vector. It computes the
+     * rotation to transform the z-axis to point into 'direction' and the y-axis
+     * to 'up'. Note that the results will be invalid if a zero length direction
+     * vector (0,0,0) is supplied, or if the direction and up vectors are
+     * parallel.
      *
-     * @param direction
-     *            where to look at in terms of local coordinates
-     * @param up
-     *            a vector indicating the local up direction.
-     *            (typically {0, 1, 0} in jME.)
+     * @param direction where to look at in terms of local coordinates
+     * @param up a vector indicating the local up direction. (typically {0, 1,
+     * 0} in jME.)
      * @return this
      */
     public Quaternion lookAt(Vector3f direction, Vector3f up) {
@@ -1460,21 +1470,21 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
 
     /**
      * @return A new quaternion that describes a rotation that would point you
-     *         in the exact opposite direction of this Quaternion.
+     * in the exact opposite direction of this Quaternion.
      */
     public Quaternion opposite() {
         return opposite(null);
     }
 
     /**
-     * FIXME: This seems to have singularity type issues with angle == 0, possibly others such as PI.
+     * FIXME: This seems to have singularity type issues with angle == 0,
+     * possibly others such as PI.
      *
-     * @param store
-     *            A Quaternion to store our result in. If null, a new one is
-     *            created.
+     * @param store A Quaternion to store our result in. If null, a new one is
+     * created.
      * @return The store quaternion (or a new Quaternion, if store is null) that
-     *         describes a rotation that would point you in the exact opposite
-     *         direction of this Quaternion.
+     * describes a rotation that would point you in the exact opposite direction
+     * of this Quaternion.
      */
     public Quaternion opposite(Quaternion store) {
         if (store == null) {
@@ -1490,8 +1500,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
 
     /**
      * @return This Quaternion, altered to describe a rotation that would point
-     *         you in the exact opposite direction of where it is pointing
-     *         currently.
+     * you in the exact opposite direction of where it is pointing currently.
      */
     public Quaternion oppositeLocal() {
         return opposite(this);
