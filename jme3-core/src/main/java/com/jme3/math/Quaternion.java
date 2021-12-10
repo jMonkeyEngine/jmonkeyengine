@@ -1279,10 +1279,10 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      * @return the (modified) current instance (for chaining)
      */
     public Quaternion negateLocal() {
-        x *= -1;
-        y *= -1;
-        z *= -1;
-        w *= -1;
+        x = -x;
+        y = -y;
+        z = -z;
+        w = -w;
 
         return this;
     }
