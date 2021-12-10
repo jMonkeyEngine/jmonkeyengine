@@ -65,7 +65,7 @@ public class RectangleMesh extends Mesh {
      * 
      */
     public RectangleMesh() {
-        this(new Rectangle(new Vector3f(), new Vector3f(1, 0, 0), new Vector3f(1, 1, 0)));
+        this(new Rectangle(new Vector3f(), new Vector3f(1, 0, 0), new Vector3f(0, 1, 0)));
     }
 
     /**
@@ -158,13 +158,16 @@ public class RectangleMesh extends Mesh {
     }
 
     public void updateMesh() {
-        setBuffer(Type.Position, 3,
-                new float[] {
-                        rectangle.getA().x, rectangle.getA().y, rectangle.getA().z,
-                        rectangle.getB().x, rectangle.getB().y, rectangle.getB().z,
-                        rectangle.getC().x, rectangle.getC().y, rectangle.getC().z,
-                        rectangle.getD().x, rectangle.getD().y, rectangle.getD().z
-                });
+        Vector3f a = rectangle.getA();
+        Vector3f b = rectangle.getB();
+        Vector3f c = rectangle.getC();
+        Vector3f d = rectangle.getD();
+        setBuffer(Type.Position, 3, new float[] {
+                a.x, a.y, a.z,
+                b.x, b.y, b.z,
+                d.x, d.y, d.z,
+                c.x, c.y, c.z
+        });
 
         setBuffer(Type.TexCoord, 2, BufferUtils.createFloatBuffer(texCoords));
 
