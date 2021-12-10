@@ -49,24 +49,24 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
 
     static final long serialVersionUID = 1;
     /**
-     * shared instance of the identity transform - Do not modify!
+     * Shared instance of the identity transform. Do not modify!
      */
     public static final Transform IDENTITY = new Transform();
     /**
-     * rotation component
+     * Rotation component.
      */
     private Quaternion rot = new Quaternion();
     /**
-     * translation offsets for each axis
+     * Translation offsets for each axis.
      */
     private Vector3f translation = new Vector3f();
     /**
-     * scale factors for each axis
+     * Scale factors for each axis.
      */
     private Vector3f scale = new Vector3f(1, 1, 1);
 
     /**
-     * Instantiate a coordinate transform without any scaling.
+     * Instantiates a coordinate transform without any scaling.
      *
      * @param translation the desired translation (not null, unaffected)
      * @param rot the desired rotation (not null, unaffected)
@@ -77,7 +77,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Instantiate a coordinate transform with scaling.
+     * Instantiates a coordinate transform with scaling.
      *
      * @param translation the desired translation (not null, unaffected)
      * @param rot the desired rotation (not null, unaffected)
@@ -89,7 +89,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Instantiate a translation-only transform.
+     * Instantiates a translation-only transform.
      *
      * @param translation the desired translation (not null, unaffected)
      */
@@ -98,7 +98,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Instantiate a rotation-only transform.
+     * Instantiates a rotation-only transform.
      *
      * @param rot the desired rotation (not null, unaffected)
      */
@@ -107,7 +107,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Instantiate an identity transform.
+     * Instantiates an identity transform.
      */
     public Transform() {
         this(Vector3f.ZERO, Quaternion.IDENTITY);
@@ -136,7 +136,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Return the translation vector in this Transform.
+     * Returns the translation vector in this Transform.
      *
      * @return translation vector.
      */
@@ -167,7 +167,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Return the scale vector in this Transform.
+     * Returns the scale vector in this Transform.
      *
      * @return scale vector.
      */
@@ -208,7 +208,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Return the rotation quaternion in this Transform.
+     * Returns the rotation quaternion in this Transform.
      *
      * @return rotation quaternion.
      */
@@ -298,7 +298,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Transform the specified coordinates.
+     * Transforms the specified coordinates.
      *
      * @param in the coordinates to transform (not null, unaffected)
      * @param store storage for the result (modified if not null)
@@ -315,7 +315,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Apply the inverse transform to the specified coordinates.
+     * Applies the inverse transform to the specified coordinates.
      *
      * @param in the coordinates to transform (not null, unaffected)
      * @param store storage for the result (modified if not null)
@@ -338,7 +338,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Create an equivalent transform matrix.
+     * Creates an equivalent transform matrix.
      *
      * @return a new 4x4 matrix
      */
@@ -347,7 +347,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Convert to an equivalent transform matrix.
+     * Converts to an equivalent transform matrix.
      *
      * @param store storage for the result (modified if not null)
      * @return a 4x4 matrix (either store or a new vector)
@@ -363,7 +363,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Configure based on a transform matrix.
+     * Configures based on a transform matrix.
      *
      * @param mat the input matrix (not null, unaffected)
      */
@@ -376,7 +376,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Create an inverse of this Transform.
+     * Creates an inverse of this Transform.
      *
      * @return a new instance
      */
@@ -396,7 +396,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Test for exact identity.
+     * Tests for exact identity.
      *
      * @return true if exactly equal to {@link #IDENTITY}, otherwise false
      */
@@ -407,7 +407,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Generate the hash code for this instance.
+     * Generates the hash code for this instance.
      *
      * @return a 32-bit value for use in hashing
      */
@@ -421,7 +421,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Test for exact equality with another object.
+     * Tests for exact equality with another object.
      *
      * @param obj the object to compare to (may be null, unaffected)
      * @return true if the objects are exactly equal, otherwise false
@@ -441,7 +441,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Represent this Transform as a String. The format is:
+     * Represents this Transform as a String. The format is:
      *
      * [TX.XXXX, TY.YYYY, TZ.ZZZZ]
      * [RX.XXXX, RY.YYYY, RZ.ZZZZ, RW.WWWW]
@@ -471,7 +471,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Serialize this transform to the specified exporter, for example when
+     * Serializes this transform to the specified exporter, for example when
      * saving to a J3O file.
      *
      * @param e (not null)
@@ -486,7 +486,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * De-serialize this transform from the specified importer, for example
+     * De-serializes this transform from the specified importer, for example
      * when loading from a J3O file.
      *
      * @param e (not null)
@@ -502,7 +502,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Create a copy of this Transform.
+     * Creates a copy of this Transform.
      *
      * @return a new instance equivalent to this one
      */
