@@ -37,7 +37,19 @@ import java.io.IOException;
 /**
  * <code>Rectangle</code> defines a finite plane within three dimensional space
  * that is specified via three points (A, B, C). These three points define a
- * triangle with the fourth point defining the rectangle (C - B) + A.
+ * triangle with the fourth point defining the rectangle (B + C) - A.<p>
+ * 
+ * The points of a rectangle are arranged as follows: 
+ * 
+ * <pre>
+ *     C +-----+ D
+ *       |\    |
+ *       | \   |
+ *       |  \  |
+ *       |   \ |
+ *       |    \|
+ *     A +-----+ B
+ * </pre>
  *
  * @author Mark Powell
  * @author Joshua Slack
@@ -127,12 +139,12 @@ public final class Rectangle implements Savable, Cloneable, java.io.Serializable
 
     /**
      * <code>getD</code> returns the fourth point of the rectangle.
-     * The fourth point is given by calculating (C - B) + A.
+     * The fourth point is given by calculating (B + C) - A.
      *
      * @return the fourth point of this rectangle.
      */
     public Vector3f getD() {
-        return c.subtract(b).addLocal(a);
+        return b.add(c).subtractLocal(a);
     }
 
     /**
@@ -156,7 +168,7 @@ public final class Rectangle implements Savable, Cloneable, java.io.Serializable
 
     /**
      * <code>random</code> returns a random point within the plane defined by:
-     * A, B, C, and (C - B) + A.
+     * A, B, C, and (B + C) - A.
      *
      * @return a random point within the rectangle.
      */
@@ -166,7 +178,7 @@ public final class Rectangle implements Savable, Cloneable, java.io.Serializable
 
     /**
      * <code>random</code> returns a random point within the plane defined by:
-     * A, B, C, and (C - B) + A.
+     * A, B, C, and (B + C) - A.
      *
      * @param result
      *            Vector to store result in
