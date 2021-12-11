@@ -279,11 +279,11 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Sets this transform's translation to the given x,y,z values.
+     * Sets this transform's translation to the given values.
      *
-     * @param x This transform's new x translation.
-     * @param y This transform's new y translation.
-     * @param z This transform's new z translation.
+     * @param x This transform's new X translation.
+     * @param y This transform's new Y translation.
+     * @param z This transform's new Z translation.
      * @return the (modified) current instance (for chaining)
      */
     public Transform setTranslation(float x, float y, float z) {
@@ -292,11 +292,11 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Sets the scaling component to the given x,y,z values.
+     * Sets the scaling component to the given values.
      *
-     * @param x This transform's new x scale factor.
-     * @param y This transform's new y scale factor.
-     * @param z This transform's new z scale factor.
+     * @param x This transform's new X scale factor.
+     * @param y This transform's new Y scale factor.
+     * @param z This transform's new Z scale factor.
      * @return the (modified) current instance (for chaining)
      */
     public Transform setScale(float x, float y, float z) {
