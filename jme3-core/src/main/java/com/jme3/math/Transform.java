@@ -177,9 +177,9 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Stores this translation component into the given vector3f. If trans is null,
+     * Stores this translation component into the argument. If the argument is null,
      * a new vector3f is created to hold the value. The current instance is
-     * unaffected, unless <code>trans</code>
+     * unaffected, unless the argument
      * is its scaling component.
      *
      * @param trans storage for the result (modified if not null)
@@ -195,7 +195,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Stores the rotation component into the given Quaternion. If quat is null, a
+     * Stores the rotation component into the argument. If the argument is null, a
      * new Quaternion is created to hold the value. The current instance is unaffected.
      *
      * @param quat storage for the result (modified if not null)
@@ -219,9 +219,9 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Stores the scaling component into the given vector3f. If scale is null, a new
+     * Stores the scaling component into the argument. If the argument is null, a new
      * vector3f is created to hold the value. The current instance is
-     * unaffected, unless <code>scale</code>
+     * unaffected, unless the argument
      * is its translation component.
      *
      * @param scale storage for the result (modified if not null)
@@ -254,7 +254,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Changes the values of this Transform according to its parent and returns
+     * Changes the values of this Transform according the argument and returns
      * the (modified) current instance. Very similar to the concept of
      * Node/Spatial transforms.
      *
@@ -437,7 +437,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Tests for exact equality with another object. The current instance is
+     * Tests for exact equality with the argument. The current instance is
      * unaffected.
      *
      * @param obj the object to compare to (may be null, unaffected)
@@ -476,7 +476,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Sets this Transform to be equal to the given Transform.
+     * Sets this Transform to be equal to the argument.
      *
      * @param matrixQuat The Transform to be equal to. (not null, unaffected)
      * @return the (modified) current instance (for chaining)
@@ -489,7 +489,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Serializes this transform to the specified exporter, for example when
+     * Serializes this transform to the argument, for example when
      * saving to a J3O file. The current instance is unaffected.
      *
      * @param e (not null)
@@ -504,7 +504,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * De-serializes this transform from the specified importer, for example
+     * De-serializes this transform from the argument, for example
      * when loading from a J3O file.
      *
      * @param e (not null)
