@@ -57,11 +57,11 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
      */
     private Quaternion rot = new Quaternion();
     /**
-     * Translation component:  an offset for each axis.
+     * Translation component: an offset for each axis.
      */
     private Vector3f translation = new Vector3f();
     /**
-     * Scaling component:  a scale factor for each axis.
+     * Scaling component: a scale factor for each axis.
      */
     private Vector3f scale = new Vector3f(1, 1, 1);
 
@@ -176,10 +176,10 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Copies the translation component to the argument. If the argument is null,
-     * a new Vector3f is created to hold the value. Either way, the current instance is
-     * unaffected, unless the argument
-     * is its scaling component.
+     * Copies the translation component to the argument. If the argument is
+     * null, a new Vector3f is created to hold the value. Either way, the
+     * current instance is unaffected, unless the argument is its scaling
+     * component.
      *
      * @param trans storage for the result (modified if not null)
      * @return the translation offsets (either <code>trans</code> or a new
@@ -219,10 +219,9 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Copies the scaling component to the argument. If the argument is null, a new
-     * Vector3f is created to hold the value. Either way, the current instance is
-     * unaffected, unless the argument
-     * is its translation component.
+     * Copies the scaling component to the argument. If the argument is null, a
+     * new Vector3f is created to hold the value. Either way, the current
+     * instance is unaffected, unless the argument is its translation component.
      *
      * @param scale storage for the result (modified if not null)
      * @return the scale factors (either <code>scale</code> or a new Vector3f)
@@ -243,7 +242,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
      * @param t2 The ending transform (not null, unaffected unless it's
      *     <code>this</code>)
      * @param delta An amount between 0 and 1 representing how far to
-     * interpolate from t1 to t2.
+     *     interpolate from t1 to t2.
      */
     public void interpolateTransforms(Transform t1, Transform t2, float delta) {
         this.rot.set(t1.rot);
@@ -304,10 +303,9 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
 
     /**
      * Transforms the specified coordinates and returns the result in
-     * <code>store</code>. If the <code>store</code> is null,
-     * a new Vector3f is created to hold the value. Either way,
-     * the current instance is unaffected,
-     * unless <code>store</code> is its translation or scaling.
+     * <code>store</code>. If the <code>store</code> is null, a new Vector3f is
+     * created to hold the value. Either way, the current instance is
+     * unaffected, unless <code>store</code> is its translation or scaling.
      *
      * @param in the coordinates to transform (not null, unaffected)
      * @param store storage for the result (modified if not null)
@@ -326,8 +324,8 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
 
     /**
      * Applies the inverse transform to the specified coordinates and returns
-     * the result in <code>store</code>. If the <code>store</code> is null,
-     * a new Vector3f is created to hold the value. Either way, the current
+     * the result in <code>store</code>. If the <code>store</code> is null, a
+     * new Vector3f is created to hold the value. Either way, the current
      * instance is unaffected, unless <code>store</code> is its translation or
      * scaling.
      *
@@ -461,8 +459,8 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Returns a string representation. The current instance is
-     * unaffected. The format is:
+     * Returns a string representation. The current instance is unaffected. The
+     * format is:
      *
      * [TX.XXXX, TY.YYYY, TZ.ZZZZ]
      * [RX.XXXX, RY.YYYY, RZ.ZZZZ, RW.WWWW]
@@ -492,8 +490,8 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Serializes to the argument, for example when
-     * saving to a J3O file. The current instance is unaffected.
+     * Serializes to the argument, for example when saving to a J3O file. The
+     * current instance is unaffected.
      *
      * @param e (not null)
      * @throws IOException from the exporter
@@ -507,8 +505,8 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * De-serializes from the argument, for example
-     * when loading from a J3O file.
+     * De-serializes from the argument, for example when loading from a J3O
+     * file.
      *
      * @param e (not null)
      * @throws IOException from the importer
