@@ -116,7 +116,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     /**
      * Sets this rotation to the given Quaternion value.
      *
-     * @param rot The new rotation for this Transform. (unaffected)
+     * @param rot The new rotation for this Transform. (not null, unaffected)
      * @return the (modified) current instance (for chaining)
      */
     public Transform setRotation(Quaternion rot) {
@@ -127,7 +127,8 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     /**
      * Sets this translation to the given value.
      *
-     * @param trans The new translation for this Transform. (unaffected)
+     * @param trans The new translation for this Transform. (not null,
+     *     unaffected)
      * @return the (modified) current instance (for chaining)
      */
     public Transform setTranslation(Vector3f trans) {
@@ -138,7 +139,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     /**
      * Returns the translation vector in this Transform.
      *
-     * @return the pre-existing instance
+     * @return the pre-existing instance (not null)
      */
     public Vector3f getTranslation() {
         return translation;
@@ -147,7 +148,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     /**
      * Sets this scale to the given value.
      *
-     * @param scale The new scale for this Transform. (unaffected)
+     * @param scale The new scale for this Transform. (not null, unaffected)
      * @return the (modified) current instance (for chaining)
      */
     public Transform setScale(Vector3f scale) {
@@ -169,7 +170,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     /**
      * Returns the scale vector in this Transform.
      *
-     * @return the pre-existing instance
+     * @return the pre-existing instance (not null)
      */
     public Vector3f getScale() {
         return scale;
@@ -211,7 +212,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     /**
      * Returns the rotation quaternion in this Transform.
      *
-     * @return the pre-existing instance
+     * @return the pre-existing instance (not null)
      */
     public Quaternion getRotation() {
         return rot;
@@ -238,15 +239,15 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
      * Sets this transform to the interpolation between the first transform and
      * the second by delta amount.
      *
-     * @param t1 The beginning transform. (unaffected unless it's
+     * @param t1 The beginning transform. (not null, unaffected unless it's
      *     <code>this</code>)
-     * @param t2 The ending transform. (unaffected unless it's
+     * @param t2 The ending transform. (not null, unaffected unless it's
      *     <code>this</code>)
      * @param delta An amount between 0 and 1 representing how far to
      * interpolate from t1 to t2.
      */
     public void interpolateTransforms(Transform t1, Transform t2, float delta) {
-        this.rot.set(t1.rot); 
+        this.rot.set(t1.rot);
         this.rot.nlerp(t2.rot, delta);
         this.translation.interpolateLocal(t1.translation, t2.translation, delta);
         this.scale.interpolateLocal(t1.scale, t2.scale, delta);
@@ -257,7 +258,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
      * the (modified) current instance. Very similar to the concept of
      * Node/Spatial transforms.
      *
-     * @param parent The parent Transform. (unaffected unless it's
+     * @param parent The parent Transform. (not null, unaffected unless it's
      *     <code>this</code>)
      * @return the (modified) current instance (for chaining)
      */
@@ -475,7 +476,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     /**
      * Sets this Transform to be equal to the given Transform.
      *
-     * @param matrixQuat The Transform to be equal to. (unaffected)
+     * @param matrixQuat The Transform to be equal to. (not null, unaffected)
      * @return the (modified) current instance (for chaining)
      */
     public Transform set(Transform matrixQuat) {
