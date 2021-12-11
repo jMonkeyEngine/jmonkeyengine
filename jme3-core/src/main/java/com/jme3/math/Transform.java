@@ -57,11 +57,11 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
      */
     private Quaternion rot = new Quaternion();
     /**
-     * Translation offsets for each axis.
+     * Translation component:  an offset for each axis.
      */
     private Vector3f translation = new Vector3f();
     /**
-     * Scale factors for each axis.
+     * Scaling component:  a scale factor for each axis.
      */
     private Vector3f scale = new Vector3f(1, 1, 1);
 
@@ -81,7 +81,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
      *
      * @param translation the desired translation (not null, unaffected)
      * @param rot the desired rotation (not null, unaffected)
-     * @param scale the desired scale factor (not null, unaffected)
+     * @param scale the desired scaling (not null, unaffected)
      */
     public Transform(Vector3f translation, Quaternion rot, Vector3f scale) {
         this(translation, rot);
@@ -114,7 +114,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Sets this rotation to the given Quaternion value.
+     * Sets the rotation component to the given Quaternion value.
      *
      * @param rot The new rotation for this Transform. (not null, unaffected)
      * @return the (modified) current instance (for chaining)
@@ -125,7 +125,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Sets this translation to the given value.
+     * Sets the translation component to the given value.
      *
      * @param trans The new translation for this Transform. (not null,
      *     unaffected)
@@ -137,7 +137,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Returns the translation vector in this Transform.
+     * Returns the translation component of this Transform.
      *
      * @return the pre-existing instance (not null)
      */
@@ -146,9 +146,9 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Sets this scale to the given value.
+     * Sets the scaling component to the given value.
      *
-     * @param scale The new scale for this Transform. (not null, unaffected)
+     * @param scale The new scale factors for this Transform. (not null, unaffected)
      * @return the (modified) current instance (for chaining)
      */
     public Transform setScale(Vector3f scale) {
@@ -157,9 +157,9 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Sets this scale to the given value.
+     * Sets the scaling component to the given value.
      *
-     * @param scale The new scale for this Transform.
+     * @param scale The new scale factor for this Transform.
      * @return the (modified) current instance (for chaining)
      */
     public Transform setScale(float scale) {
@@ -168,7 +168,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Returns the scale vector in this Transform.
+     * Returns the scaling component of this Transform.
      *
      * @return the pre-existing instance (not null)
      */
@@ -177,10 +177,10 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Stores this translation value into the given vector3f. If trans is null,
+     * Stores this translation component into the given vector3f. If trans is null,
      * a new vector3f is created to hold the value. The value, once stored, is
      * returned. The current instance is unaffected, unless <code>trans</code>
-     * is its scale component.
+     * is its scaling component.
      *
      * @param trans storage for the result (modified if not null)
      * @return The value of this transform's translation.
@@ -194,7 +194,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Stores this rotation value into the given Quaternion. If quat is null, a
+     * Stores the rotation component into the given Quaternion. If quat is null, a
      * new Quaternion is created to hold the value. The value, once stored, is
      * returned. The current instance is unaffected.
      *
@@ -210,7 +210,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Returns the rotation quaternion in this Transform.
+     * Returns the rotation component of this Transform.
      *
      * @return the pre-existing instance (not null)
      */
@@ -219,7 +219,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Stores this scale value into the given vector3f. If scale is null, a new
+     * Stores the scaling component into the given vector3f. If scale is null, a new
      * vector3f is created to hold the value. The value, once stored, is
      * returned. The current instance is unaffected, unless <code>scale</code>
      * is its translation component.
@@ -292,11 +292,11 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Sets this transform's scale to the given x,y,z values.
+     * Sets the scaling component to the given x,y,z values.
      *
-     * @param x This transform's new x scale.
-     * @param y This transform's new y scale.
-     * @param z This transform's new z scale.
+     * @param x This transform's new x scale factor.
+     * @param y This transform's new y scale factor.
+     * @param z This transform's new z scale factor.
      * @return the (modified) current instance (for chaining)
      */
     public Transform setScale(float x, float y, float z) {
@@ -306,7 +306,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
 
     /**
      * Transforms the specified coordinates. The current instance is unaffected,
-     * unless <code>store</code> is its translation or scale.
+     * unless <code>store</code> is its translation or scaling.
      *
      * @param in the coordinates to transform (not null, unaffected)
      * @param store storage for the result (modified if not null)
@@ -324,8 +324,8 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
 
     /**
      * Applies the inverse transform to the specified coordinates. The current
-     * instance is unaffected, unless <code>store</code> is the translation or
-     * scale.
+     * instance is unaffected, unless <code>store</code> is its translation or
+     * scaling.
      *
      * @param in the coordinates to transform (not null, unaffected unless it's
      *     <code>store</code>)
