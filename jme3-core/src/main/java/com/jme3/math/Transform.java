@@ -177,8 +177,8 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Stores this translation component into the argument. If the argument is null,
-     * a new vector3f is created to hold the value. The current instance is
+     * Copies the translation component to the argument. If the argument is null,
+     * a new Vector3f is created to hold the value. Either way, the current instance is
      * unaffected, unless the argument
      * is its scaling component.
      *
@@ -195,8 +195,9 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Stores the rotation component into the argument. If the argument is null, a
-     * new Quaternion is created to hold the value. The current instance is unaffected.
+     * Copies the rotation component to the argument. If the argument is null, a
+     * new Quaternion is created to hold the value. Either way, the current
+     * instance is unaffected.
      *
      * @param quat storage for the result (modified if not null)
      * @return the rotation value (either <code>quat</code> or a new Quaternion)
@@ -219,8 +220,8 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Stores the scaling component into the argument. If the argument is null, a new
-     * vector3f is created to hold the value. The current instance is
+     * Copies the scaling component to the argument. If the argument is null, a new
+     * Vector3f is created to hold the value. Either way, the current instance is
      * unaffected, unless the argument
      * is its translation component.
      *
@@ -305,7 +306,10 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Transforms the specified coordinates. The current instance is unaffected,
+     * Transforms the specified coordinates and returns the result in
+     * <code>store</code>. If the <code>store</code> is null,
+     * a new Vector3f is created to hold the value. Either way,
+     * the current instance is unaffected,
      * unless <code>store</code> is its translation or scaling.
      *
      * @param in the coordinates to transform (not null, unaffected)
@@ -324,7 +328,9 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Applies the inverse transform to the specified coordinates. The current
+     * Applies the inverse transform to the specified coordinates and returns
+     * the result in <code>store</code>. If the <code>store</code> is null,
+     * a new Vector3f is created to hold the value. Either way, the current
      * instance is unaffected, unless <code>store</code> is its translation or
      * scaling.
      *
