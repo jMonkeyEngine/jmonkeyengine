@@ -114,7 +114,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Sets the rotation component to the given Quaternion value.
+     * Sets the rotation component to the argument.
      *
      * @param rot The new rotation for this Transform. (not null, unaffected)
      * @return the (modified) current instance (for chaining)
@@ -125,7 +125,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Sets the translation component to the given value.
+     * Sets the translation component to the argument.
      *
      * @param trans The new translation for this Transform. (not null,
      *     unaffected)
@@ -146,7 +146,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Sets the scaling component to the given value.
+     * Sets the scaling component to the argument.
      *
      * @param scale The new scale factors for this Transform. (not null, unaffected)
      * @return the (modified) current instance (for chaining)
@@ -157,7 +157,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Sets the scaling component to the given value.
+     * Sets the scaling component to the argument.
      *
      * @param scale The new scale factor for this Transform.
      * @return the (modified) current instance (for chaining)
@@ -280,7 +280,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Sets this transform's translation to the given values.
+     * Sets this transform's translation to the specified values.
      *
      * @param x This transform's new X translation.
      * @param y This transform's new Y translation.
@@ -293,7 +293,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Sets the scaling component to the given values.
+     * Sets the scaling component to the specified values.
      *
      * @param x This transform's new X scale factor.
      * @param y This transform's new Y scale factor.
