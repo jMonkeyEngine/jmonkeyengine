@@ -40,7 +40,7 @@ import java.io.IOException;
  * A 3-D coordinate transform composed of translation, rotation, and scaling.
  * The order of application is: scale then rotate then translate.
  *
- * Started Date: Jul 16, 2004<br><br>
+ * <p>Started July 16, 2004
  *
  * @author Jack Lindamood
  * @author Joshua Slack
@@ -57,11 +57,11 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
      */
     private Quaternion rot = new Quaternion();
     /**
-     * Translation component: an offset for each axis.
+     * Translation component: an offset for each local axis.
      */
     private Vector3f translation = new Vector3f();
     /**
-     * Scaling component: a scale factor for each axis.
+     * Scaling component: a scale factor for each local axis.
      */
     private Vector3f scale = new Vector3f(1, 1, 1);
 
@@ -107,7 +107,8 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Instantiates an identity transform.
+     * Instantiates an identity transform: no translation, no rotation, and no
+     * scaling.
      */
     public Transform() {
         this(Vector3f.ZERO, Quaternion.IDENTITY);
@@ -156,9 +157,9 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Sets the scaling component to the argument.
+     * Sets the scaling component to the argument. This yields uniform scaling.
      *
-     * @param scale the desired scale factor
+     * @param scale the desired scale factor for all local axes
      * @return the (modified) current instance (for chaining)
      */
     public Transform setScale(float scale) {
@@ -235,14 +236,15 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Interpolates between the specified transforms.
+     * Interpolates quickly between the specified transforms, using
+     * {@link Quaternion#nlerp(com.jme3.math.Quaternion, float)} and
+     * {@link Vector3f#interpolateLocal(com.jme3.math.Vector3f, com.jme3.math.Vector3f, float)}.
      *
-     * @param t1 The beginning transform (not null, unaffected unless it's
-     *     <code>this</code>)
-     * @param t2 The ending transform (not null, unaffected unless it's
-     *     <code>this</code>)
-     * @param delta An amount between 0 and 1 representing how far to
-     *     interpolate from t1 to t2.
+     * @param t1 the desired value when <code>delta</code>=0 (not null,
+     *     unaffected unless it's <code>this</code>)
+     * @param t2 the desired value when <code>delta</code>=1 (not null,
+     *     unaffected unless it's <code>this</code>)
+     * @param delta the fractional change amount
      */
     public void interpolateTransforms(Transform t1, Transform t2, float delta) {
         this.rot.set(t1.rot);
@@ -255,7 +257,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
      * Combines with the argument and returns the (modified) current instance.
      * This method is used to combine Node and Spatial transforms.
      *
-     * @param parent The parent Transform (not null, unaffected unless it's
+     * @param parent the parent transform (not null, unaffected unless it's
      *     <code>this</code>)
      * @return the (modified) current instance (for chaining)
      */
@@ -379,7 +381,9 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Configures based on a transform matrix.
+     * Sets the current instance from a transform matrix. Any shear in the
+     * matrix is lost -- in other words, it may not be possible to recreate the
+     * original matrix from the result.
      *
      * @param mat the input matrix (not null, unaffected)
      */
@@ -415,7 +419,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     /**
      * Tests for exact identity. The current instance is unaffected.
      *
-     * @return true if exactly equal to {@link #IDENTITY}, otherwise false
+     * @return true if equal to {@link #IDENTITY}, otherwise false
      */
     public boolean isIdentity() {
         return translation.x == 0f && translation.y == 0f && translation.z == 0f
@@ -424,7 +428,8 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Returns a hash code. The current instance is unaffected.
+     * Returns a hash code. If two transforms are logically equivalent, they
+     * will return the same hash code. The current instance is unaffected.
      *
      * @return a 32-bit value for use in hashing
      */
@@ -438,8 +443,8 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Tests for exact equality with the argument. The current instance is
-     * unaffected.
+     * Tests for exact equality with the argument, distinguishing -0 from 0. The
+     * current instance is unaffected.
      *
      * @param obj the object to compare to (may be null, unaffected)
      * @return true if the objects are exactly equal, otherwise false
