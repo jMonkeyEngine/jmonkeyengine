@@ -34,65 +34,37 @@ package jme3test.gui;
 import com.jme3.app.SimpleApplication;
 import com.jme3.app.StatsAppState;
 import com.jme3.font.*;
-import com.jme3.math.ColorRGBA;
 
 /**
  * Test case for JME issue #1158: BitmapText right to left line wrapping not work
  */
 public class TestRtlBitmapText extends SimpleApplication {
 
-    // A right to left text.
-    private String text = " check check check linelenght all for  possible .text left to right test a is This";
-    String text2 = "to right test a is This text left.";
-    BitmapFont fnt;
-
+    private String text = "This is a test right to left text.";
+    private BitmapFont fnt;
+    private BitmapText txt;
 
     public static void main(String[] args) {
         TestRtlBitmapText app = new TestRtlBitmapText();
         app.start();
     }
-    BitmapText txt;
+
     @Override
     public void simpleInitApp() {
-        float H = 500;
-        float X = 400;
+        float x = 400;
+        float y = 500;
         getStateManager().detach(stateManager.getState(StatsAppState.class));
         fnt = assetManager.loadFont("Interface/Fonts/Default.fnt");
+        fnt.setRightToLeft(true);
 
         // A right to left BitmapText
-
-        txt = new BitmapText(fnt, true);
+        txt = new BitmapText(fnt);
         txt.setBox(new Rectangle(0, 0, 150, 0));
-        txt.setLineWrapMode(LineWrapMode.Character);
+        txt.setLineWrapMode(LineWrapMode.Word);
         txt.setAlignment(BitmapFont.Align.Right);
         txt.setText(text);
 
-        txt.setLocalTranslation(X, H, 0);
-        txt.setColor(new ColorRGBA(ColorRGBA.Blue));
+        txt.setLocalTranslation(x, y, 0);
         guiNode.attachChild(txt);
-
-        BitmapText txt2 = new BitmapText(fnt);
-        txt2.setBox(new Rectangle(0, 0, 150, 0));
-        txt2.setLineWrapMode(LineWrapMode.Word);
-        txt2.setAlignment(BitmapFont.Align.Left);
-    //    txt2.setVerticalAlignment(BitmapFont.VAlign.Top);
-
-        txt2.setText(text2);
-        txt2.setLocalTranslation(X,H + 200, 0);
-
-        guiNode.attachChild(txt2);
-
-
-    }
-    int i =35;
-    float d = 0;
-    @Override
-    public void simpleUpdate(float tpf) {
- //       BitmapCharacter c = fnt.getCharSet().getCharacter(i);
- //       c.getKerning(i+1);
- //       i++;
-  //      txt.setLocalTranslation(d ,300,0);
-  //      d += + 1.01f*tpf;
-   //     System.out.println(cam.getHeight() / 2);
     }
 }

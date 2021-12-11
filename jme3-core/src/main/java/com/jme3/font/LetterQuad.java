@@ -369,8 +369,8 @@ class LetterQuad {
                         x0 = getBound(block).x + (getBound(block) != UNBOUNDED ? getBound(block).width : 0) - xAdvance - xOffset * incrScale;
                     }
                     // Since x0 has xAdvance baked into it, we need to zero out xAdvance.
-                    // Since x0 will have offset baked into it we need to counteract that in xAdvance.
-                    // The next x position will be (x0 - xAdvance)
+                    // Since x0 will have offset baked into it we need to counteract that
+                    // in xAdvance. The next x position will be (x0 - xAdvance)
                     xAdvance = -xOffset * incrScale;
                 } else {
                     x0 = bound.x;
@@ -391,10 +391,9 @@ class LetterQuad {
                    // For RTL text the xAdvance of the current letter is deducted,
                    // while for LTR text the advance of the letter before is added.
                    x0 = previous.getNextX() - xAdvance - xOffset * incrScale;
-                   // Since x0 has xAdvance baked into it we need to zero out xAdvance.
-                   // Since x0 will have offset baked into it then we
-                   // need to counteract that in xAdvance.
-                   // The next x position will be (x0 - xAdvance)
+                   // Since x0 has xAdvance baked into it, we need to zero out xAdvance.
+                   // Since x0 will have offset baked into it we need to counteract that
+                   // in xAdvance. The next x position will be (x0 - xAdvance)
                    xAdvance = - xOffset * incrScale;
                 } else {
                     x0 = previous.getNextX() + xOffset * incrScale;
@@ -410,6 +409,7 @@ class LetterQuad {
             }
             y0 = lineY + LINE_DIR*yOffset;
 
+            // Adjust for kerning
             BitmapCharacter lastChar = previous.getBitmapChar();
             if (lastChar != null && block.isKerning()) {
                 kernAmount = lastChar.getKerning(c) * sizeScale;

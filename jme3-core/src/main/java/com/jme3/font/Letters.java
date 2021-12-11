@@ -192,21 +192,24 @@ class Letters {
     }
 
     private void align() {
+        if (block.getTextBox() == null) {
+            // Without a textblock there is no alignment.
+            return;
+
+            // For unbounded left-to-right texts the letters will simply be shown starting from
+            // x0 = 0 and advance toward right as line length is considered to be infinite.
+            // For unbounded right-to-left texts the letters will be shown starting from x0 = 0
+            // (at the same position as left-to-right texts) but move toward the left from there.
+        }
+
         final Align alignment = block.getAlignment();
         final VAlign valignment = block.getVerticalAlignment();
+        final float width = block.getTextBox().width;
+        final float height = block.getTextBox().height;
         float lineWidth = 0;
         float gapX = 0;
         float gapY = 0;
 
-        // Without a textblock there is no alignment
-        // For Left to Right texts the letters will simply be shown starting from left
-        // as linelenght is considered to be Integer.Maxvalue width
-        // with the changes in LetterQuad Right to Left texts will be starting at the same position as LtR texts
-        // but move to the left from there. Not sure if that is right. Another solution would be
-        // to have x set to the size of the screen. In the end its a question of taste
-        if (block.getTextBox() == null) return; // no alignment
-        final float width = block.getTextBox().width;
-        final float height = block.getTextBox().height;
         validateSize();
         if (totalHeight < height) { // align vertically only for no overflow
             switch (valignment) {
@@ -222,17 +225,19 @@ class Letters {
             }
         }
 
-        if (!(tail.isRightToLeft())) {
-            if (alignment == Align.Left && valignment == VAlign.Top) return;
+        if (font.isRightToLeft()) {
+            if ((alignment == Align.Right && valignment == VAlign.Top)) {
+                return;
+            }
             LetterQuad cursor = tail.getPrevious();
+            // Temporary set the flag, it will be reset when invalidated.
             cursor.setEndOfLine();
             while (!cursor.isHead()) {
                 if (cursor.isEndOfLine()) {
-                    lineWidth = cursor.getX1()-block.getTextBox().x;
-                    if (alignment == Align.Center) {
-                        gapX = (width-lineWidth)/2;
-                    } else if (alignment == Align.Right) {
-                        gapX = width-lineWidth;
+                    if (alignment == Align.Left) {
+                        gapX = block.getTextBox().x - cursor.getX0();
+                    } else if (alignment == Align.Center) {
+                        gapX = (block.getTextBox().x - cursor.getX0()) / 2;
                     } else {
                         gapX = 0;
                     }
@@ -240,16 +245,23 @@ class Letters {
                 cursor.setAlignment(gapX, gapY);
                 cursor = cursor.getPrevious();
             }
-        } else { // right to left
-            if ((alignment == Align.Right && valignment == VAlign.Top)) return;
+        } else { // left-to-right
+            if (alignment == Align.Left && valignment == VAlign.Top) {
+                return;
+            }
             LetterQuad cursor = tail.getPrevious();
-            gapX = (cursor.getX0()-block.getTextBox().x)*-1;
-            if (alignment == Align.Center) gapX = gapX/2; // left gap / 2
-       //    if (alignment == Align.Right) gapX = gapX;
+            // Temporary set the flag, it will be reset when invalidated.
+            cursor.setEndOfLine();
             while (!cursor.isHead()) {
-               if (cursor.isEndOfLine()) {
-                   gapX = (cursor.getX0()-block.getTextBox().x)*-1; // new gapX
-                   if (alignment == Align.Center) gapX = gapX/2;
+                if (cursor.isEndOfLine()) {
+                    lineWidth = cursor.getX1() - block.getTextBox().x;
+                    if (alignment == Align.Center) {
+                        gapX = (width - lineWidth) / 2;
+                    } else if (alignment == Align.Right) {
+                        gapX = width - lineWidth;
+                    } else {
+                        gapX = 0;
+                    }
                 }
                 cursor.setAlignment(gapX, gapY);
                 cursor = cursor.getPrevious();
@@ -262,7 +274,7 @@ class Letters {
             return;
         l.getPrevious().setEndOfLine();
         l.invalidate();
-        l.update(block); // TODO: update from l    // --> whats does this mean ? Update from left done ! but from l ???
+        l.update(block);
     }
 
     float getCharacterX0() {
