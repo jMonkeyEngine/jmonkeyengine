@@ -1475,7 +1475,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
 
     /**
      * @return A new quaternion that describes a rotation that would point you
-     * in the exact opposite direction of this Quaternion.
+     *         in the exact opposite direction of this Quaternion.
      */
     public Quaternion opposite() {
         return opposite(null);
