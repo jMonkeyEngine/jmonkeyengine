@@ -178,12 +178,13 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
 
     /**
      * Stores this translation component into the given vector3f. If trans is null,
-     * a new vector3f is created to hold the value. The value, once stored, is
-     * returned. The current instance is unaffected, unless <code>trans</code>
+     * a new vector3f is created to hold the value. The current instance is
+     * unaffected, unless <code>trans</code>
      * is its scaling component.
      *
      * @param trans storage for the result (modified if not null)
-     * @return The value of this transform's translation.
+     * @return the translation offsets (either <code>trans</code> or a new
+     *     Vector3f)
      */
     public Vector3f getTranslation(Vector3f trans) {
         if (trans == null) {
@@ -195,11 +196,10 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
 
     /**
      * Stores the rotation component into the given Quaternion. If quat is null, a
-     * new Quaternion is created to hold the value. The value, once stored, is
-     * returned. The current instance is unaffected.
+     * new Quaternion is created to hold the value. The current instance is unaffected.
      *
      * @param quat storage for the result (modified if not null)
-     * @return The value of this transform's rotation.
+     * @return the rotation value (either <code>quat</code> or a new Quaternion)
      */
     public Quaternion getRotation(Quaternion quat) {
         if (quat == null) {
@@ -220,12 +220,12 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
 
     /**
      * Stores the scaling component into the given vector3f. If scale is null, a new
-     * vector3f is created to hold the value. The value, once stored, is
-     * returned. The current instance is unaffected, unless <code>scale</code>
+     * vector3f is created to hold the value. The current instance is
+     * unaffected, unless <code>scale</code>
      * is its translation component.
      *
      * @param scale storage for the result (modified if not null)
-     * @return The value of this transform's scale.
+     * @return the scale factors (either <code>scale</code> or a new Vector3f)
      */
     public Vector3f getScale(Vector3f scale) {
         if (scale == null) {
@@ -310,7 +310,8 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
      *
      * @param in the coordinates to transform (not null, unaffected)
      * @param store storage for the result (modified if not null)
-     * @return the transformed coordinates (either store or a new vector)
+     * @return the transformed coordinates (either <code>store</code> or a new
+     *     Vector3f)
      */
     public Vector3f transformVector(final Vector3f in, Vector3f store) {
         if (store == null) {
@@ -330,7 +331,8 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
      * @param in the coordinates to transform (not null, unaffected unless it's
      *     <code>store</code>)
      * @param store storage for the result (modified if not null)
-     * @return the transformed coordinates (either store or a new vector)
+     * @return the transformed coordinates (either <code>store</code> or a new
+     *     Vector3f)
      */
     public Vector3f transformInverseVector(final Vector3f in, Vector3f store) {
         if (store == null) {
@@ -352,7 +354,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
      * Creates an equivalent transform matrix. The current instance is
      * unaffected.
      *
-     * @return a new 4x4 matrix
+     * @return a new Matrix4f
      */
     public Matrix4f toTransformMatrix() {
         return toTransformMatrix(null);
@@ -363,7 +365,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
      * unaffected.
      *
      * @param store storage for the result (modified if not null)
-     * @return a 4x4 matrix (either store or a new vector)
+     * @return a transform matrix (either <code>store</code> or a new Matrix4f)
      */
     public Matrix4f toTransformMatrix(Matrix4f store) {
         if (store == null) {
@@ -391,7 +393,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     /**
      * Creates an inverse of this Transform. The current instance is unaffected.
      *
-     * @return a new instance
+     * @return a new Transform
      */
     public Transform invert() {
         Transform t = new Transform();
@@ -463,7 +465,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
      * [RX.XXXX, RY.YYYY, RZ.ZZZZ, RW.WWWW]
      * [SX.XXXX, SY.YYYY, SZ.ZZZZ]
      *
-     * @return a descriptive string of text (not null, not empty)
+     * @return the string representation (not null, not empty)
      */
     @Override
     public String toString() {
@@ -520,7 +522,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     /**
      * Creates a copy of this Transform. The current instance is unaffected.
      *
-     * @return a new instance equivalent to this one
+     * @return a new instance, equivalent to the current one
      */
     @Override
     public Transform clone() {
