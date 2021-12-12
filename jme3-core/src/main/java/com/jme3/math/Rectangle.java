@@ -152,7 +152,6 @@ public final class Rectangle implements Savable, Cloneable, java.io.Serializable
      * 
      * @param normal the vector to store the result in
      * @return the normal vector of this <code>Rectangle</code>
-     * @see https://web.ma.utexas.edu/users/m408m/Display12-5-4.shtml
      */
     public Vector3f calculateNormal(Vector3f normal) {
         if (normal == null) {
