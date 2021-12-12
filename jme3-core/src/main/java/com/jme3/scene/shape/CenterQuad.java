@@ -70,7 +70,7 @@ public class CenterQuad extends Mesh {
      * @param height the desired Y extent or height
      */
     public CenterQuad(float width, float height) {
-        this(width, height, false);
+        updateGeometry(width, height, false);
     }
 
     /**
@@ -83,7 +83,6 @@ public class CenterQuad extends Mesh {
      */
     public CenterQuad(float width, float height, boolean flipCoords) {
         updateGeometry(width, height, flipCoords);
-        super.setStatic();
     }
 
     /**
