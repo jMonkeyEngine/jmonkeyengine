@@ -296,13 +296,13 @@ public class LWJGLOpenVRInput implements VRInputAPI {
 
     @Override
     public boolean isInputFocused() {
-    	if (environment != null){
+        if (environment != null){
             // not a 100% match, but the closest i can find in lwjgl. Doc seems to confirm this too.
             return VRSystem.VRSystem_IsInputAvailable();
             //return ((VR_IVRSystem_FnTable)environment.getVRHardware().getVRSystem()).IsInputFocusCapturedByAnotherProcess.apply() == 0;
-    	} else {
-    		throw new IllegalStateException("VR input is not attached to a VR environment.");
-    	}      
+        } else {
+            throw new IllegalStateException("VR input is not attached to a VR environment.");
+        }
     }
 
     @Override

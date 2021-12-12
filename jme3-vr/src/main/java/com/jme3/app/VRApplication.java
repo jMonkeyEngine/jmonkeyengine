@@ -66,7 +66,6 @@ import java.util.logging.Logger;
 
 import org.lwjgl.system.Platform;
 
-
 /**
  * A JMonkey application dedicated to Virtual Reality. An application that use VR devices (HTC vive, ...) has to extend this one.<br>
  * <p>
@@ -76,31 +75,28 @@ import org.lwjgl.system.Platform;
  * @deprecated use {@link VRAppState VRAppState} instead.
  */
 public abstract class VRApplication implements Application, SystemListener {
-
-	
     private static final Logger logger = Logger.getLogger(LegacyApplication.class.getName());
 
     /**
      * The default FOV.
      */
     public float DEFAULT_FOV    = 108f;
-    
-    
+
     /**
      * The default aspect ratio.
      */
     public float DEFAULT_ASPECT = 1f;
-    
+
     /**
      * Is the application is based on OSVR (default is <code>false</code>).
      */
     public boolean CONSTRUCT_WITH_OSVR = false;
-    
+
     /**
      * Is the application has not to start within VR mode (default is <code>false</code>).
      */
     public boolean DISABLE_VR = false;
-    
+
     /**
      * VR application configuration parameters.
      * @author reden - phr00t - https://github.com/phr00t
@@ -108,74 +104,74 @@ public abstract class VRApplication implements Application, SystemListener {
      *
      */
     public static enum PreconfigParameter {
-    	/**
-    	 * Is the SteamVR compositor is used (kinda needed at the moment)
-    	 */
-        USE_VR_COMPOSITOR, 
-        
+        /**
+         * Is the SteamVR compositor is used (kinda needed at the moment)
+         */
+        USE_VR_COMPOSITOR,
+
         /**
          * Render two eyes, regardless of VR API detection.
          */
-        FORCE_VR_MODE, 
-        
+        FORCE_VR_MODE,
+
         /**
          * Invert the eyes.
          */
         FLIP_EYES,
-        
+
         /**
          * Show GUI even if it is behind objects.
          */
-        SET_GUI_OVERDRAW, 
-        
+        SET_GUI_OVERDRAW,
+
         /**
-         * 
+         *
          */
-        SET_GUI_CURVED_SURFACE, 
-        
+        SET_GUI_CURVED_SURFACE,
+
         /**
          * Display a mirror rendering on the screen. Runs faster when set to <code>false</code>.
          */
-        ENABLE_MIRROR_WINDOW, 
-        
+        ENABLE_MIRROR_WINDOW,
+
         /**
-         * 
+         *
          */
-        PREFER_OPENGL3, 
-        
+        PREFER_OPENGL3,
+
         /**
          * Disable VR rendering, regardless VR API and devices are presents.
          */
         DISABLE_VR,
-        
+
         /**
-         * 
+         *
          */
-        SEATED_EXPERIENCE, 
-        
+        SEATED_EXPERIENCE,
+
         /**
          * Remove GUI node from the application.
          */
-        NO_GUI, 
-        
+        NO_GUI,
+
         /**
          * Faster VR rendering, requires some vertex shader changes (see Common/MatDefs/VR/Unshaded.j3md)
          */
-        INSTANCE_VR_RENDERING, 
-        
+        INSTANCE_VR_RENDERING,
+
         /**
-         * 
+         *
          */
         FORCE_DISABLE_MSAA
     }
-    
+
     private VRAPI VRhardware            = null;
     private VRGuiManager guiManager     = null;
     private OpenVRMouseManager mouseManager = null;
     private OpenVRViewManager viewManager = null;
-    
+
     private String OS;
-     
+
     private Camera dummyCam;
     private Spatial observer;
     private boolean VRSupportedOS;
@@ -186,20 +182,20 @@ public abstract class VRApplication implements Application, SystemListener {
     private boolean nogui;
     private boolean instanceVR;
     private boolean forceDisableMSAA;
-    
+
     // things taken from LegacyApplication
-    private AppStateManager stateManager;    
-    private Camera cam;    
+    private AppStateManager stateManager;
+    private Camera cam;
     private AppSettings settings;
-    private JmeContext context;    
+    private JmeContext context;
     private float speed = 1f;
-    private AudioRenderer audioRenderer;    
+    private AudioRenderer audioRenderer;
     private LostFocusBehavior lostFocusBehavior = LostFocusBehavior.ThrottleOnLostFocus;
     private final ConcurrentLinkedQueue<AppTask<?>> taskQueue = new ConcurrentLinkedQueue<>();
     private Timer timer = new NanoTimer();
     private boolean paused = false, inputEnabled = true;
     private InputManager inputManager;
-    private RenderManager renderManager;    
+    private RenderManager renderManager;
     private ViewPort viewPort;
     private ViewPort guiViewPort;
     private AssetManager assetManager;
@@ -211,24 +207,24 @@ public abstract class VRApplication implements Application, SystemListener {
     private TouchInput touchInput;
 
     protected Node guiNode, rootNode;
-    
+
     private float fFar = 1000f, fNear = 1f;
     private int xWin = 1280, yWin = 720;
-    
+
     private float resMult = 1f;
-    
+
     private boolean useCompositor = true, compositorOS;
-    private final String RESET_HMD = "ResetHMD";  
-    
+    private final String RESET_HMD = "ResetHMD";
+
     /**
      * Create a new VR application and attach the given {@link AppState app states}.<br>
-     * The application scene is made of a {@link #getRootNode() root node} that holds the scene spatials 
+     * The application scene is made of a {@link #getRootNode() root node} that holds the scene spatials
      * and a {@link #getGuiNode() GUI node} that is the root of the Graphical user interface.
      * @param initialStates the {@link AppState app states} to attach to the application.
      */
     public VRApplication(AppState... initialStates) {
         this();
-        
+
         if (initialStates != null) {
             for (AppState a : initialStates) {
                 if (a != null) {
@@ -237,50 +233,50 @@ public abstract class VRApplication implements Application, SystemListener {
             }
         }
     }
-    
+
     /**
-     * Create a new VR application.<br> 
-     * The application scene is made of a {@link #getRootNode() root node} that holds the scene spatials 
+     * Create a new VR application.<br>
+     * The application scene is made of a {@link #getRootNode() root node} that holds the scene spatials
      * and a {@link #getGuiNode() GUI node} that is the root of the Graphical user interface.
      */
     public VRApplication() {
         super();
-        
+
         rootNode = new Node("root");
         guiNode = new Node("guiNode");
-        
+
         guiNode.setQueueBucket(Bucket.Gui);
         guiNode.setCullHint(CullHint.Never);
         dummyCam = new Camera(0, 0);
-        
+
         initStateManager();
 
         // Create the GUI manager.
         guiManager = new VRGuiManager(null);
-        
+
         // Create a new view manager.
         viewManager = new OpenVRViewManager(null);
-        
+
         // Create a new mouse manager.
         mouseManager = new OpenVRMouseManager(null);
-        
+
         // we are going to use OpenVR now, not the Oculus Rift
         // OpenVR does support the Rift
         OS = System.getProperty("os.name", "generic").toLowerCase(Locale.ENGLISH);
         VRSupportedOS = !OS.contains("nux") && System.getProperty("sun.arch.data.model").equalsIgnoreCase("64"); //for the moment, linux/unix causes crashes, 64-bit only
         compositorOS = OS.contains("indows");
-        
+
         if( !VRSupportedOS ) {
-        	logger.warning("Non-supported OS: " + OS + ", architecture: " + System.getProperty("sun.arch.data.model"));
+            logger.warning("Non-supported OS: " + OS + ", architecture: " + System.getProperty("sun.arch.data.model"));
         } else if( DISABLE_VR ) {
-        	logger.warning("VR disabled via code.");
+            logger.warning("VR disabled via code.");
         } else if( VRSupportedOS && DISABLE_VR == false ) {
             if( CONSTRUCT_WITH_OSVR ) {
-            	//FIXME: WARNING !!
+                //FIXME: WARNING !!
                 VRhardware = new OSVR(null);
                 logger.config("Creating OSVR wrapper [SUCCESS]");
             } else {
-            	//FIXME: WARNING !!
+                //FIXME: WARNING !!
                 VRhardware = new OpenVR(null);
                 logger.config("Creating OpenVR wrapper [SUCCESS]");
             }
@@ -289,7 +285,7 @@ public abstract class VRApplication implements Application, SystemListener {
             }
         }
     }
-    
+
     /**
      * Get the VR underlying hardware.
      * @return the VR underlying hardware.
@@ -297,7 +293,7 @@ public abstract class VRApplication implements Application, SystemListener {
     public VRAPI getVRHardware() {
         return VRhardware;
     }
-    
+
     /**
      * Get the VR dedicated input.
      * @return the VR dedicated input.
@@ -306,7 +302,7 @@ public abstract class VRApplication implements Application, SystemListener {
         if( VRhardware == null ) return null;
         return VRhardware.getVRinput();
     }
-    
+
     /**
      * Get the VR view manager.
      * @return the VR view manager.
@@ -314,23 +310,23 @@ public abstract class VRApplication implements Application, SystemListener {
     public OpenVRViewManager getVRViewManager() {
         return viewManager;
     }
-    
+
     /**
      * Get the GUI manager attached to this application.
      * @return the GUI manager attached to this application.
      */
     public VRGuiManager getVRGUIManager(){
-    	return guiManager;
+        return guiManager;
     }
-    
+
     /**
      * Get the VR mouse manager attached to this application.
      * @return the VR mouse manager attached to this application.
      */
     public OpenVRMouseManager getVRMouseManager(){
-    	return mouseManager;
+        return mouseManager;
     }
-    
+
     /**
      * Set the frustum values for the application.
      * @param near the frustum near value.
@@ -340,7 +336,7 @@ public abstract class VRApplication implements Application, SystemListener {
         fNear = near;
         fFar = far;
     }
-    
+
     /**
      * Set the mirror window size in pixel.
      * @param width the width of the mirror window in pixel.
@@ -350,7 +346,7 @@ public abstract class VRApplication implements Application, SystemListener {
         xWin = width;
         yWin = height;
     }
-    
+
     /**
      * Set the resolution multiplier.
      * @param val the resolution multiplier.
@@ -359,8 +355,8 @@ public abstract class VRApplication implements Application, SystemListener {
         resMult = val;
         if( viewManager != null ) viewManager.setResolutionMultiplier(resMult);
     }
-    
-    
+
+
     /**
      * Is the SteamVR compositor is active.
      * @return <code>true</code> if the SteamVR compositor is active and <code>false</code> otherwise.
@@ -368,7 +364,7 @@ public abstract class VRApplication implements Application, SystemListener {
     public boolean compositorAllowed() {
         return useCompositor && compositorOS;
     }
-    
+
     /**
      * Get if the system currently support VR.
      * @return <code>true</code> if the system currently support VR and <code>false</Code> otherwise.
@@ -376,14 +372,14 @@ public abstract class VRApplication implements Application, SystemListener {
     public boolean isOSVRSupported() {
         return VRSupportedOS;
     }
-    
+
     /**
      * Simple update of the application, this method should contain {@link #getRootNode() root node} updates.
      * This method is called by the {@link #update() update()} method and should not be called manually.
      * @param tpf the application time.
      */
     public void simpleUpdate(float tpf) {   }
-    
+
     /**
      * Rendering callback of the application. This method is called by the {@link #update() update()} method and should not be called manually.
      * @param renderManager the {@link RenderManager render manager}.
@@ -392,7 +388,7 @@ public abstract class VRApplication implements Application, SystemListener {
         PreNormalCaching.resetCache(isInVR());
     }
 
-    
+
     /**
         we do NOT want to get and modify the distortion scene camera, so
         return the left viewport camera instead if we are in VR mode
@@ -404,7 +400,7 @@ public abstract class VRApplication implements Application, SystemListener {
         }
         return cam;
     }
-    
+
     /**
      * Get the application internal camera.
      * @return the application internal camera.
@@ -413,7 +409,6 @@ public abstract class VRApplication implements Application, SystemListener {
     public Camera getBaseCamera() {
         return cam;
     }
- 
 
     @Override
     public JmeContext getContext(){
@@ -454,11 +449,11 @@ public abstract class VRApplication implements Application, SystemListener {
     public Listener getListener() {
         return listener;
     }
-    
+
     @Override
     public Timer getTimer(){
         return timer;
-    }    
+    }
 
     /**
      * Handle the error given in parameters by creating a log entry and a dialog window. Internal use only.
@@ -496,7 +491,7 @@ public abstract class VRApplication implements Application, SystemListener {
             }
         }
     }
-    
+
     /**
      * Force the focus lost for the application. Internal use only.
      */
@@ -509,7 +504,7 @@ public abstract class VRApplication implements Application, SystemListener {
             context.setAutoFlushFrames(false);
         }
     }
-    
+
     /**
      * Reshape the display window. Internal use only.
      */
@@ -518,7 +513,7 @@ public abstract class VRApplication implements Application, SystemListener {
         if (renderManager != null) {
             renderManager.notifyReshape(w, h);
         }
-    }    
+    }
 
     /**
      * Request the application to close. Internal use only.
@@ -527,7 +522,7 @@ public abstract class VRApplication implements Application, SystemListener {
     public void requestClose(boolean esc){
         context.destroy(false);
     }
-    
+
     /**
      * Set the {@link AppSettings display settings} to define the display created.
      * <p>
@@ -553,8 +548,8 @@ public abstract class VRApplication implements Application, SystemListener {
         }else{
             inputEnabled = settings.useInput();
         }
-    }    
-    
+    }
+
     /**
      * Sets the {@link Timer} implementation that will be used for calculating
      * frame times.<br><br>
@@ -573,7 +568,6 @@ public abstract class VRApplication implements Application, SystemListener {
             renderManager.setTimer(timer);
         }
     }
-    
 
     /**
      * Determine the application's behavior when unfocused.
@@ -630,13 +624,12 @@ public abstract class VRApplication implements Application, SystemListener {
         } else {
             setLostFocusBehavior(LostFocusBehavior.Disabled);
         }
-    }    
-    
+    }
+
     @Override
     public void start() {
-    	
-    	logger.config("Starting application...");
-    	
+        logger.config("Starting application...");
+
         // set some default settings in-case
         // settings dialog is not shown
         boolean loadSettings = false;
@@ -644,17 +637,17 @@ public abstract class VRApplication implements Application, SystemListener {
             setSettings(new AppSettings(true));
             loadSettings = true;
         }
-        
+
         GraphicsDevice defDev = null;
-		try {
-			GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-			defDev = ge.getDefaultScreenDevice();
-		} catch (Throwable e1) {
-			logger.log(Level.SEVERE, "Cannot access default screen device: "+e1.getMessage(), e1);
-		}
-		
+        try {
+            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+            defDev = ge.getDefaultScreenDevice();
+        } catch (Throwable e1) {
+            logger.log(Level.SEVERE, "Cannot access default screen device: "+e1.getMessage(), e1);
+        }
+
         if( isInVR() && !compositorAllowed() ) {
-        	logger.warning("VR Composition is not allowed.");
+            logger.warning("VR Composition is not allowed.");
             // "easy extended" mode
             // TO-DO: JFrame was removed in LWJGL 3, need to use new GLFW library to pick "monitor" display of VR device
             // first, find the VR device
@@ -670,7 +663,7 @@ public abstract class VRApplication implements Application, SystemListener {
             // did we get the VR device?
             if( VRdev != null ) {
                 // set properties for VR acceleration
-                try {   
+                try {
                     java.awt.DisplayMode useDM = null;
                     int max = 0;
                     for(java.awt.DisplayMode dm : VRdev.getDisplayModes()) {
@@ -695,7 +688,7 @@ public abstract class VRApplication implements Application, SystemListener {
                     }
                     // make a blank cursor to hide it
                     //BufferedImage cursorImg = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
-                    //Cursor blankCursor = Toolkit.getDefaultToolkit().createCustomCursor(cursorImg, new Point(0, 0), "blank cursor");                    
+                    //Cursor blankCursor = Toolkit.getDefaultToolkit().createCustomCursor(cursorImg, new Point(0, 0), "blank cursor");
                     //VRwindow.setCursor(blankCursor);
                     //jmeCanvas.getCanvas().setCursor(blankCursor);
                     //VRwindow.pack();
@@ -703,22 +696,21 @@ public abstract class VRApplication implements Application, SystemListener {
                     //startCanvas();
                     logger.config("Starting application [SUCCESS]");
                     return;
-                } catch(Exception e) { 
-                	logger.log(Level.SEVERE, "Error during application start: "+e.getMessage(), e);
+                } catch(Exception e) {
+                    logger.log(Level.SEVERE, "Error during application start: "+e.getMessage(), e);
                 }
             }
         }
-        
+
         if( !isInVR() ) {
-        	
-        	logger.config("VR mode disabled.");
-        	
+            logger.config("VR mode disabled.");
+
             // not in VR, show settings dialog
             if( Platform.get() != Platform.MACOSX ) {
                 if (!JmeSystem.showSettingsDialog(settings, loadSettings)) {
-                	logger.config("Starting application [SUCCESS]");
+                    logger.config("Starting application [SUCCESS]");
                     return;
-                }            
+                }
             } else {
                 // GLFW workaround on macs
                 settings.setFrequency(defDev.getDisplayMode().getRefreshRate());
@@ -750,13 +742,12 @@ public abstract class VRApplication implements Application, SystemListener {
             }
             settings.setSwapBuffers(true);
         } else {
-        	
-        	logger.config("VR mode enabled.");
-        	
+            logger.config("VR mode enabled.");
+
             // use basic mirroring window, skip settings window
             settings.setWidth(xWin);
             settings.setHeight(yWin);
-            settings.setBitsPerPixel(24);     
+            settings.setBitsPerPixel(24);
             settings.setFrameRate(0); // never sleep in main loop
             settings.setFrequency(VRhardware.getDisplayFrequency());
             settings.setFullscreen(false);
@@ -765,31 +756,31 @@ public abstract class VRApplication implements Application, SystemListener {
             settings.setTitle("Put Headset On Now: " + settings.getTitle());
             settings.setResizable(true);
         }
-        
+
         if( forceDisableMSAA ) {
-        	logger.config("Disabling multisampling.");
+            logger.config("Disabling multisampling.");
             // disable multisampling, which is more likely to break things than be useful
             settings.setSamples(1);
         }
-        
+
         // set opengl mode
         if( tryOpenGL3 ) {
-        	logger.config("Using LWJGL OpenGL 3.2 renderer.");
+            logger.config("Using LWJGL OpenGL 3.2 renderer.");
             settings.setRenderer(AppSettings.LWJGL_OPENGL32);
         } else {
-        	logger.config("Using LWJGL OpenGL 2 renderer.");
+            logger.config("Using LWJGL OpenGL 2 renderer.");
             settings.setRenderer(AppSettings.LWJGL_OPENGL2);
         }
 
-        
-        setSettings(settings);     
+
+        setSettings(settings);
         start(JmeContext.Type.Display, false);
-        
+
         // disable annoying warnings about GUI stuff being updated, which is normal behavior
         // for late GUI placement for VR purposes
-        Logger.getLogger("com.jme3").setLevel(Level.SEVERE);        
-    }    
-    
+        Logger.getLogger("com.jme3").setLevel(Level.SEVERE);
+    }
+
     /**
      * Starts the application in {@link com.jme3.system.JmeContext.Type#Display display} mode.
      * @param waitFor if <code>true</code>, the method will wait until the application is started.
@@ -798,8 +789,8 @@ public abstract class VRApplication implements Application, SystemListener {
     @Override
     public void start(boolean waitFor){
         start(JmeContext.Type.Display, waitFor);
-    }   
-    
+    }
+
     /**
      * Starts the application.
      * Creating a rendering context and executing the main loop in a separate thread.
@@ -818,7 +809,7 @@ public abstract class VRApplication implements Application, SystemListener {
         }
 
         logger.log(Level.FINE, "Starting application: {0}", getClass().getName());
-        
+
         // Create VR dedicated context
         if (contextType == Type.Display){
           context = new LwjglDisplayVR();
@@ -833,31 +824,31 @@ public abstract class VRApplication implements Application, SystemListener {
 
         context.setSystemListener(this);
         context.create(waitFor);
-    }    
-    
+    }
+
     /**
      * Move filters from the main scene into the eye's.
      * This removes filters from the main scene.
      */
     public void moveScreenProcessingToVR() {
         if( isInVR() ) {
-        	viewManager.moveScreenProcessingToEyes();
+            viewManager.moveScreenProcessingToEyes();
         }
     }
-    
+
     /**
      * Set VR application {@link PreconfigParameter specific parameter}.
      * If making changes to default values, this must be called before the VRApplication starts
      * @param parm the parameter to set.
      * @param value the value of the parameter.
      */
-    public void preconfigureVRApp(PreconfigParameter parm, boolean value) {        
+    public void preconfigureVRApp(PreconfigParameter parm, boolean value) {
         switch( parm ) {
             case SET_GUI_OVERDRAW:
                 guiManager.setGuiOverdraw(value);
                 break;
             case SET_GUI_CURVED_SURFACE:
-            	guiManager.setCurvedSurface(value);
+                guiManager.setCurvedSurface(value);
                 break;
             case FORCE_VR_MODE:
                 forceVR = value;
@@ -898,7 +889,7 @@ public abstract class VRApplication implements Application, SystemListener {
                 break;
         }
     }
-    
+
     /**
      * Can be used to change seated experience during runtime.
      * @param isSeated <code>true</code> if designed for sitting, <code>false</code> for standing/roomscale
@@ -911,11 +902,11 @@ public abstract class VRApplication implements Application, SystemListener {
             if( seated ) {
                 ((OpenVR)VRhardware).getCompositor().SetTrackingSpace.apply(JOpenVRLibrary.ETrackingUniverseOrigin.ETrackingUniverseOrigin_TrackingUniverseSeated);
             } else {
-                ((OpenVR)VRhardware).getCompositor().SetTrackingSpace.apply(JOpenVRLibrary.ETrackingUniverseOrigin.ETrackingUniverseOrigin_TrackingUniverseStanding);                
-            }        
+                ((OpenVR)VRhardware).getCompositor().SetTrackingSpace.apply(JOpenVRLibrary.ETrackingUniverseOrigin.ETrackingUniverseOrigin_TrackingUniverseStanding);
+            }
         }
     }
-    
+
     /**
      * Check if the application is configured as a seated experience.
      * @return <code>true</code> if the application is configured as a seated experience and <code>false</code> otherwise.
@@ -924,7 +915,7 @@ public abstract class VRApplication implements Application, SystemListener {
     public boolean isSeatedExperience() {
         return seated;
     }
-    
+
     /**
      * Reset headset pose if seating experience.
      */
@@ -932,7 +923,7 @@ public abstract class VRApplication implements Application, SystemListener {
         if( VRSupportedOS == false || isSeatedExperience() == false ) return;
         VRhardware.reset();
     }
-    
+
     /**
      * Check if the rendering is instanced (see <a href="https://en.wikipedia.org/wiki/Geometry_instancing">Geometry instancing</a>).
      * @return <code>true</code> if the rendering is instanced and <code>false</code> otherwise.
@@ -940,16 +931,16 @@ public abstract class VRApplication implements Application, SystemListener {
     public boolean isInstanceVRRendering() {
         return instanceVR && isInVR();
     }
-    
+
     /**
      * Check if the VR mode is enabled.
      * @return <code>true</code> if the VR mode is enabled and <code>false</code> otherwise.
      */
     public boolean isInVR() {
         return DISABLE_VR == false && (forceVR || VRSupportedOS && VRhardware != null && VRhardware.isInitialized());
-    }  
+    }
 
-    
+
     /**
      * Get the GUI node from the application.
      * @return the GUI node from the application.
@@ -958,36 +949,34 @@ public abstract class VRApplication implements Application, SystemListener {
     public Node getGuiNode(){
         return guiNode;
     }
-    
+
     /**
-     * Set the GUI node that is displayed within the GUI viewport. 
+     * Set the GUI node that is displayed within the GUI viewport.
      * Calling this method involve clearing all the scenes previously attached to the gui viewport.
      * @param node the GUI node to attach.
      * @see #getGuiNode()
      */
     public void setGuiNode(Node node){
-    	if (node != null){
-    		if (guiViewPort != null){
-        		  
+        if (node != null){
+            if (guiViewPort != null){
                 enqueue(new Callable<Object>(){
 
-				  @Override
-				  public Object call() throws Exception {
-				    guiViewPort.clearScenes();
-				    guiViewPort.attachScene(node);
-					guiNode = node;
-					return null;
-				  }
-        			  
-        		});
+                  @Override
+                  public Object call() throws Exception {
+                    guiViewPort.clearScenes();
+                    guiViewPort.attachScene(node);
+                    guiNode = node;
+                    return null;
+                  }
 
-        	} else {
-        		throw new IllegalArgumentException("GUI view port is not initialized.");
-        	}
-    	}
-    	
+                });
+
+            } else {
+                throw new IllegalArgumentException("GUI view port is not initialized.");
+            }
+        }
     }
-    
+
     /**
      * Get the root node of the application.
      * @return the root node of the application.
@@ -995,7 +984,7 @@ public abstract class VRApplication implements Application, SystemListener {
     public Node getRootNode() {
         return rootNode;
     }
-    
+
     /**
      * Check if the application has a GUI overlay attached.
      * @return <code>true</code> if the application has a GUI overlay attached and <code>false</code> otherwise.
@@ -1004,10 +993,9 @@ public abstract class VRApplication implements Application, SystemListener {
         return !nogui;
     }
 
-
     /**
      * Get the scene observer. If no observer has been set, this method return the application {@link #getCamera() camera}.
-     * @return the scene observer. 
+     * @return the scene observer.
      * @see #setObserver(Spatial)
      */
     public Object getObserver() {
@@ -1016,7 +1004,7 @@ public abstract class VRApplication implements Application, SystemListener {
         }
         return observer;
     }
-    
+
     /**
      * Set the scene observer. The VR headset will be linked to it. If no observer is set, the VR headset is linked to the application {@link #getCamera() camera}.
      * @param observer the scene observer.
@@ -1024,13 +1012,13 @@ public abstract class VRApplication implements Application, SystemListener {
     public void setObserver(Spatial observer) {
        this.observer = observer;
     }
-    
+
     /*
         where is the headset pointing, after all rotations are combined?
         depends on observer rotation, if any
     */
     private static Quaternion tempq = new Quaternion();
-    
+
     /**
      * Get the observer final rotation within the scene.
      * @return the observer final rotation within the scene.
@@ -1041,7 +1029,7 @@ public abstract class VRApplication implements Application, SystemListener {
             if( observer == null ) {
                 return getCamera().getRotation();
             } else return observer.getWorldRotation();
-        }        
+        }
         if( observer == null ) {
             tempq.set(dummyCam.getRotation());
         } else {
@@ -1049,7 +1037,7 @@ public abstract class VRApplication implements Application, SystemListener {
         }
         return tempq.multLocal(VRhardware.getOrientation());
     }
-    
+
     /**
      * Get the observer final position within the scene.
      * @return the observer position.
@@ -1059,7 +1047,7 @@ public abstract class VRApplication implements Application, SystemListener {
         if( viewManager == null ) {
             if( observer == null ) {
                 return getCamera().getLocation();
-            } else return observer.getWorldTranslation();            
+            } else return observer.getWorldTranslation();
         }
         Vector3f pos = VRhardware.getPosition();
         if( observer == null ) {
@@ -1070,7 +1058,7 @@ public abstract class VRApplication implements Application, SystemListener {
             return pos.addLocal(observer.getWorldTranslation());
         }
     }
-    
+
     /**
      * Set the VR headset height from the ground.
      * @param amount the VR headset height from the ground.
@@ -1079,7 +1067,7 @@ public abstract class VRApplication implements Application, SystemListener {
     public void setVRHeightAdjustment(float amount) {
         if( viewManager != null ) viewManager.setHeightAdjustment(amount);
     }
-    
+
     /**
      * Get the VR headset height from the ground.
      * @return the VR headset height from the ground.
@@ -1089,7 +1077,7 @@ public abstract class VRApplication implements Application, SystemListener {
         if( viewManager != null ) return viewManager.getHeightAdjustment();
         return 0f;
     }
-      
+
     /**
      * Get the VR headset left viewport.
      * @return the VR headset left viewport.
@@ -1099,7 +1087,7 @@ public abstract class VRApplication implements Application, SystemListener {
         if( viewManager == null ) return getViewPort();
         return viewManager.getLeftViewPort();
     }
-    
+
     /**
      * Get the VR headset right viewport.
      * @return the VR headset right viewport.
@@ -1109,8 +1097,7 @@ public abstract class VRApplication implements Application, SystemListener {
         if( viewManager == null ) return getViewPort();
         return viewManager.getRightViewPort();
     }
-    
-    
+
     /**
      * Set the background color for both left and right view ports.
      * @param clr the background color.
@@ -1119,26 +1106,25 @@ public abstract class VRApplication implements Application, SystemListener {
         if( viewManager == null ) {
             getViewPort().setBackgroundColor(clr);
         } else if( viewManager.getLeftViewPort() != null ) {
-        	viewManager.getLeftViewPort().setBackgroundColor(clr);
+            viewManager.getLeftViewPort().setBackgroundColor(clr);
             if( viewManager.getRightViewPort() != null ) viewManager.getRightViewPort().setBackgroundColor(clr);
         }
     }
-    
 
     /**
      * Runs tasks enqueued via {@link #enqueue(Callable)}
      */
     protected void runQueuedTasks() {
-	  AppTask<?> task;
+        AppTask<?> task;
         while( (task = taskQueue.poll()) != null ) {
             if (!task.isCancelled()) {
                 task.invoke();
             }
         }
     }
-    
+
     @Override
-    public void update() {    
+    public void update() {
         // Make sure the audio renderer is available to callables
         AudioContext.setAudioRenderer(audioRenderer);
 
@@ -1156,7 +1142,7 @@ public abstract class VRApplication implements Application, SystemListener {
                 audioRenderer.update(timer.getTimePerFrame());
             }
         }
-        
+
         if (speed == 0 || paused) {
             try {
                 Thread.sleep(50); // throttle the CPU when paused
@@ -1165,46 +1151,46 @@ public abstract class VRApplication implements Application, SystemListener {
             }
             return;
         }
-        
+
         float tpf = timer.getTimePerFrame() * speed;
-        
+
         // update states
         stateManager.update(tpf);
 
         // simple update and root node
         simpleUpdate(tpf);
- 
-        
+
+
         // render states
         stateManager.render(renderManager);
-        
+
         // update VR pose & cameras
         if( viewManager != null ) {
-        	viewManager.update(tpf);
+            viewManager.update(tpf);
         } else if( observer != null ) {
             getCamera().setFrame(observer.getWorldTranslation(), observer.getWorldRotation());
         }
-        
+
         //FIXME: check if this code is necessary.
         // Updates scene and gui states.
         rootNode.updateLogicalState(tpf);
         guiNode.updateLogicalState(tpf);
-        
+
         rootNode.updateGeometricState();
-        
+
         if( isInVR() == false || guiManager.getPositioningMode() == VRGUIPositioningMode.MANUAL ) {
             // only update geometric state here if GUI is in manual mode, or not in VR
             // it will get updated automatically in the viewmanager update otherwise
             guiNode.updateGeometricState();
         }
-        
+
         renderManager.render(tpf, context.isRenderable());
         simpleRender(renderManager);
         stateManager.postRender();
-        
+
         // update compositor?
         if( viewManager != null ) {
-        	viewManager.postRender();
+            viewManager.postRender();
         }
     }
 
@@ -1235,7 +1221,6 @@ public abstract class VRApplication implements Application, SystemListener {
             logger.config("Created asset manager from "+assetCfgUrl);
         }
     }
-    
 
     private void initDisplay(){
         // acquire important objects
@@ -1319,7 +1304,7 @@ public abstract class VRApplication implements Application, SystemListener {
         // Always register a ResetStatsState to make sure
         // that the stats are cleared every frame
         stateManager.attach(new ResetStatsState());
-    }    
+    }
 
     /**
      * Do not call manually.
@@ -1350,66 +1335,64 @@ public abstract class VRApplication implements Application, SystemListener {
 
         // user code here
     }
-    
+
     @Override
     public void initialize() {
-    	
-    	logger.config("Initialize VR application...");
-    	
+        logger.config("Initialize VR application...");
+
         initialize_internal();
         cam.setFrustumFar(fFar);
         cam.setFrustumNear(fNear);
         dummyCam = cam.clone();
         if( isInVR() ) {
-        	
-        	logger.config("VR mode enabled.");
-        	
+            logger.config("VR mode enabled.");
+
             if( VRhardware != null ) {
                 VRhardware.initVRCompositor(compositorAllowed());
             } else {
-            	logger.warning("No VR system found.");
+                logger.warning("No VR system found.");
             }
-            
+
             //FIXME: WARNING !!
             viewManager = new OpenVRViewManager(null);
             viewManager.setResolutionMultiplier(resMult);
             inputManager.addMapping(RESET_HMD, new KeyTrigger(KeyInput.KEY_F9));
             setLostFocusBehavior(LostFocusBehavior.Disabled);
         } else {
-        	logger.config("VR mode disabled.");
+            logger.config("VR mode disabled.");
             viewPort.attachScene(rootNode);
             guiViewPort.attachScene(guiNode);
         }
-        
+
         if( viewManager != null ) {
-        	viewManager.initialize();
+            viewManager.initialize();
         }
-        
+
         simpleInitApp();
-        
+
         // any filters created, move them now
         if( viewManager != null ) {
-        	viewManager.moveScreenProcessingToEyes();
-            
+            viewManager.moveScreenProcessingToEyes();
+
             // print out camera information
             if( isInVR() ) {
                 logger.info("VR Initialization Information");
                 if( viewManager.getLeftCamera() != null ){
                   logger.info("camLeft: " + viewManager.getLeftCamera().toString());
                 }
-                
+
                 if( viewManager.getRightCamera() != null ){
                   logger.info("camRight: " + viewManager.getRightCamera().toString());
                 }
             }
         }
     }
-    
+
     /**
      * Initialize the application. This method has to be overridden by implementations.
      */
     public abstract void simpleInitApp();
-    
+
     /**
      * Destroy the application (release all resources).
      */
@@ -1418,7 +1401,7 @@ public abstract class VRApplication implements Application, SystemListener {
         if( VRhardware != null ) {
             VRhardware.destroy();
             VRhardware = null;
-        }        
+        }
         DISABLE_VR = true;
         stateManager.cleanup();
 
@@ -1429,7 +1412,7 @@ public abstract class VRApplication implements Application, SystemListener {
         timer.reset();
         Runtime.getRuntime().exit(0);
     }
-    
+
     protected void destroyInput(){
         if (mouseInput != null)
             mouseInput.destroy();
@@ -1445,7 +1428,7 @@ public abstract class VRApplication implements Application, SystemListener {
 
         inputManager = null;
     }
-    
+
     @Override
     public ViewPort getGuiViewPort() {
         return guiViewPort;
@@ -1455,14 +1438,14 @@ public abstract class VRApplication implements Application, SystemListener {
     public ViewPort getViewPort() {
         return viewPort;
     }
-    
+
     @Override
     public <V> Future<V> enqueue(Callable<V> callable) {
         AppTask<V> task = new AppTask<>(callable);
         taskQueue.add(task);
         return task;
     }
-    
+
     /**
      * Enqueues a runnable object to execute in the jME3
      * rendering thread.
@@ -1490,8 +1473,7 @@ public abstract class VRApplication implements Application, SystemListener {
             runnable.run();
             return null;
         }
-
-    }    
+    }
 
     /**
      * Requests the context to close, shutting down the main loop
@@ -1535,7 +1517,6 @@ public abstract class VRApplication implements Application, SystemListener {
      * specific steps within a single update frame.  Value defaults
      * to null.
      */
-    
     @Override
     public void setAppProfiler(AppProfiler prof) {
         return;

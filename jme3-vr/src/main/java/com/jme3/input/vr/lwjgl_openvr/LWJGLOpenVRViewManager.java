@@ -208,8 +208,8 @@ public class LWJGLOpenVRViewManager extends AbstractVRViewManager {
 
                 if (errr != 0) {
                     logger.severe("Submit to right compositor error: " + " (" + Integer.toString(errl) + ")");
-//                    	logger.severe("  Texture color space: "+OpenVRUtil.getEColorSpaceString(rightTextureType.eColorSpace));
-//                    	logger.severe("  Texture type: "+OpenVRUtil.getETextureTypeString(rightTextureType.eType));
+//                    logger.severe("  Texture color space: "+OpenVRUtil.getEColorSpaceString(rightTextureType.eColorSpace));
+//                    logger.severe("  Texture type: "+OpenVRUtil.getETextureTypeString(rightTextureType.eType));
                     logger.severe("  Texture handle: " + rightTextureType.handle());
 
                     logger.severe("  Right eye texture " + rightEyeTexture.getName() + " (" + rightEyeTexture.getImage().getId() + ")");

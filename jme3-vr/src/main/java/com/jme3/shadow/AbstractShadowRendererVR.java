@@ -97,7 +97,7 @@ public abstract class AbstractShadowRendererVR implements SceneProcessor, Savabl
     protected boolean renderBackFacesShadows;
 
     protected AppProfiler profiler = null;
-    
+
     /**
      * true if the fallback material should be used, otherwise false
      */
@@ -125,13 +125,13 @@ public abstract class AbstractShadowRendererVR implements SceneProcessor, Savabl
      * true to skip the post pass when there are no shadow casters
      */
     protected boolean skipPostPass;
-    
+
     /**
      * used for serialization
      */
-    protected AbstractShadowRendererVR(){        
-    }    
-    
+    protected AbstractShadowRendererVR(){
+    }
+
     /**
      * Create an abstract shadow renderer. Subclasses invoke this constructor.
      *
@@ -174,7 +174,7 @@ public abstract class AbstractShadowRendererVR implements SceneProcessor, Savabl
 
             //DO NOT COMMENT THIS (It prevents the OSX incomplete read buffer crash.)
             shadowFB[i].addColorTarget(FrameBufferTarget.newTarget(dummyTex));
-            shadowMapStringCache[i] = "ShadowMap" + i; 
+            shadowMapStringCache[i] = "ShadowMap" + i;
             lightViewStringCache[i] = "LightViewProjectionMatrix" + i;
 
             postshadowMat.setTexture(shadowMapStringCache[i], shadowMaps[i]);
@@ -337,7 +337,7 @@ public abstract class AbstractShadowRendererVR implements SceneProcessor, Savabl
             initFrustumCam();
         }
     }
-    
+
     /**
      * delegates the initialization of the frustum cam to child renderers
      */
@@ -356,7 +356,7 @@ public abstract class AbstractShadowRendererVR implements SceneProcessor, Savabl
     /**
      * Invoked once per frame to update the shadow cams according to the light
      * view.
-     * 
+     *
      * @param viewCam the scene cam
      */
     protected abstract void updateShadowCams(Camera viewCam);
@@ -380,11 +380,11 @@ public abstract class AbstractShadowRendererVR implements SceneProcessor, Savabl
      */
     protected abstract Camera getShadowCam(int shadowMapIndex);
 
-	@Override
-	public void setProfiler(AppProfiler profiler) {
-		this.profiler = profiler;
-	}
-    
+    @Override
+    public void setProfiler(AppProfiler profiler) {
+        this.profiler = profiler;
+    }
+
     /**
      * responsible for displaying the frustum of the shadow cam for debug
      * purpose
@@ -405,7 +405,7 @@ public abstract class AbstractShadowRendererVR implements SceneProcessor, Savabl
         }
 
         updateShadowCams(viewPort.getCamera());
-        
+
         Renderer r = renderManager.getRenderer();
         renderManager.setForcedMaterial(preshadowMat);
         renderManager.setForcedTechnique("PreShadow");
@@ -426,14 +426,13 @@ public abstract class AbstractShadowRendererVR implements SceneProcessor, Savabl
         renderManager.setForcedMaterial(null);
         renderManager.setForcedTechnique(null);
         renderManager.setCamera(viewPort.getCamera(), false);
-        
     }
 
     protected void renderShadowMap(int shadowMapIndex) {
         shadowMapOccluders = getOccludersToRender(shadowMapIndex, shadowMapOccluders);
         Camera shadowCam = getShadowCam(shadowMapIndex);
 
-        //saving light view projection matrix for this split            
+        //saving light view projection matrix for this split
         lightViewProjectionsMatrices[shadowMapIndex].set(shadowCam.getViewProjectionMatrix());
         renderManager.setCamera(shadowCam, false);
 
@@ -488,7 +487,7 @@ public abstract class AbstractShadowRendererVR implements SceneProcessor, Savabl
         if (debug) {
             displayShadowMap(renderManager.getRenderer());
         }
-        
+
         getReceivers(lightReceivers);
 
         if (lightReceivers.size() != 0) {
@@ -511,26 +510,25 @@ public abstract class AbstractShadowRendererVR implements SceneProcessor, Savabl
             renderManager.setForcedTechnique(null);
             renderManager.setForcedMaterial(null);
             renderManager.setCamera(cam, false);
-            
+
             //clearing the params in case there are some other shadow renderers
             clearMatParams();
         }
     }
-    
+
     /**
      * This method is called once per frame and is responsible for clearing any
      * material parameters that subclasses may need to clear on the post material.
      *
-     * @param material the material that was used for the post shadow pass     
+     * @param material the material that was used for the post shadow pass
      */
-    protected abstract void clearMaterialParameters(Material material);    
-    
+    protected abstract void clearMaterialParameters(Material material);
+
     private void clearMatParams(){
         for (Material mat : matCache) {
-         
-            //clearing only necessary params, the others may be set by other 
-            //renderers 
-            //Note that j start at 1 because other shadow renderers will have 
+            //clearing only necessary params, the others may be set by other
+            //renderers
+            //Note that j start at 1 because other shadow renderers will have
             //at least 1 shadow map and will set it on each frame anyway.
             for (int j = 1; j < nbShadowMaps; j++) {
                 mat.clearParam(lightViewStringCache[j]);
@@ -540,8 +538,8 @@ public abstract class AbstractShadowRendererVR implements SceneProcessor, Savabl
             }
             mat.clearParam("FadeInfo");
             clearMaterialParameters(mat);
-        }        
-        //No need to clear the postShadowMat params as the instance is locale to each renderer       
+        }
+        //No need to clear the postShadowMat params as the instance is locale to each renderer
     }
 
     /**
@@ -618,7 +616,7 @@ public abstract class AbstractShadowRendererVR implements SceneProcessor, Savabl
         }
         postshadowMat.setBoolean("BackfaceShadows", renderBackFacesShadows);
     }
-    
+
     /**
      * How far the shadows are rendered in the view
      *
@@ -637,7 +635,7 @@ public abstract class AbstractShadowRendererVR implements SceneProcessor, Savabl
      * @param zFar the zFar values that override the computed one
      */
     public void setShadowZExtend(float zFar) {
-        this.zFarOverride = zFar;        
+        this.zFarOverride = zFar;
         if(zFarOverride == 0){
             fadeInfo = null;
             frustumCam = null;
@@ -650,7 +648,7 @@ public abstract class AbstractShadowRendererVR implements SceneProcessor, Savabl
             }
         }
     }
-    
+
     /**
      * Define the length over which the shadow will fade out when using a
      * shadowZextend This is useful to make dynamic shadows fade into baked
@@ -686,15 +684,15 @@ public abstract class AbstractShadowRendererVR implements SceneProcessor, Savabl
         }
         return 0f;
     }
-    
+
     /**
      * returns true if the light source bounding box is in the view frustum
      * @return true if box in frustum
      */
     protected abstract boolean checkCulling(Camera viewCam);
-    
+
     @Override
-    public void preFrame(float tpf) {           
+    public void preFrame(float tpf) {
     }
 
     @Override

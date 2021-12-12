@@ -168,10 +168,10 @@ public class GlfwMouseInputVR implements MouseInput {
         if (!context.isRenderable()) {
             return;
         }
-        
-        glfwSetCursorPos(context.getWindowHandle(), x, y);	
+
+        glfwSetCursorPos(context.getWindowHandle(), x, y);
     }
-    
+
     /**
      * Hide the active cursor within the display.
      */
@@ -181,10 +181,10 @@ public class GlfwMouseInputVR implements MouseInput {
         }
 
         if (cursorVisible) {
-            glfwSetInputMode(context.getWindowHandle(), GLFW_CURSOR, GLFW_CURSOR_HIDDEN);            
+            glfwSetInputMode(context.getWindowHandle(), GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
         }
     }
-    
+
     /**
      * Get the last delta in x (pixel).
      * @return the last delta in x (pixel).
@@ -193,7 +193,7 @@ public class GlfwMouseInputVR implements MouseInput {
     public int getLastDeltaX() {
         return xDelta;
     }
-    
+
     /**
      * Get the last delta in y (pixel).
      * @return the last delta in y (pixel).
@@ -202,7 +202,7 @@ public class GlfwMouseInputVR implements MouseInput {
     public int getLastDeltaY() {
         return yDelta;
     }
-    
+
     /**
      * Clear the last x and y deltas.
      * @see #getLastDeltaX()
@@ -212,7 +212,7 @@ public class GlfwMouseInputVR implements MouseInput {
         xDelta = 0;
         yDelta = 0;
     }
-    
+
     /**
      * Check if the input is initialized.
      * @return <code>true</code> if the input is initialized and <code>false</code> otherwise.
@@ -243,11 +243,11 @@ public class GlfwMouseInputVR implements MouseInput {
         if (!context.isRenderable()) {
             return;
         }
-        
+
         cursorPosCallback.free();
         scrollCallback.free();
         mouseButtonCallback.free();
-        
+
         for (long glfwCursor : jmeToGlfwCursorMap.values()) {
             glfwDestroyCursor(glfwCursor);
         }
