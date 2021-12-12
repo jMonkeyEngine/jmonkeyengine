@@ -39,6 +39,8 @@ import com.jme3.export.Savable;
  * isolated, initial (joined on the left), medial (joined on both sides)
  * and final (joined on the right) of a word.
  *
+ * For an example implementation see: https://github.com/Ali-RS/JME-PersianGlyphParser
+ *
  * @author Ali-RS
  */
 public interface GlyphParser extends Savable {
