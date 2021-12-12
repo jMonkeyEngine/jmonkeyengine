@@ -45,27 +45,33 @@ import com.jme3.profile.AppProfiler;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue;
+import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image.Format;
 import com.jme3.texture.Texture2D;
-import com.jme3.texture.FrameBuffer.FrameBufferTarget;
 import com.jme3.ui.Picture;
+import com.jme3.util.mikktspace.MikktspaceTangentGenerator;
 
-public class TestMultiRenderTarget extends SimpleApplication implements SceneProcessor {
+/**
+ * Note that this example is only used to demonstrate the simple use of multi-target rendering. It is different from optimized deferred rendering.<br/>
+ * @author JhonKkk
+ * @date 2021年11月7日10点18分
+ */
+public class TestMultiRenderTarget2 extends SimpleApplication implements SceneProcessor {
 
-    private FrameBuffer fb;
-    private Texture2D diffuseData;
+    private FrameBuffer gBuffFrameBuffer;
+    private Texture2D diffuseData, normalData, specularData, depthData;
     private Picture display1, display2, display3, display4;
-    
+
     private Picture display;
-    private Material mat;
+    private Material mrtLightingMaterial;
 
     private String techOrig;
     private PointLight[] pls;
 
     public static void main(String[] args){
-        TestMultiRenderTarget app = new TestMultiRenderTarget();
+        TestMultiRenderTarget2 app = new TestMultiRenderTarget2();
         app.start();
     }
 
@@ -73,82 +79,105 @@ public class TestMultiRenderTarget extends SimpleApplication implements ScenePro
     public void simpleInitApp() {
         viewPort.addProcessor(this);
 
-//        flyCam.setEnabled(false);
+        flyCam.setDragToRotate(true);
+        flyCam.setMoveSpeed(10);
         cam.setLocation(new Vector3f(4.8037705f, 4.851632f, 10.789033f));
         cam.setRotation(new Quaternion(-0.05143692f, 0.9483723f, -0.21131563f, -0.230846f));
 
-        Node tank = (Node) assetManager.loadModel("Models/HoverTank/Tank2.mesh.xml");
-        
-        //tankMesh.getMaterial().setColor("Specular", ColorRGBA.Black);
-        rootNode.attachChild(tank);
-
         display1 = new Picture("Picture");
-        display1.move(0, 0, -1); // make it appear behind stats view
+        display1.move(0, 0, -1);
         display2 = (Picture) display1.clone();
         display3 = (Picture) display1.clone();
         display4 = (Picture) display1.clone();
         display  = (Picture) display1.clone();
 
         ColorRGBA[] colors = new ColorRGBA[]{
-            ColorRGBA.White,
-            ColorRGBA.Blue,
-            ColorRGBA.Cyan,
-            ColorRGBA.DarkGray,
-            ColorRGBA.Green,
-            ColorRGBA.Magenta,
-            ColorRGBA.Orange,
-            ColorRGBA.Pink,
-            ColorRGBA.Red,
-            ColorRGBA.Yellow
+                ColorRGBA.White,
+                ColorRGBA.Blue,
+                ColorRGBA.Cyan,
+                ColorRGBA.DarkGray,
+                ColorRGBA.Green,
+                ColorRGBA.Magenta,
+                ColorRGBA.Orange,
+                ColorRGBA.Pink,
+                ColorRGBA.Red,
+                ColorRGBA.Yellow
         };
 
-        pls = new PointLight[3];
+        // lights
+        pls = new PointLight[20];
         for (int i = 0; i < pls.length; i++){
             PointLight pl = new PointLight();
             pl.setColor(colors[i % colors.length]);
-            pl.setRadius(5);
+            float angle = (float)Math.PI * (i + (timer.getTimeInSeconds() % 6)/3); // 3s for full loop
+            pl.setPosition( new Vector3f(FastMath.cos(angle)*3f, 0,
+                    FastMath.sin(angle)*3f));
+            pl.setRadius(4.0f);
             display.addLight(pl);
             pls[i] = pl;
         }
+
+        // test model
+        Node scene = new Node("TestScene");
+        Geometry model = (Geometry) ((Node)assetManager.loadModel("Models/HoverTank/Tank2.mesh.xml")).getChild(0);
+        MikktspaceTangentGenerator.generate(model);
+        // GBuffer Pass
+        Material tankMat = assetManager.loadMaterial("jme3test/post/tank.j3m");
+        model.setMaterial(tankMat);
+        scene.attachChild(model);
+        // Create FrameBuffer for multi-target rendering
+        initGBufferInfos();
+
+        rootNode.attachChild(scene);
+        guiViewPort.setClearFlags(true, true, true);
+        guiNode.attachChild(display1);
+        guiNode.attachChild(display2);
+        guiNode.attachChild(display3);
+        guiNode.attachChild(display4);
+        guiNode.attachChild(display);
+        guiNode.updateGeometricState();
     }
 
     @Override
     public void simpleUpdate(float tpf) {
         super.simpleUpdate(tpf);//To change body of generated methods, choose Tools | Templates.
-        for (int i = 0; i < 3; i++){
+        // Motion light source
+        for (int i = 0; i < pls.length; i++){
             PointLight pl = pls[i];
-            float angle = (float)Math.PI * (i + (timer.getTimeInSeconds() % 6)/3); // 3s for full loop
-            pl.setPosition( new Vector3f(FastMath.cos(angle)*3f, 0,
-                                         FastMath.sin(angle)*3f));
+            float angle = (float)Math.PI * (i + (timer.getTimeInSeconds() % 6) / 3);
+            pl.setPosition( new Vector3f(FastMath.cos(angle) * 3f, 0,
+                    FastMath.sin(angle) * 3f));
         }
     }
+
     @Override
     public void initialize(RenderManager rm, ViewPort vp) {
-        reshape(vp, vp.getCamera().getWidth(), vp.getCamera().getHeight());
-        viewPort.setOutputFrameBuffer(fb);
-        guiViewPort.setClearFlags(true, true, true);
-        guiNode.attachChild(display);
-//        guiNode.attachChild(display1);
-        guiNode.attachChild(display2);
-//        guiNode.attachChild(display3);
-//        guiNode.attachChild(display4);
-        guiNode.updateGeometricState();
+        // do nothing
     }
 
     @Override
     public void reshape(ViewPort vp, int w, int h) {
+        // Delete FrameBuffer
+        // ...
+
+        // ReCreate GBuffer FrameBuffer
         diffuseData  = new Texture2D(w, h, Format.RGBA8);
-        Texture2D normalData = new Texture2D(w, h, Format.RGBA8);
-        Texture2D specularData = new Texture2D(w, h, Format.RGBA8);
-        Texture2D depthData = new Texture2D(w, h, Format.Depth);
+        normalData   = new Texture2D(w, h, Format.RGBA8);
+        specularData = new Texture2D(w, h, Format.RGBA8);
+        depthData    = new Texture2D(w, h, Format.Depth);
 
-        mat = new Material(assetManager, "Common/MatDefs/Light/Deferred.j3md");
-        mat.setTexture("DiffuseData",  diffuseData);
-        mat.setTexture("SpecularData", specularData);
-        mat.setTexture("NormalData",   normalData);
-        mat.setTexture("DepthData",    depthData);
+        // MRTLightingMaterial
+        // Light Pass
+        mrtLightingMaterial = new Material(assetManager, "jme3test/post/MRTLighting.j3md");
+        mrtLightingMaterial.selectTechnique("LightPass", renderManager);
+        mrtLightingMaterial.setTexture("DiffuseMap",  diffuseData);
+        mrtLightingMaterial.setTexture("SpecularMap", specularData);
+        mrtLightingMaterial.setTexture("NormalMap",   normalData);
+        mrtLightingMaterial.setTexture("DepthMap",    depthData);
 
-        display.setMaterial(mat);
+
+        // display1,2,3,4 are used to display independent information in GBuff, and display is used to display the combined result.
+        display.setMaterial(mrtLightingMaterial);
         display.setPosition(0, 0);
         display.setWidth(w);
         display.setHeight(h);
@@ -176,42 +205,18 @@ public class TestMultiRenderTarget extends SimpleApplication implements ScenePro
         display4.setHeight(h/2);
 
         guiNode.updateGeometricState();
-        
-        fb = new FrameBuffer(w, h, 1);
-        fb.setDepthTarget(FrameBufferTarget.newTarget(depthData));
-        fb.addColorTarget(FrameBufferTarget.newTarget(diffuseData));
-        fb.addColorTarget(FrameBufferTarget.newTarget(normalData));
-        fb.addColorTarget(FrameBufferTarget.newTarget(specularData));
-        fb.setMultiTarget(true);
 
-        /*
-         * Marks pixels in front of the far light boundary
-            Render back-faces of light volume
-            Depth test GREATER-EQUAL
-            Write to stencil on depth pass
-            Skipped for very small distant lights
-         */
-        
-        /*
-         * Find amount of lit pixels inside the volume
-             Start pixel query
-             Render front faces of light volume
-             Depth test LESS-EQUAL
-             Don’t write anything – only EQUAL stencil test
-         */
+        gBuffFrameBuffer = new FrameBuffer(w, h, 1);
+        gBuffFrameBuffer.setDepthTarget(FrameBuffer.FrameBufferTarget.newTarget(depthData));
+        gBuffFrameBuffer.addColorTarget(FrameBuffer.FrameBufferTarget.newTarget(diffuseData));
+        gBuffFrameBuffer.addColorTarget(FrameBuffer.FrameBufferTarget.newTarget(normalData));
+        gBuffFrameBuffer.addColorTarget(FrameBuffer.FrameBufferTarget.newTarget(specularData));
+        gBuffFrameBuffer.setMultiTarget(true);
+    }
 
-        /*
-         * Enable conditional rendering
-            Based on query results from previous stage
-            GPU skips rendering for invisible lights
-         */
-
-        /*
-         * Render front-faces of light volume
-            Depth test - LESS-EQUAL
-            Stencil test - EQUAL
-            Runs only on marked pixels inside light
-         */
+    private void initGBufferInfos(){
+        // the first time
+        reshape(viewPort, viewPort.getCamera().getWidth(), viewPort.getCamera().getHeight());
     }
 
     @Override
@@ -221,10 +226,15 @@ public class TestMultiRenderTarget extends SimpleApplication implements ScenePro
 
     @Override
     public void preFrame(float tpf) {
+        viewPort.setOutputFrameBuffer(gBuffFrameBuffer);
+
+        // Since ViewProjectionMatrixInverse is used in MRTLighting, I set it directly here.
         Matrix4f inverseViewProj = cam.getViewProjectionMatrix().invert();
-        mat.setMatrix4("ViewProjectionMatrixInverse", inverseViewProj);
+        mrtLightingMaterial.setMatrix4("ViewProjectionMatrixInverse", inverseViewProj);
         techOrig = renderManager.getForcedTechnique();
-        renderManager.setForcedTechnique("GBuf");
+
+        // use GBufPass Tech
+        renderManager.setForcedTechnique("GBufPass");
     }
 
     @Override
@@ -233,6 +243,7 @@ public class TestMultiRenderTarget extends SimpleApplication implements ScenePro
 
     @Override
     public void postFrame(FrameBuffer out) {
+        // use Orig Tech
         renderManager.setForcedTechnique(techOrig);
     }
 
@@ -242,7 +253,6 @@ public class TestMultiRenderTarget extends SimpleApplication implements ScenePro
 
     @Override
     public void setProfiler(AppProfiler profiler) {
-        // not implemented
     }
 
 }
