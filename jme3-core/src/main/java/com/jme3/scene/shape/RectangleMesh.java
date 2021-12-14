@@ -46,32 +46,63 @@ import com.jme3.util.BufferUtils;
 import com.jme3.util.clone.Cloner;
 
 /**
- * {@code RectangleMesh} is a rectangle in space similar to
- * {@link com.jme3.scene.shape.Quad}. It uses a {@link com.jme3.math.Rectangle}
- * to position its vertices.
- * 
+ * A static, indexed, Triangle-mode mesh that renders a rectangle or
+ * parallelogram, with customizable normals and texture coordinates.
+ *
+ * <p>It uses a {@link com.jme3.math.Rectangle} to locate its vertices, which
+ * are named as follows:
+ *
+ * <pre>
+ *     C +----+ D
+ *       |\   |
+ *       | \  |
+ *       |  \ |
+ *       |   \|
+ *     A +----+ B
+ * </pre>
+ *
+ * <p>In the vertex buffers, the order of the vertices is A, B, D, then C.
+ *
+ * <p>The default texture coordinates have:<ul>
+ * <li>U=0 at vertices A and C</li>
+ * <li>U=1 at vertices B and D</li>
+ * <li>V=0 at vertices A and B</li>
+ * <li>V=1 at vertices C and D</li</ul>
+ *
  * @author Francivan Bezerra
  */
 public class RectangleMesh extends Mesh {
 
+    /**
+     * Used to locate the vertices and calculate a default normal.
+     */
     private Rectangle rectangle;
 
+    /**
+     * Texture coordinates in A-B-D-C order.
+     */
     private Vector2f[] texCoords;
 
+    /**
+     * Normal direction for all 4 vertices.
+     */
     private Vector3f normal;
 
     /**
-     * Creates a new rectangular mesh with sides of equal length (a.k.a. a square).
-     * 
+     * Instantiates a unit-square mesh in the X-Y plane, centered at (0.5, 0.5),
+     * with normals in the +Z direction.
+     *
      */
     public RectangleMesh() {
         this(new Rectangle(new Vector3f(), new Vector3f(1, 0, 0), new Vector3f(0, 1, 0)));
     }
 
     /**
-     * Creates a mesh with the given rectangle.
-     * 
-     * @param rectangle the rectangle used to build this mesh.
+     * Instantiates a rectangle or parallelogram mesh based on the specified
+     * {@link com.jme3.math.Rectangle}.
+     *
+     * @param rectangle to locate the vertices and set the normals (not null,
+     *     alias created)
      */
     public RectangleMesh(Rectangle rectangle) {
         this.rectangle = rectangle;
@@ -85,29 +116,32 @@ public class RectangleMesh extends Mesh {
     }
 
     /**
-     * Creates a mesh where points A, B and C define the area of the rectangle.
-     * 
-     * @param a the first corner of the rectangle.
-     * @param b the second corner of the rectangle.
-     * @param c the third corner of the rectangle.
+     * Instantiates a rectangle or parallelogram mesh based on 3 specified
+     * vertex positions.
+     *
+     * @param a the mesh position of vertex A (not null, alias created)
+     * @param b the mesh position of vertex B (not null, alias created)
+     * @param c the mesh position of vertex C (not null, alias created)
      */
     public RectangleMesh(Vector3f a, Vector3f b, Vector3f c) {
         this(new Rectangle(a, b, c));
     }
 
     /**
-     * Returns the rectangle used to build this mesh.
-     * 
-     * @return the rectangle used to build this mesh.
+     * Provides access to the internal {@link com.jme3.math.Rectangle} on which
+     * the mesh is based.
+     *
+     * @return the pre-existing instance (do not modify!)
      */
     public Rectangle getRectangle() {
         return rectangle;
     }
 
     /**
-     * Sets the rectangle that will be used to build this mesh.
-     * 
-     * @param rectangle the rectangle used to build this mesh.
+     * Sets the {@link com.jme3.math.Rectangle} and updates the mesh
+     * accordingly.
+     *
+     * @param rectangle the desired Rectangle (not null, alias created)
      */
     public void setRectangle(Rectangle rectangle) {
         this.rectangle = rectangle;
@@ -115,19 +149,20 @@ public class RectangleMesh extends Mesh {
     }
 
     /**
-     * Returns the texture coordinates.
-     * 
-     * @return the texture coordinates
+     * Provides access to the internal texture-coordinate array.
+     *
+     * @return the pre-existing array of length 4 (do not modify!)
      */
     public Vector2f[] getTexCoords() {
         return texCoords;
     }
 
     /**
-     * Sets the texture coordinates.
-     * 
-     * @param texCoords a {@link Vector2f} array containing the texture coordinates.
-     * @throws IllegalArgumentException if the array length is not equal to 4.
+     * Sets the texture coordinates and updates the mesh accordingly.
+     *
+     * @param texCoords the desired texture coordinates for each vertex (not
+     *     null, alias created)
+     * @throws IllegalArgumentException if the array length isn't exactly 4
      */
     public void setTexCoords(Vector2f[] texCoords) throws IllegalArgumentException {
         if (texCoords.length != 4) {
@@ -139,18 +174,19 @@ public class RectangleMesh extends Mesh {
     }
 
     /**
-     * Returns the normal vector of this mesh.
-     * 
-     * @return the normal vector of this mesh.
+     * Provides access to the internal normal-direction vector.
+     *
+     * @return the pre-existing vector (do not modify!)
      */
     public Vector3f getNormal() {
         return normal;
     }
 
     /**
-     * Sets the normal vector of this mesh.
-     * 
-     * @param normal the normal vector of this mesh.
+     * Sets the normal vector and updates the mesh accordingly.
+     *
+     * @param normal the desired normal vector, or null to use the direction
+     *     calculated by {@link com.jme3.math.Rectangle#calculateNormal(com.jme3.math.Vector3f)}
      */
     public void setNormal(Vector3f normal) {
         this.normal = normal;
