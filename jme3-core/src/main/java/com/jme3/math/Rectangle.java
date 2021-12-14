@@ -143,7 +143,7 @@ public final class Rectangle implements Savable, Cloneable, java.io.Serializable
      * Returns the coordinates of the 4th corner, calculated by the formula
      * D = (B + C) - A .
      *
-     * @return a new Vector3f
+     * @return the corner location (a new Vector3f)
      */
     public Vector3f getD() {
         return b.add(c).subtractLocal(a);
@@ -152,13 +152,13 @@ public final class Rectangle implements Savable, Cloneable, java.io.Serializable
     /**
      * Returns a normal vector, calculated by the formula
      * <pre>
-     *      (C - A) x (B - A) 
+     *      (C - A) x (B - A)
      * N = -------------------
      *     |(C - A) x (B - A)|
      * </pre>
      *
      * @param normal storage for the normal, or null for a new Vector3f
-     * @return either {@code normal} or a new Vector3f
+     * @return the normal direction (either {@code normal} or a new Vector3f)
      */
     public Vector3f calculateNormal(Vector3f normal) {
         if (normal == null) {
