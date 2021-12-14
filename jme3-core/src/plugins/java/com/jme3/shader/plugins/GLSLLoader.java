@@ -146,7 +146,7 @@ public class GLSLLoader implements AssetLoader {
 
                 List<Integer> injectIndices = node.getDependencyInjectIndices();
                 for (int i = resolvedShaderNodes.size() - 1; i >= 0; i--) {
-                    // Must insert them backwards ..
+                    // Must insert them backward
                     sb.insert(injectIndices.get(i), resolvedShaderNodes.get(i));
                 }
                 return sb.toString();

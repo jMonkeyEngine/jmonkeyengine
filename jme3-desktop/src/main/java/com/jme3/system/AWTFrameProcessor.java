@@ -334,7 +334,7 @@ public class AWTFrameProcessor implements SceneProcessor, PropertyChangeListener
      *
      * @param newWidth  the new width.
      * @param newHeight the new height.
-     * @param fixAspect true if need to fix aspect.
+     * @param fixAspect true to fix the aspect ratio.
      */
     protected void notifyComponentResized(int newWidth, int newHeight, boolean fixAspect) {
 
@@ -550,7 +550,7 @@ public class AWTFrameProcessor implements SceneProcessor, PropertyChangeListener
      *
      * @param width     the width.
      * @param height    the height.
-     * @param fixAspect true if need to fix the aspect ratio.
+     * @param fixAspect true to fix the aspect ratio.
      * @return the new frame transfer.
      */
     protected AWTComponentRenderer reshapeInThread(final int width, final int height, final boolean fixAspect) {

@@ -45,9 +45,9 @@ import com.jme3.network.base.MessageProtocol;
  *  all messages as byte data comes in.  In other words, if there
  *  are four messages in the ByteBuffer passed to addBuffer() then
  *  all of the messages will be deserialized during that call and
- *  queued up for later return.  The down side is that if any of 
+ *  queued up for later return.  The downside is that, if any of
  *  those messages was going to alter the MessageProtocol serialization
- *  behavior in a way that affects later messages then problems occur
+ *  behavior in a way that affects later messages, then problems occur
  *  when those messages are all in one block.
  *
  *  @author    Paul Speed
@@ -96,8 +96,8 @@ public class GreedyMessageBuffer implements MessageBuffer {
 
             if( current == null ) {
 
-                // If we have a left over carry then we need to
-                // do manual processing to get the short value
+                // If we have a left-over carry,
+                // extra processing is needed to get the short value.
                 if( carry != null ) {
                     byte high = carry;
                     byte low = buffer.get();

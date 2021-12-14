@@ -578,7 +578,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
 
         // All this does is call swap buffers
         // If the canvas is not active, there's no need to waste time
-        // doing that ..
+        // doing that.
         if (renderable.get()) {
             // calls swap buffers, etc.
             try {
@@ -590,8 +590,8 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             }
         }
 
-        // Subclasses just call GLObjectManager clean up objects here
-        // it is safe .. for now.
+        // Subclasses just call GLObjectManager. Clean up objects here.
+        // It is safe ... for now.
         if (renderer != null) {
             renderer.postFrame();
         }

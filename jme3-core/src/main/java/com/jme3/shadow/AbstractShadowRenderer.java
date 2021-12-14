@@ -160,7 +160,7 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
         shadowMapStringCache = new String[nbShadowMaps];
         lightViewStringCache = new String[nbShadowMaps];
 
-        //DO NOT COMMENT THIS (it prevent the OSX incomplete read buffer crash)
+        //DO NOT COMMENT THIS (it prevents the OSX incomplete read-buffer crash)
         dummyTex = new Texture2D(shadowMapSize, shadowMapSize, Format.RGBA8);
 
         preshadowMat = new Material(assetManager, "Common/MatDefs/Shadow/PreShadow.j3md");
@@ -173,7 +173,7 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
 
             shadowFB[i].setDepthTarget(FrameBufferTarget.newTarget(shadowMaps[i]));
 
-            //DO NOT COMMENT THIS (it prevent the OSX incomplete read buffer crash)
+            //DO NOT COMMENT THIS (it prevents the OSX incomplete read-buffer crash)
             shadowFB[i].addColorTarget(FrameBufferTarget.newTarget(dummyTex));
             shadowMapStringCache[i] = "ShadowMap" + i; 
             lightViewStringCache[i] = "LightViewProjectionMatrix" + i;
@@ -497,7 +497,7 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
             setMatParams(lightReceivers);
 
             Camera cam = viewPort.getCamera();
-            //some materials in the scene does not have a post shadow technique so we're using the fall back material
+            // Some materials in the scene do not have a post shadow technique, so we're using the fallback material.
             if (needsfallBackMaterial) {
                 renderManager.setForcedMaterial(postshadowMat);
             }

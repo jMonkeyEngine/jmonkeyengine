@@ -138,7 +138,7 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener, Di
 
         /**
          * Replaces the current application state.
-         * @param legacyApplication the new app instance holding the game state (including {@link AssetLoader}s, {@link AudioNode}s, {@link Spatial}s,...etc).
+         * @param legacyApplication the new app instance holding the game state (including {@link AssetLoader}s, {@link AudioNode}s, {@link Spatial}s, etcetera).
          */
         protected static void setLegacyApplication(LegacyApplication legacyApplication) {
             GameState.legacyApplication = legacyApplication;
@@ -146,7 +146,7 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener, Di
 
         /**
          * Returns the current application state.
-         * @return game state instance, holding jme3 states(JmeContext, AssetManager, StateManager, Graphics, Sound, Input, Spatial/Nodes in place,....etc).
+         * @return game state instance, holding jME3 states (JmeContext, AssetManager, StateManager, Graphics, Sound, Input, Spatial/Nodes in place, etcetera).
          */
         protected static LegacyApplication getLegacyApplication() {
             return legacyApplication;
@@ -415,7 +415,7 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener, Di
 
     @Override
     public void requestClose(boolean esc) {
-        /*skip if its not enabled or the input is null*/
+        /*skip if it's not enabled or the input is null*/
         if (legacyApplication == null || (!isExitOnEscPressed())) {
             return;
         }

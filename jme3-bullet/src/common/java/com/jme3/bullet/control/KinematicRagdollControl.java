@@ -60,7 +60,7 @@ import java.util.logging.Logger;
  * model from Ogre or blender.<br> Note enabling/disabling the control
  * add/removes it from the physics space<br>
  * <p>
- * This control creates collision shapes for each bones of the skeleton when you
+ * This control creates collision shapes for all bones in the skeleton when you
  * invoke spatial.addControl(ragdollControl). <ul> <li>The shape is
  * HullCollision shape based on the vertices associated with each bone and based
  * on a tweakable weight threshold (see setWeightThreshold)</li> <li>If you
@@ -554,7 +554,7 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
         model.setLocalRotation(Quaternion.IDENTITY);
         model.setLocalScale(1);
         //HACK ALERT change this
-        //I remove the skeletonControl and readd it to the spatial to make sure it's after the ragdollControl in the stack
+        // I remove the SkeletonControl and re-add it to the Spatial to make sure it's after the ragdoll control in the stack.
         //Find a proper way to order the controls.
         SkeletonControl sc = model.getControl(SkeletonControl.class);
         if(sc == null){

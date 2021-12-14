@@ -314,7 +314,7 @@ public class LWJGLOpenVRViewManager extends AbstractVRViewManager {
 
         if (environment != null) {
             if (environment.getApplication() != null) {
-                // no special scene to setup if we are doing instancing
+                // no special scene to set up if we are doing instancing
                 if (environment.isInstanceRendering()) {
                     // distortion has to be done with compositor here... we want only one pass on our end!
                     if (environment.getApplication().getContext().getSettings().isSwapBuffers()) {

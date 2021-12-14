@@ -197,7 +197,7 @@ public final class IrUtils {
             } else if (inputPoly.vertices.length == 3) {
                 newPolygons.add(inputPoly);
             } else {
-                // N-gon. We have to ignore it..
+                // N-gon. We have to ignore it.
                 logger.log(Level.WARNING, "N-gon encountered, ignoring. "
                                         + "The mesh may not appear correctly. "
                                         + "Triangulate your model prior to export.");

@@ -352,11 +352,11 @@ class LetterQuad {
                 // The first letter quad will be drawn right at the first
                 // position... but it does not offset by the characters offset
                 // amount.  This means that we've potentially accumulated extra
-                // pixels and the next letter won't get drawn far enough unless
-                // we add this offset back into xAdvance.. by subtracting it.
+                // pixels, and the next letter won't get drawn far enough unless
+                // we add this offset back into xAdvance, by subtracting it.
                 // This is the same thing that's done below because we've
                 // technically baked the offset in just like below.  It doesn't
-                // look like it at first glance so I'm keeping it separate with
+                // look like it at first glance, so I'm keeping it separate with
                 // this comment.
                 xAdvance -= xOffset * incrScale; 
                 

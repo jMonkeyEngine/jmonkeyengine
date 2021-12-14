@@ -399,10 +399,10 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         for (int i = filters.size() - 1; i >= 0 && lastFilterIndex == -1; i--) {
             if (filters.get(i).isEnabled()) {
                 lastFilterIndex = i;
-                //the Fpp is initialized, but the viewport framebuffer is the
-                //original out framebuffer so we must recover from a situation 
-                //where no filter was enabled. So we set the correct framebuffer 
-                //on the viewport
+                // The FPP is initialized, but the viewport framebuffer is the
+                // original out framebuffer, so we must recover from a situation
+                // where no filter was enabled. So we set the correct framebuffer
+                // on the viewport.
                 if(isInitialized() && viewPort.getOutputFrameBuffer()==outputBuffer){
                     setupViewPortFrameBuffer();
                 }

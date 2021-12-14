@@ -134,9 +134,9 @@ public class LightProbe extends Light implements Savable {
      * Like in a valid 4x4 transform matrix.
      * <p>
      * (sx, sy, sy) is the extent of the probe ( the scale )
-     * In a standard transform matrix the scale is applied to the rotation matrix part.
-     * In the shader we need the rotation and the scale to be separated, doing this avoid to extract
-     * the scale from a classic transform matrix in the shader
+     * In a standard transform matrix, the scale is applied to the rotation matrix part.
+     * In the shader, we need the rotation and the scale to be separated. Doing so avoids extracting
+     * the scale from a classic transform matrix in the shader.
      * <p>
      * (sp) is a special entry, it contains the packed number of mip maps of the probe and the inverse radius for the probe.
      * since the inverse radius in lower than 1, it's packed in the decimal part of the float.

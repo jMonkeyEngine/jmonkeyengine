@@ -1098,8 +1098,8 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
             if (src.getStatus() == Status.Playing) {
                 return;
             } else if (src.getStatus() == Status.Stopped) {
-                //Assertion removed as it seems it's not possible to have 
-                //something different than =1 when first playing an AudioNode
+                // Assertion removed because it seems it's not possible to have
+                // something different from -1 when first playing an AudioNode.
                 // assert src.getChannel() != -1;
                 
                 // allocate channel to this source

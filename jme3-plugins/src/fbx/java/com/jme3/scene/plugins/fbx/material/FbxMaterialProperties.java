@@ -123,10 +123,10 @@ public class FbxMaterialProperties {
         // ShadingModel is no longer specified under Properties element.
         defineProp("ShadingModel", Type.Ignore);
         
-        // MultiLayer materials aren't supported anyway..
+        // MultiLayer materials aren't supported.
         defineProp("MultiLayer", Type.Ignore); 
         
-        // Not sure what this is.. NormalMap again??
+        // Not sure what this is. NormalMap again??
         defineProp("Bump", Type.Texture2DOrColor);
         
         defineProp("BumpFactor", Type.Factor);
@@ -143,7 +143,7 @@ public class FbxMaterialProperties {
         }
 
         if (propertyValueMap.get(name) instanceof FbxTexture) {
-            // Multiple / layered textures .. 
+            // Multiple / layered textures
             // Just write into 2nd slot for now (maybe will use for lightmaps).
             name = name + "2";
         }

@@ -94,8 +94,8 @@ public class LazyMessageBuffer implements MessageBuffer {
 
             if( current == null ) {
 
-                // If we have a left over carry then we need to
-                // do manual processing to get the short value
+                // If we have a leftover carry, then we need to
+                // do manual processing to get the short value.
                 if( carry != null ) {
                     byte high = carry;
                     byte low = buffer.get();
@@ -148,7 +148,7 @@ public class LazyMessageBuffer implements MessageBuffer {
                 
                 // Note: I originally thought that lazy deserialization was
                 // going to be tricky/fancy because I'd imagined having to
-                // collect partial buffers, leave data in working buffers, etc..
+                // collect partial buffers, leave data in working buffers, etcetera.
                 // However, the buffer we are passed is reused by the caller
                 // (it's part of the API contract) and so we MUST copy the
                 // data into "something" before returning.  We already know
@@ -162,7 +162,7 @@ public class LazyMessageBuffer implements MessageBuffer {
                 // per-message byte buffers around.  We already had them anyway.
                 // So in the end, I probably could have just altered the original 
                 // buffering code and called it a day... but I had to do the refactoring
-                // before I figured that out and now we have the ability to more easily
+                // before I figured that out, and now we have the ability to more easily
                 // swap out protocol implementations.  -pspeed:2019-09-08                                    
             } else {                
                 // Not yet a complete object so just copy what we have

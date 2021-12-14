@@ -82,7 +82,7 @@ public class FluidSimHeightMap extends AbstractHeightMap {
      * @param seed
      *            the seed to generate the same heightmap again
      * @throws Exception
-     *             if size of the terrain is not greater that zero, or number of
+     *             if size of the terrain is not greater than zero, or number of
      *             iterations is not greater that zero, or the minimum initial height
      *             is greater than the maximum (or the other way around)
      */
@@ -117,8 +117,8 @@ public class FluidSimHeightMap extends AbstractHeightMap {
      * @param iterations
      *            the number of iterations to do
      * @throws Exception
-     *             if size of the terrain is not greater that zero, or number of
-     *             iterations is not greater that zero
+     *             if size of the terrain is not greater than zero, or number of
+     *             iterations is not greater than zero
      */
     public FluidSimHeightMap(int size, int iterations) throws Exception {
         if (size <= 0 || iterations <= 0) {
@@ -234,7 +234,7 @@ public class FluidSimHeightMap extends AbstractHeightMap {
      * @param iterations
      *            the number of iterations to do
      * @throws Exception
-     *             if iterations if not greater than zero
+     *             if iterations is not greater than zero
      */
     public void setIterations(int iterations) throws Exception {
         if (iterations <= 0) {

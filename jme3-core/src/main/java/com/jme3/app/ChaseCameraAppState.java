@@ -381,8 +381,8 @@ public class ChaseCameraAppState extends AbstractAppState implements ActionListe
     }
 
     /**
-     * Sets the rotate amount when user moves his mouse, the lower the value,
-     * the slower the camera will rotate. default is 1.
+     * Sets the rotate amount when user moves his mouse. The lower the value,
+     * the slower the camera will rotate. Default is 1.
      *
      * @param rotationSpeed Rotation speed on mouse movement, default is 1.
      */

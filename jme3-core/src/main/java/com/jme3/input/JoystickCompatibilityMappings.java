@@ -225,7 +225,7 @@ public class JoystickCompatibilityMappings {
     }
 
     /**
-     * Takes the original name of an button, specifically, and returns the new name it will function under.
+     * Takes the original name of a button, specifically, and returns the new name it will function under.
      *
      * @param joystickName - The joystick type the axis comes from.
      * @param componentId  - The system-provided name for the button.

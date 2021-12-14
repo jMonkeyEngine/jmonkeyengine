@@ -166,7 +166,7 @@ public class JmeAndroidSystem extends JmeSystemDelegate {
                 // When created this way, the directory is automatically removed by the Android
                 //   system when the app is uninstalled.
                 // The directory is also accessible by a PC connected to the device
-                //   so the files can be copied to the PC (ie. screenshots)
+                //   so the files can be copied to the PC (i.e. screenshots)
                 storageFolder = storageFolders.get(type);
                 if (storageFolder == null) {
                     String state = Environment.getExternalStorageState();

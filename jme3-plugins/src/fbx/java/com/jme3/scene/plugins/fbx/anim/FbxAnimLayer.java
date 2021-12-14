@@ -52,8 +52,8 @@ public class FbxAnimLayer extends FbxObject {
     @Override
     public void fromElement(FbxElement element) {
         super.fromElement(element);
-        // No known properties for layers.. 
-        // Also jME3 doesn't support multiple layers anyway.
+        // No known properties for layers.
+        // Anyway, jME3 doesn't support multiple layers.
     }
     
     public List<FbxAnimCurveNode> getAnimationCurveNodes() {

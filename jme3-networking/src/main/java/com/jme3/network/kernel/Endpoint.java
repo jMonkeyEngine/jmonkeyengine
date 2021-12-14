@@ -80,7 +80,7 @@ public interface Endpoint
     /**
      *  Closes this endpoint, optionally flushing any queued
      *  data before closing.  As soon as this method is called,
-     *  ne send() calls will fail with an exception... even while
+     *  new send() calls will fail with an exception... even while
      *  close() is still flushing the earlier queued messages.
      */
     public void close(boolean flushData);

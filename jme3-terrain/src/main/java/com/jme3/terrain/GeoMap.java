@@ -67,7 +67,7 @@ public class GeoMap implements Savable {
 
     /**
      * @return The maximum possible value that <code>getValue()</code> can 
-     * return. Mostly depends on the source data format (byte, short, int, etc).
+     * return. Mostly depends on the source data format (byte, short, int, etcetera).
      */
     public int getMaximumValue(){
         return maxval;

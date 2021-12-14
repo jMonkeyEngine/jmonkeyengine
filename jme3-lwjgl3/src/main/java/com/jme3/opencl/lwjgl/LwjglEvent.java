@@ -56,14 +56,14 @@ public class LwjglEvent extends Event {
     @Override
     public void waitForFinished() {
         CL10.clWaitForEvents(event);
-        release(); //short cut to save resources
+        release(); // shortcut to save resources
     }
 
     @Override
     public boolean isCompleted() {
         int status = Info.clGetEventInfoInt(event, CL10.CL_EVENT_COMMAND_EXECUTION_STATUS);
         if (status == CL10.CL_SUCCESS) {
-            release(); //short cut to save resources
+            release(); // shortcut to save resources
             return true;
         } else if (status < 0) {
             Utils.checkError(status, "EventStatus");

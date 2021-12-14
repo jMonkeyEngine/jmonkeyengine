@@ -475,7 +475,7 @@ public class GltfLoader implements AssetLoader {
                 geom.setMaterial(readMaterial(materialIndex));
                 if (geom.getMaterial().getAdditionalRenderState().getBlendMode()
                         == RenderState.BlendMode.Alpha) {
-                    // Alpha blending is on on this material let's place the geom in the transparent bucket
+                    // Alpha blending is enabled for this material. Let's place the geom in the transparent bucket.
                     geom.setQueueBucket(RenderQueue.Bucket.Transparent);
                 }
                 if (useNormalsFlag && mesh.getBuffer(VertexBuffer.Type.Tangent) == null) {

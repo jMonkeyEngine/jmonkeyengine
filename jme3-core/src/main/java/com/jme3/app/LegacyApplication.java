@@ -647,7 +647,7 @@ public class LegacyApplication implements Application, SystemListener {
 //        timer.update();
         timer.reset();
 
-        // user code here..
+        // user code here
     }
 
     /**
@@ -781,7 +781,7 @@ public class LegacyApplication implements Application, SystemListener {
             audioRenderer.update(timer.getTimePerFrame());
         }
 
-        // user code here..
+        // user code here
     }
 
     protected void destroyInput(){
