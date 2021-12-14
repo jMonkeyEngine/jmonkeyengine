@@ -154,7 +154,7 @@ public final class FbxToJmeTrack {
                 if (i > 0) {
                     if (rotations[i - 1].dot(rotations[i]) < 0) {
                         System.out.println("rotation will go the long way, oh noes");
-                        rotations[i - 1].negate();
+                        rotations[i - 1].negateLocal();
                     }
                 }
             } else {
