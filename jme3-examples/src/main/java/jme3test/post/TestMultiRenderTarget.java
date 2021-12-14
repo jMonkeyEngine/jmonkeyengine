@@ -87,7 +87,7 @@ public class TestMultiRenderTarget extends SimpleApplication implements ScenePro
      *
      * @param args unused
      */
-    public static void main(String[] args){
+    public static void main(String[] args) {
         TestMultiRenderTarget app = new TestMultiRenderTarget();
         app.start();
     }
@@ -187,20 +187,20 @@ public class TestMultiRenderTarget extends SimpleApplication implements ScenePro
         display4.setTexture(assetManager, blueTexture, false);
 
         display1.setPosition(0, 0); // lower-left quadrant
-        display1.setWidth(w/2f);
-        display1.setHeight(h/2f);
+        display1.setWidth(w / 2f);
+        display1.setHeight(h / 2f);
 
-        display2.setPosition(0, h/2f); // upper-left quadrant
-        display2.setWidth(w/2f);
-        display2.setHeight(h/2f);
+        display2.setPosition(0, h / 2f); // upper-left quadrant
+        display2.setWidth(w / 2f);
+        display2.setHeight(h / 2f);
 
-        display3.setPosition(w/2f, h/2f); // upper-right quadrant
-        display3.setWidth(w/2f);
-        display3.setHeight(h/2f);
+        display3.setPosition(w / 2f, h / 2f); // upper-right quadrant
+        display3.setWidth(w / 2f);
+        display3.setHeight(h / 2f);
 
-        display4.setPosition(w/2f, 0f); // lower-right quadrant
-        display4.setWidth(w/2f);
-        display4.setHeight(h/2f);
+        display4.setPosition(w / 2f, 0f); // lower-right quadrant
+        display4.setWidth(w / 2f);
+        display4.setHeight(h / 2f);
 
         guiNode.updateGeometricState();
         initialized = true;
