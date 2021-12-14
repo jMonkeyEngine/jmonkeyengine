@@ -41,13 +41,10 @@ import com.jme3.system.JmeContext;
  * @author Julien Seinturier - (c) 2016 - JOrigin project - <a href="http://www.jorigin.org">http:/www.jorigin.org</a>
  */
 public class LwjglOffscreenBufferVR extends LwjglWindow {
-
-	/**
-	 * Create a new VR oriented LWJGL offscreen buffer.
-	 */
+    /**
+     * Create a new VR oriented LWJGL offscreen buffer.
+     */
     public LwjglOffscreenBufferVR() {
         super(JmeContext.Type.OffscreenSurface);
     }
-
-   
 }

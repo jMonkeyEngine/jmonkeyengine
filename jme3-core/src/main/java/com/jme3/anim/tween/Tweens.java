@@ -409,7 +409,7 @@ public class Tweens {
             this.length = length;
 
             // Caller desires delegate to be 'length' instead of
-            // its actual length so we will calculate a time scale
+            // its actual length, so we will calculate a time scale.
             // If the desired length is longer than delegate's then
             // we need to feed time in slower, ie: scale < 1
             if (length != 0) {
@@ -538,7 +538,7 @@ public class Tweens {
             }
             this.method.setAccessible(true);
 
-            // So now setup the real args list
+            // So now set up the real args list.
             this.args = new Object[args.length + 1];
             if (tIndex == 0) {
                 for (int i = 0; i < args.length; i++) {
@@ -572,7 +572,7 @@ public class Tweens {
                     continue;
                 }
 
-                // We accept the 't' parameter as either first or last
+                // We accept the 't' parameter as either first or last,
                 // so we'll see which one matches.
                 if (isFloatType(paramTypes[0]) || isDoubleType(paramTypes[0])) {
                     // Try it as the first parameter 

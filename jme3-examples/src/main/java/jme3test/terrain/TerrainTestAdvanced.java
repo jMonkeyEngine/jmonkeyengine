@@ -196,7 +196,7 @@ public class TerrainTestAdvanced extends SimpleApplication {
          */
         /**
          * Optimal terrain patch size is 65 (64x64).
-         * The total size is up to you. At 1025 it ran fine for me (200+FPS), however at
+         * The total size is up to you. At 1025, it ran fine for me (200+FPS), however at
          * size=2049 it got really slow. But that is a jump from 2 million to 8 million triangles...
          */
         terrain = new TerrainQuad("terrain", 65, 513, heightmap.getHeightMap());//, new LodPerspectiveCalculatorFactory(getCamera(), 4)); // add this in to see it use entropy for LOD calculations
@@ -258,9 +258,9 @@ public class TerrainTestAdvanced extends SimpleApplication {
                 triPlanar = !triPlanar;
                 if (triPlanar) {
                     matTerrain.setBoolean("useTriPlanarMapping", true);
-                    // planar textures don't use the mesh's texture coordinates but real world coordinates,
-                    // so we need to convert these texture coordinate scales into real world scales so it looks
-                    // the same when we switch to/from tr-planar mode (1024f is the alphamap size)
+                    // Planar textures don't use the mesh's texture coordinates but real-world coordinates,
+                    // so we need to convert these texture coordinate scales into real-world scales, so it looks
+                    // the same when we switch to/from tri-planar mode. (1024 is the alphamap size.)
                     matTerrain.setFloat("DiffuseMap_0_scale", 1f / (1024f / dirtScale));
                     matTerrain.setFloat("DiffuseMap_1_scale", 1f / (1024f / darkRockScale));
                     matTerrain.setFloat("DiffuseMap_2_scale", 1f / (1024f / pinkRockScale));

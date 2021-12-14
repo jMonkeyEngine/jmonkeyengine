@@ -886,8 +886,8 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * are these two vectors the same? they are is they both have the same x,y,
-     * and z values.
+     * Are these two vectors the same? They are if they have the same x, y,
+     * z, and w values.
      *
      * @param o   the object to compare for equality
      * @return true if they are equal

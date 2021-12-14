@@ -146,9 +146,9 @@ public class TerrainQuad extends Node implements Terrain {
      * @param name the name of the scene element. This is required for
      * identification and comparison purposes.
      * @param patchSize size of the individual patches (geometry). Power of 2 plus 1,
-     * must be smaller than totalSize. (eg. 33, 65...)
+     * must be smaller than totalSize. (e.g. 33, 65...)
      * @param totalSize the size of this entire terrain (on one side). Power of 2 plus 1
-     * (eg. 513, 1025, 2049...)
+     * (e.g. 513, 1025, 2049...)
      * @param heightMap The height map to generate the terrain from (a flat
      * height map will be generated if this is null). The size of one side of the heightmap
      * must match the totalSize. So a 513x513 heightmap is needed for a terrain with totalSize of 513.
@@ -1051,7 +1051,7 @@ public class TerrainQuad extends Node implements Terrain {
     /**
      * Get the interpolated height of the terrain at the specified point.
      * @param xz the location to get the height for
-     * @return Float.NAN if the value does not exist, or the coordinates are outside of the terrain
+     * @return Float.NAN if the value does not exist, or the coordinates lie outside the terrain
      */
     @Override
     public float getHeight(Vector2f xz) {

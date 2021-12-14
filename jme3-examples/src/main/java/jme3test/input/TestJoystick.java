@@ -302,7 +302,7 @@ public class TestJoystick extends SimpleApplication {
             } else if( axis == axis.getJoystick().getYAxis() ) {
                 setYAxis(-value);
             } else if( axis == axis.getJoystick().getAxis(JoystickAxis.Z_AXIS) ) {
-                // Note: in the above condition, we could check the axis name but
+                // Note: in the above condition, we could check the axis name, but
                 //       I have at least one joystick that reports 2 "Z Axis" axes.
                 //       In this particular case, the first one is the right one so
                 //       a name based lookup will find the proper one.  It's a problem

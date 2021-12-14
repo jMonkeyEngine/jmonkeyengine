@@ -58,8 +58,8 @@ import com.jme3.util.clone.JmeCloneable;
 import java.io.IOException;
 
 /**
- * The WaterFilter is a 2D post process that simulate water.
- * It renders water above and under water.
+ * The WaterFilter is a 2-D post process that simulates water.
+ * It renders water from both above and below the surface.
  * See the jMonkeyEngine wiki for more info <a href="https://jmonkeyengine.github.io/wiki/jme3/advanced/post-processor_water.html">https://jmonkeyengine.github.io/wiki/jme3/advanced/post-processor_water.html</a>.
  *
  *
@@ -170,7 +170,7 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
         WaterUtils.updateReflectionCam(reflectionCam, plane, sceneCam);
       
 
-        //if we're under water no need to compute reflection
+        // If we're underwater, we don't need to compute reflection.
         if (sceneCam.getLocation().y >= waterHeight) {
             boolean rtb = true;
             if (!renderManager.isHandleTranslucentBucket()) {
@@ -525,9 +525,9 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
     }
 
     /**
-     * Sets how fast will colours fade out. You can also think about this
-     * values as how clear water is. Therefore use smaller values (eg. 0.05)
-     * to have crystal clear water and bigger to achieve "muddy" water.
+     * Sets how fast colours fade out. You can also think about this
+     * as how clear water is. Therefore, use smaller values (e.g. 0.05)
+     * for crystal-clear water and bigger values for "muddy" water.
      * default is 0.1f
      *
      * @param waterTransparency the desired muddiness (default=0.1)
@@ -573,7 +573,7 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
      * This is a constant related to the index of refraction (IOR) used to compute the fresnel term.
      * F = R0 + (1-R0)( 1 - N.V)^5
      * where F is the fresnel term, R0 the constant, N the normal vector and V the view vector.
-     * It usually depend on the material you are looking through (here water).
+     * It depends on the substance you are looking through (here water).
      * Default value is 0.5
      * In practice, the lowest the value and the less the reflection can be seen on water
      *
@@ -703,7 +703,7 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
     /**
      * This value modifies current fresnel term. If you want to weaken
      * reflections use bigger value. If you want to emphasize them use
-     * value smaller then 0. Default is 0.0f.
+     * a value smaller than 0. Default is 0.
      *
      * @param refractionStrength the desired strength (default=0)
      */
@@ -715,7 +715,7 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
     }
 
     /**
-     * returns the scale factor of the waves height map
+     * Returns the scale factor of the waves' height map.
      * @return the scale factor
      */
     public float getWaveScale() {
@@ -723,9 +723,9 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
     }
 
     /**
-     * Sets the scale factor of the waves height map
-     * the smaller the value the bigger the waves
-     * default is 0.005f
+     * Sets the scale factor of the waves' height map.
+     * The smaller the value, the bigger the waves.
+     * Default is 0.005 .
      *
      * @param waveScale the desired scale factor (default=0.005)
      */
@@ -1203,7 +1203,7 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
     }
 
     /**
-     * returns the distance of the fog when under water
+     * returns the distance of the fog when underwater
      * @return the distance
      */
     public float getUnderWaterFogDistance() {
@@ -1211,8 +1211,8 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
     }
 
     /**
-     * sets the distance of the fog when under water.
-     * default is 120 (120 world units) use a high value to raise the view range under water
+     * Sets the distance of the fog when underwater.
+     * Default is 120 (120 world units). Use a high value to raise the view range underwater.
      *
      * @param underWaterFogDistance the desired distance (in world units,
      * default=120)
@@ -1225,7 +1225,7 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
     }
 
     /**
-     * get the intensity of caustics under water
+     * Gets the intensity of caustics underwater
      * @return the intensity value (&ge;0, &le;1)
      */
     public float getCausticsIntensity() {
@@ -1233,7 +1233,7 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
     }
 
     /**
-     * sets the intensity of caustics under water. goes from 0 to 1, default is 0.5f
+     * Sets the intensity of caustics underwater. Goes from 0 to 1, default is 0.5.
      *
      * @param causticsIntensity the desired intensity (&ge;0, &le;1,
      * default=0.5)
@@ -1255,7 +1255,7 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
 
     /**
      * Set the center of the effect.
-     * By default the water will extent to the entire scene.
+     * By default, the water will extend across the entire scene.
      * By setting a center and a radius you can restrain it to a portion of the scene.
      * @param center the center of the effect
      */
@@ -1277,7 +1277,7 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
 
     /**
      * Set the radius of the effect.
-     * By default the water will extent to the entire scene.
+     * By default, the water will extend across the entire scene.
      * By setting a center and a radius you can restrain it to a portion of the scene.
      * @param radius the radius of the effect
      */

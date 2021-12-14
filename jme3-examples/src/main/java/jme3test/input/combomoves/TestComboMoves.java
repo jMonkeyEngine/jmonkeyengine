@@ -195,7 +195,7 @@ public class TestComboMoves extends SimpleApplication implements ActionListener 
         }
 
         if (invokedMoves.size() > 0){
-            // choose move with highest priority
+            // Choose the move with the highest priority.
             float priority = 0;
             ComboMove toExec = null;
             for (ComboMove move : invokedMoves){

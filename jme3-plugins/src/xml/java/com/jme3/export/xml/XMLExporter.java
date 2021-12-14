@@ -43,7 +43,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 /**
- * Part of the jME XML IO system as introduced in the google code jmexml project.
+ * Part of the jME XML IO system as introduced in the Google Code jmexml project.
  * 
  * @author Kai Rabien (hevee) - original author of the code.google.com jmexml project
  * @author Doug Daniels (dougnukem) - adjustments for jME 2.0 and Java 1.5

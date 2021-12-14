@@ -294,7 +294,7 @@ public class ViewPort {
      * Sets the output framebuffer for the ViewPort.
      *
      * <p>The output framebuffer specifies where the scenes attached
-     * to this ViewPort are rendered to. By default this is <code>null</code>
+     * to this ViewPort are rendered to. By default, this is <code>null</code>,
      * which indicates the scenes are rendered to the display window.
      *
      * @param out The framebuffer to render scenes to, or null if to render
@@ -384,7 +384,7 @@ public class ViewPort {
      * <p>When the ViewPort's color buffer is cleared
      * (if {@link #setClearColor(boolean) color clearing} is enabled),
      * this specifies the color to which the color buffer is set to.
-     * By default the background color is black without alpha.
+     * By default, the background color is black without alpha.
      *
      * @param background the background color.
      */
@@ -407,7 +407,7 @@ public class ViewPort {
      * Enables or disables this ViewPort.
      *
      * <p>Disabled ViewPorts are skipped by the {@link RenderManager} when
-     * rendering. By default all ViewPorts are enabled.
+     * rendering. By default, all viewports are enabled.
      *
      * @param enable If the viewport should be disabled or enabled.
      */

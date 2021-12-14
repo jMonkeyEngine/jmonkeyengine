@@ -200,7 +200,7 @@ public class VehicleWheel implements Savable {
 
     /**
      * the coefficient of friction between the tyre and the ground.
-     * Should be about 0.8 for realistic cars, but can increased for better handling.
+     * Should be about 0.8 for realistic cars, but can be increased for better handling.
      * Set large (10000.0) for kart racers
      *
      * @param frictionSlip the desired coefficient of friction between tyre and

@@ -88,7 +88,7 @@ public class TestChaseCameraAppState extends SimpleApplication implements Analog
     //chaseCamAS.setInvertHorizontalAxis(true);
 
     //Uncomment this to enable rotation when the middle mouse button is pressed (like Blender)
-    //WARNING : setting this trigger disable the rotation on right and left mouse button click
+    // WARNING: setting this trigger disables the rotation on right and left mouse button click
     //chaseCamAS.setToggleRotationTrigger(new MouseButtonTrigger(MouseInput.BUTTON_MIDDLE));
 
     //Uncomment this to set multiple triggers to enable rotation of the cam
