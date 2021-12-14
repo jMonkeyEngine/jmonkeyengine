@@ -37,19 +37,21 @@ import java.io.IOException;
 /**
  * <code>Rectangle</code> defines a finite plane within three dimensional space
  * that is specified via three points (A, B, C). These three points define a
- * triangle with the fourth point defining the rectangle (B + C) - A.<p>
- * 
- * The points of a rectangle are arranged as follows: 
- * 
+ * triangle with the fourth point defining the rectangle (B + C) - A.
+ *
+ * <p>The corner points are named as follows:
+ *
  * <pre>
- *     C +-----+ D
- *       |\    |
- *       | \   |
- *       |  \  |
- *       |   \ |
- *       |    \|
- *     A +-----+ B
+ *     C +---+ D
+ *       |   |
+ *       |   |
+ *       |   |
+ *       |   |
+ *     A +---+ B
  * </pre>
+ *
+ * <p>If angle BAC isn't exactly 90 degrees, then the resulting shape is
+ * actually parallelogram, not a rectangle.
  *
  * @author Mark Powell
  * @author Joshua Slack
@@ -138,20 +140,21 @@ public final class Rectangle implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * <code>getD</code> returns the fourth point of the rectangle.
-     * The fourth point is given by calculating (B + C) - A.
+     * Returns the coordinates of the 4th corner, calculated by the formula
+     * D = (B + C) - A .
      *
-     * @return the fourth point of this rectangle.
+     * @return a new Vector3f
      */
     public Vector3f getD() {
         return b.add(c).subtractLocal(a);
     }
 
     /**
-     * Computes the normal vector of this <code>Rectangle</code>.
-     * 
-     * @param normal the vector to store the result in
-     * @return the normal vector of this <code>Rectangle</code>
+     * Returns a normal vector, calculated by the formula
+     * N = |(C - A) x (B - A)| .
+     *
+     * @param normal storage for the normal, or null for a new Vector3f
+     * @return either {@code normal} or a new Vector3f
      */
     public Vector3f calculateNormal(Vector3f normal) {
         if (normal == null) {
