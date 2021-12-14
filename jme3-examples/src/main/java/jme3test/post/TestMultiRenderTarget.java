@@ -49,7 +49,11 @@ import com.jme3.ui.Picture;
 
 public class TestMultiRenderTarget extends SimpleApplication implements SceneProcessor {
     private FrameBuffer fb;
-    private Picture display1, display2, display3, display4;
+    private Picture display1;
+    private Picture display2;
+    private Picture display3;
+    private Picture display4;
+
     private boolean initialized = false;
 
     public static void main(String[] args){
