@@ -277,14 +277,12 @@ public class TestPostWater extends SimpleApplication {
         water.setWaterHeight(initialWaterHeight + waterHeight);
         if (water.isUnderWater() && !uw) {
 
-            waves.setDryFilter(new LowPassFilter(0.5f, 0.1f));
+           waves.setReverbEnabled(false);
             uw = true;
         }
         if (!water.isUnderWater() && uw) {
             uw = false;
-            //waves.setReverbEnabled(false);
-            waves.setDryFilter(new LowPassFilter(1, 1f));
-            //waves.setDryFilter(new LowPassFilter(1,1f));
+            waves.setReverbEnabled(true);
 
         }
     }
