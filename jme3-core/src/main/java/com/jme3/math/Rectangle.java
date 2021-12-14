@@ -152,9 +152,9 @@ public final class Rectangle implements Savable, Cloneable, java.io.Serializable
     /**
      * Returns a normal vector, calculated by the formula
      * <pre>
-     *      (C - A) x (B - A)
+     *      (C - B) x (B - A)
      * N = -------------------
-     *     |(C - A) x (B - A)|
+     *     |(C - B) x (B - A)|
      * </pre>
      *
      * @param normal storage for the normal, or null for a new Vector3f
