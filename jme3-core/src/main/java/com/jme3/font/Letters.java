@@ -73,8 +73,13 @@ class Letters {
         current = head;
         if (text != null && plainText.length() > 0) {
             LetterQuad l = head;
-            for (int i = 0; i < plainText.length(); i++) {
-                l = l.addNextCharacter(plainText.charAt(i));
+            CharSequence characters = plainText;
+            if (font.getGlyphParser() != null) {
+                characters = font.getGlyphParser().parse(plainText);
+            }
+
+            for (int i = 0; i < characters.length(); i++) {
+                l = l.addNextCharacter(characters.charAt(i));
                 if (baseColor != null) {
                     // Give the letter a default color if
                     // one has been provided.
@@ -114,7 +119,7 @@ class Letters {
         while (!l.isTail()) {
             if (l.isInvalid()) {
                 l.update(block);
-
+                // Without a textblock the next line returns always false = no textwrap at all will be applied
                 if (l.isInvalid(block)) {
                     switch (block.getLineWrapMode()) {
                     case Character:
@@ -164,6 +169,7 @@ class Letters {
                         l.clip(block);
 
                         // Clear the rest up to the next line feed.
+                        // = for texts attached to a textblock all coming characters are cleared except a linefeed is explicitly used
                         for( LetterQuad q = l.getNext(); !q.isTail() && !q.isLineFeed(); q = q.getNext() ) {
                             q.setBitmapChar(null);
                             q.update(block);
@@ -186,44 +192,80 @@ class Letters {
     }
 
     private void align() {
+        if (block.getTextBox() == null) {
+            // Without a textblock there is no alignment.
+            return;
+
+            // For unbounded left-to-right texts the letters will simply be shown starting from
+            // x0 = 0 and advance toward right as line length is considered to be infinite.
+            // For unbounded right-to-left texts the letters will be shown starting from x0 = 0
+            // (at the same position as left-to-right texts) but move toward the left from there.
+        }
+
         final Align alignment = block.getAlignment();
         final VAlign valignment = block.getVerticalAlignment();
-        if (block.getTextBox() == null || (alignment == Align.Left && valignment == VAlign.Top))
-            return;
-        LetterQuad cursor = tail.getPrevious();
-        cursor.setEndOfLine();
         final float width = block.getTextBox().width;
         final float height = block.getTextBox().height;
         float lineWidth = 0;
         float gapX = 0;
         float gapY = 0;
+
         validateSize();
         if (totalHeight < height) { // align vertically only for no overflow
             switch (valignment) {
-            case Top:
-                gapY = 0;
-                break;
-            case Center:
-                gapY = (height - totalHeight) * 0.5f;
-                break;
-            case Bottom:
-                gapY = height - totalHeight;
-                break;
+                case Top:
+                    gapY = 0;
+                    break;
+                case Center:
+                    gapY = (height - totalHeight) * 0.5f;
+                    break;
+                case Bottom:
+                    gapY = height - totalHeight;
+                    break;
             }
         }
-        while (!cursor.isHead()) {
-            if (cursor.isEndOfLine()) {
-                lineWidth = cursor.getX1()-block.getTextBox().x;
-                if (alignment == Align.Center) {
-                    gapX = (width-lineWidth)/2;
-                } else if (alignment == Align.Right) {
-                    gapX = width-lineWidth;
-                } else {
-                    gapX = 0;
-                }
+
+        if (font.isRightToLeft()) {
+            if ((alignment == Align.Right && valignment == VAlign.Top)) {
+                return;
             }
-            cursor.setAlignment(gapX, gapY);
-            cursor = cursor.getPrevious();
+            LetterQuad cursor = tail.getPrevious();
+            // Temporary set the flag, it will be reset when invalidated.
+            cursor.setEndOfLine();
+            while (!cursor.isHead()) {
+                if (cursor.isEndOfLine()) {
+                    if (alignment == Align.Left) {
+                        gapX = block.getTextBox().x - cursor.getX0();
+                    } else if (alignment == Align.Center) {
+                        gapX = (block.getTextBox().x - cursor.getX0()) / 2;
+                    } else {
+                        gapX = 0;
+                    }
+                }
+                cursor.setAlignment(gapX, gapY);
+                cursor = cursor.getPrevious();
+            }
+        } else { // left-to-right
+            if (alignment == Align.Left && valignment == VAlign.Top) {
+                return;
+            }
+            LetterQuad cursor = tail.getPrevious();
+            // Temporary set the flag, it will be reset when invalidated.
+            cursor.setEndOfLine();
+            while (!cursor.isHead()) {
+                if (cursor.isEndOfLine()) {
+                    lineWidth = cursor.getX1() - block.getTextBox().x;
+                    if (alignment == Align.Center) {
+                        gapX = (width - lineWidth) / 2;
+                    } else if (alignment == Align.Right) {
+                        gapX = width - lineWidth;
+                    } else {
+                        gapX = 0;
+                    }
+                }
+                cursor.setAlignment(gapX, gapY);
+                cursor = cursor.getPrevious();
+            }
         }
     }
 
@@ -232,7 +274,7 @@ class Letters {
             return;
         l.getPrevious().setEndOfLine();
         l.invalidate();
-        l.update(block); // TODO: update from l
+        l.update(block);
     }
 
     float getCharacterX0() {
@@ -319,10 +361,15 @@ class Letters {
     }
 
     void validateSize() {
+        // also called from BitMaptext.getLineWidth() via getTotalWidth()
         if (totalWidth < 0) {
             LetterQuad l = head;
             while (!l.isTail()) {
-                totalWidth = Math.max(totalWidth, l.getX1());
+                if (font.isRightToLeft()) {
+                    totalWidth = Math.max(totalWidth, Math.abs(l.getX0()));
+                } else {
+                    totalWidth = Math.max(totalWidth, l.getX1());
+                }
                 l = l.getNext();
             }
         }
