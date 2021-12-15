@@ -188,6 +188,7 @@ public class RectangleMesh extends Mesh {
      */
     public void flip() {
         rectangle = new Rectangle(rectangle.calculateD(), rectangle.getB(), rectangle.getC());
+        texCoords = new Vector2f[] { texCoords[2], texCoords[1], texCoords[0], texCoords[3] };
         normal.negateLocal();
         updateMesh();
     }
