@@ -33,6 +33,8 @@ package jme3test.water;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.audio.AudioData.DataType;
+import com.jme3.font.BitmapFont;
+import com.jme3.font.BitmapText;
 import com.jme3.audio.AudioNode;
 import com.jme3.audio.LowPassFilter;
 import com.jme3.input.KeyInput;
@@ -74,7 +76,9 @@ public class TestPostWater extends SimpleApplication {
     private WaterFilter water;
     private AudioNode waves;
     final private LowPassFilter aboveWaterAudioFilter = new LowPassFilter(1, 1);
-
+    private boolean useDryFilter = true;
+    
+    
     public static void main(String[] args) {
         TestPostWater app = new TestPostWater();
         app.start();
@@ -183,6 +187,15 @@ public class TestPostWater extends SimpleApplication {
         //  
         viewPort.addProcessor(fpp);
 
+        guiFont = assetManager.loadFont("Interface/Fonts/Default.fnt");
+        
+        setText(0, 50, "1 - Set Foam Texture to Foam.jpg");
+        setText(0, 80, "2 - Set Foam Texture to Foam2.jpg");
+        setText(0, 110, "3 - Set Foam Texture to Foam3.jpg");
+        setText(0, 140, "4 - Turn Dry Filter under water On/Off");
+        setText(0, 240, "Page Dwn - Larger Reflection Map");
+        setText(0, 270, "Page UP - Smaller Reflection Map");
+
         inputManager.addListener(new ActionListener() {
             @Override
             public void onAction(String name, boolean isPressed, float tpf) {
@@ -205,12 +218,18 @@ public class TestPostWater extends SimpleApplication {
                         water.setReflectionMapSize(Math.max(water.getReflectionMapSize() / 2, 32));
                         System.out.println("Reflection map size : " + water.getReflectionMapSize());
                     }
+                    if (name.equals("drayFilter"))
+                    {
+                       useDryFilter = !useDryFilter; 
+                    }
+                    
                 }
             }
-        }, "foam1", "foam2", "foam3", "upRM", "downRM");
+        }, "foam1", "foam2", "foam3", "upRM", "downRM", "dryFilter");
         inputManager.addMapping("foam1", new KeyTrigger(KeyInput.KEY_1));
         inputManager.addMapping("foam2", new KeyTrigger(KeyInput.KEY_2));
         inputManager.addMapping("foam3", new KeyTrigger(KeyInput.KEY_3));
+        inputManager.addMapping("dryFilter", new KeyTrigger(KeyInput.KEY_4));
         inputManager.addMapping("upRM", new KeyTrigger(KeyInput.KEY_PGUP));
         inputManager.addMapping("downRM", new KeyTrigger(KeyInput.KEY_PGDN));
     }
@@ -277,13 +296,27 @@ public class TestPostWater extends SimpleApplication {
         water.setWaterHeight(initialWaterHeight + waterHeight);
         if (water.isUnderWater() && !uw) {
 
+           if (useDryFilter)
+              waves.setDryFilter(new LowPassFilter(0.5f, 0.1f));
+           
            waves.setReverbEnabled(false);
             uw = true;
         }
         if (!water.isUnderWater() && uw) {
             uw = false;
             waves.setReverbEnabled(true);
+            if (useDryFilter)
+               waves.setDryFilter(new LowPassFilter(1f, 1f));
 
         }
+    }
+    
+    protected void setText(int x, int y, String text) {
+       BitmapText txt2 = new BitmapText(guiFont, false);
+       txt2.setText(text);
+       txt2.setLocalTranslation(x, cam.getHeight()-y, 0);
+       txt2.setColor(ColorRGBA.Red);
+       guiNode.attachChild(txt2);
+       
     }
 }
