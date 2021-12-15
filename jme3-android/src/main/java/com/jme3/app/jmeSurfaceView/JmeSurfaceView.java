@@ -64,7 +64,6 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.microedition.khronos.opengles.GL10;
 
 /**
  * <b>A RelativeLayout class holder that holds a {@link GLSurfaceView} as a renderer UI component and uses {@link OGLESContext} as a renderer context to render
