@@ -193,11 +193,11 @@ public class RectangleMesh extends Mesh {
         updateMesh();
     }
 
-    public void updateMesh() {
+    protected void updateMesh() {
         Vector3f a = rectangle.getA();
         Vector3f b = rectangle.getB();
         Vector3f c = rectangle.getC();
-        Vector3f d = rectangle.getD();
+        Vector3f d = rectangle.calculateD();
         setBuffer(Type.Position, 3, new float[] {
                 a.x, a.y, a.z,
                 b.x, b.y, b.z,
