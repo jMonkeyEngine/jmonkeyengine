@@ -103,6 +103,9 @@ public class BitmapFont implements Savable {
     /**
      * Specify if this is a right-to-left font. By default it is set to false.
      * This can be "overwritten" in the BitmapText constructor.
+     *
+     * @param rightToLeft true &rarr; right-to-left, false &rarr; left-to-right
+     *     (default=false)
      */
     public void setRightToLeft(boolean rightToLeft) {
         this.rightToLeft = rightToLeft;
@@ -147,6 +150,9 @@ public class BitmapFont implements Savable {
      * For cursive fonts a GlyphParser needs to be specified which is used
      * to determine glyph shape by the adjacent glyphs. If nothing is set,
      * all glyphs will be rendered isolated.
+     *
+     * @param glyphParser the desired parser (alias created) or null for none
+     *     (default=null)
      */
     public void setGlyphParser(GlyphParser glyphParser) {
         this.glyphParser = glyphParser;

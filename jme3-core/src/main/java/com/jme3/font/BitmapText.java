@@ -59,6 +59,10 @@ public class BitmapText extends Node {
     /**
      * @deprecated The "rightToLeft" flag should be specified in the font.
      * Use {@link BitmapText#BitmapText(com.jme3.font.BitmapFont)}
+     *
+     * @param font the font to use (not null, alias created)
+     * @param rightToLeft true &rarr; right-to-left, false &rarr; left-to-right
+     *     (default=false)
      */
     @Deprecated
     public BitmapText(BitmapFont font, boolean rightToLeft) {
