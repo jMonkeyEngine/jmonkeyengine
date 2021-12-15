@@ -44,7 +44,9 @@ import com.jme3.scene.VertexBuffer.Type;
  * (0,0,0) at the rectangle's center instead of in a corner.
  *
  * @author Kirill Vainer
+ * @deprecated use com.jme3.scene.shape.CenterQuad
  */
+@Deprecated
 public class CenterQuad extends Mesh {
 
     public static CenterQuad UnitQuad = new CenterQuad(0.5f, 0.5f);
