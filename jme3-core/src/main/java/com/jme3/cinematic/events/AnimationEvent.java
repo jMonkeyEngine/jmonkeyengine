@@ -145,7 +145,7 @@ public class AnimationEvent extends AbstractCinematicEvent {
      * @param model the model on which the animation will be played
      * @param animationName the name of the animation to play
      * @param initialDuration the initial duration of the event
-     * @param blendTime the time during the animation are gonna be blended
+     * @param blendTime the time interval during which the animation will be blended
      * @see AnimChannel#setAnim(java.lang.String, float)
      */
     public AnimationEvent(Spatial model, String animationName, float initialDuration, float blendTime) {
@@ -163,7 +163,7 @@ public class AnimationEvent extends AbstractCinematicEvent {
      * @param animationName the name of the animation to play
      * @param loopMode the loopMode
      * @see LoopMode
-     * @param blendTime the time during the animation are gonna be blended
+     * @param blendTime the time interval during which the animation will be blended
      * @see AnimChannel#setAnim(java.lang.String, float)
      */
     public AnimationEvent(Spatial model, String animationName, LoopMode loopMode, float blendTime) {
@@ -183,7 +183,7 @@ public class AnimationEvent extends AbstractCinematicEvent {
      * @param initialDuration the initial duration of the event
      * @param loopMode the loopMode
      * @see LoopMode
-     * @param blendTime the time during the animation are gonna be blended
+     * @param blendTime the time interval during which the animation will be blended
      * @see AnimChannel#setAnim(java.lang.String, float)
      */
     public AnimationEvent(Spatial model, String animationName, float initialDuration, LoopMode loopMode, float blendTime) {
@@ -236,7 +236,7 @@ public class AnimationEvent extends AbstractCinematicEvent {
      * @param animationName the name of the animation to play
      * @param loopMode the desired mode (Loop/DontLoop/Cycle)
      * @param channelIndex the index of the channel default is 0. Events on the
-     * @param blendTime the time during the animation are gonna be blended
+     * @param blendTime the time interval during which the animation will be blended
      * same channelIndex will use the same channel.
      */
     public AnimationEvent(Spatial model, String animationName, LoopMode loopMode, int channelIndex, float blendTime) {

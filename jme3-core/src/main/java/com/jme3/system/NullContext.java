@@ -71,7 +71,9 @@ public class NullContext implements JmeContext, Runnable {
 
     protected void initInThread(){
         logger.fine("NullContext created.");
-        logger.log(Level.FINE, "Running on thread: {0}", Thread.currentThread().getName());
+        if (logger.isLoggable(Level.FINE)) {
+            logger.log(Level.FINE, "Running on thread: {0}", Thread.currentThread().getName());
+        }
 
         Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
             @Override

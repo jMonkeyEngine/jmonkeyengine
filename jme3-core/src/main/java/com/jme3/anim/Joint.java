@@ -119,7 +119,7 @@ public class Joint implements Savable, JmeCloneable, HasLocalTransform {
      * if not null.
      * <p>
      * The model transform of this bone is computed by combining the parent's
-     * model transform with this bones' local transform.
+     * model transform with this bone's local transform.
      */
     public final void updateModelTransforms() {
         jointModelTransform.updateModelTransform(localTransform, parent);

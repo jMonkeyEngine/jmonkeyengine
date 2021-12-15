@@ -18,7 +18,7 @@
  *   without specific prior written permission.
  * 
  * This class is the java implementation of
- * the enhanced version of Ogre engine Lod generator, by Péter Szücs, originally
+ * the enhanced version of Ogre Engine LOD generator, by Péter Szücs, originally
  * based on Stan Melax "easy mesh simplification". The MIT licenced C++ source
  * code can be found here
  * https://github.com/worldforge/ember/tree/master/src/components/ogre/lod
@@ -70,11 +70,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * This is a utility class that adds the ability to generate the lod levels
+ * This is a utility class that adds the ability to generate LOD levels
  * for an arbitrary mesh. It computes a collapse cost for each vertex and each edge.
  * The higher the cost the more likely collapsing the edge or the vertex will
  * produce artifacts on the mesh. <p>This class is the java implementation of
- * the enhanced version of Ogre engine Lod generator, by Péter Szücs, originally
+ * the enhanced version of Ogre engine LOD generator, by Péter Szücs, originally
  * based on Stan Melax "easy mesh simplification". The MIT licenced C++ source
  * code can be found here
  * https://github.com/worldforge/ember/tree/master/src/components/ogre/lod more
@@ -83,7 +83,7 @@ import java.util.logging.Logger;
  *
  * <p>The algorithm sorts vertices according to their collapse cost in
  * ascending order. It collapses from the "cheapest" vertex to the more expensive.<br>
- * <strong>Usage : </strong><br>
+ * <strong>Usage: </strong><br>
  * <pre>
  *      LodGenerator lODGenerator = new LodGenerator(geometry);
  *      lODGenerator.bakeLods(reductionMethod,reductionValue);
@@ -258,7 +258,7 @@ public class LodGenerator {
     /**
      * Construct a LodGenerator for the given mesh
      *
-     * @param mesh the mesh to consider to generate de Lods.
+     * @param mesh the mesh for which to generate LODs.
      */
     public LodGenerator(Mesh mesh) {
         this.mesh = mesh;
@@ -268,7 +268,7 @@ public class LodGenerator {
     /**
      * Construct a LodGenerator for the given geometry
      *
-     * @param geom the geometry to consider to generate de Lods.
+     * @param geom the geometry for which to generate LODs.
      */
     public LodGenerator(Geometry geom) {
         mesh = geom.getMesh();
@@ -353,7 +353,9 @@ public class LodGenerator {
             }
             if (tri.isMalformed()) {
                 if (!tri.isRemoved) {
-                    logger.log(Level.FINE, "malformed triangle found with ID:{0}\n{1} It will be excluded from Lod level calculations.", new Object[]{triangleList.indexOf(tri), tri.toString()});
+                    if (logger.isLoggable(Level.FINE)) {
+                        logger.log(Level.FINE, "malformed triangle found with ID:{0}\n{1} It will be excluded from Lod level calculations.", new Object[]{triangleList.indexOf(tri), tri.toString()});
+                    }
                     tri.isRemoved = true;
                     indexCount -= 3;
                 }
@@ -523,12 +525,12 @@ public class LodGenerator {
     int nbCollapsedTri = 0;
 
     /**
-     * Computes the lod and return a list of VertexBuffers that can then be used
-     * for lod (use Mesh.setLodLevels(VertexBuffer[]))<br>
+     * Computes the LODs and returns an array of VertexBuffers that can
+     * be passed to Mesh.setLodLevels(). <br>
      *
      * This method must be fed with the reduction method
      * {@link TriangleReductionMethod} and a list of reduction values.<br> for
-     * each value a lod will be generated. <br> The resulting array will always
+     * each value a LOD will be generated. <br> The resulting array will always
      * contain at index 0 the original index buffer of the mesh. <p>
      * <strong>Important note :</strong> some meshes cannot be decimated, so the
      * result of this method can vary depending of the given mesh. Also the
@@ -536,9 +538,9 @@ public class LodGenerator {
      * meet the required reduction.
      *
      * @param reductionMethod the reduction method to use
-     * @param reductionValues the reduction value to use for each lod level.
+     * @param reductionValues the reduction value to use for each LOD level.
      * @return an array of VertexBuffers containing the different index buffers
-     * representing the lod levels.
+     * representing the LOD levels.
      */
     public VertexBuffer[] computeLods(TriangleReductionMethod reductionMethod, float... reductionValues) {
         int tricount = triangleList.size();
@@ -591,17 +593,17 @@ public class LodGenerator {
     }
 
     /**
-     * Computes the lods and bake them into the mesh<br>
+     * Computes the LODs and bakes them into the mesh. <br>
      *
      * This method must be fed with the reduction method
      * {@link TriangleReductionMethod} and a list of reduction values.<br> for
-     * each value a lod will be generated. <p> <strong>Important note :</strong>
+     * each value a LOD will be generated. <p> <strong>Important note: </strong>
      * some meshes cannot be decimated, so the result of this method can vary
      * depending of the given mesh. Also the reduction values are indicative and
      * the produces mesh will not always meet the required reduction.
      *
      * @param reductionMethod the reduction method to use
-     * @param reductionValues the reduction value to use for each lod level.
+     * @param reductionValues the reduction value to use for each LOD level.
      */
     public void bakeLods(TriangleReductionMethod reductionMethod, float... reductionValues) {
         mesh.setLodLevels(computeLods(reductionMethod, reductionValues));
@@ -750,7 +752,9 @@ public class LodGenerator {
                 if (!tri.isRemoved) {
                     tri.isRemoved = true;
                     indexCount -= 3;
-                    logger.log(Level.FINE, "duplicate triangle found{0}{1} It will be excluded from Lod level calculations.", new Object[]{tri, duplicate});
+                    if (logger.isLoggable(Level.FINE)) {
+                        logger.log(Level.FINE, "duplicate triangle found{0}{1} It will be excluded from Lod level calculations.", new Object[]{tri, duplicate});
+                    }
                 }
             }
         }
@@ -891,8 +895,8 @@ public class LodGenerator {
                 // Remove a triangle
                 // Tasks:
                 // 1. Add it to the collapsed edges list.
-                // 2. Reduce index count for the Lods, which will not have this triangle.
-                // 3. Mark as removed, so it will not be added in upcoming Lod levels.
+                // 2. Reduce index count for the LODs, which will not have this triangle.
+                // 3. Mark as removed, so it will not be added in upcoming LOD levels.
                 // 4. Remove references/pointers to this triangle.
 
                 // 1. task

@@ -299,7 +299,7 @@ public final class TGALoader implements AssetLoader {
                         // Get the number of pixels the next chunk covers (either packed or unpacked)
                         int count = dis.readByte();
                         if ((count & 0x80) != 0) {
-                            // Its an RLE packed block - use the following 1 pixel for the next <count> pixels
+                            // It's an RLE-packed block: use the following pixel for the next <count> pixels.
                             count &= 0x07f;
                             j += count;
                             blue = dis.readByte();
@@ -338,7 +338,7 @@ public final class TGALoader implements AssetLoader {
                         // Get the number of pixels the next chunk covers (either packed or unpacked)
                         int count = dis.readByte();
                         if ((count & 0x80) != 0) {
-                            // Its an RLE packed block - use the following 1 pixel for the next <count> pixels
+                            // It's an RLE-packed block: use the following pixel for the next <count> pixels.
                             count &= 0x07f;
                             j += count;
                             blue = dis.readByte();
@@ -375,7 +375,7 @@ public final class TGALoader implements AssetLoader {
                         // Get the number of pixels the next chunk covers (either packed or unpacked)
                         int count = dis.readByte();
                         if ((count & 0x80) != 0) {
-                            // Its an RLE packed block - use the following 1 pixel for the next <count> pixels
+                            // It's an RLE-packed block: use the following pixel for the next <count> pixels.
                             count &= 0x07f;
                             j += count;
                             data[1] = dis.readByte();

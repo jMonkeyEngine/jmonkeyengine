@@ -109,11 +109,11 @@ public interface EFX {
     //#define AL_VOCAL_MORPHER_WAVEFORM                0x0005
     //#define AL_VOCAL_MORPHER_RATE                    0x0006
     //
-    ///* Pitchshifter effect parameters */
+    ///* Pitch-shifter effect parameters */
     //#define AL_PITCH_SHIFTER_COARSE_TUNE             0x0001
     //#define AL_PITCH_SHIFTER_FINE_TUNE               0x0002
     //
-    ///* Ringmodulator effect parameters */
+    ///* Ring-modulator effect parameters */
     //#define AL_RING_MODULATOR_FREQUENCY              0x0001
     //#define AL_RING_MODULATOR_HIGHPASS_CUTOFF        0x0002
     //#define AL_RING_MODULATOR_WAVEFORM               0x0003

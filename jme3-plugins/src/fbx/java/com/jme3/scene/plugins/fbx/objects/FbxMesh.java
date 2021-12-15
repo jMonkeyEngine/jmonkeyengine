@@ -265,8 +265,8 @@ public class FbxMesh extends FbxObject {
         if(indices != null) {
             iCount = indices.length;
             srcVertexCount = vertices.length / 3;
-            // Indices contains negative numbers to define polygon last index
-            // Check indices strides to be sure we have triangles or quads
+            // Indices contain negative numbers to define polygon last index.
+            // Check index strides to be sure we have triangles or quads.
             vCount = 0;
             // Count number of vertices to be produced
             int polyVertCount = 0;

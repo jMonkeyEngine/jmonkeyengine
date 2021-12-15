@@ -419,8 +419,8 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
             // The canvas is no longer visible,
             // but the context thread is still running.
             if (!needClose.get()){
-                // MUST make sure there's still a context current here ..
-                // Display is dead, make pbuffer available to the system
+                // MUST make sure there's still a context current here.
+                // Display is dead, make PBuffer available to the system.
                 makePbufferAvailable();
                 
                 renderer.invalidateState();

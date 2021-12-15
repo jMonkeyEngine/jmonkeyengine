@@ -136,7 +136,7 @@ public class ImageToAwt {
         final int m__xx  = 0x0000ffff;
         final int s__xx  = 0;
 
-        // note: compressed, depth, or floating point formats not included here..
+        // Note: compressed, depth, and floating-point formats are not included here.
         
         params.put(Format.ABGR8,    new DecodeParams(4, mx___, m___x, m__x_, m_x__,
                                                         sx___, s___x, s__x_, s_x__,

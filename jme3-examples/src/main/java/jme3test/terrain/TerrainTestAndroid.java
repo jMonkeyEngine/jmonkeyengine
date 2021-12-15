@@ -51,8 +51,8 @@ import com.jme3.texture.Texture.WrapMode;
 
 /**
  * Demonstrates how to use terrain on Android.
- * The only difference is it uses a much smaller heightmap so it won't use up
- * all of the android device's memory.
+ * The only difference is it uses a much smaller heightmap, so it won't use
+ * all the device's memory.
  *
  * @author bowens
  */

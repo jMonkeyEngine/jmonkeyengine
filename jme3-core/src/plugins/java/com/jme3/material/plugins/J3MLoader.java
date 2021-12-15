@@ -409,7 +409,7 @@ public class J3MLoader implements AssetLoader {
     }
 
     private void readValueParam(String statement) throws IOException{
-        // Use limit=1 incase filename contains colons
+        // Use limit=1 in case the filename contains colons.
         String[] split = statement.split(":", 2);
         if (split.length != 2){
             throw new IOException("Value parameter statement syntax incorrect");

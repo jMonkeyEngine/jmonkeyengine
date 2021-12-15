@@ -416,7 +416,7 @@ public class EnvMapUtils {
     /**
      * Returns the Spherical Harmonics coefficients for this cube map.
      *
-     * The method used is the one from this article :
+     * The method used is the one from this article:
      * http://graphics.stanford.edu/papers/envmap/envmap.pdf
      *
      * Also good resources on spherical harmonics

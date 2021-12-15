@@ -58,7 +58,7 @@ public class FbxReader {
 
     public static FbxFile readFBX(InputStream stream) throws IOException {
         FbxFile fbxFile = new FbxFile();
-        // Read file to byte buffer so we can know current position in file
+        // Read the file to a ByteBuffer, so we can determine positions in the file.
         ByteBuffer byteBuffer = readToByteBuffer(stream);
         try {
             stream.close();

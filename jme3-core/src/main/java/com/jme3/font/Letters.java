@@ -438,8 +438,8 @@ class Letters {
             cursor = cursor.getNext();
         }
 
-        // If the alpha was reset to "default", ie: -1
-        // then the color tags are potentially reset and
+        // If the alpha was reset to "default" (-1),
+        // then the color tags are potentially reset, and
         // we need to reapply them.  This has to be done
         // second since it may override any alpha values
         // set above... but you still need to do the above

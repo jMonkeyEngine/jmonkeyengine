@@ -118,8 +118,10 @@ public class AnimEvent extends AbstractCinematicEvent {
      */
     @Override
     public void onPause() {
-        logger.log(Level.INFO, "layer={0} action={1}",
-                new Object[]{layerName, actionName});
+        if (logger.isLoggable(Level.INFO)) {
+            logger.log(Level.INFO, "layer={0} action={1}",
+                    new Object[]{layerName, actionName});
+        }
 
         Object layerManager = composer.getLayerManager(layerName);
         if (layerManager == this) {
@@ -133,8 +135,10 @@ public class AnimEvent extends AbstractCinematicEvent {
      */
     @Override
     public void onPlay() {
-        logger.log(Level.INFO, "layer={0} action={1}",
-                new Object[]{layerName, actionName});
+        if (logger.isLoggable(Level.INFO)) {
+            logger.log(Level.INFO, "layer={0} action={1}",
+                    new Object[]{layerName, actionName});
+        }
 
         Action currentAction = composer.getCurrentAction(layerName);
         Action eventAction = composer.action(actionName);
@@ -155,9 +159,10 @@ public class AnimEvent extends AbstractCinematicEvent {
      */
     @Override
     public void onStop() {
-        logger.log(Level.INFO, "layer={0} action={1}",
-                new Object[]{layerName, actionName});
-
+        if (logger.isLoggable(Level.INFO)) {
+            logger.log(Level.INFO, "layer={0} action={1}",
+                    new Object[]{layerName, actionName});
+        }
         Object layerManager = composer.getLayerManager(layerName);
         if (layerManager == this) {
             composer.removeCurrentAction(layerName);
@@ -217,8 +222,10 @@ public class AnimEvent extends AbstractCinematicEvent {
      */
     @Override
     public void setTime(float time) {
-        logger.log(Level.INFO, "layer={0} action={1} time={2}",
-                new Object[]{layerName, actionName, time});
+        if (logger.isLoggable(Level.INFO)) {
+            logger.log(Level.INFO, "layer={0} action={1} time={2}",
+                    new Object[]{layerName, actionName, time});
+        }
         super.setTime(time);
 
         Action currentAction = composer.getCurrentAction(layerName);

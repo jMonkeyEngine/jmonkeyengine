@@ -38,32 +38,31 @@ import java.util.logging.Logger;
  * @author Julien Seinturier - COMEX SA - <a href="http://www.seinturier.fr">http://www.seinturier.fr</a>
  */
 public class OpenVRViewManager extends AbstractVRViewManager {
-
-	private static final Logger logger = Logger.getLogger(OpenVRViewManager.class.getName());
+    private static final Logger logger = Logger.getLogger(OpenVRViewManager.class.getName());
 
     // OpenVR values
     private VRTextureBounds_t leftTextureBounds;
     private Texture_t leftTextureType;
-    
+
     private VRTextureBounds_t rightTextureBounds;
     private Texture_t rightTextureType;
 
     private Texture2D dualEyeTex;
-    
+
     //final & temp values for camera calculations
     private final Vector3f finalPosition   = new Vector3f();
     private final Quaternion finalRotation = new Quaternion();
     private final Vector3f hmdPos          = new Vector3f();
     private final Quaternion hmdRot        = new Quaternion();
-    
+
     /**
      * Create a new VR view manager attached to the given {@link VREnvironment VR environment}.
      * @param environment the {@link VREnvironment VR environment} to which this view manager is attached.
      */
     public OpenVRViewManager(VREnvironment environment){
-    	this.environment = environment;
+        this.environment = environment;
     }
-    
+
     /**
      * Get the identifier of the left eye texture.
      * @return the identifier of the left eye texture.
@@ -73,7 +72,7 @@ public class OpenVRViewManager extends AbstractVRViewManager {
     protected int getLeftTexId() {
         return getLeftTexture().getImage().getId();
     }
-    
+
     /**
      * Get the identifier of the right eye texture.
      * @return the identifier of the right eye texture.
@@ -83,7 +82,7 @@ public class OpenVRViewManager extends AbstractVRViewManager {
     protected int getRightTexId() {
         return getRightTexture().getImage().getId();
     }
-    
+
     /**
      * Get the identifier of the full (dual eye) texture.
      * @return the identifier of the full (dual eye) texture.
@@ -93,16 +92,16 @@ public class OpenVRViewManager extends AbstractVRViewManager {
     private int getFullTexId() {
         return dualEyeTex.getImage().getId();
     }
-      
+
     /**
      * Initialize the system binds of the textures.
      */
     private void initTextureSubmitStructs() {
         leftTextureType = new Texture_t();
         rightTextureType = new Texture_t();
-        
+
         if (environment != null){
-        	if( environment.getVRHardware() instanceof OpenVR ) {
+            if( environment.getVRHardware() instanceof OpenVR ) {
                 leftTextureBounds = new VRTextureBounds_t();
                 rightTextureBounds = new VRTextureBounds_t();
                 // left eye
@@ -136,8 +135,7 @@ public class OpenVRViewManager extends AbstractVRViewManager {
                 rightTextureType.setAutoRead(false);
                 rightTextureType.setAutoWrite(false);
                 rightTextureType.handle = -1;
-                
-                
+
                 logger.config("Init eyes native texture binds");
                 logger.config("  Left eye texture");
                 logger.config("           address: "+leftTextureType.getPointer());
@@ -157,30 +155,28 @@ public class OpenVRViewManager extends AbstractVRViewManager {
                 logger.config("         auto read: "+rightTextureType.getAutoRead());
                 logger.config("        auto write: "+rightTextureType.getAutoWrite());
                 logger.config("    handle address: "+rightTextureType.handle);
-                logger.config("      handle value: "+rightTextureType.handle); 
+                logger.config("      handle value: "+rightTextureType.handle);
             }
         } else {
-    		throw new IllegalStateException("This VR view manager is not attached to any VR environment.");
-    	}
+            throw new IllegalStateException("This VR view manager is not attached to any VR environment.");
+        }
     }
-    
+
     @Override
     public void render() {
-    	
     }
-    
+
     @Override
     public void postRender() {
-    	
-    	if (environment != null){
-    		if( environment.isInVR() ) {
+        if (environment != null){
+            if( environment.isInVR() ) {
                 VRAPI api = environment.getVRHardware();
                 if( api.getCompositor() != null ) {
                     // using the compositor...
                     int errl = 0, errr = 0;
                     if( environment.isInstanceRendering() ) {
                         if( leftTextureType.handle == -1 || leftTextureType.handle != getFullTexId() ) {
-                        	leftTextureType.handle = getFullTexId();
+                            leftTextureType.handle = getFullTexId();
                             if( leftTextureType.handle != -1 ) {
                                 leftTextureType.write();
                             }
@@ -195,14 +191,14 @@ public class OpenVRViewManager extends AbstractVRViewManager {
                                leftTextureType.handle != getLeftTexId() || rightTextureType.handle != getRightTexId() ) {
                         leftTextureType.handle = getLeftTexId();
                         if( leftTextureType.handle != -1 ) {
-                        	logger.fine("Writing Left texture to native memory at " + leftTextureType.getPointer());
+                            logger.fine("Writing Left texture to native memory at " + leftTextureType.getPointer());
                             leftTextureType.write();
                         }
                         rightTextureType.handle = getRightTexId();
                         if( rightTextureType.handle != -1 ) {
-                        	logger.fine("Writing Right texture to native memory at " + leftTextureType.getPointer());
+                            logger.fine("Writing Right texture to native memory at " + leftTextureType.getPointer());
                             rightTextureType.write();
-                        }                    
+                        }
                     } else {
                         if( api instanceof OpenVR ) {
                             errl = ((OpenVR)api).getCompositor().Submit.apply(JOpenVRLibrary.EVREye.EVREye_Eye_Left, leftTextureType, null,
@@ -210,31 +206,30 @@ public class OpenVRViewManager extends AbstractVRViewManager {
                             errr = ((OpenVR)api).getCompositor().Submit.apply(JOpenVRLibrary.EVREye.EVREye_Eye_Right, rightTextureType, null,
                                                                    JOpenVRLibrary.EVRSubmitFlags.EVRSubmitFlags_Submit_Default);
                         } else {
-                        	
+
                         }
                     }
-                    
+
                     if( errl != 0 ){
-                    	logger.severe("Submit to left compositor error: " + OpenVRUtil.getEVRCompositorErrorString(errl)+" ("+Integer.toString(errl)+")");
-                    	logger.severe("  Texture color space: "+OpenVRUtil.getEColorSpaceString(leftTextureType.eColorSpace));
-                    	logger.severe("  Texture type: "+OpenVRUtil.getETextureTypeString(leftTextureType.eType));
-                    	logger.severe("  Texture handle: "+leftTextureType.handle);
-                    	
+                        logger.severe("Submit to left compositor error: " + OpenVRUtil.getEVRCompositorErrorString(errl)+" ("+Integer.toString(errl)+")");
+                        logger.severe("  Texture color space: "+OpenVRUtil.getEColorSpaceString(leftTextureType.eColorSpace));
+                        logger.severe("  Texture type: "+OpenVRUtil.getETextureTypeString(leftTextureType.eType));
+                        logger.severe("  Texture handle: "+leftTextureType.handle);
+
                         logger.severe("  Left eye texture "+leftEyeTexture.getName()+" ("+leftEyeTexture.getImage().getId()+")");
                         logger.severe("                 Type: "+leftEyeTexture.getType());
                         logger.severe("                 Size: "+leftEyeTexture.getImage().getWidth()+"x"+leftEyeTexture.getImage().getHeight());
                         logger.severe("          Image depth: "+leftEyeTexture.getImage().getDepth());
                         logger.severe("         Image format: "+leftEyeTexture.getImage().getFormat());
                         logger.severe("    Image color space: "+leftEyeTexture.getImage().getColorSpace());
-                    	
                     }
-                    
+
                     if( errr != 0 ){
-                    	logger.severe("Submit to right compositor error: " + OpenVRUtil.getEVRCompositorErrorString(errl)+" ("+Integer.toString(errl)+")");
-                    	logger.severe("  Texture color space: "+OpenVRUtil.getEColorSpaceString(rightTextureType.eColorSpace));
-                    	logger.severe("  Texture type: "+OpenVRUtil.getETextureTypeString(rightTextureType.eType));
-                    	logger.severe("  Texture handle: "+rightTextureType.handle);
-                    	
+                        logger.severe("Submit to right compositor error: " + OpenVRUtil.getEVRCompositorErrorString(errl)+" ("+Integer.toString(errl)+")");
+                        logger.severe("  Texture color space: "+OpenVRUtil.getEColorSpaceString(rightTextureType.eColorSpace));
+                        logger.severe("  Texture type: "+OpenVRUtil.getETextureTypeString(rightTextureType.eType));
+                        logger.severe("  Texture handle: "+rightTextureType.handle);
+
                         logger.severe("  Right eye texture "+rightEyeTexture.getName()+" ("+rightEyeTexture.getImage().getId()+")");
                         logger.severe("                 Type: "+rightEyeTexture.getType());
                         logger.severe("                 Size: "+rightEyeTexture.getImage().getWidth()+"x"+rightEyeTexture.getImage().getHeight());
@@ -244,166 +239,152 @@ public class OpenVRViewManager extends AbstractVRViewManager {
                     }
                 }
             }
-    	} else {
-    		throw new IllegalStateException("This VR view manager is not attached to any VR environment.");
-    	}
-    	
-    	
-                        
+        } else {
+            throw new IllegalStateException("This VR view manager is not attached to any VR environment.");
+        }
     }
 
-
     @Override
-    public void initialize() {     
-    	
-    	logger.config("Initializing VR view manager.");
-    	
-    	if (environment != null){
-    	
+    public void initialize() {
+        logger.config("Initializing VR view manager.");
+
+        if (environment != null){
           initTextureSubmitStructs();
-          setupCamerasAndViews();        
-          setupVRScene();                    
-          moveScreenProcessingToEyes(); 
-        
+          setupCamerasAndViews();
+          setupVRScene();
+          moveScreenProcessingToEyes();
+
           if( environment.hasTraditionalGUIOverlay() ) {
-            	
             environment.getVRMouseManager().initialize();
-                
+
             // update the pose to position the gui correctly on start
             update(0f);
             environment.getVRGUIManager().positionGui();
-          }  
-            
+          }
+
           logger.config("Initialized VR view manager [SUCCESS]");
-          
+
         } else {
           throw new IllegalStateException("This VR view manager is not attached to any VR environment.");
-    	}
+        }
     }
-    
+
     /**
      * Prepare the size of the given {@link Camera camera} to adapt it to the underlying rendering context.
      * @param cam the {@link Camera camera} to prepare.
      * @param xMult the camera width multiplier.
      */
     private void prepareCameraSize(Camera cam, float xMult) {
-    	
-    	if (environment != null){
-    		
-    		if (environment.getApplication() != null){
-    			Vector2f size = new Vector2f();
-    	        VRAPI vrhmd = environment.getVRHardware();
+        if (environment != null){
 
-    	        if( vrhmd == null ) {
-    	            size.x = 1280f;
-    	            size.y = 720f;
-    	        } else {
-    	            vrhmd.getRenderSize(size);
-    	        }
-    	        
-    	        if( size.x < environment.getApplication().getContext().getSettings().getWidth() ) {
-    	            size.x = environment.getApplication().getContext().getSettings().getWidth();
-    	        }
-    	        if( size.y < environment.getApplication().getContext().getSettings().getHeight() ) {
-    	            size.y = environment.getApplication().getContext().getSettings().getHeight();
-    	        }
-    	        
-    	        if( environment.isInstanceRendering() ){
-    	        	size.x *= 2f;
-    	        }
-    	        
-    	        // other adjustments
-    	        size.x *= xMult;
-    	        size.x *= getResolutionMuliplier();
-    	        size.y *= getResolutionMuliplier();
-    	        
-    	        if( cam.getWidth() != size.x || cam.getHeight() != size.y ){
-    	        	cam.resize((int)size.x, (int)size.y, false);
-    	        }
-    		} else {
-    			throw new IllegalStateException("This VR environment is not attached to any application.");
-    		}
-    		
-    	} else {
+            if (environment.getApplication() != null){
+                Vector2f size = new Vector2f();
+                VRAPI vrhmd = environment.getVRHardware();
+
+                if( vrhmd == null ) {
+                    size.x = 1280f;
+                    size.y = 720f;
+                } else {
+                    vrhmd.getRenderSize(size);
+                }
+
+                if( size.x < environment.getApplication().getContext().getSettings().getWidth() ) {
+                    size.x = environment.getApplication().getContext().getSettings().getWidth();
+                }
+                if( size.y < environment.getApplication().getContext().getSettings().getHeight() ) {
+                    size.y = environment.getApplication().getContext().getSettings().getHeight();
+                }
+
+                if( environment.isInstanceRendering() ){
+                    size.x *= 2f;
+                }
+
+                // other adjustments
+                size.x *= xMult;
+                size.x *= getResolutionMuliplier();
+                size.y *= getResolutionMuliplier();
+
+                if( cam.getWidth() != size.x || cam.getHeight() != size.y ){
+                    cam.resize((int)size.x, (int)size.y, false);
+                }
+            } else {
+                throw new IllegalStateException("This VR environment is not attached to any application.");
+            }
+
+        } else {
           throw new IllegalStateException("This VR view manager is not attached to any VR environment.");
-    	}
-    	
-        
+        }
     }
-    
+
     /**
      * Replaces rootNode as the main cameras scene with the distortion mesh
      */
     private void setupVRScene(){
-    	
-    	
-    	if (environment != null){
-    		if (environment.getApplication() != null){
-    			// no special scene to setup if we are doing instancing
-    	        if( environment.isInstanceRendering() ) {
-    	            // distortion has to be done with compositor here... we want only one pass on our end!
-    	            if( environment.getApplication().getContext().getSettings().isSwapBuffers() ) {
-    	                setupMirrorBuffers(environment.getCamera(), dualEyeTex, true);
-    	            }       
-    	            return;
-    	        }
-    	        
-    	        leftEyeTexture  = (Texture2D) getLeftViewPort().getOutputFrameBuffer().getColorBuffer().getTexture();
-    	        rightEyeTexture = (Texture2D)getRightViewPort().getOutputFrameBuffer().getColorBuffer().getTexture();        
-    	        leftEyeDepth    = (Texture2D) getLeftViewPort().getOutputFrameBuffer().getDepthBuffer().getTexture();
-    	        rightEyeDepth   = (Texture2D)getRightViewPort().getOutputFrameBuffer().getDepthBuffer().getTexture();        
-    	      
-    	        // main viewport is either going to be a distortion scene or nothing
-    	        // mirroring is handled by copying framebuffers
-    	        Iterator<Spatial> spatialIter = environment.getApplication().getViewPort().getScenes().iterator();
-    	        while(spatialIter.hasNext()){
-    	        	environment.getApplication().getViewPort().detachScene(spatialIter.next());
-    	        }
-    	        
-    	        spatialIter = environment.getApplication().getGuiViewPort().getScenes().iterator();
-    	        while(spatialIter.hasNext()){
-    	        	environment.getApplication().getGuiViewPort().detachScene(spatialIter.next());
-    	        }
-    	        
-    	        // only setup distortion scene if compositor isn't running (or using custom mesh distortion option)
-    	        if( environment.getVRHardware().getCompositor() == null ) {
-    	            Node distortionScene = new Node();
-    	            Material leftMat = new Material(environment.getApplication().getAssetManager(), "Common/MatDefs/VR/OpenVR.j3md");
-    	            leftMat.setTexture("Texture", leftEyeTexture);
-    	            Geometry leftEye = new Geometry("box", setupDistortionMesh(JOpenVRLibrary.EVREye.EVREye_Eye_Left, environment.getVRHardware()));
-    	            leftEye.setMaterial(leftMat);
-    	            distortionScene.attachChild(leftEye);
+        if (environment != null){
+            if (environment.getApplication() != null){
+                // no special scene to setup if we are doing instancing
+                if( environment.isInstanceRendering() ) {
+                    // distortion has to be done with compositor here... we want only one pass on our end!
+                    if( environment.getApplication().getContext().getSettings().isSwapBuffers() ) {
+                        setupMirrorBuffers(environment.getCamera(), dualEyeTex, true);
+                    }
+                    return;
+                }
 
-    	            Material rightMat = new Material(environment.getApplication().getAssetManager(), "Common/MatDefs/VR/OpenVR.j3md");
-    	            rightMat.setTexture("Texture", rightEyeTexture);
-    	            Geometry rightEye = new Geometry("box", setupDistortionMesh(JOpenVRLibrary.EVREye.EVREye_Eye_Right, environment.getVRHardware()));
-    	            rightEye.setMaterial(rightMat);
-    	            distortionScene.attachChild(rightEye);
+                leftEyeTexture  = (Texture2D) getLeftViewPort().getOutputFrameBuffer().getColorBuffer().getTexture();
+                rightEyeTexture = (Texture2D)getRightViewPort().getOutputFrameBuffer().getColorBuffer().getTexture();
+                leftEyeDepth    = (Texture2D) getLeftViewPort().getOutputFrameBuffer().getDepthBuffer().getTexture();
+                rightEyeDepth   = (Texture2D)getRightViewPort().getOutputFrameBuffer().getDepthBuffer().getTexture();
 
-    	            distortionScene.updateGeometricState();
+                // main viewport is either going to be a distortion scene or nothing
+                // mirroring is handled by copying framebuffers
+                Iterator<Spatial> spatialIter = environment.getApplication().getViewPort().getScenes().iterator();
+                while(spatialIter.hasNext()){
+                    environment.getApplication().getViewPort().detachScene(spatialIter.next());
+                }
 
-    	            environment.getApplication().getViewPort().attachScene(distortionScene);
-    	            
-    	            //if( useCustomDistortion ) setupFinalFullTexture(app.getViewPort().getCamera());
-    	        }
-    	        
-    	        if( environment.getApplication().getContext().getSettings().isSwapBuffers() ) {
-    	            setupMirrorBuffers(environment.getCamera(), leftEyeTexture, false);
-    	            
-    	        } 
-    		} else {
-    			throw new IllegalStateException("This VR environment is not attached to any application.");
-    		}
-    	} else {
+                spatialIter = environment.getApplication().getGuiViewPort().getScenes().iterator();
+                while(spatialIter.hasNext()){
+                    environment.getApplication().getGuiViewPort().detachScene(spatialIter.next());
+                }
+
+                // only setup distortion scene if compositor isn't running (or using custom mesh distortion option)
+                if( environment.getVRHardware().getCompositor() == null ) {
+                    Node distortionScene = new Node();
+                    Material leftMat = new Material(environment.getApplication().getAssetManager(), "Common/MatDefs/VR/OpenVR.j3md");
+                    leftMat.setTexture("Texture", leftEyeTexture);
+                    Geometry leftEye = new Geometry("box", setupDistortionMesh(JOpenVRLibrary.EVREye.EVREye_Eye_Left, environment.getVRHardware()));
+                    leftEye.setMaterial(leftMat);
+                    distortionScene.attachChild(leftEye);
+
+                    Material rightMat = new Material(environment.getApplication().getAssetManager(), "Common/MatDefs/VR/OpenVR.j3md");
+                    rightMat.setTexture("Texture", rightEyeTexture);
+                    Geometry rightEye = new Geometry("box", setupDistortionMesh(JOpenVRLibrary.EVREye.EVREye_Eye_Right, environment.getVRHardware()));
+                    rightEye.setMaterial(rightMat);
+                    distortionScene.attachChild(rightEye);
+
+                    distortionScene.updateGeometricState();
+
+                    environment.getApplication().getViewPort().attachScene(distortionScene);
+
+                    //if( useCustomDistortion ) setupFinalFullTexture(app.getViewPort().getCamera());
+                }
+
+                if( environment.getApplication().getContext().getSettings().isSwapBuffers() ) {
+                    setupMirrorBuffers(environment.getCamera(), leftEyeTexture, false);
+                }
+            } else {
+                throw new IllegalStateException("This VR environment is not attached to any application.");
+            }
+        } else {
             throw new IllegalStateException("This VR view manager is not attached to any VR environment.");
-      	}         
+        }
     }
-    
+
     @Override
     public void update(float tpf) {
-        
-    	if (environment != null){
-    		// grab the observer
+        if (environment != null){
+            // grab the observer
             Object obs = environment.getObserver();
             Quaternion objRot;
             Vector3f objPos;
@@ -417,12 +398,10 @@ public class OpenVRViewManager extends AbstractVRViewManager {
             // grab the hardware handle
             VRAPI dev = environment.getVRHardware();
             if( dev != null ) {
-            	
-
                 // update the HMD's position & orientation
                 dev.updatePose();
                 dev.getPositionAndOrientation(hmdPos, hmdRot);
-/*                
+/*
                 // TOREMOVE
                 Vector3f v   = dev.getVRinput().getTrackedController(0).getPosition();
                 Quaternion q = dev.getVRinput().getTrackedController(0).getOrientation();
@@ -430,51 +409,51 @@ public class OpenVRViewManager extends AbstractVRViewManager {
                     hmdPos.set(v);
                     hmdRot.set(q);
                 }
-                
-            	logger.severe("HMD controller ");
-            	logger.severe("  Position "+hmdPos);
-            	logger.severe("  Orientation "+hmdRot);
-            	
-            	VRTrackedController tc = null;
+
+                logger.severe("HMD controller ");
+                logger.severe("  Position "+hmdPos);
+                logger.severe("  Orientation "+hmdRot);
+
+                VRTrackedController tc = null;
                 for(int i = 0; i < dev.getVRinput().getTrackedControllerCount(); i++){
-                	tc = dev.getVRinput().getTrackedController(i);
-                	logger.severe("Tracked controller "+i+": "+tc.getControllerName());
-                	logger.severe("  Position "+tc.getPosition());
-                	logger.severe("  Orientation "+tc.getOrientation());
-                	logger.severe("");
+                    tc = dev.getVRinput().getTrackedController(i);
+                    logger.severe("Tracked controller "+i+": "+tc.getControllerName());
+                    logger.severe("  Position "+tc.getPosition());
+                    logger.severe("  Orientation "+tc.getOrientation());
+                    logger.severe("");
                 }
-*/                
+*/
                 // TOREMOVE
-                
+
                 if( obs != null ) {
                     // update hmdPos based on obs rotation
                     finalRotation.set(objRot);
                     finalRotation.mult(hmdPos, hmdPos);
                     finalRotation.multLocal(hmdRot);
                 }
-                
+
                 finalizeCamera(dev.getHMDVectorPoseLeftEye(), objPos, getLeftCamera());
                 finalizeCamera(dev.getHMDVectorPoseRightEye(), objPos, getRightCamera());
             } else {
-            	getLeftCamera().setFrame(objPos, objRot);
-            	getRightCamera().setFrame(objPos, objRot);
+                getLeftCamera().setFrame(objPos, objRot);
+                getRightCamera().setFrame(objPos, objRot);
             }
-            
+
             if( environment.hasTraditionalGUIOverlay() ) {
                 // update the mouse?
-            	environment.getVRMouseManager().update(tpf);
-            
+                environment.getVRMouseManager().update(tpf);
+
                 // update GUI position?
                 if( environment.getVRGUIManager().isWantsReposition() || environment.getVRGUIManager().getPositioningMode() != VRGUIPositioningMode.MANUAL ) {
-                	environment.getVRGUIManager().positionGuiNow(tpf);
-                	environment.getVRGUIManager().updateGuiQuadGeometricState();
+                    environment.getVRGUIManager().positionGuiNow(tpf);
+                    environment.getVRGUIManager().updateGuiQuadGeometricState();
                 }
             }
-    	} else {
+        } else {
             throw new IllegalStateException("This VR view manager is not attached to any VR environment.");
-      	} 
+        }
     }
-    
+
     /**
      * Place the camera within the scene.
      * @param eyePos the eye position.
@@ -488,184 +467,177 @@ public class OpenVRViewManager extends AbstractVRViewManager {
         finalPosition.y += getHeightAdjustment();
         cam.setFrame(finalPosition, finalRotation);
     }
-    
 
-    private void setupCamerasAndViews() { 
-    	
-    	if (environment != null){
-    		// get desired frustum from original camera
-            Camera origCam = environment.getCamera();        
+    private void setupCamerasAndViews() {
+        if (environment != null){
+            // get desired frustum from original camera
+            Camera origCam = environment.getCamera();
             float fFar = origCam.getFrustumFar();
             float fNear = origCam.getFrustumNear();
-            
+
             // restore frustum on distortion scene cam, if needed
             if( environment.isInstanceRendering() ) {
                 leftCamera = origCam;
             } else if( environment.compositorAllowed() == false ) {
                 origCam.setFrustumFar(100f);
-                origCam.setFrustumNear(1f); 
-                leftCamera = origCam.clone();  
+                origCam.setFrustumNear(1f);
+                leftCamera = origCam.clone();
                 prepareCameraSize(origCam, 2f);
             } else {
                 leftCamera = origCam.clone();
             }
-            
-            getLeftCamera().setFrustumPerspective(environment.getDefaultFOV(), environment.getDefaultAspect(), fNear, fFar);                     
-                    
+
+            getLeftCamera().setFrustumPerspective(environment.getDefaultFOV(), environment.getDefaultAspect(), fNear, fFar);
+
             prepareCameraSize(getLeftCamera(), 1f);
             if( environment.getVRHardware() != null ) {
-            	getLeftCamera().setProjectionMatrix(environment.getVRHardware().getHMDMatrixProjectionLeftEye(getLeftCamera()));
+                getLeftCamera().setProjectionMatrix(environment.getVRHardware().getHMDMatrixProjectionLeftEye(getLeftCamera()));
             }
             //org.lwjgl.opengl.GL11.glEnable(org.lwjgl.opengl.GL30.GL_FRAMEBUFFER_SRGB);
-            
+
             if( !environment.isInstanceRendering()) {
                 leftViewPort = setupViewBuffers(getLeftCamera(), LEFT_VIEW_NAME);
                 rightCamera = getLeftCamera().clone();
                 if( environment.getVRHardware() != null ){
-                	getRightCamera().setProjectionMatrix(environment.getVRHardware().getHMDMatrixProjectionRightEye(getRightCamera()));
+                    getRightCamera().setProjectionMatrix(environment.getVRHardware().getHMDMatrixProjectionRightEye(getRightCamera()));
                 }
                 rightViewPort = setupViewBuffers(getRightCamera(), RIGHT_VIEW_NAME);
             } else {
-            	
-            	if (environment.getApplication() != null){
-                	
-                	logger.severe("THIS CODE NEED CHANGES !!!");
+                if (environment.getApplication() != null){
+
+                    logger.severe("THIS CODE NEED CHANGES !!!");
                     leftViewPort = environment.getApplication().getViewPort();
                     //leftViewport.attachScene(app.getRootNode());
                     rightCamera = getLeftCamera().clone();
                     if( environment.getVRHardware() != null ){
-                    	getRightCamera().setProjectionMatrix(environment.getVRHardware().getHMDMatrixProjectionRightEye(getRightCamera()));
+                        getRightCamera().setProjectionMatrix(environment.getVRHardware().getHMDMatrixProjectionRightEye(getRightCamera()));
                     }
-                    
+
                     org.lwjgl.opengl.GL11.glEnable(org.lwjgl.opengl.GL30.GL_CLIP_DISTANCE0);
-                    
+
                     //FIXME: [jme-vr] Fix with JMonkey next release
                     //RenderManager._VRInstancing_RightCamProjection = camRight.getViewProjectionMatrix();
-                    setupFinalFullTexture(environment.getApplication().getViewPort().getCamera());   
-            	} else {
-        			throw new IllegalStateException("This VR environment is not attached to any application.");
-        		}
-         
+                    setupFinalFullTexture(environment.getApplication().getViewPort().getCamera());
+                } else {
+                    throw new IllegalStateException("This VR environment is not attached to any application.");
+                }
             }
-            
+
             // setup gui
             environment.getVRGUIManager().setupGui(getLeftCamera(), getRightCamera(), getLeftViewPort(), getRightViewPort());
-            
+
             if( environment.getVRHardware() != null ) {
                 // call these to cache the results internally
-            	environment.getVRHardware().getHMDMatrixPoseLeftEye();
-            	environment.getVRHardware().getHMDMatrixPoseRightEye();
+                environment.getVRHardware().getHMDMatrixPoseLeftEye();
+                environment.getVRHardware().getHMDMatrixPoseRightEye();
             }
-    	} else {
+        } else {
             throw new IllegalStateException("This VR view manager is not attached to any VR environment.");
-      	} 
+        }
     }
-    
-    private ViewPort setupMirrorBuffers(Camera cam, Texture tex, boolean expand) {   
-    	
-    	if (environment != null){
-    		if (environment.getApplication() != null){
-    	        Camera clonecam = cam.clone();
-    	        ViewPort viewPort = environment.getApplication().getRenderManager().createPostView("MirrorView", clonecam);
-    	        clonecam.setParallelProjection(true);
-    	        viewPort.setClearFlags(true, true, true);
-    	        viewPort.setBackgroundColor(ColorRGBA.Black);
-    	        Picture pic = new Picture("fullscene");
-    	        pic.setLocalTranslation(-0.75f, -0.5f, 0f);
-    	        if( expand ) {
-    	            pic.setLocalScale(3f, 1f, 1f);
-    	        } else {
-    	            pic.setLocalScale(1.5f, 1f, 1f);            
-    	        }
-    	        pic.setQueueBucket(Bucket.Opaque);
-    	        pic.setTexture(environment.getApplication().getAssetManager(), (Texture2D)tex, false);
-    	        viewPort.attachScene(pic);
-    	        viewPort.setOutputFrameBuffer(null);
-    	        
-    	        pic.updateGeometricState();
-    	        
-    	        return viewPort;
-    		} else {
-    			throw new IllegalStateException("This VR environment is not attached to any application.");
-    		}
-    	} else {
+
+    private ViewPort setupMirrorBuffers(Camera cam, Texture tex, boolean expand) {
+        if (environment != null){
+            if (environment.getApplication() != null){
+                Camera clonecam = cam.clone();
+                ViewPort viewPort = environment.getApplication().getRenderManager().createPostView("MirrorView", clonecam);
+                clonecam.setParallelProjection(true);
+                viewPort.setClearFlags(true, true, true);
+                viewPort.setBackgroundColor(ColorRGBA.Black);
+                Picture pic = new Picture("fullscene");
+                pic.setLocalTranslation(-0.75f, -0.5f, 0f);
+                if( expand ) {
+                    pic.setLocalScale(3f, 1f, 1f);
+                } else {
+                    pic.setLocalScale(1.5f, 1f, 1f);
+                }
+                pic.setQueueBucket(Bucket.Opaque);
+                pic.setTexture(environment.getApplication().getAssetManager(), (Texture2D)tex, false);
+                viewPort.attachScene(pic);
+                viewPort.setOutputFrameBuffer(null);
+
+                pic.updateGeometricState();
+
+                return viewPort;
+            } else {
+                throw new IllegalStateException("This VR environment is not attached to any application.");
+            }
+        } else {
             throw new IllegalStateException("This VR view manager is not attached to any VR environment.");
-      	} 
+        }
     }
-    
+
     private void setupFinalFullTexture(Camera cam) {
-    	
-    	if (environment != null){
-    		if (environment.getApplication() != null){
-    	        // create offscreen framebuffer
-    	        FrameBuffer out = new FrameBuffer(cam.getWidth(), cam.getHeight(), 1);
-    	        //offBuffer.setSrgb(true);
+        if (environment != null){
+            if (environment.getApplication() != null){
+                // create offscreen framebuffer
+                FrameBuffer out = new FrameBuffer(cam.getWidth(), cam.getHeight(), 1);
+                //offBuffer.setSrgb(true);
 
-    	        //setup framebuffer's texture
-    	        dualEyeTex = new Texture2D(cam.getWidth(), cam.getHeight(), Image.Format.RGBA8);
-    	        dualEyeTex.setMinFilter(Texture.MinFilter.BilinearNoMipMaps);
-    	        dualEyeTex.setMagFilter(Texture.MagFilter.Bilinear);
+                //setup framebuffer's texture
+                dualEyeTex = new Texture2D(cam.getWidth(), cam.getHeight(), Image.Format.RGBA8);
+                dualEyeTex.setMinFilter(Texture.MinFilter.BilinearNoMipMaps);
+                dualEyeTex.setMagFilter(Texture.MagFilter.Bilinear);
 
-    	        logger.config("Dual eye texture "+dualEyeTex.getName()+" ("+dualEyeTex.getImage().getId()+")");
-    	        logger.config("               Type: "+dualEyeTex.getType());
-    	        logger.config("               Size: "+dualEyeTex.getImage().getWidth()+"x"+dualEyeTex.getImage().getHeight());
-    	        logger.config("        Image depth: "+dualEyeTex.getImage().getDepth());
-    	        logger.config("       Image format: "+dualEyeTex.getImage().getFormat());
-    	        logger.config("  Image color space: "+dualEyeTex.getImage().getColorSpace());
-    	        
-    	        //setup framebuffer to use texture
-    	        out.setDepthBuffer(Image.Format.Depth);
-    	        out.setColorTexture(dualEyeTex);       
+                logger.config("Dual eye texture "+dualEyeTex.getName()+" ("+dualEyeTex.getImage().getId()+")");
+                logger.config("               Type: "+dualEyeTex.getType());
+                logger.config("               Size: "+dualEyeTex.getImage().getWidth()+"x"+dualEyeTex.getImage().getHeight());
+                logger.config("        Image depth: "+dualEyeTex.getImage().getDepth());
+                logger.config("       Image format: "+dualEyeTex.getImage().getFormat());
+                logger.config("  Image color space: "+dualEyeTex.getImage().getColorSpace());
 
-    	        ViewPort viewPort = environment.getApplication().getViewPort();
-    	        viewPort.setClearFlags(true, true, true);
-    	        viewPort.setBackgroundColor(ColorRGBA.Black);
-    	        viewPort.setOutputFrameBuffer(out);
-    		} else {
-    			throw new IllegalStateException("This VR environment is not attached to any application.");
-    		}
-    	} else {
+                //setup framebuffer to use texture
+                out.setDepthBuffer(Image.Format.Depth);
+                out.setColorTexture(dualEyeTex);
+
+                ViewPort viewPort = environment.getApplication().getViewPort();
+                viewPort.setClearFlags(true, true, true);
+                viewPort.setBackgroundColor(ColorRGBA.Black);
+                viewPort.setOutputFrameBuffer(out);
+            } else {
+                throw new IllegalStateException("This VR environment is not attached to any application.");
+            }
+        } else {
             throw new IllegalStateException("This VR view manager is not attached to any VR environment.");
-      	}  
+        }
     }
-    
+
     private ViewPort setupViewBuffers(Camera cam, String viewName){
-    	
-    	if (environment != null){
-    		if (environment.getApplication() != null){
-    			// create offscreen framebuffer
-    	        FrameBuffer offBufferLeft = new FrameBuffer(cam.getWidth(), cam.getHeight(), 1);
-    	        //offBufferLeft.setSrgb(true);
-    	        
-    	        //setup framebuffer's texture
-    	        Texture2D offTex = new Texture2D(cam.getWidth(), cam.getHeight(), Image.Format.RGBA8);
-    	        offTex.setMinFilter(Texture.MinFilter.BilinearNoMipMaps);
-    	        offTex.setMagFilter(Texture.MagFilter.Bilinear);
+        if (environment != null){
+            if (environment.getApplication() != null){
+                // create offscreen framebuffer
+                FrameBuffer offBufferLeft = new FrameBuffer(cam.getWidth(), cam.getHeight(), 1);
+                //offBufferLeft.setSrgb(true);
 
-    	        //setup framebuffer to use texture
-    	        offBufferLeft.setDepthBuffer(Image.Format.Depth);
-    	        offBufferLeft.setColorTexture(offTex);        
-    	        
-    	        ViewPort viewPort = environment.getApplication().getRenderManager().createPreView(viewName, cam);
-    	        viewPort.setClearFlags(true, true, true);
-    	        viewPort.setBackgroundColor(ColorRGBA.Black);
-    	        
-    	        Iterator<Spatial> spatialIter = environment.getApplication().getViewPort().getScenes().iterator();
-    	        while(spatialIter.hasNext()){
-    	        	viewPort.attachScene(spatialIter.next());
-    	        }
+                //setup framebuffer's texture
+                Texture2D offTex = new Texture2D(cam.getWidth(), cam.getHeight(), Image.Format.RGBA8);
+                offTex.setMinFilter(Texture.MinFilter.BilinearNoMipMaps);
+                offTex.setMagFilter(Texture.MagFilter.Bilinear);
 
-    	        //set viewport to render to offscreen framebuffer
-    	        viewPort.setOutputFrameBuffer(offBufferLeft);
-    	        return viewPort;
-    		} else {
-    			throw new IllegalStateException("This VR environment is not attached to any application.");
-    		}
-    	} else {
+                //setup framebuffer to use texture
+                offBufferLeft.setDepthBuffer(Image.Format.Depth);
+                offBufferLeft.setColorTexture(offTex);
+
+                ViewPort viewPort = environment.getApplication().getRenderManager().createPreView(viewName, cam);
+                viewPort.setClearFlags(true, true, true);
+                viewPort.setBackgroundColor(ColorRGBA.Black);
+
+                Iterator<Spatial> spatialIter = environment.getApplication().getViewPort().getScenes().iterator();
+                while(spatialIter.hasNext()){
+                    viewPort.attachScene(spatialIter.next());
+                }
+
+                //set viewport to render to offscreen framebuffer
+                viewPort.setOutputFrameBuffer(offBufferLeft);
+                return viewPort;
+            } else {
+                throw new IllegalStateException("This VR environment is not attached to any application.");
+            }
+        } else {
             throw new IllegalStateException("This VR view manager is not attached to any VR environment.");
-      	}  
+        }
     }
-    
+
     /**
      * Setup a distortion mesh for the stereo view.
      * @param eye the eye to apply.
@@ -675,7 +647,7 @@ public class OpenVRViewManager extends AbstractVRViewManager {
     public static Mesh setupDistortionMesh(int eye, VRAPI api) {
         Mesh distortionMesh = new Mesh();
         float m_iLensGridSegmentCountH = 43, m_iLensGridSegmentCountV = 43;
-        
+
         float w = 1f / (m_iLensGridSegmentCountH - 1f);
         float h = 1f / (m_iLensGridSegmentCountV - 1f);
 
@@ -688,7 +660,7 @@ public class OpenVRViewManager extends AbstractVRViewManager {
         float texcoordB[] = new float[(int) (m_iLensGridSegmentCountV * m_iLensGridSegmentCountH) * 2];
 
         int vertPos = 0, coordPos = 0;
-        
+
         float Xoffset = eye == JOpenVRLibrary.EVREye.EVREye_Eye_Left ? -1f : 0;
         for (int y = 0; y < m_iLensGridSegmentCountV; y++) {
             for (int x = 0; x < m_iLensGridSegmentCountH; x++) {
@@ -707,18 +679,18 @@ public class OpenVRViewManager extends AbstractVRViewManager {
                     texcoordG[coordPos] = u;
                     texcoordG[coordPos + 1] = 1 - v;
                     texcoordB[coordPos] = u;
-                    texcoordB[coordPos + 1] = 1 - v;                    
+                    texcoordB[coordPos + 1] = 1 - v;
                 } else {
                     ((VR_IVRSystem_FnTable)api.getVRSystem()).ComputeDistortion.apply(eye, u, v, dc0);
-                    
+
                     texcoordR[coordPos] = dc0.rfRed[0];
                     texcoordR[coordPos + 1] = 1 - dc0.rfRed[1];
                     texcoordG[coordPos] = dc0.rfGreen[0];
                     texcoordG[coordPos + 1] = 1 - dc0.rfGreen[1];
                     texcoordB[coordPos] = dc0.rfBlue[0];
                     texcoordB[coordPos + 1] = 1 - dc0.rfBlue[1];
-                }                
-                
+                }
+
                 coordPos += 2;
             }
         }
@@ -736,7 +708,7 @@ public class OpenVRViewManager extends AbstractVRViewManager {
                 b = (int) (m_iLensGridSegmentCountH * y + x + 1 + offset);
                 c = (int) ((y + 1) * m_iLensGridSegmentCountH + x + 1 + offset);
                 d = (int) ((y + 1) * m_iLensGridSegmentCountH + x + offset);
-                
+
                 indices[indexPos] = a;
                 indices[indexPos + 1] = b;
                 indices[indexPos + 2] = c;
@@ -748,8 +720,8 @@ public class OpenVRViewManager extends AbstractVRViewManager {
                 indexPos += 6;
             }
         }
-        
-        // OK, create the mesh        
+
+        // OK, create the mesh
         distortionMesh.setBuffer(VertexBuffer.Type.Position, 3, verts);
         distortionMesh.setBuffer(VertexBuffer.Type.Index, 1, indices);
         distortionMesh.setBuffer(VertexBuffer.Type.TexCoord, 2, texcoordR);

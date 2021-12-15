@@ -51,7 +51,7 @@ import com.jme3.texture.Texture;
 import java.util.List;
 
 /**
- * Demonstrates how to render an non-moving background image using a pre
+ * Demonstrates how to render a non-moving background image using a pre
  * ViewPort.
  *
  * @author Stephen Gold sgold@sonic.net

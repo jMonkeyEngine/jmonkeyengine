@@ -47,7 +47,7 @@ import com.jme3.scene.shape.Sphere;
 import com.jme3.util.TangentBinormalGenerator;
 
 /**
- * Checks two sided lighting capability.
+ * Checks two-sided lighting capability.
  * 
  * @author Kirill Vainer
  */

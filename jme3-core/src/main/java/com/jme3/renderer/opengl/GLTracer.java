@@ -158,7 +158,7 @@ public final class GLTracer implements InvocationHandler {
                 }
             }
         }
-        // GL_ONE is more common than GL_TRUE (which is a boolean anyway..)
+        // GL_ONE is more common than GL_TRUE (which is a boolean anyway)
         constMap.put(1, "GL_ONE");
         return constMap;
     }

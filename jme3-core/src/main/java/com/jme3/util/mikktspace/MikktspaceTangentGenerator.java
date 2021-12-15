@@ -67,6 +67,8 @@ public class MikktspaceTangentGenerator {
     private final static int ORIENT_PRESERVING = 8;
     private final static long INTERNAL_RND_SORT_SEED = 39871946 & 0xffffffffL;
     static final int CELLS = 2048;
+    
+    private final static Logger logger = Logger.getLogger(MikktspaceTangentGenerator.class.getName());
 
     /**
      * A private constructor to inhibit instantiation of this class.
@@ -114,7 +116,7 @@ public class MikktspaceTangentGenerator {
             Geometry g = (Geometry)s;
             MikkTSpaceImpl context = new MikkTSpaceImpl(g.getMesh());
             if(!genTangSpaceDefault(context)){
-                Logger.getLogger(MikktspaceTangentGenerator.class.getName()).log(Level.SEVERE, "Failed to generate tangents for geometry " + g.getName());
+                logger.log(Level.SEVERE, "Failed to generate tangents for geometry {0}", g.getName());
             }
             TangentUtils.generateBindPoseTangentsIfNecessary(g.getMesh());
         }

@@ -43,7 +43,7 @@ class Sync {
 
 
 
-    /** number of nano seconds in a second */
+    /** number of nanoseconds in a second */
     private static final long NANOS_IN_SECOND = 1000L * 1000L * 1000L;
 
     /** The time to sleep/yield until the next frame */
@@ -93,7 +93,7 @@ class Sync {
      * This method will initialise the sync method by setting initial
      * values for sleepDurations/yieldDurations and nextFrame.
      * 
-     * If running on windows it will start the sleep timer fix.
+     * If running on Windows, it will start the sleep timer fix.
      */
     private static void initialise() {
         initialised = true;
@@ -104,8 +104,8 @@ class Sync {
         nextFrame = getTime();
 
 
-            // On windows the sleep functions can be highly inaccurate by 
-            // over 10ms making in unusable. However it can be forced to 
+            // On Windows, the sleep functions can be highly inaccurate by
+            // over 10ms making in unusable. However, it can be forced to
             // be a bit more accurate by running a separate sleeping daemon
             // thread.
             Thread timerAccuracyThread = new Thread(new Runnable() {
@@ -124,7 +124,7 @@ class Sync {
 
 
     /**
-     * Get the system time in nano seconds
+     * Gets the system time in nanoseconds.
      * 
      * @return will return the current time in nano's
      */

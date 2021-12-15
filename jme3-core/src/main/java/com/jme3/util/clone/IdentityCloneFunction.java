@@ -34,7 +34,7 @@ package com.jme3.util.clone;
 
 
 /**
- *  A CloneFunction implementation that simply returns the 
+ *  A CloneFunction implementation that simply returns
  *  the passed object without cloning it.  This is useful for
  *  forcing some object types (like Meshes) to be shared between
  *  the original and cloned object graph.

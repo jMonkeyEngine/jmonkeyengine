@@ -174,7 +174,7 @@ public final class GLImageFormats {
             formatSwiz(formatToGL, Format.BGRA8, GLExt.GL_RGBA8, GL2.GL_RGBA, GL.GL_UNSIGNED_BYTE);
             formatSwiz(formatToGL, Format.ABGR8, GLExt.GL_RGBA8, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE);
         } else {
-            // Actually, the internal format isn't used for OpenGL ES 2! This is the same as the above..
+            // Actually, the internal format isn't used for OpenGL ES 2! This is the same as the above.
             if (!caps.contains(Caps.CoreProfile)) {
                 format(formatToGL, Format.Alpha8,           GL.GL_RGBA4,   GL.GL_ALPHA,           GL.GL_UNSIGNED_BYTE);
                 format(formatToGL, Format.Luminance8,       GL.GL_RGB565,  GL.GL_LUMINANCE,       GL.GL_UNSIGNED_BYTE);

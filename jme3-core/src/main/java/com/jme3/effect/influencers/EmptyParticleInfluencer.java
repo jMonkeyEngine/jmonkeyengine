@@ -77,9 +77,9 @@ public class EmptyParticleInfluencer implements ParticleInfluencer {
     }
 
     @Override
-    public ParticleInfluencer clone() {
+    public EmptyParticleInfluencer clone() {
         try {
-            return (ParticleInfluencer) super.clone();
+            return (EmptyParticleInfluencer) super.clone();
         } catch (CloneNotSupportedException e) {
             throw new AssertionError();
         }

@@ -161,7 +161,7 @@ public interface AudioSource {
     public Filter getReverbFilter();
 
     /**
-     * @return Max distance for this audio source.
+     * @return Maximum distance for this audio source.
      * 
      * @see AudioNode#setMaxDistance(float)
      */

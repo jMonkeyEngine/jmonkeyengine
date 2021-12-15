@@ -57,7 +57,7 @@ import java.util.logging.Logger;
  *
  * This handler also supports the joystick.rumble(rumbleAmount) method.  In this
  * case, when joystick.rumble(rumbleAmount) is called, the Android device will vibrate
- * if the device has a built in vibrate motor.
+ * if the device has a built-in vibrate motor.
  *
  * Because Android does not allow for the user to define the intensity of the
  * vibration, the rumble amount (ie strength) is converted into vibration pulses
@@ -209,7 +209,9 @@ public class AndroidJoyInput implements JoyInput {
 
     @Override
     public Joystick[] loadJoysticks(InputManager inputManager) {
-        logger.log(Level.INFO, "loading joysticks for {0}", this.getClass().getName());
+        if (logger.isLoggable(Level.INFO)) {
+            logger.log(Level.INFO, "loading joysticks for {0}", this.getClass().getName());
+        }
         if (!disableSensors) {
             joystickList.add(sensorJoyInput.loadJoystick(joystickList.size(), inputManager));
         }

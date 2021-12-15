@@ -148,7 +148,7 @@ public class TerrainTest extends SimpleApplication {
          */
         /**
          * Optimal terrain patch size is 65 (64x64).
-         * The total size is up to you. At 1025 it ran fine for me (200+FPS), however at
+         * The total size is up to you. At 1025, it ran fine for me (200+FPS), however at
          * size=2049, it got really slow. But that is a jump from 2 million to 8 million triangles...
          */
         terrain = new TerrainQuad("terrain", 65, 513, heightmap.getHeightMap());
@@ -198,9 +198,9 @@ public class TerrainTest extends SimpleApplication {
                 triPlanar = !triPlanar;
                 if (triPlanar) {
                     matRock.setBoolean("useTriPlanarMapping", true);
-                    // planar textures don't use the mesh's texture coordinates but real world coordinates,
-                    // so we need to convert these texture coordinate scales into real world scales so it looks
-                    // the same when we switch to/from tri-planar mode
+                    // Planar textures don't use the mesh's texture coordinates but real-world coordinates,
+                    // so we need to convert these texture coordinate scales into real-world scales, so it looks
+                    // the same when we switch to/from tri-planar mode.
                     matRock.setFloat("Tex1Scale", 1f / (512f / grassScale));
                     matRock.setFloat("Tex2Scale", 1f / (512f / dirtScale));
                     matRock.setFloat("Tex3Scale", 1f / (512f / rockScale));

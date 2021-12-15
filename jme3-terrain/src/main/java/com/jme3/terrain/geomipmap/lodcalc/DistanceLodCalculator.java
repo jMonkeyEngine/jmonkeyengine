@@ -130,7 +130,7 @@ public class DistanceLodCalculator implements LodCalculator {
     }
 
     @Override
-    public LodCalculator clone() {
+    public DistanceLodCalculator clone() {
         DistanceLodCalculator clone = new DistanceLodCalculator(size, lodMultiplier);
         return clone;
     }

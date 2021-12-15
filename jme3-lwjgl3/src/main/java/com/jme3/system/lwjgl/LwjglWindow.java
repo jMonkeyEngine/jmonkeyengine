@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -57,6 +57,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.*;
+import org.lwjgl.system.Platform;
+
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.GL_FALSE;
 import static org.lwjgl.system.MemoryUtil.NULL;
@@ -276,11 +278,17 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             }
         });
 
-        // Center the window
         if (!settings.isFullscreen()) {
-            glfwSetWindowPos(window,
-                    (videoMode.width() - settings.getWidth()) / 2,
-                    (videoMode.height() - settings.getHeight()) / 2);
+            if (settings.getCenterWindow()) {
+                // Center the window
+                glfwSetWindowPos(window,
+                        (videoMode.width() - settings.getWidth()) / 2,
+                        (videoMode.height() - settings.getHeight()) / 2);
+            } else {
+                glfwSetWindowPos(window,
+                        settings.getWindowXPosition(),
+                        settings.getWindowYPosition());
+            }
         }
 
         // Make the OpenGL context current
@@ -471,10 +479,21 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             return;
         }
 
-        // NOTE: this is required for Mac OS X!
-        mainThread = Thread.currentThread();
-        mainThread.setName("jME3 Main");
-        run();
+        if (Platform.get() == Platform.MACOSX) {
+            // NOTE: this is required for Mac OS X!
+            mainThread = Thread.currentThread();
+            mainThread.setName("jME3 Main");
+            if (waitFor) {
+                LOGGER.warning("create(true) is not supported for macOS!");
+            }
+            run();
+        } else {
+            new Thread(this, "jME3 Main").start();
+            if (waitFor) {
+                waitFor(true);
+            }
+        }
+
     }
 
     /**
@@ -559,7 +578,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
 
         // All this does is call swap buffers
         // If the canvas is not active, there's no need to waste time
-        // doing that ..
+        // doing that.
         if (renderable.get()) {
             // calls swap buffers, etc.
             try {
@@ -571,8 +590,8 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             }
         }
 
-        // Subclasses just call GLObjectManager clean up objects here
-        // it is safe .. for now.
+        // Subclasses just call GLObjectManager. Clean up objects here.
+        // It is safe ... for now.
         if (renderer != null) {
             renderer.postFrame();
         }

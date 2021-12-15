@@ -100,7 +100,7 @@ public class DefaultParticleInfluencer implements ParticleInfluencer {
     }
 
     @Override
-    public ParticleInfluencer clone() {
+    public DefaultParticleInfluencer clone() {
         try {
             DefaultParticleInfluencer clone = (DefaultParticleInfluencer) super.clone();
             clone.initialVelocity = initialVelocity.clone();

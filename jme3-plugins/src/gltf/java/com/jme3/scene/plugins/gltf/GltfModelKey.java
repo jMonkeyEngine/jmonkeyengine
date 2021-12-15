@@ -38,11 +38,11 @@ import java.util.Map;
 
 /**
  * An optional key to use when loading a glTF file
- * It allows to specify custom data loader replacing the default ones.
+ * It allows you to specify custom data loader, replacing the default ones.
  *
- * MaterialAdapters: Allows to map glTF standard material model to a non stock material.
- * ExtensionLoaders: Allows to provide or override a loader for a given gltf extension.
- * ExtrasLoader: Allows to load any extras, application specific data of the gltf file.
+ * MaterialAdapters: Allows you to map glTF standard material model to a non-stock material.
+ * ExtensionLoaders: Allows you to provide or override a loader for a given glTF extension.
+ * ExtrasLoader: Allows you to load any extras, application specific data of the glTF file.
  *
  * For more information, please see glTF 2.0 specifications
  * https://github.com/KhronosGroup/glTF/blob/master/specification/2.0/README.md

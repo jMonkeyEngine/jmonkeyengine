@@ -198,7 +198,7 @@ public class KernelAdapter extends Thread
         if( !reliable ) {
             // Since UDP comes in packets and they aren't split
             // up, there is no reason to buffer.  In fact, there would
-            // be a down side because there is no way for us to reliably
+            // be a downside because there is no way for us to reliably
             // clean these up later since we'd create another one for 
             // any random UDP packet that comes to the port.
             return protocol.createBuffer();

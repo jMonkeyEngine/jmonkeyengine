@@ -206,9 +206,9 @@ public abstract class LwjglWindowVR extends LwjglContextVR implements Runnable {
 
         glfwSetWindowFocusCallback(window, windowFocusCallback = new GLFWWindowFocusCallback() {
 
-			@Override
-			public void invoke(long window, boolean focused) {
-				if (wasActive != focused) {
+            @Override
+            public void invoke(long window, boolean focused) {
+                if (wasActive != focused) {
                     if (wasActive == false) {
                         listener.gainFocus();
                         timer.reset();
@@ -217,10 +217,8 @@ public abstract class LwjglWindowVR extends LwjglContextVR implements Runnable {
                         listener.loseFocus();
                         wasActive = false;
                     }
-
-                    
                 }
-			}
+            }
         });
 
         // Center the window
@@ -245,7 +243,6 @@ public abstract class LwjglWindowVR extends LwjglContextVR implements Runnable {
         // Make the window visible
         if (Type.Display.equals(type)) {
             glfwShowWindow(window);
-            
             glfwFocusWindow(window);
         }
 
@@ -274,20 +271,16 @@ public abstract class LwjglWindowVR extends LwjglContextVR implements Runnable {
 
             if (errorCallback != null) {
                 errorCallback.free();
-            	errorCallback = null;
+                errorCallback = null;
             }
 
             if (windowSizeCallback != null) {
-
                 windowSizeCallback.free();
-                
                 windowSizeCallback = null;
             }
 
             if (windowFocusCallback != null) {
-            	
                 windowFocusCallback.free();
-                
                 windowFocusCallback = null;
             }
 
@@ -385,7 +378,7 @@ public abstract class LwjglWindowVR extends LwjglContextVR implements Runnable {
 
         // All this does is call swap buffers
         // If the canvas is not active, there's no need to waste time
-        // doing that ..
+        // doing that.
         if (renderable.get()) {
             // calls swap buffers, etc.
             try {
@@ -397,8 +390,8 @@ public abstract class LwjglWindowVR extends LwjglContextVR implements Runnable {
             }
         }
 
-        // Subclasses just call GLObjectManager clean up objects here
-        // it is safe .. for now.
+        // Subclasses just call GLObjectManager. Clean up objects here.
+        // It is safe ... for now.
         if (renderer != null) {
             renderer.postFrame();
         }
@@ -455,7 +448,6 @@ public abstract class LwjglWindowVR extends LwjglContextVR implements Runnable {
                     + "Must set with JmeContext.setSystemListener().");
         }
 
- 
         LOGGER.log(Level.FINE, "Using LWJGL {0}", Version.getVersion());
 
         if (!initInThread()) {
@@ -546,8 +538,7 @@ public abstract class LwjglWindowVR extends LwjglContextVR implements Runnable {
         }
         return out;
     }
-    
-    
+
     private ByteBuffer imageToByteBuffer(BufferedImage image) {
         if (image.getType() != BufferedImage.TYPE_INT_ARGB_PRE) {
             BufferedImage convertedImage = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB_PRE);

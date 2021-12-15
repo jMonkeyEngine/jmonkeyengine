@@ -66,8 +66,8 @@ public class HillHeightMap extends AbstractHeightMap {
      * @param seed
      *            the seed to generate the same heightmap again
      * @throws Exception
-     *             if size of the terrain is not greater that zero, or number of
-     *             iterations is not greater that zero
+     *             if size of the terrain is not greater than zero, or the number of
+     *             iterations is not greater than zero
      */
     public HillHeightMap(int size, int iterations, float minRadius,
             float maxRadius, long seed) throws Exception {
@@ -103,8 +103,8 @@ public class HillHeightMap extends AbstractHeightMap {
      * @param maxRadius
      *            the maximum radius of a hill
      * @throws Exception
-     *             if size of the terrain is not greater that zero, or number of
-     *             iterations is not greater that zero
+     *             if size of the terrain is not greater than zero, or number of
+     *             iterations is not greater than zero
      */
     public HillHeightMap(int size, int iterations, float minRadius,
             float maxRadius) throws Exception {
@@ -212,7 +212,7 @@ public class HillHeightMap extends AbstractHeightMap {
      * @param iterations
      *            the number of hills to grow
      * @throws Exception
-     *             if iterations if not greater than zero
+     *             if iterations is not greater than zero
      */
     public void setIterations(int iterations) throws Exception {
         if (iterations <= 0) {
@@ -228,7 +228,7 @@ public class HillHeightMap extends AbstractHeightMap {
      * @param maxRadius
      *            the maximum radius of a hill
      * @throws Exception
-     *             if the maximum radius if not greater than zero or not greater
+     *             if the maximum radius is not greater than zero or not greater
      *             than the minimum radius
      */
     public void setMaxRadius(float maxRadius) throws Exception {

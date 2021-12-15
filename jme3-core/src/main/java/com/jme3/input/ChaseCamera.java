@@ -440,7 +440,7 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
                         Vector3f a = targetDir.negate().normalizeLocal();
                         //the x unit vector
                         Vector3f b = Vector3f.UNIT_X;
-                        //2d is good enough
+                        // 2-D is good enough.
                         a.y = 0;
                         //computation of the rotation angle between the x axis and the trail
                         if (targetDir.z > 0) {
@@ -855,8 +855,8 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
     }
 
     /**
-     * Sets the rotate amount when user moves his mouse, the lower the value,
-     * the slower the camera will rotate. default is 1.
+     * Sets the rotate amount when user moves his mouse. The lower the value,
+     * the slower the camera will rotate. Default is 1.
      *
      * @param rotationSpeed Rotation speed on mouse movement, default is 1.
      */

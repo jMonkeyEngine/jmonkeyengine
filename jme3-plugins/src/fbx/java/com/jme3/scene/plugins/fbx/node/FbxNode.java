@@ -207,7 +207,7 @@ public class FbxNode extends FbxObject<Spatial> {
             jmeLocalBindPose.set(jmeWorldBindPose);
             jmeLocalBindPose.combineWithParent(parentBindPose.invert());
             
-            // Its somewhat odd for the transforms to differ ...
+            // It's somewhat odd for the transforms to differ ...
             System.out.println("Bind Pose for: " + getName());
             if (!jmeLocalBindPose.equals(jmeLocalNodeTransform)) {
                 System.out.println("Local Bind: " + jmeLocalBindPose);
@@ -309,9 +309,9 @@ public class FbxNode extends FbxObject<Spatial> {
         
         if (element.getChildById("Vertices") != null) {
             // This is an old-style FBX 6.1
-            // Meshes could be embedded inside the node..
-            
-            // Inject the mesh into ourselves..
+            // Meshes could be embedded inside the node.
+
+            // Inject the mesh into ourselves.
             FbxMesh mesh = new FbxMesh(assetManager, sceneFolderName);
             mesh.fromElement(element);
             connectObject(mesh);

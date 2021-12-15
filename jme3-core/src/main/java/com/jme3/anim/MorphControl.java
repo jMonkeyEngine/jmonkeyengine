@@ -221,12 +221,16 @@ public class MorphControl extends AbstractControl implements Savable {
                 rm.preloadScene(spatial);
                 compilationOk = true;
             } catch (RendererException e) {
-                logger.log(Level.FINE, geom.getName() + ": failed at " + maxGPUTargets);
+                if (logger.isLoggable(Level.FINE)) {
+                    logger.log(Level.FINE, "{0}: failed at {1}", new Object[]{geom.getName(), maxGPUTargets});
+                }
                 // the compilation failed let's decrement the number of targets and try again.
                 maxGPUTargets--;
             }
         }
-        logger.log(Level.FINE, geom.getName() + ": " + maxGPUTargets);
+        if (logger.isLoggable(Level.FINE)) {
+            logger.log(Level.FINE, "{0}: {1}", new Object[]{geom.getName(), maxGPUTargets});
+        }
         // set the number of GPU morph on the geom to not have to recompute it next frame.
         geom.setNbSimultaneousGPUMorph(maxGPUTargets);
         return maxGPUTargets;

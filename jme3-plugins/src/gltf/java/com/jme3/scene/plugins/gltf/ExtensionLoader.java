@@ -45,7 +45,7 @@ public interface ExtensionLoader {
     /**
      * Implement this methods to handle a gltf extension reading
      *
-     * @param loader     the GltfLoader with all the data structure.
+     * @param loader     the GltfLoader with all the data structures
      * @param parentName the name of the element being read
      * @param parent     the element being read
      * @param extension  the content of the extension found in the element being read

@@ -369,24 +369,24 @@ class LetterQuad {
                         x0 = getBound(block).x + (getBound(block) != UNBOUNDED ? getBound(block).width : 0) - xAdvance - xOffset * incrScale;
                     }
                     // Since x0 has xAdvance baked into it, we need to zero out xAdvance.
-                    // Since x0 will have offset baked into it we need to counteract that
-                    // in xAdvance. The next x position will be (x0 - xAdvance)
+                    // Since x0 will have offset baked into it, we need to counteract that
+                    // in xAdvance. The next x position will be (x0 - xAdvance).
                     xAdvance = -xOffset * incrScale;
                 } else {
                     x0 = bound.x;
 
                     // The first letter quad will be drawn right at the first
-                    // position... but it does not offset by the characters offset
+                    // position, but it does not offset by the character's offset
                     // amount.  This means that we've potentially accumulated extra
-                    // pixels and the next letter won't get drawn far enough unless
-                    // we add this offset back into xAdvance.. by subtracting it.
-                    // This is the same thing that's done below because we've
+                    // pixels, and the next letter won't get drawn far enough unless
+                    // we add this offset back into xAdvance, by subtracting it.
+                    // This is the same thing that's done below, because we've
                     // technically baked the offset in just like below.  It doesn't
-                    // look like it at first glance so I'm keeping it separate with
+                    // look like it at first glance, so I'm keeping it separate with
                     // this comment.
                     xAdvance -= xOffset * incrScale;
                 }
-            }else {
+            } else {
                if (isRightToLeft()) {
                    // For RTL text the xAdvance of the current letter is deducted,
                    // while for LTR text the advance of the letter before is added.
@@ -397,10 +397,10 @@ class LetterQuad {
                    xAdvance = - xOffset * incrScale;
                 } else {
                     x0 = previous.getNextX() + xOffset * incrScale;
-                   // Since x0 will have offset baked into it then we
+                   // Since x0 will have offset baked into it, we
                    // need to counteract that in xAdvance.  This is better
                    // than removing it in getNextX() because we also need
-                   // to take kerning into account below... which will also
+                   // to take kerning into account below, which will also
                    // get baked in.
                    // Without this, getNextX() will return values too far to
                    // the left, for example.

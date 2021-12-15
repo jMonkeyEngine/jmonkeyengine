@@ -52,7 +52,7 @@ public class Line implements Savable, Cloneable, java.io.Serializable {
 
     /**
      * Constructor instantiates a new <code>Line</code> object. The origin and
-     * direction are set to defaults (0,0,0).
+     * direction both default to (0,0,0).
      *
      */
     public Line() {

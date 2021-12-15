@@ -44,7 +44,7 @@ public interface ExtrasLoader {
      * Note that this method will be invoked every time an "extras" element will be found in the gltf file.
      * You can check the parentName to know where the "extras" element has been found.
      *
-     * @param loader     the GltfLoader with all the data structure.
+     * @param loader     the GltfLoader with all the data structures
      * @param parentName the name of the element being read
      * @param parent     the element being read
      * @param extras     the content of the extras found in the element being read

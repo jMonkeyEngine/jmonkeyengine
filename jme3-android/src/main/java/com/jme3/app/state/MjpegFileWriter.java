@@ -126,10 +126,12 @@ public class MjpegFileWriter {
         int fileSize = (int)aviFile.length();
         logger.log(Level.INFO, "fileSize: {0}", fileSize);
         int listSize = (int) (fileSize - 8 - aviMovieOffset - indexlistBytes.length);
-        logger.log(Level.INFO, "listSize: {0}", listSize);
-        logger.log(Level.INFO, "aviFile canWrite: {0}", aviFile.canWrite());
-        logger.log(Level.INFO, "aviFile AbsolutePath: {0}", aviFile.getAbsolutePath());
-        logger.log(Level.INFO, "aviFile numFrames: {0}", numFrames);
+        if (logger.isLoggable(Level.INFO)) {
+            logger.log(Level.INFO, "listSize: {0}", listSize);
+            logger.log(Level.INFO, "aviFile canWrite: {0}", aviFile.canWrite());
+            logger.log(Level.INFO, "aviFile AbsolutePath: {0}", aviFile.getAbsolutePath());
+            logger.log(Level.INFO, "aviFile numFrames: {0}", numFrames);
+        }
 
         RandomAccessFile raf = new RandomAccessFile(aviFile, "rw");
 

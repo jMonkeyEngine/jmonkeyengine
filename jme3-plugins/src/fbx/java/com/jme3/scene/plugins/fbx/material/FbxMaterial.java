@@ -260,13 +260,13 @@ public class FbxMaterial extends FbxObject<Material> {
         assert transp == null   || (transp.r == 1f && transp.g == 1f && transp.b == 1f);
         
         // If shininess is less than 1.0, the lighting shader won't be able
-        // to handle it. Gotta disable specularity then.
+        // to handle it. Must disable specularity in that case.
         if (shininess < 1f) {
             shininess = 1f;
             specular = ColorRGBA.Black;
         }
         
-        // Try to guess if we need to enable alpha blending.
+        // Guess whether we should enable alpha blending.
         // FBX does not specify this explicitly.
         boolean useAlphaBlend = false;
         
@@ -305,7 +305,7 @@ public class FbxMaterial extends FbxObject<Material> {
         mat.setReceivesShadows(true);
         
         if (useAlphaBlend) {
-            // No idea if this is a transparent or translucent model, gotta guess..
+            // No clue whether this is a transparent or translucent model, so guess.
             mat.setTransparent(true);
             mat.setFloat("AlphaDiscardThreshold", 0.01f);
             mat.getAdditionalRenderState().setBlendMode(BlendMode.Alpha);

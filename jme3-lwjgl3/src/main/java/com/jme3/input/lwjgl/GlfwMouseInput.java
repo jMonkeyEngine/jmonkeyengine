@@ -53,7 +53,7 @@ import org.lwjgl.system.MemoryUtil;
 /**
  * Captures mouse input using GLFW callbacks. It then temporarily stores these
  * in event queues which are processed in the {@link #update()} method. Due to
- * some of the GLFW button id's there is a conversion method in this class which
+ * some of the GLFW button IDs, there is a conversion method in this class which
  * will convert the GLFW left, middle and right mouse button to JME3 left,
  * middle and right button codes.
  *

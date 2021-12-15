@@ -165,7 +165,7 @@ public class AudioTrack implements ClonableTrack {
      * @return a new track
      */
     @Override
-    public Track clone() {
+    public AudioTrack clone() {
         return new AudioTrack(audio, length, startOffset);
     }
 

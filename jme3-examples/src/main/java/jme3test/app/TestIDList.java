@@ -152,7 +152,7 @@ public class TestIDList {
         for (int i = 0; i < states.length; i++)
             states[i] = new StateCol();
 
-        // shuffle would be useful here..
+        // Shuffle would be useful here.
 
         for (int i = 0; i < states.length; i++){
             setState(states[i]);

@@ -57,9 +57,9 @@ public class LightSortTest {
         list.sort(true);
         
         assert list.get(0) instanceof AmbientLight;     // Ambients always first
-        assert list.get(1) instanceof DirectionalLight; // .. then directionals
+        assert list.get(1) instanceof DirectionalLight; // ... then directionals
         assert list.get(2) instanceof SpotLight;        // Spot is 0 units away from geom
-        assert list.get(3) instanceof PointLight;       // .. and point is 1 unit away.
+        assert list.get(3) instanceof PointLight;       // ... and point is 1 unit away.
     }
     
     @Test
@@ -75,7 +75,7 @@ public class LightSortTest {
         n.addLight(spot);
         n.addLight(point);
         
-        // .. and some on the geometry.
+        // ... and some on the geometry.
         g.addLight(directional);
         g.addLight(ambient);
         

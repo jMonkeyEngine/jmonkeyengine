@@ -116,7 +116,7 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
         /**
          * 8-bit blue, green, and red.
          */
-        BGR8(24), // BGR and ABGR formats are often used on windows systems
+        BGR8(24), // BGR and ABGR formats are often used on Windows systems
         
         /**
          * 8-bit red, green, and blue.
@@ -332,37 +332,37 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
         ETC1(4, false, true, false),
          
         /**
-         * 8 bit signed int red.
+         * 8-bit signed int red.
          * 
          * Requires {@link Caps#IntegerTexture}.
          */
         R8I(8),
         /**
-         * 8 bit unsigned int red.
+         * 8-bit unsigned int red.
          * 
          * Requires {@link Caps#IntegerTexture}.
          */
         R8UI(8),
         /**
-         * 16 bit signed int red.
+         * 16-bit signed int red.
          * 
          * Requires {@link Caps#IntegerTexture}.
          */
         R16I(16),
         /**
-         * 16 bit unsigned int red.
+         * 16-bit unsigned int red.
          * 
          * Requires {@link Caps#IntegerTexture}.
          */        
         R16UI(16),      
         /**
-         * 32 bit signed int red.
+         * 32-bit signed int red.
          * 
          * Requires {@link Caps#IntegerTexture}.
          */        
         R32I(32),
         /**
-         * 32 bit unsigned int red.
+         * 32-bit unsigned int red.
          * 
          * Requires {@link Caps#IntegerTexture}.
          */
@@ -370,44 +370,44 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
         
         
         /**
-         * 8 bit signed int red and green.
+         * 8-bit signed int red and green.
          * 
          * Requires {@link Caps#IntegerTexture}.
          */
         RG8I(16), 
         /**
-         * 8 bit unsigned int red and green.
+         * 8-bit unsigned int red and green.
          * 
          * Requires {@link Caps#IntegerTexture}.
          */
         RG8UI(16),     
         /**
-         * 16 bit signed int red and green.
+         * 16-bit signed int red and green.
          * 
          * Requires {@link Caps#IntegerTexture}.
          */
         RG16I(32), 
         /**
-         * 16 bit unsigned int red and green.
+         * 16-bit unsigned int red and green.
          * 
          * Requires {@link Caps#IntegerTexture}.
          */
         RG16UI(32), 
         /**
-         * 32 bit signed int red and green.
+         * 32-bit signed int red and green.
          * 
          * Requires {@link Caps#IntegerTexture}.
          */        
         RG32I(64),
         /**
-         * 32 bit unsigned int red and green.
+         * 32-bit unsigned int red and green.
          * 
          * Requires {@link Caps#IntegerTexture}.
          */
         RG32UI(64), 
 
         /**
-         * 8 bit signed int red, green and blue.
+         * 8-bit signed int red, green and blue.
          * 
          * Requires {@link Caps#IntegerTexture} to be supported for textures. 
          * May be supported for renderbuffers, but the OpenGL specification does not require it.
@@ -421,28 +421,28 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
          */
         RGB8UI(24),
         /**
-         * 16 bit signed int red, green and blue.
+         * 16-bit signed int red, green and blue.
          * 
          * Requires {@link Caps#IntegerTexture} to be supported for textures. 
          * May be supported for renderbuffers, but the OpenGL specification does not require it.
          */
         RGB16I(48),
         /**
-         * 16 bit unsigned int red, green and blue.
+         * 16-bit unsigned int red, green and blue.
          * 
          * Requires {@link Caps#IntegerTexture} to be supported for textures. 
          * May be supported for renderbuffers, but the OpenGL specification does not require it.
          */
         RGB16UI(48),
         /**
-         * 32 bit signed int red, green and blue.
+         * 32-bit signed int red, green and blue.
          * 
          * Requires {@link Caps#IntegerTexture} to be supported for textures. 
          * May be supported for renderbuffers, but the OpenGL specification does not require it.
          */
         RGB32I(96),
         /**
-         * 32 bit unsigned int red, green and blue.
+         * 32-bit unsigned int red, green and blue.
          * 
          * Requires {@link Caps#IntegerTexture} to be supported for textures. 
          * May be supported for renderbuffers, but the OpenGL specification does not require it.
@@ -451,37 +451,37 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
 
 
         /**
-         * 8 bit signed int red, green, blue and alpha.
+         * 8-bit signed int red, green, blue and alpha.
          * 
          * Requires {@link Caps#IntegerTexture}.
          */
         RGBA8I(32), 
         /**
-         * 8 bit unsigned int red, green, blue and alpha.
+         * 8-bit unsigned int red, green, blue and alpha.
          * 
          * Requires {@link Caps#IntegerTexture}.
          */
         RGBA8UI(32),
         /**
-         * 16 bit signed int red, green, blue and alpha.
+         * 16-bit signed int red, green, blue and alpha.
          * 
          * Requires {@link Caps#IntegerTexture}.
          */
         RGBA16I(64),
         /**
-         * 16 bit unsigned int red, green, blue and alpha.
+         * 16-bit unsigned int red, green, blue and alpha.
          * 
          * Requires {@link Caps#IntegerTexture}.
          */
         RGBA16UI(64),
         /**
-         * 32 bit signed int red, green, blue and alpha.
+         * 32-bit signed int red, green, blue and alpha.
          * 
          * Requires {@link Caps#IntegerTexture}.
          */
         RGBA32I(128),
         /**
-         * 32 bit unsigned int red, green, blue and alpha.
+         * 32-bit unsigned int red, green, blue and alpha.
          * 
          * Requires {@link Caps#IntegerTexture}.
          */

@@ -161,7 +161,7 @@ public abstract class LwjglAbstractDisplay extends LwjglContext implements Runna
         
         // All this does is call swap buffers
         // If the canvas is not active, there's no need to waste time
-        // doing that ..
+        // doing that.
         if (renderable.get()){
             assert checkGLError();
 
@@ -193,8 +193,8 @@ public abstract class LwjglAbstractDisplay extends LwjglContext implements Runna
             Display.processMessages();
         }
         
-        // Subclasses just call GLObjectManager clean up objects here
-        // it is safe .. for now.
+        // Subclasses just call GLObjectManager. Clean up objects here.
+        // It is safe ... for now.
         renderer.postFrame();
     }
 

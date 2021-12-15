@@ -211,7 +211,7 @@ public class CartoonEdgeFilter extends Filter {
     }
 
     /**
-     * sets the normals sensitivity default is 1
+     * Sets the normals sensitivity. Default is 1.
      *
      * @param normalSensitivity the desired sensitivity (default=1)
      */

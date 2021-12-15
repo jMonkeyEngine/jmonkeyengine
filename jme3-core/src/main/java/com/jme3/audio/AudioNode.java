@@ -550,7 +550,7 @@ public class AudioNode extends Node implements AudioSource {
     }
 
     /**
-     * @return Max distance for this audio node.
+     * @return Maximum distance for this audio node.
      *
      * @see AudioNode#setMaxDistance(float)
      */

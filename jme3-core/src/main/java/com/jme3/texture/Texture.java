@@ -66,12 +66,12 @@ public abstract class Texture implements CloneableSmartAsset, Savable, Cloneable
         TwoDimensional,
         
         /**
-         * An array of two dimensional textures. 
+         * An array of two-dimensional textures.
          */
         TwoDimensionalArray,
 
         /**
-         * Three dimensional texture. (A cube)
+         * Three-dimensional texture. (A cube)
          */
         ThreeDimensional,
 
@@ -224,7 +224,7 @@ public abstract class Texture implements CloneableSmartAsset, Savable, Cloneable
          * computes:
          * <code>mirrorClampToBorder(f) = min(1+1/(2*N), max(1/(2*N), abs(f)))</code>
          * where N is the size of the one-, two-, or three-dimensional texture
-         * image in the direction of wrapping." (Introduced after OpenGL1.4)
+         * image in the direction of wrapping. (Introduced after OpenGL1.4)
          * Falls back on BorderClamp if not supported.
          * 
          * @deprecated Not supported by OpenGL 3

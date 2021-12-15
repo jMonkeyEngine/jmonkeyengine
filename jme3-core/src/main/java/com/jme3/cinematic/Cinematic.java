@@ -558,11 +558,11 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
     }
 
     /**
-     * Binds a camera to this cinematic, tagged by a unique name. This methods
-     * creates and returns a CameraNode for the cam and attach it to the scene.
+     * Binds a camera to this Cinematic, tagged by a unique name. This method
+     * creates and returns a CameraNode for the cam and attaches it to the scene.
      * The control direction is set to SpatialToCamera. This camera Node can
-     * then be used in other events to handle the camera movements during the
-     * playback
+     * then be used in other events to handle the camera movements during
+     * playback.
      *
      * @param cameraName the unique tag the camera should have
      * @param cam the scene camera.

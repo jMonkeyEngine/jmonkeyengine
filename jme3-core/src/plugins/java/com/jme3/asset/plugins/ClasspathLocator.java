@@ -44,8 +44,7 @@ import java.util.logging.Logger;
  * The <code>ClasspathLocator</code> looks up an asset in the classpath.
  * 
  * This locator is used by default in all jME3 projects (unless 
- * {@link AssetManager#unregisterLocator(java.lang.String, java.lang.Class) unregistered}
- * ).
+ * {@link AssetManager#unregisterLocator(java.lang.String, java.lang.Class) unregistered}).
  * Unlike Java's default resource loading mechanism, the <code>ClasspathLocator</code>
  * enforces case-sensitivity on platforms which do not have it such as Windows.
  * Therefore, it is critical to provide a path matching the case of the file on

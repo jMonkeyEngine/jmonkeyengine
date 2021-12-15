@@ -184,7 +184,7 @@ public final class FbxDump {
             case 'i':
             case 'l':
             case 'f':
-                // Arrays of things..
+                // Arrays of things.
                 int length = Array.getLength(property);
                 for (int j = 0; j < length; j++) {
                     Object arrayEntry = Array.get(property, j);

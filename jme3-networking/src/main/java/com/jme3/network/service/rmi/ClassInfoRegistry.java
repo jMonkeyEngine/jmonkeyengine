@@ -85,7 +85,7 @@ public class ClassInfoRegistry {
                 
                 return result;
             } finally {
-                // Unlock the write lock while still holding onto read
+                // Unlock the write lock while still holding onto the read lock.
                 lock.writeLock().unlock();
             }
         } finally {

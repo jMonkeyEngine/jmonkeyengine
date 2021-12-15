@@ -74,7 +74,7 @@ public class HelloAudio extends SimpleApplication {
     }
   };
 
-  /** Move the listener with the a camera - for 3D audio. */
+  /** Move the listener with the camera - for 3-D audio. */
   @Override
   public void simpleUpdate(float tpf) {
     listener.setLocation(cam.getLocation());

@@ -109,7 +109,7 @@ public class FieldSerializer extends Serializer {
                 // The type of this field is implicit in the outer class
                 // definition and because the type is final, it can confidently
                 // be determined on the other end.
-                // Note: passing false to this method has the side-effect that field.getType()
+                // Note: passing false to this method has the side effect that field.getType()
                 // will be registered as a real class that can then be read/written
                 // directly as any other registered class.  It should be safe to take
                 // an ID like this because Serializer.initialize() is only called 

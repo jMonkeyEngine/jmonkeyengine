@@ -266,6 +266,7 @@ public final class AppSettings extends HashMap<String, Object> {
     public static final String JOAL = "JOAL";
 
     static {
+        defaults.put("CenterWindow", true);
         defaults.put("Width", 640);
         defaults.put("Height", 480);
         defaults.put("BitsPerPixel", 24);
@@ -290,6 +291,8 @@ public final class AppSettings extends HashMap<String, Object> {
         defaults.put("OpenCL", false);
         defaults.put("OpenCLPlatformChooser", DefaultPlatformChooser.class.getName());
         defaults.put("UseRetinaFrameBuffer", true);// MacOS spec
+        defaults.put("WindowYPosition", 0);
+        defaults.put("WindowXPosition", 0);
         //  defaults.put("Icons", null);
     }
 
@@ -1349,5 +1352,92 @@ public final class AppSettings extends HashMap<String, Object> {
      */
     public void setUseRetinaFrameBuffer(boolean useRetinaFrameBuffer) {
         putBoolean("UseRetinaFrameBuffer", useRetinaFrameBuffer);
+    }
+    
+    /**
+     * Tests the state of the Center Window flag.
+     *
+     * <p>The Center Window flag is used only with LWJGL3 and has no effect on
+     * fullscreen windows.
+     *
+     * @return true to center the window on the desktop, false to position the
+     *    window at (WindowXPosition, WindowYPosition)
+     * @see #setCenterWindow(boolean)
+     */
+    public boolean getCenterWindow() {
+        return getBoolean("CenterWindow");
+    }
+    
+    /**
+     * Enables or disables the Center Window flag.
+     *
+     * <p>The Center Window flag is used only with LWJGL3 and has no effect on
+     * fullscreen windows. It defaults to true.
+     *
+     * @param center true to center the window on the desktop, false to position
+     *     the window at (WindowXPosition, WindowYPosition)
+     */
+    public void setCenterWindow(boolean center) {
+        putBoolean("CenterWindow", center);
+    }
+
+    /**
+     * Gets the window's initial X position on the desktop.
+     *
+     * <p>This setting is used only with LWJGL3, has no effect on fullscreen
+     * windows, and is ignored if the Center Window flag is true.
+     *
+     * @return the initial position of the window's left edge relative to the
+     *     left edge of the desktop
+     * @see #setCenterWindow(boolean)
+     * @see #setWindowXPosition(int)
+     */
+    public int getWindowXPosition() {
+        return getInteger("WindowXPosition");
+    }
+
+    /**
+     * Sets the window's initial X position on the desktop.
+     *
+     * <p>This setting is used only with LWJGL3, has no effect on fullscreen
+     * windows, and is ignored if the Center Window flag is true. Its default
+     * value is 0.
+     *
+     * @param pos the desired initial position of the window's left edge
+     *     relative to the left edge of the desktop
+     * @see #setCenterWindow(boolean)
+     */
+    public void setWindowXPosition(int pos) {
+        putInteger("WindowXPosition", pos);
+    }
+
+    /**
+     * Gets the window's initial Y position on the desktop.
+     *
+     * <p>This setting is used only with LWJGL3, has no effect on fullscreen
+     * windows, and is ignored if the Center Window flag is true.
+     *
+     * @return the initial position of the window's upper edge relative to the
+     *     upper edge of the desktop
+     * @see #setCenterWindow(boolean)
+     * @see #setWindowYPosition(int)
+     */
+    public int getWindowYPosition() {
+        return getInteger("WindowYPosition");
+    }
+
+    /**
+     * Sets the window's initial Y position on the desktop.
+     *
+     * <p>This setting is used only with LWJGL3, has no effect on fullscreen
+     * windows, and is ignored if the Center Window flag is true. Its default
+     * value is 0.
+     *
+     * @param pos the desired initial position of the window's upper edge
+     *     relative to the upper edge of the desktop
+     * @see #setCenterWindow(boolean)
+     */
+    public void setWindowYPosition(int pos) {
+        putInteger("WindowYPosition", pos);
     }
 }

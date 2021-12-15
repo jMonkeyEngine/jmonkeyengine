@@ -537,9 +537,11 @@ public final class NativeLibraryLoader {
                         "The required native library '" + name + "'"
                         + " is not available for your OS: " + platform);
             } else {
-                logger.log(Level.FINE, "The optional native library ''{0}''" +
-                                       " is not available for your OS: {1}", 
-                                       new Object[]{name, platform});
+                if (logger.isLoggable(Level.FINE)) {
+                    logger.log(Level.FINE, "The optional native library ''{0}''" +
+                                    " is not available for your OS: {1}",
+                            new Object[]{name, platform});
+                }
                 return;
             }
         }
@@ -584,7 +586,7 @@ public final class NativeLibraryLoader {
                             "The required native library '" + unmappedName + "'"
                             + " was not found in the classpath via '" + pathInJar
                             + "'. Error message: " + e.getMessage());
-                } else {
+                } else if (logger.isLoggable(Level.FINE)) {
                     logger.log(Level.FINE, "The optional native library ''{0}''" + 
                                            " was not found in the classpath via ''{1}''" +
                                            ". Error message: {2}",
@@ -680,9 +682,11 @@ public final class NativeLibraryLoader {
                 try { out.close(); } catch (IOException ex) { }
             }
         }
-        
-        logger.log(Level.FINE, "Loaded native library from ''{0}'' into ''{1}''", 
-                   new Object[]{url, targetFile});
+
+        if (logger.isLoggable(Level.FINE)) {
+            logger.log(Level.FINE, "Loaded native library from ''{0}'' into ''{1}''",
+                    new Object[]{url, targetFile});
+        }
     }
     
 }

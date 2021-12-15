@@ -1264,12 +1264,27 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
 
     /**
      * Flip the signs of all components of this Quaternion.
+     *
+     * @deprecated The naming of this method doesn't follow convention. Please
+     *     use {@link #normalizeLocal()} instead.
      */
+    @Deprecated
     public void negate() {
-        x *= -1;
-        y *= -1;
-        z *= -1;
-        w *= -1;
+        negateLocal();
+    }
+
+    /**
+     * Flip the signs of all components.
+     *
+     * @return the (modified) current instance (for chaining)
+     */
+    public Quaternion negateLocal() {
+        x = -x;
+        y = -y;
+        z = -z;
+        w = -w;
+
+        return this;
     }
 
     /**

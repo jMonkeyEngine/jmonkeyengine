@@ -60,7 +60,7 @@ public interface SystemListener {
     /**
      * Called when the user requests to close the application. This
      * could happen when he clicks the X button on the window, presses
-     * the Alt-F4 combination, attempts to shutdown the process from 
+     * the Alt-F4 combination, attempts to shut down the process from
      * the task manager, or presses ESC. 
      * @param esc If true, the user pressed ESC to close the application.
      */

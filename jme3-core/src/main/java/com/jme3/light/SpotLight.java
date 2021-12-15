@@ -46,17 +46,17 @@ import com.jme3.util.TempVars;
 import java.io.IOException;
 
 /**
- * Represents a spot light.
- * A spot light emits a cone of light from a position and in a direction.
+ * Represents a spotlight.
+ * A spotlight emits a cone of light from a position and in a direction.
  * It can be used to fake torch lights or car's lights.
  * <p>
- * In addition to a position and a direction, spot lights also have a range which 
+ * In addition to a position and a direction, spotlights also have a range which
  * can be used to attenuate the influence of the light depending on the 
  * distance between the light and the affected object.
- * Also the angle of the cone can be tweaked by changing the spot inner angle and the spot outer angle.
- * the spot inner angle determines the cone of light where light has full influence.
- * the spot outer angle determines the cone global cone of light of the spot light.
- * the light intensity slowly decreases between the inner cone and the outer cone.
+ * Also, the angle of the cone can be tweaked by changing the spot inner angle and the spot outer angle.
+ * The spot inner angle determines the cone where light has full influence.
+ * The spot outer angle determines the global cone of light.
+ * The light intensity slowly decreases from the inner cone to the outer cone.
  *  @author Nehon
  */
 public class SpotLight extends Light {
@@ -96,7 +96,7 @@ public class SpotLight extends Light {
      * given range.
      * @param position the position in world space.
      * @param direction the direction of the light.
-     * @param range the spot light range
+     * @param range the spotlight range
      */
     public SpotLight(Vector3f position, Vector3f direction, float range) {
         this();
@@ -125,7 +125,7 @@ public class SpotLight extends Light {
      * the given range and the given color.
      * @param position the position in world space.
      * @param direction the direction of the light.
-     * @param range the spot light range
+     * @param range the spotlight range
      * @param color the light's color.
      */
     public SpotLight(Vector3f position, Vector3f direction, float range, ColorRGBA color) {
@@ -143,10 +143,10 @@ public class SpotLight extends Light {
      * 
      * @param position the position in world space.
      * @param direction the direction of the light.
-     * @param range the spot light range
+     * @param range the spotlight range
      * @param color the light's color.
-     * @param innerAngle the inner angle of the spot light.
-     * @param outerAngle the outer angle of the spot light.
+     * @param innerAngle the inner angle of the spotlight.
+     * @param outerAngle the outer angle of the spotlight.
      * 
      * @see SpotLight#setSpotInnerAngle(float) 
      * @see SpotLight#setSpotOuterAngle(float) 
