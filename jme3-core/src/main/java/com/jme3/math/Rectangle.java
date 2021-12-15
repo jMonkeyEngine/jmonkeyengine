@@ -145,8 +145,11 @@ public final class Rectangle implements Savable, Cloneable, java.io.Serializable
      *
      * @return the corner location (a new Vector3f)
      */
-    public Vector3f getD() {
-        return b.add(c).subtractLocal(a);
+    public Vector3f calculateD() {
+        float x = b.x + c.x - a.x;
+        float y = b.y + c.y - a.y;
+        float z = b.z + c.z - a.z;
+        return new Vector3f(x, y, z);
     }
 
     /**
