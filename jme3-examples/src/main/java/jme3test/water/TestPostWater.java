@@ -218,7 +218,7 @@ public class TestPostWater extends SimpleApplication {
                         water.setReflectionMapSize(Math.max(water.getReflectionMapSize() / 2, 32));
                         System.out.println("Reflection map size : " + water.getReflectionMapSize());
                     }
-                    if (name.equals("drayFilter"))
+                    if (name.equals("dryFilter"))
                     {
                        useDryFilter = !useDryFilter; 
                     }
