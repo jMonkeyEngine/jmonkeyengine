@@ -183,13 +183,12 @@ public class RectangleMesh extends Mesh {
     }
 
     /**
-     * Sets the normal vector and updates the mesh accordingly.
+     * Flips this mesh.
      *
-     * @param normal the desired normal vector, or null to use the direction
-     *     calculated by {@link com.jme3.math.Rectangle#calculateNormal(com.jme3.math.Vector3f)}
      */
-    public void setNormal(Vector3f normal) {
-        this.normal = normal;
+    public void flip() {
+        rectangle = new Rectangle(rectangle.calculateD(), rectangle.getB(), rectangle.getC());
+        normal.negateLocal();
         updateMesh();
     }
 
