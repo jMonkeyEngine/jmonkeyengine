@@ -117,6 +117,7 @@ public class RectangleMesh extends Mesh {
                 new Vector2f(1, 1),
                 new Vector2f(0, 1)
         };
+        flipped = false;
         updateMesh();
     }
 
@@ -243,16 +244,27 @@ public class RectangleMesh extends Mesh {
     public void read(JmeImporter e) throws IOException {
         super.read(e);
         final InputCapsule capsule = e.getCapsule(this);
-        capsule.readSavable("rectangle", rectangle);
-        capsule.readSavableArray("texCoords", texCoords);
-        capsule.readSavable("normal", normal);
+        rectangle = (Rectangle) capsule.readSavable("rectangle", new Rectangle(
+                new Vector3f(),
+                new Vector3f(1, 0, 0),
+                new Vector3f(0, 1, 0));
+        texCoords = (Vector2f[]) capsule.readSavableArray("texCoords", new Vector2f[] {
+                new Vector2f(0, 0),
+                new Vector2f(1, 0),
+                new Vector2f(1, 1),
+                new Vector2f(0, 1) });
+        normal = (Vector3f) capsule.readSavable("normal", null);
+        flipped = capsule.readBoolean("flipped", false);
     }
 
     @Override
     public void write(JmeExporter e) throws IOException {
         super.write(e);
         final OutputCapsule capsule = e.getCapsule(this);
-        capsule.write(rectangle, "rectangle", new Rectangle());
+        capsule.write(rectangle, "rectangle", new Rectangle(
+                new Vector3f(),
+                new Vector3f(1, 0, 0),
+                new Vector3f(0, 1, 0)));
         capsule.write(texCoords, "texCoords", new Vector2f[] {
                 new Vector2f(0, 0),
                 new Vector2f(1, 0),
@@ -260,5 +272,6 @@ public class RectangleMesh extends Mesh {
                 new Vector2f(0, 1)
         });
         capsule.write(normal, "normal", null);
+        capsule.write(flipped, "flipped", false);
     }
 }
