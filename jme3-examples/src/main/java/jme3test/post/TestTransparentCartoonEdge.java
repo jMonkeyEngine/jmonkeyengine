@@ -12,7 +12,7 @@ import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
-import com.jme3.scene.shape.Quad;
+import com.jme3.scene.shape.RectangleMesh;
 import com.jme3.texture.Texture;
 
 public class TestTransparentCartoonEdge extends SimpleApplication {
@@ -33,14 +33,14 @@ public class TestTransparentCartoonEdge extends SimpleApplication {
 
         viewPort.setBackgroundColor(ColorRGBA.DarkGray);
 
-        Quad q = new Quad(20, 20);
-        q.scaleTextureCoordinates(Vector2f.UNIT_XY.mult(5));
-        Geometry geom = new Geometry("floor", q);
+        RectangleMesh rm = new RectangleMesh(
+                new Vector3f(-10, 0, 10),
+                new Vector3f(10, 0, 10),
+                new Vector3f(-10, 0, -10));
+        rm.scaleTextureCoordinates(Vector2f.UNIT_XY.mult(5));
+        Geometry geom = new Geometry("floor", rm);
         Material mat = assetManager.loadMaterial("Textures/Terrain/Pond/Pond.j3m");
         geom.setMaterial(mat);
-        
-        geom.rotate(-FastMath.HALF_PI, 0, 0);
-        geom.center();
         geom.setShadowMode(ShadowMode.Receive);
         rootNode.attachChild(geom);
 
