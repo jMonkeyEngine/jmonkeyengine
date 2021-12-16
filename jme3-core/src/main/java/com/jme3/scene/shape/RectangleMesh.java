@@ -89,6 +89,11 @@ public class RectangleMesh extends Mesh {
     private Vector3f normal;
 
     /**
+     * Used to indicate whether this mesh is flipped.
+     */
+    private boolean flipped;
+
+    /**
      * Instantiates a unit-square mesh in the X-Y plane, centered at (0.5, 0.5),
      * with normals in the +Z direction.
      *
@@ -183,13 +188,14 @@ public class RectangleMesh extends Mesh {
     }
 
     /**
-     * Flips this mesh.
-     *
+     * Flips this mesh by reversing its normal vector direction and
+     * setting the {@code flipped} variable accordingly. This variable
+     * will be used by the {@code updateMesh()} method to rearrange
+     * the index buffer.
      */
     public void flip() {
-        rectangle = new Rectangle(rectangle.calculateD(), rectangle.getB(), rectangle.getC());
-        texCoords = new Vector2f[] { texCoords[2], texCoords[1], texCoords[0], texCoords[3] };
         normal.negateLocal();
+        flipped = !flipped;
         updateMesh();
     }
 
@@ -212,7 +218,11 @@ public class RectangleMesh extends Mesh {
         }
         setBuffer(Type.Normal, 3, BufferUtils.createFloatBuffer(normal, normal, normal, normal));
 
-        setBuffer(Type.Index, 3, new short[] { 3, 0, 1, 1, 2, 3 });
+        if (flipped) {
+            setBuffer(Type.Index, 3, new short[]{1, 0, 3, 3, 2, 1});
+        } else {
+            setBuffer(Type.Index, 3, new short[]{3, 0, 1, 1, 2, 3});
+        }
 
         updateBound();
         setStatic();
