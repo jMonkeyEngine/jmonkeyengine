@@ -247,7 +247,7 @@ public class RectangleMesh extends Mesh {
         rectangle = (Rectangle) capsule.readSavable("rectangle", new Rectangle(
                 new Vector3f(),
                 new Vector3f(1, 0, 0),
-                new Vector3f(0, 1, 0));
+                new Vector3f(0, 1, 0)));
         texCoords = (Vector2f[]) capsule.readSavableArray("texCoords", new Vector2f[] {
                 new Vector2f(0, 0),
                 new Vector2f(1, 0),
