@@ -162,7 +162,7 @@ publishing {
                 password = gradle.rootProject.hasProperty('ossrhPassword') ? ossrhPassword : 'Unknown password'
             }
             name = 'OSSRH'
-            url = 'https://oss.sonatype.org/service/local/staging/deploy/maven2'
+            url = 'https://s01.oss.sonatype.org/service/local/staging/deploy/maven2'
         }
     }
 }
