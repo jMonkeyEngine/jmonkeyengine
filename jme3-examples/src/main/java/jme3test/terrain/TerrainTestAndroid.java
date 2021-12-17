@@ -150,7 +150,7 @@ public class TerrainTestAndroid extends SimpleApplication {
     }
 
     public void loadHintText() {
-        BitmapText hintText = new BitmapText(guiFont, false);
+        BitmapText hintText = new BitmapText(guiFont);
         hintText.setSize(guiFont.getCharSet().getRenderedSize());
         hintText.setLocalTranslation(0, getCamera().getHeight(), 0);
         hintText.setText("Press T to toggle wireframe,  P to toggle tri-planar texturing");

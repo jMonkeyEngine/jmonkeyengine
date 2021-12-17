@@ -188,7 +188,7 @@ public class TerrainTestReadWrite extends SimpleApplication {
     }
 
     public void loadHintText() {
-        BitmapText hintText = new BitmapText(guiFont, false);
+        BitmapText hintText = new BitmapText(guiFont);
         hintText.setSize(guiFont.getCharSet().getRenderedSize());
         hintText.setLocalTranslation(0, getCamera().getHeight(), 0);
         hintText.setText("Hit T to save, and Y to load");

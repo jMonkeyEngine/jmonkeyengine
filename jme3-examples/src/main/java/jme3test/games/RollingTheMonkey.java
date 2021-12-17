@@ -272,15 +272,15 @@ public class RollingTheMonkey extends SimpleApplication implements ActionListene
                 , INPUT_MAPPING_LEFT, INPUT_MAPPING_RIGHT, INPUT_MAPPING_RESET);
         
         // init UI
-        BitmapText infoText = new BitmapText(guiFont, false);
+        BitmapText infoText = new BitmapText(guiFont);
         infoText.setText(INFO_MESSAGE);
         guiNode.attachChild(infoText);
         
-        scoreText = new BitmapText(guiFont, false);
+        scoreText = new BitmapText(guiFont);
         scoreText.setText("Score: 0");
         guiNode.attachChild(scoreText);
         
-        messageText = new BitmapText(guiFont, false);
+        messageText = new BitmapText(guiFont);
         messageText.setText(MESSAGE);
         messageText.setLocalScale(0.0f);
         guiNode.attachChild(messageText);

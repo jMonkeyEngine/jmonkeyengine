@@ -209,7 +209,7 @@ public class TestManyLightsSingle extends SimpleApplication {
          */
         guiNode.detachAllChildren();
         guiFont = assetManager.loadFont("Interface/Fonts/Default.fnt");
-        helloText = new BitmapText(guiFont, false);
+        helloText = new BitmapText(guiFont);
         helloText.setSize(guiFont.getCharSet().getRenderedSize());
         helloText.setText("(Single pass) nb lights per batch : " + renderManager.getSinglePassLightBatchSize());
         helloText.setLocalTranslation(300, helloText.getLineHeight(), 0);

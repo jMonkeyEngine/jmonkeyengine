@@ -32,7 +32,7 @@ public class TestMorph extends SimpleApplication {
     @Override
     public void simpleInitApp() {
         BitmapFont font = assetManager.loadFont("Interface/Fonts/Default.fnt");
-        BitmapText text = new BitmapText(font, false);
+        BitmapText text = new BitmapText(font);
         text.setText("Press U-Y-I-J to vary weights. Drag LMB to orbit camera.");
         text.setLocalTranslation(10f, cam.getHeight() - 10f, 0f);
         guiNode.attachChild(text);

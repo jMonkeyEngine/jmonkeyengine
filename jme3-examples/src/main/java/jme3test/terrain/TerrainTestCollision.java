@@ -179,7 +179,7 @@ public class TerrainTestCollision extends SimpleApplication {
     }
 
     public void loadHintText() {
-        BitmapText hintText = new BitmapText(guiFont, false);
+        BitmapText hintText = new BitmapText(guiFont);
         hintText.setSize(guiFont.getCharSet().getRenderedSize());
         hintText.setLocalTranslation(0, getCamera().getHeight(), 0);
         hintText.setText("Press T to toggle wireframe");
@@ -188,7 +188,7 @@ public class TerrainTestCollision extends SimpleApplication {
 
     protected void initCrossHairs() {
         //guiFont = assetManager.loadFont("Interface/Fonts/Default.fnt");
-        BitmapText ch = new BitmapText(guiFont, false);
+        BitmapText ch = new BitmapText(guiFont);
         ch.setSize(guiFont.getCharSet().getRenderedSize() * 2);
         ch.setText("+"); // crosshairs
         ch.setLocalTranslation( // center

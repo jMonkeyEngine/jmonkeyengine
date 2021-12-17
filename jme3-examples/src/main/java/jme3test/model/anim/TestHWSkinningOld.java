@@ -103,7 +103,7 @@ public class TestHWSkinningOld extends SimpleApplication implements ActionListen
 
     private void makeHudText() {
         guiFont = assetManager.loadFont("Interface/Fonts/Default.fnt");
-        hwsText = new BitmapText(guiFont, false);
+        hwsText = new BitmapText(guiFont);
         hwsText.setSize(guiFont.getCharSet().getRenderedSize());
         hwsText.setText("HWS : " + hwSkinningEnable);
         hwsText.setLocalTranslation(0, cam.getHeight(), 0);
