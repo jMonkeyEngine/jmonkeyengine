@@ -99,13 +99,13 @@ public class CollideIgnoreTransformTest {
 
         rootNode.updateLogicalState(0.01f);
         rootNode.updateGeometricState();
-        /**
+        /*
          * ray in the -Z direction, starting from (0.5, 0.6, 10)
          */
         Ray ray1 = new Ray(/* origin */new Vector3f(0.5f, 0.6f, 10f),
                 /* direction */ new Vector3f(0f, 0f, -1f));
         castRay(ray1, 1);
-        /**
+        /*
          * ray in the -Z direction, starting from (0.5, 3, 10)
          */
         Ray ray0 = new Ray(/* origin */new Vector3f(0.5f, 3f, 10f),

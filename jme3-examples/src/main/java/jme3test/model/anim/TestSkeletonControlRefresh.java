@@ -31,12 +31,6 @@
  */
 package jme3test.model.anim;
 
-/**
- *
- * @author Nehon
- */
-
-
 import com.jme3.anim.AnimClip;
 import com.jme3.anim.AnimComposer;
 import com.jme3.anim.SkinningControl;
@@ -63,6 +57,9 @@ import com.jme3.shadow.DirectionalLightShadowFilter;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @author Nehon
+ */
 public class TestSkeletonControlRefresh extends SimpleApplication implements ActionListener{
 
     private final static int SIZE = 10;

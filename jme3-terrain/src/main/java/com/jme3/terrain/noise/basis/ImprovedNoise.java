@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2011, Novyon Events
  * 
  * All rights reserved.

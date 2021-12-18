@@ -174,7 +174,7 @@ public interface Terrain {
      */
     public int getTerrainSize();
 
-    /**
+    /*
      * Get the scale of the texture coordinates. Normally if the texture is
      * laid on the terrain and not scaled so that the texture does not repeat,
      * then each texture coordinate (on a vertex) will be 1/(terrain size).

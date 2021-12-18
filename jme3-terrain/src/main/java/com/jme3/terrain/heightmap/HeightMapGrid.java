@@ -36,11 +36,9 @@ import com.jme3.math.Vector3f;
 /**
  *
  * @author Anthyon
- */
-@Deprecated
-/**
  * @Deprecated in favor of TerrainGridTileLoader
  */
+@Deprecated
 public interface HeightMapGrid {
 
     public HeightMap getHeightMapAt(Vector3f location);

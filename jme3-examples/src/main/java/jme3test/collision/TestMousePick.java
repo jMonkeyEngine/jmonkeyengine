@@ -62,7 +62,7 @@ public class TestMousePick extends SimpleApplication {
         flyCam.setEnabled(false);
         initMark();
 
-        /** create four colored boxes and a floor to shoot at: */
+        /* Create four colored boxes and a floor to shoot at: */
         shootables = new Node("Shootables");
         rootNode.attachChild(shootables);
         shootables.attachChild(makeCube("a Dragon", -2f, 0f, 1f));

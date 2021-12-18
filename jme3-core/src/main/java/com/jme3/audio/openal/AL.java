@@ -235,7 +235,7 @@ public interface AL {
     public static final int AL_RENDERER = 0xB003;
     public static final int AL_EXTENSIONS = 0xB004;
 
-    /**
+    /*
      * Global tweakage.
      */
     /**

@@ -204,7 +204,7 @@ public class TestManyLightsSingle extends SimpleApplication {
         rootNode.addLight(al);
 
 
-        /**
+        /*
          * Write text on the screen (HUD)
          */
         guiNode.detachAllChildren();

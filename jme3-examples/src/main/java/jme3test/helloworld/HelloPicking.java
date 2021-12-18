@@ -69,7 +69,7 @@ public class HelloPicking extends SimpleApplication {
     initKeys();       // load custom key mappings
     initMark();       // a red sphere to mark the hit
 
-    /** create four colored boxes and a floor to shoot at: */
+    /* Create four colored boxes and a floor to shoot at: */
     shootables = new Node("Shootables");
     rootNode.attachChild(shootables);
     shootables.attachChild(makeCube("a Dragon", -2f, 0f, 1f));
