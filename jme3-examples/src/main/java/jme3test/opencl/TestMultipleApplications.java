@@ -146,7 +146,7 @@ public class TestMultipleApplications extends SimpleApplication {
         infoText.setText("Device: "+clContext.getDevices());
         infoText.setLocalTranslation(0, settings.getHeight(), 0);
         guiNode.attachChild(infoText);
-        statusText = new BitmapText(fnt, false);
+        statusText = new BitmapText(fnt);
         //statusText.setBox(new Rectangle(0, 0, settings.getWidth(), settings.getHeight()));
         statusText.setText("Running");
         statusText.setLocalTranslation(0, settings.getHeight() - infoText.getHeight() - 2, 0);
