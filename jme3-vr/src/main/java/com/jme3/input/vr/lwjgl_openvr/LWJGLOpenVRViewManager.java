@@ -120,10 +120,10 @@ public class LWJGLOpenVRViewManager extends AbstractVRViewManager {
         }
     }
 
-    @Override
     /**
      * updatePose can be called here because appstates are always called before the main renderer. This way we get the latest pose close to when it's supposed to render
      */
+    @Override
     public void render() {
         if (environment != null) {
             // grab the observer

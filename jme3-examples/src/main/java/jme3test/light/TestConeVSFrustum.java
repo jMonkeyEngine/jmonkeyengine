@@ -214,7 +214,7 @@ public class TestConeVSFrustum extends SimpleApplication {
                 }
             }
         }, "click", "middleClick", "shift");
-        /**
+        /*
          * An unshaded textured cube.
          * Uses texture from jme3-testdata library!
          */

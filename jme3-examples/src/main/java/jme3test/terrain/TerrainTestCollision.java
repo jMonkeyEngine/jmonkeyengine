@@ -140,7 +140,7 @@ public class TerrainTestCollision extends SimpleApplication {
         // if set to false, only the first collision is returned and collision is slightly faster.
         terrain.setSupportMultipleCollisions(true);
 
-        /**
+        /*
          * Create PhysicsRigidBodyControl for collision
          */
         terrain.addControl(new RigidBodyControl(0));

@@ -65,12 +65,12 @@ public class HelloAnimation extends SimpleApplication {
     viewPort.setBackgroundColor(ColorRGBA.LightGray);
     initKeys();
 
-    /** Add a light source so we can see the model */
+    /* Add a light source so we can see the model */
     DirectionalLight dl = new DirectionalLight();
     dl.setDirection(new Vector3f(-0.1f, -1f, -1).normalizeLocal());
     rootNode.addLight(dl);
 
-    /** Load a model that contains animation */
+    /* Load a model that contains animation */
     Node player = (Node) assetManager.loadModel("Models/Oto/Oto.mesh.xml");
     player.setLocalScale(0.5f);
     rootNode.attachChild(player);
@@ -96,7 +96,7 @@ public class HelloAnimation extends SimpleApplication {
    * Callback to indicate that the "advance" animation action has completed.
    */
   void onAdvanceDone() {
-    /**
+    /*
      * Play the "stand" animation action.
      */
     control.setCurrentAction("stand");

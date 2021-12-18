@@ -74,7 +74,7 @@ public class TestTangentCube extends SimpleApplication {
         aGeometry.rotate(FastMath.QUARTER_PI, FastMath.QUARTER_PI, 0.0f);
         rootNode.attachChild(aGeometry);
 
-        /**
+        /*
          * Must add a light to make the lit object visible!
          */
         PointLight aLight = new PointLight();

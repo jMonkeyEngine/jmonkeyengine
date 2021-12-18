@@ -123,7 +123,6 @@ public abstract class RagdollPreset {
         public JointPreset() {
         }
 
-        public JointPreset(float maxX, float minX, float maxY, float minY, float maxZ, float minZ) {
         /**
          * Instantiate a preset with the specified range of motion.
          *
@@ -134,6 +133,7 @@ public abstract class RagdollPreset {
          * @param maxZ the maximum rotation on the Z axis (in radians)
          * @param minZ the minimum rotation on the Z axis (in radians)
          */
+        public JointPreset(float maxX, float minX, float maxY, float minY, float maxZ, float minZ) {
             this.maxX = maxX;
             this.minX = minX;
             this.maxY = maxY;
@@ -172,13 +172,13 @@ public abstract class RagdollPreset {
             put(word.toLowerCase(), score);
         }
 
-        public int getScore(String word) {
         /**
          * Calculate a total score for the specified bone name.
          *
          * @param name the name of a bone (not null)
          * @return total score: larger value means more likely to correspond
          */
+        public int getScore(String word) {
             int score = 0;
             String searchWord = word.toLowerCase();
             for (String key : this.keySet()) {

@@ -194,7 +194,7 @@ public class TerrainTestAdvanced extends SimpleApplication {
          * Here we create the actual terrain. The tiles will be 65x65, and the total size of the
          * terrain will be 513x513. It uses the heightmap we created to generate the height values.
          */
-        /**
+        /*
          * Optimal terrain patch size is 65 (64x64).
          * The total size is up to you. At 1025, it ran fine for me (200+FPS), however at
          * size=2049 it got really slow. But that is a jump from 2 million to 8 million triangles...
