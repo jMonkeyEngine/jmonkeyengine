@@ -65,7 +65,7 @@ public class XMLExporter implements JmeExporter {
     @Override
     public void save(Savable object, OutputStream f) throws IOException {
         try {
-            //Initialize Document when saving so we don't retain state of previous exports
+            // Initialize the Document when saving, so we don't retain state of previous exports.
             this.domOut = new DOMOutputCapsule(DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument(), this);
             domOut.write(object, object.getClass().getName(), null);
             DOMSerializer serializer = new DOMSerializer();

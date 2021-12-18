@@ -116,7 +116,7 @@ public class TestBackgroundImage extends SimpleApplication {
     public void simpleUpdate(float timePerFrame) {
         /*
          * Since SimpleApplication is unaware of the background viewport,
-         * the application must explictly update its scenes.
+         * the application must explicitly update its scenes.
          */
         List<Spatial> scenes = backgroundViewport.getScenes();
         for (Spatial scene : scenes) {

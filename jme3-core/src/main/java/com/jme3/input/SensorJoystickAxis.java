@@ -33,7 +33,7 @@ package com.jme3.input;
 
 /**
  * Represents a joystick axis based on an external sensor
- * (ie. Android Device Orientation sensors)
+ * (i.e. Android Device Orientation sensors)
  * Sensor joystick axes can be calibrated to 
  * set the zero position dynamically
  * 

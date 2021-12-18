@@ -420,7 +420,7 @@ public class OpenVR implements VRAPI {
         // causing an invalid memory crash... skipping for now
         /*boolean hasEvent = false;
         while( JOpenVRLibrary.VR_IVRSystem_PollNextEvent(OpenVR.getVRSystemInstance(), tempEvent) != 0 ) {
-            // wait until the events are clear..
+            // Wait until the events are clear.
             hasEvent = true;
         }
         if( hasEvent ) {

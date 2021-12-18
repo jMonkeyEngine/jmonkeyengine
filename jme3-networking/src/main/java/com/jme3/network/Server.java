@@ -100,7 +100,7 @@ public interface Server
     public void broadcast( int channel, Filter<? super HostedConnection> filter, Message message );
 
     /**
-     *  Start the server so that it will began accepting new connections
+     *  Start the server so that it will begin accepting new connections
      *  and processing messages.
      */
     public void start();

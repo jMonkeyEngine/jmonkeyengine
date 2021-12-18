@@ -285,7 +285,7 @@ public class ShadowUtil {
         vars.release();
         Vector3f center = min.add(max).multLocal(0.5f);
         Vector3f extent = max.subtract(min).multLocal(0.5f);
-        //Nehon 08/18/2010 : Added an offset to the extend to avoid banding artifacts when the frustum are aligned
+        //Nehon 08/18/2010 : Added an offset to the extend, to avoid banding artifacts when the frustums are aligned.
         return new BoundingBox(center, extent.x + 2.0f, extent.y + 2.0f, extent.z + 2.5f);
     }
 

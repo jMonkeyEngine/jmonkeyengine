@@ -74,12 +74,12 @@ public class OSVRInput implements VRInputAPI {
     }
 
     /**
-     * The left hand system String.
+     * The left-hand system String.
      */
     public static byte[] leftHand = { '/', 'm', 'e', '/', 'h', 'a', 'n', 'd', 's', '/', 'l', 'e', 'f', 't', (byte)0 };
 
     /**
-     * The right hand system String.
+     * The right-hand system String.
      */
     public static byte[] rightHand = { '/', 'm', 'e', '/', 'h', 'a', 'n', 'd', 's', '/', 'r', 'i', 'g', 'h', 't', (byte)0 };
 

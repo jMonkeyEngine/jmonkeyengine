@@ -43,7 +43,7 @@ public class ShaderVariable {
 
     /**
      * Name of the uniform as was declared in the shader.
-     * E.g name = "g_WorldMatrix" if the declaration was
+     * E.g. name = "g_WorldMatrix" if the declaration was
      * "uniform mat4 g_WorldMatrix;".
      */
     protected String name = null;

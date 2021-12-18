@@ -68,7 +68,7 @@ public class Surface extends Mesh {
      * @param vSegments the amount of V segments
      * @param basisUFunctionDegree the degree of basis U function
      * @param basisVFunctionDegree the degree of basis V function
-     * @param smooth defines if the mesu should be smooth (true) or flat (false)
+     * @param smooth defines if the mesh should be smooth (true) or flat (false)
      */
     private Surface(List<List<Vector4f>> controlPoints, List<Float>[] nurbKnots, int uSegments, int vSegments, int basisUFunctionDegree, int basisVFunctionDegree, boolean smooth) {
         this.validateInputData(controlPoints, nurbKnots, uSegments, vSegments);
@@ -127,7 +127,7 @@ public class Surface extends Mesh {
     /**
      * This method creates the surface.
      * @param smooth
-     *            defines if the mesu should be smooth (true) or flat (false)
+     *            defines if the mesh should be smooth (true) or flat (false)
      */
     private void buildSurface(boolean smooth) {
         float minUKnot = this.getMinUNurbKnot();

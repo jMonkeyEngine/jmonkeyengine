@@ -558,7 +558,6 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
      * has additional indexes since tangent has 4 components instead of 3 for
      * pos and norm
      *
-     * @param maxWeightsPerVert maximum number of weights per vertex
      * @param mesh the mesh
      * @param offsetMatrices the offset matrices to apply
      * @param tb the tangent vertexBuffer
@@ -616,7 +615,7 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
             ftb.get(tanBuf, 0, tanLength);
             int verts = bufLength / 3;
             int idxPositions = 0;
-            //tangents has their own index because of the 4 components
+            // Tangents have their own index because they have 4 components.
             int idxTangents = 0;
 
             // iterate vertices and apply skinning transform for each effecting bone

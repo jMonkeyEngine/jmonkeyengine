@@ -477,7 +477,7 @@ public class Node extends Spatial {
     }
 
     /**
-     * More efficient than e.g detaching and attaching as no updates are needed.
+     * More efficient than e.g. detaching and attaching, as no updates are needed.
      *
      * @param index1 The index of the first child to swap
      * @param index2 The index of the second child to swap
@@ -502,7 +502,7 @@ public class Node extends Spatial {
 
     /**
      * <code>getChild</code> returns the first child found with exactly the
-     * given name (case sensitive.) This method does a depth first recursive
+     * given name (case-sensitive). This method does a depth-first recursive
      * search of all descendants of this node, it will return the first spatial
      * found with a matching name.
      *
@@ -584,7 +584,7 @@ public class Node extends Spatial {
         // The idea is when there are few children,
         // it can be too expensive to test boundingVolume first.
         /*
-        I'm removing this change until some issues can be addressed and I really
+        I'm removing this change until some issues can be addressed, and I really
         think it needs to be implemented a better way anyway.
         First, it causes issues for anyone doing collideWith() with BoundingVolumes
         and expecting it to trickle down to the children.  For example, children
@@ -600,10 +600,10 @@ public class Node extends Spatial {
         all of that calculation.  For example, if 'other' is also a BoundingVolume (ie: 99.9%
         of all non-Ray cases) then a direct BV to BV intersects() test can be done.  So much
         faster.  And if 'other' _is_ a Ray then the BV.intersects(Ray) call can be done.
-        I don't have time to do it right now but I'll at least un-break a bunch of peoples'
+        I don't have time to do it right now, but I'll at least un-break a bunch of people's
         code until it can be 'optimized' properly.  Hopefully it's not too late to back out
         the other dodgy ripples this caused.  -pspeed (hindsight-expert ;))
-        Note: the code itself is relatively simple to implement but I don't have time to
+        Note: the code itself is relatively simple to implement, but I don't have time to
         a) test it, and b) see if '> 4' is still a decent check for it.  Could be it's fast
         enough to do all the time for > 1.
         if (children.size() > 4)

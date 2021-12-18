@@ -54,7 +54,7 @@ import com.jme3.system.AppSettings;
  * <p>
  * Note that for testing, it may be helpful to bypass the test chooser and run
  * this class directly, since it can be easier to define your own settings
- * beforehand. Of course, it should still workif all you need to test is the
+ * beforehand. Of course, it should still work if all you need to test is the
  * gamma correction, as long as you enable it in the settings dialog.
  * </p>
  *

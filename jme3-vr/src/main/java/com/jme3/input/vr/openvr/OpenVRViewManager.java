@@ -639,7 +639,7 @@ public class OpenVRViewManager extends AbstractVRViewManager {
     }
 
     /**
-     * Setup a distortion mesh for the stereo view.
+     * Set up a distortion mesh for the stereo view.
      * @param eye the eye to apply.
      * @param api the underlying VR api
      * @return the distorted mesh.
@@ -695,7 +695,7 @@ public class OpenVRViewManager extends AbstractVRViewManager {
             }
         }
 
-        // have UV coordinates & positions, now to setup indices
+        // have UV coordinates & positions, now set up indices
 
         int[] indices = new int[(int) ((m_iLensGridSegmentCountV - 1) * (m_iLensGridSegmentCountH - 1)) * 6];
         int indexPos = 0;

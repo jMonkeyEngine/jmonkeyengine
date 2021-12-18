@@ -225,8 +225,8 @@ public abstract class Serializer {
     }
     
     /**
-     *  Registers the specified class. The failOnMiss flag controls whether or
-     *  not this method returns null for failed registration or throws an exception.
+     *  Registers the specified class. The failOnMiss flag controls whether
+     *  this method returns null for failed registration or throws an exception.
      */
     @SuppressWarnings("unchecked")
     public static SerializerRegistration registerClass(Class cls, boolean failOnMiss) {

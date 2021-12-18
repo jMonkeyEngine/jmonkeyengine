@@ -517,7 +517,7 @@ public class RenderManager {
      * True if the translucent bucket should automatically be rendered
      * by the RenderManager.
      *
-     * @return Whether or not the translucent bucket is rendered.
+     * @return true if the translucent bucket is rendered
      *
      * @see #setHandleTranslucentBucket(boolean)
      */
@@ -530,8 +530,7 @@ public class RenderManager {
      * {@link Bucket#Translucent translucent bucket}
      * by the RenderManager. The default is enabled.
      *
-     * @param handleTranslucentBucket Whether or not the translucent bucket should
-     *     be rendered.
+     * @param handleTranslucentBucket true to render the translucent bucket
      */
     public void setHandleTranslucentBucket(boolean handleTranslucentBucket) {
         this.handleTranslucentBucket = handleTranslucentBucket;
@@ -610,9 +609,9 @@ public class RenderManager {
 
         Material material = geom.getMaterial();
 
-        //if forcedTechnique we try to force it for render,
-        //if it does not exists in the mat def, we check for forcedMaterial and render the geom if not null
-        //else the geom is not rendered
+        // If forcedTechnique exists, we try to force it for the render.
+        // If it does not exist in the mat def, we check for forcedMaterial and render the geom if not null.
+        // Otherwise, the geometry is not rendered.
         if (forcedTechnique != null) {
             MaterialDef matDef = material.getMaterialDef();
             if (matDef.getTechniqueDefs(forcedTechnique) != null) {
@@ -639,8 +638,8 @@ public class RenderManager {
                 forcedRenderState = tmpRs;
 
                 //Reverted this part from revision 6197
-                //If forcedTechnique does not exists, and forcedMaterial is not set,
-                //the geom MUST NOT be rendered
+                // If forcedTechnique does not exist and forcedMaterial is not set,
+                // the geometry MUST NOT be rendered.
             } else if (forcedMaterial != null) {
                 // use forced material
                 forcedMaterial.render(geom, lightList, this);
@@ -811,7 +810,7 @@ public class RenderManager {
     /**
      * Flushes the ViewPort's {@link ViewPort#getQueue() render queue}
      * by rendering each of its visible buckets.
-     * By default the queues will automatically be cleared after rendering,
+     * By default, the queues will be cleared automatically after rendering,
      * so there's no need to clear them manually.
      *
      * @param vp The ViewPort of which the queue will be flushed
@@ -905,7 +904,7 @@ public class RenderManager {
      * on the queue. Makes sure to restore the depth range to [0, 1]
      * at the end of the call.
      * Note that the {@link Bucket#Translucent translucent bucket} is NOT
-     * rendered by this method. Instead the user should call
+     * rendered by this method. Instead, the user should call
      * {@link #renderTranslucentQueue(com.jme3.renderer.ViewPort) }
      * after this call.
      *

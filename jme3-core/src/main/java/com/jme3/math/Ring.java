@@ -35,7 +35,7 @@ import com.jme3.export.*;
 import java.io.IOException;
 
 /**
- * <code>Ring</code> defines a flat ring or disk within three dimensional
+ * <code>Ring</code> defines a flat ring or disc in three-dimensional
  * space that is specified via the ring's center point, an up vector, an inner
  * radius, and an outer radius.
  *

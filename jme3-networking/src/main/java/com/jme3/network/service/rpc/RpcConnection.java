@@ -117,7 +117,7 @@ public class RpcConnection {
             log.log(Level.FINEST, "Sending:{0}  on channel:{1}", new Object[]{msg, channel});
         }
         
-        // Prevent non-async messages from being send as UDP
+        // Prevent non-async messages from being sent as UDP
         // because there is a high probability that this would block
         // forever waiting for a response.  For async calls it's ok
         // so it doesn't do the check.

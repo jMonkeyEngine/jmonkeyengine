@@ -74,7 +74,7 @@ public final class PssmShadowUtil {
             splits[i] = log * lambda + uniform * (1.0f - lambda);
         }
 
-        // This is used to improve the correctness of the calculations. Our main near- and farplane
+        // This is used to improve the correctness of the calculations. The near and far planes
         // of the camera always stay the same, no matter what happens.
         splits[0] = near;
         splits[splits.length - 1] = far;

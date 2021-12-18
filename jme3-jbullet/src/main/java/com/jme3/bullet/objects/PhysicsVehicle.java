@@ -214,8 +214,8 @@ public class PhysicsVehicle extends PhysicsRigidBody {
      * Use before adding wheels, this is the default used when adding wheels.
      * After adding the wheel, use direct wheel access.<br>
      * The coefficient of friction between the tyre and the ground.
-     * Should be about 0.8 for realistic cars, but can increased for better handling.
-     * Set large (10000.0) for kart racers
+     * Should be about 0.8 for realistic cars, but can be increased for better handling.
+     * Set large (10000.0) for kart racers.
      * @param frictionSlip the frictionSlip to set
      */
     public void setFrictionSlip(float frictionSlip) {
@@ -224,8 +224,8 @@ public class PhysicsVehicle extends PhysicsRigidBody {
 
     /**
      * The coefficient of friction between the tyre and the ground.
-     * Should be about 0.8 for realistic cars, but can increased for better handling.
-     * Set large (10000.0) for kart racers
+     * Should be about 0.8 for realistic cars, but can be increased for better handling.
+     * Set large (10000.0) for kart racers.
      *
      * @param wheel the index of the wheel to modify (&ge;0, &lt;count)
      * @param frictionSlip the desired coefficient of friction between tyre and

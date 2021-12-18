@@ -69,7 +69,7 @@ public class Spline implements Savable {
      *
      * @param splineType the type of the spline @see {SplineType}
      * @param controlPoints an array of vector to use as control points of the spline
-     * If the type of the curve is Bezier curve the control points should be provided
+     * If the type of the curve is Bézier curve the control points should be provided
      * in the appropriate way. Each point 'p' describing control position in the scene
      * should be surrounded by two handler points. This applies to every point except
      * for the border points of the curve, who should have only one handle point.
@@ -99,7 +99,7 @@ public class Spline implements Savable {
      *
      * @param splineType the type of the spline @see {SplineType}
      * @param controlPoints a list of vector to use as control points of the spline
-     * If the curve is a Bezier curve, the control points should be provided
+     * If the curve is a Bézier curve, the control points should be provided
      * in the appropriate way. Each point 'p' describing control position in the scene
      * should be surrounded by two handler points. This applies to every point except
      * for the border points of the curve, who should have only one handle point.
@@ -256,7 +256,7 @@ public class Spline implements Savable {
     }
 
     /**
-     * This method calculates the Bezier curve length.
+     * This method calculates the Bézier curve length.
      */
     private void computeBezierLength() {
         float l = 0;

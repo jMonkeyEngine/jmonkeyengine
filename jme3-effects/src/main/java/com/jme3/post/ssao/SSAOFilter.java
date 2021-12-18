@@ -285,7 +285,7 @@ public class SSAOFilter extends Filter {
 
     /**
      * debugging only , will be removed
-     * @return Whether or not
+     * @return true if using ambient occlusion
      */
     public boolean isUseAo() {
         return useAo;

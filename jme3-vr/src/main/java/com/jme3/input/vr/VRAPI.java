@@ -63,7 +63,7 @@ public interface VRAPI {
 
     /**
      * Get the Head Mounted Device (HMD) display frequency.
-     * @return the Head Mounted DEvice (HMD) display frequency.
+     * @return the Head Mounted Device (HMD) display frequency.
      */
     public int getDisplayFrequency();
 

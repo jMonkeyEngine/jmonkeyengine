@@ -47,9 +47,9 @@ import java.util.logging.Logger;
  *  Holds a compiled set of message registration information that
  *  can be sent over the wire.  The received message can then be
  *  used to register all of the classes using the same IDs and 
- *  same ordering, etc..  The intent is that the server compiles
+ *  same ordering, etcetera.  The intent is that the server compiles
  *  this message once it is sure that all serializable classes have
- *  been registered.  It can then send this to each new client and
+ *  been registered.  It can then send this to each new client, and
  *  they can use it to register all of the classes without requiring
  *  exactly reproducing the same calls that the server did to register
  *  messages.
@@ -69,7 +69,7 @@ public class SerializerRegistrationsMessage extends AbstractMessage {
 
     public static final Set<Class> ignore = new HashSet<Class>();
     static {
-        // We could build this automatically but then we
+        // We could build this automatically, but then we
         // risk making a client and server out of date simply because
         // their JME versions are out of date.
         ignore.add(Boolean.class);
@@ -168,7 +168,7 @@ public class SerializerRegistrationsMessage extends AbstractMessage {
             // assume that if the registry was compiled here then it means
             // we are also the server process.  Note that this wouldn't hold true
             // under complicated examples where there are clients of one server
-            // that also run their own servers but realistically they would have
+            // that also run their own servers, but realistically they would have
             // to disable the ServerSerializerRegistrationsServer anyway.
             if( compiled != null ) {
                 log.log(Level.INFO, "Skipping registration as registry is locked, presumably by a local server process.");

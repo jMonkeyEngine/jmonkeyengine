@@ -51,8 +51,8 @@ import com.jme3.ui.Picture;
  *
  * Simple Water renders a simple plane that use reflection and refraction to look like water.
  * It's pretty basic, but much faster than the WaterFilter
- * It's useful if you aim for low specs hardware and still want a good looking water.
- * Usage is :
+ * It's useful if you aim for low specs hardware and still want good-looking water.
+ * Usage is:
  * <code>
  *      SimpleWaterProcessor waterProcessor = new SimpleWaterProcessor(assetManager);
  *      //setting the scene to use for reflection

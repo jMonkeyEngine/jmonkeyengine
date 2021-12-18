@@ -104,7 +104,7 @@ public class RmiHostedService extends AbstractHostedService {
     /**
      *  Shares a server-wide object associated with the specified type.  All connections
      *  with RMI hosting started will have access to this shared object as soon as they 
-     *  connect and they will all share the same instance.  It is up to the shared object 
+     *  connect, and they will all share the same instance.  It is up to the shared object
      *  to handle any multithreading that might be required.
      */     
     public <T> void shareGlobal( T object, Class<? super T> type ) {
@@ -114,7 +114,7 @@ public class RmiHostedService extends AbstractHostedService {
     /**
      *  Shares a server-wide object associated with the specified name.  All connections
      *  with RMI hosting started will have access to this shared object as soon as they 
-     *  connect and they will all share the same instance.  It is up to the shared object 
+     *  connect, and they will all share the same instance.  It is up to the shared object
      *  to handle any multithreading that might be required.
      */     
     public <T> void shareGlobal( String name, T object, Class<? super T> type ) {
@@ -124,7 +124,7 @@ public class RmiHostedService extends AbstractHostedService {
     /**
      *  Shares a server-wide object associated with the specified name over the specified
      *  channel.  All connections with RMI hosting started will have access to this shared 
-     *  object as soon as they connect and they will all share the same instance.  It is up 
+     *  object as soon as they connect, and they will all share the same instance.  It is up
      *  to the shared object to handle any multithreading that might be required.
      *  All network communication associated with the shared object will be done over
      *  the specified channel. 
@@ -133,7 +133,7 @@ public class RmiHostedService extends AbstractHostedService {
         GlobalShare share = new GlobalShare(channel, object, type);
         GlobalShare existing = globalShares.put(name, share);
         if( existing != null ) {
-            // Shouldn't need to do anything actually.
+            // Shouldn't need to do anything, actually.
         }
         
         // Go through all of the children
@@ -152,8 +152,8 @@ public class RmiHostedService extends AbstractHostedService {
      *  after some connection setup is done (for example, logging in).  Note: generally
      *  is safe to autohost RMI as long as callers are careful about what they've added
      *  using shareGlobal().  One reasonable use-case is to shareGlobal() some kind of login
-     *  service and nothing else.  All other shared objects would then be added as connection
-     *  specific objects during successful login processing. 
+     *  service and nothing else.  All other shared objects would then be added as
+     *  connection-specific objects during successful login processing.
      */
     public void setAutoHost( boolean b ) {
         this.autoHost = b;

@@ -49,9 +49,9 @@ import java.util.*;
  * This class is here to be able to load shaderNodeDefinition from both the
  * J3MLoader and ShaderNodeDefinitionLoader.
  *
- * Also it allows to load the ShaderNodes from a j3md file and build the
+ * It also allows loading shader nodes from a j3md file and building the
  * ShaderNodes list of each technique and the ShaderGenerationInfo needed to
- * generate shaders
+ * generate shaders.
  *
  * @author Nehon
  */
@@ -132,7 +132,7 @@ public class ShaderNodeLoaderDelegate {
      * ShaderNodesDefinition This method is used by the j3m loader.
      *
      * When loaded in a material, the definitions are not stored as a list, but
-     * they are stores in Shadernodes based on this definition.
+     * they are stored in shader nodes based on this definition.
      *
      * The map is here to map the definition to the nodes, and ovoid reloading
      * already loaded definitions
@@ -1051,8 +1051,8 @@ public class ShaderNodeLoaderDelegate {
 
         declaredVar.addNode(shaderNode);
 
-        // if a variable is declared with the same name as an input and an output and is a varying,
-        // set it as a shader output so it's declared as a varying only once.
+        // If a variable is declared with the same name as an input and an output and is a varying,
+        // set it as a shader output, so it's declared as a varying only once.
         for (final VariableMapping variableMapping : node.getInputMapping()) {
             final ShaderNodeVariable leftVariable = variableMapping.getLeftVariable();
             if (leftVariable.getName().equals(variable.getName())) {

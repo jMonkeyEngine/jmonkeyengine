@@ -75,25 +75,25 @@ public final class Shader extends NativeObject {
     public static enum ShaderType {
 
         /**
-         * Control fragment rasterization. (e.g color of pixel).
+         * Control fragment rasterization. (e.g. color of pixel).
          */
         Fragment("frag"),
         /**
-         * Control vertex processing. (e.g transform of model to clip space)
+         * Control vertex processing. (e.g. transform of model to clip space)
          */
         Vertex("vert"),
         /**
-         * Control geometry assembly. (e.g compile a triangle list from input
+         * Control geometry assembly. (e.g. compile a triangle list from input
          * data)
          */
         Geometry("geom"),
         /**
-         * Controls tessellation factor (e.g how often an input patch should be
+         * Controls tessellation factor (e.g. how often an input patch should be
          * subdivided)
          */
         TessellationControl("tsctrl"),
         /**
-         * Controls tessellation transform (e.g similar to the vertex shader, but
+         * Controls tessellation transform (e.g. similar to the vertex shader, but
          * required to mix inputs manual)
          */
         TessellationEvaluation("tseval");

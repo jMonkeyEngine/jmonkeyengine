@@ -49,7 +49,7 @@ public interface ParticleInfluencer extends Savable, Cloneable, JmeCloneable {
      * @param particle
      *        particle to be influenced
      * @param emitterShape
-     *        the shape of it emitter
+     *        the shape of its emitter
      */
     void influenceParticle(Particle particle, EmitterShape emitterShape);
 

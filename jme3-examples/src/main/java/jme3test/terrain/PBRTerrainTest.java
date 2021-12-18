@@ -77,7 +77,7 @@ import com.jme3.texture.Texture.WrapMode;
  * jme3-testdata/src/main/resources/Textures/Terrain/PBR
  *
  * <p>
- * Notes: (as of 12 April, 2021)
+ * Notes: (as of 12 April 2021)
  * <ol>
  * <li>
  * This shader is subject to the GLSL max limit of 16 textures, and users should
@@ -129,7 +129,7 @@ public class PBRTerrainTest extends SimpleApplication {
                     matTerrain.setBoolean("useTriPlanarMapping", true);
                     // Tri-planar textures don't use the mesh's texture coordinates but real world coordinates,
                     // so we need to convert these texture coordinate scales into real world scales so it looks
-                    // the same when we switch to/from tr-planar mode.
+                    // the same when we switch to/from tri-planar mode.
                     matTerrain.setFloat("AlbedoMap_0_scale", (dirtScale / terrainSize));
                     matTerrain.setFloat("AlbedoMap_1_scale", (darkRockScale / terrainSize));
                     matTerrain.setFloat("AlbedoMap_2_scale", (snowScale / terrainSize));

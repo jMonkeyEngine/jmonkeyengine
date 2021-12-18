@@ -182,7 +182,7 @@ public class SkinningControl extends AbstractControl implements Cloneable, JmeCl
 
     /**
      * Specifies if hardware skinning is preferred. If it is preferred and
-     * supported by GPU, it shall be enabled, if its not preferred, or not
+     * supported by GPU, it shall be enabled.  If it's not preferred, or not
      * supported by GPU, then it shall be disabled.
      *
      * @param preferred true to prefer hardware skinning, false to prefer 
@@ -619,7 +619,7 @@ public class SkinningControl extends AbstractControl implements Cloneable, JmeCl
             ftb.get(tanBuf, 0, tanLength);
             int verts = bufLength / 3;
             int idxPositions = 0;
-            //tangents has their own index because of the 4 components
+            // Tangents have their own index because they have 4 components.
             int idxTangents = 0;
 
             // iterate vertices and apply skinning transform for each effecting bone

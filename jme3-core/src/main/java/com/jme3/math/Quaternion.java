@@ -988,8 +988,8 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      * <code>fromAxes</code> creates a <code>Quaternion</code> that
      * represents the coordinate system defined by three axes. These axes are
      * assumed to be orthogonal and no error checking is applied. Thus, the user
-     * must insure that the three axes being provided indeed represents a proper
-     * right handed coordinate system.
+     * must ensure that the three axes being provided represent a proper
+     * right-handed coordinate system.
      *
      * @param axis
      *            the array containing the three vectors representing the
@@ -1009,8 +1009,8 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      * <code>fromAxes</code> creates a <code>Quaternion</code> that
      * represents the coordinate system defined by three axes. These axes are
      * assumed to be orthogonal and no error checking is applied. Thus, the user
-     * must insure that the three axes being provided indeed represents a proper
-     * right handed coordinate system.
+     * must ensure that the three axes being provided represent a proper
+     * right-handed coordinate system.
      *
      * @param xAxis vector representing the x-axis of the coordinate system.
      * @param yAxis vector representing the y-axis of the coordinate system.

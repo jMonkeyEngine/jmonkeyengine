@@ -212,7 +212,7 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
     }
 
     /**
-     * @return true if need to try to use direction light from a scene.
+     * @return true to try using directional light from a scene
      */
     protected boolean useDirectionLightFromScene() {
         return true;
