@@ -35,7 +35,7 @@ import com.jme3.export.*;
 import java.io.IOException;
 
 /**
- * <code>Rectangle</code> defines a finite plane within three dimensional space
+ * <code>Rectangle</code> defines a finite plane within three-dimensional space
  * that is specified via three points (A, B, C). These three points define a
  * triangle with the fourth point defining the rectangle (B + C) - A.
  *

@@ -46,7 +46,7 @@ import com.jme3.system.MockJmeSystemDelegate;
 import org.junit.Test;
 
 /**
- * Verify that collideWith() doesn't reports collisions with phantom triangles.
+ * Verify that collideWith() doesn't report collisions with phantom triangles.
  * This was issue #710 at GitHub.
  *
  * @author Stephen Gold

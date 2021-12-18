@@ -89,7 +89,7 @@ public final class SinglePassLightingLogic extends DefaultTechniqueDefLogic {
      * <p>
      * <code>uniform vec4 g_LightColor[numLights];</code><br> //
      * g_LightColor.rgb is the diffuse/specular color of the light.<br> //
-     * g_Lightcolor.a is the type of light, 0 = Directional, 1 = Point, <br> //
+     * g_LightColor.a is the type of light, 0 = Directional, 1 = Point, <br> //
      * 2 = Spot. <br> <br>
      * <code>uniform vec4 g_LightPosition[numLights];</code><br> //
      * g_LightPosition.xyz is the position of the light (for point lights)<br>

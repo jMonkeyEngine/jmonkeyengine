@@ -51,7 +51,7 @@ import javax.swing.*;
 
 /**
  * <code>SettingsDialog</code> displays a Swing dialog box to interactively
- * configure the <code>AppSettings</code> of a desktop application betore
+ * configure the <code>AppSettings</code> of a desktop application before
  * <code>start()</code> is invoked.
  *
  * The <code>AppSettings</code> instance to be configured is passed to the

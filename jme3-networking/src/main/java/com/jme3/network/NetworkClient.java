@@ -53,7 +53,7 @@ public interface NetworkClient extends Client
     /**
      *  Connects this client to the specified remote server and ports.
      *  
-     *  @param address  The hosts internet address.
+     *  @param address  The host's Internet address.
      *  @param port  The remote TCP port on the server to which this client should
      *                  send reliable messages. 
      *  @param remoteUdpPort  The remote UDP port on the server to which this client should

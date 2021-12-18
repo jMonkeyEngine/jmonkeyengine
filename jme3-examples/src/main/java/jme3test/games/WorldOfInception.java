@@ -244,7 +244,7 @@ public class WorldOfInception extends SimpleApplication implements AnalogListene
             }
 
             AppStateManager stateManager = application.getStateManager();
-            // We create child positions based on the parent position hash so we
+            // We create child positions based on the parent position hash, so we
             // should in practice get the same galaxy w/o too many doubles
             // with each run with the same root vector.
             Vector3f[] vectors = getPositions(poiCount, inParentPosition.hashCode());
@@ -276,7 +276,7 @@ public class WorldOfInception extends SimpleApplication implements AnalogListene
                     currentReturnLevel = this;
                     return;
                 } else if (currentActiveChild != null && currentActiveChild.getPositionInParent().equals(vector3f)) {
-                    //TODO: doing this here causes problems when close to multiple pois
+                    //TODO: doing this here causes problems when close to multiple POIs
                     rootNode.getChild(i).setCullHint(Spatial.CullHint.Inherit);
                 }
             }

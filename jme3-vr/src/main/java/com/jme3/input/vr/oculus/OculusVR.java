@@ -44,7 +44,7 @@ public class OculusVR implements VRAPI {
 
     /**
      * Information about the VR session (should the app quit, is
-     * it visible or is the universal menu open, etc)
+     * it visible or is the universal menu open, etcetera)
      */
     private OVRSessionStatus sessionStatus;
 

@@ -50,9 +50,9 @@ import java.util.LinkedList;
 /**
  * <i>From bullet manual:</i><br>
  * This generic constraint can emulate a variety of standard constraints,
- * by configuring each of the 6 degrees of freedom (dof).
- * The first 3 dof axis are linear axis, which represent translation of rigidbodies,
- * and the latter 3 dof axis represent the angular motion. Each axis can be either locked,
+ * by configuring each of the 6 degrees of freedom (DOF).
+ * The first 3 DOF axes are linear axes, which represent translation of rigid bodies,
+ * and the latter 3 DOF axes represent the angular motion. Each axis can be either locked,
  * free or limited. On construction of a new btGeneric6DofConstraint, all axis are locked.
  * Afterwards the axis can be reconfigured. Note that several combinations that
  * include free and/or limited angular degrees of freedom are undefined.

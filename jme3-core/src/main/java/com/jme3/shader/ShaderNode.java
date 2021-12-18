@@ -39,7 +39,7 @@ import java.util.List;
 
 /**
  * A ShaderNode is the unit brick part of a shader program. A shader can be
- * describe with several shader nodes that are plugged together through inputs
+ * described by several shader nodes that are plugged together through inputs
  * and outputs.
  *
  * A ShaderNode is based on a definition that has a shader code, inputs and

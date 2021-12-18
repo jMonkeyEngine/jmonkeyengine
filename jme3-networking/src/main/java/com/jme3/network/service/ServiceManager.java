@@ -39,7 +39,7 @@ import java.util.logging.Logger;
 
 /**
  *  The base service manager class from which the HostedServiceManager
- *  and ClientServiceManager classes are derived.  This manages the
+ *  and ClientServiceManager classes are derived.  This manages
  *  the underlying services and their life cycles.
  *
  *  @author    Paul Speed
@@ -157,7 +157,7 @@ public abstract class ServiceManager<T> {
  
     /**
      *  Terminates all services.  If the service manager has not been
-     *  stopped yet then it will be stopped.
+     *  stopped yet, then it will be stopped.
      */
     public void terminate() {
         if( started ) {

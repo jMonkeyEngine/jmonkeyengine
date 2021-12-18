@@ -423,7 +423,7 @@ public class SceneLoader extends DefaultHandler implements AssetLoader {
             if (elementStack.peek().equals("environment")) {
                 ColorRGBA color = parseColor(attribs);
                 if (!color.equals(ColorRGBA.Black) && !color.equals(ColorRGBA.BlackNoAlpha)) {
-                    // Lets add an ambient light to the scene.
+                    // Let's add an ambient light to the scene.
                     AmbientLight al = new AmbientLight();
                     al.setColor(color);
                     root.addLight(al);
@@ -454,7 +454,7 @@ public class SceneLoader extends DefaultHandler implements AssetLoader {
             node = cameraNode.getParent();
             cameraNode = null;
         } else if (qName.equals("light")) {
-            // apply the node's world transform on the light..
+            // Apply the node's world transform to the light.
             root.updateGeometricState();
             if (light != null) {
                 if (light instanceof DirectionalLight) {

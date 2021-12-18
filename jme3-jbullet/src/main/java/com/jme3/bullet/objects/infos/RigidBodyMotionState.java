@@ -67,7 +67,7 @@ public class RigidBodyMotionState extends MotionState {
     }
 
     /**
-     * called from bullet when creating the rigidbody
+     * Called from Bullet when creating the rigid body.
      * @param t caller-provided storage for the Transform
      * @return t
      */
@@ -78,7 +78,7 @@ public class RigidBodyMotionState extends MotionState {
     }
 
     /**
-     * called from bullet when the transform of the rigidbody changes
+     * Called from Bullet when the transform of the rigid body changes.
      *
      * @param worldTrans the new value (not null, unaffected)
      */

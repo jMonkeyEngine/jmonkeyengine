@@ -70,7 +70,7 @@ public class RpcClientService extends AbstractClientService {
     }
 
     /**
-     *  Used internally to setup the RpcConnection and MessageDelegator.
+     *  Used internally to set up the RpcConnection and MessageDelegator.
      */
     @Override
     @SuppressWarnings("unchecked")

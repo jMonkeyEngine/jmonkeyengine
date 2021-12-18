@@ -94,7 +94,7 @@ public class RpcHostedService extends AbstractHostedConnectionService {
     }
 
     /**
-     *  Used internally to setup the message delegator that will
+     *  Used internally to set up the message delegator that will
      *  handle HostedConnection specific messages and forward them
      *  to that connection's RpcConnection.
      */

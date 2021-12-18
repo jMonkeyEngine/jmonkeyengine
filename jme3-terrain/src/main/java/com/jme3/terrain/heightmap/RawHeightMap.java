@@ -106,7 +106,7 @@ public class RawHeightMap extends AbstractHeightMap {
     }
 
     public RawHeightMap(URL resource, int size, int format, boolean swapxy) throws Exception {
-        // varify that resource and size are valid.
+        // Verify that resource and size are valid.
         if (null == resource || size <= 0) {
             throw new Exception("Must supply valid resource and "
                     + "size (> 0)");
@@ -121,7 +121,7 @@ public class RawHeightMap extends AbstractHeightMap {
     }
 
     private void setup(InputStream stream, int size, int format, boolean swapxy) throws Exception {
-        // varify that filename and size are valid.
+        // Verify that filename and size are valid.
         if (null == stream || size <= 0) {
             throw new Exception("Must supply valid stream and "
                     + "size (> 0)");

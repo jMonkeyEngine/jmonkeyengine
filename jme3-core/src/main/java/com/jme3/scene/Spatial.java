@@ -193,8 +193,8 @@ public abstract class Spatial implements Savable, Cloneable, Collidable,
     }
 
     /**
-     * Constructor instantiates a new <code>Spatial</code> object setting the
-     * rotation, translation and scale value to defaults.
+     * Constructor instantiates a new <code>Spatial</code> object, setting the
+     * rotation, translation, and scale values to their defaults.
      *
      * @param name
      *            the name of the scene element. This is required for
@@ -259,9 +259,9 @@ public abstract class Spatial implements Savable, Cloneable, Collidable,
         // override (which would be more correct) is because the flag provides
         // some flexibility in how we break subclasses.  A protected method
         // would require that all subclasses that required updates need implement
-        // this method or they would silently stop processing updates.  A flag
+        // this method, or they would silently stop processing updates.  A flag
         // lets us set a default when a subclass is detected that is different
-        // than the internal "more efficient" default.
+        // from the internal "more efficient" default.
         // Spatial's default is 'true' for this flag requiring subclasses to
         // override it for more optimal behavior.  Node and Geometry will override
         // it to false if the class is Node.class or Geometry.class.
@@ -776,8 +776,8 @@ public abstract class Spatial implements Savable, Cloneable, Collidable,
         controls.add(control);
         control.setSpatial(this);
         boolean after = requiresUpdates();
-        // If the requirement to be updated has changed
-        // then we need to let the parent node know so it
+        // If the requirement to be updated has changed,
+        // then we need to let the parent node know, so it
         // can rebuild its update list.
         if (parent != null && before != after) {
             parent.invalidateUpdateList();
@@ -800,8 +800,8 @@ public abstract class Spatial implements Savable, Cloneable, Collidable,
             }
         }
         boolean after = requiresUpdates();
-        // If the requirement to be updated has changed
-        // then we need to let the parent node know so it
+        // If the requirement to be updated has changed,
+        // then we need to let the parent node know, so it
         // can rebuild its update list.
         if (parent != null && before != after) {
             parent.invalidateUpdateList();
@@ -825,8 +825,8 @@ public abstract class Spatial implements Savable, Cloneable, Collidable,
         }
 
         boolean after = requiresUpdates();
-        // If the requirement to be updated has changed
-        // then we need to let the parent node know so it
+        // If the requirement to be updated has changed,
+        // then we need to let the parent node know, so it
         // can rebuild its update list.
         if (parent != null && before != after) {
             parent.invalidateUpdateList();
@@ -891,7 +891,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable,
     }
 
     /**
-     * <code>updateGeometricState</code> updates the lightlist,
+     * <code>updateGeometricState</code> updates the light list,
      * computes the world transforms, and computes the world bounds
      * for this Spatial.
      * Calling this when the Spatial is attached to a node
@@ -1295,10 +1295,10 @@ public abstract class Spatial implements Savable, Cloneable, Collidable,
     }
 
     /**
-     * Returns this spatial's renderqueue bucket. If the mode is set to inherit,
-     * then the spatial gets its renderqueue bucket from its parent.
+     * Returns this spatial's render-queue bucket. If the mode is set to inherit,
+     * then the spatial gets its render-queue bucket from its parent.
      *
-     * @return The spatial's current renderqueue mode.
+     * @return The spatial's current render-queue bucket.
      */
     public RenderQueue.Bucket getQueueBucket() {
         if (queueBucket != RenderQueue.Bucket.Inherit) {
@@ -1371,7 +1371,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable,
      * @see Mesh#cloneForAnim()
      */
     public Spatial clone(boolean cloneMaterial) {
-        // Setup the cloner for the type of cloning we want to do.
+        // Set up the cloner for the type of cloning we want to do.
         Cloner cloner = new Cloner();
 
         // First, we definitely do not want to clone our own parent
@@ -1383,9 +1383,9 @@ public abstract class Spatial implements Savable, Cloneable, Collidable,
             cloner.setCloneFunction(Material.class, new IdentityCloneFunction<Material>());
         }
 
-        // By default the meshes are not cloned.  The geometry
-        // may choose to selectively force them to be cloned but
-        // normally they will be shared
+        // By default, the meshes are not cloned.  The geometry
+        // may choose to selectively force them to be cloned, but
+        // normally they will be shared.
         cloner.setCloneFunction(Mesh.class, new IdentityCloneFunction<Mesh>());
 
         // Clone it!
@@ -1433,7 +1433,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable,
      * @see Spatial#clone()
      */
     public Spatial deepClone() {
-        // Setup the cloner for the type of cloning we want to do.
+        // Set up the cloner for the type of cloning we want to do.
         Cloner cloner = new Cloner();
 
         // First, we definitely do not want to clone our own parent
@@ -1621,8 +1621,8 @@ public abstract class Spatial implements Savable, Cloneable, Collidable,
         //changed for backward compatibility with j3o files
         //generated before the AnimControl/SkeletonControl split
         //the AnimControl creates the SkeletonControl for old files and add it to the spatial.
-        //The SkeletonControl must be the last in the stack
-        //so we add the list of all other control before it.
+        // The SkeletonControl must be the last in the stack,
+        // so we add the list of all other controls before it.
         //When backward compatibility won't be needed anymore this can be replaced by :
         //controls = ic.readSavableArrayList("controlsList", null));
         controls.addAll(0, ic.readSavableArrayList("controlsList", null));
@@ -1670,14 +1670,14 @@ public abstract class Spatial implements Savable, Cloneable, Collidable,
     }
 
     /**
-     * @return the cullmode set on this Spatial
+     * @return the cull mode of this Spatial
      */
     public CullHint getLocalCullHint() {
         return cullHint;
     }
 
     /**
-     * @return the batchHint set on this Spatial
+     * @return the batch hint for this Spatial
      */
     public BatchHint getLocalBatchHint() {
         return batchHint;
@@ -1754,7 +1754,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable,
 
     /**
      * Returns the Spatial's name followed by the class of the spatial <br>
-     * Example: "MyNode (com.jme3.scene.Spatial)
+     * Example: "MyNode (com.jme3.scene.Spatial)"
      *
      * @return Spatial's name followed by the class of the Spatial
      */

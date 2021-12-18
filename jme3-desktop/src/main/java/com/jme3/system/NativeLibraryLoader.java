@@ -202,7 +202,7 @@ public final class NativeLibraryLoader {
     }
     
     /**
-     * Determine if native bullet is on the classpath.
+     * Determines whether native Bullet is on the classpath.
      * 
      * Currently the context extracts the native bullet libraries, so
      * this method is needed to determine if it is needed.
@@ -572,7 +572,7 @@ public final class NativeLibraryLoader {
             // Attempt to load it as a system library.
             String unmappedName = unmapLibraryName(fileNameInJar);
             try {
-                // XXX: HACK. Vary loading method based on library name..
+                // XXX: HACK. Vary loading method based on library name.
                 // lwjgl and jinput handle loading by themselves.
                 if (!name.equals("lwjgl") && !name.equals("jinput")) {
                     // Need to unmap it from library specific parts.
@@ -615,7 +615,7 @@ public final class NativeLibraryLoader {
             conn = url.openConnection();
             in = conn.getInputStream();
         } catch (IOException ex) {
-            // Maybe put more detail here? Not sure..
+            // Maybe put more detail here? Not sure.
             throw new UncheckedIOException("Failed to open file: '" + url + 
                                            "'. Error: " + ex, ex);
         }
@@ -661,7 +661,7 @@ public final class NativeLibraryLoader {
                         + "library to: " + targetFile, ex);
             }
         } finally {
-            // XXX: HACK. Vary loading method based on library name..
+            // XXX: HACK. Vary loading method based on library name.
             // lwjgl and jinput handle loading by themselves.
             if (name.equals("lwjgl") || name.equals("lwjgl3")) {
                 System.setProperty("org.lwjgl.librarypath", 

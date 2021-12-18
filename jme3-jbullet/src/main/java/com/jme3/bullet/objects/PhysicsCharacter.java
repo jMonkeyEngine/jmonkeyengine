@@ -150,7 +150,7 @@ public class PhysicsCharacter extends PhysicsCollisionObject {
         return jumpSpeed;
     }
 
-    //does nothing..
+    //does nothing
 //    public void setMaxJumpHeight(float height) {
 //        character.setMaxJumpHeight(height);
 //    }

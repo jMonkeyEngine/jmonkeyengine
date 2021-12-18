@@ -36,7 +36,7 @@ public class PreNormalCaching {
         if( cachedPreNormals != null ) {
             r.copyFrameBuffer(cachedPreNormals, normalPass.getRenderFrameBuffer(),true,  false);
         } else {
-            // lets make the prenormals
+            // let's make the prenormals
             r.setFrameBuffer(normalPass.getRenderFrameBuffer());
             renderManager.getRenderer().clearBuffers(true, true, true);
             if( renderManager.getRenderer().getCaps().contains(Caps.GLSL150) ) {

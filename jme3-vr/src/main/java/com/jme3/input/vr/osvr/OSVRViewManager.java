@@ -533,7 +533,7 @@ public class OSVRViewManager extends AbstractVRViewManager{
 
         if (environment != null){
             if (environment.getApplication() != null){
-                // setup post processing filters
+                // set up post-processing filters
                 if( rightPostProcessor == null ) {
                     rightPostProcessor = new FilterPostProcessor(environment.getApplication().getAssetManager());
                     leftPostProcessor =  new FilterPostProcessor(environment.getApplication().getAssetManager());
@@ -569,7 +569,7 @@ public class OSVRViewManager extends AbstractVRViewManager{
                                 } else if (f instanceof DirectionalLightShadowFilter){
                                     f2 = FilterUtil.cloneDirectionalLightShadowFilter(environment.getApplication().getAssetManager(), (DirectionalLightShadowFilter)f);
                                 } else {
-                                    f2 = f; // dof, bloom, lightscattering etc.
+                                    f2 = f; // DoF, bloom, light scattering etc.
                                 }
                                 rightPostProcessor.addFilter(f2);
                             }
@@ -768,7 +768,7 @@ public class OSVRViewManager extends AbstractVRViewManager{
     }
 
     /**
-     * Setup a distortion mesh for the stereo view.
+     * Set up a distortion mesh for the stereo view.
      * @param eye the eye to apply.
      * @param api the underlying VR api
      * @return the distorted mesh.
@@ -824,7 +824,7 @@ public class OSVRViewManager extends AbstractVRViewManager{
             }
         }
 
-        // have UV coordinates & positions, now to setup indices
+        // have UV coordinates & positions, now set up indices
 
         int[] indices = new int[(int) ((m_iLensGridSegmentCountV - 1) * (m_iLensGridSegmentCountH - 1)) * 6];
         int indexPos = 0;

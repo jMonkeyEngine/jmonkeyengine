@@ -152,7 +152,7 @@ public class OrientedBoxProbeArea implements ProbeArea {
         r[1] = transform.getScale().y;
         r[2] = transform.getScale().z;
 
-        // computing closest point to sphere center
+        // Compute the closest point to sphere's center.
         for (int i = 0; i < 3; i++) {
             // extract the axis from the 3x3 matrix
             Vector3f axis = getScaledAxis(i, vars.vect1);

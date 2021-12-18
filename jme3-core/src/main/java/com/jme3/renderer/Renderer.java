@@ -346,7 +346,7 @@ public interface Renderer {
      * Resets all previously used {@link NativeObject Native Objects} on this Renderer.
      * The state of the native objects is reset in such way, that using
      * them again will cause the renderer to reupload them.
-     * Call this method when you know the GL context is going to shutdown.
+     * Call this method when you know the GL context is going to shut down.
      *
      * @see NativeObject#resetObject()
      */
@@ -366,7 +366,7 @@ public interface Renderer {
      *
      * <p>If the
      * {@link Texture#setAnisotropicFilter(int) texture anisotropic filter} is
-     * set to 0, then the default level is used. Otherwise if the texture level
+     * set to 0, then the default level is used. Otherwise, if the texture level
      * is 1 or greater, then the texture's value overrides the default value.
      *
      * @param level The default anisotropic filter level to use. Default: 1.
@@ -463,7 +463,7 @@ public interface Renderer {
     public void stopProfiling();
 
     /**
-     * Returns the time in nano seconds elapsed for the task with the given id.
+     * Returns the time in nanoseconds elapsed for the task with the given id.
      * Note that the result may not be available right after stopProfiling has been called.
      * You need to check if the result is available with isTaskResultAvailable.
      * Also note that it's guaranteed that the result will be available on next frame.
@@ -471,7 +471,7 @@ public interface Renderer {
      * you don't need to check the result availability with isTaskResultAvailable
      *
      * @param taskId the id of the task given by startProfiling.
-     * @return the time in nano second of the profiling task with the given id.
+     * @return the time in nanosecond of the profiling task with the given id.
      */
     public long getProfilingTime(int taskId);
 

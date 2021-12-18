@@ -110,7 +110,6 @@ public final class SAXUtil {
         else
             return Boolean.valueOf(bool); 
         //else
-        //else
         //    throw new SAXException("Expected a boolean, got'"+bool+"'");
     }
 

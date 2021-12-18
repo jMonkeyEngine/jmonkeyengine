@@ -2,9 +2,9 @@
 
 https://github.com/sensics/OSVR-RenderManager/blob/master/examples/RenderManagerOpenGLCAPIExample.cpp
 
-- JVM crashes often.. placing breakpoints during initialization clears it up most of the time (WHY!?)
-  - OSVR is just unstable.. any way to improve things?
-- render manager looks good, but left eye seems stretched
+- JVM crashes often. Placing breakpoints during initialization clears it up most of the time (WHY!?)
+  - OSVR is just unstable. Any way to improve things?
+- Render manager looks good, but left eye seems stretched.
 
  */
 package com.jme3.input.vr.osvr;

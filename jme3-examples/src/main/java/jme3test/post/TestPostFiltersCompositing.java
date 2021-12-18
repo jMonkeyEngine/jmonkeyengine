@@ -77,7 +77,7 @@ public class TestPostFiltersCompositing extends SimpleApplication {
         fpp.addFilter(new ColorOverlayFilter(ColorRGBA.Blue));
         viewPort.addProcessor(fpp);
 
-        //creating a frame buffer for the mainviewport
+        //creating a frame buffer for the main viewport
         FrameBuffer mainVPFrameBuffer = new FrameBuffer(cam.getWidth(), cam.getHeight(), 1);
         Texture2D mainVPTexture = new Texture2D(cam.getWidth(), cam.getHeight(), Image.Format.RGBA8);
         mainVPFrameBuffer.setDepthTarget(FrameBufferTarget.newTarget(Format.Depth));
@@ -95,8 +95,8 @@ public class TestPostFiltersCompositing extends SimpleApplication {
 
         guiViewPort.addProcessor(guifpp);
         
-        //compositing is done by mixing texture depending on the alpha channel, 
-        //it's important that the guiviewport clear color alpha value is set to 0
+        // Compositing is done by mixing texture depending on the alpha channel, so
+        // it's important that the GUI-viewport clear-color alpha value is set to 0.
         guiViewPort.setBackgroundColor(ColorRGBA.BlackNoAlpha);
         guiViewPort.setClearColor(true);
 
