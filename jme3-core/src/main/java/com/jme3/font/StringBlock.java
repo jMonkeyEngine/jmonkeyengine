@@ -46,7 +46,7 @@ class StringBlock implements Cloneable {
     private String text;
     private Rectangle textBox;
     private Align alignment = Align.Left;
-    private VAlign valignment = VAlign.Top;
+    private VAlign vAlignment = VAlign.Top;
     private float size;
     private ColorRGBA color = new ColorRGBA(ColorRGBA.White);
     private boolean kerning;
@@ -118,7 +118,7 @@ class StringBlock implements Cloneable {
     }
     
     BitmapFont.VAlign getVerticalAlignment() {
-        return valignment;
+        return vAlignment;
     }
 
     void setAlignment(BitmapFont.Align alignment) {
@@ -126,7 +126,7 @@ class StringBlock implements Cloneable {
     }
     
     void setVerticalAlignment(BitmapFont.VAlign alignment) {
-        this.valignment = alignment;
+        this.vAlignment = alignment;
     }
 
     float getSize() {

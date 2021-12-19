@@ -47,9 +47,9 @@ import java.io.IOException;
 public class Triangle extends AbstractTriangle implements Savable, Cloneable, java.io.Serializable {
     static final long serialVersionUID = 1;
 
-    private Vector3f pointa = new Vector3f();
-    private Vector3f pointb = new Vector3f();
-    private Vector3f pointc = new Vector3f();
+    private Vector3f pointA = new Vector3f();
+    private Vector3f pointB = new Vector3f();
+    private Vector3f pointC = new Vector3f();
     private transient Vector3f center;
     private transient Vector3f normal;
     private float projection;
@@ -71,9 +71,9 @@ public class Triangle extends AbstractTriangle implements Savable, Cloneable, ja
      * @param p3 the location of the 3rd vertex (not null, unaffected)
      */
     public Triangle(Vector3f p1, Vector3f p2, Vector3f p3) {
-        pointa.set(p1);
-        pointb.set(p2);
-        pointc.set(p3);
+        pointA.set(p1);
+        pointB.set(p2);
+        pointC.set(p3);
     }
 
     /**
@@ -85,11 +85,11 @@ public class Triangle extends AbstractTriangle implements Savable, Cloneable, ja
     public Vector3f get(int i) {
         switch (i) {
             case 0:
-                return pointa;
+                return pointA;
             case 1:
-                return pointb;
+                return pointB;
             case 2:
-                return pointc;
+                return pointC;
             default:
                 return null;
         }
@@ -102,7 +102,7 @@ public class Triangle extends AbstractTriangle implements Savable, Cloneable, ja
      */
     @Override
     public Vector3f get1() {
-        return pointa;
+        return pointA;
     }
 
     /**
@@ -112,7 +112,7 @@ public class Triangle extends AbstractTriangle implements Savable, Cloneable, ja
      */
     @Override
     public Vector3f get2() {
-        return pointb;
+        return pointB;
     }
 
     /**
@@ -122,7 +122,7 @@ public class Triangle extends AbstractTriangle implements Savable, Cloneable, ja
      */
     @Override
     public Vector3f get3() {
-        return pointc;
+        return pointC;
     }
 
     /**
@@ -138,13 +138,13 @@ public class Triangle extends AbstractTriangle implements Savable, Cloneable, ja
 
         switch (i) {
             case 0:
-                pointa.set(point);
+                pointA.set(point);
                 break;
             case 1:
-                pointb.set(point);
+                pointB.set(point);
                 break;
             case 2:
-                pointc.set(point);
+                pointC.set(point);
                 break;
         }
     }
@@ -164,13 +164,13 @@ public class Triangle extends AbstractTriangle implements Savable, Cloneable, ja
 
         switch (i) {
             case 0:
-                pointa.set(x, y, z);
+                pointA.set(x, y, z);
                 break;
             case 1:
-                pointb.set(x, y, z);
+                pointB.set(x, y, z);
                 break;
             case 2:
-                pointc.set(x, y, z);
+                pointC.set(x, y, z);
                 break;
         }
     }
@@ -185,7 +185,7 @@ public class Triangle extends AbstractTriangle implements Savable, Cloneable, ja
         center = null;
         normal = null;
 
-        pointa.set(v);
+        pointA.set(v);
     }
 
     /**
@@ -198,7 +198,7 @@ public class Triangle extends AbstractTriangle implements Savable, Cloneable, ja
         center = null;
         normal = null;
 
-        pointb.set(v);
+        pointB.set(v);
     }
 
     /**
@@ -211,7 +211,7 @@ public class Triangle extends AbstractTriangle implements Savable, Cloneable, ja
         center = null;
         normal = null;
 
-        pointc.set(v);
+        pointC.set(v);
     }
 
     /**
@@ -227,9 +227,9 @@ public class Triangle extends AbstractTriangle implements Savable, Cloneable, ja
         center = null;
         normal = null;
 
-        pointa.set(v1);
-        pointb.set(v2);
-        pointc.set(v3);
+        pointA.set(v1);
+        pointB.set(v2);
+        pointC.set(v3);
     }
 
     /**
@@ -237,11 +237,11 @@ public class Triangle extends AbstractTriangle implements Savable, Cloneable, ja
      */
     public void calculateCenter() {
         if (center == null) {
-            center = new Vector3f(pointa);
+            center = new Vector3f(pointA);
         } else {
-            center.set(pointa);
+            center.set(pointA);
         }
-        center.addLocal(pointb).addLocal(pointc).multLocal(FastMath.ONE_THIRD);
+        center.addLocal(pointB).addLocal(pointC).multLocal(FastMath.ONE_THIRD);
     }
 
     /**
@@ -249,11 +249,11 @@ public class Triangle extends AbstractTriangle implements Savable, Cloneable, ja
      */
     public void calculateNormal() {
         if (normal == null) {
-            normal = new Vector3f(pointb);
+            normal = new Vector3f(pointB);
         } else {
-            normal.set(pointb);
+            normal.set(pointB);
         }
-        normal.subtractLocal(pointa).crossLocal(pointc.x - pointa.x, pointc.y - pointa.y, pointc.z - pointa.z);
+        normal.subtractLocal(pointA).crossLocal(pointC.x - pointA.x, pointC.y - pointA.y, pointC.z - pointA.z);
         normal.normalizeLocal();
     }
 
@@ -359,9 +359,9 @@ public class Triangle extends AbstractTriangle implements Savable, Cloneable, ja
      */
     @Override
     public void write(JmeExporter e) throws IOException {
-        e.getCapsule(this).write(pointa, "pointa", Vector3f.ZERO);
-        e.getCapsule(this).write(pointb, "pointb", Vector3f.ZERO);
-        e.getCapsule(this).write(pointc, "pointc", Vector3f.ZERO);
+        e.getCapsule(this).write(pointA, "pointa", Vector3f.ZERO);
+        e.getCapsule(this).write(pointB, "pointb", Vector3f.ZERO);
+        e.getCapsule(this).write(pointC, "pointc", Vector3f.ZERO);
     }
 
     /**
@@ -373,9 +373,9 @@ public class Triangle extends AbstractTriangle implements Savable, Cloneable, ja
      */
     @Override
     public void read(JmeImporter e) throws IOException {
-        pointa = (Vector3f) e.getCapsule(this).readSavable("pointa", Vector3f.ZERO.clone());
-        pointb = (Vector3f) e.getCapsule(this).readSavable("pointb", Vector3f.ZERO.clone());
-        pointc = (Vector3f) e.getCapsule(this).readSavable("pointc", Vector3f.ZERO.clone());
+        pointA = (Vector3f) e.getCapsule(this).readSavable("pointa", Vector3f.ZERO.clone());
+        pointB = (Vector3f) e.getCapsule(this).readSavable("pointb", Vector3f.ZERO.clone());
+        pointC = (Vector3f) e.getCapsule(this).readSavable("pointc", Vector3f.ZERO.clone());
     }
 
     /**
@@ -387,9 +387,9 @@ public class Triangle extends AbstractTriangle implements Savable, Cloneable, ja
     public Triangle clone() {
         try {
             Triangle t = (Triangle) super.clone();
-            t.pointa = pointa.clone();
-            t.pointb = pointb.clone();
-            t.pointc = pointc.clone();
+            t.pointA = pointA.clone();
+            t.pointB = pointB.clone();
+            t.pointC = pointC.clone();
             // XXX: the center and normal are not cloned!
             return t;
         } catch (CloneNotSupportedException e) {

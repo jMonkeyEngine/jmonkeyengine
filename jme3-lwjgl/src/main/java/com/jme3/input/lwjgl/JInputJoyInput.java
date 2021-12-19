@@ -61,7 +61,7 @@ public class JInputJoyInput implements JoyInput {
 
     private static final Logger logger = Logger.getLogger(InputManager.class.getName());
 
-    private boolean inited = false;
+    private boolean initialized = false;
     private JInputJoystick[] joysticks;
     private RawInputListener listener;
 
@@ -117,7 +117,7 @@ public class JInputJoyInput implements JoyInput {
 
     @Override
     public void initialize() {
-        inited = true;
+        initialized = true;
     }
 
     @Override
@@ -191,12 +191,12 @@ public class JInputJoyInput implements JoyInput {
 
     @Override
     public void destroy() {
-        inited = false;
+        initialized = false;
     }
 
     @Override
     public boolean isInitialized() {
-        return inited;
+        return initialized;
     }
 
     @Override
