@@ -241,15 +241,6 @@ public class GlfwMouseInput implements MouseInput {
         context.registerWindowSizeListener(windowSizeListener = ((width, height) -> {
             currentHeight = height;
         }));
-
-        // GLFW accepts only one callback, registering a new one here will
-        // remove the one registered in LwjglWindow.
-        /*glfwSetWindowSizeCallback(window, new GLFWWindowSizeCallback() {
-            @Override
-            public void invoke(final long window, final int width, final int height) {
-                currentHeight = height;
-            }
-        });*/
     }
 
     private void initCurrentMousePosition(long window) {
