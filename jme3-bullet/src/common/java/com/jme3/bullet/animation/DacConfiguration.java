@@ -91,11 +91,11 @@ abstract public class DacConfiguration extends AbstractPhysicsControl {
      */
     private float torsoMass = 1f;
     /**
-     * map linked bone names to masses
+     * Maps linked bone names to masses.
      */
     private Map<String, Float> blConfigMap = new HashMap<>(50);
     /**
-     * map linked bone names to ranges of motion for createSpatialData()
+     * Maps linked bone names to ranges of motion for createSpatialData().
      */
     private Map<String, RangeOfMotion> jointMap = new HashMap<>(50);
     /**

@@ -598,7 +598,7 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
 
     /**
      * Internal use only.
-     * The renderer stores the texture state set from the last texture
+     * The renderer stores the texture state set from the last texture,
      * so it doesn't have to change it unless necessary. 
      * 
      * @return The image parameter state.

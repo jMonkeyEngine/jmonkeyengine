@@ -60,11 +60,10 @@ public class EmitterMeshConvexHullShape extends EmitterMeshFaceShape {
     }
 
     /**
-     * This method fills the point with coordinates of randomly selected point inside a convex hull
-     * of randomly selected mesh.
+     * Randomly selects a point inside the convex hull
+     * of a randomly selected mesh.
      * @param store
-     *        the variable to store with coordinates of randomly selected selected point inside a convex hull
-     *        of randomly selected mesh
+     *        storage for the coordinates of the selected point
      */
     @Override
     public void getRandomPoint(Vector3f store) {
@@ -75,12 +74,11 @@ public class EmitterMeshConvexHullShape extends EmitterMeshFaceShape {
     }
 
     /**
-     * This method fills the point with coordinates of randomly selected point inside a convex hull
-     * of randomly selected mesh.
+     * Randomly selects a point inside the convex hull
+     * of a randomly selected mesh.
      * The normal param is not used.
      * @param store
-     *        the variable to store with coordinates of randomly selected selected point inside a convex hull
-     *        of randomly selected mesh
+     *        storage for the coordinates of the selected point
      * @param normal
      *        not used in this class
      */

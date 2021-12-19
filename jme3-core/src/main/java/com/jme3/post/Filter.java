@@ -76,9 +76,8 @@ public abstract class Filter implements Savable {
     }
 
     /**
-     * Inner class Pass
-     * Pass are like filters in filters.
-     * Some filters will need multiple passes before the final render
+     * Passes are like filters within filters.
+     * Some filters will need multiple passes before the final render.
      */
     public class Pass {
 
@@ -276,7 +275,7 @@ public abstract class Filter implements Savable {
     }
 
     /**
-     * Initialization of sub classes filters
+     * Initialization of filter subclasses.
      * This method is called once when the filter is added to the FilterPostProcessor
      * It should contain Material initializations and extra passes initialization
      * @param manager the assetManager
@@ -437,8 +436,8 @@ public abstract class Filter implements Savable {
      * Override this method and return true if you want the scene (input) texture
      * to use bilinear filtering or false to use nearest filtering.
      * 
-     * Typically filters that perform samples <em>in between</em> pixels 
-     * should enable filtering.
+     * Typically, filters that perform samples <em>in between</em> pixels
+     * should enable bilinear filtering.
      * 
      * @return true to use linear filtering, false to use nearest filtering.
      */

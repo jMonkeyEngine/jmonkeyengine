@@ -347,8 +347,9 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
     }
 
     /**
-     * Fast-forward the event to the given timestamp. Time=0 is the start of the event.
-     * @param time the time to fast forward to.
+     * Fast-forwards the event to the given timestamp. Time=0 is the start of the event.
+     *
+     *  @param time the time to fast-forward to.
      */
     @Override
     public void setTime(float time) {

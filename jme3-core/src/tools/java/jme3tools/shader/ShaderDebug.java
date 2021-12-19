@@ -44,7 +44,8 @@ public class ShaderDebug {
     }
 
     /**
-     * Append the line numbers to the source code of a shader to output it
+     * Prepend line numbers to the source code of a shader, for output.
+     *
      * @param source the source
      * @return the formatted source code
      */

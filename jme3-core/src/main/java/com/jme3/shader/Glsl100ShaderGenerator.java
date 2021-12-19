@@ -230,7 +230,7 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
      * 
      *
      *<br>
-     * All of this is embed in a #if conditional statement if needed
+     * All of this is embedded in a #if conditional statement if necessary.
      */
     @Override
     protected void generateNodeMainSection(StringBuilder source, ShaderNode shaderNode, String nodeSource, ShaderGenerationInfo info) {

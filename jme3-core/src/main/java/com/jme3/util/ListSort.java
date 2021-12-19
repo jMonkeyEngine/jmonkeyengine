@@ -53,11 +53,11 @@ import java.util.Comparator;
  * list changes
  *
  * {@code
- * Disclaimer : I was intrigued by the use of val >>> 1 in java 7 Timsort class
- * instead of val / 2 (integer division). Micro benching revealed that val >>> 1
- * is twice faster than val / 2 in java 6 and has similar perf in java 7. The
- * following code uses val >>> 1 when ever a value needs to be divided by 2 and
- * rounded to its floor
+ * Disclaimer : I was intrigued by the use of val >>> 1 in the Java7 Timsort
+ * in place of val / 2 (integer division). Micro benching revealed that val >>> 1
+ * is twice as fast as val / 2 in Java6 and has similar perf in Java7. The
+ * following code uses val >>> 1 whenever a value needs to be divided by 2 and
+ * rounded to its floor.
  * }
  *
  * @author Nehon
@@ -113,8 +113,8 @@ public class ListSort<T> {
      */
     private static final int MIN_GALLOP = 7;
     /**
-     * This variable allows to adjust when switching to galloping mode. lowered
-     * when the data are "naturally" structured, raised when data are random.
+     * Controls switching to galloping mode. It is lowered
+     * when the data are "naturally" ordered and raised when they are random.
      */
     private int minGallop = MIN_GALLOP;
 
@@ -670,9 +670,9 @@ public class ListSort<T> {
      * lenA <= lenB. See listsort.txt for more info.
      *
      * @param idxA index of first element in run A
-     * @param lengthA length of run A
+     * @param lenA length of run A
      * @param idxB index of first element in run B
-     * @param lengthB length of run B
+     * @param lenB length of run B
      */
     private void mergeLow(int idxA, int lenA, int idxB, int lenB) {
         
@@ -822,9 +822,9 @@ public class ListSort<T> {
      * lenA >= lenB. See listsort.txt for more info.
      *
      * @param idxA index of first element in run A
-     * @param lengthA length of run A
+     * @param lenA length of run A
      * @param idxB index of first element in run B
-     * @param lengthB length of run B
+     * @param lenB length of run B
      */
     private void mergeHigh(int idxA, int lenA, int idxB, int lenB) {
         

@@ -35,8 +35,8 @@ import com.jme3.renderer.Renderer;
 import com.jme3.texture.Texture;
 
 /**
- * Stores / caches texture state parameters so they don't have to be set 
- * each time by the {@link Renderer}.
+ * Stores/caches texture-state parameters so the {@link Renderer} doesn't have to
+ * set them each time.
  * 
  * @author Kirill Vainer
  */

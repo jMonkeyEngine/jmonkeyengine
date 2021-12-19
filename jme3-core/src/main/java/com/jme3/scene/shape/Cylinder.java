@@ -70,9 +70,9 @@ public class Cylinder extends Mesh {
     }
 
     /**
-     * Creates a new Cylinder. By default, its center is the origin. Usually, a
-     * higher sample number creates a better looking cylinder, but at the cost
-     * of more vertex information.
+     * Creates a Cylinder. By default, its center is the origin. More
+     * samples create a better looking cylinder, at the cost
+     * of more vertex data.
      *
      * @param axisSamples
      *            Number of triangle samples along the axis.
@@ -89,14 +89,13 @@ public class Cylinder extends Mesh {
     }
 
     /**
-     * Creates a new Cylinder. By default, its center is the origin. Usually, a
-     * higher sample number creates a better looking cylinder, but at the cost
-     * of more vertex information. <br>
-     * If the cylinder is closed the texture is split into axisSamples parts:
-     * top most and bottom most part is used for top and bottom of the cylinder,
-     * rest of the texture for the cylinder wall. The middle of the top is
-     * mapped to texture coordinates (0.5, 1), bottom to (0.5, 0). Thus you need
-     * a suitably distorted texture.
+     * Creates a Cylinder. By default, its center is the origin. More
+     * samples create a better looking cylinder, at the cost
+     * of more vertex data. <br>
+     * If the cylinder is closed, the texture is split into axisSamples parts:
+     * the topmost and bottommost parts are used for top and bottom of the cylinder,
+     * and the rest of the texture is used for the cylinder wall. The middle of the top is
+     * mapped to texture coordinates (0.5, 1), bottom to (0.5, 0). Thus, it requires
      *
      * @param axisSamples
      *            Number of triangle samples along the axis.

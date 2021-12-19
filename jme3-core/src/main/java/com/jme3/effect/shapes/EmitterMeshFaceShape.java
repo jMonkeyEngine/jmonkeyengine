@@ -82,9 +82,9 @@ public class EmitterMeshFaceShape extends EmitterMeshVertexShape {
     }
 
     /**
-     * This method fills the point with coordinates of randomly selected point on a random face.
+     * Randomly selects a point on a random face.
      * @param store
-     *        the variable to store with coordinates of randomly selected selected point on a random face
+     *        storage for the coordinates of the selected point
      */
     @Override
     public void getRandomPoint(Vector3f store) {
@@ -102,12 +102,12 @@ public class EmitterMeshFaceShape extends EmitterMeshVertexShape {
     }
 
     /**
-     * This method fills the point with coordinates of randomly selected point on a random face.
+     * Randomly selects a point on a random face.
      * The normal param is filled with selected face's normal.
      * @param store
-     *        the variable to store with coordinates of randomly selected selected point on a random face
+     *        storage for the coordinates of the selected point
      * @param normal
-     *        filled with selected face's normal
+     *        storage for the normal of the selected face
      */
     @Override
     public void getRandomPointAndNormal(Vector3f store, Vector3f normal) {

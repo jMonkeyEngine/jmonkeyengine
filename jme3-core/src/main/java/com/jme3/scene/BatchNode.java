@@ -343,8 +343,8 @@ public class BatchNode extends GeometryGroupNode {
     }
 
     /**
-     * Sets the material to the all the batches of this BatchNode
-     * use setMaterial(Material material,int batchIndex) to set a material to a specific batch
+     * Sets the material to the all the batches of this BatchNode.
+     * Use setMaterial(Material material,int batchIndex) to set a material to a specific batch.
      *
      * @param material the material to use for this geometry
      */
@@ -354,9 +354,9 @@ public class BatchNode extends GeometryGroupNode {
     }
 
     /**
-     * Returns the material that is used for the first batch of this BatchNode
+     * Returns the material that is used for the first batch of this BatchNode.
      * <p>
-     * use getMaterial(Material material,int batchIndex) to get a material from a specific batch
+     * Use getMaterial(Material material,int batchIndex) to get a material from a specific batch.
      *
      * @return the material that is used for the first batch of this BatchNode
      * @see #setMaterial(com.jme3.material.Material)

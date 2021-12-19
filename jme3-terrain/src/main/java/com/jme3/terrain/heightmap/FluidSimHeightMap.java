@@ -228,7 +228,7 @@ public class FluidSimHeightMap extends AbstractHeightMap {
 
     /**
      * Sets the number of times the fluid simulation should be iterated over
-     * the heightmap. The more often this is, the less features (hills, etc)
+     * the heightmap. The more iterations, the fewer features (hills, etcetera)
      * the terrain will have, and the smoother it will be.
      *
      * @param iterations
