@@ -174,7 +174,7 @@ public class ShadowTestUIManager implements ActionListener {
     }
 
     private BitmapText createText(BitmapFont guiFont) {
-        BitmapText t = new BitmapText(guiFont, false);
+        BitmapText t = new BitmapText(guiFont);
         t.setSize(guiFont.getCharSet().getRenderedSize() * 0.75f);
         return t;
     }

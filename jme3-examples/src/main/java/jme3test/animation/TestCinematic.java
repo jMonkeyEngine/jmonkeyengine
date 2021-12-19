@@ -85,7 +85,7 @@ public class TestCinematic extends SimpleApplication {
         nifty.fromXmlWithoutStartScreen("Interface/Nifty/CinematicTest.xml");
         getGuiViewPort().addProcessor(niftyDisplay);
         guiFont = assetManager.loadFont("Interface/Fonts/Default.fnt");
-        final BitmapText text = new BitmapText(guiFont, false);
+        final BitmapText text = new BitmapText(guiFont);
         text.setSize(guiFont.getCharSet().getRenderedSize());
         text.setText("Press enter to play/pause cinematic");
         text.setLocalTranslation((cam.getWidth() - text.getLineWidth()) / 2, cam.getHeight(), 0);
