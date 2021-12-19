@@ -97,7 +97,7 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
     protected void rebuildRigidBody() {
         boolean removed = false;
         if(collisionShape instanceof MeshCollisionShape && mass != 0){
-            throw new IllegalStateException("Dynamic rigidbody can not have mesh collision shape!");
+            throw new IllegalStateException("Dynamic rigid body can not have mesh collision shape!");
         }
         if (rBody != null) {
             if (rBody.isInWorld()) {
@@ -361,7 +361,7 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
     public void setMass(float mass) {
         this.mass = mass;
         if(collisionShape instanceof MeshCollisionShape && mass != 0){
-            throw new IllegalStateException("Dynamic rigidbody can not have mesh collision shape!");
+            throw new IllegalStateException("Dynamic rigid body can not have mesh collision shape!");
         }
         if (collisionShape != null) {
             collisionShape.calculateLocalInertia(mass, localInertia);
@@ -568,7 +568,7 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
     public void setCollisionShape(CollisionShape collisionShape) {
         super.setCollisionShape(collisionShape);
         if(collisionShape instanceof MeshCollisionShape && mass!=0){
-            throw new IllegalStateException("Dynamic rigidbody can not have mesh collision shape!");
+            throw new IllegalStateException("Dynamic rigid body can not have mesh collision shape!");
         }
         if (rBody == null) {
             rebuildRigidBody();
