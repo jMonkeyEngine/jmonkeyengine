@@ -141,10 +141,10 @@ public class ListSort<T> {
          * the temp array grow on demand.
          * 
          * Timsort consumes half the size of the original array to merge at WORST.
-         * But considering we use the same temp array over and over across frames
-         * There is a good chance we stumble upon the worst case scenario one 
-         * moment or another.
-         * So we just always take half of the original array size.
+         * But considering we use the same temp array over and over across frames,
+         * there is a good chance we will stumble upon the worst-case scenario at one
+         * time or another.
+         * So we use half of the original array size.
          */        
         int tmpLen = len >>> 1;
      
@@ -211,7 +211,7 @@ public class ListSort<T> {
         }
 
         /*
-         * main iteration : compute minimum run length, then iterate through the
+         * Main iteration: compute minimum run length, then iterate through the
          * array to find runs and merge them until they can be binary sorted 
          * if their length < minLength
          */
@@ -344,8 +344,8 @@ public class ListSort<T> {
              */
             int nbElems = start - left;
             /*
-             * Grabbed from the Java7 TimSort, the switch optimizes
-             * arraycopy in case there are only 1 or 2 elements to copy.
+             * Grabbed from the Java7 TimSort, this switch optimizes
+             * arraycopy() in case there are only 1 or 2 elements to copy.
              */
             switch (nbElems) {
                 case 2:
@@ -515,7 +515,7 @@ public class ListSort<T> {
                 lastOffset = offset;
                 offset = (offset << 1) + 1;
                 /* int overflow.
-                 * Note: not sure if that can happen, but it's included in both the
+                 * Note: not sure if this can happen, but it's included in both the
                  * original and Java7 TimSort implementations.
                  */
                 if (offset <= 0) {
@@ -538,7 +538,7 @@ public class ListSort<T> {
                 lastOffset = offset;
                 offset = (offset << 1) + 1;
                 /* int overflow.
-                 * Note: not sure if that can happen, but it's included in both the
+                 * Note: not sure if this can happen, but it's included in both the
                  * original and Java7 TimSort implementations.
                  */
                 if (offset <= 0) {
@@ -606,7 +606,7 @@ public class ListSort<T> {
                 lastOffset = offset;
                 offset = (offset << 1) + 1;
                 /* int overflow. 
-                 * Note: not sure if that can happen, but it's included in both
+                 * Note: not sure if this can happen, but it's included in both
                  * the original and Java7 TimSort implementations.
                  */
                 if (offset <= 0) {
