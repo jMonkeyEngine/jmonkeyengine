@@ -86,8 +86,8 @@ public class ListSort<T> {
      */
     private int nbRuns = 0;
 
-    /* Tried to use a struct, as in the original implementation.
-     * Ended up using 2 arrays like the Java7 Timsort.
+    /* Tried to use a struct, as in the original implementation, but
+     * ended up using 2 arrays, like the Java7 Timsort.
      * Original implementation used a struct, but instantiation of this inner
      * class + array was a convoluted pain.
      */
@@ -138,7 +138,7 @@ public class ListSort<T> {
         /*
          * We allocate a temp array of half the size of the array to sort.
          * the original implementation had a 256 maximum size for this and made 
-         * the temp array grow on demand
+         * the temp array grow on demand.
          * 
          * Timsort consumes half the size of the original array to merge at WORST.
          * But considering we use the same temp array over and over across frames
