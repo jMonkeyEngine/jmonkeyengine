@@ -75,14 +75,14 @@ public class ListSort<T> {
     private Comparator<T> comparator;
     
     /**
-     * attribute temp vars for merging. This was used to unroll the merge_lo &
+     * Attribute temp vars for merging. This was used to unroll the merge_lo &
      * merge_hi function of original implementations that used massive labeled
-     * goto branching and was almost unreadable
+     * goto branching and was almost unreadable.
      */
     int iterA, iterB, dest, lengthA, lengthB;
     
     /**
-     * Number of runs to merge
+     * Number of runs to merge.
      */
     private int nbRuns = 0;
 
@@ -92,13 +92,13 @@ public class ListSort<T> {
      * class + array was a convoluted pain.
      */
     /**
-     * array of start indices in the original array for runs : run i starting
-     * index is at runIndices[i]
+     * Array of run start indices in the original array: starting
+     * index of run 'i' is at runIndices[i].
      */
     private int[] runsIndices = null;
     /**
-     * array of runs length in the original array : run i length is at
-     * runLength[i]
+     * Array of run lengths in the original array: length of run 'i' is at
+     * runLength[i].
      */
     private int[] runsLength = null;
     /**
@@ -109,7 +109,7 @@ public class ListSort<T> {
     /**
      * MIN_GALLOP set to 7 constant as described in listsort.txt. this magic
      * number indicates how many wins should trigger the switch from binary
-     * search to galloping mode
+     * search to galloping mode.
      */
     private static final int MIN_GALLOP = 7;
     /**
