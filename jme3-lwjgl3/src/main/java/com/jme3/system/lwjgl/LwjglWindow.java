@@ -45,6 +45,11 @@ import com.jme3.system.JmeContext;
 import com.jme3.system.JmeSystem;
 import com.jme3.system.NanoTimer;
 import com.jme3.util.BufferUtils;
+import com.jme3.util.SafeArrayList;
+import org.lwjgl.Version;
+import org.lwjgl.glfw.*;
+import org.lwjgl.system.Platform;
+
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
@@ -55,9 +60,6 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.lwjgl.Version;
-import org.lwjgl.glfw.*;
-import org.lwjgl.system.Platform;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.GL_FALSE;
@@ -126,6 +128,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
     protected final AtomicBoolean needRestart = new AtomicBoolean(false);
 
     private final JmeContext.Type type;
+    private final SafeArrayList<WindowSizeListener> windowSizeListeners = new SafeArrayList<>(WindowSizeListener.class);
 
     private GLFWErrorCallback errorCallback;
     private GLFWWindowSizeCallback windowSizeCallback;
@@ -148,6 +151,17 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         }
 
         this.type = type;
+    }
+
+    /**
+     * Register a listener to get notified when window size changes.
+     */
+    public void registerWindowSizeListener(WindowSizeListener listener) {
+        windowSizeListeners.add(listener);
+    }
+
+    public void removeWindowSizeListener(WindowSizeListener listener) {
+        windowSizeListeners.remove(listener);
     }
 
     /**
@@ -313,6 +327,11 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
                 // This is the window size, never to passed to any pixel based stuff!
                 // https://www.glfw.org/docs/latest/window_guide.html#window_size
                 onWindowSizeChanged(width, height);
+
+                // Notify listeners
+                for (WindowSizeListener listener : windowSizeListeners.getArray()) {
+                    listener.onWindowSizeChanged(width, height);
+                }
             }
         });
 
@@ -321,14 +340,6 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
 
             @Override
             public void invoke(final long window, final int width, final int height) {
-
-                // The window size might be also changed, but the window size callback might not trigger
-                // Maybe a bug in graphics drivers or LWJGL 3...? So make sure we emulate the original JME behavior here
-                IntBuffer windowWidth = BufferUtils.createIntBuffer(1);
-                IntBuffer windowHeight = BufferUtils.createIntBuffer(1);
-                glfwGetWindowSize(window, windowWidth, windowHeight);
-                onWindowSizeChanged(windowWidth.get(), windowHeight.get());
-
                 // https://www.glfw.org/docs/latest/window_guide.html#window_fbsize
                 listener.reshape(width, height);
             }

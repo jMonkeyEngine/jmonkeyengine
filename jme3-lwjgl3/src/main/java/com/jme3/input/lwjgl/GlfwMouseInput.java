@@ -37,6 +37,7 @@ import com.jme3.input.RawInputListener;
 import com.jme3.input.event.MouseButtonEvent;
 import com.jme3.input.event.MouseMotionEvent;
 import com.jme3.system.lwjgl.LwjglWindow;
+import com.jme3.system.lwjgl.WindowSizeListener;
 import com.jme3.util.BufferUtils;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
@@ -114,6 +115,7 @@ public class GlfwMouseInput implements MouseInput {
 
     private final LwjglWindow context;
 
+    private WindowSizeListener windowSizeListener;
     private RawInputListener listener;
 
     private IntBuffer currentCursorDelays;
@@ -236,12 +238,18 @@ public class GlfwMouseInput implements MouseInput {
             }
         });
 
-        glfwSetWindowSizeCallback(window, new GLFWWindowSizeCallback() {
+        context.registerWindowSizeListener(windowSizeListener = ((width, height) -> {
+            currentHeight = height;
+        }));
+
+        // GLFW accepts only one callback, registering a new one here will
+        // remove the one registered in LwjglWindow.
+        /*glfwSetWindowSizeCallback(window, new GLFWWindowSizeCallback() {
             @Override
             public void invoke(final long window, final int width, final int height) {
                 currentHeight = height;
             }
-        });
+        });*/
     }
 
     private void initCurrentMousePosition(long window) {
@@ -335,6 +343,7 @@ public class GlfwMouseInput implements MouseInput {
         cursorPosCallback.close();
         scrollCallback.close();
         mouseButtonCallback.close();
+        context.removeWindowSizeListener(windowSizeListener);
     }
 
     @Override
