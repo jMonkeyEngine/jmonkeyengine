@@ -240,15 +240,15 @@ public class PhysicsTestHelper {
                 Texture tex2 = app.getAssetManager().loadTexture(key2);
                 mat2.setTexture("ColorMap", tex2);
                 if (name.equals("shoot") && !keyPressed) {
-                    Geometry bulletg = new Geometry("bullet", bullet);
-                    bulletg.setMaterial(mat2);
-                    bulletg.setShadowMode(ShadowMode.CastAndReceive);
-                    bulletg.setLocalTranslation(app.getCamera().getLocation());
+                    Geometry bulletGeometry = new Geometry("bullet", bullet);
+                    bulletGeometry.setMaterial(mat2);
+                    bulletGeometry.setShadowMode(ShadowMode.CastAndReceive);
+                    bulletGeometry.setLocalTranslation(app.getCamera().getLocation());
                     RigidBodyControl bulletControl = new RigidBodyControl(10);
-                    bulletg.addControl(bulletControl);
+                    bulletGeometry.addControl(bulletControl);
                     bulletControl.setLinearVelocity(app.getCamera().getDirection().mult(25));
-                    bulletg.addControl(bulletControl);
-                    rootNode.attachChild(bulletg);
+                    bulletGeometry.addControl(bulletControl);
+                    rootNode.attachChild(bulletGeometry);
                     space.add(bulletControl);
                 }
             }

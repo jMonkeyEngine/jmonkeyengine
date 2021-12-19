@@ -186,16 +186,16 @@ public class ShadowUtil {
      */
     public static BoundingBox computeUnionBound(GeometryList list, Transform transform) {
         BoundingBox bbox = new BoundingBox();
-        TempVars tempv = TempVars.get();
+        TempVars tempVars = TempVars.get();
         for (int i = 0; i < list.size(); i++) {
             BoundingVolume vol = list.get(i).getWorldBound();
-            BoundingVolume newVol = vol.transform(transform, tempv.bbox);
+            BoundingVolume newVol = vol.transform(transform, tempVars.bbox);
             //Nehon : prevent NaN and infinity values to screw the final bounding box
             if (!Float.isNaN(newVol.getCenter().x) && !Float.isInfinite(newVol.getCenter().x)) {
                 bbox.mergeLocal(newVol);
             }
         }
-        tempv.release();
+        tempVars.release();
         return bbox;
     }
 

@@ -163,15 +163,15 @@ public class HelloPhysics extends SimpleApplication {
 
   /** This loop builds a wall out of individual bricks. */
   public void initWall() {
-    float startpt = brickLength / 4;
+    float startX = brickLength / 4;
     float height = 0;
     for (int j = 0; j < 15; j++) {
       for (int i = 0; i < 6; i++) {
         Vector3f vt =
-         new Vector3f(i * brickLength * 2 + startpt, brickHeight + height, 0);
+         new Vector3f(i * brickLength * 2 + startX, brickHeight + height, 0);
         makeBrick(vt);
       }
-      startpt = -startpt;
+      startX = -startX;
       height += 2 * brickHeight;
     }
   }

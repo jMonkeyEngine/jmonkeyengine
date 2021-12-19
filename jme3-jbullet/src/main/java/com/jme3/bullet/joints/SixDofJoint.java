@@ -122,8 +122,8 @@ public class SixDofJoint extends PhysicsJoint {
 
     private void gatherMotors() {
         for (int i = 0; i < 3; i++) {
-            RotationalLimitMotor rmot = new RotationalLimitMotor(((Generic6DofConstraint) constraint).getRotationalLimitMotor(i));
-            rotationalMotors.add(rmot);
+            RotationalLimitMotor rMotor = new RotationalLimitMotor(((Generic6DofConstraint) constraint).getRotationalLimitMotor(i));
+            rotationalMotors.add(rMotor);
         }
         translationalMotor = new TranslationalLimitMotor(((Generic6DofConstraint) constraint).getTranslationalLimitMotor());
     }
