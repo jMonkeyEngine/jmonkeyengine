@@ -244,16 +244,16 @@ public class SpotLight extends Light {
         Vector3f U = position.subtract(E, vars.vect2);
         Vector3f D = sphere.getCenter().subtract(U, vars.vect3);
 
-        float dsqr = D.dot(D);
+        float dSquared = D.dot(D);
         float e = direction.dot(D);
 
-        if (e > 0f && e * e >= dsqr * outerAngleCosSqr) {
+        if (e > 0f && e * e >= dSquared * outerAngleCosSqr) {
             D = sphere.getCenter().subtract(position, vars.vect3);
-            dsqr = D.dot(D);
+            dSquared = D.dot(D);
             e = -direction.dot(D);
 
-            if (e > 0f && e * e >= dsqr * outerAngleSinSqr) {
-                return dsqr <= otherRadiusSquared;
+            if (e > 0f && e * e >= dSquared * outerAngleSinSqr) {
+                return dSquared <= otherRadiusSquared;
             } else {
                 return true;
             }

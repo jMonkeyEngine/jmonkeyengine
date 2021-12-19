@@ -197,9 +197,9 @@ public class RagdollUtils {
             list.add(skeleton.getBoneIndex(bone));
         } else {
             list.add(skeleton.getBoneIndex(bone));
-            for (Bone chilBone : bone.getChildren()) {
-                if (!boneList.contains(chilBone.getName())) {
-                    list.addAll(getBoneIndices(chilBone, skeleton, boneList));
+            for (Bone childBone : bone.getChildren()) {
+                if (!boneList.contains(childBone.getName())) {
+                    list.addAll(getBoneIndices(childBone, skeleton, boneList));
                 }
             }
         }

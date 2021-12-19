@@ -50,11 +50,11 @@ public class ShaderDebug {
      */
     public static String formatShaderSource(String source) {      
         String[] sourceLines = source.split("\n");
-        int nblines = 0;
+        int lineNumber = 0;
         StringBuilder out = new StringBuilder();       
         for (String string : sourceLines) {
-            nblines++;
-            out.append(nblines).append("\t").append(string).append("\n");
+            lineNumber++;
+            out.append(lineNumber).append("\t").append(string).append("\n");
         }
         return out.toString();
     }

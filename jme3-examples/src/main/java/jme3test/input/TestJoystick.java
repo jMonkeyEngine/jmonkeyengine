@@ -465,8 +465,8 @@ public class TestJoystick extends SimpleApplication {
     
     private void pickGamePad(Vector2f mouseLoc){
         if (lastButton != null) {
-            CollisionResults cresults = pick(cam, mouseLoc, gamepad);
-            for (CollisionResult cr : cresults) {
+            CollisionResults results = pick(cam, mouseLoc, gamepad);
+            for (CollisionResult cr : results) {
                 Node n = cr.getGeometry().getParent();
                 if (n != null && (n instanceof ButtonView)) {
                     String b = n.getName().substring("Button:".length());

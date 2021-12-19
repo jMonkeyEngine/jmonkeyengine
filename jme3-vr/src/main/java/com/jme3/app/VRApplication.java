@@ -717,10 +717,10 @@ public abstract class VRApplication implements Application, SystemListener {
                 settings.setDepthBits(24);
                 settings.setVSync(true);
                 // try and read resolution from file in local dir
-                File resfile = new File("resolution.txt");
-                if( resfile.exists() ) {
+                File resFile = new File("resolution.txt");
+                if( resFile.exists() ) {
                     try {
-                        BufferedReader br = new BufferedReader(new FileReader(resfile));
+                        BufferedReader br = new BufferedReader(new FileReader(resFile));
                         settings.setWidth(Integer.parseInt(br.readLine()));
                         settings.setHeight(Integer.parseInt(br.readLine()));
                         try {
