@@ -175,7 +175,7 @@ public class LodGenerator {
         
         @Override
         public String toString() {
-            return "Edge{" + "collapsTo " + destination.index + '}';
+            return "Edge{" + "collapseTo " + destination.index + '}';
         }
     }
     
