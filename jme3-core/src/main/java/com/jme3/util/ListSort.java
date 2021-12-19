@@ -86,8 +86,8 @@ public class ListSort<T> {
      */
     private int nbRuns = 0;
 
-    /* Try to used a kind of structure like in the original implementation.
-     * Ended up using 2 arrays as done in the java 7 Timsort. 
+    /* Tried to use a struct, as in the original implementation.
+     * Ended up using 2 arrays like the Java7 Timsort.
      * Original implementation used a struct, but instantiation of this inner
      * class + array was a convoluted pain.
      */
@@ -155,7 +155,7 @@ public class ListSort<T> {
         }
 
         /*
-         * this part was taken from java 7 TimSort.
+         * This part was taken from the Java7 TimSort.
          * The original implementation use a stack of length 85, but this seems 
          * to boost performance for mid-sized arrays.
          * I changed the numbers so they fit our MIN_SIZE parameter.
@@ -200,9 +200,9 @@ public class ListSort<T> {
         int remaining = high - low;
 
         /*
-         * If array's size is below min_size we perform a binary insertion sort 
+         * If array's size is below min_size, we perform a binary insertion sort,
          * but first we check if some existing ordered pattern exists to reduce 
-         * the size of data to be sorted
+         * the size of data to be sorted.
          */
         if (remaining < MIN_SIZE) {
             int runLength = getRunLength(array, low, high, comparator);
@@ -219,8 +219,8 @@ public class ListSort<T> {
         while (remaining != 0) {
             int runLength = getRunLength(array, low, high, comparator);
 
-            /* if run length is below the threshold we binary sort the remaining
-             * elements
+            /* If the run length is below the threshold, binary sort the remaining
+             * elements.
              */
             if (runLength < minLength) {
                 int newLength = remaining <= minLength ? remaining : minLength;
@@ -344,8 +344,8 @@ public class ListSort<T> {
              */
             int nbElems = start - left;
             /*
-             * grabbed from java7 TimSort, the switch is an optimization to 
-             * arraycopy in case there are 1 or 2 elements only to copy
+             * Grabbed from the Java7 TimSort, the switch optimizes
+             * arraycopy in case there are only 1 or 2 elements to copy.
              */
             switch (nbElems) {
                 case 2:
@@ -514,9 +514,9 @@ public class ListSort<T> {
             while (offset < maxOffset && comparator.compare(key, array[idx + hint + offset]) > 0) {
                 lastOffset = offset;
                 offset = (offset << 1) + 1;
-                /* int overflow. 
-                 * Note : not sure if that can happen but it's here in both 
-                 * original and java 7 TimSort implementation
+                /* int overflow.
+                 * Note: not sure if that can happen, but it's included in both the
+                 * original and Java7 TimSort implementations.
                  */
                 if (offset <= 0) {
                     offset = maxOffset;
@@ -526,7 +526,7 @@ public class ListSort<T> {
                 offset = maxOffset;
             }
 
-            // Translate back to offsets relative to idx. 
+            // Translate back into offsets relative to idx.
             lastOffset += hint;
             offset += hint;
         } else {
@@ -537,9 +537,9 @@ public class ListSort<T> {
             while (offset < maxOffset && comparator.compare(key, array[idx + hint - offset]) <= 0) {
                 lastOffset = offset;
                 offset = (offset << 1) + 1;
-                /* int overflow. 
-                 * Note : not sure if that can happen but it's here in both 
-                 * original and java 7 TimSort implementation
+                /* int overflow.
+                 * Note: not sure if that can happen, but it's included in both the
+                 * original and Java7 TimSort implementations.
                  */
                 if (offset <= 0) {
                     offset = maxOffset;
@@ -606,8 +606,8 @@ public class ListSort<T> {
                 lastOffset = offset;
                 offset = (offset << 1) + 1;
                 /* int overflow. 
-                 * Note : not sure if that can happen but it's here in both 
-                 * original and java 7 TimSort implementation
+                 * Note: not sure if that can happen, but it's included in both
+                 * the original and Java7 TimSort implementations.
                  */
                 if (offset <= 0) {
                     offset = maxOffset;

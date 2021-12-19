@@ -141,7 +141,7 @@ public class KTXLoader implements AssetLoader {
                 pixelReader = new SrTuRoPixelReader(); 
             }
             
-            //some of the values may be 0 we need them at least to be 1
+            // Some of the values may be 0. We need them to be at least 1.
             pixelDepth = Math.max(1, pixelDepth);
             numberOfArrayElements = Math.max(1, numberOfArrayElements);
             numberOfFaces = Math.max(1, numberOfFaces);
@@ -166,9 +166,9 @@ public class KTXLoader implements AssetLoader {
             int offset = 0;
             //iterate over data
             for (int mipLevel = 0; mipLevel < numberOfMipmapLevels; mipLevel++) {
-                //size of the image in bytes.
-                //this value is bogus in many example, when using mipmaps.
-                //instead we compute the theoretical size and display a warning when it does not match.
+                // Size of the image in bytes.
+                // This value is bogus in many examples when using mipmaps.
+                // We compute the theoretical size and display a warning if it does not match.
                 int fileImageSize = in.readInt();
                 
                 int width = Math.max(1, pixelWidth >> mipLevel);

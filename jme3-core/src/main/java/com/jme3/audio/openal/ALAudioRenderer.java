@@ -768,7 +768,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
         // Reset the stream. Typically happens if it finished playing on 
         // its own and got reclaimed. 
         // Note that AudioNode.stop() already resets the stream
-        // since it might not be in EOF when stopped.
+        // since it might not be at the EOF when stopped.
         if (stream.isEOF()) {
             stream.setTime(0);
         }

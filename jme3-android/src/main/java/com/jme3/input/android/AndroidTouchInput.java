@@ -353,7 +353,7 @@ public class AndroidTouchInput implements TouchInput {
 //            logger.log(Level.FINE, "creating KeyInputEvent: {0}", kie);
         }
 
-        // consume all keys ourself except Volume Up/Down and Menu
+        // Consume all keys ourselves except Volume Up/Down and Menu
         //   Don't do Menu so that typical Android Menus can be created and used
         //   by the user in MainActivity
         if ((event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_UP) ||

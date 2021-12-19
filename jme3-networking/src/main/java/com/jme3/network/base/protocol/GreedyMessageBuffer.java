@@ -110,8 +110,8 @@ public class GreedyMessageBuffer implements MessageBuffer {
                     // byte in it... and in that case we will get an underflow
                     // when attempting to read the short below.
                     
-                    // It has to be 1 or we'd never get here... but one
-                    // isn't enough so we stash it away.
+                    // It has to be 1, or we'd never get here... but one
+                    // isn't enough, so we stash it away.
                     carry = buffer.get();
                     break;
                 } else {

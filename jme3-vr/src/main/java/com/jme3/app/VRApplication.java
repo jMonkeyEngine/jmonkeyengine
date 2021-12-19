@@ -1179,8 +1179,8 @@ public abstract class VRApplication implements Application, SystemListener {
         rootNode.updateGeometricState();
 
         if( isInVR() == false || guiManager.getPositioningMode() == VRGUIPositioningMode.MANUAL ) {
-            // only update geometric state here if GUI is in manual mode, or not in VR
-            // it will get updated automatically in the viewmanager update otherwise
+            // Update geometric state here only if GUI is in manual mode, or not in VR.
+            // Otherwise it will get updated automatically in the view-manager update.
             guiNode.updateGeometricState();
         }
 
