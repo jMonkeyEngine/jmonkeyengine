@@ -452,7 +452,7 @@ public class TestWalkingChar extends SimpleApplication
      * Callback to indicate that the "shootOnce" animation action has completed.
      */
     void onShootDone() {
-        /**
+        /*
          * Play the "stand" animation action on the shooting layer.
          */
         composer.setCurrentAction("stand", "shootingLayer");
