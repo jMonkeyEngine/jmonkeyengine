@@ -36,7 +36,7 @@ import com.jme3.math.Vector3f;
 /**
  *
  * @author Anthyon
- * @Deprecated in favor of TerrainGridTileLoader
+ * @deprecated in favor of TerrainGridTileLoader
  */
 @Deprecated
 public interface HeightMapGrid {
