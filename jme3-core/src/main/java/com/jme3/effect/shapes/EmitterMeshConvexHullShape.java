@@ -62,6 +62,7 @@ public class EmitterMeshConvexHullShape extends EmitterMeshFaceShape {
     /**
      * Randomly selects a point inside the convex hull
      * of a randomly selected mesh.
+     *
      * @param store
      *        storage for the coordinates of the selected point
      */
@@ -76,7 +77,8 @@ public class EmitterMeshConvexHullShape extends EmitterMeshFaceShape {
     /**
      * Randomly selects a point inside the convex hull
      * of a randomly selected mesh.
-     * The normal param is not used.
+     * The {@code normal} argument is not used.
+     *
      * @param store
      *        storage for the coordinates of the selected point
      * @param normal

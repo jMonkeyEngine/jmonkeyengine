@@ -83,6 +83,7 @@ public class EmitterMeshFaceShape extends EmitterMeshVertexShape {
 
     /**
      * Randomly selects a point on a random face.
+     *
      * @param store
      *        storage for the coordinates of the selected point
      */
@@ -103,7 +104,8 @@ public class EmitterMeshFaceShape extends EmitterMeshVertexShape {
 
     /**
      * Randomly selects a point on a random face.
-     * The normal param is filled with selected face's normal.
+     * The {@code normal} argument is set to the normal of the selected face.
+     *
      * @param store
      *        storage for the coordinates of the selected point
      * @param normal

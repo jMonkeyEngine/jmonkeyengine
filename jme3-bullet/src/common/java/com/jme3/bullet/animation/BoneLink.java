@@ -112,7 +112,7 @@ public class BoneLink extends PhysicsLink {
      * @param collisionShape the desired shape (not null, alias created)
      * @param mass the desired mass (&gt;0)
      * @param localOffset the location of the body's center (in the bone's local
-     * coordinates, not null, unaffected)
+     *     coordinates, not null, unaffected)
      */
     BoneLink(DacLinks control, Joint bone, CollisionShape collisionShape,
             float mass, Vector3f localOffset) {

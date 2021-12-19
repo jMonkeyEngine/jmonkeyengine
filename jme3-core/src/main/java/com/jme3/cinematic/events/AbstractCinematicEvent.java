@@ -92,6 +92,7 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
 
     /**
      * Construct a cinematic event with the given loopMode and the given initialDuration.
+     *
      * @param initialDuration the duration of the event at speed = 1.
      * @param loopMode the loop mode of the event.
      */
@@ -331,7 +332,8 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
     }
 
     /**
-     * Add a CinematicEventListener to this event.
+     * Adds a CinematicEventListener to this event.
+     *
      * @param listener CinematicEventListener
      */
     public void addListener(CinematicEventListener listener) {
@@ -339,7 +341,8 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
     }
 
     /**
-     * Remove a CinematicEventListener from this event.
+     * Removes a CinematicEventListener from this event.
+     *
      * @param listener CinematicEventListener
      */
     public void removeListener(CinematicEventListener listener) {
@@ -349,7 +352,7 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
     /**
      * Fast-forwards the event to the given timestamp. Time=0 is the start of the event.
      *
-     *  @param time the time to fast-forward to.
+     * @param time the time to fast-forward to.
      */
     @Override
     public void setTime(float time) {

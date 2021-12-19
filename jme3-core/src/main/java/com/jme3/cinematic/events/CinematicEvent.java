@@ -118,8 +118,8 @@ public interface CinematicEvent extends Savable {
     public float getInitialDuration();
 
     /**
-     * Sets the duration of the animation at speed = 1 in seconds
-     * 
+     * Sets the duration of the animation at speed = 1, in seconds.
+     *
      * @param initialDuration the desired duration (in de-scaled seconds)
      */
     public void setInitialDuration(float initialDuration);
@@ -138,7 +138,8 @@ public interface CinematicEvent extends Savable {
     public void initEvent(Application app, Cinematic cinematic);
     
     /**
-     * Fast-forward to the given time, where time=0 is the start of the event.
+     * Fast-forwards to the given time, where time=0 is the start of the event.
+     *
      * @param time the time to fast-forward to
      */
     public void setTime(float time);    
