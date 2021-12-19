@@ -118,7 +118,7 @@ public class TestLodGeneration extends SimpleApplication {
         flyCam.setEnabled(false);
 
         guiFont = assetManager.loadFont("Interface/Fonts/Default.fnt");
-        hudText = new BitmapText(guiFont, false);
+        hudText = new BitmapText(guiFont);
         hudText.setSize(guiFont.getCharSet().getRenderedSize());
         hudText.setText(computeNbTri() + " tris");
         hudText.setLocalTranslation(cam.getWidth() / 2, hudText.getLineHeight(), 0);

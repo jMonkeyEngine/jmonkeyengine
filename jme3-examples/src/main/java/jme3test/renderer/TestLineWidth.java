@@ -73,7 +73,7 @@ public class TestLineWidth extends SimpleApplication {
          * Display the message, centered near the top of the display.
          */
         BitmapFont font = assetManager.loadFont("Interface/Fonts/Default.fnt");
-        BitmapText text = new BitmapText(font, false);
+        BitmapText text = new BitmapText(font);
         text.setSize(font.getCharSet().getRenderedSize());
         text.setText(message);
         float leftX = (cam.getWidth() - text.getLineWidth()) / 2;
