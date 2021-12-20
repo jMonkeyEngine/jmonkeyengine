@@ -175,7 +175,7 @@ public abstract class RagdollPreset {
         /**
          * Calculate a total score for the specified bone name.
          *
-         * @param name the name of a bone (not null)
+         * @param word the name of a bone (not null)
          * @return total score: larger value means more likely to correspond
          */
         public int getScore(String word) {

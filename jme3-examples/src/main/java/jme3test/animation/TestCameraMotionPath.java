@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -92,7 +92,7 @@ public class TestCameraMotionPath extends SimpleApplication {
         rootNode.attachChild(camNode);
 
         guiFont = assetManager.loadFont("Interface/Fonts/Default.fnt");
-        final BitmapText wayPointsText = new BitmapText(guiFont, false);
+        final BitmapText wayPointsText = new BitmapText(guiFont);
         wayPointsText.setSize(guiFont.getCharSet().getRenderedSize());
 
         guiNode.attachChild(wayPointsText);

@@ -38,7 +38,7 @@ import com.jme3.bullet.PhysicsSpace;
 /**
  * Test case for JME issue #883: extra physicsTicks in ThreadingType.PARALLEL.
  *
- * <p></p>If successful, physics time and frame time will advance at the same rate.
+ * <p>If successful, physics time and frame time will advance at the same rate.
  */
 public class TestIssue883 extends SimpleApplication {
 

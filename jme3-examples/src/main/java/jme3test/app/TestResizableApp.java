@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -77,7 +77,7 @@ public class TestResizableApp extends SimpleApplication {
         geom.setMaterial(mat);
         rootNode.attachChild(geom);
         
-        txt = new BitmapText(loadGuiFont(), false);
+        txt = new BitmapText(loadGuiFont());
         txt.setText("Drag the corners of the application to resize it.\n" +
                     "Current Size: " + settings.getWidth() + "x" + settings.getHeight());
         txt.setLocalTranslation(0, settings.getHeight(), 0);
