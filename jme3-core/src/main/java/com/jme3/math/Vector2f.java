@@ -708,7 +708,7 @@ public final class Vector2f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * are these two vectors the same? they are is they both have the same x and
+     * Are these two vectors the same? They are if they have the same x and
      * y values.
      *
      * @param o   the object to compare for equality

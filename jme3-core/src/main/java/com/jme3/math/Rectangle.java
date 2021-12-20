@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,9 +35,23 @@ import com.jme3.export.*;
 import java.io.IOException;
 
 /**
- * <code>Rectangle</code> defines a finite plane within three dimensional space
+ * <code>Rectangle</code> defines a finite plane within three-dimensional space
  * that is specified via three points (A, B, C). These three points define a
- * triangle with the fourth point defining the rectangle ((B + C) - A.
+ * triangle with the fourth point defining the rectangle (B + C) - A.
+ *
+ * <p>The corner points are named as follows:
+ *
+ * <pre>
+ *     C +---+ D
+ *       |   |
+ *       |   |
+ *       |   |
+ *       |   |
+ *     A +---+ B
+ * </pre>
+ *
+ * <p>If angle BAC isn't exactly 90 degrees, then the resulting shape is
+ * actually parallelogram, not a rectangle.
  *
  * @author Mark Powell
  * @author Joshua Slack
@@ -123,6 +137,42 @@ public final class Rectangle implements Savable, Cloneable, java.io.Serializable
      */
     public void setC(Vector3f c) {
         this.c = c;
+    }
+
+    /**
+     * Returns the coordinates of the 4th corner, calculated by the formula
+     * D = (B + C) - A .
+     *
+     * @return the corner location (a new Vector3f)
+     */
+    public Vector3f calculateD() {
+        float x = b.x + c.x - a.x;
+        float y = b.y + c.y - a.y;
+        float z = b.z + c.z - a.z;
+        return new Vector3f(x, y, z);
+    }
+
+    /**
+     * Returns a normal vector, calculated by the formula
+     * <pre>
+     *      (C - B) x (B - A)
+     * N = -------------------
+     *     |(C - B) x (B - A)|
+     * </pre>
+     *
+     * @param normal storage for the normal, or null for a new Vector3f
+     * @return the normal direction (either {@code normal} or a new Vector3f)
+     */
+    public Vector3f calculateNormal(Vector3f normal) {
+        if (normal == null) {
+            normal = new Vector3f();
+        }
+
+        Vector3f v1 = c.subtract(b);
+        Vector3f v2 = a.subtract(b);
+        normal.set(v1.crossLocal(v2).normalizeLocal());
+
+        return normal;
     }
 
     /**

@@ -93,8 +93,8 @@ public class CubeField extends SimpleApplication implements AnalogListener {
         Keys();
 
         defaultFont = assetManager.loadFont("Interface/Fonts/Default.fnt");
-        pressStart = new BitmapText(defaultFont, false);
-        fpsScoreText = new BitmapText(defaultFont, false);
+        pressStart = new BitmapText(defaultFont);
+        fpsScoreText = new BitmapText(defaultFont);
 
         loadText(fpsScoreText, "Current Score: 0", defaultFont, 0, 2, 0);
         loadText(pressStart, "PRESS ENTER", defaultFont, 0, 5, 0);
@@ -248,17 +248,17 @@ public class CubeField extends SimpleApplication implements AnalogListener {
      * Core Game Logic
      */
     private void gameLogic(float tpf){
-    	//Subtract difficulty level in accordance to speed every 10 seconds
-    	if(timer.getTimeInSeconds()>=coreTime2){
-			coreTime2=timer.getTimeInSeconds()+10;
-			if(difficulty<=lowCap){
-				difficulty=lowCap;
-			}
-			else if(difficulty>lowCap){
-				difficulty-=5;
-			}
-		}
-    	
+        //Subtract difficulty level in accordance to speed every 10 seconds
+        if(timer.getTimeInSeconds()>=coreTime2){
+            coreTime2=timer.getTimeInSeconds()+10;
+            if(difficulty<=lowCap){
+                difficulty=lowCap;
+            }
+            else if(difficulty>lowCap){
+                difficulty-=5;
+            }
+        }
+        
         if(speed<.1f){
             speed+=.000001f*tpf*fpsRate;
         }
@@ -274,8 +274,8 @@ public class CubeField extends SimpleApplication implements AnalogListener {
             requestClose(false);
         }else{
             for (int i = 0; i < cubeField.size(); i++){
-            	
-            	//better way to check collision
+
+                //better way to check collision
                 Geometry playerModel = (Geometry) player.getChild(0);
                 Geometry cubeModel = cubeField.get(i);
 
@@ -327,73 +327,73 @@ public class CubeField extends SimpleApplication implements AnalogListener {
      * Determines the colors of the player, floor, obstacle and background
      */
     private void colorLogic() {
-    	if (timer.getTimeInSeconds() >= coreTime){
+        if (timer.getTimeInSeconds() >= coreTime){
             
-        	colorInt++;
+            colorInt++;
             coreTime = timer.getTimeInSeconds() + 20;
         
 
-	        switch (colorInt){
-	            case 1:
-	                obstacleColors.clear();
-	                solidBox = false;
-	                obstacleColors.add(ColorRGBA.Green);
-	                renderer.setBackgroundColor(ColorRGBA.Black);
-	                playerMaterial.setColor("Color", ColorRGBA.White);
-			floorMaterial.setColor("Color", ColorRGBA.Black);
-	                break;
-	            case 2:
-	                obstacleColors.set(0, ColorRGBA.Black);
-	                solidBox = true;
-	                renderer.setBackgroundColor(ColorRGBA.White);
-	                playerMaterial.setColor("Color", ColorRGBA.Gray);
+            switch (colorInt){
+                case 1:
+                    obstacleColors.clear();
+                    solidBox = false;
+                    obstacleColors.add(ColorRGBA.Green);
+                    renderer.setBackgroundColor(ColorRGBA.Black);
+                    playerMaterial.setColor("Color", ColorRGBA.White);
+            floorMaterial.setColor("Color", ColorRGBA.Black);
+                    break;
+                case 2:
+                    obstacleColors.set(0, ColorRGBA.Black);
+                    solidBox = true;
+                    renderer.setBackgroundColor(ColorRGBA.White);
+                    playerMaterial.setColor("Color", ColorRGBA.Gray);
                         floorMaterial.setColor("Color", ColorRGBA.LightGray);
-	                break;
-	            case 3:
-	                obstacleColors.set(0, ColorRGBA.Pink);
-	                break;
-	            case 4:
-	                obstacleColors.set(0, ColorRGBA.Cyan);
-	                obstacleColors.add(ColorRGBA.Magenta);
-	                renderer.setBackgroundColor(ColorRGBA.Gray);
+                    break;
+                case 3:
+                    obstacleColors.set(0, ColorRGBA.Pink);
+                    break;
+                case 4:
+                    obstacleColors.set(0, ColorRGBA.Cyan);
+                    obstacleColors.add(ColorRGBA.Magenta);
+                    renderer.setBackgroundColor(ColorRGBA.Gray);
                         floorMaterial.setColor("Color", ColorRGBA.Gray);
-	                playerMaterial.setColor("Color", ColorRGBA.White);
-	                break;
-	            case 5:
-	                obstacleColors.remove(0);
-	                renderer.setBackgroundColor(ColorRGBA.Pink);
-	                solidBox = false;
-	                playerMaterial.setColor("Color", ColorRGBA.White);
-	                break;
-	            case 6:
-	                obstacleColors.set(0, ColorRGBA.White);
-	                solidBox = true;
-	                renderer.setBackgroundColor(ColorRGBA.Black);
-	                playerMaterial.setColor("Color", ColorRGBA.Gray);
+                    playerMaterial.setColor("Color", ColorRGBA.White);
+                    break;
+                case 5:
+                    obstacleColors.remove(0);
+                    renderer.setBackgroundColor(ColorRGBA.Pink);
+                    solidBox = false;
+                    playerMaterial.setColor("Color", ColorRGBA.White);
+                    break;
+                case 6:
+                    obstacleColors.set(0, ColorRGBA.White);
+                    solidBox = true;
+                    renderer.setBackgroundColor(ColorRGBA.Black);
+                    playerMaterial.setColor("Color", ColorRGBA.Gray);
                         floorMaterial.setColor("Color", ColorRGBA.LightGray);
-	                break;
-	            case 7:
-	                obstacleColors.set(0, ColorRGBA.Green);
-	                renderer.setBackgroundColor(ColorRGBA.Gray);
-	                playerMaterial.setColor("Color", ColorRGBA.Black);
+                    break;
+                case 7:
+                    obstacleColors.set(0, ColorRGBA.Green);
+                    renderer.setBackgroundColor(ColorRGBA.Gray);
+                    playerMaterial.setColor("Color", ColorRGBA.Black);
                         floorMaterial.setColor("Color", ColorRGBA.Orange);
-	                break;
-	            case 8:
-	                obstacleColors.set(0, ColorRGBA.Red);
+                    break;
+                case 8:
+                    obstacleColors.set(0, ColorRGBA.Red);
                         floorMaterial.setColor("Color", ColorRGBA.Pink);
-	                break;
-	            case 9:
-	                obstacleColors.set(0, ColorRGBA.Orange);
-	                obstacleColors.add(ColorRGBA.Red);
-	                obstacleColors.add(ColorRGBA.Yellow);
-	                renderer.setBackgroundColor(ColorRGBA.White);
-	                playerMaterial.setColor("Color", ColorRGBA.Red);
-	                floorMaterial.setColor("Color", ColorRGBA.Gray);
-	                colorInt=0;
-	                break;
-	            default:
-	                break;
-	        }
+                    break;
+                case 9:
+                    obstacleColors.set(0, ColorRGBA.Orange);
+                    obstacleColors.add(ColorRGBA.Red);
+                    obstacleColors.add(ColorRGBA.Yellow);
+                    renderer.setBackgroundColor(ColorRGBA.White);
+                    playerMaterial.setColor("Color", ColorRGBA.Red);
+                    floorMaterial.setColor("Color", ColorRGBA.Gray);
+                    colorInt=0;
+                    break;
+                default:
+                    break;
+            }
         }
     }
     /**

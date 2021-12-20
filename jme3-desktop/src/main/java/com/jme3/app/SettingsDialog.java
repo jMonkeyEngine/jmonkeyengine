@@ -50,10 +50,13 @@ import java.util.prefs.BackingStoreException;
 import javax.swing.*;
 
 /**
- * <code>PropertiesDialog</code> provides an interface to make use of the
- * <code>GameSettings</code> class. The <code>GameSettings</code> object
- * is still created by the client application, and passed during construction.
- * 
+ * <code>SettingsDialog</code> displays a Swing dialog box to interactively
+ * configure the <code>AppSettings</code> of a desktop application before
+ * <code>start()</code> is invoked.
+ *
+ * The <code>AppSettings</code> instance to be configured is passed to the
+ * constructor.
+ *
  * @see AppSettings
  * @author Mark Powell
  * @author Eric Woroshow
@@ -74,7 +77,7 @@ public final class SettingsDialog extends JFrame {
     // Resource bundle for i18n.
     ResourceBundle resourceBundle = ResourceBundle.getBundle("com.jme3.app/SettingsDialog");
     
-    // connection to properties file.
+    // the instance being configured
     private final AppSettings source;
     
     // Title Image
@@ -106,12 +109,10 @@ public final class SettingsDialog extends JFrame {
     private int minHeight = 0;
     
     /**
-     * Constructor for the <code>PropertiesDialog</code>. Creates a
-     * properties dialog initialized for the primary display.
+     * Instantiate a <code>SettingsDialog</code> for the primary display.
      *
      * @param source
-     *            the <code>AppSettings</code> object to use for working with
-     *            the properties file (not null)
+     *            the <code>AppSettings</code> (not null)
      * @param imageFile
      *            the image file to use as the title of the dialog;
      *            <code>null</code> will result in to image being displayed
@@ -125,12 +126,10 @@ public final class SettingsDialog extends JFrame {
     }
 
     /**
-     * Constructor for the <code>PropertiesDialog</code>. Creates a
-     * properties dialog initialized for the primary display.
-     * 
+     * Instantiate a <code>SettingsDialog</code> for the primary display.
+     *
      * @param source
-     *            the <code>GameSettings</code> object to use for working with
-     *            the properties file (not null)
+     *            the <code>AppSettings</code> object (not null)
      * @param imageFile
      *            the image file to use as the title of the dialog;
      *            <code>null</code> will result in to image being displayed
@@ -535,7 +534,7 @@ public final class SettingsDialog extends JFrame {
     /**
      * <code>verifyAndSaveCurrentSelection</code> first verifies that the
      * display mode is valid for this system, and then saves the current
-     * selection as a properties.cfg file.
+     * selection to the backing store.
      * 
      * @return if the selection is valid
      */
@@ -596,7 +595,7 @@ public final class SettingsDialog extends JFrame {
         }
 
         if (valid) {
-            //use the GameSettings class to save it.
+            //use the AppSettings class to save it to backing store
             source.setWidth(width);
             source.setHeight(height);
             source.setBitsPerPixel(depth);
@@ -627,8 +626,8 @@ public final class SettingsDialog extends JFrame {
     /**
      * <code>setUpChooser</code> retrieves all available display modes and
      * places them in a <code>JComboBox</code>. The resolution specified by
-     * GameSettings is used as the default value.
-     * 
+     * AppSettings is used as the default value.
+     *
      * @return the combo box of display modes.
      */
     private JComboBox<String> setUpResolutionChooser() {

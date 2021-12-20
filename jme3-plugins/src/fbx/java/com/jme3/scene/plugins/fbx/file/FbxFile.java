@@ -35,12 +35,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FbxFile {
-	
-	public List<FbxElement> rootElements = new ArrayList<>();
-	public long version;
-	
-        @Override
-        public String toString() {
-            return "FBXFile[version=" + version + ",numElements=" + rootElements.size() + "]";
-        }
+
+    public List<FbxElement> rootElements = new ArrayList<>();
+    public long version;
+
+    @Override
+    public String toString() {
+        return "FBXFile[version=" + version + ",numElements=" + rootElements.size() + "]";
+    }
 }

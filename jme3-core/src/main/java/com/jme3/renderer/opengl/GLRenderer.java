@@ -81,6 +81,7 @@ public final class GLRenderer implements Renderer {
     private static final Pattern GLVERSION_PATTERN = Pattern.compile(".*?(\\d+)\\.(\\d+).*");
 
     private final ByteBuffer nameBuf = BufferUtils.createByteBuffer(250);
+    private final FloatBuffer floatBuf16 = BufferUtils.createFloatBuffer(16);
     private final StringBuilder stringBuf = new StringBuilder(250);
     private final IntBuffer intBuf1 = BufferUtils.createIntBuffer(1);
     private final IntBuffer intBuf16 = BufferUtils.createIntBuffer(16);
@@ -372,7 +373,7 @@ public final class GLRenderer implements Renderer {
 
         if (hasExtension("GL_ARB_color_buffer_float") &&
                 hasExtension("GL_ARB_half_float_pixel")) {
-            // XXX: Require both 16 and 32 bit float support for FloatColorBuffer.
+            // XXX: Require both 16- and 32-bit float support for FloatColorBuffer.
             caps.add(Caps.FloatColorBuffer);
         }
 
@@ -393,6 +394,14 @@ public final class GLRenderer implements Renderer {
 
         if (hasExtension("GL_EXT_texture_compression_s3tc")) {
             caps.add(Caps.TextureCompressionS3TC);
+        }
+
+        if (hasExtension("GL_ARB_texture_compression_bptc")) {
+            caps.add(Caps.TextureCompressionBPTC);
+        }
+
+        if (hasExtension("GL_EXT_texture_compression_rgtc")) {
+            caps.add(Caps.TextureCompressionRGTC);
         }
 
         if (hasExtension("GL_ARB_ES3_compatibility")) {
@@ -475,7 +484,7 @@ public final class GLRenderer implements Renderer {
             logger.log(Level.FINER, "Samples: {0}", samples);
             boolean enabled = gl.glIsEnabled(GLExt.GL_MULTISAMPLE_ARB);
             if (samples > 0 && available && !enabled) {
-                // Doesn't seem to be necessary .. OGL spec says it's always
+                // Doesn't seem to be necessary. OGL spec says it's always
                 // set by default?
                 gl.glEnable(GLExt.GL_MULTISAMPLE_ARB);
             }
@@ -631,15 +640,15 @@ public final class GLRenderer implements Renderer {
             }
         }
 
-	IntBuffer tmp = BufferUtils.createIntBuffer(16);
-	gl.glGetInteger(GL.GL_FRAMEBUFFER_BINDING, tmp);
-	tmp.rewind();
-	int fbOnLoad = tmp.get();
-	if(fbOnLoad > 0)
-	{
-            // Overriding default FB to fbOnLoad. Mostly iOS fix for scene processors and filters
-	    defaultFBO = fbOnLoad;
-	}
+        IntBuffer tmp = BufferUtils.createIntBuffer(16);
+        gl.glGetInteger(GL.GL_FRAMEBUFFER_BINDING, tmp);
+        tmp.rewind();
+        int fbOnLoad = tmp.get();
+        if(fbOnLoad > 0)
+        {
+            // Override default FB to fbOnLoad. Mostly an iOS fix for scene processors and filters.
+            defaultFBO = fbOnLoad;
+        }
     }
 
     @Override
@@ -688,10 +697,10 @@ public final class GLRenderer implements Renderer {
             bits = GL.GL_COLOR_BUFFER_BIT;
         }
         if (depth) {
-            // glClear(GL.GL_DEPTH_BUFFER_BIT) seems to not work when glDepthMask is false
-            // here s some link on openl board
+            // glClear(GL.GL_DEPTH_BUFFER_BIT) seems to not work when glDepthMask is false.
+            // Here is a link to the openGL discussion:
             // http://www.opengl.org/discussion_boards/ubbthreads.php?ubb=showflat&Number=257223
-            // if depth clear is requested, we enable the depthMask
+            // If depth clear is requested, we enable the depth mask.
             if (context.depthWriteEnabled == false) {
                 gl.glDepthMask(true);
                 context.depthWriteEnabled = true;
@@ -884,7 +893,7 @@ public final class GLRenderer implements Renderer {
                             + state.getBlendMode());
             }
 
-            // All of the common modes requires the ADD equation.
+            // All of the common modes require the ADD equation.
             // (This might change in the future?)
             blendEquationSeparate(RenderState.BlendEquation.Add, RenderState.BlendEquationAlpha.InheritColor);
         }
@@ -1179,7 +1188,10 @@ public final class GLRenderer implements Renderer {
         if (loc < 0) {
             uniform.setLocation(-1);
             // uniform is not declared in shader
-            logger.log(Level.FINE, "Uniform {0} is not declared in shader {1}.", new Object[]{uniform.getName(), shader.getSources()});
+            if (logger.isLoggable(Level.FINE)) {
+                logger.log(Level.FINE, "Uniform {0} is not declared in shader {1}.",
+                        new Object[]{uniform.getName(), shader.getSources()});
+            }
         } else {
             uniform.setLocation(loc);
         }
@@ -1210,7 +1222,7 @@ public final class GLRenderer implements Renderer {
         }
 
         if (uniform.getVarType() == null) {
-            return; // value not set yet..
+            return; // value not set yet
         }
         statistics.onUniformSet();
 
@@ -1505,7 +1517,7 @@ public final class GLRenderer implements Renderer {
             if (infoLog != null) {
                 logger.log(Level.WARNING, "{0} compiled successfully, compiler warnings: \n{1}",
                         new Object[]{source.getName(), infoLog});
-            } else {
+            } else if (logger.isLoggable(Level.FINE)) {
                 logger.log(Level.FINE, "{0} compiled successfully.", source.getName());
             }
             source.clearUpdateNeeded();
@@ -2493,8 +2505,8 @@ public final class GLRenderer implements Renderer {
                     // number of mipmaps we have.
                     gl.glTexParameteri(target, GL2.GL_TEXTURE_MAX_LEVEL, img.getMipMapSizes().length - 1);
                 } else {
-                    // Image does not have mipmaps and they are not required.
-                    // Specify that that the texture has no mipmaps.
+                    // Image does not have mipmaps, and they are not required.
+                    // Specify that the texture has no mipmaps.
                     gl.glTexParameteri(target, GL2.GL_TEXTURE_MAX_LEVEL, 0);
                 }
             }
@@ -3315,6 +3327,30 @@ public final class GLRenderer implements Renderer {
     @Override
     public int getDefaultAnisotropicFilter() {
         return this.defaultAnisotropicFilter;
+    }
+
+    /**
+     * Determine the maximum allowed width for lines.
+     *
+     * @return the maximum width (in pixels)
+     */
+    @Override
+    public float getMaxLineWidth() {
+        // Since neither JMonkeyEngine nor LWJGL ever enables GL_LINE_SMOOTH,
+        // all lines are aliased, but just in case...
+        assert !gl.glIsEnabled(GL.GL_LINE_SMOOTH);
+
+        // When running with OpenGL 3.2+ core profile,
+        // compatibility features such as multipixel lines aren't available.
+        if (caps.contains(Caps.CoreProfile)) {
+            return 1f;
+        }
+
+        floatBuf16.clear();
+        gl.glGetFloat(GL.GL_ALIASED_LINE_WIDTH_RANGE, floatBuf16);
+        float result = floatBuf16.get(1);
+
+        return result;
     }
 
     /**

@@ -53,7 +53,7 @@ public class HelloNode extends SimpleApplication {
     @Override
     public void simpleInitApp() {
 
-        /** create a blue box at coordinates (1,-1,1) */
+        /* create a blue box at coordinates (1,-1,1) */
         Box box1 = new Box(1,1,1);
         Geometry blue = new Geometry("Box", box1);
         blue.setLocalTranslation(new Vector3f(1,-1,1));
@@ -62,7 +62,7 @@ public class HelloNode extends SimpleApplication {
         mat1.setColor("Color", ColorRGBA.Blue);
         blue.setMaterial(mat1);
 
-        /** create a red box straight above the blue one at (1,3,1) */
+        /* create a red box straight above the blue one at (1,3,1) */
         Box box2 = new Box(1,1,1);      
         Geometry red = new Geometry("Box", box2);
         red.setLocalTranslation(new Vector3f(1,3,1));
@@ -71,14 +71,14 @@ public class HelloNode extends SimpleApplication {
         mat2.setColor("Color", ColorRGBA.Red);
         red.setMaterial(mat2);
 
-        /** Create a pivot node at (0,0,0) and attach it to the root node */
+        /* Create a pivot node at (0,0,0) and attach it to the root node */
         Node pivot = new Node("pivot");
         rootNode.attachChild(pivot); // put this node in the scene
 
-        /** Attach the two boxes to the *pivot* node. (And transitively to the root node.) */
+        /* Attach the two boxes to the *pivot* node. (And transitively to the root node.) */
         pivot.attachChild(blue);
         pivot.attachChild(red);
-        /** Rotate the pivot node: Note that both boxes have rotated! */
+        /* Rotate the pivot node: Note that both boxes have rotated! */
         pivot.rotate(.4f,.4f,0f);
     }
 }

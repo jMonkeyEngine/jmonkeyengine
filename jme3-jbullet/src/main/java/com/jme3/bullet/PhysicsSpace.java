@@ -607,8 +607,8 @@ public class PhysicsSpace {
         physicsBodies.put(node.getObjectId(), node);
 
         //Workaround
-        //It seems that adding a Kinematic RigidBody to the dynamicWorld prevent it from being non kinematic again afterward.
-        //so we add it non kinematic, then set it kinematic again.
+        //It seems that adding a Kinematic RigidBody to the dynamicWorld prevent it from being non-kinematic again afterward.
+        //so we add it non-kinematic, then set it kinematic again.
         boolean kinematic = false;
         if (node.isKinematic()) {
             kinematic = true;

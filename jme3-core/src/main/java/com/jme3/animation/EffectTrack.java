@@ -250,7 +250,7 @@ public class EffectTrack implements ClonableTrack {
      * @return a new instance
      */
     @Override
-    public Track clone() {
+    public EffectTrack clone() {
         return new EffectTrack(emitter, length, startOffset);
     }
 

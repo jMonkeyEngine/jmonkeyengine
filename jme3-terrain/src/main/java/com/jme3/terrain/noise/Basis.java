@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2011, Novyon Events
  * 
  * All rights reserved.
@@ -42,14 +42,14 @@ import java.nio.FloatBuffer;
  * 
  * <code>
  * float value(float x, float y, float z) {
- * 		return 0; // a flat noise with 0 value everywhere
+ *     return 0; // a flat noise with 0 value everywhere
  * }
  * </code>
  * 
  * or a more complex perlin noise ({@link ImprovedNoise}
  * 
  * Fractals use these functions to generate a more complex result based on some
- * frequency, roughness, etc values.
+ * frequency, roughness, etcetera values.
  * 
  * Fractals themselves are implementing the Basis interface as well, opening
  * an infinite range of results.
@@ -61,16 +61,16 @@ import java.nio.FloatBuffer;
  */
 public interface Basis {
 
-	public void init();
+    public void init();
 
-	public Basis setScale(float scale);
+    public Basis setScale(float scale);
 
-	public float getScale();
+    public float getScale();
 
-	public Basis addModulator(Modulator modulator);
+    public Basis addModulator(Modulator modulator);
 
-	public float value(float x, float y, float z);
+    public float value(float x, float y, float z);
 
-	public FloatBuffer getBuffer(float sx, float sy, float base, int size);
+    public FloatBuffer getBuffer(float sx, float sy, float base, int size);
 
 }

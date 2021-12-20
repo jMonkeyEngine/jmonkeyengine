@@ -39,12 +39,12 @@ import java.util.Comparator;
  * It's adapted from Tim Peters's work on list sorting for Python. More details
  * here http://svn.python.org/projects/python/trunk/Objects/listsort.txt
  * 
- * here is the C code from which this class is based 
+ * Here is the C code on which this class is based:
  * http://svn.python.org/projects/python/trunk/Objects/listobject.c
  *
- * This class was also greatly inspired from java 7 TimSort by Josh Blosh with the
- * difference that the temporary necessary memory space are allocated as the
- * geometry list grows and reused all along the application execution.
+ * This class was also greatly inspired by the Java7 TimSort by Josh Blosh, with the
+ * difference that temporary memory is allocated as the
+ * geometry list grows and reused throughout the execution of the application.
  *
  * Usage : ListSort has to be instantiated and kept with the geometry list ( or
  * w/e it may have to sort) Then the allocate method has to be called to
@@ -65,8 +65,8 @@ import java.util.Comparator;
 public class ListSort<T> {
 
     /**
-     * Threshold for binary sort vs merge. Original algorithm use 64, java7
-     * TimSort uses 32 and I used 128, see this post for explanations :
+     * Threshold for binary sort vs merge. Original algorithm used 64, Java7
+     * TimSort used 32, and I used 128. See this post for explanations:
      * https://hub.jmonkeyengine.org/t/i-got-that-sorted-out-huhuhu/24478
      */
     private static final int MIN_SIZE = 128;
@@ -157,7 +157,7 @@ public class ListSort<T> {
         /*
          * this part was taken from java 7 TimSort.
          * The original implementation use a stack of length 85, but this seems 
-         * to boost up performance for mid sized arrays.
+         * to boost performance for mid-sized arrays.
          * I changed the numbers so they fit our MIN_SIZE parameter.
          * 
          * Those numbers can be computed using this formula : 
@@ -211,7 +211,7 @@ public class ListSort<T> {
         }
 
         /*
-         * main iteration : compute minrun length, then iterate through the 
+         * main iteration : compute minimum run length, then iterate through the
          * array to find runs and merge them until they can be binary sorted 
          * if their length < minLength
          */
@@ -303,8 +303,8 @@ public class ListSort<T> {
      * @param array the array to sort
      * @param firstId the index of the first element to sort
      * @param lastId the index+ of the last element to sort
-     * @param start the index of the element to start sorting range
-     * [firstId,satrt]is assumed to be already sorted
+     * @param start the index of the element to start sorting range.
+     * [firstId,start] is assumed to be already sorted.
      * @param comparator the comparator
      */
     private void binaryInsertionSort(T[] array, int firstId, int lastId, int start,

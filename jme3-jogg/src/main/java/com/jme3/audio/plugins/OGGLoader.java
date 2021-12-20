@@ -174,7 +174,7 @@ public class OGGLoader implements AssetLoader {
      * of bytes in the input is returned.
      */
     private int getOggTotalBytes(int dataBytesTotal){
-        // Vorbis stream could have more samples than than the duration of the sound
+        // Vorbis stream could have more samples than the duration of the sound.
         // Must truncate.
         int numSamples;
         if (oggStream instanceof CachedOggStream){
@@ -311,7 +311,7 @@ public class OGGLoader implements AssetLoader {
             in = info.openStream();
             AudioData data = load(in, readStream, streamCache);
             if (readStream && !streamCache) {
-                // we still need the stream in this case ..
+                // We still need the stream in this case.
                 in = null;
             }
             return data;

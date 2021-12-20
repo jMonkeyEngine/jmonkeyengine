@@ -31,15 +31,15 @@
  */
 package jme3test.bullet;
 
-/**
- * Test case for JME issue #883: extra physicsTicks in ThreadingType.PARALLEL.
- *
- * If successful, physics time and frame time will advance at the same rate.
- */
 import com.jme3.app.SimpleApplication;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.PhysicsSpace;
 
+/**
+ * Test case for JME issue #883: extra physicsTicks in ThreadingType.PARALLEL.
+ *
+ * <p>If successful, physics time and frame time will advance at the same rate.
+ */
 public class TestIssue883 extends SimpleApplication {
 
     private boolean firstPrint = true;

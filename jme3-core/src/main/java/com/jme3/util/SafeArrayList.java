@@ -378,7 +378,7 @@ public class SafeArrayList<E> implements List<E>, Cloneable {
     @Override
     public List<E> subList(int fromIndex, int toIndex) {
 
-        // So far JME doesn't use subList that I can see so I'm nerfing it.
+        // So far, JME doesn't use subList that I can see, so I'm nerfing it.
         List<E> raw =  Arrays.asList(getArray()).subList(fromIndex, toIndex);
         return Collections.unmodifiableList(raw);
     }
@@ -452,9 +452,9 @@ public class SafeArrayList<E> implements List<E>, Cloneable {
 
         @Override
         public void remove() {
-            // This operation is not so easy to do but we will fake it.
+            // This operation is not so easy to do, but we will fake it.
             // The issue is that the backing list could be completely
-            // different than the one this iterator is a snapshot of.
+            // different from the one this iterator is a snapshot of.
             // We'll just remove(element) which in most cases will be
             // correct.  If the list had earlier .equals() equivalent
             // elements then we'll remove one of those instead.  Either

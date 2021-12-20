@@ -41,7 +41,7 @@ import java.util.List;
 /**
  * A
  * <code>Curve</code> is a visual, line-based representation of a {@link Spline}.
- * The underlying Spline will be sampled N times where N is the number of
+ * The underlying Spline will be sampled N times, where N is the number of
  * segments as specified in the constructor. Each segment will represent one
  * line in the generated mesh.
  *

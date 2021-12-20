@@ -86,7 +86,7 @@ public class Particle {
      */
     public int imageIndex = 0;
     
-    /**
+    /*
      * Distance to camera. Only used for sorted particles.
      */
     //public float distToCam;

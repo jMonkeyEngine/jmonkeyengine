@@ -51,8 +51,8 @@ import com.jme3.texture.Texture.WrapMode;
 
 /**
  * Demonstrates how to use terrain on Android.
- * The only difference is it uses a much smaller heightmap so it won't use up
- * all of the android device's memory.
+ * The only difference is it uses a much smaller heightmap, so it won't use
+ * all the device's memory.
  *
  * @author bowens
  */
@@ -150,7 +150,7 @@ public class TerrainTestAndroid extends SimpleApplication {
     }
 
     public void loadHintText() {
-        BitmapText hintText = new BitmapText(guiFont, false);
+        BitmapText hintText = new BitmapText(guiFont);
         hintText.setSize(guiFont.getCharSet().getRenderedSize());
         hintText.setLocalTranslation(0, getCamera().getHeight(), 0);
         hintText.setText("Press T to toggle wireframe,  P to toggle tri-planar texturing");
@@ -181,7 +181,7 @@ public class TerrainTestAndroid extends SimpleApplication {
                     matRock.setBoolean("useTriPlanarMapping", true);
                     // planar textures don't use the mesh's texture coordinates but real world coordinates,
                     // so we need to convert these texture coordinate scales into real world scales so it looks
-                    // the same when we switch to/from tr-planar mode
+                    // the same when we switch to/from tri-planar mode
                     matRock.setFloat("Tex1Scale", 1f / (512f / grassScale));
                     matRock.setFloat("Tex2Scale", 1f / (512f / dirtScale));
                     matRock.setFloat("Tex3Scale", 1f / (512f / rockScale));

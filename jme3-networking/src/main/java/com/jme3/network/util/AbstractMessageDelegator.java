@@ -148,7 +148,7 @@ public abstract class AbstractMessageDelegator<S extends MessageConnection>
      */   
     protected Method findDelegate( String name, Class messageType ) {
         // We do an exhaustive search because it's easier to 
-        // check for a variety of parameter types and it's all
+        // check for a variety of parameter types, and it's all
         // that Class would be doing in getMethod() anyway.
         for( Method m : delegateType.getDeclaredMethods() ) {
                     

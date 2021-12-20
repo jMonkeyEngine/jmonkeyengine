@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2011, Novyon Events
  * 
  * All rights reserved.
@@ -49,94 +49,94 @@ import com.jme3.terrain.noise.basis.Noise;
  */
 public class FractalSum extends Noise implements Fractal {
 
-	private Basis basis;
-	private float lacunarity;
-	private float amplitude;
-	private float roughness;
-	private float frequency;
-	private float octaves;
-	private int maxFreq;
+    private Basis basis;
+    private float lacunarity;
+    private float amplitude;
+    private float roughness;
+    private float frequency;
+    private float octaves;
+    private int maxFreq;
 
-	public FractalSum() {
-		this.basis = new ImprovedNoise();
-		this.lacunarity = 2.124367f;
-		this.amplitude = 1.0f;
-		this.roughness = 0.6f;
-		this.frequency = 1f;
-		this.setOctaves(1);
-	}
+    public FractalSum() {
+        this.basis = new ImprovedNoise();
+        this.lacunarity = 2.124367f;
+        this.amplitude = 1.0f;
+        this.roughness = 0.6f;
+        this.frequency = 1f;
+        this.setOctaves(1);
+    }
 
-	@Override
-	public float value(final float x, final float y, final float z) {
-		float total = 0;
+    @Override
+    public float value(final float x, final float y, final float z) {
+        float total = 0;
 
-		for (float f = this.frequency, a = this.amplitude; f < this.maxFreq; f *= this.lacunarity, a *= this.roughness) {
-			total += this.basis.value(this.scale * x * f, this.scale * y * f, this.scale * z * f) * a;
-		}
+        for (float f = this.frequency, a = this.amplitude; f < this.maxFreq; f *= this.lacunarity, a *= this.roughness) {
+            total += this.basis.value(this.scale * x * f, this.scale * y * f, this.scale * z * f) * a;
+        }
 
-		return ShaderUtils.clamp(total, -1, 1);
-	}
+        return ShaderUtils.clamp(total, -1, 1);
+    }
 
-	@Override
-	public Fractal addBasis(final Basis basis) {
-		this.basis = basis;
-		return this;
-	}
+    @Override
+    public Fractal addBasis(final Basis basis) {
+        this.basis = basis;
+        return this;
+    }
 
-	public float getOctaves() {
-		return this.octaves;
-	}
+    public float getOctaves() {
+        return this.octaves;
+    }
 
-	@Override
-	public Fractal setOctaves(final float octaves) {
-		this.octaves = octaves;
-		this.maxFreq = 1 << (int) octaves;
-		return this;
-	}
+    @Override
+    public Fractal setOctaves(final float octaves) {
+        this.octaves = octaves;
+        this.maxFreq = 1 << (int) octaves;
+        return this;
+    }
 
-	public float getFrequency() {
-		return this.frequency;
-	}
+    public float getFrequency() {
+        return this.frequency;
+    }
 
-	@Override
-	public Fractal setFrequency(final float frequency) {
-		this.frequency = frequency;
-		return this;
-	}
+    @Override
+    public Fractal setFrequency(final float frequency) {
+        this.frequency = frequency;
+        return this;
+    }
 
-	public float getRoughness() {
-		return this.roughness;
-	}
+    public float getRoughness() {
+        return this.roughness;
+    }
 
-	@Override
-	public Fractal setRoughness(final float roughness) {
-		this.roughness = roughness;
-		return this;
-	}
+    @Override
+    public Fractal setRoughness(final float roughness) {
+        this.roughness = roughness;
+        return this;
+    }
 
-	public float getAmplitude() {
-		return this.amplitude;
-	}
+    public float getAmplitude() {
+        return this.amplitude;
+    }
 
-	@Override
-	public Fractal setAmplitude(final float amplitude) {
-		this.amplitude = amplitude;
-		return this;
-	}
+    @Override
+    public Fractal setAmplitude(final float amplitude) {
+        this.amplitude = amplitude;
+        return this;
+    }
 
-	public float getLacunarity() {
-		return this.lacunarity;
-	}
+    public float getLacunarity() {
+        return this.lacunarity;
+    }
 
-	@Override
-	public Fractal setLacunarity(final float lacunarity) {
-		this.lacunarity = lacunarity;
-		return this;
-	}
+    @Override
+    public Fractal setLacunarity(final float lacunarity) {
+        this.lacunarity = lacunarity;
+        return this;
+    }
 
-	@Override
-	public void init() {
+    @Override
+    public void init() {
 
-	}
+    }
 
 }

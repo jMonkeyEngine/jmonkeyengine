@@ -91,7 +91,7 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
         Binormal,
         /**
          * Specifies the source data for various vertex buffers
-         * when interleaving is used. By default the format is
+         * when interleaving is used. By default, the format is
          * byte.
          */
         InterleavedData,
@@ -1033,7 +1033,7 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
     @Override
     public VertexBuffer clone() {
         // NOTE: Superclass GLObject automatically creates shallow clone
-        // e.g re-use ID.
+        // e.g. re-use ID.
         VertexBuffer vb = (VertexBuffer) super.clone();
         vb.handleRef = new Object();
         vb.id = -1;

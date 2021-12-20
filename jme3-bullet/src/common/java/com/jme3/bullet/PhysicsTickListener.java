@@ -50,8 +50,8 @@ public interface PhysicsTickListener {
     public void prePhysicsTick(PhysicsSpace space, float tpf);
 
     /**
-     * Callback from Bullet, invoked just after the physics has been stepped,
-     * use to check for forces etc.
+     * Callback from Bullet, invoked just after the physics has been stepped.
+     * Use it to check for forces etc.
      *
      * @param space the space that was just stepped (not null)
      * @param tpf the time per physics step (in seconds, &ge;0)

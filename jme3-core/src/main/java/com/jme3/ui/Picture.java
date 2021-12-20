@@ -56,7 +56,7 @@ public class Picture extends Geometry {
     /**
      * Create a named picture. 
      * 
-     * By default a picture's width and height are 1
+     * By default, a picture's width and height are 1,
      * and its position is 0, 0.
      * 
      * @param name the name of the picture in the scene graph
@@ -70,7 +70,7 @@ public class Picture extends Geometry {
 
     /**
      * Creates a named picture.
-     * By default a picture's width and height are 1
+     * By default, a picture's width and height are 1,
      * and its position is 0, 0.
      * The image texture coordinates will not be flipped.
      * 

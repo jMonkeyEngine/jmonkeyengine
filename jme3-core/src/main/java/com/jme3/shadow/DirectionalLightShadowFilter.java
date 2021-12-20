@@ -115,8 +115,8 @@ public class DirectionalLightShadowFilter extends AbstractShadowFilter<Direction
      * resulting in a constant quality in the shadow over the extends, but near
      * shadows could look very jagged a high value give a more logarithmic
      * repartition resulting in a high quality for near shadows, but the quality
-     * quickly decrease over the extend. the default value is set to 0.65f
-     * (theoretic optimal value).
+     * quickly decrease over the extend. The default value is 0.65
+     * (the theoretical optimum).
      *
      * @param lambda the lambda value.
      */

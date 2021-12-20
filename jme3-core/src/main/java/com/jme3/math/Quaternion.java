@@ -988,8 +988,8 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      * <code>fromAxes</code> creates a <code>Quaternion</code> that
      * represents the coordinate system defined by three axes. These axes are
      * assumed to be orthogonal and no error checking is applied. Thus, the user
-     * must insure that the three axes being provided indeed represents a proper
-     * right handed coordinate system.
+     * must ensure that the three axes being provided represent a proper
+     * right-handed coordinate system.
      *
      * @param axis
      *            the array containing the three vectors representing the
@@ -1009,8 +1009,8 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      * <code>fromAxes</code> creates a <code>Quaternion</code> that
      * represents the coordinate system defined by three axes. These axes are
      * assumed to be orthogonal and no error checking is applied. Thus, the user
-     * must insure that the three axes being provided indeed represents a proper
-     * right handed coordinate system.
+     * must ensure that the three axes being provided represent a proper
+     * right-handed coordinate system.
      *
      * @param xAxis vector representing the x-axis of the coordinate system.
      * @param yAxis vector representing the y-axis of the coordinate system.
@@ -1151,7 +1151,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      * result is returned as a new quaternion.
      *
      * @param scalar
-     *            the quaternion to multiply this quaternion by.
+     *            the scalar to multiply this quaternion by.
      * @return the new quaternion.
      */
     public Quaternion mult(float scalar) {
@@ -1163,7 +1163,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      * result is stored locally.
      *
      * @param scalar
-     *            the quaternion to multiply this quaternion by.
+     *            the scalar to multiply this quaternion by.
      * @return this.
      */
     public Quaternion multLocal(float scalar) {
@@ -1264,12 +1264,27 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
 
     /**
      * Flip the signs of all components of this Quaternion.
+     *
+     * @deprecated The naming of this method doesn't follow convention. Please
+     *     use {@link #normalizeLocal()} instead.
      */
+    @Deprecated
     public void negate() {
-        x *= -1;
-        y *= -1;
-        z *= -1;
-        w *= -1;
+        negateLocal();
+    }
+
+    /**
+     * Flip the signs of all components.
+     *
+     * @return the (modified) current instance (for chaining)
+     */
+    public Quaternion negateLocal() {
+        x = -x;
+        y = -y;
+        z = -z;
+        w = -w;
+
+        return this;
     }
 
     /**
@@ -1405,7 +1420,9 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      * <code>lookAt</code> is a convenience method for auto-setting the
      * quaternion based on a direction and an up vector. It computes
      * the rotation to transform the z-axis to point into 'direction'
-     * and the y-axis to 'up'.
+     * and the y-axis to 'up'.  Note that the results will be invalid
+     * if a zero length direction vector (0,0,0) is supplied, or if the 
+     * direction and up vectors are parallel.
      *
      * @param direction
      *            where to look at in terms of local coordinates

@@ -39,7 +39,7 @@ package com.jme3.asset;
 public interface AssetLocator {
     /**
      * @param rootPath The root path where to look for assets.
-     * Typically this method will only be called once per
+     * Typically, this method will only be called once for each
      * instance of an asset locator.
      */
     public void setRootPath(String rootPath);

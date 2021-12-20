@@ -220,13 +220,15 @@ public class DXTFlipper {
                 type = 3;
                 break;
             case RGTC2:
+            case SIGNED_RGTC2:
                 type = 4;
                 break;                
             case RGTC1:
+            case SIGNED_RGTC1:
                 type = 5;
                 break;
             default:
-                throw new IllegalArgumentException();
+                throw new IllegalArgumentException("No flip support for texture format " + format);
         }
 
         // DXT1 uses 8 bytes per block,

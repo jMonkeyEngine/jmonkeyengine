@@ -31,12 +31,6 @@
  */
 package jme3test.model.anim;
 
-/**
- *
- * @author Nehon
- */
-
-
 import com.jme3.anim.AnimClip;
 import com.jme3.anim.AnimComposer;
 import com.jme3.anim.SkinningControl;
@@ -63,6 +57,9 @@ import com.jme3.shadow.DirectionalLightShadowFilter;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @author Nehon
+ */
 public class TestSkeletonControlRefresh extends SimpleApplication implements ActionListener{
 
     private final static int SIZE = 10;
@@ -104,7 +101,7 @@ public class TestSkeletonControlRefresh extends SimpleApplication implements Act
                 for (AnimClip animClip : animComposer.getAnimClips()) {
                     Action action = animComposer.action(animClip.getName());
                     animComposer.addAction(animClip.getName(), new BaseAction(
-                    		Tweens.sequence(action, Tweens.callMethod(animComposer, "removeCurrentAction", AnimComposer.DEFAULT_LAYER))));
+                            Tweens.sequence(action, Tweens.callMethod(animComposer, "removeCurrentAction", AnimComposer.DEFAULT_LAYER))));
                 }
                 animComposer.setCurrentAction(new ArrayList<>(animComposer.getAnimClips()).get((i + j) % 4).getName());
 
@@ -166,7 +163,7 @@ public class TestSkeletonControlRefresh extends SimpleApplication implements Act
  
     private void makeHudText() {
         guiFont = assetManager.loadFont("Interface/Fonts/Default.fnt");
-        hwsText = new BitmapText(guiFont, false);
+        hwsText = new BitmapText(guiFont);
         hwsText.setSize(guiFont.getCharSet().getRenderedSize());
         hwsText.setText("HWS : "+ hwSkinningEnable);
         hwsText.setLocalTranslation(0, cam.getHeight(), 0);

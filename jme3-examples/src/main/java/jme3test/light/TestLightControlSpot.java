@@ -48,7 +48,7 @@ import com.jme3.scene.shape.Sphere;
 import com.jme3.util.TempVars;
 
 /**
- * Creates a spot light controlled by rotating a node. The light will shine on a surrounding sphere.
+ * Creates a spotlight controlled by rotating a node. The light will shine on a surrounding sphere.
  * The light will rotate upon each axis before working on a random axis and then reverting to the x
  * axis.
  *

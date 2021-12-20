@@ -148,7 +148,7 @@ public class Network
     }
 
     /**
-     *  Creates a Client that communicates with the specified host and and separate TCP and UDP ports
+     *  Creates a Client that communicates with the specified host and separate TCP and UDP ports
      *  using both reliable and fast transports.  
      *  
      *  @param gameName This is the name that identifies the game.  This must match

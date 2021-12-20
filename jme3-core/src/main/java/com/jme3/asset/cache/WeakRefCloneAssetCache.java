@@ -81,8 +81,8 @@ public class WeakRefCloneAssetCache implements AssetCache {
     /**
      * Stores the original key and original asset.
      * The asset info contains a cloneable asset (e.g. the original, from
-     * which all clones are made). Also a weak reference to the 
-     * original key which is used when the clones are produced.
+     * which all clones are made) and also a weak reference to the
+     * original key, which is used when the clones are produced.
      */
     private static final class AssetRef extends WeakReference<AssetKey> {
 

@@ -80,7 +80,7 @@ public class PssmShadowFilter extends Filter {
     }
     
     /**
-     * Creates a PSSM Shadow Filter 
+     * Creates a PSSM Shadow Filter.
      * More info on the technique at <a href="http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html">http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html</a>
      * @param manager the application asset manager
      * @param size the size of the rendered shadowmaps (512,1024,2048, etc...)

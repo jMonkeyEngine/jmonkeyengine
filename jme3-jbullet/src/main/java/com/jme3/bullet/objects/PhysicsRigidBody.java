@@ -391,7 +391,7 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
     /**
      * Set the local gravity of this PhysicsRigidBody<br>
      * Set this after adding the node to the PhysicsSpace,
-     * the PhysicsSpace assigns its current gravity to the physics node when its added.
+     * the PhysicsSpace assigns its current gravity to the physics node when it's added.
      * @param gravity the gravity vector to set
      */
     public void setGravity(Vector3f gravity) {
@@ -440,7 +440,7 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
     }
 
     /**
-     * The "bounciness" of the PhysicsRigidBody, best performance if restitution=0
+     * The "bounciness" of the PhysicsRigidBody. Best performance with restitution=0.
      *
      * @param restitution the desired value (default=0)
      */

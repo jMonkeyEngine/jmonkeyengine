@@ -47,7 +47,7 @@ public class FbxLayerElement {
     public enum Type {
         Position,      // Vector3f (isn't actually defined in FBX)
         BoneIndex,     // List<Integer> (isn't actually defined in FBX)
-        BoneWeight,    // List<Float> isn't actually defined in FBX)
+        BoneWeight,    // List<Float> (isn't actually defined in FBX)
         Normal,        // Vector3f
         Binormal,      // Vector3f
         Tangent,       // Vector3f

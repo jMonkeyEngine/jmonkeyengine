@@ -90,7 +90,7 @@ public class EraseTimer extends Timer {
     public void update() {
         tpf = (getTime() - previousTime) * (1.0f / TIMER_RESOLUTION);
         if (tpf >= 0.2) {
-            //the frame lasted more than 200ms we erase its time to 16ms.
+            // The frame lasted more than 200ms, so we erase its time to 16ms.
             tpf = 0.016666f;
         } else {
             fps = 1.0f / tpf;

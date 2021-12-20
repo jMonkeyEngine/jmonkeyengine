@@ -25,7 +25,7 @@ public class HelloAudio extends SimpleApplication {
   public void simpleInitApp() {
     flyCam.setMoveSpeed(40);
     
-    /** just a blue box floating in space */
+    /* just a blue box floating in space */
     Box box1 = new Box(1, 1, 1);
     Geometry player = new Geometry("Player", box1);
     Material mat1 = new Material(assetManager,"Common/MatDefs/Misc/Unshaded.j3md");
@@ -33,7 +33,7 @@ public class HelloAudio extends SimpleApplication {
     player.setMaterial(mat1);
     rootNode.attachChild(player);
 
-    /** custom init methods, see below */
+    /* custom init methods, see below */
     initKeys();
     initAudio();
   }
@@ -74,7 +74,7 @@ public class HelloAudio extends SimpleApplication {
     }
   };
 
-  /** Move the listener with the a camera - for 3D audio. */
+  /** Move the listener with the camera - for 3-D audio. */
   @Override
   public void simpleUpdate(float tpf) {
     listener.setLocation(cam.getLocation());

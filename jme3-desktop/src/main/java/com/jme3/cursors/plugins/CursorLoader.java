@@ -189,8 +189,8 @@ public class CursorLoader implements AssetLoader {
                                         }
                                         icons.add(data);
                                     }
-                                    // at this point we have the icons, rates (either
-                                    // through jiffy or rate array, the sequence (if
+                                    // At this point we have the icons, the rates (either
+                                    // through jiffy or rate array), the sequence (if
                                     // applicable) and the ani header info.
                                     // Put things together.
                                     ciDat.assembleCursor(icons, rate, animSeq, jiffy, steps, width, height);

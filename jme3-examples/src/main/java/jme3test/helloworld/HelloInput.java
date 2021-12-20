@@ -68,13 +68,13 @@ public class HelloInput extends SimpleApplication {
 
   /** Custom Keybinding: Map named actions to inputs. */
   private void initKeys() {
-    /** You can map one or several inputs to one named mapping. */
+    /* You can map one or several inputs to one named mapping. */
     inputManager.addMapping("Pause",  new KeyTrigger(KeyInput.KEY_P));
     inputManager.addMapping("Left",   new KeyTrigger(KeyInput.KEY_J));
     inputManager.addMapping("Right",  new KeyTrigger(KeyInput.KEY_K));
     inputManager.addMapping("Rotate", new KeyTrigger(KeyInput.KEY_SPACE), // spacebar!
                                       new MouseButtonTrigger(MouseInput.BUTTON_LEFT) );        // left click!
-    /** Add the named mappings to the action listeners. */
+    /* Add the named mappings to the action listeners. */
     inputManager.addListener(actionListener,"Pause");
     inputManager.addListener(analogListener,"Left", "Right", "Rotate");
   }

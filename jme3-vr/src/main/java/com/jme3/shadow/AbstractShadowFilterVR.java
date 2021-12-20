@@ -43,8 +43,6 @@ import com.jme3.post.Filter;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue;
-import com.jme3.shadow.CompareMode;
-import com.jme3.shadow.EdgeFilteringMode;
 import com.jme3.texture.FrameBuffer;
 
 import java.io.IOException;
@@ -215,8 +213,8 @@ public abstract class AbstractShadowFilterVR<T extends AbstractShadowRendererVR>
     }
 
     /**
-     * Sets the shadow edges thickness. default is 1, setting it to lower values
-     * can help to reduce the jagged effect of the shadow edges
+     * Sets the shadow edge thickness. Default is 1. Setting it to lower values
+     * can help to reduce the jagged effect of the shadow edges.
      * @param edgesThickness the edge thickness.
      */
     public void setEdgesThickness(int edgesThickness) {

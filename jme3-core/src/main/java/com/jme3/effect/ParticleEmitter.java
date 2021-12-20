@@ -69,7 +69,7 @@ import java.io.IOException;
  * simulation. The interpretation of these properties depends on the
  * {@link ParticleInfluencer} that has been assigned to the emitter via
  * {@link ParticleEmitter#setParticleInfluencer(com.jme3.effect.influencers.ParticleInfluencer) }.
- * By default the implementation {@link DefaultParticleInfluencer} is used.
+ * By default, the {@link DefaultParticleInfluencer} implementation is used.
  *
  * @author Kirill Vainer
  */
@@ -248,7 +248,7 @@ public class ParticleEmitter extends Geometry {
         // 3) the particles array is recreated because setNumParticles()
         //
         // ...so this should be equivalent but simpler than half of the old clone()
-        // method.  Note: we do not ever want to share particleMesh so we do not
+        // method.  Note: we do not ever want to share particleMesh, so we do not
         // clone it at all.
         setMeshType(meshType);
 
@@ -425,7 +425,7 @@ public class ParticleEmitter extends Geometry {
         for (int i = 0; i < numParticles; i++) {
             particles[i] = new Particle();
         }
-        //We have to reinit the mesh's buffers with the new size
+        // We must reinitialize the mesh's buffers to the new size.
         particleMesh.initParticleData(this, particles.length);
         particleMesh.setImagesXY(this.imagesX, this.imagesY);
         firstUnUsed = 0;
@@ -470,7 +470,7 @@ public class ParticleEmitter extends Geometry {
      * Sets the normal which particles are facing.
      *
      * <p>By default, particles
-     * will face the camera, but for some effects (e.g shockwave) it may
+     * will face the camera, but for some effects (e.g. shockwave) it may
      * be necessary to face a specific direction instead. To restore
      * normal functionality, provide <code>null</code> as the argument for
      * <code>faceNormal</code>.
@@ -580,7 +580,7 @@ public class ParticleEmitter extends Geometry {
      * Set to true if particles spawned should face
      * their velocity (or direction to which they are moving towards).
      *
-     * <p>This is typically used for e.g spark effects.
+     * <p>This is typically used for e.g. spark effects.
      *
      * @param followVelocity True if particles spawned should face their velocity.
      *
@@ -870,7 +870,6 @@ public class ParticleEmitter extends Geometry {
     }
 
     /**
-     * @return the velocity variation
      * @deprecated
      * This method is deprecated.
      * Use ParticleEmitter.getParticleInfluencer().getVelocityVariation(); instead.

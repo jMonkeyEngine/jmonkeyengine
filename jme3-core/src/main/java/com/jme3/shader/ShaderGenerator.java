@@ -280,7 +280,7 @@ public abstract class ShaderGenerator {
     /**
      * generates the varyings for the given shader type shader. Note that
      * varyings are deprecated in glsl 1.3, but this method will still be called
-     * to generate all non global inputs and output of the shaders.
+     * to generate all non-global inputs and output of the shaders.
      *
      * @param source the source StringBuilder to append generated code.
      * @param info the ShaderGenerationInfo.
@@ -315,9 +315,9 @@ public abstract class ShaderGenerator {
     protected abstract void generateStartOfMainSection(StringBuilder source, ShaderGenerationInfo info, ShaderType type);
 
     /**
-     * generates the end of the shader main section. this method is responsible
-     * of appending the last "}" in the shader and mapping all global outputs of
-     * the shader
+     * Generates the end of the shader main section. This method is responsible
+     * for appending the last "}" in the shader and mapping all global outputs of
+     * the shader.
      *
      * @param source the StringBuilder to append generated code.
      * @param info the ShaderGenerationInfo.
@@ -341,9 +341,9 @@ public abstract class ShaderGenerator {
     protected abstract void generateNodeMainSection(StringBuilder source, ShaderNode shaderNode, String nodeSource, ShaderGenerationInfo info);
 
     /**
-     * returns the shaderpath index according to the version of the generator.
-     * This allow to select the higher version of the shader that the generator
-     * can handle
+     * Returns the shader-path index according to the version of the generator.
+     * This allows selecting the highest version of the shader that the generator
+     * can handle.
      *
      * @param shaderNode the shaderNode being processed
      * @param type the shaderType

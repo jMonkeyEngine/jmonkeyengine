@@ -92,9 +92,9 @@ public abstract class LwjglContextVR implements JmeContext {
 
     protected int determineMaxSamples() {
         // If we already have a valid context, determine samples using current context.
-    	logger.log(Level.SEVERE, "glfwExtensionSupported(\"GL_ARB_framebuffer_object\"): "+GLFW.glfwExtensionSupported("GL_ARB_framebuffer_object"));
-    	logger.log(Level.SEVERE, "glfwExtensionSupported(\"GL_EXT_framebuffer_multisample\"): "+GLFW.glfwExtensionSupported("GL_ARB_framebuffer_object"));
-    	
+        logger.log(Level.SEVERE, "glfwExtensionSupported(\"GL_ARB_framebuffer_object\"): "+GLFW.glfwExtensionSupported("GL_ARB_framebuffer_object"));
+        logger.log(Level.SEVERE, "glfwExtensionSupported(\"GL_EXT_framebuffer_multisample\"): "+GLFW.glfwExtensionSupported("GL_ARB_framebuffer_object"));
+
         if (GLFW.glfwExtensionSupported("GL_ARB_framebuffer_object")) {
             return glGetInteger(ARBFramebufferObject.GL_MAX_SAMPLES);
         } else if (GLFW.glfwExtensionSupported("GL_EXT_framebuffer_multisample")) {
@@ -194,7 +194,7 @@ public abstract class LwjglContextVR implements JmeContext {
         if (capabilities.GL_ARB_debug_output && settings.getBoolean("GraphicsDebug")) {
             ARBDebugOutput.glDebugMessageCallbackARB(new LwjglGLDebugOutputHandler(), 0);
         }
-        
+
         renderer.setMainFrameBufferSrgb(settings.isGammaCorrection());
         renderer.setLinearizeSrgbImages(settings.isGammaCorrection());
 
@@ -253,7 +253,7 @@ public abstract class LwjglContextVR implements JmeContext {
     }
 
     /**
-     * 
+     *
      * @param createdVal
      */
     protected void waitFor(boolean createdVal) {

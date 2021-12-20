@@ -31,6 +31,11 @@
  */
 package jme3test.stress;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+
 import com.jme3.anim.SkinningControl;
 import com.jme3.app.SimpleApplication;
 import com.jme3.bounding.BoundingBox;
@@ -41,14 +46,17 @@ import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
-import com.jme3.math.*;
-import com.jme3.scene.*;
-import jme3tools.optimize.LodGenerator;
+import com.jme3.material.Material;
+import com.jme3.math.ColorRGBA;
+import com.jme3.math.FastMath;
+import com.jme3.math.Vector3f;
+import com.jme3.scene.Geometry;
+import com.jme3.scene.Mesh;
+import com.jme3.scene.Node;
+import com.jme3.scene.Spatial;
+import com.jme3.scene.VertexBuffer;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
+import jme3tools.optimize.LodGenerator;
 
 public class TestLodGeneration extends SimpleApplication {
 
@@ -56,6 +64,7 @@ public class TestLodGeneration extends SimpleApplication {
         TestLodGeneration app = new TestLodGeneration();
         app.start();
     }
+
     private boolean wireFrame = false;
     private float reductionvalue = 0.0f;
     private int lodLevel = 0;
@@ -69,20 +78,22 @@ public class TestLodGeneration extends SimpleApplication {
         DirectionalLight dl = new DirectionalLight();
         dl.setDirection(new Vector3f(-1, -1, -1).normalizeLocal());
         rootNode.addLight(dl);
+
         AmbientLight al = new AmbientLight();
         al.setColor(ColorRGBA.White.mult(0.6f));
         rootNode.addLight(al);
 
-       // model = (Node) assetManager.loadModel("Models/Sinbad/Sinbad.mesh.xml");
+        // model = (Node) assetManager.loadModel("Models/Sinbad/Sinbad.mesh.xml");
         Node model = (Node) assetManager.loadModel("Models/Jaime/Jaime.j3o");
         BoundingBox b = ((BoundingBox) model.getWorldBound());
         model.setLocalScale(1.2f / (b.getYExtent() * 2));
-        //  model.setLocalTranslation(0,-(b.getCenter().y - b.getYExtent())* model.getLocalScale().y, 0);
+        // model.setLocalTranslation(0,-(b.getCenter().y - b.getYExtent())* model.getLocalScale().y, 0);
         for (Spatial spatial : model.getChildren()) {
             if (spatial instanceof Geometry) {
                 listGeoms.add((Geometry) spatial);
             }
         }
+
         ChaseCamera chaseCam = new ChaseCamera(cam, inputManager);
         model.addControl(chaseCam);
         chaseCam.setLookAtOffset(b.getCenter());
@@ -90,32 +101,24 @@ public class TestLodGeneration extends SimpleApplication {
         chaseCam.setMinVerticalRotation(-FastMath.HALF_PI + 0.01f);
         chaseCam.setZoomSensitivity(0.5f);
 
-
-
-//           ch = model.getControl(AnimControl.class).createChannel();
-//          ch.setAnim("Wave");
-        SkinningControl c = model.getControl(SkinningControl.class);
-        if (c != null) {
-            c.setEnabled(false);
+        SkinningControl skControl = model.getControl(SkinningControl.class);
+        if (skControl != null) {
+            skControl.setEnabled(false);
         }
-
 
         reductionvalue = 0.80f;
         lodLevel = 1;
-        for (final Geometry geometry : listGeoms) {
-            LodGenerator lodGenerator = new LodGenerator(geometry);          
+        for (final Geometry geom : listGeoms) {
+            LodGenerator lodGenerator = new LodGenerator(geom);
             lodGenerator.bakeLods(LodGenerator.TriangleReductionMethod.PROPORTIONAL, reductionvalue);
-            geometry.setLodLevel(lodLevel);
-
+            geom.setLodLevel(lodLevel);
         }
 
         rootNode.attachChild(model);
         flyCam.setEnabled(false);
 
-
-
         guiFont = assetManager.loadFont("Interface/Fonts/Default.fnt");
-        hudText = new BitmapText(guiFont, false);
+        hudText = new BitmapText(guiFont);
         hudText.setSize(guiFont.getCharSet().getRenderedSize());
         hudText.setText(computeNbTri() + " tris");
         hudText.setLocalTranslation(cam.getWidth() / 2, hudText.getLineHeight(), 0);
@@ -126,80 +129,31 @@ public class TestLodGeneration extends SimpleApplication {
             public void onAction(String name, boolean isPressed, float tpf) {
                 if (isPressed) {
                     if (name.equals("plus")) {
-//                        lodLevel++;
-//                        for (Geometry geometry : listGeoms) {
-//                            if (geometry.getMesh().getNumLodLevels() <= lodLevel) {
-//                                lodLevel = 0;
-//                            }
-//                            geometry.setLodLevel(lodLevel);
-//                        }
-//                        jaimeText.setText(computeNbTri() + " tris");
-
-
-
                         reductionvalue += 0.05f;
                         updateLod();
-
-
-
                     }
                     if (name.equals("minus")) {
-//                        lodLevel--;
-//                        for (Geometry geometry : listGeoms) {
-//                            if (lodLevel < 0) {
-//                                lodLevel = geometry.getMesh().getNumLodLevels() - 1;
-//                            }
-//                            geometry.setLodLevel(lodLevel);
-//                        }
-//                        jaimeText.setText(computeNbTri() + " tris");
-
-
-
                         reductionvalue -= 0.05f;
                         updateLod();
-
-
                     }
                     if (name.equals("wireFrame")) {
                         wireFrame = !wireFrame;
-                        for (Geometry geometry : listGeoms) {
-                            geometry.getMaterial().getAdditionalRenderState().setWireframe(wireFrame);
+                        for (Geometry geom : listGeoms) {
+                            Material mat = geom.getMaterial();
+                            mat.getAdditionalRenderState().setWireframe(wireFrame);
                         }
                     }
-
                 }
-
-            }
-
-            private void updateLod() {
-                reductionvalue = FastMath.clamp(reductionvalue, 0.0f, 1.0f);
-                makeLod(LodGenerator.TriangleReductionMethod.PROPORTIONAL, reductionvalue, 1);
             }
         }, "plus", "minus", "wireFrame");
 
         inputManager.addMapping("plus", new KeyTrigger(KeyInput.KEY_ADD));
         inputManager.addMapping("minus", new KeyTrigger(KeyInput.KEY_SUBTRACT));
         inputManager.addMapping("wireFrame", new KeyTrigger(KeyInput.KEY_SPACE));
-
-
-
     }
 
     @Override
     public void simpleUpdate(float tpf) {
-        //    model.rotate(0, tpf, 0);        
-    }
-
-    private int computeNbTri() {
-        int nbTri = 0;
-        for (Geometry geometry : listGeoms) {
-            if (geometry.getMesh().getNumLodLevels() > 0) {
-                nbTri += geometry.getMesh().getLodLevel(lodLevel).getNumElements();
-            } else {
-                nbTri += geometry.getMesh().getTriangleCount();
-            }
-        }
-        return nbTri;
     }
 
     @Override
@@ -208,23 +162,41 @@ public class TestLodGeneration extends SimpleApplication {
         exec.shutdown();
     }
 
+    private void updateLod() {
+        reductionvalue = FastMath.clamp(reductionvalue, 0.0f, 1.0f);
+        makeLod(LodGenerator.TriangleReductionMethod.PROPORTIONAL, reductionvalue, 1);
+    }
+
+    private int computeNbTri() {
+        int nbTri = 0;
+        for (Geometry geom : listGeoms) {
+            Mesh mesh = geom.getMesh();
+            if (mesh.getNumLodLevels() > 0) {
+                nbTri += mesh.getLodLevel(lodLevel).getNumElements();
+            } else {
+                nbTri += mesh.getTriangleCount();
+            }
+        }
+        return nbTri;
+    }
+
     private void makeLod(final LodGenerator.TriangleReductionMethod method, final float value, final int ll) {
         exec.execute(new Runnable() {
             @Override
             public void run() {
-                for (final Geometry geometry : listGeoms) {
-                    LodGenerator lODGenerator = new LodGenerator(geometry);
-                    final VertexBuffer[] lods = lODGenerator.computeLods(method, value);
+                for (final Geometry geom : listGeoms) {
+                    LodGenerator lodGenerator = new LodGenerator(geom);
+                    final VertexBuffer[] lods = lodGenerator.computeLods(method, value);
 
                     enqueue(new Callable<Void>() {
                         @Override
                         public Void call() throws Exception {
-                            geometry.getMesh().setLodLevels(lods);
+                            geom.getMesh().setLodLevels(lods);
                             lodLevel = 0;
-                            if (geometry.getMesh().getNumLodLevels() > ll) {
+                            if (geom.getMesh().getNumLodLevels() > ll) {
                                 lodLevel = ll;
                             }
-                            geometry.setLodLevel(lodLevel);
+                            geom.setLodLevel(lodLevel);
                             hudText.setText(computeNbTri() + " tris");
                             return null;
                         }
@@ -232,6 +204,5 @@ public class TestLodGeneration extends SimpleApplication {
                 }
             }
         });
-
     }
 }

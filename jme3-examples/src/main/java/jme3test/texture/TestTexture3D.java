@@ -66,7 +66,7 @@ public class TestTexture3D extends SimpleApplication {
         flyCam.setMoveSpeed(10);
         //creating a sphere
         Sphere sphere = new Sphere(32, 32, 1);
-        //getting the boundingbox
+        // getting the bounding box
         sphere.updateBound();
         BoundingBox bb = (BoundingBox) sphere.getBound();
         Vector3f min = bb.getMin(null);

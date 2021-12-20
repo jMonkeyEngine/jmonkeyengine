@@ -59,7 +59,7 @@ public class TestBitmapText3D extends SimpleApplication {
         rootNode.attachChild(g);
 
         BitmapFont fnt = assetManager.loadFont("Interface/Fonts/Default.fnt");
-        BitmapText txt = new BitmapText(fnt, false);
+        BitmapText txt = new BitmapText(fnt);
         txt.setBox(new Rectangle(0, 0, 6, 3));
         txt.setQueueBucket(Bucket.Transparent);
         txt.setSize( 0.5f );

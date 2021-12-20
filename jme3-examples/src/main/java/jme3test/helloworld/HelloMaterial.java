@@ -57,7 +57,7 @@ public class HelloMaterial extends SimpleApplication {
   @Override
   public void simpleInitApp() {
 
-    /** A simple textured cube -- in good MIP map quality. */
+    /* A simple textured cube -- in good MIP map quality. */
     Box cube1Mesh = new Box( 1f,1f,1f);
     Geometry cube1Geo = new Geometry("My Textured Box", cube1Mesh);
     cube1Geo.setLocalTranslation(new Vector3f(-3f,1.1f,0f));
@@ -67,7 +67,7 @@ public class HelloMaterial extends SimpleApplication {
     cube1Geo.setMaterial(cube1Mat);
     rootNode.attachChild(cube1Geo);
 
-    /** A translucent/transparent texture, similar to a window frame. */
+    /* A translucent/transparent texture, similar to a window frame. */
     Box cube2Mesh = new Box( 1f,1f,0.01f);
     Geometry cube2Geo = new Geometry("window frame", cube2Mesh);
     Material cube2Mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
@@ -77,7 +77,7 @@ public class HelloMaterial extends SimpleApplication {
     cube2Geo.setMaterial(cube2Mat);
     rootNode.attachChild(cube2Geo);
 
-    /** A bumpy rock with a shiny light effect. To make bumpy objects you must create a NormalMap. */
+    /* A bumpy rock with a shiny light effect. To make bumpy objects you must create a NormalMap. */
     Sphere sphereMesh = new Sphere(32,32, 2f);
     Geometry sphereGeo = new Geometry("Shiny rock", sphereMesh);
     sphereMesh.setTextureMode(Sphere.TextureMode.Projected); // better quality on spheres
@@ -95,7 +95,7 @@ public class HelloMaterial extends SimpleApplication {
     sphereGeo.rotate(1.6f, 0, 0);          // Rotate it a bit
     rootNode.attachChild(sphereGeo);
     
-    /** Must add a light to make the lit object visible! */
+    /* Must add a light to make the lit object visible! */
     DirectionalLight sun = new DirectionalLight();
     sun.setDirection(new Vector3f(1,0,-2).normalizeLocal());
     sun.setColor(ColorRGBA.White);

@@ -53,9 +53,18 @@ public class BitmapText extends Node {
     private Letters letters;
 
     public BitmapText(BitmapFont font) {
-        this(font, false, false);
+        this(font, font.isRightToLeft(), false);
     }
 
+    /**
+     * @deprecated The "rightToLeft" flag should be specified in the font.
+     * Use {@link BitmapText#BitmapText(com.jme3.font.BitmapFont)}
+     *
+     * @param font the font to use (not null, alias created)
+     * @param rightToLeft true &rarr; right-to-left, false &rarr; left-to-right
+     *     (default=false)
+     */
+    @Deprecated
     public BitmapText(BitmapFont font, boolean rightToLeft) {
         this(font, rightToLeft, false);
     }
@@ -138,7 +147,6 @@ public class BitmapText extends Node {
      */
     public void setText(String text) {
         text = text == null ? "" : text;
-
         if (text == block.getText() || block.getText().equals(text)) {
             return;
         }
@@ -268,6 +276,7 @@ public class BitmapText extends Node {
         if (textBox != null) {
             return Math.max(letters.getTotalWidth(), textBox.width);
         }
+      //  Please note that BitMaptext.getLineWidth() might differ from Font.getLineWidth() -->   scale it with Font.getPreferredSize()/BitMaptext.getSize()
         return letters.getTotalWidth();
     }
 

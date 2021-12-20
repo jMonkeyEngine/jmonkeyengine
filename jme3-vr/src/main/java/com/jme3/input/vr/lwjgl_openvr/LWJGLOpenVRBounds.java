@@ -15,20 +15,18 @@ import java.util.logging.Logger;
  * @author Rickard Edén
  */
 public class LWJGLOpenVRBounds implements VRBounds {
+    private static Logger logger = Logger.getLogger(LWJGLOpenVRBounds.class.getName());
 
-	private static Logger logger = Logger.getLogger(LWJGLOpenVRBounds.class.getName());
-	
     private Vector2f playSize;
     private boolean setup = false;
-    
+
     /**
      * Initialize the VR bounds.
      * @return <code>true</code> if the initialization is a success and <code>false</code> otherwise.
      */
     public boolean init(VRAPI api) {
-    	
-    	logger.config("Initialize VR bounds...");
-    	
+        logger.config("Initialize VR bounds...");
+
         if( !setup ) {
 //            vrChaperone = new VR_IVRChaperone_FnTable(JOpenVRLibrary.VR_GetGenericInterface(JOpenVRLibrary.IVRChaperone_Version, api.hmdErrorStore).getPointer());
             FloatBuffer fbX = BufferUtils.createFloatBuffer(1);
@@ -40,14 +38,13 @@ public class LWJGLOpenVRBounds implements VRBounds {
             logger.config("Initialize VR bounds [SUCCESS]");
             return true; // init success
         }
-        
+
         logger.config("Initialize VR bounds already done.");
         return true; // already initialized
     }
-    
+
     @Override
     public Vector2f getPlaySize() {
         return playSize;
     }
-    
 }

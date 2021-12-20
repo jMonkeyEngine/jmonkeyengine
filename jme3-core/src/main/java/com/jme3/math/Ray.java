@@ -255,7 +255,7 @@ public final class Ray implements Savable, Cloneable, Collidable, java.io.Serial
                         } else {
                             // these weights can be used to determine
                             // interpolated values, such as texture coord.
-                            // eg. texcoord s,t at intersection point:
+                            // e.g. texcoord s,t at intersection point:
                             // s = w0*s0 + w1*s1 + w2*s2;
                             // t = w0*t0 + w1*t1 + w2*t2;
                             float w1 = dirDotDiffxEdge2 * inv;

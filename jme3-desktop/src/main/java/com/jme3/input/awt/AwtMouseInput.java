@@ -213,14 +213,14 @@ public class AwtMouseInput implements MouseInput, MouseListener, MouseWheelListe
         return transparentCursor;
     }
 
-//	public void setHardwareCursor(URL file, int xHotspot, int yHotspot) {
-//	    //Create the image from the provided url
-//	    java.awt.Image cursorImage = new ImageIcon( file ).getImage( );
-//	    //Create a custom cursor with this image
-//	    opaqueCursor = Toolkit.getDefaultToolkit().createCustomCursor( cursorImage , new Point( xHotspot , yHotspot ) , "custom cursor" );
-//	    //Use this cursor
-//	    setCursorVisible( isCursorVisible );
-//	}
+//    public void setHardwareCursor(URL file, int xHotspot, int yHotspot) {
+//        //Create the image from the provided url
+//        java.awt.Image cursorImage = new ImageIcon( file ).getImage( );
+//        //Create a custom cursor with this image
+//        opaqueCursor = Toolkit.getDefaultToolkit().createCustomCursor( cursorImage , new Point( xHotspot , yHotspot ) , "custom cursor" );
+//        //Use this cursor
+//        setCursorVisible( isCursorVisible );
+//    }
 
 
     @Override

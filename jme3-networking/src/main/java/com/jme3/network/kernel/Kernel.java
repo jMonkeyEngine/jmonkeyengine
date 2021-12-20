@@ -64,7 +64,7 @@ public interface Kernel
 
     /**
      *  Dispatches the data to all endpoints managed by the
-     *  kernel that match the specified endpoint filter..
+     *  kernel that match the specified endpoint filter.
      *  If 'copy' is true then the implementation will copy the byte buffer
      *  before delivering it to endpoints.  This allows the caller to reuse
      *  the data buffer.  Though it is important that the buffer not be changed

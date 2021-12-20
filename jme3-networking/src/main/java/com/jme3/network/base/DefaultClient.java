@@ -151,7 +151,7 @@ public class DefaultClient implements Client
         // This is used to match the TCP and UDP endpoints up on the
         // other end since they may take different routes to get there.
         // Behind NAT, many game clients may be coming over the same
-        // IP address from the server's perspective and they may have
+        // IP address from the server's perspective, and they may have
         // their UDP ports mapped all over the place.
         //
         // Since currentTimeMillis() is absolute time and nano time

@@ -42,8 +42,8 @@ import java.util.Arrays;
  * Terminology:<br>
  * A Kernel is executed in parallel. In total number of parallel threads,
  * called work items, are specified by the <i>global work size</i> (of type
- * {@link WorkSize}. These threads are organized in a 1D, 2D or 3D grid
- * (of coarse, this is only a logical view). Inside each kernel,
+ * {@link WorkSize}). These threads are organized in a 1-D, 2-D or 3-D grid
+ * (of course, this is only a logical view). Inside each kernel,
  * the id of each thread (i.e. the index inside this grid) can be requested
  * by {@code get_global_id(dimension)} with {@code dimension=0,1,2}.
  * <br>
@@ -512,7 +512,7 @@ public abstract class Kernel extends AbstractOpenCLObject {
      * the work group size has been specified. This is
      * ensured by {@link #Run2(com.jme3.opencl.CommandQueue, com.jme3.opencl.Kernel.WorkSize, com.jme3.opencl.Kernel.WorkSize, java.lang.Object...) }.
      * This argument can't be used when no work group size was defined explicitly
-     * (e.g. by {@link #setWorkGroupSizeToNull()} or {@link #Run1(com.jme3.opencl.CommandQueue, com.jme3.opencl.Kernel.WorkSize, java.lang.Object...) }.
+     * (e.g. by {@link #setWorkGroupSizeToNull()} or {@link #Run1(com.jme3.opencl.CommandQueue, com.jme3.opencl.Kernel.WorkSize, java.lang.Object...) }).
      */
     public static final class LocalMemPerElement {
         private int size;

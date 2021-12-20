@@ -120,10 +120,10 @@ public class LWJGLOpenVRViewManager extends AbstractVRViewManager {
         }
     }
 
-    @Override
     /**
      * updatePose can be called here because appstates are always called before the main renderer. This way we get the latest pose close to when it's supposed to render
      */
+    @Override
     public void render() {
         if (environment != null) {
             // grab the observer
@@ -208,8 +208,8 @@ public class LWJGLOpenVRViewManager extends AbstractVRViewManager {
 
                 if (errr != 0) {
                     logger.severe("Submit to right compositor error: " + " (" + Integer.toString(errl) + ")");
-//                    	logger.severe("  Texture color space: "+OpenVRUtil.getEColorSpaceString(rightTextureType.eColorSpace));
-//                    	logger.severe("  Texture type: "+OpenVRUtil.getETextureTypeString(rightTextureType.eType));
+//                    logger.severe("  Texture color space: "+OpenVRUtil.getEColorSpaceString(rightTextureType.eColorSpace));
+//                    logger.severe("  Texture type: "+OpenVRUtil.getETextureTypeString(rightTextureType.eType));
                     logger.severe("  Texture handle: " + rightTextureType.handle());
 
                     logger.severe("  Right eye texture " + rightEyeTexture.getName() + " (" + rightEyeTexture.getImage().getId() + ")");
@@ -314,7 +314,7 @@ public class LWJGLOpenVRViewManager extends AbstractVRViewManager {
 
         if (environment != null) {
             if (environment.getApplication() != null) {
-                // no special scene to setup if we are doing instancing
+                // no special scene to set up if we are doing instancing
                 if (environment.isInstanceRendering()) {
                     // distortion has to be done with compositor here... we want only one pass on our end!
                     if (environment.getApplication().getContext().getSettings().isSwapBuffers()) {

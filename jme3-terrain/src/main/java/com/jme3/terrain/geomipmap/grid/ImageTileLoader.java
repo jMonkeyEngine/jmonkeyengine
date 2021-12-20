@@ -79,7 +79,7 @@ public class ImageTileLoader implements TerrainGridTileLoader{
     }
     
     
-    /**
+    /*
      * Lets you specify the type of images that are being loaded. All images
      * must be the same type.
      * @param imageType eg. BufferedImage.TYPE_USHORT_GRAY
@@ -88,7 +88,7 @@ public class ImageTileLoader implements TerrainGridTileLoader{
         this.imageType = imageType;
     }*/
 
-    /**
+    /*
      * The ImageHeightmap that will parse the image type that you 
      * specify with setImageType().
      * @param customImageHeightmap must extend AbstractHeightmap

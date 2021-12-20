@@ -356,7 +356,7 @@ public class Cloner {
     /**
      *  Returns true if the specified object has already been cloned
      *  by this cloner during this session.  Cloned objects are cached
-     *  for later use and it's sometimes convenient to know if some
+     *  for later use, and it's sometimes convenient to know if some
      *  objects have already been cloned.
      *
      * @param o the object to be tested
@@ -367,7 +367,7 @@ public class Cloner {
     }
 
     /**
-     *  Clears the object index allowing the cloner to be reused for a brand new
+     *  Clears the object index allowing the cloner to be reused for a brand-new
      *  cloning operation.
      */
     public void clearIndex() {
@@ -442,7 +442,7 @@ public class Cloner {
             // Then our job is a bit easier
             System.arraycopy(object, 0, clone, 0, size);
         } else {
-            // Else it's an object array so we'll clone it and its children
+            // Else it's an object array, so we'll clone it and its children.
             for( int i = 0; i < size; i++ ) {
                 Object element = clone(Array.get(object, i));
                 Array.set(clone, i, element);

@@ -45,6 +45,7 @@ import java.nio.ShortBuffer;
  */
 public interface GL {
 
+    public static final int GL_ALIASED_LINE_WIDTH_RANGE = 0x846E;
     public static final int GL_ALPHA = 0x1906;
     public static final int GL_ALWAYS = 0x207;
     public static final int GL_ARRAY_BUFFER = 0x8892;
@@ -97,6 +98,7 @@ public interface GL {
     public static final int GL_LINEAR_MIPMAP_NEAREST = 0x2701;
     public static final int GL_LINES = 0x1;
     public static final int GL_LINE_LOOP = 0x2;
+    public static final int GL_LINE_SMOOTH = 0xB20;
     public static final int GL_LINE_STRIP = 0x3;
     public static final int GL_LINK_STATUS = 0x8B82;
     public static final int GL_LUMINANCE = 0x1909;
@@ -281,22 +283,22 @@ public interface GL {
      * <p>
      * Specifies the weighting factors used by the blend equation, for both RGB and alpha functions and for all draw buffers.
      *
-     * @param sfactor the source weighting factor.
-     * @param dfactor the destination weighting factor.
+     * @param sFactor the source weighting factor.
+     * @param dFactor the destination weighting factor.
      */
-    public void glBlendFunc(int sfactor, int dfactor);
+    public void glBlendFunc(int sFactor, int dFactor);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glBlendFuncSeparate">Reference Page</a></p>
      * <p>
      * Specifies pixel arithmetic for RGB and alpha components separately.
      *
-     * @param sfactorRGB   how the red, green, and blue blending factors are computed. The initial value is GL_ONE.
-     * @param dfactorRGB   how the red, green, and blue destination blending factors are computed. The initial value is GL_ZERO.
-     * @param sfactorAlpha how the alpha source blending factor is computed. The initial value is GL_ONE.
-     * @param dfactorAlpha how the alpha destination blending factor is computed. The initial value is GL_ZERO.
+     * @param sFactorRGB   how the red, green, and blue blending factors are computed. The initial value is GL_ONE.
+     * @param dFactorRGB   how the red, green, and blue destination blending factors are computed. The initial value is GL_ZERO.
+     * @param sFactorAlpha how the alpha source blending factor is computed. The initial value is GL_ONE.
+     * @param dFactorAlpha how the alpha destination blending factor is computed. The initial value is GL_ZERO.
      */
-    public void glBlendFuncSeparate(int sfactorRGB, int dfactorRGB, int sfactorAlpha, int dfactorAlpha);
+    public void glBlendFuncSeparate(int sFactorRGB, int dFactorRGB, int sFactorAlpha, int dFactorAlpha);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glBufferData">Reference Page</a></p>
@@ -828,6 +830,15 @@ public interface GL {
      * @return the error code, or NO_ERROR if none
      */
     public int glGetError();
+
+    /**
+     * Determine the current single-precision floating-point value(s) of the
+     * specified parameter.
+     *
+     * @param parameterId which parameter
+     * @param storeValues storage for the value(s)
+     */
+    public void glGetFloat(int parameterId, FloatBuffer storeValues);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glGetIntegerv">Reference Page</a></p>

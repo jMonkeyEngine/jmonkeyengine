@@ -42,6 +42,7 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Quad;
 import com.jme3.texture.*;
+import com.jme3.texture.FrameBuffer.FrameBufferTarget;
 import com.jme3.texture.Image.Format;
 import com.jme3.texture.Texture.WrapMode;
 import com.jme3.ui.Picture;
@@ -50,8 +51,8 @@ import com.jme3.ui.Picture;
  *
  * Simple Water renders a simple plane that use reflection and refraction to look like water.
  * It's pretty basic, but much faster than the WaterFilter
- * It's useful if you aim for low specs hardware and still want a good looking water.
- * Usage is :
+ * It's useful if you aim for low specs hardware and still want good-looking water.
+ * Usage is:
  * <code>
  *      SimpleWaterProcessor waterProcessor = new SimpleWaterProcessor(assetManager);
  *      //setting the scene to use for reflection
@@ -282,8 +283,8 @@ public class SimpleWaterProcessor implements SceneProcessor {
         // create offscreen framebuffer
         reflectionBuffer = new FrameBuffer(renderWidth, renderHeight, 1);
         //setup framebuffer to use texture
-        reflectionBuffer.setDepthBuffer(Format.Depth);
-        reflectionBuffer.setColorTexture(reflectionTexture);
+        reflectionBuffer.setDepthTarget(FrameBufferTarget.newTarget(Format.Depth));
+        reflectionBuffer.addColorTarget(FrameBufferTarget.newTarget(reflectionTexture));
 
         //set viewport to render to offscreen framebuffer
         reflectionView.setOutputFrameBuffer(reflectionBuffer);
@@ -298,9 +299,8 @@ public class SimpleWaterProcessor implements SceneProcessor {
         // create offscreen framebuffer
         refractionBuffer = new FrameBuffer(renderWidth, renderHeight, 1);
         //setup framebuffer to use texture
-        refractionBuffer.setDepthBuffer(Format.Depth);
-        refractionBuffer.setColorTexture(refractionTexture);
-        refractionBuffer.setDepthTexture(depthTexture);
+        refractionBuffer.addColorTarget(FrameBufferTarget.newTarget(refractionTexture));
+        refractionBuffer.setDepthTarget(FrameBufferTarget.newTarget(depthTexture));
         //set viewport to render to offscreen framebuffer
         refractionView.setOutputFrameBuffer(refractionBuffer);
         refractionView.addProcessor(new RefractionProcessor());

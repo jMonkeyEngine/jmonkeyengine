@@ -45,11 +45,11 @@ public interface AL {
     public static final int AL_PITCH = 0x1003;
 
     /**
-     * Specify the current location in three dimensional space. OpenAL, like
-     * OpenGL, uses a right handed coordinate system, where in a frontal default
+     * Specify the current location in three-dimensional space. OpenAL, like
+     * OpenGL, uses a right-handed coordinate system, where in a frontal default
      * view X (thumb) points right, Y points up (index finger), and Z points
-     * towards the viewer/camera (middle finger). To switch from a left handed
-     * coordinate system, flip the sign on the Z coordinate. Listener position
+     * towards the viewer/camera (middle finger). To switch from a left-handed
+     * coordinate system, flip the sign of the Z coordinate. Listener position
      * is always in the world coordinate system.
      */
     public static final int AL_POSITION = 0x1004;
@@ -60,7 +60,7 @@ public interface AL {
     public static final int AL_DIRECTION = 0x1005;
 
     /**
-     * Specify the current velocity in three dimensional space.
+     * Specify the current velocity in three-dimensional space.
      */
     public static final int AL_VELOCITY = 0x1006;
 
@@ -235,7 +235,7 @@ public interface AL {
     public static final int AL_RENDERER = 0xB003;
     public static final int AL_EXTENSIONS = 0xB004;
 
-    /**
+    /*
      * Global tweakage.
      */
     /**

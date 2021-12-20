@@ -238,11 +238,11 @@ public class DirectionalLightShadowRendererVR extends AbstractShadowRendererVR {
     }
 
     /**
-     * Adjust the repartition of the different shadow maps in the shadow extend
-     * usually goes from 0.0 to 1.0
-     * a low value give a more linear repartition resulting in a constant quality in the shadow over the extends, but near shadows could look very jagged
-     * a high value give a more logarithmic repartition resulting in a high quality for near shadows, but the quality quickly decrease over the extend.
-     * the default value is set to 0.65f (theoretic optimal value).
+     * Adjust the repartition of the different shadow maps in the shadow extend.
+     * Lambda is usually between 0 and 1.
+     * A low value give a more linear repartition resulting in a constant quality in the shadow over the extends, but near shadows could look very jagged
+     * A high value give a more logarithmic repartition resulting in a high quality for near shadows, but the quality quickly decrease over the extend.
+     * The default value is 0.65 (the theoretical optimum).
      * @param lambda the lambda value.
      */
     public void setLambda(float lambda) {

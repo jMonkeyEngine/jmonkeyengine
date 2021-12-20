@@ -57,7 +57,7 @@ public class SoundHandleJme implements SoundHandle {
     }
 
     /**
-     * For streaming music only. (May need to loop..)
+     * For streaming music only. (May need to loop.)
      *
      * @param ar for rendering audio (not null)
      * @param am the AssetManager for loading assets (not null)

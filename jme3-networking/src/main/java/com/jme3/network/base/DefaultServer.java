@@ -139,7 +139,7 @@ public class DefaultServer implements Server
             throw new IllegalStateException( "Channels cannot be added once server is started." );
  
         // Note: it does bug me that channels aren't 100% universal and
-        // setup externally but it requires a more invasive set of changes
+        // set up externally, but it requires a more invasive set of changes
         // for "connection types" and some kind of registry of kernel and
         // connector factories.  This really would be the best approach and
         // would allow all kinds of channel customization maybe... but for
@@ -389,8 +389,8 @@ public class DefaultServer implements Server
             c.setChannel(channel, p);            
             log.log( Level.FINE, "Setting up channel:{0}", channel );
  
-            // If it's channel 0 then this is the initial connection
-            // and we will send the connection information
+            // If it's channel 0, then this is the initial connection,
+            // and we will send the connection information.
             if( channel == CH_RELIABLE ) {
                 // Validate the name and version which is only sent
                 // over the reliable connection at this point.
@@ -426,8 +426,8 @@ public class DefaultServer implements Server
                     addedConnection = c;               
                 }
             } else {
-                // Need to keep getting channels so we'll keep it in
-                // the map
+                // Need to keep getting channels, so we'll keep it in
+                // the map.
                 connecting.put(tempId, c);
             } 
         }
@@ -629,7 +629,7 @@ public class DefaultServer implements Server
             send( m );
             
             // Just close the reliable endpoint
-            // fast will be cleaned up as a side-effect
+            // fast.  Will be cleaned up as a side effect
             // when closeConnection() is called by the
             // connectionClosed() endpoint callback.
             if( channels[CH_RELIABLE] != null ) {

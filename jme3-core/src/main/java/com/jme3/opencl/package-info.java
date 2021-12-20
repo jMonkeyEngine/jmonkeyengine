@@ -75,9 +75,9 @@
  * the argument. A buffer on its own is typeless. In the kernel, you then specify
  * the type of the buffer by argument declarations like {@code __global float* buffer}.
  * Note that OpenCL does not check buffer boundaries. If you read or write outside
- * of the buffer, the behavior is completely undefined and may often result in
+ * the buffer, the behavior is completely undefined and may often result in
  * a program cache later on.
- * {@link com.jme3.opencl.Image} objects are structured one, two or three dimensional
+ * {@link com.jme3.opencl.Image} objects are structured one-, two-, or three-dimensional
  * memory chunks of a fixed type. They are created by Context.createImage().
  * They need special functions in the kernel code to write to or read from images.
  * Both buffer and image objects provide methods for copying between buffers and images,
@@ -92,7 +92,7 @@
  * <br>
  * Some methods have the suffix {@code -NoEvent}. This means that these methods
  * don't return an event object even if the OpenCL function would return an event.
- * There exists always an alternative version that does return an event.
+ * There's always an alternative version that does return an event.
  * These methods exist to increase the performance: since all actions (like multiple kernel calls)
  * that are sent to the same command queue are executed in order, there is no
  * need for intermediate events. (These intermediate events would be released
@@ -102,7 +102,7 @@
  * 
  * <p>
  * <b>Interoperability between OpenCL and jME3:</b><br>
- * This Wrapper allows to share jME3 Images and VertexBuffers with OpenCL.<br>
+ * This Wrapper allows sharing jME3 Images and VertexBuffers with OpenCL.<br>
  * {@link com.jme3.scene.VertexBuffer} objects can be shared with OpenCL
  * by calling {@link com.jme3.opencl.Context#bindVertexBuffer(com.jme3.scene.VertexBuffer, com.jme3.opencl.MemoryAccess) }
  * resulting in a {@link com.jme3.opencl.Buffer} object. This buffer object
@@ -112,7 +112,7 @@
  * or variations of this method. The same holds for {@link com.jme3.texture.FrameBuffer.RenderBuffer} objects
  * using {@link com.jme3.opencl.Context#bindRenderBuffer(com.jme3.texture.FrameBuffer.RenderBuffer, com.jme3.opencl.MemoryAccess) }.
  * These methods result in an OpenCL-Image. Usages are e.g. animated textures,
- * terrain based on height maps, post processing effects and so forth.
+ * terrain based on height maps, post-processing effects, and so forth.
  * <br>
  * <i>Important:</i> Before shared objects can be used by any OpenCL function
  * like kernel calls or read/write/copy methods, they must be acquired explicitly

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2010 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,20 +29,24 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package com.jme3.scene;
 
-import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer.Type;
 
 /**
- * <code>Quad</code> represents a rectangular plane in space
- * defined by 4 vertices. The quad's lower-left side is contained
- * at the local space origin (0, 0, 0), while the upper-right
- * side is located at the width/height coordinates (width, height, 0).
- * 
+ * A static, indexed, Triangles-mode mesh for an axis-aligned rectangle in the
+ * X-Y plane.
+ *
+ * <p>The rectangle extends from (-width/2, -height/2, 0) to
+ * (width/2, height/2, 0) with normals set to (0,0,1).
+ *
+ * <p>This differs from com.jme3.scene.shape.Quad because it puts
+ * (0,0,0) at the rectangle's center instead of in a corner.
+ *
  * @author Kirill Vainer
+ * @deprecated use com.jme3.scene.shape.CenterQuad
  */
+@Deprecated
 public class CenterQuad extends Mesh {
 
     public static CenterQuad UnitQuad = new CenterQuad(0.5f, 0.5f);

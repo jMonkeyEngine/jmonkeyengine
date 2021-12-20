@@ -90,7 +90,7 @@ public class AppStateManager {
      */
     private final ConcurrentMap<String, AppState> stateIndex = new ConcurrentHashMap<>();
  
-    // All of the above lists need to be thread safe but access will be
+    // All of the above lists need to be thread-safe, but access will be
     // synchronized separately.... but always on the states list.  This
     // is to avoid deadlocking that may occur and the most common use case
     // is that they are all modified from the same thread anyway.
@@ -240,7 +240,7 @@ public class AppStateManager {
      *
      * @param <T> the desired type of AppState
      * @param stateClass the desired type of AppState
-     * @param failOnMiss true to thrown an exception, false to return null
+     * @param failOnMiss true to throw an exception, false to return null
      * @return First attached state that is an instance of stateClass. If failOnMiss is true 
      * then an IllegalArgumentException is thrown if the state is not attached.
      */
@@ -254,7 +254,7 @@ public class AppStateManager {
                 }
             }
             
-            // This may be more trouble than it's worth but I think
+            // This may be more trouble than it's worth, but I think
             // it's necessary for proper decoupling of states and provides
             // similar behavior to before where a state could be looked
             // up even if it wasn't initialized. -pspeed

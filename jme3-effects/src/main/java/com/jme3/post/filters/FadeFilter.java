@@ -155,8 +155,8 @@ public class FadeFilter extends Filter {
     }
 
     /**
-     * return the current value of the fading
-     * can be used to check if fade is complete (eg value=1)
+     * Returns the current fade value.
+     * Can be used to check whether fade is complete (e.g. value=1).
      * @return the fractional progress (&ge;0, &le;1)
      */
     public float getValue() {
@@ -164,8 +164,8 @@ public class FadeFilter extends Filter {
     }
 
     /**
-     * sets the fade value
-     * can be used to force complete black or compete scene
+     * Sets the fade value.
+     * Can be used to force all black or all scene.
      *
      * @param value the desired value (default=1)
      */

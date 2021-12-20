@@ -230,7 +230,7 @@ public abstract class SimpleApplication extends LegacyApplication {
         }
 
         if (stateManager.getState(StatsAppState.class) != null) {
-            // Some of the tests rely on having access to fpsText
+            // Some tests rely on having access to fpsText
             // for quick display.  Maybe a different way would be better.
             stateManager.getState(StatsAppState.class).setFont(guiFont);
             fpsText = stateManager.getState(StatsAppState.class).getFpsText();

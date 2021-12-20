@@ -72,7 +72,7 @@ public class ObjectStore {
     // Local invocation ID counter
     private volatile short invocationIdCounter = 0;
 
-    // Invocations waiting ..
+    // Invocations waiting
     private IntMap<Invocation> pendingInvocations = new IntMap<>();
     
     // Objects I share with other people

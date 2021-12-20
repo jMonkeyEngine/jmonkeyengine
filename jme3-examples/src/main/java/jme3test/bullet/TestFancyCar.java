@@ -138,8 +138,8 @@ public class TestFancyCar extends SimpleApplication implements ActionListener {
         player.setSuspensionStiffness(stiffness);
         player.setMaxSuspensionForce(10000);
 
-        //Create four wheels and add them at their locations
-        //note that our fancy car actually goes backwards..
+        // Create four wheels and add them at their locations.
+        // Note that our fancy car actually goes backward.
         Vector3f wheelDirection = new Vector3f(0, -1, 0);
         Vector3f wheelAxle = new Vector3f(-1, 0, 0);
 
@@ -183,17 +183,17 @@ public class TestFancyCar extends SimpleApplication implements ActionListener {
             if (value) {
                 steeringValue += .5f;
             } else {
-                steeringValue += -.5f;
+                steeringValue -= .5f;
             }
             player.steer(steeringValue);
         } else if (binding.equals("Rights")) {
             if (value) {
-                steeringValue += -.5f;
+                steeringValue -= .5f;
             } else {
                 steeringValue += .5f;
             }
             player.steer(steeringValue);
-        } //note that our fancy car actually goes backwards..
+        } // Note that our fancy car actually goes backward.
         else if (binding.equals("Ups")) {
             if (value) {
                 accelerationValue -= 800;

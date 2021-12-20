@@ -48,8 +48,9 @@ import java.util.EnumMap;
 import java.util.EnumSet;
 
 /**
- * The <code>Renderer</code> is responsible for taking rendering commands and
+ * Responsible for taking rendering commands and
  * executing them on the underlying video hardware.
+ * executes them on the underlying video hardware.
  *
  * @author Kirill Vainer
  */
@@ -63,25 +64,28 @@ public interface Renderer {
     public void initialize();
 
     /**
-     * Get the capabilities of the renderer.
+     * Gets the capabilities of the renderer.
+     *
      * @return The capabilities of the renderer.
      */
     public EnumSet<Caps> getCaps();
 
     /**
-     * Get the limits of the renderer.
+     * Gets the limits of the renderer.
      *
      * @return The limits of the renderer.
      */
     public EnumMap<Limits, Integer> getLimits();
 
     /**
-     * The statistics allow tracking of how data
+     * Copies the render statistics.
+     *
+     * <p>The statistics allow tracking of how data
      * per frame, such as number of objects rendered, number of triangles, etc.
      * These are updated when the Renderer's methods are used, make sure
      * to call {@link Statistics#clearFrame() } at the appropriate time
      * to get accurate info per frame.
-     * 
+     *
      * @return a new instance
      */
     public Statistics getStatistics();
@@ -112,13 +116,13 @@ public interface Renderer {
     /**
      * Applies the given {@link RenderState}, making the necessary
      * GL calls so that the state is applied.
-     * 
+     *
      * @param state the RenderState to apply
      */
     public void applyRenderState(RenderState state);
 
     /**
-     * Set the range of the depth values for objects. All rendered
+     * Sets the range of the depth values for objects. All rendered
      * objects will have their depth clamped to this range.
      *
      * @param start The range start
@@ -135,7 +139,7 @@ public interface Renderer {
     public void postFrame();
 
     /**
-     * Set the viewport location and resolution on the screen.
+     * Sets the viewport location and resolution on the screen.
      *
      * @param x The x coordinate of the viewport
      * @param y The y coordinate of the viewport
@@ -191,15 +195,19 @@ public interface Renderer {
     /**
      * Copies contents from src to dst, scaling if necessary.
      * set copyDepth to false to only copy the color buffers.
-     * @deprecated  Use {@link Renderer#copyFrameBuffer(com.jme3.texture.FrameBuffer, com.jme3.texture.FrameBuffer, boolean, boolean)}.
+     *
      * @param src the source FrameBuffer (unaffected)
      * @param dst the destination FrameBuffer (modified)
      * @param copyDepth true&rarr;copy depth info, false&rarr;don't copy it
+     * @deprecated  Use {@link Renderer#copyFrameBuffer(com.jme3.texture.FrameBuffer,
+     *     com.jme3.texture.FrameBuffer, boolean, boolean)}.
      */
-    @Deprecated public void copyFrameBuffer(FrameBuffer src, FrameBuffer dst, boolean copyDepth);
+    @Deprecated
+    public void copyFrameBuffer(FrameBuffer src, FrameBuffer dst, boolean copyDepth);
 
     /**
      * Copies contents from src to dst, scaling if necessary.
+     *
      * @param src the source FrameBuffer (unaffected)
      * @param dst the destination FrameBuffer (modified)
      * @param copyColor true&rarr;copy color info, false&rarr;don't copy it
@@ -218,7 +226,7 @@ public interface Renderer {
     public void setFrameBuffer(FrameBuffer fb);
 
     /**
-     * Set the framebuffer that will be set instead of the main framebuffer
+     * Sets the framebuffer that will be set instead of the main framebuffer
      * when a call to setFrameBuffer(null) is made.
      *
      * @param fb The framebuffer to override the main framebuffer.
@@ -251,14 +259,14 @@ public interface Renderer {
     public void readFrameBufferWithFormat(FrameBuffer fb, ByteBuffer byteBuf, Image.Format format);
 
     /**
-     * Deletes a framebuffer and all attached renderbuffers
+     * Deletes a framebuffer and all attached renderbuffers.
      *
      * @param fb the FrameBuffer to be deleted
      */
     public void deleteFrameBuffer(FrameBuffer fb);
 
     /**
-     * Assign a Texture to the specified texture unit.
+     * Assigns a Texture to the specified texture unit.
      *
      * @param unit the index of the texture unit (&ge;0)
      * @param tex the Texture to assign
@@ -268,7 +276,7 @@ public interface Renderer {
             throws TextureUnitException;
 
     /**
-     * Modify the given Texture with the given Image.
+     * Modifies the given Texture with the given Image.
      * The image will be put at x and y into the texture.
      *
      * NOTE: this is only supported for uncompressed 2D images without mipmaps.
@@ -303,6 +311,7 @@ public interface Renderer {
 
     /**
      * Deletes a vertex buffer from the GPU.
+     *
      * @param vb The vertex buffer to delete
      */
     public void deleteBuffer(VertexBuffer vb);
@@ -329,7 +338,7 @@ public interface Renderer {
      * @param lod The LOD level to use, see {@link Mesh#setLodLevels(com.jme3.scene.VertexBuffer[]) }.
      * @param count Number of mesh instances to render
      * @param instanceData When count is greater than 1, these buffers provide
-     * the per-instance attributes.
+     *     the per-instance attributes.
      */
     public void renderMesh(Mesh mesh, int lod, int count, VertexBuffer[] instanceData);
 
@@ -337,7 +346,7 @@ public interface Renderer {
      * Resets all previously used {@link NativeObject Native Objects} on this Renderer.
      * The state of the native objects is reset in such way, that using
      * them again will cause the renderer to reupload them.
-     * Call this method when you know the GL context is going to shutdown.
+     * Call this method when you know the GL context is going to shut down.
      *
      * @see NativeObject#resetObject()
      */
@@ -353,11 +362,11 @@ public interface Renderer {
     public void cleanup();
 
     /**
-     * Set the default anisotropic filter level for textures.
+     * Sets the default anisotropic filter level for textures.
      *
-     * If the
+     * <p>If the
      * {@link Texture#setAnisotropicFilter(int) texture anisotropic filter} is
-     * set to 0, then the default level is used. Otherwise if the texture level
+     * set to 0, then the default level is used. Otherwise, if the texture level
      * is 1 or greater, then the texture's value overrides the default value.
      *
      * @param level The default anisotropic filter level to use. Default: 1.
@@ -368,31 +377,32 @@ public interface Renderer {
 
     /**
      * Sets the alpha to coverage state.
-     * <p>
-     * When alpha coverage and multi-sampling is enabled,
+     *
+     * <p>When alpha coverage and multi-sampling is enabled,
      * each pixel will contain alpha coverage in all
      * of its subsamples, which is then combined when
-     * other future alpha-blended objects are rendered.
-     * </p>
-     * <p>
-     * Alpha-to-coverage is useful for rendering transparent objects
+     * other future alpha-blended objects are rendered.</p>
+     *
+     * <p>Alpha-to-coverage is useful for rendering transparent objects
      * without having to worry about sorting them.
      * </p>
      *
      * @param value true to enable alpha coverage, otherwise false
      */
     public void setAlphaToCoverage(boolean value);
-    
+
     /**
-     * If enabled, color values rendered to the main framebuffer undergo
+     * Specifies whether color values in the main framebuffer are in SRGB format.
+     *
+     * <p>If enabled, color values rendered to the main framebuffer undergo
      * linear -&gt; sRGB conversion.
      *
-     * This is identical to {@link FrameBuffer#setSrgb(boolean)} except it is toggled
+     * <p>This is identical to {@link FrameBuffer#setSrgb(boolean)} except it is toggled
      * for the main framebuffer instead of an offscreen buffer.
      *
-     * This should be set together with {@link Renderer#setLinearizeSrgbImages(boolean)}
+     * <p>This should be set together with {@link Renderer#setLinearizeSrgbImages(boolean)}
      *
-     * As a shorthand, the user can set {@link AppSettings#setGammaCorrection(boolean)} to true
+     * <p>As a shorthand, the user can set {@link AppSettings#setGammaCorrection(boolean)} to true
      * to toggle both {@link Renderer#setLinearizeSrgbImages(boolean)} and
      * {@link Renderer#setMainFrameBufferSrgb(boolean)} if the
      * {@link Caps#Srgb} is supported by the GPU.
@@ -404,12 +414,13 @@ public interface Renderer {
      * @see Caps#Srgb
      */
     public void setMainFrameBufferSrgb(boolean srgb);
-     
+
     /**
-     * If enabled, all {@link Image images} with the {@link Image#setColorSpace(com.jme3.texture.image.ColorSpace) sRGB flag}
+     * If enabled, all {@link Image images} with the
+     * {@link Image#setColorSpace(com.jme3.texture.image.ColorSpace) sRGB flag}
      * set shall undergo an sRGB to linear RGB color conversion when read by a shader.
      *
-     * The conversion is performed for the following formats:
+     * <p>The conversion is performed for the following formats:
      *  - {@link com.jme3.texture.Image.Format#RGB8}
      *  - {@link com.jme3.texture.Image.Format#RGBA8}
      *  - {@link com.jme3.texture.Image.Format#Luminance8}
@@ -419,20 +430,19 @@ public interface Renderer {
      *  - {@link com.jme3.texture.Image.Format#DXT3}
      *  - {@link com.jme3.texture.Image.Format#DXT5}
      *
-     * For all other formats, no conversion is performed.
+     * <p>For all other formats, no conversion is performed.
      *
-     * If this option is toggled at runtime, textures must be reloaded for the change to take effect.
-     *
-     * @throws RendererException If the GPU hardware does not support sRGB.
+     * <p>If this option is toggled at runtime, textures must be reloaded for the change to take effect.
      *
      * @param linearize If sRGB images undergo sRGB -&gt; linear conversion prior to rendering.
+     * @throws RendererException If the GPU hardware does not support sRGB.
      *
      * @see Caps#Srgb
      */
     public void setLinearizeSrgbImages(boolean linearize);
 
     /**
-     * Generates a pool of gpu queries meant to use as profiling tasks
+     * Generates a pool of gpu queries meant to use as profiling tasks.
      *
      * @param numTasks the number of task ids to generate
      * @return an array of tasks ids.
@@ -448,24 +458,25 @@ public interface Renderer {
     public void startProfiling(int taskId);
 
     /**
-     * Will stop the last profiling task started with startProfiling
+     * Will stop the last profiling task started with startProfiling.
      */
     public void stopProfiling();
 
     /**
-     * Returns the time in nano seconds elapsed for the task with the given id.
+     * Returns the time in nanoseconds elapsed for the task with the given id.
      * Note that the result may not be available right after stopProfiling has been called.
      * You need to check if the result is available with isTaskResultAvailable.
      * Also note that it's guaranteed that the result will be available on next frame.
-     * If you use getProfilingTime on the next frame you called stopProfiling, you don't need to check the result availability with isTaskResultAvailable
+     * If you use getProfilingTime on the next frame you called stopProfiling,
+     * you don't need to check the result availability with isTaskResultAvailable
      *
      * @param taskId the id of the task given by startProfiling.
-     * @return the time in nano second of the profiling task with the given id.
+     * @return the time in nanosecond of the profiling task with the given id.
      */
     public long getProfilingTime(int taskId);
 
     /**
-     * Check if the profiling results are available
+     * Checks if the profiling results are available.
      *
      * @param taskId the id of the task provided by startProfiling
      * @return true if the results of the task with the given task id are available.
@@ -480,14 +491,21 @@ public interface Renderer {
     public boolean getAlphaToCoverage();
 
     /**
-     * Get the default anisotropic filter level for textures.
+     * Gets the default anisotropic filter level for textures.
      *
      * @return the default filter level
      */
     public int getDefaultAnisotropicFilter();
 
     /**
-     * Test whether images with the sRGB flag will be linearized when read by a
+     * Determines the maximum allowed width for lines.
+     *
+     * @return the maximum width (in pixels)
+     */
+    public float getMaxLineWidth();
+
+    /**
+     * Tests whether images with the sRGB flag will be linearized when read by a
      * shader.
      *
      * @return true for linearization, false for no linearization
@@ -495,7 +513,7 @@ public interface Renderer {
     public boolean isLinearizeSrgbImages();
 
     /**
-     * Test whether colors rendered to the main framebuffer undergo
+     * Tests whether colors rendered to the main framebuffer undergo
      * linear-to-sRGB conversion.
      *
      * @return true for conversion, false for no conversion

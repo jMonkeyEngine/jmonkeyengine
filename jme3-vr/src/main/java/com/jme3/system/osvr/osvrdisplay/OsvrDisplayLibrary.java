@@ -196,7 +196,7 @@ public class OsvrDisplayLibrary implements Library {
 	public static native byte osvrClientCheckDisplayStartup(OsvrDisplayLibrary.OSVR_DisplayConfig disp);
 	/**
 	 * A display config can have one or more display inputs to pass pixels<br>
-	 * over (HDMI/DVI connections, etc): retrieve the number of display inputs in<br>
+	 * over (HDMI/DVI connections, etcetera): retrieve the number of display inputs in<br>
 	 * the current configuration.<br>
 	 * @param disp Display config object.<br>
 	 * @param numDisplayInputs Number of display inputs in the logical display<br>
@@ -213,7 +213,7 @@ public class OsvrDisplayLibrary implements Library {
 	public static native byte osvrClientGetNumDisplayInputs(Pointer disp, Pointer numDisplayInputs);
 	/**
 	 * A display config can have one or more display inputs to pass pixels<br>
-	 * over (HDMI/DVI connections, etc): retrieve the number of display inputs in<br>
+	 * over (HDMI/DVI connections, etcetera): retrieve the number of display inputs in<br>
 	 * the current configuration.<br>
 	 * @param disp Display config object.<br>
 	 * @param numDisplayInputs Number of display inputs in the logical display<br>

@@ -43,18 +43,18 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 /**
- * Part of the jME XML IO system as introduced in the google code jmexml project.
+ * Part of the jME XML IO system as introduced in the Google Code jmexml project.
  * 
  * @author Kai Rabien (hevee) - original author of the code.google.com jmexml project
  * @author Doug Daniels (dougnukem) - adjustments for jME 2.0 and Java 1.5
  */
 public class XMLExporter implements JmeExporter {
     
-    public static final String ELEMENT_MAPENTRY = "MapEntry";	
-    public static final String ELEMENT_KEY = "Key";	
+    public static final String ELEMENT_MAPENTRY = "MapEntry";
+    public static final String ELEMENT_KEY = "Key";
     public static final String ELEMENT_VALUE = "Value";
     public static final String ELEMENT_FLOATBUFFER = "FloatBuffer";
-    public static final String ATTRIBUTE_SIZE = "size";		
+    public static final String ATTRIBUTE_SIZE = "size";
 
     private DOMOutputCapsule domOut;
     
@@ -65,7 +65,7 @@ public class XMLExporter implements JmeExporter {
     @Override
     public void save(Savable object, OutputStream f) throws IOException {
         try {
-            //Initialize Document when saving so we don't retain state of previous exports
+            // Initialize the Document when saving, so we don't retain state of previous exports.
             this.domOut = new DOMOutputCapsule(DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument(), this);
             domOut.write(object, object.getClass().getName(), null);
             DOMSerializer serializer = new DOMSerializer();

@@ -87,7 +87,6 @@ public class TestBatchNodeCluster extends SimpleApplication {
     private Material mat3;
     private Material mat4;
     private Node terrain;
-    //protected
 //    protected Geometry player;
 
     @Override

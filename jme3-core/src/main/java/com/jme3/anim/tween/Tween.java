@@ -43,7 +43,7 @@ public interface Tween extends Cloneable {
     /**
      * Returns the length of the tween.  If 't' represents time in
      * seconds then this is the notional time in seconds that the tween
-     * will run.  Note: all of the caveats are because tweens may be
+     * will run.  Note: all the caveats are because tweens may be
      * externally scaled in such a way that 't' no longer represents
      * actual time.
      *

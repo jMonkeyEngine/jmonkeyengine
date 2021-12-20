@@ -162,7 +162,7 @@ public class RmiRegistry {
             local.byName.put(name, newShare);
             local.byId.put(newShare.objectId, newShare);
             
-            // Make sure we are setup to receive the remote method calls through
+            // Make sure we are set up to receive the remote method calls through
             // the RPC service
             rpc.registerHandler(newShare.objectId, rmiHandler);
             

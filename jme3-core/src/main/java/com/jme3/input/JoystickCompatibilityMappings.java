@@ -176,38 +176,48 @@ public class JoystickCompatibilityMappings {
      * @return The new name for the axis, or just componentId if no remapping was provided.
      */
     public static String remapAxis(String joystickName, String componentId) {
-        logger.log(Level.FINE, "remapAxis(" + joystickName + ", " + componentId + ")");
+        if (logger.isLoggable(Level.FINE)) {
+            logger.log(Level.FINE, "remapAxis({0}, {1})", new Object[]{joystickName, componentId});
+        }
 
         // Always try the specific name first.
         joystickName = joystickName.trim();
         Map map = getAxisMappings(joystickName, false);
         if (map != null && map.containsKey(componentId)) {
-            logger.log(Level.FINE, "returning remapped axis:" + map.get(componentId));
+            if (logger.isLoggable(Level.FINE)) {
+                logger.log(Level.FINE, "returning remapped axis:{0}", map.get(componentId));
+            }
             return ((AxisData) map.get(componentId)).name;
         }
 
         map = getMappings(joystickName, false);
         if (map != null && map.containsKey(componentId)) {
-            logger.log(Level.FINE, "returning remapped axis:" + map.get(componentId));
+            if (logger.isLoggable(Level.FINE)) {
+                logger.log(Level.FINE, "returning remapped axis:{0}", map.get(componentId));
+            }
             return ((String) map.get(componentId));
         }
 
         // Try the normalized name
         joystickName = getNormalizedName(joystickName);
-        logger.log(Level.FINE, "normalized joystick name:" + joystickName);
+        logger.log(Level.FINE, "normalized joystick name:{0}", joystickName);
         if (joystickName == null) {
             return componentId;
         }
 
         map = getAxisMappings(joystickName, false);
         if (map != null && map.containsKey(componentId)) {
-            logger.log(Level.FINE, "returning remapped:" + map.get(componentId));
+            if (logger.isLoggable(Level.FINE)) {
+                logger.log(Level.FINE, "returning remapped:{0}", map.get(componentId));
+            }
             return ((AxisData) map.get(componentId)).name;
         }
 
         map = getMappings(joystickName, false);
         if (map != null && map.containsKey(componentId)) {
-            logger.log(Level.FINE, "returning remapped:" + map.get(componentId));
+            if (logger.isLoggable(Level.FINE)) {
+                logger.log(Level.FINE, "returning remapped:{0}", map.get(componentId));
+            }
             return ((String) map.get(componentId));
         }
 
@@ -215,46 +225,55 @@ public class JoystickCompatibilityMappings {
     }
 
     /**
-     * Takes the original name of an button, specifically, and returns the new name it will function under.
+     * Takes the original name of a button, specifically, and returns the new name it will function under.
      *
      * @param joystickName - The joystick type the axis comes from.
      * @param componentId  - The system-provided name for the button.
      * @return The new name for the button, or just componentId if no remapping was provided.
      */
     public static String remapButton(String joystickName, String componentId) {
-        logger.log(Level.FINE, "remapAxis(" + joystickName + ", " + componentId + ")");
-
+        if (logger.isLoggable(Level.FINE)) {
+            logger.log(Level.FINE, "remapAxis({0}, {1})", new Object[]{joystickName, componentId});
+        }
 
         // Always try the specific name first.
         joystickName = joystickName.trim();
         Map<String, String> map = getButtonMappings(joystickName, false);
         if (map != null && map.containsKey(componentId)) {
-            logger.log(Level.FINE, "returning remapped axis:" + map.get(componentId));
+            if (logger.isLoggable(Level.FINE)) {
+                logger.log(Level.FINE, "returning remapped axis:{0}", map.get(componentId));
+            }
             return map.get(componentId);
         }
 
         map = getMappings(joystickName, false);
         if (map != null && map.containsKey(componentId)) {
-            logger.log(Level.FINE, "returning remapped axis:" + map.get(componentId));
+            if (logger.isLoggable(Level.FINE)) {
+                logger.log(Level.FINE, "returning remapped axis:{0}", map.get(componentId));
+            }
             return map.get(componentId);
         }
 
         // Try the normalized name
         joystickName = getNormalizedName(joystickName);
-        logger.log(Level.FINE, "normalized joystick name:" + joystickName);
+        logger.log(Level.FINE, "normalized joystick name:{0}", joystickName);
         if (joystickName == null) {
             return componentId;
         }
 
         map = getButtonMappings(joystickName, false);
         if (map != null && map.containsKey(componentId)) {
-            logger.log(Level.FINE, "returning remapped:" + map.get(componentId));
+            if (logger.isLoggable(Level.FINE)) {
+                logger.log(Level.FINE, "returning remapped:{0}", map.get(componentId));
+            }
             return map.get(componentId);
         }
 
         map = getMappings(joystickName, false);
         if (map != null && map.containsKey(componentId)) {
-            logger.log(Level.FINE, "returning remapped:" + map.get(componentId));
+            if (logger.isLoggable(Level.FINE)) {
+                logger.log(Level.FINE, "returning remapped:{0}", map.get(componentId));
+            }
             return map.get(componentId);
         }
 
@@ -270,18 +289,22 @@ public class JoystickCompatibilityMappings {
      * @return the resulting axis/button name
      */
     public static String remapComponent(String joystickName, String componentId) {
-        logger.log(Level.FINE, "remapComponent(" + joystickName + ", " + componentId + ")");
+        if (logger.isLoggable(Level.FINE)) {
+            logger.log(Level.FINE, "remapComponent({0}, {1})", new Object[]{joystickName, componentId});
+        }
 
         // Always try the specific name first.
         joystickName = joystickName.trim();
         Map<String, String> map = getMappings(joystickName, false);
         if (map != null && map.containsKey(componentId)) {
-            logger.log(Level.FINE, "returning remapped:" + map.get(componentId));
+            if (logger.isLoggable(Level.FINE)) {
+                logger.log(Level.FINE, "returning remapped:{0}", map.get(componentId));
+            }
             return map.get(componentId);
         }
         // Try the normalized name
         joystickName = getNormalizedName(joystickName);
-        logger.log(Level.FINE, "normalized joystick name:" + joystickName);
+        logger.log(Level.FINE, "normalized joystick name:{0}", joystickName);
         if (joystickName == null) {
             return componentId;
         }
@@ -292,7 +315,9 @@ public class JoystickCompatibilityMappings {
         if (!map.containsKey(componentId)) {
             return componentId;
         }
-        logger.log(Level.FINE, "returning remapped:" + map.get(componentId));
+        if (logger.isLoggable(Level.FINE)) {
+            logger.log(Level.FINE, "returning remapped:{0}", map.get(componentId));
+        }
         return map.get(componentId);
     }
 
@@ -334,7 +359,10 @@ public class JoystickCompatibilityMappings {
      * @param remapId the remapped name
      */
     public static void addAxisMapping(String stickName, String sourceComponentId, String remapId) {
-        logger.log(Level.FINE, "addAxisMapping(" + stickName + ", " + sourceComponentId + ", " + remapId + ")");
+        if (logger.isLoggable(Level.FINE)) {
+            logger.log(Level.FINE, "addAxisMapping({0}, {1}, {2})",
+                    new Object[]{stickName, sourceComponentId, remapId});
+        }
         getAxisMappings(stickName, true).put(sourceComponentId, new AxisData(remapId, new float[0]));
     }
 
@@ -349,7 +377,10 @@ public class JoystickCompatibilityMappings {
      * @param range the desired range (not null, exactly 2 elements)
      */
     public static void addAxisMapping(String stickName, String sourceComponentId, String remapId, float[] range) {
-        logger.log(Level.FINE, "addAxisMapping(" + stickName + ", " + sourceComponentId + ", " + remapId + ")");
+        if (logger.isLoggable(Level.FINE)) {
+            logger.log(Level.FINE, "addAxisMapping({0}, {1}, {2})",
+                    new Object[]{stickName, sourceComponentId, remapId});
+        }
         if (range.length != 2) {
             throw new IllegalArgumentException("The range must have exactly 2 elements");
         }
@@ -366,7 +397,10 @@ public class JoystickCompatibilityMappings {
      * @param remapId the remapped name
      */
     public static void addButtonMapping(String stickName, String sourceComponentId, String remapId) {
-        logger.log(Level.FINE, "addButtonMapping(" + stickName + ", " + sourceComponentId + ", " + remapId + ")");
+        if (logger.isLoggable(Level.FINE)) {
+            logger.log(Level.FINE, "addButtonMapping({0}, {1}, {2})",
+                    new Object[]{stickName, sourceComponentId, remapId});
+        }
         getButtonMappings(stickName, true).put(sourceComponentId, remapId);
     }
 
@@ -380,7 +414,10 @@ public class JoystickCompatibilityMappings {
      * @param remapId the remapped name
      */
     public static void addMapping(String stickName, String sourceComponentId, String remapId) {
-        logger.log(Level.FINE, "addMapping(" + stickName + ", " + sourceComponentId + ", " + remapId + ")");
+        if (logger.isLoggable(Level.FINE)) {
+            logger.log(Level.FINE, "addMapping({0}, {1}, {2})",
+                    new Object[]{stickName, sourceComponentId, remapId});
+        }
         getMappings(stickName, true).put(sourceComponentId, remapId);
     }
 
@@ -476,7 +513,9 @@ public class JoystickCompatibilityMappings {
      * @param name the remapped name
      */
     public static void addJoystickNameRegex(String regex, String name) {
-        logger.log(Level.FINE, "addJoystickNameRegex(" + regex + ", " + name + ")");
+        if (logger.isLoggable(Level.FINE)) {
+            logger.log(Level.FINE, "addJoystickNameRegex({0}, {1})", new Object[]{regex, name});
+        }
         nameRemappings.put(Pattern.compile(regex), name);
     }
 

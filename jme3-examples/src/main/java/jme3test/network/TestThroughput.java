@@ -61,7 +61,7 @@ public class TestThroughput implements MessageListener<MessageConnection> { //ex
     public void messageReceived(MessageConnection source, Message msg) {
 
         if (!isOnServer) {
-            // It's local to the client so we got it back
+            // It's local to the client, so we got it back.
             counter++;
             total++;
             long time = System.currentTimeMillis();

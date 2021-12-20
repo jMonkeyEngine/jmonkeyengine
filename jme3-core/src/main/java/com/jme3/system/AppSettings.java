@@ -49,8 +49,8 @@ import java.util.prefs.Preferences;
  * By default only the {@link JmeContext context} uses the configuration,
  * however the user may set and retrieve the settings as well.
  * The settings can be stored either in the Java preferences
- * (using {@link #save(java.lang.String) } or
- * a .properties file (using {@link #save(java.io.OutputStream) }.
+ * (using {@link #save(java.lang.String) }) or
+ * a .properties file (using {@link #save(java.io.OutputStream) }).
  *
  * @author Kirill Vainer
  */
@@ -266,6 +266,7 @@ public final class AppSettings extends HashMap<String, Object> {
     public static final String JOAL = "JOAL";
 
     static {
+        defaults.put("CenterWindow", true);
         defaults.put("Width", 640);
         defaults.put("Height", 480);
         defaults.put("BitsPerPixel", 24);
@@ -289,6 +290,9 @@ public final class AppSettings extends HashMap<String, Object> {
         defaults.put("SwapBuffers", true);
         defaults.put("OpenCL", false);
         defaults.put("OpenCLPlatformChooser", DefaultPlatformChooser.class.getName());
+        defaults.put("UseRetinaFrameBuffer", true);// MacOS spec
+        defaults.put("WindowYPosition", 0);
+        defaults.put("WindowXPosition", 0);
         //  defaults.put("Icons", null);
     }
 
@@ -910,7 +914,7 @@ public final class AppSettings extends HashMap<String, Object> {
 
     /**
      * Sets the application icons to be used, with the most preferred first.
-     * For Windows you should supply at least one 16x16 icon and one 32x32. The former is used for the title/task bar,
+     * For Windows, you should supply at least one 16x16 icon and one 32x32. The former is used for the title/task bar,
      * the latter for the alt-tab icon.
      * Linux (and similar platforms) expect one 32x32 icon.
      * Mac OS X should be supplied one 128x128 icon.
@@ -1205,9 +1209,9 @@ public final class AppSettings extends HashMap<String, Object> {
      * This may need to be disabled when integrating with an external
      * library that handles buffer swapping on its own, e.g. Oculus Rift.
      * When disabled, the engine will process window messages
-     * after each frame but it will not swap buffers - note that this
+     * after each frame, but it will not swap buffers. Note that this
      * will cause 100% CPU usage normally as there's no VSync or any framerate
-     * caps (unless set via {@link #setFrameRate(int) }.
+     * caps (unless set via {@link #setFrameRate(int) }).
      * The default is <code>true</code>.
      * 
      * @param swapBuffers True to enable buffer swapping, false to disable it.
@@ -1330,5 +1334,110 @@ public final class AppSettings extends HashMap<String, Object> {
      */
     public void setGraphicsTrace(boolean trace) {
         putBoolean("GraphicsTrace", trace);
+    }
+
+    /**
+     * Determine whether to use full resolution framebuffers on Retina displays.
+     *
+     * @return whether to use full resolution framebuffers on Retina displays.
+     */
+    public boolean isUseRetinaFrameBuffer() {
+        return getBoolean("UseRetinaFrameBuffer");
+    }
+
+    /**
+     * Specifies whether to use full resolution framebuffers on Retina displays. This is ignored on other platforms.
+     *
+     * @param useRetinaFrameBuffer whether to use full resolution framebuffers on Retina displays.
+     */
+    public void setUseRetinaFrameBuffer(boolean useRetinaFrameBuffer) {
+        putBoolean("UseRetinaFrameBuffer", useRetinaFrameBuffer);
+    }
+    
+    /**
+     * Tests the state of the Center Window flag.
+     *
+     * <p>The Center Window flag is used only with LWJGL3 and has no effect on
+     * fullscreen windows.
+     *
+     * @return true to center the window on the desktop, false to position the
+     *    window at (WindowXPosition, WindowYPosition)
+     * @see #setCenterWindow(boolean)
+     */
+    public boolean getCenterWindow() {
+        return getBoolean("CenterWindow");
+    }
+    
+    /**
+     * Enables or disables the Center Window flag.
+     *
+     * <p>The Center Window flag is used only with LWJGL3 and has no effect on
+     * fullscreen windows. It defaults to true.
+     *
+     * @param center true to center the window on the desktop, false to position
+     *     the window at (WindowXPosition, WindowYPosition)
+     */
+    public void setCenterWindow(boolean center) {
+        putBoolean("CenterWindow", center);
+    }
+
+    /**
+     * Gets the window's initial X position on the desktop.
+     *
+     * <p>This setting is used only with LWJGL3, has no effect on fullscreen
+     * windows, and is ignored if the Center Window flag is true.
+     *
+     * @return the initial position of the window's left edge relative to the
+     *     left edge of the desktop
+     * @see #setCenterWindow(boolean)
+     * @see #setWindowXPosition(int)
+     */
+    public int getWindowXPosition() {
+        return getInteger("WindowXPosition");
+    }
+
+    /**
+     * Sets the window's initial X position on the desktop.
+     *
+     * <p>This setting is used only with LWJGL3, has no effect on fullscreen
+     * windows, and is ignored if the Center Window flag is true. Its default
+     * value is 0.
+     *
+     * @param pos the desired initial position of the window's left edge
+     *     relative to the left edge of the desktop
+     * @see #setCenterWindow(boolean)
+     */
+    public void setWindowXPosition(int pos) {
+        putInteger("WindowXPosition", pos);
+    }
+
+    /**
+     * Gets the window's initial Y position on the desktop.
+     *
+     * <p>This setting is used only with LWJGL3, has no effect on fullscreen
+     * windows, and is ignored if the Center Window flag is true.
+     *
+     * @return the initial position of the window's upper edge relative to the
+     *     upper edge of the desktop
+     * @see #setCenterWindow(boolean)
+     * @see #setWindowYPosition(int)
+     */
+    public int getWindowYPosition() {
+        return getInteger("WindowYPosition");
+    }
+
+    /**
+     * Sets the window's initial Y position on the desktop.
+     *
+     * <p>This setting is used only with LWJGL3, has no effect on fullscreen
+     * windows, and is ignored if the Center Window flag is true. Its default
+     * value is 0.
+     *
+     * @param pos the desired initial position of the window's upper edge
+     *     relative to the upper edge of the desktop
+     * @see #setCenterWindow(boolean)
+     */
+    public void setWindowYPosition(int pos) {
+        putInteger("WindowYPosition", pos);
     }
 }

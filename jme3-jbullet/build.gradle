@@ -5,11 +5,20 @@ sourceSets {
             srcDir '../jme3-bullet/src/common/java'
         }
     }
+    test {
+        java {
+            srcDir 'src/test/java'
+        }
+
+        System.setProperty "java.awt.headless", "true"
+    }
 }
 
 dependencies {
-    api 'com.github.stephengold:jbullet:1.0.1'
+    api 'com.github.stephengold:jbullet:1.0.2'
     api 'javax.vecmath:vecmath:1.5.2'
     api project(':jme3-core')
     api project(':jme3-terrain')
+    testRuntime project(':jme3-desktop')
+    testRuntime project(':jme3-testdata')
 }

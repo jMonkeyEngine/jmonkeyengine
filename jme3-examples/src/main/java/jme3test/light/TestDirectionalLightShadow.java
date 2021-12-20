@@ -225,14 +225,14 @@ public class TestDirectionalLightShadow extends SimpleApplication implements Act
         inputManager.addMapping("Size+", new KeyTrigger(KeyInput.KEY_W));
         inputManager.addMapping("Size-", new KeyTrigger(KeyInput.KEY_S));
 
-        shadowStabilizationText = new BitmapText(guiFont, false);
+        shadowStabilizationText = new BitmapText(guiFont);
         shadowStabilizationText.setSize(guiFont.getCharSet().getRenderedSize() * 0.75f);
         shadowStabilizationText.setText("(b:on/off) Shadow stabilization : " + dlsr.isEnabledStabilization());
         shadowStabilizationText.setLocalTranslation(10, viewPort.getCamera().getHeight() - 100, 0);
         guiNode.attachChild(shadowStabilizationText);
 
 
-        shadowZfarText = new BitmapText(guiFont, false);
+        shadowZfarText = new BitmapText(guiFont);
         shadowZfarText.setSize(guiFont.getCharSet().getRenderedSize() * 0.75f);
         shadowZfarText.setText("(n:on/off) Shadow extend to 500 and fade to 50 : " + (dlsr.getShadowZExtend() > 0));
         shadowZfarText.setLocalTranslation(10, viewPort.getCamera().getHeight() - 120, 0);

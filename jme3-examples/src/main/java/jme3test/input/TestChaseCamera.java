@@ -38,11 +38,9 @@ import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.AnalogListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.material.Material;
-import com.jme3.math.FastMath;
-import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.shape.Quad;
+import com.jme3.scene.shape.RectangleMesh;
 
 /** A 3rd-person chase camera orbits a target (teapot). 
  * Follow the teapot with WASD keys, rotate by dragging the mouse. */
@@ -66,9 +64,10 @@ public class TestChaseCamera extends SimpleApplication implements AnalogListener
     // Load a floor model
     Material mat_ground = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
     mat_ground.setTexture("ColorMap", assetManager.loadTexture("Interface/Logo/Monkey.jpg"));
-    Geometry ground = new Geometry("ground", new Quad(50, 50));
-    ground.setLocalRotation(new Quaternion().fromAngleAxis(-FastMath.HALF_PI, Vector3f.UNIT_X));
-    ground.setLocalTranslation(-25, -1, 25);
+    Geometry ground = new Geometry("ground", new RectangleMesh(
+            new Vector3f(-25, -1, 25),
+            new Vector3f(25, -1, 25),
+            new Vector3f(-25, -1, -25)));
     ground.setMaterial(mat_ground);
     rootNode.attachChild(ground);
     
@@ -95,11 +94,11 @@ public class TestChaseCamera extends SimpleApplication implements AnalogListener
     //chaseCam.setLookAtOffset(Vector3f.UNIT_Y.mult(3));
 
     //Uncomment this to enable rotation when the middle mouse button is pressed (like Blender)
-    //WARNING : setting this trigger disable the rotation on right and left mouse button click
+    // WARNING: setting this trigger disables the rotation on right and left mouse button click
     //chaseCam.setToggleRotationTrigger(new MouseButtonTrigger(MouseInput.BUTTON_MIDDLE));
 
     //Uncomment this to set multiple triggers to enable rotation of the cam
-    //Here spade bar and middle mouse button
+    // Here spacebar and middle mouse button
     //chaseCam.setToggleRotationTrigger(new MouseButtonTrigger(MouseInput.BUTTON_MIDDLE),new KeyTrigger(KeyInput.KEY_SPACE));
 
     //registering inputs for target's movement

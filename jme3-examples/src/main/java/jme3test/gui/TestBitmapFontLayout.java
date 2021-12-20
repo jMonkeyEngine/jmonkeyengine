@@ -165,7 +165,7 @@ public class TestBitmapFontLayout extends SimpleApplication {
         // JME BitmapText (currently) renders from what it thinks the top of the letter is
         // down.  The actual bitmap text bounds may extend upwards... so we need to account
         // for that in any labeling we add above it.
-        // Thus we add and setup the main test text first.
+        // Thus we add and set up the main test text first.
 
         BitmapFont bitmapFont = assetManager.loadFont(test.jmeFont);
         BitmapCharacterSet charset = bitmapFont.getCharSet();
@@ -390,7 +390,7 @@ public class TestBitmapFontLayout extends SimpleApplication {
                                  loadTtf("/jme3test/font/DroidSansMono.ttf").deriveFont(Font.BOLD | Font.ITALIC, 32f)));
         */                                         
 
-        // Setup the test root node so that y = 0 is the top of the screen
+        // Set up the test root node so that y = 0 is the top of the screen
         testRoot.setLocalTranslation(0, cam.getHeight(), 0);
         testRoot.attachChild(scrollRoot);
         guiNode.attachChild(testRoot);

@@ -79,7 +79,6 @@ public class AndroidBufferAllocator implements BufferAllocator {
         }
     }
 
-    @Override
     /**
      * This function search the inner direct buffer of the android specific wrapped buffer classes
      * and destroys it using the reflection allocator method.
@@ -87,6 +86,7 @@ public class AndroidBufferAllocator implements BufferAllocator {
      * @param toBeDestroyed The direct buffer that will be "cleaned".
      *
      */
+    @Override
     public void destroyDirectBuffer(Buffer toBeDestroyed) {
         // If it is a wrapped buffer, get it's inner direct buffer field and destroy it
         Field field = fieldIndex.get(toBeDestroyed.getClass());

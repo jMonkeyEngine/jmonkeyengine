@@ -145,10 +145,10 @@ public class HttpZipLocator implements AssetLocator {
             // decode data in byteBuf
             CoderResult result = utf8Decoder.decode(byteBuf, charBuf, endOfInput); 
             
-            // if the result is not an underflow its an error
+            // If the result is not an underflow, it's an error
             // that cannot be handled.
-            // if the error is an underflow and its the end of input
-            // then the decoder expects more bytes but there are no more => error
+            // If the error is an underflow and it's the end of input,
+            // then the decoder expects more bytes, but there are no more => error.
             if (!result.isUnderflow() || !endOfInput){
                 result.throwException();
             }
@@ -234,8 +234,8 @@ public class HttpZipLocator implements AssetLocator {
         entry.compSize = get32(table, offset + ZipEntry.CENSIZ);
         entry.offset   = get32(table, offset + ZipEntry.CENOFF);
 
-        // we want offset directly into file data ..
-        // move the offset forward to skip the LOC header
+        // We want the offset in the file data:
+        // move the offset forward to skip the LOC header.
         entry.offset += ZipEntry.LOCHDR + nameLen + extraLen;
 
         entries.put(entry.name, entry);

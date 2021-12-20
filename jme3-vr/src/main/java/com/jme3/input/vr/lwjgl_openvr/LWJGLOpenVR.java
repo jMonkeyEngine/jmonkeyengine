@@ -15,35 +15,29 @@ import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.lwjgl.BufferUtils;
-import org.lwjgl.openvr.HmdMatrix34;
-import org.lwjgl.openvr.HmdMatrix44;
-import org.lwjgl.openvr.TrackedDevicePose;
-import org.lwjgl.openvr.VR;
-import org.lwjgl.openvr.VRCompositor;
-import org.lwjgl.openvr.VRSystem;
+import org.lwjgl.openvr.*;
 
 /**
- * A class that wraps an <a href="https://github.com/ValveSoftware/openvr/wiki/API-Documentation">OpenVR</a> system. 
+ * A class that wraps an <a href="https://github.com/ValveSoftware/openvr/wiki/API-Documentation">OpenVR</a> system.
  * @author reden - phr00t
  * @author Julien Seinturier - COMEX SA - <a href="http://www.seinturier.fr">http://www.seinturier.fr</a>
  * @author Rickard Edén
  */
 public class LWJGLOpenVR implements VRAPI {
-    
     private static final Logger logger = Logger.getLogger(LWJGLOpenVR.class.getName());
-	
+
     private static boolean initSuccess = false;
     private static boolean flipEyes    = false;
-    
+
     private IntBuffer hmdDisplayFrequency;
     private TrackedDevicePose.Buffer trackedDevicePose;
     protected TrackedDevicePose[] hmdTrackedDevicePoses;
-    
+
     protected IntBuffer hmdErrorStore = BufferUtils.createIntBuffer(1);
-    
+
     private final Quaternion rotStore = new Quaternion();
     private final Vector3f posStore = new Vector3f();
-    
+
     protected Matrix4f[] poseMatrices;
 
     private final Matrix4f hmdPose = Matrix4f.IDENTITY.clone();
@@ -51,15 +45,13 @@ public class LWJGLOpenVR implements VRAPI {
     private Matrix4f hmdProjectionRightEye;
     private Matrix4f hmdPoseLeftEye;
     private Matrix4f hmdPoseRightEye;
-    
+
     private Vector3f hmdPoseLeftEyeVec, hmdPoseRightEyeVec, hmdSeatToStand;
-    
+
     private LWJGLOpenVRInput VRinput;
-    
-    
+
     private VREnvironment environment = null;
-    
-    
+
     /**
      * Convert specific OpenVR {@link org.lwjgl.openvr.HmdMatrix34 HmdMatrix34} into JME {@link Matrix4f Matrix4f}
      * @param hmdMatrix the input matrix
@@ -67,13 +59,13 @@ public class LWJGLOpenVR implements VRAPI {
      * @return the converted matrix
      */
     public static Matrix4f convertSteamVRMatrix3ToMatrix4f(org.lwjgl.openvr.HmdMatrix34 hmdMatrix, Matrix4f mat){
-        mat.set(hmdMatrix.m(0), hmdMatrix.m(1), hmdMatrix.m(2), hmdMatrix.m(3), 
-                hmdMatrix.m(4), hmdMatrix.m(5), hmdMatrix.m(6), hmdMatrix.m(7), 
-                hmdMatrix.m(8), hmdMatrix.m(9), hmdMatrix.m(10), hmdMatrix.m(11), 
+        mat.set(hmdMatrix.m(0), hmdMatrix.m(1), hmdMatrix.m(2), hmdMatrix.m(3),
+                hmdMatrix.m(4), hmdMatrix.m(5), hmdMatrix.m(6), hmdMatrix.m(7),
+                hmdMatrix.m(8), hmdMatrix.m(9), hmdMatrix.m(10), hmdMatrix.m(11),
                 0f, 0f, 0f, 1f);
         return mat;
     }
-    
+
     /**
      * Convert specific OpenVR {@link org.lwjgl.openvr.HmdMatrix34 HmdMatrix34_t} into JME {@link Matrix4f Matrix4f}
      * @param hmdMatrix the input matrix
@@ -81,47 +73,47 @@ public class LWJGLOpenVR implements VRAPI {
      * @return the converted matrix
      */
     public static Matrix4f convertSteamVRMatrix4ToMatrix4f(org.lwjgl.openvr.HmdMatrix44 hmdMatrix, Matrix4f mat){
-        mat.set(hmdMatrix.m(0), hmdMatrix.m(1), hmdMatrix.m(2), hmdMatrix.m(3), 
+        mat.set(hmdMatrix.m(0), hmdMatrix.m(1), hmdMatrix.m(2), hmdMatrix.m(3),
                 hmdMatrix.m(4), hmdMatrix.m(5), hmdMatrix.m(6), hmdMatrix.m(7),
-                hmdMatrix.m(8), hmdMatrix.m(9), hmdMatrix.m(10), hmdMatrix.m(11), 
+                hmdMatrix.m(8), hmdMatrix.m(9), hmdMatrix.m(10), hmdMatrix.m(11),
                 hmdMatrix.m(12), hmdMatrix.m(13), hmdMatrix.m(14), hmdMatrix.m(15));
         return mat;
     }
-    
+
     /**
-     * Create a new <a href="https://github.com/ValveSoftware/openvr/wiki/API-Documentation">OpenVR</a> system 
+     * Create a new <a href="https://github.com/ValveSoftware/openvr/wiki/API-Documentation">OpenVR</a> system
      * attached to the given {@link VREnvironment VR environment}.
      * @param environment the VR environment to which this API is attached.
      */
     public LWJGLOpenVR(VREnvironment environment){
       this.environment = environment;
     }
-    
+
     @Override
     public LWJGLOpenVRInput getVRinput() {
         return VRinput;
     }
-    
+
     @Override
     public Object getVRSystem() {
         throw new UnsupportedOperationException("Not yet implemented!");
     }
-    
+
     @Override
     public Object getCompositor() {
         throw new UnsupportedOperationException("Not yet implemented!");
     }
-    
+
     @Override
     public String getName() {
         return "OpenVR/LWJGL";
     }
-    
+
     @Override
     public void setFlipEyes(boolean set) {
         flipEyes = set;
     }
-    
+
     @Override
     public void printLatencyInfoToConsole(boolean set) {
         // not implemented
@@ -132,16 +124,15 @@ public class LWJGLOpenVR implements VRAPI {
         if( hmdDisplayFrequency == null ) return 0;
         return hmdDisplayFrequency.get(0);
     }
-    
+
     @Override
     public boolean initialize() {
-    	
-    	logger.config("Initializing OpenVR system...");
-    	
+        logger.config("Initializing OpenVR system...");
+
         // Init the native linking to the OpenVR library.
-        
+
         int result = VR.VR_InitInternal(hmdErrorStore, VR.EVRApplicationType_VRApplication_Scene);
-        
+
         if(hmdErrorStore.get(0) != VR.EVRInitError_VRInitError_None) {
             logger.severe("OpenVR Initialize Result: " + VR.VR_GetVRInitErrorAsEnglishDescription(hmdErrorStore.get(0)));
             logger.severe("Initializing OpenVR system [FAILED]");
@@ -156,7 +147,7 @@ public class LWJGLOpenVR implements VRAPI {
 
             hmdDisplayFrequency = BufferUtils.createIntBuffer(1);
             hmdDisplayFrequency.put(VR.ETrackedDeviceProperty_Prop_DisplayFrequency_Float);
-            
+
             trackedDevicePose = TrackedDevicePose.create(VR.k_unMaxTrackedDeviceCount);
             hmdTrackedDevicePoses = new TrackedDevicePose[VR.k_unMaxTrackedDeviceCount];
             poseMatrices = new Matrix4f[VR.k_unMaxTrackedDeviceCount];
@@ -170,7 +161,7 @@ public class LWJGLOpenVR implements VRAPI {
             VRinput = new LWJGLOpenVRInput(environment);
             VRinput.init();
             VRinput.updateConnectedControllers();
-            
+
             // init bounds & chaperone info
             LWJGLOpenVRBounds bounds = new LWJGLOpenVRBounds();
 //            bounds.init(this);
@@ -181,7 +172,7 @@ public class LWJGLOpenVR implements VRAPI {
             return true;
         }
     }
-    
+
     @Override
     public boolean initVRCompositor(boolean allowed) {
         hmdErrorStore.put(0, VR.EVRInitError_VRInitError_None); // clear the error store
@@ -207,22 +198,21 @@ public class LWJGLOpenVR implements VRAPI {
      * @return token for camera
      */
     public long initCamera(boolean allowed) {
-      hmdErrorStore.put(0, VR.EVRInitError_VRInitError_None); // clear the error store
-      if( allowed) {
-          
-        long result = VR.VR_GetGenericInterface(VR.IVRTrackedCamera_Version, hmdErrorStore);
-    	  if (result > 0){
-    	    if(hmdErrorStore.get(0) == VR.EVRInitError_VRInitError_None ){
-    	        logger.config("OpenVR Camera initialized");
-    	    }
-            return result;
-    	  } else {
+        hmdErrorStore.put(0, VR.EVRInitError_VRInitError_None); // clear the error store
+        if( allowed) {
+            long result = VR.VR_GetGenericInterface(VR.IVRTrackedCamera_Version, hmdErrorStore);
+            if (result > 0){
+                if(hmdErrorStore.get(0) == VR.EVRInitError_VRInitError_None ){
+                    logger.config("OpenVR Camera initialized");
+                }
+                return result;
+            } else {
               logger.severe("Failed to initialize camera");
-          }
-       }
-      return 0;
+            }
+        }
+        return 0;
     }
-    
+
     @Override
     public void destroy() {
         VR.VR_ShutdownInternal();
@@ -235,7 +225,7 @@ public class LWJGLOpenVR implements VRAPI {
 
     @Override
     public void reset() {
-        VRSystem.VRSystem_ResetSeatedZeroPose();
+        VRChaperone.VRChaperone_ResetZeroPose(VR.ETrackingUniverseOrigin_TrackingUniverseSeated);
         hmdSeatToStand = null;
     }
 
@@ -249,12 +239,12 @@ public class LWJGLOpenVR implements VRAPI {
         store.x = w.get(0);
         store.y = h.get(0);
     }
-    
+
     @Override
     public float getInterpupillaryDistance() {
         throw new UnsupportedOperationException("Not yet implemented!");
     }
-    
+
     @Override
     public Quaternion getOrientation() {
         VRUtil.convertMatrix4toQuat(hmdPose, rotStore);
@@ -269,29 +259,29 @@ public class LWJGLOpenVR implements VRAPI {
         posStore.z = -posStore.z;
         return posStore;
     }
-    
+
     @Override
     public void getPositionAndOrientation(Vector3f storePos, Quaternion storeRot) {
         hmdPose.toTranslationVector(storePos);
         storePos.x = -storePos.x;
         storePos.z = -storePos.z;
         storeRot.set(getOrientation());
-    }    
-    
+    }
+
     @Override
     public void updatePose(){
         int result = VRCompositor.nVRCompositor_WaitGetPoses(trackedDevicePose.address(), trackedDevicePose.remaining(), 0, 0);
         // NPE when calling without a gamePoseArray. Issue filed with lwjgl #418
 //        int result = VRCompositor.VRCompositor_WaitGetPoses(trackedDevicePose, null);
         environment.getVRinput().updateControllerStates();
-                
+
         // read pose data from native
         for (int nDevice = 0; nDevice < VR.k_unMaxTrackedDeviceCount; ++nDevice ){
             if( hmdTrackedDevicePoses[nDevice].bPoseIsValid() ){
                 convertSteamVRMatrix3ToMatrix4f(hmdTrackedDevicePoses[nDevice].mDeviceToAbsoluteTracking(), poseMatrices[nDevice]);
-            }            
+            }
         }
-        
+
         if ( hmdTrackedDevicePoses[VR.k_unTrackedDeviceIndex_Hmd].bPoseIsValid()){
             hmdPose.set(poseMatrices[VR.k_unTrackedDeviceIndex_Hmd]);
         } else {
@@ -311,7 +301,7 @@ public class LWJGLOpenVR implements VRAPI {
             return hmdProjectionLeftEye;
         }
     }
-        
+
     @Override
     public Matrix4f getHMDMatrixProjectionRightEye(Camera cam){
         if( hmdProjectionRightEye != null ) {
@@ -324,7 +314,7 @@ public class LWJGLOpenVR implements VRAPI {
             return hmdProjectionRightEye;
         }
     }
-    
+
     @Override
     public Vector3f getHMDVectorPoseLeftEye() {
         if( hmdPoseLeftEyeVec == null ) {
@@ -337,7 +327,7 @@ public class LWJGLOpenVR implements VRAPI {
         }
         return hmdPoseLeftEyeVec;
     }
-    
+
     @Override
     public Vector3f getHMDVectorPoseRightEye() {
         if( hmdPoseRightEyeVec == null ) {
@@ -350,13 +340,13 @@ public class LWJGLOpenVR implements VRAPI {
         }
         return hmdPoseRightEyeVec;
     }
-    
+
     @Override
     public Vector3f getSeatedToAbsolutePosition() {
         if( environment.isSeatedExperience() == false ) return Vector3f.ZERO;
         if( hmdSeatToStand == null ) {
             hmdSeatToStand = new Vector3f();
-            
+
             HmdMatrix34 mat = HmdMatrix34.create();
             VRSystem.VRSystem_GetSeatedZeroPoseToStandingAbsoluteTrackingPose(mat);
             Matrix4f tempmat = new Matrix4f();
@@ -365,7 +355,7 @@ public class LWJGLOpenVR implements VRAPI {
         }
         return hmdSeatToStand;
     }
-    
+
     @Override
     public Matrix4f getHMDMatrixPoseLeftEye(){
         if( hmdPoseLeftEye != null ) {
@@ -377,8 +367,7 @@ public class LWJGLOpenVR implements VRAPI {
             return convertSteamVRMatrix3ToMatrix4f(mat, hmdPoseLeftEye);
         }
     }
-    
-    
+
     @Override
     public Matrix4f getHMDMatrixPoseRightEye(){
         if( hmdPoseRightEye != null ) {
@@ -390,7 +379,7 @@ public class LWJGLOpenVR implements VRAPI {
             return convertSteamVRMatrix3ToMatrix4f(mat, hmdPoseRightEye);
         }
     }
-    
+
     @Override
     public HmdType getType() {
             String completeName = "";
@@ -426,21 +415,20 @@ public class LWJGLOpenVR implements VRAPI {
                 } else if( completeName.contains("null") ) {
                     return HmdType.NULL;
                 }
-            } 
+            }
         return HmdType.OTHER;
     }
-    
+
     public void setTrackingSpace(boolean isSeated){
-        if( isSeated) {    
+        if( isSeated) {
             VRCompositor.VRCompositor_SetTrackingSpace(VR.ETrackingUniverseOrigin_TrackingUniverseSeated);
         } else {
             VRCompositor.VRCompositor_SetTrackingSpace(VR.ETrackingUniverseOrigin_TrackingUniverseStanding);
         }
     }
-    
-    
+
+
     public Matrix4f[] getPoseMatrices() {
         return poseMatrices;
     }
-    
 }

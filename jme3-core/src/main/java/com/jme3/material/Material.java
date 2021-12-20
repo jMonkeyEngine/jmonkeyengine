@@ -563,11 +563,13 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         MatParamTexture paramDef = (MatParamTexture) def.getMaterialParam(name);
         if (paramDef.getColorSpace() != null && paramDef.getColorSpace() != value.getImage().getColorSpace()) {
             value.getImage().setColorSpace(paramDef.getColorSpace());
-            logger.log(Level.FINE, "Material parameter {0} needs a {1} texture, "
-                            + "texture {2} was switched to {3} color space.",
-                    new Object[]{name, paramDef.getColorSpace().toString(),
-                            value.getName(),
-                            value.getImage().getColorSpace().name()});
+            if (logger.isLoggable(Level.FINE)) {
+                logger.log(Level.FINE, "Material parameter {0} needs a {1} texture, "
+                                + "texture {2} was switched to {3} color space.",
+                        new Object[]{name, paramDef.getColorSpace().toString(),
+                                value.getName(),
+                                value.getImage().getColorSpace().name()});
+            }
         } else if (paramDef.getColorSpace() == null && value.getName() != null && value.getImage().getColorSpace() == ColorSpace.Linear) {
             logger.log(Level.WARNING,
                     "The texture {0} has linear color space, but the material "
@@ -779,7 +781,9 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
                                 + "The capabilities %s are required.",
                                 name, def.getName(), lastTech.getRequiredCaps()));
             }
-            logger.log(Level.FINE, this.getMaterialDef().getName() + " selected technique def " + tech.getDef());
+            if (logger.isLoggable(Level.FINE)) {
+                logger.log(Level.FINE, this.getMaterialDef().getName() + " selected technique def " + tech.getDef());
+            }
         } else if (technique == tech) {
             // attempting to switch to an already
             // active technique.

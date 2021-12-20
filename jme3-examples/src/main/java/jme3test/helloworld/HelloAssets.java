@@ -71,19 +71,19 @@ public class HelloAssets extends SimpleApplication {
         /* Display a line of text (default font from jme3-testdata) */
         setDisplayStatView(false);
         guiFont = assetManager.loadFont("Interface/Fonts/Default.fnt");
-        BitmapText helloText = new BitmapText(guiFont, false);
+        BitmapText helloText = new BitmapText(guiFont);
         helloText.setSize(guiFont.getCharSet().getRenderedSize());
         helloText.setText("Hello World");
         helloText.setLocalTranslation(300, helloText.getLineHeight(), 0);
         guiNode.attachChild(helloText);
 
-        /** Load a Ninja model (OgreXML + material + texture from test_data) */
+        /* Load a Ninja model (OgreXML + material + texture from test_data) */
         Spatial ninja = assetManager.loadModel("Models/Ninja/Ninja.mesh.xml");
         ninja.scale(0.05f, 0.05f, 0.05f);
         ninja.rotate(0.0f, -3.0f, 0.0f);
         ninja.setLocalTranslation(0.0f, -5.0f, -2.0f);
         rootNode.attachChild(ninja);
-        /** You must add a light to make the model visible */
+        /* You must add a light to make the model visible. */
         DirectionalLight sun = new DirectionalLight();
         sun.setDirection(new Vector3f(-0.1f, -0.7f, -1.0f).normalizeLocal());
         rootNode.addLight(sun);

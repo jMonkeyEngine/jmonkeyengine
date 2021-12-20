@@ -51,6 +51,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -117,7 +118,9 @@ public class AndroidJoystickJoyInput14 {
         for (int deviceId : deviceIds) {
             InputDevice dev = InputDevice.getDevice(deviceId);
             int sources = dev.getSources();
-            logger.log(Level.FINE, "deviceId[{0}] sources: {1}", new Object[]{deviceId, sources});
+            if (logger.isLoggable(Level.FINE)) {
+                logger.log(Level.FINE, "deviceId[{0}] sources: {1}", new Object[]{deviceId, sources});
+            }
 
             // Verify that the device has gamepad buttons, control sticks, or both.
             if (((sources & InputDevice.SOURCE_GAMEPAD) == InputDevice.SOURCE_GAMEPAD) ||
@@ -143,10 +146,14 @@ public class AndroidJoystickJoyInput14 {
                     // type reported by Android into the jME Joystick axis
                     List<MotionRange> motionRanges = dev.getMotionRanges();
                     for (MotionRange motionRange: motionRanges) {
-                        logger.log(Level.INFO, "motion range: {0}", motionRange.toString());
-                        logger.log(Level.INFO, "axis: {0}", motionRange.getAxis());
+                        if (logger.isLoggable(Level.INFO)) {
+                            logger.log(Level.INFO, "motion range: {0}", motionRange);
+                            logger.log(Level.INFO, "axis: {0}", motionRange.getAxis());
+                        }
                         JoystickAxis axis = joystick.addAxis(motionRange);
-                        logger.log(Level.INFO, "added axis: {0}", axis);
+                        if (logger.isLoggable(Level.INFO)) {
+                            logger.log(Level.INFO, "added axis: {0}", axis);
+                        }
                     }
 
                     // InputDevice has a method for determining if a keyCode is
@@ -157,8 +164,10 @@ public class AndroidJoystickJoyInput14 {
                     // buttons being configured that don't exist on the specific
                     // device, but I haven't found a better way yet.
                     for (int keyCode: AndroidGamepadButtons) {
-                        logger.log(Level.INFO, "button[{0}]: {1}",
-                                new Object[]{keyCode, KeyCharacterMap.deviceHasKey(keyCode)});
+                        if (logger.isLoggable(Level.INFO)) {
+                            logger.log(Level.INFO, "button[{0}]: {1}",
+                                    new Object[]{keyCode, KeyCharacterMap.deviceHasKey(keyCode)});
+                        }
                         if (KeyCharacterMap.deviceHasKey(keyCode)) {
                             // add button even though we aren't sure if the button
                             // actually exists on this InputDevice
@@ -319,7 +328,7 @@ public class AndroidJoystickJoyInput14 {
             }
 
             String logicalId = JoystickCompatibilityMappings.remapButton( getName(), original );
-            if( logicalId == null ? original != null : !logicalId.equals(original) ) {
+            if (logger.isLoggable(Level.FINE) && !Objects.equals(logicalId, original)) {
                 logger.log(Level.FINE, "Remapped: {0} to: {1}",
                         new Object[]{original, logicalId});
             }
@@ -350,7 +359,7 @@ public class AndroidJoystickJoyInput14 {
                 original = JoystickAxis.POV_Y;
             }
             String logicalId = JoystickCompatibilityMappings.remapAxis( getName(), original );
-            if( logicalId == null ? original != null : !logicalId.equals(original) ) {
+            if (logger.isLoggable(Level.FINE) && !Objects.equals(logicalId, original)) {
                 logger.log(Level.FINE, "Remapped: {0} to: {1}",
                         new Object[]{original, logicalId});
             }

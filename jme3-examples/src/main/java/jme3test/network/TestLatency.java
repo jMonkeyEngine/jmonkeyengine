@@ -91,7 +91,7 @@ public class TestLatency {
                 long latency = (curTime - timeMsg.timeSent);
                 System.out.println("Latency: " + (latency) + " ms");
                 //long timeOffset = ((timeMsg.timeSent + curTime) / 2) - timeMsg.timeReceived;
-                //System.out.println("Approximate timeoffset: "+ (timeOffset) + " ms");
+                //System.out.println("Approximate timeOffset: "+ (timeOffset) + " ms");
 
                 average.add(latency);
                 System.out.println("Average latency: " + average.getAverage());

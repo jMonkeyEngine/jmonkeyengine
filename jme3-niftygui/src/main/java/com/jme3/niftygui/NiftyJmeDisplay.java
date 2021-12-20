@@ -196,7 +196,7 @@ public class NiftyJmeDisplay implements SceneProcessor {
       // additional parameter. This method should really be removed soon and
       // users should simply call the new factory methods.
       //
-      // For now I keep this constructor as-is but have marked it as deprecated
+      // For now, I keep this constructor as-is, but have marked it as deprecated
       // to allow migration to the new way to instantiate this class.
       initialize(assetManager, inputManager, audioRenderer, viewport);
 
@@ -243,7 +243,7 @@ public class NiftyJmeDisplay implements SceneProcessor {
     }
 
     /**
-     * Create a standard NiftyJmeDisplay. This uses the old Nifty renderer. It's probably slower then the batched
+     * Create a standard NiftyJmeDisplay. This uses the old Nifty renderer. It's probably slower than the batched
      * renderer and is mainly here for backwards compatibility.
      *
      * @param assetManager jME AssetManager

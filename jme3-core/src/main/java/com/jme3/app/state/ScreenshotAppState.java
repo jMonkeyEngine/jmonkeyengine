@@ -115,7 +115,7 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
      * Use an empty string to use the application folder. Use NULL to use the system
      * default storage folder.
      * @param filePath The screenshot file path to use. Include the separator at the end of the path.
-     * @param shotIndex The base index for screen shots.  The first screen shot will have
+     * @param shotIndex The base index for screenshots.  The first screenshot will have
      *                  shotIndex + 1 appended, the next shotIndex + 2, and so on.
      */
     public ScreenshotAppState(String filePath, long shotIndex) {
@@ -131,7 +131,7 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
      * default storage folder.
      * @param filePath The screenshot file path to use. Include the separator at the end of the path.
      * @param fileName The name of the file to save the screenshot as.
-     * @param shotIndex The base index for screen shots.  The first screen shot will have
+     * @param shotIndex The base index for screenshots.  The first screenshot will have
      *                  shotIndex + 1 appended, the next shotIndex + 2, and so on.
      */
     public ScreenshotAppState(String filePath, String fileName, long shotIndex) {
@@ -160,7 +160,7 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
     }
 
     /**
-     * Sets the base index that will used for subsequent screen shots. 
+     * Sets the base index that will used for subsequent screenshots.
      *
      * @param index the desired base index
      */
@@ -301,7 +301,10 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
             } else {
                 file = new File(filePath + filename + ".png").getAbsoluteFile();
             }
-            logger.log(Level.FINE, "Saving ScreenShot to: {0}", file.getAbsolutePath());
+
+            if (logger.isLoggable(Level.FINE)) {
+                logger.log(Level.FINE, "Saving ScreenShot to: {0}", file.getAbsolutePath());
+            }
 
             try {
                 writeImageFile(file);

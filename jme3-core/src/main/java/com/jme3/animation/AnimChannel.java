@@ -38,7 +38,7 @@ import java.util.BitSet;
 
 /**
  * <code>AnimChannel</code> provides controls, such as play, pause,
- * fast forward, etc, for an animation. The animation
+ * fast-forward, etcetera, for an animation. The animation
  * channel may influence the entire model or specific bones of the model's
  * skeleton. A single model may have multiple animation channels influencing
  * various parts of its body. For example, a character model may have an

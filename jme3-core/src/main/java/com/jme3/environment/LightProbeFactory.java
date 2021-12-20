@@ -43,7 +43,7 @@ import com.jme3.texture.TextureCubeMap;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 /**
- * This Factory allows to create LightProbes within a scene given an EnvironmentCamera.
+ * This Factory creates LightProbes within a scene, given an EnvironmentCamera.
  * 
  * Since the process can be long, you can provide a JobProgressListener that 
  * will be notified of the ongoing generation process when calling the makeProbe method.
@@ -62,8 +62,8 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
  * 
  * This class is entirely thread safe and can be called from any thread. 
  * 
- * Note that in case you are using a {@link JobProgressListener} all the its 
- * method will be called inside and app.enqueue callable.
+ * Note that in case you are using a {@link JobProgressListener}, all its
+ * methods will be called inside an app.enqueue callable.
  * This means that it's completely safe to modify the scenegraph within the 
  * Listener method, but also means that the event will be delayed until next update loop.
  * 

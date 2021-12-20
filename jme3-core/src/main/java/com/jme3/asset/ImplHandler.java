@@ -200,7 +200,7 @@ final class ImplHandler {
     }
     
     public void clearCache(){
-        // The iterator of the values collection is thread safe
+        // The iterator over the values collection is thread-safe.
         synchronized (classToCacheMap) {
             for (AssetCache cache : classToCacheMap.values()){
                 cache.clearCache();

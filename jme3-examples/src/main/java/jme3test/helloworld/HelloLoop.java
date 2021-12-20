@@ -52,7 +52,7 @@ public class HelloLoop extends SimpleApplication {
 
     @Override
     public void simpleInitApp() {
-        /** this blue box is our player character */
+        /* This blue box is our player character. */
         Box b = new Box(1, 1, 1);
         player = new Geometry("blue cube", b);
         Material mat = new Material(assetManager,

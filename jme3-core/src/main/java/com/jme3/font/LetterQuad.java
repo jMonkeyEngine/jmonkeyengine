@@ -170,7 +170,12 @@ class LetterQuad {
         if (bound == null) {
             return false;
         }
-        return x0 > 0 && bound.x+bound.width-gap < getX1();
+        if (isRightToLeft()) {
+            return x0 <0 && x0<bound.x;
+            // ToDo check for ellipsis, not sure if it is on both sides of a character and need to be deducted as well
+        } else {
+            return x0 > 0 && bound.x+bound.width-gap < getX1();
+        }
     }
     
     void clip(StringBlock block) {
@@ -182,6 +187,7 @@ class LetterQuad {
         // to the string block
         float x1 = Math.min(bound.x + bound.width, x0 + width);
         float newWidth = x1 - x0;
+        if (isRightToLeft()) newWidth = x1; // only the available space to the left
         if( newWidth == width )
             return;
             
@@ -195,13 +201,12 @@ class LetterQuad {
     }
 
     float getX1() {
-        return x0+width;
+        return x0 + width;
     }
-    
     float getNextX() {
-        return x0+xAdvance;
+        return rightToLeft ? x0 - xAdvance : x0 + xAdvance;
     }
-    
+
     float getNextLine() {
         return lineY+LINE_DIR*font.getCharSet().getLineHeight() * sizeScale;
     }
@@ -314,6 +319,9 @@ class LetterQuad {
 
         if (isHead()) {
             x0 = getBound(block).x;
+            if (isRightToLeft() && getBound(block) != UNBOUNDED) {
+                x0 += getBound(block).width;
+            }
             y0 = lineY;
             width = 0;
             height = 0;
@@ -333,6 +341,7 @@ class LetterQuad {
             xAdvance = width;
         } else if (bitmapChar == null) {
             x0 = getPrevious().getX1();
+            if (rightToLeft) x0 = getPrevious().getX0();
             y0 = lineY;
             width = 0;
             height = 0;
@@ -347,30 +356,56 @@ class LetterQuad {
             float kernAmount = 0f;
 
             if (previous.isHead() || previous.eol) {
-                x0 = bound.x;
-                
-                // The first letter quad will be drawn right at the first
-                // position... but it does not offset by the characters offset
-                // amount.  This means that we've potentially accumulated extra
-                // pixels and the next letter won't get drawn far enough unless
-                // we add this offset back into xAdvance.. by subtracting it.
-                // This is the same thing that's done below because we've
-                // technically baked the offset in just like below.  It doesn't
-                // look like it at first glance so I'm keeping it separate with
-                // this comment.
-                xAdvance -= xOffset * incrScale; 
-                
+                if (rightToLeft) {
+                    // In RTL text we advance toward left by the letter xAdvance. (subtract xAdvance)
+                    // Note, positive offset will move the letter quad toward right and negative offset
+                    // will move it toward left.
+                    if (previous.isHead()) {
+                        x0 = previous.getNextX() - xAdvance - xOffset * incrScale;
+                    } else if (previous.eol) {
+                        // For bounded bitmap text the first letter of a line is always
+                        // on the right end of the textbox and for unbounded bitmap text
+                        // we start from the x=0 and advance toward left.
+                        x0 = getBound(block).x + (getBound(block) != UNBOUNDED ? getBound(block).width : 0) - xAdvance - xOffset * incrScale;
+                    }
+                    // Since x0 has xAdvance baked into it, we need to zero out xAdvance.
+                    // Since x0 will have offset baked into it, we need to counteract that
+                    // in xAdvance. The next x position will be (x0 - xAdvance).
+                    xAdvance = -xOffset * incrScale;
+                } else {
+                    x0 = bound.x;
+
+                    // The first letter quad will be drawn right at the first
+                    // position, but it does not offset by the character's offset
+                    // amount.  This means that we've potentially accumulated extra
+                    // pixels, and the next letter won't get drawn far enough unless
+                    // we add this offset back into xAdvance, by subtracting it.
+                    // This is the same thing that's done below, because we've
+                    // technically baked the offset in just like below.  It doesn't
+                    // look like it at first glance, so I'm keeping it separate with
+                    // this comment.
+                    xAdvance -= xOffset * incrScale;
+                }
             } else {
-                x0 = previous.getNextX() + xOffset * incrScale;
-                
-                // Since x0 will have offset baked into it then we
-                // need to counteract that in xAdvance.  This is better
-                // than removing it in getNextX() because we also need
-                // to take kerning into account below... which will also
-                // get baked in.
-                // Without this, getNextX() will return values too far to
-                // the left, for example.
-                xAdvance -= xOffset * incrScale; 
+               if (isRightToLeft()) {
+                   // For RTL text the xAdvance of the current letter is deducted,
+                   // while for LTR text the advance of the letter before is added.
+                   x0 = previous.getNextX() - xAdvance - xOffset * incrScale;
+                   // Since x0 has xAdvance baked into it, we need to zero out xAdvance.
+                   // Since x0 will have offset baked into it we need to counteract that
+                   // in xAdvance. The next x position will be (x0 - xAdvance)
+                   xAdvance = - xOffset * incrScale;
+                } else {
+                    x0 = previous.getNextX() + xOffset * incrScale;
+                   // Since x0 will have offset baked into it, we
+                   // need to counteract that in xAdvance.  This is better
+                   // than removing it in getNextX() because we also need
+                   // to take kerning into account below, which will also
+                   // get baked in.
+                   // Without this, getNextX() will return values too far to
+                   // the left, for example.
+                   xAdvance -= xOffset * incrScale;
+                }
             }
             y0 = lineY + LINE_DIR*yOffset;
 
@@ -379,12 +414,11 @@ class LetterQuad {
             if (lastChar != null && block.isKerning()) {
                 kernAmount = lastChar.getKerning(c) * sizeScale;
                 x0 += kernAmount * incrScale;
-                
-                // Need to unbake the kerning from xAdvance since it
+                 // Need to unbake the kerning from xAdvance since it
                 // is baked into x0... see above.
                 //xAdvance -= kernAmount * incrScale;
                 // No, kerning is an inter-character spacing and _does_ affect
-                // all subsequent cursor positions. 
+                // all subsequent cursor positions.
             }
         }
         if (isEndOfLine()) {

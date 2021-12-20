@@ -46,6 +46,7 @@ on:
   push:
     branches:
       - master
+      - v3.5
       - v3.4
       - v3.3
   pull_request:
@@ -67,7 +68,7 @@ jobs:
         with:
           fetch-depth: 1
       - name: Validate the Gradle wrapper
-        uses: gradle/wrapper-validation-action@v1
+        uses: gradle/wrapper-validation-action@v1.0.4
       - name: Build
         run: |
           ./gradlew -PuseCommitHashAsVersionName=true --no-daemon -PbuildNativeProjects=true \
@@ -121,12 +122,12 @@ jobs:
           path: build/native
 
       - name: Validate the Gradle wrapper
-        uses: gradle/wrapper-validation-action@v1
+        uses: gradle/wrapper-validation-action@v1.0.4
       - name: Build Engine
         shell: bash
         run: |
           # Build
-          ./gradlew -i -PuseCommitHashAsVersionName=true -PskipPrebuildLibraries=true build
+          ./gradlew -PuseCommitHashAsVersionName=true -PskipPrebuildLibraries=true build
 
           if [ "${{ matrix.deploy }}" = "true" ];
           then

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,43 +29,22 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+package com.jme3.font;
 
-package jme3test.asset;
+import com.jme3.export.Savable;
 
-import com.jme3.asset.AssetManager;
-import com.jme3.asset.plugins.ClasspathLocator;
-import com.jme3.audio.AudioData;
-import com.jme3.audio.plugins.WAVLoader;
-import com.jme3.system.JmeSystem;
-import com.jme3.texture.Texture;
-import com.jme3.texture.plugins.AWTLoader;
+/**
+ * Used for selecting character shape in cursive bitmap text. In cursive scripts,
+ * the appearance of a letter changes depending on its position:
+ * isolated, initial (joined on the left), medial (joined on both sides)
+ * and final (joined on the right) of a word.
+ *
+ * For an example implementation see: https://github.com/Ali-RS/JME-PersianGlyphParser
+ *
+ * @author Ali-RS
+ */
+public interface GlyphParser extends Savable {
 
-public class TestAbsoluteLocators {
-    public static void main(String[] args){
-        AssetManager am = JmeSystem.newAssetManager();
+    public CharSequence parse(CharSequence text);
 
-        am.registerLoader(AWTLoader.class, "jpg");
-        am.registerLoader(WAVLoader.class, "wav");
-
-        // register absolute locator
-        am.registerLocator("/",  ClasspathLocator.class);
-
-        // find a sound
-        AudioData audio = am.loadAudio("Sound/Effects/Gun.wav");
-
-        // find a texture
-        Texture tex = am.loadTexture("Textures/Terrain/Pond/Pond.jpg");
-
-        if (audio == null)
-            throw new RuntimeException("Cannot find audio!");
-        else
-            System.out.println("Audio loaded from Sounds/Effects/Gun.wav");
-
-        if (tex == null)
-            throw new RuntimeException("Cannot find texture!");
-        else
-            System.out.println("Texture loaded from Textures/Terrain/Pond/Pond.jpg");
-
-        System.out.println("Success!");
-    }
 }

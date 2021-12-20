@@ -93,7 +93,7 @@ public abstract class Program extends AbstractOpenCLObject {
 
     /**
      * Creates all available kernels in this program.
-     * The names of the kernels can then by queried by {@link Kernel#getName() }.
+     * The names of the kernels can then be queried by {@link Kernel#getName() }.
      *
      * @return an array of all kernels
      */

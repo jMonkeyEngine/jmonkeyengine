@@ -31,13 +31,6 @@
  */
 package jme3test.bullet;
 
-/**
- * Test case for JME issue #877: multiple hinges. Based on code submitted by
- * Daniel Martensson.
- *
- * If successful, all pendulums will swing at the same frequency, and all the
- * free-falling objects will fall straight down.
- */
 import com.jme3.app.SimpleApplication;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.collision.shapes.BoxCollisionShape;
@@ -48,6 +41,13 @@ import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
 
+/**
+ * Test case for JME issue #877: multiple hinges. Based on code submitted by
+ * Daniel Martensson.
+ *
+ * If successful, all pendulums will swing at the same frequency, and all the
+ * free-falling objects will fall straight down.
+ */
 public class TestIssue877 extends SimpleApplication {
 
     final private BulletAppState bulletAppState = new BulletAppState();

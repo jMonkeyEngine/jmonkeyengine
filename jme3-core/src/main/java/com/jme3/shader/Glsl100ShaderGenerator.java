@@ -210,7 +210,7 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
     /**
      * {@inheritDoc}
      *
-     * this methods does things in this order : 
+     * This method does things in the following order:
      * 
      * 1. declaring and mapping input<br>
      * variables : variable replaced with MatParams or WorldParams that are Samplers are not
@@ -625,9 +625,9 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
      * Declares a varying
      * @param source the StringBuilder to use
      * @param var the variable to declare as a varying
-     * @param input a boolean set to true if the this varying is an input.
-     * this in not used in this implementation but can be used in overriding 
-     * implementation
+     * @param input a boolean set to true if the varying is an input.
+     * This in not used in this implementation, but can be used in overriding
+     * implementations.
      */
     protected void declareVarying(StringBuilder source, ShaderNodeVariable var, boolean input) {
         declareVariable(source, var, true, "varying");

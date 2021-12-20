@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,6 +39,7 @@ import com.jme3.input.TouchInput;
 import com.jme3.input.lwjgl.GlfwJoystickInput;
 import com.jme3.input.lwjgl.GlfwKeyInput;
 import com.jme3.input.lwjgl.GlfwMouseInput;
+import com.jme3.math.Vector2f;
 import com.jme3.system.AppSettings;
 import com.jme3.system.JmeContext;
 import com.jme3.system.JmeSystem;
@@ -56,6 +57,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.*;
+import org.lwjgl.system.Platform;
+
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.GL_FALSE;
 import static org.lwjgl.system.MemoryUtil.NULL;
@@ -226,6 +229,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         glfwWindowHint(GLFW_SAMPLES, settings.getSamples());
         glfwWindowHint(GLFW_STEREO, settings.useStereo3D() ? GLFW_TRUE : GLFW_FALSE);
         glfwWindowHint(GLFW_REFRESH_RATE, settings.getFrequency()<=0?GLFW_DONT_CARE:settings.getFrequency());
+        glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, settings.isUseRetinaFrameBuffer() ? GLFW_TRUE : GLFW_FALSE);
 
         if (settings.getBitsPerPixel() == 24) {
             glfwWindowHint(GLFW_RED_BITS, 8);
@@ -274,11 +278,17 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             }
         });
 
-        // Center the window
         if (!settings.isFullscreen()) {
-            glfwSetWindowPos(window,
-                    (videoMode.width() - settings.getWidth()) / 2,
-                    (videoMode.height() - settings.getHeight()) / 2);
+            if (settings.getCenterWindow()) {
+                // Center the window
+                glfwSetWindowPos(window,
+                        (videoMode.width() - settings.getWidth()) / 2,
+                        (videoMode.height() - settings.getHeight()) / 2);
+            } else {
+                glfwSetWindowPos(window,
+                        settings.getWindowXPosition(),
+                        settings.getWindowYPosition());
+            }
         }
 
         // Make the OpenGL context current
@@ -330,6 +340,8 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         if (settings.isOpenCLSupport()) {
             initOpenCL(window);
         }
+
+        framesAfterContextStarted = 0;
     }
 
     private void onWindowSizeChanged(final int width, final int height) {
@@ -467,10 +479,21 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             return;
         }
 
-        // NOTE: this is required for Mac OS X!
-        mainThread = Thread.currentThread();
-        mainThread.setName("jME3 Main");
-        run();
+        if (Platform.get() == Platform.MACOSX) {
+            // NOTE: this is required for Mac OS X!
+            mainThread = Thread.currentThread();
+            mainThread.setName("jME3 Main");
+            if (waitFor) {
+                LOGGER.warning("create(true) is not supported for macOS!");
+            }
+            run();
+        } else {
+            new Thread(this, "jME3 Main").start();
+            if (waitFor) {
+                waitFor(true);
+            }
+        }
+
     }
 
     /**
@@ -521,6 +544,8 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         return true;
     }
 
+    private int framesAfterContextStarted = 0;
+
     /**
      * execute one iteration of the render loop in the OpenGL thread
      */
@@ -534,11 +559,26 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             throw new IllegalStateException();
         }
 
+        // Update the frame buffer size from 2nd frame since the initial value
+        // of frame buffer size from glfw maybe incorrect when HiDPI display is in use
+        if (framesAfterContextStarted < 2) {
+            framesAfterContextStarted++;
+            if (framesAfterContextStarted == 2) {
+                int[] width = new int[1];
+                int[] height = new int[1];
+                glfwGetFramebufferSize(window, width, height);
+
+                if (settings.getWidth() != width[0] || settings.getHeight() != height[0]) {
+                    listener.reshape(width[0], height[0]);
+                }
+            }
+        }
+
         listener.update();
 
         // All this does is call swap buffers
         // If the canvas is not active, there's no need to waste time
-        // doing that ..
+        // doing that.
         if (renderable.get()) {
             // calls swap buffers, etc.
             try {
@@ -550,8 +590,8 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             }
         }
 
-        // Subclasses just call GLObjectManager clean up objects here
-        // it is safe .. for now.
+        // Subclasses just call GLObjectManager. Clean up objects here.
+        // It is safe ... for now.
         if (renderer != null) {
             renderer.postFrame();
         }
@@ -687,5 +727,29 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
 
     public long getWindowHandle() {
         return window;
+    }
+
+    /**
+     * Get the window content scale, for HiDPI support.
+     *
+     * The content scale is the ratio between the current DPI and the platform's default DPI.
+     * This is especially important for text and any UI elements. If the pixel dimensions of
+     * your UI scaled by this look appropriate on your machine then it should appear at a
+     * reasonable size on other machines regardless of their DPI and scaling settings. This
+     * relies on the system DPI and scaling settings being somewhat correct.
+     *
+     * @param store A vector2f to store the result
+     * @return The window content scale
+     * @see <a href="https://www.glfw.org/docs/latest/window_guide.html#window_scale">Window content scale</a>
+     */
+    public Vector2f getWindowContentScale(Vector2f store) {
+        float[] xScale = new float[1];
+        float[] yScale = new float[1];
+        glfwGetWindowContentScale(window, xScale, yScale);
+
+        if (store != null) {
+            return store.set(xScale[0], yScale[0]);
+        }
+        return new Vector2f(xScale[0], yScale[0]);
     }
 }

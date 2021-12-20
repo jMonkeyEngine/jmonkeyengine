@@ -69,7 +69,7 @@ public class HelloPicking extends SimpleApplication {
     initKeys();       // load custom key mappings
     initMark();       // a red sphere to mark the hit
 
-    /** create four colored boxes and a floor to shoot at: */
+    /* Create four colored boxes and a floor to shoot at: */
     shootables = new Node("Shootables");
     rootNode.attachChild(shootables);
     shootables.attachChild(makeCube("a Dragon", -2f, 0f, 1f));
@@ -159,7 +159,7 @@ public class HelloPicking extends SimpleApplication {
   private void initCrossHairs() {
     setDisplayStatView(false);
     guiFont = assetManager.loadFont("Interface/Fonts/Default.fnt");
-    BitmapText ch = new BitmapText(guiFont, false);
+    BitmapText ch = new BitmapText(guiFont);
     ch.setSize(guiFont.getCharSet().getRenderedSize() * 2);
     ch.setText("+"); // crosshairs
     ch.setLocalTranslation( // center

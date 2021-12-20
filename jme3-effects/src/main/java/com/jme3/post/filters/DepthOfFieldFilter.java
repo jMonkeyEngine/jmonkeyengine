@@ -207,7 +207,7 @@ public class DepthOfFieldFilter extends Filter {
      *  mix the convolution filter.  When this is on, the 'unfocus' value
      *  is rendered as gray scale.  This can be used to more easily visualize
      *  where in your view the focus is centered and how steep the gradient/cutoff
-     *  is, etc..
+     *  is, etcetera.
      *
      * @param b true to enable debugging, false to disable it (default=false)
      */
