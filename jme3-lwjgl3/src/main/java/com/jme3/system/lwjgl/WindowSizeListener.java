@@ -41,6 +41,14 @@ package com.jme3.system.lwjgl;
  */
 public interface WindowSizeListener {
 
+    /**
+     * When registered by {@link LwjglWindow#registerWindowSizeListener(WindowSizeListener)},
+     * it gets invoked on each glfw window size callback to notify the listener about changes
+     * in the window size.
+     *
+     * @param width the new window width.
+     * @param height the new window height.
+     */
     public void onWindowSizeChanged(final int width, final int height);
 
 }

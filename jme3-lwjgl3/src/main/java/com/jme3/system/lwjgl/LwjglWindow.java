@@ -47,13 +47,17 @@ import com.jme3.system.NanoTimer;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.SafeArrayList;
 import org.lwjgl.Version;
-import org.lwjgl.glfw.*;
+import org.lwjgl.glfw.GLFWErrorCallback;
+import org.lwjgl.glfw.GLFWFramebufferSizeCallback;
+import org.lwjgl.glfw.GLFWImage;
+import org.lwjgl.glfw.GLFWVidMode;
+import org.lwjgl.glfw.GLFWWindowFocusCallback;
+import org.lwjgl.glfw.GLFWWindowSizeCallback;
 import org.lwjgl.system.Platform;
 
-import java.awt.*;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
@@ -154,12 +158,19 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
     }
 
     /**
-     * Register a listener to get notified when window size changes.
+     * Registers the specified listener to get notified when window size changes.
+     *
+     * @param listener The WindowSizeListener to register.
      */
     public void registerWindowSizeListener(WindowSizeListener listener) {
         windowSizeListeners.add(listener);
     }
 
+    /**
+     * Removes the specified listener from the listeners list.
+     *
+     * @param listener The WindowSizeListener to remove.
+     */
     public void removeWindowSizeListener(WindowSizeListener listener) {
         windowSizeListeners.remove(listener);
     }
