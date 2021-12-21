@@ -466,10 +466,11 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     /**
      * Returns a string representation. The current instance is unaffected. The
      * format is:
-     *
-     * [TX.XXXX, TY.YYYY, TZ.ZZZZ]
-     * [RX.XXXX, RY.YYYY, RZ.ZZZZ, RW.WWWW]
-     * [SX.XXXX, SY.YYYY, SZ.ZZZZ]
+     * <pre>
+     * Transform[ TX.XXXX, TY.YYYY, TZ.ZZZZ]
+     * [ R.XXXX, R.YYYY, R.ZZZZ, R.WWWW]
+     * [ S.XXXX , S.YYYY, S.ZZZZ]
+     * </pre>
      *
      * @return the string representation (not null, not empty)
      */
