@@ -552,12 +552,12 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
      * <code>divide</code> divides the values of this vector by a scalar and
      * returns the result. The values of this vector remain untouched.
      *
-     * @param scalar
+     * @param divisor
      *            the value to divide this vectors attributes by.
      * @return the result <code>Vector</code>.
      */
-    public Vector4f divide(Vector4f scalar) {
-        return new Vector4f(x / scalar.x, y / scalar.y, z / scalar.z, w / scalar.w);
+    public Vector4f divide(Vector4f divisor) {
+        return new Vector4f(x / divisor.x, y / divisor.y, z / divisor.z, w / divisor.w);
     }
 
     /**
@@ -565,15 +565,15 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
      * and returns a handle to this vector for easy chaining of calls. Dividing
      * by zero will result in an exception.
      *
-     * @param scalar
+     * @param divisor
      *            the value to divides this vector by.
      * @return this
      */
-    public Vector4f divideLocal(Vector4f scalar) {
-        x /= scalar.x;
-        y /= scalar.y;
-        z /= scalar.z;
-        w /= scalar.w;
+    public Vector4f divideLocal(Vector4f divisor) {
+        x /= divisor.x;
+        y /= divisor.y;
+        z /= divisor.z;
+        w /= divisor.w;
         return this;
     }
 
