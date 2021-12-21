@@ -484,13 +484,13 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     /**
      * Copies all 3 components from the argument.
      *
-     * @param matrixQuat The Transform to copy (not null, unaffected)
+     * @param transform The Transform to copy (not null, unaffected)
      * @return the (modified) current instance (for chaining)
      */
-    public Transform set(Transform matrixQuat) {
-        this.translation.set(matrixQuat.translation);
-        this.rot.set(matrixQuat.rot);
-        this.scale.set(matrixQuat.scale);
+    public Transform set(Transform transform) {
+        this.translation.set(transform.translation);
+        this.rot.set(transform.rot);
+        this.scale.set(transform.scale);
         return this;
     }
 
@@ -513,12 +513,12 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
      * De-serializes from the argument, for example when loading from a J3O
      * file.
      *
-     * @param e (not null)
+     * @param importer (not null)
      * @throws IOException from the importer
      */
     @Override
-    public void read(JmeImporter e) throws IOException {
-        InputCapsule capsule = e.getCapsule(this);
+    public void read(JmeImporter importer) throws IOException {
+        InputCapsule capsule = importer.getCapsule(this);
 
         rot.set((Quaternion) capsule.readSavable("rot", Quaternion.IDENTITY));
         translation.set((Vector3f) capsule.readSavable("translation", Vector3f.ZERO));
