@@ -860,19 +860,19 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      * Interpolates linearly between the specified beginning and final vectors,
      * returning the (modified) current instance.
      *
-     * <p>this = (1 - changeAmnt) * beginVec + changeAmnt * finalVec
+     * <p>this = (1 - changeAmount) * beginVec + changeAmount * finalVec
      *
-     * @param beginVec the desired value when changeAmnt=0 (not null, unaffected
+     * @param beginVec the desired value when changeAmount=0 (not null, unaffected
      *     unless it's <code>this</code>)
-     * @param finalVec the desired value when changeAmnt=1 (not null, unaffected
+     * @param finalVec the desired value when changeAmount=1 (not null, unaffected
      *     unless it's <code>this</code>)
-     * @param changeAmnt the fractional change amount
+     * @param changeAmount the fractional change amount
      * @return the (modified) current instance (for chaining)
      */
-    public Vector3f interpolateLocal(Vector3f beginVec, Vector3f finalVec, float changeAmnt) {
-        this.x = (1 - changeAmnt) * beginVec.x + changeAmnt * finalVec.x;
-        this.y = (1 - changeAmnt) * beginVec.y + changeAmnt * finalVec.y;
-        this.z = (1 - changeAmnt) * beginVec.z + changeAmnt * finalVec.z;
+    public Vector3f interpolateLocal(Vector3f beginVec, Vector3f finalVec, float changeAmount) {
+        this.x = (1 - changeAmount) * beginVec.x + changeAmount * finalVec.x;
+        this.y = (1 - changeAmount) * beginVec.y + changeAmount * finalVec.y;
+        this.z = (1 - changeAmount) * beginVec.z + changeAmount * finalVec.z;
         return this;
     }
 
