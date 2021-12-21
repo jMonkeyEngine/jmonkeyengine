@@ -1063,12 +1063,12 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      * De-serializes from the argument, for example when loading from a J3O
      * file.
      *
-     * @param e the importer to use (not null)
+     * @param importer the importer to use (not null)
      * @throws IOException from the importer
      */
     @Override
-    public void read(JmeImporter e) throws IOException {
-        InputCapsule capsule = e.getCapsule(this);
+    public void read(JmeImporter importer) throws IOException {
+        InputCapsule capsule = importer.getCapsule(this);
         x = capsule.readFloat("x", 0);
         y = capsule.readFloat("y", 0);
         z = capsule.readFloat("z", 0);

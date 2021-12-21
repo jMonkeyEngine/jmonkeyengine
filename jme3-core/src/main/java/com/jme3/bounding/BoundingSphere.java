@@ -1062,10 +1062,10 @@ public class BoundingSphere extends BoundingVolume {
     }
 
     @Override
-    public void read(JmeImporter e) throws IOException {
-        super.read(e);
+    public void read(JmeImporter importer) throws IOException {
+        super.read(importer);
         try {
-            radius = e.getCapsule(this).readFloat("radius", 0);
+            radius = importer.getCapsule(this).readFloat("radius", 0);
         } catch (IOException ex) {
             logger.logp(Level.SEVERE, this.getClass().toString(), "read(JMEImporter)", "Exception", ex);
         }

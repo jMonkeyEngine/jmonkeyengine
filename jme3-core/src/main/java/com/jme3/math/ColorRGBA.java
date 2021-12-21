@@ -547,12 +547,12 @@ public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable
      * De-serialize this color from the specified importer, for example when
      * loading from a J3O file.
      *
-     * @param e (not null)
+     * @param importer (not null)
      * @throws IOException from the importer
      */
     @Override
-    public void read(JmeImporter e) throws IOException {
-        InputCapsule capsule = e.getCapsule(this);
+    public void read(JmeImporter importer) throws IOException {
+        InputCapsule capsule = importer.getCapsule(this);
         r = capsule.readFloat("r", 0);
         g = capsule.readFloat("g", 0);
         b = capsule.readFloat("b", 0);

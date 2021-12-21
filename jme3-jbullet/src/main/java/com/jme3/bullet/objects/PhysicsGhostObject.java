@@ -277,9 +277,9 @@ public class PhysicsGhostObject extends PhysicsCollisionObject {
     }
 
     @Override
-    public void read(JmeImporter e) throws IOException {
-        super.read(e);
-        InputCapsule capsule = e.getCapsule(this);
+    public void read(JmeImporter importer) throws IOException {
+        super.read(importer);
+        InputCapsule capsule = importer.getCapsule(this);
         buildObject();
         setPhysicsLocation((Vector3f) capsule.readSavable("physicsLocation", new Vector3f()));
         setPhysicsRotation(((Matrix3f) capsule.readSavable("physicsRotation", new Matrix3f())));

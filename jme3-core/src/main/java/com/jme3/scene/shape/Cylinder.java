@@ -422,9 +422,9 @@ public class Cylinder extends Mesh {
     }
 
     @Override
-    public void read(JmeImporter e) throws IOException {
-        super.read(e);
-        InputCapsule capsule = e.getCapsule(this);
+    public void read(JmeImporter importer) throws IOException {
+        super.read(importer);
+        InputCapsule capsule = importer.getCapsule(this);
         axisSamples = capsule.readInt("axisSamples", 0);
         radialSamples = capsule.readInt("radialSamples", 0);
         radius = capsule.readFloat("radius", 0);

@@ -241,9 +241,9 @@ public class RectangleMesh extends Mesh {
     }
 
     @Override
-    public void read(JmeImporter e) throws IOException {
-        super.read(e);
-        final InputCapsule capsule = e.getCapsule(this);
+    public void read(JmeImporter importer) throws IOException {
+        super.read(importer);
+        final InputCapsule capsule = importer.getCapsule(this);
         rectangle = (Rectangle) capsule.readSavable("rectangle", new Rectangle(
                 new Vector3f(),
                 new Vector3f(1, 0, 0),
