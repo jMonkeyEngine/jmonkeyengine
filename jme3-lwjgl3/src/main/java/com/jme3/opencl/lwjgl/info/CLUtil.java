@@ -60,12 +60,12 @@ public final class CLUtil {
      * specified {@code errcode_ret} buffer and throws an
      * {@link OpenCLException} if it's not equal to {@link CL10#CL_SUCCESS}.
      *
-     * @param errcode_ret the {@code errcode} buffer
+     * @param errorCodeBuffer the {@code errcode} buffer
      *
      * @throws OpenCLException
      */
-    public static void checkCLError(ByteBuffer errcode_ret) {
-        checkCLError(errcode_ret.getInt(errcode_ret.position()));
+    public static void checkCLError(ByteBuffer errorCodeBuffer) {
+        checkCLError(errorCodeBuffer.getInt(errorCodeBuffer.position()));
     }
 
     /**
@@ -73,12 +73,12 @@ public final class CLUtil {
      * specified {@code errcode_ret} buffer and throws an
      * {@link OpenCLException} if it's not equal to {@link CL10#CL_SUCCESS}.
      *
-     * @param errcode_ret the {@code errcode} buffer
+     * @param errorCodeBuffer the {@code errcode} buffer
      *
      * @throws OpenCLException
      */
-    public static void checkCLError(IntBuffer errcode_ret) {
-        checkCLError(errcode_ret.get(errcode_ret.position()));
+    public static void checkCLError(IntBuffer errorCodeBuffer) {
+        checkCLError(errorCodeBuffer.get(errorCodeBuffer.position()));
     }
 
     /**

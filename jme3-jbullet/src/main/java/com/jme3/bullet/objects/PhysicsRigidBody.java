@@ -538,10 +538,10 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
     /**
      * Apply an impulse to the PhysicsRigidBody in the next physics update.
      * @param impulse applied impulse
-     * @param rel_pos location relative to object
+     * @param relativePosition location relative to object
      */
-    public void applyImpulse(final Vector3f impulse, final Vector3f rel_pos) {
-        rBody.applyImpulse(Converter.convert(impulse, tempVec), Converter.convert(rel_pos, tempVec2));
+    public void applyImpulse(final Vector3f impulse, final Vector3f relativePosition) {
+        rBody.applyImpulse(Converter.convert(impulse, tempVec), Converter.convert(relativePosition, tempVec2));
         rBody.activate();
     }
 
