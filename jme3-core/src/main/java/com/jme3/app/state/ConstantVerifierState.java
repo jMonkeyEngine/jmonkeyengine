@@ -178,7 +178,7 @@ public class ConstantVerifierState extends BaseAppState {
     }
  
     /**
-     *  Checks the specified 'constant' value against it's known good
+     *  Checks the specified 'constant' value against its known good
      *  value.  These should obviously be different instances for this to
      *  mean anything.
      */   
