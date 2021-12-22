@@ -67,19 +67,19 @@ public class DesktopAssetManager implements AssetManager {
 
     private static final Logger logger = Logger.getLogger(AssetManager.class.getName());
     private ShaderGenerator shaderGenerator;
-    
+
     private final ImplHandler handler = new ImplHandler(this);
 
-    final private CopyOnWriteArrayList<AssetEventListener> eventListeners = 
+    final private CopyOnWriteArrayList<AssetEventListener> eventListeners =
             new CopyOnWriteArrayList<>();
-    
+
     final private List<ClassLoader> classLoaders =
             Collections.synchronizedList(new ArrayList<>());
 
     public DesktopAssetManager(){
         this(null);
     }
-    
+
     public DesktopAssetManager(boolean usePlatformConfig){
         this(usePlatformConfig ? JmeSystem.getPlatformAssetConfigURL() : null);
     }
@@ -87,7 +87,7 @@ public class DesktopAssetManager implements AssetManager {
     public DesktopAssetManager(URL configFile){
         if (configFile != null){
             loadConfigFile(configFile);
-        }        
+        }
         logger.fine("DesktopAssetManager created.");
     }
 
@@ -98,12 +98,12 @@ public class DesktopAssetManager implements AssetManager {
             logger.log(Level.SEVERE, "Failed to load asset config", ex);
         }
     }
-    
+
     @Override
     public void addClassLoader(ClassLoader loader) {
         classLoaders.add(loader);
     }
-    
+
     @Override
     public void removeClassLoader(ClassLoader loader) {
         classLoaders.remove(loader);
@@ -113,7 +113,7 @@ public class DesktopAssetManager implements AssetManager {
     public List<ClassLoader> getClassLoaders(){
         return Collections.unmodifiableList(classLoaders);
     }
-    
+
     @Override
     public void addAssetEventListener(AssetEventListener listener) {
         eventListeners.add(listener);
@@ -128,7 +128,7 @@ public class DesktopAssetManager implements AssetManager {
     public void clearAssetEventListeners() {
         eventListeners.clear();
     }
-    
+
     public void setAssetEventListener(AssetEventListener listener){
         eventListeners.clear();
         eventListeners.add(listener);
@@ -155,7 +155,7 @@ public class DesktopAssetManager implements AssetManager {
             registerLoader(clazz, extensions);
         }
     }
-    
+
     @Override
     public void unregisterLoader(Class<? extends AssetLoader> loaderClass) {
         handler.removeLoader(loaderClass);
@@ -179,16 +179,16 @@ public class DesktopAssetManager implements AssetManager {
         Class<? extends AssetLocator> clazz = null;
         try{
             clazz = (Class<? extends AssetLocator>) Class.forName(clsName);
-        }catch (ClassNotFoundException ex){
+        } catch (ClassNotFoundException ex) {
             logger.log(Level.WARNING, "Failed to find locator: "+clsName, ex);
-        }catch (NoClassDefFoundError ex){
+        } catch (NoClassDefFoundError ex) {
             logger.log(Level.WARNING, "Failed to find loader: "+clsName, ex);
         }
         if (clazz != null){
             registerLocator(rootPath, clazz);
         }
     }
-    
+
     @Override
     public void unregisterLocator(String rootPath, Class<? extends AssetLocator> clazz){
         handler.removeLocator(clazz, rootPath);
@@ -197,7 +197,7 @@ public class DesktopAssetManager implements AssetManager {
                     clazz.getSimpleName());
         }
     }
-    
+
     @Override
     public AssetInfo locateAsset(AssetKey<?> key){
         AssetInfo info = handler.tryLocate(key);
@@ -206,7 +206,7 @@ public class DesktopAssetManager implements AssetManager {
         }
         return info;
     }
-    
+
     @Override
     public <T> T getFromCache(AssetKey<T> key) {
         AssetCache cache = handler.getCache(key.getCacheType());
@@ -221,7 +221,7 @@ public class DesktopAssetManager implements AssetManager {
             throw new IllegalArgumentException("Key " + key + " specifies no cache.");
         }
     }
-    
+
     @Override
     public <T> void addToCache(AssetKey<T> key, T asset) {
         AssetCache cache = handler.getCache(key.getCacheType());
@@ -232,7 +232,7 @@ public class DesktopAssetManager implements AssetManager {
             throw new IllegalArgumentException("Key " + key + " specifies no cache.");
         }
     }
-    
+
     @Override
     public <T> boolean deleteFromCache(AssetKey<T> key) {
         AssetCache cache = handler.getCache(key.getCacheType());
@@ -242,7 +242,7 @@ public class DesktopAssetManager implements AssetManager {
             throw new IllegalArgumentException("Key " + key + " specifies no cache.");
         }
     }
-    
+
     @Override
     public void clearCache(){
         handler.clearCache();
@@ -259,7 +259,7 @@ public class DesktopAssetManager implements AssetManager {
      * @param proc AssetProcessor to use, or null to disable processing
      * @param cache The cache to store the asset in, or null to disable caching
      * @return The loaded asset
-     * 
+     *
      * @throws AssetLoadException If failed to load asset due to exception or
      * other error.
      */
@@ -301,22 +301,22 @@ public class DesktopAssetManager implements AssetManager {
             return (T) obj;
         }
     }
-    
+
     /**
      * Clones the asset using the given processor and registers the clone
      * with the cache.
-     * 
+     *
      * @param <T> The asset type
      * @param key The asset key
-     * @param obj The asset to clone / register, must implement 
+     * @param obj The asset to clone / register, must implement
      * {@link CloneableSmartAsset}.
      * @param proc The processor which will generate the clone, cannot be null
      * @param cache The cache to register the clone with, cannot be null.
      * @return The cloned asset, cannot be the same as the given asset since
      * it is a clone.
-     * 
-     * @throws IllegalStateException If asset does not implement 
-     * {@link CloneableSmartAsset}, if the cache is null, or if the 
+     *
+     * @throws IllegalStateException If asset does not implement
+     * {@link CloneableSmartAsset}, if the cache is null, or if the
      * processor did not clone the asset.
      */
     @SuppressWarnings("unchecked")
@@ -339,35 +339,35 @@ public class DesktopAssetManager implements AssetManager {
             return clone;
         }
     }
-    
+
     @Override
     public <T> T loadAssetFromStream(AssetKey<T> key, InputStream inputStream) {
         if (key == null) {
             throw new IllegalArgumentException("key cannot be null");
         }
-        
+
         for (AssetEventListener listener : eventListeners){
             listener.assetRequested(key);
         }
-        
+
         AssetProcessor proc = handler.getProcessor(key.getProcessorType());
         StreamAssetInfo info = new StreamAssetInfo(this, key, inputStream);
         return loadLocatedAsset(key, info, proc, null);
     }
-    
+
     @Override
     @SuppressWarnings("unchecked")
     public <T> T loadAsset(AssetKey<T> key){
         if (key == null)
             throw new IllegalArgumentException("key cannot be null");
-        
+
         for (AssetEventListener listener : eventListeners){
             listener.assetRequested(key);
         }
-        
+
         AssetCache cache = handler.getCache(key.getCacheType());
         AssetProcessor proc = handler.getProcessor(key.getProcessorType());
-        
+
         Object obj = cache != null ? cache.getFromCache(key) : null;
         if (obj == null){
             // Asset not in cache, load it from file system.
@@ -384,16 +384,16 @@ public class DesktopAssetManager implements AssetManager {
                 }
                 throw new AssetNotFoundException(key.toString());
             }
-            
+
             obj = loadLocatedAsset(key, info, proc, cache);
         }
 
         T clone = (T) obj;
-        
+
         if (obj instanceof CloneableSmartAsset) {
             clone = registerAndCloneSmartAsset(key, clone, proc, cache);
         }
-        
+
         return clone;
     }
 
@@ -403,7 +403,7 @@ public class DesktopAssetManager implements AssetManager {
     }
 
     @Override
-    public Texture loadTexture(TextureKey key){                
+    public Texture loadTexture(TextureKey key){
         return loadAsset(key);
     }
 
@@ -460,11 +460,11 @@ public class DesktopAssetManager implements AssetManager {
     @Override
     public ShaderGenerator getShaderGenerator(EnumSet<Caps> caps) {
         if (shaderGenerator == null) {
-            if(caps.contains(Caps.OpenGLES30) && caps.contains(Caps.GLSL300)){
+            if (caps.contains(Caps.OpenGLES30) && caps.contains(Caps.GLSL300)) {
                 shaderGenerator = new Glsl300ShaderGenerator(this);
-            }else if(caps.contains(Caps.GLSL150)) {
+            } else if (caps.contains(Caps.GLSL150)) {
                 shaderGenerator = new Glsl150ShaderGenerator(this);
-            }else{
+            } else {
                 shaderGenerator = new Glsl100ShaderGenerator(this);
             }
         }
@@ -478,6 +478,4 @@ public class DesktopAssetManager implements AssetManager {
     public void setShaderGenerator(ShaderGenerator shaderGenerator) {
         this.shaderGenerator = shaderGenerator;
     }
-
-    
 }

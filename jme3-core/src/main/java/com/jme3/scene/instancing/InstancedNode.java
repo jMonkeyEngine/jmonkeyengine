@@ -108,7 +108,7 @@ public class InstancedNode extends GeometryGroupNode {
         public Object jmeClone() {
             try {
                 return super.clone();
-            } catch( CloneNotSupportedException e ) {
+            } catch (CloneNotSupportedException e) {
                 throw new AssertionError();
             }
         }
@@ -141,18 +141,18 @@ public class InstancedNode extends GeometryGroupNode {
         public Object jmeClone() {
             try {
                 return super.clone();
-            } catch( CloneNotSupportedException e ) {
+            } catch (CloneNotSupportedException e) {
                 throw new RuntimeException("Error cloning control", e);
             }
         }
 
         @Override
-        public void cloneFields( Cloner cloner, Object original ) {
+        public void cloneFields (Cloner cloner, Object original) {
             this.node = cloner.clone(node);
         }
 
         @Override
-        public void setSpatial(Spatial spatial){
+        public void setSpatial(Spatial spatial) {
         }
 
         @Override

@@ -297,7 +297,7 @@ public final class LightList implements Iterable<Light>, Savable, Cloneable, Jme
 
     @Override
     public LightList clone(){
-        try{
+        try {
             LightList clone = (LightList) super.clone();
 
             clone.owner = null;
@@ -306,18 +306,18 @@ public final class LightList implements Iterable<Light>, Savable, Cloneable, Jme
             clone.tlist = null; // list used for sorting only
 
             return clone;
-        }catch (CloneNotSupportedException ex){
+        } catch (CloneNotSupportedException ex) {
             throw new AssertionError();
         }
     }
 
     @Override
     public LightList jmeClone() {
-        try{
+        try {
             LightList clone = (LightList)super.clone();
             clone.tlist = null; // list used for sorting only
             return clone;
-        }catch (CloneNotSupportedException ex){
+        } catch (CloneNotSupportedException ex) {
             throw new AssertionError();
         }
     }

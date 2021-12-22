@@ -286,7 +286,7 @@ public class SafeArrayList<E> implements List<E>, Cloneable {
         List other = (List)o;
         Iterator i1 = iterator();
         Iterator i2 = other.iterator();
-        while( i1.hasNext() && i2.hasNext() ) {
+        while (i1.hasNext() && i2.hasNext()) {
             Object o1 = i1.next();
             Object o2 = i2.next();
             if( o1 == o2 )

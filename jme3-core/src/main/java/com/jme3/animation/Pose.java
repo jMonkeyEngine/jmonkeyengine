@@ -53,7 +53,7 @@ public final class Pose implements Savable, Cloneable {
     private transient final Vector3f tempVec  = new Vector3f();
     private transient final Vector3f tempVec2 = new Vector3f();
 
-    public Pose(String name, int targetMeshIndex, Vector3f[] offsets, int[] indices){
+    public Pose(String name, int targetMeshIndex, Vector3f[] offsets, int[] indices) {
         this.name = name;
         this.targetMeshIndex = targetMeshIndex;
         this.offsets = offsets;
@@ -63,14 +63,12 @@ public final class Pose implements Savable, Cloneable {
     /**
      * Serialization-only. Do not use.
      */
-    protected Pose()
-    {
-    }
-    
-    public int getTargetMeshIndex(){
-        return targetMeshIndex;
+    protected Pose() {
     }
 
+    public int getTargetMeshIndex() {
+        return targetMeshIndex;
+    }
 
     /**
      * Applies the offsets of this pose to the vertex buffer given by the blend factor.
@@ -78,10 +76,10 @@ public final class Pose implements Savable, Cloneable {
      * @param blend Blend factor, 0 = no change to vertex buffer, 1 = apply full offsets
      * @param vertexBuffer Vertex buffer to apply this pose to
      */
-    public void apply(float blend, FloatBuffer vertexBuffer){
-        for (int i = 0; i < indices.length; i++){
+    public void apply(float blend, FloatBuffer vertexBuffer) {
+        for (int i = 0; i < indices.length; i++) {
             Vector3f offset = offsets[i];
-            int vertIndex   = indices[i];
+            int vertIndex = indices[i];
 
             tempVec.set(offset).multLocal(blend);
 
@@ -95,7 +93,7 @@ public final class Pose implements Savable, Cloneable {
             BufferUtils.setInBuffer(tempVec2, vertexBuffer, vertIndex);
         }
     }
-    
+
     /**
      * This method creates a clone of the current object.
      * @return a clone of the current object

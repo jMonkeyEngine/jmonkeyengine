@@ -88,7 +88,7 @@ public abstract class SimpleApplication extends LegacyApplication {
 
             if (name.equals(INPUT_MAPPING_EXIT)) {
                 stop();
-            }else if (name.equals(INPUT_MAPPING_HIDE_STATS)){
+            } else if (name.equals(INPUT_MAPPING_HIDE_STATS)) {
                 if (stateManager.getState(StatsAppState.class) != null) {
                     stateManager.getState(StatsAppState.class).toggleStats();
                 }
@@ -101,7 +101,7 @@ public abstract class SimpleApplication extends LegacyApplication {
              new ConstantVerifierState());
     }
 
-    public SimpleApplication( AppState... initialStates ) {
+    public SimpleApplication(AppState... initialStates) {
         super(initialStates);
     }
 
@@ -125,7 +125,7 @@ public abstract class SimpleApplication extends LegacyApplication {
         setSettings(settings);
         super.start();
     }
-        
+
     /**
      * Returns the applications speed.
      *
@@ -134,7 +134,7 @@ public abstract class SimpleApplication extends LegacyApplication {
     public float getSpeed() {
         return speed;
     }
-    
+
     /**
      * Changes the application speed. 0.0f prevents the application from updating.
      * @param speed The speed to set.
@@ -186,7 +186,7 @@ public abstract class SimpleApplication extends LegacyApplication {
     /**
      *  Creates the font that will be set to the guiFont field
      *  and subsequently set as the font for the stats text.
-     * 
+     *
      * @return the loaded BitmapFont
      */
     protected BitmapFont loadGuiFont() {

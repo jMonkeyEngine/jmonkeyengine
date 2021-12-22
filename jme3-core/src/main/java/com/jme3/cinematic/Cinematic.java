@@ -278,7 +278,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
             cinematicEvent.initEvent(app, this);
         }
         if(!cameras.isEmpty()){
-            for(CameraNode n : cameras.values()){
+            for (CameraNode n : cameras.values()) {
                 n.setCamera(app.getCamera());
             }
         }
@@ -405,7 +405,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
         super.setTime(time);
 
         int keyFrameIndex = timeLine.getKeyFrameIndexFromTime(time);
-        //triggering all the event from start to "time" 
+        //triggering all the event from start to "time"
         //then computing timeOffset for each event
         for (int i = 0; i <= keyFrameIndex; i++) {
             KeyFrame keyFrame = timeLine.get(i);
@@ -699,7 +699,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
     public void setScene(Node scene) {
         this.scene = scene;
         if(!cameras.isEmpty()){
-            for(CameraNode n : cameras.values()){
+            for (CameraNode n : cameras.values()) {
                 this.scene.attachChild(n);
             }
         }

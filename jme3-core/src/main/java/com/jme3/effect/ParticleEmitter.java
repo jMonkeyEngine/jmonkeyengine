@@ -131,13 +131,13 @@ public class ParticleEmitter extends Geometry {
         public Object jmeClone() {
             try {
                 return super.clone();
-            } catch( CloneNotSupportedException e ) {
+            } catch (CloneNotSupportedException e) {
                 throw new RuntimeException("Error cloning", e);
             }
         }
 
         @Override
-        public void cloneFields( Cloner cloner, Object original ) {
+        public void cloneFields (Cloner cloner, Object original) {
             this.parentEmitter = cloner.clone(parentEmitter);
         }
 
@@ -842,7 +842,7 @@ public class ParticleEmitter extends Geometry {
 
     /**
      * @deprecated Use ParticleEmitter.getParticleInfluencer().getInitialVelocity() instead.
-     * 
+     *
      * @return the pre-existing velocity vector
      */
     @Deprecated
@@ -862,7 +862,7 @@ public class ParticleEmitter extends Geometry {
      * Use ParticleEmitter.getParticleInfluencer().setInitialVelocity(initialVelocity); instead.
      *
      * @see ParticleEmitter#setVelocityVariation(float)
-     * @see #setGravity(com.jme3.math.Vector3f) 
+     * @see #setGravity(com.jme3.math.Vector3f)
      */
     @Deprecated
     public void setInitialVelocity(Vector3f initialVelocity) {
@@ -884,7 +884,7 @@ public class ParticleEmitter extends Geometry {
      * @param variation Set the variation by which the initial velocity
      * of the particle is determined. <code>variation</code> should be a value
      * from 0 to 1, where 0 means particles are to spawn with exactly
-     * the velocity specified in 
+     * the velocity specified in
      * {@link com.jme3.effect.influencers.ParticleInfluencer#setInitialVelocity(com.jme3.math.Vector3f)},
      * and 1 means particles are to spawn with a completely random velocity.
      *
@@ -946,7 +946,7 @@ public class ParticleEmitter extends Geometry {
 
     /**
      * Instantly emits available particles, up to num.
-     * 
+     *
      * @param num the maximum number of particles to emit
      */
     public void emitParticles(int num) {
@@ -970,7 +970,7 @@ public class ParticleEmitter extends Geometry {
             max.set(Vector3f.NEGATIVE_INFINITY);
         }
 
-        for(int i=0;i<num;i++) {
+        for (int i=0; i < num; i++) {
             if( emitParticle(min, max) == null ) break;
         }
 

@@ -82,7 +82,7 @@ public final class IntMap<T> implements Iterable<Entry<T>>, Cloneable, JmeClonea
     @Override
     @SuppressWarnings("unchecked")
     public IntMap<T> clone(){
-        try{
+        try {
             IntMap<T> clone = (IntMap<T>) super.clone();
             Entry[] newTable = new Entry[table.length];
             for (int i = table.length - 1; i >= 0; i--){
@@ -91,7 +91,7 @@ public final class IntMap<T> implements Iterable<Entry<T>>, Cloneable, JmeClonea
             }
             clone.table = newTable;
             return clone;
-        }catch (CloneNotSupportedException ex){
+        } catch (CloneNotSupportedException ex){
         }
         return null;
     }

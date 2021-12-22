@@ -30,7 +30,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package com.jme3.app.state;
- 
+
 import com.jme3.app.Application;
 import com.jme3.renderer.RenderManager;
 import com.jme3.util.SafeArrayList;
@@ -58,29 +58,28 @@ import java.util.concurrent.ConcurrentHashMap;
  *                       render thread and it is not necessarily safe to modify
  *                       the scene graph, etc..
  * <li>cleanup() : called ONCE on the render thread at the beginning of the next update
- *                 after the state has been detached or when the application is 
- *                 terminating.  
- * </ul> 
+ *                 after the state has been detached or when the application is
+ *                 terminating.
+ * </ul>
  *
  * @author Kirill Vainer, Paul Speed
  */
 public class AppStateManager {
-
     /**
      *  List holding the attached app states that are pending
      *  initialization.  Once initialized they will be added to
-     *  the running app states.  
+     *  the running app states.
      */
     private final SafeArrayList<AppState> initializing = new SafeArrayList<>(AppState.class);
-    
+
     /**
-     *  Holds the active states once they are initialized.  
+     * Holds the active states once they are initialized.
      */
     private final SafeArrayList<AppState> states = new SafeArrayList<>(AppState.class);
-    
+
     /**
      *  List holding the detached app states that are pending
-     *  cleanup.  
+     *  cleanup.
      */
     private final SafeArrayList<AppState> terminating = new SafeArrayList<>(AppState.class);
 
@@ -89,20 +88,20 @@ public class AppStateManager {
      *  an ID.
      */
     private final ConcurrentMap<String, AppState> stateIndex = new ConcurrentHashMap<>();
- 
+
     // All of the above lists need to be thread-safe, but access will be
     // synchronized separately.... but always on the states list.  This
     // is to avoid deadlocking that may occur and the most common use case
     // is that they are all modified from the same thread anyway.
-    
+
     private final Application app;
 
-    public AppStateManager(Application app){
+    public AppStateManager(Application app) {
         this.app = app;
     }
 
     /**
-     *  Returns the Application to which this AppStateManager belongs.
+     * Returns the Application to which this AppStateManager belongs.
      *
      * @return the pre-existing instance
      */
@@ -110,41 +109,41 @@ public class AppStateManager {
         return app;
     }
 
-    protected AppState[] getInitializing() { 
-        synchronized (states){
+    protected AppState[] getInitializing() {
+        synchronized (states) {
             return initializing.getArray();
         }
-    } 
+    }
 
-    protected AppState[] getTerminating() { 
-        synchronized (states){
+    protected AppState[] getTerminating() {
+        synchronized (states) {
             return terminating.getArray();
         }
-    } 
+    }
 
-    protected AppState[] getStates(){
-        synchronized (states){
+    protected AppState[] getStates() {
+        synchronized (states) {
             return states.getArray();
         }
     }
 
     /**
      * Attach a state to the AppStateManager, the same state cannot be attached
-     * twice.  Throws an IllegalArgumentException if the state has an ID and that
-     * ID has already been associated with another AppState.                
+     * twice. Throws an IllegalArgumentException if the state has an ID and that
+     * ID has already been associated with another AppState.
      *
      * @param state The state to attach
      * @return True if the state was successfully attached, false if the state
      * was already attached.
      */
-    public boolean attach(AppState state){
-        synchronized (states){
-            if( state.getId() != null && stateIndex.putIfAbsent(state.getId(), state) != null ) {
-                throw new IllegalArgumentException("ID:" + state.getId() 
-                        + " is already being used by another state:" 
+    public boolean attach(AppState state) {
+        synchronized (states) {
+            if (state.getId() != null && stateIndex.putIfAbsent(state.getId(), state) != null) {
+                throw new IllegalArgumentException("ID:" + state.getId()
+                        + " is already being used by another state:"
                         + stateIndex.get(state.getId()));
             }
-            if (!states.contains(state) && !initializing.contains(state)){
+            if (!states.contains(state) && !initializing.contains(state)) {
                 state.stateAttached(this);
                 initializing.add(state);
                 return true;
@@ -161,7 +160,7 @@ public class AppStateManager {
      *
      * @param states The states to attach
      */
-    public void attachAll(AppState... states){
+    public void attachAll(AppState... states) {
         attachAll(Arrays.asList(states));
     }
 
@@ -172,39 +171,39 @@ public class AppStateManager {
      *
      * @param states The states to attach
      */
-    public void attachAll(Iterable<AppState> states){
-        synchronized (this.states){
-            for( AppState state : states ) {
+    public void attachAll(Iterable<AppState> states) {
+        synchronized (this.states) {
+            for (AppState state : states) {
                 attach(state);
             }
         }
     }
 
     /**
-     * Detaches the state from the AppStateManager. 
+     * Detaches the state from the AppStateManager.
      *
      * @param state The state to detach
      * @return True if the state was detached successfully, false
-     * if the state was not attached in the first place.
+     *     if the state was not attached in the first place.
      */
-    public boolean detach(AppState state){
-        synchronized (states){
-        
+    public boolean detach(AppState state) {
+        synchronized (states) {
+
             // Remove it from the index if it exists.
             // Note: we remove it directly from the values() in case
             // the state has changed its ID since registered.
             stateIndex.values().remove(state);
-        
-            if (states.contains(state)){
+
+            if (states.contains(state)) {
                 state.stateDetached(this);
                 states.remove(state);
                 terminating.add(state);
                 return true;
-            } else if(initializing.contains(state)){
+            } else if (initializing.contains(state)) {
                 state.stateDetached(this);
                 initializing.remove(state);
                 return true;
-            }else{
+            } else {
                 return false;
             }
         }
@@ -215,11 +214,11 @@ public class AppStateManager {
      *
      * @param state The state to check
      * @return True if the state is currently attached to this AppStateManager.
-     * 
+     *
      * @see AppStateManager#attach(com.jme3.app.state.AppState)
      */
-    public boolean hasState(AppState state){
-        synchronized (states){
+    public boolean hasState(AppState state) {
+        synchronized (states) {
             return states.contains(state) || initializing.contains(state);
         }
     }
@@ -231,140 +230,140 @@ public class AppStateManager {
      * @param stateClass the desired type of AppState
      * @return First attached state that is an instance of stateClass
      */
-    public <T extends AppState> T getState(Class<T> stateClass){
+    public <T extends AppState> T getState(Class<T> stateClass) {
         return getState(stateClass, false);
     }
-    
+
     /**
      * Returns the first state that is an instance of subclass of the specified class.
      *
      * @param <T> the desired type of AppState
      * @param stateClass the desired type of AppState
      * @param failOnMiss true to throw an exception, false to return null
-     * @return First attached state that is an instance of stateClass. If failOnMiss is true 
-     * then an IllegalArgumentException is thrown if the state is not attached.
+     * @return First attached state that is an instance of stateClass. If failOnMiss is true
+     *     then an IllegalArgumentException is thrown if the state is not attached.
      */
     @SuppressWarnings("unchecked")
-    public <T extends AppState> T getState(Class<T> stateClass, boolean failOnMiss){
-        synchronized (states){
+    public <T extends AppState> T getState(Class<T> stateClass, boolean failOnMiss) {
+        synchronized (states) {
             AppState[] array = getStates();
             for (AppState state : array) {
-                if (stateClass.isAssignableFrom(state.getClass())){
+                if (stateClass.isAssignableFrom(state.getClass())) {
                     return (T) state;
                 }
             }
-            
+
             // This may be more trouble than it's worth, but I think
             // it's necessary for proper decoupling of states and provides
             // similar behavior to before where a state could be looked
             // up even if it wasn't initialized. -pspeed
             array = getInitializing();
             for (AppState state : array) {
-                if (stateClass.isAssignableFrom(state.getClass())){
+                if (stateClass.isAssignableFrom(state.getClass())) {
                     return (T) state;
                 }
             }
         }
-        
-        if(failOnMiss) {
+
+        if (failOnMiss) {
             throw new IllegalArgumentException("State not found for:" + stateClass);
-        }    
+        }
         return null;
     }
 
     /**
-     *  Returns the state associated with the specified ID at the time it was
-     *  attached or null if not state was attached with that ID.
+     * Returns the state associated with the specified ID at the time it was
+     * attached or null if not state was attached with that ID.
      *
      * @param <T> the desired type of AppState
      * @param id the AppState ID
      * @param stateClass the desired type of AppState
      * @return the pre-existing instance, or null if not found
      */
-    public <T extends AppState> T getState( String id, Class<T> stateClass ) {
+    public <T extends AppState> T getState(String id, Class<T> stateClass) {
         return stateClass.cast(stateIndex.get(id));
     }
-    
+
     /**
-     *  Returns true if there is currently a state associated with the specified
-     *  ID.
+     * Returns true if there is currently a state associated with the specified
+     * ID.
      *
      * @param id the AppState ID
      * @return true if found, otherwise false
      */
-    public boolean hasState( String id ) {
+    public boolean hasState(String id) {
         return stateIndex.containsKey(id);
     }
- 
+
     /**
      *  Returns the state associated with the specified ID at the time it
-     *  was attached or throws an IllegalArgumentException if the ID was 
+     *  was attached or throws an IllegalArgumentException if the ID was
      *  not found.
      *
      * @param <T> the desired type of AppState
      * @param id the AppState ID
      * @param stateClass the desired type of AppState
      * @return the pre-existing instance (not null)
-     */   
-    public <T extends AppState> T stateForId( String id, Class<T> stateClass ) {
+     */
+    public <T extends AppState> T stateForId(String id, Class<T> stateClass) {
         T result = getState(id, stateClass);
-        if( result == null ) {
+        if (result == null) {
             throw new IllegalArgumentException("State not found for:" + id);
         }
         return stateClass.cast(result);
-    } 
+    }
 
-    protected void initializePending(){
+    protected void initializePending() {
         AppState[] array = getInitializing();
         if (array.length == 0)
             return;
-            
-        synchronized( states ) {
+
+        synchronized (states) {
             // Move the states that will be initialized
             // into the active array.  In all but one case the
             // order doesn't matter but if we do this here then
             // a state can detach itself in initialize().  If we
             // did it after then it couldn't.
-            List<AppState> transfer = Arrays.asList(array);         
+            List<AppState> transfer = Arrays.asList(array);
             states.addAll(transfer);
             initializing.removeAll(transfer);
-        }        
+        }
         for (AppState state : array) {
             state.initialize(this, app);
         }
     }
-    
-    protected void terminatePending(){
+
+    protected void terminatePending() {
         AppState[] array = getTerminating();
         if (array.length == 0)
             return;
-            
+
         for (AppState state : array) {
             state.cleanup();
-        }        
-        synchronized( states ) {
+        }
+        synchronized (states) {
             // Remove just the states that were terminated...
             // which might now be a subset of the total terminating
             // list.
-            terminating.removeAll(Arrays.asList(array));         
+            terminating.removeAll(Arrays.asList(array));
         }
-    }    
+    }
 
     /**
      * Calls update for attached states, do not call directly.
      * @param tpf Time per frame.
      */
-    public void update(float tpf){
-    
+    public void update(float tpf) {
+
         // Cleanup any states pending
         terminatePending();
 
         // Initialize any states pending
         initializePending();
 
-        // Update enabled states    
+        // Update enabled states
         AppState[] array = getStates();
-        for (AppState state : array){
+        for (AppState state : array) {
             if (state.isEnabled()) {
                 if (app.getAppProfiler() != null) {
                     app.getAppProfiler().appSubStep(state.getClass().getSimpleName());
@@ -378,9 +377,9 @@ public class AppStateManager {
      * Calls render for all attached and initialized states, do not call directly.
      * @param rm The RenderManager
      */
-    public void render(RenderManager rm){
+    public void render(RenderManager rm) {
         AppState[] array = getStates();
-        for (AppState state : array){
+        for (AppState state : array) {
             if (state.isEnabled()) {
                 if (app.getAppProfiler() != null) {
                     app.getAppProfiler().appSubStep(state.getClass().getSimpleName());
@@ -393,9 +392,9 @@ public class AppStateManager {
     /**
      * Calls render for all attached and initialized states, do not call directly.
      */
-    public void postRender(){
+    public void postRender() {
         AppState[] array = getStates();
-        for (AppState state : array){
+        for (AppState state : array) {
             if (state.isEnabled()) {
                 if (app.getAppProfiler() != null) {
                     app.getAppProfiler().appSubStep(state.getClass().getSimpleName());
@@ -408,10 +407,10 @@ public class AppStateManager {
     /**
      * Calls cleanup on attached states, do not call directly.
      */
-    public void cleanup(){
+    public void cleanup() {
         AppState[] array = getStates();
-        for (AppState state : array){
+        for (AppState state : array) {
             state.cleanup();
         }
-    }    
+    }
 }

@@ -163,10 +163,10 @@ public class Tweens {
      * <pre>Tweens.callTweenMethod(1, myObject, "foo", "bar")</pre>
      * <p>Would work for any of the following method signatures:</p>
      * <pre>
-     *    void foo( float t, String arg )
-     *    void foo( double t, String arg )
-     *    void foo( String arg, float t )
-     *    void foo( String arg, double t )
+     *    void foo(float t, String arg)
+     *    void foo(double t, String arg)
+     *    void foo(String arg, float t)
+     *    void foo(String arg, double t)
      *  </pre>
      *
      * @param length the desired duration (in seconds)
@@ -208,7 +208,7 @@ public class Tweens {
             } else if (t > 1) {
                 return 1;
             }
-            // Sine starting at -90 will go from -1 to 1 through 0 
+            // Sine starting at -90 will go from -1 to 1 through 0
             double result = Math.sin(t * Math.PI - Math.PI * 0.5);
             return (result + 1) * 0.5;
         }
@@ -575,7 +575,7 @@ public class Tweens {
                 // We accept the 't' parameter as either first or last,
                 // so we'll see which one matches.
                 if (isFloatType(paramTypes[0]) || isDoubleType(paramTypes[0])) {
-                    // Try it as the first parameter 
+                    // Try it as the first parameter
                     int matches = 0;
 
                     for (int i = 1; i < paramTypes.length; i++) {
@@ -597,7 +597,7 @@ public class Tweens {
                     return m;
                 }
 
-                // Else try it at the end                
+                // Else try it at the end
                 int last = paramTypes.length - 1;
                 if (isFloatType(paramTypes[last]) || isDoubleType(paramTypes[last])) {
                     int matches = 0;

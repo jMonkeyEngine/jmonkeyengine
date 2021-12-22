@@ -29,7 +29,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
- 
+
 package com.jme3.app.state;
 
 import java.util.Arrays;
@@ -79,7 +79,7 @@ public class ConstantVerifierState extends BaseAppState {
             new Checker(Vector4f.UNIT_W, new Vector4f(0, 0, 0, 1)),
             new Checker(Vector4f.UNIT_XYZW, new Vector4f(1, 1, 1, 1)),
             new Checker(Vector4f.POSITIVE_INFINITY, new Vector4f(POSITIVE_INFINITY, POSITIVE_INFINITY, POSITIVE_INFINITY, POSITIVE_INFINITY)),
-            new Checker(Vector4f.NEGATIVE_INFINITY, new Vector4f(NEGATIVE_INFINITY, NEGATIVE_INFINITY, NEGATIVE_INFINITY, NEGATIVE_INFINITY)), 
+            new Checker(Vector4f.NEGATIVE_INFINITY, new Vector4f(NEGATIVE_INFINITY, NEGATIVE_INFINITY, NEGATIVE_INFINITY, NEGATIVE_INFINITY)),
             new Checker(Matrix3f.ZERO, new Matrix3f(0, 0, 0, 0, 0, 0, 0, 0, 0)),
             new Checker(Matrix3f.IDENTITY, new Matrix3f()),
             new Checker(Matrix4f.ZERO, new Matrix4f(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)),
@@ -96,13 +96,13 @@ public class ConstantVerifierState extends BaseAppState {
      *  constant checks using asserts.
      */
     public ConstantVerifierState() {
-        this(ErrorType.Assert);        
+        this(ErrorType.Assert);
     }
-    
+
     /**
      *  Creates a verifier app state that will check all of the default
      *  constant checks using the specified error reporting mechanism.
-     * 
+     *
      * @param errorType the mechanism to use
      */
     public ConstantVerifierState( ErrorType errorType ) {
@@ -112,7 +112,7 @@ public class ConstantVerifierState extends BaseAppState {
     /**
      *  Creates a verifier app state that will check all of the specified
      *  checks and report errors using the specified error type.
-     * 
+     *
      * @param errorType the mechanism to use
      * @param checkers which checks to perform
      */
@@ -120,73 +120,73 @@ public class ConstantVerifierState extends BaseAppState {
         this.errorType = errorType;
         this.checkers.addAll(Arrays.asList(checkers));
     }
- 
+
     public void addChecker( Object constant, Object goodValue ) {
         checkers.add(new Checker(constant, goodValue));
     }
-    
+
     public void setErrorType( ErrorType errorType ) {
         this.errorType = errorType;
     }
-    
+
     public ErrorType getErrorType() {
         return errorType;
     }
-    
+
     @Override
     protected void initialize( Application app ) {
     }
-    
+
     @Override
     protected void cleanup( Application app ) {
     }
-    
+
     @Override
     protected void onEnable() {
     }
-    
+
     @Override
     protected void onDisable() {
     }
-    
+
     @Override
     public void postRender() {
         // Check as late in the frame as possible.  Subclasses can check earlier
         // if they like.
         checkValues();
     }
-    
+
     protected void checkValues() {
-        for( Checker checker : checkers.getArray() ) {
+        for (Checker checker : checkers.getArray()) {
             switch( errorType ) {
                 default:
                 case Assert:
                     assert checker.isValid() : checker.toString();
                     break;
                 case Exception:
-                    if( !checker.isValid() ) {
+                    if (!checker.isValid()) {
                         throw new RuntimeException("Constant has changed, " + checker.toString());
                     }
                     break;
                 case Log:
-                    if( !checker.isValid() ) {
+                    if (!checker.isValid()) {
                         log.severe("Constant has changed, " + checker.toString());
                     }
                     break;
             }
         }
     }
- 
+
     /**
      *  Checks the specified 'constant' value against it's known good
      *  value.  These should obviously be different instances for this to
      *  mean anything.
-     */   
+     */
     private static class Checker {
         private Object constant;
         private Object goodValue;
-        
-        public Checker( Object constant, Object goodValue ) {
+
+        public Checker(Object constant, Object goodValue) {
             if( constant == null ) {
                 throw new IllegalArgumentException("Constant cannot be null");
             }
@@ -196,12 +196,12 @@ public class ConstantVerifierState extends BaseAppState {
             this.constant = constant;
             this.goodValue = goodValue;
         }
-          
+
         public boolean isValid() {
             return constant.equals(goodValue);
         }
- 
-        @Override       
+
+        @Override
         public String toString() {
             return "Constant:" + constant + ", correct value:" + goodValue + ", type:" + goodValue.getClass();
         }
