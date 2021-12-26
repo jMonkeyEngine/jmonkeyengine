@@ -503,7 +503,7 @@ public class RenderState implements Cloneable, Savable {
         oc.write(frontStencilStencilFailOperation, "frontStencilStencilFailOperation", StencilOperation.Keep);
         oc.write(frontStencilDepthFailOperation, "frontStencilDepthFailOperation", StencilOperation.Keep);
         oc.write(frontStencilDepthPassOperation, "frontStencilDepthPassOperation", StencilOperation.Keep);
-        oc.write(backStencilStencilFailOperation, "frontStencilStencilFailOperation", StencilOperation.Keep);
+        oc.write(backStencilStencilFailOperation, "backStencilStencilFailOperation", StencilOperation.Keep);
         oc.write(backStencilDepthFailOperation, "backStencilDepthFailOperation", StencilOperation.Keep);
         oc.write(backStencilDepthPassOperation, "backStencilDepthPassOperation", StencilOperation.Keep);
         oc.write(frontStencilFunction, "frontStencilFunction", TestFunction.Always);
