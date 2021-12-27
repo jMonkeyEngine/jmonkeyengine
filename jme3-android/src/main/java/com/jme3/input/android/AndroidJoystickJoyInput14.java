@@ -129,9 +129,9 @@ public class AndroidJoystickJoyInput14 {
                 if (!gameControllerDeviceIds.contains(deviceId)) {
                     gameControllerDeviceIds.add(deviceId);
                     logger.log(Level.FINE, "Attempting to create joystick for device: {0}", dev);
-                    // Create an AndroidJoystick and store the InputDevice so we
-                    // can later correspond the input from the InputDevice to the
-                    // appropriate jME Joystick event
+                    // Create an AndroidJoystick and store the InputDevice, so we
+                    // can later convert the input from the InputDevice to the
+                    // appropriate jME Joystick event.
                     AndroidJoystick joystick = new AndroidJoystick(inputManager,
                                                                 joyInput,
                                                                 dev,

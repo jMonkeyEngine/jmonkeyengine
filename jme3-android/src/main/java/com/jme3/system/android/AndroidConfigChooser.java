@@ -88,7 +88,7 @@ public class AndroidConfigChooser implements EGLConfigChooser {
 
         if (chosenConfig == null) {
             logger.log(Level.INFO, "EGL configuration not found, looking for best config with >= 16 bit Depth");
-            //failsafe, should pick best config with at least 16 depth
+            // failsafe: pick the best config with depth >= 16
             requestedConfig = new Config(0, 0, 0, 0, 16, 0, 0);
             chosenConfig = chooseConfig(egl, display, configs, requestedConfig, true, false, false, true);
         }

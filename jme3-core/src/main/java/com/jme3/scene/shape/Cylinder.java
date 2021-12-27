@@ -245,7 +245,7 @@ public class Cylinder extends Mesh {
             circlePoints[circlePoint][0] = FastMath.cos(angle);
             circlePoints[circlePoint][1] = FastMath.sin(angle);
         }
-        // Add an additional point for closing the texture around the side of the cylinder.
+        // Add a point to close the texture around the side of the cylinder.
         circlePoints[radialSamples][0] = circlePoints[0][0];
         circlePoints[radialSamples][1] = circlePoints[0][1];
         

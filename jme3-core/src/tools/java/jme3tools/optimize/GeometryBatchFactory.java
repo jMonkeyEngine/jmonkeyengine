@@ -158,8 +158,8 @@ public class GeometryBatchFactory {
         outMesh.setMaxNumWeights(maxWeights);
         outMesh.setMode(mode);
         if (totalVerts >= 65536) {
-            // make sure we create an UnsignedInt buffer so
-            // we can fit all of the meshes
+            // Create an UnsignedInt buffer so
+            // we can fit all of the meshes.
             formatForBuf[Type.Index.ordinal()] = Format.UnsignedInt;
         } else {
             formatForBuf[Type.Index.ordinal()] = Format.UnsignedShort;

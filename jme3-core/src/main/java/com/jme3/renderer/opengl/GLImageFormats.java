@@ -238,8 +238,8 @@ public final class GLImageFormats {
             format(formatToGL, Format.RGB111110F,           GLExt.GL_R11F_G11F_B10F_EXT,     GL.GL_RGB,             GLExt.GL_UNSIGNED_INT_10F_11F_11F_REV_EXT);
         }
         
-         // Need to check if Caps.DepthTexture is supported prior to using for textures
-        // But for renderbuffers its OK.
+        // Need to check whether Caps.DepthTexture is supported before using it for textures.
+        // But for render buffers it's OK.
         format(formatToGL, Format.Depth16, GL.GL_DEPTH_COMPONENT16,  GL.GL_DEPTH_COMPONENT, GL.GL_UNSIGNED_SHORT);
         
         // NOTE: OpenGL ES 2.0 does not support DEPTH_COMPONENT as internal format -- fallback to 16-bit depth.

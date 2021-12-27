@@ -196,7 +196,7 @@ public class KernelAdapter extends Thread
     protected MessageBuffer getMessageBuffer( Endpoint p )
     {
         if( !reliable ) {
-            // Since UDP comes in packets and they aren't split
+            // Since UDP comes in packets, and they aren't split
             // up, there is no reason to buffer.  In fact, there would
             // be a downside because there is no way for us to reliably
             // clean these up later since we'd create another one for 
@@ -236,7 +236,7 @@ public class KernelAdapter extends Thread
             }                
         }            
         
-        // Should be complete... and maybe we should check but we don't
+        // Should be complete... and maybe we should check, but we don't.
         Message m = null;
         while( (m = protocol.pollMessage()) != null ) {
             m.setReliable(reliable);

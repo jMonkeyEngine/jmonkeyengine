@@ -125,8 +125,8 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
                 return;
             }
 
-            // We must tell GL context to shutdown and wait for it to
-            // shutdown, otherwise, issues will occur.
+            // We must tell GL context to shut down and wait for it to
+            // shut down. Otherwise, issues will occur.
             logger.log(Level.FINE, "EDT: Telling OGL to destroy display ..");
             synchronized (taskLock){
                 desiredTask = TASK_DESTROY_DISPLAY;
@@ -392,7 +392,7 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
                  * 
                  * Destroying keyboard early prevents the error above, triggered
                  * by destroying keyboard in by Display.destroy() or Display.setParent(null).
-                 * Therefore Keyboard.destroy() should precede any of these calls.
+                 * Therefore, Keyboard.destroy() should precede any of these calls.
                  */
                 if (Keyboard.isCreated()){
                     // Should only happen if called in 

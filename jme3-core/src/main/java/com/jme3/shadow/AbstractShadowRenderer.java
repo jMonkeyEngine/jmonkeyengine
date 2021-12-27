@@ -584,8 +584,8 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
             setMaterialParameters(mat);
         }
 
-        //At least one material of the receiving geoms does not support the post shadow techniques
-        //so we fall back to the forced material solution (transparent shadows won't be supported for these objects)
+        // At least one material of the receiving geoms does not support the post shadow techniques,
+        // so we fall back to the forced material solution. (Transparent shadows won't be supported for these objects.)
         if (needsfallBackMaterial) {
             setPostShadowParams();
         }
