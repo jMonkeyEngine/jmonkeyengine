@@ -48,10 +48,7 @@ public class RenderStateTest {
     // fields
 
     private static final AssetManager assetManager = new DesktopAssetManager();
-    /*
-     * TODO enable testing of serialization once issues 1718 and 1723 are fixed!
-     */
-    private static final boolean testSerialization = false;
+    private static final boolean testSerialization = true;
     private static final RenderState testObject = new RenderState();
     // *************************************************************************
     // new methods exposed
