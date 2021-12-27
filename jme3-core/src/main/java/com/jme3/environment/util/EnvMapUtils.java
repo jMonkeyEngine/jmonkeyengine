@@ -105,7 +105,7 @@ public class EnvMapUtils {
      * right image
      * @param downImg the bottom side image, also called negative y (negY) or
      * down image
-     * @param upImg the up side image, also called positive y (posY) or up image
+     * @param upImg the top side image, also called positive y (posY) or up image
      * @param backImg the south side image, also called positive z (posZ) or
      * back image
      * @param frontImg the north side image, also called negative z (negZ) or
@@ -419,7 +419,7 @@ public class EnvMapUtils {
      * The method used is the one from this article:
      * http://graphics.stanford.edu/papers/envmap/envmap.pdf
      *
-     * Also good resources on spherical harmonics
+     * Another good resource for spherical harmonics:
      * http://dickyjim.wordpress.com/2013/09/04/spherical-harmonics-for-beginners/
      *
      * @param cubeMap the environment cube map to compute SH for

@@ -51,7 +51,7 @@ import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
 
 /**
- * Example 12 - how to give objects physical properties so they bounce and fall.
+ * Example 12 - how to give objects physical properties, so they bounce and fall.
  * @author base code by double1984, updated by zathras
  */
 public class HelloPhysics extends SimpleApplication {
@@ -69,7 +69,7 @@ public class HelloPhysics extends SimpleApplication {
   private Material stone_mat;
   private Material floor_mat;
 
-  /** Prepare geometries for bricks and cannon balls. */
+  /** Prepare geometries for bricks and cannonballs. */
   private static final Box    box;
   private static final Sphere sphere;
   private static final Box    floor;
@@ -115,7 +115,7 @@ public class HelloPhysics extends SimpleApplication {
   }
 
   /**
-   * Every time the shoot action is triggered, a new cannon ball is produced.
+   * Every time the shoot action is triggered, a new cannonball is produced.
    * The ball is set up to fly from the camera position in the camera direction.
    */
   final private ActionListener actionListener = new ActionListener() {
@@ -176,7 +176,7 @@ public class HelloPhysics extends SimpleApplication {
     }
   }
 
-  /** This method creates one individual physical brick. */
+  /** Creates one physical brick. */
   private void makeBrick(Vector3f loc) {
     /* Create a brick geometry and attach it to the scene graph. */
     Geometry brick_geo = new Geometry("brick", box);
@@ -191,7 +191,7 @@ public class HelloPhysics extends SimpleApplication {
     bulletAppState.getPhysicsSpace().add(brick_phy);
   }
 
-  /** This method creates one individual physical cannon ball.
+  /** Creates one physical cannonball.
    * By default, the ball is accelerated and flies
    * from the camera position in the camera direction.*/
    public void makeCannonBall() {

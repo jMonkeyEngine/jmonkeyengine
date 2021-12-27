@@ -420,8 +420,8 @@ public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Adds each r,g,b,a of this <code>ColorRGBA</code> by the r,g,b,a the given
-     * color and returns the result (this).
+     * Adds each component to the corresponding component of the argument
+     * and returns the result (this).
      * Used as a way of combining colors and lights.
      *
      * @param c The color to add.

@@ -100,9 +100,9 @@ final class NativeLibrary {
     /**
      * The filename that the library should be extracted as.
      * 
-     * In some cases can be different than {@link #getPathInNativesJar() path in natives jar},
+     * In some cases, this differs from the {@link #getPathInNativesJar() path in the natives jar},
      * since the names of the libraries specified in the jars are often incorrect.
-     * If set to <code>null</code>, then the same name as the filename in 
+     * If set to <code>null</code>, then the filename in the
      * natives jar shall be used.
      * 
      * @return the name that should be given to the extracted file.

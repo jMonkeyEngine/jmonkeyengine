@@ -657,7 +657,7 @@ public class InputManager implements RawInputListener {
 
     /**
      * Clears all the input mappings from this InputManager.
-     * Consequently, also clears all of the
+     * Consequently, this clears all of the
      * InputListeners as well.
      */
     public void clearMappings() {
@@ -975,7 +975,8 @@ public class InputManager implements RawInputListener {
 
     /**
      * Add a listener that reports when a joystick has been added or removed.
-     * Currently only implemented in LWJGL3
+     * Currently implemented only in LWJGL3.
+     *
      * @param listener the listener
      * @return true
      */

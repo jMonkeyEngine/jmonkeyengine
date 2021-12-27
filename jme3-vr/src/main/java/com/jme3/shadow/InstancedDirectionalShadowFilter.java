@@ -21,8 +21,9 @@ public class InstancedDirectionalShadowFilter extends DirectionalLightShadowFilt
      * Create a new instanced version of the {@link DirectionalLightShadowFilterVR directional light shadow filter}.
      * @param application the application that this filter is attached to.
      * @param camera
-     * @param shadowMapSize the size of the rendered shadowmaps (512, 1024, 2048, etc...)
-     * @param nbSplits the number of shadow maps rendered (the more shadow maps the more quality, the less fps).
+     * @param shadowMapSize the size of the rendered shadowmaps (512, 1024, 2048, etcetera)
+     * @param nbSplits the number of shadow maps rendered (More shadow maps yield
+     *     better quality, fewer frames per second.)
      * @param instancedRendering <code>true</code> if this filter has to use instance rendering and <code>false</code> otherwise.
      * @param rightCamera the camera used as right eye in stereo rendering mode.
      */

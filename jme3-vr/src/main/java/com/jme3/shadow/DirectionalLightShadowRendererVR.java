@@ -84,14 +84,14 @@ public class DirectionalLightShadowRendererVR extends AbstractShadowRendererVR {
     }
 
     /**
-     * Create a DirectionalLightShadowRenderer More info on the technique at <a
+     * Creates a DirectionalLight shadow renderer. More info on the technique at <a
      * href="http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html">http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html</a>
      *
-     * @param assetManager the application asset manager
-     * @param shadowMapSize the size of the rendered shadowmaps (512,1024,2048,
-     * etc...)
-     * @param nbSplits the number of shadow maps rendered (the more shadow maps
-     * the more quality, the less fps).
+     * @param assetManager the application's asset manager
+     * @param shadowMapSize the size of the rendered shadowmaps (512, 1024, 2048,
+     *     etcetera)
+     * @param nbSplits the number of shadow maps rendered (More shadow maps yield
+     *     better quality, fewer fps.)
      */
     public DirectionalLightShadowRendererVR(AssetManager assetManager, int shadowMapSize, int nbSplits) {
         super(assetManager, shadowMapSize, nbSplits);
@@ -238,11 +238,16 @@ public class DirectionalLightShadowRendererVR extends AbstractShadowRendererVR {
     }
 
     /**
-     * Adjust the repartition of the different shadow maps in the shadow extend.
+     * Adjusts the partition of the shadow extend into shadow maps.
      * Lambda is usually between 0 and 1.
-     * A low value give a more linear repartition resulting in a constant quality in the shadow over the extends, but near shadows could look very jagged
-     * A high value give a more logarithmic repartition resulting in a high quality for near shadows, but the quality quickly decrease over the extend.
+     * A low value gives a more linear partition,
+     * resulting in consistent shadow quality over the extend,
+     * but near shadows could look very jagged.
+     * A high value gives a more logarithmic partition,
+     * resulting in high quality for near shadows,
+     * but quality decreases rapidly with distance.
      * The default value is 0.65 (the theoretical optimum).
+     *
      * @param lambda the lambda value.
      */
     public void setLambda(float lambda) {
@@ -260,8 +265,9 @@ public class DirectionalLightShadowRendererVR extends AbstractShadowRendererVR {
     /**
      * Enables the stabilization of the shadow's edges. (default is true)
      * This prevents shadow edges from flickering when the camera moves.
-     * However it can lead to some shadow quality loss in some particular scenes.
-     * @param stabilize  <code>true</code> if stabilization has to be enabled and <code>false</code> otherwise.
+     * However, it can lead to some loss of shadow quality in particular scenes.
+     *
+     *  @param stabilize  <code>true</code> if stabilization has to be enabled and <code>false</code> otherwise.
      */
     public void setEnabledStabilization(boolean stabilize) {
         this.stabilize = stabilize;

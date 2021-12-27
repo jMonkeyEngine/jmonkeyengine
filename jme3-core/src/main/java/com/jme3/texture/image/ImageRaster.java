@@ -138,7 +138,7 @@ public abstract class ImageRaster {
      * such as {@link com.jme3.texture.Image.Format#Luminance8}) then a color to grayscale
      * conversion is done first, before writing the result into the image.
      * <p>
-     * If the image does not have some of the components in the color (such
+     * If the image lacks some components (such
      * as alpha, or any of the color components), then these components
      * will be ignored. The only exception to this is luminance formats
      * for which the color is converted to luminance first (see above).

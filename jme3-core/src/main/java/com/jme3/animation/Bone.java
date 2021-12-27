@@ -837,8 +837,8 @@ public final class Bone implements Savable, JmeCloneable {
     }
 
     /**
-     * Sets local bind transform for bone.
-     * Call setBindingPose() after all of the skeleton bones' bind transforms are set to save them.
+     * Sets the local bind transform of the bone.
+     * Call setBindingPose() after all of the bones' bind transforms are set to save them.
      *
      * @param translation the desired bind translation (not null, unaffected)
      * @param rotation the desired bind rotation (not null, unaffected)

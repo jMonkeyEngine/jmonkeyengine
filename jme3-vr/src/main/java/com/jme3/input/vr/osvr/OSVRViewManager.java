@@ -365,7 +365,7 @@ public class OSVRViewManager extends AbstractVRViewManager{
     }
 
     /**
-     * Replaces rootNode as the main cameras scene with the distortion mesh
+     * Replaces rootNode with the distortion mesh as the main camera's scene.
      */
     private void setupVRScene(){
         if (environment != null){
