@@ -605,11 +605,16 @@ public class PssmShadowRenderer implements SceneProcessor {
     }
 
     /**
-     * Adjust the repartition of the different shadow maps in the shadow extend
-     * usually goes from 0.0 to 1.0
-     * a low value give a more linear repartition resulting in a constant quality in the shadow over the extends, but near shadows could look very jagged
-     * a high value give a more logarithmic repartition resulting in a high quality for near shadows, but the quality quickly decrease over the extend.
-     * the default value is set to 0.65f (theoretic optimal value).
+     * Adjusts the partition of the shadow extend into shadow maps.
+     * Lambda is usually between 0 and 1.
+     * A low value gives a more linear repartition,
+     * resulting in consistent shadow quality over the extend,
+     * but near shadows could look very jagged.
+     * A high value gives a more logarithmic repartition,
+     * resulting in high quality for near shadows,
+     * but quality decreases rapidly with distance.
+     * The default value is 0.65 (the theoretical optimum).
+     *
      * @param lambda the lambda value.
      */
     public void setLambda(float lambda) {

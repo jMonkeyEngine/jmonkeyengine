@@ -317,12 +317,12 @@ public class OpenVRViewManager extends AbstractVRViewManager {
     }
 
     /**
-     * Replaces rootNode as the main cameras scene with the distortion mesh
+     * Replaces rootNode with the distortion mesh as the main camera's scene.
      */
     private void setupVRScene(){
         if (environment != null){
             if (environment.getApplication() != null){
-                // no special scene to setup if we are doing instancing
+                // no special scene to set up if we are doing instancing
                 if( environment.isInstanceRendering() ) {
                     // distortion has to be done with compositor here... we want only one pass on our end!
                     if( environment.getApplication().getContext().getSettings().isSwapBuffers() ) {
@@ -539,9 +539,9 @@ public class OpenVRViewManager extends AbstractVRViewManager {
     private ViewPort setupMirrorBuffers(Camera cam, Texture tex, boolean expand) {
         if (environment != null){
             if (environment.getApplication() != null){
-                Camera clonecam = cam.clone();
-                ViewPort viewPort = environment.getApplication().getRenderManager().createPostView("MirrorView", clonecam);
-                clonecam.setParallelProjection(true);
+                Camera cloneCam = cam.clone();
+                ViewPort viewPort = environment.getApplication().getRenderManager().createPostView("MirrorView", cloneCam);
+                cloneCam.setParallelProjection(true);
                 viewPort.setClearFlags(true, true, true);
                 viewPort.setBackgroundColor(ColorRGBA.Black);
                 Picture pic = new Picture("fullscene");

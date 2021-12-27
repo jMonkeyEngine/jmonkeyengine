@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,39 +29,26 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.opencl;
+package com.jme3.system.lwjgl;
 
 /**
- * Wrapper for an OpenCL Event object.
- * Events are returned from kernel launches and all asynchronous operations.
- * They allow us to test whether an action has completed and block until the operation
- * is done.
+ * Listen to window size changes. Note, GLFW does not support registering multiple callbacks
+ * in {@link org.lwjgl.glfw.GLFW#glfwSetWindowSizeCallback(long, org.lwjgl.glfw.GLFWWindowSizeCallbackI)},
+ * registering a new one will remove the previous one. Using this interface one can register
+ * multiple listeners.
  *
- * @author shaman
+ * @author Ali-RS
  */
-public abstract class Event extends AbstractOpenCLObject {
-
-    protected Event(ObjectReleaser releaser) {
-        super(releaser);
-    }
-
-    @Override
-    public Event register() {
-        super.register();
-        return this;
-    }
+public interface WindowSizeListener {
 
     /**
-     * Waits until the action has finished (blocking).
-     * This automatically releases the event.
-     */
-    public abstract void waitForFinished();
-
-    /**
-     * Tests if the action is completed.
-     * If the action is completed, the event is released.
+     * When registered by {@link LwjglWindow#registerWindowSizeListener(WindowSizeListener)},
+     * it gets invoked on each glfw window size callback to notify the listener about changes
+     * in the window size.
      *
-     * @return {@code true} if the action is completed
+     * @param width the new window width.
+     * @param height the new window height.
      */
-    public abstract boolean isCompleted();
+    public void onWindowSizeChanged(final int width, final int height);
+
 }

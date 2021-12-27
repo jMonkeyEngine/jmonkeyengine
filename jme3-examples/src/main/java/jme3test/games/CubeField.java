@@ -93,8 +93,8 @@ public class CubeField extends SimpleApplication implements AnalogListener {
         Keys();
 
         defaultFont = assetManager.loadFont("Interface/Fonts/Default.fnt");
-        pressStart = new BitmapText(defaultFont, false);
-        fpsScoreText = new BitmapText(defaultFont, false);
+        pressStart = new BitmapText(defaultFont);
+        fpsScoreText = new BitmapText(defaultFont);
 
         loadText(fpsScoreText, "Current Score: 0", defaultFont, 0, 2, 0);
         loadText(pressStart, "PRESS ENTER", defaultFont, 0, 5, 0);

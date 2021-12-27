@@ -179,13 +179,13 @@ public class TestWalkingChar extends SimpleApplication
     }
 
     private void addBrick(Vector3f ori) {
-        Geometry reBoxg = new Geometry("brick", brick);
-        reBoxg.setMaterial(matBullet);
-        reBoxg.setLocalTranslation(ori);
-        reBoxg.addControl(new RigidBodyControl(1.5f));
-        reBoxg.setShadowMode(ShadowMode.CastAndReceive);
-        this.rootNode.attachChild(reBoxg);
-        this.getPhysicsSpace().add(reBoxg);
+        Geometry brickGeometry = new Geometry("brick", brick);
+        brickGeometry.setMaterial(matBullet);
+        brickGeometry.setLocalTranslation(ori);
+        brickGeometry.addControl(new RigidBodyControl(1.5f));
+        brickGeometry.setShadowMode(ShadowMode.CastAndReceive);
+        this.rootNode.attachChild(brickGeometry);
+        this.getPhysicsSpace().add(brickGeometry);
     }
 
     private void prepareBullet() {
@@ -421,15 +421,15 @@ public class TestWalkingChar extends SimpleApplication
     private void bulletControl() {
         composer.setCurrentAction("shootOnce", "shootingLayer");
 
-        Geometry bulletg = new Geometry("bullet", bullet);
-        bulletg.setMaterial(matBullet);
-        bulletg.setShadowMode(ShadowMode.CastAndReceive);
-        bulletg.setLocalTranslation(character.getPhysicsLocation().add(cam.getDirection().mult(5)));
+        Geometry bulletGeometry = new Geometry("bullet", bullet);
+        bulletGeometry.setMaterial(matBullet);
+        bulletGeometry.setShadowMode(ShadowMode.CastAndReceive);
+        bulletGeometry.setLocalTranslation(character.getPhysicsLocation().add(cam.getDirection().mult(5)));
         RigidBodyControl bulletControl = new BombControl(bulletCollisionShape, 1);
         bulletControl.setCcdMotionThreshold(0.1f);
         bulletControl.setLinearVelocity(cam.getDirection().mult(80));
-        bulletg.addControl(bulletControl);
-        rootNode.attachChild(bulletg);
+        bulletGeometry.addControl(bulletControl);
+        rootNode.attachChild(bulletGeometry);
         getPhysicsSpace().add(bulletControl);
     }
 
@@ -452,7 +452,7 @@ public class TestWalkingChar extends SimpleApplication
      * Callback to indicate that the "shootOnce" animation action has completed.
      */
     void onShootDone() {
-        /**
+        /*
          * Play the "stand" animation action on the shooting layer.
          */
         composer.setCurrentAction("stand", "shootingLayer");

@@ -56,18 +56,16 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * This class is intended to replace the CharacterControl class.
+ * Intended to replace the CharacterControl class.
  * <p>
  * A rigid body with cylinder collision shape is used and its velocity is set
  * continuously. A ray test is used to test whether the character is on the
  * ground.
  * <p>
  * The character keeps their own local coordinate system which adapts based on
- * the gravity working on the character so they will always stand upright.
+ * the gravity working on the character, so it will always stand upright.
  * <p>
  * Motion in the local X-Z plane is damped.
- * <p>
- * This class is shared between JBullet and Native Bullet.
  *
  * @author normenhansen
  */

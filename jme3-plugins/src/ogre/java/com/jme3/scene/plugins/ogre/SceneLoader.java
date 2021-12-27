@@ -262,7 +262,7 @@ public class SceneLoader extends DefaultHandler implements AssetLoader {
         }
         float fov = SAXUtil.parseFloat(attribs.getValue("fov"), 45f);
         if (fov < FastMath.PI) { 
-            // XXX: Most likely, it is in radians..
+            // XXX: Most likely it is in radians
             fov = fov * FastMath.RAD_TO_DEG;
         }
         camera.setFrustumPerspective(fov, (float)DEFAULT_CAM_WIDTH / DEFAULT_CAM_HEIGHT, 1, 1000);

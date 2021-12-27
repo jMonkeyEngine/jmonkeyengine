@@ -394,7 +394,7 @@ public class JmeBatchRenderBackend implements BatchRenderBackend {
             return;
         }
 
-        // all is well, we can execute the modify right away
+        // All is well. We can execute the modify right away.
         renderer.modifyTexture(textureAtlas, image, x, y);
     }
 

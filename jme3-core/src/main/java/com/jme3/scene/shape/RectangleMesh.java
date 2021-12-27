@@ -67,7 +67,7 @@ import com.jme3.util.clone.Cloner;
  * <li>U=0 at vertices A and C</li>
  * <li>U=1 at vertices B and D</li>
  * <li>V=0 at vertices A and B</li>
- * <li>V=1 at vertices C and D</li</ul>
+ * <li>V=1 at vertices C and D</li></ul>
  *
  * @author Francivan Bezerra
  */

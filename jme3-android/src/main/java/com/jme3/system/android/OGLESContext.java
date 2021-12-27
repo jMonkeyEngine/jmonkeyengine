@@ -319,8 +319,8 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
         }
         // update the application settings with the new resolution
         settings.setResolution(width, height);
-        // reload settings in androidInput so the correct touch event scaling can be
-        // calculated in case the surface resolution is different than the view
+        // Reload settings in androidInput so the correct touch event scaling can be
+        // calculated in case the surface resolution is different than the view.
         androidInput.loadSettings(settings);
         // if the application has already been initialized (ie renderable is set)
         // then call reshape so the app can adjust to the new resolution.

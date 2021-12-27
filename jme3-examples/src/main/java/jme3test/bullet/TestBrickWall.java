@@ -112,17 +112,17 @@ public class TestBrickWall extends SimpleApplication {
         @Override
         public void onAction(String name, boolean keyPressed, float tpf) {
             if (name.equals("shoot") && !keyPressed) {
-                Geometry bulletg = new Geometry("bullet", bullet);
-                bulletg.setMaterial(mat2);
-                bulletg.setShadowMode(ShadowMode.CastAndReceive);
-                bulletg.setLocalTranslation(cam.getLocation());
+                Geometry bulletGeometry = new Geometry("bullet", bullet);
+                bulletGeometry.setMaterial(mat2);
+                bulletGeometry.setShadowMode(ShadowMode.CastAndReceive);
+                bulletGeometry.setLocalTranslation(cam.getLocation());
                 
                 SphereCollisionShape bulletCollisionShape = new SphereCollisionShape(0.4f);
                 RigidBodyControl bulletNode = new BombControl(assetManager, bulletCollisionShape, 1);
 //                RigidBodyControl bulletNode = new RigidBodyControl(bulletCollisionShape, 1);
                 bulletNode.setLinearVelocity(cam.getDirection().mult(25));
-                bulletg.addControl(bulletNode);
-                rootNode.attachChild(bulletg);
+                bulletGeometry.addControl(bulletNode);
+                rootNode.attachChild(bulletGeometry);
                 getPhysicsSpace().add(bulletNode);
             }
             if (name.equals("gc") && !keyPressed) {
@@ -132,14 +132,14 @@ public class TestBrickWall extends SimpleApplication {
     };
 
     public void initWall() {
-        float startpt = bLength / 4;
+        float startX = bLength / 4;
         float height = 0;
         for (int j = 0; j < 15; j++) {
             for (int i = 0; i < 4; i++) {
-                Vector3f vt = new Vector3f(i * bLength * 2 + startpt, bHeight + height, 0);
+                Vector3f vt = new Vector3f(i * bLength * 2 + startX, bHeight + height, 0);
                 addBrick(vt);
             }
-            startpt = -startpt;
+            startX = -startX;
             height += 2 * bHeight;
         }
     }
@@ -180,20 +180,20 @@ public class TestBrickWall extends SimpleApplication {
 
     public void addBrick(Vector3f ori) {
 
-        Geometry reBoxg = new Geometry("brick", brick);
-        reBoxg.setMaterial(mat);
-        reBoxg.setLocalTranslation(ori);
+        Geometry brickGeometry = new Geometry("brick", brick);
+        brickGeometry.setMaterial(mat);
+        brickGeometry.setLocalTranslation(ori);
         //for geometry with sphere mesh the physics system automatically uses a sphere collision shape
-        reBoxg.addControl(new RigidBodyControl(1.5f));
-        reBoxg.setShadowMode(ShadowMode.CastAndReceive);
-        reBoxg.getControl(RigidBodyControl.class).setFriction(0.6f);
-        this.rootNode.attachChild(reBoxg);
-        this.getPhysicsSpace().add(reBoxg);
+        brickGeometry.addControl(new RigidBodyControl(1.5f));
+        brickGeometry.setShadowMode(ShadowMode.CastAndReceive);
+        brickGeometry.getControl(RigidBodyControl.class).setFriction(0.6f);
+        this.rootNode.attachChild(brickGeometry);
+        this.getPhysicsSpace().add(brickGeometry);
     }
 
     protected void initCrossHairs() {
         guiFont = assetManager.loadFont("Interface/Fonts/Default.fnt");
-        BitmapText ch = new BitmapText(guiFont, false);
+        BitmapText ch = new BitmapText(guiFont);
         ch.setSize(guiFont.getCharSet().getRenderedSize() * 2);
         ch.setText("+"); // crosshairs
         ch.setLocalTranslation( // center

@@ -58,7 +58,7 @@ public class ImageBasedHeightMap extends AbstractHeightMap {
     /**
      * Creates a HeightMap from an Image. The image will be converted to
      * grayscale, and the grayscale values will be used to generate the height
-     * map. White is highest point while black is lowest point.
+     * map. White is the highest point, and black is the lowest point.
      * 
      * Currently, the Image used must be square (width == height), but future
      * work could rescale the image.

@@ -66,7 +66,7 @@ public class AndroidGestureProcessor implements
 
     @Override
     public boolean onDown(MotionEvent event) {
-        // start of all GestureListeners.  Not really a gesture by itself
+        // The start of all GestureListeners. Not really a gesture by itself,
         // so we don't create an event.
         // However, reset the scaleInProgress here since this is the beginning
         // of a series of gesture events.

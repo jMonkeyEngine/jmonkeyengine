@@ -180,8 +180,8 @@ public class BillboardControl extends AbstractControl {
     }
 
     /**
-     * Rotate the billboard so it points directly opposite the direction the
-     * camera's facing
+     * Rotates the billboard so it points directly opposite the direction the
+     * camera is facing.
      *
      * @param camera
      *            Camera

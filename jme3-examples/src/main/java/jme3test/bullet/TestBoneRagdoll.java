@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -91,18 +91,18 @@ public class TestBoneRagdoll
     @Override
     public void onAction(String name, boolean isPressed, float tpf) {
         if (name.equals("boom") && !isPressed) {
-            Geometry bulletg = new Geometry("bullet", bullet);
-            bulletg.setMaterial(matBullet);
-            bulletg.setLocalTranslation(cam.getLocation());
-            bulletg.setLocalScale(bulletSize);
+            Geometry bulletGeometry = new Geometry("bullet", bullet);
+            bulletGeometry.setMaterial(matBullet);
+            bulletGeometry.setLocalTranslation(cam.getLocation());
+            bulletGeometry.setLocalScale(bulletSize);
             bulletCollisionShape = new SphereCollisionShape(bulletSize);
             BombControl bulletNode = new BombControl(assetManager, bulletCollisionShape, 1f);
             bulletNode.setForceFactor(8f);
             bulletNode.setExplosionRadius(20f);
             bulletNode.setCcdMotionThreshold(0.001f);
             bulletNode.setLinearVelocity(cam.getDirection().mult(180f));
-            bulletg.addControl(bulletNode);
-            rootNode.attachChild(bulletg);
+            bulletGeometry.addControl(bulletNode);
+            rootNode.attachChild(bulletGeometry);
             physicsSpace.add(bulletNode);
         }
         if (name.equals("bullet+") && isPressed) {
@@ -204,7 +204,7 @@ public class TestBoneRagdoll
 
     private void initCrossHairs() {
         guiFont = assetManager.loadFont("Interface/Fonts/Default.fnt");
-        BitmapText ch = new BitmapText(guiFont, false);
+        BitmapText ch = new BitmapText(guiFont);
         ch.setSize(guiFont.getCharSet().getRenderedSize() * 2f);
         ch.setText("+"); // crosshairs
         ch.setLocalTranslation( // center

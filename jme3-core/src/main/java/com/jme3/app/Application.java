@@ -59,11 +59,11 @@ public interface Application {
     public LostFocusBehavior getLostFocusBehavior();
 
     /**
-     * Change the application's behavior when unfocused.
+     * Changes the application's behavior when unfocused.
      *
      * By default, the application will
      * {@link LostFocusBehavior#ThrottleOnLostFocus throttle the update loop}
-     * so as to not take 100% CPU usage when it is not in focus, e.g.
+     * so as not to use 100% of the CPU when it is out of focus, e.g.
      * alt-tabbed, minimized, or obstructed by another window.
      *
      * @param lostFocusBehavior The new lost focus behavior to use.
@@ -82,15 +82,15 @@ public interface Application {
     public boolean isPauseOnLostFocus();
 
     /**
-     * Enable or disable pause on lost focus.
+     * Enables or disables pause on lost focus.
      * <p>
      * By default, pause on lost focus is enabled.
      * If enabled, the application will stop updating
      * when it loses focus or becomes inactive (e.g. alt-tab).
      * For online or real-time applications, this might not be preferable,
-     * so this feature should be set to disabled. For other applications,
-     * it is best to keep it on so that CPU usage is not used when
-     * not necessary.
+     * so this feature should be disabled. For other applications,
+     * it is best to keep it enabled so that CPU is not used
+     * unnecessarily.
      *
      * @param pauseOnLostFocus True to enable pause on lost focus, false
      * otherwise.
