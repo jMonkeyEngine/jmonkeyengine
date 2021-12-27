@@ -151,8 +151,8 @@ public interface Device {
     /**
      * Returns the default compute device address space
      * size specified as an unsigned integer value
-     * in bits. Currently supported values are 32
-     * or 64 bits.
+     * in bits. The values currently supported are 32
+     * and 64.
      *
      * @return the size of an address
      */

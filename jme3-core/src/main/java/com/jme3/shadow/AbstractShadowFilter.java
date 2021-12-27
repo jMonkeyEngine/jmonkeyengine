@@ -207,8 +207,8 @@ public abstract class AbstractShadowFilter<T extends AbstractShadowRenderer> ext
     }
 
     /**
-     * Sets the shadow edges thickness. default is 1, setting it to lower values
-     * can help to reduce the jagged effect of the shadow edges
+     * Sets the shadow edges thickness. Default is 10. Setting it to lower values
+     * can help reduce the jagged effect of shadow edges.
      *
      * @param edgesThickness the desired thickness (in tenths of a pixel, default=10)
      */

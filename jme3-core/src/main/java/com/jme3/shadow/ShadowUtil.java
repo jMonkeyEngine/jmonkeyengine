@@ -710,7 +710,7 @@ public class ShadowUtil {
     /**
      * Populates the outputGeometryList with the geometry of the
      * inputGeometryList that are in the radius of a light.
-     * The array of camera must be an array of 6 cameras initialized so they represent the light viewspace of a pointlight
+     * The array must contain 6 cameras, initialized to represent the viewspace of a point light.
      *
      * @param inputGeometryList The list containing all geometries to check
      * against the camera frustum

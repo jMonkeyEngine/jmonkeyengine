@@ -43,9 +43,9 @@ import com.jme3.texture.TextureCubeMap;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 /**
- * This Factory creates LightProbes within a scene, given an EnvironmentCamera.
+ * Creates LightProbes within a scene, given an EnvironmentCamera.
  * 
- * Since the process can be long, you can provide a JobProgressListener that 
+ * Since this process can take a long time, you can provide a JobProgressListener that
  * will be notified of the ongoing generation process when calling the makeProbe method.
  * 
  * The process is as follows: 

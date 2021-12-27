@@ -579,7 +579,7 @@ abstract public class PhysicsLink
     /**
      * Create and configure a rigid body for this link.
      *
-     * @param linkConfig the link configuration (not null)
+     * @param mass the desired mass (&gt;0)
      * @param collisionShape the desired shape (not null, alias created)
      * @return a new instance, not in any PhysicsSpace
      */

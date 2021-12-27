@@ -76,8 +76,6 @@ public final class LwjglPlatform implements Platform {
      * Copied from the old release.
      *
      * @param device_type the device type
-     * @param filter the device filter
-     *
      * @return the available devices
      */
     private long[] getDevices(int device_type) {

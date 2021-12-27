@@ -83,8 +83,8 @@ public abstract class Spatial implements Savable, Cloneable, Collidable,
         Inherit,
         /**
          * Do not draw if we are not at least partially within the view frustum
-         * of the camera. This is determined via the defined
-         * Camera planes whether or not this Spatial should be culled.
+         * of the camera. The defined
+         * Camera planes determine whether this Spatial should be culled.
          */
         Dynamic,
         /**
