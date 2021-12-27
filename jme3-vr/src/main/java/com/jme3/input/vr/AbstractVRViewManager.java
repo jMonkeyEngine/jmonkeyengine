@@ -176,8 +176,8 @@ public abstract class AbstractVRViewManager implements VRViewManager {
                 // add post processors we just made, which are empty
                 getLeftViewPort().addProcessor(getLeftPostProcessor());
                 getRightViewPort().addProcessor(getRightPostProcessor());
-                // go through all of the filters in the processors list
-                // add them to the left viewport processor & clone them to the right
+                // Go through all of the filters in the processors list,
+                // add them to the left viewport processor, and clone them to the right.
                 for(SceneProcessor sceneProcessor : sourceViewport.getProcessors()) {
                     if (sceneProcessor instanceof FilterPostProcessor) {
                         for(Filter f : ((FilterPostProcessor)sceneProcessor).getFilterList() ) {

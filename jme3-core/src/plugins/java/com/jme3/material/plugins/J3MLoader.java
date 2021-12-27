@@ -757,7 +757,7 @@ public class J3MLoader implements AssetLoader {
                 throw new MatParseException("Expected ':', got '{'", materialStat);
             }
             materialDef = new MaterialDef(assetManager, materialName);
-            // NOTE: pass file name for defs so they can be loaded later
+            // NOTE: pass the filename for defs, so they can be loaded later
             materialDef.setAssetName(key.getName());
         }else{
             throw new MatParseException("Cannot use colon in material name/path", materialStat);

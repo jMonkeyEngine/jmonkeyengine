@@ -267,7 +267,7 @@ public abstract class LwjglContext implements JmeContext {
                 @Override
                 public void invoke(int jid, int event) {
 
-                    // Invoke the disconnected event before we reload the joysticks or we lose the reference to it.
+                    // Invoke the disconnected event before we reload the joysticks or lose the reference to it.
                     // Invoke the connected event after we reload the joysticks to obtain the reference to it.
 
                     if ( event == GLFW.GLFW_CONNECTED ) {

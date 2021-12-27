@@ -446,7 +446,7 @@ public class BatchNode extends GeometryGroupNode {
         outMesh.setMode(mode);
         //outMesh.setLineWidth(lineWidth);
         if (totalVerts >= 65536) {
-            // make sure we create an UnsignedInt buffer so we can fit all of the meshes
+            // Make sure we create an UnsignedInt buffer, so we can fit all of the meshes.
             formatForBuf[VertexBuffer.Type.Index.ordinal()] = VertexBuffer.Format.UnsignedInt;
         } else {
             formatForBuf[VertexBuffer.Type.Index.ordinal()] = VertexBuffer.Format.UnsignedShort;

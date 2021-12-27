@@ -217,7 +217,7 @@ public class DefaultServer implements Server
             
             isRunning = false;
             
-            // Now terminate all of the services
+            // Now terminate all of the services.
             services.terminate();             
         } catch( InterruptedException e ) {
             throw new RuntimeException( "Interrupted while closing", e );
@@ -368,8 +368,8 @@ public class DefaultServer implements Server
     {
         Connection addedConnection = null;
 
-        // generally this will only be called by one thread but it's        
-        // important enough I won't take chances
+        // Generally this will only be called by one thread, but it's
+        // so important that I won't take chances.
         synchronized( this ) {       
             // Grab the random ID that the client created when creating
             // its two registration messages
@@ -633,8 +633,8 @@ public class DefaultServer implements Server
             // when closeConnection() is called by the
             // connectionClosed() endpoint callback.
             if( channels[CH_RELIABLE] != null ) {
-                // Close with flush so we make sure our
-                // message gets out
+                // Close with flush to ensure our
+                // message gets out.
                 channels[CH_RELIABLE].close(true);
             }
         }

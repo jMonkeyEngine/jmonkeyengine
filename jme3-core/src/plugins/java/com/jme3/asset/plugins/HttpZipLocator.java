@@ -221,7 +221,7 @@ public class HttpZipLocator implements AssetLocator {
 
         String name = getUTF8String(table, offset + ZipEntry.CENHDR, nameLen);
         if (name.charAt(name.length()-1) == '/'){
-            // ignore this entry, it is directory node
+            // Ignore this entry. It is a directory node
             // or it has no name (?)
             return newOffset;
         }
