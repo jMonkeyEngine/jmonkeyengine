@@ -38,12 +38,12 @@ import java.io.*;
 import java.util.logging.Logger;
 
 /**
- * <code>Quaternion</code> defines a single example of a more general class of
- * hypercomplex numbers. Quaternions extends a rotation in three dimensions to a
- * rotation in four dimensions. This avoids "gimbal lock" and allows for smooth
- * continuous rotation.
+ * Used to efficiently represent rotations and orientations in 3-dimensional
+ * space, without risk of gimbal lock. Each instance has 4 single-precision
+ * components: 3 imaginary components (X, Y, and Z) and a real component (W).
  *
- * <code>Quaternion</code> is defined by four floating point numbers: {x y z w}.
+ * <p>Mathematically, quaternions are an extension of complex numbers. In
+ * mathematics texts, W often appears first, but in JME it always comes last.
  *
  * @author Mark Powell
  * @author Joshua Slack
@@ -54,15 +54,20 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
 
     private static final Logger logger = Logger.getLogger(Quaternion.class.getName());
     /**
-     * Represents the identity quaternion rotation (0, 0, 0, 1).
+     * Shared instance of the identity quaternion (0, 0, 0, 1). Do not modify!
+     *
+     * <p>This is the usual representation for a null rotation.
      */
     public static final Quaternion IDENTITY = new Quaternion();
     /**
-     * another instance of the identity Quaternion (0, 0, 0, 1)
+     * Another shared instance of the identity quaternion (0, 0, 0, 1). Do not
+     * modify!
      */
     public static final Quaternion DIRECTION_Z = new Quaternion();
     /**
-     * The zero quaternion (0, 0, 0, 0) doesn't represent any rotation.
+     * Shared instance of the zero quaternion (0, 0, 0, 0). Do not modify!
+     *
+     * <p>The zero quaternion doesn't represent any valid rotation.
      */
     public static final Quaternion ZERO = new Quaternion(0, 0, 0, 0);
 
@@ -70,26 +75,25 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
         DIRECTION_Z.fromAxes(Vector3f.UNIT_X, Vector3f.UNIT_Y, Vector3f.UNIT_Z);
     }
     /**
-     * the X component (not an angle!)
+     * The first imaginary (X) component. Not an angle!
      */
     protected float x;
     /**
-     * the Y component (not an angle!)
+     * The 2nd imaginary (Y) component. Not an angle!
      */
     protected float y;
     /**
-     * the Z component (not an angle!)
+     * The 3rd imaginary (Z) component. Not an angle!
      */
     protected float z;
     /**
-     * the W (real) component (not an angle!)
+     * The real (W) component. Not an angle!
      */
     protected float w;
 
     /**
-     * Constructor instantiates a new <code>Quaternion</code> object
-     * initializing all values to zero, except w which is initialized to 1.
-     *
+     * Instantiates an identity quaternion: all components zeroed except
+     * {@code w}, which is set to 1.
      */
     public Quaternion() {
         x = 0;
@@ -99,13 +103,12 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     }
 
     /**
-     * Constructor instantiates a new <code>Quaternion</code> object from the
-     * given list of parameters.
+     * Instantiates a quaternion with specified components.
      *
-     * @param x   the x value of the quaternion.
-     * @param y   the y value of the quaternion.
-     * @param z   the z value of the quaternion.
-     * @param w   the w value of the quaternion.
+     * @param x the desired X component
+     * @param y the desired Y component
+     * @param z the desired Z component
+     * @param w the desired W component
      */
     public Quaternion(float x, float y, float z, float w) {
         this.x = x;
@@ -115,50 +118,49 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     }
 
     /**
-     * Determine the X component.
+     * Returns the X component. The quaternion is unaffected.
      *
-     * @return x
+     * @return the value of the {@link #x} component
      */
     public float getX() {
         return x;
     }
 
     /**
-     * Determine the Y component.
+     * Returns the Y component. The quaternion is unaffected.
      *
-     * @return y
+     * @return the value of the {@link #y} component
      */
     public float getY() {
         return y;
     }
 
     /**
-     * Determine the Z component.
+     * Returns the Z component. The quaternion is unaffected.
      *
-     * @return z
+     * @return the value of the {@link #z} component
      */
     public float getZ() {
         return z;
     }
 
     /**
-     * Determine the W (real) component.
+     * Returns the W (real) component. The quaternion is unaffected.
      *
-     * @return w
+     * @return the value of the {@link #w} component
      */
     public float getW() {
         return w;
     }
 
     /**
-     * sets the data in a <code>Quaternion</code> object from the given list of
-     * parameters.
+     * Sets all 4 components to specified values.
      *
-     * @param x   the x value of the quaternion.
-     * @param y   the y value of the quaternion.
-     * @param z   the z value of the quaternion.
-     * @param w   the w value of the quaternion.
-     * @return this
+     * @param x the desired X component
+     * @param y the desired Y component
+     * @param z the desired Z component
+     * @param w the desired W component
+     * @return the (modified) current instance (for chaining)
      */
     public Quaternion set(float x, float y, float z, float w) {
         this.x = x;
@@ -169,12 +171,10 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     }
 
     /**
-     * Sets the data in this <code>Quaternion</code> object to be equal to the
-     * passed <code>Quaternion</code> object. The values are copied producing
-     * a new object.
+     * Copies all 4 components from the argument.
      *
-     * @param q   The Quaternion to copy values from.
-     * @return this
+     * @param q the quaternion to copy (not null, unaffected)
+     * @return the (modified) current instance (for chaining)
      */
     public Quaternion set(Quaternion q) {
         this.x = q.x;
@@ -185,38 +185,38 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     }
 
     /**
-     * Instantiate a new <code>Quaternion</code> from Tait-Bryan angles,
-     * applying the rotations in x-z-y extrinsic order or y-z'-x" intrinsic
-     * order.
+     * Instantiates a quaternion from Tait-Bryan angles, applying the rotations
+     * in x-z-y extrinsic order or y-z'-x" intrinsic order.
      *
      * @param angles an array of Tait-Bryan angles (in radians, exactly 3
-     * elements, the X angle in angles[0], the Y angle in angles[1], and the Z
-     * angle in angles[2], unaffected)
+     *     elements, the X angle in {@code angles[0]}, the Y angle in {@code
+     *     angles[1]}, and the Z angle in {@code angles[2]}, not null,
+     *     unaffected)
      */
     public Quaternion(float[] angles) {
         fromAngles(angles);
     }
 
     /**
-     * Constructor instantiates a new <code>Quaternion</code> object from an
-     * interpolation between two other quaternions.
+     * Instantiates a quaternion by interpolating quickly between the specified
+     * quaternions.
      *
-     * @param q1
-     *            the first quaternion.
-     * @param q2
-     *            the second quaternion.
-     * @param interp
-     *            the amount to interpolate between the two quaternions.
+     * <p>Uses
+     * {@link #slerp(com.jme3.math.Quaternion, com.jme3.math.Quaternion, float)},
+     * which is fast but inaccurate.
+     *
+     * @param q1 the desired value when interp=0 (not null, unaffected)
+     * @param q2 the desired value when interp=1 (not null, may be modified)
+     * @param interp the fractional change amount
      */
     public Quaternion(Quaternion q1, Quaternion q2, float interp) {
         slerp(q1, q2, interp);
     }
 
     /**
-     * Constructor instantiates a new <code>Quaternion</code> object from an
-     * existing quaternion, creating a copy.
+     * Instantiates a copy of the argument.
      *
-     * @param q   the quaternion to copy.
+     * @param q the quaternion to copy (not null, unaffected)
      */
     public Quaternion(Quaternion q) {
         this.x = q.x;
@@ -226,7 +226,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     }
 
     /**
-     * Sets this Quaternion to {0, 0, 0, 1}. Same as calling set(0,0,0,1).
+     * Sets all components to zero except {@code w}, which is set to 1.
      */
     public void loadIdentity() {
         x = y = z = 0;
@@ -234,7 +234,11 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     }
 
     /**
-     * @return true if this Quaternion is {0,0,0,1}
+     * Compares with the identity quaternion, without distinguishing -0 from 0.
+     * The current instance is unaffected.
+     *
+     * @return true if the current quaternion equals the identity, otherwise
+     *     false
      */
     public boolean isIdentity() {
         if (x == 0 && y == 0 && z == 0 && w == 1) {
@@ -245,14 +249,14 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     }
 
     /**
-     * Reconfigure this <code>Quaternion</code> based on Tait-Bryan angles,
-     * applying the rotations in x-z-y extrinsic order or y-z'-x" intrinsic
-     * order.
+     * Sets the current instance from the specified Tait-Bryan angles, applying
+     * the rotations in x-z-y extrinsic order or y-z'-x" intrinsic order.
      *
-     * @param angles an array of Tait-Bryan angles (in radians, exactly 3
-     * elements, the X angle in angles[0], the Y angle in angles[1], and the Z
-     * angle in angles[2], unaffected)
-     * @return this
+     * @param @param angles an array of Tait-Bryan angles (in radians, exactly 3
+     *     elements, the X angle in {@code angles[0]}, the Y angle in {@code
+     *     angles[1]}, and the Z angle in {@code angles[2]}, not null,
+     *     unaffected)
+     * @return the (modified) current instance (for chaining)
      */
     public Quaternion fromAngles(float[] angles) {
         if (angles.length != 3) {
@@ -264,8 +268,8 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     }
 
     /**
-     * Reconfigure this Quaternion based on Tait-Bryan rotations, applying the
-     * rotations in x-z-y extrinsic order or y-z'-x" intrinsic order.
+     * Sets the current instance from the specified Tait-Bryan angles, applying
+     * the rotations in x-z-y extrinsic order or y-z'-x" intrinsic order.
      *
      * @see
      * <a href="http://www.euclideanspace.com/maths/geometry/rotations/conversions/eulerToQuaternion/index.htm">http://www.euclideanspace.com/maths/geometry/rotations/conversions/eulerToQuaternion/index.htm</a>
@@ -273,7 +277,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      * @param xAngle the X angle (in radians)
      * @param yAngle the Y angle (in radians)
      * @param zAngle the Z angle (in radians)
-     * @return this
+     * @return the (modified) current instance (for chaining)
      */
     public Quaternion fromAngles(float xAngle, float yAngle, float zAngle) {
         float angle;
@@ -304,20 +308,20 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     }
 
     /**
-     * Convert this <code>Quaternion</code> to Tait-Bryan angles, to be applied
-     * in x-z-y intrinsic order or y-z'-x" extrinsic order, for instance by
-     * {@link #fromAngles(float[])}.
-     *
-     * Note that the result is not always 100% accurate due to the implications
-     * of Tait-Bryan angles.
+     * Converts to equivalent Tait-Bryan angles, to be applied in x-z-y
+     * intrinsic order or y-z'-x" extrinsic order, for instance by
+     * {@link #fromAngles(float[])}. The current instance is unaffected.
      *
      * @see
-     * <a href="http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToEuler/index.htm">http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToEuler/index.htm</a>
+     * <a href=
+     * "http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToEuler/index.htm">
+     * http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToEuler/index.htm
+     * </a>
      *
-     * @param angles an array of 3 floats in which to store the result, or else
-     * null (If null, a new array will be allocated.)
-     * @return an array of 3 angles (in radians, the X angle in angles[0], the Y
-     * angle in angles[1], and the Z angle in angles[2])
+     * @param angles storage for the result, or null for a new float[3]
+     * @return an array of 3 angles (in radians, either <code>angles</code> or a
+     * new float[3], the X angle in angles[0], the Y angle in angles[1], and the
+     * Z angle in angles[2])
      */
     public float[] toAngles(float[] angles) {
         if (angles == null) {
@@ -350,12 +354,11 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     }
 
     /**
-     * <code>fromRotationMatrix</code> generates a quaternion from a supplied
-     * matrix. This matrix is assumed to be a rotational matrix.
+     * Sets the current instance from the specified rotation matrix. Does not
+     * verify that the argument is a valid rotation matrix.
      *
-     * @param matrix
-     *            the matrix that defines the rotation.
-     * @return this
+     * @param matrix the input matrix (not null, unaffected)
+     * @return the (modified) current instance (for chaining)
      */
     public Quaternion fromRotationMatrix(Matrix3f matrix) {
         return fromRotationMatrix(matrix.m00, matrix.m01, matrix.m02, matrix.m10,
@@ -363,8 +366,9 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     }
 
     /**
-     * Set this quaternion based on a rotation matrix with the specified
-     * elements.
+     * Sets the current instance from a rotation matrix with the specified
+     * elements. Does not verify that the arguments form a valid rotation
+     * matrix.
      *
      * @param m00 the matrix element in row 0, column 0
      * @param m01 the matrix element in row 0, column 1
@@ -375,7 +379,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      * @param m20 the matrix element in row 2, column 0
      * @param m21 the matrix element in row 2, column 1
      * @param m22 the matrix element in row 2, column 2
-     * @return this Quaternion
+     * @return the (modified) current instance (for chaining)
      */
     public Quaternion fromRotationMatrix(float m00, float m01, float m02,
             float m10, float m11, float m12, float m20, float m21, float m22) {
@@ -446,10 +450,13 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     }
 
     /**
-     * <code>toRotationMatrix</code> converts this quaternion to a rotational
-     * matrix. Note: the result is created from a normalized version of this quat.
+     * Converts to an equivalent rotation matrix. The current instance is
+     * unaffected.
      *
-     * @return the rotation matrix representation of this quaternion.
+     * <p>Note: the result is created from a normalized version of the current
+     * instance.
+     *
+     * @return a new 3x3 rotation matrix
      */
     public Matrix3f toRotationMatrix() {
         Matrix3f matrix = new Matrix3f();
@@ -457,12 +464,14 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     }
 
     /**
-     * <code>toRotationMatrix</code> converts this quaternion to a rotational
-     * matrix. The result is stored in result.
+     * Converts to an equivalent rotation matrix. The current instance is
+     * unaffected.
      *
-     * @param result
-     *            The Matrix3f to store the result in.
-     * @return the rotation matrix representation of this quaternion.
+     * <p>Note: the result is created from a normalized version of the current
+     * instance.
+     *
+     * @param result storage for the result (not null)
+     * @return {@code result}, configured as a 3x3 rotation matrix
      */
     public Matrix3f toRotationMatrix(Matrix3f result) {
 
@@ -501,12 +510,17 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     }
 
     /**
-     * <code>toTransformMatrix</code> converts this quaternion to a transform
-     * matrix. The result is stored in result.
-     * Note this method won't preserve the scale of the given matrix.
+     * Sets the rotation component of the specified transform matrix. The
+     * current instance is unaffected.
      *
-     * @param store The Matrix3f to store the result in.
-     * @return the transform matrix with the rotation representation of this quaternion.
+     * <p>Note: preserves the translation component of {@code store} but not
+     * its scaling component.
+     *
+     * <p>Note: the result is created from a normalized version of the current
+     * instance.
+     *
+     * @param store storage for the result (not null)
+     * @return {@code store}, with 9 of its 16 elements modified
      */
     public Matrix4f toTransformMatrix(Matrix4f store) {
 
@@ -545,14 +559,17 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     }
 
     /**
-     * <code>toRotationMatrix</code> converts this quaternion to a rotational
-     * matrix. The result is stored in result. 4th row and 4th column values are
-     * untouched. Note: the result is created from a normalized version of this quat.
-     * Note that this method will preserve the scale of the given matrix
+     * Sets the rotation component of the specified transform matrix. The
+     * current instance is unaffected.
      *
-     * @param result
-     *            The Matrix4f to store the result in.
-     * @return the rotation matrix representation of this quaternion.
+     * <p>Note: preserves the translation and scaling components of
+     * {@code result}.
+     *
+     * <p>Note: the result is created from a normalized version of the current
+     * instance.
+     *
+     * @param result storage for the result (not null)
+     * @return {@code result}, with 9 of its 16 elements modified
      */
     public Matrix4f toRotationMatrix(Matrix4f result) {
         TempVars tempv = TempVars.get();
@@ -599,27 +616,31 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     }
 
     /**
-     * <code>getRotationColumn</code> returns one of three columns specified
-     * by the parameter. This column is returned as a <code>Vector3f</code>
-     * object.
+     * Calculates one of the basis vectors of the rotation. The current instance
+     * is unaffected.
      *
-     * @param i   the column to retrieve. Must be between 0 and 2.
-     * @return the column specified by the index.
+     * <p>Note: the result is created from a normalized version of the current
+     * instance.
+     *
+     * @param i which basis vector to retrieve (&ge;0, &lt;3, 0&rarr;X-axis,
+     *     1&rarr;Y-axis, 2&rarr;Z-axis)
+     * @return the basis vector (a new Vector3f)
      */
     public Vector3f getRotationColumn(int i) {
         return getRotationColumn(i, null);
     }
 
     /**
-     * <code>getRotationColumn</code> returns one of three columns specified
-     * by the parameter. This column is returned as a <code>Vector3f</code>
-     * object. The value is retrieved as if this quaternion was first normalized.
+     * Calculates one of the basis vectors of the rotation. The current instance
+     * is unaffected.
      *
-     * @param i   the column to retrieve. Must be between 0 and 2.
-     * @param store
-     *            the vector object to store the result in. if null, a new one
-     *            is created.
-     * @return the column specified by the index.
+     * <p>Note: the result is created from a normalized version of the current
+     * instance.
+     *
+     * @param i which basis vector to retrieve (&ge;0, &lt;3, 0&rarr;X-axis,
+     *     1&rarr;Y-axis, 2&rarr;Z-axis)
+     * @param store storage for the result, or null for a new Vector3f
+     * @return the basis vector (either <code>store</code> or a new Vector3f)
      */
     public Vector3f getRotationColumn(int i, Vector3f store) {
         if (store == null) {
@@ -666,15 +687,14 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     }
 
     /**
-     * <code>fromAngleAxis</code> sets this quaternion to the values specified
-     * by an angle and an axis of rotation. This method creates an object, so
-     * use fromAngleNormalAxis if your axis is already normalized.
+     * Sets the current instance from the specified rotation angle and axis of
+     * rotation. This method creates garbage, so use
+     * {@link #fromAngleNormalAxis(float, com.jme3.math.Vector3f)} if the axis
+     * is known to be normalized.
      *
-     * @param angle
-     *            the angle to rotate (in radians).
-     * @param axis
-     *            the axis of rotation.
-     * @return this quaternion
+     * @param angle the desired rotation angle (in radians)
+     * @param axis the desired axis of rotation (not null, unaffected)
+     * @return the (modified) current instance (for chaining)
      */
     public Quaternion fromAngleAxis(float angle, Vector3f axis) {
         Vector3f normAxis = axis.normalize();
@@ -683,14 +703,13 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     }
 
     /**
-     * <code>fromAngleNormalAxis</code> sets this quaternion to the values
-     * specified by an angle and a normalized axis of rotation.
+     * Sets the current instance from the specified rotation angle and
+     * normalized axis of rotation. If the axis might not be normalized, use
+     * {@link #fromAngleAxis(float, com.jme3.math.Vector3f)} instead.
      *
-     * @param angle
-     *            the angle to rotate (in radians).
-     * @param axis
-     *            the axis of rotation (already normalized).
-     * @return this
+     * @param angle the desired rotation angle (in radians)
+     * @param axis the desired axis of rotation (not null, length=1, unaffected)
+     * @return the (modified) current instance (for chaining)
      */
     public Quaternion fromAngleNormalAxis(float angle, Vector3f axis) {
         if (axis.x == 0 && axis.y == 0 && axis.z == 0) {
@@ -707,14 +726,12 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     }
 
     /**
-     * <code>toAngleAxis</code> sets a given angle and axis to that
-     * represented by the current quaternion. The values are stored as
-     * follows: The axis is provided as a parameter and built by the method,
-     * the angle is returned as a float.
+     * Converts the current instance to a rotation angle and axis of rotation,
+     * storing the axis in the argument and returning the angle. If the current
+     * instance has length=0, (1,0,0) is stored and 0 is returned.
      *
-     * @param axisStore
-     *            the object we'll store the computed axis in.
-     * @return the angle of rotation in radians.
+     * @param axisStore storage for the axis (not null)
+     * @return the rotation angle (in radians)
      */
     public float toAngleAxis(Vector3f axisStore) {
         float sqrLength = x * x + y * y + z * z;
@@ -740,15 +757,13 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     }
 
     /**
-     * <code>slerp</code> sets this quaternion's value as an interpolation
-     * between two other quaternions.
+     * Interpolates quickly between the specified quaternions and stores the
+     * result in the current instance.
      *
-     * @param q1
-     *            the first quaternion.
-     * @param q2
-     *            the second quaternion.
-     * @param t   the amount to interpolate between the two quaternions.
-     * @return this
+     * @param q1 the desired value when interp=0 (not null, unaffected)
+     * @param q2 the desired value when interp=1 (not null, may be modified)
+     * @param t the fractional change amount
+     * @return the (modified) current instance (for chaining)
      */
     public Quaternion slerp(Quaternion q1, Quaternion q2, float t) {
         // Create a local quaternion to store the interpolated quaternion
@@ -799,13 +814,11 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     }
 
     /**
-     * Sets the values of this quaternion to the slerp from itself to q2 by
-     * changeAmnt
+     * Interpolates quickly between the current instance and the argument,
+     * storing the result in the current instance.
      *
-     * @param q2
-     *            Final interpolation value
-     * @param changeAmnt
-     *            The amount difference
+     * @param q2 the desired value when interp=1 (not null, may be modified)
+     * @param changeAmnt the fractional change amount
      */
     public void slerp(Quaternion q2, float changeAmnt) {
         if (this.x == q2.x && this.y == q2.y && this.z == q2.z
@@ -1421,7 +1434,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      * quaternion based on a direction and an up vector. It computes
      * the rotation to transform the z-axis to point into 'direction'
      * and the y-axis to 'up'.  Note that the results will be invalid
-     * if a zero length direction vector (0,0,0) is supplied, or if the 
+     * if a zero length direction vector (0,0,0) is supplied, or if the
      * direction and up vectors are parallel.
      *
      * @param direction
