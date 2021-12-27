@@ -512,10 +512,10 @@ public class RenderState implements Cloneable, Savable {
         oc.write(blendEquationAlpha, "blendEquationAlpha", BlendEquationAlpha.InheritColor);
         oc.write(depthFunc, "depthFunc", TestFunction.LessOrEqual);
         oc.write(lineWidth, "lineWidth", 1);
-        oc.write(sfactorRGB, "sfactorRGB", sfactorRGB);
-        oc.write(dfactorRGB, "dfactorRGB", dfactorRGB);
-        oc.write(sfactorAlpha, "sfactorAlpha", sfactorAlpha);
-        oc.write(dfactorAlpha, "dfactorAlpha", dfactorAlpha);
+        oc.write(sfactorRGB, "sfactorRGB", BlendFunc.One);
+        oc.write(dfactorRGB, "dfactorRGB", BlendFunc.One);
+        oc.write(sfactorAlpha, "sfactorAlpha", BlendFunc.One);
+        oc.write(dfactorAlpha, "dfactorAlpha", BlendFunc.One);
 
         // Only "additional render state" has them set to false by default
         oc.write(applyWireFrame, "applyWireFrame", true);
@@ -556,8 +556,8 @@ public class RenderState implements Cloneable, Savable {
         depthFunc = ic.readEnum("depthFunc", TestFunction.class, TestFunction.LessOrEqual);
         lineWidth = ic.readFloat("lineWidth", 1);
         sfactorRGB = ic.readEnum("sfactorRGB", BlendFunc.class, BlendFunc.One);
-        dfactorAlpha = ic.readEnum("dfactorRGB", BlendFunc.class, BlendFunc.One);
-        sfactorRGB = ic.readEnum("sfactorAlpha", BlendFunc.class, BlendFunc.One);
+        dfactorRGB = ic.readEnum("dfactorRGB", BlendFunc.class, BlendFunc.One);
+        sfactorAlpha = ic.readEnum("sfactorAlpha", BlendFunc.class, BlendFunc.One);
         dfactorAlpha = ic.readEnum("dfactorAlpha", BlendFunc.class, BlendFunc.One);
 
 
