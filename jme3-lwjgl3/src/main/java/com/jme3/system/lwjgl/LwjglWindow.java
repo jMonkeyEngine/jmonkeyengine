@@ -488,7 +488,8 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             }
             run();
         } else {
-            new Thread(this, "jME3 Main").start();
+            mainThread = new Thread(this, "jME3 Main");
+            mainThread.start();
             if (waitFor) {
                 waitFor(true);
             }
