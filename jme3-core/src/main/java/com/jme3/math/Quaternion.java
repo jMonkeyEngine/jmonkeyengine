@@ -729,11 +729,19 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
 
     /**
      * Converts the quaternion to a rotation angle and axis of rotation, storing
-     * the axis in the argument and returning the angle. If the current instance
-     * has length=0, (1,0,0) is stored and 0 is returned. In either case, the
-     * current instance is unaffected.
+     * the axis in the argument (if it's non-null) and returning the angle.
      *
-     * @param axisStore storage for the axis (not null)
+     * <p>If the quaternion has {@code x*x + y*y + z*z == 0}, then (1,0,0) is
+     * stored and 0 is returned. (This might happen if the rotation angle is
+     * very close to 0.)
+     *
+     * <p>Otherwise, the quaternion is assumed to be normalized (norm=1). No
+     * error checking is performed; the caller must ensure that the quaternion
+     * is normalized.
+     *
+     * <p>In all cases, the current instance is unaffected.
+     *
+     * @param axisStore storage for the axis (modified if not null)
      * @return the rotation angle (in radians)
      */
     public float toAngleAxis(Vector3f axisStore) {
@@ -1534,9 +1542,11 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
 
     /**
      * Returns a rotation with the same axis and the angle increased by 180
-     * degrees. If the current instance has length=0, the result is undefined.
-     * In either case, the current instance is unaffected, unless {@code store}
-     * is {@code this}.
+     * degrees. If the quaternion isn't normalized, or if the rotation angle is
+     * very small, the result is undefined.
+     * 
+     * <p>The current instance is unaffected, unless {@code store} is
+     * {@code this}.
      *
      * @param store storage for the result, or null for a new Quaternion
      * @return either {@code store} or a new Quaternion
@@ -1555,8 +1565,8 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
 
     /**
      * Changes the quaternion to a rotation with the same axis and the angle
-     * increased by 180 degrees. If the quaternion has length=0, the result is
-     * undefined.
+     * increased by 180 degrees. If the quaternion isn't normalized, or if the
+     * rotation angle is very small, the result is undefined.
      *
      * @return the (modified) current instance
      */
