@@ -102,8 +102,8 @@ public class RenderStateTest {
         testObject.setLineWidth(9f);
         test();
 
-        for (float factor = -1f; factor < 1.1f; factor += 1f) {
-            for (float units = -1f; units < 1.1f; units += 1f) {
+        for (int factor = -1; factor <= 1; ++factor) {
+            for (int units = -1; units <= 1; ++units) {
                 testObject.setPolyOffset(factor, units);
                 test();
             }
