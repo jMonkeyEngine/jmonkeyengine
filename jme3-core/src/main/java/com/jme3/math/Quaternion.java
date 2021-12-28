@@ -198,7 +198,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     }
 
     /**
-     * Instantiates a quaternion by interpolating quickly between the specified
+     * Instantiates a quaternion by interpolating between the specified
      * quaternions.
      *
      * <p>Uses
@@ -257,6 +257,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      *     angles[1]}, and the Z angle in {@code angles[2]}, not null,
      *     unaffected)
      * @return the (modified) current instance (for chaining)
+     * @throws IllegalArgumentException if {@code angles.length != 3}
      */
     public Quaternion fromAngles(float[] angles) {
         if (angles.length != 3) {
@@ -320,8 +321,9 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      *
      * @param angles storage for the result, or null for a new float[3]
      * @return an array of 3 angles (in radians, either <code>angles</code> or a
-     * new float[3], the X angle in angles[0], the Y angle in angles[1], and the
-     * Z angle in angles[2])
+     *     new float[3], the X angle in angles[0], the Y angle in angles[1], and
+     *     the Z angle in angles[2])
+     * @throws IllegalArgumentException if {@code angles.length != 3}
      */
     public float[] toAngles(float[] angles) {
         if (angles == null) {
@@ -641,6 +643,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      *     1&rarr;Y-axis, 2&rarr;Z-axis)
      * @param store storage for the result, or null for a new Vector3f
      * @return the basis vector (either <code>store</code> or a new Vector3f)
+     * @throws IllegalArgumentException if index is not 0, 1, or 2
      */
     public Vector3f getRotationColumn(int i, Vector3f store) {
         if (store == null) {
@@ -757,8 +760,8 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     }
 
     /**
-     * Interpolates quickly between the specified quaternions and stores the
-     * result in the current instance.
+     * Interpolates between the specified quaternions and stores the result in
+     * the current instance.
      *
      * @param q1 the desired value when interp=0 (not null, unaffected)
      * @param q2 the desired value when interp=1 (not null, may be modified)
@@ -814,10 +817,13 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     }
 
     /**
-     * Interpolates quickly between the current instance and the argument,
-     * storing the result in the current instance.
+     * Interpolates between the current instance and {@code q2} and stores the
+     * result in the current instance.
      *
-     * @param q2 the desired value when interp=1 (not null, may be modified)
+     * <p>This method is often more accurate than
+     * {@link #nlerp(com.jme3.math.Quaternion, float)}, but slower.
+
+     * @param q2 the desired value when changeAmnt=1 (not null, may be modified)
      * @param changeAmnt the fractional change amount
      */
     public void slerp(Quaternion q2, float changeAmnt) {
@@ -866,10 +872,14 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     }
 
     /**
-     * Sets the values of this quaternion to the nlerp from itself to q2 by blend.
+     * Interpolates quickly between the current instance and {@code q2} using
+     * nlerp, and stores the result in the current instance.
      *
-     * @param q2 the desired final value when blend=1 (not null, unaffected)
-     * @param blend the fractional weight applied to q2 (0&rarr;this, 1&rarr;q2)
+     * <p>This method is often faster than
+     * {@link #slerp(com.jme3.math.Quaternion, float)}, but less accurate.
+     *
+     * @param q2 the desired value when blend=1 (not null, unaffected)
+     * @param blend the fractional change amount
      */
     public void nlerp(Quaternion q2, float blend) {
         float dot = dot(q2);
@@ -889,22 +899,30 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     }
 
     /**
-     * <code>add</code> adds the values of this quaternion to those of the
-     * parameter quaternion. The result is returned as a new quaternion.
+     * Adds the argument and returns the sum as a new instance. The current
+     * instance is unaffected.
      *
-     * @param q   the quaternion to add to this.
-     * @return the new quaternion.
+     * <p>Seldom used. To combine rotations, use
+     * {@link #mult(com.jme3.math.Quaternion)} instead of this method.
+     *
+     * @param q the quaternion to add (not null, unaffected)
+     * @return a new Quaternion
      */
     public Quaternion add(Quaternion q) {
         return new Quaternion(x + q.x, y + q.y, z + q.z, w + q.w);
     }
 
     /**
-     * <code>add</code> adds the values of this quaternion to those of the
-     * parameter quaternion. The result is stored in this Quaternion.
+     * Adds the argument and returns the (modified) current instance.
      *
-     * @param q   the quaternion to add to this.
-     * @return This Quaternion after addition.
+     * <p>Seldom used. To combine rotations, use
+     * {@link #multLocal(com.jme3.math.Quaternion)} or
+     * {@link #mult(com.jme3.math.Quaternion, com.jme3.math.Quaternion)}
+     * instead of this method.
+     *
+     * @param q the quaternion to add (not null, unaffected unless it's
+     *     {@code this})
+     * @return the (modified) current instance
      */
     public Quaternion addLocal(Quaternion q) {
         this.x += q.x;
@@ -915,23 +933,22 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     }
 
     /**
-     * <code>subtract</code> subtracts the values of the parameter quaternion
-     * from those of this quaternion. The result is returned as a new
-     * quaternion.
+     * Subtracts the argument and returns difference as a new instance. The
+     * current instance is unaffected.
      *
-     * @param q   the quaternion to subtract from this.
-     * @return the new quaternion.
+     * @param q the quaternion to subtract (not null, unaffected)
+     * @return a new Quaternion
      */
     public Quaternion subtract(Quaternion q) {
         return new Quaternion(x - q.x, y - q.y, z - q.z, w - q.w);
     }
 
     /**
-     * <code>subtract</code> subtracts the values of the parameter quaternion
-     * from those of this quaternion. The result is stored in this Quaternion.
+     * Subtracts the argument and returns the (modified) current instance.
      *
-     * @param q   the quaternion to subtract from this.
-     * @return This Quaternion after subtraction.
+     * @param q the quaternion to subtract (not null, unaffected unless it's
+     *     {@code this})
+     * @return the (modified) current instance
      */
     public Quaternion subtractLocal(Quaternion q) {
         this.x -= q.x;
@@ -942,29 +959,34 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     }
 
     /**
-     * <code>mult</code> multiplies this quaternion by a parameter quaternion.
-     * The result is returned as a new quaternion. It should be noted that
-     * quaternion multiplication is not commutative so q * p != p * q.
+     * Multiplies by the argument and returns the product as a new instance.
+     * The current instance is unaffected.
      *
-     * @param q   the quaternion to multiply this quaternion by.
-     * @return the new quaternion.
+     * <p>This method is used to combine rotations. Note that quaternion
+     * multiplication is noncommutative, so generally q * p != p * q.
+     *
+     * @param q the quaternion to multiply (not null, unaffected)
+     * @return a new Quaternion
      */
     public Quaternion mult(Quaternion q) {
         return mult(q, null);
     }
 
     /**
-     * <code>mult</code> multiplies this quaternion by a parameter quaternion.
-     * The result is returned as a new quaternion. It should be noted that
-     * quaternion multiplication is not commutative so q * p != p * q.
+     * Multiplies by the specified quaternion and returns the product in a 3rd
+     * quaternion. The current instance is unaffected, unless it's {@code res}.
      *
-     * It IS safe for q and res to be the same object.
-     * It IS NOT safe for this and res to be the same object.
+     * <p>This method is used to combine rotations. Note that quaternion
+     * multiplication is noncommutative, so generally q * p != p * q.
      *
-     * @param q   the quaternion to multiply this quaternion by.
-     * @param res
-     *            the quaternion to store the result in.
-     * @return the new quaternion.
+     * <p>It is safe for {@code q} and {@code res} to be the same object.
+     * However, if {@code this} and {@code res} are the same object, the result
+     * is undefined.
+     *
+     * @param q the quaternion to multiply by (not null, unaffected unless it's
+     *     {@code store})
+     * @param res storage for the product, or null for a new Quaternion
+     * @return either {@code res} or a new Quaternion
      */
     public Quaternion mult(Quaternion q, Quaternion res) {
         if (res == null) {
@@ -979,11 +1001,9 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     }
 
     /**
-     * <code>apply</code> multiplies this quaternion by a parameter matrix
-     * internally.
+     * Applies the rotation represented by the argument to the current instance.
      *
-     * @param matrix
-     *            the matrix to apply to this quaternion.
+     * @param matrix the rotation matrix to apply (not null, unaffected)
      */
     public void apply(Matrix3f matrix) {
         float oldX = x, oldY = y, oldZ = z, oldW = w;
@@ -997,17 +1017,17 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     }
 
     /**
+     * Sets the current instance from the specified orthonormal basis.
      *
-     * <code>fromAxes</code> creates a <code>Quaternion</code> that
-     * represents the coordinate system defined by three axes. These axes are
-     * assumed to be orthogonal and no error checking is applied. Thus, the user
-     * must ensure that the three axes being provided represent a proper
-     * right-handed coordinate system.
+     * <p>The 3 basis vectors describe the axes of a rotated coordinate system.
+     * They are assumed to be normalized, mutually orthogonal, and in right-hand
+     * order. No error checking is performed; the caller must ensure that the
+     * specified vectors represent a right-handed coordinate system.
      *
-     * @param axis
-     *            the array containing the three vectors representing the
-     *            coordinate system.
-     * @return this
+     * @param axis the array of desired basis vectors (not null, array length=3,
+     *     each vector having length=1, unaffected)
+     * @return the (modified) current instance (for chaining)
+     * @throws IllegalArgumentException if {@code axis.length != 3}
      */
     public Quaternion fromAxes(Vector3f[] axis) {
         if (axis.length != 3) {
@@ -1018,17 +1038,20 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     }
 
     /**
+     * Sets the current instance from the specified orthonormal basis.
      *
-     * <code>fromAxes</code> creates a <code>Quaternion</code> that
-     * represents the coordinate system defined by three axes. These axes are
-     * assumed to be orthogonal and no error checking is applied. Thus, the user
-     * must ensure that the three axes being provided represent a proper
-     * right-handed coordinate system.
+     * <p>The 3 basis vectors describe the axes of a rotated coordinate system.
+     * They are assumed to be normalized, mutually orthogonal, and in right-hand
+     * order. No error checking is performed; the caller must ensure that the
+     * specified vectors represent a right-handed coordinate system.
      *
-     * @param xAxis vector representing the x-axis of the coordinate system.
-     * @param yAxis vector representing the y-axis of the coordinate system.
-     * @param zAxis vector representing the z-axis of the coordinate system.
-     * @return this
+     * @param xAxis the X axis of the desired coordinate system (not null,
+     *     length=1, unaffected)
+     * @param yAxis the Y axis of the desired coordinate system (not null,
+     *     length=1, unaffected)
+     * @param zAxis the Z axis of the desired coordinate system (not null,
+     *     length=1, unaffected)
+     * @return the (modified) current instance (for chaining)
      */
     public Quaternion fromAxes(Vector3f xAxis, Vector3f yAxis, Vector3f zAxis) {
         return fromRotationMatrix(xAxis.x, yAxis.x, zAxis.x, xAxis.y, yAxis.y,
@@ -1036,10 +1059,15 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     }
 
     /**
-     * <code>toAxes</code> determines the axes of the coordinate system
-     * described by this Quaternion.
+     * Converts this instance to a rotated coordinate system and stores the
+     * resulting axes in the argument. The current instance is unaffected.
      *
-     * @param axes an array to store the results (not null, length=3, modified)
+     * <p>The resulting vectors form the basis of a rotated coordinate system.
+     * They will be normalized, mutually orthogonal, and in right-hand order.
+     *
+     * @param axes storage for the results (not null, length=3, each element
+     *     non-null, elements modified)
+     * @throws IllegalArgumentException if {@code axes.length != 3}
      */
     public void toAxes(Vector3f axes[]) {
         if (axes.length != 3) {
@@ -1054,11 +1082,14 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     }
 
     /**
-     * <code>mult</code> multiplies this quaternion by a parameter vector. The
-     * result is returned as a new vector.
+     * Rotates the argument vector and returns the result as a new vector. The
+     * current instance is unaffected.
      *
-     * @param v   the vector to multiply this quaternion by.
-     * @return the new vector.
+     * <p>Despite the name, the result differs from the mathematical definition
+     * of vector-quaternion multiplication.
+     *
+     * @param v the vector to rotate (not null, unaffected)
+     * @return a new Vector3f
      */
     public Vector3f mult(Vector3f v) {
         return mult(v, null);
@@ -1165,7 +1196,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      *
      * @param scalar
      *            the scalar to multiply this quaternion by.
-     * @return the new quaternion.
+     * @return a new Quaternion
      */
     public Quaternion mult(float scalar) {
         return new Quaternion(scalar * x, scalar * y, scalar * z, scalar * w);
