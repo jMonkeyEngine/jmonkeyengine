@@ -36,7 +36,6 @@ import com.jme3.font.BitmapText;
 import com.jme3.input.ChaseCamera;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
-import com.jme3.input.controls.AnalogListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
@@ -64,71 +63,73 @@ public class TestIssue1692 extends SimpleApplication implements ActionListener {
 
     @Override
     public void simpleInitApp() {
-        //Load a teapot model, we will chase this with the camera
+        // Load a teapot model, we will chase this with the camera
         teaGeom = (Geometry) assetManager.loadModel("Models/Teapot/Teapot.obj");
-        Material mat_tea = new Material(assetManager, "Common/MatDefs/Misc/ShowNormals.j3md");
-        teaGeom.setMaterial(mat_tea);
+        Material teapotMaterial = new Material(assetManager, "Common/MatDefs/Misc/ShowNormals.j3md");
+        teaGeom.setMaterial(teapotMaterial);
         rootNode.attachChild(teaGeom);
 
-        //Load a floor model
-        Material mat_ground = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        mat_ground.setTexture("ColorMap", assetManager.loadTexture("Interface/Logo/Monkey.jpg"));
+        // Load a floor model
+        Material floorMaterial = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        floorMaterial.setTexture("ColorMap", assetManager.loadTexture("Interface/Logo/Monkey.jpg"));
         Geometry ground = new Geometry("ground", new Quad(50, 50));
         ground.setLocalRotation(new Quaternion().fromAngleAxis(-FastMath.HALF_PI, Vector3f.UNIT_X));
         ground.setLocalTranslation(-25, -1, 25);
-        ground.setMaterial(mat_ground);
+        ground.setMaterial(floorMaterial);
         rootNode.attachChild(ground);
 
-        //Disable the default first-person cam!
+        // Disable the default first-person cam!
         flyCam.setEnabled(false);
 
         // Enable a chase cam
         chaseCam = new ChaseCamera(cam, teaGeom, inputManager);
         /*
-        Explicitly set drag to rotate to false.
-        We are testing to see if disabling then re-enabling the camera keeps the correct flags
-        set so that we can still rotate without dragging.
+         * Explicitly set drag to rotate to false.
+         * We are testing to see if disabling then re-enabling the camera keeps the correct flags
+         * set so that we can still rotate without dragging.
          */
         chaseCam.setDragToRotate(false);
 
-        //Show instructions
-        BitmapText hudText = new BitmapText(guiFont, false);
-        hudText.setSize(guiFont.getCharSet().getRenderedSize());
+        // Show instructions
+        int yTop = settings.getHeight();
+        int size = guiFont.getCharSet().getRenderedSize();
+        BitmapText hudText = new BitmapText(guiFont);
+        hudText.setSize(size);
         hudText.setColor(ColorRGBA.Blue);
-        hudText.setText("This test is for issue 1692.\n" +
-                "We are testing to see if drag to rotate stays disabled" +
-                "after disabling and re-enabling the chase camera." +
-                "\n" +
-                "For this test, use the SPACE key to disable and re-enable the camera.");
-        hudText.setLocalTranslation(0, settings.getHeight() - (hudText.getLineHeight() * 3), 0);
+        hudText.setText("This test is for issue 1692.\n"
+                + "We are testing to see if drag to rotate stays disabled"
+                + "after disabling and re-enabling the chase camera.\n"
+                + "For this test, use the SPACE key to disable and re-enable the camera.");
+        hudText.setLocalTranslation(0, yTop - (hudText.getLineHeight() * 3), 0);
         guiNode.attachChild(hudText);
 
-        //Show camera status
-        cameraStatus = new BitmapText(guiFont, false);
-        cameraStatus.setSize(guiFont.getCharSet().getRenderedSize());
+        // Show camera status
+        cameraStatus = new BitmapText(guiFont);
+        cameraStatus.setSize(size);
         cameraStatus.setColor(ColorRGBA.Blue);
-        cameraStatus.setText("Camera: " + (chaseCam.isEnabled() ? "Enabled" : "Disable"));
-        cameraStatus.setLocalTranslation(0, settings.getHeight() - cameraStatus.getLineHeight(), 0); // position
+        cameraStatus.setLocalTranslation(0, yTop - cameraStatus.getLineHeight(), 0); // position
         guiNode.attachChild(cameraStatus);
 
-        //Register inputs
+        // Register inputs
         registerInput();
-
     }
 
-    public void registerInput() {
-        inputManager.addMapping("disableCamera", new KeyTrigger(KeyInput.KEY_SPACE));
-        inputManager.addListener(this, "disableCamera");
+    @Override
+    public void simpleUpdate(float tpf) {
+        // Update chaseCam status
+        cameraStatus.setText("chaseCam " + (chaseCam.isEnabled() ? "enabled" : "disabled"));
+    }
+
+    private void registerInput() {
+        inputManager.addMapping("toggleCamera", new KeyTrigger(KeyInput.KEY_SPACE));
+        inputManager.addListener(this, "toggleCamera");
     }
 
     @Override
     public void onAction(String name, boolean keyPressed, float tpf) {
-        if (name.equals("disableCamera") && keyPressed) {
-            //Toggle chase camera
+        if (name.equals("toggleCamera") && keyPressed) {
+            // Toggle chase camera
             chaseCam.setEnabled(!chaseCam.isEnabled());
-            
-            //Display camera status
-            cameraStatus.setText("Camera: " + (chaseCam.isEnabled() ? "Enabled" : "Disable"));
         }
     }
 }
