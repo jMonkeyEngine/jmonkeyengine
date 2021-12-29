@@ -114,7 +114,7 @@ public class FlyByCamera implements AnalogListener, ActionListener {
      *
      * @param cam camera to be controlled (not null)
      */
-    public FlyByCamera(Camera cam){
+    public FlyByCamera(Camera cam) {
         this.cam = cam;
         initialUpVec = cam.getUp().clone();
     }
@@ -291,17 +291,19 @@ public class FlyByCamera implements AnalogListener, ActionListener {
     }
 
     protected void mapJoystick(Joystick joystick) {
-
         // Map it differently if there are Z axis
-        if( joystick.getAxis(JoystickAxis.Z_ROTATION ) != null && joystick.getAxis( JoystickAxis.Z_AXIS) != null ) {
+        if (joystick.getAxis(JoystickAxis.Z_ROTATION) != null
+                && joystick.getAxis(JoystickAxis.Z_AXIS) != null) {
 
             // Make the left stick move
             joystick.getXAxis().assignAxis(CameraInput.FLYCAM_STRAFERIGHT, CameraInput.FLYCAM_STRAFELEFT);
             joystick.getYAxis().assignAxis(CameraInput.FLYCAM_BACKWARD, CameraInput.FLYCAM_FORWARD);
 
             // And the right stick control the camera
-            joystick.getAxis(JoystickAxis.Z_ROTATION).assignAxis(CameraInput.FLYCAM_DOWN, CameraInput.FLYCAM_UP);
-            joystick.getAxis(JoystickAxis.Z_AXIS).assignAxis(CameraInput.FLYCAM_RIGHT, CameraInput.FLYCAM_LEFT);
+            joystick.getAxis(JoystickAxis.Z_ROTATION)
+                    .assignAxis(CameraInput.FLYCAM_DOWN, CameraInput.FLYCAM_UP);
+            joystick.getAxis(JoystickAxis.Z_AXIS)
+                    .assignAxis(CameraInput.FLYCAM_RIGHT, CameraInput.FLYCAM_LEFT);
 
             // And let the dpad be up and down
             joystick.getPovYAxis().assignAxis(CameraInput.FLYCAM_RISE, CameraInput.FLYCAM_LOWER);

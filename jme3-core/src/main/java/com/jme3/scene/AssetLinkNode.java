@@ -74,7 +74,7 @@ public class AssetLinkNode extends Node {
      *  Called internally by com.jme3.util.clone.Cloner.  Do not call directly.
      */
     @Override
-    public void cloneFields( Cloner cloner, Object original ) {
+    public void cloneFields(Cloner cloner, Object original) {
         super.cloneFields(cloner, original);
 
         // This is a change in behavior because the old version did not clone

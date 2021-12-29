@@ -163,7 +163,7 @@ public class ConstantVerifierState extends BaseAppState {
 
     protected void checkValues() {
         for (Checker checker : checkers.getArray()) {
-            switch( errorType ) {
+            switch (errorType) {
                 default:
                 case Assert:
                     assert checker.isValid() : checker.toString();

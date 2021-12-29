@@ -74,11 +74,11 @@ public abstract class AbstractJoystick implements Joystick {
         return joyInput;
     }
 
-    protected void addAxis( JoystickAxis axis ) {
+    protected void addAxis(JoystickAxis axis) {
         axes.add(axis);
     }
 
-    protected void addButton( JoystickButton button ) {
+    protected void addButton(JoystickButton button) {
         buttons.add(button);
     }
 
@@ -88,7 +88,7 @@ public abstract class AbstractJoystick implements Joystick {
      * @param amount The amount to rumble. Should be between 0 and 1.
      */
     @Override
-    public void rumble(float amount){
+    public void rumble(float amount) {
         joyInput.setJoyRumble(joyId, amount);
     }
 
@@ -104,7 +104,7 @@ public abstract class AbstractJoystick implements Joystick {
      */
     @Override
     @Deprecated
-    public void assignButton(String mappingName, int buttonId){
+    public void assignButton(String mappingName, int buttonId) {
         if (buttonId < 0 || buttonId >= getButtonCount())
             throw new IllegalArgumentException();
 
@@ -123,12 +123,12 @@ public abstract class AbstractJoystick implements Joystick {
      */
     @Override
     @Deprecated
-    public void assignAxis(String positiveMapping, String negativeMapping, int axisId){
+    public void assignAxis(String positiveMapping, String negativeMapping, int axisId) {
 
         // For backwards compatibility
-        if( axisId == JoyInput.AXIS_POV_X ) {
+        if (axisId == JoyInput.AXIS_POV_X) {
             axisId = getPovXAxis().getAxisId();
-        } else if( axisId == JoyInput.AXIS_POV_Y ) {
+        } else if (axisId == JoyInput.AXIS_POV_Y) {
             axisId = getPovYAxis().getAxisId();
         }
 

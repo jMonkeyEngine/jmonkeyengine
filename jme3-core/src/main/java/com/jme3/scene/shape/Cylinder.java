@@ -198,10 +198,12 @@ public class Cylinder extends Mesh {
     /**
      * Rebuilds the cylinder based on a new set of parameters.
      *
-     * @param axisSamples The number of vertices samples along the axis. It is equal to the number of segments + 1; so
-     * that, for instance, 4 samples mean the cylinder will be made of 3 segments.
-     * @param radialSamples The number of triangle samples along the radius. For instance, 4 means that the sides of the
-     * cylinder are made of 4 rectangles, and the top and bottom are made of 4 triangles.
+     * @param axisSamples The number of vertices samples along the axis.
+     *     It is equal to the number of segments + 1; so
+     *     that, for instance, 4 samples mean the cylinder will be made of 3 segments.
+     * @param radialSamples The number of triangle samples along the radius.
+     *     For instance, 4 means that the sides of the
+     *     cylinder are made of 4 rectangles, and the top and bottom are made of 4 triangles.
      * @param topRadius the radius of the top of the cylinder.
      * @param bottomRadius the radius of the bottom of the cylinder.
      * @param height the cylinder's height.
@@ -211,11 +213,11 @@ public class Cylinder extends Mesh {
     public void updateGeometry(int axisSamples, int radialSamples,
             float topRadius, float bottomRadius, float height, boolean closed, boolean inverted) {
         // Ensure there's at least two axis samples and 3 radial samples, and positive dimensions.
-        if( axisSamples < 2
+        if (axisSamples < 2
             || radialSamples < 3
             || topRadius <= 0
             || bottomRadius <= 0
-            || height <= 0 ) {
+            || height <= 0) {
             throw new IllegalArgumentException("Cylinders must have at least 2 axis samples and 3 radial samples, and positive dimensions.");
         }
 
@@ -231,7 +233,7 @@ public class Cylinder extends Mesh {
         int verticesCount = axisSamples * (radialSamples +1);
         // Triangles: Two per side rectangle, which is the product of numbers of samples.
         int trianglesCount = axisSamples * radialSamples * 2 ;
-        if( closed ) {
+        if (closed) {
             // If there are caps, add two additional rims and two summits.
             verticesCount += 2 + 2 * (radialSamples +1);
             // Add one triangle per radial sample, twice, to form the caps.
@@ -265,7 +267,9 @@ public class Cylinder extends Mesh {
             // The normal is the orthogonal to the side, which can be got without trigonometry.
             // The edge direction is oriented so that it goes up by Height, and out by the radius difference; let's use
             // those values in reverse order.
-            Vector3f normal = new Vector3f(height * circlePoints[circlePoint][0], height * circlePoints[circlePoint][1], bottomRadius - topRadius );
+            Vector3f normal = new Vector3f(height * circlePoints[circlePoint][0],
+                    height * circlePoints[circlePoint][1],
+                    bottomRadius - topRadius);
             circleNormals[circlePoint] = normal.normalizeLocal();
         }
 
@@ -293,13 +297,14 @@ public class Cylinder extends Mesh {
 
                 // Texture
                 // The X is the angular position of the point.
-                textureCoords[currentIndex *2] = (float) circlePoint / radialSamples;
+                textureCoords[currentIndex * 2] = (float) circlePoint / radialSamples;
                 // Depending on whether there is a cap, the Y is either the height scaled to [0,1], or the radii of
                 // the cap count as well.
                 if (closed)
-                    textureCoords[currentIndex *2 +1] = (bottomRadius + height / 2 + currentHeight) / (bottomRadius + height + topRadius);
+                    textureCoords[currentIndex * 2 + 1] = (bottomRadius + height / 2 + currentHeight)
+                            / (bottomRadius + height + topRadius);
                 else
-                    textureCoords[currentIndex *2 +1] = height / 2 + currentHeight;
+                    textureCoords[currentIndex * 2 + 1] = height / 2 + currentHeight;
 
                 currentIndex++;
             }

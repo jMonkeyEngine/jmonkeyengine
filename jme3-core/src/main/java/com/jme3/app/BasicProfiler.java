@@ -167,7 +167,7 @@ public class BasicProfiler implements AppProfiler {
 
     @Override
     public void appStep(AppStep step) {
-        switch(step) {
+        switch (step) {
             case BeginFrame:
                 startTime = System.nanoTime();
                 break;

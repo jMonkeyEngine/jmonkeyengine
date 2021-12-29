@@ -242,7 +242,7 @@ public class Cloner {
             f.cloneFields(this, result, object);
 
             if (log.isLoggable(Level.FINER)) {
-                if( result == null ) {
+                if (result == null) {
                     log.finer("cloned:" + object.getClass() + "@" + System.identityHashCode(object)
                                 + " as transformed:null");
                 } else {
@@ -389,7 +389,7 @@ public class Cloner {
      * @throws CloneNotSupportedException if the object has no public clone method
      */
     public <T> T javaClone(T object) throws CloneNotSupportedException {
-        if( object == null ) {
+        if (object == null) {
             return null;
         }
         Method m = methodCache.get(object.getClass());

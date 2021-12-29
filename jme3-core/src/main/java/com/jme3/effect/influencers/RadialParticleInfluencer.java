@@ -125,7 +125,7 @@ public class RadialParticleInfluencer extends DefaultParticleInfluencer {
      *  Called internally by com.jme3.util.clone.Cloner.  Do not call directly.
      */
     @Override
-    public void cloneFields( Cloner cloner, Object original ) {
+    public void cloneFields(Cloner cloner, Object original) {
         super.cloneFields(cloner, original);
 
         // Change in behavior: the old origin was not cloned -pspeed

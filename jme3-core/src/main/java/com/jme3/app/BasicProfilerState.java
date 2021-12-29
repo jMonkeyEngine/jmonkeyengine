@@ -201,7 +201,7 @@ public class BasicProfilerState extends BaseAppState {
     }
 
     @Override
-    protected void cleanup( Application app ) {
+    protected void cleanup(Application app) {
         InputManager inputManager = app.getInputManager();
         if (inputManager.hasMapping(INPUT_MAPPING_PROFILER_TOGGLE)) {
             inputManager.deleteMapping(INPUT_MAPPING_PROFILER_TOGGLE);

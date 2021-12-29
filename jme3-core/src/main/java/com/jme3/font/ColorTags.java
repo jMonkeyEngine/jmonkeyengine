@@ -96,7 +96,7 @@ class ColorTags {
         }
     }
 
-    void setBaseAlpha( float alpha ) {
+    void setBaseAlpha(float alpha) {
         this.baseAlpha = alpha;
         if (alpha == -1) {
             // Need to reinitialize from the original text

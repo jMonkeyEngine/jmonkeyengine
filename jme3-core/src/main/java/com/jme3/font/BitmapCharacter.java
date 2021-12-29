@@ -50,9 +50,9 @@ public class BitmapCharacter implements Savable, Cloneable {
     private int xAdvance;
     private IntMap<Integer> kerning = new IntMap<>();
     private int page;
-    
+
     public BitmapCharacter() {}
-    
+
     public BitmapCharacter(char c) {
         this.c = c;
     }
@@ -131,20 +131,20 @@ public class BitmapCharacter implements Savable, Cloneable {
     public int getPage() {
         return page;
     }
-    
+
     public char getChar() {
         return c;
     }
-    
+
     public void setChar(char c) {
         this.c = c;
     }
 
-    public void addKerning(int second, int amount){
+    public void addKerning(int second, int amount) {
         kerning.put(second, amount);
     }
 
-    public int getKerning(int second){
+    public int getKerning(int second) {
         Integer i = kerning.get(second);
         if (i == null)
             return 0;
@@ -168,7 +168,7 @@ public class BitmapCharacter implements Savable, Cloneable {
         int[] amounts = new int[seconds.length];
 
         int i = 0;
-        for (Entry<Integer> entry : kerning){
+        for (Entry<Integer> entry : kerning) {
             seconds[i] = entry.getKey();
             amounts[i] = entry.getValue();
             i++;
@@ -193,7 +193,7 @@ public class BitmapCharacter implements Savable, Cloneable {
         int[] seconds = ic.readIntArray("seconds", null);
         int[] amounts = ic.readIntArray("amounts", null);
 
-        for (int i = 0; i < seconds.length; i++){
+        for (int i = 0; i < seconds.length; i++) {
             kerning.put(seconds[i], amounts[i]);
         }
     }

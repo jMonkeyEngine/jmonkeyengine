@@ -311,7 +311,7 @@ public class MotionEvent extends AbstractCinematicEvent implements Control, JmeC
     }
 
     @Override
-    public void cloneFields( Cloner cloner, Object original ) {
+    public void cloneFields(Cloner cloner, Object original) {
         this.spatial = cloner.clone(spatial);
     }
 

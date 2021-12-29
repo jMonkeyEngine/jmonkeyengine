@@ -128,7 +128,7 @@ class BitmapTextPage extends Geometry {
      *  Called internally by com.jme3.util.clone.Cloner.  Do not call directly.
      */
     @Override
-    public void cloneFields( Cloner cloner, Object original ) {
+    public void cloneFields(Cloner cloner, Object original) {
         
         Mesh originalMesh = this.mesh;
     

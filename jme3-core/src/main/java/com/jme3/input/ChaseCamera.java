@@ -57,7 +57,7 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
     protected float maxVerticalRotation = FastMath.PI / 2;
     protected float minDistance = 1.0f;
     protected float maxDistance = 40.0f;
-    protected float distance = 20;    
+    protected float distance = 20;
     protected float rotationSpeed = 1.0f;
     protected float rotation = 0;
     protected float trailingRotationInertia = 0.05f;
@@ -100,7 +100,7 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
     protected Vector3f temp = new Vector3f(0, 0, 0);
     protected boolean invertYaxis = false;
     protected boolean invertXaxis = false;
-    
+
     /**
      * @deprecated use {@link CameraInput#CHASECAM_DOWN}
      */
@@ -201,9 +201,7 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
                 }
             }
         }
-
     }
-
 
     @Override
     public void onAnalog(String name, float value, float tpf) {
@@ -236,7 +234,6 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
      * @param inputManager (alias created)
      */
     public final void registerWithInput(InputManager inputManager) {
-
         String[] inputs = {CameraInput.CHASECAM_TOGGLEROTATE,
             CameraInput.CHASECAM_DOWN,
             CameraInput.CHASECAM_UP,
@@ -247,33 +244,45 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
 
         this.inputManager = inputManager;
         if (!invertYaxis) {
-            inputManager.addMapping(CameraInput.CHASECAM_DOWN, new MouseAxisTrigger(MouseInput.AXIS_Y, true));
-            inputManager.addMapping(CameraInput.CHASECAM_UP, new MouseAxisTrigger(MouseInput.AXIS_Y, false));
+            inputManager.addMapping(CameraInput.CHASECAM_DOWN,
+                    new MouseAxisTrigger(MouseInput.AXIS_Y, true));
+            inputManager.addMapping(CameraInput.CHASECAM_UP,
+                    new MouseAxisTrigger(MouseInput.AXIS_Y, false));
         } else {
-            inputManager.addMapping(CameraInput.CHASECAM_DOWN, new MouseAxisTrigger(MouseInput.AXIS_Y, false));
-            inputManager.addMapping(CameraInput.CHASECAM_UP, new MouseAxisTrigger(MouseInput.AXIS_Y, true));
+            inputManager.addMapping(CameraInput.CHASECAM_DOWN,
+                    new MouseAxisTrigger(MouseInput.AXIS_Y, false));
+            inputManager.addMapping(CameraInput.CHASECAM_UP,
+                    new MouseAxisTrigger(MouseInput.AXIS_Y, true));
         }
-        inputManager.addMapping(CameraInput.CHASECAM_ZOOMIN, new MouseAxisTrigger(MouseInput.AXIS_WHEEL, false));
-        inputManager.addMapping(CameraInput.CHASECAM_ZOOMOUT, new MouseAxisTrigger(MouseInput.AXIS_WHEEL, true));
+        inputManager.addMapping(CameraInput.CHASECAM_ZOOMIN,
+                new MouseAxisTrigger(MouseInput.AXIS_WHEEL, false));
+        inputManager.addMapping(CameraInput.CHASECAM_ZOOMOUT,
+                new MouseAxisTrigger(MouseInput.AXIS_WHEEL, true));
         if (!invertXaxis) {
-            inputManager.addMapping(CameraInput.CHASECAM_MOVELEFT, new MouseAxisTrigger(MouseInput.AXIS_X, true));
-            inputManager.addMapping(CameraInput.CHASECAM_MOVERIGHT, new MouseAxisTrigger(MouseInput.AXIS_X, false));
+            inputManager.addMapping(CameraInput.CHASECAM_MOVELEFT,
+                    new MouseAxisTrigger(MouseInput.AXIS_X, true));
+            inputManager.addMapping(CameraInput.CHASECAM_MOVERIGHT,
+                    new MouseAxisTrigger(MouseInput.AXIS_X, false));
         } else {
-            inputManager.addMapping(CameraInput.CHASECAM_MOVELEFT, new MouseAxisTrigger(MouseInput.AXIS_X, false));
-            inputManager.addMapping(CameraInput.CHASECAM_MOVERIGHT, new MouseAxisTrigger(MouseInput.AXIS_X, true));
+            inputManager.addMapping(CameraInput.CHASECAM_MOVELEFT,
+                    new MouseAxisTrigger(MouseInput.AXIS_X, false));
+            inputManager.addMapping(CameraInput.CHASECAM_MOVERIGHT,
+                    new MouseAxisTrigger(MouseInput.AXIS_X, true));
         }
-        inputManager.addMapping(CameraInput.CHASECAM_TOGGLEROTATE, new MouseButtonTrigger(MouseInput.BUTTON_LEFT));
-        inputManager.addMapping(CameraInput.CHASECAM_TOGGLEROTATE, new MouseButtonTrigger(MouseInput.BUTTON_RIGHT));
+        inputManager.addMapping(CameraInput.CHASECAM_TOGGLEROTATE,
+                new MouseButtonTrigger(MouseInput.BUTTON_LEFT));
+        inputManager.addMapping(CameraInput.CHASECAM_TOGGLEROTATE,
+                new MouseButtonTrigger(MouseInput.BUTTON_RIGHT));
 
         inputManager.addListener(this, inputs);
     }
-    
+
     /**
     * Cleans up the input mappings from the input manager.
     * Undoes the work of registerWithInput().
     * @param mgr the InputManager to clean up
     */
-    public void cleanupWithInput(InputManager mgr){
+    public void cleanupWithInput(InputManager mgr) {
         mgr.deleteMapping(CameraInput.CHASECAM_TOGGLEROTATE);
         mgr.deleteMapping(CameraInput.CHASECAM_DOWN);
         mgr.deleteMapping(CameraInput.CHASECAM_UP);
@@ -611,16 +620,16 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
         cc.setMaxDistance(getMaxDistance());
         cc.setMinDistance(getMinDistance());
         return cc;
-    }     
+    }
 
-    @Override   
-    public void cloneFields( Cloner cloner, Object original ) { 
+    @Override
+    public void cloneFields(Cloner cloner, Object original) {
         this.target = cloner.clone(target);
         computePosition();
         prevPos = new Vector3f(target.getWorldTranslation());
         cam.setLocation(pos);
     }
-         
+
     /**
      * Sets the spatial for the camera control, should only be used internally
      *
@@ -844,7 +853,7 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
     public void setZoomSensitivity(float zoomSensitivity) {
         this.zoomSensitivity = zoomSensitivity;
     }
-    
+
     /**
      * Returns the rotation speed when the mouse is moved.
      *

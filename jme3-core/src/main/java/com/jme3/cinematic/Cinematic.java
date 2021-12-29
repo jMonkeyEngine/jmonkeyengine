@@ -302,7 +302,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
      *
      * @param id the desired ID
      */
-    protected void setId( String id ) {
+    protected void setId(String id) {
         this.id = id;
     }
 

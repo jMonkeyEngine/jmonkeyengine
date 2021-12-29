@@ -73,7 +73,7 @@ public class BitmapCharacterSet implements Savable {
         short[] indexes = new short[size];
         BitmapCharacter[] chars = new BitmapCharacter[size];
         int i = 0;
-        for (Entry<BitmapCharacter> chr : charset){
+        for (Entry<BitmapCharacter> chr : charset) {
             indexes[i] = (short) chr.getKey();
             chars[i] = chr.getValue();
             i++;
@@ -104,7 +104,7 @@ public class BitmapCharacterSet implements Savable {
         short[] indexes = ic.readShortArray("indexes"+style, null);
         Savable[] chars = ic.readSavableArray("chars"+style, null);
 
-        for (int i = 0; i < indexes.length; i++){
+        for (int i = 0; i < indexes.length; i++) {
             int index = indexes[i] & 0xFFFF;
             BitmapCharacter chr = (BitmapCharacter) chars[i];
             charset.put(index, chr);
@@ -116,11 +116,11 @@ public class BitmapCharacterSet implements Savable {
         characters = new IntMap<IntMap<BitmapCharacter>>();
     }
 
-    public BitmapCharacter getCharacter(int index){
+    public BitmapCharacter getCharacter(int index) {
         return getCharacter(index, 0);
     }
-    
-    public BitmapCharacter getCharacter(int index, int style){
+
+    public BitmapCharacter getCharacter(int index, int style) {
         IntMap<BitmapCharacter> map = getCharacterSet(style);
         return map.get(index);
     }
@@ -132,7 +132,7 @@ public class BitmapCharacterSet implements Savable {
         return characters.get(style);
     }
 
-    public void addCharacter(int index, BitmapCharacter ch){
+    public void addCharacter(int index, BitmapCharacter ch) {
         getCharacterSet(0).put(index, ch);
     }
 
@@ -175,7 +175,7 @@ public class BitmapCharacterSet implements Savable {
     public void setHeight(int height) {
         this.height = height;
     }
-    
+
     /**
      * Merge two fonts.
      * If two font have the same style, merge will fail.
@@ -197,7 +197,7 @@ public class BitmapCharacterSet implements Savable {
             if (old != null) {
                 throw new RuntimeException("Can't override old style");
             }
-            
+
             for (Entry<BitmapCharacter> charEntry : charset) {
                 BitmapCharacter ch = charEntry.getValue();
                 ch.setPage(ch.getPage() + this.pageSize);

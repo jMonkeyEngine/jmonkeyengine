@@ -323,7 +323,7 @@ public final class LightList implements Iterable<Light>, Savable, Cloneable, Jme
     }
 
     @Override
-    public void cloneFields( Cloner cloner, Object original ) {
+    public void cloneFields(Cloner cloner, Object original) {
         this.owner = cloner.clone(owner);
         this.list = cloner.clone(list);
         this.distToOwner = cloner.clone(distToOwner);

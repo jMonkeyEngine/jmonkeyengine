@@ -61,7 +61,7 @@ import com.jme3.system.JmeSystem;
  *  M - Display memory usage in the console.<br>
  *
  * A {@link com.jme3.app.FlyCamAppState} is by default attached as well and can
- * be removed by calling <code>stateManager.detach( stateManager.getState(FlyCamAppState.class) );</code>
+ * be removed by calling <code>stateManager.detach(stateManager.getState(FlyCamAppState.class));</code>
  */
 public abstract class SimpleApplication extends LegacyApplication {
 
@@ -214,7 +214,7 @@ public abstract class SimpleApplication extends LegacyApplication {
             if (stateManager.getState(FlyCamAppState.class) != null) {
                 flyCam = new FlyByCamera(cam);
                 flyCam.setMoveSpeed(1f); // odd to set this here but it did it before
-                stateManager.getState(FlyCamAppState.class).setCamera( flyCam );
+                stateManager.getState(FlyCamAppState.class).setCamera(flyCam);
             }
 
             if (context.getType() == Type.Display) {

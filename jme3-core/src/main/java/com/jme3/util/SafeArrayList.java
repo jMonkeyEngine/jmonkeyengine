@@ -150,7 +150,7 @@ public class SafeArrayList<E> implements List<E>, Cloneable {
             // Only keep the array or the buffer but never both at
             // the same time.  1) it saves space, 2) it keeps the rest
             // of the code safer.
-            backingArray = buffer.toArray( createArray(buffer.size()) );
+            backingArray = buffer.toArray(createArray(buffer.size()));
             buffer = null;
         }
         return backingArray;
@@ -206,7 +206,7 @@ public class SafeArrayList<E> implements List<E>, Cloneable {
             return (T[])Arrays.copyOf(array, array.length, a.getClass());
         }
 
-        System.arraycopy( array, 0, a, 0, array.length );
+        System.arraycopy(array, 0, a, 0, array.length);
 
         if (a.length > array.length) {
             a[array.length] = null;
@@ -289,9 +289,9 @@ public class SafeArrayList<E> implements List<E>, Cloneable {
         while (i1.hasNext() && i2.hasNext()) {
             Object o1 = i1.next();
             Object o2 = i2.next();
-            if( o1 == o2 )
+            if (o1 == o2)
                 continue;
-            if( o1 == null || !o1.equals(o2) )
+            if (o1 == null || !o1.equals(o2))
                 return false;
         }
         return !(i1.hasNext() || i2.hasNext());
@@ -310,11 +310,11 @@ public class SafeArrayList<E> implements List<E>, Cloneable {
 
     @Override
     public final E get(int index) {
-        if( backingArray != null )
+        if (backingArray != null)
             return backingArray[index];
-        if( buffer != null )
+        if (buffer != null)
             return buffer.get(index);
-        throw new IndexOutOfBoundsException( "Index:" + index + ", Size:0" );
+        throw new IndexOutOfBoundsException("Index:" + index + ", Size:0");
     }
 
     @Override
@@ -392,8 +392,8 @@ public class SafeArrayList<E> implements List<E>, Cloneable {
         StringBuilder sb = new StringBuilder();
         sb.append('[');
         for (int i = 0; i < array.length; i++) {
-            if( i > 0 )
-                sb.append( ", " );
+            if (i > 0)
+                sb.append(", ");
             E e = array[i];
             sb.append(e == this ? "(this Collection)" : e);
         }
@@ -406,7 +406,7 @@ public class SafeArrayList<E> implements List<E>, Cloneable {
         private int next;
         private int lastReturned;
 
-        protected ArrayIterator( E[] array, int index ) {
+        protected ArrayIterator(E[] array, int index) {
             this.array = array;
             this.next = index;
             this.lastReturned = -1;
@@ -419,7 +419,7 @@ public class SafeArrayList<E> implements List<E>, Cloneable {
 
         @Override
         public E next() {
-            if( !hasNext() )
+            if (!hasNext())
                 throw new NoSuchElementException();
             lastReturned = next++;
             return array[lastReturned];
@@ -432,7 +432,7 @@ public class SafeArrayList<E> implements List<E>, Cloneable {
 
         @Override
         public E previous() {
-            if( !hasPrevious() )
+            if (!hasPrevious())
                 throw new NoSuchElementException();
             lastReturned = --next;
             return array[lastReturned];

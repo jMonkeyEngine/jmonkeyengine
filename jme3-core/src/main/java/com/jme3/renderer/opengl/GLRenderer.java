@@ -156,7 +156,7 @@ public final class GLRenderer implements Renderer {
             int major = Integer.parseInt(m.group(1));
             int minor = Integer.parseInt(m.group(2));
             if (minor >= 10 && minor % 10 == 0) {
-                // some versions can look like "1.30" instead of "1.3". 
+                // some versions can look like "1.30" instead of "1.3".
                 // make sure to correct for this
                 minor /= 10;
             }
@@ -348,7 +348,7 @@ public final class GLRenderer implements Renderer {
         if (hasFloatTexture) {
             caps.add(Caps.FloatTexture);
         }
-        
+
         // integer texture format extensions
         if(hasExtension("GL_EXT_texture_integer") || caps.contains(Caps.OpenGL30))
             caps.add(Caps.IntegerTexture);
@@ -441,7 +441,7 @@ public final class GLRenderer implements Renderer {
             limits.put(Limits.TextureAnisotropy, getInteger(GLExt.GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT));
         }
 
-        if (hasExtension("GL_EXT_framebuffer_object") 
+        if (hasExtension("GL_EXT_framebuffer_object")
                 || caps.contains(Caps.OpenGL30)
                 || caps.contains(Caps.OpenGLES20)) {
             caps.add(Caps.FrameBuffer);
@@ -467,7 +467,7 @@ public final class GLRenderer implements Renderer {
                     limits.put(Limits.FrameBufferSamples, limits.get(Limits.ColorTextureSamples));
                 }
             }
- 
+
             if (hasExtension("GL_ARB_draw_buffers") || caps.contains(Caps.OpenGL30) || caps.contains(Caps.OpenGLES30)) {
                 limits.put(Limits.FrameBufferMrtAttachments, getInteger(GLExt.GL_MAX_DRAW_BUFFERS_ARB));
                 if (limits.get(Limits.FrameBufferMrtAttachments) > 1) {
@@ -493,7 +493,7 @@ public final class GLRenderer implements Renderer {
 
         // Supports sRGB pipeline.
         if ( (hasExtension("GL_ARB_framebuffer_sRGB") && hasExtension("GL_EXT_texture_sRGB"))
-                || caps.contains(Caps.OpenGL30) ) {
+                || caps.contains(Caps.OpenGL30)) {
             caps.add(Caps.Srgb);
         }
 
@@ -523,34 +523,43 @@ public final class GLRenderer implements Renderer {
 
         if (hasExtension("GL_ARB_shader_storage_buffer_object")) {
             caps.add(Caps.ShaderStorageBufferObject);
-            limits.put(Limits.ShaderStorageBufferObjectMaxBlockSize, getInteger(GL4.GL_MAX_SHADER_STORAGE_BLOCK_SIZE));
+            limits.put(Limits.ShaderStorageBufferObjectMaxBlockSize,
+                    getInteger(GL4.GL_MAX_SHADER_STORAGE_BLOCK_SIZE));
             // Commented out until we support ComputeShaders and the ComputeShader Cap
             // limits.put(Limits.ShaderStorageBufferObjectMaxComputeBlocks, getInteger(GL4.GL_MAX_COMPUTE_SHADER_STORAGE_BLOCKS));
             if (caps.contains(Caps.GeometryShader)) {
-                limits.put(Limits.ShaderStorageBufferObjectMaxGeometryBlocks, getInteger(GL4.GL_MAX_GEOMETRY_SHADER_STORAGE_BLOCKS));
+                limits.put(Limits.ShaderStorageBufferObjectMaxGeometryBlocks,
+                        getInteger(GL4.GL_MAX_GEOMETRY_SHADER_STORAGE_BLOCKS));
             }
-            limits.put(Limits.ShaderStorageBufferObjectMaxFragmentBlocks, getInteger(GL4.GL_MAX_FRAGMENT_SHADER_STORAGE_BLOCKS));
-            limits.put(Limits.ShaderStorageBufferObjectMaxVertexBlocks, getInteger(GL4.GL_MAX_VERTEX_SHADER_STORAGE_BLOCKS));
+            limits.put(Limits.ShaderStorageBufferObjectMaxFragmentBlocks,
+                    getInteger(GL4.GL_MAX_FRAGMENT_SHADER_STORAGE_BLOCKS));
+            limits.put(Limits.ShaderStorageBufferObjectMaxVertexBlocks,
+                    getInteger(GL4.GL_MAX_VERTEX_SHADER_STORAGE_BLOCKS));
             if (caps.contains(Caps.TesselationShader)) {
-                limits.put(Limits.ShaderStorageBufferObjectMaxTessControlBlocks, getInteger(GL4.GL_MAX_TESS_CONTROL_SHADER_STORAGE_BLOCKS));
-                limits.put(Limits.ShaderStorageBufferObjectMaxTessEvaluationBlocks, getInteger(GL4.GL_MAX_TESS_EVALUATION_SHADER_STORAGE_BLOCKS));
+                limits.put(Limits.ShaderStorageBufferObjectMaxTessControlBlocks,
+                        getInteger(GL4.GL_MAX_TESS_CONTROL_SHADER_STORAGE_BLOCKS));
+                limits.put(Limits.ShaderStorageBufferObjectMaxTessEvaluationBlocks,
+                        getInteger(GL4.GL_MAX_TESS_EVALUATION_SHADER_STORAGE_BLOCKS));
             }
-            limits.put(Limits.ShaderStorageBufferObjectMaxCombineBlocks, getInteger(GL4.GL_MAX_COMBINED_SHADER_STORAGE_BLOCKS));
+            limits.put(Limits.ShaderStorageBufferObjectMaxCombineBlocks,
+                    getInteger(GL4.GL_MAX_COMBINED_SHADER_STORAGE_BLOCKS));
         }
 
         if (hasExtension("GL_ARB_uniform_buffer_object")) {
             caps.add(Caps.UniformBufferObject);
-            limits.put(Limits.UniformBufferObjectMaxBlockSize, getInteger(GL3.GL_MAX_UNIFORM_BLOCK_SIZE));
+            limits.put(Limits.UniformBufferObjectMaxBlockSize,
+                    getInteger(GL3.GL_MAX_UNIFORM_BLOCK_SIZE));
             if (caps.contains(Caps.GeometryShader)) {
-                limits.put(Limits.UniformBufferObjectMaxGeometryBlocks, getInteger(GL3.GL_MAX_GEOMETRY_UNIFORM_BLOCKS));
+                limits.put(Limits.UniformBufferObjectMaxGeometryBlocks,
+                        getInteger(GL3.GL_MAX_GEOMETRY_UNIFORM_BLOCKS));
             }
-            limits.put(Limits.UniformBufferObjectMaxFragmentBlocks, getInteger(GL3.GL_MAX_FRAGMENT_UNIFORM_BLOCKS));
-            limits.put(Limits.UniformBufferObjectMaxVertexBlocks, getInteger(GL3.GL_MAX_VERTEX_UNIFORM_BLOCKS));
+            limits.put(Limits.UniformBufferObjectMaxFragmentBlocks,
+                    getInteger(GL3.GL_MAX_FRAGMENT_UNIFORM_BLOCKS));
+            limits.put(Limits.UniformBufferObjectMaxVertexBlocks,
+                    getInteger(GL3.GL_MAX_VERTEX_UNIFORM_BLOCKS));
         }
 
-
-         
-        if(caps.contains(Caps.OpenGL20)){
+        if (caps.contains(Caps.OpenGL20)) {
             caps.add(Caps.UnpackRowLength);
         }
 
@@ -577,7 +586,7 @@ public final class GLRenderer implements Renderer {
             {
                 sb.append("\t").append(cap.toString()).append("\n");
             }
-            
+
             sb.append("\nHardware limits: \n");
             for (Limits limit : Limits.values()) {
                 Integer value = limits.get(limit);
@@ -587,7 +596,7 @@ public final class GLRenderer implements Renderer {
                 sb.append("\t").append(limit.name()).append(" = ")
                   .append(value).append("\n");
             }
-            
+
             logger.log(Level.FINE, sb.toString());
         }
 
@@ -621,7 +630,7 @@ public final class GLRenderer implements Renderer {
 
         // Initialize default state..
         gl.glPixelStorei(GL.GL_UNPACK_ALIGNMENT, 1);
-        
+
         if (caps.contains(Caps.SeamlessCubemap)) {
             // Enable this globally. Should be OK.
             gl.glEnable(GLExt.GL_TEXTURE_CUBE_MAP_SEAMLESS);
@@ -767,7 +776,7 @@ public final class GLRenderer implements Renderer {
             gl.glDepthFunc(convertTestFunction(state.getDepthFunc()));
             context.depthFunc = state.getDepthFunc();
         }
-        
+
         if (state.isDepthWrite() && !context.depthWriteEnabled) {
             gl.glDepthMask(true);
             context.depthWriteEnabled = true;
@@ -866,10 +875,10 @@ public final class GLRenderer implements Renderer {
                     break;
                 case AlphaSumA:
                     blendFuncSeparate(
-                        RenderState.BlendFunc.Src_Alpha, 
+                        RenderState.BlendFunc.Src_Alpha,
                         RenderState.BlendFunc.One_Minus_Src_Alpha,
                         RenderState.BlendFunc.One,
-                        RenderState.BlendFunc.One                    
+                        RenderState.BlendFunc.One
                     );
                     break;
                 case PremultAlpha:
@@ -1018,7 +1027,7 @@ public final class GLRenderer implements Renderer {
                 throw new UnsupportedOperationException("Unrecognized blend operation: " + blendEquation);
         }
     }
-    
+
     private int convertBlendEquationAlpha(RenderState.BlendEquationAlpha blendEquationAlpha) {
         //Note: InheritColor mode should already be handled, that is why it does not belong the switch case.
         switch (blendEquationAlpha) {
@@ -1036,7 +1045,7 @@ public final class GLRenderer implements Renderer {
                 throw new UnsupportedOperationException("Unrecognized alpha blend operation: " + blendEquationAlpha);
         }
     }
-    
+
     private int convertBlendFunc(BlendFunc blendFunc) {
         switch (blendFunc) {
             case Zero:
@@ -1059,7 +1068,7 @@ public final class GLRenderer implements Renderer {
                 return GL.GL_DST_ALPHA;
             case One_Minus_Dst_Alpha:
                 return GL.GL_ONE_MINUS_DST_ALPHA;
-            case Src_Alpha_Saturate:        
+            case Src_Alpha_Saturate:
                 return GL.GL_SRC_ALPHA_SATURATE;
             default:
                 throw new UnsupportedOperationException("Unrecognized blend function operation: " + blendFunc);
@@ -1176,7 +1185,7 @@ public final class GLRenderer implements Renderer {
     /*=========*\
     |* Shaders *|
     \*=========*/
- 
+
     /**
      * Update the location of the specified Uniform in the specified Shader.
      *
@@ -1446,7 +1455,7 @@ public final class GLRenderer implements Renderer {
                 if (gles2 || gles3) {
                     // request GLSL ES (1.00) when compiling under GLES2.
                     stringBuf.append("#version 100\n");
-                    
+
                 } else {
                     // version 100 does not exist in desktop GLSL.
                     // put version 110 in that case to enable strict checking
@@ -1735,9 +1744,9 @@ public final class GLRenderer implements Renderer {
                 dstX1 = dst.getWidth();
                 dstY1 = dst.getHeight();
             }
-            
+
             int mask = 0;
-            
+
             if(copyColor){
                 mask|=GL.GL_COLOR_BUFFER_BIT;
             }
@@ -1865,9 +1874,9 @@ public final class GLRenderer implements Renderer {
                     image.getId(),
                     rb.getLevel());
         } else {
-            glfbo.glFramebufferTextureLayerEXT(GLFbo.GL_FRAMEBUFFER_EXT, 
-                    convertAttachmentSlot(rb.getSlot()), 
-                    image.getId(), 
+            glfbo.glFramebufferTextureLayerEXT(GLFbo.GL_FRAMEBUFFER_EXT,
+                    convertAttachmentSlot(rb.getSlot()),
+                    image.getId(),
                     rb.getLevel(),
                     rb.getLayer());
         }
@@ -1890,7 +1899,7 @@ public final class GLRenderer implements Renderer {
                     rb.getId());
         }
     }
-    
+
     private void bindFrameBuffer(FrameBuffer fb) {
         if (fb == null) {
             if (context.boundFBO != defaultFBO) {
@@ -1938,7 +1947,7 @@ public final class GLRenderer implements Renderer {
             FrameBuffer.RenderBuffer colorBuf = fb.getColorBuffer(i);
             updateFrameBufferAttachment(fb, colorBuf);
         }
-        
+
         setReadDrawBuffers(fb);
         checkFrameBufferError();
 
@@ -1980,11 +1989,11 @@ public final class GLRenderer implements Renderer {
         if (gl2 == null || gl instanceof GLES_30) {
             return;
         }
-        
+
         final int NONE    = -2;
         final int INITIAL = -1;
         final int MRT_OFF = 100;
-        
+
         if (fb == null) {
             // Set Read/Draw buffers to initial value.
             if (context.boundDrawBuf != INITIAL) {
@@ -2032,7 +2041,7 @@ public final class GLRenderer implements Renderer {
                     intBuf16.flip();
                     glext.glDrawBuffers(intBuf16);
                     context.boundDrawBuf = MRT_OFF + fb.getNumColorBuffers();
-                    
+
                 } else {
                     RenderBuffer rb = fb.getColorBuffer(fb.getTargetIndex());
                     // select this draw buffer
@@ -2043,9 +2052,9 @@ public final class GLRenderer implements Renderer {
                 }
             }
         }
-        
+
     }
-    
+
     @Override
     public void setFrameBuffer(FrameBuffer fb) {
         if (fb == null && mainFbOverride != null) {
@@ -2126,7 +2135,7 @@ public final class GLRenderer implements Renderer {
                     context.boundReadBuf = rb.getSlot();
                 }
             }
- 
+
         } else {
             setFrameBuffer(null);
         }
@@ -2289,7 +2298,7 @@ public final class GLRenderer implements Renderer {
         if (image != null) {
             haveMips = image.isGeneratedMipmapsRequired() || image.hasMipmaps();
         }
-        
+
         LastTextureState curState = image.getLastTextureState();
 
         if (curState.magFilter != tex.getMagFilter()) {
@@ -2357,7 +2366,7 @@ public final class GLRenderer implements Renderer {
             }
             curState.shadowCompareMode = texCompareMode;
         }
-        
+
         // If at this point we didn't bind the texture, bind it now
         bindTextureOnly(target, image, unit);
     }
@@ -2365,7 +2374,7 @@ public final class GLRenderer implements Renderer {
     /**
      * Validates if a potentially NPOT texture is supported by the hardware.
      * <p>
-     * Textures with power-of-2 dimensions are supported on all hardware, however 
+     * Textures with power-of-2 dimensions are supported on all hardware, however
      * non-power-of-2 textures may or may not be supported depending on which
      * texturing features are used.
      *
@@ -2420,7 +2429,7 @@ public final class GLRenderer implements Renderer {
     /**
      * Ensures that the texture is bound to the given unit
      * and that the unit is currently active (for modification).
-     * 
+     *
      * @param target The texture target, one of GL_TEXTURE_***
      * @param img The image texture to bind
      * @param unit At what unit to bind the texture.
@@ -2438,11 +2447,11 @@ public final class GLRenderer implements Renderer {
             statistics.onTextureUse(img, false);
         }
     }
-    
+
     /**
      * Ensures that the texture is bound to the given unit,
      * but does not care if the unit is active (for rendering).
-     * 
+     *
      * @param target The texture target, one of GL_TEXTURE_***
      * @param img The image texture to bind
      * @param unit At what unit to bind the texture.
@@ -2460,7 +2469,7 @@ public final class GLRenderer implements Renderer {
             statistics.onTextureUse(img, false);
         }
     }
-    
+
     /**
      * Uploads the given image to the GL driver.
      *
@@ -2501,7 +2510,7 @@ public final class GLRenderer implements Renderer {
                 }
             } else if (caps.contains(Caps.OpenGL20) || caps.contains(Caps.OpenGLES30)) {
                 if (img.hasMipmaps()) {
-                    // Image already has mipmaps, set the max level based on the 
+                    // Image already has mipmaps, set the max level based on the
                     // number of mipmaps we have.
                     gl.glTexParameteri(target, GL2.GL_TEXTURE_MAX_LEVEL, img.getMipMapSizes().length - 1);
                 } else {
@@ -2647,11 +2656,12 @@ public final class GLRenderer implements Renderer {
             throw new RuntimeException("Renderer lacks texture units?");
         }
 
-        if(caps.contains(Caps.OpenGLES20) && pixels.getFormat()!=tex.getImage().getFormat() ) {
+        if(caps.contains(Caps.OpenGLES20) && pixels.getFormat()!=tex.getImage().getFormat()) {
             logger.log(Level.WARNING, "Incompatible texture subimage");
         }
         int target = convertTextureType(tex.getType(), pixels.getMultiSamples(), -1);
-        texUtil.uploadSubTexture(target,pixels, 0, x, y,0,0,pixels.getWidth(),pixels.getHeight(), linearizeSrgbImages);     
+        texUtil.uploadSubTexture(target, pixels, 0, x, y,
+                0, 0, pixels.getWidth(), pixels.getHeight(), linearizeSrgbImages);
     }
 
      /**
@@ -2665,7 +2675,8 @@ public final class GLRenderer implements Renderer {
      * @param areaW Width of the area to copy
      * @param areaH Height of the area to copy
      */
-    public void modifyTexture(Texture2D dest, Image src, int destX, int destY, int srcX, int srcY, int areaW, int areaH) {
+    public void modifyTexture(Texture2D dest, Image src, int destX, int destY,
+            int srcX, int srcY, int areaW, int areaH) {
         final int textureUnitIndex = 0;
         try {
             setTexture(textureUnitIndex, dest);
@@ -2673,13 +2684,14 @@ public final class GLRenderer implements Renderer {
             throw new RuntimeException("Renderer lacks texture units?");
         }
 
-        if(caps.contains(Caps.OpenGLES20) && src.getFormat()!=dest.getImage().getFormat() ) {
+        if(caps.contains(Caps.OpenGLES20) && src.getFormat()!=dest.getImage().getFormat()) {
             logger.log(Level.WARNING, "Incompatible texture subimage");
         }
         int target = convertTextureType(dest.getType(), src.getMultiSamples(), -1);
-        texUtil.uploadSubTexture(target, src, 0, destX, destY, srcX, srcY, areaW, areaH, linearizeSrgbImages);
+        texUtil.uploadSubTexture(target, src, 0, destX, destY,
+                srcX, srcY, areaW, areaH, linearizeSrgbImages);
     }
-  
+
     @Override
     public void deleteImage(Image image) {
         int texId = image.getId();
@@ -3109,7 +3121,7 @@ public final class GLRenderer implements Renderer {
     /*==============*\
     |* Render Calls *|
     \*==============*/
-    
+
     /**
      * Convert a mesh mode to the corresponding GL value.
      *
@@ -3182,7 +3194,7 @@ public final class GLRenderer implements Renderer {
     private void renderMeshDefault(Mesh mesh, int lod, int count, VertexBuffer[] instanceData) {
 
         // Here while count is still passed in.  Can be removed when/if
-        // the method is collapsed again.  -pspeed        
+        // the method is collapsed again.  -pspeed
         count = Math.max(mesh.getInstanceCount(), count);
 
         VertexBuffer interleavedData = mesh.getBuffer(Type.InterleavedData);
@@ -3220,7 +3232,7 @@ public final class GLRenderer implements Renderer {
         }
 
         clearVertexAttribs();
-        
+
         if (indices != null) {
             drawTriangleList(indices, mesh, count);
         } else {

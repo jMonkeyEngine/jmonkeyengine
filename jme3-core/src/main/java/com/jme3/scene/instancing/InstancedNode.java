@@ -114,7 +114,7 @@ public class InstancedNode extends GeometryGroupNode {
         }
 
         @Override
-        public void cloneFields( Cloner cloner, Object original ) {
+        public void cloneFields(Cloner cloner, Object original) {
             this.mesh = cloner.clone(mesh);
             this.material = cloner.clone(material);
         }
@@ -368,7 +368,7 @@ public class InstancedNode extends GeometryGroupNode {
      *  Called internally by com.jme3.util.clone.Cloner.  Do not call directly.
      */
     @Override
-    public void cloneFields( Cloner cloner, Object original ) {
+    public void cloneFields(Cloner cloner, Object original) {
         super.cloneFields(cloner, original);
 
         this.control = cloner.clone(control);

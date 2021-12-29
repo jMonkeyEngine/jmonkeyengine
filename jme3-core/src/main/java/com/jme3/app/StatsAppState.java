@@ -70,7 +70,7 @@ public class StatsAppState extends AbstractAppState {
     public StatsAppState() {
     }
 
-    public StatsAppState( Node guiNode, BitmapFont guiFont ) {
+    public StatsAppState(Node guiNode, BitmapFont guiFont) {
         this.guiNode = guiNode;
         this.guiFont = guiFont;
     }
@@ -80,10 +80,10 @@ public class StatsAppState extends AbstractAppState {
      *  so that the fpsText can be created before init.  This
      *  is because several applications expect to directly access
      *  fpsText... unfortunately.
-     * 
+     *
      * @param guiFont the desired font (not null, alias created)
      */
-    public void setFont( BitmapFont guiFont ) {
+    public void setFont(BitmapFont guiFont) {
         this.guiFont = guiFont;
         this.fpsText = new BitmapText(guiFont);
     }
@@ -101,8 +101,8 @@ public class StatsAppState extends AbstractAppState {
     }
 
     public void toggleStats() {
-        setDisplayFps( !showFps );
-        setDisplayStatView( !showStats );
+        setDisplayFps(!showFps);
+        setDisplayStatView(!showStats);
     }
 
     public void setDisplayFps(boolean show) {
@@ -118,7 +118,7 @@ public class StatsAppState extends AbstractAppState {
 
     public void setDisplayStatView(boolean show) {
         showStats = show;
-        if (statsView != null ) {
+        if (statsView != null) {
             statsView.setEnabled(show);
             statsView.setCullHint(show ? CullHint.Never : CullHint.Always);
             if (darkenStats != null) {
@@ -146,13 +146,13 @@ public class StatsAppState extends AbstractAppState {
             if (guiNode == null) {
                 guiNode = simpleApp.guiNode;
             }
-            if (guiFont == null ) {
+            if (guiFont == null) {
                 guiFont = simpleApp.guiFont;
             }
         }
 
         if (guiNode == null) {
-            throw new RuntimeException( "No guiNode specific and cannot be automatically determined." );
+            throw new RuntimeException("No guiNode specific and cannot be automatically determined.");
         }
 
         if (guiFont == null) {

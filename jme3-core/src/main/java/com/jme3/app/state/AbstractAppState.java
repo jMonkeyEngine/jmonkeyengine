@@ -55,7 +55,7 @@ public abstract class AbstractAppState implements AppState {
     protected AbstractAppState() {
     }
 
-    protected AbstractAppState( String id ) {
+    protected AbstractAppState(String id) {
         this.id = id;
     }
 
@@ -76,7 +76,7 @@ public abstract class AbstractAppState implements AppState {
      *
      * @param id the desired ID
      */
-    protected void setId( String id ) {
+    protected void setId(String id) {
         this.id = id;
     }
 
