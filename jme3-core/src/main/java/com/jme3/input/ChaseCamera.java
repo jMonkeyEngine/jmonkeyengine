@@ -546,7 +546,9 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
      */
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
-        if (!enabled) {
+        if (enabled) {
+            this.canRotate = !dragToRotate; //On enable, set back to correct state
+        } else {
             canRotate = false; // reset this flag in-case it was on before
         }
     }
