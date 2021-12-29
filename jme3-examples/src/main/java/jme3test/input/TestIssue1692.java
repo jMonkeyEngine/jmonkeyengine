@@ -52,7 +52,6 @@ import com.jme3.scene.shape.Quad;
  */
 public class TestIssue1692 extends SimpleApplication implements ActionListener {
 
-    private Geometry teaGeom;
     private ChaseCamera chaseCam;
     private BitmapText cameraStatus;
 
@@ -64,7 +63,7 @@ public class TestIssue1692 extends SimpleApplication implements ActionListener {
     @Override
     public void simpleInitApp() {
         // Load a teapot model, we will chase this with the camera
-        teaGeom = (Geometry) assetManager.loadModel("Models/Teapot/Teapot.obj");
+        Geometry teaGeom = (Geometry) assetManager.loadModel("Models/Teapot/Teapot.obj");
         Material teapotMaterial = new Material(assetManager, "Common/MatDefs/Misc/ShowNormals.j3md");
         teaGeom.setMaterial(teapotMaterial);
         rootNode.attachChild(teaGeom);
