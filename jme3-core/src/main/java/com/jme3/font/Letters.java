@@ -170,7 +170,7 @@ class Letters {
 
                         // Clear the rest up to the next line feed.
                         // = for texts attached to a textblock all coming characters are cleared except a linefeed is explicitly used
-                        for( LetterQuad q = l.getNext(); !q.isTail() && !q.isLineFeed(); q = q.getNext() ) {
+                        for (LetterQuad q = l.getNext(); !q.isTail() && !q.isLineFeed(); q = q.getNext()) {
                             q.setBitmapChar(null);
                             q.update(block);
                         }

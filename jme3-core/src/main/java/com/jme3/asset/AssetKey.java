@@ -41,7 +41,7 @@ import java.util.logging.Logger;
 
 /**
  * <code>AssetKey</code> is a key that is used to
- * look up a resource from a cache. 
+ * look up a resource from a cache.
  * This class should be immutable.
  */
 public class AssetKey<T> implements Savable, Cloneable {
@@ -49,13 +49,13 @@ public class AssetKey<T> implements Savable, Cloneable {
     protected String name;
     protected transient String folder;
     protected transient String extension;
-    
-    public AssetKey(String name){
+
+    public AssetKey(String name) {
         this.name = reducePath(name);
         this.extension = getExtension(this.name);
     }
 
-    public AssetKey(){
+    public AssetKey() {
     }
 
     @Override
@@ -67,7 +67,7 @@ public class AssetKey<T> implements Savable, Cloneable {
             throw new AssertionError();
         }
     }
-    
+
     protected static String getExtension(String name) {
         int idx = name.lastIndexOf('.');
         //workaround for filenames ending with xml and another dot ending before that (my.mesh.xml)
@@ -110,13 +110,13 @@ public class AssetKey<T> implements Savable, Cloneable {
 
     /**
      * @return The folder in which the asset is located in.
-     * E.g. if the {@link #getName() name} is "Models/MyModel/MyModel.j3o" 
+     * E.g. if the {@link #getName() name} is "Models/MyModel/MyModel.j3o"
      * then "Models/MyModel/" is returned.
      */
-    public String getFolder(){
+    public String getFolder() {
         if (folder == null)
             folder = getFolder(name);
-        
+
         return folder;
     }
 
@@ -125,18 +125,18 @@ public class AssetKey<T> implements Savable, Cloneable {
      * if caching is to be disabled. By default, the
      * {@link SimpleAssetCache} is returned.
      */
-    public Class<? extends AssetCache> getCacheType(){
+    public Class<? extends AssetCache> getCacheType() {
         return SimpleAssetCache.class;
     }
-    
+
     /**
      * @return The preferred processor type for this asset type. Specify "null"
      * if no processing is required.
      */
-    public Class<? extends AssetProcessor> getProcessorType(){
+    public Class<? extends AssetProcessor> getProcessorType() {
         return null;
     }
-    
+
     /**
      * Removes all relative elements of a path (A/B/../C.png and A/./C.png).
      * @param path The path containing relative elements
@@ -157,7 +157,8 @@ public class AssetKey<T> implements Savable, Cloneable {
                     list.removeLast();
                 } else {
                     list.add("..");
-                    Logger.getLogger(AssetKey.class.getName()).log(Level.SEVERE, "Asset path \"{0}\" is outside assetmanager root", path);
+                    Logger.getLogger(AssetKey.class.getName())
+                            .log(Level.SEVERE, "Asset path \"{0}\" is outside assetmanager root", path);
                 }
             } else {
                 list.add(string);
@@ -173,22 +174,22 @@ public class AssetKey<T> implements Savable, Cloneable {
         }
         return builder.toString();
     }
-    
+
     @Override
-    public boolean equals(Object other){
-        if (!(other instanceof AssetKey)){
+    public boolean equals(Object other) {
+        if (!(other instanceof AssetKey)) {
             return false;
         }
         return name.equals(((AssetKey)other).name);
     }
 
     @Override
-    public int hashCode(){
+    public int hashCode() {
         return name.hashCode();
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         return name;
     }
 
@@ -204,5 +205,4 @@ public class AssetKey<T> implements Savable, Cloneable {
         name = reducePath(ic.readString("name", null));
         extension = getExtension(name);
     }
-
 }

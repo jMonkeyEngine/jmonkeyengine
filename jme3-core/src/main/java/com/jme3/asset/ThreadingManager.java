@@ -37,18 +37,18 @@ import java.util.concurrent.*;
  * <code>ThreadingManager</code> manages the threads used to load content
  * within the Content Manager system. A pool of threads and a task queue
  * is used to load resource data and perform I/O while the application's
- * render thread is active. 
+ * render thread is active.
  */
 public class ThreadingManager {
 
     protected final ExecutorService executor =
-            Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors(), 
+            Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors(),
                                          new LoadingThreadFactory());
 
     protected final AssetManager owner;
     protected int nextThreadId = 0;
 
-    public ThreadingManager(AssetManager owner){
+    public ThreadingManager(AssetManager owner) {
         this.owner = owner;
     }
 
@@ -83,6 +83,4 @@ public class ThreadingManager {
     public static boolean isLoadingThread() {
         return Thread.currentThread().getName().startsWith("jME3-threadpool");
     }
-
-
 }

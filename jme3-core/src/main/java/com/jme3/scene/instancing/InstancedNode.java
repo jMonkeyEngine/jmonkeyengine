@@ -375,13 +375,13 @@ public class InstancedNode extends GeometryGroupNode {
         this.lookUp = cloner.clone(lookUp);
 
         HashMap<Geometry, InstancedGeometry> newIgByGeom = new HashMap<>();
-        for( Map.Entry<Geometry, InstancedGeometry> e : igByGeom.entrySet() ) {
+        for (Map.Entry<Geometry, InstancedGeometry> e : igByGeom.entrySet()) {
             newIgByGeom.put(cloner.clone(e.getKey()), cloner.clone(e.getValue()));
         }
         this.igByGeom = newIgByGeom;
 
         HashMap<InstanceTypeKey, InstancedGeometry> newInstancesMap = new HashMap<>();
-        for( Map.Entry<InstanceTypeKey, InstancedGeometry> e : instancesMap.entrySet() ) {
+        for (Map.Entry<InstanceTypeKey, InstancedGeometry> e : instancesMap.entrySet()) {
             newInstancesMap.put(cloner.clone(e.getKey()), cloner.clone(e.getValue()));
         }
         this.instancesMap = newInstancesMap;

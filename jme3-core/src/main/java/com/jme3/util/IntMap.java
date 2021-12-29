@@ -112,7 +112,7 @@ public final class IntMap<T> implements Iterable<Entry<T>>, Cloneable, JmeClonea
      *  Called internally by com.jme3.util.clone.Cloner.  Do not call directly.
      */
     @Override
-    public void cloneFields( Cloner cloner, Object original ) {
+    public void cloneFields(Cloner cloner, Object original) {
         this.table = cloner.clone(table);
     }
 
@@ -217,7 +217,7 @@ public final class IntMap<T> implements Iterable<Entry<T>>, Cloneable, JmeClonea
 
     public void clear() {
         Entry[] table = this.table;
-        for (int index = table.length; --index >= 0;){
+        for (int index = table.length; --index >= 0;) {
             table[index] = null;
         }
         size = 0;
@@ -267,7 +267,7 @@ public final class IntMap<T> implements Iterable<Entry<T>>, Cloneable, JmeClonea
             if (el >= size)
                 throw new NoSuchElementException("No more elements!");
 
-            if (cur != null){
+            if (cur != null) {
                 Entry e = cur;
                 cur = cur.next;
                 el++;
@@ -296,7 +296,6 @@ public final class IntMap<T> implements Iterable<Entry<T>>, Cloneable, JmeClonea
         @Override
         public void remove() {
         }
-
     }
 
     public static final class Entry<T> implements Cloneable, JmeCloneable {
@@ -327,11 +326,11 @@ public final class IntMap<T> implements Iterable<Entry<T>>, Cloneable, JmeClonea
         @Override
         @SuppressWarnings("unchecked")
         public Entry<T> clone(){
-            try{
+            try {
                 Entry<T> clone = (Entry<T>) super.clone();
                 clone.next = next != null ? next.clone() : null;
                 return clone;
-            }catch (CloneNotSupportedException ex){
+            } catch (CloneNotSupportedException ex) {
             }
             return null;
         }
@@ -346,7 +345,7 @@ public final class IntMap<T> implements Iterable<Entry<T>>, Cloneable, JmeClonea
         }
 
         @Override
-        public void cloneFields( Cloner cloner, Object original ) {
+        public void cloneFields(Cloner cloner, Object original) {
             this.value = cloner.clone(value);
             this.next = cloner.clone(next);
         }

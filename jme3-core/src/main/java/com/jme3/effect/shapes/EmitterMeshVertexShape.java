@@ -204,7 +204,7 @@ public class EmitterMeshVertexShape implements EmitterShape {
         this.vertices = ic.readSavableArrayList("vertices", null);
 
         List<List<Vector3f>> tmpNormals = ic.readSavableArrayList("normals", null);
-        if (tmpNormals != null){
+        if (tmpNormals != null) {
             this.normals = tmpNormals;
         }
     }

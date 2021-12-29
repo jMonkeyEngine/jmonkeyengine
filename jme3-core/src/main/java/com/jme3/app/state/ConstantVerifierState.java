@@ -64,10 +64,13 @@ public class ConstantVerifierState extends BaseAppState {
             new Checker(Vector3f.UNIT_Y, new Vector3f(0, 1, 0)),
             new Checker(Vector3f.UNIT_Z, new Vector3f(0, 0, 1)),
             new Checker(Vector3f.UNIT_XYZ, new Vector3f(1, 1, 1)),
-            new Checker(Vector3f.POSITIVE_INFINITY, new Vector3f(POSITIVE_INFINITY, POSITIVE_INFINITY, POSITIVE_INFINITY)),
-            new Checker(Vector3f.NEGATIVE_INFINITY, new Vector3f(NEGATIVE_INFINITY, NEGATIVE_INFINITY, NEGATIVE_INFINITY)),
+            new Checker(Vector3f.POSITIVE_INFINITY,
+                    new Vector3f(POSITIVE_INFINITY, POSITIVE_INFINITY, POSITIVE_INFINITY)),
+            new Checker(Vector3f.NEGATIVE_INFINITY,
+                    new Vector3f(NEGATIVE_INFINITY, NEGATIVE_INFINITY, NEGATIVE_INFINITY)),
             new Checker(Quaternion.IDENTITY, new Quaternion()),
-            new Checker(Quaternion.DIRECTION_Z, new Quaternion().fromAxes(Vector3f.UNIT_X, Vector3f.UNIT_Y, Vector3f.UNIT_Z)),
+            new Checker(Quaternion.DIRECTION_Z,
+                    new Quaternion().fromAxes(Vector3f.UNIT_X, Vector3f.UNIT_Y, Vector3f.UNIT_Z)),
             new Checker(Quaternion.ZERO, new Quaternion(0, 0, 0, 0)),
             new Checker(Vector2f.ZERO, new Vector2f(0f, 0f)),
             new Checker(Vector2f.UNIT_XY, new Vector2f(1f, 1f)),
@@ -78,8 +81,10 @@ public class ConstantVerifierState extends BaseAppState {
             new Checker(Vector4f.UNIT_Z, new Vector4f(0, 0, 1, 0)),
             new Checker(Vector4f.UNIT_W, new Vector4f(0, 0, 0, 1)),
             new Checker(Vector4f.UNIT_XYZW, new Vector4f(1, 1, 1, 1)),
-            new Checker(Vector4f.POSITIVE_INFINITY, new Vector4f(POSITIVE_INFINITY, POSITIVE_INFINITY, POSITIVE_INFINITY, POSITIVE_INFINITY)),
-            new Checker(Vector4f.NEGATIVE_INFINITY, new Vector4f(NEGATIVE_INFINITY, NEGATIVE_INFINITY, NEGATIVE_INFINITY, NEGATIVE_INFINITY)),
+            new Checker(Vector4f.POSITIVE_INFINITY,
+                    new Vector4f(POSITIVE_INFINITY, POSITIVE_INFINITY, POSITIVE_INFINITY, POSITIVE_INFINITY)),
+            new Checker(Vector4f.NEGATIVE_INFINITY,
+                    new Vector4f(NEGATIVE_INFINITY, NEGATIVE_INFINITY, NEGATIVE_INFINITY, NEGATIVE_INFINITY)),
             new Checker(Matrix3f.ZERO, new Matrix3f(0, 0, 0, 0, 0, 0, 0, 0, 0)),
             new Checker(Matrix3f.IDENTITY, new Matrix3f()),
             new Checker(Matrix4f.ZERO, new Matrix4f(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)),
@@ -105,7 +110,7 @@ public class ConstantVerifierState extends BaseAppState {
      *
      * @param errorType the mechanism to use
      */
-    public ConstantVerifierState( ErrorType errorType ) {
+    public ConstantVerifierState(ErrorType errorType) {
         this(errorType, DEFAULT_CHECKS);
     }
 
@@ -116,16 +121,16 @@ public class ConstantVerifierState extends BaseAppState {
      * @param errorType the mechanism to use
      * @param checkers which checks to perform
      */
-    private ConstantVerifierState( ErrorType errorType, Checker... checkers ) {
+    private ConstantVerifierState(ErrorType errorType, Checker... checkers) {
         this.errorType = errorType;
         this.checkers.addAll(Arrays.asList(checkers));
     }
 
-    public void addChecker( Object constant, Object goodValue ) {
+    public void addChecker(Object constant, Object goodValue) {
         checkers.add(new Checker(constant, goodValue));
     }
 
-    public void setErrorType( ErrorType errorType ) {
+    public void setErrorType(ErrorType errorType) {
         this.errorType = errorType;
     }
 
@@ -134,11 +139,11 @@ public class ConstantVerifierState extends BaseAppState {
     }
 
     @Override
-    protected void initialize( Application app ) {
+    protected void initialize(Application app) {
     }
 
     @Override
-    protected void cleanup( Application app ) {
+    protected void cleanup(Application app) {
     }
 
     @Override
@@ -187,11 +192,12 @@ public class ConstantVerifierState extends BaseAppState {
         private Object goodValue;
 
         public Checker(Object constant, Object goodValue) {
-            if( constant == null ) {
+            if (constant == null) {
                 throw new IllegalArgumentException("Constant cannot be null");
             }
-            if( !constant.equals(goodValue) ) {
-                throw new IllegalArgumentException("Constant value:" + constant + " does not match value:" + goodValue);
+            if (!constant.equals(goodValue)) {
+                throw new IllegalArgumentException(
+                        "Constant value:" + constant + " does not match value:" + goodValue);
             }
             this.constant = constant;
             this.goodValue = goodValue;

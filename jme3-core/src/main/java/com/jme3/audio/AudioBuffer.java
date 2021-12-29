@@ -51,11 +51,11 @@ public class AudioBuffer extends AudioData {
      */
     protected ByteBuffer audioData;
 
-    public AudioBuffer(){
+    public AudioBuffer() {
         super();
     }
-    
-    protected AudioBuffer(int id){
+
+    protected AudioBuffer(int id) {
         super(id);
     }
 
@@ -69,7 +69,7 @@ public class AudioBuffer extends AudioData {
      * that audio is uncompressed.
      */
     @Override
-    public float getDuration(){
+    public float getDuration() {
         int bytesPerSec = (bitsPerSample / 8) * channels * sampleRate;
         if (audioData != null)
             return (float) audioData.limit() / bytesPerSec;
@@ -78,7 +78,7 @@ public class AudioBuffer extends AudioData {
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         return getClass().getSimpleName() +
                "[id="+id+", ch="+channels+", bits="+bitsPerSample +
                ", rate="+sampleRate+", duration="+getDuration()+"]";
@@ -90,7 +90,7 @@ public class AudioBuffer extends AudioData {
      * @param data the audio data provided (not null, direct, alias created)
      * @throws IllegalArgumentException if the provided buffer is not a direct buffer
      */
-    public void updateData(ByteBuffer data){
+    public void updateData(ByteBuffer data) {
         if (!data.isDirect()) {
             throw new IllegalArgumentException(
                     "Currently only direct buffers are allowed");
@@ -103,7 +103,7 @@ public class AudioBuffer extends AudioData {
     /**
      * @return The buffered audio data.
      */
-    public ByteBuffer getData(){
+    public ByteBuffer getData() {
         return audioData;
     }
 
@@ -119,10 +119,10 @@ public class AudioBuffer extends AudioData {
             BufferUtils.destroyDirectBuffer(audioData);
         }
     }
-    
+
     @Override
     public void deleteObject(Object rendererObject) {
-        ((AudioRenderer)rendererObject).deleteAudioData(this);
+        ((AudioRenderer) rendererObject).deleteAudioData(this);
     }
 
     @Override
@@ -132,6 +132,6 @@ public class AudioBuffer extends AudioData {
 
     @Override
     public long getUniqueId() {
-        return ((long)OBJTYPE_AUDIOBUFFER << 32) | ((long)id);
+        return ((long) OBJTYPE_AUDIOBUFFER << 32) | ((long) id);
     }
 }

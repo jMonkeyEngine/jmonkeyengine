@@ -123,7 +123,7 @@ public class TechniqueDef implements Savable, Cloneable {
         InPass,
         PostPass,
     }
-    
+
     /**
      * Define in what space the light data should be sent to the shader.
      */
@@ -136,7 +136,7 @@ public class TechniqueDef implements Savable, Cloneable {
     private final EnumSet<Caps> requiredCaps = EnumSet.noneOf(Caps.class);
     private String name;
     private int sortId;
-    
+
     private EnumMap<Shader.ShaderType,String> shaderLanguages;
     private EnumMap<Shader.ShaderType,String> shaderNames;
 
@@ -145,7 +145,7 @@ public class TechniqueDef implements Savable, Cloneable {
     private ArrayList<VarType> defineTypes;
     private HashMap<String, Integer> paramToDefineId;
     private final HashMap<DefineList, Shader> definesToShaderMap;
-    
+
     private boolean usesNodes = false;
     private List<ShaderNode> shaderNodes;
     private ShaderGenerationInfo shaderGenerationInfo;
@@ -173,7 +173,7 @@ public class TechniqueDef implements Savable, Cloneable {
      * @param name The name of the technique
      * @param sortId a unique ID for sorting
      */
-    public TechniqueDef(String name, int sortId){
+    public TechniqueDef(String name, int sortId) {
         this();
         this.sortId = sortId;
         this.name = name;
@@ -191,9 +191,9 @@ public class TechniqueDef implements Savable, Cloneable {
         definesToShaderMap = new HashMap<DefineList, Shader>();
         worldBinds = new ArrayList<>();
     }
-    
+
     /**
-     * @return A unique sort ID. 
+     * @return A unique sort ID.
      * No other technique definition can have the same ID.
      */
     public int getSortId() {
@@ -207,7 +207,7 @@ public class TechniqueDef implements Savable, Cloneable {
      *
      * @return the name of this technique
      */
-    public String getName(){
+    public String getName() {
         return name;
     }
 
@@ -230,15 +230,15 @@ public class TechniqueDef implements Savable, Cloneable {
     public void setLightMode(LightMode lightMode) {
         this.lightMode = lightMode;
         //if light space is not specified we set it to Legacy
-        if(lightSpace == null){
-            if(lightMode== LightMode.MultiPass){
+        if (lightSpace == null) {
+            if (lightMode== LightMode.MultiPass) {
                 lightSpace = LightSpace.Legacy;
-            }else{
+            } else {
                 lightSpace = LightSpace.World;
             }
         }
     }
-    
+
     public void setLogic(TechniqueDefLogic logic) {
         this.logic = logic;
     }
@@ -246,7 +246,7 @@ public class TechniqueDef implements Savable, Cloneable {
     public TechniqueDefLogic getLogic() {
         return logic;
     }
-    
+
     /**
      * Returns the shadow mode.
      * @return the shadow mode.
@@ -304,7 +304,7 @@ public class TechniqueDef implements Savable, Cloneable {
      * @return true if this technique should not be rendered, false otherwise.
      *
      */
-    public boolean isNoRender(){
+    public boolean isNoRender() {
         return noRender;
     }
 
@@ -314,7 +314,7 @@ public class TechniqueDef implements Savable, Cloneable {
      * @return true if this technique uses Shader Nodes, false otherwise.
      *
      */
-    public boolean isUsingShaderNodes(){
+    public boolean isUsingShaderNodes() {
         return usesNodes;
     }
 
@@ -353,22 +353,22 @@ public class TechniqueDef implements Savable, Cloneable {
 
     /**
      * Set a string which is prepended to every shader used by this technique.
-     * 
+     *
      * Typically this is used for preset defines.
-     * 
+     *
      * @param shaderPrologue The prologue to append before the technique's shaders.
      */
     public void setShaderPrologue(String shaderPrologue) {
         this.shaderPrologue = shaderPrologue;
     }
-    
+
     /**
      * @return the shader prologue which is prepended to every shader.
      */
     public String getShaderPrologue() {
         return shaderPrologue;
     }
-    
+
     /**
      * Returns the define name which the given material parameter influences.
      *
@@ -377,7 +377,7 @@ public class TechniqueDef implements Savable, Cloneable {
      *
      * @see #addShaderParamDefine(java.lang.String, com.jme3.shader.VarType, java.lang.String)
      */
-    public String getShaderParamDefine(String paramName){
+    public String getShaderParamDefine(String paramName) {
         Integer defineId = paramToDefineId.get(paramName);
         if (defineId != null) {
             return defineNames.get(defineId);
@@ -385,7 +385,7 @@ public class TechniqueDef implements Savable, Cloneable {
             return null;
         }
     }
-    
+
     /**
      * Get the define ID for a given material parameter.
      *
@@ -405,13 +405,13 @@ public class TechniqueDef implements Savable, Cloneable {
     public VarType getDefineIdType(int defineId) {
         return defineId < defineTypes.size() ? defineTypes.get(defineId) : null;
     }
-    
+
     /**
      * Adds a define linked to a material parameter.
      * <p>
      * Any time the material parameter on the parent material is altered,
      * the appropriate define on the technique will be modified as well.
-     * When set, the material parameter will be mapped to an integer define, 
+     * When set, the material parameter will be mapped to an integer define,
      * typically <code>1</code> if it is set, unless it is an integer or a float,
      * in which case it will be converted into an integer.
      *
@@ -419,14 +419,14 @@ public class TechniqueDef implements Savable, Cloneable {
      * @param paramType The type of the material parameter to link to.
      * @param defineName The name of the define parameter, e.g. USE_LIGHTING
      */
-    public void addShaderParamDefine(String paramName, VarType paramType, String defineName){
+    public void addShaderParamDefine(String paramName, VarType paramType, String defineName) {
         int defineId = defineNames.size();
-        
+
         if (defineId >= DefineList.MAX_DEFINES) {
-            throw new IllegalStateException("Cannot have more than " + 
+            throw new IllegalStateException("Cannot have more than " +
                     DefineList.MAX_DEFINES + " defines on a technique.");
         }
-        
+
         paramToDefineId.put(paramName, defineId);
         defineNames.add(defineName);
         defineTypes.add(paramType);
@@ -434,22 +434,22 @@ public class TechniqueDef implements Savable, Cloneable {
 
     /**
      * Add an unmapped define which can only be set by define ID.
-     * 
-     * Unmapped defines are used by technique renderers to 
+     *
+     * Unmapped defines are used by technique renderers to
      * configure the shader internally before rendering.
-     * 
+     *
      * @param defineName The define name to create
      * @param defineType the type for the new define
      * @return The define ID of the created define
      */
     public int addShaderUnmappedDefine(String defineName, VarType defineType) {
         int defineId = defineNames.size();
-        
+
         if (defineId >= DefineList.MAX_DEFINES) {
-            throw new IllegalStateException("Cannot have more than " + 
+            throw new IllegalStateException("Cannot have more than " +
                     DefineList.MAX_DEFINES + " defines on a technique.");
         }
-        
+
         defineNames.add(defineName);
         defineTypes.add(defineType);
         return defineId;
@@ -476,18 +476,18 @@ public class TechniqueDef implements Savable, Cloneable {
     public VarType[] getDefineTypes() {
         return defineTypes.toArray(new VarType[0]);
     }
-    
+
     /**
      * Create a define list with the size matching the number
      * of defines on this technique.
-     * 
+     *
      * @return a define list with the size matching the number
      * of defines on this technique.
      */
     public DefineList createDefineList() {
         return new DefineList(defineNames.size());
     }
-    
+
     private Shader loadShader(AssetManager assetManager, EnumSet<Caps> rendererCaps, DefineList defines) {
         StringBuilder sb = new StringBuilder();
         sb.append(shaderPrologue);
@@ -519,10 +519,10 @@ public class TechniqueDef implements Savable, Cloneable {
         for (final UniformBinding binding : getWorldBindings()) {
             shader.addUniformBinding(binding);
         }
-        
+
         return shader;
     }
-    
+
     public Shader getShader(AssetManager assetManager, EnumSet<Caps> rendererCaps, DefineList defines) {
           Shader shader = definesToShaderMap.get(defines);
           if (shader == null) {
@@ -531,14 +531,15 @@ public class TechniqueDef implements Savable, Cloneable {
           }
           return shader;
      }
-    
+
     /**
      * Sets the shaders that this technique definition will use.
      *
      * @param shaderNames EnumMap containing all shader names for this stage
      * @param shaderLanguages EnumMap containing all shader languages for this stage
      */
-    public void setShaderFile(EnumMap<Shader.ShaderType, String> shaderNames, EnumMap<Shader.ShaderType, String> shaderLanguages) {
+    public void setShaderFile(EnumMap<Shader.ShaderType, String> shaderNames,
+            EnumMap<Shader.ShaderType, String> shaderLanguages) {
         requiredCaps.clear();
 
         weight = 0;
@@ -584,7 +585,7 @@ public class TechniqueDef implements Savable, Cloneable {
 
     /**
      * Returns the language of the fragment shader used in this technique.
-     * 
+     *
      * @return the name of the language (such as "GLSL100")
      */
     public String getFragmentShaderLanguage() {
@@ -593,7 +594,7 @@ public class TechniqueDef implements Savable, Cloneable {
 
     /**
      * Returns the language of the vertex shader used in this technique.
-     * 
+     *
      * @return the name of the language (such as "GLSL100")
      */
     public String getVertexShaderLanguage() {
@@ -604,14 +605,14 @@ public class TechniqueDef implements Savable, Cloneable {
      * @param shaderType Fragment/Vertex/etcetera
      * @return the name of the language
      */
-    public String getShaderProgramLanguage(Shader.ShaderType shaderType){
+    public String getShaderProgramLanguage(Shader.ShaderType shaderType) {
         return shaderLanguages.get(shaderType);
     }
     /**Returns the name for each shader program
      * @param shaderType Fragment/Vertex/etcetera
      * @return the name of the program
      */
-    public String getShaderProgramName(Shader.ShaderType shaderType){
+    public String getShaderProgramName(Shader.ShaderType shaderType) {
         return shaderNames.get(shaderType);
     }
 
@@ -659,7 +660,7 @@ public class TechniqueDef implements Savable, Cloneable {
     }
 
     @Override
-    public void write(JmeExporter ex) throws IOException{
+    public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(name, "name", null);
 
@@ -691,7 +692,7 @@ public class TechniqueDef implements Savable, Cloneable {
 
     @Override
     @SuppressWarnings("unchecked")
-    public void read(JmeImporter im) throws IOException{
+    public void read(JmeImporter im) throws IOException {
         InputCapsule ic = im.getCapsule(this);
         name = ic.readString("name", null);
         shaderNames.put(Shader.ShaderType.Vertex,ic.readString("vertName", null));
@@ -823,7 +824,8 @@ public class TechniqueDef implements Savable, Cloneable {
 
         try {
             clone.logic = logic.getClass().getConstructor(TechniqueDef.class).newInstance(clone);
-        } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+        } catch (InstantiationException | IllegalAccessException
+                | NoSuchMethodException | InvocationTargetException e) {
             e.printStackTrace();
         }
 

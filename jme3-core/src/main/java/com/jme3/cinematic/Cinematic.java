@@ -277,7 +277,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
         for (CinematicEvent cinematicEvent : cinematicEvents) {
             cinematicEvent.initEvent(app, this);
         }
-        if(!cameras.isEmpty()){
+        if (!cameras.isEmpty()) {
             for (CameraNode n : cameras.values()) {
                 n.setCamera(app.getCamera());
             }
@@ -698,7 +698,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
      */
     public void setScene(Node scene) {
         this.scene = scene;
-        if(!cameras.isEmpty()){
+        if (!cameras.isEmpty()) {
             for (CameraNode n : cameras.values()) {
                 this.scene.attachChild(n);
             }

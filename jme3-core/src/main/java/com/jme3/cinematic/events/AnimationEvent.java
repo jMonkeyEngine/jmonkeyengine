@@ -295,8 +295,9 @@ public class AnimationEvent extends AbstractCinematicEvent {
             if (s == null) {
                 s = new HashMap<Integer, AnimChannel>();
                 int numChannels = model.getControl(AnimControl.class).getNumChannels();
-                for (int i = 0; i < numChannels; i++){
-                    ((HashMap<Integer, AnimChannel>)s).put(i, model.getControl(AnimControl.class).getChannel(i));
+                for (int i = 0; i < numChannels; i++) {
+                    ((HashMap<Integer, AnimChannel>) s)
+                            .put(i, model.getControl(AnimControl.class).getChannel(i));
                 }
                 cinematic.putEventData(MODEL_CHANNELS, model, s);
             }
@@ -311,9 +312,9 @@ public class AnimationEvent extends AbstractCinematicEvent {
                     model = cinematic.getScene().getChild(modelName);
                 }
                 if (model != null) {
-                    if(cinematic.getScene() != null){
+                    if (cinematic.getScene() != null) {
                         Spatial sceneModel = cinematic.getScene().getChild(model.getName());
-                        if(sceneModel != null){
+                        if (sceneModel != null) {
                             Node parent = sceneModel.getParent();
                             parent.detachChild(sceneModel);
                             sceneModel = model;
@@ -330,7 +331,6 @@ public class AnimationEvent extends AbstractCinematicEvent {
                     throw new UnsupportedOperationException("model should not be null");
                 }
             }
-
         }
     }
 
@@ -365,7 +365,6 @@ public class AnimationEvent extends AbstractCinematicEvent {
             channel.setTime(t);
             channel.getControl().update(0);
         }
-
     }
 
     @Override
@@ -429,7 +428,6 @@ public class AnimationEvent extends AbstractCinematicEvent {
         oc.write(animationName, "animationName", "");
         oc.write(blendTime, "blendTime", 0f);
         oc.write(channelIndex, "channelIndex", 0);
-
     }
 
     @Override

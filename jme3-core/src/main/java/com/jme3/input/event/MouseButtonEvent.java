@@ -35,7 +35,7 @@ import com.jme3.input.MouseInput;
 
 /**
  * Mouse button press/release event.
- * 
+ *
  * @author Kirill Vainer
  */
 public class MouseButtonEvent extends InputEvent {
@@ -56,7 +56,7 @@ public class MouseButtonEvent extends InputEvent {
      * Returns the mouse button index.
      * <p>
      * See constants in {@link MouseInput}.
-     * 
+     *
      * @return the mouse button index.
      */
     public int getButtonIndex() {
@@ -65,7 +65,7 @@ public class MouseButtonEvent extends InputEvent {
 
     /**
      * Returns true if the mouse button was pressed, false if it was released.
-     * 
+     *
      * @return true if the mouse button was pressed, false if it was released.
      */
     public boolean isPressed() {
@@ -74,13 +74,13 @@ public class MouseButtonEvent extends InputEvent {
 
     /**
      * Returns true if the mouse button was released, false if it was pressed.
-     * 
+     *
      * @return true if the mouse button was released, false if it was pressed.
      */
     public boolean isReleased() {
         return !pressed;
     }
-    
+
     /**
      * The X coordinate of the mouse when the event was generated.
      * @return X coordinate of the mouse when the event was generated.
@@ -88,7 +88,7 @@ public class MouseButtonEvent extends InputEvent {
     public int getX() {
         return x;
     }
-    
+
     /**
      * The Y coordinate of the mouse when the event was generated.
      * @return Y coordinate of the mouse when the event was generated.
@@ -96,15 +96,14 @@ public class MouseButtonEvent extends InputEvent {
     public int getY() {
         return y;
     }
-    
+
     @Override
     public String toString(){
         String str = "MouseButton(BTN="+btnIndex;
-        if (pressed){
+        if (pressed) {
             return str + ", PRESSED)";
-        }else{
+        } else {
             return str + ", RELEASED)";
         }
     }
-
 }

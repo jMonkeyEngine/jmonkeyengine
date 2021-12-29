@@ -63,30 +63,30 @@ public class CollisionResult implements Comparable<CollisionResult> {
         this.distance = distance;
     }
 
-    public CollisionResult(){
+    public CollisionResult() {
     }
 
-    public void setGeometry(Geometry geom){
+    public void setGeometry(Geometry geom) {
         this.geometry = geom;
     }
 
-    public void setContactNormal(Vector3f norm){
+    public void setContactNormal(Vector3f norm) {
         this.contactNormal = norm;
     }
 
-    public void setContactPoint(Vector3f point){
+    public void setContactPoint(Vector3f point) {
         this.contactPoint = point;
     }
 
-    public void setDistance(float dist){
+    public void setDistance(float dist) {
         this.distance = dist;
     }
 
-    public void setTriangleIndex(int index){
+    public void setTriangleIndex(int index) {
         this.triangleIndex = index;
     }
 
-    public Triangle getTriangle(Triangle store){
+    public Triangle getTriangle(Triangle store) {
         if (store == null)
             store = new Triangle();
 
@@ -104,7 +104,7 @@ public class CollisionResult implements Comparable<CollisionResult> {
 
     @Override
     public boolean equals(Object obj) {
-        if(obj instanceof CollisionResult){
+        if (obj instanceof CollisionResult) {
             return ((CollisionResult)obj).compareTo(this) == 0;
         }
         return super.equals(obj);

@@ -183,8 +183,8 @@ public class ShaderNodeDefinition implements Savable {
     public void setPath(String path) {
         this.path = path;
     }
-    
-    
+
+
 
     /**
      * jme serialization (not used)
@@ -220,8 +220,8 @@ public class ShaderNodeDefinition implements Savable {
         this.noOutput = noOutput;
     }
 
-    
-    
+
+
     /**
      * jme serialization (not used)
      *
@@ -260,6 +260,8 @@ public class ShaderNodeDefinition implements Savable {
      */
     @Override
     public String toString() {
-        return "\nShaderNodeDefinition{\n" + "name=" + name + "\ntype=" + type + "\nshaderPath=" + shadersPath + "\nshaderLanguage=" + shadersLanguage + "\ndocumentation=" + documentation + "\ninputs=" + inputs + ",\noutputs=" + outputs + '}';
+        return "\nShaderNodeDefinition{\n" + "name=" + name + "\ntype=" + type
+                + "\nshaderPath=" + shadersPath + "\nshaderLanguage=" + shadersLanguage
+                + "\ndocumentation=" + documentation + "\ninputs=" + inputs + ",\noutputs=" + outputs + '}';
     }
 }

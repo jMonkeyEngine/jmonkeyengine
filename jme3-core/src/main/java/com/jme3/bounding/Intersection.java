@@ -108,7 +108,7 @@ public final class Intersection {
         }
     }
 
-    public static boolean intersect(Camera camera, Vector3f center,float radius){
+    public static boolean intersect(Camera camera, Vector3f center,float radius) {
         for (int i = 5; i >= 0; i--) {
             if (camera.getWorldPlane(i).pseudoDistance(center) <= -radius) {
                 return false;

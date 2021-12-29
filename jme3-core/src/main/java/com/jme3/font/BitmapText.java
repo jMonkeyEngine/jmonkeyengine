@@ -91,14 +91,14 @@ public class BitmapText extends Node {
      *  Called internally by com.jme3.util.clone.Cloner.  Do not call directly.
      */
     @Override
-    public void cloneFields( Cloner cloner, Object original ) {
+    public void cloneFields(Cloner cloner, Object original) {
         super.cloneFields(cloner, original);
 
         textPages = textPages.clone();
-        for( int i = 0; i < textPages.length; i++ ) {
+        for (int i = 0; i < textPages.length; i++) {
             textPages[i] = cloner.clone(textPages[i]);
         }
-        
+
         // Cannot use the cloner to clone the StringBlock because it
         // is package private... so we'll forgo the (probably unnecessary)
         // reference fixup in this case and just clone it directly.
@@ -276,7 +276,8 @@ public class BitmapText extends Node {
         if (textBox != null) {
             return Math.max(letters.getTotalWidth(), textBox.width);
         }
-      //  Please note that BitMaptext.getLineWidth() might differ from Font.getLineWidth() -->   scale it with Font.getPreferredSize()/BitMaptext.getSize()
+        //  Please note that BitMaptext.getLineWidth() might differ from Font.getLineWidth()
+        // -->   scale it with Font.getPreferredSize()/BitMaptext.getSize()
         return letters.getTotalWidth();
     }
 

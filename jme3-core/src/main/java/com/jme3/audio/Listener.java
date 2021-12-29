@@ -42,20 +42,20 @@ public class Listener {
     private float volume = 1;
     private AudioRenderer renderer;
 
-    public Listener(){
+    public Listener() {
         location = new Vector3f();
         velocity = new Vector3f();
         rotation = new Quaternion();
     }
     
-    public Listener(Listener source){
+    public Listener(Listener source) {
         location = source.location.clone();
         velocity = source.velocity.clone();
         rotation = source.rotation.clone();
         volume = source.volume;
     }
 
-    public void setRenderer(AudioRenderer renderer){
+    public void setRenderer(AudioRenderer renderer) {
         this.renderer = renderer;
     }
 
@@ -81,15 +81,15 @@ public class Listener {
         return velocity;
     }
 
-    public Vector3f getLeft(){
+    public Vector3f getLeft() {
         return rotation.getRotationColumn(0);
     }
 
-    public Vector3f getUp(){
+    public Vector3f getUp() {
         return rotation.getRotationColumn(1);
     }
 
-    public Vector3f getDirection(){
+    public Vector3f getDirection() {
         return rotation.getRotationColumn(2);
     }
     

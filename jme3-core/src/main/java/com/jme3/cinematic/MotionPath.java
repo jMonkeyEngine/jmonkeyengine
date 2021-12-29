@@ -69,7 +69,7 @@ public class MotionPath implements Savable {
     }
 
     /**
-     * interpolate the path giving the time since the beginning and the motionControl     
+     * interpolate the path giving the time since the beginning and the motionControl
      * this methods sets the new localTranslation to the spatial of the MotionEvent control.
      * @param time the time since the animation started
      * @param control the control over the moving spatial
@@ -175,7 +175,6 @@ public class MotionPath implements Savable {
     public void read(JmeImporter im) throws IOException {
         InputCapsule in = im.getCapsule(this);
         spline = (Spline) in.readSavable("spline", null);
-
     }
 
     /**
@@ -187,7 +186,7 @@ public class MotionPath implements Savable {
      */
     public Vector2f getWayPointIndexForDistance(float distance, Vector2f store) {
         float sum = 0;
-        if(spline.getTotalLength() == 0){
+        if (spline.getTotalLength() == 0) {
             store.set(0, 0);
             return store;
         }

@@ -71,12 +71,12 @@ class SweepSphere implements Collidable {
         this.invDim.set(1,1,1).divideLocal(dimension);
     }
 
-    public void setDimension(float x, float y, float z){
+    public void setDimension(float x, float y, float z) {
         this.dimension.set(x,y,z);
         this.invDim.set(1,1,1).divideLocal(dimension);
     }
 
-    public void setDimension(float dim){
+    public void setDimension(float dim) {
         this.dimension.set(dim, dim, dim);
         this.invDim.set(1,1,1).divideLocal(dimension);
     }
@@ -115,7 +115,7 @@ class SweepSphere implements Collidable {
 
     private static float getLowestRoot(float a, float b, float c, float maxR) {
         float determinant = b * b - 4f * a * c;
-        if (determinant < 0){
+        if (determinant < 0) {
             return Float.NaN;
         }
 
@@ -123,17 +123,17 @@ class SweepSphere implements Collidable {
         float r1 = (-b - sqrtd) / (2f * a);
         float r2 = (-b + sqrtd) / (2f * a);
 
-        if (r1 > r2){
+        if (r1 > r2) {
             float temp = r2;
             r2 = r1;
             r1 = temp;
         }
 
-        if (r1 > 0 && r1 < maxR){
+        if (r1 > 0 && r1 < maxR) {
             return r1;
         }
 
-        if (r2 > 0 && r2 < maxR){
+        if (r2 > 0 && r2 < maxR) {
             return r2;
         }
 
@@ -159,7 +159,7 @@ class SweepSphere implements Collidable {
 //        float newT = getLowestRoot(A, B, C, Float.MAX_VALUE);
 //        if (newT > 1.0f)
 //            newT = Float.NaN;
-        
+
         return newT;
     }
 
@@ -184,9 +184,9 @@ class SweepSphere implements Collidable {
                 - (2f * EdotV * EdotB);
         float c = (edgeSquared * (1f - baseSquared)) + EdotB * EdotB;
         float newT = getLowestRoot(a, b, c, t);
-        if (!Float.isNaN(newT)){
+        if (!Float.isNaN(newT)) {
             float f = (EdotV * newT - EdotB) / edgeSquared;
-            if (f >= 0f && f < 1f){
+            if (f >= 0f && f < 1f) {
                 store.scaleAdd(f, edge, l1);
                 return newT;
             }
@@ -194,7 +194,7 @@ class SweepSphere implements Collidable {
         return Float.NaN;
     }
 
-    private CollisionResult collideWithTriangle(AbstractTriangle tri){
+    private CollisionResult collideWithTriangle(AbstractTriangle tri) {
         // scale scaledTriangle based on dimension
         scaledTri.get1().set(tri.get1()).multLocal(invDim);
         scaledTri.get2().set(tri.get2()).multLocal(invDim);
@@ -216,12 +216,12 @@ class SweepSphere implements Collidable {
         boolean embedded = false;
 
         float signedDistanceToPlane = triPlane.pseudoDistance(sCenter);
-        if (normalDotVelocity == 0.0f){
+        if (normalDotVelocity == 0.0f) {
             // we are travelling exactly parallel to the plane
-            if (FastMath.abs(signedDistanceToPlane) >= 1.0f){
+            if (FastMath.abs(signedDistanceToPlane) >= 1.0f) {
                 // no collision possible
                 return null;
-            }else{
+            } else {
                 // we are embedded
                 t0 = 0;
                 t1 = 1;
@@ -229,17 +229,17 @@ class SweepSphere implements Collidable {
                 System.out.println("EMBEDDED");
                 return null;
             }
-        }else{
+        } else {
             t0 = (-1f - signedDistanceToPlane) / normalDotVelocity;
             t1 = ( 1f - signedDistanceToPlane) / normalDotVelocity;
 
-            if (t0 > t1){
+            if (t0 > t1) {
                 float tf = t1;
                 t1 = t0;
                 t0 = tf;
             }
 
-            if (t0 > 1.0f || t1 < 0.0f){
+            if (t0 > 1.0f || t1 < 0.0f) {
                 // collision is out of this sVelocity range
                 return null;
             }
@@ -254,7 +254,7 @@ class SweepSphere implements Collidable {
 
         Vector3f contactPoint = new Vector3f();
         Vector3f contactNormal = new Vector3f();
-  
+
 //        if (!embedded){
             // check against the inside of the scaledTriangle
             // contactPoint = sCenter - p.normal + t0 * sVelocity
@@ -264,7 +264,7 @@ class SweepSphere implements Collidable {
             contactPoint.subtractLocal(triPlane.getNormal());
 
             // test to see if the collision is on a scaledTriangle interior
-            if (isPointInTriangle(contactPoint, scaledTri) && !embedded){
+            if (isPointInTriangle(contactPoint, scaledTri) && !embedded) {
                 foundCollision = true;
 
                 minT = t0;
@@ -276,7 +276,7 @@ class SweepSphere implements Collidable {
                 contactNormal.subtractLocal(contactPoint).normalizeLocal();
 
 //                contactNormal.set(triPlane.getNormal());
-                
+
                 CollisionResult result = new CollisionResult();
                 result.setContactPoint(contactPoint);
                 result.setContactNormal(contactNormal);
@@ -294,7 +294,7 @@ class SweepSphere implements Collidable {
         // vertex 1
         float newT;
         newT = collideWithVertex(sCenter, sVelocity, velocitySquared, v1, minT);
-        if (!Float.isNaN(newT)){
+        if (!Float.isNaN(newT)) {
             minT = newT;
             contactPoint.set(v1);
             foundCollision = true;
@@ -302,7 +302,7 @@ class SweepSphere implements Collidable {
 
         // vertex 2
         newT = collideWithVertex(sCenter, sVelocity, velocitySquared, v2, minT);
-        if (!Float.isNaN(newT)){
+        if (!Float.isNaN(newT)) {
             minT = newT;
             contactPoint.set(v2);
             foundCollision = true;
@@ -310,7 +310,7 @@ class SweepSphere implements Collidable {
 
         // vertex 3
         newT = collideWithVertex(sCenter, sVelocity, velocitySquared, v3, minT);
-        if (!Float.isNaN(newT)){
+        if (!Float.isNaN(newT)) {
             minT = newT;
             contactPoint.set(v3);
             foundCollision = true;
@@ -318,26 +318,26 @@ class SweepSphere implements Collidable {
 
         // edge 1-2
         newT = collideWithSegment(sCenter, sVelocity, velocitySquared, v1, v2, minT, contactPoint);
-        if (!Float.isNaN(newT)){
+        if (!Float.isNaN(newT)) {
             minT = newT;
             foundCollision = true;
         }
 
         // edge 2-3
         newT = collideWithSegment(sCenter, sVelocity, velocitySquared, v2, v3, minT, contactPoint);
-        if (!Float.isNaN(newT)){
+        if (!Float.isNaN(newT)) {
             minT = newT;
             foundCollision = true;
         }
 
         // edge 3-1
         newT = collideWithSegment(sCenter, sVelocity, velocitySquared, v3, v1, minT, contactPoint);
-        if (!Float.isNaN(newT)){
+        if (!Float.isNaN(newT)) {
             minT = newT;
             foundCollision = true;
         }
 
-        if (foundCollision){
+        if (foundCollision) {
             // compute contact normal based on minimum t
             contactPoint.multLocal(dimension);
             contactNormal.set(velocity).multLocal(t0);
@@ -350,12 +350,12 @@ class SweepSphere implements Collidable {
             result.setDistance(minT * velocity.length());
 
             return result;
-        }else{
+        } else {
             return null;
         }
     }
 
-    public CollisionResult collideWithSweepSphere(SweepSphere other){
+    public CollisionResult collideWithSweepSphere(SweepSphere other) {
         temp1.set(velocity).subtractLocal(other.velocity);
         temp2.set(center).subtractLocal(other.center);
         temp3.set(dimension).addLocal(other.dimension);
@@ -387,11 +387,11 @@ class SweepSphere implements Collidable {
         // temp3 is contact point
         temp3.set(temp2).multLocal(dimension).addLocal(temp1);
         result.setContactPoint(new Vector3f(temp3));
-        
+
         return result;
     }
 
-    public static void main(String[] args){
+    public static void main(String[] args) {
         SweepSphere ss = new SweepSphere();
         ss.setCenter(Vector3f.ZERO);
         ss.setDimension(1);
@@ -404,37 +404,36 @@ class SweepSphere implements Collidable {
 
         CollisionResults cr = new CollisionResults();
         ss.collideWith(ss2, cr);
-        if (cr.size() > 0){
+        if (cr.size() > 0) {
             CollisionResult c = cr.getClosestCollision();
-            System.out.println("D = "+c.getDistance());
-            System.out.println("P = "+c.getContactPoint());
-            System.out.println("N = "+c.getContactNormal());
+            System.out.println("D = " + c.getDistance());
+            System.out.println("P = " + c.getContactPoint());
+            System.out.println("N = " + c.getContactNormal());
         }
     }
 
     @Override
     public int collideWith(Collidable other, CollisionResults results)
             throws UnsupportedCollisionException {
-        if (other instanceof AbstractTriangle){
+        if (other instanceof AbstractTriangle) {
             AbstractTriangle tri = (AbstractTriangle) other;
             CollisionResult result = collideWithTriangle(tri);
-            if (result != null){
+            if (result != null) {
                 results.addCollision(result);
                 return 1;
             }
             return 0;
-        }else if (other instanceof SweepSphere){
+        } else if (other instanceof SweepSphere) {
             SweepSphere sph = (SweepSphere) other;
 
             CollisionResult result = collideWithSweepSphere(sph);
-            if (result != null){
+            if (result != null) {
                 results.addCollision(result);
                 return 1;
             }
             return 0;
-        }else{
+        } else {
             throw new UnsupportedCollisionException();
         }
     }
-
 }

@@ -43,10 +43,9 @@ import java.util.List;
  */
 public class KeyFrame implements Savable {
 
-    public KeyFrame(){
-        
+    public KeyFrame() {
     }
-    
+
     List<CinematicEvent> cinematicEvents = new ArrayList<>();
     private int index;
 
@@ -64,8 +63,8 @@ public class KeyFrame implements Savable {
         }
         return cinematicEvents;
     }
-    
-    public boolean isEmpty(){
+
+    public boolean isEmpty() {
         return cinematicEvents.isEmpty();
     }
 

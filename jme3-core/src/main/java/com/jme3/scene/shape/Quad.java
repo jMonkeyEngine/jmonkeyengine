@@ -45,7 +45,7 @@ import java.io.IOException;
  * defined by 4 vertices. The quad's lower-left side is contained
  * at the local space origin (0, 0, 0), while the upper-right
  * side is located at the width/height coordinates (width, height, 0).
- * 
+ *
  * @author Kirill Vainer
  */
 public class Quad extends Mesh {
@@ -56,30 +56,30 @@ public class Quad extends Mesh {
     /**
      * Serialization only. Do not use.
      */
-    protected Quad(){
+    protected Quad() {
     }
 
     /**
      * Create a quad with the given width and height. The quad
      * is always created in the XY plane.
-     * 
+     *
      * @param width The X extent or width
      * @param height The Y extent or width
      */
-    public Quad(float width, float height){
+    public Quad(float width, float height) {
         updateGeometry(width, height);
     }
 
     /**
      * Create a quad with the given width and height. The quad
      * is always created in the XY plane.
-     * 
+     *
      * @param width The X extent or width
      * @param height The Y extent or width
      * @param flipCoords If true, the texture coordinates will be flipped
      * along the Y axis.
      */
-    public Quad(float width, float height, boolean flipCoords){
+    public Quad(float width, float height, boolean flipCoords) {
         updateGeometry(width, height, flipCoords);
     }
 
@@ -91,7 +91,7 @@ public class Quad extends Mesh {
         return width;
     }
 
-    public void updateGeometry(float width, float height){
+    public void updateGeometry(float width, float height) {
         updateGeometry(width, height, false);
     }
 
@@ -103,14 +103,14 @@ public class Quad extends Mesh {
                                                 width,  height, 0,
                                                 0,      height, 0
                                                 });
-        
 
-        if (flipCoords){
+
+        if (flipCoords) {
             setBuffer(Type.TexCoord, 2, new float[]{0, 1,
                                                     1, 1,
                                                     1, 0,
                                                     0, 0});
-        }else{
+        } else {
             setBuffer(Type.TexCoord, 2, new float[]{0, 0,
                                                     1, 0,
                                                     1, 1,
@@ -120,18 +120,18 @@ public class Quad extends Mesh {
                                               0, 0, 1,
                                               0, 0, 1,
                                               0, 0, 1});
-        if (height < 0){
+        if (height < 0) {
             setBuffer(Type.Index, 3, new short[]{0, 2, 1,
                                                  0, 3, 2});
-        }else{
+        } else {
             setBuffer(Type.Index, 3, new short[]{0, 1, 2,
                                                  0, 2, 3});
         }
-        
+
         updateBound();
         setStatic();
     }
-    
+
     @Override
     public void read(JmeImporter e) throws IOException {
         super.read(e);

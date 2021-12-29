@@ -46,9 +46,9 @@ public abstract class AbstractJoystick implements Joystick {
     final private JoyInput joyInput;
     final private int joyId;
     final private String name;
-    
-    final private List<JoystickAxis> axes = new ArrayList<>();       
-    final private List<JoystickButton> buttons = new ArrayList<>();       
+
+    final private List<JoystickAxis> axes = new ArrayList<>();
+    final private List<JoystickButton> buttons = new ArrayList<>();
 
     /**
      * Creates a new joystick instance. Only used internally.
@@ -65,13 +65,13 @@ public abstract class AbstractJoystick implements Joystick {
         this.joyId = joyId;
         this.name = name;
     }
-    
+
     protected InputManager getInputManager() {
         return inputManager;
     }
-    
+
     protected JoyInput getJoyInput() {
-        return joyInput; 
+        return joyInput;
     }
 
     protected void addAxis( JoystickAxis axis ) {
@@ -124,22 +124,22 @@ public abstract class AbstractJoystick implements Joystick {
     @Override
     @Deprecated
     public void assignAxis(String positiveMapping, String negativeMapping, int axisId){
-    
+
         // For backwards compatibility
         if( axisId == JoyInput.AXIS_POV_X ) {
             axisId = getPovXAxis().getAxisId();
         } else if( axisId == JoyInput.AXIS_POV_Y ) {
             axisId = getPovYAxis().getAxisId();
         }
-    
+
         inputManager.addMapping(positiveMapping, new JoyAxisTrigger(joyId, axisId, false));
         inputManager.addMapping(negativeMapping, new JoyAxisTrigger(joyId, axisId, true));
     }
 
     @Override
     public JoystickAxis getAxis(String logicalId) {
-        for( JoystickAxis axis : axes ) {
-            if( axis.getLogicalId().equals(logicalId) )
+        for (JoystickAxis axis : axes) {
+            if (axis.getLogicalId().equals(logicalId))
                 return axis;
         }
         return null;
@@ -161,12 +161,12 @@ public abstract class AbstractJoystick implements Joystick {
     @Override
     public int getAxisCount() {
         return axes.size();
-    } 
+    }
 
     @Override
     public JoystickButton getButton(String logicalId) {
-        for( JoystickButton b : buttons ) {
-            if( b.getLogicalId().equals(logicalId) )
+        for (JoystickButton b : buttons) {
+            if (b.getLogicalId().equals(logicalId))
                 return b;
         }
         return null;
@@ -178,7 +178,7 @@ public abstract class AbstractJoystick implements Joystick {
     @Override
     public List<JoystickButton> getButtons() {
         return Collections.unmodifiableList(buttons);
-    }     
+    }
 
     /**
      * Returns the number of buttons on this joystick.
@@ -189,7 +189,7 @@ public abstract class AbstractJoystick implements Joystick {
     public int getButtonCount() {
         return buttons.size();
     }
-    
+
     /**
      * Returns the name of this joystick.
      *
@@ -220,7 +220,7 @@ public abstract class AbstractJoystick implements Joystick {
      * @see Joystick#assignAxis(java.lang.String, java.lang.String, int)
      */
     @Override
-    public int getXAxisIndex(){
+    public int getXAxisIndex() {
         return getXAxis().getAxisId();
     }
 
@@ -234,12 +234,12 @@ public abstract class AbstractJoystick implements Joystick {
      * @see Joystick#assignAxis(java.lang.String, java.lang.String, int)
      */
     @Override
-    public int getYAxisIndex(){
+    public int getYAxisIndex() {
         return getYAxis().getAxisId();
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         return "Joystick[name=" + name + ", id=" + joyId + ", buttons=" + getButtonCount()
                                 + ", axes=" + getAxisCount() + "]";
     }

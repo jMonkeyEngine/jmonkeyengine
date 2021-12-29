@@ -35,7 +35,7 @@ import com.jme3.input.KeyInput;
 
 /**
  * Keyboard key event.
- * 
+ *
  * @author Kirill Vainer
  */
 public class KeyInputEvent extends InputEvent {
@@ -54,7 +54,7 @@ public class KeyInputEvent extends InputEvent {
 
     /**
      * Returns the key character. Returns 0 if the key has no character.
-     * 
+     *
      * @return the key character. 0 if the key has no character.
      */
     public char getKeyChar() {
@@ -65,7 +65,7 @@ public class KeyInputEvent extends InputEvent {
      * The key code.
      * <p>
      * See KEY_*** constants in {@link KeyInput}.
-     * 
+     *
      * @return key code.
      */
     public int getKeyCode() {
@@ -74,7 +74,7 @@ public class KeyInputEvent extends InputEvent {
 
     /**
      * Returns true if this event is key press, false is it was a key release.
-     * 
+     *
      * @return true if this event is key press, false is it was a key release.
      */
     public boolean isPressed() {
@@ -83,7 +83,7 @@ public class KeyInputEvent extends InputEvent {
 
     /**
      * Returns true if this event is a repeat event.
-     * 
+     *
      * @return true if this event is a repeat event
      */
     public boolean isRepeating() {
@@ -92,7 +92,7 @@ public class KeyInputEvent extends InputEvent {
 
     /**
      * Returns true if this event is a key release, false if it was a key press.
-     * 
+     *
      * @return true if this event is a key release, false if it was a key press.
      */
     public boolean isReleased() {
@@ -100,16 +100,16 @@ public class KeyInputEvent extends InputEvent {
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         String str = "Key(CODE="+keyCode;
         if (keyChar != '\0')
             str = str + ", CHAR=" + keyChar;
-            
-        if (repeating){
+
+        if (repeating) {
             return str + ", REPEATING)";
-        }else if (pressed){
+        } else if (pressed) {
             return str + ", PRESSED)";
-        }else{
+        } else {
             return str + ", RELEASED)";
         }
     }

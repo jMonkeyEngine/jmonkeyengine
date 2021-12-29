@@ -39,14 +39,14 @@ import java.io.IOException;
 
 public abstract class Filter extends NativeObject implements Savable {
 
-    public Filter(){
+    public Filter() {
         super();
     }
-    
-    protected Filter(int id){
+
+    protected Filter(int id) {
         super(id);
     }
-    
+
     @Override
     public void write(JmeExporter ex) throws IOException {
         // nothing to save

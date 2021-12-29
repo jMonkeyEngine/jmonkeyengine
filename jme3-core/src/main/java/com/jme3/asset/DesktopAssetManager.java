@@ -76,16 +76,16 @@ public class DesktopAssetManager implements AssetManager {
     final private List<ClassLoader> classLoaders =
             Collections.synchronizedList(new ArrayList<>());
 
-    public DesktopAssetManager(){
+    public DesktopAssetManager() {
         this(null);
     }
 
-    public DesktopAssetManager(boolean usePlatformConfig){
+    public DesktopAssetManager(boolean usePlatformConfig) {
         this(usePlatformConfig ? JmeSystem.getPlatformAssetConfigURL() : null);
     }
 
-    public DesktopAssetManager(URL configFile){
-        if (configFile != null){
+    public DesktopAssetManager(URL configFile) {
+        if (configFile != null) {
             loadConfigFile(configFile);
         }
         logger.fine("DesktopAssetManager created.");
@@ -110,7 +110,7 @@ public class DesktopAssetManager implements AssetManager {
     }
 
     @Override
-    public List<ClassLoader> getClassLoaders(){
+    public List<ClassLoader> getClassLoaders() {
         return Collections.unmodifiableList(classLoaders);
     }
 
@@ -129,29 +129,29 @@ public class DesktopAssetManager implements AssetManager {
         eventListeners.clear();
     }
 
-    public void setAssetEventListener(AssetEventListener listener){
+    public void setAssetEventListener(AssetEventListener listener) {
         eventListeners.clear();
         eventListeners.add(listener);
     }
 
     @Override
-    public void registerLoader(Class<? extends AssetLoader> loader, String ... extensions){
+    public void registerLoader(Class<? extends AssetLoader> loader, String ... extensions) {
         handler.addLoader(loader, extensions);
-        if (logger.isLoggable(Level.FINER)){
+        if (logger.isLoggable(Level.FINER)) {
             logger.log(Level.FINER, "Registered loader: {0} for extensions {1}",
               new Object[]{loader.getSimpleName(), Arrays.toString(extensions)});
         }
     }
 
     @SuppressWarnings("unchecked")
-    public void registerLoader(String clsName, String ... extensions){
+    public void registerLoader(String clsName, String ... extensions) {
         Class<? extends AssetLoader> clazz = null;
-        try{
+        try {
             clazz = (Class<? extends AssetLoader>) Class.forName(clsName);
         } catch (ClassNotFoundException | NoClassDefFoundError ex) {
             logger.log(Level.WARNING, "Failed to find loader: "+clsName, ex);
         }
-        if (clazz != null){
+        if (clazz != null) {
             registerLoader(clazz, extensions);
         }
     }
@@ -159,49 +159,49 @@ public class DesktopAssetManager implements AssetManager {
     @Override
     public void unregisterLoader(Class<? extends AssetLoader> loaderClass) {
         handler.removeLoader(loaderClass);
-        if (logger.isLoggable(Level.FINER)){
+        if (logger.isLoggable(Level.FINER)) {
             logger.log(Level.FINER, "Unregistered loader: {0}",
                     loaderClass.getSimpleName());
         }
     }
 
     @Override
-    public void registerLocator(String rootPath, Class<? extends AssetLocator> locatorClass){
+    public void registerLocator(String rootPath, Class<? extends AssetLocator> locatorClass) {
         handler.addLocator(locatorClass, rootPath);
-        if (logger.isLoggable(Level.FINER)){
+        if (logger.isLoggable(Level.FINER)) {
             logger.log(Level.FINER, "Registered locator: {0}",
                     locatorClass.getSimpleName());
         }
     }
 
     @SuppressWarnings("unchecked")
-    public void registerLocator(String rootPath, String clsName){
+    public void registerLocator(String rootPath, String clsName) {
         Class<? extends AssetLocator> clazz = null;
-        try{
+        try {
             clazz = (Class<? extends AssetLocator>) Class.forName(clsName);
         } catch (ClassNotFoundException ex) {
-            logger.log(Level.WARNING, "Failed to find locator: "+clsName, ex);
+            logger.log(Level.WARNING, "Failed to find locator: " + clsName, ex);
         } catch (NoClassDefFoundError ex) {
-            logger.log(Level.WARNING, "Failed to find loader: "+clsName, ex);
+            logger.log(Level.WARNING, "Failed to find loader: " + clsName, ex);
         }
-        if (clazz != null){
+        if (clazz != null) {
             registerLocator(rootPath, clazz);
         }
     }
 
     @Override
-    public void unregisterLocator(String rootPath, Class<? extends AssetLocator> clazz){
+    public void unregisterLocator(String rootPath, Class<? extends AssetLocator> clazz) {
         handler.removeLocator(clazz, rootPath);
-        if (logger.isLoggable(Level.FINER)){
+        if (logger.isLoggable(Level.FINER)) {
             logger.log(Level.FINER, "Unregistered locator: {0}",
                     clazz.getSimpleName());
         }
     }
 
     @Override
-    public AssetInfo locateAsset(AssetKey<?> key){
+    public AssetInfo locateAsset(AssetKey<?> key) {
         AssetInfo info = handler.tryLocate(key);
-        if (info == null){
+        if (info == null) {
             logger.log(Level.WARNING, "Cannot locate resource: {0}", key);
         }
         return info;
@@ -244,9 +244,9 @@ public class DesktopAssetManager implements AssetManager {
     }
 
     @Override
-    public void clearCache(){
+    public void clearCache() {
         handler.clearCache();
-        if (logger.isLoggable(Level.FINER)){
+        if (logger.isLoggable(Level.FINER)) {
             logger.log(Level.FINER, "All asset caches cleared.");
         }
     }
@@ -346,7 +346,7 @@ public class DesktopAssetManager implements AssetManager {
             throw new IllegalArgumentException("key cannot be null");
         }
 
-        for (AssetEventListener listener : eventListeners){
+        for (AssetEventListener listener : eventListeners) {
             listener.assetRequested(key);
         }
 
@@ -357,11 +357,11 @@ public class DesktopAssetManager implements AssetManager {
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T> T loadAsset(AssetKey<T> key){
+    public <T> T loadAsset(AssetKey<T> key) {
         if (key == null)
             throw new IllegalArgumentException("key cannot be null");
 
-        for (AssetEventListener listener : eventListeners){
+        for (AssetEventListener listener : eventListeners) {
             listener.assetRequested(key);
         }
 
@@ -369,16 +369,16 @@ public class DesktopAssetManager implements AssetManager {
         AssetProcessor proc = handler.getProcessor(key.getProcessorType());
 
         Object obj = cache != null ? cache.getFromCache(key) : null;
-        if (obj == null){
+        if (obj == null) {
             // Asset not in cache, load it from file system.
             AssetInfo info = handler.tryLocate(key);
-            if (info == null){
-                if (handler.getParentKey() != null){
+            if (info == null) {
+                if (handler.getParentKey() != null) {
                     // Inform event listener that an asset has failed to load.
                     // If the parent AssetLoader chooses not to propagate
                     // the exception, this is the only means of finding
                     // that something went wrong.
-                    for (AssetEventListener listener : eventListeners){
+                    for (AssetEventListener listener : eventListeners) {
                         listener.assetDependencyNotFound(handler.getParentKey(), key);
                     }
                 }
@@ -398,59 +398,59 @@ public class DesktopAssetManager implements AssetManager {
     }
 
     @Override
-    public Object loadAsset(String name){
+    public Object loadAsset(String name) {
         return loadAsset(new AssetKey<>(name));
     }
 
     @Override
-    public Texture loadTexture(TextureKey key){
+    public Texture loadTexture(TextureKey key) {
         return loadAsset(key);
     }
 
     @Override
-    public Material loadMaterial(String name){
+    public Material loadMaterial(String name) {
         return loadAsset(new MaterialKey(name));
     }
 
     @Override
-    public Texture loadTexture(String name){
+    public Texture loadTexture(String name) {
         TextureKey key = new TextureKey(name, true);
         key.setGenerateMips(true);
         return loadTexture(key);
     }
 
     @Override
-    public AudioData loadAudio(AudioKey key){
+    public AudioData loadAudio(AudioKey key) {
         return loadAsset(key);
     }
 
     @Override
-    public AudioData loadAudio(String name){
+    public AudioData loadAudio(String name) {
         return loadAudio(new AudioKey(name, false));
     }
 
     @Override
-    public BitmapFont loadFont(String name){
+    public BitmapFont loadFont(String name) {
         return loadAsset(new AssetKey<BitmapFont>(name));
     }
 
     @Override
-    public Spatial loadModel(ModelKey key){
+    public Spatial loadModel(ModelKey key) {
         return loadAsset(key);
     }
 
     @Override
-    public Spatial loadModel(String name){
+    public Spatial loadModel(String name) {
         return loadModel(new ModelKey(name));
     }
 
     @Override
-    public FilterPostProcessor loadFilter(FilterKey key){
+    public FilterPostProcessor loadFilter(FilterKey key) {
         return loadAsset(key);
     }
 
     @Override
-    public FilterPostProcessor loadFilter(String name){
+    public FilterPostProcessor loadFilter(String name) {
         return loadFilter(new FilterKey(name));
     }
 

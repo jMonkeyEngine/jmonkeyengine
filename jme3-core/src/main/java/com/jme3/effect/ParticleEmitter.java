@@ -789,7 +789,8 @@ public class ParticleEmitter extends Geometry {
      */
     public void setParticlesPerSec(float particlesPerSec) {
         this.particlesPerSec = particlesPerSec;
-        timeDifference = Math.min(timeDifference,1f / particlesPerSec); //prevent large accumulated timeDifference from causing a huge number of particles to be emitted
+        timeDifference = Math.min(timeDifference,1f / particlesPerSec);
+        //prevent large accumulated timeDifference from causing a huge number of particles to be emitted
     }
 
     /**
@@ -905,7 +906,8 @@ public class ParticleEmitter extends Geometry {
 
         Particle p = particles[idx];
         if (selectRandomImage) {
-            p.imageIndex = FastMath.nextRandomInt(0, imagesY - 1) * imagesX + FastMath.nextRandomInt(0, imagesX - 1);
+            p.imageIndex = FastMath.nextRandomInt(0, imagesY - 1)
+                    * imagesX + FastMath.nextRandomInt(0, imagesX - 1);
         }
 
         p.startlife = lowLife + FastMath.nextRandomFloat() * (highLife - lowLife);
@@ -971,7 +973,7 @@ public class ParticleEmitter extends Geometry {
         }
 
         for (int i=0; i < num; i++) {
-            if( emitParticle(min, max) == null ) break;
+            if (emitParticle(min, max) == null) break;
         }
 
         bbox.setMinMax(min, max);
@@ -998,7 +1000,7 @@ public class ParticleEmitter extends Geometry {
      * @param index The index of the particle to kill
      * @see #getParticles()
      */
-    public void killParticle(int index){
+    public void killParticle(int index) {
         freeParticle(index);
     }
 
@@ -1027,7 +1029,7 @@ public class ParticleEmitter extends Geometry {
         particles[idx2] = p1;
     }
 
-    protected void updateParticle(Particle p, float tpf, Vector3f min, Vector3f max){
+    protected void updateParticle(Particle p, float tpf, Vector3f min, Vector3f max) {
         // applying gravity
         p.velocity.x -= gravity.x * tpf;
         p.velocity.y -= gravity.y * tpf;
@@ -1089,17 +1091,17 @@ public class ParticleEmitter extends Geometry {
         float interval = 1f / particlesPerSec;
         float originalTpf = tpf;
         tpf += timeDifference;
-        while (tpf > interval){
+        while (tpf > interval) {
             tpf -= interval;
             Particle p = emitParticle(min, max);
-            if (p != null){
+            if (p != null) {
                 p.life -= tpf;
                 if (lastPos != null && isInWorldSpace()) {
                     p.position.interpolateLocal(lastPos, 1 - tpf / originalTpf);
                 }
-                if (p.life <= 0){
+                if (p.life <= 0) {
                     freeParticle(lastUsed);
-                }else{
+                } else {
                     updateParticle(p, tpf, min, max);
                 }
             }
@@ -1300,7 +1302,6 @@ public class ParticleEmitter extends Geometry {
             // loaded separately
             control = getControl(ParticleEmitterControl.class);
             control.parentEmitter = this;
-
         }
     }
 }
