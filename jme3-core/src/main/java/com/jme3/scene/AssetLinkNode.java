@@ -164,11 +164,11 @@ public class AssetLinkNode extends Node {
 
     @Override
     @SuppressWarnings("unchecked")
-    public void read(JmeImporter e) throws IOException {
-        super.read(e);
+    public void read(JmeImporter importer) throws IOException {
+        super.read(importer);
 
-        final InputCapsule capsule = e.getCapsule(this);
-        final AssetManager assetManager = e.getAssetManager();
+        final InputCapsule capsule = importer.getCapsule(this);
+        final AssetManager assetManager = importer.getAssetManager();
 
         assetLoaderKeys = capsule.readSavableArrayList("assetLoaderKeyList", new ArrayList<>());
 

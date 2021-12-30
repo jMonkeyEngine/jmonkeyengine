@@ -1265,8 +1265,8 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
     }
 
     @Override
-    public void read(JmeImporter e) throws IOException {
-        InputCapsule capsule = e.getCapsule(this);
+    public void read(JmeImporter importer) throws IOException {
+        InputCapsule capsule = importer.getCapsule(this);
         format = capsule.readEnum("format", Format.class, Format.RGBA8);
         width = capsule.readInt("width", 0);
         height = capsule.readInt("height", 0);

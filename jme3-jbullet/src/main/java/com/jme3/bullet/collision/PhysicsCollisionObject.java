@@ -162,8 +162,8 @@ public abstract class PhysicsCollisionObject implements Savable {
     }
 
     @Override
-    public void read(JmeImporter e) throws IOException {
-        InputCapsule capsule = e.getCapsule(this);
+    public void read(JmeImporter importer) throws IOException {
+        InputCapsule capsule = importer.getCapsule(this);
         collisionGroup = capsule.readInt("collisionGroup", 0x00000001);
         collisionGroupsMask = capsule.readInt("collisionGroupsMask", 0x00000001);
         CollisionShape shape = (CollisionShape) capsule.readSavable("collisionShape", null);

@@ -1725,9 +1725,9 @@ public class TerrainQuad extends Node implements Terrain {
     }
 
     @Override
-    public void read(JmeImporter e) throws IOException {
-        super.read(e);
-        InputCapsule c = e.getCapsule(this);
+    public void read(JmeImporter importer) throws IOException {
+        super.read(importer);
+        InputCapsule c = importer.getCapsule(this);
         size = c.readInt("size", 0);
         stepScale = (Vector3f) c.readSavable("stepScale", null);
         offset = (Vector2f) c.readSavable("offset", new Vector2f(0,0));

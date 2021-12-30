@@ -533,12 +533,12 @@ public final class Ray implements Savable, Cloneable, Collidable, java.io.Serial
      * De-serialize this ray from the specified importer, for example
      * when loading from a J3O file.
      *
-     * @param e (not null)
+     * @param importer (not null)
      * @throws IOException from the importer
      */
     @Override
-    public void read(JmeImporter e) throws IOException {
-        InputCapsule capsule = e.getCapsule(this);
+    public void read(JmeImporter importer) throws IOException {
+        InputCapsule capsule = importer.getCapsule(this);
         origin = (Vector3f) capsule.readSavable("origin", Vector3f.ZERO.clone());
         direction = (Vector3f) capsule.readSavable("direction", Vector3f.ZERO.clone());
     }
