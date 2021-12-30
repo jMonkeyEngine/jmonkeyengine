@@ -1174,7 +1174,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     }
 
     /**
-     * Rotates a specified vector and returns the result in a 3rd vector. The
+     * Rotates a specified vector and returns the result in another vector. The
      * current instance is unaffected.
      *
      * <p>It is safe for {@code v} and {@code store} to be the same object.
@@ -1544,7 +1544,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      * Returns a rotation with the same axis and the angle increased by 180
      * degrees. If the quaternion isn't normalized, or if the rotation angle is
      * very small, the result is undefined.
-     * 
+     *
      * <p>The current instance is unaffected, unless {@code store} is
      * {@code this}.
      *
