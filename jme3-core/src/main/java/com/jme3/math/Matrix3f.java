@@ -39,15 +39,15 @@ import java.nio.FloatBuffer;
 import java.util.logging.Logger;
 
 /**
- * A matrix composed of 9 single-precision elements, used to represent
- * linear transformations of 3-D coordinates, such as rotations, reflections,
- * and scaling.
+ * A matrix composed of 9 single-precision elements, used to represent linear
+ * transformations of 3-D coordinates, such as rotations, reflections, and
+ * scaling.
  *
  * <p>For pure rotations, the {@link com.jme3.math.Quaternion} class provides a
  * more efficient representation.
  *
- * <p>Methods with names ending in "Local" modify the current instance. They are
- * used to cut down on the creation of new instances.
+ * <p>With one exception, the methods with names ending in "Local" modify the
+ * current instance. They are used to avoid creating garbage.
  *
  * @author Mark Powell
  * @author Joshua Slack
@@ -94,7 +94,7 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
      */
     protected float m22;
     /**
-     * Shared instance of the zero matrix (all elements = 0). Do not modify!
+     * Shared instance of the all-zero matrix. Do not modify!
      */
     public static final Matrix3f ZERO = new Matrix3f(0, 0, 0, 0, 0, 0, 0, 0, 0);
     /**
@@ -137,8 +137,8 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Instantiates a copy of the argument. If the argument is null, an identity
-     * matrix is produced.
+     * Instantiates a copy of the matrix argument. If the argument is null, an
+     * identity matrix is produced.
      *
      * @param mat the matrix to copy (unaffected) or null for identity
      */
@@ -162,8 +162,8 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Sets all 9 elements from the argument. If the argument is null, the
-     * current instance is set to identity (diagonals = 1, other elements = 0).
+     * Copies the matrix argument. If the argument is null, the current instance
+     * is set to identity (diagonals = 1, other elements = 0).
      *
      * @param matrix the matrix to copy (unaffected) or null for none
      * @return the (modified) current instance (for chaining)
@@ -238,6 +238,8 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
      * @param data storage for the elements (not null, length=9 or 16)
      * @param rowMajor true to store the elements in row-major order (m00, m01,
      *     ...) or false to store them in column-major order (m00, m10, ...)
+     * @throws IndexOutOfBoundsException if {@code data} doesn't have 9 or 16
+     *     elements
      * @see #fillFloatArray(float[], boolean)
      */
     public void get(float[] data, boolean rowMajor) {
@@ -338,9 +340,13 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
     /**
      * Returns the specified column. The matrix is unaffected.
      *
+     * <p>If the matrix is a pure rotation, each column contains one of the
+     * basis vectors.
+     *
      * @param i the column index (0, 1, or 2)
      * @return a new Vector3f
      * @throws IllegalArgumentException if {@code i} isn't 0, 1, or 2
+     * @see Quaternion#getRotationColumn(int)
      */
     public Vector3f getColumn(int i) {
         return getColumn(i, null);
@@ -349,10 +355,14 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
     /**
      * Returns the specified column. The matrix is unaffected.
      *
+     * <p>If the matrix is a pure rotation, each column contains one of the
+     * basis vectors.
+     *
      * @param i the column index (0, 1, or 2)
      * @param store storage for the result, or null for a new Vector3f
      * @return either {@code store} or a new Vector3f
      * @throws IllegalArgumentException if {@code i} isn't 0, 1, or 2
+     * @see Quaternion#getRotationColumn(int, com.jme3.math.Vector3f)
      */
     public Vector3f getColumn(int i, Vector3f store) {
         if (store == null) {
@@ -431,7 +441,7 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
      * Copies the matrix to a new FloatBuffer. The matrix is unaffected.
      *
      * @return a new, rewound FloatBuffer containing all 9 elements in row-major
-     *     order (m00, m01,...)
+     *     order (m00, m01, ...)
      */
     public FloatBuffer toFloatBuffer() {
         FloatBuffer fb = BufferUtils.createFloatBuffer(9);
@@ -475,7 +485,8 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Copy the matrix to the specified array. The matrix is unaffected.
+     * Copy the matrix to the 1st 9 elements of the specified array. The matrix
+     * is unaffected.
      *
      * @param f storage for the elements (not null, length&ge;9)
      * @param columnMajor true to store the elements in column-major order (m00,
@@ -585,7 +596,7 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
      * @param j the column index (0, 1, or 2)
      * @param value desired value for the element at (i, j)
      * @return the (modified) current instance (for chaining)
-     * @throws IllegalArgumentException if either index is invalid
+     * @throws IllegalArgumentException if either index isn't 0, 1, or 2
      */
     @SuppressWarnings("fallthrough")
     public Matrix3f set(int i, int j, float value) {
@@ -633,7 +644,7 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Sets all 9 elements from the specified 2-dimensional array.
+     * Copies all 9 elements from the specified 2-dimensional array.
      *
      * @param matrix the input array (not null, length=3, the first element
      *      having length=3, the other elements having length&ge;3, unaffected)
@@ -660,11 +671,13 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Sets all 9 elements from the specified column vectors.
+     * Configures from the specified column vectors. If the vectors form an
+     * orthonormal basis, the result will be a pure rotation matrix.
      *
      * @param uAxis the desired value for column 0 (not null, unaffected)
      * @param vAxis the desired value for column 1 (not null, unaffected)
      * @param wAxis the desired value for column 2 (not null, unaffected)
+     * @see Quaternion#fromAxes(com.jme3.math.Vector3f[])
      */
     public void fromAxes(Vector3f uAxis, Vector3f vAxis, Vector3f wAxis) {
         m00 = uAxis.x;
@@ -681,24 +694,24 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Sets all 9 elements from the specified array, in row-major order.
+     * Copies all 9 elements from the array argument, in row-major order.
      *
      * @param matrix the input array (not null, length=9, unaffected)
      * @return the (modified) current instance (for chaining)
-     * @throws IllegalArgumentException if the array is the wrong size
+     * @throws IllegalArgumentException if the array has length != 9
      */
     public Matrix3f set(float[] matrix) {
         return set(matrix, true);
     }
 
     /**
-     * Sets all 9 elements from the specified array.
+     * Copies all 9 elements from the specified array.
      *
      * @param matrix the input array (not null, length=9, unaffected)
      * @param rowMajor true to read the elements in row-major order (m00, m01,
      *     ...) or false to read them in column-major order (m00, m10, ...)
      * @return the (modified) current instance (for chaining)
-     * @throws IllegalArgumentException if the array is the wrong size
+     * @throws IllegalArgumentException if the array has length != 9
      */
     public Matrix3f set(float[] matrix, boolean rowMajor) {
         if (matrix.length != 9) {
@@ -731,7 +744,7 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Sets all 9 elements to form a rotation matrix equivalent to the argument.
+     * Configures as a rotation matrix equivalent to the argument.
      *
      * @param quaternion the input quaternion (not null, unaffected)
      * @return the current instance (for chaining)
@@ -741,8 +754,7 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Sets all 9 elements to form an identity matrix (diagonals = 1, other
-     * elements = 0).
+     * Configures as an identity matrix (diagonals = 1, other elements = 0).
      */
     public void loadIdentity() {
         m01 = m02 = m10 = m12 = m20 = m21 = 0;
@@ -750,7 +762,7 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Tests for exact identity. The current instance is unaffected.
+     * Tests for exact identity. The matrix is unaffected.
      *
      * @return true if equal to {@link #IDENTITY}, otherwise false
      */
@@ -761,8 +773,8 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Sets all 9 elements to form a rotation matrix with the specified rotation
-     * angle and axis of rotation. This method creates garbage, so use
+     * Sets all 9 elements to form a pure rotation matrix with the specified
+     * rotation angle and axis of rotation. This method creates garbage, so use
      * {@link #fromAngleNormalAxis(float, com.jme3.math.Vector3f)} if the axis
      * is known to be normalized.
      *
@@ -809,8 +821,11 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Multiplies with the argument and returns the product as a new instance.
-     * The current instance is unaffected.
+     * Multiplies with the argument matrix and returns the product as a new
+     * instance. The current instance is unaffected.
+     *
+     * <p>Note that matrix multiplication is noncommutative, so generally
+     * q * p != p * q.
      *
      * @param mat the right factor (not null, unaffected)
      * @return {@code this} times {@code mat} (a new Matrix3f)
@@ -822,6 +837,9 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
     /**
      * Multiplies with the specified matrix and returns the product in a 3rd
      * matrix. The current instance is unaffected unless it's {@code product}.
+     *
+     * <p>Note that matrix multiplication is noncommutative, so generally
+     * q * p != p * q.
      *
      * <p>It is safe for {@code mat} and {@code product} to be the same object.
      *
@@ -863,13 +881,13 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Transforms the argument vector and returns the result as a new vector.
-     * The current instance is unaffected.
+     * Applies the linear transformation to the vector argument and returns the
+     * result as a new vector. The matrix is unaffected.
      *
      * <p>This can also be described as multiplying the matrix by a column
      * vector.
      *
-     * @param vec the vector to transform (not null, unaffected)
+     * @param vec the coordinates to transform (not null, unaffected)
      * @return a new Vector3f
      */
     public Vector3f mult(Vector3f vec) {
@@ -877,15 +895,18 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Multiplies this 3x3 matrix by the 1x3 Vector vec and stores the result in
-     * product.
+     * Applies the linear transformation to specified vector and stores the
+     * result in another vector. The matrix is unaffected.
      *
-     * @param vec
-     *            The Vector3f to multiply.
-     * @param product
-     *            The Vector3f to store the result, it is safe for this to be
-     *            the same as vec.
-     * @return The given product vector.
+     * <p>This can also be described as multiplying the matrix by a column
+     * vector.
+     *
+     * <p>It is safe for {@code vec} and {@code product} to be the same object.
+     *
+     * @param vec the coordinates to transform (not null, unaffected unless it's
+     *     {@code product})
+     * @param product storage for the result, or null for a new Vector3f
+     * @return either {@code product} or a new Vector3f
      */
     public Vector3f mult(Vector3f vec, Vector3f product) {
         if (null == product) {
@@ -903,12 +924,11 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * <code>multLocal</code> multiplies this matrix internally by
-     * a given float scale factor.
+     * Multiplies by the scalar argument and returns the (modified) current
+     * instance.
      *
-     * @param scale
-     *            the value to scale by.
-     * @return this Matrix3f
+     * @param scale the scaling factor
+     * @return the (modified) current instance (for chaining)
      */
     public Matrix3f multLocal(float scale) {
         m00 *= scale;
@@ -924,14 +944,13 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * <code>multLocal</code> multiplies this matrix by a given
-     * <code>Vector3f</code> object. The result vector is stored inside the
-     * passed vector, then returned . If the given vector is null, null will be
-     * returned.
+     * Applies the linear transformation to the vector argument and returns the
+     * (modified) argument. If the argument is null, null is returned.
      *
-     * @param vec
-     *            the vector to multiply this matrix by.
-     * @return The passed vector after multiplication
+     * <p>Despite the name, the current instance is unaffected.
+     *
+     * @param vec the vector to transform (modified if not null)
+     * @return {@code vec} (for chaining)
      */
     public Vector3f multLocal(Vector3f vec) {
         if (vec == null) {
@@ -946,23 +965,24 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * <code>mult</code> multiplies this matrix by a given matrix. The result
-     * matrix is saved in the current matrix. If the given matrix is null,
-     * nothing happens. The current matrix is returned. This is equivalent to
-     * this*=mat
+     * Multiplies by the matrix argument and returns the (modified) current
+     * instance.
      *
-     * @param mat
-     *            the matrix to multiply this matrix by.
-     * @return This matrix, after the multiplication
+     * <p>Note that matrix multiplication is noncommutative, so generally
+     * q * p != p * q.
+     *
+     * @param mat the right factor (not null, unaffected unless it's
+     *     {@code this})
+     * @return the (modified) current instance
      */
     public Matrix3f multLocal(Matrix3f mat) {
         return mult(mat, this);
     }
 
     /**
-     * Transposes this matrix in place. Returns this matrix for chaining
+     * Transposes the matrix and returns the (modified) current instance.
      *
-     * @return This matrix after transpose
+     * @return the (modified) current instance
      */
     public Matrix3f transposeLocal() {
 //        float[] tmp = new float[9];
@@ -985,19 +1005,26 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Inverts this matrix as a new Matrix3f.
+     * Returns the multiplicative inverse as a new matrix. If the current
+     * instance is singular, an all-zero matrix is returned. In either case, the
+     * current instance is unaffected.
      *
-     * @return The new inverse matrix
+     * @return a new Matrix3f
      */
     public Matrix3f invert() {
         return invert(null);
     }
 
     /**
-     * Inverts this matrix and stores it in the given store.
+     * Returns the multiplicative inverse in the specified storage. If the
+     * current instance is singular, an all-zero matrix is returned. In either
+     * case, the current instance is unaffected.
      *
-     * @param store storage for the result (modified if not null)
-     * @return The store
+     * <p>If {@code this} and {@code store} are the same object, the result is
+     * undefined. Use {@link #invertLocal()} instead.
+     *
+     * @param store storage for the result, or null for a new Matrix3f
+     * @return either {@code store} or a new Matrix3f
      */
     public Matrix3f invert(Matrix3f store) {
         if (store == null) {
@@ -1024,9 +1051,10 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Inverts this matrix locally.
+     * Inverts the matrix and returns the (modified) current instance. If the
+     * current instance is singular, all elements will be set to zero.
      *
-     * @return this
+     * @return the (modified) current instance (for chaining)
      */
     public Matrix3f invertLocal() {
         float det = determinant();
@@ -1059,20 +1087,23 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Returns a new matrix representing the adjoint of this matrix.
+     * Returns the adjoint as a new matrix. The current instance is unaffected.
      *
-     * @return The adjoint matrix
+     * @return a new Matrix3f
      */
     public Matrix3f adjoint() {
         return adjoint(null);
     }
 
     /**
-     * Places the adjoint of this matrix in store (creates store if null.)
+     * Returns the adjoint in the specified storage. The current instance is
+     * unaffected.
      *
-     * @param store
-     *            The matrix to store the result in.  If null, a new matrix is created.
-     * @return store
+     * <p>If {@code this} and {@code store} are the same object, the result is
+     * undefined.
+     *
+     * @param store storage for the result, or null for a new Matrix3f
+     * @return either {@code store} or a new Matrix3f
      */
     public Matrix3f adjoint(Matrix3f store) {
         if (store == null) {
@@ -1093,7 +1124,7 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * <code>determinant</code> generates the determinant of this matrix.
+     * Returns the determinant. The matrix is unaffected.
      *
      * @return the determinant
      */
@@ -1106,9 +1137,9 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Sets all of the values in this matrix to zero.
+     * Sets all elements to zero.
      *
-     * @return this matrix
+     * @return the (modified) current instance (for chaining)
      */
     public Matrix3f zero() {
         m00 = m01 = m02 = m10 = m11 = m12 = m20 = m21 = m22 = 0.0f;
@@ -1116,10 +1147,13 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * <code>transpose</code> <b>locally</b> transposes this Matrix.
-     * This is inconsistent with general value vs local semantics, but is
-     * preserved for backwards compatibility. Use transposeNew() to transpose
-     * to a new object (value).
+     * Transposes the matrix and returns the (modified) current instance.
+     *
+     * <p>This method is inconsistent with JME naming conventions, but has been
+     * preserved for backwards compatibility. To preserve the current instance,
+     * {@link #transposeNew()}.
+     *
+     * <p>TODO deprecate in favor of transposeLocal()
      *
      * @return this object for chaining.
      */
@@ -1128,9 +1162,10 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * <code>transposeNew</code> returns a transposed version of this matrix.
+     * Returns the transpose as a new instance. The current instance is
+     * unaffected.
      *
-     * @return The new Matrix3f object.
+     * @return a new Matrix3f
      */
     public Matrix3f transposeNew() {
         Matrix3f ret = new Matrix3f(m00, m10, m20, m01, m11, m21, m02, m12, m22);
@@ -1138,8 +1173,8 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * <code>toString</code> returns a string representation of this matrix.
-     * For example, an identity matrix would be represented by:
+     * Returns a string representation. The current instance is unaffected. For
+     * example, an identity matrix would be represented by:
      * <pre>
      * Matrix3f
      * [
@@ -1179,11 +1214,10 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * <code>hashCode</code> returns the hash code value as an integer and is
-     * supported for the benefit of hashing based collection classes such as
-     * Hashtable, HashMap, HashSet etc.
+     * Returns a hash code. If two matrices are logically equivalent, they will
+     * return the same hash code. The current instance is unaffected.
      *
-     * @return the hashcode for this instance of Matrix4f.
+     * @return the hash-code value
      * @see java.lang.Object#hashCode()
      */
     @Override
@@ -1205,10 +1239,11 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * are these two matrices the same? they are is they both have the same mXX values.
+     * Tests for exact equality with the argument, distinguishing -0 from 0. The
+     * current instance is unaffected.
      *
-     * @param o   the object to compare for equality
-     * @return true if they are equal
+     * @param o the object to compare (may be null, unaffected)
+     * @return true if equal, otherwise false
      */
     @Override
     public boolean equals(Object o) {
@@ -1255,10 +1290,10 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Serialize this matrix to the specified exporter, for example when
-     * saving to a J3O file.
+     * Serializes to the argument, for example when saving to a J3O file. The
+     * current instance is unaffected.
      *
-     * @param e (not null)
+     * @param e the exporter to use (not null)
      * @throws IOException from the exporter
      */
     @Override
@@ -1276,10 +1311,10 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * De-serialize this matrix from the specified importer, for example
-     * when loading from a J3O file.
+     * De-serializes from the argument, for example when loading from a J3O
+     * file.
      *
-     * @param importer (not null)
+     * @param importer the importer to use (not null)
      * @throws IOException from the importer
      */
     @Override
