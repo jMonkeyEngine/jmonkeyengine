@@ -760,12 +760,12 @@ public class Node extends Spatial {
 
     @Override
     @SuppressWarnings("unchecked")
-    public void read(JmeImporter e) throws IOException {
+    public void read(JmeImporter importer) throws IOException {
         // XXX: Load children before loading itself!!
         // This prevents empty children list if controls query
         // it in Control.setSpatial().
         children = new SafeArrayList(Spatial.class,
-                e.getCapsule(this).readSavableArrayList("children", null));
+                importer.getCapsule(this).readSavableArrayList("children", null));
 
         // go through children and set parent to this node
         if (children != null) {
@@ -773,7 +773,7 @@ public class Node extends Spatial {
                 child.parent = this;
             }
         }
-        super.read(e);
+        super.read(importer);
     }
 
     @Override

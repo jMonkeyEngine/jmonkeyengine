@@ -215,9 +215,9 @@ public class PQTorus extends Mesh {
     }
 
     @Override
-    public void read(JmeImporter e) throws IOException {
-        super.read(e);
-        InputCapsule capsule = e.getCapsule(this);
+    public void read(JmeImporter importer) throws IOException {
+        super.read(importer);
+        InputCapsule capsule = importer.getCapsule(this);
         p = capsule.readFloat("p", 0);
         q = capsule.readFloat("q", 0);
         radius = capsule.readFloat("radius", 0);

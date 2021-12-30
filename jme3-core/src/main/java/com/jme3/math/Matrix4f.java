@@ -2335,12 +2335,12 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
      * De-serialize from the specified importer, for example when loading from a
      * J3O file.
      *
-     * @param e (not null)
+     * @param importer (not null)
      * @throws IOException from the importer
      */
     @Override
-    public void read(JmeImporter e) throws IOException {
-        InputCapsule cap = e.getCapsule(this);
+    public void read(JmeImporter importer) throws IOException {
+        InputCapsule cap = importer.getCapsule(this);
         m00 = cap.readFloat("m00", 1);
         m01 = cap.readFloat("m01", 0);
         m02 = cap.readFloat("m02", 0);

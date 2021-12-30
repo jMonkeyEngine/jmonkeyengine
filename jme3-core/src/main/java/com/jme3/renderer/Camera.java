@@ -1607,8 +1607,8 @@ public class Camera implements Savable, Cloneable {
     }
 
     @Override
-    public void read(JmeImporter e) throws IOException {
-        InputCapsule capsule = e.getCapsule(this);
+    public void read(JmeImporter importer) throws IOException {
+        InputCapsule capsule = importer.getCapsule(this);
         location = (Vector3f) capsule.readSavable("location", Vector3f.ZERO.clone());
         rotation = (Quaternion) capsule.readSavable("rotation", Quaternion.DIRECTION_Z.clone());
         frustumNear = capsule.readFloat("frustumNear", 1);

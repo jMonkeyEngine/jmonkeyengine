@@ -800,14 +800,14 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
 
     /**
      * Sets the values of this quaternion to the slerp from itself to q2 by
-     * changeAmnt
+     * changeAmount
      *
      * @param q2
      *            Final interpolation value
-     * @param changeAmnt
+     * @param changeAmount
      *            The amount difference
      */
-    public void slerp(Quaternion q2, float changeAmnt) {
+    public void slerp(Quaternion q2, float changeAmount) {
         if (this.x == q2.x && this.y == q2.y && this.z == q2.z
                 && this.w == q2.w) {
             return;
@@ -826,8 +826,8 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
         }
 
         // Set the first and second scale for the interpolation
-        float scale0 = 1 - changeAmnt;
-        float scale1 = changeAmnt;
+        float scale0 = 1 - changeAmount;
+        float scale1 = changeAmount;
 
         // Check if the angle between the 2 quaternions was big enough to
         // warrant such calculations
@@ -839,8 +839,8 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
 
             // Calculate the scale for q1 and q2, according to the angle and
             // its sine
-            scale0 = FastMath.sin((1 - changeAmnt) * theta) * invSinTheta;
-            scale1 = FastMath.sin((changeAmnt * theta)) * invSinTheta;
+            scale0 = FastMath.sin((1 - changeAmount) * theta) * invSinTheta;
+            scale1 = FastMath.sin((changeAmount * theta)) * invSinTheta;
         }
 
         // Calculate the x, y, z and w values for the quaternion by using a
@@ -945,24 +945,24 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      * The result is returned as a new quaternion. It should be noted that
      * quaternion multiplication is not commutative so q * p != p * q.
      *
-     * It IS safe for q and res to be the same object.
-     * It IS NOT safe for this and res to be the same object.
+     * It IS safe for q and storeResult to be the same object.
+     * It IS NOT safe for this and storeResult to be the same object.
      *
      * @param q   the quaternion to multiply this quaternion by.
-     * @param res
+     * @param storeResult
      *            the quaternion to store the result in.
      * @return the new quaternion.
      */
-    public Quaternion mult(Quaternion q, Quaternion res) {
-        if (res == null) {
-            res = new Quaternion();
+    public Quaternion mult(Quaternion q, Quaternion storeResult) {
+        if (storeResult == null) {
+            storeResult = new Quaternion();
         }
         float qw = q.w, qx = q.x, qy = q.y, qz = q.z;
-        res.x = x * qw + y * qz - z * qy + w * qx;
-        res.y = -x * qz + y * qw + z * qx + w * qy;
-        res.z = x * qy - y * qx + z * qw + w * qz;
-        res.w = -x * qx - y * qy - z * qz + w * qw;
-        return res;
+        storeResult.x = x * qw + y * qz - z * qy + w * qx;
+        storeResult.y = -x * qz + y * qw + z * qx + w * qy;
+        storeResult.z = x * qy - y * qx + z * qw + w * qz;
+        storeResult.w = -x * qx - y * qy - z * qz + w * qw;
+        return storeResult;
     }
 
     /**
@@ -1461,12 +1461,12 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      * De-serialize this quaternion from the specified importer, for example
      * when loading from a J3O file.
      *
-     * @param e (not null)
+     * @param importer (not null)
      * @throws IOException from the importer
      */
     @Override
-    public void read(JmeImporter e) throws IOException {
-        InputCapsule cap = e.getCapsule(this);
+    public void read(JmeImporter importer) throws IOException {
+        InputCapsule cap = importer.getCapsule(this);
         x = cap.readFloat("x", 0);
         y = cap.readFloat("y", 0);
         z = cap.readFloat("z", 0);

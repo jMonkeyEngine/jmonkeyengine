@@ -194,9 +194,9 @@ public class ShaderUtils {
         return x < 0.5 ? ShaderUtils.bias(1 - g, 2 * x) / 2 : 1 - ShaderUtils.bias(1 - g, 2 - 2 * x) / 2;
     }
 
-    public static final float sinValue(final float s, final float minFreq, final float maxFreq, final float swidth) {
+    public static final float sinValue(final float s, final float minFreq, final float maxFreq, final float sWidth) {
         float value = 0;
-        float cutoff = ShaderUtils.clamp(0.5f / swidth, 0, maxFreq);
+        float cutoff = ShaderUtils.clamp(0.5f / sWidth, 0, maxFreq);
         float f;
         for (f = minFreq; f < 0.5 * cutoff; f *= 2) {
             value += Math.sin(2 * Math.PI * f * s) / f;

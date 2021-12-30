@@ -611,8 +611,8 @@ public abstract class Texture implements CloneableSmartAsset, Savable, Cloneable
     }
 
     @Override
-    public void read(JmeImporter e) throws IOException {
-        InputCapsule capsule = e.getCapsule(this);
+    public void read(JmeImporter importer) throws IOException {
+        InputCapsule capsule = importer.getCapsule(this);
         name = capsule.readString("name", null);
         key = (TextureKey) capsule.readSavable("key", null);
         
@@ -620,11 +620,11 @@ public abstract class Texture implements CloneableSmartAsset, Savable, Cloneable
         if (key != null) {
             // key is available, so try the texture from there.
             try {
-                Texture loadedTex = e.getAssetManager().loadTexture(key);
+                Texture loadedTex = importer.getAssetManager().loadTexture(key);
                 image = loadedTex.getImage();
             } catch (AssetNotFoundException ex){
                 Logger.getLogger(Texture.class.getName()).log(Level.SEVERE, "Cannot locate texture {0}", key);
-                image = PlaceholderAssets.getPlaceholderImage(e.getAssetManager());
+                image = PlaceholderAssets.getPlaceholderImage(importer.getAssetManager());
             }
         }else{
             // no key is set on the texture. Attempt to load an embedded image

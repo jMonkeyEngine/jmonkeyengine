@@ -340,17 +340,17 @@ public class VRGuiManager {
 
     /**
      * Set up the GUI.
-     * @param leftcam the left eye camera.
-     * @param rightcam the right eye camera.
-     * @param left the left eye viewport.
-     * @param right the right eye viewport.
+     * @param leftCam the left-eye camera.
+     * @param rightCam the right-eye camera.
+     * @param left the left-eye viewport.
+     * @param right the right-eye viewport.
      */
-    public void setupGui(Camera leftcam, Camera rightcam, ViewPort left, ViewPort right) {
+    public void setupGui(Camera leftCam, Camera rightCam, ViewPort left, ViewPort right) {
 
         if (environment != null){
             if( environment.hasTraditionalGUIOverlay() ) {
-                camLeft = leftcam;
-                camRight = rightcam;
+                camLeft = leftCam;
+                camRight = rightCam;
                 Spatial guiScene = getGuiQuad(camLeft);
                 left.attachScene(guiScene);
                 if( right != null ) right.attachScene(guiScene);

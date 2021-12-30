@@ -195,9 +195,9 @@ public abstract class AbstractBox extends Mesh {
     }
 
     @Override
-    public void read(JmeImporter e) throws IOException {
-        super.read(e);
-        InputCapsule capsule = e.getCapsule(this);
+    public void read(JmeImporter importer) throws IOException {
+        super.read(importer);
+        InputCapsule capsule = importer.getCapsule(this);
         xExtent = capsule.readFloat("xExtent", 0);
         yExtent = capsule.readFloat("yExtent", 0);
         zExtent = capsule.readFloat("zExtent", 0);
