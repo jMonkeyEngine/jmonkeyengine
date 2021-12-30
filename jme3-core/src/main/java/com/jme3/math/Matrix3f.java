@@ -162,7 +162,7 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Copies all 9 elements from the argument. If the argument is null, the
+     * Sets all 9 elements from the argument. If the argument is null, the
      * current instance is set to identity (diagonals = 1, other elements = 0).
      *
      * @param matrix the matrix to copy (unaffected) or null for none
@@ -235,10 +235,10 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
      * <p>If the array has 16 elements, then the matrix is treated as if it
      * contained the 1st 3 rows and 1st 3 columns of a 4x4 matrix.
      *
-     * @param data storage for the elements (not null, must have length=9 or
-     *     length=16)
+     * @param data storage for the elements (not null, length=9 or 16)
      * @param rowMajor true to store the elements in row-major order (m00, m01,
      *     ...) or false to store them in column-major order (m00, m10, ...)
+     * @see #fillFloatArray(float[], boolean)
      */
     public void get(float[] data, boolean rowMajor) {
         if (data.length == 9) {
@@ -428,10 +428,10 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * <code>toFloatBuffer</code> returns a FloatBuffer object that contains
-     * the matrix data.
+     * Copies the matrix to a new FloatBuffer. The matrix is unaffected.
      *
-     * @return matrix data as a FloatBuffer.
+     * @return a new, rewound FloatBuffer containing all 9 elements in row-major
+     *     order (m00, m01,...)
      */
     public FloatBuffer toFloatBuffer() {
         FloatBuffer fb = BufferUtils.createFloatBuffer(9);
@@ -444,16 +444,14 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * <code>fillFloatBuffer</code> fills a FloatBuffer object with the matrix
-     * data.
+     * Copies the matrix to the specified FloatBuffer, starting at its current
+     * position. The matrix is unaffected.
      *
-     * @param fb
-     *            the buffer to fill, starting at current position. Must have
-     *            room for 9 more floats.
-     * @param columnMajor
-     *            true &rarr; column-major order, false &rarr; row-major order
-     * @return matrix data as a FloatBuffer. (position is advanced by 9 and any
-     *         limit set is not changed).
+     * @param fb storage for the elements (not null, must have space to put 9
+     *     more floats)
+     * @param columnMajor true to store the elements in column-major order (m00,
+     *     m10, ...) or false to store them in row-major order (m00, m01, ...)
+     * @return {@code fb}, its position advanced by 9
      */
     public FloatBuffer fillFloatBuffer(FloatBuffer fb, boolean columnMajor) {
 //        if (columnMajor){
@@ -477,11 +475,12 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Copy all elements of this matrix to a float array.
+     * Copy the matrix to the specified array. The matrix is unaffected.
      *
-     * @param f   the array to fill (not null, length&ge;9)
-     * @param columnMajor
-     *            true &rarr; column-major order, false &rarr; row-major order
+     * @param f storage for the elements (not null, length&ge;9)
+     * @param columnMajor true to store the elements in column-major order (m00,
+     *     m10, ...) or false to store them in row-major order (m00, m01, ...)
+     * @see #get(float[], boolean)
      */
     public void fillFloatArray(float[] f, boolean columnMajor) {
         if (columnMajor) {
@@ -508,13 +507,12 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * <code>setColumn</code> sets a particular column of this matrix to that
-     * represented by the provided vector.
+     * Sets the specified column.
      *
-     * @param i   the column to set.
-     * @param column
-     *            the data to set.
-     * @return this
+     * @param i which column to set (0, 1, or 2)
+     * @param column the desired element values (unaffected) or null for none
+     * @return the current instance (for chaining)
+     * @throws IllegalArgumentException if {@code i} isn't 0, 1, or 2
      */
     public Matrix3f setColumn(int i, Vector3f column) {
         if (column == null) {
@@ -545,13 +543,12 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * <code>setRow</code> sets a particular row of this matrix to that
-     * represented by the provided vector.
+     * Sets the specified row.
      *
-     * @param i   the row to set.
-     * @param row
-     *            the data to set.
-     * @return this
+     * @param i which row to set (0, 1, or 2)
+     * @param row the desired element values (unaffected) or null for none
+     * @return the current instance (for chaining)
+     * @throws IllegalArgumentException if {@code i} isn't 0, 1, or 2
      */
     public Matrix3f setRow(int i, Vector3f row) {
         if (row == null) {
@@ -582,14 +579,12 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * <code>set</code> places a given value into the matrix at the given
-     * position.
+     * Sets the specified element.
      *
-     * @param i   the row index.
-     * @param j   the column index.
-     * @param value
-     *            the value for (i, j).
-     * @return this
+     * @param i the row index (0, 1, or 2)
+     * @param j the column index (0, 1, or 2)
+     * @param value desired value for the element at (i, j)
+     * @return the (modified) current instance (for chaining)
      * @throws IllegalArgumentException if either index is invalid
      */
     @SuppressWarnings("fallthrough")
@@ -638,13 +633,12 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * <code>set</code> sets the values of the matrix to those supplied by the
-     * 3x3 two-dimensional array.
+     * Sets all 9 elements from the specified 2-dimensional array.
      *
-     * @param matrix
-     *            the new values of the matrix.
-     * @throws IllegalArgumentException if the matrix is not 3x3
-     * @return this
+     * @param matrix the input array (not null, length=3, the first element
+     *      having length=3, the other elements having length&ge;3, unaffected)
+     * @return the (modified) current instance (for chaining)
+     * @throws IllegalArgumentException if the array is the wrong size
      */
     public Matrix3f set(float[][] matrix) {
         if (matrix.length != 3 || matrix[0].length != 3) {
@@ -666,11 +660,11 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Recreate Matrix using the provided axis.
+     * Sets all 9 elements from the specified column vectors.
      *
-     * @param uAxis  Vector3f
-     * @param vAxis  Vector3f
-     * @param wAxis  Vector3f
+     * @param uAxis the desired value for column 0 (not null, unaffected)
+     * @param vAxis the desired value for column 1 (not null, unaffected)
+     * @param wAxis the desired value for column 2 (not null, unaffected)
      */
     public void fromAxes(Vector3f uAxis, Vector3f vAxis, Vector3f wAxis) {
         m00 = uAxis.x;
@@ -687,26 +681,24 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * <code>set</code> sets the values of this matrix from an array of
-     * values assuming that the data is rowMajor order;
+     * Sets all 9 elements from the specified array, in row-major order.
      *
-     * @param matrix
-     *            the matrix to set the value to.
-     * @return this
+     * @param matrix the input array (not null, length=9, unaffected)
+     * @return the (modified) current instance (for chaining)
+     * @throws IllegalArgumentException if the array is the wrong size
      */
     public Matrix3f set(float[] matrix) {
         return set(matrix, true);
     }
 
     /**
-     * <code>set</code> sets the values of this matrix from an array of
-     * values;
+     * Sets all 9 elements from the specified array.
      *
-     * @param matrix
-     *            the matrix to set the value to.
-     * @param rowMajor
-     *            whether the incoming data is in row or column major order.
-     * @return this
+     * @param matrix the input array (not null, length=9, unaffected)
+     * @param rowMajor true to read the elements in row-major order (m00, m01,
+     *     ...) or false to read them in column-major order (m00, m10, ...)
+     * @return the (modified) current instance (for chaining)
+     * @throws IllegalArgumentException if the array is the wrong size
      */
     public Matrix3f set(float[] matrix, boolean rowMajor) {
         if (matrix.length != 9) {
@@ -739,21 +731,18 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * <code>set</code> defines the values of the matrix based on a supplied
-     * <code>Quaternion</code>. It should be noted that all previous values
-     * will be overridden.
+     * Sets all 9 elements to form a rotation matrix equivalent to the argument.
      *
-     * @param quaternion
-     *            the quaternion to create a rotational matrix from.
-     * @return this
+     * @param quaternion the input quaternion (not null, unaffected)
+     * @return the current instance (for chaining)
      */
     public Matrix3f set(Quaternion quaternion) {
         return quaternion.toRotationMatrix(this);
     }
 
     /**
-     * <code>loadIdentity</code> sets this matrix to the identity matrix.
-     * Where all values are zero except those along the diagonal which are one.
+     * Sets all 9 elements to form an identity matrix (diagonals = 1, other
+     * elements = 0).
      */
     public void loadIdentity() {
         m01 = m02 = m10 = m12 = m20 = m21 = 0;
@@ -761,7 +750,9 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * @return true if this matrix is identity
+     * Tests for exact identity. The current instance is unaffected.
+     *
+     * @return true if equal to {@link #IDENTITY}, otherwise false
      */
     public boolean isIdentity() {
         return (m00 == 1 && m01 == 0 && m02 == 0)
@@ -770,14 +761,13 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * <code>fromAngleAxis</code> sets this matrix4f to the values specified
-     * by an angle and an axis of rotation.  This method creates an object, so
-     * use fromAngleNormalAxis if your axis is already normalized.
+     * Sets all 9 elements to form a rotation matrix with the specified rotation
+     * angle and axis of rotation. This method creates garbage, so use
+     * {@link #fromAngleNormalAxis(float, com.jme3.math.Vector3f)} if the axis
+     * is known to be normalized.
      *
-     * @param angle
-     *            the angle to rotate (in radians).
-     * @param axis
-     *            the axis of rotation.
+     * @param angle the desired rotation angle (in radians)
+     * @param axis the desired axis of rotation (not null, unaffected)
      */
     public void fromAngleAxis(float angle, Vector3f axis) {
         Vector3f normAxis = axis.normalize();
@@ -785,13 +775,13 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * <code>fromAngleNormalAxis</code> sets this matrix4f to the values
-     * specified by an angle and a normalized axis of rotation.
+     * Sets all 9 elements to form a rotation matrix with the specified rotation
+     * angle and normalized axis of rotation. If the axis might not be
+     * normalized, use {@link #fromAngleAxis(float, com.jme3.math.Vector3f)}
+     * instead.
      *
-     * @param angle
-     *            the angle to rotate (in radians).
-     * @param axis
-     *            the axis of rotation (already normalized).
+     * @param angle the desired rotation angle (in radians)
+     * @param axis the desired axis of rotation (not null, length=1, unaffected)
      */
     public void fromAngleNormalAxis(float angle, Vector3f axis) {
         float fCos = FastMath.cos(angle);
@@ -819,28 +809,27 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * <code>mult</code> multiplies this matrix by a given matrix. The result
-     * matrix is returned as a new object. If the given matrix is null, a null
-     * matrix is returned.
+     * Multiplies with the argument and returns the product as a new instance.
+     * The current instance is unaffected.
      *
-     * @param mat
-     *            the matrix to multiply this matrix by.
-     * @return the result matrix.
+     * @param mat the right factor (not null, unaffected)
+     * @return {@code this} times {@code mat} (a new Matrix3f)
      */
     public Matrix3f mult(Matrix3f mat) {
         return mult(mat, null);
     }
 
     /**
-     * <code>mult</code> multiplies this matrix by a given matrix. The result
-     * matrix is returned as a new object.
+     * Multiplies with the specified matrix and returns the product in a 3rd
+     * matrix. The current instance is unaffected unless it's {@code product}.
      *
-     * @param mat
-     *            the matrix to multiply this matrix by.
-     * @param product
-     *            the matrix to store the result in. if null, a new matrix3f is
-     *            created.  It is safe for mat and product to be the same object.
-     * @return a matrix3f object containing the result of this operation
+     * <p>It is safe for {@code mat} and {@code product} to be the same object.
+     *
+     * @param mat the right factor (not null, unaffected unless it's {@code
+     *     product})
+     * @param product storage for the product, or null for a new Matrix3f
+     * @return {@code this} times {@code mat} (either {@code product} or a
+     *     new Matrix3f)
      */
     public Matrix3f mult(Matrix3f mat, Matrix3f product) {
         float temp00, temp01, temp02;
@@ -874,13 +863,14 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * <code>mult</code> multiplies this matrix by a given
-     * <code>Vector3f</code> object. The result vector is returned. If the
-     * given vector is null, null will be returned.
+     * Transforms the argument vector and returns the result as a new vector.
+     * The current instance is unaffected.
      *
-     * @param vec
-     *            the vector to multiply this matrix by.
-     * @return the result vector.
+     * <p>This can also be described as multiplying the matrix by a column
+     * vector.
+     *
+     * @param vec the vector to transform (not null, unaffected)
+     * @return a new Vector3f
      */
     public Vector3f mult(Vector3f vec) {
         return mult(vec, null);
