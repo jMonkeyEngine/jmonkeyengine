@@ -39,10 +39,15 @@ import java.nio.FloatBuffer;
 import java.util.logging.Logger;
 
 /**
- * <code>Matrix3f</code> defines a 3x3 matrix. Matrix data is maintained
- * internally and is accessible via the get and set methods. Convenience methods
- * are used for matrix operations as well as generating a matrix from a given
- * set of values.
+ * A matrix composed of 9 single-precision elements, used to represent
+ * linear transformations of 3-D coordinates, such as rotations, reflections,
+ * and scaling.
+ *
+ * <p>For pure rotations, the {@link com.jme3.math.Quaternion} class provides a
+ * more efficient representation.
+ *
+ * <p>Methods with names ending in "Local" modify the current instance. They are
+ * used to cut down on the creation of new instances.
  *
  * @author Mark Powell
  * @author Joshua Slack
@@ -53,70 +58,70 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
 
     private static final Logger logger = Logger.getLogger(Matrix3f.class.getName());
     /**
-     * the element in row 0, column 0
+     * The element in row 0, column 0.
      */
     protected float m00;
     /**
-     * the element in row 0, column 1
+     * The element in row 0, column 1.
      */
     protected float m01;
     /**
-     * the element in row 0, column 2
+     * The element in row 0, column 2.
      */
     protected float m02;
     /**
-     * the element in row 1, column 0
+     * The element in row 1, column 0.
      */
     protected float m10;
     /**
-     * the element in row 1, column 1
+     * The element in row 1, column 1.
      */
     protected float m11;
     /**
-     * the element in row 1, column 2
+     * The element in row 1, column 2.
      */
     protected float m12;
     /**
-     * the element in row 2, column 0
+     * The element in row 2, column 0.
      */
     protected float m20;
     /**
-     * the element in row 2, column 1
+     * The element in row 2, column 1.
      */
     protected float m21;
     /**
-     * the element in row 2, column 2
+     * The element in row 2, column 2.
      */
     protected float m22;
     /**
-     * an instance of the zero matrix (all elements = 0)
+     * Shared instance of the zero matrix (all elements = 0). Do not modify!
      */
     public static final Matrix3f ZERO = new Matrix3f(0, 0, 0, 0, 0, 0, 0, 0, 0);
     /**
-     * an instance of the identity matrix (diagonals = 1, other elements = 0)
+     * Shared instance of the identity matrix (diagonals = 1, other elements =
+     * 0). Do not modify!
      */
     public static final Matrix3f IDENTITY = new Matrix3f();
 
     /**
-     * Constructor instantiates a new <code>Matrix3f</code> object. The
-     * initial values for the matrix is that of the identity matrix.
+     * Instantiates an identity matrix (diagonals = 1, other elements = 0).
      */
     public Matrix3f() {
         loadIdentity();
     }
 
     /**
-     * constructs a matrix with the given values.
+     * Instantiates a matrix with specified elements.
      *
-     * @param m00 0x0 in the matrix.
-     * @param m01 0x1 in the matrix.
-     * @param m02 0x2 in the matrix.
-     * @param m10 1x0 in the matrix.
-     * @param m11 1x1 in the matrix.
-     * @param m12 1x2 in the matrix.
-     * @param m20 2x0 in the matrix.
-     * @param m21 2x1 in the matrix.
-     * @param m22 2x2 in the matrix.
+     * @param m00 the desired value for row 0, column 0
+     * @param m01 the desired value for row 0, column 1
+     * @param m02 the desired value for row 0, column 2
+     * @param m10 the desired value for row 1, column 0
+     * @param m11 the desired value for row 1, column 1
+     * @param m12 the desired value for row 1, column 2
+     * @param m20 the desired value for row 2, column 0
+     * @param m21 the desired value for row 2, column 1
+     * @param m22 the desired value for row 2, column 2
      */
     public Matrix3f(float m00, float m01, float m02, float m10, float m11,
             float m12, float m20, float m21, float m22) {
@@ -132,18 +137,17 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Copy constructor that creates a new <code>Matrix3f</code> object that
-     * is the same as the provided matrix.
+     * Instantiates a copy of the argument. If the argument is null, an identity
+     * matrix is produced.
      *
-     * @param mat
-     *            the matrix to copy.
+     * @param mat the matrix to copy (unaffected) or null for identity
      */
     public Matrix3f(Matrix3f mat) {
         set(mat);
     }
 
     /**
-     * Takes the absolute value of all matrix fields locally.
+     * Replaces all 9 elements with their absolute values.
      */
     public void absoluteLocal() {
         m00 = FastMath.abs(m00);
@@ -158,13 +162,11 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * <code>copy</code> transfers the contents of a given matrix to this
-     * matrix. If a null matrix is supplied, this matrix is set to the identity
-     * matrix.
+     * Copies all 9 elements from the argument. If the argument is null, the
+     * current instance is set to identity (diagonals = 1, other elements = 0).
      *
-     * @param matrix
-     *            the matrix to copy.
-     * @return this
+     * @param matrix the matrix to copy (unaffected) or null for none
+     * @return the (modified) current instance (for chaining)
      */
     public Matrix3f set(Matrix3f matrix) {
         if (null == matrix) {
@@ -184,12 +186,12 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * <code>get</code> retrieves a value from the matrix at the given position.
+     * Returns the specified element. The matrix is unaffected.
      *
-     * @param i   the row index.
-     * @param j   the column index.
-     * @return the value at (i, j).
-     * @throws IllegalArgumentException if either index is invalid
+     * @param i the row index (0, 1, or 2)
+     * @param j the column index (0, 1, or 2)
+     * @return the value of the element at (i, j)
+     * @throws IllegalArgumentException if either index isn't 0, 1, or 2
      */
     @SuppressWarnings("fallthrough")
     public float get(int i, int j) {
@@ -228,14 +230,15 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * <code>get(float[])</code> returns the matrix in row-major or column-major order.
+     * Copies the matrix to the specified array. The matrix is unaffected.
      *
-     * @param data
-     *      The array to return the data into. This array can be 9 or 16 floats in size.
-     *      Only the upper 3x3 are assigned to in the case of a 16 element array.
-     * @param rowMajor
-     *      True for row major storage in the array (translation in elements 3, 7, 11 for a 4x4),
-     *      false for column major (translation in elements 12, 13, 14 for a 4x4).
+     * <p>If the array has 16 elements, then the matrix is treated as if it
+     * contained the 1st 3 rows and 1st 3 columns of a 4x4 matrix.
+     *
+     * @param data storage for the elements (not null, must have length=9 or
+     *     length=16)
+     * @param rowMajor true to store the elements in row-major order (m00, m01,
+     *     ...) or false to store them in column-major order (m00, m10, ...)
      */
     public void get(float[] data, boolean rowMajor) {
         if (data.length == 9) {
@@ -288,14 +291,11 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Normalize this matrix and store the result in the store parameter that is
-     * returned.
+     * Normalizes the matrix and returns the result in the argument. The current
+     * instance is unaffected, unless it's {@code store}.
      *
-     * Note that the original matrix is not altered.
-     *
-     * @param store the matrix to store the result of the normalization. If this
-     * parameter is null a new one is created
-     * @return the normalized matrix
+     * @param store storage for the result, or null for a new Matrix3f
+     * @return either {@code store} or a new Matrix3f
      */
     public Matrix3f normalize(Matrix3f store) {
         if (store == null) {
@@ -327,34 +327,32 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Normalize this matrix
+     * Normalizes the matrix and returns the (modified) current instance.
      *
-     * @return this matrix once normalized.
+     * @return the (modified) current instance (for chaining)
      */
     public Matrix3f normalizeLocal() {
         return normalize(this);
     }
 
     /**
-     * <code>getColumn</code> returns one of three columns specified by the
-     * parameter. This column is returned as a <code>Vector3f</code> object.
+     * Returns the specified column. The matrix is unaffected.
      *
-     * @param i   the column to retrieve. Must be between 0 and 2.
-     * @return the column specified by the index.
+     * @param i the column index (0, 1, or 2)
+     * @return a new Vector3f
+     * @throws IllegalArgumentException if {@code i} isn't 0, 1, or 2
      */
     public Vector3f getColumn(int i) {
         return getColumn(i, null);
     }
 
     /**
-     * <code>getColumn</code> returns one of three columns specified by the
-     * parameter. This column is returned as a <code>Vector3f</code> object.
+     * Returns the specified column. The matrix is unaffected.
      *
-     * @param i   the column to retrieve. Must be between 0 and 2.
-     * @param store
-     *            the vector object to store the result in. if null, a new one
-     *            is created.
-     * @return the column specified by the index.
+     * @param i the column index (0, 1, or 2)
+     * @param store storage for the result, or null for a new Vector3f
+     * @return either {@code store} or a new Vector3f
+     * @throws IllegalArgumentException if {@code i} isn't 0, 1, or 2
      */
     public Vector3f getColumn(int i, Vector3f store) {
         if (store == null) {
@@ -384,25 +382,23 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * <code>getColumn</code> returns one of three rows as specified by the
-     * parameter. This row is returned as a <code>Vector3f</code> object.
+     * Returns the specified row. The matrix is unaffected.
      *
-     * @param i   the row to retrieve. Must be between 0 and 2.
-     * @return the row specified by the index.
+     * @param i the row index (0, 1, or 2)
+     * @return a new Vector3f
+     * @throws IllegalArgumentException if {@code i} isn't 0, 1, or 2
      */
     public Vector3f getRow(int i) {
         return getRow(i, null);
     }
 
     /**
-     * <code>getRow</code> returns one of three rows as specified by the
-     * parameter. This row is returned as a <code>Vector3f</code> object.
+     * Returns the specified row. The matrix is unaffected.
      *
-     * @param i   the row to retrieve. Must be between 0 and 2.
-     * @param store
-     *            the vector object to store the result in. if null, a new one
-     *            is created.
-     * @return the row specified by the index.
+     * @param i the row index (0, 1, or 2)
+     * @param store storage for the result, or null for a new Vector3f
+     * @return either {@code store} or a new Vector3f
+     * @throws IllegalArgumentException if {@code i} isn't 0, 1, or 2
      */
     public Vector3f getRow(int i, Vector3f store) {
         if (store == null) {
@@ -1404,7 +1400,7 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * <code>scale</code> scales the operation performed by this matrix on a
-     * per-component basis.
+     * per-element basis.
      *
      * @param scale
      *         The scale applied to each of the X, Y and Z output values.
