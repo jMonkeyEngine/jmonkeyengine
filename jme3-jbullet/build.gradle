@@ -19,6 +19,6 @@ dependencies {
     api 'javax.vecmath:vecmath:1.5.2'
     api project(':jme3-core')
     api project(':jme3-terrain')
-    testRuntime project(':jme3-desktop')
-    testRuntime project(':jme3-testdata')
+    testRuntimeOnly project(':jme3-desktop')
+    testRuntimeOnly project(':jme3-testdata')
 }

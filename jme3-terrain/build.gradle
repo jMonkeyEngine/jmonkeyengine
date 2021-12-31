@@ -1,9 +1,9 @@
 dependencies {
     api project(':jme3-core')
     testImplementation project(':jme3-core')
-    testImplementation project(':jme3-desktop')
     testImplementation project(':jme3-core').sourceSets.test.output
-    testImplementation project(':jme3-testdata')
+    testRuntimeOnly project(':jme3-desktop')
+    testRuntimeOnly project(':jme3-testdata')
 }
 
 javadoc {
