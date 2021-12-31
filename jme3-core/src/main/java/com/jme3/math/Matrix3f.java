@@ -1332,16 +1332,15 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * A function for creating a rotation matrix that rotates a vector called
-     * "start" into another vector called "end".
+     * Configures a rotation matrix that rotates the specified start direction
+     * to the specified end direction.
      *
-     * @param start
-     *            normalized non-zero starting vector
-     * @param end
-     *            normalized non-zero ending vector
+     * <p>See Tomas Möller, John F. Hughes "Efficiently Building a Matrix to
+     * Rotate One Vector to Another" Journal of Graphics Tools, 4(4):1-4, 1999.
      *
-     * See Tomas M�ller, John Hughes "Efficiently Building a Matrix to Rotate
-     *      One Vector to Another" Journal of Graphics Tools, 4(4):1-4, 1999.
+     * @param start the start direction (not null, length=1, unaffected)
+     * @param end the end direction (not null, length=1, unaffected)
+     *
      */
     public void fromStartEndVectors(Vector3f start, Vector3f end) {
         Vector3f v = new Vector3f();
@@ -1424,11 +1423,10 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * <code>scale</code> scales the operation performed by this matrix on a
-     * per-element basis.
+     * Scales each column by the corresponding element of the argument.
      *
-     * @param scale
-     *         The scale applied to each of the X, Y and Z output values.
+     * @param scale the scale factors: X scales column 0, Y scales column 1,
+     *     Z scales column 2 (not null, unaffected)
      */
     public void scale(Vector3f scale) {
         m00 *= scale.x;
@@ -1442,6 +1440,12 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
         m22 *= scale.z;
     }
 
+    /**
+     * Tests for an identity matrix, with 0.0001 tolerance. The current
+     * instance is unaffected.
+     *
+     * @return true if all elements are within 0.0001 of an identity matrix
+     */
     static boolean equalIdentity(Matrix3f mat) {
         if (Math.abs(mat.m00 - 1) > 1e-4) {
             return false;
@@ -1478,9 +1482,9 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Create a copy of this matrix.
+     * Creates a copy. The current instance is unaffected.
      *
-     * @return a new instance, equivalent to this one
+     * @return a new instance, equivalent to the current one
      */
     @Override
     public Matrix3f clone() {
