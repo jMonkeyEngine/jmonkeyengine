@@ -647,7 +647,7 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
      * Copies all 9 elements from the specified 2-dimensional array.
      *
      * @param matrix the input array (not null, length=3, the first element
-     *      having length=3, the other elements having length&ge;3, unaffected)
+     *     having length=3, the other elements having length&ge;3, unaffected)
      * @return the (modified) current instance (for chaining)
      * @throws IllegalArgumentException if the array is the wrong size
      */
@@ -846,8 +846,8 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
      * @param mat the right factor (not null, unaffected unless it's {@code
      *     product})
      * @param product storage for the product, or null for a new Matrix3f
-     * @return {@code this} times {@code mat} (either {@code product} or a
-     *     new Matrix3f)
+     * @return {@code this} times {@code mat} (either {@code product} or a new
+     *     Matrix3f)
      */
     public Matrix3f mult(Matrix3f mat, Matrix3f product) {
         float temp00, temp01, temp02;
@@ -950,7 +950,7 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
      * <p>Despite the name, the current instance is unaffected.
      *
      * @param vec the vector to transform (modified if not null)
-     * @return {@code vec} (for chaining)
+     * @return {@code vec} or null
      */
     public Vector3f multLocal(Vector3f vec) {
         if (vec == null) {
@@ -1425,8 +1425,8 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
     /**
      * Scales each column by the corresponding element of the argument.
      *
-     * @param scale the scale factors: X scales column 0, Y scales column 1,
-     *     Z scales column 2 (not null, unaffected)
+     * @param scale the scale factors: X scales column 0, Y scales column 1, Z
+     *     scales column 2 (not null, unaffected)
      */
     public void scale(Vector3f scale) {
         m00 *= scale.x;
@@ -1441,8 +1441,8 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Tests for an identity matrix, with 0.0001 tolerance. The current
-     * instance is unaffected.
+     * Tests for an identity matrix, with 0.0001 tolerance. The current instance
+     * is unaffected.
      *
      * @return true if all elements are within 0.0001 of an identity matrix
      */
