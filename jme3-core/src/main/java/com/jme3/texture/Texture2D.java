@@ -214,9 +214,9 @@ public class Texture2D extends Texture {
     }
 
     @Override
-    public void read(JmeImporter e) throws IOException {
-        super.read(e);
-        InputCapsule capsule = e.getCapsule(this);
+    public void read(JmeImporter importer) throws IOException {
+        super.read(importer);
+        InputCapsule capsule = importer.getCapsule(this);
         wrapS = capsule.readEnum("wrapS", WrapMode.class, WrapMode.EdgeClamp);
         wrapT = capsule.readEnum("wrapT", WrapMode.class, WrapMode.EdgeClamp);
     }

@@ -142,15 +142,15 @@ public class TestBatchNodeTower extends SimpleApplication {
         @Override
         public void onAction(String name, boolean keyPressed, float tpf) {
             if (name.equals("shoot") && !keyPressed) {
-                Geometry bulletg = new Geometry("bullet", bullet);
-                bulletg.setMaterial(mat2);
-                bulletg.setShadowMode(ShadowMode.CastAndReceive);
-                bulletg.setLocalTranslation(cam.getLocation());
+                Geometry bulletGeometry = new Geometry("bullet", bullet);
+                bulletGeometry.setMaterial(mat2);
+                bulletGeometry.setShadowMode(ShadowMode.CastAndReceive);
+                bulletGeometry.setLocalTranslation(cam.getLocation());
                 RigidBodyControl bulletNode = new BombControl(assetManager, bulletCollisionShape, 1);
 //                RigidBodyControl bulletNode = new RigidBodyControl(bulletCollisionShape, 1);
                 bulletNode.setLinearVelocity(cam.getDirection().mult(25));
-                bulletg.addControl(bulletNode);
-                rootNode.attachChild(bulletg);
+                bulletGeometry.addControl(bulletNode);
+                rootNode.attachChild(bulletGeometry);
                 getPhysicsSpace().add(bulletNode);
             }
         }

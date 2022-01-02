@@ -119,9 +119,9 @@ class SweepSphere implements Collidable {
             return Float.NaN;
         }
 
-        float sqrtd = FastMath.sqrt(determinant);
-        float r1 = (-b - sqrtd) / (2f * a);
-        float r2 = (-b + sqrtd) / (2f * a);
+        float sqrtDet = FastMath.sqrt(determinant);
+        float r1 = (-b - sqrtDet) / (2f * a);
+        float r2 = (-b + sqrtDet) / (2f * a);
 
         if (r1 > r2){
             float temp = r2;

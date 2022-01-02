@@ -58,12 +58,12 @@ public class ShapeBoundsTest {
 
     @Test
     public void testCurve() {
-        Vector3f[] controlp = new Vector3f[4];
-        controlp[0] = new Vector3f(0, 0, 0);
-        controlp[1] = new Vector3f(1, 1, 1);
-        controlp[2] = new Vector3f(2, 1, 1);
-        controlp[3] = new Vector3f(3, 2, 1);
-        Curve shape = new Curve(controlp, 32);
+        Vector3f[] controlPoints = new Vector3f[4];
+        controlPoints[0] = new Vector3f(0, 0, 0);
+        controlPoints[1] = new Vector3f(1, 1, 1);
+        controlPoints[2] = new Vector3f(2, 1, 1);
+        controlPoints[3] = new Vector3f(3, 2, 1);
+        Curve shape = new Curve(controlPoints, 32);
         Geometry geometry = new Geometry("geom", shape);
         testBounds(geometry);
     }

@@ -436,13 +436,13 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
 
                 if (trailingEnabled && trailing) {
                     if (targetMoves) {
-                        //computation if the inverted direction of the target
+                        // Compute the reversed direction of the target.
                         Vector3f a = targetDir.negate().normalizeLocal();
-                        //the x unit vector
+                        // the x unit vector
                         Vector3f b = Vector3f.UNIT_X;
                         // 2-D is good enough.
                         a.y = 0;
-                        //computation of the rotation angle between the x axis and the trail
+                        // Compute the angle between the X axis and the trail.
                         if (targetDir.z > 0) {
                             targetRotation = FastMath.TWO_PI - FastMath.acos(a.dot(b));
                         } else {
@@ -452,7 +452,8 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
                             targetRotation -= FastMath.TWO_PI;
                         }
 
-                        //if there is an important change in the direction while trailing reset of the lerp factor to avoid jumpy movements
+                        // If there is an important change in the direction while trailing,
+                        // reset the lerp factor to avoid jumpy movements.
                         if (targetRotation != previousTargetRotation && FastMath.abs(targetRotation - previousTargetRotation) > FastMath.PI / 8) {
                             trailingLerpFactor = 0;
                         }
@@ -463,7 +464,7 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
                     //computing rotation by linear interpolation
                     rotation = FastMath.interpolateLinear(trailingLerpFactor, rotation, targetRotation);
 
-                    //if the rotation is near the target rotation we're good, that's over
+                    // If the rotation is near the target rotation, we're good, that's over.
                     if (targetRotation + 0.01f >= rotation && targetRotation - 0.01f <= rotation) {
                         trailing = false;
                         trailingLerpFactor = 0;
@@ -545,7 +546,9 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
      */
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
-        if (!enabled) {
+        if (enabled) {
+            this.canRotate = !dragToRotate; //On enable, set back to correct state
+        } else {
             canRotate = false; // reset this flag in-case it was on before
         }
     }

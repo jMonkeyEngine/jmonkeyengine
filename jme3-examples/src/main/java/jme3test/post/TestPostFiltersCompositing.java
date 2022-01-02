@@ -85,15 +85,15 @@ public class TestPostFiltersCompositing extends SimpleApplication {
 
         viewPort.setOutputFrameBuffer(mainVPFrameBuffer);
 
-        //creating the post processor for the gui viewport
-        final FilterPostProcessor guifpp = new FilterPostProcessor(assetManager);
-        guifpp.setFrameBufferFormat(Image.Format.RGBA8);
-        guifpp.addFilter(new ColorOverlayFilter(ColorRGBA.Red));
-        //this will compose the main viewport texture with the guiviewport back buffer.
-        //Note that you can switch the order of the filters so that guiviewport filters are applied or not to the main viewport texture
-        guifpp.addFilter(new ComposeFilter(mainVPTexture));
+        // Create the post processor for the GUI viewport.
+        final FilterPostProcessor guiFpp = new FilterPostProcessor(assetManager);
+        guiFpp.setFrameBufferFormat(Image.Format.RGBA8);
+        guiFpp.addFilter(new ColorOverlayFilter(ColorRGBA.Red));
+        // This will compose the main viewport texture with the GUI-viewport back buffer.
+        // Note that you can switch the order of the filters so that GUI-viewport filters are applied or not to the main viewport texture
+        guiFpp.addFilter(new ComposeFilter(mainVPTexture));
 
-        guiViewPort.addProcessor(guifpp);
+        guiViewPort.addProcessor(guiFpp);
         
         // Compositing is done by mixing texture depending on the alpha channel, so
         // it's important that the GUI-viewport clear-color alpha value is set to 0.

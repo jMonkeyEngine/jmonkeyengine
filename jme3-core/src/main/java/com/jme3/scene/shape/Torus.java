@@ -103,9 +103,9 @@ public class Torus extends Mesh {
     }
 
     @Override
-    public void read(JmeImporter e) throws IOException {
-        super.read(e);
-        InputCapsule capsule = e.getCapsule(this);
+    public void read(JmeImporter importer) throws IOException {
+        super.read(importer);
+        InputCapsule capsule = importer.getCapsule(this);
         circleSamples = capsule.readInt("circleSamples", 0);
         radialSamples = capsule.readInt("radialSamples", 0);
         innerRadius = capsule.readFloat("innerRadius", 0);

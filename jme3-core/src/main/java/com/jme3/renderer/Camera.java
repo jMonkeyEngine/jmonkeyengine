@@ -1251,9 +1251,10 @@ public class Camera implements Savable, Cloneable {
 
     /**
      * Provides access to the view projection matrix.
-     * @return The result of multiplying the projection matrix by the view
+     *
+     *  @return The result of multiplying the projection matrix by the view
      *     matrix. This matrix is required for rendering an object. It is
-     *     precomputed so as to not compute it every time an object is rendered.
+     *     precomputed to avoid computing it every time an object is rendered.
      */
     public Matrix4f getViewProjectionMatrix() {
         return viewProjectionMatrix;
@@ -1606,8 +1607,8 @@ public class Camera implements Savable, Cloneable {
     }
 
     @Override
-    public void read(JmeImporter e) throws IOException {
-        InputCapsule capsule = e.getCapsule(this);
+    public void read(JmeImporter importer) throws IOException {
+        InputCapsule capsule = importer.getCapsule(this);
         location = (Vector3f) capsule.readSavable("location", Vector3f.ZERO.clone());
         rotation = (Quaternion) capsule.readSavable("rotation", Quaternion.DIRECTION_Z.clone());
         frustumNear = capsule.readFloat("frustumNear", 1);

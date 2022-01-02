@@ -115,7 +115,7 @@ public class Joint implements Savable, JmeCloneable, HasLocalTransform {
     }
 
     /**
-     * Updates the model transforms for this bone, and, possibly the attach node
+     * Updates the model transforms for this bone and for the attachments node
      * if not null.
      * <p>
      * The model transform of this bone is computed by combining the parent's

@@ -133,7 +133,7 @@ public abstract class AbstractMessageDelegator<S extends MessageConnection>
      *  only works with methods that actually have arguments.
      *  This implementation returns the last element of the method's
      *  getParameterTypes() array, thus supporting both 
-     *  method(connection, messageType) as well as just method(messageType)
+     *  method(connection, messageType) and method(messageType)
      *  calling forms.
      */
     protected Class getMessageType( Method m ) {

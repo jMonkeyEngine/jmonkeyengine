@@ -368,14 +368,14 @@ public class Triangle extends AbstractTriangle implements Savable, Cloneable, ja
      * De-serialize this triangle from the specified importer, for example when
      * loading from a J3O file.
      *
-     * @param e (not null)
+     * @param importer (not null)
      * @throws IOException from the importer
      */
     @Override
-    public void read(JmeImporter e) throws IOException {
-        pointa = (Vector3f) e.getCapsule(this).readSavable("pointa", Vector3f.ZERO.clone());
-        pointb = (Vector3f) e.getCapsule(this).readSavable("pointb", Vector3f.ZERO.clone());
-        pointc = (Vector3f) e.getCapsule(this).readSavable("pointc", Vector3f.ZERO.clone());
+    public void read(JmeImporter importer) throws IOException {
+        pointa = (Vector3f) importer.getCapsule(this).readSavable("pointa", Vector3f.ZERO.clone());
+        pointb = (Vector3f) importer.getCapsule(this).readSavable("pointb", Vector3f.ZERO.clone());
+        pointc = (Vector3f) importer.getCapsule(this).readSavable("pointc", Vector3f.ZERO.clone());
     }
 
     /**

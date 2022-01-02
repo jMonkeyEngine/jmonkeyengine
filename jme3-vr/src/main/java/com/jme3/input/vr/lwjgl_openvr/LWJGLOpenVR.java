@@ -349,9 +349,9 @@ public class LWJGLOpenVR implements VRAPI {
 
             HmdMatrix34 mat = HmdMatrix34.create();
             VRSystem.VRSystem_GetSeatedZeroPoseToStandingAbsoluteTrackingPose(mat);
-            Matrix4f tempmat = new Matrix4f();
-            convertSteamVRMatrix3ToMatrix4f(mat, tempmat);
-            tempmat.toTranslationVector(hmdSeatToStand);
+            Matrix4f tempMatrix = new Matrix4f();
+            convertSteamVRMatrix3ToMatrix4f(mat, tempMatrix);
+            tempMatrix.toTranslationVector(hmdSeatToStand);
         }
         return hmdSeatToStand;
     }

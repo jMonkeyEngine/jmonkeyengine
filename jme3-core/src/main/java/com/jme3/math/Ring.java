@@ -214,12 +214,12 @@ public final class Ring implements Savable, Cloneable, java.io.Serializable {
      * De-serialize this ring from the specified importer, for example
      * when loading from a J3O file.
      *
-     * @param e (not null)
+     * @param importer (not null)
      * @throws IOException from the importer
      */
     @Override
-    public void read(JmeImporter e) throws IOException {
-        InputCapsule capsule = e.getCapsule(this);
+    public void read(JmeImporter importer) throws IOException {
+        InputCapsule capsule = importer.getCapsule(this);
         center = (Vector3f) capsule.readSavable("center", Vector3f.ZERO.clone());
         up = (Vector3f) capsule.readSavable("up", Vector3f.UNIT_Z.clone());
         innerRadius = capsule.readFloat("innerRadius", 0f);

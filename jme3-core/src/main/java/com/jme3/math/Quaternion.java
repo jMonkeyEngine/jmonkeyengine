@@ -832,9 +832,9 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      * {@link #nlerp(com.jme3.math.Quaternion, float)}, but slower.
 
      * @param q2 the desired value when changeAmnt=1 (not null, may be modified)
-     * @param changeAmnt the fractional change amount
+     * @param changeAmount the fractional change amount
      */
-    public void slerp(Quaternion q2, float changeAmnt) {
+    public void slerp(Quaternion q2, float changeAmount) {
         if (this.x == q2.x && this.y == q2.y && this.z == q2.z
                 && this.w == q2.w) {
             return;
@@ -853,8 +853,8 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
         }
 
         // Set the first and second scale for the interpolation
-        float scale0 = 1 - changeAmnt;
-        float scale1 = changeAmnt;
+        float scale0 = 1 - changeAmount;
+        float scale1 = changeAmount;
 
         // Check if the angle between the 2 quaternions was big enough to
         // warrant such calculations
@@ -866,8 +866,8 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
 
             // Calculate the scale for q1 and q2, according to the angle and
             // its sine
-            scale0 = FastMath.sin((1 - changeAmnt) * theta) * invSinTheta;
-            scale1 = FastMath.sin((changeAmnt * theta)) * invSinTheta;
+            scale0 = FastMath.sin((1 - changeAmount) * theta) * invSinTheta;
+            scale1 = FastMath.sin((changeAmount * theta)) * invSinTheta;
         }
 
         // Calculate the x, y, z and w values for the quaternion by using a
@@ -985,29 +985,29 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
 
     /**
      * Multiplies by the specified quaternion and returns the product in a 3rd
-     * quaternion. The current instance is unaffected, unless it's {@code res}.
+     * quaternion. The current instance is unaffected, unless it's {@code storeResult}.
      *
      * <p>This method is used to combine rotations. Note that quaternion
      * multiplication is noncommutative, so generally q * p != p * q.
      *
-     * <p>It is safe for {@code q} and {@code res} to be the same object.
-     * However, if {@code this} and {@code res} are the same object, the result
+     * <p>It is safe for {@code q} and {@code storeResult} to be the same object.
+     * However, if {@code this} and {@code storeResult} are the same object, the result
      * is undefined.
      *
      * @param q the right factor (not null, unaffected unless it's {@code res})
-     * @param res storage for the product, or null for a new Quaternion
-     * @return {@code this * q} (either {@code res} or a new Quaternion)
+     * @param storeResult storage for the product, or null for a new Quaternion
+     * @return {@code this * q} (either {@code storeResult} or a new Quaternion)
      */
-    public Quaternion mult(Quaternion q, Quaternion res) {
-        if (res == null) {
-            res = new Quaternion();
+    public Quaternion mult(Quaternion q, Quaternion storeResult) {
+        if (storeResult == null) {
+            storeResult = new Quaternion();
         }
         float qw = q.w, qx = q.x, qy = q.y, qz = q.z;
-        res.x = x * qw + y * qz - z * qy + w * qx;
-        res.y = -x * qz + y * qw + z * qx + w * qy;
-        res.z = x * qy - y * qx + z * qw + w * qz;
-        res.w = -x * qx - y * qy - z * qz + w * qw;
-        return res;
+        storeResult.x = x * qw + y * qz - z * qy + w * qx;
+        storeResult.y = -x * qz + y * qw + z * qx + w * qy;
+        storeResult.z = x * qy - y * qx + z * qw + w * qz;
+        storeResult.w = -x * qx - y * qy - z * qz + w * qw;
+        return storeResult;
     }
 
     /**
@@ -1520,12 +1520,12 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      * De-serializes from the specified importer, for example when loading from
      * a J3O file.
      *
-     * @param e the importer to use (not null)
+     * @param importer the importer to use (not null)
      * @throws IOException from the importer
      */
     @Override
-    public void read(JmeImporter e) throws IOException {
-        InputCapsule cap = e.getCapsule(this);
+    public void read(JmeImporter importer) throws IOException {
+        InputCapsule cap = importer.getCapsule(this);
         x = cap.readFloat("x", 0);
         y = cap.readFloat("y", 0);
         z = cap.readFloat("z", 0);

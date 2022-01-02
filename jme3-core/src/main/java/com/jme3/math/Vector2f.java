@@ -226,39 +226,39 @@ public final class Vector2f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Sets this vector to the interpolation by changeAmnt from this to the
-     * finalVec this=(1-changeAmnt)*this + changeAmnt * finalVec
+     * Sets this vector to the interpolation by changeAmount from this to the
+     * finalVec this=(1-changeAmount)*this + changeAmount * finalVec
      *
      * @param finalVec
      *            The final vector to interpolate towards
-     * @param changeAmnt
+     * @param changeAmount
      *            An amount between 0.0 - 1.0 representing a percentage change
      *            from this towards finalVec
      * @return this
      */
-    public Vector2f interpolateLocal(Vector2f finalVec, float changeAmnt) {
-        this.x = (1 - changeAmnt) * this.x + changeAmnt * finalVec.x;
-        this.y = (1 - changeAmnt) * this.y + changeAmnt * finalVec.y;
+    public Vector2f interpolateLocal(Vector2f finalVec, float changeAmount) {
+        this.x = (1 - changeAmount) * this.x + changeAmount * finalVec.x;
+        this.y = (1 - changeAmount) * this.y + changeAmount * finalVec.y;
         return this;
     }
 
     /**
-     * Sets this vector to the interpolation by changeAmnt from beginVec to
-     * finalVec this=(1-changeAmnt)*beginVec + changeAmnt * finalVec
+     * Sets this vector to the interpolation by changeAmount from beginVec to
+     * finalVec this=(1-changeAmount)*beginVec + changeAmount * finalVec
      *
      * @param beginVec
      *            The beginning vector (delta=0)
      * @param finalVec
      *            The final vector to interpolate towards (delta=1)
-     * @param changeAmnt
+     * @param changeAmount
      *            An amount between 0.0 - 1.0 representing a percentage change
      *            from beginVec towards finalVec
      * @return this
      */
     public Vector2f interpolateLocal(Vector2f beginVec, Vector2f finalVec,
-            float changeAmnt) {
-        this.x = (1 - changeAmnt) * beginVec.x + changeAmnt * finalVec.x;
-        this.y = (1 - changeAmnt) * beginVec.y + changeAmnt * finalVec.y;
+            float changeAmount) {
+        this.x = (1 - changeAmount) * beginVec.x + changeAmount * finalVec.x;
+        this.y = (1 - changeAmount) * beginVec.y + changeAmount * finalVec.y;
         return this;
     }
 
@@ -814,12 +814,12 @@ public final class Vector2f implements Savable, Cloneable, java.io.Serializable 
      * De-serialize this vector from the specified importer, for example
      * when loading from a J3O file.
      *
-     * @param e (not null)
+     * @param importer (not null)
      * @throws IOException from the importer
      */
     @Override
-    public void read(JmeImporter e) throws IOException {
-        InputCapsule capsule = e.getCapsule(this);
+    public void read(JmeImporter importer) throws IOException {
+        InputCapsule capsule = importer.getCapsule(this);
         x = capsule.readFloat("x", 0);
         y = capsule.readFloat("y", 0);
     }

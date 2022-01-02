@@ -44,7 +44,7 @@ public final class FormatVersion {
     public static final int VERSION = 2;
     
     /**
-     * Signature of the format. Currently "JME3" as ASCII
+     * Signature of the format: currently, "JME3" as ASCII.
      */
     public static final int SIGNATURE = 0x4A4D4533;
     

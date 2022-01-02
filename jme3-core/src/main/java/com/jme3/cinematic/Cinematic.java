@@ -54,7 +54,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * An appstate for composing and playing cut scenes in a game. The cinematic
+ * An appstate for composing and playing cutscenes in a game. The cinematic
  * schedules CinematicEvents over a timeline. Once the Cinematic created it has
  * to be attached to the stateManager.
  *
@@ -71,16 +71,16 @@ import java.util.logging.Logger;
  * Cinematic#enqueueCinematicEvent(com.jme3.cinematic.events.CinematicEvent)
  * that enqueue events one after the other according to their initialDuration
  *
- * a cinematic has convenient methods to handle the playback :
+ * A Cinematic has convenient methods to manage playback:
  * @see Cinematic#play()
  * @see Cinematic#pause()
  * @see Cinematic#stop()
  *
- * A cinematic is itself a CinematicEvent, meaning you can embed several
- * Cinematics. Embedded cinematics must not be added to the stateManager though.
+ * A Cinematic is itself a CinematicEvent, meaning you can embed several
+ * cinematics. Embedded cinematics must not be added to the stateManager though.
  *
- * Cinematic has a way to handle several point of view by creating CameraNode
- * over a cam and activating them on schedule.
+ * Cinematic can handle several points of view by creating camera nodes
+ * and activating them on schedule.
  * @see Cinematic#bindCamera(java.lang.String, com.jme3.renderer.Camera)
  * @see Cinematic#activateCamera(float, java.lang.String)
  * @see Cinematic#setActiveCamera(java.lang.String)
@@ -449,9 +449,8 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
     }
 
     /**
-     * enqueue a cinematic event to a cinematic. This is a handy method when you
-     * want to chain event of a given duration without knowing their initial
-     * duration
+     * Enqueue a cinematic event to a Cinematic. This is handy when you
+     * want to chain events without knowing their durations.
      *
      * @param cinematicEvent the cinematic event to enqueue
      * @return the timestamp the event was scheduled.
@@ -715,7 +714,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
     }
 
     /**
-     * clear the cinematic of its events.
+     * Remove all events from the Cinematic.
      */
     public void clear() {
         dispose();

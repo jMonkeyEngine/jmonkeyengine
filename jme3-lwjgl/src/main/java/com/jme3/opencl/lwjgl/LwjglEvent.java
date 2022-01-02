@@ -59,7 +59,7 @@ public class LwjglEvent extends Event {
             return;
         }
         CL10.clWaitForEvents(event);
-        release(); //short cut to save resources
+        release(); // shortcut to save resources
     }
 
     @Override

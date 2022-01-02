@@ -42,7 +42,7 @@ import java.util.Objects;
  * format and buffer structure.
  * <br>
  * The image is specified by the {@link ImageDescriptor}, specifying
- * the extend and dimension of the image, and {@link ImageFormat}, specifying
+ * the type and dimensions of the image, and {@link ImageFormat}, specifying
  * the type of each pixel.
  * <br>
  * An image is created from scratch using

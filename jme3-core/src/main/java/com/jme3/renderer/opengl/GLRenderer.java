@@ -2379,7 +2379,7 @@ public final class GLRenderer implements Renderer {
         }
 
         if (caps.contains(Caps.NonPowerOfTwoTextures)) {
-            // Texture is NPOT but it is supported by video hardware.
+            // Texture is NPOT, but it is supported by video hardware.
             return;
         }
 

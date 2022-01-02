@@ -136,7 +136,7 @@ public class PQTorus extends Mesh {
         Vector3f pointB, T, N, B;
         Vector3f tempNorm = new Vector3f();
         float r, x, y, z, theta = 0.0f, beta;
-        int nvertex = 0;
+        int nVertex = 0;
 
         // Move along the length of the pq torus
         for (int i = 0; i < steps; i++) {
@@ -167,7 +167,7 @@ public class PQTorus extends Mesh {
             N = N.normalize();
             B = B.normalize();
             beta = 0.0f;
-            for (int j = 0; j < radialSamples; j++, nvertex++) {
+            for (int j = 0; j < radialSamples; j++, nVertex++) {
                 beta += betaStep;
                 float cx = FastMath.cos(beta) * width;
                 float cy = FastMath.sin(beta) * width;
@@ -215,9 +215,9 @@ public class PQTorus extends Mesh {
     }
 
     @Override
-    public void read(JmeImporter e) throws IOException {
-        super.read(e);
-        InputCapsule capsule = e.getCapsule(this);
+    public void read(JmeImporter importer) throws IOException {
+        super.read(importer);
+        InputCapsule capsule = importer.getCapsule(this);
         p = capsule.readFloat("p", 0);
         q = capsule.readFloat("q", 0);
         radius = capsule.readFloat("radius", 0);

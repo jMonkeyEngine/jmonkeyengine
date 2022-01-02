@@ -57,8 +57,8 @@ public class TestDepthFuncChange extends SimpleApplication {
         //2 cubes, a blue and a red. the red cube is offset by 0.2 WU to the right   
         //the red cube is put in the transparent bucket to be sure it's rendered after the blue one (but there is no transparency involved).
         //You should see a small part of the blue cube on the left and the whole red cube
-        Box boxshape1 = new Box(1f, 1f, 1f);
-        Geometry cube1 = new Geometry("box", boxshape1);
+        Box boxShape1 = new Box(1f, 1f, 1f);
+        Geometry cube1 = new Geometry("box", boxShape1);
         Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         mat.setColor("Color", ColorRGBA.Blue);
         

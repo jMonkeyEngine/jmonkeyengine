@@ -167,14 +167,14 @@ public final class IntMap<T> implements Iterable<Entry<T>>, Cloneable, JmeClonea
             int newCapacity = 2 * capacity;
             Entry[] newTable = new Entry[newCapacity];
             Entry[] src = table;
-            int bucketmask = newCapacity - 1;
+            int bucketMask = newCapacity - 1;
             for (int j = 0; j < src.length; j++){
                 Entry e = src[j];
                 if (e != null){
                     src[j] = null;
                     do{
                         Entry next = e.next;
-                        index = e.key & bucketmask;
+                        index = e.key & bucketMask;
                         e.next = newTable[index];
                         newTable[index] = e;
                         e = next;
