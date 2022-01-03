@@ -503,18 +503,18 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
                     if (!supportEfx) {
                         return;
                     }
-
-                    if (src.getDryFilter() != null) {
-                        Filter f = src.getDryFilter();
-                        if (f.isUpdateNeeded()) {
-                            updateFilter(f);
-
-                            // NOTE: must re-attach filter for changes to apply.
-                            al.alSourcei(id, EFX.AL_DIRECT_FILTER, f.getId());
-                        }
+                    Filter dryFilter = src.getDryFilter();
+                    int filterId;
+                    if (dryFilter == null) {
+                        filterId = EFX.AL_FILTER_NULL;
                     } else {
-                        al.alSourcei(id, EFX.AL_DIRECT_FILTER, EFX.AL_FILTER_NULL);
+                        if (dryFilter.isUpdateNeeded()) {
+                            updateFilter(dryFilter);
+                        }
+                        filterId = dryFilter.getId();
                     }
+                    // NOTE: must re-attach filter for changes to apply.
+                    al.alSourcei(id, EFX.AL_DIRECT_FILTER, filterId);
                     break;
                 case Looping:
                     if (src.isLooping() && !(src.getAudioData() instanceof AudioStream)) {
