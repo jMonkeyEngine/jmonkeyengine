@@ -76,8 +76,7 @@ public class TestPostWater extends SimpleApplication {
     private AudioNode waves;
     final private LowPassFilter aboveWaterAudioFilter = new LowPassFilter(1, 1);
     private boolean useDryFilter = true;
-    
-    
+
     public static void main(String[] args) {
         TestPostWater app = new TestPostWater();
         app.start();
@@ -215,11 +214,9 @@ public class TestPostWater extends SimpleApplication {
                         water.setReflectionMapSize(Math.max(water.getReflectionMapSize() / 2, 32));
                         System.out.println("Reflection map size : " + water.getReflectionMapSize());
                     }
-                    if (name.equals("dryFilter"))
-                    {
-                       useDryFilter = !useDryFilter; 
+                    if (name.equals("dryFilter")) {
+                        useDryFilter = !useDryFilter; 
                     }
-                    
                 }
             }
         }, "foam1", "foam2", "foam3", "upRM", "downRM", "dryFilter");
@@ -293,10 +290,10 @@ public class TestPostWater extends SimpleApplication {
         water.setWaterHeight(initialWaterHeight + waterHeight);
         if (water.isUnderWater() && !uw) {
 
-           if (useDryFilter) {
-              waves.setDryFilter(new LowPassFilter(0.5f, 0.1f));
-           }
-           
+            if (useDryFilter) {
+                waves.setDryFilter(new LowPassFilter(0.5f, 0.1f));
+            }
+
            waves.setReverbEnabled(false);
            uw = true;
         }
@@ -304,18 +301,17 @@ public class TestPostWater extends SimpleApplication {
             uw = false;
             waves.setReverbEnabled(true);
             if (useDryFilter) {
-               waves.setDryFilter(new LowPassFilter(1f, 1f));
+                waves.setDryFilter(new LowPassFilter(1f, 1f));
             }
 
         }
     }
     
     protected void setText(int x, int y, String text) {
-       BitmapText txt2 = new BitmapText(guiFont, false);
-       txt2.setText(text);
-       txt2.setLocalTranslation(x, cam.getHeight() - y, 0);
-       txt2.setColor(ColorRGBA.Red);
-       guiNode.attachChild(txt2);
-       
+        BitmapText txt2 = new BitmapText(guiFont, false);
+        txt2.setText(text);
+        txt2.setLocalTranslation(x, cam.getHeight() - y, 0);
+        txt2.setColor(ColorRGBA.Red);
+        guiNode.attachChild(txt2);
     }
 }
