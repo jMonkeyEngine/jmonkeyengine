@@ -34,7 +34,9 @@ package jme3test.water;
 import com.jme3.app.SimpleApplication;
 import com.jme3.audio.AudioData.DataType;
 import com.jme3.audio.AudioNode;
+import com.jme3.audio.Filter;
 import com.jme3.audio.LowPassFilter;
+import com.jme3.font.BitmapText;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
@@ -74,6 +76,8 @@ public class TestPostWater extends SimpleApplication {
     private WaterFilter water;
     private AudioNode waves;
     final private LowPassFilter aboveWaterAudioFilter = new LowPassFilter(1, 1);
+    final private Filter underWaterAudioFilter = new LowPassFilter(0.5f, 0.1f);
+    private boolean useDryFilter = true;
 
     public static void main(String[] args) {
         TestPostWater app = new TestPostWater();
@@ -173,15 +177,17 @@ public class TestPostWater extends SimpleApplication {
         waves = new AudioNode(assetManager, "Sound/Environment/Ocean Waves.ogg",
                 DataType.Buffer);
         waves.setLooping(true);
-        waves.setReverbEnabled(true);
-        if (uw) {
-            waves.setDryFilter(new LowPassFilter(0.5f, 0.1f));
-        } else {
-            waves.setDryFilter(aboveWaterAudioFilter);
-        }
+        updateAudio();
         audioRenderer.playSource(waves);
         //  
         viewPort.addProcessor(fpp);
+
+        setText(0, 50, "1 - Set Foam Texture to Foam.jpg");
+        setText(0, 80, "2 - Set Foam Texture to Foam2.jpg");
+        setText(0, 110, "3 - Set Foam Texture to Foam3.jpg");
+        setText(0, 140, "4 - Turn Dry Filter under water On/Off");
+        setText(0, 240, "PgUp - Larger Reflection Map");
+        setText(0, 270, "PgDn - Smaller Reflection Map");
 
         inputManager.addListener(new ActionListener() {
             @Override
@@ -205,12 +211,16 @@ public class TestPostWater extends SimpleApplication {
                         water.setReflectionMapSize(Math.max(water.getReflectionMapSize() / 2, 32));
                         System.out.println("Reflection map size : " + water.getReflectionMapSize());
                     }
+                    if (name.equals("dryFilter")) {
+                        useDryFilter = !useDryFilter; 
+                    }
                 }
             }
-        }, "foam1", "foam2", "foam3", "upRM", "downRM");
+        }, "foam1", "foam2", "foam3", "upRM", "downRM", "dryFilter");
         inputManager.addMapping("foam1", new KeyTrigger(KeyInput.KEY_1));
         inputManager.addMapping("foam2", new KeyTrigger(KeyInput.KEY_2));
         inputManager.addMapping("foam3", new KeyTrigger(KeyInput.KEY_3));
+        inputManager.addMapping("dryFilter", new KeyTrigger(KeyInput.KEY_4));
         inputManager.addMapping("upRM", new KeyTrigger(KeyInput.KEY_PGUP));
         inputManager.addMapping("downRM", new KeyTrigger(KeyInput.KEY_PGDN));
     }
@@ -275,17 +285,42 @@ public class TestPostWater extends SimpleApplication {
         time += tpf;
         waterHeight = (float) Math.cos(((time * 0.6f) % FastMath.TWO_PI)) * 1.5f;
         water.setWaterHeight(initialWaterHeight + waterHeight);
-        if (water.isUnderWater() && !uw) {
+        uw = water.isUnderWater();
+        updateAudio();
+    }
+    
+    protected void setText(int x, int y, String text) {
+        BitmapText txt2 = new BitmapText(guiFont, false);
+        txt2.setText(text);
+        txt2.setLocalTranslation(x, cam.getHeight() - y, 0);
+        txt2.setColor(ColorRGBA.Red);
+        guiNode.attachChild(txt2);
+    }
 
-            waves.setDryFilter(new LowPassFilter(0.5f, 0.1f));
-            uw = true;
+    /**
+     * Update the audio settings (dry filter and reverb)
+     * based on boolean fields ({@code uw} and {@code useDryFilter}).
+     */
+    protected void updateAudio() {
+        Filter newDryFilter;
+        if (!useDryFilter) {
+            newDryFilter = null;
+        } else if (uw) {
+            newDryFilter = underWaterAudioFilter;
+        } else {
+            newDryFilter = aboveWaterAudioFilter;
         }
-        if (!water.isUnderWater() && uw) {
-            uw = false;
-            //waves.setReverbEnabled(false);
-            waves.setDryFilter(new LowPassFilter(1, 1f));
-            //waves.setDryFilter(new LowPassFilter(1,1f));
+        Filter oldDryFilter = waves.getDryFilter();
+        if (oldDryFilter != newDryFilter) {
+            System.out.println("dry filter : " + newDryFilter);
+            waves.setDryFilter(newDryFilter);
+        }
 
+        boolean newReverbEnabled = !uw;
+        boolean oldReverbEnabled = waves.isReverbEnabled();
+        if (oldReverbEnabled != newReverbEnabled) {
+            System.out.println("reverb enabled : " + newReverbEnabled);
+            waves.setReverbEnabled(newReverbEnabled);
         }
     }
 }
