@@ -34,6 +34,7 @@ package jme3test.water;
 import com.jme3.app.SimpleApplication;
 import com.jme3.audio.AudioData.DataType;
 import com.jme3.audio.AudioNode;
+import com.jme3.audio.Filter;
 import com.jme3.audio.LowPassFilter;
 import com.jme3.font.BitmapText;
 import com.jme3.input.KeyInput;
@@ -75,6 +76,7 @@ public class TestPostWater extends SimpleApplication {
     private WaterFilter water;
     private AudioNode waves;
     final private LowPassFilter aboveWaterAudioFilter = new LowPassFilter(1, 1);
+    final private Filter underWaterAudioFilter = new LowPassFilter(0.5f, 0.1f);
     private boolean useDryFilter = true;
 
     public static void main(String[] args) {
@@ -175,12 +177,7 @@ public class TestPostWater extends SimpleApplication {
         waves = new AudioNode(assetManager, "Sound/Environment/Ocean Waves.ogg",
                 DataType.Buffer);
         waves.setLooping(true);
-        waves.setReverbEnabled(true);
-        if (uw) {
-            waves.setDryFilter(new LowPassFilter(0.5f, 0.1f));
-        } else {
-            waves.setDryFilter(aboveWaterAudioFilter);
-        }
+        updateAudio();
         audioRenderer.playSource(waves);
         //  
         viewPort.addProcessor(fpp);
@@ -288,23 +285,8 @@ public class TestPostWater extends SimpleApplication {
         time += tpf;
         waterHeight = (float) Math.cos(((time * 0.6f) % FastMath.TWO_PI)) * 1.5f;
         water.setWaterHeight(initialWaterHeight + waterHeight);
-        if (water.isUnderWater() && !uw) {
-
-            if (useDryFilter) {
-                waves.setDryFilter(new LowPassFilter(0.5f, 0.1f));
-            }
-
-           waves.setReverbEnabled(false);
-           uw = true;
-        }
-        if (!water.isUnderWater() && uw) {
-            uw = false;
-            waves.setReverbEnabled(true);
-            if (useDryFilter) {
-                waves.setDryFilter(new LowPassFilter(1f, 1f));
-            }
-
-        }
+        uw = water.isUnderWater();
+        updateAudio();
     }
     
     protected void setText(int x, int y, String text) {
@@ -313,5 +295,32 @@ public class TestPostWater extends SimpleApplication {
         txt2.setLocalTranslation(x, cam.getHeight() - y, 0);
         txt2.setColor(ColorRGBA.Red);
         guiNode.attachChild(txt2);
+    }
+
+    /**
+     * Update the audio settings (dry filter and reverb)
+     * based on boolean fields ({@code uw} and {@code useDryFilter}).
+     */
+    protected void updateAudio() {
+        Filter newDryFilter;
+        if (!useDryFilter) {
+            newDryFilter = null;
+        } else if (uw) {
+            newDryFilter = underWaterAudioFilter;
+        } else {
+            newDryFilter = aboveWaterAudioFilter;
+        }
+        Filter oldDryFilter = waves.getDryFilter();
+        if (oldDryFilter != newDryFilter) {
+            System.out.println("dry filter : " + newDryFilter);
+            waves.setDryFilter(newDryFilter);
+        }
+
+        boolean newReverbEnabled = !uw;
+        boolean oldReverbEnabled = waves.isReverbEnabled();
+        if (oldReverbEnabled != newReverbEnabled) {
+            System.out.println("reverb enabled : " + newReverbEnabled);
+            waves.setReverbEnabled(newReverbEnabled);
+        }
     }
 }
