@@ -190,8 +190,8 @@ public class TestPostWater extends SimpleApplication {
         setText(0, 80, "2 - Set Foam Texture to Foam2.jpg");
         setText(0, 110, "3 - Set Foam Texture to Foam3.jpg");
         setText(0, 140, "4 - Turn Dry Filter under water On/Off");
-        setText(0, 240, "Pg Dwn - Larger Reflection Map");
-        setText(0, 270, "Pg UP - Smaller Reflection Map");
+        setText(0, 240, "PgDn - Larger Reflection Map");
+        setText(0, 270, "PgUp - Smaller Reflection Map");
 
         inputManager.addListener(new ActionListener() {
             @Override
