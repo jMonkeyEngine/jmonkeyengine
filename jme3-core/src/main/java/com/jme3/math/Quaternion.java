@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2022 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -252,7 +252,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      * Sets the quaternion from the specified Tait-Bryan angles, applying the
      * rotations in x-z-y extrinsic order or y-z'-x" intrinsic order.
      *
-     * @param @param angles an array of Tait-Bryan angles (in radians, exactly 3
+     * @param angles an array of Tait-Bryan angles (in radians, exactly 3
      *     elements, the X angle in {@code angles[0]}, the Y angle in {@code
      *     angles[1]}, and the Z angle in {@code angles[2]}, not null,
      *     unaffected)
