@@ -283,7 +283,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      * null, 0 is returned. Either way, the current instance is unaffected.
      *
      * @param vec the vector to multiply (unaffected) or null for none
-     * @return the product
+     * @return the product or 0
      */
     public float dot(Vector3f vec) {
         if (null == vec) {
@@ -963,8 +963,9 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Tests for exact equality with the argument, distinguishing -0 from 0. The
-     * current instance is unaffected.
+     * Tests for exact equality with the argument, distinguishing -0 from 0. If
+     * {@code o} is null, false is returned. Either way, the current instance is
+     * unaffected.
      *
      * @param o the object to compare (may be null, unaffected)
      * @return true if equal, otherwise false
@@ -994,9 +995,10 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * Tests for approximate equality with the specified vector, using the
-     * specified tolerance. The current instance is unaffected.
+     * specified tolerance. If {@code other} is null, false is returned. Either
+     * way, the current instance is unaffected.
      *
-     * @param other the vector to compare (not null, unaffected)
+     * @param other the vector to compare (unaffected) or null for none
      * @param epsilon the tolerance for each component
      * @return true if all 3 components are within tolerance, otherwise false
      */
