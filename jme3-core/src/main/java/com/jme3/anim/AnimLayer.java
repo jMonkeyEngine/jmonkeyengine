@@ -189,24 +189,25 @@ public class AnimLayer implements JmeCloneable {
      *     current Action, in seconds
      */
     void update(float appDeltaTimeInSeconds) {
-        if (currentAction == null) {
+        Action runningAction = currentAction;
+        if (runningAction == null) {
             return;
         }
 
-        double speedup = currentAction.getSpeed() * composer.getGlobalSpeed();
+        double speedup = runningAction.getSpeed() * composer.getGlobalSpeed();
         double scaledDeltaTime = speedup * appDeltaTimeInSeconds;
         time += scaledDeltaTime;
 
         // wrap negative times to the [0, length] range:
         if (time < 0.0) {
-            double length = currentAction.getLength();
+            double length = runningAction.getLength();
             time = (time % length + length) % length;
         }
 
         // update the current Action, filtered by this layer's mask:
-        currentAction.setMask(mask);
-        boolean running = currentAction.interpolate(time);
-        currentAction.setMask(null);
+        runningAction.setMask(mask);
+        boolean running = runningAction.interpolate(time);
+        runningAction.setMask(null);
 
         if (!running) { // went past the end of the current Action
             time = 0.0;
