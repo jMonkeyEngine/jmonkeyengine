@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2022 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,9 +39,12 @@ import java.nio.FloatBuffer;
 import java.util.logging.Logger;
 
 /**
- * A matrix composed of 9 single-precision elements, used to represent linear
- * transformations of 3-D coordinates, such as rotations, reflections, and
- * scaling.
+ * A 3x3 matrix composed of 9 single-precision elements, used to represent
+ * linear transformations of 3-D coordinates, such as rotations, reflections,
+ * and scaling.
+ *
+ * <p>Element numbering is (row, column), so m01 is the element in row 0,
+ * column 1.
  *
  * <p>For pure rotations, the {@link com.jme3.math.Quaternion} class provides a
  * more efficient representation.
@@ -165,7 +168,7 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
      * Copies the matrix argument. If the argument is null, the current instance
      * is set to identity (diagonals = 1, other elements = 0).
      *
-     * @param matrix the matrix to copy (unaffected) or null for none
+     * @param matrix the matrix to copy (unaffected) or null for identity
      * @return the (modified) current instance (for chaining)
      */
     public Matrix3f set(Matrix3f matrix) {
@@ -186,7 +189,7 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Returns the specified element. The matrix is unaffected.
+     * Returns the element at the specified position. The matrix is unaffected.
      *
      * @param i the row index (0, 1, or 2)
      * @param j the column index (0, 1, or 2)
@@ -1290,8 +1293,8 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Serializes to the argument, for example when saving to a J3O file. The
-     * current instance is unaffected.
+     * Serializes to the specified exporter, for example when saving to a J3O
+     * file. The current instance is unaffected.
      *
      * @param e the exporter to use (not null)
      * @throws IOException from the exporter
@@ -1311,8 +1314,8 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * De-serializes from the argument, for example when loading from a J3O
-     * file.
+     * De-serializes from the specified importer, for example when loading from a
+     * J3O file.
      *
      * @param importer the importer to use (not null)
      * @throws IOException from the importer
