@@ -172,7 +172,7 @@ public class RenderStateTest {
         final RenderState.StencilOperation backSfo = RenderState.StencilOperation.Replace;
         final RenderState.StencilOperation backDfo = RenderState.StencilOperation.DecrementWrap;
         final RenderState.StencilOperation backDpo = RenderState.StencilOperation.Keep;
-        /**
+        /*
          * Vary the test functions (8th and 9th arguments).
          */
         for (RenderState.TestFunction front : RenderState.TestFunction.values()) {
@@ -186,7 +186,7 @@ public class RenderStateTest {
 
         final RenderState.TestFunction front = RenderState.TestFunction.GreaterOrEqual;
         final RenderState.TestFunction back = RenderState.TestFunction.NotEqual;
-        /**
+        /*
          * Vary the 2nd, 4th, and 7th arguments.
          */
         for (RenderState.StencilOperation arg2 : RenderState.StencilOperation.values()) {
@@ -199,8 +199,7 @@ public class RenderStateTest {
                 }
             }
         }
-
-        /**
+        /*
          * Vary the 3rd, 5th, and 6th arguments.
          */
         for (RenderState.StencilOperation arg3 : RenderState.StencilOperation.values()) {
