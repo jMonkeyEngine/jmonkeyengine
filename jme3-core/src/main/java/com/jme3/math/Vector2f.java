@@ -306,8 +306,8 @@ public final class Vector2f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Returns the square of the distance between this vector and the argument.
-     * The current instance is unaffected.
+     * Returns the square of the distance between the current instance and the
+     * argument. The current instance is unaffected.
      *
      * @param v the vector to compare (not null, unaffected)
      * @return the square of the Euclidean distance (not negative)
@@ -319,8 +319,8 @@ public final class Vector2f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Returns the square of the distance between this vector and a vector with
-     * the specified components. The current instance is unaffected.
+     * Returns the square of the distance between the current instance and a
+     * vector with the specified components. The current instance is unaffected.
      *
      * @param otherX the X component of the vector to compare
      * @param otherY the Y component of the vector to compare
@@ -333,8 +333,8 @@ public final class Vector2f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Returns the distance between this vector and the argument. The current
-     * instance is unaffected.
+     * Returns the distance between the current instance and the argument. The
+     * current instance is unaffected.
      *
      * @param v the vector to compare (not null, unaffected)
      * @return the Euclidean distance (not negative)
@@ -786,8 +786,8 @@ public final class Vector2f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Serializes the vector to the argument, for example when saving to a J3O
-     * file. The current instance is unaffected.
+     * Serializes the vector to the specified exporter, for example when saving
+     * to a J3O file. The current instance is unaffected.
      *
      * @param e the exporter to use (not null)
      * @throws IOException from the exporter
@@ -800,8 +800,8 @@ public final class Vector2f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * De-serializes the vector from the argument, for example when loading from
-     * a J3O file.
+     * De-serializes the vector from the specified importer, for example
+     * when loading from a J3O file.
      *
      * @param importer the importer to use (not null)
      * @throws IOException from the importer
