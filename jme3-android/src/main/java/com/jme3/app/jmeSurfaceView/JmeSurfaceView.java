@@ -190,15 +190,16 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener, Di
 
     /**
      * Delays the attachment surface view on the UI for the sake of initial frame pacing and splash screens,
-     * delaying the display of the game (GlSurfaceView) would lead to a substantial delay in the {@link GLSurfaceView.Renderer#onDrawFrame(GL10)} which would
+     * delaying the display of the game (GlSurfaceView) would lead to a substantial delay in the
+     * {@link android.opengl.GLSurfaceView.Renderer#onDrawFrame(javax.microedition.khronos.opengles.GL10)} which would
      * delay invoking both {@link LegacyApplication#initialize()} and {@link LegacyApplication#update()}.
      * @see JmeSurfaceView#startRenderer(int)
-     * @see OGLESContext#onDrawFrame(GL10 gl)
+     * @see com.jme3.system.android.OGLESContext#onDrawFrame(javax.microedition.khronos.opengles.GL10)
      */
     private class RendererThread implements Runnable {
         /**
          * Delays the {@link GLSurfaceView} attachment on the UI thread.
-         * @see JmeSurfaceView#NO_DELAY
+         *
          * @see JmeSurfaceView#startRenderer(int)
          */
         @Override
