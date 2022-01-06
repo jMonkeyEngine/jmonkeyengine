@@ -212,7 +212,7 @@ public class DebugShapeFactory {
 
 /**
  *  A callback is used to process the triangles of the shape as there is no direct access to a concave shapes, shape.
- *  <p/>
+ *  <p>
  *  The triangles are simply put into a list (which in extreme condition will cause memory problems) then put into a direct buffer.
  *
  * @author CJ Hare
