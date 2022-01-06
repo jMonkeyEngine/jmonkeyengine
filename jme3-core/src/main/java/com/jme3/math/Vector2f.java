@@ -828,8 +828,10 @@ public final class Vector2f implements Savable, Cloneable, java.io.Serializable 
         if (cw) {
             angle = -angle;
         }
-        float newX = FastMath.cos(angle) * x - FastMath.sin(angle) * y;
-        float newY = FastMath.sin(angle) * x + FastMath.cos(angle) * y;
+        float cos = FastMath.cos(angle);
+        float sin = FastMath.sin(angle);
+        float newX = cos * x - sin * y;
+        float newY = sin * x + cos * y;
         x = newX;
         y = newY;
     }
