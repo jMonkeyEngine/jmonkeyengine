@@ -842,11 +842,11 @@ public class J3MLoader implements AssetLoader {
      * the path to the texture in the .j3m file.
      * <p>
      *     <b>Example:</b>
-     *     <pre>
-     *     DiffuseMap: MinTrilinear MagBilinear WrapRepeat_S "some/path/to a/texture.png"
-     *     </pre>
-     *     This would apply a minification filter of "Trilinear", a magnification filter of "Bilinear" and set the wrap mode to "Repeat".
      * </p>
+     * <pre>
+     * DiffuseMap: MinTrilinear MagBilinear WrapRepeat_S "some/path/to a/texture.png"
+     * </pre>
+     * This would apply a minification filter of "Trilinear", a magnification filter of "Bilinear" and set the wrap mode to "Repeat".
      * <p>
      *     <b>Note:</b> If several filters of the same type are added, eg. MinTrilinear MinNearestLinearMipMap, the last one will win.
      * </p>
