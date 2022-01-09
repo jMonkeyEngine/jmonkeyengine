@@ -49,7 +49,7 @@ public abstract class AbstractVRMouseManager implements VRMouseManager {
     public void initialize() {
         logger.config("Initializing VR mouse manager.");
 
-        // load default mouseimage
+        // load default mouse image
         mouseImage = new Picture("mouse");
         setImage("Common/Util/mouse.png");
         // hide default cursor by making it invisible

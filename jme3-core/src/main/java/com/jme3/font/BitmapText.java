@@ -276,7 +276,7 @@ public class BitmapText extends Node {
         if (textBox != null) {
             return Math.max(letters.getTotalWidth(), textBox.width);
         }
-      //  Please note that BitMaptext.getLineWidth() might differ from Font.getLineWidth() -->   scale it with Font.getPreferredSize()/BitMaptext.getSize()
+      //  Please note that BitmapText.getLineWidth() might differ from Font.getLineWidth() -->   scale it with Font.getPreferredSize()/BitmapText.getSize()
         return letters.getTotalWidth();
     }
 
