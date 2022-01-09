@@ -488,8 +488,8 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Copy the matrix to the 1st 9 elements of the specified array. The matrix
-     * is unaffected.
+     * Copies the matrix to the 1st 9 elements of the specified array. The
+     * matrix is unaffected.
      *
      * @param f storage for the elements (not null, length&ge;9)
      * @param columnMajor true to store the elements in column-major order (m00,
