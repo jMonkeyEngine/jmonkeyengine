@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2022 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,15 +39,18 @@ import java.nio.FloatBuffer;
 import java.util.logging.Logger;
 
 /**
- * <code>Matrix4f</code> represents a single-precision 4x4 matrix for use as a
- * 3-D coordinate transform or perspective transform. It provides convenience
- * methods for loading data from many sources.
+ * A 4x4 matrix composed of 16 single-precision elements, used to represent
+ * transformations of 3-D coordinates, including rotations, reflections,
+ * scaling, translations, and perspective.
  *
- * The rightmost column (column 3) stores the translation vector. Element
- * numbering is (row,column), so m03 is the row 0, column 3, which is the X
- * translation. This means that the implicit storage order is column-major.
- * However, the get() and set() functions on float arrays default to row-major
- * order!
+ * <p>Element numbering is (row, column), so m03 is the element in row 0,
+ * column 3. However, the get() and set() functions on float arrays default to
+ * row-major order.
+ *
+ * <p>The rightmost column (column 3) stores the translation vector.
+ *
+ * <p>Methods with names ending in "Local" modify the current instance. They are
+ * used to avoid creating garbage.
  *
  * @author Mark Powell
  * @author Joshua Slack
@@ -58,88 +61,88 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
 
     private static final Logger logger = Logger.getLogger(Matrix4f.class.getName());
     /**
-     * the element in row 0, column 0
+     * The element in row 0, column 0.
      */
     public float m00;
     /**
-     * the element in row 0, column 1
+     * The element in row 0, column 1.
      */
     public float m01;
     /**
-     * the element in row 0, column 2
+     * The element in row 0, column 2.
      */
     public float m02;
     /**
-     * the element in row 0, column 3 (the X translation)
+     * The element in row 0, column 3 (the X translation).
      */
     public float m03;
     /**
-     * the element in row 1, column 0
+     * The element in row 1, column 0.
      */
     public float m10;
     /**
-     * the element in row 1, column 1
+     * The element in row 1, column 1.
      */
     public float m11;
     /**
-     * the element in row 1, column 2
+     * The element in row 1, column 2.
      */
     public float m12;
     /**
-     * the element in row 1, column 3 (the Y translation)
+     * The element in row 1, column 3 (the Y translation).
      */
     public float m13;
     /**
-     * the element in row 2, column 0
+     * The element in row 2, column 0.
      */
     public float m20;
     /**
-     * the element in row 2, column 1
+     * The element in row 2, column 1.
      */
     public float m21;
     /**
-     * the element in row 2, column 2
+     * The element in row 2, column 2.
      */
     public float m22;
     /**
-     * the element in row 2, column 3 (the Z translation)
+     * The element in row 2, column 3 (the Z translation).
      */
     public float m23;
     /**
-     * the element in row 3, column 0
+     * The element in row 3, column 0.
      */
     public float m30;
     /**
-     * the element in row 3, column 1
+     * The element in row 3, column 1.
      */
     public float m31;
     /**
-     * the element in row 3, column 2
+     * The element in row 3, column 2.
      */
     public float m32;
     /**
-     * the element in row 3, column 3
+     * The element in row 3, column 3.
      */
     public float m33;
     /**
-     * an instance of the zero matrix (all elements = 0)
+     * Shared instance of the all-zero matrix. Do not modify!
      */
     public static final Matrix4f ZERO = new Matrix4f(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
     /**
-     * an instance of the identity matrix (diagonals = 1, other elements = 0)
+     * Shared instance of the identity matrix (diagonals = 1, other elements =
+     * 0). Do not modify!
      */
     public static final Matrix4f IDENTITY = new Matrix4f();
 
     /**
-     * Create a <code>Matrix4f</code> initialized to identity (diagonals = 1,
-     * other elements = 0).
+     * Instantiates an identity matrix (diagonals = 1, other elements = 0).
      */
     public Matrix4f() {
         loadIdentity();
     }
 
     /**
-     * Create a <code>Matrix4f</code> with the specified element values.
+     * Instantiates a matrix with specified elements.
      *
      * @param m00 the desired value for row 0, column 0
      * @param m01 the desired value for row 0, column 1
@@ -182,31 +185,30 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Create a <code>Matrix4f</code> from the specified array.
+     * Instantiates a matrix from the array argument.
      *
-     * @param array the source array: 16 floats in column-major order
-     * (translation in elements 12, 13, and 14)
+     * @param array the source array: 16 floats in column-major order, i.e.
+     *     translation in elements 12, 13, and 14 (not null, unaffected)
      */
     public Matrix4f(float[] array) {
         set(array, false);
     }
 
     /**
-     * Create a <code>Matrix4f</code> that duplicates the specified matrix. If
-     * null is specified, the new matrix is initialized to identity (diagonals =
-     * 1, other elements = 0).
+     * Instantiates a copy of the matrix argument. If the argument is null, an
+     * identity matrix is produced.
      *
-     * @param mat the source matrix (unaffected, may be null)
+     * @param mat the matrix to copy (unaffected) or null for identity
      */
     public Matrix4f(Matrix4f mat) {
         copy(mat);
     }
 
     /**
-     * Copy all elements of the specified matrix to this matrix. If null is
-     * specified, load identity (diagonals = 1, other elements = 0).
+     * Copies the matrix argument. If the argument is null, the current instance
+     * is set to identity (diagonals = 1, other elements = 0).
      *
-     * @param matrix the source matrix (may be null, unaffected)
+     * @param matrix the matrix to copy (unaffected) or null for identity
      */
     public void copy(Matrix4f matrix) {
         if (null == matrix) {
@@ -231,6 +233,17 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
         }
     }
 
+    /**
+     * Sets up the matrix to transform world coordinates to eye coordinates for
+     * a camera with the specified location and orientation.
+     *
+     * @param location the camera's location (not null, unaffected)
+     * @param direction the camera's look direction (not null, length=1,
+     *     unaffected)
+     * @param up the camera's "up" direction (not null, length=1, unaffected)
+     * @param left the camera's "left" direction (not null, length=1,
+     *     unaffected)
+     */
     public void fromFrame(Vector3f location, Vector3f direction, Vector3f up, Vector3f left) {
         TempVars vars = TempVars.get();
         try {
@@ -263,20 +276,26 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Copy all elements to a float array, in row-major order.
+     * Copies the matrix to the specified array in row-major order (m00, m01,
+     *     ...). The matrix is unaffected.
      *
-     * @param matrix the destination array (not null, length=16)
+     * @param matrix storage for the elements (not null, length=16)
+     * @throws IllegalArgumentException if {@code matrix} doesn't have 16
+     *     elements
      */
     public void get(float[] matrix) {
         get(matrix, true);
     }
 
     /**
-     * Copy all elements to a float array.
+     * Copies the matrix to the specified array. The matrix is unaffected.
      *
-     * @param matrix the destination array (not null, length=16)
-     * @param rowMajor true to store in row-major order, false to store in
-     * column-major order
+     * @param matrix storage for the elements (not null, length=16)
+     * @param rowMajor true to store the elements in row-major order (m00, m01,
+     *     ...) or false to store them in column-major order (m00, m10, ...)
+     * @throws IllegalArgumentException if {@code matrix} doesn't have 16
+     *     elements
+     * @see #fillFloatArray(float[], boolean)
      */
     public void get(float[] matrix, boolean rowMajor) {
         if (matrix.length != 16) {
@@ -322,12 +341,12 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Retrieve the element at the specified position.
+     * Returns the element at the specified position. The matrix is unaffected.
      *
      * @param i the row index of the element to retrieve (0, 1, 2, or 3)
      * @param j the column index of the element to retrieve (0, 1, 2, or 3)
      * @return the value at (i, j)
-     * @throws IllegalArgumentException if either index is invalid.
+     * @throws IllegalArgumentException if either index isn't 0, 1, 2, or 3
      */
     @SuppressWarnings("fallthrough")
     public float get(int i, int j) {
@@ -383,22 +402,23 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Copy the specified column to a new float array.
+     * Returns the specified column. The matrix is unaffected.
      *
-     * @param i the index of the column to copy (0, 1, 2, or 3)
+     * @param i the column index (0, 1, 2, or 3)
      * @return a new array with length=4
+     * @throws IllegalArgumentException if {@code i} isn't 0, 1, 2, or 3
      */
     public float[] getColumn(int i) {
         return getColumn(i, null);
     }
 
     /**
-     * Copy the specified column to a float array.
+     * Returns the specified column. The matrix is unaffected.
      *
-     * @param i the index of the column to copy (0, 1, 2, or 3)
-     * @param store storage for the result (modified) or null to create a new
-     * array
-     * @return either store or a new array with length=4
+     * @param i the column index (0, 1, 2, or 3)
+     * @param store storage for the result, or null for a new float[4]
+     * @return either {@code store} or a new float[4]
+     * @throws IllegalArgumentException if {@code i} isn't 0, 1, 2, or 3
      */
     public float[] getColumn(int i, float[] store) {
         if (store == null) {
@@ -437,10 +457,11 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Load the specified column from the specified array.
+     * Loads the specified column from the specified array.
      *
      * @param i the index of the column to fill (0, 1, 2, or 3)
-     * @param column the source array (unaffected) or null
+     * @param column the desired element values (unaffected) or null for none
+     * @throws IllegalArgumentException if {@code i} isn't 0, 1, 2, or 3
      */
     public void setColumn(int i, float[] column) {
 
@@ -480,12 +501,12 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Store the specified value at the specified position.
+     * Sets the specified element.
      *
      * @param i the row index of the element to set (0, 1, 2, or 3)
      * @param j the column index of the element to set (0, 1, 2, or 3)
-     * @param value the value for element (i, j)
-     * @throws IllegalArgumentException if either index is invalid.
+     * @param value desired value for the element at (i, j)
+     * @throws IllegalArgumentException if either index isn't 0, 1, 2, or 3
      */
     @SuppressWarnings("fallthrough")
     public void set(int i, int j, float value) {
@@ -557,10 +578,11 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Load all elements from the specified 4x4 array.
+     * Copies all 16 elements from the specified 2-dimensional array.
      *
-     * @param matrix the source array (not null, unaffected)
-     * @throws IllegalArgumentException if the source array isn't 4x4.
+     * @param matrix the input array (not null, length=4, the first element
+     *     having length=4, the other elements having length&ge;4, unaffected)
+     * @throws IllegalArgumentException if the array is the wrong size
      */
     public void set(float[][] matrix) {
         if (matrix.length != 4 || matrix[0].length != 4) {
@@ -587,7 +609,7 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Load the specified element values.
+     * Sets all 16 elements to the specified values.
      *
      * @param m00 the desired value for row 0, column 0
      * @param m01 the desired value for row 0, column 1
@@ -630,10 +652,10 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Copy all elements of the specified matrix to this matrix.
+     * Copies the matrix argument.
      *
-     * @param matrix the source matrix (not null, unaffected)
-     * @return this (modified)
+     * @param matrix the matrix to copy (not null, unaffected)
+     * @return the (modified) current instance (for chaining)
      */
     public Matrix4f set(Matrix4f matrix) {
         m00 = matrix.m00;
@@ -656,21 +678,23 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Load all elements from the specified array.
+     * Copies all 16 elements from the array argument, in row-major order.
      *
-     * @param matrix the source array, in row-major order (not null, length=16,
-     * unaffected)
+     * @param matrix the input array (not null, length=16, unaffected)
+     * @return the (modified) current instance (for chaining)
+     * @throws IllegalArgumentException if the array has length != 16
      */
     public void set(float[] matrix) {
         set(matrix, true);
     }
 
     /**
-     * Load all elements from the specified array.
+     * Copies all 16 elements from the array argument.
      *
-     * @param matrix the source array (not null, length=16, unaffected)
-     * @param rowMajor true if the source array is in row-major order, false if
-     * it's in column-major order
+     * @param matrix the input array (not null, length=16, unaffected)
+     * @param rowMajor true to read the elements in row-major order (m00, m01,
+     *     ...) or false to read them in column-major order (m00, m10, ...)
+     * @throws IllegalArgumentException if the array has length != 16
      */
     public void set(float[] matrix, boolean rowMajor) {
         if (matrix.length != 16) {
@@ -716,7 +740,8 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Generate the transpose.
+     * Returns the transpose as a new instance. The current instance is
+     * unaffected.
      *
      * @return a new Matrix4f with the rows and columns transposed
      */
@@ -728,9 +753,9 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Transpose in place.
+     * Transposes the matrix and returns the (modified) current instance.
      *
-     * @return this (transposed)
+     * @return the (modified) current instance
      */
     public Matrix4f transposeLocal() {
         float tmp = m01;
@@ -761,21 +786,21 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Copy all elements to a new, direct FloatBuffer.
+     * Copies the matrix to a new FloatBuffer. The matrix is unaffected.
      *
-     * @return a rewound buffer containing all 16 element values in row-major
-     * order
+     * @return a new, direct, rewound FloatBuffer containing all 16 elements in
+     *     row-major order (m00, m01, ...)
      */
     public FloatBuffer toFloatBuffer() {
         return toFloatBuffer(false);
     }
 
     /**
-     * Copy all elements to a new, direct FloatBuffer.
+     * Copies the matrix to a new FloatBuffer. The matrix is unaffected.
      *
-     * @param columnMajor true to store in column-major order, false to store in
-     * row-major order
-     * @return a rewound buffer containing all 16 element values
+     * @param columnMajor true to store the elements in column-major order (m00,
+     *     m10, ...) or false to store them in row-major order (m00, m01, ...)
+     * @return a new, direct, rewound FloatBuffer containing all 16 elements
      */
     public FloatBuffer toFloatBuffer(boolean columnMajor) {
         FloatBuffer fb = BufferUtils.createFloatBuffer(16);
@@ -785,26 +810,27 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Copy all elements to an existing FloatBuffer, starting at its current
-     * position, in row-major order.
+     * Copies the matrix to the specified FloatBuffer, starting at its current
+     * position. The matrix is unaffected.
      *
-     * @param fb the destination buffer (not null, must have space remaining for
-     * 16 floats)
-     * @return the destination buffer, its position advanced by 16
+     * @param fb the destination buffer (not null, must have space to put 16
+     *     more floats)
+     * @return {@code fb}, its position advanced by 16, containing all 16
+     *     elements in row-major order (m00, m01, ...)
      */
     public FloatBuffer fillFloatBuffer(FloatBuffer fb) {
         return fillFloatBuffer(fb, false);
     }
 
     /**
-     * Copy all elements to an existing FloatBuffer, starting at its current
-     * position.
+     * Copies the matrix to the specified FloatBuffer, starting at its current
+     * position. The matrix is unaffected.
      *
-     * @param fb the destination buffer (not null, must have space remaining for
-     * 16 floats)
-     * @param columnMajor true to store in column-major order, false to store in
-     * row-major order
-     * @return the destination buffer, its position advanced by 16
+     * @param fb the destination buffer (not null, must have space to put 16
+     *     more floats)
+     * @param columnMajor true to store the elements in column-major order (m00,
+     *     m10, ...) or false to store them in row-major order (m00, m01, ...)
+     * @return {@code fb}, its position advanced by 16
      */
     public FloatBuffer fillFloatBuffer(FloatBuffer fb, boolean columnMajor) {
 //        if (columnMajor) {
@@ -830,12 +856,15 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Copy all elements to a float array.
+     * Copies the matrix to the 1st 16 elements of the specified array. The
+     * matrix is unaffected.
      *
-     * @param f the destination array (not null, length&ge;16, modified)
-     * @param columnMajor true &rarr; column-major order, false &rarr; row-major
-     * order
+     * @param f storage for the elements (not null, length&ge;16)
+     * @param columnMajor true to store the elements in column-major order (m00,
+     *     m10, ...) or false to store them in row-major order (m00, m01, ...)
+     * @see #get(float[], boolean)
      */
+
     public void fillFloatArray(float[] f, boolean columnMajor) {
         if (columnMajor) {
             f[0] = m00;
@@ -875,22 +904,26 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Load from the specified FloatBuffer, in row-major order.
+     * Reads all 16 elements from the specified FloatBuffer, in row-major order,
+     * starting at the buffer's current position.
      *
-     * @param fb the source buffer, must have 16 floats remaining to get
-     * @return this (modified)
+     * @param fb the input buffer (not null, must have at least 16 more floats
+     *     to get, unaffected)
+     * @return the (modified) current instance (for chaining)
      */
     public Matrix4f readFloatBuffer(FloatBuffer fb) {
         return readFloatBuffer(fb, false);
     }
 
     /**
-     * Load from the specified FloatBuffer.
+     * Reads all 16 elements from the specified FloatBuffer, starting at the
+     * buffer's current position.
      *
-     * @param fb the source buffer, must have 16 floats remaining to get
-     * @param columnMajor if true, the buffer contains column-major data,
-     * otherwise it contains row-major data.
-     * @return this (modified)
+     * @param fb the source buffer (not null, must have 16 floats remaining to
+     *     get)
+     * @param columnMajor true to read the elements in column-major order (m00,
+     *     m10, ...) or false to read them in row-major order (m00, m01, ...)
+     * @return the (modified) current instance (for chaining)
      */
     public Matrix4f readFloatBuffer(FloatBuffer fb, boolean columnMajor) {
 
@@ -2142,7 +2175,8 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Represent as a String. For example, identity would be represented by:
+     * Returns a string representation. The current instance is unaffected. For
+     * example, an identity matrix would be represented by:
      * <pre>
      * Matrix4f
      * [
@@ -2198,11 +2232,10 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * <code>hashCode</code> returns the hash code value as an integer and is
-     * supported for the benefit of hashing based collection classes such as
-     * Hashtable, HashMap, HashSet etc.
+     * Returns a hash code. If two matrices are logically equivalent, they will
+     * return the same hash code. The current instance is unaffected.
      *
-     * @return the hashcode for this instance of Matrix4f.
+     * @return the hash-code value
      * @see java.lang.Object#hashCode()
      */
     @Override
@@ -2232,10 +2265,11 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Test for equality with the specified object.
+     * Tests for exact equality with the argument, distinguishing -0 from 0. The
+     * current instance is unaffected.
      *
-     * @param o the object to compare, or null
-     * @return true if this and o are equal, otherwise false
+     * @param o the object to compare (may be null, unaffected)
+     * @return true if equal, otherwise false
      */
     @Override
     public boolean equals(Object o) {
@@ -2304,10 +2338,10 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Serialize to the specified exporter, for example when saving to a J3O
-     * file.
+     * Serializes to the specified exporter, for example when saving to a J3O
+     * file. The current instance is unaffected.
      *
-     * @param e (not null)
+     * @param e the exporter to use (not null)
      * @throws IOException from the exporter
      */
     @Override
@@ -2332,10 +2366,10 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * De-serialize from the specified importer, for example when loading from a
+     * De-serializes from the specified importer, for example when loading from a
      * J3O file.
      *
-     * @param importer (not null)
+     * @param importer the importer to use (not null)
      * @throws IOException from the importer
      */
     @Override
@@ -2372,9 +2406,11 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Scale by the specified Vector3f.
+     * Scales each of the first 3 columns by the corresponding element of the
+     * argument.
      *
-     * @param scale the scale factors to apply
+     * @param scale the scale factors: X scales column 0, Y scales column 1, Z
+     *     scales column 2 (not null, unaffected)
      */
     public void scale(Vector3f scale) {
         m00 *= scale.getX();
@@ -2391,6 +2427,12 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
         m32 *= scale.getZ();
     }
 
+    /**
+     * Tests for an identity matrix, with 0.0001 tolerance. The current instance
+     * is unaffected.
+     *
+     * @return true if all elements are within 0.0001 of an identity matrix
+     */
     static boolean equalIdentity(Matrix4f mat) {
         if (Math.abs(mat.m00 - 1) > 1e-4) {
             return false;
@@ -2458,9 +2500,9 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Create a copy.
+     * Creates a copy. The current instance is unaffected.
      *
-     * @return a new instance with the same element values
+     * @return a new instance, equivalent to the current one
      */
     @Override
     public Matrix4f clone() {
