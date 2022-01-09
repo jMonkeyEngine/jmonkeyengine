@@ -5,7 +5,10 @@ package com.jme3.input.vr;
  * @author reden - phr00t - https://github.com/phr00t
  * @author Julien Seinturier - COMEX SA - <a href="http://www.seinturier.fr">http://www.seinturier.fr</a>
  *
+ * Deprecated, use the LWJGL openVR bindings and use actions instead
+ *
  */
+@Deprecated
 public enum VRInputType {
     /**
      * an HTC vive trigger axis (about <a href="https://www.vive.com/us/support/category_howto/720435.html">Vive controller</a>).

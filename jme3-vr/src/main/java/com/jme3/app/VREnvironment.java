@@ -513,6 +513,8 @@ public class VREnvironment {
 
             if (settings.get(VRConstants.SETTING_VRAPI) != null){
                 vrBinding = settings.getInteger(VRConstants.SETTING_VRAPI);
+            }else{
+                vrBinding = VRConstants.SETTING_VRAPI_OPENVR_LWJGL_VALUE; //this is the binding that is best supported so makes sense to be the default
             }
 
             if (settings.get(VRConstants.SETTING_SEATED_EXPERIENCE) != null){

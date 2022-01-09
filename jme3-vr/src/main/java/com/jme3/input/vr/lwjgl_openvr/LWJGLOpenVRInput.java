@@ -1,10 +1,16 @@
 package com.jme3.input.vr.lwjgl_openvr;
 
+import java.nio.LongBuffer;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import com.jme3.app.VREnvironment;
+import com.jme3.input.vr.AnalogActionState;
+import com.jme3.input.vr.DigitalActionState;
 import com.jme3.input.vr.VRInputAPI;
 import com.jme3.input.vr.VRInputType;
 import com.jme3.input.vr.VRTrackedController;
@@ -18,8 +24,12 @@ import com.jme3.util.VRUtil;
 import java.nio.IntBuffer;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.openvr.HmdVector3;
+import org.lwjgl.openvr.InputAnalogActionData;
+import org.lwjgl.openvr.InputDigitalActionData;
 import org.lwjgl.openvr.VR;
+import org.lwjgl.openvr.VRActiveActionSet;
 import org.lwjgl.openvr.VRControllerState;
+import org.lwjgl.openvr.VRInput;
 import org.lwjgl.openvr.VRSystem;
 
 /*
@@ -69,6 +79,10 @@ public class LWJGLOpenVRInput implements VRInputAPI {
 
     private static final Logger logger = Logger.getLogger(LWJGLOpenVRInput.class.getName());
 
+    /**
+     * Deprecated as used controller specific values. Should use Actions manifest instead
+     */
+    @Deprecated
     private final VRControllerState[] cStates = new VRControllerState[VR.k_unMaxTrackedDeviceCount];
 
     private final Quaternion[] rotStore = new Quaternion[VR.k_unMaxTrackedDeviceCount];
@@ -81,9 +95,40 @@ public class LWJGLOpenVRInput implements VRInputAPI {
 
     private final Vector2f tempAxis = new Vector2f(), temp2Axis = new Vector2f();
 
-    private final Vector2f lastCallAxis[] = new Vector2f[VR.k_unMaxTrackedDeviceCount];
+    private final Vector2f[] lastCallAxis = new Vector2f[VR.k_unMaxTrackedDeviceCount];
 
-    private final boolean buttonDown[][] = new boolean[VR.k_unMaxTrackedDeviceCount][16];
+    /**
+     * Deprecated as used controller specific values. Should use Actions manifest instead
+     */
+    @Deprecated
+    private final boolean[][] buttonDown = new boolean[VR.k_unMaxTrackedDeviceCount][16];
+
+    /**
+     * A map of the action name to the objects/data required to read states from lwjgl
+     */
+    private final Map<String, LWJGLOpenVRDigitalActionData> digitalActions = new HashMap<>();
+
+    /**
+     * A map of the action name to the objects/data required to read states from lwjgl
+     */
+    private final Map<String, LWJGLOpenVRAnalogActionData> analogActions = new HashMap<>();
+
+    /**
+     * A map of the action name to the handle of a haptic action
+     */
+    private final Map<String, Long> hapticActionHandles = new HashMap<>();
+
+    /**
+     * A map of the action set name to the handle that is used to refer to it when talking to LWJGL
+     */
+    private final Map<String, Long> actionSetHandles = new HashMap<>();
+
+    /**
+     * A map of input names (e.g. /user/hand/right) to the handle used to address it.
+     *
+     * Note that null is a special case that maps to VR.k_ulInvalidInputValueHandle and means "any input"
+     */
+    private final Map<String, Long> inputHandles = new HashMap<>();
 
     private float axisMultiplier = 1f;
 
@@ -96,6 +141,25 @@ public class LWJGLOpenVRInput implements VRInputAPI {
     private List<VRTrackedController> trackedControllers = null;
 
     /**
+     * A lwjgl object that contains handles to the active action sets (is used each frame to tell lwjgl which actions to
+     * fetch states back for)
+     */
+    private VRActiveActionSet.Buffer activeActionSets;
+
+    InputMode inputMode = InputMode.LEGACY;
+
+    private enum InputMode{
+        /**
+         * Simple bitfield, no way to map new controllers
+         */
+        LEGACY,
+        /**
+         * Actions manifest based.
+         */
+        ACTION_BASED;
+    }
+
+    /**
      * Create a new
      * <a href="https://github.com/ValveSoftware/openvr/wiki/API-Documentation">OpenVR</a>
      * input attached to the given VR environment.
@@ -104,6 +168,89 @@ public class LWJGLOpenVRInput implements VRInputAPI {
      */
     public LWJGLOpenVRInput(VREnvironment environment) {
         this.environment = environment;
+
+        inputHandles.put(null, VR.k_ulInvalidInputValueHandle);
+    }
+
+    @Override
+    public void registerActionManifest(String actionManifestAbsolutePath, String startingActiveActionSets){
+        inputMode = InputMode.ACTION_BASED;
+        int errorCode = VRInput.VRInput_SetActionManifestPath(actionManifestAbsolutePath);
+
+        if ( errorCode != 0 )
+        {
+            logger.warning( "An error code of " + errorCode + " was reported while registering an action manifest" );
+        }
+        setActiveActionSet(startingActiveActionSets);
+    }
+
+    @Override
+    public void setActiveActionSet(String actionSet){
+        assert inputMode == InputMode.ACTION_BASED : "registerActionManifest must be called before attempting to fetch action states";
+
+
+        long actionSetHandle;
+        if (actionSetHandles.containsKey(actionSet)){
+            actionSetHandle = actionSetHandles.get(actionSet);
+        }else{
+            LongBuffer longBuffer = BufferUtils.createLongBuffer(1);
+            int errorCode = VRInput.VRInput_GetActionHandle(actionSet, longBuffer);
+            if ( errorCode != 0 )
+            {
+                logger.warning( "An error code of " + errorCode + " was reported while fetching an action set handle for " + actionSet );
+            }
+            actionSetHandle = longBuffer.get(0);
+            actionSetHandles.put(actionSet,actionSetHandle);
+        }
+
+        //Todo: this seems to imply that you could have multiple active action sets at once (Although I was not able to get that to work), allow multiple action sets
+        activeActionSets = VRActiveActionSet.create(1);
+        activeActionSets.ulActionSet(actionSetHandle);
+        activeActionSets.ulRestrictedToDevice(VR.k_ulInvalidInputValueHandle); // both hands
+    }
+
+    @Override
+    public DigitalActionState getDigitalActionState(String actionName, String restrictToInput){
+        assert inputMode == InputMode.ACTION_BASED : "registerActionManifest must be called before attempting to fetch action states";
+
+        LWJGLOpenVRDigitalActionData actionDataObjects = digitalActions.get(actionName);
+        if (actionDataObjects == null){
+            //this is the first time the action has been used. We must obtain a handle to it to efficiently fetch it in future
+            long handle = fetchActionHandle(actionName);
+            actionDataObjects = new LWJGLOpenVRDigitalActionData(actionName, handle, InputDigitalActionData.create());
+            digitalActions.put(actionName, actionDataObjects);
+        }
+        int errorCode = VRInput.VRInput_GetDigitalActionData(actionDataObjects.actionHandle, actionDataObjects.actionData, getOrFetchInputHandle(restrictToInput));
+
+        if (errorCode == VR.EVRInputError_VRInputError_WrongType){
+            throw new RuntimeException("Attempted to fetch a non-digital state as if it is digital");
+        }else if (errorCode!=0){
+            logger.warning( "An error code of " + errorCode + " was reported while fetching an action state for " + actionName );
+        }
+
+        return new DigitalActionState(actionDataObjects.actionData.bState(), actionDataObjects.actionData.bChanged());
+    }
+
+    @Override
+    public AnalogActionState getAnalogActionState(String actionName, String restrictToInput ){
+        assert inputMode == InputMode.ACTION_BASED : "registerActionManifest must be called before attempting to fetch action states";
+
+        LWJGLOpenVRAnalogActionData actionDataObjects = analogActions.get(actionName);
+        if (actionDataObjects == null){
+            //this is the first time the action has been used. We must obtain a handle to it to efficiently fetch it in future
+            long handle = fetchActionHandle(actionName);
+            actionDataObjects = new LWJGLOpenVRAnalogActionData(actionName, handle, InputAnalogActionData.create());
+            analogActions.put(actionName, actionDataObjects);
+        }
+        int errorCode = VRInput.VRInput_GetAnalogActionData(actionDataObjects.actionHandle, actionDataObjects.actionData, getOrFetchInputHandle(restrictToInput));
+
+        if (errorCode == VR.EVRInputError_VRInputError_WrongType){
+            throw new RuntimeException("Attempted to fetch a non-analog state as if it is analog");
+        }else if (errorCode!=0){
+            logger.warning( "An error code of " + errorCode + " was reported while fetching an action state for " + actionName );
+        }
+
+        return new AnalogActionState(actionDataObjects.actionData.x(), actionDataObjects.actionData.y(), actionDataObjects.actionData.z(), actionDataObjects.actionData.deltaX(), actionDataObjects.actionData.deltaY(), actionDataObjects.actionData.deltaZ());
     }
 
     @Override
@@ -128,6 +275,7 @@ public class LWJGLOpenVRInput implements VRInputAPI {
 
     @Override
     public boolean isButtonDown(int controllerIndex, VRInputType checkButton) {
+        assert inputMode != InputMode.ACTION_BASED : "registerActionManifest has been called, legacy button access disabled";
         VRControllerState cs = cStates[LWJGLOpenVRInput.controllerIndex[controllerIndex]];
         switch (checkButton) {
             default:
@@ -435,6 +583,20 @@ public class LWJGLOpenVRInput implements VRInputAPI {
     }
 
     @Override
+    public void triggerHapticAction(String actionName, float duration, float frequency, float amplitude, String restrictToInput ){
+        long hapticActionHandle;
+        if (!hapticActionHandles.containsKey(actionName)){
+            //this is the first time the action has been used. We must obtain a handle to it to efficiently fetch it in future
+            hapticActionHandle = fetchActionHandle(actionName);
+            hapticActionHandles.put(actionName, hapticActionHandle);
+        }else{
+            hapticActionHandle = hapticActionHandles.get(actionName);
+        }
+
+        VRInput.VRInput_TriggerHapticVibrationAction(hapticActionHandle, 0, duration, frequency, amplitude, getOrFetchInputHandle(restrictToInput));
+    }
+
+    @Override
     public void updateConnectedControllers() {
         logger.config("Updating connected controllers.");
 
@@ -478,16 +640,65 @@ public class LWJGLOpenVRInput implements VRInputAPI {
     public void updateControllerStates() {
 
         if (environment != null) {
-            for (int i = 0; i < controllerCount; i++) {
-                int index = controllerIndex[i];
-                VRSystem.VRSystem_GetControllerState(index, cStates[index], 64);
-                cStates[index].ulButtonPressed();
-                cStates[index].rAxis();
+            switch(inputMode){
+                case ACTION_BASED:
+                    int errorCode = VRInput.VRInput_UpdateActionState(activeActionSets,  VRActiveActionSet.SIZEOF);
+                    if(errorCode!=0){
+                        logger.warning("An error code of " + errorCode + " was returned while upding the action states");
+                    }
+                    break;
+                case LEGACY:
+                    for (int i = 0; i < controllerCount; i++) {
+                        int index = controllerIndex[i];
+                        VRSystem.VRSystem_GetControllerState(index, cStates[index], 64);
+                        cStates[index].ulButtonPressed();
+                        cStates[index].rAxis();
+                    }
+                    break;
             }
+
         } else {
             throw new IllegalStateException("VR input is not attached to a VR environment.");
         }
 
+    }
+
+    /**
+     * Converts an action name (as it appears in the action manifest) to a handle (long) that the rest of the
+     * lwjgl (and openVR) wants to talk in
+     * @param actionName The name of the action. Will be something like /actions/main/in/openInventory
+     * @return a long that is the handle that can be used to refer to the action
+     */
+    private long fetchActionHandle( String actionName ){
+        LongBuffer longBuffer = BufferUtils.createLongBuffer(1);
+        int errorCode = VRInput.VRInput_GetActionHandle(actionName, longBuffer);
+        if (errorCode !=0 ){
+            logger.warning( "An error code of " + errorCode + " was reported while registering an action manifest" );
+        }
+        return longBuffer.get(0);
+    }
+
+    /**
+     * Given an input name returns the handle to address it.
+     *
+     * If a cached handle is available it is returned, if not it is fetched from openVr
+     *
+     * @param inputName the input name, e.g. /user/hand/right. Or null, which means "any input"
+     * @return
+     */
+    public long getOrFetchInputHandle( String inputName ){
+        if(!inputHandles.containsKey(inputName)){
+            LongBuffer longBuffer = BufferUtils.createLongBuffer(1);
+
+            int errorCode = VRInput.VRInput_GetInputSourceHandle(inputName, longBuffer);
+            if (errorCode !=0 ){
+                logger.warning( "An error code of " + errorCode + " was reported while fetching an input manifest" );
+            }
+            long handle = longBuffer.get(0);
+            inputHandles.put(inputName, handle);
+        }
+
+        return inputHandles.get(inputName);
     }
 
 }
