@@ -61,9 +61,9 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
     private final ByteBuffer nativeBuf = BufferUtils.createByteBuffer(BUFFER_SIZE);
     private final byte[] arrayBuf = new byte[BUFFER_SIZE];
     private int[] channels;
-    private AudioSource[] chanSrcs;
+    private AudioSource[] channelSources;
     private int nextChan = 0;
-    private final ArrayList<Integer> freeChans = new ArrayList<>();
+    private final ArrayList<Integer> freeChannels = new ArrayList<>();
     private Listener listener;
     private boolean audioDisabled = false;
     private boolean supportEfx = false;
@@ -116,7 +116,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
         }
 
         ib = BufferUtils.createIntBuffer(channels.length);
-        chanSrcs = new AudioSource[channels.length];
+        channelSources = new AudioSource[channels.length];
 
         final String deviceName = alc.alcGetString(ALC.ALC_DEVICE_SPECIFIER);
 
@@ -189,8 +189,8 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
         }
 
         // stop any playing channels
-        for (int i = 0; i < chanSrcs.length; i++) {
-            if (chanSrcs[i] != null) {
+        for (int i = 0; i < channelSources.length; i++) {
+            if (channelSources[i] != null) {
                 clearChannel(i);
             }
         }
@@ -643,8 +643,8 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
     }
 
     private int newChannel() {
-        if (freeChans.size() > 0) {
-            return freeChans.remove(0);
+        if (freeChannels.size() > 0) {
+            return freeChannels.remove(0);
         } else if (nextChan < channels.length) {
             return nextChan++;
         } else {
@@ -656,7 +656,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
         if (index == nextChan - 1) {
             nextChan--;
         } else {
-            freeChans.add(index);
+            freeChannels.add(index);
         }
     }
 
@@ -817,8 +817,8 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
 
     private void clearChannel(int index) {
         // make room at this channel
-        if (chanSrcs[index] != null) {
-            AudioSource src = chanSrcs[index];
+        if (channelSources[index] != null) {
+            AudioSource src = channelSources[index];
 
             int sourceId = channels[index];
             al.alSourceStop(sourceId);
@@ -837,7 +837,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
                 }
             }
 
-            chanSrcs[index] = null;
+            channelSources[index] = null;
         }
     }
     
@@ -891,7 +891,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
         }
         
         for (int i = 0; i < channels.length; i++) {
-            AudioSource src = chanSrcs[i];
+            AudioSource src = channelSources[i];
             
             if (src == null) {
                 continue;
@@ -974,7 +974,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
         }
 
         for (int i = 0; i < channels.length; i++) {
-            AudioSource src = chanSrcs[i];
+            AudioSource src = channelSources[i];
             
             if (src == null || !(src.getAudioData() instanceof AudioStream)) {
                 continue;
@@ -1080,7 +1080,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
             // set parameters, like position and max distance
             setSourceParams(sourceId, src, true);
             attachAudioToSource(sourceId, src.getAudioData(), false);
-            chanSrcs[index] = src;
+            channelSources[index] = src;
 
             // play the channel
             al.alSourcePlay(sourceId);
@@ -1116,7 +1116,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
                     updateAudioData(data);
                 }
 
-                chanSrcs[index] = src;
+                channelSources[index] = src;
                 setSourceParams(channels[index], src, false);
                 attachAudioToSource(channels[index], data, src.isLooping());
             }

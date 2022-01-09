@@ -61,7 +61,7 @@ public class CachedOggStream implements PhysicalOggStream {
     private OggPage lastPage;
    
     private int pageNumber;
-    private int serialno;
+    private int serialNumber;
     
     public CachedOggStream(InputStream in) throws IOException {
         sourceStream = in;
@@ -109,8 +109,8 @@ public class CachedOggStream implements PhysicalOggStream {
 
     public LogicalOggStream reloadLogicalOggStream() {
         logicalStreams.clear();
-        LogicalOggStreamImpl los = new LogicalOggStreamImpl(this, serialno);
-        logicalStreams.put(serialno, los);
+        LogicalOggStreamImpl los = new LogicalOggStreamImpl(this, serialNumber);
+        logicalStreams.put(serialNumber, los);
 
         for (IntMap.Entry<OggPage> entry : oggPages) {
             los.addPageNumberMapping(entry.getKey());
@@ -133,7 +133,7 @@ public class CachedOggStream implements PhysicalOggStream {
 
        LogicalOggStreamImpl los = (LogicalOggStreamImpl) logicalStreams.get(op.getStreamSerialNumber());
        if (los == null) {
-           serialno = op.getStreamSerialNumber();
+           serialNumber = op.getStreamSerialNumber();
            los = new LogicalOggStreamImpl(this, op.getStreamSerialNumber());
            logicalStreams.put(op.getStreamSerialNumber(), los);
            los.checkFormat(op);
