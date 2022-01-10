@@ -673,10 +673,10 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
      * @param model the spatial with the model's SkeletonControl (not null)
      * @param bone the bone to be linked (not null)
      * @param parent the body linked to the parent bone (not null)
-     * @param reccount depth of the recursion (&ge;1)
+     * @param recursionCount depth of the recursion (&ge;1)
      * @param pointsMap (not null)
      */
-    protected void boneRecursion(Spatial model, Bone bone, PhysicsRigidBody parent, int reccount, Map<Integer, List<Float>> pointsMap) {
+    protected void boneRecursion(Spatial model, Bone bone, PhysicsRigidBody parent, int recursionCount, Map<Integer, List<Float>> pointsMap) {
         PhysicsRigidBody parentShape = parent;
         if (boneList.contains(bone.getName())) {
 
@@ -693,10 +693,10 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
                 shape = RagdollUtils.makeShapeFromVerticeWeights(model, RagdollUtils.getBoneIndices(link.bone, skeleton, boneList), initScale, link.bone.getModelSpacePosition(), weightThreshold);
             }
 
-            PhysicsRigidBody shapeNode = new PhysicsRigidBody(shape, rootMass / reccount);
+            PhysicsRigidBody shapeNode = new PhysicsRigidBody(shape, rootMass / recursionCount);
 
             shapeNode.setKinematic(mode == Mode.Kinematic);
-            totalMass += rootMass / reccount;
+            totalMass += rootMass / recursionCount;
 
             link.rigidBody = shapeNode;
             link.initalWorldRotation = bone.getModelSpaceRotation().clone();
@@ -721,7 +721,7 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
 
         for (Iterator<Bone> it = bone.getChildren().iterator(); it.hasNext();) {
             Bone childBone = it.next();
-            boneRecursion(model, childBone, parentShape, reccount + 1, pointsMap);
+            boneRecursion(model, childBone, parentShape, recursionCount + 1, pointsMap);
         }
     }
 
