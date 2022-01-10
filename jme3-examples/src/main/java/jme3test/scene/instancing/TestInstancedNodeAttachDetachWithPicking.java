@@ -176,7 +176,7 @@ public class TestInstancedNodeAttachDetachWithPicking extends SimpleApplication 
     }
 
     private void addCrossHairs() {
-        BitmapText ch = new BitmapText(guiFont, false);
+        BitmapText ch = new BitmapText(guiFont);
         ch.setSize(guiFont.getCharSet().getRenderedSize()+4);
         ch.setText("+"); // crosshairs
         ch.setColor(ColorRGBA.White);

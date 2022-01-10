@@ -129,7 +129,7 @@ public class TerrainTestTile extends SimpleApplication {
     }
     
     public void loadHintText() {
-        BitmapText hintText = new BitmapText(guiFont, false);
+        BitmapText hintText = new BitmapText(guiFont);
         hintText.setLocalTranslation(0, getCamera().getHeight(), 0);
         hintText.setText("Press T to toggle wireframe");
         guiNode.attachChild(hintText);

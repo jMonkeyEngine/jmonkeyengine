@@ -298,9 +298,9 @@ public class PhysicsCharacter extends PhysicsCollisionObject {
     }
 
     @Override
-    public void read(JmeImporter e) throws IOException {
-        super.read(e);
-        InputCapsule capsule = e.getCapsule(this);
+    public void read(JmeImporter importer) throws IOException {
+        super.read(importer);
+        InputCapsule capsule = importer.getCapsule(this);
         stepHeight = capsule.readFloat("stepHeight", 1.0f);
         buildObject();
         character = new KinematicCharacterController(gObject, (ConvexShape) collisionShape.getCShape(), stepHeight);

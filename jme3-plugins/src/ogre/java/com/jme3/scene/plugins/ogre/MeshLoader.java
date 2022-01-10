@@ -519,10 +519,10 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
         buf.put(color.r).put(color.g).put(color.b).put(color.a);
     }
 
-    private void startLodFaceList(String submeshindex, String numfaces) {
-        int index = Integer.parseInt(submeshindex);
+    private void startLodFaceList(String submeshIndex, String numFaces) {
+        int index = Integer.parseInt(submeshIndex);
         mesh = geoms.get(index).getMesh();
-        int faceCount = Integer.parseInt(numfaces);
+        int faceCount = Integer.parseInt(numFaces);
 
         VertexBuffer originalIndexBuffer = mesh.getBuffer(Type.Index);
         vb = new VertexBuffer(VertexBuffer.Type.Index);

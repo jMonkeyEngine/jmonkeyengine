@@ -34,7 +34,7 @@ package com.jme3.opencl;
 /**
  * Wrapper for an OpenCL Event object.
  * Events are returned from kernel launches and all asynchronous operations.
- * They allow to test if the action has completed and to block until the operation
+ * They allow us to test whether an action has completed and block until the operation
  * is done.
  *
  * @author shaman

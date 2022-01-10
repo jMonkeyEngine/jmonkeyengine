@@ -717,10 +717,10 @@ public abstract class VRApplication implements Application, SystemListener {
                 settings.setDepthBits(24);
                 settings.setVSync(true);
                 // try and read resolution from file in local dir
-                File resfile = new File("resolution.txt");
-                if( resfile.exists() ) {
+                File resFile = new File("resolution.txt");
+                if( resFile.exists() ) {
                     try {
-                        BufferedReader br = new BufferedReader(new FileReader(resfile));
+                        BufferedReader br = new BufferedReader(new FileReader(resFile));
                         settings.setWidth(Integer.parseInt(br.readLine()));
                         settings.setHeight(Integer.parseInt(br.readLine()));
                         try {
@@ -1179,8 +1179,8 @@ public abstract class VRApplication implements Application, SystemListener {
         rootNode.updateGeometricState();
 
         if( isInVR() == false || guiManager.getPositioningMode() == VRGUIPositioningMode.MANUAL ) {
-            // only update geometric state here if GUI is in manual mode, or not in VR
-            // it will get updated automatically in the viewmanager update otherwise
+            // Update geometric state here only if GUI is in manual mode, or not in VR.
+            // Otherwise it will get updated automatically in the view-manager update.
             guiNode.updateGeometricState();
         }
 

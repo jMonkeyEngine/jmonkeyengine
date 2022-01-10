@@ -77,7 +77,7 @@ final class CollisionUtil {
      * 
      * @param a First collidable
      * @param b Second collidable
-     * @param expect Number of expected results
+     * @param expected the expected number of results
      */
     public static void checkCollision(Collidable a, Collidable b, int expected) {
         checkCollisionBase(a, b, expected);

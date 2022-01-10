@@ -57,7 +57,7 @@ import java.nio.ShortBuffer;
  * mesh, minus one outer edge around it. Then it builds the edges in counter-clockwise order,
  * starting at the bottom right and working up, then left across the top, then down across the
  * left, then right across the bottom.
- * It needs to know what its neighbour's LODs are so it can stitch the edges.
+ * It needs to know what its neighbour's LODs are, so it can stitch the edges.
  * It creates degenerate polygons in order to keep the winding order of the polygons and to move
  * the strip to a new position while still maintaining the continuity of the overall mesh. These
  * degenerates are removed quickly by the video card.

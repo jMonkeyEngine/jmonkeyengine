@@ -41,7 +41,7 @@ public class TestAnimationFactory extends SimpleApplication {
         Box child = new Box(0.5f, 0.5f, 0.5f);
         Geometry childGeom = new Geometry("box", child);
         childGeom.setMaterial(assetManager.loadMaterial("Textures/Terrain/BrickWall/BrickWall.j3m"));
-        Node childModel = new Node("childmodel");
+        Node childModel = new Node("child model");
         childModel.setLocalTranslation(2, 2, 2);
         childModel.attachChild(childGeom);
         model.attachChild(childModel);

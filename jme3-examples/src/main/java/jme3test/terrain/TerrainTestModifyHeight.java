@@ -144,7 +144,7 @@ public class TerrainTestModifyHeight extends SimpleApplication {
     }
     
     public void loadHintText() {
-        hintText = new BitmapText(guiFont, false);
+        hintText = new BitmapText(guiFont);
         hintText.setLocalTranslation(0, getCamera().getHeight(), 0);
         hintText.setText("Hit 1 to raise terrain, hit 2 to lower terrain");
         guiNode.attachChild(hintText);
@@ -161,7 +161,7 @@ public class TerrainTestModifyHeight extends SimpleApplication {
     }
 
     protected void initCrossHairs() {
-        BitmapText ch = new BitmapText(guiFont, false);
+        BitmapText ch = new BitmapText(guiFont);
         ch.setSize(guiFont.getCharSet().getRenderedSize() * 2);
         ch.setText("+"); // crosshairs
         ch.setLocalTranslation( // center

@@ -323,12 +323,12 @@ public class Plane implements Savable, Cloneable, java.io.Serializable {
      * De-serialize this plane from the specified importer, for example when
      * loading from a J3O file.
      *
-     * @param e (not null)
+     * @param importer (not null)
      * @throws IOException from the importer
      */
     @Override
-    public void read(JmeImporter e) throws IOException {
-        InputCapsule capsule = e.getCapsule(this);
+    public void read(JmeImporter importer) throws IOException {
+        InputCapsule capsule = importer.getCapsule(this);
         normal = (Vector3f) capsule.readSavable("normal", Vector3f.ZERO.clone());
         constant = capsule.readFloat("constant", 0);
     }

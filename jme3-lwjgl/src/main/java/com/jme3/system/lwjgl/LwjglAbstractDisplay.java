@@ -159,7 +159,7 @@ public abstract class LwjglAbstractDisplay extends LwjglContext implements Runna
 
         listener.update();
         
-        // All this does is call swap buffers
+        // All this does is call update().
         // If the canvas is not active, there's no need to waste time
         // doing that.
         if (renderable.get()){

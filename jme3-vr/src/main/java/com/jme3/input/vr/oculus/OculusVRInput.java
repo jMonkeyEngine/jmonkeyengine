@@ -135,14 +135,14 @@ public class OculusVRInput implements VRInputAPI {
         OculusViewManager vrvm = (OculusViewManager) hardware.getEnvironment().getVRViewManager();
 
         Object obs = env.getObserver();
-        Quaternion tempq = new Quaternion(); // TODO move to class scope?
+        Quaternion tempQuaternion = new Quaternion(); // TODO move to class scope?
         if (obs instanceof Camera) {
-            tempq.set(((Camera) obs).getRotation());
+            tempQuaternion.set(((Camera) obs).getRotation());
         } else {
-            tempq.set(((Spatial) obs).getWorldRotation());
+            tempQuaternion.set(((Spatial) obs).getWorldRotation());
         }
 
-        return tempq.multLocal(getOrientation(index));
+        return tempQuaternion.multLocal(getOrientation(index));
     }
 
     @Override

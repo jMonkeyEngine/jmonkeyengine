@@ -95,7 +95,7 @@ public interface JmeCloneable extends Cloneable {
      *              This is provided for the very rare case that this object needs
      *              to refer to its original for some reason.  In general, all of
      *              the relevant values should have been transferred during the
-     *              shallow clone and this object need merely clone what it wants.
+     *              shallow clone, and this object need only clone what it wants.
      */
     public void cloneFields( Cloner cloner, Object original ); 
 }

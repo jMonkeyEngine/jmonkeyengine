@@ -328,7 +328,7 @@ public class OculusViewManager extends AbstractVRViewManager {
                     viewPort.attachScene(spatialIter.next());
                 }
 
-                // The viewbuffer to render into will be set during prerender.
+                // The target view buffer will be set during prerender.
                 return viewPort;
             } else {
                 throw new IllegalStateException("This VR environment is not attached to any application.");

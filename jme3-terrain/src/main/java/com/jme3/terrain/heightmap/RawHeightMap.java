@@ -88,14 +88,14 @@ public class RawHeightMap extends AbstractHeightMap {
         this.format = FORMAT_8BIT;
     }
 
-    public RawHeightMap(String filename, int size, int format, boolean swapxy) throws Exception {
-        // varify that filename and size are valid.
+    public RawHeightMap(String filename, int size, int format, boolean swapXy) throws Exception {
+        // Verify that filename and size are valid.
         if (null == filename || size <= 0) {
             throw new Exception("Must supply valid filename and "
                     + "size (> 0)");
         }
         try {
-            setup(new FileInputStream(filename), size, format, swapxy);
+            setup(new FileInputStream(filename), size, format, swapXy);
         } catch (FileNotFoundException e) {
             throw new Exception("height file not found: " + filename);
         }

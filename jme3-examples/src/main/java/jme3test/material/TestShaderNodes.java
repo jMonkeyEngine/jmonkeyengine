@@ -23,8 +23,8 @@ public class TestShaderNodes extends SimpleApplication {
     public void simpleInitApp() {
         flyCam.setMoveSpeed(20);
         Logger.getLogger("com.jme3").setLevel(Level.WARNING);
-        Box boxshape1 = new Box(1f, 1f, 1f);
-        Geometry cube_tex = new Geometry("A Textured Box", boxshape1);
+        Box boxShape1 = new Box(1f, 1f, 1f);
+        Geometry cube_tex = new Geometry("A Textured Box", boxShape1);
         Texture tex = assetManager.loadTexture("Interface/Logo/Monkey.jpg");
 
         Material mat = new Material(assetManager, "Common/MatDefs/Misc/UnshadedNodes.j3md");

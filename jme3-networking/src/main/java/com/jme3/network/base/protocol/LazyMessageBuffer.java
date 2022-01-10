@@ -108,14 +108,14 @@ public class LazyMessageBuffer implements MessageBuffer {
                     // byte in it... and in that case we will get an underflow
                     // when attempting to read the short below.
                     
-                    // It has to be 1 or we'd never get here... but one
-                    // isn't enough so we stash it away.
+                    // It has to be 1 or we'd never get here. But one
+                    // isn't enough, so we stash it away.
                     carry = buffer.get();
                     break;
                 } else {
-                    // We are not currently reading an object so
+                    // We are not currently reading an object, so
                     // grab the size.
-                    // Note: this is somewhat limiting... int would
+                    // Note: this is somewhat limiting. int would
                     // be better.
                     size = buffer.getShort();
                 }               

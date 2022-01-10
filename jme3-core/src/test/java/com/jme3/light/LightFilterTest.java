@@ -171,7 +171,7 @@ public class LightFilterTest {
         pl.setPosition(new Vector3f(0f, 1.4142135f, 1.4142135f).multLocal(1-FastMath.ZERO_TOLERANCE));
         checkFilteredLights(1);
         
-        // it's a point light, also test for the other corner
+        // It's a point light; also test for the other corner.
         pl.setPosition(new Vector3f(0f, -1.4142135f, -1.4142135f).multLocal(1-FastMath.ZERO_TOLERANCE));
         checkFilteredLights(0);
 

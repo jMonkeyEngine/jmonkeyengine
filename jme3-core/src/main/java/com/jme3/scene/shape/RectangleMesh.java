@@ -67,7 +67,7 @@ import com.jme3.util.clone.Cloner;
  * <li>U=0 at vertices A and C</li>
  * <li>U=1 at vertices B and D</li>
  * <li>V=0 at vertices A and B</li>
- * <li>V=1 at vertices C and D</li</ul>
+ * <li>V=1 at vertices C and D</li></ul>
  *
  * @author Francivan Bezerra
  */
@@ -241,9 +241,9 @@ public class RectangleMesh extends Mesh {
     }
 
     @Override
-    public void read(JmeImporter e) throws IOException {
-        super.read(e);
-        final InputCapsule capsule = e.getCapsule(this);
+    public void read(JmeImporter importer) throws IOException {
+        super.read(importer);
+        final InputCapsule capsule = importer.getCapsule(this);
         rectangle = (Rectangle) capsule.readSavable("rectangle", new Rectangle(
                 new Vector3f(),
                 new Vector3f(1, 0, 0),

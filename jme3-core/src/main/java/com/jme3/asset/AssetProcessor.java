@@ -45,7 +45,7 @@ import com.jme3.shader.Shader;
  */
 public interface AssetProcessor {
     /**
-     * Applies post processing to an asset.
+     * Applies post-processing to an asset.
      * The method may return an object that is not the same
      * instance as the parameter object, and it could be from a different class.
      *

@@ -16,9 +16,9 @@ sourceSets {
 }
 
 dependencies {
-    testRuntime project(':jme3-testdata')
+    testRuntimeOnly project(':jme3-testdata')
     testImplementation project(':jme3-desktop')
-    testRuntime project(':jme3-plugins')
+    testRuntimeOnly project(':jme3-plugins')
 }
 
 task updateVersionPropertiesFile {

@@ -142,7 +142,7 @@ public class WorldOfInception extends SimpleApplication implements AnalogListene
 
     private void setupDisplay() {
         if (fpsText == null) {
-            fpsText = new BitmapText(guiFont, false);
+            fpsText = new BitmapText(guiFont);
         }
         fpsText.setLocalScale(0.7f, 0.7f, 0.7f);
         fpsText.setLocalTranslation(0, fpsText.getLineHeight(), 0);
