@@ -43,7 +43,7 @@ public class ThreadingManager {
 
     protected final ExecutorService executor =
             Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors(),
-                                         new LoadingThreadFactory());
+                    new LoadingThreadFactory());
 
     protected final AssetManager owner;
     protected int nextThreadId = 0;
