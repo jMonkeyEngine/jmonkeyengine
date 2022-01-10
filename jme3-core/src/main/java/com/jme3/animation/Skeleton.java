@@ -127,7 +127,7 @@ public final class Skeleton implements Savable, JmeCloneable {
     @Override
     public Object jmeClone() {
         try {
-            Skeleton clone = (Skeleton)super.clone();
+            Skeleton clone = (Skeleton) super.clone();
             return clone;
         } catch (CloneNotSupportedException ex) {
             throw new AssertionError();
@@ -135,7 +135,7 @@ public final class Skeleton implements Savable, JmeCloneable {
     }
 
     @Override
-    public void cloneFields (Cloner cloner, Object original) {
+    public void cloneFields(Cloner cloner, Object original) {
         this.rootBones = cloner.clone(rootBones);
         this.boneList = cloner.clone(boneList);
         this.skinningMatrixes = cloner.clone(skinningMatrixes);
