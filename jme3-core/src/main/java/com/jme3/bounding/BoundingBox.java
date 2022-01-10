@@ -935,22 +935,22 @@ public class BoundingBox extends BoundingVolume {
      *
      * @param denom
      *            the denominator of the line segment.
-     * @param numer
+     * @param numerator
      *            the numerator of the line segment.
      * @param t
      *            test values of the plane.
      * @return true if the line segment intersects the plane, false otherwise.
      */
-    private boolean clip(float denom, float numer, float[] t) {
+    private boolean clip(float denom, float numerator, float[] t) {
         // Return value is 'true' if line segment intersects the current test
         // plane. Otherwise, 'false' is returned, in which case the line segment
         // is entirely clipped.
         if (denom > 0.0f) {
             // This is the old if statement...
-            // if (numer > denom * t[1]) {
+            // if (numerator > denom * t[1]) {
             //
             // The problem is that what is actually stored is
-            // numer/denom.  In non-floating point, this math should
+            // numerator/denom.  In non-floating point, this math should
             // work out the same but in floating point there can
             // be subtle math errors.  The multiply will exaggerate
             // errors that may have been introduced when the value
@@ -974,7 +974,7 @@ public class BoundingBox extends BoundingVolume {
             // angles and distances because they fail the bounding box test.
             // Many Bothans died bring you this fix.
             //    -pspeed
-            float newT = numer / denom;
+            float newT = numerator / denom;
             if (newT > t[1]) {
                 return false;
             }
@@ -984,12 +984,12 @@ public class BoundingBox extends BoundingVolume {
             return true;
         } else if (denom < 0.0f) {
             // Old if statement... see above
-            // if (numer > denom * t[0]) {
+            // if (numerator > denom * t[0]) {
             //
             // Note though that denom is always negative in this block.
             // When we move it over to the other side we have to flip
             // the comparison.  Algebra for the win.
-            float newT = numer / denom;
+            float newT = numerator / denom;
             if (newT < t[0]) {
                 return false;
             }
@@ -998,7 +998,7 @@ public class BoundingBox extends BoundingVolume {
             }
             return true;
         } else {
-            return numer <= 0.0;
+            return numerator <= 0.0;
         }
     }
 
