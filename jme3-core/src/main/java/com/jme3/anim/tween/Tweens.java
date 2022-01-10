@@ -167,7 +167,7 @@ public class Tweens {
      *    void foo(double t, String arg)
      *    void foo(String arg, float t)
      *    void foo(String arg, double t)
-     *  </pre>
+     * </pre>
      *
      * @param length the desired duration (in seconds)
      * @param target object on which the method is to be invoked
