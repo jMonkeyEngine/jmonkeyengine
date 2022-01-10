@@ -160,18 +160,18 @@ public class BillboardControl extends AbstractControl {
 
         look.normalizeLocal();
         xzp.normalizeLocal();
-        float cosp = look.dot(xzp);
+        float cosP = look.dot(xzp);
 
         // compute the local orientation matrix for the billboard
         orient.set(0, 0, xzp.z);
         orient.set(0, 1, xzp.x * -look.y);
-        orient.set(0, 2, xzp.x * cosp);
+        orient.set(0, 2, xzp.x * cosP);
         orient.set(1, 0, 0);
-        orient.set(1, 1, cosp);
+        orient.set(1, 1, cosP);
         orient.set(1, 2, look.y);
         orient.set(2, 0, -xzp.x);
         orient.set(2, 1, xzp.z * -look.y);
-        orient.set(2, 2, xzp.z * cosp);
+        orient.set(2, 2, xzp.z * cosP);
 
         // The billboard must be oriented to face the camera before it is
         // transformed into the world.

@@ -768,11 +768,11 @@ public final class BufferUtils {
             return null;
         }
         buff.clear();
-        int[] inds = new int[buff.limit()];
-        for (int x = 0; x < inds.length; x++) {
-            inds[x] = buff.get();
+        int[] intArray = new int[buff.limit()];
+        for (int x = 0; x < intArray.length; x++) {
+            intArray[x] = buff.get();
         }
-        return inds;
+        return intArray;
     }
 
     /**

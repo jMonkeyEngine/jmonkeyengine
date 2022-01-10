@@ -177,23 +177,23 @@ public class ArmatureDebugAppState extends BaseAppState {
                 // The closest result is the target that the player picked:
                 Geometry target = results.getClosestCollision().getGeometry();
                 for (ArmatureDebugger ad : armatures.values()) {
-                    Joint selectedjoint = ad.select(target);
-                    if (selectedjoint != null) {
-                        selectedBones.put(ad.getArmature(), selectedjoint);
+                    Joint selectedJoint = ad.select(target);
+                    if (selectedJoint != null) {
+                        selectedBones.put(ad.getArmature(), selectedJoint);
                         System.err.println("-----------------------");
-                        System.err.println("Selected Joint : " + selectedjoint.getName() + " in armature " + ad.getName());
-                        System.err.println("Root Bone : " + (selectedjoint.getParent() == null));
+                        System.err.println("Selected Joint : " + selectedJoint.getName() + " in armature " + ad.getName());
+                        System.err.println("Root Bone : " + (selectedJoint.getParent() == null));
                         System.err.println("-----------------------");
-                        System.err.println("Local translation: " + selectedjoint.getLocalTranslation());
-                        System.err.println("Local rotation: " + selectedjoint.getLocalRotation());
-                        System.err.println("Local scale: " + selectedjoint.getLocalScale());
+                        System.err.println("Local translation: " + selectedJoint.getLocalTranslation());
+                        System.err.println("Local rotation: " + selectedJoint.getLocalRotation());
+                        System.err.println("Local scale: " + selectedJoint.getLocalScale());
                         System.err.println("---");
-                        System.err.println("Model translation: " + selectedjoint.getModelTransform().getTranslation());
-                        System.err.println("Model rotation: " + selectedjoint.getModelTransform().getRotation());
-                        System.err.println("Model scale: " + selectedjoint.getModelTransform().getScale());
+                        System.err.println("Model translation: " + selectedJoint.getModelTransform().getTranslation());
+                        System.err.println("Model rotation: " + selectedJoint.getModelTransform().getRotation());
+                        System.err.println("Model scale: " + selectedJoint.getModelTransform().getScale());
                         System.err.println("---");
                         System.err.println("Bind inverse Transform: ");
-                        System.err.println(selectedjoint.getInverseModelBindMatrix());
+                        System.err.println(selectedJoint.getInverseModelBindMatrix());
                         return;
                     }
                 }
