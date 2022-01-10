@@ -180,7 +180,7 @@ public class AssetKey<T> implements Savable, Cloneable {
         if (!(other instanceof AssetKey)) {
             return false;
         }
-        return name.equals(((AssetKey)other).name);
+        return name.equals(((AssetKey) other).name);
     }
 
     @Override
