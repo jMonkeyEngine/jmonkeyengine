@@ -40,7 +40,6 @@ import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.util.BufferUtils;
 import java.nio.FloatBuffer;
 
-
 /**
  *  An AppProfiler implementation that collects two
  *  per-frame application-wide timings for update versus
@@ -58,7 +57,7 @@ import java.nio.FloatBuffer;
  *  <p>When the end of the chart is reached, the current
  *  frame cycles back around to the beginning.</p>
  *
- *  @author    Paul Speed
+ * @author Paul Speed
  */
 public class BasicProfiler implements AppProfiler {
 
@@ -92,7 +91,7 @@ public class BasicProfiler implements AppProfiler {
         }
 
         this.size = size;
-        this.frames = new long[size*2];
+        this.frames = new long[size * 2];
 
         createMesh();
 
@@ -150,7 +149,7 @@ public class BasicProfiler implements AppProfiler {
     }
 
     protected void updateMesh() {
-        FloatBuffer pb = (FloatBuffer)mesh.getBuffer(Type.Position).getData();
+        FloatBuffer pb = (FloatBuffer) mesh.getBuffer(Type.Position).getData();
         pb.rewind();
         float scale = 1 / 1000000f; // scaled to ms as pixels
         for (int i = 0; i < size; i++) {
@@ -202,5 +201,3 @@ public class BasicProfiler implements AppProfiler {
     public void spStep(SpStep step, String... additionalInfo) {
     }
 }
-
-
