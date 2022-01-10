@@ -38,7 +38,7 @@ import com.jme3.input.FlyByCamera;
 /**
  *  Manages a FlyByCamera.
  *
- *  @author    Paul Speed
+ * @author Paul Speed
  */
 public class FlyCamAppState extends AbstractAppState {
 
@@ -49,7 +49,7 @@ public class FlyCamAppState extends AbstractAppState {
     }
 
     /**
-     *  This is called by SimpleApplication during initialize().
+     * This is called by SimpleApplication during initialize().
      */
     void setCamera(FlyByCamera cam) {
         this.flyCam = cam;
