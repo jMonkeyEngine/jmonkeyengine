@@ -98,7 +98,7 @@ public abstract class SimpleApplication extends LegacyApplication {
 
     public SimpleApplication() {
         this(new StatsAppState(), new FlyCamAppState(), new AudioListenerState(), new DebugKeysAppState(),
-             new ConstantVerifierState());
+                new ConstantVerifierState());
     }
 
     public SimpleApplication(AppState... initialStates) {
@@ -242,7 +242,8 @@ public abstract class SimpleApplication extends LegacyApplication {
 
     @Override
     public void update() {
-        if (prof!=null) prof.appStep(AppStep.BeginFrame);
+        if (prof != null)
+            prof.appStep(AppStep.BeginFrame);
 
         super.update(); // makes sure to execute AppTasks
         if (speed == 0 || paused) {
@@ -252,13 +253,15 @@ public abstract class SimpleApplication extends LegacyApplication {
         float tpf = timer.getTimePerFrame() * speed;
 
         // update states
-        if (prof!=null) prof.appStep(AppStep.StateManagerUpdate);
+        if (prof != null)
+            prof.appStep(AppStep.StateManagerUpdate);
         stateManager.update(tpf);
 
         // simple update and root node
         simpleUpdate(tpf);
 
-        if (prof!=null) prof.appStep(AppStep.SpatialUpdate);
+        if (prof != null)
+            prof.appStep(AppStep.SpatialUpdate);
         rootNode.updateLogicalState(tpf);
         guiNode.updateLogicalState(tpf);
 
@@ -266,15 +269,18 @@ public abstract class SimpleApplication extends LegacyApplication {
         guiNode.updateGeometricState();
 
         // render states
-        if (prof!=null) prof.appStep(AppStep.StateManagerRender);
+        if (prof != null)
+            prof.appStep(AppStep.StateManagerRender);
         stateManager.render(renderManager);
 
-        if (prof!=null) prof.appStep(AppStep.RenderFrame);
+        if (prof != null)
+            prof.appStep(AppStep.RenderFrame);
         renderManager.render(tpf, context.isRenderable());
         simpleRender(renderManager);
         stateManager.postRender();
 
-        if (prof!=null) prof.appStep(AppStep.EndFrame);
+        if (prof != null)
+            prof.appStep(AppStep.EndFrame);
     }
 
     public void setDisplayFps(boolean show) {
