@@ -44,13 +44,12 @@ import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.VertexBuffer.Type;
 
-
 /**
  *  Provides a basic profiling visualization that shows
  *  per-frame application-wide timings for update and
  *  rendering.
  *
- *  @author    Paul Speed
+ * @author Paul Speed
  */
 public class BasicProfilerState extends BaseAppState {
 
@@ -215,7 +214,7 @@ public class BasicProfilerState extends BaseAppState {
         setFrameCount(getApplication().getCamera().getWidth());
 
         getApplication().setAppProfiler(profiler);
-        Node gui = ((SimpleApplication)getApplication()).getGuiNode();
+        Node gui = ((SimpleApplication) getApplication()).getGuiNode();
         gui.attachChild(graph);
         gui.attachChild(background);
     }
@@ -237,4 +236,3 @@ public class BasicProfilerState extends BaseAppState {
         }
     }
 }
-
