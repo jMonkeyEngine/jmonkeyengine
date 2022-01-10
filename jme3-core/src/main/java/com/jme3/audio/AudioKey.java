@@ -89,11 +89,9 @@ public class AudioKey extends AssetKey<AudioData> {
 
     @Override
     public String toString() {
-        return name + (stream ?
-                          (streamCache ?
-                            " (Stream/Cache)" :
-                            " (Stream)") :
-                         " (Buffer)");
+        return name + (stream
+                ? (streamCache ? " (Stream/Cache)" : " (Stream)")
+                : " (Buffer)");
     }
 
     /**
