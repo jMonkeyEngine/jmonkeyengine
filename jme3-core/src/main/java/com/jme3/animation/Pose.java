@@ -50,7 +50,7 @@ public final class Pose implements Savable, Cloneable {
     private Vector3f[] offsets;
     private int[] indices;
 
-    private transient final Vector3f tempVec  = new Vector3f();
+    private transient final Vector3f tempVec = new Vector3f();
     private transient final Vector3f tempVec2 = new Vector3f();
 
     public Pose(String name, int targetMeshIndex, Vector3f[] offsets, int[] indices) {
