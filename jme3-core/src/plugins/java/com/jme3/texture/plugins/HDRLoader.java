@@ -218,7 +218,6 @@ public class HDRLoader implements AssetLoader {
     public Image load(InputStream in, boolean flipY) throws IOException{
         float gamma = -1f;
         float exposure = -1f;
-        float[] colorcorr = new float[]{ -1f, -1f, -1f };
 
         int width = -1, height = -1;
         boolean verifiedFormat = false;
