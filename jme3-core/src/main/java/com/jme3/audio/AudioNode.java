@@ -607,7 +607,7 @@ public class AudioNode extends Node implements AudioSource {
      * audio node will be exactly half of its volume.
      *
      * @param refDistance The reference playing distance.
-     * @throws  IllegalArgumentException If refDistance is negative
+     * @throws IllegalArgumentException If refDistance is negative
      */
     public void setRefDistance(float refDistance) {
         if (refDistance < 0) {
@@ -754,7 +754,8 @@ public class AudioNode extends Node implements AudioSource {
     @Override
     public void updateGeometricState() {
         super.updateGeometricState();
-        if (channel < 0) return;
+        if (channel < 0)
+            return;
         Vector3f currentWorldTranslation = worldTransform.getTranslation();
         if (!previousWorldTranslation.equals(currentWorldTranslation)) {
             getRenderer().updateSourceParam(this, AudioParam.Position);
@@ -774,15 +775,15 @@ public class AudioNode extends Node implements AudioSource {
     }
 
     /**
-     *  Called internally by com.jme3.util.clone.Cloner.  Do not call directly.
+     * Called internally by com.jme3.util.clone.Cloner. Do not call directly.
      */
     @Override
     public void cloneFields(Cloner cloner, Object original) {
         super.cloneFields(cloner, original);
 
-        this.direction=cloner.clone(direction);
-        this.velocity=velocityFromTranslation?new Vector3f():cloner.clone(velocity);
-        this.previousWorldTranslation=Vector3f.NAN.clone();
+        this.direction = cloner.clone(direction);
+        this.velocity = velocityFromTranslation ? new Vector3f() : cloner.clone(velocity);
+        this.previousWorldTranslation = Vector3f.NAN.clone();
 
         // Change in behavior: the filters were not cloned before meaning
         // that two cloned audio nodes would share the same filter instance.
