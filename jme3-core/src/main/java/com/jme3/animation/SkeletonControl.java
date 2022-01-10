@@ -106,7 +106,6 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
      */
     private transient Matrix4f[] offsetMatrices;
 
-
     private MatParamOverride numberOfBonesParam;
     private MatParamOverride boneMatricesParam;
 
@@ -307,7 +306,7 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
     @Override
     protected void controlUpdate(float tpf) {
         wasMeshUpdated = false;
-     }
+    }
 
     //only do this for software updates
     void resetToBind() {
@@ -342,7 +341,6 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
                     btb.clear();
                     tb.put(btb).clear();
                 }
-
 
                 pb.put(bpb).clear();
                 nb.put(bnb).clear();
@@ -444,8 +442,6 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
             //if there are tangents use the skinning with tangents
             applySkinningTangents(mesh, offsetMatrices, tb);
         }
-
-
     }
 
     /**
@@ -581,10 +577,8 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
         FloatBuffer fnb = (FloatBuffer) nb.getData();
         fnb.rewind();
 
-
         FloatBuffer ftb = (FloatBuffer) tb.getData();
         ftb.rewind();
-
 
         // get boneIndexes and weights for mesh
         IndexBuffer ib = IndexBuffer.wrapIndexBuffer(mesh.getBuffer(Type.BoneIndex).getData());
@@ -596,7 +590,6 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
         int idxWeights = 0;
 
         TempVars vars = TempVars.get();
-
 
         float[] posBuf = vars.skinPositions;
         float[] normBuf = vars.skinNormals;
@@ -694,8 +687,6 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
         vb.updateData(fvb);
         nb.updateData(fnb);
         tb.updateData(ftb);
-
-
     }
 
     @Override
