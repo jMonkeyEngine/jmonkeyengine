@@ -139,7 +139,7 @@ public class DesktopAssetManager implements AssetManager {
         handler.addLoader(loader, extensions);
         if (logger.isLoggable(Level.FINER)) {
             logger.log(Level.FINER, "Registered loader: {0} for extensions {1}",
-              new Object[]{loader.getSimpleName(), Arrays.toString(extensions)});
+                    new Object[]{loader.getSimpleName(), Arrays.toString(extensions)});
         }
     }
 
@@ -149,7 +149,7 @@ public class DesktopAssetManager implements AssetManager {
         try {
             clazz = (Class<? extends AssetLoader>) Class.forName(clsName);
         } catch (ClassNotFoundException | NoClassDefFoundError ex) {
-            logger.log(Level.WARNING, "Failed to find loader: "+clsName, ex);
+            logger.log(Level.WARNING, "Failed to find loader: " + clsName, ex);
         }
         if (clazz != null) {
             registerLoader(clazz, extensions);
@@ -309,11 +309,11 @@ public class DesktopAssetManager implements AssetManager {
      * @param <T> The asset type
      * @param key The asset key
      * @param obj The asset to clone / register, must implement
-     * {@link CloneableSmartAsset}.
+     *     {@link CloneableSmartAsset}.
      * @param proc The processor which will generate the clone, cannot be null
      * @param cache The cache to register the clone with, cannot be null.
      * @return The cloned asset, cannot be the same as the given asset since
-     * it is a clone.
+     *     it is a clone.
      *
      * @throws IllegalStateException If asset does not implement
      * {@link CloneableSmartAsset}, if the cache is null, or if the
