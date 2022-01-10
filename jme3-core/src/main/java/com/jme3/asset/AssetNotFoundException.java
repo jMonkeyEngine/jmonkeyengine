@@ -42,6 +42,7 @@ public class AssetNotFoundException extends RuntimeException {
     public AssetNotFoundException(String message) {
         super(message);
     }
+
     public AssetNotFoundException(String message, Exception ex) {
         super(message, ex);
     }
