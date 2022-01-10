@@ -79,9 +79,9 @@ public class AudioBuffer extends AudioData {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() +
-               "[id="+id+", ch="+channels+", bits="+bitsPerSample +
-               ", rate="+sampleRate+", duration="+getDuration()+"]";
+        return getClass().getSimpleName()
+                + "[id=" + id + ", ch=" + channels + ", bits=" + bitsPerSample
+                + ", rate=" + sampleRate + ", duration=" + getDuration() + "]";
     }
 
     /**
