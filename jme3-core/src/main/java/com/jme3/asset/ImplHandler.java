@@ -58,19 +58,19 @@ final class ImplHandler {
             = new ThreadLocal<>();
 
     private final CopyOnWriteArrayList<ImplThreadLocal<AssetLocator>> locatorsList =
-                new CopyOnWriteArrayList<>();
+            new CopyOnWriteArrayList<>();
 
     private final HashMap<Class<?>, ImplThreadLocal<AssetLoader>> classToLoaderMap =
-                new HashMap<>();
+            new HashMap<>();
 
     private final ConcurrentHashMap<String, ImplThreadLocal<AssetLoader>> extensionToLoaderMap =
-                new ConcurrentHashMap<>();
+            new ConcurrentHashMap<>();
 
     private final ConcurrentHashMap<Class<? extends AssetProcessor>, AssetProcessor> classToProcMap =
-                new ConcurrentHashMap<>();
+            new ConcurrentHashMap<>();
 
     private final ConcurrentHashMap<Class<? extends AssetCache>, AssetCache> classToCacheMap =
-                new ConcurrentHashMap<>();
+            new ConcurrentHashMap<>();
 
     public ImplHandler(AssetManager assetManager) {
         this.assetManager = assetManager;
@@ -117,13 +117,13 @@ final class ImplHandler {
             try {
                 T obj = type.newInstance();
                 if (path != null) {
-                    ((AssetLocator)obj).setRootPath(path);
+                    ((AssetLocator) obj).setRootPath(path);
                 }
                 return obj;
             } catch (InstantiationException | IllegalAccessException ex) {
-                logger.log(Level.SEVERE,"Cannot create locator of type {0}, does"
-                            + " the class have an empty and publicly accessible" +
-                              " constructor?", type.getName());
+                logger.log(Level.SEVERE, "Cannot create locator of type {0}, does"
+                        + " the class have an empty and publicly accessible"
+                        + " constructor?", type.getName());
                 logger.throwing(type.getName(), "<init>", ex);
             }
             return null;
@@ -162,10 +162,10 @@ final class ImplHandler {
      */
     public AssetInfo tryLocate(AssetKey key) {
         if (locatorsList.isEmpty()) {
-            logger.warning("There are no locators currently"+
-                            " registered. Use AssetManager."+
-                            "registerLocator() to register a"+
-                            " locator.");
+            logger.warning("There are no locators currently"
+                    + " registered. Use AssetManager."
+                    + "registerLocator() to register a"
+                    + " locator.");
             return null;
         }
 
@@ -192,8 +192,8 @@ final class ImplHandler {
         // No need to synchronize() against map, its concurrent
         ImplThreadLocal local = extensionToLoaderMap.get(key.getExtension());
         if (local == null) {
-            throw new AssetLoadException("No loader registered for type \"" +
-                                         key.getExtension() + "\"");
+            throw new AssetLoadException("No loader registered for type \""
+                    + key.getExtension() + "\"");
 
         }
         return (AssetLoader) local.get();
@@ -242,7 +242,7 @@ final class ImplHandler {
 
         T proc = (T) classToProcMap.get(procClass);
         if (proc == null) {
-            synchronized(classToProcMap) {
+            synchronized (classToProcMap) {
                 proc = (T) classToProcMap.get(procClass);
                 if (proc == null) {
                     try {
@@ -280,7 +280,8 @@ final class ImplHandler {
         synchronized (classToLoaderMap) {
             // Remove it from the class->loader map
             ImplThreadLocal local = classToLoaderMap.remove(loaderType);
-            if (local == null) return;
+            if (local == null)
+                return;
             // Remove it from the extension->loader map
             for (String extension : local.getExtensions()) {
                 extensionToLoaderMap.remove(extension);
@@ -299,8 +300,8 @@ final class ImplHandler {
 
         while (it.hasNext()) {
             ImplThreadLocal<AssetLocator> locator = it.next();
-            if (locator.getPath().equals(rootPath) &&
-                locator.getTypeClass().equals(locatorType)) {
+            if (locator.getPath().equals(rootPath)
+                    && locator.getTypeClass().equals(locatorType)) {
                 //it.remove();
                 // copy on write list doesn't support iterator remove,
                 // must use temporary list
