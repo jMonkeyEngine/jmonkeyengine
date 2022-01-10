@@ -48,7 +48,7 @@ import java.util.logging.Logger;
  * when all clones of the original asset are collected, will cause the
  * asset to be automatically removed from the cache.
  *
-* @author Kirill Vainer
+ * @author Kirill Vainer
  */
 public class WeakRefCloneAssetCache implements AssetCache {
 
@@ -104,7 +104,7 @@ public class WeakRefCloneAssetCache implements AssetCache {
 
     private void removeCollectedAssets() {
         int removedAssets = 0;
-        for (KeyRef ref; (ref = (KeyRef)refQueue.poll()) != null;) {
+        for (KeyRef ref; (ref = (KeyRef) refQueue.poll()) != null;) {
             // (Cannot use ref.get() since it was just collected by GC!)
             AssetKey key = ref.clonedKey;
 
@@ -148,7 +148,7 @@ public class WeakRefCloneAssetCache implements AssetCache {
     @Override
     public <T> void registerAssetClone(AssetKey<T> key, T clone) {
         ArrayList<AssetKey> loadStack = assetLoadStack.get();
-        ((CloneableSmartAsset)clone).setKey(loadStack.remove(loadStack.size() - 1));
+        ((CloneableSmartAsset) clone).setKey(loadStack.remove(loadStack.size() - 1));
     }
 
     @Override
@@ -189,7 +189,7 @@ public class WeakRefCloneAssetCache implements AssetCache {
 
         if (!loadStack.isEmpty()) {
             throw new UnsupportedOperationException("Cache cannot be modified"
-                                                  + "while assets are being loaded");
+                    + "while assets are being loaded");
         }
 
         return smartCache.remove(key) != null;
@@ -201,7 +201,7 @@ public class WeakRefCloneAssetCache implements AssetCache {
 
         if (!loadStack.isEmpty()) {
             throw new UnsupportedOperationException("Cache cannot be modified"
-                                                  + "while assets are being loaded");
+                    + "while assets are being loaded");
         }
 
         smartCache.clear();
