@@ -102,7 +102,7 @@ public class LegacyApplication implements Application, SystemListener {
      * Create a new instance of <code>LegacyApplication</code>.
      */
     public LegacyApplication() {
-        this((AppState[])null);
+        this((AppState[]) null);
     }
 
     /**
