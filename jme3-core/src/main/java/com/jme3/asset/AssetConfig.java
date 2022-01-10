@@ -77,7 +77,7 @@ public final class AssetConfig {
                     String loaderClass = scan.next();
                     String colon = scan.next();
                     if (!colon.equals(":")) {
-                        throw new IOException("Expected ':', got '"+colon+"'");
+                        throw new IOException("Expected ':', got '" + colon + "'");
                     }
                     String extensionsList = scan.nextLine();
                     String[] extensions = extensionsList.split(",");
@@ -115,7 +115,8 @@ public final class AssetConfig {
                 }
             }
         } finally {
-            if (in != null) in.close();
+            if (in != null)
+                in.close();
         }
     }
 }
