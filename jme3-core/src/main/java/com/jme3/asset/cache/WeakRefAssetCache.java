@@ -72,7 +72,7 @@ public class WeakRefAssetCache implements AssetCache {
 
     private void removeCollectedAssets() {
         int removedAssets = 0;
-        for (AssetRef ref; (ref = (AssetRef)refQueue.poll()) != null;) {
+        for (AssetRef ref; (ref = (AssetRef) refQueue.poll()) != null;) {
             // Asset was collected, note that at this point the asset cache
             // might not even have this asset anymore, it is OK.
             if (assetCache.remove(ref.assetKey) != null) {
