@@ -694,7 +694,7 @@ public class GltfLoader implements AssetLoader {
                 Float ymag = getAsFloat(camData, "ymag");
                 assertNotNull(ymag, "No ymag for orthographic camera");
                 Float zNear = getAsFloat(camData, "znear");
-                assertNotNull(zNear, "No znear for orthographic camere");
+                assertNotNull(zNear, "No znear for orthographic camera");
                 Float zFar = getAsFloat(camData, "zfar", zNear * 1000f);
                 assertNotNull(zFar, "No zfar for orthographic camera");
 
