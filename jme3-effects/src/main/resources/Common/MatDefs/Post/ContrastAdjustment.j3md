@@ -23,6 +23,6 @@ MaterialDef ColorAdjustmentFilter {
 
     Technique {
         VertexShader  GLSL100 GLSL110 GLSL120 GLSL130:   Common/MatDefs/Post/Post.vert
-        FragmentShader GLSL100 GLSL110 GLSL120 GLSL130: Common/MatDefs/Post/ConstrastAdjustment.frag
+        FragmentShader GLSL100 GLSL110 GLSL120 GLSL130:  Common/MatDefs/Post/ContrastAdjustment.frag
     }
 }
