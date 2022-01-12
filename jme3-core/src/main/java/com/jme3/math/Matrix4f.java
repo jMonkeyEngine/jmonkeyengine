@@ -966,7 +966,8 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Load identity (diagonals = 1, other elements = 0).
+     * Configures the matrix as an identity matrix (diagonals = 1, other
+     * elements = 0).
      */
     public void loadIdentity() {
         m01 = m02 = m03 = 0.0f;
@@ -977,7 +978,8 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Load a perspective-view transform with the specified clipping planes.
+     * Configures the matrix as a view transformation with the specified
+     * clipping planes.
      *
      * @param near the coordinate of the near plane
      * @param far the coordinate of the far plane
@@ -1024,13 +1026,13 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Load a 3-D rotation specified by an angle and axis. If the axis is
-     * already normalized, use
-     * {@link #fromAngleNormalAxis(float, com.jme3.math.Vector3f)} instead
-     * because it's more efficient.
+     * Configures the matrix as a pure rotation with the specified rotation
+     * angle and axis of rotation. This method creates garbage, so use
+     * {@link #fromAngleNormalAxis(float, com.jme3.math.Vector3f)} if the axis
+     * is known to be normalized.
      *
-     * @param angle the angle to rotate (in radians)
-     * @param axis the axis of rotation (not null)
+     * @param angle the desired rotation angle (in radians)
+     * @param axis the desired axis of rotation (not null, unaffected)
      */
     public void fromAngleAxis(float angle, Vector3f axis) {
         Vector3f normAxis = axis.normalize();
@@ -1038,11 +1040,13 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Load a 3-D rotation specified by an angle and axis. Assumes the axis is
-     * already normalized.
+     * Configures the matrix as a pure rotation with the specified rotation
+     * angle and normalized axis of rotation. If the axis might not be
+     * normalized, use {@link #fromAngleAxis(float, com.jme3.math.Vector3f)}
+     * instead.
      *
-     * @param angle the angle to rotate (in radians)
-     * @param axis the axis of rotation (not null, already normalized)
+     * @param angle the desired rotation angle (in radians)
+     * @param axis the desired axis of rotation (not null, length=1, unaffected)
      */
     public void fromAngleNormalAxis(float angle, Vector3f axis) {
         zero();
@@ -1073,9 +1077,9 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Multiply in place, by the specified scalar.
+     * Scales the matrix in place, by the specified scalar.
      *
-     * @param scalar the scale factor to apply to all elements
+     * @param scalar the scaling factor to apply to all elements
      */
     public void multLocal(float scalar) {
         m00 *= scalar;
@@ -1097,10 +1101,11 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Multiply by the specified scalar.
+     * Scales the matrix by the specified scalar and returns the product as a
+     * new matrix. The current instance is unaffected.
      *
-     * @param scalar the scale factor to apply to all elements
-     * @return a new Matrix4f with every element scaled
+     * @param scalar the scaling factor to apply to all elements
+     * @return a new Matrix4f
      */
     public Matrix4f mult(float scalar) {
         Matrix4f out = new Matrix4f();
@@ -1110,12 +1115,13 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Multiply by the specified scalar.
+     * Scales the matrix by the specified scalar and returns the product in the
+     * specified matrix. The current instance is unaffected, unless it's
+     * {@code store}.
      *
-     * @param scalar the scale factor to apply to all elements
-     * @param store storage for the result (modified) or null to create a new
-     * matrix
-     * @return a scaled matrix (either store or a new instance)
+     * @param scalar the scaling factor to apply to all elements
+     * @param store storage for the product (not null)
+     * @return {@code store} for chaining
      */
     public Matrix4f mult(float scalar, Matrix4f store) {
         store.set(this);
@@ -1124,10 +1130,14 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Right-multiply by the specified matrix. (This matrix is the left factor.)
+     * Multiplies with the argument matrix and returns the product as a new
+     * instance. The current instance is unaffected.
+     *
+     * <p>Note that matrix multiplication is noncommutative, so generally
+     * q * p != p * q.
      *
      * @param in2 the right factor (not null, unaffected)
-     * @return the product, this times in2 (a new instance)
+     * @return {@code this} times {@code in2} (a new Matrix4f)
      */
     public Matrix4f mult(Matrix4f in2) {
         return mult(in2, null);
