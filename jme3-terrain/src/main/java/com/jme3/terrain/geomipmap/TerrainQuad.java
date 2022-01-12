@@ -850,8 +850,8 @@ public class TerrainQuad extends Node implements Terrain {
             affectedAreaBBox = null;
             return;
         }else{
-		Vector3f worldLoc = getWorldTranslation();
-		changedPoint = changedPoint.add(new Vector2f(worldLoc.getX(), worldLoc.getZ()));
+	    Vector3f worldLoc = getWorldTranslation();
+	    changedPoint = changedPoint.add(new Vector2f(worldLoc.getX(), worldLoc.getZ()));
 	}	
 
         if (affectedAreaBBox == null) {
