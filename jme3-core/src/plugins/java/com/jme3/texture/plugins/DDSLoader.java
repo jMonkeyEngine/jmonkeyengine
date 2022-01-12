@@ -672,7 +672,7 @@ public class DDSLoader implements AssetLoader {
             }
         }
 
-        int sourcebytesPP = bpp / 8;
+        int sourceBytesPP = bpp / 8;
         int targetBytesPP = pixelFormat.getBitsPerPixel() / 8;
 
         ByteBuffer dataBuffer = BufferUtils.createByteBuffer(totalSize * depth);
@@ -682,7 +682,7 @@ public class DDSLoader implements AssetLoader {
             int mipWidth = width;
             int mipHeight = height;
             int offset = k * totalSize;
-            byte[] b = new byte[sourcebytesPP];
+            byte[] b = new byte[sourceBytesPP];
             for (int mip = 0; mip < mipMapCount; mip++) {
                 for (int y = 0; y < mipHeight; y++) {
                     for (int x = 0; x < mipWidth; x++) {
