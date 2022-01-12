@@ -2,7 +2,6 @@ package com.jme3.input.vr.lwjgl_openvr;
 
 import java.nio.LongBuffer;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
