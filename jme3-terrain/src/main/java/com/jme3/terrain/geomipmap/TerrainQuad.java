@@ -44,6 +44,7 @@ import com.jme3.math.FastMath;
 import com.jme3.math.Ray;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
+import com.jme3.math.Quaternion;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
@@ -850,11 +851,16 @@ public class TerrainQuad extends Node implements Terrain {
             affectedAreaBBox = null;
             return;
         }
-        Vector3f worldLoc = getWorldTranslation();
-        worldLoc = worldLoc.mult(getWorldScale());
-        Vector2f worldLocVec2 = new Vector2f(worldLoc.getX(), worldLoc.getZ());
-        changedPoint = changedPoint.add(worldLocVec2);
+        
+        Vector2f worldLocVec2 = changedPoint.clone();
+        worldLocVec2.multLocal(new Vector2f(getWorldScale().getX(), getWorldScale().getZ()));
+        worldLocVec2.addLocal(new Vector2f(getWorldTranslation().getX(), getWorldTranslation().getZ()));		
+        changedPoint = worldLocVec2;
 
+        if(!getWorldRotation().equals(Quaternion.IDENTITY)){ 
+            affectedAreaBBox = (BoundingBox)getWorldBound().clone(); 
+        }
+        
         if (affectedAreaBBox == null) {
             affectedAreaBBox = new BoundingBox(new Vector3f(changedPoint.x, 0, changedPoint.y), 1f, Float.MAX_VALUE, 1f); // unit length
         } else {
