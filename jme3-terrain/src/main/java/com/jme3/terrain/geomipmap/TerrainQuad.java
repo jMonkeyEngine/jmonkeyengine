@@ -854,7 +854,7 @@ public class TerrainQuad extends Node implements Terrain {
         
         Vector2f worldLocVec2 = changedPoint.clone();
         worldLocVec2.multLocal(new Vector2f(getWorldScale().getX(), getWorldScale().getZ()));
-        worldLocVec2.addLocal(new Vector2f(getWorldTranslation().getX(), getWorldTranslation().getZ()));		
+        worldLocVec2.addLocal(getWorldTranslation().getX(), getWorldTranslation().getZ());		
         changedPoint = worldLocVec2;
 
         if(!getWorldRotation().equals(Quaternion.IDENTITY)){ 
