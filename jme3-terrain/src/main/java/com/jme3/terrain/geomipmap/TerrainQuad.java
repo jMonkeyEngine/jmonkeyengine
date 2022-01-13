@@ -849,10 +849,11 @@ public class TerrainQuad extends Node implements Terrain {
         if (changedPoint == null) { // set needToRecalculateNormals() to false
             affectedAreaBBox = null;
             return;
-        }else{
-	    Vector3f worldLoc = getWorldTranslation();
-	    changedPoint = changedPoint.add(new Vector2f(worldLoc.getX(), worldLoc.getZ()));
-	}	
+        }
+        Vector3f worldLoc = getWorldTranslation();
+        worldLoc = worldLoc.mult(getWorldScale());
+        Vector2f worldLocVec2 = new Vector2f(worldLoc.getX(), worldLoc.getZ());
+        changedPoint = changedPoint.add(worldLocVec2);
 
         if (affectedAreaBBox == null) {
             affectedAreaBBox = new BoundingBox(new Vector3f(changedPoint.x, 0, changedPoint.y), 1f, Float.MAX_VALUE, 1f); // unit length
