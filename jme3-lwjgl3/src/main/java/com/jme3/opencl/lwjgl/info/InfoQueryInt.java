@@ -15,7 +15,7 @@ import static org.lwjgl.system.Pointer.*;
 
 /**
  * Base class for OpenCL object information queries.
- * <p/>
+ * <p>
  * All methods require the object being queried (a pointer value), a second
  * integer argument and the integer parameter name.
  *
@@ -44,7 +44,7 @@ abstract class InfoQueryInt {
 
     /**
      * Returns the integer value for the specified {@code parameterName}.
-     * <p/>
+     * <p>
      * For integer parameters that may be 32 or 64 bits (e.g. {@code size_t}),
      * {@link #getPointer} should be used instead.
      *
@@ -65,7 +65,7 @@ abstract class InfoQueryInt {
 
     /**
      * Returns the long value for the specified {@code parameterName}.
-     * <p/>
+     * <p>
      * For integer parameters that may be 32 or 64 bits (e.g. {@code size_t}),
      * {@link #getPointer} should be used instead.
      *
@@ -86,7 +86,7 @@ abstract class InfoQueryInt {
 
     /**
      * Returns the pointer value for the specified {@code parameterName}.
-     * <p/>
+     * <p>
      * This method should also be used for integer parameters that may be 32 or
      * 64 bits (e.g. {@code size_t}).
      *
@@ -108,7 +108,7 @@ abstract class InfoQueryInt {
     /**
      * Writes the pointer list for the specified {@code parameterName} into
      * {@code target}.
-     * <p/>
+     * <p>
      * This method should also be used for integer parameters that may be 32 or
      * 64 bits (e.g. {@code size_t}).
      *
