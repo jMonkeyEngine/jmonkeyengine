@@ -107,7 +107,7 @@ public class TestBlendEquations extends SimpleApplication {
     }
 
     /**
-     * Adds a "transparent" quad to the scene, that limits the color values of the scene behind the object.<br/>
+     * Adds a "transparent" quad to the scene, that limits the color values of the scene behind the object.<br>
      * This effect can be good seen on bright areas of the scene (e.g. areas with specular lighting effects).
      */
     private void createRightQuad() {
