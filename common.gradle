@@ -6,7 +6,10 @@ apply plugin: 'java-library'
 apply plugin: 'groovy'
 apply plugin: 'maven-publish'
 apply plugin: 'signing'
-
+apply plugin: 'eclipse'
+eclipse.jdt.file.withProperties { props ->
+    props.setProperty "org.eclipse.jdt.core.circularClasspath", "warning"
+}
 group = 'org.jmonkeyengine'
 version = jmeFullVersion
 
