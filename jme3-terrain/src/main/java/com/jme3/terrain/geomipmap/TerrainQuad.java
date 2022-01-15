@@ -864,7 +864,7 @@ public class TerrainQuad extends Node implements Terrain {
             if (bv instanceof BoundingSphere) {
                 BoundingSphere bs = (BoundingSphere) bv;
                 float r = bs.getRadius();
-                float center = bs.getCenter();
+                Vector3f center = bs.getCenter();
                 affectedAreaBBox = new BoundingBox(center, r, r, r);
             } else {
                 affectedAreaBBox = (BoundingBox) bv.clone();
