@@ -32,6 +32,7 @@
 package com.jme3.terrain.geomipmap;
 
 import com.jme3.bounding.BoundingBox;
+import com.jme3.bounding.BoundingSphere;
 import com.jme3.bounding.BoundingVolume;
 import com.jme3.collision.Collidable;
 import com.jme3.collision.CollisionResults;
