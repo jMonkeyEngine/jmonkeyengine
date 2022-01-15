@@ -44,7 +44,6 @@ import com.jme3.math.FastMath;
 import com.jme3.math.Ray;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
-import com.jme3.math.Quaternion;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
@@ -853,12 +852,22 @@ public class TerrainQuad extends Node implements Terrain {
         }
         
         Vector2f worldLocVec2 = changedPoint.clone();
-        worldLocVec2.multLocal(new Vector2f(getWorldScale().getX(), getWorldScale().getZ()));
-        worldLocVec2.addLocal(getWorldTranslation().getX(), getWorldTranslation().getZ());		
+        worldLocVec2.multLocal(new Vector2f(getWorldScale().x, getWorldScale().z));
+        worldLocVec2.addLocal(getWorldTranslation().x, getWorldTranslation().z);		
         changedPoint = worldLocVec2;
 
-        if(!getWorldRotation().equals(Quaternion.IDENTITY)){ 
-            affectedAreaBBox = (BoundingBox)getWorldBound().clone(); 
+        Quaternion wr = getWorldRotation();
+        if (wr.getX() != 0 || wr.getY() != 0 || wr.getZ() != 0) {
+            BoundingVolume bv = getWorldBound();
+            if (bv instanceof BoundingSphere) {
+                BoundingSphere bs = (BoundingSphere) bv;
+                float r = bs.getRadius();
+                float center = bs.getCenter();
+                affectedAreaBBox = new BoundingBox(center, r, r, r);
+            } else {
+                affectedAreaBBox = (BoundingBox) bv.clone();
+            }            
+            return;
         }
         
         if (affectedAreaBBox == null) {
