@@ -256,12 +256,14 @@ public class GlfwMouseInput implements MouseInput {
         double[] y = new double[1];
         glfwGetCursorPos(window, x, y);
 
-        float[] xScale = new float[1];
-        float[] yScale = new float[1];
-        glfwGetWindowContentScale(window, xScale, yScale);
-
-        mouseX = (int) Math.round(x[0] * xScale[0]);
-        mouseY = (int) Math.round((currentHeight - y[0]) * yScale[0]);
+        if (context.isScaledContent()) {
+            glfwGetWindowContentScale(window, xScale, yScale);
+            mouseX = (int) Math.round(x[0] * xScale[0]);
+            mouseY = (int) Math.round((currentHeight - y[0]) * yScale[0]);
+        } else {
+            mouseX = (int) Math.round(x[0]);
+            mouseY = (int) Math.round(currentHeight - y[0]);
+        }
     }
 
     /**
