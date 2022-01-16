@@ -168,7 +168,7 @@ publishing {
 }
 
 publishToMavenLocal.doLast {
-    println 'published ' + project.getName() + ' to mavenLocal'
+    println 'published ' + project.getName() + "-${jmeFullVersion} to mavenLocal"    
 }
 task('install') {
     dependsOn 'publishToMavenLocal'
