@@ -132,9 +132,15 @@ public class GlfwMouseInput implements MouseInput {
     private int mouseY;
     private int mouseWheel;
     private int currentHeight;
-
+    
     private boolean cursorVisible;
     private boolean initialized;
+
+    /**
+     * temporary storage for GLFW queries
+     */
+    private final float[] xScale = new float[1];
+    private final float[] yScale = new float[1];
 
     public GlfwMouseInput(final LwjglWindow context) {
         this.context = context;
@@ -142,15 +148,19 @@ public class GlfwMouseInput implements MouseInput {
     }
 
     private void onCursorPos(final long window, final double xpos, final double ypos) {
-        float[] xScale = new float[1];
-        float[] yScale = new float[1];
-        glfwGetWindowContentScale(window, xScale, yScale);
+        int x;
+        int y;
+        if (context.isScaledContent()) {
+            glfwGetWindowContentScale(window, xScale, yScale);
+            x = (int) Math.round(xpos * xScale[0]);
+            y = (int) Math.round((currentHeight - ypos) * yScale[0]);
+        } else {
+            x = (int) Math.round(xpos);
+            y = (int) Math.round(currentHeight - ypos);
+        }
 
         int xDelta;
         int yDelta;
-        int x = (int) Math.round(xpos * xScale[0]);
-        int y = (int) Math.round((currentHeight - ypos) * yScale[0]);
-
         xDelta = x - mouseX;
         yDelta = y - mouseY;
         mouseX = x;
