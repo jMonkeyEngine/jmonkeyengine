@@ -132,7 +132,7 @@ public class GlfwMouseInput implements MouseInput {
     private int mouseY;
     private int mouseWheel;
     private int currentHeight;
-    
+
     private boolean cursorVisible;
     private boolean initialized;
 
@@ -159,10 +159,8 @@ public class GlfwMouseInput implements MouseInput {
             y = (int) Math.round(currentHeight - ypos);
         }
 
-        int xDelta;
-        int yDelta;
-        xDelta = x - mouseX;
-        yDelta = y - mouseY;
+        int xDelta = x - mouseX;
+        int yDelta = y - mouseY;
         mouseX = x;
         mouseY = y;
 
