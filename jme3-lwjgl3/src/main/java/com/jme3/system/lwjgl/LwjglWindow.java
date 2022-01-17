@@ -147,6 +147,10 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
     protected boolean wasActive = false;
     protected boolean autoFlush = true;
     protected boolean allowSwapBuffers = false;
+    /**
+     * Set true if Retina/HiDPI frame buffer was enabled via AppSettings. 
+     */
+    private boolean isScaledContent = false;
 
     public LwjglWindow(final JmeContext.Type type) {
 
@@ -254,7 +258,9 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         glfwWindowHint(GLFW_SAMPLES, settings.getSamples());
         glfwWindowHint(GLFW_STEREO, settings.useStereo3D() ? GLFW_TRUE : GLFW_FALSE);
         glfwWindowHint(GLFW_REFRESH_RATE, settings.getFrequency()<=0?GLFW_DONT_CARE:settings.getFrequency());
-        glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, settings.isUseRetinaFrameBuffer() ? GLFW_TRUE : GLFW_FALSE);
+
+        isScaledContent = settings.isUseRetinaFrameBuffer();
+        glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, isScaledContent ? GLFW_TRUE : GLFW_FALSE);
 
         if (settings.getBitsPerPixel() == 24) {
             glfwWindowHint(GLFW_RED_BITS, 8);
@@ -727,6 +733,15 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
     @Override
     public TouchInput getTouchInput() {
         return null;
+    }
+
+    /**
+     * Test whether Retina/HiDPI frame buffer was enabled via AppSettings.
+     *
+     * @return true if enabled, otherwise false
+     */
+    public boolean isScaledContent() {
+        return isScaledContent;
     }
 
     @Override
