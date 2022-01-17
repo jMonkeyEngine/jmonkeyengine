@@ -70,7 +70,7 @@ public interface MikkTSpaceContext {
     public void getTexCoord(float texOut[], int face, int vert);
 
     /**
-     * The call-backsetTSpaceBasic() is sufficient for basic normal mapping.
+     * The callback setTSpaceBasic() is sufficient for basic normal mapping.
      * This function is used to return the tangent and sign to the application.
      * tangent is a unit length vector. For normal maps it is sufficient to use
      * the following simplified version of the bitangent which is generated at

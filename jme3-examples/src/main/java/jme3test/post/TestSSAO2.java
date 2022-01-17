@@ -76,7 +76,7 @@ public class TestSSAO2 extends SimpleApplication {
 
 
 
-        // show normals as material
+        // A special Material to visualize mesh normals:
         //Material mat = new Material(assetManager, "Common/MatDefs/Misc/ShowNormals.j3md");
         for (int f = 10; f > 3; f--) {
             for (int y = -f; y < f; y++) {

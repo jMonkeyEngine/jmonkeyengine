@@ -64,7 +64,7 @@ public class TestBatchLod extends SimpleApplication {
         mat.setBoolean("VertexLighting", true);
         teapot.setMaterial(mat);
 
-        // show normals as material
+        // A special Material to visualize mesh normals:
         //Material mat = new Material(assetManager, "Common/MatDefs/Misc/ShowNormals.j3md");
         flyCam.setMoveSpeed(5);
         for (int y = -5; y < 5; y++) {
