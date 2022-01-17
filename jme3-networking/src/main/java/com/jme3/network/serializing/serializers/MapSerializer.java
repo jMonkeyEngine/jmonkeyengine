@@ -87,7 +87,7 @@ public class MapSerializer extends Serializer {
 
         int flags = data.get() & 0xff;
         boolean uniqueKeys = (flags & 0x01) == 0;
-        boolean uniqueVals = (flags & 0x02) == 0;
+        boolean uniqueValues = (flags & 0x02) == 0;
 
         Class keyClazz = null;
         Class valClazz = null;
@@ -98,7 +98,7 @@ public class MapSerializer extends Serializer {
             keyClazz = reg.getType();
             keySerial = reg.getSerializer();
         }
-        if (!uniqueVals){
+        if (!uniqueValues){
             SerializerRegistration reg = Serializer.readClass(data);
             valClazz = reg.getType();
             valSerial = reg.getSerializer();
@@ -112,7 +112,7 @@ public class MapSerializer extends Serializer {
             }else{
                 key = keySerial.readObject(data, keyClazz);
             }
-            if (uniqueVals){
+            if (uniqueValues){
                 value = Serializer.readClassAndObject(data);
             }else{
                 value = valSerial.readObject(data, valClazz);
@@ -157,10 +157,10 @@ public class MapSerializer extends Serializer {
         }
 
         boolean uniqueKeys = keyClass == null;
-        boolean uniqueVals = valClass == null;
+        boolean uniqueValues = valClass == null;
         int flags = 0;
         if (!uniqueKeys) flags |= 0x01;
-        if (!uniqueVals) flags |= 0x02;
+        if (!uniqueValues) flags |= 0x02;
         buffer.put( (byte) flags );
 
         Serializer keySerial = null, valSerial = null;
@@ -168,7 +168,7 @@ public class MapSerializer extends Serializer {
             Serializer.writeClass(buffer, keyClass);
             keySerial = Serializer.getSerializer(keyClass);
         }
-        if (!uniqueVals){
+        if (!uniqueValues){
             Serializer.writeClass(buffer, valClass);
             valSerial = Serializer.getSerializer(valClass);
         }
@@ -181,7 +181,7 @@ public class MapSerializer extends Serializer {
             }else{
                 keySerial.writeObject(buffer, entry.getKey());
             }
-            if (uniqueVals){
+            if (uniqueValues){
                 Serializer.writeClassAndObject(buffer, entry.getValue());
             }else{
                 valSerial.writeObject(buffer, entry.getValue());

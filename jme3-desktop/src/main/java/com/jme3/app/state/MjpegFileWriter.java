@@ -552,14 +552,14 @@ public class MjpegFileWriter implements AutoCloseable {
         }
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-        ImageWriter imgWrtr = ImageIO.getImageWritersByFormatName("jpg").next();
-        try (ImageOutputStream imgOutStrm = ImageIO.createImageOutputStream(baos)) {
-            imgWrtr.setOutput(imgOutStrm);
+        ImageWriter imageWriter = ImageIO.getImageWritersByFormatName("jpg").next();
+        try (ImageOutputStream imageOutputStream = ImageIO.createImageOutputStream(baos)) {
+            imageWriter.setOutput(imageOutputStream);
 
-            ImageWriteParam jpgWrtPrm = imgWrtr.getDefaultWriteParam();
-            jpgWrtPrm.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
-            jpgWrtPrm.setCompressionQuality(quality);
-            imgWrtr.write(null, new IIOImage(bi, null, null), jpgWrtPrm);
+            ImageWriteParam jpgWriteParam = imageWriter.getDefaultWriteParam();
+            jpgWriteParam.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+            jpgWriteParam.setCompressionQuality(quality);
+            imageWriter.write(null, new IIOImage(bi, null, null), jpgWriteParam);
         }
 
         return baos.toByteArray();
