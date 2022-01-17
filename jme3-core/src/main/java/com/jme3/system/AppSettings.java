@@ -269,6 +269,8 @@ public final class AppSettings extends HashMap<String, Object> {
         defaults.put("CenterWindow", true);
         defaults.put("Width", 640);
         defaults.put("Height", 480);
+        defaults.put("WindowWidth", Integer.MIN_VALUE);
+        defaults.put("WindowHeight", Integer.MIN_VALUE);
         defaults.put("BitsPerPixel", 24);
         defaults.put("Frequency", 60);
         defaults.put("DepthBits", 24);
@@ -735,7 +737,7 @@ public final class AppSettings extends HashMap<String, Object> {
     }
 
     /**
-     * @param value the width for the rendering display.
+     * @param value the width for the default framebuffer.
      * (Default: 640)
      */
     public void setWidth(int value) {
@@ -743,7 +745,7 @@ public final class AppSettings extends HashMap<String, Object> {
     }
 
     /**
-     * @param value the height for the rendering display.
+     * @param value the height for the default framebuffer.
      * (Default: 480)
      */
     public void setHeight(int value) {
@@ -751,7 +753,8 @@ public final class AppSettings extends HashMap<String, Object> {
     }
 
     /**
-     * Set the resolution for the rendering display
+     * Set the resolution for the default framebuffer
+     * Use {@link #setWindowSize(int, int)} instead, for HiDPI display support.
      * @param width The width
      * @param height The height
      * (Default: 640x480)
@@ -761,6 +764,18 @@ public final class AppSettings extends HashMap<String, Object> {
         setHeight(height);
     }
 
+    /**
+     * Set the size of the window
+     * 
+     * @param width
+     *            The width
+     * @param height
+     *            The height (Default: 640x480)
+     */
+    public void setWindowSize(int width, int height) {
+        putInteger("WindowWidth", width);
+        putInteger("WindowHeight", height);
+    }
 
     /**
      * @param value the minimum width the settings window will allow for the rendering display.
@@ -991,7 +1006,7 @@ public final class AppSettings extends HashMap<String, Object> {
     /**
      * Get the width
      *
-     * @return the width of the rendering display (in pixels)
+     * @return the width of the default framebuffer (in pixels)
      * @see #setWidth(int)
      */
     public int getWidth() {
@@ -1001,11 +1016,33 @@ public final class AppSettings extends HashMap<String, Object> {
     /**
      * Get the height
      *
-     * @return the height of the rendering display (in pixels)
+     * @return the height of the default framebuffer (in pixels)
      * @see #setHeight(int)
      */
     public int getHeight() {
         return getInteger("Height");
+    }
+
+    /**
+     * Get the width of the window
+     *
+     * @return the width of the window (in pixels)
+     * @see #setWindowWidth(int)
+     */
+    public int getWindowWidth() {
+        int w = getInteger("WindowWidth");
+        return w != Integer.MIN_VALUE ? w : getWidth();
+    }
+
+    /**
+     * Get the height of the window
+     *
+     * @return the height of the window (in pixels)
+     * @see #setWindowHeight(int)
+     */
+    public int getWindowHeight() {
+        int h = getInteger("WindowHeight");
+        return h != Integer.MIN_VALUE ? h : getHeight();
     }
 
     /**
