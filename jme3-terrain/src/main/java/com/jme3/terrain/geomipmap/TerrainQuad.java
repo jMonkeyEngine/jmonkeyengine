@@ -1601,7 +1601,7 @@ public class TerrainQuad extends Node implements Terrain {
     /**
      * fix the normals on the edge of the terrain patches.
      */
-    protected void fixNormalEdges(BoundingBox affectedArea) {
+    public void fixNormalEdges(BoundingBox affectedArea) {
         if (children == null)
             return;
 
