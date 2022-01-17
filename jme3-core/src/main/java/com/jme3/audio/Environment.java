@@ -94,8 +94,8 @@ public class Environment {
     }
 
     public Environment(float density, float diffusion, float gain, float gainHf,
-                       float decayTime, float decayHf, float reflGain,
-                       float reflDelay, float lateGain, float lateDelay){
+                       float decayTime, float decayHf, float reflectGain,
+                       float reflectDelay, float lateGain, float lateDelay){
         this.decayTime = decayTime;
         this.decayHFRatio = decayHf;
         this.density = density;
@@ -104,8 +104,8 @@ public class Environment {
         this.gainHf = gainHf;
         this.lateReverbDelay = lateDelay;
         this.lateReverbGain = lateGain;
-        this.reflectDelay = reflDelay;
-        this.reflectGain = reflGain;
+        this.reflectDelay = reflectDelay;
+        this.reflectGain = reflectGain;
     }
 
     public Environment(float[] e){
