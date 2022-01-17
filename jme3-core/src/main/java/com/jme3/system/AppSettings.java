@@ -276,7 +276,7 @@ public final class AppSettings extends HashMap<String, Object> {
         defaults.put("Samples", 0);
         defaults.put("Fullscreen", false);
         defaults.put("Title", JmeVersion.FULL_NAME);
-        defaults.put("Renderer", LWJGL_OPENGL2);
+        defaults.put("Renderer", LWJGL_OPENGL32);
         defaults.put("AudioRenderer", LWJGL_OPENAL);
         defaults.put("DisableJoysticks", true);
         defaults.put("UseInput", true);
@@ -704,7 +704,7 @@ public final class AppSettings extends HashMap<String, Object> {
      * <li>null - Disable graphics rendering</li>
      * </ul>
      * @param renderer The renderer to set
-     * (Default: AppSettings.LWJGL_OPENGL2)
+     * (Default: AppSettings.LWJGL_OPENGL32)
      */
     public void setRenderer(String renderer) {
         putString("Renderer", renderer);
