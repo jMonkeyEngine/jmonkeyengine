@@ -134,23 +134,31 @@ public class GlfwMouseInput implements MouseInput {
     private boolean cursorVisible;
     private boolean initialized;
 
+    /**
+     * temporary storage for GLFW queries
+     */
+    private final float[] xScale = new float[1];
+    private final float[] yScale = new float[1];
+
     public GlfwMouseInput(final LwjglWindow context) {
         this.context = context;
         this.cursorVisible = true;
     }
 
     private void onCursorPos(final long window, final double xpos, final double ypos) {
-        float[] xScale = new float[1];
-        float[] yScale = new float[1];
-        glfwGetWindowContentScale(window, xScale, yScale);
+        int x;
+        int y;
+        if (context.isScaledContent()) {
+            glfwGetWindowContentScale(window, xScale, yScale);
+            x = (int) Math.round(xpos * xScale[0]);
+            y = (int) Math.round((currentHeight - ypos) * yScale[0]);
+        } else {
+            x = (int) Math.round(xpos);
+            y = (int) Math.round(currentHeight - ypos);
+        }
 
-        int xDelta;
-        int yDelta;
-        int x = (int) Math.round(xpos * xScale[0]);
-        int y = (int) Math.round((currentHeight - ypos) * yScale[0]);
-
-        xDelta = x - mouseX;
-        yDelta = y - mouseY;
+        int xDelta = x - mouseX;
+        int yDelta = y - mouseY;
         mouseX = x;
         mouseY = y;
 
@@ -249,12 +257,14 @@ public class GlfwMouseInput implements MouseInput {
         double[] y = new double[1];
         glfwGetCursorPos(window, x, y);
 
-        float[] xScale = new float[1];
-        float[] yScale = new float[1];
-        glfwGetWindowContentScale(window, xScale, yScale);
-
-        mouseX = (int) Math.round(x[0] * xScale[0]);
-        mouseY = (int) Math.round((currentHeight - y[0]) * yScale[0]);
+        if (context.isScaledContent()) {
+            glfwGetWindowContentScale(window, xScale, yScale);
+            mouseX = (int) Math.round(x[0] * xScale[0]);
+            mouseY = (int) Math.round((currentHeight - y[0]) * yScale[0]);
+        } else {
+            mouseX = (int) Math.round(x[0]);
+            mouseY = (int) Math.round(currentHeight - y[0]);
+        }
     }
 
     /**
