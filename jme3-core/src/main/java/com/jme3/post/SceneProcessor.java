@@ -63,6 +63,17 @@ public interface SceneProcessor {
     public void reshape(ViewPort vp, int w, int h);
 
     /**
+     * Called when the scale of the viewport has been changed.
+     *
+     * @param vp the affected ViewPort
+     * @param x the new scale (in pixels)
+     * @param y the new scale (in pixels)
+     */
+    public default void rescale(ViewPort vp, float x, float y){
+
+    }
+
+    /**
      * @return True if initialize() has been called on this SceneProcessor,
      * false if otherwise.
      */

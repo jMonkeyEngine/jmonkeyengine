@@ -382,11 +382,16 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         int[] width = new int[1];
         int[] height = new int[1];
         glfwGetFramebufferSize(window, width, height);
+
+        Vector2f scale=new Vector2f();
+        getWindowContentScale(scale);
+
         if (settings.getWidth() != width[0] || settings.getHeight() != height[0]) {
             settings.setResolution(width[0], height[0]);
             // https://www.glfw.org/docs/latest/window_guide.html#window_fbsize
+            listener.rescale(scale.x,scale.y);
             listener.reshape(width[0], height[0]);
-        }
+        }   
     }
 
     private void onWindowSizeChanged(final int width, final int height) {
