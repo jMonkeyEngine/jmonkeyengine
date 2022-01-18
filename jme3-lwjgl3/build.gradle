@@ -15,6 +15,7 @@ dependencies {
     runtimeOnly "org.lwjgl:lwjgl:${lwjgl3Version}:natives-linux-arm32"
     runtimeOnly "org.lwjgl:lwjgl:${lwjgl3Version}:natives-linux-arm64"
     runtimeOnly "org.lwjgl:lwjgl:${lwjgl3Version}:natives-macos"
+    runtimeOnly "org.lwjgl:lwjgl:${lwjgl3Version}:natives-macos-arm64"
 
     runtimeOnly "org.lwjgl:lwjgl-glfw:${lwjgl3Version}:natives-windows"
     runtimeOnly "org.lwjgl:lwjgl-glfw:${lwjgl3Version}:natives-windows-x86"
@@ -22,6 +23,8 @@ dependencies {
     runtimeOnly "org.lwjgl:lwjgl-glfw:${lwjgl3Version}:natives-linux-arm32"
     runtimeOnly "org.lwjgl:lwjgl-glfw:${lwjgl3Version}:natives-linux-arm64"
     runtimeOnly "org.lwjgl:lwjgl-glfw:${lwjgl3Version}:natives-macos"
+    runtimeOnly "org.lwjgl:lwjgl-glfw:${lwjgl3Version}:natives-macos-arm64"
+
 
     runtimeOnly "org.lwjgl:lwjgl-jemalloc:${lwjgl3Version}:natives-windows"
     runtimeOnly "org.lwjgl:lwjgl-jemalloc:${lwjgl3Version}:natives-windows-x86"
@@ -29,6 +32,8 @@ dependencies {
     runtimeOnly "org.lwjgl:lwjgl-jemalloc:${lwjgl3Version}:natives-linux-arm32"
     runtimeOnly "org.lwjgl:lwjgl-jemalloc:${lwjgl3Version}:natives-linux-arm64"
     runtimeOnly "org.lwjgl:lwjgl-jemalloc:${lwjgl3Version}:natives-macos"
+    runtimeOnly "org.lwjgl:lwjgl-jemalloc:${lwjgl3Version}:natives-macos-arm64"
+
 
     runtimeOnly "org.lwjgl:lwjgl-opengl:${lwjgl3Version}:natives-windows"
     runtimeOnly "org.lwjgl:lwjgl-opengl:${lwjgl3Version}:natives-windows-x86"
@@ -36,6 +41,8 @@ dependencies {
     runtimeOnly "org.lwjgl:lwjgl-opengl:${lwjgl3Version}:natives-linux-arm32"
     runtimeOnly "org.lwjgl:lwjgl-opengl:${lwjgl3Version}:natives-linux-arm64"
     runtimeOnly "org.lwjgl:lwjgl-opengl:${lwjgl3Version}:natives-macos"
+    runtimeOnly "org.lwjgl:lwjgl-opengl:${lwjgl3Version}:natives-macos-arm64"
+
 
     runtimeOnly "org.lwjgl:lwjgl-openal:${lwjgl3Version}:natives-windows"
     runtimeOnly "org.lwjgl:lwjgl-openal:${lwjgl3Version}:natives-windows-x86"
@@ -43,6 +50,8 @@ dependencies {
     runtimeOnly "org.lwjgl:lwjgl-openal:${lwjgl3Version}:natives-linux-arm32"
     runtimeOnly "org.lwjgl:lwjgl-openal:${lwjgl3Version}:natives-linux-arm64"
     runtimeOnly "org.lwjgl:lwjgl-openal:${lwjgl3Version}:natives-macos"
+    runtimeOnly "org.lwjgl:lwjgl-openal:${lwjgl3Version}:natives-macos-arm64"
+
 }
 
 javadoc {
