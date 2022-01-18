@@ -151,7 +151,8 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
     // temp variables used for glfw calls
     private int width[] = new int[1];
     private int height[] = new int[1];
-    
+    private final Vector2f currentScale = new Vector2f(1,1);
+
     public LwjglWindow(final JmeContext.Type type) {
 
         if (!SUPPORTED_TYPES.contains(type)) {
@@ -356,6 +357,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
                 for (WindowSizeListener listener : windowSizeListeners.getArray()) {
                     listener.onWindowSizeChanged(width, height);
                 }
+                updateDefaultFramebufferSize(true);
             }
         });
 
@@ -364,7 +366,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
 
             @Override
             public void invoke(final long window, final int width, final int height) {
-                updateDefaultFramebufferSize();
+                updateDefaultFramebufferSize(true);
             }
         });
 
@@ -376,25 +378,30 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         }
 
 
-        updateDefaultFramebufferSize();
+        updateDefaultFramebufferSize(false);
 
     }
 
-    private void updateDefaultFramebufferSize() {
+    
+    private void updateDefaultFramebufferSize(boolean updateListener) {
         // If default framebuffer size is different than window size (eg. HiDPI)
         int[] width = new int[1];
         int[] height = new int[1];
         glfwGetFramebufferSize(window, width, height);
 
-        Vector2f scale=new Vector2f();
-        getWindowContentScale(scale);
+        Vector2f scale=getWindowContentScale(null);
 
-        if (settings.getWidth() != width[0] || settings.getHeight() != height[0]) {
-            settings.setResolution(width[0], height[0]);
-            // https://www.glfw.org/docs/latest/window_guide.html#window_fbsize
-            listener.rescale(scale.x,scale.y);
-            listener.reshape(width[0], height[0]);
-        }   
+        if (updateListener) {
+            if (settings.getWidth() != width[0] || settings.getHeight() != height[0]) {
+                listener.reshape(width[0], height[0]);
+            }
+            if(!scale.equals(currentScale)){
+                listener.rescale(scale.x, scale.y);
+                currentScale.set(scale);
+            }
+
+        }       
+        settings.setResolution(width[0], height[0]);
     }
 
     private void onWindowSizeChanged(final int width, final int height) {
@@ -595,6 +602,8 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         }
 
         listener.initialize();
+        updateDefaultFramebufferSize(true);
+
         return true;
     }
 
