@@ -190,12 +190,12 @@ public class SavableClassUtil {
         } catch (InvocationTargetException | InstantiationException e) {
             Logger.getLogger(SavableClassUtil.class.getName()).log(
                     Level.SEVERE, "Could not access constructor of class ''{0}" + "''! \n"
-                    + "Some types need to have the BinaryImporter set up in a special way. Please doublecheck the setup.", className);
+                    + "Some types need to have the BinaryImporter set up in a special way. Please double-check the setup.", className);
             throw e;
         } catch (IllegalAccessException e) {
             Logger.getLogger(SavableClassUtil.class.getName()).log(
                     Level.SEVERE, "{0} \n"
-                    + "Some types need to have the BinaryImporter set up in a special way. Please doublecheck the setup.", e.getMessage());
+                    + "Some types need to have the BinaryImporter set up in a special way. Please double-check the setup.", e.getMessage());
             throw e;
         }
     }

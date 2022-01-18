@@ -73,7 +73,7 @@ public class ShaderNodeDefinitionLoader implements AssetLoader {
             if (line.startsWith("Exception")) {
                 throw new AssetLoadException(line.substring("Exception ".length()));
             } else {
-                throw new MatParseException("In multiroot shader node definition, expected first statement to be 'Exception'", exception);
+                throw new MatParseException("In multi-root shader node definition, expected first statement to be 'Exception'", exception);
             }
         } else if (roots.size() != 1) {
             throw new MatParseException("Too many roots in J3SN file", roots.get(0));
