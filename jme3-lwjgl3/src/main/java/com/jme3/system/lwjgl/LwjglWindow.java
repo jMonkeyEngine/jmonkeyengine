@@ -338,6 +338,10 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         setWindowIcon(settings);
         showWindow();
 
+        // HACK: the framebuffer seems to be initialized with the wrong size
+        // on some HiDPI platforms untill glfwPollEvents is called 2 or 3 times
+        for (int i = 0; i < 4; i++) glfwPollEvents();
+        
         // Windows resize callback
         glfwSetWindowSizeCallback(window, windowSizeCallback = new GLFWWindowSizeCallback() {
 
@@ -374,7 +378,6 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
 
         updateDefaultFramebufferSize();
 
-        framesAfterContextStarted = 0;
     }
 
     private void updateDefaultFramebufferSize() {
@@ -595,7 +598,6 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         return true;
     }
 
-    private int framesAfterContextStarted = 0;
 
     /**
      * execute one iteration of the render loop in the OpenGL thread
@@ -610,15 +612,6 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             throw new IllegalStateException();
         }
 
-        // Update the frame buffer size from 2nd frame since the initial value
-        // of frame buffer size from glfw maybe incorrect when HiDPI display is in use 
-        // and GLFW_COCOA_RETINA_FRAMEBUFFER is false
-        if (framesAfterContextStarted < 2) {
-            framesAfterContextStarted++;
-            if (framesAfterContextStarted == 2) {
-                updateDefaultFramebufferSize();
-            }
-        }
 
         listener.update();
 
