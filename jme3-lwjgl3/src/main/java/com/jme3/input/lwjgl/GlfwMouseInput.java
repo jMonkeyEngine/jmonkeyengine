@@ -36,6 +36,7 @@ import com.jme3.input.MouseInput;
 import com.jme3.input.RawInputListener;
 import com.jme3.input.event.MouseButtonEvent;
 import com.jme3.input.event.MouseMotionEvent;
+import com.jme3.math.Vector2f;
 import com.jme3.system.lwjgl.LwjglWindow;
 import com.jme3.system.lwjgl.WindowSizeListener;
 import com.jme3.util.BufferUtils;
@@ -135,29 +136,18 @@ public class GlfwMouseInput implements MouseInput {
 
     private boolean cursorVisible;
     private boolean initialized;
-
-    /**
-     * temporary storage for GLFW queries
-     */
-    private final float[] xScale = new float[1];
-    private final float[] yScale = new float[1];
-
+    private final Vector2f inputScale = new Vector2f();
+  
     public GlfwMouseInput(final LwjglWindow context) {
         this.context = context;
         this.cursorVisible = true;
     }
 
     private void onCursorPos(final long window, final double xpos, final double ypos) {
-        int x;
-        int y;
-        if (context.isScaledContent()) {
-            glfwGetWindowContentScale(window, xScale, yScale);
-            x = (int) Math.round(xpos * xScale[0]);
-            y = (int) Math.round((currentHeight - ypos) * yScale[0]);
-        } else {
-            x = (int) Math.round(xpos);
-            y = (int) Math.round(currentHeight - ypos);
-        }
+        context.getWindowContentScale(inputScale);
+        int x = (int) Math.round(xpos * inputScale.x);
+        int y = (int) Math.round((currentHeight - ypos) * inputScale.y);
+      
 
         int xDelta = x - mouseX;
         int yDelta = y - mouseY;
@@ -251,19 +241,14 @@ public class GlfwMouseInput implements MouseInput {
         }));
     }
 
+    
     private void initCurrentMousePosition(long window) {
         double[] x = new double[1];
         double[] y = new double[1];
         glfwGetCursorPos(window, x, y);
-
-        if (context.isScaledContent()) {
-            glfwGetWindowContentScale(window, xScale, yScale);
-            mouseX = (int) Math.round(x[0] * xScale[0]);
-            mouseY = (int) Math.round((currentHeight - y[0]) * yScale[0]);
-        } else {
-            mouseX = (int) Math.round(x[0]);
-            mouseY = (int) Math.round(currentHeight - y[0]);
-        }
+        context.getWindowContentScale(inputScale);
+        mouseX = (int) Math.round(x[0] * inputScale.x);
+        mouseY = (int) Math.round((currentHeight - y[0]) * inputScale.y);     
     }
 
     /**
