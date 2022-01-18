@@ -31,6 +31,10 @@
  */
 package com.jme3.scene.shape;
 
+import com.jme3.export.InputCapsule;
+import com.jme3.export.JmeExporter;
+import com.jme3.export.JmeImporter;
+import com.jme3.export.OutputCapsule;
 import com.jme3.math.CurveAndSurfaceMath;
 import com.jme3.math.FastMath;
 import com.jme3.math.Spline.SplineType;
@@ -39,6 +43,7 @@ import com.jme3.math.Vector4f;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.util.BufferUtils;
+import java.io.IOException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -53,12 +58,12 @@ import java.util.Map;
  */
 public class Surface extends Mesh {
     private SplineType           type;                // the type of the surface
-    final private List<List<Vector4f>> controlPoints;       // space control points and their weights
-    final private List<Float>[]        knots;               // knots of the surface
-    final private int                  basisUFunctionDegree; // the degree of basis U function
+    private List<List<Vector4f>> controlPoints;       // space control points and their weights
+    private List<Float>[]        knots;               // knots of the surface
+    private int                  basisUFunctionDegree; // the degree of basis U function
     private int                  basisVFunctionDegree; // the degree of basis V function
-    final private int                  uSegments;           // the amount of U segments
-    final private int                  vSegments;           // the amount of V segments
+    private int                  uSegments;           // the amount of U segments
+    private int                  vSegments;           // the amount of V segments
 
     /**
      * Constructor. Constructs required surface.
@@ -85,6 +90,12 @@ public class Surface extends Mesh {
         }
 
         this.buildSurface(smooth);
+    }
+
+    /**
+     * For serialization only. Do not use.
+     */
+    protected Surface() {
     }
 
     /**
@@ -287,6 +298,88 @@ public class Surface extends Mesh {
      */
     public SplineType getType() {
         return type;
+    }
+
+    /**
+     * De-serializes from the specified importer, for example when loading from
+     * a J3O file.
+     *
+     * @param importer the importer to use (not null)
+     * @throws IOException from the importer
+     */
+    @Override
+    @SuppressWarnings("unchecked")
+    public void read(JmeImporter importer) throws IOException {
+        super.read(importer);
+        InputCapsule capsule = importer.getCapsule(this);
+
+        type = capsule.readEnum("type", SplineType.class, null);
+        basisUFunctionDegree = capsule.readInt("basisUFunctionDegree", 0);
+        basisVFunctionDegree = capsule.readInt("basisVFunctionDegree", 0);
+        uSegments = capsule.readInt("uSegments", 0);
+        vSegments = capsule.readInt("vSegments", 0);
+
+        float[][] knotArray2D = capsule.readFloatArray2D("knotArray2D", null);
+        int numKnotArrayLists = knotArray2D.length;
+        knots = new ArrayList[numKnotArrayLists];
+        for (int i = 0; i < numKnotArrayLists; ++i) {
+            float[] knotArray = knotArray2D[i];
+            knots[i] = new ArrayList<>(knotArray.length);
+            for (float knot : knotArray) {
+                knots[i].add(knot);
+            }
+        }
+
+        List[] listArray = capsule.readSavableArrayListArray("listArray", null);
+        int numControlPointLists = listArray.length;
+        controlPoints = new ArrayList<>(numControlPointLists);
+        for (int i = 0; i < numControlPointLists; ++i) {
+            List<Vector4f> list = listArray[i];
+            controlPoints.add(list);
+        }
+    }
+
+    /**
+     * Serializes to the specified exporter, for example when saving to a J3O
+     * file. The current instance is unaffected.
+     *
+     * @param exporter the exporter to use (not null)
+     * @throws IOException from the exporter
+     */
+    @Override
+    @SuppressWarnings("unchecked")
+    public void write(JmeExporter exporter) throws IOException {
+        super.write(exporter);
+        OutputCapsule capsule = exporter.getCapsule(this);
+
+        capsule.write(type, "type", null);
+        capsule.write(basisUFunctionDegree, "basisUFunctionDegree", 0);
+        capsule.write(basisVFunctionDegree, "basisVFunctionDegree", 0);
+        capsule.write(uSegments, "uSegments", 0);
+        capsule.write(vSegments, "vSegments", 0);
+
+        int numKnotArrayLists = knots.length;
+        float[][] knotArray2D = new float[numKnotArrayLists][];
+        for (int i = 0; i < numKnotArrayLists; ++i) {
+            List<Float> list = knots[i];
+            int numKnots = list.size();
+            float[] array = new float[numKnots];
+            for (int j = 0; j < numKnots; ++j) {
+                array[j] = list.get(j);
+            }
+            knotArray2D[i] = array;
+        }
+        capsule.write(knotArray2D, "knotArray2D", null);
+
+        int numControlPointLists = controlPoints.size();
+        ArrayList[] listArray = new ArrayList[numControlPointLists];
+        for (int i = 0; i < numControlPointLists; ++i) {
+            List<Vector4f> list = controlPoints.get(i);
+            int numVectors = list.size();
+            listArray[i] = new ArrayList<>(numVectors);
+            listArray[i].addAll(list);
+        }
+        capsule.writeSavableArrayListArray(listArray, "listArray", null);
     }
 
     /**
