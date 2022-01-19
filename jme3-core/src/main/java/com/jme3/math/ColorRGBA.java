@@ -203,6 +203,50 @@ public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable
         }
         return this;
     }
+    
+    /**
+     * <code>set</code> sets the values of this <code>ColorRGBA</code> to those
+     * set by a parameter Vector4f.
+     *
+     * @param vec4 The 4 component vector to set this <code>ColorRGBA</code> to.
+     * @return this
+     */
+    public ColorRGBA set(Vector4f vec4) {
+        if (vec4 == null) {
+            r = 0;
+            g = 0;
+            b = 0;
+            a = 0;
+        } else {
+            r = vec4.x;
+            g = vec4.y;
+            b = vec4.z;
+            a = vec4.w;
+        }
+        return this;
+    }    
+    
+    /**
+     * <code>set</code> sets the values of this <code>ColorRGBA</code> to those
+     * set by a parameter Vector3f.
+     *
+     * @param vec3 The 3 component vector to set the r, g, and b values of
+     * this <code>ColorRGBA</code> to respectively.
+     *
+     * @return this
+     */
+    public ColorRGBA set(Vector4f vec3) {
+        if (vec3 == null) {
+            r = 0;
+            g = 0;
+            b = 0;
+        } else {
+            r = vec3.x;
+            g = vec3.y;
+            b = vec3.z;
+        }
+        return this;
+    }       
 
     /**
      * Sets the red color to the specified value.
