@@ -235,7 +235,7 @@ public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable
      *
      * @return this
      */
-    public ColorRGBA set(Vector4f vec3) {
+    public ColorRGBA set(Vector3f vec3) {
         if (vec3 == null) {
             r = 0;
             g = 0;
