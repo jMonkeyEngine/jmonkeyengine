@@ -127,7 +127,7 @@ public final class AnimControl extends AbstractControl implements Cloneable, Jme
         // Note cloneForSpatial() never actually cloned the animation map... just its reference       
         HashMap<String, Animation> newMap = new HashMap<>();
          
-        // animationMap is cloned, but only ClonableTracks will be cloned as they need a reference to a cloned spatial
+        // animationMap is cloned, but only cloneable tracks will be cloned as they need a reference to a cloned spatial
         for( Map.Entry<String, Animation> e : animationMap.entrySet() ) {
             newMap.put(e.getKey(), cloner.clone(e.getValue()));
         }

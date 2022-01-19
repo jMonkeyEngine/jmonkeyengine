@@ -234,7 +234,7 @@ public class BitmapText extends Node {
     }
 
     /**
-     * Define area where bitmaptext will be rendered
+     * Define the area where the BitmapText will be rendered.
      * @param rect position and size box where text is rendered
      */
     public void setBox(Rectangle rect) {
@@ -251,7 +251,7 @@ public class BitmapText extends Node {
     }
 
     /**
-     * @return height of whole textblock
+     * @return height of whole text block
      */
     public float getHeight() {
         if (needRefresh) {
@@ -276,7 +276,7 @@ public class BitmapText extends Node {
         if (textBox != null) {
             return Math.max(letters.getTotalWidth(), textBox.width);
         }
-      //  Please note that BitMaptext.getLineWidth() might differ from Font.getLineWidth() -->   scale it with Font.getPreferredSize()/BitMaptext.getSize()
+      //  Please note that BitmapText.getLineWidth() might differ from Font.getLineWidth() -->   scale it with Font.getPreferredSize()/BitmapText.getSize()
         return letters.getTotalWidth();
     }
 

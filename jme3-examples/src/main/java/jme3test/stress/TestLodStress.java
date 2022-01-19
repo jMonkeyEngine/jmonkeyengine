@@ -67,7 +67,7 @@ public class TestLodStress extends SimpleApplication {
         mat.setBoolean("VertexLighting", true);
         teapot.setMaterial(mat);
         
-       // show normals as material
+        // A special Material to visualize mesh normals:
         //Material mat = new Material(assetManager, "Common/MatDefs/Misc/ShowNormals.j3md");
 
         for (int y = -10; y < 10; y++){

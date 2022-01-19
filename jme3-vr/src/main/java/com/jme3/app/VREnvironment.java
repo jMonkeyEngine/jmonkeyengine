@@ -43,7 +43,7 @@ public class VREnvironment {
     private VRBounds bounds             = null;
 
     /**
-     * The underlying system VR API. By default set to {@link VRConstants#SETTING_VRAPI_OPENVR_VALUE}.
+     * The underlying system VR API. By default, set to {@link VRConstants#SETTING_VRAPI_OPENVR_VALUE}.
      */
     public int vrBinding = VRConstants.SETTING_VRAPI_OPENVR_VALUE;
 
