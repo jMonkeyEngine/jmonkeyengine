@@ -272,7 +272,7 @@ public class UdpKernel extends AbstractKernel
         {
             log.log( Level.FINE, "Kernel started for connection:{0}.", address );
 
-            // An atomic is safest and costs almost nothing
+            // An atomic is safest and costs almost nothing.
             while( go.get() ) {
                 try {
                     // Could reuse the packet, but I don't see the

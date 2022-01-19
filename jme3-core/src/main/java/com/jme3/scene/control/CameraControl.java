@@ -115,7 +115,7 @@ public class CameraControl extends AbstractControl {
                     camera.setRotation(spatial.getWorldRotation());
                     break;
                 case CameraToSpatial:
-                    // set the localtransform, so that the worldtransform would be equal to the camera's transform.
+                    // Set the local transform so that the world transform would be equal to the camera's transform.
                     // Location:
                     TempVars vars = TempVars.get();
 

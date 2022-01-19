@@ -2264,8 +2264,8 @@ public final class GLRenderer implements Renderer {
         switch (mode) {
             case BorderClamp:
             case Clamp:
+                // fall through
             case EdgeClamp:
-                // Falldown intentional.
                 return GL.GL_CLAMP_TO_EDGE;
             case Repeat:
                 return GL.GL_REPEAT;

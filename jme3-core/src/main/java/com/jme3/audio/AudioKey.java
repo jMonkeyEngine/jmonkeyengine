@@ -55,8 +55,8 @@ public class AudioKey extends AssetKey<AudioData> {
      * Create a new AudioKey.
      * 
      * @param name Name of the asset
-     * @param stream If true, the audio will be streamed from harddrive,
-     * otherwise it will be buffered entirely and then played.
+     * @param stream If true, the audio will be streamed.
+     *     Otherwise, it will be buffered entirely and then played.
      * @param streamCache If stream is true, then this specifies if
      * the stream cache is used. When enabled, the audio stream will
      * be read entirely but not decoded, allowing features such as 
@@ -71,8 +71,8 @@ public class AudioKey extends AssetKey<AudioData> {
      * Create a new AudioKey
      *
      * @param name Name of the asset
-     * @param stream If true, the audio will be streamed from harddrive,
-     * otherwise it will be buffered entirely and then played.
+     * @param stream If true, the audio will be streamed.
+     *     Otherwise, it will be buffered entirely and then played.
      */
     public AudioKey(String name, boolean stream){
         super(name);
