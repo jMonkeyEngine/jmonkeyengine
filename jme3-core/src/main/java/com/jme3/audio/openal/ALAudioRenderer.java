@@ -120,15 +120,15 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
 
         final String deviceName = alc.alcGetString(ALC.ALC_DEVICE_SPECIFIER);
 
-        logger.log(Level.INFO, "Audio Renderer Information\n" +
-                        " * Device: {0}\n" +
-                        " * Vendor: {1}\n" +
-                        " * Renderer: {2}\n" +
-                        " * Version: {3}\n" +
-                        " * Supported channels: {4}\n" +
-                        " * ALC extensions: {5}\n" +
-                        " * AL extensions: {6}",
-                new Object[]{
+        logger.log(Level.INFO, "Audio Renderer Information\n"
+                + " * Device: {0}\n"
+                + " * Vendor: {1}\n"
+                + " * Renderer: {2}\n"
+                + " * Version: {3}\n"
+                + " * Supported channels: {4}\n"
+                + " * ALC extensions: {5}\n"
+                + " * AL extensions: {6}",
+                new Object[] {
                         deviceName,
                         al.alGetString(AL_VENDOR),
                         al.alGetString(AL_RENDERER),
@@ -358,9 +358,9 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
             // Compute time value from bytes
             // E.g. for 44100 source with 2 channels and 16 bits per sample:
             //    (44100 * 2 * 16 / 8) = 176400
-            int bytesPerSecond = (data.getSampleRate() *
-                                  data.getChannels() *
-                                  data.getBitsPerSample() / 8);
+            int bytesPerSecond = (data.getSampleRate()
+                    * data.getChannels()
+                    * data.getBitsPerSample() / 8);
 
             return (float) playbackOffsetBytes / bytesPerSecond;
         }
@@ -740,8 +740,8 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
                 stream.setTime(0);
                 active = fillBuffer(stream, buffer);
                 if (!active) {
-                    throw new IllegalStateException("Looping streaming source " +
-                            "was rewound but could not be filled");
+                    throw new IllegalStateException("Looping streaming source "
+                            + "was rewound but could not be filled");
                 }
             }
 
@@ -782,8 +782,8 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
                 stream.setTime(0);
                 active = fillBuffer(stream, id);
                 if (!active) {
-                    throw new IllegalStateException("Looping streaming source " +
-                            "was rewound but could not be filled");
+                    throw new IllegalStateException("Looping streaming source "
+                            + "was rewound but could not be filled");
                 }
             }
             if (active) {
@@ -1162,7 +1162,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
                 if (src.getAudioData() instanceof AudioStream) {
                     // If the stream is seekable, then rewind it.
                     // Otherwise, close it, as it is no longer valid.
-                    AudioStream stream = (AudioStream)src.getAudioData();
+                    AudioStream stream = (AudioStream) src.getAudioData();
                     if (stream.isSeekable()) {
                         stream.setTime(0);
                     } else {
