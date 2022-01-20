@@ -180,7 +180,7 @@ public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable
      * a provided Vector3f, at full opacity with a 1.0 alpha value by default
      *
      * @param vec3 The <code>Vector3f</code> object to copy to the r, g, and b 
-     * values to respectively
+     * values respectively
      */
     public ColorRGBA(Vector3f vec3) {
         this.a = 1.0f;
