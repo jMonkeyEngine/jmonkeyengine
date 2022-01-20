@@ -42,7 +42,7 @@ import java.nio.Buffer;
  * collected by the garbage collector, and then invoke the proper destructor
  * on the OpenGL library to delete it from memory.
  */
-public abstract class NativeObject implements Cloneable {
+public abstract class NativeObject extends StatefulObject implements Cloneable {
 
     public static final int INVALID_ID = -1;
     
@@ -130,6 +130,7 @@ public abstract class NativeObject implements Cloneable {
      * and its state needs to be updated.
      */
     public void setUpdateNeeded(){
+        updateStates(null);
         updateNeeded = true;
     }
 
