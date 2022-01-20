@@ -47,7 +47,7 @@ public class Listener {
         velocity = new Vector3f();
         rotation = new Quaternion();
     }
-    
+
     public Listener(Listener source) {
         location = source.location.clone();
         velocity = source.velocity.clone();
@@ -68,7 +68,7 @@ public class Listener {
         if (renderer != null)
             renderer.updateListenerParam(this, ListenerParam.Volume);
     }
-    
+
     public Vector3f getLocation() {
         return location;
     }
@@ -92,7 +92,7 @@ public class Listener {
     public Vector3f getDirection() {
         return rotation.getRotationColumn(2);
     }
-    
+
     public void setLocation(Vector3f location) {
         this.location.set(location);
         if (renderer != null)
