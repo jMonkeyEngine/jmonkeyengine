@@ -65,7 +65,7 @@ public abstract class Filter extends NativeObject implements Savable {
 
     @Override
     public void deleteObject(Object rendererObject) {
-        ((AudioRenderer)rendererObject).deleteFilter(this);
+        ((AudioRenderer) rendererObject).deleteFilter(this);
     }
 
     @Override
