@@ -50,6 +50,11 @@ import com.jme3.util.PlaceholderAssets;
 import com.jme3.util.blockparser.BlockLanguageParser;
 import com.jme3.util.blockparser.Statement;
 import com.jme3.util.clone.Cloner;
+
+import jme3tools.shader.Preprocessor;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
@@ -798,6 +803,9 @@ public class J3MLoader implements AssetLoader {
             } else if (key.getExtension().equals("j3md") && key instanceof MaterialKey) {
                 throw new IOException("Material definitions must be loaded via AssetKey");
             }
+
+            in = Preprocessor.apply(in);
+
             loadFromRoot(BlockLanguageParser.parse(in));
         } finally {
             if (in != null){
