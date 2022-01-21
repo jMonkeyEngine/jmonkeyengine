@@ -202,7 +202,7 @@ public class AnimationEvent extends AbstractCinematicEvent {
      * @param loopMode the loopMode
      * @see LoopMode
      * @param channelIndex the index of the channel default is 0. Events on the
-     * same channelIndex will use the same channel.
+     *     same channelIndex will use the same channel.
      */
     public AnimationEvent(Spatial model, String animationName, LoopMode loopMode, int channelIndex) {
         super(loopMode);
@@ -219,7 +219,7 @@ public class AnimationEvent extends AbstractCinematicEvent {
      * @param model the model on which the animation will be played
      * @param animationName the name of the animation to play
      * @param channelIndex the index of the channel default is 0. Events on the
-     * same channelIndex will use the same channel.
+     *     same channelIndex will use the same channel.
      */
     public AnimationEvent(Spatial model, String animationName, int channelIndex) {
         this.model = model;
@@ -237,7 +237,7 @@ public class AnimationEvent extends AbstractCinematicEvent {
      * @param loopMode the desired mode (Loop/DontLoop/Cycle)
      * @param channelIndex the index of the channel default is 0. Events on the
      * @param blendTime the time interval during which the animation will be blended
-     * same channelIndex will use the same channel.
+     *     same channelIndex will use the same channel.
      */
     public AnimationEvent(Spatial model, String animationName, LoopMode loopMode, int channelIndex, float blendTime) {
         this.model = model;
@@ -256,7 +256,7 @@ public class AnimationEvent extends AbstractCinematicEvent {
      * @param animationName the name of the animation to play
      * @param initialDuration the initial duration of the event
      * @param channelIndex the index of the channel default is 0. Events on the
-     * same channelIndex will use the same channel.
+     *     same channelIndex will use the same channel.
      */
     public AnimationEvent(Spatial model, String animationName, float initialDuration, int channelIndex) {
         super(initialDuration);
@@ -275,7 +275,7 @@ public class AnimationEvent extends AbstractCinematicEvent {
      * @param loopMode the loopMode
      * @see LoopMode
      * @param channelIndex the index of the channel default is 0. Events on the
-     * same channelIndex will use the same channel.
+     *     same channelIndex will use the same channel.
      */
     public AnimationEvent(Spatial model, String animationName, float initialDuration, LoopMode loopMode, int channelIndex) {
         super(initialDuration, loopMode);
@@ -435,7 +435,7 @@ public class AnimationEvent extends AbstractCinematicEvent {
         super.read(im);
         InputCapsule ic = im.getCapsule(this);
 //        if (im.getFormatVersion() == 0) {
-            modelName = ic.readString("modelName", "");
+        modelName = ic.readString("modelName", "");
 //        }
         //FIXME always the same issue, because of the cloning of assets, this won't work
         //we have to somehow store userdata in the spatial and then recurse the
