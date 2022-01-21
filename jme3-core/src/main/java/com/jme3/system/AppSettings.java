@@ -767,10 +767,8 @@ public final class AppSettings extends HashMap<String, Object> {
     /**
      * Set the size of the window
      * 
-     * @param width
-     *            The width
-     * @param height
-     *            The height (Default: 640x480)
+     * @param width The width in pixels (default = resolution width)
+     * @param height The height in pixels (default = resolution height)
      */
     public void setWindowSize(int width, int height) {
         putInteger("WindowWidth", width);

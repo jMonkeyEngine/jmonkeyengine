@@ -579,9 +579,6 @@ public class LegacyApplication implements Application, SystemListener {
     }
 
 
-    /**
-     * Internal use only.
-     */
     @Override
     public void rescale(float x, float y){
         if (renderManager != null) {
