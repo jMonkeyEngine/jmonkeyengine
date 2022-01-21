@@ -68,17 +68,17 @@ class SweepSphere implements Collidable {
 
     public void setDimension(Vector3f dimension) {
         this.dimension.set(dimension);
-        this.invDim.set(1,1,1).divideLocal(dimension);
+        this.invDim.set(1, 1, 1).divideLocal(dimension);
     }
 
     public void setDimension(float x, float y, float z) {
-        this.dimension.set(x,y,z);
-        this.invDim.set(1,1,1).divideLocal(dimension);
+        this.dimension.set(x, y, z);
+        this.invDim.set(1, 1, 1).divideLocal(dimension);
     }
 
     public void setDimension(float dim) {
         this.dimension.set(dim, dim, dim);
-        this.invDim.set(1,1,1).divideLocal(dimension);
+        this.invDim.set(1, 1, 1).divideLocal(dimension);
     }
 
     public Vector3f getVelocity() {
@@ -106,11 +106,12 @@ class SweepSphere implements Collidable {
     }
 
     private boolean isPointInTriangle(Vector3f point, AbstractTriangle tri) {
-            if (pointsOnSameSide(point, tri.get1(), tri.get2(), tri.get3())
-             && pointsOnSameSide(point, tri.get2(), tri.get1(), tri.get3())
-             && pointsOnSameSide(point, tri.get3(), tri.get1(), tri.get2()))
-                    return true;
-            return false;
+        if (pointsOnSameSide(point, tri.get1(), tri.get2(), tri.get3())
+                && pointsOnSameSide(point, tri.get2(), tri.get1(), tri.get3())
+                && pointsOnSameSide(point, tri.get3(), tri.get1(), tri.get2())) {
+            return true;
+        }
+        return false;
     }
 
     private static float getLowestRoot(float a, float b, float c, float maxR) {
@@ -231,7 +232,7 @@ class SweepSphere implements Collidable {
             }
         } else {
             t0 = (-1f - signedDistanceToPlane) / normalDotVelocity;
-            t1 = ( 1f - signedDistanceToPlane) / normalDotVelocity;
+            t1 = (1f - signedDistanceToPlane) / normalDotVelocity;
 
             if (t0 > t1) {
                 float tf = t1;
@@ -256,33 +257,33 @@ class SweepSphere implements Collidable {
         Vector3f contactNormal = new Vector3f();
 
 //        if (!embedded){
-            // check against the inside of the scaledTriangle
-            // contactPoint = sCenter - p.normal + t0 * sVelocity
-            contactPoint.set(sVelocity);
-            contactPoint.multLocal(t0);
-            contactPoint.addLocal(sCenter);
-            contactPoint.subtractLocal(triPlane.getNormal());
+        // check against the inside of the scaledTriangle
+        // contactPoint = sCenter - p.normal + t0 * sVelocity
+        contactPoint.set(sVelocity);
+        contactPoint.multLocal(t0);
+        contactPoint.addLocal(sCenter);
+        contactPoint.subtractLocal(triPlane.getNormal());
 
-            // test to see if the collision is on a scaledTriangle interior
-            if (isPointInTriangle(contactPoint, scaledTri) && !embedded) {
-                foundCollision = true;
+        // test to see if the collision is on a scaledTriangle interior
+        if (isPointInTriangle(contactPoint, scaledTri) && !embedded) {
+            foundCollision = true;
 
-                minT = t0;
+            minT = t0;
 
-                // scale collision point back into R3
-                contactPoint.multLocal(dimension);
-                contactNormal.set(velocity).multLocal(t0);
-                contactNormal.addLocal(center);
-                contactNormal.subtractLocal(contactPoint).normalizeLocal();
+            // scale collision point back into R3
+            contactPoint.multLocal(dimension);
+            contactNormal.set(velocity).multLocal(t0);
+            contactNormal.addLocal(center);
+            contactNormal.subtractLocal(contactPoint).normalizeLocal();
 
 //                contactNormal.set(triPlane.getNormal());
 
-                CollisionResult result = new CollisionResult();
-                result.setContactPoint(contactPoint);
-                result.setContactNormal(contactNormal);
-                result.setDistance(minT * velocity.length());
-                return result;
-            }
+            CollisionResult result = new CollisionResult();
+            result.setContactPoint(contactPoint);
+            result.setContactNormal(contactNormal);
+            result.setDistance(minT * velocity.length());
+            return result;
+        }
 //        }
 
         float velocitySquared = sVelocity.lengthSquared();
