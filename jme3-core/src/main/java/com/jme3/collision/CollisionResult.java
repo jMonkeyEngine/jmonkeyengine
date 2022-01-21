@@ -105,7 +105,7 @@ public class CollisionResult implements Comparable<CollisionResult> {
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof CollisionResult) {
-            return ((CollisionResult)obj).compareTo(this) == 0;
+            return ((CollisionResult) obj).compareTo(this) == 0;
         }
         return super.equals(obj);
     }
