@@ -82,8 +82,6 @@ public class TimeLine extends HashMap<Integer, KeyFrame> implements Savable {
         }
     }
 
-
-
     public void removeKeyFrame(float time) {
         removeKeyFrame(getKeyFrameIndexFromTime(time));
     }
