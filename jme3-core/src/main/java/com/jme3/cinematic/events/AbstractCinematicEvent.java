@@ -146,7 +146,7 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
                 setTime(0);
             } else {
                 time = AnimationUtils.clampWrapTime(time, initialDuration, loopMode);
-                if (time<0) {
+                if (time < 0) {
                     speed = -speed;
                     time = -time;
                 }
@@ -352,7 +352,7 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
      */
     @Override
     public void setTime(float time) {
-        this.time = time ;
+        this.time = time;
     }
 
     /**
