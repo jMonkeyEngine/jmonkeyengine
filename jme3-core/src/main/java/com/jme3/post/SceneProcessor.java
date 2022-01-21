@@ -66,8 +66,8 @@ public interface SceneProcessor {
      * Called when the scale of the viewport has been changed.
      *
      * @param vp the affected ViewPort
-     * @param x the new scale (in pixels)
-     * @param y the new scale (in pixels)
+     * @param x the new horizontal scale 
+     * @param y the new vertical scale 
      */
     public default void rescale(ViewPort vp, float x, float y){
 

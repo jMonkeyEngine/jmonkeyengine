@@ -53,10 +53,12 @@ public interface SystemListener {
 
     /**
      * Called to notify the application that the scale has changed.
-     * @param x the new scale of the display (in pixels, &ge;0)
-     * @param y the new scale of the display (in pixels, &ge;0)
+     * @param x the new horizontal scale of the display 
+     * @param y the new vertical scale of the display
      */
-    public void rescale(float x, float y);
+    public default void rescale(float x, float y){
+
+    }
 
 
     /**

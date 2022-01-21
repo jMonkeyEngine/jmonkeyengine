@@ -385,6 +385,13 @@ public class RenderManager {
         }
     }
 
+    /**
+     * Internal use only.
+     * Updates the scale of all on-screen ViewPorts
+     *
+     * @param x the new horizontal scale
+     * @param y the new vertical scale
+     */
     public void notifyRescale(float x, float y) {
         for (ViewPort vp : preViewPorts) {
             notifyRescale(vp, x, y);
