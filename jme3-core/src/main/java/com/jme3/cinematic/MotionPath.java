@@ -87,7 +87,7 @@ public class MotionPath implements Savable {
         traveledDistance = time * (getLength() / control.getInitialDuration());
 
         //getting waypoint index and current value from new traveled distance
-        v = getWayPointIndexForDistance(traveledDistance,v);
+        v = getWayPointIndexForDistance(traveledDistance, v);
 
         //setting values
         control.setCurrentWayPoint((int) v.x);
@@ -108,7 +108,7 @@ public class MotionPath implements Savable {
 
     public void checkWayPoint(MotionEvent control, float tpf) {
         //Epsilon varies with the tpf to avoid missing a waypoint on low framerate.
-        float epsilon =  tpf * 4f;
+        float epsilon = tpf * 4f;
         if (control.getCurrentWayPoint() != prevWayPoint) {
             if (control.getCurrentValue() >= 0f && control.getCurrentValue() < epsilon) {
                 triggerWayPointReach(control.getCurrentWayPoint(), control);
