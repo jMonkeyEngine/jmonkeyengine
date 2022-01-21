@@ -187,9 +187,9 @@ public class MotionEvent extends AbstractCinematicEvent implements Control, JmeC
                 stop();
             } else {
                 time = AnimationUtils.clampWrapTime(time, initialDuration, loopMode);
-                if (time<0) {
-                    speed = - speed;
-                    time = - time;
+                if (time < 0) {
+                    speed = -speed;
+                    time = -time;
                 }
                 onUpdate(tpf);
             }
@@ -381,7 +381,7 @@ public class MotionEvent extends AbstractCinematicEvent implements Control, JmeC
      */
     public void setDirection(Vector3f direction) {
         setDirection(direction, Vector3f.UNIT_Y);
-   }
+    }
 
     /**
      * Sets the direction of the spatial with the given up vector.
@@ -390,7 +390,7 @@ public class MotionEvent extends AbstractCinematicEvent implements Control, JmeC
      * @param direction the desired forward direction (not null, unaffected)
      * @param upVector the up vector to consider for this direction.
      */
-    public void setDirection(Vector3f direction,Vector3f upVector) {
+    public void setDirection(Vector3f direction, Vector3f upVector) {
         this.direction.set(direction);
         this.upVector.set(upVector);
     }
