@@ -95,7 +95,7 @@ public class SoundEvent extends AbstractCinematicEvent {
         this.stream = stream;
     }
 
-     /**
+    /**
      * creates a sound track from the given resource path
      * @param path the path to an audio file (ie : "Sounds/mySound.wav")
      * @param stream true to make the audio data streamed
@@ -109,7 +109,7 @@ public class SoundEvent extends AbstractCinematicEvent {
         this.stream = stream;
     }
 
-     /**
+    /**
      * creates a sound track from the given resource path
      * @param path the path to an audio file (ie : "Sounds/mySound.wav")
      * @param initialDuration the initial duration of the event
@@ -119,7 +119,7 @@ public class SoundEvent extends AbstractCinematicEvent {
         this.path = path;
     }
 
-     /**
+    /**
      * creates a sound track from the given resource path
      * @param path the path to an audio file (ie : "Sounds/mySound.wav")
      * @param loopMode the loopMode
@@ -130,7 +130,7 @@ public class SoundEvent extends AbstractCinematicEvent {
         this.path = path;
     }
 
-     /**
+    /**
      * creates a sound track from the given resource path
      * @param path the path to an audio file (ie : "Sounds/mySound.wav")
      * @param initialDuration the initial duration of the event
