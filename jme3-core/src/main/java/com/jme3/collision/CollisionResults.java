@@ -112,7 +112,7 @@ public class CollisionResults implements Iterable<CollisionResult> {
             sorted = true;
         }
 
-        return results.get(size()-1);
+        return results.get(size() - 1);
     }
 
     public CollisionResult getCollision(int index) {
@@ -150,7 +150,7 @@ public class CollisionResults implements Iterable<CollisionResult> {
                 sb.append(result).append(", ");
             }
             if (results.size() > 0)
-                sb.setLength(sb.length()-2);
+                sb.setLength(sb.length() - 2);
         }
 
         sb.append("]");
