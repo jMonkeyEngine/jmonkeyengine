@@ -111,14 +111,14 @@ public class ParticleTriMesh extends ParticleMesh {
             int startIdx = (i * 4);
 
             // triangle 1
-            ib.put((short)(startIdx + 1))
-              .put((short)(startIdx + 0))
-              .put((short)(startIdx + 2));
+            ib.put((short) (startIdx + 1))
+                    .put((short) (startIdx + 0))
+                    .put((short) (startIdx + 2));
 
             // triangle 2
-            ib.put((short)(startIdx + 1))
-              .put((short)(startIdx + 2))
-              .put((short)(startIdx + 3));
+            ib.put((short) (startIdx + 1))
+                    .put((short) (startIdx + 2))
+                    .put((short) (startIdx + 3));
         }
         ib.flip();
 
@@ -162,9 +162,9 @@ public class ParticleTriMesh extends ParticleMesh {
         VertexBuffer tvb = getBuffer(VertexBuffer.Type.TexCoord);
         FloatBuffer texcoords = (FloatBuffer) tvb.getData();
 
-        Vector3f camUp   = cam.getUp();
+        Vector3f camUp = cam.getUp();
         Vector3f camLeft = cam.getLeft();
-        Vector3f camDir  = cam.getDirection();
+        Vector3f camDir = cam.getDirection();
 
         inverseRotation.multLocal(camUp);
         inverseRotation.multLocal(camLeft);
@@ -255,8 +255,8 @@ public class ParticleTriMesh extends ParticleMesh {
 
                 float startX = ((float) imgX) / imagesX;
                 float startY = ((float) imgY) / imagesY;
-                float endX   = startX + (1f / imagesX);
-                float endY   = startY + (1f / imagesY);
+                float endX = startX + (1f / imagesX);
+                float endY = startY + (1f / imagesY);
 
                 texcoords.put(startX).put(endY);
                 texcoords.put(endX).put(endY);
