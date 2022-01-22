@@ -137,7 +137,7 @@ public class ParticleEmitter extends Geometry {
         }
 
         @Override
-        public void cloneFields (Cloner cloner, Object original) {
+        public void cloneFields(Cloner cloner, Object original) {
             this.parentEmitter = cloner.clone(parentEmitter);
         }
 
@@ -179,7 +179,7 @@ public class ParticleEmitter extends Geometry {
 
     @Override
     public ParticleEmitter clone(boolean cloneMaterial) {
-        return (ParticleEmitter)super.clone(cloneMaterial);
+        return (ParticleEmitter) super.clone(cloneMaterial);
     }
 
     /**
@@ -418,7 +418,7 @@ public class ParticleEmitter extends Geometry {
      * Calling this method many times is not recommended.
      *
      * @param numParticles the maximum amount of particles that
-     * can exist at the same time with this emitter.
+     *     can exist at the same time with this emitter.
      */
     public final void setNumParticles(int numParticles) {
         particles = new Particle[numParticles];
@@ -513,7 +513,7 @@ public class ParticleEmitter extends Geometry {
      * should have a random facing angle.
      *
      * @return true if every particle spawned
-     * should have a random facing angle.
+     *     should have a random facing angle.
      *
      * @see ParticleEmitter#setRandomAngle(boolean)
      */
@@ -526,7 +526,7 @@ public class ParticleEmitter extends Geometry {
      * should have a random facing angle.
      *
      * @param randomAngle if every particle spawned
-     * should have a random facing angle.
+     *     should have a random facing angle.
      */
     public void setRandomAngle(boolean randomAngle) {
         this.randomAngle = randomAngle;
@@ -537,7 +537,7 @@ public class ParticleEmitter extends Geometry {
      * image.
      *
      * @return True if every particle spawned should get a random
-     * image.
+     *     image.
      *
      * @see ParticleEmitter#setSelectRandomImage(boolean)
      */
@@ -559,7 +559,7 @@ public class ParticleEmitter extends Geometry {
      * the particle reaches its end of life.
      *
      * @param selectRandomImage True if every particle spawned should get a random
-     * image.
+     *     image.
      */
     public void setSelectRandomImage(boolean selectRandomImage) {
         this.selectRandomImage = selectRandomImage;
@@ -772,7 +772,7 @@ public class ParticleEmitter extends Geometry {
      * second.
      *
      * @return the number of particles to spawn per
-     * second.
+     *     second.
      *
      * @see ParticleEmitter#setParticlesPerSec(float)
      */
@@ -785,11 +785,11 @@ public class ParticleEmitter extends Geometry {
      * second.
      *
      * @param particlesPerSec the number of particles to spawn per
-     * second.
+     *     second.
      */
     public void setParticlesPerSec(float particlesPerSec) {
         this.particlesPerSec = particlesPerSec;
-        timeDifference = Math.min(timeDifference,1f / particlesPerSec);
+        timeDifference = Math.min(timeDifference, 1f / particlesPerSec);
         //prevent large accumulated timeDifference from causing a huge number of particles to be emitted
     }
 
@@ -853,14 +853,14 @@ public class ParticleEmitter extends Geometry {
 
     /**
      * @param initialVelocity Set the initial velocity a particle is spawned with,
-     * the initial velocity given in the parameter will be varied according
-     * to the velocity variation set in {@link ParticleEmitter#setVelocityVariation(float) }.
-     * The particle will move with this velocity unless it is affected by
-     * gravity.
+     *     the initial velocity given in the parameter will be varied according
+     *     to the velocity variation set in {@link ParticleEmitter#setVelocityVariation(float) }.
+     *     The particle will move with this velocity unless it is affected by
+     *     gravity.
      *
      * @deprecated
-     * This method is deprecated.
-     * Use ParticleEmitter.getParticleInfluencer().setInitialVelocity(initialVelocity); instead.
+     *     This method is deprecated.
+     *     Use ParticleEmitter.getParticleInfluencer().setInitialVelocity(initialVelocity); instead.
      *
      * @see ParticleEmitter#setVelocityVariation(float)
      * @see #setGravity(com.jme3.math.Vector3f)
@@ -872,8 +872,8 @@ public class ParticleEmitter extends Geometry {
 
     /**
      * @deprecated
-     * This method is deprecated.
-     * Use ParticleEmitter.getParticleInfluencer().getVelocityVariation(); instead.
+     *     This method is deprecated.
+     *     Use ParticleEmitter.getParticleInfluencer().getVelocityVariation(); instead.
      * @return the initial velocity variation factor
      */
     @Deprecated
@@ -883,15 +883,15 @@ public class ParticleEmitter extends Geometry {
 
     /**
      * @param variation Set the variation by which the initial velocity
-     * of the particle is determined. <code>variation</code> should be a value
-     * from 0 to 1, where 0 means particles are to spawn with exactly
-     * the velocity specified in
-     * {@link com.jme3.effect.influencers.ParticleInfluencer#setInitialVelocity(com.jme3.math.Vector3f)},
-     * and 1 means particles are to spawn with a completely random velocity.
+     *     of the particle is determined. <code>variation</code> should be a value
+     *     from 0 to 1, where 0 means particles are to spawn with exactly
+     *     the velocity specified in
+     *     {@link com.jme3.effect.influencers.ParticleInfluencer#setInitialVelocity(com.jme3.math.Vector3f)},
+     *     and 1 means particles are to spawn with a completely random velocity.
      *
      * @deprecated
-     * This method is deprecated.
-     * Use ParticleEmitter.getParticleInfluencer().setVelocityVariation(variation); instead.
+     *     This method is deprecated.
+     *     Use ParticleEmitter.getParticleInfluencer().setVelocityVariation(variation); instead.
      */
     @Deprecated
     public void setVelocityVariation(float variation) {
@@ -972,8 +972,9 @@ public class ParticleEmitter extends Geometry {
             max.set(Vector3f.NEGATIVE_INFINITY);
         }
 
-        for (int i=0; i < num; i++) {
-            if (emitParticle(min, max) == null) break;
+        for (int i = 0; i < num; i++) {
+            if (emitParticle(min, max) == null)
+                break;
         }
 
         bbox.setMinMax(min, max);
@@ -1236,7 +1237,6 @@ public class ParticleEmitter extends Geometry {
         meshType = ic.readEnum("meshType", ParticleMesh.Type.class, ParticleMesh.Type.Triangle);
         int numParticles = ic.readInt("numParticles", 0);
 
-
         enabled = ic.readBoolean("enabled", true);
         particlesPerSec = ic.readFloat("particlesPerSec", 0);
         lowLife = ic.readFloat("lowLife", 0);
@@ -1252,7 +1252,7 @@ public class ParticleEmitter extends Geometry {
         worldSpace = ic.readBoolean("worldSpace", false);
         this.setIgnoreTransform(worldSpace);
         facingVelocity = ic.readBoolean("facingVelocity", false);
-        faceNormal = (Vector3f)ic.readSavable("faceNormal", new Vector3f(Vector3f.NAN));
+        faceNormal = (Vector3f) ic.readSavable("faceNormal", new Vector3f(Vector3f.NAN));
         selectRandomImage = ic.readBoolean("selectRandomImage", false);
         randomAngle = ic.readBoolean("randomAngle", false);
         rotateSpeed = ic.readFloat("rotateSpeed", 0);
