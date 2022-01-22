@@ -70,9 +70,9 @@ public class Cylinder extends Mesh {
     }
 
     /**
-     * Creates a new Cylinder. By default, its center is the origin. Usually, a
-     * higher sample number creates a better looking cylinder, but at the cost
-     * of more vertex information.
+     * Creates a Cylinder. By default, its center is the origin. More
+     * samples create a better looking cylinder, at the cost
+     * of more vertex data.
      *
      * @param axisSamples
      *            Number of triangle samples along the axis.
@@ -89,14 +89,13 @@ public class Cylinder extends Mesh {
     }
 
     /**
-     * Creates a new Cylinder. By default, its center is the origin. Usually, a
-     * higher sample number creates a better looking cylinder, but at the cost
-     * of more vertex information. <br>
-     * If the cylinder is closed the texture is split into axisSamples parts:
-     * top most and bottom most part is used for top and bottom of the cylinder,
-     * rest of the texture for the cylinder wall. The middle of the top is
-     * mapped to texture coordinates (0.5, 1), bottom to (0.5, 0). Thus you need
-     * a suitably distorted texture.
+     * Creates a Cylinder. By default, its center is the origin. More
+     * samples create a better looking cylinder, at the cost
+     * of more vertex data. <br>
+     * If the cylinder is closed, the texture is split into axisSamples parts:
+     * the topmost and bottommost parts are used for top and bottom of the cylinder,
+     * and the rest of the texture is used for the cylinder wall. The middle of the top is
+     * mapped to texture coordinates (0.5, 1), bottom to (0.5, 0). Thus, it requires
      *
      * @param axisSamples
      *            Number of triangle samples along the axis.
@@ -115,14 +114,13 @@ public class Cylinder extends Mesh {
     }
 
     /**
-     * Creates a new Cylinder. By default its center is the origin. Usually, a
-     * higher sample number creates a better looking cylinder, but at the cost
-     * of more vertex information. <br>
-     * If the cylinder is closed the texture is split into axisSamples parts:
-     * top most and bottom most part is used for top and bottom of the cylinder,
-     * rest of the texture for the cylinder wall. The middle of the top is
-     * mapped to texture coordinates (0.5, 1), bottom to (0.5, 0). Thus you need
-     * a suitably distorted texture.
+     * Creates a new Cylinder. By default, its center is the origin. More
+     * samples create a better looking cylinder, at the cost
+     * of more vertex data. <br>
+     * If the cylinder is closed, the texture is split into axisSamples parts:
+     * the topmost and bottommost parts are used for top and bottom of the cylinder,
+     * and the rest of the texture is used for the cylinder wall. The middle of the top is
+     * mapped to texture coordinates (0.5, 1), bottom to (0.5, 0). Thus, it requires
      *
      * @param axisSamples The number of vertices samples along the axis. It is equal to the number of segments + 1; so
      * that, for instance, 4 samples mean the cylinder will be made of 3 segments.
@@ -247,7 +245,7 @@ public class Cylinder extends Mesh {
             circlePoints[circlePoint][0] = FastMath.cos(angle);
             circlePoints[circlePoint][1] = FastMath.sin(angle);
         }
-        // Add an additional point for closing the texture around the side of the cylinder.
+        // Add a point to close the texture around the side of the cylinder.
         circlePoints[radialSamples][0] = circlePoints[0][0];
         circlePoints[radialSamples][1] = circlePoints[0][1];
 
@@ -427,9 +425,9 @@ public class Cylinder extends Mesh {
     }
 
     @Override
-    public void read(JmeImporter e) throws IOException {
-        super.read(e);
-        InputCapsule capsule = e.getCapsule(this);
+    public void read(JmeImporter importer) throws IOException {
+        super.read(importer);
+        InputCapsule capsule = importer.getCapsule(this);
         axisSamples = capsule.readInt("axisSamples", 0);
         radialSamples = capsule.readInt("radialSamples", 0);
         radius = capsule.readFloat("radius", 0);

@@ -341,7 +341,7 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
             float sum = w0 + w1 + w2 + w3;
             if (sum != 1f) {
                 weightsFloatData.position(weightsFloatData.position() - 4);
-                // compute new vals based on sum
+                // Compute new weights based on sum.
                 float sumToB = sum == 0 ? 0 : 1f / sum;
                 weightsFloatData.put(w0 * sumToB);
                 weightsFloatData.put(w1 * sumToB);
@@ -519,10 +519,10 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
         buf.put(color.r).put(color.g).put(color.b).put(color.a);
     }
 
-    private void startLodFaceList(String submeshindex, String numfaces) {
-        int index = Integer.parseInt(submeshindex);
+    private void startLodFaceList(String submeshIndex, String numFaces) {
+        int index = Integer.parseInt(submeshIndex);
         mesh = geoms.get(index).getMesh();
-        int faceCount = Integer.parseInt(numfaces);
+        int faceCount = Integer.parseInt(numFaces);
 
         VertexBuffer originalIndexBuffer = mesh.getBuffer(Type.Index);
         vb = new VertexBuffer(VertexBuffer.Type.Index);
@@ -716,7 +716,7 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
             geom = null;
             mesh = null;
         } else if (qName.equals("submeshes") && !submeshNamesHack) {
-            // IMPORTANT: restore sharedmesh, for use with shared boneweights
+            // IMPORTANT: restore shared mesh, for use with shared bone weights
             geom = null;
             mesh = sharedMesh;
             usesSharedVerts = false;

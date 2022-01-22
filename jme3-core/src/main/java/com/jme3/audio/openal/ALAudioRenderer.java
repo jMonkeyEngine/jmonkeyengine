@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2022 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -503,18 +503,18 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
                     if (!supportEfx) {
                         return;
                     }
-
-                    if (src.getDryFilter() != null) {
-                        Filter f = src.getDryFilter();
-                        if (f.isUpdateNeeded()) {
-                            updateFilter(f);
-
-                            // NOTE: must re-attach filter for changes to apply.
-                            al.alSourcei(id, EFX.AL_DIRECT_FILTER, f.getId());
-                        }
+                    Filter dryFilter = src.getDryFilter();
+                    int filterId;
+                    if (dryFilter == null) {
+                        filterId = EFX.AL_FILTER_NULL;
                     } else {
-                        al.alSourcei(id, EFX.AL_DIRECT_FILTER, EFX.AL_FILTER_NULL);
+                        if (dryFilter.isUpdateNeeded()) {
+                            updateFilter(dryFilter);
+                        }
+                        filterId = dryFilter.getId();
                     }
+                    // NOTE: must re-attach filter for changes to apply.
+                    al.alSourcei(id, EFX.AL_DIRECT_FILTER, filterId);
                     break;
                 case Looping:
                     if (src.isLooping() && !(src.getAudioData() instanceof AudioStream)) {
@@ -768,7 +768,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
         // Reset the stream. Typically happens if it finished playing on
         // its own and got reclaimed.
         // Note that AudioNode.stop() already resets the stream
-        // since it might not be in EOF when stopped.
+        // since it might not be at the EOF when stopped.
         if (stream.isEOF()) {
             stream.setTime(0);
         }

@@ -45,19 +45,25 @@ import com.jme3.system.JmeContext;
 import com.jme3.system.JmeSystem;
 import com.jme3.system.NanoTimer;
 import com.jme3.util.BufferUtils;
-import java.awt.*;
+import com.jme3.util.SafeArrayList;
+import org.lwjgl.Version;
+import org.lwjgl.glfw.GLFWErrorCallback;
+import org.lwjgl.glfw.GLFWFramebufferSizeCallback;
+import org.lwjgl.glfw.GLFWImage;
+import org.lwjgl.glfw.GLFWVidMode;
+import org.lwjgl.glfw.GLFWWindowFocusCallback;
+import org.lwjgl.glfw.GLFWWindowSizeCallback;
+import org.lwjgl.system.Platform;
+
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.lwjgl.Version;
-import org.lwjgl.glfw.*;
-import org.lwjgl.system.Platform;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.GL_FALSE;
@@ -126,6 +132,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
     protected final AtomicBoolean needRestart = new AtomicBoolean(false);
 
     private final JmeContext.Type type;
+    private final SafeArrayList<WindowSizeListener> windowSizeListeners = new SafeArrayList<>(WindowSizeListener.class);
 
     private GLFWErrorCallback errorCallback;
     private GLFWWindowSizeCallback windowSizeCallback;
@@ -141,6 +148,10 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
     protected boolean autoFlush = true;
     protected boolean allowSwapBuffers = false;
 
+    // temp variables used for glfw calls
+    private int width[] = new int[1];
+    private int height[] = new int[1];
+    
     public LwjglWindow(final JmeContext.Type type) {
 
         if (!SUPPORTED_TYPES.contains(type)) {
@@ -148,6 +159,24 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         }
 
         this.type = type;
+    }
+
+    /**
+     * Registers the specified listener to get notified when window size changes.
+     *
+     * @param listener The WindowSizeListener to register.
+     */
+    public void registerWindowSizeListener(WindowSizeListener listener) {
+        windowSizeListeners.add(listener);
+    }
+
+    /**
+     * Removes the specified listener from the listeners list.
+     *
+     * @param listener The WindowSizeListener to remove.
+     */
+    public void removeWindowSizeListener(WindowSizeListener listener) {
+        windowSizeListeners.remove(listener);
     }
 
     /**
@@ -313,6 +342,11 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
                 // This is the window size, never to passed to any pixel based stuff!
                 // https://www.glfw.org/docs/latest/window_guide.html#window_size
                 onWindowSizeChanged(width, height);
+
+                // Notify listeners
+                for (WindowSizeListener listener : windowSizeListeners.getArray()) {
+                    listener.onWindowSizeChanged(width, height);
+                }
             }
         });
 
@@ -321,14 +355,6 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
 
             @Override
             public void invoke(final long window, final int width, final int height) {
-
-                // The window size might be also changed, but the window size callback might not trigger
-                // Maybe a bug in graphics drivers or LWJGL 3...? So make sure we emulate the original JME behavior here
-                IntBuffer windowWidth = BufferUtils.createIntBuffer(1);
-                IntBuffer windowHeight = BufferUtils.createIntBuffer(1);
-                glfwGetWindowSize(window, windowWidth, windowHeight);
-                onWindowSizeChanged(windowWidth.get(), windowHeight.get());
-
                 // https://www.glfw.org/docs/latest/window_guide.html#window_fbsize
                 listener.reshape(width, height);
             }
@@ -488,7 +514,8 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             }
             run();
         } else {
-            new Thread(this, "jME3 Main").start();
+            mainThread = new Thread(this, "jME3 Main");
+            mainThread.start();
             if (waitFor) {
                 waitFor(true);
             }
@@ -564,8 +591,6 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         if (framesAfterContextStarted < 2) {
             framesAfterContextStarted++;
             if (framesAfterContextStarted == 2) {
-                int[] width = new int[1];
-                int[] height = new int[1];
                 glfwGetFramebufferSize(window, width, height);
 
                 if (settings.getWidth() != width[0] || settings.getHeight() != height[0]) {
@@ -576,7 +601,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
 
         listener.update();
 
-        // All this does is call swap buffers
+        // All this does is call glfwSwapBuffers().
         // If the canvas is not active, there's no need to waste time
         // doing that.
         if (renderable.get()) {
@@ -743,13 +768,15 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
      * @see <a href="https://www.glfw.org/docs/latest/window_guide.html#window_scale">Window content scale</a>
      */
     public Vector2f getWindowContentScale(Vector2f store) {
-        float[] xScale = new float[1];
-        float[] yScale = new float[1];
-        glfwGetWindowContentScale(window, xScale, yScale);
+        if (store == null) store = new Vector2f();
 
-        if (store != null) {
-            return store.set(xScale[0], yScale[0]);
-        }
-        return new Vector2f(xScale[0], yScale[0]);
+        glfwGetFramebufferSize(window, width, height);
+        store.set(width[0], height[0]);
+
+        glfwGetWindowSize(window, width, height);
+        store.x /= width[0];
+        store.y /= height[0];
+
+        return store;
     }
 }

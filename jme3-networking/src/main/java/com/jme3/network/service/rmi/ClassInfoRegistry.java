@@ -66,15 +66,14 @@ public class ClassInfoRegistry {
             if( result != null ) {
                 return result;
             }
-            // Else we need to create it and store it... so grab the write
-            // lock
+            // Else we need to create it and store it, so grab the write lock.
             lock.readLock().unlock();
             lock.writeLock().lock();
             try {
                 // Note: it's technically possible that a race with another thread
                 // asking for the same class already created one between our read unlock
                 // and our write lock.  No matter as it's cheap to create one and does
-                // no harm.  Code is simpler without the double-check.
+                // no harm.  Code is simpler without the double check.
                 result = new ClassInfo((short)nextClassId.getAndIncrement(), type);
                 cache.put(type, result);
                 

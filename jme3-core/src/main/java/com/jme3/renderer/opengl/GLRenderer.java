@@ -48,6 +48,8 @@ import com.jme3.scene.VertexBuffer.Usage;
 import com.jme3.shader.*;
 import com.jme3.shader.Shader.ShaderSource;
 import com.jme3.shader.Shader.ShaderType;
+import com.jme3.system.JmeSystem;
+import com.jme3.system.Platform;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.FrameBuffer.RenderBuffer;
 import com.jme3.texture.Image;
@@ -2271,8 +2273,8 @@ public final class GLRenderer implements Renderer {
         switch (mode) {
             case BorderClamp:
             case Clamp:
+                // fall through
             case EdgeClamp:
-                // Falldown intentional.
                 return GL.GL_CLAMP_TO_EDGE;
             case Repeat:
                 return GL.GL_REPEAT;
@@ -2388,7 +2390,7 @@ public final class GLRenderer implements Renderer {
         }
 
         if (caps.contains(Caps.NonPowerOfTwoTextures)) {
-            // Texture is NPOT but it is supported by video hardware.
+            // Texture is NPOT, but it is supported by video hardware.
             return;
         }
 
@@ -3280,9 +3282,12 @@ public final class GLRenderer implements Renderer {
         setFrameBuffer(null);
 
         if (enableSrgb) {
-            if (!getBoolean(GLExt.GL_FRAMEBUFFER_SRGB_CAPABLE_EXT)) {
-                logger.warning("Driver claims that default framebuffer "
-                        + "is not sRGB capable. Enabling anyway.");
+            if (
+                // Workaround: getBoolean(GLExt.GL_FRAMEBUFFER_SRGB_CAPABLE_EXT) causes error 1280 (invalid enum) on macos
+                JmeSystem.getPlatform().getOs() != Platform.Os.MacOS
+                && !getBoolean(GLExt.GL_FRAMEBUFFER_SRGB_CAPABLE_EXT)
+            ) {
+                logger.warning("Driver claims that default framebuffer " + "is not sRGB capable. Enabling anyway.");
             }
 
             gl.glEnable(GLExt.GL_FRAMEBUFFER_SRGB_EXT);

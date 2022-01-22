@@ -144,15 +144,15 @@ public class TestBrickTower extends SimpleApplication {
         @Override
         public void onAction(String name, boolean keyPressed, float tpf) {
             if (name.equals("shoot") && !keyPressed) {
-                Geometry bulletg = new Geometry("bullet", bullet);
-                bulletg.setMaterial(mat2);
-                bulletg.setShadowMode(ShadowMode.CastAndReceive);
-                bulletg.setLocalTranslation(cam.getLocation());
+                Geometry bulletGeometry = new Geometry("bullet", bullet);
+                bulletGeometry.setMaterial(mat2);
+                bulletGeometry.setShadowMode(ShadowMode.CastAndReceive);
+                bulletGeometry.setLocalTranslation(cam.getLocation());
                 RigidBodyControl bulletNode = new BombControl(assetManager, bulletCollisionShape, 1);
 //                RigidBodyControl bulletNode = new RigidBodyControl(bulletCollisionShape, 1);
                 bulletNode.setLinearVelocity(cam.getDirection().mult(25));
-                bulletg.addControl(bulletNode);
-                rootNode.attachChild(bulletg);
+                bulletGeometry.addControl(bulletNode);
+                rootNode.attachChild(bulletGeometry);
                 getPhysicsSpace().add(bulletNode);
             }
         }
@@ -227,15 +227,15 @@ public class TestBrickTower extends SimpleApplication {
     }
 
     public void addBrick(Vector3f ori) {
-        Geometry reBoxg = new Geometry("brick", brick);
-        reBoxg.setMaterial(mat);
-        reBoxg.setLocalTranslation(ori);
-        reBoxg.rotate(0f, (float)Math.toRadians(angle) , 0f );
-        reBoxg.addControl(new RigidBodyControl(1.5f));
-        reBoxg.setShadowMode(ShadowMode.CastAndReceive);
-        reBoxg.getControl(RigidBodyControl.class).setFriction(1.6f);
-        this.rootNode.attachChild(reBoxg);
-        this.getPhysicsSpace().add(reBoxg);
+        Geometry brickGeometry = new Geometry("brick", brick);
+        brickGeometry.setMaterial(mat);
+        brickGeometry.setLocalTranslation(ori);
+        brickGeometry.rotate(0f, (float)Math.toRadians(angle) , 0f );
+        brickGeometry.addControl(new RigidBodyControl(1.5f));
+        brickGeometry.setShadowMode(ShadowMode.CastAndReceive);
+        brickGeometry.getControl(RigidBodyControl.class).setFriction(1.6f);
+        this.rootNode.attachChild(brickGeometry);
+        this.getPhysicsSpace().add(brickGeometry);
     }
 
     protected void initCrossHairs() {

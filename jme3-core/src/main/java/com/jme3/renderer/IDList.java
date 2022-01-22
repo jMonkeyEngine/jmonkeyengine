@@ -85,8 +85,8 @@ public class IDList {
         // find idx in oldList, if removed successfully, return true.
         for (int i = 0; i < oldLen; i++) {
             if (oldList[i] == idx) {
-                // found index in slot i
-                // delete index from old list
+                // Found the index in slot i:
+                // delete the index from the old list.
                 oldLen--;
                 for (int j = i; j < oldLen; j++) {
                     oldList[j] = oldList[j + 1];

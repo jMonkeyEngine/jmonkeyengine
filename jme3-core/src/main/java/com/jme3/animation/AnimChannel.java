@@ -362,7 +362,7 @@ public final class AnimChannel {
         if (animation.getLength() > 0) {
             if (!notified && (time >= animation.getLength() || time < 0)) {
                 if (loopMode == LoopMode.DontLoop) {
-                    // Note that this flag has to be set before calling the notify
+                    // Note that this flag has to be set before calling the notify,
                     // since the notify may start a new animation and then unset
                     // the flag.
                     notified = true;

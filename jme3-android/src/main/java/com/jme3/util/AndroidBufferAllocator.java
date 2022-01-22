@@ -80,7 +80,7 @@ public class AndroidBufferAllocator implements BufferAllocator {
     }
 
     /**
-     * This function search the inner direct buffer of the android specific wrapped buffer classes
+     * Searches the inner direct buffer of the Android-specific wrapped buffer classes
      * and destroys it using the reflection allocator method.
      *
      * @param toBeDestroyed The direct buffer that will be "cleaned".

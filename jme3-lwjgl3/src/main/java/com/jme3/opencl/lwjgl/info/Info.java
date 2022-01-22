@@ -523,45 +523,45 @@ public final class Info {
      * Single int value version of:
      * {@link org.lwjgl.opencl.CL12#clGetKernelArgInfo GetKernelArgInfo}
      */
-    public static int clGetKernelArgInfoInt(long kernel, int arg_indx, int param_name) {
-        return KERNEL_ARG.getInt(kernel, arg_indx, param_name);
+    public static int clGetKernelArgInfoInt(long kernel, int argIndex, int param_name) {
+        return KERNEL_ARG.getInt(kernel, argIndex, param_name);
     }
 
     /**
      * Single long value version of:
      * {@link org.lwjgl.opencl.CL12#clGetKernelArgInfo GetKernelArgInfo}
      */
-    public static long clGetKernelArgInfoLong(long kernel, int arg_indx, int param_name) {
-        return KERNEL_ARG.getLong(kernel, arg_indx, param_name);
+    public static long clGetKernelArgInfoLong(long kernel, int argIndex, int param_name) {
+        return KERNEL_ARG.getLong(kernel, argIndex, param_name);
     }
 
     /**
      * String version of: {@link org.lwjgl.opencl.CL12#clGetKernelArgInfo GetKernelArgInfo}
      */
-    public static String clGetKernelArgInfoStringASCII(long kernel, int arg_indx, int param_name) {
-        return KERNEL_ARG.getStringASCII(kernel, arg_indx, param_name);
+    public static String clGetKernelArgInfoStringASCII(long kernel, int argIndex, int param_name) {
+        return KERNEL_ARG.getStringASCII(kernel, argIndex, param_name);
     }
 
     /**
      * String with explicit length version of: {@link org.lwjgl.opencl.CL12#clGetKernelArgInfo GetKernelArgInfo}
      */
-    public static String clGetKernelArgInfoStringASCII(long kernel, int arg_indx, int param_name, int param_value_size) {
-        return KERNEL_ARG.getStringASCII(kernel, arg_indx, param_name, param_value_size);
+    public static String clGetKernelArgInfoStringASCII(long kernel, int argIndex, int param_name, int param_value_size) {
+        return KERNEL_ARG.getStringASCII(kernel, argIndex, param_name, param_value_size);
     }
 
     /**
      * UTF-8 string version of: {@link org.lwjgl.opencl.CL12#clGetKernelArgInfo GetKernelArgInfo}
      */
-    public static String clGetKernelArgInfoStringUTF8(long kernel, int arg_indx, int param_name) {
-        return KERNEL_ARG.getStringUTF8(kernel, arg_indx, param_name);
+    public static String clGetKernelArgInfoStringUTF8(long kernel, int argIndex, int param_name) {
+        return KERNEL_ARG.getStringUTF8(kernel, argIndex, param_name);
     }
 
     /**
      * UTF-8 string with explicit length version of:
      * {@link org.lwjgl.opencl.CL12#clGetKernelArgInfo GetKernelArgInfo}
      */
-    public static String clGetKernelArgInfoStringUTF8(long kernel, int arg_indx, int param_name, int param_value_size) {
-        return KERNEL_ARG.getStringUTF8(kernel, arg_indx, param_name, param_value_size);
+    public static String clGetKernelArgInfoStringUTF8(long kernel, int argIndex, int param_name, int param_value_size) {
+        return KERNEL_ARG.getStringUTF8(kernel, argIndex, param_name, param_value_size);
     }
 
     // ------------------------------------

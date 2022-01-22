@@ -123,8 +123,8 @@ public class FluidSimHeightMap extends AbstractHeightMap {
     public FluidSimHeightMap(int size, int iterations) throws Exception {
         if (size <= 0 || iterations <= 0) {
             throw new Exception(
-                    "Either size of the terrain is not greater that zero, "
-                    + "or number of iterations is not greater that zero");
+                    "Either size of the terrain is not greater than zero, "
+                    + "or number of iterations is not greater than zero");
         }
 
         this.size = size;
@@ -228,11 +228,11 @@ public class FluidSimHeightMap extends AbstractHeightMap {
 
     /**
      * Sets the number of times the fluid simulation should be iterated over
-     * the heightmap. The more often this is, the less features (hills, etc)
+     * the heightmap. The more iterations, the fewer features (hills, etcetera)
      * the terrain will have, and the smoother it will be.
      *
      * @param iterations
-     *            the number of iterations to do
+     *            the number of iterations to perform
      * @throws Exception
      *             if iterations is not greater than zero
      */

@@ -36,7 +36,9 @@ import com.jme3.input.MouseInput;
 import com.jme3.input.RawInputListener;
 import com.jme3.input.event.MouseButtonEvent;
 import com.jme3.input.event.MouseMotionEvent;
+import com.jme3.math.Vector2f;
 import com.jme3.system.lwjgl.LwjglWindow;
+import com.jme3.system.lwjgl.WindowSizeListener;
 import com.jme3.util.BufferUtils;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
@@ -114,6 +116,7 @@ public class GlfwMouseInput implements MouseInput {
 
     private final LwjglWindow context;
 
+    private WindowSizeListener windowSizeListener;
     private RawInputListener listener;
 
     private IntBuffer currentCursorDelays;
@@ -133,24 +136,21 @@ public class GlfwMouseInput implements MouseInput {
 
     private boolean cursorVisible;
     private boolean initialized;
-
+    private final Vector2f inputScale = new Vector2f();
+  
     public GlfwMouseInput(final LwjglWindow context) {
         this.context = context;
         this.cursorVisible = true;
     }
 
     private void onCursorPos(final long window, final double xpos, final double ypos) {
-        float[] xScale = new float[1];
-        float[] yScale = new float[1];
-        glfwGetWindowContentScale(window, xScale, yScale);
+        context.getWindowContentScale(inputScale);
+        int x = (int) Math.round(xpos * inputScale.x);
+        int y = (int) Math.round((currentHeight - ypos) * inputScale.y);
+      
 
-        int xDelta;
-        int yDelta;
-        int x = (int) Math.round(xpos * xScale[0]);
-        int y = (int) Math.round((currentHeight - ypos) * yScale[0]);
-
-        xDelta = x - mouseX;
-        yDelta = y - mouseY;
+        int xDelta = x - mouseX;
+        int yDelta = y - mouseY;
         mouseX = x;
         mouseY = y;
 
@@ -236,25 +236,19 @@ public class GlfwMouseInput implements MouseInput {
             }
         });
 
-        glfwSetWindowSizeCallback(window, new GLFWWindowSizeCallback() {
-            @Override
-            public void invoke(final long window, final int width, final int height) {
-                currentHeight = height;
-            }
-        });
+        context.registerWindowSizeListener(windowSizeListener = ((width, height) -> {
+            currentHeight = height;
+        }));
     }
 
+    
     private void initCurrentMousePosition(long window) {
         double[] x = new double[1];
         double[] y = new double[1];
         glfwGetCursorPos(window, x, y);
-
-        float[] xScale = new float[1];
-        float[] yScale = new float[1];
-        glfwGetWindowContentScale(window, xScale, yScale);
-
-        mouseX = (int) Math.round(x[0] * xScale[0]);
-        mouseY = (int) Math.round((currentHeight - y[0]) * yScale[0]);
+        context.getWindowContentScale(inputScale);
+        mouseX = (int) Math.round(x[0] * inputScale.x);
+        mouseY = (int) Math.round((currentHeight - y[0]) * inputScale.y);     
     }
 
     /**
@@ -335,6 +329,7 @@ public class GlfwMouseInput implements MouseInput {
         cursorPosCallback.close();
         scrollCallback.close();
         mouseButtonCallback.close();
+        context.removeWindowSizeListener(windowSizeListener);
     }
 
     @Override

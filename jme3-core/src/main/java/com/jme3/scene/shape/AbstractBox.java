@@ -165,9 +165,9 @@ public abstract class AbstractBox extends Mesh {
      * the box extends in both directions from the center for each extent.
      * 
      * @param center the center of the box.
-     * @param x the x extent of the box, in each directions.
-     * @param y the y extent of the box, in each directions.
-     * @param z the z extent of the box, in each directions.
+     * @param x the X extent of the box in each direction.
+     * @param y the Y extent of the box in each direction.
+     * @param z the Z extent of the box in each direction.
      */
     public final void updateGeometry(Vector3f center, float x, float y, float z) {
         if (center != null) {this.center.set(center); }
@@ -195,9 +195,9 @@ public abstract class AbstractBox extends Mesh {
     }
 
     @Override
-    public void read(JmeImporter e) throws IOException {
-        super.read(e);
-        InputCapsule capsule = e.getCapsule(this);
+    public void read(JmeImporter importer) throws IOException {
+        super.read(importer);
+        InputCapsule capsule = importer.getCapsule(this);
         xExtent = capsule.readFloat("xExtent", 0);
         yExtent = capsule.readFloat("yExtent", 0);
         zExtent = capsule.readFloat("zExtent", 0);

@@ -225,12 +225,12 @@ public final class Rectangle implements Savable, Cloneable, java.io.Serializable
      * De-serialize this rectangle from the specified importer, for example
      * when loading from a J3O file.
      *
-     * @param e (not null)
+     * @param importer (not null)
      * @throws IOException from the importer
      */
     @Override
-    public void read(JmeImporter e) throws IOException {
-        InputCapsule capsule = e.getCapsule(this);
+    public void read(JmeImporter importer) throws IOException {
+        InputCapsule capsule = importer.getCapsule(this);
         a = (Vector3f) capsule.readSavable("a", Vector3f.ZERO.clone());
         b = (Vector3f) capsule.readSavable("b", Vector3f.ZERO.clone());
         c = (Vector3f) capsule.readSavable("c", Vector3f.ZERO.clone());

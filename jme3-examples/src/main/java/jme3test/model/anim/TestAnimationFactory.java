@@ -41,7 +41,7 @@ public class TestAnimationFactory extends SimpleApplication {
         Box child = new Box(0.5f, 0.5f, 0.5f);
         Geometry childGeom = new Geometry("box", child);
         childGeom.setMaterial(assetManager.loadMaterial("Textures/Terrain/BrickWall/BrickWall.j3m"));
-        Node childModel = new Node("childmodel");
+        Node childModel = new Node("child model");
         childModel.setLocalTranslation(2, 2, 2);
         childModel.attachChild(childGeom);
         model.attachChild(childModel);
@@ -51,7 +51,7 @@ public class TestAnimationFactory extends SimpleApplication {
         // 6 seconds in duration, named "anim", running at 25 frames per second
         AnimFactory animationFactory = new AnimFactory(6f, "anim", 25f);
         
-        //creating a translation keyFrame at time = 3 with a translation on the x axis of 5 WU        
+        // Create a translation keyFrame at time = 3 with a translation on the X axis of 5 WU.
         animationFactory.addTimeTranslation(3, new Vector3f(5, 0, 0));
         //resetting the translation to the start position at time = 6
         animationFactory.addTimeTranslation(6, new Vector3f(0, 0, 0));

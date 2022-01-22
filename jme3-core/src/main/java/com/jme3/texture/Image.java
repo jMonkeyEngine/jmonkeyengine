@@ -598,7 +598,7 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
 
     /**
      * Internal use only.
-     * The renderer stores the texture state set from the last texture
+     * The renderer stores the texture state set from the last texture,
      * so it doesn't have to change it unless necessary. 
      * 
      * @return The image parameter state.
@@ -1265,8 +1265,8 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
     }
 
     @Override
-    public void read(JmeImporter e) throws IOException {
-        InputCapsule capsule = e.getCapsule(this);
+    public void read(JmeImporter importer) throws IOException {
+        InputCapsule capsule = importer.getCapsule(this);
         format = capsule.readEnum("format", Format.class, Format.RGBA8);
         width = capsule.readInt("width", 0);
         height = capsule.readInt("height", 0);

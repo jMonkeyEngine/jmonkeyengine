@@ -43,7 +43,7 @@ public class VREnvironment {
     private VRBounds bounds             = null;
 
     /**
-     * The underlying system VR API. By default set to {@link VRConstants#SETTING_VRAPI_OPENVR_VALUE}.
+     * The underlying system VR API. By default, set to {@link VRConstants#SETTING_VRAPI_OPENVR_VALUE}.
      */
     public int vrBinding = VRConstants.SETTING_VRAPI_OPENVR_VALUE;
 
@@ -513,6 +513,8 @@ public class VREnvironment {
 
             if (settings.get(VRConstants.SETTING_VRAPI) != null){
                 vrBinding = settings.getInteger(VRConstants.SETTING_VRAPI);
+            }else{
+                vrBinding = VRConstants.SETTING_VRAPI_OPENVR_LWJGL_VALUE; //this is the binding that is best supported so makes sense to be the default
             }
 
             if (settings.get(VRConstants.SETTING_SEATED_EXPERIENCE) != null){

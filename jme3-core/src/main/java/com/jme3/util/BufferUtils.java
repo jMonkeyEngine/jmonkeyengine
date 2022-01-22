@@ -60,7 +60,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class BufferUtils {
 
     /**
-     * The field should be final to support thread-safe.
+     * Should be final for thread safety.
      */
     private static final BufferAllocator allocator = BufferAllocatorFactory.create();
 

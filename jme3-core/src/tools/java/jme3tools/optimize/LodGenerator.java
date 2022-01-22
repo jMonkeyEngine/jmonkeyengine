@@ -111,14 +111,7 @@ public class LodGenerator {
     final private Mesh mesh;
 
     /**
-     * Describe the way triangles will be removed. <br> PROPORTIONAL :
-     * Percentage of triangles to be removed from the mesh. Valid range is a
-     * number between 0.0 and 1.0 <br> CONSTANT : Triangle count to be removed
-     * from the mesh. Pass only integers or it will be rounded. <br>
-     * COLLAPSE_COST : Reduces the vertices, until the cost is bigger then the
-     * given value. Collapse cost is equal to the amount of artifact the
-     * reduction causes. This generates the best Lod output, but the collapse
-     * cost depends on implementation.
+     * Enumerate criteria for removing triangles.
      */
     public enum TriangleReductionMethod {
 
@@ -129,17 +122,17 @@ public class LodGenerator {
          */
         PROPORTIONAL,
         /**
-         * Triangle count to be removed from the mesh.
+         * Number of triangles to be removed from the mesh.
          *
-         * Pass only integers or it will be rounded.
+         * Pass an integer or it will be rounded.
          */
         CONSTANT,
         /**
-         * Reduces the vertices, until the cost is bigger then the given value.
+         * Collapses vertices until the cost exceeds the given value.
          *
-         * Collapse cost is equal to the amount of artifact the reduction
-         * causes. This generates the best Lod output, but the collapse cost
-         * depends on implementation.
+         * Collapse cost indicates how much inaccuracy the
+         * reduction causes. This generates the best LOD output, but the collapse
+         * cost is implementation-dependant.
          */
         COLLAPSE_COST
     };
@@ -256,7 +249,7 @@ public class LodGenerator {
     };
 
     /**
-     * Construct a LodGenerator for the given mesh
+     * Constructs an LodGenerator for the given Mesh.
      *
      * @param mesh the mesh for which to generate LODs.
      */
@@ -266,7 +259,7 @@ public class LodGenerator {
     }
 
     /**
-     * Construct a LodGenerator for the given geometry
+     * Constructs an LodGenerator for the given Geometry.
      *
      * @param geom the geometry for which to generate LODs.
      */
@@ -354,7 +347,7 @@ public class LodGenerator {
             if (tri.isMalformed()) {
                 if (!tri.isRemoved) {
                     if (logger.isLoggable(Level.FINE)) {
-                        logger.log(Level.FINE, "malformed triangle found with ID:{0}\n{1} It will be excluded from Lod level calculations.", new Object[]{triangleList.indexOf(tri), tri.toString()});
+                        logger.log(Level.FINE, "malformed triangle found with ID:{0}\n{1} It will be excluded from LOD calculations.", new Object[]{triangleList.indexOf(tri), tri.toString()});
                     }
                     tri.isRemoved = true;
                     indexCount -= 3;
@@ -376,7 +369,7 @@ public class LodGenerator {
             if (!vertex.edges.isEmpty()) {
                 computeVertexCollapseCost(vertex);
             } else {
-                logger.log(Level.FINE, "Found isolated vertex {0} It will be excluded from Lod level calculations.", vertex);
+                logger.log(Level.FINE, "Found isolated vertex {0} It will be excluded from LOD calculations.", vertex);
             }
         }
 //        assert (vertexList.size() == collapseCostSet.size());
@@ -599,8 +592,8 @@ public class LodGenerator {
      * {@link TriangleReductionMethod} and a list of reduction values.<br> for
      * each value a LOD will be generated. <p> <strong>Important note: </strong>
      * some meshes cannot be decimated, so the result of this method can vary
-     * depending of the given mesh. Also the reduction values are indicative and
-     * the produces mesh will not always meet the required reduction.
+     * depending on the given mesh. Also, the reduction values are approximate, and
+     * the algorithm won't always achieve the specified reduction.
      *
      * @param reductionMethod the reduction method to use
      * @param reductionValues the reduction value to use for each LOD level.
@@ -753,7 +746,7 @@ public class LodGenerator {
                     tri.isRemoved = true;
                     indexCount -= 3;
                     if (logger.isLoggable(Level.FINE)) {
-                        logger.log(Level.FINE, "duplicate triangle found{0}{1} It will be excluded from Lod level calculations.", new Object[]{tri, duplicate});
+                        logger.log(Level.FINE, "duplicate triangle found{0}{1} It will be excluded from LOD level calculations.", new Object[]{tri, duplicate});
                     }
                 }
             }

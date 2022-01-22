@@ -138,8 +138,8 @@ public class AndroidGL implements GL, GL2, GLES_30, GLExt, GLFbo {
     }
 
     @Override
-    public void glBufferData(int target, long data_size, int usage) {
-        GLES20.glBufferData(target, (int) data_size, null, usage);
+    public void glBufferData(int target, long dataSize, int usage) {
+        GLES20.glBufferData(target, (int) dataSize, null, usage);
     }
 
     @Override
@@ -565,8 +565,8 @@ public class AndroidGL implements GL, GL2, GLES_30, GLExt, GLFbo {
     }
 
     @Override
-    public void glDrawElementsInstancedARB(int mode, int indices_count, int type, long indices_buffer_offset, int primcount) {
-        GLES30.glDrawElementsInstanced(mode, indices_count, type, (int)indices_buffer_offset, primcount);
+    public void glDrawElementsInstancedARB(int mode, int indicesCount, int type, long indicesBufferOffset, int primcount) {
+        GLES30.glDrawElementsInstanced(mode, indicesCount, type, (int)indicesBufferOffset, primcount);
     }
 
     @Override

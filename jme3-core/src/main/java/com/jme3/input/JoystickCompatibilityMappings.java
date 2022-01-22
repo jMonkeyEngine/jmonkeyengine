@@ -436,7 +436,7 @@ public class JoystickCompatibilityMappings {
         final String BUTTON_LABEL = "button";
 
         float[] range;
-        int lBrackIndex, rBrackIndex, commaIndex;
+        int lBracketIndex, rBracketIndex, commaIndex;
 
         for (Map.Entry<Object, Object> e : p.entrySet()) {
             range = null;
@@ -471,21 +471,21 @@ public class JoystickCompatibilityMappings {
                 // It's a name remapping
                 addJoystickNameRegex(value, stick);
             }
-            if ((lBrackIndex = value.indexOf('[')) > 0) {
+            if ((lBracketIndex = value.indexOf('[')) > 0) {
                 /*
                  * This means that there is an axis range.
                  */
                 range = new float[2];
-                rBrackIndex = value.indexOf(']');
+                rBracketIndex = value.indexOf(']');
                 commaIndex = value.indexOf(',');
-                if (rBrackIndex > -1 && commaIndex > -1) {
+                if (rBracketIndex > -1 && commaIndex > -1) {
                     try {
-                        range[0] = Float.parseFloat(value.substring(lBrackIndex + 1, commaIndex).trim());
-                        range[1] = Float.parseFloat(value.substring(commaIndex + 1, rBrackIndex).trim());
-                        value = value.substring(0, lBrackIndex).trim();
+                        range[0] = Float.parseFloat(value.substring(lBracketIndex + 1, commaIndex).trim());
+                        range[1] = Float.parseFloat(value.substring(commaIndex + 1, rBracketIndex).trim());
+                        value = value.substring(0, lBracketIndex).trim();
                         type = AXIS_LABEL;
                     } catch (NumberFormatException nfe) {
-                        logger.log(Level.SEVERE, "Could not parse axis range \"" + value.substring(lBrackIndex) + "\"", nfe);
+                        logger.log(Level.SEVERE, "Could not parse axis range \"" + value.substring(lBracketIndex) + "\"", nfe);
                     }
                 }
             }

@@ -234,7 +234,7 @@ public class BitmapText extends Node {
     }
 
     /**
-     * Define area where bitmaptext will be rendered
+     * Define the area where the BitmapText will be rendered.
      * @param rect position and size box where text is rendered
      */
     public void setBox(Rectangle rect) {
@@ -251,7 +251,7 @@ public class BitmapText extends Node {
     }
 
     /**
-     * @return height of whole textblock
+     * @return height of whole text block
      */
     public float getHeight() {
         if (needRefresh) {

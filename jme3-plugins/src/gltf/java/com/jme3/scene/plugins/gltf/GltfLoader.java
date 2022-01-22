@@ -202,8 +202,8 @@ public class GltfLoader implements AssetLoader {
 
         for (JsonElement scene : scenes) {
             Node sceneNode = new Node();
-            // specs says that only the default scene should be rendered,
-            // if there are several scenes, they are attached to the rootScene, but they are culled
+            // Specs say that only the default scene should be rendered.
+            // If there are several scenes, they are attached to the rootScene, but they are culled.
             sceneNode.setCullHint(Spatial.CullHint.Always);
 
             sceneNode.setName(getAsString(scene.getAsJsonObject(), "name"));
@@ -248,7 +248,7 @@ public class GltfLoader implements AssetLoader {
 
             // there is a mesh in this node, however gltf
             // can split meshes in primitives (some kind of sub meshes),
-            // We don't have this in JME so we have to make one mesh and one Geometry for each primitive.
+            // We don't have this in JME, so we have to make one Mesh and one Geometry for each primitive.
             Geometry[] primitives = readMeshPrimitives(meshIndex);
             if (primitives.length == 1 && children == null) {
                 // only one geometry, let's not wrap it in another node unless the node has children.
@@ -544,7 +544,7 @@ public class GltfLoader implements AssetLoader {
 
         // target defines ELEMENT_ARRAY_BUFFER or ARRAY_BUFFER,
         // but we already know that since we know we load the index buffer or any other...
-        // not sure it's useful for us, but I guess it's useful when you map data directly to the GPU.
+        // Not sure it's useful for us, but I guess it's useful when you map data directly to the GPU.
         // int target = getAsInteger(bufferView, "target", 0);
 
         byte[] data = readData(bufferIndex);
@@ -694,7 +694,7 @@ public class GltfLoader implements AssetLoader {
                 Float ymag = getAsFloat(camData, "ymag");
                 assertNotNull(ymag, "No ymag for orthographic camera");
                 Float zNear = getAsFloat(camData, "znear");
-                assertNotNull(zNear, "No znear for orthographic camere");
+                assertNotNull(zNear, "No znear for orthographic camera");
                 Float zFar = getAsFloat(camData, "zfar", zNear * 1000f);
                 assertNotNull(zFar, "No zfar for orthographic camera");
 

@@ -318,8 +318,8 @@ public abstract class BoundingVolume implements Savable, Cloneable, Collidable {
     }
 
     @Override
-    public void read(JmeImporter e) throws IOException {
-        center = (Vector3f) e.getCapsule(this).readSavable("center", Vector3f.ZERO.clone());
+    public void read(JmeImporter importer) throws IOException {
+        center = (Vector3f) importer.getCapsule(this).readSavable("center", Vector3f.ZERO.clone());
     }
 
     public int collideWith(Collidable other) {

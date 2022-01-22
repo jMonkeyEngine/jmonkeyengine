@@ -119,7 +119,7 @@ public class LwjglOffscreenBuffer extends LwjglContext implements Runnable {
                 // Context MUST be reset here to avoid invalid objects!
                 renderer.invalidateState();
             } catch (LWJGLException ex) {
-                listener.handleError("Failed to restore pbuffer content", ex);
+                listener.handleError("Failed to restore PBuffer content", ex);
             }
         }
 

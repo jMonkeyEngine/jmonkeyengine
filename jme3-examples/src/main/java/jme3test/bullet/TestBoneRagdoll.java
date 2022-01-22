@@ -91,18 +91,18 @@ public class TestBoneRagdoll
     @Override
     public void onAction(String name, boolean isPressed, float tpf) {
         if (name.equals("boom") && !isPressed) {
-            Geometry bulletg = new Geometry("bullet", bullet);
-            bulletg.setMaterial(matBullet);
-            bulletg.setLocalTranslation(cam.getLocation());
-            bulletg.setLocalScale(bulletSize);
+            Geometry bulletGeometry = new Geometry("bullet", bullet);
+            bulletGeometry.setMaterial(matBullet);
+            bulletGeometry.setLocalTranslation(cam.getLocation());
+            bulletGeometry.setLocalScale(bulletSize);
             bulletCollisionShape = new SphereCollisionShape(bulletSize);
             BombControl bulletNode = new BombControl(assetManager, bulletCollisionShape, 1f);
             bulletNode.setForceFactor(8f);
             bulletNode.setExplosionRadius(20f);
             bulletNode.setCcdMotionThreshold(0.001f);
             bulletNode.setLinearVelocity(cam.getDirection().mult(180f));
-            bulletg.addControl(bulletNode);
-            rootNode.attachChild(bulletg);
+            bulletGeometry.addControl(bulletNode);
+            rootNode.attachChild(bulletGeometry);
             physicsSpace.add(bulletNode);
         }
         if (name.equals("bullet+") && isPressed) {

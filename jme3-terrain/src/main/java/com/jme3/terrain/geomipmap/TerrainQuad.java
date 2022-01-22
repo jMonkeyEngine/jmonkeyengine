@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2022 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,6 +32,7 @@
 package com.jme3.terrain.geomipmap;
 
 import com.jme3.bounding.BoundingBox;
+import com.jme3.bounding.BoundingSphere;
 import com.jme3.bounding.BoundingVolume;
 import com.jme3.collision.Collidable;
 import com.jme3.collision.CollisionResults;
@@ -44,6 +45,7 @@ import com.jme3.math.FastMath;
 import com.jme3.math.Ray;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
+import com.jme3.math.Quaternion;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
@@ -850,7 +852,26 @@ public class TerrainQuad extends Node implements Terrain {
             affectedAreaBBox = null;
             return;
         }
+        
+        Vector2f worldLocVec2 = changedPoint.clone();
+        worldLocVec2.multLocal(new Vector2f(getWorldScale().x, getWorldScale().z));
+        worldLocVec2.addLocal(getWorldTranslation().x, getWorldTranslation().z);		
+        changedPoint = worldLocVec2;
 
+        Quaternion wr = getWorldRotation();
+        if (wr.getX() != 0 || wr.getY() != 0 || wr.getZ() != 0) {
+            BoundingVolume bv = getWorldBound();
+            if (bv instanceof BoundingSphere) {
+                BoundingSphere bs = (BoundingSphere) bv;
+                float r = bs.getRadius();
+                Vector3f center = bs.getCenter();
+                affectedAreaBBox = new BoundingBox(center, r, r, r);
+            } else {
+                affectedAreaBBox = (BoundingBox) bv.clone();
+            }            
+            return;
+        }
+        
         if (affectedAreaBBox == null) {
             affectedAreaBBox = new BoundingBox(new Vector3f(changedPoint.x, 0, changedPoint.y), 1f, Float.MAX_VALUE, 1f); // unit length
         } else {
@@ -1580,7 +1601,7 @@ public class TerrainQuad extends Node implements Terrain {
      * Find what terrain patches need normal recalculations and update
      * their normals;
      */
-    protected void fixNormals(BoundingBox affectedArea) {
+    public void fixNormals(BoundingBox affectedArea) {
         if (children == null)
             return;
 
@@ -1601,7 +1622,7 @@ public class TerrainQuad extends Node implements Terrain {
     /**
      * fix the normals on the edge of the terrain patches.
      */
-    protected void fixNormalEdges(BoundingBox affectedArea) {
+    public void fixNormalEdges(BoundingBox affectedArea) {
         if (children == null)
             return;
 
@@ -1725,9 +1746,9 @@ public class TerrainQuad extends Node implements Terrain {
     }
 
     @Override
-    public void read(JmeImporter e) throws IOException {
-        super.read(e);
-        InputCapsule c = e.getCapsule(this);
+    public void read(JmeImporter importer) throws IOException {
+        super.read(importer);
+        InputCapsule c = importer.getCapsule(this);
         size = c.readInt("size", 0);
         stepScale = (Vector3f) c.readSavable("stepScale", null);
         offset = (Vector2f) c.readSavable("offset", new Vector2f(0,0));

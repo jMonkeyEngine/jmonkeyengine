@@ -204,9 +204,9 @@ public final class NativeLibraryLoader {
     /**
      * Determines whether native Bullet is on the classpath.
      * 
-     * Currently the context extracts the native bullet libraries, so
-     * this method is needed to determine if it is needed.
-     * Ideally, native bullet should be responsible for its own natives.
+     * Currently, the context extracts the native Bullet libraries, so
+     * this method is needed to determine if they are needed.
+     * Ideally, native Bullet would be responsible for its own natives.
      * 
      * @return True native bullet is on the classpath, false otherwise.
      */

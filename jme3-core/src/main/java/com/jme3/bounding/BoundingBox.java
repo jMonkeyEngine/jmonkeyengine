@@ -733,7 +733,7 @@ public class BoundingBox extends BoundingVolume {
     }
 
     /**
-     * @see com.jme.bounding.BoundingVolume#intersectsWhere(com.jme.math.Ray)
+     * @see com.jme3.bounding.BoundingVolume#intersects(com.jme3.math.Ray)
      */
     private int collideWithRay(Ray ray, CollisionResults results) {
         TempVars vars = TempVars.get();
@@ -943,7 +943,7 @@ public class BoundingBox extends BoundingVolume {
      */
     private boolean clip(float denom, float numer, float[] t) {
         // Return value is 'true' if line segment intersects the current test
-        // plane. Otherwise 'false' is returned, in which case the line segment
+        // plane. Otherwise, 'false' is returned, in which case the line segment
         // is entirely clipped.
         if (denom > 0.0f) {
             // This is the old if statement...
@@ -1136,9 +1136,9 @@ public class BoundingBox extends BoundingVolume {
     }
 
     @Override
-    public void read(JmeImporter e) throws IOException {
-        super.read(e);
-        InputCapsule capsule = e.getCapsule(this);
+    public void read(JmeImporter importer) throws IOException {
+        super.read(importer);
+        InputCapsule capsule = importer.getCapsule(this);
         xExtent = capsule.readFloat("xExtent", 0);
         yExtent = capsule.readFloat("yExtent", 0);
         zExtent = capsule.readFloat("zExtent", 0);

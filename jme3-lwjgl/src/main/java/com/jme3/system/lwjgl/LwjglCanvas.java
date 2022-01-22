@@ -125,8 +125,8 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
                 return;
             }
 
-            // We must tell GL context to shutdown and wait for it to
-            // shutdown, otherwise, issues will occur.
+            // We must tell GL context to shut down and wait for it to
+            // shut down. Otherwise, issues will occur.
             logger.log(Level.FINE, "EDT: Telling OGL to destroy display ..");
             synchronized (taskLock){
                 desiredTask = TASK_DESTROY_DISPLAY;
@@ -392,7 +392,7 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
                  * 
                  * Destroying keyboard early prevents the error above, triggered
                  * by destroying keyboard in by Display.destroy() or Display.setParent(null).
-                 * Therefore Keyboard.destroy() should precede any of these calls.
+                 * Therefore, Keyboard.destroy() should precede any of these calls.
                  */
                 if (Keyboard.isCreated()){
                     // Should only happen if called in 
@@ -438,6 +438,9 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
      * This is called:
      * 1) When the context thread starts
      * 2) Any time the canvas becomes displayable again.
+	 * In the first call of this method, OpenGL context is not ready yet. Therefore, OpenCL context cannot be created.
+	 * The second call of this method is done after "simpleInitApp" is called. Therefore, OpenCL won't be available in "simpleInitApp" if Canvas/Swing is used.
+	 * To use OpenCL with Canvas/Swing, you need to use OpenCL in the rendering loop "simpleUpdate" and check for "context.getOpenCLContext()!=null".
      */
     @Override
     protected void createContext(AppSettings settings) {
@@ -477,7 +480,10 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
                 }else{
                     Display.create(acquirePixelFormat(false));
                 }
-
+				if (settings.isOpenCLSupport()) {
+					initOpenCL();
+				}
+				
                 renderer.invalidateState();
             }else{
                 // First create the pbuffer, if it is needed.

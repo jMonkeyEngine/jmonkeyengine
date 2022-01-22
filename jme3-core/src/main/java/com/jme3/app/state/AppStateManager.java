@@ -91,8 +91,8 @@ public class AppStateManager {
 
     // All of the above lists need to be thread-safe, but access will be
     // synchronized separately.... but always on the states list.  This
-    // is to avoid deadlocking that may occur and the most common use case
-    // is that they are all modified from the same thread anyway.
+    // is to avoid deadlocking. Anyway, the most common use case
+    // is that they are all modified from the same thread.
 
     private final Application app;
 

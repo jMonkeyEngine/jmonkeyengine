@@ -87,7 +87,7 @@ public class J3mdTechniqueDefWriter {
             writeShaderNodes(techniqueDef, matParams, out);
 
         } else {
-            //When we have ShaderNodes, Defines are handled differently so we don't have to write them.
+            // When we have ShaderNodes, defines are handled differently, so we don't have to write them.
             //Defines
             if (techniqueDef.getDefineNames().length != 0) {
                 writeDefines(techniqueDef, matParams, out);

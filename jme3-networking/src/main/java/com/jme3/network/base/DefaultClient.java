@@ -160,7 +160,7 @@ public class DefaultClient implements Client
         // hurt to reconcile with IP on the server side, though.
         long tempId = System.currentTimeMillis() + System.nanoTime();
 
-        // Set it true here so we can send some messages.
+        // Set it true here, so we can send some messages.
         isRunning = true;        
                 
         ClientRegistrationMessage reg;
@@ -482,8 +482,8 @@ public class DefaultClient implements Client
             }
             return;
         } else if( m instanceof ChannelInfoMessage ) {
-            // This is an interim step in the connection process and
-            // now we need to add a bunch of connections
+            // This is an interim step in the connection process, and
+            // now we need to add a bunch of connections.
             configureChannels( ((ChannelInfoMessage)m).getId(), ((ChannelInfoMessage)m).getPorts() );
             return; 
         } else if( m instanceof DisconnectMessage ) {
@@ -515,7 +515,7 @@ public class DefaultClient implements Client
         public void handleError( Object source, Throwable t )
         {
             // Only doing the DefaultClient.this to make the code
-            // checker happy... it compiles fine without it but I
+            // checker happy... it compiles fine without it, but I
             // don't like red lines in my editor. :P
             DefaultClient.this.handleError( t );   
         }

@@ -279,7 +279,7 @@ public class BitmapFont implements Savable {
                     if (rightToLeft) {
                         // Ignore offset, so it will be compatible with BitmapText.getLineWidth().
                     } else {
-                        // The first character needs to add in its xOffset but it
+                        // The first character needs to add in its xOffset, but it
                         // is the only one... and negative offsets = positive width
                         // because we're trying to account for the part that hangs
                         // over the left.  So we subtract.
@@ -294,10 +294,10 @@ public class BitmapFont implements Savable {
                 // that we don't care about.
                 if (i == characters.length() - 1 || characters.charAt(i + 1) == '\n') {
                     if (rightToLeft) {
-                        // In RTL text we move the letter x0 by it's xAdvance so
-                        // we should add it to lineWidth
+                        // In RTL text we move the letter x0 by its xAdvance, so
+                        // we should add it to lineWidth.
                         lineWidth += xAdvance;
-                        // Then we move letter by it's xOffset.
+                        // Then we move letter by its xOffset.
                         // Negative offsets = positive width.
                         lineWidth -= c.getXOffset() * sizeScale;
                     } else {

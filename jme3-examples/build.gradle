@@ -25,7 +25,7 @@ dependencies {
     implementation project(':jme3-niftygui')
     implementation project(':jme3-plugins')
     implementation project(':jme3-terrain')
-    implementation project(':jme3-testdata')
+    runtimeOnly project(':jme3-testdata')
 }
 
 jar.doFirst{

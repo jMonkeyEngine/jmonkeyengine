@@ -97,7 +97,7 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
     protected void rebuildRigidBody() {
         boolean removed = false;
         if(collisionShape instanceof MeshCollisionShape && mass != 0){
-            throw new IllegalStateException("Dynamic rigidbody can not have mesh collision shape!");
+            throw new IllegalStateException("Dynamic rigid body cannot have mesh collision shape!");
         }
         if (rBody != null) {
             if (rBody.isInWorld()) {
@@ -361,7 +361,7 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
     public void setMass(float mass) {
         this.mass = mass;
         if(collisionShape instanceof MeshCollisionShape && mass != 0){
-            throw new IllegalStateException("Dynamic rigidbody can not have mesh collision shape!");
+            throw new IllegalStateException("Dynamic rigid body cannot have mesh collision shape!");
         }
         if (collisionShape != null) {
             collisionShape.calculateLocalInertia(mass, localInertia);
@@ -538,10 +538,10 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
     /**
      * Apply an impulse to the PhysicsRigidBody in the next physics update.
      * @param impulse applied impulse
-     * @param rel_pos location relative to object
+     * @param relativePosition location relative to object
      */
-    public void applyImpulse(final Vector3f impulse, final Vector3f rel_pos) {
-        rBody.applyImpulse(Converter.convert(impulse, tempVec), Converter.convert(rel_pos, tempVec2));
+    public void applyImpulse(final Vector3f impulse, final Vector3f relativePosition) {
+        rBody.applyImpulse(Converter.convert(impulse, tempVec), Converter.convert(relativePosition, tempVec2));
         rBody.activate();
     }
 
@@ -568,7 +568,7 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
     public void setCollisionShape(CollisionShape collisionShape) {
         super.setCollisionShape(collisionShape);
         if(collisionShape instanceof MeshCollisionShape && mass!=0){
-            throw new IllegalStateException("Dynamic rigidbody can not have mesh collision shape!");
+            throw new IllegalStateException("Dynamic rigid body cannot have mesh collision shape!");
         }
         if (rBody == null) {
             rebuildRigidBody();
@@ -709,15 +709,15 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
     /**
      * De-serialize this body, for example when loading from a J3O file.
      *
-     * @param e importer (not null)
+     * @param importer importer (not null)
      * @throws IOException from importer
      */
     @Override
     @SuppressWarnings("unchecked")
-    public void read(JmeImporter e) throws IOException {
-        super.read(e);
+    public void read(JmeImporter importer) throws IOException {
+        super.read(importer);
 
-        InputCapsule capsule = e.getCapsule(this);
+        InputCapsule capsule = importer.getCapsule(this);
         float mass = capsule.readFloat("mass", 1.0f);
         this.mass = mass;
         rebuildRigidBody();

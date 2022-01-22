@@ -283,7 +283,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      * null, 0 is returned. Either way, the current instance is unaffected.
      *
      * @param vec the vector to multiply (unaffected) or null for none
-     * @return the product
+     * @return the product or 0
      */
     public float dot(Vector3f vec) {
         if (null == vec) {
@@ -569,7 +569,20 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
         }
         return mult(vec, null);
     }
-
+    
+    /**
+     * Multiplies component-wise by the specified components and returns the 
+     * product as a new instance. The current instance is unaffected.
+     *
+     * @param x the scale factor for the X component
+     * @param y the scale factor for the Y component
+     * @param z the scale factor for the Z component
+     * @return a new Vector3f
+     */
+    public Vector3f mult(float x, float y, float z) {
+        return new Vector3f(this.x * x, this.y * y, this.z * z);
+    }
+    
     /**
      * Multiplies component-wise with the specified vector and returns the
      * product in a 3rd vector. If the argument is null, null is returned.
@@ -617,29 +630,58 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
         z *= scalar;
         return this;
     }
+    
+    /**
+     * Divides component-wise by the specified components returns the (modified) 
+     * current instance.
+     *
+     * @param x the divisor for the X component
+     * @param y the divisor for the Y component
+     * @param z the divisor for the Z component
+     * @return the (modified) current instance (for chaining)
+     */
+    public Vector3f divideLocal(float x, float y, float z) {
+        this.x /= x;
+        this.y /= y;
+        this.z /= z;
+        return this;
+    }
 
     /**
      * Divides component-wise by the argument and returns the quotient as a new
      * instance. The current instance is unaffected.
      *
-     * @param scalar the divisor (not null, unaffected) TODO rename argument!
+     * @param divisor the divisor (not null, unaffected)
      * @return a new Vector3f
      */
-    public Vector3f divide(Vector3f scalar) {
-        return new Vector3f(x / scalar.x, y / scalar.y, z / scalar.z);
+    public Vector3f divide(Vector3f divisor) {
+        return new Vector3f(x / divisor.x, y / divisor.y, z / divisor.z);
     }
 
+    /**
+     * Divides component-wise by the specified components and returns the quotient
+     * as a new instance. The current instance is unaffected.
+     *
+     * @param x the divisor for the X component
+     * @param y the divisor for the Y component
+     * @param z the divisor for the Z component
+     * @return a new Vector3f
+     */
+    public Vector3f divide(float x, float y, float z) {
+        return new Vector3f(this.x / x, this.y / y, this.z / z);
+    }
+    
     /**
      * Divides component-wise by the argument and returns the (modified) current
      * instance.
      *
-     * @param scalar the divisor (not null, unaffected) TODO rename argument!
+     * @param divisor the divisor (not null, unaffected)
      * @return the (modified) current instance (for chaining)
      */
-    public Vector3f divideLocal(Vector3f scalar) {
-        x /= scalar.x;
-        y /= scalar.y;
-        z /= scalar.z;
+    public Vector3f divideLocal(Vector3f divisor) {
+        x /= divisor.x;
+        y /= divisor.y;
+        z /= divisor.z;
         return this;
     }
 
@@ -842,17 +884,17 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      * Interpolates linearly between this vector and the specified vector,
      * returning the (modified) current instance.
      *
-     * <p>this = (1 - changeAmnt) * this + changeAmnt * finalVec
+     * <p>this = (1 - changeAmount) * this + changeAmount * finalVec
      *
-     * @param finalVec the desired value when changeAmnt=1 (not null, unaffected
+     * @param finalVec the desired value when changeAmount=1 (not null, unaffected
      *     unless it's <code>this</code>)
-     * @param changeAmnt the fractional change amount
+     * @param changeAmount the fractional change amount
      * @return the (modified) current instance (for chaining)
      */
-    public Vector3f interpolateLocal(Vector3f finalVec, float changeAmnt) {
-        this.x = (1 - changeAmnt) * this.x + changeAmnt * finalVec.x;
-        this.y = (1 - changeAmnt) * this.y + changeAmnt * finalVec.y;
-        this.z = (1 - changeAmnt) * this.z + changeAmnt * finalVec.z;
+    public Vector3f interpolateLocal(Vector3f finalVec, float changeAmount) {
+        this.x = (1 - changeAmount) * this.x + changeAmount * finalVec.x;
+        this.y = (1 - changeAmount) * this.y + changeAmount * finalVec.y;
+        this.z = (1 - changeAmount) * this.z + changeAmount * finalVec.z;
         return this;
     }
 
@@ -860,19 +902,19 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      * Interpolates linearly between the specified beginning and final vectors,
      * returning the (modified) current instance.
      *
-     * <p>this = (1 - changeAmnt) * beginVec + changeAmnt * finalVec
+     * <p>this = (1 - changeAmount) * beginVec + changeAmount * finalVec
      *
-     * @param beginVec the desired value when changeAmnt=0 (not null, unaffected
+     * @param beginVec the desired value when changeAmount=0 (not null, unaffected
      *     unless it's <code>this</code>)
-     * @param finalVec the desired value when changeAmnt=1 (not null, unaffected
+     * @param finalVec the desired value when changeAmount=1 (not null, unaffected
      *     unless it's <code>this</code>)
-     * @param changeAmnt the fractional change amount
+     * @param changeAmount the fractional change amount
      * @return the (modified) current instance (for chaining)
      */
-    public Vector3f interpolateLocal(Vector3f beginVec, Vector3f finalVec, float changeAmnt) {
-        this.x = (1 - changeAmnt) * beginVec.x + changeAmnt * finalVec.x;
-        this.y = (1 - changeAmnt) * beginVec.y + changeAmnt * finalVec.y;
-        this.z = (1 - changeAmnt) * beginVec.z + changeAmnt * finalVec.z;
+    public Vector3f interpolateLocal(Vector3f beginVec, Vector3f finalVec, float changeAmount) {
+        this.x = (1 - changeAmount) * beginVec.x + changeAmount * finalVec.x;
+        this.y = (1 - changeAmount) * beginVec.y + changeAmount * finalVec.y;
+        this.z = (1 - changeAmount) * beginVec.z + changeAmount * finalVec.z;
         return this;
     }
 
@@ -963,8 +1005,9 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Tests for exact equality with the argument, distinguishing -0 from 0. The
-     * current instance is unaffected.
+     * Tests for exact equality with the argument, distinguishing -0 from 0. If
+     * {@code o} is null, false is returned. Either way, the current instance is
+     * unaffected.
      *
      * @param o the object to compare (may be null, unaffected)
      * @return true if equal, otherwise false
@@ -994,9 +1037,10 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * Tests for approximate equality with the specified vector, using the
-     * specified tolerance. The current instance is unaffected.
+     * specified tolerance. If {@code other} is null, false is returned. Either
+     * way, the current instance is unaffected.
      *
-     * @param other the vector to compare (not null, unaffected)
+     * @param other the vector to compare (unaffected) or null for none
      * @param epsilon the tolerance for each component
      * @return true if all 3 components are within tolerance, otherwise false
      */
@@ -1063,12 +1107,12 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      * De-serializes from the argument, for example when loading from a J3O
      * file.
      *
-     * @param e the importer to use (not null)
+     * @param importer the importer to use (not null)
      * @throws IOException from the importer
      */
     @Override
-    public void read(JmeImporter e) throws IOException {
-        InputCapsule capsule = e.getCapsule(this);
+    public void read(JmeImporter importer) throws IOException {
+        InputCapsule capsule = importer.getCapsule(this);
         x = capsule.readFloat("x", 0);
         y = capsule.readFloat("y", 0);
         z = capsule.readFloat("z", 0);

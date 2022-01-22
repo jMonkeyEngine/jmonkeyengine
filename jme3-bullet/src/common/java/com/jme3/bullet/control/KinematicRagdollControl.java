@@ -337,8 +337,8 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
                 link.bone.setUserTransformsInModelSpace(position, tmpRot1);
 
             } else {
-                //some bones of the skeleton might not be associated with a collision shape
-                //so we update them recursively
+                // Some bones in the skeleton might not be associated with a collision shape,
+                // so we update them recursively.
                 RagdollUtils.setTransform(link.bone, position, tmpRot1, false, boneList);
             }
         }

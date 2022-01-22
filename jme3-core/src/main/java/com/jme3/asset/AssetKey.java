@@ -158,7 +158,7 @@ public class AssetKey<T> implements Savable, Cloneable {
                 } else {
                     list.add("..");
                     Logger.getLogger(AssetKey.class.getName())
-                            .log(Level.SEVERE, "Asset path \"{0}\" is outside assetmanager root", path);
+                            .log(Level.SEVERE, "Asset path \"{0}\" is outside the asset manager root", path);
                 }
             } else {
                 list.add(string);
