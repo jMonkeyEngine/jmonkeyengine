@@ -132,7 +132,6 @@ public class RadialParticleInfluencer extends DefaultParticleInfluencer {
         this.origin = cloner.clone(origin);
     }
 
-
     @Override
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
