@@ -31,7 +31,12 @@
  */
 package com.jme3.scene;
 
+import com.jme3.export.InputCapsule;
+import com.jme3.export.JmeExporter;
+import com.jme3.export.JmeImporter;
+import com.jme3.export.OutputCapsule;
 import com.jme3.scene.VertexBuffer.Type;
+import java.io.IOException;
 
 /**
  * A static, indexed, Triangles-mode mesh for an axis-aligned rectangle in the
@@ -78,6 +83,12 @@ public class CenterQuad extends Mesh {
     public CenterQuad(float width, float height, boolean flipCoords){
         updateGeometry(width, height, flipCoords);
         this.setStatic();
+    }
+
+    /**
+     * For serialization only. Do not use.
+     */
+    protected CenterQuad() {
     }
 
     public float getHeight() {
@@ -128,5 +139,35 @@ public class CenterQuad extends Mesh {
         updateBound();
     }
 
+    /**
+     * De-serializes from the specified importer, for example when loading from
+     * a J3O file.
+     *
+     * @param importer the importer to use (not null)
+     * @throws IOException from the importer
+     */
+    @Override
+    public void read(JmeImporter importer) throws IOException {
+        super.read(importer);
+        InputCapsule capsule = importer.getCapsule(this);
 
+        width = capsule.readFloat("width", 0f);
+        height = capsule.readFloat("height", 0f);
+    }
+
+    /**
+     * Serializes to the specified exporter, for example when saving to a J3O
+     * file. The current instance is unaffected.
+     *
+     * @param exporter the exporter to use (not null)
+     * @throws IOException from the exporter
+     */
+    @Override
+    public void write(JmeExporter exporter) throws IOException {
+        super.write(exporter);
+        OutputCapsule capsule = exporter.getCapsule(this);
+
+        capsule.write(width, "width", 0f);
+        capsule.write(height, "height", 0f);
+    }
 }
