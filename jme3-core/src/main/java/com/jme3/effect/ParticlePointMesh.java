@@ -98,7 +98,7 @@ public class ParticlePointMesh extends ParticleMesh {
         }
 
         // set UV-scale
-        FloatBuffer tb = BufferUtils.createFloatBuffer(numParticles*4);
+        FloatBuffer tb = BufferUtils.createFloatBuffer(numParticles * 4);
 
         buf = getBuffer(VertexBuffer.Type.TexCoord);
         if (buf != null) {
@@ -144,12 +144,12 @@ public class ParticlePointMesh extends ParticleMesh {
             colors.putInt(p.color.asIntABGR());
 
             int imgX = p.imageIndex % imagesX;
-            int imgY = p.imageIndex/imagesX;
+            int imgY = p.imageIndex / imagesX;
 
             float startX = ((float) imgX) / imagesX;
             float startY = ((float) imgY) / imagesY;
-            float endX   = startX + (1f / imagesX);
-            float endY   = startY + (1f / imagesY);
+            float endX = startX + (1f / imagesX);
+            float endY = startY + (1f / imagesY);
 
             texcoords.put(startX).put(startY).put(endX).put(endY);
         }
