@@ -66,11 +66,11 @@ public class JmeFormatter extends Formatter {
         format.format(args, store, null);
 
         String clazz = null;
-        try{
+        try {
             clazz = Class.forName(record.getSourceClassName()).getSimpleName();
-        } catch (ClassNotFoundException ex){
+        } catch (ClassNotFoundException ex) {
         }
-        
+
         sb.append(record.getLevel().getLocalizedName()).append(" ");
         sb.append(clazz).append(" ");
         sb.append(store.toString()).append(" ");

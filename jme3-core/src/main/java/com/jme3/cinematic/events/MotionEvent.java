@@ -111,7 +111,7 @@ public class MotionEvent extends AbstractCinematicEvent implements Control, JmeC
     public MotionEvent() {
         super();
     }
-    
+
     /**
      * Creates a MotionPath for the given spatial on the given motion path.
      *
@@ -179,7 +179,7 @@ public class MotionEvent extends AbstractCinematicEvent implements Control, JmeC
             time = time + (tpf * speed);
             if (loopMode == LoopMode.Loop && time < 0) {
                 time = initialDuration;
-            }            
+            }
             if ((time >= initialDuration || time < 0) && loopMode == LoopMode.DontLoop) {
                 if (time >= initialDuration) {
                     path.triggerWayPointReach(path.getNbWayPoints() - 1, this);
@@ -187,9 +187,9 @@ public class MotionEvent extends AbstractCinematicEvent implements Control, JmeC
                 stop();
             } else {
                 time = AnimationUtils.clampWrapTime(time, initialDuration, loopMode);
-                if(time<0){
-                    speed = - speed;
-                    time = - time;
+                if (time < 0) {
+                    speed = -speed;
+                    time = -time;
                 }
                 onUpdate(tpf);
             }
@@ -290,7 +290,7 @@ public class MotionEvent extends AbstractCinematicEvent implements Control, JmeC
         throw new UnsupportedOperationException();
     }
 
-    @Override   
+    @Override
     public Object jmeClone() {
         MotionEvent control = new MotionEvent();
         control.path = path;
@@ -308,13 +308,13 @@ public class MotionEvent extends AbstractCinematicEvent implements Control, JmeC
         control.spatial = spatial;
 
         return control;
-    }     
+    }
 
-    @Override   
-    public void cloneFields( Cloner cloner, Object original ) { 
+    @Override
+    public void cloneFields(Cloner cloner, Object original) {
         this.spatial = cloner.clone(spatial);
     }
-         
+
     @Override
     public void onPlay() {
         traveledDistance = 0;
@@ -373,16 +373,16 @@ public class MotionEvent extends AbstractCinematicEvent implements Control, JmeC
 
     /**
      * Sets the direction of the spatial, using the Y axis as the up vector.
-     * Use MotionEvent#setDirection((Vector3f direction,Vector3f upVector) if 
+     * Use MotionEvent#setDirection((Vector3f direction,Vector3f upVector) if
      * you want a custom up vector.
      * This method is used by the motion path.
      *
      * @param direction the desired forward direction (not null, unaffected)
      */
     public void setDirection(Vector3f direction) {
-        setDirection(direction, Vector3f.UNIT_Y); 
-   }
-    
+        setDirection(direction, Vector3f.UNIT_Y);
+    }
+
     /**
      * Sets the direction of the spatial with the given up vector.
      * This method is used by the motion path.
@@ -390,7 +390,7 @@ public class MotionEvent extends AbstractCinematicEvent implements Control, JmeC
      * @param direction the desired forward direction (not null, unaffected)
      * @param upVector the up vector to consider for this direction.
      */
-    public void setDirection(Vector3f direction,Vector3f upVector) {
+    public void setDirection(Vector3f direction, Vector3f upVector) {
         this.direction.set(direction);
         this.upVector.set(upVector);
     }

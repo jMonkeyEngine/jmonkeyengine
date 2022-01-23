@@ -83,7 +83,7 @@ class Letters {
                 if (baseColor != null) {
                     // Give the letter a default color if
                     // one has been provided.
-                    l.setColor( baseColor );
+                    l.setColor(baseColor);
                 }
             }
         }
@@ -170,7 +170,7 @@ class Letters {
 
                         // Clear the rest up to the next line feed.
                         // = for texts attached to a text block, all coming characters are cleared except a linefeed is explicitly used
-                        for( LetterQuad q = l.getNext(); !q.isTail() && !q.isLineFeed(); q = q.getNext() ) {
+                        for (LetterQuad q = l.getNext(); !q.isTail() && !q.isLineFeed(); q = q.getNext()) {
                             q.setBitmapChar(null);
                             q.update(block);
                         }
@@ -395,10 +395,10 @@ class Letters {
      * Sets the base color for all new letter quads and resets
      * the color of existing letter quads.
      */
-    void setColor( ColorRGBA color ) {
+    void setColor(ColorRGBA color) {
         baseColor = color;
         colorTags.setBaseColor(color);
-        setColor( 0, block.getText().length(), color );
+        setColor(0, block.getText().length(), color);
     }
 
     ColorRGBA getBaseColor() {
@@ -424,7 +424,8 @@ class Letters {
         return baseAlpha;
     }
 
-    void setBaseAlpha( float alpha ) {        this.baseAlpha = alpha;
+    void setBaseAlpha(float alpha) {
+        this.baseAlpha = alpha;
         colorTags.setBaseAlpha(alpha);
 
         if (alpha == -1) {

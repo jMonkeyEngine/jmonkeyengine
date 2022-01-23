@@ -42,23 +42,22 @@ import java.io.IOException;
 
 /**
  * The animation class updates the animation target with the tracks of a given type.
- * 
+ *
  * @author Kirill Vainer, Marcin Roguski (Kaelthas)
  * @deprecated use {@link com.jme3.anim.AnimClip}
  */
 @Deprecated
 public class Animation implements Savable, Cloneable, JmeCloneable {
-
-    /** 
-     * The name of the animation. 
+    /**
+     * The name of the animation.
      */
     private String name;
-    /** 
-     * The length of the animation. 
+    /**
+     * The length of the animation.
      */
     private float length;
-    /** 
-     * The tracks of the animation. 
+    /**
+     * The tracks of the animation.
      */
     private SafeArrayList<Track> tracks = new SafeArrayList<>(Track.class);
 
@@ -70,7 +69,7 @@ public class Animation implements Savable, Cloneable, JmeCloneable {
 
     /**
      * Creates a new <code>Animation</code> with the given name and length.
-     * 
+     *
      * @param name The name of the animation.
      * @param length Length in seconds of the animation.
      */
@@ -89,7 +88,7 @@ public class Animation implements Savable, Cloneable, JmeCloneable {
 
     /**
      * Returns the length in seconds of this animation
-     * 
+     *
      * @return the length in seconds of this animation
      */
     public float getLength() {
@@ -118,7 +117,7 @@ public class Animation implements Savable, Cloneable, JmeCloneable {
      * This method sets the current time of the animation.
      * This method behaves differently for every known track type.
      * Override this method if you have your own type of track.
-     * 
+     *
      * @param time the time of the animation
      * @param blendAmount the blend amount factor
      * @param control the animation control
@@ -136,7 +135,7 @@ public class Animation implements Savable, Cloneable, JmeCloneable {
 
     /**
      * Set the {@link Track}s to be used by this animation.
-     * 
+     *
      * @param tracksArray The tracks to set.
      */
     public void setTracks(Track[] tracksArray) {
@@ -166,7 +165,7 @@ public class Animation implements Savable, Cloneable, JmeCloneable {
 
     /**
      * Returns the tracks set in {@link #setTracks(com.jme3.animation.Track[]) }.
-     * 
+     *
      * @return the tracks set previously
      */
     public Track[] getTracks() {
@@ -192,7 +191,7 @@ public class Animation implements Savable, Cloneable, JmeCloneable {
     }
 
     /**
-     * 
+     *
      * @param spat the Spatial to clone for
      * @return a new instance
      */
@@ -213,33 +212,32 @@ public class Animation implements Savable, Cloneable, JmeCloneable {
         }
     }
 
-    @Override   
+    @Override
     public Object jmeClone() {
         try {
             return super.clone();
-        } catch( CloneNotSupportedException e ) {
+        } catch (CloneNotSupportedException e) {
             throw new RuntimeException("Error cloning", e);
         }
-    }     
+    }
 
-    @Override   
-    public void cloneFields( Cloner cloner, Object original ) {
-         
+    @Override
+    public void cloneFields(Cloner cloner, Object original) {
         // There is some logic here that I'm copying, but I'm not sure if
         // it's a mistake or not.  If a track is not a CloneableTrack then it
         // isn't cloned at all... even though they all implement clone() methods. -pspeed
         SafeArrayList<Track> newTracks = new SafeArrayList<>(Track.class);
-        for( Track track : tracks ) {
+        for (Track track : tracks) {
             if (track instanceof JmeCloneable) {
                 newTracks.add(cloner.clone(track));
             } else {
-                // this is the part that seems fishy 
+                // this is the part that seems fishy
                 newTracks.add(track);
             }
         }
         this.tracks = newTracks;
     }
-         
+
     @Override
     public String toString() {
         return getClass().getSimpleName() + "[name=" + name + ", length=" + length + ']';

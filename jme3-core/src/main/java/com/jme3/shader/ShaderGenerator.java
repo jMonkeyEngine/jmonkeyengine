@@ -80,13 +80,13 @@ public abstract class ShaderGenerator {
      * @param assetManager for loading assets (alias created)
      */
     protected ShaderGenerator(AssetManager assetManager) {
-        this.assetManager = assetManager;        
+        this.assetManager = assetManager;
     }
-    
+
     public void initialize(TechniqueDef techniqueDef){
         this.techniqueDef = techniqueDef;
     }
-    
+
     /**
      * Generate vertex and fragment shaders for the given technique
      *
@@ -108,13 +108,13 @@ public abstract class ShaderGenerator {
             String extension = type.getExtension();
             String language = getLanguageAndVersion(type);
             String shaderSourceCode = buildShader(techniqueDef.getShaderNodes(), info, type);
-            
+
             if (shaderSourceCode != null) {
                 String shaderSourceAssetName = techniqueName + "." + extension;
                 shader.addSource(type, shaderSourceAssetName, shaderSourceCode, definesSourceCode, language);
             }
         }
-        
+
         techniqueDef = null;
         return shader;
     }
@@ -129,7 +129,7 @@ public abstract class ShaderGenerator {
      */
     protected String buildShader(List<ShaderNode> shaderNodes, ShaderGenerationInfo info, ShaderType type) {
         if (type == ShaderType.TessellationControl ||
-            type == ShaderType.TessellationEvaluation || 
+            type == ShaderType.TessellationEvaluation ||
             type == ShaderType.Geometry) {
             // TODO: Those are not supported.
             // Too much code assumes that type is either Vertex or Fragment
@@ -174,9 +174,9 @@ public abstract class ShaderGenerator {
      * @return
      */
     private String moveExtensionsUp(StringBuilder sourceDeclaration) {
-        Matcher m = extensions.matcher( sourceDeclaration.toString());
+        Matcher m = extensions.matcher(sourceDeclaration.toString());
         StringBuilder finalSource = new StringBuilder();
-        while(m.find()){
+        while (m.find()) {
             finalSource.append(m.group());
         }
         finalSource.append(m.replaceAll(""));
@@ -295,7 +295,7 @@ public abstract class ShaderGenerator {
      *
      * @see ShaderNode#getDefinition()
      * @see ShaderNodeDefinition#getType()
-     * 
+     *
      * @param nodeDeclarationSource the declaration part of the node
      * @param source the StringBuilder to append generated code.
      * @param shaderNode the shaderNode.
@@ -364,5 +364,5 @@ public abstract class ShaderGenerator {
             }
         }
         return index;
-    }    
+    }
 }

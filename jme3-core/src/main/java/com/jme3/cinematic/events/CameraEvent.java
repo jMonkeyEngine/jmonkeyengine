@@ -43,7 +43,7 @@ import java.io.IOException;
  *
  * @author Rickard (neph1 @ github)
  */
-public class CameraEvent extends AbstractCinematicEvent{
+public class CameraEvent extends AbstractCinematicEvent {
 
     private String cameraName;
     private Cinematic cinematic;
@@ -56,27 +56,26 @@ public class CameraEvent extends AbstractCinematicEvent{
         this.cameraName = cameraName;
     }
 
-    public CameraEvent(){
-        
+    public CameraEvent() {
     }
-    
-    public CameraEvent(Cinematic parentEvent, String cameraName){
+
+    public CameraEvent(Cinematic parentEvent, String cameraName) {
         this.cinematic = parentEvent;
         this.cameraName = cameraName;
     }
-    
-     @Override
+
+    @Override
     public void initEvent(Application app, Cinematic cinematic) {
         super.initEvent(app, cinematic);
         this.cinematic = cinematic;
     }
-    
+
     @Override
     public void play() {
         super.play();
         stop();
     }
-    
+
     @Override
     public void onPlay() {
         cinematic.setActiveCamera(cameraName);
@@ -110,9 +109,7 @@ public class CameraEvent extends AbstractCinematicEvent{
     public void setCinematic(Cinematic cinematic) {
         this.cinematic = cinematic;
     }
-    
-    
-    
+
     /**
      * used internally for serialization
      *

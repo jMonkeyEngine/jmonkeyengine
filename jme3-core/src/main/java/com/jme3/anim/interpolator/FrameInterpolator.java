@@ -38,7 +38,6 @@ import com.jme3.math.*;
  * Created by nehon on 15/04/17.
  */
 public class FrameInterpolator {
-
     public static final FrameInterpolator DEFAULT = new FrameInterpolator();
 
     private AnimInterpolator<Float> timeInterpolator;
@@ -51,23 +50,23 @@ public class FrameInterpolator {
     final private TrackDataReader<Vector3f> scaleReader = new TrackDataReader<>();
     final private TrackTimeReader timesReader = new TrackTimeReader();
 
-
     final private Transform transforms = new Transform();
 
-    public Transform interpolate(float t, int currentIndex, CompactVector3Array translations, CompactQuaternionArray rotations, CompactVector3Array scales, float[] times){
+    public Transform interpolate(float t, int currentIndex, CompactVector3Array translations,
+            CompactQuaternionArray rotations, CompactVector3Array scales, float[] times) {
         timesReader.setData(times);
-        if( timeInterpolator != null){
-            t = timeInterpolator.interpolate(t,currentIndex, null, timesReader, null );
+        if (timeInterpolator != null) {
+            t = timeInterpolator.interpolate(t, currentIndex, null, timesReader, null);
         }
-        if(translations != null) {
+        if (translations != null) {
             translationReader.setData(translations);
             translationInterpolator.interpolate(t, currentIndex, translationReader, timesReader, transforms.getTranslation());
         }
-        if(rotations != null) {
+        if (rotations != null) {
             rotationReader.setData(rotations);
             rotationInterpolator.interpolate(t, currentIndex, rotationReader, timesReader, transforms.getRotation());
         }
-        if(scales != null){
+        if (scales != null) {
             scaleReader.setData(scales);
             scaleInterpolator.interpolate(t, currentIndex, scaleReader, timesReader, transforms.getScale());
         }
@@ -83,7 +82,7 @@ public class FrameInterpolator {
                 next = current;
             }
 
-            float val =  FastMath.interpolateLinear(t, weights[current], weights[next]);
+            float val = FastMath.interpolateLinear(t, weights[current], weights[next]);
             store[i] = val;
         }
     }
@@ -104,7 +103,6 @@ public class FrameInterpolator {
         this.scaleInterpolator = scaleInterpolator;
     }
 
-
     public static class TrackTimeReader {
         private float[] data;
 
@@ -122,7 +120,6 @@ public class FrameInterpolator {
     }
 
     public static class TrackDataReader<T> {
-
         private CompactArray<T> data;
 
         protected void setData(CompactArray<T> data) {
@@ -148,7 +145,6 @@ public class FrameInterpolator {
 
             index = mod(index, total);
 
-
             return data.get(index, store);
         }
     }
@@ -163,5 +159,4 @@ public class FrameInterpolator {
     private static int mod(int val, int n) {
         return ((val % n) + n) % n;
     }
-
 }

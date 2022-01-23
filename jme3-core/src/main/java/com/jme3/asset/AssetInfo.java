@@ -58,7 +58,7 @@ public abstract class AssetInfo {
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         return getClass().getName() + "[" + "key=" + key + "]";
     }
 
@@ -68,9 +68,8 @@ public abstract class AssetInfo {
      * <p>
      * Each invocation of this method should return a new stream to the
      * asset data, starting at the beginning of the file.
-     * 
+     *
      * @return The asset data.
      */
     public abstract InputStream openStream();
-
 }

@@ -54,9 +54,9 @@ import java.util.logging.Logger;
 public final class AssetConfig {
 
     private static final Logger logger = Logger.getLogger(AssetConfig.class.getName());
-    
+
     private AssetConfig() { }
-    
+
     private static Class acquireClass(String name) {
         try {
             return Class.forName(name);
@@ -64,24 +64,24 @@ public final class AssetConfig {
             return null;
         }
     }
-    
+
     @SuppressWarnings("unchecked")
-    public static void loadText(AssetManager assetManager, URL configUrl) throws IOException{
+    public static void loadText(AssetManager assetManager, URL configUrl) throws IOException {
         InputStream in = configUrl.openStream();
         try {
             Scanner scan = new Scanner(in, "UTF-8");
             scan.useLocale(Locale.US); // Fix commas / periods ??
-            while (scan.hasNext()){
+            while (scan.hasNext()) {
                 String cmd = scan.next();
-                if (cmd.equals("LOADER")){
+                if (cmd.equals("LOADER")) {
                     String loaderClass = scan.next();
                     String colon = scan.next();
-                    if (!colon.equals(":")){
-                        throw new IOException("Expected ':', got '"+colon+"'");
+                    if (!colon.equals(":")) {
+                        throw new IOException("Expected ':', got '" + colon + "'");
                     }
                     String extensionsList = scan.nextLine();
                     String[] extensions = extensionsList.split(",");
-                    for (int i = 0; i < extensions.length; i++){
+                    for (int i = 0; i < extensions.length; i++) {
                         extensions[i] = extensions[i].trim();
                     }
                     Class clazz = acquireClass(loaderClass);
@@ -115,7 +115,8 @@ public final class AssetConfig {
                 }
             }
         } finally {
-            if (in != null) in.close();
+            if (in != null)
+                in.close();
         }
     }
 }

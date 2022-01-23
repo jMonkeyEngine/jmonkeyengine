@@ -177,20 +177,27 @@ public class Surface extends Mesh {
             int vVerticesAmount = vSegments + 1;
             int newUVerticesAmount = 2 + (uVerticesAmount - 2) * 2;
             List<Vector3f> verticesWithUDuplicates = new ArrayList<>(vVerticesAmount * newUVerticesAmount);
-            for(int i=0;i<vertices.size();++i) {
+            for (int i=0; i<vertices.size(); ++i) {
                 verticesWithUDuplicates.add(vertices.get(i));
                 if(i % uVerticesAmount != 0 && i % uVerticesAmount != uVerticesAmount - 1) {
                     verticesWithUDuplicates.add(vertices.get(i));
                 }
             }
             // and then duplicate all verts that are not on the border along the V axis
-            List<Vector3f> verticesWithVDuplicates = new ArrayList<>(verticesWithUDuplicates.size() * vVerticesAmount);
+            List<Vector3f> verticesWithVDuplicates
+                    = new ArrayList<>(verticesWithUDuplicates.size() * vVerticesAmount);
             verticesWithVDuplicates.addAll(verticesWithUDuplicates.subList(0, newUVerticesAmount));
-            for(int i=1;i<vSegments;++i) {
-                verticesWithVDuplicates.addAll(verticesWithUDuplicates.subList(i * newUVerticesAmount, i * newUVerticesAmount + newUVerticesAmount));
-                verticesWithVDuplicates.addAll(verticesWithUDuplicates.subList(i * newUVerticesAmount, i * newUVerticesAmount + newUVerticesAmount));
+            for (int i = 1; i < vSegments; ++i) {
+                verticesWithVDuplicates.addAll(
+                        verticesWithUDuplicates.subList(i * newUVerticesAmount,
+                                i * newUVerticesAmount + newUVerticesAmount));
+                verticesWithVDuplicates.addAll(
+                        verticesWithUDuplicates.subList(i * newUVerticesAmount,
+                                i * newUVerticesAmount + newUVerticesAmount));
             }
-            verticesWithVDuplicates.addAll(verticesWithUDuplicates.subList(vSegments * newUVerticesAmount, vSegments * newUVerticesAmount + newUVerticesAmount));
+            verticesWithVDuplicates.addAll(
+                    verticesWithUDuplicates.subList(vSegments * newUVerticesAmount,
+                            vSegments * newUVerticesAmount + newUVerticesAmount));
             vertices = verticesWithVDuplicates;
         }
 
@@ -199,7 +206,7 @@ public class Surface extends Mesh {
         int arrayIndex = 0;
         int uVerticesAmount = smooth ? uSegments + 1 : uSegments * 2;
         if(smooth) {
-            for (int i = 0; i < vSegments; ++i) { 
+            for (int i = 0; i < vSegments; ++i) {
                 for (int j = 0; j < uSegments; ++j) {
                     indices[arrayIndex++] = j + i * uVerticesAmount + uVerticesAmount;
                     indices[arrayIndex++] = j + i * uVerticesAmount + 1;
@@ -226,8 +233,10 @@ public class Surface extends Mesh {
         // normalMap merges normals of faces that will be rendered smooth
         Map<Vector3f, Vector3f> normalMap = new HashMap<>(verticesArray.length);
         for (int i = 0; i < indices.length; i += 3) {
-            Vector3f n = FastMath.computeNormal(verticesArray[indices[i]], verticesArray[indices[i + 1]], verticesArray[indices[i + 2]]);
-            this.addNormal(n, normalMap, smooth, verticesArray[indices[i]], verticesArray[indices[i + 1]], verticesArray[indices[i + 2]]);
+            Vector3f n = FastMath.computeNormal(verticesArray[indices[i]],
+                    verticesArray[indices[i + 1]], verticesArray[indices[i + 2]]);
+            this.addNormal(n, normalMap, smooth, verticesArray[indices[i]],
+                    verticesArray[indices[i + 1]], verticesArray[indices[i + 2]]);
         }
         // preparing normal list (the order of normals must match the order of vertices)
         float[] normals = new float[verticesArray.length * 3];
@@ -423,7 +432,7 @@ public class Surface extends Mesh {
      * @param normalMap
      *            merges normals of faces that will be rendered smooth; the key is the vertex and the value - its normal vector
      * @param smooth the variable that indicates whether to merge normals
-     * (creating the smooth mesh) or not
+     *     (creating the smooth mesh) or not
      * @param vertices
      *            a list of vertices read from the blender file
      */
