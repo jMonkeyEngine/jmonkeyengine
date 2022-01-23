@@ -408,7 +408,7 @@ public class JoystickCompatibilityMappings {
      * Adds a single Joystick axis or button remapping based on the
      * joystick's name and axis/button name.  The "remap" value will be
      * used instead.
-     * 
+     *
      * @param stickName which joystick (not null)
      * @param sourceComponentId the name to be remapped
      * @param remapId the remapped name

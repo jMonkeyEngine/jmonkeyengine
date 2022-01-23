@@ -53,20 +53,20 @@ public class AudioKey extends AssetKey<AudioData> {
 
     /**
      * Create a new AudioKey.
-     * 
+     *
      * @param name Name of the asset
      * @param stream If true, the audio will be streamed.
      *     Otherwise, it will be buffered entirely and then played.
      * @param streamCache If stream is true, then this specifies if
      * the stream cache is used. When enabled, the audio stream will
-     * be read entirely but not decoded, allowing features such as 
+     * be read entirely but not decoded, allowing features such as
      * seeking, determining duration and looping.
      */
-    public AudioKey(String name, boolean stream, boolean streamCache){
+    public AudioKey(String name, boolean stream, boolean streamCache) {
         this(name, stream);
         this.streamCache = streamCache;
     }
-    
+
     /**
      * Create a new AudioKey
      *
@@ -74,26 +74,24 @@ public class AudioKey extends AssetKey<AudioData> {
      * @param stream If true, the audio will be streamed.
      *     Otherwise, it will be buffered entirely and then played.
      */
-    public AudioKey(String name, boolean stream){
+    public AudioKey(String name, boolean stream) {
         super(name);
         this.stream = stream;
     }
 
-    public AudioKey(String name){
+    public AudioKey(String name) {
         super(name);
         this.stream = false;
     }
 
-    public AudioKey(){
+    public AudioKey() {
     }
 
     @Override
-    public String toString(){
-        return name + (stream ? 
-                          (streamCache ? 
-                            " (Stream/Cache)" : 
-                            " (Stream)") : 
-                         " (Buffer)");
+    public String toString() {
+        return name + (stream
+                ? (streamCache ? " (Stream/Cache)" : " (Stream)")
+                : " (Buffer)");
     }
 
     /**
@@ -103,17 +101,17 @@ public class AudioKey extends AssetKey<AudioData> {
     public boolean isStream() {
         return stream;
     }
-    
+
     /**
-     * Specifies if the stream cache is used. 
-     * 
+     * Specifies if the stream cache is used.
+     *
      * When enabled, the audio stream will
-     * be read entirely but not decoded, allowing features such as 
+     * be read entirely but not decoded, allowing features such as
      * seeking, looping and determining duration.
-     * 
+     *
      * @return true if stream cache is in use, otherwise false
      */
-    public boolean useStreamCache(){
+    public boolean useStreamCache() {
         return streamCache;
     }
 
@@ -157,14 +155,14 @@ public class AudioKey extends AssetKey<AudioData> {
         hash = 67 * hash + (this.streamCache ? 1 : 0);
         return hash;
     }
-    
+
     @Override
     public Class<? extends AssetProcessor> getProcessorType() {
         return null;
     }
-    
+
     @Override
-    public void write(JmeExporter ex) throws IOException{
+    public void write(JmeExporter ex) throws IOException {
         super.write(ex);
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(stream, "do_stream", false);
@@ -172,11 +170,10 @@ public class AudioKey extends AssetKey<AudioData> {
     }
 
     @Override
-    public void read(JmeImporter im) throws IOException{
+    public void read(JmeImporter im) throws IOException {
         super.read(im);
         InputCapsule ic = im.getCapsule(this);
         stream = ic.readBoolean("do_stream", false);
         streamCache = ic.readBoolean("use_stream_cache", false);
     }
-
 }

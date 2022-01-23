@@ -44,14 +44,14 @@ import com.jme3.texture.TextureProcessor;
 import java.io.IOException;
 
 /**
- * Used to load textures from image files such as JPG or PNG. 
+ * Used to load textures from image files such as JPG or PNG.
  * Note that texture loaders actually load the asset as an {@link Image}
- * object, which is then converted to a {@link Texture} in the 
- * {@link TextureProcessor#postProcess(com.jme3.asset.AssetKey, java.lang.Object) }
+ * object, which is then converted to a {@link Texture} in the
+ * {@link TextureProcessor#postProcess(com.jme3.asset.AssetKey, java.lang.Object)}
  * method. Since textures are cloneable smart assets, the texture stored
  * in the cache will be collected when all clones of the texture become
  * unreachable.
- * 
+ *
  * @author Kirill Vainer
  */
 public class TextureKey extends AssetKey<Texture> {
@@ -96,17 +96,17 @@ public class TextureKey extends AssetKey<Texture> {
         }
         return name + (flipY ? " (Flipped)" : "") + type + (generateMips ? " (Mipmapped)" : "");
     }
-    
+
     @Override
-    public Class<? extends AssetCache> getCacheType(){
+    public Class<? extends AssetCache> getCacheType() {
         return WeakRefCloneAssetCache.class;
     }
 
     @Override
-    public Class<? extends AssetProcessor> getProcessorType(){
+    public Class<? extends AssetProcessor> getProcessorType() {
         return TextureProcessor.class;
     }
-    
+
     public boolean isFlipY() {
         return flipY;
     }
@@ -114,7 +114,7 @@ public class TextureKey extends AssetKey<Texture> {
     public void setFlipY(boolean flipY) {
         this.flipY = flipY;
     }
-    
+
     public int getAnisotropy() {
         return anisotropy;
     }
@@ -133,7 +133,7 @@ public class TextureKey extends AssetKey<Texture> {
 
     /**
      * The type of texture expected to be returned.
-     * 
+     *
      * @return type of texture expected to be returned.
      */
     public Type getTextureTypeHint() {
@@ -142,13 +142,13 @@ public class TextureKey extends AssetKey<Texture> {
 
     /**
      * Hints the loader as to which type of texture is expected.
-     * 
+     *
      * @param textureTypeHint The type of texture expected to be loaded.
      */
     public void setTextureTypeHint(Type textureTypeHint) {
         this.textureTypeHint = textureTypeHint;
     }
-    
+
     @Override
     public boolean equals(Object obj) {
         if (obj == null) {
@@ -186,7 +186,7 @@ public class TextureKey extends AssetKey<Texture> {
         hash = 17 * hash + (this.textureTypeHint != null ? this.textureTypeHint.hashCode() : 0);
         return hash;
     }
-    
+
     @Override
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
@@ -195,7 +195,7 @@ public class TextureKey extends AssetKey<Texture> {
         oc.write(generateMips, "generate_mips", false);
         oc.write(anisotropy, "anisotropy", 0);
         oc.write(textureTypeHint, "tex_type", Type.TwoDimensional);
-        
+
         // Backwards compat
         oc.write(textureTypeHint == Type.CubeMap, "as_cubemap", false);
     }
@@ -208,7 +208,7 @@ public class TextureKey extends AssetKey<Texture> {
         generateMips = ic.readBoolean("generate_mips", false);
         anisotropy = ic.readInt("anisotropy", 0);
         boolean asCube = ic.readBoolean("as_cubemap", false);
-        
+
         if (asCube) {
             // Backwards compat
             textureTypeHint = Type.CubeMap;

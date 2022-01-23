@@ -116,7 +116,7 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
      * default storage folder.
      * @param filePath The screenshot file path to use. Include the separator at the end of the path.
      * @param shotIndex The base index for screenshots.  The first screenshot will have
-     *                  shotIndex + 1 appended, the next shotIndex + 2, and so on.
+     *     shotIndex + 1 appended, the next shotIndex + 2, and so on.
      */
     public ScreenshotAppState(String filePath, long shotIndex) {
         this.filePath = filePath;
@@ -132,14 +132,14 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
      * @param filePath The screenshot file path to use. Include the separator at the end of the path.
      * @param fileName The name of the file to save the screenshot as.
      * @param shotIndex The base index for screenshots.  The first screenshot will have
-     *                  shotIndex + 1 appended, the next shotIndex + 2, and so on.
+     *     shotIndex + 1 appended, the next shotIndex + 2, and so on.
      */
     public ScreenshotAppState(String filePath, String fileName, long shotIndex) {
         this.filePath = filePath;
         this.shotName = fileName;
         this.shotIndex = shotIndex;
     }
-    
+
     /**
      * Set the file path to store the screenshot.
      * Include the separator at the end of the path.
@@ -169,7 +169,7 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
     }
 
     /**
-     * Sets if the filename should be appended with a number representing the 
+     * Sets if the filename should be appended with a number representing the
      * current sequence.
      * @param numberedWanted If numbering is wanted.
      */
@@ -234,7 +234,7 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
 
     @Override
     public void onAction(String name, boolean value, float tpf) {
-        if (value){
+        if (value) {
             capture = true;
         }
     }
@@ -274,7 +274,7 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
 
     @Override
     public void postFrame(FrameBuffer out) {
-        if (capture){
+        if (capture) {
             capture = false;
 
             Camera curCamera = rm.getCurrentCamera();
@@ -310,7 +310,7 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
                 writeImageFile(file);
             } catch (IOException ex) {
                 logger.log(Level.SEVERE, "Error while saving screenshot", ex);
-            }                
+            }
         }
     }
 
@@ -320,17 +320,17 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
     }
 
     /**
-     *  Called by postFrame() once the screen has been captured to outBuf.
-     * 
+     * Called by postFrame() once the screen has been captured to outBuf.
+     *
      * @param file the output file
      * @throws IOException if an I/O error occurs
      */
-    protected void writeImageFile( File file ) throws IOException {
+    protected void writeImageFile(File file) throws IOException {
         OutputStream outStream = new FileOutputStream(file);
         try {
             JmeSystem.writeImageFile(outStream, "png", outBuf, width, height);
         } finally {
             outStream.close();
         }
-    } 
+    }
 }

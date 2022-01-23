@@ -109,32 +109,32 @@ public final class AnimControl extends AbstractControl implements Cloneable, Jme
     public AnimControl() {
     }
 
-    @Override   
+    @Override
     public Object jmeClone() {
         AnimControl clone = (AnimControl) super.jmeClone();
         clone.channels = new ArrayList<AnimChannel>();
         clone.listeners = new ArrayList<AnimEventListener>();
 
         return clone;
-    }     
+    }
 
-    @Override   
-    public void cloneFields( Cloner cloner, Object original ) {
+    @Override
+    public void cloneFields(Cloner cloner, Object original) {
         super.cloneFields(cloner, original);
-        
+
         this.skeleton = cloner.clone(skeleton);
- 
-        // Note cloneForSpatial() never actually cloned the animation map... just its reference       
+
+        // Note cloneForSpatial() never actually cloned the animation map... just its reference
         HashMap<String, Animation> newMap = new HashMap<>();
-         
-        // animationMap is cloned, but only cloneable tracks will be cloned as they need a reference to a cloned spatial
-        for( Map.Entry<String, Animation> e : animationMap.entrySet() ) {
+
+        // animationMap is cloned, but only ClonableTracks will be cloned as they need a reference to a cloned spatial
+        for (Map.Entry<String, Animation> e : animationMap.entrySet()) {
             newMap.put(e.getKey(), cloner.clone(e.getValue()));
         }
-        
+
         this.animationMap = newMap;
     }
-         
+
     /**
      * @param animations Set the animations that this <code>AnimControl</code>
      * will be capable of playing. The animations should be compatible
@@ -182,7 +182,7 @@ public final class AnimControl extends AbstractControl implements Cloneable, Jme
     /**
      * Create a new animation channel, by default assigned to all bones
      * in the skeleton.
-     * 
+     *
      * @return A new animation channel for this <code>AnimControl</code>.
      */
     public AnimChannel createChannel() {
@@ -376,11 +376,11 @@ public final class AnimControl extends AbstractControl implements Cloneable, Jme
         }
 
         if (im.getFormatVersion() == 0) {
-            // Changed for backward compatibility with j3o files generated 
+            // Changed for backward compatibility with j3o files generated
             // before the AnimControl/SkeletonControl split.
 
-            // If we find a target mesh array the AnimControl creates the 
-            // SkeletonControl for old files and add it to the spatial.        
+            // If we find a target mesh array the AnimControl creates the
+            // SkeletonControl for old files and add it to the spatial.
             // When backward compatibility isn't needed anymore, this can be deleted.
             Savable[] sav = in.readSavableArray("targets", null);
             if (sav != null) {

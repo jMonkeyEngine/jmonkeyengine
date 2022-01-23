@@ -103,7 +103,7 @@ public class EmitterBoxShape implements EmitterShape {
      *  Called internally by com.jme3.util.clone.Cloner.  Do not call directly.
      */
     @Override
-    public void cloneFields( Cloner cloner, Object original ) {
+    public void cloneFields(Cloner cloner, Object original) {
         this.min = cloner.clone(min);
         this.len = cloner.clone(len);
     }

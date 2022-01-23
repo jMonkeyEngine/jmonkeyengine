@@ -97,7 +97,7 @@ public class ChaseCameraAppState extends AbstractAppState implements ActionListe
         super.initialize(stateManager, app);
         this.inputManager = app.getInputManager();
         target = new Node("ChaseCamTarget");
-        camNode.setCamera(app.getCamera());        
+        camNode.setCamera(app.getCamera());
         camNode.setControlDir(CameraControl.ControlDirection.SpatialToCamera);
         target.attachChild(camNode);
         camNode.setLocalTranslation(0, 0, distance);
@@ -281,7 +281,7 @@ public class ChaseCameraAppState extends AbstractAppState implements ActionListe
      */
     public void setMaxDistance(float maxDistance) {
         this.maxDistance = maxDistance;
-        if(initialized){
+        if (initialized) {
             zoomCamera(distance);
         }
     }
@@ -297,13 +297,13 @@ public class ChaseCameraAppState extends AbstractAppState implements ActionListe
 
     /**
      * Sets the min zoom distance of the camera (default is 1)
-     * 
+     *
      * @param minDistance the desired minimum distance (in world units,
      * default=1)
      */
     public void setMinDistance(float minDistance) {
         this.minDistance = minDistance;
-        if(initialized){
+        if (initialized) {
             zoomCamera(distance);
         }
     }
@@ -325,7 +325,7 @@ public class ChaseCameraAppState extends AbstractAppState implements ActionListe
      */
     public void setMaxVerticalRotation(float maxVerticalRotation) {
         this.maxVerticalRotation = maxVerticalRotation;
-        if(initialized){
+        if (initialized) {
             rotateCamera();
         }
     }
@@ -347,7 +347,7 @@ public class ChaseCameraAppState extends AbstractAppState implements ActionListe
      */
     public void setMinVerticalRotation(float minHeight) {
         this.minVerticalRotation = minHeight;
-        if(initialized){
+        if (initialized) {
             rotateCamera();
         }
     }
@@ -438,7 +438,7 @@ public class ChaseCameraAppState extends AbstractAppState implements ActionListe
     public void setDragToRotate(boolean dragToRotate) {
         this.dragToRotate = dragToRotate;
         this.canRotate = !dragToRotate;
-        if(inputManager != null){
+        if (inputManager != null) {
             inputManager.setCursorVisible(dragToRotate);
         }
     }

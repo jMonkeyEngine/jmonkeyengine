@@ -36,7 +36,7 @@ import com.jme3.post.FilterPostProcessor;
 
 /**
  * Used to load FilterPostProcessors which are not cached.
- * 
+ *
  * @author Andrew Wason
  */
 public class FilterKey extends AssetKey<FilterPostProcessor> {
@@ -50,7 +50,7 @@ public class FilterKey extends AssetKey<FilterPostProcessor> {
     }
 
     @Override
-    public Class<? extends AssetCache> getCacheType(){
+    public Class<? extends AssetCache> getCacheType() {
         // Do not cache filter processors
         return null;
     }

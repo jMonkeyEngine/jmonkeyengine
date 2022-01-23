@@ -56,7 +56,7 @@ import java.util.logging.Logger;
 @Deprecated
 public class AnimationEvent extends AbstractCinematicEvent {
 
-    // Version #2: directly keeping track on the model instead of trying to retrieve 
+    // Version #2: directly keeping track on the model instead of trying to retrieve
     //it from the scene according to its name, because the name is not supposed to be unique
     //For backward compatibility, if the model is null it's looked up into the scene
     public static final int SAVABLE_VERSION = 2;
@@ -79,7 +79,7 @@ public class AnimationEvent extends AbstractCinematicEvent {
     protected AnimationEvent() {
         super();
     }
-    
+
     /**
      * creates an animation event
      *
@@ -202,7 +202,7 @@ public class AnimationEvent extends AbstractCinematicEvent {
      * @param loopMode the loopMode
      * @see LoopMode
      * @param channelIndex the index of the channel default is 0. Events on the
-     * same channelIndex will use the same channel.
+     *     same channelIndex will use the same channel.
      */
     public AnimationEvent(Spatial model, String animationName, LoopMode loopMode, int channelIndex) {
         super(loopMode);
@@ -219,7 +219,7 @@ public class AnimationEvent extends AbstractCinematicEvent {
      * @param model the model on which the animation will be played
      * @param animationName the name of the animation to play
      * @param channelIndex the index of the channel default is 0. Events on the
-     * same channelIndex will use the same channel.
+     *     same channelIndex will use the same channel.
      */
     public AnimationEvent(Spatial model, String animationName, int channelIndex) {
         this.model = model;
@@ -228,7 +228,7 @@ public class AnimationEvent extends AbstractCinematicEvent {
         initialDuration = model.getControl(AnimControl.class).getAnimationLength(animationName);
         this.channelIndex = channelIndex;
     }
-    
+
     /**
      * creates an animation event
      *
@@ -237,7 +237,7 @@ public class AnimationEvent extends AbstractCinematicEvent {
      * @param loopMode the desired mode (Loop/DontLoop/Cycle)
      * @param channelIndex the index of the channel default is 0. Events on the
      * @param blendTime the time interval during which the animation will be blended
-     * same channelIndex will use the same channel.
+     *     same channelIndex will use the same channel.
      */
     public AnimationEvent(Spatial model, String animationName, LoopMode loopMode, int channelIndex, float blendTime) {
         this.model = model;
@@ -256,7 +256,7 @@ public class AnimationEvent extends AbstractCinematicEvent {
      * @param animationName the name of the animation to play
      * @param initialDuration the initial duration of the event
      * @param channelIndex the index of the channel default is 0. Events on the
-     * same channelIndex will use the same channel.
+     *     same channelIndex will use the same channel.
      */
     public AnimationEvent(Spatial model, String animationName, float initialDuration, int channelIndex) {
         super(initialDuration);
@@ -275,7 +275,7 @@ public class AnimationEvent extends AbstractCinematicEvent {
      * @param loopMode the loopMode
      * @see LoopMode
      * @param channelIndex the index of the channel default is 0. Events on the
-     * same channelIndex will use the same channel.
+     *     same channelIndex will use the same channel.
      */
     public AnimationEvent(Spatial model, String animationName, float initialDuration, LoopMode loopMode, int channelIndex) {
         super(initialDuration, loopMode);
@@ -295,8 +295,9 @@ public class AnimationEvent extends AbstractCinematicEvent {
             if (s == null) {
                 s = new HashMap<Integer, AnimChannel>();
                 int numChannels = model.getControl(AnimControl.class).getNumChannels();
-                for(int i = 0; i < numChannels; i++){
-                    ((HashMap<Integer, AnimChannel>)s).put(i, model.getControl(AnimControl.class).getChannel(i));
+                for (int i = 0; i < numChannels; i++) {
+                    ((HashMap<Integer, AnimChannel>) s)
+                            .put(i, model.getControl(AnimControl.class).getChannel(i));
                 }
                 cinematic.putEventData(MODEL_CHANNELS, model, s);
             }
@@ -311,9 +312,9 @@ public class AnimationEvent extends AbstractCinematicEvent {
                     model = cinematic.getScene().getChild(modelName);
                 }
                 if (model != null) {
-                    if(cinematic.getScene() != null){
+                    if (cinematic.getScene() != null) {
                         Spatial sceneModel = cinematic.getScene().getChild(model.getName());
-                        if(sceneModel != null){
+                        if (sceneModel != null) {
                             Node parent = sceneModel.getParent();
                             parent.detachChild(sceneModel);
                             sceneModel = model;
@@ -322,15 +323,14 @@ public class AnimationEvent extends AbstractCinematicEvent {
                             cinematic.getScene().attachChild(model);
                         }
                     }
-                    
+
                     channel = model.getControl(AnimControl.class).createChannel();
                     map.put(channelIndex, channel);
                 } else {
                     //it's an error
                     throw new UnsupportedOperationException("model should not be null");
                 }
-            } 
-
+            }
         }
     }
 
@@ -365,7 +365,6 @@ public class AnimationEvent extends AbstractCinematicEvent {
             channel.setTime(t);
             channel.getControl().update(0);
         }
-
     }
 
     @Override
@@ -429,7 +428,6 @@ public class AnimationEvent extends AbstractCinematicEvent {
         oc.write(animationName, "animationName", "");
         oc.write(blendTime, "blendTime", 0f);
         oc.write(channelIndex, "channelIndex", 0);
-
     }
 
     @Override
@@ -437,14 +435,14 @@ public class AnimationEvent extends AbstractCinematicEvent {
         super.read(im);
         InputCapsule ic = im.getCapsule(this);
 //        if (im.getFormatVersion() == 0) {
-            modelName = ic.readString("modelName", "");
+        modelName = ic.readString("modelName", "");
 //        }
         //FIXME always the same issue, because of the cloning of assets, this won't work
-        //we have to somehow store userdata in the spatial and then recurse the 
+        //we have to somehow store userdata in the spatial and then recurse the
         //scene sub scenegraph to find the correct instance of the model
         //This brings a reflection about the cinematic being an appstate,
         //shouldn't it be a control over the scene
-        // this would allow to use the cloneForSpatial method and automatically 
+        // this would allow to use the cloneForSpatial method and automatically
         //rebind cloned references of original objects.
         //for now as nobody probably ever saved a cinematic, this is not a critical issue
         model = (Spatial) ic.readSavable("model", null);

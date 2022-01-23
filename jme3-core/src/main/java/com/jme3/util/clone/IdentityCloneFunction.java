@@ -47,14 +47,14 @@ public class IdentityCloneFunction<T> implements CloneFunction<T> {
      *  Returns the object directly.
      */
     @Override
-    public T cloneObject( Cloner cloner, T object ) {
+    public T cloneObject(Cloner cloner, T object) {
         return object;
     }
- 
+
     /**
      *  Does nothing.
-     */    
+     */
     @Override
-    public void cloneFields( Cloner cloner, T clone, T object ) {
+    public void cloneFields(Cloner cloner, T clone, T object) {
     }
 }

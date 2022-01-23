@@ -59,10 +59,10 @@ public abstract class AbstractControl implements Control, JmeCloneable {
     public void setSpatial(Spatial spatial) {
         if (this.spatial != null && spatial != null && spatial != this.spatial) {
             throw new IllegalStateException("This control has already been added to a Spatial");
-        }   
+        }
         this.spatial = spatial;
     }
-    
+
     public Spatial getSpatial(){
         return spatial;
     }
@@ -100,16 +100,16 @@ public abstract class AbstractControl implements Control, JmeCloneable {
     public Object jmeClone() {
         try {
             return super.clone();
-        } catch( CloneNotSupportedException e ) {
-            throw new RuntimeException( "Can't clone control for spatial", e );
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException("Can't clone control for spatial", e);
         }
-    }     
+    }
 
     @Override
-    public void cloneFields( Cloner cloner, Object original ) { 
+    public void cloneFields(Cloner cloner, Object original) {
         this.spatial = cloner.clone(spatial);
     }
-         
+
     @Override
     public void update(float tpf) {
         if (!enabled)
@@ -139,5 +139,4 @@ public abstract class AbstractControl implements Control, JmeCloneable {
         enabled = ic.readBoolean("enabled", true);
         spatial = (Spatial) ic.readSavable("spatial", null);
     }
-
 }

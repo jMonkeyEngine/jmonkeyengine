@@ -46,7 +46,7 @@ import java.util.List;
  * <code>Skeleton</code> is a convenience class for managing a bone hierarchy.
  * Skeleton updates the world transforms to reflect the current local
  * animated matrixes.
- * 
+ *
  * @author Kirill Vainer
  * @deprecated use {@link Armature}
  */
@@ -55,7 +55,7 @@ public final class Skeleton implements Savable, JmeCloneable {
 
     private Bone[] rootBones;
     private Bone[] boneList;
-    
+
     /**
      * Contains the skinning matrices, multiplying it by a vertex affected by a bone
      * will cause it to go to the animated position.
@@ -63,12 +63,12 @@ public final class Skeleton implements Savable, JmeCloneable {
     private transient Matrix4f[] skinningMatrixes;
 
     /**
-     * Creates a skeleton from a bone list. 
+     * Creates a skeleton from a bone list.
      * The root bones are found automatically.
      * <p>
      * Note that using this constructor will cause the bones in the list
      * to have their bind pose recomputed based on their local transforms.
-     * 
+     *
      * @param boneList The list of bones to manage by this Skeleton
      */
     public Skeleton(Bone[] boneList) {
@@ -97,7 +97,7 @@ public final class Skeleton implements Savable, JmeCloneable {
      * <p>
      * Shallow copies bind pose data from the source skeleton, does not
      * copy any other data.
-     * 
+     *
      * @param source The source Skeleton to copy from
      */
     public Skeleton(Skeleton source) {
@@ -124,18 +124,18 @@ public final class Skeleton implements Savable, JmeCloneable {
     protected Skeleton() {
     }
 
-    @Override   
+    @Override
     public Object jmeClone() {
         try {
-            Skeleton clone = (Skeleton)super.clone();
+            Skeleton clone = (Skeleton) super.clone();
             return clone;
         } catch (CloneNotSupportedException ex) {
             throw new AssertionError();
         }
-    }     
+    }
 
-    @Override   
-    public void cloneFields( Cloner cloner, Object original ) {
+    @Override
+    public void cloneFields(Cloner cloner, Object original) {
         this.rootBones = cloner.clone(rootBones);
         this.boneList = cloner.clone(boneList);
         this.skinningMatrixes = cloner.clone(skinningMatrixes);
@@ -254,7 +254,7 @@ public final class Skeleton implements Savable, JmeCloneable {
      * returns the bone index of the bone that has the given name
      *
      * @param name the name to search for
-     * @return the index (&ge;0) or -1 if not found 
+     * @return the index (&ge;0) or -1 if not found
      */
     public int getBoneIndex(String name) {
         for (int i = 0; i < boneList.length; i++) {

@@ -185,7 +185,7 @@ public class EmitterMeshVertexShape implements EmitterShape {
      *  Called internally by com.jme3.util.clone.Cloner.  Do not call directly.
      */
     @Override
-    public void cloneFields( Cloner cloner, Object original ) {
+    public void cloneFields(Cloner cloner, Object original) {
         this.vertices = cloner.clone(vertices);
         this.normals = cloner.clone(normals);
     }
@@ -204,7 +204,7 @@ public class EmitterMeshVertexShape implements EmitterShape {
         this.vertices = ic.readSavableArrayList("vertices", null);
 
         List<List<Vector3f>> tmpNormals = ic.readSavableArrayList("normals", null);
-        if (tmpNormals != null){
+        if (tmpNormals != null) {
             this.normals = tmpNormals;
         }
     }

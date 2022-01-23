@@ -48,7 +48,7 @@ import java.util.Map;
 /**
  * A debug state that will display Light gizmos on screen.
  * Still a wip and for now it only displays light probes.
- * 
+ *
  * @author nehon
  */
 public class LightsDebugState extends BaseAppState {
@@ -78,7 +78,7 @@ public class LightsDebugState extends BaseAppState {
 
     @Override
     public void update(float tpf) {
-        if(!isEnabled()){
+        if (!isEnabled()) {
             return;
         }
         updateLights(scene);
@@ -115,7 +115,7 @@ public class LightsDebugState extends BaseAppState {
                     break;
             }
         }
-        if( scene instanceof Node){
+        if (scene instanceof Node) {
             Node n = (Node)scene;
             for (Spatial spatial : n.getChildren()) {
                 updateLights(spatial);
@@ -149,12 +149,11 @@ public class LightsDebugState extends BaseAppState {
 
     @Override
     public void render(RenderManager rm) {
-        if(!isEnabled()){
+        if (!isEnabled()) {
             return;
         }
         rm.renderScene(debugNode, getApplication().getViewPort());
     }
-
 
     /**
      * returns the scale of the probe's debug sphere
@@ -175,17 +174,13 @@ public class LightsDebugState extends BaseAppState {
 
     @Override
     protected void cleanup(Application app) {
-
     }
 
     @Override
     protected void onEnable() {
-
     }
 
     @Override
     protected void onDisable() {
-
     }
-
 }
