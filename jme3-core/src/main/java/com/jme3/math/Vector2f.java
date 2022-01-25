@@ -402,9 +402,9 @@ public final class Vector2f implements Savable, Cloneable, java.io.Serializable 
         product.y = y * scalar;
         return product;
     }
-    
+
     /**
-     * Multiplies component-wise by the specified components and returns the 
+     * Multiplies component-wise by the specified components and returns the
      * product as a new instance. The current instance is unaffected.
      *
      * @param x the scale factor for the X component
@@ -414,9 +414,9 @@ public final class Vector2f implements Savable, Cloneable, java.io.Serializable 
     public Vector2f mult(float x, float y) {
         return new Vector2f(this.x * x, this.y * y);
     }
-    
+
     /**
-     * Multiplies component-wise by the specified components and returns the 
+     * Multiplies component-wise by the specified components and returns the
      * (modified) current instance.
      *
      * @param x the scale factor for the X component
@@ -428,7 +428,7 @@ public final class Vector2f implements Savable, Cloneable, java.io.Serializable 
         this.y *= y;
         return this;
     }
-    
+
     /**
      * Divides by the scalar argument and returns the quotient as a new
      * instance. The current instance is unaffected.
@@ -452,7 +452,7 @@ public final class Vector2f implements Savable, Cloneable, java.io.Serializable 
         y /= scalar;
         return this;
     }
-    
+
     /**
      * Divides component-wise by the specified components and returns the quotient
      * as a new instance. The current instance is unaffected.
@@ -464,9 +464,9 @@ public final class Vector2f implements Savable, Cloneable, java.io.Serializable 
     public Vector2f divide(float x, float y) {
         return new Vector2f(this.x / x, this.y / y);
     }
- 
+
     /**
-     * Divides component-wise by the specified components returns the (modified) 
+     * Divides component-wise by the specified components returns the (modified)
      * current instance.
      *
      * @param x the divisor for the X component
@@ -478,7 +478,7 @@ public final class Vector2f implements Savable, Cloneable, java.io.Serializable 
         this.y /= y;
         return this;
     }
-        
+
     /**
      * Returns the negative of the vector. The current instance is unaffected.
      *

@@ -422,9 +422,9 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
         product.w = w * scalar;
         return product;
     }
-    
+
     /**
-     * Multiplies component-wise by the specified components and returns the 
+     * Multiplies component-wise by the specified components and returns the
      * product as a new instance. The current instance is unaffected.
      *
      * @param x the scale factor for the X component
@@ -590,9 +590,9 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
         w /= divisor.w;
         return this;
     }
-    
+
     /**
-     * Divides component-wise by the specified components returns the (modified) 
+     * Divides component-wise by the specified components returns the (modified)
      * current instance.
      *
      * @param x the divisor for the X component
@@ -607,8 +607,8 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
         this.z /= z;
         this.w /= w;
         return this;
-    } 
-   
+    }
+
     /**
      * Divides component-wise by the specified components and returns the quotient
      * as a new instance. The current instance is unaffected.

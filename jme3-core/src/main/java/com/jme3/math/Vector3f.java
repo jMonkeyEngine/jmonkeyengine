@@ -569,9 +569,9 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
         }
         return mult(vec, null);
     }
-    
+
     /**
-     * Multiplies component-wise by the specified components and returns the 
+     * Multiplies component-wise by the specified components and returns the
      * product as a new instance. The current instance is unaffected.
      *
      * @param x the scale factor for the X component
@@ -582,7 +582,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     public Vector3f mult(float x, float y, float z) {
         return new Vector3f(this.x * x, this.y * y, this.z * z);
     }
-    
+
     /**
      * Multiplies component-wise with the specified vector and returns the
      * product in a 3rd vector. If the argument is null, null is returned.
@@ -630,9 +630,9 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
         z *= scalar;
         return this;
     }
-    
+
     /**
-     * Divides component-wise by the specified components returns the (modified) 
+     * Divides component-wise by the specified components returns the (modified)
      * current instance.
      *
      * @param x the divisor for the X component
@@ -670,7 +670,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     public Vector3f divide(float x, float y, float z) {
         return new Vector3f(this.x / x, this.y / y, this.z / z);
     }
-    
+
     /**
      * Divides component-wise by the argument and returns the (modified) current
      * instance.
