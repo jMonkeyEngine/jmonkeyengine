@@ -51,7 +51,7 @@ public class TestAnimationFactory extends SimpleApplication {
         // 6 seconds in duration, named "anim", running at 25 frames per second
         AnimFactory animationFactory = new AnimFactory(6f, "anim", 25f);
         
-        //creating a translation keyFrame at time = 3 with a translation on the x axis of 5 WU        
+        // Create a translation keyFrame at time = 3 with a translation on the X axis of 5 WU.
         animationFactory.addTimeTranslation(3, new Vector3f(5, 0, 0));
         //resetting the translation to the start position at time = 6
         animationFactory.addTimeTranslation(6, new Vector3f(0, 0, 0));

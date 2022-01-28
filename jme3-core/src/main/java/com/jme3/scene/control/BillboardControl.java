@@ -103,17 +103,17 @@ public class BillboardControl extends AbstractControl {
         Camera cam = vp.getCamera();
         rotateBillboard(cam);
     }
-    
+
     private void fixRefreshFlags(){
         // force transforms to update below this node
         spatial.updateGeometricState();
-        
+
         // force world bound to update
         Spatial rootNode = spatial;
         while (rootNode.getParent() != null){
             rootNode = rootNode.getParent();
         }
-        rootNode.getWorldBound(); 
+        rootNode.getWorldBound();
     }
 
     /**
@@ -193,8 +193,8 @@ public class BillboardControl extends AbstractControl {
         left.set(camera.getLeft()).negateLocal();
         orient.fromAxes(left, camera.getUp(), look);
         Node parent = spatial.getParent();
-        Quaternion rot=new Quaternion().fromRotationMatrix(orient);
-        if ( parent != null ) {
+        Quaternion rot = new Quaternion().fromRotationMatrix(orient);
+        if (parent != null) {
             rot =  parent.getWorldRotation().inverse().multLocal(rot);
             rot.normalizeLocal();
         }
@@ -213,7 +213,7 @@ public class BillboardControl extends AbstractControl {
         // the camera. To do this, the camera must be inverse-transformed into
         // the model space of the billboard.
         look.set(camera.getLocation()).subtractLocal(
-                spatial.getWorldTranslation());   
+                spatial.getWorldTranslation());
         spatial.getParent().getWorldRotation().mult(look, left); // co-opt left for our own purposes.
         left.x *= 1.0f / spatial.getWorldScale().x;
         left.y *= 1.0f / spatial.getWorldScale().y;
@@ -279,7 +279,7 @@ public class BillboardControl extends AbstractControl {
      * Sets the type of rotation this Billboard will have. The alignment can
      * be Camera, Screen, AxialY, or AxialZ. Invalid alignments will
      * assume no billboard rotation.
-     * 
+     *
      * @param alignment the desired alignment (Camera/Screen/AxialY/AxialZ)
      */
     public void setAlignment(Alignment alignment) {

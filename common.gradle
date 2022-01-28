@@ -6,7 +6,10 @@ apply plugin: 'java-library'
 apply plugin: 'groovy'
 apply plugin: 'maven-publish'
 apply plugin: 'signing'
-
+apply plugin: 'eclipse'
+eclipse.jdt.file.withProperties { props ->
+    props.setProperty "org.eclipse.jdt.core.circularClasspath", "warning"
+}
 group = 'org.jmonkeyengine'
 version = jmeFullVersion
 
@@ -168,7 +171,7 @@ publishing {
 }
 
 publishToMavenLocal.doLast {
-    println 'published ' + project.getName() + ' to mavenLocal'
+    println 'published ' + project.getName() + "-${jmeFullVersion} to mavenLocal"    
 }
 task('install') {
     dependsOn 'publishToMavenLocal'

@@ -51,10 +51,10 @@ import java.io.IOException;
  * A point light emits light from a given position into all directions in space.
  * E.g a lamp or a bright effect. Point light positions are in world space.
  * <p>
- * In addition to a position, point lights also have a radius which 
- * can be used to attenuate the influence of the light depending on the 
+ * In addition to a position, point lights also have a radius which
+ * can be used to attenuate the influence of the light depending on the
  * distance between the light and the affected object.
- * 
+ *
  */
 public class PointLight extends Light {
 
@@ -85,9 +85,9 @@ public class PointLight extends Light {
         super(color);
         setPosition(position);
     }
-    
+
     /**
-     * Creates a PointLight at the given position, with the given color and the 
+     * Creates a PointLight at the given position, with the given color and the
      * given radius
      * @param position the position in world space
      * @param color the light color
@@ -97,7 +97,7 @@ public class PointLight extends Light {
         this(position, color);
         setRadius(radius);
     }
-    
+
     /**
      * Creates a PointLight at the given position, with the given radius
      * @param position the position in world space
@@ -120,10 +120,10 @@ public class PointLight extends Light {
 
     /**
      * Returns the world space position of the light.
-     * 
+     *
      * @return the world space position of the light.
-     * 
-     * @see PointLight#setPosition(com.jme3.math.Vector3f) 
+     *
+     * @see PointLight#setPosition(com.jme3.math.Vector3f)
      */
     public Vector3f getPosition() {
         return position;
@@ -131,7 +131,7 @@ public class PointLight extends Light {
 
     /**
      * Set the world space position of the light.
-     * 
+     *
      * @param position the world space position of the light.
      */
     public final void setPosition(Vector3f position) {
@@ -141,7 +141,7 @@ public class PointLight extends Light {
     /**
      * Returns the radius of the light influence. A radius of 0 means
      * the light has no attenuation.
-     * 
+     *
      * @return the radius of the light
      */
     public float getRadius() {
@@ -156,9 +156,9 @@ public class PointLight extends Light {
      * is greater than the light's radius, then the pixel will not be
      * affected by this light, if the distance is less than the radius, then
      * the magnitude of the influence is equal to distance / radius.
-     * 
+     *
      * @param radius the radius of the light influence.
-     * 
+     *
      * @throws IllegalArgumentException If radius is negative
      */
     public final void setRadius(float radius) {
@@ -195,7 +195,7 @@ public class PointLight extends Light {
             return Intersection.intersect(box, position, radius);
         }
     }
-    
+
     @Override
     public boolean intersectsSphere(BoundingSphere sphere, TempVars vars) {
         if (this.radius == 0) {
@@ -205,7 +205,7 @@ public class PointLight extends Light {
             return Intersection.intersect(sphere, position, radius);
         }
     }
-    
+
     @Override
     public boolean intersectsFrustum(Camera camera, TempVars vars) {
         if (this.radius == 0) {
@@ -214,7 +214,7 @@ public class PointLight extends Light {
             return Intersection.intersect(camera, position, radius);
         }
     }
-    
+
     @Override
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
@@ -229,9 +229,9 @@ public class PointLight extends Light {
         InputCapsule ic = im.getCapsule(this);
         position = (Vector3f) ic.readSavable("position", null);
         radius = ic.readFloat("radius", 0f);
-        if(radius!=0){
+        if (radius!=0) {
             this.invRadius = 1 / radius;
-        }else{
+        } else {
             this.invRadius = 0;
         }
     }

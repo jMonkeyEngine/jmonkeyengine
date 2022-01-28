@@ -51,15 +51,15 @@ public abstract class AudioData extends NativeObject {
         Buffer,
         Stream
     }
-    
-    public AudioData(){
+
+    public AudioData() {
         super();
     }
 
-    protected AudioData(int id){
+    protected AudioData(int id) {
         super(id);
     }
-    
+
     /**
      * @return The data type, either <code>Buffer</code> or <code>Stream</code>.
      */
@@ -69,7 +69,7 @@ public abstract class AudioData extends NativeObject {
      * @return the duration in seconds of the audio clip.
      */
     public abstract float getDuration();
-    
+
     /**
      * @return Bits per single sample from a channel.
      */
@@ -97,7 +97,7 @@ public abstract class AudioData extends NativeObject {
      * @param bitsPerSample Bits per sample, e.g 8 bits, 16 bits.
      * @param sampleRate Sample rate, 44100, 22050, etc.
      */
-    public void setupFormat(int channels, int bitsPerSample, int sampleRate){
+    public void setupFormat(int channels, int bitsPerSample, int sampleRate) {
         if (id != -1)
             throw new IllegalStateException("Already set up");
 

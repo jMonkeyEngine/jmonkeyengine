@@ -10,7 +10,6 @@ import java.util.Collection;
 import java.util.List;
 
 public class ClipAction extends BlendableAction {
-
     private AnimClip clip;
     private Transform transform = new Transform();
 
@@ -25,7 +24,7 @@ public class ClipAction extends BlendableAction {
         for (AnimTrack track : tracks) {
             if (track instanceof TransformTrack) {
                 TransformTrack tt = (TransformTrack) track;
-                if(getMask() != null && !getMask().contains(tt.getTarget())){
+                if (getMask() != null && !getMask().contains(tt.getTarget())) {
                     continue;
                 }
                 interpolateTransformTrack(t, tt);
@@ -46,6 +45,7 @@ public class ClipAction extends BlendableAction {
             this.collectTransform(target, transform, getTransitionWeight(), this);
         }
     }
+
     private void interpolateMorphTrack(double t, MorphTrack track) {
         Geometry target = track.getTarget();
         float[] weights = target.getMorphState();

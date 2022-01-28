@@ -59,7 +59,7 @@ public class SavableClassUtil {
 
     private final static HashMap<String, String> CLASS_REMAPPINGS = new HashMap<>();
 
-    private static void addRemapping(String oldClass, Class<? extends Savable> newClass){
+    private static void addRemapping(String oldClass, Class<? extends Savable> newClass) {
         CLASS_REMAPPINGS.put(oldClass, newClass.getName());
     }
 
@@ -95,13 +95,13 @@ public class SavableClassUtil {
         }
     }
 
-    public static boolean isImplementingSavable(Class clazz){
+    public static boolean isImplementingSavable(Class clazz) {
         boolean result = Savable.class.isAssignableFrom(clazz);
         return result;
     }
 
     @SuppressWarnings("unchecked")
-    public static int[] getSavableVersions(Class<? extends Savable> clazz) throws IOException{
+    public static int[] getSavableVersions(Class<? extends Savable> clazz) throws IOException {
         ArrayList<Integer> versionList = new ArrayList<>();
         Class superclass = clazz;
         do {
@@ -110,20 +110,20 @@ public class SavableClassUtil {
         } while (superclass != null && SavableClassUtil.isImplementingSavable(superclass));
 
         int[] versions = new int[versionList.size()];
-        for (int i = 0; i < versionList.size(); i++){
+        for (int i = 0; i < versionList.size(); i++) {
             versions[i] = versionList.get(i);
         }
         return versions;
     }
 
     @SuppressWarnings("unchecked")
-    public static int getSavableVersion(Class<? extends Savable> clazz) throws IOException{
+    public static int getSavableVersion(Class<? extends Savable> clazz) throws IOException {
         try {
             Field field = clazz.getField("SAVABLE_VERSION");
             Class<? extends Savable> declaringClass = (Class<? extends Savable>) field.getDeclaringClass();
-            if (declaringClass == clazz){
+            if (declaringClass == clazz) {
                 return field.getInt(null);
-            }else{
+            } else {
                 return 0; // This class doesn't declare this field, e.g. version == 0
             }
         } catch (IllegalAccessException ex) {
@@ -137,27 +137,28 @@ public class SavableClassUtil {
         }
     }
 
-    public static int getSavedSavableVersion(Object savable, Class<? extends Savable> desiredClass, int[] versions, int formatVersion){
+    public static int getSavedSavableVersion(Object savable,
+            Class<? extends Savable> desiredClass, int[] versions, int formatVersion) {
         Class thisClass = savable.getClass();
         int count = 0;
 
         while (thisClass != desiredClass) {
             thisClass = thisClass.getSuperclass();
-            if (thisClass != null && SavableClassUtil.isImplementingSavable(thisClass)){
-                count ++;
-            }else{
+            if (thisClass != null && SavableClassUtil.isImplementingSavable(thisClass)) {
+                count++;
+            } else {
                 break;
             }
         }
 
-        if (thisClass == null){
+        if (thisClass == null) {
             throw new IllegalArgumentException(savable.getClass().getName() +
                                                " does not extend " +
                                                desiredClass.getName() + "!");
-        }else if (count >= versions.length){
-            if (formatVersion <= 1){
+        } else if (count >= versions.length) {
+            if (formatVersion <= 1) {
                 return 0; // for buggy versions of j3o
-            }else{
+            } else {
                 throw new IllegalArgumentException(savable.getClass().getName() +
                                                    " cannot access version of " +
                                                    desiredClass.getName() +
@@ -190,12 +191,12 @@ public class SavableClassUtil {
         } catch (InvocationTargetException | InstantiationException e) {
             Logger.getLogger(SavableClassUtil.class.getName()).log(
                     Level.SEVERE, "Could not access constructor of class ''{0}" + "''! \n"
-                    + "Some types need to have the BinaryImporter set up in a special way. Please doublecheck the setup.", className);
+                    + "Some types need to have the BinaryImporter set up in a special way. Please double-check the setup.", className);
             throw e;
         } catch (IllegalAccessException e) {
             Logger.getLogger(SavableClassUtil.class.getName()).log(
                     Level.SEVERE, "{0} \n"
-                    + "Some types need to have the BinaryImporter set up in a special way. Please doublecheck the setup.", e.getMessage());
+                    + "Some types need to have the BinaryImporter set up in a special way. Please double-check the setup.", e.getMessage());
             throw e;
         }
     }

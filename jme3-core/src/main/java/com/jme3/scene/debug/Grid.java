@@ -40,7 +40,7 @@ import java.nio.ShortBuffer;
 
 /**
  * Simple grid shape.
- * 
+ *
  * @author Kirill Vainer
  */
 public class Grid extends Mesh {
@@ -76,12 +76,12 @@ public class Grid extends Mesh {
             fpb.put(xLineLen).put(0).put(y);
 
             // indices
-            sib.put( (short) (curIndex++) );
-            sib.put( (short) (curIndex++) );
+            sib.put((short) (curIndex++));
+            sib.put((short) (curIndex++));
         }
 
         // add lines along Y
-        for (int i = 0; i < yLines + 2; i++){
+        for (int i = 0; i < yLines + 2; i++) {
             float x = (i) * lineDist;
 
             // positions
@@ -89,8 +89,8 @@ public class Grid extends Mesh {
             fpb.put(x).put(0).put(yLineLen);
 
             // indices
-            sib.put( (short) (curIndex++) );
-            sib.put( (short) (curIndex++) );
+            sib.put((short) (curIndex++));
+            sib.put((short) (curIndex++));
         }
 
         fpb.flip();
@@ -98,12 +98,11 @@ public class Grid extends Mesh {
 
         setBuffer(Type.Position, 3, fpb);
         setBuffer(Type.Index, 2, sib);
-        
+
         setMode(Mode.Lines);
 
         updateBound();
         updateCounts();
         setStatic();
     }
-    
 }

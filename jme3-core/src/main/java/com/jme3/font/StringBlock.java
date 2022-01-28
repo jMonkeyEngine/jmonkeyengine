@@ -75,7 +75,7 @@ class StringBlock implements Cloneable {
         this.kerning = kerning;
     }
 
-    StringBlock(){
+    StringBlock() {
         this.text = "";
         this.textBox = null;
         this.alignment = Align.Left;
@@ -85,7 +85,7 @@ class StringBlock implements Cloneable {
     }
 
     @Override
-    public StringBlock clone(){
+    public StringBlock clone() {
         try {
             StringBlock clone = (StringBlock) super.clone();
             clone.color = color.clone();
@@ -101,7 +101,7 @@ class StringBlock implements Cloneable {
         return text;
     }
 
-    void setText(String text){
+    void setText(String text) {
         this.text = text == null ? "" : text;
     }
 
@@ -116,7 +116,7 @@ class StringBlock implements Cloneable {
     BitmapFont.Align getAlignment() {
         return alignment;
     }
-    
+
     BitmapFont.VAlign getVerticalAlignment() {
         return vAlignment;
     }
@@ -124,7 +124,7 @@ class StringBlock implements Cloneable {
     void setAlignment(BitmapFont.Align alignment) {
         this.alignment = alignment;
     }
-    
+
     void setVerticalAlignment(BitmapFont.VAlign alignment) {
         this.vAlignment = alignment;
     }
@@ -160,19 +160,19 @@ class StringBlock implements Cloneable {
     void setLineCount(int lineCount) {
         this.lineCount = lineCount;
     }
-    
+
     LineWrapMode getLineWrapMode() {
         return wrapType;
     }
-    
+
     /**
-     * available only when bounding is set. <code>setBox()</code> method call is needed in advance. 
+     * available only when bounding is set. <code>setBox()</code> method call is needed in advance.
      * @param wrap true when word need not be split at the end of the line.
      */
     void setLineWrapMode(LineWrapMode wrap) {
         this.wrapType = wrap;
     }
-    
+
     void setTabWidth(float tabWidth) {
         this.tabWidth = tabWidth;
     }
@@ -180,11 +180,11 @@ class StringBlock implements Cloneable {
     void setTabPosition(float[] tabs) {
         this.tabPos = tabs;
     }
-    
+
     float getTabWidth() {
         return tabWidth;
     }
-    
+
     float[] getTabPosition() {
         return tabPos;
     }

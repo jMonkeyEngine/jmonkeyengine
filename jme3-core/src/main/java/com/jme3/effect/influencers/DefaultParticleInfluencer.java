@@ -91,9 +91,9 @@ public class DefaultParticleInfluencer implements ParticleInfluencer {
     public void read(JmeImporter im) throws IOException {
         InputCapsule ic = im.getCapsule(this);
         // NOTE: In previous versions of jME3, initialVelocity was called startVelocity
-        if (ic.getSavableVersion(DefaultParticleInfluencer.class) == 0){
+        if (ic.getSavableVersion(DefaultParticleInfluencer.class) == 0) {
             initialVelocity = (Vector3f) ic.readSavable("startVelocity", Vector3f.ZERO.clone());
-        }else{
+        } else {
             initialVelocity = (Vector3f) ic.readSavable("initialVelocity", Vector3f.ZERO.clone());
         }
         velocityVariation = ic.readFloat("variation", 0.2f);
@@ -126,7 +126,7 @@ public class DefaultParticleInfluencer implements ParticleInfluencer {
      *  Called internally by com.jme3.util.clone.Cloner.  Do not call directly.
      */
     @Override
-    public void cloneFields( Cloner cloner, Object original ) {
+    public void cloneFields(Cloner cloner, Object original) {
         this.initialVelocity = cloner.clone(initialVelocity);
 
         // Change in behavior: I'm cloning 'for real' the 'temp' field because

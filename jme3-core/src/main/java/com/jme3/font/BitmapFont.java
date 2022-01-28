@@ -44,43 +44,43 @@ public class BitmapFont implements Savable {
 
     /**
      * Specifies horizontal alignment for text.
-     * 
-     * @see BitmapText#setAlignment(com.jme3.font.BitmapFont.Align) 
+     *
+     * @see BitmapText#setAlignment(com.jme3.font.BitmapFont.Align)
      */
     public enum Align {
-        
+
         /**
          * Align text on the left of the text block
          */
-        Left, 
-        
+        Left,
+
         /**
          * Align text in the center of the text block
          */
-        Center, 
-        
+        Center,
+
         /**
          * Align text on the right of the text block
          */
         Right
     }
-    
+
     /**
      * Specifies vertical alignment for text.
-     * 
-     * @see BitmapText#setVerticalAlignment(com.jme3.font.BitmapFont.VAlign) 
+     *
+     * @see BitmapText#setVerticalAlignment(com.jme3.font.BitmapFont.VAlign)
      */
     public enum VAlign {
         /**
          * Align text on the top of the text block
          */
-        Top, 
-        
+        Top,
+
         /**
          * Align text in the center of the text block
          */
-        Center, 
-        
+        Center,
+
         /**
          * Align text at the bottom of the text block
          */
@@ -114,14 +114,14 @@ public class BitmapFont implements Savable {
     public BitmapFont() {
     }
 
-    public BitmapText createLabel(String content){
+    public BitmapText createLabel(String content) {
         BitmapText label = new BitmapText(this);
         label.setSize(getCharSet().getRenderedSize());
         label.setText(content);
         return label;
     }
 
-    public float getPreferredSize(){
+    public float getPreferredSize() {
         return getCharSet().getRenderedSize();
     }
 
@@ -175,7 +175,7 @@ public class BitmapFont implements Savable {
         return charSet.getLineHeight() * (sb.getSize() / charSet.getRenderedSize());
     }
 
-    public float getCharacterAdvance(char curChar, char nextChar, float size){
+    public float getCharacterAdvance(char curChar, char nextChar, float size) {
         BitmapCharacter c = charSet.getCharacter(curChar);
         if (c == null)
             return 0f;
@@ -212,8 +212,7 @@ public class BitmapFont implements Savable {
         glyphParser = (GlyphParser) ic.readSavable("glyphParser", null);
     }
 
-    public float getLineWidth(CharSequence text){
-
+    public float getLineWidth(CharSequence text) {
         // This method will probably always be a bit of a maintenance
         // nightmare since it bases its calculation on a different
         // routine than the Letters class.  The ideal situation would
@@ -224,8 +223,8 @@ public class BitmapFont implements Savable {
         // than Letters does with the same text then it might be better
         // just to create a Letters object for the sole purpose of
         // getting a text size.  It's less efficient but at least it
-        // would be accurate.  
-        
+        // would be accurate.
+
         // And here I am mucking around in here again...
         //
         // A font character has a few values that are pertinent to the
@@ -242,11 +241,11 @@ public class BitmapFont implements Savable {
         // So, a width should be calculated in a similar way.  Start with
         // -xOffset + xAdvance for the first character and then each subsequent
         // character is just xAdvance more 'width'.
-        // 
+        //
         // The kerning amount from one character to the next affects the
-        // cursor position of that next character and thus the ultimate width 
+        // cursor position of that next character and thus the ultimate width
         // and so must be factored in also.
-        
+
         float lineWidth = 0f;
         float maxLineWidth = 0f;
         char lastChar = 0;
@@ -255,9 +254,9 @@ public class BitmapFont implements Savable {
         float sizeScale = 1f;
         CharSequence characters = glyphParser != null ? glyphParser.parse(text) : text;
 
-        for (int i = 0; i < characters.length(); i++){
+        for (int i = 0; i < characters.length(); i++) {
             char theChar = characters.charAt(i);
-            if (theChar == '\n'){
+            if (theChar == '\n') {
                 maxLineWidth = Math.max(maxLineWidth, lineWidth);
                 lineWidth = 0f;
                 firstCharOfLine = true;
@@ -308,7 +307,7 @@ public class BitmapFont implements Savable {
                         // we just added by the appropriate amount.
                         lineWidth += c.getXOffset() * sizeScale;
                     }
-                } else {                 
+                } else {
                     lineWidth += xAdvance;
                 }
             }
@@ -327,13 +326,13 @@ public class BitmapFont implements Savable {
         charSet.merge(newFont.charSet);
         final int size1 = this.pages.length;
         final int size2 = newFont.pages.length;
-        
+
         Material[] tmp = new Material[size1+size2];
         System.arraycopy(this.pages, 0, tmp, 0, size1);
         System.arraycopy(newFont.pages, 0, tmp, size1, size2);
-        
+
         this.pages = tmp;
-        
+
 //        this.pages = Arrays.copyOf(this.pages, size1+size2);
 //        System.arraycopy(newFont.pages, 0, this.pages, size1, size2);
     }

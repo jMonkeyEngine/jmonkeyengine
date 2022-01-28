@@ -45,9 +45,9 @@ public class SortUtil {
         int pos = 1;
         int last = 0;
         int length = a.length;
-        
+
         while (pos < length){
-            if ( comp.compare(a[pos], a[pos-1]) >= 0 ){
+            if (comp.compare(a[pos], a[pos-1]) >= 0){
                 if (last != 0){
                     pos = last;
                     last = 0;
@@ -57,18 +57,18 @@ public class SortUtil {
                 Object tmp = a[pos];
                 a[pos] = a[pos-1];
                 a[pos-1] = tmp;
-                
+
                 if (pos > 1){
                     if (last == 0){
                         last = pos;
                     }
                     pos --;
-                }else{
+                } else {
                     pos ++;
                 }
             }
         }
-        
+
 //        int p = 0;
 //        int l = a.length;
 //        while (p < l) {
@@ -86,7 +86,7 @@ public class SortUtil {
 
     private static void test(Float[] original, Float[] sorted, Comparator<Float> ic) {
         long time, dt;
-        
+
         time = System.nanoTime();
         for (int i = 0; i < 1000000; i++) {
             System.arraycopy(original, 0, sorted, 0, original.length);
@@ -140,7 +140,7 @@ public class SortUtil {
 
     /**
      * Quick sorts the supplied array using the specified comparator.
-     * 
+     *
      * @param a the array to sort (not null, modified)
      * @param comp the Comparator to use (not null)
      */
@@ -271,7 +271,7 @@ public class SortUtil {
             qsort(a, hi + 1, hi0, comp);
         }
     }
-    
+
     /**
      * Merge sort
      *
@@ -282,10 +282,10 @@ public class SortUtil {
     public static void msort(Object[] src, Object[] dest, Comparator comp){
         msort(src, dest, 0, src.length - 1, comp);
     }
-    
+
     /**
      * Merge sort
-     * 
+     *
      * @param src Source array
      * @param dest Destination array
      * @param low Index of beginning element
@@ -301,7 +301,7 @@ public class SortUtil {
             merge(src, dest, low, center + 1, high, comp);
         }
     }
-    
+
     @SuppressWarnings("unchecked")
     private static void merge(Object[] src, Object[] dest,
             int low, int middle, int high, Comparator comp) {

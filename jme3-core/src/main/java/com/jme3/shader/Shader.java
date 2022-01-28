@@ -41,7 +41,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 public final class Shader extends NativeObject {
-    
+
     /**
      * A list of all shader sources currently attached.
      */
@@ -56,10 +56,10 @@ public final class Shader extends NativeObject {
      * Maps storage block name to the buffer block variables.
      */
     private final ListMap<String, ShaderBufferBlock> bufferBlocks;
-    
+
     /**
      * Uniforms bound to {@link UniformBinding}s.
-     * 
+     *
      * Managed by the {@link UniformBindingManager}.
      */
     private final ArrayList<Uniform> boundUniforms;
@@ -99,11 +99,11 @@ public final class Shader extends NativeObject {
         TessellationEvaluation("tseval");
 
         private String extension;
-        
+
         public String getExtension() {
             return extension;
         }
-        
+
         private ShaderType(String extension) {
             this.extension = extension;
         }
@@ -121,29 +121,29 @@ public final class Shader extends NativeObject {
         String source;
         String defines;
 
-        public ShaderSource(ShaderType type){
+        public ShaderSource(ShaderType type) {
             super();
             this.sourceType = type;
             if (type == null) {
                 throw new IllegalArgumentException("The shader type must be specified");
             }
         }
-        
-        protected ShaderSource(ShaderSource ss){
+
+        protected ShaderSource(ShaderSource ss) {
             super(ss.id);
             // No data needs to be copied.
             // (This is a destructible clone)
         }
 
-        public ShaderSource(){
+        public ShaderSource() {
             super();
         }
 
-        public void setName(String name){
+        public void setName(String name) {
             this.name = name;
         }
 
-        public String getName(){
+        public String getName() {
             return name;
         }
 
@@ -163,7 +163,7 @@ public final class Shader extends NativeObject {
             setUpdateNeeded();
         }
 
-        public void setSource(String source){
+        public void setSource(String source) {
             if (source == null) {
                 throw new IllegalArgumentException("Shader source cannot be null");
             }
@@ -171,7 +171,7 @@ public final class Shader extends NativeObject {
             setUpdateNeeded();
         }
 
-        public void setDefines(String defines){
+        public void setDefines(String defines) {
             if (defines == null) {
                 throw new IllegalArgumentException("Shader defines cannot be null");
             }
@@ -179,40 +179,40 @@ public final class Shader extends NativeObject {
             setUpdateNeeded();
         }
 
-        public String getSource(){
+        public String getSource() {
             return source;
         }
 
-        public String getDefines(){
+        public String getDefines() {
             return defines;
         }
-        
+
         @Override
         public long getUniqueId() {
             return ((long)OBJTYPE_SHADERSOURCE << 32) | ((long)id);
         }
-        
+
         @Override
-        public String toString(){
+        public String toString() {
             String nameTxt = "";
             if (name != null)
                 nameTxt = "name="+name+", ";
             if (defines != null)
                 nameTxt += "defines, ";
-            
+
 
             return getClass().getSimpleName() + "["+nameTxt+"type="
                                               + sourceType.name()+", language=" + language + "]";
         }
 
         @Override
-        public void resetObject(){
+        public void resetObject() {
             id = -1;
             setUpdateNeeded();
         }
 
         @Override
-        public void deleteObject(Object rendererObject){
+        public void deleteObject(Object rendererObject) {
             ((Renderer)rendererObject).deleteShaderSource(ShaderSource.this);
         }
 
@@ -226,7 +226,7 @@ public final class Shader extends NativeObject {
      * Creates a new shader, initialize() must be called
      * after this constructor for the shader to be usable.
      */
-    public Shader(){
+    public Shader() {
         super();
         shaderSourceList = new ArrayList<>();
         uniforms = new ListMap<>();
@@ -240,16 +240,16 @@ public final class Shader extends NativeObject {
      *
      * @param s (not null)
      */
-    protected Shader(Shader s){
+    protected Shader(Shader s) {
         super(s.id);
-        
+
         // Shader sources cannot be shared, therefore they must
         // be destroyed together with the parent shader.
         shaderSourceList = new ArrayList<ShaderSource>();
         for (ShaderSource source : s.shaderSourceList){
-            shaderSourceList.add( (ShaderSource)source.createDestructableClone() );
+            shaderSourceList.add((ShaderSource) source.createDestructableClone());
         }
-        
+
         uniforms = null;
         bufferBlocks = null;
         boundUniforms = null;
@@ -289,7 +289,7 @@ public final class Shader extends NativeObject {
             boundUniforms.add(uniform);
         }
     }
-    
+
     public Uniform getUniform(String name){
         assert name.startsWith("m_") || name.startsWith("g_");
         Uniform uniform = uniforms.get(name);
@@ -369,7 +369,7 @@ public final class Shader extends NativeObject {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + 
+        return getClass().getSimpleName() +
                 "[numSources=" + shaderSourceList.size() +
                 ", numUniforms=" + uniforms.size() +
                 ", numBufferBlocks=" + bufferBlocks.size() +
@@ -379,7 +379,7 @@ public final class Shader extends NativeObject {
     /**
      * Removes the "set-by-current-material" flag from all uniforms.
      * When a uniform is modified after this call, the flag shall
-     * become "set-by-current-material". 
+     * become "set-by-current-material".
      * A call to {@link #resetUniformsNotSetByCurrent() } will reset
      * all uniforms that do not have the "set-by-current-material" flag
      * to their default value (usually all zeroes or false).

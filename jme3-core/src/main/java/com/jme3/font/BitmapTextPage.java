@@ -128,7 +128,7 @@ class BitmapTextPage extends Geometry {
      *  Called internally by com.jme3.util.clone.Cloner.  Do not call directly.
      */
     @Override
-    public void cloneFields( Cloner cloner, Object original ) {
+    public void cloneFields(Cloner cloner, Object original) {
         
         Mesh originalMesh = this.mesh;
     
@@ -138,7 +138,7 @@ class BitmapTextPage extends Geometry {
         // BitmapText instances will clobber one another.
         // But if we were already deep cloning meshes then we don't
         // want to do it again... so we'll check first.
-        if( this.mesh == originalMesh ) {
+        if (this.mesh == originalMesh) {
             this.mesh = mesh.deepClone();
         }        
     }        

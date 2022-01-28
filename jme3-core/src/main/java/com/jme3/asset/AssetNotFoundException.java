@@ -39,10 +39,11 @@ package com.jme3.asset;
  * @author Kirill Vainer
  */
 public class AssetNotFoundException extends RuntimeException {
-    public AssetNotFoundException(String message){
+    public AssetNotFoundException(String message) {
         super(message);
     }
-    public AssetNotFoundException(String message, Exception ex){
+
+    public AssetNotFoundException(String message, Exception ex) {
         super(message, ex);
     }
 }

@@ -86,8 +86,8 @@ public class FaultHeightMap extends AbstractHeightMap {
     private int faultShape; // The type of fault
 
     /**
-     * Constructor creates the fault. For faulttype other than STEP, a range can
-     * be provided. For faultshape circle, min and max radii can be provided.
+     * Constructor creates the fault. For faultType other than STEP, a range can
+     * be provided. For faultShape circle, min and max radii can be provided.
      * Don't forget to reload the map if you have set parameters after the constructor
      * call.
      * @param size The size of the heightmap

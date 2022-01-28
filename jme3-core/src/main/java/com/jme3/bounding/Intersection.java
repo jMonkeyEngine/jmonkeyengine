@@ -42,7 +42,7 @@ import static java.lang.Math.min;
 /**
  * This class includes some utility methods for computing intersection
  * between bounding volumes and triangles.
- * 
+ *
  * @author Kirill
  */
 public final class Intersection {
@@ -62,36 +62,40 @@ public final class Intersection {
             vars.release();
         }
     }
-    
+
     public static boolean intersect(BoundingBox bbox, Vector3f center, float radius) {
         assert Vector3f.isValidVector(center) && Vector3f.isValidVector(bbox.center);
 
-        // Arvo's algorithm 
+        // Arvo's algorithm
         float distSqr = radius * radius;
-        
+
         float minX = bbox.center.x - bbox.xExtent;
         float maxX = bbox.center.x + bbox.xExtent;
-        
+
         float minY = bbox.center.y - bbox.yExtent;
         float maxY = bbox.center.y + bbox.yExtent;
-        
+
         float minZ = bbox.center.z - bbox.zExtent;
         float maxZ = bbox.center.z + bbox.zExtent;
-        
-        if      (center.x < minX) distSqr -= FastMath.sqr(center.x - minX);
-        else if (center.x > maxX) distSqr -= FastMath.sqr(center.x - maxX);
-        
-        
-        if      (center.y < minY) distSqr -= FastMath.sqr(center.y - minY);
-        else if (center.y > maxY) distSqr -= FastMath.sqr(center.y - maxY);
-        
-        
-        if      (center.z < minZ) distSqr -= FastMath.sqr(center.z - minZ);
-        else if (center.z > maxZ) distSqr -= FastMath.sqr(center.z - maxZ);
-        
+
+        if (center.x < minX)
+            distSqr -= FastMath.sqr(center.x - minX);
+        else if (center.x > maxX)
+            distSqr -= FastMath.sqr(center.x - maxX);
+
+        if (center.y < minY)
+            distSqr -= FastMath.sqr(center.y - minY);
+        else if (center.y > maxY)
+            distSqr -= FastMath.sqr(center.y - maxY);
+
+        if (center.z < minZ)
+            distSqr -= FastMath.sqr(center.z - minZ);
+        else if (center.z > maxZ)
+            distSqr -= FastMath.sqr(center.z - maxZ);
+
         return distSqr > 0;
     }
-    
+
     private static final void findMinMax(float x0, float x1, float x2, Vector3f minMax) {
         minMax.set(x0, x0, 0);
         if (x1 < minMax.x) {
@@ -108,7 +112,7 @@ public final class Intersection {
         }
     }
 
-    public static boolean intersect(Camera camera, Vector3f center,float radius){
+    public static boolean intersect(Camera camera, Vector3f center, float radius) {
         for (int i = 5; i >= 0; i--) {
             if (camera.getWorldPlane(i).pseudoDistance(center) <= -radius) {
                 return false;
@@ -145,7 +149,6 @@ public final class Intersection {
 
         TempVars vars = TempVars.get();
 
-
         Vector3f tmp0 = vars.vect1,
                 tmp1 = vars.vect2,
                 tmp2 = vars.vect3;
@@ -178,8 +181,6 @@ public final class Intersection {
         float fex = FastMath.abs(e0.x);
         float fey = FastMath.abs(e0.y);
         float fez = FastMath.abs(e0.z);
-
-
 
         //AXISTEST_X01(e0[Z], e0[Y], fez, fey);
         p0 = e0.z * tmp0.y - e0.y * tmp0.z;
@@ -293,7 +294,6 @@ public final class Intersection {
         //  find min, max of the triangle each direction, and test for overlap in
         //  that direction -- this is equivalent to testing a minimal AABB around
         //  the triangle against the AABB
-
 
         Vector3f minMax = vars.vect7;
 

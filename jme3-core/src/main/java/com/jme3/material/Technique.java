@@ -157,7 +157,7 @@ public final class Technique {
      * 
      * @param renderManager The render manager to perform the rendering against.
      * @param shader The shader that was selected in 
-     * {@link #makeCurrent(com.jme3.renderer.RenderManager, java.util.EnumSet)}.
+     * {@link #makeCurrent(RenderManager, SafeArrayList, SafeArrayList, LightList, EnumSet)}.
      * @param geometry The geometry to render
      * @param lights Lights which influence the geometry.
      * @param lastTexUnit the index of the most recently used texture unit

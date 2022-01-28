@@ -1466,7 +1466,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      * code.
      *
      * @param out the object to write to (not null)
-     * @throws IOException if the ObjectOuput cannot write a float
+     * @throws IOException if the ObjectOutput cannot write a float
      * @see java.io.Externalizable
      */
     public void writeExternal(ObjectOutput out) throws IOException {

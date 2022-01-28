@@ -282,7 +282,7 @@ public class AndroidSensorJoyInput implements SensorEventListener {
      * Surface.ROTATION_270 = device in rotated 270deg counterclockwise
      *
      * When the Manifest locks the orientation, this value will not change during
-     * gametime, but if the orientation of the screen is based off the sensor,
+     * game time, but if the orientation of the screen is based off the sensor,
      * this value will change as the device is rotated.
      * @return Current device rotation amount
      */

@@ -50,7 +50,7 @@ public class GeometryList implements Iterable<Geometry>{
 
     private static final int DEFAULT_SIZE = 32;
 
-    private Geometry[] geometries;    
+    private Geometry[] geometries;
     final private ListSort listSort;
     private int size;
     private GeometryComparator comparator;
@@ -63,7 +63,7 @@ public class GeometryList implements Iterable<Geometry>{
      */
     public GeometryList(GeometryComparator comparator) {
         size = 0;
-        geometries = new Geometry[DEFAULT_SIZE];      
+        geometries = new Geometry[DEFAULT_SIZE];
         this.comparator = comparator;
         listSort = new ListSort<Geometry>();
     }
@@ -88,7 +88,7 @@ public class GeometryList implements Iterable<Geometry>{
      *
      * @param cam Camera to use for sorting.
      */
-    public void setCamera(Camera cam){
+    public void setCamera(Camera cam) {
         this.comparator.setCamera(cam);
     }
 
@@ -103,21 +103,21 @@ public class GeometryList implements Iterable<Geometry>{
 
     /**
      * Sets the element at the given index.
-     * 
+     *
      * @param index The index to set
      * @param value The value
      */
     public void set(int index, Geometry value) {
         geometries[index] = value;
     }
-    
+
     /**
      * Returns the element at the given index.
      *
      * @param index The index to lookup
      * @return Geometry at the index
      */
-    public Geometry get(int index){
+    public Geometry get(int index) {
         return geometries[index];
     }
 
@@ -141,7 +141,7 @@ public class GeometryList implements Iterable<Geometry>{
      * Resets list size to 0.
      */
     public void clear() {
-        for (int i = 0; i < size; i++){
+        for (int i = 0; i < size; i++) {
             geometries[i] = null;
         }
 
@@ -155,9 +155,9 @@ public class GeometryList implements Iterable<Geometry>{
     public void sort() {
         if (size > 1) {
             // sort the spatial list using the comparator
-            if(listSort.getLength() != size){
+            if (listSort.getLength() != size) {
                 listSort.allocateStack(size);
-            }                       
+            }
             listSort.sort(geometries,comparator);
         }
     }
@@ -165,28 +165,26 @@ public class GeometryList implements Iterable<Geometry>{
     @Override
     public Iterator<Geometry> iterator() {
         return new Iterator<Geometry>() {
-
             int index = 0;
-            
+
             @Override
             public boolean hasNext() {
                 return index < size();
             }
 
-            
+
             @Override
             public Geometry next() {
-                if ( index >= size() ) {
+                if (index >= size()) {
                     throw new NoSuchElementException("Geometry list has only " + size() + " elements");
                 }
                 return get(index++);
             }
-            
+
             @Override
             public void remove() {
                 throw new UnsupportedOperationException("Geometry list doesn't support iterator removal");
             }
-            
         };
     }
 }

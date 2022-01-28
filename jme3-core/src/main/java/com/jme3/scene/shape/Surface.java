@@ -31,6 +31,10 @@
  */
 package com.jme3.scene.shape;
 
+import com.jme3.export.InputCapsule;
+import com.jme3.export.JmeExporter;
+import com.jme3.export.JmeImporter;
+import com.jme3.export.OutputCapsule;
 import com.jme3.math.CurveAndSurfaceMath;
 import com.jme3.math.FastMath;
 import com.jme3.math.Spline.SplineType;
@@ -39,6 +43,7 @@ import com.jme3.math.Vector4f;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.util.BufferUtils;
+import java.io.IOException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -53,12 +58,12 @@ import java.util.Map;
  */
 public class Surface extends Mesh {
     private SplineType           type;                // the type of the surface
-    final private List<List<Vector4f>> controlPoints;       // space control points and their weights
-    final private List<Float>[]        knots;               // knots of the surface
-    final private int                  basisUFunctionDegree; // the degree of basis U function
+    private List<List<Vector4f>> controlPoints;       // space control points and their weights
+    private List<Float>[]        knots;               // knots of the surface
+    private int                  basisUFunctionDegree; // the degree of basis U function
     private int                  basisVFunctionDegree; // the degree of basis V function
-    final private int                  uSegments;           // the amount of U segments
-    final private int                  vSegments;           // the amount of V segments
+    private int                  uSegments;           // the amount of U segments
+    private int                  vSegments;           // the amount of V segments
 
     /**
      * Constructor. Constructs required surface.
@@ -85,6 +90,12 @@ public class Surface extends Mesh {
         }
 
         this.buildSurface(smooth);
+    }
+
+    /**
+     * For serialization only. Do not use.
+     */
+    protected Surface() {
     }
 
     /**
@@ -166,20 +177,27 @@ public class Surface extends Mesh {
             int vVerticesAmount = vSegments + 1;
             int newUVerticesAmount = 2 + (uVerticesAmount - 2) * 2;
             List<Vector3f> verticesWithUDuplicates = new ArrayList<>(vVerticesAmount * newUVerticesAmount);
-            for(int i=0;i<vertices.size();++i) {
+            for (int i=0; i<vertices.size(); ++i) {
                 verticesWithUDuplicates.add(vertices.get(i));
                 if(i % uVerticesAmount != 0 && i % uVerticesAmount != uVerticesAmount - 1) {
                     verticesWithUDuplicates.add(vertices.get(i));
                 }
             }
             // and then duplicate all verts that are not on the border along the V axis
-            List<Vector3f> verticesWithVDuplicates = new ArrayList<>(verticesWithUDuplicates.size() * vVerticesAmount);
+            List<Vector3f> verticesWithVDuplicates
+                    = new ArrayList<>(verticesWithUDuplicates.size() * vVerticesAmount);
             verticesWithVDuplicates.addAll(verticesWithUDuplicates.subList(0, newUVerticesAmount));
-            for(int i=1;i<vSegments;++i) {
-                verticesWithVDuplicates.addAll(verticesWithUDuplicates.subList(i * newUVerticesAmount, i * newUVerticesAmount + newUVerticesAmount));
-                verticesWithVDuplicates.addAll(verticesWithUDuplicates.subList(i * newUVerticesAmount, i * newUVerticesAmount + newUVerticesAmount));
+            for (int i = 1; i < vSegments; ++i) {
+                verticesWithVDuplicates.addAll(
+                        verticesWithUDuplicates.subList(i * newUVerticesAmount,
+                                i * newUVerticesAmount + newUVerticesAmount));
+                verticesWithVDuplicates.addAll(
+                        verticesWithUDuplicates.subList(i * newUVerticesAmount,
+                                i * newUVerticesAmount + newUVerticesAmount));
             }
-            verticesWithVDuplicates.addAll(verticesWithUDuplicates.subList(vSegments * newUVerticesAmount, vSegments * newUVerticesAmount + newUVerticesAmount));
+            verticesWithVDuplicates.addAll(
+                    verticesWithUDuplicates.subList(vSegments * newUVerticesAmount,
+                            vSegments * newUVerticesAmount + newUVerticesAmount));
             vertices = verticesWithVDuplicates;
         }
 
@@ -188,7 +206,7 @@ public class Surface extends Mesh {
         int arrayIndex = 0;
         int uVerticesAmount = smooth ? uSegments + 1 : uSegments * 2;
         if(smooth) {
-            for (int i = 0; i < vSegments; ++i) { 
+            for (int i = 0; i < vSegments; ++i) {
                 for (int j = 0; j < uSegments; ++j) {
                     indices[arrayIndex++] = j + i * uVerticesAmount + uVerticesAmount;
                     indices[arrayIndex++] = j + i * uVerticesAmount + 1;
@@ -215,8 +233,10 @@ public class Surface extends Mesh {
         // normalMap merges normals of faces that will be rendered smooth
         Map<Vector3f, Vector3f> normalMap = new HashMap<>(verticesArray.length);
         for (int i = 0; i < indices.length; i += 3) {
-            Vector3f n = FastMath.computeNormal(verticesArray[indices[i]], verticesArray[indices[i + 1]], verticesArray[indices[i + 2]]);
-            this.addNormal(n, normalMap, smooth, verticesArray[indices[i]], verticesArray[indices[i + 1]], verticesArray[indices[i + 2]]);
+            Vector3f n = FastMath.computeNormal(verticesArray[indices[i]],
+                    verticesArray[indices[i + 1]], verticesArray[indices[i + 2]]);
+            this.addNormal(n, normalMap, smooth, verticesArray[indices[i]],
+                    verticesArray[indices[i + 1]], verticesArray[indices[i + 2]]);
         }
         // preparing normal list (the order of normals must match the order of vertices)
         float[] normals = new float[verticesArray.length * 3];
@@ -290,6 +310,88 @@ public class Surface extends Mesh {
     }
 
     /**
+     * De-serializes from the specified importer, for example when loading from
+     * a J3O file.
+     *
+     * @param importer the importer to use (not null)
+     * @throws IOException from the importer
+     */
+    @Override
+    @SuppressWarnings("unchecked")
+    public void read(JmeImporter importer) throws IOException {
+        super.read(importer);
+        InputCapsule capsule = importer.getCapsule(this);
+
+        type = capsule.readEnum("type", SplineType.class, null);
+        basisUFunctionDegree = capsule.readInt("basisUFunctionDegree", 0);
+        basisVFunctionDegree = capsule.readInt("basisVFunctionDegree", 0);
+        uSegments = capsule.readInt("uSegments", 0);
+        vSegments = capsule.readInt("vSegments", 0);
+
+        float[][] knotArray2D = capsule.readFloatArray2D("knotArray2D", null);
+        int numKnotArrayLists = knotArray2D.length;
+        knots = new ArrayList[numKnotArrayLists];
+        for (int i = 0; i < numKnotArrayLists; ++i) {
+            float[] knotArray = knotArray2D[i];
+            knots[i] = new ArrayList<>(knotArray.length);
+            for (float knot : knotArray) {
+                knots[i].add(knot);
+            }
+        }
+
+        List[] listArray = capsule.readSavableArrayListArray("listArray", null);
+        int numControlPointLists = listArray.length;
+        controlPoints = new ArrayList<>(numControlPointLists);
+        for (int i = 0; i < numControlPointLists; ++i) {
+            List<Vector4f> list = listArray[i];
+            controlPoints.add(list);
+        }
+    }
+
+    /**
+     * Serializes to the specified exporter, for example when saving to a J3O
+     * file. The current instance is unaffected.
+     *
+     * @param exporter the exporter to use (not null)
+     * @throws IOException from the exporter
+     */
+    @Override
+    @SuppressWarnings("unchecked")
+    public void write(JmeExporter exporter) throws IOException {
+        super.write(exporter);
+        OutputCapsule capsule = exporter.getCapsule(this);
+
+        capsule.write(type, "type", null);
+        capsule.write(basisUFunctionDegree, "basisUFunctionDegree", 0);
+        capsule.write(basisVFunctionDegree, "basisVFunctionDegree", 0);
+        capsule.write(uSegments, "uSegments", 0);
+        capsule.write(vSegments, "vSegments", 0);
+
+        int numKnotArrayLists = knots.length;
+        float[][] knotArray2D = new float[numKnotArrayLists][];
+        for (int i = 0; i < numKnotArrayLists; ++i) {
+            List<Float> list = knots[i];
+            int numKnots = list.size();
+            float[] array = new float[numKnots];
+            for (int j = 0; j < numKnots; ++j) {
+                array[j] = list.get(j);
+            }
+            knotArray2D[i] = array;
+        }
+        capsule.write(knotArray2D, "knotArray2D", null);
+
+        int numControlPointLists = controlPoints.size();
+        ArrayList[] listArray = new ArrayList[numControlPointLists];
+        for (int i = 0; i < numControlPointLists; ++i) {
+            List<Vector4f> list = controlPoints.get(i);
+            int numVectors = list.size();
+            listArray[i] = new ArrayList<>(numVectors);
+            listArray[i].addAll(list);
+        }
+        capsule.writeSavableArrayListArray(listArray, "listArray", null);
+    }
+
+    /**
      * This method returns the minimum nurb curve U knot value.
      * @return the minimum nurb curve knot value
      */
@@ -330,7 +432,7 @@ public class Surface extends Mesh {
      * @param normalMap
      *            merges normals of faces that will be rendered smooth; the key is the vertex and the value - its normal vector
      * @param smooth the variable that indicates whether to merge normals
-     * (creating the smooth mesh) or not
+     *     (creating the smooth mesh) or not
      * @param vertices
      *            a list of vertices read from the blender file
      */

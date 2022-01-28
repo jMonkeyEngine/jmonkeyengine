@@ -39,7 +39,7 @@ public class JoyButtonTrigger implements Trigger {
 
     /**
      * Use {@link Joystick#assignButton(java.lang.String, int) } instead.
-     * 
+     *
      * @param joyId the ID of a joystick
      * @param axisId the ID of a joystick axis
      */
@@ -48,7 +48,7 @@ public class JoyButtonTrigger implements Trigger {
         this.buttonId = axisId;
     }
 
-    public static int joyButtonHash(int joyId, int joyButton){
+    public static int joyButtonHash(int joyId, int joyButton) {
         assert joyButton >= 0 && joyButton <= 255;
         return (2048 * joyId) | 1536 | (joyButton & 0xff);
     }

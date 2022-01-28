@@ -571,6 +571,19 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
+     * Multiplies component-wise by the specified components and returns the
+     * product as a new instance. The current instance is unaffected.
+     *
+     * @param x the scale factor for the X component
+     * @param y the scale factor for the Y component
+     * @param z the scale factor for the Z component
+     * @return a new Vector3f
+     */
+    public Vector3f mult(float x, float y, float z) {
+        return new Vector3f(this.x * x, this.y * y, this.z * z);
+    }
+
+    /**
      * Multiplies component-wise with the specified vector and returns the
      * product in a 3rd vector. If the argument is null, null is returned.
      * Either way, the current instance is unaffected, unless it's
@@ -619,6 +632,22 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
+     * Divides component-wise by the specified components returns the (modified)
+     * current instance.
+     *
+     * @param x the divisor for the X component
+     * @param y the divisor for the Y component
+     * @param z the divisor for the Z component
+     * @return the (modified) current instance (for chaining)
+     */
+    public Vector3f divideLocal(float x, float y, float z) {
+        this.x /= x;
+        this.y /= y;
+        this.z /= z;
+        return this;
+    }
+
+    /**
      * Divides component-wise by the argument and returns the quotient as a new
      * instance. The current instance is unaffected.
      *
@@ -627,6 +656,19 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      */
     public Vector3f divide(Vector3f divisor) {
         return new Vector3f(x / divisor.x, y / divisor.y, z / divisor.z);
+    }
+
+    /**
+     * Divides component-wise by the specified components and returns the quotient
+     * as a new instance. The current instance is unaffected.
+     *
+     * @param x the divisor for the X component
+     * @param y the divisor for the Y component
+     * @param z the divisor for the Z component
+     * @return a new Vector3f
+     */
+    public Vector3f divide(float x, float y, float z) {
+        return new Vector3f(this.x / x, this.y / y, this.z / z);
     }
 
     /**
