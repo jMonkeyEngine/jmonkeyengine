@@ -2,7 +2,6 @@ package com.jme3.input.vr.lwjgl_openvr;
 
 import java.nio.LongBuffer;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -684,7 +683,7 @@ public class LWJGLOpenVRInput implements VRInputAPI {
      * If a cached handle is available it is returned, if not it is fetched from openVr
      *
      * @param inputName the input name, e.g. /user/hand/right. Or null, which means "any input"
-     * @return
+     * @return the input handle
      */
     public long getOrFetchInputHandle( String inputName ){
         if(!inputHandles.containsKey(inputName)){

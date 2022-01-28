@@ -81,8 +81,6 @@ public class TimeLine extends HashMap<Integer, KeyFrame> implements Savable {
             }
         }
     }
-    
-    
 
     public void removeKeyFrame(float time) {
         removeKeyFrame(getKeyFrameIndexFromTime(time));
@@ -91,9 +89,9 @@ public class TimeLine extends HashMap<Integer, KeyFrame> implements Savable {
     public int getKeyFrameIndexFromTime(float time) {
         return Math.round(time * keyFramesPerSeconds);
     }
-    
+
     public float getKeyFrameTime(KeyFrame keyFrame) {
-        return keyFrame.getIndex()/(float)keyFramesPerSeconds;
+        return keyFrame.getIndex() / (float) keyFramesPerSeconds;
     }
 
     public Collection<KeyFrame> getAllKeyFrames() {

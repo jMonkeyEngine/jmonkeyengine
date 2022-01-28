@@ -108,13 +108,13 @@ public class InstancedNode extends GeometryGroupNode {
         public Object jmeClone() {
             try {
                 return super.clone();
-            } catch( CloneNotSupportedException e ) {
+            } catch (CloneNotSupportedException e) {
                 throw new AssertionError();
             }
         }
 
         @Override
-        public void cloneFields( Cloner cloner, Object original ) {
+        public void cloneFields(Cloner cloner, Object original) {
             this.mesh = cloner.clone(mesh);
             this.material = cloner.clone(material);
         }
@@ -141,18 +141,18 @@ public class InstancedNode extends GeometryGroupNode {
         public Object jmeClone() {
             try {
                 return super.clone();
-            } catch( CloneNotSupportedException e ) {
+            } catch (CloneNotSupportedException e) {
                 throw new RuntimeException("Error cloning control", e);
             }
         }
 
         @Override
-        public void cloneFields( Cloner cloner, Object original ) {
+        public void cloneFields (Cloner cloner, Object original) {
             this.node = cloner.clone(node);
         }
 
         @Override
-        public void setSpatial(Spatial spatial){
+        public void setSpatial(Spatial spatial) {
         }
 
         @Override
@@ -368,20 +368,20 @@ public class InstancedNode extends GeometryGroupNode {
      *  Called internally by com.jme3.util.clone.Cloner.  Do not call directly.
      */
     @Override
-    public void cloneFields( Cloner cloner, Object original ) {
+    public void cloneFields(Cloner cloner, Object original) {
         super.cloneFields(cloner, original);
 
         this.control = cloner.clone(control);
         this.lookUp = cloner.clone(lookUp);
 
         HashMap<Geometry, InstancedGeometry> newIgByGeom = new HashMap<>();
-        for( Map.Entry<Geometry, InstancedGeometry> e : igByGeom.entrySet() ) {
+        for (Map.Entry<Geometry, InstancedGeometry> e : igByGeom.entrySet()) {
             newIgByGeom.put(cloner.clone(e.getKey()), cloner.clone(e.getValue()));
         }
         this.igByGeom = newIgByGeom;
 
         HashMap<InstanceTypeKey, InstancedGeometry> newInstancesMap = new HashMap<>();
-        for( Map.Entry<InstanceTypeKey, InstancedGeometry> e : instancesMap.entrySet() ) {
+        for (Map.Entry<InstanceTypeKey, InstancedGeometry> e : instancesMap.entrySet()) {
             newInstancesMap.put(cloner.clone(e.getKey()), cloner.clone(e.getValue()));
         }
         this.instancesMap = newInstancesMap;

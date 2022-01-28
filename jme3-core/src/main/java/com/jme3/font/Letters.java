@@ -83,7 +83,7 @@ class Letters {
                 if (baseColor != null) {
                     // Give the letter a default color if
                     // one has been provided.
-                    l.setColor( baseColor );
+                    l.setColor(baseColor);
                 }
             }
         }
@@ -119,7 +119,7 @@ class Letters {
         while (!l.isTail()) {
             if (l.isInvalid()) {
                 l.update(block);
-                // Without a textblock the next line returns always false = no textwrap at all will be applied
+                // Without a text block, the next line always returns false = no text wrap will be applied.
                 if (l.isInvalid(block)) {
                     switch (block.getLineWrapMode()) {
                     case Character:
@@ -169,8 +169,8 @@ class Letters {
                         l.clip(block);
 
                         // Clear the rest up to the next line feed.
-                        // = for texts attached to a textblock all coming characters are cleared except a linefeed is explicitly used
-                        for( LetterQuad q = l.getNext(); !q.isTail() && !q.isLineFeed(); q = q.getNext() ) {
+                        // = for texts attached to a text block, all coming characters are cleared except a linefeed is explicitly used
+                        for (LetterQuad q = l.getNext(); !q.isTail() && !q.isLineFeed(); q = q.getNext()) {
                             q.setBitmapChar(null);
                             q.update(block);
                         }
@@ -193,7 +193,7 @@ class Letters {
 
     private void align() {
         if (block.getTextBox() == null) {
-            // Without a textblock there is no alignment.
+            // Without a text block, there is no alignment.
             return;
 
             // For unbounded left-to-right texts the letters will simply be shown starting from
@@ -395,10 +395,10 @@ class Letters {
      * Sets the base color for all new letter quads and resets
      * the color of existing letter quads.
      */
-    void setColor( ColorRGBA color ) {
+    void setColor(ColorRGBA color) {
         baseColor = color;
         colorTags.setBaseColor(color);
-        setColor( 0, block.getText().length(), color );
+        setColor(0, block.getText().length(), color);
     }
 
     ColorRGBA getBaseColor() {
@@ -424,7 +424,8 @@ class Letters {
         return baseAlpha;
     }
 
-    void setBaseAlpha( float alpha ) {        this.baseAlpha = alpha;
+    void setBaseAlpha(float alpha) {
+        this.baseAlpha = alpha;
         colorTags.setBaseAlpha(alpha);
 
         if (alpha == -1) {

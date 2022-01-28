@@ -89,6 +89,7 @@ public class TestCloneMesh {
     /**
      * Test cloning/saving/loading a SkeletonDebugger.
      */
+    @Test
     public void testCloneSkeletonDebugger() {
         Bone[] boneArray = new Bone[2];
         boneArray[0] = new Bone("rootBone");
@@ -111,8 +112,9 @@ public class TestCloneMesh {
     }
 
     /**
-     * Test cloning/saving/loading a SkeletonInterBoneWire.
+     * Test cloning/saving/loading a SkeletonInterBoneWire.  See JME issue #1705.
      */
+    @Test
     public void testCloneSkeletonInterBoneWire() {
         Bone[] boneArray = new Bone[2];
         boneArray[0] = new Bone("rootBone");
@@ -138,8 +140,9 @@ public class TestCloneMesh {
     }
 
     /**
-     * Test cloning/saving/loading a SkeletonPoints.
+     * Test cloning/saving/loading a SkeletonPoints.  See JME issue #1705.
      */
+    @Test
     public void testCloneSkeletonPoints() {
         Bone[] boneArray = new Bone[2];
         boneArray[0] = new Bone("rootBone");
@@ -161,8 +164,9 @@ public class TestCloneMesh {
     }
 
     /**
-     * Test cloning/saving/loading a SkeletonWire.
+     * Test cloning/saving/loading a SkeletonWire.  See JME issue #1705.
      */
+    @Test
     public void testCloneSkeletonWire() {
         Bone[] boneArray = new Bone[2];
         boneArray[0] = new Bone("rootBone");

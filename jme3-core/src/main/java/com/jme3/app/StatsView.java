@@ -60,7 +60,6 @@ import com.jme3.util.clone.JmeCloneable;
  * </pre>
  */
 public class StatsView extends Node implements Control, JmeCloneable {
-
     final private BitmapText statText;
     final private Statistics statistics;
 
@@ -71,7 +70,7 @@ public class StatsView extends Node implements Control, JmeCloneable {
 
     private final StringBuilder stringBuilder = new StringBuilder();
 
-    public StatsView(String name, AssetManager manager, Statistics stats){
+    public StatsView(String name, AssetManager manager, Statistics stats) {
         super(name);
 
         setQueueBucket(Bucket.Gui);
@@ -97,7 +96,6 @@ public class StatsView extends Node implements Control, JmeCloneable {
 
     @Override
     public void update(float tpf) {
-
         if (!isEnabled())
             return;
 
@@ -122,14 +120,14 @@ public class StatsView extends Node implements Control, JmeCloneable {
     public Control cloneForSpatial(Spatial spatial) {
         throw new UnsupportedOperationException();
     }
-    
+
     @Override
     public StatsView jmeClone() {
         throw new UnsupportedOperationException("Not yet implemented.");
     }
 
     @Override
-    public void cloneFields( Cloner cloner, Object original ) {
+    public void cloneFields(Cloner cloner, Object original) {
         throw new UnsupportedOperationException("Not yet implemented.");
     }
 
@@ -149,5 +147,4 @@ public class StatsView extends Node implements Control, JmeCloneable {
     @Override
     public void render(RenderManager rm, ViewPort vp) {
     }
-
 }

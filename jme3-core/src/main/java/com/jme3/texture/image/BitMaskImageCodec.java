@@ -34,11 +34,11 @@ package com.jme3.texture.image;
 import java.nio.ByteBuffer;
 
 class BitMaskImageCodec extends ImageCodec {
-    
+
     // Shifts
     final int as, rs, gs, bs;
     boolean be = false;
-    
+
     public BitMaskImageCodec(int bpp, int flags, int ac, int rc, int gc, int bc, int as, int rs, int gs, int bs) {
         super(bpp, flags,
                 (int) (((long) 1 << ac) - 1),
@@ -49,13 +49,13 @@ class BitMaskImageCodec extends ImageCodec {
         if (bpp > 4) {
             throw new UnsupportedOperationException("Use ByteAlignedImageCodec for codecs with pixel sizes larger than 4 bytes");
         }
-        
+
         this.as = as;
         this.rs = rs;
         this.gs = gs;
         this.bs = bs;
     }
-    
+
     private static int readPixelRaw(ByteBuffer buf, int idx, int bpp) {
         //idx += bpp;
         //int original = buf.get(--idx) & 0xff;
@@ -71,7 +71,7 @@ class BitMaskImageCodec extends ImageCodec {
         }
         return pixel;
     }
-    
+
     private void writePixelRaw(ByteBuffer buf, int idx, int pixel, int bpp){
 //        buf.position(idx);
 //        if (!be){
@@ -87,15 +87,16 @@ class BitMaskImageCodec extends ImageCodec {
 //                buf.put(idx + i, bt);
 //            }
 //        }
-        
+
         buf.position(idx);
         for (int i = 0; i < bpp; i++) {
-            buf.put( (byte)((pixel >> (8 * i)) & 0xff) );
+            buf.put((byte) ((pixel >> (8 * i)) & 0xff));
         }
     }
 
     @Override
-    public void readComponents(ByteBuffer buf, int x, int y, int width, int offset, int[] components, byte[] tmp) {
+    public void readComponents(ByteBuffer buf, int x, int y, int width, int offset,
+            int[] components, byte[] tmp) {
         int inputPixel = readPixelRaw(buf, (x + y * width) * bpp + offset, bpp);
         components[0] = (inputPixel >> as) & maxAlpha;
         components[1] = (inputPixel >> rs) & maxRed;
@@ -104,14 +105,15 @@ class BitMaskImageCodec extends ImageCodec {
     }
 
     @Override
-    public void writeComponents(ByteBuffer buf, int x, int y, int width, int offset, int[] components, byte[] tmp) {
+    public void writeComponents(ByteBuffer buf, int x, int y, int width, int offset,
+            int[] components, byte[] tmp) {
         // Shift components then mask them
         // Map all components into a single bitspace
         int outputPixel = ((components[0] & maxAlpha) << as)
                         | ((components[1] & maxRed) << rs)
                         | ((components[2] & maxGreen) << gs)
                         | ((components[3] & maxBlue) << bs);
-        
+
         // Find index in image where to write pixel.
         // Write the resultant bitspace into the pixel.
         writePixelRaw(buf, (x + y * width) * bpp + offset, outputPixel, bpp);

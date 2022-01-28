@@ -48,7 +48,7 @@ import java.nio.ShortBuffer;
 
 /**
  * A hemisphere.
- * 
+ *
  * @author Peter Andersson
  * @author Joshua Slack (Original sphere code that was adapted)
  * @version $Revision: 4131 $, $Date: 2009-03-19 16:15:28 -0400 (Thu, 19 Mar 2009) $
@@ -70,8 +70,8 @@ public class Dome extends Mesh {
     }
 
     /**
-     * Constructs a dome for use as a SkyDome. The SkyDome is centered at the origin 
-     * and only visible from the inside. 
+     * Constructs a dome for use as a SkyDome. The SkyDome is centered at the origin
+     * and only visible from the inside.
      * @param planes
      *            The number of planes along the Z-axis. Must be &gt;= 2.
      *            Influences how round the arch of the dome is.
@@ -87,18 +87,18 @@ public class Dome extends Mesh {
     }
 
     /**
-     * Constructs a dome visible from the inside, e.g. for use as a SkyDome. 
+     * Constructs a dome visible from the inside, e.g. for use as a SkyDome.
      * All geometry data buffers are updated automatically. <br>
      * For a cone, set planes=2. For a pyramid, set radialSamples=4 and planes=2.
      * Increasing planes and radialSamples increase the quality of the dome.
-     * 
+     *
      * @param center
      *            Center of the dome.
      * @param planes
      *            The number of planes along the Z-axis. Must be &gt;= 2.
      *            Influences how round the arch of the dome is.
      * @param radialSamples
-     *            The number of samples along the radial. 
+     *            The number of samples along the radial.
      *            Influences how round the base of the dome is.
      * @param radius
      *            The radius of the dome.
@@ -110,12 +110,12 @@ public class Dome extends Mesh {
     }
 
     /**
-     * Constructs a dome. Use this constructor for half-sphere, pyramids, or cones. 
+     * Constructs a dome. Use this constructor for half-sphere, pyramids, or cones.
      * All geometry data buffers are updated automatically. <br>
      * For a cone, set planes=2. For a pyramid, set radialSamples=4 and planes=2.
-     * Setting higher values for planes and radialSamples increases 
+     * Setting higher values for planes and radialSamples increases
      * the quality of the half-sphere.
-     * 
+     *
      * @param center
      *            Center of the dome.
      * @param planes
@@ -140,8 +140,8 @@ public class Dome extends Mesh {
         return center;
     }
 
-    /** 
-     * Get the number of planar segments along the z-axis of the dome. 
+    /**
+     * Get the number of planar segments along the z-axis of the dome.
      *
      * @return the count
      */
@@ -149,8 +149,8 @@ public class Dome extends Mesh {
         return planes;
     }
 
-    /** 
-     * Get the number of samples radially around the main axis of the dome. 
+    /**
+     * Get the number of samples radially around the main axis of the dome.
      *
      * @return the count
      */
@@ -158,8 +158,8 @@ public class Dome extends Mesh {
         return radialSamples;
     }
 
-    /** 
-     * Get the radius of the dome. 
+    /**
+     * Get the radius of the dome.
      *
      * @return the radius (in mesh units)
      */
@@ -169,7 +169,7 @@ public class Dome extends Mesh {
 
     /**
      * Are the triangles connected in such a way as to present a view out from the dome or not.
-     * 
+     *
      * @return true if visible from inside, false if visible from outside
      */
     public boolean isInsideView() {
@@ -178,7 +178,7 @@ public class Dome extends Mesh {
 
     /**
      * Rebuilds the dome with a new set of parameters.
-     * 
+     *
      * @param center the new center of the dome.
      * @param planes the number of planes along the Z-axis.
      * @param radialSamples the new number of radial samples of the dome.
@@ -290,14 +290,14 @@ public class Dome extends Mesh {
             int bottomPlaneStart = ((plane - 1) * (radialSamples + 1));
             int topPlaneStart = (plane * (radialSamples + 1));
             for (int sample = 0; sample < radialSamples; sample++, index += 6) {
-                if (insideView){
+                if (insideView) {
                     ib.put((short) (bottomPlaneStart + sample));
                     ib.put((short) (bottomPlaneStart + sample + 1));
                     ib.put((short) (topPlaneStart + sample));
                     ib.put((short) (bottomPlaneStart + sample + 1));
                     ib.put((short) (topPlaneStart + sample + 1));
                     ib.put((short) (topPlaneStart + sample));
-                }else{
+                } else {
                     ib.put((short) (bottomPlaneStart + sample));
                     ib.put((short) (topPlaneStart + sample));
                     ib.put((short) (bottomPlaneStart + sample + 1));
@@ -311,11 +311,11 @@ public class Dome extends Mesh {
         // pole triangles
         int bottomPlaneStart = (planes - 2) * (radialSamples + 1);
         for (int samples = 0; samples < radialSamples; samples++, index += 3) {
-            if (insideView){
+            if (insideView) {
                 ib.put((short) (bottomPlaneStart + samples));
                 ib.put((short) (bottomPlaneStart + samples + 1));
                 ib.put((short) (vertCount - 1));
-            }else{
+            } else {
                 ib.put((short) (bottomPlaneStart + samples));
                 ib.put((short) (vertCount - 1));
                 ib.put((short) (bottomPlaneStart + samples + 1));

@@ -43,10 +43,9 @@ import java.util.List;
  */
 public class KeyFrame implements Savable {
 
-    public KeyFrame(){
-        
+    public KeyFrame() {
     }
-    
+
     List<CinematicEvent> cinematicEvents = new ArrayList<>();
     private int index;
 
@@ -64,8 +63,8 @@ public class KeyFrame implements Savable {
         }
         return cinematicEvents;
     }
-    
-    public boolean isEmpty(){
+
+    public boolean isEmpty() {
         return cinematicEvents.isEmpty();
     }
 
@@ -81,7 +80,7 @@ public class KeyFrame implements Savable {
     public void read(JmeImporter im) throws IOException {
         InputCapsule ic = im.getCapsule(this);
         cinematicEvents = ic.readSavableArrayList("cinematicEvents", null);
-        index=ic.readInt("index", 0);
+        index = ic.readInt("index", 0);
     }
 
     public int getIndex() {
@@ -91,6 +90,4 @@ public class KeyFrame implements Savable {
     public void setIndex(int index) {
         this.index = index;
     }
-
-
 }

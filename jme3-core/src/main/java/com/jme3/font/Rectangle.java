@@ -54,16 +54,17 @@ public class Rectangle implements Cloneable {
     }
 
     @Override
-    public Rectangle clone(){
+    public Rectangle clone() {
         try {
             return (Rectangle) super.clone();
         } catch (CloneNotSupportedException ex) {
             throw new AssertionError();
         }
     }
-    
+
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "[x=" + x + ", y=" + y + ", width=" + width + ", height=" + height + "]"; 
+        return getClass().getSimpleName()
+                + "[x=" + x + ", y=" + y + ", width=" + width + ", height=" + height + "]";
     }
 }

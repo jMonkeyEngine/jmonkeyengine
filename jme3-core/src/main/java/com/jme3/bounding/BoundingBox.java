@@ -733,7 +733,7 @@ public class BoundingBox extends BoundingVolume {
     }
 
     /**
-     * @see com.jme.bounding.BoundingVolume#intersectsWhere(com.jme.math.Ray)
+     * @see com.jme3.bounding.BoundingVolume#intersects(com.jme3.math.Ray)
      */
     private int collideWithRay(Ray ray, CollisionResults results) {
         TempVars vars = TempVars.get();

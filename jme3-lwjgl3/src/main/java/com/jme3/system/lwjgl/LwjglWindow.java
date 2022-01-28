@@ -148,6 +148,10 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
     protected boolean autoFlush = true;
     protected boolean allowSwapBuffers = false;
 
+    // temp variables used for glfw calls
+    private int width[] = new int[1];
+    private int height[] = new int[1];
+    
     public LwjglWindow(final JmeContext.Type type) {
 
         if (!SUPPORTED_TYPES.contains(type)) {
@@ -587,8 +591,6 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         if (framesAfterContextStarted < 2) {
             framesAfterContextStarted++;
             if (framesAfterContextStarted == 2) {
-                int[] width = new int[1];
-                int[] height = new int[1];
                 glfwGetFramebufferSize(window, width, height);
 
                 if (settings.getWidth() != width[0] || settings.getHeight() != height[0]) {
@@ -766,13 +768,15 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
      * @see <a href="https://www.glfw.org/docs/latest/window_guide.html#window_scale">Window content scale</a>
      */
     public Vector2f getWindowContentScale(Vector2f store) {
-        float[] xScale = new float[1];
-        float[] yScale = new float[1];
-        glfwGetWindowContentScale(window, xScale, yScale);
+        if (store == null) store = new Vector2f();
 
-        if (store != null) {
-            return store.set(xScale[0], yScale[0]);
-        }
-        return new Vector2f(xScale[0], yScale[0]);
+        glfwGetFramebufferSize(window, width, height);
+        store.set(width[0], height[0]);
+
+        glfwGetWindowSize(window, width, height);
+        store.x /= width[0];
+        store.y /= height[0];
+
+        return store;
     }
 }

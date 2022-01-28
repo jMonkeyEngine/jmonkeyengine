@@ -38,7 +38,7 @@ import java.io.IOException;
 
 /**
  * A 3-D coordinate transform composed of translation, rotation, and scaling.
- * The order of application is: scale then rotate then translate.
+ * The order of application is: scale, then rotate, then translate.
  *
  * <p>Started July 16, 2004
  *

@@ -108,15 +108,17 @@ public class GlfwJoystickInput implements JoyInput {
 
                 final ByteBuffer byteBuffer = glfwGetJoystickButtons(i);
 
-                int buttonIndex = 0;
-                while (byteBuffer.hasRemaining()) {
-                    byteBuffer.get();
+                if (byteBuffer != null) {
+                    int buttonIndex = 0;
+                    while (byteBuffer.hasRemaining()) {
+                        byteBuffer.get();
 
-                    final String logicalId = JoystickCompatibilityMappings.remapButton(joystick.getName(), String.valueOf(buttonIndex));
-                    final JoystickButton button = new DefaultJoystickButton(inputManager, joystick, buttonIndex, String.valueOf(buttonIndex), logicalId);
-                    joystick.addButton(button);
-                    joyButtonPressed.put(button, false);
-                    buttonIndex++;
+                        final String logicalId = JoystickCompatibilityMappings.remapButton(joystick.getName(), String.valueOf(buttonIndex));
+                        final JoystickButton button = new DefaultJoystickButton(inputManager, joystick, buttonIndex, String.valueOf(buttonIndex), logicalId);
+                        joystick.addButton(button);
+                        joyButtonPressed.put(button, false);
+                        buttonIndex++;
+                    }
                 }
             }
         }

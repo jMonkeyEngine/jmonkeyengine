@@ -48,11 +48,10 @@ import java.util.*;
 /**
  * AnimComposer is a Spatial control that allows manipulation of
  * {@link Armature armature} (skeletal) animation.
- * 
+ *
  * @author Nehon
  */
 public class AnimComposer extends AbstractControl {
-
     /**
      * The name of the default layer.
      */
@@ -72,7 +71,7 @@ public class AnimComposer extends AbstractControl {
 
     /**
      * Tells if an animation is contained in the list of animations.
-     * 
+     *
      * @param name The name of the animation.
      * @return true, if the named animation is in the list of animations.
      */
@@ -117,17 +116,17 @@ public class AnimComposer extends AbstractControl {
 
     /**
      * Run an action on the default layer.
-     * 
+     *
      * @param name The name of the action to run.
      * @return The action corresponding to the given name.
      */
     public Action setCurrentAction(String name) {
         return setCurrentAction(name, DEFAULT_LAYER);
     }
-    
+
     /**
      * Run an action on specified layer.
-     * 
+     *
      * @param actionName The name of the action to run.
      * @param layerName The layer on which action should run.
      * @return The action corresponding to the given name.
@@ -139,19 +138,19 @@ public class AnimComposer extends AbstractControl {
 
         return currentAction;
     }
-    
+
     /**
      * Return the current action on the default layer.
-     * 
-     * @return  The action corresponding to the given name.
+     *
+     * @return The action corresponding to the given name.
      */
     public Action getCurrentAction() {
         return getCurrentAction(DEFAULT_LAYER);
     }
-    
+
     /**
      * Return current action on specified layer.
-     * 
+     *
      * @param layerName The layer on which action should run.
      * @return The action corresponding to the given name.
      */
@@ -161,14 +160,14 @@ public class AnimComposer extends AbstractControl {
 
         return result;
     }
-    
+
     /**
      * Remove current action on default layer.
      */
     public void removeCurrentAction() {
         removeCurrentAction(DEFAULT_LAYER);
     }
-    
+
     /**
      * Remove current action on specified layer.
      *
@@ -178,19 +177,19 @@ public class AnimComposer extends AbstractControl {
         AnimLayer l = getLayer(layerName);
         l.setCurrentAction(null);
     }
-    
+
     /**
      * Returns current time of the default layer.
-     * 
+     *
      * @return The current time.
      */
     public double getTime() {
         return getTime(DEFAULT_LAYER);
     }
-    
+
     /**
      * Returns current time of the specified layer.
-     * 
+     *
      * @param layerName The layer from which to get the time.
      * @return the time (in seconds)
      */
@@ -200,7 +199,7 @@ public class AnimComposer extends AbstractControl {
 
         return result;
     }
-    
+
     /**
      * Sets current time on the default layer.
      *
@@ -226,7 +225,7 @@ public class AnimComposer extends AbstractControl {
     }
 
     /**
-     * 
+     *
      * @param name The name of the action to return.
      * @return The action registered with specified name. It will make a new action if there isn't any.
      * @see #makeAction(java.lang.String)
@@ -239,29 +238,29 @@ public class AnimComposer extends AbstractControl {
         }
         return action;
     }
-    
+
     /**
-     * 
+     *
      * @param name The name of the action to return.
      * @return The action registered with specified name or null if nothing is registered.
      */
-    public Action getAction(String name){
+    public Action getAction(String name) {
         return actions.get(name);
     }
-    
+
     /**
      * Register given action with specified name.
-     * 
+     *
      * @param name The name of the action.
      * @param action The action to add.
      */
-    public void addAction(String name, Action action){
+    public void addAction(String name, Action action) {
         actions.put(name, action);
     }
 
     /**
      * Create a new ClipAction with specified clip name.
-     * 
+     *
      * @param name The name of the clip.
      * @return a new action
      * @throws IllegalArgumentException if clip with specified name not found.
@@ -275,17 +274,17 @@ public class AnimComposer extends AbstractControl {
         action = new ClipAction(clip);
         return action;
     }
-    
+
     /**
      * Tells if an action is contained in the list of actions.
-     * 
+     *
      * @param name The name of the action.
      * @return true, if the named action is in the list of actions.
      */
     public boolean hasAction(String name) {
         return actions.containsKey(name);
     }
-    
+
     /**
      * Remove specified action.
      *

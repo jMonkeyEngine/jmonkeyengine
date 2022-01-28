@@ -141,7 +141,7 @@ public final class SinglePassAndImageBasedLightingLogic extends DefaultTechnique
             // apply additive blending for 2nd and future passes
             rm.getRenderer().applyRenderState(ADDITIVE_LIGHT);
             ambientColor.setValue(VarType.Vector4, ColorRGBA.Black);
-        } else{
+        } else {
             extractIndirectLights(lightList,true);
             ambientColor.setValue(VarType.Vector4, ambientLightColor);
         }
@@ -169,8 +169,6 @@ public final class SinglePassAndImageBasedLightingLogic extends DefaultTechnique
         int curIndex;
         int endIndex = numLights + startIndex;
         for (curIndex = startIndex; curIndex < endIndex && curIndex < lightList.size(); curIndex++) {
-
-
             Light l = lightList.get(curIndex);
             if(l.getType() == Light.Type.Ambient){
                 endIndex++;
@@ -234,17 +232,17 @@ public final class SinglePassAndImageBasedLightingLogic extends DefaultTechnique
         vars.release();
 
         // pad unused buffer space
-        while(lightDataIndex < numLights * 3) {
+        while (lightDataIndex < numLights * 3) {
             lightData.setVector4InArray(0f, 0f, 0f, 0f, lightDataIndex);
             lightDataIndex++;
         }
         return curIndex;
     }
 
-    private int setProbeData(RenderManager rm, int lastTexUnit, Uniform lightProbeData, Uniform shCoeffs, Uniform lightProbePemMap, LightProbe lightProbe) {
-
+    private int setProbeData(RenderManager rm, int lastTexUnit, Uniform lightProbeData, Uniform shCoeffs,
+            Uniform lightProbePemMap, LightProbe lightProbe) {
         lightProbeData.setValue(VarType.Matrix4, lightProbe.getUniformMatrix());
-                //setVector4InArray(lightProbe.getPosition().x, lightProbe.getPosition().y, lightProbe.getPosition().z, 1f / area.getRadius() + lightProbe.getNbMipMaps(), 0);
+        //setVector4InArray(lightProbe.getPosition().x, lightProbe.getPosition().y, lightProbe.getPosition().z, 1f / area.getRadius() + lightProbe.getNbMipMaps(), 0);
         shCoeffs.setValue(VarType.Vector3Array, lightProbe.getShCoeffs());
         /*
          * Assign the prefiltered env map to the next available texture unit.

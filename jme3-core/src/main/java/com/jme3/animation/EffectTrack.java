@@ -96,8 +96,6 @@ public class EffectTrack implements ClonableTrack {
                     throw new IllegalArgumentException("KillParticleEmitter can only ba attached to ParticleEmitter");
                 }
             }
-
-
         }
 
         @Override
@@ -241,7 +239,7 @@ public class EffectTrack implements ClonableTrack {
 
     @Override
     public float[] getKeyFrameTimes() {
-        return new float[] { startOffset };
+        return new float[]{startOffset};
     }
 
     /**
@@ -288,14 +286,13 @@ public class EffectTrack implements ClonableTrack {
     public Object jmeClone() {
         try {
             return super.clone();
-        } catch( CloneNotSupportedException e ) {
+        } catch (CloneNotSupportedException e) {
             throw new RuntimeException("Error cloning", e);
         }
     }
 
-
     @Override
-    public void cloneFields( Cloner cloner, Object original ) {
+    public void cloneFields(Cloner cloner, Object original) {
         this.emitter = cloner.clone(emitter);
     }
 
@@ -391,8 +388,6 @@ public class EffectTrack implements ClonableTrack {
 
         //adding the given Track to the TrackInfo.
         data.addTrack(effectTrack);
-
-
     }
 
     private void removeUserData(EffectTrack effectTrack) {
@@ -406,8 +401,6 @@ public class EffectTrack implements ClonableTrack {
 
         //removing the given Track to the TrackInfo.
         data.getTracks().remove(effectTrack);
-
-
     }
 
     /**

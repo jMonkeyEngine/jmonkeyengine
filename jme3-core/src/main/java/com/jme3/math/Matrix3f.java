@@ -525,7 +525,7 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
      *
      * @param i which column to set (0, 1, or 2)
      * @param column the desired element values (unaffected) or null for none
-     * @return the current instance (for chaining)
+     * @return the (modified) current instance (for chaining)
      * @throws IllegalArgumentException if {@code i} isn't 0, 1, or 2
      */
     public Matrix3f setColumn(int i, Vector3f column) {
@@ -561,7 +561,7 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
      *
      * @param i which row to set (0, 1, or 2)
      * @param row the desired element values (unaffected) or null for none
-     * @return the current instance (for chaining)
+     * @return the (modified) current instance (for chaining)
      * @throws IllegalArgumentException if {@code i} isn't 0, 1, or 2
      */
     public Matrix3f setRow(int i, Vector3f row) {
@@ -750,7 +750,7 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
      * Configures as a rotation matrix equivalent to the argument.
      *
      * @param quaternion the input quaternion (not null, unaffected)
-     * @return the current instance (for chaining)
+     * @return the (modified) current instance (for chaining)
      */
     public Matrix3f set(Quaternion quaternion) {
         return quaternion.toRotationMatrix(this);
@@ -1158,7 +1158,7 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
      *
      * <p>TODO deprecate in favor of transposeLocal()
      *
-     * @return this object for chaining.
+     * @return the (modified) current instance (for chaining)
      */
     public Matrix3f transpose() {
         return transposeLocal();
@@ -1176,7 +1176,7 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Returns a string representation. The current instance is unaffected. For
+     * Returns a string representation of the matrix, which is unaffected. For
      * example, an identity matrix would be represented by:
      * <pre>
      * Matrix3f
@@ -1187,7 +1187,7 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
      * ]
      * </pre>
      *
-     * @return the string representation of this object.
+     * @return the string representation
      */
     @Override
     public String toString() {
