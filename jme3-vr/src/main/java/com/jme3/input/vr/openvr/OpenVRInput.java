@@ -91,7 +91,7 @@ public class OpenVRInput implements VRInputAPI {
 
     private final Vector3f tempVel = new Vector3f();
 
-    private final Quaternion tempq = new Quaternion();
+    private final Quaternion tempQuaternion = new Quaternion();
 
     private VREnvironment environment;
 
@@ -386,12 +386,12 @@ public class OpenVRInput implements VRInputAPI {
 
                 Object obs = environment.getObserver();
                 if( obs instanceof Camera ) {
-                    tempq.set(((Camera)obs).getRotation());
+                    tempQuaternion.set(((Camera)obs).getRotation());
                 } else {
-                    tempq.set(((Spatial)obs).getWorldRotation());
+                    tempQuaternion.set(((Spatial)obs).getWorldRotation());
                 }
 
-                return tempq.multLocal(getOrientation(index));
+                return tempQuaternion.multLocal(getOrientation(index));
             } else {
                 throw new IllegalStateException("VR environment has no valid view manager.");
             }

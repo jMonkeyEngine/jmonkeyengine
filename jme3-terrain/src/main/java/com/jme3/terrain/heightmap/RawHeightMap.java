@@ -61,7 +61,7 @@ public class RawHeightMap extends AbstractHeightMap {
      */
     public static final int FORMAT_16BITBE = 2;
     private int format;
-    private boolean swapxy;
+    private boolean swapXy;
     private InputStream stream;
 
     /**
@@ -131,7 +131,7 @@ public class RawHeightMap extends AbstractHeightMap {
         this.stream = stream;
         this.size = size;
         this.format = format;
-        this.swapxy = swapxy;
+        this.swapXy = swapxy;
         load();
     }
 
@@ -173,7 +173,7 @@ public class RawHeightMap extends AbstractHeightMap {
                 // read the raw file
                 for (int i = 0; i < size; i++) {
                     for (int j = 0; j < size; j++) {
-                        if (swapxy) {
+                        if (swapXy) {
                             index = i + j * size;
                         } else {
                             index = (i * size) + j;
@@ -188,7 +188,7 @@ public class RawHeightMap extends AbstractHeightMap {
                 for (int i = 0; i < size; i++) {
                     for (int j = 0; j < size; j++) {
                         int index;
-                        if (swapxy) {
+                        if (swapXy) {
                             index = i + j * size;
                         } else {
                             index = (i * size) + j;

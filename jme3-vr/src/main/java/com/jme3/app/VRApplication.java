@@ -165,7 +165,7 @@ public abstract class VRApplication implements Application, SystemListener {
         FORCE_DISABLE_MSAA
     }
 
-    private VRAPI VRhardware            = null;
+    private VRAPI vrHardware = null;
     private VRGuiManager guiManager     = null;
     private OpenVRMouseManager mouseManager = null;
     private OpenVRViewManager viewManager = null;
@@ -273,14 +273,14 @@ public abstract class VRApplication implements Application, SystemListener {
         } else if( VRSupportedOS && DISABLE_VR == false ) {
             if( CONSTRUCT_WITH_OSVR ) {
                 //FIXME: WARNING !!
-                VRhardware = new OSVR(null);
+                vrHardware = new OSVR(null);
                 logger.config("Creating OSVR wrapper [SUCCESS]");
             } else {
                 //FIXME: WARNING !!
-                VRhardware = new OpenVR(null);
+                vrHardware = new OpenVR(null);
                 logger.config("Creating OpenVR wrapper [SUCCESS]");
             }
-            if( VRhardware.initialize() ) {
+            if( vrHardware.initialize() ) {
                 setPauseOnLostFocus(false);
             }
         }
@@ -291,7 +291,7 @@ public abstract class VRApplication implements Application, SystemListener {
      * @return the VR underlying hardware.
      */
     public VRAPI getVRHardware() {
-        return VRhardware;
+        return vrHardware;
     }
 
     /**
@@ -299,8 +299,8 @@ public abstract class VRApplication implements Application, SystemListener {
      * @return the VR dedicated input.
      */
     public VRInputAPI getVRinput() {
-        if( VRhardware == null ) return null;
-        return VRhardware.getVRinput();
+        if( vrHardware == null ) return null;
+        return vrHardware.getVRinput();
     }
 
     /**
@@ -749,10 +749,10 @@ public abstract class VRApplication implements Application, SystemListener {
             settings.setHeight(yWin);
             settings.setBitsPerPixel(24);
             settings.setFrameRate(0); // never sleep in main loop
-            settings.setFrequency(VRhardware.getDisplayFrequency());
+            settings.setFrequency(vrHardware.getDisplayFrequency());
             settings.setFullscreen(false);
             settings.setVSync(false); // stop vsyncing on primary monitor!
-            settings.setSwapBuffers(!disableSwapBuffers || VRhardware instanceof OSVR);
+            settings.setSwapBuffers(!disableSwapBuffers || vrHardware instanceof OSVR);
             settings.setTitle("Put Headset On Now: " + settings.getTitle());
             settings.setResizable(true);
         }
@@ -861,8 +861,8 @@ public abstract class VRApplication implements Application, SystemListener {
                 if( value == false ) disableSwapBuffers = false;
                 break;
             case FLIP_EYES:
-                if( VRhardware == null ) return;
-                VRhardware.setFlipEyes(value);
+                if( vrHardware == null ) return;
+                vrHardware.setFlipEyes(value);
                 break;
             case INSTANCE_VR_RENDERING:
                 instanceVR = value;
@@ -897,12 +897,12 @@ public abstract class VRApplication implements Application, SystemListener {
      */
     public void setSeatedExperience(boolean isSeated) {
         seated = isSeated;
-        if( VRhardware instanceof OpenVR ) {
-            if( VRhardware.getCompositor() == null ) return;
+        if( vrHardware instanceof OpenVR ) {
+            if( vrHardware.getCompositor() == null ) return;
             if( seated ) {
-                ((OpenVR)VRhardware).getCompositor().SetTrackingSpace.apply(JOpenVRLibrary.ETrackingUniverseOrigin.ETrackingUniverseOrigin_TrackingUniverseSeated);
+                ((OpenVR) vrHardware).getCompositor().SetTrackingSpace.apply(JOpenVRLibrary.ETrackingUniverseOrigin.ETrackingUniverseOrigin_TrackingUniverseSeated);
             } else {
-                ((OpenVR)VRhardware).getCompositor().SetTrackingSpace.apply(JOpenVRLibrary.ETrackingUniverseOrigin.ETrackingUniverseOrigin_TrackingUniverseStanding);
+                ((OpenVR) vrHardware).getCompositor().SetTrackingSpace.apply(JOpenVRLibrary.ETrackingUniverseOrigin.ETrackingUniverseOrigin_TrackingUniverseStanding);
             }
         }
     }
@@ -921,7 +921,7 @@ public abstract class VRApplication implements Application, SystemListener {
      */
     public void resetSeatedPose(){
         if( VRSupportedOS == false || isSeatedExperience() == false ) return;
-        VRhardware.reset();
+        vrHardware.reset();
     }
 
     /**
@@ -937,7 +937,7 @@ public abstract class VRApplication implements Application, SystemListener {
      * @return <code>true</code> if the VR mode is enabled and <code>false</code> otherwise.
      */
     public boolean isInVR() {
-        return DISABLE_VR == false && (forceVR || VRSupportedOS && VRhardware != null && VRhardware.isInitialized());
+        return DISABLE_VR == false && (forceVR || VRSupportedOS && vrHardware != null && vrHardware.isInitialized());
     }
 
 
@@ -1035,7 +1035,7 @@ public abstract class VRApplication implements Application, SystemListener {
         } else {
             tempq.set(observer.getWorldRotation());
         }
-        return tempq.multLocal(VRhardware.getOrientation());
+        return tempq.multLocal(vrHardware.getOrientation());
     }
 
     /**
@@ -1049,7 +1049,7 @@ public abstract class VRApplication implements Application, SystemListener {
                 return getCamera().getLocation();
             } else return observer.getWorldTranslation();
         }
-        Vector3f pos = VRhardware.getPosition();
+        Vector3f pos = vrHardware.getPosition();
         if( observer == null ) {
             dummyCam.getRotation().mult(pos, pos);
             return pos.addLocal(dummyCam.getLocation());
@@ -1347,8 +1347,8 @@ public abstract class VRApplication implements Application, SystemListener {
         if( isInVR() ) {
             logger.config("VR mode enabled.");
 
-            if( VRhardware != null ) {
-                VRhardware.initVRCompositor(compositorAllowed());
+            if( vrHardware != null ) {
+                vrHardware.initVRCompositor(compositorAllowed());
             } else {
                 logger.warning("No VR system found.");
             }
@@ -1398,9 +1398,9 @@ public abstract class VRApplication implements Application, SystemListener {
      */
     @Override
     public void destroy() {
-        if( VRhardware != null ) {
-            VRhardware.destroy();
-            VRhardware = null;
+        if( vrHardware != null ) {
+            vrHardware.destroy();
+            vrHardware = null;
         }
         DISABLE_VR = true;
         stateManager.cleanup();
