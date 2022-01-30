@@ -1164,7 +1164,7 @@ public class MikktspaceTangentGenerator {
     }
 
     static TSpace evalTspace(int face_indices[], final int iFaces, final int piTriListIn[], final TriInfo pTriInfos[],
-            final MikkTSpaceContext mikkTSpace, final int iVertexRepresentitive) {
+            final MikkTSpaceContext mikkTSpace, final int iVertexRepresentative) {
         TSpace res = new TSpace();
         float fAngleSum = 0;        
 
@@ -1175,11 +1175,11 @@ public class MikktspaceTangentGenerator {
             if ((pTriInfos[f].flag & GROUP_WITH_ANY) == 0) {
                 
                 int i = -1;
-                if (piTriListIn[3 * f + 0] == iVertexRepresentitive) {
+                if (piTriListIn[3 * f + 0] == iVertexRepresentative) {
                     i = 0;
-                } else if (piTriListIn[3 * f + 1] == iVertexRepresentitive) {
+                } else if (piTriListIn[3 * f + 1] == iVertexRepresentative) {
                     i = 1;
-                } else if (piTriListIn[3 * f + 2] == iVertexRepresentitive) {
+                } else if (piTriListIn[3 * f + 2] == iVertexRepresentative) {
                     i = 2;
                 }
                 assert (i >= 0 && i < 3);

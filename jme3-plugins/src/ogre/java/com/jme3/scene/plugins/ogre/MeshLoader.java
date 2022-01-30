@@ -549,8 +549,8 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
         levels.add(vb);
     }
 
-    private void startLevelOfDetail(String numlevels) {
-//        numLevels = Integer.parseInt(numlevels);
+    private void startLevelOfDetail(String numLevels) {
+//        numLevels = Integer.parseInt(numLevels);
     }
 
     private void endLevelOfDetail() {

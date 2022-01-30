@@ -580,8 +580,8 @@ public class AndroidGL implements GL, GL2, GLES_30, GLExt, GLFbo {
     }
 
     @Override
-    public void glTexImage2DMultisample(int target, int samples, int internalformat, int width, int height, boolean fixedsamplelocations) {
-        GLES31.glTexStorage2DMultisample(target, samples, internalformat, width, height, fixedsamplelocations);
+    public void glTexImage2DMultisample(int target, int samples, int internalformat, int width, int height, boolean fixedSampleLocations) {
+        GLES31.glTexStorage2DMultisample(target, samples, internalformat, width, height, fixedSampleLocations);
     }
 
     @Override
