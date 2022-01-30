@@ -166,7 +166,8 @@ public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable
      * Constructor creates a new <code>ColorRGBA</code> object, based on
      * a provided Vector4f.
      *
-     * @param vec4 The <code>Vector4f</code> object to copy.
+     * @param vec4 The <code>Vector4f</code> object that will have its x, y, z, and w
+     * values copied to this color's r, g, b, and a values respectively.
      */
     public ColorRGBA(Vector4f vec4) {
         this.a = vec4.w;
@@ -179,8 +180,8 @@ public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable
      * Constructor creates a new <code>ColorRGBA</code> object, based on
      * a provided Vector3f, at full opacity with a 1.0 alpha value by default
      *
-     * @param vec3 The <code>Vector3f</code> object to copy to the r, g, and b 
-     * values respectively
+     * @param vec3 The <code>Vector3f</code> object that will have its x, y, and z
+     * values copied to this color's r, g, and b values respectively.
      */
     public ColorRGBA(Vector3f vec3) {
         this.a = 1.0f;
@@ -235,7 +236,9 @@ public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable
      * <code>set</code> sets the values of this <code>ColorRGBA</code> to those
      * set by a parameter Vector4f.
      *
-     * @param vec4 The 4 component vector to set this <code>ColorRGBA</code> to.
+     * @param vec4 The 4 component vector that will have its x, y, z, and w values copied to
+     * this <code>ColorRGBA</code>'s r, g, b, and a values respectively.
+     *
      * @return this
      */
     public ColorRGBA set(Vector4f vec4) {
@@ -257,8 +260,8 @@ public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable
      * <code>set</code> sets the values of this <code>ColorRGBA</code> to those
      * set by a parameter Vector3f.
      *
-     * @param vec3 The 3 component vector to set the r, g, and b values of
-     * this <code>ColorRGBA</code> to respectively.
+     * @param vec3 The 3 component vector that will have its x, y, and z values copied to
+     * this <code>ColorRGBA</code>'s r, g, and b values respectively.
      *
      * @return this
      */
