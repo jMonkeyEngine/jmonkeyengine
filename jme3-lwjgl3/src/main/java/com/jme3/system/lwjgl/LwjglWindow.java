@@ -151,7 +151,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
     // temp variables used for glfw calls
     private int width[] = new int[1];
     private int height[] = new int[1];
-    private final Vector2f currentScale = new Vector2f(1,1);
+    private final Vector2f currentScale = new Vector2f(1, 1);
 
     public LwjglWindow(final JmeContext.Type type) {
 
@@ -340,7 +340,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         showWindow();
 
         // HACK: the framebuffer seems to be initialized with the wrong size
-        // on some HiDPI platforms untill glfwPollEvents is called 2 or 3 times
+        // on some HiDPI platforms until glfwPollEvents is called 2 or 3 times
         for (int i = 0; i < 4; i++) glfwPollEvents();
         
         // Windows resize callback
@@ -384,12 +384,12 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
 
     
     private void updateDefaultFramebufferSize(boolean updateListener) {
-        // If default framebuffer size is different than window size (eg. HiDPI)
+        // If default framebuffer size is different than window size (e.g. HiDPI)
         int[] width = new int[1];
         int[] height = new int[1];
         glfwGetFramebufferSize(window, width, height);
 
-        Vector2f scale=getWindowContentScale(null);
+        Vector2f scale = getWindowContentScale(null);
 
         if (updateListener) {
             if (settings.getWidth() != width[0] || settings.getHeight() != height[0]) {

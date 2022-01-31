@@ -69,7 +69,7 @@ public interface SceneProcessor {
      * @param x the new horizontal scale 
      * @param y the new vertical scale 
      */
-    public default void rescale(ViewPort vp, float x, float y){
+    public default void rescale(ViewPort vp, float x, float y) {
 
     }
 
