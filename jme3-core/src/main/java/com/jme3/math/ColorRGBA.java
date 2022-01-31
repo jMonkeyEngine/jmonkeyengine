@@ -161,6 +161,34 @@ public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable
         this.g = rgba.g;
         this.b = rgba.b;
     }
+    
+    /**
+     * Constructor creates a new <code>ColorRGBA</code> object, based on
+     * a provided Vector4f.
+     *
+     * @param vec4 The <code>Vector4f</code> object that will have its x, y, z, and w
+     * values copied to this color's r, g, b, and a values respectively.
+     */
+    public ColorRGBA(Vector4f vec4) {
+        this.a = vec4.w;
+        this.r = vec4.x;
+        this.g = vec4.y;
+        this.b = vec4.z;
+    }    
+    
+    /**
+     * Constructor creates a new <code>ColorRGBA</code> object, based on
+     * a provided Vector3f, at full opacity with a 1.0 alpha value by default
+     *
+     * @param vec3 The <code>Vector3f</code> object that will have its x, y, and z
+     * values copied to this color's r, g, and b values respectively.
+     */
+    public ColorRGBA(Vector3f vec3) {
+        this.a = 1.0f;
+        this.r = vec3.x;
+        this.g = vec3.y;
+        this.b = vec3.z;
+    }    
 
     /**
      * <code>set</code> sets the RGBA values of this <code>ColorRGBA</code>.
@@ -203,6 +231,52 @@ public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable
         }
         return this;
     }
+    
+    /**
+     * <code>set</code> sets the values of this <code>ColorRGBA</code> to those
+     * set by a parameter Vector4f.
+     *
+     * @param vec4 The 4 component vector that will have its x, y, z, and w values copied to
+     * this <code>ColorRGBA</code>'s r, g, b, and a values respectively.
+     *
+     * @return this
+     */
+    public ColorRGBA set(Vector4f vec4) {
+        if (vec4 == null) {
+            r = 0;
+            g = 0;
+            b = 0;
+            a = 0;
+        } else {
+            r = vec4.x;
+            g = vec4.y;
+            b = vec4.z;
+            a = vec4.w;
+        }
+        return this;
+    }    
+    
+    /**
+     * <code>set</code> sets the values of this <code>ColorRGBA</code> to those
+     * set by a parameter Vector3f.
+     *
+     * @param vec3 The 3 component vector that will have its x, y, and z values copied to
+     * this <code>ColorRGBA</code>'s r, g, and b values respectively.
+     *
+     * @return this
+     */
+    public ColorRGBA set(Vector3f vec3) {
+        if (vec3 == null) {
+            r = 0;
+            g = 0;
+            b = 0;
+        } else {
+            r = vec3.x;
+            g = vec3.y;
+            b = vec3.z;
+        }
+        return this;
+    }       
 
     /**
      * Sets the red color to the specified value.
