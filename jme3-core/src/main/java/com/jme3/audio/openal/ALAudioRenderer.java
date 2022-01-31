@@ -989,21 +989,11 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
             // Keep filling data (even if we are stopped / paused)
             boolean buffersWereFilled = fillStreamingSource(sourceId, stream, src.isLooping());
 
-            if (buffersWereFilled) {
-                if (oalStatus == Status.Stopped && jmeStatus == Status.Playing) {
-                    // The source got stopped due to buffer starvation.
-                    // Start it again.
-                    logger.log(Level.WARNING, "Buffer starvation "
-                                            + "occurred while playing stream");
-                    al.alSourcePlay(sourceId);
-                } else {
-                    // Buffers were filled, stream continues to play.
-                    if (oalStatus == Status.Playing && jmeStatus == Status.Playing) {
-                        // Nothing to do.
-                    } else {
-                        throw new AssertionError();
-                    }
-                }
+            if (buffersWereFilled && oalStatus == Status.Stopped && jmeStatus == Status.Playing) {
+                // The source got stopped due to buffer starvation.
+                // Start it again.
+                logger.log(Level.WARNING, "Buffer starvation occurred while playing stream");
+                al.alSourcePlay(sourceId);
             }
         }
 
