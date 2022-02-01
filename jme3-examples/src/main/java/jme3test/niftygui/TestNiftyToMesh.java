@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2022 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,6 +45,7 @@ import com.jme3.texture.Texture.MagFilter;
 import com.jme3.texture.Texture.MinFilter;
 import com.jme3.texture.Texture2D;
 import com.jme3.texture.FrameBuffer.FrameBufferTarget;
+import com.jme3.texture.image.ColorSpace;
 import de.lessvoid.nifty.Nifty;
 
 public class TestNiftyToMesh extends SimpleApplication{
@@ -58,10 +59,14 @@ public class TestNiftyToMesh extends SimpleApplication{
     public void simpleInitApp() {
        ViewPort niftyView = renderManager.createPreView("NiftyView", new Camera(1024, 768));
        niftyView.setClearFlags(true, true, true);
+
+        ColorSpace colorSpace = renderer.isMainFrameBufferSrgb()
+                ? ColorSpace.sRGB : ColorSpace.Linear;
         NiftyJmeDisplay niftyDisplay = new NiftyJmeDisplay(assetManager,
                                                           inputManager,
                                                           audioRenderer,
-                                                          niftyView);
+                                                          niftyView,
+                                                          colorSpace);
         Nifty nifty = niftyDisplay.getNifty();
         nifty.fromXml("all/intro.xml", "start");
         niftyView.addProcessor(niftyDisplay);
