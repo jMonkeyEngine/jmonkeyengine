@@ -170,13 +170,13 @@ public class InputSystemJme implements InputSystem, RawInputListener {
             // which is good ;-) If that ever happens to someone there is an easy fix possible:
             // nifty.setIgnoreMouseEvents() to completely stop Nifty from processing events.
 
-                boolean consumed = nic.processMouseEvent(x, y, 0, button, false);
+            boolean consumed = nic.processMouseEvent(x, y, 0, button, false);
 
-                // Only consume event if it ORIGINATED in nifty!
-                if (niftyOwnsDragging[button] && consumed) {
-                    evt.setConsumed();
-                    processSoftKeyboard();
-                }
+            // Only consume event if it ORIGINATED in nifty!
+            if (niftyOwnsDragging[button] && consumed) {
+                evt.setConsumed();
+                processSoftKeyboard();
+            }
 
             niftyOwnsDragging[button] = false;
             //System.out.format("niftyMouse(%d, %d, %d, false) = %b\n", x, y, button, consumed);

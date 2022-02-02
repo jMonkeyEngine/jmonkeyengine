@@ -80,23 +80,23 @@ public class SoundHandleJme implements SoundHandle {
 
     @Override
     public void play() {
-        if (fileName != null){
-            if (node != null){
+        if (fileName != null) {
+            if (node != null) {
                 node.stop();
             }
 
-            node = new AudioNode(am, fileName,AudioData.DataType.Stream);
+            node = new AudioNode(am, fileName, AudioData.DataType.Stream);
             node.setPositional(false);
             node.setVolume(volume);
             node.play();
-        }else{
+        } else {
             node.playInstance();
         }
     }
 
     @Override
     public void stop() {
-        if (node != null){
+        if (node != null) {
             node.stop();
             // Do not nullify the node for non-streaming nodes!
             if (fileName != null) {
