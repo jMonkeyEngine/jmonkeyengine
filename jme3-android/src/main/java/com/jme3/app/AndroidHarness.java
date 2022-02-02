@@ -495,6 +495,11 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
     }
 
     @Override
+    public void rescale(float x, float y) {
+        app.rescale(x, y);
+    }
+
+    @Override
     public void update() {
         app.update();
         // call to remove the splash screen, if present.
