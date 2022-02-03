@@ -114,10 +114,10 @@ public class NiftyJmeDisplay implements SceneProcessor {
      * @return new NiftyJmeDisplay instance
      */
     public static NiftyJmeDisplay newNiftyJmeDisplay(
-        final AssetManager assetManager,
-        final InputManager inputManager,
-        final AudioRenderer audioRenderer,
-        final ViewPort viewport) {
+            final AssetManager assetManager,
+            final InputManager inputManager,
+            final AudioRenderer audioRenderer,
+            final ViewPort viewport) {
         return newNiftyJmeDisplay(
                 assetManager,
                 inputManager,
@@ -145,11 +145,11 @@ public class NiftyJmeDisplay implements SceneProcessor {
      * @return new NiftyJmeDisplay instance
      */
     public static NiftyJmeDisplay newNiftyJmeDisplay(
-        final AssetManager assetManager,
-        final InputManager inputManager,
-        final AudioRenderer audioRenderer,
-        final ViewPort viewport,
-        final BatchRenderConfiguration batchRenderConfiguration) {
+            final AssetManager assetManager,
+            final InputManager inputManager,
+            final AudioRenderer audioRenderer,
+            final ViewPort viewport,
+            final BatchRenderConfiguration batchRenderConfiguration) {
         return new NiftyJmeDisplay(
                 assetManager,
                 inputManager,
@@ -185,61 +185,61 @@ public class NiftyJmeDisplay implements SceneProcessor {
      * instead of this constructor.
      */
     public NiftyJmeDisplay(
-        final AssetManager assetManager,
-        final InputManager inputManager,
-        final AudioRenderer audioRenderer,
-        final ViewPort viewport,
-        final int atlasWidth,
-        final int atlasHeight) {
-      // The code duplication in here really sucks - it's a copy of the
-      // private constructor below that takes a BatchRenderConfiguration as an
-      // additional parameter. This method should really be removed soon and
-      // users should simply call the new factory methods.
-      //
-      // For now, I keep this constructor as-is, but have marked it as deprecated
-      // to allow migration to the new way to instantiate this class.
-      initialize(assetManager, inputManager, audioRenderer, viewport);
+            final AssetManager assetManager,
+            final InputManager inputManager,
+            final AudioRenderer audioRenderer,
+            final ViewPort viewport,
+            final int atlasWidth,
+            final int atlasHeight) {
+        // The code duplication in here really sucks - it's a copy of the
+        // private constructor below that takes a BatchRenderConfiguration as an
+        // additional parameter. This method should really be removed soon and
+        // users should simply call the new factory methods.
+        //
+        // For now, I keep this constructor as-is, but have marked it as deprecated
+        // to allow migration to the new way to instantiate this class.
+        initialize(assetManager, inputManager, audioRenderer, viewport);
 
-      this.renderDev = null;
-      this.batchRendererBackend = new JmeBatchRenderBackend(this);
+        this.renderDev = null;
+        this.batchRendererBackend = new JmeBatchRenderBackend(this);
 
-      BatchRenderConfiguration batchRenderConfiguration = new BatchRenderConfiguration();
-      batchRenderConfiguration.atlasWidth = atlasWidth;
-      batchRenderConfiguration.atlasHeight = atlasHeight;
+        BatchRenderConfiguration batchRenderConfiguration = new BatchRenderConfiguration();
+        batchRenderConfiguration.atlasWidth = atlasWidth;
+        batchRenderConfiguration.atlasHeight = atlasHeight;
 
-      nifty = new Nifty(
-          new BatchRenderDevice(batchRendererBackend, batchRenderConfiguration),
-          soundDev,
-          inputSys,
-          new AccurateTimeProvider());
-      inputSys.setNifty(nifty);
+        nifty = new Nifty(
+                new BatchRenderDevice(batchRendererBackend, batchRenderConfiguration),
+                soundDev,
+                inputSys,
+                new AccurateTimeProvider());
+        inputSys.setNifty(nifty);
 
-      resourceLocation = new ResourceLocationJme();
-      nifty.getResourceLoader().removeAllResourceLocations();
-      nifty.getResourceLoader().addResourceLocation(resourceLocation);
+        resourceLocation = new ResourceLocationJme();
+        nifty.getResourceLoader().removeAllResourceLocations();
+        nifty.getResourceLoader().addResourceLocation(resourceLocation);
     }
 
     private NiftyJmeDisplay(
-        final AssetManager assetManager,
-        final InputManager inputManager,
-        final AudioRenderer audioRenderer,
-        final ViewPort viewport,
-        final BatchRenderConfiguration batchRenderConfiguration) {
-      initialize(assetManager, inputManager, audioRenderer, viewport);
+            final AssetManager assetManager,
+            final InputManager inputManager,
+            final AudioRenderer audioRenderer,
+            final ViewPort viewport,
+            final BatchRenderConfiguration batchRenderConfiguration) {
+        initialize(assetManager, inputManager, audioRenderer, viewport);
 
-      this.renderDev = null;
-      this.batchRendererBackend = new JmeBatchRenderBackend(this);
+        this.renderDev = null;
+        this.batchRendererBackend = new JmeBatchRenderBackend(this);
 
-      nifty = new Nifty(
-          new BatchRenderDevice(batchRendererBackend, batchRenderConfiguration),
-          soundDev,
-          inputSys,
-          new AccurateTimeProvider());
-      inputSys.setNifty(nifty);
+        nifty = new Nifty(
+                new BatchRenderDevice(batchRendererBackend, batchRenderConfiguration),
+                soundDev,
+                inputSys,
+                new AccurateTimeProvider());
+        inputSys.setNifty(nifty);
 
-      resourceLocation = new ResourceLocationJme();
-      nifty.getResourceLoader().removeAllResourceLocations();
-      nifty.getResourceLoader().addResourceLocation(resourceLocation);
+        resourceLocation = new ResourceLocationJme();
+        nifty.getResourceLoader().removeAllResourceLocations();
+        nifty.getResourceLoader().addResourceLocation(resourceLocation);
     }
 
     /**
@@ -252,9 +252,9 @@ public class NiftyJmeDisplay implements SceneProcessor {
      * @param vp Viewport to use
      */
     public NiftyJmeDisplay(AssetManager assetManager,
-                           InputManager inputManager,
-                           AudioRenderer audioRenderer,
-                           ViewPort vp){
+            InputManager inputManager,
+            AudioRenderer audioRenderer,
+            ViewPort vp) {
         initialize(assetManager, inputManager, audioRenderer, vp);
 
         this.renderDev = new RenderDeviceJme(this);
@@ -269,25 +269,25 @@ public class NiftyJmeDisplay implements SceneProcessor {
     }
 
     private void initialize(
-        final AssetManager assetManager,
-        final InputManager inputManager,
-        final AudioRenderer audioRenderer,
-        final ViewPort viewport) {
-      this.assetManager = assetManager;
-      this.inputManager = inputManager;
-      this.w = viewport.getCamera().getWidth();
-      this.h = viewport.getCamera().getHeight();
-      this.soundDev = new SoundDeviceJme(assetManager, audioRenderer);
-      this.inputSys = new InputSystemJme(inputManager);
+            final AssetManager assetManager,
+            final InputManager inputManager,
+            final AudioRenderer audioRenderer,
+            final ViewPort viewport) {
+        this.assetManager = assetManager;
+        this.inputManager = inputManager;
+        this.w = viewport.getCamera().getWidth();
+        this.h = viewport.getCamera().getHeight();
+        this.soundDev = new SoundDeviceJme(assetManager, audioRenderer);
+        this.inputSys = new InputSystemJme(inputManager);
     }
 
     @Override
     public void initialize(RenderManager rm, ViewPort vp) {
         this.renderManager = rm;
         if (renderDev != null) {
-          renderDev.setRenderManager(rm);
+            renderDev.setRenderManager(rm);
         } else {
-          batchRendererBackend.setRenderManager(rm);
+            batchRendererBackend.setRenderManager(rm);
         }
 
         if (inputManager != null) {
@@ -306,7 +306,7 @@ public class NiftyJmeDisplay implements SceneProcessor {
         return nifty;
     }
 
-    public void simulateKeyEvent( KeyInputEvent event ) {
+    public void simulateKeyEvent(KeyInputEvent event) {
         inputSys.onKeyEvent(event);
     }
 
@@ -326,7 +326,7 @@ public class NiftyJmeDisplay implements SceneProcessor {
         return w;
     }
 
-    Renderer getRenderer(){
+    Renderer getRenderer() {
         return renderer;
     }
 
@@ -373,5 +373,4 @@ public class NiftyJmeDisplay implements SceneProcessor {
     public void setProfiler(AppProfiler profiler) {
         // not implemented
     }
-
 }
