@@ -33,9 +33,7 @@ package com.jme3.shader.plugins;
 
 import com.jme3.asset.*;
 import com.jme3.asset.cache.AssetCache;
-
 import jme3tools.shader.Preprocessor;
-
 import java.io.*;
 import java.util.*;
 
@@ -168,10 +166,8 @@ public class GLSLLoader implements AssetLoader {
         // The input stream provided is for the vertex shader,
         // to retrieve the fragment shader, use the content manager
         this.assetManager = info.getManager();
-
         InputStream in = info.openStream();
         in = Preprocessor.apply(in);
-
         Reader reader = new InputStreamReader(in);
         boolean injectDependencies = true;
         if (info.getKey() instanceof ShaderAssetKey) {

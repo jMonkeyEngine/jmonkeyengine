@@ -92,17 +92,14 @@ public class Preprocessor {
                         forDec = forDec.substring("#for ".length()).trim();
 
                         Matcher matcher = FOR_REGEX.matcher(forDec);
-                        System.out.println(forDec);
                         if (matcher.matches()) {
                             String varN = "$" + matcher.group(1);
                             int start = Integer.parseInt(matcher.group(2));
                             int end = Integer.parseInt(matcher.group(3));
                             String inj = matcher.group(4);
                             if (inj.trim().isEmpty()) inj = "$0";
-
                             String inCode = currentFor.toString();
                             currentFor = null;
-
                             for (int i = start; i < end; i++) {
                                 expandedCode.append("\n").append(inj.replace("$0", "\n" + inCode ).replace(varN, "" + i)).append("\n");
                             }
