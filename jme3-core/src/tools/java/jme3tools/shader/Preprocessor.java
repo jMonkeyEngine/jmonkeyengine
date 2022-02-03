@@ -63,7 +63,8 @@ public class Preprocessor {
     }
 
     /**
-     * #for i=0..100 ( #ifdef ENABLE_INPUT_$i $0 #endif ) do something with $i
+     * #for i=0..100 ( #ifdef ENABLE_INPUT_$i $0 #endif ) 
+     *      do something with $i
      * #endfor
      */
     private static final Pattern FOR_REGEX = Pattern.compile("([^=]+)=\\s*([0-9]+)\\s*\\.\\.\\s*([0-9]+)\\s*\\((.+)\\)");
