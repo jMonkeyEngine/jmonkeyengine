@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2022 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,11 +41,11 @@ public class JoyButtonTrigger implements Trigger {
      * Use {@link Joystick#assignButton(java.lang.String, int) } instead.
      *
      * @param joyId the ID of a joystick
-     * @param axisId the ID of a joystick axis
+     * @param buttonId the index of a joystick button
      */
-    public JoyButtonTrigger(int joyId, int axisId) {
+    public JoyButtonTrigger(int joyId, int buttonId) {
         this.joyId = joyId;
-        this.buttonId = axisId;
+        this.buttonId = buttonId;
     }
 
     public static int joyButtonHash(int joyId, int joyButton) {
