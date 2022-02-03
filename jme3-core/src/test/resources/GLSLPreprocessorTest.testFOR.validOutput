@@ -1,0 +1,8 @@
+
+#ifdef IS_SET0 
+  uniform float m_Something0;
+ #endif
+
+#ifdef IS_SET1 
+  uniform float m_Something1;
+ #endif
