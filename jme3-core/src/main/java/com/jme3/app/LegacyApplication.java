@@ -578,6 +578,14 @@ public class LegacyApplication implements Application, SystemListener {
         }
     }
 
+
+    @Override
+    public void rescale(float x, float y){
+        if (renderManager != null) {
+            renderManager.notifyRescale(x, y);
+        }
+    }
+
     /**
      * Restarts the context, applying any changed settings.
      * <p>

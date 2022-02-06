@@ -572,6 +572,11 @@ public class AndroidHarnessFragment extends Fragment implements
     }
 
     @Override
+    public void rescale(float x, float y) {
+        app.rescale(x, y);
+    }
+
+    @Override
     public void update() {
         app.update();
         // call to remove the splash screen, if present.

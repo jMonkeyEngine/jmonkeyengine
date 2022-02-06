@@ -514,7 +514,7 @@ public class JmeBatchRenderBackend implements BatchRenderBackend {
         private final Material material;
 
         public Batch() {
-            // setup mesh
+            // set up mesh
             vertexPos.setupData(Usage.Stream, 2, VertexBuffer.Format.Float, BufferUtils.createFloatBuffer(BATCH_MAX_VERTICES * 2));
             vertexPosBuffer = (FloatBuffer) vertexPos.getData();
             mesh.setBuffer(vertexPos);

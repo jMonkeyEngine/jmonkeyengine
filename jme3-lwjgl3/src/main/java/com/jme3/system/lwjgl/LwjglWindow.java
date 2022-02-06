@@ -151,7 +151,8 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
     // temp variables used for glfw calls
     private int width[] = new int[1];
     private int height[] = new int[1];
-    
+    private final Vector2f currentScale = new Vector2f(1, 1);
+
     public LwjglWindow(final JmeContext.Type type) {
 
         if (!SUPPORTED_TYPES.contains(type)) {
@@ -281,11 +282,16 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
 
         final GLFWVidMode videoMode = glfwGetVideoMode(glfwGetPrimaryMonitor());
 
-        if (settings.getWidth() <= 0 || settings.getHeight() <= 0) {
-            settings.setResolution(videoMode.width(), videoMode.height());
+        if (settings.getWindowWidth() <= 0 || settings.getWindowHeight() <= 0) {
+            settings.setWindowSize(videoMode.width(), videoMode.height());
+        } else {
+            settings.setWindowSize(settings.getWindowWidth(), settings.getWindowHeight());
         }
 
-        window = glfwCreateWindow(settings.getWidth(), settings.getHeight(), settings.getTitle(), monitor, NULL);
+        // Assume default framebuffer size == window size
+        settings.setResolution(settings.getWindowWidth(), settings.getWindowHeight());
+
+        window = glfwCreateWindow(settings.getWindowWidth(), settings.getWindowHeight(), settings.getTitle(), monitor, NULL);
 
         if (window == NULL) {
             throw new RuntimeException("Failed to create the GLFW window");
@@ -333,6 +339,10 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         setWindowIcon(settings);
         showWindow();
 
+        // HACK: the framebuffer seems to be initialized with the wrong size
+        // on some HiDPI platforms until glfwPollEvents is called 2 or 3 times
+        for (int i = 0; i < 4; i++) glfwPollEvents();
+        
         // Windows resize callback
         glfwSetWindowSizeCallback(window, windowSizeCallback = new GLFWWindowSizeCallback() {
 
@@ -347,6 +357,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
                 for (WindowSizeListener listener : windowSizeListeners.getArray()) {
                     listener.onWindowSizeChanged(width, height);
                 }
+                updateDefaultFramebufferSize(true);
             }
         });
 
@@ -355,8 +366,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
 
             @Override
             public void invoke(final long window, final int width, final int height) {
-                // https://www.glfw.org/docs/latest/window_guide.html#window_fbsize
-                listener.reshape(width, height);
+                updateDefaultFramebufferSize(true);
             }
         });
 
@@ -367,7 +377,31 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             initOpenCL(window);
         }
 
-        framesAfterContextStarted = 0;
+
+        updateDefaultFramebufferSize(false);
+
+    }
+
+    
+    private void updateDefaultFramebufferSize(boolean updateListener) {
+        // If default framebuffer size is different than window size (e.g. HiDPI)
+        int[] width = new int[1];
+        int[] height = new int[1];
+        glfwGetFramebufferSize(window, width, height);
+
+        Vector2f scale = getWindowContentScale(null);
+
+        if (updateListener) {
+            if (settings.getWidth() != width[0] || settings.getHeight() != height[0]) {
+                listener.reshape(width[0], height[0]);
+            }
+            if(!scale.equals(currentScale)){
+                listener.rescale(scale.x, scale.y);
+                currentScale.set(scale);
+            }
+
+        }       
+        settings.setResolution(width[0], height[0]);
     }
 
     private void onWindowSizeChanged(final int width, final int height) {
@@ -568,10 +602,11 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         }
 
         listener.initialize();
+        updateDefaultFramebufferSize(true);
+
         return true;
     }
 
-    private int framesAfterContextStarted = 0;
 
     /**
      * execute one iteration of the render loop in the OpenGL thread
@@ -586,18 +621,6 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             throw new IllegalStateException();
         }
 
-        // Update the frame buffer size from 2nd frame since the initial value
-        // of frame buffer size from glfw maybe incorrect when HiDPI display is in use
-        if (framesAfterContextStarted < 2) {
-            framesAfterContextStarted++;
-            if (framesAfterContextStarted == 2) {
-                glfwGetFramebufferSize(window, width, height);
-
-                if (settings.getWidth() != width[0] || settings.getHeight() != height[0]) {
-                    listener.reshape(width[0], height[0]);
-                }
-            }
-        }
 
         listener.update();
 

@@ -150,10 +150,13 @@ public class PhysicsCharacter extends PhysicsCollisionObject {
         return jumpSpeed;
     }
 
-    //does nothing
-//    public void setMaxJumpHeight(float height) {
-//        character.setMaxJumpHeight(height);
-//    }
+    /**
+     * Alter the character's gravitational acceleration without altering its
+     * "up" vector.
+     *
+     * @param value the desired downward acceleration (in physics-space units
+     * per second squared, default=29.4)
+     */
     public void setGravity(float value) {
         character.setGravity(value);
     }

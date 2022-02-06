@@ -29,46 +29,50 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.input.controls;
+package com.jme3.shader;
 
-import com.jme3.input.Joystick;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
-public class JoyButtonTrigger implements Trigger {
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
-    private final int joyId, buttonId;
+import com.jme3.asset.AssetInfo;
+import com.jme3.asset.AssetKey;
+import com.jme3.system.TestUtil;
 
-    /**
-     * Use {@link Joystick#assignButton(java.lang.String, int) } instead.
-     *
-     * @param joyId the ID of a joystick
-     * @param buttonId the index of a joystick button
-     */
-    public JoyButtonTrigger(int joyId, int buttonId) {
-        this.joyId = joyId;
-        this.buttonId = buttonId;
+import org.junit.Test;
+
+import jme3tools.shader.Preprocessor;
+
+
+public class GLSLPreprocessorTest {
+
+    String readAllAsString(InputStream is) throws Exception{
+        String output = "";
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        while (true) {
+            String l = reader.readLine();
+            if (l == null) break;
+            if (output != "") output += "\n";
+            output += l;
+        }
+        reader.close();
+        return output;
     }
+    
+    @Test
+    public void testFOR() throws Exception{
+        String source = "#for i=0..2 (#ifdef IS_SET$i $0 #endif)\n" +
+                "  uniform float m_Something$i;\n" +
+                "#endfor";
+        String processedSource= readAllAsString(Preprocessor.apply(new ByteArrayInputStream(source.getBytes("UTF-8"))));
 
-    public static int joyButtonHash(int joyId, int joyButton) {
-        assert joyButton >= 0 && joyButton <= 255;
-        return (2048 * joyId) | 1536 | (joyButton & 0xff);
+        AssetInfo testData = TestUtil.createAssetManager().locateAsset(new AssetKey("GLSLPreprocessorTest.testFOR.validOutput"));
+        assertNotNull(testData);
+        String sourceCheck=readAllAsString(testData.openStream());
+        assertEquals(sourceCheck, processedSource);                  
     }
-
-    public int getAxisId() {
-        return buttonId;
-    }
-
-    public int getJoyId() {
-        return joyId;
-    }
-
-    @Override
-    public String getName() {
-        return "JoyButton[joyId="+joyId+", axisId="+buttonId+"]";
-    }
-
-    @Override
-    public int triggerHashCode() {
-        return joyButtonHash(joyId, buttonId);
-    }
-
 }

@@ -342,6 +342,17 @@ public class RenderManager {
         }
     }
 
+    private void notifyRescale(ViewPort vp, float x, float y) {
+        List<SceneProcessor> processors = vp.getProcessors();
+        for (SceneProcessor proc : processors) {
+            if (!proc.isInitialized()) {
+                proc.initialize(this, vp);
+            } else {
+                proc.rescale(vp, x, y);
+            }
+        }
+    }
+
     /**
      * Internal use only.
      * Updates the resolution of all on-screen cameras to match
@@ -371,6 +382,25 @@ public class RenderManager {
                 cam.resize(w, h, true);
             }
             notifyReshape(vp, w, h);
+        }
+    }
+
+    /**
+     * Internal use only.
+     * Updates the scale of all on-screen ViewPorts
+     *
+     * @param x the new horizontal scale
+     * @param y the new vertical scale
+     */
+    public void notifyRescale(float x, float y) {
+        for (ViewPort vp : preViewPorts) {
+            notifyRescale(vp, x, y);
+        }
+        for (ViewPort vp : viewPorts) {        
+            notifyRescale(vp, x, y);
+        }
+        for (ViewPort vp : postViewPorts) {
+            notifyRescale(vp, x, y);
         }
     }
 
