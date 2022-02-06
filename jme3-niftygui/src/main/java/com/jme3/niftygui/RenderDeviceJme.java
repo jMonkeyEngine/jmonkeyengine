@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2022 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,6 +46,7 @@ import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.scene.VertexBuffer.Usage;
 import com.jme3.scene.shape.Quad;
 import com.jme3.texture.Texture2D;
+import com.jme3.texture.image.ColorSpace;
 import com.jme3.util.BufferUtils;
 import de.lessvoid.nifty.render.BlendMode;
 import de.lessvoid.nifty.spi.render.MouseCursor;
@@ -60,7 +61,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class RenderDeviceJme implements RenderDevice {
-
+    private final ColorSpace colorSpace;
     private final NiftyJmeDisplay display;
     private RenderManager rm;
     private Renderer r;
@@ -110,8 +111,26 @@ public class RenderDeviceJme implements RenderDevice {
         }
     }
 
+    /**
+     * Instantiates a new RenderDevice, assuming Nifty colors are in linear
+     * colorspace (no gamma correction).
+     *
+     * @param display the SceneProcessor to render Nifty (not null, alias created)
+     */
     public RenderDeviceJme(NiftyJmeDisplay display) {
+        this(display, ColorSpace.Linear);
+    }
+
+    /**
+     * Instantiates a new RenderDevice using the specified ColorSpace for Nifty
+     * colors.
+     *
+     * @param display the SceneProcessor to render Nifty (not null, alias created)
+     * @param colorSpace the ColorSpace to use for Nifty colors (sRGB or Linear)
+     */
+    public RenderDeviceJme(NiftyJmeDisplay display, ColorSpace colorSpace) {
         this.display = display;
+        this.colorSpace = colorSpace;
 
         quadColor = new VertexBuffer(Type.Color);
         quadColor.setNormalized(true);
@@ -242,7 +261,18 @@ public class RenderDeviceJme implements RenderDevice {
     }
 
     private ColorRGBA convertColor(Color inColor, ColorRGBA outColor) {
-        return outColor.set(inColor.getRed(), inColor.getGreen(), inColor.getBlue(), inColor.getAlpha());
+        float red = inColor.getRed();
+        float green = inColor.getGreen();
+        float blue = inColor.getBlue();
+        float alpha = inColor.getAlpha();
+
+        if (colorSpace == ColorSpace.sRGB) {
+            outColor.setAsSrgb(red, green, blue, alpha);
+        } else {
+            outColor.set(red, green, blue, alpha);
+        }
+
+        return outColor;
     }
 
     @Override
