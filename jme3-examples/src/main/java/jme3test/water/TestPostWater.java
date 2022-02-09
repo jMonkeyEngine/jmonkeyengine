@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2022 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -290,7 +290,7 @@ public class TestPostWater extends SimpleApplication {
     }
     
     protected void setText(int x, int y, String text) {
-        BitmapText txt2 = new BitmapText(guiFont, false);
+        BitmapText txt2 = new BitmapText(guiFont);
         txt2.setText(text);
         txt2.setLocalTranslation(x, cam.getHeight() - y, 0);
         txt2.setColor(ColorRGBA.Red);
