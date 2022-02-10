@@ -94,11 +94,20 @@ public class RenderDeviceJme implements RenderDevice {
         }
 
         @Override
-        public boolean equals(Object other) {
-            CachedTextKey otherKey = (CachedTextKey) other;
-            return font.equals(otherKey.font) &&
-                   text.equals(otherKey.text)/* &&
-                   color.equals(otherKey.color)*/;
+        public boolean equals(Object otherObject) {
+            boolean result;
+            if (otherObject == this) {
+                result = true;
+            } else if (otherObject != null
+                    && otherObject.getClass() == getClass()) {
+                CachedTextKey otherKey = (CachedTextKey) otherObject;
+                result = font.equals(otherKey.font)
+                        && text.equals(otherKey.text);
+            } else {
+                result = false;
+            }
+
+            return result;
         }
 
         @Override
