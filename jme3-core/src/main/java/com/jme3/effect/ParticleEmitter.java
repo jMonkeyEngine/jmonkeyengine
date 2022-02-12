@@ -284,6 +284,20 @@ public class ParticleEmitter extends Geometry {
         control = new ParticleEmitterControl(this);
         controls.add(control);
 
+        this.initParticleMesh();
+        this.setNumParticles(numParticles);
+//        particleMesh.initParticleData(this, particles.length);
+    }
+
+    /**
+     * For serialization only. Do not use.
+     */
+    protected ParticleEmitter() {
+        super();
+        setBatchHint(BatchHint.Never);
+    }
+    
+    private void initParticleMesh() {
         switch (meshType) {
             case Point:
                 particleMesh = new ParticlePointMesh();
@@ -296,16 +310,6 @@ public class ParticleEmitter extends Geometry {
             default:
                 throw new IllegalStateException("Unrecognized particle type: " + meshType);
         }
-        this.setNumParticles(numParticles);
-//        particleMesh.initParticleData(this, particles.length);
-    }
-
-    /**
-     * For serialization only. Do not use.
-     */
-    protected ParticleEmitter() {
-        super();
-        setBatchHint(BatchHint.Never);
     }
 
     public void setShape(EmitterShape shape) {
@@ -360,18 +364,7 @@ public class ParticleEmitter extends Geometry {
      */
     public void setMeshType(ParticleMesh.Type meshType) {
         this.meshType = meshType;
-        switch (meshType) {
-            case Point:
-                particleMesh = new ParticlePointMesh();
-                this.setMesh(particleMesh);
-                break;
-            case Triangle:
-                particleMesh = new ParticleTriMesh();
-                this.setMesh(particleMesh);
-                break;
-            default:
-                throw new IllegalStateException("Unrecognized particle type: " + meshType);
-        }
+        this.initParticleMesh();
         this.setNumParticles(particles.length);
     }
 
@@ -1257,18 +1250,7 @@ public class ParticleEmitter extends Geometry {
         randomAngle = ic.readBoolean("randomAngle", false);
         rotateSpeed = ic.readFloat("rotateSpeed", 0);
 
-        switch (meshType) {
-            case Point:
-                particleMesh = new ParticlePointMesh();
-                this.setMesh(particleMesh);
-                break;
-            case Triangle:
-                particleMesh = new ParticleTriMesh();
-                this.setMesh(particleMesh);
-                break;
-            default:
-                throw new IllegalStateException("Unrecognized particle type: " + meshType);
-        }
+        this.initParticleMesh();
         this.setNumParticles(numParticles);
 //        particleMesh.initParticleData(this, particles.length);
 //        particleMesh.setImagesXY(imagesX, imagesY);
@@ -1292,7 +1274,7 @@ public class ParticleEmitter extends Geometry {
                 }
             }
 
-            // compatability before gravity was not a vector but a float
+            // compatibility before gravity was not a vector but a float
             if (gravity == null) {
                 gravity = new Vector3f();
                 gravity.y = ic.readFloat("gravity", 0);
