@@ -41,6 +41,7 @@ import java.awt.Canvas;
 import java.awt.Graphics;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import javax.swing.SwingUtilities;
@@ -58,6 +59,7 @@ public class AppHarness extends Applet {
     private String appClass;
     private URL appCfg = null;
 
+    @SuppressWarnings("unchecked")
     private void createCanvas(){
         AppSettings settings = new AppSettings(true);
 
@@ -80,10 +82,15 @@ public class AppHarness extends Applet {
 
         try{
             Class clazz = Class.forName(appClass);
-            app = (LegacyApplication) clazz.newInstance();
+            app = (LegacyApplication) clazz.getDeclaredConstructor().newInstance();
         }catch (ClassNotFoundException
                 | InstantiationException
-                | IllegalAccessException ex){
+                | IllegalAccessException
+                | IllegalArgumentException
+                | InvocationTargetException
+                | NoSuchMethodException
+                | SecurityException ex            
+                ){
             ex.printStackTrace();
         }
 

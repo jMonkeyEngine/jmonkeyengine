@@ -77,7 +77,7 @@ public class MapSerializer extends Serializer {
 
         Map map;
         try {
-            map = (Map)c.newInstance();
+            map = (Map) c.getDeclaredConstructor().newInstance();
         } catch (Exception e) {
             log.log(Level.WARNING, "[Serializer][???] Could not determine map type. Using HashMap.");
             map = new HashMap();

@@ -35,11 +35,11 @@ package com.jme3.system.lwjgl;
 import com.jme3.input.lwjgl.JInputJoyInput;
 import com.jme3.input.lwjgl.LwjglKeyInput;
 import com.jme3.input.lwjgl.LwjglMouseInput;
+import com.jme3.opencl.DefaultPlatformChooser;
 import com.jme3.opencl.Device;
 import com.jme3.opencl.PlatformChooser;
 import com.jme3.opencl.lwjgl.LwjglDevice;
 import com.jme3.opencl.lwjgl.LwjglPlatform;
-import com.jme3.opencl.DefaultPlatformChooser;
 import com.jme3.renderer.Renderer;
 import com.jme3.renderer.RendererException;
 import com.jme3.renderer.lwjgl.LwjglGL;
@@ -60,7 +60,6 @@ import com.jme3.renderer.opengl.GLTracer;
 import com.jme3.system.*;
 import java.util.ArrayList;
 import java.util.List;
-
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -389,7 +388,7 @@ public abstract class LwjglContext implements JmeContext {
         PlatformChooser chooser = null;
         if (settings.getOpenCLPlatformChooser() != null) {
             try {
-                chooser = (PlatformChooser) Class.forName(settings.getOpenCLPlatformChooser()).newInstance();
+                chooser = (PlatformChooser) Class.forName(settings.getOpenCLPlatformChooser()).getDeclaredConstructor().newInstance();
             } catch (Exception ex) {
                 logger.log(Level.WARNING, "unable to instantiate custom PlatformChooser", ex);
             }
