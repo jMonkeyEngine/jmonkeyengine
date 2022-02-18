@@ -37,8 +37,8 @@ import com.jme3.export.*;
 import com.jme3.math.Matrix4f;
 import com.jme3.util.clone.Cloner;
 import com.jme3.util.clone.JmeCloneable;
-
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 /**
@@ -130,8 +130,10 @@ public class Armature implements JmeCloneable, Savable {
 
     private void instantiateJointModelTransform(Joint joint) {
         try {
-            joint.setJointModelTransform(modelTransformClass.newInstance());
-        } catch (InstantiationException | IllegalAccessException e) {
+            joint.setJointModelTransform(modelTransformClass.getDeclaredConstructor().newInstance());
+        } catch (InstantiationException | IllegalAccessException
+                | IllegalArgumentException | InvocationTargetException
+                | NoSuchMethodException | SecurityException e) {
             throw new IllegalArgumentException(e);
         }
     }

@@ -34,7 +34,7 @@ package com.jme3.shader;
 import com.jme3.math.*;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.TempVars;
-
+import java.lang.reflect.InvocationTargetException;
 import java.nio.*;
 
 public class Uniform extends ShaderVariable {
@@ -355,9 +355,11 @@ public class Uniform extends ShaderVariable {
                 //handle the null case
                 if (this.value == null) {
                     try {
-                        this.value = value.getClass().newInstance();
-                    } catch (InstantiationException | IllegalAccessException e) {
-                        throw new IllegalArgumentException("Cannot instantiate param of class " + value.getClass().getCanonicalName());
+                        this.value = value.getClass().getDeclaredConstructor().newInstance();
+                    } catch (InstantiationException | IllegalAccessException
+                            | IllegalArgumentException | InvocationTargetException
+                            | NoSuchMethodException | SecurityException e) {
+                        throw new IllegalArgumentException("Cannot instantiate param of class " + value.getClass().getCanonicalName(), e);
                     }
                 }
                 //feed the pivot vec 4 with the correct value
