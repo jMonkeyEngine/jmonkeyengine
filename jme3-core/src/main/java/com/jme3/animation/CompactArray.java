@@ -246,7 +246,7 @@ public abstract class CompactArray<T> implements JmeCloneable {
         try {
             T[] compactArr = (T[]) Array.newInstance(getElementClass(), getSerializedSize() / getTupleSize());
             for (int i = 0; i < compactArr.length; i++) {
-                compactArr[i] = getElementClass().newInstance();
+                compactArr[i] = getElementClass().getDeclaredConstructor().newInstance();
                 deserialize(i, compactArr[i]);
             }
 
