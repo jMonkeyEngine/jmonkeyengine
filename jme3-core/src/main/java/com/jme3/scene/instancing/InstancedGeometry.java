@@ -67,7 +67,7 @@ public class InstancedGeometry extends Geometry {
     private VertexBuffer transformInstanceData;
     private Geometry[] geometries = new Geometry[1];
     // Keep track of both transformInstanceData and globalInstanceData
-    // going to be used by renderer.
+    // that is used by renderer.
     private VertexBuffer[] allInstanceData;
 
     private int firstUnusedIndex = 0;
@@ -387,7 +387,6 @@ public class InstancedGeometry extends Geometry {
         return geometries;
     }
 
-    @SuppressWarnings("unchecked")
     public VertexBuffer[] getAllInstanceData() {
         return allInstanceData;
     }
@@ -446,6 +445,8 @@ public class InstancedGeometry extends Geometry {
         for (int i = 0; i < geometrySavables.length; i++) {
             geometries[i] = (Geometry) geometrySavables[i];
         }
+
+        updateAllInstanceData();
     }
 
     /**
