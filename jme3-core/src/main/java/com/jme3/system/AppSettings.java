@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2022 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1025,7 +1025,7 @@ public final class AppSettings extends HashMap<String, Object> {
      * Get the width of the window
      *
      * @return the width of the window (in pixels)
-     * @see #setWindowWidth(int)
+     * @see #setWindowSize(int, int)
      */
     public int getWindowWidth() {
         int w = getInteger("WindowWidth");
@@ -1036,7 +1036,7 @@ public final class AppSettings extends HashMap<String, Object> {
      * Get the height of the window
      *
      * @return the height of the window (in pixels)
-     * @see #setWindowHeight(int)
+     * @see #setWindowSize(int, int)
      */
     public int getWindowHeight() {
         int h = getInteger("WindowHeight");
