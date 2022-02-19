@@ -89,8 +89,7 @@ public class AppHarness extends Applet {
                 | IllegalArgumentException
                 | InvocationTargetException
                 | NoSuchMethodException
-                | SecurityException ex            
-                ){
+                | SecurityException ex) {
             ex.printStackTrace();
         }
 
