@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2022 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -66,6 +66,9 @@ public class InstancedGeometry extends Geometry {
     private VertexBuffer[] globalInstanceData;
     private VertexBuffer transformInstanceData;
     private Geometry[] geometries = new Geometry[1];
+    // Keep track of both transformInstanceData and globalInstanceData
+    // that is used by renderer.
+    private VertexBuffer[] allInstanceData;
 
     private int firstUnusedIndex = 0;
     private int numVisibleInstances = 0;
@@ -118,6 +121,7 @@ public class InstancedGeometry extends Geometry {
      */
     public void setGlobalUserInstanceData(VertexBuffer[] globalInstanceData) {
         this.globalInstanceData = globalInstanceData;
+        updateAllInstanceData();
     }
 
     /**
@@ -127,6 +131,7 @@ public class InstancedGeometry extends Geometry {
      */
     public void setTransformUserInstanceData(VertexBuffer transformInstanceData) {
         this.transformInstanceData = transformInstanceData;
+        updateAllInstanceData();
     }
 
     /**
@@ -207,6 +212,7 @@ public class InstancedGeometry extends Geometry {
                     INSTANCE_SIZE,
                     Format.Float,
                     BufferUtils.createFloatBuffer(geometries.length * INSTANCE_SIZE));
+            updateAllInstanceData();
         }
     }
 
@@ -381,16 +387,19 @@ public class InstancedGeometry extends Geometry {
         return geometries;
     }
 
-    @SuppressWarnings("unchecked")
     public VertexBuffer[] getAllInstanceData() {
-        ArrayList<VertexBuffer> allData = new ArrayList();
+        return allInstanceData;
+    }
+
+    private void updateAllInstanceData() {
+        ArrayList<VertexBuffer> allData = new ArrayList<>();
         if (transformInstanceData != null) {
             allData.add(transformInstanceData);
         }
         if (globalInstanceData != null) {
             allData.addAll(Arrays.asList(globalInstanceData));
         }
-        return allData.toArray(new VertexBuffer[allData.size()]);
+        allInstanceData = allData.toArray(new VertexBuffer[allData.size()]);
     }
 
     @Override
@@ -413,6 +422,7 @@ public class InstancedGeometry extends Geometry {
 
         this.globalInstanceData = cloner.clone(globalInstanceData);
         this.transformInstanceData = cloner.clone(transformInstanceData);
+        this.allInstanceData = cloner.clone(allInstanceData);
         this.geometries = cloner.clone(geometries);
     }
 
@@ -435,6 +445,8 @@ public class InstancedGeometry extends Geometry {
         for (int i = 0; i < geometrySavables.length; i++) {
             geometries[i] = (Geometry) geometrySavables[i];
         }
+
+        updateAllInstanceData();
     }
 
     /**
@@ -443,6 +455,7 @@ public class InstancedGeometry extends Geometry {
     protected void cleanup() {
         BufferUtils.destroyDirectBuffer(transformInstanceData.getData());
         transformInstanceData = null;
+        allInstanceData = null;
         geometries = null;
     }
 }
