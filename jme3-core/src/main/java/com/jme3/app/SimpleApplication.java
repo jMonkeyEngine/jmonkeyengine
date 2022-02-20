@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2022 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -127,7 +127,7 @@ public abstract class SimpleApplication extends LegacyApplication {
     }
 
     /**
-     * Returns the applications speed.
+     * Returns the application's speed.
      *
      * @return The speed of the application.
      */
@@ -136,7 +136,7 @@ public abstract class SimpleApplication extends LegacyApplication {
     }
 
     /**
-     * Changes the application speed. 0.0f prevents the application from updating.
+     * Changes the application's speed. 0.0f prevents the application from updating.
      * @param speed The speed to set.
      */
     public void setSpeed(float speed) {
