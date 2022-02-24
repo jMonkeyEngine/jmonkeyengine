@@ -40,6 +40,7 @@ import com.jme3.system.JmeSystem;
 import java.applet.Applet;
 import java.awt.Canvas;
 import java.awt.Graphics;
+import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.Callable;
 import javax.swing.SwingUtilities;
 
@@ -53,6 +54,7 @@ public class TestApplet extends Applet {
     public TestApplet(){
     }
 
+    @SuppressWarnings("unchecked")
     public static void createCanvas(String appClass){
         AppSettings settings = new AppSettings(true);
         settings.setWidth(640);
@@ -63,10 +65,14 @@ public class TestApplet extends Applet {
 
         try{
             Class clazz = Class.forName(appClass);
-            app = (LegacyApplication) clazz.newInstance();
+            app = (LegacyApplication) clazz.getDeclaredConstructor().newInstance();
         } catch (ClassNotFoundException
                 | InstantiationException
-                | IllegalAccessException ex){
+                | IllegalAccessException
+                | IllegalArgumentException
+                | InvocationTargetException
+                | NoSuchMethodException
+                | SecurityException ex) {
             ex.printStackTrace();
         }
 

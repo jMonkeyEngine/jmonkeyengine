@@ -32,7 +32,7 @@
 package com.jme3.asset;
 
 import com.jme3.asset.cache.AssetCache;
-
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -115,12 +115,15 @@ final class ImplHandler {
         @Override
         protected T initialValue() {
             try {
-                T obj = type.newInstance();
+                T obj = type.getDeclaredConstructor().newInstance();
+
                 if (path != null) {
                     ((AssetLocator) obj).setRootPath(path);
                 }
                 return obj;
-            } catch (InstantiationException | IllegalAccessException ex) {
+            } catch (InstantiationException | IllegalAccessException
+                    | IllegalArgumentException | InvocationTargetException
+                    | NoSuchMethodException | SecurityException ex) {
                 logger.log(Level.SEVERE, "Cannot create locator of type {0}, does"
                         + " the class have an empty and publicly accessible"
                         + " constructor?", type.getName());
@@ -220,12 +223,12 @@ final class ImplHandler {
                 cache = (T) classToCacheMap.get(cacheClass);
                 if (cache == null) {
                     try {
-                        cache = cacheClass.newInstance();
+                        cache = cacheClass.getDeclaredConstructor().newInstance();
                         classToCacheMap.put(cacheClass, cache);
-                    } catch (InstantiationException ex) {
+                    } catch (InstantiationException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException ex) {
                         throw new IllegalArgumentException("The cache class cannot"
                                 + " be created, ensure it has empty constructor", ex);
-                    } catch (IllegalAccessException ex) {
+                    } catch (IllegalAccessException | SecurityException ex) {
                         throw new IllegalArgumentException("The cache class cannot "
                                 + "be accessed", ex);
                     }
@@ -246,12 +249,12 @@ final class ImplHandler {
                 proc = (T) classToProcMap.get(procClass);
                 if (proc == null) {
                     try {
-                        proc = procClass.newInstance();
+                        proc = procClass.getDeclaredConstructor().newInstance();
                         classToProcMap.put(procClass, proc);
-                    } catch (InstantiationException ex) {
+                    } catch (InstantiationException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException ex) {
                         throw new IllegalArgumentException("The processor class cannot"
                                 + " be created, ensure it has empty constructor", ex);
-                    } catch (IllegalAccessException ex) {
+                    } catch (IllegalAccessException | SecurityException ex) {
                         throw new IllegalArgumentException("The processor class cannot "
                                 + "be accessed", ex);
                     }

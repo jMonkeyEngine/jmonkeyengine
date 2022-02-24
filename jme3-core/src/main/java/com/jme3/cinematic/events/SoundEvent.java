@@ -33,6 +33,7 @@ package com.jme3.cinematic.events;
 
 import com.jme3.animation.LoopMode;
 import com.jme3.app.Application;
+import com.jme3.audio.AudioData;
 import com.jme3.audio.AudioNode;
 import com.jme3.audio.AudioSource;
 import com.jme3.cinematic.Cinematic;
@@ -153,7 +154,7 @@ public class SoundEvent extends AbstractCinematicEvent {
     @Override
     public void initEvent(Application app, Cinematic cinematic) {
         super.initEvent(app, cinematic);
-        audioNode = new AudioNode(app.getAssetManager(), path, stream);
+        audioNode = new AudioNode(app.getAssetManager(), path, stream ? AudioData.DataType.Stream : AudioData.DataType.Buffer);
         audioNode.setPositional(false);
         setLoopMode(loopMode);
     }

@@ -37,6 +37,7 @@ import com.jme3.network.serializing.Serializable;
 import com.jme3.network.serializing.Serializer;
 import com.jme3.network.serializing.SerializerRegistration;
 import com.jme3.network.serializing.serializers.FieldSerializer;
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.jar.Attributes;
 import java.util.logging.Level;
@@ -203,6 +204,7 @@ public class SerializerRegistrationsMessage extends AbstractMessage {
             } 
         }
  
+        @SuppressWarnings("unchecked")
         public void register() {        
             try {
                 Class type = Class.forName(className);
@@ -211,13 +213,13 @@ public class SerializerRegistrationsMessage extends AbstractMessage {
                     serializer = fieldSerializer;
                 } else {
                     Class serializerType = Class.forName(serializerClassName);
-                    serializer = (Serializer)serializerType.newInstance();                    
+                    serializer = (Serializer) serializerType.getDeclaredConstructor().newInstance();
                 }
                 SerializerRegistration result = Serializer.registerClassForId(id, type, serializer);
                 log.log(Level.FINE, "   result:{0}", result);                
             } catch( ClassNotFoundException e ) {
                 throw new RuntimeException( "Class not found attempting to register:" + this, e );
-            } catch( InstantiationException | IllegalAccessException e ) {
+            } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | IllegalArgumentException | InvocationTargetException e) {
                 throw new RuntimeException( "Error instantiating serializer registering:" + this, e );
             }            
         }

@@ -268,7 +268,7 @@ public class TestChooser extends JFrame {
                 for (Class<?> clazz : appClass) {
                     try {
                         if (LegacyApplication.class.isAssignableFrom(clazz)) {
-                            Object app = clazz.newInstance();
+                            Object app = clazz.getDeclaredConstructor().newInstance();
                             if (app instanceof SimpleApplication) {
                                 final Method settingMethod = clazz.getMethod("setShowSettings", boolean.class);
                                 settingMethod.invoke(app, showSetting);

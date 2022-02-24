@@ -501,9 +501,9 @@ public class Spline implements Savable {
         /* Empty List as default, prevents null pointers */
         float list[] = in.readFloatArray("segmentsLength", null);
         if (list != null) {
-            segmentsLength = new ArrayList<Float>();
+            segmentsLength = new ArrayList<>(list.length);
             for (int i = 0; i < list.length; i++) {
-                segmentsLength.add(new Float(list[i]));
+                segmentsLength.add(list[i]);
             }
         }
         type = in.readEnum("pathSplineType", SplineType.class, SplineType.CatmullRom);

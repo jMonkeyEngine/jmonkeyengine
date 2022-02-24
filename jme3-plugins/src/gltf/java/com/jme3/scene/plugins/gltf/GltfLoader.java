@@ -43,6 +43,7 @@ import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.*;
 import com.jme3.scene.control.CameraControl;
 import com.jme3.scene.mesh.MorphTarget;
+import static com.jme3.scene.plugins.gltf.GltfUtils.*;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture2D;
 import com.jme3.util.IntMap;
@@ -54,8 +55,6 @@ import java.nio.FloatBuffer;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import static com.jme3.scene.plugins.gltf.GltfUtils.*;
 
 /**
  * GLTF 2.0 loader
@@ -120,15 +119,14 @@ public class GltfLoader implements AssetLoader {
                 defaultMat.setFloat("Roughness", 1f);
             }
 
-            docRoot = new JsonParser().parse(new JsonReader(new InputStreamReader(stream))).getAsJsonObject();
+            docRoot = JsonParser.parseReader(new JsonReader(new InputStreamReader(stream))).getAsJsonObject();
 
             JsonObject asset = docRoot.getAsJsonObject().get("asset").getAsJsonObject();
             getAsString(asset, "generator");
             String version = getAsString(asset, "version");
             String minVersion = getAsString(asset, "minVersion");
             if (!isSupported(version, minVersion)) {
-                logger.log(Level.SEVERE, "Gltf Loader doesn't support this gltf version: " + version
-                        + (minVersion != null ? ("/" + minVersion) : ""));
+                logger.log(Level.SEVERE, "Gltf Loader doesn''t support this gltf version: {0}{1}", new Object[]{version, minVersion != null ? ("/" + minVersion) : ""});
             }
 
             scenes = docRoot.getAsJsonArray("scenes");
