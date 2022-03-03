@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2022 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -146,10 +146,25 @@ public enum Platform {
      * Enumerate generic names of operating systems
      */
     public enum Os {
-        Linux, 
-        Windows, 
-        iOS, 
-        MacOS, 
+        /**
+         * Linux operating systems
+         */
+        Linux,
+        /**
+         * Microsoft Windows operating systems
+         */
+        Windows,
+        /**
+         * iOS operating systems
+         */
+        iOS,
+        /**
+         * macOS operating systems
+         */
+        MacOS,
+        /**
+         * Android operating systems
+         */
         Android
     }
 
@@ -166,8 +181,8 @@ public enum Platform {
     }
 
     /**
-     * Get the opterating system of this platform
-     * 
+     * Returns the operating system of this platform.
+     *
      * @return the generic name of the operating system of this platform
      */
     public Os getOs() {
