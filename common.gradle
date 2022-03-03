@@ -23,7 +23,7 @@ tasks.withType(JavaCompile) { // compile-time options:
 }
 
 ext {
-    lwjgl3Version = '3.3.0' // used in both the jme3-lwjgl3 and jme3-vr build scripts
+    lwjgl3Version = '3.3.1' // used in both the jme3-lwjgl3 and jme3-vr build scripts
 }
 
 repositories {
