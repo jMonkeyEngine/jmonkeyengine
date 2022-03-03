@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2022 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -179,7 +179,8 @@ public final class NativeLibraryLoader {
         registerNativeLibrary("bulletjme", Platform.Linux_ARM64, "native/linux/arm64/libbulletjme.so");
         registerNativeLibrary("bulletjme", Platform.MacOSX32,  "native/osx/x86/libbulletjme.dylib");
         registerNativeLibrary("bulletjme", Platform.MacOSX64,  "native/osx/x86_64/libbulletjme.dylib");
-        
+        registerNativeLibrary("bulletjme", Platform.MacOSX_ARM64,  "native/osx/arm64/libbulletjme.dylib");
+
         // JInput
         // For OSX: Need to rename extension jnilib -> dylib when extracting
         registerNativeLibrary("jinput", Platform.Windows32, "native/windows/jinput-raw.dll");
