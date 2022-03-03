@@ -73,7 +73,7 @@ public class HelloCollision extends SimpleApplication
 
   @Override
   public void simpleInitApp() {
-    /* Set up Physics */
+    /* Set up physics */
     BulletAppState bulletAppState = new BulletAppState();
     stateManager.attach(bulletAppState);
 
