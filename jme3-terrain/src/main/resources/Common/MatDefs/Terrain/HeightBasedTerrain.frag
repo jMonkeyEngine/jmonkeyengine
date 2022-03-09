@@ -1,3 +1,4 @@
+#import "Common/ShaderLib/GLSLCompat.glsllib"
 uniform vec3 m_region1;
 uniform vec3 m_region2;
 uniform vec3 m_region3;
