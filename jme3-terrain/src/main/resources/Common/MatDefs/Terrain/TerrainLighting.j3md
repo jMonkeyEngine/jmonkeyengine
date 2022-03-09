@@ -108,8 +108,8 @@ MaterialDef Terrain Lighting {
 
         LightMode MultiPass
 
-        VertexShader GLSL100:   Common/MatDefs/Terrain/TerrainLighting.vert
-        FragmentShader GLSL100: Common/MatDefs/Terrain/TerrainLighting.frag
+        VertexShader GLSL100 GLSL150:   Common/MatDefs/Terrain/TerrainLighting.vert
+        FragmentShader GLSL100 GLSL150: Common/MatDefs/Terrain/TerrainLighting.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -173,8 +173,8 @@ MaterialDef Terrain Lighting {
 
         LightMode SinglePass
 
-        VertexShader GLSL100:   Common/MatDefs/Terrain/SPTerrainLighting.vert
-        FragmentShader GLSL100: Common/MatDefs/Terrain/SPTerrainLighting.frag
+        VertexShader GLSL100 GLSL150:   Common/MatDefs/Terrain/SPTerrainLighting.vert
+        FragmentShader GLSL100 GLSL150: Common/MatDefs/Terrain/SPTerrainLighting.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -236,8 +236,8 @@ MaterialDef Terrain Lighting {
 
     Technique PreShadow {
 
-        VertexShader GLSL100 :   Common/MatDefs/Shadow/PreShadow.vert
-        FragmentShader GLSL100 : Common/MatDefs/Shadow/PreShadow.frag
+        VertexShader GLSL100 GLSL150:   Common/MatDefs/Shadow/PreShadow.vert
+        FragmentShader GLSL100 GLSL150: Common/MatDefs/Shadow/PreShadow.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -260,8 +260,8 @@ MaterialDef Terrain Lighting {
 
   Technique PreNormalPass {
 
-        VertexShader GLSL100 :   Common/MatDefs/SSAO/normal.vert
-        FragmentShader GLSL100 : Common/MatDefs/SSAO/normal.frag
+        VertexShader GLSL100 GLSL150:   Common/MatDefs/SSAO/normal.vert
+        FragmentShader GLSL100 GLSL150: Common/MatDefs/SSAO/normal.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -283,8 +283,8 @@ MaterialDef Terrain Lighting {
 
     Technique Glow {
 
-        VertexShader GLSL100:   Common/MatDefs/Misc/Unshaded.vert
-        FragmentShader GLSL100: Common/MatDefs/Light/Glow.frag
+        VertexShader GLSL100 GLSL150:   Common/MatDefs/Misc/Unshaded.vert
+        FragmentShader GLSL100 GLSL150: Common/MatDefs/Light/Glow.frag
 
         WorldParameters {
             WorldViewProjectionMatrix

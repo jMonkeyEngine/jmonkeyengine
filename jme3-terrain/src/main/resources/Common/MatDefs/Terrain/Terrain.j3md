@@ -15,8 +15,8 @@ MaterialDef Terrain {
 	}
 
 	Technique {
-		VertexShader GLSL100:   Common/MatDefs/Terrain/Terrain.vert
-		FragmentShader GLSL100: Common/MatDefs/Terrain/Terrain.frag
+		VertexShader GLSL100 GLSL150:   Common/MatDefs/Terrain/Terrain.vert
+		FragmentShader GLSL100 GLSL150: Common/MatDefs/Terrain/Terrain.frag
 		
 		WorldParameters {
 			WorldViewProjectionMatrix
