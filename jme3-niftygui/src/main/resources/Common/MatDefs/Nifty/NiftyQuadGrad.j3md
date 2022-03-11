@@ -4,8 +4,8 @@ MaterialDef Default GUI {
     }
 
     Technique {
-        VertexShader GLSL100:   Common/MatDefs/Nifty/NiftyQuadGrad.vert
-        FragmentShader GLSL100: Common/MatDefs/Nifty/NiftyQuadGrad.frag
+        VertexShader GLSL100 GLSL150:   Common/MatDefs/Nifty/NiftyQuadGrad.vert
+        FragmentShader GLSL100 GLSL150: Common/MatDefs/Nifty/NiftyQuadGrad.frag
 
         WorldParameters {
             WorldViewProjectionMatrix

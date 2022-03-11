@@ -1,3 +1,4 @@
+#import "Common/ShaderLib/GLSLCompat.glsllib"
 uniform sampler2D m_Alpha;
 uniform sampler2D m_Tex1;
 uniform sampler2D m_Tex2;

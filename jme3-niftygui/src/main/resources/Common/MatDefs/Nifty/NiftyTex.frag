@@ -1,3 +1,4 @@
+#import "Common/ShaderLib/GLSLCompat.glsllib"
 uniform sampler2D m_Texture;
 uniform vec4 m_Color; 
 
