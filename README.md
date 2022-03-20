@@ -4,7 +4,7 @@ jMonkeyEngine
 [![Build Status](https://github.com/jMonkeyEngine/jmonkeyengine/workflows/Build%20jMonkeyEngine/badge.svg)](https://github.com/jMonkeyEngine/jmonkeyengine/actions)
 
 jMonkeyEngine is a 3-D game engine for adventurous Java developers. It’s open-source, cross-platform, and cutting-edge.
-v3.5.0 is the latest stable version of the Engine.
+v3.5.1 is the latest stable version of the Engine.
 v3.3.2 is the latest stable version of the jMonkeyEngine SDK.
 
 The engine is used by several commercial game studios and computer-science courses. Here's a taste:
@@ -53,5 +53,5 @@ Read our [contribution guide](https://github.com/jMonkeyEngine/jmonkeyengine/blo
 
 ### License
 
-New BSD (3-clause) License. In other words, you do whatever makes you happy!
+[New BSD (3-clause) License](https://github.com/jMonkeyEngine/jmonkeyengine/blob/master/LICENSE)
 
