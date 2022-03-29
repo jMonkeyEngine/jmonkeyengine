@@ -100,6 +100,7 @@ public final class GLRenderer implements Renderer {
     private int defaultAnisotropicFilter = 1;
     private boolean linearizeSrgbImages;
     private HashSet<String> extensions;
+    private boolean generateMipmapsForFramebuffers = true;
 
     private final GL gl;
     private final GL2 gl2;
@@ -118,13 +119,21 @@ public final class GLRenderer implements Renderer {
         this.glext = glext;
         this.texUtil = new TextureUtil(gl, gl2, glext);
     }
+    
+    /**
+     * Enable/Disable default automatic generation of mipmaps for framebuffers
+     * @param v  Default is true
+     */
+    public void setGenerateMipmapsForFrameBuffer(boolean v) {
+        generateMipmapsForFramebuffers = v;
+    }
 
     @Override
     public Statistics getStatistics() {
         return statistics;
     }
 
-    @Override
+    @Override 
     public EnumSet<Caps> getCaps() {
         return caps;
     }
@@ -2075,7 +2084,7 @@ public final class GLRenderer implements Renderer {
         }
 
         // generate mipmaps for last FB if needed
-        if (context.boundFB != null) {
+        if (context.boundFB != null && (context.boundFB.getMipMapsGenerationHint()!=null?context.boundFB.getMipMapsGenerationHint():generateMipmapsForFramebuffers)) {
             for (int i = 0; i < context.boundFB.getNumColorBuffers(); i++) {
                 RenderBuffer rb = context.boundFB.getColorBuffer(i);
                 Texture tex = rb.getTexture();
