@@ -108,6 +108,9 @@ public final class GLRenderer implements Renderer {
     private final GLExt glext;
     private final GLFbo glfbo;
     private final TextureUtil texUtil;
+    private boolean debug = false;
+    private int debugGroupId = 0;
+
 
     public GLRenderer(GL gl, GLExt glext, GLFbo glfbo) {
         this.gl = gl;
@@ -118,6 +121,29 @@ public final class GLRenderer implements Renderer {
         this.glext = glext;
         this.texUtil = new TextureUtil(gl, gl2, glext);
     }
+
+    public void setDebugEnabled(boolean v) {
+        debug = v;
+    }
+
+    @Override
+    public void popDebugGroup() {
+        if (debug && caps.contains(Caps.GLDebug)) {
+            glext.glPopDebugGroup();
+            debugGroupId--;
+        }
+    }
+
+    @Override
+    public void pushDebugGroup(String name) {
+        if (debug && caps.contains(Caps.GLDebug)) {
+            if (name == null) name = "Group " + debugGroupId;
+            glext.glPushDebugGroup(GLExt.GL_DEBUG_SOURCE_APPLICATION, debugGroupId, name);
+            debugGroupId++;
+        }
+    }
+
+    
 
     @Override
     public Statistics getStatistics() {
@@ -563,6 +589,10 @@ public final class GLRenderer implements Renderer {
 
         if (caps.contains(Caps.OpenGL20)) {
             caps.add(Caps.UnpackRowLength);
+        }
+
+        if (caps.contains(Caps.OpenGL43) || hasExtension("GL_KHR_debug")) {
+            caps.add(Caps.GLDebug);
         }
 
         // Print context information
@@ -1422,6 +1452,9 @@ public final class GLRenderer implements Renderer {
             }
 
             source.setId(id);
+            if (debug && caps.contains(Caps.GLDebug)) {
+                glext.glObjectLabel(GLExt.GL_SHADER, id, source.getName());
+            }
         } else {
             throw new RendererException("Cannot recompile shader source");
         }
@@ -2114,6 +2147,9 @@ public final class GLRenderer implements Renderer {
             assert context.boundFBO == fb.getId();
 
             context.boundFB = fb;
+            if (debug && caps.contains(Caps.GLDebug)) {
+                glext.glObjectLabel(GL3.GL_FRAMEBUFFER, fb.getId(), fb.getName());
+            }
         }
     }
 
@@ -2642,6 +2678,9 @@ public final class GLRenderer implements Renderer {
         assert texId != -1;
 
         setupTextureParams(unit, tex);
+        if (debug && caps.contains(Caps.GLDebug)) {
+            glext.glObjectLabel(GL.GL_TEXTURE, tex.getImage().getId(), tex.getName());
+        }
     }
 
 
@@ -3010,6 +3049,9 @@ public final class GLRenderer implements Renderer {
                 }
                 attribs[slot] = vb.getWeakRef();
             }
+        }
+        if (debug && caps.contains(Caps.GLDebug)) {
+            glext.glObjectLabel(GLExt.GL_BUFFER, vb.getId(), vb.getName());
         }
     }
 

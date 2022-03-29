@@ -84,6 +84,7 @@ public class FrameBuffer extends NativeObject {
     private RenderBuffer depthBuf = null;
     private int colorBufIndex = 0;
     private boolean srgb;
+    private String name;
 
     /**
      * <code>RenderBuffer</code> represents either a texture or a
@@ -841,5 +842,13 @@ public class FrameBuffer extends NativeObject {
      */
     public boolean isSrgb() {
         return srgb;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

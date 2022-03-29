@@ -622,6 +622,7 @@ public class RenderManager {
      * @see com.jme3.material.Material#render(com.jme3.scene.Geometry, com.jme3.renderer.RenderManager)
      */
     public void renderGeometry(Geometry geom) {
+        this.renderer.pushDebugGroup(geom.getName());
         if (geom.isIgnoreTransform()) {
             setWorldMatrix(Matrix4f.IDENTITY);
         } else {
@@ -680,6 +681,7 @@ public class RenderManager {
         } else {
             material.render(geom, lightList, this);
         }
+        this.renderer.popDebugGroup();
     }
 
     /**
@@ -955,7 +957,9 @@ public class RenderManager {
         if (prof != null) {
             prof.vpStep(VpStep.RenderBucket, vp, Bucket.Opaque);
         }
+        this.renderer.pushDebugGroup(Bucket.Opaque.name());
         rq.renderQueue(Bucket.Opaque, this, cam, flush);
+        this.renderer.popDebugGroup();
 
         // render the sky, with depth range set to the farthest
         if (!rq.isQueueEmpty(Bucket.Sky)) {
@@ -963,7 +967,9 @@ public class RenderManager {
                 prof.vpStep(VpStep.RenderBucket, vp, Bucket.Sky);
             }
             renderer.setDepthRange(1, 1);
+            this.renderer.pushDebugGroup(Bucket.Sky.name());
             rq.renderQueue(Bucket.Sky, this, cam, flush);
+            this.renderer.popDebugGroup();
             depthRangeChanged = true;
         }
 
@@ -979,8 +985,9 @@ public class RenderManager {
                 renderer.setDepthRange(0, 1);
                 depthRangeChanged = false;
             }
-
+            this.renderer.pushDebugGroup(Bucket.Transparent.name());
             rq.renderQueue(Bucket.Transparent, this, cam, flush);
+            this.renderer.popDebugGroup();
         }
 
         if (!rq.isQueueEmpty(Bucket.Gui)) {
@@ -989,7 +996,9 @@ public class RenderManager {
             }
             renderer.setDepthRange(0, 0);
             setCamera(cam, true);
+            this.renderer.pushDebugGroup(Bucket.Gui.name());
             rq.renderQueue(Bucket.Gui, this, cam, flush);
+            this.renderer.popDebugGroup();
             setCamera(cam, false);
             depthRangeChanged = true;
         }

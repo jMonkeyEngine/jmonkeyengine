@@ -332,6 +332,7 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
     protected boolean normalized = false;
     protected int instanceSpan = 0;
     protected transient boolean dataSizeChanged = false;
+    protected String name;
 
     /**
      * Creates an empty, uninitialized buffer.
@@ -1188,5 +1189,16 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
             default:
                 throw new IOException("Unsupported import buffer format: " + format);
         }
+    }
+
+    public String getName() {
+        if (name == null) {
+            name = getClass().getSimpleName() + "(" + getBufferType().name() + ")";
+        }
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

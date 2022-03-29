@@ -108,6 +108,21 @@ public interface GLExt {
     public static final int GL_COMPRESSED_RGBA_BPTC_UNORM = 0x8E8C;
     public static final int GL_COMPRESSED_SRGB_ALPHA_BPTC_UNORM = 0x8E8D;
 
+    public static final int GL_DEBUG_SOURCE_API = 0x8246;
+    public static final int GL_DEBUG_SOURCE_WINDOW_SYSTEM = 0x8247;
+    public static final int GL_DEBUG_SOURCE_SHADER_COMPILER = 0x8248;
+    public static final int GL_DEBUG_SOURCE_THIRD_PARTY = 0x8249;
+    public static final int GL_DEBUG_SOURCE_APPLICATION = 0x824A;
+    public static final int GL_DEBUG_SOURCE_OTHER = 0x824B;
+
+    public static final int GL_BUFFER = 0x82E0;
+    public static final int GL_SHADER = 0x82E1;
+    public static final int GL_PROGRAM = 0x82E2;
+    public static final int GL_QUERY = 0x82E3;
+    public static final int GL_PROGRAM_PIPELINE = 0x82E4;
+    public static final int GL_SAMPLER = 0x82E6;
+    public static final int GL_DISPLAY_LIST = 0x82E7;
+
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glBufferData">Reference Page</a></p>
      *
@@ -239,4 +254,13 @@ public interface GLExt {
      * @param divisor the divisor value.
      */
     public void glVertexAttribDivisorARB(int index, int divisor);
+
+    public default void glPushDebugGroup(int source, int id, String message) {
+    }
+
+    public default void glPopDebugGroup() {
+    }
+
+    public default void glObjectLabel(int identifier, int id, String label){
+    }
 }

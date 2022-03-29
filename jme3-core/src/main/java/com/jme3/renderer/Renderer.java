@@ -519,4 +519,13 @@ public interface Renderer {
      * @return true for conversion, false for no conversion
      */
     public boolean isMainFrameBufferSrgb();
+
+    public default void popDebugGroup() {
+     
+    }
+
+    public default void pushDebugGroup(String name) {
+ 
+    }
+    
 }
