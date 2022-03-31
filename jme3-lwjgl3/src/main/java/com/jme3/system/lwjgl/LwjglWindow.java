@@ -384,17 +384,18 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         updateDefaultFramebufferSize(false, false);
 
         /*
-         * XXX workaround:  When transitioning from fullscreen to windowed,
-         * GLFW skips the window-size callback, so invoke it now.
+         * XXX workaround:  When transitioning between fullscreen and windowed,
+         * GLFW may skip the window-size callback, so invoke it now.
          * For more information, see JME issue #1793.
          */
-        if (isFullscreen && !settings.isFullscreen()) {
+        if (isFullscreen != settings.isFullscreen()) {
             int[] widthArray = new int[1];
             int[] heightArray = new int[1];
             glfwGetWindowSize(window, widthArray, heightArray);
             windowSizeCallback.invoke(window, widthArray[0], heightArray[0]);
+
+            isFullscreen = settings.isFullscreen();
         }
-        isFullscreen = settings.isFullscreen();
     }
 
     private void updateDefaultFramebufferSize(boolean invokeReshape, boolean invokeRescale) {
