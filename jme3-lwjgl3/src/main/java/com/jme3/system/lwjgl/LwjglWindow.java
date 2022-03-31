@@ -296,7 +296,6 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         if (window == NULL) {
             throw new RuntimeException("Failed to create the GLFW window");
         }
-        updateSizes();
 
         glfwSetWindowFocusCallback(window, windowFocusCallback = new GLFWWindowFocusCallback() {
 
@@ -318,8 +317,8 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             if (settings.getCenterWindow()) {
                 // Center the window
                 glfwSetWindowPos(window,
-                        (videoMode.width() - settings.getWidth()) / 2,
-                        (videoMode.height() - settings.getHeight()) / 2);
+                        (videoMode.width() - requestWidth) / 2,
+                        (videoMode.height() - requestHeight) / 2);
             } else {
                 glfwSetWindowPos(window,
                         settings.getWindowXPosition(),
@@ -368,6 +367,8 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         if (settings.isOpenCLSupport()) {
             initOpenCL(window);
         }
+
+        updateSizes();
     }
 
     private void updateSizes() {
