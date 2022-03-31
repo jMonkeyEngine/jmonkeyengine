@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2022 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -141,6 +141,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
 
     private Thread mainThread;
 
+    private boolean isFullscreen = false;
     private long window = NULL;
     private int frameRateLimit = -1;
 
@@ -357,7 +358,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
                 for (WindowSizeListener listener : windowSizeListeners.getArray()) {
                     listener.onWindowSizeChanged(width, height);
                 }
-                updateDefaultFramebufferSize(true);
+                updateDefaultFramebufferSize(true, true);
             }
         });
 
@@ -366,7 +367,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
 
             @Override
             public void invoke(final long window, final int width, final int height) {
-                updateDefaultFramebufferSize(true);
+                updateDefaultFramebufferSize(false, true);
             }
         });
 
@@ -377,25 +378,37 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             initOpenCL(window);
         }
 
+        /*
+         * Update framebuffer size in settings, but don't invoke listeners.
+         */
+        updateDefaultFramebufferSize(false, false);
 
-        updateDefaultFramebufferSize(false);
-
+        /*
+         * XXX workaround:  When transitioning from fullscreen to windowed,
+         * GLFW skips the window-size callback, so invoke it now.
+         * For more information, see JME issue #1793.
+         */
+        if (isFullscreen && !settings.isFullscreen()) {
+            int[] widthArray = new int[1];
+            int[] heightArray = new int[1];
+            glfwGetWindowSize(window, widthArray, heightArray);
+            windowSizeCallback.invoke(window, widthArray[0], heightArray[0]);
+        }
+        isFullscreen = settings.isFullscreen();
     }
 
-    
-    private void updateDefaultFramebufferSize(boolean updateListener) {
-        // If default framebuffer size is different than window size (e.g. HiDPI)
+    private void updateDefaultFramebufferSize(boolean invokeReshape, boolean invokeRescale) {
         int[] width = new int[1];
         int[] height = new int[1];
         glfwGetFramebufferSize(window, width, height);
 
-        Vector2f scale = getWindowContentScale(null);
+        if (invokeReshape) {
+            listener.reshape(width[0], height[0]);
+        }
 
-        if (updateListener) {
-            if (settings.getWidth() != width[0] || settings.getHeight() != height[0]) {
-                listener.reshape(width[0], height[0]);
-            }
-            if(!scale.equals(currentScale)){
+        if (invokeRescale) {
+            Vector2f scale = getWindowContentScale(null);
+            if (!scale.equals(currentScale)) {
                 listener.rescale(scale.x, scale.y);
                 currentScale.set(scale);
             }
@@ -602,7 +615,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         }
 
         listener.initialize();
-        updateDefaultFramebufferSize(true);
+        updateDefaultFramebufferSize(true, true);
 
         return true;
     }
