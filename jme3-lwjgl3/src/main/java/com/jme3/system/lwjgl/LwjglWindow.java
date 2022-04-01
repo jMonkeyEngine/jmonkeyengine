@@ -141,7 +141,6 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
 
     private Thread mainThread;
 
-    private boolean isFullscreen = false;
     private long window = NULL;
     private int frameRateLimit = -1;
 
