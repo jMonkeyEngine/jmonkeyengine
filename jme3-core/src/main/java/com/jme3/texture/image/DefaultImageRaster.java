@@ -153,9 +153,16 @@ public class DefaultImageRaster extends ImageRaster {
         image.setUpdateNeeded();
     }
 
-    private ByteBuffer getBuffer(){
-        if(buffer == null){
-            this.buffer = image.getData(slice);
+    private ByteBuffer getBuffer() {
+        if (buffer == null) {
+            if (image.getDepth() > 1) {
+                int skip = image.getWidth() * image.getHeight() * codec.bpp * slice;
+                this.buffer = image.getData(0);
+                this.buffer.position(skip);
+                this.buffer = this.buffer.slice();
+            } else {
+                this.buffer = image.getData(slice);
+            }
         }
         return buffer;
     }
