@@ -317,6 +317,7 @@ public class SpotLight extends Light {
 
     public final void setDirection(Vector3f direction) {
         this.direction.set(direction);
+        updateStates(null);
     }
 
     public Vector3f getPosition() {
@@ -325,6 +326,7 @@ public class SpotLight extends Light {
 
     public final void setPosition(Vector3f position) {
         this.position.set(position);
+        updateStates(null);
     }
 
     public float getSpotRange() {
@@ -354,6 +356,7 @@ public class SpotLight extends Light {
         } else {
             this.invSpotRange = 0;
         }
+        updateStates(null);
     }
 
     /**
@@ -387,6 +390,7 @@ public class SpotLight extends Light {
         }
         this.spotInnerAngle = spotInnerAngle;
         computeAngleParameters();
+        updateStates(null);
     }
 
     /**
@@ -413,6 +417,7 @@ public class SpotLight extends Light {
         }
         this.spotOuterAngle = spotOuterAngle;
         computeAngleParameters();
+        updateStates(null);
     }
 
     /**

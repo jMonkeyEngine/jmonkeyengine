@@ -110,6 +110,7 @@ public class DirectionalLight extends Light {
         if (!direction.isUnitVector()) {
             direction.normalizeLocal();
         }
+        updateStates(null);
     }
 
     @Override

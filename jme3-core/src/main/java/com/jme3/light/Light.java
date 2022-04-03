@@ -37,6 +37,7 @@ import com.jme3.export.*;
 import com.jme3.math.ColorRGBA;
 import com.jme3.renderer.Camera;
 import com.jme3.scene.Spatial;
+import com.jme3.util.StatefulObject;
 import com.jme3.util.TempVars;
 import java.io.IOException;
 
@@ -45,7 +46,7 @@ import java.io.IOException;
  * <p>
  * All light source types have a color.
  */
-public abstract class Light implements Savable, Cloneable {
+public abstract class Light extends StatefulObject implements Savable, Cloneable {
 
     /**
      * Describes the light type.
@@ -171,6 +172,7 @@ public abstract class Light implements Savable, Cloneable {
      */
     public void setColor(ColorRGBA color){
         this.color.set(color);
+        updateStates(null);
     }
 
 
@@ -189,6 +191,7 @@ public abstract class Light implements Savable, Cloneable {
      */
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+        updateStates(null);
     }
 
     public boolean isFrustumCheckNeeded() {
