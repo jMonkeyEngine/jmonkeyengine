@@ -59,23 +59,27 @@ public class StatefulObject implements Cloneable{
     /** 
      * A state that can be updated.
      */
-    public static abstract class State {
-        private volatile long snapshotID=0;
+    public static abstract class State<S extends StatefulObject> {
+        private volatile long snapshotID = 0;
 
         /**
          * Get unique ID of the snapshot of the current state.
          * The ID changes after every update.
          * @return
          */
-        public long getSnapshotID(){
+        public long getSnapshotID() {
             return snapshotID;
         }
-            
+
         /**
          * Called when the state needs to be updated
          * @param hint Hint on what need to be updated (may be ignored)
          */
-        public abstract void updateState(Object hint);
+        public abstract void updateState(S forObject, Object hint);
+
+        private void _updateState(StatefulObject forObject, Object hint) {
+            this.updateState((S)forObject, hint);
+        }
 
         /**
          * Called after the update is completed.
@@ -86,21 +90,26 @@ public class StatefulObject implements Cloneable{
             snapshotID = getNewSnapshotID(); // update the snapshot id
         }
 
-        public abstract State cloneStateFor(StatefulObject obj);
+        public abstract State<S> cloneStateFor(S obj);
+
+        private State<S> _cloneStateFor(StatefulObject obj) {
+            return cloneStateFor((S) obj);
+        }
 
     }
-
     
-    private transient Map<Object, State> states;
+ 
+    
+    private transient Map<Object, State<? extends StatefulObject>> states;
     
     /**
      * Get registered states
      * 
      * @return Map containing all the registered states and their keys
      */
-    protected Map<Object, State> getStates() {
+    protected Map<Object, State<? extends StatefulObject>> getStates() {
         if (states == null) {
-            states = (Map<Object, State>) Collections.synchronizedMap(new WeakHashMap<Object, State>());         
+            states = (Map<Object, State<? extends StatefulObject>>) Collections.synchronizedMap(new WeakHashMap<Object, State<? extends StatefulObject>>());         
         }
         return states;
     }
@@ -111,8 +120,8 @@ public class StatefulObject implements Cloneable{
      * @param constructor constructor used to create a new state if it doesn't exist
      * @return
      */
-    public <T extends State> T  getState(Object key, NoArgFunction<T> constructor) {        
-        State state = getStates().get(key);
+    public <T extends State<? extends StatefulObject>> T  getState(Object key, NoArgFunction<T> constructor) {        
+        State<? extends StatefulObject> state = getStates().get(key);
         if (state == null && constructor != null) {
             state = constructor.eval();
             getStates().put(key, state);
@@ -134,9 +143,9 @@ public class StatefulObject implements Cloneable{
      * @param hint Suggest what to update (can be ignored)
      */
     protected void updateStates(Object hint){
-        Map<Object,State> m= getStates();
-        for(State s:m.values()){
-            s.updateState(hint);
+        Map<Object,State<? extends StatefulObject>> m= getStates();
+        for(State<? extends StatefulObject> s:m.values()){
+            s._updateState(this,hint);
         }
     }
 
@@ -144,9 +153,9 @@ public class StatefulObject implements Cloneable{
      * Execute a function for each state
      * @param f 
      */
-    protected void forEachState(VoidFunction<State> f){
-        Map<Object, State> m = getStates();
-        for(State s:m.values()){
+    protected void forEachState(VoidFunction<State<? extends StatefulObject>> f){
+        Map<Object, State<? extends StatefulObject>> m = getStates();
+        for(State<? extends StatefulObject> s:m.values()){
             f.eval(s);
         }
     }
@@ -156,13 +165,13 @@ public class StatefulObject implements Cloneable{
     protected StatefulObject clone() throws CloneNotSupportedException {
         StatefulObject clone=(StatefulObject)super.clone();
         clone.states = null;
-        Map<Object, State> states = getStates();
-        Map<Object, State> clonedStates = clone.getStates();
+        Map<Object, State<? extends StatefulObject>> states = getStates();
+        Map<Object, State<? extends StatefulObject>> clonedStates = clone.getStates();
         assert states!=clonedStates;        
-        for(Object k:states.keySet()){
-            State s=states.get(k);
-            s=s.cloneStateFor(clone);
-            if(s!=null)clonedStates.put(k,s);
+        for (Object k : states.keySet()) {
+            State<? extends StatefulObject> s = states.get(k);
+            s = s._cloneStateFor(clone);
+            if (s != null) clonedStates.put(k, s);
         }
         return clone;
     }
