@@ -96,6 +96,14 @@ public class StatefulObject implements Cloneable{
             return cloneStateFor((S) obj);
         }
 
+        /**
+         * Called after the state is attached for the first time
+         */
+        public abstract void attachedTo(S obj);
+
+        private void _attachedTo(StatefulObject obj) {
+            attachedTo((S) obj);
+        }
     }
     
  
@@ -125,6 +133,7 @@ public class StatefulObject implements Cloneable{
         if (state == null && constructor != null) {
             state = constructor.eval();
             getStates().put(key, state);
+            state._attachedTo(this);
         }
         return (T)state;
     }
@@ -172,6 +181,7 @@ public class StatefulObject implements Cloneable{
             State<? extends StatefulObject> s = states.get(k);
             s = s._cloneStateFor(clone);
             if (s != null) clonedStates.put(k, s);
+            s._attachedTo(clone);
         }
         return clone;
     }
