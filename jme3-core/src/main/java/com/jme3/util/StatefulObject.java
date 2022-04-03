@@ -34,6 +34,7 @@ package com.jme3.util;
 import java.util.Collections;
 import java.util.Map;
 import java.util.WeakHashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 import com.jme3.util.functional.NoArgFunction;
@@ -108,16 +109,16 @@ public class StatefulObject implements Cloneable{
     
  
     
-    private transient Map<Object, State<? extends StatefulObject>> states;
+    private transient Map<Object, Map<Object,State<? extends StatefulObject>>> states;
     
     /**
      * Get registered states
      * 
      * @return Map containing all the registered states and their keys
      */
-    protected Map<Object, State<? extends StatefulObject>> getStates() {
+    protected Map<Object, Map<Object,State<? extends StatefulObject>>> getStates() {
         if (states == null) {
-            states = (Map<Object, State<? extends StatefulObject>>) Collections.synchronizedMap(new WeakHashMap<Object, State<? extends StatefulObject>>());         
+            states = (Map<Object, Map<Object, State<? extends StatefulObject>>>) Collections.synchronizedMap(new WeakHashMap<Object, Map<Object,State<? extends StatefulObject>>>());         
         }
         return states;
     }
@@ -128,13 +129,14 @@ public class StatefulObject implements Cloneable{
      * @param constructor constructor used to create a new state if it doesn't exist
      * @return
      */
-    public <T extends State<? extends StatefulObject>> T  getState(Object key, NoArgFunction<T> constructor) {        
-        State<? extends StatefulObject> state = getStates().get(key);
-        if (state == null && constructor != null) {
-            state = constructor.eval();
-            getStates().put(key, state);
-            state._attachedTo(this);
-        }
+    public <T extends State<? extends StatefulObject>> T  getState(Object key, Object type, NoArgFunction<T> constructor) {        
+        Map<Object, State<? extends StatefulObject>> stateMap = getStates().computeIfAbsent(key,(k)->new ConcurrentHashMap<Object, State<? extends StatefulObject>>());
+        State<? extends StatefulObject> state = stateMap.computeIfAbsent(type, (k) -> {
+            if (constructor == null) return null;
+            State<? extends StatefulObject> s = constructor.eval();
+            s._attachedTo(this);
+            return s;
+        });
         return (T)state;
     }
 
@@ -143,46 +145,37 @@ public class StatefulObject implements Cloneable{
      * @param key Key representing the state
      * @return
      */
-    public Object removeState(Object key) {
-        return getStates().remove(key);
+    public Object removeState(Object key, Object type) {
+        Map<Object, State<? extends StatefulObject>> stateMap = getStates().get(key);
+        return stateMap.remove(type);
     }
 
     /**
      * Mark states for update
      * @param hint Suggest what to update (can be ignored)
      */
-    protected void updateStates(Object hint){
-        Map<Object,State<? extends StatefulObject>> m= getStates();
-        for(State<? extends StatefulObject> s:m.values()){
-            s._updateState(this,hint);
-        }
+    protected void updateStates(Object hint) {
+        getStates().forEach((k, v) -> {
+            v.forEach((k2, v2) -> {
+                v2._updateState(this, hint); 
+            }); 
+        });
     }
 
-    /**
-     * Execute a function for each state
-     * @param f 
-     */
-    protected void forEachState(VoidFunction<State<? extends StatefulObject>> f){
-        Map<Object, State<? extends StatefulObject>> m = getStates();
-        for(State<? extends StatefulObject> s:m.values()){
-            f.eval(s);
-        }
-    }
 
 
     @Override
     protected StatefulObject clone() throws CloneNotSupportedException {
         StatefulObject clone=(StatefulObject)super.clone();
         clone.states = null;
-        Map<Object, State<? extends StatefulObject>> states = getStates();
-        Map<Object, State<? extends StatefulObject>> clonedStates = clone.getStates();
-        assert states!=clonedStates;        
-        for (Object k : states.keySet()) {
-            State<? extends StatefulObject> s = states.get(k);
-            s = s._cloneStateFor(clone);
-            if (s != null) clonedStates.put(k, s);
-            s._attachedTo(clone);
-        }
+        Map<Object, Map<Object,State<? extends StatefulObject>>> statesMap = getStates();
+        Map<Object, Map<Object,State<? extends StatefulObject>>> clonedStatesMap = clone.getStates();
+        assert states != clonedStatesMap;
+        statesMap.forEach((key,v)->{
+            v.forEach((type, s) -> {
+                clone.getState(key, type, () -> s._cloneStateFor(clone));
+            });
+        });
         return clone;
     }
 
