@@ -31,8 +31,6 @@
  */
 package com.jme3.system;
 
-import com.jme3.app.SettingsDialog;
-import com.jme3.app.SettingsDialog.SelectionListener;
 import com.jme3.asset.AssetNotFoundException;
 import com.jme3.audio.AudioRenderer;
 import com.jme3.audio.openal.AL;
@@ -41,6 +39,8 @@ import com.jme3.audio.openal.ALC;
 import com.jme3.audio.openal.EFX;
 import com.jme3.system.JmeContext.Type;
 import com.jme3.util.Screenshots;
+import com.jme3.util.functional.VoidFunction;
+
 import java.awt.EventQueue;
 import java.awt.Graphics2D;
 import java.awt.GraphicsEnvironment;
@@ -69,6 +69,11 @@ import javax.swing.SwingUtilities;
  * @author Kirill Vainer, normenhansen
  */
 public class JmeDesktopSystem extends JmeSystemDelegate {
+
+    public JmeDesktopSystem(){
+  
+     
+    }
 
     @Override
     public URL getPlatformAssetConfigURL() {
@@ -115,81 +120,8 @@ public class JmeDesktopSystem extends JmeSystemDelegate {
         }
     }
 
-    @Override
-    public void showErrorDialog(String message) {
-        if (!GraphicsEnvironment.isHeadless()) {
-            final String msg = message;
-            EventQueue.invokeLater(new Runnable() {
-                @Override
-                public void run() {
-                    ErrorDialog.showDialog(msg);
-                }
-            });
-        } else {
-            System.err.println("[JME ERROR] " + message);
-        }
-    }
+ 
 
-    @Override
-    public boolean showSettingsDialog(AppSettings sourceSettings, final boolean loadFromRegistry) {
-        if (SwingUtilities.isEventDispatchThread()) {
-            throw new IllegalStateException("Cannot run from EDT");
-        }
-        if (GraphicsEnvironment.isHeadless()) {
-            throw new IllegalStateException("Cannot show dialog in headless environment");
-        }
-
-        final AppSettings settings = new AppSettings(false);
-        settings.copyFrom(sourceSettings);
-        String iconPath = sourceSettings.getSettingsDialogImage();
-        if(iconPath == null){
-            iconPath = "";
-        }
-        final URL iconUrl = JmeSystem.class.getResource(iconPath.startsWith("/") ? iconPath : "/" + iconPath);
-        if (iconUrl == null) {
-            throw new AssetNotFoundException(sourceSettings.getSettingsDialogImage());
-        }
-
-        final AtomicBoolean done = new AtomicBoolean();
-        final AtomicInteger result = new AtomicInteger();
-        final Object lock = new Object();
-
-        final SelectionListener selectionListener = new SelectionListener() {
-
-            @Override
-            public void onSelection(int selection) {
-                synchronized (lock) {
-                    done.set(true);
-                    result.set(selection);
-                    lock.notifyAll();
-                }
-            }
-        };
-        SwingUtilities.invokeLater(new Runnable() {
-
-            @Override
-            public void run() {
-                synchronized (lock) {
-                    SettingsDialog dialog = new SettingsDialog(settings, iconUrl, loadFromRegistry);
-                    dialog.setSelectionListener(selectionListener);
-                    dialog.showDialog();
-                }
-            }
-        });
-
-        synchronized (lock) {
-            while (!done.get()) {
-                try {
-                    lock.wait();
-                } catch (InterruptedException ex) {
-                }
-            }
-        }
-
-        sourceSettings.copyFrom(settings);
-
-        return result.get() == SettingsDialog.APPROVE_SELECTION;
-    }
 
     private JmeContext newContextLwjgl(AppSettings settings, JmeContext.Type type) {
         try {
