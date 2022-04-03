@@ -1,4 +1,4 @@
-package com.jme3.system;
+package com.jme3.awt;
 
 import java.awt.BorderLayout;
 import java.awt.Container;
@@ -16,7 +16,7 @@ import javax.swing.JTextArea;
  * 
  * @author kwando
  */
-public class ErrorDialog extends JDialog {
+public class AWTErrorDialog extends JDialog {
     public static String DEFAULT_TITLE = "Error in application";
     public static int PADDING = 8;
     
@@ -26,7 +26,7 @@ public class ErrorDialog extends JDialog {
      * @param message the message to display
      * @param title the title to display
      */
-    public ErrorDialog(String message, String title) {
+    protected AWTErrorDialog(String message, String title) {
         setTitle(title);
         setSize(new Dimension(600, 400));
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
@@ -51,7 +51,7 @@ public class ErrorDialog extends JDialog {
         add(button, BorderLayout.SOUTH);
     }
     
-    public ErrorDialog(String message){
+    protected AWTErrorDialog(String message){
         this(message, DEFAULT_TITLE);
     }
     
@@ -61,7 +61,7 @@ public class ErrorDialog extends JDialog {
      * @param message the message to display
      */
     public static void showDialog(String message) {
-        ErrorDialog dialog = new ErrorDialog(message);
+        AWTErrorDialog dialog = new AWTErrorDialog(message);
         dialog.setVisible(true);
     }
 }
