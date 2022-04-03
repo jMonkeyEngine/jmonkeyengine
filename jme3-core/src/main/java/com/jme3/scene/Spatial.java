@@ -48,6 +48,7 @@ import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
+import com.jme3.scene.Node.StateUpdateHints;
 import com.jme3.scene.control.Control;
 import com.jme3.util.SafeArrayList;
 import com.jme3.util.StatefulObject;
@@ -776,6 +777,7 @@ public abstract class Spatial extends StatefulObject implements Savable, Cloneab
         boolean before = requiresUpdates();
         controls.add(control);
         control.setSpatial(this);
+        updateStates(StateUpdateHints.INVALIDATE_UPDATE_LIST);
         boolean after = requiresUpdates();
         // If the requirement to be updated has changed,
         // then we need to let the parent node know, so it
@@ -800,6 +802,7 @@ public abstract class Spatial extends StatefulObject implements Savable, Cloneab
                 break; // added to match the javadoc  -pspeed
             }
         }
+        updateStates(StateUpdateHints.INVALIDATE_UPDATE_LIST);
         boolean after = requiresUpdates();
         // If the requirement to be updated has changed,
         // then we need to let the parent node know, so it
@@ -825,13 +828,15 @@ public abstract class Spatial extends StatefulObject implements Savable, Cloneab
             control.setSpatial(null);
         }
 
-        boolean after = requiresUpdates();
+        updateStates(StateUpdateHints.INVALIDATE_UPDATE_LIST);        
+        boolean after = requiresUpdates();       
         // If the requirement to be updated has changed,
         // then we need to let the parent node know, so it
         // can rebuild its update list.
         if (parent != null && before != after) {
             parent.invalidateUpdateList();
         }
+        
         return result;
     }
 
