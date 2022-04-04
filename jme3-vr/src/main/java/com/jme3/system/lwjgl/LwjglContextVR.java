@@ -179,7 +179,7 @@ public abstract class LwjglContextVR implements JmeContext {
                 glfbo = (GLFbo) GLTiming.createGLTiming(glfbo, timingState, GLFbo.class);
             }
 
-            if (settings.getGraphicsTrace()) {
+            if (settings.isGraphicsTrace()) {
                 gl = (GL) GLTracer.createDesktopGlTracer(gl, GL.class, GL2.class, GL3.class, GL4.class);
                 glext = (GLExt) GLTracer.createDesktopGlTracer(glext, GLExt.class);
                 glfbo = (GLFbo) GLTracer.createDesktopGlTracer(glfbo, GLFbo.class);
