@@ -1,7 +1,7 @@
 package com.jme3.system.lwjgl;
 
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2022 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -166,7 +166,7 @@ public abstract class LwjglContextVR implements JmeContext {
                 glfbo = new LwjglGLFboEXT();
             }
 
-            if (settings.getBoolean("GraphicsDebug")) {
+            if (settings.isGraphicsDebug()) {
                 gl = (GL) GLDebug.createProxy(gl, gl, GL.class, GL2.class, GL3.class, GL4.class);
                 glext = (GLExt) GLDebug.createProxy(gl, glext, GLExt.class);
                 glfbo = (GLFbo) GLDebug.createProxy(gl, glfbo, GLFbo.class);
@@ -191,7 +191,7 @@ public abstract class LwjglContextVR implements JmeContext {
             throw new UnsupportedOperationException("Unsupported renderer: " + settings.getRenderer());
         }
 
-        if (capabilities.GL_ARB_debug_output && settings.getBoolean("GraphicsDebug")) {
+        if (capabilities.GL_ARB_debug_output && settings.isGraphicsDebug()) {
             ARBDebugOutput.glDebugMessageCallbackARB(new LwjglGLDebugOutputHandler(), 0);
         }
 
