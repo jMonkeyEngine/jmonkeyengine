@@ -274,7 +274,7 @@ public class EnvironmentCamera extends BaseAppState {
      * Note that this will be null until after initialize() is called.
      * @return array of ViewPorts
      */
-    public ViewPort[] getViewPorts(){
+    public ViewPort[] getViewPorts() {
         return viewports;
     }
 
@@ -310,7 +310,6 @@ public class EnvironmentCamera extends BaseAppState {
         }
     }
 
-
     @Override
     protected void cleanup(Application app) {
         this.backGroundColor = null;
@@ -320,7 +319,7 @@ public class EnvironmentCamera extends BaseAppState {
         }
 
         for (final Image image : images) {
-            if( image != null){
+            if (image != null) {
                 image.dispose();
             }
         }
@@ -353,7 +352,8 @@ public class EnvironmentCamera extends BaseAppState {
      * @param axisZ tha z axis
      * @return a new instance
      */
-    protected Camera createOffCamera(final int mapSize, final Vector3f worldPos, final Vector3f axisX, final Vector3f axisY, final Vector3f axisZ) {
+    protected Camera createOffCamera(final int mapSize, final Vector3f worldPos,
+            final Vector3f axisX, final Vector3f axisY, final Vector3f axisZ) {
         final Camera offCamera = new Camera(mapSize, mapSize);
         offCamera.setLocation(worldPos);
         offCamera.setAxes(axisX, axisY, axisZ);

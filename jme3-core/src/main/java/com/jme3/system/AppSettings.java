@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2022 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -57,7 +57,7 @@ import java.util.prefs.Preferences;
 public final class AppSettings extends HashMap<String, Object> {
 
     private static final long serialVersionUID = 1L;
-    
+
     private static final AppSettings defaults = new AppSettings(false);
 
     /**
@@ -92,7 +92,7 @@ public final class AppSettings extends HashMap<String, Object> {
      * <p>
      * If the underlying system does not support OpenGL3.0, then the context
      * initialization will throw an exception. Note that currently jMonkeyEngine
-     * does not have any shaders that support OpenGL3.0 therefore this 
+     * does not have any shaders that support OpenGL3.0 therefore this
      * option is not useful.
      * </p>
      *
@@ -237,7 +237,7 @@ public final class AppSettings extends HashMap<String, Object> {
      * @see AppSettings#setAudioRenderer(java.lang.String)
      */
     public static final String ANDROID_OPENAL_SOFT = "OpenAL_SOFT";
-    
+
     /**
      * Use JogAmp's JOGL as the display system, with the OpenGL forward compatible profile
      * <p>
@@ -246,7 +246,7 @@ public final class AppSettings extends HashMap<String, Object> {
      * @see AppSettings#setRenderer(java.lang.String)
      */
     public static final String JOGL_OPENGL_FORWARD_COMPATIBLE = "JOGL_OPENGL_FORWARD_COMPATIBLE";
-    
+
     /**
      * Use JogAmp's JOGL as the display system, with the backward compatible profile
      * <p>
@@ -255,7 +255,7 @@ public final class AppSettings extends HashMap<String, Object> {
      * @see AppSettings#setRenderer(java.lang.String)
      */
     public static final String JOGL_OPENGL_BACKWARD_COMPATIBLE = "JOGL_OPENGL_BACKWARD_COMPATIBLE";
-    
+
     /**
      * Use JogAmp's JOAL as the audio renderer.
      * <p>
@@ -269,6 +269,8 @@ public final class AppSettings extends HashMap<String, Object> {
         defaults.put("CenterWindow", true);
         defaults.put("Width", 640);
         defaults.put("Height", 480);
+        defaults.put("WindowWidth", Integer.MIN_VALUE);
+        defaults.put("WindowHeight", Integer.MIN_VALUE);
         defaults.put("BitsPerPixel", 24);
         defaults.put("Frequency", 60);
         defaults.put("DepthBits", 24);
@@ -276,7 +278,7 @@ public final class AppSettings extends HashMap<String, Object> {
         defaults.put("Samples", 0);
         defaults.put("Fullscreen", false);
         defaults.put("Title", JmeVersion.FULL_NAME);
-        defaults.put("Renderer", LWJGL_OPENGL2);
+        defaults.put("Renderer", LWJGL_OPENGL32);
         defaults.put("AudioRenderer", LWJGL_OPENAL);
         defaults.put("DisableJoysticks", true);
         defaults.put("UseInput", true);
@@ -333,7 +335,7 @@ public final class AppSettings extends HashMap<String, Object> {
      */
     public void mergeFrom(AppSettings other) {
         for (String key : other.keySet()) {
-            if( !this.containsKey(key) ) {
+            if (!this.containsKey(key)) {
                 put(key, other.get(key));
             }
         }
@@ -499,7 +501,7 @@ public final class AppSettings extends HashMap<String, Object> {
      * <p>
      * If the key is not set, then 0 is returned.
      *
-     * @param key the key of an integer setting 
+     * @param key the key of an integer setting
      * @return the corresponding value, or 0 if not set
      */
     public int getInteger(String key) {
@@ -511,12 +513,12 @@ public final class AppSettings extends HashMap<String, Object> {
         return i.intValue();
     }
 
-    /** 
+    /**
      * Get a boolean from the settings.
      * <p>
      * If the key is not set, then false is returned.
      *
-     * @param key the key of a boolean setting 
+     * @param key the key of a boolean setting
      * @return the corresponding value, or false if not set
      */
     public boolean getBoolean(String key) {
@@ -533,7 +535,7 @@ public final class AppSettings extends HashMap<String, Object> {
      * <p>
      * If the key is not set, then null is returned.
      *
-     * @param key the key of a string setting 
+     * @param key the key of a string setting
      * @return the corresponding value, or null if not set
      */
     public String getString(String key) {
@@ -550,7 +552,7 @@ public final class AppSettings extends HashMap<String, Object> {
      * <p>
      * If the key is not set, then 0.0 is returned.
      *
-     * @param key the key of a float setting 
+     * @param key the key of a float setting
      * @return the corresponding value, or 0 if not set
      */
     public float getFloat(String key) {
@@ -704,7 +706,7 @@ public final class AppSettings extends HashMap<String, Object> {
      * <li>null - Disable graphics rendering</li>
      * </ul>
      * @param renderer The renderer to set
-     * (Default: AppSettings.LWJGL_OPENGL2)
+     * (Default: AppSettings.LWJGL_OPENGL32)
      */
     public void setRenderer(String renderer) {
         putString("Renderer", renderer);
@@ -735,7 +737,7 @@ public final class AppSettings extends HashMap<String, Object> {
     }
 
     /**
-     * @param value the width for the rendering display.
+     * @param value the width for the default framebuffer.
      * (Default: 640)
      */
     public void setWidth(int value) {
@@ -743,7 +745,7 @@ public final class AppSettings extends HashMap<String, Object> {
     }
 
     /**
-     * @param value the height for the rendering display.
+     * @param value the height for the default framebuffer.
      * (Default: 480)
      */
     public void setHeight(int value) {
@@ -751,7 +753,8 @@ public final class AppSettings extends HashMap<String, Object> {
     }
 
     /**
-     * Set the resolution for the rendering display
+     * Set the resolution for the default framebuffer
+     * Use {@link #setWindowSize(int, int)} instead, for HiDPI display support.
      * @param width The width
      * @param height The height
      * (Default: 640x480)
@@ -761,6 +764,16 @@ public final class AppSettings extends HashMap<String, Object> {
         setHeight(height);
     }
 
+    /**
+     * Set the size of the window
+     * 
+     * @param width The width in pixels (default = width of the default framebuffer)
+     * @param height The height in pixels (default = height of the default framebuffer)
+     */
+    public void setWindowSize(int width, int height) {
+        putInteger("WindowWidth", width);
+        putInteger("WindowHeight", height);
+    }
 
     /**
      * @param value the minimum width the settings window will allow for the rendering display.
@@ -991,7 +1004,7 @@ public final class AppSettings extends HashMap<String, Object> {
     /**
      * Get the width
      *
-     * @return the width of the rendering display (in pixels)
+     * @return the width of the default framebuffer (in pixels)
      * @see #setWidth(int)
      */
     public int getWidth() {
@@ -1001,11 +1014,33 @@ public final class AppSettings extends HashMap<String, Object> {
     /**
      * Get the height
      *
-     * @return the height of the rendering display (in pixels)
+     * @return the height of the default framebuffer (in pixels)
      * @see #setHeight(int)
      */
     public int getHeight() {
         return getInteger("Height");
+    }
+
+    /**
+     * Get the width of the window
+     *
+     * @return the width of the window (in pixels)
+     * @see #setWindowSize(int, int)
+     */
+    public int getWindowWidth() {
+        int w = getInteger("WindowWidth");
+        return w != Integer.MIN_VALUE ? w : getWidth();
+    }
+
+    /**
+     * Get the height of the window
+     *
+     * @return the height of the window (in pixels)
+     * @see #setWindowSize(int, int)
+     */
+    public int getWindowHeight() {
+        int h = getInteger("WindowHeight");
+        return h != Integer.MIN_VALUE ? h : getHeight();
     }
 
     /**
@@ -1081,7 +1116,7 @@ public final class AppSettings extends HashMap<String, Object> {
 
     /**
      * Get the number of samples
-     * 
+     *
      * @return the number of samples per pixel (for multisample anti-aliasing)
      * @see #setSamples(int)
      */
@@ -1180,32 +1215,32 @@ public final class AppSettings extends HashMap<String, Object> {
 
     /**
      * Allows the display window to be resized by dragging its edges.
-     * 
-     * Only supported for {@link JmeContext.Type#Display} contexts which 
-     * are in windowed mode, ignored for other types. 
+     *
+     * Only supported for {@link JmeContext.Type#Display} contexts which
+     * are in windowed mode, ignored for other types.
      * The default value is <code>false</code>.
-     * 
+     *
      * @param resizable True to make a resizable window, false to make a fixed
      * size window.
      */
     public void setResizable(boolean resizable) {
         putBoolean("Resizable", resizable);
     }
-    
+
     /**
      * Determine if the display window can be resized by dragging its edges.
-     * 
+     *
      * @return True if the window is resizable, false if it is fixed size.
-     * 
-     * @see #setResizable(boolean) 
+     *
+     * @see #setResizable(boolean)
      */
     public boolean isResizable() {
         return getBoolean("Resizable");
     }
-    
+
     /**
      * When enabled the display context will swap buffers every frame.
-     * 
+     *
      * This may need to be disabled when integrating with an external
      * library that handles buffer swapping on its own, e.g. Oculus Rift.
      * When disabled, the engine will process window messages
@@ -1213,19 +1248,19 @@ public final class AppSettings extends HashMap<String, Object> {
      * will cause 100% CPU usage normally as there's no VSync or any framerate
      * caps (unless set via {@link #setFrameRate(int) }).
      * The default is <code>true</code>.
-     * 
+     *
      * @param swapBuffers True to enable buffer swapping, false to disable it.
      */
     public void setSwapBuffers(boolean swapBuffers) {
         putBoolean("SwapBuffers", swapBuffers);
     }
-   
+
     /**
      * Determine if the display context will swap buffers every frame.
-     * 
+     *
      * @return True if buffer swapping is enabled, false otherwise.
-     * 
-     * @see #setSwapBuffers(boolean) 
+     *
+     * @see #setSwapBuffers(boolean)
      */
     public boolean isSwapBuffers() {
         return getBoolean("SwapBuffers");
@@ -1243,19 +1278,19 @@ public final class AppSettings extends HashMap<String, Object> {
     public boolean isOpenCLSupport() {
         return getBoolean("OpenCL");
     }
-    
+
     /**
      * Sets a custom platform chooser. This chooser specifies which platform and
      * which devices are used for the OpenCL context.
-     * 
+     *
      * Default: an implementation defined one.
-     * 
+     *
      * @param chooser the class of the chooser, must have a default constructor
      */
     public void setOpenCLPlatformChooser(Class<? extends PlatformChooser> chooser) {
         putString("OpenCLPlatformChooser", chooser.getName());
     }
-    
+
     public String getOpenCLPlatformChooser() {
         return getString("OpenCLPlatformChooser");
     }
@@ -1353,7 +1388,7 @@ public final class AppSettings extends HashMap<String, Object> {
     public void setUseRetinaFrameBuffer(boolean useRetinaFrameBuffer) {
         putBoolean("UseRetinaFrameBuffer", useRetinaFrameBuffer);
     }
-    
+
     /**
      * Tests the state of the Center Window flag.
      *
@@ -1367,7 +1402,7 @@ public final class AppSettings extends HashMap<String, Object> {
     public boolean getCenterWindow() {
         return getBoolean("CenterWindow");
     }
-    
+
     /**
      * Enables or disables the Center Window flag.
      *

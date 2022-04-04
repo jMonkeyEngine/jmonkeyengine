@@ -424,6 +424,20 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
+     * Multiplies component-wise by the specified components and returns the
+     * product as a new instance. The current instance is unaffected.
+     *
+     * @param x the scale factor for the X component
+     * @param y the scale factor for the Y component
+     * @param z the scale factor for the Z component
+     * @param w the scale factor for the W component
+     * @return a new Vector4f
+     */
+    public Vector4f mult(float x, float y, float z, float w) {
+        return new Vector4f(this.x * x, this.y * y, this.z * z, this.w * w);
+    }
+
+    /**
      * <code>multLocal</code> multiplies this vector by a scalar internally,
      * and returns a handle to this vector for easy chaining of calls.
      *
@@ -575,6 +589,38 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
         z /= divisor.z;
         w /= divisor.w;
         return this;
+    }
+
+    /**
+     * Divides component-wise by the specified components returns the (modified)
+     * current instance.
+     *
+     * @param x the divisor for the X component
+     * @param y the divisor for the Y component
+     * @param z the divisor for the Z component
+     * @param w the divisor for the W component
+     * @return the (modified) current instance (for chaining)
+     */
+    public Vector4f divideLocal(float x, float y, float z, float w) {
+        this.x /= x;
+        this.y /= y;
+        this.z /= z;
+        this.w /= w;
+        return this;
+    }
+
+    /**
+     * Divides component-wise by the specified components and returns the quotient
+     * as a new instance. The current instance is unaffected.
+     *
+     * @param x the divisor for the X component
+     * @param y the divisor for the Y component
+     * @param z the divisor for the Z component
+     * @param w the divisor for the W component
+     * @return a new Vector4f
+     */
+    public Vector4f divide(float x, float y, float z, float w) {
+        return new Vector4f(this.x / x, this.y / y, this.z / z, this.w / w);
     }
 
     /**

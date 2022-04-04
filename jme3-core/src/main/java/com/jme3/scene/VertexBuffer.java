@@ -932,7 +932,7 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
         int outPos = outIndex * components;
         int elementSz = components;
         if (format == Format.Half) {
-            // because half is stored as ByteBuffer but it's 2 bytes long
+            // because half is stored as ByteBuffer, but it's 2 bytes long
             inPos *= 2;
             outPos *= 2;
             elementSz *= 2;

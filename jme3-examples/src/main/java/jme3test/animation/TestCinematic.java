@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2022 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -54,6 +54,7 @@ import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.*;
 import com.jme3.scene.shape.Box;
 import com.jme3.shadow.DirectionalLightShadowRenderer;
+import com.jme3.texture.image.ColorSpace;
 import de.lessvoid.nifty.Nifty;
 
 public class TestCinematic extends SimpleApplication {
@@ -76,10 +77,15 @@ public class TestCinematic extends SimpleApplication {
     @Override
     public void simpleInitApp() {
         //just some text
+
+        ColorSpace colorSpace = renderer.isMainFrameBufferSrgb()
+                ? ColorSpace.sRGB : ColorSpace.Linear;
         NiftyJmeDisplay niftyDisplay = new NiftyJmeDisplay(getAssetManager(),
                 getInputManager(),
                 getAudioRenderer(),
-                getGuiViewPort());
+                guiViewPort,
+                colorSpace);
+
         Nifty nifty;
         nifty = niftyDisplay.getNifty();
         nifty.fromXmlWithoutStartScreen("Interface/Nifty/CinematicTest.xml");

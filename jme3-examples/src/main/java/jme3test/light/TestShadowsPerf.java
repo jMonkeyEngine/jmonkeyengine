@@ -105,7 +105,7 @@ public class TestShadowsPerf extends SimpleApplication {
         rootNode.addLight(al);
         //rootNode.setShadowMode(ShadowMode.CastAndReceive);
 
-        createballs();
+        createBalls();
 
         final DirectionalLightShadowRenderer pssmRenderer = new DirectionalLightShadowRenderer(assetManager, 1024, 4);
         viewPort.addProcessor(pssmRenderer);
@@ -131,7 +131,7 @@ public class TestShadowsPerf extends SimpleApplication {
                     System.out.println("tetetetet");
                 }
                 if (name.equals("add") && isPressed) {
-                    createballs();
+                    createBalls();
                 }
             }
         }, "display", "add");
@@ -140,7 +140,7 @@ public class TestShadowsPerf extends SimpleApplication {
     }
     private int val = 0;
 
-    private void createballs() {
+    private void createBalls() {
         System.out.println((frames / time) + ";" + val);
 
 
@@ -167,7 +167,7 @@ public class TestShadowsPerf extends SimpleApplication {
         time += tpf;
         frames++;
         if (time > 1) {
-            createballs();
+            createBalls();
         }
     }
 }

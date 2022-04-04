@@ -395,6 +395,17 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener, Di
         jmeSurfaceViewLogger.log(Level.INFO, "Requested reshaping from the system listener");
     }
 
+
+    @Override
+    public void rescale(float x, float y) {
+        if (legacyApplication == null) {
+            return;
+        }
+        legacyApplication.rescale(x, y);
+        jmeSurfaceViewLogger.log(Level.INFO, "Requested rescaling from the system listener");
+    }
+
+
     @Override
     public void update() {
         /*Invoking can be delayed by delaying the draw of GlSurfaceView component on the screen*/

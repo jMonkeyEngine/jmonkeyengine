@@ -66,7 +66,7 @@ public class TestLodGeneration extends SimpleApplication {
     }
 
     private boolean wireFrame = false;
-    private float reductionvalue = 0.0f;
+    private float reductionValue = 0.0f;
     private int lodLevel = 0;
     private BitmapText hudText;
     final private List<Geometry> listGeoms = new ArrayList<>();
@@ -106,11 +106,11 @@ public class TestLodGeneration extends SimpleApplication {
             skControl.setEnabled(false);
         }
 
-        reductionvalue = 0.80f;
+        reductionValue = 0.80f;
         lodLevel = 1;
         for (final Geometry geom : listGeoms) {
             LodGenerator lodGenerator = new LodGenerator(geom);
-            lodGenerator.bakeLods(LodGenerator.TriangleReductionMethod.PROPORTIONAL, reductionvalue);
+            lodGenerator.bakeLods(LodGenerator.TriangleReductionMethod.PROPORTIONAL, reductionValue);
             geom.setLodLevel(lodLevel);
         }
 
@@ -129,11 +129,11 @@ public class TestLodGeneration extends SimpleApplication {
             public void onAction(String name, boolean isPressed, float tpf) {
                 if (isPressed) {
                     if (name.equals("plus")) {
-                        reductionvalue += 0.05f;
+                        reductionValue += 0.05f;
                         updateLod();
                     }
                     if (name.equals("minus")) {
-                        reductionvalue -= 0.05f;
+                        reductionValue -= 0.05f;
                         updateLod();
                     }
                     if (name.equals("wireFrame")) {
@@ -163,8 +163,8 @@ public class TestLodGeneration extends SimpleApplication {
     }
 
     private void updateLod() {
-        reductionvalue = FastMath.clamp(reductionvalue, 0.0f, 1.0f);
-        makeLod(LodGenerator.TriangleReductionMethod.PROPORTIONAL, reductionvalue, 1);
+        reductionValue = FastMath.clamp(reductionValue, 0.0f, 1.0f);
+        makeLod(LodGenerator.TriangleReductionMethod.PROPORTIONAL, reductionValue, 1);
     }
 
     private int computeNbTri() {

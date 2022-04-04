@@ -52,6 +52,16 @@ public interface SystemListener {
     public void reshape(int width, int height);
 
     /**
+     * Called to notify the application that the scale has changed.
+     * @param x the new horizontal scale of the display 
+     * @param y the new vertical scale of the display
+     */
+    public default void rescale(float x, float y){
+
+    }
+
+
+    /**
      * Callback to update the application state, and render the scene
      * to the back buffer.
      */

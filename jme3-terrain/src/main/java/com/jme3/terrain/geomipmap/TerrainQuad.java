@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2022 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1601,7 +1601,7 @@ public class TerrainQuad extends Node implements Terrain {
      * Find what terrain patches need normal recalculations and update
      * their normals;
      */
-    protected void fixNormals(BoundingBox affectedArea) {
+    public void fixNormals(BoundingBox affectedArea) {
         if (children == null)
             return;
 
@@ -1622,7 +1622,7 @@ public class TerrainQuad extends Node implements Terrain {
     /**
      * fix the normals on the edge of the terrain patches.
      */
-    protected void fixNormalEdges(BoundingBox affectedArea) {
+    public void fixNormalEdges(BoundingBox affectedArea) {
         if (children == null)
             return;
 

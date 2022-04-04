@@ -6,7 +6,10 @@ apply plugin: 'java-library'
 apply plugin: 'groovy'
 apply plugin: 'maven-publish'
 apply plugin: 'signing'
-
+apply plugin: 'eclipse'
+eclipse.jdt.file.withProperties { props ->
+    props.setProperty "org.eclipse.jdt.core.circularClasspath", "warning"
+}
 group = 'org.jmonkeyengine'
 version = jmeFullVersion
 
@@ -20,7 +23,7 @@ tasks.withType(JavaCompile) { // compile-time options:
 }
 
 ext {
-    lwjgl3Version = '3.3.0' // used in both the jme3-lwjgl3 and jme3-vr build scripts
+    lwjgl3Version = '3.3.1' // used in both the jme3-lwjgl3 and jme3-vr build scripts
 }
 
 repositories {
@@ -34,7 +37,7 @@ dependencies {
     // Adding dependencies here will add the dependencies to each subproject.
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'org.mockito:mockito-core:3.12.4'
-    testImplementation 'org.codehaus.groovy:groovy-test:3.0.9'
+    testImplementation 'org.codehaus.groovy:groovy-test:3.0.10'
 }
 
 
@@ -168,7 +171,7 @@ publishing {
 }
 
 publishToMavenLocal.doLast {
-    println 'published ' + project.getName() + ' to mavenLocal'
+    println 'published ' + project.getName() + "-${jmeFullVersion} to mavenLocal"    
 }
 task('install') {
     dependsOn 'publishToMavenLocal'

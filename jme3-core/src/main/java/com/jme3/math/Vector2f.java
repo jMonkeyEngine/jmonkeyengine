@@ -404,6 +404,32 @@ public final class Vector2f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
+     * Multiplies component-wise by the specified components and returns the
+     * product as a new instance. The current instance is unaffected.
+     *
+     * @param x the scale factor for the X component
+     * @param y the scale factor for the Y component
+     * @return a new Vector2f
+     */
+    public Vector2f mult(float x, float y) {
+        return new Vector2f(this.x * x, this.y * y);
+    }
+
+    /**
+     * Multiplies component-wise by the specified components and returns the
+     * (modified) current instance.
+     *
+     * @param x the scale factor for the X component
+     * @param y the scale factor for the Y component
+     * @return the (modified) current instance (for chaining)
+     */
+    public Vector2f multLocal(float x, float y) {
+        this.x *= x;
+        this.y *= y;
+        return this;
+    }
+
+    /**
      * Divides by the scalar argument and returns the quotient as a new
      * instance. The current instance is unaffected.
      *
@@ -424,6 +450,32 @@ public final class Vector2f implements Savable, Cloneable, java.io.Serializable 
     public Vector2f divideLocal(float scalar) {
         x /= scalar;
         y /= scalar;
+        return this;
+    }
+
+    /**
+     * Divides component-wise by the specified components and returns the quotient
+     * as a new instance. The current instance is unaffected.
+     *
+     * @param x the divisor for the X component
+     * @param y the divisor for the Y component
+     * @return a new Vector2f
+     */
+    public Vector2f divide(float x, float y) {
+        return new Vector2f(this.x / x, this.y / y);
+    }
+
+    /**
+     * Divides component-wise by the specified components returns the (modified)
+     * current instance.
+     *
+     * @param x the divisor for the X component
+     * @param y the divisor for the Y component
+     * @return the (modified) current instance (for chaining)
+     */
+    public Vector2f divideLocal(float x, float y) {
+        this.x /= x;
+        this.y /= y;
         return this;
     }
 
@@ -823,8 +875,10 @@ public final class Vector2f implements Savable, Cloneable, java.io.Serializable 
         if (cw) {
             angle = -angle;
         }
-        float newX = FastMath.cos(angle) * x - FastMath.sin(angle) * y;
-        float newY = FastMath.sin(angle) * x + FastMath.cos(angle) * y;
+        float cos = FastMath.cos(angle);
+        float sin = FastMath.sin(angle);
+        float newX = cos * x - sin * y;
+        float newY = sin * x + cos * y;
         x = newX;
         y = newY;
     }

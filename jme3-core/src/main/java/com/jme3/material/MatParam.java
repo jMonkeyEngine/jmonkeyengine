@@ -156,7 +156,7 @@ public class MatParam implements Savable, Cloneable {
             case Vector2:
                 Vector2f v2 = (Vector2f) value;
                 return v2.getX() + " " + v2.getY();
-/* 
+/*
 This may get used at a later point of time
 When arrays can be inserted in J3M files
 
@@ -243,9 +243,9 @@ When arrays can be inserted in J3M files
                 TextureKey texKey = (TextureKey) texVal.getKey();
                 if (texKey == null){
                   //throw new UnsupportedOperationException("The specified MatParam cannot be represented in J3M");
-                    // this is used in toString and the above line causes blender materials to throw this exception. 
+                    // this is used in toString and the above line causes blender materials to throw this exception.
                     // toStrings should be very robust IMO as even debuggers often invoke toString and logging code
-                    // often does as well, even implicitly. 
+                    // often does as well, even implicitly.
                     return texVal+":returned null key";
                 }
 
@@ -280,13 +280,13 @@ When arrays can be inserted in J3M files
 
     private String getWrapMode(Texture texVal, Texture.WrapAxis axis) {
         WrapMode mode = WrapMode.EdgeClamp;
-        try{
+        try {
             mode = texVal.getWrap(axis);
-        }catch (IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             //this axis doesn't exist on the texture
             return "";
         }
-        if(mode != WrapMode.EdgeClamp){
+        if (mode != WrapMode.EdgeClamp) {
             return"Wrap"+ mode.name() + "_" + axis.name() + " ";
         }
         return "";

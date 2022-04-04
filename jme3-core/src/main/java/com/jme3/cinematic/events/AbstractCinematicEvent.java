@@ -47,8 +47,8 @@ import java.util.List;
 /**
  * This call contains the basic behavior of a cinematic event.
  * Every cinematic event must extend this class.
- * 
- * A cinematic event must be given an initial duration in seconds 
+ *
+ * A cinematic event must be given an initial duration in seconds
  * (duration of the event at speed = 1). Default is 10 sec.
  * @author Nehon
  */
@@ -60,7 +60,7 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
     protected float speed = 1;
     protected float time = 0;
     protected boolean resuming = false;
-    
+
     /**
      * The list of listeners.
      */
@@ -100,15 +100,15 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
         this.initialDuration = initialDuration;
         this.loopMode = loopMode;
     }
-    
+
     /**
-     * Implement this method if the event needs different handling when 
+     * Implement this method if the event needs different handling when
      * stopped naturally (when the event reach its end),
      * or when it was force-stopped during playback.
      * By default, this method just calls regular stop().
      */
     @Override
-    public void forceStop(){
+    public void forceStop() {
         stop();
     }
 
@@ -117,7 +117,7 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
      */
     @Override
     public void play() {
-        onPlay();        
+        onPlay();
         playState = PlayState.Playing;
         if (listeners != null) {
             for (int i = 0; i < listeners.size(); i++) {
@@ -139,17 +139,17 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
     @Override
     public void internalUpdate(float tpf) {
         if (playState == PlayState.Playing) {
-            time = time + (tpf * speed);         
+            time = time + (tpf * speed);
             onUpdate(tpf);
             if (time >= initialDuration && loopMode == LoopMode.DontLoop) {
                 stop();
-            } else if(time >= initialDuration && loopMode == LoopMode.Loop){
+            } else if (time >= initialDuration && loopMode == LoopMode.Loop) {
                 setTime(0);
-            }else{
+            } else {
                 time = AnimationUtils.clampWrapTime(time, initialDuration, loopMode);
-                if(time<0){
-                    speed = - speed;
-                    time = - time;
+                if (time < 0) {
+                    speed = -speed;
+                    time = -time;
                 }
             }
         }
@@ -157,14 +157,14 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
     }
 
     /**
-     * Implement this method with the code that you want to execute on update 
+     * Implement this method with the code that you want to execute on update
      * (only called when the event is playing).
      * @param tpf time per frame
      */
     protected abstract void onUpdate(float tpf);
 
     /**
-     * Stops the animation. 
+     * Stops the animation.
      * Next time when play() is called, the animation starts from the beginning.
      */
     @Override
@@ -322,7 +322,7 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
 
     /**
      * Returns the list of CinematicEventListeners added to this event.
-     * @return 
+     * @return
      */
     private List<CinematicEventListener> getListeners() {
         if (listeners == null) {
@@ -356,7 +356,7 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
      */
     @Override
     public void setTime(float time) {
-        this.time = time ;
+        this.time = time;
     }
 
     /**
@@ -368,8 +368,6 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
     }
 
     @Override
-    public void dispose() {    
+    public void dispose() {
     }
-    
-    
 }

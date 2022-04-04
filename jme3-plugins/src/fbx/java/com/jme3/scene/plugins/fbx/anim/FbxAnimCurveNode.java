@@ -103,9 +103,9 @@ public class FbxAnimCurveNode extends FbxObject {
      */
     public Quaternion getQuaternionValue(long time) {
         Vector3f eulerAngles = getVector3Value(time);
-        System.out.println("\tT: " + time + ". Rotation: " + 
-                                eulerAngles.x + ", " + 
-                                eulerAngles.y + ", " + eulerAngles.z);
+//        System.out.println("\tT: " + time + ". Rotation: " +
+//                                eulerAngles.x + ", " +
+//                                eulerAngles.y + ", " + eulerAngles.z);
         Quaternion q = new Quaternion();
         q.fromAngles(eulerAngles.x * FastMath.DEG_TO_RAD, 
                      eulerAngles.y * FastMath.DEG_TO_RAD, 

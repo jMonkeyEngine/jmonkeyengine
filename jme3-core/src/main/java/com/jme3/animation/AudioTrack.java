@@ -156,9 +156,9 @@ public class AudioTrack implements ClonableTrack {
 
     @Override
     public float[] getKeyFrameTimes() {
-        return new float[] { startOffset };
+        return new float[]{startOffset};
     }
-    
+
     /**
      * Clone this track
      *
@@ -197,27 +197,25 @@ public class AudioTrack implements ClonableTrack {
         return audioTrack;
     }
 
-    @Override   
+    @Override
     public Object jmeClone() {
         try {
             return super.clone();
-        } catch( CloneNotSupportedException e ) {
+        } catch (CloneNotSupportedException e) {
             throw new RuntimeException("Error cloning", e);
         }
-    }     
+    }
 
-
-    @Override   
-    public void cloneFields( Cloner cloner, Object original ) {
+    @Override
+    public void cloneFields(Cloner cloner, Object original) {
         // Duplicating the old cloned state from cloneForSpatial()
         this.initialized = false;
         this.started = false;
-        this.played = false; 
+        this.played = false;
         this.audio = cloner.clone(audio);
     }
-         
-         
-    /**    
+
+    /**
      * recursive function responsible for finding the newly cloned AudioNode
      *
      * @param spat

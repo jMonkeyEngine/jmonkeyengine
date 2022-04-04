@@ -34,17 +34,17 @@ package com.jme3.texture.image;
 import java.nio.ByteBuffer;
 
 class ByteAlignedImageCodec extends ImageCodec {
-    
+
     private final int ap, az, rp, rz, gp, gz, bp, bz;
     boolean be;
-    
+
     public ByteAlignedImageCodec(int bpp, int flags, int az, int rz, int gz, int bz, int ap, int rp, int gp, int bp) {
         // Cast to long to compute max values, since some components could be as high as 32 bits.
-        super(bpp, flags, 
-                (int)(((long)1 << (az << 3)) - 1), 
-                (int)(((long)1 << (rz << 3)) - 1), 
-                (int)(((long)1 << (gz << 3)) - 1), 
-                (int)(((long)1 << (bz << 3)) - 1));
+        super(bpp, flags,
+                (int) (((long)1 << (az << 3)) - 1),
+                (int) (((long)1 << (rz << 3)) - 1),
+                (int) (((long)1 << (gz << 3)) - 1),
+                (int) (((long)1 << (bz << 3)) - 1));
 
         this.ap = ap;
         this.az = az;
@@ -56,12 +56,12 @@ class ByteAlignedImageCodec extends ImageCodec {
         this.bp = bp;
         this.bz = bz;
     }
-    
+
     private static void readPixelRaw(ByteBuffer buf, int idx, int bpp, byte[] result) {
         buf.position(idx);
         buf.get(result, 0, bpp);
     }
-    
+
     private static void writePixelRaw(ByteBuffer buf, int idx, byte[] pixel, int bpp) {
 //        try {
         buf.position(idx);
@@ -70,7 +70,7 @@ class ByteAlignedImageCodec extends ImageCodec {
 //            System.out.println("!");
 //        }
     }
-    
+
     private static int readComponent(byte[] encoded, int position, int size) {
 //        int component = encoded[position] & 0xff;
 //        while ((--size) > 0){
@@ -84,7 +84,7 @@ class ByteAlignedImageCodec extends ImageCodec {
             }
             return component;
 //        position += size - 1;
-//        
+//
 //        while ((--size) >= 0) {
 //            component = (component << 8) | (encoded[position--] & 0xff);
 //        }
@@ -94,7 +94,7 @@ class ByteAlignedImageCodec extends ImageCodec {
             return 0;
         }
     }
-    
+
     private void writeComponent(int component, int position, int size, byte[] result) {
 //        if (!be) {
 //            while ((--size) >= 0){
@@ -108,16 +108,17 @@ class ByteAlignedImageCodec extends ImageCodec {
             }
 //        }
     }
-    
+
     @Override
-    public void readComponents(ByteBuffer buf, int x, int y, int width, int offset, int[] components, byte[] tmp) {
-        readPixelRaw(buf, (x + y * width ) * bpp + offset, bpp, tmp);
+    public void readComponents(ByteBuffer buf, int x, int y, int width, int offset,
+            int[] components, byte[] tmp) {
+        readPixelRaw(buf, (x + y * width) * bpp + offset, bpp, tmp);
         components[0] = readComponent(tmp, ap, az);
         components[1] = readComponent(tmp, rp, rz);
         components[2] = readComponent(tmp, gp, gz);
         components[3] = readComponent(tmp, bp, bz);
     }
-    
+
     @Override
     public void writeComponents(ByteBuffer buf, int x, int y, int width, int offset, int[] components, byte[] tmp) {
         writeComponent(components[0], ap, az, tmp);

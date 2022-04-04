@@ -1,3 +1,4 @@
+#import "Common/ShaderLib/GLSLCompat.glsllib"
 uniform mat4 g_WorldViewProjectionMatrix;
 
 attribute vec3 inPosition;

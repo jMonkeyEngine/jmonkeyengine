@@ -43,17 +43,17 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * This tangent generator is Highly experimental.
- * This is the Java translation of The mikktspace generator made by Morten S. Mikkelsen
+ * This tangent generator is highly experimental.
+ * This is the Java translation of the mikktspace generator made by Morten S. Mikkelsen
  * C Source code can be found here
  * https://developer.blender.org/diffusion/B/browse/master/intern/mikktspace/mikktspace.c
  * https://developer.blender.org/diffusion/B/browse/master/intern/mikktspace/mikktspace.h
  * 
- * MikkTspace looks like the new standard of tangent generation in 3D software.
+ * Mikktspace looks like the new standard of tangent generation in 3-D software.
  * Xnormal, Blender, Substance painter, and many more use it.
  * 
  * Usage is :
- * MikkTSpaceTangentGenerator.generate(spatial);
+ * MikktspaceTangentGenerator.generate(spatial);
  * 
  * 
  * 
@@ -1164,7 +1164,7 @@ public class MikktspaceTangentGenerator {
     }
 
     static TSpace evalTspace(int face_indices[], final int iFaces, final int piTriListIn[], final TriInfo pTriInfos[],
-            final MikkTSpaceContext mikkTSpace, final int iVertexRepresentitive) {
+            final MikkTSpaceContext mikkTSpace, final int iVertexRepresentative) {
         TSpace res = new TSpace();
         float fAngleSum = 0;        
 
@@ -1175,11 +1175,11 @@ public class MikktspaceTangentGenerator {
             if ((pTriInfos[f].flag & GROUP_WITH_ANY) == 0) {
                 
                 int i = -1;
-                if (piTriListIn[3 * f + 0] == iVertexRepresentitive) {
+                if (piTriListIn[3 * f + 0] == iVertexRepresentative) {
                     i = 0;
-                } else if (piTriListIn[3 * f + 1] == iVertexRepresentitive) {
+                } else if (piTriListIn[3 * f + 1] == iVertexRepresentative) {
                     i = 1;
-                } else if (piTriListIn[3 * f + 2] == iVertexRepresentitive) {
+                } else if (piTriListIn[3 * f + 2] == iVertexRepresentative) {
                     i = 2;
                 }
                 assert (i >= 0 && i < 3);

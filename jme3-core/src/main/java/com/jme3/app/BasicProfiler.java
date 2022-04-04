@@ -29,7 +29,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
- 
+
 package com.jme3.app;
 
 import com.jme3.profile.*;
@@ -40,13 +40,12 @@ import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.util.BufferUtils;
 import java.nio.FloatBuffer;
 
-
 /**
  *  An AppProfiler implementation that collects two
- *  per-frame application-wide timings for update versus 
- *  render and uses it to create a bar chart style Mesh.  
- *  The number of frames displayed and the update interval 
- *  can be specified.  The chart Mesh is in 'milliseconds' 
+ *  per-frame application-wide timings for update versus
+ *  render and uses it to create a bar chart style Mesh.
+ *  The number of frames displayed and the update interval
+ *  can be specified.  The chart Mesh is in 'milliseconds'
  *  and can be scaled up or down as required.
  *
  *  <p>Each column of the chart represents a single frames
@@ -56,9 +55,9 @@ import java.nio.FloatBuffer;
  *  the cyan portion represents the rendering time.</p>
  *
  *  <p>When the end of the chart is reached, the current
- *  frame cycles back around to the beginning.</p> 
+ *  frame cycles back around to the beginning.</p>
  *
- *  @author    Paul Speed
+ * @author Paul Speed
  */
 public class BasicProfiler implements AppProfiler {
 
@@ -69,38 +68,38 @@ public class BasicProfiler implements AppProfiler {
     private long renderTime;
     private long updateInterval = 1000000L; // once a millisecond
     private long lastUpdate = 0;
-    
+
     private Mesh mesh;
-    
+
     public BasicProfiler() {
         this(1280);
     }
-    
-    public BasicProfiler( int size ) {
+
+    public BasicProfiler(int size) {
         setFrameCount(size);
     }
 
     /**
      *  Sets the number of frames to display and track.  By default,
      *  this is 1280.
-     * 
+     *
      * @param size the desired number of frames (&ge;0, default=1280)
      */
-    public final void setFrameCount( int size ) {
-        if( this.size == size ) {
+    public final void setFrameCount(int size) {
+        if (this.size == size) {
             return;
         }
-        
+
         this.size = size;
-        this.frames = new long[size*2];
- 
+        this.frames = new long[size * 2];
+
         createMesh();
-        
-        if( frameIndex >= size ) {
+
+        if (frameIndex >= size) {
             frameIndex = 0;
-        }       
+        }
     }
-    
+
     public int getFrameCount() {
         return size;
     }
@@ -108,13 +107,13 @@ public class BasicProfiler implements AppProfiler {
     /**
      *  Sets the number of nanoseconds to wait before updating the
      *  mesh.  By default, this is once a millisecond, i.e. 1000000 nanoseconds.
-     * 
+     *
      * @param nanos the desired update interval (in nanoseconds, default=1e6)
      */
-    public void setUpdateInterval( long nanos ) {
+    public void setUpdateInterval(long nanos) {
         this.updateInterval = nanos;
     }
-    
+
     public long getUpdateInterval() {
         return updateInterval;
     }
@@ -122,7 +121,7 @@ public class BasicProfiler implements AppProfiler {
     /**
      *  Returns the mesh that contains the bar chart of tracked frame
      *  timings.
-     * 
+     *
      * @return the pre-existing Mesh
      */
     public Mesh getMesh() {
@@ -130,33 +129,33 @@ public class BasicProfiler implements AppProfiler {
     }
 
     protected final void createMesh() {
-        if( mesh == null ) {
+        if (mesh == null) {
             mesh = new Mesh();
             mesh.setMode(Mesh.Mode.Lines);
         }
-        
+
         mesh.setBuffer(Type.Position, 3, BufferUtils.createFloatBuffer(size * 4 * 3));
-        
+
         FloatBuffer cb = BufferUtils.createFloatBuffer(size * 4 * 4);
-        for( int i = 0; i < size; i++ ) {
+        for (int i = 0; i < size; i++) {
             // For each index we add 4 colors, one for each line
             // endpoint for two layers.
             cb.put(0.5f).put(0.5f).put(0).put(1);
             cb.put(1).put(1).put(0).put(1);
             cb.put(0).put(0.5f).put(0.5f).put(1);
             cb.put(0).put(1).put(1).put(1);
-        }         
+        }
         mesh.setBuffer(Type.Color, 4, cb);
     }
-    
+
     protected void updateMesh() {
-        FloatBuffer pb = (FloatBuffer)mesh.getBuffer(Type.Position).getData();
+        FloatBuffer pb = (FloatBuffer) mesh.getBuffer(Type.Position).getData();
         pb.rewind();
         float scale = 1 / 1000000f; // scaled to ms as pixels
-        for( int i = 0; i < size; i++ ) {
+        for (int i = 0; i < size; i++) {
             float t1 = frames[i * 2] * scale;
             float t2 = frames[i * 2 + 1] * scale;
-            
+
             pb.put(i).put(0).put(0);
             pb.put(i).put(t1).put(0);
             pb.put(i).put(t1).put(0);
@@ -166,9 +165,8 @@ public class BasicProfiler implements AppProfiler {
     }
 
     @Override
-    public void appStep( AppStep step ) {
-        
-        switch(step) {
+    public void appStep(AppStep step) {
+        switch (step) {
             case BeginFrame:
                 startTime = System.nanoTime();
                 break;
@@ -180,30 +178,26 @@ public class BasicProfiler implements AppProfiler {
                 long time = System.nanoTime();
                 frames[frameIndex * 2 + 1] = time - renderTime;
                 frameIndex++;
-                if( frameIndex >= size ) {
+                if (frameIndex >= size) {
                     frameIndex = 0;
                 }
-                if( startTime - lastUpdate > updateInterval ) {
+                if (startTime - lastUpdate > updateInterval) {
                     updateMesh();
                     lastUpdate = startTime;
-                }                
+                }
                 break;
         }
     }
-    
+
     @Override
     public void appSubStep(String... additionalInfo) {
     }
-    
+
     @Override
-    public void vpStep( VpStep step, ViewPort vp, Bucket bucket ) {
+    public void vpStep(VpStep step, ViewPort vp, Bucket bucket) {
     }
 
     @Override
     public void spStep(SpStep step, String... additionalInfo) {
-
     }
-
 }
-
-

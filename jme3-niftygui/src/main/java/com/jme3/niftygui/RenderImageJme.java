@@ -45,7 +45,7 @@ public class RenderImageJme implements RenderImage {
     private int width;
     private int height;
 
-    public RenderImageJme(String filename, boolean linear, NiftyJmeDisplay display){
+    public RenderImageJme(String filename, boolean linear, NiftyJmeDisplay display) {
         TextureKey key = new TextureKey(filename, true);
 
         key.setAnisotropy(0);
@@ -60,7 +60,7 @@ public class RenderImageJme implements RenderImage {
         height = image.getHeight();
     }
 
-    public RenderImageJme(Texture2D texture){
+    public RenderImageJme(Texture2D texture) {
         if (texture.getImage() == null) {
             throw new IllegalArgumentException("texture.getImage() cannot be null");
         }
@@ -71,7 +71,7 @@ public class RenderImageJme implements RenderImage {
         height = image.getHeight();
     }
 
-    public Texture2D getTexture(){
+    public Texture2D getTexture() {
         return texture;
     }
 

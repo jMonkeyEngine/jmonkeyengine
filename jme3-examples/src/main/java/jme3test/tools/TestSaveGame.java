@@ -52,27 +52,27 @@ public class TestSaveGame extends SimpleApplication {
     @Override
     public void simpleInitApp() {
 
-        //node that is used to store player data
+        // Create a Node to store player data.
         Node myPlayer = new Node();
         myPlayer.setName("PlayerNode");
         myPlayer.setUserData("name", "Mario");
         myPlayer.setUserData("health", 100.0f);
         myPlayer.setUserData("points", 0);
 
-        //the actual model would be attached to this node
+        // Attach the model to the Node.
         Spatial model = assetManager.loadModel("Models/Oto/Oto.mesh.xml");
         myPlayer.attachChild(model);
 
-        //before saving the game, the model should be detached so it's not saved along with the node
+        // Before saving the game, detach the model since it doesn't need to be saved.
         myPlayer.detachAllChildren();
         SaveGame.saveGame("mycompany/mygame", "savegame_001", myPlayer);
 
-        //later the game is loaded again
+        // Later, the game is loaded again ...
         Node player = (Node) SaveGame.loadGame("mycompany/mygame", "savegame_001");
         player.attachChild(model);
         rootNode.attachChild(player);
 
-        //and the data is available
+        // and the player data are available.
         System.out.println("Name: " + player.getUserData("name"));
         System.out.println("Health: " + player.getUserData("health"));
         System.out.println("Points: " + player.getUserData("points"));
@@ -80,6 +80,6 @@ public class TestSaveGame extends SimpleApplication {
         AmbientLight al = new AmbientLight();
         rootNode.addLight(al);
         
-        //note you can also implement your own classes that implement the Savable interface.
+        // Note that your custom classes can also implement the Savable interface.
     }
 }

@@ -140,7 +140,7 @@ public final class FbxToJmeTrack {
             if (time > duration) {
                 // Expand animation duration to fit the curve.
                 duration = time;
-                System.out.println("actual duration: " + duration);
+//                System.out.println("actual duration: " + duration);
             }
 
             times[i] = time;
@@ -153,7 +153,7 @@ public final class FbxToJmeTrack {
                 rotations[i] = rotationCurve.getQuaternionValue(fbxTime);
                 if (i > 0) {
                     if (rotations[i - 1].dot(rotations[i]) < 0) {
-                        System.out.println("rotation will go the long way, oh noes");
+//                        System.out.println("rotation will go the long way, oh noes");
                         rotations[i - 1].negateLocal();
                     }
                 }

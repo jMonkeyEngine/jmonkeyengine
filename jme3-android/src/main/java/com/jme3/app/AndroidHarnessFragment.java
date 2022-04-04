@@ -232,6 +232,7 @@ public class AndroidHarnessFragment extends Fragment implements
      * @param savedInstanceState the saved instance state
      */
     @Override
+    @SuppressWarnings("unchecked")
     public void onCreate(Bundle savedInstanceState) {
         initializeLogHandler();
         logger.fine("onCreate");
@@ -258,7 +259,7 @@ public class AndroidHarnessFragment extends Fragment implements
         try {
             if (app == null) {
                 Class clazz = Class.forName(appClass);
-                app = (LegacyApplication)clazz.newInstance();
+                app = (LegacyApplication) clazz.getDeclaredConstructor().newInstance();
             }
 
             app.setSettings(settings);
@@ -569,6 +570,11 @@ public class AndroidHarnessFragment extends Fragment implements
     @Override
     public void reshape(int width, int height) {
         app.reshape(width, height);
+    }
+
+    @Override
+    public void rescale(float x, float y) {
+        app.rescale(x, y);
     }
 
     @Override

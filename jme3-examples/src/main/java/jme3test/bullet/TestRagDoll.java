@@ -52,7 +52,7 @@ public class TestRagDoll extends SimpleApplication implements ActionListener {
     private BulletAppState bulletAppState;
     final private Node ragDoll = new Node();
     private Node shoulders;
-    final private Vector3f upforce = new Vector3f(0, 200, 0);
+    final private Vector3f upForce = new Vector3f(0, 200, 0);
     private boolean applyForce = false;
 
     public static void main(String[] args) {
@@ -146,7 +146,7 @@ public class TestRagDoll extends SimpleApplication implements ActionListener {
     @Override
     public void simpleUpdate(float tpf) {
         if (applyForce) {
-            shoulders.getControl(RigidBodyControl.class).applyForce(upforce, Vector3f.ZERO);
+            shoulders.getControl(RigidBodyControl.class).applyForce(upForce, Vector3f.ZERO);
         }
     }
 }

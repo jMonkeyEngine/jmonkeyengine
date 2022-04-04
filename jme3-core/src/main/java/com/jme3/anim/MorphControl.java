@@ -142,7 +142,7 @@ public class MorphControl extends AbstractControl implements Savable {
                 lastGpuTargetIndex = i;
                 // binding the morph target's buffers to the mesh morph buffers.
                 MorphTarget t = morphTargets[i];
-                boundBufferIdx = bindMorphtargetBuffer(mesh, targetNumBuffers, boundBufferIdx, t);
+                boundBufferIdx = bindMorphTargetBuffer(mesh, targetNumBuffers, boundBufferIdx, t);
                 // setting the weight in the mat param array
                 matWeights[nbGPUTargets] = weights[i];
                 nbGPUTargets++;
@@ -179,7 +179,7 @@ public class MorphControl extends AbstractControl implements Savable {
                 writeCpuBuffer(targetNumBuffers, mt);
 
                 // binding the merged morph target
-                bindMorphtargetBuffer(mesh, targetNumBuffers, (nbGPUTargets - 1) * targetNumBuffers, mt);
+                bindMorphTargetBuffer(mesh, targetNumBuffers, (nbGPUTargets - 1) * targetNumBuffers, mt);
 
                 // setting the eight of the merged targets
                 matWeights[nbGPUTargets - 1] = cpuWeightSum;
@@ -236,7 +236,7 @@ public class MorphControl extends AbstractControl implements Savable {
         return maxGPUTargets;
     }
 
-    private int bindMorphtargetBuffer(Mesh mesh, int targetNumBuffers, int boundBufferIdx, MorphTarget t) {
+    private int bindMorphTargetBuffer(Mesh mesh, int targetNumBuffers, int boundBufferIdx, MorphTarget t) {
         int start = VertexBuffer.Type.MorphTarget0.ordinal();
         if (targetNumBuffers >= 1) {
             activateBuffer(mesh, boundBufferIdx, start, t.getBuffer(VertexBuffer.Type.Position));

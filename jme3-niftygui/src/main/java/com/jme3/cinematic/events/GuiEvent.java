@@ -55,7 +55,7 @@ public class GuiEvent extends AbstractCinematicEvent {
     private static final Logger log = Logger.getLogger(GuiEvent.class.getName());
 
     /**
-     * name of the associated Nifty screen(not null)
+     * name of the associated Nifty screen (not null)
      */
     protected String screen;
     /**

@@ -39,10 +39,11 @@ package com.jme3.asset;
  * @author Kirill Vainer
  */
 public class AssetLoadException extends RuntimeException {
-    public AssetLoadException(String message){
+    public AssetLoadException(String message) {
         super(message);
     }
-    public AssetLoadException(String message, Throwable cause){
+
+    public AssetLoadException(String message, Throwable cause) {
         super(message, cause);
     }
 }

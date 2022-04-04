@@ -32,12 +32,6 @@
 
 package com.jme3.system.lwjgl;
 
-import static com.jme3.util.LWJGLBufferAllocator.PROPERTY_CONCURRENT_BUFFER_ALLOCATOR;
-import static java.util.stream.Collectors.toSet;
-import static org.lwjgl.opencl.CL10.CL_CONTEXT_PLATFORM;
-import static org.lwjgl.opengl.GL.createCapabilities;
-import static org.lwjgl.opengl.GL11.glGetInteger;
-
 import com.jme3.input.lwjgl.GlfwJoystickInput;
 import com.jme3.input.lwjgl.GlfwKeyInput;
 import com.jme3.input.lwjgl.GlfwMouseInput;
@@ -63,25 +57,29 @@ import com.jme3.system.Timer;
 import com.jme3.util.BufferAllocatorFactory;
 import com.jme3.util.LWJGLBufferAllocator;
 import com.jme3.util.LWJGLBufferAllocator.ConcurrentLWJGLBufferAllocator;
+import static com.jme3.util.LWJGLBufferAllocator.PROPERTY_CONCURRENT_BUFFER_ALLOCATOR;
+import java.nio.IntBuffer;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import static java.util.stream.Collectors.toSet;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWJoystickCallback;
 import org.lwjgl.opencl.APPLEGLSharing;
 import org.lwjgl.opencl.CL10;
+import static org.lwjgl.opencl.CL10.CL_CONTEXT_PLATFORM;
 import org.lwjgl.opencl.KHRGLSharing;
 import org.lwjgl.opengl.ARBDebugOutput;
 import org.lwjgl.opengl.ARBFramebufferObject;
 import org.lwjgl.opengl.EXTFramebufferMultisample;
+import static org.lwjgl.opengl.GL.createCapabilities;
+import static org.lwjgl.opengl.GL11.glGetInteger;
 import org.lwjgl.opengl.GLCapabilities;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.Platform;
-
-import java.nio.IntBuffer;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * A LWJGL implementation of a graphics context.
@@ -372,7 +370,7 @@ public abstract class LwjglContext implements JmeContext {
         PlatformChooser chooser = null;
         if (settings.getOpenCLPlatformChooser() != null) {
             try {
-                chooser = (PlatformChooser) Class.forName(settings.getOpenCLPlatformChooser()).newInstance();
+                chooser = (PlatformChooser) Class.forName(settings.getOpenCLPlatformChooser()).getDeclaredConstructor().newInstance();
             } catch (Exception ex) {
                 logger.log(Level.WARNING, "Unable to instantiate custom PlatformChooser", ex);
             }

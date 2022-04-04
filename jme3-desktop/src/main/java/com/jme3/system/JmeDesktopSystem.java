@@ -50,6 +50,7 @@ import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -123,6 +124,7 @@ public class JmeDesktopSystem extends JmeSystemDelegate {
  
 
 
+    @SuppressWarnings("unchecked")
     private JmeContext newContextLwjgl(AppSettings settings, JmeContext.Type type) {
         try {
             Class ctxClazz = null;
@@ -140,8 +142,10 @@ public class JmeDesktopSystem extends JmeSystemDelegate {
                     throw new IllegalArgumentException("Unsupported context type " + type);
             }
 
-            return (JmeContext) ctxClazz.newInstance();
-        } catch (InstantiationException | IllegalAccessException ex) {
+            return (JmeContext) ctxClazz.getDeclaredConstructor().newInstance();
+        } catch (InstantiationException | IllegalAccessException
+                | IllegalArgumentException | InvocationTargetException
+                | NoSuchMethodException | SecurityException ex) {
             logger.log(Level.SEVERE, "Failed to create context", ex);
         } catch (ClassNotFoundException ex) {
             logger.log(Level.SEVERE, "CRITICAL ERROR: Context class is missing!\n"
@@ -151,6 +155,7 @@ public class JmeDesktopSystem extends JmeSystemDelegate {
         return null;
     }
 
+    @SuppressWarnings("unchecked")
     private JmeContext newContextJogl(AppSettings settings, JmeContext.Type type) {
         try {
             Class ctxClazz = null;
@@ -168,8 +173,10 @@ public class JmeDesktopSystem extends JmeSystemDelegate {
                     throw new IllegalArgumentException("Unsupported context type " + type);
             }
 
-            return (JmeContext) ctxClazz.newInstance();
-        } catch (InstantiationException | IllegalAccessException ex) {
+            return (JmeContext) ctxClazz.getDeclaredConstructor().newInstance();
+        } catch (InstantiationException | IllegalAccessException
+                | IllegalArgumentException | InvocationTargetException
+                | NoSuchMethodException | SecurityException ex) {
             logger.log(Level.SEVERE, "Failed to create context", ex);
         } catch (ClassNotFoundException ex) {
             logger.log(Level.SEVERE, "CRITICAL ERROR: Context class is missing!\n"
@@ -179,13 +186,16 @@ public class JmeDesktopSystem extends JmeSystemDelegate {
         return null;
     }
 
+    @SuppressWarnings("unchecked")
     private JmeContext newContextCustom(AppSettings settings, JmeContext.Type type) {
         try {
             String className = settings.getRenderer().substring("CUSTOM".length());
 
             Class ctxClazz = Class.forName(className);
-            return (JmeContext) ctxClazz.newInstance();
-        } catch (InstantiationException | IllegalAccessException ex) {
+            return (JmeContext) ctxClazz.getDeclaredConstructor().newInstance();
+        } catch (InstantiationException | IllegalAccessException
+                | IllegalArgumentException | InvocationTargetException
+                | NoSuchMethodException | SecurityException ex) {
             logger.log(Level.SEVERE, "Failed to create context", ex);
         } catch (ClassNotFoundException ex) {
             logger.log(Level.SEVERE, "CRITICAL ERROR: Context class is missing!", ex);
@@ -224,11 +234,13 @@ public class JmeDesktopSystem extends JmeSystemDelegate {
     private <T> T newObject(String className) {
         try {
             Class<T> clazz = (Class<T>) Class.forName(className);
-            return clazz.newInstance();
+            return clazz.getDeclaredConstructor().newInstance();
         } catch (ClassNotFoundException ex) {
             logger.log(Level.SEVERE, "CRITICAL ERROR: Audio implementation class "
                     + className + " is missing!\n", ex);
-        } catch (IllegalAccessException | InstantiationException ex) {
+        } catch (InstantiationException | IllegalAccessException
+                | IllegalArgumentException | InvocationTargetException
+                | NoSuchMethodException | SecurityException ex) {
             logger.log(Level.SEVERE, "Failed to create context", ex);
         }
 

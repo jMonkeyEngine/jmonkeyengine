@@ -123,8 +123,8 @@ public class FluidSimHeightMap extends AbstractHeightMap {
     public FluidSimHeightMap(int size, int iterations) throws Exception {
         if (size <= 0 || iterations <= 0) {
             throw new Exception(
-                    "Either size of the terrain is not greater that zero, "
-                    + "or number of iterations is not greater that zero");
+                    "Either size of the terrain is not greater than zero, "
+                    + "or number of iterations is not greater than zero");
         }
 
         this.size = size;

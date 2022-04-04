@@ -109,9 +109,9 @@ public class MjpegFileWriter implements AutoCloseable {
         addImage(writeImageToBytes(image, quality));
     }
 
-    public void addImage(byte[] imagedata) throws Exception {
+    public void addImage(byte[] imageData) throws Exception {
         byte[] fcc = new byte[]{'0', '0', 'd', 'b'};
-        int useLength = imagedata.length;
+        int useLength = imageData.length;
         int extra = (useLength + (int) position) % 4;
         if (extra > 0) {
             useLength = useLength + extra;
@@ -122,7 +122,7 @@ public class MjpegFileWriter implements AutoCloseable {
         ByteArrayOutputStream baos = new ByteArrayOutputStream(fcc.length + 4 + useLength);
         baos.write(fcc);
         baos.write(intBytes(swapInt(useLength)));
-        baos.write(imagedata);
+        baos.write(imageData);
         if (extra > 0) {
             for (int i = 0; i < extra; i++) {
                 baos.write(0);
@@ -130,7 +130,7 @@ public class MjpegFileWriter implements AutoCloseable {
         }
         byte[] data = baos.toByteArray();
         aviOutput.write(data);
-        imagedata = null;
+        imageData = null;
 
         numFrames++; //add a frame
         position += data.length;

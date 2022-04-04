@@ -40,7 +40,6 @@ import java.io.IOException;
  */
 @Deprecated
 public final class PoseTrack implements Track {
-    
     private int targetMeshIndex;
     private PoseFrame[] frames;
     private float[] times;
@@ -54,14 +53,13 @@ public final class PoseTrack implements Track {
             this.poses = poses;
             this.weights = weights;
         }
-        
+
         /**
          * Serialization-only. Do not use.
          */
-        protected PoseFrame()
-        {
+        protected PoseFrame() {
         }
-        
+
         /**
          * This method creates a clone of the current object.
          * @return a clone of the current object
@@ -94,7 +92,7 @@ public final class PoseTrack implements Track {
         public void read(JmeImporter i) throws IOException {
             InputCapsule in = i.getCapsule(this);
             weights = in.readFloatArray("weights", null);
-            
+
             Savable[] readSavableArray = in.readSavableArray("poses", null);
             if (readSavableArray != null) {
                 poses = new Pose[readSavableArray.length];
@@ -103,24 +101,23 @@ public final class PoseTrack implements Track {
         }
     }
 
-    public PoseTrack(int targetMeshIndex, float[] times, PoseFrame[] frames){
+    public PoseTrack(int targetMeshIndex, float[] times, PoseFrame[] frames) {
         this.targetMeshIndex = targetMeshIndex;
         this.times = times;
         this.frames = frames;
     }
-    
+
     /**
      * Serialization-only. Do not use.
      */
-    protected PoseTrack()
-    {
+    protected PoseTrack() {
     }
-    
+
     @Override
     public void setTime(float time, float weight, AnimControl control, AnimChannel channel, TempVars vars) {
         // TODO: When MeshControl is created, it will gather targets
         // list automatically which is then retrieved here.
-        
+
         /*
         Mesh target = targets[targetMeshIndex];
         if (time < times[0]) {
@@ -150,12 +147,12 @@ public final class PoseTrack implements Track {
     public float getLength() {
         return times == null ? 0 : times[times.length - 1] - times[0];
     }
-    
+
     @Override
     public float[] getKeyFrameTimes() {
         return times;
     }
-    
+
     /**
      * This method creates a clone of the current object.
      * @return a clone of the current object
@@ -176,7 +173,7 @@ public final class PoseTrack implements Track {
             throw new AssertionError();
         }
     }
-    
+
     @Override
     public void write(JmeExporter e) throws IOException {
         OutputCapsule out = e.getCapsule(this);
@@ -190,7 +187,7 @@ public final class PoseTrack implements Track {
         InputCapsule in = i.getCapsule(this);
         targetMeshIndex = in.readInt("meshIndex", 0);
         times = in.readFloatArray("times", null);
-        
+
         Savable[] readSavableArray = in.readSavableArray("frames", null);
         if (readSavableArray != null) {
             frames = new PoseFrame[readSavableArray.length];

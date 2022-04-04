@@ -120,19 +120,19 @@ public class TestFancyCar extends SimpleApplication implements ActionListener {
         float dampValue = 0.3f;
         final float mass = 400;
 
-        //Load model and get chassis Geometry
+        // Load model and get chassis Geometry
         carNode = (Node) assetManager.loadModel("Models/Ferrari/Car.scene");
         carNode.setShadowMode(ShadowMode.Cast);
         Geometry chassis = findGeom(carNode, "Car");
 
-        //Create a hull collision shape for the chassis
+        // Create a hull collision shape for the chassis
         CollisionShape carHull = CollisionShapeFactory.createDynamicMeshShape(chassis);
 
-        //Create a vehicle control
+        // Create a vehicle control
         player = new VehicleControl(carHull, mass);
         carNode.addControl(player);
 
-        //Setting default values for wheels
+        // Setting default values for wheels
         player.setSuspensionCompression(compValue * 2.0f * FastMath.sqrt(stiffness));
         player.setSuspensionDamping(dampValue * 2.0f * FastMath.sqrt(stiffness));
         player.setSuspensionStiffness(stiffness);

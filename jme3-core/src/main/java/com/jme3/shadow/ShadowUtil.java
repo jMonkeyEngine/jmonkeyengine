@@ -351,20 +351,20 @@ public class ShadowUtil {
      * all of them one by one against camera frustum the whole Node is checked first
      * to hopefully avoid the check on its children.
      */
-    public static class OccludersExtractor
-    {
+    public static class OccludersExtractor {
         // global variables set in order not to have recursive process method with too many parameters
         Matrix4f viewProjMatrix;
         public Integer casterCount;
         BoundingBox splitBB, casterBB;
         GeometryList splitOccluders;
         TempVars vars;
-        
+
         public OccludersExtractor() {}
-        
+
         // initialize the global OccludersExtractor variables
-        public OccludersExtractor(Matrix4f vpm, int cc, BoundingBox sBB, BoundingBox cBB, GeometryList sOCC, TempVars v) {
-            viewProjMatrix = vpm; 
+        public OccludersExtractor(Matrix4f vpm, int cc, BoundingBox sBB, BoundingBox cBB,
+                GeometryList sOCC, TempVars v) {
+            viewProjMatrix = vpm;
             casterCount = cc;
             splitBB = sBB;
             casterBB = cBB;
@@ -376,32 +376,31 @@ public class ShadowUtil {
          * Check the rootScene against camera frustum and if intersects process it recursively.
          * The global OccludersExtractor variables need to be initialized first.
          * Variables are updated and used in {@link ShadowUtil#updateShadowCamera} at last.
-         * 
+         *
          * @param scene the root of the scene to check (may be null)
          * @return the number of shadow casters found
          */
         public int addOccluders(Spatial scene) {
-            if ( scene != null ) process(scene);
+            if (scene != null) process(scene);
             return casterCount;
         }
-        
+
         private void process(Spatial scene) {
             if (scene.getCullHint() == Spatial.CullHint.Always) return;
 
             RenderQueue.ShadowMode shadowMode = scene.getShadowMode();
-            if ( scene instanceof Geometry )
-            {
+            if (scene instanceof Geometry) {
                 // convert bounding box to light's viewproj space
                 Geometry occluder = (Geometry)scene;
                 if (shadowMode != RenderQueue.ShadowMode.Off && shadowMode != RenderQueue.ShadowMode.Receive
                         && !occluder.isGrouped() && occluder.getWorldBound()!=null) {
                     BoundingVolume bv = occluder.getWorldBound();
                     BoundingVolume occBox = bv.transform(viewProjMatrix, vars.bbox);
-          
+
                     boolean intersects = splitBB.intersects(occBox);
                     if (!intersects && occBox instanceof BoundingBox) {
                         BoundingBox occBB = (BoundingBox) occBox;
-                        //Kirill 01/10/2011
+                        // Kirill 01/10/2011
                         // Extend the occluder further into the frustum
                         // This fixes shadow disappearing issues when
                         // the caster itself is not in the view camera
@@ -416,7 +415,7 @@ public class ShadowUtil {
                                 // We return the bound to its former shape
                                 // Before adding it
                                 occBB.setZExtent(occBB.getZExtent() - 50);
-                                occBB.setCenter(occBB.getCenter().subtractLocal(0, 0, 25));                    
+                                occBB.setCenter(occBB.getCenter().subtractLocal(0, 0, 25));
                                 casterBB.mergeLocal(occBox);
                                 casterCount++;
                             }
@@ -432,15 +431,13 @@ public class ShadowUtil {
                         }
                     }
                 }
-            }
-            else if ( scene instanceof Node && ((Node)scene).getWorldBound()!=null )
-            {
+            } else if (scene instanceof Node && ((Node)scene).getWorldBound() != null) {
                 Node nodeOcc = (Node)scene;
                 boolean intersects = false;
-                // some 
+                // some
                 BoundingVolume bv = nodeOcc.getWorldBound();
                 BoundingVolume occBox = bv.transform(viewProjMatrix, vars.bbox);
-      
+
                 intersects = splitBB.intersects(occBox);
                 if (!intersects && occBox instanceof BoundingBox) {
                     BoundingBox occBB = (BoundingBox) occBox;
@@ -454,8 +451,8 @@ public class ShadowUtil {
                     occBB.setCenter(occBB.getCenter().addLocal(0, 0, 25));
                     intersects = splitBB.intersects(occBB);
                 }
- 
-                if ( intersects ) {
+
+                if (intersects) {
                     for (Spatial child : ((Node)scene).getChildren()) {
                         process(child);
                     }
@@ -463,7 +460,7 @@ public class ShadowUtil {
             }
         }
     }
-    
+
     /**
      * Updates the shadow camera to properly contain the given points (which
      * contain the eye camera frustum corners) and the shadow occluder objects
@@ -482,7 +479,7 @@ public class ShadowUtil {
             Vector3f[] points,
             GeometryList splitOccluders,
             float shadowMapSize) {
-        
+
         boolean ortho = shadowCam.isParallelProjection();
 
         shadowCam.setProjectionMatrix(null);
@@ -491,18 +488,18 @@ public class ShadowUtil {
             shadowCam.setFrustum(-shadowCam.getFrustumFar(), shadowCam.getFrustumFar(), -1, 1, 1, -1);
         }
 
-        // create transform to rotate points to viewspace        
+        // create transform to rotate points to viewspace
         Matrix4f viewProjMatrix = shadowCam.getViewProjectionMatrix();
 
         BoundingBox splitBB = computeBoundForPoints(points, viewProjMatrix);
 
         TempVars vars = TempVars.get();
-        
+
         BoundingBox casterBB = new BoundingBox();
         BoundingBox receiverBB = new BoundingBox();
-        
+
         int casterCount = 0, receiverCount = 0;
-        
+
         for (int i = 0; i < receivers.size(); i++) {
             // convert bounding box to light's viewproj space
             Geometry receiver = receivers.get(i);
@@ -524,7 +521,7 @@ public class ShadowUtil {
             occExt.addOccluders(scene);
         }
         casterCount = occExt.casterCount;
-  
+
         //Nehon 08/18/2010 this is to avoid shadow bleeding when the ground is set to only receive shadows
         if (casterCount != receiverCount) {
             casterBB.setXExtent(casterBB.getXExtent() + 2.0f);
@@ -576,7 +573,7 @@ public class ShadowUtil {
         float halfTextureSize = shadowMapSize * 0.5f;
 
         if (halfTextureSize != 0 && scaleX >0 && scaleY>0) {
-            float scaleQuantizer = 0.1f;            
+            float scaleQuantizer = 0.1f;
             scaleX = 1.0f / FastMath.ceil(1.0f / scaleX * scaleQuantizer) * scaleQuantizer;
             scaleY = 1.0f / FastMath.ceil(1.0f / scaleY * scaleQuantizer) * scaleQuantizer;
         }
@@ -613,7 +610,7 @@ public class ShadowUtil {
 
         shadowCam.setProjectionMatrix(result);
     }
-    
+
     /**
      * Populates the outputGeometryList with the geometry of the
      * inputGeometryList that are in the frustum of the given camera
@@ -648,7 +645,7 @@ public class ShadowUtil {
      * @param mode the ShadowMode to test for
      * @param outputGeometryList the list of all geometries that are in the
      * camera frustum
-     */    
+     */
     public static void getGeometriesInCamFrustum(Spatial rootScene, Camera camera, RenderQueue.ShadowMode mode, GeometryList outputGeometryList) {
         if (rootScene != null && rootScene instanceof Node) {
             int planeState = camera.getPlaneState();
@@ -656,12 +653,12 @@ public class ShadowUtil {
             camera.setPlaneState(planeState);
         }
     }
-    
+
     /**
      * Helper function to distinguish between Occluders and Receivers
-     * 
+     *
      * @param shadowMode the ShadowMode tested
-     * @param desired the desired ShadowMode 
+     * @param desired the desired ShadowMode
      * @return true if tested ShadowMode matches the desired one
      */
     static private boolean checkShadowMode(RenderQueue.ShadowMode shadowMode, RenderQueue.ShadowMode desired)
@@ -669,9 +666,9 @@ public class ShadowUtil {
         if (shadowMode != RenderQueue.ShadowMode.Off)
         {
             switch (desired) {
-                case Cast : 
+                case Cast :
                     return shadowMode==RenderQueue.ShadowMode.Cast || shadowMode==RenderQueue.ShadowMode.CastAndReceive;
-                case Receive: 
+                case Receive:
                     return shadowMode==RenderQueue.ShadowMode.Receive || shadowMode==RenderQueue.ShadowMode.CastAndReceive;
                 case CastAndReceive:
                     return true;
@@ -679,15 +676,15 @@ public class ShadowUtil {
         }
         return false;
     }
-    
+
     /**
-     * Helper function used to recursively populate the outputGeometryList 
+     * Helper function used to recursively populate the outputGeometryList
      * with geometry children of scene node
-     * 
+     *
      * @param camera
      * @param scene the root of the scene to traverse (may be null)
      * @param mode the ShadowMode to test for
-     * @param outputGeometryList 
+     * @param outputGeometryList
      */
     private static void addGeometriesInCamFrustumFromNode(Camera camera, Node scene, RenderQueue.ShadowMode mode, GeometryList outputGeometryList) {
         if (scene.getCullHint() == Spatial.CullHint.Always) return;
@@ -706,7 +703,7 @@ public class ShadowUtil {
             }
         }
     }
-    
+
     /**
      * Populates the outputGeometryList with the geometry of the
      * inputGeometryList that are in the radius of a light.
@@ -739,12 +736,12 @@ public class ShadowUtil {
     }
 
     /**
-     * Populates the outputGeometryList with the geometries of the children 
+     * Populates the outputGeometryList with the geometries of the children
      * of OccludersExtractor.rootScene node that are both in the frustum of the given vpCamera and some camera inside cameras array.
      * The array of cameras must be initialized to represent the light viewspace of some light like pointLight or spotLight
      *
      * @param rootScene the root of the scene to traverse (may be null)
-     * @param vpCamera the viewPort camera 
+     * @param vpCamera the viewPort camera
      * @param cameras the camera array to check geometries against, representing the light viewspace
      * @param mode the ShadowMode to test for
      * @param outputGeometryList the output list of all geometries that are in the camera frustum
@@ -756,8 +753,8 @@ public class ShadowUtil {
     }
     /**
      * Helper function to recursively collect the geometries for getLitGeometriesInViewPort function.
-     * 
-     * @param vpCamera the viewPort camera 
+     *
+     * @param vpCamera the viewPort camera
      * @param cameras the camera array to check geometries against, representing the light viewspace
      * @param scene the Node to traverse or geometry to possibly add
      * @param outputGeometryList the output list of all geometries that are in the camera frustum
@@ -782,7 +779,7 @@ public class ShadowUtil {
                 }
             }
             else if (scene instanceof Geometry) {
-                if (checkShadowMode(scene.getShadowMode(), mode) && !((Geometry)scene).isGrouped() ) {
+                if (checkShadowMode(scene.getShadowMode(), mode) && !((Geometry)scene).isGrouped()) {
                     outputGeometryList.add((Geometry)scene);
                 }
             }

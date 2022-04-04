@@ -54,6 +54,12 @@ public class ArmatureInterJointsWire extends Mesh {
         updateGeometry(start, ends);
     }
 
+    /**
+     * For serialization only. Do not use.
+     */
+    protected ArmatureInterJointsWire() {
+    }
+
     protected void updateGeometry(Vector3f start, Vector3f[] ends) {
         float[] pos = new float[ends.length * 3 + 3];
         pos[0] = start.x;

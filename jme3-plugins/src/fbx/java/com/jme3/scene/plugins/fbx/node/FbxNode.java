@@ -171,14 +171,14 @@ public class FbxNode extends FbxObject<Spatial> {
         this.jmeWorldBindPose.setRotation(worldBindPose.toRotationQuat());
         this.jmeWorldBindPose.setScale(worldBindPose.toScaleVector());
         
-        System.out.println("\tBind Pose for " + getName());
-        System.out.println(jmeWorldBindPose);
+//        System.out.println("\tBind Pose for " + getName());
+//        System.out.println(jmeWorldBindPose);
         
         float[] angles = new float[3];
         jmeWorldBindPose.getRotation().toAngles(angles);
-        System.out.println("Angles: " + angles[0] * FastMath.RAD_TO_DEG + ", " + 
-                                        angles[1] * FastMath.RAD_TO_DEG + ", " + 
-                                        angles[2] * FastMath.RAD_TO_DEG);
+//        System.out.println("Angles: " + angles[0] * FastMath.RAD_TO_DEG + ", " +
+//                                        angles[1] * FastMath.RAD_TO_DEG + ", " +
+//                                        angles[2] * FastMath.RAD_TO_DEG);
     }
     
     public void updateWorldTransforms(Transform jmeParentNodeTransform, Transform parentBindPose) {
@@ -208,15 +208,15 @@ public class FbxNode extends FbxObject<Spatial> {
             jmeLocalBindPose.combineWithParent(parentBindPose.invert());
             
             // It's somewhat odd for the transforms to differ ...
-            System.out.println("Bind Pose for: " + getName());
-            if (!jmeLocalBindPose.equals(jmeLocalNodeTransform)) {
-                System.out.println("Local Bind: " + jmeLocalBindPose);
-                System.out.println("Local Trans: " + jmeLocalNodeTransform);
-            }
-            if (!jmeWorldBindPose.equals(jmeWorldNodeTransform)) {
-                System.out.println("World Bind: " + jmeWorldBindPose);
-                System.out.println("World Trans: " + jmeWorldNodeTransform);
-            }
+//            System.out.println("Bind Pose for: " + getName());
+//            if (!jmeLocalBindPose.equals(jmeLocalNodeTransform)) {
+//                System.out.println("Local Bind: " + jmeLocalBindPose);
+//                System.out.println("Local Trans: " + jmeLocalNodeTransform);
+//            }
+//            if (!jmeWorldBindPose.equals(jmeWorldNodeTransform)) {
+//                System.out.println("World Bind: " + jmeWorldBindPose);
+//                System.out.println("World Trans: " + jmeWorldNodeTransform);
+//            }
         } else {
             // World pose derived from local transforms
             // (this is to be expected for FBX nodes)
@@ -480,7 +480,7 @@ public class FbxNode extends FbxObject<Spatial> {
                 throw new UnsupportedOperationException();
             }
             fbxNode.skeleton = FbxLimbNode.createSkeleton(fbxNode);
-            System.out.println("created skeleton: " + fbxNode.skeleton);
+//            System.out.println("created skeleton: " + fbxNode.skeleton);
         }
     }
     
@@ -505,7 +505,7 @@ public class FbxNode extends FbxObject<Spatial> {
                     FbxNode preferredParent = fbxChild.getPreferredParent();
                     Spatial jmeChild = fbxChild.getJmeObject();
                     if (preferredParent != null) {
-                        System.out.println("Preferred parent for " + fbxChild + " is " + preferredParent);
+//                        System.out.println("Preferred parent for " + fbxChild + " is " + preferredParent);
                         
                         Node jmePreferredParent = (Node) preferredParent.getJmeObject();
                         relocateSpatial(jmeChild, fbxChild.jmeWorldNodeTransform, 

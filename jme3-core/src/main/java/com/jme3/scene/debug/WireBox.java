@@ -44,11 +44,11 @@ import java.nio.FloatBuffer;
 
 public class WireBox extends Mesh {
 
-    public WireBox(){
+    public WireBox() {
         this(1,1,1);
     }
-    
-    public WireBox(float xExt, float yExt, float zExt){
+
+    public WireBox(float xExt, float yExt, float zExt) {
         updatePositions(xExt,yExt,zExt);
         setBuffer(Type.Index, 2,
                 new short[]{
@@ -73,15 +73,15 @@ public class WireBox extends Mesh {
         updateCounts();
     }
 
-    public void updatePositions(float xExt, float yExt, float zExt){
+    public void updatePositions(float xExt, float yExt, float zExt) {
         VertexBuffer pvb = getBuffer(Type.Position);
         FloatBuffer pb;
-        if (pvb == null){
+        if (pvb == null) {
             pvb = new VertexBuffer(Type.Position);
             pb = BufferUtils.createVector3Buffer(8);
             pvb.setupData(Usage.Dynamic, 3, Format.Float, pb);
             setBuffer(pvb);
-        }else{
+        } else {
             pb = (FloatBuffer) pvb.getData();
             pvb.updateData(pb);
         }
@@ -101,7 +101,7 @@ public class WireBox extends Mesh {
         );
         updateBound();
     }
-    
+
     /**
      * Create a geometry suitable for visualizing the specified bounding box.
      *

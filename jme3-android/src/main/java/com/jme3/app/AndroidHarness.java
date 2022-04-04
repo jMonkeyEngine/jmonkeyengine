@@ -190,6 +190,7 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void onCreate(Bundle savedInstanceState) {
         initializeLogHandler();
 
@@ -240,7 +241,7 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
             try {
                 if (app == null) {
                     Class clazz = Class.forName(appClass);
-                    app = (LegacyApplication)clazz.newInstance();
+                    app = (LegacyApplication) clazz.getDeclaredConstructor().newInstance();
                 }
 
                 app.setSettings(settings);
@@ -492,6 +493,11 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
     @Override
     public void reshape(int width, int height) {
         app.reshape(width, height);
+    }
+
+    @Override
+    public void rescale(float x, float y) {
+        app.rescale(x, y);
     }
 
     @Override

@@ -341,7 +341,7 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
             float sum = w0 + w1 + w2 + w3;
             if (sum != 1f) {
                 weightsFloatData.position(weightsFloatData.position() - 4);
-                // compute new vals based on sum
+                // Compute new weights based on sum.
                 float sumToB = sum == 0 ? 0 : 1f / sum;
                 weightsFloatData.put(w0 * sumToB);
                 weightsFloatData.put(w1 * sumToB);
@@ -549,8 +549,8 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
         levels.add(vb);
     }
 
-    private void startLevelOfDetail(String numlevels) {
-//        numLevels = Integer.parseInt(numlevels);
+    private void startLevelOfDetail(String numLevels) {
+//        numLevels = Integer.parseInt(numLevels);
     }
 
     private void endLevelOfDetail() {
@@ -716,7 +716,7 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
             geom = null;
             mesh = null;
         } else if (qName.equals("submeshes") && !submeshNamesHack) {
-            // IMPORTANT: restore sharedmesh, for use with shared boneweights
+            // IMPORTANT: restore shared mesh, for use with shared bone weights
             geom = null;
             mesh = sharedMesh;
             usesSharedVerts = false;

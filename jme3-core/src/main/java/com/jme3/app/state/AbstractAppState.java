@@ -51,11 +51,11 @@ public abstract class AbstractAppState implements AppState {
     protected boolean initialized = false;
     private boolean enabled = true;
     private String id;
-    
-    protected AbstractAppState() {    
+
+    protected AbstractAppState() {
     }
-    
-    protected AbstractAppState( String id ) {
+
+    protected AbstractAppState(String id) {
         this.id = id;
     }
 
@@ -76,7 +76,7 @@ public abstract class AbstractAppState implements AppState {
      *
      * @param id the desired ID
      */
-    protected void setId( String id ) {
+    protected void setId(String id) {
         this.id = id;
     }
 
@@ -89,7 +89,7 @@ public abstract class AbstractAppState implements AppState {
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
     }
-    
+
     @Override
     public boolean isEnabled() {
         return enabled;
@@ -112,12 +112,11 @@ public abstract class AbstractAppState implements AppState {
     }
 
     @Override
-    public void postRender(){
+    public void postRender() {
     }
 
     @Override
     public void cleanup() {
         initialized = false;
     }
-
 }

@@ -70,7 +70,7 @@ class LetterQuad {
     private float alignX;
     private float alignY;
     private float sizeScale = 1;
-    
+
     /**
      * create head / tail
      * @param font
@@ -86,7 +86,7 @@ class LetterQuad {
 
     /**
      * create letter and append to previous LetterQuad
-     * 
+     *
      * @param c
      * @param prev previous character
      */
@@ -99,7 +99,7 @@ class LetterQuad {
         setBitmapChar(c);
         prev.insert(this);
     }
-    
+
     LetterQuad addNextCharacter(char c) {
         LetterQuad n = new LetterQuad(c, this);
         return n;
@@ -108,11 +108,11 @@ class LetterQuad {
     BitmapCharacter getBitmapChar() {
         return bitmapChar;
     }
-    
+
     char getChar() {
         return c;
     }
-    
+
     int getIndex() {
         return index;
     }
@@ -147,11 +147,11 @@ class LetterQuad {
     float getV1() {
         return v1;
     }
-    
-    boolean isRightToLeft(){
+
+    boolean isRightToLeft() {
         return rightToLeft;
     }
-    
+
     boolean isInvalid() {
         return x0 == Integer.MIN_VALUE;
     }
@@ -159,7 +159,7 @@ class LetterQuad {
     boolean isInvalid(StringBlock block) {
         return isInvalid(block, 0);
     }
-    
+
     boolean isInvalid(StringBlock block, float gap) {
         if (isHead() || isTail())
             return false;
@@ -177,25 +177,25 @@ class LetterQuad {
             return x0 > 0 && bound.x+bound.width-gap < getX1();
         }
     }
-    
+
     void clip(StringBlock block) {
         Rectangle bound = block.getTextBox();
         if (bound == null)
             return;
-            
+
         // Clip the right x position and texture coordinate
         // to the string block
         float x1 = Math.min(bound.x + bound.width, x0 + width);
         float newWidth = x1 - x0;
         if (isRightToLeft()) newWidth = x1; // only the available space to the left
-        if( newWidth == width )
+        if (newWidth == width)
             return;
-            
+
         float rescale = newWidth / width;
         u1 = u0 + (u1 - u0) * rescale;
-        width = newWidth;  
+        width = newWidth;
     }
-    
+
     float getX0() {
         return x0;
     }
@@ -218,11 +218,11 @@ class LetterQuad {
     float getY1() {
         return y0-height;
     }
-    
+
     float getWidth() {
         return width;
     }
-    
+
     float getHeight() {
         return height;
     }
@@ -234,7 +234,7 @@ class LetterQuad {
         ins.previous = this;
         n.previous = ins;
     }
-    
+
     void invalidate() {
         eol = isLineFeed();
         setBitmapChar(font.getCharSet().getCharacter(c, style));
@@ -260,20 +260,20 @@ class LetterQuad {
     void setPrevious(LetterQuad before) {
         this.previous = before;
     }
-    
+
     void setStyle(int style) {
         this.style = style;
         invalidate();
     }
-    
+
     void setColor(ColorRGBA color) {
         this.colorInt = color.asIntRGBA();
         invalidate();
     }
 
     void setAlpha(float alpha) {
-        int i = (int)(alpha * 255) & 0xFF;
-        colorInt = (colorInt & 0xffffff00) | i; 
+        int i = (int) (alpha * 255) & 0xFF;
+        colorInt = (colorInt & 0xffffff00) | i;
         invalidate();
     }
 
@@ -282,7 +282,7 @@ class LetterQuad {
         BitmapCharacter bm = charSet.getCharacter(c, style);
         setBitmapChar(bm);
     }
-    
+
     void setBitmapChar(BitmapCharacter bitmapChar) {
         x0 = Integer.MIN_VALUE;
         y0 = Integer.MIN_VALUE;
@@ -290,7 +290,7 @@ class LetterQuad {
         height = Integer.MIN_VALUE;
         alignX = 0;
         alignY = 0;
-        
+
         BitmapCharacterSet charSet = font.getCharSet();
         this.bitmapChar = bitmapChar;
         if (bitmapChar != null) {
@@ -425,22 +425,22 @@ class LetterQuad {
             xAdvance = bound.x-x0;
         }
     }
-    
+
     /**
      * add temporary linewrap indicator
      */
     void setEndOfLine() {
         this.eol = true;
     }
-    
+
     boolean isEndOfLine() {
         return eol;
     }
-    
+
     boolean isLineWrap() {
         return !isHead() && !isTail() && bitmapChar == null && c == Character.MIN_VALUE;
     }
-    
+
     private float computeLineY(StringBlock block) {
         if (isHead()) {
             return getBound(block).y;
@@ -451,16 +451,16 @@ class LetterQuad {
         }
     }
 
-    
+
     boolean isLineStart() {
         return x0 == 0 || (previous != null && previous.eol);
     }
-    
+
     boolean isBlank() {
         return c == ' ' || isTab();
     }
-    
-    public void storeToArrays(float[] pos, float[] tc, short[] idx, byte[] colors, int quadIdx){
+
+    public void storeToArrays(float[] pos, float[] tc, short[] idx, byte[] colors, int quadIdx) {
         float x = x0+alignX;
         float y = y0-alignY;
         float xpw = x+width;
@@ -495,8 +495,8 @@ class LetterQuad {
         idx[0] = i0; idx[1] = i1; idx[2] = i2;
         idx[3] = i0; idx[4] = i2; idx[5] = i3;
     }
-    
-    public void appendPositions(FloatBuffer fb){
+
+    public void appendPositions(FloatBuffer fb) {
         float sx = x0+alignX;
         float sy = y0-alignY;
         float ex = sx+width;
@@ -509,21 +509,21 @@ class LetterQuad {
         fb.put(ex).put(sy).put(0f);
     }
 
-    public void appendPositions(ShortBuffer sb){
+    public void appendPositions(ShortBuffer sb) {
         final float x1 = getX1();
         final float y1 = getY1();
         short x = (short) x0;
         short y = (short) y0;
         short xpw = (short) (x1);
         short ymh = (short) (y1);
-        
+
         sb.put(x).put(y).put((short)0);
         sb.put(x).put(ymh).put((short)0);
         sb.put(xpw).put(ymh).put((short)0);
         sb.put(xpw).put(y).put((short)0);
     }
 
-    public void appendTexCoords(FloatBuffer fb){
+    public void appendTexCoords(FloatBuffer fb) {
         // flip coords to be compatible with OGL
         float v0 = 1 - this.v0;
         float v1 = 1 - this.v1;
@@ -538,14 +538,14 @@ class LetterQuad {
         fb.put(u1).put(v0);
     }
 
-    public void appendColors(ByteBuffer bb){
+    public void appendColors(ByteBuffer bb) {
         bb.putInt(colorInt);
         bb.putInt(colorInt);
         bb.putInt(colorInt);
         bb.putInt(colorInt);
     }
 
-    public void appendIndices(ShortBuffer sb, int quadIndex){
+    public void appendIndices(ShortBuffer sb, int quadIndex) {
         // each quad has 4 indices
         short v0 = (short) (quadIndex * 4);
         short v1 = (short) (v0 + 1);
@@ -580,9 +580,9 @@ class LetterQuad {
     boolean isLineFeed() {
         return c == '\n';
     }
-    
+
     boolean isTab() {
         return c == '\t';
     }
-    
+
 }

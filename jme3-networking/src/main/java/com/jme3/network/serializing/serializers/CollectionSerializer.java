@@ -54,7 +54,7 @@ public class CollectionSerializer extends Serializer {
 
         Collection collection;
         try {
-            collection = (Collection)c.newInstance();
+            collection = (Collection) c.getDeclaredConstructor().newInstance();
         } catch (Exception e) {
             log.log(Level.FINE, "[Serializer][???] Could not determine collection type. Using ArrayList.");
             collection = new ArrayList(length);

@@ -84,6 +84,7 @@ public class FrameBuffer extends NativeObject {
     private RenderBuffer depthBuf = null;
     private int colorBufIndex = 0;
     private boolean srgb;
+    private Boolean mipsGenerationHint = null;
 
     /**
      * <code>RenderBuffer</code> represents either a texture or a
@@ -841,5 +842,18 @@ public class FrameBuffer extends NativeObject {
      */
     public boolean isSrgb() {
         return srgb;
+    }
+
+
+    /**
+     * Hints the renderer to generate mipmaps for this framebuffer if necessary
+     * @param v true to enable, null to use the default value for the renderer (default to null)
+     */
+    public void setMipMapsGenerationHint(Boolean v) {
+        mipsGenerationHint = v;
+    }
+
+    public Boolean getMipMapsGenerationHint() {
+        return mipsGenerationHint;
     }
 }

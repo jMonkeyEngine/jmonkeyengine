@@ -68,6 +68,11 @@ public class AwtPanelsContext implements JmeContext {
         }
 
         @Override
+        public void rescale(float x, float y) {
+            throw new IllegalStateException();
+        }
+
+        @Override
         public void update() {
             updateInThread();
         }

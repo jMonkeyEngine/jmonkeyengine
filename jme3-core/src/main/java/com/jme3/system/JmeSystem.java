@@ -39,6 +39,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.util.function.BiFunction;
@@ -232,9 +233,9 @@ public class JmeSystem {
         systemDelegate.initialize(settings);
     }
 
-    private static JmeSystemDelegate tryLoadDelegate(String className) throws InstantiationException, IllegalAccessException {
+    private static JmeSystemDelegate tryLoadDelegate(String className) throws InstantiationException, IllegalAccessException, NoSuchMethodException, IllegalArgumentException, InvocationTargetException {
         try {
-            return (JmeSystemDelegate) Class.forName(className).newInstance();
+            return (JmeSystemDelegate) Class.forName(className).getDeclaredConstructor().newInstance();
         } catch (ClassNotFoundException ex) {
             return null;
         }
@@ -257,7 +258,7 @@ public class JmeSystem {
                         }
                     }
                 }
-            } catch (InstantiationException | IllegalAccessException ex) {
+            } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | IllegalArgumentException | InvocationTargetException ex) {
                 Logger.getLogger(JmeSystem.class.getName()).log(Level.SEVERE, "Failed to create JmeSystem delegate:\n{0}", ex);
             }
         }

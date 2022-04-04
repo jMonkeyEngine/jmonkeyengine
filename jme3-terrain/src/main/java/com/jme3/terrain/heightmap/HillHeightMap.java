@@ -74,8 +74,8 @@ public class HillHeightMap extends AbstractHeightMap {
         if (size <= 0 || iterations <= 0 || minRadius <= 0 || maxRadius <= 0
                 || minRadius >= maxRadius) {
             throw new Exception(
-                    "Either size of the terrain is not greater that zero, "
-                    + "or number of iterations is not greater that zero, "
+                    "Either size of the terrain is not greater than zero, "
+                    + "or number of iterations is not greater than zero, "
                     + "or minimum or maximum radius are not greater than zero, "
                     + "or minimum radius is greater than maximum radius, "
                     + "or power of flattening is below one");

@@ -1,3 +1,4 @@
+#import "Common/ShaderLib/GLSLCompat.glsllib"
 in vec4 inPosition;
 
 in vec2 inTexCoord;   // m_inUVred
