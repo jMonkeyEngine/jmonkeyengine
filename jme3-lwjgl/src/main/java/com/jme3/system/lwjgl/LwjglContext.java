@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2022 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -159,7 +159,7 @@ public abstract class LwjglContext implements JmeContext {
 
     protected ContextAttribs createContextAttribs() {
         int vers[] = getGLVersion(settings.getRenderer());
-        if (settings.getBoolean("GraphicsDebug") || (vers != null && vers[0] != 2)) {
+        if (settings.isGraphicsDebug() || (vers != null && vers[0] != 2)) {
             ContextAttribs attr;
             if (vers != null && vers[0] != 2) {
                 attr = new ContextAttribs(vers[0], vers[1]);
@@ -167,7 +167,7 @@ public abstract class LwjglContext implements JmeContext {
             } else {
                 attr = new ContextAttribs();
             }
-            if (settings.getBoolean("GraphicsDebug")) {
+            if (settings.isGraphicsDebug()) {
                 attr = attr.withDebug(true);
             }
             return attr;
@@ -290,18 +290,18 @@ public abstract class LwjglContext implements JmeContext {
                     glfbo = new LwjglGLFboEXT();
                 }
 
-                if (settings.getBoolean("GraphicsDebug")) {
+                if (settings.isGraphicsDebug()) {
                     gl = (GL) GLDebug.createProxy(gl, gl, GL.class, GL2.class, GL3.class, GL4.class);
                     glext = (GLExt) GLDebug.createProxy(gl, glext, GLExt.class);
                     glfbo = (GLFbo) GLDebug.createProxy(gl, glfbo, GLFbo.class);
                 }
-                if (settings.getBoolean("GraphicsTiming")) {
+                if (settings.isGraphicsTiming()) {
                     GLTimingState timingState = new GLTimingState();
                     gl = (GL) GLTiming.createGLTiming(gl, timingState, GL.class, GL2.class, GL3.class, GL4.class);
                     glext = (GLExt) GLTiming.createGLTiming(glext, timingState, GLExt.class);
                     glfbo = (GLFbo) GLTiming.createGLTiming(glfbo, timingState, GLFbo.class);
                 }
-                if (settings.getBoolean("GraphicsTrace")) {
+                if (settings.isGraphicsTrace()) {
                     gl = (GL) GLTracer.createDesktopGlTracer(gl, GL.class, GL2.class, GL3.class, GL4.class);
                     glext = (GLExt) GLTracer.createDesktopGlTracer(glext, GLExt.class);
                     glfbo = (GLFbo) GLTracer.createDesktopGlTracer(glfbo, GLFbo.class);
@@ -312,7 +312,7 @@ public abstract class LwjglContext implements JmeContext {
         } else {
             throw new UnsupportedOperationException("Unsupported renderer: " + settings.getRenderer());
         }
-        if (GLContext.getCapabilities().GL_ARB_debug_output && settings.getBoolean("GraphicsDebug")) {
+        if (GLContext.getCapabilities().GL_ARB_debug_output && settings.isGraphicsDebug()) {
             ARBDebugOutput.glDebugMessageCallbackARB(new ARBDebugOutputCallback(new LwjglGLDebugOutputHandler()));
         }
         renderer.setMainFrameBufferSrgb(settings.isGammaCorrection());
