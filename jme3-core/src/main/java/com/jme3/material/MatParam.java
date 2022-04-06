@@ -39,6 +39,7 @@ import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 /**
  * Describes a material parameter. This is used for both defining a name and type
@@ -52,6 +53,7 @@ public class MatParam implements Savable, Cloneable {
     protected String name;
     protected String prefixedName;
     protected Object value;
+    protected boolean typeCheck = true;
 
     /**
      * Create a new material parameter. For internal use only.
@@ -71,6 +73,15 @@ public class MatParam implements Savable, Cloneable {
      * Serialization only. Do not use.
      */
     protected MatParam() {
+    }
+
+
+    public boolean isTypeCheckEnabled() {
+        return typeCheck;
+    }
+
+    public void setTypeCheckEnabled(boolean v) {
+        typeCheck = v;
     }
 
     /**
@@ -130,6 +141,21 @@ public class MatParam implements Savable, Cloneable {
      * @param value the value of this material parameter.
      */
     public void setValue(Object value) {
+        if (isTypeCheckEnabled()) {
+            if (value != null && this.type != null && this.type.getJavaType().length != 0) {
+                boolean valid = false;
+                for (Class<?> jtype : this.type.getJavaType()) {
+                    if (jtype.isAssignableFrom(value.getClass())) {
+                        valid = true;
+                        break;
+                    }
+                }
+                if (!valid) {
+                    throw new RuntimeException("Trying to assign a value of type " + value.getClass() + " to " + this.getName() + " of type " + type.name() + ". Valid types are "
+                            + Arrays.deepToString(type.getJavaType()));
+                }
+            }
+        }
         this.value = value;
     }
 
@@ -323,6 +349,8 @@ When arrays can be inserted in J3M files
         } else if (value.getClass().isArray() && value instanceof Savable[]) {
             oc.write((Savable[]) value, "value_savable_array", null);
         }
+
+        oc.write(typeCheck, "typeCheck", true);
     }
 
     @Override
@@ -380,6 +408,8 @@ When arrays can be inserted in J3M files
                 value = ic.readSavable("value_savable", null);
                 break;
         }
+
+        typeCheck = ic.readBoolean("typeCheck", true);
     }
 
     @Override
