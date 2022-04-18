@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2022 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -84,7 +84,7 @@ public class FrameBuffer extends NativeObject {
     private RenderBuffer depthBuf = null;
     private int colorBufIndex = 0;
     private boolean srgb;
-    private Boolean mipsGenerationHint = null;
+    private Boolean mipMapsGenerationHint = null;
 
     /**
      * <code>RenderBuffer</code> represents either a texture or a
@@ -850,10 +850,10 @@ public class FrameBuffer extends NativeObject {
      * @param v true to enable, null to use the default value for the renderer (default to null)
      */
     public void setMipMapsGenerationHint(Boolean v) {
-        mipsGenerationHint = v;
+        mipMapsGenerationHint = v;
     }
 
     public Boolean getMipMapsGenerationHint() {
-        return mipsGenerationHint;
+        return mipMapsGenerationHint;
     }
 }
