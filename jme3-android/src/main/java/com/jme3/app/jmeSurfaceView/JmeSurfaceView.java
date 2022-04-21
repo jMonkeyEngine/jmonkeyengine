@@ -511,7 +511,6 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener, Di
         appSettings = null;
         oglesContext = null;
         configurationInfo = null;
-        glSurfaceView = null;
         /*extra data instances*/
         crashLogWriter = null;
         crashLog = null;
