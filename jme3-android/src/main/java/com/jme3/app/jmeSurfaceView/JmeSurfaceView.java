@@ -360,7 +360,7 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener, Di
             case ON_DESTROY:
                 /*destroy only if the policy flag is enabled*/
                 if(destructionPolicy == DestructionPolicy.DESTROY_WHEN_FINISH) {
-                    destroy();
+                    legacyApplication.stop(!isGLThreadPaused());
                 }
                 break;
             case ON_PAUSE:
@@ -503,8 +503,7 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener, Di
         if (legacyApplication == null) {
             return;
         }
-        /*stop the application immediately if the GL thread is not visible otherwise wait for the context to be fully destroyed*/
-        legacyApplication.stop(!isGLThreadPaused());
+        legacyApplication.destroy();
         /*help the Dalvik Garbage collector to destruct the pointers, by making them nullptr*/
         /*context instances*/
         legacyApplication = null;
