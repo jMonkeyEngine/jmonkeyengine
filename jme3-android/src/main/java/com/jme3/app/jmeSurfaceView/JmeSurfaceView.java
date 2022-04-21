@@ -338,6 +338,14 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener, Di
         }
     }
 
+    private void removeGlSurfaceView() {
+        ((Activity)getContext()).runOnUiThread(() -> {
+            if (glSurfaceView != null) {
+                JmeSurfaceView.this.removeView(glSurfaceView);
+            }
+        });
+    }
+
     //******************Overridden methods by the implemented interfaces************************
 
     @Override
@@ -505,6 +513,7 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener, Di
         }
         /*stop the application immediately if the GL thread is not visible otherwise wait for the context to be fully destroyed*/
         legacyApplication.stop(!isGLThreadPaused());
+        removeGlSurfaceView();
         /*help the Dalvik Garbage collector to destruct the pointers, by making them nullptr*/
         /*context instances*/
         legacyApplication = null;
