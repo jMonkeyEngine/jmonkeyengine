@@ -511,13 +511,8 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener, Di
         if (legacyApplication == null) {
             return;
         }
-
-        /*stop the application immediately if the GL thread is not visible otherwise wait for the context to be fully destroyed*/
-        legacyApplication.stop(!isGLThreadPaused());
         removeGlSurfaceView();
-
         legacyApplication.destroy();
-
         /*help the Dalvik Garbage collector to destruct the pointers, by making them nullptr*/
         /*context instances*/
         legacyApplication = null;
