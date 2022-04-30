@@ -44,11 +44,13 @@ import android.os.Handler;
 import android.util.AttributeSet;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleEventObserver;
 import androidx.lifecycle.LifecycleOwner;
+
 import com.jme3.app.LegacyApplication;
 import com.jme3.asset.AssetLoader;
 import com.jme3.audio.AudioNode;
@@ -60,6 +62,7 @@ import com.jme3.system.AppSettings;
 import com.jme3.system.SystemListener;
 import com.jme3.system.android.JmeAndroidSystem;
 import com.jme3.system.android.OGLESContext;
+
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.logging.Level;
