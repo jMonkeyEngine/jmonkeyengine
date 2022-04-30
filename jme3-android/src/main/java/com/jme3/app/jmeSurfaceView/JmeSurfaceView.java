@@ -806,7 +806,7 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener, Di
     }
 
     /**
-     * enables mouse interfacing.
+     * Enables mouse interfacing.
      * Default is : true.
      *
      * @param emulateMouse true to enable the mouse interfacing.
