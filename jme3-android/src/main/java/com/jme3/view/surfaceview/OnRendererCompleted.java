@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2022 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,24 +29,25 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.app.jmeSurfaceView;
-
-import android.view.View;
+package com.jme3.view.surfaceview;
 
 import com.jme3.app.LegacyApplication;
+import com.jme3.system.AppSettings;
 
 /**
- * An interface used for dispatching an event when the layout holding the {@link android.opengl.GLSurfaceView} is drawn,
- * the event is dispatched on the user activity context thread.
+ * An interface used for invoking an event when the user delay finishes, on the first update of the game.
  *
  * @author pavl_g.
+ * @see JmeSurfaceView#setOnRendererCompleted(OnRendererCompleted)
  */
-public interface OnLayoutDrawn {
+public interface OnRendererCompleted {
     /**
-     * Dispatched when the layout is drawn on the screen.
+     * Invoked when the user delay finishes, on the first update of the game, the event is dispatched on the
+     * enclosing Activity context thread.
      *
-     * @param legacyApplication the application instance.
-     * @param layout            the current layout.
+     * @param application the current jme game instance.
+     * @param appSettings the current window settings of the running jme game.
+     * @see JmeSurfaceView#update()
      */
-    void onLayoutDrawn(LegacyApplication legacyApplication, View layout);
+    void onRenderCompletion(LegacyApplication application, AppSettings appSettings);
 }

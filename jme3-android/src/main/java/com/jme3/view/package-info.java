@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2022 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,19 +29,8 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.app.jmeSurfaceView;
-
 /**
- * An interface designed to listen for exceptions and fire an event when an exception is thrown.
- *
- * @author pavl_g.
- * @see JmeSurfaceView#setOnExceptionThrown(OnExceptionThrown)
+ * Provides classes that expose custom android-native ui that can handle screen layout and interactions with the user
+ * for a jMonkeyEngine game.
  */
-public interface OnExceptionThrown {
-    /**
-     * Listens for a thrown exception or a thrown error.
-     *
-     * @param e the exception or the error that is throwable.
-     */
-    void onExceptionThrown(Throwable e);
-}
+package com.jme3.view;
