@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2022 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,27 +29,16 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.app.jmeSurfaceView;
-
-import android.view.View;
-import com.jme3.app.LegacyApplication;
 
 /**
- * An interface used for invoking an event when the application is started explicitly from {@link JmeSurfaceView#startRenderer(int)}.
- * NB : This listener must be utilized before using {@link JmeSurfaceView#startRenderer(int)}, ie : it would be ignored if you try to use {@link JmeSurfaceView#setOnRendererStarted(OnRendererStarted)} after
- * {@link JmeSurfaceView#startRenderer(int)}.
- *
- * @author pavl_g.
- * @see JmeSurfaceView#setOnRendererStarted(OnRendererStarted)
+ * Holds {@link com.jme3.view.surfaceview.JmeSurfaceView} with some lifecycle interfaces.
+ * <p>
+ * This package provides the following :
+ * <p>
+ * {@link com.jme3.view.surfaceview.JmeSurfaceView} : An OpenGL android view wrapper for rendering, updating and destroying a jMonkeyEngine game.
+ * {@link com.jme3.view.surfaceview.OnRendererStarted} :  Provides a method to be invoked when a jMonkeyEngine application starts.
+ * {@link com.jme3.view.surfaceview.OnLayoutDrawn} : Provides a method to be invoked when the GLSurfaceView draws the content, before OnRendererCompleted.
+ * {@link com.jme3.view.surfaceview.OnRendererCompleted} : Provides a method to be invoked on the first update of the game.
+ * {@link com.jme3.view.surfaceview.OnExceptionThrown} : Provides a method to be invoked when an exception is thrown.
  */
-public interface OnRendererStarted {
-    /**
-     * Invoked when the game application is started by the {@link LegacyApplication#start()}, the event is dispatched on the
-     * holder Activity context thread.
-     *
-     * @param application the game instance.
-     * @param layout      the enclosing layout.
-     * @see JmeSurfaceView#startRenderer(int)
-     */
-    void onRenderStart(LegacyApplication application, View layout);
-}
+package com.jme3.view.surfaceview;
