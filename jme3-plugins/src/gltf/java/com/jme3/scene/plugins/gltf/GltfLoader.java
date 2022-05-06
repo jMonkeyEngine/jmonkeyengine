@@ -96,7 +96,7 @@ public class GltfLoader implements AssetLoader {
     Map<SkinData, List<Spatial>> skinnedSpatials = new HashMap<>();
     IntMap<SkinBuffers> skinBuffers = new IntMap<>();
 
-    static {
+    public GltfLoader() {
         defaultMaterialAdapters.put("pbrMetallicRoughness", new PBRMetalRoughMaterialAdapter());
     }
 
