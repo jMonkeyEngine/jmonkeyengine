@@ -89,15 +89,20 @@ public class GltfLoader implements AssetLoader {
     private Vector3fArrayPopulator vector3fArrayPopulator = new Vector3fArrayPopulator();
     private QuaternionArrayPopulator quaternionArrayPopulator = new QuaternionArrayPopulator();
     private Matrix4fArrayPopulator matrix4fArrayPopulator = new Matrix4fArrayPopulator();
-    private static Map<String, MaterialAdapter> defaultMaterialAdapters = new HashMap<>();
+    private Map<String, MaterialAdapter> defaultMaterialAdapters = new HashMap<>(BUILT_IN_MATERIAL_ADAPTERS);
     private CustomContentManager customContentManager = new CustomContentManager();
     private boolean useNormalsFlag = false;
 
     Map<SkinData, List<Spatial>> skinnedSpatials = new HashMap<>();
     IntMap<SkinBuffers> skinBuffers = new IntMap<>();
 
+    private static final Map<String, MaterialAdapter> BUILT_IN_MATERIAL_ADAPTERS = new HashMap<>();
     static {
-        defaultMaterialAdapters.put("pbrMetallicRoughness", new PBRMetalRoughMaterialAdapter());
+        BUILT_IN_MATERIAL_ADAPTERS.put("pbrMetallicRoughness", new PBRMetalRoughMaterialAdapter());
+    }
+
+    public void registerDefaultMaterialAdapter(String gltfMaterialKey, MaterialAdapter materialAdapter) {
+        defaultMaterialAdapters.put(gltfMaterialKey, materialAdapter);
     }
 
     @Override
