@@ -1425,6 +1425,51 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     }
 
     /**
+     * Interpolates between the specified quaternions and stores the result in the current instance.
+     * See {@link #rotateTowards(Quaternion, float)} for details
+     *
+     * @param initial the initial rotation
+     * @param target the desired rotation
+     * @param maxRadDelta the maximum angular step taken during interpolation
+     * @return the (modified) current instance (for chaining)
+     */
+    public Quaternion rotateTowards(Quaternion initial, Quaternion target, float maxRadDelta) {
+        this.set(initial);
+        rotateTowards(target, maxRadDelta);
+        return this;
+    }
+
+    /**
+     * Interpolates between the current instance and the target quaternion, then stores the result in the current instance.
+     * Use this method over slerp if you want constant rotation speed.
+     * Note that the interpolation will NOT overshoot.
+     * Negative values of maxRadDelta will move towards the opposite direction of target.
+     *
+     * @param target the desired rotation
+     * @param maxRadDelta the maximum angular step taken during interpolation
+     */
+    public void rotateTowards(Quaternion target, float maxRadDelta) {
+        float angle = angle(target);
+        if (angle == 0) {
+            return;
+        }
+
+        float t = Math.min(1f, maxRadDelta / angle);
+        this.slerp(target, t);
+    }
+
+    /**
+     * Computes the angle between two quaternions.
+     *
+     * @param other the other quaternion
+     * @return the angle in radians between two quaternions
+     */
+    public float angle(Quaternion other) {
+        float dot = dot(other);
+        return FastMath.acos(Math.min(Math.abs(dot), 1f)) * 2f;
+    }
+
+    /**
      * Returns a hash code. If two quaternions are logically equivalent, they
      * will return the same hash code. The current instance is unaffected.
      *
