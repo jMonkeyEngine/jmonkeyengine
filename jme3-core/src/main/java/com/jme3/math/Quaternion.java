@@ -1429,7 +1429,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      * See {@link #rotateTowardsLocal(Quaternion, float)} for details
      *
      * @param initial the initial rotation
-     * @param target the desired rotation
+     * @param target the desired rotation (may be modified)
      * @param maxRadDelta the maximum angular step taken during interpolation
      * @return the (modified) current instance (for chaining)
      */
@@ -1445,7 +1445,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      * Note that the interpolation will NOT overshoot.
      * Negative values of maxRadDelta will move towards the opposite direction of target.
      *
-     * @param target the desired rotation
+     * @param target the desired rotation (may be modified)
      * @param maxRadDelta the maximum angular step taken during interpolation
      */
     public void rotateTowardsLocal(Quaternion target, float maxRadDelta) {
