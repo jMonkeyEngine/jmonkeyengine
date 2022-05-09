@@ -1449,7 +1449,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      * @param maxRadDelta the maximum angular step taken during interpolation
      */
     public void rotateTowardsLocal(Quaternion target, float maxRadDelta) {
-        float angle = angle(target);
+        float angle = angleBetween(target);
         if (angle == 0) {
             return;
         }
@@ -1464,7 +1464,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      * @param other the other quaternion
      * @return the angle in radians between two quaternions
      */
-    public float angle(Quaternion other) {
+    public float angleBetween(Quaternion other) {
         float dot = dot(other);
         return FastMath.acos(Math.min(Math.abs(dot), 1f)) * 2f;
     }
