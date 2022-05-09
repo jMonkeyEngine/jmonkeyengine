@@ -1426,16 +1426,16 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
 
     /**
      * Interpolates between the specified quaternions and stores the result in the current instance.
-     * See {@link #rotateTowards(Quaternion, float)} for details
+     * See {@link #rotateTowardsLocal(Quaternion, float)} for details
      *
      * @param initial the initial rotation
      * @param target the desired rotation
      * @param maxRadDelta the maximum angular step taken during interpolation
      * @return the (modified) current instance (for chaining)
      */
-    public Quaternion rotateTowards(Quaternion initial, Quaternion target, float maxRadDelta) {
+    public Quaternion rotateTowardsLocal(Quaternion initial, Quaternion target, float maxRadDelta) {
         this.set(initial);
-        rotateTowards(target, maxRadDelta);
+        rotateTowardsLocal(target, maxRadDelta);
         return this;
     }
 
@@ -1448,7 +1448,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      * @param target the desired rotation
      * @param maxRadDelta the maximum angular step taken during interpolation
      */
-    public void rotateTowards(Quaternion target, float maxRadDelta) {
+    public void rotateTowardsLocal(Quaternion target, float maxRadDelta) {
         float angle = angle(target);
         if (angle == 0) {
             return;
