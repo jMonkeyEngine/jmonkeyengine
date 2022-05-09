@@ -1445,11 +1445,13 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      * Note that the interpolation will NOT overshoot.
      * Negative values of maxRadianDelta will move towards the opposite direction of target.
      *
+     * The two quaternions are expected to be normalized.
+     *
      * @param target the desired rotation (may be modified)
      * @param maxRadianDelta the maximum angular step taken during interpolation
      */
     public void rotateTowardsLocal(Quaternion target, float maxRadianDelta) {
-        float angle = angleBetween(target);
+        float angle = angleBetweenNormal(target);
         if (angle == 0) {
             return;
         }
@@ -1461,10 +1463,23 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     /**
      * Computes the angle between two quaternions.
      *
-     * @param other the other quaternion
+     * @param other the other quaternion (unaffected)
      * @return the angle between two quaternions, in radians
      */
     public float angleBetween(Quaternion other) {
+        Quaternion thisNormalized = new Quaternion(this).normalizeLocal();
+        Quaternion otherNormalized = new Quaternion(other).normalizeLocal();
+        return thisNormalized.angleBetweenNormal(otherNormalized);
+    }
+
+    /**
+     * Computes the angle between this quaternion and another one.
+     * Both quaternions are expected to be normalized.
+     *
+     * @param other the other pre-normalized quaternion (unaffected)
+     * @return the angle between two quaternions, in radians
+     */
+    public float angleBetweenNormal(Quaternion other) {
         float dot = dot(other);
         return FastMath.acos(Math.min(Math.abs(dot), 1f)) * 2f;
     }
