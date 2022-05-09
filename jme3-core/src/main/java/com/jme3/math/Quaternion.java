@@ -1430,12 +1430,12 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      *
      * @param initial the initial rotation
      * @param target the desired rotation (may be modified)
-     * @param maxRadDelta the maximum angular step taken during interpolation
+     * @param maxRadianDelta the maximum angular step taken during interpolation
      * @return the (modified) current instance (for chaining)
      */
-    public Quaternion rotateTowardsLocal(Quaternion initial, Quaternion target, float maxRadDelta) {
+    public Quaternion rotateTowardsLocal(Quaternion initial, Quaternion target, float maxRadianDelta) {
         this.set(initial);
-        rotateTowardsLocal(target, maxRadDelta);
+        rotateTowardsLocal(target, maxRadianDelta);
         return this;
     }
 
@@ -1443,18 +1443,18 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      * Interpolates between the current instance and the target quaternion, then stores the result in the current instance.
      * Use this method over slerp if you want constant rotation speed.
      * Note that the interpolation will NOT overshoot.
-     * Negative values of maxRadDelta will move towards the opposite direction of target.
+     * Negative values of maxRadianDelta will move towards the opposite direction of target.
      *
      * @param target the desired rotation (may be modified)
-     * @param maxRadDelta the maximum angular step taken during interpolation
+     * @param maxRadianDelta the maximum angular step taken during interpolation
      */
-    public void rotateTowardsLocal(Quaternion target, float maxRadDelta) {
+    public void rotateTowardsLocal(Quaternion target, float maxRadianDelta) {
         float angle = angleBetween(target);
         if (angle == 0) {
             return;
         }
 
-        float t = Math.min(1f, maxRadDelta / angle);
+        float t = Math.min(1f, maxRadianDelta / angle);
         this.slerp(target, t);
     }
 
@@ -1462,7 +1462,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      * Computes the angle between two quaternions.
      *
      * @param other the other quaternion
-     * @return the angle in radians between two quaternions
+     * @return the angle between two quaternions, in radians
      */
     public float angleBetween(Quaternion other) {
         float dot = dot(other);
