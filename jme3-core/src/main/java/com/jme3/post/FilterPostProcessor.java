@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2022 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -453,7 +453,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         //this has no effect at first init but is useful when resizing the canvas with multi views
         cam.setViewPort(left, right, bottom, top);
         //resizing the camera to fit the new viewport and saving original dimensions
-        cam.resize(w, h, false);
+        cam.resize(w, h, true);
         left = cam.getViewPortLeft();
         right = cam.getViewPortRight();
         top = cam.getViewPortTop();
