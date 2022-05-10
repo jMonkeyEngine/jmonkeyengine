@@ -187,6 +187,7 @@ public class TrackData {
 
     @Deprecated
     public void checkTimesConsistantcy() {
+        checkTimesConsistency();
     }
 
     private void populateTransform(Type type, int index, List<KeyFrame> keyFrames, KeyFrame currentKeyFrame, TransformIndices transformIndices) {
