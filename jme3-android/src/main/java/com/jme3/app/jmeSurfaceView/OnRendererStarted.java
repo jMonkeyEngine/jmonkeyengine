@@ -32,7 +32,6 @@
 package com.jme3.app.jmeSurfaceView;
 
 import android.view.View;
-
 import com.jme3.app.LegacyApplication;
 
 /**
