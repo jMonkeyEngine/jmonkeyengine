@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2022 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,23 +29,8 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.app.jmeSurfaceView;
-
-import android.view.View;
-import com.jme3.app.LegacyApplication;
-
 /**
- * An interface used for dispatching an event when the layout holding the {@link android.opengl.GLSurfaceView} is drawn,
- * the event is dispatched on the user activity context thread.
- *
- * @author pavl_g.
+ * Provides classes that expose custom android-native ui that can handle screen layout and interactions with the user
+ * for a jMonkeyEngine game.
  */
-public interface OnLayoutDrawn {
-    /**
-     * Dispatched when the layout is drawn on the screen.
-     *
-     * @param legacyApplication the application instance.
-     * @param layout            the current layout.
-     */
-    void onLayoutDrawn(LegacyApplication legacyApplication, View layout);
-}
+package com.jme3.view;
