@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2022 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -90,7 +90,14 @@ public class TrackData {
                         KeyFrame kf = keyFrames.get(j);
                         if (Float.floatToIntBits(kf.time) != Float.floatToIntBits(time)) {
                             if (time > kf.time) {
-                                continue;
+                                if (j < keyFrames.size() - 1) {
+                                    // Keep searching for the insertion point.
+                                    continue;
+                                }
+                                kf = new KeyFrame();
+                                kf.time = time;
+                                // Add kf after the last keyframe in the list.
+                                keyFrames.add(kf);
                             } else {
                                 kf = new KeyFrame();
                                 kf.time = time;
