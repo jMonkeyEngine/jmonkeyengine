@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2022 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,7 +29,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.app.jmeSurfaceView;
+package com.jme3.view.surfaceview;
 
 import android.app.Activity;
 import android.app.ActivityManager;
@@ -44,13 +44,11 @@ import android.os.Handler;
 import android.util.AttributeSet;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleEventObserver;
 import androidx.lifecycle.LifecycleOwner;
-
 import com.jme3.app.LegacyApplication;
 import com.jme3.asset.AssetLoader;
 import com.jme3.audio.AudioNode;
@@ -62,7 +60,6 @@ import com.jme3.system.AppSettings;
 import com.jme3.system.SystemListener;
 import com.jme3.system.android.JmeAndroidSystem;
 import com.jme3.system.android.OGLESContext;
-
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.logging.Level;
@@ -241,7 +238,7 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener, Di
         }
     }
 
-    private void removeGlSurfaceView() {
+    private void removeGLSurfaceView() {
         ((Activity) getContext()).runOnUiThread(() -> {
             if (glSurfaceView != null) {
                 JmeSurfaceView.this.removeView(glSurfaceView);
@@ -411,7 +408,7 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener, Di
         if (legacyApplication == null) {
             return;
         }
-        removeGlSurfaceView();
+        removeGLSurfaceView();
         legacyApplication.destroy();
         /*help the Dalvik Garbage collector to destruct the pointers, by making them nullptr*/
         /*context instances*/
