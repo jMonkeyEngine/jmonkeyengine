@@ -1,0 +1,59 @@
+// build file for native buffer allocator, created by pavl_g on 5/17/22.
+
+// directories for native source
+String bufferAllocatorAndroidPath = 'src/native/jme_bufferallocator'
+String bufferAllocatorHeaders = 'src/native/headers'
+
+//Pre-compiled libs directory
+def rootPath = rootProject.projectDir.absolutePath
+String bufferAllocatorPreCompiledLibsDir =
+        rootPath + File.separator + "build" + File.separator + 'native' + File.separator + 'android' + File.separator + 'allocator'
+
+// directories for build
+String bufferAllocatorBuildDir = "$buildDir" + File.separator + "bufferallocator"
+String bufferAllocatorJniDir = bufferAllocatorBuildDir + File.separator + "jni"
+String bufferAllocatorHeadersBuildDir = bufferAllocatorJniDir + File.separator + "headers"
+String bufferAllocatorBuildLibsDir = bufferAllocatorBuildDir + File.separator + "libs"
+
+// copy native src to build dir
+task copyJmeBufferAllocator(type: Copy) {
+    from file(bufferAllocatorAndroidPath)
+    into file(bufferAllocatorJniDir)
+}
+
+// copy native headers to build dir
+task copyJmeHeadersBufferAllocator(type: Copy, dependsOn: copyJmeBufferAllocator) {
+    from file(bufferAllocatorHeaders)
+    into file(bufferAllocatorHeadersBuildDir)
+}
+
+// compile and build copied natives in build dir
+task buildBufferAllocatorNativeLib(type: Exec, dependsOn: [copyJmeBufferAllocator, copyJmeHeadersBufferAllocator]) {
+    workingDir bufferAllocatorBuildDir
+    executable rootProject.ndkCommandPath
+    args "-j" + Runtime.runtime.availableProcessors()
+}
+
+task updatePreCompiledLibsBufferAllocator(type: Copy, dependsOn: buildBufferAllocatorNativeLib) {
+    from file(bufferAllocatorBuildLibsDir)
+    into file(bufferAllocatorPreCompiledLibsDir)
+}
+
+// Copy pre-compiled libs to build directory (when not building new libs)
+task copyPreCompiledLibsBufferAllocator(type: Copy) {
+    from file(bufferAllocatorPreCompiledLibsDir)
+    into file(bufferAllocatorBuildLibsDir)
+}
+
+// ndkExists is a boolean from the build.gradle in the root project
+// buildNativeProjects is a string set to "true"
+if (ndkExists && buildNativeProjects == "true") {
+    // build native libs and update stored pre-compiled libs to commit
+    compileJava.dependsOn { updatePreCompiledLibsBufferAllocator }
+} else {
+    // use pre-compiled native libs (not building new ones)
+    compileJava.dependsOn { copyPreCompiledLibsBufferAllocator }
+}
+
+// package the native object files inside the lib folder in a production jar
+jar.into("lib") { from bufferAllocatorBuildLibsDir }
