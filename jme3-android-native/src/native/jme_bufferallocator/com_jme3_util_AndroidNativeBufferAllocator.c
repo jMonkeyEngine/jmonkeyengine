@@ -39,7 +39,9 @@
  * Find more at :
  * - JNI Direct byte buffers : https://docs.oracle.com/javase/8/docs/technotes/guides/jni/spec/functions.html#NewDirectByteBuffer.
  * - JNI Get Direct byte buffer : https://docs.oracle.com/javase/8/docs/technotes/guides/jni/spec/functions.html#GetDirectBufferAddress.
- * - GNU Allocating memory : https://www.gnu.org/software/libc/manual/html_node/Basic-Allocation.html.
+ * - GNU Basic allocation : https://www.gnu.org/software/libc/manual/html_node/Basic-Allocation.html.
+ * - GNU Allocating Cleared Space : https://www.gnu.org/software/libc/manual/html_node/Allocating-Cleared-Space.html.
+ * - GNU No Memory error : https://www.gnu.org/software/libc/manual/html_node/Error-Codes.html#index-ENOMEM.
  * - GNU Freeing memory : https://www.gnu.org/software/libc/manual/html_node/Freeing-after-Malloc.html.
  * - Android logging : https://developer.android.com/ndk/reference/group/logging.
  * - Android logging example : https://github.com/android/ndk-samples/blob/7a8ff4c5529fce6ec4c5796efbe773f5d0e569cc/hello-libs/app/src/main/cpp/hello-libs.cpp#L25-L26.
@@ -47,14 +49,28 @@
 
 #include "headers/com_jme3_util_AndroidNativeBufferAllocator.h"
 #include <stdlib.h>
+#include <stdbool.h>
+#include <errno.h>
 
 #ifndef NDEBUG
 #include <android/log.h>
-#define LOGI(...) __android_log_print(ANDROID_LOG_INFO, \
-                                     "AndroidNativeBufferAllocator", ##__VA_ARGS__);
+#define LOG(LOG_ID, ...) __android_log_print(LOG_ID, \
+                    "AndroidNativeBufferAllocator", ##__VA_ARGS__);
 #else
-#define LOGI(...)
+#define LOG(...)
 #endif
+
+bool isDeviceOutOfMemory(void*);
+
+/**
+ * @brief Tests if the device is out of memory.
+ *
+ * @return true if the buffer to allocate is a NULL pointer and the errno is ENOMEM (Error-no-memory).
+ * @return false otherwise.
+ */
+bool isDeviceOutOfMemory(void* buffer) {
+    return buffer == NULL && errno == ENOMEM;
+}
 
 JNIEXPORT void JNICALL Java_com_jme3_util_AndroidNativeBufferAllocator_releaseDirectByteBuffer
 (JNIEnv * env, jobject object, jobject bufferObject)
@@ -63,23 +79,21 @@ JNIEXPORT void JNICALL Java_com_jme3_util_AndroidNativeBufferAllocator_releaseDi
     // deallocates the buffer pointer
     free(buffer);
     // log the destruction by mem address
-    LOGI("Buffer released (mem_address, size) -> (%p, %lu)", buffer, sizeof(buffer));
+    LOG(ANDROID_LOG_INFO, "Buffer released (mem_address, size) -> (%p, %lu)", buffer, sizeof(buffer));
     // avoid accessing this memory space by resetting the memory address
     buffer = NULL;
-    LOGI("Buffer mem_address formatted (mem_address, size) -> (%p, %lu)", buffer, sizeof(buffer));
+    LOG(ANDROID_LOG_INFO, "Buffer mem_address formatted (mem_address, size) -> (%p, %u)", buffer, sizeof(buffer));
 }
 
 JNIEXPORT jobject JNICALL Java_com_jme3_util_AndroidNativeBufferAllocator_createDirectByteBuffer
 (JNIEnv * env, jobject object, jlong size)
 {
-    void* buffer = malloc(size);
-    // create a new buffer object starting from memory address of buffer ptr
-    // and with a size
-    jobject bufferObject = (*env)->NewDirectByteBuffer(env, buffer, size);
-    if (bufferObject != NULL) {
-        LOGI("Buffer created (mem_address, size) -> (%p, %lli)", buffer, size);
+    void* buffer = calloc(1, size);
+    if (isDeviceOutOfMemory(buffer)) {
+       LOG(ANDROID_LOG_FATAL, "Device is out of memory");
+       exit(errno);
     } else {
-        LOGI("Buffer cannot be created (mem_address, size) -> (%p, %lli)", buffer, size);
+       LOG(ANDROID_LOG_INFO, "Buffer created successfully (mem_address, size) -> (%p %lli)", buffer, size);
     }
-    return bufferObject;
+    return (*env)->NewDirectByteBuffer(env, buffer, size);
 }
