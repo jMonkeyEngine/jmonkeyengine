@@ -42,6 +42,7 @@ import java.util.Map;
  * @author Jesus Oliver
  * @deprecated implemented {@link AndroidNativeBufferAllocator} instead.
  */
+@Deprecated
 public class AndroidBufferAllocator implements BufferAllocator {
 
     // We make use of the ReflectionAllocator to remove the inner buffer
