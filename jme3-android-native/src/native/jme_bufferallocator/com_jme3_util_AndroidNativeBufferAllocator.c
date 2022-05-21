@@ -90,7 +90,7 @@ JNIEXPORT jobject JNICALL Java_com_jme3_util_AndroidNativeBufferAllocator_create
 {
     void* buffer = calloc(1, size);
     if (isDeviceOutOfMemory(buffer)) {
-       LOG(ANDROID_LOG_FATAL, "Device is out of memory");
+       LOG(ANDROID_LOG_FATAL, "Device is out of memory exiting with %u ", errno);
        exit(errno);
     } else {
        LOG(ANDROID_LOG_INFO, "Buffer created successfully (mem_address, size) -> (%p %lli)", buffer, size);
