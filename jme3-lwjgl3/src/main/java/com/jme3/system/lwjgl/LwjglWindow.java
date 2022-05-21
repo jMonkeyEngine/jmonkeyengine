@@ -374,8 +374,8 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         // framebuffer size (resolution) may differ from window size (e.g. HiDPI)
 
         glfwGetWindowSize(window, width, height);
-        int windowWidth = width[0];
-        int windowHeight = height[0];
+        int windowWidth = width[0] < 1 ? 1 : width[0];
+        int windowHeight = height[0] < 1 ? 1 : height[0];
         if (settings.getWindowWidth() != windowWidth
                 || settings.getWindowHeight() != windowHeight) {
             settings.setWindowSize(windowWidth, windowHeight);
