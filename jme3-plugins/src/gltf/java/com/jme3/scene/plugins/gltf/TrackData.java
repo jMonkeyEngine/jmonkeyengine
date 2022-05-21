@@ -172,17 +172,29 @@ public class TrackData {
             }
         }
 
-        checkTimesConsistantcy();
+        checkTimesConsistency();
 
         length = times[times.length - 1];
     }
 
-    public void checkTimesConsistantcy() {
+    /**
+     * Verify that the
+     * {@link #times}, {@link #translations}, {@link #rotations}, and
+     * {@link #scales} vectors all have the same length, if present.
+     *
+     * @throws AssetLoadException if the lengths differ
+     */
+    public void checkTimesConsistency() {
         if ((translations != null && times.length != translations.length)
                 || (rotations != null && times.length != rotations.length)
                 || (scales != null && times.length != scales.length)) {
             throw new AssetLoadException("Inconsistent animation sampling ");
         }
+    }
+
+    @Deprecated
+    public void checkTimesConsistantcy() {
+        checkTimesConsistency();
     }
 
     private void populateTransform(Type type, int index, List<KeyFrame> keyFrames, KeyFrame currentKeyFrame, TransformIndices transformIndices) {

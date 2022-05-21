@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2022 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -89,14 +89,14 @@ public class GltfLoader implements AssetLoader {
     private Vector3fArrayPopulator vector3fArrayPopulator = new Vector3fArrayPopulator();
     private QuaternionArrayPopulator quaternionArrayPopulator = new QuaternionArrayPopulator();
     private Matrix4fArrayPopulator matrix4fArrayPopulator = new Matrix4fArrayPopulator();
-    private static Map<String, MaterialAdapter> defaultMaterialAdapters = new HashMap<>();
+    private Map<String, MaterialAdapter> defaultMaterialAdapters = new HashMap<>();
     private CustomContentManager customContentManager = new CustomContentManager();
     private boolean useNormalsFlag = false;
 
     Map<SkinData, List<Spatial>> skinnedSpatials = new HashMap<>();
     IntMap<SkinBuffers> skinBuffers = new IntMap<>();
 
-    static {
+    public GltfLoader() {
         defaultMaterialAdapters.put("pbrMetallicRoughness", new PBRMetalRoughMaterialAdapter());
     }
 
