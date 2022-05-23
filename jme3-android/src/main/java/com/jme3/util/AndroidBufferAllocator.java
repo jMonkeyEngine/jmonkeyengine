@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2022 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,7 +40,9 @@ import java.util.Map;
 
 /**
  * @author Jesus Oliver
+ * @deprecated implemented {@link AndroidNativeBufferAllocator} instead.
  */
+@Deprecated
 public class AndroidBufferAllocator implements BufferAllocator {
 
     // We make use of the ReflectionAllocator to remove the inner buffer
