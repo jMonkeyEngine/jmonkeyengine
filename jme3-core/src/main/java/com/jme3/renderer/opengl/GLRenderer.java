@@ -1462,7 +1462,7 @@ public final class GLRenderer implements Renderer {
 
             source.setId(id);
             if (debug && caps.contains(Caps.GLDebug)) {
-                glext.glObjectLabel(GLExt.GL_SHADER, id, source.getName());
+                if(source.getName() != null) glext.glObjectLabel(GLExt.GL_SHADER, id, source.getName());
             }
         } else {
             throw new RendererException("Cannot recompile shader source");
@@ -2137,7 +2137,7 @@ public final class GLRenderer implements Renderer {
 
             context.boundFB = fb;
             if (debug && caps.contains(Caps.GLDebug)) {
-                glext.glObjectLabel(GL3.GL_FRAMEBUFFER, fb.getId(), fb.getName());
+                 if (fb.getName() != null) glext.glObjectLabel(GL3.GL_FRAMEBUFFER, fb.getId(), fb.getName());
             }
         }
     }
@@ -2663,7 +2663,7 @@ public final class GLRenderer implements Renderer {
 
         setupTextureParams(unit, tex);
         if (debug && caps.contains(Caps.GLDebug)) {
-            glext.glObjectLabel(GL.GL_TEXTURE, tex.getImage().getId(), tex.getName());
+            if (tex.getName() != null) glext.glObjectLabel(GL.GL_TEXTURE, tex.getImage().getId(), tex.getName());
         }
     }
 
@@ -3035,7 +3035,7 @@ public final class GLRenderer implements Renderer {
             }
         }
         if (debug && caps.contains(Caps.GLDebug)) {
-            glext.glObjectLabel(GLExt.GL_BUFFER, vb.getId(), vb.getName());
+            if (vb.getName() != null) glext.glObjectLabel(GLExt.GL_BUFFER, vb.getId(), vb.getName());
         }
     }
 

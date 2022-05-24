@@ -115,6 +115,7 @@ public class LwjglGLExt extends LwjglRender implements GLExt {
 
     @Override
     public void glObjectLabel(int identifier, int id, String label) {
-        if (label != null) KHRDebug.glObjectLabel(identifier, id, label);
+        assert label != null;
+        KHRDebug.glObjectLabel(identifier, id, label);
     }
 }
