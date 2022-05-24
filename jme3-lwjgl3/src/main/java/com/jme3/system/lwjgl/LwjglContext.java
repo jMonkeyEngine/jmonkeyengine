@@ -237,6 +237,7 @@ public abstract class LwjglContext implements JmeContext {
             }
 
             this.renderer = new GLRenderer(gl, glext, glfbo);
+            if (this.settings.isGraphicsDebug()) ((GLRenderer)this.renderer).setDebugEnabled(true);
         }
         this.renderer.initialize();
 

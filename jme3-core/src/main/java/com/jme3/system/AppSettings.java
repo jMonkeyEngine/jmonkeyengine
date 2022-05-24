@@ -1299,7 +1299,9 @@ public final class AppSettings extends HashMap<String, Object> {
      * Determine if the renderer will be run in Graphics Debug mode, which means every openGL call is checked and
      * if it returns an error code, throw a {@link com.jme3.renderer.RendererException}.<br>
      * Without this, many openGL calls might fail without notice, so turning it on is recommended for development.
-     *
+     * Graphics Debug mode will also label native objects and group calls on supported renderers. Compatible
+     * graphics debuggers will be able to use this data to show a better outlook of your application
+     * 
      * @return whether the context will be run in Graphics Debug Mode or not
      * @see #setGraphicsDebug(boolean)
      */
@@ -1311,6 +1313,8 @@ public final class AppSettings extends HashMap<String, Object> {
      * Set whether the renderer will be run in Graphics Debug mode, which means every openGL call is checked and
      * if it returns an error code, throw a {@link com.jme3.renderer.RendererException}.<br>
      * Without this, many openGL calls might fail without notice, so turning it on is recommended for development.
+     * Graphics Debug mode will also label native objects and group calls on supported renderers. Compatible
+     * graphics debuggers will be able to use this data to show a better outlook of your application
      *
      * @param debug whether the context will be run in Graphics Debug Mode or not
      * @see #isGraphicsDebug()

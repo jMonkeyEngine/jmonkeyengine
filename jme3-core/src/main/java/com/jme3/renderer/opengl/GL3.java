@@ -127,6 +127,11 @@ public interface GL3 extends GL2 {
      */
     public static final int GL_TRANSFORM_FEEDBACK_BUFFER = 0x8C8E;
 
+
+    public static final int GL_FRAMEBUFFER = 0x8D40;
+    public static final int GL_READ_FRAMEBUFFER = 0x8CA8;
+    public static final int GL_DRAW_FRAMEBUFFER = 0x8CA9;
+
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glBindFragDataLocation">Reference Page</a></p>
      * <p>

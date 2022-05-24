@@ -438,7 +438,12 @@ public enum Caps {
     /**
      * Supports unpack row length (stride).
      */
-    UnpackRowLength
+    UnpackRowLength,
+
+    /**
+     * Supports debugging capabilities
+     */
+    GLDebug
     ;
 
     /**

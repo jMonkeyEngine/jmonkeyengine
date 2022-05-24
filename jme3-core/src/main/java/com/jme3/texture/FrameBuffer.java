@@ -84,6 +84,7 @@ public class FrameBuffer extends NativeObject {
     private RenderBuffer depthBuf = null;
     private int colorBufIndex = 0;
     private boolean srgb;
+    private String name;
     private Boolean mipMapsGenerationHint = null;
 
     /**
@@ -844,6 +845,13 @@ public class FrameBuffer extends NativeObject {
         return srgb;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 
     /**
      * Hints the renderer to generate mipmaps for this framebuffer if necessary
