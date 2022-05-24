@@ -31,7 +31,6 @@
  */
 package com.jme3.shader;
 import com.jme3.math.*;
-import com.jme3.shader.bufferobject.BufferObject;
 import com.jme3.texture.*;
 public enum VarType {
 
