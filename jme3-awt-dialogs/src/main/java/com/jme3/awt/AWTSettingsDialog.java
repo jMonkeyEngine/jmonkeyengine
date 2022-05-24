@@ -88,8 +88,13 @@ public final class AWTSettingsDialog extends JFrame {
     private URL imageFile = null;
     // Array of supported display modes
     private DisplayMode[] modes = null;
-    private static final DisplayMode[] windowDefaults = new DisplayMode[] { new DisplayMode(1024, 768, 24, 60), new DisplayMode(1280, 720, 24, 60),
-            new DisplayMode(1280, 1024, 24, 60), new DisplayMode(1440, 900, 24, 60), new DisplayMode(1680, 1050, 24, 60), };
+    private static final DisplayMode[] windowDefaults = new DisplayMode[] {
+        new DisplayMode(1024, 768, 24, 60),
+        new DisplayMode(1280, 720, 24, 60),
+        new DisplayMode(1280, 1024, 24, 60),
+        new DisplayMode(1440, 900, 24, 60),
+        new DisplayMode(1680, 1050, 24, 60),
+    };
     private DisplayMode[] windowModes = null;
 
     // UI components
