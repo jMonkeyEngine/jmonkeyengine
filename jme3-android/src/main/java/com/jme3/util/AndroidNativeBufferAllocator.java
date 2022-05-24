@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2022 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,25 +29,46 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.app.jmeSurfaceView;
+package com.jme3.util;
 
-import com.jme3.app.LegacyApplication;
-import com.jme3.system.AppSettings;
+import java.nio.Buffer;
+import java.nio.ByteBuffer;
 
 /**
- * An interface used for invoking an event when the user delay finishes, on the first update of the game.
+ * Allocates and destroys direct byte buffers using native code.
  *
  * @author pavl_g.
- * @see JmeSurfaceView#setOnRendererCompleted(OnRendererCompleted)
  */
-public interface OnRendererCompleted {
+public final class AndroidNativeBufferAllocator implements BufferAllocator {
+
+    static {
+        System.loadLibrary("bufferallocatorjme");
+    }
+
+    @Override
+    public void destroyDirectBuffer(Buffer toBeDestroyed) {
+        releaseDirectByteBuffer(toBeDestroyed);
+    }
+
+    @Override
+    public ByteBuffer allocate(int size) {
+        return createDirectByteBuffer(size);
+    }
+
     /**
-     * Invoked when the user delay finishes, on the first update of the game, the event is dispatched on the
-     * enclosing Activity context thread.
+     * Releases the memory of a direct buffer using a buffer object reference.
      *
-     * @param application the current jme game instance.
-     * @param appSettings the current window settings of the running jme game.
-     * @see JmeSurfaceView#update()
+     * @param buffer the buffer reference to release its memory.
+     * @see AndroidNativeBufferAllocator#destroyDirectBuffer(Buffer)
      */
-    void onRenderCompletion(LegacyApplication application, AppSettings appSettings);
+    private native void releaseDirectByteBuffer(Buffer buffer);
+
+    /**
+     * Creates a new direct byte buffer explicitly with a specific size.
+     *
+     * @param size the byte buffer size used for allocating the buffer.
+     * @return a new direct byte buffer object.
+     * @see AndroidNativeBufferAllocator#allocate(int)
+     */
+    private native ByteBuffer createDirectByteBuffer(long size);
 }

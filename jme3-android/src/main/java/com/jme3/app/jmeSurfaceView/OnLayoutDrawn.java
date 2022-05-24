@@ -43,8 +43,9 @@ import com.jme3.app.LegacyApplication;
 public interface OnLayoutDrawn {
     /**
      * Dispatched when the layout is drawn on the screen.
+     *
      * @param legacyApplication the application instance.
-     * @param layout the current layout.
+     * @param layout            the current layout.
      */
     void onLayoutDrawn(LegacyApplication legacyApplication, View layout);
 }

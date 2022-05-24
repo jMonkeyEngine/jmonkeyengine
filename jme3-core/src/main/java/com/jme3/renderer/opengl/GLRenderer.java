@@ -100,6 +100,7 @@ public final class GLRenderer implements Renderer {
     private int defaultAnisotropicFilter = 1;
     private boolean linearizeSrgbImages;
     private HashSet<String> extensions;
+    private boolean generateMipmapsForFramebuffers = true;
 
     private final GL gl;
     private final GL2 gl2;
@@ -120,6 +121,14 @@ public final class GLRenderer implements Renderer {
         this.glfbo = glfbo;
         this.glext = glext;
         this.texUtil = new TextureUtil(gl, gl2, glext);
+    }
+    
+    /**
+     * Enable/Disable default automatic generation of mipmaps for framebuffers
+     * @param v  Default is true
+     */
+    public void setGenerateMipmapsForFrameBuffer(boolean v) {
+        generateMipmapsForFramebuffers = v;
     }
 
     public void setDebugEnabled(boolean v) {
@@ -150,7 +159,7 @@ public final class GLRenderer implements Renderer {
         return statistics;
     }
 
-    @Override
+    @Override 
     public EnumSet<Caps> getCaps() {
         return caps;
     }
@@ -2029,28 +2038,13 @@ public final class GLRenderer implements Renderer {
         final int INITIAL = -1;
         final int MRT_OFF = 100;
 
-        if (fb == null) {
-            // Set Read/Draw buffers to initial value.
-            if (context.boundDrawBuf != INITIAL) {
-                gl2.glDrawBuffer(context.initialDrawBuf);
-                context.boundDrawBuf = INITIAL;
-            }
-            if (context.boundReadBuf != INITIAL) {
-                gl2.glReadBuffer(context.initialReadBuf);
-                context.boundReadBuf = INITIAL;
-            }
-        } else {
+        if (fb != null) {
+          
             if (fb.getNumColorBuffers() == 0) {
                 // make sure to select NONE as draw buf
-                // no color buffer attached.
-                if (context.boundDrawBuf != NONE) {
-                    gl2.glDrawBuffer(GL.GL_NONE);
-                    context.boundDrawBuf = NONE;
-                }
-                if (context.boundReadBuf != NONE) {
-                    gl2.glReadBuffer(GL.GL_NONE);
-                    context.boundReadBuf = NONE;
-                }
+                // no color buffer attached.                
+                gl2.glDrawBuffer(GL.GL_NONE);             
+                gl2.glReadBuffer(GL.GL_NONE);                 
             } else {
                 if (fb.getNumColorBuffers() > limits.get(Limits.FrameBufferAttachments)) {
                     throw new RendererException("Framebuffer has more color "
@@ -2075,15 +2069,12 @@ public final class GLRenderer implements Renderer {
 
                     intBuf16.flip();
                     glext.glDrawBuffers(intBuf16);
-                    context.boundDrawBuf = MRT_OFF + fb.getNumColorBuffers();
-
                 } else {
                     RenderBuffer rb = fb.getColorBuffer(fb.getTargetIndex());
                     // select this draw buffer
-                    if (context.boundDrawBuf != rb.getSlot()) {
-                        gl2.glDrawBuffer(GLFbo.GL_COLOR_ATTACHMENT0_EXT + rb.getSlot());
-                        context.boundDrawBuf = rb.getSlot();
-                    }
+                    gl2.glDrawBuffer(GLFbo.GL_COLOR_ATTACHMENT0_EXT + rb.getSlot());
+                    // select this read buffer
+                    gl2.glReadBuffer(GLFbo.GL_COLOR_ATTACHMENT0_EXT + rb.getSlot());
                 }
             }
         }
@@ -2108,7 +2099,7 @@ public final class GLRenderer implements Renderer {
         }
 
         // generate mipmaps for last FB if needed
-        if (context.boundFB != null) {
+        if (context.boundFB != null && (context.boundFB.getMipMapsGenerationHint()!=null?context.boundFB.getMipMapsGenerationHint():generateMipmapsForFramebuffers)) {
             for (int i = 0; i < context.boundFB.getNumColorBuffers(); i++) {
                 RenderBuffer rb = context.boundFB.getColorBuffer(i);
                 Texture tex = rb.getTexture();
@@ -2131,13 +2122,11 @@ public final class GLRenderer implements Renderer {
 
         if (fb == null) {
             bindFrameBuffer(null);
-            setReadDrawBuffers(null);
         } else {
             if (fb.isUpdateNeeded()) {
                 updateFrameBuffer(fb);
             } else {
                 bindFrameBuffer(fb);
-                setReadDrawBuffers(fb);
             }
 
             // update viewport to reflect framebuffer's resolution
@@ -2167,12 +2156,7 @@ public final class GLRenderer implements Renderer {
             }
 
             setFrameBuffer(fb);
-            if (gl2 != null) {
-                if (context.boundReadBuf != rb.getSlot()) {
-                    gl2.glReadBuffer(GLFbo.GL_COLOR_ATTACHMENT0_EXT + rb.getSlot());
-                    context.boundReadBuf = rb.getSlot();
-                }
-            }
+         
 
         } else {
             setFrameBuffer(null);

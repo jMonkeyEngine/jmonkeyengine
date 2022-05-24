@@ -54,8 +54,8 @@ import com.jme3.input.dummy.DummyMouseInput;
 import com.jme3.renderer.android.AndroidGL;
 import com.jme3.renderer.opengl.*;
 import com.jme3.system.*;
-import com.jme3.util.AndroidBufferAllocator;
 import com.jme3.util.BufferAllocatorFactory;
+import com.jme3.util.AndroidNativeBufferAllocator;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -82,7 +82,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
         final String implementation = BufferAllocatorFactory.PROPERTY_BUFFER_ALLOCATOR_IMPLEMENTATION;
 
         if (System.getProperty(implementation) == null) {
-            System.setProperty(implementation, AndroidBufferAllocator.class.getName());
+            System.setProperty(implementation, AndroidNativeBufferAllocator.class.getName());
         }
     }
 

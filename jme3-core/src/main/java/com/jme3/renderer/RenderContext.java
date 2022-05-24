@@ -216,28 +216,7 @@ public class RenderContext {
      */
     public int boundRB;
 
-    /**
-     * Currently bound draw buffer.
-     * -2 = GL_NONE
-     * -1 = GL_BACK
-     *  0 = GL_COLOR_ATTACHMENT0
-     *  n = GL_COLOR_ATTACHMENTn
-     *  where n is an integer greater than 1
-     *
-     * @see Renderer#setFrameBuffer(com.jme3.texture.FrameBuffer)
-     * @see FrameBuffer#setTargetIndex(int)
-     */
-    public int boundDrawBuf;
-
-    /**
-     * Currently bound read buffer.
-     *
-     * @see RenderContext#boundDrawBuf
-     * @see Renderer#setFrameBuffer(com.jme3.texture.FrameBuffer)
-     * @see FrameBuffer#setTargetIndex(int)
-     */
-    public int boundReadBuf;
-
+  
     /**
      * Currently bound element array vertex buffer.
      *
@@ -396,8 +375,7 @@ public class RenderContext {
         boundFBO = 0;
         boundFB = null;
         boundRB = 0;
-        boundDrawBuf = -1;
-        boundReadBuf = -1;
+
         boundElementArrayVBO = 0;
         boundVertexArray = 0;
         boundArrayVBO = 0;

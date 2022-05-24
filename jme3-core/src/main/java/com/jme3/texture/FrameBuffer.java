@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2022 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -85,6 +85,7 @@ public class FrameBuffer extends NativeObject {
     private int colorBufIndex = 0;
     private boolean srgb;
     private String name;
+    private Boolean mipMapsGenerationHint = null;
 
     /**
      * <code>RenderBuffer</code> represents either a texture or a
@@ -850,5 +851,17 @@ public class FrameBuffer extends NativeObject {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    /**
+     * Hints the renderer to generate mipmaps for this framebuffer if necessary
+     * @param v true to enable, null to use the default value for the renderer (default to null)
+     */
+    public void setMipMapsGenerationHint(Boolean v) {
+        mipMapsGenerationHint = v;
+    }
+
+    public Boolean getMipMapsGenerationHint() {
+        return mipMapsGenerationHint;
     }
 }

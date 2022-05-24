@@ -2,7 +2,6 @@ sourceSets {
     main {
         java {
             srcDir 'src/main/java'
-            srcDir '../jme3-bullet/src/common/java'
         }
     }
     test {
