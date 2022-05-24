@@ -90,6 +90,11 @@ public enum VarType {
         }
     }
     
+    /**
+     * Check if the passed object is of a type mapped to this VarType
+     * @param o Object to check
+     * @return true if the object type is mapped to this VarType
+     */
     public boolean isOfType(Object o){
         for(Class<?> c : javaTypes){
             if(c.isAssignableFrom(o.getClass()))return true;
@@ -97,6 +102,11 @@ public enum VarType {
         return false;
     }
     
+
+    /**
+     * Get the java types mapped to this VarType
+     * @return an array of classes mapped to this VarType
+     */
     public Class<?>[] getJavaType(){
         return javaTypes;
     }

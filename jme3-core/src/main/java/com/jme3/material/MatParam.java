@@ -80,6 +80,13 @@ public class MatParam implements Savable, Cloneable {
         return typeCheck;
     }
 
+
+    /**
+     * Enable type check for this param.
+     * When type check is enabled a RuntimeException is thrown if 
+     * an object of the wrong type is passed to setValue.
+     * @param v (default = true)
+     */
     public void setTypeCheckEnabled(boolean v) {
         typeCheck = v;
     }
