@@ -31,7 +31,6 @@
  */
 package com.jme3.system;
 
-import com.jme3.asset.AssetNotFoundException;
 import com.jme3.audio.AudioRenderer;
 import com.jme3.audio.openal.AL;
 import com.jme3.audio.openal.ALAudioRenderer;
@@ -40,14 +39,16 @@ import com.jme3.audio.openal.EFX;
 import com.jme3.system.JmeContext.Type;
 import com.jme3.texture.Image;
 import com.jme3.texture.image.ColorSpace;
-import com.jme3.util.Screenshots;
-import com.jme3.util.functional.VoidFunction;
 import jme3tools.converters.ImageToAwt;
 
-import java.awt.EventQueue;
-import java.awt.Graphics2D;
-import java.awt.GraphicsEnvironment;
-import java.awt.RenderingHints;
+import javax.imageio.IIOImage;
+import javax.imageio.ImageIO;
+import javax.imageio.ImageWriteParam;
+import javax.imageio.ImageWriter;
+import javax.imageio.plugins.jpeg.JPEGImageWriteParam;
+import javax.imageio.stream.ImageOutputStream;
+import javax.imageio.stream.MemoryCacheImageOutputStream;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
@@ -56,17 +57,7 @@ import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.nio.ByteBuffer;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
-import javax.imageio.IIOImage;
-import javax.imageio.ImageIO;
-import javax.imageio.ImageWriteParam;
-import javax.imageio.ImageWriter;
-import javax.imageio.plugins.jpeg.JPEGImageWriteParam;
-import javax.imageio.stream.ImageOutputStream;
-import javax.imageio.stream.MemoryCacheImageOutputStream;
-import javax.swing.SwingUtilities;
 
 /**
  *
@@ -74,9 +65,7 @@ import javax.swing.SwingUtilities;
  */
 public class JmeDesktopSystem extends JmeSystemDelegate {
 
-    public JmeDesktopSystem(){
-  
-     
+    public JmeDesktopSystem() {
     }
 
     @Override
@@ -135,9 +124,6 @@ public class JmeDesktopSystem extends JmeSystemDelegate {
             writer.dispose();
         }
     }
-
- 
-
 
     @SuppressWarnings("unchecked")
     private JmeContext newContextLwjgl(AppSettings settings, JmeContext.Type type) {

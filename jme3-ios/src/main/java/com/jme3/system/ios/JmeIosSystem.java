@@ -59,8 +59,7 @@ public class JmeIosSystem extends JmeSystemDelegate {
         setErrorMessageHandler((message) -> {
             showDialog(message);
             System.err.println("JME APPLICATION ERROR:" + message);
-        });
-       
+        });       
     }
 
     @Override

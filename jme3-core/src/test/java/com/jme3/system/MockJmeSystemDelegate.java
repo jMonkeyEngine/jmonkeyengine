@@ -43,8 +43,6 @@ public class MockJmeSystemDelegate extends JmeSystemDelegate {
     public void writeImageFile(OutputStream outStream, String format, ByteBuffer imageData, int width, int height) throws IOException {
     }
 
-   
- 
     @Override
     public URL getPlatformAssetConfigURL() {
         return Thread.currentThread().getContextClassLoader().getResource("com/jme3/asset/General.cfg");

@@ -667,7 +667,7 @@ public class LegacyApplication implements Application, SystemListener {
         // Display error message on screen if not in headless mode
         if (context.getType() != JmeContext.Type.Headless) {
             if (t != null) {
-                JmeSystem.handleErrorMessage(errMsg + "\n" + t.getClass().getSimpleName() +
+                JmeSystem.handleErrorMessage(errMsg + "\n" + t.getClass().getSimpleName()
                         + (t.getMessage() != null ? ": " + t.getMessage() : ""));
             } else {
                 JmeSystem.handleErrorMessage(errMsg);

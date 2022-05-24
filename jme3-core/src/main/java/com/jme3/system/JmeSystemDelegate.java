@@ -62,29 +62,29 @@ public abstract class JmeSystemDelegate {
     protected Map<JmeSystem.StorageFolderType, File> storageFolders = new EnumMap<>(JmeSystem.StorageFolderType.class);
     protected SoftTextDialogInput softTextDialogInput = null;
 
-    protected Consumer<String> errorMessageHandler = (message)->{
-        JmeDialogsFactory dialogFactory=null;
+    protected Consumer<String> errorMessageHandler = (message) -> {
+        JmeDialogsFactory dialogFactory = null;
         try {
-             dialogFactory=(JmeDialogsFactory)Class.forName("com.jme3.system.JmeDialogsFactoryImpl").getConstructor().newInstance();
+             dialogFactory = (JmeDialogsFactory)Class.forName("com.jme3.system.JmeDialogsFactoryImpl").getConstructor().newInstance();
         } catch(ClassNotFoundException e){
             logger.warning("JmeDialogsFactory implementation not found.");    
         } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
             e.printStackTrace();
         }
-        if(dialogFactory!=null) dialogFactory.showErrorDialog(message);
+        if(dialogFactory != null) dialogFactory.showErrorDialog(message);
         else System.err.println(message);
     };
 
-    protected BiFunction<AppSettings,Boolean,Boolean> settingsHandler= (settings,loadFromRegistry)->{
-        JmeDialogsFactory dialogFactory=null;
+    protected BiFunction<AppSettings,Boolean,Boolean> settingsHandler = (settings,loadFromRegistry) -> {
+        JmeDialogsFactory dialogFactory = null;
         try {
-             dialogFactory=(JmeDialogsFactory)Class.forName("com.jme3.system.JmeDialogsFactoryImpl").getConstructor().newInstance();
+            dialogFactory = (JmeDialogsFactory)Class.forName("com.jme3.system.JmeDialogsFactoryImpl").getConstructor().newInstance();
         } catch(ClassNotFoundException e){
             logger.warning("JmeDialogsFactory implementation not found.");    
         } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
             e.printStackTrace();
         }
-        if(dialogFactory!=null) return dialogFactory.showSettingsDialog(settings, loadFromRegistry);
+        if(dialogFactory != null) return dialogFactory.showSettingsDialog(settings, loadFromRegistry);
         return true;
     };
 
@@ -163,20 +163,39 @@ public abstract class JmeSystemDelegate {
     
     public abstract void writeImageFile(OutputStream outStream, String format, ByteBuffer imageData, int width, int height) throws IOException;
 
+    /**
+     * Set function to handle errors. 
+     * The default implementation show a dialog if available.
+     * @param handler Consumer to which the error is passed as String
+     */
     public void setErrorMessageHandler(Consumer<String> handler){
-        errorMessageHandler=handler;
+        errorMessageHandler = handler;
     }
 
+    /**
+     * Internal use only: submit an error to the error message handler
+     */
     public void handleErrorMessage(String message){
-        if(errorMessageHandler!=null)errorMessageHandler.accept(message);
+        if(errorMessageHandler != null) errorMessageHandler.accept(message);
     }
 
+    /**
+     * Set a function to handler app settings. 
+     * The default implementation shows a settings dialog if available.
+     * @param handler handler function that accepts as argument an instance of AppSettings 
+     * to transform and a boolean with the value of true if the settings are expected to be loaded from 
+     * the user registry. The handler function returns false if the configuration is interrupted (eg.the the dialog was closed)
+     * or true otherwise.
+     */
     public void setSettingsHandler(BiFunction<AppSettings,Boolean, Boolean> handler){
-        settingsHandler=handler;
+        settingsHandler = handler;
     }
 
+    /**
+     * Internal use only: summon the settings handler
+     */
     public boolean handleSettings(AppSettings settings, boolean loadFromRegistry){
-        if(settingsHandler!=null) return settingsHandler.apply(settings,loadFromRegistry);
+        if(settingsHandler != null) return settingsHandler.apply(settings,loadFromRegistry);
         return true;
     }
 
