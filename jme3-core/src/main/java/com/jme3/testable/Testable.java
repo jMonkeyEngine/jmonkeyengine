@@ -18,7 +18,5 @@ public interface Testable {
      *
      * @return true if the test is active, false otherwise.
      */
-    default boolean isActive() {
-        return false;
-    }
+    boolean isActive();
 }
