@@ -69,4 +69,12 @@ public class Annotations {
      */
     public @interface Internal {
     }
+
+
+    @Documented
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target({ElementType.TYPE})
+    public @interface Test {
+        String[] signatures();
+    }
 }
