@@ -43,7 +43,9 @@ import com.jme3.testable.Testable;
 public abstract class JmeTestState extends BaseAppState implements Testable {
     
     /**
-     * Keeps track of the current test state, whether active or not.
+     * Keeps track of the current test state.
+     * True: if the current test is still running.
+     * False: if the current test stops.
      * Default value: false, i.e: not active.
      */
     protected volatile boolean active = false;
