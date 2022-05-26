@@ -43,7 +43,7 @@ public interface Testable {
     /**
      * Launches the test.
      *
-     * @param userData user data object.
+     * @param userData user data object to pass for the test, this could of any datatype.
      */
     void launch(Object userData);
 
