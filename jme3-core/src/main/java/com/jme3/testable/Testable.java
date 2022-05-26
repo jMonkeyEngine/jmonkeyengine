@@ -43,14 +43,14 @@ public interface Testable {
     /**
      * Launches the test.
      *
-     * @param userData user data object to pass for the test, this could of any datatype.
+     * @param userData user data object to pass for the test, this could of any datatype
      */
     void launch(Object userData);
 
     /**
      * Tests whether the test is still active.
      *
-     * @return true if the test is active, false otherwise.
+     * @return true if the test is active, false otherwise
      */
     boolean isActive();
 }
