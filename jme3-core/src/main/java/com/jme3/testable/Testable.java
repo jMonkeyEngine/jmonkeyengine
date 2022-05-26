@@ -34,7 +34,7 @@ package com.jme3.testable;
 /**
  * The abstract layer for the running and tracking the testables.
  *
- * @author pavl_g.
+ * @author pavl_g
  * @see com.jme3.testable.impl.JmeTestApp
  * @see com.jme3.testable.impl.JmeTestState
  */

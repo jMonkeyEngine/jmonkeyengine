@@ -38,7 +38,7 @@ import com.jme3.testable.Testable;
 /**
  * A base implementation of the testable api for appstates.
  * 
- * @author pavl_g.
+ * @author pavl_g
  */
 public abstract class JmeTestState extends BaseAppState implements Testable {
     
