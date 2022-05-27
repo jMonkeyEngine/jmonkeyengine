@@ -4,8 +4,11 @@ import com.jme3.testable.Testable;
 import com.jme3.system.Annotations;
 import java.io.File;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationTargetException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import sun.misc.Unsafe;
 
 /**
  *
@@ -18,13 +21,15 @@ public final class TestableExecutor {
     private TestableExecutor() {
     }
 
-    public static void execute(String[] packages, Object userData, String[] signatures) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+    public static void execute(String[] packages, Object userData, String[] signatures) throws ClassNotFoundException, IllegalAccessException,
+            InstantiationException, NoSuchMethodException, InvocationTargetException {
         for (String javaPackage: packages) {
             execute(javaPackage, userData, signatures);
         }
     }
 
-    public static void execute(String javaPackage, Object userData, String[] signatures) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+    public static void execute(String javaPackage, Object userData, String[] signatures) throws ClassNotFoundException, InstantiationException,
+            IllegalAccessException, NoSuchMethodException, InvocationTargetException {
         File[] files = openPackage(getFileRepresentation(javaPackage));
         for (File file : files) {
             if (file.list() != null) {
@@ -35,7 +40,8 @@ public final class TestableExecutor {
         }
     }
 
-    private static void executeTestable(Class<?> clazz, Object userData, String[] signatures) throws IllegalAccessException, InstantiationException {
+    private static void executeTestable(Class<?> clazz, Object userData, String[] signatures) throws IllegalAccessException,
+            InstantiationException, NoSuchMethodException, InvocationTargetException {
         // sanity check for non-testables
         if (!(Testable.class.isAssignableFrom(clazz))) {
             logger.log(Level.SEVERE, "Skipping non-testable class " + clazz.getName());
@@ -48,7 +54,7 @@ public final class TestableExecutor {
         }
 
         // execute test
-        Testable testable = (Testable) clazz.newInstance();
+        Testable testable = (Testable) clazz.getDeclaredConstructor().newInstance();
         testable.launch(userData);
         logger.log(Level.INFO, "Testing testable class " + clazz.getName());
 
