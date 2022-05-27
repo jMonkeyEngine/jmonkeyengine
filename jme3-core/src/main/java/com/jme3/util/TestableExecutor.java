@@ -60,11 +60,12 @@ public final class TestableExecutor {
      * @param packages   the java packages to search for signed {@link Testable}s, eg: new String[] {"jme3test.water", "jme3test.app"}
      * @param userData   an object to pass down to the {@link Testable#launch(Object)} method
      * @param signatures the testables classes signatures {@link Annotations.Test#signatures()}
-     * @throws ClassNotFoundException
-     * @throws IllegalAccessException
-     * @throws InstantiationException
-     * @throws NoSuchMethodException
-     * @throws InvocationTargetException
+     * @throws ClassNotFoundException if a queried class is not found in a package
+     * @throws InstantiationException if a queried class in a package is an abstract class
+     * @throws IllegalAccessException if a queried class is marked as private
+     * @throws NoSuchMethodException if a queried class doesn't have a constructor, e.g: static class, enums
+     * @throws InvocationTargetException if a queried class constructor throws an exception, 
+     * use {@link InvocationTargetException#getTargetException()} to get the execption at the runtime
      */
     public static void launch(String[] packages, Object userData, String[] signatures) throws ClassNotFoundException, IllegalAccessException,
             InstantiationException, NoSuchMethodException, InvocationTargetException {
@@ -79,11 +80,12 @@ public final class TestableExecutor {
      * @param javaPackage the java package to search for signed {@link Testable}s, eg: "jme3test.water"
      * @param userData    an object to pass down to the {@link Testable#launch(Object)} method
      * @param signatures  the testables classes annotation signatures {@link Annotations.Test#signatures()}
-     * @throws ClassNotFoundException
-     * @throws InstantiationException
-     * @throws IllegalAccessException
-     * @throws NoSuchMethodException
-     * @throws InvocationTargetException
+     * @throws ClassNotFoundException if a queried class is not found in the package
+     * @throws InstantiationException if a queried class in the package is an abstract class
+     * @throws IllegalAccessException if a queried class is marked as private
+     * @throws NoSuchMethodException if a queried class doesn't have a constructor, e.g: static class, enums
+     * @throws InvocationTargetException if a queried class constructor throws an exception, 
+     * use {@link InvocationTargetException#getTargetException()} to get the execption at the runtime
      */
     public static void launch(String javaPackage, Object userData, String[] signatures) throws ClassNotFoundException, InstantiationException,
             IllegalAccessException, NoSuchMethodException, InvocationTargetException {
@@ -103,10 +105,6 @@ public final class TestableExecutor {
      * @param clazz      a testable class
      * @param userData   the {@link Testable#launch(Object)} parameter object
      * @param signatures class annotation signatures {@link Annotations.Test#signatures()}
-     * @throws IllegalAccessException
-     * @throws InstantiationException
-     * @throws NoSuchMethodException
-     * @throws InvocationTargetException
      */
     private static void launchTestable(Class<?> clazz, Object userData, String[] signatures) throws IllegalAccessException,
             InstantiationException, NoSuchMethodException, InvocationTargetException {
