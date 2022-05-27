@@ -40,7 +40,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Executes target {@link Testable}s classes in a target package synchronously.
+ * A Utility for searching Testable classes with test signatures {@link Annotations.Test#signatures()}
+ * in a target package and executing {@link Testable#launch(Object)}.
+ * <p>
+ * This utility executes those Testables synchronously.
  *
  * @author pavl_g
  */
