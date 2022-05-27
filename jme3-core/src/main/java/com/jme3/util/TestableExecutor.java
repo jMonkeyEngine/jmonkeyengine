@@ -107,18 +107,18 @@ public final class TestableExecutor {
      */
     private static void launchTestable(Class<?> clazz, Object userData, String[] signatures) throws IllegalAccessException,
             InstantiationException, NoSuchMethodException, InvocationTargetException {
-        // sanity check for non-testables
+        // sanity filter out for non-testable classes
         if (!(Testable.class.isAssignableFrom(clazz))) {
             logger.log(Level.SEVERE, "Skipping non-testable class " + clazz.getName());
             return;
         }
-        // sanity check for non-class-signatures
+        // sanity filter out non-signed classes
         if (!hasOneOfSignatures(clazz, signatures)) {
-            logger.log(Level.SEVERE, "Skipping non-signature class " + clazz.getName());
+            logger.log(Level.SEVERE, "Skipping non-signed class " + clazz.getName());
             return;
         }
 
-        // execute test
+        // launch a testable with a userData param
         Testable testable = (Testable) clazz.getDeclaredConstructor().newInstance();
         testable.launch(userData);
         logger.log(Level.INFO, "Testing testable class " + clazz.getName());
