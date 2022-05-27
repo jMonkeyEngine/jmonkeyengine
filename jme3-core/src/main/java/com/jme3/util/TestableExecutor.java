@@ -1,7 +1,38 @@
+/*
+ * Copyright (c) 2009-2022 jMonkeyEngine
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ * * Redistributions of source code must retain the above copyright
+ *   notice, this list of conditions and the following disclaimer.
+ *
+ * * Redistributions in binary form must reproduce the above copyright
+ *   notice, this list of conditions and the following disclaimer in the
+ *   documentation and/or other materials provided with the distribution.
+ *
+ * * Neither the name of 'jMonkeyEngine' nor the names of its contributors
+ *   may be used to endorse or promote products derived from this software
+ *   without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package com.jme3.util;
 
-import com.jme3.testable.Testable;
 import com.jme3.system.Annotations;
+import com.jme3.testable.Testable;
 import java.io.File;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
@@ -9,8 +40,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
+ * Executes target {@link Testable}s classes in a target package synchronously.
  *
- * @author pavl_g.
+ * @author pavl_g
  */
 public final class TestableExecutor {
 
@@ -19,26 +51,61 @@ public final class TestableExecutor {
     private TestableExecutor() {
     }
 
-    public static void execute(String[] packages, Object userData, String[] signatures) throws ClassNotFoundException, IllegalAccessException,
+    /**
+     * Searches some packages for signed {@link Testable}s and launches them synchronously.
+     *
+     * @param packages   the java packages to search for signed {@link Testable}s, eg: new String[] {"jme3test.water", "jme3test.app"}
+     * @param userData   an object to pass down to the {@link Testable#launch(Object)} method
+     * @param signatures the testables classes signatures {@link Annotations.Test#signatures()}
+     * @throws ClassNotFoundException
+     * @throws IllegalAccessException
+     * @throws InstantiationException
+     * @throws NoSuchMethodException
+     * @throws InvocationTargetException
+     */
+    public static void launch(String[] packages, Object userData, String[] signatures) throws ClassNotFoundException, IllegalAccessException,
             InstantiationException, NoSuchMethodException, InvocationTargetException {
-        for (String javaPackage: packages) {
-            execute(javaPackage, userData, signatures);
+        for (String javaPackage : packages) {
+            launch(javaPackage, userData, signatures);
         }
     }
 
-    public static void execute(String javaPackage, Object userData, String[] signatures) throws ClassNotFoundException, InstantiationException,
+    /**
+     * Searches a java package for signed {@link Testable}s and launches them synchronously.
+     *
+     * @param javaPackage the java package to search for signed {@link Testable}s, eg: "jme3test.water"
+     * @param userData    an object to pass down to the {@link Testable#launch(Object)} method
+     * @param signatures  the testables classes annotation signatures {@link Annotations.Test#signatures()}
+     * @throws ClassNotFoundException
+     * @throws InstantiationException
+     * @throws IllegalAccessException
+     * @throws NoSuchMethodException
+     * @throws InvocationTargetException
+     */
+    public static void launch(String javaPackage, Object userData, String[] signatures) throws ClassNotFoundException, InstantiationException,
             IllegalAccessException, NoSuchMethodException, InvocationTargetException {
         File[] files = openPackage(getFileRepresentation(javaPackage));
         for (File file : files) {
             if (file.list() != null) {
-                execute(getPackageFromFile(file, javaPackage), userData, signatures);
+                launch(getPackageFromFile(javaPackage, file), userData, signatures);
             } else {
-                executeTestable(getClassFromPackage(javaPackage, file), userData, signatures);
+                launchTestable(getClassFromPackage(javaPackage, file), userData, signatures);
             }
         }
     }
 
-    private static void executeTestable(Class<?> clazz, Object userData, String[] signatures) throws IllegalAccessException,
+    /**
+     * Executes {@link Testable#launch(Object)} of a Testable class (clazz) with a user param (userData) and signatures {@link Annotations.Test#signatures()}
+     *
+     * @param clazz      a testable class
+     * @param userData   the {@link Testable#launch(Object)} parameter object
+     * @param signatures class annotation signatures {@link Annotations.Test#signatures()}
+     * @throws IllegalAccessException
+     * @throws InstantiationException
+     * @throws NoSuchMethodException
+     * @throws InvocationTargetException
+     */
+    private static void launchTestable(Class<?> clazz, Object userData, String[] signatures) throws IllegalAccessException,
             InstantiationException, NoSuchMethodException, InvocationTargetException {
         // sanity check for non-testables
         if (!(Testable.class.isAssignableFrom(clazz))) {
@@ -46,7 +113,7 @@ public final class TestableExecutor {
             return;
         }
         // sanity check for non-class-signatures
-        if (!hasClassSignatures(clazz, signatures)) {
+        if (!hasOneOfSignatures(clazz, signatures)) {
             logger.log(Level.SEVERE, "Skipping non-signature class " + clazz.getName());
             return;
         }
@@ -57,10 +124,18 @@ public final class TestableExecutor {
         logger.log(Level.INFO, "Testing testable class " + clazz.getName());
 
         // block until the test case finishes
-        while (testable.isActive());
+        while (testable.isActive()) ;
     }
 
-    private static boolean hasClassSignatures(Class<?> clazz, String[] signatures) {
+    /**
+     * Tests whether a class has one of the annotated signatures.
+     *
+     * @param clazz      the proposed class
+     * @param signatures some signatures to check against them
+     * @return true if the class (clazz) has one of the signatures (signatures) as an annotation value,
+     * false otherwise
+     */
+    private static boolean hasOneOfSignatures(Class<?> clazz, String[] signatures) {
         for (Annotation annotation : clazz.getDeclaredAnnotations()) {
             // skip non-test annotations
             if (!(annotation instanceof Annotations.Test)) {
@@ -70,7 +145,7 @@ public final class TestableExecutor {
             for (String sig : signatures) {
                 // compare all values of the annotation
                 for (String value : ((Annotations.Test) annotation).signatures()) {
-                    if (value.equals(sig)){
+                    if (value.equals(sig)) {
                         return true;
                     }
                 }
@@ -82,7 +157,7 @@ public final class TestableExecutor {
     /**
      * Opens a java package and lists down files.
      *
-     * @return the files inside the java package.
+     * @return the files inside the java package
      */
     private static File[] openPackage(String packageName) {
         packageName = TestableExecutor.class.getResource("/" + packageName).getFile();
@@ -91,33 +166,33 @@ public final class TestableExecutor {
     }
 
     /**
-     * Replaces the package signature with the file signature.
+     * Replaces all the "." delimiters with "/" delimiters, eg: "jme3test.water" -> "jme3test/water"
      *
-     * @param package_ the package.
-     * @return a new string representation of that file.
+     * @param javaPackage a java package with "." delimiters, e.g: "jme3test.water"
+     * @return a new string representation of that file with "/" delimiters
      */
-    private static String getFileRepresentation(String package_) {
-        return package_.replaceAll("\\.", "/");
+    private static String getFileRepresentation(String javaPackage) {
+        return javaPackage.replaceAll("\\.", "/");
     }
 
     /**
-     * Retrieves a package from a file.
+     * Retrieves a child package from a file.
      *
-     * @param file
-     * @param javaPackage
-     * @return
+     * @param parentPackage the package used for fetching the child package
+     * @param file          a file to retrieve the package from
+     * @return a new string representation of the child package
      */
-    private static String getPackageFromFile(File file, String javaPackage) {
-        return javaPackage + "." + file.getName();
+    private static String getPackageFromFile(String parentPackage, File file) {
+        return parentPackage + "." + file.getName();
     }
 
     /**
-     * Retrieves a class from a package and a File representing that class.
+     * Retrieves a class from a package and a file representing that class.
      *
-     * @param javaPackage the package to retrieve from.
-     * @param clazz the class file.
-     * @return a new Class representation of that file in this package.
-     * @throws ClassNotFoundException if the class is not found in the package.
+     * @param javaPackage the package to retrieve from
+     * @param clazz       the class file
+     * @return a new Class representation of that file in this package
+     * @throws ClassNotFoundException if the proposed class is not found in the package
      */
     private static Class<?> getClassFromPackage(String javaPackage, File clazz) throws ClassNotFoundException {
         String extension = ".class";
