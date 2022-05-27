@@ -8,8 +8,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import sun.misc.Unsafe;
-
 /**
  *
  * @author pavl_g.
