@@ -70,7 +70,13 @@ public class Annotations {
     public @interface Internal {
     }
 
-
+    /**
+     * Annotation used for signing some {@link com.jme3.testable.Testable}s to be selectively launched
+     * by {@link com.jme3.util.TestableExecutor}.
+     *
+     * @see com.jme3.util.TestableExecutor#launch(String[], Object, String[])
+     * @see com.jme3.util.TestableExecutor#launch(String, Object, String[])
+     */
     @Documented
     @Retention(RetentionPolicy.RUNTIME)
     @Target({ElementType.TYPE})
