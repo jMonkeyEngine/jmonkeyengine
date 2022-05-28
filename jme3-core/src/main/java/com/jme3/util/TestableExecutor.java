@@ -65,7 +65,7 @@ public final class TestableExecutor {
      * @throws IllegalAccessException if a queried class is marked as private
      * @throws NoSuchMethodException if a queried class doesn't have a constructor, e.g: static class, enums
      * @throws InvocationTargetException if a queried class constructor throws an exception, 
-     * use {@link InvocationTargetException#getTargetException()} to get the execption at the runtime
+     * use {@link InvocationTargetException#getTargetException()} to get the exception at the runtime
      */
     public static void launch(String[] packages, Object userData, String[] signatures) throws ClassNotFoundException, IllegalAccessException,
             InstantiationException, NoSuchMethodException, InvocationTargetException {
@@ -85,7 +85,7 @@ public final class TestableExecutor {
      * @throws IllegalAccessException if a queried class is marked as private
      * @throws NoSuchMethodException if a queried class doesn't have a constructor, e.g: static class, enums
      * @throws InvocationTargetException if a queried class constructor throws an exception, 
-     * use {@link InvocationTargetException#getTargetException()} to get the execption at the runtime
+     * use {@link InvocationTargetException#getTargetException()} to get the exception at the runtime
      */
     public static void launch(String javaPackage, Object userData, String[] signatures) throws ClassNotFoundException, InstantiationException,
             IllegalAccessException, NoSuchMethodException, InvocationTargetException {
