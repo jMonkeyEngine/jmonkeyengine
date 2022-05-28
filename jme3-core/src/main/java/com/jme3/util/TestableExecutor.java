@@ -91,11 +91,17 @@ public final class TestableExecutor {
             IllegalAccessException, NoSuchMethodException, InvocationTargetException {
         File[] files = openPackage(getFileRepresentation(javaPackage));
         for (File file : files) {
+            // recursively open a sub-package
             if (file.list() != null) {
                 launch(getPackageFromFile(javaPackage, file), userData, signatures);
-            } else {
-                launchTestable(getClassFromPackage(javaPackage, file), userData, signatures);
+                continue;
             }
+            // sanity filter out and skip non-class files (in case you have a dirty packaging)
+            if (!file.getName().contains(".class")) {
+                logger.log(Level.SEVERE, "Skipping non-class file " + file.getName());
+                continue;
+            }
+            launchTestable(getClassFromPackage(javaPackage, file), userData, signatures);
         }
     }
 
@@ -108,7 +114,7 @@ public final class TestableExecutor {
      */
     private static void launchTestable(Class<?> clazz, Object userData, String[] signatures) throws IllegalAccessException,
             InstantiationException, NoSuchMethodException, InvocationTargetException {
-        // sanity filter out the non-testable classes and non-class files in general
+        // sanity filter out the non-testable classes
         if (!(Testable.class.isAssignableFrom(clazz))) {
             logger.log(Level.SEVERE, "Skipping non-testable class " + clazz.getName());
             return;
@@ -125,7 +131,7 @@ public final class TestableExecutor {
         logger.log(Level.INFO, "Testing testable class " + clazz.getName());
 
         // block until the test case finishes
-        while (testable.isActive()) ;
+        while (testable.isActive());
     }
 
     /**
