@@ -31,21 +31,20 @@
  */
 package com.jme3.testable.impl;
 
-import com.jme3.app.Application;
-import com.jme3.app.state.BaseAppState;
+import com.jme3.app.SimpleApplication;
 import com.jme3.testable.Testable;
 
 /**
- * A base implementation of the testable api for appstates.
+ * A base implementation of the testable api for jMonkeyEngine Apps.
  * 
  * @author pavl_g
  */
-public abstract class JmeTestState extends BaseAppState implements Testable {
-    
+public abstract class JmeAppTest extends SimpleApplication implements Testable {
+
     /**
-     * Keeps track of the current test state.
-     * True: if the current test is still running.
-     * False: if the current test stops.
+     * Keeps track of the current test state. 
+     * True: if the current test is still running. 
+     * False: if the current test stops. 
      * Default value: false, i.e: not active.
      */
     protected volatile boolean active = false;
@@ -56,7 +55,8 @@ public abstract class JmeTestState extends BaseAppState implements Testable {
     }
 
     @Override
-    protected void cleanup(Application app) {
+    public void destroy() {
+        super.destroy();
         active = false;
     }
 

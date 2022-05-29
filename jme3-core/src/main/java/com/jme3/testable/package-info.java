@@ -33,7 +33,7 @@
 /**
  * Provides the basic interface for jme3 testables.
  * 
- * @see com.jme3.testable.impl.JmeTestApp
- * @see com.jme3.testable.impl.JmeTestState
+ * @see com.jme3.testable.impl.JmeAppTest
+ * @see com.jme3.testable.impl.JmeStateTest
  */
 package com.jme3.testable;

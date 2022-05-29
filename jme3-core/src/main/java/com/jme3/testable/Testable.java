@@ -31,12 +31,15 @@
  */
 package com.jme3.testable;
 
+import com.jme3.testable.impl.JmeAppTest;
+import com.jme3.testable.impl.JmeStateTest;
+
 /**
  * The abstract layer for running and tracking the testables.
  *
  * @author pavl_g
- * @see com.jme3.testable.impl.JmeTestApp
- * @see com.jme3.testable.impl.JmeTestState
+ * @see JmeAppTest
+ * @see JmeStateTest
  */
 public interface Testable {
 
