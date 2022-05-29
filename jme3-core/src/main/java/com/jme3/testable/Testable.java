@@ -44,7 +44,7 @@ import com.jme3.testable.impl.JmeStateTest;
 public interface Testable {
 
     /**
-     * Launches the test.
+     * Launches the test, setting {@link Testable#isActive()} to true.
      *
      * @param userData user data object to pass for the test, this could of any datatype
      */
