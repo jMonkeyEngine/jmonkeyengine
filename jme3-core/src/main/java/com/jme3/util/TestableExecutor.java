@@ -51,6 +51,7 @@ public final class TestableExecutor {
 
     private static final Logger logger = Logger.getLogger(TestableExecutor.class.getName());
     private static TestableExecutor testableExecutor;
+    private Testable currentActiveTestable;
 
     private TestableExecutor() {
     }
@@ -123,6 +124,15 @@ public final class TestableExecutor {
     }
 
     /**
+     * Retrieves the current running {@link Testable}.
+     *
+     * @return the instance of the current running testable
+     */
+    public Testable getCurrentActiveTestable() {
+        return currentActiveTestable;
+    }
+
+    /**
      * Executes {@link Testable#launch(Object)} of a Testable class (clazz) with a user param (userData) and signatures {@link Annotations.Test#signatures()}
      *
      * @param clazz      a testable class
@@ -145,6 +155,7 @@ public final class TestableExecutor {
         // launch a testable with a userData param
         Testable testable = (Testable) clazz.getDeclaredConstructor().newInstance();
         testable.launch(userData);
+        this.currentActiveTestable = testable;
         logger.log(Level.INFO, "Testing testable class " + clazz.getName());
 
         // block until the test case finishes
