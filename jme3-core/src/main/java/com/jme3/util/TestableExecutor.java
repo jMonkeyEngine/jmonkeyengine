@@ -62,6 +62,7 @@ public final class TestableExecutor {
      * @return the instance of this utility
      */
     public static TestableExecutor getInstance() {
+        // Double-Checked Locking singleton enhancement
         if (testableExecutor == null) {
             synchronized (TestableExecutor.class) {
                 if (testableExecutor == null) {
