@@ -49,9 +49,26 @@ import java.util.logging.Logger;
  */
 public final class TestableExecutor {
 
+    private static TestableExecutor testableExecutor;
     private static final Logger logger = Logger.getLogger(TestableExecutor.class.getName());
 
     private TestableExecutor() {
+    }
+
+    /**
+     * Retrieves the singleton instance of this utility.
+     *
+     * @return the instance of this utility
+     */
+    public static TestableExecutor getInstance() {
+        if (testableExecutor == null) {
+            synchronized (TestableExecutor.class) {
+                if (testableExecutor == null) {
+                    testableExecutor = new TestableExecutor();
+                }
+            }
+        }
+        return testableExecutor;
     }
 
     /**
@@ -64,10 +81,10 @@ public final class TestableExecutor {
      * @throws InstantiationException if a queried class in a package is an abstract class
      * @throws IllegalAccessException if a queried class is marked as private
      * @throws NoSuchMethodException if a queried class doesn't have a constructor, e.g: static class, enums
-     * @throws InvocationTargetException if a queried class constructor throws an exception, 
+     * @throws InvocationTargetException if a queried class constructor throws an exception,
      * use {@link InvocationTargetException#getTargetException()} to get the exception at the runtime
      */
-    public static void launch(String[] packages, Object userData, String[] signatures) throws ClassNotFoundException, IllegalAccessException,
+    public void launch(String[] packages, Object userData, String[] signatures) throws ClassNotFoundException, IllegalAccessException,
             InstantiationException, NoSuchMethodException, InvocationTargetException {
         for (String javaPackage : packages) {
             launch(javaPackage, userData, signatures);
@@ -84,10 +101,10 @@ public final class TestableExecutor {
      * @throws InstantiationException if a queried class in the package is an abstract class
      * @throws IllegalAccessException if a queried class is marked as private
      * @throws NoSuchMethodException if a queried class doesn't have a constructor, e.g: static class, enums
-     * @throws InvocationTargetException if a queried class constructor throws an exception, 
+     * @throws InvocationTargetException if a queried class constructor throws an exception,
      * use {@link InvocationTargetException#getTargetException()} to get the exception at the runtime
      */
-    public static void launch(String javaPackage, Object userData, String[] signatures) throws ClassNotFoundException, InstantiationException,
+    public void launch(String javaPackage, Object userData, String[] signatures) throws ClassNotFoundException, InstantiationException,
             IllegalAccessException, NoSuchMethodException, InvocationTargetException {
         File[] files = openPackage(getFileRepresentation(javaPackage));
         for (File file : files) {
@@ -112,7 +129,7 @@ public final class TestableExecutor {
      * @param userData   the {@link Testable#launch(Object)} parameter object
      * @param signatures class annotation signatures {@link Annotations.Test#signatures()}
      */
-    private static void launchTestable(Class<?> clazz, Object userData, String[] signatures) throws IllegalAccessException,
+    private void launchTestable(Class<?> clazz, Object userData, String[] signatures) throws IllegalAccessException,
             InstantiationException, NoSuchMethodException, InvocationTargetException {
         // sanity filter out the non-testable classes
         if (!(Testable.class.isAssignableFrom(clazz))) {
@@ -142,7 +159,7 @@ public final class TestableExecutor {
      * @return true if the class (clazz) has one of the signatures (signatures) as an annotation value,
      * false otherwise
      */
-    private static boolean hasOneOfSignatures(Class<?> clazz, String[] signatures) {
+    private boolean hasOneOfSignatures(Class<?> clazz, String[] signatures) {
         for (Annotation annotation : clazz.getDeclaredAnnotations()) {
             // skip non-test annotations
             if (!(annotation instanceof Annotations.Test)) {
@@ -166,7 +183,7 @@ public final class TestableExecutor {
      *
      * @return the files inside the java package
      */
-    private static File[] openPackage(String packageName) {
+    private File[] openPackage(String packageName) {
         packageName = TestableExecutor.class.getResource("/" + packageName).getFile();
         logger.log(Level.INFO, "Opening package " + packageName);
         return new File(packageName).listFiles();
@@ -178,7 +195,7 @@ public final class TestableExecutor {
      * @param javaPackage a java package with "." delimiters, e.g: "jme3test.water"
      * @return a new string representation of that file with "/" delimiters
      */
-    private static String getFileRepresentation(String javaPackage) {
+    private String getFileRepresentation(String javaPackage) {
         return javaPackage.replaceAll("\\.", "/");
     }
 
@@ -189,7 +206,7 @@ public final class TestableExecutor {
      * @param file          a file to retrieve the package from
      * @return a new string representation of the child package
      */
-    private static String getPackageFromFile(String parentPackage, File file) {
+    private String getPackageFromFile(String parentPackage, File file) {
         return parentPackage + "." + file.getName();
     }
 
@@ -201,7 +218,7 @@ public final class TestableExecutor {
      * @return a new Class representation of that file in this package
      * @throws ClassNotFoundException if the proposed class is not found in the package
      */
-    private static Class<?> getClassFromPackage(String javaPackage, File clazz) throws ClassNotFoundException {
+    private Class<?> getClassFromPackage(String javaPackage, File clazz) throws ClassNotFoundException {
         String extension = ".class";
         String clazzName = clazz.getName();
         clazzName = clazzName.substring(0, clazzName.length() - extension.length());
