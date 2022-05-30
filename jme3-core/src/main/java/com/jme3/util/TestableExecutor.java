@@ -51,7 +51,7 @@ public final class TestableExecutor {
 
     private static final Logger logger = Logger.getLogger(TestableExecutor.class.getName());
     private static TestableExecutor testableExecutor;
-    private Testable currentActiveTestable;
+    private Testable<?> currentActiveTestable;
 
     private TestableExecutor() {
     }
@@ -86,7 +86,7 @@ public final class TestableExecutor {
      * @throws InvocationTargetException if a queried class constructor throws an exception,
      *                                   use {@link InvocationTargetException#getTargetException()} to get the exception at the runtime
      */
-    public void launch(String[] packages, Object userData, String[] signatures) throws ClassNotFoundException, IllegalAccessException,
+    public <T> void launch(String[] packages, T userData, String[] signatures) throws ClassNotFoundException, IllegalAccessException,
             InstantiationException, NoSuchMethodException, InvocationTargetException {
         for (String javaPackage : packages) {
             launch(javaPackage, userData, signatures);
@@ -106,7 +106,7 @@ public final class TestableExecutor {
      * @throws InvocationTargetException if a queried class constructor throws an exception,
      *                                   use {@link InvocationTargetException#getTargetException()} to get the exception at the runtime
      */
-    public void launch(String javaPackage, Object userData, String[] signatures) throws ClassNotFoundException, InstantiationException,
+    public <T> void launch(String javaPackage, T userData, String[] signatures) throws ClassNotFoundException, InstantiationException,
             IllegalAccessException, NoSuchMethodException, InvocationTargetException {
         File[] files = openPackage(getFileRepresentation(javaPackage));
         for (File file : files) {
@@ -129,7 +129,7 @@ public final class TestableExecutor {
      *
      * @return the instance of the current running testable
      */
-    public Testable getCurrentActiveTestable() {
+    public Testable<?> getCurrentActiveTestable() {
         return currentActiveTestable;
     }
 
@@ -140,7 +140,7 @@ public final class TestableExecutor {
      * @param userData   the {@link Testable#launch(Object)} parameter object
      * @param signatures class annotation signatures {@link Annotations.Test#signatures()}
      */
-    private void launchTestable(Class<?> clazz, Object userData, String[] signatures) throws IllegalAccessException,
+    private <T> void launchTestable(Class<?> clazz, T userData, String[] signatures) throws IllegalAccessException,
             InstantiationException, NoSuchMethodException, InvocationTargetException {
         // sanity filter out the non-testable classes
         if (!(Testable.class.isAssignableFrom(clazz))) {
@@ -154,7 +154,7 @@ public final class TestableExecutor {
         }
 
         // launch a testable with a userData param
-        Testable testable = (Testable) clazz.getDeclaredConstructor().newInstance();
+        Testable<T> testable = (Testable<T>) clazz.getDeclaredConstructor().newInstance();
         testable.launch(userData);
         this.currentActiveTestable = testable;
         logger.log(Level.INFO, "Testing testable class " + clazz.getName());

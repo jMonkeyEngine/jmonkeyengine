@@ -37,11 +37,12 @@ import com.jme3.testable.Testable;
 
 /**
  * A base implementation of the testable api for appstates.
- * 
+ *
+ * @param <T> the genre of user data object
  * @author pavl_g
  */
-public abstract class JmeStateTest extends BaseAppState implements Testable {
-    
+public abstract class JmeStateTest<T> extends BaseAppState implements Testable<T> {
+
     /**
      * Keeps track of the current test state.
      * True: if the current test is still running.
@@ -51,7 +52,7 @@ public abstract class JmeStateTest extends BaseAppState implements Testable {
     protected volatile boolean active = false;
 
     @Override
-    public void launch(Object userData) {
+    public void launch(T userData) {
         active = true;
     }
 
