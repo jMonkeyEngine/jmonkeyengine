@@ -50,7 +50,7 @@ import java.util.logging.Logger;
 public final class TestableExecutor {
 
     private static final Logger logger = Logger.getLogger(TestableExecutor.class.getName());
-    private static TestableExecutor testableExecutor;
+    private static final TestableExecutor testableExecutor = new TestableExecutor();
     private Testable<?> currentActiveTestable;
 
     private TestableExecutor() {
@@ -62,14 +62,6 @@ public final class TestableExecutor {
      * @return the instance of this utility
      */
     public static TestableExecutor getInstance() {
-        // Double-Checked Locking singleton enhancement
-        if (testableExecutor == null) {
-            synchronized (TestableExecutor.class) {
-                if (testableExecutor == null) {
-                    testableExecutor = new TestableExecutor();
-                }
-            }
-        }
         return testableExecutor;
     }
 
