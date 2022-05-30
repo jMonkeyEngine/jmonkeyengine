@@ -121,8 +121,8 @@ public final class TestableExecutor {
      *
      * @return the instance of the current running testable
      */
-    public Testable<?> getCurrentActiveTestable() {
-        return currentActiveTestable;
+    public <T extends Testable<?>> T getCurrentActiveTestable() {
+        return (T) currentActiveTestable;
     }
 
     /**
