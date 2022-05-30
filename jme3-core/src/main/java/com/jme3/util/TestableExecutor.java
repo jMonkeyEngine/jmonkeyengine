@@ -40,7 +40,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * A Utility for searching Testable classes with test signatures {@link Annotations.Test#signatures()}
+ * A Utility for searching Testable classes with test tags {@link Annotations.TestableTags#value()}
  * in a target package and executing {@link Testable#launch(Object)}.
  * <p>
  * This utility executes those Testables synchronously.
@@ -66,11 +66,11 @@ public final class TestableExecutor {
     }
 
     /**
-     * Searches some packages for signed {@link Testable}s and launches them synchronously.
+     * Searches some packages for {@link Testable}s with some {@link Annotations.TestableTags} and launches them synchronously.
      *
-     * @param packages   the java packages to search for signed {@link Testable}s, eg: new String[] {"jme3test.water", "jme3test.app"}
-     * @param userData   an object to pass down to the {@link Testable#launch(Object)} method
-     * @param signatures the testables classes signatures {@link Annotations.Test#signatures()}
+     * @param packages the java packages to search for {@link Testable}s, eg: new String[] {"jme3test.water", "jme3test.app"}
+     * @param userData an object to pass down to the {@link Testable#launch(Object)} method
+     * @param tags     the testables classes tags {@link Annotations.TestableTags#value()}
      * @throws ClassNotFoundException    if a queried class is not found in a package
      * @throws InstantiationException    if a queried class in a package is an abstract class
      * @throws IllegalAccessException    if a queried class is marked as private
@@ -78,19 +78,19 @@ public final class TestableExecutor {
      * @throws InvocationTargetException if a queried class constructor throws an exception,
      *                                   use {@link InvocationTargetException#getTargetException()} to get the exception at the runtime
      */
-    public <T> void launch(String[] packages, T userData, String[] signatures) throws ClassNotFoundException, IllegalAccessException,
+    public <T> void launch(String[] packages, T userData, String[] tags) throws ClassNotFoundException, IllegalAccessException,
             InstantiationException, NoSuchMethodException, InvocationTargetException {
         for (String javaPackage : packages) {
-            launch(javaPackage, userData, signatures);
+            launch(javaPackage, userData, tags);
         }
     }
 
     /**
-     * Searches a java package for signed {@link Testable}s and launches them synchronously.
+     * Searches a java package for some {@link Testable}s with some {@link Annotations.TestableTags} and launches them synchronously.
      *
-     * @param javaPackage the java package to search for signed {@link Testable}s, eg: "jme3test.water"
+     * @param javaPackage the java package to search for {@link Testable}s, eg: "jme3test.water"
      * @param userData    an object to pass down to the {@link Testable#launch(Object)} method
-     * @param signatures  the testables classes annotation signatures {@link Annotations.Test#signatures()}
+     * @param tags        the testables classes tags {@link Annotations.TestableTags#value()}
      * @throws ClassNotFoundException    if a queried class is not found in the package
      * @throws InstantiationException    if a queried class in the package is an abstract class
      * @throws IllegalAccessException    if a queried class is marked as private
@@ -98,13 +98,13 @@ public final class TestableExecutor {
      * @throws InvocationTargetException if a queried class constructor throws an exception,
      *                                   use {@link InvocationTargetException#getTargetException()} to get the exception at the runtime
      */
-    public <T> void launch(String javaPackage, T userData, String[] signatures) throws ClassNotFoundException, InstantiationException,
+    public <T> void launch(String javaPackage, T userData, String[] tags) throws ClassNotFoundException, InstantiationException,
             IllegalAccessException, NoSuchMethodException, InvocationTargetException {
         File[] files = openPackage(getFileRepresentation(javaPackage));
         for (File file : files) {
             // recursively open a sub-package
             if (file.list() != null) {
-                launch(getPackageFromFile(javaPackage, file), userData, signatures);
+                launch(getPackageFromFile(javaPackage, file), userData, tags);
                 continue;
             }
             // sanity filter out and skip non-class files (in case you have a dirty packaging)
@@ -112,7 +112,7 @@ public final class TestableExecutor {
                 logger.log(Level.SEVERE, "Skipping non-class file " + file.getName());
                 continue;
             }
-            launchTestable(getClassFromPackage(javaPackage, file), userData, signatures);
+            launchTestable(getClassFromPackage(javaPackage, file), userData, tags);
         }
     }
 
@@ -126,22 +126,22 @@ public final class TestableExecutor {
     }
 
     /**
-     * Executes {@link Testable#launch(Object)} of a Testable class (clazz) with a user param (userData) and signatures {@link Annotations.Test#signatures()}
+     * Executes {@link Testable#launch(Object)} of a Testable class (clazz) with a user param (userData) and tags {@link Annotations.TestableTags#value()}.
      *
-     * @param clazz      a testable class
-     * @param userData   the {@link Testable#launch(Object)} parameter object
-     * @param signatures class annotation signatures {@link Annotations.Test#signatures()}
+     * @param clazz    a testable class
+     * @param userData the {@link Testable#launch(Object)} parameter object
+     * @param tags     class annotation tags {@link Annotations.TestableTags#value()}
      */
-    private <T> void launchTestable(Class<?> clazz, T userData, String[] signatures) throws IllegalAccessException,
+    private <T> void launchTestable(Class<?> clazz, T userData, String[] tags) throws IllegalAccessException,
             InstantiationException, NoSuchMethodException, InvocationTargetException {
         // sanity filter out the non-testable classes
         if (!(Testable.class.isAssignableFrom(clazz))) {
             logger.log(Level.SEVERE, "Skipping non-testable class " + clazz.getName());
             return;
         }
-        // sanity filter out the non-signed classes
-        if (!hasOneOfSignatures(clazz, signatures)) {
-            logger.log(Level.SEVERE, "Skipping non-signed class " + clazz.getName());
+        // sanity filter out the non-tagged classes
+        if (!hasOneOfClassTags(clazz, tags)) {
+            logger.log(Level.SEVERE, "Skipping non-tagged class " + clazz.getName());
             return;
         }
 
@@ -156,24 +156,23 @@ public final class TestableExecutor {
     }
 
     /**
-     * Tests whether a class has one of the annotated signatures.
+     * Tests whether a class has one of the annotation tags from a list of tags.
      *
-     * @param clazz      the proposed class
-     * @param signatures some signatures to check against them
-     * @return true if the class (clazz) has one of the signatures (signatures) as an annotation value,
-     * false otherwise
+     * @param clazz the proposed class
+     * @param tags  some annotation tags to test against them
+     * @return true if the class (clazz) has one of the tags as an annotation value, false otherwise
      */
-    private boolean hasOneOfSignatures(Class<?> clazz, String[] signatures) {
+    private boolean hasOneOfClassTags(Class<?> clazz, String[] tags) {
         for (Annotation annotation : clazz.getDeclaredAnnotations()) {
             // skip non-test annotations
-            if (!(annotation instanceof Annotations.Test)) {
+            if (!(annotation instanceof Annotations.TestableTags)) {
                 continue;
             }
-            // return if one of the user signatures is true
-            for (String sig : signatures) {
+            // return if one of the user tags is true
+            for (String tag : tags) {
                 // compare all values of the annotation
-                for (String value : ((Annotations.Test) annotation).signatures()) {
-                    if (value.equals(sig)) {
+                for (String value : ((Annotations.TestableTags) annotation).value()) {
+                    if (value.equals(tag)) {
                         return true;
                     }
                 }

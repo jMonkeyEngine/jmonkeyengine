@@ -71,16 +71,18 @@ public class Annotations {
     }
 
     /**
-     * Annotation used for signing some {@link com.jme3.testable.Testable}s to be selectively launched
+     * Annotation used for tagging some {@link com.jme3.testable.Testable}s with some tags to be selectively launched
      * by {@link com.jme3.util.TestableExecutor}.
      *
      * @see com.jme3.util.TestableExecutor#launch(String[], Object, String[])
      * @see com.jme3.util.TestableExecutor#launch(String, Object, String[])
+     * @see com.jme3.testable.impl.JmeAppTest
+     * @see com.jme3.testable.impl.JmeStateTest
      */
     @Documented
     @Retention(RetentionPolicy.RUNTIME)
     @Target({ElementType.TYPE})
-    public @interface Test {
-        String[] signatures();
+    public @interface TestableTags {
+        String[] value();
     }
 }
