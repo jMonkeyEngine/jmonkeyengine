@@ -297,12 +297,6 @@ public final class SettingsDialog extends JFrame {
         GridBagConstraints gbc;
         
         JPanel mainPanel = new JPanel(new GridBagLayout());
-        
-        try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception e) {
-            logger.warning("Could not set native look and feel.");
-        }
 
         addWindowListener(new WindowAdapter() {
 
