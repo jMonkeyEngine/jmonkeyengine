@@ -467,9 +467,9 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
      * Returns a string representation. The current instance is unaffected. The
      * format is:
      * <pre>
-     * Transform[ TX.XXXX, TY.YYYY, TZ.ZZZZ]
-     * [ R.XXXX, R.YYYY, R.ZZZZ, R.WWWW]
-     * [ S.XXXX , S.YYYY, S.ZZZZ]
+     * Transform[TX.XXXX, TY.YYYY, TZ.ZZZZ]
+     * [R.XXXX, R.YYYY, R.ZZZZ, R.WWWW]
+     * [S.XXXX, S.YYYY, S.ZZZZ]
      * </pre>
      *
      * @return the string representation (not null, not empty)
@@ -477,9 +477,9 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     @Override
     public String toString() {
         return getClass().getSimpleName()
-                + "[ " + translation.x + ", " + translation.y + ", " + translation.z + "]\n"
-                + "[ " + rot.x + ", " + rot.y + ", " + rot.z + ", " + rot.w + "]\n"
-                + "[ " + scale.x + " , " + scale.y + ", " + scale.z + "]";
+                + "[" + translation.x + ", " + translation.y + ", " + translation.z + "]\n"
+                + "[" + rot.x + ", " + rot.y + ", " + rot.z + ", " + rot.w + "]\n"
+                + "[" + scale.x + ", " + scale.y + ", " + scale.z + "]";
     }
 
     /**
