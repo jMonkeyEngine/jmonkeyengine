@@ -49,8 +49,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * A filter to handle translucent objects when rendering a scene with filters that uses depth like WaterFilter and SSAOFilter
- * just create a TranslucentBucketFilter and add it to the Filter list of a FilterPostProcessor
+ * A filter to handle translucent objects when rendering a scene with filters
+ * that uses depth like WaterFilter and SSAOFilter just create a
+ * TranslucentBucketFilter and add it to the Filter list of a
+ * FilterPostProcessor
+ *
  * @author Nehon
  */
 public final class TranslucentBucketFilter extends Filter {
@@ -107,7 +110,9 @@ public final class TranslucentBucketFilter extends Filter {
     }
 
     /**
-     * Override this method and return true if your Filter needs the scene texture
+     * Override this method and return true if your Filter needs the scene
+     * texture
+     *
      * @return false
      */
     @Override
@@ -166,10 +171,10 @@ public final class TranslucentBucketFilter extends Filter {
                 enabledSoftParticles = enabled;
 
                 emitter.getMaterial().selectTechnique("SoftParticles", renderManager);
-                if( processor.getNumSamples()>1){
+                if (processor.getNumSamples() > 1) {
                     emitter.getMaterial().setInt("NumSamplesDepth", processor.getNumSamples());
                 }
-                emitter.getMaterial().setTexture("DepthTexture", processor.getDepthTexture());               
+                emitter.getMaterial().setTexture("DepthTexture", processor.getDepthTexture());
                 emitter.setQueueBucket(RenderQueue.Bucket.Translucent);
 
                 if (logger.isLoggable(Level.FINE)) {
@@ -178,7 +183,7 @@ public final class TranslucentBucketFilter extends Filter {
             } else {
                 emitter.getMaterial().clearParam("DepthTexture");
                 emitter.getMaterial().selectTechnique("Default", renderManager);
-               // emitter.setQueueBucket(RenderQueue.Bucket.Transparent);
+                // emitter.setQueueBucket(RenderQueue.Bucket.Transparent);
                 if (logger.isLoggable(Level.FINE)) {
                     logger.log(Level.FINE, "Particle Emitter {0} is not soft anymore.", emitter.getName());
                 }
