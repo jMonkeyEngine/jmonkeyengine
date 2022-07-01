@@ -27,6 +27,7 @@ The engine is used by several commercial game studios and computer-science cours
  - [Jumping Jack Flag](http://timealias.bplaced.net/jack/)
  - [PapaSpace Flight Simulation](https://www.papaspace.at/)
  - [Cubic Nightmare](https://jaredbgreat.itch.io/cubic-nightmare)
+ - [Chatter Games](https://chatter-games.com)
 
 ## Getting started
 
