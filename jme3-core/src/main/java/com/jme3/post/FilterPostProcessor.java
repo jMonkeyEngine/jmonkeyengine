@@ -86,7 +86,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
     private AppProfiler prof;
 
     private Format fbFormat = Format.RGB111110F;
-    final private Format depthFormat = Format.Depth;
+    private Format depthFormat = Format.Depth;
 
     /**
      * Create a FilterProcessor
@@ -550,8 +550,22 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         this.assetManager = assetManager;
     }
 
+    /**
+     * Sets the format to be used for the internal frame buffer's color buffer
+     *
+     * @param fbFormat the format
+     */
     public void setFrameBufferFormat(Format fbFormat) {
         this.fbFormat = fbFormat;
+    }
+
+    /**
+     * Sets the format to be used for the internal frame buffer's depth buffer
+     *
+     * @param depthFormat the format
+     */
+    public void setFrameBufferDepthFormat(Format depthFormat) {
+        this.depthFormat = depthFormat;
     }
 
     @Override
