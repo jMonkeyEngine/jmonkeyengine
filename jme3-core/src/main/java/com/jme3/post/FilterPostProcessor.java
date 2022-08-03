@@ -568,6 +568,15 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         this.depthFormat = depthFormat;
     }
 
+    /**
+     * Returns the depth format currently used for the internal frame buffer's depth buffer
+     * 
+     * @return the depth format
+     */
+    public Format getFrameBufferDepthFormat() {
+        return depthFormat;
+    }
+
     @Override
     @SuppressWarnings("unchecked")
     public void write(JmeExporter ex) throws IOException {
