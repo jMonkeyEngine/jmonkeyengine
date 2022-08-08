@@ -236,7 +236,7 @@ public class HttpZipLocator implements AssetLocator {
 
         // We want the offset in the file data:
         // move the offset forward to skip the LOC header.
-        entry.offset += ZipEntry.LOCHDR + nameLen + extraLen;
+        entry.offset += ZipEntry.LOCHDR + nameLen;
 
         entries.put(entry.name, entry);
         
