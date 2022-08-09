@@ -58,7 +58,7 @@ jobs:
   # Build the natives on android
   BuildAndroidNatives:
     name: Build natives for android
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     container:
       image: jmonkeyengine/buildenv-jme3:android
 
@@ -80,7 +80,7 @@ jobs:
           name: android-natives
           path: build/native
 
-  # Build the engine, we only deploy from ubuntu-18.04 jdk8
+  # Build the engine, we only deploy from ubuntu-latest jdk8
   BuildJMonkey:
     needs: [BuildAndroidNatives]
     name: Build on ${{ matrix.osName }} jdk${{ matrix.jdk }}
@@ -88,12 +88,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-18.04,ubuntu-20.04,windows-2019,macOS-latest]
+        os: [ubuntu-latest,windows-2019,macOS-latest]
         jdk: [8.x.x,11.x.x]
         include:
-          - os: ubuntu-20.04
-            osName: linux-next
-          - os: ubuntu-18.04
+          - os: ubuntu-latest
             osName: linux
             deploy: true
           - os: windows-2019
@@ -206,7 +204,7 @@ jobs:
   DeploySnapshot:
     needs: [BuildJMonkey]
     name: "Deploy snapshot"
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     if: github.event_name == 'push'
     steps:
 
@@ -292,7 +290,7 @@ jobs:
   DeployRelease:
     needs: [BuildJMonkey]
     name: Deploy Release
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     if: github.event_name == 'release'
     steps:
 
@@ -366,7 +364,7 @@ jobs:
   DeployJavaDoc:
     needs: [BuildJMonkey]
     name: Deploy Javadoc
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     if: github.event_name == 'release'
     steps:
 
