@@ -96,6 +96,10 @@ public class HttpZipLocator implements AssetLocator {
         int compSize;
         long crc;
         boolean deflate;
+        // These fields will be fetched later from local file header,
+        // once asset requested.
+        Integer nameLength;
+        Integer extraLength;
 
         @Override
         public String toString(){
@@ -234,10 +238,6 @@ public class HttpZipLocator implements AssetLocator {
         entry.compSize = get32(table, offset + ZipEntry.CENSIZ);
         entry.offset   = get32(table, offset + ZipEntry.CENOFF);
 
-        // We want the offset in the file data:
-        // move the offset forward to skip the LOC header.
-        entry.offset += ZipEntry.LOCHDR + nameLen;
-
         entries.put(entry.name, entry);
         
         return newOffset;
@@ -323,9 +323,23 @@ public class HttpZipLocator implements AssetLocator {
         readCentralDirectory();
     }
 
-    private InputStream openStream(ZipEntry2 entry) throws IOException{
-        InputStream in = readData(entry.offset, entry.compSize);
-        if (entry.deflate){
+    private InputStream openStream(ZipEntry2 entry) throws IOException {
+        if (entry.nameLength == null && entry.extraLength == null) {
+            // Need to fetch local file header to obtain file name length
+            // and extra field length.
+            InputStream in = readData(entry.offset, ZipEntry.LOCHDR);
+            byte[] localHeader = new byte[ZipEntry.LOCHDR];
+            in.read(localHeader);
+            entry.nameLength = get16(localHeader, ZipEntry.LOCNAM);
+            entry.extraLength = get16(localHeader, ZipEntry.LOCEXT);
+            in.close();
+        }
+
+        // We want the offset in the file data:
+        // move the offset forward to skip the LOC header.
+        int fileDataOffset = entry.offset + ZipEntry.LOCHDR + entry.nameLength + entry.extraLength;
+        InputStream in = readData(fileDataOffset, entry.compSize);
+        if (entry.deflate) {
             return new InflaterInputStream(in, new Inflater(true));
         }
         return in;
