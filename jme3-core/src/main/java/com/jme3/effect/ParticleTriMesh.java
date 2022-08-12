@@ -172,8 +172,8 @@ public class ParticleTriMesh extends ParticleMesh {
 
         boolean facingVelocity = emitter.isFacingVelocity();
 
-        Vector3f up = new Vector3f(),
-                 left = new Vector3f();
+        Vector3f up = new Vector3f();
+        Vector3f left = new Vector3f();
 
         if (!facingVelocity) {
             up.set(camUp);
@@ -189,6 +189,7 @@ public class ParticleTriMesh extends ParticleMesh {
         for (int i = 0; i < particles.length; i++) {
             Particle p = particles[i];
             boolean dead = p.life == 0;
+            
             if (dead) {
                 positions.put(0).put(0).put(0);
                 positions.put(0).put(0).put(0);
@@ -202,11 +203,13 @@ public class ParticleTriMesh extends ParticleMesh {
                 camDir.cross(left, up);
                 up.multLocal(p.size);
                 left.multLocal(p.size);
+                
             } else if (faceNormal != null) {
                 up.set(faceNormal).crossLocal(Vector3f.UNIT_X);
                 faceNormal.cross(up, left);
                 up.multLocal(p.size);
                 left.multLocal(p.size);
+                
                 if (p.angle != 0) {
                     TempVars vars = TempVars.get();
                     vars.vect1.set(faceNormal).normalizeLocal();
@@ -226,6 +229,7 @@ public class ParticleTriMesh extends ParticleMesh {
                 up.x = camLeft.x * -sin + camUp.x * cos;
                 up.y = camLeft.y * -sin + camUp.y * cos;
                 up.z = camLeft.z * -sin + camUp.z * cos;
+                
             } else {
                 up.set(camUp);
                 left.set(camLeft);
@@ -273,10 +277,9 @@ public class ParticleTriMesh extends ParticleMesh {
 
         positions.clear();
         colors.clear();
-        if (!uniqueTexCoords)
-            texcoords.clear();
-        else {
-            texcoords.clear();
+        texcoords.clear();
+        
+        if (uniqueTexCoords) {
             tvb.updateData(texcoords);
         }
 
