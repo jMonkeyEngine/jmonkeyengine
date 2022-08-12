@@ -124,6 +124,22 @@ task dist(dependsOn: [':jme3-examples:dist', 'mergedJavadoc']){
     description 'Creates a jME3 examples distribution with all jme3 binaries, sources, javadoc and external libraries under ./dist'
 }
 
+def mergedJavadocSubprojects = [
+        ":jme3-android",
+        ":jme3-core",
+        ":jme3-desktop",
+        ":jme3-effects",
+        ":jme3-ios",
+        ":jme3-jbullet",
+        ":jme3-jogg",
+        ":jme3-lwjgl",
+        ":jme3-lwjgl3",
+        ":jme3-networking",
+        ":jme3-niftygui",
+        ":jme3-plugins",
+        ":jme3-terrain",
+        ":jme3-vr"
+]
 task mergedJavadoc(type: Javadoc, description: 'Creates Javadoc from all the projects.') {
     title = 'jMonkeyEngine3'
     destinationDir = mkdir("dist/javadoc")
@@ -136,15 +152,8 @@ task mergedJavadoc(type: Javadoc, description: 'Creates Javadoc from all the pro
     }
 
     options.overview = file("javadoc-overview.html")
-    // Note: The closures below are executed lazily.
-    source subprojects.collect {project ->
-        project.sourceSets.main.allJava // main only, exclude tests
-    }
-    classpath = files(subprojects.collect {project ->
-            project.sourceSets*.compileClasspath})
-    classpath.from {
-        subprojects*.configurations*.compile*.copyRecursive({ !(it instanceof ProjectDependency); })*.resolve()
-    }
+    source = mergedJavadocSubprojects.collect { project(it).sourceSets.main.allJava }
+    classpath = files(mergedJavadocSubprojects.collect { project(it).sourceSets.main.compileClasspath })
 }
 
 clean.dependsOn('cleanMergedJavadoc')
@@ -274,7 +283,7 @@ if (skipPrebuildLibraries != "true" && buildNativeProjects != "true") {
 //}
 
 wrapper {
-    gradleVersion = '6.9.2'
+    gradleVersion = '7.5.1'
 }
 
 

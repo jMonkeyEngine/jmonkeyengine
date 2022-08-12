@@ -133,6 +133,7 @@ public class ParticlePointMesh extends ParticleMesh {
         colors.rewind();
         sizes.rewind();
         texcoords.rewind();
+        
         for (int i = 0; i < particles.length; i++) {
             Particle p = particles[i];
 
@@ -153,6 +154,7 @@ public class ParticlePointMesh extends ParticleMesh {
 
             texcoords.put(startX).put(startY).put(endX).put(endY);
         }
+        
         positions.flip();
         colors.flip();
         sizes.flip();
