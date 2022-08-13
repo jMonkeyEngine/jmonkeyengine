@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2022 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -297,12 +297,6 @@ public final class SettingsDialog extends JFrame {
         GridBagConstraints gbc;
         
         JPanel mainPanel = new JPanel(new GridBagLayout());
-        
-        try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception e) {
-            logger.warning("Could not set native look and feel.");
-        }
 
         addWindowListener(new WindowAdapter() {
 
