@@ -251,16 +251,15 @@ public class HttpZipLocator implements AssetLocator {
     }
 
     private void readCentralDirectory() throws IOException{
-        InputStream in = readData(tableOffset, tableLength);
         byte[] header = new byte[tableLength];
-
-        // Fix for "PK12 bug in town.zip": sometimes
-        // not entire byte array will be read with InputStream.read()
-        // (especially for big headers)
-        fillByteArray(header, in);
+        try (InputStream in = readData(tableOffset, tableLength)) {
+            // Fix for "PK12 bug in town.zip": sometimes
+            // not entire byte array will be read with InputStream.read()
+            // (especially for big headers)
+            fillByteArray(header, in);
 
 //        in.read(header);
-        in.close();
+        }
 
         entries = new HashMap<String, ZipEntry2>(numEntries);
         int offset = 0;
@@ -287,10 +286,10 @@ public class HttpZipLocator implements AssetLocator {
         // In that case, we have to search for it.
         // Increase search space to 200 bytes
 
-        InputStream in = readData(Integer.MAX_VALUE, 200);
         byte[] header = new byte[200];
-        fillByteArray(header, in);
-        in.close();
+        try (InputStream in = readData(Integer.MAX_VALUE, 200)) {
+            fillByteArray(header, in);
+        }
 
         int offset = -1;
         for (int i = 200 - 22; i >= 0; i--){
@@ -322,12 +321,12 @@ public class HttpZipLocator implements AssetLocator {
         if (entry.nameLength == null && entry.extraLength == null) {
             // Need to fetch local file header to obtain file name length
             // and extra field length.
-            InputStream in = readData(entry.offset, ZipEntry.LOCHDR);
-            byte[] localHeader = new byte[ZipEntry.LOCHDR];
-            in.read(localHeader);
-            entry.nameLength = get16(localHeader, ZipEntry.LOCNAM);
-            entry.extraLength = get16(localHeader, ZipEntry.LOCEXT);
-            in.close();
+            try (InputStream in = readData(entry.offset, ZipEntry.LOCHDR)) {
+                byte[] localHeader = new byte[ZipEntry.LOCHDR];
+                in.read(localHeader);
+                entry.nameLength = get16(localHeader, ZipEntry.LOCNAM);
+                entry.extraLength = get16(localHeader, ZipEntry.LOCEXT);
+            }
         }
 
         // We want the offset in the file data:
