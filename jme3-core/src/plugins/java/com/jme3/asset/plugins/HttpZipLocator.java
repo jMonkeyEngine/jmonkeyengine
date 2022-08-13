@@ -42,7 +42,7 @@ import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.CharacterCodingException;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CoderResult;
 import java.util.HashMap;
@@ -80,14 +80,9 @@ public class HttpZipLocator implements AssetLocator {
     private int tableLength;
     private HashMap<String, ZipEntry2> entries;
     
-    private static final ByteBuffer byteBuf = ByteBuffer.allocate(250);
-    private static final CharBuffer charBuf = CharBuffer.allocate(250);
-    private static final CharsetDecoder utf8Decoder;
-    
-    static {
-        Charset utf8 = Charset.forName("UTF-8");
-        utf8Decoder = utf8.newDecoder();
-    }
+    private final ByteBuffer byteBuf = ByteBuffer.allocate(250);
+    private final CharBuffer charBuf = CharBuffer.allocate(250);
+    private final CharsetDecoder utf8Decoder = StandardCharsets.UTF_8.newDecoder();
 
     private static class ZipEntry2 {
         String name;
@@ -129,7 +124,7 @@ public class HttpZipLocator implements AssetLocator {
              (((long)(b[off]&0xff)) << 24);
     }
 
-    private static String getUTF8String(byte[] b, int off, int len) throws CharacterCodingException {
+    private String getUTF8String(byte[] b, int off, int len) throws CharacterCodingException {
         StringBuilder sb = new StringBuilder();
         
         int read = 0;
@@ -147,7 +142,7 @@ public class HttpZipLocator implements AssetLocator {
             byteBuf.flip();
             
             // decode data in byteBuf
-            CoderResult result = utf8Decoder.decode(byteBuf, charBuf, endOfInput); 
+            CoderResult result = utf8Decoder.decode(byteBuf, charBuf, endOfInput);
             
             // If the result is not an underflow, it's an error
             // that cannot be handled.
