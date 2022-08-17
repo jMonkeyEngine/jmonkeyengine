@@ -758,9 +758,7 @@ public final class SettingsDialog extends JFrame {
                 }
                 
                 String res = width + " x " + height;
-                if (!resolutions.contains(res)) {
-                    resolutions.add(res);
-                }
+                resolutions.add(res);
             }
         }
 
