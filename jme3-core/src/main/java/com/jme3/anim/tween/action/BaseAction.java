@@ -64,7 +64,7 @@ public class BaseAction extends Action {
     }
 
     /**
-     * @return true if mask propagation to child action is enabled else returns false
+     * @return true if mask propagation to child actions is enabled else returns false
      */
     public boolean isMaskPropagationEnabled() {
         return maskPropagationEnabled;
@@ -73,7 +73,7 @@ public class BaseAction extends Action {
     /**
      *
      * @param maskPropagationEnabled If true, then mask set by AnimLayer will be
-     *                               forwarded to all child actions
+     *                               forwarded to all child actions (Default=true)
      */
     public void setMaskPropagationEnabled(boolean maskPropagationEnabled) {
         this.maskPropagationEnabled = maskPropagationEnabled;
