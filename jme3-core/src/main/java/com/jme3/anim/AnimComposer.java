@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2022 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -115,7 +115,7 @@ public class AnimComposer extends AbstractControl {
     }
 
     /**
-     * Run an action on the default layer.
+     * Run an action on the default layer. By default action will loop.
      *
      * @param name The name of the action to run.
      * @return The action corresponding to the given name.
@@ -125,16 +125,28 @@ public class AnimComposer extends AbstractControl {
     }
 
     /**
-     * Run an action on specified layer.
+     * Run an action on specified layer. By default action will loop.
      *
      * @param actionName The name of the action to run.
      * @param layerName The layer on which action should run.
      * @return The action corresponding to the given name.
      */
     public Action setCurrentAction(String actionName, String layerName) {
+        return setCurrentAction(actionName, layerName, true);
+    }
+
+    /**
+     * Run an action on specified layer.
+     *
+     * @param actionName The name of the action to run.
+     * @param layerName The layer on which action should run.
+     * @param loop True if the action must loop.
+     * @return The action corresponding to the given name.
+     */
+    public Action setCurrentAction(String actionName, String layerName, boolean loop) {
         AnimLayer l = getLayer(layerName);
         Action currentAction = action(actionName);
-        l.setCurrentAction(currentAction);
+        l.setCurrentAction(actionName, currentAction, loop);
 
         return currentAction;
     }
