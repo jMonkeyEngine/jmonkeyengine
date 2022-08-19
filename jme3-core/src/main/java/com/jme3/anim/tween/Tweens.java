@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2021 jMonkeyEngine
+ * Copyright (c) 2015-2022 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -177,6 +177,41 @@ public class Tweens {
      */
     public static Tween callTweenMethod(double length, Object target, String method, Object... args) {
         return new CallTweenMethod(length, target, method, args);
+    }
+
+    /**
+     * Creates a tween that loops the specified delegate tween or tweens
+     * to the desired count.  If more than one tween is specified then they
+     * are wrapped in a sequence using the sequence() method.
+     *
+     * @param count the desired loop count
+     * @param delegates the desired sequence of tweens
+     * @return a new instance
+     */
+    public static Tween loopCount(int count, Tween... delegates) {
+        if (delegates.length == 1) {
+            return new Loop(delegates[0], count * delegates[0].getLength());
+        }
+
+        Tween sequence = sequence(delegates);
+        return new Loop(sequence, count * sequence.getLength());
+    }
+
+    /**
+     * Creates a tween that loops the specified delegate tween or tweens
+     * to the desired duration.  If more than one tween is specified then they
+     * are wrapped in a sequence using the sequence() method.
+     *
+     * @param duration the desired duration
+     * @param delegates the desired sequence of tweens
+     * @return a new instance
+     */
+    public static Tween loopDuration(double duration, Tween... delegates) {
+        if (delegates.length == 1) {
+            return new Loop(delegates[0], duration);
+        }
+
+        return new Loop(sequence(delegates), duration);
     }
 
     private static interface CurveFunction {
@@ -642,6 +677,47 @@ public class Tweens {
         @Override
         public String toString() {
             return getClass().getSimpleName() + "[method=" + method + ", parms=" + Arrays.asList(args) + "]";
+        }
+    }
+
+    private static class Loop implements Tween, ContainsTweens {
+
+        private final Tween[] delegate = new Tween[1];
+        private final double length;
+
+        public Loop(Tween delegate, double duration) {
+            this.delegate[0] = delegate;
+            this.length = duration;
+        }
+
+        @Override
+        public double getLength() {
+            return length;
+        }
+
+        @Override
+        public Tween[] getTweens() {
+            return delegate;
+        }
+
+        @Override
+        public boolean interpolate(double t) {
+            if (t < 0) {
+                return true;
+            }
+
+            boolean done = t >= length;
+
+            double delegateLength = delegate[0].getLength();
+            t = delegateLength > 0 ? t % delegateLength : delegateLength;
+            delegate[0].interpolate(t);
+
+            return !done;
+        }
+
+        @Override
+        public String toString() {
+            return getClass().getSimpleName() + "[delegate=" + delegate[0] + ", length=" + length + "]";
         }
     }
 }
