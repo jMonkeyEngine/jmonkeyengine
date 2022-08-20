@@ -720,6 +720,7 @@ public class Tweens {
             return delegate;
         }
 
+        @Override
         public boolean interpolate(double t) {
 
             // Sanity check the inputs
