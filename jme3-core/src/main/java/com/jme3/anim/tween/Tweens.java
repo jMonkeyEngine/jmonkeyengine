@@ -190,11 +190,10 @@ public class Tweens {
      */
     public static Tween loopCount(int count, Tween... delegates) {
         if (delegates.length == 1) {
-            return new Loop(delegates[0], count * delegates[0].getLength());
+            return new Loop(delegates[0], count);
         }
 
-        Tween sequence = sequence(delegates);
-        return new Loop(sequence, count * sequence.getLength());
+        return new Loop(sequence(delegates), count);
     }
 
     /**
@@ -684,10 +683,31 @@ public class Tweens {
 
         private final Tween[] delegate = new Tween[1];
         private final double length;
+        private final int loopCount;
+        private double baseTime;
+        private int current = 0;
 
-        public Loop(Tween delegate, double duration) {
+        public Loop (Tween delegate, double duration) {
+            if (delegate.getLength() <= 0) {
+                throw new IllegalArgumentException("Delegate length must be greater than 0");
+            }
+            if (duration <= 0) {
+                throw new IllegalArgumentException("Duration must be greater than 0");
+            }
+
             this.delegate[0] = delegate;
             this.length = duration;
+            this.loopCount = (int) Math.ceil(duration / delegate.getLength());
+        }
+
+        public Loop (Tween delegate, int count) {
+            if (count <= 0) {
+                throw new IllegalArgumentException("Loop count must be greater than 0");
+            }
+
+            this.delegate[0] = delegate;
+            this.length = count * delegate.getLength();
+            this.loopCount = count;
         }
 
         @Override
@@ -700,19 +720,39 @@ public class Tweens {
             return delegate;
         }
 
-        @Override
         public boolean interpolate(double t) {
+
+            // Sanity check the inputs
             if (t < 0) {
                 return true;
             }
 
-            boolean done = t >= length;
+            if (t < baseTime) {
+                // We've rolled back before the current loop step
+                // which means we need to reset and start forward
+                // again.  We have no idea how to 'roll back' and
+                // this is the only way to maintain consistency.
+                // The only 'normal' case where this happens is when looping
+                // in which case a full rollback is appropriate.
+                current = 0;
+                baseTime = 0;
+            }
 
-            double delegateLength = delegate[0].getLength();
-            t = delegateLength > 0 ? t % delegateLength : delegateLength;
-            delegate[0].interpolate(t);
+            if (current >= loopCount) {
+                return false;
+            }
 
-            return !done;
+            // Skip any that are done
+            while (!delegate[0].interpolate(t - baseTime)) {
+                // Time to go to the next loop
+                baseTime += delegate[0].getLength();
+                current++;
+                if (current >= loopCount) {
+                    return false;
+                }
+            }
+
+            return t < length;
         }
 
         @Override
