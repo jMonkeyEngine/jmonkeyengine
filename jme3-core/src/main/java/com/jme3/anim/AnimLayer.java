@@ -294,6 +294,7 @@ public class AnimLayer implements JmeCloneable {
     public void cloneFields(Cloner cloner, Object original) {
         composer = cloner.clone(composer);
         currentAction = null;
+        currentActionName = null;
     }
 
     @Override
