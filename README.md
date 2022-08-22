@@ -5,7 +5,7 @@ jMonkeyEngine
 
 jMonkeyEngine is a 3-D game engine for adventurous Java developers. It’s open-source, cross-platform, and cutting-edge.
 v3.5.2 is the latest stable version of the Engine.
-v3.3.2 is the latest stable version of the jMonkeyEngine SDK.
+v3.4 is the latest stable version of the jMonkeyEngine SDK.
 
 The engine is used by several commercial game studios and computer-science courses. Here's a taste:
 
