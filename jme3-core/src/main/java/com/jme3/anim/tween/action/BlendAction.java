@@ -1,5 +1,7 @@
 package com.jme3.anim.tween.action;
 
+import com.jme3.anim.tween.Tween;
+import com.jme3.anim.tween.Tweens;
 import com.jme3.anim.util.HasLocalTransform;
 import com.jme3.math.Transform;
 
@@ -13,12 +15,25 @@ public class BlendAction extends BlendableAction {
     private int secondActiveIndex;
     final private BlendSpace blendSpace;
     private float blendWeight;
-    final private double[] timeFactor;
+    final private Tween[] scaledActions;
     final private Map<HasLocalTransform, Transform> targetMap = new HashMap<>();
 
     public BlendAction(BlendSpace blendSpace, BlendableAction... actions) {
+        this(blendSpace, false, actions);
+    }
+
+    /**
+     *
+     * @param blendSpace The blend space used for calculating blend weight
+     * @param smartStretch If smart stretch it is false, actions that do not have the same length will
+     *                     stretch to the max length, if it is true, they will be looped when possible
+     *                     before stretching. Gives the best result when max transition weight is set
+     *                     to something lower than 1 (e.g. 0.5).
+     * @param actions The actions to blend
+     */
+    public BlendAction(BlendSpace blendSpace, boolean smartStretch, BlendableAction... actions) {
         super(actions);
-        timeFactor = new double[actions.length];
+        this.scaledActions = new Tween[actions.length];
         this.blendSpace = blendSpace;
         blendSpace.setBlendAction(this);
 
@@ -39,12 +54,25 @@ public class BlendAction extends BlendableAction {
         //Blending effect maybe unexpected when blended animation don't have the same length
         //Stretching any action that doesn't have the same length.
         for (int i = 0; i < this.actions.length; i++) {
-            this.timeFactor[i] = 1;
-            if (this.actions[i].getLength() != getLength()) {
-                double actionLength = this.actions[i].getLength();
+            double actionLength = this.actions[i].getLength();
+            if (actionLength != getLength()) {
                 if (actionLength > 0 && getLength() > 0) {
-                    this.timeFactor[i] = this.actions[i].getLength() / getLength();
+                    Tween action = this.actions[i];
+                    if (smartStretch) {
+                        // Check if we can loop it before stretching
+                        int count = (int) (Math.round(getLength() / actionLength));
+                        if (count > 1) {
+                            action = new Loop(action, count);
+                        }
+                    }
+                    this.scaledActions[i] = Tweens.stretch(getLength(), action);
+                } else {
+                    // If action length is 0, don't do anything
+                    this.scaledActions[i] = this.actions[i];
                 }
+            } else {
+                // No need to stretch if action length equals to max length
+                this.scaledActions[i] = this.actions[i];
             }
         }
     }
@@ -60,7 +88,7 @@ public class BlendAction extends BlendableAction {
         // Only interpolate the first action if the weight is below 1.
         if (blendWeight < 1f) {
             firstActiveAction.setWeight(1f);
-            firstActiveAction.interpolate(t * timeFactor[firstActiveIndex]);
+            scaledActions[firstActiveIndex].interpolate(t);
             if (blendWeight == 0) {
                 for (HasLocalTransform target : targetMap.keySet()) {
                     collect(target, targetMap.get(target));
@@ -70,7 +98,7 @@ public class BlendAction extends BlendableAction {
 
         //Second action should be interpolated
         secondActiveAction.setWeight(blendWeight);
-        secondActiveAction.interpolate(t * timeFactor[secondActiveIndex]);
+        scaledActions[secondActiveIndex].interpolate(t);
 
         firstActiveAction.setCollectTransformDelegate(null);
         secondActiveAction.setCollectTransformDelegate(null);
@@ -127,4 +155,29 @@ public class BlendAction extends BlendableAction {
         }
     }
 
+    private static class Loop implements Tween {
+
+        private final Tween delegate;
+        private final double length;
+
+        public Loop(Tween delegate, int count) {
+            this.delegate = delegate;
+            this.length = count * delegate.getLength();
+        }
+
+        @Override
+        public double getLength() {
+            return length;
+        }
+
+        @Override
+        public boolean interpolate(double t) {
+            if (t < 0) {
+                return true;
+            }
+
+            delegate.interpolate(t % delegate.getLength());
+            return t < length;
+        }
+    }
 }
