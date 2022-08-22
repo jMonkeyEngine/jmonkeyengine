@@ -49,11 +49,21 @@ public class BlendAction extends BlendableAction {
     final private Tween[] scaledActions;
     final private Map<HasLocalTransform, Transform> targetMap = new HashMap<>();
 
+    /**
+     * Creates an action that uses the given blend space to blend to blend between
+     * specified action. It will stretch the actions that doesn't have the same length.
+     *
+     * @param blendSpace The blend space used for calculating blend weight
+     * @param actions The actions to blend
+     */
     public BlendAction(BlendSpace blendSpace, BlendableAction... actions) {
         this(blendSpace, false, actions);
     }
 
     /**
+     * Creates an action that uses the given blend space to blend to blend between
+     * specified action. It will stretch the actions that doesn't have the same length.
+     * If smart stretching is enabled it will try to loop actions before stretching.
      *
      * @param blendSpace The blend space used for calculating blend weight
      * @param smartStretch If smart stretch it is false, actions that do not have the same length will
