@@ -173,13 +173,13 @@ public class TestAnimMigration extends SimpleApplication {
                     blendValue += value;
                     blendValue = FastMath.clamp(blendValue, 1, 4);
                     action.getBlendSpace().setValue(blendValue);
-                    action.setSpeed(blendValue);
+                    //action.setSpeed(blendValue);
                 }
                 if (name.equals("blendDown")) {
                     blendValue -= value;
                     blendValue = FastMath.clamp(blendValue, 1, 4);
                     action.getBlendSpace().setValue(blendValue);
-                    action.setSpeed(blendValue);
+                    //action.setSpeed(blendValue);
                 }
                 //System.err.println(blendValue);
             }

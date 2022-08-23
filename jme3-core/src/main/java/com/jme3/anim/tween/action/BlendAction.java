@@ -1,8 +1,10 @@
 package com.jme3.anim.tween.action;
 
 import com.jme3.anim.util.HasLocalTransform;
+import com.jme3.math.FastMath;
 import com.jme3.math.Transform;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -14,6 +16,7 @@ public class BlendAction extends BlendableAction {
     final private BlendSpace blendSpace;
     private float blendWeight;
     final private double[] timeFactor;
+    private double[] speedFactors;
     final private Map<HasLocalTransform, Transform> targetMap = new HashMap<>();
 
     public BlendAction(BlendSpace blendSpace, BlendableAction... actions) {
@@ -47,6 +50,10 @@ public class BlendAction extends BlendableAction {
                 }
             }
         }
+
+        // Generate speed factors used to resolve slow motion effect on stretched
+        // actions by dynamically calculating speed.
+        speedFactors = calculateSpeedFactors(this);
     }
 
     @Override
@@ -83,6 +90,61 @@ public class BlendAction extends BlendableAction {
 
     public BlendSpace getBlendSpace() {
         return blendSpace;
+    }
+
+    @Override
+    public double getSpeed() {
+        if (speedFactors != null) {
+            return super.getSpeed() * FastMath.interpolateLinear(blendWeight,
+                    (float) speedFactors[firstActiveIndex],
+                    (float) speedFactors[secondActiveIndex]);
+        }
+
+        return super.getSpeed();
+    }
+
+    /**
+     * @return The speed factor or null if there is none
+     */
+    public double[] getSpeedFactors() {
+        return speedFactors;
+    }
+
+    /**
+     * Used to resolve the slow motion side effect caused by stretching actions that
+     * doesn't have the same length.
+     *
+     * @param speedFactors The speed factors for each child action. BlendAction will
+     *                     interpolate factor for current frame based on blend weight
+     *                     and will multiply it to speed.
+     */
+    public void setSpeedFactors(double... speedFactors) {
+        if (speedFactors.length != actions.length) {
+            throw new IllegalArgumentException("Array length must be " + actions.length);
+        }
+
+        this.speedFactors = speedFactors;
+    }
+
+    public void clearSpeedFactors() {
+        this.speedFactors = null;
+    }
+
+    /**
+     * BlendAction will stretch it's child actions if they don't have the same length.
+     * This might cause stretched animations to run slowly. This method generates the factor
+     * based on how much actions are stretched. Multiplying this factor to base speed will
+     * nullify the slow animation side effect caused by stretching. BlendAction will use the
+     * blend weight taken from BlendSpace to interpolate the speed factor for current frame.
+     *
+     * @param blendAction
+     * @return
+     */
+    public static double[] calculateSpeedFactors(BlendAction blendAction) {
+        Action[] actions = blendAction.getActions();
+        return Arrays.stream(actions)
+                .mapToDouble(action -> blendAction.getLength() / action.getLength())
+                .toArray();
     }
 
     protected void setFirstActiveIndex(int index) {
