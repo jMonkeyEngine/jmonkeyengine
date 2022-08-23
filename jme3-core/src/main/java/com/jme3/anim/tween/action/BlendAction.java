@@ -137,8 +137,8 @@ public class BlendAction extends BlendableAction {
      * nullify the slow animation side effect caused by stretching. BlendAction will use the
      * blend weight taken from BlendSpace to interpolate the speed factor for current frame.
      *
-     * @param blendAction
-     * @return
+     * @param blendAction The blend action used to generate speed factors for it
+     * @return new array
      */
     public static double[] calculateSpeedFactors(BlendAction blendAction) {
         Action[] actions = blendAction.getActions();
