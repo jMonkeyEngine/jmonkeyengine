@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2022 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -54,6 +54,10 @@ public class AnimLayer implements JmeCloneable {
      */
     private Action currentAction;
     /**
+     * The name of Action currently running on this layer, or null if none.
+     */
+    private String currentActionName;
+    /**
      * The composer that owns this layer. Were it not for cloning, this field
      * would be final.
      */
@@ -76,6 +80,8 @@ public class AnimLayer implements JmeCloneable {
      * The name of this layer.
      */
     final private String name;
+
+    private boolean loop = true;
 
     /**
      * Instantiates a layer without a manager or a current Action, owned by the
@@ -103,6 +109,15 @@ public class AnimLayer implements JmeCloneable {
      */
     public Action getCurrentAction() {
         return currentAction;
+    }
+
+    /**
+     * Returns the name of the Action that's currently running.
+     *
+     * @return the pre-existing instance, or null if none
+     */
+    public String getCurrentActionName() {
+        return currentActionName;
     }
 
     /**
@@ -145,14 +160,42 @@ public class AnimLayer implements JmeCloneable {
 
     /**
      * Runs the specified Action, starting from time = 0. This cancels any
-     * Action previously running on this layer.
+     * Action previously running on this layer. By default Action will loop.
      *
      * @param actionToRun the Action to run (alias created) or null for no
      *     action
      */
     public void setCurrentAction(Action actionToRun) {
+        this.setCurrentAction(null, actionToRun);
+    }
+
+    /**
+     * Runs the specified Action, starting from time = 0. This cancels any
+     * Action previously running on this layer. By default Action will loop.
+     *
+     * @param actionName the Action name or null for no action name
+     * @param actionToRun the Action to run (alias created) or null for no
+     *     action
+     */
+    public void setCurrentAction(String actionName, Action actionToRun) {
+        this.setCurrentAction(actionName, actionToRun, true);
+    }
+
+    /**
+     * Runs the specified Action, starting from time = 0. This cancels any
+     * Action previously running on this layer.
+     *
+     * @param actionName the Action name or null for no action name
+     * @param actionToRun the Action to run (alias created) or null for no
+     *     action
+     * @param loop true if Action must loop. If it is false, Action will be
+     *     removed after finished running
+     */
+    public void setCurrentAction(String actionName, Action actionToRun, boolean loop) {
         this.time = 0.0;
         this.currentAction = actionToRun;
+        this.currentActionName = actionName;
+        this.loop = loop;
     }
 
     /**
@@ -179,6 +222,24 @@ public class AnimLayer implements JmeCloneable {
         } else {
             time = (animationTime % length) + length;
         }
+    }
+
+    /**
+     * @return True if the Action will keep looping after it is done playing,
+     * otherwise, returns false
+     */
+    public boolean isLooping() {
+        return loop;
+    }
+
+    /**
+     * Sets the looping mode for this layer. The default is true.
+     *
+     * @param loop True if the action should keep looping after it is done
+     * playing
+     */
+    public void setLooping(boolean loop) {
+        this.loop = loop;
     }
 
     /**
@@ -211,6 +272,10 @@ public class AnimLayer implements JmeCloneable {
 
         if (!running) { // went past the end of the current Action
             time = 0.0;
+            if (!loop) {
+                // Clear the current action
+                setCurrentAction(null);
+            }
         }
     }
 
@@ -229,6 +294,7 @@ public class AnimLayer implements JmeCloneable {
     public void cloneFields(Cloner cloner, Object original) {
         composer = cloner.clone(composer);
         currentAction = null;
+        currentActionName = null;
     }
 
     @Override
