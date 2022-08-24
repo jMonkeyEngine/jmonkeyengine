@@ -32,6 +32,7 @@
 package jme3test.model.anim;
 
 import com.jme3.anim.*;
+import com.jme3.anim.tween.Tweens;
 import com.jme3.anim.tween.action.*;
 import com.jme3.anim.util.AnimMigrationUtils;
 import com.jme3.app.ChaseCameraAppState;
@@ -244,8 +245,11 @@ public class TestAnimMigration extends SimpleApplication {
 
             composer.action("Walk").setSpeed(-1);
 
+            composer.addAction("WalkCycle", new BaseAction(Tweens.cycle(composer.makeAction("Walk"))));
+
             composer.makeLayer("LeftArm", ArmatureMask.createMask(sc.getArmature(), "shoulder.L"));
 
+            anims.addFirst("WalkCycle");
             anims.addFirst("Blend");
             anims.addFirst("Sequence2");
             anims.addFirst("Sequence1");
