@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2021 jMonkeyEngine
+ * Copyright (c) 2015-2022 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -177,6 +177,40 @@ public class Tweens {
      */
     public static Tween callTweenMethod(double length, Object target, String method, Object... args) {
         return new CallTweenMethod(length, target, method, args);
+    }
+
+    /**
+     * Creates a tween that loops the specified delegate tween or tweens
+     * to the desired count.  If more than one tween is specified then they
+     * are wrapped in a sequence using the sequence() method.
+     *
+     * @param count the desired loop count
+     * @param delegates the desired sequence of tweens
+     * @return a new instance
+     */
+    public static Tween loopCount(int count, Tween... delegates) {
+        if (delegates.length == 1) {
+            return new Loop(delegates[0], count);
+        }
+
+        return new Loop(sequence(delegates), count);
+    }
+
+    /**
+     * Creates a tween that loops the specified delegate tween or tweens
+     * to the desired duration.  If more than one tween is specified then they
+     * are wrapped in a sequence using the sequence() method.
+     *
+     * @param duration the desired duration
+     * @param delegates the desired sequence of tweens
+     * @return a new instance
+     */
+    public static Tween loopDuration(double duration, Tween... delegates) {
+        if (delegates.length == 1) {
+            return new Loop(delegates[0], duration);
+        }
+
+        return new Loop(sequence(delegates), duration);
     }
 
     private static interface CurveFunction {
@@ -642,6 +676,89 @@ public class Tweens {
         @Override
         public String toString() {
             return getClass().getSimpleName() + "[method=" + method + ", parms=" + Arrays.asList(args) + "]";
+        }
+    }
+
+    private static class Loop implements Tween, ContainsTweens {
+
+        private final Tween[] delegate = new Tween[1];
+        private final double length;
+        private final int loopCount;
+        private double baseTime;
+        private int current = 0;
+
+        public Loop (Tween delegate, double duration) {
+            if (delegate.getLength() <= 0) {
+                throw new IllegalArgumentException("Delegate length must be greater than 0");
+            }
+            if (duration <= 0) {
+                throw new IllegalArgumentException("Duration must be greater than 0");
+            }
+
+            this.delegate[0] = delegate;
+            this.length = duration;
+            this.loopCount = (int) Math.ceil(duration / delegate.getLength());
+        }
+
+        public Loop (Tween delegate, int count) {
+            if (count <= 0) {
+                throw new IllegalArgumentException("Loop count must be greater than 0");
+            }
+
+            this.delegate[0] = delegate;
+            this.length = count * delegate.getLength();
+            this.loopCount = count;
+        }
+
+        @Override
+        public double getLength() {
+            return length;
+        }
+
+        @Override
+        public Tween[] getTweens() {
+            return delegate;
+        }
+
+        @Override
+        public boolean interpolate(double t) {
+
+            // Sanity check the inputs
+            if (t < 0) {
+                return true;
+            }
+
+            if (t < baseTime) {
+                // We've rolled back before the current loop step
+                // which means we need to reset and start forward
+                // again.  We have no idea how to 'roll back' and
+                // this is the only way to maintain consistency.
+                // The only 'normal' case where this happens is when looping
+                // in which case a full rollback is appropriate.
+                current = 0;
+                baseTime = 0;
+            }
+
+            if (current >= loopCount) {
+                return false;
+            }
+
+            // Skip any that are done
+            while (!delegate[0].interpolate(t - baseTime)) {
+                // Time to go to the next loop
+                baseTime += delegate[0].getLength();
+                current++;
+                if (current >= loopCount) {
+                    return false;
+                }
+            }
+
+            return t < length;
+        }
+
+        @Override
+        public String toString() {
+            return getClass().getSimpleName() + "[delegate=" + delegate[0] + ", length=" + length + "]";
         }
     }
 }
