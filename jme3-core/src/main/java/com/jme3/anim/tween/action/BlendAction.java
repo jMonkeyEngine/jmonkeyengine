@@ -82,9 +82,9 @@ public class BlendAction extends BlendableAction {
             }
         }
 
-        // Generate speed factors used to resolve slow motion effect on stretched
-        // actions by dynamically calculating speed.
-        speedFactors = calculateSpeedFactors(this);
+        // Calculate default factors that dynamically adjust speed to resolve
+        // slow motion effect on stretched actions.
+        applyDefaultSpeedFactors();
     }
 
     @Override
@@ -163,19 +163,16 @@ public class BlendAction extends BlendableAction {
 
     /**
      * BlendAction will stretch it's child actions if they don't have the same length.
-     * This might cause stretched animations to run slowly. This method generates the factor
+     * This might cause stretched animations to run slowly. This method generates factors
      * based on how much actions are stretched. Multiplying this factor to base speed will
-     * nullify the slow animation side effect caused by stretching. BlendAction will use the
+     * resolve the slow-motion side effect caused by stretching. BlendAction will use the
      * blend weight taken from BlendSpace to interpolate the speed factor for current frame.
-     *
-     * @param blendAction The blend action used to generate speed factors for it
-     * @return new array
      */
-    public static double[] calculateSpeedFactors(BlendAction blendAction) {
-        Action[] actions = blendAction.getActions();
-        return Arrays.stream(actions)
-                .mapToDouble(action -> blendAction.getLength() / action.getLength())
+    public void applyDefaultSpeedFactors() {
+        double[] factors = Arrays.stream(getActions())
+                .mapToDouble(action -> getLength() / action.getLength())
                 .toArray();
+        setSpeedFactors(factors);
     }
 
     protected void setFirstActiveIndex(int index) {
