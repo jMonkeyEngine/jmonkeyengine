@@ -213,6 +213,28 @@ public class Tweens {
         return new Loop(sequence(delegates), duration);
     }
 
+    /**
+     * Creates a tween that inverts the specified delegate tween.
+     *
+     * @param delegate the desired tween
+     * @return a new instance
+     */
+    public static Tween invert(Tween delegate) {
+        return new Invert(delegate);
+    }
+
+    /**
+     * Creates a tween that will cycle back and forth the specified delegate tween.
+     * When reaching the end, the tween will play backwards from the end until it
+     * reaches the start.
+     *
+     * @param delegate the desired tween
+     * @return a new instance
+     */
+    public static Tween cycle(Tween delegate) {
+        return sequence(delegate, invert(delegate));
+    }
+
     private static interface CurveFunction {
         public double curve(double input);
     }
@@ -759,6 +781,31 @@ public class Tweens {
         @Override
         public String toString() {
             return getClass().getSimpleName() + "[delegate=" + delegate[0] + ", length=" + length + "]";
+        }
+    }
+
+    private static class Invert extends AbstractTween implements ContainsTweens {
+
+        private final Tween[] delegate = new Tween[1];
+
+        public Invert( Tween delegate ) {
+            super(delegate.getLength());
+            this.delegate[0] = delegate;
+        }
+
+        @Override
+        protected void doInterpolate(double t) {
+            delegate[0].interpolate((1.0 - t) * getLength());
+        }
+
+        @Override
+        public Tween[] getTweens() {
+            return delegate;
+        }
+
+        @Override
+        public String toString() {
+            return getClass().getSimpleName() + "[delegate=" + delegate[0] + ", length=" + getLength() + "]";
         }
     }
 }
