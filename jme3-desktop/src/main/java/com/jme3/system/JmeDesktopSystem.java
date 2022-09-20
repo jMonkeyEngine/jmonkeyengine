@@ -40,7 +40,11 @@ import com.jme3.audio.openal.ALAudioRenderer;
 import com.jme3.audio.openal.ALC;
 import com.jme3.audio.openal.EFX;
 import com.jme3.system.JmeContext.Type;
+import com.jme3.texture.Image;
+import com.jme3.texture.image.ColorSpace;
 import com.jme3.util.Screenshots;
+import jme3tools.converters.ImageToAwt;
+
 import java.awt.EventQueue;
 import java.awt.Graphics2D;
 import java.awt.GraphicsEnvironment;
@@ -80,7 +84,7 @@ public class JmeDesktopSystem extends JmeSystemDelegate {
         AffineTransform tx = AffineTransform.getScaleInstance(1, -1);
         tx.translate(0, -original.getHeight());
         AffineTransformOp transformOp = new AffineTransformOp(tx, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
-        BufferedImage awtImage = new BufferedImage(original.getWidth(), original.getHeight(), BufferedImage.TYPE_INT_BGR);
+        BufferedImage awtImage = new BufferedImage(original.getWidth(), original.getHeight(), original.getType());
         Graphics2D g2d = awtImage.createGraphics();
         g2d.setRenderingHint(RenderingHints.KEY_RENDERING,
                              RenderingHints.VALUE_RENDER_SPEED);
@@ -88,22 +92,34 @@ public class JmeDesktopSystem extends JmeSystemDelegate {
         g2d.dispose();
         return awtImage;
     }
-    
+
+    private static BufferedImage ensureOpaque(BufferedImage original) {
+        if (original.getTransparency() == BufferedImage.OPAQUE)
+            return original;
+        int w = original.getWidth();
+        int h = original.getHeight();
+        int[] pixels = new int[w * h];
+        original.getRGB(0, 0, w, h, pixels, 0, w);
+        BufferedImage opaqueImage = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
+        opaqueImage.setRGB(0, 0, w, h, pixels, 0, w);
+        return opaqueImage;
+    }
+
     @Override
     public void writeImageFile(OutputStream outStream, String format, ByteBuffer imageData, int width, int height) throws IOException {
-        BufferedImage awtImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_BGR);
-        Screenshots.convertScreenShot2(imageData.asIntBuffer(), awtImage);
+        BufferedImage awtImage = ImageToAwt.convert(new Image(Image.Format.RGBA8, width, height, imageData, ColorSpace.Linear), false, true, 0);
+        awtImage = verticalFlip(awtImage);
 
         ImageWriter writer = ImageIO.getImageWritersByFormatName(format).next();
         ImageWriteParam writeParam = writer.getDefaultWriteParam();
 
         if (format.equals("jpg")) {
+            awtImage = ensureOpaque(awtImage);
+
             JPEGImageWriteParam jpegParam = (JPEGImageWriteParam) writeParam;
             jpegParam.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
             jpegParam.setCompressionQuality(0.95f);
         }
-
-        awtImage = verticalFlip(awtImage);
         
         ImageOutputStream imgOut = new MemoryCacheImageOutputStream(outStream);
         writer.setOutput(imgOut);
