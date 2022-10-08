@@ -27,7 +27,7 @@ allprojects {
 }
 
 // Set the license for IDEs that understand this
-ext.license = file("$rootDir/license.txt")
+ext.license = file("$rootDir/source-file-header-template.txt")
 
 apply plugin: 'base'
 apply plugin: 'com.github.spotbugs'
