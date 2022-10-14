@@ -64,7 +64,7 @@ jobs:
 
     steps:
       - name: Clone the repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 1
       - name: Validate the Gradle wrapper
@@ -105,7 +105,7 @@ jobs:
 
     steps:
       - name: Clone the repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 1
 
@@ -298,7 +298,7 @@ jobs:
 
       # We need to clone everything again for uploadToMaven.sh ...
       - name: Clone the repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 1
 
