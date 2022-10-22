@@ -55,5 +55,5 @@ Read our [contribution guide](https://github.com/jMonkeyEngine/jmonkeyengine/blo
 
 ### License
 
-[New BSD (3-clause) License](https://github.com/jMonkeyEngine/jmonkeyengine/blob/master/LICENSE)
+[New BSD (3-clause) License](https://github.com/jMonkeyEngine/jmonkeyengine/blob/master/LICENSE.md)
 
