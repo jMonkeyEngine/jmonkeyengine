@@ -122,7 +122,7 @@ jobs:
           path: build/native
 
       - name: Validate the Gradle wrapper
-        uses: gradle/wrapper-validation-action@v1.0.4
+        uses: gradle/wrapper-validation-action@v1.0.5
       - name: Build Engine
         shell: bash
         run: |
