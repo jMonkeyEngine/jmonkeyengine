@@ -42,8 +42,10 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.BackingStoreException;
@@ -743,10 +745,10 @@ public final class SettingsDialog extends JFrame {
         heightLimit -= insets.top + insets.bottom;
         widthLimit -= insets.left + insets.right;
         
-        ArrayList<String> resolutions = new ArrayList<>(modes.length);
-        for (int i = 0; i < modes.length; i++) {
-            int height = modes[i].getHeight();
-            int width = modes[i].getWidth();
+        Set<String> resolutions = new LinkedHashSet<>(modes.length);
+        for (DisplayMode mode : modes) {
+            int height = mode.getHeight();
+            int width = mode.getWidth();
             if (width >= minWidth && height >= minHeight) {
                 if (height >= heightLimit) {
                     height = heightLimit;
@@ -756,15 +758,11 @@ public final class SettingsDialog extends JFrame {
                 }
                 
                 String res = width + " x " + height;
-                if (!resolutions.contains(res)) {
-                    resolutions.add(res);
-                }
+                resolutions.add(res);
             }
         }
 
-        String[] res = new String[resolutions.size()];
-        resolutions.toArray(res);
-        return res;
+        return resolutions.toArray(new String[0]);
     }
     
     /**
@@ -776,12 +774,12 @@ public final class SettingsDialog extends JFrame {
         int maxHeight = 0;
         int maxWidth = 0;
         
-        for (int i = 0; i < modes.length; i++) {
-            if (maxHeight < modes[i].getHeight()) {
-                maxHeight = modes[i].getHeight();
+        for (DisplayMode mode : modes) {
+            if (maxHeight < mode.getHeight()) {
+                maxHeight = mode.getHeight();
             }
-            if (maxWidth < modes[i].getWidth()) {
-                maxWidth = modes[i].getWidth();
+            if (maxWidth < mode.getWidth()) {
+                maxWidth = mode.getWidth();
             }
         }
 
@@ -792,31 +790,34 @@ public final class SettingsDialog extends JFrame {
      * Returns every possible bit depth for the given resolution.
      */
     private static String[] getDepths(String resolution, DisplayMode[] modes) {
-        ArrayList<String> depths = new ArrayList<>(4);
-        for (int i = 0; i < modes.length; i++) {
+        List<String> depths = new ArrayList<>(4);
+        for (DisplayMode mode : modes) {
+            int bitDepth = mode.getBitDepth();
+            if (bitDepth == DisplayMode.BIT_DEPTH_MULTI) {
+                continue;
+            }
             // Filter out all bit depths lower than 16 - Java incorrectly
             // reports
             // them as valid depths though the monitor does not support them
-            if (modes[i].getBitDepth() < 16 && modes[i].getBitDepth() > 0) {
+            if (bitDepth < 16 && bitDepth > 0) {
                 continue;
             }
-
-            String res = modes[i].getWidth() + " x " + modes[i].getHeight();
-            String depth = modes[i].getBitDepth() + " bpp";
-            if (res.equals(resolution) && !depths.contains(depth)) {
+            String res = mode.getWidth() + " x " + mode.getHeight();
+            if (!res.equals(resolution)) {
+                continue;
+            }
+            String depth = bitDepth + " bpp";
+            if (!depths.contains(depth)) {
                 depths.add(depth);
             }
         }
 
-        if (depths.size() == 1 && depths.contains("-1 bpp")) {
+        if (depths.isEmpty()) {
             // add some default depths, possible system is multi-depth supporting
-            depths.clear();
             depths.add("24 bpp");
         }
 
-        String[] res = new String[depths.size()];
-        depths.toArray(res);
-        return res;
+        return depths.toArray(new String[0]);
     }
 
     /**
@@ -824,24 +825,21 @@ public final class SettingsDialog extends JFrame {
      */
     private static String[] getFrequencies(String resolution,
             DisplayMode[] modes) {
-        ArrayList<String> freqs = new ArrayList<>(4);
-        for (int i = 0; i < modes.length; i++) {
-            String res = modes[i].getWidth() + " x " + modes[i].getHeight();
+        List<String> freqs = new ArrayList<>(4);
+        for (DisplayMode mode : modes) {
+            String res = mode.getWidth() + " x " + mode.getHeight();
             String freq;
-            if (modes[i].getRefreshRate() == DisplayMode.REFRESH_RATE_UNKNOWN) {
+            if (mode.getRefreshRate() == DisplayMode.REFRESH_RATE_UNKNOWN) {
                 freq = "???";
             } else {
-                freq = modes[i].getRefreshRate() + " Hz";
+                freq = mode.getRefreshRate() + " Hz";
             }
-
             if (res.equals(resolution) && !freqs.contains(freq)) {
                 freqs.add(freq);
             }
         }
 
-        String[] res = new String[freqs.size()];
-        freqs.toArray(res);
-        return res;
+        return freqs.toArray(new String[0]);
     }
     
     /**
@@ -854,13 +852,12 @@ public final class SettingsDialog extends JFrame {
     private static String getBestFrequency(String resolution, DisplayMode[] modes) {
         int closest = Integer.MAX_VALUE;
         int desired = 60;
-        for (int i = 0; i < modes.length; i++) {
-            String res = modes[i].getWidth() + " x " + modes[i].getHeight();
-            int freq = modes[i].getRefreshRate();
+        for (DisplayMode mode : modes) {
+            String res = mode.getWidth() + " x " + mode.getHeight();
+            int freq = mode.getRefreshRate();
             if (freq != DisplayMode.REFRESH_RATE_UNKNOWN && res.equals(resolution)) {
-                if (Math.abs(freq - desired) < 
-                    Math.abs(closest - desired)) {
-                    closest = modes[i].getRefreshRate();
+                if (Math.abs(freq - desired) < Math.abs(closest - desired)) {
+                    closest = mode.getRefreshRate();
                 }
             }
         }
