@@ -1326,7 +1326,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      * Negates all 4 components.
      *
      * @deprecated The naming of this method doesn't follow convention. Please
-     *     use {@link #normalizeLocal()} instead.
+     *     use {@link #negateLocal()} instead.
      */
     @Deprecated
     public void negate() {
