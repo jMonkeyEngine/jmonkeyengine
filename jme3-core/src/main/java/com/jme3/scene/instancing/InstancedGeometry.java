@@ -32,6 +32,7 @@
 package com.jme3.scene.instancing;
 
 import com.jme3.bounding.BoundingBox;
+import com.jme3.bounding.BoundingSphere;
 import com.jme3.bounding.BoundingVolume;
 import com.jme3.collision.Collidable;
 import com.jme3.collision.CollisionResults;
@@ -43,6 +44,7 @@ import com.jme3.export.Savable;
 import com.jme3.math.Matrix3f;
 import com.jme3.math.Matrix4f;
 import com.jme3.math.Quaternion;
+import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.Camera.FrustumIntersect;
 import com.jme3.scene.Geometry;
@@ -58,10 +60,13 @@ import java.io.IOException;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.function.BiFunction;
 
 public class InstancedGeometry extends Geometry {
 
     private static final int INSTANCE_SIZE = 16;
+
+    private static BiFunction<Camera, Geometry, Boolean> instanceCullingFunction = new DefaultInstanceCullingFunction();
 
     private VertexBuffer[] globalInstanceData;
     private VertexBuffer transformInstanceData;
@@ -93,6 +98,22 @@ public class InstancedGeometry extends Geometry {
         setIgnoreTransform(true);
         setBatchHint(BatchHint.Never);
         setMaxNumInstances(1);
+    }
+
+    /**
+     * Set the function used for culling instances from being rendered.
+     * Default is {@link DefaultInstanceCullingFunction}.
+     */
+    public static void setInstanceCullingFunction(BiFunction<Camera, Geometry, Boolean> instanceCullingFunction) {
+        InstancedGeometry.instanceCullingFunction = instanceCullingFunction;
+    }
+
+    /**
+     * @return The instance culling function or null if there isn't any.
+     * Default is {@link DefaultInstanceCullingFunction}.
+     */
+    public static BiFunction<Camera, Geometry, Boolean> getInstanceCullingFunction() {
+        return instanceCullingFunction;
     }
 
     /**
@@ -284,14 +305,9 @@ public class InstancedGeometry extends Geometry {
                     }
                 }
 
-                if (cam != null) {
-                    BoundingVolume bv = geom.getWorldBound();
-                    int save = cam.getPlaneState();
-                    cam.setPlaneState(0);
-                    FrustumIntersect intersect = cam.contains(bv);
-                    cam.setPlaneState(save);
-
-                    if (intersect == FrustumIntersect.Outside) {
+                if (cam != null && instanceCullingFunction != null) {
+                    boolean culled = instanceCullingFunction.apply(cam, geom);
+                    if (culled) {
                         numCulledGeometries++;
                         continue;
                     }
@@ -457,5 +473,80 @@ public class InstancedGeometry extends Geometry {
         transformInstanceData = null;
         allInstanceData = null;
         geometries = null;
+    }
+
+    /**
+     * By default, it checks if geometry is in camera frustum and culls it
+     * if it is outside camera view. A bound scale can be specified to scale
+     * geometry bound before checking against camera frustum. This can be used
+     * to prevent shadow disappearing when geometry gets slightly outside of
+     * camera frustum while it's shadow is still visible.
+     */
+    public static class DefaultInstanceCullingFunction implements BiFunction<Camera, Geometry, Boolean> {
+
+        private Vector3f boundScale;
+        private final BoundingBox tempBound = new BoundingBox();
+
+        @Override
+        public Boolean apply(Camera cam, Geometry geom) {
+            BoundingVolume bv = geom.getWorldBound();
+            if (boundScale != null) {
+                if (bv instanceof BoundingBox) {
+                    bv = getScaledBound(boundScale, (BoundingBox) bv, tempBound);
+                } else if (bv instanceof BoundingSphere) {
+                    bv = getScaledBound(boundScale, (BoundingSphere) bv, tempBound);
+                }
+            }
+
+            int save = cam.getPlaneState();
+            cam.setPlaneState(0);
+            FrustumIntersect intersect = cam.contains(bv);
+            cam.setPlaneState(save);
+
+            return intersect == FrustumIntersect.Outside;
+        }
+
+        /**
+         * Sets the scale to be applied on instance bound before checking
+         * against camera frustum. Used to prevent shadow disappearing when
+         * geometry gets slightly outside of camera frustum while it's shadow
+         * is still visible.
+         *
+         * (default is null)
+         */
+        public void setBoundScale(Vector3f boundScale) {
+            this.boundScale = boundScale;
+        }
+
+        /**
+         * @return the bound scale (default is null)
+         */
+        public Vector3f getBoundScale() {
+            return boundScale;
+        }
+
+        protected BoundingBox getScaledBound(Vector3f scale, BoundingBox bound, BoundingBox store) {
+            if (store == null) {
+                store = new BoundingBox();
+            }
+
+            store.setCenter(bound.getCenter());
+            store.setXExtent(bound.getXExtent() * scale.x);
+            store.setYExtent(bound.getYExtent() * scale.y);
+            store.setZExtent(bound.getZExtent() * scale.z);
+            return store;
+        }
+
+        protected BoundingBox getScaledBound(Vector3f scale, BoundingSphere bound, BoundingBox store) {
+            if (store == null) {
+                store = new BoundingBox();
+            }
+
+            store.setCenter(bound.getCenter());
+            store.setXExtent(bound.getRadius() * scale.x);
+            store.setYExtent(bound.getRadius() * scale.y);
+            store.setZExtent(bound.getRadius() * scale.z);
+            return store;
+        }
     }
 }
