@@ -58,10 +58,13 @@ import java.io.IOException;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.function.BiFunction;
 
 public class InstancedGeometry extends Geometry {
 
     private static final int INSTANCE_SIZE = 16;
+
+    private static BiFunction<Camera, Geometry, Boolean> instanceCullingFunction = new DefaultInstanceCullingFunction();
 
     private VertexBuffer[] globalInstanceData;
     private VertexBuffer transformInstanceData;
@@ -93,6 +96,22 @@ public class InstancedGeometry extends Geometry {
         setIgnoreTransform(true);
         setBatchHint(BatchHint.Never);
         setMaxNumInstances(1);
+    }
+
+    /**
+     * Set the function used for culling instances from being rendered.
+     * Default is {@link DefaultInstanceCullingFunction}.
+     */
+    public static void setInstanceCullingFunction(BiFunction<Camera, Geometry, Boolean> instanceCullingFunction) {
+        InstancedGeometry.instanceCullingFunction = instanceCullingFunction;
+    }
+
+    /**
+     * @return The instance culling function or null if there isn't any.
+     * Default is {@link DefaultInstanceCullingFunction}.
+     */
+    public static BiFunction<Camera, Geometry, Boolean> getInstanceCullingFunction() {
+        return instanceCullingFunction;
     }
 
     /**
@@ -284,14 +303,9 @@ public class InstancedGeometry extends Geometry {
                     }
                 }
 
-                if (cam != null) {
-                    BoundingVolume bv = geom.getWorldBound();
-                    int save = cam.getPlaneState();
-                    cam.setPlaneState(0);
-                    FrustumIntersect intersect = cam.contains(bv);
-                    cam.setPlaneState(save);
-
-                    if (intersect == FrustumIntersect.Outside) {
+                if (cam != null && instanceCullingFunction != null) {
+                    boolean culled = instanceCullingFunction.apply(cam, geom);
+                    if (culled) {
                         numCulledGeometries++;
                         continue;
                     }
@@ -457,5 +471,23 @@ public class InstancedGeometry extends Geometry {
         transformInstanceData = null;
         allInstanceData = null;
         geometries = null;
+    }
+
+    /**
+     * By default, it checks if geometry is in camera frustum and culls it
+     * if it is outside camera view.
+     */
+    public static class DefaultInstanceCullingFunction implements BiFunction<Camera, Geometry, Boolean> {
+
+        @Override
+        public Boolean apply(Camera cam, Geometry geom) {
+            BoundingVolume bv = geom.getWorldBound();
+            int save = cam.getPlaneState();
+            cam.setPlaneState(0);
+            FrustumIntersect intersect = cam.contains(bv);
+            cam.setPlaneState(save);
+
+            return intersect == FrustumIntersect.Outside;
+        }
     }
 }
