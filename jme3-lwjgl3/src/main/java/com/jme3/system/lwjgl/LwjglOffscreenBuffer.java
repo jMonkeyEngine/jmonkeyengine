@@ -50,4 +50,8 @@ public class LwjglOffscreenBuffer extends LwjglWindow {
     @Override
     protected void setWindowIcon(final AppSettings settings) {
     }
+
+    @Override
+    public void setTitle(String title) {
+    }
 }
