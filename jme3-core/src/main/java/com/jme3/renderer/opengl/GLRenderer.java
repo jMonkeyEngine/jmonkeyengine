@@ -979,10 +979,10 @@ public final class GLRenderer implements Renderer {
                         convertStencilOperation(state.getBackStencilDepthPassOperation()));
                 gl.glStencilFuncSeparate(GL.GL_FRONT,
                         convertTestFunction(state.getFrontStencilFunction()),
-                        0, Integer.MAX_VALUE);
+                        state.getFrontStencilReference(), state.getFrontStencilMask());
                 gl.glStencilFuncSeparate(GL.GL_BACK,
                         convertTestFunction(state.getBackStencilFunction()),
-                        0, Integer.MAX_VALUE);
+                        state.getBackStencilReference(), state.getBackStencilMask());
             } else {
                 gl.glDisable(GL.GL_STENCIL_TEST);
             }
