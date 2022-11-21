@@ -561,8 +561,8 @@ public class RenderState implements Cloneable, Savable {
         backStencilFunction = ic.readEnum("backStencilFunction", TestFunction.class, TestFunction.Always);
         frontStencilReference = ic.readInt("frontStencilReference", 0);
         backStencilReference = ic.readInt("backStencilReference", 0);
-        frontStencilMask = ic.readInt("frontStencilMask",Integer.MAX_VALUE);
-        backStencilMask = ic.readInt("backStencilMask",Integer.MAX_VALUE);
+        frontStencilMask = ic.readInt("frontStencilMask", Integer.MAX_VALUE);
+        backStencilMask = ic.readInt("backStencilMask", Integer.MAX_VALUE);
         blendEquation = ic.readEnum("blendEquation", BlendEquation.class, BlendEquation.Add);
         blendEquationAlpha = ic.readEnum("blendEquationAlpha", BlendEquationAlpha.class, BlendEquationAlpha.InheritColor);
         depthFunc = ic.readEnum("depthFunc", TestFunction.class, TestFunction.LessOrEqual);
