@@ -707,16 +707,16 @@ public class RenderState implements Cloneable, Savable {
             if (backStencilFunction != rs.backStencilFunction) {
                 return false;
             }
-            if(frontStencilMask != rs.frontStencilMask){
+            if (frontStencilMask != rs.frontStencilMask) {
                 return false;
             }
-            if(backStencilMask != rs.backStencilMask){
+            if (backStencilMask != rs.backStencilMask) {
                 return false;
             }
-            if(frontStencilReference != rs.frontStencilReference){
+            if (frontStencilReference != rs.frontStencilReference) {
                 return false;
             }
-            if(backStencilReference != rs.backStencilReference){
+            if (backStencilReference != rs.backStencilReference) {
                 return false;
             }
         }
