@@ -64,8 +64,8 @@ public class AwtMouseInput implements MouseInput, MouseListener, MouseWheelListe
 
     private Component component;
 
-    private final ArrayList<MouseButtonEvent> eventQueue = new ArrayList<>();
-    private final ArrayList<MouseButtonEvent> eventQueueCopy = new ArrayList<>();
+    private final java.util.List<MouseButtonEvent> eventQueue = new ArrayList<>();
+    private final java.util.List<MouseButtonEvent> eventQueueCopy = new ArrayList<>();
 
     private int lastEventX;
     private int lastEventY;
