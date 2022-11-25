@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2022 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -480,6 +480,10 @@ public class RenderState implements Cloneable, Savable {
     StencilOperation backStencilDepthPassOperation = StencilOperation.Keep;
     TestFunction frontStencilFunction = TestFunction.Always;
     TestFunction backStencilFunction = TestFunction.Always;
+    int frontStencilReference = 0;
+    int backStencilReference = 0;
+    int frontStencilMask = Integer.MAX_VALUE;
+    int backStencilMask = Integer.MAX_VALUE;
     int cachedHashCode = -1;
     BlendFunc sfactorRGB = BlendFunc.One;
     BlendFunc dfactorRGB = BlendFunc.One;
@@ -508,6 +512,10 @@ public class RenderState implements Cloneable, Savable {
         oc.write(backStencilDepthPassOperation, "backStencilDepthPassOperation", StencilOperation.Keep);
         oc.write(frontStencilFunction, "frontStencilFunction", TestFunction.Always);
         oc.write(backStencilFunction, "backStencilFunction", TestFunction.Always);
+        oc.write(frontStencilReference, "frontStencilReference", 0);
+        oc.write(backStencilReference, "backStencilReference", 0);
+        oc.write(frontStencilMask, "frontStencilMask", Integer.MAX_VALUE);
+        oc.write(backStencilMask, "backStencilMask", Integer.MAX_VALUE);
         oc.write(blendEquation, "blendEquation", BlendEquation.Add);
         oc.write(blendEquationAlpha, "blendEquationAlpha", BlendEquationAlpha.InheritColor);
         oc.write(depthFunc, "depthFunc", TestFunction.LessOrEqual);
@@ -551,6 +559,10 @@ public class RenderState implements Cloneable, Savable {
         backStencilDepthPassOperation = ic.readEnum("backStencilDepthPassOperation", StencilOperation.class, StencilOperation.Keep);
         frontStencilFunction = ic.readEnum("frontStencilFunction", TestFunction.class, TestFunction.Always);
         backStencilFunction = ic.readEnum("backStencilFunction", TestFunction.class, TestFunction.Always);
+        frontStencilReference = ic.readInt("frontStencilReference", 0);
+        backStencilReference = ic.readInt("backStencilReference", 0);
+        frontStencilMask = ic.readInt("frontStencilMask", Integer.MAX_VALUE);
+        backStencilMask = ic.readInt("backStencilMask", Integer.MAX_VALUE);
         blendEquation = ic.readEnum("blendEquation", BlendEquation.class, BlendEquation.Add);
         blendEquationAlpha = ic.readEnum("blendEquationAlpha", BlendEquationAlpha.class, BlendEquationAlpha.InheritColor);
         depthFunc = ic.readEnum("depthFunc", TestFunction.class, TestFunction.LessOrEqual);
@@ -693,6 +705,18 @@ public class RenderState implements Cloneable, Savable {
                 return false;
             }
             if (backStencilFunction != rs.backStencilFunction) {
+                return false;
+            }
+            if (frontStencilMask != rs.frontStencilMask) {
+                return false;
+            }
+            if (backStencilMask != rs.backStencilMask) {
+                return false;
+            }
+            if (frontStencilReference != rs.frontStencilReference) {
+                return false;
+            }
+            if (backStencilReference != rs.backStencilReference) {
                 return false;
             }
         }
@@ -1126,6 +1150,70 @@ public class RenderState implements Cloneable, Savable {
      */
     public TestFunction getBackStencilFunction() {
         return backStencilFunction;
+    }
+
+    /**
+     * Sets the front stencil mask
+     * @param frontStencilMask
+     */
+    public void setFrontStencilMask(int frontStencilMask) {
+        this.frontStencilMask = frontStencilMask;
+    }
+
+    /**
+     *  Sets the back stencil mask
+     * @param backStencilMask
+     */
+    public void setBackStencilMask(int backStencilMask) {
+        this.backStencilMask = backStencilMask;
+    }
+
+    /**
+     * Sets the front stencil reference
+     * @param frontStencilReference
+     */
+    public void setFrontStencilReference(int frontStencilReference) {
+        this.frontStencilReference = frontStencilReference;
+    }
+
+    /**
+     *  Sets the back stencil reference
+     * @param backStencilReference
+     */
+    public void setBackStencilReference(int backStencilReference) {
+        this.backStencilReference = backStencilReference;
+    }
+
+    /**
+     * Returns the front stencil mask
+     * @return
+     */
+    public int getFrontStencilMask() {
+        return frontStencilMask;
+    }
+
+    /**
+     * Returns the front stencil reference
+     * @return
+     */
+    public int getFrontStencilReference() {
+        return frontStencilReference;
+    }
+
+    /**
+     * Returns the back stencil mask
+     * @return
+     */
+    public int getBackStencilMask() {
+        return backStencilMask;
+    }
+
+    /**
+     * Returns the back stencil reference
+     * @return
+     */
+    public int getBackStencilReference() {
+        return backStencilReference;
     }
 
     /**
