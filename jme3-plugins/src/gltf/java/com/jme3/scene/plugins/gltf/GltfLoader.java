@@ -96,9 +96,6 @@ public class GltfLoader implements AssetLoader {
     Map<SkinData, List<Spatial>> skinnedSpatials = new HashMap<>();
     IntMap<SkinBuffers> skinBuffers = new IntMap<>();
 
-    // Last created geometry
-    private Geometry lastCreatedGeom = null;
-    
     public GltfLoader() {
         defaultMaterialAdapters.put("pbrMetallicRoughness", new PBRMetalRoughMaterialAdapter());
     }
@@ -467,7 +464,10 @@ public class GltfLoader implements AssetLoader {
             // Read mesh extras
             mesh = customContentManager.readExtensionAndExtras("primitive", meshObject, mesh);
             Geometry geom = new Geometry(null, mesh);
-            lastCreatedGeom = geom;
+            // Cached data about the geometry needed by TextureTransformExtensionLoader.class
+            addToCache("lastCreatedGeom", 0, geom, 3); // Last created geometry
+            addToCache("lastCreatedGeom", 1, null, 3); // Last processed geometry
+            addToCache("lastCreatedGeom", 2, null, 3); // Last applied transformation matrix (inverted)
 
             Integer materialIndex = getAsInteger(meshObject, "material");
             if (materialIndex == null) {
@@ -1210,11 +1210,6 @@ public class GltfLoader implements AssetLoader {
     public Node getRootNode() {
         return rootNode;
     }
-    
-    // Getter for the last created geometry
-    public Geometry getLastCreatedGeom() {
-        return lastCreatedGeom;
-    }    
 
     private String decodeUri(String uri) {
         try {

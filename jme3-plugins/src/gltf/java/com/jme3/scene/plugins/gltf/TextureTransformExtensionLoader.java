@@ -47,9 +47,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Extension loader for KHR_texture_transform, which allows for
- * UV coordinates to be scaled/rotated/translated based on 
- * transformation properties from textures in the glTF model.
+ * Thread-safe extension loader for KHR_texture_transform. 
+ * It allows for UV coordinates to be scaled/rotated/translated  
+ * based on transformation properties from textures in the glTF model.
  *
  * See spec at https://github.com/KhronosGroup/glTF/tree/main/extensions/2.0/Khronos/KHR_texture_transform
  *
@@ -58,9 +58,6 @@ import java.util.logging.Logger;
 public class TextureTransformExtensionLoader implements ExtensionLoader {
     
     private final static Logger logger = Logger.getLogger(TextureTransformExtensionLoader.class.getName());
-    
-    private Geometry geomLast = null; // Last geometry created by the GltfLoader.class object
-    private Matrix3f mInvLast = null; // Last transformation matrix (inverted) that was applied
         
     /**
      * Scale/rotate/translate UV coordinates based on a transformation matrix.
@@ -69,33 +66,38 @@ public class TextureTransformExtensionLoader implements ExtensionLoader {
      * @param m The matrix containing the scale/rotate/translate transformations
      */    
     private void uvTransform(Mesh mesh, Matrix3f m) {
-        VertexBuffer tc = mesh.getBuffer(VertexBuffer.Type.TexCoord);
-        if (tc == null) {
-            throw new IllegalStateException("The mesh has no texture coordinates");
+        if (!m.isIdentity()) { // if m is the identity matrix, there's nothing to do
+            VertexBuffer tc = mesh.getBuffer(VertexBuffer.Type.TexCoord);
+            if (tc == null) {
+                throw new IllegalStateException("The mesh has no texture coordinates");
+            }
+            if (tc.getFormat() != VertexBuffer.Format.Float) {
+                throw new UnsupportedOperationException("Only float texture coord format is supported");
+            }
+            if (tc.getNumComponents() != 2) {
+                throw new UnsupportedOperationException("Only 2D texture coords are supported");
+            }
+            FloatBuffer fb = (FloatBuffer) tc.getData();
+            fb.clear();
+            for (int i = 0; i < fb.limit() / 2; i++) {
+                float x = fb.get();
+                float y = fb.get();
+                fb.position(fb.position() - 2);
+                Vector3f v = m.mult(new Vector3f(x, y, 1));
+                fb.put(v.getX()).put(v.getY());
+            }
+            fb.clear();
+            tc.updateData(fb);   
         }
-        if (tc.getFormat() != VertexBuffer.Format.Float) {
-            throw new UnsupportedOperationException("Only float texture coord format is supported");
-        }
-        if (tc.getNumComponents() != 2) {
-            throw new UnsupportedOperationException("Only 2D texture coords are supported");
-        }
-        FloatBuffer fb = (FloatBuffer) tc.getData();
-        fb.clear();
-        for (int i = 0; i < fb.limit() / 2; i++) {
-            float x = fb.get();
-            float y = fb.get();
-            fb.position(fb.position() - 2);
-            Vector3f v = m.mult(new Vector3f(x, y, 1));
-            fb.put(v.getX()).put(v.getY());
-        }
-        fb.clear();
-        tc.updateData(fb);        
     }
     
+    // The algorithm relies on the fact that the GltfLoader.class object 
+    // loads all textures of a given geometry/mesh before doing so 
+    // for the next geometry/mesh.    
     @Override
     public Object handleExtension(GltfLoader loader, String parentName, JsonElement parent, JsonElement extension, Object input) throws IOException {
         if (input instanceof Texture2D) {
-            Geometry geom = loader.getLastCreatedGeom();
+            Geometry geom = loader.fetchFromCache("lastCreatedGeom", 0, Geometry.class);
             if (geom != null) {
                 Matrix3f t = new Matrix3f();
                 Matrix3f r = new Matrix3f();
@@ -122,13 +124,15 @@ public class TextureTransformExtensionLoader implements ExtensionLoader {
                     logger.log(Level.WARNING, "KHR_texture_transform extension: the texCoord property is not supported");                
                 }                 
                 Matrix3f m = t.mult(r).mult(s);
+                Geometry geomLast = loader.fetchFromCache("lastCreatedGeom", 1, Geometry.class);
                 if (geom != geomLast) {
-                    geomLast = geom;
-                    mInvLast = m.invert();
+                    loader.addToCache("lastCreatedGeom", 1, geom, 3);
+                    loader.addToCache("lastCreatedGeom", 2, m.invert(), 3);
                     uvTransform(geom.getMesh(), m);
                     logger.log(Level.FINE, "KHR_texture_transform extension successfully applied"); 
                 }
                 else {
+                    Matrix3f mInvLast = loader.fetchFromCache("lastCreatedGeom", 2, Matrix3f.class);
                     if (!m.mult(mInvLast).isIdentity()) {
                         logger.log(Level.WARNING, "KHR_texture_transform extension: use of different texture transforms for the same geometry is not supported");
                     }
