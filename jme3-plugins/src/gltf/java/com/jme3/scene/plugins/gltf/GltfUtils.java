@@ -382,21 +382,20 @@ public class GltfUtils {
         // 5121 (UNSIGNED_BYTE)      f = c / 255.0               c = round(f * 255.0)
         // 5122 (SHORT)              f = max(c / 32767.0, -1.0)  c = round(f * 32767.0)
         // 5123 (UNSIGNED_SHORT)     f = c / 65535.0             c = round(f * 65535.0)
-        byte b;
-        int s;
+        int c;
         switch (format) {
             case Byte:
-                b = stream.readByte();
-                return Math.max(b / 127f, -1f);
+                c = stream.readByte();
+                return Math.max(c / 127f, -1f);
             case UnsignedByte:
-                s = stream.readUnsignedByte();
-                return s / 255f;
+                c = stream.readUnsignedByte();
+                return c / 255f;
             case Short:
-                s = stream.readShort();
-                return Math.max(s / 32767f, -1f);
+                c = stream.readShort();
+                return Math.max(c / 32767f, -1f);
             case UnsignedShort:
-                s = stream.readUnsignedShort();
-                return s / 65535f;
+                c = stream.readUnsignedShort();
+                return c / 65535f;
             default:
                 //we have a regular float
                 return stream.readFloat();
