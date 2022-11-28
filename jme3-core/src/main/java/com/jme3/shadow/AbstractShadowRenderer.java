@@ -138,11 +138,11 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
     /**
      * Create an abstract shadow renderer. Subclasses invoke this constructor.
      *
-     * @param assetManager  the application asset manager
+     * @param assetManager the application asset manager
      * @param shadowMapSize the size of the rendered shadow maps (512,1024,2048,
-     *                      etc...)
-     * @param nbShadowMaps  the number of shadow maps rendered (the more shadow
-     *                      maps the more quality, the fewer fps).
+     * etc...)
+     * @param nbShadowMaps the number of shadow maps rendered (the more shadow
+     * maps the more quality, the fewer fps).
      */
     protected AbstractShadowRenderer(AssetManager assetManager, int shadowMapSize, int nbShadowMaps) {
 
@@ -247,8 +247,8 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
     /**
      * returns the edge filtering mode
      *
-     * @return the enum value
      * @see EdgeFilteringMode
+     * @return the enum value
      */
     public EdgeFilteringMode getEdgeFilteringMode() {
         return edgeFilteringMode;
@@ -287,8 +287,8 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
     /**
      * returns the shadow compare mode
      *
-     * @return the shadowCompareMode
      * @see CompareMode
+     * @return the shadowCompareMode
      */
     public CompareMode getShadowCompareMode() {
         return shadowCompareMode;
@@ -298,7 +298,7 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
      * debug function to create a visible frustum
      *
      * @param pts optional storage for vertex positions (may be null)
-     * @param i   the index of the desired wire color (default=White)
+     * @param i the index of the desired wire color (default=White)
      * @return a new Geometry
      */
     protected Geometry createFrustum(Vector3f[] pts, int i) {
@@ -342,7 +342,7 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
         renderManager = rm;
         viewPort = vp;
         postTechniqueName = "PostShadow";
-        if (zFarOverride > 0 && frustumCam == null) {
+        if(zFarOverride>0 && frustumCam == null){
             initFrustumCam();
         }
     }
@@ -374,7 +374,7 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
      * Returns a subclass-specific geometryList containing the occluders to be
      * rendered in the shadow map
      *
-     * @param shadowMapIndex     the index of the shadow map being rendered
+     * @param shadowMapIndex the index of the shadow map being rendered
      * @param shadowMapOccluders the list of occluders
      * @return the geometryList
      */
@@ -416,12 +416,12 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
 
         for (int shadowMapIndex = 0; shadowMapIndex < nbShadowMaps; shadowMapIndex++) {
 
-            if (debugfrustums) {
-                doDisplayFrustumDebug(shadowMapIndex);
-            }
-            renderShadowMap(shadowMapIndex);
+                if (debugfrustums) {
+                    doDisplayFrustumDebug(shadowMapIndex);
+                }
+                renderShadowMap(shadowMapIndex);
 
-        }
+            }
 
         debugfrustums = false;
 
@@ -532,7 +532,7 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
      */
     protected abstract void clearMaterialParameters(Material material);
 
-    private void clearMatParams() {
+    private void clearMatParams(){
         for (Material mat : matCache) {
 
             //clearing only necessary params, the others may be set by other
@@ -584,7 +584,7 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
             mat.setBoolean("BackfaceShadows", renderBackFacesShadows);
 
             if (fadeInfo != null) {
-                mat.setVector2("FadeInfo", fadeInfo);
+               mat.setVector2("FadeInfo", fadeInfo);
             }
 
             setMaterialParameters(mat);
@@ -631,8 +631,8 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
     /**
      * How far the shadows are rendered in the view
      *
-     * @return shadowZExtend
      * @see #setShadowZExtend(float zFar)
+     * @return shadowZExtend
      */
     public float getShadowZExtend() {
         return zFarOverride;
@@ -647,14 +647,14 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
      */
     public void setShadowZExtend(float zFar) {
         this.zFarOverride = zFar;
-        if (zFarOverride == 0) {
+        if(zFarOverride == 0){
             fadeInfo = null;
             frustumCam = null;
-        } else {
+        }else{
             if (fadeInfo != null) {
                 fadeInfo.set(zFarOverride - fadeLength, 1f / fadeLength);
             }
-            if (frustumCam == null && viewPort != null) {
+            if(frustumCam == null && viewPort != null){
                 initFrustumCam();
             }
         }
@@ -717,8 +717,8 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
     /**
      * Returns the shadow intensity.
      *
-     * @return shadowIntensity
      * @see #setShadowIntensity(float shadowIntensity)
+     * @return shadowIntensity
      */
     public float getShadowIntensity() {
         return shadowIntensity;
@@ -739,8 +739,8 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
     /**
      * returns the edges thickness
      *
-     * @return edgesThickness
      * @see #setEdgesThickness(int edgesThickness)
+     * @return edgesThickness
      */
     public int getEdgesThickness() {
         return (int) (edgesThickness * 10);
@@ -777,20 +777,17 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
     }
 
     /**
-     * isFlushQueues does nothing now and is kept only for backward compatibility
+     *  isFlushQueues does nothing now and is kept only for backward compatibility
      *
      * @return false
      */
     @Deprecated
-    public boolean isFlushQueues() {
-        return false;
-    }
+    public boolean isFlushQueues() { return false; }
 
     /**
      * returns the pre shadows pass render state.
      * use it to adjust the RenderState parameters of the pre shadow pass.
      * Note that this will be overridden if the preShadow technique in the material has a ForcedRenderState
-     *
      * @return the pre shadow render state.
      */
     public RenderState getPreShadowForcedRenderState() {
@@ -800,10 +797,10 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
     /**
      * Set to true if you want back faces shadows on geometries.
      * Note that back faces shadows will be blended over dark lighten areas and may produce overly dark lighting.
-     * <p>
+     *
      * Also note that setting this parameter will override this parameter for ALL materials in the scene.
      * You can alternatively change this parameter on a single material using {@link Material#setBoolean(String, boolean)}
-     * <p>
+     *
      * This also will automatically adjust the faceCullMode and the PolyOffset of the pre shadow pass.
      * You can modify them by using {@link #getPreShadowForcedRenderState()}
      *
@@ -811,10 +808,10 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
      */
     public void setRenderBackFacesShadows(Boolean renderBackFacesShadows) {
         this.renderBackFacesShadows = renderBackFacesShadows;
-        if (renderBackFacesShadows) {
+        if(renderBackFacesShadows) {
             getPreShadowForcedRenderState().setPolyOffset(5, 3);
             getPreShadowForcedRenderState().setFaceCullMode(RenderState.FaceCullMode.Back);
-        } else {
+        }else{
             getPreShadowForcedRenderState().setPolyOffset(0, 0);
             getPreShadowForcedRenderState().setFaceCullMode(RenderState.FaceCullMode.Front);
         }
