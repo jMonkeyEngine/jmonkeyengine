@@ -32,6 +32,8 @@
 package com.jme3.shadow;
 
 import com.jme3.asset.AssetManager;
+import com.jme3.light.LightFilter;
+import com.jme3.light.NullLightFilter;
 import com.jme3.material.Material;
 import com.jme3.math.Vector3f;
 import com.jme3.post.SceneProcessor;
@@ -59,7 +61,7 @@ import com.jme3.ui.Picture;
  */
 @Deprecated
 public class BasicShadowRenderer implements SceneProcessor {
-
+    private static LightFilter NULL_LIGHT_FILTER = new NullLightFilter();
     private RenderManager renderManager;
     private ViewPort viewPort;
     final private FrameBuffer shadowFB;
@@ -196,7 +198,11 @@ public class BasicShadowRenderer implements SceneProcessor {
 
         r.setFrameBuffer(shadowFB);
         r.clearBuffers(true, true, true);
+        // render shadow casters to shadow map and disables the lightfilter
+        LightFilter tmpLightFilter = renderManager.getLightFilter();
+        renderManager.setLightFilter(NULL_LIGHT_FILTER);
         viewPort.getQueue().renderShadowQueue(shadowOccluders, renderManager, shadowCam, true);
+        renderManager.setLightFilter(tmpLightFilter);
         r.setFrameBuffer(viewPort.getOutputFrameBuffer());
 
         renderManager.setForcedMaterial(null);

@@ -32,6 +32,8 @@
 package com.jme3.shadow;
 
 import com.jme3.asset.AssetManager;
+import com.jme3.light.LightFilter;
+import com.jme3.light.NullLightFilter;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Matrix4f;
@@ -75,7 +77,7 @@ import java.util.List;
  */
 @Deprecated
 public class PssmShadowRenderer implements SceneProcessor {
-
+    private static LightFilter NULL_LIGHT_FILTER = new NullLightFilter();
     /**
      * <code>FilterMode</code> specifies how shadows are filtered
      * @deprecated use {@link EdgeFilteringMode}
@@ -448,8 +450,11 @@ public class PssmShadowRenderer implements SceneProcessor {
             r.setFrameBuffer(shadowFB[i]);
             r.clearBuffers(true, true, true);
 
-            // render shadow casters to shadow map
+            // render shadow casters to shadow map and disables the lightfilter
+            LightFilter tmpLightFilter = renderManager.getLightFilter();
+            renderManager.setLightFilter(NULL_LIGHT_FILTER);
             viewPort.getQueue().renderShadowQueue(splitOccluders, renderManager, shadowCam, true);
+            renderManager.setLightFilter(tmpLightFilter);
         }
         debugfrustums = false;
 
