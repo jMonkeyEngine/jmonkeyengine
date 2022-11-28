@@ -37,7 +37,6 @@ import com.google.gson.JsonObject;
 import com.jme3.asset.AssetLoadException;
 import com.jme3.math.Matrix3f;
 import com.jme3.math.Vector3f;
-import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.texture.Texture2D;
@@ -63,10 +62,10 @@ public class TextureTransformExtensionLoader implements ExtensionLoader {
      * Scale/rotate/translate UV coordinates based on a transformation matrix.
      * Code adapted from scaleTextureCoordinates(Vector2f) in jme3-core/src/main/java/com/jme3/scene/Mesh.java
      * @param mesh The mesh holding the UV coordinates
-     * @param m The matrix containing the scale/rotate/translate transformations
+     * @param transform The matrix containing the scale/rotate/translate transformations
      */    
-    private void uvTransform(Mesh mesh, Matrix3f m) {
-        if (!m.isIdentity()) { // if m is the identity matrix, there's nothing to do
+    private void uvTransform(Mesh mesh, Matrix3f transform) {
+        if (!transform.isIdentity()) { // if m is the identity matrix, there's nothing to do
             VertexBuffer tc = mesh.getBuffer(VertexBuffer.Type.TexCoord);
             if (tc == null) {
                 throw new IllegalStateException("The mesh has no texture coordinates");
@@ -83,7 +82,7 @@ public class TextureTransformExtensionLoader implements ExtensionLoader {
                 float x = fb.get();
                 float y = fb.get();
                 fb.position(fb.position() - 2);
-                Vector3f v = m.mult(new Vector3f(x, y, 1));
+                Vector3f v = transform.mult(new Vector3f(x, y, 1));
                 fb.put(v.getX()).put(v.getY());
             }
             fb.clear();
@@ -92,59 +91,56 @@ public class TextureTransformExtensionLoader implements ExtensionLoader {
     }
     
     // The algorithm relies on the fact that the GltfLoader.class object 
-    // loads all textures of a given geometry/mesh before doing so 
-    // for the next geometry/mesh.    
+    // loads all textures of a given mesh before doing so for the next mesh.    
     @Override
     public Object handleExtension(GltfLoader loader, String parentName, JsonElement parent, JsonElement extension, Object input) throws IOException {
-        if (input instanceof Texture2D) {
-            Geometry geom = loader.fetchFromCache("lastCreatedGeom", 0, Geometry.class);
-            if (geom != null) {
-                Matrix3f t = new Matrix3f();
-                Matrix3f r = new Matrix3f();
-                Matrix3f s = new Matrix3f();
-                JsonObject jsonObject = extension.getAsJsonObject();
-                if (jsonObject.has("offset")) {
-                    JsonArray jsonArray = jsonObject.getAsJsonArray("offset");
-                    t.set(2, 0, jsonArray.get(0).getAsFloat());
-                    t.set(2, 1, jsonArray.get(1).getAsFloat());                    
-                }
-                if (jsonObject.has("rotation")) {
-                    float rad = jsonObject.get("rotation").getAsFloat();
-                    r.set(0, 0, (float) Math.cos(rad));
-                    r.set(0, 1, (float) Math.sin(rad));
-                    r.set(1, 0, (float) -Math.sin(rad));
-                    r.set(1, 1, (float) Math.cos(rad));
-                }                
-                if (jsonObject.has("scale")) {
-                    JsonArray jsonArray = jsonObject.getAsJsonArray("scale");
-                    s.set(0, 0, jsonArray.get(0).getAsFloat());
-                    s.set(1, 1, jsonArray.get(1).getAsFloat());
-                }     
-                if (jsonObject.has("texCoord")) {
-                    logger.log(Level.WARNING, "KHR_texture_transform extension: the texCoord property is not supported");                
-                }                 
-                Matrix3f m = t.mult(r).mult(s);
-                Geometry geomLast = loader.fetchFromCache("lastCreatedGeom", 1, Geometry.class);
-                if (geom != geomLast) {
-                    loader.addToCache("lastCreatedGeom", 1, geom, 3);
-                    loader.addToCache("lastCreatedGeom", 2, m.invert(), 3);
-                    uvTransform(geom.getMesh(), m);
-                    logger.log(Level.FINE, "KHR_texture_transform extension successfully applied"); 
-                }
-                else {
-                    Matrix3f mInvLast = loader.fetchFromCache("lastCreatedGeom", 2, Matrix3f.class);
-                    if (!m.mult(mInvLast).isIdentity()) {
-                        logger.log(Level.WARNING, "KHR_texture_transform extension: use of different texture transforms for the same geometry is not supported");
-                    }
-                }
-                return input;
+        if (!(input instanceof Texture2D)) {
+            logger.log(Level.WARNING, "KHR_texture_transform extension added on an unsupported element, the loaded scene result will be unexpected.");
+        }
+        Mesh mesh = loader.fetchFromCache("mesh", 0, Mesh.class);
+        if (mesh != null) {
+            Matrix3f translation = new Matrix3f();
+            Matrix3f rotation = new Matrix3f();
+            Matrix3f scale = new Matrix3f();
+            JsonObject jsonObject = extension.getAsJsonObject();
+            if (jsonObject.has("offset")) {
+                JsonArray jsonArray = jsonObject.getAsJsonArray("offset");
+                translation.set(2, 0, jsonArray.get(0).getAsFloat());
+                translation.set(2, 1, jsonArray.get(1).getAsFloat());                    
+            }
+            if (jsonObject.has("rotation")) {
+                float rad = jsonObject.get("rotation").getAsFloat();
+                rotation.set(0, 0, (float) Math.cos(rad));
+                rotation.set(0, 1, (float) Math.sin(rad));
+                rotation.set(1, 0, (float) -Math.sin(rad));
+                rotation.set(1, 1, (float) Math.cos(rad));
+            }                
+            if (jsonObject.has("scale")) {
+                JsonArray jsonArray = jsonObject.getAsJsonArray("scale");
+                scale.set(0, 0, jsonArray.get(0).getAsFloat());
+                scale.set(1, 1, jsonArray.get(1).getAsFloat());
+            }     
+            if (jsonObject.has("texCoord")) {
+                logger.log(Level.WARNING, "KHR_texture_transform extension: the texCoord property is not supported, the loaded scene result will be unexpected.");                
+            }                 
+            Matrix3f transform = translation.mult(rotation).mult(scale);
+            Mesh meshLast = loader.fetchFromCache("textureTransformData", 0, Mesh.class);
+            if (mesh != meshLast) {
+                loader.addToCache("textureTransformData", 0, mesh, 2);
+                loader.addToCache("textureTransformData", 1, transform.invert(), 2);
+                uvTransform(mesh, transform);
+                logger.log(Level.FINE, "KHR_texture_transform extension successfully applied."); 
             }
             else {
-                throw new AssetLoadException("KHR_texture_transform extension applied to a null geometry");
+                Matrix3f mInvLast = loader.fetchFromCache("textureTransformData", 1, Matrix3f.class);
+                if (!transform.mult(mInvLast).isIdentity()) {
+                    logger.log(Level.WARNING, "KHR_texture_transform extension: use of different texture transforms for the same mesh is not supported, the loaded scene result will be unexpected.");
+                }
             }
-        } 
+            return input;
+        }
         else {
-            throw new AssetLoadException("KHR_texture_transform extension added on an unsupported element");
-        }        
+            throw new AssetLoadException("KHR_texture_transform extension applied to a null mesh.");
+        }
     }
 }

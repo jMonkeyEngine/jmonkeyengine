@@ -382,6 +382,7 @@ public class GltfLoader implements AssetLoader {
         for (JsonElement primitive : primitives) {
             JsonObject meshObject = primitive.getAsJsonObject();
             Mesh mesh = new Mesh();
+            addToCache("mesh", 0, mesh, 1);
             Integer mode = getAsInteger(meshObject, "mode");
             mesh.setMode(getMeshMode(mode));
             Integer indices = getAsInteger(meshObject, "indices");
@@ -464,10 +465,6 @@ public class GltfLoader implements AssetLoader {
             // Read mesh extras
             mesh = customContentManager.readExtensionAndExtras("primitive", meshObject, mesh);
             Geometry geom = new Geometry(null, mesh);
-            // Cached data about the geometry needed by TextureTransformExtensionLoader.class
-            addToCache("lastCreatedGeom", 0, geom, 3); // Last created geometry
-            addToCache("lastCreatedGeom", 1, null, 3); // Last processed geometry
-            addToCache("lastCreatedGeom", 2, null, 3); // Last applied transformation matrix (inverted)
 
             Integer materialIndex = getAsInteger(meshObject, "material");
             if (materialIndex == null) {
