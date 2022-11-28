@@ -61,7 +61,7 @@ import com.jme3.ui.Picture;
  */
 @Deprecated
 public class BasicShadowRenderer implements SceneProcessor {
-    private static LightFilter NULL_LIGHT_FILTER = new NullLightFilter();
+    private static final LightFilter NULL_LIGHT_FILTER = new NullLightFilter();
     private RenderManager renderManager;
     private ViewPort viewPort;
     final private FrameBuffer shadowFB;

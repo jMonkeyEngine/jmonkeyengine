@@ -79,7 +79,7 @@ import java.util.logging.Logger;
 public abstract class AbstractShadowRenderer implements SceneProcessor, Savable, JmeCloneable, Cloneable {
 
     protected static final Logger logger = Logger.getLogger(AbstractShadowRenderer.class.getName());
-    private static LightFilter NULL_LIGHT_FILTER = new NullLightFilter();
+    private static final LightFilter NULL_LIGHT_FILTER = new NullLightFilter();
     protected int nbShadowMaps = 1;
     protected float shadowMapSize;
     protected float shadowIntensity = 0.7f;

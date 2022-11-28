@@ -77,7 +77,7 @@ import java.util.List;
  * @author Julien Seinturier - COMEX SA - <a href="http://www.seinturier.fr">http://www.seinturier.fr</a>
  */
 public abstract class AbstractShadowRendererVR implements SceneProcessor, Savable {
-    private static LightFilter NULL_LIGHT_FILTER = new NullLightFilter();
+    private static final LightFilter NULL_LIGHT_FILTER = new NullLightFilter();
     protected int nbShadowMaps = 1;
     protected float shadowMapSize;
     protected float shadowIntensity = 0.7f;

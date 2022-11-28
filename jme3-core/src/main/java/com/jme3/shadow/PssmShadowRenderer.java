@@ -77,7 +77,7 @@ import java.util.List;
  */
 @Deprecated
 public class PssmShadowRenderer implements SceneProcessor {
-    private static LightFilter NULL_LIGHT_FILTER = new NullLightFilter();
+    private static final LightFilter NULL_LIGHT_FILTER = new NullLightFilter();
     /**
      * <code>FilterMode</code> specifies how shadows are filtered
      * @deprecated use {@link EdgeFilteringMode}
