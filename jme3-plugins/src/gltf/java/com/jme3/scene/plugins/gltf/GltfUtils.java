@@ -389,8 +389,8 @@ public class GltfUtils {
                 b = stream.readByte();
                 return Math.max(b / 127f, -1f);
             case UnsignedByte:
-                b = stream.readByte();
-                return b / 255f;
+                s = stream.readUnsignedByte();
+                return s / 255f;
             case Short:
                 s = stream.readShort();
                 return Math.max(s / 32767f, -1f);
