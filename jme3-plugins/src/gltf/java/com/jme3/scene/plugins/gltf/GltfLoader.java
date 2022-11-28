@@ -1282,8 +1282,7 @@ public class GltfLoader implements AssetLoader {
         public VertexBuffer populate(Integer bufferViewIndex, int componentType, String type, int count,
                 int byteOffset, boolean normalized) throws IOException {
             if (bufferType == null) {
-                logger.log(Level.WARNING,
-                        "could not assign data to any VertexBuffer type for buffer view " + bufferViewIndex);
+                logger.log(Level.WARNING, "could not assign data to any VertexBuffer type for buffer view {0}", bufferViewIndex);
                 return null;
             }
 
