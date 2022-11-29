@@ -38,9 +38,9 @@ import com.jme3.scene.Geometry;
  * NullLightFilter does nothing. Used when you want
  * to disable the light filter
  *
- * @author Kirill Vainer
+ * @author Michael Zuegg
  */
-public class NullLightFilter implements LightFilter{
+public class NullLightFilter implements LightFilter {
     @Override
     public void setCamera(Camera camera) {
 
