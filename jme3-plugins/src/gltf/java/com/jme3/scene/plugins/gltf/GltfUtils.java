@@ -38,7 +38,6 @@ import com.jme3.math.*;
 import com.jme3.scene.*;
 import com.jme3.texture.Texture;
 import com.jme3.util.*;
-
 import java.io.*;
 import java.nio.*;
 import java.util.*;
@@ -383,20 +382,20 @@ public class GltfUtils {
         // 5121 (UNSIGNED_BYTE)      f = c / 255.0               c = round(f * 255.0)
         // 5122 (SHORT)              f = max(c / 32767.0, -1.0)  c = round(f * 32767.0)
         // 5123 (UNSIGNED_SHORT)     f = c / 65535.0             c = round(f * 65535.0)
-        byte b;
+        int c;
         switch (format) {
             case Byte:
-                b = stream.readByte();
-                return Math.max(b / 127f, -1f);
+                c = stream.readByte();
+                return Math.max(c / 127f, -1f);
             case UnsignedByte:
-                b = stream.readByte();
-                return b / 255f;
+                c = stream.readUnsignedByte();
+                return c / 255f;
             case Short:
-                b = stream.readByte();
-                return Math.max(b / 32767f, -1f);
+                c = stream.readShort();
+                return Math.max(c / 32767f, -1f);
             case UnsignedShort:
-                b = stream.readByte();
-                return b / 65535f;
+                c = stream.readUnsignedShort();
+                return c / 65535f;
             default:
                 //we have a regular float
                 return stream.readFloat();
