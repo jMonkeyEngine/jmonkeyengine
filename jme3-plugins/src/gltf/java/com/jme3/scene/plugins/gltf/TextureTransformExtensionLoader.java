@@ -65,7 +65,7 @@ public class TextureTransformExtensionLoader implements ExtensionLoader {
      * @param transform The matrix containing the scale/rotate/translate transformations
      */    
     private void uvTransform(Mesh mesh, Matrix3f transform) {
-        if (!transform.isIdentity()) { // if m is the identity matrix, there's nothing to do
+        if (!transform.isIdentity()) { // if transform is the identity matrix, there's nothing to do
             VertexBuffer tc = mesh.getBuffer(VertexBuffer.Type.TexCoord);
             if (tc == null) {
                 throw new IllegalStateException("The mesh has no texture coordinates");
@@ -105,8 +105,8 @@ public class TextureTransformExtensionLoader implements ExtensionLoader {
             JsonObject jsonObject = extension.getAsJsonObject();
             if (jsonObject.has("offset")) {
                 JsonArray jsonArray = jsonObject.getAsJsonArray("offset");
-                translation.set(2, 0, jsonArray.get(0).getAsFloat());
-                translation.set(2, 1, jsonArray.get(1).getAsFloat());                    
+                translation.set(0, 2, jsonArray.get(0).getAsFloat());
+                translation.set(1, 2, jsonArray.get(1).getAsFloat());                    
             }
             if (jsonObject.has("rotation")) {
                 float rad = jsonObject.get("rotation").getAsFloat();
