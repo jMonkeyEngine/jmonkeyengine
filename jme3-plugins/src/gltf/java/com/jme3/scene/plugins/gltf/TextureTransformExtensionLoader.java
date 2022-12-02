@@ -39,6 +39,8 @@ import com.jme3.math.Matrix3f;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer;
+import static com.jme3.scene.plugins.gltf.GltfUtils.getAsInteger;
+import static com.jme3.scene.plugins.gltf.GltfUtils.getVertexBufferType;
 import com.jme3.texture.Texture2D;
 import java.io.IOException;
 import java.nio.FloatBuffer;
@@ -63,10 +65,11 @@ public class TextureTransformExtensionLoader implements ExtensionLoader {
      * Code adapted from scaleTextureCoordinates(Vector2f) in jme3-core/src/main/java/com/jme3/scene/Mesh.java
      * @param mesh The mesh holding the UV coordinates
      * @param transform The matrix containing the scale/rotate/translate transformations
+     * @param verType The vertex buffer type from which to retrieve the UV coordinates
      */    
-    private void uvTransform(Mesh mesh, Matrix3f transform) {
+    private void uvTransform(Mesh mesh, Matrix3f transform, VertexBuffer.Type verType) {
         if (!transform.isIdentity()) { // if transform is the identity matrix, there's nothing to do
-            VertexBuffer tc = mesh.getBuffer(VertexBuffer.Type.TexCoord);
+            VertexBuffer tc = mesh.getBuffer(verType);
             if (tc == null) {
                 throw new IllegalStateException("The mesh has no texture coordinates");
             }
@@ -86,7 +89,7 @@ public class TextureTransformExtensionLoader implements ExtensionLoader {
                 fb.put(v.getX()).put(v.getY());
             }
             fb.clear();
-            tc.updateData(fb);   
+            tc.updateData(fb);         
         }
     }
     
@@ -102,6 +105,7 @@ public class TextureTransformExtensionLoader implements ExtensionLoader {
             Matrix3f translation = new Matrix3f();
             Matrix3f rotation = new Matrix3f();
             Matrix3f scale = new Matrix3f();
+            Integer texCoord = getAsInteger(parent.getAsJsonObject(), "texCoord");
             JsonObject jsonObject = extension.getAsJsonObject();
             if (jsonObject.has("offset")) {
                 JsonArray jsonArray = jsonObject.getAsJsonArray("offset");
@@ -121,19 +125,19 @@ public class TextureTransformExtensionLoader implements ExtensionLoader {
                 scale.set(1, 1, jsonArray.get(1).getAsFloat());
             }     
             if (jsonObject.has("texCoord")) {
-                logger.log(Level.WARNING, "KHR_texture_transform extension: the texCoord property is not supported, the loaded scene result will be unexpected.");                
+                texCoord = getAsInteger(jsonObject, "texCoord"); // it overrides the parent's texCoord value
             }                 
             Matrix3f transform = translation.mult(rotation).mult(scale);
             Mesh meshLast = loader.fetchFromCache("textureTransformData", 0, Mesh.class);
             if (mesh != meshLast) {
                 loader.addToCache("textureTransformData", 0, mesh, 2);
-                loader.addToCache("textureTransformData", 1, transform.invert(), 2);
-                uvTransform(mesh, transform);
+                loader.addToCache("textureTransformData", 1, transform, 2);
+                uvTransform(mesh, transform, getVertexBufferType("TEXCOORD_" + (texCoord != null ? texCoord : 0)));
                 logger.log(Level.FINE, "KHR_texture_transform extension successfully applied."); 
             }
             else {
-                Matrix3f mInvLast = loader.fetchFromCache("textureTransformData", 1, Matrix3f.class);
-                if (!transform.mult(mInvLast).isIdentity()) {
+                Matrix3f transformLast = loader.fetchFromCache("textureTransformData", 1, Matrix3f.class);
+                if (!transform.toString().equals(transformLast.toString())) {
                     logger.log(Level.WARNING, "KHR_texture_transform extension: use of different texture transforms for the same mesh is not supported, the loaded scene result will be unexpected.");
                 }
             }
