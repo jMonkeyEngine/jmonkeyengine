@@ -89,7 +89,7 @@ public class TextureTransformExtensionLoader implements ExtensionLoader {
                 fb.put(v.getX()).put(v.getY());
             }
             fb.clear();
-            tc.updateData(fb);         
+            tc.updateData(fb);   
         }
     }
     
@@ -137,7 +137,7 @@ public class TextureTransformExtensionLoader implements ExtensionLoader {
             }
             else {
                 Matrix3f transformLast = loader.fetchFromCache("textureTransformData", 1, Matrix3f.class);
-                if (!transform.toString().equals(transformLast.toString())) {
+                if (!transform.equals(transformLast)) {
                     logger.log(Level.WARNING, "KHR_texture_transform extension: use of different texture transforms for the same mesh is not supported, the loaded scene result will be unexpected.");
                 }
             }
