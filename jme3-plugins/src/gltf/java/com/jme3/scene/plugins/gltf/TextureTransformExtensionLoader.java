@@ -44,6 +44,8 @@ import static com.jme3.scene.plugins.gltf.GltfUtils.getVertexBufferType;
 import com.jme3.texture.Texture2D;
 import java.io.IOException;
 import java.nio.FloatBuffer;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -106,6 +108,7 @@ public class TextureTransformExtensionLoader implements ExtensionLoader {
             Matrix3f rotation = new Matrix3f();
             Matrix3f scale = new Matrix3f();
             Integer texCoord = getAsInteger(parent.getAsJsonObject(), "texCoord");
+            texCoord = texCoord != null ? texCoord : 0;
             JsonObject jsonObject = extension.getAsJsonObject();
             if (jsonObject.has("offset")) {
                 JsonArray jsonArray = jsonObject.getAsJsonArray("offset");
@@ -125,20 +128,27 @@ public class TextureTransformExtensionLoader implements ExtensionLoader {
                 scale.set(1, 1, jsonArray.get(1).getAsFloat());
             }     
             if (jsonObject.has("texCoord")) {
-                texCoord = getAsInteger(jsonObject, "texCoord"); // it overrides the parent's texCoord value
+                texCoord = jsonObject.get("texCoord").getAsInt(); // it overrides the parent's texCoord value
             }                 
             Matrix3f transform = translation.mult(rotation).mult(scale);
             Mesh meshLast = loader.fetchFromCache("textureTransformData", 0, Mesh.class);
-            if (mesh != meshLast) {
-                loader.addToCache("textureTransformData", 0, mesh, 2);
-                loader.addToCache("textureTransformData", 1, transform, 2);
-                uvTransform(mesh, transform, getVertexBufferType("TEXCOORD_" + (texCoord != null ? texCoord : 0)));
+            Map transformMap = loader.fetchFromCache("textureTransformData", 1, HashMap.class);
+            if (mesh != meshLast || (transformMap != null && transformMap.get(texCoord) == null)) {
+                // at this point, we're processing a new mesh or the same mesh as before but for a different UV set
+                if (mesh != meshLast) { // it's a new mesh
+                    loader.addToCache("textureTransformData", 0, mesh, 2);
+                    transformMap = new HashMap<>(); // initialize transformMap
+                    loader.addToCache("textureTransformData", 1, transformMap, 2);
+                }
+                transformMap.put(texCoord, transform); // store the transformation matrix applied to this UV set
+                uvTransform(mesh, transform, getVertexBufferType("TEXCOORD_" + texCoord));
                 logger.log(Level.FINE, "KHR_texture_transform extension successfully applied."); 
             }
             else {
-                Matrix3f transformLast = loader.fetchFromCache("textureTransformData", 1, Matrix3f.class);
+                // at this point, we're processing the same mesh as before for an already transformed UV set
+                Matrix3f transformLast = (Matrix3f) transformMap.get(texCoord);
                 if (!transform.equals(transformLast)) {
-                    logger.log(Level.WARNING, "KHR_texture_transform extension: use of different texture transforms for the same mesh is not supported, the loaded scene result will be unexpected.");
+                    logger.log(Level.WARNING, "KHR_texture_transform extension: use of different texture transforms for the same mesh's UVs is not supported, the loaded scene result will be unexpected.");
                 }
             }
             return input;
