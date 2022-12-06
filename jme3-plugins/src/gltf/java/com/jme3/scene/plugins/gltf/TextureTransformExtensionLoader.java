@@ -137,8 +137,12 @@ public class TextureTransformExtensionLoader implements ExtensionLoader {
                 // at this point, we're processing a new mesh or the same mesh as before but for a different UV set
                 if (mesh != meshLast) { // it's a new mesh
                     loader.addToCache("textureTransformData", 0, mesh, 2);
-                    transformMap = new HashMap<>(); // initialize transformMap
-                    loader.addToCache("textureTransformData", 1, transformMap, 2);
+                    if (transformMap == null) {
+                        transformMap = new HashMap<>(); // initialize transformMap
+                        loader.addToCache("textureTransformData", 1, transformMap, 2);
+                    } else {
+                        transformMap.clear(); // reset transformMap
+                    }
                 }
                 transformMap.put(texCoord, transform); // store the transformation matrix applied to this UV set
                 uvTransform(mesh, transform, getVertexBufferType("TEXCOORD_" + texCoord));
