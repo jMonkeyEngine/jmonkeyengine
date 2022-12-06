@@ -132,7 +132,7 @@ public class TextureTransformExtensionLoader implements ExtensionLoader {
             }                 
             Matrix3f transform = translation.mult(rotation).mult(scale);
             Mesh meshLast = loader.fetchFromCache("textureTransformData", 0, Mesh.class);
-            Map transformMap = loader.fetchFromCache("textureTransformData", 1, HashMap.class);
+            Map<Integer, Matrix3f> transformMap = loader.fetchFromCache("textureTransformData", 1, HashMap.class);
             if (mesh != meshLast || (transformMap != null && transformMap.get(texCoord) == null)) {
                 // at this point, we're processing a new mesh or the same mesh as before but for a different UV set
                 if (mesh != meshLast) { // it's a new mesh
@@ -150,7 +150,7 @@ public class TextureTransformExtensionLoader implements ExtensionLoader {
             }
             else {
                 // at this point, we're processing the same mesh as before for an already transformed UV set
-                Matrix3f transformLast = (Matrix3f) transformMap.get(texCoord);
+                Matrix3f transformLast = transformMap.get(texCoord);
                 if (!transform.equals(transformLast)) {
                     logger.log(Level.WARNING, "KHR_texture_transform extension: use of different texture transforms for the same mesh's UVs is not supported, the loaded scene result will be unexpected.");
                 }
