@@ -29,9 +29,12 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.app;
+package com.jme3.awt;
 
+import com.jme3.asset.AssetNotFoundException;
 import com.jme3.system.AppSettings;
+import com.jme3.system.JmeSystem;
+
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
@@ -46,6 +49,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.BackingStoreException;
@@ -64,24 +69,23 @@ import javax.swing.*;
  * @author Eric Woroshow
  * @author Joshua Slack - reworked for proper use of GL commands.
  */
-public final class SettingsDialog extends JFrame {
+public final class AWTSettingsDialog extends JFrame {
 
     public static interface SelectionListener {
 
         public void onSelection(int selection);
     }
-    private static final Logger logger = Logger.getLogger(SettingsDialog.class.getName());
+
+    private static final Logger logger = Logger.getLogger(AWTSettingsDialog.class.getName());
     private static final long serialVersionUID = 1L;
-    public static final int NO_SELECTION = 0,
-            APPROVE_SELECTION = 1,
-            CANCEL_SELECTION = 2;
-    
+    public static final int NO_SELECTION = 0, APPROVE_SELECTION = 1, CANCEL_SELECTION = 2;
+
     // Resource bundle for i18n.
     ResourceBundle resourceBundle = ResourceBundle.getBundle("com.jme3.app/SettingsDialog");
-    
+
     // the instance being configured
     private final AppSettings source;
-    
+
     // Title Image
     private URL imageFile = null;
     // Array of supported display modes
@@ -109,7 +113,70 @@ public final class SettingsDialog extends JFrame {
 
     private int minWidth = 0;
     private int minHeight = 0;
-    
+
+    public static boolean showDialog(AppSettings sourceSettings) {
+        return showDialog(sourceSettings, true);
+    }
+
+    public static boolean showDialog(AppSettings sourceSettings, boolean loadSettings) {
+        String iconPath = sourceSettings.getSettingsDialogImage();
+        final URL iconUrl = JmeSystem.class.getResource(iconPath.startsWith("/") ? iconPath : "/" + iconPath);
+        if (iconUrl == null) {
+            throw new AssetNotFoundException(sourceSettings.getSettingsDialogImage());
+        }
+        return showDialog(sourceSettings, iconUrl, loadSettings);
+    }
+
+    public static boolean showDialog(AppSettings sourceSettings, String imageFile, boolean loadSettings) {
+        return showDialog(sourceSettings, getURL(imageFile), loadSettings);
+    }
+
+    public static boolean showDialog(AppSettings sourceSettings, URL imageFile, boolean loadSettings) {
+        if (SwingUtilities.isEventDispatchThread()) {
+            throw new IllegalStateException("Cannot run from EDT");
+        }
+        if (GraphicsEnvironment.isHeadless()) {
+            throw new IllegalStateException("Cannot show dialog in headless environment");
+        }
+
+        AppSettings settings = new AppSettings(false);
+        settings.copyFrom(sourceSettings);
+
+        Object lock = new Object();
+        AtomicBoolean done = new AtomicBoolean();
+        AtomicInteger result = new AtomicInteger();
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                final SelectionListener selectionListener = new SelectionListener() {
+                    @Override
+                    public void onSelection(int selection) {
+                        synchronized (lock) {
+                            done.set(true);
+                            result.set(selection);
+                            lock.notifyAll();
+                        }
+                    }
+                };
+                AWTSettingsDialog dialog = new AWTSettingsDialog(settings, imageFile, loadSettings);
+                dialog.setSelectionListener(selectionListener);
+                dialog.showDialog();
+            }
+        });
+        synchronized (lock) {
+            while (!done.get()) {
+                try {
+                    lock.wait();
+                } catch (InterruptedException ex) {
+                }
+            }
+        }
+
+        sourceSettings.copyFrom(settings);
+
+        return result.get() == AWTSettingsDialog.APPROVE_SELECTION;
+    }
+
     /**
      * Instantiate a <code>SettingsDialog</code> for the primary display.
      *
@@ -123,12 +190,12 @@ public final class SettingsDialog extends JFrame {
      * @throws IllegalArgumentException
      *             if the source is <code>null</code>
      */
-    public SettingsDialog(AppSettings source, String imageFile, boolean loadSettings) {
+    protected AWTSettingsDialog(AppSettings source, String imageFile, boolean loadSettings) {
         this(source, getURL(imageFile), loadSettings);
     }
 
     /**
-     * Instantiate a <code>SettingsDialog</code> for the primary display.
+     * /** Instantiate a <code>SettingsDialog</code> for the primary display.
      *
      * @param source
      *            the <code>AppSettings</code> object (not null)
@@ -140,7 +207,7 @@ public final class SettingsDialog extends JFrame {
      * @throws IllegalArgumentException
      *             if the source is <code>null</code>
      */
-    public SettingsDialog(AppSettings source, URL imageFile, boolean loadSettings) {
+    protected AWTSettingsDialog(AppSettings source, URL imageFile, boolean loadSettings) {
         if (source == null) {
             throw new IllegalArgumentException("Settings source cannot be null");
         }
@@ -148,32 +215,31 @@ public final class SettingsDialog extends JFrame {
         this.source = source;
         this.imageFile = imageFile;
 
-        //setModal(true);
+        // setModal(true);
         setAlwaysOnTop(true);
         setResizable(false);
 
         AppSettings registrySettings = new AppSettings(true);
 
         String appTitle;
-        if(source.getTitle()!=null){
+        if (source.getTitle() != null) {
             appTitle = source.getTitle();
-        }else{
-           appTitle = registrySettings.getTitle();
+        } else {
+            appTitle = registrySettings.getTitle();
         }
-        
+
         minWidth = source.getMinWidth();
         minHeight = source.getMinHeight();
-        
+
         try {
             registrySettings.load(appTitle);
         } catch (BackingStoreException ex) {
-            logger.log(Level.WARNING,
-                    "Failed to load settings", ex);
+            logger.log(Level.WARNING, "Failed to load settings", ex);
         }
 
         if (loadSettings) {
             source.copyFrom(registrySettings);
-        } else if(!registrySettings.isEmpty()) {
+        } else if (!registrySettings.isEmpty()) {
             source.mergeFrom(registrySettings);
         }
 
@@ -183,17 +249,13 @@ public final class SettingsDialog extends JFrame {
         Arrays.sort(modes, new DisplayModeSorter());
 
         DisplayMode[] merged = new DisplayMode[modes.length + windowDefaults.length];
-        
+
         int wdIndex = 0;
         int dmIndex = 0;
         int mergedIndex;
-        
-        for (mergedIndex = 0;
-                mergedIndex<merged.length 
-                && (wdIndex < windowDefaults.length
-                    || dmIndex < modes.length);
-                mergedIndex++) {
-            
+
+        for (mergedIndex = 0; mergedIndex < merged.length && (wdIndex < windowDefaults.length || dmIndex < modes.length); mergedIndex++) {
+
             if (dmIndex >= modes.length) {
                 merged[mergedIndex] = windowDefaults[wdIndex++];
             } else if (wdIndex >= windowDefaults.length) {
@@ -213,13 +275,13 @@ public final class SettingsDialog extends JFrame {
                 merged[mergedIndex] = windowDefaults[wdIndex++];
             }
         }
-        
+
         if (merged.length == mergedIndex) {
             windowModes = merged;
         } else {
             windowModes = Arrays.copyOfRange(merged, 0, mergedIndex);
         }
-        
+
         createUI();
     }
 
@@ -252,9 +314,6 @@ public final class SettingsDialog extends JFrame {
         this.minHeight = minHeight;
     }
 
-    
-    
-    
     /**
      * <code>setImage</code> sets the background image of the dialog.
      * 
@@ -266,7 +325,7 @@ public final class SettingsDialog extends JFrame {
             URL file = new URL("file:" + image);
             setImage(file);
         } catch (MalformedURLException e) {
-           logger.log(Level.WARNING, "Couldn’t read from file '" + image + "'", e);
+            logger.log(Level.WARNING, "Couldn’t read from file '" + image + "'", e);
         }
     }
 
@@ -283,21 +342,21 @@ public final class SettingsDialog extends JFrame {
     }
 
     /**
-     * <code>showDialog</code> sets this dialog as visible, and brings it to
-     * the front.
+     * <code>showDialog</code> sets this dialog as visible, and brings it to the
+     * front.
      */
     public void showDialog() {
         setLocationRelativeTo(null);
-        setVisible(true);       
+        setVisible(true);
         toFront();
     }
-   
+
     /**
      * <code>init</code> creates the components to use the dialog.
      */
     private void createUI() {
         GridBagConstraints gbc;
-        
+
         JPanel mainPanel = new JPanel(new GridBagLayout());
 
         addWindowListener(new WindowAdapter() {
@@ -310,13 +369,13 @@ public final class SettingsDialog extends JFrame {
         });
 
         if (source.getIcons() != null) {
-            safeSetIconImages( Arrays.asList((BufferedImage[]) source.getIcons()) );
+            safeSetIconImages(Arrays.asList((BufferedImage[]) source.getIcons()));
         }
 
         setTitle(MessageFormat.format(resourceBundle.getString("frame.title"), source.getTitle()));
-        
+
         // The buttons...
-        JButton ok = new JButton(resourceBundle.getString("button.ok"));               
+        JButton ok = new JButton(resourceBundle.getString("button.ok"));
         JButton cancel = new JButton(resourceBundle.getString("button.cancel"));
 
         icon = new JLabel(imageFile != null ? new ImageIcon(imageFile) : null);
@@ -330,8 +389,7 @@ public final class SettingsDialog extends JFrame {
                         setUserSelection(APPROVE_SELECTION);
                         dispose();
                     }
-                }
-                else if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+                } else if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
                     setUserSelection(CANCEL_SELECTION);
                     dispose();
                 }
@@ -357,10 +415,10 @@ public final class SettingsDialog extends JFrame {
         });
         vsyncBox = new JCheckBox(resourceBundle.getString("checkbox.vsync"));
         vsyncBox.setSelected(source.isVSync());
-        
+
         gammaBox = new JCheckBox(resourceBundle.getString("checkbox.gamma"));
         gammaBox.setSelected(source.isGammaCorrection());
-        
+
         gbc = new GridBagConstraints();
         gbc.weightx = 0.5;
         gbc.gridx = 0;
@@ -370,20 +428,19 @@ public final class SettingsDialog extends JFrame {
         mainPanel.add(fullscreenBox, gbc);
         gbc = new GridBagConstraints();
         gbc.weightx = 0.5;
-      //  gbc.insets = new Insets(4, 16, 0, 4);
+        // gbc.insets = new Insets(4, 16, 0, 4);
         gbc.gridx = 2;
-      //  gbc.gridwidth = 2;
+        // gbc.gridwidth = 2;
         gbc.gridy = 1;
         gbc.anchor = GridBagConstraints.EAST;
         mainPanel.add(vsyncBox, gbc);
         gbc = new GridBagConstraints();
         gbc.weightx = 0.5;
         gbc.gridx = 3;
-        gbc.gridy = 1;       
+        gbc.gridy = 1;
         gbc.anchor = GridBagConstraints.WEST;
         mainPanel.add(gammaBox, gbc);
 
-        
         gbc = new GridBagConstraints();
         gbc.insets = new Insets(4, 4, 4, 4);
         gbc.gridx = 0;
@@ -432,7 +489,7 @@ public final class SettingsDialog extends JFrame {
         gbc.gridy = 3;
         gbc.anchor = GridBagConstraints.WEST;
         mainPanel.add(antialiasCombo, gbc);
-        
+
         // Set the button action listeners. Cancel disposes without saving, OK
         // saves.
         ok.addActionListener(new ActionListener() {
@@ -442,10 +499,14 @@ public final class SettingsDialog extends JFrame {
                 if (verifyAndSaveCurrentSelection()) {
                     setUserSelection(APPROVE_SELECTION);
                     dispose();
-                    
-                    // System.gc() should be called to prevent "X Error of failed request: RenderBadPicture (invalid Picture parameter)"
-                    // on Linux when using AWT/Swing + GLFW. 
-                    // For more info see: https://github.com/LWJGL/lwjgl3/issues/149, https://hub.jmonkeyengine.org/t/experimenting-lwjgl3/37275
+
+                    // System.gc() should be called to prevent "X Error of
+                    // failed request: RenderBadPicture (invalid Picture
+                    // parameter)"
+                    // on Linux when using AWT/Swing + GLFW.
+                    // For more info see:
+                    // https://github.com/LWJGL/lwjgl3/issues/149,
+                    // https://hub.jmonkeyengine.org/t/experimenting-lwjgl3/37275
                     System.gc();
                     System.gc();
                 }
@@ -466,7 +527,7 @@ public final class SettingsDialog extends JFrame {
         gbc.gridwidth = 2;
         gbc.gridy = 4;
         gbc.anchor = GridBagConstraints.EAST;
-        mainPanel.add(ok, gbc);        
+        mainPanel.add(ok, gbc);
         gbc = new GridBagConstraints();
         gbc.insets = new Insets(4, 16, 4, 4);
         gbc.gridx = 2;
@@ -484,35 +545,42 @@ public final class SettingsDialog extends JFrame {
         this.getContentPane().add(mainPanel);
 
         pack();
-        
+
         mainPanel.getRootPane().setDefaultButton(ok);
         SwingUtilities.invokeLater(new Runnable() {
 
             @Override
             public void run() {
-                // Fill in the combos once the window has opened so that the insets can be read.
-                // The assumption is made that the settings window and the display window will have the
-                // same insets as that is used to resize the "full screen windowed" mode appropriately.
+                // Fill in the combos once the window has opened so that the
+                // insets can be read.
+                // The assumption is made that the settings window and the
+                // display window will have the
+                // same insets as that is used to resize the "full screen
+                // windowed" mode appropriately.
                 updateResolutionChoices();
                 if (source.getWidth() != 0 && source.getHeight() != 0) {
-                    displayResCombo.setSelectedItem(source.getWidth() + " x "
-                            + source.getHeight());
+                    displayResCombo.setSelectedItem(source.getWidth() + " x " + source.getHeight());
                 } else {
-                    displayResCombo.setSelectedIndex(displayResCombo.getItemCount()-1);
+                    displayResCombo.setSelectedIndex(displayResCombo.getItemCount() - 1);
                 }
 
                 updateAntialiasChoices();
                 colorDepthCombo.setSelectedItem(source.getBitsPerPixel() + " bpp");
             }
-        });      
-        
+        });
+
     }
 
-    /* Access JDialog.setIconImages by reflection in case we're running on JRE < 1.6 */
+    /*
+     * Access JDialog.setIconImages by reflection in case we're running on JRE <
+     * 1.6
+     */
     private void safeSetIconImages(List<? extends Image> icons) {
         try {
-            // Due to Java bug 6445278, we try to set icon on our shared owner frame first.
-            // Otherwise, our alt-tab icon will be the Java default under Windows.
+            // Due to Java bug 6445278, we try to set icon on our shared owner
+            // frame first.
+            // Otherwise, our alt-tab icon will be the Java default under
+            // Windows.
             Window owner = getOwner();
             if (owner != null) {
                 Method setIconImages = owner.getClass().getMethod("setIconImages", List.class);
@@ -591,7 +659,7 @@ public final class SettingsDialog extends JFrame {
         }
 
         if (valid) {
-            //use the AppSettings class to save it to backing store
+            // use the AppSettings class to save it to backing store
             source.setWidth(width);
             source.setHeight(height);
             source.setBitsPerPixel(depth);
@@ -599,7 +667,7 @@ public final class SettingsDialog extends JFrame {
             source.setFullscreen(fullscreen);
             source.setVSync(vsync);
             source.setGammaCorrection(gamma);
-            //source.setRenderer(renderer);
+            // source.setRenderer(renderer);
             source.setSamples(multisample);
 
             String appTitle = source.getTitle();
@@ -607,13 +675,10 @@ public final class SettingsDialog extends JFrame {
             try {
                 source.save(appTitle);
             } catch (BackingStoreException ex) {
-                logger.log(Level.WARNING,
-                        "Failed to save setting changes", ex);
+                logger.log(Level.WARNING, "Failed to save setting changes", ex);
             }
         } else {
-            showError(
-                    this,
-                    resourceBundle.getString("error.unsupportedmode"));
+            showError(this, resourceBundle.getString("error.unsupportedmode"));
         }
 
         return valid;
@@ -623,7 +688,7 @@ public final class SettingsDialog extends JFrame {
      * <code>setUpChooser</code> retrieves all available display modes and
      * places them in a <code>JComboBox</code>. The resolution specified by
      * AppSettings is used as the default value.
-     *
+     * 
      * @return the combo box of display modes.
      */
     private JComboBox<String> setUpResolutionChooser() {
@@ -668,7 +733,7 @@ public final class SettingsDialog extends JFrame {
         displayFreqCombo.setModel(new DefaultComboBoxModel<>(freqs));
         // Try to reset freq
         displayFreqCombo.setSelectedItem(displayFreq);
-        
+
         if (!displayFreqCombo.getSelectedItem().equals(displayFreq)) {
             // Cannot find saved frequency in available frequencies.
             // Choose the closest one to 60 Hz.
@@ -684,21 +749,17 @@ public final class SettingsDialog extends JFrame {
      */
     private void updateResolutionChoices() {
         if (!fullscreenBox.isSelected()) {
-            displayResCombo.setModel(new DefaultComboBoxModel<>(
-                    getWindowedResolutions(windowModes)));
+            displayResCombo.setModel(new DefaultComboBoxModel<>(getWindowedResolutions(windowModes)));
             if (displayResCombo.getItemCount() > 0) {
-                displayResCombo.setSelectedIndex(displayResCombo.getItemCount()-1);
+                displayResCombo.setSelectedIndex(displayResCombo.getItemCount() - 1);
             }
-            colorDepthCombo.setModel(new DefaultComboBoxModel<>(new String[]{
-                        "24 bpp", "16 bpp"}));
-            displayFreqCombo.setModel(new DefaultComboBoxModel<>(
-                    new String[]{resourceBundle.getString("refresh.na")}));
+            colorDepthCombo.setModel(new DefaultComboBoxModel<>(new String[] { "24 bpp", "16 bpp" }));
+            displayFreqCombo.setModel(new DefaultComboBoxModel<>(new String[] { resourceBundle.getString("refresh.na") }));
             displayFreqCombo.setEnabled(false);
         } else {
-            displayResCombo.setModel(new DefaultComboBoxModel<>(
-                    getResolutions(modes, Integer.MAX_VALUE, Integer.MAX_VALUE)));
+            displayResCombo.setModel(new DefaultComboBoxModel<>(getResolutions(modes, Integer.MAX_VALUE, Integer.MAX_VALUE)));
             if (displayResCombo.getItemCount() > 0) {
-                displayResCombo.setSelectedIndex(displayResCombo.getItemCount()-1);
+                displayResCombo.setSelectedIndex(displayResCombo.getItemCount() - 1);
             }
             displayFreqCombo.setEnabled(true);
             updateDisplayChoices();
@@ -708,9 +769,9 @@ public final class SettingsDialog extends JFrame {
     private void updateAntialiasChoices() {
         // maybe in the future will add support for determining this info
         // through PBuffer
-        String[] choices = new String[]{resourceBundle.getString("antialias.disabled"), "2x", "4x", "6x", "8x", "16x"};
+        String[] choices = new String[] { resourceBundle.getString("antialias.disabled"), "2x", "4x", "6x", "8x", "16x" };
         antialiasCombo.setModel(new DefaultComboBoxModel<>(choices));
-        antialiasCombo.setSelectedItem(choices[Math.min(source.getSamples()/2,5)]);
+        antialiasCombo.setSelectedItem(choices[Math.min(source.getSamples() / 2, 5)]);
     }
 
     //
@@ -732,19 +793,19 @@ public final class SettingsDialog extends JFrame {
     }
 
     private static void showError(java.awt.Component parent, String message) {
-        JOptionPane.showMessageDialog(parent, message, "Error",
-                JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(parent, message, "Error", JOptionPane.ERROR_MESSAGE);
     }
 
     /**
-     * Returns every unique resolution from an array of <code>DisplayMode</code>s
-     * where the resolution is greater than the configured minimums.
+     * Returns every unique resolution from an array of
+     * <code>DisplayMode</code>s where the resolution is greater than the
+     * configured minimums.
      */
     private String[] getResolutions(DisplayMode[] modes, int heightLimit, int widthLimit) {
         Insets insets = getInsets();
         heightLimit -= insets.top + insets.bottom;
         widthLimit -= insets.left + insets.right;
-        
+
         Set<String> resolutions = new LinkedHashSet<>(modes.length);
         for (DisplayMode mode : modes) {
             int height = mode.getHeight();
@@ -756,7 +817,7 @@ public final class SettingsDialog extends JFrame {
                 if (width >= widthLimit) {
                     width = widthLimit;
                 }
-                
+
                 String res = width + " x " + height;
                 resolutions.add(res);
             }
@@ -764,16 +825,17 @@ public final class SettingsDialog extends JFrame {
 
         return resolutions.toArray(new String[0]);
     }
-    
+
     /**
-     * Returns every unique resolution from an array of <code>DisplayMode</code>s
-     * where the resolution is greater than the configured minimums and the height
-     * is less than the current screen resolution.
+     * Returns every unique resolution from an array of
+     * <code>DisplayMode</code>s where the resolution is greater than the
+     * configured minimums and the height is less than the current screen
+     * resolution.
      */
     private String[] getWindowedResolutions(DisplayMode[] modes) {
         int maxHeight = 0;
         int maxWidth = 0;
-        
+
         for (DisplayMode mode : modes) {
             if (maxHeight < mode.getHeight()) {
                 maxHeight = mode.getHeight();
@@ -813,7 +875,8 @@ public final class SettingsDialog extends JFrame {
         }
 
         if (depths.isEmpty()) {
-            // add some default depths, possible system is multi-depth supporting
+            // add some default depths, possible system is multi-depth
+            // supporting
             depths.add("24 bpp");
         }
 
@@ -823,8 +886,7 @@ public final class SettingsDialog extends JFrame {
     /**
      * Returns every possible refresh rate for the given resolution.
      */
-    private static String[] getFrequencies(String resolution,
-            DisplayMode[] modes) {
+    private static String[] getFrequencies(String resolution, DisplayMode[] modes) {
         List<String> freqs = new ArrayList<>(4);
         for (DisplayMode mode : modes) {
             String res = mode.getWidth() + " x " + mode.getHeight();
@@ -841,13 +903,13 @@ public final class SettingsDialog extends JFrame {
 
         return freqs.toArray(new String[0]);
     }
-    
+
     /**
      * Chooses the closest frequency to 60 Hz.
      * 
      * @param resolution
      * @param modes
-     * @return 
+     * @return
      */
     private static String getBestFrequency(String resolution, DisplayMode[] modes) {
         int closest = Integer.MAX_VALUE;
@@ -861,7 +923,7 @@ public final class SettingsDialog extends JFrame {
                 }
             }
         }
-        
+
         if (closest != Integer.MAX_VALUE) {
             return closest + " Hz";
         } else {
@@ -870,8 +932,8 @@ public final class SettingsDialog extends JFrame {
     }
 
     /**
-     * Utility class for sorting <code>DisplayMode</code>s. Sorts by
-     * resolution, then bit depth, and then finally refresh rate.
+     * Utility class for sorting <code>DisplayMode</code>s. Sorts by resolution,
+     * then bit depth, and then finally refresh rate.
      */
     private class DisplayModeSorter implements Comparator<DisplayMode> {
 

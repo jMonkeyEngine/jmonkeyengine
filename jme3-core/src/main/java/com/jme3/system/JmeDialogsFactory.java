@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2022 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,39 +31,21 @@
  */
 package com.jme3.system;
 
-import com.jme3.audio.AudioRenderer;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.net.URL;
-import java.nio.ByteBuffer;
+public interface JmeDialogsFactory {
+    /**
+     * Set a function to handler app settings. 
+     * The default implementation shows a settings dialog if available.
+     * @param handler handler function that accepts as argument an instance of AppSettings 
+     * to transform and a boolean with the value of true if the settings are expected to be loaded from 
+     * the user registry. The handler function returns false if the configuration is interrupted (eg.the the dialog was closed)
+     * or true otherwise.
+     */
+    public boolean showSettingsDialog(AppSettings settings, boolean loadFromRegistry);    
 
-public class MockJmeSystemDelegate extends JmeSystemDelegate {
-
-    @Override
-    public void writeImageFile(OutputStream outStream, String format, ByteBuffer imageData, int width, int height) throws IOException {
-    }
-
-    @Override
-    public URL getPlatformAssetConfigURL() {
-        return Thread.currentThread().getContextClassLoader().getResource("com/jme3/asset/General.cfg");
-    }
-
-    @Override
-    public JmeContext newContext(AppSettings settings, JmeContext.Type contextType) {
-        return null;
-    }
-
-    @Override
-    public AudioRenderer newAudioRenderer(AppSettings settings) {
-        return null;
-    }
-
-    @Override
-    public void initialize(AppSettings settings) {
-    }
-
-    @Override
-    public void showSoftKeyboard(boolean show) {
-    }
-    
+    /**
+     * Set function to handle errors. 
+     * The default implementation show a dialog if available.
+     * @param handler Consumer to which the error is passed as String
+     */
+    public void showErrorDialog(String message);  
 }

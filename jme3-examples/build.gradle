@@ -25,6 +25,7 @@ dependencies {
     implementation project(':jme3-niftygui')
     implementation project(':jme3-plugins')
     implementation project(':jme3-terrain')
+    implementation project(':jme3-awt-dialogs')
     runtimeOnly project(':jme3-testdata')
 }
 
