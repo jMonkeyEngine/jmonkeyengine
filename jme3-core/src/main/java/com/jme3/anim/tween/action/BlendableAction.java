@@ -114,7 +114,7 @@ public abstract class BlendableAction extends Action {
     }
 
     /**
-     * @param maxTransitionWeight The max transition weight. Must be &gt= 0 and &lt=1 (default=1)
+     * @param maxTransitionWeight The max transition weight. Must be &gt;0 and &lt;1 (default=1)
      */
     public void setMaxTransitionWeight(double maxTransitionWeight) {
         assert maxTransitionWeight >= 0 && maxTransitionWeight <= 1;

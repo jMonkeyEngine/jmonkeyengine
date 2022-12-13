@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2022 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,33 +37,43 @@ import com.jme3.export.Savable;
 import java.io.IOException;
 
 /**
- * <code>Triangle</code> defines a triangle in terms of its vertex locations,
- * with auxiliary storage for its centroid, normal vector, projection, and
- * index.
+ * Describes a triangle in terms of its vertex locations, with auxiliary storage
+ * for its centroid, normal vector, projection, and index.
  *
  * @author Mark Powell
  * @author Joshua Slack
  */
 public class Triangle extends AbstractTriangle implements Savable, Cloneable, java.io.Serializable {
     static final long serialVersionUID = 1;
-
+    /**
+     * The location of the first vertex in winding order.
+     */
     private Vector3f pointA = new Vector3f();
+    /**
+     * The location of the 2nd vertex in winding order.
+     */
     private Vector3f pointB = new Vector3f();
+    /**
+     * The location of the 3rd vertex in winding order.
+     */
     private Vector3f pointC = new Vector3f();
     private transient Vector3f center;
     private transient Vector3f normal;
     private float projection;
+    /**
+     * The index of the triangle, used to identify it in an OBBTree.
+     */
     private int index;
 
     /**
-     * Instantiate a zero-size Triangle at the origin.
+     * Instantiate a zero-size triangle at the origin.
      */
     public Triangle() {
     }
 
     /**
-     * Instantiate a <Code>Triangle</code> with the specified vertex locations.
-     * Vertices should be listed in the desired winding order, typically
+     * Instantiates a triangle with the specified vertex locations. Vertices
+     * should be listed in the desired winding order, typically
      * counter-clockwise.
      *
      * @param p1 the location of the first vertex (not null, unaffected)
@@ -77,7 +87,7 @@ public class Triangle extends AbstractTriangle implements Savable, Cloneable, ja
     }
 
     /**
-     * Access the location of the indexed vertex.
+     * Accesses the location of the indexed vertex.
      *
      * @param i the index of the vertex to access (0, 1, or 2)
      * @return a pre-existing location vector, or null if the index is invalid
@@ -96,7 +106,7 @@ public class Triangle extends AbstractTriangle implements Savable, Cloneable, ja
     }
 
     /**
-     * Access the location of the first vertex.
+     * Accesses the location of the first vertex.
      *
      * @return the pre-existing location vector (not null)
      */
@@ -106,7 +116,7 @@ public class Triangle extends AbstractTriangle implements Savable, Cloneable, ja
     }
 
     /**
-     * Access the location of the 2nd vertex.
+     * Accesses the location of the 2nd vertex.
      *
      * @return the pre-existing location vector (not null)
      */
@@ -116,7 +126,7 @@ public class Triangle extends AbstractTriangle implements Savable, Cloneable, ja
     }
 
     /**
-     * Access the location of the 3rd vertex.
+     * Accesses the location of the 3rd vertex.
      *
      * @return the pre-existing location vector (not null)
      */
@@ -126,7 +136,7 @@ public class Triangle extends AbstractTriangle implements Savable, Cloneable, ja
     }
 
     /**
-     * Alter the location of the indexed vertex and delete the stored centroid
+     * Alters the location of the indexed vertex and deletes the stored centroid
      * and normal.
      *
      * @param i the index of the vertex to alter (0, 1, or 2)
@@ -150,7 +160,7 @@ public class Triangle extends AbstractTriangle implements Savable, Cloneable, ja
     }
 
     /**
-     * Alter the location of the indexed vertex and delete the stored centroid
+     * Alters the location of the indexed vertex and deletes the stored centroid
      * and normal.
      *
      * @param i the index of the vertex to alter (0, 1, or 2)
@@ -176,8 +186,8 @@ public class Triangle extends AbstractTriangle implements Savable, Cloneable, ja
     }
 
     /**
-     * Alter the location of the first vertex and delete the stored centroid and
-     * normal.
+     * Alters the location of the first vertex and deletes the stored centroid
+     * and normal.
      *
      * @param v the desired location (not null, unaffected)
      */
@@ -189,7 +199,7 @@ public class Triangle extends AbstractTriangle implements Savable, Cloneable, ja
     }
 
     /**
-     * Alter the location of the 2nd vertex and delete the stored centroid and
+     * Alters the location of the 2nd vertex and deletes the stored centroid and
      * normal.
      *
      * @param v the desired location (not null, unaffected)
@@ -202,7 +212,7 @@ public class Triangle extends AbstractTriangle implements Savable, Cloneable, ja
     }
 
     /**
-     * Alter the location of the 3rd vertex and delete the stored centroid and
+     * Alters the location of the 3rd vertex and deletes the stored centroid and
      * normal.
      *
      * @param v the desired location (not null, unaffected)
@@ -215,8 +225,8 @@ public class Triangle extends AbstractTriangle implements Savable, Cloneable, ja
     }
 
     /**
-     * Alter the locations of all 3 vertices and delete the stored centroid and
-     * normal.
+     * Alters the locations of all 3 vertices and deletes the stored centroid
+     * and normal.
      *
      * @param v1 the desired location of the first vertex (not null, unaffected)
      * @param v2 the desired location of the 2nd vertex (not null, unaffected)
@@ -233,7 +243,7 @@ public class Triangle extends AbstractTriangle implements Savable, Cloneable, ja
     }
 
     /**
-     * Recalculate the stored centroid based on the current vertex locations.
+     * Recalculates the stored centroid based on the current vertex locations.
      */
     public void calculateCenter() {
         if (center == null) {
@@ -245,7 +255,7 @@ public class Triangle extends AbstractTriangle implements Savable, Cloneable, ja
     }
 
     /**
-     * Recalculate the stored normal based on the current vertex locations.
+     * Recalculates the stored normal based on the current vertex locations.
      */
     public void calculateNormal() {
         if (normal == null) {
@@ -258,7 +268,7 @@ public class Triangle extends AbstractTriangle implements Savable, Cloneable, ja
     }
 
     /**
-     * Access the stored centroid (the average of the 3 vertex locations)
+     * Accesses the stored centroid (the average of the 3 vertex locations)
      * calculating it if it is null.
      *
      * @return the coordinates of the center (an internal vector subject to
@@ -272,7 +282,7 @@ public class Triangle extends AbstractTriangle implements Savable, Cloneable, ja
     }
 
     /**
-     * Alter the stored centroid without affecting the stored normal or any
+     * Alters the stored centroid without affecting the stored normal or any
      * vertex locations.
      *
      * @param center the desired value (alias created if not null)
@@ -282,7 +292,7 @@ public class Triangle extends AbstractTriangle implements Savable, Cloneable, ja
     }
 
     /**
-     * Access the stored normal, updating it if it is null.
+     * Accesses the stored normal, updating it if it is null.
      *
      * @return unit normal vector (an internal vector subject to re-use)
      */
@@ -294,7 +304,7 @@ public class Triangle extends AbstractTriangle implements Savable, Cloneable, ja
     }
 
     /**
-     * Alter the stored normal without affecting the stored centroid or any
+     * Alters the stored normal without affecting the stored centroid or any
      * vertex locations.
      *
      * @param normal the desired value (alias created if not null)
@@ -304,7 +314,7 @@ public class Triangle extends AbstractTriangle implements Savable, Cloneable, ja
     }
 
     /**
-     * Read the projection of the vertices relative to the line origin.
+     * Returns the projection of the vertices relative to the line origin.
      *
      * @return the stored projection value
      */
@@ -313,7 +323,7 @@ public class Triangle extends AbstractTriangle implements Savable, Cloneable, ja
     }
 
     /**
-     * Alter the projection of the vertices relative to the line origin.
+     * Alters the projection of the vertices relative to the line origin.
      *
      * @param projection the desired projection value
      */
@@ -322,7 +332,7 @@ public class Triangle extends AbstractTriangle implements Savable, Cloneable, ja
     }
 
     /**
-     * Read the index of this triangle, used to identify it in an OBBTree.
+     * Returns the index of this triangle, used to identify it in an OBBTree.
      *
      * @return the stored index
      */
@@ -331,7 +341,7 @@ public class Triangle extends AbstractTriangle implements Savable, Cloneable, ja
     }
 
     /**
-     * Alter the index of this triangle, used to identify it in an OBBTree.
+     * Alters the index of this triangle, used to identify it in an OBBTree.
      *
      * @param index the desired index
      */
@@ -351,7 +361,7 @@ public class Triangle extends AbstractTriangle implements Savable, Cloneable, ja
     }
 
     /**
-     * Serialize this triangle to the specified exporter, for example when
+     * Serializes this triangle to the specified exporter, for example when
      * saving to a J3O file.
      *
      * @param e (not null)
@@ -365,7 +375,7 @@ public class Triangle extends AbstractTriangle implements Savable, Cloneable, ja
     }
 
     /**
-     * De-serialize this triangle from the specified importer, for example when
+     * De-serializes this triangle from the specified importer, for example when
      * loading from a J3O file.
      *
      * @param importer (not null)
@@ -379,7 +389,7 @@ public class Triangle extends AbstractTriangle implements Savable, Cloneable, ja
     }
 
     /**
-     * Create a copy of this triangle.
+     * Creates a copy of this triangle.
      *
      * @return a new instance, equivalent to this one
      */

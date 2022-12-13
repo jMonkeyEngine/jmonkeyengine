@@ -103,7 +103,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     }
 
     /**
-     * Instantiates a quaternion with specified components.
+     * Instantiates a quaternion with the specified components.
      *
      * @param x the desired X component
      * @param y the desired Y component
@@ -930,7 +930,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      *
      * @param q the quaternion to add (not null, unaffected unless it's
      *     {@code this})
-     * @return the (modified) current instance
+     * @return the (modified) current instance (for chaining)
      */
     public Quaternion addLocal(Quaternion q) {
         this.x += q.x;
@@ -994,7 +994,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      * However, if {@code this} and {@code storeResult} are the same object, the result
      * is undefined.
      *
-     * @param q the right factor (not null, unaffected unless it's {@code res})
+     * @param q the right factor (not null, unaffected unless it's {@code storeResult})
      * @param storeResult storage for the product, or null for a new Quaternion
      * @return {@code this * q} (either {@code storeResult} or a new Quaternion)
      */
@@ -1348,13 +1348,13 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     }
 
     /**
-     * Returns a string representation. The current instance is unaffected. The
-     * format is:
+     * Returns a string representation of the quaternion, which is unaffected.
+     * For example, the identity quaternion is represented by:
+     * <pre>
+     * (0.0, 0.0, 0.0, 1.0)
+     * </pre>
      *
-     * <p>(X.XXXX, Y.YYYY, Z.ZZZZ, W.WWWW)
-     *
-     * @return the string representation
-     * @see java.lang.Object#toString()
+     * @return the string representation (not null, not empty)
      */
     @Override
     public String toString() {
@@ -1362,11 +1362,13 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     }
 
     /**
-     * Tests for exact equality with the argument, distinguishing -0 from 0. The
-     * current instance is unaffected.
+     * Tests for exact equality with the argument, distinguishing -0 from 0. If
+     * {@code o} is null, false is returned. Either way, the current instance is
+     * unaffected.
      *
      * @param o the object to compare (may be null, unaffected)
-     * @return true if equal, otherwise false
+     * @return true if {@code this} and {@code o} have identical values,
+     *     otherwise false
      */
     @Override
     public boolean equals(Object o) {
@@ -1425,10 +1427,10 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     }
 
     /**
-     * Returns a hash code. If two quaternions are logically equivalent, they
-     * will return the same hash code. The current instance is unaffected.
+     * Returns a hash code. If two quaternions have identical values, they
+     * will have the same hash code. The current instance is unaffected.
      *
-     * @return the hash code value
+     * @return a 32-bit value for use in hashing
      * @see java.lang.Object#hashCode()
      */
     @Override

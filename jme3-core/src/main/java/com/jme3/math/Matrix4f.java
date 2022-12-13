@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2022 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,15 +39,15 @@ import java.nio.FloatBuffer;
 import java.util.logging.Logger;
 
 /**
- * <code>Matrix4f</code> represents a single-precision 4x4 matrix for use as a
- * 3-D coordinate transform or perspective transform. It provides convenience
- * methods for loading data from many sources.
+ * A 4x4 matrix composed of 16 single-precision elements, used to represent
+ * linear or perspective transformations of 3-D coordinates.
  *
- * The rightmost column (column 3) stores the translation vector. Element
+ * <p>The rightmost column (column 3) stores the translation vector. Element
  * numbering is (row,column), so m03 is the row 0, column 3, which is the X
- * translation. This means that the implicit storage order is column-major.
- * However, the get() and set() functions on float arrays default to row-major
- * order!
+ * translation.
+ *
+ * <p>Methods with names ending in "Local" modify the current instance. They are
+ * used to avoid creating garbage.
  *
  * @author Mark Powell
  * @author Joshua Slack
@@ -58,67 +58,67 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
 
     private static final Logger logger = Logger.getLogger(Matrix4f.class.getName());
     /**
-     * the element in row 0, column 0
+     * The element in row 0, column 0.
      */
     public float m00;
     /**
-     * the element in row 0, column 1
+     * The element in row 0, column 1.
      */
     public float m01;
     /**
-     * the element in row 0, column 2
+     * The element in row 0, column 2.
      */
     public float m02;
     /**
-     * the element in row 0, column 3 (the X translation)
+     * The element in row 0, column 3 (the X translation).
      */
     public float m03;
     /**
-     * the element in row 1, column 0
+     * The element in row 1, column 0.
      */
     public float m10;
     /**
-     * the element in row 1, column 1
+     * The element in row 1, column 1.
      */
     public float m11;
     /**
-     * the element in row 1, column 2
+     * The element in row 1, column 2.
      */
     public float m12;
     /**
-     * the element in row 1, column 3 (the Y translation)
+     * The element in row 1, column 3 (the Y translation).
      */
     public float m13;
     /**
-     * the element in row 2, column 0
+     * The element in row 2, column 0.
      */
     public float m20;
     /**
-     * the element in row 2, column 1
+     * The element in row 2, column 1.
      */
     public float m21;
     /**
-     * the element in row 2, column 2
+     * The element in row 2, column 2.
      */
     public float m22;
     /**
-     * the element in row 2, column 3 (the Z translation)
+     * The element in row 2, column 3 (the Z translation).
      */
     public float m23;
     /**
-     * the element in row 3, column 0
+     * The element in row 3, column 0.
      */
     public float m30;
     /**
-     * the element in row 3, column 1
+     * The element in row 3, column 1.
      */
     public float m31;
     /**
-     * the element in row 3, column 2
+     * The element in row 3, column 2.
      */
     public float m32;
     /**
-     * the element in row 3, column 3
+     * The element in row 3, column 3.
      */
     public float m33;
     /**
@@ -131,8 +131,7 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     public static final Matrix4f IDENTITY = new Matrix4f();
 
     /**
-     * Create a <code>Matrix4f</code> initialized to identity (diagonals = 1,
-     * other elements = 0).
+     * Instantiates an identity matrix (diagonals = 1, other elements = 0).
      */
     public Matrix4f() {
         loadIdentity();
@@ -933,7 +932,7 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Load identity (diagonals = 1, other elements = 0).
+     * Configures as an identity matrix (diagonals = 1, other elements = 0).
      */
     public void loadIdentity() {
         m01 = m02 = m03 = 0.0f;
@@ -1040,9 +1039,9 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Multiply in place, by the specified scalar.
+     * Multiplies in place by the scalar argument.
      *
-     * @param scalar the scale factor to apply to all elements
+     * @param scalar the scaling factor to apply to all elements
      */
     public void multLocal(float scalar) {
         m00 *= scalar;
@@ -1541,9 +1540,10 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Invert in place.
+     * Inverts in place. If the current instance is singular, the matrix is
+     * zeroed.
      *
-     * @return this matrix (inverted)
+     * @return the (inverted) current instance (for chaining)
      */
     public Matrix4f invertLocal() {
 
@@ -1717,9 +1717,9 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Set all elements to zero.
+     * Sets all elements to zero.
      *
-     * @return this (zeroed)
+     * @return the (modified) current instance (for chaining)
      */
     public Matrix4f zero() {
         m00 = m01 = m02 = m03 = 0.0f;
@@ -1790,10 +1790,10 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Determine the translation component of this 3-D coordinate transform.
+     * Returns the translation component of the coordinate transform.
      *
      * @param vector storage for the result (not null, modified)
-     * @return vector
+     * @return the translation component (in {@code vector}) for chaining
      */
     public Vector3f toTranslationVector(Vector3f vector) {
         return vector.set(m03, m13, m23);
@@ -1811,10 +1811,10 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Determine the rotation component of this 3-D coordinate transform.
+     * Returns the rotation component of the coordinate transform.
      *
      * @param q storage for the result (not null, modified)
-     * @return q
+     * @return the rotation component (in {@code q}) for chaining
      */
     public Quaternion toRotationQuat(Quaternion q) {
         return q.fromRotationMatrix(m00, m01, m02, m10,
@@ -1831,7 +1831,7 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Determine the rotation component of this 3-D coordinate transform.
+     * Determines the rotation component of the coordinate transform.
      *
      * @param mat storage for the result (not null, modified)
      */
@@ -1859,10 +1859,10 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Determine the scale component of this 3-D coordinate transform.
+     * Determines the scale component of the coordinate transform.
      *
      * @param store storage for the result (not null, modified)
-     * @return store
+     * @return the scale factors (in {@code store}) for chaining
      */
     public Vector3f toScaleVector(Vector3f store) {
         float scaleX = (float) Math.sqrt(m00 * m00 + m10 * m10 + m20 * m20);
@@ -1873,7 +1873,7 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Alter the scale component of this 3-D coordinate transform.
+     * Alters the scale component of the coordinate transform.
      *
      * @param x the desired scale factor for the X axis
      * @param y the desired scale factor for the Y axis
@@ -1907,7 +1907,7 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Alter the scale component of this 3-D coordinate transform.
+     * Alters the scale component of the coordinate transform.
      *
      * @param scale the desired scale factors (not null, unaffected)
      */
@@ -1946,7 +1946,7 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Alter the translation component of this 3-D coordinate transform.
+     * Alters the translation component of the coordinate transform.
      *
      * @param translation the desired translation (not null, unaffected)
      */
@@ -2142,7 +2142,8 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Represent as a String. For example, identity would be represented by:
+     * Returns a string representation of the matrix, which is unaffected. For
+     * example, the identity matrix is represented by:
      * <pre>
      * Matrix4f
      * [
@@ -2153,7 +2154,7 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
      * ]
      * </pre>
      *
-     * @return the string representation of this object.
+     * @return the string representation (not null, not empty)
      */
     @Override
     public String toString() {
@@ -2198,11 +2199,10 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * <code>hashCode</code> returns the hash code value as an integer and is
-     * supported for the benefit of hashing based collection classes such as
-     * Hashtable, HashMap, HashSet etc.
+     * Returns a hash code. If two matrices have identical values, they will
+     * have the same hash code. The matrix is unaffected.
      *
-     * @return the hashcode for this instance of Matrix4f.
+     * @return a 32-bit value for use in hashing
      * @see java.lang.Object#hashCode()
      */
     @Override
@@ -2232,10 +2232,13 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Test for equality with the specified object.
+     * Tests for exact equality with the argument, distinguishing -0 from 0. If
+     * {@code o} is null, false is returned. Either way, the current instance is
+     * unaffected.
      *
-     * @param o the object to compare, or null
-     * @return true if this and o are equal, otherwise false
+     * @param o the object to compare (may be null, unaffected)
+     * @return true if {@code this} and {@code o} have identical values,
+     *     otherwise false
      */
     @Override
     public boolean equals(Object o) {
@@ -2458,7 +2461,7 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Create a copy.
+     * Creates a copy. The current instance is unaffected.
      *
      * @return a new instance with the same element values
      */
