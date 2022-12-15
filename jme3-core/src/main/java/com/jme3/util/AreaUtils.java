@@ -35,7 +35,6 @@ import com.jme3.bounding.BoundingBox;
 import com.jme3.bounding.BoundingSphere;
 import com.jme3.bounding.BoundingVolume;
 import com.jme3.math.FastMath;
-import com.jme3.scene.control.AreaUtils;
 
 /**
  * <code>AreaUtils</code> is used to calculate the area of various objects, such as bounding volumes.  These
@@ -61,6 +60,6 @@ public final class AreaUtils {
      * @return The area in pixels on the screen of the bounding volume.
      */
     public static float calcScreenArea(BoundingVolume bound, float distance, float screenWidth) {
-        return AreaUtils.calcScreenArea(bound, distance, screenWidth);
+        return com.jme3.scene.control.AreaUtils.calcScreenArea(bound, distance, screenWidth);
     }
 }
