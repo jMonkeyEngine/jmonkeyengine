@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2022 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -57,6 +57,7 @@ public class CustomContentManager {
         defaultExtensionLoaders.put("KHR_materials_pbrSpecularGlossiness", new PBRSpecGlossExtensionLoader());
         defaultExtensionLoaders.put("KHR_lights_punctual", new LightsPunctualExtensionLoader());
         defaultExtensionLoaders.put("KHR_materials_unlit", new UnlitExtensionLoader());
+        defaultExtensionLoaders.put("KHR_texture_transform", new TextureTransformExtensionLoader());     
     }
 
     void init(GltfLoader gltfLoader) {
