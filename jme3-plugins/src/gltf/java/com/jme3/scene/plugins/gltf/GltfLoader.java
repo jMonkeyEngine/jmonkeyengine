@@ -635,6 +635,7 @@ public class GltfLoader implements AssetLoader {
             setDefaultParams(adapter.getMaterial());
         }
 
+        Integer metallicRoughnessIndex = null;
         if (pbrMat != null) {
             adapter.setParam("baseColorFactor", getAsColor(pbrMat, "baseColorFactor", ColorRGBA.White));
             adapter.setParam("metallicFactor", getAsFloat(pbrMat, "metallicFactor", 1f));
@@ -642,6 +643,8 @@ public class GltfLoader implements AssetLoader {
             adapter.setParam("baseColorTexture", readTexture(pbrMat.getAsJsonObject("baseColorTexture")));
             adapter.setParam("metallicRoughnessTexture",
                     readTexture(pbrMat.getAsJsonObject("metallicRoughnessTexture")));
+            JsonObject metallicRoughnessJson = pbrMat.getAsJsonObject("metallicRoughnessTexture");
+            metallicRoughnessIndex = metallicRoughnessJson != null ? getAsInteger(metallicRoughnessJson, "index") : null;            
         }
 
         adapter.getMaterial().setName(getAsString(matData, "name"));
@@ -657,7 +660,13 @@ public class GltfLoader implements AssetLoader {
         if (normal != null) {
             useNormalsFlag = true;
         }
-        adapter.setParam("occlusionTexture", readTexture(matData.getAsJsonObject("occlusionTexture")));
+        JsonObject occlusionJson = matData.getAsJsonObject("occlusionTexture");
+        Integer occlusionIndex = occlusionJson != null ? getAsInteger(occlusionJson, "index") : null;
+        if (occlusionIndex != null && occlusionIndex.equals(metallicRoughnessIndex)) {
+            adapter.getMaterial().setBoolean("AoPackedInMRMap", true);
+        } else {        
+            adapter.setParam("occlusionTexture", readTexture(matData.getAsJsonObject("occlusionTexture")));
+        }
         adapter.setParam("emissiveTexture", readTexture(matData.getAsJsonObject("emissiveTexture")));
 
         return adapter.getMaterial();
