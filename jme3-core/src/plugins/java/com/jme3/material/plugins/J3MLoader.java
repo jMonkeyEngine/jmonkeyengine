@@ -276,8 +276,6 @@ public class J3MLoader implements AssetLoader {
                 break;
         }
 
-        textureKey.setGenerateMips(true);
-
         Texture texture;
 
         try {
@@ -861,6 +859,13 @@ public class J3MLoader implements AssetLoader {
          * Applies a {@link com.jme3.texture.Texture.MinFilter} to the texture.
          */
         Min {
+
+            @Override
+            public void applyToTextureKey(final String option, final TextureKey textureKey) {
+                Texture.MinFilter minFilter = Texture.MinFilter.valueOf(option);
+                textureKey.setGenerateMips(minFilter.usesMipMapLevels());
+            }
+
             @Override
             public void applyToTexture(final String option, final Texture texture) {
                 texture.setMinFilter(Texture.MinFilter.valueOf(option));
