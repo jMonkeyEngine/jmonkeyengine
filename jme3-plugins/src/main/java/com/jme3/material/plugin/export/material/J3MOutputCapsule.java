@@ -140,11 +140,7 @@ public class J3MOutputCapsule implements OutputCapsule {
             ret.append(formatWrapMode(tex, Texture.WrapAxis.R));
 
             //Min and Mag filter
-            Texture.MinFilter def = Texture.MinFilter.BilinearNoMipMaps;
-            if (tex.getImage().hasMipmaps() || (key != null && key.isGenerateMips())) {
-                def = Texture.MinFilter.Trilinear;
-            }
-            if (tex.getMinFilter() != def) {
+            if (tex.getMinFilter() != Texture.MinFilter.Trilinear) {
                 ret.append("Min").append(tex.getMinFilter().name()).append(" ");
             }
 

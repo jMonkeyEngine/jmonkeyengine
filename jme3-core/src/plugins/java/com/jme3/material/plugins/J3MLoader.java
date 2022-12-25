@@ -222,6 +222,7 @@ public class J3MLoader implements AssetLoader {
         // If there is only one token on the value, it must be the path to the texture.
         if (textureValues.size() == 1) {
             textureKey = new TextureKey(textureValues.get(0), false);
+            textureKey.setGenerateMips(true);
         } else {
             String texturePath = value.trim();
 
@@ -255,6 +256,8 @@ public class J3MLoader implements AssetLoader {
             if (textureKey == null) {
                 textureKey = new TextureKey(textureValues.get(textureValues.size() - 1), false);
             }
+
+            textureKey.setGenerateMips(true);
 
             // Apply texture options to the texture key
             if (!textureOptionValues.isEmpty()) {
