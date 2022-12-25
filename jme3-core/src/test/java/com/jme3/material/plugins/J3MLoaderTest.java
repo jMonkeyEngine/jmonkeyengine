@@ -87,8 +87,8 @@ public class J3MLoaderTest {
         final Texture textureOldStyle = Mockito.mock(Texture.class);
         final Texture textureOldStyleUsingQuotes = Mockito.mock(Texture.class);
 
-        final TextureKey textureKeyUsingQuotes = setupMockForTexture("OldStyleUsingQuotes", "old style using quotes/texture.png", true, false, textureOldStyleUsingQuotes);
-        final TextureKey textureKeyOldStyle = setupMockForTexture("OldStyle", "old style/texture.png", true, false, textureOldStyle);
+        final TextureKey textureKeyUsingQuotes = setupMockForTexture("OldStyleUsingQuotes", "old style using quotes/texture.png", true, true, textureOldStyleUsingQuotes);
+        final TextureKey textureKeyOldStyle = setupMockForTexture("OldStyle", "old style/texture.png", true, true, textureOldStyle);
 
         j3MLoader.load(assetInfo);
 
@@ -111,14 +111,14 @@ public class J3MLoaderTest {
         final Texture textureCombined = Mockito.mock(Texture.class);
         final Texture textureLooksLikeOldStyle = Mockito.mock(Texture.class);
 
-        final TextureKey textureKeyNoParameters = setupMockForTexture("Empty", "empty.png", false, false, textureNoParameters);
-        final TextureKey textureKeyFlip = setupMockForTexture("Flip", "flip.png", true, false, textureFlip);
-        setupMockForTexture("Repeat", "repeat.png", false, false, textureRepeat);
-        setupMockForTexture("RepeatAxis", "repeat-axis.png", false, false, textureRepeatAxis);
+        final TextureKey textureKeyNoParameters = setupMockForTexture("Empty", "empty.png", false, true, textureNoParameters);
+        final TextureKey textureKeyFlip = setupMockForTexture("Flip", "flip.png", true, true, textureFlip);
+        setupMockForTexture("Repeat", "repeat.png", false, true, textureRepeat);
+        setupMockForTexture("RepeatAxis", "repeat-axis.png", false, true, textureRepeatAxis);
         setupMockForTexture("Min", "min.png", false, true, textureMin);
-        setupMockForTexture("Mag", "mag.png", false, false, textureMag);
+        setupMockForTexture("Mag", "mag.png", false, true, textureMag);
         setupMockForTexture("Combined", "combined.png", true, false, textureCombined);
-        setupMockForTexture("LooksLikeOldStyle", "oldstyle.png", true, false, textureLooksLikeOldStyle);
+        setupMockForTexture("LooksLikeOldStyle", "oldstyle.png", true, true, textureLooksLikeOldStyle);
 
         j3MLoader.load(assetInfo);
 
