@@ -65,7 +65,7 @@ public class GltfLoader implements AssetLoader {
     private static final Logger logger = Logger.getLogger(GltfLoader.class.getName());
 
     // Data cache for already parsed JME objects
-    private Map<String, Object[]> dataCache = new HashMap<>();
+    private final Map<String, Object[]> dataCache = new HashMap<>();
     private JsonArray scenes;
     private JsonArray nodes;
     private JsonArray meshes;
@@ -85,12 +85,12 @@ public class GltfLoader implements AssetLoader {
     private JsonObject docRoot;
     private Node rootNode;
 
-    private FloatArrayPopulator floatArrayPopulator = new FloatArrayPopulator();
-    private Vector3fArrayPopulator vector3fArrayPopulator = new Vector3fArrayPopulator();
-    private QuaternionArrayPopulator quaternionArrayPopulator = new QuaternionArrayPopulator();
-    private Matrix4fArrayPopulator matrix4fArrayPopulator = new Matrix4fArrayPopulator();
-    private Map<String, MaterialAdapter> defaultMaterialAdapters = new HashMap<>();
-    private CustomContentManager customContentManager = new CustomContentManager();
+    private final FloatArrayPopulator floatArrayPopulator = new FloatArrayPopulator();
+    private final Vector3fArrayPopulator vector3fArrayPopulator = new Vector3fArrayPopulator();
+    private final QuaternionArrayPopulator quaternionArrayPopulator = new QuaternionArrayPopulator();
+    private final Matrix4fArrayPopulator matrix4fArrayPopulator = new Matrix4fArrayPopulator();
+    private final Map<String, MaterialAdapter> defaultMaterialAdapters = new HashMap<>();
+    private final CustomContentManager customContentManager = new CustomContentManager();
     private boolean useNormalsFlag = false;
 
     Map<SkinData, List<Spatial>> skinnedSpatials = new HashMap<>();
