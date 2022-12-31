@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2021 jMonkeyEngine
+ * Copyright (c) 2017-2022 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,8 +32,8 @@
 package jme3test.model.anim;
 
 import com.jme3.anim.*;
-import com.jme3.anim.tween.action.BlendAction;
-import com.jme3.anim.tween.action.LinearBlendSpace;
+import com.jme3.anim.tween.Tweens;
+import com.jme3.anim.tween.action.*;
 import com.jme3.anim.util.AnimMigrationUtils;
 import com.jme3.app.ChaseCameraAppState;
 import com.jme3.app.SimpleApplication;
@@ -157,9 +157,10 @@ public class TestAnimMigration extends SimpleApplication {
             @Override
             public void onAction(String name, boolean isPressed, float tpf) {
                 if (isPressed) {
-                    composer.setCurrentAction("Wave", "LeftArm");
+                    ((BlendableAction)composer.setCurrentAction("Wave", "LeftArm", false)).setMaxTransitionWeight(0.9);
                 }
             }
+
         }, "mask");
 
         inputManager.addMapping("blendUp", new KeyTrigger(KeyInput.KEY_UP));
@@ -173,17 +174,44 @@ public class TestAnimMigration extends SimpleApplication {
                     blendValue += value;
                     blendValue = FastMath.clamp(blendValue, 1, 4);
                     action.getBlendSpace().setValue(blendValue);
-                    action.setSpeed(blendValue);
+                    //action.setSpeed(blendValue);
                 }
                 if (name.equals("blendDown")) {
                     blendValue -= value;
                     blendValue = FastMath.clamp(blendValue, 1, 4);
                     action.getBlendSpace().setValue(blendValue);
-                    action.setSpeed(blendValue);
+                    //action.setSpeed(blendValue);
                 }
                 //System.err.println(blendValue);
             }
         }, "blendUp", "blendDown");
+
+        inputManager.addMapping("maxTransitionWeightInc", new KeyTrigger(KeyInput.KEY_ADD));
+        inputManager.addMapping("maxTransitionWeightDec", new KeyTrigger(KeyInput.KEY_SUBTRACT));
+
+        inputManager.addListener(new AnalogListener() {
+
+            @Override
+            public void onAnalog(String name, float value, float tpf) {
+                if (name.equals("maxTransitionWeightInc")) {
+                    Action action = composer.getCurrentAction();
+                    if (action instanceof BlendableAction) {
+                        BlendableAction ba = (BlendableAction) action;
+                        ba.setMaxTransitionWeight(Math.min(ba.getMaxTransitionWeight() + 0.01, 1.0));
+                        System.out.println("MaxTransitionWeight=" + ba.getMaxTransitionWeight());
+                    }
+                }
+                if (name.equals("maxTransitionWeightDec")) {
+                    Action action = composer.getCurrentAction();
+                    if (action instanceof BlendableAction) {
+                        BlendableAction ba = (BlendableAction) action;
+                        ba.setMaxTransitionWeight(Math.max(ba.getMaxTransitionWeight() - 0.01, 0.0));
+                        System.out.println("MaxTransitionWeight=" + ba.getMaxTransitionWeight());
+                    }
+                }
+                //System.err.println(blendValue);
+            }
+        }, "maxTransitionWeightInc", "maxTransitionWeightDec");
     }
 
     private void setupModel(Spatial model) {
@@ -217,8 +245,11 @@ public class TestAnimMigration extends SimpleApplication {
 
             composer.action("Walk").setSpeed(-1);
 
+            composer.addAction("WalkCycle", new BaseAction(Tweens.cycle(composer.makeAction("Walk"))));
+
             composer.makeLayer("LeftArm", ArmatureMask.createMask(sc.getArmature(), "shoulder.L"));
 
+            anims.addFirst("WalkCycle");
             anims.addFirst("Blend");
             anims.addFirst("Sequence2");
             anims.addFirst("Sequence1");

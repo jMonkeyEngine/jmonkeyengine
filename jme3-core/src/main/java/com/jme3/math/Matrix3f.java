@@ -767,7 +767,8 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
     /**
      * Tests for exact identity. The matrix is unaffected.
      *
-     * @return true if equal to {@link #IDENTITY}, otherwise false
+     * @return true if all diagonals = 1 and all other elements = 0 or -0,
+     * otherwise false
      */
     public boolean isIdentity() {
         return (m00 == 1 && m01 == 0 && m02 == 0)
@@ -1177,7 +1178,7 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * Returns a string representation of the matrix, which is unaffected. For
-     * example, an identity matrix would be represented by:
+     * example, the identity matrix is represented by:
      * <pre>
      * Matrix3f
      * [
@@ -1187,7 +1188,7 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
      * ]
      * </pre>
      *
-     * @return the string representation
+     * @return the string representation (not null, not empty)
      */
     @Override
     public String toString() {
@@ -1217,10 +1218,10 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Returns a hash code. If two matrices are logically equivalent, they will
-     * return the same hash code. The current instance is unaffected.
+     * Returns a hash code. If two matrices have identical values, they will
+     * have the same hash code. The matrix is unaffected.
      *
-     * @return the hash-code value
+     * @return a 32-bit value for use in hashing
      * @see java.lang.Object#hashCode()
      */
     @Override
@@ -1242,11 +1243,13 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Tests for exact equality with the argument, distinguishing -0 from 0. The
-     * current instance is unaffected.
+     * Tests for exact equality with the argument, distinguishing -0 from 0. If
+     * {@code o} is null, false is returned. Either way, the current instance is
+     * unaffected.
      *
      * @param o the object to compare (may be null, unaffected)
-     * @return true if equal, otherwise false
+     * @return true if {@code this} and {@code o} have identical values,
+     *     otherwise false
      */
     @Override
     public boolean equals(Object o) {

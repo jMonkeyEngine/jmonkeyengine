@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2022 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -807,11 +807,13 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
 
         this();
 
-        if (mipMapSizes != null && mipMapSizes.length <= 1) {
-            mipMapSizes = null;
-        } else {
-            needGeneratedMips = false;
-            mipsWereGenerated = true;
+        if (mipMapSizes != null) {
+            if (mipMapSizes.length <= 1) {
+                mipMapSizes = null;
+            } else {
+                needGeneratedMips = false;
+                mipsWereGenerated = true;
+            }
         }
 
         setFormat(format);

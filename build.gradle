@@ -27,7 +27,7 @@ allprojects {
 }
 
 // Set the license for IDEs that understand this
-ext.license = file("$rootDir/license.txt")
+ext.license = file("$rootDir/source-file-header-template.txt")
 
 apply plugin: 'base'
 apply plugin: 'com.github.spotbugs'
@@ -283,7 +283,7 @@ if (skipPrebuildLibraries != "true" && buildNativeProjects != "true") {
 //}
 
 wrapper {
-    gradleVersion = '7.5.1'
+    gradleVersion = '7.6'
 }
 
 

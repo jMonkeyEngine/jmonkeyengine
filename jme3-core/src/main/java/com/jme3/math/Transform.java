@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2022 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -428,8 +428,8 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Returns a hash code. If two transforms are logically equivalent, they
-     * will return the same hash code. The current instance is unaffected.
+     * Returns a hash code. If two transforms have identical values, they
+     * will have the same hash code. The current instance is unaffected.
      *
      * @return a 32-bit value for use in hashing
      */
@@ -443,11 +443,13 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Tests for exact equality with the argument, distinguishing -0 from 0. The
-     * current instance is unaffected.
+     * Tests for exact equality with the argument, distinguishing -0 from 0. If
+     * {@code obj} is null, false is returned. Either way, the current instance
+     * is unaffected.
      *
-     * @param obj the object to compare to (may be null, unaffected)
-     * @return true if the objects are exactly equal, otherwise false
+     * @param obj the object to compare (may be null, unaffected)
+     * @return true if {@code this} and {@code obj} have identical values,
+     *     otherwise false
      */
     @Override
     public boolean equals(Object obj) {
@@ -464,12 +466,12 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Returns a string representation. The current instance is unaffected. The
-     * format is:
+     * Returns a string representation of the transform, which is unaffected.
+     * For example, the identity transform is represented by:
      * <pre>
-     * Transform[ TX.XXXX, TY.YYYY, TZ.ZZZZ]
-     * [ R.XXXX, R.YYYY, R.ZZZZ, R.WWWW]
-     * [ S.XXXX , S.YYYY, S.ZZZZ]
+     * Transform[ 0.0, 0.0, 0.0]
+     * [ 0.0, 0.0, 0.0, 1.0]
+     * [ 1.0 , 1.0, 1.0]
      * </pre>
      *
      * @return the string representation (not null, not empty)

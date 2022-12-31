@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2022 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -931,6 +931,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
     public void getTriangle(int index, Triangle tri) {
         getTriangle(index, tri.get1(), tri.get2(), tri.get3());
         tri.setIndex(index);
+        tri.setCenter(null); // invalidate previously cached centroid, if any
         tri.setNormal(null);
     }
 

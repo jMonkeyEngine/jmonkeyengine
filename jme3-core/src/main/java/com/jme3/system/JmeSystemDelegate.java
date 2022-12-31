@@ -35,14 +35,18 @@ import com.jme3.asset.AssetManager;
 import com.jme3.asset.DesktopAssetManager;
 import com.jme3.audio.AudioRenderer;
 import com.jme3.input.SoftTextDialogInput;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -57,6 +61,32 @@ public abstract class JmeSystemDelegate {
     protected boolean lowPermissions = false;
     protected Map<JmeSystem.StorageFolderType, File> storageFolders = new EnumMap<>(JmeSystem.StorageFolderType.class);
     protected SoftTextDialogInput softTextDialogInput = null;
+
+    protected Consumer<String> errorMessageHandler = (message) -> {
+        JmeDialogsFactory dialogFactory = null;
+        try {
+             dialogFactory = (JmeDialogsFactory)Class.forName("com.jme3.system.JmeDialogsFactoryImpl").getConstructor().newInstance();
+        } catch(ClassNotFoundException e){
+            logger.warning("JmeDialogsFactory implementation not found.");    
+        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+            e.printStackTrace();
+        }
+        if(dialogFactory != null) dialogFactory.showErrorDialog(message);
+        else System.err.println(message);
+    };
+
+    protected BiFunction<AppSettings,Boolean,Boolean> settingsHandler = (settings,loadFromRegistry) -> {
+        JmeDialogsFactory dialogFactory = null;
+        try {
+            dialogFactory = (JmeDialogsFactory)Class.forName("com.jme3.system.JmeDialogsFactoryImpl").getConstructor().newInstance();
+        } catch(ClassNotFoundException e){
+            logger.warning("JmeDialogsFactory implementation not found.");    
+        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+            e.printStackTrace();
+        }
+        if(dialogFactory != null) return dialogFactory.showSettingsDialog(settings, loadFromRegistry);
+        return true;
+    };
 
     public synchronized File getStorageFolder(JmeSystem.StorageFolderType type) {
         File storageFolder = null;
@@ -133,9 +163,56 @@ public abstract class JmeSystemDelegate {
     
     public abstract void writeImageFile(OutputStream outStream, String format, ByteBuffer imageData, int width, int height) throws IOException;
 
-    public abstract void showErrorDialog(String message);
+    /**
+     * Set function to handle errors. 
+     * The default implementation show a dialog if available.
+     * @param handler Consumer to which the error is passed as String
+     */
+    public void setErrorMessageHandler(Consumer<String> handler){
+        errorMessageHandler = handler;
+    }
 
-    public abstract boolean showSettingsDialog(AppSettings sourceSettings, boolean loadFromRegistry);
+    /**
+     * Internal use only: submit an error to the error message handler
+     */
+    public void handleErrorMessage(String message){
+        if(errorMessageHandler != null) errorMessageHandler.accept(message);
+    }
+
+    /**
+     * Set a function to handler app settings. 
+     * The default implementation shows a settings dialog if available.
+     * @param handler handler function that accepts as argument an instance of AppSettings 
+     * to transform and a boolean with the value of true if the settings are expected to be loaded from 
+     * the user registry. The handler function returns false if the configuration is interrupted (eg.the the dialog was closed)
+     * or true otherwise.
+     */
+    public void setSettingsHandler(BiFunction<AppSettings,Boolean, Boolean> handler){
+        settingsHandler = handler;
+    }
+
+    /**
+     * Internal use only: summon the settings handler
+     */
+    public boolean handleSettings(AppSettings settings, boolean loadFromRegistry){
+        if(settingsHandler != null) return settingsHandler.apply(settings,loadFromRegistry);
+        return true;
+    }
+
+    /**
+     * @deprecated Use JmeSystemDelegate.handleErrorMessage(String) instead
+     * @param message
+     */
+    @Deprecated
+    public void showErrorDialog(String message){
+        handleErrorMessage(message);
+    }
+
+    @Deprecated
+    public boolean showSettingsDialog(AppSettings settings, boolean loadFromRegistry){
+        return handleSettings(settings, loadFromRegistry);
+    }
+
 
     private boolean is64Bit(String arch) {
         if (arch.equals("x86")) {

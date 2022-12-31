@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2022 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,19 +29,25 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.app.jmeSurfaceView;
+package com.jme3.view.surfaceview;
+
+import com.jme3.app.LegacyApplication;
+import com.jme3.system.AppSettings;
 
 /**
- * An interface designed to listen for exceptions and fire an event when an exception is thrown.
+ * An interface used for invoking an event when the user delay finishes, on the first update of the game.
  *
  * @author pavl_g.
- * @see JmeSurfaceView#setOnExceptionThrown(OnExceptionThrown)
+ * @see JmeSurfaceView#setOnRendererCompleted(OnRendererCompleted)
  */
-public interface OnExceptionThrown {
+public interface OnRendererCompleted {
     /**
-     * Listens for a thrown exception or a thrown error.
+     * Invoked when the user delay finishes, on the first update of the game, the event is dispatched on the
+     * enclosing Activity context thread.
      *
-     * @param e the exception or the error that is throwable.
+     * @param application the current jme game instance.
+     * @param appSettings the current window settings of the running jme game.
+     * @see JmeSurfaceView#update()
      */
-    void onExceptionThrown(Throwable e);
+    void onRenderCompletion(LegacyApplication application, AppSettings appSettings);
 }

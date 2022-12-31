@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2022 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -222,6 +222,7 @@ public class J3MLoader implements AssetLoader {
         // If there is only one token on the value, it must be the path to the texture.
         if (textureValues.size() == 1) {
             textureKey = new TextureKey(textureValues.get(0), false);
+            textureKey.setGenerateMips(true);
         } else {
             String texturePath = value.trim();
 
@@ -256,6 +257,8 @@ public class J3MLoader implements AssetLoader {
                 textureKey = new TextureKey(textureValues.get(textureValues.size() - 1), false);
             }
 
+            textureKey.setGenerateMips(true);
+
             // Apply texture options to the texture key
             if (!textureOptionValues.isEmpty()) {
                 for (final TextureOptionValue textureOptionValue : textureOptionValues) {
@@ -275,8 +278,6 @@ public class J3MLoader implements AssetLoader {
                 textureKey.setTextureTypeHint(Texture.Type.CubeMap);
                 break;
         }
-
-        textureKey.setGenerateMips(true);
 
         Texture texture;
 
@@ -861,6 +862,13 @@ public class J3MLoader implements AssetLoader {
          * Applies a {@link com.jme3.texture.Texture.MinFilter} to the texture.
          */
         Min {
+
+            @Override
+            public void applyToTextureKey(final String option, final TextureKey textureKey) {
+                Texture.MinFilter minFilter = Texture.MinFilter.valueOf(option);
+                textureKey.setGenerateMips(minFilter.usesMipMapLevels());
+            }
+
             @Override
             public void applyToTexture(final String option, final Texture texture) {
                 texture.setMinFilter(Texture.MinFilter.valueOf(option));

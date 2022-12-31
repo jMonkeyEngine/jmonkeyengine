@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2022 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,41 +29,19 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.system;
+package com.jme3.view.surfaceview;
 
-import com.jme3.audio.AudioRenderer;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.net.URL;
-import java.nio.ByteBuffer;
-
-public class MockJmeSystemDelegate extends JmeSystemDelegate {
-
-    @Override
-    public void writeImageFile(OutputStream outStream, String format, ByteBuffer imageData, int width, int height) throws IOException {
-    }
-
-    @Override
-    public URL getPlatformAssetConfigURL() {
-        return Thread.currentThread().getContextClassLoader().getResource("com/jme3/asset/General.cfg");
-    }
-
-    @Override
-    public JmeContext newContext(AppSettings settings, JmeContext.Type contextType) {
-        return null;
-    }
-
-    @Override
-    public AudioRenderer newAudioRenderer(AppSettings settings) {
-        return null;
-    }
-
-    @Override
-    public void initialize(AppSettings settings) {
-    }
-
-    @Override
-    public void showSoftKeyboard(boolean show) {
-    }
-    
+/**
+ * An interface designed to listen for exceptions and fire an event when an exception is thrown.
+ *
+ * @author pavl_g.
+ * @see JmeSurfaceView#setOnExceptionThrown(OnExceptionThrown)
+ */
+public interface OnExceptionThrown {
+    /**
+     * Listens for a thrown exception or a thrown error.
+     *
+     * @param e the exception or the error that is throwable.
+     */
+    void onExceptionThrown(Throwable e);
 }

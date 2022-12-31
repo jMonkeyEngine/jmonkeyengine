@@ -42,7 +42,7 @@ import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.CharacterCodingException;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CoderResult;
 import java.util.HashMap;
@@ -80,14 +80,9 @@ public class HttpZipLocator implements AssetLocator {
     private int tableLength;
     private HashMap<String, ZipEntry2> entries;
     
-    private static final ByteBuffer byteBuf = ByteBuffer.allocate(250);
-    private static final CharBuffer charBuf = CharBuffer.allocate(250);
-    private static final CharsetDecoder utf8Decoder;
-    
-    static {
-        Charset utf8 = Charset.forName("UTF-8");
-        utf8Decoder = utf8.newDecoder();
-    }
+    private final ByteBuffer byteBuf = ByteBuffer.allocate(250);
+    private final CharBuffer charBuf = CharBuffer.allocate(250);
+    private final CharsetDecoder utf8Decoder = StandardCharsets.UTF_8.newDecoder();
 
     private static class ZipEntry2 {
         String name;
@@ -96,6 +91,10 @@ public class HttpZipLocator implements AssetLocator {
         int compSize;
         long crc;
         boolean deflate;
+        // These fields will be fetched later from local file header,
+        // once asset requested.
+        Integer nameLength;
+        Integer extraLength;
 
         @Override
         public String toString(){
@@ -125,7 +124,7 @@ public class HttpZipLocator implements AssetLocator {
              (((long)(b[off]&0xff)) << 24);
     }
 
-    private static String getUTF8String(byte[] b, int off, int len) throws CharacterCodingException {
+    private String getUTF8String(byte[] b, int off, int len) throws CharacterCodingException {
         StringBuilder sb = new StringBuilder();
         
         int read = 0;
@@ -143,7 +142,7 @@ public class HttpZipLocator implements AssetLocator {
             byteBuf.flip();
             
             // decode data in byteBuf
-            CoderResult result = utf8Decoder.decode(byteBuf, charBuf, endOfInput); 
+            CoderResult result = utf8Decoder.decode(byteBuf, charBuf, endOfInput);
             
             // If the result is not an underflow, it's an error
             // that cannot be handled.
@@ -234,10 +233,6 @@ public class HttpZipLocator implements AssetLocator {
         entry.compSize = get32(table, offset + ZipEntry.CENSIZ);
         entry.offset   = get32(table, offset + ZipEntry.CENOFF);
 
-        // We want the offset in the file data:
-        // move the offset forward to skip the LOC header.
-        entry.offset += ZipEntry.LOCHDR + nameLen + extraLen;
-
         entries.put(entry.name, entry);
         
         return newOffset;
@@ -256,16 +251,15 @@ public class HttpZipLocator implements AssetLocator {
     }
 
     private void readCentralDirectory() throws IOException{
-        InputStream in = readData(tableOffset, tableLength);
         byte[] header = new byte[tableLength];
-
-        // Fix for "PK12 bug in town.zip": sometimes
-        // not entire byte array will be read with InputStream.read()
-        // (especially for big headers)
-        fillByteArray(header, in);
+        try (InputStream in = readData(tableOffset, tableLength)) {
+            // Fix for "PK12 bug in town.zip": sometimes
+            // not entire byte array will be read with InputStream.read()
+            // (especially for big headers)
+            fillByteArray(header, in);
 
 //        in.read(header);
-        in.close();
+        }
 
         entries = new HashMap<String, ZipEntry2>(numEntries);
         int offset = 0;
@@ -292,10 +286,10 @@ public class HttpZipLocator implements AssetLocator {
         // In that case, we have to search for it.
         // Increase search space to 200 bytes
 
-        InputStream in = readData(Integer.MAX_VALUE, 200);
         byte[] header = new byte[200];
-        fillByteArray(header, in);
-        in.close();
+        try (InputStream in = readData(Integer.MAX_VALUE, 200)) {
+            fillByteArray(header, in);
+        }
 
         int offset = -1;
         for (int i = 200 - 22; i >= 0; i--){
@@ -323,9 +317,23 @@ public class HttpZipLocator implements AssetLocator {
         readCentralDirectory();
     }
 
-    private InputStream openStream(ZipEntry2 entry) throws IOException{
-        InputStream in = readData(entry.offset, entry.compSize);
-        if (entry.deflate){
+    private InputStream openStream(ZipEntry2 entry) throws IOException {
+        if (entry.nameLength == null && entry.extraLength == null) {
+            // Need to fetch local file header to obtain file name length
+            // and extra field length.
+            try (InputStream in = readData(entry.offset, ZipEntry.LOCHDR)) {
+                byte[] localHeader = new byte[ZipEntry.LOCHDR];
+                in.read(localHeader);
+                entry.nameLength = get16(localHeader, ZipEntry.LOCNAM);
+                entry.extraLength = get16(localHeader, ZipEntry.LOCEXT);
+            }
+        }
+
+        // We want the offset in the file data:
+        // move the offset forward to skip the LOC header.
+        int fileDataOffset = entry.offset + ZipEntry.LOCHDR + entry.nameLength + entry.extraLength;
+        InputStream in = readData(fileDataOffset, entry.compSize);
+        if (entry.deflate) {
             return new InflaterInputStream(in, new Inflater(true));
         }
         return in;

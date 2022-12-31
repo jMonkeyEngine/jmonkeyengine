@@ -33,6 +33,8 @@ package com.jme3.shadow;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.export.*;
+import com.jme3.light.LightFilter;
+import com.jme3.light.NullLightFilter;
 import com.jme3.material.Material;
 import com.jme3.material.RenderState;
 import com.jme3.math.ColorRGBA;
@@ -77,7 +79,7 @@ import java.util.logging.Logger;
 public abstract class AbstractShadowRenderer implements SceneProcessor, Savable, JmeCloneable, Cloneable {
 
     protected static final Logger logger = Logger.getLogger(AbstractShadowRenderer.class.getName());
-
+    private static final LightFilter NULL_LIGHT_FILTER = new NullLightFilter();
     protected int nbShadowMaps = 1;
     protected float shadowMapSize;
     protected float shadowIntensity = 0.7f;
@@ -443,10 +445,14 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
         renderManager.getRenderer().clearBuffers(true, true, true);
         renderManager.setForcedRenderState(forcedRenderState);
 
-        // render shadow casters to shadow map
+        // render shadow casters to shadow map and disables the lightfilter
+        LightFilter tmpLightFilter = renderManager.getLightFilter();
+        renderManager.setLightFilter(NULL_LIGHT_FILTER);
         viewPort.getQueue().renderShadowQueue(shadowMapOccluders, renderManager, shadowCam, true);
+        renderManager.setLightFilter(tmpLightFilter);
         renderManager.setForcedRenderState(null);
     }
+
     boolean debugfrustums = false;
 
     public void displayFrustum() {

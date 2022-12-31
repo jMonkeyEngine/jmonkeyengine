@@ -465,10 +465,10 @@ public abstract class VRApplication implements Application, SystemListener {
         // Display error message on screen if not in headless mode
         if (context.getType() != JmeContext.Type.Headless) {
             if (t != null) {
-                JmeSystem.showErrorDialog(errMsg + "\n" + t.getClass().getSimpleName() +
+                JmeSystem.handleErrorMessage(errMsg + "\n" + t.getClass().getSimpleName() +
                         (t.getMessage() != null ? ": " +  t.getMessage() : ""));
             } else {
-                JmeSystem.showErrorDialog(errMsg);
+                JmeSystem.handleErrorMessage(errMsg);
             }
         }
 
@@ -706,40 +706,12 @@ public abstract class VRApplication implements Application, SystemListener {
             logger.config("VR mode disabled.");
 
             // not in VR, show settings dialog
-            if( Platform.get() != Platform.MACOSX ) {
-                if (!JmeSystem.showSettingsDialog(settings, loadSettings)) {
-                    logger.config("Starting application [SUCCESS]");
-                    return;
-                }
-            } else {
-                // GLFW workaround on macs
-                settings.setFrequency(defDev.getDisplayMode().getRefreshRate());
-                settings.setDepthBits(24);
-                settings.setVSync(true);
-                // try and read resolution from file in local dir
-                File resFile = new File("resolution.txt");
-                if( resFile.exists() ) {
-                    try {
-                        BufferedReader br = new BufferedReader(new FileReader(resFile));
-                        settings.setWidth(Integer.parseInt(br.readLine()));
-                        settings.setHeight(Integer.parseInt(br.readLine()));
-                        try {
-                            settings.setFullscreen(br.readLine().toLowerCase(Locale.ENGLISH).contains("full"));
-                        } catch(Exception e) {
-                            settings.setFullscreen(false);
-                        }
-                        br.close();
-                    } catch(Exception e) {
-                        settings.setWidth(1280);
-                        settings.setHeight(720);
-                    }
-                } else {
-                    settings.setWidth(1280);
-                    settings.setHeight(720);
-                    settings.setFullscreen(false);
-                }
-                settings.setResizable(false);
+            if (!JmeSystem.showSettingsDialog(settings, loadSettings)) {
+                logger.config("Starting application [SUCCESS]");
+                return;
             }
+            
+
             settings.setSwapBuffers(true);
         } else {
             logger.config("VR mode enabled.");

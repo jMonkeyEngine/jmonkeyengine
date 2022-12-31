@@ -1,4 +1,4 @@
 dependencies {
     api project(':jme3-core')
-    api 'com.github.stephengold:j-ogg-all:1.0.1'
+    api 'com.github.stephengold:j-ogg-all:1.0.2'
 }

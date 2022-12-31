@@ -34,6 +34,7 @@ package com.jme3.system;
 import com.jme3.asset.AssetManager;
 import com.jme3.audio.AudioRenderer;
 import com.jme3.input.SoftTextDialogInput;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -41,6 +42,8 @@ import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.nio.ByteBuffer;
+import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -154,10 +157,7 @@ public class JmeSystem {
         return systemDelegate.newAssetManager();
     }
 
-    public static boolean showSettingsDialog(AppSettings sourceSettings, final boolean loadFromRegistry) {
-        checkDelegate();
-        return systemDelegate.showSettingsDialog(sourceSettings, loadFromRegistry);
-    }
+   
 
     /**
      * Determine which Platform (operating system and architecture) the
@@ -190,13 +190,43 @@ public class JmeSystem {
      * feels is appropriate. If this is a headless or an offscreen surface
      * context, this method should do nothing.
      *
+     * @deprecated Use JmeSystem.handleErrorMessage(String) instead
      * @param message The error message to display. May contain new line
      * characters.
      */
+    @Deprecated
     public static void showErrorDialog(String message){
-        checkDelegate();
-        systemDelegate.showErrorDialog(message);
+        handleErrorMessage(message);
     }
+
+    public static void handleErrorMessage(String message){
+        checkDelegate();
+        systemDelegate.handleErrorMessage(message);
+    }
+
+    public static void setErrorMessageHandler(Consumer<String> handler){
+        checkDelegate();
+        systemDelegate.setErrorMessageHandler(handler);
+    }
+
+
+    public static void handleSettings(AppSettings sourceSettings, boolean loadFromRegistry){
+        checkDelegate();
+        systemDelegate.handleSettings(sourceSettings, loadFromRegistry);
+    }
+
+    public static void setSettingsHandler(BiFunction<AppSettings,Boolean,Boolean> handler){
+        checkDelegate();
+        systemDelegate.setSettingsHandler(handler);
+    }
+
+
+    @Deprecated
+    public static boolean showSettingsDialog(AppSettings sourceSettings, final boolean loadFromRegistry) {
+        checkDelegate();
+        return systemDelegate.showSettingsDialog(sourceSettings, loadFromRegistry);
+    }
+
 
     public static void initialize(AppSettings settings) {
         checkDelegate();

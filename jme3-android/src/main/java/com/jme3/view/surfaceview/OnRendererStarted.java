@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2022 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,41 +29,27 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.system;
+package com.jme3.view.surfaceview;
 
-import com.jme3.audio.AudioRenderer;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.net.URL;
-import java.nio.ByteBuffer;
+import android.view.View;
+import com.jme3.app.LegacyApplication;
 
-public class MockJmeSystemDelegate extends JmeSystemDelegate {
-
-    @Override
-    public void writeImageFile(OutputStream outStream, String format, ByteBuffer imageData, int width, int height) throws IOException {
-    }
-
-    @Override
-    public URL getPlatformAssetConfigURL() {
-        return Thread.currentThread().getContextClassLoader().getResource("com/jme3/asset/General.cfg");
-    }
-
-    @Override
-    public JmeContext newContext(AppSettings settings, JmeContext.Type contextType) {
-        return null;
-    }
-
-    @Override
-    public AudioRenderer newAudioRenderer(AppSettings settings) {
-        return null;
-    }
-
-    @Override
-    public void initialize(AppSettings settings) {
-    }
-
-    @Override
-    public void showSoftKeyboard(boolean show) {
-    }
-    
+/**
+ * An interface used for invoking an event when the application is started explicitly from {@link JmeSurfaceView#startRenderer(int)}.
+ * NB : This listener must be utilized before using {@link JmeSurfaceView#startRenderer(int)}, ie : it would be ignored if you try to use {@link JmeSurfaceView#setOnRendererStarted(OnRendererStarted)} after
+ * {@link JmeSurfaceView#startRenderer(int)}.
+ *
+ * @author pavl_g.
+ * @see JmeSurfaceView#setOnRendererStarted(OnRendererStarted)
+ */
+public interface OnRendererStarted {
+    /**
+     * Invoked when the game application is started by the {@link LegacyApplication#start()}, the event is dispatched on the
+     * holder Activity context thread.
+     *
+     * @param application the game instance.
+     * @param layout      the enclosing layout.
+     * @see JmeSurfaceView#startRenderer(int)
+     */
+    void onRenderStart(LegacyApplication application, View layout);
 }

@@ -65,7 +65,7 @@ public class GltfLoader implements AssetLoader {
     private static final Logger logger = Logger.getLogger(GltfLoader.class.getName());
 
     // Data cache for already parsed JME objects
-    private Map<String, Object[]> dataCache = new HashMap<>();
+    private final Map<String, Object[]> dataCache = new HashMap<>();
     private JsonArray scenes;
     private JsonArray nodes;
     private JsonArray meshes;
@@ -85,12 +85,12 @@ public class GltfLoader implements AssetLoader {
     private JsonObject docRoot;
     private Node rootNode;
 
-    private FloatArrayPopulator floatArrayPopulator = new FloatArrayPopulator();
-    private Vector3fArrayPopulator vector3fArrayPopulator = new Vector3fArrayPopulator();
-    private QuaternionArrayPopulator quaternionArrayPopulator = new QuaternionArrayPopulator();
-    private Matrix4fArrayPopulator matrix4fArrayPopulator = new Matrix4fArrayPopulator();
-    private Map<String, MaterialAdapter> defaultMaterialAdapters = new HashMap<>();
-    private CustomContentManager customContentManager = new CustomContentManager();
+    private final FloatArrayPopulator floatArrayPopulator = new FloatArrayPopulator();
+    private final Vector3fArrayPopulator vector3fArrayPopulator = new Vector3fArrayPopulator();
+    private final QuaternionArrayPopulator quaternionArrayPopulator = new QuaternionArrayPopulator();
+    private final Matrix4fArrayPopulator matrix4fArrayPopulator = new Matrix4fArrayPopulator();
+    private final Map<String, MaterialAdapter> defaultMaterialAdapters = new HashMap<>();
+    private final CustomContentManager customContentManager = new CustomContentManager();
     private boolean useNormalsFlag = false;
 
     Map<SkinData, List<Spatial>> skinnedSpatials = new HashMap<>();
@@ -382,6 +382,7 @@ public class GltfLoader implements AssetLoader {
         for (JsonElement primitive : primitives) {
             JsonObject meshObject = primitive.getAsJsonObject();
             Mesh mesh = new Mesh();
+            addToCache("mesh", 0, mesh, 1);
             Integer mode = getAsInteger(meshObject, "mode");
             mesh.setMode(getMeshMode(mode));
             Integer indices = getAsInteger(meshObject, "indices");
@@ -634,6 +635,7 @@ public class GltfLoader implements AssetLoader {
             setDefaultParams(adapter.getMaterial());
         }
 
+        Integer metallicRoughnessIndex = null;
         if (pbrMat != null) {
             adapter.setParam("baseColorFactor", getAsColor(pbrMat, "baseColorFactor", ColorRGBA.White));
             adapter.setParam("metallicFactor", getAsFloat(pbrMat, "metallicFactor", 1f));
@@ -641,6 +643,8 @@ public class GltfLoader implements AssetLoader {
             adapter.setParam("baseColorTexture", readTexture(pbrMat.getAsJsonObject("baseColorTexture")));
             adapter.setParam("metallicRoughnessTexture",
                     readTexture(pbrMat.getAsJsonObject("metallicRoughnessTexture")));
+            JsonObject metallicRoughnessJson = pbrMat.getAsJsonObject("metallicRoughnessTexture");
+            metallicRoughnessIndex = metallicRoughnessJson != null ? getAsInteger(metallicRoughnessJson, "index") : null;            
         }
 
         adapter.getMaterial().setName(getAsString(matData, "name"));
@@ -656,7 +660,13 @@ public class GltfLoader implements AssetLoader {
         if (normal != null) {
             useNormalsFlag = true;
         }
-        adapter.setParam("occlusionTexture", readTexture(matData.getAsJsonObject("occlusionTexture")));
+        JsonObject occlusionJson = matData.getAsJsonObject("occlusionTexture");
+        Integer occlusionIndex = occlusionJson != null ? getAsInteger(occlusionJson, "index") : null;
+        if (occlusionIndex != null && occlusionIndex.equals(metallicRoughnessIndex)) {
+            adapter.getMaterial().setBoolean("AoPackedInMRMap", true);
+        } else {        
+            adapter.setParam("occlusionTexture", readTexture(matData.getAsJsonObject("occlusionTexture")));
+        }
         adapter.setParam("emissiveTexture", readTexture(matData.getAsJsonObject("emissiveTexture")));
 
         return adapter.getMaterial();
@@ -1282,8 +1292,7 @@ public class GltfLoader implements AssetLoader {
         public VertexBuffer populate(Integer bufferViewIndex, int componentType, String type, int count,
                 int byteOffset, boolean normalized) throws IOException {
             if (bufferType == null) {
-                logger.log(Level.WARNING,
-                        "could not assign data to any VertexBuffer type for buffer view " + bufferViewIndex);
+                logger.log(Level.WARNING, "could not assign data to any VertexBuffer type for buffer view {0}", bufferViewIndex);
                 return null;
             }
 

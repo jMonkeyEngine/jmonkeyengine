@@ -31,20 +31,24 @@
  */
 package com.jme3.system;
 
-import com.jme3.app.SettingsDialog;
-import com.jme3.app.SettingsDialog.SelectionListener;
-import com.jme3.asset.AssetNotFoundException;
 import com.jme3.audio.AudioRenderer;
 import com.jme3.audio.openal.AL;
 import com.jme3.audio.openal.ALAudioRenderer;
 import com.jme3.audio.openal.ALC;
 import com.jme3.audio.openal.EFX;
 import com.jme3.system.JmeContext.Type;
-import com.jme3.util.Screenshots;
-import java.awt.EventQueue;
-import java.awt.Graphics2D;
-import java.awt.GraphicsEnvironment;
-import java.awt.RenderingHints;
+import com.jme3.texture.Image;
+import com.jme3.texture.image.ColorSpace;
+import jme3tools.converters.ImageToAwt;
+
+import javax.imageio.IIOImage;
+import javax.imageio.ImageIO;
+import javax.imageio.ImageWriteParam;
+import javax.imageio.ImageWriter;
+import javax.imageio.plugins.jpeg.JPEGImageWriteParam;
+import javax.imageio.stream.ImageOutputStream;
+import javax.imageio.stream.MemoryCacheImageOutputStream;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
@@ -53,23 +57,16 @@ import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.nio.ByteBuffer;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
-import javax.imageio.IIOImage;
-import javax.imageio.ImageIO;
-import javax.imageio.ImageWriteParam;
-import javax.imageio.ImageWriter;
-import javax.imageio.plugins.jpeg.JPEGImageWriteParam;
-import javax.imageio.stream.ImageOutputStream;
-import javax.imageio.stream.MemoryCacheImageOutputStream;
-import javax.swing.SwingUtilities;
 
 /**
  *
  * @author Kirill Vainer, normenhansen
  */
 public class JmeDesktopSystem extends JmeSystemDelegate {
+
+    public JmeDesktopSystem() {
+    }
 
     @Override
     public URL getPlatformAssetConfigURL() {
@@ -80,7 +77,7 @@ public class JmeDesktopSystem extends JmeSystemDelegate {
         AffineTransform tx = AffineTransform.getScaleInstance(1, -1);
         tx.translate(0, -original.getHeight());
         AffineTransformOp transformOp = new AffineTransformOp(tx, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
-        BufferedImage awtImage = new BufferedImage(original.getWidth(), original.getHeight(), BufferedImage.TYPE_INT_BGR);
+        BufferedImage awtImage = new BufferedImage(original.getWidth(), original.getHeight(), original.getType());
         Graphics2D g2d = awtImage.createGraphics();
         g2d.setRenderingHint(RenderingHints.KEY_RENDERING,
                              RenderingHints.VALUE_RENDER_SPEED);
@@ -88,22 +85,34 @@ public class JmeDesktopSystem extends JmeSystemDelegate {
         g2d.dispose();
         return awtImage;
     }
-    
+
+    private static BufferedImage ensureOpaque(BufferedImage original) {
+        if (original.getTransparency() == BufferedImage.OPAQUE)
+            return original;
+        int w = original.getWidth();
+        int h = original.getHeight();
+        int[] pixels = new int[w * h];
+        original.getRGB(0, 0, w, h, pixels, 0, w);
+        BufferedImage opaqueImage = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
+        opaqueImage.setRGB(0, 0, w, h, pixels, 0, w);
+        return opaqueImage;
+    }
+
     @Override
     public void writeImageFile(OutputStream outStream, String format, ByteBuffer imageData, int width, int height) throws IOException {
-        BufferedImage awtImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_BGR);
-        Screenshots.convertScreenShot2(imageData.asIntBuffer(), awtImage);
+        BufferedImage awtImage = ImageToAwt.convert(new Image(Image.Format.RGBA8, width, height, imageData, ColorSpace.Linear), false, true, 0);
+        awtImage = verticalFlip(awtImage);
 
         ImageWriter writer = ImageIO.getImageWritersByFormatName(format).next();
         ImageWriteParam writeParam = writer.getDefaultWriteParam();
 
         if (format.equals("jpg")) {
+            awtImage = ensureOpaque(awtImage);
+
             JPEGImageWriteParam jpegParam = (JPEGImageWriteParam) writeParam;
             jpegParam.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
             jpegParam.setCompressionQuality(0.95f);
         }
-
-        awtImage = verticalFlip(awtImage);
         
         ImageOutputStream imgOut = new MemoryCacheImageOutputStream(outStream);
         writer.setOutput(imgOut);
@@ -114,82 +123,6 @@ public class JmeDesktopSystem extends JmeSystemDelegate {
             imgOut.close();
             writer.dispose();
         }
-    }
-
-    @Override
-    public void showErrorDialog(String message) {
-        if (!GraphicsEnvironment.isHeadless()) {
-            final String msg = message;
-            EventQueue.invokeLater(new Runnable() {
-                @Override
-                public void run() {
-                    ErrorDialog.showDialog(msg);
-                }
-            });
-        } else {
-            System.err.println("[JME ERROR] " + message);
-        }
-    }
-
-    @Override
-    public boolean showSettingsDialog(AppSettings sourceSettings, final boolean loadFromRegistry) {
-        if (SwingUtilities.isEventDispatchThread()) {
-            throw new IllegalStateException("Cannot run from EDT");
-        }
-        if (GraphicsEnvironment.isHeadless()) {
-            throw new IllegalStateException("Cannot show dialog in headless environment");
-        }
-
-        final AppSettings settings = new AppSettings(false);
-        settings.copyFrom(sourceSettings);
-        String iconPath = sourceSettings.getSettingsDialogImage();
-        if(iconPath == null){
-            iconPath = "";
-        }
-        final URL iconUrl = JmeSystem.class.getResource(iconPath.startsWith("/") ? iconPath : "/" + iconPath);
-        if (iconUrl == null) {
-            throw new AssetNotFoundException(sourceSettings.getSettingsDialogImage());
-        }
-
-        final AtomicBoolean done = new AtomicBoolean();
-        final AtomicInteger result = new AtomicInteger();
-        final Object lock = new Object();
-
-        final SelectionListener selectionListener = new SelectionListener() {
-
-            @Override
-            public void onSelection(int selection) {
-                synchronized (lock) {
-                    done.set(true);
-                    result.set(selection);
-                    lock.notifyAll();
-                }
-            }
-        };
-        SwingUtilities.invokeLater(new Runnable() {
-
-            @Override
-            public void run() {
-                synchronized (lock) {
-                    SettingsDialog dialog = new SettingsDialog(settings, iconUrl, loadFromRegistry);
-                    dialog.setSelectionListener(selectionListener);
-                    dialog.showDialog();
-                }
-            }
-        });
-
-        synchronized (lock) {
-            while (!done.get()) {
-                try {
-                    lock.wait();
-                } catch (InterruptedException ex) {
-                }
-            }
-        }
-
-        sourceSettings.copyFrom(settings);
-
-        return result.get() == SettingsDialog.APPROVE_SELECTION;
     }
 
     @SuppressWarnings("unchecked")
