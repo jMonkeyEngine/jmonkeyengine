@@ -61,6 +61,6 @@ public class AreaUtils {
     * @return The area in pixels on the screen of the bounding volume.
     */
     public static float calcScreenArea(BoundingVolume bound, float distance, float screenWidth) {
-        return com.jme3.utils.AreaUtils.calcScreenArea(bound, distance, screenWidth);
+        return com.jme3.util.AreaUtils.calcScreenArea(bound, distance, screenWidth);
     }
 }
