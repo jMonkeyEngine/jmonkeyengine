@@ -18,6 +18,7 @@ dependencies {
     api 'javax.vecmath:vecmath:1.5.2'
     api project(':jme3-core')
     api project(':jme3-terrain')
+    compileOnly project(':jme3-vr') //is selectively used if on classpath
     testRuntimeOnly project(':jme3-desktop')
     testRuntimeOnly project(':jme3-testdata')
 }
