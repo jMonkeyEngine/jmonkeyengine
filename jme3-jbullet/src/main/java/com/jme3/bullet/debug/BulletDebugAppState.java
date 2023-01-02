@@ -440,7 +440,7 @@ public class BulletDebugAppState extends AbstractAppState {
             try {
                 VRAppState vrAppState = app.getStateManager().getState(VRAppState.ID, VRAppState.class);
                 isVr = vrAppState != null && !vrAppState.DISABLE_VR;
-            } catch(NoClassDefFoundError e) {
+            } catch (NoClassDefFoundError e) {
                 //Vr isn't even on the classpath
                 isVr = false;
             }
