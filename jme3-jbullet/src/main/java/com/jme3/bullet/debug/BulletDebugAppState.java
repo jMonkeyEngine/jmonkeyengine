@@ -435,7 +435,7 @@ public class BulletDebugAppState extends AbstractAppState {
         public boolean displayObject(Object obj);
     }
 
-    private boolean isVr(){
+    private boolean isVr() {
         if (isVr == null) {
             try {
                 VRAppState vrAppState = app.getStateManager().getState(VRAppState.ID, VRAppState.class);
