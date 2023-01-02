@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1081,6 +1081,12 @@ public class ParticleEmitter extends Geometry {
             }
         }
 
+        // Emitter distance from last location
+        Vector3f lastDistance = null;
+        if (lastPos != null && isInWorldSpace()) {
+            lastDistance = getWorldTranslation().subtract(lastPos, lastPos);
+        }
+
         // Spawns particles within the tpf timeslot with proper age
         float interval = 1f / particlesPerSec;
         float originalTpf = tpf;
@@ -1091,6 +1097,11 @@ public class ParticleEmitter extends Geometry {
             if (p != null) {
                 p.life -= tpf;
                 if (lastPos != null && isInWorldSpace()) {
+                    // Generate a hypothetical position by subtracting distance
+                    // vector from particle position and use for interpolating
+                    // particle. This will fix discrete particles motion when
+                    // emitter is moving fast. - Ali-RS 2023-1-2
+                    Vector3f lastPos = p.position.subtract(lastDistance, temp);
                     p.position.interpolateLocal(lastPos, 1 - tpf / originalTpf);
                 }
                 if (p.life <= 0) {

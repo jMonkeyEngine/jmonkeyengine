@@ -31,15 +31,12 @@
  */
 package jme3test.effect;
 
-import java.util.Arrays;
-
 import com.jme3.animation.LoopMode;
 import com.jme3.app.SimpleApplication;
 import com.jme3.cinematic.MotionPath;
 import com.jme3.cinematic.events.MotionEvent;
 import com.jme3.effect.ParticleEmitter;
 import com.jme3.effect.ParticleMesh.Type;
-import com.jme3.effect.shapes.EmitterMeshFaceShape;
 import com.jme3.effect.shapes.EmitterMeshVertexShape;
 import com.jme3.font.BitmapFont;
 import com.jme3.font.BitmapText;
@@ -67,6 +64,9 @@ import com.jme3.scene.shape.Torus;
 import com.jme3.shadow.DirectionalLightShadowFilter;
 import com.jme3.system.AppSettings;
 import com.jme3.texture.Texture;
+
+import java.util.Arrays;
+
 /**
  * @author capdevon
  */
