@@ -173,11 +173,11 @@ public class BulletDebugAppState extends AbstractAppState {
         setupMaterials(app);
         physicsDebugRootNode.setCullHint(Spatial.CullHint.Never);
 
-        if (isVr()){
+        if (isVr()) {
             VRAppState vrAppState = stateManager.getState(VRAppState.ID, VRAppState.class);
             vrAppState.getLeftViewPort().attachScene(physicsDebugRootNode);
             vrAppState.getRightViewPort().attachScene(physicsDebugRootNode);
-        }else{
+        } else {
             viewPort = rm.createMainView("Physics Debug Overlay", app.getCamera());
             viewPort.setClearFlags(false, true, false);
             viewPort.attachScene(physicsDebugRootNode);
@@ -192,11 +192,11 @@ public class BulletDebugAppState extends AbstractAppState {
      */
     @Override
     public void cleanup() {
-        if (isVr()){
+        if (isVr()) {
             VRAppState vrAppState = app.getStateManager().getState(VRAppState.ID, VRAppState.class);
             vrAppState.getLeftViewPort().detachScene(physicsDebugRootNode);
             vrAppState.getRightViewPort().detachScene(physicsDebugRootNode);
-        }else{
+        } else {
             rm.removeMainView(viewPort);
         }
 
@@ -436,11 +436,11 @@ public class BulletDebugAppState extends AbstractAppState {
     }
 
     private boolean isVr(){
-        if (isVr == null){
-            try{
+        if (isVr == null) {
+            try {
                 VRAppState vrAppState = app.getStateManager().getState(VRAppState.ID, VRAppState.class);
                 isVr = vrAppState != null && !vrAppState.DISABLE_VR;
-            } catch(NoClassDefFoundError e){
+            } catch(NoClassDefFoundError e) {
                 //Vr isn't even on the classpath
                 isVr = false;
             }
