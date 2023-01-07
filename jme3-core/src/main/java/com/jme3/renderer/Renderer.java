@@ -50,7 +50,6 @@ import java.util.EnumSet;
 /**
  * Responsible for taking rendering commands and
  * executing them on the underlying video hardware.
- * executes them on the underlying video hardware.
  *
  * @author Kirill Vainer
  */
