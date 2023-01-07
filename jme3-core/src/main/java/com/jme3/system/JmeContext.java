@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -91,6 +91,13 @@ public interface JmeContext {
      * for the changes to be applied.
      */
     public void setSettings(AppSettings settings);
+
+    /**
+     * Accesses the listener that receives events related to this context.
+     *
+     * @return the pre-existing instance
+     */
+    public SystemListener getSystemListener();
 
     /**
      * Sets the listener that will receive events relating to context

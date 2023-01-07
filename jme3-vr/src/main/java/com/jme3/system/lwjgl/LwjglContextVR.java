@@ -1,7 +1,7 @@
 package com.jme3.system.lwjgl;
 
 /*
- * Copyright (c) 2009-2022 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -78,6 +78,16 @@ public abstract class LwjglContextVR implements JmeContext {
     protected GlfwJoystickInput joyInput;
     protected Timer timer;
     protected SystemListener listener;
+
+    /**
+     * Accesses the listener that receives events related to this context.
+     *
+     * @return the pre-existing instance
+     */
+    @Override
+    public SystemListener getSystemListener() {
+        return listener;
+    }
 
     @Override
     public void setSystemListener(SystemListener listener) {

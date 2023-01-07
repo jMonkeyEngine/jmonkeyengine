@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -148,6 +148,16 @@ public class AWTContext implements JmeContext {
       this.settings.setRenderer(AppSettings.LWJGL_OPENGL32);
       this.backgroundContext.setSettings(settings);
   }
+
+    /**
+     * Accesses the listener that receives events related to this context.
+    *
+     * @return the pre-existing instance
+     */
+    @Override
+    public SystemListener getSystemListener() {
+        return backgroundContext.getSystemListener();
+    }
 
   @Override
   public void setSystemListener(final SystemListener listener) {
