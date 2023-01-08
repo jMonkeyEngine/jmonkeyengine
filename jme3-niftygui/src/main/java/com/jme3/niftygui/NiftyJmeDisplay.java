@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2022 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,6 +40,7 @@ import com.jme3.input.InputManager;
 import com.jme3.input.event.KeyInputEvent;
 import com.jme3.post.SceneProcessor;
 import com.jme3.profile.AppProfiler;
+import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
@@ -321,7 +322,12 @@ public class NiftyJmeDisplay implements SceneProcessor {
         this.renderer = rm.getRenderer();
 
         inputSys.reset();
-        inputSys.setHeight(vp.getCamera().getHeight());
+
+        // window size may have changed since the private initialize() above
+        Camera camera = vp.getCamera();
+        this.w = camera.getWidth();
+        this.h = camera.getHeight();
+        inputSys.setHeight(h);
     }
 
     public Nifty getNifty() {
