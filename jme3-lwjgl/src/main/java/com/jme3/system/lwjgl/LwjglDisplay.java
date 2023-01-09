@@ -60,7 +60,7 @@ public class LwjglDisplay extends LwjglAbstractDisplay {
                 if (mode.getWidth() == width
                         && mode.getHeight() == height
                         && (mode.getBitsPerPixel() == bpp || (bpp == 24 && mode.getBitsPerPixel() == 32) || bpp == -1)
-                        && (Math.abs(mode.getFrequency() - freq) <= 1 || (freq == 60 && mode.getFrequency() == 59) || freq == -1)) {
+                        && (Math.abs(mode.getFrequency() - freq) <= 1 || freq == -1)) {
                     return mode;
                 }
             }
