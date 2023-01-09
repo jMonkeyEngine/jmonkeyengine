@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -217,7 +217,13 @@ public class TestChooser extends JFrame {
                 // we are only interested in .class files
                 if (Files.isDirectory(file)) {
                     if (recursive) {
-                        addAllFilesInDirectory(file, allClasses, packageName + file.getFileName() + ".", true);
+                        String dirName = String.valueOf(file.getFileName());
+                        if (dirName.endsWith("/")) {
+                            // Seems java 8 adds "/" at the end of directory name when
+                            // reading from jar filesystem. We need to remove it. - Ali-RS 2023-1-5
+                            dirName = dirName.substring(0, dirName.length() - 1);
+                        }
+                        addAllFilesInDirectory(file, allClasses, packageName + dirName + ".", true);
                     }
                 } else {
                     Class<?> result = load(packageName + file.getFileName());
