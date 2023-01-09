@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -59,8 +59,8 @@ public class LwjglDisplay extends LwjglAbstractDisplay {
             for (DisplayMode mode : modes) {
                 if (mode.getWidth() == width
                         && mode.getHeight() == height
-                        && (mode.getBitsPerPixel() == bpp || (bpp == 24 && mode.getBitsPerPixel() == 32))
-                        && (mode.getFrequency() == freq || (freq == 60 && mode.getFrequency() == 59))) {
+                        && (mode.getBitsPerPixel() == bpp || (bpp == 24 && mode.getBitsPerPixel() == 32) || bpp == -1)
+                        && (mode.getFrequency() == freq || (freq == 60 && mode.getFrequency() == 59) || freq == -1)) {
                     return mode;
                 }
             }
@@ -80,13 +80,12 @@ public class LwjglDisplay extends LwjglAbstractDisplay {
             displayMode = getFullscreenDisplayMode(settings.getWidth(), settings.getHeight(),
                     settings.getBitsPerPixel(), settings.getFrequency());
             if (displayMode == null) {
-                // Fallback to standard 60Hz mode if available
-                displayMode = getFullscreenDisplayMode(settings.getWidth(), settings.getHeight(),
-                        settings.getBitsPerPixel(), 60);
+                // Fall back to whatever is available to the specified width & height
+                displayMode = getFullscreenDisplayMode(settings.getWidth(), settings.getHeight(), -1, -1);
                 if (displayMode == null) {
                     throw new RuntimeException("Unable to find fullscreen display mode matching settings");
                 } else {
-                    logger.warning("Unable to find fullscreen display mode matching specified frequency, using 60Hz mode instead");
+                    logger.warning("Unable to find fullscreen display mode matching settings, falling back to " + displayMode);
                 }
             }
         } else {
