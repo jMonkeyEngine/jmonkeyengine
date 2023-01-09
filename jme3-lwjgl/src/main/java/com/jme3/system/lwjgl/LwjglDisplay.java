@@ -60,7 +60,7 @@ public class LwjglDisplay extends LwjglAbstractDisplay {
                 if (mode.getWidth() == width
                         && mode.getHeight() == height
                         && (mode.getBitsPerPixel() == bpp || (bpp == 24 && mode.getBitsPerPixel() == 32) || bpp == -1)
-                        && (mode.getFrequency() == freq || (freq == 60 && mode.getFrequency() == 59) || freq == -1)) {
+                        && (Math.abs(mode.getFrequency() - freq) <= 1 || (freq == 60 && mode.getFrequency() == 59) || freq == -1)) {
                     return mode;
                 }
             }
@@ -80,12 +80,12 @@ public class LwjglDisplay extends LwjglAbstractDisplay {
             displayMode = getFullscreenDisplayMode(settings.getWidth(), settings.getHeight(),
                     settings.getBitsPerPixel(), settings.getFrequency());
             if (displayMode == null) {
-                // Fall back to whatever is available to the specified width & height
+                // Fall back to whatever mode is available at the specified width & height
                 displayMode = getFullscreenDisplayMode(settings.getWidth(), settings.getHeight(), -1, -1);
                 if (displayMode == null) {
                     throw new RuntimeException("Unable to find fullscreen display mode matching settings");
                 } else {
-                    logger.warning("Unable to find fullscreen display mode matching settings, falling back to " + displayMode);
+                    logger.log(Level.WARNING, "Unable to find fullscreen display mode matching settings, falling back to: {0}", displayMode);
                 }
             }
         } else {
