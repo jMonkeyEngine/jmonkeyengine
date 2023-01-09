@@ -112,7 +112,7 @@ jobs:
       - name: Setup the java environment
         uses: actions/setup-java@v3
         with:
-          distribution: 'zulu'
+          distribution: 'temurin'
           java-version: ${{ matrix.jdk }}
 
       - name: Download natives for android
