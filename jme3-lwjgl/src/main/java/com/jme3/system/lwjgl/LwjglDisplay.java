@@ -37,6 +37,9 @@ import com.jme3.system.JmeContext.Type;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -70,16 +73,23 @@ public class LwjglDisplay extends LwjglAbstractDisplay {
     @Override
     protected void createContext(AppSettings settings) throws LWJGLException{
         DisplayMode displayMode;
-        if (settings.getWidth() <= 0 || settings.getHeight() <= 0){
+        if (settings.getWidth() <= 0 || settings.getHeight() <= 0) {
             displayMode = Display.getDesktopDisplayMode();
             settings.setResolution(displayMode.getWidth(), displayMode.getHeight());
-        }else if (settings.isFullscreen()){
+        } else if (settings.isFullscreen()) {
             displayMode = getFullscreenDisplayMode(settings.getWidth(), settings.getHeight(),
-                                                   settings.getBitsPerPixel(), settings.getFrequency());
+                    settings.getBitsPerPixel(), settings.getFrequency());
             if (displayMode == null) {
-                throw new RuntimeException("Unable to find fullscreen display mode matching settings");
+                // Fallback to standard 60Hz mode if available
+                displayMode = getFullscreenDisplayMode(settings.getWidth(), settings.getHeight(),
+                        settings.getBitsPerPixel(), 60);
+                if (displayMode == null) {
+                    throw new RuntimeException("Unable to find fullscreen display mode matching settings");
+                } else {
+                    logger.warning("Unable to find fullscreen display mode matching specified frequency, using 60Hz mode instead");
+                }
             }
-        }else{
+        } else {
             displayMode = new DisplayMode(settings.getWidth(), settings.getHeight());
         }
 
