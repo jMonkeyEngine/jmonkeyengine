@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -781,6 +781,38 @@ public abstract class Spatial implements Savable, Cloneable, Collidable,
         // can rebuild its update list.
         if (parent != null && before != after) {
             parent.invalidateUpdateList();
+        }
+    }
+
+    /**
+     * Adds the specified control to the list, at the specified index.  Any
+     * controls with indices greater than or equal to the specified index will
+     * have their indices increased by one.
+     *
+     * @param index the index at which to add the control (0&rarr;first, &ge;0)
+     * @param control the control to add (not null)
+     * @throws IllegalStateException if the control is already added here
+     */
+    @SuppressWarnings("unchecked")
+    public void addControlAt(int index, Control control) {
+        if (control == null) {
+            throw new IllegalArgumentException("null control");
+        }
+        int numControls = getNumControls();
+        if (index < 0 || index > numControls) {
+            throw new IndexOutOfBoundsException(
+                    "index=" + index + " for numControls=" + numControls);
+        }
+        if (controls.contains(control)) {
+            throw new IllegalStateException("Control is already added here.");
+        }
+
+        addControl(control); // takes care of the bookkeeping
+
+        if (index < numControls) { // re-arrange the list directly
+            boolean success = controls.remove(control);
+            assert success;
+            controls.add(index, control);
         }
     }
 
