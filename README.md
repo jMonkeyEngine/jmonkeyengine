@@ -28,6 +28,7 @@ The engine is used by several commercial game studios and computer-science cours
  - [Cubic Nightmare](https://jaredbgreat.itch.io/cubic-nightmare)
  - [Chatter Games](https://chatter-games.com)
  - [Exotic Matter](https://exoticmatter.io)
+ - [Demon Lord](https://play.google.com/store/apps/details?id=com.dreiInitiative.demonLord&pli=1)
 
 ## Getting started
 
