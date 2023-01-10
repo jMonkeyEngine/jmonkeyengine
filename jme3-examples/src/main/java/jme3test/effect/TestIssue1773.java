@@ -113,7 +113,7 @@ public class TestIssue1773 extends SimpleApplication implements ActionListener {
     }
 
     /**
-     * Crates particle emitter and add it to root node.
+     * Crates particle emitter and adds it to root node.
      */
     private void setupCircle() {
         myModel = new Node("FieryCircle");
@@ -128,7 +128,7 @@ public class TestIssue1773 extends SimpleApplication implements ActionListener {
     }
 
     /**
-     * Create torus geometry used for the emitter shape.
+     * Creates torus geometry used for the emitter shape.
      */
     private Geometry createTorus(float radius) {
         float s = radius / 8f;
@@ -141,7 +141,7 @@ public class TestIssue1773 extends SimpleApplication implements ActionListener {
     }
 
     /**
-     * Create a particle emitter that will emit the particles from
+     * Creates a particle emitter that will emit the particles from
      * the given shape's vertices.
      */
     private ParticleEmitter createParticleEmitter(Geometry geo, boolean pointSprite) {
@@ -168,7 +168,7 @@ public class TestIssue1773 extends SimpleApplication implements ActionListener {
     }
 
     /**
-     * Create a motion control that will move particle emitter in
+     * Creates a motion control that will move particle emitter in
      * a circular path.
      */
     private void createMotionControl() {
@@ -242,7 +242,7 @@ public class TestIssue1773 extends SimpleApplication implements ActionListener {
     }
 
     /**
-     * Add a ground to the scene
+     * Adds a ground to the scene
      */
     private void setupGround() {
         CenterQuad quad = new CenterQuad(12, 12);
@@ -258,7 +258,7 @@ public class TestIssue1773 extends SimpleApplication implements ActionListener {
     }
 
     /**
-     * Add lights and setup filters
+     * Adds lights and filters
      */
     private void setupLights() {
         viewPort.setBackgroundColor(ColorRGBA.DarkGray);
