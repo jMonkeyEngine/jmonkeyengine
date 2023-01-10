@@ -57,25 +57,28 @@ import com.jme3.post.filters.BloomFilter;
 import com.jme3.post.filters.FXAAFilter;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.shape.CenterQuad;
 import com.jme3.scene.shape.Torus;
 import com.jme3.shadow.DirectionalLightShadowFilter;
 import com.jme3.system.AppSettings;
 import com.jme3.texture.Texture;
-
 import java.util.Arrays;
 
 /**
+ * Test case for Issue 1773 (Wrong particle position when using
+ * 'EmitterMeshVertexShape' or 'EmitterMeshFaceShape' and worldSpace
+ * flag equal to true)
+ *
+ * If the test succeeds, the particles will be generated from the vertices
+ * (for EmitterMeshVertexShape) or from the faces (for EmitterMeshFaceShape)
+ * of the torus mesh. If the test fails, the particles will appear in the
+ * center of the torus when worldSpace flag is set to true.
+ *
  * @author capdevon
  */
 public class TestIssue1773 extends SimpleApplication implements ActionListener {
 
-    /**
-     *
-     * @param args
-     */
     public static void main(String[] args) {
         TestIssue1773 app = new TestIssue1773();
         AppSettings settings = new AppSettings(true);
@@ -103,12 +106,15 @@ public class TestIssue1773 extends SimpleApplication implements ActionListener {
 
         configCamera();
         setupLights();
-        setupScene();
+        setupGround();
         setupCircle();
         createMotionControl();
         setupKeys();
     }
 
+    /**
+     * Crates particle emitter and add it to root node.
+     */
     private void setupCircle() {
         myModel = new Node("FieryCircle");
 
@@ -121,6 +127,9 @@ public class TestIssue1773 extends SimpleApplication implements ActionListener {
         rootNode.attachChild(myModel);
     }
 
+    /**
+     * Create torus geometry used for the emitter shape.
+     */
     private Geometry createTorus(float radius) {
         float s = radius / 8f;
         Geometry geo = new Geometry("CircleXZ", new Torus(64, 4, s, radius));
@@ -132,7 +141,8 @@ public class TestIssue1773 extends SimpleApplication implements ActionListener {
     }
 
     /**
-     * emits the particles from the given shape's vertices. It doesn't work.
+     * Create a particle emitter that will emit the particles from
+     * the given shape's vertices.
      */
     private ParticleEmitter createParticleEmitter(Geometry geo, boolean pointSprite) {
         Type type = pointSprite ? Type.Point : Type.Triangle;
@@ -157,6 +167,10 @@ public class TestIssue1773 extends SimpleApplication implements ActionListener {
         return emitter;
     }
 
+    /**
+     * Create a motion control that will move particle emitter in
+     * a circular path.
+     */
     private void createMotionControl() {
 
         float radius = 5f;
@@ -179,6 +193,11 @@ public class TestIssue1773 extends SimpleApplication implements ActionListener {
         motionControl.setDirectionType(MotionEvent.Direction.Path);
     }
 
+    /**
+     * Use keyboard space key to toggle emitter motion and I key to
+     * toggle inWorldSpace flag. By default, inWorldSpace flag is on
+     * and emitter motion is off.
+     */
     private void setupKeys() {
         addMapping("ToggleMotionEvent", new KeyTrigger(KeyInput.KEY_SPACE));
         addMapping("InWorldSpace", new KeyTrigger(KeyInput.KEY_I));
@@ -222,24 +241,25 @@ public class TestIssue1773 extends SimpleApplication implements ActionListener {
         cam.setFrustumPerspective(45, aspect, 0.1f, 1000f);
     }
 
-    private void setupScene() {
+    /**
+     * Add a ground to the scene
+     */
+    private void setupGround() {
         CenterQuad quad = new CenterQuad(12, 12);
         quad.scaleTextureCoordinates(new Vector2f(2, 2));
-        Geometry floor = createMesh("Floor", quad);
-        floor.rotate(-FastMath.HALF_PI, 0, 0);
-        rootNode.attachChild(floor);
-    }
-
-    private Geometry createMesh(String name, Mesh mesh) {
-        Geometry geo = new Geometry(name, mesh);
+        Geometry floor = new Geometry("Floor", quad);
         Material mat = new Material(assetManager, Materials.LIGHTING);
         Texture tex = assetManager.loadTexture("Interface/Logo/Monkey.jpg");
         tex.setWrap(Texture.WrapMode.Repeat);
         mat.setTexture("DiffuseMap", tex);
-        geo.setMaterial(mat);
-        return geo;
+        floor.setMaterial(mat);
+        floor.rotate(-FastMath.HALF_PI, 0, 0);
+        rootNode.attachChild(floor);
     }
 
+    /**
+     * Add lights and setup filters
+     */
     private void setupLights() {
         viewPort.setBackgroundColor(ColorRGBA.DarkGray);
         rootNode.setShadowMode(RenderQueue.ShadowMode.CastAndReceive);
@@ -263,11 +283,14 @@ public class TestIssue1773 extends SimpleApplication implements ActionListener {
 
         FilterPostProcessor fpp = new FilterPostProcessor(assetManager);
         fpp.addFilter(bloom);
-        //fpp.addFilter(dlsf);
+        fpp.addFilter(dlsf);
         fpp.addFilter(fxaa);
         viewPort.addProcessor(fpp);
     }
 
+    /**
+     * Creates a bitmap test used for displaying debug info.
+     */
     private BitmapText createTextUI(ColorRGBA color, float xPos, float yPos) {
         BitmapFont font = assetManager.loadFont("Interface/Fonts/Console.fnt");
         BitmapText bmp = new BitmapText(font);
@@ -277,5 +300,4 @@ public class TestIssue1773 extends SimpleApplication implements ActionListener {
         guiNode.attachChild(bmp);
         return bmp;
     }
-
 }
