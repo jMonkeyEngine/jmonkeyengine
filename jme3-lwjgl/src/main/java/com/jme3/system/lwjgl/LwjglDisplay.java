@@ -53,6 +53,16 @@ public class LwjglDisplay extends LwjglAbstractDisplay {
     private final AtomicBoolean needRestart = new AtomicBoolean(false);
     private PixelFormat pixelFormat;
 
+    /**
+     * @param width The required display width
+     * @param height The required display height
+     * @param bpp The required bits per pixel. If -1 is passed it will return
+     *           whatever bpp is found
+     * @param freq The required frequency, if -1 is passed it will return
+     *             whatever frequency is found
+     * @return The {@link DisplayMode} matches with specified settings or
+     *         return null if no matching display mode is found
+     */
     protected DisplayMode getFullscreenDisplayMode(int width, int height, int bpp, int freq){
         try {
             DisplayMode[] modes = Display.getAvailableDisplayModes();
@@ -60,6 +70,10 @@ public class LwjglDisplay extends LwjglAbstractDisplay {
                 if (mode.getWidth() == width
                         && mode.getHeight() == height
                         && (mode.getBitsPerPixel() == bpp || (bpp == 24 && mode.getBitsPerPixel() == 32) || bpp == -1)
+                        // Looks like AWT uses mathematical round to convert floating point
+                        // frequency values to int while lwjgl 2 uses mathematical floor.
+                        // For example if frequency is 59.83, AWT will return 60 but lwjgl2
+                        // will return 59. This is what I observed on Linux.  - Ali-RS 2023-1-10
                         && (Math.abs(mode.getFrequency() - freq) <= 1 || freq == -1)) {
                     return mode;
                 }
