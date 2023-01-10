@@ -174,6 +174,8 @@ public class BulletDebugAppState extends AbstractAppState {
         physicsDebugRootNode.setCullHint(Spatial.CullHint.Never);
 
         if (isVr()) {
+            /* This is a less good solution than the non-vr version (as the debug shapes can be obscured by the regular
+            * geometry), however it is the best possible as VR does not currently support multiple viewports per eye */
             VRAppState vrAppState = stateManager.getState(VRAppState.ID, VRAppState.class);
             vrAppState.getLeftViewPort().attachScene(physicsDebugRootNode);
             vrAppState.getRightViewPort().attachScene(physicsDebugRootNode);
