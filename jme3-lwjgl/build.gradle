@@ -1,7 +1,10 @@
 dependencies {
     api project(':jme3-core')
     api project(':jme3-desktop')
-    api 'org.lwjgl.lwjgl:lwjgl:2.9.3'
+
+    api 'org.jmonkeyengine:lwjgl:2.9.4'
+    runtimeOnly 'org.jmonkeyengine:lwjgl-platform:2.9.4'
+
     /*
      * Upgrades the default jinput-2.0.5 to jinput-2.0.9 to fix a bug with gamepads on Linux.
      * See https://hub.jmonkeyengine.org/t/linux-gamepad-input-on-jme3-lwjgl-splits-input-between-two-logical-gamepads
