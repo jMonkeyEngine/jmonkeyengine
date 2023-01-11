@@ -32,6 +32,7 @@
 package com.jme3.bullet.debug;
 
 import com.jme3.app.Application;
+import com.jme3.app.VRAppState;
 import com.jme3.app.state.AbstractAppState;
 import com.jme3.app.state.AppStateManager;
 import com.jme3.asset.AssetManager;
@@ -67,6 +68,12 @@ public class BulletDebugAppState extends AbstractAppState {
      * message logger for this class
      */
     protected static final Logger logger = Logger.getLogger(BulletDebugAppState.class.getName());
+
+    /**
+     * caches the virtual reality state (null means not yet determined)
+     */
+    private Boolean isVr = null;
+
     /**
      * limit which objects are visualized, or null to visualize all objects
      */
@@ -165,9 +172,18 @@ public class BulletDebugAppState extends AbstractAppState {
         this.assetManager = app.getAssetManager();
         setupMaterials(app);
         physicsDebugRootNode.setCullHint(Spatial.CullHint.Never);
-        viewPort = rm.createMainView("Physics Debug Overlay", app.getCamera());
-        viewPort.setClearFlags(false, true, false);
-        viewPort.attachScene(physicsDebugRootNode);
+
+        if (isVr()) {
+            /* This is a less good solution than the non-vr version (as the debug shapes can be obscured by the regular
+            * geometry), however it is the best possible as VR does not currently support multiple viewports per eye */
+            VRAppState vrAppState = stateManager.getState(VRAppState.ID, VRAppState.class);
+            vrAppState.getLeftViewPort().attachScene(physicsDebugRootNode);
+            vrAppState.getRightViewPort().attachScene(physicsDebugRootNode);
+        } else {
+            viewPort = rm.createMainView("Physics Debug Overlay", app.getCamera());
+            viewPort.setClearFlags(false, true, false);
+            viewPort.attachScene(physicsDebugRootNode);
+        }
     }
 
     /**
@@ -178,7 +194,14 @@ public class BulletDebugAppState extends AbstractAppState {
      */
     @Override
     public void cleanup() {
-        rm.removeMainView(viewPort);
+        if (isVr()) {
+            VRAppState vrAppState = app.getStateManager().getState(VRAppState.ID, VRAppState.class);
+            vrAppState.getLeftViewPort().detachScene(physicsDebugRootNode);
+            vrAppState.getRightViewPort().detachScene(physicsDebugRootNode);
+        } else {
+            rm.removeMainView(viewPort);
+        }
+
         super.cleanup();
     }
 
@@ -412,5 +435,18 @@ public class BulletDebugAppState extends AbstractAppState {
          * @return return true if the object should be displayed, false if not
          */
         public boolean displayObject(Object obj);
+    }
+
+    private boolean isVr() {
+        if (isVr == null) {
+            try {
+                VRAppState vrAppState = app.getStateManager().getState(VRAppState.ID, VRAppState.class);
+                isVr = vrAppState != null && !vrAppState.DISABLE_VR;
+            } catch (NoClassDefFoundError e) {
+                //Vr isn't even on the classpath
+                isVr = false;
+            }
+        }
+        return isVr;
     }
 }

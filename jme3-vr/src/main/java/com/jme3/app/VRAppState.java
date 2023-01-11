@@ -74,6 +74,7 @@ import java.util.logging.Logger;
  * @author Julien Seinturier - COMEX SA - <a href="http://www.seinturier.fr">http://www.seinturier.fr</a>
  */
 public class VRAppState extends AbstractAppState {
+    public static final String ID = "VRAppState";
     private static final Logger logger = Logger.getLogger(VRAppState.class.getName());
 
     /**
@@ -105,7 +106,7 @@ public class VRAppState extends AbstractAppState {
      * @param environment the {@link VREnvironment VR environment} that this app state is using.
      */
     public VRAppState(VREnvironment environment) {
-        super();
+        super(ID);
 
         this.environment = environment;
 
