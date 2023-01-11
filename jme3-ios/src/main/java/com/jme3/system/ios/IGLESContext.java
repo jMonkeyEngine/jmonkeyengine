@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -81,6 +81,17 @@ public class IGLESContext implements JmeContext {
         if (input != null) {
             input.loadSettings(settings);
         }
+    }
+
+    /**
+     * Accesses the listener that receives events related to this context.
+     *
+     * @return the pre-existing instance
+     */
+    @Override
+    public SystemListener getSystemListener() {
+        logger.log(Level.FINE, "IGLESContext getSystemListener");
+        return listener;
     }
 
     @Override

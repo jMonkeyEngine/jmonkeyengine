@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2022 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -132,6 +132,16 @@ public abstract class LwjglContext implements JmeContext {
     protected SystemListener listener;
     
     protected com.jme3.opencl.lwjgl.LwjglContext clContext;
+
+    /**
+     * Accesses the listener that receives events related to this context.
+     *
+     * @return the pre-existing instance
+     */
+    @Override
+    public SystemListener getSystemListener() {
+        return listener;
+    }
 
     @Override
     public void setSystemListener(final SystemListener listener) {
