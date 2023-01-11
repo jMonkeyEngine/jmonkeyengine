@@ -1,0 +1,8 @@
+// PBR material used in TestIssue1903Compat and TestIssue1903Core
+
+Material TestIssue1903: Common/MatDefs/Light/PBRLighting.j3md {
+    MaterialParameters {
+        Metallic: 0.01
+        NormalMap: Repeat Textures/Terrain/BrickWall/BrickWall_normal.jpg
+    }
+}
