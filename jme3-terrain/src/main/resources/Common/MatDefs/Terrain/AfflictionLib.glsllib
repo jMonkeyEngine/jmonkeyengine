@@ -11,6 +11,16 @@ vec4 getTriPlanarBlend(in vec4 coords, in vec3 blending, in sampler2D map, in fl
       return tex;
 }
 
+vec4 getTriPlanarBlendFromTexArray(in vec4 coords, in vec3 blending, in int idInTexArray, in float scale, in sampler2DArray texArray) {
+      vec4 col1 = texture2DArray( texArray, vec3((coords.yz * scale), idInTexArray ) );
+      vec4 col2 = texture2DArray( texArray, vec3((coords.xz * scale), idInTexArray ) );
+      vec4 col3 = texture2DArray( texArray, vec3((coords.xy * scale), idInTexArray ) );
+      // blend the results of the 3 planar projections.
+      vec4 tex = col1 * blending.x + col2 * blending.y + col3 * blending.z;
+      
+      return tex;
+}
+
 
 //used for mixing normal map normals with the world normals. texture slots without a normal map use wNormal as their blending value instead
 vec3 calculateTangentsAndApplyToNormals(in vec3 normalIn, in vec3 worldNorm){
