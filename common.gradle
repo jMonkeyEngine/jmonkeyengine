@@ -40,6 +40,14 @@ dependencies {
     testImplementation 'org.codehaus.groovy:groovy-test:3.0.14'
 }
 
+compileJava { // compile-time options:
+    options.encoding = 'UTF-8'
+    options.compilerArgs << '-Xlint:unchecked'
+    options.deprecation = true
+    if( JavaVersion.current().isCompatibleWith(JavaVersion.VERSION_1_10) ) {
+        options.release = 8
+    }
+}
 
 // Uncomment if you want to see the status of every test that is run and
 // the test output.
