@@ -2,7 +2,7 @@
 #import "Common/ShaderLib/PBR.glsllib"
 #import "Common/ShaderLib/Parallax.glsllib"
 #import "Common/ShaderLib/Lighting.glsllib"
-#import "MatDefs/ShaderLib/AfflictionLib.glsllib"
+#import "Common/MatDefs/Terrain/AfflictionLib.glsllib"
 
 varying vec3 wPosition;
 varying vec3 vNormal;
