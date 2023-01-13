@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,10 +37,13 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.ConfigurationInfo;
 import android.graphics.PixelFormat;
+import android.graphics.Rect;
 import android.opengl.GLSurfaceView;
 import android.os.Build;
 import android.text.InputType;
 import android.view.Gravity;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.EditText;
@@ -483,5 +486,62 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
     public com.jme3.opencl.Context getOpenCLContext() {
         logger.warning("OpenCL is not yet supported on android");
         return null;
+    }
+
+    /**
+     * Returns the height of the input surface.
+     *
+     * @return the height (in pixels)
+     */
+    @Override
+    public int getFramebufferHeight() {
+        Rect rect = getSurfaceFrame();
+        int result = rect.height();
+        return result;
+    }
+
+    /**
+     * Returns the width of the input surface.
+     *
+     * @return the width (in pixels)
+     */
+    @Override
+    public int getFramebufferWidth() {
+        Rect rect = getSurfaceFrame();
+        int result = rect.width();
+        return result;
+    }
+
+    /**
+     * Returns the screen X coordinate of the left edge of the content area.
+     *
+     * @throws UnsupportedOperationException
+     */
+    @Override
+    public int getWindowXPosition() {
+        throw new UnsupportedOperationException("not implemented yet");
+    }
+
+    /**
+     * Returns the screen Y coordinate of the top edge of the content area.
+     *
+     * @throws UnsupportedOperationException
+     */
+    @Override
+    public int getWindowYPosition() {
+        throw new UnsupportedOperationException("not implemented yet");
+    }
+    
+    /**
+     * Retrieves the dimensions of the input surface. Note: do not modify the
+     * returned object.
+     * 
+     * @return the dimensions (in pixels, left and top are 0)
+     */
+    private Rect getSurfaceFrame() {
+        SurfaceView view = (SurfaceView) androidInput.getView();
+        SurfaceHolder holder = view.getHolder();
+        Rect result = holder.getSurfaceFrame();
+        return result;
     }
 }

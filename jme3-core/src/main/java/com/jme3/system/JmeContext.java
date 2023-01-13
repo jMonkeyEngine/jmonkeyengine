@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -187,4 +187,35 @@ public interface JmeContext {
      */
     public void destroy(boolean waitFor);
 
+    /**
+     * Returns the height of the framebuffer.
+     *
+     * @return the height (in pixels)
+     * @throws IllegalStateException for a headless or null context
+     */
+    public int getFramebufferHeight();
+
+    /**
+     * Returns the width of the framebuffer.
+     *
+     * @return the width (in pixels)
+     * @throws IllegalStateException for a headless or null context
+     */
+    public int getFramebufferWidth();
+
+    /**
+     * Returns the screen X coordinate of the left edge of the content area.
+     *
+     * @return the screen X coordinate
+     * @throws IllegalStateException for a headless or null context
+     */
+    public int getWindowXPosition();
+
+    /**
+     * Returns the screen Y coordinate of the top edge of the content area.
+     *
+     * @return the screen Y coordinate
+     * @throws IllegalStateException for a headless or null context
+     */
+    public int getWindowYPosition();
 }

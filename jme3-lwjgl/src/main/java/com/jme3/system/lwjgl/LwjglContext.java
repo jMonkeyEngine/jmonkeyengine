@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2022 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -508,5 +508,49 @@ public abstract class LwjglContext implements JmeContext {
     @Override
     public com.jme3.opencl.Context getOpenCLContext() {
         return clContext;
+    }
+
+    /**
+     * Returns the height of the framebuffer.
+     *
+     * @return the height (in pixels)
+     */
+    @Override
+    public int getFramebufferHeight() {
+        int result = Display.getHeight();
+        return result;
+    }
+
+    /**
+     * Returns the width of the framebuffer.
+     *
+     * @return the width (in pixels)
+     */
+    @Override
+    public int getFramebufferWidth() {
+        int result = Display.getWidth();
+        return result;
+    }
+
+    /**
+     * Returns the screen X coordinate of the left edge of the content area.
+     *
+     * @return the screen X coordinate
+     */
+    @Override
+    public int getWindowXPosition() {
+        int result = Display.getX();
+        return result;
+    }
+
+    /**
+     * Returns the screen Y coordinate of the top edge of the content area.
+     *
+     * @return the screen Y coordinate
+     */
+    @Override
+    public int getWindowYPosition() {
+        int result = Display.getY();
+        return result;
     }
 }

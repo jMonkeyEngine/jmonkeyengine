@@ -1,7 +1,7 @@
 package com.jme3.system.lwjgl;
 
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -80,6 +80,10 @@ public abstract class LwjglWindowVR extends LwjglContextVR implements Runnable {
     private GLFWWindowSizeCallback windowSizeCallback;
     private GLFWWindowFocusCallback windowFocusCallback;
     private Thread mainThread;
+
+    // reusable arrays for GLFW calls
+    final private int width[] = new int[1];
+    final private int height[] = new int[1];
 
     /**
      * Create a new wrapper class over the GLFW framework in LWJGL 3.
@@ -527,6 +531,53 @@ public abstract class LwjglWindowVR extends LwjglContextVR implements Runnable {
         return window;
     }
 
+    /**
+     * Returns the height of the framebuffer.
+     *
+     * @return the height (in pixels)
+     */
+    @Override
+    public int getFramebufferHeight() {
+        glfwGetFramebufferSize(window, width, height);
+        int result = height[0];
+        return result;
+    }
+
+    /**
+     * Returns the width of the framebuffer.
+     *
+     * @return the width (in pixels)
+     */
+    @Override
+    public int getFramebufferWidth() {
+        glfwGetFramebufferSize(window, width, height);
+        int result = width[0];
+        return result;
+    }
+
+    /**
+     * Returns the screen X coordinate of the left edge of the content area.
+     *
+     * @return the screen X coordinate
+     */
+    @Override
+    public int getWindowXPosition() {
+        glfwGetWindowPos(window, width, height);
+        int result = width[0];
+        return result;
+    }
+
+    /**
+     * Returns the screen Y coordinate of the top edge of the content area.
+     *
+     * @return the screen Y coordinate
+     */
+    @Override
+    public int getWindowYPosition() {
+        glfwGetWindowPos(window, width, height);
+        int result = height[0];
+        return result;
+    }
 
     // TODO: Implement support for window icon when GLFW supports it.
     /*

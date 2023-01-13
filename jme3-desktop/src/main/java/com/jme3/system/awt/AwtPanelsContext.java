@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -276,4 +276,43 @@ public class AwtPanelsContext implements JmeContext {
         // only relevant if changing pixel format.
     }
 
+    /**
+     * Returns the height of the input panel.
+     *
+     * @return the height (in pixels)
+     */
+    @Override
+    public int getFramebufferHeight() {
+        return inputSource.getHeight();
+    }
+
+    /**
+     * Returns the width of the input panel.
+     *
+     * @return the width (in pixels)
+     */
+    @Override
+    public int getFramebufferWidth() {
+        return inputSource.getWidth();
+    }
+
+    /**
+     * Returns the screen X coordinate of the left edge of the input panel.
+     *
+     * @return the screen X coordinate
+     */
+    @Override
+    public int getWindowXPosition() {
+        return inputSource.getX();
+    }
+
+    /**
+     * Returns the screen Y coordinate of the top edge of the input panel.
+     *
+     * @return the screen Y coordinate
+     */
+    @Override
+    public int getWindowYPosition() {
+        return inputSource.getY();
+    }
 }
