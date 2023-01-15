@@ -54,7 +54,7 @@ public final class PrimitiveAllocator implements BufferAllocator {
         // no exception by intent, as this way naively written java7/8
         // applications won't crash on 9 assuming they can dispose buffers
         if (logger.isLoggable(Level.FINE)) {
-            logger.log(Level.FINE, "destroyBuffer not supported");
+            logger.log(Level.FINE, "Destroy buffer not supported. It will be cleaned by GC.");
         }
     }
 
