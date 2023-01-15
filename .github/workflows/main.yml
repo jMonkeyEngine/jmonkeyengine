@@ -98,8 +98,6 @@ jobs:
             osName: windows
           - os: macOS-latest
             osName: mac
-          - jdk: 11
-            deploy: false
           - jdk: 17
             deploy: false
 
