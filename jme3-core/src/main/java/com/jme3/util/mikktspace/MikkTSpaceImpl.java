@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,9 +44,14 @@ import java.nio.FloatBuffer;
 public class MikkTSpaceImpl implements MikkTSpaceContext {
 
     Mesh mesh;
+    final private IndexBuffer index;
 
     public MikkTSpaceImpl(Mesh mesh) {
         this.mesh = mesh;
+
+        // If the mesh lacks indices, generate a virtual index buffer.
+        this.index = mesh.getIndicesAsList();
+
         //replacing any existing tangent buffer, if you came here you want them new.
         mesh.clearBuffer(VertexBuffer.Type.Tangent);
         FloatBuffer fb = BufferUtils.createFloatBuffer(mesh.getVertexCount() * 4);
@@ -115,7 +120,6 @@ public class MikkTSpaceImpl implements MikkTSpaceContext {
     }
 
     private int getIndex(int face, int vert) {
-        IndexBuffer index = mesh.getIndexBuffer();
         int vertIndex = index.get(face * 3 + vert);
         return vertIndex;
     }
