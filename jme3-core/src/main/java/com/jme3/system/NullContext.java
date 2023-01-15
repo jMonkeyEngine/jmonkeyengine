@@ -266,4 +266,44 @@ public class NullContext implements JmeContext, Runnable {
     public Context getOpenCLContext() {
         return null;
     }
+
+    /**
+     * Returns the height of the framebuffer.
+     *
+     * @throws UnsupportedOperationException
+     */
+    @Override
+    public int getFramebufferHeight() {
+        throw new UnsupportedOperationException("null context");
+    }
+
+    /**
+     * Returns the width of the framebuffer.
+     *
+     * @throws UnsupportedOperationException
+     */
+    @Override
+    public int getFramebufferWidth() {
+        throw new UnsupportedOperationException("null context");
+    }
+
+    /**
+     * Returns the screen X coordinate of the left edge of the content area.
+     *
+     * @throws UnsupportedOperationException
+     */
+    @Override
+    public int getWindowXPosition() {
+        throw new UnsupportedOperationException("null context");
+    }
+
+    /**
+     * Returns the screen Y coordinate of the top edge of the content area.
+     *
+     * @throws UnsupportedOperationException
+     */
+    @Override
+    public int getWindowYPosition() {
+        throw new UnsupportedOperationException("null context");
+    }
 }
