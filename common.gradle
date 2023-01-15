@@ -57,7 +57,8 @@ jar {
     manifest {
         attributes 'Implementation-Title': 'jMonkeyEngine',
                    'Implementation-Version': jmeFullVersion,
-                   'Automatic-Module-Name': "${project.name.replace("-", ".")}"
+                   'Automatic-Module-Name': "${project.name.replace("-", ".")}",
+                   'Created-By': "${JavaVersion.current()} (${System.getProperty("java.vendor")})"
     }
 }
 
