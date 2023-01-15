@@ -31,6 +31,8 @@
  */
 package com.jme3.effect;
 
+import java.io.IOException;
+
 import com.jme3.bounding.BoundingBox;
 import com.jme3.effect.ParticleMesh.Type;
 import com.jme3.effect.influencers.DefaultParticleInfluencer;
@@ -56,7 +58,6 @@ import com.jme3.scene.control.Control;
 import com.jme3.util.TempVars;
 import com.jme3.util.clone.Cloner;
 import com.jme3.util.clone.JmeCloneable;
-import java.io.IOException;
 
 /**
  * <code>ParticleEmitter</code> is a special kind of geometry which simulates
@@ -909,6 +910,7 @@ public class ParticleEmitter extends Geometry {
         p.size = startSize;
         //shape.getRandomPoint(p.position);
         particleInfluencer.influenceParticle(p, shape);
+        
         if (worldSpace) {
             worldTransform.transformVector(p.position, p.position);
             worldTransform.getRotation().mult(p.velocity, p.velocity);
@@ -921,10 +923,8 @@ public class ParticleEmitter extends Geometry {
             p.rotateSpeed = rotateSpeed * (0.2f + (FastMath.nextRandomFloat() * 2f - 1f) * .8f);
         }
 
-        temp.set(p.position).addLocal(p.size, p.size, p.size);
-        max.maxLocal(temp);
-        temp.set(p.position).subtractLocal(p.size, p.size, p.size);
-        min.minLocal(temp);
+        // Computing bounding volume
+        computeBoundingVolume(p, min, max);
 
         ++lastUsed;
         firstUnUsed = idx + 1;
@@ -1038,14 +1038,18 @@ public class ParticleEmitter extends Geometry {
         p.angle += p.rotateSpeed * tpf;
 
         // Computing bounding volume
-        temp.set(p.position).addLocal(p.size, p.size, p.size);
-        max.maxLocal(temp);
-        temp.set(p.position).subtractLocal(p.size, p.size, p.size);
-        min.minLocal(temp);
+        computeBoundingVolume(p, min, max);
 
         if (!selectRandomImage) {
             p.imageIndex = (int) (b * imagesX * imagesY);
         }
+    }
+    
+    private void computeBoundingVolume(Particle p, Vector3f min, Vector3f max) {
+        temp.set(p.position).addLocal(p.size, p.size, p.size);
+        max.maxLocal(temp);
+        temp.set(p.position).subtractLocal(p.size, p.size, p.size);
+        min.minLocal(temp);
     }
 
     private void updateParticleState(float tpf) {
@@ -1180,16 +1184,14 @@ public class ParticleEmitter extends Geometry {
             this.getMaterial().setFloat("Quadratic", C);
         }
 
-        Matrix3f inverseRotation = Matrix3f.IDENTITY;
-        TempVars vars = null;
         if (!worldSpace) {
-            vars = TempVars.get();
-
-            inverseRotation = this.getWorldRotation().toRotationMatrix(vars.tempMat3).invertLocal();
-        }
-        particleMesh.updateParticleData(particles, cam, inverseRotation);
-        if (!worldSpace) {
+            TempVars vars = TempVars.get();
+            Matrix3f inverseRotation = this.getWorldRotation().toRotationMatrix(vars.tempMat3).invertLocal();
+            particleMesh.updateParticleData(particles, cam, inverseRotation);
             vars.release();
+
+        } else {
+            particleMesh.updateParticleData(particles, cam, Matrix3f.IDENTITY);
         }
     }
 
