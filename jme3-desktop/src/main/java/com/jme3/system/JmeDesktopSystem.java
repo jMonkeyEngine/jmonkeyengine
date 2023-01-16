@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -100,7 +100,7 @@ public class JmeDesktopSystem extends JmeSystemDelegate {
 
     @Override
     public void writeImageFile(OutputStream outStream, String format, ByteBuffer imageData, int width, int height) throws IOException {
-        BufferedImage awtImage = ImageToAwt.convert(new Image(Image.Format.RGBA8, width, height, imageData, ColorSpace.Linear), false, true, 0);
+        BufferedImage awtImage = ImageToAwt.convert(new Image(Image.Format.RGBA8, width, height, imageData.duplicate(), ColorSpace.Linear), false, true, 0);
         awtImage = verticalFlip(awtImage);
 
         ImageWriter writer = ImageIO.getImageWritersByFormatName(format).next();
