@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -112,13 +112,39 @@ public class MikktspaceTangentGenerator {
             for (Spatial child : n.getChildren()) {
                 generate(child);
             }
-        } else if (s instanceof Geometry){
-            Geometry g = (Geometry)s;
-            MikkTSpaceImpl context = new MikkTSpaceImpl(g.getMesh());
-            if(!genTangSpaceDefault(context)){
-                logger.log(Level.SEVERE, "Failed to generate tangents for geometry {0}", g.getName());
+
+        } else if (s instanceof Geometry) {
+            Geometry g = (Geometry) s;
+            Mesh mesh = g.getMesh();
+
+            Mesh.Mode mode = mesh.getMode();
+            boolean hasTriangles;
+            switch (mode) {
+                case Points:
+                case Lines:
+                case LineStrip:
+                case LineLoop:
+                    hasTriangles = false; // skip this mesh
+                    break;
+
+                case Triangles:
+                case TriangleFan:
+                case TriangleStrip:
+                    hasTriangles = true;
+                    break;
+
+                default:
+                    String message = "Tangent generation isn't implemented for mode=" + mode;
+                    throw new UnsupportedOperationException(message);
             }
-            TangentUtils.generateBindPoseTangentsIfNecessary(g.getMesh());
+
+            if (hasTriangles) {
+                MikkTSpaceImpl context = new MikkTSpaceImpl(mesh);
+                if (!genTangSpaceDefault(context)) {
+                    logger.log(Level.SEVERE, "Failed to generate tangents for geometry {0}", g.getName());
+                }
+                TangentUtils.generateBindPoseTangentsIfNecessary(mesh);
+            }
         }
     }
     
