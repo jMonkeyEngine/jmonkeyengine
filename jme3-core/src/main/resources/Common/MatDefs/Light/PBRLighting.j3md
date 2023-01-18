@@ -28,7 +28,7 @@ MaterialDef PBR Lighting {
         Texture2D RoughnessMap -LINEAR
 
         //Metallic and Roughness are packed respectively in the b and g channel of a single map
-        // r: unspecified
+        // r: AO (if AoPackedInMRMap is true)
         // g: Roughness
         // b: Metallic
         Texture2D MetallicRoughnessMap -LINEAR
