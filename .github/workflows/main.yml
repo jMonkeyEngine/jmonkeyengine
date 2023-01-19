@@ -80,7 +80,7 @@ jobs:
           name: android-natives
           path: build/native
 
-  # Build the engine, we only deploy from ubuntu-latest jdk8
+  # Build the engine, we only deploy from ubuntu-latest jdk17
   BuildJMonkey:
     needs: [BuildAndroidNatives]
     name: Build on ${{ matrix.osName }} jdk${{ matrix.jdk }}
@@ -96,11 +96,13 @@ jobs:
             deploy: true
           - os: windows-2019
             osName: windows
+            deploy: false
           - os: macOS-latest
             osName: mac
-          - jdk: 11
             deploy: false
-          - jdk: 17
+          - jdk: 8
+            deploy: false
+          - jdk: 11
             deploy: false
 
     steps:
