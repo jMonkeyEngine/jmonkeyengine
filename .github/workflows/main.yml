@@ -304,6 +304,13 @@ jobs:
         with:
           fetch-depth: 1
 
+      # Setup jdk 17 used for building Sonatype OSSRH artifacts
+      - name: Setup the java environment
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
       # Download all the stuff...
       - name: Download maven artifacts
         uses: actions/download-artifact@master
