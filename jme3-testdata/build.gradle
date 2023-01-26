@@ -1,3 +1,2 @@
 dependencies {
-    runtimeOnly "com.github.nifty-gui:nifty-examples:$niftyVersion"
 }
