@@ -1,6 +1,2 @@
-def niftyVersion = '1.4.3'
-
 dependencies {
-    runtimeOnly "com.github.nifty-gui:nifty-examples:$niftyVersion"
-    runtimeOnly "com.github.nifty-gui:nifty-style-black:$niftyVersion"
 }
