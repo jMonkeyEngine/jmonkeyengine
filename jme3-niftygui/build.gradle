@@ -1,5 +1,3 @@
-def niftyVersion = '1.4.3'
-
 dependencies {
     api project(':jme3-core')
     api "com.github.nifty-gui:nifty:${niftyVersion}"
