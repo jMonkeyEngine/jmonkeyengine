@@ -138,7 +138,7 @@ public class FbxReader {
     }
 
     /**
-     * Test whether all bytes in the specified array are zero.
+     * Tests whether all bytes in the specified array are zero.
      *
      * @param array the array to test (not null, unaffected)
      * @return true if all zeroes, otherwise false
