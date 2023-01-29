@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -196,7 +196,7 @@ public class FbxLayerElement {
                 layerElement.name = (String) child.properties.get(0);
             }
         }
-        if (layerElement.data == null) {
+        if (layerElement.data == null && layerElement.dataIndices != null) {
             // For Smoothing / Materials, data = dataIndices
             layerElement.refInfoType = ReferenceInformationType.Direct;
             layerElement.data = new Integer[layerElement.dataIndices.length];
