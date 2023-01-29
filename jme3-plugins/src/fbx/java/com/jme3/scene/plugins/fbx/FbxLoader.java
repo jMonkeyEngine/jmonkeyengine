@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -257,8 +257,23 @@ public class FbxLoader implements AssetLoader {
                 parentId = FbxId.create(el.properties.get(2));
                 String propName = (String) el.properties.get(3);
                 FbxObject child = objectMap.get(childId);
+                if (child == null) {
+                    logger.log(Level.WARNING,
+                            "Missing child object with ID {0}. Skipping object-"
+                                    + "property connection for property \"{1}\"",
+                            new Object[]{childId, propName});
+                }
                 FbxObject parent = objectMap.get(parentId);
-                parent.connectObjectProperty(child, propName);
+                if (parent == null) {
+                    logger.log(Level.WARNING,
+                            "Missing parent object with ID {0}. Skipping object-"
+                                    + "property connection for property \"{1}\"",
+                            new Object[]{parentId, propName});
+                }
+                if (parent != null && child != null) {
+                    parent.connectObjectProperty(child, propName);
+                }
+
             } else {
                 logger.log(Level.WARNING, "Unknown connection type: {0}. Ignoring.", type);
             }
