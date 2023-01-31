@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2022 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -2458,6 +2458,75 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
         Matrix4f matrix4f = new Matrix4f();
         matrix4f.fromAngleAxis(angle, axis);
         multLocal(matrix4f);
+    }
+
+    /**
+     * Tests for approximate equality with the specified matrix, using the
+     * specified tolerance. If {@code other} is null, false is returned. Either
+     * way, the current instance is unaffected.
+     *
+     * @param other the matrix to compare (unaffected) or null for none
+     * @param epsilon the tolerance for each element
+     * @return true if all 16 elements are within tolerance, otherwise false
+     */
+    public boolean isSimilar(Matrix4f other, float epsilon) {
+        if (other == null) {
+            return false;
+        }
+
+        if (Float.compare(Math.abs(other.m00 - m00), epsilon) > 0) {
+            return false;
+        }
+        if (Float.compare(Math.abs(other.m01 - m01), epsilon) > 0) {
+            return false;
+        }
+        if (Float.compare(Math.abs(other.m02 - m02), epsilon) > 0) {
+            return false;
+        }
+        if (Float.compare(Math.abs(other.m03 - m03), epsilon) > 0) {
+            return false;
+        }
+
+        if (Float.compare(Math.abs(other.m10 - m10), epsilon) > 0) {
+            return false;
+        }
+        if (Float.compare(Math.abs(other.m11 - m11), epsilon) > 0) {
+            return false;
+        }
+        if (Float.compare(Math.abs(other.m12 - m12), epsilon) > 0) {
+            return false;
+        }
+        if (Float.compare(Math.abs(other.m13 - m13), epsilon) > 0) {
+            return false;
+        }
+
+        if (Float.compare(Math.abs(other.m20 - m20), epsilon) > 0) {
+            return false;
+        }
+        if (Float.compare(Math.abs(other.m21 - m21), epsilon) > 0) {
+            return false;
+        }
+        if (Float.compare(Math.abs(other.m22 - m22), epsilon) > 0) {
+            return false;
+        }
+        if (Float.compare(Math.abs(other.m23 - m23), epsilon) > 0) {
+            return false;
+        }
+
+        if (Float.compare(Math.abs(other.m30 - m30), epsilon) > 0) {
+            return false;
+        }
+        if (Float.compare(Math.abs(other.m31 - m31), epsilon) > 0) {
+            return false;
+        }
+        if (Float.compare(Math.abs(other.m32 - m32), epsilon) > 0) {
+            return false;
+        }
+        if (Float.compare(Math.abs(other.m33 - m33), epsilon) > 0) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
