@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -159,7 +159,7 @@ public class FbxNode extends FbxObject<Spatial> {
     
     public void setWorldBindPose(Matrix4f worldBindPose) {
         if (cachedWorldBindPose != null) {
-            if (!cachedWorldBindPose.equals(worldBindPose)) {
+            if (!cachedWorldBindPose.isSimilar(worldBindPose, 1e-6f)) {
                 throw new UnsupportedOperationException("Bind poses don't match");
             }
         }
