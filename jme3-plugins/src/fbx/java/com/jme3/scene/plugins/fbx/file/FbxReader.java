@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,8 +42,6 @@ import java.util.zip.InflaterInputStream;
 
 public class FbxReader {
 
-    public static final int BLOCK_SENTINEL_LENGTH = 13;
-    public static final byte[] BLOCK_SENTINEL_DATA = new byte[BLOCK_SENTINEL_LENGTH];
     /**
      * magic string at start:
      * "Kaydara FBX Binary\x20\x20\x00\x1a\x00"
@@ -74,7 +72,7 @@ public class FbxReader {
         fbxFile.version = getUInt(byteBuffer);
         // Read root elements
         while(true) {
-            FbxElement e = readFBXElement(byteBuffer);
+            FbxElement e = readFBXElement(byteBuffer, fbxFile);
             if(e == null)
                 break;
             fbxFile.rootElements.add(e);
@@ -82,13 +80,37 @@ public class FbxReader {
         return fbxFile;
     }
 
-    private static FbxElement readFBXElement(ByteBuffer byteBuffer) throws IOException {
+    private static FbxElement readFBXElement(ByteBuffer byteBuffer, FbxFile file)
+            throws IOException {
         long endOffset = getUInt(byteBuffer);
+        if (file.hasExtendedOffsets()) {
+            long upper = getUInt(byteBuffer);
+            if (upper != 0L) {
+                throw new IOException(
+                        "Non-zero upper bytes: 0x" + Long.toHexString(upper));
+            }
+        }
         if(endOffset == 0)
             return null;
+
         long propCount = getUInt(byteBuffer);
+        if (file.hasExtendedOffsets()) {
+            long upper = getUInt(byteBuffer);
+            if (upper != 0L) {
+                throw new IOException(
+                        "Non-zero upper bytes: 0x" + Long.toHexString(upper));
+            }
+        }
+
         getUInt(byteBuffer); // Properties length unused
-        
+        if (file.hasExtendedOffsets()) {
+            long upper = getUInt(byteBuffer);
+            if (upper != 0L) {
+                throw new IOException(
+                        "Non-zero upper bytes: 0x" + Long.toHexString(upper));
+            }
+        }
+
         FbxElement element = new FbxElement((int) propCount);
         element.id = new String(getBytes(byteBuffer, getUByte(byteBuffer)));
         
@@ -98,15 +120,37 @@ public class FbxReader {
             element.propertiesTypes[i] = dataType;
         }
         if(byteBuffer.position() < endOffset) {
-            while(byteBuffer.position() < (endOffset - BLOCK_SENTINEL_LENGTH))
-                element.children.add(readFBXElement(byteBuffer));
-            
-            if(!Arrays.equals(BLOCK_SENTINEL_DATA, getBytes(byteBuffer, BLOCK_SENTINEL_LENGTH)))
-                throw new IOException("Failed to read block sentinel, expected 13 zero bytes");
+            int blockSentinelLength = file.numSentinelBytes();
+            while (byteBuffer.position() < (endOffset - blockSentinelLength)) {
+                FbxElement child = readFBXElement(byteBuffer, file);
+                if (child != null) {
+                    element.children.add(child);
+                }
+            }
+
+            if (!allZero(getBytes(byteBuffer, blockSentinelLength))) {
+                throw new IOException("Block sentinel is corrupt: expected all zeros.");
+            }
         }
         if(byteBuffer.position() != endOffset)
             throw new IOException("Data length not equal to expected");
         return element;
+    }
+
+    /**
+     * Tests whether all bytes in the specified array are zero.
+     *
+     * @param array the array to test (not null, unaffected)
+     * @return true if all zeroes, otherwise false
+     */
+    private static boolean allZero(byte[] array) {
+        for (byte b : array) {
+            if (b != 0) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private static Object readData(ByteBuffer byteBuffer, char dataType) throws IOException {
