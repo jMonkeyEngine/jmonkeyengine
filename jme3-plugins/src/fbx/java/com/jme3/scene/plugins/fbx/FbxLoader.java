@@ -343,6 +343,9 @@ public class FbxLoader implements AssetLoader {
         
         // At this point we can construct the animation for all pairs ...
         for (FbxToJmeTrack pair : pairs.values()) {
+            if (pair.countKeyframes() == 0) {
+                continue;
+            }
             String animName = pair.animStack.getName();
             float duration    = pair.animStack.getDuration();
             

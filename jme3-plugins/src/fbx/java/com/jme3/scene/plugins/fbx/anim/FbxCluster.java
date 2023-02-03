@@ -93,6 +93,12 @@ public class FbxCluster extends FbxObject {
                 }
             }
         }
+
+        if (indexes == null && weights == null) {
+            // The cluster doesn't contain any keyframes!
+            this.indexes = new int[0];
+            this.weights = new double[0];
+        }
     }
 
     public int[] getVertexIndices() {
