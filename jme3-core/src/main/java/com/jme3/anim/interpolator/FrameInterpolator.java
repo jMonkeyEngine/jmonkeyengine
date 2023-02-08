@@ -41,7 +41,10 @@ public class FrameInterpolator {
     /**
      * A global default instance of this class, for compatibility with JME v3.5.
      * Due to issue #1806, use of this instance is discouraged.
+     *
+     * @deprecated use {@link #getThreadDefault()}
      */
+    @Deprecated
     public static final FrameInterpolator DEFAULT = new FrameInterpolator();
     /**
      * The per-thread default instances of this class.
