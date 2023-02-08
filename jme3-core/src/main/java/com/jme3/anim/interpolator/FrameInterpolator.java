@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,7 +38,16 @@ import com.jme3.math.*;
  * Created by nehon on 15/04/17.
  */
 public class FrameInterpolator {
+    /**
+     * A global default instance of this class, for compatibility with JME v3.5.
+     * Due to issue #1806, use of this instance is discouraged.
+     */
     public static final FrameInterpolator DEFAULT = new FrameInterpolator();
+    /**
+     * The per-thread default instances of this class.
+     */
+    private static final ThreadLocal<FrameInterpolator> THREAD_DEFAULT
+            = ThreadLocal.withInitial(() -> new FrameInterpolator());
 
     private AnimInterpolator<Float> timeInterpolator;
     private AnimInterpolator<Vector3f> translationInterpolator = AnimInterpolators.LinearVec3f;
@@ -51,6 +60,16 @@ public class FrameInterpolator {
     final private TrackTimeReader timesReader = new TrackTimeReader();
 
     final private Transform transforms = new Transform();
+
+    /**
+     * Obtain the default interpolator for the current thread.
+     *
+     * @return the pre-existing instance (not null)
+     */
+    public static FrameInterpolator getThreadDefault() {
+        FrameInterpolator result = THREAD_DEFAULT.get();
+        return result;
+    }
 
     public Transform interpolate(float t, int currentIndex, CompactVector3Array translations,
             CompactQuaternionArray rotations, CompactVector3Array scales, float[] times) {
