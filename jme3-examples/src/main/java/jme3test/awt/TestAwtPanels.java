@@ -47,7 +47,9 @@ import java.awt.event.WindowEvent;
 import java.util.concurrent.CountDownLatch;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.*;
+import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 
 public class TestAwtPanels extends SimpleApplication {
 
