@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -169,13 +169,15 @@ public interface Application {
 
     /**
      * Starts the application.
-     * A bug occurring when using LWJGL3 prevents this method from returning until after the application is stopped.
+     * A bug occurring when using LWJGL3 prevents this method from
+     * returning until after the application is stopped on macOS.
      */
     public void start();
 
     /**
      * Starts the application.
-     * A bug occurring when using LWJGL3 prevents this method from returning until after the application is stopped.
+     * A bug occurring when using LWJGL3 prevents this method from
+     * returning until after the application is stopped on macOS.
      *
      * @param waitFor true&rarr;wait for the context to be initialized,
      * false&rarr;don't wait
