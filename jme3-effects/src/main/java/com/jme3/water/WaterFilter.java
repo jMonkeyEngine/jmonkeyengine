@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -514,6 +514,16 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
      */
     public Spatial getReflectionScene() {
         return reflectionScene;
+    }
+
+    /**
+     * Gets the view port used to render refraction scene in the
+     * reflection map.
+     *
+     * @return the reflection view port.
+     */
+    public ViewPort getReflectionView() {
+        return reflectionView;
     }
 
     /**
