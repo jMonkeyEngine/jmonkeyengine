@@ -287,7 +287,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         final GLFWVidMode videoMode = glfwGetVideoMode(glfwGetPrimaryMonitor());
         int requestWidth = settings.getWindowWidth();
         int requestHeight = settings.getWindowHeight();
-        if (requestWidth <= 0 || requestWidth <= 0) {
+        if (requestWidth <= 0 || requestHeight <= 0) {
             requestWidth = videoMode.width();
             requestHeight = videoMode.height();
         }
@@ -361,6 +361,8 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         });
 
         allowSwapBuffers = settings.isSwapBuffers();
+        oldFramebufferWidth = settings.getWidth();
+        oldFramebufferHeight = settings.getHeight();
 
         // Create OpenCL
         if (settings.isOpenCLSupport()) {
