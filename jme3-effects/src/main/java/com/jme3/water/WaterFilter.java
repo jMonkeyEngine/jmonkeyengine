@@ -517,8 +517,7 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
     }
 
     /**
-     * Gets the view port used to render refraction scene in the
-     * reflection map.
+     * Gets the view port used to render reflection scene.
      *
      * @return the reflection view port.
      */
