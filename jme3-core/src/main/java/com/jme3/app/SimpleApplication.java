@@ -267,6 +267,7 @@ public abstract class SimpleApplication extends LegacyApplication {
             simpleUpdate(tpf);
         }catch(Exception e){
             logger.log(Level.WARNING, "Uncaught exception in simpleUpdate():", e);
+            throw e;
         }
 
         if (prof != null)
