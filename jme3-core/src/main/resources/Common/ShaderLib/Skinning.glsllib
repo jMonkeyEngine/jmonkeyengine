@@ -50,10 +50,12 @@ void Skinning_Compute(inout vec4 position, inout vec3 normal, inout vec3 tangent
     if (inHWBoneWeight.x != 0.0) {
 #if NUM_WEIGHTS_PER_VERT == 1
         position = m_BoneMatrices[int(inHWBoneIndex.x)] * position;
-        tangent = m_BoneMatrices[int(inHWBoneIndex.x)] * tangent;
-        normal = (mat3(m_BoneMatrices[int(inHWBoneIndex.x)][0].xyz,
+
+        mat3 rotMat = mat3(m_BoneMatrices[int(inHWBoneIndex.x)][0].xyz,
                        m_BoneMatrices[int(inHWBoneIndex.x)][1].xyz,
-                       m_BoneMatrices[int(inHWBoneIndex.x)][2].xyz) * normal);
+                       m_BoneMatrices[int(inHWBoneIndex.x)][2].xyz);
+        tangent = rotMat * tangent;
+        normal = rotMat * normal;
 #else
         mat4 mat = mat4(0.0);
         mat += m_BoneMatrices[int(inHWBoneIndex.x)] * inHWBoneWeight.x;
