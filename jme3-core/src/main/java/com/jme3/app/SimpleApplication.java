@@ -49,6 +49,9 @@ import com.jme3.system.AppSettings;
 import com.jme3.system.JmeContext.Type;
 import com.jme3.system.JmeSystem;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  * <code>SimpleApplication</code> is the base class for all jME3 Applications.
  * <code>SimpleApplication</code> will display a statistics view
@@ -64,6 +67,8 @@ import com.jme3.system.JmeSystem;
  * be removed by calling <code>stateManager.detach(stateManager.getState(FlyCamAppState.class));</code>
  */
 public abstract class SimpleApplication extends LegacyApplication {
+
+    private static final Logger logger = Logger.getLogger(SimpleApplication.class.getName());
 
     public static final String INPUT_MAPPING_EXIT = "SIMPLEAPP_Exit";
     public static final String INPUT_MAPPING_CAMERA_POS = DebugKeysAppState.INPUT_MAPPING_CAMERA_POS;
@@ -258,7 +263,11 @@ public abstract class SimpleApplication extends LegacyApplication {
         stateManager.update(tpf);
 
         // simple update and root node
-        simpleUpdate(tpf);
+        try{
+            simpleUpdate(tpf);
+        }catch(Exception e){
+            logger.log(Level.WARNING, "Uncaught exception in simpleUpdate():", e);
+        }
 
         if (prof != null)
             prof.appStep(AppStep.SpatialUpdate);
