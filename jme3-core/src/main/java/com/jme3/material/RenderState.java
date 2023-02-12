@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2022 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -983,6 +983,8 @@ public class RenderState implements Cloneable, Savable {
      * Sets the mesh line width.
      * Use this in conjunction with {@link #setWireframe(boolean)} or with a mesh in
      * {@link com.jme3.scene.Mesh.Mode#Lines} mode.
+     * Note: this does not work in OpenGL core profile. It only works in
+     * compatibility profile.
      *
      * @param lineWidth the line width.
      */
