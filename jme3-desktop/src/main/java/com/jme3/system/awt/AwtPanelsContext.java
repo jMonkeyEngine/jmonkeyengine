@@ -41,8 +41,11 @@ import com.jme3.opencl.Context;
 import com.jme3.renderer.Renderer;
 import com.jme3.system.*;
 import java.util.ArrayList;
+import java.util.logging.Logger;
 
 public class AwtPanelsContext implements JmeContext {
+
+    private static final Logger logger = Logger.getLogger(AwtPanelsContext.class.getName());
 
     protected JmeContext actualContext;
     protected AppSettings settings = new AppSettings(true);
@@ -64,12 +67,12 @@ public class AwtPanelsContext implements JmeContext {
 
         @Override
         public void reshape(int width, int height) {
-            throw new IllegalStateException();
+            logger.severe("reshape is not supported.");
         }
 
         @Override
         public void rescale(float x, float y) {
-            throw new IllegalStateException();
+            logger.severe("rescale is not supported.");
         }
 
         @Override
