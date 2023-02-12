@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,7 +52,11 @@ public class MorphTrack implements AnimTrack<float[]> {
      * Weights and times for track.
      */
     private float[] weights;
-    private FrameInterpolator interpolator = FrameInterpolator.DEFAULT;
+    /**
+     * The interpolator to use, or null to always use the default interpolator
+     * of the current thread.
+     */
+    private FrameInterpolator interpolator = null;
     private float[] times;
     private int nbMorphTargets;
 
@@ -219,7 +223,9 @@ public class MorphTrack implements AnimTrack<float[]> {
                     / (times[endFrame] - times[startFrame]);
         }
 
-        interpolator.interpolateWeights(blend, startFrame, weights, nbMorphTargets, store);
+        FrameInterpolator fi = (interpolator == null)
+                ? FrameInterpolator.getThreadDefault() : interpolator;
+        fi.interpolateWeights(blend, startFrame, weights, nbMorphTargets, store);
     }
 
     /**
