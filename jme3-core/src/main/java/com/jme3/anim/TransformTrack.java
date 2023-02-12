@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,7 +50,11 @@ import java.io.IOException;
 public class TransformTrack implements AnimTrack<Transform> {
 
     private double length;
-    private FrameInterpolator interpolator = FrameInterpolator.DEFAULT;
+    /**
+     * The interpolator to use, or null to always use the default interpolator
+     * of the current thread.
+     */
+    private FrameInterpolator interpolator = null;
     private HasLocalTransform target;
 
     /**
@@ -281,7 +285,10 @@ public class TransformTrack implements AnimTrack<Transform> {
                     / (times[endFrame] - times[startFrame]);
         }
 
-        Transform interpolated = interpolator.interpolate(blend, startFrame, translations, rotations, scales, times);
+        FrameInterpolator fi = (interpolator == null)
+                ? FrameInterpolator.getThreadDefault() : interpolator;
+        Transform interpolated = fi.interpolate(
+                blend, startFrame, translations, rotations, scales, times);
 
         if (translations != null) {
             transform.setTranslation(interpolated.getTranslation());
