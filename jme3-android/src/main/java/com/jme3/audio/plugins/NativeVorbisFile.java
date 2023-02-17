@@ -16,14 +16,22 @@ public class NativeVorbisFile {
     
     static {
         System.loadLibrary("decodejme");
-        nativeInit();
+        preInit();
     }
     
-    public NativeVorbisFile(int fd, long off, long len) throws IOException {
-        open(fd, off, len);
+    /**
+     * Initializes an ogg vorbis native file from a file descriptor [fd].
+     * 
+     * @param fd an integer representing the file descriptor 
+     * @param offset an integer representing the start of the 
+     * @param length an integer representing the length of the 
+     * @throws IOException
+     */
+    public NativeVorbisFile(int fd, long offset, long length) throws IOException {
+        init(fd, offset, length);
     }
     
-    private native void open(int fd, long off, long len) throws IOException;
+    private native void init(int fd, long offset, long length) throws IOException;
     
     public native void seekTime(double time) throws IOException;
     
@@ -31,7 +39,10 @@ public class NativeVorbisFile {
     
     public native void readFully(ByteBuffer out) throws IOException;
     
-    public native void close();
+    /**
+     * Clears the native resources by calling free() destroying the structure defining this buffer.
+     */
+    public native void clearResources();
     
-    public static native void nativeInit();
+    public static native void preInit();
 }

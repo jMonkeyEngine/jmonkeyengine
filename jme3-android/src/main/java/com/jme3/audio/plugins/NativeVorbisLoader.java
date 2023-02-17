@@ -57,7 +57,7 @@ public class NativeVorbisLoader implements AssetLoader {
         
         @Override
         public void close() throws IOException {
-            file.close();
+            file.clearResources();
             afd.close();
         }
     }
@@ -78,7 +78,7 @@ public class NativeVorbisLoader implements AssetLoader {
             return ab;
         } finally {
             if (file != null) {
-                file.close();
+                file.clearResources();
             }
             if (afd != null) {
                 afd.close();
@@ -107,7 +107,7 @@ public class NativeVorbisLoader implements AssetLoader {
         } finally {
             if (!success) {
                 if (file != null) {
-                    file.close();
+                    file.clearResources();
                 }
                 if (afd != null) {
                     afd.close();
