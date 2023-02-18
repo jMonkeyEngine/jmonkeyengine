@@ -179,7 +179,7 @@ JNIEXPORT void JNICALL Java_com_jme3_audio_plugins_NativeVorbisFile_preInit
 JNIEXPORT void JNICALL Java_com_jme3_audio_plugins_NativeVorbisFile_init
   (JNIEnv *env, jobject nvf, jint fd, jlong off, jlong len)
 {
-    LOGI("open: fd = %d, off = %lld, len = %lld", fd, off, len);
+    LOGI("init: fd = %d, off = %lld, len = %lld", fd, off, len);
     
     OggVorbis_File* ovf = (OggVorbis_File*) malloc(sizeof(OggVorbis_File));
     
@@ -194,19 +194,19 @@ JNIEXPORT void JNICALL Java_com_jme3_audio_plugins_NativeVorbisFile_init
     
     if (result != 0)
     {
-        LOGI("ov_open fail");
+        LOGI("init fail");
         
         free(ovf);
         free(wrapper);
     
         char err[512];
-        sprintf(err, "ov_open failed: %d", result);
+        sprintf(err, "init failed: %d", result);
         throwIOException(env, err);
         
         return;
     }
     
-    LOGI("ov_open OK");
+    LOGI("init OK");
     jobject ovfBuf = (*env)->NewDirectByteBuffer(env, ovf, sizeof(OggVorbis_File));
     
     vorbis_info* info = ov_info(ovf, -1);
