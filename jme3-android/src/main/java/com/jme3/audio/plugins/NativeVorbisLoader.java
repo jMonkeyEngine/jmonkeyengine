@@ -33,12 +33,12 @@ public class NativeVorbisLoader implements AssetLoader {
         
         @Override
         public int read(byte[] buf) throws IOException {
-            return file.read(buf, 0, buf.length);
+            return file.readIntoArray(buf, 0, buf.length);
         }
         
         @Override
         public int read(byte[] buf, int off, int len) throws IOException {
-            return file.read(buf, off, len);
+            return file.readIntoArray(buf, off, len);
         }
         
         @Override
@@ -71,7 +71,7 @@ public class NativeVorbisLoader implements AssetLoader {
             int fd = afd.getParcelFileDescriptor().getFd();
             file = new NativeVorbisFile(fd, afd.getStartOffset(), afd.getLength());
             ByteBuffer data = BufferUtils.createByteBuffer(file.totalBytes);
-            file.readFully(data);
+            file.readIntoBuffer(data);
             AudioBuffer ab = new AudioBuffer();
             ab.setupFormat(file.channels, 16, file.sampleRate);
             ab.updateData(data);

@@ -251,7 +251,7 @@ JNIEXPORT void JNICALL Java_com_jme3_audio_plugins_NativeVorbisFile_seekTime
     }
 }
 
-JNIEXPORT jint JNICALL Java_com_jme3_audio_plugins_NativeVorbisFile_read
+JNIEXPORT jint JNICALL Java_com_jme3_audio_plugins_NativeVorbisFile_readIntoArray
   (JNIEnv *env, jobject nvf, jbyteArray buf, jint off, jint len)
 {
     int bitstream = -1;
@@ -293,7 +293,7 @@ JNIEXPORT jint JNICALL Java_com_jme3_audio_plugins_NativeVorbisFile_read
     return result;
 }
 
-JNIEXPORT void JNICALL Java_com_jme3_audio_plugins_NativeVorbisFile_readFully
+JNIEXPORT void JNICALL Java_com_jme3_audio_plugins_NativeVorbisFile_readIntoBuffer
   (JNIEnv *env, jobject nvf, jobject buf)
 {
     int bitstream = -1;
