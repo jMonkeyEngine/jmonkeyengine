@@ -94,7 +94,7 @@ public class NativeVorbisFile {
     public native int readIntoArray(byte[] buffer, int offset, int length) throws IOException;
     
     /**
-     * Reads the vorbis file into a direct {@link java.nio.ByteBuffer}.
+     * Reads the vorbis file into a direct {@link java.nio.ByteBuffer}, starting from offset [0] till the buffer capacity.
      * 
      * @param out a reference to the output direct buffer 
      * @throws IOException if a premature EOF is encountered before reaching the end of the buffer
