@@ -81,7 +81,8 @@ public class NativeVorbisFile {
     public native void seekTime(double time) throws IOException;
     
     /**
-     * Reads the vorbis file into a primitive byte buffer [buf].
+     * Reads the vorbis file into a primitive byte buffer [buf] with an [offset] indicating the read start and a [length] indicating the read end on the output buffer.
+     * This is used for reading a particular chunk of data into a primitive array.
      * 
      * @param buffer a primitive byte buffer to read the data into it
      * @param offset an integer representing the offset or the start of the data read
@@ -94,7 +95,7 @@ public class NativeVorbisFile {
     public native int readIntoArray(byte[] buffer, int offset, int length) throws IOException;
     
     /**
-     * Reads the vorbis file into a direct {@link java.nio.ByteBuffer}, starting from offset [0] till the buffer capacity.
+     * Reads the vorbis file into a direct {@link java.nio.ByteBuffer}, starting from offset [0] till the buffer end on the output buffer.
      * 
      * @param out a reference to the output direct buffer 
      * @throws IOException if a premature EOF is encountered before reaching the end of the buffer
