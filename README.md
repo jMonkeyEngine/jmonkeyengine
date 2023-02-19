@@ -11,7 +11,6 @@ The engine is used by several commercial game studios and computer-science cours
 ![jME3 Games Mashup](https://i.imgur.com/nF8WOW6.jpg)
 
  - [jME powered games on IndieDB](http://www.indiedb.com/engines/jmonkeyengine/games)
- - [Maker's Tale](http://steamcommunity.com/sharedfiles/filedetails/?id=93461954t)
  - [Boardtastic 2](https://boardtastic-2.fileplanet.com/apk)
  - [Attack of the Gelatinous Blob](https://attack-gelatinous-blob.softwareandgames.com/)
  - [Mythruna](http://mythruna.com/)
