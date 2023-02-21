@@ -110,13 +110,18 @@ static int FileDesc_seek(void *datasource, ogg_int64_t offset, int whence)
     wrapper->current = actual_offset;
 }
 
-static int FileDesc_close(void *datasource)
+static int FileDesc_clear(void *datasource)
 {
     FileDescWrapper* wrapper = (FileDescWrapper*)datasource;
     
-    LOGI("FD close");
-    
-    return close(wrapper->fd);
+    LOGI("Clear resources -- delegating closure to the Android ParcelFileDescriptor");
+
+    /* release the file descriptor wrapper buffer */
+    free(wrapper);
+
+    wrapper = NULL;
+
+    return 0;
 }
 
 static long FileDesc_tell(void *datasource)
@@ -139,7 +144,7 @@ static long FileDesc_tell(void *datasource)
 static ov_callbacks FileDescCallbacks = {
     FileDesc_read,
     FileDesc_seek,
-    FileDesc_close,
+    FileDesc_clear,
     FileDesc_tell
 };
 
@@ -157,10 +162,10 @@ static jfieldID nvf_field_bitRate;
 static jfieldID nvf_field_totalBytes;
 static jfieldID nvf_field_duration;
 
-JNIEXPORT void JNICALL Java_com_jme3_audio_plugins_NativeVorbisFile_nativeInit
+JNIEXPORT void JNICALL Java_com_jme3_audio_plugins_NativeVorbisFile_preInit
   (JNIEnv *env, jclass clazz)
 {
-    LOGI("nativeInit");
+    LOGI("preInit");
     
     nvf_field_ovf = (*env)->GetFieldID(env, clazz, "ovf", "Ljava/nio/ByteBuffer;");;
     nvf_field_seekable = (*env)->GetFieldID(env, clazz, "seekable", "Z");
@@ -171,10 +176,10 @@ JNIEXPORT void JNICALL Java_com_jme3_audio_plugins_NativeVorbisFile_nativeInit
     nvf_field_duration = (*env)->GetFieldID(env, clazz, "duration", "F");
 }
 
-JNIEXPORT void JNICALL Java_com_jme3_audio_plugins_NativeVorbisFile_open
+JNIEXPORT void JNICALL Java_com_jme3_audio_plugins_NativeVorbisFile_init
   (JNIEnv *env, jobject nvf, jint fd, jlong off, jlong len)
 {
-    LOGI("open: fd = %d, off = %lld, len = %lld", fd, off, len);
+    LOGI("init: fd = %d, off = %lld, len = %lld", fd, off, len);
     
     OggVorbis_File* ovf = (OggVorbis_File*) malloc(sizeof(OggVorbis_File));
     
@@ -189,19 +194,19 @@ JNIEXPORT void JNICALL Java_com_jme3_audio_plugins_NativeVorbisFile_open
     
     if (result != 0)
     {
-        LOGI("ov_open fail");
+        LOGI("init fail");
         
         free(ovf);
         free(wrapper);
     
         char err[512];
-        sprintf(err, "ov_open failed: %d", result);
+        sprintf(err, "init failed: %d", result);
         throwIOException(env, err);
         
         return;
     }
     
-    LOGI("ov_open OK");
+    LOGI("init OK");
     jobject ovfBuf = (*env)->NewDirectByteBuffer(env, ovf, sizeof(OggVorbis_File));
     
     vorbis_info* info = ov_info(ovf, -1);
@@ -246,7 +251,7 @@ JNIEXPORT void JNICALL Java_com_jme3_audio_plugins_NativeVorbisFile_seekTime
     }
 }
 
-JNIEXPORT jint JNICALL Java_com_jme3_audio_plugins_NativeVorbisFile_read
+JNIEXPORT jint JNICALL Java_com_jme3_audio_plugins_NativeVorbisFile_readIntoArray
   (JNIEnv *env, jobject nvf, jbyteArray buf, jint off, jint len)
 {
     int bitstream = -1;
@@ -288,7 +293,7 @@ JNIEXPORT jint JNICALL Java_com_jme3_audio_plugins_NativeVorbisFile_read
     return result;
 }
 
-JNIEXPORT void JNICALL Java_com_jme3_audio_plugins_NativeVorbisFile_readFully
+JNIEXPORT void JNICALL Java_com_jme3_audio_plugins_NativeVorbisFile_readIntoBuffer
   (JNIEnv *env, jobject nvf, jobject buf)
 {
     int bitstream = -1;
@@ -330,19 +335,19 @@ JNIEXPORT void JNICALL Java_com_jme3_audio_plugins_NativeVorbisFile_readFully
     }
 }
 
-JNIEXPORT void JNICALL Java_com_jme3_audio_plugins_NativeVorbisFile_close
+JNIEXPORT void JNICALL Java_com_jme3_audio_plugins_NativeVorbisFile_clearResources
   (JNIEnv *env, jobject nvf)
 {
-    LOGI("close");
+    LOGI("clearResources");
     
     jobject ovfBuf = (*env)->GetObjectField(env, nvf, nvf_field_ovf);
     OggVorbis_File* ovf = (OggVorbis_File*) (*env)->GetDirectBufferAddress(env, ovfBuf);
-    FileDescWrapper* wrapper = (FileDescWrapper*) ovf->datasource;
-    wrapper->env = env;
     
+    /* release the ovf resources */
     ov_clear(ovf);
-    
-    free(wrapper);
+    /* release the ovf buffer */
     free(ovf);
+    ovf = NULL;
+    /* destroy the java reference object */
     (*env)->SetObjectField(env, nvf, nvf_field_ovf, NULL);
 }

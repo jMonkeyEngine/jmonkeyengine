@@ -1,3 +1,34 @@
+/*
+ * Copyright (c) 2009-2023 jMonkeyEngine
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ * * Redistributions of source code must retain the above copyright
+ *   notice, this list of conditions and the following disclaimer.
+ *
+ * * Redistributions in binary form must reproduce the above copyright
+ *   notice, this list of conditions and the following disclaimer in the
+ *   documentation and/or other materials provided with the distribution.
+ *
+ * * Neither the name of 'jMonkeyEngine' nor the names of its contributors
+ *   may be used to endorse or promote products derived from this software
+ *   without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package com.jme3.audio.plugins;
 
 import android.content.res.AssetFileDescriptor;
@@ -33,12 +64,12 @@ public class NativeVorbisLoader implements AssetLoader {
         
         @Override
         public int read(byte[] buf) throws IOException {
-            return file.read(buf, 0, buf.length);
+            return file.readIntoArray(buf, 0, buf.length);
         }
         
         @Override
         public int read(byte[] buf, int off, int len) throws IOException {
-            return file.read(buf, off, len);
+            return file.readIntoArray(buf, off, len);
         }
         
         @Override
@@ -57,7 +88,7 @@ public class NativeVorbisLoader implements AssetLoader {
         
         @Override
         public void close() throws IOException {
-            file.close();
+            file.clearResources();
             afd.close();
         }
     }
@@ -71,14 +102,14 @@ public class NativeVorbisLoader implements AssetLoader {
             int fd = afd.getParcelFileDescriptor().getFd();
             file = new NativeVorbisFile(fd, afd.getStartOffset(), afd.getLength());
             ByteBuffer data = BufferUtils.createByteBuffer(file.totalBytes);
-            file.readFully(data);
+            file.readIntoBuffer(data);
             AudioBuffer ab = new AudioBuffer();
             ab.setupFormat(file.channels, 16, file.sampleRate);
             ab.updateData(data);
             return ab;
         } finally {
             if (file != null) {
-                file.close();
+                file.clearResources();
             }
             if (afd != null) {
                 afd.close();
@@ -107,7 +138,7 @@ public class NativeVorbisLoader implements AssetLoader {
         } finally {
             if (!success) {
                 if (file != null) {
-                    file.close();
+                    file.clearResources();
                 }
                 if (afd != null) {
                     afd.close();
