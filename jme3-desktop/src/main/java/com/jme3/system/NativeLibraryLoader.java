@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2022 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -75,7 +75,7 @@ public final class NativeLibraryLoader {
     private static File extractionFolder = null;
     
     private static final HashMap<NativeLibrary.Key, NativeLibrary> nativeLibraryMap
-            = new HashMap<NativeLibrary.Key, NativeLibrary>();
+            = new HashMap<>();
     
     /**
      * Register a new known library.
@@ -120,6 +120,9 @@ public final class NativeLibraryLoader {
     }
     
     static {
+        // Note: LWJGL 3 handles its native library extracting & loading using
+        // its own SharedLibraryLoader.
+
         // LWJGL
         registerNativeLibrary("lwjgl", Platform.Windows32, "native/windows/lwjgl.dll");
         registerNativeLibrary("lwjgl", Platform.Windows64, "native/windows/lwjgl64.dll");
@@ -136,39 +139,6 @@ public final class NativeLibraryLoader {
         registerNativeLibrary("openal", Platform.Linux64,   "native/linux/libopenal64.so");
         registerNativeLibrary("openal", Platform.MacOSX32,  "native/macosx/openal.dylib", "libopenal.dylib");
         registerNativeLibrary("openal", Platform.MacOSX64,  "native/macosx/openal.dylib", "libopenal.dylib");
-
-        // LWJGL 3.x
-        registerNativeLibrary("lwjgl3", Platform.Windows32, "native/windows/lwjgl32.dll");
-        registerNativeLibrary("lwjgl3", Platform.Windows64, "native/windows/lwjgl.dll");
-        registerNativeLibrary("lwjgl3", Platform.Linux32, "native/linux/liblwjgl32.so");
-        registerNativeLibrary("lwjgl3", Platform.Linux64, "native/linux/liblwjgl.so");
-        registerNativeLibrary("lwjgl3", Platform.MacOSX32, "native/macosx/liblwjgl.dylib");
-        registerNativeLibrary("lwjgl3", Platform.MacOSX64, "native/macosx/liblwjgl.dylib");
-
-        // GLFW for LWJGL 3.x
-        registerNativeLibrary("glfw-lwjgl3", Platform.Windows32, "native/windows/glfw32.dll");
-        registerNativeLibrary("glfw-lwjgl3", Platform.Windows64, "native/windows/glfw.dll");
-        registerNativeLibrary("glfw-lwjgl3", Platform.Linux32, "native/linux/libglfw32.so");
-        registerNativeLibrary("glfw-lwjgl3", Platform.Linux64, "native/linux/libglfw.so");
-        registerNativeLibrary("glfw-lwjgl3", Platform.MacOSX32, "native/macosx/libglfw.dylib");
-        registerNativeLibrary("glfw-lwjgl3", Platform.MacOSX64, "native/macosx/libglfw.dylib");
-
-        // jemalloc for LWJGL 3.x
-        registerNativeLibrary("jemalloc-lwjgl3", Platform.Windows32, "native/windows/jemalloc32.dll");
-        registerNativeLibrary("jemalloc-lwjgl3", Platform.Windows64, "native/windows/jemalloc.dll");
-        registerNativeLibrary("jemalloc-lwjgl3", Platform.Linux32, "native/linux/libjemalloc32.so");
-        registerNativeLibrary("jemalloc-lwjgl3", Platform.Linux64, "native/linux/libjemalloc.so");
-        registerNativeLibrary("jemalloc-lwjgl3", Platform.MacOSX32, "native/macosx/libjemalloc.dylib");
-        registerNativeLibrary("jemalloc-lwjgl3", Platform.MacOSX64, "native/macosx/libjemalloc.dylib");
-
-        // OpenAL for LWJGL 3.x
-        // For OSX: Need to add lib prefix when extracting
-        registerNativeLibrary("openal-lwjgl3", Platform.Windows32, "native/windows/OpenAL32.dll");
-        registerNativeLibrary("openal-lwjgl3", Platform.Windows64, "native/windows/OpenAL.dll");
-        registerNativeLibrary("openal-lwjgl3", Platform.Linux32, "native/linux/libopenal32.so");
-        registerNativeLibrary("openal-lwjgl3", Platform.Linux64, "native/linux/libopenal.so");
-        registerNativeLibrary("openal-lwjgl3", Platform.MacOSX32, "native/macosx/openal.dylib", "libopenal.dylib");
-        registerNativeLibrary("openal-lwjgl3", Platform.MacOSX64, "native/macosx/openal.dylib", "libopenal.dylib");
 
         // BulletJme
         registerNativeLibrary("bulletjme", Platform.Windows32, "native/windows/x86/bulletjme.dll");
@@ -294,19 +264,14 @@ public final class NativeLibraryLoader {
         File userHomeFolder = new File(System.getProperty("user.home"));
         File userCacheFolder = null;
         
-        switch (JmeSystem.getPlatform()) {
-            case Linux32:
-            case Linux64:
+        switch (JmeSystem.getPlatform().getOs()) {
+            case Linux:
                 userCacheFolder = new File(userHomeFolder, ".cache");
                 break;
-            case MacOSX32:
-            case MacOSX64:
-            case MacOSX_PPC32:
-            case MacOSX_PPC64:
+            case MacOS:
                 userCacheFolder = new File(new File(userHomeFolder, "Library"), "Caches");
                 break;
-            case Windows32:
-            case Windows64:
+            case Windows:
                 userCacheFolder = new File(new File(userHomeFolder, "AppData"), "Local");
                 break;
         }
