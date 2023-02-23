@@ -55,17 +55,14 @@ public class TestMusicPlayer extends javax.swing.JFrame {
     final private Listener listener = new Listener();
 
     static {
-        try {
-            Class.forName("org.lwjgl.opengl.Display", false, ClassLoader.getSystemClassLoader());
-            // Using lwjgl version 2
-            // In case of lwjgl2, natives are loaded when LwjglContext is
-            // started but in this test we do not need a LwjglContext, so
-            // we should handle loading natives ourselves.
-            NativeLibraryLoader.loadNativeLibrary("lwjgl", true);
-            NativeLibraryLoader.loadNativeLibrary("openal", true);
-        } catch (ClassNotFoundException exception) {
-            // Not using lwjgl version 2
-        }
+        // Load lwjgl and openal natives if lwjgl 2 is in classpath.
+        //
+        // In case of lwjgl2, natives are loaded when LwjglContext is
+        // started but in this test we do not create a LwjglContext,
+        // so we should handle loading natives ourselves if running
+        // with lwjgl 2.
+        NativeLibraryLoader.loadNativeLibrary("lwjgl", false);
+        NativeLibraryLoader.loadNativeLibrary("openal", false);
     }
 
     public TestMusicPlayer() {
