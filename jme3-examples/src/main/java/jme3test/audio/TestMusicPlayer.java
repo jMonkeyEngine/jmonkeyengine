@@ -55,10 +55,10 @@ public class TestMusicPlayer extends javax.swing.JFrame {
     final private Listener listener = new Listener();
 
     static {
-        // Load lwjgl and openal natives if lwjgl 2 is in classpath.
+        // Load lwjgl and openal natives if lwjgl version 2 is in classpath.
         //
-        // In case of lwjgl2, natives are loaded when LwjglContext is
-        // started but in this test we do not create a LwjglContext,
+        // In case of lwjgl 2, natives are loaded when LwjglContext is
+        // started, but in this test we do not create a LwjglContext,
         // so we should handle loading natives ourselves if running
         // with lwjgl 2.
         NativeLibraryLoader.loadNativeLibrary("lwjgl", false);
