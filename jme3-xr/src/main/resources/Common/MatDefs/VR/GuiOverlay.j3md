@@ -1,0 +1,38 @@
+MaterialDef GuiOverlay {
+
+    MaterialParameters {
+        Texture2D ColorMap
+
+        // For VR instancing
+        Matrix4 RightEyeViewProjectionMatrix
+    }
+
+    Technique {
+        VertexShader GLSL150:   Common/MatDefs/VR/GuiOverlay15.vert
+        FragmentShader GLSL150: Common/MatDefs/VR/GuiOverlay15.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+            ViewProjectionMatrix // needed for VR instancing
+        }
+
+        Defines {
+            INSTANCING : RightEyeViewProjectionMatrix // For VR instancing
+        }
+    }
+
+    Technique {
+        VertexShader GLSL100:   Common/MatDefs/VR/GuiOverlay.vert
+        FragmentShader GLSL100: Common/MatDefs/VR/GuiOverlay.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+            ViewProjectionMatrix // needed for VR instancing
+        }
+
+        Defines {
+            INSTANCING : RightEyeViewProjectionMatrix // For VR instancing
+        }
+    }
+
+}

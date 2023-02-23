@@ -1,0 +1,45 @@
+MaterialDef Unshaded {
+
+    MaterialParameters {
+        Texture2D ColorMap
+        Color Color (Color)
+
+        // For VR instancing
+        Matrix4 RightEyeViewProjectionMatrix
+    }
+
+    Technique {
+        VertexShader GLSL150:   Common/MatDefs/VR/Unshaded.vert
+        FragmentShader GLSL150: Common/MatDefs/VR/Unshaded.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+            ViewProjectionMatrix // needed for VR instancing
+            ViewMatrix
+        }
+
+        Defines {
+            INSTANCING : RightEyeViewProjectionMatrix // For VR instancing
+            HAS_COLORMAP : ColorMap
+            HAS_COLOR : Color
+        }
+    }
+
+    Technique {
+        VertexShader GLSL100:   Common/MatDefs/VR/Unshaded.vert
+        FragmentShader GLSL100: Common/MatDefs/VR/Unshaded.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+            ViewProjectionMatrix // needed for VR instancing
+            ViewMatrix
+        }
+
+        Defines {
+            INSTANCING : RightEyeViewProjectionMatrix // For VR instancing
+            HAS_COLORMAP : ColorMap
+            HAS_COLOR : Color
+        }
+    }
+
+}
