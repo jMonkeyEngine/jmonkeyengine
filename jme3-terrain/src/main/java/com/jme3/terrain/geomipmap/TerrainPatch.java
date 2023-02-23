@@ -804,14 +804,14 @@ public class TerrainPatch extends Geometry {
         if (refreshFlags != 0) {
             logger.warning("Scene graph must be updated before checking collision");
             return 0;
-        }            
-
+        }
+        
         if (other instanceof BoundingVolume) {
             if (!getWorldBound().intersects((BoundingVolume)other)) {
                 return 0;
             }
         }
-
+        
         if (other instanceof Ray) {
             return collideWithRay((Ray)other, results);
         } else if (other instanceof BoundingVolume) {
