@@ -801,7 +801,7 @@ public class TerrainPatch extends Geometry {
 
     @Override
     public int collideWith(Collidable other, CollisionResults results) throws UnsupportedCollisionException {
-        if (refreshFlags != 0) {
+        if ((refreshFlags & (RF_BOUND | RF_TRANSFORM)) != 0) {
             logger.warning("Scene graph must be updated before checking collision");
             return 0;
         }
