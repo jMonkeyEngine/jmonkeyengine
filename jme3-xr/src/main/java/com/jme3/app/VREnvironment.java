@@ -13,9 +13,6 @@ import com.jme3.input.vr.VRViewManager;
 import com.jme3.input.vr.lwjgl_openvr.LWJGLOpenVR;
 import com.jme3.input.vr.lwjgl_openvr.LWJGLOpenVRMouseManager;
 import com.jme3.input.vr.lwjgl_openvr.LWJGLOpenVRViewManager;
-import com.jme3.input.vr.oculus.OculusMouseManager;
-import com.jme3.input.vr.oculus.OculusVR;
-import com.jme3.input.vr.oculus.OculusViewManager;
 import com.jme3.input.vr.openvr.OpenVR;
 import com.jme3.input.vr.openvr.OpenVRMouseManager;
 import com.jme3.input.vr.openvr.OpenVRViewManager;
@@ -402,8 +399,6 @@ public class VREnvironment {
             viewManager = new OpenVRViewManager(this);
         } else if (vrBinding == VRConstants.SETTING_VRAPI_OSVR_VALUE){
             viewManager = new OSVRViewManager(this);
-        } else if (vrBinding == VRConstants.SETTING_VRAPI_OCULUSVR_VALUE) {
-            viewManager = new OculusViewManager(this);
         } else if (vrBinding == VRConstants.SETTING_VRAPI_OPENVR_LWJGL_VALUE) {
             viewManager = new LWJGLOpenVRViewManager(this);
         } else {
@@ -421,8 +416,6 @@ public class VREnvironment {
 
         initialized = false;
 
-        // we are going to use OpenVR now, not the Oculus Rift
-        // OpenVR does support the Rift
         String OS     = System.getProperty("os.name", "generic").toLowerCase(Locale.ENGLISH);
         vrSupportedOS = System.getProperty("sun.arch.data.model").equalsIgnoreCase("64"); //64-bit only
         compositorOS  = OS.contains("indows") || OS.contains("nux");
@@ -447,13 +440,6 @@ public class VREnvironment {
                 hardware = new OpenVR(this);
                 initialized = true;
                 logger.config("Creating OpenVR wrapper [SUCCESS]");
-            } else if (vrBinding == VRConstants.SETTING_VRAPI_OCULUSVR_VALUE) {
-                guiManager   = new VRGuiManager(this);
-                mouseManager = new OculusMouseManager(this);
-
-                hardware = new OculusVR(this);
-                initialized = true;
-                logger.config("Creating Oculus Rift wrapper [SUCCESS]");
             } else if (vrBinding == VRConstants.SETTING_VRAPI_OPENVR_LWJGL_VALUE) {
                 guiManager   = new VRGuiManager(this);
                 mouseManager = new LWJGLOpenVRMouseManager(this);

@@ -150,7 +150,7 @@ public class LWJGLOpenVRViewManager extends AbstractVRViewManager {
                     finalRotation.set(objRot);
                     finalRotation.mult(hmdPos, hmdPos);
                     finalRotation.multLocal(hmdRot);
-    }
+                }
 
                 finalizeCamera(dev.getHMDVectorPoseLeftEye(), objPos, getLeftCamera());
                 finalizeCamera(dev.getHMDVectorPoseRightEye(), objPos, getRightCamera());

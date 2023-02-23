@@ -382,40 +382,6 @@ public class LWJGLOpenVR implements VRAPI {
 
     @Override
     public HmdType getType() {
-            String completeName = "";
-            String name = VRSystem.VRSystem_GetStringTrackedDeviceProperty(VR.k_unTrackedDeviceIndex_Hmd,
-                                                                   VR.ETrackedDeviceProperty_Prop_ManufacturerName_String,
-                                                                   128, hmdErrorStore);
-            if( hmdErrorStore.get(0) == 0 ) completeName += name;
-            String number = VRSystem.VRSystem_GetStringTrackedDeviceProperty(VR.k_unTrackedDeviceIndex_Hmd,
-                                                                   VR.ETrackedDeviceProperty_Prop_ModelNumber_String,
-                                                                   128, hmdErrorStore);
-            if( hmdErrorStore.get(0) == 0 ) completeName += " " + number;
-            if( completeName.length() > 0 ) {
-                completeName = completeName.toLowerCase(Locale.ENGLISH).trim();
-                if( completeName.contains("htc") || completeName.contains("vive") ) {
-                    return HmdType.HTC_VIVE;
-                } else if ( completeName.contains("index") ) {
-                    return HmdType.VALVE_INDEX;
-                } else if( completeName.contains("osvr") ) {
-                    return HmdType.OSVR;
-                } else if( completeName.contains("oculus") || completeName.contains("rift") ||
-                           completeName.contains("dk1") || completeName.contains("dk2") || completeName.contains("cv1") ) {
-                    return HmdType.OCULUS_RIFT;
-                } else if( completeName.contains("fove") ) {
-                    return HmdType.FOVE;
-                } else if( completeName.contains("game") && completeName.contains("face") ) {
-                    return HmdType.GAMEFACE;
-                } else if( completeName.contains("morpheus") ) {
-                    return HmdType.MORPHEUS;
-                } else if( completeName.contains("gear") ) {
-                    return HmdType.GEARVR;
-                } else if( completeName.contains("star") ) {
-                    return HmdType.STARVR;
-                } else if( completeName.contains("null") ) {
-                    return HmdType.NULL;
-                }
-            }
         return HmdType.OTHER;
     }
 
