@@ -799,8 +799,7 @@ public class TerrainPatch extends Geometry {
     @Override
     public int collideWith(Collidable other, CollisionResults results) throws UnsupportedCollisionException {
         if (refreshFlags != 0)
-            throw new IllegalStateException("Scene graph must be updated" +
-                                            " before checking collision");
+            System.err.println("Scene graph must be updated before checking collision");
 
         if (other instanceof BoundingVolume)
             if (!getWorldBound().intersects((BoundingVolume)other))
