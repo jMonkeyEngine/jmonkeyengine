@@ -801,22 +801,22 @@ public class TerrainPatch extends Geometry {
 
     @Override
     public int collideWith(Collidable other, CollisionResults results) throws UnsupportedCollisionException {
-        if (refreshFlags != 0){
+        if (refreshFlags != 0) {
             logger.warning("Scene graph must be updated before checking collision");
             return 0;
         }            
 
-        if (other instanceof BoundingVolume){
-            if (!getWorldBound().intersects((BoundingVolume)other)){
+        if (other instanceof BoundingVolume) {
+            if (!getWorldBound().intersects((BoundingVolume)other)) {
                 return 0;
             }
         }
 
-        if(other instanceof Ray){
+        if (other instanceof Ray) {
             return collideWithRay((Ray)other, results);
-        }else if (other instanceof BoundingVolume){
+        } else if (other instanceof BoundingVolume) {
             return collideWithBoundingVolume((BoundingVolume)other, results);
-        }else {
+        } else {
             throw new UnsupportedCollisionException("TerrainPatch cannot collide with "+other.getClass().getName());
         }
     }
