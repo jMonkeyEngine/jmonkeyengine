@@ -40,7 +40,7 @@ import java.util.*;
 import java.util.function.*;
 
 import static org.joml.Math.*;
-import static com.jme3.input.vr.lwjgl_openxr.lwjgl.IOUtil.*;
+import static com.jme3.input.vr.lwjgl_openxr.IOUtil.*;
 import static org.lwjgl.openxr.EXTDebugUtils.*;
 import static org.lwjgl.openxr.KHRVulkanEnable.*;
 import static org.lwjgl.openxr.XR10.*;
