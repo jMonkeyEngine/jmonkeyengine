@@ -57,6 +57,7 @@ import java.nio.FloatBuffer;
 import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Logger;
+import java.util.logging.Level;
 
 
 /**
@@ -802,7 +803,7 @@ public class TerrainPatch extends Geometry {
     @Override
     public int collideWith(Collidable other, CollisionResults results) throws UnsupportedCollisionException {
         if ((refreshFlags & (RF_BOUND | RF_TRANSFORM)) != 0) {
-            logger.warning("Scene graph must be updated before checking collision");
+            logger.log(Level.WARNING, "Scene graph must be updated before checking collision");
             return 0;
         }
         
