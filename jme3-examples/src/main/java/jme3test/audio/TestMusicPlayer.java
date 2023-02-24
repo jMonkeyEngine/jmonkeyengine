@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,6 +40,8 @@ import com.jme3.audio.plugins.OGGLoader;
 import com.jme3.audio.plugins.WAVLoader;
 import com.jme3.system.AppSettings;
 import com.jme3.system.JmeSystem;
+import com.jme3.system.NativeLibraryLoader;
+
 import java.io.*;
 import javax.swing.JFileChooser;
 
@@ -51,6 +53,17 @@ public class TestMusicPlayer extends javax.swing.JFrame {
     private float musicLength = 0;
     private float curTime = 0;
     final private Listener listener = new Listener();
+
+    static {
+        // Load lwjgl and openal natives if lwjgl version 2 is in classpath.
+        //
+        // In case of lwjgl 2, natives are loaded when LwjglContext is
+        // started, but in this test we do not create a LwjglContext,
+        // so we should handle loading natives ourselves if running
+        // with lwjgl 2.
+        NativeLibraryLoader.loadNativeLibrary("lwjgl", false);
+        NativeLibraryLoader.loadNativeLibrary("openal", false);
+    }
 
     public TestMusicPlayer() {
         initComponents();
