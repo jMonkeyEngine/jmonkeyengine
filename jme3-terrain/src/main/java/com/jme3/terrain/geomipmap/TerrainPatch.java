@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -56,6 +56,8 @@ import java.nio.Buffer;
 import java.nio.FloatBuffer;
 import java.util.HashMap;
 import java.util.List;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 
 /**
@@ -79,6 +81,8 @@ import java.util.List;
  * @author Brent Owens
  */
 public class TerrainPatch extends Geometry {
+    
+    private static final Logger logger = Logger.getLogger(TerrainPatch.class.getName());
 
     protected LODGeomap geomap;
     protected int lod = 0; // this terrain patch's LOD
@@ -798,19 +802,22 @@ public class TerrainPatch extends Geometry {
 
     @Override
     public int collideWith(Collidable other, CollisionResults results) throws UnsupportedCollisionException {
-        if (refreshFlags != 0)
-            throw new IllegalStateException("Scene graph must be updated" +
-                                            " before checking collision");
-
-        if (other instanceof BoundingVolume)
-            if (!getWorldBound().intersects((BoundingVolume)other))
+        if ((refreshFlags & (RF_BOUND | RF_TRANSFORM)) != 0) {
+            logger.log(Level.WARNING, "Scene graph must be updated before checking collision");
+            return 0;
+        }
+        
+        if (other instanceof BoundingVolume) {
+            if (!getWorldBound().intersects((BoundingVolume)other)) {
                 return 0;
-
-        if(other instanceof Ray)
+            }
+        }
+        
+        if (other instanceof Ray) {
             return collideWithRay((Ray)other, results);
-        else if (other instanceof BoundingVolume)
+        } else if (other instanceof BoundingVolume) {
             return collideWithBoundingVolume((BoundingVolume)other, results);
-        else {
+        } else {
             throw new UnsupportedCollisionException("TerrainPatch cannot collide with "+other.getClass().getName());
         }
     }
