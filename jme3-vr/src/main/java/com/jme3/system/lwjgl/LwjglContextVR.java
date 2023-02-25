@@ -119,17 +119,9 @@ public abstract class LwjglContextVR implements JmeContext {
             return;
         }
 
-        if ("LWJGL".equals(settings.getAudioRenderer())) {
-            NativeLibraryLoader.loadNativeLibrary("openal-lwjgl3", true);
-        }
-
         if (NativeLibraryLoader.isUsingNativeBullet()) {
             NativeLibraryLoader.loadNativeLibrary("bulletjme", true);
         }
-
-        NativeLibraryLoader.loadNativeLibrary("glfw-lwjgl3", true);
-        NativeLibraryLoader.loadNativeLibrary("jemalloc-lwjgl3", true);
-        NativeLibraryLoader.loadNativeLibrary("lwjgl3", true);
     }
 
     /**
