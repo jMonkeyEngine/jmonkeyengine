@@ -529,12 +529,13 @@ public final class NativeLibraryLoader {
     }
 
     /**
-     * Check if library extraction is required by comparing their last modified date.
+     * Checks if library extraction is required by comparing source and target
+     * last modified date. Returns true if target file does not exist.
      *
      * @param conn the source file
      * @param targetFile the target file
-     * @return true if target file exist and the difference in last modified date is
-     *          less than 1 second, false otherwise
+     * @return false if target file exist and the difference in last modified date is
+     *          less than 1 second, true otherwise
      */
     private static boolean isLibraryExtractionRequired(URLConnection conn, File targetFile) {
         if (targetFile.exists()) {
