@@ -37,7 +37,8 @@ import java.util.List;
 import java.util.function.Consumer;
 
 /**
- * Defines default native libraries used by jMonkeyEngine.
+ * Defines default native libraries that are loaded by
+ * {@link NativeLibraryLoader}.
  *
  * @author Ali-RS
  */
@@ -115,6 +116,10 @@ public enum NativeLibraries {
         this.library = library;
     }
 
+    /**
+     * Register native libraries on {@link NativeLibraryLoader} so we can load them
+     * later on via {@link NativeLibraryLoader#loadNativeLibrary(String, boolean)}.
+     */
     public static void registerDefaultLibraries() {
         Lwjgl.registerLibrary();
         Openal.registerLibrary();
@@ -127,41 +132,89 @@ public enum NativeLibraries {
         return library;
     }
 
+    /**
+     * @return the library name. This is effectively equivalent to the
+     * call {@link LibraryInfo#getName()}
+     */
     public String getName() {
         return library.getName();
     }
 
+    /**
+     * Registers this library's native variants into {@link NativeLibraryLoader} that can
+     * be loaded later via {@link NativeLibraryLoader#loadNativeLibrary(String, boolean)}.
+     */
     private void registerLibrary() {
         library.getNativeVariants().forEach(NativeLibraryLoader::registerNativeLibrary);
     }
 
+    /**
+     * A helper class that defines a native library by name, list of its native variants
+     * for target platforms and a load function used to load library from an absolute
+     * path after extracted by {@link NativeLibraryLoader}.
+     */
     public static class LibraryInfo {
 
         private final String name;
         private final List<NativeLibrary> nativeVariants = new ArrayList<>();
         private final Consumer<String> loadFunction;
 
+        /**
+         * Define a library by the specified name and a default load function
+         * that uses {@link System#load(String)} to load extracted native from
+         * absolute path.
+         * @param name The library name. (not null)
+         */
         public LibraryInfo(String name) {
             this(name, System::load);
         }
 
+        /**
+         * Define a library by the specified name and specified load function
+         * that is used to load extracted native from an absolute path string.
+         *
+         * @param name The library name (not null)
+         * @param loadFunction The load function for loading library from
+         *                     an absolute path string. (not null)
+         */
         public LibraryInfo(String name, Consumer<String> loadFunction) {
             this.name = name;
             this.loadFunction = loadFunction;
         }
 
+        /**
+         * @return the library name.
+         */
         public String getName() {
             return name;
         }
 
+        /**
+         * @return the list of native variants, each targeting a specific platform.
+         */
         public List<NativeLibrary> getNativeVariants() {
             return nativeVariants;
         }
 
+        /**
+         * Adds a new native library that targets specified platform.
+         *
+         * @param platform The platform this library targets
+         * @param pathInNativesJar The path of native file inside library jar
+         * @return this
+         */
         public LibraryInfo addNativeVariant(Platform platform, String pathInNativesJar) {
             return addNativeVariant(platform, pathInNativesJar, null);
         }
 
+        /**
+         * Adds a new native library that targets specified platform.
+         *
+         * @param platform The platform this library targets
+         * @param pathInNativesJar The path of native file inside library jar
+         * @param extractedAsFileName The filename that the library should be extracted as
+         * @return this
+         */
         public LibraryInfo addNativeVariant(Platform platform, String pathInNativesJar, String extractedAsFileName) {
              nativeVariants.add(new NativeLibrary(name, platform, pathInNativesJar, extractedAsFileName, loadFunction));
              return this;

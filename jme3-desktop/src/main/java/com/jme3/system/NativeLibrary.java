@@ -81,14 +81,29 @@ final class NativeLibrary {
     }
 
     /**
-     * Create a new NativeLibrary.
-     */
+     * Create a new NativeLibrary. The extracted file name will be the same as
+     * in jar and will be loaded via {@link System#load(String)}.
+     *
+     * @param name The name of the library (not null)
+     * @param platform The platform associated to this native library (not null)
+     * @param pathInNativesJar The path to the library in the classpath (if it is null,
+     *                         the library loading will be ignored on this platform)
+     **/
     public NativeLibrary(String name, Platform platform, String pathInNativesJar) {
         this(name, platform, pathInNativesJar, null);
     }
 
     /**
-     * Create a new NativeLibrary.
+     * Create a new NativeLibrary. The extracted file will be loaded
+     * via {@link System#load(String)}.
+     *
+     * @param name The name of the library (not null)
+     * @param platform The platform associated to this native library (not null)
+     * @param pathInNativesJar The path to the library in the classpath (if it is null,
+     *                         the library loading will be ignored on this platform)
+     * @param extractedAsFileName The name that should be given to the extracted file
+     *                            (if set to null, then the filename in the natives
+     *                            jar shall be used)
      */
     public NativeLibrary(String name, Platform platform, String pathInNativesJar, String extractedAsFileName) {
         this(name, platform, pathInNativesJar, extractedAsFileName, System::load);
@@ -96,6 +111,15 @@ final class NativeLibrary {
 
     /**
      * Create a new NativeLibrary.
+     *
+     * @param name The name of the library (not null)
+     * @param platform The platform associated to this native library (not null)
+     * @param pathInNativesJar The path to the library in the classpath (if it is null,
+     *                         the library loading will be ignored on this platform)
+     * @param extractedAsFileName The name that should be given to the extracted file
+     *                            (if set to null, then the filename in the natives
+     *                            jar shall be used)
+     * @param loadFunction The function used to load the library from absolute path (not null)
      */
     public NativeLibrary(String name, Platform platform, String pathInNativesJar, String extractedAsFileName, Consumer<String> loadFunction) {
         this.name = name;
