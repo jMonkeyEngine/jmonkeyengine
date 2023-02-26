@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,6 +31,8 @@
  */
 package com.jme3.system;
 
+import java.util.function.Consumer;
+
 /**
  * Holds information about a native library for a particular platform.
  * 
@@ -42,6 +44,7 @@ final class NativeLibrary {
     private final Platform platform;
     private final String pathInNativesJar;
     private final String extractedAsFileName;
+    private final Consumer<String> loadFunction;
 
     /**
      * Key for map to find a library for a name and platform.
@@ -76,6 +79,31 @@ final class NativeLibrary {
             return true;
         }
     }
+
+    /**
+     * Create a new NativeLibrary.
+     */
+    public NativeLibrary(String name, Platform platform, String pathInNativesJar) {
+        this(name, platform, pathInNativesJar, null);
+    }
+
+    /**
+     * Create a new NativeLibrary.
+     */
+    public NativeLibrary(String name, Platform platform, String pathInNativesJar, String extractedAsFileName) {
+        this(name, platform, pathInNativesJar, extractedAsFileName, System::load);
+    }
+
+    /**
+     * Create a new NativeLibrary.
+     */
+    public NativeLibrary(String name, Platform platform, String pathInNativesJar, String extractedAsFileName, Consumer<String> loadFunction) {
+        this.name = name;
+        this.platform = platform;
+        this.pathInNativesJar = pathInNativesJar;
+        this.extractedAsFileName = extractedAsFileName;
+        this.loadFunction = loadFunction;
+    }
     
     /**
      * The name of the library. 
@@ -90,7 +118,7 @@ final class NativeLibrary {
     /**
      * The OS + architecture combination for which this library
      * should be extracted.
-     * 
+     *
      * @return platform associated to this native library
      */
     public Platform getPlatform() {
@@ -99,12 +127,12 @@ final class NativeLibrary {
 
     /**
      * The filename that the library should be extracted as.
-     * 
+     *
      * In some cases, this differs from the {@link #getPathInNativesJar() path in the natives jar},
      * since the names of the libraries specified in the jars are often incorrect.
      * If set to <code>null</code>, then the filename in the
      * natives jar shall be used.
-     * 
+     *
      * @return the name that should be given to the extracted file.
      */
     public String getExtractedAsName() {
@@ -113,10 +141,10 @@ final class NativeLibrary {
 
     /**
      * Path inside the natives jar or classpath where the library is located.
-     * 
+     *
      * This library must be compatible with the {@link #getPlatform() platform}
      * which this library is associated with.
-     * 
+     *
      * @return path to the library in the classpath
      */
     public String getPathInNativesJar() {
@@ -124,19 +152,18 @@ final class NativeLibrary {
     }
 
     /**
-     * Create a new NativeLibrary.
+     * @return the load function used for loading this native library.
+     * It loads the native library from absolute path on disk.
+     * By default, it loads with {@link System#load(java.lang.String) }.
      */
-    public NativeLibrary(String name, Platform platform, String pathInNativesJar, String extractedAsFileName) {
-        this.name = name;
-        this.platform = platform;
-        this.pathInNativesJar = pathInNativesJar;
-        this.extractedAsFileName = extractedAsFileName;
+    public Consumer<String> getLoadFunction() {
+        return loadFunction;
     }
 
     /**
-     * Create a new NativeLibrary.
+     * @return key for map to find a library for a name and platform.
      */
-    public NativeLibrary(String name, Platform platform, String pathInNativesJar) {
-        this(name, platform, pathInNativesJar, null);
+    public Key getKey() {
+        return new NativeLibrary.Key(getName(), getPlatform());
     }
 }
