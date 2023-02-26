@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -2922,13 +2922,16 @@ public final class GLRenderer implements Renderer {
         for (int i = 0; i < attribList.oldLen; i++) {
             int idx = attribList.oldList[i];
             gl.glDisableVertexAttribArray(idx);
-            VertexBuffer buffer = context.boundAttribs[idx].get();
-            if (buffer != null && buffer.isInstanced()) {
-                glext.glVertexAttribDivisorARB(idx, 0);
+            WeakReference<VertexBuffer> ref = context.boundAttribs[idx];
+            if (ref != null) {
+                VertexBuffer buffer = ref.get();
+                if (buffer != null && buffer.isInstanced()) {
+                    glext.glVertexAttribDivisorARB(idx, 0);
+                }
+                context.boundAttribs[idx] = null;
             }
-            context.boundAttribs[idx] = null;
         }
-        context.attribIndexList.copyNewToOld();
+        attribList.copyNewToOld();
     }
 
     public void setVertexAttrib(VertexBuffer vb, VertexBuffer idb) {
