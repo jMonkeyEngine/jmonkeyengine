@@ -494,28 +494,7 @@ public final class NativeLibraryLoader {
         
         File targetFile = new File(extractionDirectory, loadedAsFileName);
         try (InputStream in = conn.getInputStream()) {
-            boolean extract = true;
-            if (targetFile.exists()) {
-                // OK, compare last modified date of this file to 
-                // file in jar
-                long targetLastModified = targetFile.lastModified();
-                long sourceLastModified = conn.getLastModified();
-
-                // Allow ~1 second range for OSes that only support low precision
-                if (Math.abs(sourceLastModified - targetLastModified) < 1000) {
-                    logger.log(Level.FINE, "Not copying library {0}. " +
-                                           "Latest already extracted.", 
-                                           loadedAsFileName);
-
-                    // Note extraction should also work fine if user who was using
-                    // a newer version of library, downgraded to and older version
-                    // which will make above check invalid and extract it again.
-
-                    extract = false;
-                }
-            }
-
-            if (extract) {
+            if (isLibraryExtractionRequired(conn, targetFile)) {
                 Files.copy(in, targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
 
                 // NOTE: On OSes that support "Date Created" property,
@@ -526,6 +505,11 @@ public final class NativeLibraryLoader {
                 if (logger.isLoggable(Level.FINE)) {
                     logger.log(Level.FINE, "Extracted native library from ''{0}'' into ''{1}''. ",
                             new Object[]{url, targetFile});
+                }
+            } else {
+                if (logger.isLoggable(Level.FINE)) {
+                    logger.log(Level.FINE, "Not copying library {0}. Latest already extracted.",
+                            loadedAsFileName);
                 }
             }
 
@@ -543,5 +527,30 @@ public final class NativeLibraryLoader {
                     + targetFile, ex);
         }
     }
-    
+
+    /**
+     * Check if library extraction is required by comparing their last modified date.
+     *
+     * @param conn the source file
+     * @param targetFile the target file
+     * @return true if target file exist and the difference in last modified date is
+     *          less than 1 second, false otherwise
+     */
+    private static boolean isLibraryExtractionRequired(URLConnection conn, File targetFile) {
+        if (targetFile.exists()) {
+            // OK, compare last modified date of this file to
+            // file in jar
+            long targetLastModified = targetFile.lastModified();
+            long sourceLastModified = conn.getLastModified();
+
+            // Allow ~1 second range for OSes that only support low precision
+            return Math.abs(sourceLastModified - targetLastModified) >= 1000;
+
+            // Note extraction should also work fine if user who was using
+            // a newer version of library, downgraded to an older version
+            // which will make above check invalid and extract it again.
+        }
+
+        return true;
+    }
 }
