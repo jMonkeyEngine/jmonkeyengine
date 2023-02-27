@@ -175,8 +175,8 @@ public final class NativeLibraryLoader {
      * <ul>
      * <li>If a {@link #setCustomExtractionFolder(java.lang.String) custom
      * extraction folder} has been specified, it is returned.
-     * <li>If the user can write to the working folder, then it 
-     * is returned.</li>
+     * <li>If the user can write to "java.io.tmpdir" folder, then it
+     * is used.</li>
      * <li>Otherwise, the {@link JmeSystem#getStorageFolder() storage folder}
      * is used, to prevent collisions, a special subfolder is used
      * called <code>natives_&lt;hash&gt;</code> where &lt;hash&gt;
@@ -191,15 +191,20 @@ public final class NativeLibraryLoader {
             return extractionFolderOverride;
         }
         if (extractionFolder == null) {
-            File workingFolder = new File("").getAbsoluteFile();
-            if (!workingFolder.canWrite()) {
+            File userTempDir = new File(System.getProperty("java.io.tmpdir"));
+            if (!userTempDir.canWrite()) {
                 setExtractionFolderToUserCache();
             } else {
                 try {
-                    File file = new File(workingFolder + File.separator + ".jmetestwrite");
-                    file.createNewFile();
-                    file.delete();
-                    extractionFolder = workingFolder;
+                    File jmeTempDir = new File(userTempDir, "jme3");
+                    if (!jmeTempDir.exists()) {
+                        jmeTempDir.mkdir();
+                    }
+                    extractionFolder = new File(jmeTempDir, "natives_" + Integer.toHexString(computeNativesHash()));
+
+                    if (!extractionFolder.exists()) {
+                        extractionFolder.mkdir();
+                    }
                 } catch (Exception e) {
                     setExtractionFolderToUserCache();
                 }
