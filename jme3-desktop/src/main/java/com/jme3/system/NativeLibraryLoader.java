@@ -494,7 +494,7 @@ public final class NativeLibraryLoader {
         
         File targetFile = new File(extractionDirectory, loadedAsFileName);
         try (InputStream in = conn.getInputStream()) {
-            if (isLibraryExtractionRequired(conn, targetFile)) {
+            if (isExtractingRequired(conn, targetFile)) {
                 Files.copy(in, targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
 
                 // NOTE: On OSes that support "Date Created" property,
@@ -537,21 +537,22 @@ public final class NativeLibraryLoader {
      * @return false if target file exist and the difference in last modified date is
      *          less than 1 second, true otherwise
      */
-    private static boolean isLibraryExtractionRequired(URLConnection conn, File targetFile) {
-        if (targetFile.exists()) {
-            // OK, compare last modified date of this file to
-            // file in jar
-            long targetLastModified = targetFile.lastModified();
-            long sourceLastModified = conn.getLastModified();
-
-            // Allow ~1 second range for OSes that only support low precision
-            return Math.abs(sourceLastModified - targetLastModified) >= 1000;
-
-            // Note extraction should also work fine if user who was using
-            // a newer version of library, downgraded to an older version
-            // which will make above check invalid and extract it again.
+    private static boolean isExtractingRequired(URLConnection conn, File targetFile) {
+        if (!targetFile.exists()) {
+            // Extract anyway if the file doesn't exist
+            return true;
         }
 
-        return true;
+        // OK, if the file exists then compare last modified date
+        // of this file to file in jar
+        long targetLastModified = targetFile.lastModified();
+        long sourceLastModified = conn.getLastModified();
+
+        // Allow ~1 second range for OSes that only support low precision
+        return Math.abs(sourceLastModified - targetLastModified) >= 1000;
+
+        // Note extraction should also work fine if user who was using
+        // a newer version of library, downgraded to an older version
+        // which will make above check invalid and extract it again.
     }
 }
