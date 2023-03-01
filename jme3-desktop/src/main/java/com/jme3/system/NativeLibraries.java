@@ -47,7 +47,9 @@ public enum NativeLibraries {
     // Note: LWJGL 3 handles its native library extracting & loading using
     // its own SharedLibraryLoader.
 
-    // LWJGL 2
+    /**
+     * Native lwjgl libraries for LWJGL 2 required by jme3-lwjgl backend.
+     */
     Lwjgl(new LibraryInfo("lwjgl", libPath ->
             // lwjgl handle loading by itself.
             System.setProperty("org.lwjgl.librarypath",
@@ -62,7 +64,10 @@ public enum NativeLibraries {
 
     // OpenAL for LWJGL 2
     // For OSX: Need to add lib prefix when extracting
-    Openal(new LibraryInfo("openal")
+    /**
+     * Native OpenAL audio libraries for LWJGL 2 required by jme3-lwjgl backend.
+     */
+    OpenAL(new LibraryInfo("openal")
             .addNativeVariant(Platform.Windows32, "OpenAL32.dll")
             .addNativeVariant(Platform.Windows64, "OpenAL64.dll")
             .addNativeVariant(Platform.Linux32,   "libopenal.so")
@@ -71,7 +76,9 @@ public enum NativeLibraries {
             .addNativeVariant(Platform.MacOSX64,  "openal.dylib", "libopenal.dylib")
     ),
 
-    // BulletJme
+    /**
+     * Native bullet physics libraries required by Minie library.
+     */
     BulletJme(new LibraryInfo("bulletjme")
             .addNativeVariant(Platform.Windows32, "native/windows/x86/bulletjme.dll", "bulletjme-x86.dll")
             .addNativeVariant(Platform.Windows64, "native/windows/x86_64/bulletjme.dll", "bulletjme-x86_64.dll")
@@ -85,8 +92,10 @@ public enum NativeLibraries {
             .addNativeVariant(Platform.MacOSX_ARM64, "native/osx/arm64/libbulletjme.dylib", "libbulletjme-arm64.dylib")
     ),
 
-    // JInput
     // For OSX: Need to rename extension jnilib -> dylib when extracting
+    /**
+     * Native JInput joystick libraries required by jme3-lwjgl backend.
+     */
     JInput(new LibraryInfo("jinput", libPath ->
             // jinput handle loading by itself.
             System.setProperty("net.java.games.input.librarypath",
@@ -99,7 +108,10 @@ public enum NativeLibraries {
             .addNativeVariant(Platform.MacOSX64, "libjinput-osx.jnilib", "libjinput-osx.dylib")
     ),
 
-    // JInput Auxiliary (only required on Windows)
+    /**
+     * Native JInput DirectX 8 auxiliary libraries required by jme3-lwjgl backend.
+     * (only required on Windows)
+     */
     JInputDX8(new LibraryInfo("jinput-dx8")
             .addNativeVariant(Platform.Windows32, "jinput-dx8.dll", null)
             .addNativeVariant(Platform.Windows64, "jinput-dx8_64.dll", null)
@@ -122,7 +134,7 @@ public enum NativeLibraries {
      */
     public static void registerDefaultLibraries() {
         Lwjgl.registerLibrary();
-        Openal.registerLibrary();
+        OpenAL.registerLibrary();
         BulletJme.registerLibrary();
         JInput.registerLibrary();
         JInputDX8.registerLibrary();

@@ -236,7 +236,7 @@ public abstract class LwjglContext implements JmeContext {
             return;
         }
         if (AppSettings.LWJGL_OPENAL.equals(settings.getAudioRenderer())) {
-            NativeLibraryLoader.loadNativeLibrary(NativeLibraries.Openal.getName(), true);
+            NativeLibraryLoader.loadNativeLibrary(NativeLibraries.OpenAL.getName(), true);
         }
         if (settings.useJoysticks()) {
             NativeLibraryLoader.loadNativeLibrary(NativeLibraries.JInput.getName(), true);
