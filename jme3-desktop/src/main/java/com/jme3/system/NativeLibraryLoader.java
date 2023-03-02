@@ -35,6 +35,9 @@ import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -70,15 +73,27 @@ import java.util.logging.Logger;
 public final class NativeLibraryLoader {
     
     private static final Logger logger = Logger.getLogger(NativeLibraryLoader.class.getName());
-    private static final byte[] buf = new byte[1024 * 100];
     private static File extractionFolderOverride = null;
     private static File extractionFolder = null;
     
-    private static final HashMap<NativeLibrary.Key, NativeLibrary> nativeLibraryMap
-            = new HashMap<>();
-    
+    private static final HashMap<NativeLibrary.Key, NativeLibrary> nativeLibraryMap = new HashMap<>();
+
+    static {
+        NativeLibraries.registerDefaultLibraries();
+    }
+
     /**
-     * Register a new known library.
+     * Register a new native library.
+     *
+     * This simply registers a known library, the actual extraction and loading
+     * is performed by calling {@link #loadNativeLibrary(java.lang.String, boolean) }.
+     */
+    public static void registerNativeLibrary(NativeLibrary library) {
+        nativeLibraryMap.put(library.getKey(), library);
+    }
+
+    /**
+     * Register a new native library.
      * 
      * This simply registers a known library, the actual extraction and loading
      * is performed by calling {@link #loadNativeLibrary(java.lang.String, boolean) }.
@@ -99,7 +114,7 @@ public final class NativeLibraryLoader {
     }
     
     /**
-     * Register a new known JNI library.
+     * Register a new native library.
      * 
      * This simply registers a known library, the actual extraction and loading
      * is performed by calling {@link #loadNativeLibrary(java.lang.String, boolean) }.
@@ -117,57 +132,6 @@ public final class NativeLibraryLoader {
     public static void registerNativeLibrary(String name, Platform platform,
             String path) {
         registerNativeLibrary(name, platform, path, null);
-    }
-    
-    static {
-        // Note: LWJGL 3 handles its native library extracting & loading using
-        // its own SharedLibraryLoader.
-
-        // LWJGL 2
-        registerNativeLibrary("lwjgl", Platform.Windows32, "lwjgl.dll");
-        registerNativeLibrary("lwjgl", Platform.Windows64, "lwjgl64.dll");
-        registerNativeLibrary("lwjgl", Platform.Linux32,   "liblwjgl.so");
-        registerNativeLibrary("lwjgl", Platform.Linux64,   "liblwjgl64.so");
-        registerNativeLibrary("lwjgl", Platform.MacOSX32,  "liblwjgl.dylib");
-        registerNativeLibrary("lwjgl", Platform.MacOSX64,  "liblwjgl.dylib");
-
-        // OpenAL for LWJGL 2
-        // For OSX: Need to add lib prefix when extracting
-        registerNativeLibrary("openal", Platform.Windows32, "OpenAL32.dll");
-        registerNativeLibrary("openal", Platform.Windows64, "OpenAL64.dll");
-        registerNativeLibrary("openal", Platform.Linux32,   "libopenal.so");
-        registerNativeLibrary("openal", Platform.Linux64,   "libopenal64.so");
-        registerNativeLibrary("openal", Platform.MacOSX32,  "openal.dylib", "libopenal.dylib");
-        registerNativeLibrary("openal", Platform.MacOSX64,  "openal.dylib", "libopenal.dylib");
-
-        // BulletJme
-        registerNativeLibrary("bulletjme", Platform.Windows32, "native/windows/x86/bulletjme.dll");
-        registerNativeLibrary("bulletjme", Platform.Windows64, "native/windows/x86_64/bulletjme.dll");
-        registerNativeLibrary("bulletjme", Platform.Windows_ARM64, "native/windows/arm64/bulletjme.dll");
-        registerNativeLibrary("bulletjme", Platform.Linux32,   "native/linux/x86/libbulletjme.so");
-        registerNativeLibrary("bulletjme", Platform.Linux64,   "native/linux/x86_64/libbulletjme.so");
-        registerNativeLibrary("bulletjme", Platform.Linux_ARM32, "native/linux/arm32/libbulletjme.so");
-        registerNativeLibrary("bulletjme", Platform.Linux_ARM64, "native/linux/arm64/libbulletjme.so");
-        registerNativeLibrary("bulletjme", Platform.MacOSX32,  "native/osx/x86/libbulletjme.dylib");
-        registerNativeLibrary("bulletjme", Platform.MacOSX64,  "native/osx/x86_64/libbulletjme.dylib");
-        registerNativeLibrary("bulletjme", Platform.MacOSX_ARM64,  "native/osx/arm64/libbulletjme.dylib");
-
-        // JInput
-        // For OSX: Need to rename extension jnilib -> dylib when extracting
-        registerNativeLibrary("jinput", Platform.Windows32, "jinput-raw.dll");
-        registerNativeLibrary("jinput", Platform.Windows64, "jinput-raw_64.dll");
-        registerNativeLibrary("jinput", Platform.Linux32,   "libjinput-linux.so");
-        registerNativeLibrary("jinput", Platform.Linux64,   "libjinput-linux64.so");
-        registerNativeLibrary("jinput", Platform.MacOSX32,  "libjinput-osx.jnilib", "libjinput-osx.dylib");
-        registerNativeLibrary("jinput", Platform.MacOSX64,  "libjinput-osx.jnilib", "libjinput-osx.dylib");
-        
-        // JInput Auxiliary (only required on Windows)
-        registerNativeLibrary("jinput-dx8", Platform.Windows32, "jinput-dx8.dll");
-        registerNativeLibrary("jinput-dx8", Platform.Windows64, "jinput-dx8_64.dll");
-        registerNativeLibrary("jinput-dx8", Platform.Linux32,   null);
-        registerNativeLibrary("jinput-dx8", Platform.Linux64,   null);
-        registerNativeLibrary("jinput-dx8", Platform.MacOSX32,  null);
-        registerNativeLibrary("jinput-dx8", Platform.MacOSX64,  null);
     }
     
     private NativeLibraryLoader() {
@@ -211,8 +175,8 @@ public final class NativeLibraryLoader {
      * <ul>
      * <li>If a {@link #setCustomExtractionFolder(java.lang.String) custom
      * extraction folder} has been specified, it is returned.
-     * <li>If the user can write to the working folder, then it 
-     * is returned.</li>
+     * <li>If the user can write to "java.io.tmpdir" folder, then it
+     * is used.</li>
      * <li>Otherwise, the {@link JmeSystem#getStorageFolder() storage folder}
      * is used, to prevent collisions, a special subfolder is used
      * called <code>natives_&lt;hash&gt;</code> where &lt;hash&gt;
@@ -227,15 +191,20 @@ public final class NativeLibraryLoader {
             return extractionFolderOverride;
         }
         if (extractionFolder == null) {
-            File workingFolder = new File("").getAbsoluteFile();
-            if (!workingFolder.canWrite()) {
+            File userTempDir = new File(System.getProperty("java.io.tmpdir"));
+            if (!userTempDir.canWrite()) {
                 setExtractionFolderToUserCache();
             } else {
                 try {
-                    File file = new File(workingFolder + File.separator + ".jmetestwrite");
-                    file.createNewFile();
-                    file.delete();
-                    extractionFolder = workingFolder;
+                    File jmeTempDir = new File(userTempDir, "jme3");
+                    if (!jmeTempDir.exists()) {
+                        jmeTempDir.mkdir();
+                    }
+                    extractionFolder = new File(jmeTempDir, "natives_" + Integer.toHexString(computeNativesHash()));
+
+                    if (!extractionFolder.exists()) {
+                        extractionFolder.mkdir();
+                    }
                 } catch (Exception e) {
                     setExtractionFolderToUserCache();
                 }
@@ -431,18 +400,7 @@ public final class NativeLibraryLoader {
             return;
         }
         
-        String fileNameInJar;
-        if (pathInJar.contains("/")) {
-            fileNameInJar = pathInJar.substring(pathInJar.lastIndexOf("/") + 1);
-        } else {
-            fileNameInJar = pathInJar;
-        }
-        
         URL url = Thread.currentThread().getContextClassLoader().getResource(pathInJar);
-        if (url == null) {
-            url = Thread.currentThread().getContextClassLoader().getResource(fileNameInJar);
-        }
-        
         if (url == null) {
             return;
         }
@@ -451,33 +409,16 @@ public final class NativeLibraryLoader {
         if (library.getExtractedAsName() != null) {
             loadedAsFileName = library.getExtractedAsName();
         } else {
-            loadedAsFileName = fileNameInJar;
+            loadedAsFileName = Paths.get(pathInJar).getFileName().toString();
         }
         
         URLConnection conn = url.openConnection();
-        InputStream in = conn.getInputStream();
-        
+
         File targetFile = new File(targetDir, loadedAsFileName);
-        OutputStream out = null;
-        try {
-            out = new FileOutputStream(targetFile);
-            int len;
-            while ((len = in.read(buf)) > 0) {
-                out.write(buf, 0, len);
-            }
-        } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException ex) {
-                }
-            }
-            if (out != null) {
-                try {
-                    out.close();
-                } catch (IOException ex) {
-                }
-            }
+
+        try (InputStream in = conn.getInputStream()) {
+            Files.copy(in, targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            targetFile.setLastModified(conn.getLastModified());
         }
     }
 
@@ -519,48 +460,19 @@ public final class NativeLibraryLoader {
             // This platform does not require the native library to be loaded.
             return;
         }
-        
-        final String fileNameInJar;
-
-        if (pathInJar.contains("/")) {
-            fileNameInJar = pathInJar.substring(pathInJar.lastIndexOf("/") + 1);
-        } else {
-            fileNameInJar = pathInJar;
-        }
 
         URL url = Thread.currentThread().getContextClassLoader().getResource(pathInJar);
-        
-        if (url == null) {
-            // Try the root of the classpath as well.
-            url = Thread.currentThread().getContextClassLoader().getResource(fileNameInJar);
-        }
 
         if (url == null) {
-            // Attempt to load it as a system library.
-            String unmappedName = unmapLibraryName(fileNameInJar);
-            try {
-                // XXX: HACK. Vary loading method based on library name.
-                // lwjgl and jinput handle loading by themselves.
-                if (!name.equals("lwjgl") && !name.equals("jinput")) {
-                    // Need to unmap it from library specific parts.
-                    System.loadLibrary(unmappedName);
-                    logger.log(Level.FINE, "Loaded system installed "
-                            + "version of native library: {0}", unmappedName);
-                }
-            } catch (UnsatisfiedLinkError e) {
-                if (isRequired) {
-                    throw new UnsatisfiedLinkError(
-                            "The required native library '" + unmappedName + "'"
-                            + " was not found in the classpath via '" + pathInJar
-                            + "'. Error message: " + e.getMessage());
-                } else if (logger.isLoggable(Level.FINE)) {
-                    logger.log(Level.FINE, "The optional native library ''{0}''" + 
-                                           " was not found in the classpath via ''{1}''" +
-                                           ". Error message: {2}",
-                                           new Object[]{unmappedName, pathInJar, e.getMessage()});
-                }
+            if (isRequired) {
+                throw new UnsatisfiedLinkError(
+                        "The required native library '" + library.getName() + "'"
+                                + " was not found in the classpath via '" + pathInJar);
+            } else if (logger.isLoggable(Level.FINE)) {
+                logger.log(Level.FINE, "The optional native library ''{0}''" +
+                                " was not found in the classpath via ''{1}''.",
+                        new Object[]{library.getName(), pathInJar});
             }
-            
             return;
         }
         
@@ -571,16 +483,14 @@ public final class NativeLibraryLoader {
             loadedAsFileName = library.getExtractedAsName();
         } else {
             // Just use the original filename as it is in the JAR.
-            loadedAsFileName = fileNameInJar;
+            loadedAsFileName = Paths.get(pathInJar).getFileName().toString();
         }
         
         File extractionDirectory = getExtractionFolder();
         URLConnection conn;
-        InputStream in;
-        
+
         try {
             conn = url.openConnection();
-            in = conn.getInputStream();
         } catch (IOException ex) {
             // Maybe put more detail here? Not sure.
             throw new UncheckedIOException("Failed to open file: '" + url + 
@@ -588,72 +498,66 @@ public final class NativeLibraryLoader {
         }
         
         File targetFile = new File(extractionDirectory, loadedAsFileName);
-        OutputStream out = null;
-        try {
-            if (targetFile.exists()) {
-                // OK, compare last modified date of this file to 
-                // file in jar
-                long targetLastModified = targetFile.lastModified();
-                long sourceLastModified = conn.getLastModified();
+        try (InputStream in = conn.getInputStream()) {
+            if (isExtractingRequired(conn, targetFile)) {
+                Files.copy(in, targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
 
-                // Allow ~1 second range for OSes that only support low precision
-                if (targetLastModified + 1000 > sourceLastModified) {
-                    logger.log(Level.FINE, "Not copying library {0}. " + 
-                                           "Latest already extracted.", 
-                                           loadedAsFileName);
-                    return;
+                // NOTE: On OSes that support "Date Created" property,
+                // this will cause the last modified date to be lower than
+                // date created which makes no sense
+                targetFile.setLastModified(conn.getLastModified());
+
+                if (logger.isLoggable(Level.FINE)) {
+                    logger.log(Level.FINE, "Extracted native library from ''{0}'' into ''{1}''. ",
+                            new Object[]{url, targetFile});
+                }
+            } else {
+                if (logger.isLoggable(Level.FINE)) {
+                    logger.log(Level.FINE, "Not copying library {0}. Latest already extracted.",
+                            loadedAsFileName);
                 }
             }
 
-            out = new FileOutputStream(targetFile);
-            int len;
-            while ((len = in.read(buf)) > 0) {
-                out.write(buf, 0, len);
-            }
-            
-            in.close();
-            in = null;
-            out.close();
-            out = null;
+            library.getLoadFunction().accept(targetFile.getAbsolutePath());
 
-            // NOTE: On OSes that support "Date Created" property, 
-            // this will cause the last modified date to be lower than
-            // date created which makes no sense
-            targetFile.setLastModified(conn.getLastModified());
+            if (logger.isLoggable(Level.FINE)) {
+                logger.log(Level.FINE, "Loaded native library {0}.", library.getName());
+            }
         } catch (IOException ex) {
-            if (ex.getMessage().contains("used by another process")) {
+            /*if (ex.getMessage().contains("used by another process")) {
                 return;
-            } else {
-                throw new UncheckedIOException("Failed to extract native "
-                        + "library to: " + targetFile, ex);
-            }
-        } finally {
-            // XXX: HACK. Vary loading method based on library name.
-            // lwjgl and jinput handle loading by themselves.
-            if (name.equals("lwjgl") || name.equals("lwjgl3")) {
-                System.setProperty("org.lwjgl.librarypath", 
-                                   extractionDirectory.getAbsolutePath());
-            } else if (name.equals("jinput")) {
-                System.setProperty("net.java.games.input.librarypath", 
-                                   extractionDirectory.getAbsolutePath());
-            } else {
-                // all other libraries (openal, bulletjme, custom)
-                // will load directly in here.
-                System.load(targetFile.getAbsolutePath());
-            }
-            
-            if(in != null){
-                try { in.close(); } catch (IOException ex) { }
-            }
-            if(out != null){
-                try { out.close(); } catch (IOException ex) { }
-            }
-        }
+            }*/
 
-        if (logger.isLoggable(Level.FINE)) {
-            logger.log(Level.FINE, "Loaded native library from ''{0}'' into ''{1}''",
-                    new Object[]{url, targetFile});
+            throw new UncheckedIOException("Failed to extract native library to: "
+                    + targetFile, ex);
         }
     }
-    
+
+    /**
+     * Checks if library extraction is required by comparing source and target
+     * last modified date. Returns true if target file does not exist.
+     *
+     * @param conn the source file
+     * @param targetFile the target file
+     * @return false if target file exist and the difference in last modified date is
+     *          less than 1 second, true otherwise
+     */
+    private static boolean isExtractingRequired(URLConnection conn, File targetFile) {
+        if (!targetFile.exists()) {
+            // Extract anyway if the file doesn't exist
+            return true;
+        }
+
+        // OK, if the file exists then compare last modified date
+        // of this file to file in jar
+        long targetLastModified = targetFile.lastModified();
+        long sourceLastModified = conn.getLastModified();
+
+        // Allow ~1 second range for OSes that only support low precision
+        return Math.abs(sourceLastModified - targetLastModified) >= 1000;
+
+        // Note extraction should also work fine if user who was using
+        // a newer version of library, downgraded to an older version
+        // which will make above check invalid and extract it again.
+    }
 }
