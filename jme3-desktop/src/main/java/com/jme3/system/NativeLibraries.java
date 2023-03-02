@@ -51,7 +51,7 @@ public enum NativeLibraries {
      * Native lwjgl libraries for LWJGL 2 required by jme3-lwjgl backend.
      */
     Lwjgl(new LibraryInfo("lwjgl", libPath ->
-            // lwjgl handle loading by itself.
+            // Delegate loading to lwjgl.
             System.setProperty("org.lwjgl.librarypath",
                     Paths.get(libPath).getParent().toAbsolutePath().toString()))
             .addNativeVariant(Platform.Windows32, "lwjgl.dll")
@@ -97,7 +97,7 @@ public enum NativeLibraries {
      * Native JInput joystick libraries required by jme3-lwjgl backend.
      */
     JInput(new LibraryInfo("jinput", libPath ->
-            // jinput handle loading by itself.
+            // Delegate loading to jinput.
             System.setProperty("net.java.games.input.librarypath",
                     Paths.get(libPath).getParent().toAbsolutePath().toString()))
             .addNativeVariant(Platform.Windows32, "jinput-raw.dll")
