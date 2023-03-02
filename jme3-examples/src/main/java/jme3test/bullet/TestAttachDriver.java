@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -291,7 +291,9 @@ public class TestAttachDriver extends SimpleApplication implements ActionListene
                 vehicle.setAngularVelocity(Vector3f.ZERO);
                 vehicle.resetSuspension();
                 bridge.setPhysicsLocation(new Vector3f(0,1.4f,4));
-                bridge.setPhysicsRotation(Quaternion.DIRECTION_Z.toRotationMatrix());
+                bridge.setPhysicsRotation(Matrix3f.IDENTITY);
+                bridge.setLinearVelocity(Vector3f.ZERO);
+                bridge.setAngularVelocity(Vector3f.ZERO);
             }
         }
     }
