@@ -19,10 +19,10 @@ import com.jme3.util.VRGUIPositioningMode;
 
 import java.util.Iterator;
 import java.util.logging.Logger;
-import org.lwjgl.openvr.VRTextureBounds;
-import org.lwjgl.openvr.Texture;
-import org.lwjgl.openvr.VR;
-import org.lwjgl.openvr.VRCompositor;
+//import org.lwjgl.openvr.VRTextureBounds;
+//import org.lwjgl.openvr.Texture;
+//import org.lwjgl.openvr.VR;
+//import org.lwjgl.openvr.VRCompositor;
 
 /**
  * A VR view manager based on OpenVR. This class enable to submit 3D views to
@@ -37,11 +37,11 @@ public class LWJGLOpenVRViewManager extends AbstractVRViewManager {
     private static final Logger logger = Logger.getLogger(LWJGLOpenVRViewManager.class.getName());
 
     // OpenVR values
-    private VRTextureBounds leftTextureBounds;
-    private Texture leftTextureType;
-
-    private VRTextureBounds rightTextureBounds;
-    private Texture rightTextureType;
+//    private VRTextureBounds leftTextureBounds;
+//    private Texture leftTextureType;
+//
+//    private VRTextureBounds rightTextureBounds;
+//    private Texture rightTextureType;
 
     private Texture2D dualEyeTex;
 
@@ -99,25 +99,25 @@ public class LWJGLOpenVRViewManager extends AbstractVRViewManager {
      * Initialize the system binds of the textures.
      */
     private void initTextureSubmitStructs() {
-        leftTextureType = Texture.create();
-        rightTextureType = Texture.create();
-
-        if (environment != null) {
-            if (environment.getVRHardware() instanceof LWJGLOpenVR) {
-                leftTextureBounds = VRTextureBounds.create();
-                rightTextureBounds = VRTextureBounds.create();
-                // left eye
-                leftTextureBounds.set(0f, 0f, 0.5f, 1f);
-                // right eye
-                rightTextureBounds.set(0.5f, 0f, 1f, 1f);
-                // texture type
-                leftTextureType.set(-1, VR.ETextureType_TextureType_OpenGL, VR.EColorSpace_ColorSpace_Gamma);
-                rightTextureType.set(-1, VR.ETextureType_TextureType_OpenGL, VR.EColorSpace_ColorSpace_Gamma);
-
-            }
-        } else {
-            throw new IllegalStateException("This VR view manager is not attached to any VR environment.");
-        }
+//        leftTextureType = Texture.create();
+//        rightTextureType = Texture.create();
+//
+//        if (environment != null) {
+//            if (environment.getVRHardware() instanceof LWJGLOpenVR) {
+//                leftTextureBounds = VRTextureBounds.create();
+//                rightTextureBounds = VRTextureBounds.create();
+//                // left eye
+//                leftTextureBounds.set(0f, 0f, 0.5f, 1f);
+//                // right eye
+//                rightTextureBounds.set(0.5f, 0f, 1f, 1f);
+//                // texture type
+//                leftTextureType.set(-1, VR.ETextureType_TextureType_OpenGL, VR.EColorSpace_ColorSpace_Gamma);
+//                rightTextureType.set(-1, VR.ETextureType_TextureType_OpenGL, VR.EColorSpace_ColorSpace_Gamma);
+//
+//            }
+//        } else {
+//            throw new IllegalStateException("This VR view manager is not attached to any VR environment.");
+//        }
     }
 
     /**
@@ -163,68 +163,68 @@ public class LWJGLOpenVRViewManager extends AbstractVRViewManager {
 
     @Override
     public void postRender() {
-
-        if (environment != null) {
-            if (environment.isInVR()) {
-                VRAPI api = environment.getVRHardware();
-                // using the compositor...
-                int errl = 0, errr = 0;
-                if (environment.isInstanceRendering()) {
-                    if (leftTextureType.handle() == -1 || leftTextureType.handle() != getFullTexId()) {
-                        leftTextureType.set(getFullTexId(), leftTextureType.eType(), leftTextureType.eColorSpace());
-                    } else {
-                        if (api instanceof LWJGLOpenVR) {
-                            int submitFlag = VR.EVRSubmitFlags_Submit_Default;
-                            errr = VRCompositor.VRCompositor_Submit(VR.EVREye_Eye_Right, rightTextureType, rightTextureBounds, submitFlag);
-                            errl = VRCompositor.VRCompositor_Submit(VR.EVREye_Eye_Left, leftTextureType, leftTextureBounds, submitFlag);
-                        }
-                    }
-                } else if (leftTextureType.handle() == -1 || rightTextureType.handle() == -1
-                        || leftTextureType.handle() != getLeftTexId() || rightTextureType.handle() != getRightTexId()) {
-                    leftTextureType.set(getLeftTexId(), leftTextureType.eType(), leftTextureType.eColorSpace());
-                    rightTextureType.set(getRightTexId(), leftTextureType.eType(), leftTextureType.eColorSpace());
-                } else {
-                    if (api instanceof LWJGLOpenVR) {
-                        int submitFlag = VR.EVRSubmitFlags_Submit_Default;
-                        errr = VRCompositor.VRCompositor_Submit(VR.EVREye_Eye_Right, rightTextureType, null, submitFlag);
-                        errl = VRCompositor.VRCompositor_Submit(VR.EVREye_Eye_Left, leftTextureType, null, submitFlag);
-                    } else {
-
-                    }
-                }
-
-                if (errl != 0) {
-                    logger.severe("Submit to left compositor error: " + " (" + Integer.toString(errl) + ")");
-                    logger.severe("  Texture handle: " + leftTextureType.handle());
-
-                    logger.severe("  Left eye texture " + leftEyeTexture.getName() + " (" + leftEyeTexture.getImage().getId() + ")");
-                    logger.severe("                 Type: " + leftEyeTexture.getType());
-                    logger.severe("                 Size: " + leftEyeTexture.getImage().getWidth() + "x" + leftEyeTexture.getImage().getHeight());
-                    logger.severe("          Image depth: " + leftEyeTexture.getImage().getDepth());
-                    logger.severe("         Image format: " + leftEyeTexture.getImage().getFormat());
-                    logger.severe("    Image color space: " + leftEyeTexture.getImage().getColorSpace());
-
-                }
-
-                if (errr != 0) {
-                    logger.severe("Submit to right compositor error: " + " (" + Integer.toString(errl) + ")");
-//                    logger.severe("  Texture color space: "+OpenVRUtil.getEColorSpaceString(rightTextureType.eColorSpace));
-//                    logger.severe("  Texture type: "+OpenVRUtil.getETextureTypeString(rightTextureType.eType));
-                    logger.severe("  Texture handle: " + rightTextureType.handle());
-
-                    logger.severe("  Right eye texture " + rightEyeTexture.getName() + " (" + rightEyeTexture.getImage().getId() + ")");
-                    logger.severe("                 Type: " + rightEyeTexture.getType());
-                    logger.severe("                 Size: " + rightEyeTexture.getImage().getWidth() + "x" + rightEyeTexture.getImage().getHeight());
-                    logger.severe("          Image depth: " + rightEyeTexture.getImage().getDepth());
-                    logger.severe("         Image format: " + rightEyeTexture.getImage().getFormat());
-                    logger.severe("    Image color space: " + rightEyeTexture.getImage().getColorSpace());
-                }
-            }
-        } else {
-            throw new IllegalStateException("This VR view manager is not attached to any VR environment.");
-        }
-
-        VRCompositor.VRCompositor_PostPresentHandoff();
+//
+//        if (environment != null) {
+//            if (environment.isInVR()) {
+//                VRAPI api = environment.getVRHardware();
+//                // using the compositor...
+//                int errl = 0, errr = 0;
+//                if (environment.isInstanceRendering()) {
+//                    if (leftTextureType.handle() == -1 || leftTextureType.handle() != getFullTexId()) {
+//                        leftTextureType.set(getFullTexId(), leftTextureType.eType(), leftTextureType.eColorSpace());
+//                    } else {
+//                        if (api instanceof LWJGLOpenVR) {
+//                            int submitFlag = VR.EVRSubmitFlags_Submit_Default;
+//                            errr = VRCompositor.VRCompositor_Submit(VR.EVREye_Eye_Right, rightTextureType, rightTextureBounds, submitFlag);
+//                            errl = VRCompositor.VRCompositor_Submit(VR.EVREye_Eye_Left, leftTextureType, leftTextureBounds, submitFlag);
+//                        }
+//                    }
+//                } else if (leftTextureType.handle() == -1 || rightTextureType.handle() == -1
+//                        || leftTextureType.handle() != getLeftTexId() || rightTextureType.handle() != getRightTexId()) {
+//                    leftTextureType.set(getLeftTexId(), leftTextureType.eType(), leftTextureType.eColorSpace());
+//                    rightTextureType.set(getRightTexId(), leftTextureType.eType(), leftTextureType.eColorSpace());
+//                } else {
+//                    if (api instanceof LWJGLOpenVR) {
+//                        int submitFlag = VR.EVRSubmitFlags_Submit_Default;
+//                        errr = VRCompositor.VRCompositor_Submit(VR.EVREye_Eye_Right, rightTextureType, null, submitFlag);
+//                        errl = VRCompositor.VRCompositor_Submit(VR.EVREye_Eye_Left, leftTextureType, null, submitFlag);
+//                    } else {
+//
+//                    }
+//                }
+//
+//                if (errl != 0) {
+//                    logger.severe("Submit to left compositor error: " + " (" + Integer.toString(errl) + ")");
+//                    logger.severe("  Texture handle: " + leftTextureType.handle());
+//
+//                    logger.severe("  Left eye texture " + leftEyeTexture.getName() + " (" + leftEyeTexture.getImage().getId() + ")");
+//                    logger.severe("                 Type: " + leftEyeTexture.getType());
+//                    logger.severe("                 Size: " + leftEyeTexture.getImage().getWidth() + "x" + leftEyeTexture.getImage().getHeight());
+//                    logger.severe("          Image depth: " + leftEyeTexture.getImage().getDepth());
+//                    logger.severe("         Image format: " + leftEyeTexture.getImage().getFormat());
+//                    logger.severe("    Image color space: " + leftEyeTexture.getImage().getColorSpace());
+//
+//                }
+//
+//                if (errr != 0) {
+//                    logger.severe("Submit to right compositor error: " + " (" + Integer.toString(errl) + ")");
+////                    logger.severe("  Texture color space: "+OpenVRUtil.getEColorSpaceString(rightTextureType.eColorSpace));
+////                    logger.severe("  Texture type: "+OpenVRUtil.getETextureTypeString(rightTextureType.eType));
+//                    logger.severe("  Texture handle: " + rightTextureType.handle());
+//
+//                    logger.severe("  Right eye texture " + rightEyeTexture.getName() + " (" + rightEyeTexture.getImage().getId() + ")");
+//                    logger.severe("                 Type: " + rightEyeTexture.getType());
+//                    logger.severe("                 Size: " + rightEyeTexture.getImage().getWidth() + "x" + rightEyeTexture.getImage().getHeight());
+//                    logger.severe("          Image depth: " + rightEyeTexture.getImage().getDepth());
+//                    logger.severe("         Image format: " + rightEyeTexture.getImage().getFormat());
+//                    logger.severe("    Image color space: " + rightEyeTexture.getImage().getColorSpace());
+//                }
+//            }
+//        } else {
+//            throw new IllegalStateException("This VR view manager is not attached to any VR environment.");
+//        }
+//
+//        VRCompositor.VRCompositor_PostPresentHandoff();
 
     }
 

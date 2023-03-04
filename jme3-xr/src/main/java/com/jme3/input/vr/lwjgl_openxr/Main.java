@@ -232,11 +232,46 @@ public class Main {
     private int swapchainDepthFormat;
 
     private XrSpace renderSpace;
+    
+    boolean startedSession = false; // JME3: Use as member var
 
     // The default value can be used in edge cases where the position tracking of the driver fails right at the start
     // Let's hope it won't be used a lot
     private Matrix4f lastCameraMatrix = new Matrix4f().perspective(toRadians(70f), 0.7f, 0.01f, 100f, true);
+    
+// JME3: New Variables
+    private Vector3f internalCameraPos = new Vector3f();
+    private Quaternionf internalCameraRot = new Quaternionf();
 
+// JME3: New function
+    public void getCameraLocation(com.jme3.math.Vector3f dst)
+    {
+      lastCameraMatrix.getTranslation(internalCameraPos);
+      dst.set(internalCameraPos.x, internalCameraPos.y, internalCameraPos.z);
+    }
+    
+// JME3: New function
+    public void getCameraRotation(com.jme3.math.Quaternion dst)
+    {
+      lastCameraMatrix.getNormalizedRotation(internalCameraRot);
+      dst.set(internalCameraRot.x, internalCameraRot.y, internalCameraRot.z, internalCameraRot.w);
+    }
+    
+// JME3: New function to init xr system
+    public void initXr() {
+        try {
+          createXrInstance();
+          initXrSystem();
+          initVk();
+          createXrVkSession();
+          initXrActions();
+          createRenderResources(); //TODO: Render rootNode instead creating default resources
+        } catch (RuntimeException ex) {
+            System.err.println("OpenXR testing failed:");
+            ex.printStackTrace();
+        }
+    }
+    
     private void start() {
         try {
             createXrInstance();
@@ -1896,13 +1931,13 @@ public class Main {
         return new HandStates(leftHandPosition, rightHandPosition, leftHandRotation, rightHandRotation);
     }
 
-    private void loopXrSession() {
+    public boolean loopXrSession() { // JME3: As public function and returns bool for continue next loop
         // This is a safety check for debugging. Set to 0 to disable this.
         long endTime = System.currentTimeMillis() + (10_000 * 10);
 
-        boolean startedSession = false;
+//        boolean startedSession = false; // JME3: Commented out, use as member var
 
-        while (true) {
+//        while (true) { // JME3: Commented out
             try (MemoryStack stack = stackPush()) {
                 updateSessionState(stack);
 
@@ -1913,7 +1948,7 @@ public class Main {
                     } catch (InterruptedException e) {
                         throw new RuntimeException("Shouldn't happen", e);
                     }
-                    continue;
+                    return true; // JME3: Return instead continue loop
                 }
 
                 boolean timeoutStop = endTime != 0 && System.currentTimeMillis() > endTime;
@@ -1929,11 +1964,11 @@ public class Main {
                     xrSessionState == XR_SESSION_STATE_LOSS_PENDING || xrSessionState == XR_SESSION_STATE_EXITING ||
                     xrSessionState == XR_SESSION_STATE_STOPPING
                 ) {
-                    break;
+                    return false; // JME3: Return instead continue loop
                 }
 
                 if (timeoutStop) {
-                    continue;
+                    return true; // JME3: Return instead continue loop
                 }
 
                 if (xrSessionState == XR_SESSION_STATE_READY && !startedSession) {
@@ -2152,7 +2187,8 @@ public class Main {
                     ), "EndFrame");
                 }
             }
-        }
+//        } // JME3: Commented out
+        return true;
     }
 
     private void destroySwapchains() {

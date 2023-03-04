@@ -73,6 +73,8 @@ public class VREnvironment {
     private Camera dummyCam = null;
 
     private AppState app = null;
+    
+    private com.jme3.input.vr.lwjgl_openxr.Main mainXr;
 
     private boolean initialized = false;
 
@@ -90,6 +92,16 @@ public class VREnvironment {
      */
     public VRAPI getVRHardware() {
         return hardware;
+    }
+    
+    /** Will be set in LWJGLOpenVR, when ready. */
+    public void setXR(com.jme3.input.vr.lwjgl_openxr.Main mainXr) {
+      this.mainXr = mainXr;
+    }
+    
+    public com.jme3.input.vr.lwjgl_openxr.Main getXr()
+    {
+      return mainXr;
     }
 
     /**
@@ -425,7 +437,7 @@ public class VREnvironment {
             vrSupportedOS = false;
         }
 
-        if( vrSupportedOS) {
+        if(vrSupportedOS) {
             if( vrBinding == VRConstants.SETTING_VRAPI_OSVR_VALUE ) {
                 guiManager   = new VRGuiManager(this);
                 mouseManager = new OpenVRMouseManager(this);

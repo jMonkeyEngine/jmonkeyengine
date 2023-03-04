@@ -31,7 +31,7 @@ public class LWJGLOpenVRBounds implements VRBounds {
 //            vrChaperone = new VR_IVRChaperone_FnTable(JOpenVRLibrary.VR_GetGenericInterface(JOpenVRLibrary.IVRChaperone_Version, api.hmdErrorStore).getPointer());
             FloatBuffer fbX = BufferUtils.createFloatBuffer(1);
             FloatBuffer fbZ = BufferUtils.createFloatBuffer(1);
-            org.lwjgl.openvr.VRChaperone.VRChaperone_GetPlayAreaSize(fbX, fbZ);
+//            org.lwjgl.openvr.VRChaperone.VRChaperone_GetPlayAreaSize(fbX, fbZ);
 
             playSize = new Vector2f(fbX.get(0), fbZ.get(0));
             setup = true;

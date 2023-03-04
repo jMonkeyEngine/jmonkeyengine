@@ -22,14 +22,15 @@ import com.jme3.scene.Spatial;
 import com.jme3.util.VRUtil;
 import java.nio.IntBuffer;
 import org.lwjgl.BufferUtils;
-import org.lwjgl.openvr.HmdVector3;
-import org.lwjgl.openvr.InputAnalogActionData;
-import org.lwjgl.openvr.InputDigitalActionData;
-import org.lwjgl.openvr.VR;
-import org.lwjgl.openvr.VRActiveActionSet;
-import org.lwjgl.openvr.VRControllerState;
-import org.lwjgl.openvr.VRInput;
-import org.lwjgl.openvr.VRSystem;
+import org.lwjgl.openxr.XrControllerModelStateMSFT;
+//import org.lwjgl.openvr.HmdVector3;
+//import org.lwjgl.openvr.InputAnalogActionData;
+//import org.lwjgl.openvr.InputDigitalActionData;
+//import org.lwjgl.openvr.VR;
+//import org.lwjgl.openvr.VRActiveActionSet;
+//import org.lwjgl.openvr.VRControllerState;
+//import org.lwjgl.openvr.VRInput;
+//import org.lwjgl.openvr.VRSystem;
 
 /*
 make helper functions to pull the following easily from raw data (DONE)
@@ -77,30 +78,31 @@ Button press: 2, touch: 2
 public class LWJGLOpenVRInput implements VRInputAPI {
 
     private static final Logger logger = Logger.getLogger(LWJGLOpenVRInput.class.getName());
-
+    private static final int MAX_CNT=30;
     /**
      * Deprecated as used controller specific values. Should use Actions manifest instead
      */
-    @Deprecated
-    private final VRControllerState[] cStates = new VRControllerState[VR.k_unMaxTrackedDeviceCount];
+//    @Deprecated
+//    private final VRControllerState[] cStates = new VRControllerState[VR.k_unMaxTrackedDeviceCount];
+    private final XrControllerModelStateMSFT[] cStates = new XrControllerModelStateMSFT[MAX_CNT];
 
-    private final Quaternion[] rotStore = new Quaternion[VR.k_unMaxTrackedDeviceCount];
+    private final Quaternion[] rotStore = new Quaternion[MAX_CNT];
 
-    private final Vector3f[] posStore = new Vector3f[VR.k_unMaxTrackedDeviceCount];
+    private final Vector3f[] posStore = new Vector3f[MAX_CNT];
 
-    private static final int[] controllerIndex = new int[VR.k_unMaxTrackedDeviceCount];
+    private static final int[] controllerIndex = new int[MAX_CNT];
 
     private int controllerCount = 0;
 
     private final Vector2f tempAxis = new Vector2f(), temp2Axis = new Vector2f();
-
-    private final Vector2f[] lastCallAxis = new Vector2f[VR.k_unMaxTrackedDeviceCount];
-
-    /**
-     * Deprecated as used controller specific values. Should use Actions manifest instead
-     */
-    @Deprecated
-    private final boolean[][] buttonDown = new boolean[VR.k_unMaxTrackedDeviceCount][16];
+//
+//    private final Vector2f[] lastCallAxis = new Vector2f[VR.k_unMaxTrackedDeviceCount];
+//
+//    /**
+//     * Deprecated as used controller specific values. Should use Actions manifest instead
+//     */
+//    @Deprecated
+//    private final boolean[][] buttonDown = new boolean[VR.k_unMaxTrackedDeviceCount][16];
 
     /**
      * A map of the action name to the objects/data required to read states from lwjgl
@@ -132,6 +134,7 @@ public class LWJGLOpenVRInput implements VRInputAPI {
     private float axisMultiplier = 1f;
 
     private final Vector3f tempVel = new Vector3f();
+//    private final Vector3f observerPosition = new Vector3f();
 
     private final Quaternion tempq = new Quaternion();
 
@@ -143,7 +146,7 @@ public class LWJGLOpenVRInput implements VRInputAPI {
      * A lwjgl object that contains handles to the active action sets (is used each frame to tell lwjgl which actions to
      * fetch states back for)
      */
-    private VRActiveActionSet.Buffer activeActionSets;
+//    private VRActiveActionSet.Buffer activeActionSets;
 
     InputMode inputMode = InputMode.LEGACY;
 
@@ -168,18 +171,18 @@ public class LWJGLOpenVRInput implements VRInputAPI {
     public LWJGLOpenVRInput(VREnvironment environment) {
         this.environment = environment;
 
-        inputHandles.put(null, VR.k_ulInvalidInputValueHandle);
+//        inputHandles.put(null, VR.k_ulInvalidInputValueHandle);
     }
 
     @Override
     public void registerActionManifest(String actionManifestAbsolutePath, String startingActiveActionSets){
         inputMode = InputMode.ACTION_BASED;
-        int errorCode = VRInput.VRInput_SetActionManifestPath(actionManifestAbsolutePath);
-
-        if ( errorCode != 0 )
-        {
-            logger.warning( "An error code of " + errorCode + " was reported while registering an action manifest" );
-        }
+//        int errorCode = VRInput.VRInput_SetActionManifestPath(actionManifestAbsolutePath);
+//
+//        if ( errorCode != 0 )
+//        {
+//            logger.warning( "An error code of " + errorCode + " was reported while registering an action manifest" );
+//        }
         setActiveActionSet(startingActiveActionSets);
     }
 
@@ -193,19 +196,19 @@ public class LWJGLOpenVRInput implements VRInputAPI {
             actionSetHandle = actionSetHandles.get(actionSet);
         }else{
             LongBuffer longBuffer = BufferUtils.createLongBuffer(1);
-            int errorCode = VRInput.VRInput_GetActionHandle(actionSet, longBuffer);
-            if ( errorCode != 0 )
-            {
-                logger.warning( "An error code of " + errorCode + " was reported while fetching an action set handle for " + actionSet );
-            }
+//            int errorCode = VRInput.VRInput_GetActionHandle(actionSet, longBuffer);
+//            if ( errorCode != 0 )
+//            {
+//                logger.warning( "An error code of " + errorCode + " was reported while fetching an action set handle for " + actionSet );
+//            }
             actionSetHandle = longBuffer.get(0);
             actionSetHandles.put(actionSet,actionSetHandle);
         }
 
         //Todo: this seems to imply that you could have multiple active action sets at once (Although I was not able to get that to work), allow multiple action sets
-        activeActionSets = VRActiveActionSet.create(1);
-        activeActionSets.ulActionSet(actionSetHandle);
-        activeActionSets.ulRestrictedToDevice(VR.k_ulInvalidInputValueHandle); // both hands
+//        activeActionSets = VRActiveActionSet.create(1);
+//        activeActionSets.ulActionSet(actionSetHandle);
+//        activeActionSets.ulRestrictedToDevice(VR.k_ulInvalidInputValueHandle); // both hands
     }
 
     @Override
@@ -216,40 +219,42 @@ public class LWJGLOpenVRInput implements VRInputAPI {
         if (actionDataObjects == null){
             //this is the first time the action has been used. We must obtain a handle to it to efficiently fetch it in future
             long handle = fetchActionHandle(actionName);
-            actionDataObjects = new LWJGLOpenVRDigitalActionData(actionName, handle, InputDigitalActionData.create());
-            digitalActions.put(actionName, actionDataObjects);
+//            actionDataObjects = new LWJGLOpenVRDigitalActionData(actionName, handle, InputDigitalActionData.create());
+//            digitalActions.put(actionName, actionDataObjects);
         }
-        int errorCode = VRInput.VRInput_GetDigitalActionData(actionDataObjects.actionHandle, actionDataObjects.actionData, getOrFetchInputHandle(restrictToInput));
-
-        if (errorCode == VR.EVRInputError_VRInputError_WrongType){
-            throw new RuntimeException("Attempted to fetch a non-digital state as if it is digital");
-        }else if (errorCode!=0){
-            logger.warning( "An error code of " + errorCode + " was reported while fetching an action state for " + actionName );
-        }
-
-        return new DigitalActionState(actionDataObjects.actionData.bState(), actionDataObjects.actionData.bChanged());
+//        int errorCode = VRInput.VRInput_GetDigitalActionData(actionDataObjects.actionHandle, actionDataObjects.actionData, getOrFetchInputHandle(restrictToInput));
+//
+//        if (errorCode == VR.EVRInputError_VRInputError_WrongType){
+//            throw new RuntimeException("Attempted to fetch a non-digital state as if it is digital");
+//        }else if (errorCode!=0){
+//            logger.warning( "An error code of " + errorCode + " was reported while fetching an action state for " + actionName );
+//        }
+//
+//        return new DigitalActionState(actionDataObjects.actionData.bState(), actionDataObjects.actionData.bChanged());
+        return new DigitalActionState(false, false);
     }
 
     @Override
     public AnalogActionState getAnalogActionState(String actionName, String restrictToInput ){
         assert inputMode == InputMode.ACTION_BASED : "registerActionManifest must be called before attempting to fetch action states";
 
-        LWJGLOpenVRAnalogActionData actionDataObjects = analogActions.get(actionName);
-        if (actionDataObjects == null){
-            //this is the first time the action has been used. We must obtain a handle to it to efficiently fetch it in future
-            long handle = fetchActionHandle(actionName);
-            actionDataObjects = new LWJGLOpenVRAnalogActionData(actionName, handle, InputAnalogActionData.create());
-            analogActions.put(actionName, actionDataObjects);
-        }
-        int errorCode = VRInput.VRInput_GetAnalogActionData(actionDataObjects.actionHandle, actionDataObjects.actionData, getOrFetchInputHandle(restrictToInput));
-
-        if (errorCode == VR.EVRInputError_VRInputError_WrongType){
-            throw new RuntimeException("Attempted to fetch a non-analog state as if it is analog");
-        }else if (errorCode!=0){
-            logger.warning( "An error code of " + errorCode + " was reported while fetching an action state for " + actionName );
-        }
-
-        return new AnalogActionState(actionDataObjects.actionData.x(), actionDataObjects.actionData.y(), actionDataObjects.actionData.z(), actionDataObjects.actionData.deltaX(), actionDataObjects.actionData.deltaY(), actionDataObjects.actionData.deltaZ());
+//        LWJGLOpenVRAnalogActionData actionDataObjects = analogActions.get(actionName);
+//        if (actionDataObjects == null){
+//            //this is the first time the action has been used. We must obtain a handle to it to efficiently fetch it in future
+//            long handle = fetchActionHandle(actionName);
+//            actionDataObjects = new LWJGLOpenVRAnalogActionData(actionName, handle, InputAnalogActionData.create());
+//            analogActions.put(actionName, actionDataObjects);
+//        }
+//        int errorCode = VRInput.VRInput_GetAnalogActionData(actionDataObjects.actionHandle, actionDataObjects.actionData, getOrFetchInputHandle(restrictToInput));
+//
+//        if (errorCode == VR.EVRInputError_VRInputError_WrongType){
+//            throw new RuntimeException("Attempted to fetch a non-analog state as if it is analog");
+//        }else if (errorCode!=0){
+//            logger.warning( "An error code of " + errorCode + " was reported while fetching an action state for " + actionName );
+//        }
+//
+//        return new AnalogActionState(actionDataObjects.actionData.x(), actionDataObjects.actionData.y(), actionDataObjects.actionData.z(), actionDataObjects.actionData.deltaX(), actionDataObjects.actionData.deltaY(), actionDataObjects.actionData.deltaZ());
+        return new AnalogActionState(0,0,0,0,0,0);
     }
 
     @Override
@@ -264,141 +269,147 @@ public class LWJGLOpenVRInput implements VRInputAPI {
 
     @Override
     public void swapHands() {
-        if (controllerCount != 2) {
-            return;
-        }
-        int temp = controllerIndex[0];
-        controllerIndex[0] = controllerIndex[1];
-        controllerIndex[1] = temp;
+//        if (controllerCount != 2) {
+//            return;
+//        }
+//        int temp = controllerIndex[0];
+//        controllerIndex[0] = controllerIndex[1];
+//        controllerIndex[1] = temp;
     }
 
     @Override
     public boolean isButtonDown(int controllerIndex, VRInputType checkButton) {
-        assert inputMode != InputMode.ACTION_BASED : "registerActionManifest has been called, legacy button access disabled";
-        VRControllerState cs = cStates[LWJGLOpenVRInput.controllerIndex[controllerIndex]];
-        switch (checkButton) {
-            default:
-                return false;
-            case ViveGripButton:
-                return (cs.ulButtonPressed() & 4) != 0;
-            case ViveMenuButton:
-                return (cs.ulButtonPressed() & 2) != 0;
-            case ViveTrackpadAxis:
-                return (cs.ulButtonPressed() & 4294967296l) != 0;
-            case ViveTriggerAxis:
-                return (cs.ulButtonPressed() & 8589934592l) != 0;
-        }
+//        assert inputMode != InputMode.ACTION_BASED : "registerActionManifest has been called, legacy button access disabled";
+//        VRControllerState cs = cStates[LWJGLOpenVRInput.controllerIndex[controllerIndex]];
+//        switch (checkButton) {
+//            default:
+//                return false;
+//            case ViveGripButton:
+//                return (cs.ulButtonPressed() & 4) != 0;
+//            case ViveMenuButton:
+//                return (cs.ulButtonPressed() & 2) != 0;
+//            case ViveTrackpadAxis:
+//                return (cs.ulButtonPressed() & 4294967296l) != 0;
+//            case ViveTriggerAxis:
+//                return (cs.ulButtonPressed() & 8589934592l) != 0;
+//        }
+return false;
     }
 
     @Override
     public boolean wasButtonPressedSinceLastCall(int controllerIndex, VRInputType checkButton) {
-        boolean buttonDownNow = isButtonDown(controllerIndex, checkButton);
-        int checkButtonValue = checkButton.getValue();
-        int cIndex = LWJGLOpenVRInput.controllerIndex[controllerIndex];
-        boolean retval = buttonDownNow == true && buttonDown[cIndex][checkButtonValue] == false;
-        buttonDown[cIndex][checkButtonValue] = buttonDownNow;
-        return retval;
+//        boolean buttonDownNow = isButtonDown(controllerIndex, checkButton);
+//        int checkButtonValue = checkButton.getValue();
+//        int cIndex = LWJGLOpenVRInput.controllerIndex[controllerIndex];
+//        boolean retval = buttonDownNow == true && buttonDown[cIndex][checkButtonValue] == false;
+//        buttonDown[cIndex][checkButtonValue] = buttonDownNow;
+//        return retval;
+return false;
     }
 
     @Override
     public void resetInputSinceLastCall() {
-        for (int i = 0; i < lastCallAxis.length; i++) {
-            lastCallAxis[i].x = 0f;
-            lastCallAxis[i].y = 0f;
-        }
-        for (int i = 0; i < VR.k_unMaxTrackedDeviceCount; i++) {
-            for (int j = 0; j < 16; j++) {
-                buttonDown[i][j] = false;
-            }
-        }
+//        for (int i = 0; i < lastCallAxis.length; i++) {
+//            lastCallAxis[i].x = 0f;
+//            lastCallAxis[i].y = 0f;
+//        }
+//        for (int i = 0; i < VR.k_unMaxTrackedDeviceCount; i++) {
+//            for (int j = 0; j < 16; j++) {
+//                buttonDown[i][j] = false;
+//            }
+//        }
     }
 
     @Override
     public Vector2f getAxisDeltaSinceLastCall(int controllerIndex, VRInputType forAxis) {
-        int axisIndex = forAxis.getValue();
-        temp2Axis.set(lastCallAxis[axisIndex]);
-        lastCallAxis[axisIndex].set(getAxis(controllerIndex, forAxis));
-        if ((temp2Axis.x != 0f || temp2Axis.y != 0f) && (lastCallAxis[axisIndex].x != 0f || lastCallAxis[axisIndex].y != 0f)) {
-            temp2Axis.subtractLocal(lastCallAxis[axisIndex]);
-        } else {
-            // move made from rest, don't count as a delta move
-            temp2Axis.x = 0f;
-            temp2Axis.y = 0f;
-        }
-        return temp2Axis;
+//        int axisIndex = forAxis.getValue();
+//        temp2Axis.set(lastCallAxis[axisIndex]);
+//        lastCallAxis[axisIndex].set(getAxis(controllerIndex, forAxis));
+//        if ((temp2Axis.x != 0f || temp2Axis.y != 0f) && (lastCallAxis[axisIndex].x != 0f || lastCallAxis[axisIndex].y != 0f)) {
+//            temp2Axis.subtractLocal(lastCallAxis[axisIndex]);
+//        } else {
+//            // move made from rest, don't count as a delta move
+//            temp2Axis.x = 0f;
+//            temp2Axis.y = 0f;
+//        }
+//        return temp2Axis;
+return new Vector2f();
     }
 
     @Override
     public Vector3f getVelocity(int controllerIndex) {
 
-        if (environment != null) {
-
-            if (environment.getVRHardware() instanceof LWJGLOpenVR) {
-                int index = LWJGLOpenVRInput.controllerIndex[controllerIndex];
-//                if( needsNewVelocity[index] ) {
-                HmdVector3 tempVec = ((LWJGLOpenVR) environment.getVRHardware()).hmdTrackedDevicePoses[index].vVelocity();
-//                    needsNewVelocity[index] = false;
-//                }
-                tempVel.x = tempVec.v(0);
-                tempVel.y = tempVec.v(1);
-                tempVel.z = tempVec.v(2);
-                return tempVel;
-            } else {
-                throw new IllegalStateException("VR hardware " + environment.getVRHardware().getClass().getSimpleName() + " is not a subclass of " + LWJGLOpenVR.class.getSimpleName());
-            }
-        } else {
-            throw new IllegalStateException("VR input is not attached to a VR environment.");
-        }
+//        if (environment != null) {
+//
+//            if (environment.getVRHardware() instanceof LWJGLOpenVR) {
+//                int index = LWJGLOpenVRInput.controllerIndex[controllerIndex];
+////                if( needsNewVelocity[index] ) {
+//                HmdVector3 tempVec = ((LWJGLOpenVR) environment.getVRHardware()).hmdTrackedDevicePoses[index].vVelocity();
+////                    needsNewVelocity[index] = false;
+////                }
+//                tempVel.x = tempVec.v(0);
+//                tempVel.y = tempVec.v(1);
+//                tempVel.z = tempVec.v(2);
+//                return tempVel;
+//            } else {
+//                throw new IllegalStateException("VR hardware " + environment.getVRHardware().getClass().getSimpleName() + " is not a subclass of " + LWJGLOpenVR.class.getSimpleName());
+//            }
+//        } else {
+//            throw new IllegalStateException("VR input is not attached to a VR environment.");
+//        }
+return new Vector3f();
     }
 
     @Override
     public Vector3f getAngularVelocity(int controllerIndex) {
 
-        if (environment != null) {
-
-            if (environment.getVRHardware() instanceof LWJGLOpenVR) {
-
-                int index = LWJGLOpenVRInput.controllerIndex[controllerIndex];
-                HmdVector3 tempVec = ((LWJGLOpenVR) environment.getVRHardware()).hmdTrackedDevicePoses[index].vAngularVelocity();
-//                    needsNewVelocity[index] = false;
-//                }
-                tempVel.x = tempVec.v(0);
-                tempVel.y = tempVec.v(1);
-                tempVel.z = tempVec.v(2);
-                return tempVel;
-            } else {
-                throw new IllegalStateException("VR hardware " + environment.getVRHardware().getClass().getSimpleName() + " is not a subclass of " + LWJGLOpenVR.class.getSimpleName());
-            }
-        } else {
-            throw new IllegalStateException("VR input is not attached to a VR environment.");
-        }
-
+//        if (environment != null) {
+//
+//            if (environment.getVRHardware() instanceof LWJGLOpenVR) {
+//
+//                int index = LWJGLOpenVRInput.controllerIndex[controllerIndex];
+//                HmdVector3 tempVec = ((LWJGLOpenVR) environment.getVRHardware()).hmdTrackedDevicePoses[index].vAngularVelocity();
+////                    needsNewVelocity[index] = false;
+////                }
+//                tempVel.x = tempVec.v(0);
+//                tempVel.y = tempVec.v(1);
+//                tempVel.z = tempVec.v(2);
+//                return tempVel;
+//            } else {
+//                throw new IllegalStateException("VR hardware " + environment.getVRHardware().getClass().getSimpleName() + " is not a subclass of " + LWJGLOpenVR.class.getSimpleName());
+//            }
+//        } else {
+//            throw new IllegalStateException("VR input is not attached to a VR environment.");
+//        }
+return new Vector3f();
     }
 
     @Override
     public Vector2f getAxisRaw(int controllerIndex, VRInputType forAxis) {
-        VRControllerState cs = cStates[LWJGLOpenVRInput.controllerIndex[controllerIndex]];
-        switch (forAxis) {
-            default:
-                return null;
-            case ViveTriggerAxis:
-                tempAxis.x = cs.rAxis(1).x();
-                tempAxis.y = tempAxis.x;
-                break;
-            case ViveTrackpadAxis:
-                tempAxis.x = cs.rAxis(0).x();
-                tempAxis.y = cs.rAxis(0).y();
-                break;
-        }
-        return tempAxis;
+//        VRControllerState cs = cStates[LWJGLOpenVRInput.controllerIndex[controllerIndex]];
+//        switch (forAxis) {
+//            default:
+//                return null;
+//            case ViveTriggerAxis:
+//                tempAxis.x = cs.rAxis(1).x();
+//                tempAxis.y = tempAxis.x;
+//                break;
+//            case ViveTrackpadAxis:
+//                tempAxis.x = cs.rAxis(0).x();
+//                tempAxis.y = cs.rAxis(0).y();
+//                break;
+//        }
+//        return tempAxis;
+return new Vector2f();
     }
 
     @Override
     public Vector2f getAxis(int controllerIndex, VRInputType forAxis) {
-        getAxisRaw(controllerIndex, forAxis);
-        tempAxis.x *= axisMultiplier;
-        tempAxis.y *= axisMultiplier;
-        return tempAxis;
+//        getAxisRaw(controllerIndex, forAxis);
+//        tempAxis.x *= axisMultiplier;
+//        tempAxis.y *= axisMultiplier;
+//        return tempAxis;
+return new Vector2f();
     }
 
     @Override
@@ -406,13 +417,13 @@ public class LWJGLOpenVRInput implements VRInputAPI {
 
         logger.config("Initialize OpenVR input.");
 
-        for (int i = 0; i < VR.k_unMaxTrackedDeviceCount; i++) {
-            rotStore[i] = new Quaternion();
-            posStore[i] = new Vector3f();
-            cStates[i] = VRControllerState.create();
-            lastCallAxis[i] = new Vector2f();
-            logger.config("  Input " + (i + 1) + "/" + VR.k_unMaxTrackedDeviceCount + " bound.");
-        }
+//        for (int i = 0; i < VR.k_unMaxTrackedDeviceCount; i++) {
+//            rotStore[i] = new Quaternion();
+//            posStore[i] = new Vector3f();
+//            cStates[i] = VRControllerState.create();
+//            lastCallAxis[i] = new Vector2f();
+//            logger.config("  Input " + (i + 1) + "/" + VR.k_unMaxTrackedDeviceCount + " bound.");
+//        }
 
         return true;
     }
@@ -430,11 +441,13 @@ public class LWJGLOpenVRInput implements VRInputAPI {
 
     @Override
     public int getTrackedControllerCount() {
-        return controllerCount;
+//        return controllerCount;
+return 0;
     }
 
     @Override
-    public VRControllerState getRawControllerState(int index) {
+//    public VRControllerState getRawControllerState(int index) {
+    public XrControllerModelStateMSFT getRawControllerState(int index) {
         if (isInputDeviceTracking(index) == false) {
             return null;
         }
@@ -445,8 +458,9 @@ public class LWJGLOpenVRInput implements VRInputAPI {
     public boolean isInputFocused() {
         if (environment != null){
             // not a 100% match, but the closest I can find in LWJGL. Doc seems to confirm this too.
-            return VRSystem.VRSystem_IsInputAvailable();
+//            return VRSystem.VRSystem_IsInputAvailable();
             //return ((VR_IVRSystem_FnTable)environment.getVRHardware().getVRSystem()).IsInputFocusCapturedByAnotherProcess.apply() == 0;
+            return true;
         } else {
             throw new IllegalStateException("VR input is not attached to a VR environment.");
         }
@@ -461,7 +475,8 @@ public class LWJGLOpenVRInput implements VRInputAPI {
         if (environment != null) {
 
             if (environment.getVRHardware() instanceof LWJGLOpenVR) {
-                return ((LWJGLOpenVR) environment.getVRHardware()).hmdTrackedDevicePoses[controllerIndex[index]].bPoseIsValid();
+//                return ((LWJGLOpenVR) environment.getVRHardware()).hmdTrackedDevicePoses[controllerIndex[index]].bPoseIsValid();
+return true;
             } else {
                 throw new IllegalStateException("VR hardware " + environment.getVRHardware().getClass().getSimpleName() + " is not a subclass of " + LWJGLOpenVR.class.getSimpleName());
             }
@@ -564,7 +579,6 @@ public class LWJGLOpenVRInput implements VRInputAPI {
             } else {
                 throw new IllegalStateException("VR environment has no valid view manager.");
             }
-
         } else {
             throw new IllegalStateException("VR input is not attached to a VR environment.");
         }
@@ -577,8 +591,8 @@ public class LWJGLOpenVRInput implements VRInputAPI {
         }
 
         // apparently only axis ID of 0 works
-        VRSystem.VRSystem_TriggerHapticPulse(LWJGLOpenVRInput.controllerIndex[controllerIndex],
-                0, (short) Math.round(3f * seconds / 1e-3f));
+//        VRSystem.VRSystem_TriggerHapticPulse(LWJGLOpenVRInput.controllerIndex[controllerIndex],
+//                0, (short) Math.round(3f * seconds / 1e-3f));
     }
 
     @Override
@@ -592,69 +606,69 @@ public class LWJGLOpenVRInput implements VRInputAPI {
             hapticActionHandle = hapticActionHandles.get(actionName);
         }
 
-        VRInput.VRInput_TriggerHapticVibrationAction(hapticActionHandle, 0, duration, frequency, amplitude, getOrFetchInputHandle(restrictToInput));
+//        VRInput.VRInput_TriggerHapticVibrationAction(hapticActionHandle, 0, duration, frequency, amplitude, getOrFetchInputHandle(restrictToInput));
     }
 
     @Override
     public void updateConnectedControllers() {
         logger.config("Updating connected controllers.");
 
-        if (environment != null) {
-            controllerCount = 0;
-            for (int i = 0; i < VR.k_unMaxTrackedDeviceCount; i++) {
-                int classCallback = VRSystem.VRSystem_GetTrackedDeviceClass(i);
-                if (classCallback == VR.ETrackedDeviceClass_TrackedDeviceClass_Controller || classCallback == VR.ETrackedDeviceClass_TrackedDeviceClass_GenericTracker) {
-                    IntBuffer error = BufferUtils.createIntBuffer(1);
-                    String controllerName = "Unknown";
-                    String manufacturerName = "Unknown";
-                    controllerName = VRSystem.VRSystem_GetStringTrackedDeviceProperty(i, VR.ETrackedDeviceProperty_Prop_TrackingSystemName_String, error);
-                    manufacturerName = VRSystem.VRSystem_GetStringTrackedDeviceProperty(i, VR.ETrackedDeviceProperty_Prop_ManufacturerName_String, error);
-
-                    if (error.get(0) != 0) {
-                        logger.warning("Error getting controller information " + controllerName + " " + manufacturerName + "Code (" + error.get(0) + ")");
-                    }
-                    controllerIndex[controllerCount] = i;
-
-                    // Adding tracked controller to control.
-                    if (trackedControllers == null) {
-                        trackedControllers = new ArrayList<VRTrackedController>(VR.k_unMaxTrackedDeviceCount);
-                    }
-                    trackedControllers.add(new LWJGLOpenVRTrackedController(i, this, controllerName, manufacturerName, environment));
-
-                    // Send a Haptic pulse to the controller
-                    triggerHapticPulse(controllerCount, 1.0f);
-
-                    controllerCount++;
-                    logger.config("  Tracked controller " + (i + 1) + "/" + VR.k_unMaxTrackedDeviceCount + " " + controllerName + " (" + manufacturerName + ") attached.");
-                } else {
-                    logger.config("  Controller " + (i + 1) + "/" + VR.k_unMaxTrackedDeviceCount + " ignored.");
-                }
-            }
-        } else {
-            throw new IllegalStateException("VR input is not attached to a VR environment.");
-        }
+//        if (environment != null) {
+//            controllerCount = 0;
+//            for (int i = 0; i < VR.k_unMaxTrackedDeviceCount; i++) {
+//                int classCallback = VRSystem.VRSystem_GetTrackedDeviceClass(i);
+//                if (classCallback == VR.ETrackedDeviceClass_TrackedDeviceClass_Controller || classCallback == VR.ETrackedDeviceClass_TrackedDeviceClass_GenericTracker) {
+//                    IntBuffer error = BufferUtils.createIntBuffer(1);
+//                    String controllerName = "Unknown";
+//                    String manufacturerName = "Unknown";
+//                    controllerName = VRSystem.VRSystem_GetStringTrackedDeviceProperty(i, VR.ETrackedDeviceProperty_Prop_TrackingSystemName_String, error);
+//                    manufacturerName = VRSystem.VRSystem_GetStringTrackedDeviceProperty(i, VR.ETrackedDeviceProperty_Prop_ManufacturerName_String, error);
+//
+//                    if (error.get(0) != 0) {
+//                        logger.warning("Error getting controller information " + controllerName + " " + manufacturerName + "Code (" + error.get(0) + ")");
+//                    }
+//                    controllerIndex[controllerCount] = i;
+//
+//                    // Adding tracked controller to control.
+//                    if (trackedControllers == null) {
+//                        trackedControllers = new ArrayList<VRTrackedController>(VR.k_unMaxTrackedDeviceCount);
+//                    }
+//                    trackedControllers.add(new LWJGLOpenVRTrackedController(i, this, controllerName, manufacturerName, environment));
+//
+//                    // Send a Haptic pulse to the controller
+//                    triggerHapticPulse(controllerCount, 1.0f);
+//
+//                    controllerCount++;
+//                    logger.config("  Tracked controller " + (i + 1) + "/" + VR.k_unMaxTrackedDeviceCount + " " + controllerName + " (" + manufacturerName + ") attached.");
+//                } else {
+//                    logger.config("  Controller " + (i + 1) + "/" + VR.k_unMaxTrackedDeviceCount + " ignored.");
+//                }
+//            }
+//        } else {
+//            throw new IllegalStateException("VR input is not attached to a VR environment.");
+//        }
     }
 
     @Override
     public void updateControllerStates() {
 
         if (environment != null) {
-            switch(inputMode){
-                case ACTION_BASED:
-                    int errorCode = VRInput.VRInput_UpdateActionState(activeActionSets,  VRActiveActionSet.SIZEOF);
-                    if(errorCode!=0){
-                        logger.warning("An error code of " + errorCode + " was returned while upding the action states");
-                    }
-                    break;
-                case LEGACY:
-                    for (int i = 0; i < controllerCount; i++) {
-                        int index = controllerIndex[i];
-                        VRSystem.VRSystem_GetControllerState(index, cStates[index], 64);
-                        cStates[index].ulButtonPressed();
-                        cStates[index].rAxis();
-                    }
-                    break;
-            }
+//            switch(inputMode){
+//                case ACTION_BASED:
+//                    int errorCode = VRInput.VRInput_UpdateActionState(activeActionSets,  VRActiveActionSet.SIZEOF);
+//                    if(errorCode!=0){
+//                        logger.warning("An error code of " + errorCode + " was returned while upding the action states");
+//                    }
+//                    break;
+//                case LEGACY:
+//                    for (int i = 0; i < controllerCount; i++) {
+//                        int index = controllerIndex[i];
+//                        VRSystem.VRSystem_GetControllerState(index, cStates[index], 64);
+//                        cStates[index].ulButtonPressed();
+//                        cStates[index].rAxis();
+//                    }
+//                    break;
+//            }
 
         } else {
             throw new IllegalStateException("VR input is not attached to a VR environment.");
@@ -670,10 +684,10 @@ public class LWJGLOpenVRInput implements VRInputAPI {
      */
     private long fetchActionHandle( String actionName ){
         LongBuffer longBuffer = BufferUtils.createLongBuffer(1);
-        int errorCode = VRInput.VRInput_GetActionHandle(actionName, longBuffer);
-        if (errorCode !=0 ){
-            logger.warning( "An error code of " + errorCode + " was reported while registering an action manifest" );
-        }
+//        int errorCode = VRInput.VRInput_GetActionHandle(actionName, longBuffer);
+//        if (errorCode !=0 ){
+//            logger.warning( "An error code of " + errorCode + " was reported while registering an action manifest" );
+//        }
         return longBuffer.get(0);
     }
 
@@ -689,10 +703,10 @@ public class LWJGLOpenVRInput implements VRInputAPI {
         if(!inputHandles.containsKey(inputName)){
             LongBuffer longBuffer = BufferUtils.createLongBuffer(1);
 
-            int errorCode = VRInput.VRInput_GetInputSourceHandle(inputName, longBuffer);
-            if (errorCode !=0 ){
-                logger.warning( "An error code of " + errorCode + " was reported while fetching an input manifest" );
-            }
+//            int errorCode = VRInput.VRInput_GetInputSourceHandle(inputName, longBuffer);
+//            if (errorCode !=0 ){
+//                logger.warning( "An error code of " + errorCode + " was reported while fetching an input manifest" );
+//            }
             long handle = longBuffer.get(0);
             inputHandles.put(inputName, handle);
         }

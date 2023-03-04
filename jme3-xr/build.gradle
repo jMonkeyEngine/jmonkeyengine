@@ -14,11 +14,11 @@ dependencies {
 //    implementation "org.lwjgl:lwjgl-openxr:${lwjgl3Version}:natives-macos"
     runtimeOnly "org.lwjgl:lwjgl-openxr:${lwjgl3Version}:natives-windows"
     runtimeOnly "org.lwjgl:lwjgl-openxr:${lwjgl3Version}:natives-linux"
-    runtimeOnly "org.lwjgl:lwjgl-openxr:${lwjgl3Version}:natives-macos"
+//    runtimeOnly "org.lwjgl:lwjgl-openxr:${lwjgl3Version}:natives-macos"
 
     // Necessary by lwjgl-openxr
-    implementation "org.joml:joml:1.10.4"
-    implementation "org.lwjgl:lwjgl-vulkan:${lwjgl3Version}"
+    api "org.joml:joml:1.10.4"
+    api "org.lwjgl:lwjgl-vulkan:${lwjgl3Version}"
 }
 
 javadoc {
