@@ -236,6 +236,7 @@ void main(){
 
     #ifdef AO_STRENGTH
        ao = 1.0 + m_AoStrength * (ao - 1.0);
+       ao = max(ao, 0.0);
     #endif
 
     float ndotv = max( dot( normal, viewDir ),0.0);
