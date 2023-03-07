@@ -68,6 +68,9 @@ MaterialDef PBR Lighting {
         // Set to Use Lightmap
         Texture2D LightMap
 
+        // A scalar multiplier controlling the amount of occlusion applied
+        Float AoStrength
+
         // Set to use TexCoord2 for the lightmap sampling
         Boolean SeparateTexCoord
         // the light map is a grayscale ao map, only the r channel will be read.
@@ -159,6 +162,7 @@ MaterialDef PBR Lighting {
             VERTEX_COLOR : UseVertexColor
             AO_MAP: LightMapAsAOMap
             AO_PACKED_IN_MR_MAP : AoPackedInMRMap
+            AO_STRENGTH : AoStrength
             NUM_MORPH_TARGETS: NumberOfMorphTargets
             NUM_TARGETS_BUFFERS: NumberOfTargetsBuffers
             HORIZON_FADE: HorizonFade

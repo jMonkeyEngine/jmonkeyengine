@@ -84,6 +84,10 @@ varying vec3 wPosition;
 #ifdef LIGHTMAP
   uniform sampler2D m_LightMap;
 #endif
+
+#ifdef AO_STRENGTH
+  uniform float m_AoStrength;
+#endif
   
 #if defined(NORMALMAP) || defined(PARALLAXMAP)
   uniform sampler2D m_NormalMap;   
@@ -228,6 +232,10 @@ void main(){
 
     #if defined(AO_PACKED_IN_MR_MAP) && defined(USE_PACKED_MR)
        ao = aoRoughnessMetallicValue.rrr;
+    #endif
+
+    #ifdef AO_STRENGTH
+       ao *= m_AoStrength;
     #endif
 
     float ndotv = max( dot( normal, viewDir ),0.0);
