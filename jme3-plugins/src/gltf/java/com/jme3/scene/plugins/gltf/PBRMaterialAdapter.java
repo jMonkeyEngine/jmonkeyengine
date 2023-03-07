@@ -41,6 +41,7 @@ public abstract class PBRMaterialAdapter extends MaterialAdapter {
     public PBRMaterialAdapter() {
         addParamMapping("normalTexture", "NormalMap");
         addParamMapping("occlusionTexture", "LightMap");
+        addParamMapping("occlusionStrength", "AoStrength");
         addParamMapping("emissiveTexture", "EmissiveMap");
         addParamMapping("emissiveFactor", "Emissive");
         addParamMapping("alphaMode", "alpha");

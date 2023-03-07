@@ -667,6 +667,12 @@ public class GltfLoader implements AssetLoader {
         } else {        
             adapter.setParam("occlusionTexture", readTexture(matData.getAsJsonObject("occlusionTexture")));
         }
+
+        Float occlusionStrength = occlusionJson != null ? getAsFloat(occlusionJson, "strength") : null;
+        if (occlusionStrength != null) {
+            adapter.setParam("occlusionStrength", occlusionStrength);
+        }
+
         adapter.setParam("emissiveTexture", readTexture(matData.getAsJsonObject("emissiveTexture")));
 
         return adapter.getMaterial();
