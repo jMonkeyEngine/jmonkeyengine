@@ -68,7 +68,8 @@ MaterialDef PBR Lighting {
         // Set to Use Lightmap
         Texture2D LightMap
 
-        // A scalar multiplier controlling the amount of occlusion applied
+        // A scalar multiplier controlling the amount of occlusion applied.
+        // A value of `0.0` means no occlusion. A value of `1.0` means full occlusion.
         Float AoStrength
 
         // Set to use TexCoord2 for the lightmap sampling
