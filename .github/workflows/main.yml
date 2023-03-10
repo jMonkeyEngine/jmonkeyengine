@@ -296,7 +296,7 @@ jobs:
     needs: [BuildJMonkey]
     name: Deploy Java Snapshot
     runs-on: ubuntu-latest
-    if: GITHUB_EVENT_NAME == 'push' && GITHUB_REF_NAME == 'master'
+    if: github.ref_name == 'master'
     steps:
 
       # We need to clone everything again for uploadToMaven.sh ...
@@ -318,12 +318,6 @@ jobs:
         with:
           name: maven
           path: dist/maven
-
-      - name: Download release
-        uses: actions/download-artifact@master
-        with:
-          name: release
-          path: dist/release
 
       - name: Download natives for android
         uses: actions/download-artifact@master
