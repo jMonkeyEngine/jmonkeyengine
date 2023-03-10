@@ -296,7 +296,7 @@ jobs:
     needs: [BuildJMonkey]
     name: Deploy Java Snapshot
     runs-on: ubuntu-latest
-    if: github.ref_name == 'master'
+    if: github.event_name == 'push' && github.ref_name == 'master'
     steps:
 
       # We need to clone everything again for uploadToMaven.sh ...
