@@ -312,13 +312,6 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      # Download all the stuff...
-      - name: Download maven artifacts
-        uses: actions/download-artifact@master
-        with:
-          name: maven
-          path: dist/maven
-
       - name: Download natives for android
         uses: actions/download-artifact@master
         with:
@@ -362,13 +355,6 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
-
-      # Download all the stuff...
-      - name: Download maven artifacts
-        uses: actions/download-artifact@master
-        with:
-          name: maven
-          path: dist/maven
 
       - name: Download release
         uses: actions/download-artifact@master
