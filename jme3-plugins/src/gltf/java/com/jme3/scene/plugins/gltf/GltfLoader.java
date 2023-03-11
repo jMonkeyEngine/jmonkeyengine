@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2022 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -659,6 +659,12 @@ public class GltfLoader implements AssetLoader {
         adapter.setParam("normalTexture", normal);
         if (normal != null) {
             useNormalsFlag = true;
+
+            JsonObject normalTexture = matData.getAsJsonObject("normalTexture");
+            Float normalScale = getAsFloat(normalTexture, "scale");
+            if (normalScale != null) {
+                adapter.setParam("normalScale", normalScale);
+            }
         }
         JsonObject occlusionJson = matData.getAsJsonObject("occlusionTexture");
         Integer occlusionIndex = occlusionJson != null ? getAsInteger(occlusionJson, "index") : null;

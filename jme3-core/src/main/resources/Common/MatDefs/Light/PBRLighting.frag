@@ -89,6 +89,9 @@ varying vec3 wPosition;
   uniform sampler2D m_NormalMap;   
   varying vec4 wTangent;
 #endif
+#ifdef NORMALSCALE
+  uniform float m_NormalScale;
+#endif
 varying vec3 wNormal;
 
 #ifdef DISCARD_ALPHA
@@ -170,7 +173,11 @@ void main(){
       //as it's compliant with normal maps generated with blender.
       //see http://hub.jmonkeyengine.org/forum/topic/parallax-mapping-fundamental-bug/#post-256898
       //for more explanation.
-      vec3 normal = normalize((normalHeight.xyz * vec3(2.0, NORMAL_TYPE * 2.0, 2.0) - vec3(1.0, NORMAL_TYPE * 1.0, 1.0)));
+      #ifdef NORMALSCALE
+        vec3 normal = normalize((normalHeight.xyz * vec3(2.0, NORMAL_TYPE * 2.0, 2.0) - vec3(1.0, NORMAL_TYPE * 1.0, 1.0)) * vec3(m_NormalScale, m_NormalScale, 1.0));
+      #else
+        vec3 normal = normalize((normalHeight.xyz * vec3(2.0, NORMAL_TYPE * 2.0, 2.0) - vec3(1.0, NORMAL_TYPE * 1.0, 1.0)));
+      #endif
       normal = normalize(tbnMat * normal);
       //normal = normalize(normal * inverse(tbnMat));
     #else

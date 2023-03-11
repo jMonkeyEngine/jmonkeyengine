@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,7 +50,7 @@ import java.util.Map;
  */
 public abstract class MaterialAdapter {
 
-    private Map<String, String> paramsMapping = new HashMap<>();
+    private final Map<String, String> paramsMapping = new HashMap<>();
     private Material mat;
     private AssetManager assetManager;
 

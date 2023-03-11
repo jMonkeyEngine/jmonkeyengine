@@ -38,6 +38,8 @@ MaterialDef PBR Lighting {
 
         // Normal map
         Texture2D NormalMap -LINEAR
+        // The scalar parameter applied to each normal vector of the normal map
+        Float NormalScale
 
         //The type of normal map: -1.0 (DirectX), 1.0 (OpenGl)
         Float NormalType : -1.0
@@ -138,6 +140,7 @@ MaterialDef PBR Lighting {
         Defines {         
             BASECOLORMAP : BaseColorMap            
             NORMALMAP : NormalMap
+            NORMALSCALE : NormalScale
             METALLICMAP : MetallicMap
             ROUGHNESSMAP : RoughnessMap
             EMISSIVEMAP : EmissiveMap

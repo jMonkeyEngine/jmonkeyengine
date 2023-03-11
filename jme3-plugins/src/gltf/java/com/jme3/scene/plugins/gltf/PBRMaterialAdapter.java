@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,6 +40,7 @@ public abstract class PBRMaterialAdapter extends MaterialAdapter {
 
     public PBRMaterialAdapter() {
         addParamMapping("normalTexture", "NormalMap");
+        addParamMapping("normalScale", "NormalScale");
         addParamMapping("occlusionTexture", "LightMap");
         addParamMapping("emissiveTexture", "EmissiveMap");
         addParamMapping("emissiveFactor", "Emissive");
