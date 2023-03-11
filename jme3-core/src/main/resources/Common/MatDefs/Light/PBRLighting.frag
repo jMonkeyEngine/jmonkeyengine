@@ -313,6 +313,9 @@ void main(){
     #if defined(EMISSIVE) || defined (EMISSIVEMAP)
         #ifdef EMISSIVEMAP
             vec4 emissive = texture2D(m_EmissiveMap, newTexCoord);
+            #ifdef EMISSIVE
+                emissive *= m_Emissive;
+            #endif
         #else
             vec4 emissive = m_Emissive;
         #endif
