@@ -177,7 +177,7 @@ publishing {
                 password = gradle.rootProject.hasProperty('ossrhPassword') ? ossrhPassword : 'Unknown password'
 	    }
 	    name = 'SNAPSHOT'
-	    url = 'https://oss.sonatype.org/content/repositories/snapshots/'
+	    url = 'https://s01.oss.sonatype.org/content/repositories/snapshots/'
 	}
     }
 }
