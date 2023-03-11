@@ -206,9 +206,9 @@ jobs:
   # The snapshot is downloaded when people build the engine without setting buildNativeProject
   # this is useful for people that want to build only the java part and don't have
   # all the stuff needed to compile natives.
-  DeploySnapshot:
+  DeployNativeSnapshot:
     needs: [BuildJMonkey]
-    name: "Deploy snapshot"
+    name: "Deploy native snapshot"
     runs-on: ubuntu-latest
     if: github.event_name == 'push'
     steps:
@@ -290,6 +290,50 @@ jobs:
               fi
             fi
           fi
+
+  # This job deploys snapshots on the master branch
+  DeployJavaSnapshot:
+    needs: [BuildJMonkey]
+    name: Deploy Java Snapshot
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref_name == 'master'
+    steps:
+
+      # We need to clone everything again for uploadToMaven.sh ...
+      - name: Clone the repo
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 1
+
+      # Setup jdk 17 used for building Maven-style artifacts
+      - name: Setup the java environment
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Download natives for android
+        uses: actions/download-artifact@master
+        with:
+          name: android-natives
+          path: build/native
+
+      - name: Rebuild the maven artifacts and deploy them to the Sonatype repository
+        run: |
+          if [ "${{ secrets.OSSRH_PASSWORD }}" = "" ];
+          then
+            echo "Configure the following secrets to enable deployment to Sonatype:"
+            echo "OSSRH_PASSWORD, OSSRH_USERNAME, SIGNING_KEY, SIGNING_PASSWORD"
+          else
+            ./gradlew publishMavenPublicationToSNAPSHOTRepository \
+            -PossrhPassword=${{ secrets.OSSRH_PASSWORD }} \
+            -PossrhUsername=${{ secrets.OSSRH_USERNAME }} \
+            -PsigningKey='${{ secrets.SIGNING_KEY }}' \
+            -PsigningPassword='${{ secrets.SIGNING_PASSWORD }}' \
+            -PuseCommitHashAsVersionName=true \
+            --console=plain --stacktrace
+          fi
+
 
   # This job deploys the release
   DeployRelease:
