@@ -138,7 +138,8 @@ public interface VRInputAPI {
     /**
      * Check if the given button is down (more generally if the given input type is activated).
      *
-     * Deprecated as should use an actions manifest approach. See {@link #registerActionManifest}. Note; action based will only work with the OpenVR api
+     * @deprecated Use the action-manifest approach instead. See {@link #registerActionManifest}.
+     * Note: action-manifest will only work with the OpenVR api.
      *
      * @param controllerIndex the index of the controller to check.
      * @param checkButton the button / input to check.
@@ -150,11 +151,13 @@ public interface VRInputAPI {
     /**
      * Check if the given button / input from the given controller has been just pressed / activated.
      *
-     * Deprecated as should use an actions manifest approach. See {@link #registerActionManifest}.  Note; action based will only work with the OpenVR api
+     * @deprecated Use the action-manifest approach instead. See {@link #registerActionManifest}.
+     * Note: action-manifest will only work with the OpenVR api.
      *
      * @param controllerIndex the index of the controller.
      * @param checkButton the button / input to check.
-     * @return <code>true</code> if the given button / input from the given controller has been just pressed / activated and <code>false</code> otherwise.
+     * @return <code>true</code> if the given input from the given controller has just been activated,
+     * <code>false</code> otherwise.
      */
     @Deprecated
     public boolean wasButtonPressedSinceLastCall(int controllerIndex, VRInputType checkButton);
@@ -163,7 +166,8 @@ public interface VRInputAPI {
      * Reset the current activation of the inputs. After a call to this method, all input activation is considered as new activation.
      * @see #wasButtonPressedSinceLastCall(int, VRInputType)
      *
-     * Deprecated as should use an actions manifest approach. See {@link #registerActionManifest}.  Note; action based will only work with the OpenVR api
+     * @deprecated Use the action-manifest approach instead. See {@link #registerActionManifest}.
+     * Note: action-manifest will only work with the OpenVR api.
      */
     @Deprecated
     public void resetInputSinceLastCall();
@@ -171,7 +175,8 @@ public interface VRInputAPI {
     /**
      * Get the controller axis delta from the last value.
      *
-     * Deprecated as should use an actions manifest approach. See {@link #registerActionManifest}.  Note; action based will only work with the OpenVR api
+     * @deprecated Use action-manifest approach instead. See {@link #registerActionManifest}.
+     * Note: action-manifest will only work with the OpenVR api.
      *
      * @param controllerIndex the index of the controller.
      * @param forAxis the axis.
@@ -200,7 +205,8 @@ public interface VRInputAPI {
      * Get the axis value for the given input on the given controller.
      * This value is the {@link #getAxisRaw(int, VRInputType) raw value} multiplied by the  {@link #getAxisMultiplier() axis multiplier}.
      *
-     * Deprecated as should use an actions manifest approach. See {@link #registerActionManifest}. Note; action based will only work with the OpenVR api
+     * @deprecated Use action-manifest approach instead. See {@link #registerActionManifest}.
+     * Note: action-manifest will only work with the OpenVR api.
      *
      * @param controllerIndex the index of the controller.
      * @param forAxis the axis.
@@ -214,7 +220,8 @@ public interface VRInputAPI {
     /**
      * Get the axis value for the given input on the given controller.
      *
-     * Deprecated as should use an actions manifest approach. See {@link #registerActionManifest}  Note; action based will only work with the OpenVR api
+     * @deprecated Use the action-manifest approach. See {@link #registerActionManifest}.
+     * Note: action-manifest will only work with the OpenVR api.
      *
      * @param controllerIndex the index of the controller.
      * @param forAxis the axis.
@@ -333,7 +340,7 @@ public interface VRInputAPI {
     /**
      * Trigger a haptic pulse on the selected controller for the duration given in parameters (in seconds).
      *
-     * Deprecated, use triggerHapticAction instead (as it has more options and doesn't use deprecated methods)
+     * @deprecated Use triggerHapticAction instead - it has more options and doesn't use deprecated methods.
      *
      * @param controllerIndex the index of the controller.
      * @param seconds the duration of the pulse in seconds.
