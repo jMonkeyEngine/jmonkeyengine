@@ -1594,6 +1594,8 @@ public class Main {
             );
             xrCheck(xrEnumerateViewConfigurationViews(xrInstance, xrSystemId, viewConfiguration, pi, viewConfigurationViews), "EnumerateViewConfigurationViews");
 
+// JME3: Comment out vulkan code
+/*
             PointerBuffer pCommandBuffers = stack.callocPointer(2);
             vkCheck(vkAllocateCommandBuffers(
                 vkDevice,
@@ -1604,7 +1606,7 @@ public class Main {
                     .commandBufferCount(numViews),
                 pCommandBuffers
             ), "AllocateCommandBuffers");
-
+*/
             this.swapchains = new SwapchainWrapper[numViews];
             for (int swapchainIndex = 0; swapchainIndex < numViews; swapchainIndex++) {
                 XrViewConfigurationView viewConfig = viewConfigurationViews.get(swapchainIndex);
@@ -1645,6 +1647,8 @@ public class Main {
                     XrSwapchainImageBaseHeader.create(swapchainColorImages)
                 ), "EnumerateSwapchainImages");
 
+// JME3: Comment out vulkan code
+/*
                 vkCheck(vkCreateImage(
                     vkDevice,
                     VkImageCreateInfo.calloc(stack)
@@ -1767,6 +1771,7 @@ public class Main {
                     depthImage, depthImageView, depthImageMemory, swapchainImages,
                     pl.get(0), new VkCommandBuffer(pCommandBuffers.get(swapchainIndex), vkDevice)
                 );
+*/
             }
         }
     }
@@ -2066,8 +2071,10 @@ public class Main {
                                 XrSwapchainImageWaitInfo.calloc(stack)
                                     .type$Default()
                                     .timeout(1_000_000_000) // Time out after 1 second. If we would have to wait so long, something is seriously wrong
-                            ), "WaitSwapchainImage");
+                            ), "WaitSwapchainImage");  //TODO: DrawBegin
 
+// JME3: Comment out vulkan code
+/*
                             vkCheck(vkBeginCommandBuffer(
                                 swapchain.commandBuffer,
                                 VkCommandBufferBeginInfo.calloc(stack)
@@ -2090,7 +2097,7 @@ public class Main {
                                 .sType$Default()
                                 .pNext(VK_NULL_HANDLE)
                                 .renderPass(vkRenderPass)
-                                .framebuffer(swapchain.images[imageIndex].framebuffer)
+                                .framebuffer(swapchain.images[imageIndex].framebuffer) // TODO: Does it happen here?
                                 .renderArea(it -> it
                                     .offset(offset -> offset
                                         .x(0)
@@ -2165,13 +2172,14 @@ public class Main {
                                     .pCommandBuffers(stack.pointers(swapchain.commandBuffer)),
                                 swapchain.fence
                             ), "QueueSubmit");
+*/
                         }
 
                         // Submit command buffers for both eyes before waiting for them to complete
                         for (SwapchainWrapper swapchain : swapchains) {
                             vkCheck(vkWaitForFences(vkDevice, swapchain.fence, true, 1_000_000_000), "WaitForFences");
                             vkCheck(vkResetFences(vkDevice, swapchain.fence), "ResetFences");
-                            xrCheck(xrReleaseSwapchainImage(swapchain.swapchain, null), "ReleaseSwapchainImage");
+                            xrCheck(xrReleaseSwapchainImage(swapchain.swapchain, null), "ReleaseSwapchainImage"); //TODO: DrawEnd
                         }
                     } else {
                         System.out.println("Skip frame");
