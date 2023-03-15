@@ -12,11 +12,11 @@ import com.jme3.math.Vector3f;
 public interface VRInputAPI {
 
     /**
-     * Registers an action manifest. An actions manifest is a file that defines "actions" a player can make.
+     * Registers an action manifest. An action manifest is a file that defines "actions" a player can make.
      * (An action is an abstract version of a button press). The action manifest may then also include references to
      * further files that define default mappings between those actions and physical buttons on the VR controllers.
      *
-     * Note that registering an actions manifest will deactivate legacy inputs (i.e. methods such as {@link #isButtonDown}
+     * Note that registering an actions manifest will deactivate legacy inputs. i.e. methods such as {@link #isButtonDown}
      * will no longer work
      *
      * See https://github.com/ValveSoftware/openvr/wiki/Action-manifest for documentation on how to create an
@@ -138,7 +138,8 @@ public interface VRInputAPI {
     /**
      * Check if the given button is down (more generally if the given input type is activated).
      *
-     * Deprecated as should use an actions manifest approach. See {@link #registerActionManifest}. Note; action based will only work with the OpenVR api
+     * @deprecated Use the action-manifest approach instead. See {@link #registerActionManifest}.
+     * Note: action-manifest will only work with the OpenVR api.
      *
      * @param controllerIndex the index of the controller to check.
      * @param checkButton the button / input to check.
@@ -150,20 +151,25 @@ public interface VRInputAPI {
     /**
      * Check if the given button / input from the given controller has been just pressed / activated.
      *
-     * Deprecated as should use an actions manifest approach. See {@link #registerActionManifest}.  Note; action based will only work with the OpenVR api
+     * @deprecated Use the action-manifest approach instead. See {@link #registerActionManifest}.
+     * Note: action-manifest will only work with the OpenVR api.
      *
      * @param controllerIndex the index of the controller.
      * @param checkButton the button / input to check.
-     * @return <code>true</code> if the given button / input from the given controller has been just pressed / activated and <code>false</code> otherwise.
+     * @return <code>true</code> if the given input from the given controller has just been activated,
+     * <code>false</code> otherwise.
      */
     @Deprecated
     public boolean wasButtonPressedSinceLastCall(int controllerIndex, VRInputType checkButton);
 
     /**
-     * Reset the current activation of the inputs. After a call to this method, all input activation is considered as new activation.
+     * Reset the current activation of the inputs. After a call to this method, any input activation is
+     * considered a new activation.
+     *
      * @see #wasButtonPressedSinceLastCall(int, VRInputType)
      *
-     * Deprecated as should use an actions manifest approach. See {@link #registerActionManifest}.  Note; action based will only work with the OpenVR api
+     * @deprecated Use the action-manifest approach instead. See {@link #registerActionManifest}.
+     * Note: action-manifest will only work with the OpenVR api.
      */
     @Deprecated
     public void resetInputSinceLastCall();
@@ -171,7 +177,8 @@ public interface VRInputAPI {
     /**
      * Get the controller axis delta from the last value.
      *
-     * Deprecated as should use an actions manifest approach. See {@link #registerActionManifest}.  Note; action based will only work with the OpenVR api
+     * @deprecated Use action-manifest approach instead. See {@link #registerActionManifest}.
+     * Note: action-manifest will only work with the OpenVR api.
      *
      * @param controllerIndex the index of the controller.
      * @param forAxis the axis.
@@ -198,9 +205,11 @@ public interface VRInputAPI {
 
     /**
      * Get the axis value for the given input on the given controller.
-     * This value is the {@link #getAxisRaw(int, VRInputType) raw value} multiplied by the  {@link #getAxisMultiplier() axis multiplier}.
+     * This value is the {@link #getAxisRaw(int, VRInputType) raw value} multiplied by the
+     * {@link #getAxisMultiplier() axis multiplier}.
      *
-     * Deprecated as should use an actions manifest approach. See {@link #registerActionManifest}. Note; action based will only work with the OpenVR api
+     * @deprecated Use action-manifest approach instead. See {@link #registerActionManifest}.
+     * Note: action-manifest will only work with the OpenVR api.
      *
      * @param controllerIndex the index of the controller.
      * @param forAxis the axis.
@@ -214,7 +223,8 @@ public interface VRInputAPI {
     /**
      * Get the axis value for the given input on the given controller.
      *
-     * Deprecated as should use an actions manifest approach. See {@link #registerActionManifest}  Note; action based will only work with the OpenVR api
+     * @deprecated Use the action-manifest approach. See {@link #registerActionManifest}.
+     * Note: action-manifest will only work with the OpenVR api.
      *
      * @param controllerIndex the index of the controller.
      * @param forAxis the axis.
@@ -333,7 +343,7 @@ public interface VRInputAPI {
     /**
      * Trigger a haptic pulse on the selected controller for the duration given in parameters (in seconds).
      *
-     * Deprecated, use triggerHapticAction instead (as it has more options and doesn't use deprecated methods)
+     * @deprecated Use triggerHapticAction instead - it has more options and doesn't use deprecated methods.
      *
      * @param controllerIndex the index of the controller.
      * @param seconds the duration of the pulse in seconds.
@@ -344,9 +354,10 @@ public interface VRInputAPI {
     /**
      * Triggers a haptic action (aka a vibration).
      *
-     * Note if you want a haptic action in only one hand that is done either by only binding the action to one hand in
-     * the action manifest's standard bindings or by binding to both and using {@link #triggerHapticAction(String, float, float, float, String)}
-     * to control which input it gets set to at run time
+     * Note: if you want a haptic action in only one hand, you can either bind the action to one hand in
+     * the action manifest's standard bindings or bind to both and use
+     * {@link #triggerHapticAction(String, float, float, float, String)}
+     * to control which input it gets set to at runtime.
      *
      * @param actionName The name of the action. Will be something like /actions/main/out/vibrate
      * @param duration how long in seconds the
@@ -360,16 +371,18 @@ public interface VRInputAPI {
     /**
      * Triggers a haptic action (aka a vibration) restricted to just one input (e.g. left or right hand).
      *
-     * Note that restrictToInput only restricts, it must still be bound to the input you want to send the haptic to in
-     * the action manifest default bindings.
+     * Note: restrictToInput only restricts which input is used at runtime. You must still bind the input
+     * you want to send the haptic to in the action manifest default bindings.
      *
-     * This method is typically used to bind the haptic to both hands then decide at run time which hand to sent to     *
+     * This method is typically used by binding the haptic to both hands, and  then deciding at runtime which
+     * hand it should be sent to.
      *
      * @param actionName The name of the action. Will be something like /actions/main/out/vibrate
      * @param duration how long in seconds the
      * @param frequency in cycles per second
      * @param amplitude between 0 and 1
-     * @param restrictToInput the input to restrict the action to. E.g. /user/hand/right, /user/hand/left. Or null, which means "any input"
+     * @param restrictToInput the input to restrict the action to, such as <code>/user/hand/right</code> or
+     * <code>/user/hand/left</code>. <code>null</code> means "any input".
      */
     default void triggerHapticAction( String actionName, float duration, float frequency, float amplitude, String restrictToInput){
         throw new UnsupportedOperationException("Action manifests are not supported for the currently used VR API");
