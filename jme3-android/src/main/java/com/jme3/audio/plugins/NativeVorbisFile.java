@@ -35,14 +35,11 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 /**
- * Represents the android implementation for the native <a href="https://xiph.org"/> vorbis file decoder.
+ * Represents the android implementation for the native <a href="https://xiph.org"> vorbis file decoder.</a>
  * This decoder initializes an OggVorbis_File from an already opened file designated by the {@link NativeVorbisFile#fd}.
- * <br/>
  * 
- * Code by Kirill Vainer.
- * <br/>
- * 
- * Modified by pavl_g.
+ * @author Kirill Vainer
+ * @author Modified by pavl_g
  */
 public class NativeVorbisFile {
     
