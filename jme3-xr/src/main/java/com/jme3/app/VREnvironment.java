@@ -74,7 +74,7 @@ public class VREnvironment {
 
     private AppState app = null;
     
-    private com.jme3.input.vr.lwjgl_openxr.Main mainXr;
+    private com.jme3.input.vr.lwjgl_openxr.HelloOpenXRGL mainXr;
 
     private boolean initialized = false;
 
@@ -95,11 +95,11 @@ public class VREnvironment {
     }
     
     /** Will be set in LWJGLOpenVR, when ready. */
-    public void setXR(com.jme3.input.vr.lwjgl_openxr.Main mainXr) {
+    public void setXR(com.jme3.input.vr.lwjgl_openxr.HelloOpenXRGL mainXr) {
       this.mainXr = mainXr;
     }
     
-    public com.jme3.input.vr.lwjgl_openxr.Main getXr()
+    public com.jme3.input.vr.lwjgl_openxr.HelloOpenXRGL getXr()
     {
       return mainXr;
     }

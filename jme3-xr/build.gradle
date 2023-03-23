@@ -18,7 +18,8 @@ dependencies {
 
     // Necessary by lwjgl-openxr
     api "org.joml:joml:1.10.4"
-    api "org.lwjgl:lwjgl-vulkan:${lwjgl3Version}"
+    api "org.lwjgl:lwjgl-egl:${lwjgl3Version}"
+//    api "org.lwjgl:lwjgl-vulkan:${lwjgl3Version}"
 }
 
 javadoc {

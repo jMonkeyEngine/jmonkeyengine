@@ -1,18 +1,13 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-package com.jme3.input.vr.lwjgl_openxr; // JME3: Modified package path
-
-/*
  * Copyright LWJGL. All rights reserved.
  * License terms: https://www.lwjgl.org/license
+ * Source: https://github.com/LWJGL/lwjgl3/tree/master/modules/samples/src/test/java/org/lwjgl/demo/openxr
  */
+package com.jme3.input.vr.lwjgl_openxr;
 
 import org.joml.Math;
 import org.joml.*;
-//import org.lwjgl.egl.*;
+import org.lwjgl.egl.*;
 import org.lwjgl.openxr.*;
 import org.lwjgl.system.*;
 import org.lwjgl.system.linux.*;
@@ -34,9 +29,9 @@ import static org.lwjgl.system.windows.User32.*;
  * A helper class with some static methods to help applications with OpenXR related tasks that are cumbersome in
  * some way.
  */
-final class XrHelper {
+final class XRHelper {
 
-    private XrHelper() {
+    private XRHelper() {
     }
 
     static <S extends Struct, T extends StructBuffer<S, T>> T fill(T buffer, int offset, int value) {
@@ -153,7 +148,7 @@ final class XrHelper {
     static XrSessionCreateInfo createGraphicsBindingOpenGL(
         XrSessionCreateInfo sessionCreateInfo, MemoryStack stack, long window, boolean useEGL
     ) throws IllegalStateException {
-        /*if (useEGL) {
+        if (useEGL) {
             System.out.println("Using XrGraphicsBindingEGLMNDX to create the session...");
             return sessionCreateInfo.next(
                 XrGraphicsBindingEGLMNDX.malloc(stack)
@@ -164,7 +159,7 @@ final class XrHelper {
                     .config(glfwGetEGLConfig(window))
                     .context(glfwGetEGLContext(window))
             );
-        }*/
+        }
         switch (Platform.get()) {
             case LINUX:
                 int platform = glfwGetPlatform();
