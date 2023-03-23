@@ -317,8 +317,8 @@ public abstract class LwjglContext implements JmeContext {
                     glfbo = (GLFbo) GLTracer.createDesktopGlTracer(glfbo, GLFbo.class);
                 }
                 renderer = new GLRenderer(gl, glext, glfbo);
-                renderer.initialize();
             }
+            renderer.initialize();
         } else {
             throw new UnsupportedOperationException("Unsupported renderer: " + settings.getRenderer());
         }
