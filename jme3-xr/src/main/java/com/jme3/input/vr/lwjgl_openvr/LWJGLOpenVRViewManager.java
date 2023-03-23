@@ -163,6 +163,12 @@ public class LWJGLOpenVRViewManager extends AbstractVRViewManager {
 
     @Override
     public void postRender() {
+    	boolean cont = environment.getXr().renderFrame();
+    	if (!cont)
+    	{
+    		environment.getApplication().stop();
+    		environment.getXr().destroy();
+    	}
 //
 //        if (environment != null) {
 //            if (environment.isInVR()) {

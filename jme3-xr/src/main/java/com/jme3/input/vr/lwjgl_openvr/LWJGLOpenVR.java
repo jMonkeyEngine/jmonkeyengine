@@ -99,12 +99,13 @@ public class LWJGLOpenVR implements VRAPI {
         logger.config("Initializing OpenVR system...");
 
         com.jme3.input.vr.lwjgl_openxr.HelloOpenXRGL mainXr = new com.jme3.input.vr.lwjgl_openxr.HelloOpenXRGL();
-        mainXr.initXr();
-            vrInput = new LWJGLOpenVRInput(environment);
-            vrInput.init();
-            vrInput.updateConnectedControllers();
-        environment.setXR(mainXr);
-        initSuccess = mainXr.loopXrSession();
+        vrInput = new LWJGLOpenVRInput(environment);
+        initSuccess = vrInput.init();
+        if (initSuccess)
+        {
+          vrInput.updateConnectedControllers();
+          environment.setXR(mainXr);
+        }
         return initSuccess;
     }
 
@@ -174,7 +175,6 @@ public class LWJGLOpenVR implements VRAPI {
 
     @Override
     public void updatePose(){
-      environment.getXr().loopXrSession();
     }
 
     @Override

@@ -69,65 +69,99 @@ public class HelloOpenXRGL {
         XrSwapchainImageOpenGLKHR.Buffer images;
     }
 
-    public static void main(String[] args) throws InterruptedException {
-        HelloOpenXRGL helloOpenXR = new HelloOpenXRGL();
+    //JME3: Split function main(args) to public functions init+render+destroy
+    public HelloOpenXRGL()
+    {
+    	createOpenXRInstance();
+        initializeOpenXRSystem();
+        initializeAndBindOpenGL();
+        createXRReferenceSpace();
+        createXRSwapchains();
+        createOpenGLResourses();
 
-        helloOpenXR.createOpenXRInstance();
-        helloOpenXR.initializeOpenXRSystem();
-        helloOpenXR.initializeAndBindOpenGL();
-        helloOpenXR.createXRReferenceSpace();
-        helloOpenXR.createXRSwapchains();
-        helloOpenXR.createOpenGLResourses();
-
-        helloOpenXR.eventDataBuffer = XrEventDataBuffer.calloc()
+        eventDataBuffer = XrEventDataBuffer.calloc()
             .type$Default();
-
-        while (!helloOpenXR.pollEvents() && !glfwWindowShouldClose(helloOpenXR.window)) {
-            if (helloOpenXR.sessionRunning) {
-                helloOpenXR.renderFrameOpenXR();
-            } else {
-                // Throttle loop since xrWaitFrame won't be called.
+    }
+    
+    /** Returns true for continue */
+    public boolean renderFrame()
+    {
+    	if (pollEvents()) return false;
+    	if (glfwWindowShouldClose(window)) return false;
+        if (sessionRunning)
+        {
+        	try {
+              renderFrameOpenXR();
+        	}
+        	catch (IllegalStateException e)
+        	{
+        		return false;
+        	}
+        }
+        else
+        {
+            // Throttle loop since xrWaitFrame won't be called.
+            try
+            {
                 Thread.sleep(250);
             }
+            catch (InterruptedException e)
+            {
+            	e.printStackTrace();
+            	return false;
+            }
         }
-
-        // Wait until idle
-        glFinish();
+        return true;
+    }
+    
+    public void destroy()
+    {
+    	glFinish();
 
         // Destroy OpenXR
-        helloOpenXR.eventDataBuffer.free();
-        helloOpenXR.views.free();
-        helloOpenXR.viewConfigs.free();
-        for (Swapchain swapchain : helloOpenXR.swapchains) {
+        eventDataBuffer.free();
+        views.free();
+        viewConfigs.free();
+        for (Swapchain swapchain : swapchains) {
             xrDestroySwapchain(swapchain.handle);
             swapchain.images.free();
         }
 
-        xrDestroySpace(helloOpenXR.xrAppSpace);
-        if (helloOpenXR.xrDebugMessenger != null) {
-            xrDestroyDebugUtilsMessengerEXT(helloOpenXR.xrDebugMessenger);
+        xrDestroySpace(xrAppSpace);
+        if (xrDebugMessenger != null) {
+            xrDestroyDebugUtilsMessengerEXT(xrDebugMessenger);
         }
-        xrDestroySession(helloOpenXR.xrSession);
-        xrDestroyInstance(helloOpenXR.xrInstance);
+        xrDestroySession(xrSession);
+        xrDestroyInstance(xrInstance);
 
         //Destroy OpenGL
-        for (int texture : helloOpenXR.depthTextures.values()) {
+        for (int texture : depthTextures.values()) {
             glDeleteTextures(texture);
         }
-        glDeleteFramebuffers(helloOpenXR.swapchainFramebuffer);
-        glDeleteBuffers(helloOpenXR.cubeVertexBuffer);
-        glDeleteBuffers(helloOpenXR.cubeIndexBuffer);
-        glDeleteBuffers(helloOpenXR.quadVertexBuffer);
-        glDeleteVertexArrays(helloOpenXR.cubeVAO);
-        glDeleteVertexArrays(helloOpenXR.quadVAO);
-        glDeleteProgram(helloOpenXR.screenShader);
-        glDeleteProgram(helloOpenXR.textureShader);
-        glDeleteProgram(helloOpenXR.colorShader);
+        glDeleteFramebuffers(swapchainFramebuffer);
+        glDeleteBuffers(cubeVertexBuffer);
+        glDeleteBuffers(cubeIndexBuffer);
+        glDeleteBuffers(quadVertexBuffer);
+        glDeleteVertexArrays(cubeVAO);
+        glDeleteVertexArrays(quadVAO);
+        glDeleteProgram(screenShader);
+        glDeleteProgram(textureShader);
+        glDeleteProgram(colorShader);
 
         glfwTerminate();
     }
+    
+    //JME3: New public functions for positions/orientations
+    public void getViewPosition(com.jme3.math.Vector3f store)
+    {
+    	store.set(viewPos);
+    }
+    public void getViewRotation(com.jme3.math.Quaternion store)
+    {
+    	store.set(viewRot);
+    }  
 
-    public void createOpenXRInstance() {
+    private void createOpenXRInstance() {
         try (MemoryStack stack = stackPush()) {
             IntBuffer pi = stack.mallocInt(1);
 
@@ -158,7 +192,7 @@ public class HelloOpenXRGL {
                     missingXrDebug = false;
                 }
                 if (extensionName.equals(XR_MNDX_EGL_ENABLE_EXTENSION_NAME)) {
-                    useEglGraphicsBinding = true;
+                    //useEglGraphicsBinding = true; //JME3: Do not use EGL
                 }
             }
 
@@ -790,6 +824,8 @@ public class HelloOpenXRGL {
     private static Matrix4f modelviewMatrix  = new Matrix4f();
     private static Matrix4f projectionMatrix = new Matrix4f();
     private static Matrix4f viewMatrix       = new Matrix4f();
+    private static com.jme3.math.Vector3f viewPos = new com.jme3.math.Vector3f();
+    private static com.jme3.math.Quaternion viewRot = new com.jme3.math.Quaternion();
 
     private static FloatBuffer mvpMatrix = BufferUtils.createFloatBuffer(16);
 
@@ -825,6 +861,8 @@ public class HelloOpenXRGL {
             orientation.x(), orientation.y(), orientation.z(), orientation.w(),
             1, 1, 1
         );
+        viewPos.set(pos.x(), pos.y(), pos.z());
+        viewRot.set(orientation.x(), orientation.y(), orientation.z(), orientation.w());
 
         glDisable(GL_CULL_FACE); // Disable back-face culling so we can see the inside of the world-space cube and backside of the plane
 

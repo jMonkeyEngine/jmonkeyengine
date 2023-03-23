@@ -438,21 +438,7 @@ public class VREnvironment {
         }
 
         if(vrSupportedOS) {
-            if( vrBinding == VRConstants.SETTING_VRAPI_OSVR_VALUE ) {
-                guiManager   = new VRGuiManager(this);
-                mouseManager = new OpenVRMouseManager(this);
-
-                hardware = new OSVR(this);
-                initialized = true;
-                logger.config("Creating OSVR wrapper [SUCCESS]");
-            } else if( vrBinding == VRConstants.SETTING_VRAPI_OPENVR_VALUE ) {
-                guiManager   = new VRGuiManager(this);
-                mouseManager = new OpenVRMouseManager(this);
-
-                hardware = new OpenVR(this);
-                initialized = true;
-                logger.config("Creating OpenVR wrapper [SUCCESS]");
-            } else if (vrBinding == VRConstants.SETTING_VRAPI_OPENVR_LWJGL_VALUE) {
+            if (vrBinding == VRConstants.SETTING_VRAPI_OPENVR_LWJGL_VALUE) {
                 guiManager   = new VRGuiManager(this);
                 mouseManager = new LWJGLOpenVRMouseManager(this);
 
