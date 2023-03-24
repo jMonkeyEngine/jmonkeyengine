@@ -53,11 +53,6 @@ public class HelloOpenXRGL {
     Map<XrSwapchainImageOpenGLKHR, Integer> depthTextures; //Swapchain images only provide a color texture so we have to create depth textures seperatley
 
     int swapchainFramebuffer;
-    int cubeVertexBuffer;
-    int cubeIndexBuffer;
-    int quadVertexBuffer;
-    int cubeVAO;
-    int quadVAO;
     int screenShader;
     int textureShader;
     int colorShader;
@@ -139,11 +134,6 @@ public class HelloOpenXRGL {
             glDeleteTextures(texture);
         }
         glDeleteFramebuffers(swapchainFramebuffer);
-        glDeleteBuffers(cubeVertexBuffer);
-        glDeleteBuffers(cubeIndexBuffer);
-        glDeleteBuffers(quadVertexBuffer);
-        glDeleteVertexArrays(cubeVAO);
-        glDeleteVertexArrays(quadVAO);
         glDeleteProgram(screenShader);
         glDeleteProgram(textureShader);
         glDeleteProgram(colorShader);
@@ -556,6 +546,7 @@ public class HelloOpenXRGL {
         colorShader = ShadersGL.createShaderProgram(ShadersGL.colVertShader, ShadersGL.colFragShader);
         screenShader = ShadersGL.createShaderProgram(ShadersGL.screenVertShader, ShadersGL.texFragShader);
 
+        /*
         {
             cubeVertexBuffer = glGenBuffers();
             glBindBuffer(GL_ARRAY_BUFFER, cubeVertexBuffer);
@@ -583,6 +574,7 @@ public class HelloOpenXRGL {
             glEnableVertexAttribArray(1);
             glVertexAttribPointer(1, 2, GL_FLOAT, false, 4 * 4, 2 * 4);
         }
+        */
 
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -821,13 +813,13 @@ public class HelloOpenXRGL {
         return true;
     }
 
-    private static Matrix4f modelviewMatrix  = new Matrix4f();
+//    private static Matrix4f modelviewMatrix  = new Matrix4f();
     private static Matrix4f projectionMatrix = new Matrix4f();
     private static Matrix4f viewMatrix       = new Matrix4f();
     private static com.jme3.math.Vector3f viewPos = new com.jme3.math.Vector3f();
     private static com.jme3.math.Quaternion viewRot = new com.jme3.math.Quaternion();
 
-    private static FloatBuffer mvpMatrix = BufferUtils.createFloatBuffer(16);
+//    private static FloatBuffer mvpMatrix = BufferUtils.createFloatBuffer(16);
 
     private void OpenGLRenderView(XrCompositionLayerProjectionView layerView, XrSwapchainImageOpenGLKHR swapchainImage, int viewIndex) {
         glBindFramebuffer(GL_FRAMEBUFFER, swapchainFramebuffer);
@@ -864,6 +856,7 @@ public class HelloOpenXRGL {
         viewPos.set(pos.x(), pos.y(), pos.z());
         viewRot.set(orientation.x(), orientation.y(), orientation.z(), orientation.w());
 
+        /*
         glDisable(GL_CULL_FACE); // Disable back-face culling so we can see the inside of the world-space cube and backside of the plane
 
         {   // Rotating plane
@@ -885,6 +878,7 @@ public class HelloOpenXRGL {
         }
 
         glEnable(GL_CULL_FACE);
+        */
 
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -906,7 +900,7 @@ public class HelloOpenXRGL {
             }
             glFrontFace(GL_CCW);
             glUseProgram(screenShader);
-            glBindVertexArray(quadVAO);
+//            glBindVertexArray(quadVAO);
             glDisable(GL_DEPTH_TEST);
             glBindTexture(GL_TEXTURE_2D, swapchainImage.image());
             glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -936,39 +930,6 @@ public class HelloOpenXRGL {
         public XrResultException(String s) {
             super(s);
         }
-    }
-
-    private static class Geometry {
-
-        static float[] cubeVertices = {
-            -0.5f, 0.5f, -0.5f, 0.25f, 0f, 0f, -0.5f, -0.5f, 0.5f, 0.25f, 0f, 0f, -0.5f, -0.5f, -0.5f, 0.25f, 0f, 0f, -0.5f, 0.5f, -0.5f, 0.25f, 0f, 0f, -0.5f, 0.5f, 0.5f, 0.25f, 0f, 0f, -0.5f, -0.5f, 0.5f, 0.25f, 0f, 0f,
-            0.5f, 0.5f, -0.5f, 1f, 0f, 0f, 0.5f, -0.5f, -0.5f, 1f, 0f, 0f, 0.5f, -0.5f, 0.5f, 1f, 0f, 0f, 0.5f, 0.5f, -0.5f, 1f, 0f, 0f, 0.5f, -0.5f, 0.5f, 1f, 0f, 0f, 0.5f, 0.5f, 0.5f, 1f, 0f, 0f,
-            -0.5f, -0.5f, -0.5f, 0f, 0.25f, 0f, -0.5f, -0.5f, 0.5f, 0f, 0.25f, 0f, 0.5f, -0.5f, 0.5f, 0f, 0.25f, 0f, -0.5f, -0.5f, -0.5f, 0f, 0.25f, 0f, 0.5f, -0.5f, 0.5f, 0f, 0.25f, 0f, 0.5f, -0.5f, -0.5f, 0f, 0.25f, 0f,
-            -0.5f, 0.5f, -0.5f, 0f, 1f, 0f, 0.5f, 0.5f, -0.5f, 0f, 1f, 0f, 0.5f, 0.5f, 0.5f, 0f, 1f, 0f, -0.5f, 0.5f, -0.5f, 0f, 1f, 0f, 0.5f, 0.5f, 0.5f, 0f, 1f, 0f, -0.5f, 0.5f, 0.5f, 0f, 1f, 0f,
-            -0.5f, -0.5f, -0.5f, 0f, 0f, 0.25f, 0.5f, -0.5f, -0.5f, 0f, 0f, 0.25f, 0.5f, 0.5f, -0.5f, 0f, 0f, 0.25f, -0.5f, -0.5f, -0.5f, 0f, 0f, 0.25f, 0.5f, 0.5f, -0.5f, 0f, 0f, 0.25f, -0.5f, 0.5f, -0.5f, 0f, 0f, 0.25f,
-            -0.5f, -0.5f, 0.5f, 0f, 0f, 1f, -0.5f, 0.5f, 0.5f, 0f, 0f, 1f, 0.5f, 0.5f, 0.5f, 0f, 0f, 1f, -0.5f, -0.5f, 0.5f, 0f, 0f, 1f, 0.5f, 0.5f, 0.5f, 0f, 0f, 1f, 0.5f, -0.5f, 0.5f, 0f, 0f, 1f
-        };
-
-        // Winding order is clockwise. Each side uses a different color.
-        static short[] cubeIndices = {
-            0, 1, 2, 3, 4, 5,
-            6, 7, 8, 9, 10, 11,
-            12, 13, 14, 15, 16, 17,
-            18, 19, 20, 21, 22, 23,
-            24, 25, 26, 27, 28, 29,
-            30, 31, 32, 33, 34, 35,
-        };
-
-        static float[] quadVertices = { // vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
-            // positions   // texCoords
-            -1.0f, 1.0f, 0.0f, 1.0f,
-            -1.0f, -1.0f, 0.0f, 0.0f,
-            1.0f, -1.0f, 1.0f, 0.0f,
-
-            -1.0f, 1.0f, 0.0f, 1.0f,
-            1.0f, -1.0f, 1.0f, 0.0f,
-            1.0f, 1.0f, 1.0f, 1.0f
-        };
     }
 
 }
