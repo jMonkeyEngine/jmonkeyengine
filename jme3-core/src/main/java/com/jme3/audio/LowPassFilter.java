@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -99,6 +99,6 @@ public class LowPassFilter extends Filter {
 
     @Override
     public long getUniqueId() {
-        return ((long) OBJTYPE_FILTER << 32) | ((long) id);
+        return ((long) OBJTYPE_FILTER << 32) | (0xffffffffL & (long) id);
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -189,7 +189,7 @@ public final class Shader extends NativeObject {
 
         @Override
         public long getUniqueId() {
-            return ((long)OBJTYPE_SHADERSOURCE << 32) | ((long)id);
+            return ((long)OBJTYPE_SHADERSOURCE << 32) | (0xffffffffL & (long)id);
         }
 
         @Override
@@ -462,6 +462,6 @@ public final class Shader extends NativeObject {
 
     @Override
     public long getUniqueId() {
-        return ((long)OBJTYPE_SHADER << 32) | ((long)id);
+        return ((long)OBJTYPE_SHADER << 32) | (0xffffffffL & (long)id);
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -222,6 +222,6 @@ public class AudioStream extends AudioData implements Closeable {
 
     @Override
     public long getUniqueId() {
-        return ((long) OBJTYPE_AUDIOSTREAM << 32) | ((long) ids[0]);
+        return ((long) OBJTYPE_AUDIOSTREAM << 32) | (0xffffffffL & (long) ids[0]);
     }
 }

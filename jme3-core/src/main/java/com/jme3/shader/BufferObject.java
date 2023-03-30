@@ -829,6 +829,6 @@ public class BufferObject extends NativeObject {
 
     @Override
     public long getUniqueId() {
-        return ((long) OBJTYPE_BO << 32) | ((long) id);
+        return ((long) OBJTYPE_BO << 32) | (0xffffffffL & (long) id);
     }
 }
