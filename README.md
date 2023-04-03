@@ -29,6 +29,7 @@ The engine is used by several commercial game studios and computer-science cours
  - [Exotic Matter](https://exoticmatter.io)
  - [Demon Lord](https://play.google.com/store/apps/details?id=com.dreiInitiative.demonLord&pli=1)
  - [Wild Magic](http://wildmagicgame.ru/)
+ - [Marvelous Marbles (on Steam)](https://store.steampowered.com/app/2244540/Marvelous_Marbles/)
 
 ## Getting started
 
