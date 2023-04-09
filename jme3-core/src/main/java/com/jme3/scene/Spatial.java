@@ -811,7 +811,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable,
 
         if (index < numControls) { // re-arrange the list directly
             boolean success = controls.remove(control);
-            assert success : "Surprising control remove failure. " + control.getClass().getSimpleName() + " from spatial" + getName();
+            assert success : "Surprising control remove failure. " + control.getClass().getSimpleName() + " from spatial " + getName();
             controls.add(index, control);
         }
     }
@@ -952,7 +952,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable,
         if ((refreshFlags & RF_MATPARAM_OVERRIDE) != 0) {
             updateMatParamOverrides();
         }
-        assert refreshFlags == 0 : "Illegal refresh flags state: " + refreshFlags + " for spatial" + getName();
+        assert refreshFlags == 0 : "Illegal refresh flags state: " + refreshFlags + " for spatial " + getName();
     }
 
     /**
