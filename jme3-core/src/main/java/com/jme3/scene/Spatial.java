@@ -368,7 +368,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable,
         }
 
         CullHint cm = getCullHint();
-        assert cm != CullHint.Inherit : "CullHint should never be inherit. " + getName();
+        assert cm != CullHint.Inherit : "CullHint should never be inherit. Problem spatial name: " + getName();
         if (cm == Spatial.CullHint.Always) {
             setLastFrustumIntersection(Camera.FrustumIntersect.Outside);
             return false;
@@ -586,7 +586,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable,
             worldLights.update(localLights, null);
             refreshFlags &= ~RF_LIGHTLIST;
         } else {
-            assert (parent.refreshFlags & RF_LIGHTLIST) == 0 : "Illegal light list update. " + getName();
+            assert (parent.refreshFlags & RF_LIGHTLIST) == 0 : "Illegal light list update. Problem spatial name: " + getName();
             worldLights.update(localLights, parent.worldLights);
             refreshFlags &= ~RF_LIGHTLIST;
         }
@@ -599,7 +599,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable,
         if (parent == null) {
             worldOverrides.addAll(localOverrides);
         } else {
-            assert (parent.refreshFlags & RF_MATPARAM_OVERRIDE) == 0 : "Illegal mat param update. " + getName();
+            assert (parent.refreshFlags & RF_MATPARAM_OVERRIDE) == 0 : "Illegal mat param update. Problem spatial name: " + getName();
             worldOverrides.addAll(parent.worldOverrides);
             worldOverrides.addAll(localOverrides);
         }
@@ -653,7 +653,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable,
             refreshFlags &= ~RF_TRANSFORM;
         } else {
             // check if transform for parent is updated
-            assert ((parent.refreshFlags & RF_TRANSFORM) == 0) : "Illegal rf transform update. " + getName();
+            assert ((parent.refreshFlags & RF_TRANSFORM) == 0) : "Illegal rf transform update. Problem spatial name: " + getName();
             worldTransform.set(localTransform);
             worldTransform.combineWithParent(parent.worldTransform);
             refreshFlags &= ~RF_TRANSFORM;
@@ -811,7 +811,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable,
 
         if (index < numControls) { // re-arrange the list directly
             boolean success = controls.remove(control);
-            assert success : "Surprising control remove failure. " + control.getClass().getSimpleName() + " from " + getName();
+            assert success : "Surprising control remove failure. " + control.getClass().getSimpleName() + " from spatial" + getName();
             controls.add(index, control);
         }
     }
@@ -952,7 +952,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable,
         if ((refreshFlags & RF_MATPARAM_OVERRIDE) != 0) {
             updateMatParamOverrides();
         }
-        assert refreshFlags == 0 : "Illegal refresh flags state: " + refreshFlags + " for " + getName();
+        assert refreshFlags == 0 : "Illegal refresh flags state: " + refreshFlags + " for spatial" + getName();
     }
 
     /**
