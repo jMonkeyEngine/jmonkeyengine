@@ -11,8 +11,12 @@ import org.lwjgl.opengl.*;
 import org.lwjgl.openxr.*;
 import org.lwjgl.system.*;
 
+import com.jme3.app.VREnvironment;
+import com.jme3.util.NativeObject;
+
 import java.nio.*;
 import java.util.*;
+import java.util.logging.Logger;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
@@ -26,7 +30,10 @@ import static org.lwjgl.system.MemoryStack.*;
 import static org.lwjgl.system.MemoryUtil.*;
 
 public class HelloOpenXRGL {
-
+	
+    private static final Logger logger = Logger.getLogger(HelloOpenXRGL.class.getName());
+    VREnvironment environment;
+    
     long window;
 
     //XR globals
@@ -64,15 +71,20 @@ public class HelloOpenXRGL {
         XrSwapchainImageOpenGLKHR.Buffer images;
     }
 
-    //JME3: Split function main(args) to public functions init+render+destroy
-    public HelloOpenXRGL()
+    //JME3: Split function main(args) to public functions constr+init+render+destroy
+    public HelloOpenXRGL(VREnvironment environment)
     {
+    	this.environment = environment;
     	createOpenXRInstance();
         initializeOpenXRSystem();
         initializeAndBindOpenGL();
         createXRReferenceSpace();
         createXRSwapchains();
-        createOpenGLResourses();
+    }
+    
+    private void initialize()
+    {
+        createOpenGLResources();
 
         eventDataBuffer = XrEventDataBuffer.calloc()
             .type$Default();
@@ -81,6 +93,7 @@ public class HelloOpenXRGL {
     /** Returns true for continue */
     public boolean renderFrame()
     {
+    	if (eventDataBuffer == null) { initialize(); }
     	if (pollEvents()) return false;
     	if (glfwWindowShouldClose(window)) return false;
         if (sessionRunning)
@@ -149,7 +162,16 @@ public class HelloOpenXRGL {
     public void getViewRotation(com.jme3.math.Quaternion store)
     {
     	store.set(viewRot);
-    }  
+    }
+    public void getRenderSize(com.jme3.math.Vector2f store)
+    {
+    	if (swapchains == null || swapchains.length == 0 || swapchains[0] == null)
+    	{
+    		logger.warning("XR is not ready. Returning default renderSize of 1512x1680");
+    		store.set(1512, 1680);
+    	}
+    	store.set(swapchains[0].width,swapchains[0].height);
+    }
 
     private void createOpenXRInstance() {
         try (MemoryStack stack = stackPush()) {
@@ -525,7 +547,7 @@ public class HelloOpenXRGL {
         }
     }
 
-    private void createOpenGLResourses() {
+    private void createOpenGLResources() {
         swapchainFramebuffer = glGenFramebuffers();
         depthTextures = new HashMap<>(0);
         for (Swapchain swapchain : swapchains) {
@@ -576,9 +598,9 @@ public class HelloOpenXRGL {
         }
         */
 
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-        glBindVertexArray(0);
+//        glBindBuffer(GL_ARRAY_BUFFER, 0);
+//        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+//        glBindVertexArray(0);
     }
 
     private boolean pollEvents() {

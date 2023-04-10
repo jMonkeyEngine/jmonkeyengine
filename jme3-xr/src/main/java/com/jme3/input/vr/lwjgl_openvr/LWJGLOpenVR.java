@@ -37,7 +37,6 @@ public class LWJGLOpenVR implements VRAPI {
 
     protected Matrix4f[] poseMatrices;
 
-    private final Matrix4f hmdPose = Matrix4f.IDENTITY.clone();
     private Matrix4f hmdProjectionLeftEye;
     private Matrix4f hmdProjectionRightEye;
     private Matrix4f hmdPoseLeftEye;
@@ -98,7 +97,7 @@ public class LWJGLOpenVR implements VRAPI {
     public boolean initialize() {
         logger.config("Initializing OpenVR system...");
 
-        com.jme3.input.vr.lwjgl_openxr.HelloOpenXRGL mainXr = new com.jme3.input.vr.lwjgl_openxr.HelloOpenXRGL();
+        com.jme3.input.vr.lwjgl_openxr.HelloOpenXRGL mainXr = new com.jme3.input.vr.lwjgl_openxr.HelloOpenXRGL(environment);
         vrInput = new LWJGLOpenVRInput(environment);
         initSuccess = vrInput.init();
         if (initSuccess)
@@ -140,9 +139,7 @@ public class LWJGLOpenVR implements VRAPI {
 
     @Override
     public void getRenderSize(Vector2f store) {
-        //TODO
-        store.x = 800;
-        store.y = 600;
+        environment.getXr().getRenderSize(store);
     }
 
     @Override
@@ -152,24 +149,19 @@ public class LWJGLOpenVR implements VRAPI {
 
     @Override
     public Quaternion getOrientation() {
-        VRUtil.convertMatrix4toQuat(hmdPose, rotStore);
+    	environment.getXr().getViewRotation(rotStore);
         return rotStore;
     }
 
     @Override
     public Vector3f getPosition() {
-        // the hmdPose comes in rotated funny, fix that here
-        hmdPose.toTranslationVector(posStore);
-        posStore.x = -posStore.x;
-        posStore.z = -posStore.z;
+    	environment.getXr().getViewPosition(posStore);
         return posStore;
     }
 
     @Override
     public void getPositionAndOrientation(Vector3f storePos, Quaternion storeRot) {
-        hmdPose.toTranslationVector(storePos);
-        storePos.x = -storePos.x;
-        storePos.z = -storePos.z;
+        storePos.set(getPosition());
         storeRot.set(getOrientation());
     }
 
