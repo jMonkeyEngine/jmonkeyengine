@@ -41,7 +41,7 @@ dependencies {
     // Adding dependencies here will add the dependencies to each subproject.
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'org.mockito:mockito-core:3.12.4'
-    testImplementation 'org.codehaus.groovy:groovy-test:3.0.16'
+    testImplementation 'org.codehaus.groovy:groovy-test:3.0.17'
 }
 
 // Uncomment if you want to see the status of every test that is run and
