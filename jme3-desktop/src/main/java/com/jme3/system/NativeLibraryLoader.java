@@ -273,10 +273,10 @@ public final class NativeLibraryLoader {
 
     private static int computeNativesHash() {
         URLConnection conn = null;
-        try {
-            String classpath = System.getProperty("java.class.path");
-            URL url = Thread.currentThread().getContextClassLoader().getResource("com/jme3/system/NativeLibraryLoader.class");
+        String classpath = System.getProperty("java.class.path");
+        URL url = Thread.currentThread().getContextClassLoader().getResource("com/jme3/system/NativeLibraryLoader.class");
 
+        try {
             StringBuilder sb = new StringBuilder(url.toString());
             if (sb.indexOf("jar:") == 0) {
                 sb.delete(0, 4);
@@ -293,7 +293,8 @@ public final class NativeLibraryLoader {
             int hash = classpath.hashCode() ^ (int) conn.getLastModified();
             return hash;
         } catch (IOException ex) {
-            throw new UnsupportedOperationException(ex);
+            throw new UncheckedIOException("Failed to open file: '" + url
+                    + "'. Error: " + ex, ex);
         } finally {
             if (conn != null) {
                 try {
