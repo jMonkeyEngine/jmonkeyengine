@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1116,7 +1116,7 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
 
     @Override
     public long getUniqueId() {
-        return ((long) OBJTYPE_VERTEXBUFFER << 32) | ((long) id);
+        return ((long) OBJTYPE_VERTEXBUFFER << 32) | (0xffffffffL & (long) id);
     }
 
     @Override
