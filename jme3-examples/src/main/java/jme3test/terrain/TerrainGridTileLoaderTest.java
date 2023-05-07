@@ -43,6 +43,11 @@ public class TerrainGridTileLoaderTest extends SimpleApplication {
 
     @Override
     public void simpleInitApp() {
+        /*
+         * Note: this test uses the "TerrainGrid" assets (from jme3-testdata),
+         * _not_ the "TerrainGridTestData.zip" assets
+         * (from jme3-examples and the Google Code archives).
+         */
         this.flyCam.setMoveSpeed(100f);
         ScreenshotAppState state = new ScreenshotAppState();
         this.stateManager.attach(state);
