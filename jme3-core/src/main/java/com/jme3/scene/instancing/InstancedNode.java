@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2021 jMonkeyEngine
+ * Copyright (c) 2014-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,6 +35,7 @@ import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.material.MatParam;
 import com.jme3.material.Material;
+import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue;
@@ -161,7 +162,7 @@ public class InstancedNode extends GeometryGroupNode {
 
         @Override
         public void render(RenderManager rm, ViewPort vp) {
-            node.renderFromControl();
+            node.renderFromControl(vp.getCamera());
         }
 
         @Override
@@ -198,9 +199,9 @@ public class InstancedNode extends GeometryGroupNode {
         addControl(control);
     }
 
-    private void renderFromControl() {
+    private void renderFromControl(Camera cam) {
         for (InstancedGeometry ig : instancesMap.values()) {
-            ig.updateInstances();
+            ig.updateInstances(cam);
         }
     }
 
