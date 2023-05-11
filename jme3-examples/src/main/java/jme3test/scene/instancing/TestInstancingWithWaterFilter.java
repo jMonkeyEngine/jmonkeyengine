@@ -47,7 +47,7 @@ import com.jme3.water.WaterFilter;
  * for issue 2007 (Instanced objects are culled when using the WaterFilter).
  *
  * If test succeeds, all the boxes in the camera frustum will be rendered. If
- * test fails, most of the boxes that are in the camera frustum will be culled.
+ * test fails, some of the boxes that are in the camera frustum will be culled.
  *
  * @author Ali-RS
  */
