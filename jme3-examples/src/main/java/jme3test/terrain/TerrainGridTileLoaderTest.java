@@ -2,8 +2,6 @@ package jme3test.terrain;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.app.state.ScreenshotAppState;
-import com.jme3.asset.plugins.HttpZipLocator;
-import com.jme3.asset.plugins.ZipLocator;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.collision.shapes.CapsuleCollisionShape;
 import com.jme3.bullet.collision.shapes.HeightfieldCollisionShape;
@@ -28,7 +26,6 @@ import com.jme3.terrain.geomipmap.grid.AssetTileLoader;
 import com.jme3.terrain.geomipmap.lodcalc.DistanceLodCalculator;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
-import java.io.File;
 
 public class TerrainGridTileLoaderTest extends SimpleApplication {
 
@@ -46,15 +43,11 @@ public class TerrainGridTileLoaderTest extends SimpleApplication {
 
     @Override
     public void simpleInitApp() {
-        File file = new File("TerrainGridTestData.zip");
-        if (!file.exists()) {
-            assetManager.registerLocator(
-                    "https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/jmonkeyengine/TerrainGridTestData.zip",
-                    HttpZipLocator.class);
-        } else {
-            assetManager.registerLocator("TerrainGridTestData.zip", ZipLocator.class);
-        }
-
+        /*
+         * Note: this test uses the "TerrainGrid" assets (from jme3-testdata),
+         * _not_ the "TerrainGridTestData.zip" assets
+         * (from jme3-examples and the Google Code archives).
+         */
         this.flyCam.setMoveSpeed(100f);
         ScreenshotAppState state = new ScreenshotAppState();
         this.stateManager.attach(state);
