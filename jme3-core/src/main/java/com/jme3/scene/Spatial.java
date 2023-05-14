@@ -48,8 +48,10 @@ import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
+import com.jme3.scene.Node.StateUpdateHints;
 import com.jme3.scene.control.Control;
 import com.jme3.util.SafeArrayList;
+import com.jme3.util.StatefulObject;
 import com.jme3.util.TempVars;
 import com.jme3.util.clone.Cloner;
 import com.jme3.util.clone.IdentityCloneFunction;
@@ -68,8 +70,8 @@ import java.util.logging.Logger;
  * @author Joshua Slack
  * @version $Revision: 4075 $, $Data$
  */
-public abstract class Spatial implements Savable, Cloneable, Collidable,
-        CloneableSmartAsset, JmeCloneable, HasLocalTransform {
+public abstract class Spatial extends StatefulObject implements Savable, Cloneable, Collidable, CloneableSmartAsset, JmeCloneable, HasLocalTransform {
+
     private static final Logger logger = Logger.getLogger(Spatial.class.getName());
 
     /**
@@ -775,6 +777,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable,
         boolean before = requiresUpdates();
         controls.add(control);
         control.setSpatial(this);
+        updateStates(StateUpdateHints.INVALIDATE_UPDATE_LIST);
         boolean after = requiresUpdates();
         // If the requirement to be updated has changed,
         // then we need to let the parent node know, so it
@@ -831,6 +834,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable,
                 break; // added to match the javadoc  -pspeed
             }
         }
+        updateStates(StateUpdateHints.INVALIDATE_UPDATE_LIST);
         boolean after = requiresUpdates();
         // If the requirement to be updated has changed,
         // then we need to let the parent node know, so it
@@ -856,13 +860,15 @@ public abstract class Spatial implements Savable, Cloneable, Collidable,
             control.setSpatial(null);
         }
 
-        boolean after = requiresUpdates();
+        updateStates(StateUpdateHints.INVALIDATE_UPDATE_LIST);        
+        boolean after = requiresUpdates();       
         // If the requirement to be updated has changed,
         // then we need to let the parent node know, so it
         // can rebuild its update list.
         if (parent != null && before != after) {
             parent.invalidateUpdateList();
         }
+        
         return result;
     }
 
@@ -938,6 +944,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable,
         // assume that this Spatial is a leaf, a proper implementation
         // for this method should be provided by Node.
 
+        int refreshFlagsCp = refreshFlags;
         // NOTE: Update world transforms first because
         // bound transform depends on them.
         if ((refreshFlags & RF_LIGHTLIST) != 0) {
@@ -953,6 +960,8 @@ public abstract class Spatial implements Savable, Cloneable, Collidable,
             updateMatParamOverrides();
         }
         assert refreshFlags == 0;
+
+        updateStates(refreshFlagsCp);
     }
 
     /**

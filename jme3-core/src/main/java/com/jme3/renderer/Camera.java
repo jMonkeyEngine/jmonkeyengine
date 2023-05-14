@@ -45,6 +45,9 @@ import com.jme3.math.Quaternion;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.math.Vector4f;
+import com.jme3.export.*;
+import com.jme3.math.*;
+import com.jme3.util.StatefulObject;
 import com.jme3.util.TempVars;
 import java.io.IOException;
 import java.util.logging.Level;
@@ -70,7 +73,7 @@ import java.util.logging.Logger;
  * @author Mark Powell
  * @author Joshua Slack
  */
-public class Camera implements Savable, Cloneable {
+public class Camera extends StatefulObject implements Savable, Cloneable {
 
     private static final Logger logger = Logger.getLogger(Camera.class.getName());
 
@@ -1247,6 +1250,7 @@ public class Camera implements Savable, Cloneable {
             //viewProjectionMatrix.set(viewMatrix).multLocal(projectionMatrix);
             viewProjectionMatrix.set(projectionMatrix).multLocal(viewMatrix);
         }
+        updateStates(null);
     }
 
     /**

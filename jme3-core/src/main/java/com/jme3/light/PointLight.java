@@ -136,6 +136,7 @@ public class PointLight extends Light {
      */
     public final void setPosition(Vector3f position) {
         this.position.set(position);
+        updateStates(null);
     }
 
     /**
@@ -171,6 +172,7 @@ public class PointLight extends Light {
         } else {
             this.invRadius = 0;
         }
+        updateStates(null);
     }
 
     /**

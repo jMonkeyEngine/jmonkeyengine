@@ -58,6 +58,9 @@ import java.util.logging.Logger;
  * @author Joshua Slack
  */
 public class Node extends Spatial {
+    public enum StateUpdateHints {
+        INVALIDATE_UPDATE_LIST        
+    }
     private static final Logger logger = Logger.getLogger(Node.class.getName());
     /**
      * This node's children.
@@ -201,6 +204,7 @@ public class Node extends Spatial {
      *  that would change state.
      */
     void invalidateUpdateList() {
+        updateStates(StateUpdateHints.INVALIDATE_UPDATE_LIST);
         updateListValid = false;
         if (parent != null) {
             parent.invalidateUpdateList();

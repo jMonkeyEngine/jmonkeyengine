@@ -87,11 +87,13 @@ public class NanoTimer extends Timer {
         tpf = (getTime() - previousTime) * (1.0f / TIMER_RESOLUTION);
         fps = 1.0f / tpf;
         previousTime = getTime();
+        updateStates(null);
     }
     
     @Override
     public void reset() {
         startTime = System.nanoTime();
         previousTime = getTime();
+        updateStates(null);
     }
 }
