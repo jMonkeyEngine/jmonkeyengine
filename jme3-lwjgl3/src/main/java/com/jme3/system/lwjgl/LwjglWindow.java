@@ -238,16 +238,8 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
 
         final String renderer = settings.getRenderer();
 
-        //Appsettings GL version below 3.2
-        if ((!RENDER_CONFIGS. containsKey (renderer))|| //OPENGL20
-                renderer.equals (AppSettings.LWJGL_OPENGL30)||renderer.equals (AppSettings.LWJGL_OPENGL31)
-        ) {
-            glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
-            glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE);
-        }else {
-            glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
-            glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-        }
+        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
+        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
         RENDER_CONFIGS.computeIfAbsent(renderer, s -> () -> {
             glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_FALSE);
