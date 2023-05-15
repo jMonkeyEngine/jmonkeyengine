@@ -53,9 +53,12 @@ public class XrHmd
 		s.setRenderer("CUSTOM" + com.jme3.system.lwjgl.LwjglWindowXr.class.getName()); //see JmeDesktopSystem.newContext(...)
 	}
 	
-    public static XrHmd initHmd(SimpleApplication app) {
-    	XrHmd xrHmd = new XrHmd(app, 0.8f);
-    	((LwjglWindowXr)app.getContext()).getXr().setHmd(xrHmd);
-    	return xrHmd;
-    }
+	/** Must be called in init-function of SimpleApplication.
+	 * @return The head-mounted-device object. */
+	public static XrHmd initHmd(SimpleApplication app)
+	{
+		XrHmd xrHmd = new XrHmd(app, 0.8f);
+		((LwjglWindowXr)app.getContext()).getXr().setHmd(xrHmd);
+		return xrHmd;
+	}
 }
