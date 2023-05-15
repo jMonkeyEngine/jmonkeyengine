@@ -87,10 +87,16 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
 
     static {
         RENDER_CONFIGS.put(AppSettings.LWJGL_OPENGL30, () -> {
+            // Based on GLFW docs for OpenGL version below 3.2,
+            // GLFW_OPENGL_ANY_PROFILE must be used.
+            glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE);
             glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
             glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
         });
         RENDER_CONFIGS.put(AppSettings.LWJGL_OPENGL31, () -> {
+            // Based on GLFW docs for OpenGL version below 3.2,
+            // GLFW_OPENGL_ANY_PROFILE must be used.
+            glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE);
             glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
             glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
         });
