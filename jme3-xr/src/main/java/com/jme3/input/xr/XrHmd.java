@@ -53,7 +53,7 @@ public class XrHmd
 		s.setRenderer("CUSTOM" + com.jme3.system.lwjgl.LwjglWindowXr.class.getName()); //see JmeDesktopSystem.newContext(...)
 	}
 	
-	/** Must be called in init-function of SimpleApplication.
+	/** Must be called in simpleInitApp-function of SimpleApplication.
 	 * @return The head-mounted-device object. */
 	public static XrHmd initHmd(SimpleApplication app)
 	{
