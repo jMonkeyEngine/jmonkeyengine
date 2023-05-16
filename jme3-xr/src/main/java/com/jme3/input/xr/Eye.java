@@ -16,19 +16,19 @@ import com.jme3.texture.FrameBuffer.FrameBufferTarget;
 import com.jme3.texture.Image.Format;
 
 public class Eye {
+	static int index = 0;
 	SimpleApplication app;
 	float posX;
 	Vector3f tmpVec = new Vector3f();
 	Texture2D offTex;
-    Geometry offGeo;
-    Camera offCamera;
-    Vector3f centerPos = new Vector3f(0f, 0f, -5f);
-    Quaternion centerRot = new Quaternion();
+	Geometry offGeo;
+	Camera offCamera;
+	Vector3f centerPos = new Vector3f(0f, 0f, -5f);
+	Quaternion centerRot = new Quaternion();
     
-    public Eye(SimpleApplication app, float posX)
+    public Eye(SimpleApplication app)
     {
     	this.app = app;
-    	this.posX = posX;
     	setupOffscreenView(app);
         Material mat = new Material(app.getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
         mat.setTexture("ColorMap", offTex);
@@ -36,6 +36,9 @@ public class Eye {
         offGeo = new Geometry("box", new Box(1, 1, 1));
         offGeo.setMaterial(mat);
     }
+    
+    public void setPosX(float posX) { this.posX = posX; }
+    public float getPosX() { return posX; }
     
     /** Moves the camera.
      * @param The new absolute center position. */
@@ -61,14 +64,13 @@ public class Eye {
     	int h = app.getContext().getSettings().getHeight();
         offCamera = new Camera(w, h);
 
-        ViewPort offView = app.getRenderManager().createPreView("OffscreenViewX" + posX, offCamera);
+        ViewPort offView = app.getRenderManager().createPreView("OffscreenViewX" + (index++), offCamera);
         offView.setClearFlags(true, true, true);
         offView.setBackgroundColor(ColorRGBA.DarkGray);
         FrameBuffer offBuffer = new FrameBuffer(w, h, 1);
 
         //setup framebuffer's cam
         offCamera.setFrustumPerspective(45f, 1f, 1f, 1000f);
-        offCamera.setLocation(new Vector3f(-posX, 0f, -5f));
         offCamera.lookAt(new Vector3f(0f, 0f, 0f), Vector3f.UNIT_Y);
 
         //setup framebuffer's texture
