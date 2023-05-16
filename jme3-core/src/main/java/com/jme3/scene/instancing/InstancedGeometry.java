@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2022 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -75,7 +75,6 @@ public class InstancedGeometry extends Geometry {
 
     private int firstUnusedIndex = 0;
     private int numVisibleInstances = 0;
-    private Camera cam;
 
     public InstancedGeometry() {
         super();
@@ -276,7 +275,7 @@ public class InstancedGeometry extends Geometry {
         }
     }
 
-    public void updateInstances() {
+    public void updateInstances(Camera cam) {
         FloatBuffer fb = (FloatBuffer) transformInstanceData.getData();
         fb.limit(fb.capacity());
         fb.position(0);
@@ -414,12 +413,6 @@ public class InstancedGeometry extends Geometry {
             allData.addAll(Arrays.asList(globalInstanceData));
         }
         allInstanceData = allData.toArray(new VertexBuffer[allData.size()]);
-    }
-
-    @Override
-    public boolean checkCulling(Camera cam) {
-        this.cam = cam;
-        return super.checkCulling(cam);
     }
 
     @Override
