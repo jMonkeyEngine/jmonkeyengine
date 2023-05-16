@@ -48,7 +48,7 @@ public class LWJGLOpenVR implements VRAPI {
 
     private Vector3f hmdPoseLeftEyeVec, hmdPoseRightEyeVec, hmdSeatToStand;
 
-    private LWJGLOpenVRInput VRinput;
+    private LWJGLOpenVRInput vrInput;
 
     private VREnvironment environment = null;
 
@@ -91,7 +91,7 @@ public class LWJGLOpenVR implements VRAPI {
 
     @Override
     public LWJGLOpenVRInput getVRinput() {
-        return VRinput;
+        return vrInput;
     }
 
     @Override
@@ -158,9 +158,9 @@ public class LWJGLOpenVR implements VRAPI {
             hmdDisplayFrequency.get(0);
             TrackedDevicePose.create(VR.k_unMaxTrackedDeviceCount);
             // init controllers for the first time
-            VRinput = new LWJGLOpenVRInput(environment);
-            VRinput.init();
-            VRinput.updateConnectedControllers();
+            vrInput = new LWJGLOpenVRInput(environment);
+            vrInput.init();
+            vrInput.updateConnectedControllers();
 
             // init bounds & chaperone info
             LWJGLOpenVRBounds bounds = new LWJGLOpenVRBounds();
