@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -84,6 +84,24 @@ public class Picture extends Geometry {
      * Serialization only. Do not use.
      */
     protected Picture(){
+    }
+
+    /**
+     * Return the height of the picture.
+     *
+     * @return the height (in pixels)
+     */
+    public float getHeight() {
+        return height;
+    }
+
+    /**
+     * Return the width of the picture.
+     *
+     * @return the width (in pixels)
+     */
+    public float getWidth() {
+        return width;
     }
 
     /**
