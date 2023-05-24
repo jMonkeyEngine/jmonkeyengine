@@ -198,7 +198,7 @@ public abstract class Action implements JmeCloneable, Tween {
      * @see Action#setSpeed(double)
      */
     protected void setForward(boolean forward) {
-        if(this.forward == forward){
+        if (this.forward == forward) {
             return;
         }
         this.forward = forward;
