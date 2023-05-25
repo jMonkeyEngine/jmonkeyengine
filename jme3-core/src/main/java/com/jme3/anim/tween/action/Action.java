@@ -104,9 +104,8 @@ public abstract class Action implements JmeCloneable, Tween {
 
     /**
      * Retrieves the speedup factor applied by the layer for this action.
-     * The speed factor gets applied on each interpolation by this formula : time += tpf * currentAction.getSpeed() * ac.globalSpeed.
-     * Default speed is 1.0, it plays the animation clips at their normal speed.
      *
+     * @see Action#setSpeed(double) for detailed documentation
      * @return the speed of frames.
      */
     public double getSpeed() {
