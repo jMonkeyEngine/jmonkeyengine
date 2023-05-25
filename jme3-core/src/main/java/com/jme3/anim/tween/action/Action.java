@@ -123,7 +123,7 @@ public abstract class Action implements JmeCloneable, Tween {
      */
     public void setSpeed(double speed) {
         this.speed = speed;
-        if( speed < 0){
+        if (speed < 0) {
             setForward(false);
         } else {
             setForward(true);
