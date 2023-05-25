@@ -38,7 +38,7 @@ import com.jme3.util.SafeArrayList;
 import java.util.List;
 
 /**
- * A simple implementation for the interface {@link Action} to provide a wrapper for a {@link Tween}.
+ * A simple implementation for the abstract class {@link Action} to provide a wrapper for a {@link Tween}.
  * Internally, it is used as a helper class for {@link Action} to extract and gather actions from a tween and interpolate it.
  * <p>
  * An example showing two clip actions running in parallel at 2x of their ordinary speed
