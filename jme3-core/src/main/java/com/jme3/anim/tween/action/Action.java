@@ -38,14 +38,15 @@ import com.jme3.util.clone.JmeCloneable;
 
 /**
  * Wraps an array of Tween actions into an action object.
- * <br/>
+ * 
  * <p>
  * Notes :
  * <li> The sequence of tweens is determined by {@link com.jme3.anim.tween.Tweens} utility class and {@link BaseAction} interpolates that sequence. </li>
  * <li> This implementation mimics the {@link com.jme3.anim.tween.AbstractTween}, but it delegates the interpolation method {@link Tween#interpolate(double)}
  * to the {@link BlendableAction} class. </li>
- *
- * <b>Created by Nehon.</b>
+ * </p>
+ * 
+ * Created by Nehon.
  *
  * @see BlendableAction
  * @see BaseAction
