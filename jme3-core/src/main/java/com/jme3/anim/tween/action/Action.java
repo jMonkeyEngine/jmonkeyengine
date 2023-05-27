@@ -64,10 +64,12 @@ public abstract class Action implements JmeCloneable, Tween {
     
     /**
      * Instantiates an action object that wraps a tween actions array by extracting their actions to the collection {@link Action#actions}.
+     * <p>
      * Notes :
-     * - If intentions are to wrap some tween actions, then subclasses have to call this constructor, examples : {@link BlendableAction} and {@link BlendAction}.
-     * - If intentions are to make an implementation of {@link Action} that shouldn't wrap tweens of actions, then subclasses shouldn't call this
-     * constructor, examples : {@link ClipAction} and {@link BaseAction}.
+     * <li> If intentions are to wrap some tween actions, then subclasses have to call this constructor, examples : {@link BlendableAction} and {@link BlendAction}. </li>
+     * <li> If intentions are to make an implementation of {@link Action} that shouldn't wrap tweens of actions, then subclasses shouldn't call this
+     * constructor, examples : {@link ClipAction} and {@link BaseAction}. </li>
+     * </p> 
      *
      * @param tweens the tween actions to be wrapped.
      */    
