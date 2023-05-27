@@ -201,7 +201,7 @@ public abstract class Action implements JmeCloneable, Tween {
      * Adjusts the forward flag which controls the animation action directionality.
      *
      * @param forward true to run the animation forward, false otherwise.
-     * @see Action#setSpeed(double) to change the directionality of this tween actions, negative numbers play the animation in a backward fashion
+     * @see Action#setSpeed(double) to change the directionality of the tween actions, negative numbers play the animation in a backward fashion
      */
     protected void setForward(boolean forward) {
         if (this.forward == forward) {
