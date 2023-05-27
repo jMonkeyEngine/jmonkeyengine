@@ -115,10 +115,14 @@ public abstract class Action implements JmeCloneable, Tween {
 
     /**
      * Alters the speedup factor applied by the layer running this action.
-     * This factor controls the animation direction, so if the speed is a positive value then the animation would run forward and vice versa.
-     * The speed factor gets applied, inside the {@link com.jme3.anim.AnimLayer}, on each interpolation step by this formula : time += tpf * action.getSpeed() * composer.globalSpeed.
-     * Default speed is 1.0, it plays the animation clips at their normal speed.
-     *
+     * <p>
+     * Notes:
+     * <li> This factor controls the animation direction, so if the speed is a positive value then the animation would run forward and vice versa. </li>
+     * <li> The speed factor gets applied, inside the {@link com.jme3.anim.AnimLayer}, on each interpolation step by this formula : time += tpf * action.getSpeed() * composer.globalSpeed. </li>
+     * <li> Default speed is 1.0, it plays the animation clips at their normal speed. </li>
+     * <li> Setting the speed factor to Zero will stop the animation, while setting it to a negative number will play the animation in a backward fashion. </li>
+     * </p>
+     * 
      * @param speed the speed of frames.
      */
     public void setSpeed(double speed) {
