@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2022 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1095,6 +1095,8 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      * Rotates the argument vector and returns the result as a new vector. The
      * current instance is unaffected.
      *
+     * <p>The current instance is assumed to have norm=1.
+     *
      * <p>Despite the name, the result differs from the mathematical definition
      * of vector-quaternion multiplication.
      *
@@ -1108,6 +1110,8 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     /**
      * Rotates the argument vector. Despite the name, the current instance is
      * unaffected.
+     *
+     * <p>The current instance is assumed to have norm=1.
      *
      * <p>Despite the name, the result differs from the mathematical definition
      * of vector-quaternion multiplication.
@@ -1176,6 +1180,8 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     /**
      * Rotates a specified vector and returns the result in another vector. The
      * current instance is unaffected.
+     *
+     * <p>The current instance is assumed to have norm=1.
      *
      * <p>It is safe for {@code v} and {@code store} to be the same object.
      *
