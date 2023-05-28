@@ -50,6 +50,7 @@ package com.jme3.anim.tween.action;
  * <li> In case of (Blending weight < 0), the behavior is the same as the case (0 < Blending weight < 1). </li>
  * <li> In case of (Blending weight = 1), the blending is finished and only the second action will continue to run. </li>
  * <li> In case of (Blending weight > 1), the blending is finished and only the second action will continue to run, but with extrapolation. </li>
+ * <li> Find more at {@link BlendAction#doInterpolate(double)} and {@link BlendAction#collectTransform(HasLocalTransform, Transform, float, BlendableAction)}. </li>
  * </p>
  * 
  * Created by Nehon.
