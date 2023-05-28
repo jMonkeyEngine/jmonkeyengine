@@ -41,13 +41,17 @@ package com.jme3.anim.tween.action;
  * then applying them on a {@link HasLocalTransform} object, the {@link BlendSpace} provides this blending action with a blend weight value. </li>
  * <li> The blend weight is the value for the interpolation for the target transforms. </li>
  * <li> The blend weight value should lie in this interval [0, 1]. </li>
- * <li> Blending weight = 0 means only the first action will run at interpolation value 1. </li>
- * <li> Blending weight = 1 means the blending is finished and only the second action will continue to run. </li>
- * <li> Blending weight between 1 and 0 means the blending is executed each update among 2 actions, the first action will use 
- * a blend value of 1 and the second action will use the blend space weight as a value for the interpolation. </li>
  * </p>
  * 
- *
+ * <p>
+ * Different blending weight case scenarios managed by {@link BlendAction} internally:
+ * <li> In case of (0 < Blending weight < 1), the blending is executed each update among 2 actions, the first action will use 
+ * a blend value of 1 and the second action will use the blend space weight as a value for the interpolation. </li>
+ * <li> In case of (Blending weight = -x, where x < 0), the behavior is the same as the case (0 < Blending weight < 1). </li>
+ * <li> In case of (Blending weight = 1), the blending is finished and only the second action will continue to run. </li>
+ * <li> In case of (Blending weight > 1), the blending is finished and only the second action will continue to run, but with extrapolation. </li>
+ * </p>
+ * 
  * Created by Nehon.
  * @see LinearBlendSpace an example of blendspace implementation
  */
