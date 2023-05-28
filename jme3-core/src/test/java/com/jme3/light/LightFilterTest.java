@@ -134,8 +134,9 @@ public class LightFilterTest {
         checkFilteredLights(1);
         
         // Rotate the camera so it is up, light is outside frustum.
-        cam.lookAtDirection(Vector3f.UNIT_Y, Vector3f.UNIT_Y);
+        cam.lookAtDirection(Vector3f.UNIT_Y, Vector3f.UNIT_X);
         checkFilteredLights(0);
+        cam.lookAtDirection(Vector3f.UNIT_Z, Vector3f.UNIT_Y);
         
         // ==================================
         // Tests for bounding Sphere
