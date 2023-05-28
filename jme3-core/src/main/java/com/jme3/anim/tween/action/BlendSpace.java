@@ -47,7 +47,7 @@ package com.jme3.anim.tween.action;
  * Different blending weight case scenarios managed by {@link BlendAction} internally:
  * <li> In case of (0 < Blending weight < 1), the blending is executed each update among 2 actions, the first action will use 
  * a blend value of 1 and the second action will use the blend space weight as a value for the interpolation. </li>
- * <li> In case of (Blending weight < 0), the behavior is the same as the case (0 < Blending weight < 1). </li>
+ * <li> In case of (Blending weight <= 0), the blending hasn't started yet, only the first action will be interpolated at (weight = 1). </li>
  * <li> In case of (Blending weight = 1), the blending is finished and only the second action will continue to run. </li>
  * <li> In case of (Blending weight > 1), the blending is finished and only the second action will continue to run, but with extrapolation. </li>
  * <li> Find more at {@link BlendAction#doInterpolate(double)} and {@link BlendAction#collectTransform(HasLocalTransform, Transform, float, BlendableAction)}. </li>
