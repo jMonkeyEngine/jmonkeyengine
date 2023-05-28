@@ -651,7 +651,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
 
         float norm = norm();
         if (norm != 1.0f) {
-            norm = FastMath.invSqrt(norm);
+            norm = 1.0f / norm;
         }
 
         float xx = x * x * norm;
