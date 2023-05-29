@@ -1152,6 +1152,9 @@ public abstract class Spatial implements Savable, Cloneable, Collidable,
     /**
      * <code>setLocalTransform</code> sets the local transform of this
      * spatial.
+     *
+     * @param t the desired local transform (not null, {@code t.rot.norm() == 1}
+     *     or nearly so, unaffected)
      */
     @Override
     public void setLocalTransform(Transform t) {
