@@ -59,14 +59,14 @@ package com.jme3.anim.tween.action;
 public interface BlendSpace {
 
     /**
-     * Adjusts the target blend-action instance that utilize the blend-weight value provided by this blend-space implementation.
+     * Adjusts the target blend action instance that will utilize the blend weight value provided by this blend-space implementation.
      * 
-     * @param action the blend-action instance that will utilize this blend-space.
+     * @param action the blend action instance that will utilize this blend-space.
      */
     public void setBlendAction(BlendAction action);
 
     /**
-     * Used for passing the desired weight to the selected {@link BlendAction} instance,
+     * Provides the blend weight value to the assigned {@link BlendAction} instance,
      * this value will be used for interpolating a collection of actions' transformations (keyframes).
      * 
      * @return the blending weight value.
