@@ -38,7 +38,7 @@ package com.jme3.anim.tween.action;
  * <p>
  * Notes:
  * <li> Blending is the action of mixing between 2 successive animation {@link BlendableAction}s by interpolating their transforms and 
- * then applying them on a {@link HasLocalTransform} object, the {@link BlendSpace} provides this blending action with a blend weight value. </li>
+ * then applying the result on the assigned {@link HasLocalTransform} object, the {@link BlendSpace} provides this blending action with a blend weight value. </li>
  * <li> The blend weight is the value for the interpolation for the target transforms. </li>
  * <li> The blend weight value should lie in this interval [0, 1]. </li>
  * </p>
