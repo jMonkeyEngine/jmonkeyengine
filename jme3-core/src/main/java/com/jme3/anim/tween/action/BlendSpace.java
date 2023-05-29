@@ -68,7 +68,7 @@ public interface BlendSpace {
     /**
      * Provides the blend weight value to the assigned {@link BlendAction} instance,
      * this value will be used for interpolating a collection of actions' transformations (keyframes).
-     * Blend weight value must be in the range from 0 to 1.
+     * The Blend weight value must be in the range from 0 to 1.
      * 
      * @return the blending weight value.
      * @see LinearBlendSpace#getWeight()
