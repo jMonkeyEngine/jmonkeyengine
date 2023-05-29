@@ -41,7 +41,7 @@ import com.jme3.util.clone.JmeCloneable;
  * 
  * <p>
  * Notes :
- * <li> The sequence of tweens is determined by {@link com.jme3.anim.tween.Tweens} utility class and {@link BaseAction} interpolates that sequence. </li>
+ * <li> The sequence of tweens is determined by {@link com.jme3.anim.tween.Tweens} utility class and the {@link BaseAction} interpolates that sequence. </li>
  * <li> This implementation mimics the {@link com.jme3.anim.tween.AbstractTween}, but it delegates the interpolation method {@link Tween#interpolate(double)}
  * to the {@link BlendableAction} class. </li>
  * </p>
@@ -119,7 +119,7 @@ public abstract class Action implements JmeCloneable, Tween {
      * Alters the speedup factor applied by the layer running this action.
      * <p>
      * Notes:
-     * <li> This factor controls the animation direction, so if the speed is a positive value then the animation would run forward and vice versa. </li>
+     * <li> This factor controls the animation direction, if the speed is a positive value then the animation will run forward and vice versa. </li>
      * <li> The speed factor gets applied, inside the {@link com.jme3.anim.AnimLayer}, on each interpolation step by this formula : time += tpf * action.getSpeed() * composer.globalSpeed. </li>
      * <li> Default speed is 1.0, it plays the animation clips at their normal speed. </li>
      * <li> Setting the speed factor to Zero will stop the animation, while setting it to a negative number will play the animation in a backward fashion. </li>
