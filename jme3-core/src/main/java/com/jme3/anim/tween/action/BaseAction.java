@@ -66,7 +66,7 @@ public class BaseAction extends Action {
     /**
      * Instantiates an action from a tween.
      *
-     * @param tween a tween to extract the actions from.
+     * @param tween a tween to extract the actions from (not null).
      */
     public BaseAction(Tween tween) {
         this.tween = tween;
@@ -121,8 +121,8 @@ public class BaseAction extends Action {
     /**
      * Extracts the actions from a tween into a list.
      *
-     * @param tween      the tween to extract the actions from.
-     * @param subActions a collection to gather the extracted actions.
+     * @param tween      the tween to extract the actions from (not null).
+     * @param subActions a collection to gather the extracted actions (not null).
      */
     private void gatherActions(Tween tween, List<Action> subActions) {
         if (tween instanceof Action) {
