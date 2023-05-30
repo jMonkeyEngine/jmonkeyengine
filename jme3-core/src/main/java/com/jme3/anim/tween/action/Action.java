@@ -71,7 +71,7 @@ public abstract class Action implements JmeCloneable, Tween {
      * constructor, examples : {@link ClipAction} and {@link BaseAction}. </li>
      * </p> 
      *
-     * @param tweens the tween actions to be wrapped.
+     * @param tweens the tween actions to be wrapped (not null).
      */    
     protected Action(Tween... tweens) {
         this.actions = new Action[tweens.length];
