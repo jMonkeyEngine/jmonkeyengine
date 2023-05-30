@@ -61,7 +61,7 @@ public interface BlendSpace {
     /**
      * Adjusts the target blend action instance that will utilize the blend weight value provided by this blend-space implementation.
      * 
-     * @param action the blend action instance that will utilize this blend-space.
+     * @param action the blend action instance that will utilize this blend-space (not null).
      */
     public void setBlendAction(BlendAction action);
 
