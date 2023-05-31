@@ -151,6 +151,7 @@ public abstract class Action implements JmeCloneable, Tween {
     /**
      * Internal use-only.
      *
+     * @param mask an animation mask to be applied to this action.
      * @see com.jme3.anim.AnimLayer to adjust the animation mask to control which part will be animated
      */
     public void setMask(AnimationMask mask) {
