@@ -103,6 +103,7 @@ public class BaseAction extends Action {
      * if the {@link BaseAction#maskPropagationEnabled} is enabled, the animation mask is propagated to the child actions (or wrapped actions).
      * 
      * @param mask an animation mask to be applied to this action.
+     * @see com.jme3.anim.AnimLayer to adjust the animation mask to control which part will be animated
      */
     @Override
     public void setMask(AnimationMask mask) {
