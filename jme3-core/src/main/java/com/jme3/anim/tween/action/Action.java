@@ -149,7 +149,7 @@ public abstract class Action implements JmeCloneable, Tween {
     }
 
     /**
-     * Internal use only.
+     * Internal use-only.
      *
      * @see com.jme3.anim.AnimLayer to adjust the animation mask to control which part will be animated
      */
