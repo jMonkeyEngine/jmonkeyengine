@@ -142,7 +142,7 @@ public abstract class Action implements JmeCloneable, Tween {
      * registered using a {@link com.jme3.anim.Joint}.
      *
      * @return the animation mask instance, or null if this action will animate the entire model
-     * @see com.jme3.anim.AnimLayer to adjust the animation mask that controls which part will be animated
+     * @see com.jme3.anim.AnimLayer to adjust the animation mask to control which part will be animated
      */
     public AnimationMask getMask() {
         return mask;
@@ -151,7 +151,7 @@ public abstract class Action implements JmeCloneable, Tween {
     /**
      * Internal use only.
      *
-     * @see com.jme3.anim.AnimLayer to adjust the animation mask that controls which part will be animated
+     * @see com.jme3.anim.AnimLayer to adjust the animation mask to control which part will be animated
      */
     public void setMask(AnimationMask mask) {
         this.mask = mask;
