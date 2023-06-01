@@ -308,6 +308,10 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
      * <code>store</code>. If the <code>store</code> is null, a new Vector3f is
      * created to hold the value. Either way, the current instance is
      * unaffected, unless <code>store</code> is its translation or scaling.
+     * <p>
+     * The transform's quaternion is assumed to be normalized. No error checking
+     * is performed; the caller should ensure that {@code rot.norm()} is
+     * approximately equal to 1.
      *
      * @param in the coordinates to transform (not null, unaffected)
      * @param store storage for the result (modified if not null)
@@ -330,6 +334,10 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
      * new Vector3f is created to hold the value. Either way, the current
      * instance is unaffected, unless <code>store</code> is its translation or
      * scaling.
+     * <p>
+     * The transform's quaternion is assumed to be normalized. No error checking
+     * is performed; the caller should ensure that {@code rot.norm()} is
+     * approximately equal to 1.
      *
      * @param in the coordinates to transform (not null, unaffected unless it's
      *     <code>store</code>)
