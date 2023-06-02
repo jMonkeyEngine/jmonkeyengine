@@ -151,6 +151,11 @@ public abstract class Action implements JmeCloneable, Tween {
     /**
      * Internal use-only.
      *
+     * <p> 
+     * Note: This method can be invoked from the user code if this Action is wrapped by a {@link BaseAction} and
+     * the {@link BaseAction#isMaskPropagationEnabled()} is false.
+     * </p>
+     *
      * @param mask an animation mask to be applied to this action.
      * @see com.jme3.anim.AnimLayer to adjust the animation mask to control which part will be animated
      */
