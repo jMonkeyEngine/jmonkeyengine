@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2022 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -257,8 +257,8 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
      * Combines with the argument and returns the (modified) current instance.
      * This method is used to combine Node and Spatial transforms.
      *
-     * @param parent the parent transform (not null, unaffected unless it's
-     *     <code>this</code>)
+     * @param parent the parent transform (not null, {@code parent.rot.norm()}
+     *     approximately equal to 1, unaffected unless it's <code>this</code>)
      * @return the (modified) current instance (for chaining)
      */
     public Transform combineWithParent(Transform parent) {
@@ -308,6 +308,10 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
      * <code>store</code>. If the <code>store</code> is null, a new Vector3f is
      * created to hold the value. Either way, the current instance is
      * unaffected, unless <code>store</code> is its translation or scaling.
+     * <p>
+     * The transform's quaternion is assumed to be normalized. No error checking
+     * is performed; the caller should ensure that {@code rot.norm()} is
+     * approximately equal to 1.
      *
      * @param in the coordinates to transform (not null, unaffected)
      * @param store storage for the result (modified if not null)
@@ -330,6 +334,10 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
      * new Vector3f is created to hold the value. Either way, the current
      * instance is unaffected, unless <code>store</code> is its translation or
      * scaling.
+     * <p>
+     * The transform's quaternion is assumed to be normalized. No error checking
+     * is performed; the caller should ensure that {@code rot.norm()} is
+     * approximately equal to 1.
      *
      * @param in the coordinates to transform (not null, unaffected unless it's
      *     <code>store</code>)

@@ -1063,8 +1063,8 @@ public abstract class Spatial implements Savable, Cloneable, Collidable,
     /**
      * <code>setLocalRotation</code> sets the local rotation of this node.
      *
-     * @param quaternion
-     *            the new local rotation.
+     * @param quaternion the new local rotation (not null,
+     *     {@code quaternion.norm()} approximately equal to 1, unaffected)
      */
     public void setLocalRotation(Quaternion quaternion) {
         localTransform.setRotation(quaternion);
@@ -1152,6 +1152,9 @@ public abstract class Spatial implements Savable, Cloneable, Collidable,
     /**
      * <code>setLocalTransform</code> sets the local transform of this
      * spatial.
+     *
+     * @param t the desired local transform (not null, {@code t.rot.norm()}
+     *     approximately equal to 1, unaffected)
      */
     @Override
     public void setLocalTransform(Transform t) {
