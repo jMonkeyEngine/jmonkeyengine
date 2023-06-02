@@ -152,7 +152,7 @@ public abstract class Action implements JmeCloneable, Tween {
      * Internal use-only.
      *
      * <p> 
-     * Note: This method can be invoked from the user code if this Action is wrapped by a {@link BaseAction} and
+     * Note: This method can be invoked from the user code only if this Action is wrapped by a {@link BaseAction} and
      * the {@link BaseAction#isMaskPropagationEnabled()} is false.
      * </p>
      *
