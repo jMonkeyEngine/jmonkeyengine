@@ -98,10 +98,12 @@ public class BaseAction extends Action {
 
     /**
      * Internal use-only.
-     *
-     * Dispatched from {@link com.jme3.anim.AnimLayer#update(float)}. Applies an animation mask to this action, 
-     * if the {@link BaseAction#maskPropagationEnabled} is enabled, the animation mask is propagated to the child actions (or wrapped actions).
      * 
+     * <p> 
+     * Note: This method can be invoked from the user code only if this Action is wrapped by a {@link BaseAction} and
+     * the {@link BaseAction#isMaskPropagationEnabled()} is false.
+     * </p>
+     *
      * @param mask an animation mask to be applied to this action.
      * @see com.jme3.anim.AnimLayer to adjust the animation mask to control which part will be animated
      */
