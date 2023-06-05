@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2023 jMonkeyEngine
+* Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,9 +43,12 @@ import com.jme3.math.Vector2f;
 import com.jme3.system.AppSettings;
 import com.jme3.system.JmeContext;
 import com.jme3.system.JmeSystem;
+import com.jme3.system.Monitors;
 import com.jme3.system.NanoTimer;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.SafeArrayList;
+
+import org.lwjgl.PointerBuffer;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWFramebufferSizeCallback;
@@ -58,9 +61,11 @@ import org.lwjgl.system.Platform;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -283,21 +288,34 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
 
         glfwWindowHint(GLFW_ALPHA_BITS, settings.getAlphaBits());
 
-        // TODO: Add support for monitor selection
         long monitor = NULL;
 
+        /** 
+         * Let's grab the monitor selected, if not found it will return primaryMonitor.
+         * if not full screen just use primary monitor data.
+         */
         if (settings.isFullscreen()) {
-            monitor = glfwGetPrimaryMonitor();
+           monitor = getMonitor(settings.getMonitor());
+        } else {
+           monitor = glfwGetPrimaryMonitor();
         }
 
-        final GLFWVidMode videoMode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+        final GLFWVidMode videoMode = glfwGetVideoMode(monitor);
         int requestWidth = settings.getWindowWidth();
         int requestHeight = settings.getWindowHeight();
         if (requestWidth <= 0 || requestHeight <= 0) {
             requestWidth = videoMode.width();
             requestHeight = videoMode.height();
         }
-        window = glfwCreateWindow(requestWidth, requestHeight, settings.getTitle(), monitor, NULL);
+        
+        //Lets use the monitor selected from AppSettings if FullScreen is 
+        //set.
+        if (settings.isFullscreen())
+           window = glfwCreateWindow(requestWidth, requestHeight, settings.getTitle(), monitor, NULL);
+        else 
+           window = glfwCreateWindow(requestWidth, requestHeight, settings.getTitle(), NULL, NULL);
+
+        
         if (window == NULL) {
             throw new RuntimeException("Failed to create the GLFW window");
         }
@@ -852,5 +870,78 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         glfwGetWindowPos(window, width, height);
         int result = height[0];
         return result;
+    }
+    
+    /**
+     * Returns the Primary Monitor position number from the list of monitors
+     * returned by glfwGetPrimaryMonitor().  If primary monitor not found
+     * it will return -1 and report the error.
+     * 
+     * @return returns the Primary Monitor Position.
+     */
+    @Override
+    public int getPrimaryMonitor()
+    {
+       long prim = glfwGetPrimaryMonitor();
+       Monitors monitors = getMonitors();
+       for ( int i = 0; i < monitors.size(); i++ ) {
+          long monitorI = monitors.get(i).monitorID;
+          if (monitorI == prim)
+             return i;
+       }
+       
+       LOGGER.log(Level.SEVERE,"Couldn't locate Primary Monitor in the list of Monitors.");
+       return -1;
+    }
+    
+    
+    /**
+     * This routines return the monitor ID by position in an array of monitors returned
+     * by glfwGetMonitors().
+     * 
+     * @param pos  the position of the monitor in the list of monitors returned.
+     * @return return the monitorID if found otherwise return Primary Monitor
+     */
+    private long getMonitor(int pos) {
+       Monitors monitors = getMonitors();
+       if (pos < monitors.size())
+          return monitors.get(pos).monitorID;
+       
+       LOGGER.log(Level.SEVERE,"Couldn't locate Monitor requested in the list of Monitors. pos:"+pos+" size: "+ monitors.size());
+       return glfwGetPrimaryMonitor();
+    }
+    
+    /**
+     * This returns an arraylist of all the monitors returned by OpenGL get Monitor
+     * call.  It will also has some limited information about each monitor, like:
+     * width, height and refresh rate.
+     * 
+     * @return returns an ArrayList of all Monitors returned by glfwGetMonitors()
+     */
+    
+    @Override
+    public Monitors getMonitors()
+    {
+       PointerBuffer monitors = glfwGetMonitors();
+       long primary = glfwGetPrimaryMonitor();
+       Monitors monitorList = new Monitors();
+       
+       for ( int i = 0; i < monitors.limit(); i++ ) {
+           long monitorI = monitors.get(i);
+           int monPos = monitorList.addNewMonitor(monitorI);
+           //lets check if this monitor is the primary monitor. If use mark it as such.
+           if (primary == monitorI)
+              monitorList.setPrimaryMonitor(monPos);
+           
+           final GLFWVidMode modes = glfwGetVideoMode(monitorI);
+           String name = glfwGetMonitorName(monitorI);
+
+           int width = modes.width();
+           int height = modes.height();
+           int rate = modes.refreshRate();
+           monitorList.setInfo(monPos, name, width, height, rate);
+           LOGGER.log(Level.INFO, "Monitor id: "+monitorI+" Resolution: " + width + " x " + height + " @ " + rate);
+        }
+        return monitorList;    
     }
 }

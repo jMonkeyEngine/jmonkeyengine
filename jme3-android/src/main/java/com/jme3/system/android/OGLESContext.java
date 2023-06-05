@@ -554,4 +554,18 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
         Rect result = holder.getSurfaceFrame();
         return result;
     }
+
+	@Override
+	public Monitors getMonitors()
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public int getPrimaryMonitor()
+	{
+		// TODO Auto-generated method stub
+		return 0;
+	}
 }

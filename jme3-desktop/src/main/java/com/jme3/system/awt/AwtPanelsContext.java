@@ -328,4 +328,16 @@ public class AwtPanelsContext implements JmeContext {
     public int getWindowYPosition() {
         return inputSource.getY();
     }
+
+   @Override
+   public Monitors getMonitors() {
+      // TODO Auto-generated method stub
+      return null;
+   }
+
+   @Override
+   public int getPrimaryMonitor() {
+      // TODO Auto-generated method stub
+      return 0;
+   }
 }

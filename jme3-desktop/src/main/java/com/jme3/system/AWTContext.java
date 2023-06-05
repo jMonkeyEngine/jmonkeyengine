@@ -275,4 +275,16 @@ public class AWTContext implements JmeContext {
     public int getWindowYPosition() {
         throw new UnsupportedOperationException("not implemented yet");
     }
+
+   @Override
+   public Monitors getMonitors() {
+      // TODO Auto-generated method stub
+      return null;
+   }
+
+   @Override
+   public int getPrimaryMonitor() {
+      // TODO Auto-generated method stub
+      return 0;
+   }
 }
