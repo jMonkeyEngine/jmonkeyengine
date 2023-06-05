@@ -41,7 +41,7 @@ import java.util.List;
  */
 public final class DefineList {
 
-    public static final int MAX_DEFINES = 64;
+    public static final int MAX_DEFINES = 128;
 
     private long isSet;
     private final int[] values;
