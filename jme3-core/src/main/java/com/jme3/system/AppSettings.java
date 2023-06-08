@@ -1500,7 +1500,7 @@ public final class AppSettings extends HashMap<String, Object> {
      * number is the number in the list of monitors GlfwGetMonitors returns.
      *
      * <p>This setting is used only with LWJGL3, it defines which monitor
-     * to use when creating a OpenGL window. its default value is -1.
+     * to use when creating a OpenGL window. its default value is 0.
      *
      * @param mon the desired monitor used when creating a OpenGL window
      * 

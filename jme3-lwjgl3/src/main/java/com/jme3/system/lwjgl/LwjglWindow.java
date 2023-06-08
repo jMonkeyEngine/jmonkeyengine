@@ -152,6 +152,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
 
     private Thread mainThread;
 
+    private long monitor = NULL;
     private long window = NULL;
     private int frameRateLimit = -1;
 
@@ -288,7 +289,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
 
         glfwWindowHint(GLFW_ALPHA_BITS, settings.getAlphaBits());
 
-        long monitor = NULL;
+//        long monitor = NULL;
 
         /** 
          * Let's grab the monitor selected, if not found it will return primaryMonitor.
@@ -920,8 +921,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
      */
     
     @Override
-    public Monitors getMonitors()
-    {
+    public Monitors getMonitors()  {
        PointerBuffer monitors = glfwGetMonitors();
        long primary = glfwGetPrimaryMonitor();
        Monitors monitorList = new Monitors();
