@@ -194,7 +194,7 @@ public abstract class Action implements JmeCloneable, Tween {
     }
     
     /**
-     * Tests the value of the forward flag.
+     * Tests whether the Action is running in the "forward" mode.
      *
      * @return true if the animation action is running forward, false otherwise.
      */
