@@ -291,12 +291,12 @@ jobs:
             fi
           fi
 
-  # This job deploys snapshots on the master branch
+  # This job deploys snapshots on the v3.6 branch
   DeployJavaSnapshot:
     needs: [BuildJMonkey]
     name: Deploy Java Snapshot
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref_name == 'master'
+    if: github.event_name == 'push' && github.ref_name == 'v3.6'
     steps:
 
       # We need to clone everything again for uploadToMaven.sh ...
