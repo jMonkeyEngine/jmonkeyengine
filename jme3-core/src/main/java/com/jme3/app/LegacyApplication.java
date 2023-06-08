@@ -852,4 +852,28 @@ public class LegacyApplication implements Application, SystemListener {
             return null;
         }
     }
+    
+    /**
+     * This call will return a list of Monitors that glfwGetMonitors()
+     * returns and information about the monitor, like width, height, 
+     * and refresh rate.
+     * 
+     * @return returns a list of monitors and their information.
+     */
+    public Monitors getMonitors()
+    {
+       return context.getMonitors();
+    }
+    
+    /**
+     * Use this to get the positional number of the primary
+     * monitor from the glfwGetMonitors() function call.
+     * 
+     * @return the position of the value in the arraylist of
+     *         the primary monitor.
+     */
+    public int getPrimaryMonitor()
+    {
+       return context.getPrimaryMonitor();
+    }
 }
