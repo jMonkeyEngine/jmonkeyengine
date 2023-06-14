@@ -291,9 +291,9 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
 
 //        long monitor = NULL;
 
-        /** 
-         * Let's grab the monitor selected, if not found it will return primaryMonitor.
-         * if not full screen just use primary monitor data.
+        /**
+         * Let's grab the monitor selected, if not found it will return
+         * primaryMonitor. if not full screen just use primary monitor data.
          */
         if (settings.isFullscreen()) {
            monitor = getMonitor(settings.getMonitor());
@@ -305,18 +305,19 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         int requestWidth = settings.getWindowWidth();
         int requestHeight = settings.getWindowHeight();
         if (requestWidth <= 0 || requestHeight <= 0) {
-            requestWidth = videoMode.width();
-            requestHeight = videoMode.height();
+           requestWidth = videoMode.width();
+           requestHeight = videoMode.height();
         }
         
-        //Lets use the monitor selected from AppSettings if FullScreen is 
-        //set.
+        // Lets use the monitor selected from AppSettings if FullScreen is
+        // set.
         if (settings.isFullscreen())
-           window = glfwCreateWindow(requestWidth, requestHeight, settings.getTitle(), monitor, NULL);
-        else 
-           window = glfwCreateWindow(requestWidth, requestHeight, settings.getTitle(), NULL, NULL);
+           window = glfwCreateWindow(requestWidth, requestHeight,
+                    settings.getTitle(), monitor, NULL);
+        else
+           window = glfwCreateWindow(requestWidth, requestHeight,
+                    settings.getTitle(), NULL, NULL);
 
-        
         if (window == NULL) {
             throw new RuntimeException("Failed to create the GLFW window");
         }

@@ -220,18 +220,16 @@ public class LwjglOffscreenBuffer extends LwjglContext implements Runnable {
     public void setTitle(String title) {
     }
 
-	@Override
-	public Monitors getMonitors()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public Monitors getMonitors() {
+      // TODO Auto-generated method stub
+      return null;
+    }
 
-	@Override
-	public int getPrimaryMonitor()
-	{
-		// TODO Auto-generated method stub
-		return 0;
-	}
+    @Override
+    public int getPrimaryMonitor() {
+      // TODO Auto-generated method stub
+      return 0;
+    }
 
 }

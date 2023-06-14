@@ -307,15 +307,15 @@ public class NullContext implements JmeContext, Runnable {
         throw new UnsupportedOperationException("null context");
     }
 
-   @Override
-   public Monitors getMonitors() {
+    @Override
+    public Monitors getMonitors() {
       // TODO Auto-generated method stub
       return null;
-   }
+    }
 
-   @Override
-   public int getPrimaryMonitor() {
+    @Override
+    public int getPrimaryMonitor() {
       // TODO Auto-generated method stub
       return 0;
-   }
+    }
 }

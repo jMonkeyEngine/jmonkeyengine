@@ -556,17 +556,15 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
         return result;
     }
 
-	@Override
-	public Monitors getMonitors()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public Monitors getMonitors() {
+      // TODO Auto-generated method stub
+      return null;
+    }
 
-	@Override
-	public int getPrimaryMonitor()
-	{
-		// TODO Auto-generated method stub
-		return 0;
-	}
-}
+    @Override
+    public int getPrimaryMonitor() {
+      // TODO Auto-generated method stub
+      return 0;
+    }
+  }

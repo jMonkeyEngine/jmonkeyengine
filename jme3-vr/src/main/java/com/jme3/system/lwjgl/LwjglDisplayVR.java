@@ -53,17 +53,15 @@ public class LwjglDisplayVR extends LwjglWindowVR {
         return null;
     }
 
-	@Override
-	public Monitors getMonitors()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public Monitors getMonitors() {
+      // TODO Auto-generated method stub
+      return null;
+    }
 
-	@Override
-	public int getPrimaryMonitor()
-	{
-		// TODO Auto-generated method stub
-		return 0;
-	}
+    @Override
+    public int getPrimaryMonitor() {
+      // TODO Auto-generated method stub
+      return 0;
+    }
 }
