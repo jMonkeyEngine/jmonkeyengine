@@ -33,7 +33,6 @@ package com.jme3.anim.tween.action;
 
 import com.jme3.anim.AnimClip;
 import org.junit.Test;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 
