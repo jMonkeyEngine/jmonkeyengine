@@ -7,6 +7,8 @@ apply plugin: 'groovy'
 apply plugin: 'maven-publish'
 apply plugin: 'signing'
 apply plugin: 'eclipse'
+apply plugin: 'checkstyle'
+
 eclipse.jdt.file.withProperties { props ->
     props.setProperty "org.eclipse.jdt.core.circularClasspath", "warning"
 }
@@ -199,4 +201,24 @@ signing {
 }
 tasks.withType(Sign) {
     onlyIf { gradle.rootProject.hasProperty('signingKey') }
+}
+
+checkstyle {
+    toolVersion '10.12.1'
+    configFile file("${gradle.rootProject.rootDir}/config/checkstyle/checkstyle.xml")
+}
+
+checkstyleMain {
+    source ='src/main/java'
+}
+
+checkstyleTest {
+    source ='src/test/java'
+}
+
+tasks.withType(Checkstyle) {
+    reports {
+        xml.enabled true
+        html.enabled true
+    }
 }
