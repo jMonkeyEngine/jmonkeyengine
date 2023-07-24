@@ -218,7 +218,7 @@ checkstyleTest {
 
 tasks.withType(Checkstyle) {
     reports {
-        xml.enabled true
+        xml.enabled false
         html.enabled true
     }
 }
