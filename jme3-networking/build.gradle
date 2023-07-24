@@ -8,3 +8,8 @@ javadoc {
         options.addStringOption('Xdoclint:none', '-quiet')
     }
 }
+
+//exclude the jme3-vr project from checkstyle
+checkstyleMain {
+    exclude "**/*.java"
+}

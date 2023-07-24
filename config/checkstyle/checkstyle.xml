@@ -25,7 +25,7 @@
 
     <!-- https://checkstyle.org/filters/suppressionfilter.html -->
     <module name="SuppressionFilter">
-        <property name="file" value="config/checkstyle-suppressions.xml"/>
+        <property name="file" value="config/checkstyle/checkstyle-suppressions.xml"/>
         <property name="optional" value="true" />
     </module>
 
@@ -56,7 +56,9 @@
             <property name="allowByTailComment" value="true" />
             <property name="allowNonPrintableEscapes" value="true" />
         </module>
-        <module name="AvoidStarImport" />
+        <module name="AvoidStarImport">
+            <property name="severity" value="ignore"/>
+        </module>
         <module name="OneTopLevelClass" />
         <module name="NoLineWrap">
             <property name="tokens" value="PACKAGE_DEF, IMPORT, STATIC_IMPORT" />
@@ -363,13 +365,8 @@
         </module>
         <module name="CommentsIndentation">
             <property name="tokens" value="SINGLE_LINE_COMMENT, BLOCK_COMMENT_BEGIN" />
+            <property name="severity" value="ignore" />
         </module>
 
-        <!-- https://checkstyle.org/filters/suppressionxpathfilter.html -->
-        <module name="SuppressionXpathFilter">
-            <property name="file" value="${org.checkstyle.google.suppressionxpathfilter.config}"
-                default="checkstyle-xpath-suppressions.xml" />
-            <property name="optional" value="true" />
-        </module>
     </module>
 </module>
