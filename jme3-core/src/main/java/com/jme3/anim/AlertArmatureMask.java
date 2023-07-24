@@ -91,9 +91,11 @@ public class AlertArmatureMask extends ArmatureMask {
      * <p>Not checking is more efficient, but checking can avoid some
      * interpolation issues between layers. Default=true
      * @param check 
+     * @return 
      */
-    public void setCheckUpperLayers(boolean check) {
+    public AlertArmatureMask setCheckUpperLayers(boolean check) {
         checkUpperLayers = check;
+        return this;
     }
     
     /**
