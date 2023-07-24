@@ -875,12 +875,12 @@ public final class AppSettings extends HashMap<String, Object> {
     }
 
     /**
-     * Set the number of samples per pixel. A value of 1 indicates
+     * Set the number of samples per pixel. A value of 0 or 1 indicates
      * each pixel should be single-sampled, higher values indicate
      * a pixel should be multi-sampled.
      *
      * @param value The number of samples
-     * (Default: 1)
+     * (Default: 0)
      */
     public void setSamples(int value) {
         putInteger("Samples", value);
