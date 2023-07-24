@@ -204,7 +204,7 @@ tasks.withType(Sign) {
 }
 
 checkstyle {
-    toolVersion '10.12.1'
+    toolVersion '9.3'
     configFile file("${gradle.rootProject.rootDir}/config/checkstyle/checkstyle.xml")
 }
 
