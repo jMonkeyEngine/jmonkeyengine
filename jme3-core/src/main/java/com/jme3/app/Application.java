@@ -226,7 +226,7 @@ public interface Application {
      * After the application has stopped, it cannot be used anymore.
      * 
      @param waitFor true&rarr;wait for the context to be fully destroyed,
-     * true&rarr;don't wait
+     * false&rarr;don't wait
      */
     public void stop(boolean waitFor);
 
