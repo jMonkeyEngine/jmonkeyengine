@@ -57,6 +57,9 @@ public abstract class AbstractTween implements JmeCloneable, Tween {
     }
 
     public void setLength(double length) {
+        if (length < 0.0) {
+            throw new IllegalArgumentException("length must be greater than or equal to 0");
+        }
         this.length = length;
     }
 
