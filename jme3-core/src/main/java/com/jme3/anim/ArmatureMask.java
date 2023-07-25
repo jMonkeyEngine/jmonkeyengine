@@ -89,9 +89,6 @@ public class ArmatureMask implements AnimationMask {
     public static ArmatureMask createMask(Armature armature, String... joints) {
         ArmatureMask mask = new ArmatureMask();
         mask.addBones(armature, joints);
-        for (String joint : joints) {
-            mask.affectedJoints.set(armature.getJoint(joint).getId());
-        }
         return mask;
     }
 
