@@ -221,4 +221,5 @@ tasks.withType(Checkstyle) {
         xml.enabled false
         html.enabled true
     }
+    include("**/com/jme3/renderer/*.java")
 }

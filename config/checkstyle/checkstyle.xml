@@ -37,7 +37,7 @@
 
     <module name="LineLength">
         <property name="fileExtensions" value="java" />
-        <property name="max" value="150" />
+        <property name="max" value="110" />
         <property name="ignorePattern"
             value="^package.*|^import.*|a href|href|http://|https://|ftp://" />
     </module>
@@ -56,9 +56,7 @@
             <property name="allowByTailComment" value="true" />
             <property name="allowNonPrintableEscapes" value="true" />
         </module>
-        <module name="AvoidStarImport">
-            <property name="severity" value="ignore"/>
-        </module>
+        <module name="AvoidStarImport"/>
         <module name="OneTopLevelClass" />
         <module name="NoLineWrap">
             <property name="tokens" value="PACKAGE_DEF, IMPORT, STATIC_IMPORT" />
@@ -107,7 +105,6 @@
                     LITERAL_WHILE, LITERAL_DO, LITERAL_FOR, DO_WHILE" />
         </module>
         <module name="WhitespaceAround">
-            <property name="severity" value="ignore" />
             <property name="allowEmptyConstructors" value="true" />
             <property name="allowEmptyLambdas" value="true" />
             <property name="allowEmptyMethods" value="true" />
@@ -204,7 +201,6 @@
             <property name="format" value="^[a-z]([a-z0-9][a-zA-Z0-9]*)?$" />
             <message key="name.invalidPattern"
                 value="Local variable name ''{0}'' must match pattern ''{1}''." />
-            <property name="severity" value="ignore" />
         </module>
         <module name="PatternVariableName">
             <property name="format" value="^[a-z]([a-z0-9][a-zA-Z0-9]*)?$" />
@@ -254,7 +250,6 @@
             <property name="throwsIndent" value="4" />
             <property name="lineWrappingIndentation" value="8" />
             <property name="arrayInitIndent" value="4" />
-            <property name="severity" value="ignore" />
         </module>
         <module name="AbbreviationAsWordInName">
             <property name="ignoreFinal" value="false" />
@@ -365,7 +360,6 @@
         </module>
         <module name="CommentsIndentation">
             <property name="tokens" value="SINGLE_LINE_COMMENT, BLOCK_COMMENT_BEGIN" />
-            <property name="severity" value="ignore" />
         </module>
 
     </module>
