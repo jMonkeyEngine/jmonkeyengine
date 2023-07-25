@@ -42,14 +42,6 @@ public class AlertArmatureMask extends ArmatureMask {
     }
     
     /**
-     * Creates a copyFor of this {@code AlertArmatureMask} for the given layer.
-     * @param layer
-     * @return copy of this {@code AlertArmatureMask} for the layer
-     */
-    public AlertArmatureMask copyFor(String layer) {
-        return new AlertArmatureMask(layer, anim, skin);
-    }
-    /**
      * Makes a layer for this mask.
      */
     public void makeLayer() {
@@ -186,21 +178,6 @@ public class AlertArmatureMask extends ArmatureMask {
      */
     public static AlertArmatureMask all(String layer, AnimComposer anim, SkinningControl skin) {
         return new AlertArmatureMask(layer, anim, skin).addAll();
-    }
-    /**
-     * Creates an array of masks all sharing the same joint masking as {@code base}.
-     * <p>This is useful, for example, when you want to create several layers that all cover
-     * the entire armature.
-     * @param base base mask used to create other masks
-     * @param layers layer names to use
-     * @return array of new masks
-     */
-    public static AlertArmatureMask[] create(AlertArmatureMask base, String... layers) {
-        AlertArmatureMask[] masks = new AlertArmatureMask[layers.length];
-        for (int i = 0; i < layers.length; i++) {
-            masks[i] = base.copyFor(layers[i]);
-        }
-        return masks;
     }
     
 }
