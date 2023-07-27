@@ -44,8 +44,9 @@ import java.nio.Buffer;
  */
 public abstract class NativeObject implements Cloneable {
 
-    public static final int INVALID_ID = -1;
-    
+    //can be anything since its not used for validity
+    private static final int INVALID_ID = 0;
+
     protected static final int OBJTYPE_VERTEXBUFFER = 1,
                                OBJTYPE_TEXTURE      = 2,
                                OBJTYPE_FRAMEBUFFER  = 3,
@@ -65,7 +66,14 @@ public abstract class NativeObject implements Cloneable {
      * The ID of the object, usually depends on its type.
      * Typically returned from calls like glGenTextures, glGenBuffers, etc.
      */
-    protected int id = INVALID_ID;
+    private int id = INVALID_ID;
+
+    /**
+     * indicates if this object is valid, replaces using -1 for the id since in some cases, -1 is a
+     * valid id.
+     */
+
+    private boolean valid;
 
     /**
      * A reference to a "handle". By hard referencing a certain object, it's
@@ -98,6 +106,7 @@ public abstract class NativeObject implements Cloneable {
      */
     protected NativeObject(int id){
         this.id = id;
+        this.valid = true;
     }
 
     void setNativeObjectManager(NativeObjectManager objectManager) {
@@ -111,10 +120,11 @@ public abstract class NativeObject implements Cloneable {
      * @param id The ID to set
      */
     public void setId(int id){
-        if (this.id != INVALID_ID) {
+        if (isValid()) {
             throw new IllegalStateException("ID has already been set for this GL object.");
         }
         this.id = id;
+        this.valid = true;
     }
 
     /**
@@ -248,5 +258,18 @@ public abstract class NativeObject implements Cloneable {
             weakRef = new WeakReference<>(this);
         }
         return (WeakReference<T>) weakRef;
+    }
+
+    public boolean isValid() {
+        return valid;
+    }
+
+    public boolean isInvalid() {
+        return !valid;
+    }
+
+    public void invalidate() {
+        this.id = INVALID_ID;
+        valid = false;
     }
 }

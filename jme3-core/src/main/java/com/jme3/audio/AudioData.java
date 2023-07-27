@@ -98,7 +98,7 @@ public abstract class AudioData extends NativeObject {
      * @param sampleRate Sample rate, 44100, 22050, etc.
      */
     public void setupFormat(int channels, int bitsPerSample, int sampleRate) {
-        if (id != -1)
+        if (isValid())
             throw new IllegalStateException("Already set up");
 
         this.channels = channels;

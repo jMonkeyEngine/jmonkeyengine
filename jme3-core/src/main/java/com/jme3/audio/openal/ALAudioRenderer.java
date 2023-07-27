@@ -292,7 +292,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
 
     private void updateFilter(Filter f) {
         int id = f.getId();
-        if (id == -1) {
+        if (f.isInvalid()) {
             ib.position(0).limit(1);
             efx.alGenFilters(1, ib);
             id = ib.get(0);

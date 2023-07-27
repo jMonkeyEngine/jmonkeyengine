@@ -59,7 +59,7 @@ public abstract class Filter extends NativeObject implements Savable {
 
     @Override
     public void resetObject() {
-        this.id = -1;
+        invalidate();
         setUpdateNeeded();
     }
 

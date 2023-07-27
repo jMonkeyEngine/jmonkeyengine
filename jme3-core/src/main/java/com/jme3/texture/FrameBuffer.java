@@ -346,7 +346,7 @@ public class FrameBuffer extends NativeObject {
     }
 
     protected FrameBuffer(FrameBuffer src) {
-        super(src.id);
+        super(src.getId());
         /*
         for (RenderBuffer renderBuf : src.colorBufs){
             RenderBuffer clone = renderBuf.createDestructableClone();
@@ -367,7 +367,7 @@ public class FrameBuffer extends NativeObject {
      */
     @Deprecated
     public void setDepthBuffer(Image.Format format) {
-        if (id != -1) {
+        if (isValid()) {
             throw new UnsupportedOperationException("FrameBuffer already initialized.");
         }
 
@@ -389,7 +389,7 @@ public class FrameBuffer extends NativeObject {
      */
     @Deprecated 
     public void setColorBuffer(Image.Format format) {
-        if (id != -1) {
+        if (isValid()) {
             throw new UnsupportedOperationException("FrameBuffer already initialized.");
         }
 
@@ -551,7 +551,7 @@ public class FrameBuffer extends NativeObject {
      */
     @Deprecated
     public void addColorBuffer(Image.Format format) {
-        if (id != -1) {
+        if (isValid()) {
             throw new UnsupportedOperationException("FrameBuffer already initialized.");
         }
 
@@ -579,7 +579,7 @@ public class FrameBuffer extends NativeObject {
      */
     @Deprecated
     public void addColorTexture(Texture2D tex) {
-        if (id != -1) {
+        if (isValid()) {
             throw new UnsupportedOperationException("FrameBuffer already initialized.");
         }
 
@@ -607,7 +607,7 @@ public class FrameBuffer extends NativeObject {
      */
     @Deprecated
     public void addColorTexture(TextureArray tex, int layer) {
-        if (id != -1) {
+        if (isValid()) {
             throw new UnsupportedOperationException("FrameBuffer already initialized.");
         }
 
@@ -636,7 +636,7 @@ public class FrameBuffer extends NativeObject {
      */
     @Deprecated
     public void addColorTexture(TextureCubeMap tex, TextureCubeMap.Face face) {
-        if (id != -1) {
+        if (isValid()) {
             throw new UnsupportedOperationException("FrameBuffer already initialized.");
         }
 
@@ -660,7 +660,7 @@ public class FrameBuffer extends NativeObject {
      */
     @Deprecated
     public void setDepthTexture(Texture2D tex) {
-        if (id != -1) {
+        if (isValid()) {
             throw new UnsupportedOperationException("FrameBuffer already initialized.");
         }
 
@@ -681,7 +681,7 @@ public class FrameBuffer extends NativeObject {
      */
     @Deprecated
     public void setDepthTexture(TextureArray tex, int layer) {
-        if (id != -1) {
+        if (isValid()) {
             throw new UnsupportedOperationException("FrameBuffer already initialized.");
         }
 
@@ -781,7 +781,7 @@ public class FrameBuffer extends NativeObject {
 
     @Override
     public void resetObject() {
-        this.id = -1;
+        invalidate();
 
         for (int i = 0; i < colorBufs.size(); i++) {
             colorBufs.get(i).resetObject();
@@ -806,7 +806,7 @@ public class FrameBuffer extends NativeObject {
 
     @Override
     public long getUniqueId() {
-        return ((long) OBJTYPE_FRAMEBUFFER << 32) | (0xffffffffL & (long) id);
+        return ((long) OBJTYPE_FRAMEBUFFER << 32) | (0xffffffffL & getId());
     }
 
     /**

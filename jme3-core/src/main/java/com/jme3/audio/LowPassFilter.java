@@ -94,11 +94,11 @@ public class LowPassFilter extends Filter {
 
     @Override
     public NativeObject createDestructableClone() {
-        return new LowPassFilter(id);
+        return new LowPassFilter(getId());
     }
 
     @Override
     public long getUniqueId() {
-        return ((long) OBJTYPE_FILTER << 32) | (0xffffffffL & (long) id);
+        return ((long) OBJTYPE_FILTER << 32) | (0xffffffffL & getId());
     }
 }

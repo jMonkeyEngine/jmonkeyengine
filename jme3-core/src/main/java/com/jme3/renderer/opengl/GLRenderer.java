@@ -1453,7 +1453,7 @@ public final class GLRenderer implements Renderer {
 
     public void updateShaderSourceData(ShaderSource source) {
         int id = source.getId();
-        if (id == -1) {
+        if (source.isInvalid()) {
             // Create id
             id = gl.glCreateShader(convertShaderType(source.getType()));
             if (id <= 0) {
@@ -1588,7 +1588,7 @@ public final class GLRenderer implements Renderer {
     public void updateShaderData(Shader shader) {
         int id = shader.getId();
         boolean needRegister = false;
-        if (id == -1) {
+        if (shader.isInvalid()) {
             // create program
             id = gl.glCreateProgram();
             if (id == 0) {
@@ -1972,7 +1972,7 @@ public final class GLRenderer implements Renderer {
         }
 
         int id = fb.getId();
-        if (id == -1) {
+        if (fb.isInvalid()) {
             glfbo.glGenFramebuffersEXT(intBuf1);
             id = intBuf1.get(0);
             fb.setId(id);
@@ -2503,7 +2503,7 @@ public final class GLRenderer implements Renderer {
      */
     public void updateTexImageData(Image img, Texture.Type type, int unit, boolean scaleToPot) {
         int texId = img.getId();
-        if (texId == -1) {
+        if (img.isInvalid()) {
             // create texture
             gl.glGenTextures(intBuf1);
             texId = intBuf1.get(0);
@@ -2774,7 +2774,7 @@ public final class GLRenderer implements Renderer {
     public void updateBufferData(VertexBuffer vb) {
         int bufId = vb.getId();
         boolean created = false;
-        if (bufId == -1) {
+        if (vb.isInvalid()) {
             // create buffer
             gl.glGenBuffers(intBuf1);
             bufId = intBuf1.get(0);
