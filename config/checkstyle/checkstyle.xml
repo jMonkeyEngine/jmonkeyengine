@@ -198,7 +198,7 @@
                 value="Catch parameter name ''{0}'' must match pattern ''{1}''." />
         </module>
         <module name="LocalVariableName">
-            <property name="format" value="^[a-z]([a-z0-9][a-zA-Z0-9]*)?$" />
+            <property name="format" value="^[a-z]([a-zA-Z0-9]*)?$" />
             <message key="name.invalidPattern"
                 value="Local variable name ''{0}'' must match pattern ''{1}''." />
         </module>
@@ -253,14 +253,13 @@
         </module>
         <module name="AbbreviationAsWordInName">
             <property name="ignoreFinal" value="false" />
-            <property name="allowedAbbreviationLength" value="0" />
+            <property name="allowedAbbreviationLength" value="1" />
             <property name="tokens"
                 value="CLASS_DEF, INTERFACE_DEF, ENUM_DEF, ANNOTATION_DEF, ANNOTATION_FIELD_DEF,
                     PARAMETER_DEF, VARIABLE_DEF, METHOD_DEF, PATTERN_VARIABLE_DEF, RECORD_DEF,
                     RECORD_COMPONENT_DEF" />
         </module>
         <module name="NoWhitespaceBeforeCaseDefaultColon" />
-        <module name="OverloadMethodsDeclarationOrder" />
         <module name="VariableDeclarationUsageDistance" />
         <module name="CustomImportOrder">
             <property name="sortImportsInGroupAlphabetically" value="true" />
@@ -358,9 +357,5 @@
         <module name="EmptyCatchBlock">
             <property name="exceptionVariableName" value="expected" />
         </module>
-        <module name="CommentsIndentation">
-            <property name="tokens" value="SINGLE_LINE_COMMENT, BLOCK_COMMENT_BEGIN" />
-        </module>
-
     </module>
 </module>
