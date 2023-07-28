@@ -42,15 +42,12 @@ import java.util.List;
  */
 public final class DefineList {
 
-    public static final int MAX_DEFINES = 128;
-
-    private final BitSet isSet;
-    
+    private final BitSet isSet;    
     private final int[] values;
 
     public DefineList(int numValues) {
-        if (numValues < 0 || numValues > MAX_DEFINES) {
-            throw new IllegalArgumentException("numValues must be between 0 and " + MAX_DEFINES);
+        if (numValues < 0 ) {
+            throw new IllegalArgumentException("numValues must be >= 0");
         }
         values = new int[numValues];
         isSet = new BitSet(numValues);
