@@ -32,6 +32,7 @@
 package com.jme3.shader;
 
 import java.util.Arrays;
+import java.util.BitSet;
 import java.util.List;
 
 /**
@@ -43,14 +44,16 @@ public final class DefineList {
 
     public static final int MAX_DEFINES = 128;
 
-    private long isSet;
+    private final BitSet isSet;
+    
     private final int[] values;
 
     public DefineList(int numValues) {
         if (numValues < 0 || numValues > MAX_DEFINES) {
-            throw new IllegalArgumentException("numValues must be between 0 and 64");
+            throw new IllegalArgumentException("numValues must be between 0 and " + MAX_DEFINES);
         }
         values = new int[numValues];
+        isSet = new BitSet(numValues);
     }
 
     private DefineList(DefineList original) {
@@ -65,18 +68,19 @@ public final class DefineList {
 
     public boolean isSet(int id) {
         rangeCheck(id);
-        return (isSet & (1L << id)) != 0;
+        
+       return isSet.get(id);
     }
 
     public void unset(int id) {
         rangeCheck(id);
-        isSet &= ~(1L << id);
+        isSet.clear(id);
         values[id] = 0;
     }
 
     public void set(int id, int val) {
         rangeCheck(id);
-        isSet |= (1L << id);
+        isSet.set(id, true);
         values[id] = val;
     }
 
@@ -124,7 +128,7 @@ public final class DefineList {
     }
 
     public void clear() {
-        isSet = 0;
+        isSet.clear();
         Arrays.fill(values, 0);
     }
 
@@ -142,7 +146,7 @@ public final class DefineList {
 
     @Override
     public int hashCode() {
-        return (int) ((isSet >> 32) ^ isSet);
+        return isSet.hashCode();
     }
 
     @Override
