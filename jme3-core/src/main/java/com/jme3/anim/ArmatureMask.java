@@ -80,6 +80,9 @@ public class ArmatureMask implements AnimationMask {
      * @param armature the Armature containing the joints (not null, unaffected)
      * @param jointNames the names of the joints to be removed
      * @return this
+     *
+     * @throws IllegalArgumentException if it can not find the joint
+     *          with the specified name on the provided armature
      */
     public ArmatureMask removeJoints(Armature armature, String... jointNames) {
         for (String jointName : jointNames) {
@@ -103,6 +106,9 @@ public class ArmatureMask implements AnimationMask {
      * @param armature the Armature containing the joints (not null)
      * @param fromJoint the name of the ancestor joint
      * @return a new mask
+     *
+     * @throws IllegalArgumentException if it can not find the joint
+     *          with the specified name on the provided armature
      */
     public static ArmatureMask createMask(Armature armature, String fromJoint) {
         ArmatureMask mask = new ArmatureMask();
@@ -116,6 +122,9 @@ public class ArmatureMask implements AnimationMask {
      * @param armature the Armature containing the joints (not null)
      * @param joints the names of the joints to be included
      * @return a new mask
+     *
+     * @throws IllegalArgumentException if it can not find the joint
+     *          with the specified name on the provided armature
      */
     public static ArmatureMask createMask(Armature armature, String... joints) {
         ArmatureMask mask = new ArmatureMask();
@@ -128,6 +137,9 @@ public class ArmatureMask implements AnimationMask {
      * 
      * @param armature the Armature containing the joints
      * @param jointNames the names of the joints to be influenced
+     *
+     * @throws IllegalArgumentException if it can not find the joint
+     *          with the specified name on the provided armature
      */
     public void addBones(Armature armature, String... jointNames) {
         for (String jointName : jointNames) {
@@ -149,6 +161,9 @@ public class ArmatureMask implements AnimationMask {
      * 
      * @param armature the Armature containing the ancestor joint
      * @param jointName the names of the ancestor joint
+     *
+     * @throws IllegalArgumentException if it can not find the joint
+     *          with the specified name on the provided armature
      */
     public void addFromJoint(Armature armature, String jointName) {
         Joint joint = findJoint(armature, jointName);
