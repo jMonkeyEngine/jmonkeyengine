@@ -82,7 +82,8 @@ public class ChaseCameraAppState extends AbstractAppState implements ActionListe
     protected Vector3f leftVector = new Vector3f();
     protected Trigger[] zoomOutTrigger = {new MouseAxisTrigger(MouseInput.AXIS_WHEEL, true)};
     protected Trigger[] zoomInTrigger = {new MouseAxisTrigger(MouseInput.AXIS_WHEEL, false)};
-    protected Trigger[] toggleRotateTrigger = {new MouseButtonTrigger(MouseInput.BUTTON_LEFT), new MouseButtonTrigger(MouseInput.BUTTON_RIGHT)};
+    protected Trigger[] toggleRotateTrigger = {new MouseButtonTrigger(MouseInput.BUTTON_LEFT),
+            new MouseButtonTrigger(MouseInput.BUTTON_RIGHT)};
 
 //
 //    protected boolean rotating = false;
@@ -209,7 +210,8 @@ public class ChaseCameraAppState extends AbstractAppState implements ActionListe
     @Override
     public void update(float tpf) {
         if (spatial == null) {
-            throw new IllegalArgumentException("The spatial to follow is null, please use the setTarget method");
+            throw new IllegalArgumentException(
+                    "The spatial to follow is null, please use the setTarget method");
         }
         target.setLocalTranslation(spatial.getWorldTranslation());
         camNode.lookAt(target.getWorldTranslation(), upVector);
