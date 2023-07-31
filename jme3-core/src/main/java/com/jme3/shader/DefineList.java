@@ -54,7 +54,7 @@ public final class DefineList {
     }
 
     private DefineList(DefineList original) {
-        this.isSet = original.isSet;
+        this.isSet = (BitSet) original.isSet.clone();
         this.values = new int[original.values.length];
         System.arraycopy(original.values, 0, values, 0, values.length);
     }
@@ -153,7 +153,7 @@ public final class DefineList {
     @Override
     public boolean equals(Object other) {
         DefineList o = (DefineList) other;
-        if (isSet == o.isSet) {
+        if (isSet.equals(o.isSet)) {
             for (int i = 0; i < values.length; i++) {
                 if (values[i] != o.values[i]) {
                     return false;
