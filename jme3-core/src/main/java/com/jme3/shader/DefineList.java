@@ -151,17 +151,23 @@ public final class DefineList {
     }
 
     @Override
-    public boolean equals(Object other) {
-        DefineList o = (DefineList) other;
-        if (isSet.equals(o.isSet)) {
-            for (int i = 0; i < values.length; i++) {
-                if (values[i] != o.values[i]) {
-                    return false;
-                }
-            }
+    public boolean equals(Object object) {
+        if(this == object ) {
             return true;
         }
-        return false;
+        if(object ==  null || object.getClass() != getClass()) {
+            return false;
+        }
+        DefineList otherDefineList = (DefineList) object;
+        if (!isSet.equals(otherDefineList.isSet)) {
+            return false;
+        }            
+        for (int i = 0; i < values.length; i++) {
+            if (values[i] != otherDefineList.values[i]) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public DefineList deepClone() {
