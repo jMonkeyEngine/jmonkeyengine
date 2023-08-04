@@ -143,11 +143,7 @@ public final class DefineList {
 
     @Override
     public int hashCode() {
-        int hash = 0;
-        for (int i = isSet.nextSetBit(0); i >= 0; i = isSet.nextSetBit(i + 1)) {
-            hash = 31 * hash + i;
-        }
-        return hash;
+        return isSet.hashCode();
     }
 
     @Override
