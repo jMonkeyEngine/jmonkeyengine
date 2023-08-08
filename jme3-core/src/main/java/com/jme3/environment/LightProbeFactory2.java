@@ -51,7 +51,7 @@ public class LightProbeFactory2 {
          am, Format.RGB16F, Format.Depth, 
          size, size);
 
-        baker.bakeEnvironment(scene,pos, frustumNear,frustumFar);
+        baker.bakeEnvironment(scene,pos, frustumNear,frustumFar,null);
         baker.bakeSpecularIBL();
         baker.bakeSphericalHarmonicsCoefficients();
         
@@ -68,7 +68,6 @@ public class LightProbeFactory2 {
         return probe;
 
     }
-
 
 
 
