@@ -54,7 +54,7 @@ import com.jme3.ui.Picture;
 
 
 /**
- *  An env baker for IBL that runs entirely on the GPU 
+ * Fully accelerated env baker for IBL that runs entirely on the GPU
  * 
  * @author Riccardo Balbo
  */
@@ -62,7 +62,6 @@ public class IBLGLEnvBaker extends GenericEnvBaker implements IBLEnvBaker{
     protected Texture2D brtf;
     protected TextureCubeMap irradiance;
     protected TextureCubeMap specular;
-
     public IBLGLEnvBaker(RenderManager rm,AssetManager am,
                         Format format,
                         Format depthFormat,
@@ -70,7 +69,7 @@ public class IBLGLEnvBaker extends GenericEnvBaker implements IBLEnvBaker{
                         int irradiance_size,
                         int brtf_size
     ){
-        super(rm,am,format,depthFormat,env_size,false);  
+        super(rm,am,format,depthFormat,env_size);  
 
         irradiance=new TextureCubeMap(irradiance_size,irradiance_size,format);
         irradiance.setMagFilter(MagFilter.Bilinear);
@@ -80,7 +79,7 @@ public class IBLGLEnvBaker extends GenericEnvBaker implements IBLEnvBaker{
 
         specular=new TextureCubeMap(specular_size,specular_size,format);
         specular.setMagFilter(MagFilter.Bilinear);
-        specular.setMinFilter(MinFilter.BilinearNoMipMaps);
+        specular.setMinFilter(MinFilter.Trilinear);
         specular.setWrap(WrapMode.EdgeClamp);
         specular.getImage().setColorSpace(ColorSpace.Linear);
         int nbMipMaps=(int)(Math.log(specular_size)/Math.log(2)+1);
@@ -117,33 +116,41 @@ public class IBLGLEnvBaker extends GenericEnvBaker implements IBLEnvBaker{
         mat.setBoolean("UseSpecularIBL",true);
         mat.setTexture("EnvMap",env);
         screen.setMaterial(mat);
-    
-        for(int mip=0;mip<specular.getImage().getMipMapSizes().length;mip++){
-            int mipWidth=(int)(specular.getImage().getWidth()*FastMath.pow(0.5f,mip));
-            int mipHeight=(int)(specular.getImage().getHeight()*FastMath.pow(0.5f,mip));
 
-            FrameBuffer specularbaker=new FrameBuffer(mipWidth,mipHeight,1);
+        if (isTexturePulling())startPulling();
+        
+        for (int mip = 0; mip < specular.getImage().getMipMapSizes().length; mip++) {
+            int mipWidth = (int) (specular.getImage().getWidth() * FastMath.pow(0.5f, mip));
+            int mipHeight = (int) (specular.getImage().getHeight() * FastMath.pow(0.5f, mip));
+
+            FrameBuffer specularbaker = new FrameBuffer(mipWidth, mipHeight, 1);
             specularbaker.setSrgb(false);
 
-            for(int i=0;i<6;i++)specularbaker.addColorTarget( FrameBufferTarget.newTarget(specular).level(mip).face(i) );
-            
-            float roughness=(float)mip/(float)(specular.getImage().getMipMapSizes().length-1);
-            mat.setFloat("Roughness",roughness);
+            for (int i = 0; i < 6; i++) specularbaker.addColorTarget(FrameBufferTarget.newTarget(specular).level(mip).face(i));
 
-            for(int i=0;i<6;i++){
+            float roughness = (float) mip / (float) (specular.getImage().getMipMapSizes().length - 1);
+            mat.setFloat("Roughness", roughness);
+
+            for (int i = 0; i < 6; i++) {
                 specularbaker.setTargetIndex(i);
-                mat.setInt("FaceId",i);
+                mat.setInt("FaceId", i);
 
                 screen.updateLogicalState(0);
                 screen.updateGeometricState();
 
-                renderManager.setCamera(getCam(i,specularbaker.getWidth(),specularbaker.getHeight(),Vector3f.ZERO,1,1000),false);
+                renderManager.setCamera(getCam(i, specularbaker.getWidth(), specularbaker.getHeight(), Vector3f.ZERO, 1, 1000), false);
                 renderManager.getRenderer().setFrameBuffer(specularbaker);
                 renderManager.renderGeometry(screen);
+
+                if (isTexturePulling())  pull(specularbaker, specular,i);               
+                
             }
             specularbaker.dispose();
-        }        
-        specular.setMinFilter(MinFilter.Trilinear);        
+        }
+        
+        if (isTexturePulling())endPulling(specular);
+        specular.getImage().clearUpdateNeeded();
+        // specular.setMinFilter(MinFilter.Trilinear);        
     }
 
     @Override
@@ -157,6 +164,8 @@ public class IBLGLEnvBaker extends GenericEnvBaker implements IBLEnvBaker{
         brtfbaker.setSrgb(false);
         brtfbaker.addColorTarget(FrameBufferTarget.newTarget(brtf));
 
+        if(isTexturePulling())startPulling();
+
         Camera envcam=getCam(0,brtf.getImage().getWidth(),brtf.getImage().getHeight(),Vector3f.ZERO,1,1000);
 
         Material mat=new Material(assetManager,"Common/IBL/IBLKernels.j3md");
@@ -169,8 +178,13 @@ public class IBLGLEnvBaker extends GenericEnvBaker implements IBLEnvBaker{
         screen.updateLogicalState(0);
         screen.updateGeometricState();       
         renderManager.renderGeometry(screen);
+
+        if(isTexturePulling()) pull(brtfbaker,brtf,0);
        
         brtfbaker.dispose();
+
+        if (isTexturePulling()) endPulling(brtf);
+        brtf.getImage().clearUpdateNeeded();
      
         return brtf;
     }
@@ -184,6 +198,8 @@ public class IBLGLEnvBaker extends GenericEnvBaker implements IBLEnvBaker{
 
         FrameBuffer irradiancebaker=new FrameBuffer(irradiance.getImage().getWidth(),irradiance.getImage().getHeight(),1);
         irradiancebaker.setSrgb(false);
+
+        if(isTexturePulling())startPulling();
         
         for(int i=0;i<6;i++) irradiancebaker.addColorTarget(FrameBufferTarget.newTarget(irradiance).face(TextureCubeMap.Face.values()[i]));
 
@@ -205,9 +221,14 @@ public class IBLGLEnvBaker extends GenericEnvBaker implements IBLEnvBaker{
             ,false);
             renderManager.getRenderer().setFrameBuffer(irradiancebaker);
             renderManager.renderGeometry(screen);
+
+            if(isTexturePulling()) pull(irradiancebaker,irradiance,i);
         }
 
         irradiancebaker.dispose();
+
+        if (isTexturePulling()) endPulling(irradiance);
+        irradiance.getImage().clearUpdateNeeded();
 
     }
 

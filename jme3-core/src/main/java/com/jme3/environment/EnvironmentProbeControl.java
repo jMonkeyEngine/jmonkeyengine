@@ -1,10 +1,10 @@
 package com.jme3.environment;
 
 import java.util.function.Function;
-import java.util.function.Predicate;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.environment.baker.IBLGLEnvBakerLight;
+import com.jme3.environment.baker.IBLHybridEnvBakerLight;
 import com.jme3.light.LightProbe;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
@@ -28,6 +28,8 @@ public class EnvironmentProbeControl extends LightProbe implements Control {
     private int envMapSize;
     private Spatial spatial;
     private boolean BAKE_NEEDED = true;
+    private boolean USE_GL_IR = true;
+    private boolean serializable = false;
 
     private Function<Geometry, Boolean> filter = (s) -> {
         return s.getUserData("tags.env") != null;
@@ -62,6 +64,14 @@ public class EnvironmentProbeControl extends LightProbe implements Control {
         return null;
     }
 
+    public void setSerializeBakeResults(boolean v) {
+        serializable = v;
+    }
+
+    public boolean isSerializeBakeResults() {
+        return serializable;
+    }
+
     @Override
     public void setSpatial(Spatial spatial) {
 
@@ -92,7 +102,13 @@ public class EnvironmentProbeControl extends LightProbe implements Control {
 
     void rebakeNow() {
 
-        IBLGLEnvBakerLight baker = new IBLGLEnvBakerLight(renderManager, assetManager, Format.RGB16F, Format.Depth, envMapSize, envMapSize);
+        IBLHybridEnvBakerLight baker;
+        if(!USE_GL_IR){
+            baker = new IBLHybridEnvBakerLight(renderManager, assetManager, Format.RGB16F, Format.Depth, envMapSize, envMapSize);
+        } else {
+            baker = new IBLGLEnvBakerLight(renderManager, assetManager, Format.RGB16F, Format.Depth, envMapSize, envMapSize);
+        }
+        baker.setTexturePulling(isSerializeBakeResults());
 
         baker.bakeEnvironment(spatial, Vector3f.ZERO, 0.001f, 1000f, filter);
         baker.bakeSpecularIBL();
