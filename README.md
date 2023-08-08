@@ -28,6 +28,7 @@ The engine is used by several commercial game studios and computer-science cours
  - [Demon Lord (on Google Play)](https://play.google.com/store/apps/details?id=com.dreiInitiative.demonLord&pli=1)
  - [Marvelous Marbles (on Steam)](https://store.steampowered.com/app/2244540/Marvelous_Marbles/)
  - [Boxer (on Google Play)](https://play.google.com/store/apps/details?id=com.tharg.boxer)
+ - [Depthris (on Itch)](https://codewalker.itch.io/depthris)
 
 ## Getting started
 
