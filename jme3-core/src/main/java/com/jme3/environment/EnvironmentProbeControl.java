@@ -1,10 +1,15 @@
 package com.jme3.environment;
 
+import java.io.IOException;
 import java.util.function.Function;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.environment.baker.IBLGLEnvBakerLight;
 import com.jme3.environment.baker.IBLHybridEnvBakerLight;
+import com.jme3.export.InputCapsule;
+import com.jme3.export.JmeExporter;
+import com.jme3.export.JmeImporter;
+import com.jme3.export.OutputCapsule;
 import com.jme3.light.LightProbe;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
@@ -22,13 +27,12 @@ import com.jme3.texture.Image.Format;
  * @author Riccardo Balbo
  */
 public class EnvironmentProbeControl extends LightProbe implements Control {
-
-    private RenderManager renderManager;
+    private final boolean USE_GL_IR = true;
+    
     private AssetManager assetManager;
-    private int envMapSize;
+    private boolean bakeNeeded = true;
+    private int envMapSize=256;
     private Spatial spatial;
-    private boolean BAKE_NEEDED = true;
-    private boolean USE_GL_IR = true;
     private boolean serializable = false;
 
     private Function<Geometry, Boolean> filter = (s) -> {
@@ -53,10 +57,9 @@ public class EnvironmentProbeControl extends LightProbe implements Control {
         }
     }
 
-    public EnvironmentProbeControl(RenderManager rm, AssetManager am, int size) {
-        renderManager = rm;
-        assetManager = am;
-        envMapSize = size;
+    public EnvironmentProbeControl(AssetManager assetManager,int size) {     
+        this.envMapSize = size;
+        this.assetManager = assetManager;
     }
 
     @Override
@@ -74,7 +77,6 @@ public class EnvironmentProbeControl extends LightProbe implements Control {
 
     @Override
     public void setSpatial(Spatial spatial) {
-
         spatial.addLight(this);
         this.spatial = spatial;
 
@@ -87,9 +89,9 @@ public class EnvironmentProbeControl extends LightProbe implements Control {
 
     @Override
     public void render(RenderManager rm, ViewPort vp) {
-        if (BAKE_NEEDED) {
-            BAKE_NEEDED = false;
-            rebakeNow();
+        if (bakeNeeded) {
+            bakeNeeded = false;
+            rebakeNow(rm);
         }
     }
 
@@ -97,11 +99,10 @@ public class EnvironmentProbeControl extends LightProbe implements Control {
      * Schedule a rebake of the environment map.
      */
     public void rebake() {
-        BAKE_NEEDED = true;
+        bakeNeeded = true;
     }
 
-    void rebakeNow() {
-
+    void rebakeNow(RenderManager renderManager) {
         IBLHybridEnvBakerLight baker;
         if(!USE_GL_IR){
             baker = new IBLHybridEnvBakerLight(renderManager, assetManager, Format.RGB16F, Format.Depth, envMapSize, envMapSize);
@@ -121,7 +122,26 @@ public class EnvironmentProbeControl extends LightProbe implements Control {
         setReady(true);
 
         baker.clean();
+    }
 
+
+    @Override
+    public void write(JmeExporter ex) throws IOException {
+        super.write(ex);
+        OutputCapsule oc = ex.getCapsule(this);
+        oc.write(envMapSize, "size", 256);
+        oc.write(serializable, "serializable", false);
+        oc.write(bakeNeeded, "bakeNeeded", true);
+    }
+    
+    @Override
+    public void read(JmeImporter im) throws IOException {
+        super.read(im);
+        InputCapsule ic = im.getCapsule(this);
+        envMapSize = ic.readInt("size", 256);
+        serializable = ic.readBoolean("serializable", false);
+        bakeNeeded = ic.readBoolean("bakeNeeded", true);
+        assetManager = im.getAssetManager();
     }
 
 }
