@@ -45,7 +45,7 @@ public class TestPBRSimple extends SimpleApplication {
         rootNode.attachChild(sky);
 
         // Create baker control
-        EnvironmentProbeControl envProbe=new EnvironmentProbeControl(renderManager,assetManager,256);
+        EnvironmentProbeControl envProbe=new EnvironmentProbeControl(assetManager,256);
         rootNode.addControl(envProbe);
        
         // Tag the sky, only the tagged spatials will be rendered in the env map
