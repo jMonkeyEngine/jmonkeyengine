@@ -4,6 +4,7 @@ import java.io.FileOutputStream;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.function.Function;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.environment.baker.EnvBaker;
@@ -14,6 +15,7 @@ import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
+import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image.Format;
@@ -117,7 +119,7 @@ public abstract class GenericEnvBaker implements EnvBaker{
 
 
     @Override
-    public void bakeEnvironment(Spatial scene,   Vector3f position, float frustumNear, float frustumFar) {       
+    public void bakeEnvironment(Spatial scene,   Vector3f position, float frustumNear, float frustumFar,Function<Geometry,Boolean> filter) {       
         FrameBuffer envbaker=new FrameBuffer(env.getImage().getWidth(),env.getImage().getHeight(),1);
         envbaker.setDepthTarget(FrameBuffer.newTarget(depthFormat));
         envbaker.setSrgb(false);
@@ -138,8 +140,12 @@ public abstract class GenericEnvBaker implements EnvBaker{
             scene.updateLogicalState(0);
             scene.updateModelBound();
             scene.updateGeometricState();
+           
+            Function<Geometry,Boolean> ofilter= renderManager.getRenderFilter();
 
+            renderManager.setRenderFilter(filter);
             renderManager.renderViewPort(viewPort,0.16f);
+            renderManager.setRenderFilter(ofilter);
 
             if(copyToRam){
                 ByteBuffer face=BufferUtils.createByteBuffer(

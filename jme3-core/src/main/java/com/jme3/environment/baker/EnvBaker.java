@@ -1,6 +1,9 @@
 package com.jme3.environment.baker;
 
+import java.util.function.Function;
+
 import com.jme3.math.Vector3f;
+import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
 import com.jme3.texture.TextureCubeMap;
 
@@ -10,7 +13,7 @@ import com.jme3.texture.TextureCubeMap;
  * @author Riccardo Balbo
  */
 public interface EnvBaker {
-    public void bakeEnvironment(Spatial scene, Vector3f position, float frustumNear, float frustumFar);
+    public void bakeEnvironment(Spatial scene, Vector3f position, float frustumNear, float frustumFar,Function<Geometry,Boolean> filter);
     public TextureCubeMap getEnvMap();
     public void clean();    
 }
