@@ -64,6 +64,7 @@ import com.jme3.util.SafeArrayList;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Function;
 import java.util.logging.Logger;
 
 /**
@@ -101,7 +102,15 @@ public class RenderManager {
     private LightFilter lightFilter = new DefaultLightFilter();
     private TechniqueDef.LightMode preferredLightMode = TechniqueDef.LightMode.MultiPass;
     private int singlePassLightBatchSize = 1;
+    private Function<Geometry,Boolean> renderFilter;
 
+    public void setRenderFilter(Function<Geometry,Boolean> filter){
+        renderFilter=filter;
+    }
+    
+    public Function<Geometry,Boolean> getRenderFilter(){
+        return renderFilter;
+    }
 
     /**
      * Creates a high-level rendering interface over the
@@ -622,6 +631,7 @@ public class RenderManager {
      * @see com.jme3.material.Material#render(com.jme3.scene.Geometry, com.jme3.renderer.RenderManager)
      */
     public void renderGeometry(Geometry geom) {
+        if (renderFilter != null && !renderFilter.apply(geom)) return;
         this.renderer.pushDebugGroup(geom.getName());
         if (geom.isIgnoreTransform()) {
             setWorldMatrix(Matrix4f.IDENTITY);
