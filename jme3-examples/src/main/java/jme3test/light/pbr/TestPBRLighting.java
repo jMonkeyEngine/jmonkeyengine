@@ -34,6 +34,7 @@ package jme3test.light.pbr;
 import com.jme3.app.SimpleApplication;
 import com.jme3.environment.EnvironmentCamera;
 import com.jme3.environment.LightProbeFactory;
+import com.jme3.environment.LightProbeFactory2;
 import com.jme3.environment.generation.JobProgressAdapter;
 import com.jme3.environment.util.EnvMapUtils;
 import com.jme3.environment.util.LightsDebugState;
@@ -59,7 +60,8 @@ import com.jme3.util.mikktspace.MikktspaceTangentGenerator;
  * @author nehon
  */
 public class TestPBRLighting extends SimpleApplication {
-
+    private static final boolean USE_ACCELERATED_BAKING=true;
+    private static final int RESOLUTION=256;
     public static void main(String[] args) {
         TestPBRLighting app = new TestPBRLighting();
         app.start();
@@ -111,7 +113,7 @@ public class TestPBRLighting extends SimpleApplication {
         model.setMaterial(pbrMat);
 
 
-        final EnvironmentCamera envCam = new EnvironmentCamera(256, new Vector3f(0, 3f, 0));
+        final EnvironmentCamera envCam = new EnvironmentCamera(RESOLUTION, new Vector3f(0, 3f, 0));
         stateManager.attach(envCam);
 
 //        EnvironmentManager envManager = new EnvironmentManager();
@@ -199,18 +201,23 @@ public class TestPBRLighting extends SimpleApplication {
 
         if (frame == 2) {
             modelNode.removeFromParent();
-            final LightProbe probe = LightProbeFactory.makeProbe(stateManager.getState(EnvironmentCamera.class), rootNode, new JobProgressAdapter<LightProbe>() {
+            LightProbe probe;
 
-                @Override
-                public void done(LightProbe result) {
-                    System.err.println("Done rendering env maps");
-                    tex = EnvMapUtils.getCubeMapCrossDebugViewWithMipMaps(result.getPrefilteredEnvMap(), assetManager);
-                }
-            });
+            if (USE_ACCELERATED_BAKING) {
+                probe = LightProbeFactory2.makeProbe(renderManager, assetManager, RESOLUTION, Vector3f.ZERO, 1f, 1000f, rootNode);
+            } else {
+                probe = LightProbeFactory.makeProbe(stateManager.getState(EnvironmentCamera.class), rootNode, new JobProgressAdapter<LightProbe>() {
+
+                    @Override
+                    public void done(LightProbe result) {
+                        System.err.println("Done rendering env maps");
+                        tex = EnvMapUtils.getCubeMapCrossDebugViewWithMipMaps(result.getPrefilteredEnvMap(), assetManager);
+                    }
+                });
+            }
             probe.getArea().setRadius(100);
             rootNode.addLight(probe);
             //getStateManager().getState(EnvironmentManager.class).addEnvProbe(probe);
-
         }
         if (frame > 10 && modelNode.getParent() == null) {
             rootNode.attachChild(modelNode);
