@@ -148,9 +148,7 @@ public abstract class GenericEnvBaker implements EnvBaker {
 
     @Override
     public void clean() {
-        env.getImage().dispose();
-        System.gc();
-        System.gc();
+    
     }
 
     @Override
