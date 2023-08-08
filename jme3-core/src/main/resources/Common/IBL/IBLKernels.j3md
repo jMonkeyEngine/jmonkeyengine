@@ -1,0 +1,37 @@
+MaterialDef IBLKernels {
+    
+    MaterialParameters {
+        TextureCubeMap EnvMap -LINEAR
+        Float Roughness
+        Int FaceId : 0
+        Boolean UseBRDF
+        Boolean UseIrradiance
+        Boolean UseSpecularIBL
+    }
+
+    Technique {
+    
+        VertexShader GLSL150:  Common/IBL/IBLKernels.vert
+        FragmentShader GLSL150:  Common/IBL/IBLKernels.frag
+
+        WorldParameters {
+            WorldMatrix
+            ViewMatrix
+            ProjectionMatrix
+        }
+        
+        RenderState {
+            DepthWrite Off
+            DepthTest Off
+            DepthFunc Equal
+            FaceCull Off
+        }
+
+        Defines {
+            BRDF:UseBRDF
+            IRRADIANCE: UseIrradiance
+            SIBL: UseSpecularIBL
+        }
+
+    }
+}
