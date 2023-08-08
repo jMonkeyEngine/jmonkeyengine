@@ -32,8 +32,13 @@
 
 package com.jme3.environment.baker;
 
+import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Function;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.math.ColorRGBA;
@@ -45,6 +50,7 @@ import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
 import com.jme3.texture.FrameBuffer;
+import com.jme3.texture.Texture;
 import com.jme3.texture.FrameBuffer.FrameBufferTarget;
 import com.jme3.texture.Image.Format;
 import com.jme3.texture.Texture.MagFilter;
@@ -97,10 +103,13 @@ public abstract class GenericEnvBaker implements EnvBaker {
     protected final RenderManager renderManager;
     protected final AssetManager assetManager;
     protected final Camera cam;
-    protected final boolean copyToRam;
+    protected  boolean texturePulling=false;
+    protected List<ByteArrayOutputStream> bos = new ArrayList<>();
+    private static final Logger LOG=Logger.getLogger(GenericEnvBaker.class.getName());
 
-    public GenericEnvBaker(RenderManager rm, AssetManager am, Format colorFormat, Format depthFormat, int env_size, boolean copyToRam) {
-        this.copyToRam = copyToRam;
+ 
+
+    public GenericEnvBaker(RenderManager rm, AssetManager am, Format colorFormat, Format depthFormat, int env_size) {
         this.depthFormat = depthFormat;
 
         renderManager = rm;
@@ -113,6 +122,16 @@ public abstract class GenericEnvBaker implements EnvBaker {
         env.setMinFilter(MinFilter.BilinearNoMipMaps);
         env.setWrap(WrapMode.EdgeClamp);
         env.getImage().setColorSpace(ColorSpace.Linear);
+    }
+
+    @Override
+    public void setTexturePulling(boolean v) {
+        texturePulling = v;
+    }
+
+    @Override
+    public boolean isTexturePulling() {
+        return texturePulling;
     }
 
     public TextureCubeMap getEnvMap() {
@@ -141,6 +160,8 @@ public abstract class GenericEnvBaker implements EnvBaker {
         envbaker.setDepthTarget(FrameBufferTarget.newTarget(depthFormat));
         envbaker.setSrgb(false);
 
+        if(isTexturePulling())startPulling();
+
         for (int i = 0; i < 6; i++) envbaker.addColorTarget(FrameBufferTarget.newTarget(env).face(TextureCubeMap.Face.values()[i]));
 
         for (int i = 0; i < 6; i++) {
@@ -164,18 +185,70 @@ public abstract class GenericEnvBaker implements EnvBaker {
             renderManager.renderViewPort(viewPort, 0.16f);
             renderManager.setRenderFilter(ofilter);
 
-            if (copyToRam) {
-                ByteBuffer face = BufferUtils.createByteBuffer((env.getImage().getWidth() * env.getImage().getHeight() * (env.getImage().getFormat().getBitsPerPixel() / 8)));
-                renderManager.getRenderer().readFrameBufferWithFormat(envbaker, face, env.getImage().getFormat());
-                face.rewind();
-                env.getImage().setData(i, face);
-
-            }
+            if (isTexturePulling()) pull(envbaker, env, i);
+            
         }
 
-        env.getImage().clearUpdateNeeded();
-
+        if (isTexturePulling()) endPulling(env);
+        env.getImage().clearUpdateNeeded();           
         envbaker.dispose();
+    }
+    
+
+    /**
+     * Starts pulling the data from the framebuffer into the texture
+     */
+    protected void startPulling() {
+        bos.clear();
+    }
+
+    /**
+     * Pulls the data from the framebuffer into the texture
+     * Nb. mipmaps must be pulled sequentially on the same faceId
+     * @param fb the framebuffer to pull from
+     * @param env the texture to pull into
+     * @param faceId id of face if cubemap or 0 otherwise
+     * @return
+     */
+    protected ByteBuffer pull(FrameBuffer fb, Texture env, int faceId) {
+
+        if (fb.getColorTarget().getFormat() != env.getImage().getFormat())
+            throw new IllegalArgumentException("Format mismatch: " + fb.getColorTarget().getFormat() + "!=" + env.getImage().getFormat());
+
+        ByteBuffer face = BufferUtils.createByteBuffer(fb.getWidth() * fb.getHeight() * (fb.getColorTarget().getFormat().getBitsPerPixel() / 8));
+        renderManager.getRenderer().readFrameBufferWithFormat(fb, face, fb.getColorTarget().getFormat());
+        face.rewind();
+
+        while (bos.size() <= faceId) bos.add(null);
+        ByteArrayOutputStream bo = bos.get(faceId);
+        if (bo == null) bos.set(faceId, bo = new ByteArrayOutputStream());
+        try {
+            byte array[] = new byte[face.limit()];
+            face.get(array);
+            bo.write(array);
+        } catch (Exception ex) {
+            LOG.log(Level.SEVERE, null, ex);
+        }
+        return face;
+    }
+
+
+    /**
+     * Ends pulling the data into the texture
+     * @param tx the texture to pull into
+     */
+    protected void endPulling(Texture tx) {
+        for (int i = 0; i < bos.size(); i++) {
+            ByteArrayOutputStream bo = bos.get(i);
+            if (bo == null) {
+                LOG.log(Level.SEVERE, "Missing face {0}. Pulling incomplete!", i);
+                continue;
+            }
+            ByteBuffer faceMip = ByteBuffer.wrap(bo.toByteArray());
+            tx.getImage().setData(i, faceMip);
+        }
+        bos.clear();
+        tx.getImage().clearUpdateNeeded();
     }
 
 }

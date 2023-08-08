@@ -33,6 +33,7 @@ package com.jme3.environment;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.environment.baker.IBLGLEnvBakerLight;
+import com.jme3.environment.baker.IBLHybridEnvBakerLight;
 import com.jme3.environment.util.EnvMapUtils;
 import com.jme3.light.LightProbe;
 import com.jme3.math.Vector3f;
@@ -61,10 +62,9 @@ public class LightProbeFactory2 {
      */
     public static LightProbe makeProbe(RenderManager rm,
     AssetManager am, int size,Vector3f pos, float frustumNear,float frustumFar,Spatial scene) {
-        IBLGLEnvBakerLight baker=new IBLGLEnvBakerLight(rm,
-         am, Format.RGB16F, Format.Depth, 
-         size, size);
+        IBLHybridEnvBakerLight baker=new IBLGLEnvBakerLight(rm, am, Format.RGB16F, Format.Depth, size, size);
 
+        baker.setTexturePulling(true);
         baker.bakeEnvironment(scene,pos, frustumNear,frustumFar,null);
         baker.bakeSpecularIBL();
         baker.bakeSphericalHarmonicsCoefficients();

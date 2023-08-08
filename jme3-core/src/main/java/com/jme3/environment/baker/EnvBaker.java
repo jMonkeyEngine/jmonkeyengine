@@ -34,5 +34,20 @@ public interface EnvBaker {
      * This method should be called when the baker is no longer needed
      * It will clean up all the resources
      */
-    public void clean();    
+    public void clean();
+    
+
+
+    /**
+     * Set if textures should be pulled from the GPU
+     * @param v
+     */
+    public void setTexturePulling(boolean v);
+
+
+    /**
+     * Get if textures should be pulled from the GPU
+     * @return
+     */
+    public boolean isTexturePulling();
 }
