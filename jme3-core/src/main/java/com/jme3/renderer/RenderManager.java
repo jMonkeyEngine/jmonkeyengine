@@ -102,15 +102,8 @@ public class RenderManager {
     private LightFilter lightFilter = new DefaultLightFilter();
     private TechniqueDef.LightMode preferredLightMode = TechniqueDef.LightMode.MultiPass;
     private int singlePassLightBatchSize = 1;
-    private Function<Geometry,Boolean> renderFilter;
+    private Function<Geometry, Boolean> renderFilter;
 
-    public void setRenderFilter(Function<Geometry,Boolean> filter){
-        renderFilter=filter;
-    }
-    
-    public Function<Geometry,Boolean> getRenderFilter(){
-        return renderFilter;
-    }
 
     /**
      * Creates a high-level rendering interface over the
@@ -1308,4 +1301,25 @@ public class RenderManager {
             }
         }
     }
+
+    /**
+     * Set a render filter. Every geometry will be tested against this filter
+     * before rendering and will only be rendered if the filter returns true.
+     * 
+     * @param filter
+     */
+    public void setRenderFilter(Function<Geometry, Boolean> filter) {
+        renderFilter = filter;
+    }
+
+    /**
+     * Returns the render filter that the RenderManager is currently using
+     * 
+     * @param filter
+     *            the render filter
+     */
+    public Function<Geometry, Boolean> getRenderFilter() {
+        return renderFilter;
+    }
+
 }
