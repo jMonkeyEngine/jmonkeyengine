@@ -45,31 +45,36 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 /**
  * Creates LightProbes within a scene, given an EnvironmentCamera.
  * 
- * Since this process can take a long time, you can provide a JobProgressListener that
- * will be notified of the ongoing generation process when calling the makeProbe method.
+ * Since this process can take a long time, you can provide a
+ * JobProgressListener that will be notified of the ongoing generation process
+ * when calling the makeProbe method.
  * 
- * The process is as follows: 
- * 1. Create an EnvironmentCamera
- * 2. give it a position in the scene
- * 3. call {@link LightProbeFactory#makeProbe(com.jme3.environment.EnvironmentCamera, com.jme3.scene.Spatial)}
- * 4. add the created LightProbe to a node with the {@link Node#addLight(com.jme3.light.Light) } method.
+ * The process is as follows: 1. Create an EnvironmentCamera 2. give it a
+ * position in the scene 3. call
+ * {@link LightProbeFactory#makeProbe(com.jme3.environment.EnvironmentCamera, com.jme3.scene.Spatial)}
+ * 4. add the created LightProbe to a node with the
+ * {@link Node#addLight(com.jme3.light.Light) } method.
  * 
  * Optionally for step 3 call
  * {@link #makeProbe(com.jme3.environment.EnvironmentCamera, com.jme3.scene.Spatial, com.jme3.environment.generation.JobProgressListener)}
- * with a {@link JobProgressListener} to be notified of the progress of the generation process.
+ * with a {@link JobProgressListener} to be notified of the progress of the
+ * generation process.
  * 
- * The generation will be split in several threads for faster generation. 
+ * The generation will be split in several threads for faster generation.
  * 
- * This class is entirely thread safe and can be called from any thread. 
+ * This class is entirely thread safe and can be called from any thread.
  * 
  * Note that in case you are using a {@link JobProgressListener}, all its
- * methods will be called inside an app.enqueue callable.
- * This means that it's completely safe to modify the scenegraph within the 
- * Listener method, but also means that the event will be delayed until next update loop.
+ * methods will be called inside an app.enqueue callable. This means that it's
+ * completely safe to modify the scenegraph within the Listener method, but also
+ * means that the event will be delayed until next update loop.
  * 
+ * @deprecated Use LightProbeFactory2 or EnvironmentProbeControl whenever possible.
  * @see EnvironmentCamera
  * @author bouquet
  */
+
+@Deprecated
 public class LightProbeFactory {
 
     /**

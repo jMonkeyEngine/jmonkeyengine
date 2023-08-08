@@ -1,7 +1,39 @@
+/*
+ * Copyright (c) 2009-2023 jMonkeyEngine
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ * * Redistributions of source code must retain the above copyright
+ *   notice, this list of conditions and the following disclaimer.
+ *
+ * * Redistributions in binary form must reproduce the above copyright
+ *   notice, this list of conditions and the following disclaimer in the
+ *   documentation and/or other materials provided with the distribution.
+ *
+ * * Neither the name of 'jMonkeyEngine' nor the names of its contributors
+ *   may be used to endorse or promote products derived from this software
+ *   without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+
 package com.jme3.environment.baker;
 
 import com.jme3.asset.AssetManager;
-import com.jme3.environment.baker.IBLEnvBaker;
 import com.jme3.material.Material;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
@@ -16,12 +48,13 @@ import com.jme3.texture.Texture.MinFilter;
 import com.jme3.texture.Texture.WrapMode;
 import com.jme3.texture.Texture2D;
 import com.jme3.texture.TextureCubeMap;
+import com.jme3.texture.FrameBuffer.FrameBufferTarget;
 import com.jme3.texture.image.ColorSpace;
 import com.jme3.ui.Picture;
 
 
 /**
- *  An env baker for IBL that runs on the GPU 
+ *  An env baker for IBL that runs entirely on the GPU 
  * 
  * @author Riccardo Balbo
  */
@@ -92,7 +125,7 @@ public class IBLGLEnvBaker extends GenericEnvBaker implements IBLEnvBaker{
             FrameBuffer specularbaker=new FrameBuffer(mipWidth,mipHeight,1);
             specularbaker.setSrgb(false);
 
-            for(int i=0;i<6;i++)specularbaker.addColorTarget( FrameBuffer.newTarget(specular).level(mip).face(i) );
+            for(int i=0;i<6;i++)specularbaker.addColorTarget( FrameBufferTarget.newTarget(specular).level(mip).face(i) );
             
             float roughness=(float)mip/(float)(specular.getImage().getMipMapSizes().length-1);
             mat.setFloat("Roughness",roughness);
@@ -122,7 +155,7 @@ public class IBLGLEnvBaker extends GenericEnvBaker implements IBLEnvBaker{
 
         FrameBuffer brtfbaker=new FrameBuffer(brtf.getImage().getWidth(),brtf.getImage().getHeight(),1);
         brtfbaker.setSrgb(false);
-        brtfbaker.addColorTarget(FrameBuffer.newTarget(brtf));
+        brtfbaker.addColorTarget(FrameBufferTarget.newTarget(brtf));
 
         Camera envcam=getCam(0,brtf.getImage().getWidth(),brtf.getImage().getHeight(),Vector3f.ZERO,1,1000);
 
@@ -152,7 +185,7 @@ public class IBLGLEnvBaker extends GenericEnvBaker implements IBLEnvBaker{
         FrameBuffer irradiancebaker=new FrameBuffer(irradiance.getImage().getWidth(),irradiance.getImage().getHeight(),1);
         irradiancebaker.setSrgb(false);
         
-        for(int i=0;i<6;i++) irradiancebaker.addColorTarget(FrameBuffer.newTarget(irradiance).face(TextureCubeMap.Face.values()[i]));
+        for(int i=0;i<6;i++) irradiancebaker.addColorTarget(FrameBufferTarget.newTarget(irradiance).face(TextureCubeMap.Face.values()[i]));
 
         Material mat=new Material(assetManager,"Common/IBL/IBLKernels.j3md");
         mat.setBoolean("UseIrradiance",true);

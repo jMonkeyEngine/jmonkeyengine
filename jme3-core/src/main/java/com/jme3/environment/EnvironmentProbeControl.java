@@ -16,36 +16,45 @@ import com.jme3.scene.control.Control;
 import com.jme3.texture.Image.Format;
 
 /**
- * SmartLightProbe
+ * A control that automatically handles environment bake and rebake including
+ * only tagged spatials.
+ * 
+ * @author Riccardo Balbo
  */
 public class EnvironmentProbeControl extends LightProbe implements Control {
 
+    private RenderManager renderManager;
+    private AssetManager assetManager;
+    private int envMapSize;
+    private Spatial spatial;
+    private boolean BAKE_NEEDED = true;
 
-
-    RenderManager renderManager;
-    AssetManager assetManager;
-    int envMapSize;
-    Spatial spatial;
-    boolean BAKE_NEEDED=true;
-    Function<Geometry,Boolean> filter=(s)->{
-        return s.getUserData("tags.env")!=null;
+    private Function<Geometry, Boolean> filter = (s) -> {
+        return s.getUserData("tags.env") != null;
     };
 
-    public static void tag(Spatial s){
-        if(s instanceof Node){
-            Node n=(Node)s;
-            for(Spatial sx:n.getChildren()){
+    /**
+     * Tag spatial as part of the environment. Only tagged spatials will be
+     * rendered in the environment map.
+     * 
+     * @param s
+     *            the spatial
+     */
+    public static void tag(Spatial s) {
+        if (s instanceof Node) {
+            Node n = (Node) s;
+            for (Spatial sx : n.getChildren()) {
                 tag(sx);
             }
-        }else if(s instanceof Geometry){
+        } else if (s instanceof Geometry) {
             s.setUserData("tags.env", true);
         }
     }
 
-    public EnvironmentProbeControl(RenderManager rm,AssetManager am, int size){
-        renderManager=rm;
-        assetManager=am;
-        envMapSize=size;
+    public EnvironmentProbeControl(RenderManager rm, AssetManager am, int size) {
+        renderManager = rm;
+        assetManager = am;
+        envMapSize = size;
     }
 
     @Override
@@ -55,9 +64,9 @@ public class EnvironmentProbeControl extends LightProbe implements Control {
 
     @Override
     public void setSpatial(Spatial spatial) {
-        
+
         spatial.addLight(this);
-        this.spatial=spatial;
+        this.spatial = spatial;
 
     }
 
@@ -67,30 +76,28 @@ public class EnvironmentProbeControl extends LightProbe implements Control {
     }
 
     @Override
-	public void render(RenderManager rm, ViewPort vp) {
-        if(BAKE_NEEDED){
-            BAKE_NEEDED=false;
+    public void render(RenderManager rm, ViewPort vp) {
+        if (BAKE_NEEDED) {
+            BAKE_NEEDED = false;
             rebakeNow();
         }
     }
 
-    public void rebake(){
-        BAKE_NEEDED=true;
+    /**
+     * Schedule a rebake of the environment map.
+     */
+    public void rebake() {
+        BAKE_NEEDED = true;
     }
-    
-    void rebakeNow() {
-        System.out.println("BAKE");
 
-        IBLGLEnvBakerLight baker = new IBLGLEnvBakerLight(renderManager, assetManager, Format.RGB16F, Format.Depth,
-                envMapSize, envMapSize);
-        
-       
-        baker.bakeEnvironment(spatial, Vector3f.ZERO, 0.001f, 1000f,filter);
+    void rebakeNow() {
+
+        IBLGLEnvBakerLight baker = new IBLGLEnvBakerLight(renderManager, assetManager, Format.RGB16F, Format.Depth, envMapSize, envMapSize);
+
+        baker.bakeEnvironment(spatial, Vector3f.ZERO, 0.001f, 1000f, filter);
         baker.bakeSpecularIBL();
         baker.bakeSphericalHarmonicsCoefficients();
 
-
-        // probe.setPosition(Vector3f.ZERO);
         setPrefilteredMap(baker.getSpecularIBL());
         setNbMipMaps(getPrefilteredEnvMap().getImage().getMipMapSizes().length);
         setShCoeffs(baker.getSphericalHarmonicsCoefficients());
@@ -100,5 +107,5 @@ public class EnvironmentProbeControl extends LightProbe implements Control {
         baker.clean();
 
     }
-    
+
 }

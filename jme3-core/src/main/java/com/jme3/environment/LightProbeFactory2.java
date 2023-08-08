@@ -41,10 +41,24 @@ import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.texture.Image.Format;
 
-
+/**
+ * A faster version of LightProbeFactory that uses accelerated Baking.
+ * @author Riccardo Balbo
+ */
 public class LightProbeFactory2 {
 
  
+    /**
+     * Creates a LightProbe with the giver EnvironmentCamera in the given scene.
+     * @param rm The RenderManager
+     * @param am The AssetManager
+     * @param size The size of the probe
+     * @param pos The position of the probe
+     * @param frustumNear The near frustum of the probe
+     * @param frustumFar The far frustum of the probe
+     * @param scene The scene to bake
+     * @return The baked LightProbe
+     */
     public static LightProbe makeProbe(RenderManager rm,
     AssetManager am, int size,Vector3f pos, float frustumNear,float frustumFar,Spatial scene) {
         IBLGLEnvBakerLight baker=new IBLGLEnvBakerLight(rm,
