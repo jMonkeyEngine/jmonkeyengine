@@ -31,9 +31,8 @@
  */
 package com.jme3.scene.plugins.gltf;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+ import com.jme3.plugins.json.*;
+
 import com.jme3.asset.AssetLoadException;
 import com.jme3.light.DirectionalLight;
 import com.jme3.light.Light;

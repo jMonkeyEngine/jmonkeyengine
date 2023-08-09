@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,34 +29,49 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.scene.plugins.gltf;
-import com.jme3.plugins.json.*;
-
-import com.jme3.asset.AssetKey;
+package com.jme3.plugins.json;
 
 /**
- * Material adapter for the Unlit pipeline
- * @author Markil 3
+ * A generic element
+ * @author Riccardo Balbo
  */
-public class UnlitExtensionLoader implements ExtensionLoader {
+public interface JsonElement {
 
-    private final UnlitMaterialAdapter materialAdapter = new UnlitMaterialAdapter();
+    /**
+     * Returns the object as a String
+     * @return the string
+     */
+    String getAsString();
 
-    @Override
-    public Object handleExtension(GltfLoader loader, String parentName, JsonElement parent, JsonElement extension, Object input) {
-        MaterialAdapter adapter = materialAdapter;
-        AssetKey key = loader.getInfo().getKey();
-        //check for a custom adapter for spec/gloss pipeline
-        if (key instanceof GltfModelKey) {
-            GltfModelKey gltfKey = (GltfModelKey) key;
-            MaterialAdapter ma = gltfKey.getAdapterForMaterial("unlit");
-            if (ma != null) {
-                adapter = ma;
-            }
-        }
+    /**
+     * Returns the object as a JsonObject
+     * @return the JsonObject
+     */
+    JsonObject getAsJsonObject();
 
-        adapter.init(loader.getInfo().getManager());
+    /**
+     * Returns the object as a float
+     * @return the float
+     */
+    float getAsFloat();
 
-        return adapter;
-    }
+    /**
+     * Returns the object as an int
+     * @return the int
+     */
+    int getAsInt();
+
+
+    /**
+     * Returns the object as a boolean
+     * @return the boolean
+     */
+    boolean getAsBoolean();
+
+    /**
+     * Returns the object as a JsonArray
+     * @return the JsonArray
+     */
+    JsonArray getAsJsonArray();
+
 }

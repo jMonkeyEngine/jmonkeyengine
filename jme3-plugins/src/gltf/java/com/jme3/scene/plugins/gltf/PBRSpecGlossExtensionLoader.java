@@ -31,10 +31,10 @@
  */
 package com.jme3.scene.plugins.gltf;
 
-import com.google.gson.JsonElement;
 import com.jme3.asset.AssetKey;
 
 import java.io.IOException;
+import com.jme3.plugins.json.*;
 
 import static com.jme3.scene.plugins.gltf.GltfUtils.getAsColor;
 import static com.jme3.scene.plugins.gltf.GltfUtils.getAsFloat;

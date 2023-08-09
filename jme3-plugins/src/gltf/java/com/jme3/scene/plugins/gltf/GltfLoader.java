@@ -31,8 +31,8 @@
  */
 package com.jme3.scene.plugins.gltf;
 
-import com.google.gson.*;
-import com.google.gson.stream.JsonReader;
+import com.jme3.plugins.json.*;
+
 import com.jme3.anim.*;
 import com.jme3.asset.*;
 import com.jme3.material.Material;
@@ -119,7 +119,7 @@ public class GltfLoader implements AssetLoader {
                 defaultMat.setFloat("Roughness", 1f);
             }
 
-            docRoot = JsonParser.parseReader(new JsonReader(new InputStreamReader(stream))).getAsJsonObject();
+            docRoot = parse(stream);
 
             JsonObject asset = docRoot.getAsJsonObject().get("asset").getAsJsonObject();
             getAsString(asset, "generator");

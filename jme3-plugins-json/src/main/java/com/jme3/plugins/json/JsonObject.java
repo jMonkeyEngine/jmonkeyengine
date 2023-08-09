@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,34 +29,55 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.scene.plugins.gltf;
-import com.jme3.plugins.json.*;
+package com.jme3.plugins.json;
 
-import com.jme3.asset.AssetKey;
+import java.util.Map.Entry;
 
 /**
- * Material adapter for the Unlit pipeline
- * @author Markil 3
+ * A generic object/map
+ * @author Riccardo Balbo
  */
-public class UnlitExtensionLoader implements ExtensionLoader {
+public interface JsonObject extends JsonElement{
 
-    private final UnlitMaterialAdapter materialAdapter = new UnlitMaterialAdapter();
+    /**
+     * Returns the object property as a String
+     * @param string name of the property
+     * @return  the string
+     */
+    public JsonArray getAsJsonArray(String string) ;
 
-    @Override
-    public Object handleExtension(GltfLoader loader, String parentName, JsonElement parent, JsonElement extension, Object input) {
-        MaterialAdapter adapter = materialAdapter;
-        AssetKey key = loader.getInfo().getKey();
-        //check for a custom adapter for spec/gloss pipeline
-        if (key instanceof GltfModelKey) {
-            GltfModelKey gltfKey = (GltfModelKey) key;
-            MaterialAdapter ma = gltfKey.getAdapterForMaterial("unlit");
-            if (ma != null) {
-                adapter = ma;
-            }
-        }
+    /**
+     * Returns the object property as a JsonObject
+     * @param string name of the property
+     * @return the JsonObject
+     */
+    public JsonObject getAsJsonObject(String string);
 
-        adapter.init(loader.getInfo().getManager());
+    /**
+     * Check if the object has a property
+     * @param string name of the property
+     * @return true if it exists, false otherwise
+     */
+    public boolean has(String string);
 
-        return adapter;
-    }
+    /**
+     * Returns the object property as generic element
+     * @param string name of the property
+     * @return the element
+     */
+    public JsonElement get(String string);
+
+    /**
+     * Returns the object's key-value pairs
+     * @return an array of key-value pairs
+     */
+    public Entry<String, JsonElement>[] entrySet();
+
+    /**
+     * Returns the object property as a wrapped primitive
+     * @param string name of the property
+     * @return the wrapped primitive
+     */
+    public JsonPrimitive getAsJsonPrimitive(String string);
+
 }

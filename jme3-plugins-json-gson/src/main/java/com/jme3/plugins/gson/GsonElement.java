@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,34 +29,48 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.scene.plugins.gltf;
+package com.jme3.plugins.gson;
+
 import com.jme3.plugins.json.*;
 
-import com.jme3.asset.AssetKey;
-
 /**
- * Material adapter for the Unlit pipeline
- * @author Markil 3
+ * GSON implementation of {@link JsonElement}
  */
-public class UnlitExtensionLoader implements ExtensionLoader {
+public class GsonElement implements JsonElement {
+    protected com.google.gson.JsonElement element;
 
-    private final UnlitMaterialAdapter materialAdapter = new UnlitMaterialAdapter();
+    public GsonElement(com.google.gson.JsonElement element) {
+        this.element = element;
+    }
 
     @Override
-    public Object handleExtension(GltfLoader loader, String parentName, JsonElement parent, JsonElement extension, Object input) {
-        MaterialAdapter adapter = materialAdapter;
-        AssetKey key = loader.getInfo().getKey();
-        //check for a custom adapter for spec/gloss pipeline
-        if (key instanceof GltfModelKey) {
-            GltfModelKey gltfKey = (GltfModelKey) key;
-            MaterialAdapter ma = gltfKey.getAdapterForMaterial("unlit");
-            if (ma != null) {
-                adapter = ma;
-            }
-        }
-
-        adapter.init(loader.getInfo().getManager());
-
-        return adapter;
+    public String getAsString() {
+        return element.getAsString();
     }
+
+    @Override
+    public JsonObject getAsJsonObject() {        
+        return new GsonObject(element.getAsJsonObject());
+    }
+
+    @Override
+    public float getAsFloat() {
+        return element.getAsFloat();
+    }
+
+    @Override
+    public int getAsInt() {
+        return element.getAsInt();
+    }
+
+    @Override
+    public boolean getAsBoolean() {
+        return element.getAsBoolean();
+    }
+
+    @Override
+    public JsonArray getAsJsonArray() {
+        return new GsonArray(element.getAsJsonArray());
+    }
+    
 }

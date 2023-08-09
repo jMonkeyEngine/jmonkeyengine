@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,34 +29,23 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.scene.plugins.gltf;
-import com.jme3.plugins.json.*;
-
-import com.jme3.asset.AssetKey;
+package com.jme3.plugins.json;
 
 /**
- * Material adapter for the Unlit pipeline
- * @author Markil 3
+ * Represents an array.
+ * @author Riccardo Balbo
  */
-public class UnlitExtensionLoader implements ExtensionLoader {
+public interface JsonArray extends Iterable<JsonElement> {
+    /**
+     * Get the element at index i
+     * @param i index
+     * @return the element
+     */
+    JsonElement get(int i);
 
-    private final UnlitMaterialAdapter materialAdapter = new UnlitMaterialAdapter();
-
-    @Override
-    public Object handleExtension(GltfLoader loader, String parentName, JsonElement parent, JsonElement extension, Object input) {
-        MaterialAdapter adapter = materialAdapter;
-        AssetKey key = loader.getInfo().getKey();
-        //check for a custom adapter for spec/gloss pipeline
-        if (key instanceof GltfModelKey) {
-            GltfModelKey gltfKey = (GltfModelKey) key;
-            MaterialAdapter ma = gltfKey.getAdapterForMaterial("unlit");
-            if (ma != null) {
-                adapter = ma;
-            }
-        }
-
-        adapter.init(loader.getInfo().getManager());
-
-        return adapter;
-    }
+    /**
+     * Get the size of the array
+     * @return the size
+     */
+    int size();
 }

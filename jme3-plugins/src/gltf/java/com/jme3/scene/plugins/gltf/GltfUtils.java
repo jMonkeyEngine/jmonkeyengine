@@ -31,11 +31,11 @@
  */
 package com.jme3.scene.plugins.gltf;
 
-import com.google.gson.*;
 import com.jme3.asset.AssetInfo;
 import com.jme3.asset.AssetLoadException;
 import com.jme3.math.*;
 import com.jme3.scene.*;
+import com.jme3.plugins.json.*;
 import com.jme3.texture.Texture;
 import com.jme3.util.*;
 import java.io.*;
@@ -55,6 +55,12 @@ public class GltfUtils {
      * A private constructor to inhibit instantiation of this class.
      */
     private GltfUtils() {
+    }
+
+  
+    public static JsonObject parse(InputStream stream) {
+        JsonParser parser = Json.create();
+        return parser.parse(stream);
     }
 
     public static Mesh.Mode getMeshMode(Integer mode) {

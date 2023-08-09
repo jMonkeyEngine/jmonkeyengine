@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,34 +29,51 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.scene.plugins.gltf;
+package com.jme3.plugins.gson;
+
+
+import java.util.Iterator;
+
 import com.jme3.plugins.json.*;
 
-import com.jme3.asset.AssetKey;
-
 /**
- * Material adapter for the Unlit pipeline
- * @author Markil 3
+ * GSON implementation of {@link JsonArray}.
  */
-public class UnlitExtensionLoader implements ExtensionLoader {
+public class GsonArray extends GsonElement implements JsonArray {
+    public GsonArray(com.google.gson.JsonElement element) {
+        super(element);
+    }
 
-    private final UnlitMaterialAdapter materialAdapter = new UnlitMaterialAdapter();
+    private com.google.gson.JsonArray arr() {
+        return element.getAsJsonArray();
+    }
 
     @Override
-    public Object handleExtension(GltfLoader loader, String parentName, JsonElement parent, JsonElement extension, Object input) {
-        MaterialAdapter adapter = materialAdapter;
-        AssetKey key = loader.getInfo().getKey();
-        //check for a custom adapter for spec/gloss pipeline
-        if (key instanceof GltfModelKey) {
-            GltfModelKey gltfKey = (GltfModelKey) key;
-            MaterialAdapter ma = gltfKey.getAdapterForMaterial("unlit");
-            if (ma != null) {
-                adapter = ma;
+    public Iterator<JsonElement> iterator() {
+        return new Iterator<JsonElement>() {
+            Iterator<com.google.gson.JsonElement> it = arr().iterator();
+
+            @Override
+            public boolean hasNext() {
+                return it.hasNext();
             }
-        }
 
-        adapter.init(loader.getInfo().getManager());
-
-        return adapter;
+            @Override
+            public JsonElement next() {
+                return new GsonElement(it.next());
+            }
+        };
     }
+
+    @Override
+    public JsonElement get(int i) {
+        com.google.gson.JsonElement el=arr().get(i);
+        return el==null?null:new GsonElement(el);
+    }
+
+    @Override
+    public int size() {
+        return arr().size();
+    }
+    
 }
