@@ -729,5 +729,21 @@ public class AndroidGL implements GL, GL2, GLES_30, GLExt, GLFbo {
         GLES30.glTexSubImage3D(target, level, xoffset, yoffset, zoffset, width, height, depth, format, type, data);
     }
 
+    @Override
+    public void glBindVertexArray(int array) {
+        GLES30.glBindVertexArray(array);
+    }
+
+    @Override
+    public void glDeleteVertexArrays(IntBuffer arrays) {
+       GLES30.glDeleteVertexArrays(arrays.limit(),arrays);
+    }
+
+    @Override
+    public void glGenVertexArrays(IntBuffer arrays) {
+        GLES30.glGenVertexArrays(arrays.limit(),arrays);
+
+    }
+
 }
 

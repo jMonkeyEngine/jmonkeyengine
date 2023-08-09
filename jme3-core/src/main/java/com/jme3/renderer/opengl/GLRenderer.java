@@ -187,7 +187,12 @@ public final class GLRenderer implements Renderer {
         return extensionSet;
     }
 
+    public static boolean isWebGL(String version) {
+        return version.contains("WebGL");
+    }
+
     public static int extractVersion(String version) {
+        if (version.startsWith("WebGL 2.0")) return 300;
         Matcher m = GLVERSION_PATTERN.matcher(version);
         if (m.matches()) {
             int major = Integer.parseInt(m.group(1));
@@ -208,7 +213,11 @@ public final class GLRenderer implements Renderer {
     }
 
     private void loadCapabilitiesES() {
-        int oglVer = extractVersion(gl.glGetString(GL.GL_VERSION));
+        String version = gl.glGetString(GL.GL_VERSION);
+        int oglVer = extractVersion(version);
+        if (isWebGL(version)) {
+            caps.add(Caps.WebGL);       
+        }
         caps.add(Caps.GLSL100);
         caps.add(Caps.OpenGLES20);
 
@@ -450,13 +459,13 @@ public final class GLRenderer implements Renderer {
 
         // == end texture format extensions ==
 
-        if (hasExtension("GL_ARB_vertex_array_object") || caps.contains(Caps.OpenGL30)) {
+        if (hasExtension("GL_ARB_vertex_array_object") || caps.contains(Caps.OpenGL30) || caps.contains(Caps.OpenGLES30) ) {
             caps.add(Caps.VertexBufferArray);
         }
 
         if (hasExtension("GL_ARB_texture_non_power_of_two") ||
                 hasExtension("GL_OES_texture_npot") ||
-                caps.contains(Caps.OpenGL30)) {
+                caps.contains(Caps.OpenGL30) || caps.contains(Caps.OpenGLES30)) {
             caps.add(Caps.NonPowerOfTwoTextures);
         } else {
             logger.log(Level.WARNING, "Your graphics card does not "
@@ -530,7 +539,7 @@ public final class GLRenderer implements Renderer {
 
         // Supports sRGB pipeline.
         if ( (hasExtension("GL_ARB_framebuffer_sRGB") && hasExtension("GL_EXT_texture_sRGB"))
-                || caps.contains(Caps.OpenGL30)) {
+                || caps.contains(Caps.OpenGL30) || caps.contains(Caps.OpenGLES30)) {
             caps.add(Caps.Srgb);
         }
 
@@ -539,8 +548,10 @@ public final class GLRenderer implements Renderer {
             caps.add(Caps.SeamlessCubemap);
         }
 
-        if (caps.contains(Caps.OpenGL32) && !hasExtension("GL_ARB_compatibility")) {
-            caps.add(Caps.CoreProfile);
+        if ((caps.contains(Caps.OpenGLES30) || caps.contains(Caps.OpenGL32)) && !hasExtension("GL_ARB_compatibility")) {
+            if (JmeSystem.getPlatform().getOs() != Platform.Os.iOS) { // some features are not supported on iOS
+                caps.add(Caps.CoreProfile);
+            }
         }
 
         if (hasExtension("GL_ARB_get_program_binary")) {
@@ -679,9 +690,17 @@ public final class GLRenderer implements Renderer {
 
         if (caps.contains(Caps.CoreProfile)) {
             // Core Profile requires VAO to be bound.
-            gl3.glGenVertexArrays(intBuf16);
-            int vaoId = intBuf16.get(0);
-            gl3.glBindVertexArray(vaoId);
+            if(gl3!=null){
+                gl3.glGenVertexArrays(intBuf16);
+                int vaoId = intBuf16.get(0);
+                gl3.glBindVertexArray(vaoId);
+            }else if(gl instanceof GLES_30){
+                ((GLES_30)gl).glGenVertexArrays(intBuf16);
+                int vaoId = intBuf16.get(0);
+                ((GLES_30)gl).glBindVertexArray(vaoId);                
+            }   else{
+                throw new UnsupportedOperationException("Core profile not supported");
+            }
         }
         if (gl2 != null && !(gl instanceof GLES_30)) {
             gl2.glEnable(GL2.GL_VERTEX_PROGRAM_POINT_SIZE);
@@ -2635,7 +2654,7 @@ public final class GLRenderer implements Renderer {
         if (unit < 0 || unit >= RenderContext.maxTextureUnits) {
             throw new TextureUnitException();
         }
-
+        
         Image image = tex.getImage();
         if (image.isUpdateNeeded() || (image.isGeneratedMipmapsRequired() && !image.isMipmapsGenerated())) {
             // Check NPOT requirements

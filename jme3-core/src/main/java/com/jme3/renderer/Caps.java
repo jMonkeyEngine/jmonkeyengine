@@ -342,6 +342,11 @@ public enum Caps {
     OpenGLES20,
 
     /**
+     * Supports WebGL
+     */
+    WebGL,
+
+    /**
      * Supports RGB8 / RGBA8 textures.
      */
     Rgba8,
