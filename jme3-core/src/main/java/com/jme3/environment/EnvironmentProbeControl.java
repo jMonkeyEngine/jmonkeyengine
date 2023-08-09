@@ -2,6 +2,8 @@ package com.jme3.environment;
 
 import java.io.IOException;
 import java.util.function.Function;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.environment.baker.IBLGLEnvBakerLight;
@@ -28,6 +30,8 @@ import com.jme3.texture.Image.Format;
  */
 public class EnvironmentProbeControl extends LightProbe implements Control {
     private final boolean USE_GL_IR = true;
+    private static final Logger LOG = Logger.getLogger(EnvironmentProbeControl.class.getName());
+
     
     private AssetManager assetManager;
     private boolean bakeNeeded = true;
@@ -57,6 +61,9 @@ public class EnvironmentProbeControl extends LightProbe implements Control {
         }
     }
 
+    protected EnvironmentProbeControl() {
+    }
+    
     public EnvironmentProbeControl(AssetManager assetManager,int size) {     
         this.envMapSize = size;
         this.assetManager = assetManager;
@@ -64,7 +71,7 @@ public class EnvironmentProbeControl extends LightProbe implements Control {
 
     @Override
     public Control cloneForSpatial(Spatial spatial) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     public void setSerializeBakeResults(boolean v) {
@@ -79,7 +86,6 @@ public class EnvironmentProbeControl extends LightProbe implements Control {
     public void setSpatial(Spatial spatial) {
         spatial.addLight(this);
         this.spatial = spatial;
-
     }
 
     @Override
@@ -102,7 +108,19 @@ public class EnvironmentProbeControl extends LightProbe implements Control {
         bakeNeeded = true;
     }
 
+    /**
+     * Set the asset manager used to load the shaders needed for the baking
+     * @param assetManager
+     */
+    public void setAssetManager(AssetManager assetManager) {
+        this.assetManager = assetManager;
+    }
+
     void rebakeNow(RenderManager renderManager) {
+        if (assetManager == null) {
+            LOG.log(Level.SEVERE, "AssetManager is null, cannot bake environment. Please use setAssetManager() to set it.");
+            return;            
+        }
         IBLHybridEnvBakerLight baker;
         if(!USE_GL_IR){
             baker = new IBLHybridEnvBakerLight(renderManager, assetManager, Format.RGB16F, Format.Depth, envMapSize, envMapSize);
