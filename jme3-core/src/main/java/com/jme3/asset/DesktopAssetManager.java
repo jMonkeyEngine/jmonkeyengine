@@ -73,8 +73,8 @@ public class DesktopAssetManager implements AssetManager {
     final private CopyOnWriteArrayList<AssetEventListener> eventListeners =
             new CopyOnWriteArrayList<>();
 
-    final private List<ClassLoader> classLoaders =
-            Collections.synchronizedList(new ArrayList<>());
+    @Deprecated
+    final private List<ClassLoader> classLoaders = Collections.synchronizedList(new ArrayList<>());
 
     public DesktopAssetManager() {
         this(null);
@@ -99,21 +99,23 @@ public class DesktopAssetManager implements AssetManager {
         }
     }
 
+    @Deprecated
     @Override
     public void addClassLoader(ClassLoader loader) {
         classLoaders.add(loader);
     }
 
+    @Deprecated
     @Override
     public void removeClassLoader(ClassLoader loader) {
         classLoaders.remove(loader);
     }
 
+    @Deprecated
     @Override
     public List<ClassLoader> getClassLoaders() {
         return Collections.unmodifiableList(classLoaders);
     }
-
     @Override
     public void addAssetEventListener(AssetEventListener listener) {
         eventListeners.add(listener);

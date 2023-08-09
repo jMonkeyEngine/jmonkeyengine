@@ -17,7 +17,7 @@ import com.jme3.audio.openal.EFX;
 import com.jme3.system.*;
 import com.jme3.system.JmeContext.Type;
 import com.jme3.util.AndroidScreenshots;
-import com.jme3.util.functional.VoidFunction;
+import com.jme3.util.res.ResourcesLoader;
 
 import java.io.File;
 import java.io.IOException;
@@ -52,7 +52,7 @@ public class JmeAndroidSystem extends JmeSystemDelegate {
     
     @Override
     public URL getPlatformAssetConfigURL() {
-        return Thread.currentThread().getContextClassLoader().getResource("com/jme3/asset/Android.cfg");
+        return ResourcesLoader.getResource("com/jme3/asset/Android.cfg");
     }
 
     @Override

@@ -35,6 +35,7 @@ import com.jme3.asset.AssetManager;
 import com.jme3.asset.DesktopAssetManager;
 import com.jme3.audio.AudioRenderer;
 import com.jme3.input.SoftTextDialogInput;
+import com.jme3.util.res.ResourcesLoader;
 
 import java.io.File;
 import java.io.IOException;
@@ -126,11 +127,11 @@ public abstract class JmeSystemDelegate {
     }
 
     public InputStream getResourceAsStream(String name) {
-        return this.getClass().getResourceAsStream(name);
+        return ResourcesLoader.getResourceAsStream(name,this.getClass());
     }
 
     public URL getResource(String name) {
-        return this.getClass().getResource(name);
+        return ResourcesLoader.getResource(name,this.getClass());
     }
 
     public boolean trackDirectMemory() {

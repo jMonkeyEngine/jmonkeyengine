@@ -39,6 +39,8 @@ import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.jme3.util.res.ResourcesLoader;
+
 /**
  * <code>AssetConfig</code> loads a config file to configure the asset manager.
  *
@@ -101,7 +103,7 @@ public final class AssetConfig {
                     }
                 } else if (cmd.equals("INCLUDE")) {
                     String includedCfg = scan.nextLine().trim();
-                    URL includedCfgUrl = Thread.currentThread().getContextClassLoader().getResource(includedCfg);
+                    URL includedCfgUrl = ResourcesLoader.getResource(includedCfg);
                     if (includedCfgUrl != null) {
                         loadText(assetManager, includedCfgUrl);
                     } else {

@@ -47,6 +47,8 @@ import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
 import com.jme3.system.*;
 import com.jme3.system.JmeContext.Type;
+import com.jme3.util.res.ResourcesLoader;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.concurrent.Callable;
@@ -206,14 +208,14 @@ public class LegacyApplication implements Application, SystemListener {
                 } catch (MalformedURLException ex) {
                 }
                 if (assetCfgUrl == null) {
-                    assetCfgUrl = LegacyApplication.class.getClassLoader().getResource(assetCfg);
+                    assetCfgUrl = ResourcesLoader.getResource(assetCfg);
                     if (assetCfgUrl == null) {
                         logger.log(Level.SEVERE, "Unable to access AssetConfigURL in asset config:{0}", assetCfg);
                         return;
                     }
                 }
             }
-        }
+        }      
         if (assetCfgUrl == null) {
             assetCfgUrl = JmeSystem.getPlatformAssetConfigURL();
         }
