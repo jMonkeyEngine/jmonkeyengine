@@ -176,29 +176,7 @@ public class Resources {
      * @throws IOException
      */
     public static Enumeration<URL> getResources(String path) throws IOException {
-        return getResourceLoader().getResources(path, null);
+        return getResourceLoader().getResources(path);
     }
 
-    /**
-     * Finds all resources with the given name relative to the given parent
-     * class or to the root of the parent is null.
-     * 
-     * 
-     * @param path
-     *            The resource name
-     * @param parent
-     *            Optional parent class
-     *
-     * @return An enumeration of {@link java.net.URL <tt>URL</tt>} objects for
-     *         the resource. If no resources could be found, the enumeration
-     *         will be empty.
-     *
-     * @throws IOException
-     *             If I/O errors occur
-     *
-     * @throws IOException
-     */
-    public static Enumeration<URL> getResources(String path, Class<?> parent) throws IOException {
-        return getResourceLoader().getResources(path, parent);
-    }
 }

@@ -63,15 +63,11 @@ public interface ResourceLoader {
 
 
     /**
-     * Finds all resources with the given name relative to the given parent
-     * class or to the root of the parent is null.
+     * Finds all resources with the given name.
      * 
      * 
      * @param path
      *            The resource name
-     * @param parent
-     *            Optional parent class
-     *
      * @return An enumeration of {@link java.net.URL <tt>URL</tt>} objects for
      *         the resource. If no resources could be found, the enumeration
      *         will be empty.
@@ -81,5 +77,5 @@ public interface ResourceLoader {
      *
      * @throws IOException
      */
-    public Enumeration<URL> getResources(String path, Class<?> parent) throws IOException;
+    public Enumeration<URL> getResources(String path) throws IOException;
 }

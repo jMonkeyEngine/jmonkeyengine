@@ -65,25 +65,8 @@ class DefaultResourceLoader implements ResourceLoader {
     }
 
     @Override
-    public Enumeration<URL> getResources(String path, Class<?> parent) throws IOException {
-        if (parent == null) {
-            return Thread.currentThread().getContextClassLoader().getResources(path);
-        } else {
-            if (!path.startsWith("/")) {
-                Class<?> c = parent;
-                while (c.isArray()) {
-                    c = c.getComponentType();
-                }
-                String baseName = c.getName();
-                int index = baseName.lastIndexOf('.');
-                if (index != -1) {
-                    path = baseName.substring(0, index).replace('.', '/') + "/" + path;
-                }
-            } else {
-                path = path.substring(1);
-            }
-            return parent.getClassLoader().getResources(path);
-        }
+    public Enumeration<URL> getResources(String path) throws IOException {
+        return Thread.currentThread().getContextClassLoader().getResources(path);        
     }
 
 }
