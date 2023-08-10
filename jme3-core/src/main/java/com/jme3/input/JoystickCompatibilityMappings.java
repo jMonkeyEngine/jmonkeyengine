@@ -44,7 +44,7 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.jme3.util.res.ResourcesLoader;
+import com.jme3.util.res.Resources;
 
 
 /**
@@ -558,7 +558,7 @@ public class JoystickCompatibilityMappings {
 
     protected static void loadMappings(String path) throws IOException {
         logger.log(Level.FINE, "Searching for mappings for path:{0}", path);
-        for (Enumeration<URL> en = ResourcesLoader.getResources(path); en.hasMoreElements(); ) {
+        for (Enumeration<URL> en = Resources.getResources(path); en.hasMoreElements(); ) {
             URL u = en.nextElement();
             try {
                 loadMappingProperties(u);

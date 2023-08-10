@@ -36,49 +36,10 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Enumeration;
 
-/**
- * Default java-like implementation of ResourceLoaderImpl.
- * Loads from classpath.
- */
-public class ResourcesLoaderJImpl implements ResourcesLoaderImpl {
+public interface ResourceLoader {
+    public URL getResource(String path, Class<?> clazz);
 
-    public InputStream getResourceAsStream(String path, Class<?> parent) {
-        if (parent == null) {
-            return Thread.currentThread().getContextClassLoader().getResourceAsStream(path);
-        } else {
-            return parent.getResourceAsStream(path);
-        }
-    }
+    public InputStream getResourceAsStream(String path, Class<?> clazz);
 
-    @Override
-    public URL getResource(String path, Class<?> parent) {
-        if (parent == null) {
-            return Thread.currentThread().getContextClassLoader().getResource(path);
-        } else {
-            return parent.getResource(path);
-        }
-    }
-
-    @Override
-    public Enumeration<URL> getResources(String path, Class<?> parent) throws IOException {
-        if (parent == null) {
-            return Thread.currentThread().getContextClassLoader().getResources(path);
-        } else {             
-            if (!path.startsWith("/")) {
-                Class<?> c = parent;
-                while (c.isArray()) {
-                    c = c.getComponentType();
-                }
-                String baseName = c.getName();
-                int index = baseName.lastIndexOf('.');
-                if (index != -1) {
-                    path = baseName.substring(0, index).replace('.', '/') + "/" + path;
-                }
-            } else {
-                path = path.substring(1);
-            }
-            return parent.getClassLoader().getResources(path);
-        }
-    }
-
+    public Enumeration<URL> getResources(String path, Class<?> clazz) throws IOException;
 }

@@ -95,7 +95,7 @@ public interface AssetManager {
      * use registerLocator for that.
      * 
      * @param loader A ClassLoader that Classes in asset files can be loaded from.
-     * @deprecated use {@link com.jme3.util.res.ResourcesLoader}
+     * @deprecated use {@link com.jme3.util.res.Resources}
      */
     @Deprecated
     public default void addClassLoader(ClassLoader loader) {
@@ -106,7 +106,7 @@ public interface AssetManager {
      * Remove a {@link ClassLoader} from the list of registered ClassLoaders
      * 
      * @param loader the ClassLoader to be removed
-     * @deprecated use {@link com.jme3.util.res.ResourcesLoader}
+     * @deprecated use {@link com.jme3.util.res.Resources}
      */
     @Deprecated
     public default void removeClassLoader(ClassLoader loader) {
@@ -118,7 +118,7 @@ public interface AssetManager {
      * {@link Class classes} from asset files.
      * 
      * @return an unmodifiable list
-    * @deprecated use {@link com.jme3.util.res.ResourcesLoader}
+    * @deprecated use {@link com.jme3.util.res.Resources}
      */
     @Deprecated
     public default List<ClassLoader> getClassLoaders() {

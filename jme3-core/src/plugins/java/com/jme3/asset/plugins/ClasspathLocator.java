@@ -33,7 +33,7 @@ package com.jme3.asset.plugins;
 
 import com.jme3.asset.*;
 import com.jme3.system.JmeSystem;
-import com.jme3.util.res.ResourcesLoader;
+import com.jme3.util.res.Resources;
 
 import java.io.File;
 import java.io.IOException;
@@ -90,9 +90,9 @@ public class ClasspathLocator implements AssetLocator {
 //        }
 
         if (JmeSystem.isLowPermissions()) {
-            url = ResourcesLoader.getResource("/" + name, ClasspathLocator.class);    
+            url = Resources.getResource("/" + name, ClasspathLocator.class);    
         } else {
-            url = ResourcesLoader.getResource( name);            
+            url = Resources.getResource( name);            
         }
 
         if (url == null)

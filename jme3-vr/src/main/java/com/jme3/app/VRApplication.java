@@ -49,7 +49,7 @@ import com.jme3.system.lwjgl.LwjglDisplayVR;
 import com.jme3.system.lwjgl.LwjglOffscreenBufferVR;
 import com.jme3.util.VRGUIPositioningMode;
 import com.jme3.util.VRGuiManager;
-import com.jme3.util.res.ResourcesLoader;
+import com.jme3.util.res.Resources;
 
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
@@ -1178,7 +1178,7 @@ public abstract class VRApplication implements Application, SystemListener {
                 } catch (MalformedURLException ex) {
                 }
                 if (assetCfgUrl == null) {
-                    assetCfgUrl = ResourcesLoader.getResource(assetCfg);
+                    assetCfgUrl = Resources.getResource(assetCfg);
                     if (assetCfgUrl == null) {
                         logger.log(Level.SEVERE, "Unable to access AssetConfigURL in asset config:{0}", assetCfg);
                         return;
