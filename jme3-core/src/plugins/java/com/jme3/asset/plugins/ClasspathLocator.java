@@ -92,7 +92,7 @@ public class ClasspathLocator implements AssetLocator {
         if (JmeSystem.isLowPermissions()) {
             url = Resources.getResource("/" + name, ClasspathLocator.class);    
         } else {
-            url = Resources.getResource( name);            
+            url = Resources.getResource(name);
         }
 
         if (url == null)

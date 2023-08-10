@@ -37,10 +37,16 @@ import java.net.URL;
 import java.util.Enumeration;
 
 /**
- * Default java-like implementation of ResourceLoaderImpl. Loads from classpath.
+ * Default implementation of {@link ResourceLoader}. 
+ * Loads from classpath.
  */
-public class DefaultResourceLoader implements ResourceLoader {
+class DefaultResourceLoader implements ResourceLoader {
+    
+    DefaultResourceLoader() {
+        
+    }
 
+    @Override
     public InputStream getResourceAsStream(String path, Class<?> parent) {
         if (parent == null) {
             return Thread.currentThread().getContextClassLoader().getResourceAsStream(path);
