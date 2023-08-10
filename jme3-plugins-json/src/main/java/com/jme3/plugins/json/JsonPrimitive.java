@@ -33,13 +33,14 @@ package com.jme3.plugins.json;
 
 /**
  * A wrapped primitive
+ * 
  * @author Riccardo Balbo
  */
 public interface JsonPrimitive {
     public float getAsFloat();
 
     public int getAsInt();
-    
+
     public boolean getAsBoolean();
-    
+
 }

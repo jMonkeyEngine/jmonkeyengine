@@ -31,14 +31,13 @@
  */
 package com.jme3.plugins.gson;
 
-import com.jme3.plugins.json.*;
+import com.jme3.plugins.json.JsonPrimitive;
 
 /**
  * GSON implementation of {@link JsonPrimitive}
  */
-public class GsonPrimitive extends GsonElement implements JsonPrimitive {    
-    public GsonPrimitive(com.google.gson.JsonElement element) {
+class GsonPrimitive extends GsonElement implements JsonPrimitive {
+    GsonPrimitive(com.google.gson.JsonElement element) {
         super(element);
     }
-    
 }

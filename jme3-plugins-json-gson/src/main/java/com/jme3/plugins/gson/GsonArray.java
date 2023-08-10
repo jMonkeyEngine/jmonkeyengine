@@ -31,16 +31,17 @@
  */
 package com.jme3.plugins.gson;
 
-
 import java.util.Iterator;
 
-import com.jme3.plugins.json.*;
+import com.jme3.plugins.json.JsonArray;
+import com.jme3.plugins.json.JsonElement;
 
 /**
  * GSON implementation of {@link JsonArray}.
  */
-public class GsonArray extends GsonElement implements JsonArray {
-    public GsonArray(com.google.gson.JsonElement element) {
+class GsonArray extends GsonElement implements JsonArray {
+
+    GsonArray(com.google.gson.JsonElement element) {
         super(element);
     }
 
@@ -67,13 +68,13 @@ public class GsonArray extends GsonElement implements JsonArray {
 
     @Override
     public JsonElement get(int i) {
-        com.google.gson.JsonElement el=arr().get(i);
-        return el==null?null:new GsonElement(el);
+        com.google.gson.JsonElement el = arr().get(i);
+        return el == null ? null : new GsonElement(el);
     }
 
     @Override
     public int size() {
         return arr().size();
     }
-    
+
 }

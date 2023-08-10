@@ -31,15 +31,17 @@
  */
 package com.jme3.plugins.gson;
 
-import com.jme3.plugins.json.*;
+import com.jme3.plugins.json.JsonArray;
+import com.jme3.plugins.json.JsonElement;
+import com.jme3.plugins.json.JsonObject;
 
 /**
  * GSON implementation of {@link JsonElement}
  */
-public class GsonElement implements JsonElement {
-    protected com.google.gson.JsonElement element;
+class GsonElement implements JsonElement {
+    com.google.gson.JsonElement element;
 
-    public GsonElement(com.google.gson.JsonElement element) {
+    GsonElement(com.google.gson.JsonElement element) {
         this.element = element;
     }
 
@@ -49,7 +51,7 @@ public class GsonElement implements JsonElement {
     }
 
     @Override
-    public JsonObject getAsJsonObject() {        
+    public JsonObject getAsJsonObject() {
         return new GsonObject(element.getAsJsonObject());
     }
 
@@ -72,5 +74,5 @@ public class GsonElement implements JsonElement {
     public JsonArray getAsJsonArray() {
         return new GsonArray(element.getAsJsonArray());
     }
-    
+
 }

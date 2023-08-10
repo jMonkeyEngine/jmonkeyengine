@@ -34,13 +34,17 @@ package com.jme3.plugins.json;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.management.RuntimeErrorException;
-
 /**
-  * A json parser factory that allows you to set the parser to use.
-  * @author Riccardo Balbo
-  */
- public class Json {
+ * A json parser factory that allows you to set the parser to use.
+ * 
+ * @author Riccardo Balbo
+ */
+public class Json {
+    /**
+     * The property name to set the parser to use.
+     * Should be set automatically by the JmeSystemDelegate.
+     * Note: changing this property after the first call to Json.create() will have no effect.
+     */
     public static final String PROPERTY_JSON_PARSER_IMPLEMENTATION = "com.jme3.JsonParserImplementation";
     private static final Logger LOGGER = Logger.getLogger(Json.class.getName());
     private static final String DEFAULT_JSON_PARSER_IMPLEMENTATION = "com.jme3.plugins.gson.GsonParser";
@@ -49,15 +53,17 @@ import javax.management.RuntimeErrorException;
 
     /**
      * Set the parser to use.
-     * @param clazz a class that implements JsonParser
+     * 
+     * @param clazz
+     *            a class that implements JsonParser
      */
     public static void setParser(Class<? extends JsonParser> clazz) {
         Json.clazz = clazz;
     }
 
-
     /**
      * Create a new JsonParser instance.
+     * 
      * @return a new JsonParser instance
      */
     @SuppressWarnings("unchecked")
@@ -65,17 +71,16 @@ import javax.management.RuntimeErrorException;
         if (Json.clazz == null) {
             String className = System.getProperty(PROPERTY_JSON_PARSER_IMPLEMENTATION, DEFAULT_JSON_PARSER_IMPLEMENTATION);
             try {
-                Json.clazz= (Class<JsonParser>) Class.forName(className);
+                Json.clazz = (Class<JsonParser>) Class.forName(className);
             } catch (final Throwable e) {
                 LOGGER.log(Level.WARNING, "Unable to access {0}", className);
-                try{
+                try {
                     Json.clazz = (Class<JsonParser>) Class.forName(DEFAULT_JSON_PARSER_IMPLEMENTATION);
                 } catch (Throwable e2) {
                     throw new RuntimeException("Unable to access default json parser", e2);
                 }
             }
         }
-               
 
         try {
             return clazz.getDeclaredConstructor().newInstance();
