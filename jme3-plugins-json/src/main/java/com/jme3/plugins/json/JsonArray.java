@@ -41,11 +41,11 @@ public interface JsonArray extends Iterable<JsonElement> {
      * @param i index
      * @return the element
      */
-    JsonElement get(int i);
+    public JsonElement get(int i);
 
     /**
      * Get the size of the array
      * @return the size
      */
-    int size();
+    public int size();
 }

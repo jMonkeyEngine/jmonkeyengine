@@ -36,10 +36,10 @@ package com.jme3.plugins.json;
  * @author Riccardo Balbo
  */
 public interface JsonPrimitive {
-    float getAsFloat();
+    public float getAsFloat();
 
-    int getAsInt();
+    public int getAsInt();
     
-    boolean getAsBoolean();
+    public boolean getAsBoolean();
     
 }

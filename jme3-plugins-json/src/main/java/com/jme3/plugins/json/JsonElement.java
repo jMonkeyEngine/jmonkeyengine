@@ -41,37 +41,37 @@ public interface JsonElement {
      * Returns the object as a String
      * @return the string
      */
-    String getAsString();
+    public String getAsString();
 
     /**
      * Returns the object as a JsonObject
      * @return the JsonObject
      */
-    JsonObject getAsJsonObject();
+    public JsonObject getAsJsonObject();
 
     /**
      * Returns the object as a float
      * @return the float
      */
-    float getAsFloat();
+    public float getAsFloat();
 
     /**
      * Returns the object as an int
      * @return the int
      */
-    int getAsInt();
+    public int getAsInt();
 
 
     /**
      * Returns the object as a boolean
      * @return the boolean
      */
-    boolean getAsBoolean();
+    public boolean getAsBoolean();
 
     /**
      * Returns the object as a JsonArray
      * @return the JsonArray
      */
-    JsonArray getAsJsonArray();
+    public JsonArray getAsJsonArray();
 
 }
