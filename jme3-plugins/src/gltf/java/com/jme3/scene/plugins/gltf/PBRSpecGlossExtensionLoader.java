@@ -34,8 +34,7 @@ package com.jme3.scene.plugins.gltf;
 import com.jme3.asset.AssetKey;
 
 import java.io.IOException;
-import com.jme3.plugins.json.*;
-
+import com.jme3.plugins.json.JsonElement;
 import static com.jme3.scene.plugins.gltf.GltfUtils.getAsColor;
 import static com.jme3.scene.plugins.gltf.GltfUtils.getAsFloat;
 

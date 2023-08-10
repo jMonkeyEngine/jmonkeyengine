@@ -31,8 +31,10 @@
  */
 package com.jme3.scene.plugins.gltf;
 
-import com.jme3.plugins.json.*;
-
+import com.jme3.plugins.json.JsonArray;
+import com.jme3.plugins.json.JsonObject;
+import com.jme3.plugins.json.JsonPrimitive;
+import com.jme3.plugins.json.JsonElement;
 import com.jme3.anim.*;
 import com.jme3.asset.*;
 import com.jme3.material.Material;
