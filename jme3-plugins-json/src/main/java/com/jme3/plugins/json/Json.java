@@ -61,25 +61,45 @@ public class Json {
         Json.clazz = clazz;
     }
 
+    @SuppressWarnings("unchecked")
+    private static Class<? extends JsonParser> findJsonParser(String className) {
+        Class<?> clazz = null;
+
+        try {
+            clazz = Class.forName(className);
+        } catch (final Throwable e) {
+            LOGGER.log(Level.WARNING, "Unable to access {0}", className);
+        }
+
+        if (clazz != null && !JsonParser.class.isAssignableFrom(clazz)) {
+            LOGGER.log(Level.WARNING, "{0} does not implement {1}", new Object[] { className, JsonParser.class.getName() });
+            clazz = null;
+        }
+
+        return (Class<? extends JsonParser>) clazz;
+    }
+
     /**
      * Create a new JsonParser instance.
      * 
      * @return a new JsonParser instance
      */
-    @SuppressWarnings("unchecked")
+
     public static JsonParser create() {
         if (Json.clazz == null) {
-            String className = System.getProperty(PROPERTY_JSON_PARSER_IMPLEMENTATION, DEFAULT_JSON_PARSER_IMPLEMENTATION);
-            try {
-                Json.clazz = (Class<JsonParser>) Class.forName(className);
-            } catch (final Throwable e) {
-                LOGGER.log(Level.WARNING, "Unable to access {0}", className);
-                try {
-                    Json.clazz = (Class<JsonParser>) Class.forName(DEFAULT_JSON_PARSER_IMPLEMENTATION);
-                } catch (Throwable e2) {
-                    throw new RuntimeException("Unable to access default json parser", e2);
-                }
+            String userDefinedImpl = System.getProperty(PROPERTY_JSON_PARSER_IMPLEMENTATION, null);
+            if (userDefinedImpl != null) {
+                LOGGER.log(Level.FINE, "Loading user defined JsonParser implementation {0}", userDefinedImpl);
+                Json.clazz = findJsonParser(userDefinedImpl);
             }
+            if (Json.clazz == null) {
+                LOGGER.log(Level.FINE, "No usable user defined JsonParser implementation found, using default implementation {0}", DEFAULT_JSON_PARSER_IMPLEMENTATION);
+                Json.clazz = findJsonParser(DEFAULT_JSON_PARSER_IMPLEMENTATION);
+            }
+        }
+
+        if (Json.clazz == null) {
+            throw new RuntimeException("No JsonParser implementation found");
         }
 
         try {
@@ -87,6 +107,5 @@ public class Json {
         } catch (Exception e) {
             throw new RuntimeException("Could not instantiate JsonParser class " + clazz.getName(), e);
         }
-
     }
 }
