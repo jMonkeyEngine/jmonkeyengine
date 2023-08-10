@@ -37,10 +37,25 @@ package com.jme3.plugins.json;
  * @author Riccardo Balbo
  */
 public interface JsonPrimitive {
+    /**
+     * Returns the wrapped primitive as a float
+     * 
+     * @return the float value
+     */
     public float getAsFloat();
 
+    /**
+     * Returns the wrapped primitive as an int
+     * 
+     * @return the int value
+     */
     public int getAsInt();
 
+    /*
+     * Returns the wrapped primitive as a boolean
+     * 
+     * @return the boolean value
+     */
     public boolean getAsBoolean();
 
 }
