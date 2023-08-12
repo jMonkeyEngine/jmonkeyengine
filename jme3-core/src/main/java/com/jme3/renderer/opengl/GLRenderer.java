@@ -399,7 +399,7 @@ public final class GLRenderer implements Renderer {
         if(hasExtension("GL_EXT_texture_integer") || caps.contains(Caps.OpenGL30))
             caps.add(Caps.IntegerTexture);
 
-        if (hasExtension("GL_OES_depth_texture") || gl2 != null) {
+        if (hasExtension("GL_OES_depth_texture") || gl2 != null || caps.contains(Caps.OpenGLES30)) {
             caps.add(Caps.DepthTexture);
         }
 
@@ -2063,7 +2063,7 @@ public final class GLRenderer implements Renderer {
     }
 
     public void setReadDrawBuffers(FrameBuffer fb) {
-        if (gl2 == null) {
+        if (gl2 == null&& !(gl instanceof GLES_30)) {
             return;
         }
 
