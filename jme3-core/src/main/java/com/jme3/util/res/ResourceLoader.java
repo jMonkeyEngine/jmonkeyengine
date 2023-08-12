@@ -39,7 +39,7 @@ import java.util.Enumeration;
 public interface ResourceLoader {
     /**
      * Finds the resource with the given name relative to the given parent class
-     * or to the root of the parent is null.
+     * or to the root if the parent is null.
      * 
      * @param path
      *            The resource name
@@ -51,7 +51,7 @@ public interface ResourceLoader {
 
     /**
      * Finds the resource with the given name relative to the given parent class
-     * or to the root of the parent is null.
+     * or to the root if the parent is null.
      * 
      * @param path
      *            The resource name
