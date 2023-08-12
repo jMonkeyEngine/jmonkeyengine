@@ -1,6 +1,7 @@
 MaterialDef Terrain {
 
 	MaterialParameters {
+		Int BoundDrawBuffer
 
         // use tri-planar mapping
         Boolean useTriPlanarMapping
@@ -15,14 +16,15 @@ MaterialDef Terrain {
 	}
 
 	Technique {
-		VertexShader GLSL100 GLSL150:   Common/MatDefs/Terrain/Terrain.vert
-		FragmentShader GLSL100 GLSL150: Common/MatDefs/Terrain/Terrain.frag
+		VertexShader    GLSL300 GLSL150 GLSL100:   Common/MatDefs/Terrain/Terrain.vert
+		FragmentShader  GLSL300 GLSL150 GLSL100: Common/MatDefs/Terrain/Terrain.frag
 		
 		WorldParameters {
 			WorldViewProjectionMatrix
 		}
 
         Defines {
+            BOUND_DRAW_BUFFER: BoundDrawBuffer
             TRI_PLANAR_MAPPING : useTriPlanarMapping
         }
 	}

@@ -387,7 +387,7 @@ public final class GLRenderer implements Renderer {
                     hasExtension("GL_ARB_half_float_pixel");
 
             if (!hasFloatTexture) {
-                hasFloatTexture = caps.contains(Caps.OpenGL30);
+                hasFloatTexture = caps.contains(Caps.OpenGL30) || caps.contains(Caps.OpenGLES30);
             }
         }
 
@@ -418,9 +418,14 @@ public final class GLRenderer implements Renderer {
         }
 
         if (hasExtension("GL_ARB_color_buffer_float") &&
-                hasExtension("GL_ARB_half_float_pixel")) {
+                hasExtension("GL_ARB_half_float_pixel")
+                ||caps.contains(Caps.OpenGL30) || caps.contains(Caps.OpenGLES30)) {
             // XXX: Require both 16- and 32-bit float support for FloatColorBuffer.
             caps.add(Caps.FloatColorBuffer);
+            caps.add(Caps.FloatColorBufferRGBA);
+            if (!caps.contains(Caps.OpenGLES30)) {
+                caps.add(Caps.FloatColorBufferRGB);
+            }
         }
 
         if (caps.contains(Caps.OpenGLES30) || hasExtension("GL_ARB_depth_buffer_float")) {
@@ -1536,7 +1541,7 @@ public final class GLRenderer implements Renderer {
                 }
             }
         }
-
+        
         if (linearizeSrgbImages) {
             stringBuf.append("#define SRGB 1\n");
         }
@@ -1687,7 +1692,7 @@ public final class GLRenderer implements Renderer {
     public void setShader(Shader shader) {
         if (shader == null) {
             throw new IllegalArgumentException("Shader cannot be null");
-        } else {
+        } else {            
             if (shader.isUpdateNeeded()) {
                 updateShaderData(shader);
             }
@@ -2048,8 +2053,17 @@ public final class GLRenderer implements Renderer {
         mainFbOverride = fb;
     }
 
+
+    @Override
+    public FrameBuffer getCurrentFrameBuffer() {
+        if(mainFbOverride!=null){
+            return mainFbOverride;
+        }
+        return context.boundFB;
+    }
+
     public void setReadDrawBuffers(FrameBuffer fb) {
-        if (gl2 == null || gl instanceof GLES_30) {
+        if (gl2 == null) {
             return;
         }
 

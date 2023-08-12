@@ -1,6 +1,7 @@
 MaterialDef Post Shadow {
 
     MaterialParameters {
+        Int BoundDrawBuffer
         Int FilterMode
         Boolean HardwareShadows
 
@@ -46,14 +47,15 @@ MaterialDef Post Shadow {
     }
 
     Technique {
-        VertexShader GLSL150:   Common/MatDefs/VR/PostShadowFilter.vert
-        FragmentShader GLSL150: Common/MatDefs/VR/PostShadowFilter.frag
+        VertexShader     GLSL300 GLSL150:   Common/MatDefs/VR/PostShadowFilter.vert
+        FragmentShader   GLSL300 GLSL150: Common/MatDefs/VR/PostShadowFilter.frag
 
         WorldParameters {         
             ResolutionInverse
         }
 
         Defines {
+            BOUND_DRAW_BUFFER: BoundDrawBuffer
             RESOLVE_MS : NumSamples
             RESOLVE_DEPTH_MS : NumSamplesDepth
             HARDWARE_SHADOWS : HardwareShadows
@@ -72,14 +74,15 @@ MaterialDef Post Shadow {
     }
 
     Technique {
-        VertexShader GLSL100:   Common/MatDefs/Shadow/PostShadowFilter.vert
-        FragmentShader GLSL100: Common/MatDefs/Shadow/PostShadowFilter.frag
+        VertexShader   GLSL300 GLSL150 GLSL100:   Common/MatDefs/Shadow/PostShadowFilter.vert
+        FragmentShader GLSL300 GLSL150 GLSL100: Common/MatDefs/Shadow/PostShadowFilter.frag
 
         WorldParameters {         
             ResolutionInverse
         }
 
         Defines {
+            BOUND_DRAW_BUFFER: BoundDrawBuffer
             HARDWARE_SHADOWS : HardwareShadows
             FILTER_MODE : FilterMode
             PCFEDGE : PCFEdge

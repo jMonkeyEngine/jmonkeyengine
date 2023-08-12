@@ -2,6 +2,7 @@
 MaterialDef Advanced PBR Terrain {
 
     MaterialParameters {
+        Int BoundDrawBuffer
 
     
         Boolean UseVertexColorsAsSunIntensity //set true to make the vertex color's R channel how exposed a vertex is to the sun
@@ -255,8 +256,8 @@ MaterialDef Advanced PBR Terrain {
 
         LightMode SinglePassAndImageBased
 
-        VertexShader  GLSL150:   Common/MatDefs/Terrain/PBRTerrain.vert
-        FragmentShader GLSL150: Common/MatDefs/Terrain/AdvancedPBRTerrain.frag
+        VertexShader   GLSL300 GLSL150 :   Common/MatDefs/Terrain/PBRTerrain.vert
+        FragmentShader GLSL300 GLSL150 : Common/MatDefs/Terrain/AdvancedPBRTerrain.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -270,6 +271,7 @@ MaterialDef Advanced PBR Terrain {
         }
 
         Defines {
+            BOUND_DRAW_BUFFER: BoundDrawBuffer
                 
             AFFLICTIONTEXTURE : AfflictionAlphaMap
             AFFLICTIONALBEDOMAP: SplatAlbedoMap 
@@ -340,8 +342,8 @@ MaterialDef Advanced PBR Terrain {
 
     Technique PreShadow {
 
-        VertexShader GLSL100 GLSL150 :   Common/MatDefs/Shadow/PreShadow.vert
-        FragmentShader GLSL100 GLSL150 : Common/MatDefs/Shadow/PreShadow.frag
+        VertexShader   GLSL300 GLSL150 GLSL100:   Common/MatDefs/Shadow/PreShadow.vert
+        FragmentShader GLSL300 GLSL150 GLSL100: Common/MatDefs/Shadow/PreShadow.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -351,6 +353,7 @@ MaterialDef Advanced PBR Terrain {
         }
 
         Defines {
+            BOUND_DRAW_BUFFER: BoundDrawBuffer
             DISCARD_ALPHA : AlphaDiscardThreshold
             NUM_BONES : NumberOfBones
             INSTANCING : UseInstancing
@@ -368,8 +371,8 @@ MaterialDef Advanced PBR Terrain {
 
 
     Technique PostShadow{
-        VertexShader GLSL100 GLSL150:   Common/MatDefs/Shadow/PostShadow.vert
-        FragmentShader GLSL100 GLSL150: Common/MatDefs/Shadow/PostShadow.frag
+        VertexShader    GLSL300 GLSL150 GLSL100:   Common/MatDefs/Shadow/PostShadow.vert
+        FragmentShader  GLSL300 GLSL150 GLSL100: Common/MatDefs/Shadow/PostShadow.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -379,6 +382,7 @@ MaterialDef Advanced PBR Terrain {
         }
 
         Defines {
+            BOUND_DRAW_BUFFER: BoundDrawBuffer
             HARDWARE_SHADOWS : HardwareShadows
             FILTER_MODE : FilterMode
             PCFEDGE : PCFEdge

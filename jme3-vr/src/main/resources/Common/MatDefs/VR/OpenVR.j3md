@@ -1,5 +1,6 @@
 MaterialDef OpenVR {
     MaterialParameters {
+        Int BoundDrawBuffer
         Int NumSamples
         Texture2D Texture
     
@@ -9,25 +10,27 @@ MaterialDef OpenVR {
     }
  
      Technique {
-        VertexShader GLSL150:   Common/MatDefs/VR/OpenVR15.vert
-        FragmentShader GLSL150: Common/MatDefs/VR/OpenVR15.frag
+        VertexShader   GLSL300 GLSL150:   Common/MatDefs/VR/OpenVR15.vert
+        FragmentShader GLSL300 GLSL150: Common/MatDefs/VR/OpenVR15.frag
  
         WorldParameters {
         }
  
         Defines {
-        }
+            BOUND_DRAW_BUFFER: BoundDrawBuffer
+         }
  
     }
  
     Technique {
-        VertexShader GLSL100:   Common/MatDefs/VR/OpenVR.vert
-        FragmentShader GLSL100: Common/MatDefs/VR/OpenVR.frag
+        VertexShader   GLSL300 GLSL150 GLSL100:   Common/MatDefs/VR/OpenVR.vert
+        FragmentShader GLSL300 GLSL150 GLSL100: Common/MatDefs/VR/OpenVR.frag
  
         WorldParameters {
         }
  
         Defines {
-        } 
+            BOUND_DRAW_BUFFER: BoundDrawBuffer
+         } 
     }
 }

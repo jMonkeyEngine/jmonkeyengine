@@ -45,6 +45,7 @@ import java.nio.ShortBuffer;
 public class AndroidGL implements GL, GL2, GLES_30, GLExt, GLFbo {
 
     IntBuffer tmpBuff = BufferUtils.createIntBuffer(1);
+    IntBuffer tmpBuff16 = BufferUtils.createIntBuffer(16);
 
     @Override
     public void resetStats() {
@@ -694,10 +695,17 @@ public class AndroidGL implements GL, GL2, GLES_30, GLExt, GLFbo {
     // Wrapper to DrawBuffers as there's no DrawBuffer method in GLES
     @Override
     public void glDrawBuffer(int mode) {
-        tmpBuff.clear();
-        tmpBuff.put(0, mode);
-        tmpBuff.rewind();
-        glDrawBuffers(tmpBuff);
+        int nBuffers = (mode - GLFbo.GL_COLOR_ATTACHMENT0_EXT) + 1;
+        if (nBuffers <= 0 || nBuffers > 16) {
+            throw new IllegalArgumentException("Draw buffer outside range: " + Integer.toHexString(mode));
+        }
+        tmpBuff16.clear();
+        for (int i = 0; i < nBuffers - 1; i++) {
+            tmpBuff16.put(GL.GL_NONE);
+        }
+        tmpBuff16.put(mode);
+        tmpBuff16.flip();
+        glDrawBuffers(tmpBuff16);
     }
 
     @Override

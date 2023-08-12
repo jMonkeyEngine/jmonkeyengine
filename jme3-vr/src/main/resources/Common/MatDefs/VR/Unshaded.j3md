@@ -1,6 +1,7 @@
 MaterialDef Unshaded {
 
     MaterialParameters {
+        Int BoundDrawBuffer
         Texture2D ColorMap
         Color Color (Color)
 
@@ -9,8 +10,8 @@ MaterialDef Unshaded {
     }
 
     Technique {
-        VertexShader GLSL150:   Common/MatDefs/VR/Unshaded.vert
-        FragmentShader GLSL150: Common/MatDefs/VR/Unshaded.frag
+        VertexShader    GLSL300 GLSL150:   Common/MatDefs/VR/Unshaded.vert
+        FragmentShader  GLSL300 GLSL150: Common/MatDefs/VR/Unshaded.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -19,6 +20,7 @@ MaterialDef Unshaded {
         }
 
         Defines {
+            BOUND_DRAW_BUFFER: BoundDrawBuffer
             INSTANCING : RightEyeViewProjectionMatrix // For VR instancing
             HAS_COLORMAP : ColorMap
             HAS_COLOR : Color
@@ -26,8 +28,8 @@ MaterialDef Unshaded {
     }
 
     Technique {
-        VertexShader GLSL100:   Common/MatDefs/VR/Unshaded.vert
-        FragmentShader GLSL100: Common/MatDefs/VR/Unshaded.frag
+        VertexShader   GLSL300 GLSL150 GLSL100:   Common/MatDefs/VR/Unshaded.vert
+        FragmentShader GLSL300 GLSL150 GLSL100: Common/MatDefs/VR/Unshaded.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -36,6 +38,7 @@ MaterialDef Unshaded {
         }
 
         Defines {
+            BOUND_DRAW_BUFFER: BoundDrawBuffer
             INSTANCING : RightEyeViewProjectionMatrix // For VR instancing
             HAS_COLORMAP : ColorMap
             HAS_COLOR : Color

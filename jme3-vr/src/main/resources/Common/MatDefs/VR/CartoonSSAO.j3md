@@ -1,6 +1,7 @@
 MaterialDef CartoonSSAO {
 
     MaterialParameters {
+        Int BoundDrawBuffer
         Int NumSamples
         Int NumSamplesDepth
         Texture2D DepthTexture
@@ -14,8 +15,8 @@ MaterialDef CartoonSSAO {
     }
 
     Technique {
-            VertexShader GLSL150:   Common/MatDefs/Post/Post15.vert
-            FragmentShader GLSL150: Common/MatDefs/VR/CartoonSSAO.frag
+            VertexShader    GLSL300 GLSL150:   Common/MatDefs/Post/Post15.vert
+            FragmentShader  GLSL300 GLSL150: Common/MatDefs/VR/CartoonSSAO.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -24,14 +25,15 @@ MaterialDef CartoonSSAO {
         }
 
         Defines {
+            BOUND_DRAW_BUFFER: BoundDrawBuffer
             NO_OUTLINE : disableOutline
             INSTANCING : useInstancing
         }
     }
 
     Technique {
-            VertexShader GLSL100:   Common/MatDefs/Post/Post.vert
-            FragmentShader GLSL100: Common/MatDefs/VR/CartoonSSAO.frag
+            VertexShader   GLSL300 GLSL150 GLSL100:   Common/MatDefs/Post/Post.vert
+            FragmentShader GLSL300 GLSL150 GLSL100: Common/MatDefs/VR/CartoonSSAO.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -40,6 +42,7 @@ MaterialDef CartoonSSAO {
         }
 
         Defines {
+            BOUND_DRAW_BUFFER: BoundDrawBuffer
             NO_OUTLINE : disableOutline
             INSTANCING : useInstancing
         }

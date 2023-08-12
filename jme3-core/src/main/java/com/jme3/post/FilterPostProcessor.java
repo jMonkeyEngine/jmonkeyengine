@@ -149,10 +149,12 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         fsQuad.setHeight(1);
 
         if (!renderer.getCaps().contains(Caps.PackedFloatTexture)) {
-            if (!renderer.getCaps().contains(Caps.FloatTexture)) {
-                fbFormat = Format.RGB8;
-            } else {
+            if(renderer.getCaps().contains(Caps.FloatColorBufferRGB)){
                 fbFormat = Format.RGB16F;
+            } else if(renderer.getCaps().contains(Caps.FloatColorBufferRGBA)){
+                fbFormat = Format.RGBA16F;
+            } else {
+                fbFormat = Format.RGB8;
             }
         }
 

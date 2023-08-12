@@ -18,12 +18,27 @@
 #  define lvec4  vec4
 #endif
 
+
 #if __VERSION__ >= 130
-#  ifdef GL_ES
-out highp vec4 outFragColor;
-#  else
-out vec4 outFragColor;
+
+#ifdef FRAGMENT_SHADER
+  #ifdef GL_ES
+    #ifdef BOUND_DRAW_BUFFER
+      #for i=0..15 ( #if $i<=BOUND_DRAW_BUFFER  $0 #endif ) 
+        #if BOUND_DRAW_BUFFER == $i
+          layout( location = $i ) out highp vec4 outFragColor;
+        #else
+          layout( location = $i ) out highp vec4 outNOP$i;
+        #endif
+      #endfor
+    #else
+      out highp vec4 outFragColor;
+    #endif
+  #else
+    out vec4 outFragColor;
+  #endif
 #endif
+
 #  define texture1D texture
 #  define texture2D texture
 #  define texture3D texture
