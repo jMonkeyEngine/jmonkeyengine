@@ -104,7 +104,7 @@ public class MaterialTest {
 
         material.selectTechnique("Default", renderManager);
 
-        checkRequiredCaps(Caps.GLSL100, Caps.GLSL120);
+        checkRequiredCaps(Caps.GLSL120);
     }
 
     @Test
