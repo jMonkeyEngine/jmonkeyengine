@@ -56,6 +56,8 @@ public class TestUtil {
     }
     
     public static RenderManager createRenderManager() {
-        return new RenderManager(new NullRenderer());
+        RenderManager rm = new RenderManager(new NullRenderer());
+        rm.setPassDrawBufferTargetIdToShaders(false);
+        return rm;
     }
 }

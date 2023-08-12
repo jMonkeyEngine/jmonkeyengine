@@ -1308,4 +1308,32 @@ public class RenderManager {
             }
         }
     }
+
+
+    /**
+     * Returns true if the draw buffer target id is passed to the shader.
+     * 
+     * @return True if the draw buffer target id is passed to the shaders.
+     */
+    public boolean getPassDrawBufferTargetIdToShaders() {
+        return this.forcedOverrides.contains(boundDrawBufferId);
+    }
+
+    /**
+     * Enable or disable passing the draw buffer target id to the shaders. This
+     * is needed to handle FrameBuffer.setTargetIndex correctly in some
+     * backends.
+     * 
+     * @param v
+     *            True to enable, false to disable (default is true)
+     */
+    public void setPassDrawBufferTargetIdToShaders(boolean v) {
+        if (v) {
+            if (!this.forcedOverrides.contains(boundDrawBufferId)) {
+                this.forcedOverrides.add(boundDrawBufferId);
+            }
+        } else {
+            this.forcedOverrides.remove(boundDrawBufferId);
+        }
+    }
 }
