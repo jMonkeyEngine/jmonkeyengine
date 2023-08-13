@@ -1,3 +1,27 @@
+#ifdef FRAGMENT_SHADER
+  #if defined GL_ES
+    #ifdef GL_FRAGMENT_PRECISION_HIGH
+      precision highp float;
+      precision highp sampler2DArray;
+      precision highp sampler2DShadow;
+      precision highp sampler3D;
+      precision highp sampler2D;
+      #if __VERSION__ >= 310
+        precision highp sampler2DMS;
+      #endif
+    #else
+      precision mediump float;
+      precision mediump sampler2DArray;
+      precision mediump sampler2DShadow;
+      precision mediump sampler3D;
+      precision mediump sampler2D;
+      #if __VERSION__ >= 310
+        precision mediump sampler2DMS;
+      #endif
+    #endif
+  #endif
+#endif
+
 #if defined GL_ES
 #  define hfloat highp float
 #  define hvec2  highp vec2
@@ -17,7 +41,6 @@
 #  define lvec3  vec3
 #  define lvec4  vec4
 #endif
-
 
 #if __VERSION__ >= 130
 

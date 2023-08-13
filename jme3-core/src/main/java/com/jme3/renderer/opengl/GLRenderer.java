@@ -1501,7 +1501,6 @@ public final class GLRenderer implements Renderer {
                     + "Only GLSL 1.00 shaders are supported.");
         }
 
-        boolean insertPrecision = false;
         // Upload shader source.
         // Merge the defines and source code.
         stringBuf.setLength(0);
@@ -1532,14 +1531,6 @@ public final class GLRenderer implements Renderer {
                 }
             }
 
-            if (gles2 || gles3) {
-                //Inserting precision only to fragment shaders creates some link failures because of different precision between shaders
-                //But adding the precision to all shaders generates rendering glitches in some devices if not set to highp
-                if (source.getType() == ShaderType.Fragment) {
-                    // GLES requires precision qualifier.
-                    insertPrecision = true;
-                }
-            }
         }
         
         if (linearizeSrgbImages) {
@@ -1550,24 +1541,6 @@ public final class GLRenderer implements Renderer {
         stringBuf.append(source.getDefines());
         stringBuf.append(source.getSource());
 
-        if(insertPrecision){
-            // default precision could be defined in GLSLCompat.glsllib so final users can use custom defined precision instead
-            // precision token is not a preprocessor directive therefore it must be placed after #extension tokens to avoid
-            // Error P0001: Extension directive must occur before any non-preprocessor tokens
-            int idx = stringBuf.lastIndexOf("#extension");
-            idx = stringBuf.indexOf("\n", idx);
-
-            if(version>=310) {
-                stringBuf.insert(idx + 1, "precision highp sampler2DMS;\n");
-            }
-            if(version>=300) {
-                stringBuf.insert(idx + 1, "precision highp sampler2DArray;\n");
-                stringBuf.insert(idx + 1, "precision highp sampler2DShadow;\n");
-                stringBuf.insert(idx + 1, "precision highp sampler3D;\n");
-                stringBuf.insert(idx + 1, "precision highp sampler2D;\n");
-            }
-            stringBuf.insert(idx + 1, "precision highp float;\n");
-        }
 
         intBuf1.clear();
         intBuf1.put(0, stringBuf.length());
