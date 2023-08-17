@@ -252,4 +252,29 @@ public class Environment {
     public void setRoomRolloffFactor(float roomRolloffFactor) {
         this.roomRolloffFactor = roomRolloffFactor;
     }
+
+    @Override
+    public boolean equals(Object env2) {
+        if (env2 == null)
+            return false;
+        if (env2 == this)
+            return true;
+        if (!(env2 instanceof Environment))
+            return false;
+
+        Environment e2 = (Environment) env2;
+        return (e2.airAbsorbGainHf == airAbsorbGainHf
+                && e2.decayHFRatio == decayHFRatio
+                && e2.decayHfLimit == decayHfLimit
+                && e2.decayTime == decayTime
+                && e2.density == density
+                && e2.diffusion == diffusion
+                && e2.gain == gain
+                && e2.gainHf == gainHf
+                && e2.lateReverbDelay == lateReverbDelay
+                && e2.lateReverbGain == lateReverbGain
+                && e2.reflectDelay == reflectDelay
+                && e2.reflectGain == reflectGain
+                && e2.roomRolloffFactor == roomRolloffFactor);
+    } 
 }
