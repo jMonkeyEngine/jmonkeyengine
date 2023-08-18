@@ -1,0 +1,20 @@
+name: Prettier for JS Code
+
+on: [pull_request]
+
+jobs:
+  cleanup_tasks:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Cloning the repository
+      uses: actions/checkout@v1
+      with:
+        fetch-depth: 1
+    - name: Prettify the Java Code
+      uses: lwerner-lshigh/prettier_action_java@v1.1.1
+      with:
+        prettier_options: '--no-semi --write *.java'
+        branch: ${{ github.head_ref }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
