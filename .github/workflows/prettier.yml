@@ -16,5 +16,6 @@ jobs:
       with:
         prettier_options: '--no-semi --write *.java'
         branch: ${{ github.head_ref }}
+        commit_message: Automatically format code
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
