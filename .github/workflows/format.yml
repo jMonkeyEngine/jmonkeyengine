@@ -19,5 +19,5 @@ jobs:
           prettier_options: --write **/**/*.java
           prettier_version: "2.8.8"
           only_changed: True
-          commit_message:  "[skip ci] auto-format"
+          commit_message:  "auto-format"
           prettier_plugins: "prettier-plugin-java"
