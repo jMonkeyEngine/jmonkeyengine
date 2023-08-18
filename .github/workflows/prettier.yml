@@ -7,6 +7,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - name: Setup Node.js environment
+      uses: actions/setup-node@v3.8.1
+      with:
+        node-version: 16
     - name: Cloning the repository
       uses: actions/checkout@v1
       with:
