@@ -424,8 +424,8 @@ public class DetailedProfilerState extends BaseAppState {
             int y = -(height * LINE_HEIGHT + HEADER_HEIGHT);
 
             label.setLocalTranslation(PADDING + indent * PADDING, y, 0);
-            float gpuPos = PANEL_WIDTH - font.getLineWidth(gpuText.getText()) - PADDING
-                    * (maxLevel - indent + 1);
+            float gpuPos = PANEL_WIDTH - font.getLineWidth(gpuText.getText())
+                    - PADDING * (maxLevel - indent + 1);
             cpuText.setLocalTranslation(gpuPos - font.getLineWidth(cpuText.getText()), y, 0);
             gpuText.setLocalTranslation(gpuPos, y, 0);
 
