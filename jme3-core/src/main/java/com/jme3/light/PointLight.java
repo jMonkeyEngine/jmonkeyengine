@@ -165,6 +165,11 @@ public class PointLight extends Light {
         if (radius < 0) {
             throw new IllegalArgumentException("Light radius cannot be negative");
         }
+        
+        if (radius == Float.POSITIVE_INFINITY) {
+            radius = Float.MAX_VALUE;
+        }
+        
         this.radius = radius;
         if (radius != 0f) {
             this.invRadius = 1f / radius;

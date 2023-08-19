@@ -1247,6 +1247,37 @@ public final class GLRenderer implements Renderer {
         }
     }
 
+    private boolean isValidNumber(float v) {
+        return !Float.isNaN(v);
+    }
+
+    private boolean isValidNumber(FloatBuffer fb) {
+        for(int i = 0; i < fb.limit(); i++) {
+            if (!isValidNumber(fb.get(i))) return false;
+        }
+        return true;
+    }
+    
+    private boolean isValidNumber(Vector2f v) {
+        return isValidNumber(v.x) && isValidNumber(v.y);
+    }
+
+    private boolean isValidNumber(Vector3f v) {
+        return isValidNumber(v.x) && isValidNumber(v.y) && isValidNumber(v.z);
+    }
+
+    private boolean isValidNumber(Quaternion q) {
+        return isValidNumber(q.getX()) && isValidNumber(q.getY()) && isValidNumber(q.getZ()) && isValidNumber(q.getW());
+    }
+
+    private boolean isValidNumber(ColorRGBA c) {
+        return isValidNumber(c.r) && isValidNumber(c.g) && isValidNumber(c.b) && isValidNumber(c.a);
+    }
+
+    private boolean isValidNumber(Vector4f c) {
+        return isValidNumber(c.x) && isValidNumber(c.y) && isValidNumber(c.z) && isValidNumber(c.w);
+    }
+
     protected void updateUniform(Shader shader, Uniform uniform) {
         int shaderId = shader.getId();
 
@@ -1282,26 +1313,32 @@ public final class GLRenderer implements Renderer {
         switch (uniform.getVarType()) {
             case Float:
                 Float f = (Float) uniform.getValue();
+                assert isValidNumber(f) : "Invalid float value " + f;
                 gl.glUniform1f(loc, f.floatValue());
                 break;
             case Vector2:
                 Vector2f v2 = (Vector2f) uniform.getValue();
+                assert isValidNumber(v2) : "Invalid Vector2f value " + v2;
                 gl.glUniform2f(loc, v2.getX(), v2.getY());
                 break;
             case Vector3:
                 Vector3f v3 = (Vector3f) uniform.getValue();
+                assert isValidNumber(v3) : "Invalid Vector3f value " + v3;
                 gl.glUniform3f(loc, v3.getX(), v3.getY(), v3.getZ());
                 break;
             case Vector4:
                 Object val = uniform.getValue();
                 if (val instanceof ColorRGBA) {
                     ColorRGBA c = (ColorRGBA) val;
+                    assert isValidNumber(c) : "Invalid ColorRGBA value " + c;
                     gl.glUniform4f(loc, c.r, c.g, c.b, c.a);
                 } else if (val instanceof Vector4f) {
                     Vector4f c = (Vector4f) val;
+                    assert isValidNumber(c) : "Invalid Vector4f value " + c;
                     gl.glUniform4f(loc, c.x, c.y, c.z, c.w);
                 } else {
                     Quaternion c = (Quaternion) uniform.getValue();
+                    assert isValidNumber(c) : "Invalid Quaternion value " + c;
                     gl.glUniform4f(loc, c.getX(), c.getY(), c.getZ(), c.getW());
                 }
                 break;
@@ -1311,11 +1348,13 @@ public final class GLRenderer implements Renderer {
                 break;
             case Matrix3:
                 fb = uniform.getMultiData();
+                assert isValidNumber(fb) : "Invalid Matrix3f value " + uniform.getValue();
                 assert fb.remaining() == 9;
                 gl.glUniformMatrix3(loc, false, fb);
                 break;
             case Matrix4:
                 fb = uniform.getMultiData();
+                assert isValidNumber(fb) : "Invalid Matrix4f value " + uniform.getValue();
                 assert fb.remaining() == 16;
                 gl.glUniformMatrix4(loc, false, fb);
                 break;
@@ -1325,22 +1364,27 @@ public final class GLRenderer implements Renderer {
                 break;
             case FloatArray:
                 fb = uniform.getMultiData();
+                assert isValidNumber(fb) : "Invalid float array value " + Arrays.asList((float[]) uniform.getValue());
                 gl.glUniform1(loc, fb);
                 break;
             case Vector2Array:
                 fb = uniform.getMultiData();
+                assert isValidNumber(fb) : "Invalid Vector2f array value " + Arrays.deepToString((Vector2f[]) uniform.getValue());
                 gl.glUniform2(loc, fb);
                 break;
             case Vector3Array:
                 fb = uniform.getMultiData();
+                assert isValidNumber(fb) : "Invalid Vector3f array value " + Arrays.deepToString((Vector3f[]) uniform.getValue());
                 gl.glUniform3(loc, fb);
                 break;
             case Vector4Array:
                 fb = uniform.getMultiData();
+                assert isValidNumber(fb) : "Invalid Vector4f array value " + Arrays.deepToString((Vector4f[]) uniform.getValue());
                 gl.glUniform4(loc, fb);
                 break;
             case Matrix4Array:
                 fb = uniform.getMultiData();
+                assert isValidNumber(fb) : "Invalid Matrix4f array value " + Arrays.deepToString((Matrix4f[]) uniform.getValue());
                 gl.glUniformMatrix4(loc, false, fb);
                 break;
             case Int:
