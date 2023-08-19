@@ -1251,8 +1251,6 @@ public final class GLRenderer implements Renderer {
         return !Float.isNaN(v);
     }
 
-    
-
     private boolean isValidNumber(FloatBuffer fb) {
         for(int i = 0; i < fb.limit(); i++) {
             if (!isValidNumber(fb.get(i))) return false;
@@ -1279,8 +1277,6 @@ public final class GLRenderer implements Renderer {
     private boolean isValidNumber(Vector4f c) {
         return isValidNumber(c.x) && isValidNumber(c.y) && isValidNumber(c.z) && isValidNumber(c.w);
     }
-
-
 
     protected void updateUniform(Shader shader, Uniform uniform) {
         int shaderId = shader.getId();
