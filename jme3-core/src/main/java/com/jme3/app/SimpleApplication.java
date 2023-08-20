@@ -76,7 +76,7 @@ public abstract class SimpleApplication extends LegacyApplication {
     protected BitmapFont guiFont;
     protected FlyByCamera flyCam;
     protected boolean showSettings = true;
-    final private AppActionListener actionListener = new AppActionListener();
+    private final AppActionListener actionListener = new AppActionListener();
 
     private class AppActionListener implements ActionListener {
 
@@ -242,8 +242,9 @@ public abstract class SimpleApplication extends LegacyApplication {
 
     @Override
     public void update() {
-        if (prof != null)
+        if (prof != null) {
             prof.appStep(AppStep.BeginFrame);
+        }
 
         super.update(); // makes sure to execute AppTasks
         if (speed == 0 || paused) {
@@ -253,15 +254,17 @@ public abstract class SimpleApplication extends LegacyApplication {
         float tpf = timer.getTimePerFrame() * speed;
 
         // update states
-        if (prof != null)
+        if (prof != null) {
             prof.appStep(AppStep.StateManagerUpdate);
+        }
         stateManager.update(tpf);
 
         // simple update and root node
         simpleUpdate(tpf);
 
-        if (prof != null)
+        if (prof != null) {
             prof.appStep(AppStep.SpatialUpdate);
+        }
         rootNode.updateLogicalState(tpf);
         guiNode.updateLogicalState(tpf);
 
@@ -269,18 +272,21 @@ public abstract class SimpleApplication extends LegacyApplication {
         guiNode.updateGeometricState();
 
         // render states
-        if (prof != null)
+        if (prof != null) {
             prof.appStep(AppStep.StateManagerRender);
+        }
         stateManager.render(renderManager);
 
-        if (prof != null)
+        if (prof != null) {
             prof.appStep(AppStep.RenderFrame);
+        }
         renderManager.render(tpf, context.isRenderable());
         simpleRender(renderManager);
         stateManager.postRender();
 
-        if (prof != null)
+        if (prof != null) {
             prof.appStep(AppStep.EndFrame);
+        }
     }
 
     public void setDisplayFps(boolean show) {

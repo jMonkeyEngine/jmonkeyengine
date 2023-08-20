@@ -43,7 +43,7 @@ import java.util.*;
  */
 public class DetailedProfiler implements AppProfiler {
 
-    private final static int MAX_FRAMES = 100;
+    private static final int MAX_FRAMES = 100;
     private Map<String, StatLine> data;
     private Map<String, StatLine> pool;
     private long startFrame;
@@ -59,10 +59,10 @@ public class DetailedProfiler implements AppProfiler {
     private String curSpPath = null;
     private VpStep lastVpStep = null;
 
-    final private StringBuilder path = new StringBuilder(256);
-    final private StringBuilder vpPath = new StringBuilder(256);
+    private final StringBuilder path = new StringBuilder(256);
+    private final StringBuilder vpPath = new StringBuilder(256);
 
-    final private Deque<Integer> idsPool = new ArrayDeque<>(100);
+    private final Deque<Integer> idsPool = new ArrayDeque<>(100);
 
     StatLine frameTime;
 
@@ -152,14 +152,17 @@ public class DetailedProfiler implements AppProfiler {
 
         if (data != null) {
             vpPath.setLength(0);
-            vpPath.append(vp.getName()).append("/").append((bucket == null ? step.name() : bucket.name() + " Bucket"));
+            vpPath.append(vp.getName()).append("/")
+                    .append((bucket == null ? step.name() : bucket.name() + " Bucket"));
             path.setLength(0);
             if ((lastVpStep == VpStep.PostQueue || lastVpStep == VpStep.PostFrame) && bucket != null) {
-                path.append(curAppPath).append("/").append(curVpPath).append(curSpPath).append("/").append(vpPath);
+                path.append(curAppPath).append("/").append(curVpPath).append(curSpPath).append("/")
+                    .append(vpPath);
                 curVpPath = vpPath.toString();
             } else {
                 if (bucket != null) {
-                    path.append(curAppPath).append("/").append(curVpPath).append("/").append(bucket.name() + " Bucket");
+                    path.append(curAppPath).append("/").append(curVpPath).append("/")
+                        .append(bucket.name() + " Bucket");
                 } else {
                     path.append(curAppPath).append("/").append(vpPath);
                     curVpPath = vpPath.toString();
@@ -185,7 +188,7 @@ public class DetailedProfiler implements AppProfiler {
 
     public Map<String, StatLine> getStats() {
         if (data != null) {
-            return data;//new LinkedHashMap<>(data);
+            return data; //new LinkedHashMap<>(data);
         }
         return null;
     }
@@ -256,8 +259,8 @@ public class DetailedProfiler implements AppProfiler {
     }
 
     public static class StatLine {
-        final private long[] cpuTimes = new long[MAX_FRAMES];
-        final private long[] gpuTimes = new long[MAX_FRAMES];
+        private final long[] cpuTimes = new long[MAX_FRAMES];
+        private final long[] gpuTimes = new long[MAX_FRAMES];
         private int startCursor = 0;
         private int cpuCursor = 0;
         private int gpuCursor = 0;
