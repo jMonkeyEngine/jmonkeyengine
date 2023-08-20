@@ -1,0 +1,23 @@
+name: auto-format
+on:
+  pull_request:
+
+jobs:
+  prettier:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          # Make sure the actual branch is checked out when running on pull requests
+          ref: ${{ github.head_ref }}
+          # This is important to fetch the changes to the previous commit
+          fetch-depth: 0
+      - name: Prettify code
+        uses: creyD/prettier_action@v4.3
+        with:
+          prettier_options: --tab-width 4 --print-width 110 --write **/**/*.java
+          prettier_version: "2.8.8"
+          only_changed: True
+          commit_message:  "auto-format"
+          prettier_plugins: "prettier-plugin-java"
