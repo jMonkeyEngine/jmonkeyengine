@@ -69,7 +69,7 @@ class GsonArray extends GsonElement implements JsonArray {
     @Override
     public JsonElement get(int i) {
         com.google.gson.JsonElement el = arr().get(i);
-        return el == null ? null : new GsonElement(el);
+        return isNull(el) ? null : new GsonElement(el);
     }
 
     @Override

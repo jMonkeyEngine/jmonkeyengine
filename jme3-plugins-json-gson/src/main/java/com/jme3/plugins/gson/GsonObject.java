@@ -47,7 +47,7 @@ class GsonObject extends GsonElement implements JsonObject {
     GsonObject(com.google.gson.JsonObject gsonObject) {
         super(gsonObject);
     }
-
+    
     private com.google.gson.JsonObject obj() {
         return (com.google.gson.JsonObject) element;
     }
@@ -55,13 +55,13 @@ class GsonObject extends GsonElement implements JsonObject {
     @Override
     public JsonArray getAsJsonArray(String string) {
         com.google.gson.JsonArray el = obj().getAsJsonArray(string);
-        return el == null ? null : new GsonArray(el);
+        return isNull(el) ? null : new GsonArray(el);        
     }
 
     @Override
     public JsonObject getAsJsonObject(String string) {
         com.google.gson.JsonObject el = obj().getAsJsonObject(string);
-        return el == null ? null : new GsonObject(el);
+        return isNull(el) ? null : new GsonObject(el);
     }
 
     @Override
@@ -72,7 +72,7 @@ class GsonObject extends GsonElement implements JsonObject {
     @Override
     public JsonElement get(String string) {
         com.google.gson.JsonElement el = obj().get(string);
-        return el == null ? null : new GsonElement(el);
+        return isNull(el) ? null : new GsonElement(el);
     }
 
     @Override
@@ -107,7 +107,7 @@ class GsonObject extends GsonElement implements JsonObject {
 
     @Override
     public JsonPrimitive getAsJsonPrimitive(String string) {
-        com.google.gson.JsonPrimitive el = obj().getAsJsonPrimitive(string);
-        return el == null ? null : new GsonPrimitive(el);
+        com.google.gson.JsonPrimitive el= obj().getAsJsonPrimitive(string);
+        return isNull(el) ? null : new GsonPrimitive(el);
     }
 }

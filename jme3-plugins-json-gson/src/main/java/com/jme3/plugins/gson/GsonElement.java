@@ -34,6 +34,7 @@ package com.jme3.plugins.gson;
 import com.jme3.plugins.json.JsonArray;
 import com.jme3.plugins.json.JsonElement;
 import com.jme3.plugins.json.JsonObject;
+import com.jme3.plugins.json.JsonPrimitive;
 
 /**
  * GSON implementation of {@link JsonElement}
@@ -45,6 +46,12 @@ class GsonElement implements JsonElement {
         this.element = element;
     }
 
+    protected boolean isNull(com.google.gson.JsonElement element) {
+        if (element == null) return true;
+        if (element.isJsonNull()) return true;
+        return false;
+    }
+    
     @Override
     public String getAsString() {
         return element.getAsString();
@@ -66,6 +73,11 @@ class GsonElement implements JsonElement {
     }
 
     @Override
+    public Number getAsNumber() {
+        return element.getAsNumber();        
+    }
+
+    @Override
     public boolean getAsBoolean() {
         return element.getAsBoolean();
     }
@@ -75,4 +87,9 @@ class GsonElement implements JsonElement {
         return new GsonArray(element.getAsJsonArray());
     }
 
+    @Override
+    public JsonPrimitive getAsJsonPrimitive() {
+        return new GsonPrimitive(element.getAsJsonPrimitive());
+    }
+    
 }

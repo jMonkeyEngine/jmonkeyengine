@@ -57,5 +57,34 @@ public interface JsonPrimitive {
      * @return the boolean value
      */
     public boolean getAsBoolean();
+   
+    /**
+     * Check if the wrapped primitive is a number
+     * @return true if it is a number
+     */
+    public boolean isNumber();
 
+    /**
+     * Check if the wrapped primitive is a boolean
+     * @return true if it is a boolean
+     */
+    public boolean isBoolean();
+
+    /**
+     * Check if the wrapped primitive is a string
+     * @return true if it is a string
+     */
+    public boolean isString();
+
+    /**
+     * Returns the wrapped primitive as a string
+     * @return the string value
+     */
+    public String getAsString();
+
+    /**
+     * Returns the wrapped primitive as a generic number 
+     * @return the number value
+     */
+    public Number getAsNumber();
 }

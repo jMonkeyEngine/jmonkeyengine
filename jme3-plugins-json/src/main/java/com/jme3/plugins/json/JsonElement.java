@@ -80,4 +80,17 @@ public interface JsonElement {
      */
     public JsonArray getAsJsonArray();
 
+
+    /**
+     * Returns the object as a Number
+     * @return the Number
+     */
+    Number getAsNumber();
+
+
+    /**
+     * Returns the object as a JsonPrimitive
+     * @return
+     */
+    JsonPrimitive getAsJsonPrimitive();
 }
