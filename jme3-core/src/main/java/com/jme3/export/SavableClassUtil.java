@@ -201,6 +201,10 @@ public class SavableClassUtil {
         }
     }
 
+    /**
+     * @deprecated use {@link #fromName(java.lang.String)} instead 
+     */
+    @Deprecated
     public static Savable fromName(String className, List<ClassLoader> loaders) throws InstantiationException,
             InvocationTargetException, NoSuchMethodException,
             IllegalAccessException, ClassNotFoundException, IOException {

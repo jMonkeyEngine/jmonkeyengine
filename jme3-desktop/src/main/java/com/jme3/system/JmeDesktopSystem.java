@@ -39,6 +39,8 @@ import com.jme3.audio.openal.EFX;
 import com.jme3.system.JmeContext.Type;
 import com.jme3.texture.Image;
 import com.jme3.texture.image.ColorSpace;
+import com.jme3.util.res.Resources;
+
 import jme3tools.converters.ImageToAwt;
 
 import javax.imageio.IIOImage;
@@ -70,7 +72,7 @@ public class JmeDesktopSystem extends JmeSystemDelegate {
 
     @Override
     public URL getPlatformAssetConfigURL() {
-        return Thread.currentThread().getContextClassLoader().getResource("com/jme3/asset/Desktop.cfg");
+        return Resources.getResource("com/jme3/asset/Desktop.cfg");
     }
     
     private static BufferedImage verticalFlip(BufferedImage original) {

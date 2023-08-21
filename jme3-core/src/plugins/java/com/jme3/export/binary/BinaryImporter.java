@@ -329,12 +329,7 @@ public final class BinaryImporter implements JmeImporter {
             int dataLength = ByteUtils.convertIntFromBytes(dataArray, loc);
             loc+=4;
 
-            Savable out = null;
-            if (assetManager != null) {
-                out = SavableClassUtil.fromName(bco.className, assetManager.getClassLoaders());
-            } else {
-                out = SavableClassUtil.fromName(bco.className);
-            }
+            Savable  out = SavableClassUtil.fromName(bco.className);
 
             BinaryInputCapsule cap = new BinaryInputCapsule(this, out, bco);
             cap.setContent(dataArray, loc, loc+dataLength);

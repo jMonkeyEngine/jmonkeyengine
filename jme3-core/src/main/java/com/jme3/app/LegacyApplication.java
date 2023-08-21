@@ -52,6 +52,7 @@ import com.jme3.renderer.ViewPort;
 import com.jme3.system.AppSettings;
 import com.jme3.system.JmeContext;
 import com.jme3.system.JmeContext.Type;
+import com.jme3.util.res.Resources;
 import com.jme3.system.JmeSystem;
 import com.jme3.system.NanoTimer;
 import com.jme3.system.SystemListener;
@@ -217,7 +218,7 @@ public class LegacyApplication implements Application, SystemListener {
                     //do nothing, we check assetCfgUrl
                 }
                 if (assetCfgUrl == null) {
-                    assetCfgUrl = LegacyApplication.class.getClassLoader().getResource(assetCfg);
+                    assetCfgUrl = Resources.getResource(assetCfg);
                     if (assetCfgUrl == null) {
                         logger.log(Level.SEVERE, "Unable to access AssetConfigURL in asset config:{0}", 
                                 assetCfg);
@@ -225,7 +226,7 @@ public class LegacyApplication implements Application, SystemListener {
                     }
                 }
             }
-        }
+        }      
         if (assetCfgUrl == null) {
             assetCfgUrl = JmeSystem.getPlatformAssetConfigURL();
         }

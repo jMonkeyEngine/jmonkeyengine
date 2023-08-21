@@ -44,6 +44,8 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.jme3.util.res.Resources;
+
 /**
  * Utility class to register, extract, and load native libraries.
  * <br>
@@ -274,7 +276,7 @@ public final class NativeLibraryLoader {
     private static int computeNativesHash() {
         URLConnection conn = null;
         String classpath = System.getProperty("java.class.path");
-        URL url = Thread.currentThread().getContextClassLoader().getResource("com/jme3/system/NativeLibraryLoader.class");
+        URL url = Resources.getResource("com/jme3/system/NativeLibraryLoader.class");
 
         try {
             StringBuilder sb = new StringBuilder(url.toString());
@@ -371,9 +373,9 @@ public final class NativeLibraryLoader {
             fileNameInJar = pathInJar;
         }
         
-        URL url = Thread.currentThread().getContextClassLoader().getResource(pathInJar);
+        URL url = Resources.getResource(pathInJar);
         if (url == null) {
-            url = Thread.currentThread().getContextClassLoader().getResource(fileNameInJar);
+            url = Resources.getResource(fileNameInJar);
         }
         
         if (url == null) {
@@ -401,7 +403,7 @@ public final class NativeLibraryLoader {
             return;
         }
         
-        URL url = Thread.currentThread().getContextClassLoader().getResource(pathInJar);
+        URL url = Resources.getResource(pathInJar);
         if (url == null) {
             return;
         }
@@ -462,7 +464,7 @@ public final class NativeLibraryLoader {
             return;
         }
 
-        URL url = Thread.currentThread().getContextClassLoader().getResource(pathInJar);
+        URL url = Resources.getResource(pathInJar);
 
         if (url == null) {
             if (isRequired) {

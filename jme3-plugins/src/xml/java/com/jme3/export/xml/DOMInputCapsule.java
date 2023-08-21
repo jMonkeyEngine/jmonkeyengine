@@ -924,7 +924,7 @@ public class DOMInputCapsule implements InputCapsule {
             } else if (defVal != null) {
                 className = defVal.getClass().getName();
             }
-            tmp = SavableClassUtil.fromName(className, null);
+            tmp = SavableClassUtil.fromName(className);
             
             String versionsStr = currentElem.getAttribute("savable_versions");
             if (versionsStr != null && !versionsStr.equals("")){

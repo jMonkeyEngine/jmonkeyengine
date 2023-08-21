@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,43 +29,44 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.system;
-
-import com.jme3.audio.AudioRenderer;
-import com.jme3.util.res.Resources;
+package com.jme3.util.res;
 
 import java.io.IOException;
-import java.io.OutputStream;
+import java.io.InputStream;
 import java.net.URL;
-import java.nio.ByteBuffer;
+import java.util.Enumeration;
 
-public class MockJmeSystemDelegate extends JmeSystemDelegate {
-
-    @Override
-    public void writeImageFile(OutputStream outStream, String format, ByteBuffer imageData, int width, int height) throws IOException {
-    }
-
-    @Override
-    public URL getPlatformAssetConfigURL() {
-        return Resources.getResource("com/jme3/asset/General.cfg");
-    }
-
-    @Override
-    public JmeContext newContext(AppSettings settings, JmeContext.Type contextType) {
-        return null;
-    }
-
-    @Override
-    public AudioRenderer newAudioRenderer(AppSettings settings) {
-        return null;
-    }
-
-    @Override
-    public void initialize(AppSettings settings) {
-    }
-
-    @Override
-    public void showSoftKeyboard(boolean show) {
-    }
+/**
+ * Default implementation of {@link ResourceLoader}. 
+ * Loads from classpath.
+ */
+class DefaultResourceLoader implements ResourceLoader {
     
+    DefaultResourceLoader() {
+        
+    }
+
+    @Override
+    public InputStream getResourceAsStream(String path, Class<?> parent) {
+        if (parent == null) {
+            return Thread.currentThread().getContextClassLoader().getResourceAsStream(path);
+        } else {
+            return parent.getResourceAsStream(path);
+        }
+    }
+
+    @Override
+    public URL getResource(String path, Class<?> parent) {
+        if (parent == null) {
+            return Thread.currentThread().getContextClassLoader().getResource(path);
+        } else {
+            return parent.getResource(path);
+        }
+    }
+
+    @Override
+    public Enumeration<URL> getResources(String path) throws IOException {
+        return Thread.currentThread().getContextClassLoader().getResources(path);        
+    }
+
 }

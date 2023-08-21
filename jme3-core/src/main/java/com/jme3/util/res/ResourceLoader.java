@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,43 +29,53 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.system;
-
-import com.jme3.audio.AudioRenderer;
-import com.jme3.util.res.Resources;
+package com.jme3.util.res;
 
 import java.io.IOException;
-import java.io.OutputStream;
+import java.io.InputStream;
 import java.net.URL;
-import java.nio.ByteBuffer;
+import java.util.Enumeration;
 
-public class MockJmeSystemDelegate extends JmeSystemDelegate {
+public interface ResourceLoader {
+    /**
+     * Finds the resource with the given name relative to the given parent class
+     * or to the root if the parent is null.
+     * 
+     * @param path
+     *            The resource name
+     * @param parent
+     *            Optional parent class
+     * @return The resource URL or null if not found
+     */
+    public URL getResource(String path, Class<?> parent);
 
-    @Override
-    public void writeImageFile(OutputStream outStream, String format, ByteBuffer imageData, int width, int height) throws IOException {
-    }
+    /**
+     * Finds the resource with the given name relative to the given parent class
+     * or to the root if the parent is null.
+     * 
+     * @param path
+     *            The resource name
+     * @param parent
+     *            Optional parent class
+     * @return An input stream to the resource or null if not found
+     */
+    public InputStream getResourceAsStream(String path, Class<?> parent);
 
-    @Override
-    public URL getPlatformAssetConfigURL() {
-        return Resources.getResource("com/jme3/asset/General.cfg");
-    }
 
-    @Override
-    public JmeContext newContext(AppSettings settings, JmeContext.Type contextType) {
-        return null;
-    }
-
-    @Override
-    public AudioRenderer newAudioRenderer(AppSettings settings) {
-        return null;
-    }
-
-    @Override
-    public void initialize(AppSettings settings) {
-    }
-
-    @Override
-    public void showSoftKeyboard(boolean show) {
-    }
-    
+    /**
+     * Finds all resources with the given name.
+     * 
+     * 
+     * @param path
+     *            The resource name
+     * @return An enumeration of {@link java.net.URL <tt>URL</tt>} objects for
+     *         the resource. If no resources could be found, the enumeration
+     *         will be empty.
+     *
+     * @throws IOException
+     *             If I/O errors occur
+     *
+     * @throws IOException
+     */
+    public Enumeration<URL> getResources(String path) throws IOException;
 }
