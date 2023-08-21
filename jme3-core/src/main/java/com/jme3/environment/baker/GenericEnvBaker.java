@@ -174,7 +174,6 @@ public abstract class GenericEnvBaker implements EnvBaker {
             viewPort.attachScene(scene);
 
             scene.updateLogicalState(0);
-            scene.updateModelBound();
             scene.updateGeometricState();
 
             Function<Geometry, Boolean> ofilter = renderManager.getRenderFilter();
