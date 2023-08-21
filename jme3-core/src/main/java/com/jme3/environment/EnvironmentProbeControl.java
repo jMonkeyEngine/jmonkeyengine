@@ -67,6 +67,8 @@ public class EnvironmentProbeControl extends LightProbe implements Control {
     public EnvironmentProbeControl(AssetManager assetManager,int size) {     
         this.envMapSize = size;
         this.assetManager = assetManager;
+        this.setAreaType(AreaType.Spherical);
+        this.getArea().setRadius(Float.MAX_VALUE);
     }
 
     @Override
