@@ -122,53 +122,52 @@ public class BasicProfilerState extends BaseAppState {
         float frameTime = 1000f / 60;
         mesh.setBuffer(Type.Position, 3, new float[] {
 
-                    // first quad
-                    0, 0, 0,
-                    size, 0, 0,
-                    size, frameTime, 0,
-                    0, frameTime, 0,
+                // first quad
+                0, 0, 0,
+                size, 0, 0,
+                size, frameTime, 0,
+                0, frameTime, 0,
+                // second quad
+                0, frameTime, 0,
+                size, frameTime, 0,
+                size, frameTime * 2, 0,
+                0, frameTime * 2, 0,
 
-                    // second quad
-                    0, frameTime, 0,
-                    size, frameTime, 0,
-                    size, frameTime * 2, 0,
-                    0, frameTime * 2, 0,
-
-                    // A lower dark border just to frame the
-                    // 'update' stats against bright backgrounds
-                    0, -2, 0,
-                    size, -2, 0,
-                    size, 0, 0,
-                    0, 0, 0
-                });
+                // A lower dark border just to frame the
+                // 'update' stats against bright backgrounds
+                0, -2, 0,
+                size, -2, 0,
+                size, 0, 0,
+                0, 0, 0
+        });
 
         mesh.setBuffer(Type.Color, 4, new float[] {
                     // first quad, within normal frame limits
-                    0, 1, 0, 0.25f,
-                    0, 1, 0, 0.25f,
-                    0, 0.25f, 0, 0.25f,
-                    0, 0.25f, 0, 0.25f,
+                0, 1, 0, 0.25f,
+                0, 1, 0, 0.25f,
+                0, 0.25f, 0, 0.25f,
+                0, 0.25f, 0, 0.25f,
 
-                    // Second quad, dropped frames
-                    0.25f, 0, 0, 0.25f,
-                    0.25f, 0, 0, 0.25f,
-                    1, 0, 0, 0.25f,
-                    1, 0, 0, 0.25f,
+                // Second quad, dropped frames
+                0.25f, 0, 0, 0.25f,
+                0.25f, 0, 0, 0.25f,
+                1, 0, 0, 0.25f,
+                1, 0, 0, 0.25f,
 
-                    0, 0, 0, 0.5f,
-                    0, 0, 0, 0.5f,
-                    0, 0, 0, 0.5f,
-                    0, 0, 0, 0.5f
-                });
+                0, 0, 0, 0.5f,
+                0, 0, 0, 0.5f,
+                0, 0, 0, 0.5f,
+                0, 0, 0, 0.5f
+        });
 
         mesh.setBuffer(Type.Index, 3, new short[] {
-                    0, 1, 2,
-                    0, 2, 3,
-                    4, 5, 6,
-                    4, 6, 7,
-                    8, 9, 10,
-                    8, 10, 11
-                });
+                0, 1, 2,
+                0, 2, 3,
+                4, 5, 6,
+                4, 6, 7,
+                8, 9, 10,
+                8, 10, 11
+        });
     }
 
     @Override
