@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,30 +29,67 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.scene.plugins.gltf;
+package com.jme3.plugins.json;
 
-
-import com.jme3.plugins.json.JsonElement;
-import java.io.IOException;
+import java.util.Map.Entry;
 
 /**
- * Interface to handle a glTF extension.
- *
- * Created by Nehon on 20/08/2017.
+ * A generic object/map
+ * 
+ * @author Riccardo Balbo
  */
-public interface ExtensionLoader {
+public interface JsonObject extends JsonElement {
 
     /**
-     * Handles a glTF extension.
-     *
-     * @param loader     the GltfLoader with all the data structures
-     * @param parentName the name of the element being read
-     * @param parent     the element being read
-     * @param extension  the content of the extension found in the element being read
-     * @param input      an object containing already loaded data from the element, probably a JME object
-     * @return An object of the same type as input, containing the data from the input object and the eventual additional data read from the extension
-     * @throws IOException for various error conditions
+     * Returns the object property as a String
+     * 
+     * @param string
+     *            name of the property
+     * @return the string
      */
-    Object handleExtension(GltfLoader loader, String parentName, JsonElement parent, JsonElement extension, Object input) throws IOException;
+    public JsonArray getAsJsonArray(String string);
+
+    /**
+     * Returns the object property as a JsonObject
+     * 
+     * @param string
+     *            name of the property
+     * @return the JsonObject
+     */
+    public JsonObject getAsJsonObject(String string);
+
+    /**
+     * Check if the object has a property
+     * 
+     * @param string
+     *            name of the property
+     * @return true if it exists, false otherwise
+     */
+    public boolean has(String string);
+
+    /**
+     * Returns the object property as generic element
+     * 
+     * @param string
+     *            name of the property
+     * @return the element
+     */
+    public JsonElement get(String string);
+
+    /**
+     * Returns the object's key-value pairs
+     * 
+     * @return an array of key-value pairs
+     */
+    public Entry<String, JsonElement>[] entrySet();
+
+    /**
+     * Returns the object property as a wrapped primitive
+     * 
+     * @param string
+     *            name of the property
+     * @return the wrapped primitive
+     */
+    public JsonPrimitive getAsJsonPrimitive(String string);
 
 }

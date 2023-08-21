@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,30 +29,36 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.scene.plugins.gltf;
+package com.jme3.plugins.gson;
 
-
-import com.jme3.plugins.json.JsonElement;
-import java.io.IOException;
+import com.jme3.plugins.json.JsonPrimitive;
 
 /**
- * Interface to handle a glTF extension.
- *
- * Created by Nehon on 20/08/2017.
+ * GSON implementation of {@link JsonPrimitive}
  */
-public interface ExtensionLoader {
+public class GsonPrimitive extends GsonElement implements JsonPrimitive {
+        
+    public GsonPrimitive(com.google.gson.JsonPrimitive element) {
+        super(element);
+    }
 
-    /**
-     * Handles a glTF extension.
-     *
-     * @param loader     the GltfLoader with all the data structures
-     * @param parentName the name of the element being read
-     * @param parent     the element being read
-     * @param extension  the content of the extension found in the element being read
-     * @param input      an object containing already loaded data from the element, probably a JME object
-     * @return An object of the same type as input, containing the data from the input object and the eventual additional data read from the extension
-     * @throws IOException for various error conditions
-     */
-    Object handleExtension(GltfLoader loader, String parentName, JsonElement parent, JsonElement extension, Object input) throws IOException;
+    private com.google.gson.JsonPrimitive prim() {
+        return (com.google.gson.JsonPrimitive) element;
+    } 
 
+    @Override
+    public boolean isNumber() {
+        return prim().isNumber();
+    }
+
+    @Override
+    public boolean isBoolean() {
+        return prim().isBoolean();
+    }
+
+    @Override
+    public boolean isString() {
+        return prim().isString();
+    }
+    
 }
