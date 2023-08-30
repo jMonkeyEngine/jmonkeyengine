@@ -1052,7 +1052,7 @@ public class GltfLoader implements AssetLoader {
 
             // These inverse bind matrices, once inverted again,
             // will give us the real bind pose of the bones (in model space),
-            // since the skeleton in not guaranteed to be exported in bind pose.
+            // since the skeleton is not guaranteed to be exported in bind pose.
             Integer matricesIndex = getAsInteger(skin, "inverseBindMatrices");
             Matrix4f[] inverseBindMatrices = null;
             if (matricesIndex != null) {
