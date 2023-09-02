@@ -67,9 +67,10 @@ public class IBLHybridEnvBakerLight extends GenericEnvBaker implements IBLEnvBak
         super(rm, am, format, depthFormat, env_size);
 
         specular = new TextureCubeMap(specular_size, specular_size, format);
+        specular.setWrap(WrapMode.EdgeClamp);
         specular.setMagFilter(MagFilter.Bilinear);
         specular.setMinFilter(MinFilter.Trilinear);
-        specular.setWrap(WrapMode.EdgeClamp);
+
         specular.getImage().setColorSpace(ColorSpace.Linear);
         int nbMipMaps = (int) (Math.log(specular_size) / Math.log(2) + 1);
         if (nbMipMaps > 6) nbMipMaps = 6;
@@ -79,8 +80,10 @@ public class IBLHybridEnvBakerLight extends GenericEnvBaker implements IBLEnvBak
             sizes[i] = size * size * (specular.getImage().getFormat().getBitsPerPixel() / 8);
         }
         specular.getImage().setMipMapSizes(sizes);
-    }
+        specular.getImage().setMipmapsGenerated(true);
 
+    }
+    
     @Override
     public boolean isTexturePulling() { // always pull textures from gpu
         return true;
@@ -102,15 +105,20 @@ public class IBLHybridEnvBakerLight extends GenericEnvBaker implements IBLEnvBak
             int mipWidth = (int) (specular.getImage().getWidth() * FastMath.pow(0.5f, mip));
             int mipHeight = (int) (specular.getImage().getHeight() * FastMath.pow(0.5f, mip));
 
-            FrameBuffer specularbaker = new FrameBuffer(mipWidth, mipHeight, 1);
-            specularbaker.setSrgb(false);
-            for (int i = 0; i < 6; i++) specularbaker.addColorTarget(FrameBufferTarget.newTarget(specular).level(mip).face(i));
+            FrameBuffer specularbakers[] = new FrameBuffer[6];
+            for(int i=0;i<6;i++){
+                specularbakers[i]=new FrameBuffer(mipWidth,mipHeight,1);
+                specularbakers[i].setSrgb(false);
+                specularbakers[i].addColorTarget(FrameBufferTarget.newTarget(specular).level(mip).face(i));
+                specularbakers[i].setMipMapsGenerationHint(false);
+            }
+
 
             float roughness = (float) mip / (float) (specular.getImage().getMipMapSizes().length - 1);
             mat.setFloat("Roughness", roughness);
 
             for (int i = 0; i < 6; i++) {
-                specularbaker.setTargetIndex(i);
+                FrameBuffer specularbaker = specularbakers[i];
                 mat.setInt("FaceId", i);
 
                 screen.updateLogicalState(0);
@@ -123,12 +131,14 @@ public class IBLHybridEnvBakerLight extends GenericEnvBaker implements IBLEnvBak
                 if (isTexturePulling()) pull(specularbaker, specular, i);
 
             }
-            specularbaker.dispose();
+            for (int i = 0; i < 6; i++) {
+                specularbakers[i].dispose();
+            }
         }
         
         if (isTexturePulling()) endPulling(specular);
         specular.getImage().clearUpdateNeeded();
-
+ 
     }
 
     @Override
