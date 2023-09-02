@@ -1,13 +1,14 @@
 MaterialDef Basic Post Shadow {
 
     MaterialParameters {
+        Int BoundDrawBuffer
         Texture2D ShadowMap
         Matrix4 LightViewProjectionMatrix
     }
 
     Technique {
-        VertexShader GLSL100 GLSL150:   Common/MatDefs/Shadow/BasicPostShadow.vert
-        FragmentShader GLSL100 GLSL150: Common/MatDefs/Shadow/BasicPostShadow.frag
+        VertexShader   GLSL300 GLSL150 GLSL100:   Common/MatDefs/Shadow/BasicPostShadow.vert
+        FragmentShader GLSL300 GLSL150 GLSL100:   Common/MatDefs/Shadow/BasicPostShadow.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -15,6 +16,7 @@ MaterialDef Basic Post Shadow {
         }
 
         Defines {
+            BOUND_DRAW_BUFFER: BoundDrawBuffer
             NO_SHADOW2DPROJ
         }
 

@@ -1,3 +1,5 @@
+#import "Common/ShaderLib/GLSLCompat.glsllib"
+
 layout (points) in;
 layout (line_strip) out;
 layout (max_vertices = 11) out;

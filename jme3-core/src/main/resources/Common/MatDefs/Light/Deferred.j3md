@@ -2,6 +2,7 @@
 MaterialDef Phong Lighting Deferred {
 
     MaterialParameters {
+        Int BoundDrawBuffer
 
         // Use more efficient algorithms to improve performance
         Boolean LowQuality
@@ -35,8 +36,8 @@ MaterialDef Phong Lighting Deferred {
     Technique {
         LightMode MultiPass
 
-        VertexShader GLSL100:   Common/MatDefs/Light/Deferred.vert
-        FragmentShader GLSL100: Common/MatDefs/Light/Deferred.frag
+        VertexShader   GLSL300 GLSL150 GLSL100:   Common/MatDefs/Light/Deferred.vert
+        FragmentShader GLSL300 GLSL150 GLSL100: Common/MatDefs/Light/Deferred.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -46,6 +47,7 @@ MaterialDef Phong Lighting Deferred {
         }
 
         Defines {
+            BOUND_DRAW_BUFFER: BoundDrawBuffer
             ATTENUATION : Attenuation
             V_TANGENT : VTangent
             MINNAERT  : Minnaert

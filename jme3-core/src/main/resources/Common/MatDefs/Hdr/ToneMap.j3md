@@ -1,5 +1,6 @@
 MaterialDef Tone Mapper {
     MaterialParameters {
+        Int BoundDrawBuffer
         Texture2D Texture
         Texture2D Lum
         Texture2D Lum2
@@ -9,14 +10,15 @@ MaterialDef Tone Mapper {
         Float Gamma
     }
     Technique {
-        VertexShader GLSL100:   Common/MatDefs/Gui/Gui.vert
-        FragmentShader GLSL100: Common/MatDefs/Hdr/ToneMap.frag
+        VertexShader   GLSL300 GLSL150 GLSL100:   Common/MatDefs/Gui/Gui.vert
+        FragmentShader GLSL300 GLSL150 GLSL100: Common/MatDefs/Hdr/ToneMap.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
         }
 
         Defines {
+            BOUND_DRAW_BUFFER: BoundDrawBuffer
             TEXTURE
         }
     }

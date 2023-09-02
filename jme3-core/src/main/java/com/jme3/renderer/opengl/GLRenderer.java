@@ -187,7 +187,12 @@ public final class GLRenderer implements Renderer {
         return extensionSet;
     }
 
+    public static boolean isWebGL(String version) {
+        return version.contains("WebGL");
+    }
+
     public static int extractVersion(String version) {
+        if (version.startsWith("WebGL 2.0")) return 300;
         Matcher m = GLVERSION_PATTERN.matcher(version);
         if (m.matches()) {
             int major = Integer.parseInt(m.group(1));
@@ -208,7 +213,11 @@ public final class GLRenderer implements Renderer {
     }
 
     private void loadCapabilitiesES() {
-        int oglVer = extractVersion(gl.glGetString(GL.GL_VERSION));
+        String version = gl.glGetString(GL.GL_VERSION);
+        int oglVer = extractVersion(version);
+        if (isWebGL(version)) {
+            caps.add(Caps.WebGL);       
+        }
         caps.add(Caps.GLSL100);
         caps.add(Caps.OpenGLES20);
 
@@ -378,7 +387,7 @@ public final class GLRenderer implements Renderer {
                     hasExtension("GL_ARB_half_float_pixel");
 
             if (!hasFloatTexture) {
-                hasFloatTexture = caps.contains(Caps.OpenGL30);
+                hasFloatTexture = caps.contains(Caps.OpenGL30) || caps.contains(Caps.OpenGLES30);
             }
         }
 
@@ -409,9 +418,14 @@ public final class GLRenderer implements Renderer {
         }
 
         if (hasExtension("GL_ARB_color_buffer_float") &&
-                hasExtension("GL_ARB_half_float_pixel")) {
+                hasExtension("GL_ARB_half_float_pixel")
+                ||caps.contains(Caps.OpenGL30) || caps.contains(Caps.OpenGLES30)) {
             // XXX: Require both 16- and 32-bit float support for FloatColorBuffer.
             caps.add(Caps.FloatColorBuffer);
+            caps.add(Caps.FloatColorBufferRGBA);
+            if (!caps.contains(Caps.OpenGLES30)) {
+                caps.add(Caps.FloatColorBufferRGB);
+            }
         }
 
         if (caps.contains(Caps.OpenGLES30) || hasExtension("GL_ARB_depth_buffer_float")) {
@@ -450,13 +464,13 @@ public final class GLRenderer implements Renderer {
 
         // == end texture format extensions ==
 
-        if (hasExtension("GL_ARB_vertex_array_object") || caps.contains(Caps.OpenGL30)) {
+        if (hasExtension("GL_ARB_vertex_array_object") || caps.contains(Caps.OpenGL30) || caps.contains(Caps.OpenGLES30) ) {
             caps.add(Caps.VertexBufferArray);
         }
 
         if (hasExtension("GL_ARB_texture_non_power_of_two") ||
                 hasExtension("GL_OES_texture_npot") ||
-                caps.contains(Caps.OpenGL30)) {
+                caps.contains(Caps.OpenGL30) || caps.contains(Caps.OpenGLES30)) {
             caps.add(Caps.NonPowerOfTwoTextures);
         } else {
             logger.log(Level.WARNING, "Your graphics card does not "
@@ -530,7 +544,7 @@ public final class GLRenderer implements Renderer {
 
         // Supports sRGB pipeline.
         if ( (hasExtension("GL_ARB_framebuffer_sRGB") && hasExtension("GL_EXT_texture_sRGB"))
-                || caps.contains(Caps.OpenGL30)) {
+                || caps.contains(Caps.OpenGL30) || caps.contains(Caps.OpenGLES30)) {
             caps.add(Caps.Srgb);
         }
 
@@ -539,8 +553,10 @@ public final class GLRenderer implements Renderer {
             caps.add(Caps.SeamlessCubemap);
         }
 
-        if (caps.contains(Caps.OpenGL32) && !hasExtension("GL_ARB_compatibility")) {
-            caps.add(Caps.CoreProfile);
+        if ((caps.contains(Caps.OpenGLES30) || caps.contains(Caps.OpenGL32)) && !hasExtension("GL_ARB_compatibility")) {
+            if (JmeSystem.getPlatform().getOs() != Platform.Os.iOS) { // some features are not supported on iOS
+                caps.add(Caps.CoreProfile);
+            }
         }
 
         if (hasExtension("GL_ARB_get_program_binary")) {
@@ -679,9 +695,17 @@ public final class GLRenderer implements Renderer {
 
         if (caps.contains(Caps.CoreProfile)) {
             // Core Profile requires VAO to be bound.
-            gl3.glGenVertexArrays(intBuf16);
-            int vaoId = intBuf16.get(0);
-            gl3.glBindVertexArray(vaoId);
+            if(gl3!=null){
+                gl3.glGenVertexArrays(intBuf16);
+                int vaoId = intBuf16.get(0);
+                gl3.glBindVertexArray(vaoId);
+            }else if(gl instanceof GLES_30){
+                ((GLES_30)gl).glGenVertexArrays(intBuf16);
+                int vaoId = intBuf16.get(0);
+                ((GLES_30)gl).glBindVertexArray(vaoId);                
+            }   else{
+                throw new UnsupportedOperationException("Core profile not supported");
+            }
         }
         if (gl2 != null && !(gl instanceof GLES_30)) {
             gl2.glEnable(GL2.GL_VERTEX_PROGRAM_POINT_SIZE);
@@ -1521,7 +1545,6 @@ public final class GLRenderer implements Renderer {
                     + "Only GLSL 1.00 shaders are supported.");
         }
 
-        boolean insertPrecision = false;
         // Upload shader source.
         // Merge the defines and source code.
         stringBuf.setLength(0);
@@ -1552,16 +1575,8 @@ public final class GLRenderer implements Renderer {
                 }
             }
 
-            if (gles2 || gles3) {
-                //Inserting precision only to fragment shaders creates some link failures because of different precision between shaders
-                //But adding the precision to all shaders generates rendering glitches in some devices if not set to highp
-                if (source.getType() == ShaderType.Fragment) {
-                    // GLES requires precision qualifier.
-                    insertPrecision = true;
-                }
-            }
         }
-
+        
         if (linearizeSrgbImages) {
             stringBuf.append("#define SRGB 1\n");
         }
@@ -1570,24 +1585,6 @@ public final class GLRenderer implements Renderer {
         stringBuf.append(source.getDefines());
         stringBuf.append(source.getSource());
 
-        if(insertPrecision){
-            // default precision could be defined in GLSLCompat.glsllib so final users can use custom defined precision instead
-            // precision token is not a preprocessor directive therefore it must be placed after #extension tokens to avoid
-            // Error P0001: Extension directive must occur before any non-preprocessor tokens
-            int idx = stringBuf.lastIndexOf("#extension");
-            idx = stringBuf.indexOf("\n", idx);
-
-            if(version>=310) {
-                stringBuf.insert(idx + 1, "precision highp sampler2DMS;\n");
-            }
-            if(version>=300) {
-                stringBuf.insert(idx + 1, "precision highp sampler2DArray;\n");
-                stringBuf.insert(idx + 1, "precision highp sampler2DShadow;\n");
-                stringBuf.insert(idx + 1, "precision highp sampler3D;\n");
-                stringBuf.insert(idx + 1, "precision highp sampler2D;\n");
-            }
-            stringBuf.insert(idx + 1, "precision highp float;\n");
-        }
 
         intBuf1.clear();
         intBuf1.put(0, stringBuf.length());
@@ -1712,7 +1709,7 @@ public final class GLRenderer implements Renderer {
     public void setShader(Shader shader) {
         if (shader == null) {
             throw new IllegalArgumentException("Shader cannot be null");
-        } else {
+        } else {            
             if (shader.isUpdateNeeded()) {
                 updateShaderData(shader);
             }
@@ -2073,8 +2070,17 @@ public final class GLRenderer implements Renderer {
         mainFbOverride = fb;
     }
 
+
+    @Override
+    public FrameBuffer getCurrentFrameBuffer() {
+        if(mainFbOverride!=null){
+            return mainFbOverride;
+        }
+        return context.boundFB;
+    }
+
     public void setReadDrawBuffers(FrameBuffer fb) {
-        if (gl2 == null || gl instanceof GLES_30) {
+        if (gl2 == null) {
             return;
         }
 
@@ -2679,7 +2685,7 @@ public final class GLRenderer implements Renderer {
         if (unit < 0 || unit >= RenderContext.maxTextureUnits) {
             throw new TextureUnitException();
         }
-
+        
         Image image = tex.getImage();
         if (image.isUpdateNeeded() || (image.isGeneratedMipmapsRequired() && !image.isMipmapsGenerated())) {
             // Check NPOT requirements

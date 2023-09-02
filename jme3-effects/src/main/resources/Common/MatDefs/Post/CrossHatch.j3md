@@ -1,6 +1,7 @@
 MaterialDef CrossHatch {
  
     MaterialParameters {
+        Int BoundDrawBuffer
         Int NumSamples
         Texture2D Texture;
         Vector4 LineColor;
@@ -18,10 +19,14 @@ MaterialDef CrossHatch {
     }
  
     Technique {
-        VertexShader GLSL150 GLSL100:   Common/MatDefs/Post/Post.vert
-        FragmentShader GLSL150 GLSL100: Common/MatDefs/Post/CrossHatch.frag
+        VertexShader   GLSL300 GLSL150 GLSL100 : Common/MatDefs/Post/Post.vert
+        FragmentShader GLSL300 GLSL150 GLSL100 : Common/MatDefs/Post/CrossHatch.frag
  
         WorldParameters {
+        }
+
+        Defines {
+            BOUND_DRAW_BUFFER: BoundDrawBuffer
         }
     }
 

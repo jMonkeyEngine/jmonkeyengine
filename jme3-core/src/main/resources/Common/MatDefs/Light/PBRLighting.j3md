@@ -1,6 +1,7 @@
 MaterialDef PBR Lighting {
 
     MaterialParameters {
+        Int BoundDrawBuffer
 
         // Alpha threshold for fragment discarding
         Float AlphaDiscardThreshold (AlphaTestFallOff)
@@ -129,8 +130,8 @@ MaterialDef PBR Lighting {
     Technique {
         LightMode SinglePassAndImageBased
         
-        VertexShader GLSL300 GLSL110 GLSL150:   Common/MatDefs/Light/PBRLighting.vert
-        FragmentShader GLSL300 GLSL110 GLSL150: Common/MatDefs/Light/PBRLighting.frag
+        VertexShader GLSL300 GLSL150 GLSL110:   Common/MatDefs/Light/PBRLighting.vert
+        FragmentShader GLSL300 GLSL150 GLSL110: Common/MatDefs/Light/PBRLighting.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -141,7 +142,8 @@ MaterialDef PBR Lighting {
             ViewMatrix
         }
 
-        Defines {         
+        Defines {  
+            BOUND_DRAW_BUFFER: BoundDrawBuffer       
             BASECOLORMAP : BaseColorMap            
             NORMALMAP : NormalMap
             NORMALSCALE : NormalScale
@@ -176,8 +178,8 @@ MaterialDef PBR Lighting {
 
     Technique PreShadow {
 
-        VertexShader GLSL300 GLSL100 GLSL150 :   Common/MatDefs/Shadow/PreShadow.vert
-        FragmentShader GLSL300 GLSL100 GLSL150 : Common/MatDefs/Shadow/PreShadowPBR.frag
+        VertexShader   GLSL300 GLSL150 GLSL100:   Common/MatDefs/Shadow/PreShadow.vert
+        FragmentShader GLSL300 GLSL150 GLSL100: Common/MatDefs/Shadow/PreShadowPBR.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -187,6 +189,7 @@ MaterialDef PBR Lighting {
         }
 
         Defines {
+            BOUND_DRAW_BUFFER: BoundDrawBuffer
             DISCARD_ALPHA : AlphaDiscardThreshold
             NUM_BONES : NumberOfBones
             INSTANCING : UseInstancing
@@ -206,8 +209,8 @@ MaterialDef PBR Lighting {
 
 
     Technique PostShadow {
-        VertexShader GLSL310 GLSL300 GLSL100 GLSL150:   Common/MatDefs/Shadow/PostShadow.vert
-        FragmentShader GLSL310 GLSL300 GLSL100 GLSL150: Common/MatDefs/Shadow/PostShadowPBR.frag
+        VertexShader   GLSL310 GLSL300 GLSL150 GLSL100:   Common/MatDefs/Shadow/PostShadow.vert
+        FragmentShader GLSL310 GLSL300 GLSL150 GLSL100: Common/MatDefs/Shadow/PostShadowPBR.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -217,6 +220,7 @@ MaterialDef PBR Lighting {
         }
 
         Defines {
+            BOUND_DRAW_BUFFER: BoundDrawBuffer
             HARDWARE_SHADOWS : HardwareShadows
             FILTER_MODE : FilterMode
             PCFEDGE : PCFEdge
@@ -241,8 +245,8 @@ MaterialDef PBR Lighting {
 
     Technique PreNormalPass {
 
-        VertexShader GLSL100 :   Common/MatDefs/SSAO/normal.vert
-        FragmentShader GLSL100 : Common/MatDefs/SSAO/normal.frag
+        VertexShader   GLSL300 GLSL150 GLSL100 :   Common/MatDefs/SSAO/normal.vert
+        FragmentShader GLSL300 GLSL150 GLSL100 : Common/MatDefs/SSAO/normal.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -253,6 +257,7 @@ MaterialDef PBR Lighting {
         }
 
         Defines {
+            BOUND_DRAW_BUFFER: BoundDrawBuffer
             BASECOLORMAP_ALPHA : BaseColorMap            
             NUM_BONES : NumberOfBones
             INSTANCING : UseInstancing
@@ -264,8 +269,8 @@ MaterialDef PBR Lighting {
 
     Technique Glow {
 
-        VertexShader GLSL100 GLSL150:   Common/MatDefs/Misc/Unshaded.vert
-        FragmentShader GLSL100 GLSL150: Common/MatDefs/Light/Glow.frag
+        VertexShader   GLSL300 GLSL150 GLSL100:   Common/MatDefs/Misc/Unshaded.vert
+        FragmentShader GLSL300 GLSL150 GLSL100: Common/MatDefs/Light/Glow.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -274,6 +279,7 @@ MaterialDef PBR Lighting {
         }
 
         Defines {
+            BOUND_DRAW_BUFFER: BoundDrawBuffer
             NEED_TEXCOORD1
             NUM_BONES : NumberOfBones
             INSTANCING : UseInstancing

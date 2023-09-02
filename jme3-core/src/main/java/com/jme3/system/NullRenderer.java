@@ -293,4 +293,9 @@ public class NullRenderer implements Renderer {
     public boolean isMainFrameBufferSrgb() {
         return false;
     }
+
+    @Override
+    public FrameBuffer getCurrentFrameBuffer() {
+        return null;
+    }
 }

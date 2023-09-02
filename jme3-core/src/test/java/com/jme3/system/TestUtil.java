@@ -35,6 +35,8 @@ import com.jme3.asset.AssetConfig;
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.DesktopAssetManager;
 import com.jme3.renderer.RenderManager;
+import com.jme3.renderer.Renderer;
+
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -55,7 +57,13 @@ public class TestUtil {
         return new DesktopAssetManager(true);
     }
     
-    public static RenderManager createRenderManager() {
-        return new RenderManager(new NullRenderer());
+    public static RenderManager createRenderManager() {        
+        return createRenderManager(new NullRenderer());
+    }
+
+    public static RenderManager createRenderManager(Renderer renderer) {
+        RenderManager rm = new RenderManager(renderer);
+        rm.setPassDrawBufferTargetIdToShaders(false);
+        return rm;
     }
 }

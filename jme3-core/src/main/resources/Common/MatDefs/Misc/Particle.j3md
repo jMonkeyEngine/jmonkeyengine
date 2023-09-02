@@ -1,6 +1,7 @@
 MaterialDef Point Sprite {
 
     MaterialParameters {
+        Int BoundDrawBuffer
         Texture2D Texture
         Float Quadratic
         Boolean PointSprite
@@ -24,8 +25,8 @@ MaterialDef Point Sprite {
         // Point sprite should be used if running on ES2, but crash
         // if on desktop (because its not supported by HW)
 
-        VertexShader   GLSL100 GLSL100 GLSL150 : Common/MatDefs/Misc/Particle.vert
-        FragmentShader GLSL100 GLSL120 GLSL150 : Common/MatDefs/Misc/Particle.frag
+        VertexShader   GLSL300 GLSL150 GLSL120 GLSL100: Common/MatDefs/Misc/Particle.vert
+        FragmentShader GLSL300 GLSL150 GLSL120 GLSL100: Common/MatDefs/Misc/Particle.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -41,6 +42,7 @@ MaterialDef Point Sprite {
         }
 
         Defines {
+            BOUND_DRAW_BUFFER: BoundDrawBuffer
             USE_TEXTURE : Texture
             POINT_SPRITE : PointSprite
         }
@@ -48,8 +50,8 @@ MaterialDef Point Sprite {
 
     Technique PreShadow {
 
-        VertexShader GLSL100 GLSL150 :   Common/MatDefs/Shadow/PreShadow.vert
-        FragmentShader GLSL100 GLSL150 : Common/MatDefs/Shadow/PreShadow.frag
+        VertexShader   GLSL300 GLSL150 GLSL100:   Common/MatDefs/Shadow/PreShadow.vert
+        FragmentShader GLSL300 GLSL150 GLSL100: Common/MatDefs/Shadow/PreShadow.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -59,6 +61,7 @@ MaterialDef Point Sprite {
         }
 
         Defines {
+            BOUND_DRAW_BUFFER: BoundDrawBuffer
             COLOR_MAP : Texture
         }
 
@@ -74,8 +77,8 @@ MaterialDef Point Sprite {
 
     Technique SoftParticles{
 
-        VertexShader  GLSL100 GLSL150 : Common/MatDefs/Misc/SoftParticle.vert
-        FragmentShader GLSL120 GLSL150 : Common/MatDefs/Misc/SoftParticle.frag
+        VertexShader   GLSL300 GLSL150 GLSL100: Common/MatDefs/Misc/SoftParticle.vert
+        FragmentShader GLSL300 GLSL150 GLSL100: Common/MatDefs/Misc/SoftParticle.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -91,6 +94,7 @@ MaterialDef Point Sprite {
         }
 
         Defines {
+            BOUND_DRAW_BUFFER: BoundDrawBuffer
             USE_TEXTURE : Texture
             POINT_SPRITE : PointSprite
             RESOLVE_DEPTH_MS : NumSamplesDepth
@@ -99,14 +103,15 @@ MaterialDef Point Sprite {
 
    Technique Glow {
 
-        VertexShader GLSL100 GLSL150:   Common/MatDefs/Misc/Unshaded.vert
-        FragmentShader GLSL100 GLSL150: Common/MatDefs/Light/Glow.frag
+        VertexShader   GLSL300 GLSL150 GLSL100:   Common/MatDefs/Misc/Unshaded.vert
+        FragmentShader GLSL300 GLSL150 GLSL100:   Common/MatDefs/Light/Glow.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
         }
 
         Defines {
+            BOUND_DRAW_BUFFER: BoundDrawBuffer
             NEED_TEXCOORD1
             HAS_GLOWMAP : GlowMap
             HAS_GLOWCOLOR : GlowColor

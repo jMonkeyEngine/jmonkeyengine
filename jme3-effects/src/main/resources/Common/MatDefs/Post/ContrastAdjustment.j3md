@@ -4,6 +4,7 @@
 MaterialDef ColorAdjustmentFilter {
 
     MaterialParameters {
+        Int BoundDrawBuffer
         Int NumSamples
         Texture2D Texture
         Float redChannelExponent
@@ -15,14 +16,17 @@ MaterialDef ColorAdjustmentFilter {
         Float greenChannelScale
         Float blueChannelScale
     }
+ 
 
     Technique {
-        VertexShader GLSL150 GLSL300 GLSL310 GLSL320:   Common/MatDefs/Post/Post15.vert
-        FragmentShader GLSL150 GLSL300 GLSL310 GLSL320: Common/MatDefs/Post/ContrastAdjustment15.frag
-    }
+        VertexShader    GLSL300 GLSL150 GLSL100:    Common/MatDefs/Post/Post.vert
+        FragmentShader  GLSL300 GLSL150 GLSL100:  Common/MatDefs/Post/ContrastAdjustment.frag
+        WorldParameters {
+        }
 
-    Technique {
-        VertexShader  GLSL100 GLSL110 GLSL120 GLSL130:   Common/MatDefs/Post/Post.vert
-        FragmentShader GLSL100 GLSL110 GLSL120 GLSL130:  Common/MatDefs/Post/ContrastAdjustment.frag
+        Defines {
+            BOUND_DRAW_BUFFER: BoundDrawBuffer
+            NUM_SAMPLES : NumSamples
+        }
     }
 }

@@ -1,6 +1,7 @@
 MaterialDef Cartoon Edge {
 
     MaterialParameters {
+        Int BoundDrawBuffer
         Int NumSamples
         Int NumSamplesDepth
         Texture2D Texture
@@ -16,8 +17,8 @@ MaterialDef Cartoon Edge {
     }
 
      Technique {
-        VertexShader GLSL150 GLSL100:   Common/MatDefs/Post/Post.vert
-        FragmentShader GLSL150 GLSL100: Common/MatDefs/Post/CartoonEdge.frag
+        VertexShader   GLSL300 GLSL150 GLSL100 :   Common/MatDefs/Post/Post.vert
+        FragmentShader GLSL300 GLSL150 GLSL100 :   Common/MatDefs/Post/CartoonEdge.frag
 
         WorldParameters {
             WorldViewMatrix
@@ -25,6 +26,7 @@ MaterialDef Cartoon Edge {
         }
 
         Defines {
+            BOUND_DRAW_BUFFER: BoundDrawBuffer
             RESOLVE_MS : NumSamples
             RESOLVE_DEPTH_MS : NumSamplesDepth
         }
