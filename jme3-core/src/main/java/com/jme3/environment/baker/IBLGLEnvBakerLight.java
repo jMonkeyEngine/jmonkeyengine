@@ -87,7 +87,7 @@ public class IBLGLEnvBakerLight extends IBLHybridEnvBakerLight {
         
         float remapMaxValue = 0;
         Format format = Format.RGBA32F;
-        if (!renderManager.getRenderer().getCaps().contains(Caps.FloatTexture)) {
+        if (!renderManager.getRenderer().getCaps().contains(Caps.FloatColorBufferRGBA)) {
             LOG.warning("Float textures not supported, using RGB8 instead. This may cause accuracy issues.");
             format = Format.RGBA8;
             remapMaxValue = 0.05f;
@@ -106,10 +106,16 @@ public class IBLGLEnvBakerLight extends IBLHybridEnvBakerLight {
         };
 
 
-        FrameBuffer shbaker = new FrameBuffer(NUM_SH_COEFFICIENT, 1, 1);
-        shbaker.setSrgb(false);
-        shbaker.addColorTarget(FrameBufferTarget.newTarget(shCoefTx[0]));
-        shbaker.addColorTarget(FrameBufferTarget.newTarget(shCoefTx[1]));
+        FrameBuffer shbaker[] = {
+            new FrameBuffer(NUM_SH_COEFFICIENT, 1, 1),
+            new FrameBuffer(NUM_SH_COEFFICIENT, 1, 1)
+        };
+        shbaker[0].setSrgb(false);
+        shbaker[0].addColorTarget(FrameBufferTarget.newTarget(shCoefTx[0]));
+
+        shbaker[1].setSrgb(false);
+        shbaker[1].addColorTarget(FrameBufferTarget.newTarget(shCoefTx[1]));
+        
 
         int renderOnT = -1;
 
@@ -125,19 +131,17 @@ public class IBLGLEnvBakerLight extends IBLHybridEnvBakerLight {
 
             screen.updateLogicalState(0);
             screen.updateGeometricState();
-
-            shbaker.setTargetIndex(renderOnT);  
             
-            renderManager.setCamera(getCam(0, shbaker.getWidth(), shbaker.getHeight(), Vector3f.ZERO, 1, 1000), false);
-            renderManager.getRenderer().setFrameBuffer(shbaker);
+            renderManager.setCamera(getCam(0, shbaker[renderOnT].getWidth(), shbaker[renderOnT].getHeight(), Vector3f.ZERO, 1, 1000), false);
+            renderManager.getRenderer().setFrameBuffer(shbaker[renderOnT]);
             renderManager.renderGeometry(screen);
         }
 
             
         ByteBuffer shCoefRaw = BufferUtils.createByteBuffer(
-            NUM_SH_COEFFICIENT * 1 * ( shbaker.getColorTarget().getFormat().getBitsPerPixel() / 8)
+            NUM_SH_COEFFICIENT * 1 * ( shbaker[renderOnT].getColorTarget().getFormat().getBitsPerPixel() / 8)
         );
-        renderManager.getRenderer().readFrameBufferWithFormat(shbaker, shCoefRaw, shbaker.getColorTarget().getFormat());
+        renderManager.getRenderer().readFrameBufferWithFormat(shbaker[renderOnT], shCoefRaw, shbaker[renderOnT].getColorTarget().getFormat());
         shCoefRaw.rewind();
 
         Image img = new Image(format, NUM_SH_COEFFICIENT, 1, shCoefRaw, ColorSpace.Linear);

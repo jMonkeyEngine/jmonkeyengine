@@ -153,17 +153,21 @@ public abstract class GenericEnvBaker implements EnvBaker {
 
     @Override
     public void bakeEnvironment(Spatial scene, Vector3f position, float frustumNear, float frustumFar, Function<Geometry, Boolean> filter) {
-        FrameBuffer envbaker = new FrameBuffer(env.getImage().getWidth(), env.getImage().getHeight(), 1);
+        FrameBuffer envbakers[] = new FrameBuffer[6];
+        for (int i = 0; i < 6; i++) {
+            envbakers[i] = new FrameBuffer(env.getImage().getWidth(), env.getImage().getHeight(), 1);
+            envbakers[i].setDepthTarget(FrameBufferTarget.newTarget(depthFormat));
+            envbakers[i].setSrgb(false);
+            envbakers[i].addColorTarget(FrameBufferTarget.newTarget(env).face(TextureCubeMap.Face.values()[i]));
+        }
 
-        envbaker.setDepthTarget(FrameBufferTarget.newTarget(depthFormat));
-        envbaker.setSrgb(false);
+       
 
         if(isTexturePulling())startPulling();
 
-        for (int i = 0; i < 6; i++) envbaker.addColorTarget(FrameBufferTarget.newTarget(env).face(TextureCubeMap.Face.values()[i]));
 
         for (int i = 0; i < 6; i++) {
-            envbaker.setTargetIndex(i);
+            FrameBuffer envbaker = envbakers[i];
 
             ViewPort viewPort = new ViewPort("EnvBaker", getCam(i, envbaker.getWidth(), envbaker.getHeight(), position, frustumNear, frustumFar));
             viewPort.setClearFlags(true, true, true);
@@ -187,8 +191,10 @@ public abstract class GenericEnvBaker implements EnvBaker {
         }
 
         if (isTexturePulling()) endPulling(env);
-        env.getImage().clearUpdateNeeded();           
-        envbaker.dispose();
+        env.getImage().clearUpdateNeeded();
+        for (int i = 0; i < 6; i++) {
+            envbakers[i].dispose();
+        }
     }
     
 
