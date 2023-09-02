@@ -1,6 +1,7 @@
 MaterialDef IBLKernels {
     
     MaterialParameters {
+        Int BoundDrawBuffer
         TextureCubeMap EnvMap -LINEAR
         Float Roughness
         Int FaceId : 0
@@ -11,8 +12,8 @@ MaterialDef IBLKernels {
 
     Technique {
     
-        VertexShader GLSL150:  Common/IBL/IBLKernels.vert
-        FragmentShader GLSL150:  Common/IBL/IBLKernels.frag
+        VertexShader   GLSL300 GLSL150 :  Common/IBL/IBLKernels.vert
+        FragmentShader GLSL300 GLSL150 :  Common/IBL/IBLKernels.frag
 
         WorldParameters {
             WorldMatrix
@@ -28,6 +29,7 @@ MaterialDef IBLKernels {
         }
 
         Defines {
+            BOUND_DRAW_BUFFER: BoundDrawBuffer
             BRDF:UseBRDF
             IRRADIANCE: UseIrradiance
             SIBL: UseSpecularIBL

@@ -4,9 +4,9 @@
 *               https://learnopengl.com/PBR/IBL/Specular-IBL
 *   - Riccardo Balbo
 */
-#import "Common/IBL/Math.glsllib"
+#import "Common/ShaderLib/GLSLCompat.glsllib"
+#import "Common/IBL/Math.glsl"
 
-out vec4 outFragColor;
 in vec2 TexCoords;
 in vec3 LocalPos;
 
@@ -17,6 +17,7 @@ uniform int m_FaceId;
 void brdfKernel(){
     float NdotV=TexCoords.x;
     float m_Roughness=TexCoords.y;
+
     vec3 V;
     V.x = sqrt(1.0 - NdotV*NdotV);
     V.y = 0.0;
@@ -26,8 +27,8 @@ void brdfKernel(){
     vec3 N = vec3(0.0, 0.0, 1.0);
     const uint SAMPLE_COUNT = 1024u;
     for(uint i = 0u; i < SAMPLE_COUNT; i++){
-        vec2 Xi = Hammersley(i, SAMPLE_COUNT);
-        vec3 H  = ImportanceSampleGGX(Xi, N, m_Roughness);
+        vec4 Xi = Hammersley(i, SAMPLE_COUNT);
+        vec3 H  = ImportanceSampleGGX(Xi, m_Roughness, N);
         vec3 L  = normalize(2.0 * dot(V, H) * H - V);
         float NdotL = max(L.z, 0.0);
         float NdotH = max(H.z, 0.0);
@@ -73,13 +74,19 @@ void prefilteredEnvKernel(){
     vec3 N = normalize(LocalPos);    
     vec3 R = N;
     vec3 V = R;
+
+    // float a2 = m_Roughness;
+    float a2 = m_Roughness * m_Roughness; // jme impl, why?
+    a2 *= a2;
+
     const uint SAMPLE_COUNT = 1024u;
     float totalWeight = 0.0;   
     vec3 prefilteredColor = vec3(0.0);     
     for(uint i = 0u; i < SAMPLE_COUNT; ++i) {
-        vec2 Xi = Hammersley(i, SAMPLE_COUNT);
-        vec3 H  = ImportanceSampleGGX(Xi, N, m_Roughness);
-        vec3 L  = normalize(2.0 * dot(V, H) * H - V);
+        vec4 Xi = Hammersley(i, SAMPLE_COUNT);
+        vec3 H  = ImportanceSampleGGX(Xi, a2, N);
+        float VoH = dot(V,H);
+        vec3 L  = normalize(2.0 * VoH * H - V);
         float NdotL = max(dot(N, L), 0.0);
         if(NdotL > 0.0) {
             // TODO: use mipmap

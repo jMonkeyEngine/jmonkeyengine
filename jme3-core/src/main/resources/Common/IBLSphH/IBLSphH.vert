@@ -1,3 +1,5 @@
+#import "Common/ShaderLib/GLSLCompat.glsllib"
+
 /**
 *- Riccardo Balbo
 */

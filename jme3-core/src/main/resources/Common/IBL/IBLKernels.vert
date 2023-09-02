@@ -1,3 +1,5 @@
+#import "Common/ShaderLib/GLSLCompat.glsllib"
+
 /**
 *   This code is based on the following articles:
 *               https://learnopengl.com/PBR/IBL/Diffuse-irradiance

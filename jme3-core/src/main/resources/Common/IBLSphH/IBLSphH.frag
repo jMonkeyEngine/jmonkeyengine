@@ -2,14 +2,14 @@
 
 *   - Riccardo Balbo
 */
-#import "Common/IBL/Math.glsllib"
+#import "Common/ShaderLib/GLSLCompat.glsllib"
+#import "Common/IBL/Math.glsl"
 
 // #define NUM_SH_COEFFICIENT 9
 #ifndef PI
     #define PI 3.1415926535897932384626433832795
 #endif
 
-out vec4 outFragColor;
 in vec2 TexCoords;
 in vec3 LocalPos;
 
@@ -22,9 +22,9 @@ uniform vec2 m_Resolution;
 uniform int m_FaceId;
 
 const float sqrtPi = sqrt(PI);
-const float sqrt3Pi = sqrt(3 / PI);
-const float sqrt5Pi = sqrt(5 / PI);
-const float sqrt15Pi = sqrt(15 / PI);
+const float sqrt3Pi = sqrt(3. / PI);
+const float sqrt5Pi = sqrt(5. / PI);
+const float sqrt15Pi = sqrt(15. / PI);
 
 #ifdef REMAP_MAX_VALUE
     uniform float m_RemapMaxValue;
@@ -42,31 +42,31 @@ vec3 getVectorFromCubemapFaceTexCoord(float x, float y, float mapSize, int face)
     
 
     // Warp texel centers in the proximity of the edges.
-    float a = pow(mapSize, 2.0) / pow(mapSize - 1, 3.0);
+    float a = pow(mapSize, 2.0) / pow(mapSize - 1., 3.0);
 
-    u = a * pow(u, 3) + u;
-    v = a * pow(v, 3) + v;
+    u = a * pow(u, 3.) + u;
+    v = a * pow(v, 3.) + v;
     //compute vector depending on the face
     // Code from Nvtt : https://github.com/castano/nvidia-texture-tools/blob/master/src/nvtt/CubeSurface.cpp#L101
     vec3 o =vec3(0);
     switch(face) {
         case 0:
-            o= normalize(vec3(1, -v, -u));
+            o= normalize(vec3(1., -v, -u));
             break;
         case 1:
-            o= normalize(vec3(-1, -v, u));
+            o= normalize(vec3(-1., -v, u));
             break;
         case 2:
-            o= normalize(vec3(u, 1, v));
+            o= normalize(vec3(u, 1., v));
             break;
         case 3:
-            o= normalize(vec3(u, -1, -v));
+            o= normalize(vec3(u, -1., -v));
             break;
         case 4:
-            o= normalize(vec3(u, -v, 1));
+            o= normalize(vec3(u, -v, 1.));
             break;
         case 5:
-            o= normalize(vec3(-u, -v, -1.0));
+            o= normalize(vec3(-u, -v, -1.));
             break;
     }
 
@@ -148,8 +148,8 @@ void sphKernel() {
     int width = int(m_Resolution.x);
     int height = int(m_Resolution.y);
     vec3 texelVect=vec3(0);    
-    float shDir=0;
-    float weight=0;
+    float shDir=0.;
+    float weight=0.;
     vec4 color=vec4(0);
 
     int i=int(gl_FragCoord.x);
