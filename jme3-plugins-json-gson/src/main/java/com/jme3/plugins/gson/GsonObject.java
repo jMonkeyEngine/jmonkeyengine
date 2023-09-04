@@ -72,7 +72,7 @@ class GsonObject extends GsonElement implements JsonObject {
     @Override
     public JsonElement get(String string) {
         com.google.gson.JsonElement el = obj().get(string);
-        return isNull(el) ? null : new GsonElement(el);
+        return isNull(el)?null:new GsonElement(el).autoCast();
     }
 
     @Override
@@ -90,7 +90,7 @@ class GsonObject extends GsonElement implements JsonObject {
 
                 @Override
                 public GsonElement getValue() {
-                    return new GsonElement(entry.getValue());
+                    return new GsonElement(entry.getValue()).autoCast();
                 }
 
                 @Override

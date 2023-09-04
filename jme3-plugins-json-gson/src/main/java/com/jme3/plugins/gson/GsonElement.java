@@ -91,5 +91,14 @@ class GsonElement implements JsonElement {
     public JsonPrimitive getAsJsonPrimitive() {
         return new GsonPrimitive(element.getAsJsonPrimitive());
     }
+
+    @SuppressWarnings("unchecked")
+    public <T extends JsonElement> T autoCast() {
+        if(isNull(element)) return null;
+        if (element.isJsonArray()) return (T) new GsonArray(element.getAsJsonArray());
+        if (element.isJsonObject()) return (T) new GsonObject(element.getAsJsonObject());
+        if (element.isJsonPrimitive()) return (T) new GsonPrimitive(element.getAsJsonPrimitive());
+        return (T) new GsonElement(element);
+    }
     
 }

@@ -80,17 +80,23 @@ public interface JsonElement {
      */
     public JsonArray getAsJsonArray();
 
-
     /**
      * Returns the object as a Number
      * @return the Number
      */
-    Number getAsNumber();
+    public Number getAsNumber();
 
 
     /**
      * Returns the object as a JsonPrimitive
-     * @return
+     * @return the json primitive
      */
-    JsonPrimitive getAsJsonPrimitive();
+    public JsonPrimitive getAsJsonPrimitive();
+
+    /**
+     * Cast this JsonElement to a specific type
+     * @return the casted JsonElement
+     */
+    public <T extends JsonElement> T autoCast();
+
 }
