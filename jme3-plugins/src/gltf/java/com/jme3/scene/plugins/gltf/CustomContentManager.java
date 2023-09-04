@@ -34,10 +34,17 @@ package com.jme3.scene.plugins.gltf;
 import com.jme3.asset.AssetLoadException;
 import com.jme3.plugins.json.JsonArray;
 import com.jme3.plugins.json.JsonElement;
+import com.jme3.scene.plugins.gltf.ext.JME_speaker.SpeakerExtensionLoader;
+import com.jme3.scene.plugins.gltf.ext.KHR_lights_punctual.LightsPunctualExtensionLoader;
+import com.jme3.scene.plugins.gltf.ext.KHR_materials_pbrSpecularGlossiness.PBRSpecGlossExtensionLoader;
+import com.jme3.scene.plugins.gltf.ext.KHR_materials_unlit.UnlitExtensionLoader;
+import com.jme3.scene.plugins.gltf.ext.KHR_texture_transform.TextureTransformExtensionLoader;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -51,13 +58,19 @@ public class CustomContentManager {
     private GltfModelKey key;
     private GltfLoader gltfLoader;
 
-    private final Map<String, ExtensionLoader> defaultExtensionLoaders = new HashMap<>();
+    static final Map<String, Class<? extends ExtensionLoader>> defaultExtensionLoaders = new ConcurrentHashMap<>();
+    static {
+        defaultExtensionLoaders.put("KHR_materials_pbrSpecularGlossiness", PBRSpecGlossExtensionLoader.class);
+        defaultExtensionLoaders.put("KHR_lights_punctual", LightsPunctualExtensionLoader.class);
+        defaultExtensionLoaders.put("KHR_materials_unlit", UnlitExtensionLoader.class);
+        defaultExtensionLoaders.put("KHR_texture_transform", TextureTransformExtensionLoader.class);
+        defaultExtensionLoaders.put("JME_speaker", SpeakerExtensionLoader.class);
+    }
+    
+    private final Map<String, ExtensionLoader> loadedExtensionLoaders = new HashMap<>();
 
     public CustomContentManager() {
-        defaultExtensionLoaders.put("KHR_materials_pbrSpecularGlossiness", new PBRSpecGlossExtensionLoader());
-        defaultExtensionLoaders.put("KHR_lights_punctual", new LightsPunctualExtensionLoader());
-        defaultExtensionLoaders.put("KHR_materials_unlit", new UnlitExtensionLoader());
-        defaultExtensionLoaders.put("KHR_texture_transform", new TextureTransformExtensionLoader());
+    
     }
 
     void init(GltfLoader gltfLoader) {
@@ -106,12 +119,29 @@ public class CustomContentManager {
 
         for (Map.Entry<String, JsonElement> ext : extensions.getAsJsonObject().entrySet()) {
             ExtensionLoader loader = null;
+
             if (key != null) {
                 loader = key.getExtensionLoader(ext.getKey());
             }
+
             if (loader == null) {
-                loader = defaultExtensionLoaders.get(ext.getKey());
+                loader = loadedExtensionLoaders.get(ext.getKey());
+                if (loader == null) {
+                    try {
+                        Class<? extends ExtensionLoader> clz = defaultExtensionLoaders.get(ext.getKey());
+                        if (clz != null) {
+                            loader = clz.getDeclaredConstructor().newInstance();
+                        }
+                    } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+                        logger.log(Level.WARNING, "Could not instantiate loader", e);
+                    }
+
+                    if (loader != null) {
+                        loadedExtensionLoaders.put(ext.getKey(), loader);
+                    }
+                }
             }
+            
 
             if (loader == null) {
                 logger.log(Level.WARNING, "Could not find loader for extension " + ext.getKey());

@@ -1446,8 +1446,7 @@ public class GltfLoader implements AssetLoader {
     private class JointArrayPopulator implements Populator<SkinBuffers> {
 
         @Override
-        public SkinBuffers populate(Integer bufferViewIndex, int componentType, String type, int count,
-                int byteOffset, boolean normalized) throws IOException {
+        public SkinBuffers populate(Integer bufferViewIndex, int componentType, String type, int count, int byteOffset, boolean normalized) throws IOException {
             int numComponents = getNumberOfComponents(type);
 
             // can be bytes or shorts.
@@ -1468,5 +1467,15 @@ public class GltfLoader implements AssetLoader {
 
             return new SkinBuffers(data, format.getComponentSize());
         }
+    }
+    
+
+    public static void registerExtension(String name, Class<? extends ExtensionLoader> ext) {
+        CustomContentManager.defaultExtensionLoaders.put(name, ext);        
+    }
+    
+
+    public static void unregisterExtension(String name) {
+        CustomContentManager.defaultExtensionLoaders.remove(name);
     }
 }

@@ -63,7 +63,7 @@ public abstract class MaterialAdapter {
 
     protected abstract MatParam adaptMatParam(MatParam param);
 
-    protected void init(AssetManager assetManager) {
+    public void init(AssetManager assetManager) {
         this.assetManager = assetManager;
         this.reset();
     }

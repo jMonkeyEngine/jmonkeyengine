@@ -29,19 +29,23 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.scene.plugins.gltf;
+package com.jme3.scene.plugins.gltf.ext.KHR_texture_transform;
 
-import com.jme3.plugins.json.JsonArray;
-import com.jme3.plugins.json.JsonObject;
-import com.jme3.plugins.json.JsonElement;
 import com.jme3.asset.AssetLoadException;
 import com.jme3.math.Matrix3f;
 import com.jme3.math.Vector3f;
+import com.jme3.plugins.json.JsonArray;
+import com.jme3.plugins.json.JsonElement;
+import com.jme3.plugins.json.JsonObject;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer;
+import com.jme3.scene.plugins.gltf.ExtensionLoader;
+import com.jme3.scene.plugins.gltf.GltfLoader;
+import com.jme3.texture.Texture2D;
+
 import static com.jme3.scene.plugins.gltf.GltfUtils.getAsInteger;
 import static com.jme3.scene.plugins.gltf.GltfUtils.getVertexBufferType;
-import com.jme3.texture.Texture2D;
+
 import java.io.IOException;
 import java.nio.FloatBuffer;
 import java.util.HashMap;
@@ -62,6 +66,7 @@ public class TextureTransformExtensionLoader implements ExtensionLoader {
     
     private final static Logger logger = Logger.getLogger(TextureTransformExtensionLoader.class.getName());
         
+    public TextureTransformExtensionLoader(){}
     /**
      * Scale/rotate/translate UV coordinates based on a transformation matrix.
      * Code adapted from scaleTextureCoordinates(Vector2f) in jme3-core/src/main/java/com/jme3/scene/Mesh.java

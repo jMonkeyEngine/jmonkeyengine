@@ -29,8 +29,9 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.scene.plugins.gltf;
+package com.jme3.scene.plugins.gltf.ext.KHR_lights_punctual;
 
+ 
 import com.jme3.plugins.json.JsonArray;
 import com.jme3.plugins.json.JsonObject;
 import com.jme3.plugins.json.JsonElement;
@@ -44,6 +45,10 @@ import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
 import com.jme3.scene.control.LightControl;
+import com.jme3.scene.plugins.gltf.ExtensionLoader;
+import com.jme3.scene.plugins.gltf.GltfLoader;
+import com.jme3.scene.plugins.gltf.GltfUtils;
+
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -59,6 +64,10 @@ public class LightsPunctualExtensionLoader implements ExtensionLoader {
 
     private final HashSet<NodeNeedingLight> pendingNodes = new HashSet<>();
     private final HashMap<Integer, Light> lightDefinitions = new HashMap<>();
+
+    public LightsPunctualExtensionLoader() {
+        
+    }
 
     @Override
     public Object handleExtension(GltfLoader loader, String parentName, JsonElement parent, JsonElement extension, Object input) {

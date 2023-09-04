@@ -29,9 +29,13 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.scene.plugins.gltf;
-import com.jme3.plugins.json.JsonElement;
+package com.jme3.scene.plugins.gltf.ext.KHR_materials_unlit;
+import com.jme3.scene.plugins.gltf.ExtensionLoader;
+import com.jme3.scene.plugins.gltf.GltfLoader;
+import com.jme3.scene.plugins.gltf.GltfModelKey;
+import com.jme3.scene.plugins.gltf.MaterialAdapter;
 import com.jme3.asset.AssetKey;
+import com.jme3.plugins.json.JsonElement;
 
 /**
  * Material adapter for the Unlit pipeline
@@ -40,6 +44,8 @@ import com.jme3.asset.AssetKey;
 public class UnlitExtensionLoader implements ExtensionLoader {
 
     private final UnlitMaterialAdapter materialAdapter = new UnlitMaterialAdapter();
+
+    public UnlitExtensionLoader() {}
 
     @Override
     public Object handleExtension(GltfLoader loader, String parentName, JsonElement parent, JsonElement extension, Object input) {

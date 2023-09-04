@@ -29,14 +29,19 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.scene.plugins.gltf;
+package com.jme3.scene.plugins.gltf.ext.KHR_materials_pbrSpecularGlossiness;
 
 import com.jme3.asset.AssetKey;
 
-import java.io.IOException;
-import com.jme3.plugins.json.JsonElement;
 import static com.jme3.scene.plugins.gltf.GltfUtils.getAsColor;
 import static com.jme3.scene.plugins.gltf.GltfUtils.getAsFloat;
+
+import java.io.IOException;
+import com.jme3.plugins.json.JsonElement;
+import com.jme3.scene.plugins.gltf.ExtensionLoader;
+import com.jme3.scene.plugins.gltf.GltfLoader;
+import com.jme3.scene.plugins.gltf.GltfModelKey;
+import com.jme3.scene.plugins.gltf.MaterialAdapter;
 
 /**
  * Material adapter for PBR Specular Glossiness pipeline
@@ -45,6 +50,8 @@ import static com.jme3.scene.plugins.gltf.GltfUtils.getAsFloat;
 public class PBRSpecGlossExtensionLoader implements ExtensionLoader {
 
     private PBRSpecGlossMaterialAdapter materialAdapter = new PBRSpecGlossMaterialAdapter();
+
+    public PBRSpecGlossExtensionLoader(){}
 
     @Override
     public Object handleExtension(GltfLoader loader, String parentName, JsonElement parent, JsonElement extension, Object input) throws IOException {
