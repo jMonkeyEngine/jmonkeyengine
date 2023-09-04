@@ -39,7 +39,6 @@ import com.jme3.scene.plugins.gltf.ext.KHR_lights_punctual.LightsPunctualExtensi
 import com.jme3.scene.plugins.gltf.ext.KHR_materials_pbrSpecularGlossiness.PBRSpecGlossExtensionLoader;
 import com.jme3.scene.plugins.gltf.ext.KHR_materials_unlit.UnlitExtensionLoader;
 import com.jme3.scene.plugins.gltf.ext.KHR_texture_transform.TextureTransformExtensionLoader;
-
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
@@ -53,12 +52,14 @@ import java.util.logging.Logger;
  */
 public class CustomContentManager {
 
-    private final static Logger logger = Logger.getLogger(CustomContentManager.class.getName());
+    private static final Logger logger = Logger.getLogger(CustomContentManager.class.getName());
 
     private GltfModelKey key;
     private GltfLoader gltfLoader;
 
-    static final Map<String, Class<? extends ExtensionLoader>> defaultExtensionLoaders = new ConcurrentHashMap<>();
+    static final Map<String, Class<? extends ExtensionLoader>> defaultExtensionLoaders =
+        new ConcurrentHashMap<>();
+
     static {
         defaultExtensionLoaders.put("KHR_materials_pbrSpecularGlossiness", PBRSpecGlossExtensionLoader.class);
         defaultExtensionLoaders.put("KHR_lights_punctual", LightsPunctualExtensionLoader.class);
@@ -66,12 +67,10 @@ public class CustomContentManager {
         defaultExtensionLoaders.put("KHR_texture_transform", TextureTransformExtensionLoader.class);
         defaultExtensionLoaders.put("JME_speaker", SpeakerExtensionLoader.class);
     }
-    
+
     private final Map<String, ExtensionLoader> loadedExtensionLoaders = new HashMap<>();
 
-    public CustomContentManager() {
-    
-    }
+    public CustomContentManager() {}
 
     void init(GltfLoader gltfLoader) {
         this.gltfLoader = gltfLoader;
@@ -85,8 +84,16 @@ public class CustomContentManager {
             for (JsonElement extElem : extensionUsed) {
                 String ext = extElem.getAsString();
                 if (ext != null) {
-                    if (defaultExtensionLoaders.get(ext) == null && (this.key != null && this.key.getExtensionLoader(ext) == null)) {
-                        logger.log(Level.WARNING, "Extension " + ext + " is not supported, please provide your own implementation in the GltfModelKey");
+                    if (
+                        defaultExtensionLoaders.get(ext) == null &&
+                        (this.key != null && this.key.getExtensionLoader(ext) == null)
+                    ) {
+                        logger.log(
+                            Level.WARNING,
+                            "Extension " +
+                            ext +
+                            " is not supported, please provide your own implementation in the GltfModelKey"
+                        );
                     }
                 }
             }
@@ -96,15 +103,24 @@ public class CustomContentManager {
             for (JsonElement extElem : extensionRequired) {
                 String ext = extElem.getAsString();
                 if (ext != null) {
-                    if (defaultExtensionLoaders.get(ext) == null && (this.key != null && this.key.getExtensionLoader(ext) == null)) {
-                        logger.log(Level.SEVERE, "Extension " + ext + " is mandatory for this file, the loaded scene result will be unexpected.");
+                    if (
+                        defaultExtensionLoaders.get(ext) == null &&
+                        (this.key != null && this.key.getExtensionLoader(ext) == null)
+                    ) {
+                        logger.log(
+                            Level.SEVERE,
+                            "Extension " +
+                            ext +
+                            " is mandatory for this file, the loaded scene result will be unexpected."
+                        );
                     }
                 }
             }
         }
     }
 
-    public <T> T readExtensionAndExtras(String name, JsonElement el, T input) throws AssetLoadException, IOException {
+    public <T> T readExtensionAndExtras(String name, JsonElement el, T input)
+        throws AssetLoadException, IOException {
         T output = readExtension(name, el, input);
         output = readExtras(name, el, output);
         return output;
@@ -132,7 +148,14 @@ public class CustomContentManager {
                         if (clz != null) {
                             loader = clz.getDeclaredConstructor().newInstance();
                         }
-                    } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+                    } catch (
+                        InstantiationException
+                        | IllegalAccessException
+                        | IllegalArgumentException
+                        | InvocationTargetException
+                        | NoSuchMethodException
+                        | SecurityException e
+                    ) {
                         logger.log(Level.WARNING, "Could not instantiate loader", e);
                     }
 
@@ -141,7 +164,6 @@ public class CustomContentManager {
                     }
                 }
             }
-            
 
             if (loader == null) {
                 logger.log(Level.WARNING, "Could not find loader for extension " + ext.getKey());
@@ -151,7 +173,15 @@ public class CustomContentManager {
             try {
                 return (T) loader.handleExtension(gltfLoader, name, el, ext.getValue(), input);
             } catch (ClassCastException e) {
-                throw new AssetLoadException("Extension loader " + loader.getClass().getName() + " for extension " + ext.getKey() + " is incompatible with type " + input.getClass(), e);
+                throw new AssetLoadException(
+                    "Extension loader " +
+                    loader.getClass().getName() +
+                    " for extension " +
+                    ext.getKey() +
+                    " is incompatible with type " +
+                    input.getClass(),
+                    e
+                );
             }
         }
 
@@ -169,7 +199,7 @@ public class CustomContentManager {
                 return input;
             }
         }
-        
+
         JsonElement extras = el.getAsJsonObject().getAsJsonObject("extras");
         if (extras == null) {
             return input;
@@ -178,10 +208,15 @@ public class CustomContentManager {
         try {
             return (T) loader.handleExtras(gltfLoader, name, el, extras, input);
         } catch (ClassCastException e) {
-            throw new AssetLoadException("Extra loader " + loader.getClass().getName() + " for " + name + " is incompatible with type " + input.getClass(), e);
+            throw new AssetLoadException(
+                "Extra loader " +
+                loader.getClass().getName() +
+                " for " +
+                name +
+                " is incompatible with type " +
+                input.getClass(),
+                e
+            );
         }
-
     }
-
-
 }

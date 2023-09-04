@@ -31,6 +31,9 @@
  */
 package com.jme3.scene.plugins.gltf.ext.KHR_texture_transform;
 
+import static com.jme3.scene.plugins.gltf.GltfUtils.getAsInteger;
+import static com.jme3.scene.plugins.gltf.GltfUtils.getVertexBufferType;
+
 import com.jme3.asset.AssetLoadException;
 import com.jme3.math.Matrix3f;
 import com.jme3.math.Vector3f;
@@ -42,10 +45,6 @@ import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.plugins.gltf.ExtensionLoader;
 import com.jme3.scene.plugins.gltf.GltfLoader;
 import com.jme3.texture.Texture2D;
-
-import static com.jme3.scene.plugins.gltf.GltfUtils.getAsInteger;
-import static com.jme3.scene.plugins.gltf.GltfUtils.getVertexBufferType;
-
 import java.io.IOException;
 import java.nio.FloatBuffer;
 import java.util.HashMap;
@@ -54,8 +53,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Thread-safe extension loader for KHR_texture_transform. 
- * It allows for UV coordinates to be scaled/rotated/translated  
+ * Thread-safe extension loader for KHR_texture_transform.
+ * It allows for UV coordinates to be scaled/rotated/translated
  * based on transformation properties from textures in the glTF model.
  *
  * See spec at https://github.com/KhronosGroup/glTF/tree/main/extensions/2.0/Khronos/KHR_texture_transform
@@ -63,17 +62,18 @@ import java.util.logging.Logger;
  * @author manuelrmo - Created on 11/20/2022
  */
 public class TextureTransformExtensionLoader implements ExtensionLoader {
-    
-    private final static Logger logger = Logger.getLogger(TextureTransformExtensionLoader.class.getName());
-        
-    public TextureTransformExtensionLoader(){}
+
+    private static final Logger logger = Logger.getLogger(TextureTransformExtensionLoader.class.getName());
+
+    public TextureTransformExtensionLoader() {}
+
     /**
      * Scale/rotate/translate UV coordinates based on a transformation matrix.
      * Code adapted from scaleTextureCoordinates(Vector2f) in jme3-core/src/main/java/com/jme3/scene/Mesh.java
      * @param mesh The mesh holding the UV coordinates
      * @param transform The matrix containing the scale/rotate/translate transformations
      * @param verType The vertex buffer type from which to retrieve the UV coordinates
-     */    
+     */
     private void uvTransform(Mesh mesh, Matrix3f transform, VertexBuffer.Type verType) {
         if (!transform.isIdentity()) { // if transform is the identity matrix, there's nothing to do
             VertexBuffer tc = mesh.getBuffer(verType);
@@ -96,16 +96,25 @@ public class TextureTransformExtensionLoader implements ExtensionLoader {
                 fb.put(v.getX()).put(v.getY());
             }
             fb.clear();
-            tc.updateData(fb);   
+            tc.updateData(fb);
         }
     }
-    
-    // The algorithm relies on the fact that the GltfLoader.class object 
-    // loads all textures of a given mesh before doing so for the next mesh.    
+
+    // The algorithm relies on the fact that the GltfLoader.class object
+    // loads all textures of a given mesh before doing so for the next mesh.
     @Override
-    public Object handleExtension(GltfLoader loader, String parentName, JsonElement parent, JsonElement extension, Object input) throws IOException {
+    public Object handleExtension(
+        GltfLoader loader,
+        String parentName,
+        JsonElement parent,
+        JsonElement extension,
+        Object input
+    ) throws IOException {
         if (!(input instanceof Texture2D)) {
-            logger.log(Level.WARNING, "KHR_texture_transform extension added on an unsupported element, the loaded scene result will be unexpected.");
+            logger.log(
+                Level.WARNING,
+                "KHR_texture_transform extension added on an unsupported element, the loaded scene result will be unexpected."
+            );
         }
         Mesh mesh = loader.fetchFromCache("mesh", 0, Mesh.class);
         if (mesh != null) {
@@ -118,7 +127,7 @@ public class TextureTransformExtensionLoader implements ExtensionLoader {
             if (jsonObject.has("offset")) {
                 JsonArray jsonArray = jsonObject.getAsJsonArray("offset");
                 translation.set(0, 2, jsonArray.get(0).getAsFloat());
-                translation.set(1, 2, jsonArray.get(1).getAsFloat());                    
+                translation.set(1, 2, jsonArray.get(1).getAsFloat());
             }
             if (jsonObject.has("rotation")) {
                 float rad = jsonObject.get("rotation").getAsFloat();
@@ -126,18 +135,22 @@ public class TextureTransformExtensionLoader implements ExtensionLoader {
                 rotation.set(0, 1, (float) Math.sin(rad));
                 rotation.set(1, 0, (float) -Math.sin(rad));
                 rotation.set(1, 1, (float) Math.cos(rad));
-            }                
+            }
             if (jsonObject.has("scale")) {
                 JsonArray jsonArray = jsonObject.getAsJsonArray("scale");
                 scale.set(0, 0, jsonArray.get(0).getAsFloat());
                 scale.set(1, 1, jsonArray.get(1).getAsFloat());
-            }     
+            }
             if (jsonObject.has("texCoord")) {
                 texCoord = jsonObject.get("texCoord").getAsInt(); // it overrides the parent's texCoord value
-            }                 
+            }
             Matrix3f transform = translation.mult(rotation).mult(scale);
             Mesh meshLast = loader.fetchFromCache("textureTransformData", 0, Mesh.class);
-            Map<Integer, Matrix3f> transformMap = loader.fetchFromCache("textureTransformData", 1, HashMap.class);
+            Map<Integer, Matrix3f> transformMap = loader.fetchFromCache(
+                "textureTransformData",
+                1,
+                HashMap.class
+            );
             if (mesh != meshLast || (transformMap != null && transformMap.get(texCoord) == null)) {
                 // at this point, we're processing a new mesh or the same mesh as before but for a different UV set
                 if (mesh != meshLast) { // it's a new mesh
@@ -151,18 +164,19 @@ public class TextureTransformExtensionLoader implements ExtensionLoader {
                 }
                 transformMap.put(texCoord, transform); // store the transformation matrix applied to this UV set
                 uvTransform(mesh, transform, getVertexBufferType("TEXCOORD_" + texCoord));
-                logger.log(Level.FINE, "KHR_texture_transform extension successfully applied."); 
-            }
-            else {
+                logger.log(Level.FINE, "KHR_texture_transform extension successfully applied.");
+            } else {
                 // at this point, we're processing the same mesh as before for an already transformed UV set
                 Matrix3f transformLast = transformMap.get(texCoord);
                 if (!transform.equals(transformLast)) {
-                    logger.log(Level.WARNING, "KHR_texture_transform extension: use of different texture transforms for the same mesh's UVs is not supported, the loaded scene result will be unexpected.");
+                    logger.log(
+                        Level.WARNING,
+                        "KHR_texture_transform extension: use of different texture transforms for the same mesh's UVs is not supported, the loaded scene result will be unexpected."
+                    );
                 }
             }
             return input;
-        }
-        else {
+        } else {
             throw new AssetLoadException("KHR_texture_transform extension applied to a null mesh.");
         }
     }

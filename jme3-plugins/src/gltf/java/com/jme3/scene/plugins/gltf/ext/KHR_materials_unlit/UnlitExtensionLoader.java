@@ -30,12 +30,13 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package com.jme3.scene.plugins.gltf.ext.KHR_materials_unlit;
+
+import com.jme3.asset.AssetKey;
+import com.jme3.plugins.json.JsonElement;
 import com.jme3.scene.plugins.gltf.ExtensionLoader;
 import com.jme3.scene.plugins.gltf.GltfLoader;
 import com.jme3.scene.plugins.gltf.GltfModelKey;
 import com.jme3.scene.plugins.gltf.MaterialAdapter;
-import com.jme3.asset.AssetKey;
-import com.jme3.plugins.json.JsonElement;
 
 /**
  * Material adapter for the Unlit pipeline
@@ -48,7 +49,13 @@ public class UnlitExtensionLoader implements ExtensionLoader {
     public UnlitExtensionLoader() {}
 
     @Override
-    public Object handleExtension(GltfLoader loader, String parentName, JsonElement parent, JsonElement extension, Object input) {
+    public Object handleExtension(
+        GltfLoader loader,
+        String parentName,
+        JsonElement parent,
+        JsonElement extension,
+        Object input
+    ) {
         MaterialAdapter adapter = materialAdapter;
         AssetKey key = loader.getInfo().getKey();
         //check for a custom adapter for spec/gloss pipeline

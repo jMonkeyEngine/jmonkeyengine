@@ -31,17 +31,16 @@
  */
 package com.jme3.scene.plugins.gltf.ext.KHR_materials_pbrSpecularGlossiness;
 
-import com.jme3.asset.AssetKey;
-
 import static com.jme3.scene.plugins.gltf.GltfUtils.getAsColor;
 import static com.jme3.scene.plugins.gltf.GltfUtils.getAsFloat;
 
-import java.io.IOException;
+import com.jme3.asset.AssetKey;
 import com.jme3.plugins.json.JsonElement;
 import com.jme3.scene.plugins.gltf.ExtensionLoader;
 import com.jme3.scene.plugins.gltf.GltfLoader;
 import com.jme3.scene.plugins.gltf.GltfModelKey;
 import com.jme3.scene.plugins.gltf.MaterialAdapter;
+import java.io.IOException;
 
 /**
  * Material adapter for PBR Specular Glossiness pipeline
@@ -51,10 +50,16 @@ public class PBRSpecGlossExtensionLoader implements ExtensionLoader {
 
     private PBRSpecGlossMaterialAdapter materialAdapter = new PBRSpecGlossMaterialAdapter();
 
-    public PBRSpecGlossExtensionLoader(){}
+    public PBRSpecGlossExtensionLoader() {}
 
     @Override
-    public Object handleExtension(GltfLoader loader, String parentName, JsonElement parent, JsonElement extension, Object input) throws IOException {
+    public Object handleExtension(
+        GltfLoader loader,
+        String parentName,
+        JsonElement parent,
+        JsonElement extension,
+        Object input
+    ) throws IOException {
         MaterialAdapter adapter = materialAdapter;
         AssetKey key = loader.getInfo().getKey();
         //check for a custom adapter for spec/gloss pipeline
@@ -71,8 +76,14 @@ public class PBRSpecGlossExtensionLoader implements ExtensionLoader {
         adapter.setParam("diffuseFactor", getAsColor(extension.getAsJsonObject(), "diffuseFactor"));
         adapter.setParam("specularFactor", getAsColor(extension.getAsJsonObject(), "specularFactor"));
         adapter.setParam("glossinessFactor", getAsFloat(extension.getAsJsonObject(), "glossinessFactor"));
-        adapter.setParam("diffuseTexture", loader.readTexture(extension.getAsJsonObject().getAsJsonObject("diffuseTexture")));
-        adapter.setParam("specularGlossinessTexture", loader.readTexture(extension.getAsJsonObject().getAsJsonObject("specularGlossinessTexture")));
+        adapter.setParam(
+            "diffuseTexture",
+            loader.readTexture(extension.getAsJsonObject().getAsJsonObject("diffuseTexture"))
+        );
+        adapter.setParam(
+            "specularGlossinessTexture",
+            loader.readTexture(extension.getAsJsonObject().getAsJsonObject("specularGlossinessTexture"))
+        );
 
         return adapter;
     }
