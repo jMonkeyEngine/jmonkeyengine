@@ -33,37 +33,56 @@
 package jme3test.renderer.pipeline;
 
 import com.jme3.app.SimpleApplication;
+import com.jme3.font.BitmapText;
+import com.jme3.input.KeyInput;
+import com.jme3.input.controls.ActionListener;
+import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.DirectionalLight;
 import com.jme3.light.PointLight;
 import com.jme3.material.Material;
-import com.jme3.math.*;
+import com.jme3.math.ColorRGBA;
+import com.jme3.math.FastMath;
+import com.jme3.math.Quaternion;
+import com.jme3.math.Vector3f;
+import com.jme3.renderer.RenderManager;
 import com.jme3.scene.Geometry;
+import com.jme3.scene.Node;
+import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Sphere;
-import com.jme3.util.MaterialDebugAppState;
 import com.jme3.util.TangentBinormalGenerator;
 
-public class TestSimpleDeferredLighting extends SimpleApplication {
+public class TestSimpleDeferredLighting extends SimpleApplication implements ActionListener {
+    private RenderManager.RenderPath currentRenderPath;
+    private Material mat;
+    private BitmapText hitText;
 
-    private float angle[];
-    private PointLight pl[];
-    private Geometry lightMdl[];
+    private int sceneId;
+
+    private float angle;
+    private float angles[];
+    private PointLight pl;
+    private PointLight pls[];
+    private Spatial lightMdl;
+    private Geometry lightMdls[];
 
     public static void main(String[] args){
         TestSimpleDeferredLighting app = new TestSimpleDeferredLighting();
         app.start();
     }
-
-    @Override
-    public void simpleInitApp() {
+    private void testScene1(){
+        sceneId = 0;
         Geometry teapot = (Geometry) assetManager.loadModel("Models/Teapot/Teapot.obj");
         TangentBinormalGenerator.generate(teapot.getMesh(), true);
 
         teapot.setLocalScale(2f);
-        Material mat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
-        mat.selectTechnique("DeferredLighting", getRenderManager());
+        renderManager.setSinglePassLightBatchSize(1);
+        mat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
+//        m_currentTechnique = TechniqueDef.DEFAULT_TECHNIQUE_NAME;
+//        mat.selectTechnique(m_currentTechnique, getRenderManager());
 //        mat.selectTechnique("GBuf");
+//        System.out.println("tech:" + mat.getMaterialDef().getTechniqueDefsNames().toString());
         mat.setFloat("Shininess", 25);
-        mat.setBoolean("UseMaterialColors", true);
+//        mat.setBoolean("UseMaterialColors", true);
         cam.setLocation(new Vector3f(0.015041917f, 0.4572918f, 5.2874837f));
         cam.setRotation(new Quaternion(-1.8875003E-4f, 0.99882424f, 0.04832061f, 0.0039016632f));
 
@@ -79,65 +98,144 @@ public class TestSimpleDeferredLighting extends SimpleApplication {
         mat.setColor("Ambient",  ColorRGBA.Black);
         mat.setColor("Diffuse",  ColorRGBA.Gray);
         mat.setColor("Specular", ColorRGBA.Gray);
-        
+
         teapot.setMaterial(mat);
         rootNode.attachChild(teapot);
 
-
-
-        pl = new PointLight[20];
-        angle = new float[pl.length];
-        ColorRGBA colors[] = new ColorRGBA[]{
-                ColorRGBA.White,
-            ColorRGBA.Red,
-            ColorRGBA.Blue,
-            ColorRGBA.Green,
-            ColorRGBA.Yellow,
-            ColorRGBA.Orange,
-            ColorRGBA.Brown,
-        };
-        Material pml = assetManager.loadMaterial("Common/Materials/RedColor.j3m");
-        lightMdl = new Geometry[pl.length];
-        for(int i = 0;i < pl.length;i++){
-            pl[i] = new PointLight();
-            pl[i].setColor(colors[pl.length % colors.length]);
-            pl[i].setRadius(FastMath.nextRandomFloat(1.5f, 3.5f));
-            rootNode.addLight(pl[i]);
-
-            lightMdl[i] = new Geometry("Light", new Sphere(10, 10, 0.1f));
-            lightMdl[i].setMaterial(pml);
-            lightMdl[i].getMesh().setStatic();
-            rootNode.attachChild(lightMdl[i]);
-        }
-
         DirectionalLight dl = new DirectionalLight();
         dl.setDirection(new Vector3f(-1, -1, -1).normalizeLocal());
-        dl.setColor(ColorRGBA.Green);
+        dl.setColor(ColorRGBA.White);
         rootNode.addLight(dl);
+    }
+    private void testScene2(){
+        sceneId = 1;
+        Sphere sphMesh = new Sphere(32, 32, 1);
+        sphMesh.setTextureMode(Sphere.TextureMode.Projected);
+        sphMesh.updateGeometry(32, 32, 1, false, false);
+        TangentBinormalGenerator.generate(sphMesh);
+
+        Geometry sphere = new Geometry("Rock Ball", sphMesh);
+        mat = assetManager.loadMaterial("Textures/Terrain/Pond/Pond.j3m");
+//        m_currentTechnique = TechniqueDef.DEFAULT_TECHNIQUE_NAME;
+//        mat.selectTechnique(m_currentTechnique, getRenderManager());
+        sphere.setMaterial(mat);
+        rootNode.attachChild(sphere);
+
+        lightMdl = new Geometry("Light", new Sphere(10, 10, 0.1f));
+        lightMdl.setMaterial(assetManager.loadMaterial("Common/Materials/RedColor.j3m"));
+        rootNode.attachChild(lightMdl);
+
+        pl = new PointLight();
+        pl.setColor(ColorRGBA.White);
+        pl.setPosition(new Vector3f(0f, 0f, 4f));
+        rootNode.addLight(pl);
+    }
+    private void testScene3(){
+        renderManager.setSinglePassLightBatchSize(300);
+        sceneId = 2;
+        Node tank = (Node) assetManager.loadModel("Models/HoverTank/Tank2.mesh.xml");
+        rootNode.attachChild(tank);
+
+
+
+        pls = new PointLight[1000];
+        angles = new float[pls.length];
+        ColorRGBA colors[] = new ColorRGBA[]{
+                ColorRGBA.White,
+                ColorRGBA.Red,
+                ColorRGBA.Blue,
+                ColorRGBA.Green,
+                ColorRGBA.Yellow,
+                ColorRGBA.Orange,
+                ColorRGBA.Brown,
+        };
+        Material pml = assetManager.loadMaterial("Common/Materials/RedColor.j3m");
+        lightMdls = new Geometry[pls.length];
+        for(int i = 0;i < pls.length;i++){
+            pls[i] = new PointLight();
+            pls[i].setColor(colors[pls.length % colors.length]);
+            pls[i].setRadius(FastMath.nextRandomFloat(1.0f, 2.0f));
+            pls[i].setPosition(new Vector3f(FastMath.nextRandomFloat(-1.0f, 1.0f), FastMath.nextRandomFloat(-1.0f, 1.0f), FastMath.nextRandomFloat(-1.0f, 1.0f)));
+            rootNode.addLight(pls[i]);
+
+//            lightMdls[i] = new Geometry("Light", new Sphere(10, 10, 0.02f));
+//            lightMdls[i].setMaterial(pml);
+//            lightMdls[i].getMesh().setStatic();
+//            rootNode.attachChild(lightMdls[i]);
+        }
+
+//        DirectionalLight dl = new DirectionalLight();
+//        dl.setDirection(new Vector3f(-1, -1, -1).normalizeLocal());
+//        dl.setColor(ColorRGBA.Green);
+//        rootNode.addLight(dl);
+    }
+
+    @Override
+    public void simpleInitApp() {
+        currentRenderPath = RenderManager.RenderPath.Deferred;
+        renderManager.setRenderPath(currentRenderPath);
+        testScene3();
         
         
-        MaterialDebugAppState debug = new MaterialDebugAppState();
-        debug.registerBinding("Common/ShaderLib/BlinnPhongLighting.glsllib", teapot);
-        stateManager.attach(debug);
+//        MaterialDebugAppState debug = new MaterialDebugAppState();
+//        debug.registerBinding("Common/ShaderLib/BlinnPhongLighting.glsllib", teapot);
+//        stateManager.attach(debug);
         setPauseOnLostFocus(false);
         flyCam.setDragToRotate(true);
-        
+        flyCam.setMoveSpeed(10.0f);
+
+        makeHudText();
+        registerInput();
+    }
+
+    private void makeHudText() {
+        guiFont = assetManager.loadFont("Interface/Fonts/Default.fnt");
+        hitText = new BitmapText(guiFont, false);
+        hitText.setSize(guiFont.getCharSet().getRenderedSize());
+        hitText.setText("RendererPath : "+ currentRenderPath.getInfo());
+        hitText.setLocalTranslation(0, cam.getHeight(), 0);
+//        guiNode.attachChild(hitText);
+    }
+
+    private void registerInput(){
+        inputManager.addListener(this, "toggleRenderPath");
+        inputManager.addMapping("toggleRenderPath", new KeyTrigger(KeyInput.KEY_K));
     }
 
     @Override
     public void simpleUpdate(float tpf){
-//        cam.setLocation(new Vector3f(2.0632997f, 1.9493936f, 2.6885238f));
-//        cam.setRotation(new Quaternion(-0.053555284f, 0.9407851f, -0.17754152f, -0.28378546f));
+        if(sceneId == 1){
+            angle += tpf * 0.25f;
+            angle %= FastMath.TWO_PI;
 
-        float t = 0;
-        for(int i = 0;i < pl.length;i++){
-            t = i * 1.0f / pl.length * 1.5f + 1.5f;
-            angle[i] += tpf * ((i + 1)) / pl.length;
-            angle[i] %= FastMath.TWO_PI;
-
-            pl[i].setPosition(new Vector3f(FastMath.cos(angle[i]) * t, i *1.0f / pl.length, FastMath.sin(angle[i]) * t));
-            lightMdl[i].setLocalTranslation(pl[i].getPosition());
+            pl.setPosition(new Vector3f(FastMath.cos(angle) * 4f, 0.5f, FastMath.sin(angle) * 4f));
+            lightMdl.setLocalTranslation(pl.getPosition());
+        }
+        else if(sceneId == 2){
+//            float t = 0;
+//            for(int i = 0;i < pls.length;i++){
+//                t = i * 1.0f / pls.length * 1.5f + 1.5f;
+//                angles[i] += tpf * ((i + 1)) / pls.length;
+//                angles[i] %= FastMath.TWO_PI;
+//
+//                pls[i].setPosition(new Vector3f(FastMath.cos(angles[i]) * t, i *1.0f / pls.length, FastMath.sin(angles[i]) * t));
+//                lightMdls[i].setLocalTranslation(pls[i].getPosition());
+//            }
         }
     }
 
+    @Override
+    public void onAction(String name, boolean isPressed, float tpf) {
+        if(name.equals("toggleRenderPath") && !isPressed){
+            if(currentRenderPath == RenderManager.RenderPath.Deferred){
+                currentRenderPath = RenderManager.RenderPath.Forward;
+            }
+            else{
+                currentRenderPath = RenderManager.RenderPath.Deferred;
+            }
+            renderManager.setRenderPath(currentRenderPath);
+//            getRenderManager().setForcedTechnique(null);
+            hitText.setText("RendererPath : "+ currentRenderPath.getInfo());
+        }
+    }
 }

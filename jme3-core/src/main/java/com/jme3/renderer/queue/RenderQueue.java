@@ -281,11 +281,13 @@ public class RenderQueue {
         }
         if (clear) {
             list.clear();
+            // BEGIN-JME3@JohnKkk以便进行后续RendererPath渲染
             if(tempList.size() > 0){
                 for(int i = 0;i < tempList.size();i++){
                     list.add(tempList.get(i));
                 }
             }
+            // END-JME3
         }
     }
 

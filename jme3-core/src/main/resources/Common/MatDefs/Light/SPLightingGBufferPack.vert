@@ -113,16 +113,16 @@ void main(){
    #endif
 
    vec3 wvPosition = TransformWorldView(modelSpacePos).xyz;
-   vec3 wvNormal  = normalize(TransformNormal(modelSpaceNorm));
+   vec3 wNormal  = normalize(TransformWorldNormal(modelSpaceNorm));
    vec3 viewDir = normalize(-wvPosition);
   
        
     #if defined(NORMALMAP) && !defined(VERTEX_LIGHTING)
-      vTangent = vec4(TransformNormal(modelSpaceTan).xyz,inTangent.w);
-      vNormal = wvNormal;         
+      vTangent = vec4(TransformWorldNormal(modelSpaceTan).xyz,inTangent.w);
+      vNormal = wNormal;
       vPos = wvPosition;
     #elif !defined(VERTEX_LIGHTING)
-      vNormal = wvNormal;          
+      vNormal = wNormal;
       vPos = wvPosition;
     #endif
    
@@ -173,7 +173,7 @@ void main(){
             #if __VERSION__ >= 110
             }
             #endif
-            vec2 light = computeLighting(wvNormal, viewDir, lightDir.xyz, lightDir.w  * spotFallOff, m_Shininess);
+            vec2 light = computeLighting(wNormal, viewDir, lightDir.xyz, lightDir.w  * spotFallOff, m_Shininess);
 
             #ifdef COLORRAMP
                 diffuseAccum  += texture2D(m_ColorRamp, vec2(light.x, 0.0)).rgb * diffuseColor.rgb;

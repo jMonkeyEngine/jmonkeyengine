@@ -137,6 +137,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable,
      */
     protected LightList localLights;
     protected transient LightList worldLights;
+    protected transient LightList filterWorldLights;
 
     protected SafeArrayList<MatParamOverride> localOverrides;
     protected SafeArrayList<MatParamOverride> worldOverrides;
@@ -432,6 +433,18 @@ public abstract class Spatial implements Savable, Cloneable, Collidable,
      */
     public LightList getWorldLightList() {
         return worldLights;
+    }
+
+    /**
+     * 设置filterLight.<br/>
+     * @param filterLight
+     */
+    public void setFilterLight(LightList filterLight){
+        filterWorldLights = filterLight;
+    }
+
+    public LightList getFilterWorldLights() {
+        return filterWorldLights;
     }
 
     /**

@@ -6,15 +6,18 @@ layout(location = 0) out vec4 outColor0;
 layout(location = 1) out vec4 outColor1;
 layout(location = 2) out vec4 outColor2;
 layout(location = 3) out vec4 outColor3;
+layout(location = 4) out vec4 outColor4;
 #define Context_OutGBuff0 outColor0
 #define Context_OutGBuff1 outColor1
 #define Context_OutGBuff2 outColor2
 #define Context_OutGBuff3 outColor3
+#define Context_OutGBuff4 outColor4
 #else
 #define Context_OutGBuff0 gl_FragData[0]
 #define Context_OutGBuff1 gl_FragData[1]
 #define Context_OutGBuff2 gl_FragData[2]
 #define Context_OutGBuff3 gl_FragData[3]
+#define Context_OutGBuff4 gl_FragData[4]
 #endif
 
 
@@ -22,12 +25,15 @@ uniform sampler2D m_Context_InGBuff0;
 uniform sampler2D m_Context_InGBuff1;
 uniform sampler2D m_Context_InGBuff2;
 uniform sampler2D m_Context_InGBuff3;
+uniform sampler2D m_Context_InGBuff4;
 #define Context_InGBuff0 m_Context_InGBuff0
 #define Context_InGBuff1 m_Context_InGBuff1
 #define Context_InGBuff2 m_Context_InGBuff2
 #define Context_InGBuff3 m_Context_InGBuff3
+#define Context_InGBuff4 m_Context_InGBuff4
 
 #endif
+#define GBUFFER_DEPTH Context_InGBuff4
 
 vec3 decodeNormal(in vec4 enc){
     vec4 nn = enc * vec4(2.0,2.0,0.0,0.0) + vec4(-1.0,-1.0,1.0,-1.0);
@@ -48,7 +54,7 @@ vec3 getPosition(in vec2 texCoord, in float depth, in mat4 matrixInverse){
 }
 
 vec3 getPosition(in vec2 texCoord, in mat4 matrixInverse){
-  float depth = texture2D(Context_InGBuff3, texCoord).r;
+  float depth = texture2D(GBUFFER_DEPTH, texCoord).r;
   vec4 pos;
   pos.xy = (texCoord * vec2(2.0)) - vec2(1.0);
   pos.z  = depth * 2.0 - 1.0;

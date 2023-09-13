@@ -136,7 +136,13 @@ void main(){
       //as it's compliant with normal maps generated with blender.
       //see http://hub.jmonkeyengine.org/forum/topic/parallax-mapping-fundamental-bug/#post-256898
       //for more explanation.
-      vec3 normal = normalize((normalHeight.xyz * vec3(2.0,-2.0,2.0) - vec3(1.0,-1.0,1.0)));
+    mat3 tbnMat = mat3(vTangent.xyz, vTangent.w * cross( (vNormal), (vTangent.xyz)), vNormal.xyz);
+
+    if (!gl_FrontFacing)
+    {
+        tbnMat[2] = -tbnMat[2];
+    }
+      vec3 normal = tbnMat * normalize((normalHeight.xyz * vec3(2.0,-2.0,2.0) - vec3(1.0,-1.0,1.0)));
     #elif !defined(VERTEX_LIGHTING)
       vec3 normal = normalize(vNormal); 
 
@@ -164,7 +170,7 @@ void main(){
     #endif
 
     // pack
-    Context_OutGBuff2.xyz = normal;
+    Context_OutGBuff3.xyz = normal;
     Context_OutGBuff0.a = alpha;
 
 //    #ifdef USE_REFLECTION
@@ -189,4 +195,7 @@ void main(){
     Context_OutGBuff0.rgb = diffuseColor.rgb * DiffuseSum.rgb;
     Context_OutGBuff1.rgb = specularColor.rgb * SpecularSum.rgb * 100.0f + AmbientSum * 0.01f;
     Context_OutGBuff1.a = m_Shininess;
+
+    // 标记是否可见
+    Context_OutGBuff2.a = 1.0f;
 }

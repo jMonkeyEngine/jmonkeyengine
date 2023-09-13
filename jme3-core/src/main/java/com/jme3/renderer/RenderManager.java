@@ -43,6 +43,7 @@ import com.jme3.material.TechniqueDef;
 import com.jme3.math.*;
 import com.jme3.post.SceneProcessor;
 import com.jme3.profile.*;
+import com.jme3.renderer.pipeline.Forward;
 import com.jme3.renderer.pipeline.RenderPipeline;
 import com.jme3.renderer.queue.GeometryList;
 import com.jme3.renderer.queue.RenderQueue;
@@ -71,11 +72,42 @@ import java.util.logging.Logger;
  * @see Spatial
  */
 public class RenderManager {
+    // 主要pass阶段
+    public enum PASS_STAGE{
+        PRE_PASS,
+        MASK_PASS,
+        BASE_PASS,
+        TRANSLUCENT_PASS,
+        GUI_PASS
+    }
+    private PASS_STAGE passStage;
+    // RenderPath
+    public enum RenderPath{
+        Forward(0, "Forward"),
+        ForwardPlus(1, "ForwardPlus"),
+        Deferred(2, "Deferred"),
+        TiledDeferred(3, "TiledDeferred")
+        ;
+        private int id;
+        private String info;
+        RenderPath(int id, String info){
+            this.id = id;
+            this.info = info;
+        }
+
+        public int getId() {
+            return id;
+        }
+        public String getInfo(){
+            return info;
+        }
+    }
+    private RenderPath renderPath = RenderPath.Forward;
 
     private static final Logger logger = Logger.getLogger(RenderManager.class.getName());
     private final Renderer renderer;
     // Forward Or Deferred
-    private final RenderPipeline renderPipelines[] = new RenderPipeline[2];
+    private final RenderPipeline renderPipelines[] = new RenderPipeline[4];
     private final UniformBindingManager uniformBindingManager = new UniformBindingManager();
     private final ArrayList<ViewPort> preViewPorts = new ArrayList<>();
     private final ArrayList<ViewPort> viewPorts = new ArrayList<>();
@@ -127,6 +159,22 @@ public class RenderManager {
     }
 
     /**
+     * SetRenderPath.
+     * @param renderPath
+     */
+    public final void setRenderPath(RenderPath renderPath){
+        this.renderPath = renderPath;
+    }
+
+    /**
+     * Return renderPath.
+     * @return
+     */
+    public final RenderPath getRenderPath(){
+        return this.renderPath;
+    }
+
+    /**
      * Set up forward pipeline.<br/>
      * @param pipeline Set the Deferred Pipeline to be enabled. It can only be one of the following values:<br/>
      *                 TechniqueDef.Pipeline.Forward,TechniqueDef.Pipeline.ForwardPlus.<br/>
@@ -135,7 +183,7 @@ public class RenderManager {
         if(pipeline != TechniqueDef.Pipeline.Forward && pipeline != TechniqueDef.Pipeline.ForwardPlus){
             throw new IllegalStateException(pipeline + " is not a legal forward mode!");
         }
-        this.renderPipelines[1] = RenderPipeline.getPipeline(pipeline);
+        this.renderPipelines[RenderPath.Forward.getId()] = RenderPipeline.getPipeline(pipeline);
     }
 
     /**
@@ -147,7 +195,7 @@ public class RenderManager {
         if(pipeline != TechniqueDef.Pipeline.Deferred && pipeline != TechniqueDef.Pipeline.TiledBasedDeferred && pipeline != TechniqueDef.Pipeline.ClusteredBasedDeferred){
             throw new IllegalStateException(pipeline + " is not a legal deferred mode!");
         }
-        this.renderPipelines[0] = RenderPipeline.getPipeline(pipeline);
+        this.renderPipelines[RenderPath.Deferred.getId()] = RenderPipeline.getPipeline(pipeline);
     }
 
     /**
@@ -661,6 +709,8 @@ public class RenderManager {
             lightFilter.filterLights(geom, filteredLightList);
             lightList = filteredLightList;
         }
+        // updateFilterLight
+        geom.setFilterLight(lightList);
 
         Material material = geom.getMaterial();
 
@@ -958,7 +1008,23 @@ public class RenderManager {
      * @see #renderTranslucentQueue(com.jme3.renderer.ViewPort) 
      */
     public void renderViewPortQueues(ViewPort vp, boolean flush) {
-        for(RenderPipeline renderPipeline : renderPipelines){
+        RenderPipeline renderPipeline = null;
+        if(renderPath == RenderPath.Forward){
+            renderPipeline = renderPipelines[renderPath.getId()];
+            activePipeline(renderPipeline);
+            renderPipeline.begin(this, vp);
+            renderPipeline.draw(this, vp.getQueue(), vp, flush);
+            renderPipeline.end(this, vp);
+        }
+        else if(renderPath == RenderPath.Deferred){
+            // todo:判断是否进行PrePass,MaskPass,BasePass...
+            renderPipeline = renderPipelines[renderPath.getId()];
+            activePipeline(renderPipeline);
+            renderPipeline.begin(this, vp);
+            renderPipeline.draw(this, vp.getQueue(), vp, flush);
+            renderPipeline.end(this, vp);
+            // final...
+            renderPipeline = renderPipelines[RenderPath.Forward.getId()];
             activePipeline(renderPipeline);
             renderPipeline.begin(this, vp);
             renderPipeline.draw(this, vp.getQueue(), vp, flush);
@@ -1192,6 +1258,7 @@ public class RenderManager {
      * FrameBuffer, false to skip them
      */
     public void render(float tpf, boolean mainFrameBufferActive) {
+        // todo:这里后续可能需要封装为FrameGraph封装Passes
         if (renderer instanceof NullRenderer) {
             return;
         }
@@ -1210,6 +1277,7 @@ public class RenderManager {
         for (int i = 0; i < viewPorts.size(); i++) {
             ViewPort vp = viewPorts.get(i);
             if (vp.getOutputFrameBuffer() != null || mainFrameBufferActive) {
+                // todo:在这里调用另一个函数,分成PrePass->MaskPass->BasePass...
                 renderViewPort(vp, tpf);
             }
         }

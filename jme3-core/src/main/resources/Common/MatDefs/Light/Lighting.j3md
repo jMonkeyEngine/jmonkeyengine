@@ -133,6 +133,7 @@ MaterialDef Phong Lighting {
         Texture2D Context_InGBuff1
         Texture2D Context_InGBuff2
         Texture2D Context_InGBuff3
+        Texture2D Context_InGBuff4
     }
 
     Technique {
@@ -236,6 +237,7 @@ MaterialDef Phong Lighting {
         WorldParameters {
             WorldViewProjectionMatrix
             NormalMatrix
+            WorldNormalMatrix
             WorldViewMatrix
             ViewMatrix
             CameraPosition

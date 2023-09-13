@@ -12,6 +12,7 @@ uniform vec4 g_AmbientLightColor;
 uniform vec4 g_LightData[NB_LIGHTS];
 
 void main(){
+    if(texture2D(Context_InGBuff2, texCoord).a != 1.0f)discard;
     vec3 vPos = getPosition(texCoord, viewProjectionMatrixInverse);
     vec4 buff1 = texture2D(Context_InGBuff1, texCoord);
     vec4 diffuseColor = texture2D(Context_InGBuff0, texCoord);
@@ -19,7 +20,7 @@ void main(){
     vec3 AmbientSum = min(fract(buff1.rgb) * 100.0f, vec3(1.0f)) * g_AmbientLightColor.rgb;
     float Shininess = buff1.a;
     float alpha = diffuseColor.a;
-    vec3 normal = texture2D(Context_InGBuff2, texCoord).xyz;
+    vec3 normal = texture2D(Context_InGBuff3, texCoord).xyz;
     vec3 viewDir  = normalize(g_CameraPosition - vPos);
 
 
