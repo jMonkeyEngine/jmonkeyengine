@@ -261,7 +261,7 @@ public class GltfLoader implements AssetLoader {
                 }
                 spatial = node;
             }
-            spatial.setName(readMeshName(meshIndex));
+            spatial.setName(getAsString(nodeData, "name"));
 
         } else {
             // no mesh, we have a node. Can be a camera node or a regular node.
