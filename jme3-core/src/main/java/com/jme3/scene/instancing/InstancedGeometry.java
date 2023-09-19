@@ -70,6 +70,7 @@ public class InstancedGeometry extends Geometry {
     private int firstUnusedIndex = 0;
     private int numVisibleInstances = 0;
     private Camera cam;
+    private int forceNumVisibleInstances = 0;
 
     public InstancedGeometry() {
         super();
@@ -250,6 +251,9 @@ public class InstancedGeometry extends Geometry {
             InstancedNode.setGeometryStartIndex2(geometries[idx2], idx2);
         }
     }
+    public void setForceNumVisibleInstances(int forceNumVisibleInstances){
+        this.forceNumVisibleInstances = forceNumVisibleInstances;
+    }
 
     public void updateInstances() {
         FloatBuffer fb = (FloatBuffer) transformInstanceData.getData();
@@ -303,6 +307,9 @@ public class InstancedGeometry extends Geometry {
         numVisibleInstances = firstUnusedIndex - numCulledGeometries;
         if (fb.limit() / INSTANCE_SIZE != numVisibleInstances) {
             throw new AssertionError();
+        }
+        if(forceNumVisibleInstances > 0 && numVisibleInstances > forceNumVisibleInstances){
+            numVisibleInstances = forceNumVisibleInstances;
         }
 
         transformInstanceData.updateData(fb);

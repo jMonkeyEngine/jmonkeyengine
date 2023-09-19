@@ -112,20 +112,18 @@ void main(){
       texCoord2 = inTexCoord2;
    #endif
 
-   vec3 wvPosition = TransformWorldView(modelSpacePos).xyz;
+   vec3 wPosition = TransformWorld(modelSpacePos).xyz;
    vec3 wNormal  = normalize(TransformWorldNormal(modelSpaceNorm));
-   vec3 viewDir = normalize(-wvPosition);
-  
-       
-    #if defined(NORMALMAP) && !defined(VERTEX_LIGHTING)
+
+    #if (defined(NORMALMAP) || defined(PARALLAXMAP)) && !defined(VERTEX_LIGHTING)
       vTangent = vec4(TransformWorldNormal(modelSpaceTan).xyz,inTangent.w);
       vNormal = wNormal;
-      vPos = wvPosition;
+      vPos = wPosition;
     #elif !defined(VERTEX_LIGHTING)
       vNormal = wNormal;
-      vPos = wvPosition;
+      vPos = wPosition;
     #endif
-   
+
     #ifdef MATERIAL_COLORS
         AmbientSum  = m_Ambient.rgb;
         SpecularSum = m_Specular.rgb;
@@ -140,58 +138,10 @@ void main(){
         AmbientSum *= inColor.rgb;
         DiffuseSum *= inColor;
     #endif
-    #ifdef VERTEX_LIGHTING
-        int i = 0;
-        vec3 diffuseAccum  = vec3(0.0);
-        vec3 specularAccum = vec3(0.0);
-        vec4 diffuseColor;
-        vec3 specularColor;
-        for (int i =0;i < NB_LIGHTS; i+=3){
-            vec4 lightColor = g_LightData[i];            
-            vec4 lightData1 = g_LightData[i+1];            
-            #ifdef MATERIAL_COLORS
-              diffuseColor  = m_Diffuse * vec4(lightColor.rgb, 1.0);                
-              specularColor = m_Specular.rgb * lightColor.rgb;
-            #else                
-              diffuseColor  = vec4(lightColor.rgb, 1.0);
-              specularColor = vec3(0.0);
-            #endif
 
-            vec4 lightDir;
-            vec3 lightVec;
-            lightComputeDir(wvPosition, lightColor.w, lightData1, lightDir, lightVec);
-          //  lightDir = normalize(lightDir);
-          //  lightVec = normalize(lightVec);
-            
-            float spotFallOff = 1.0;
-            #if __VERSION__ >= 110
-                // allow use of control flow
-            if(lightColor.w > 1.0){
-            #endif
-               vec4 lightDirection = g_LightData[i+2];
-               spotFallOff = computeSpotFalloff(lightDirection, lightVec);
-            #if __VERSION__ >= 110
-            }
-            #endif
-            vec2 light = computeLighting(wNormal, viewDir, lightDir.xyz, lightDir.w  * spotFallOff, m_Shininess);
-
-            #ifdef COLORRAMP
-                diffuseAccum  += texture2D(m_ColorRamp, vec2(light.x, 0.0)).rgb * diffuseColor.rgb;
-                specularAccum += texture2D(m_ColorRamp, vec2(light.y, 0.0)).rgb * specularColor;
-            #else
-                diffuseAccum  += light.x * diffuseColor.rgb;
-                specularAccum += light.y * specularColor;
-            #endif
-        }
-
-        DiffuseSum.rgb  *= diffuseAccum.rgb;
-        SpecularSum.rgb *= specularAccum.rgb;
-    #endif
-    
-
-    #ifdef USE_REFLECTION
-        computeRef(modelSpacePos);
-    #endif
+//    #ifdef USE_REFLECTION
+//        computeRef(modelSpacePos);
+//    #endif
 
     #ifdef USE_FOG
     fog_distance = distance(g_CameraPosition, (TransformWorld(modelSpacePos)).xyz);

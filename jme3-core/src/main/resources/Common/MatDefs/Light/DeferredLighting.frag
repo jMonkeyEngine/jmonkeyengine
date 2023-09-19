@@ -9,10 +9,17 @@ varying mat4 viewProjectionMatrixInverse;
 uniform mat4 g_ViewMatrix;
 uniform vec3 g_CameraPosition;
 uniform vec4 g_AmbientLightColor;
-uniform vec4 g_LightData[NB_LIGHTS];
+#if defined(USE_TEXTURE_PACK_MODE)
+    uniform int g_LightCount;
+    uniform sampler2D m_LightPackData1;
+    uniform sampler2D m_LightPackData2;
+    uniform sampler2D m_LightPackData3;
+#else
+    uniform vec4 g_LightData[NB_LIGHTS];
+#endif
 
 void main(){
-    if(texture2D(Context_InGBuff2, texCoord).a != 1.0f)discard;
+//    if(texture2D(Context_InGBuff2, texCoord).a != 1.0f)discard;
     vec3 vPos = getPosition(texCoord, viewProjectionMatrixInverse);
     vec4 buff1 = texture2D(Context_InGBuff1, texCoord);
     vec4 diffuseColor = texture2D(Context_InGBuff0, texCoord);
@@ -26,9 +33,21 @@ void main(){
 
     gl_FragColor.rgb = AmbientSum * diffuseColor.rgb;
     gl_FragColor.a = alpha;
-    for( int i = 0;i < NB_LIGHTS; i+=3){
-        vec4 lightColor = g_LightData[i];
-        vec4 lightData1 = g_LightData[i+1];
+    int lightNum = 0;
+    #if defined(USE_TEXTURE_PACK_MODE)
+        float lightTexSizeInv = 1.0f / PACK_NB_LIGHTS;
+        lightNum = g_LightCount;
+    #else
+        lightNum = NB_LIGHTS;
+    #endif
+    for( int i = 0;i < lightNum; ){
+        #if defined(USE_TEXTURE_PACK_MODE)
+            vec4 lightColor = texture2D(m_LightPackData1, vec2(i * lightTexSizeInv, 0));
+            vec4 lightData1 = texture2D(m_LightPackData2, vec2(i * lightTexSizeInv, 0));
+        #else
+            vec4 lightColor = g_LightData[i];
+            vec4 lightData1 = g_LightData[i+1];
+        #endif
         vec4 lightDir;
         vec3 lightVec;
         lightComputeDir(vPos, lightColor.w, lightData1, lightDir,lightVec);
@@ -38,7 +57,11 @@ void main(){
             // allow use of control flow
         if(lightColor.w > 1.0){
         #endif
-            spotFallOff =  computeSpotFalloff(g_LightData[i+2], lightVec);
+            #if defined(USE_TEXTURE_PACK_MODE)
+                spotFallOff =  computeSpotFalloff(texture2D(m_LightPackData3, vec2(i * lightTexSizeInv, 0)), lightVec);
+            #else
+                spotFallOff =  computeSpotFalloff(g_LightData[i+2], lightVec);
+            #endif
         #if __VERSION__ >= 110
         }
         #endif
@@ -69,5 +92,10 @@ void main(){
 
         gl_FragColor.rgb += lightColor.rgb * diffuseColor.rgb  * vec3(light.x) +
                             lightColor.rgb * specularColor.rgb * vec3(light.y);
+        #if defined(USE_TEXTURE_PACK_MODE)
+            i++;
+        #else
+            i+=3;
+        #endif
     }
 }

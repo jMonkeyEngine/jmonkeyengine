@@ -6,6 +6,8 @@
     #import "Common/ShaderLib/BlinnPhongLighting.glsllib"
     #import "Common/ShaderLib/Lighting.glsllib"
 #endif
+// shading model
+#import "Common/ShaderLib/ShadingModel.glsllib"
 
 // fog - jayfella
 #ifdef USE_FOG
@@ -47,8 +49,10 @@ varying vec3 SpecularSum;
 #ifdef PARALLAXMAP
   uniform sampler2D m_ParallaxMap;  
 #endif
-#if (defined(PARALLAXMAP) || (defined(NORMALMAP_PARALLAX) && defined(NORMALMAP))) && !defined(VERTEX_LIGHTING) 
+#if (defined(PARALLAXMAP) || (defined(NORMALMAP_PARALLAX) && defined(NORMALMAP))) && !defined(VERTEX_LIGHTING)
     uniform float m_ParallaxHeight;
+    varying vec3 vPos;
+    uniform vec3 g_CameraPosition;
 #endif
 
 #ifdef LIGHTMAP
@@ -85,24 +89,30 @@ uniform float m_Shininess;
 
 void main(){
     vec2 newTexCoord;
+    #if defined(NORMALMAP) || defined(PARALLAXMAP)
+        vec3 norm = normalize(vNormal);
+        vec3 tan = normalize(vTangent.xyz);
+        mat3 tbnMat = mat3(tan, vTangent.w * cross( (norm), (tan)), norm);
+    #endif
      
     #if (defined(PARALLAXMAP) || (defined(NORMALMAP_PARALLAX) && defined(NORMALMAP))) && !defined(VERTEX_LIGHTING) 
-     
+        vec3 viewDir = normalize(g_CameraPosition - vPos);
+        vec3 vViewDir =  viewDir * tbnMat;
        #ifdef STEEP_PARALLAX
            #ifdef NORMALMAP_PARALLAX
                //parallax map is stored in the alpha channel of the normal map         
-               newTexCoord = steepParallaxOffset(m_NormalMap, viewDir, texCoord, m_ParallaxHeight);
+               newTexCoord = steepParallaxOffset(m_NormalMap, vViewDir, texCoord, m_ParallaxHeight);
            #else
                //parallax map is a texture
-               newTexCoord = steepParallaxOffset(m_ParallaxMap, viewDir, texCoord, m_ParallaxHeight);         
+               newTexCoord = steepParallaxOffset(m_ParallaxMap, vViewDir, texCoord, m_ParallaxHeight);
            #endif
        #else
            #ifdef NORMALMAP_PARALLAX
                //parallax map is stored in the alpha channel of the normal map         
-               newTexCoord = classicParallaxOffset(m_NormalMap, viewDir, texCoord, m_ParallaxHeight);
+               newTexCoord = classicParallaxOffset(m_NormalMap, vViewDir, texCoord, m_ParallaxHeight);
            #else
                //parallax map is a texture
-               newTexCoord = classicParallaxOffset(m_ParallaxMap, viewDir, texCoord, m_ParallaxHeight);
+               newTexCoord = classicParallaxOffset(m_ParallaxMap, vViewDir, texCoord, m_ParallaxHeight);
            #endif
        #endif
     #else
@@ -136,20 +146,21 @@ void main(){
       //as it's compliant with normal maps generated with blender.
       //see http://hub.jmonkeyengine.org/forum/topic/parallax-mapping-fundamental-bug/#post-256898
       //for more explanation.
-    mat3 tbnMat = mat3(vTangent.xyz, vTangent.w * cross( (vNormal), (vTangent.xyz)), vNormal.xyz);
+    //mat3 tbnMat = mat3(vTangent.xyz, vTangent.w * cross( (vNormal), (vTangent.xyz)), vNormal.xyz);
 
     if (!gl_FrontFacing)
     {
         tbnMat[2] = -tbnMat[2];
     }
       vec3 normal = tbnMat * normalize((normalHeight.xyz * vec3(2.0,-2.0,2.0) - vec3(1.0,-1.0,1.0)));
+      normal = normalize(normal);
     #elif !defined(VERTEX_LIGHTING)
-      vec3 normal = normalize(vNormal); 
+      vec3 normal = normalize(vNormal);
 
       if (!gl_FrontFacing)
       {
           normal = -normal;
-      }           
+      }
     #endif
 
     #ifdef SPECULARMAP
@@ -196,6 +207,6 @@ void main(){
     Context_OutGBuff1.rgb = specularColor.rgb * SpecularSum.rgb * 100.0f + AmbientSum * 0.01f;
     Context_OutGBuff1.a = m_Shininess;
 
-    // 标记是否可见
-    Context_OutGBuff2.a = 1.0f;
+    // shading model id
+    Context_OutGBuff2.a = LEGACY_LIGHTING;
 }

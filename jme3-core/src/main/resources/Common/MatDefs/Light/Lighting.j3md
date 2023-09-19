@@ -134,6 +134,11 @@ MaterialDef Phong Lighting {
         Texture2D Context_InGBuff2
         Texture2D Context_InGBuff3
         Texture2D Context_InGBuff4
+
+        // LightData
+        Texture2D LightPackData1
+        Texture2D LightPackData2
+        Texture2D LightPackData3
     }
 
     Technique {
@@ -231,8 +236,8 @@ MaterialDef Phong Lighting {
 
     Technique GBufferPass{
         Pipeline Deferred
-        VertexShader GLSL310 GLSL300 GLSL100 GLSL150:   Common/MatDefs/Light/SPLightingGBufferPack.vert
-        FragmentShader GLSL310 GLSL300 GLSL100 GLSL150: Common/MatDefs/Light/SPLightingGBufferPack.frag
+        VertexShader GLSL310 GLSL300 GLSL100 GLSL150:   Common/MatDefs/Light/LightingGBufferPack.vert
+        FragmentShader GLSL310 GLSL300 GLSL100 GLSL150: Common/MatDefs/Light/LightingGBufferPack.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -271,22 +276,6 @@ MaterialDef Phong Lighting {
             FOG_LINEAR : LinearFog
             FOG_EXP : ExpFog
             FOG_EXPSQ : ExpSqFog
-        }
-    }
-
-    Technique DeferredLighting{
-        Pipeline Deferred
-        LightMode DeferredSinglePass
-
-        VertexShader GLSL310 GLSL300 GLSL100 GLSL150:   Common/MatDefs/Light/SPDeferredLighting.vert
-        FragmentShader GLSL310 GLSL300 GLSL100 GLSL150: Common/MatDefs/Light/SPDeferredLighting.frag
-
-        WorldParameters {
-            CameraPosition
-            ViewProjectionMatrix
-        }
-
-        Defines {
         }
     }
 

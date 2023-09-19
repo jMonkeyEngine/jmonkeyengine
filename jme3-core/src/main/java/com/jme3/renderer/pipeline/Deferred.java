@@ -1,10 +1,17 @@
 package com.jme3.renderer.pipeline;
 
+import com.jme3.asset.AssetManager;
+import com.jme3.asset.plugins.ClasspathLocator;
+import com.jme3.asset.plugins.FileLocator;
 import com.jme3.light.Light;
 import com.jme3.light.LightList;
+import com.jme3.light.PointLight;
 import com.jme3.material.Material;
 import com.jme3.material.MaterialDef;
+import com.jme3.material.RenderState;
 import com.jme3.material.TechniqueDef;
+import com.jme3.material.plugins.J3MLoader;
+import com.jme3.math.FastMath;
 import com.jme3.profile.AppProfiler;
 import com.jme3.profile.VpStep;
 import com.jme3.renderer.Camera;
@@ -13,6 +20,13 @@ import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
+import com.jme3.scene.Mesh;
+import com.jme3.scene.Spatial;
+import com.jme3.scene.instancing.InstancedGeometry;
+import com.jme3.scene.instancing.InstancedNode;
+import com.jme3.scene.shape.Box;
+import com.jme3.shader.plugins.GLSLLoader;
+import com.jme3.system.JmeSystem;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image;
 import com.jme3.texture.Texture2D;
@@ -22,13 +36,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Deferred extends RenderPipeline{
+    private static AssetManager assetManager;
+
     public final static String S_CONTEXT_InGBUFF_0 = "Context_InGBuff0";
     public final static String S_CONTEXT_InGBUFF_1 = "Context_InGBuff1";
     public final static String S_CONTEXT_InGBUFF_2 = "Context_InGBuff2";
     public final static String S_CONTEXT_InGBUFF_3 = "Context_InGBuff3";
     public final static String S_CONTEXT_InGBUFF_4 = "Context_InGBuff4";
     public final static String S_GBUFFER_PASS = "GBufferPass";
-    public final static String S_DEFERRED_LIGHTING_PASS = "DeferredLighting";
+    public final static String S_DEFERRED_PASS = "DeferredPass";
+    public final static String S_LIGHT_CULL_DRAW_STAGE = "Light_Cull_Draw_Stage";
 
 
     private FrameBuffer gBuffer;
@@ -39,13 +56,30 @@ public class Deferred extends RenderPipeline{
     private Texture2D gBufferData4;
     private Material fsMat;
     private Picture fsQuad;
+    private InstancedGeometry fsPointLightsCullShapes;
+    private InstancedNode fsPointLightsCullInstancedNode;
     private boolean reshape;
     private boolean drawing;
+    // todo:由于ADDITIVE_LIGHT会使得lightCull的后续绘制出现问题,所以暂时关闭
+    private boolean enablePointLightsCull = false;
     private final List<Light> tempLights = new ArrayList<Light>();
-    private final LightList filteredLightList = new LightList(null);
+    private final LightList fullScreenLightList = new LightList(null);
+    private final LightList notFullScreenLightList = new LightList(null);
 
     public Deferred(TechniqueDef.Pipeline pipeline) {
         super(pipeline);
+        initAssetManager();
+        MaterialDef def = (MaterialDef) assetManager.loadAsset("Common/MatDefs/ShadingCommon/DeferredShading.j3md");
+        fsMat = new Material(def);
+    }
+
+    private static void initAssetManager(){
+        assetManager = JmeSystem.newAssetManager();
+        assetManager.registerLocator(".", FileLocator.class);
+        assetManager.registerLocator("/", ClasspathLocator.class);
+        assetManager.registerLoader(J3MLoader.class, "j3m");
+        assetManager.registerLoader(J3MLoader.class, "j3md");
+        assetManager.registerLoader(GLSLLoader.class, "vert", "frag","geom","tsctrl","tseval","glsllib","glsl");
     }
 
     @Override
@@ -56,9 +90,31 @@ public class Deferred extends RenderPipeline{
             fsQuad.setWidth(1);
             fsQuad.setHeight(1);
             reshape(vp.getCamera().getWidth(), vp.getCamera().getHeight());
+            fsQuad.setMaterial(fsMat);
+
+            // pointLights cull
+            fsPointLightsCullInstancedNode = new InstancedNode("box_point_light_cull");
+            Geometry boxGeo = new Geometry("point_light_cull_box", new Box(1, 1, 1));
+            fsMat.setBoolean("UseInstancing", true);
+            boxGeo.setMaterial(fsMat);
+            int num = 1024;
+            for(int i = 0;i < num;i++){
+                Geometry b = boxGeo.clone(false);
+                fsPointLightsCullInstancedNode.attachChild(b);
+            }
+            fsPointLightsCullInstancedNode.instance();
+            for(int i = 0,size = fsPointLightsCullInstancedNode.getChildren().size();i < size;i++){
+                if(fsPointLightsCullInstancedNode.getChild(i) instanceof InstancedGeometry){
+                    fsPointLightsCullShapes = (InstancedGeometry)fsPointLightsCullInstancedNode.getChild(i);
+                    fsPointLightsCullShapes.setForceNumVisibleInstances(0);
+                    fsPointLightsCullShapes.setUserData(S_LIGHT_CULL_DRAW_STAGE, true);
+                    break;
+                }
+            }
         }
         tempLights.clear();
-        filteredLightList.clear();
+        fullScreenLightList.clear();
+        notFullScreenLightList.clear();
     }
 
     @Override
@@ -95,6 +151,24 @@ public class Deferred extends RenderPipeline{
         // opaque objects are sorted front-to-back, reducing overdraw
         if (prof!=null) prof.vpStep(VpStep.RenderBucket, vp, RenderQueue.Bucket.Opaque);
 
+        // todo:后续在这里使用FrameGraph,FGNode内部使用SceneProcessor成员,然后使用:
+        // Framegraph fg = new Framegraph();
+        //
+        //// 创建节点
+        //FGNode gBufferPass = new FGNode();
+        //FGNode deferredPass = new FGNode();
+        //
+        //// 添加节点到Framegraph
+        //fg.addNode(gBufferPass);
+        //fg.addNode(deferredPass);
+        //
+        //// 连接两个节点
+        //fg.connect(gBufferPass, deferredPass);
+        //
+        //// 执行Framegraph
+        //fg.execute(renderPass);
+        // 这样一来,可以在gBufferPass中封装对gBufferPass阶段的绘制,并且可以gBufferPass节点中对shadingModel开启新的FGNode,比如shadingModel
+        // 为SSS的着色,可以开启对该类物体进行multiPass(为此,gBufferPass需要对物体列表进行分类,然后按类别进行合并状态机绘制)
         // G-Buffer Pass
         FrameBuffer opfb = vp.getOutputFrameBuffer();
         vp.setOutputFrameBuffer(gBuffer);
@@ -109,6 +183,7 @@ public class Deferred extends RenderPipeline{
 
         // Deferred Pass
         if(fsMat != null){
+            fsMat.selectTechnique(S_DEFERRED_PASS, rm);
             // Check context parameters
             MaterialDef matDef = fsMat.getMaterialDef();
             if(matDef.getMaterialParam(S_CONTEXT_InGBUFF_0) != null && (reshape || fsMat.getTextureParam(S_CONTEXT_InGBUFF_0) == null)){
@@ -126,14 +201,49 @@ public class Deferred extends RenderPipeline{
             if(matDef.getMaterialParam(S_CONTEXT_InGBUFF_4) != null && (reshape || fsMat.getTextureParam(S_CONTEXT_InGBUFF_4) == null)){
                 fsMat.setTexture(S_CONTEXT_InGBUFF_4, gBufferData4);
             }
+            PointLight pl = null;
             for(Light l : tempLights){
-                filteredLightList.add(l);
+                if(enablePointLightsCull && (l instanceof PointLight)){
+                    pl = (PointLight)l;
+                    if(pl.getRadius() > 0){
+                        notFullScreenLightList.add(l);
+                        continue;
+                    }
+                }
+                fullScreenLightList.add(l);
             }
             boolean depthWrite = fsMat.getAdditionalRenderState().isDepthWrite();
+            RenderState.FaceCullMode faceCullMode = fsMat.getAdditionalRenderState().getFaceCullMode();
             fsMat.getAdditionalRenderState().setDepthWrite(false);
-            fsQuad.setMaterial(fsMat);
-            fsQuad.updateGeometricState();
-            fsMat.render(fsQuad, filteredLightList, rm);
+//            fsQuad.setMaterial(fsMat);
+            if(fullScreenLightList.size() > 0){
+                fsMat.setBoolean("UseLightsCullMode", false);
+                fsQuad.updateGeometricState();
+                fsMat.render(fsQuad, fullScreenLightList, rm);
+            }
+            if(enablePointLightsCull && notFullScreenLightList.size() > 0){
+                int i = 0, plSize = notFullScreenLightList.size();
+                for (Spatial instance : fsPointLightsCullInstancedNode.getChildren()) {
+                    if (!(instance instanceof InstancedGeometry)) {
+                        pl = (PointLight) notFullScreenLightList.get(i++);
+                        instance.setLocalTranslation(pl.getPosition());
+                        instance.setLocalScale(pl.getRadius() * 0.5f);
+                        if(i >= plSize){
+                            fsPointLightsCullShapes.setUserData(S_LIGHT_CULL_DRAW_STAGE, fullScreenLightList.size() != 0);
+                            fsPointLightsCullShapes.setForceNumVisibleInstances(plSize);
+//                            fsPointLightsCullInstancedNode.updateGeometricState();
+                            fsPointLightsCullShapes.updateGeometricState();
+                            fsPointLightsCullShapes.updateInstances();
+                            fsMat.getAdditionalRenderState().setFaceCullMode(RenderState.FaceCullMode.Front);
+                            fsMat.setBoolean("UseLightsCullMode", true);
+                            fsMat.render(fsPointLightsCullShapes, notFullScreenLightList, rm);
+                            fsMat.getAdditionalRenderState().setFaceCullMode(faceCullMode);
+                            // todo:后续改善这里以便进行无限数量灯光
+                            break;
+                        }
+                    }
+                }
+            }
     //        rm.renderGeometry(fsQuad);
             fsMat.getAdditionalRenderState().setDepthWrite(depthWrite);
         }
@@ -147,6 +257,7 @@ public class Deferred extends RenderPipeline{
     @Override
     public boolean drawGeometry(RenderManager rm, Geometry geom) {
         Material material = geom.getMaterial();
+        if(material.getMaterialDef().getTechniqueDefs(rm.getForcedTechnique()) == null)return false;
 //        // Check context parameters
 //        MaterialDef matDef = material.getMaterialDef();
 //        if(matDef.getMaterialParam(S_CONTEXT_InGBUFF_0) != null && (reshape || material.getTextureParam(S_CONTEXT_InGBUFF_0) == null)){
@@ -164,11 +275,11 @@ public class Deferred extends RenderPipeline{
         rm.renderGeometry(geom);
         if(material.getActiveTechnique() != null){
             // todo:应该使用一个统一的材质材质,其中根据lightModeId分开着色
-            if(material.getMaterialDef().getTechniqueDefs(S_DEFERRED_LIGHTING_PASS) != null || rm.joinPipeline(material.getActiveTechnique().getDef().getPipeline())){
-                if(fsMat == null){
-                    fsMat = material.clone();
-                    fsMat.selectTechnique(S_DEFERRED_LIGHTING_PASS, rm);
-                }
+            if(material.getMaterialDef().getTechniqueDefs(S_GBUFFER_PASS) != null || rm.joinPipeline(material.getActiveTechnique().getDef().getPipeline())){
+//                if(fsMat == null){
+//                    fsMat = material.clone();
+//                    fsMat.selectTechnique(S_DEFERRED_PASS, rm);
+//                }
                 LightList lights = geom.getFilterWorldLights();
                 for(Light light : lights){
                     if(!tempLights.contains(light)){
