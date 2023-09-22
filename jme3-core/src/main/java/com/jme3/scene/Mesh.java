@@ -129,6 +129,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
          * for each patch (default is 3 for triangle tessellation)
          */
         Patch(true);
+
         private boolean listMode = false;
 
         private Mode(boolean listMode) {
@@ -148,28 +149,42 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
             return listMode;
         }
     }
+    
+    /**
+     * Default Variables
+     */
+    private static final CollisionData DEFAULT_COLLECTION_TREE = null;
 
+    private static final float DEFAULT_POINT_SIZE = 1.0f;
+    private static final float DEFAULT_LINE_WIDTH = 1.0f;
+
+    private static final int DEFAULT_VERT_COUNT = 0;
+    private static final int DEFAULT_ELEMENT_COUNT = 0;
+    private static final int DEFAULT_INSTANCE_COUNT = 0;
+    private static final int DEFAULT_PATCH_VERTEX_COUNT = 3;
+    private static final int DEFAULT_MAX_NUM_WEIGHTS = 0;
+    
     /**
      * The bounding volume that contains the mesh entirely.
      * By default a BoundingBox (AABB).
      */
     private BoundingVolume meshBound = new BoundingBox();
 
-    private CollisionData collisionTree = null;
+    private CollisionData collisionTree = DEFAULT_COLLECTION_TREE;
 
     private SafeArrayList<VertexBuffer> buffersList = new SafeArrayList<>(VertexBuffer.class);
     private IntMap<VertexBuffer> buffers = new IntMap<>();
     private VertexBuffer[] lodLevels;
-    private float pointSize = 1;
-    private float lineWidth = 1;
+    private float pointSize = DEFAULT_POINT_SIZE;
+    private float lineWidth = DEFAULT_LINE_WIDTH;
 
     private transient int vertexArrayID = -1;
 
-    private int vertCount = -1;
-    private int elementCount = -1;
-    private int instanceCount = -1;
-    private int patchVertexCount = 3; //only used for tessellation
-    private int maxNumWeights = -1; // only if using skeletal animation
+    private int vertCount = DEFAULT_VERT_COUNT;
+    private int elementCount = DEFAULT_ELEMENT_COUNT;
+    private int instanceCount = DEFAULT_INSTANCE_COUNT;
+    private int patchVertexCount = DEFAULT_PATCH_VERTEX_COUNT; //only used for tessellation
+    private int maxNumWeights = DEFAULT_MAX_NUM_WEIGHTS; // only if using skeletal animation
 
     private int[] elementLengths;
     private int[] modeStart;
@@ -226,7 +241,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
 
             // TODO: Collision tree cloning
             //clone.collisionTree = collisionTree != null ? collisionTree : null;
-            clone.collisionTree = null; // it will get re-generated in any case
+            clone.collisionTree = DEFAULT_COLLECTION_TREE; // it will get re-generated in any case
 
             clone.buffers = new IntMap<>();
             clone.buffersList = new SafeArrayList<>(VertexBuffer.class);
@@ -309,7 +324,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
     @Override
     public void cloneFields(Cloner cloner, Object original) {
         // Probably could clone this now but it will get regenerated anyway.
-        this.collisionTree = null;
+        this.collisionTree = DEFAULT_COLLECTION_TREE;
 
         this.meshBound = cloner.clone(meshBound);
         this.buffersList = cloner.clone(buffersList);
@@ -616,7 +631,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
      */
     @Deprecated
     public float getPointSize() {
-        return 1.0f;
+        return DEFAULT_POINT_SIZE;
     }
 
     /**
@@ -995,7 +1010,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
      * generated BIHTree.
      */
     public void clearCollisionData() {
-        collisionTree = null;
+        collisionTree = DEFAULT_COLLECTION_TREE;
     }
 
     /**
@@ -1620,15 +1635,15 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
         OutputCapsule out = ex.getCapsule(this);
 
         out.write(meshBound, "modelBound", null);
-        out.write(vertCount, "vertCount", -1);
-        out.write(elementCount, "elementCount", -1);
-        out.write(instanceCount, "instanceCount", -1);
-        out.write(maxNumWeights, "max_num_weights", -1);
+        out.write(vertCount, "vertCount", DEFAULT_VERT_COUNT);
+        out.write(elementCount, "elementCount", DEFAULT_ELEMENT_COUNT);
+        out.write(instanceCount, "instanceCount", DEFAULT_INSTANCE_COUNT);
+        out.write(maxNumWeights, "max_num_weights", DEFAULT_MAX_NUM_WEIGHTS);
         out.write(mode, "mode", Mode.Triangles);
-        out.write(collisionTree, "collisionTree", null);
+        out.write(collisionTree, "collisionTree", DEFAULT_COLLECTION_TREE);
         out.write(elementLengths, "elementLengths", null);
         out.write(modeStart, "modeStart", null);
-        out.write(pointSize, "pointSize", 1f);
+        out.write(pointSize, "pointSize", DEFAULT_POINT_SIZE);
 
         //Removing HW skinning buffers to not save them
         VertexBuffer hwBoneIndex = null;
@@ -1663,17 +1678,17 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
     public void read(JmeImporter im) throws IOException {
         InputCapsule in = im.getCapsule(this);
         meshBound = (BoundingVolume) in.readSavable("modelBound", null);
-        vertCount = in.readInt("vertCount", -1);
-        elementCount = in.readInt("elementCount", -1);
-        instanceCount = in.readInt("instanceCount", -1);
-        maxNumWeights = in.readInt("max_num_weights", -1);
+        vertCount = in.readInt("vertCount", DEFAULT_VERT_COUNT);
+        elementCount = in.readInt("elementCount", DEFAULT_ELEMENT_COUNT);
+        instanceCount = in.readInt("instanceCount", DEFAULT_INSTANCE_COUNT);
+        maxNumWeights = in.readInt("max_num_weights", DEFAULT_MAX_NUM_WEIGHTS);
         mode = in.readEnum("mode", Mode.class, Mode.Triangles);
         elementLengths = in.readIntArray("elementLengths", null);
         modeStart = in.readIntArray("modeStart", null);
-        collisionTree = (BIHTree) in.readSavable("collisionTree", null);
+        collisionTree = (BIHTree) in.readSavable("collisionTree", DEFAULT_COLLECTION_TREE);
         elementLengths = in.readIntArray("elementLengths", null);
         modeStart = in.readIntArray("modeStart", null);
-        pointSize = in.readFloat("pointSize", 1f);
+        pointSize = in.readFloat("pointSize", DEFAULT_POINT_SIZE);
 
 //        in.readStringSavableMap("buffers", null);
         buffers = (IntMap<VertexBuffer>) in.readIntSavableMap("buffers", null);
