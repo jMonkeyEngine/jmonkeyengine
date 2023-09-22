@@ -277,13 +277,13 @@ public class AWTContext implements JmeContext {
     }
 
    @Override
-   public Monitors getMonitors() {
+   public Displays getDisplays() {
       // TODO Auto-generated method stub
       return null;
    }
 
    @Override
-   public int getPrimaryMonitor() {
+   public int getPrimaryDisplay() {
       // TODO Auto-generated method stub
       return 0;
    }

@@ -43,7 +43,7 @@ import com.jme3.math.Vector2f;
 import com.jme3.system.AppSettings;
 import com.jme3.system.JmeContext;
 import com.jme3.system.JmeSystem;
-import com.jme3.system.Monitors;
+import com.jme3.system.Displays;
 import com.jme3.system.NanoTimer;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.SafeArrayList;
@@ -882,12 +882,12 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
      * @return returns the Primary Monitor Position.
      */
     @Override
-    public int getPrimaryMonitor()
+    public int getPrimaryDisplay()
     {
        long prim = glfwGetPrimaryMonitor();
-       Monitors monitors = getMonitors();
+       Displays monitors = getDisplays();
        for ( int i = 0; i < monitors.size(); i++ ) {
-          long monitorI = monitors.get(i).monitorID;
+          long monitorI = monitors.get(i).displayID;
           if (monitorI == prim)
              return i;
        }
@@ -905,9 +905,9 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
      * @return return the monitorID if found otherwise return Primary Monitor
      */
     private long getMonitor(int pos) {
-       Monitors monitors = getMonitors();
+       Displays monitors = getDisplays();
        if (pos < monitors.size())
-          return monitors.get(pos).monitorID;
+          return monitors.get(pos).displayID;
        
        LOGGER.log(Level.SEVERE,"Couldn't locate Monitor requested in the list of Monitors. pos:"+pos+" size: "+ monitors.size());
        return glfwGetPrimaryMonitor();
@@ -922,10 +922,10 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
      */
     
     @Override
-    public Monitors getMonitors()  {
+    public Displays getDisplays()  {
        PointerBuffer monitors = glfwGetMonitors();
        long primary = glfwGetPrimaryMonitor();
-       Monitors monitorList = new Monitors();
+       Displays monitorList = new Displays();
        
        for ( int i = 0; i < monitors.limit(); i++ ) {
            long monitorI = monitors.get(i);

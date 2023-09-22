@@ -308,13 +308,13 @@ public class NullContext implements JmeContext, Runnable {
     }
 
     @Override
-    public Monitors getMonitors() {
+    public Displays getDisplays() {
       // TODO Auto-generated method stub
       return null;
     }
 
     @Override
-    public int getPrimaryMonitor() {
+    public int getPrimaryDisplay() {
       // TODO Auto-generated method stub
       return 0;
     }

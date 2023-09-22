@@ -31,12 +31,12 @@ package com.jme3.system;
  * 
  * @author Kevin Bales
  */
-public class MonitorInfo {
+public class DisplayInfo {
 
   /**
    * monitorID - monitor id that was return from Lwjgl3.
    */
-  public long monitorID = 0;
+  public long displayID = 0;
 
   /**
    * width - width that was return from Lwjgl3.
