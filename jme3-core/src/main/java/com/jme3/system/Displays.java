@@ -28,24 +28,24 @@ package com.jme3.system;
 import java.util.ArrayList;
 
 /**
- * This class holds all information about all monitors that where return from the glfwGetMonitors()
+ * This class holds all information about all displays that where return from the glfwGetMonitors()
  * call. It stores them into an <ArrayList>
  * 
  * @author Kevin Bales
  */
-public class Monitors {
+public class Displays {
 
-  private ArrayList<MonitorInfo> monitors = new ArrayList<MonitorInfo>();
+  private ArrayList<DisplayInfo> monitors = new ArrayList<DisplayInfo>();
 
   public int addNewMonitor(long monitorID) {
-    MonitorInfo info = new MonitorInfo();
-    info.monitorID = monitorID;
+    DisplayInfo info = new DisplayInfo();
+    info.displayID = monitorID;
     monitors.add(info);
     return monitors.size() - 1;
   }
 
   /**
-   * This function returns the size of the monitor ArrayList
+   * This function returns the size of the displays ArrayList
    * 
    * @return the
    */
@@ -54,12 +54,12 @@ public class Monitors {
   }
 
   /**
-   * Call to get monitor information on a certain monitor.
+   * Call to get monitor information on a certain display.
    * 
-   * @param pos the position in the arraylist of the monitor information that you want to get.
-   * @return returns the MonitorInfo data for the monitor called for.
+   * @param pos the position in the arraylist of the display information that you want to get.
+   * @return returns the DisplayInfo data for the display called for.
    */
-  public MonitorInfo get(int pos) {
+  public DisplayInfo get(int pos) {
     if (pos < monitors.size())
       return monitors.get(pos);
 
@@ -76,7 +76,7 @@ public class Monitors {
    */
   public void setInfo(int monPos, String name, int width, int height, int rate) {
     if (monPos < monitors.size()) {
-      MonitorInfo info = monitors.get(monPos);
+      DisplayInfo info = monitors.get(monPos);
       if (info != null) {
         info.width = width;
         info.height = height;
@@ -91,9 +91,9 @@ public class Monitors {
    * 
    * @param monPos the position in the arraylist of which monitor is the primary monitor
    */
-  public void setPrimaryMonitor(int monPos) {
+  public void setActiveMonitor(int monPos) {
     if (monPos < monitors.size()) {
-      MonitorInfo info = monitors.get(monPos);
+      DisplayInfo info = monitors.get(monPos);
       if (info != null)
         info.primary = true;
     }
