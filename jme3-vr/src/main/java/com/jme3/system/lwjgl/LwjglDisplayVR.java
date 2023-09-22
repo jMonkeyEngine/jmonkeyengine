@@ -32,7 +32,7 @@
 package com.jme3.system.lwjgl;
 
 import com.jme3.opencl.Context;
-import com.jme3.system.Displays;
+import com.jme3.system.Monitors;
 
 /**
  * A VR oriented LWJGL display.
@@ -54,13 +54,13 @@ public class LwjglDisplayVR extends LwjglWindowVR {
     }
 
     @Override
-    public Displays getDisplays() {
+    public Monitors getMonitors() {
       // TODO Auto-generated method stub
       return null;
     }
 
     @Override
-    public int getPrimaryDisplay() {
+    public int getPrimaryMonitor() {
       // TODO Auto-generated method stub
       return 0;
     }

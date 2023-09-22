@@ -49,8 +49,8 @@ import com.jme3.material.Material;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
 import com.jme3.system.AppSettings;
-import com.jme3.system.DisplayInfo;
-import com.jme3.system.Displays;
+import com.jme3.system.MonitorInfo;
+import com.jme3.system.Monitors;
 
 /**
  * Tests the capability to change which monitor the window will be created on.
@@ -67,7 +67,7 @@ public class TestMonitorApp extends SimpleApplication
    private BitmapText selectedMonitorTxt;
    private BitmapText fullScreenTxt;
    private int monitorSelected = 0;
-   private Displays monitors = null;
+   private Monitors monitors = null;
 
    public static void main(String[] args) {
       TestMonitorApp app = new TestMonitorApp();
@@ -116,7 +116,7 @@ public class TestMonitorApp extends SimpleApplication
 
       // Get the selected monitor
       monitorSelected = settings.getMonitor();
-      monitors = context.getDisplays();
+      monitors = context.getMonitors();
       if (monitors != null)
          numMonitors = monitors.size();
 
@@ -155,7 +155,7 @@ public class TestMonitorApp extends SimpleApplication
 
          // Let's loop through all the monitors and display on the screen
          for (int i = 0; i < monitors.size(); i++) {
-            DisplayInfo monitor = monitors.get(i);
+            MonitorInfo monitor = monitors.get(i);
             labelValue = "Mon : " + i + " " + monitor.name + " " + monitor.width
                      + "," + monitor.height + " refresh: " + monitor.rate;
             txt = new BitmapText(loadGuiFont());

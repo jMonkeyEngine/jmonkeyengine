@@ -825,8 +825,8 @@ public class LegacyApplication implements Application, SystemListener {
    * 
    * @return returns a list of monitors and their information.
    */
-  public Displays getDisplays() {
-    return context.getDisplays();
+  public Monitors getMonitors() {
+    return context.getMonitors();
   }
 
   /**
@@ -835,7 +835,7 @@ public class LegacyApplication implements Application, SystemListener {
    * 
    * @return the position of the value in the arraylist of the primary monitor.
    */
-  public int getPrimaryDisplay() {
-    return context.getPrimaryDisplay();
+  public int getPrimaryMonitor() {
+    return context.getPrimaryMonitor();
   }
 }
