@@ -165,7 +165,7 @@ public class GltfLoader implements AssetLoader {
 
             setupControls();
 
-            // only one scene let's not return the root.
+            // only one scene, let's not return the root.
             if (rootNode.getChildren().size() == 1) {
                 Node child = (Node) rootNode.getChild(0);
                 // Migrate lights that were in the parent to the child.
@@ -196,7 +196,7 @@ public class GltfLoader implements AssetLoader {
 
     public void readScenes(JsonPrimitive defaultScene, Node rootNode) throws IOException {
         if (scenes == null) {
-            // no scene... lets handle this later...
+            // no scene... let's handle this later...
             throw new AssetLoadException("Gltf files with no scene is not yet supported");
         }
 
@@ -231,7 +231,7 @@ public class GltfLoader implements AssetLoader {
         Object obj = fetchFromCache("nodes", nodeIndex, Object.class);
         if (obj != null) {
             if (obj instanceof JointWrapper) {
-                // the node can be a previously loaded bone let's return it
+                // the node can be a previously loaded bone, let's return it
                 return obj;
             } else {
                 // If a spatial is referenced several times, it may be attached to different parents,
@@ -332,12 +332,12 @@ public class GltfLoader implements AssetLoader {
             for (int i = 0; i < tmpArray.length; i++) {
                 tmpArray[i] = matrix.get(i).getAsFloat();
             }
-            // creates a row major matrix from color major data
+            // creates a row-major matrix from column-major data
             Matrix4f mat = new Matrix4f(tmpArray);
             transform.fromTransformMatrix(mat);
             return transform;
         }
-        // no matrix transforms: no transforms or transforms givens as translation/rotation/scale
+        // no matrix transforms: no transforms or transforms given as translation/rotation/scale
         JsonArray translation = nodeData.getAsJsonArray("translation");
         if (translation != null) {
             transform.setTranslation(
@@ -421,9 +421,9 @@ public class GltfLoader implements AssetLoader {
             handleSkinningBuffers(mesh, skinBuffers);
 
             if (mesh.getBuffer(VertexBuffer.Type.BoneIndex) != null) {
-                // the mesh has some skinning let's create needed buffers for HW skinning
+                // the mesh has some skinning, let's create needed buffers for HW skinning
                 // creating empty buffers for HW skinning
-                // the buffers will be setup if ever used.
+                // the buffers will be set up if ever used.
                 VertexBuffer weightsHW = new VertexBuffer(VertexBuffer.Type.HWBoneWeight);
                 VertexBuffer indicesHW = new VertexBuffer(VertexBuffer.Type.HWBoneIndex);
                 // setting usage to cpuOnly so that the buffer is not sent empty to the GPU
@@ -480,7 +480,7 @@ public class GltfLoader implements AssetLoader {
                     geom.setQueueBucket(RenderQueue.Bucket.Transparent);
                 }
                 if (useNormalsFlag && mesh.getBuffer(VertexBuffer.Type.Tangent) == null) {
-                    // No tangent buffer, but there is a normal map, we have to generate them using MiiktSpace
+                    // No tangent buffer, but there is a normal map, we have to generate them using MikktSpace
                     MikktspaceTangentGenerator.generate(geom);
                 }
             }
@@ -605,7 +605,7 @@ public class GltfLoader implements AssetLoader {
                 dataStream.close();
             }
         } else {
-            // no URI this should not happen in a gltf file, only in glb files.
+            // no URI, this should not happen in a gltf file, only in glb files.
             throw new AssetLoadException("Buffer " + bufferIndex + " has no uri");
         }
         return data;
@@ -938,9 +938,9 @@ public class GltfLoader implements AssetLoader {
             }
         }
 
-        // Check each bone to see if their local pose is different from their bind pose.
+        // Check each bone to see if its local pose is different from its bind pose.
         // If it is, we ensure that the bone has an animation track,
-        // else JME way of applying anim transforms will apply the bind pose to those bones,
+        // else the JME way of applying anim transforms will apply the bind pose to those bones,
         // instead of the local pose that is supposed to be the default
         if (skinIndex != -1) {
             SkinData skin = fetchFromCache("skins", skinIndex, SkinData.class);
@@ -970,7 +970,7 @@ public class GltfLoader implements AssetLoader {
         if (!spatials.isEmpty()) {
             if (skinIndex != -1) {
                 // there are some spatial or morph tracks in this bone animation... or the other way around.
-                // Let's add the spatials in the skinnedSpatials.
+                // Let's add the spatials to the skinnedSpatials.
                 SkinData skin = fetchFromCache("skins", skinIndex, SkinData.class);
                 List<Spatial> spat = skinnedSpatials.get(skin);
                 spat.addAll(spatials);
@@ -1034,7 +1034,7 @@ public class GltfLoader implements AssetLoader {
             JsonObject skin = skins.get(index).getAsJsonObject();
 
             // Note that the "skeleton" index is intentionally ignored.
-            // It's not mandatory and exporters tends to mix up how it should be used
+            // It's not mandatory and exporters tend to mix up how it should be used
             // because the specs are not clear.
             // Anyway we have other means to detect both armature structures and root bones.
 
@@ -1349,7 +1349,7 @@ public class GltfLoader implements AssetLoader {
             float[] data = new float[dataSize];
 
             if (bufferViewIndex == null) {
-                // no referenced buffer, specs says to pad the data with zeros.
+                // no referenced buffer, specs say to pad the data with zeros.
                 padBuffer(data, dataSize);
             } else {
                 readBuffer(bufferViewIndex, byteOffset, count, data, numComponents,
@@ -1371,7 +1371,7 @@ public class GltfLoader implements AssetLoader {
 //            float[] data = new float[dataSize];
 //
 //            if (bufferViewIndex == null) {
-//                // no referenced buffer, specs says to pad the data with zeros.
+//                // no referenced buffer, specs say to pad the data with zeros.
 //                padBuffer(data, dataSize);
 //            } else {
 //                readBuffer(bufferViewIndex, byteOffset, count, data, numComponents,
@@ -1393,7 +1393,7 @@ public class GltfLoader implements AssetLoader {
             Vector3f[] data = new Vector3f[count];
 
             if (bufferViewIndex == null) {
-                // no referenced buffer, specs says to pad the data with zeros.
+                // no referenced buffer, specs say to pad the data with zeros.
                 padBuffer(data, dataSize);
             } else {
                 readBuffer(bufferViewIndex, byteOffset, count, data, numComponents,
@@ -1413,7 +1413,7 @@ public class GltfLoader implements AssetLoader {
             Quaternion[] data = new Quaternion[count];
 
             if (bufferViewIndex == null) {
-                // no referenced buffer, specs says to pad the data with zeros.
+                // no referenced buffer, specs say to pad the data with zeros.
                 padBuffer(data, dataSize);
             } else {
                 readBuffer(bufferViewIndex, byteOffset, count, data, numComponents,
@@ -1462,7 +1462,7 @@ public class GltfLoader implements AssetLoader {
             short[] data = new short[dataSize];
 
             if (bufferViewIndex == null) {
-                // no referenced buffer, specs says to pad the data with zeros.
+                // no referenced buffer, specs say to pad the data with zeros.
                 padBuffer(data, dataSize);
             } else {
                 readBuffer(bufferViewIndex, byteOffset, count, data, numComponents, format);
