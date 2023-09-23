@@ -38,7 +38,7 @@ import com.jme3.input.MouseInput;
 import com.jme3.input.TouchInput;
 import com.jme3.input.dummy.DummyKeyInput;
 import com.jme3.input.dummy.DummyMouseInput;
-import com.jme3.system.Displays;
+import com.jme3.system.Monitors;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
@@ -221,13 +221,13 @@ public class LwjglOffscreenBuffer extends LwjglContext implements Runnable {
     }
 
     @Override
-    public Displays getDisplays() {
+    public Monitors getMonitors() {
       // TODO Auto-generated method stub
       return null;
     }
 
     @Override
-    public int getPrimaryDisplay() {
+    public int getPrimaryMonitor() {
       // TODO Auto-generated method stub
       return 0;
     }

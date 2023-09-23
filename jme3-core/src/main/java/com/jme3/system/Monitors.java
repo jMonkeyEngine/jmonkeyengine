@@ -33,13 +33,13 @@ import java.util.ArrayList;
  * 
  * @author Kevin Bales
  */
-public class Displays {
+public class Monitors {
 
-  private ArrayList<DisplayInfo> monitors = new ArrayList<DisplayInfo>();
+  private ArrayList<MonitorInfo> monitors = new ArrayList<MonitorInfo>();
 
   public int addNewMonitor(long monitorID) {
-    DisplayInfo info = new DisplayInfo();
-    info.displayID = monitorID;
+    MonitorInfo info = new MonitorInfo();
+    info.monitorID = monitorID;
     monitors.add(info);
     return monitors.size() - 1;
   }
@@ -59,7 +59,7 @@ public class Displays {
    * @param pos the position in the arraylist of the monitor information that you want to get.
    * @return returns the MonitorInfo data for the monitor called for.
    */
-  public DisplayInfo get(int pos) {
+  public MonitorInfo get(int pos) {
     if (pos < monitors.size())
       return monitors.get(pos);
 
@@ -76,7 +76,7 @@ public class Displays {
    */
   public void setInfo(int monPos, String name, int width, int height, int rate) {
     if (monPos < monitors.size()) {
-      DisplayInfo info = monitors.get(monPos);
+      MonitorInfo info = monitors.get(monPos);
       if (info != null) {
         info.width = width;
         info.height = height;
@@ -93,7 +93,7 @@ public class Displays {
    */
   public void setPrimaryMonitor(int monPos) {
     if (monPos < monitors.size()) {
-      DisplayInfo info = monitors.get(monPos);
+      MonitorInfo info = monitors.get(monPos);
       if (info != null)
         info.primary = true;
     }

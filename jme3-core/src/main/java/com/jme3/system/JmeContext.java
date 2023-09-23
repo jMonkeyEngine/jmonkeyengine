@@ -232,7 +232,7 @@ public interface JmeContext {
      * 
      * @return returns a list of monitors and their information.
      */
-    public Displays getDisplays();
+    public Monitors getMonitors();
 
     /**
      * Use this to get the positional number of the primary monitor from the glfwGetMonitors()
@@ -240,5 +240,5 @@ public interface JmeContext {
      * 
      * @return the position of the value in the arraylist of the primary monitor.
      */
-    public int getPrimaryDisplay();
+    public int getPrimaryMonitor();
   }
