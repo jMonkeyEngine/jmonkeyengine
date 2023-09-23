@@ -52,11 +52,11 @@ import com.jme3.renderer.ViewPort;
 import com.jme3.system.AppSettings;
 import com.jme3.system.JmeContext;
 import com.jme3.system.JmeContext.Type;
-import com.jme3.util.res.Resources;
 import com.jme3.system.JmeSystem;
 import com.jme3.system.NanoTimer;
 import com.jme3.system.SystemListener;
 import com.jme3.system.Timer;
+import com.jme3.util.res.Resources;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.concurrent.Callable;
@@ -199,8 +199,7 @@ public class LegacyApplication implements Application, SystemListener {
     @Deprecated
     public void setAssetManager(AssetManager assetManager) {
         if (this.assetManager != null) {
-            throw new IllegalStateException("Can only set asset manager"
-                    + " before initialization.");
+            throw new IllegalStateException("Can only set asset manager" + " before initialization.");
         }
 
         this.assetManager = assetManager;
@@ -220,13 +219,16 @@ public class LegacyApplication implements Application, SystemListener {
                 if (assetCfgUrl == null) {
                     assetCfgUrl = Resources.getResource(assetCfg);
                     if (assetCfgUrl == null) {
-                        logger.log(Level.SEVERE, "Unable to access AssetConfigURL in asset config:{0}", 
-                                assetCfg);
+                        logger.log(
+                            Level.SEVERE,
+                            "Unable to access AssetConfigURL in asset config:{0}",
+                            assetCfg
+                        );
                         return;
                     }
                 }
             }
-        }      
+        }
         if (assetCfgUrl == null) {
             assetCfgUrl = JmeSystem.getPlatformAssetConfigURL();
         }
@@ -595,7 +597,6 @@ public class LegacyApplication implements Application, SystemListener {
         }
     }
 
-
     @Override
     public void rescale(float x, float y) {
         if (renderManager != null) {
@@ -668,9 +669,8 @@ public class LegacyApplication implements Application, SystemListener {
         initAudio();
 
         // update timer so that the next delta is not too large
-//        timer.update();
+        //        timer.update();
         timer.reset();
-
         // user code here
     }
 
@@ -684,8 +684,12 @@ public class LegacyApplication implements Application, SystemListener {
         // Display error message on screen if not in headless mode
         if (context.getType() != JmeContext.Type.Headless) {
             if (t != null) {
-                JmeSystem.handleErrorMessage(errMsg + "\n" + t.getClass().getSimpleName()
-                        + (t.getMessage() != null ? ": " + t.getMessage() : ""));
+                JmeSystem.handleErrorMessage(
+                    errMsg +
+                    "\n" +
+                    t.getClass().getSimpleName() +
+                    (t.getMessage() != null ? ": " + t.getMessage() : "")
+                );
             } else {
                 JmeSystem.handleErrorMessage(errMsg);
             }
@@ -811,7 +815,6 @@ public class LegacyApplication implements Application, SystemListener {
             }
             audioRenderer.update(timer.getTimePerFrame());
         }
-
         // user code here
     }
 
@@ -866,6 +869,7 @@ public class LegacyApplication implements Application, SystemListener {
     }
 
     private class RunnableWrapper implements Callable {
+
         private final Runnable runnable;
 
         public RunnableWrapper(Runnable runnable) {
