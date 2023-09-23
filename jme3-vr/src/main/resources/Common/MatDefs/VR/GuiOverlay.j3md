@@ -1,6 +1,7 @@
 MaterialDef GuiOverlay {
 
     MaterialParameters {
+        Int BoundDrawBuffer
         Texture2D ColorMap
 
         // For VR instancing
@@ -8,8 +9,8 @@ MaterialDef GuiOverlay {
     }
 
     Technique {
-        VertexShader GLSL150:   Common/MatDefs/VR/GuiOverlay15.vert
-        FragmentShader GLSL150: Common/MatDefs/VR/GuiOverlay15.frag
+        VertexShader    GLSL300 GLSL150:   Common/MatDefs/VR/GuiOverlay15.vert
+        FragmentShader  GLSL300 GLSL150: Common/MatDefs/VR/GuiOverlay15.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -17,13 +18,14 @@ MaterialDef GuiOverlay {
         }
 
         Defines {
+            BOUND_DRAW_BUFFER: BoundDrawBuffer
             INSTANCING : RightEyeViewProjectionMatrix // For VR instancing
         }
     }
 
     Technique {
-        VertexShader GLSL100:   Common/MatDefs/VR/GuiOverlay.vert
-        FragmentShader GLSL100: Common/MatDefs/VR/GuiOverlay.frag
+        VertexShader   GLSL300 GLSL150 GLSL100:   Common/MatDefs/VR/GuiOverlay.vert
+        FragmentShader GLSL300 GLSL150 GLSL100: Common/MatDefs/VR/GuiOverlay.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -31,6 +33,7 @@ MaterialDef GuiOverlay {
         }
 
         Defines {
+            BOUND_DRAW_BUFFER: BoundDrawBuffer
             INSTANCING : RightEyeViewProjectionMatrix // For VR instancing
         }
     }

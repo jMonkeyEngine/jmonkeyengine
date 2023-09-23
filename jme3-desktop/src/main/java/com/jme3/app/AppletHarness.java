@@ -34,6 +34,8 @@ package com.jme3.app;
 import com.jme3.system.AppSettings;
 import com.jme3.system.JmeCanvasContext;
 import com.jme3.system.JmeSystem;
+import com.jme3.util.res.Resources;
+
 import java.applet.Applet;
 import java.awt.Canvas;
 import java.awt.Graphics;
@@ -150,7 +152,7 @@ public class AppletHarness extends Applet {
             assetCfg = new URL(getParameter("AssetConfigURL"));
         } catch (MalformedURLException ex){
             System.out.println(ex.getMessage());
-            assetCfg = getClass().getResource("/com/jme3/asset/Desktop.cfg");
+            assetCfg = Resources.getResource("/com/jme3/asset/Desktop.cfg",this.getClass());
         }
 
         createCanvas();

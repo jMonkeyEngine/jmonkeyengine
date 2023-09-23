@@ -91,7 +91,7 @@ public class HDRRenderer implements SceneProcessor {
     private float whiteLevel = 100f;
     private float throttle = -1;
     private int maxIterations = -1;
-    private Image.Format bufFormat = Format.RGB16F;
+    private Image.Format bufFormat = Format.RGB8;
 
     private MinFilter fbMinFilter = MinFilter.BilinearNoMipMaps;
     private MagFilter fbMagFilter = MagFilter.Bilinear;
@@ -106,8 +106,10 @@ public class HDRRenderer implements SceneProcessor {
         Collection<Caps> caps = renderer.getCaps();
         if (caps.contains(Caps.PackedFloatColorBuffer))
             bufFormat = Format.RGB111110F;
-        else if (caps.contains(Caps.FloatColorBuffer))
+        else if (caps.contains(Caps.FloatColorBufferRGB))
             bufFormat = Format.RGB16F;
+        else if (caps.contains(Caps.FloatColorBufferRGBA))
+            bufFormat = Format.RGBA16F;
         else {
             enabled = false;
             return;

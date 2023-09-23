@@ -58,8 +58,10 @@ import com.jme3.scene.VertexBuffer;
 import com.jme3.shader.Shader;
 import com.jme3.shader.UniformBinding;
 import com.jme3.shader.UniformBindingManager;
+import com.jme3.shader.VarType;
 import com.jme3.system.NullRenderer;
 import com.jme3.system.Timer;
+import com.jme3.texture.FrameBuffer;
 import com.jme3.util.SafeArrayList;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -101,6 +103,7 @@ public class RenderManager {
     private LightFilter lightFilter = new DefaultLightFilter();
     private TechniqueDef.LightMode preferredLightMode = TechniqueDef.LightMode.MultiPass;
     private int singlePassLightBatchSize = 1;
+    private MatParamOverride boundDrawBufferId=new MatParamOverride(VarType.Int,"BoundDrawBuffer",0);
 
 
     /**
@@ -111,6 +114,7 @@ public class RenderManager {
      */
     public RenderManager(Renderer renderer) {
         this.renderer = renderer;
+        this.forcedOverrides.add(boundDrawBufferId);
     }
 
     /**
@@ -629,6 +633,12 @@ public class RenderManager {
             setWorldMatrix(geom.getWorldMatrix());
         }
 
+        // Use material override to pass the current target index (used in api such as GL ES that do not support glDrawBuffer)
+        FrameBuffer currentFb = this.renderer.getCurrentFrameBuffer();
+        if (currentFb != null && !currentFb.isMultiTarget()) {
+            this.boundDrawBufferId.setValue(currentFb.getTargetIndex());
+        }
+
         // Perform light filtering if we have a light filter.
         LightList lightList = geom.getWorldLightList();
 
@@ -639,7 +649,7 @@ public class RenderManager {
         }
 
         Material material = geom.getMaterial();
-
+        
         // If forcedTechnique exists, we try to force it for the render.
         // If it does not exist in the mat def, we check for forcedMaterial and render the geom if not null.
         // Otherwise, the geometry is not rendered.
@@ -1296,6 +1306,34 @@ public class RenderManager {
             if (vp.getOutputFrameBuffer() != null || mainFrameBufferActive) {
                 renderViewPort(vp, tpf);
             }
+        }
+    }
+
+
+    /**
+     * Returns true if the draw buffer target id is passed to the shader.
+     * 
+     * @return True if the draw buffer target id is passed to the shaders.
+     */
+    public boolean getPassDrawBufferTargetIdToShaders() {
+        return this.forcedOverrides.contains(boundDrawBufferId);
+    }
+
+    /**
+     * Enable or disable passing the draw buffer target id to the shaders. This
+     * is needed to handle FrameBuffer.setTargetIndex correctly in some
+     * backends.
+     * 
+     * @param v
+     *            True to enable, false to disable (default is true)
+     */
+    public void setPassDrawBufferTargetIdToShaders(boolean v) {
+        if (v) {
+            if (!this.forcedOverrides.contains(boundDrawBufferId)) {
+                this.forcedOverrides.add(boundDrawBufferId);
+            }
+        } else {
+            this.forcedOverrides.remove(boundDrawBufferId);
         }
     }
 }

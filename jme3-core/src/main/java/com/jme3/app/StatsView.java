@@ -60,11 +60,11 @@ import com.jme3.util.clone.JmeCloneable;
  * </pre>
  */
 public class StatsView extends Node implements Control, JmeCloneable {
-    final private BitmapText statText;
-    final private Statistics statistics;
+    private final BitmapText statText;
+    private final Statistics statistics;
 
-    final private String[] statLabels;
-    final private int[] statData;
+    private final String[] statLabels;
+    private final int[] statData;
 
     private boolean enabled = true;
 
@@ -96,8 +96,9 @@ public class StatsView extends Node implements Control, JmeCloneable {
 
     @Override
     public void update(float tpf) {
-        if (!isEnabled())
+        if (!isEnabled()) {
             return;
+        }
 
         statistics.getData(statData);
         stringBuilder.setLength(0);

@@ -105,6 +105,9 @@ public abstract class BlendableAction extends Action {
     }
 
     public void setTransitionLength(double transitionLength) {
+        if (transitionLength < 0.0) {
+            throw new IllegalArgumentException("transitionLength must be greater than or equal to 0");
+        }
         this.transitionLength = transitionLength;
         this.transition.setLength(transitionLength);
     }

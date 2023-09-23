@@ -1,5 +1,6 @@
 MaterialDef FXAA {
     MaterialParameters {
+        Int BoundDrawBuffer
         Int NumSamples
         Texture2D Texture
         Float SubPixelShift
@@ -8,10 +9,14 @@ MaterialDef FXAA {
         Float ReduceMul
     }
     Technique {
-        VertexShader GLSL300 GLSL100 GLSL150:   Common/MatDefs/Post/FXAA.vert
-        FragmentShader GLSL300 GLSL100 GLSL150: Common/MatDefs/Post/FXAA.frag
+        VertexShader   GLSL300 GLSL150 GLSL100:   Common/MatDefs/Post/FXAA.vert
+        FragmentShader GLSL300 GLSL150 GLSL100:   Common/MatDefs/Post/FXAA.frag
         WorldParameters {
             ResolutionInverse
+        }
+
+        Defines {
+            BOUND_DRAW_BUFFER: BoundDrawBuffer
         }
     }
 }

@@ -449,7 +449,7 @@ public class MaterialMatParamTest {
             MaterialMatParamTest.this.usedTextures[unit] = texture;
         }
     };
-    private final RenderManager renderManager = new RenderManager(renderer);
+    private final RenderManager renderManager = TestUtil.createRenderManager(renderer);
 
     private boolean evaluated = false;
     private Shader usedShader = null;

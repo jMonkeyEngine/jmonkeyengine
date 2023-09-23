@@ -32,6 +32,8 @@
 package com.jme3.system;
 
 import com.jme3.audio.AudioRenderer;
+import com.jme3.util.res.Resources;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URL;
@@ -45,7 +47,7 @@ public class MockJmeSystemDelegate extends JmeSystemDelegate {
 
     @Override
     public URL getPlatformAssetConfigURL() {
-        return Thread.currentThread().getContextClassLoader().getResource("com/jme3/asset/General.cfg");
+        return Resources.getResource("com/jme3/asset/General.cfg");
     }
 
     @Override

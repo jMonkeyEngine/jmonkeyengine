@@ -1,20 +1,22 @@
 MaterialDef Bloom Final {
 
     MaterialParameters {
-          Int NumSamples
+        Int BoundDrawBuffer
+        Int NumSamples
         Texture2D Texture
         Texture2D BloomTex
         Float BloomIntensity
     }
 
     Technique {
-        VertexShader GLSL150 GLSL100:   Common/MatDefs/Post/Post.vert
-        FragmentShader GLSL150 GLSL100: Common/MatDefs/Post/bloomFinal.frag
+        VertexShader   GLSL300 GLSL150 GLSL100:   Common/MatDefs/Post/Post.vert
+        FragmentShader GLSL300 GLSL150 GLSL100: Common/MatDefs/Post/bloomFinal.frag
 
         WorldParameters {
         }
 
         Defines {
+            BOUND_DRAW_BUFFER: BoundDrawBuffer
             RESOLVE_MS : NumSamples
         }
     }

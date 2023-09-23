@@ -527,4 +527,10 @@ public interface Renderer {
  
     }
     
+    /**
+     * Returns the current FrameBuffer that is being rendered to.
+     * @return the FrameBuffer or null if rendering to the screen.
+     */
+    public FrameBuffer getCurrentFrameBuffer();
+
 }

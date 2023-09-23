@@ -65,11 +65,11 @@ jobs:
 
     steps:
       - name: Clone the repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 1
       - name: Validate the Gradle wrapper
-        uses: gradle/wrapper-validation-action@v1.0.5
+        uses: gradle/wrapper-validation-action@v1
       - name: Build
         run: |
           ./gradlew -PuseCommitHashAsVersionName=true --no-daemon -PbuildNativeProjects=true \
@@ -108,7 +108,7 @@ jobs:
 
     steps:
       - name: Clone the repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 1
 
@@ -125,7 +125,7 @@ jobs:
           path: build/native
 
       - name: Validate the Gradle wrapper
-        uses: gradle/wrapper-validation-action@v1.0.5
+        uses: gradle/wrapper-validation-action@v1
       - name: Build Engine
         shell: bash
         run: |
@@ -301,7 +301,7 @@ jobs:
 
       # We need to clone everything again for uploadToMaven.sh ...
       - name: Clone the repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 1
 
@@ -345,7 +345,7 @@ jobs:
 
       # We need to clone everything again for uploadToMaven.sh ...
       - name: Clone the repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 1
 

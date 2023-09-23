@@ -1,6 +1,7 @@
 MaterialDef Advanced Water {
 
     MaterialParameters {
+        Int BoundDrawBuffer
         Int NumSamples
         Int NumSamplesDepth
         Texture2D FoamMap
@@ -59,7 +60,8 @@ MaterialDef Advanced Water {
         }
 
         Defines {
-          RESOLVE_MS : NumSamples
+            BOUND_DRAW_BUFFER: BoundDrawBuffer
+            RESOLVE_MS : NumSamples
             RESOLVE_DEPTH_MS : NumSamplesDepth
             ENABLE_RIPPLES : UseRipples
             ENABLE_HQ_SHORELINE : UseHQShoreline

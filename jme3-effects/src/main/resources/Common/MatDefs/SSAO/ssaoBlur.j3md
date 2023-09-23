@@ -1,6 +1,7 @@
 MaterialDef SSAOBlur {
 
-    MaterialParameters {       
+    MaterialParameters {     
+        Int BoundDrawBuffer  
         Int NumSamples
         Int NumSamplesDepth
         Texture2D Texture
@@ -22,6 +23,7 @@ MaterialDef SSAOBlur {
         }
 
         Defines {
+            BOUND_DRAW_BUFFER: BoundDrawBuffer
             USE_AO : UseAo
             USE_ONLY_AO : UseOnlyAo
             RESOLVE_MS : NumSamples

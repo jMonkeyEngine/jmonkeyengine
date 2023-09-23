@@ -1,6 +1,7 @@
 MaterialDef Simple Water {
 
     MaterialParameters {
+        Int BoundDrawBuffer
         Texture2D water_reflection
         Texture2D water_refraction
         Texture2D water_depthmap
@@ -18,8 +19,8 @@ MaterialDef Simple Water {
     }
 
     Technique {
-        VertexShader GLSL100 GLSL150:   Common/MatDefs/Water/simple_water.vert
-        FragmentShader GLSL100 GLSL150: Common/MatDefs/Water/simple_water.frag
+        VertexShader   GLSL300 GLSL150 GLSL100:   Common/MatDefs/Water/simple_water.vert
+        FragmentShader GLSL300 GLSL150 GLSL100 : Common/MatDefs/Water/simple_water.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -27,5 +28,9 @@ MaterialDef Simple Water {
             Resolution
             CameraPosition
         }
+        Defines {
+            BOUND_DRAW_BUFFER: BoundDrawBuffer
+        }
+        
     }
 }

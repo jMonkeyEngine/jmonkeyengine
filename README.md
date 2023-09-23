@@ -4,7 +4,7 @@ jMonkeyEngine
 [![Build Status](https://github.com/jMonkeyEngine/jmonkeyengine/workflows/Build%20jMonkeyEngine/badge.svg)](https://github.com/jMonkeyEngine/jmonkeyengine/actions)
 
 jMonkeyEngine is a 3-D game engine for adventurous Java developers. It’s open-source, cross-platform, and cutting-edge.
-v3.6.0 is the latest stable version of the engine.
+v3.6.1 is the latest stable version of the engine.
 
 The engine is used by several commercial game studios and computer-science courses. Here's a taste:
 
@@ -28,9 +28,9 @@ The engine is used by several commercial game studios and computer-science cours
  - [Chatter Games](https://chatter-games.com)
  - [Exotic Matter](https://exoticmatter.io)
  - [Demon Lord (on Google Play)](https://play.google.com/store/apps/details?id=com.dreiInitiative.demonLord&pli=1)
- - [Wild Magic](http://wildmagicgame.ru/)
  - [Marvelous Marbles (on Steam)](https://store.steampowered.com/app/2244540/Marvelous_Marbles/)
  - [Boxer (on Google Play)](https://play.google.com/store/apps/details?id=com.tharg.boxer)
+ - [Depthris (on Itch)](https://codewalker.itch.io/depthris)
 
 ## Getting started
 

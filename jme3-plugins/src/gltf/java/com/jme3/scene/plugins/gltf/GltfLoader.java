@@ -31,8 +31,10 @@
  */
 package com.jme3.scene.plugins.gltf;
 
-import com.google.gson.*;
-import com.google.gson.stream.JsonReader;
+import com.jme3.plugins.json.JsonArray;
+import com.jme3.plugins.json.JsonObject;
+import com.jme3.plugins.json.JsonPrimitive;
+import com.jme3.plugins.json.JsonElement;
 import com.jme3.anim.*;
 import com.jme3.asset.*;
 import com.jme3.material.Material;
@@ -119,7 +121,7 @@ public class GltfLoader implements AssetLoader {
                 defaultMat.setFloat("Roughness", 1f);
             }
 
-            docRoot = JsonParser.parseReader(new JsonReader(new InputStreamReader(stream))).getAsJsonObject();
+            docRoot = parse(stream);
 
             JsonObject asset = docRoot.getAsJsonObject().get("asset").getAsJsonObject();
             getAsString(asset, "generator");
@@ -1050,7 +1052,7 @@ public class GltfLoader implements AssetLoader {
 
             // These inverse bind matrices, once inverted again,
             // will give us the real bind pose of the bones (in model space),
-            // since the skeleton in not guaranteed to be exported in bind pose.
+            // since the skeleton is not guaranteed to be exported in bind pose.
             Integer matricesIndex = getAsInteger(skin, "inverseBindMatrices");
             Matrix4f[] inverseBindMatrices = null;
             if (matricesIndex != null) {

@@ -1,6 +1,7 @@
 MaterialDef Unshaded {
 
     MaterialParameters {
+        Int BoundDrawBuffer
         Texture2D ColorMap
         Texture2D LightMap
         Color Color (Color)
@@ -65,8 +66,8 @@ MaterialDef Unshaded {
     }
 
     Technique {
-        VertexShader GLSL310 GLSL300 GLSL100 GLSL150:   Common/MatDefs/Misc/Unshaded.vert
-        FragmentShader GLSL310 GLSL300 GLSL100 GLSL150: Common/MatDefs/Misc/Unshaded.frag
+        VertexShader   GLSL310 GLSL300 GLSL150 GLSL100 :   Common/MatDefs/Misc/Unshaded.vert
+        FragmentShader GLSL310 GLSL300 GLSL150 GLSL100 : Common/MatDefs/Misc/Unshaded.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -75,6 +76,7 @@ MaterialDef Unshaded {
         }
 
         Defines {
+            BOUND_DRAW_BUFFER: BoundDrawBuffer
             INSTANCING : UseInstancing
             SEPARATE_TEXCOORD : SeparateTexCoord
             HAS_COLORMAP : ColorMap
@@ -92,8 +94,8 @@ MaterialDef Unshaded {
 
     Technique PreNormalPass {
 
-        VertexShader GLSL310 GLSL300 GLSL100 GLSL150 :   Common/MatDefs/SSAO/normal.vert
-        FragmentShader GLSL310 GLSL300 GLSL100 GLSL150 : Common/MatDefs/SSAO/normal.frag
+        VertexShader   GLSL310 GLSL300 GLSL150 GLSL100:   Common/MatDefs/SSAO/normal.vert
+        FragmentShader GLSL310 GLSL300 GLSL150 GLSL100:   Common/MatDefs/SSAO/normal.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -104,6 +106,7 @@ MaterialDef Unshaded {
         }
 
         Defines {
+            BOUND_DRAW_BUFFER: BoundDrawBuffer
             COLORMAP_ALPHA : ColorMap
             NUM_BONES : NumberOfBones
             INSTANCING : UseInstancing
@@ -114,8 +117,8 @@ MaterialDef Unshaded {
 
     Technique PreShadow {
 
-        VertexShader GLSL310 GLSL300 GLSL100 GLSL150 :   Common/MatDefs/Shadow/PreShadow.vert
-        FragmentShader GLSL310 GLSL300 GLSL100 GLSL150 : Common/MatDefs/Shadow/PreShadow.frag
+        VertexShader   GLSL310 GLSL300 GLSL150 GLSL100:   Common/MatDefs/Shadow/PreShadow.vert
+        FragmentShader GLSL310 GLSL300 GLSL150 GLSL100:   Common/MatDefs/Shadow/PreShadow.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -125,6 +128,7 @@ MaterialDef Unshaded {
         }
 
         Defines {
+            BOUND_DRAW_BUFFER: BoundDrawBuffer
             COLOR_MAP : ColorMap
             DISCARD_ALPHA : AlphaDiscardThreshold
             NUM_BONES : NumberOfBones
@@ -145,8 +149,8 @@ MaterialDef Unshaded {
 
 
     Technique PostShadow {
-        VertexShader GLSL310 GLSL300 GLSL100 GLSL150:   Common/MatDefs/Shadow/PostShadow.vert
-        FragmentShader GLSL310 GLSL300 GLSL100 GLSL150: Common/MatDefs/Shadow/PostShadow.frag
+        VertexShader    GLSL310 GLSL300 GLSL150 GLSL100:   Common/MatDefs/Shadow/PostShadow.vert
+        FragmentShader  GLSL310 GLSL300 GLSL150 GLSL100:   Common/MatDefs/Shadow/PostShadow.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -156,6 +160,7 @@ MaterialDef Unshaded {
         }
 
         Defines {
+            BOUND_DRAW_BUFFER: BoundDrawBuffer
             HARDWARE_SHADOWS : HardwareShadows
             FILTER_MODE : FilterMode
             PCFEDGE : PCFEdge
@@ -181,8 +186,8 @@ MaterialDef Unshaded {
 
     Technique Glow {
 
-        VertexShader GLSL310 GLSL300 GLSL100 GLSL150:   Common/MatDefs/Misc/Unshaded.vert
-        FragmentShader GLSL310 GLSL300 GLSL100 GLSL150: Common/MatDefs/Light/Glow.frag
+        VertexShader   GLSL310 GLSL300 GLSL150 GLSL100:   Common/MatDefs/Misc/Unshaded.vert
+        FragmentShader GLSL310 GLSL300 GLSL150 GLSL100:   Common/MatDefs/Light/Glow.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -191,6 +196,7 @@ MaterialDef Unshaded {
         }
 
         Defines {
+            BOUND_DRAW_BUFFER: BoundDrawBuffer
             NEED_TEXCOORD1
             HAS_GLOWMAP : GlowMap
             HAS_GLOWCOLOR : GlowColor

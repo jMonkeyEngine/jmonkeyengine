@@ -7,6 +7,8 @@ apply plugin: 'groovy'
 apply plugin: 'maven-publish'
 apply plugin: 'signing'
 apply plugin: 'eclipse'
+apply plugin: 'checkstyle'
+
 eclipse.jdt.file.withProperties { props ->
     props.setProperty "org.eclipse.jdt.core.circularClasspath", "warning"
 }
@@ -41,7 +43,7 @@ dependencies {
     // Adding dependencies here will add the dependencies to each subproject.
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'org.mockito:mockito-core:3.12.4'
-    testImplementation 'org.codehaus.groovy:groovy-test:3.0.17'
+    testImplementation 'org.codehaus.groovy:groovy-test:3.0.19'
 }
 
 // Uncomment if you want to see the status of every test that is run and
@@ -183,7 +185,7 @@ publishing {
 }
 
 publishToMavenLocal.doLast {
-    println 'published ' + project.getName() + "-${jmeFullVersion} to mavenLocal"    
+    println 'published ' + project.getName() + "-${jmeFullVersion} to mavenLocal"
 }
 task('install') {
     dependsOn 'publishToMavenLocal'
@@ -199,4 +201,25 @@ signing {
 }
 tasks.withType(Sign) {
     onlyIf { gradle.rootProject.hasProperty('signingKey') }
+}
+
+checkstyle {
+    toolVersion '9.3'
+    configFile file("${gradle.rootProject.rootDir}/config/checkstyle/checkstyle.xml")
+}
+
+checkstyleMain {
+    source ='src/main/java'
+}
+
+checkstyleTest {
+    source ='src/test/java'
+}
+
+tasks.withType(Checkstyle) {
+    reports {
+        xml.enabled false
+        html.enabled true
+    }
+    include("**/com/jme3/renderer/**/*.java")
 }

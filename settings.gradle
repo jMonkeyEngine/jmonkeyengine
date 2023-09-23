@@ -8,6 +8,9 @@ include 'jme3-core'
 include 'jme3-effects'
 include 'jme3-networking'
 include 'jme3-plugins'
+include 'jme3-plugins-json'
+include 'jme3-plugins-json-gson'
+
 include 'jme3-terrain'
 
 // Desktop dependent java classes

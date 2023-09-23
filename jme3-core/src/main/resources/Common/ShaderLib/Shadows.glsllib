@@ -177,8 +177,7 @@ float Shadow_DoPCF(in SHADOWMAP tex,in vec4 projCoord){
     if (border > 0.0)
         return 1.0;
 
-    float bound = KERNEL * 0.5 - 0.5;
-    bound *= PCFEDGE;
+    const float bound = (KERNEL * 0.5 - 0.5 ) * PCFEDGE;
     for (float y = -bound; y <= bound; y += PCFEDGE){
         for (float x = -bound; x <= bound; x += PCFEDGE){
             #if __VERSION__ < 130

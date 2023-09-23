@@ -1,6 +1,7 @@
 MaterialDef Default GUI {
 
     MaterialParameters {
+        Int BoundDrawBuffer
         Int NumSamples
         Int NumSamplesDepth
         Texture2D Texture
@@ -8,13 +9,14 @@ MaterialDef Default GUI {
     }
 
     Technique {
-        VertexShader GLSL150 GLSL100:   Common/MatDefs/Post/Post.vert
-        FragmentShader GLSL150 GLSL100: Common/MatDefs/Post/Compose.frag
+        VertexShader   GLSL300 GLSL150 GLSL100:   Common/MatDefs/Post/Post.vert
+        FragmentShader GLSL300 GLSL150 GLSL100: Common/MatDefs/Post/Compose.frag
 
         WorldParameters {
         }
 
         Defines {
+            BOUND_DRAW_BUFFER: BoundDrawBuffer
             RESOLVE_MS : NumSamples
         }
 

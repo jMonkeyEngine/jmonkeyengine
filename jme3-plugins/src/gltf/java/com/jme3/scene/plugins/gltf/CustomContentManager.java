@@ -31,9 +31,9 @@
  */
 package com.jme3.scene.plugins.gltf;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.jme3.asset.AssetLoadException;
+import com.jme3.plugins.json.JsonArray;
+import com.jme3.plugins.json.JsonElement;
 
 import java.io.IOException;
 import java.util.HashMap;

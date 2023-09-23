@@ -75,6 +75,7 @@ public class InstancedGeometry extends Geometry {
 
     private int firstUnusedIndex = 0;
     private int numVisibleInstances = 0;
+    private Camera cam;
 
     public InstancedGeometry() {
         super();
@@ -275,6 +276,13 @@ public class InstancedGeometry extends Geometry {
         }
     }
 
+    /**
+     * @Deprecated use {@link #updateInstances(com.jme3.renderer.Camera)
+     */
+    public void updateInstances() {
+        updateInstances(cam);
+    }
+
     public void updateInstances(Camera cam) {
         FloatBuffer fb = (FloatBuffer) transformInstanceData.getData();
         fb.limit(fb.capacity());
@@ -413,6 +421,12 @@ public class InstancedGeometry extends Geometry {
             allData.addAll(Arrays.asList(globalInstanceData));
         }
         allInstanceData = allData.toArray(new VertexBuffer[allData.size()]);
+    }
+
+    @Override
+    public boolean checkCulling(Camera cam) {
+        this.cam = cam;
+        return super.checkCulling(cam);
     }
 
     @Override

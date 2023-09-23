@@ -36,6 +36,8 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.jme3.util.res.Resources;
+
 /**
  * Pulls in version info from the version.properties file.
  * 
@@ -48,7 +50,7 @@ public class JmeVersion {
     
     static {
         try {
-            props.load(JmeVersion.class.getResourceAsStream("version.properties"));
+            props.load(Resources.getResourceAsStream("version.properties",JmeVersion.class));
         } catch (IOException | NullPointerException ex) {
             logger.log(Level.WARNING, "Unable to read version info!", ex);
         }

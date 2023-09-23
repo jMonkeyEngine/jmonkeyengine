@@ -228,6 +228,16 @@ public enum Caps {
     FloatTexture,
 
     /**
+     * Supports rendering on RGB floating point textures
+     */
+    FloatColorBufferRGB,
+
+    /**
+     * Supports rendering on RGBA floating point textures
+     */
+    FloatColorBufferRGBA,
+
+    /**
      * Supports integer textures.
      */
     IntegerTexture,
@@ -236,6 +246,7 @@ public enum Caps {
      * Supports floating point FBO color buffers (Format.RGB16F).
      */
     FloatColorBuffer,
+    
 
     /**
      * Supports floating point depth buffer.
@@ -340,6 +351,11 @@ public enum Caps {
      * Supports OpenGL ES 2.
      */
     OpenGLES20,
+
+    /**
+     * Supports WebGL
+     */
+    WebGL,
 
     /**
      * Supports RGB8 / RGBA8 textures.
