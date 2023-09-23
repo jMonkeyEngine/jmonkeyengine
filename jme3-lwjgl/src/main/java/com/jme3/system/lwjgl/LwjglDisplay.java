@@ -33,8 +33,8 @@
 package com.jme3.system.lwjgl;
 
 import com.jme3.system.AppSettings;
+import com.jme3.system.Displays;
 import com.jme3.system.JmeContext.Type;
-import com.jme3.system.Monitors;
 
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
@@ -285,13 +285,13 @@ public class LwjglDisplay extends LwjglAbstractDisplay {
     }
 
     @Override
-    public Monitors getMonitors() {
+    public Displays getDisplays() {
       // TODO Auto-generated method stub
       return null;
     }
 
     @Override
-    public int getPrimaryMonitor() {
+    public int getPrimaryDisplay() {
       // TODO Auto-generated method stub
       return 0;
     }

@@ -31,6 +31,8 @@
  */
 package com.jme3.system.lwjgl;
 
+import com.jme3.system.Displays;
+
 /**
  * @author Daniel Johansson
  */
@@ -39,4 +41,16 @@ public class LwjglDisplay extends LwjglWindow {
     public LwjglDisplay() {
         super(Type.Display);
     }
+
+   @Override
+   public Displays getDisplays() {
+      // TODO Auto-generated method stub
+      return null;
+   }
+
+   @Override
+   public int getPrimaryDisplay() {
+      // TODO Auto-generated method stub
+      return 0;
+   }
 }

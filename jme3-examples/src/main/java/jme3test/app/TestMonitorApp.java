@@ -49,8 +49,8 @@ import com.jme3.material.Material;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
 import com.jme3.system.AppSettings;
-import com.jme3.system.MonitorInfo;
-import com.jme3.system.Monitors;
+import com.jme3.system.DisplayInfo;
+import com.jme3.system.Displays;
 
 /**
  * Tests the capability to change which monitor the window will be created on.
@@ -67,7 +67,7 @@ public class TestMonitorApp extends SimpleApplication
    private BitmapText selectedMonitorTxt;
    private BitmapText fullScreenTxt;
    private int monitorSelected = 0;
-   private Monitors monitors = null;
+   private Displays monitors = null;
 
    public static void main(String[] args) {
       TestMonitorApp app = new TestMonitorApp();
@@ -75,7 +75,7 @@ public class TestMonitorApp extends SimpleApplication
       settings.setResizable(false);
       app.setShowSettings(true);
       settings.setRenderer(AppSettings.LWJGL_OPENGL33);
-      settings.setMonitor(0);
+      settings.setDisplay(0);
       settings.setResolution(800, 600);
 
       settings.setFullscreen(true);
@@ -115,8 +115,8 @@ public class TestMonitorApp extends SimpleApplication
       }
 
       // Get the selected monitor
-      monitorSelected = settings.getMonitor();
-      monitors = context.getMonitors();
+      monitorSelected = settings.getDisplay();
+      monitors = context.getDisplays();
       if (monitors != null)
          numMonitors = monitors.size();
 
@@ -134,7 +134,7 @@ public class TestMonitorApp extends SimpleApplication
       if (!settings.isFullscreen())
          txt.setText("Window is on Monitor N/A (fullscreen only feature)");
       else
-         txt.setText("Window is on Monitor " + settings.getMonitor());
+         txt.setText("Window is on Monitor " + settings.getDisplay());
 
       txt.setLocalTranslation(0, settings.getHeight() - 40, 0);
       guiNode.attachChild(txt);
@@ -143,11 +143,11 @@ public class TestMonitorApp extends SimpleApplication
          selectedMonitorTxt = new BitmapText(loadGuiFont());
          // Lets display information about selected monitor
          String label = "Selected Monitor " + "Name: "
-                  + monitors.get(settings.getMonitor()).name + " "
+                  + monitors.get(settings.getDisplay()).name + " "
                   + monitorSelected + " Res: "
-                  + monitors.get(settings.getMonitor()).width + ","
-                  + monitors.get(settings.getMonitor()).height + " refresh: "
-                  + monitors.get(settings.getMonitor()).rate;
+                  + monitors.get(settings.getDisplay()).width + ","
+                  + monitors.get(settings.getDisplay()).height + " refresh: "
+                  + monitors.get(settings.getDisplay()).rate;
          selectedMonitorTxt.setText(label);
          selectedMonitorTxt.setLocalTranslation(0, settings.getHeight() - 80,
                   0);
@@ -155,7 +155,7 @@ public class TestMonitorApp extends SimpleApplication
 
          // Let's loop through all the monitors and display on the screen
          for (int i = 0; i < monitors.size(); i++) {
-            MonitorInfo monitor = monitors.get(i);
+            DisplayInfo monitor = monitors.get(i);
             labelValue = "Mon : " + i + " " + monitor.name + " " + monitor.width
                      + "," + monitor.height + " refresh: " + monitor.rate;
             txt = new BitmapText(loadGuiFont());
@@ -212,11 +212,11 @@ public class TestMonitorApp extends SimpleApplication
    public void saveSettings() {
 
       try {
-         settings.setMonitor(monitorSelected);
+         settings.setDisplay(monitorSelected);
          OutputStream out = new FileOutputStream("TestMonitorApp.prefs");
          settings.save(out);
 
-         int monitorSelected = settings.getMonitor();
+         int monitorSelected = settings.getDisplay();
          String label = "Selected Monitor " + monitorSelected + " "
                   + monitors.get(monitorSelected).name + " Res: "
                   + monitors.get(monitorSelected).width + ","

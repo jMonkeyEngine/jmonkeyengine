@@ -27,10 +27,10 @@
 package com.jme3.system.lwjgl;
 
 import com.jme3.system.AppSettings;
+import com.jme3.system.Displays;
 import com.jme3.system.JmeCanvasContext;
 import com.jme3.system.JmeContext.Type;
 import com.jme3.system.JmeSystem;
-import com.jme3.system.Monitors;
 import com.jme3.system.Platform;
 import java.awt.Canvas;
 import java.util.logging.Level;
@@ -484,13 +484,13 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
   }
 
   @Override
-  public Monitors getMonitors() {
+  public Displays getDisplays() {
     // TODO Auto-generated method stub
     return null;
   }
 
   @Override
-  public int getPrimaryMonitor() {
+  public int getPrimaryDisplay() {
     // TODO Auto-generated method stub
     return 0;
   }

@@ -266,7 +266,7 @@ public final class AppSettings extends HashMap<String, Object> {
     public static final String JOAL = "JOAL";
 
     static {
-        defaults.put("Monitor", 0);
+        defaults.put("Display", 0);
         defaults.put("CenterWindow", true);
         defaults.put("Width", 640);
         defaults.put("Height", 480);
@@ -1483,31 +1483,30 @@ public final class AppSettings extends HashMap<String, Object> {
     
     
     /**
-     * Gets the monitor number used when creating a window.
+     * Gets the display number used when creating a window.
      *
      * <p>
-     * This setting is used only with LWJGL3, it defines which monitor to use when creating a OpenGL
+     * This setting is used only with LWJGL3, it defines which display to use when creating a OpenGL
      * window.
      *
-     * @return the desired monitor used when creating a OpenGL window
-     * @see #setMonitor(long)
+     * @return the desired display used when creating a OpenGL window
      */
-    public int getMonitor() {
-      return getInteger("Monitor");
+    public int getDisplay() {
+      return getInteger("Display");
     }
 
     /**
-     * Sets the monitor number used when creating a window. The position number is the number in the
+     * Sets the display number used when creating a window. The position number is the number in the
      * list of monitors GlfwGetMonitors returns.
      *
      * <p>
-     * This setting is used only with LWJGL3, it defines which monitor to use when creating a OpenGL
+     * This setting is used only with LWJGL3, it defines which display to use when creating a OpenGL
      * window. its default value is 0.
      *
-     * @param mon the desired monitor used when creating a OpenGL window
+     * @param mon the desired display used when creating a OpenGL window
      * 
      */
-    public void setMonitor(int mon) {
-      putInteger("Monitor", mon);
+    public void setDisplay(int mon) {
+      putInteger("Display", mon);
     }
   }

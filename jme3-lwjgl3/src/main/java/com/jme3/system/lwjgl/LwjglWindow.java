@@ -41,9 +41,9 @@ import com.jme3.input.lwjgl.GlfwKeyInput;
 import com.jme3.input.lwjgl.GlfwMouseInput;
 import com.jme3.math.Vector2f;
 import com.jme3.system.AppSettings;
+import com.jme3.system.Displays;
 import com.jme3.system.JmeContext;
 import com.jme3.system.JmeSystem;
-import com.jme3.system.Monitors;
 import com.jme3.system.NanoTimer;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.SafeArrayList;
@@ -292,11 +292,11 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
 //        long monitor = NULL;
 
         /**
-         * Let's grab the monitor selected, if not found it will return
-         * primaryMonitor. if not full screen just use primary monitor data.
+         * Let's grab the display selected, if not found it will return
+         * primaryMonitor. if not full screen just use primary display data.
          */
         if (settings.isFullscreen()) {
-           monitor = getMonitor(settings.getMonitor());
+           monitor = getDisplay(settings.getDisplay());
         } else {
            monitor = glfwGetPrimaryMonitor();
         }
@@ -882,12 +882,12 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
      * @return returns the Primary Monitor Position.
      */
     @Override
-    public int getPrimaryMonitor()
+    public int getPrimaryDisplay()
     {
        long prim = glfwGetPrimaryMonitor();
-       Monitors monitors = getMonitors();
+       Displays monitors = getDisplays();
        for ( int i = 0; i < monitors.size(); i++ ) {
-          long monitorI = monitors.get(i).monitorID;
+          long monitorI = monitors.get(i).displayID;
           if (monitorI == prim)
              return i;
        }
@@ -898,41 +898,41 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
     
     
     /**
-     * This routines return the monitor ID by position in an array of monitors returned
+     * This routines return the display ID by position in an array of display returned
      * by glfwGetMonitors().
      * 
-     * @param pos  the position of the monitor in the list of monitors returned.
-     * @return return the monitorID if found otherwise return Primary Monitor
+     * @param pos  the position of the display in the list of displays returned.
+     * @return return the displayID if found otherwise return Primary display
      */
-    private long getMonitor(int pos) {
-       Monitors monitors = getMonitors();
-       if (pos < monitors.size())
-          return monitors.get(pos).monitorID;
+    private long getDisplay(int pos) {
+       Displays displays = getDisplays();
+       if (pos < displays.size())
+          return displays.get(pos).displayID;
        
-       LOGGER.log(Level.SEVERE,"Couldn't locate Monitor requested in the list of Monitors. pos:"+pos+" size: "+ monitors.size());
+       LOGGER.log(Level.SEVERE,"Couldn't locate Display requested in the list of Displays. pos:"+pos+" size: "+ displays.size());
        return glfwGetPrimaryMonitor();
     }
     
     /**
-     * This returns an arraylist of all the monitors returned by OpenGL get Monitor
-     * call.  It will also has some limited information about each monitor, like:
+     * This returns an arraylist of all the Display returned by OpenGL get Monitor
+     * call.  It will also has some limited information about each display, like:
      * width, height and refresh rate.
      * 
-     * @return returns an ArrayList of all Monitors returned by glfwGetMonitors()
+     * @return returns an ArrayList of all Display returned by glfwGetMonitors()
      */
     
     @Override
-    public Monitors getMonitors()  {
-       PointerBuffer monitors = glfwGetMonitors();
+    public Displays getDisplays()  {
+       PointerBuffer displays = glfwGetMonitors();
        long primary = glfwGetPrimaryMonitor();
-       Monitors monitorList = new Monitors();
+       Displays displayList = new Displays();
        
-       for ( int i = 0; i < monitors.limit(); i++ ) {
-           long monitorI = monitors.get(i);
-           int monPos = monitorList.addNewMonitor(monitorI);
-           //lets check if this monitor is the primary monitor. If use mark it as such.
+       for ( int i = 0; i < displays.limit(); i++ ) {
+           long monitorI = displays.get(i);
+           int monPos = displayList.addNewMonitor(monitorI);
+           //lets check if this display is the primary display. If use mark it as such.
            if (primary == monitorI)
-              monitorList.setPrimaryMonitor(monPos);
+              displayList.setPrimaryDisplay(monPos);
            
            final GLFWVidMode modes = glfwGetVideoMode(monitorI);
            String name = glfwGetMonitorName(monitorI);
@@ -940,9 +940,9 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
            int width = modes.width();
            int height = modes.height();
            int rate = modes.refreshRate();
-           monitorList.setInfo(monPos, name, width, height, rate);
-           LOGGER.log(Level.INFO, "Monitor id: "+monitorI+" Resolution: " + width + " x " + height + " @ " + rate);
+           displayList.setInfo(monPos, name, width, height, rate);
+           LOGGER.log(Level.INFO, "Display id: "+monitorI+" Resolution: " + width + " x " + height + " @ " + rate);
         }
-        return monitorList;    
+        return displayList;    
     }
 }
