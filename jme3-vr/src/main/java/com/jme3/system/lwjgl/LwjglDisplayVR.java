@@ -41,6 +41,7 @@ import com.jme3.system.Displays;
  * @author Julien Seinturier - (c) 2016 - JOrigin project - <a href="http://www.jorigin.org">http:/www.jorigin.org</a>
  */
 public class LwjglDisplayVR extends LwjglWindowVR {
+
     /**
      * Create a new VR oriented LWJGL display.
      */
@@ -55,13 +56,13 @@ public class LwjglDisplayVR extends LwjglWindowVR {
 
     @Override
     public Displays getDisplays() {
-      // TODO Auto-generated method stub
-      return null;
+        // TODO Auto-generated method stub
+        return null;
     }
 
     @Override
     public int getPrimaryDisplay() {
-      // TODO Auto-generated method stub
-      return 0;
+        // TODO Auto-generated method stub
+        return 0;
     }
 }

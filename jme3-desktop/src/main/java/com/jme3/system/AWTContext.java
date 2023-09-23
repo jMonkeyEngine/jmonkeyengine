@@ -31,7 +31,6 @@
  */
 package com.jme3.system;
 
-
 import com.jme3.input.AWTKeyInput;
 import com.jme3.input.AWTMouseInput;
 import com.jme3.input.JoyInput;
@@ -49,104 +48,104 @@ import com.jme3.renderer.Renderer;
  */
 public class AWTContext implements JmeContext {
 
-  /**
-   * The settings.
-   */
-  protected final AppSettings settings;
+    /**
+     * The settings.
+     */
+    protected final AppSettings settings;
 
-  /**
-   * The key input.
-   */
-  protected final AWTKeyInput keyInput;
+    /**
+     * The key input.
+     */
+    protected final AWTKeyInput keyInput;
 
-  /**
-   * The mouse input.
-   */
-  protected final AWTMouseInput mouseInput;
+    /**
+     * The mouse input.
+     */
+    protected final AWTMouseInput mouseInput;
 
-  /**
-   * The current width.
-   */
-  private volatile int width;
+    /**
+     * The current width.
+     */
+    private volatile int width;
 
-  /**
-   * The current height.
-   */
-  private volatile int height;
+    /**
+     * The current height.
+     */
+    private volatile int height;
 
-  /**
-   * The background context.
-   */
-  protected JmeContext backgroundContext;
+    /**
+     * The background context.
+     */
+    protected JmeContext backgroundContext;
 
-  public AWTContext() {
-      this.keyInput = new AWTKeyInput(this);
-      this.mouseInput = new AWTMouseInput(this);
-      this.settings = createSettings();
-      this.backgroundContext = createBackgroundContext();
-      this.height = 1;
-      this.width = 1;
-  }
+    public AWTContext() {
+        this.keyInput = new AWTKeyInput(this);
+        this.mouseInput = new AWTMouseInput(this);
+        this.settings = createSettings();
+        this.backgroundContext = createBackgroundContext();
+        this.height = 1;
+        this.width = 1;
+    }
 
-  /**
-   * @return the current height.
-   */
-  public int getHeight() {
-      return height;
-  }
+    /**
+     * @return the current height.
+     */
+    public int getHeight() {
+        return height;
+    }
 
-  /**
-   * @param height the current height.
-   */
-  public void setHeight(final int height) {
-      this.height = height;
-  }
+    /**
+     * @param height the current height.
+     */
+    public void setHeight(final int height) {
+        this.height = height;
+    }
 
-  /**
-   * @return the current width.
-   */
-  public int getWidth() {
-      return width;
-  }
+    /**
+     * @return the current width.
+     */
+    public int getWidth() {
+        return width;
+    }
 
-  /**
-   * @param width the current width.
-   */
-  public void setWidth(final int width) {
-      this.width = width;
-  }
+    /**
+     * @param width the current width.
+     */
+    public void setWidth(final int width) {
+        this.width = width;
+    }
 
-  /**
-   * @return new settings.
-   */
-  protected AppSettings createSettings() {
-      final AppSettings settings = new AppSettings(true);
-      settings.setRenderer(AppSettings.LWJGL_OPENGL32);
-      return settings;
-  }
+    /**
+     * @return new settings.
+     */
+    protected AppSettings createSettings() {
+        final AppSettings settings = new AppSettings(true);
+        settings.setRenderer(AppSettings.LWJGL_OPENGL32);
+        return settings;
+    }
 
-  /**
-   * @return new context/
-   */
-  protected JmeContext createBackgroundContext() {
-      return JmeSystem.newContext(settings, Type.OffscreenSurface);
-  }
+    /**
+     * @return new context/
+     */
+    protected JmeContext createBackgroundContext() {
+        return JmeSystem.newContext(settings, Type.OffscreenSurface);
+    }
 
-  @Override
-  public Type getType() {
-      return Type.OffscreenSurface;
-  }
+    @Override
+    public Type getType() {
+        return Type.OffscreenSurface;
+    }
 
-  @Override
-  public void setSettings(AppSettings settings) {
-      this.settings.copyFrom(settings);
-      this.settings.setRenderer(AppSettings.LWJGL_OPENGL32);
-      this.backgroundContext.setSettings(settings);
-  }
+    @Override
+    public void setSettings(AppSettings settings) {
+        this.settings.copyFrom(settings);
+        this.settings.setRenderer(AppSettings.LWJGL_OPENGL32);
+        this.backgroundContext.setSettings(settings);
+    }
 
     /**
      * Accesses the listener that receives events related to this context.
-    *
+     *
      * @return the pre-existing instance
      */
     @Override
@@ -154,87 +153,85 @@ public class AWTContext implements JmeContext {
         return backgroundContext.getSystemListener();
     }
 
-  @Override
-  public void setSystemListener(final SystemListener listener) {
-      backgroundContext.setSystemListener(listener);
-  }
+    @Override
+    public void setSystemListener(final SystemListener listener) {
+        backgroundContext.setSystemListener(listener);
+    }
 
-  @Override
-  public AppSettings getSettings() {
-      return settings;
-  }
+    @Override
+    public AppSettings getSettings() {
+        return settings;
+    }
 
-  @Override
-  public Renderer getRenderer() {
-      return backgroundContext.getRenderer();
-  }
+    @Override
+    public Renderer getRenderer() {
+        return backgroundContext.getRenderer();
+    }
 
-  @Override
-  public Context getOpenCLContext() {
-      return null;
-  }
+    @Override
+    public Context getOpenCLContext() {
+        return null;
+    }
 
-  @Override
-  public AWTMouseInput getMouseInput() {
-      return mouseInput;
-  }
+    @Override
+    public AWTMouseInput getMouseInput() {
+        return mouseInput;
+    }
 
-  @Override
-  public AWTKeyInput getKeyInput() {
-      return keyInput;
-  }
+    @Override
+    public AWTKeyInput getKeyInput() {
+        return keyInput;
+    }
 
-  @Override
-  public JoyInput getJoyInput() {
-      return null;
-  }
+    @Override
+    public JoyInput getJoyInput() {
+        return null;
+    }
 
-  @Override
-  public TouchInput getTouchInput() {
-      return null;
-  }
+    @Override
+    public TouchInput getTouchInput() {
+        return null;
+    }
 
-  @Override
-  public Timer getTimer() {
-      return backgroundContext.getTimer();
-  }
+    @Override
+    public Timer getTimer() {
+        return backgroundContext.getTimer();
+    }
 
-  @Override
-  public void setTitle(final String title) {
-  }
+    @Override
+    public void setTitle(final String title) {}
 
-  @Override
-  public boolean isCreated() {
-      return backgroundContext != null && backgroundContext.isCreated();
-  }
+    @Override
+    public boolean isCreated() {
+        return backgroundContext != null && backgroundContext.isCreated();
+    }
 
-  @Override
-  public boolean isRenderable() {
-      return backgroundContext != null && backgroundContext.isRenderable();
-  }
+    @Override
+    public boolean isRenderable() {
+        return backgroundContext != null && backgroundContext.isRenderable();
+    }
 
-  @Override
-  public void setAutoFlushFrames(final boolean enabled) {
-      // TODO Auto-generated method stub
-  }
+    @Override
+    public void setAutoFlushFrames(final boolean enabled) {
+        // TODO Auto-generated method stub
+    }
 
-  @Override
-  public void create(final boolean waitFor) {
+    @Override
+    public void create(final boolean waitFor) {
         String render = System.getProperty("awt.background.render", AppSettings.LWJGL_OPENGL33);
         backgroundContext.getSettings().setRenderer(render);
         backgroundContext.create(waitFor);
-  }
+    }
 
-  @Override
-  public void restart() {
-  }
+    @Override
+    public void restart() {}
 
-  @Override
-  public void destroy(final boolean waitFor) {
-      if (backgroundContext == null) throw new IllegalStateException("Not created");
-      // destroy wrapped context
-      backgroundContext.destroy(waitFor);
-}
+    @Override
+    public void destroy(final boolean waitFor) {
+        if (backgroundContext == null) throw new IllegalStateException("Not created");
+        // destroy wrapped context
+        backgroundContext.destroy(waitFor);
+    }
 
     /**
      * Returns the height of the framebuffer.
@@ -276,15 +273,15 @@ public class AWTContext implements JmeContext {
         throw new UnsupportedOperationException("not implemented yet");
     }
 
-   @Override
-   public Displays getDisplays() {
-      // TODO Auto-generated method stub
-      return null;
-   }
+    @Override
+    public Displays getDisplays() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-   @Override
-   public int getPrimaryDisplay() {
-      // TODO Auto-generated method stub
-      return 0;
-   }
+    @Override
+    public int getPrimaryDisplay() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
 }

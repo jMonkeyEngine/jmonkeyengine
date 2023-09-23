@@ -28,39 +28,38 @@ package com.jme3.system;
 /**
  * This class holds information about the display that was returned by glfwGetMonitors() calls in
  * the context class
- * 
+ *
  * @author Kevin Bales
  */
 public class DisplayInfo {
 
-  /**
-   * displayID - display id that was return from Lwjgl3.
-   */
-  public long displayID = 0;
+    /**
+     * displayID - display id that was return from Lwjgl3.
+     */
+    public long displayID = 0;
 
-  /**
-   * width - width that was return from Lwjgl3.
-   */
-  public int width = 1080;
+    /**
+     * width - width that was return from Lwjgl3.
+     */
+    public int width = 1080;
 
-  /**
-   * height - height that was return from Lwjgl3.
-   */
-  public int height = 1920;
+    /**
+     * height - height that was return from Lwjgl3.
+     */
+    public int height = 1920;
 
-  /**
-   * rate - refresh rate that was return from Lwjgl3.
-   */
-  public int rate = 60;
+    /**
+     * rate - refresh rate that was return from Lwjgl3.
+     */
+    public int rate = 60;
 
-  /**
-   * primary - indicates if the display is the primary monitor.
-   */
-  public boolean primary = false;
+    /**
+     * primary - indicates if the display is the primary monitor.
+     */
+    public boolean primary = false;
 
-  /**
-   * name - display name that was return from Lwjgl3.
-   */
-  public String name = "Generic Monitor";
-
+    /**
+     * name - display name that was return from Lwjgl3.
+     */
+    public String name = "Generic Monitor";
 }

@@ -109,9 +109,8 @@ public class AwtPanelsContext implements JmeContext {
         }
     }
 
-    public void setInputSource(AwtPanel panel){
-        if (!panels.contains(panel))
-            throw new IllegalArgumentException();
+    public void setInputSource(AwtPanel panel) {
+        if (!panels.contains(panel)) throw new IllegalArgumentException();
 
         inputSource = panel;
         mouseInput.setInputSource(panel);
@@ -187,42 +186,41 @@ public class AwtPanelsContext implements JmeContext {
     public Context getOpenCLContext() {
         return actualContext.getOpenCLContext();
     }
-    
-    public AwtPanelsContext(){
-    }
 
-    public AwtPanel createPanel(PaintMode paintMode){
+    public AwtPanelsContext() {}
+
+    public AwtPanel createPanel(PaintMode paintMode) {
         AwtPanel panel = new AwtPanel(paintMode);
         panels.add(panel);
         return panel;
     }
-    
-    public AwtPanel createPanel(PaintMode paintMode, boolean srgb){
+
+    public AwtPanel createPanel(PaintMode paintMode, boolean srgb) {
         AwtPanel panel = new AwtPanel(paintMode, srgb);
         panels.add(panel);
         return panel;
     }
 
-    private void initInThread(){
+    private void initInThread() {
         listener.initialize();
     }
 
-    private void updateInThread(){
+    private void updateInThread() {
         // Check if throttle required
         boolean needThrottle = true;
 
-        for (AwtPanel panel : panels){
-            if (panel.isActiveDrawing()){
+        for (AwtPanel panel : panels) {
+            if (panel.isActiveDrawing()) {
                 needThrottle = false;
                 break;
             }
         }
 
-        if (lastThrottleState != needThrottle){
+        if (lastThrottleState != needThrottle) {
             lastThrottleState = needThrottle;
-            if (lastThrottleState){
+            if (lastThrottleState) {
                 System.out.println("OGL: Throttling update loop.");
-            }else{
+            } else {
                 System.out.println("OGL: Ceased throttling update loop.");
             }
         }
@@ -230,18 +228,17 @@ public class AwtPanelsContext implements JmeContext {
         if (needThrottle) {
             try {
                 Thread.sleep(100);
-            } catch (InterruptedException ex) {
-            }
+            } catch (InterruptedException ex) {}
         }
 
         listener.update();
-        
-        for (AwtPanel panel : panels){
+
+        for (AwtPanel panel : panels) {
             panel.onFrameEnd();
         }
     }
 
-    private void destroyInThread(){
+    private void destroyInThread() {
         listener.destroy();
     }
 
@@ -249,14 +246,14 @@ public class AwtPanelsContext implements JmeContext {
     public void setSettings(AppSettings settings) {
         this.settings.copyFrom(settings);
         this.settings.setRenderer(AppSettings.LWJGL_OPENGL2);
-        if (actualContext != null){
+        if (actualContext != null) {
             actualContext.setSettings(settings);
         }
     }
 
     @Override
     public void create(boolean waitFor) {
-        if (actualContext != null){
+        if (actualContext != null) {
             throw new IllegalStateException("Already created");
         }
 
@@ -267,8 +264,7 @@ public class AwtPanelsContext implements JmeContext {
 
     @Override
     public void destroy(boolean waitFor) {
-        if (actualContext == null)
-            throw new IllegalStateException("Not created");
+        if (actualContext == null) throw new IllegalStateException("Not created");
 
         // destroy parent context
         actualContext.destroy(waitFor);
@@ -331,13 +327,13 @@ public class AwtPanelsContext implements JmeContext {
 
     @Override
     public Displays getDisplays() {
-       // TODO Auto-generated method stub
-       return null;
+        // TODO Auto-generated method stub
+        return null;
     }
 
     @Override
     public int getPrimaryDisplay() {
-       // TODO Auto-generated method stub
-       return 0;
+        // TODO Auto-generated method stub
+        return 0;
     }
 }

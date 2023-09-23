@@ -35,7 +35,6 @@ package com.jme3.system.lwjgl;
 import com.jme3.system.AppSettings;
 import com.jme3.system.Displays;
 import com.jme3.system.JmeContext.Type;
-
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
@@ -65,18 +64,22 @@ public class LwjglDisplay extends LwjglAbstractDisplay {
      * @return The {@link DisplayMode} matches with specified settings or
      *         return null if no matching display mode is found
      */
-    protected DisplayMode getFullscreenDisplayMode(int width, int height, int bpp, int freq){
+    protected DisplayMode getFullscreenDisplayMode(int width, int height, int bpp, int freq) {
         try {
             DisplayMode[] modes = Display.getAvailableDisplayModes();
             for (DisplayMode mode : modes) {
-                if (mode.getWidth() == width
-                        && mode.getHeight() == height
-                        && (mode.getBitsPerPixel() == bpp || (bpp == 24 && mode.getBitsPerPixel() == 32) || bpp == -1)
-                        // Looks like AWT uses mathematical round to convert floating point
-                        // frequency values to int while lwjgl 2 uses mathematical floor.
-                        // For example if frequency is 59.83, AWT will return 60 but lwjgl2
-                        // will return 59. This is what I observed on Linux.  - Ali-RS 2023-1-10
-                        && (Math.abs(mode.getFrequency() - freq) <= 1 || freq == -1)) {
+                if (
+                    mode.getWidth() == width &&
+                    mode.getHeight() == height &&
+                    (mode.getBitsPerPixel() == bpp ||
+                        (bpp == 24 && mode.getBitsPerPixel() == 32) ||
+                        bpp == -1) &&
+                    // Looks like AWT uses mathematical round to convert floating point
+                    // frequency values to int while lwjgl 2 uses mathematical floor.
+                    // For example if frequency is 59.83, AWT will return 60 but lwjgl2
+                    // will return 59. This is what I observed on Linux.  - Ali-RS 2023-1-10
+                    (Math.abs(mode.getFrequency() - freq) <= 1 || freq == -1)
+                ) {
                     return mode;
                 }
             }
@@ -87,21 +90,30 @@ public class LwjglDisplay extends LwjglAbstractDisplay {
     }
 
     @Override
-    protected void createContext(AppSettings settings) throws LWJGLException{
+    protected void createContext(AppSettings settings) throws LWJGLException {
         DisplayMode displayMode;
         if (settings.getWidth() <= 0 || settings.getHeight() <= 0) {
             displayMode = Display.getDesktopDisplayMode();
             settings.setResolution(displayMode.getWidth(), displayMode.getHeight());
         } else if (settings.isFullscreen()) {
-            displayMode = getFullscreenDisplayMode(settings.getWidth(), settings.getHeight(),
-                    settings.getBitsPerPixel(), settings.getFrequency());
+            displayMode =
+                getFullscreenDisplayMode(
+                    settings.getWidth(),
+                    settings.getHeight(),
+                    settings.getBitsPerPixel(),
+                    settings.getFrequency()
+                );
             if (displayMode == null) {
                 // Fall back to whatever mode is available at the specified width & height
                 displayMode = getFullscreenDisplayMode(settings.getWidth(), settings.getHeight(), -1, -1);
                 if (displayMode == null) {
                     throw new RuntimeException("Unable to find fullscreen display mode matching settings");
                 } else {
-                    logger.log(Level.WARNING, "Unable to find fullscreen display mode matching settings, falling back to: {0}", displayMode);
+                    logger.log(
+                        Level.WARNING,
+                        "Unable to find fullscreen display mode matching settings, falling back to: {0}",
+                        displayMode
+                    );
                 }
             }
         } else {
@@ -109,35 +121,40 @@ public class LwjglDisplay extends LwjglAbstractDisplay {
         }
 
         int samples = getNumSamplesToUse();
-        PixelFormat pf = new PixelFormat(settings.getBitsPerPixel(),
-                                         settings.getAlphaBits(),
-                                         settings.getDepthBits(),
-                                         settings.getStencilBits(),
-                                         samples, 
-                                         0, 
-                                         0, 
-                                         0, 
-                                         settings.useStereo3D());
-        
+        PixelFormat pf = new PixelFormat(
+            settings.getBitsPerPixel(),
+            settings.getAlphaBits(),
+            settings.getDepthBits(),
+            settings.getStencilBits(),
+            samples,
+            0,
+            0,
+            0,
+            settings.useStereo3D()
+        );
+
         frameRate = settings.getFrameRate();
         allowSwapBuffers = settings.isSwapBuffers();
         logger.log(Level.FINE, "Selected display mode: {0}", displayMode);
 
         boolean pixelFormatChanged = false;
-        if (created.get() && (pixelFormat.getBitsPerPixel() != pf.getBitsPerPixel()
-                            ||pixelFormat.getAlphaBits() != pf.getAlphaBits()
-                            ||pixelFormat.getDepthBits() != pf.getDepthBits()
-                            ||pixelFormat.getStencilBits() != pf.getStencilBits()
-                            ||pixelFormat.getSamples() != pf.getSamples())){
+        if (
+            created.get() &&
+            (pixelFormat.getBitsPerPixel() != pf.getBitsPerPixel() ||
+                pixelFormat.getAlphaBits() != pf.getAlphaBits() ||
+                pixelFormat.getDepthBits() != pf.getDepthBits() ||
+                pixelFormat.getStencilBits() != pf.getStencilBits() ||
+                pixelFormat.getSamples() != pf.getSamples())
+        ) {
             renderer.resetGLObjects();
             Display.destroy();
             pixelFormatChanged = true;
         }
         pixelFormat = pf;
-        
+
         Display.setTitle(settings.getTitle());
         Display.setResizable(settings.isResizable());
-        
+
         if (settings.isFullscreen()) {
             Display.setDisplayModeAndFullscreen(displayMode);
         } else {
@@ -148,9 +165,9 @@ public class LwjglDisplay extends LwjglAbstractDisplay {
         if (settings.getIcons() != null) {
             Display.setIcon(imagesToByteBuffers(settings.getIcons()));
         }
-        
+
         Display.setVSyncEnabled(settings.isVSync());
-        
+
         if (created.get() && !pixelFormatChanged) {
             renderer.resetGLObjects();
             Display.releaseContext();
@@ -158,7 +175,7 @@ public class LwjglDisplay extends LwjglAbstractDisplay {
             Display.update();
         }
 
-        if (!created.get() || pixelFormatChanged){
+        if (!created.get() || pixelFormatChanged) {
             ContextAttribs attr = createContextAttribs();
             if (attr != null) {
                 Display.create(pixelFormat, attr);
@@ -166,20 +183,23 @@ public class LwjglDisplay extends LwjglAbstractDisplay {
                 Display.create(pixelFormat);
             }
             renderable.set(true);
-            
-            if (pixelFormatChanged && pixelFormat.getSamples() > 1
-             && GLContext.getCapabilities().GL_ARB_multisample){
+
+            if (
+                pixelFormatChanged &&
+                pixelFormat.getSamples() > 1 &&
+                GLContext.getCapabilities().GL_ARB_multisample
+            ) {
                 GL11.glEnable(ARBMultisample.GL_MULTISAMPLE_ARB);
             }
         }
-        
+
         if (settings.isOpenCLSupport()) {
             initOpenCL();
         }
     }
-    
+
     @Override
-    protected void destroyContext(){
+    protected void destroyContext() {
         try {
             renderer.cleanup();
             Display.releaseContext();
@@ -190,19 +210,18 @@ public class LwjglDisplay extends LwjglAbstractDisplay {
     }
 
     @Override
-    public void create(boolean waitFor){
-        if (created.get()){
+    public void create(boolean waitFor) {
+        if (created.get()) {
             logger.warning("create() called when display is already created!");
             return;
         }
 
         new Thread(this, THREAD_NAME).start();
-        if (waitFor)
-            waitFor(true);
+        if (waitFor) waitFor(true);
     }
 
     @Override
-    public void runLoop(){
+    public void runLoop() {
         // This method is overridden to do restart
         if (needRestart.getAndSet(false)) {
             try {
@@ -229,9 +248,9 @@ public class LwjglDisplay extends LwjglAbstractDisplay {
 
     @Override
     public void restart() {
-        if (created.get()){
+        if (created.get()) {
             needRestart.set(true);
-        }else{
+        } else {
             logger.warning("Display is not created, cannot restart window.");
         }
     }
@@ -242,11 +261,10 @@ public class LwjglDisplay extends LwjglAbstractDisplay {
     }
 
     @Override
-    public void setTitle(String title){
-        if (created.get())
-            Display.setTitle(title);
+    public void setTitle(String title) {
+        if (created.get()) Display.setTitle(title);
     }
-    
+
     private ByteBuffer[] imagesToByteBuffers(Object[] images) {
         ByteBuffer[] out = new ByteBuffer[images.length];
         for (int i = 0; i < images.length; i++) {
@@ -258,13 +276,22 @@ public class LwjglDisplay extends LwjglAbstractDisplay {
 
     private ByteBuffer imageToByteBuffer(BufferedImage image) {
         if (image.getType() != BufferedImage.TYPE_INT_ARGB_PRE) {
-            BufferedImage convertedImage = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB_PRE);
+            BufferedImage convertedImage = new BufferedImage(
+                image.getWidth(),
+                image.getHeight(),
+                BufferedImage.TYPE_INT_ARGB_PRE
+            );
             Graphics2D g = convertedImage.createGraphics();
             double width = image.getWidth() * (double) 1;
             double height = image.getHeight() * (double) 1;
-            g.drawImage(image, (int) ((convertedImage.getWidth() - width) / 2),
-                    (int) ((convertedImage.getHeight() - height) / 2),
-                    (int) (width), (int) (height), null);
+            g.drawImage(
+                image,
+                (int) ((convertedImage.getWidth() - width) / 2),
+                (int) ((convertedImage.getHeight() - height) / 2),
+                (int) (width),
+                (int) (height),
+                null
+            );
             g.dispose();
             image = convertedImage;
         }
@@ -286,14 +313,13 @@ public class LwjglDisplay extends LwjglAbstractDisplay {
 
     @Override
     public Displays getDisplays() {
-      // TODO Auto-generated method stub
-      return null;
+        // TODO Auto-generated method stub
+        return null;
     }
 
     @Override
     public int getPrimaryDisplay() {
-      // TODO Auto-generated method stub
-      return 0;
+        // TODO Auto-generated method stub
+        return 0;
     }
-
 }
