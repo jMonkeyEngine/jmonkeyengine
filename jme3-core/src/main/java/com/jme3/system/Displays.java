@@ -30,77 +30,71 @@ import java.util.ArrayList;
 /**
  * This class holds all information about all displays that where return from the glfwGetMonitors()
  * call. It stores them into an ArrayList
- * 
+ *
  * @author Kevin Bales
  */
 public class Displays {
 
-  private ArrayList<DisplayInfo> displays = new ArrayList<DisplayInfo>();
+    private ArrayList<DisplayInfo> displays = new ArrayList<DisplayInfo>();
 
-  public int addNewMonitor(long displaysID) {
-    DisplayInfo info = new DisplayInfo();
-    info.displayID = displaysID;
-    displays.add(info);
-    return displays.size() - 1;
-  }
-
-  /**
-   * This function returns the size of the display ArrayList
-   * 
-   * @return the
-   */
-  public int size() {
-    return displays.size();
-  }
-
-  /**
-   * Call to get display information on a certain display.
-   * 
-   * @param pos the position in the ArrayList of the display information that you want to get.
-   * @return returns the DisplayInfo data for the display called for.
-   */
-  public DisplayInfo get(int pos) {
-    if (pos < displays.size())
-      return displays.get(pos);
-
-    return null;
-  }
-
-  /**
-   * Set information about this display stored in displayPos display in the array list.
-   * 
-   * @param displayPos ArrayList position of display to update
-   * @param name name of the display 
-   * @param width the current width the display is displaying
-   * @param height the current height the display is displaying
-   * @param rate the current refresh rate the display is set to
-   */
-  public void setInfo(int displayPos, String name, int width, int height, int rate) {
-    if (displayPos < displays.size()) {
-      DisplayInfo info = displays.get(displayPos);
-      if (info != null) {
-        info.width = width;
-        info.height = height;
-        info.rate = rate;
-        info.name = name;
-      }
-    }
-  }
-
-  /**
-   * This function will mark a certain display as the primary display.
-   * 
-   * @param displayPos the position in the ArrayList of which display is the primary display
-   */
-  public void setPrimaryDisplay(int displayPos) {
-    if (displayPos < displays.size()) {
-      DisplayInfo info = displays.get(displayPos);
-      if (info != null)
-        info.primary = true;
+    public int addNewMonitor(long displaysID) {
+        DisplayInfo info = new DisplayInfo();
+        info.displayID = displaysID;
+        displays.add(info);
+        return displays.size() - 1;
     }
 
-  }
+    /**
+     * This function returns the size of the display ArrayList
+     *
+     * @return the
+     */
+    public int size() {
+        return displays.size();
+    }
 
+    /**
+     * Call to get display information on a certain display.
+     *
+     * @param pos the position in the ArrayList of the display information that you want to get.
+     * @return returns the DisplayInfo data for the display called for.
+     */
+    public DisplayInfo get(int pos) {
+        if (pos < displays.size()) return displays.get(pos);
 
+        return null;
+    }
 
+    /**
+     * Set information about this display stored in displayPos display in the array list.
+     *
+     * @param displayPos ArrayList position of display to update
+     * @param name name of the display
+     * @param width the current width the display is displaying
+     * @param height the current height the display is displaying
+     * @param rate the current refresh rate the display is set to
+     */
+    public void setInfo(int displayPos, String name, int width, int height, int rate) {
+        if (displayPos < displays.size()) {
+            DisplayInfo info = displays.get(displayPos);
+            if (info != null) {
+                info.width = width;
+                info.height = height;
+                info.rate = rate;
+                info.name = name;
+            }
+        }
+    }
+
+    /**
+     * This function will mark a certain display as the primary display.
+     *
+     * @param displayPos the position in the ArrayList of which display is the primary display
+     */
+    public void setPrimaryDisplay(int displayPos) {
+        if (displayPos < displays.size()) {
+            DisplayInfo info = displays.get(displayPos);
+            if (info != null) info.primary = true;
+        }
+    }
 }
