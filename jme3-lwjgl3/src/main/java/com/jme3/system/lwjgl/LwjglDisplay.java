@@ -42,15 +42,5 @@ public class LwjglDisplay extends LwjglWindow {
         super(Type.Display);
     }
 
-   @Override
-   public Displays getDisplays() {
-      // TODO Auto-generated method stub
-      return null;
-   }
 
-   @Override
-   public int getPrimaryDisplay() {
-      // TODO Auto-generated method stub
-      return 0;
-   }
 }
