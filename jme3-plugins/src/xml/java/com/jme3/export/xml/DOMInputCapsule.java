@@ -1245,9 +1245,16 @@ public class DOMInputCapsule implements InputCapsule {
                                 if (n instanceof Element && n.getNodeName().equals("MapEntry")) {
                                         Element elem = (Element) n;
                                         currentElem = elem;
-                                        int key = Integer.parseInt(currentElem.getAttribute("key"));
-                                        Savable val = readSavable("Savable", null);
-                                        ret.put(key, val);
+                                        try {
+	                                        int key = Integer.parseInt(currentElem.getAttribute("key"));
+	                                        Savable val = readSavable("Savable", null);
+	                                        ret.put(key, val);
+                                        }catch (NumberFormatException nfe) {
+                                            IOException io = new IOException(nfe.toString());
+                                            io.initCause(nfe);
+                                            throw io;
+
+                                        }
                                 }
                         }
         } else {
