@@ -34,10 +34,16 @@ package com.jme3.scene.plugins.gltf;
 import com.jme3.asset.AssetLoadException;
 import com.jme3.plugins.json.JsonArray;
 import com.jme3.plugins.json.JsonElement;
-
+import com.jme3.scene.plugins.gltf.ext.JME_speaker.SpeakerExtensionLoader;
+import com.jme3.scene.plugins.gltf.ext.KHR_lights_punctual.LightsPunctualExtensionLoader;
+import com.jme3.scene.plugins.gltf.ext.KHR_materials_pbrSpecularGlossiness.PBRSpecGlossExtensionLoader;
+import com.jme3.scene.plugins.gltf.ext.KHR_materials_unlit.UnlitExtensionLoader;
+import com.jme3.scene.plugins.gltf.ext.KHR_texture_transform.TextureTransformExtensionLoader;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -46,19 +52,25 @@ import java.util.logging.Logger;
  */
 public class CustomContentManager {
 
-    private final static Logger logger = Logger.getLogger(CustomContentManager.class.getName());
+    private static final Logger logger = Logger.getLogger(CustomContentManager.class.getName());
 
     private GltfModelKey key;
     private GltfLoader gltfLoader;
 
-    private final Map<String, ExtensionLoader> defaultExtensionLoaders = new HashMap<>();
+    static final Map<String, Class<? extends ExtensionLoader>> defaultExtensionLoaders =
+        new ConcurrentHashMap<>();
 
-    public CustomContentManager() {
-        defaultExtensionLoaders.put("KHR_materials_pbrSpecularGlossiness", new PBRSpecGlossExtensionLoader());
-        defaultExtensionLoaders.put("KHR_lights_punctual", new LightsPunctualExtensionLoader());
-        defaultExtensionLoaders.put("KHR_materials_unlit", new UnlitExtensionLoader());
-        defaultExtensionLoaders.put("KHR_texture_transform", new TextureTransformExtensionLoader());
+    static {
+        defaultExtensionLoaders.put("KHR_materials_pbrSpecularGlossiness", PBRSpecGlossExtensionLoader.class);
+        defaultExtensionLoaders.put("KHR_lights_punctual", LightsPunctualExtensionLoader.class);
+        defaultExtensionLoaders.put("KHR_materials_unlit", UnlitExtensionLoader.class);
+        defaultExtensionLoaders.put("KHR_texture_transform", TextureTransformExtensionLoader.class);
+        defaultExtensionLoaders.put("JME_speaker", SpeakerExtensionLoader.class);
     }
+
+    private final Map<String, ExtensionLoader> loadedExtensionLoaders = new HashMap<>();
+
+    public CustomContentManager() {}
 
     void init(GltfLoader gltfLoader) {
         this.gltfLoader = gltfLoader;
@@ -72,8 +84,16 @@ public class CustomContentManager {
             for (JsonElement extElem : extensionUsed) {
                 String ext = extElem.getAsString();
                 if (ext != null) {
-                    if (defaultExtensionLoaders.get(ext) == null && (this.key != null && this.key.getExtensionLoader(ext) == null)) {
-                        logger.log(Level.WARNING, "Extension " + ext + " is not supported, please provide your own implementation in the GltfModelKey");
+                    if (
+                        defaultExtensionLoaders.get(ext) == null &&
+                        (this.key != null && this.key.getExtensionLoader(ext) == null)
+                    ) {
+                        logger.log(
+                            Level.WARNING,
+                            "Extension " +
+                            ext +
+                            " is not supported, please provide your own implementation in the GltfModelKey"
+                        );
                     }
                 }
             }
@@ -83,15 +103,24 @@ public class CustomContentManager {
             for (JsonElement extElem : extensionRequired) {
                 String ext = extElem.getAsString();
                 if (ext != null) {
-                    if (defaultExtensionLoaders.get(ext) == null && (this.key != null && this.key.getExtensionLoader(ext) == null)) {
-                        logger.log(Level.SEVERE, "Extension " + ext + " is mandatory for this file, the loaded scene result will be unexpected.");
+                    if (
+                        defaultExtensionLoaders.get(ext) == null &&
+                        (this.key != null && this.key.getExtensionLoader(ext) == null)
+                    ) {
+                        logger.log(
+                            Level.SEVERE,
+                            "Extension " +
+                            ext +
+                            " is mandatory for this file, the loaded scene result will be unexpected."
+                        );
                     }
                 }
             }
         }
     }
 
-    public <T> T readExtensionAndExtras(String name, JsonElement el, T input) throws AssetLoadException, IOException {
+    public <T> T readExtensionAndExtras(String name, JsonElement el, T input)
+        throws AssetLoadException, IOException {
         T output = readExtension(name, el, input);
         output = readExtras(name, el, output);
         return output;
@@ -106,11 +135,34 @@ public class CustomContentManager {
 
         for (Map.Entry<String, JsonElement> ext : extensions.getAsJsonObject().entrySet()) {
             ExtensionLoader loader = null;
+
             if (key != null) {
                 loader = key.getExtensionLoader(ext.getKey());
             }
+
             if (loader == null) {
-                loader = defaultExtensionLoaders.get(ext.getKey());
+                loader = loadedExtensionLoaders.get(ext.getKey());
+                if (loader == null) {
+                    try {
+                        Class<? extends ExtensionLoader> clz = defaultExtensionLoaders.get(ext.getKey());
+                        if (clz != null) {
+                            loader = clz.getDeclaredConstructor().newInstance();
+                        }
+                    } catch (
+                        InstantiationException
+                        | IllegalAccessException
+                        | IllegalArgumentException
+                        | InvocationTargetException
+                        | NoSuchMethodException
+                        | SecurityException e
+                    ) {
+                        logger.log(Level.WARNING, "Could not instantiate loader", e);
+                    }
+
+                    if (loader != null) {
+                        loadedExtensionLoaders.put(ext.getKey(), loader);
+                    }
+                }
             }
 
             if (loader == null) {
@@ -121,7 +173,15 @@ public class CustomContentManager {
             try {
                 return (T) loader.handleExtension(gltfLoader, name, el, ext.getValue(), input);
             } catch (ClassCastException e) {
-                throw new AssetLoadException("Extension loader " + loader.getClass().getName() + " for extension " + ext.getKey() + " is incompatible with type " + input.getClass(), e);
+                throw new AssetLoadException(
+                    "Extension loader " +
+                    loader.getClass().getName() +
+                    " for extension " +
+                    ext.getKey() +
+                    " is incompatible with type " +
+                    input.getClass(),
+                    e
+                );
             }
         }
 
@@ -130,14 +190,16 @@ public class CustomContentManager {
 
     @SuppressWarnings("unchecked")
     private <T> T readExtras(String name, JsonElement el, T input) throws AssetLoadException {
-        if (key == null) {
-            return input;
-        }
         ExtrasLoader loader;
-        loader = key.getExtrasLoader();
-        if (loader == null) {
-            return input;
+        if (key == null) {
+            loader = new UserDataLoader();
+        } else {
+            loader = key.getExtrasLoader();
+            if (loader == null) {
+                return input;
+            }
         }
+
         JsonElement extras = el.getAsJsonObject().getAsJsonObject("extras");
         if (extras == null) {
             return input;
@@ -146,10 +208,15 @@ public class CustomContentManager {
         try {
             return (T) loader.handleExtras(gltfLoader, name, el, extras, input);
         } catch (ClassCastException e) {
-            throw new AssetLoadException("Extra loader " + loader.getClass().getName() + " for " + name + " is incompatible with type " + input.getClass(), e);
+            throw new AssetLoadException(
+                "Extra loader " +
+                loader.getClass().getName() +
+                " for " +
+                name +
+                " is incompatible with type " +
+                input.getClass(),
+                e
+            );
         }
-
     }
-
-
 }

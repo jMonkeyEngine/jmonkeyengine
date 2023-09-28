@@ -29,11 +29,8 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.scene.plugins.gltf;
+package com.jme3.scene.plugins.gltf.ext.KHR_lights_punctual;
 
-import com.jme3.plugins.json.JsonArray;
-import com.jme3.plugins.json.JsonObject;
-import com.jme3.plugins.json.JsonElement;
 import com.jme3.asset.AssetLoadException;
 import com.jme3.light.DirectionalLight;
 import com.jme3.light.Light;
@@ -42,8 +39,14 @@ import com.jme3.light.SpotLight;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
+import com.jme3.plugins.json.JsonArray;
+import com.jme3.plugins.json.JsonElement;
+import com.jme3.plugins.json.JsonObject;
 import com.jme3.scene.Node;
 import com.jme3.scene.control.LightControl;
+import com.jme3.scene.plugins.gltf.ExtensionLoader;
+import com.jme3.scene.plugins.gltf.GltfLoader;
+import com.jme3.scene.plugins.gltf.GltfUtils;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -60,8 +63,16 @@ public class LightsPunctualExtensionLoader implements ExtensionLoader {
     private final HashSet<NodeNeedingLight> pendingNodes = new HashSet<>();
     private final HashMap<Integer, Light> lightDefinitions = new HashMap<>();
 
+    public LightsPunctualExtensionLoader() {}
+
     @Override
-    public Object handleExtension(GltfLoader loader, String parentName, JsonElement parent, JsonElement extension, Object input) {
+    public Object handleExtension(
+        GltfLoader loader,
+        String parentName,
+        JsonElement parent,
+        JsonElement extension,
+        Object input
+    ) {
         if (input instanceof Node) { //We are processing a node
             JsonObject jsonObject = extension.getAsJsonObject();
             if (jsonObject.has("light")) { //These will get run first when loading the gltf file
@@ -94,7 +105,9 @@ public class LightsPunctualExtensionLoader implements ExtensionLoader {
                             lightNode = buildSpotLight(light);
                             break;
                         default:
-                            throw new AssetLoadException("KHR_lights_punctual unsupported light type: " + type);
+                            throw new AssetLoadException(
+                                "KHR_lights_punctual unsupported light type: " + type
+                            );
                     }
 
                     lightDefinitions.put(i, lightNode);
@@ -125,14 +138,20 @@ public class LightsPunctualExtensionLoader implements ExtensionLoader {
         String name = obj.has("name") ? obj.get("name").getAsString() : "";
 
         float intensity = obj.has("intensity") ? obj.get("intensity").getAsFloat() : 1.0f;
-        ColorRGBA color = obj.has("color") ? GltfUtils.getAsColor(obj, "color") : new ColorRGBA(ColorRGBA.White);
+        ColorRGBA color = obj.has("color")
+            ? GltfUtils.getAsColor(obj, "color")
+            : new ColorRGBA(ColorRGBA.White);
         color = lumensToColor(color, intensity);
         float range = obj.has("range") ? obj.get("range").getAsFloat() : Float.POSITIVE_INFINITY;
 
         //Spot specific
         JsonObject spot = obj.getAsJsonObject("spot");
-        float innerConeAngle = spot != null && spot.has("innerConeAngle") ? spot.get("innerConeAngle").getAsFloat() : 0f;
-        float outerConeAngle = spot != null && spot.has("outerConeAngle") ? spot.get("outerConeAngle").getAsFloat() : ((float) Math.PI) / 4f;
+        float innerConeAngle = spot != null && spot.has("innerConeAngle")
+            ? spot.get("innerConeAngle").getAsFloat()
+            : 0f;
+        float outerConeAngle = spot != null && spot.has("outerConeAngle")
+            ? spot.get("outerConeAngle").getAsFloat()
+            : ((float) Math.PI) / 4f;
 
         /*
         Correct floating point error on half PI, GLTF spec says that the outerConeAngle
@@ -164,7 +183,9 @@ public class LightsPunctualExtensionLoader implements ExtensionLoader {
         String name = obj.has("name") ? obj.get("name").getAsString() : "";
 
         float intensity = obj.has("intensity") ? obj.get("intensity").getAsFloat() : 1.0f;
-        ColorRGBA color = obj.has("color") ? GltfUtils.getAsColor(obj, "color") : new ColorRGBA(ColorRGBA.White);
+        ColorRGBA color = obj.has("color")
+            ? GltfUtils.getAsColor(obj, "color")
+            : new ColorRGBA(ColorRGBA.White);
         color = lumensToColor(color, intensity);
 
         DirectionalLight directionalLight = new DirectionalLight();
@@ -185,7 +206,9 @@ public class LightsPunctualExtensionLoader implements ExtensionLoader {
         String name = obj.has("name") ? obj.get("name").getAsString() : "";
 
         float intensity = obj.has("intensity") ? obj.get("intensity").getAsFloat() : 1.0f;
-        ColorRGBA color = obj.has("color") ? GltfUtils.getAsColor(obj, "color") : new ColorRGBA(ColorRGBA.White);
+        ColorRGBA color = obj.has("color")
+            ? GltfUtils.getAsColor(obj, "color")
+            : new ColorRGBA(ColorRGBA.White);
         color = lumensToColor(color, intensity);
         float range = obj.has("range") ? obj.get("range").getAsFloat() : Float.POSITIVE_INFINITY;
 
@@ -211,7 +234,9 @@ public class LightsPunctualExtensionLoader implements ExtensionLoader {
             LightControl control = new LightControl(light);
             node.addControl(control);
         } else {
-            throw new AssetLoadException("KHR_lights_punctual extension accessed undefined light at index " + lightIndex);
+            throw new AssetLoadException(
+                "KHR_lights_punctual extension accessed undefined light at index " + lightIndex
+            );
         }
     }
 
@@ -247,7 +272,7 @@ public class LightsPunctualExtensionLoader implements ExtensionLoader {
          */
         float epsilon = 0.0001f;
 
-        double Le = 2f * Math.log(lumens * epsilon) / Math.log(2) + 127.0;
+        double Le = (2f * Math.log(lumens * epsilon)) / Math.log(2) + 127.0;
         ColorRGBA color = new ColorRGBA();
         color.a = (float) (Le - Math.floor(Le)); //Get fractional part
         float val = (float) ((Le - (Math.floor(color.a * 255.0)) / 255.0) / 255.0);
@@ -262,6 +287,7 @@ public class LightsPunctualExtensionLoader implements ExtensionLoader {
      * A bean to contain the relation between a node and a light index
      */
     private static class NodeNeedingLight {
+
         private Node node;
         private int lightIndex;
 

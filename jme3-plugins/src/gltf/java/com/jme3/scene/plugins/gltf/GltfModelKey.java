@@ -53,7 +53,7 @@ public class GltfModelKey extends ModelKey {
 
     private Map<String, MaterialAdapter> materialAdapters = new HashMap<>();
     private static Map<String, ExtensionLoader> extensionLoaders = new HashMap<>();
-    private ExtrasLoader extrasLoader;
+    private ExtrasLoader extrasLoader = new UserDataLoader();
     private boolean keepSkeletonPose = false;
 
     public GltfModelKey(String name) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,43 +29,45 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.scene.plugins.gltf;
+package com.jme3.scene.plugins.gltf.ext.KHR_materials_unlit;
 
 import com.jme3.asset.AssetKey;
-
-import java.io.IOException;
 import com.jme3.plugins.json.JsonElement;
-import static com.jme3.scene.plugins.gltf.GltfUtils.getAsColor;
-import static com.jme3.scene.plugins.gltf.GltfUtils.getAsFloat;
+import com.jme3.scene.plugins.gltf.ExtensionLoader;
+import com.jme3.scene.plugins.gltf.GltfLoader;
+import com.jme3.scene.plugins.gltf.GltfModelKey;
+import com.jme3.scene.plugins.gltf.MaterialAdapter;
 
 /**
- * Material adapter for PBR Specular Glossiness pipeline
- * Created by Nehon on 20/08/2017.
+ * Material adapter for the Unlit pipeline
+ * @author Markil 3
  */
-public class PBRSpecGlossExtensionLoader implements ExtensionLoader {
+public class UnlitExtensionLoader implements ExtensionLoader {
 
-    private PBRSpecGlossMaterialAdapter materialAdapter = new PBRSpecGlossMaterialAdapter();
+    private final UnlitMaterialAdapter materialAdapter = new UnlitMaterialAdapter();
+
+    public UnlitExtensionLoader() {}
 
     @Override
-    public Object handleExtension(GltfLoader loader, String parentName, JsonElement parent, JsonElement extension, Object input) throws IOException {
+    public Object handleExtension(
+        GltfLoader loader,
+        String parentName,
+        JsonElement parent,
+        JsonElement extension,
+        Object input
+    ) {
         MaterialAdapter adapter = materialAdapter;
         AssetKey key = loader.getInfo().getKey();
         //check for a custom adapter for spec/gloss pipeline
         if (key instanceof GltfModelKey) {
             GltfModelKey gltfKey = (GltfModelKey) key;
-            MaterialAdapter ma = gltfKey.getAdapterForMaterial("pbrSpecularGlossiness");
+            MaterialAdapter ma = gltfKey.getAdapterForMaterial("unlit");
             if (ma != null) {
                 adapter = ma;
             }
         }
 
         adapter.init(loader.getInfo().getManager());
-
-        adapter.setParam("diffuseFactor", getAsColor(extension.getAsJsonObject(), "diffuseFactor"));
-        adapter.setParam("specularFactor", getAsColor(extension.getAsJsonObject(), "specularFactor"));
-        adapter.setParam("glossinessFactor", getAsFloat(extension.getAsJsonObject(), "glossinessFactor"));
-        adapter.setParam("diffuseTexture", loader.readTexture(extension.getAsJsonObject().getAsJsonObject("diffuseTexture")));
-        adapter.setParam("specularGlossinessTexture", loader.readTexture(extension.getAsJsonObject().getAsJsonObject("specularGlossinessTexture")));
 
         return adapter;
     }

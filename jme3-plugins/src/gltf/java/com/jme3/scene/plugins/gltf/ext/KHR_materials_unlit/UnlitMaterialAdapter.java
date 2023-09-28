@@ -29,10 +29,11 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.scene.plugins.gltf;
+package com.jme3.scene.plugins.gltf.ext.KHR_materials_unlit;
 
 import com.jme3.material.MatParam;
 import com.jme3.material.RenderState;
+import com.jme3.scene.plugins.gltf.MaterialAdapter;
 
 /**
  * @author Markil 3
