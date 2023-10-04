@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -383,9 +383,24 @@ public class FlyByCamera implements AnalogListener, ActionListener {
      * @param value zoom amount
      */
     protected void zoomCamera(float value) {
-        float newFov = cam.getFov() + value * 0.1F * zoomSpeed;
-        if (newFov > 0) {
-            cam.setFov(newFov);
+        if (cam.isParallelProjection()) {
+            float zoomFactor = 1.0F + value * 0.01F * zoomSpeed;
+            if (zoomFactor > 0F) {
+                float left = zoomFactor * cam.getFrustumLeft();
+                float right = zoomFactor * cam.getFrustumRight();
+                float top = zoomFactor * cam.getFrustumTop();
+                float bottom = zoomFactor * cam.getFrustumBottom();
+
+                float near = cam.getFrustumNear();
+                float far = cam.getFrustumFar();
+                cam.setFrustum(near, far, left, right, top, bottom);
+            }
+
+        } else { // perspective projection
+            float newFov = cam.getFov() + value * 0.1F * zoomSpeed;
+            if (newFov > 0) {
+                cam.setFov(newFov);
+            }
         }
     }
 
