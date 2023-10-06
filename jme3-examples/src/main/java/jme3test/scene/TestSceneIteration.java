@@ -39,11 +39,11 @@ public class TestSceneIteration extends SimpleApplication {
         Node n3 = new Node("sky");
         rootNode.attachChild(n3);
             n3.attachChild(new Node("airplane"));
-            Node ignore = new Node("ignore");
+            Node ignore = new Node("ignore my children");
             n3.attachChild(ignore);
                 ignore.attachChild(new Node("this should not be iterated"));
-                ignore.attachChild(new Node("this should not be iterated"));
-                ignore.attachChild(new Node("this should not be iterated"));
+                ignore.attachChild(new Node("this should not be iterated either"));
+                ignore.attachChild(new Node("don't iterate me"));
             n3.attachChild(new Node("bird"));
         
         // change this boolean to see the effects of ignoreChildren()
