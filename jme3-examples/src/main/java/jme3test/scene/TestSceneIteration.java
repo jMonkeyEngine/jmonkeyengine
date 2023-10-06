@@ -55,7 +55,7 @@ public class TestSceneIteration extends SimpleApplication {
             // create a hierarchy in the console
             System.out.println(constructTabs(iterator.getDepth()) + spatial.getName());
             // see if the children of this spatial should be ignored
-            if (ignoreThoseThings && spatial.getName().equals("ignore")) {
+            if (ignoreThoseThings && spatial == ignore) {
                 // ignore all children of this spatial
                 iterator.ignoreChildren();
             }
