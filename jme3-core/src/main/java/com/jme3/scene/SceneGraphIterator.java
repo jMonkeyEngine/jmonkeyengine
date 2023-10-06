@@ -74,6 +74,7 @@ public class SceneGraphIterator implements Iterable<Spatial>, Iterator<Spatial> 
     public void ignoreChildren() {
         if (current instanceof Node) {
             path.removeLast();
+            depth--;
         }
     }
     
