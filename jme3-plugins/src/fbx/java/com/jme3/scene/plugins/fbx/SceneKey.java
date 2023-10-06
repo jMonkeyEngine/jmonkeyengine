@@ -32,6 +32,7 @@
 package com.jme3.scene.plugins.fbx;
 
 import com.jme3.asset.ModelKey;
+import java.util.Objects;
 
 public class SceneKey extends ModelKey {
 
@@ -49,6 +50,29 @@ public class SceneKey extends ModelKey {
 
     public AnimationList getAnimations() {
         return this.animList;
+    }
+    
+    @Override
+    public boolean equals(Object object) {
+        if (object == null) {
+            return false;
+        }
+        if (getClass() != object.getClass()) {
+            return false;
+        }
+        final SceneKey other = (SceneKey)object;
+        if (!super.equals(other)) {
+            return false;
+        }
+        if (animList != other.animList && (animList == null || !animList.equals(other.animList))) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return 413 + Objects.hashCode(animList);
     }
 
 }
