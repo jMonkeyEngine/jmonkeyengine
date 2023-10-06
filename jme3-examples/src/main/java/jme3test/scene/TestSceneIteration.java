@@ -29,21 +29,21 @@ public class TestSceneIteration extends SimpleApplication {
         // setup scene graph
         Node n1 = new Node("town");
         rootNode.attachChild(n1);
-        n1.attachChild(new Node("car"));
-        n1.attachChild(new Node("tree"));
-        Node n2 = new Node("house");
-        n1.attachChild(n2);
-        n2.attachChild(new Node("chairs"));
-        n2.attachChild(new Node("tables"));
-        n2.attachChild(createGeometry("house-geometry"));
+            n1.attachChild(new Node("car"));
+            n1.attachChild(new Node("tree"));
+            Node n2 = new Node("house");
+            n1.attachChild(n2);
+                n2.attachChild(new Node("chairs"));
+                n2.attachChild(new Node("tables"));
+                n2.attachChild(createGeometry("house-geometry"));
         Node n3 = new Node("sky");
         rootNode.attachChild(n3);
-        n3.attachChild(new Node("airplane"));
-        Node ignore = new Node("ignore");
-        n3.attachChild(ignore);
-        ignore.attachChild(new Node("this should not be iterated"));
-        ignore.attachChild(new Node("this should not be iterated"));
-        ignore.attachChild(new Node("this should not be iterated"));
+            n3.attachChild(new Node("airplane"));
+            Node ignore = new Node("ignore");
+            n3.attachChild(ignore);
+                ignore.attachChild(new Node("this should not be iterated"));
+                ignore.attachChild(new Node("this should not be iterated"));
+                ignore.attachChild(new Node("this should not be iterated"));
         
         // change this boolean to see the effects of ignoreChildren()
         boolean ignoreThoseThings = true;
