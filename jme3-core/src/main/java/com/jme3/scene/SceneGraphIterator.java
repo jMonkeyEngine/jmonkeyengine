@@ -18,11 +18,13 @@ public class SceneGraphIterator implements Iterable<Spatial>, Iterator<Spatial> 
     
     private Spatial current;
     private Spatial main;
+    private int depth = 0;
     private final LinkedList<PathNode> path = new LinkedList<>();
 
     public SceneGraphIterator(Spatial main) {
         if (main instanceof Node) {
             path.add(new PathNode((Node)main));
+            depth++;
         }
         this.main = main;
     }
@@ -46,7 +48,11 @@ public class SceneGraphIterator implements Iterable<Spatial>, Iterator<Spatial> 
         else {
             current = path.getLast().iterator.next();
             if (current instanceof Node) {
-                path.addLast(new PathNode((Node)current));
+                Node n = (Node)current;
+                if (!n.getChildren().isEmpty()) {
+                    path.addLast(new PathNode(n));
+                    depth++;
+                }
             }
         }
         return current;
@@ -72,11 +78,20 @@ public class SceneGraphIterator implements Iterable<Spatial>, Iterator<Spatial> 
     }
     
     /**
+     * Get the current depth of the iterator.
+     * @return 
+     */
+    public int getDepth() {
+        return current == path.getLast().node ? depth-1 : depth;
+    }
+    
+    /**
      * Trims the path to the first available node.
      */
     private void trim() {
         if (!path.isEmpty() && !path.getLast().iterator.hasNext()) {
             path.removeLast();
+            depth--;
             trim();
         }
     }
