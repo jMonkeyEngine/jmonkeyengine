@@ -83,7 +83,7 @@ public class SceneGraphIterator implements Iterable<Spatial>, Iterator<Spatial> 
      * @return 
      */
     public int getDepth() {
-        return current == path.getLast().node ? depth-1 : depth;
+        return !path.isEmpty() && current == path.getLast().node ? depth-1 : depth;
     }
     
     /**
