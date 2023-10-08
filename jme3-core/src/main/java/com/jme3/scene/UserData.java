@@ -138,7 +138,7 @@ public final class UserData implements Savable {
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(type, "type", (byte) 0);
-
+        
         switch (type) {
             case TYPE_INTEGER:
                 int i = (Integer) value;
@@ -196,6 +196,16 @@ public final class UserData implements Savable {
     public void read(JmeImporter im) throws IOException {
         InputCapsule ic = im.getCapsule(this);
         type = ic.readByte("type", (byte) 0);
+        // if the formatting version is "old," use the old prefixes
+        String a, b;
+        if (im.getFormatVersion() <= 2) {
+            a = "0";
+            b = "1";
+        }
+        else {
+            a = "A";
+            b = "B";
+        }
         switch (type) {
             case TYPE_INTEGER:
                 value = ic.readInt("intVal", 0);
@@ -216,19 +226,19 @@ public final class UserData implements Savable {
                 value = ic.readSavable("savableVal", null);
                 break;
             case TYPE_LIST:
-                value = this.readList(ic, "A");
+                value = this.readList(ic, a);
                 break;
             case TYPE_MAP:
                 Map<Object, Object> map = new HashMap<>();
-                List<?> keys = this.readList(ic, "A");
-                List<?> values = this.readList(ic, "B");
+                List<?> keys = this.readList(ic, a);
+                List<?> values = this.readList(ic, b);
                 for (int i = 0; i < keys.size(); ++i) {
                     map.put(keys.get(i), values.get(i));
                 }
                 value = map;
                 break;
             case TYPE_ARRAY:
-                value = this.readList(ic, "A").toArray();
+                value = this.readList(ic, a).toArray();
                 break;
             case TYPE_DOUBLE:
                 value = ic.readDouble("doubleVal", 0.);

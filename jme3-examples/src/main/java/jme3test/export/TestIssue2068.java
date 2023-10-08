@@ -56,7 +56,7 @@ import java.util.logging.Logger;
 public class TestIssue2068 extends SimpleApplication {
     // *************************************************************************
     // constants and loggers
-
+    
     /**
      * message logger for this class
      */
