@@ -67,8 +67,6 @@ public abstract class PBRMaterialAdapter extends MaterialAdapter {
             switch (alphaMode) {
                 case "MASK":
                     // "MASK" -> BlendMode.Off
-                    // Warning:
-                    // This assumes the "alphaCutoff" parameter is always parsed after the "alpha" parameter.
                     getMaterial().setFloat("AlphaDiscardThreshold", MASK_ALPHA_DISCARD);
                     break;
                 case "BLEND":
