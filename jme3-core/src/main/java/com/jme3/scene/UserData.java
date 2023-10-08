@@ -165,15 +165,15 @@ public final class UserData implements Savable {
                 oc.write(sav, "savableVal", null);
                 break;
             case TYPE_LIST:
-                this.writeList(oc, (List<?>) value, "0");
+                this.writeList(oc, (List<?>) value, "A");
                 break;
             case TYPE_MAP:
                 Map<?, ?> map = (Map<?, ?>) value;
-                this.writeList(oc, map.keySet(), "0");
-                this.writeList(oc, map.values(), "1");
+                this.writeList(oc, map.keySet(), "A");
+                this.writeList(oc, map.values(), "B");
                 break;
             case TYPE_ARRAY:
-                this.writeList(oc, Arrays.asList((Object[]) value), "0");
+                this.writeList(oc, Arrays.asList((Object[]) value), "A");
                 break;
             case TYPE_DOUBLE:
                 Double d = (Double) value;
@@ -216,19 +216,19 @@ public final class UserData implements Savable {
                 value = ic.readSavable("savableVal", null);
                 break;
             case TYPE_LIST:
-                value = this.readList(ic, "0");
+                value = this.readList(ic, "A");
                 break;
             case TYPE_MAP:
                 Map<Object, Object> map = new HashMap<>();
-                List<?> keys = this.readList(ic, "0");
-                List<?> values = this.readList(ic, "1");
+                List<?> keys = this.readList(ic, "A");
+                List<?> values = this.readList(ic, "B");
                 for (int i = 0; i < keys.size(); ++i) {
                     map.put(keys.get(i), values.get(i));
                 }
                 value = map;
                 break;
             case TYPE_ARRAY:
-                value = this.readList(ic, "0").toArray();
+                value = this.readList(ic, "A").toArray();
                 break;
             case TYPE_DOUBLE:
                 value = ic.readDouble("doubleVal", 0.);

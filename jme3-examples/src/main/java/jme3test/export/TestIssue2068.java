@@ -36,6 +36,7 @@ import com.jme3.export.JmeExporter;
 import com.jme3.export.xml.XMLExporter;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -79,9 +80,17 @@ public class TestIssue2068 extends SimpleApplication {
      */
     @Override
     public void simpleInitApp() {
+        ArrayList<String> list = new ArrayList<>();
+        list.add("list-value");
+        rootNode.setUserData("list", list);
+        
         Map<String, String> map = new HashMap<>();
-        map.put("key", "value");
+        map.put("map-key", "map-value");
         rootNode.setUserData("map", map);
+        
+        String[] array = new String[1];
+        array[0] = "array-value";
+        rootNode.setUserData("array", array);
 
         String outputFilename = "TestIssue2068.xml";
         File xmlFile = new File(outputFilename);
