@@ -129,6 +129,12 @@ MaterialDef Phong Lighting {
         Float ExpFog
         Float ExpSqFog
 
+        // Context GBuffer Data
+        Texture2D Context_InGBuff0
+        Texture2D Context_InGBuff1
+        Texture2D Context_InGBuff2
+        Texture2D Context_InGBuff3
+        Texture2D Context_InGBuff4
     }
 
     Technique {
@@ -257,6 +263,50 @@ MaterialDef Phong Lighting {
 
     }
 
+    Technique GBufferPass{
+        Pipeline Deferred
+        VertexShader GLSL310 GLSL300 GLSL100 GLSL150:   Common/MatDefs/Light/LightingGBufferPack.vert
+        FragmentShader GLSL310 GLSL300 GLSL100 GLSL150: Common/MatDefs/Light/LightingGBufferPack.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+            NormalMatrix
+            WorldNormalMatrix
+            WorldViewMatrix
+            ViewMatrix
+            CameraPosition
+            WorldMatrix
+            ViewProjectionMatrix
+        }
+
+        Defines {
+            VERTEX_COLOR : UseVertexColor
+            MATERIAL_COLORS : UseMaterialColors
+            DIFFUSEMAP : DiffuseMap
+            NORMALMAP : NormalMap
+            SPECULARMAP : SpecularMap
+            PARALLAXMAP : ParallaxMap
+            NORMALMAP_PARALLAX : PackedNormalParallax
+            STEEP_PARALLAX : SteepParallax
+            ALPHAMAP : AlphaMap
+            COLORRAMP : ColorRamp
+            LIGHTMAP : LightMap
+            SEPARATE_TEXCOORD : SeparateTexCoord
+            DISCARD_ALPHA : AlphaDiscardThreshold
+            USE_REFLECTION : EnvMap
+            SPHERE_MAP : EnvMapAsSphereMap
+            NUM_BONES : NumberOfBones
+            INSTANCING : UseInstancing
+            NUM_MORPH_TARGETS: NumberOfMorphTargets
+            NUM_TARGETS_BUFFERS: NumberOfTargetsBuffers
+
+            // fog - jayfella
+            USE_FOG : UseFog
+            FOG_LINEAR : LinearFog
+            FOG_EXP : ExpFog
+            FOG_EXPSQ : ExpSqFog
+        }
+    }
 
     Technique PostShadow {
         VertexShader   GLSL310 GLSL300 GLSL150 GLSL100:   Common/MatDefs/Shadow/PostShadow.vert

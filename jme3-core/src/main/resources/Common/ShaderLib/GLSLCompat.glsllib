@@ -1,15 +1,5 @@
-#ifdef FRAGMENT_SHADER
-      precision highp float;
-      precision highp int;
-      precision highp sampler2DArray;
-      precision highp sampler2DShadow;
-      precision highp samplerCube;
-      precision highp sampler3D;
-      precision highp sampler2D;
-      #if __VERSION__ >= 310
-        precision highp sampler2DMS;
-      #endif
-
+#if __VERSION__ >= 130
+#extension GL_ARB_explicit_attrib_location : enable
 #endif
 
 #if defined GL_ES
@@ -33,25 +23,11 @@
 #endif
 
 #if __VERSION__ >= 130
-
-#ifdef FRAGMENT_SHADER
-  #ifdef GL_ES
-    #ifdef BOUND_DRAW_BUFFER
-      #for i=0..15 ( #if $i<=BOUND_DRAW_BUFFER  $0 #endif ) 
-        #if BOUND_DRAW_BUFFER == $i
-          layout( location = $i ) out highp vec4 outFragColor;
-        #else
-          layout( location = $i ) out highp vec4 outNOP$i;
-        #endif
-      #endfor
-    #else
-      out highp vec4 outFragColor;
-    #endif
-  #else
-    out vec4 outFragColor;
-  #endif
+#  ifdef GL_ES
+out highp vec4 outFragColor;
+#  else
+out vec4 outFragColor;
 #endif
-
 #  define texture1D texture
 #  define texture2D texture
 #  define texture3D texture

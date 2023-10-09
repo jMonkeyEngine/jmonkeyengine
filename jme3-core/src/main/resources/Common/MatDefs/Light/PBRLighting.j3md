@@ -125,6 +125,13 @@ MaterialDef PBR Lighting {
         Boolean UseVertexColor
 
         Boolean BackfaceShadows : false
+
+        // Context GBuffer Data
+        Texture2D Context_InGBuff0
+        Texture2D Context_InGBuff1
+        Texture2D Context_InGBuff2
+        Texture2D Context_InGBuff3
+        Texture2D Context_InGBuff4
     }
 
     Technique {
@@ -207,6 +214,49 @@ MaterialDef PBR Lighting {
 
     }
 
+    Technique GBufferPass{
+        Pipeline Deferred
+        VertexShader GLSL310 GLSL300 GLSL100 GLSL150:   Common/MatDefs/Light/PBRLightingGBufferPack.vert
+        FragmentShader GLSL310 GLSL300 GLSL100 GLSL150: Common/MatDefs/Light/PBRLightingGBufferPack.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+            CameraPosition
+            WorldMatrix
+            WorldNormalMatrix
+            ViewProjectionMatrix
+            ViewMatrix
+        }
+
+        Defines {
+            BASECOLORMAP : BaseColorMap
+            NORMALMAP : NormalMap
+            METALLICMAP : MetallicMap
+            ROUGHNESSMAP : RoughnessMap
+            EMISSIVEMAP : EmissiveMap
+            EMISSIVE : Emissive
+            SPECGLOSSPIPELINE : UseSpecGloss
+            PARALLAXMAP : ParallaxMap
+            NORMALMAP_PARALLAX : PackedNormalParallax
+            STEEP_PARALLAX : SteepParallax
+            LIGHTMAP : LightMap
+            SEPARATE_TEXCOORD : SeparateTexCoord
+            DISCARD_ALPHA : AlphaDiscardThreshold
+            NUM_BONES : NumberOfBones
+            INSTANCING : UseInstancing
+            USE_PACKED_MR: MetallicRoughnessMap
+            USE_PACKED_SG: SpecularGlossinessMap
+            SPECULARMAP : SpecularMap
+            GLOSSINESSMAP : GlossinessMap
+            NORMAL_TYPE: NormalType
+            VERTEX_COLOR : UseVertexColor
+            AO_MAP: LightMapAsAOMap
+            AO_PACKED_IN_MR_MAP : AoPackedInMRMap
+            NUM_MORPH_TARGETS: NumberOfMorphTargets
+            NUM_TARGETS_BUFFERS: NumberOfTargetsBuffers
+            HORIZON_FADE: HorizonFade
+        }
+    }
 
     Technique PostShadow {
         VertexShader   GLSL310 GLSL300 GLSL150 GLSL100:   Common/MatDefs/Shadow/PostShadow.vert

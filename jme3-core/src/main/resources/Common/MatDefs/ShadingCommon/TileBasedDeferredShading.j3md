@@ -1,0 +1,46 @@
+MaterialDef DeferredShading {
+
+    MaterialParameters {
+        // For instancing
+        Boolean UseInstancing
+        // UseLightsCull
+        Boolean UseLightsCullMode
+
+        // Context GBuffer Data
+        Texture2D Context_InGBuff0
+        Texture2D Context_InGBuff1
+        Texture2D Context_InGBuff2
+        Texture2D Context_InGBuff3
+        Texture2D Context_InGBuff4
+
+        // LightData
+        Texture2D LightPackData1
+        Texture2D LightPackData2
+        Texture2D LightPackData3
+
+        // TileInfo
+        Texture2D TileLightDecode
+        Texture2D TileLightIndex
+    }
+
+    Technique TileBasedDeferredPass{
+        Pipeline Deferred
+        LightMode TileBasedDeferredSinglePass
+
+        VertexShader GLSL310 GLSL300 GLSL100 GLSL150:   Common/MatDefs/ShadingCommon/DeferredShading.vert
+        FragmentShader GLSL310 GLSL300 GLSL100 GLSL150: Common/MatDefs/ShadingCommon/TileBasedDeferredShading.frag
+
+        WorldParameters {
+            CameraPosition
+            WorldViewProjectionMatrix
+            ViewProjectionMatrix
+            ResolutionInverse
+        }
+
+        Defines {
+            INSTANCING : UseInstancing
+            USE_LIGHTS_CULL_MODE : UseLightsCullMode
+        }
+    }
+
+}
