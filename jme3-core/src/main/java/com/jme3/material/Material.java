@@ -931,7 +931,8 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         if (scalar.x < 0) n++;
         if (scalar.y < 0) n++;
         if (scalar.z < 0) n++;
-        // an odd number of components means the normal vectors are backward
+        // An odd number of negative components means the normal vectors
+        // are backward to what they should be.
         return n == 1 || n == 3;
     }
     
