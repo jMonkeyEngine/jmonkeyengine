@@ -46,6 +46,7 @@ import com.jme3.renderer.Renderer;
 import com.jme3.renderer.TextureUnitException;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.scene.Geometry;
+import com.jme3.scene.Spatial.CullHint;
 import com.jme3.shader.*;
 import com.jme3.texture.Image;
 import com.jme3.texture.Texture;
@@ -890,16 +891,46 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         return type == VarType.BufferObject;
     }
 
-    private void updateRenderState(RenderManager renderManager, Renderer renderer, TechniqueDef techniqueDef) {
+    private void updateRenderState(Geometry geometry, RenderManager renderManager, Renderer renderer, TechniqueDef techniqueDef) {
         if (renderManager.getForcedRenderState() != null) {
-            renderer.applyRenderState(renderManager.getForcedRenderState());
+            if (!renderManager.getForcedRenderState().isFaceCullFlippable() || !isNormalsBackward(geometry.getWorldScale())) {
+                renderer.applyRenderState(renderManager.getForcedRenderState());
+            }
+            else {
+                RenderState rs = renderManager.getForcedRenderState();
+                rs.flipFaceCull();
+                renderer.applyRenderState(rs);
+            }
         } else {
             if (techniqueDef.getRenderState() != null) {
-                renderer.applyRenderState(techniqueDef.getRenderState().copyMergedTo(additionalState, mergedRenderState));
+                techniqueDef.getRenderState().copyMergedTo(additionalState, mergedRenderState);
             } else {
-                renderer.applyRenderState(RenderState.DEFAULT.copyMergedTo(additionalState, mergedRenderState));
+                RenderState.DEFAULT.copyMergedTo(additionalState, mergedRenderState);
+            }
+            if (!mergedRenderState.isFaceCullFlippable() || !isNormalsBackward(geometry.getWorldScale())) {
+                renderer.applyRenderState(mergedRenderState);
+            }
+            else {
+                RenderState rs = mergedRenderState.clone();
+                rs.flipFaceCull();
+                renderer.applyRenderState(rs);
             }
         }
+    }
+    
+    /**
+     * Returns true if the given scalar indicates that normals will be backward.
+     * @param scalar
+     * @return 
+     */
+    private boolean isNormalsBackward(Vector3f scalar) {
+        // count number of negative scalar vector components
+        int n = 0;
+        if (scalar.x < 0) n++;
+        if (scalar.y < 0) n++;
+        if (scalar.z < 0) n++;
+        // an odd number of components means the vectors are backward
+        return n == 1 || n == 3;
     }
     
     /**
@@ -1028,7 +1059,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         }
 
         // Apply render state
-        updateRenderState(renderManager, renderer, techniqueDef);
+        updateRenderState(geometry, renderManager, renderer, techniqueDef);
 
         // Get world overrides
         SafeArrayList<MatParamOverride> overrides = geometry.getWorldMatParamOverrides();
