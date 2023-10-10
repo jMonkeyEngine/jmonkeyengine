@@ -897,30 +897,32 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
                 renderer.applyRenderState(renderManager.getForcedRenderState());
             }
             else {
-                RenderState rs = renderManager.getForcedRenderState();
-                rs.flipFaceCull();
-                renderer.applyRenderState(rs);
+                RenderState flipped = renderManager.getForcedRenderState().clone();
+                flipped.flipFaceCull();
+                renderer.applyRenderState(flipped);
             }
         } else {
             if (techniqueDef.getRenderState() != null) {
+                // copyMergedTo writes to mergedRenderState
                 techniqueDef.getRenderState().copyMergedTo(additionalState, mergedRenderState);
             } else {
                 RenderState.DEFAULT.copyMergedTo(additionalState, mergedRenderState);
             }
+            // test if the face cull mode should be flipped before render
             if (!mergedRenderState.isFaceCullFlippable() || !isNormalsBackward(geometry.getWorldScale())) {
                 renderer.applyRenderState(mergedRenderState);
             }
             else {
-                RenderState rs = mergedRenderState.clone();
-                rs.flipFaceCull();
-                renderer.applyRenderState(rs);
+                RenderState flipped = mergedRenderState.clone();
+                flipped.flipFaceCull();
+                renderer.applyRenderState(flipped);
             }
         }
     }
     
     /**
-     * Returns true if the given scalar indicates that normals will be backward.
-     * @param scalar
+     * Returns true if the geometry world scale indicates that normals will be backward.
+     * @param scalar geometry world scale
      * @return 
      */
     private boolean isNormalsBackward(Vector3f scalar) {
@@ -929,7 +931,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         if (scalar.x < 0) n++;
         if (scalar.y < 0) n++;
         if (scalar.z < 0) n++;
-        // an odd number of components means the vectors are backward
+        // an odd number of components means the normal vectors are backward
         return n == 1 || n == 3;
     }
     
