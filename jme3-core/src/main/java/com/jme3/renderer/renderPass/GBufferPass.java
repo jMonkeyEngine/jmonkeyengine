@@ -115,9 +115,9 @@ public class GBufferPass extends OpaquePass{
         if(recreate){
             // recreate
             // To ensure accurate results, 32bit is used here for generalization.
-            gBufferData0 = new Texture2D(w, h, Image.Format.RGBA32F);
-            gBufferData1 = new Texture2D(w, h, Image.Format.RGBA32F);
-            gBufferData2 = new Texture2D(w, h, Image.Format.RGBA32F);
+            gBufferData0 = new Texture2D(w, h, Image.Format.RGBA16F);
+            gBufferData1 = new Texture2D(w, h, Image.Format.RGBA16F);
+            gBufferData2 = new Texture2D(w, h, Image.Format.RGBA16F);
             gBufferData3 = new Texture2D(w, h, Image.Format.RGBA32F);   // The third buffer provides 32-bit floating point to store high-precision information, such as normals
             // todo:后续调整为Depth24Stencil8,然后使用一个SceneColorFBO用于渲染所有3D部分,然后将其color_attach_0复制到BackBuffer中
             // todo:然后开启DepthTest绘制最后的所有GUI
