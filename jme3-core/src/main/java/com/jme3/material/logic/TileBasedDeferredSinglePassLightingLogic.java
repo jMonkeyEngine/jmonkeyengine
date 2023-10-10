@@ -824,12 +824,13 @@ public class TileBasedDeferredSinglePassLightingLogic extends DefaultTechniqueDe
                     _camLeft.set(_matArray1[0], _matArray1[1], _matArray1[2], -1.0f).multLocal(-1.0f);
                     _camUp.set(_matArray1[4], _matArray1[5], _matArray1[6], 1.0f);
                 }
-                // filterLights(remove ambientLight,lightprobe...)
 
                 // update tiles
                 for(int i = 0;i < count;i++){
+                    // filterLights(remove ambientLight,lightprobe...)
+                    if(lights.get(i).getType() == Light.Type.Ambient || lights.get(i).getType() == Light.Type.Probe)continue;
                     _lightFrustum = lightClip(lights.get(i));
-                    if(_lightFrustum != null && false){
+                    if(_lightFrustum != null){
                         tilesUpdate(tileSize, tileWidth, tileHeight, tileNum, tiles, _lightFrustum, i);
                     }
                     else{
