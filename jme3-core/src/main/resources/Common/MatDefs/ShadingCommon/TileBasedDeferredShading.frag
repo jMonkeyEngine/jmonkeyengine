@@ -90,8 +90,9 @@ void main(){
                     offset = 0;
 
                     if(temp >= g_TileLightOffsetSize){
-                        temp -= g_TileLightOffsetSize;
-                        offset++;
+                        //temp -= g_TileLightOffsetSize;
+                        offset += int(temp / float(g_TileLightOffsetSize));
+                        temp = float(int(temp) % g_TileLightOffsetSize);
                     }
                     if(temp == g_TileLightOffsetSize){
                         temp = 0.0f;

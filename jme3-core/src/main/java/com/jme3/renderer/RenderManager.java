@@ -82,6 +82,8 @@ import java.util.logging.Logger;
  * @see Spatial
  */
 public class RenderManager {
+    // Maximum total number of light sources for deferred rendering
+    private int curMaxDeferredShadingLightNum = 1024;
     // TileInfo
     private TileBasedDeferredSinglePassLightingLogic.TileInfo tileInfo;
     // todo:Since glTexImage is not used to dynamically adjust lightIndex size currently, this tileSize needs to be set cautiously.
@@ -178,6 +180,18 @@ public class RenderManager {
      */
     public final void enableFramegraph(boolean useFramegraph){
         this.useFramegraph = useFramegraph;
+    }
+
+    /**
+     * For performance considerations, the engine will pre-allocate a texture memory block based on this tag for packing light source data. Therefore, please adjust this to a reasonable maximum value for the scene light sources based on scene needs.
+     * @param curMaxDeferredShadingLightNum default value 1024
+     */
+    public void setCurMaxDeferredShadingLightNum(int curMaxDeferredShadingLightNum) {
+        this.curMaxDeferredShadingLightNum = curMaxDeferredShadingLightNum;
+    }
+
+    public int getCurMaxDeferredShadingLightNum() {
+        return curMaxDeferredShadingLightNum;
     }
 
     /**

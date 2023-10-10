@@ -108,6 +108,18 @@ public final class DeferredSinglePassLightingLogic extends DefaultTechniqueDefLo
         nbSkyLightAndReflectionProbesDefineId = techniqueDef.addShaderUnmappedDefine(DEFINE_NB_SKY_LIGHT_AND_REFLECTION_PROBES, VarType.Int);
     }
 
+    private void cleanupLightData(){
+        if(this.lightData1 != null){
+            this.lightData1.getImage().dispose();
+        }
+        if(this.lightData2 != null){
+            this.lightData2.getImage().dispose();
+        }
+        if(this.lightData3 != null){
+            this.lightData3.getImage().dispose();
+        }
+    }
+
     private void prepaLightData(int lightNum){
         this.lightNum = lightNum;
         // 1d texture
@@ -274,6 +286,16 @@ public final class DeferredSinglePassLightingLogic extends DefaultTechniqueDefLo
                     throw new UnsupportedOperationException("Unknown type of light: " + l.getType());
             }
         }
+        temp.r = temp.g = temp.b = temp.a = 0;
+        // Since the drawing is sent within the loop branch, and actually before the actual glSwapBuffers, the gl commands actually reside at the graphics driver level. So in order to correctly branch within the loop, the size must be fixed here (while filling the number of light sources).
+        ColorRGBA temp2 = vars.color2;
+        for(;curIndex < this.lightNum;curIndex++){
+            temp2 = lightDataUpdateIO1.getPixel(curIndex, 0);
+            if(temp2.r == 0 && temp2.g == 0 && temp2.b == 0 && temp2.a == 0)break;
+            lightDataUpdateIO1.setPixel(curIndex, 0, temp);
+            lightDataUpdateIO2.setPixel(curIndex, 0, temp);
+            lightDataUpdateIO3.setPixel(curIndex, 0, temp);
+        }
         vars.release();
         lightData1.getImage().setUpdateNeeded();
         lightData2.getImage().setUpdateNeeded();
@@ -406,24 +428,30 @@ public final class DeferredSinglePassLightingLogic extends DefaultTechniqueDefLo
         if(geometry.getUserData(_S_LIGHT_CULL_DRAW_STAGE) != null){
             isLightCullStageDraw = geometry.getUserData(_S_LIGHT_CULL_DRAW_STAGE);
         }
-        // todo:这里的一种优化方式是:
-        // todo:使用uniform数组存储的方案:
-        // todo:首先将lights分成DirectionalLights,PointLights,SpotLights三种列表
-        // todo:然后首先绘制DirectionalLights和SpotLights,这两个都是用Rect绘制,一次提交SingleBatch指定的数量灯光
-        // todo:然后使用Sphere(开启FrontFace剔除,避免相机进入球内光源着色消失)绘制点光源,根据SingleBatch一次绘制一组Sphere实例化
+        // todo: One optimization approach here is:
+        // todo: Use uniform array storage scheme:
+        // todo: First divide lights into DirectionalLights, PointLights, SpotLights three lists
+        // todo: Then first draw DirectionalLights and SpotLights, these two are drawn with Rect, submitting the number of lights specified by SingleBatch at a time
+        // todo: Then use Sphere (turn on FrontFace culling to avoid camera entering sphere and light source shading disappears) to draw point lights, drawing groups of Sphere instances based on SingleBatch at a time
 
-        // todo:另一种做法是,将lights分为全屏和非全屏,DirectionalLight和SpotLight按全屏处理,然后便利所有PointLight中属于无效半径的也归为全屏
-        // todo:然后把剩下的PointLights作为非全屏光源,然后纹理中一次性存储所有光源信息,内存存放按全屏在前非全屏在后
-        // todo:然后发起一个RectPass,在一个DC内绘制完所有全屏光,更新light_offset,然后使用SingleBatch预创建的SphereInstance绘制剩下的非全屏光
-        // todo:这里将采用第二种方法
+        // todo: Another approach is to divide lights into full-screen and non full-screen, handle DirectionalLight and SpotLight as full-screen, then traverse all PointLights with invalid radius also categorized as full-screen
+        // todo: Then take the remaining PointLights as non full-screen lights, then store all light source information in the texture at once, with full-screen in front and non full-screen behind in memory
+        // todo: Then initiate a RectPass, draw all full-screen lights in one DC, update light_offset, then use precreated SphereInstance with SingleBatch to draw the remaining non full-screen lights
+        // todo: The second method will be adopted here
 
-        // todo:关于light probes(暂时实现基于preCompute light probe),根据当前视锥体可见范围获取到light probe grid,按light probe grid执行multi pass
-        // todo:关于reflection probes,使用textureArray(八面体投影,带mipmap),收集相机可见范围内的reflection probes,并限制当前视锥体内只能有多少个reflection probes
+        // todo: For light probes (temporarily implemented based on preCompute light probe), get light probe grid based on current view frustum visible range, execute multi pass according to light probe grid
+        // todo: For reflection probes, use textureArray (cubemap projection, with mipmap), collect reflection probes visible to current camera view frustum, and limit the number of reflection probes allowed in the current view frustum
         if(bUseTexturePackMode){
+            if(this.lightNum != renderManager.getCurMaxDeferredShadingLightNum()){
+                cleanupLightData();
+                prepaLightData(renderManager.getCurMaxDeferredShadingLightNum());
+            }
+            // todo:Currently, this texturePackMode is only suitable for scenes where there are a large number of light sources per frame. The number of light sources is submitted to the texture all at once, so lightNum can be pre-allocated, but light source information can also be submitted to the texture all at once here, and then drawn in multiple passes (drawing each time by the specified singlePassLightBatchSize)
             Uniform lightCount = shader.getUniform("g_LightCount");
             SkyLightAndReflectionProbeRender.extractSkyLightAndReflectionProbes(lights, ambientLightColor, skyLightAndReflectionProbes, true);
             int count = lights.size();
-            lightCount.setValue(VarType.Int, count);
+//            lightCount.setValue(VarType.Int, count);
+            lightCount.setValue(VarType.Int, this.lightNum);
             while (nbRenderedLights < count) {
                 // todo:采用第二种方法优化deferred,则这里使用当前类的geometrys(rect,sphere)进行绘制,而不使用这个传递进来的geometry(或者在外部传递两个geometry,一个rect一个sphereinstance)
                 nbRenderedLights = updateLightListPackToTexture(shader, geometry, lights, count, renderManager, nbRenderedLights, isLightCullStageDraw, lastTexUnit);
