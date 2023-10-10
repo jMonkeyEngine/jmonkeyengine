@@ -46,7 +46,6 @@ import com.jme3.renderer.Renderer;
 import com.jme3.renderer.TextureUnitException;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.Spatial.CullHint;
 import com.jme3.shader.*;
 import com.jme3.texture.Image;
 import com.jme3.texture.Texture;
