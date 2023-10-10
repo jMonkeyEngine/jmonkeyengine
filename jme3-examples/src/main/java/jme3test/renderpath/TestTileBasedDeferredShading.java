@@ -8,12 +8,14 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
 import com.jme3.post.FilterPostProcessor;
+import com.jme3.post.filters.BloomFilter;
 import com.jme3.post.filters.ToneMapFilter;
 import com.jme3.renderer.RenderManager;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.instancing.InstancedNode;
 import com.jme3.scene.shape.Quad;
 import com.jme3.scene.shape.Sphere;
+import com.jme3.system.AppSettings;
 
 /**
  * <a href="https://leifnode.com/2015/05/tiled-deferred-shading/">https://leifnode.com/2015/05/tiled-deferred-shading/</a>
@@ -23,9 +25,11 @@ public class TestTileBasedDeferredShading extends SimpleApplication {
     private Material material;
     @Override
     public void simpleInitApp() {
-        renderManager.setPreferredLightMode(TechniqueDef.LightMode.SinglePass);
-        renderManager.setSinglePassLightBatchSize(30);
-        renderManager.setRenderPath(RenderManager.RenderPath.Forward);
+//        renderManager.setPreferredLightMode(TechniqueDef.LightMode.SinglePass);
+//        renderManager.setSinglePassLightBatchSize(30);
+//        renderManager.setRenderPath(RenderManager.RenderPath.Forward);
+        renderManager.setCurMaxDeferredShadingLightNum(1000);
+        renderManager.setRenderPath(RenderManager.RenderPath.TiledDeferred);
         Quad quad = new Quad(15, 15);
         Geometry geo = new Geometry("Floor", quad);
         material = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
@@ -59,6 +63,14 @@ public class TestTileBasedDeferredShading extends SimpleApplication {
             pl.setColor(colors[i % colors.length]);
             pl.setPosition(new Vector3f(FastMath.nextRandomFloat(-5.0f, 5.0f), 0.1f, FastMath.nextRandomFloat(-20.0f, -10.0f)));
 //            pl.setPosition(new Vector3f(0, 1, 0));
+//            if(i % 2 == 0){
+//                pl.setColor(ColorRGBA.Red);
+//                pl.setPosition(new Vector3f(-5, 0.1f, -15.0f));
+//            }
+//            else{
+//                pl.setColor(ColorRGBA.White);
+//                pl.setPosition(new Vector3f(-4, 0.1f, -14.0f));
+//            }
             pl.setRadius(1.0f);
             rootNode.addLight(pl);
             Geometry g = sp.clone(false);
@@ -80,8 +92,11 @@ public class TestTileBasedDeferredShading extends SimpleApplication {
 
 
         cam.setLocation(new Vector3f(0, 2, 0));
-        cam.lookAtDirection(Vector3f.UNIT_Z.negate(), Vector3f.UNIT_Y);
+//        cam.lookAtDirection(Vector3f.UNIT_Z.negate(), Vector3f.UNIT_Y);
+        cam.lookAtDirection(new Vector3f(-0.30149722f, 0.04880875f, -0.952217f), Vector3f.UNIT_Y);
+        cam.setFrustumPerspective(45.0f, cam.getWidth() * 1.0f / cam.getHeight(), 0.1f, 100.0f);
         flyCam.setMoveSpeed(10.0f);
+//        flyCam.setEnabled(false);
 
 
         FilterPostProcessor fpp = new FilterPostProcessor(assetManager);
@@ -90,12 +105,23 @@ public class TestTileBasedDeferredShading extends SimpleApplication {
             fpp.setNumSamples(numSamples);
         }
 
-        fpp.addFilter(new ToneMapFilter(Vector3f.UNIT_XYZ.mult(1.5f)));
+        BloomFilter bloom=new BloomFilter();
+        bloom.setDownSamplingFactor(1);
+        bloom.setBlurScale(1.1f);
+        bloom.setExposurePower(1.30f);
+        bloom.setExposureCutOff(0.3f);
+        bloom.setBloomIntensity(1.15f);
+        fpp.addFilter(bloom);
+
+        fpp.addFilter(new ToneMapFilter(Vector3f.UNIT_XYZ.mult(2.5f)));
         viewPort.addProcessor(fpp);
     }
 
     public static void main(String[] args) {
         TestTileBasedDeferredShading testTileBasedDeferredShading = new TestTileBasedDeferredShading();
+        AppSettings appSettings = new AppSettings(true);
+        appSettings.setRenderer(AppSettings.LWJGL_OPENGL33);
+        testTileBasedDeferredShading.setSettings(appSettings);
         testTileBasedDeferredShading.start();
     }
 }
