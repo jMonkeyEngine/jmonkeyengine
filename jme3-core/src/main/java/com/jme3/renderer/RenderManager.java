@@ -1371,8 +1371,8 @@ public class RenderManager {
             }
             else if(curRenderPath == RenderPath.TiledDeferred){
                 curTileSize = getCurrentCamera().getWidth() / 4;
-                int tileWidth = (int)(Math.floor(viewWidth / curTileSize));
-                int tileHeight = (int)(Math.floor(viewHeight / curTileSize));
+                int tileWidth = (int)(viewWidth / curTileSize);
+                int tileHeight = (int)(viewHeight / curTileSize);
                 setTileInfo(curTileSize, tileWidth, tileHeight, tileWidth * tileHeight);
                 frameGraph.addPass(gBufferPass);
                 tileDeferredShadingPass.setSinkLinkage(DeferredShadingPass.S_RT_0, gBufferPass.getName() + "." + GBufferPass.S_RT_0);

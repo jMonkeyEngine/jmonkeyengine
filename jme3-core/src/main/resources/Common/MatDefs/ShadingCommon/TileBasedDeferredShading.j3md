@@ -35,6 +35,7 @@ MaterialDef DeferredShading {
             WorldViewProjectionMatrix
             ViewProjectionMatrix
             ResolutionInverse
+            Resolution
         }
 
         Defines {

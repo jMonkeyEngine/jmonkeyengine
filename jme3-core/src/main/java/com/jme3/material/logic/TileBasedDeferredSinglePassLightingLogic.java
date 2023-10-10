@@ -35,6 +35,9 @@ import java.util.List;
  */
 public class TileBasedDeferredSinglePassLightingLogic extends DefaultTechniqueDefLogic{
     private final static String _S_LIGHT_CULL_DRAW_STAGE = "Light_Cull_Draw_Stage";
+    private final static String _S_TILE_SIZE = "g_TileSize";
+    private final static String _S_TILE_WIDTH = "g_WidthTile";
+    private final static String _S_TILE_HEIGHT = "g_HeightTile";
     private static final String DEFINE_TILE_BASED_DEFERRED_SINGLE_PASS_LIGHTING = "TILE_BASED_DEFERRED_SINGLE_PASS_LIGHTING";
     private static final String DEFINE_NB_LIGHTS = "NB_LIGHTS";
     private static final String DEFINE_USE_TEXTURE_PACK_MODE = "USE_TEXTURE_PACK_MODE";
@@ -388,7 +391,8 @@ public class TileBasedDeferredSinglePassLightingLogic extends DefaultTechniqueDe
         if(lightIndexWidth > this.lightIndexWidth){
             // recreate
             cleanupLightsIndexTexture();
-            createLightsIndexTexture(lightIndexWidth);
+            // Expanding the texture size by 1.5 times can avoid the flickering issue caused by repeatedly allocating new textures due to insufficient size in consecutive frames.
+            createLightsIndexTexture((int) (lightIndexWidth * 1.5));
         }
         else{
             // todo:Due to the unknown dynamic texture size causing tile flickering, the current fixed texture size is forced to be used each time here.
@@ -515,6 +519,20 @@ public class TileBasedDeferredSinglePassLightingLogic extends DefaultTechniqueDe
         lightData3.setImage(convertedImage3);
         lightData3.getImage().setMipmapsGenerated(false);
         lightDataUpdateIO3 = ImageRaster.create(lightData3.getImage());
+
+        TempVars vars = TempVars.get();
+        ColorRGBA temp = vars.color;
+        temp.r = temp.g = temp.b = temp.a = 0;
+        // Since the drawing is sent within the loop branch, and actually before the actual glSwapBuffers, the gl commands actually reside at the graphics driver level. So in order to correctly branch within the loop, the size must be fixed here (while filling the number of light sources).
+        ColorRGBA temp2 = vars.color2;
+        for(int curIndex = 0;curIndex < this.lightNum;curIndex++){
+            temp2 = lightDataUpdateIO1.getPixel(curIndex, 0);
+            if(temp2.r == 0 && temp2.g == 0 && temp2.b == 0 && temp2.a == 0)break;
+            lightDataUpdateIO1.setPixel(curIndex, 0, temp);
+            lightDataUpdateIO2.setPixel(curIndex, 0, temp);
+            lightDataUpdateIO3.setPixel(curIndex, 0, temp);
+        }
+        vars.release();
     }
 
     @Override
@@ -808,6 +826,12 @@ public class TileBasedDeferredSinglePassLightingLogic extends DefaultTechniqueDe
                 int tileWidth = tileInfo.tileWidth;
                 int tileHeight = tileInfo.tileHeight;
                 int tileNum = tileInfo.tileNum;
+                Uniform u_tileSize = shader.getUniform(_S_TILE_SIZE);
+                Uniform u_tileWidth = shader.getUniform(_S_TILE_WIDTH);
+                Uniform u_tileHeight = shader.getUniform(_S_TILE_HEIGHT);
+                u_tileSize.setValue(VarType.Int, tileSize);
+                u_tileWidth.setValue(VarType.Int, tileWidth);
+                u_tileHeight.setValue(VarType.Int, tileHeight);
                 reset(tileWidth, tileHeight, tileNum);
 
                 {

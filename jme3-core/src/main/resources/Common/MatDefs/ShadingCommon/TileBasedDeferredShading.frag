@@ -31,6 +31,11 @@ uniform vec4 g_AmbientLightColor;
 #else
     uniform vec4 g_LightData[NB_LIGHTS];
 #endif
+
+uniform vec2 g_Resolution;
+uniform int g_TileSize;
+uniform int g_WidthTile;
+uniform int g_HeightTile;
 uniform int g_TileLightOffsetSize;
 uniform sampler2D m_TileLightDecode;
 uniform sampler2D m_TileLightIndex;
@@ -72,8 +77,10 @@ void main(){
             #endif
 
             // Tile Based Shading
+            // get the grid data index
+            vec2 gridIndex = vec2(((innerTexCoord.x*g_Resolution.x) / float(g_TileSize)) / float(g_WidthTile), ((innerTexCoord.y*g_Resolution.y) / float(g_TileSize)) / float(g_HeightTile));
             // get tile info
-            vec3 tile = texture2D(m_TileLightDecode, innerTexCoord).xyz;
+            vec3 tile = texture2D(m_TileLightDecode, gridIndex).xyz;
             int uoffset = int(tile.x);
             int voffset = int(tile.z);
             int count = int(tile.y);
