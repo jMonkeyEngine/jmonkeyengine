@@ -92,8 +92,8 @@ public class TestTileBasedDeferredShading extends SimpleApplication {
 
 
         cam.setLocation(new Vector3f(0, 2, 0));
-//        cam.lookAtDirection(Vector3f.UNIT_Z.negate(), Vector3f.UNIT_Y);
-        cam.lookAtDirection(new Vector3f(-0.30149722f, 0.04880875f, -0.952217f), Vector3f.UNIT_Y);
+        cam.lookAtDirection(Vector3f.UNIT_Z.negate(), Vector3f.UNIT_Y);
+//        cam.lookAtDirection(new Vector3f(-0.30149722f, 0.04880875f, -0.952217f), Vector3f.UNIT_Y);
         cam.setFrustumPerspective(45.0f, cam.getWidth() * 1.0f / cam.getHeight(), 0.1f, 100.0f);
         flyCam.setMoveSpeed(10.0f);
 //        flyCam.setEnabled(false);
