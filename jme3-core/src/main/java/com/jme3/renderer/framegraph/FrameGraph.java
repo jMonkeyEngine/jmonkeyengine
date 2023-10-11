@@ -100,10 +100,11 @@ public class FrameGraph {
         for(FGPass nextPass : passes){
             nextPass.execute(renderContext);
         }
+        finalized = false;
     }
     
     public void reset(){
-        assert finalized;
+        assert !finalized;
         for(FGPass nextPass : passes){
             nextPass.reset();
         }
