@@ -106,10 +106,11 @@ public class TestIssue2068 extends SimpleApplication {
             logger.log(Level.SEVERE, exception.getMessage(), exception);
         }
         
-        // import xml
+        // import binary/xml
         assetManager.registerLocator("", FileLocator.class);
         assetManager.registerLoader(XMLImporter.class, "xml");
         Spatial model = assetManager.loadModel(filename);
+        //Spatial model = assetManager.loadModel("Models/Jaime/Jaime.j3o");
         model.depthFirstTraversal((Spatial spatial) -> {
             System.out.println("UserData for "+spatial);
             for (String key : spatial.getUserDataKeys()) {
