@@ -64,7 +64,7 @@ public class SceneKey extends ModelKey {
         if (!super.equals(other)) {
             return false;
         }
-        if (animList != other.animList && (animList == null || !animList.equals(other.animList))) {
+        if (!Objects.equals(animList, other.animList)) {
             return false;
         }
         return true;
