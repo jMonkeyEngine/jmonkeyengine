@@ -7,7 +7,7 @@ package com.jme3.renderer.framegraph;
 import java.util.ArrayList;
 
 /**
- *
+ *FGContainerBindableSink is used to proxy a FGSink, and also has the role of FGBindable. Typically, a Sink needed by a Pass may be a Bindable object.
  * @author JohnKkk
  */
 public class FGContainerBindableSink<T extends FGBindable> extends FGSink{

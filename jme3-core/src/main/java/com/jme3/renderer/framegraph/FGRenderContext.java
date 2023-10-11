@@ -5,6 +5,7 @@ import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue;
 
 /**
+ * In order to be compatible with existing logic, FGRenderContext is currently just a local proxy, and may gradually replace the existing state machine manager in the future.
  * @author JohnKkk
  */
 public class FGRenderContext {

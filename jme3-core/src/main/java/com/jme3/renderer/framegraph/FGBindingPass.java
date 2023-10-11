@@ -7,7 +7,7 @@ package com.jme3.renderer.framegraph;
 import java.util.ArrayList;
 
 /**
- *
+ *A FGBindingPass represents a Pass that needs to perform state machine binding, ShaderResource binding, FrameBuffer binding and other operations.
  * @author JohnKkk
  */
 public class FGBindingPass extends FGPass{
@@ -30,7 +30,7 @@ public class FGBindingPass extends FGPass{
     }
     
     public void bindAll(FGRenderContext renderContext){
-        // 绑定所有对象
+        // Bind all objects
         for(FGBindable bind : binds){
             bind.bind(renderContext);
         }

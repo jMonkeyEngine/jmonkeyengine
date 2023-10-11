@@ -63,8 +63,10 @@ import com.jme3.scene.VertexBuffer;
 import com.jme3.shader.Shader;
 import com.jme3.shader.UniformBinding;
 import com.jme3.shader.UniformBindingManager;
+import com.jme3.shader.VarType;
 import com.jme3.system.NullRenderer;
 import com.jme3.system.Timer;
+import com.jme3.texture.FrameBuffer;
 import com.jme3.util.SafeArrayList;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -86,8 +88,10 @@ public class RenderManager {
     private int curMaxDeferredShadingLightNum = 1024;
     // TileInfo
     private TileBasedDeferredSinglePassLightingLogic.TileInfo tileInfo;
-    // todo:Since glTexImage is not used to dynamically adjust lightIndex size currently, this tileSize needs to be set cautiously.
-    private int curTileSize = 64;
+    private int forceTileSize = 0;
+    // If ForceTileSize is not specified, curTileSize is calculated each frame by dividing viewport horizontal width by NumberTileDivisions.
+    private int curTileSize = -1;
+    private int numberTileDivisions = 4;
     // frameGraph=============================================================================↓
     private IRenderGeometry iRenderGeometry;
     private boolean useFramegraph = true;
@@ -150,6 +154,7 @@ public class RenderManager {
     private LightFilter lightFilter = new DefaultLightFilter();
     private TechniqueDef.LightMode preferredLightMode = TechniqueDef.LightMode.MultiPass;
     private int singlePassLightBatchSize = 1;
+    private MatParamOverride boundDrawBufferId=new MatParamOverride(VarType.Int,"BoundDrawBuffer",0);
 
 
     /**
@@ -160,6 +165,7 @@ public class RenderManager {
      */
     public RenderManager(Renderer renderer) {
         this.renderer = renderer;
+        this.forcedOverrides.add(boundDrawBufferId);
         if(useFramegraph){
             frameGraph = new FrameGraph(new FGRenderContext(null, null, null));
             gBufferPass = new GBufferPass();
@@ -172,6 +178,31 @@ public class RenderManager {
             guiPass = new GuiPass();
             postProcessorPass = new PostProcessorPass("PostPass");
         }
+    }
+
+    /**
+     * then the number of tiles per frame is dynamically calculated based on NumberTileDivisions and current viewport width.<br/>
+     * @param numberTileDivisions defaultValue is 4
+     */
+    public void setNumberTileDivisions(int numberTileDivisions) {
+        this.numberTileDivisions = numberTileDivisions;
+    }
+
+    public int getNumberTileDivisions() {
+        return numberTileDivisions;
+    }
+
+    /**
+     * Tile-based DeferredShading divides the screen into multiple tiles, then assigns lights to corresponding tiles for rendering. In theory, the number of tiles should be set as powers of 2, such as 32, 64 etc, but it can be set larger depending on usage.<br/>
+     * 0 means auto calculate, then the number of tiles per frame is dynamically calculated based on NumberTileDivisions and current viewport width.<br/>
+     * @param forceTileSize
+     */
+    public void setForceTileSize(int forceTileSize) {
+        this.forceTileSize = forceTileSize;
+    }
+
+    public int getForceTileSize() {
+        return forceTileSize;
     }
 
     /**
@@ -769,6 +800,12 @@ public class RenderManager {
             setWorldMatrix(Matrix4f.IDENTITY);
         } else {
             setWorldMatrix(geom.getWorldMatrix());
+        }
+
+        // Use material override to pass the current target index (used in api such as GL ES that do not support glDrawBuffer)
+        FrameBuffer currentFb = this.renderer.getCurrentFrameBuffer();
+        if (currentFb != null && !currentFb.isMultiTarget()) {
+            this.boundDrawBufferId.setValue(currentFb.getTargetIndex());
         }
 
         // Perform light filtering if we have a light filter.
@@ -1370,7 +1407,7 @@ public class RenderManager {
                 frameGraph.addPass(deferredShadingPass);
             }
             else if(curRenderPath == RenderPath.TiledDeferred){
-                curTileSize = getCurrentCamera().getWidth() / 4;
+                curTileSize = forceTileSize > 0 ? forceTileSize : (getCurrentCamera().getWidth() / numberTileDivisions);
                 int tileWidth = (int)(viewWidth / curTileSize);
                 int tileHeight = (int)(viewHeight / curTileSize);
                 setTileInfo(curTileSize, tileWidth, tileHeight, tileWidth * tileHeight);
@@ -1546,6 +1583,33 @@ public class RenderManager {
             if (vp.getOutputFrameBuffer() != null || mainFrameBufferActive) {
                 renderViewPort(vp, tpf);
             }
+        }
+    }
+
+    /**
+     * Returns true if the draw buffer target id is passed to the shader.
+     *
+     * @return True if the draw buffer target id is passed to the shaders.
+     */
+    public boolean getPassDrawBufferTargetIdToShaders() {
+        return this.forcedOverrides.contains(boundDrawBufferId);
+    }
+
+    /**
+     * Enable or disable passing the draw buffer target id to the shaders. This
+     * is needed to handle FrameBuffer.setTargetIndex correctly in some
+     * backends.
+     *
+     * @param v
+     *            True to enable, false to disable (default is true)
+     */
+    public void setPassDrawBufferTargetIdToShaders(boolean v) {
+        if (v) {
+            if (!this.forcedOverrides.contains(boundDrawBufferId)) {
+                this.forcedOverrides.add(boundDrawBufferId);
+            }
+        } else {
+            this.forcedOverrides.remove(boundDrawBufferId);
         }
     }
 }

@@ -92,7 +92,7 @@ public class DeferredShadingPass extends ScreenPass{
 
     @Override
     public boolean drawGeometry(RenderManager rm, Geometry geom) {
-        // 不处理任何队列中的绘制
+        // Does not process any drawing in queues and always returns true, because we perform a RectDraw internally
         return true;
     }
 }

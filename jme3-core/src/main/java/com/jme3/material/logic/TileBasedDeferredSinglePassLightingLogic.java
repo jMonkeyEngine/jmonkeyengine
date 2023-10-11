@@ -31,6 +31,14 @@ import java.util.EnumSet;
 import java.util.List;
 
 /**
+ * Tile-based DeferredShading.
+ * <p>
+ * Tile-based deferred shading utilizes the overhead of one-sample MRT and efficient culling of lights to accelerate deferred rendering. <br/>
+ * The implementation details here separate the data into three main parts:<br/>
+ * <b>1.Global Light</b> List contains light properties(lightData1+lightData2+lightData3).<br/>
+ * <b>2.The light index list</b> contains light indices to the global light list(lightsIndexData).<br/>
+ * <b>3.Light grid</b> contains an offset and size of the light list for each tile(lightsDecodeData).<br/>
+ * <a href="https://www.digipen.edu/sites/default/files/public/docs/theses/denis-ishmukhametov-master-of-science-in-computer-science-thesis-efficient-tile-based-deferred-shading-pipeline.pdf">https://www.digipen.edu/sites/default/files/public/docs/theses/denis-ishmukhametov-master-of-science-in-computer-science-thesis-efficient-tile-based-deferred-shading-pipeline.pdf</a>
  * @author JohnKkk
  */
 public class TileBasedDeferredSinglePassLightingLogic extends DefaultTechniqueDefLogic{
@@ -51,9 +59,9 @@ public class TileBasedDeferredSinglePassLightingLogic extends DefaultTechniqueDe
     private static final String TILE_LIGHT_OFFSET_SIZE = "g_TileLightOffsetSize";
     private static final RenderState ADDITIVE_LIGHT = new RenderState();
     private boolean bUseTexturePackMode = true;
-    // 避免过多的光源
+    // Avoid too many lights
     private static final int MAX_LIGHT_NUM = 9046;
-    // 使用texture来一次性存储大量光源数据,避免多次绘制
+    // Use textures to store large amounts of light data at once, avoiding multiple draw calls
     private Texture2D lightData1;
     private Texture2D lightData2;
     private Texture2D lightData3;
@@ -820,7 +828,7 @@ public class TileBasedDeferredSinglePassLightingLogic extends DefaultTechniqueDe
             // The lights passed in here must be PointLights with valid radii. Another approach is to fill tiles with infinite range Lights.
             if(count > 0){
 
-                // 从RenderManager获取tileInfo
+                // Get tileInfo from RenderManager
                 tileInfo = renderManager.getTileInfo();
                 int tileSize = tileInfo.tileSize;
                 int tileWidth = tileInfo.tileWidth;

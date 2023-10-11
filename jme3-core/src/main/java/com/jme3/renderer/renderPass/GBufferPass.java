@@ -119,8 +119,6 @@ public class GBufferPass extends OpaquePass{
             gBufferData1 = new Texture2D(w, h, Image.Format.RGBA16F);
             gBufferData2 = new Texture2D(w, h, Image.Format.RGBA16F);
             gBufferData3 = new Texture2D(w, h, Image.Format.RGBA32F);   // The third buffer provides 32-bit floating point to store high-precision information, such as normals
-            // todo:后续调整为Depth24Stencil8,然后使用一个SceneColorFBO用于渲染所有3D部分,然后将其color_attach_0复制到BackBuffer中
-            // todo:然后开启DepthTest绘制最后的所有GUI
             this.getSinks().clear();
             // Depth16/Depth32/Depth32F provide higher precision to prevent clipping when camera gets close, but it seems some devices do not support copying Depth16/Depth32/Depth32F to default FrameBuffer.
             gBufferData4 = new Texture2D(w, h, Image.Format.Depth);
@@ -153,7 +151,6 @@ public class GBufferPass extends OpaquePass{
         if(material.getMaterialDef().getTechniqueDefs(rm.getForcedTechnique()) == null)return false;
         rm.renderGeometry(geom);
         if(material.getActiveTechnique() != null){
-            // todo:应该使用一个统一的材质材质,其中根据shadingModeId分开着色
             if(material.getMaterialDef().getTechniqueDefs(S_GBUFFER_PASS) != null){
                 LightList lights = geom.getFilterWorldLights();
                 for(Light light : lights){
@@ -161,7 +158,7 @@ public class GBufferPass extends OpaquePass{
                         tempLights.add(light);
                     }
                 }
-                // todo:无论是否拥有lights,只要包含GBufferPass的材质物体都会执行DeferredShading,根据shadingModelId着色
+                // Whether it has lights or not, material objects containing GBufferPass will perform DeferredShading, and shade according to shadingModelId
                 bHasDraw = true;
                 return true;
             }

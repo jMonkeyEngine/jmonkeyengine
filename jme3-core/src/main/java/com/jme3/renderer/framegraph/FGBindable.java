@@ -5,7 +5,7 @@
 package com.jme3.renderer.framegraph;
 
 /**
- *
+ *FGBindable can be any resource that needs binding (such as state machine, FBO, Texture, Paramater...)
  * @author JohnKkk
  */
 public abstract class FGBindable {

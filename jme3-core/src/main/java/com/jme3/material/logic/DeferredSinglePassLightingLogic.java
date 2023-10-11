@@ -60,6 +60,18 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 
+/**
+ * DeferredShading.
+ * <p>
+ * This is a standard DeferredShading, without any optimizations, but it should be faster than Forward when there are complex scenes and lots of lights. It is suitable for deferred rendering scenarios with simple requirements. There are some ways to optimize it:<br/>
+ * A few involved drawing proxy geometry that approximated the bounds of each type of light and evaluating lighting by sampling from the G buffer for each fragment that the geometry touched. This can be implemented with varying complexity of proxy geometry. <br/>
+ * Some implementations just used billboarded quads with enough width and height in world space to approximate the bounds of the area that the light influences. For instance a point light would just have a quad with a width and height the same as the lights radius of influence. <br/>
+ * Other implementations actually draw 3D proxy geometry like spheres for point lights and cones for spotlights.<br/>
+ *
+ * These implementations have the issue that they require many additional samples of the G buffer. Each light still needs to sample the G buffer for each texture that it has; in my case 4 textures. So each fragment of the G buffer gets sampled 4 * the number of lights affecting that fragment. <br/>
+ * Additionally these techniques incur a lot of overdraw since many of the proxy geometry objects will overlap and cannot be culled most of the time.
+ * @author JohnKkk
+ */
 public final class DeferredSinglePassLightingLogic extends DefaultTechniqueDefLogic {
     private final static String _S_LIGHT_CULL_DRAW_STAGE = "Light_Cull_Draw_Stage";
     private static final String DEFINE_DEFERRED_SINGLE_PASS_LIGHTING = "DEFERRED_SINGLE_PASS_LIGHTING";
@@ -69,9 +81,9 @@ public final class DeferredSinglePassLightingLogic extends DefaultTechniqueDefLo
     private static final String DEFINE_NB_SKY_LIGHT_AND_REFLECTION_PROBES = "NB_SKY_LIGHT_AND_REFLECTION_PROBES";
     private static final RenderState ADDITIVE_LIGHT = new RenderState();
     private boolean bUseTexturePackMode = true;
-    // 避免过多的光源
+    // Avoid too many lights
     private static final int MAX_LIGHT_NUM = 9046;
-    // 使用texture来一次性存储大量光源数据,避免多次绘制
+    // Use textures to store large amounts of light data at once, avoiding multiple draw calls
     private Texture2D lightData1;
     private Texture2D lightData2;
     private Texture2D lightData3;
@@ -453,7 +465,7 @@ public final class DeferredSinglePassLightingLogic extends DefaultTechniqueDefLo
 //            lightCount.setValue(VarType.Int, count);
             lightCount.setValue(VarType.Int, this.lightNum);
             while (nbRenderedLights < count) {
-                // todo:采用第二种方法优化deferred,则这里使用当前类的geometrys(rect,sphere)进行绘制,而不使用这个传递进来的geometry(或者在外部传递两个geometry,一个rect一个sphereinstance)
+                // todo:Optimize deferred using the second method, here use the geometrys (rect, sphere) of the current class for drawing, instead of using the geometry passed in (or pass two geometry externally, one rect one sphereinstance)
                 nbRenderedLights = updateLightListPackToTexture(shader, geometry, lights, count, renderManager, nbRenderedLights, isLightCullStageDraw, lastTexUnit);
                 renderer.setShader(shader);
                 renderMeshFromGeometry(renderer, geometry);
