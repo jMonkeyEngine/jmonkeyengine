@@ -75,8 +75,7 @@ public abstract class PBRMaterialAdapter extends MaterialAdapter {
             }
             // Alpha is a RenderState not a Material Parameter, so return null
             return null;
-        }
-        else if (param.getName().equals("doubleSided")) {
+        } else if (param.getName().equals("doubleSided")) {
             boolean doubleSided = (boolean) param.getValue();
             if (doubleSided) {
                 //Note that this is not completely right as normals on the back side will be in the wrong direction.
@@ -84,16 +83,13 @@ public abstract class PBRMaterialAdapter extends MaterialAdapter {
             }
             // FaceCulling is a RenderState not a Material Parameter, so return null
             return null;
-        }
-        else if (param.getName().equals("NormalMap")) {
+        } else if (param.getName().equals("NormalMap")) {
             //Set the normal map type to OpenGl
             getMaterial().setFloat("NormalType", 1.0f);
-        }
-        else if (param.getName().equals("LightMap")) {
+        } else if (param.getName().equals("LightMap")) {
             //Gltf only supports AO maps (gray scales and only the r channel must be read)
             getMaterial().setBoolean("LightMapAsAOMap", true);
-        }
-        else if (param.getName().equals("alphaCutoff")) {
+        } else if (param.getName().equals("alphaCutoff")) {
             getMaterial().setFloat("AlphaDiscardThreshold", (float)param.getValue());
         }
 
