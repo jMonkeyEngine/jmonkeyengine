@@ -196,7 +196,9 @@ public final class UserData implements Savable {
     public void read(JmeImporter im) throws IOException {
         InputCapsule ic = im.getCapsule(this);
         type = ic.readByte("type", (byte) 0);
-        // if the formatting version is "old," use the old prefixes
+        // If the formatting version is old, use the old prefixes.
+        // I'm not sure this is the correct usage of getFormatVersion,
+        // and I would have to bump up the format version for this to work.
         String a, b;
         if (im.getFormatVersion() <= 2) {
             a = "0";
