@@ -39,9 +39,16 @@ package com.jme3.export;
 public final class FormatVersion {
     
     /**
-     * Version number of the format
+     * Version number of the format.
+     * <p>
+     * Format changes applied for each version:
+     * <ol>
+     *   <li>= Undocumented
+     *   <li>= Undocumented
+     *   <li>= Added "jme-" prefix to userdata maps, lists, and arrays.
+     * </ol>
      */
-    public static final int VERSION = 2;
+    public static final int VERSION = 3;
 
     /**
      * Signature of the format: currently, "JME3" as ASCII.

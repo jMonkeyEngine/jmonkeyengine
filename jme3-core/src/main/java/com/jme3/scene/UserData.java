@@ -165,15 +165,15 @@ public final class UserData implements Savable {
                 oc.write(sav, "savableVal", null);
                 break;
             case TYPE_LIST:
-                this.writeList(oc, (List<?>) value, "A");
+                this.writeList(oc, (List<?>) value, "jme-0");
                 break;
             case TYPE_MAP:
                 Map<?, ?> map = (Map<?, ?>) value;
-                this.writeList(oc, map.keySet(), "A");
-                this.writeList(oc, map.values(), "B");
+                this.writeList(oc, map.keySet(), "jme-0");
+                this.writeList(oc, map.values(), "jme-1");
                 break;
             case TYPE_ARRAY:
-                this.writeList(oc, Arrays.asList((Object[]) value), "A");
+                this.writeList(oc, Arrays.asList((Object[]) value), "jme-0");
                 break;
             case TYPE_DOUBLE:
                 Double d = (Double) value;
@@ -197,16 +197,13 @@ public final class UserData implements Savable {
         InputCapsule ic = im.getCapsule(this);
         type = ic.readByte("type", (byte) 0);
         // If the formatting version is old, use the old prefixes.
-        // I'm not sure this is the correct usage of getFormatVersion,
-        // and I would have to bump up the format version for this to work.
         String a, b;
         if (im.getFormatVersion() <= 2) {
             a = "0";
             b = "1";
-        }
-        else {
-            a = "A";
-            b = "B";
+        } else {
+            a = "jme-0";
+            b = "jme-1";
         }
         switch (type) {
             case TYPE_INTEGER:
