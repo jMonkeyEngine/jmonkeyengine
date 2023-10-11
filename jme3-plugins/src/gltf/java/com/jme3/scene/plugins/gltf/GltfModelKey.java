@@ -128,10 +128,8 @@ public class GltfModelKey extends ModelKey {
         if (!super.equals(other)) {
             return false;
         }
-        if (materialAdapters != other.materialAdapters && !materialAdapters.equals(other.materialAdapters)) {
-            return false;
-        }
-        if (extrasLoader != other.extrasLoader && (extrasLoader == null || !extrasLoader.equals(other.extrasLoader))) {
+        if (!Objects.equals(materialAdapters, other.materialAdapters)
+                || !Objects.equals(extrasLoader, other.extrasLoader)) {
             return false;
         }
         return keepSkeletonPose == other.keepSkeletonPose;
