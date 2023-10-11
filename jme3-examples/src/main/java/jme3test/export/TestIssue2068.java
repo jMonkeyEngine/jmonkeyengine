@@ -32,8 +32,11 @@
 package jme3test.export;
 
 import com.jme3.app.SimpleApplication;
+import com.jme3.asset.plugins.FileLocator;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.xml.XMLExporter;
+import com.jme3.export.xml.XMLImporter;
+import com.jme3.scene.Spatial;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -80,6 +83,7 @@ public class TestIssue2068 extends SimpleApplication {
      */
     @Override
     public void simpleInitApp() {
+        
         ArrayList<String> list = new ArrayList<>();
         list.add("list-value");
         rootNode.setUserData("list", list);
@@ -91,15 +95,29 @@ public class TestIssue2068 extends SimpleApplication {
         String[] array = new String[1];
         array[0] = "array-value";
         rootNode.setUserData("array", array);
-
-        String outputFilename = "TestIssue2068.xml";
-        File xmlFile = new File(outputFilename);
+        
+        // export xml
+        String filename = "TestIssue2068.xml";
+        File xmlFile = new File(filename);
         JmeExporter exporter = XMLExporter.getInstance();
         try {
             exporter.save(rootNode, xmlFile);
         } catch (IOException exception) {
             logger.log(Level.SEVERE, exception.getMessage(), exception);
         }
+        
+        // import xml
+        assetManager.registerLocator("", FileLocator.class);
+        assetManager.registerLoader(XMLImporter.class, "xml");
+        Spatial model = assetManager.loadModel(filename);
+        model.depthFirstTraversal((Spatial spatial) -> {
+            System.out.println("UserData for "+spatial);
+            for (String key : spatial.getUserDataKeys()) {
+                System.out.println("  "+key+": "+spatial.getUserData(key));
+            }
+        });
+        
         stop();
+        
     }
 }
