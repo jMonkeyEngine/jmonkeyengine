@@ -56,7 +56,12 @@ import org.w3c.dom.Element;
  * @author Doug Daniels (dougnukem) - adjustments for jME 2.0 and Java 1.5
  */
 public class DOMOutputCapsule implements OutputCapsule {
-
+    
+    /**
+     * Prefix to every xml attribute.
+     */
+    public static final String PREFIX = "jme-";
+    
     private static final String dataAttributeName = "data";
     private Document doc;
     private Element currentElement;
@@ -162,7 +167,7 @@ public class DOMOutputCapsule implements OutputCapsule {
         if (value == defVal) {
             return;
         }
-        currentElement.setAttribute(name, String.valueOf(value));
+        currentElement.setAttribute(GLOBAL_PREFIX+name, String.valueOf(value));
     }
 
     @Override
