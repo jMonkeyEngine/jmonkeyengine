@@ -34,7 +34,9 @@ package com.jme3.scene.plugins.gltf;
 import com.jme3.material.*;
 
 /**
- * Created by Nehon on 08/08/2017.
+ * Adapts GLTF PBR materials to JME PBR materials.
+ * 
+ * @author Nehon
  */
 public abstract class PBRMaterialAdapter extends MaterialAdapter {
     
@@ -71,10 +73,9 @@ public abstract class PBRMaterialAdapter extends MaterialAdapter {
                     break;
                 case "BLEND":
                     getMaterial().getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Alpha);
-                    break;
+                    // Alpha is a RenderState not a Material Parameter, so return null
+                    return null;
             }
-            // Alpha is a RenderState not a Material Parameter, so return null
-            return null;
         } else if (param.getName().equals("doubleSided")) {
             boolean doubleSided = (boolean) param.getValue();
             if (doubleSided) {
