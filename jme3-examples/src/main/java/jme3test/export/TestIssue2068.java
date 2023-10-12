@@ -103,7 +103,7 @@ public class TestIssue2068 extends SimpleApplication {
         try {
             exporter.save(rootNode, xmlFile);
         } catch (IOException exception) {
-            logger.log(Level.SEVERE, exception.getMessage(), exception);
+            throw new IllegalStateException(exception);
         }
         
         // import binary/xml

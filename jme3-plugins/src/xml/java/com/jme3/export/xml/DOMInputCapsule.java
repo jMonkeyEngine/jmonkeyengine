@@ -72,7 +72,7 @@ public class DOMInputCapsule implements InputCapsule {
         this.importer = importer;
         currentElem = doc.getDocumentElement();
         
-        String version = currentElem.getAttribute("format_version");
+        String version = getAttribute(currentElem, "format_version");
         importer.formatVersion = version.equals("") ? 0 : Integer.parseInt(version);
     }
 
@@ -126,7 +126,7 @@ public class DOMInputCapsule implements InputCapsule {
 
     @Override
     public byte readByte(String name, byte defVal) throws IOException {
-        String tmpString = currentElem.getAttribute(name);
+        String tmpString = getAttribute(currentElem, name);
         if (tmpString == null || tmpString.length() < 1) return defVal;
         try {
             return Byte.parseByte(tmpString);
@@ -149,8 +149,8 @@ public class DOMInputCapsule implements InputCapsule {
             if (tmpEl == null) {
                 return defVal;
             }
-            String sizeString = tmpEl.getAttribute("size");
-            String[] strings = parseTokens(tmpEl.getAttribute("data"));
+            String sizeString = getAttribute(tmpEl, "size");
+            String[] strings = parseTokens(getAttribute(tmpEl, "data"));
             if (sizeString.length() > 0) {
                 int requiredSize = Integer.parseInt(sizeString);
                 if (strings.length != requiredSize)
@@ -186,7 +186,7 @@ public class DOMInputCapsule implements InputCapsule {
                 return defVal;
             }
 
-            String sizeString = tmpEl.getAttribute("size");
+            String sizeString = getAttribute(tmpEl, "size");
             NodeList nodes = currentElem.getChildNodes();
             List<byte[]> byteArrays = new ArrayList<>();
 
@@ -218,7 +218,7 @@ public class DOMInputCapsule implements InputCapsule {
 
     @Override
     public int readInt(String name, int defVal) throws IOException {
-        String tmpString = currentElem.getAttribute(name);
+        String tmpString = getAttribute(currentElem, name);
         if (tmpString == null || tmpString.length() < 1) return defVal;
         try {
             return Integer.parseInt(tmpString);
@@ -241,8 +241,8 @@ public class DOMInputCapsule implements InputCapsule {
             if (tmpEl == null) {
                 return defVal;
             }
-            String sizeString = tmpEl.getAttribute("size");
-            String[] strings = parseTokens(tmpEl.getAttribute("data"));
+            String sizeString = getAttribute(tmpEl, "size");
+            String[] strings = parseTokens(getAttribute(tmpEl, "data"));
             if (sizeString.length() > 0) {
                 int requiredSize = Integer.parseInt(sizeString);
                 if (strings.length != requiredSize)
@@ -276,7 +276,7 @@ public class DOMInputCapsule implements InputCapsule {
             if (tmpEl == null) {
                 return defVal;
             }
-            String sizeString = tmpEl.getAttribute("size");
+            String sizeString = getAttribute(tmpEl, "size");
 
 
 
@@ -312,7 +312,7 @@ public class DOMInputCapsule implements InputCapsule {
 
     @Override
     public float readFloat(String name, float defVal) throws IOException {
-        String tmpString = currentElem.getAttribute(name);
+        String tmpString = getAttribute(currentElem, name);
         if (tmpString == null || tmpString.length() < 1) return defVal;
         try {
             return Float.parseFloat(tmpString);
@@ -335,8 +335,8 @@ public class DOMInputCapsule implements InputCapsule {
             if (tmpEl == null) {
                 return defVal;
             }
-            String sizeString = tmpEl.getAttribute("size");
-            String[] strings = parseTokens(tmpEl.getAttribute("data"));
+            String sizeString = getAttribute(tmpEl, "size");
+            String[] strings = parseTokens(getAttribute(tmpEl, "data"));
             if (sizeString.length() > 0) {
                 int requiredSize = Integer.parseInt(sizeString);
                 if (strings.length != requiredSize)
@@ -371,12 +371,12 @@ public class DOMInputCapsule implements InputCapsule {
             if (tmpEl == null) {
                 return defVal;
             }
-            int size_outer = Integer.parseInt(tmpEl.getAttribute("size_outer"));
-            int size_inner = Integer.parseInt(tmpEl.getAttribute("size_outer"));
+            int size_outer = Integer.parseInt(getAttribute(tmpEl, "size_outer"));
+            int size_inner = Integer.parseInt(getAttribute(tmpEl, "size_outer"));
 
             float[][] tmp = new float[size_outer][size_inner];
 
-            String[] strings = parseTokens(tmpEl.getAttribute("data"));
+            String[] strings = parseTokens(getAttribute(tmpEl, "data"));
             for (int i = 0; i < size_outer; i++) {
                 tmp[i] = new float[size_inner];
                 for (int k = 0; k < size_inner; k++) {
@@ -393,7 +393,7 @@ public class DOMInputCapsule implements InputCapsule {
 
     @Override
     public double readDouble(String name, double defVal) throws IOException {
-        String tmpString = currentElem.getAttribute(name);
+        String tmpString = getAttribute(currentElem, name);
         if (tmpString == null || tmpString.length() < 1) return defVal;
         try {
             return Double.parseDouble(tmpString);
@@ -416,8 +416,8 @@ public class DOMInputCapsule implements InputCapsule {
             if (tmpEl == null) {
                 return defVal;
             }
-            String sizeString = tmpEl.getAttribute("size");
-            String[] strings = parseTokens(tmpEl.getAttribute("data"));
+            String sizeString = getAttribute(tmpEl, "size");
+            String[] strings = parseTokens(getAttribute(tmpEl, "data"));
             if (sizeString.length() > 0) {
                 int requiredSize = Integer.parseInt(sizeString);
                 if (strings.length != requiredSize)
@@ -451,7 +451,7 @@ public class DOMInputCapsule implements InputCapsule {
             if (tmpEl == null) {
                 return defVal;
             }
-            String sizeString = tmpEl.getAttribute("size");
+            String sizeString = getAttribute(tmpEl, "size");
             NodeList nodes = currentElem.getChildNodes();
             List<double[]> doubleArrays = new ArrayList<>();
 
@@ -483,7 +483,7 @@ public class DOMInputCapsule implements InputCapsule {
 
     @Override
     public long readLong(String name, long defVal) throws IOException {
-        String tmpString = currentElem.getAttribute(name);
+        String tmpString = getAttribute(currentElem, name);
         if (tmpString == null || tmpString.length() < 1) return defVal;
         try {
             return Long.parseLong(tmpString);
@@ -506,8 +506,8 @@ public class DOMInputCapsule implements InputCapsule {
             if (tmpEl == null) {
                 return defVal;
             }
-            String sizeString = tmpEl.getAttribute("size");
-            String[] strings = parseTokens(tmpEl.getAttribute("data"));
+            String sizeString = getAttribute(tmpEl, "size");
+            String[] strings = parseTokens(getAttribute(tmpEl, "data"));
             if (sizeString.length() > 0) {
                 int requiredSize = Integer.parseInt(sizeString);
                 if (strings.length != requiredSize)
@@ -541,7 +541,7 @@ public class DOMInputCapsule implements InputCapsule {
             if (tmpEl == null) {
                 return defVal;
             }
-            String sizeString = tmpEl.getAttribute("size");
+            String sizeString = getAttribute(tmpEl, "size");
             NodeList nodes = currentElem.getChildNodes();
             List<long[]> longArrays = new ArrayList<>();
 
@@ -573,7 +573,7 @@ public class DOMInputCapsule implements InputCapsule {
 
     @Override
     public short readShort(String name, short defVal) throws IOException {
-        String tmpString = currentElem.getAttribute(name);
+        String tmpString = getAttribute(currentElem, name);
         if (tmpString == null || tmpString.length() < 1) return defVal;
         try {
             return Short.parseShort(tmpString);
@@ -596,8 +596,8 @@ public class DOMInputCapsule implements InputCapsule {
              if (tmpEl == null) {
                  return defVal;
              }
-            String sizeString = tmpEl.getAttribute("size");
-            String[] strings = parseTokens(tmpEl.getAttribute("data"));
+            String sizeString = getAttribute(tmpEl, "size");
+            String[] strings = parseTokens(getAttribute(tmpEl, "data"));
             if (sizeString.length() > 0) {
                 int requiredSize = Integer.parseInt(sizeString);
                 if (strings.length != requiredSize)
@@ -632,7 +632,7 @@ public class DOMInputCapsule implements InputCapsule {
                 return defVal;
             }
 
-            String sizeString = tmpEl.getAttribute("size");
+            String sizeString = getAttribute(tmpEl, "size");
             NodeList nodes = currentElem.getChildNodes();
             List<short[]> shortArrays = new ArrayList<>();
 
@@ -664,7 +664,7 @@ public class DOMInputCapsule implements InputCapsule {
 
     @Override
     public boolean readBoolean(String name, boolean defVal) throws IOException {
-        String tmpString = currentElem.getAttribute(name);
+        String tmpString = getAttribute(currentElem, name);
         if (tmpString == null || tmpString.length() < 1) return defVal;
         try {
             return Boolean.parseBoolean(tmpString);
@@ -687,8 +687,8 @@ public class DOMInputCapsule implements InputCapsule {
             if (tmpEl == null) {
                 return defVal;
             }
-            String sizeString = tmpEl.getAttribute("size");
-            String[] strings = parseTokens(tmpEl.getAttribute("data"));
+            String sizeString = getAttribute(tmpEl, "size");
+            String[] strings = parseTokens(getAttribute(tmpEl, "data"));
             if (sizeString.length() > 0) {
                 int requiredSize = Integer.parseInt(sizeString);
                 if (strings.length != requiredSize)
@@ -722,7 +722,7 @@ public class DOMInputCapsule implements InputCapsule {
             if (tmpEl == null) {
                 return defVal;
             }
-            String sizeString = tmpEl.getAttribute("size");
+            String sizeString = getAttribute(tmpEl, "size");
             NodeList nodes = currentElem.getChildNodes();
             List<boolean[]> booleanArrays = new ArrayList<>();
 
@@ -754,7 +754,7 @@ public class DOMInputCapsule implements InputCapsule {
 
     @Override
     public String readString(String name, String defVal) throws IOException {
-        String tmpString = currentElem.getAttribute(name);
+        String tmpString = getAttribute(currentElem, name);
         if (tmpString == null || tmpString.length() < 1) return defVal;
         try {
             return decodeString(tmpString);
@@ -777,7 +777,7 @@ public class DOMInputCapsule implements InputCapsule {
              if (tmpEl == null) {
                  return defVal;
              }
-            String sizeString = tmpEl.getAttribute("size");
+            String sizeString = getAttribute(tmpEl, "size");
             NodeList nodes = tmpEl.getChildNodes();
             List<String> strings = new ArrayList<>();
 
@@ -818,7 +818,7 @@ public class DOMInputCapsule implements InputCapsule {
             if (tmpEl == null) {
                 return defVal;
             }
-            String sizeString = tmpEl.getAttribute("size");
+            String sizeString = getAttribute(tmpEl, "size");
             NodeList nodes = currentElem.getChildNodes();
             List<String[]> stringArrays = new ArrayList<>();
 
@@ -850,7 +850,7 @@ public class DOMInputCapsule implements InputCapsule {
 
     @Override
     public BitSet readBitSet(String name, BitSet defVal) throws IOException {
-        String tmpString = currentElem.getAttribute(name);
+        String tmpString = getAttribute(currentElem, name);
         if (tmpString == null || tmpString.length() < 1) return defVal;
         try {
             BitSet set = new BitSet();
@@ -914,19 +914,19 @@ public class DOMInputCapsule implements InputCapsule {
         if (currentElem == null || currentElem.getNodeName().equals("null")) {
             return null;
         }
-        String reference = currentElem.getAttribute("ref");
+        String reference = getAttribute(currentElem, "ref");
         if (reference.length() > 0) {
             ret = referencedSavables.get(reference);
         } else {
             String className = currentElem.getNodeName();
-            if (currentElem.hasAttribute("class")) {
-                className = currentElem.getAttribute("class");
+            if (hasAttribute(currentElem, "class")) {
+                className = getAttribute(currentElem, "class");
             } else if (defVal != null) {
                 className = defVal.getClass().getName();
             }
             tmp = SavableClassUtil.fromName(className);
             
-            String versionsStr = currentElem.getAttribute("savable_versions");
+            String versionsStr = getAttribute(currentElem, "savable_versions");
             if (versionsStr != null && !versionsStr.equals("")){
                 String[] versionStr = versionsStr.split(",");
                 classHierarchyVersions = new int[versionStr.length];
@@ -937,8 +937,8 @@ public class DOMInputCapsule implements InputCapsule {
                 classHierarchyVersions = null;
             }
             
-            String refID = currentElem.getAttribute("reference_ID");
-            if (refID.length() < 1) refID = currentElem.getAttribute("id");
+            String refID = getAttribute(currentElem, "reference_ID");
+            if (refID.length() < 1) refID = getAttribute(currentElem, "id");
             if (refID.length() > 0) referencedSavables.put(refID, tmp);
             if (tmp != null) {
                 // Allows reading versions from this savable
@@ -959,7 +959,7 @@ public class DOMInputCapsule implements InputCapsule {
                 return defVal;
             }
 
-            String sizeString = tmpEl.getAttribute("size");
+            String sizeString = getAttribute(tmpEl, "size");
             List<Savable> savables = new ArrayList<>();
             for (currentElem = findFirstChildElement(tmpEl);
                     currentElem != null;
@@ -994,8 +994,8 @@ public class DOMInputCapsule implements InputCapsule {
                 return defVal;
             }
 
-            int size_outer = Integer.parseInt(tmpEl.getAttribute("size_outer"));
-            int size_inner = Integer.parseInt(tmpEl.getAttribute("size_outer"));
+            int size_outer = Integer.parseInt(getAttribute(tmpEl, "size_outer"));
+            int size_inner = Integer.parseInt(getAttribute(tmpEl, "size_outer"));
 
             Savable[][] tmp = new Savable[size_outer][size_inner];
             currentElem = findFirstChildElement(tmpEl);
@@ -1029,7 +1029,7 @@ public class DOMInputCapsule implements InputCapsule {
                 return defVal;
             }
 
-            String sizeString = tmpEl.getAttribute("size");
+            String sizeString = getAttribute(tmpEl, "size");
             ArrayList<Savable> savables = new ArrayList<>();
             for (currentElem = findFirstChildElement(tmpEl);
                     currentElem != null;
@@ -1066,7 +1066,7 @@ public class DOMInputCapsule implements InputCapsule {
             }
             currentElem = tmpEl;
 
-            String sizeString = tmpEl.getAttribute("size");
+            String sizeString = getAttribute(tmpEl, "size");
             int requiredSize = (sizeString.length() > 0)
                              ? Integer.parseInt(sizeString)
                              : -1;
@@ -1107,7 +1107,7 @@ public class DOMInputCapsule implements InputCapsule {
                 return defVal;
             }
             currentElem = tmpEl;
-            String sizeString = tmpEl.getAttribute("size");
+            String sizeString = getAttribute(tmpEl, "size");
 
             ArrayList<Savable>[] arr;
             List<ArrayList<Savable>[]> sall = new ArrayList<>();
@@ -1142,7 +1142,7 @@ public class DOMInputCapsule implements InputCapsule {
                 return defVal;
             }
 
-            String sizeString = tmpEl.getAttribute("size");
+            String sizeString = getAttribute(tmpEl, "size");
             ArrayList<FloatBuffer> tmp = new ArrayList<>();
             for (currentElem = findFirstChildElement(tmpEl);
                     currentElem != null;
@@ -1214,7 +1214,7 @@ public class DOMInputCapsule implements InputCapsule {
                                 if (n instanceof Element && n.getNodeName().equals("MapEntry")) {
                                         Element elem = (Element) n;
                                         currentElem = elem;
-                                        String key = currentElem.getAttribute("key");
+                                        String key = getAttribute(currentElem, "key");
                                         Savable val = readSavable("Savable", null);
                                         ret.put(key, val);
                                 }
@@ -1245,7 +1245,7 @@ public class DOMInputCapsule implements InputCapsule {
                                 if (n instanceof Element && n.getNodeName().equals("MapEntry")) {
                                         Element elem = (Element) n;
                                         currentElem = elem;
-                                        int key = Integer.parseInt(currentElem.getAttribute("key"));
+                                        int key = Integer.parseInt(getAttribute(currentElem, "key"));
                                         Savable val = readSavable("Savable", null);
                                         ret.put(key, val);
                                 }
@@ -1272,8 +1272,8 @@ public class DOMInputCapsule implements InputCapsule {
             if (tmpEl == null) {
                 return defVal;
             }
-            String sizeString = tmpEl.getAttribute("size");
-            String[] strings = parseTokens(tmpEl.getAttribute("data"));
+            String sizeString = getAttribute(tmpEl, "size");
+            String[] strings = parseTokens(getAttribute(tmpEl, "data"));
             if (sizeString.length() > 0) {
                 int requiredSize = Integer.parseInt(sizeString);
                 if (strings.length != requiredSize)
@@ -1302,8 +1302,8 @@ public class DOMInputCapsule implements InputCapsule {
                 return defVal;
             }
 
-            String sizeString = tmpEl.getAttribute("size");
-            String[] strings = parseTokens(tmpEl.getAttribute("data"));
+            String sizeString = getAttribute(tmpEl, "size");
+            String[] strings = parseTokens(getAttribute(tmpEl, "data"));
             if (sizeString.length() > 0) {
                 int requiredSize = Integer.parseInt(sizeString);
                 if (strings.length != requiredSize)
@@ -1332,8 +1332,8 @@ public class DOMInputCapsule implements InputCapsule {
                 return defVal;
             }
 
-            String sizeString = tmpEl.getAttribute("size");
-            String[] strings = parseTokens(tmpEl.getAttribute("data"));
+            String sizeString = getAttribute(tmpEl, "size");
+            String[] strings = parseTokens(getAttribute(tmpEl, "data"));
             if (sizeString.length() > 0) {
                 int requiredSize = Integer.parseInt(sizeString);
                 if (strings.length != requiredSize)
@@ -1362,8 +1362,8 @@ public class DOMInputCapsule implements InputCapsule {
                 return defVal;
             }
 
-            String sizeString = tmpEl.getAttribute("size");
-            String[] strings = parseTokens(tmpEl.getAttribute("data"));
+            String sizeString = getAttribute(tmpEl, "size");
+            String[] strings = parseTokens(getAttribute(tmpEl, "data"));
             if (sizeString.length() > 0) {
                 int requiredSize = Integer.parseInt(sizeString);
                 if (strings.length != requiredSize)
@@ -1392,7 +1392,7 @@ public class DOMInputCapsule implements InputCapsule {
                 return defVal;
             }
 
-            String sizeString = tmpEl.getAttribute("size");
+            String sizeString = getAttribute(tmpEl, "size");
             ArrayList<ByteBuffer> tmp = new ArrayList<>();
             for (currentElem = findFirstChildElement(tmpEl);
                     currentElem != null;
@@ -1422,7 +1422,7 @@ public class DOMInputCapsule implements InputCapsule {
                         T defVal) throws IOException {
         T ret = defVal;
         try {
-            String eVal = currentElem.getAttribute(name);
+            String eVal = getAttribute(currentElem, name);
             if (eVal != null && eVal.length() > 0) {
                 ret = Enum.valueOf(enumType, eVal);
             }
@@ -1442,4 +1442,33 @@ public class DOMInputCapsule implements InputCapsule {
                ? zeroStrings
                : outStrings;
     }
+    
+    /**
+     * Fetches the named attribute from the element.
+     * <p>
+     * Automatically appends {@link DOMOutputCapsule#PREFIX} to the beginning
+     * of the name before looking up the attribute.
+     * 
+     * @param element XML element to get the attribute from
+     * @param name name of the attribute (without prefix)
+     * @return named attribute
+     */
+    private String getAttribute(Element element, String name) {
+        return element.getAttribute(DOMOutputCapsule.PREFIX+name);
+    }
+    
+    /**
+     * Tests if the element contains the named attribute.
+     * <p>
+     * Automatically appends {@link DOMOutputCapsule#PREFIX} to the beginning
+     * of the name before looking up the attribute.
+     * 
+     * @param element element to test
+     * @param name name of the attribute (without prefix)
+     * @return true if the element has the named attribute
+     */
+    private boolean hasAttribute(Element element, String name) {
+        return element.hasAttribute(DOMOutputCapsule.PREFIX+name);
+    }
+    
 }
