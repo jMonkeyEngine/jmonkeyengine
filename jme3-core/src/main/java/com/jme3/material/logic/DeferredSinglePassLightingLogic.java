@@ -464,11 +464,18 @@ public final class DeferredSinglePassLightingLogic extends DefaultTechniqueDefLo
             int count = lights.size();
 //            lightCount.setValue(VarType.Int, count);
             lightCount.setValue(VarType.Int, this.lightNum);
-            while (nbRenderedLights < count) {
-                // todo:Optimize deferred using the second method, here use the geometrys (rect, sphere) of the current class for drawing, instead of using the geometry passed in (or pass two geometry externally, one rect one sphereinstance)
+            if(count == 0){
                 nbRenderedLights = updateLightListPackToTexture(shader, geometry, lights, count, renderManager, nbRenderedLights, isLightCullStageDraw, lastTexUnit);
                 renderer.setShader(shader);
                 renderMeshFromGeometry(renderer, geometry);
+            }
+            else{
+                while (nbRenderedLights < count) {
+                    // todo:Optimize deferred using the second method, here use the geometrys (rect, sphere) of the current class for drawing, instead of using the geometry passed in (or pass two geometry externally, one rect one sphereinstance)
+                    nbRenderedLights = updateLightListPackToTexture(shader, geometry, lights, count, renderManager, nbRenderedLights, isLightCullStageDraw, lastTexUnit);
+                    renderer.setShader(shader);
+                    renderMeshFromGeometry(renderer, geometry);
+                }
             }
         }
         else{

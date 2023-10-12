@@ -22,6 +22,10 @@ public class FGVarSource<T> extends FGSource{
         varBindableProxy = new FGVarBindableProxy<T>(value);
     }
 
+    public void setValue(T t){
+        varBindableProxy.value = t;
+    }
+
     @Override
     public void postLinkValidate() {
 

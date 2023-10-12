@@ -34,7 +34,8 @@ public class GBufferPass extends OpaquePass{
     public final static String S_EXECUTE_STATE = "EXECUTE_STATE";
     private final LightList lightData = new LightList(null);
     private final List<Light> tempLights = new ArrayList<Light>();
-    private boolean bHasDraw;
+    private Boolean bHasDraw = new Boolean(false);
+    private FGVarSource<Boolean> bHasDrawVarSource = null;
     // gBuffer
     private FrameBuffer gBuffer;
     private Texture2D gBufferData0 = null;
@@ -78,6 +79,7 @@ public class GBufferPass extends OpaquePass{
             vp.setOutputFrameBuffer(opfb);
             renderContext.renderManager.getRenderer().setBackgroundColor(opClearColor);
             renderContext.renderManager.getRenderer().setFrameBuffer(vp.getOutputFrameBuffer());
+            bHasDrawVarSource.setValue(bHasDraw);
             if(bHasDraw){
                 for(Light light : tempLights){
                     lightData.add(light);
@@ -92,12 +94,15 @@ public class GBufferPass extends OpaquePass{
         super.reset();
         tempLights.clear();
         lightData.clear();
+        bHasDraw = false;
+        bHasDrawVarSource.setValue(bHasDraw);
     }
 
     public void reshape(Renderer renderer, ViewPort vp, int w, int h){
         boolean recreate = false;
         if(gBuffer != null){
             if(frameBufferWidth != w || frameBufferHeight != h){
+                gBuffer.dispose();
                 gBuffer.deleteObject(renderer);
 
                 frameBufferWidth = w;
@@ -140,7 +145,8 @@ public class GBufferPass extends OpaquePass{
             registerSource(new FGRenderTargetSource(S_RT_3, rt3));
             registerSource(new FGRenderTargetSource(S_RT_4, rt4));
             registerSource(new DeferredLightDataSource(S_LIGHT_DATA, lightData));
-            registerSource(new FGVarSource<Boolean>(S_EXECUTE_STATE, bHasDraw));
+            bHasDrawVarSource = new FGVarSource<Boolean>(S_EXECUTE_STATE, bHasDraw);
+            registerSource(bHasDrawVarSource);
             registerSource(new FGFramebufferSource(S_FB, gBuffer));
         }
     }

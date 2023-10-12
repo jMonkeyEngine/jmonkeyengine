@@ -359,6 +359,7 @@ void main(){
         }
     }
     else if(shadingModelId == UNLIT){
-        // todo:
+        gl_FragColor.rgb = shadingInfo.rgb;
+        gl_FragColor.a = min(fract(shadingInfo.a) * 10.0f, 0.0f);
     }
 }

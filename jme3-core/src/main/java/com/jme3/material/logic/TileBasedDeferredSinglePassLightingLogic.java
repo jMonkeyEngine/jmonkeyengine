@@ -858,12 +858,13 @@ public class TileBasedDeferredSinglePassLightingLogic extends DefaultTechniqueDe
                 }
 
                 // update tiles
+                LightFrustum lightFrustum = null;
                 for(int i = 0;i < count;i++){
                     // filterLights(remove ambientLight,lightprobe...)
                     if(lights.get(i).getType() == Light.Type.Ambient || lights.get(i).getType() == Light.Type.Probe)continue;
-                    _lightFrustum = lightClip(lights.get(i));
-                    if(_lightFrustum != null){
-                        tilesUpdate(tileSize, tileWidth, tileHeight, tileNum, tiles, _lightFrustum, i);
+                    lightFrustum = lightClip(lights.get(i));
+                    if(lightFrustum != null){
+                        tilesUpdate(tileSize, tileWidth, tileHeight, tileNum, tiles, lightFrustum, i);
                     }
                     else{
                         // full tilesLight
@@ -879,6 +880,11 @@ public class TileBasedDeferredSinglePassLightingLogic extends DefaultTechniqueDe
                     renderer.setShader(shader);
                     renderMeshFromGeometry(renderer, geometry);
                 }
+            }
+            else{
+                nbRenderedLights = updateLightListPackToTexture(shader, geometry, lights, count, renderManager, nbRenderedLights, isLightCullStageDraw, lastTexUnit);
+                renderer.setShader(shader);
+                renderMeshFromGeometry(renderer, geometry);
             }
         }
         else{
