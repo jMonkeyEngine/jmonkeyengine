@@ -105,7 +105,7 @@ public class TestChooser extends JFrame {
     @Override
     public void dispose() {
         if (executorService != null) {
-            executorService.shutdown();
+            executorService.shutdownNow();
         }
 
         super.dispose();
