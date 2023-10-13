@@ -31,6 +31,7 @@
  */
 package com.jme3.export.xml;
 
+import com.jme3.export.FormatVersion;
 import org.w3c.dom.Element;
 
 /**
@@ -41,11 +42,11 @@ import org.w3c.dom.Element;
 public class XMLUtils {
     
     /**
-     * Prefix to every jme xml attribute.
+     * Prefix for every jme xml attribute for format versions 3 and up.
      * <p>
-     * This prefix should be appended at the beginning of every
-     * xml attribute name. Every access of attributes must
-     * append this prefix to the name.
+     * This prefix should be appended at the beginning of every xml
+     * attribute name. For format versions 3 and up, every name to
+     * access an attribute must append this prefix first.
      */
     public static final String PREFIX = "jme-";
     
@@ -66,33 +67,41 @@ public class XMLUtils {
     /**
      * Fetches the named attribute from the element.
      * <p>
-     * Automatically appends {@link DOMOutputCapsule#PREFIX} to the beginning
-     * of the name before looking up the attribute.
+     * Automatically appends {@link #PREFIX} to the beginning
+     * of the name before looking up the attribute for format versions 3 and up.
      * 
      * @param element XML element to get the attribute from
      * @param name name of the attribute (without prefix)
      * @return named attribute
      */
     public static String getAttribute(Element element, String name) {
-        return element.getAttribute(PREFIX+name);
+        if (FormatVersion.VERSION >= 3) {
+            return element.getAttribute(PREFIX+name);
+        } else {
+            return element.getAttribute(name);
+        }
     }
     
     /**
      * Tests if the element contains the named attribute.
      * <p>
-     * Automatically appends {@link DOMOutputCapsule#PREFIX} to the beginning
-     * of the name before looking up the attribute.
+     * Automatically appends {@link #PREFIX} to the beginning
+     * of the name before looking up the attribute for format versions 3 and up.
      * 
      * @param element element to test
      * @param name name of the attribute (without prefix)
      * @return true if the element has the named attribute
      */
     public static boolean hasAttribute(Element element, String name) {
-        return element.hasAttribute(PREFIX+name);
-    }    
+        if (FormatVersion.VERSION >= 3) {
+            return element.hasAttribute(PREFIX+name);
+        } else {
+            return element.hasAttribute(name);
+        }
+    }
     
     /**
-     * Denies instatiation of this class.
+     * Denies instantiation of this class.
      */
     private XMLUtils() {
     }
