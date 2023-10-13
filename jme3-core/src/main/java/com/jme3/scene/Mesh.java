@@ -153,16 +153,17 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
     /**
      * Default Variables
      */
+    private static final int DEFAULT_VERTEXT_ARRAY_ID = -1;
     private static final CollisionData DEFAULT_COLLECTION_TREE = null;
 
     private static final float DEFAULT_POINT_SIZE = 1.0f;
     private static final float DEFAULT_LINE_WIDTH = 1.0f;
 
-    private static final int DEFAULT_VERT_COUNT = 0;
-    private static final int DEFAULT_ELEMENT_COUNT = 0;
-    private static final int DEFAULT_INSTANCE_COUNT = 0;
+    private static final int DEFAULT_VERT_COUNT = -1;
+    private static final int DEFAULT_ELEMENT_COUNT = -1;
+    private static final int DEFAULT_INSTANCE_COUNT = -1;
     private static final int DEFAULT_PATCH_VERTEX_COUNT = 3;
-    private static final int DEFAULT_MAX_NUM_WEIGHTS = 0;
+    private static final int DEFAULT_MAX_NUM_WEIGHTS = -1;
     
     /**
      * The bounding volume that contains the mesh entirely.
@@ -175,10 +176,11 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
     private SafeArrayList<VertexBuffer> buffersList = new SafeArrayList<>(VertexBuffer.class);
     private IntMap<VertexBuffer> buffers = new IntMap<>();
     private VertexBuffer[] lodLevels;
+    
     private float pointSize = DEFAULT_POINT_SIZE;
     private float lineWidth = DEFAULT_LINE_WIDTH;
 
-    private transient int vertexArrayID = -1;
+    private transient int vertexArrayID = DEFAULT_VERTEXT_ARRAY_ID;
 
     private int vertCount = DEFAULT_VERT_COUNT;
     private int elementCount = DEFAULT_ELEMENT_COUNT;
@@ -214,7 +216,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
             clone.collisionTree = collisionTree != null ? collisionTree : null;
             clone.buffers = buffers.clone();
             clone.buffersList = new SafeArrayList<>(VertexBuffer.class, buffersList);
-            clone.vertexArrayID = -1;
+            clone.vertexArrayID = DEFAULT_VERTEXT_ARRAY_ID;
             if (elementLengths != null) {
                 clone.elementLengths = elementLengths.clone();
             }
@@ -251,7 +253,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
                 clone.buffersList.add(bufClone);
             }
 
-            clone.vertexArrayID = -1;
+            clone.vertexArrayID = DEFAULT_VERTEXT_ARRAY_ID;
             clone.vertCount = vertCount;
             clone.elementCount = elementCount;
             clone.instanceCount = instanceCount;
@@ -311,7 +313,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
     public Mesh jmeClone() {
         try {
             Mesh clone = (Mesh) super.clone();
-            clone.vertexArrayID = -1;
+            clone.vertexArrayID = DEFAULT_VERTEXT_ARRAY_ID;
             return clone;
         } catch (CloneNotSupportedException ex) {
             throw new AssertionError();
@@ -984,7 +986,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
      * @param id the array ID
      */
     public void setId(int id) {
-        if (vertexArrayID != -1) {
+        if (vertexArrayID != DEFAULT_VERTEXT_ARRAY_ID) {
             throw new IllegalStateException("ID has already been set.");
         }
 
