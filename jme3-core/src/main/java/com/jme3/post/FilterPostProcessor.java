@@ -295,7 +295,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
                 if (msDepth && filter.isRequiresDepthTexture()) {
                     mat.setInt("NumSamplesDepth", depthTexture.getImage().getMultiSamples());
                 }
-
+                
                 if (filter.isRequiresSceneTexture()) {
                     mat.setTexture("Texture", tex);
                     if (tex.getImage().getMultiSamples() > 1) {
@@ -506,6 +506,14 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
             renderFrameBuffer.setDepthTarget(FrameBufferTarget.newTarget(depthFormat));
             filterTexture = new Texture2D(width, height, fbFormat);
             renderFrameBuffer.addColorTarget(FrameBufferTarget.newTarget(filterTexture));
+        }
+
+        if (renderFrameBufferMS != null) {
+            renderFrameBufferMS.setName("FilterPostProcessor MS");
+        }
+
+        if (renderFrameBuffer != null) {
+            renderFrameBuffer.setName("FilterPostProcessor");
         }
 
         for (Filter filter : filters.getArray()) {
