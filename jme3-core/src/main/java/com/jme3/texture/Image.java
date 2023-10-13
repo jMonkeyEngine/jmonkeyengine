@@ -330,6 +330,23 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
          * Requires {@link Caps#TextureCompressionETC1}.
          */
         ETC1(4, false, true, false),
+
+        /**
+         * Ericsson Texture Compression 2. Typically used on Android.
+         * Same as {@link #ETC1} but with alpha.
+         * 
+         * Requires {@link Caps#TextureCompressionETC2}.
+         */
+        ETC2(8, false, true, false),
+
+        /**
+         * Ericsson Texture Compression 2. Typically used on Android.
+         * Same as {@link #ETC2} but alpha can be either 1 or 0.
+         * 
+         * Requires {@link Caps#TextureCompressionETC2}.
+         */
+        ETC2_ALPHA1(4, false, true, false),
+
          
         /**
          * 8-bit signed int red.
