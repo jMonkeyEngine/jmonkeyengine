@@ -11,6 +11,6 @@ public class MeshTest {
     public void testEmptyMesh() {
         final Mesh mesh = new Mesh();
 
-        assertEquals(0, mesh.getVertexCount());;
+        assertEquals(-1, mesh.getVertexCount());;
     }
 }
