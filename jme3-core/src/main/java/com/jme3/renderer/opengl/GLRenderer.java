@@ -616,7 +616,7 @@ public final class GLRenderer implements Renderer {
             caps.add(Caps.UnpackRowLength);
         }
 
-        if (caps.contains(Caps.OpenGL43) || hasExtension("GL_KHR_debug")) {
+        if (caps.contains(Caps.OpenGL43) || hasExtension("GL_KHR_debug") || caps.contains(Caps.WebGL)) {
             caps.add(Caps.GLDebug);
         }
 
