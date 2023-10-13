@@ -252,8 +252,8 @@ public class OpaqueComparatorTest {
         lightingMatTCVColorLight.setBoolean("VertexLighting", true);
         lightingMatTCVColorLight.setBoolean("SeparateTexCoord", true);
         
-        testSort(lightingMat, lightingMatVColor, lightingMatVLight,
-                 lightingMatVColorLight, lightingMatTC, lightingMatTCVColorLight);
+        testSort(lightingMatVLight, lightingMatVColorLight, lightingMat,
+                 lightingMatVColor, lightingMatTCVColorLight, lightingMatTC);
     }
     
     @Test
