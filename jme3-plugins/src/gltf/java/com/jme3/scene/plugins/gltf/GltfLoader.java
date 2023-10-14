@@ -741,7 +741,7 @@ public class GltfLoader implements AssetLoader {
         Integer textureIndex = getAsInteger(texture, "index");
         assertNotNull(textureIndex, "Texture has no index");
         assertNotNull(textures, "There are no textures, yet one is referenced by a material");
-
+        
         JsonObject textureData = textures.get(textureIndex).getAsJsonObject();
         Integer sourceIndex = getAsInteger(textureData, "source");
         Integer samplerIndex = getAsInteger(textureData, "sampler");
@@ -802,7 +802,7 @@ public class GltfLoader implements AssetLoader {
         String name = getAsString(animation, "name");
         assertNotNull(channels, "No channels for animation " + name);
         assertNotNull(samplers, "No samplers for animation " + name);
-
+        
         // temp data storage of track data
         TrackData[] tracks = new TrackData[nodes.size()];
         boolean hasMorphTrack = false;
@@ -902,17 +902,22 @@ public class GltfLoader implements AssetLoader {
                             trackData.translations, trackData.rotations, trackData.scales);
                     aTracks.add(track);
                 }
-                if (trackData.weights != null && s instanceof Geometry) {
-                    Geometry g = (Geometry) s;
-                    int nbMorph = g.getMesh().getMorphTargets().length;
-//                    for (int k = 0; k < trackData.weights.length; k++) {
-//                        System.err.print(trackData.weights[k] + ",");
-//                        if(k % nbMorph == 0 && k!=0){
-//                            System.err.println(" ");
-//                        }
-//                    }
-                    MorphTrack track = new MorphTrack(g, trackData.times, trackData.weights, nbMorph);
-                    aTracks.add(track);
+                if (trackData.weights != null) {
+                    if (s instanceof Node) {
+                        s.depthFirstTraversal((Spatial spatial) -> {
+                            if (spatial instanceof Geometry) {
+                                Geometry g = (Geometry) spatial;
+                                int nbMorph = g.getMesh().getMorphTargets().length;
+                                MorphTrack track = new MorphTrack(g, trackData.times, trackData.weights, nbMorph);
+                                aTracks.add(track);
+                            }
+                        });
+                    } else if (s instanceof Geometry) {
+                        Geometry g = (Geometry) s;
+                        int nbMorph = g.getMesh().getMorphTargets().length;
+                        MorphTrack track = new MorphTrack(g, trackData.times, trackData.weights, nbMorph);
+                        aTracks.add(track);
+                    }
                 }
             } else if (node instanceof JointWrapper) {
                 JointWrapper jw = (JointWrapper) node;
@@ -957,7 +962,7 @@ public class GltfLoader implements AssetLoader {
                 }
             }
         }
-
+        
         anim.setTracks(aTracks.toArray(new AnimTrack[aTracks.size()]));
         anim = customContentManager.readExtensionAndExtras("animations", animation, anim);
 
