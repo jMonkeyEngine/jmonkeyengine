@@ -906,17 +906,11 @@ public class GltfLoader implements AssetLoader {
                     if (s instanceof Node) {
                         s.depthFirstTraversal((Spatial spatial) -> {
                             if (spatial instanceof Geometry) {
-                                Geometry g = (Geometry) spatial;
-                                int nbMorph = g.getMesh().getMorphTargets().length;
-                                MorphTrack track = new MorphTrack(g, trackData.times, trackData.weights, nbMorph);
-                                aTracks.add(track);
+                                aTracks.add(toMorphTrack(trackData, spatial));
                             }
                         });
                     } else if (s instanceof Geometry) {
-                        Geometry g = (Geometry) s;
-                        int nbMorph = g.getMesh().getMorphTargets().length;
-                        MorphTrack track = new MorphTrack(g, trackData.times, trackData.weights, nbMorph);
-                        aTracks.add(track);
+                        aTracks.add(toMorphTrack(trackData, s));
                     }
                 }
             } else if (node instanceof JointWrapper) {
