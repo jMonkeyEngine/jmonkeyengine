@@ -119,7 +119,7 @@ public class UserDataLoader implements ExtrasLoader {
         } else if (el instanceof JsonPrimitive) {
             return toAttribute(el.getAsJsonPrimitive(), nested);
         }
-        log.fine("Unhandled extras element:" + el);
+        log.warning("Unhandled extras element:" + el);
         return null;
     }
 
@@ -168,7 +168,7 @@ public class UserDataLoader implements ExtrasLoader {
         } else if (jp.isString()) {
             return jp.getAsString();
         }
-        log.fine("Unhandled primitive:" + jp);
+        log.warning("Unhandled primitive:" + jp);
         return null;
     }
 }
