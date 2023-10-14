@@ -155,6 +155,9 @@ public final class DefineList {
             return false;
         }
         DefineList otherDefineList = (DefineList) object;
+        if(values.length != otherDefineList.values.length){
+            return false;
+        }    
         if (!isSet.equals(otherDefineList.isSet)) {
             return false;
         }            
