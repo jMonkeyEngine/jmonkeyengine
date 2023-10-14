@@ -70,12 +70,13 @@ public class XMLUtils {
      * Automatically appends {@link #PREFIX} to the beginning
      * of the name before looking up the attribute for format versions 3 and up.
      * 
+     * @param version format version of the xml
      * @param element XML element to get the attribute from
      * @param name name of the attribute (without prefix)
      * @return named attribute
      */
-    public static String getAttribute(Element element, String name) {
-        if (FormatVersion.VERSION >= 3) {
+    public static String getAttribute(int version, Element element, String name) {
+        if (version >= 3) {
             return element.getAttribute(PREFIX+name);
         } else {
             return element.getAttribute(name);
@@ -88,12 +89,13 @@ public class XMLUtils {
      * Automatically appends {@link #PREFIX} to the beginning
      * of the name before looking up the attribute for format versions 3 and up.
      * 
+     * @param version format version of the xml
      * @param element element to test
      * @param name name of the attribute (without prefix)
      * @return true if the element has the named attribute
      */
-    public static boolean hasAttribute(Element element, String name) {
-        if (FormatVersion.VERSION >= 3) {
+    public static boolean hasAttribute(int version, Element element, String name) {
+        if (version >= 3) {
             return element.hasAttribute(PREFIX+name);
         } else {
             return element.hasAttribute(name);
