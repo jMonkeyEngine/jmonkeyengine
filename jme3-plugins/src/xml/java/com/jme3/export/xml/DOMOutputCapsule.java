@@ -80,7 +80,8 @@ public class DOMOutputCapsule implements OutputCapsule {
     private Element appendElement(String name) {
         Element ret = doc.createElement(name);
         if (currentElement == null) {
-            XMLUtils.setAttribute(ret, "format_version", Integer.toString(FormatVersion.VERSION));
+            // file version is always unprefixed for backwards compatibility
+            ret.setAttribute("format_version", Integer.toString(FormatVersion.VERSION));
             doc.appendChild(ret);
         } else {
             currentElement.appendChild(ret);
