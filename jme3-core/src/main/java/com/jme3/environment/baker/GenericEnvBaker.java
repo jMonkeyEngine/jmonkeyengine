@@ -254,4 +254,9 @@ public abstract class GenericEnvBaker implements EnvBaker {
         tx.getImage().clearUpdateNeeded();
     }
 
+    protected int limitMips(int nbMipMaps, int baseW, int baseH,RenderManager rm) {
+        if (nbMipMaps > 6) nbMipMaps = 6;
+        return nbMipMaps;
+    }
+
 }

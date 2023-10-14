@@ -70,10 +70,13 @@ public class LightProbeFactory2 {
         baker.bakeSphericalHarmonicsCoefficients();
         
         LightProbe probe = new LightProbe();
-
+ 
         probe.setPosition(pos);
         probe.setPrefilteredMap(baker.getSpecularIBL());
-        probe.setNbMipMaps(probe.getPrefilteredEnvMap().getImage().getMipMapSizes().length);
+        
+        int[] mipSizes = probe.getPrefilteredEnvMap().getImage().getMipMapSizes();
+        probe.setNbMipMaps(mipSizes != null ? mipSizes.length : 1);
+        
         probe.setShCoeffs(baker.getSphericalHarmonicsCoefficients());
         probe.setReady(true);
 
