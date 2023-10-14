@@ -156,14 +156,16 @@ public class CustomContentManager {
 
     @SuppressWarnings("unchecked")
     private <T> T readExtras(String name, JsonElement el, T input) throws AssetLoadException {
-        if (key == null) {
-            return input;
-        }
         ExtrasLoader loader;
-        loader = key.getExtrasLoader();
-        if (loader == null) {
-            return input;
+        if (key == null) {
+            loader = new UserDataLoader();
+        } else {
+            loader = key.getExtrasLoader();
+            if (loader == null) {
+                return input;
+            }
         }
+        
         JsonElement extras = el.getAsJsonObject().getAsJsonObject("extras");
         if (extras == null) {
             return input;
