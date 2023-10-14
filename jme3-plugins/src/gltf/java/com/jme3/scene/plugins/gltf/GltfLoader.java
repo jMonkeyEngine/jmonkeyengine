@@ -1201,6 +1201,12 @@ public class GltfLoader implements AssetLoader {
         JsonObject meshData = meshes.get(meshIndex).getAsJsonObject();
         return getAsString(meshData, "name");
     }
+    
+    private MorphTrack toMorphTrack(TrackData data, Spatial spatial) {
+        Geometry g = (Geometry) spatial;
+        int nbMorph = g.getMesh().getMorphTargets().length;
+        return new MorphTrack(g, data.times, data.weights, nbMorph);
+    }
 
     public <T> T fetchFromCache(String name, int index, Class<T> type) {
         Object[] data = dataCache.get(name);
