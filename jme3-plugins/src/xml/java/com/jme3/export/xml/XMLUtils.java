@@ -31,7 +31,6 @@
  */
 package com.jme3.export.xml;
 
-import com.jme3.export.FormatVersion;
 import org.w3c.dom.Element;
 
 /**

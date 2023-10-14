@@ -32,7 +32,6 @@
 
 package com.jme3.export.xml;
 
-import com.jme3.export.FormatVersion;
 import com.jme3.export.InputCapsule;
 import com.jme3.export.Savable;
 import com.jme3.export.SavableClassUtil;
@@ -45,7 +44,6 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 import java.util.*;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.w3c.dom.*;
 
