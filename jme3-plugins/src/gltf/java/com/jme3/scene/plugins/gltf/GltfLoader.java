@@ -364,136 +364,135 @@ public class GltfLoader implements AssetLoader {
 
     public Geometry[] readMeshPrimitives(int meshIndex) throws IOException {
         Geometry[] geomArray = (Geometry[]) fetchFromCache("meshes", meshIndex, Object.class);
-        if (geomArray != null) {
-            // cloning the geoms.
-            Geometry[] geoms = new Geometry[geomArray.length];
-            for (int i = 0; i < geoms.length; i++) {
-                geoms[i] = geomArray[i].clone(false);
-            }
-            return geoms;
-        }
-        JsonObject meshData = meshes.get(meshIndex).getAsJsonObject();
-        JsonArray primitives = meshData.getAsJsonArray("primitives");
-        assertNotNull(primitives, "Can't find any primitives in mesh " + meshIndex);
-        String name = getAsString(meshData, "name");
+        if (geomArray == null) {                
+            JsonObject meshData = meshes.get(meshIndex).getAsJsonObject();
+            JsonArray primitives = meshData.getAsJsonArray("primitives");
+            assertNotNull(primitives, "Can't find any primitives in mesh " + meshIndex);
+            String name = getAsString(meshData, "name");
 
-        geomArray = new Geometry[primitives.size()];
-        int index = 0;
-        for (JsonElement primitive : primitives) {
-            JsonObject meshObject = primitive.getAsJsonObject();
-            Mesh mesh = new Mesh();
-            addToCache("mesh", 0, mesh, 1);
-            Integer mode = getAsInteger(meshObject, "mode");
-            mesh.setMode(getMeshMode(mode));
-            Integer indices = getAsInteger(meshObject, "indices");
-            if (indices != null) {
-                mesh.setBuffer(readAccessorData(indices, new VertexBufferPopulator(VertexBuffer.Type.Index)));
-            }
-            JsonObject attributes = meshObject.getAsJsonObject("attributes");
-            assertNotNull(attributes, "No attributes defined for mesh " + mesh);
-
-            skinBuffers.clear();
-
-            for (Map.Entry<String, JsonElement> entry : attributes.entrySet()) {
-                // special case for joints and weights buffer.
-                // If there are more than 4 bones per vertex, there might be several of them
-                // we need to read them all and to keep only the 4 that have the most weight on the vertex.
-                String bufferType = entry.getKey();
-                if (bufferType.startsWith("JOINTS")) {
-                    SkinBuffers buffs = getSkinBuffers(bufferType);
-                    SkinBuffers buffer
-                            = readAccessorData(entry.getValue().getAsInt(), new JointArrayPopulator());
-                    buffs.joints = buffer.joints;
-                    buffs.componentSize = buffer.componentSize;
-                } else if (bufferType.startsWith("WEIGHTS")) {
-                    SkinBuffers buffs = getSkinBuffers(bufferType);
-                    buffs.weights = readAccessorData(entry.getValue().getAsInt(), new FloatArrayPopulator());
-                } else {
-                    VertexBuffer vb = readAccessorData(entry.getValue().getAsInt(),
-                            new VertexBufferPopulator(getVertexBufferType(bufferType)));
-                    if (vb != null) {
-                        mesh.setBuffer(vb);
-                    }
+            geomArray = new Geometry[primitives.size()];
+            int index = 0;
+            for (JsonElement primitive : primitives) {
+                JsonObject meshObject = primitive.getAsJsonObject();
+                Mesh mesh = new Mesh();
+                addToCache("mesh", 0, mesh, 1);
+                Integer mode = getAsInteger(meshObject, "mode");
+                mesh.setMode(getMeshMode(mode));
+                Integer indices = getAsInteger(meshObject, "indices");
+                if (indices != null) {
+                    mesh.setBuffer(readAccessorData(indices, new VertexBufferPopulator(VertexBuffer.Type.Index)));
                 }
-            }
-            handleSkinningBuffers(mesh, skinBuffers);
+                JsonObject attributes = meshObject.getAsJsonObject("attributes");
+                assertNotNull(attributes, "No attributes defined for mesh " + mesh);
 
-            if (mesh.getBuffer(VertexBuffer.Type.BoneIndex) != null) {
-                // the mesh has some skinning, let's create needed buffers for HW skinning
-                // creating empty buffers for HW skinning
-                // the buffers will be set up if ever used.
-                VertexBuffer weightsHW = new VertexBuffer(VertexBuffer.Type.HWBoneWeight);
-                VertexBuffer indicesHW = new VertexBuffer(VertexBuffer.Type.HWBoneIndex);
-                // setting usage to cpuOnly so that the buffer is not sent empty to the GPU
-                indicesHW.setUsage(VertexBuffer.Usage.CpuOnly);
-                weightsHW.setUsage(VertexBuffer.Usage.CpuOnly);
-                mesh.setBuffer(weightsHW);
-                mesh.setBuffer(indicesHW);
-                mesh.generateBindPose();
-            }
+                skinBuffers.clear();
 
-            // Read morph target names
-            LinkedList<String> targetNames = new LinkedList<>();
-            if (meshData.has("extras") && meshData.getAsJsonObject("extras").has("targetNames")) {
-                JsonArray targetNamesJson = meshData.getAsJsonObject("extras").getAsJsonArray("targetNames");
-                for (JsonElement target : targetNamesJson) {
-                    targetNames.add(target.getAsString());
-                }
-            }
-
-            // Read morph targets
-            JsonArray targets = meshObject.getAsJsonArray("targets");
-            if (targets != null) {
-                for (JsonElement target : targets) {
-                    MorphTarget morphTarget = new MorphTarget();
-                    if (targetNames.size() > 0) {
-                        morphTarget.setName(targetNames.pop());
-                    }
-                    for (Map.Entry<String, JsonElement> entry : target.getAsJsonObject().entrySet()) {
-                        String bufferType = entry.getKey();
-                        VertexBuffer.Type type = getVertexBufferType(bufferType);
+                for (Map.Entry<String, JsonElement> entry : attributes.entrySet()) {
+                    // special case for joints and weights buffer.
+                    // If there are more than 4 bones per vertex, there might be several of them
+                    // we need to read them all and to keep only the 4 that have the most weight on the vertex.
+                    String bufferType = entry.getKey();
+                    if (bufferType.startsWith("JOINTS")) {
+                        SkinBuffers buffs = getSkinBuffers(bufferType);
+                        SkinBuffers buffer
+                                = readAccessorData(entry.getValue().getAsInt(), new JointArrayPopulator());
+                        buffs.joints = buffer.joints;
+                        buffs.componentSize = buffer.componentSize;
+                    } else if (bufferType.startsWith("WEIGHTS")) {
+                        SkinBuffers buffs = getSkinBuffers(bufferType);
+                        buffs.weights = readAccessorData(entry.getValue().getAsInt(), new FloatArrayPopulator());
+                    } else {
                         VertexBuffer vb = readAccessorData(entry.getValue().getAsInt(),
-                                new VertexBufferPopulator(type));
+                                new VertexBufferPopulator(getVertexBufferType(bufferType)));
                         if (vb != null) {
-                            morphTarget.setBuffer(type, (FloatBuffer) vb.getData());
+                            mesh.setBuffer(vb);
                         }
                     }
-                    mesh.addMorphTarget(morphTarget);
                 }
+                handleSkinningBuffers(mesh, skinBuffers);
+
+                if (mesh.getBuffer(VertexBuffer.Type.BoneIndex) != null) {
+                    // the mesh has some skinning, let's create needed buffers for HW skinning
+                    // creating empty buffers for HW skinning
+                    // the buffers will be set up if ever used.
+                    VertexBuffer weightsHW = new VertexBuffer(VertexBuffer.Type.HWBoneWeight);
+                    VertexBuffer indicesHW = new VertexBuffer(VertexBuffer.Type.HWBoneIndex);
+                    // setting usage to cpuOnly so that the buffer is not sent empty to the GPU
+                    indicesHW.setUsage(VertexBuffer.Usage.CpuOnly);
+                    weightsHW.setUsage(VertexBuffer.Usage.CpuOnly);
+                    mesh.setBuffer(weightsHW);
+                    mesh.setBuffer(indicesHW);
+                    mesh.generateBindPose();
+                }
+
+                // Read morph target names
+                LinkedList<String> targetNames = new LinkedList<>();
+                if (meshData.has("extras") && meshData.getAsJsonObject("extras").has("targetNames")) {
+                    JsonArray targetNamesJson = meshData.getAsJsonObject("extras").getAsJsonArray("targetNames");
+                    for (JsonElement target : targetNamesJson) {
+                        targetNames.add(target.getAsString());
+                    }
+                }
+
+                // Read morph targets
+                JsonArray targets = meshObject.getAsJsonArray("targets");
+                if (targets != null) {
+                    for (JsonElement target : targets) {
+                        MorphTarget morphTarget = new MorphTarget();
+                        if (targetNames.size() > 0) {
+                            morphTarget.setName(targetNames.pop());
+                        }
+                        for (Map.Entry<String, JsonElement> entry : target.getAsJsonObject().entrySet()) {
+                            String bufferType = entry.getKey();
+                            VertexBuffer.Type type = getVertexBufferType(bufferType);
+                            VertexBuffer vb = readAccessorData(entry.getValue().getAsInt(),
+                                    new VertexBufferPopulator(type));
+                            if (vb != null) {
+                                morphTarget.setBuffer(type, (FloatBuffer) vb.getData());
+                            }
+                        }
+                        mesh.addMorphTarget(morphTarget);
+                    }
+                }
+
+                // Read mesh extras
+                mesh = customContentManager.readExtensionAndExtras("primitive", meshObject, mesh);
+                Geometry geom = new Geometry(null, mesh);
+
+                Integer materialIndex = getAsInteger(meshObject, "material");
+                if (materialIndex == null) {
+                    geom.setMaterial(defaultMat);
+                } else {
+                    useNormalsFlag = false;
+                    geom.setMaterial(readMaterial(materialIndex));
+                    if (geom.getMaterial().getAdditionalRenderState().getBlendMode()
+                            == RenderState.BlendMode.Alpha) {
+                        // Alpha blending is enabled for this material. Let's place the geom in the transparent bucket.
+                        geom.setQueueBucket(RenderQueue.Bucket.Transparent);
+                    }
+                    if (useNormalsFlag && mesh.getBuffer(VertexBuffer.Type.Tangent) == null) {
+                        // No tangent buffer, but there is a normal map, we have to generate them using MikktSpace
+                        MikktspaceTangentGenerator.generate(geom);
+                    }
+                }
+
+                geom.setName(name + "_" + index);
+                
+                geom.updateModelBound();
+                geomArray[index] = geom;
+                index++;
             }
 
-            // Read mesh extras
-            mesh = customContentManager.readExtensionAndExtras("primitive", meshObject, mesh);
-            Geometry geom = new Geometry(null, mesh);
+            geomArray = customContentManager.readExtensionAndExtras("mesh", meshData, geomArray);
 
-            Integer materialIndex = getAsInteger(meshObject, "material");
-            if (materialIndex == null) {
-                geom.setMaterial(defaultMat);
-            } else {
-                useNormalsFlag = false;
-                geom.setMaterial(readMaterial(materialIndex));
-                if (geom.getMaterial().getAdditionalRenderState().getBlendMode()
-                        == RenderState.BlendMode.Alpha) {
-                    // Alpha blending is enabled for this material. Let's place the geom in the transparent bucket.
-                    geom.setQueueBucket(RenderQueue.Bucket.Transparent);
-                }
-                if (useNormalsFlag && mesh.getBuffer(VertexBuffer.Type.Tangent) == null) {
-                    // No tangent buffer, but there is a normal map, we have to generate them using MikktSpace
-                    MikktspaceTangentGenerator.generate(geom);
-                }
-            }
-
-            geom.setName(name + "_" + index);
-            
-            geom.updateModelBound();
-            geomArray[index] = geom;
-            index++;
+            addToCache("meshes", meshIndex, geomArray, meshes.size());
         }
-
-        geomArray = customContentManager.readExtensionAndExtras("mesh", meshData, geomArray);
-
-        addToCache("meshes", meshIndex, geomArray, meshes.size());
-        return geomArray;
+        // cloning the geoms.
+        Geometry[] geoms = new Geometry[geomArray.length];
+        for (int i = 0; i < geoms.length; i++) {
+            geoms[i] = geomArray[i].clone(false);
+        }
+        return geoms;
     }
 
     private SkinBuffers getSkinBuffers(String bufferType) {
