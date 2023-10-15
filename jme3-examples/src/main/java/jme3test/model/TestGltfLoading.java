@@ -31,6 +31,7 @@
  */
 package jme3test.model;
 
+import com.jme3.anim.AnimClip;
 import com.jme3.anim.AnimComposer;
 import com.jme3.anim.SkinningControl;
 import com.jme3.app.*;
@@ -151,11 +152,8 @@ public class TestGltfLoading extends SimpleApplication {
 
 //        loadModel("Models/gltf/Corset/glTF/Corset.gltf", new Vector3f(0, -1, 0), 20f);
 //        loadModel("Models/gltf/BoxInterleaved/glTF/BoxInterleaved.gltf", new Vector3f(0, 0, 0), 1f);
-
-
+        
         probeNode.attachChild(assets.get(0));
-
-        // setMorphTarget(morphIndex);
 
         ChaseCameraAppState chaseCam = new ChaseCameraAppState();
         chaseCam.setTarget(probeNode);
