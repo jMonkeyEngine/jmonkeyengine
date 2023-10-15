@@ -1337,32 +1337,33 @@ public final class GLRenderer implements Renderer {
         switch (uniform.getVarType()) {
             case Float:
                 Float f = (Float) uniform.getValue();
-                assert isValidNumber(f) : "Invalid float value " + f;
+                assert isValidNumber(f) : "Invalid float value " + f + " for " + uniform.getBinding();
                 gl.glUniform1f(loc, f.floatValue());
                 break;
             case Vector2:
                 Vector2f v2 = (Vector2f) uniform.getValue();
-                assert isValidNumber(v2) : "Invalid Vector2f value " + v2;
+                assert isValidNumber(v2) : "Invalid Vector2f value " + v2 + " for " + uniform.getBinding();
                 gl.glUniform2f(loc, v2.getX(), v2.getY());
                 break;
             case Vector3:
                 Vector3f v3 = (Vector3f) uniform.getValue();
-                assert isValidNumber(v3) : "Invalid Vector3f value " + v3;
+                assert isValidNumber(v3) : "Invalid Vector3f value " + v3 + " for " + uniform.getBinding();
                 gl.glUniform3f(loc, v3.getX(), v3.getY(), v3.getZ());
                 break;
             case Vector4:
                 Object val = uniform.getValue();
                 if (val instanceof ColorRGBA) {
                     ColorRGBA c = (ColorRGBA) val;
-                    assert isValidNumber(c) : "Invalid ColorRGBA value " + c;
+                    assert isValidNumber(c) : "Invalid ColorRGBA value " + c + " for " + uniform.getBinding();
                     gl.glUniform4f(loc, c.r, c.g, c.b, c.a);
                 } else if (val instanceof Vector4f) {
                     Vector4f c = (Vector4f) val;
-                    assert isValidNumber(c) : "Invalid Vector4f value " + c;
+                    assert isValidNumber(c) : "Invalid Vector4f value " + c + " for " + uniform.getBinding();
                     gl.glUniform4f(loc, c.x, c.y, c.z, c.w);
                 } else {
                     Quaternion c = (Quaternion) uniform.getValue();
-                    assert isValidNumber(c) : "Invalid Quaternion value " + c;
+                    assert isValidNumber(c) : "Invalid Quaternion value " + c + " for "
+                            + uniform.getBinding();
                     gl.glUniform4f(loc, c.getX(), c.getY(), c.getZ(), c.getW());
                 }
                 break;
@@ -1372,13 +1373,15 @@ public final class GLRenderer implements Renderer {
                 break;
             case Matrix3:
                 fb = uniform.getMultiData();
-                assert isValidNumber(fb) : "Invalid Matrix3f value " + uniform.getValue();
+                assert isValidNumber(fb) : "Invalid Matrix3f value " + uniform.getValue() + " for "
+                        + uniform.getBinding();
                 assert fb.remaining() == 9;
                 gl.glUniformMatrix3(loc, false, fb);
                 break;
             case Matrix4:
                 fb = uniform.getMultiData();
-                assert isValidNumber(fb) : "Invalid Matrix4f value " + uniform.getValue();
+                assert isValidNumber(fb) : "Invalid Matrix4f value " + uniform.getValue() + " for "
+                        + uniform.getBinding();
                 assert fb.remaining() == 16;
                 gl.glUniformMatrix4(loc, false, fb);
                 break;
@@ -1388,27 +1391,36 @@ public final class GLRenderer implements Renderer {
                 break;
             case FloatArray:
                 fb = uniform.getMultiData();
-                assert isValidNumber(fb) : "Invalid float array value " + Arrays.asList((float[]) uniform.getValue());
+                assert isValidNumber(fb) : "Invalid float array value "
+                        + Arrays.asList((float[]) uniform.getValue()) + " for " + uniform.getBinding();
                 gl.glUniform1(loc, fb);
                 break;
             case Vector2Array:
                 fb = uniform.getMultiData();
-                assert isValidNumber(fb) : "Invalid Vector2f array value " + Arrays.deepToString((Vector2f[]) uniform.getValue());
+                assert isValidNumber(fb) : "Invalid Vector2f array value "
+                        + Arrays.deepToString((Vector2f[]) uniform.getValue()) + " for "
+                        + uniform.getBinding();
                 gl.glUniform2(loc, fb);
                 break;
             case Vector3Array:
                 fb = uniform.getMultiData();
-                assert isValidNumber(fb) : "Invalid Vector3f array value " + Arrays.deepToString((Vector3f[]) uniform.getValue());
+                assert isValidNumber(fb) : "Invalid Vector3f array value "
+                        + Arrays.deepToString((Vector3f[]) uniform.getValue()) + " for "
+                        + uniform.getBinding();
                 gl.glUniform3(loc, fb);
                 break;
             case Vector4Array:
                 fb = uniform.getMultiData();
-                assert isValidNumber(fb) : "Invalid Vector4f array value " + Arrays.deepToString((Vector4f[]) uniform.getValue());
+                assert isValidNumber(fb) : "Invalid Vector4f array value "
+                        + Arrays.deepToString((Vector4f[]) uniform.getValue()) + " for "
+                        + uniform.getBinding();
                 gl.glUniform4(loc, fb);
                 break;
             case Matrix4Array:
                 fb = uniform.getMultiData();
-                assert isValidNumber(fb) : "Invalid Matrix4f array value " + Arrays.deepToString((Matrix4f[]) uniform.getValue());
+                assert isValidNumber(fb) : "Invalid Matrix4f array value "
+                        + Arrays.deepToString((Matrix4f[]) uniform.getValue()) + " for "
+                        + uniform.getBinding();
                 gl.glUniformMatrix4(loc, false, fb);
                 break;
             case Int:
@@ -1416,7 +1428,8 @@ public final class GLRenderer implements Renderer {
                 gl.glUniform1i(loc, i.intValue());
                 break;
             default:
-                throw new UnsupportedOperationException("Unsupported uniform type: " + uniform.getVarType());
+                throw new UnsupportedOperationException(
+                        "Unsupported uniform type: " + uniform.getVarType() + " for " + uniform.getBinding());
         }
     }
 
