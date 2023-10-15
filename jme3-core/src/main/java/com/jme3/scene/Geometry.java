@@ -144,13 +144,7 @@ public class Geometry extends Spatial {
      * @param material The material for this geometry
      */
     public Geometry(String name, Mesh mesh, Material material) {
-        this(name);
-
-        if (mesh == null) {
-            throw new IllegalArgumentException("mesh cannot be null");
-        }
-
-        this.mesh = mesh;
+        this(name, mesh);
         setMaterial(material);
     }
 
