@@ -250,18 +250,16 @@ public class GltfLoader implements AssetLoader {
             // can split meshes in primitives (some kind of sub meshes),
             // We don't have this in JME, so we have to make one Mesh and one Geometry for each primitive.
             Geometry[] primitives = readMeshPrimitives(meshIndex);
-            if (primitives.length == 1 && children == null) {
-                // only one geometry, let's not wrap it in another node unless the node has children.
-                spatial = primitives[0];
-            } else {
-                // several geometries, let's make a parent Node and attach them to it
-                Node node = new Node();
-                for (Geometry primitive : primitives) {
-                    node.attachChild(primitive);
-                }
-                spatial = node;
+
+            Node node = new Node();
+            for (Geometry primitive : primitives) {
+                node.attachChild(primitive);
             }
-            spatial.setName(readMeshName(meshIndex));
+
+            node.setName(readMeshName(meshIndex));
+            
+            spatial = new Node();
+            ((Node)spatial).attachChild(node);
 
         } else {
             // no mesh, we have a node. Can be a camera node or a regular node.
@@ -485,10 +483,8 @@ public class GltfLoader implements AssetLoader {
                 }
             }
 
-            if (name != null) {
-                geom.setName(name + (primitives.size() > 1 ? ("_" + index) : ""));
-            }
-
+            geom.setName(name + "_" + index);
+            
             geom.updateModelBound();
             geomArray[index] = geom;
             index++;
