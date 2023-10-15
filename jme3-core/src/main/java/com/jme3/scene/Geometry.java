@@ -136,6 +136,24 @@ public class Geometry extends Spatial {
         this.mesh = mesh;
     }
 
+    /**
+     * Create a geometry node with mesh data and material.
+     *
+     * @param name The name of this geometry
+     * @param mesh The mesh data for this geometry
+     * @param material The material for this geometry
+     */
+    public Geometry(String name, Mesh mesh, Material material) {
+        this(name);
+
+        if (mesh == null) {
+            throw new IllegalArgumentException("mesh cannot be null");
+        }
+
+        this.mesh = mesh;
+        setMaterial(material);
+    }
+
     @Override
     public boolean checkCulling(Camera cam) {
         if (isGrouped()) {
