@@ -385,6 +385,8 @@ public class GltfLoader implements AssetLoader {
                 JsonObject attributes = meshObject.getAsJsonObject("attributes");
                 assertNotNull(attributes, "No attributes defined for mesh " + mesh);
 
+                boolean useVertexColors = false;
+
                 skinBuffers.clear();
 
                 for (Map.Entry<String, JsonElement> entry : attributes.entrySet()) {
@@ -407,6 +409,10 @@ public class GltfLoader implements AssetLoader {
                         if (vb != null) {
                             mesh.setBuffer(vb);
                         }
+                    }
+                    // if the color buffer is used, we will need to enable vertex colors on the material
+                    if (bufferType.startsWith("COLOR")) {
+                        useVertexColors = true;
                     }
                 }
                 handleSkinningBuffers(mesh, skinBuffers);
@@ -474,6 +480,10 @@ public class GltfLoader implements AssetLoader {
                         // No tangent buffer, but there is a normal map, we have to generate them using MikktSpace
                         MikktspaceTangentGenerator.generate(geom);
                     }
+                }
+
+                if (useVertexColors) {
+                    geom.getMaterial().setBoolean("UseVertexColor", useVertexColors);
                 }
 
                 geom.setName(name + "_" + index);

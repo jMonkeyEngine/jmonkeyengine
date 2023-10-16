@@ -1,0 +1,75 @@
+{
+    "accessors" : [ {
+      "bufferView" : 0,
+      "byteOffset" : 0,
+      "componentType" : 5123,
+      "count" : 36,
+      "type" : "SCALAR",
+      "max" : [ 23 ],
+      "min" : [ 0 ]
+    }, {
+      "bufferView" : 1,
+      "byteOffset" : 0,
+      "componentType" : 5126,
+      "count" : 24,
+      "type" : "VEC3",
+      "max" : [ 1.0, 1.0, 1.0 ],
+      "min" : [ 0.0, 0.0, 0.0 ]
+    }, {
+      "bufferView" : 1,
+      "byteOffset" : 288,
+      "componentType" : 5126,
+      "count" : 24,
+      "type" : "VEC3",
+      "max" : [ 1.0, 1.0, 1.0 ],
+      "min" : [ -1.0, -1.0, -1.0 ]
+    }, {
+      "bufferView" : 1,
+      "byteOffset" : 576,
+      "componentType" : 5126,
+      "count" : 24,
+      "type" : "VEC3",
+      "max" : [ 1.0, 1.0, 1.0 ],
+      "min" : [ 0.0, 0.0, 0.0 ]
+    } ],
+    "asset" : {
+      "generator" : "JglTF from https://github.com/javagl/JglTF",
+      "version" : "2.0"
+    },
+    "buffers" : [ {
+      "uri" : "buffer.bin",
+      "byteLength" : 936
+    } ],
+    "bufferViews" : [ {
+      "name" : "indices bufferView",
+      "buffer" : 0,
+      "byteOffset" : 0,
+      "byteLength" : 72,
+      "target" : 34963
+    }, {
+      "name" : "attributes bufferView",
+      "buffer" : 0,
+      "byteOffset" : 72,
+      "byteLength" : 864,
+      "byteStride" : 12,
+      "target" : 34962
+    } ],
+    "meshes" : [ {
+      "primitives" : [ {
+        "attributes" : {
+          "POSITION" : 1,
+          "NORMAL" : 2,
+          "COLOR_0" : 3
+        },
+        "indices" : 0,
+        "mode" : 4
+      } ]
+    } ],
+    "nodes" : [ {
+      "mesh" : 0
+    } ],
+    "scene" : 0,
+    "scenes" : [ {
+      "nodes" : [ 0 ]
+    } ]
+  }
