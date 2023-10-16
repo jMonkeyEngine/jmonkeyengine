@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -422,11 +422,6 @@ public class TechniqueDef implements Savable, Cloneable {
     public void addShaderParamDefine(String paramName, VarType paramType, String defineName) {
         int defineId = defineNames.size();
 
-        if (defineId >= DefineList.MAX_DEFINES) {
-            throw new IllegalStateException("Cannot have more than " +
-                    DefineList.MAX_DEFINES + " defines on a technique.");
-        }
-
         paramToDefineId.put(paramName, defineId);
         defineNames.add(defineName);
         defineTypes.add(paramType);
@@ -444,11 +439,6 @@ public class TechniqueDef implements Savable, Cloneable {
      */
     public int addShaderUnmappedDefine(String defineName, VarType defineType) {
         int defineId = defineNames.size();
-
-        if (defineId >= DefineList.MAX_DEFINES) {
-            throw new IllegalStateException("Cannot have more than " +
-                    DefineList.MAX_DEFINES + " defines on a technique.");
-        }
 
         defineNames.add(defineName);
         defineTypes.add(defineType);
