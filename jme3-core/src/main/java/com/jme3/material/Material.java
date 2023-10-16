@@ -892,31 +892,18 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
 
     private void updateRenderState(Geometry geometry, RenderManager renderManager, Renderer renderer, TechniqueDef techniqueDef) {
         if (renderManager.getForcedRenderState() != null) {
-            if (!renderManager.getForcedRenderState().isFaceCullFlippable() || !isNormalsBackward(geometry.getWorldScale())) {
-                renderer.applyRenderState(renderManager.getForcedRenderState());
-            }
-            else {
-                RenderState flipped = renderManager.getForcedRenderState().clone();
-                flipped.flipFaceCull();
-                renderer.applyRenderState(flipped);
-            }
+            mergedRenderState.set(renderManager.getForcedRenderState());
+        } else if (techniqueDef.getRenderState() != null) {
+            // copyMergedTo writes to mergedRenderState
+            techniqueDef.getRenderState().copyMergedTo(additionalState, mergedRenderState);
         } else {
-            if (techniqueDef.getRenderState() != null) {
-                // copyMergedTo writes to mergedRenderState
-                techniqueDef.getRenderState().copyMergedTo(additionalState, mergedRenderState);
-            } else {
-                RenderState.DEFAULT.copyMergedTo(additionalState, mergedRenderState);
-            }
-            // test if the face cull mode should be flipped before render
-            if (!mergedRenderState.isFaceCullFlippable() || !isNormalsBackward(geometry.getWorldScale())) {
-                renderer.applyRenderState(mergedRenderState);
-            }
-            else {
-                RenderState flipped = mergedRenderState.clone();
-                flipped.flipFaceCull();
-                renderer.applyRenderState(flipped);
-            }
+            RenderState.DEFAULT.copyMergedTo(additionalState, mergedRenderState);
         }
+        // test if the face cull mode should be flipped before render
+        if (mergedRenderState.isFaceCullFlippable() && isNormalsBackward(geometry.getWorldScale())) {
+            mergedRenderState.flipFaceCull();
+        }
+        renderer.applyRenderState(mergedRenderState);
     }
     
     /**
