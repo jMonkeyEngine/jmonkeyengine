@@ -576,13 +576,22 @@ public class LodGenerator {
                 numBakedLods++;
             }
         }
-        if (numBakedLods <= lodCount) {
-            VertexBuffer[] bakedLods = new VertexBuffer[numBakedLods];
-            System.arraycopy(lods, 0, bakedLods, 0, numBakedLods);
-            return bakedLods;
-        } else {
-            return lods;
+
+        return cleanBuffer(lods, numBakedLods);
+    }
+
+    private VertexBuffer[] cleanBuffer(VertexBuffer[] lods, int lodLevel) {
+        int index = 0;
+        VertexBuffer[] result = new VertexBuffer[lodLevel];
+
+        for (VertexBuffer lod : lods) {
+            if (lod != null) {
+                result[index] = lod;
+                index++;
+            }
         }
+
+        return result;
     }
 
     /**
