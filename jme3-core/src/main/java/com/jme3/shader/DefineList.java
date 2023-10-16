@@ -32,6 +32,7 @@
 package com.jme3.shader;
 
 import java.util.Arrays;
+import java.util.BitSet;
 import java.util.List;
 
 /**
@@ -41,20 +42,19 @@ import java.util.List;
  */
 public final class DefineList {
 
-    public static final int MAX_DEFINES = 64;
-
-    private long isSet;
+    private final BitSet isSet;    
     private final int[] values;
 
     public DefineList(int numValues) {
-        if (numValues < 0 || numValues > MAX_DEFINES) {
-            throw new IllegalArgumentException("numValues must be between 0 and 64");
+        if (numValues < 0 ) {
+            throw new IllegalArgumentException("numValues must be >= 0");
         }
         values = new int[numValues];
+        isSet = new BitSet(numValues);
     }
 
     private DefineList(DefineList original) {
-        this.isSet = original.isSet;
+        this.isSet = (BitSet) original.isSet.clone();
         this.values = new int[original.values.length];
         System.arraycopy(original.values, 0, values, 0, values.length);
     }
@@ -65,18 +65,19 @@ public final class DefineList {
 
     public boolean isSet(int id) {
         rangeCheck(id);
-        return (isSet & (1L << id)) != 0;
+        
+       return isSet.get(id);
     }
 
     public void unset(int id) {
         rangeCheck(id);
-        isSet &= ~(1L << id);
+        isSet.clear(id);
         values[id] = 0;
     }
 
     public void set(int id, int val) {
         rangeCheck(id);
-        isSet |= (1L << id);
+        isSet.set(id, true);
         values[id] = val;
     }
 
@@ -124,7 +125,7 @@ public final class DefineList {
     }
 
     public void clear() {
-        isSet = 0;
+        isSet.clear();
         Arrays.fill(values, 0);
     }
 
@@ -142,21 +143,30 @@ public final class DefineList {
 
     @Override
     public int hashCode() {
-        return (int) ((isSet >> 32) ^ isSet);
+        return isSet.hashCode();
     }
 
     @Override
-    public boolean equals(Object other) {
-        DefineList o = (DefineList) other;
-        if (isSet == o.isSet) {
-            for (int i = 0; i < values.length; i++) {
-                if (values[i] != o.values[i]) {
-                    return false;
-                }
-            }
+    public boolean equals(Object object) {
+        if(this == object ) {
             return true;
         }
-        return false;
+        if(object ==  null || object.getClass() != getClass()) {
+            return false;
+        }
+        DefineList otherDefineList = (DefineList) object;
+        if(values.length != otherDefineList.values.length){
+            return false;
+        }    
+        if (!isSet.equals(otherDefineList.isSet)) {
+            return false;
+        }            
+        for (int i = 0; i < values.length; i++) {
+            if (values[i] != otherDefineList.values[i]) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public DefineList deepClone() {
