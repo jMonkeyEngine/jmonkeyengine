@@ -194,20 +194,6 @@ void main(){
 
                 vec3 directLighting = diffuseColor.rgb *directDiffuse + directSpecular;
 
-                // Workaround, since it is not possible to modify varying variables
-                //        #ifdef USE_REFLECTION
-                //             // Interpolate light specularity toward reflection color
-                //             // Multiply result by specular map
-                //             specularColor = mix(specularColor * light.y, refColor, refVec.w) * specularColor;
-                //             light.y = 1.0;
-                //        #endif
-                //
-                //        #ifdef COLORRAMP
-                //           diffuseColor.rgb  *= texture2D(m_ColorRamp, vec2(light.x, 0.0)).rgb;
-                //           specularColor.rgb *= texture2D(m_ColorRamp, vec2(light.y, 0.0)).rgb;
-                //           light.xy = vec2(1.0);
-                //        #endif
-
                 gl_FragColor.rgb += directLighting * spotFallOff;
                 #if defined(USE_TEXTURE_PACK_MODE)
                 i++;
