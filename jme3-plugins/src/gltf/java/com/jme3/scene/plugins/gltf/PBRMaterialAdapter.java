@@ -79,7 +79,7 @@ public abstract class PBRMaterialAdapter extends MaterialAdapter {
         }
         if (param.getName().equals("NormalMap")) {
             //Set the normal map type to OpenGl
-            getMaterial().setFloat("NormalType", 1.0f);
+            getMaterial().setFloat("NormalType", -1.0f);
         }
         if (param.getName().equals("LightMap")) {
             //Gltf only supports AO maps (gray scales and only the r channel must be read)
