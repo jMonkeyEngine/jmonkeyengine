@@ -1135,4 +1135,13 @@ final public class FastMath {
     public static float unInterpolateLinear(float value, float min, float max) {
         return (value - min) / (max - min);
     }
+
+    /**
+     * Round n to a multiple of p
+     */
+    public static int toMultipleOf(int n, int p) {
+        return ((n - 1) | (p - 1)) + 1;
+    }
+
+
 }

@@ -42,9 +42,9 @@ import com.jme3.renderer.Statistics;
 import com.jme3.renderer.TextureUnitException;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer;
-import com.jme3.shader.BufferObject;
 import com.jme3.shader.Shader;
 import com.jme3.shader.Shader.ShaderSource;
+import com.jme3.shader.bufferobject.BufferObject;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image;
 import com.jme3.texture.Texture;
@@ -180,9 +180,6 @@ public class NullRenderer implements Renderer {
     }
 
     @Override
-    public void updateBufferData(BufferObject bo) {
-    }
-    @Override
     public void deleteBuffer(VertexBuffer vb) {
     }
 
@@ -297,5 +294,24 @@ public class NullRenderer implements Renderer {
     @Override
     public FrameBuffer getCurrentFrameBuffer() {
         return null;
+    }
+    
+    public void updateShaderStorageBufferObjectData(BufferObject bo) {
+
+    }
+
+    @Override
+    public void updateUniformBufferObjectData(BufferObject bo) {
+
+    }
+
+    @Override
+    public void setShaderStorageBufferObject(int bindingPoint, BufferObject bufferObject) {
+
+    }
+
+    @Override
+    public void setUniformBufferObject(int bindingPoint, BufferObject bufferObject) {
+
     }
 }

@@ -34,6 +34,7 @@ package com.jme3.material.logic;
 import com.jme3.asset.AssetManager;
 import com.jme3.light.*;
 import com.jme3.material.*;
+import com.jme3.material.Material.BindUnits;
 import com.jme3.material.RenderState.BlendMode;
 import com.jme3.math.*;
 import com.jme3.renderer.*;
@@ -262,17 +263,17 @@ public final class SinglePassAndImageBasedLightingLogic extends DefaultTechnique
     }
 
     @Override
-    public void render(RenderManager renderManager, Shader shader, Geometry geometry, LightList lights, int lastTexUnit) {
+    public void render(RenderManager renderManager, Shader shader, Geometry geometry, LightList lights, BindUnits lastBindUnits) {
         int nbRenderedLights = 0;
         Renderer renderer = renderManager.getRenderer();
         int batchSize = renderManager.getSinglePassLightBatchSize();
         if (lights.size() == 0) {
-            updateLightListUniforms(shader, geometry, lights,batchSize, renderManager, 0, lastTexUnit);
+            updateLightListUniforms(shader, geometry, lights, batchSize, renderManager, 0, lastBindUnits.textureUnit);
             renderer.setShader(shader);
             renderMeshFromGeometry(renderer, geometry);
         } else {
             while (nbRenderedLights < lights.size()) {
-                nbRenderedLights = updateLightListUniforms(shader, geometry, lights, batchSize, renderManager, nbRenderedLights, lastTexUnit);
+                nbRenderedLights = updateLightListUniforms(shader, geometry, lights, batchSize, renderManager, nbRenderedLights, lastBindUnits.textureUnit);
                 renderer.setShader(shader);
                 renderMeshFromGeometry(renderer, geometry);
             }

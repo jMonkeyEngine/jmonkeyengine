@@ -33,6 +33,7 @@ package com.jme3.material.logic;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.light.LightList;
+import com.jme3.material.Material.BindUnits;
 import com.jme3.renderer.Caps;
 import com.jme3.renderer.RenderManager;
 import com.jme3.scene.Geometry;
@@ -92,5 +93,5 @@ public interface TechniqueDefLogic {
      * @param lights Lights which influence the geometry.
      * @param lastTexUnit the index of the most recently used texture unit
      */
-    public void render(RenderManager renderManager, Shader shader, Geometry geometry, LightList lights, int lastTexUnit);
+    public void render(RenderManager renderManager, Shader shader, Geometry geometry, LightList lights, BindUnits lastBindUnits);
 }
