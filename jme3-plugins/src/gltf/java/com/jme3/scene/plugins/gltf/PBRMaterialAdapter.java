@@ -78,8 +78,10 @@ public abstract class PBRMaterialAdapter extends MaterialAdapter {
             return null;
         }
         if (param.getName().equals("NormalMap")) {
-            //Set the normal map type to OpenGl
-            getMaterial().setFloat("NormalType", 1.0f);
+            // This is intended to set the normal type to OpenGL (1.0),
+            // however, gltf seems to want the normal type for DirectX (-1.0),
+            // even though gltf follows the OpenGL convention.
+            getMaterial().setFloat("NormalType", -1.0f);
         }
         if (param.getName().equals("LightMap")) {
             //Gltf only supports AO maps (gray scales and only the r channel must be read)
