@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,32 +29,35 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.export;
+package com.jme3.scene.plugins.gltf;
+
+import com.jme3.asset.AssetKey;
+import com.jme3.plugins.json.JsonElement;
+import java.io.IOException;
 
 /**
- * Specifies the version of the format for jME3 object (j3o) files.
- *
- * @author Kirill Vainer
+ * Extension loader for "KHR_materials_emissive_strength".
+ * 
+ * @author codex
  */
-public final class FormatVersion {
+public class PBREmissiveStrengthExtensionLoader implements ExtensionLoader {
     
-    /**
-     * Version number of the format.
-     * <p>
-     * Changes for each version:
-     * <ol>
-     *   <li>Undocumented
-     *   <li>Undocumented
-     *   <li>XML prefixes "jme-" to all key names
-     * </ol>
-     */
-    public static final int VERSION = 3;
-
-    /**
-     * Signature of the format: currently, "JME3" as ASCII.
-     */
-    public static final int SIGNATURE = 0x4A4D4533;
-
-    private FormatVersion() {
+    private PBREmissiveStrengthMaterialAdapter materialAdapter = new PBREmissiveStrengthMaterialAdapter();
+    
+    @Override
+    public Object handleExtension(GltfLoader loader, String parentName, JsonElement parent, JsonElement extension, Object input) throws IOException {
+        MaterialAdapter adapter = materialAdapter;
+        AssetKey key = loader.getInfo().getKey();
+        //check for a custom adapter for emissive strength
+        if (key instanceof GltfModelKey) {
+            MaterialAdapter custom = ((GltfModelKey)key).getAdapterForMaterial("pbrEmissiveStrength");
+            if (custom != null) {
+                adapter = custom;
+            }
+        }        
+        adapter.init(loader.getInfo().getManager());
+        adapter.setParam("emissiveStrength", GltfUtils.getAsFloat(extension.getAsJsonObject(), "emissiveStrength"));
+        return adapter;
     }
+    
 }

@@ -522,6 +522,11 @@ public class ShadowUtil {
         }
         casterCount = occExt.casterCount;
 
+        if (casterCount == 0) {
+            vars.release();
+            return;
+        }
+
         //Nehon 08/18/2010 this is to avoid shadow bleeding when the ground is set to only receive shadows
         if (casterCount != receiverCount) {
             casterBB.setXExtent(casterBB.getXExtent() + 2.0f);

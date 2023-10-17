@@ -37,6 +37,7 @@ import com.jme3.bounding.BoundingSphere;
 import com.jme3.material.Material;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
+import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Sphere;
@@ -194,6 +195,7 @@ public class SkyFactory {
         sky.setQueueBucket(Bucket.Sky);
         sky.setCullHint(Spatial.CullHint.Never);
         sky.setModelBound(new BoundingSphere(Float.POSITIVE_INFINITY, Vector3f.ZERO));
+        sky.setShadowMode(ShadowMode.Off);
 
         Material skyMat;
         switch (envMapType) {

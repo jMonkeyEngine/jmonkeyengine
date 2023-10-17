@@ -12,7 +12,7 @@ void main(){
     vec4 modelSpacePos = vec4(inPosition, 1.0);
 
    #ifdef NUM_MORPH_TARGETS
-           Morph_Compute(modelSpacePos, modelSpaceNorm);
+           Morph_Compute(modelSpacePos);
    #endif
 
    #ifdef NUM_BONES

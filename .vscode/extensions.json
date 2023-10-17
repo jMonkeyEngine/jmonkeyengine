@@ -1,0 +1,6 @@
+{
+	"recommendations": [
+                "vscjava.vscode-java-pack",
+                "slevesque.shader"
+	]
+}
