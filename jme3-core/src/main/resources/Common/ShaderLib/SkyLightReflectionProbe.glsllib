@@ -15,7 +15,7 @@ uniform samplerCube g_ReflectionEnvMap3;
 uniform vec3 g_ShCoeffs3[9];
 uniform mat4 g_SkyLightData3;
 #endif
-vec3 renderSkyLightAndReflectionProbes(in vec3 viewDir, in vec3 wPosition, in vec3 normal, in vec3 norm, in float Roughness, in vec3 diffuseColor, in vec3 specularColor, in float ndotv, in vec3 ao){
+vec3 renderSkyLightAndReflectionProbes(in float indoorSunLightExposure, in vec3 viewDir, in vec3 wPosition, in vec3 normal, in vec3 norm, in float Roughness, in vec3 diffuseColor, in vec3 specularColor, in float ndotv, in vec3 ao){
     vec3 result = vec3(0);
     vec4 difColor = vec4(diffuseColor, 1.0f);
     vec4 specColor = vec4(specularColor, 1.0f);
@@ -62,6 +62,9 @@ vec3 renderSkyLightAndReflectionProbes(in vec3 viewDir, in vec3 wPosition, in ve
             color2.rgb *= g_AmbientLightColor.rgb;
             color3.rgb *= g_AmbientLightColor.rgb;
         #endif
+        color1.rgb *= indoorSunLightExposure;
+        color2.rgb *= indoorSunLightExposure;
+        color3.rgb *= indoorSunLightExposure;
         result.rgb += color1 * clamp(weight1,0.0,1.0) + color2 * clamp(weight2,0.0,1.0) + color3 * clamp(weight3,0.0,1.0);
 
     #endif

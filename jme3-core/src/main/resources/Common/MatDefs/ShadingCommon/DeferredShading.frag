@@ -136,6 +136,7 @@ void main(){
             vec3 ao = min(fract(buff0.rgb) * 10.0f, vec3(1.0f));
             vec3 fZero = min(fract(buff1.rgb) * 10.0f, vec3(0.5f));
             float Roughness = buff1.a;
+            float indoorSunLightExposure = fract(shadingInfo.a) * 100.0f;
             float alpha = buff0.a;
             vec4 n1n2 = texture2D(Context_InGBuff3, innerTexCoord);
             vec3 normal = octDecode(n1n2.xy);
@@ -202,7 +203,7 @@ void main(){
                 #endif
             }
             // skyLight and reflectionProbe
-            vec3 skyLightAndReflection = renderSkyLightAndReflectionProbes(viewDir, vPos, normal, norm, Roughness, diffuseColor, specularColor, ndotv, ao);
+            vec3 skyLightAndReflection = renderSkyLightAndReflectionProbes(indoorSunLightExposure, viewDir, vPos, normal, norm, Roughness, diffuseColor, specularColor, ndotv, ao);
             gl_FragColor.rgb += skyLightAndReflection;
             gl_FragColor.rgb += emissive;
             gl_FragColor.a = alpha;

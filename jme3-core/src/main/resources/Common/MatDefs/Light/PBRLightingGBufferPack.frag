@@ -233,7 +233,7 @@ void main(){
        ao = aoRoughnessMetallicValue.rrr;
     #endif
 
-    float ndotv = max( dot( normal, viewDir ),0.0);
+    //float ndotv = max( dot( normal, viewDir ),0.0);
 
     #if defined(EMISSIVE) || defined (EMISSIVEMAP)
         #ifdef EMISSIVEMAP
@@ -254,5 +254,5 @@ void main(){
     Context_OutGBuff0.a = alpha;
 
     // shading model id
-    Context_OutGBuff2.a = STANDARD_LIGHTING;
+    Context_OutGBuff2.a = STANDARD_LIGHTING + 0.01f;
 }
