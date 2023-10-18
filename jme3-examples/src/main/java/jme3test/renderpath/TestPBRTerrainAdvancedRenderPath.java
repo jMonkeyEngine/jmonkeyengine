@@ -29,7 +29,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package jme3test.terrain;
+package jme3test.renderpath;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.asset.TextureKey;
@@ -53,6 +53,7 @@ import com.jme3.texture.Image;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
 import com.jme3.texture.TextureArray;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -117,9 +118,9 @@ import java.util.List;
  * </li>
  * </ol>
  *
- * @author yaRnMcDonuts
+ * @author yaRnMcDonuts,johnKkk
  */
-public class PBRTerrainAdvancedTest extends SimpleApplication {
+public class TestPBRTerrainAdvancedRenderPath extends SimpleApplication {
 
     private TerrainQuad terrain;
     private Material matTerrain;
@@ -150,7 +151,7 @@ public class PBRTerrainAdvancedTest extends SimpleApplication {
     private final float camMoveSpeed = 50f;
 
     public static void main(String[] args) {
-        PBRTerrainAdvancedTest app = new PBRTerrainAdvancedTest();
+        TestPBRTerrainAdvancedRenderPath app = new TestPBRTerrainAdvancedRenderPath();
         app.start();
     }
 
@@ -355,6 +356,7 @@ public class PBRTerrainAdvancedTest extends SimpleApplication {
         // so setting an emissiveColor will apply equal intensity to every pixel
 
         terrain.setMaterial(matTerrain);
+        new RenderPathHelper(this, new Vector3f(0, cam.getHeight() / 2, 0), KeyInput.KEY_K, "K");
     }
 
     private void setupKeys() {
