@@ -317,6 +317,97 @@ MaterialDef PBR Terrain {
         }
     }
 
+    Technique GBufferPass{
+
+        Pipeline Deferred
+
+        VertexShader    GLSL300 GLSL150 GLSL130 GLSL100:   Common/MatDefs/Terrain/PBRTerrain.vert
+        FragmentShader  GLSL300 GLSL150 GLSL130 GLSL100: Common/MatDefs/Terrain/GBufferPack/PBRTerrainGBufferPack.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+            CameraPosition
+            WorldMatrix
+            WorldNormalMatrix
+            ViewProjectionMatrix
+            ViewMatrix
+            Time
+
+        }
+
+        Defines {
+            BOUND_DRAW_BUFFER: BoundDrawBuffer
+
+            TILELOCATION : TileLocation
+            AFFLICTIONTEXTURE : AfflictionAlphaMap
+
+            AFFLICTIONALBEDOMAP: SplatAlbedoMap
+            AFFLICTIONNORMALMAP : SplatNormalMap
+            AFFLICTIONROUGHNESSMETALLICMAP : SplatRoughnessMetallicMap
+            AFFLICTIONEMISSIVEMAP : SplatEmissiveMap
+
+            USE_SPLAT_NOISE : SplatNoiseVar
+
+
+            USE_VERTEX_COLORS_AS_SUN_INTENSITY : UseVertexColorsAsSunIntensity
+            STATIC_SUN_INTENSITY : StaticSunIntensity
+            BRIGHTEN_INDOOR_SHADOWS : BrightenIndoorShadows
+
+            DISCARD_ALPHA : AlphaDiscardThreshold
+
+            USE_FOG : UseFog
+            FOG_LINEAR : LinearFog
+            FOG_EXP : ExpFog
+            FOG_EXPSQ : ExpSqFog
+
+            TRI_PLANAR_MAPPING : useTriPlanarMapping
+
+            ALBEDOMAP_0 : AlbedoMap_0
+            ALBEDOMAP_1 : AlbedoMap_1
+            ALBEDOMAP_2 : AlbedoMap_2
+            ALBEDOMAP_3 : AlbedoMap_3
+            ALBEDOMAP_4 : AlbedoMap_4
+            ALBEDOMAP_5 : AlbedoMap_5
+            ALBEDOMAP_6 : AlbedoMap_6
+            ALBEDOMAP_7 : AlbedoMap_7
+            ALBEDOMAP_8 : AlbedoMap_8
+            ALBEDOMAP_9 : AlbedoMap_9
+            ALBEDOMAP_10 : AlbedoMap_10
+            ALBEDOMAP_11 : AlbedoMap_11
+
+            NORMALMAP_0 : NormalMap_0
+            NORMALMAP_1 : NormalMap_1
+            NORMALMAP_2 : NormalMap_2
+            NORMALMAP_3 : NormalMap_3
+            NORMALMAP_4 : NormalMap_4
+            NORMALMAP_5 : NormalMap_5
+            NORMALMAP_6 : NormalMap_6
+            NORMALMAP_7 : NormalMap_7
+            NORMALMAP_8 : NormalMap_8
+            NORMALMAP_9 : NormalMap_9
+            NORMALMAP_10 : NormalMap_10
+            NORMALMAP_11 : NormalMap_11
+
+            ALPHAMAP : AlphaMap
+            ALPHAMAP_1 : AlphaMap_1
+            ALPHAMAP_2 : AlphaMap_2
+            ALBEDOMAP_0_SCALE : AlbedoMap_0_scale
+            ALBEDOMAP_1_SCALE : AlbedoMap_1_scale
+            ALBEDOMAP_2_SCALE : AlbedoMap_2_scale
+            ALBEDOMAP_3_SCALE : AlbedoMap_3_scale
+            ALBEDOMAP_4_SCALE : AlbedoMap_4_scale
+            ALBEDOMAP_5_SCALE : AlbedoMap_5_scale
+            ALBEDOMAP_6_SCALE : AlbedoMap_6_scale
+            ALBEDOMAP_7_SCALE : AlbedoMap_7_scale
+            ALBEDOMAP_8_SCALE : AlbedoMap_8_scale
+            ALBEDOMAP_9_SCALE : AlbedoMap_9_scale
+            ALBEDOMAP_10_SCALE : AlbedoMap_10_scale
+            ALBEDOMAP_11_SCALE : AlbedoMap_11_scale
+
+            DEBUG_VALUES_MODE : DebugValuesMode
+
+        }
+    }
 
     Technique PreShadow {
 
