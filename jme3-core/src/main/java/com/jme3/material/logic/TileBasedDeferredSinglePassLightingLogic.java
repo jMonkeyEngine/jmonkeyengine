@@ -1,3 +1,34 @@
+/*
+ * Copyright (c) 2009-2023 jMonkeyEngine
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ * * Redistributions of source code must retain the above copyright
+ *   notice, this list of conditions and the following disclaimer.
+ *
+ * * Redistributions in binary form must reproduce the above copyright
+ *   notice, this list of conditions and the following disclaimer in the
+ *   documentation and/or other materials provided with the distribution.
+ *
+ * * Neither the name of 'jMonkeyEngine' nor the names of its contributors
+ *   may be used to endorse or promote products derived from this software
+ *   without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package com.jme3.material.logic;
 
 import com.jme3.asset.AssetManager;
@@ -126,6 +157,8 @@ public class TileBasedDeferredSinglePassLightingLogic extends DefaultTechniqueDe
 
     /**
      * TileInfo
+     * <p>This is a structure representing Tile information, including how many tiles the screen is divided into, how many tiles in horizontal and vertical directions, the size of each tile, etc.</p>
+     * @author JohnKkk
      */
     public static class TileInfo{
         int tileSize = 0;
@@ -147,6 +180,8 @@ public class TileBasedDeferredSinglePassLightingLogic extends DefaultTechniqueDe
 
     /**
      * LightFrustum
+     * <p>This is an internal helper class to determine the on-screen Rect for the current PointLight. It's called Frustum because it may be expanded to 3D Cluster in space in the future.</p>
+     * @author JohnKkk
      */
     private static class LightFrustum{
         float left;
@@ -162,6 +197,9 @@ public class TileBasedDeferredSinglePassLightingLogic extends DefaultTechniqueDe
         }
     }
 
+    /**
+     * Clear the lightsIndex cache texture for rebuilding.
+     */
     private void cleanupLightsIndexTexture(){
         if(lightsIndexData != null){
             lightsIndexData.getImage().dispose();
@@ -169,6 +207,11 @@ public class TileBasedDeferredSinglePassLightingLogic extends DefaultTechniqueDe
         }
     }
 
+    /**
+     * Rebuild the lightsIndex cache texture.
+     * <p>The square root of the total number of lights that need to be queried. Note that the total number of lights to be queried is different from the total number of visible lights in the current view frustum. One tile may contain 100 lights, another tile may also contain 100 lights, then the total lights to query is 200, while the total lights in the current view frustum may only be 100!</p>
+     * @param lightIndexWidth
+     */
     private void createLightsIndexTexture(int lightIndexWidth){
         this.lightIndexWidth = lightIndexWidth;
         lightsIndexData = new Texture2D(lightIndexWidth, lightIndexWidth, Image.Format.RGBA32F);
@@ -182,6 +225,9 @@ public class TileBasedDeferredSinglePassLightingLogic extends DefaultTechniqueDe
         lightsIndexDataUpdateIO = ImageRaster.create(lightsIndexData.getImage());
     }
 
+    /**
+     * Clear the lightsDecode cache texture for rebuilding.
+     */
     private void cleanupLightsDecodeTexture(){
         if(lightsDecodeData != null){
             lightsDecodeData.getImage().dispose();
@@ -189,14 +235,19 @@ public class TileBasedDeferredSinglePassLightingLogic extends DefaultTechniqueDe
         }
     }
 
+    /**
+     * Clear the lightsIndex and lightsDecode cache texture for rebuilding.
+     */
     private void cleanupTileTexture(){
         cleanupLightsIndexTexture();
         cleanupLightsDecodeTexture();
     }
 
     /**
-     * reset.<br/>
-     * @param tileNum
+     * Reallocate texture memory for the query texture for the specified tile size. This detection is performed every frame to ensure the cache textures lightsDecode and lightsIndex are recreated when screen changes or tiles change dynamically.<br/>
+     * @param tileWidth Number of tiles in horizontal direction
+     * @param tileHeight Number of tiles in vertical direction
+     * @param tileNum tileWidth * tileHeight
      */
     private void reset(int tileWidth, int tileHeight, int tileNum){
         if(tileWidth != _tileWidth || tileHeight != _tileHeight){
@@ -238,6 +289,15 @@ public class TileBasedDeferredSinglePassLightingLogic extends DefaultTechniqueDe
         }
         lightsIndex.clear();
     }
+
+    /**
+     * Some lights affect the whole screen, such as DirectionalLight, PointLight with infinite radius, and SpotLight. These lights will affect all tiles, so they are passed to all tiles in this method.
+     * @param tileWidth
+     * @param tileHeight
+     * @param tileNum
+     * @param tiles
+     * @param lightId
+     */
     private void tilesFullUpdate(int tileWidth, int tileHeight, int tileNum, ArrayList<ArrayList<Integer>> tiles, int lightId){
         // calc tiles
         int tileId = 0;
@@ -251,6 +311,16 @@ public class TileBasedDeferredSinglePassLightingLogic extends DefaultTechniqueDe
         }
     }
 
+    /**
+     * Assigns the given light source to affected tiles based on its screen space view frustum.
+     * @param tileSize
+     * @param tileWidth
+     * @param tileHeight
+     * @param tileNum
+     * @param tiles
+     * @param lightFrustum screen space lightFrustum(rect)
+     * @param lightId targetLightId
+     */
     private void tilesUpdate(int tileSize, int tileWidth, int tileHeight, int tileNum, ArrayList<ArrayList<Integer>> tiles, LightFrustum lightFrustum, int lightId){
         // tile built on
         //⬆
@@ -274,6 +344,14 @@ public class TileBasedDeferredSinglePassLightingLogic extends DefaultTechniqueDe
             }
         }
     }
+
+    /**
+     * Keep the method but don't use it.<br/>
+     * @param camera
+     * @param light
+     * @return
+     */
+    @Deprecated
     private final LightFrustum lightClip(Camera camera, Light light){
         if(light instanceof PointLight){
             PointLight pl = (PointLight)light;
@@ -308,6 +386,11 @@ public class TileBasedDeferredSinglePassLightingLogic extends DefaultTechniqueDe
         return null;
     }
 
+    /**
+     * Find out the view frustum (currently 2D so it's Rect) of the given light source in screen space. Once the screen-space view frustum of the light is determined, it can be assigned to associated tiles so that the tiles can use it for lighting shading.
+     * @param light targetLight
+     * @return Returns the screen space view frustum of the light, used to find associated tiles
+     */
     private final LightFrustum lightClip(Light light){
         // todo:Currently, only point light sources are processed
         if(light instanceof PointLight){
@@ -374,6 +457,19 @@ public class TileBasedDeferredSinglePassLightingLogic extends DefaultTechniqueDe
         return null;
     }
 
+    /**
+     * Encode light information for each tile, which contains two parts:<br/>
+     * 1. The light offset and total number of lights to draw for each tile<br/>
+     * 2. The encoded list of light ids<br/>
+     * This method is called every frame, and the texture is dynamically sized (although jme3's encapsulation of dynamic texture sizes is a bit problematic, so it's currently a fixed-size dynamic texture).
+     * @param tileNum    Total number of tiles
+     * @param tiles      List of light ids for each tile
+     * @param tileWidth  Number of tiles in horizontal direction
+     * @param tileHeight Number of tiles in vertical direction
+     * @param shader     Current shader used for rendering (a global shader)
+     * @param g          Current geometry used for rendering (a rect)
+     * @param lights     Information about all visible lights this frame
+     */
     private void tileLightDecode(int tileNum, ArrayList<ArrayList<Integer>> tiles, int tileWidth, int tileHeight, Shader shader, Geometry g, LightList lights){
         int len = lights.size();
 
@@ -475,7 +571,7 @@ public class TileBasedDeferredSinglePassLightingLogic extends DefaultTechniqueDe
         if(bUseTexturePackMode){
             packNbLightsDefineId = techniqueDef.addShaderUnmappedDefine(DEFINE_PACK_NB_LIGHTS, VarType.Int);
             packTextureModeDefineId = techniqueDef.addShaderUnmappedDefine(DEFINE_USE_TEXTURE_PACK_MODE, VarType.Boolean);
-            prepaLightData(1024);
+            prepareLightData(1024);
         }
         else{
             nbLightsDefineId = techniqueDef.addShaderUnmappedDefine(DEFINE_NB_LIGHTS, VarType.Int);
@@ -495,7 +591,14 @@ public class TileBasedDeferredSinglePassLightingLogic extends DefaultTechniqueDe
         }
     }
 
-    private void prepaLightData(int lightNum){
+    /**
+     * Try reallocating textures to accommodate enough light data.
+     * <p>Currently, a large amount of light information is stored in textures, divided into three texture1d, <br/>
+     * lightData1 stores lightColor (rgb stores lightColor, a stores lightType), lightData2 stores lightPosition + <br/>
+     * invRange/lightDir, lightData3 stores dir and spotAngleCos about SpotLight.</p>
+     * @param lightNum By preallocating texture memory for the known number of lights, dynamic reallocation at runtime can be prevented.
+     */
+    private void prepareLightData(int lightNum){
         this.lightNum = lightNum;
         // 1d texture
         lightData1 = new Texture2D(lightNum, 1, Image.Format.RGBA32F);
@@ -528,19 +631,19 @@ public class TileBasedDeferredSinglePassLightingLogic extends DefaultTechniqueDe
         lightData3.getImage().setMipmapsGenerated(false);
         lightDataUpdateIO3 = ImageRaster.create(lightData3.getImage());
 
-        TempVars vars = TempVars.get();
-        ColorRGBA temp = vars.color;
-        temp.r = temp.g = temp.b = temp.a = 0;
-        // Since the drawing is sent within the loop branch, and actually before the actual glSwapBuffers, the gl commands actually reside at the graphics driver level. So in order to correctly branch within the loop, the size must be fixed here (while filling the number of light sources).
-        ColorRGBA temp2 = vars.color2;
-        for(int curIndex = 0;curIndex < this.lightNum;curIndex++){
-            temp2 = lightDataUpdateIO1.getPixel(curIndex, 0);
-            if(temp2.r == 0 && temp2.g == 0 && temp2.b == 0 && temp2.a == 0)break;
-            lightDataUpdateIO1.setPixel(curIndex, 0, temp);
-            lightDataUpdateIO2.setPixel(curIndex, 0, temp);
-            lightDataUpdateIO3.setPixel(curIndex, 0, temp);
-        }
-        vars.release();
+//        TempVars vars = TempVars.get();
+//        ColorRGBA temp = vars.color;
+//        temp.r = temp.g = temp.b = temp.a = 0;
+//        // Since the drawing is sent within the loop branch, and actually before the actual glSwapBuffers, the gl commands actually reside at the graphics driver level. So in order to correctly branch within the loop, the size must be fixed here (while filling the number of light sources).
+//        ColorRGBA temp2 = vars.color2;
+//        for(int curIndex = 0;curIndex < this.lightNum;curIndex++){
+//            temp2 = lightDataUpdateIO1.getPixel(curIndex, 0);
+//            if(temp2.r == 0 && temp2.g == 0 && temp2.b == 0 && temp2.a == 0)break;
+//            lightDataUpdateIO1.setPixel(curIndex, 0, temp);
+//            lightDataUpdateIO2.setPixel(curIndex, 0, temp);
+//            lightDataUpdateIO3.setPixel(curIndex, 0, temp);
+//        }
+//        vars.release();
     }
 
     @Override
@@ -564,6 +667,27 @@ public class TileBasedDeferredSinglePassLightingLogic extends DefaultTechniqueDe
         return super.makeCurrent(assetManager, renderManager, rendererCaps, lights, defines);
     }
 
+    /**
+     * It seems the lighting information is encoded into 3 1D textures that are updated each frame with the currently visible lights:<br/>
+     * lightData1:<br/>
+     * - rgb stores lightColor<br/>
+     * - a stores lightTypeId<br/>
+     * lightData2:<br/>
+     * - directionalLightDirection<br/>
+     * - pointLightPosition + invRadius<br/>
+     * - spotLightPosition + invRadius<br/>
+     * lightData3:<br/>
+     * - spotLightDirection<br/>
+     * @param shader               Current shader used for rendering (a global shader)
+     * @param g                    Current geometry used for rendering (a rect)
+     * @param lightList            Information about all visible lights this frame
+     * @param numLights            numLights
+     * @param rm                   renderManager
+     * @param startIndex           first light start offset
+     * @param isLightCullStageDraw cullMode
+     * @param lastTexUnit          lastTexUnit the index of the most recently-used texture unit
+     * @return the next starting index in the LightList
+     */
     protected int updateLightListPackToTexture(Shader shader, Geometry g, LightList lightList, int numLights, RenderManager rm, int startIndex, boolean isLightCullStageDraw, int lastTexUnit) {
         if (numLights == 0) { // this shader does not do lighting, ignore.
             return 0;
@@ -675,14 +799,14 @@ public class TileBasedDeferredSinglePassLightingLogic extends DefaultTechniqueDe
         }
         temp.r = temp.g = temp.b = temp.a = 0;
         // Since the drawing is sent within the loop branch, and actually before the actual glSwapBuffers, the gl commands actually reside at the graphics driver level. So in order to correctly branch within the loop, the size must be fixed here (while filling the number of light sources).
-        ColorRGBA temp2 = vars.color2;
-        for(;curIndex < this.lightNum;curIndex++){
-            temp2 = lightDataUpdateIO1.getPixel(curIndex, 0);
-            if(temp2.r == 0 && temp2.g == 0 && temp2.b == 0 && temp2.a == 0)break;
-            lightDataUpdateIO1.setPixel(curIndex, 0, temp);
-            lightDataUpdateIO2.setPixel(curIndex, 0, temp);
-            lightDataUpdateIO3.setPixel(curIndex, 0, temp);
-        }
+//        ColorRGBA temp2 = vars.color2;
+//        for(;curIndex < this.lightNum;curIndex++){
+//            temp2 = lightDataUpdateIO1.getPixel(curIndex, 0);
+//            if(temp2.r == 0 && temp2.g == 0 && temp2.b == 0 && temp2.a == 0)break;
+//            lightDataUpdateIO1.setPixel(curIndex, 0, temp);
+//            lightDataUpdateIO2.setPixel(curIndex, 0, temp);
+//            lightDataUpdateIO3.setPixel(curIndex, 0, temp);
+//        }
         vars.release();
         lightData1.getImage().setUpdateNeeded();
         lightData2.getImage().setUpdateNeeded();
@@ -816,14 +940,15 @@ public class TileBasedDeferredSinglePassLightingLogic extends DefaultTechniqueDe
             isLightCullStageDraw = geometry.getUserData(_S_LIGHT_CULL_DRAW_STAGE);
         }
         if(bUseTexturePackMode){
-            Uniform lightCount = shader.getUniform("g_LightCount");
             if(this.lightNum != renderManager.getCurMaxDeferredShadingLightNum()){
                 cleanupLightData();
-                prepaLightData(renderManager.getCurMaxDeferredShadingLightNum());
+                prepareLightData(renderManager.getCurMaxDeferredShadingLightNum());
             }
             SkyLightAndReflectionProbeRender.extractSkyLightAndReflectionProbes(lights, ambientLightColor, skyLightAndReflectionProbes, true);
             int count = lights.size();
-            lightCount.setValue(VarType.Int, this.lightNum);
+            // FIXME:Setting uniform variables this way will take effect immediately in the current frame, however lightData is set through geometry.getMaterial().setTexture(XXX) which will take effect next frame, so here I changed to use geometry.getMaterial().setParam() uniformly to update all parameters, to keep the frequency consistent.
+//            Uniform lightCount = shader.getUniform("g_LightCount");
+//            lightCount.setValue(VarType.Int, count);
             // Divide lights into full screen lights and non-full screen lights. Currently only PointLights with radius are treated as non-full screen lights.
             // The lights passed in here must be PointLights with valid radii. Another approach is to fill tiles with infinite range Lights.
             if(count > 0){
@@ -873,7 +998,8 @@ public class TileBasedDeferredSinglePassLightingLogic extends DefaultTechniqueDe
                 }
 
                 // Encode light source information
-                lightCount.setValue(VarType.Int, count);
+//                lightCount.setValue(VarType.Int, count);
+//                geometry.getMaterial().setInt("NBLight", count);
                 tileLightDecode(tileNum, tiles, tileWidth, tileHeight, shader, geometry, lights);
                 while (nbRenderedLights < count) {
                     nbRenderedLights = updateLightListPackToTexture(shader, geometry, lights, count, renderManager, nbRenderedLights, isLightCullStageDraw, lastTexUnit);
@@ -882,6 +1008,7 @@ public class TileBasedDeferredSinglePassLightingLogic extends DefaultTechniqueDe
                 }
             }
             else{
+//                geometry.getMaterial().setInt("NBLight", 0);
                 nbRenderedLights = updateLightListPackToTexture(shader, geometry, lights, count, renderManager, nbRenderedLights, isLightCullStageDraw, lastTexUnit);
                 renderer.setShader(shader);
                 renderMeshFromGeometry(renderer, geometry);

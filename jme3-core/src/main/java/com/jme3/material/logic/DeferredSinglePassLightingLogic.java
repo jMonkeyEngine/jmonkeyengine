@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -112,7 +112,7 @@ public final class DeferredSinglePassLightingLogic extends DefaultTechniqueDefLo
         if(bUseTexturePackMode){
             packNbLightsDefineId = techniqueDef.addShaderUnmappedDefine(DEFINE_PACK_NB_LIGHTS, VarType.Int);
             packTextureModeDefineId = techniqueDef.addShaderUnmappedDefine(DEFINE_USE_TEXTURE_PACK_MODE, VarType.Boolean);
-            prepaLightData(1024);
+            prepareLightData(1024);
         }
         else{
             nbLightsDefineId = techniqueDef.addShaderUnmappedDefine(DEFINE_NB_LIGHTS, VarType.Int);
@@ -132,7 +132,7 @@ public final class DeferredSinglePassLightingLogic extends DefaultTechniqueDefLo
         }
     }
 
-    private void prepaLightData(int lightNum){
+    private void prepareLightData(int lightNum){
         this.lightNum = lightNum;
         // 1d texture
         lightData1 = new Texture2D(lightNum, 1, Image.Format.RGBA32F);
@@ -187,6 +187,27 @@ public final class DeferredSinglePassLightingLogic extends DefaultTechniqueDefLo
         return super.makeCurrent(assetManager, renderManager, rendererCaps, lights, defines);
     }
 
+    /**
+     * It seems the lighting information is encoded into 3 1D textures that are updated each frame with the currently visible lights:<br/>
+     * lightData1:<br/>
+     * - rgb stores lightColor<br/>
+     * - a stores lightTypeId<br/>
+     * lightData2:<br/>
+     * - directionalLightDirection<br/>
+     * - pointLightPosition + invRadius<br/>
+     * - spotLightPosition + invRadius<br/>
+     * lightData3:<br/>
+     * - spotLightDirection<br/>
+     * @param shader               Current shader used for rendering (a global shader)
+     * @param g                    Current geometry used for rendering (a rect)
+     * @param lightList            Information about all visible lights this frame
+     * @param numLights            numLights
+     * @param rm                   renderManager
+     * @param startIndex           first light start offset
+     * @param isLightCullStageDraw cullMode
+     * @param lastTexUnit          lastTexUnit the index of the most recently-used texture unit
+     * @return the next starting index in the LightList
+     */
     protected int updateLightListPackToTexture(Shader shader, Geometry g, LightList lightList, int numLights, RenderManager rm, int startIndex, boolean isLightCullStageDraw, int lastTexUnit) {
         if (numLights == 0) { // this shader does not do lighting, ignore.
             return 0;
@@ -298,16 +319,16 @@ public final class DeferredSinglePassLightingLogic extends DefaultTechniqueDefLo
                     throw new UnsupportedOperationException("Unknown type of light: " + l.getType());
             }
         }
-        temp.r = temp.g = temp.b = temp.a = 0;
-        // Since the drawing is sent within the loop branch, and actually before the actual glSwapBuffers, the gl commands actually reside at the graphics driver level. So in order to correctly branch within the loop, the size must be fixed here (while filling the number of light sources).
-        ColorRGBA temp2 = vars.color2;
-        for(;curIndex < this.lightNum;curIndex++){
-            temp2 = lightDataUpdateIO1.getPixel(curIndex, 0);
-            if(temp2.r == 0 && temp2.g == 0 && temp2.b == 0 && temp2.a == 0)break;
-            lightDataUpdateIO1.setPixel(curIndex, 0, temp);
-            lightDataUpdateIO2.setPixel(curIndex, 0, temp);
-            lightDataUpdateIO3.setPixel(curIndex, 0, temp);
-        }
+//        temp.r = temp.g = temp.b = temp.a = 0;
+//        // Since the drawing is sent within the loop branch, and actually before the actual glSwapBuffers, the gl commands actually reside at the graphics driver level. So in order to correctly branch within the loop, the size must be fixed here (while filling the number of light sources).
+//        ColorRGBA temp2 = vars.color2;
+//        for(;curIndex < this.lightNum;curIndex++){
+//            temp2 = lightDataUpdateIO1.getPixel(curIndex, 0);
+//            if(temp2.r == 0 && temp2.g == 0 && temp2.b == 0 && temp2.a == 0)break;
+//            lightDataUpdateIO1.setPixel(curIndex, 0, temp);
+//            lightDataUpdateIO2.setPixel(curIndex, 0, temp);
+//            lightDataUpdateIO3.setPixel(curIndex, 0, temp);
+//        }
         vars.release();
         lightData1.getImage().setUpdateNeeded();
         lightData2.getImage().setUpdateNeeded();
@@ -456,14 +477,16 @@ public final class DeferredSinglePassLightingLogic extends DefaultTechniqueDefLo
         if(bUseTexturePackMode){
             if(this.lightNum != renderManager.getCurMaxDeferredShadingLightNum()){
                 cleanupLightData();
-                prepaLightData(renderManager.getCurMaxDeferredShadingLightNum());
+                prepareLightData(renderManager.getCurMaxDeferredShadingLightNum());
             }
             // todo:Currently, this texturePackMode is only suitable for scenes where there are a large number of light sources per frame. The number of light sources is submitted to the texture all at once, so lightNum can be pre-allocated, but light source information can also be submitted to the texture all at once here, and then drawn in multiple passes (drawing each time by the specified singlePassLightBatchSize)
-            Uniform lightCount = shader.getUniform("g_LightCount");
             SkyLightAndReflectionProbeRender.extractSkyLightAndReflectionProbes(lights, ambientLightColor, skyLightAndReflectionProbes, true);
             int count = lights.size();
+            // FIXME:Setting uniform variables this way will take effect immediately in the current frame, however lightData is set through geometry.getMaterial().setTexture(XXX) which will take effect next frame, so here I changed to use geometry.getMaterial().setParam() uniformly to update all parameters, to keep the frequency consistent.
+//            Uniform lightCount = shader.getUniform("g_LightCount");
 //            lightCount.setValue(VarType.Int, count);
-            lightCount.setValue(VarType.Int, this.lightNum);
+//            lightCount.setValue(VarType.Int, this.lightNum);
+            geometry.getMaterial().setInt("NBLight", count);
             if(count == 0){
                 nbRenderedLights = updateLightListPackToTexture(shader, geometry, lights, count, renderManager, nbRenderedLights, isLightCullStageDraw, lastTexUnit);
                 renderer.setShader(shader);

@@ -1,6 +1,7 @@
 MaterialDef DeferredShading {
 
     MaterialParameters {
+        Int NBLight
         // For instancing
         Boolean UseInstancing
         // UseLightsCull

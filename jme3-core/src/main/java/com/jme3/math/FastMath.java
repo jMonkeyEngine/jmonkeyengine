@@ -844,7 +844,7 @@ final public class FastMath {
     }
 
     /**
-     * Returns a random integer between min and max.
+     * Returns a random float between min and max.
      *
      * @param min the desired minimum value
      * @param max the desired maximum value
@@ -852,7 +852,8 @@ final public class FastMath {
      * <tt>max</tt> (inclusive).
      */
     public static float nextRandomFloat(float min, float max) {
-        return (nextRandomFloat() * (max - min + 1.0f)) + min;
+        float f = (nextRandomFloat() * (max - min + 1.0f)) + min;
+        return Math.min(Math.max(f, min), max);
     }
 
     /**

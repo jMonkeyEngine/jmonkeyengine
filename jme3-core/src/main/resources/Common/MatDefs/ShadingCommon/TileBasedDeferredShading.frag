@@ -20,6 +20,7 @@ varying mat4 viewProjectionMatrixInverse;
 uniform mat4 g_ViewMatrix;
 uniform vec3 g_CameraPosition;
 uniform vec4 g_AmbientLightColor;
+uniform int m_NBLight;
 
 
 
@@ -71,7 +72,7 @@ void main(){
             int lightNum = 0;
             #if defined(USE_TEXTURE_PACK_MODE)
             float lightTexSizeInv = 1.0f / (float(PACK_NB_LIGHTS) - 1.0f);
-            lightNum = g_LightCount;
+            lightNum = m_NBLight;
             #else
             lightNum = NB_LIGHTS;
             #endif
@@ -249,7 +250,7 @@ void main(){
             int lightNum = 0;
             #if defined(USE_TEXTURE_PACK_MODE)
             float lightTexSizeInv = 1.0f / (float(PACK_NB_LIGHTS) - 1.0f);
-            lightNum = g_LightCount;
+            lightNum = m_NBLight;
             #else
             lightNum = NB_LIGHTS;
             #endif
