@@ -72,14 +72,13 @@ import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-
 /**
  * Class with a main method that displays a dialog to choose any jME demo to be
  * started.
  */
 public class TestChooser extends JFrame {
-    private static final Logger logger = Logger.getLogger(TestChooser.class
-            .getName());
+
+    private static final Logger logger = Logger.getLogger(TestChooser.class.getName());
 
     private static final long serialVersionUID = 1L;
 
@@ -105,7 +104,7 @@ public class TestChooser extends JFrame {
     @Override
     public void dispose() {
         if (executorService != null) {
-            executorService.shutdown();
+            executorService.shutdownNow();
         }
 
         super.dispose();
@@ -117,9 +116,7 @@ public class TestChooser extends JFrame {
      * @return classes vector, list of all the classes in a given package (must
      *         be found in classpath).
      */
-    private void find(String packageName, boolean recursive,
-            Set<Class<?>> classes) {
-
+    private void find(String packageName, boolean recursive, Set<Class<?>> classes) {
         // Translate the package name into an absolute path
         String name = packageName;
         if (!name.startsWith("/")) {
@@ -148,11 +145,20 @@ public class TestChooser extends JFrame {
 
         try {
             Path directory = Paths.get(uri);
-            logger.log(Level.FINE, "Searching for Demo classes in \"{0}\".", directory.getFileName().toString());
+            logger.log(
+                Level.FINE,
+                "Searching for Demo classes in \"{0}\".",
+                directory.getFileName().toString()
+            );
             addAllFilesInDirectory(directory, classes, packageName, recursive);
         } catch (Exception e) {
-            logger.logp(Level.SEVERE, this.getClass().toString(),
-                    "find(pckgname, recursive, classes)", "Exception", e);
+            logger.logp(
+                Level.SEVERE,
+                this.getClass().toString(),
+                "find(pckgname, recursive, classes)",
+                "Exception",
+                e
+            );
         } finally {
             if (fileSystem != null) {
                 try {
@@ -173,8 +179,7 @@ public class TestChooser extends JFrame {
      *         not contain a main method
      */
     private Class load(String name) {
-        String classname = name.substring(0, name.length()
-                - ".class".length());
+        String classname = name.substring(0, name.length() - ".class".length());
 
         if (classname.startsWith("/")) {
             classname = classname.substring(1);
@@ -183,14 +188,16 @@ public class TestChooser extends JFrame {
 
         try {
             final Class<?> cls = Class.forName(classname);
-            cls.getMethod("main", new Class[]{String[].class});
+            cls.getMethod("main", new Class[] { String[].class });
             if (!getClass().equals(cls)) {
                 return cls;
             }
-        } catch (NoClassDefFoundError // class has unresolved dependencies
-                | ClassNotFoundException // class not in classpath
-                | NoSuchMethodException // class does not have a main method
-                | UnsupportedClassVersionError e) { // unsupported version
+        } catch (
+            NoClassDefFoundError // class has unresolved dependencies
+            | ClassNotFoundException // class not in classpath
+            | NoSuchMethodException // class does not have a main method
+            | UnsupportedClassVersionError e
+        ) { // unsupported version
             return null;
         }
         return null;
@@ -208,12 +215,15 @@ public class TestChooser extends JFrame {
      * @param recursive
      *            true to descend into subdirectories
      */
-    private void addAllFilesInDirectory(final Path directory,
-            final Set<Class<?>> allClasses, final String packageName, final boolean recursive) {
+    private void addAllFilesInDirectory(
+        final Path directory,
+        final Set<Class<?>> allClasses,
+        final String packageName,
+        final boolean recursive
+    ) {
         // Get the list of the files contained in the package
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(directory, getFileFilter())) {
             for (Path file : stream) {
-
                 // we are only interested in .class files
                 if (Files.isDirectory(file)) {
                     if (recursive) {
@@ -243,24 +253,25 @@ public class TestChooser extends JFrame {
      */
     private static DirectoryStream.Filter<Path> getFileFilter() {
         return new DirectoryStream.Filter<Path>() {
-
             @Override
             public boolean accept(Path entry) throws IOException {
                 String fileName = entry.getFileName().toString();
-                return (fileName.endsWith(".class")
-                        && (fileName.contains("Test"))
-                        && !fileName.contains("$"))
-                        || (!fileName.startsWith(".") && Files.isDirectory(entry));
+                return (
+                    (fileName.endsWith(".class") && (fileName.contains("Test")) && !fileName.contains("$")) ||
+                    (!fileName.startsWith(".") && Files.isDirectory(entry))
+                );
             }
         };
     }
 
     private void startApp(final List<Class<?>> appClass) {
         if (appClass == null || appClass.isEmpty()) {
-            JOptionPane.showMessageDialog(rootPane,
-                                          "Please select a test from the list",
-                                          "Error",
-                                          JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(
+                rootPane,
+                "Please select a test from the list",
+                "Error",
+                JOptionPane.ERROR_MESSAGE
+            );
             return;
         }
 
@@ -276,7 +287,10 @@ public class TestChooser extends JFrame {
                         if (LegacyApplication.class.isAssignableFrom(clazz)) {
                             Object app = clazz.getDeclaredConstructor().newInstance();
                             if (app instanceof SimpleApplication) {
-                                final Method settingMethod = clazz.getMethod("setShowSettings", boolean.class);
+                                final Method settingMethod = clazz.getMethod(
+                                    "setShowSettings",
+                                    boolean.class
+                                );
                                 settingMethod.invoke(app, showSetting);
                             }
                             final Method mainMethod = clazz.getMethod("start");
@@ -296,7 +310,7 @@ public class TestChooser extends JFrame {
                             }
                         } else {
                             final Method mainMethod = clazz.getMethod("main", (new String[0]).getClass());
-                            mainMethod.invoke(clazz, new Object[]{new String[0]});
+                            mainMethod.invoke(clazz, new Object[] { new String[0] });
                         }
                         // wait for destroy
                         System.gc();
@@ -309,7 +323,11 @@ public class TestChooser extends JFrame {
                     } catch (InstantiationException ex) {
                         logger.log(Level.SEVERE, "Failed to create app: " + clazz.getName(), ex);
                     } catch (NoSuchMethodException ex) {
-                        logger.log(Level.SEVERE, "Test class doesn't have main method: " + clazz.getName(), ex);
+                        logger.log(
+                            Level.SEVERE,
+                            "Test class doesn't have main method: " + clazz.getName(),
+                            ex
+                        );
                     } catch (Exception ex) {
                         logger.log(Level.SEVERE, "Cannot start test: " + clazz.getName(), ex);
                         ex.printStackTrace();
@@ -344,31 +362,38 @@ public class TestChooser extends JFrame {
         mainPanel.add(createSearchPanel(list), BorderLayout.NORTH);
         mainPanel.add(new JScrollPane(list), BorderLayout.CENTER);
 
-        list.getSelectionModel().addListSelectionListener(
+        list
+            .getSelectionModel()
+            .addListSelectionListener(
                 new ListSelectionListener() {
                     @Override
                     public void valueChanged(ListSelectionEvent e) {
                         selectedClass = list.getSelectedValuesList();
                     }
-                });
-        list.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                if (e.getClickCount() == 2 && selectedClass != null) {
-                    startApp(selectedClass);
+                }
+            );
+        list.addMouseListener(
+            new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    if (e.getClickCount() == 2 && selectedClass != null) {
+                        startApp(selectedClass);
+                    }
                 }
             }
-        });
-        list.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyTyped(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-                    startApp(selectedClass);
-                } else if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
-                    dispose();
+        );
+        list.addKeyListener(
+            new KeyAdapter() {
+                @Override
+                public void keyTyped(KeyEvent e) {
+                    if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                        startApp(selectedClass);
+                    } else if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+                        dispose();
+                    }
                 }
             }
-        });
+        );
 
         final JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         mainPanel.add(buttonPanel, BorderLayout.PAGE_END);
@@ -377,28 +402,33 @@ public class TestChooser extends JFrame {
         okButton.setMnemonic('O');
         buttonPanel.add(okButton);
         getRootPane().setDefaultButton(okButton);
-        okButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                startApp(selectedClass);
+        okButton.addActionListener(
+            new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    startApp(selectedClass);
+                }
             }
-        });
+        );
 
         final JButton cancelButton = new JButton("Cancel");
         cancelButton.setMnemonic('C');
         buttonPanel.add(cancelButton);
-        cancelButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                dispose();
+        cancelButton.addActionListener(
+            new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    dispose();
+                }
             }
-        });
+        );
 
         pack();
         center();
     }
 
     private class FilteredJList extends JList<Class<?>> {
+
         private static final long serialVersionUID = 1L;
 
         private String filter;
@@ -454,8 +484,10 @@ public class TestChooser extends JFrame {
         if (frameSize.width > screenSize.width) {
             frameSize.width = screenSize.width;
         }
-        this.setLocation((screenSize.width - frameSize.width) / 2,
-                (screenSize.height - frameSize.height) / 2);
+        this.setLocation(
+                (screenSize.width - frameSize.width) / 2,
+                (screenSize.height - frameSize.height) / 2
+            );
     }
 
     /**
@@ -467,18 +499,25 @@ public class TestChooser extends JFrame {
     public static void main(final String[] args) {
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception e) {
-        }
+        } catch (Exception e) {}
         new TestChooser().start(args);
     }
 
     protected void start(String[] args) {
-        executorService = new ThreadPoolExecutor(1, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue<>(), new ThreadFactory() {
-            @Override
-            public Thread newThread(Runnable r) {
-                return new Thread(r, "AppStarter");
-            }
-        });
+        executorService =
+            new ThreadPoolExecutor(
+                1,
+                Integer.MAX_VALUE,
+                60L,
+                TimeUnit.SECONDS,
+                new SynchronousQueue<>(),
+                new ThreadFactory() {
+                    @Override
+                    public Thread newThread(Runnable r) {
+                        return new Thread(r, "AppStarter");
+                    }
+                }
+            );
         final Set<Class<?>> classes = new LinkedHashSet<>();
         logger.fine("Composing Test list...");
         addDisplayedClasses(classes);
@@ -493,40 +532,47 @@ public class TestChooser extends JFrame {
     private JPanel createSearchPanel(final FilteredJList classes) {
         JPanel search = new JPanel();
         search.setLayout(new BorderLayout());
-        search.add(new JLabel("Choose a Demo to start:      Find: "),
-                BorderLayout.WEST);
+        search.add(new JLabel("Choose a Demo to start:      Find: "), BorderLayout.WEST);
         final javax.swing.JTextField jtf = new javax.swing.JTextField();
-        jtf.getDocument().addDocumentListener(new DocumentListener() {
-            @Override
-            public void removeUpdate(DocumentEvent e) {
-                classes.setFilter(jtf.getText());
-            }
+        jtf
+            .getDocument()
+            .addDocumentListener(
+                new DocumentListener() {
+                    @Override
+                    public void removeUpdate(DocumentEvent e) {
+                        classes.setFilter(jtf.getText());
+                    }
 
-            @Override
-            public void insertUpdate(DocumentEvent e) {
-                classes.setFilter(jtf.getText());
-            }
+                    @Override
+                    public void insertUpdate(DocumentEvent e) {
+                        classes.setFilter(jtf.getText());
+                    }
 
-            @Override
-            public void changedUpdate(DocumentEvent e) {
-                classes.setFilter(jtf.getText());
+                    @Override
+                    public void changedUpdate(DocumentEvent e) {
+                        classes.setFilter(jtf.getText());
+                    }
+                }
+            );
+        jtf.addActionListener(
+            new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    selectedClass = classes.getSelectedValuesList();
+                    startApp(selectedClass);
+                }
             }
-        });
-        jtf.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                selectedClass = classes.getSelectedValuesList();
-                startApp(selectedClass);
-            }
-        });
+        );
         final JCheckBox showSettingCheck = new JCheckBox("Show Setting");
         showSettingCheck.setSelected(true);
-        showSettingCheck.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                showSetting = showSettingCheck.isSelected();
+        showSettingCheck.addActionListener(
+            new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    showSetting = showSettingCheck.isSelected();
+                }
             }
-        });
+        );
         jtf.setPreferredSize(new Dimension(100, 25));
         search.add(jtf, BorderLayout.CENTER);
         search.add(showSettingCheck, BorderLayout.EAST);

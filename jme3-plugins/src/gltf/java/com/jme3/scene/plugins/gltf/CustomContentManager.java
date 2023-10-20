@@ -58,6 +58,7 @@ public class CustomContentManager {
         defaultExtensionLoaders.put("KHR_lights_punctual", new LightsPunctualExtensionLoader());
         defaultExtensionLoaders.put("KHR_materials_unlit", new UnlitExtensionLoader());
         defaultExtensionLoaders.put("KHR_texture_transform", new TextureTransformExtensionLoader());
+        defaultExtensionLoaders.put("KHR_materials_emissive_strength", new PBREmissiveStrengthExtensionLoader());
     }
 
     void init(GltfLoader gltfLoader) {

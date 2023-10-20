@@ -132,7 +132,10 @@ public abstract class LwjglAbstractDisplay extends LwjglContext implements Runna
             }
 
             listener.handleError("Failed to create display", ex);
-            createdLock.notifyAll(); // Release the lock, so start(true) doesn't deadlock.
+            synchronized (createdLock) {
+                createdLock.notifyAll(); // Release the lock, so start(true) doesn't deadlock.
+            }
+
             return false; // if we failed to create display, do not continue
         }
 

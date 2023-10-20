@@ -108,7 +108,7 @@ public abstract class Filter implements Savable {
         public void init(Renderer renderer, int width, int height, Format textureFormat, Format depthBufferFormat, int numSamples, boolean renderDepth) {
             Collection<Caps> caps = renderer.getCaps();
             if (numSamples > 1 && caps.contains(Caps.FrameBufferMultisample) && caps.contains(Caps.OpenGL31)) {
-                renderFrameBuffer = new FrameBuffer(width, height, numSamples);                
+                renderFrameBuffer = new FrameBuffer(width, height, numSamples);
                 renderedTexture = new Texture2D(width, height, numSamples, textureFormat);
                 renderFrameBuffer.setDepthTarget(FrameBufferTarget.newTarget(depthBufferFormat));
                 if (renderDepth) {
@@ -126,7 +126,7 @@ public abstract class Filter implements Savable {
             }
 
             renderFrameBuffer.addColorTarget(FrameBufferTarget.newTarget(renderedTexture));
-
+            renderFrameBuffer.setName(getClass().getSimpleName());      
 
         }
 

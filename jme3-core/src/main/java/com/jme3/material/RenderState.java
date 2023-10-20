@@ -1711,4 +1711,29 @@ public class RenderState implements Cloneable, Savable {
                 + (blendMode.equals(BlendMode.Custom)? "\ncustomBlendFactors=("+sfactorRGB+", "+dfactorRGB+", "+sfactorAlpha+", "+dfactorAlpha+")":"")
                 +"\n]";
     }
+    
+    /**
+     * Flips the given face cull mode so that {@code Back} becomes
+     * {@code Front} and {@code Front} becomes {@code Back}.
+     * <p>{@code FrontAndBack} and {@code Off} are unaffected. This is important
+     * for flipping the cull mode when normal vectors are found to be backward.
+     * @param cull
+     * @return flipped cull mode
+     */
+    public void flipFaceCull() {
+        switch (cullMode) {
+            case Back:  cullMode = FaceCullMode.Front; break;
+            case Front: cullMode = FaceCullMode.Back;  break;
+        }
+    }
+    
+    /**
+     * Checks if the face cull mode is "flippable".
+     * <p>The cull mode is flippable when it is either {@code Front} or {@code Back}.
+     * @return 
+     */
+    public boolean isFaceCullFlippable() {
+        return cullMode == FaceCullMode.Front || cullMode == FaceCullMode.Back;
+    }
+    
 }
