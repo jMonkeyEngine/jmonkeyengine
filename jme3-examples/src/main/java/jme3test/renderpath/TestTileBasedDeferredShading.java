@@ -25,6 +25,8 @@ public class TestTileBasedDeferredShading extends SimpleApplication {
     private Material material;
     @Override
     public void simpleInitApp() {
+        // Based on your current resolution and total light source count, try adjusting the tileSize - it must be a power of 2 such as 32, 64, 128 etc.
+        renderManager.setForceTileSize(128);// 1600 * 900 resolution config
 //        renderManager.setPreferredLightMode(TechniqueDef.LightMode.SinglePass);
 //        renderManager.setSinglePassLightBatchSize(30);
 //        renderManager.setRenderPath(RenderManager.RenderPath.Forward);
@@ -120,7 +122,9 @@ public class TestTileBasedDeferredShading extends SimpleApplication {
     public static void main(String[] args) {
         TestTileBasedDeferredShading testTileBasedDeferredShading = new TestTileBasedDeferredShading();
         AppSettings appSettings = new AppSettings(true);
-        appSettings.setRenderer(AppSettings.LWJGL_OPENGL33);
+        appSettings.setWidth(1600);
+        appSettings.setHeight(900);
+//        appSettings.setRenderer(AppSettings.LWJGL_OPENGL33);
         testTileBasedDeferredShading.setSettings(appSettings);
         testTileBasedDeferredShading.start();
     }
