@@ -75,6 +75,7 @@ void main(){
             lightNum = m_NBLight;
             #else
             lightNum = NB_LIGHTS;
+            float lightTexSizeInv = 1.0f / (float(lightNum) - 1.0f);
             #endif
 
             // Tile Based Shading
@@ -253,6 +254,7 @@ void main(){
             lightNum = m_NBLight;
             #else
             lightNum = NB_LIGHTS;
+            float lightTexSizeInv = 1.0f / (float(lightNum) - 1.0f);
             #endif
             gl_FragColor.rgb = vec3(0.0);
             // Tile Based Shading
