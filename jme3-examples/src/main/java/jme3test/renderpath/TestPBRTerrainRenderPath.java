@@ -116,20 +116,27 @@ public class TestPBRTerrainRenderPath extends SimpleApplication {
     private AmbientLight ambientLight;
     private DirectionalLight directionalLight;
     private PointLight[] pointLights;
+    private int currentPointLightNum = 1000;
     private boolean isNight = true;
 
     private final float dayLightIntensity = 1.0f;
     private final float nightLightIntensity = 0.03f;
 
     private BitmapText keybindingsText;
+    private BitmapText currentPointLightsText;
 
     private final float camMoveSpeed = 50f;
 
     public static void main(String[] args) {
         TestPBRTerrainRenderPath app = new TestPBRTerrainRenderPath();
         AppSettings appSettings = new AppSettings(true);
+        // For this scene, use a tileSize=64 configuration (at 1600*900 resolution)
+        // TileSize 64
         appSettings.setWidth(1600);
         appSettings.setHeight(900);
+        appSettings.setVSync(false);
+        app.setSettings(appSettings);
+        app.showSettings = false;
 //        appSettings.setRenderer(AppSettings.LWJGL_OPENGL33);
         app.start();
     }
@@ -166,6 +173,24 @@ public class TestPBRTerrainRenderPath extends SimpleApplication {
             if (name.equals("toggleNight") && !pressed) {
                 isNight = !isNight;
                 // Ambient and directional light are faded smoothly in update loop below.
+            }
+            if (name.equals("delPointLight") && !pressed) {
+                if(currentPointLightNum > 0){
+                    for(int i = 0;i < 10;i++){
+                        pointLights[currentPointLightNum - i - 1].setEnabled(false);
+                    }
+                    currentPointLightNum-=10;
+                    currentPointLightsText.setText("Current PointLights[" + currentPointLightNum + "],Press '1' addPointLight,Press '2' delPointLight");
+                }
+            }
+            else if(name.equals("addPointLight") && !pressed){
+                if(currentPointLightNum < 1000){
+                    for(int i = 0;i < 10;i++){
+                        pointLights[currentPointLightNum + i].setEnabled(true);
+                    }
+                    currentPointLightNum+=10;
+                    currentPointLightsText.setText("Current PointLights[" + currentPointLightNum + "],Press '1' addPointLight,Press '2' delPointLight");
+                }
             }
         }
     };
@@ -297,15 +322,24 @@ public class TestPBRTerrainRenderPath extends SimpleApplication {
         flyCam.setMoveSpeed(50);
         inputManager.addMapping("triPlanar", new KeyTrigger(KeyInput.KEY_P));
         inputManager.addMapping("toggleNight", new KeyTrigger(KeyInput.KEY_N));
+        inputManager.addMapping("addPointLight", new KeyTrigger(KeyInput.KEY_1));
+        inputManager.addMapping("delPointLight", new KeyTrigger(KeyInput.KEY_2));
 
         inputManager.addListener(actionListener, "triPlanar");
         inputManager.addListener(actionListener, "toggleNight");
+        inputManager.addListener(actionListener, "addPointLight");
+        inputManager.addListener(actionListener, "delPointLight");
 
         keybindingsText = new BitmapText(assetManager.loadFont("Interface/Fonts/Default.fnt"));
         keybindingsText.setText("Press 'N' to toggle day/night fade (takes a moment) \nPress 'P' to toggle tri-planar mode");
 
         getGuiNode().attachChild(keybindingsText);
         keybindingsText.move(new Vector3f(200, 120, 0));
+
+        currentPointLightsText = new BitmapText(assetManager.loadFont("Interface/Fonts/Default.fnt"));
+        currentPointLightsText.setText("Current PointLights[" + currentPointLightNum + "],Press '1' addPointLight,Press '2' delPointLight");
+        getGuiNode().attachChild(currentPointLightsText);
+        currentPointLightsText.move(new Vector3f(200, 200, 0));
     }
 
     @Override
@@ -385,7 +419,7 @@ public class TestPBRTerrainRenderPath extends SimpleApplication {
 
 
         // pointLights
-        int numPointLight = 1000;
+        currentPointLightNum = 1000;
         ColorRGBA colors[] = new ColorRGBA[]{
                 ColorRGBA.White,
                 ColorRGBA.Red,
@@ -395,7 +429,7 @@ public class TestPBRTerrainRenderPath extends SimpleApplication {
                 ColorRGBA.Orange,
                 ColorRGBA.Brown,
         };
-        pointLights = new PointLight[numPointLight];
+        pointLights = new PointLight[currentPointLightNum];
 //        InstancedNode debugSpheres = new InstancedNode("debugSpheres");
 //        Sphere sphereMesh = new Sphere(16, 16, 1);
 //        Geometry sphere = new Geometry("Sphere");
@@ -406,7 +440,7 @@ public class TestPBRTerrainRenderPath extends SimpleApplication {
 //        mat.setBoolean("UseInstancing", true);
 //        sphere.setMaterial(mat);
         float xHalf = 200, yHalf = 100, zHalf = 200;
-        for(int i = 0;i < numPointLight;i++){
+        for(int i = 0;i < currentPointLightNum;i++){
             pointLights[i] = new PointLight();
             pointLights[i].setColor(colors[FastMath.nextRandomInt(0, colors.length - 1)]);
             pointLights[i].setRadius(FastMath.nextRandomFloat(10.0f, 20.0f));
