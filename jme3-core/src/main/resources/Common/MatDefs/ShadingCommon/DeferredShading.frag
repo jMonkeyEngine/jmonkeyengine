@@ -9,6 +9,7 @@
 // octahedral
 #import "Common/ShaderLib/Octahedral.glsllib"
 // skyLight and reflectionProbe
+uniform vec4 g_AmbientLightColor;
 #import "Common/ShaderLib/SkyLightReflectionProbe.glsllib"
 #if defined(USE_LIGHTS_CULL_MODE)
     uniform vec2 g_ResolutionInverse;
@@ -19,7 +20,6 @@
 varying mat4 viewProjectionMatrixInverse;
 uniform mat4 g_ViewMatrix;
 uniform vec3 g_CameraPosition;
-uniform vec4 g_AmbientLightColor;
 uniform int m_NBLight;
 
 #if defined(USE_TEXTURE_PACK_MODE)
@@ -178,6 +178,7 @@ void main(){
                     #if __VERSION__ >= 110
                 }
                 #endif
+                spotFallOff *= lightDir.w;
 
                 #ifdef NORMALMAP
                 //Normal map -> lighting is computed in tangent space

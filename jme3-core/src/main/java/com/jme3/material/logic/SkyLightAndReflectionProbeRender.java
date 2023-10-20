@@ -90,14 +90,17 @@ public class SkyLightAndReflectionProbeRender {
      * @param ambientLightColor
      * @param skyLightAndReflectionProbes
      * @param removeLights
+     * @return hasAmbientLight
      */
-    public static void extractSkyLightAndReflectionProbes(LightList lightList, ColorRGBA ambientLightColor, List<LightProbe> skyLightAndReflectionProbes, boolean removeLights) {
+    public static boolean extractSkyLightAndReflectionProbes(LightList lightList, ColorRGBA ambientLightColor, List<LightProbe> skyLightAndReflectionProbes, boolean removeLights) {
         ambientLightColor.set(0, 0, 0, 1);
+        boolean hasAmbientLight = false;
         skyLightAndReflectionProbes.clear();
         for (int j = 0; j < lightList.size(); j++) {
             Light l = lightList.get(j);
             if (l instanceof AmbientLight) {
                 ambientLightColor.addLocal(l.getColor());
+                hasAmbientLight = true;
                 if(removeLights){
                     lightList.remove(j);
                     j--;
@@ -116,6 +119,7 @@ public class SkyLightAndReflectionProbeRender {
 
         }
         ambientLightColor.a = 1.0f;
+        return hasAmbientLight;
     }
 
 }

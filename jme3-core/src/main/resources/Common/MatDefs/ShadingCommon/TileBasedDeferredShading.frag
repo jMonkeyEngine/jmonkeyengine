@@ -9,6 +9,7 @@
 // octahedral
 #import "Common/ShaderLib/Octahedral.glsllib"
 // skyLight and reflectionProbe
+uniform vec4 g_AmbientLightColor;
 #import "Common/ShaderLib/SkyLightReflectionProbe.glsllib"
 #if defined(USE_LIGHTS_CULL_MODE)
     uniform vec2 g_ResolutionInverse;
@@ -19,7 +20,6 @@
 varying mat4 viewProjectionMatrixInverse;
 uniform mat4 g_ViewMatrix;
 uniform vec3 g_CameraPosition;
-uniform vec4 g_AmbientLightColor;
 uniform int m_NBLight;
 
 
@@ -256,8 +256,10 @@ void main(){
             #endif
             gl_FragColor.rgb = vec3(0.0);
             // Tile Based Shading
+            // get the grid data index
+            vec2 gridIndex = vec2(((innerTexCoord.x*g_Resolution.x) / float(g_TileSize)) / float(g_WidthTile), ((innerTexCoord.y*g_Resolution.y) / float(g_TileSize)) / float(g_HeightTile));
             // get tile info
-            vec3 tile = texture2D(m_TileLightDecode, innerTexCoord).xyz;
+            vec3 tile = texture2D(m_TileLightDecode, gridIndex).xyz;
             int uoffset = int(tile.x);
             int voffset = int(tile.z);
             int count = int(tile.y);
@@ -273,11 +275,12 @@ void main(){
                     temp = float(uoffset + i);
                     offset = 0;
 
-                    if (temp >= g_TileLightOffsetSize){
-                        temp -= g_TileLightOffsetSize;
-                        offset++;
+                    if(temp >= g_TileLightOffsetSize){
+                        //temp -= g_TileLightOffsetSize;
+                        offset += int(temp / float(g_TileLightOffsetSize));
+                        temp = float(int(temp) % g_TileLightOffsetSize);
                     }
-                    if (temp == g_TileLightOffsetSize){
+                    if(temp == g_TileLightOffsetSize){
                         temp = 0.0f;
                     }
 
@@ -301,17 +304,18 @@ void main(){
                     #if __VERSION__ >= 110
                     // allow use of control flow
                     if(lightColor.w > 1.0){
-                        #endif
+                    #endif
                         #if defined(USE_TEXTURE_PACK_MODE)
                         spotFallOff =  computeSpotFalloff(texture2D(m_LightPackData3, lightDataUV), lightVec);
                         #else
                         spotFallOff =  computeSpotFalloff(g_LightData[lightId*3+2], lightVec);
                         #endif
-                        #if __VERSION__ >= 110
+                    #if __VERSION__ >= 110
                     }
-                        #endif
+                    #endif
+                    spotFallOff *= lightDir.w;
 
-                        #ifdef NORMALMAP
+                    #ifdef NORMALMAP
                     //Normal map -> lighting is computed in tangent space
                     lightDir.xyz = normalize(lightDir.xyz * tbnMat);
                     #else

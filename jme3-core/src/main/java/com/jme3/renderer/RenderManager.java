@@ -88,7 +88,8 @@ public class RenderManager {
     private int curMaxDeferredShadingLightNum = 1024;
     // TileInfo
     private TileBasedDeferredSinglePassLightingLogic.TileInfo tileInfo;
-    private int forceTileSize = 0;
+    // Based on your current resolution and total light source count, try adjusting the tileSize - it must be a power of 2 such as 32, 64, 128 etc.
+    private int forceTileSize = 64;
     // If ForceTileSize is not specified, curTileSize is calculated each frame by dividing viewport horizontal width by NumberTileDivisions.
     private int curTileSize = -1;
     private int numberTileDivisions = 4;
@@ -195,6 +196,7 @@ public class RenderManager {
     /**
      * Tile-based DeferredShading divides the screen into multiple tiles, then assigns lights to corresponding tiles for rendering. In theory, the number of tiles should be set as powers of 2, such as 32, 64 etc, but it can be set larger depending on usage.<br/>
      * 0 means auto calculate, then the number of tiles per frame is dynamically calculated based on NumberTileDivisions and current viewport width.<br/>
+     * Based on your current resolution and total light source count, try adjusting the tileSize - it must be a power of 2 such as 32, 64, 128 etc.<br/>
      * @param forceTileSize
      */
     public void setForceTileSize(int forceTileSize) {

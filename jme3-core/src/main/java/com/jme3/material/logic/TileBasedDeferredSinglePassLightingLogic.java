@@ -79,6 +79,7 @@ public class TileBasedDeferredSinglePassLightingLogic extends DefaultTechniqueDe
     private final static String _S_TILE_HEIGHT = "g_HeightTile";
     private static final String DEFINE_TILE_BASED_DEFERRED_SINGLE_PASS_LIGHTING = "TILE_BASED_DEFERRED_SINGLE_PASS_LIGHTING";
     private static final String DEFINE_NB_LIGHTS = "NB_LIGHTS";
+    private static final String DEFINE_USE_AMBIENT_LIGHT = "USE_AMBIENT_LIGHT";
     private static final String DEFINE_USE_TEXTURE_PACK_MODE = "USE_TEXTURE_PACK_MODE";
     private static final String DEFINE_PACK_NB_LIGHTS = "PACK_NB_LIGHTS";
     private static final String DEFINE_NB_SKY_LIGHT_AND_REFLECTION_PROBES = "NB_SKY_LIGHT_AND_REFLECTION_PROBES";
@@ -100,6 +101,7 @@ public class TileBasedDeferredSinglePassLightingLogic extends DefaultTechniqueDe
     private ImageRaster lightDataUpdateIO2;
     private ImageRaster lightDataUpdateIO3;
     private int lightNum;
+    private boolean useAmbientLight;
 
     private final ColorRGBA ambientLightColor = new ColorRGBA(0, 0, 0, 1);
     final private List<LightProbe> skyLightAndReflectionProbes = new ArrayList<>(3);
@@ -114,6 +116,7 @@ public class TileBasedDeferredSinglePassLightingLogic extends DefaultTechniqueDe
     private int packNbLightsDefineId;
     private int packTextureModeDefineId;
     private final int nbSkyLightAndReflectionProbesDefineId;
+    private final int useAmbientLightDefineId;
 
 
 
@@ -577,6 +580,7 @@ public class TileBasedDeferredSinglePassLightingLogic extends DefaultTechniqueDe
             nbLightsDefineId = techniqueDef.addShaderUnmappedDefine(DEFINE_NB_LIGHTS, VarType.Int);
         }
         nbSkyLightAndReflectionProbesDefineId = techniqueDef.addShaderUnmappedDefine(DEFINE_NB_SKY_LIGHT_AND_REFLECTION_PROBES, VarType.Int);
+        useAmbientLightDefineId = techniqueDef.addShaderUnmappedDefine(DEFINE_USE_AMBIENT_LIGHT, VarType.Boolean);
     }
 
     private void cleanupLightData(){
@@ -661,8 +665,9 @@ public class TileBasedDeferredSinglePassLightingLogic extends DefaultTechniqueDe
         //Though the second pass should not render IBL as it is taken care of on first pass like ambient light in phong lighting.
         //We cannot change the define between passes and the old technique, and for some reason the code fails on mac (renders nothing).
         if(lights != null) {
-            SkyLightAndReflectionProbeRender.extractSkyLightAndReflectionProbes(lights, ambientLightColor, skyLightAndReflectionProbes, false);
+            useAmbientLight = SkyLightAndReflectionProbeRender.extractSkyLightAndReflectionProbes(lights, ambientLightColor, skyLightAndReflectionProbes, false);
             defines.set(nbSkyLightAndReflectionProbesDefineId, skyLightAndReflectionProbes.size());
+            defines.set(useAmbientLightDefineId, useAmbientLight);
         }
         return super.makeCurrent(assetManager, renderManager, rendererCaps, lights, defines);
     }
@@ -700,7 +705,7 @@ public class TileBasedDeferredSinglePassLightingLogic extends DefaultTechniqueDe
             rm.getRenderer().applyRenderState(ADDITIVE_LIGHT);
             ambientColor.setValue(VarType.Vector4, ColorRGBA.Black);
         } else {
-            ambientColor.setValue(VarType.Vector4, getAmbientColor(lightList, true, ambientLightColor));
+            ambientColor.setValue(VarType.Vector4, ambientLightColor);
         }
 
         // render skyLights and reflectionProbes
@@ -859,7 +864,7 @@ public class TileBasedDeferredSinglePassLightingLogic extends DefaultTechniqueDe
             rm.getRenderer().applyRenderState(ADDITIVE_LIGHT);
             ambientColor.setValue(VarType.Vector4, ColorRGBA.Black);
         } else {
-            ambientColor.setValue(VarType.Vector4, getAmbientColor(lightList, true, ambientLightColor));
+            ambientColor.setValue(VarType.Vector4, ambientLightColor);
         }
 
         int lightDataIndex = 0;
@@ -944,7 +949,7 @@ public class TileBasedDeferredSinglePassLightingLogic extends DefaultTechniqueDe
                 cleanupLightData();
                 prepareLightData(renderManager.getCurMaxDeferredShadingLightNum());
             }
-            SkyLightAndReflectionProbeRender.extractSkyLightAndReflectionProbes(lights, ambientLightColor, skyLightAndReflectionProbes, true);
+            useAmbientLight = SkyLightAndReflectionProbeRender.extractSkyLightAndReflectionProbes(lights, ambientLightColor, skyLightAndReflectionProbes, true);
             int count = lights.size();
             // FIXME:Setting uniform variables this way will take effect immediately in the current frame, however lightData is set through geometry.getMaterial().setTexture(XXX) which will take effect next frame, so here I changed to use geometry.getMaterial().setParam() uniformly to update all parameters, to keep the frequency consistent.
 //            Uniform lightCount = shader.getUniform("g_LightCount");
