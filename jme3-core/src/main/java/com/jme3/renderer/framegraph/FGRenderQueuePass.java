@@ -34,13 +34,13 @@ package com.jme3.renderer.framegraph;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.GeometryList;
 import com.jme3.renderer.queue.RenderQueue;
-import com.jme3.renderer.renderPass.IRenderGeometry;
+import com.jme3.renderer.pass.RenderGeometry;
 
 /**
  * All passes that need to perform rendering must inherit from this class.<br/>
  * @author JohnKkk
  */
-public abstract class FGRenderQueuePass extends FGBindingPass implements IRenderGeometry {
+public abstract class FGRenderQueuePass extends FGBindingPass implements RenderGeometry {
     protected ViewPort forceViewPort;
     // It is just geometry data for now. If we extend the RHI interface in the future, it may be adjusted to MeshDrawCommand.
     protected GeometryList passMeshDrawCommandList;

@@ -29,39 +29,20 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.renderer.renderPass;
+package com.jme3.renderer.pass;
 
-import com.jme3.light.LightList;
 import com.jme3.renderer.framegraph.FGBindable;
-import com.jme3.renderer.framegraph.FGSource;
+import com.jme3.renderer.framegraph.FGContainerBindableSink;
 
-public class DeferredLightDataSource extends FGSource {
-    DeferredLightDataProxy deferredLightDataProxy;
-    public DeferredLightDataSource(String name, LightList lightData) {
-        super(name);
-        deferredLightDataProxy = new DeferredLightDataProxy(lightData);
+import java.util.ArrayList;
+
+public class DeferredLightDataSink<T extends DeferredLightDataSource.DeferredLightDataProxy> extends FGContainerBindableSink<T> {
+    public DeferredLightDataSink(String registeredName, ArrayList<FGBindable> container, int index) {
+        super(registeredName, container, index);
     }
 
     @Override
     public void postLinkValidate() {
-
+        bLinkValidate = bindableProxy.targetBindable != null;
     }
-
-    @Override
-    public FGBindable yieldBindable() {
-        return deferredLightDataProxy;
-    }
-
-    public static class DeferredLightDataProxy extends FGBindable {
-        private LightList lightData;
-
-        public DeferredLightDataProxy(LightList lightData) {
-            this.lightData = lightData;
-        }
-
-        public LightList getLightData() {
-            return lightData;
-        }
-    }
-
 }

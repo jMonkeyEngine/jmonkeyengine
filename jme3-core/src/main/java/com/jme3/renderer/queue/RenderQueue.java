@@ -34,7 +34,7 @@ package com.jme3.renderer.queue;
 import com.jme3.post.SceneProcessor;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
-import com.jme3.renderer.renderPass.IRenderGeometry;
+import com.jme3.renderer.pass.RenderGeometry;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
 
@@ -268,7 +268,7 @@ public class RenderQueue {
     }
 
     private void renderGeometryList(GeometryList list, RenderManager rm, Camera cam, boolean clear) {
-        IRenderGeometry renderGeometryHandler = rm.getRenderGeometryHandler();
+        RenderGeometry renderGeometryHandler = rm.getRenderGeometryHandler();
         if(renderGeometryHandler != null){
             list.setCamera(cam); // select camera for sorting
             list.sort();
