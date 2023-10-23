@@ -470,7 +470,7 @@ public class GltfLoader implements AssetLoader {
                     geom.setMaterial(defaultMat);
                 } else {
                     useNormalsFlag = false;
-                    geom.setMaterial(getMaterial(materialIndex));
+                    geom.setMaterial(readMaterial(materialIndex));
                     if (geom.getMaterial().getAdditionalRenderState().getBlendMode()
                             == RenderState.BlendMode.Alpha) {
                         // Alpha blending is enabled for this material. Let's place the geom in the transparent bucket.
@@ -616,23 +616,13 @@ public class GltfLoader implements AssetLoader {
         return data;
     }
 
-    public Material getMaterial(int materialIndex) throws IOException {
+    public Material readMaterial(int materialIndex) throws IOException {
+        assertNotNull(materials, "There is no material defined yet a mesh references one");
 
-        // Get from cache
         Material material = fetchFromCache("materials", materialIndex, Material.class);
         if (material != null) {
             return material;
         }
-
-        material = readMaterial(materialIndex);
-
-        addToCache("materials", materialIndex, material, materials.size());
-
-        return material;
-    }
-
-    public Material readMaterial(int materialIndex) throws IOException {
-        assertNotNull(materials, "There is no material defined yet a mesh references one");
 
         JsonObject matData = materials.get(materialIndex).getAsJsonObject();
         JsonObject pbrMat = matData.getAsJsonObject("pbrMetallicRoughness");
@@ -703,7 +693,10 @@ public class GltfLoader implements AssetLoader {
 
         adapter.setParam("emissiveTexture", readTexture(matData.getAsJsonObject("emissiveTexture")));
 
-        return adapter.getMaterial();
+        material = adapter.getMaterial();
+        addToCache("materials", materialIndex, material, materials.size());
+
+        return material;
     }
 
     public void readCameras() throws IOException {
