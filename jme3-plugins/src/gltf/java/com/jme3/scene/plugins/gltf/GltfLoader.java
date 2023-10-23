@@ -605,9 +605,9 @@ public class GltfLoader implements AssetLoader {
                 BinDataKey key = new BinDataKey(info.getKey().getFolder() + decoded);
                 InputStream input = (InputStream) info.getManager().loadAsset(key);
                 data = new byte[bufferLength];
-                DataInputStream dataStream = new DataInputStream(input);
-                dataStream.readFully(data);
-                dataStream.close();
+                try (DataInputStream dataStream = new DataInputStream(input)) {
+                    dataStream.readFully(data);
+                }
             }
         } else {
             // no URI, this should not happen in a gltf file, only in glb files.
