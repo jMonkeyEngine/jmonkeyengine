@@ -621,7 +621,7 @@ public class GltfLoader implements AssetLoader {
 
         Material material = fetchFromCache("materials", materialIndex, Material.class);
         if (material != null) {
-            return material;
+            return material.clone();
         }
 
         JsonObject matData = materials.get(materialIndex).getAsJsonObject();
