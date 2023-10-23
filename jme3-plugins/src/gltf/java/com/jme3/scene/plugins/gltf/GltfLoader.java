@@ -619,14 +619,14 @@ public class GltfLoader implements AssetLoader {
     public Material getMaterial(int materialIndex) throws IOException {
 
         // Get from cache
-        Material material = fetchFromCache("Material", materialIndex, Material.class);
+        Material material = fetchFromCache("materials", materialIndex, Material.class);
         if (material != null) {
             return material;
         }
 
         material = readMaterial(materialIndex);
 
-        addToCache("Material", materialIndex, material, materials.size());
+        addToCache("materials", materialIndex, material, materials.size());
 
         return material;
     }
