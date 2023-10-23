@@ -470,7 +470,7 @@ public class GltfLoader implements AssetLoader {
                     geom.setMaterial(defaultMat);
                 } else {
                     useNormalsFlag = false;
-                    geom.setMaterial(readMaterial(materialIndex));
+                    geom.setMaterial(getMaterial(materialIndex));
                     if (geom.getMaterial().getAdditionalRenderState().getBlendMode()
                             == RenderState.BlendMode.Alpha) {
                         // Alpha blending is enabled for this material. Let's place the geom in the transparent bucket.
@@ -614,6 +614,21 @@ public class GltfLoader implements AssetLoader {
             throw new AssetLoadException("Buffer " + bufferIndex + " has no uri");
         }
         return data;
+    }
+
+    public Material getMaterial(int materialIndex) throws IOException {
+
+        // Get from cache
+        Material material = fetchFromCache("Material", materialIndex, Material.class);
+        if (material != null) {
+            return material;
+        }
+
+        material = readMaterial(materialIndex);
+
+        addToCache("Material", materialIndex, material, materials.size());
+
+        return material;
     }
 
     public Material readMaterial(int materialIndex) throws IOException {
