@@ -754,12 +754,17 @@ public class GltfLoader implements AssetLoader {
         Integer textureIndex = getAsInteger(texture, "index");
         assertNotNull(textureIndex, "Texture has no index");
         assertNotNull(textures, "There are no textures, yet one is referenced by a material");
+
+        Texture2D texture2d = fetchFromCache("textures", textureIndex, Texture2D.class);
+        if (texture2d != null) {
+            return texture2d;
+        }
         
         JsonObject textureData = textures.get(textureIndex).getAsJsonObject();
         Integer sourceIndex = getAsInteger(textureData, "source");
         Integer samplerIndex = getAsInteger(textureData, "sampler");
 
-        Texture2D texture2d = readImage(sourceIndex, flip);
+        texture2d = readImage(sourceIndex, flip);
 
         if (samplerIndex != null) {
             texture2d = readSampler(samplerIndex, texture2d);
@@ -768,6 +773,8 @@ public class GltfLoader implements AssetLoader {
         }
 
         texture2d = customContentManager.readExtensionAndExtras("texture", texture, texture2d);
+
+        addToCache("textures", textureIndex, texture2d, textures.size());
 
         return texture2d;
     }
