@@ -99,7 +99,7 @@ public class TestSpotLightShadows extends SimpleApplication {
 
         final SpotLightShadowRenderer slsr = new SpotLightShadowRenderer(assetManager, 512);
         slsr.setLight(spot);       
-        slsr.setShadowIntensity(0.5f);
+        slsr.setShadowIntensity(.7f);
         slsr.setShadowZExtend(100);
         slsr.setShadowZFadeLength(5);
         slsr.setEdgeFilteringMode(EdgeFilteringMode.PCFPOISSON);   
@@ -107,7 +107,7 @@ public class TestSpotLightShadows extends SimpleApplication {
 
         SpotLightShadowFilter slsf = new SpotLightShadowFilter(assetManager, 512);
         slsf.setLight(spot);    
-        slsf.setShadowIntensity(0.5f);
+        slsf.setShadowIntensity(.7f);
         slsf.setShadowZExtend(100);
         slsf.setShadowZFadeLength(5);
         slsf.setEdgeFilteringMode(EdgeFilteringMode.PCFPOISSON);  

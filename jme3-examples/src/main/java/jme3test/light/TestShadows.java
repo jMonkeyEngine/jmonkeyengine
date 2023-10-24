@@ -21,6 +21,7 @@ import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Quad;
 import com.jme3.shadow.DirectionalLightShadowFilter;
 import com.jme3.shadow.DirectionalLightShadowRenderer;
+import com.jme3.shadow.EdgeFilteringMode;
 import com.jme3.shadow.PointLightShadowFilter;
 import com.jme3.shadow.PointLightShadowRenderer;
 import com.jme3.shadow.SpotLightShadowFilter;
@@ -32,11 +33,11 @@ import com.jme3.shadow.SpotLightShadowRenderer;
  */
 public class TestShadows extends SimpleApplication {
     
-    private final boolean useDirectionalLight = true;
-    private final boolean usePointLight = !true;
+    private final boolean useDirectionalLight = !true;
+    private final boolean usePointLight = true;
     private final boolean useSpotLight = !true;
-    private final boolean useRenderers = !true;
-    private final int shadowMapSize = 2048;
+    private final boolean useRenderers = true;
+    private final int shadowMapSize = 4096;
     private final int splits = 3;
     
     public static void main(String[] args) {
@@ -54,7 +55,7 @@ public class TestShadows extends SimpleApplication {
         floor.setLocalRotation(new Quaternion().fromAngleAxis(-FastMath.HALF_PI, Vector3f.UNIT_X));
         floor.setMaterial(createMaterial(ColorRGBA.Gray));
         //floor.getMaterial().getAdditionalRenderState().setFaceCullMode(RenderState.FaceCullMode.Off);
-        floor.setShadowMode(RenderQueue.ShadowMode.CastAndReceive);
+        floor.setShadowMode(RenderQueue.ShadowMode.Receive);
         rootNode.attachChild(floor);
         
         Geometry cube = new Geometry("cube", new Box(.5f, .5f, .5f));
@@ -118,7 +119,12 @@ public class TestShadows extends SimpleApplication {
         plsf.setLight(pl);
         
         SpotLightShadowFilter slsf = new SpotLightShadowFilter(assetManager, shadowMapSize);
-        slsf.setLight(sl);
+        slsf.setLight(sl);    
+        slsf.setShadowIntensity(1f);
+        slsf.setShadowZExtend(100);
+        slsf.setShadowZFadeLength(5);
+        slsf.setEdgeFilteringMode(EdgeFilteringMode.PCFPOISSON);
+        slsf.setEnabled(true);
         
         FilterPostProcessor fpp = new FilterPostProcessor(assetManager);
         if (useDirectionalLight) {
@@ -136,14 +142,18 @@ public class TestShadows extends SimpleApplication {
     
     private void initShadowRenderers(DirectionalLight dl, PointLight pl, SpotLight sl) {
         
-        DirectionalLightShadowRenderer dlsr = new DirectionalLightShadowRenderer(assetManager, shadowMapSize, splits);
+        DirectionalLightShadowRenderer dlsr = new DirectionalLightShadowRenderer(assetManager, shadowMapSize*4, splits);
         dlsr.setLight(dl);
         
         PointLightShadowRenderer plsr = new PointLightShadowRenderer(assetManager, shadowMapSize);
         plsr.setLight(pl);
         
-        SpotLightShadowRenderer slsr = new SpotLightShadowRenderer(assetManager, shadowMapSize);
-        slsr.setLight(sl);
+        SpotLightShadowRenderer slsr = new SpotLightShadowRenderer(assetManager, 512);
+        slsr.setLight(sl);       
+        slsr.setShadowIntensity(1f);
+        slsr.setShadowZExtend(100);
+        slsr.setShadowZFadeLength(5);
+        slsr.setEdgeFilteringMode(EdgeFilteringMode.PCFPOISSON);   
         
         if (useDirectionalLight) {
             viewPort.addProcessor(dlsr);
