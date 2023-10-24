@@ -891,19 +891,22 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
     }
 
     private void updateRenderState(Geometry geometry, RenderManager renderManager, Renderer renderer, TechniqueDef techniqueDef) {
+        RenderState merge = new RenderState();
         if (renderManager.getForcedRenderState() != null) {
-            mergedRenderState.set(renderManager.getForcedRenderState());
+            //merge.copyFrom(renderManager.getForcedRenderState());
+            renderer.applyRenderState(renderManager.getForcedRenderState());
+            return;
         } else if (techniqueDef.getRenderState() != null) {
             // copyMergedTo writes to mergedRenderState
-            techniqueDef.getRenderState().copyMergedTo(additionalState, mergedRenderState);
+            techniqueDef.getRenderState().copyMergedTo(additionalState, merge);
         } else {
-            RenderState.DEFAULT.copyMergedTo(additionalState, mergedRenderState);
+            RenderState.DEFAULT.copyMergedTo(additionalState, merge);
         }
         // test if the face cull mode should be flipped before render
-        if (mergedRenderState.isFaceCullFlippable() && isNormalsBackward(geometry.getWorldScale())) {
-            mergedRenderState.flipFaceCull();
-        }
-        renderer.applyRenderState(mergedRenderState);
+        //if (merge.isFaceCullFlippable() && isNormalsBackward(geometry.getWorldScale())) {
+        //    merge.flipFaceCull();
+        //}
+        renderer.applyRenderState(merge);
     }
     
     /**
