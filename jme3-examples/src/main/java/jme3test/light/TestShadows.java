@@ -33,9 +33,9 @@ import com.jme3.shadow.SpotLightShadowRenderer;
  */
 public class TestShadows extends SimpleApplication {
     
-    private final boolean useDirectionalLight = !true;
+    private final boolean useDirectionalLight = true;
     private final boolean usePointLight = true;
-    private final boolean useSpotLight = !true;
+    private final boolean useSpotLight = true;
     private final boolean useRenderers = true;
     private final int shadowMapSize = 4096;
     private final int splits = 3;
@@ -60,6 +60,7 @@ public class TestShadows extends SimpleApplication {
         
         Geometry cube = new Geometry("cube", new Box(.5f, .5f, .5f));
         cube.setLocalTranslation(0, 0, 0);
+        cube.setLocalScale(1);
         cube.setMaterial(createMaterial(ColorRGBA.LightGray));
         cube.setShadowMode(RenderQueue.ShadowMode.CastAndReceive);
         rootNode.attachChild(cube);
