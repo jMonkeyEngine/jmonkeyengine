@@ -171,7 +171,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
      */
     private BoundingVolume meshBound = new BoundingBox();
 
-    private CollisionData collisionTree = DEFAULT_COLLECTION_TREE;
+    private CollisionData collisionTree = DEFAULT_COLLISION_TREE;
 
     private SafeArrayList<VertexBuffer> buffersList = new SafeArrayList<>(VertexBuffer.class);
     private IntMap<VertexBuffer> buffers = new IntMap<>();
@@ -180,7 +180,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
     private float pointSize = DEFAULT_POINT_SIZE;
     private float lineWidth = DEFAULT_LINE_WIDTH;
 
-    private transient int vertexArrayID = DEFAULT_VERTEXT_ARRAY_ID;
+    private transient int vertexArrayID = DEFAULT_VERTEX_ARRAY_ID;
 
     private int vertCount = DEFAULT_VERT_COUNT;
     private int elementCount = DEFAULT_ELEMENT_COUNT;
@@ -216,7 +216,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
             clone.collisionTree = collisionTree != null ? collisionTree : null;
             clone.buffers = buffers.clone();
             clone.buffersList = new SafeArrayList<>(VertexBuffer.class, buffersList);
-            clone.vertexArrayID = DEFAULT_VERTEXT_ARRAY_ID;
+            clone.vertexArrayID = DEFAULT_VERTEX_ARRAY_ID;
             if (elementLengths != null) {
                 clone.elementLengths = elementLengths.clone();
             }
@@ -243,7 +243,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
 
             // TODO: Collision tree cloning
             //clone.collisionTree = collisionTree != null ? collisionTree : null;
-            clone.collisionTree = DEFAULT_COLLECTION_TREE; // it will get re-generated in any case
+            clone.collisionTree = DEFAULT_COLLISION_TREE; // it will get re-generated in any case
 
             clone.buffers = new IntMap<>();
             clone.buffersList = new SafeArrayList<>(VertexBuffer.class);
@@ -253,7 +253,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
                 clone.buffersList.add(bufClone);
             }
 
-            clone.vertexArrayID = DEFAULT_VERTEXT_ARRAY_ID;
+            clone.vertexArrayID = DEFAULT_VERTEX_ARRAY_ID;
             clone.vertCount = vertCount;
             clone.elementCount = elementCount;
             clone.instanceCount = instanceCount;
@@ -313,7 +313,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
     public Mesh jmeClone() {
         try {
             Mesh clone = (Mesh) super.clone();
-            clone.vertexArrayID = DEFAULT_VERTEXT_ARRAY_ID;
+            clone.vertexArrayID = DEFAULT_VERTEX_ARRAY_ID;
             return clone;
         } catch (CloneNotSupportedException ex) {
             throw new AssertionError();
@@ -326,7 +326,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
     @Override
     public void cloneFields(Cloner cloner, Object original) {
         // Probably could clone this now but it will get regenerated anyway.
-        this.collisionTree = DEFAULT_COLLECTION_TREE;
+        this.collisionTree = DEFAULT_COLLISION_TREE;
 
         this.meshBound = cloner.clone(meshBound);
         this.buffersList = cloner.clone(buffersList);
@@ -986,7 +986,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
      * @param id the array ID
      */
     public void setId(int id) {
-        if (vertexArrayID != DEFAULT_VERTEXT_ARRAY_ID) {
+        if (vertexArrayID != DEFAULT_VERTEX_ARRAY_ID) {
             throw new IllegalStateException("ID has already been set.");
         }
 
@@ -1012,7 +1012,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
      * generated BIHTree.
      */
     public void clearCollisionData() {
-        collisionTree = DEFAULT_COLLECTION_TREE;
+        collisionTree = DEFAULT_COLLISION_TREE;
     }
 
     /**
@@ -1642,7 +1642,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
         out.write(instanceCount, "instanceCount", DEFAULT_INSTANCE_COUNT);
         out.write(maxNumWeights, "max_num_weights", DEFAULT_MAX_NUM_WEIGHTS);
         out.write(mode, "mode", Mode.Triangles);
-        out.write(collisionTree, "collisionTree", DEFAULT_COLLECTION_TREE);
+        out.write(collisionTree, "collisionTree", DEFAULT_COLLISION_TREE);
         out.write(elementLengths, "elementLengths", null);
         out.write(modeStart, "modeStart", null);
         out.write(pointSize, "pointSize", DEFAULT_POINT_SIZE);
@@ -1687,7 +1687,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
         mode = in.readEnum("mode", Mode.class, Mode.Triangles);
         elementLengths = in.readIntArray("elementLengths", null);
         modeStart = in.readIntArray("modeStart", null);
-        collisionTree = (BIHTree) in.readSavable("collisionTree", DEFAULT_COLLECTION_TREE);
+        collisionTree = (BIHTree) in.readSavable("collisionTree", DEFAULT_COLLISION_TREE);
         elementLengths = in.readIntArray("elementLengths", null);
         modeStart = in.readIntArray("modeStart", null);
         pointSize = in.readFloat("pointSize", DEFAULT_POINT_SIZE);

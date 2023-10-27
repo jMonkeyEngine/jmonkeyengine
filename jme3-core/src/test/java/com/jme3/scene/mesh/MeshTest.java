@@ -7,10 +7,10 @@ import org.junit.Test;
 import com.jme3.scene.Mesh;
 
 public class MeshTest {
-       @Test
+    @Test
     public void testEmptyMesh() {
         final Mesh mesh = new Mesh();
 
-        assertEquals(-1, mesh.getVertexCount());;
+        assertEquals(-1, mesh.getVertexCount());
     }
 }
