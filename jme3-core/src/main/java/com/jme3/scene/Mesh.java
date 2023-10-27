@@ -153,8 +153,8 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
     /**
      * Default Variables
      */
-    private static final int DEFAULT_VERTEXT_ARRAY_ID = -1;
-    private static final CollisionData DEFAULT_COLLECTION_TREE = null;
+    private static final int DEFAULT_VERTEX_ARRAY_ID = -1;
+    private static final CollisionData DEFAULT_COLLISION_TREE = null;
 
     private static final float DEFAULT_POINT_SIZE = 1.0f;
     private static final float DEFAULT_LINE_WIDTH = 1.0f;
