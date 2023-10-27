@@ -848,7 +848,7 @@ final public class FastMath {
      *
      * @param min the desired minimum value
      * @param max the desired maximum value
-     * @return A random int between <tt>min</tt> (inclusive) to
+     * @return A random float between <tt>min</tt> (inclusive) to
      * <tt>max</tt> (inclusive).
      */
     public static float nextRandomFloat(float min, float max) {
