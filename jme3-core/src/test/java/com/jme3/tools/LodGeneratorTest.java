@@ -13,16 +13,13 @@ import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.VertexBuffer;
-import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Sphere;
-import com.jme3.system.JmeSystem;
+import com.jme3.system.TestUtil;
 
-import java.util.List;
 import jme3tools.optimize.LodGenerator;
 
 public class LodGeneratorTest {
-    URL assetCfgUrl = JmeSystem.getPlatformAssetConfigURL();
-    AssetManager assetManager = JmeSystem.newAssetManager(assetCfgUrl);
+    AssetManager assetManager = TestUtil.createAssetManager();
 
     float[] REDUCTION_VALUES = { 0.5f, 0.55f, 0.6f, 0.65f, 0.7f, 0.75f, 0.80f };
 
@@ -90,14 +87,10 @@ public class LodGeneratorTest {
         return new Sphere(12, 12, 1, false, false);
     }
 
-
-    // The following Test don't work durring build process. 
-
-    //@Test
+    @Test
     public void testMonkeyReductionConstant() {
 
         LodGenerator lod = new LodGenerator(monkey());
-        //for(int i =)
         VertexBuffer[] buffer = lod.computeLods(LodGenerator.TriangleReductionMethod.CONSTANT,
                 REDUCTION_VALUES);
 
@@ -107,7 +100,7 @@ public class LodGeneratorTest {
         assertArrayEquals(expected, actual);
     }
 
-    //@Test
+    @Test
     public void testMonkeyReductionProportional() {
 
         LodGenerator lod = new LodGenerator(monkey());
@@ -120,7 +113,7 @@ public class LodGeneratorTest {
         assertArrayEquals(expected, actual);
     }
 
-    //@Test
+    @Test
     public void testMonkeyReductionCollapsCost() {
         LodGenerator lod = new LodGenerator(monkey());
         VertexBuffer[] buffer = lod.computeLods(LodGenerator.TriangleReductionMethod.COLLAPSE_COST,
