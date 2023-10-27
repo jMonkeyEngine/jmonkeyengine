@@ -1,4 +1,4 @@
-package com.jme3.renderer.renderPass;
+package com.jme3.renderer.pass;
 
 /**
  * Subsurface Scattering.

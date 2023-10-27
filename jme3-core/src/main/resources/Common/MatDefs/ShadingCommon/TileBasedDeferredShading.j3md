@@ -33,6 +33,7 @@ MaterialDef DeferredShading {
 
         WorldParameters {
             CameraPosition
+            ViewProjectionMatrixInverse
             WorldViewProjectionMatrix
             ViewProjectionMatrix
             ResolutionInverse

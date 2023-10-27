@@ -54,7 +54,7 @@ import com.jme3.renderer.queue.GeometryList;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
-import com.jme3.renderer.renderPass.*;
+import com.jme3.renderer.pass.*;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
@@ -94,7 +94,7 @@ public class RenderManager {
     private int curTileSize = -1;
     private int numberTileDivisions = 4;
     // frameGraph=============================================================================↓
-    private IRenderGeometry iRenderGeometry;
+    private RenderGeometry renderGeometry;
     private boolean useFramegraph = true;
     private FrameGraph frameGraph;
     private GBufferPass gBufferPass;
@@ -255,16 +255,16 @@ public class RenderManager {
 
     /**
      * Set an IRenderGeometry for executing drawing call interfaces for the specified FGPass.<br/>
-     * @param iRenderGeometry
+     * @param renderGeometry
      *
-     * @see IRenderGeometry
+     * @see RenderGeometry
      */
-    public final void setRenderGeometryHandler(IRenderGeometry iRenderGeometry){
-        this.iRenderGeometry = iRenderGeometry;
+    public final void setRenderGeometryHandler(RenderGeometry renderGeometry){
+        this.renderGeometry = renderGeometry;
     }
 
-    public IRenderGeometry getRenderGeometryHandler() {
-        return iRenderGeometry;
+    public RenderGeometry getRenderGeometryHandler() {
+        return renderGeometry;
     }
 
     /**

@@ -32,6 +32,8 @@
 package com.jme3.renderer.framegraph;
 
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * The FrameGraph system is used to manage render passes and the dependencies between them in a declarative way. Some key aspects:<br/>
@@ -50,6 +52,7 @@ import java.util.ArrayList;
  * @author JohnKkk
  */
 public class FrameGraph {
+    private static final Logger logger = Logger.getLogger(FrameGraph.class.getName());
     private ArrayList<FGPass> passes;
     private ArrayList<FGSource> globalSources;
     private ArrayList<FGSink> globalSinks;
@@ -93,7 +96,9 @@ public class FrameGraph {
             
             if((linkPassName == null || linkPassName.isEmpty())){
                 if(sink.isRequired()){
-                    System.err.println("In pass named [" + pass.getName() + "] sink named [" + sink.getRegisteredName() + "] has no target source set.");
+                    logger.throwing(FrameGraph.class.toString(), "<linkSinks>", new NullPointerException("In pass named [" + pass.getName() + "] sink named [" + sink.getRegisteredName() + "] has no target source set."));
+//                    logger.log(Level.WARNING, "In pass named [" + pass.getName() + "] sink named [" + sink.getRegisteredName() + "] has no target source set.");
+//                    System.err.println("In pass named [" + pass.getName() + "] sink named [" + sink.getRegisteredName() + "] has no target source set.");
                     return;
                 }
                 else{
@@ -114,7 +119,8 @@ public class FrameGraph {
                 if(!bound){
                     bound = FGGlobal.linkSink(sink);
                     if(!bound && sink.isRequired()){
-                        System.err.println("Pass named [" + linkPassName + "] not found");
+                        logger.throwing(FrameGraph.class.toString(), "<linkSinks>", new NullPointerException("Pass named [" + linkPassName + "] not found"));
+//                        System.err.println("Pass named [" + linkPassName + "] not found");
                         return;
                     }
                 }
@@ -133,7 +139,8 @@ public class FrameGraph {
                 if(!bound){
                     bound = FGGlobal.linkSink(sink);
                     if(!bound && sink.isRequired()){
-                        System.err.println("Pass named [" + linkPassName + "] not found");
+                        logger.throwing(FrameGraph.class.toString(), "<linkSinks>", new NullPointerException("Pass named [" + linkPassName + "] not found"));
+//                        System.err.println("Pass named [" + linkPassName + "] not found");
                         return;
                     }
                 }
@@ -229,7 +236,8 @@ public class FrameGraph {
         // validate name uniqueness
         for(FGPass nextPass : passes){
             if(nextPass.getName().equals(pass.getName())){
-                System.err.println("Pass name already exists: " + pass.getName());
+                logger.throwing(FrameGraph.class.toString(), "<linkSinks>", new NullPointerException("Pass name already exists: " + pass.getName()));
+//                System.err.println("Pass name already exists: " + pass.getName());
                 return;
             }
         }
@@ -249,7 +257,8 @@ public class FrameGraph {
                 return nextPass;
             }
         }
-        System.err.println("Failed to find pass name");
+        logger.throwing(FrameGraph.class.toString(), "<linkSinks>", new NullPointerException("Failed to find pass name"));
+//        System.err.println("Failed to find pass name");
         return null;
     }
 
