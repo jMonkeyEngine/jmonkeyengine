@@ -605,9 +605,9 @@ public class GltfLoader implements AssetLoader {
                 BinDataKey key = new BinDataKey(info.getKey().getFolder() + decoded);
                 InputStream input = (InputStream) info.getManager().loadAsset(key);
                 data = new byte[bufferLength];
-                DataInputStream dataStream = new DataInputStream(input);
-                dataStream.readFully(data);
-                dataStream.close();
+                try (DataInputStream dataStream = new DataInputStream(input)) {
+                    dataStream.readFully(data);
+                }
             }
         } else {
             // no URI, this should not happen in a gltf file, only in glb files.
@@ -618,6 +618,11 @@ public class GltfLoader implements AssetLoader {
 
     public Material readMaterial(int materialIndex) throws IOException {
         assertNotNull(materials, "There is no material defined yet a mesh references one");
+
+        Material material = fetchFromCache("materials", materialIndex, Material.class);
+        if (material != null) {
+            return material.clone();
+        }
 
         JsonObject matData = materials.get(materialIndex).getAsJsonObject();
         JsonObject pbrMat = matData.getAsJsonObject("pbrMetallicRoughness");
@@ -688,7 +693,10 @@ public class GltfLoader implements AssetLoader {
 
         adapter.setParam("emissiveTexture", readTexture(matData.getAsJsonObject("emissiveTexture")));
 
-        return adapter.getMaterial();
+        material = adapter.getMaterial();
+        addToCache("materials", materialIndex, material, materials.size());
+
+        return material;
     }
 
     public void readCameras() throws IOException {
@@ -746,12 +754,17 @@ public class GltfLoader implements AssetLoader {
         Integer textureIndex = getAsInteger(texture, "index");
         assertNotNull(textureIndex, "Texture has no index");
         assertNotNull(textures, "There are no textures, yet one is referenced by a material");
+
+        Texture2D texture2d = fetchFromCache("textures", textureIndex, Texture2D.class);
+        if (texture2d != null) {
+            return texture2d;
+        }
         
         JsonObject textureData = textures.get(textureIndex).getAsJsonObject();
         Integer sourceIndex = getAsInteger(textureData, "source");
         Integer samplerIndex = getAsInteger(textureData, "sampler");
 
-        Texture2D texture2d = readImage(sourceIndex, flip);
+        texture2d = readImage(sourceIndex, flip);
 
         if (samplerIndex != null) {
             texture2d = readSampler(samplerIndex, texture2d);
@@ -760,6 +773,8 @@ public class GltfLoader implements AssetLoader {
         }
 
         texture2d = customContentManager.readExtensionAndExtras("texture", texture, texture2d);
+
+        addToCache("textures", textureIndex, texture2d, textures.size());
 
         return texture2d;
     }
