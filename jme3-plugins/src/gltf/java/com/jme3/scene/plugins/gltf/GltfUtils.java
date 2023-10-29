@@ -425,12 +425,21 @@ public class GltfUtils {
         int stride = Math.max(dataLength, byteStride);
         int end = count * stride + byteOffset;
         stream.skipBytes(byteOffset);
+
+        if (dataLength == stride) {
+            byte[] buffer = new byte[end - index];
+            stream.read(buffer, 0, buffer.length);
+            System.arraycopy(buffer, 0, array, 0, buffer.length);
+
+            return;
+        }
+
         int arrayIndex = 0;
+        byte[] buffer = new byte[numComponents];
         while (index < end) {
-            for (int i = 0; i < numComponents; i++) {
-                array[arrayIndex] = stream.readByte();
-                arrayIndex++;
-            }
+            stream.read(buffer, 0, numComponents);
+            System.arraycopy(buffer, 0, array, arrayIndex, numComponents);
+            arrayIndex += numComponents;
             if (dataLength < stride) {
                 stream.skipBytes(stride - dataLength);
             }
