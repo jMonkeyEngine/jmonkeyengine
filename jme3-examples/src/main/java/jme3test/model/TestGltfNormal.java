@@ -16,8 +16,10 @@ import com.jme3.util.TangentBinormalGenerator;
 import com.jme3.util.mikktspace.MikktspaceTangentGenerator;
 
 public class TestGltfNormal extends SimpleApplication {
+    
     Node probeNode;
     PointLight light;
+    boolean flipTextures = !false;
 
     public static void main(String[] args) {
         AppSettings sett = new AppSettings(true);
@@ -31,7 +33,8 @@ public class TestGltfNormal extends SimpleApplication {
     @Override
     public void simpleInitApp() {
         
-        assetManager.registerLocator(System.getProperty("user.home"), FileLocator.class);
+        assetManager.registerLocator(System.getProperty("user.home")+"/Downloads", FileLocator.class);
+        assetManager.registerLocator(System.getProperty("user.home")+"/java/prj/JmeUtils/assets/Models", FileLocator.class);
         
         rootNode.setShadowMode(RenderQueue.ShadowMode.CastAndReceive);
         probeNode = (Node) assetManager.loadModel("Scenes/defaultProbe.j3o");
@@ -44,7 +47,7 @@ public class TestGltfNormal extends SimpleApplication {
         flyCam.setMoveSpeed(20);
         viewPort.setBackgroundColor(new ColorRGBA().setAsSrgb(0.2f, 0.2f, 0.2f, 1.0f));
         
-        loadModel("Downloads/NormalTangentMirrorTest_NoTangents.gltf", new Vector3f(0, 0, 0), 3);
+        loadModel("NormalTangentMirrorTest_FromObj.j3o", new Vector3f(0, 0, 0), 3);
         
         probeNode.addLight(new AmbientLight(ColorRGBA.Gray));
         light = new PointLight(new Vector3f(-1f, 1f, 10f), ColorRGBA.White, 1000f);
@@ -61,14 +64,26 @@ public class TestGltfNormal extends SimpleApplication {
         Spatial s = assetManager.loadModel(k);
         s.scale(scale);
         s.move(offset);
-        Material mat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
-        mat.setTexture("DiffuseMap", assetManager.loadTexture(new TextureKey("Downloads/NormalTangentMirrorTest_BaseColor.png", false)));
-        mat.setTexture("NormalMap", assetManager.loadTexture(new TextureKey("Downloads/NormalTangentTest_Normal.png", false)));
-        mat.setBoolean("VertexLighting", false);
-        s.setMaterial(mat);
+        s.setMaterial(createPBRLightingMat());
+        //s.setMaterial(createSPLightingMat());
         //TangentBinormalGenerator.generate(s);
-        //MikktspaceTangentGenerator.generate(s);
+        MikktspaceTangentGenerator.generate(s);
         probeNode.attachChild(s);
+    }
+    
+    private Material createPBRLightingMat() {
+        Material mat = new Material(assetManager, "Common/MatDefs/Light/PBRLighting.j3md");
+        mat.setTexture("BaseColorMap", assetManager.loadTexture(new TextureKey("NormalTangentMirrorTest_BaseColor.png", flipTextures)));
+        mat.setTexture("NormalMap", assetManager.loadTexture(new TextureKey("NormalTangentTest_Normal.png", flipTextures)));
+        return mat;
+    }
+    
+    private Material createSPLightingMat() {
+        Material mat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
+        mat.setTexture("DiffuseMap", assetManager.loadTexture(new TextureKey("NormalTangentMirrorTest_BaseColor.png", flipTextures)));
+        mat.setTexture("NormalMap", assetManager.loadTexture(new TextureKey("NormalTangentTest_Normal.png", flipTextures)));
+        mat.setBoolean("VertexLighting", false);
+        return mat;
     }
 
 }
