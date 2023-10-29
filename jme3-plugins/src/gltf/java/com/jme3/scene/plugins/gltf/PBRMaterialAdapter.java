@@ -64,34 +64,43 @@ public abstract class PBRMaterialAdapter extends MaterialAdapter {
 
     @Override
     protected MatParam adaptMatParam(MatParam param) {
-        if (param.getName().equals("alpha")) {
-            String alphaMode = (String) param.getValue();
-            switch (alphaMode) {
-                case "MASK":
-                    // "MASK" -> BlendMode.Off
-                    getMaterial().setFloat("AlphaDiscardThreshold", MASK_ALPHA_DISCARD);
-                    break;
-                case "BLEND":
-                    getMaterial().getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Alpha);
-                    // Alpha is a RenderState not a Material Parameter, so return null
-                    return null;
-            }
-        } else if (param.getName().equals("doubleSided")) {
-            boolean doubleSided = (boolean) param.getValue();
-            if (doubleSided) {
-                //Note that this is not completely right as normals on the back side will be in the wrong direction.
-                getMaterial().getAdditionalRenderState().setFaceCullMode(RenderState.FaceCullMode.Off);
-            }
-            // FaceCulling is a RenderState not a Material Parameter, so return null
-            return null;
-        } else if (param.getName().equals("NormalMap")) {
-            //Set the normal map type to OpenGl
-            getMaterial().setFloat("NormalType", 1.0f);
-        } else if (param.getName().equals("LightMap")) {
-            //Gltf only supports AO maps (gray scales and only the r channel must be read)
-            getMaterial().setBoolean("LightMapAsAOMap", true);
-        } else if (param.getName().equals("alphaCutoff")) {
-            getMaterial().setFloat("AlphaDiscardThreshold", (float)param.getValue());
+        switch (param.getName()) {
+            case "alpha":
+                String alphaMode = (String) param.getValue();
+                switch (alphaMode) {
+                    case "MASK":
+                        // "MASK" -> BlendMode.Off
+                        getMaterial().setFloat("AlphaDiscardThreshold", MASK_ALPHA_DISCARD);
+                        break;
+                    case "BLEND":
+                        getMaterial().getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Alpha);
+                        break;
+                }
+
+                // Alpha is a RenderState not a Material Parameter, so return null
+                return null;
+            case "doubleSided":
+                boolean doubleSided = (boolean) param.getValue();
+                if (doubleSided) {
+                    //Note that this is not completely right as normals on the back side will be in the wrong direction.
+                    getMaterial().getAdditionalRenderState().setFaceCullMode(RenderState.FaceCullMode.Off);
+                }
+
+                // FaceCulling is a RenderState not a Material Parameter, so return null
+                return null;
+            case "NormalMap":
+                //Set the normal map type to OpenGl
+                getMaterial().setFloat("NormalType", 1.0f);
+                break;
+            case "LightMap":
+                //Gltf only supports AO maps (gray scales and only the r channel must be read)
+                getMaterial().setBoolean("LightMapAsAOMap", true);
+                break;
+            case "alphaCutoff":
+                getMaterial().setFloat("AlphaDiscardThreshold", (float) param.getValue());
+                break;
+            default:
+                break;
         }
 
         return param;
