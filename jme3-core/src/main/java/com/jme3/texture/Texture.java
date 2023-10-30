@@ -637,11 +637,11 @@ public abstract class Texture implements CloneableSmartAsset, Savable, Cloneable
             }
         }
 
-        anisotropicFilter = capsule.readInt("anisotropicFilter", 1);
-        minificationFilter = capsule.readEnum("minificationFilter",
+        setAnisotropicFilter(capsule.readInt("anisotropicFilter", 1));
+        setMinFilter(capsule.readEnum("minificationFilter",
                 MinFilter.class,
-                MinFilter.BilinearNoMipMaps);
-        magnificationFilter = capsule.readEnum("magnificationFilter",
-                MagFilter.class, MagFilter.Bilinear);
+                MinFilter.BilinearNoMipMaps));
+        setMagFilter(capsule.readEnum("magnificationFilter",
+                MagFilter.class, MagFilter.Bilinear));
     }
 }
