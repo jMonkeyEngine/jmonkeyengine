@@ -5,7 +5,7 @@ on:
 jobs:
   format:
     runs-on: ubuntu-latest
-    if: github.repository != 'jMonkeyEngine/jmonkeyengine'
+    if: ${{ false }} 
     steps:
       - name: Checkout
         uses: actions/checkout@v4

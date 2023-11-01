@@ -890,16 +890,37 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         return type == VarType.BufferObject;
     }
 
-    private void updateRenderState(RenderManager renderManager, Renderer renderer, TechniqueDef techniqueDef) {
+    private void updateRenderState(Geometry geometry, RenderManager renderManager, Renderer renderer, TechniqueDef techniqueDef) {
         if (renderManager.getForcedRenderState() != null) {
-            renderer.applyRenderState(renderManager.getForcedRenderState());
+            mergedRenderState.copyFrom(renderManager.getForcedRenderState());
+        } else if (techniqueDef.getRenderState() != null) {
+            mergedRenderState.copyFrom(RenderState.DEFAULT);
+            techniqueDef.getRenderState().copyMergedTo(additionalState, mergedRenderState);
         } else {
-            if (techniqueDef.getRenderState() != null) {
-                renderer.applyRenderState(techniqueDef.getRenderState().copyMergedTo(additionalState, mergedRenderState));
-            } else {
-                renderer.applyRenderState(RenderState.DEFAULT.copyMergedTo(additionalState, mergedRenderState));
-            }
+            mergedRenderState.copyFrom(RenderState.DEFAULT);
+            RenderState.DEFAULT.copyMergedTo(additionalState, mergedRenderState);
         }
+        // test if the face cull mode should be flipped before render
+        if (mergedRenderState.isFaceCullFlippable() && isNormalsBackward(geometry.getWorldScale())) {
+            mergedRenderState.flipFaceCull();
+        }
+        renderer.applyRenderState(mergedRenderState);
+    }
+    
+    /**
+     * Returns true if the geometry world scale indicates that normals will be backward.
+     * @param scalar geometry world scale
+     * @return 
+     */
+    private boolean isNormalsBackward(Vector3f scalar) {
+        // count number of negative scalar vector components
+        int n = 0;
+        if (scalar.x < 0) n++;
+        if (scalar.y < 0) n++;
+        if (scalar.z < 0) n++;
+        // An odd number of negative components means the normal vectors
+        // are backward to what they should be.
+        return n == 1 || n == 3;
     }
     
     /**
@@ -1028,7 +1049,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         }
 
         // Apply render state
-        updateRenderState(renderManager, renderer, techniqueDef);
+        updateRenderState(geometry, renderManager, renderer, techniqueDef);
 
         // Get world overrides
         SafeArrayList<MatParamOverride> overrides = geometry.getWorldMatParamOverrides();

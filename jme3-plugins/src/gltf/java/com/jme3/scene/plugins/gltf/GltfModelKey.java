@@ -35,6 +35,7 @@ import com.jme3.asset.ModelKey;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * An optional key to use when loading a glTF file
@@ -114,4 +115,33 @@ public class GltfModelKey extends ModelKey {
     public void setExtrasLoader(ExtrasLoader extrasLoader) {
         this.extrasLoader = extrasLoader;
     }
+    
+    @Override
+    public boolean equals(Object object) {
+        if (object == null) {
+            return false;
+        }
+        if (getClass() != object.getClass()) {
+            return false;
+        }
+        final GltfModelKey other = (GltfModelKey)object;
+        if (!super.equals(other)) {
+            return false;
+        }
+        if (!Objects.equals(materialAdapters, other.materialAdapters)
+                || !Objects.equals(extrasLoader, other.extrasLoader)) {
+            return false;
+        }
+        return keepSkeletonPose == other.keepSkeletonPose;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 37 * hash + materialAdapters.hashCode();
+        hash = 37 * hash + Objects.hashCode(this.extrasLoader);
+        hash = 37 * hash + (this.keepSkeletonPose ? 1 : 0);
+        return hash;
+    }
+    
 }

@@ -138,7 +138,7 @@ public final class UserData implements Savable {
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(type, "type", (byte) 0);
-
+        
         switch (type) {
             case TYPE_INTEGER:
                 int i = (Integer) value;

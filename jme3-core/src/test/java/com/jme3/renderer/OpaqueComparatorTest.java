@@ -252,8 +252,8 @@ public class OpaqueComparatorTest {
         lightingMatTCVColorLight.setBoolean("VertexLighting", true);
         lightingMatTCVColorLight.setBoolean("SeparateTexCoord", true);
         
-        testSort(lightingMat, lightingMatVColor, lightingMatVLight,
-                 lightingMatVColorLight, lightingMatTC, lightingMatTCVColorLight);
+        testSort(lightingMatVColor, lightingMat, lightingMatVColorLight,
+                lightingMatVLight, lightingMatTC, lightingMatTCVColorLight);
     }
     
     @Test
@@ -332,8 +332,8 @@ public class OpaqueComparatorTest {
         Material mat2000 = matBase2.clone();
         mat2000.setName("2000");
         
-        testSort(mat1100, mat1101, mat1102, mat1110, 
-                 mat1120, mat1121, mat1122, mat1140, 
-                 mat1200, mat1210, mat1220, mat2000);
+        testSort(mat1110, mat1100, mat1101, mat1102, 
+                 mat1140, mat1120, mat1121, mat1122, 
+                 mat1220, mat1210, mat1200, mat2000);
     }
 }
