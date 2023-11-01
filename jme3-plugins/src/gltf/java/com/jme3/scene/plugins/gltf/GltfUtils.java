@@ -427,9 +427,7 @@ public class GltfUtils {
         stream.skipBytes(byteOffset);
 
         if (dataLength == stride) {
-            byte[] buffer = new byte[end - index];
-            stream.read(buffer, 0, buffer.length);
-            System.arraycopy(buffer, 0, array, 0, buffer.length);
+            stream.read(array, 0, end - index);
 
             return;
         }
