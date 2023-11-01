@@ -69,7 +69,7 @@ MaterialDef PBR Lighting {
         Boolean HorizonFade
 
         // Set to Use Lightmap
-        Texture2D LightMap
+        Texture2D LightMap -LINEAR
 
         // A scalar multiplier controlling the amount of occlusion applied.
         // A value of `0.0` means no occlusion. A value of `1.0` means full occlusion.
