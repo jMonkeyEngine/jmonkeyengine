@@ -73,9 +73,11 @@ public abstract class PBRMaterialAdapter extends MaterialAdapter {
                     break;
                 case "BLEND":
                     getMaterial().getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Alpha);
-                    // Alpha is a RenderState not a Material Parameter, so return null
-                    return null;
+                    break;
             }
+
+            // Alpha mode is handled here, so return null
+            return null;
         } else if (param.getName().equals("doubleSided")) {
             boolean doubleSided = (boolean) param.getValue();
             if (doubleSided) {
