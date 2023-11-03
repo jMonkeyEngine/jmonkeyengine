@@ -39,7 +39,6 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import com.jme3.asset.AssetManager;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Quaternion;
@@ -66,6 +65,7 @@ import com.jme3.util.BufferUtils;
  * @author Riccardo Balbo
  */
 public abstract class GenericEnvBaker implements EnvBaker {
+    private static final Logger LOG = Logger.getLogger(GenericEnvBaker.class.getName());
 
     protected static Vector3f[] axisX = new Vector3f[6];
     protected static Vector3f[] axisY = new Vector3f[6];
@@ -103,13 +103,10 @@ public abstract class GenericEnvBaker implements EnvBaker {
     protected final RenderManager renderManager;
     protected final AssetManager assetManager;
     protected final Camera cam;
-    protected  boolean texturePulling=false;
+    protected boolean texturePulling = false;
     protected List<ByteArrayOutputStream> bos = new ArrayList<>();
-    private static final Logger LOG=Logger.getLogger(GenericEnvBaker.class.getName());
 
- 
-
-    public GenericEnvBaker(RenderManager rm, AssetManager am, Format colorFormat, Format depthFormat, int env_size) {
+    protected GenericEnvBaker(RenderManager rm, AssetManager am, Format colorFormat, Format depthFormat, int env_size) {
         this.depthFormat = depthFormat;
 
         renderManager = rm;
@@ -138,17 +135,35 @@ public abstract class GenericEnvBaker implements EnvBaker {
         return env;
     }
 
-    Camera getCam(int id, int w, int h, Vector3f position, float frustumNear, float frustumFar) {
+    /**
+     * Update the internal camera to face the given cubemap face
+     * and return it
+     * 
+     * @param faceId
+     *            the id of the face (0-5)
+     * @param w
+     *            width of the camera
+     * @param h
+     *            height of the camera
+     * @param position
+     *            position of the camera
+     * @param frustumNear
+     *            near frustum
+     * @param frustumFar
+     *            far frustum
+     * @return The updated camera
+     */
+    protected Camera updateAndGetInternalCamera(int faceId, int w, int h, Vector3f position, float frustumNear, float frustumFar) {
         cam.resize(w, h, false);
         cam.setLocation(position);
         cam.setFrustumPerspective(90.0F, 1F, frustumNear, frustumFar);
-        cam.setRotation(new Quaternion().fromAxes(axisX[id], axisY[id], axisZ[id]));
+        cam.setRotation(new Quaternion().fromAxes(axisX[faceId], axisY[faceId], axisZ[faceId]));
         return cam;
     }
 
     @Override
     public void clean() {
-    
+
     }
 
     @Override
@@ -161,15 +176,12 @@ public abstract class GenericEnvBaker implements EnvBaker {
             envbakers[i].addColorTarget(FrameBufferTarget.newTarget(env).face(TextureCubeMap.Face.values()[i]));
         }
 
-       
-
-        if(isTexturePulling())startPulling();
-
+        if (isTexturePulling()) startPulling();
 
         for (int i = 0; i < 6; i++) {
             FrameBuffer envbaker = envbakers[i];
 
-            ViewPort viewPort = new ViewPort("EnvBaker", getCam(i, envbaker.getWidth(), envbaker.getHeight(), position, frustumNear, frustumFar));
+            ViewPort viewPort = new ViewPort("EnvBaker", updateAndGetInternalCamera(i, envbaker.getWidth(), envbaker.getHeight(), position, frustumNear, frustumFar));
             viewPort.setClearFlags(true, true, true);
             viewPort.setBackgroundColor(ColorRGBA.Pink);
 
@@ -187,16 +199,17 @@ public abstract class GenericEnvBaker implements EnvBaker {
             renderManager.setRenderFilter(ofilter);
 
             if (isTexturePulling()) pull(envbaker, env, i);
-            
+
         }
 
         if (isTexturePulling()) endPulling(env);
+
         env.getImage().clearUpdateNeeded();
+
         for (int i = 0; i < 6; i++) {
             envbakers[i].dispose();
         }
     }
-    
 
     /**
      * Starts pulling the data from the framebuffer into the texture
@@ -206,11 +219,15 @@ public abstract class GenericEnvBaker implements EnvBaker {
     }
 
     /**
-     * Pulls the data from the framebuffer into the texture
-     * Nb. mipmaps must be pulled sequentially on the same faceId
-     * @param fb the framebuffer to pull from
-     * @param env the texture to pull into
-     * @param faceId id of face if cubemap or 0 otherwise
+     * Pulls the data from the framebuffer into the texture Nb. mipmaps must be
+     * pulled sequentially on the same faceId
+     * 
+     * @param fb
+     *            the framebuffer to pull from
+     * @param env
+     *            the texture to pull into
+     * @param faceId
+     *            id of face if cubemap or 0 otherwise
      * @return
      */
     protected ByteBuffer pull(FrameBuffer fb, Texture env, int faceId) {
@@ -222,7 +239,10 @@ public abstract class GenericEnvBaker implements EnvBaker {
         renderManager.getRenderer().readFrameBufferWithFormat(fb, face, fb.getColorTarget().getFormat());
         face.rewind();
 
-        while (bos.size() <= faceId) bos.add(null);
+        while (bos.size() <= faceId) {
+            bos.add(null);
+        }
+
         ByteArrayOutputStream bo = bos.get(faceId);
         if (bo == null) bos.set(faceId, bo = new ByteArrayOutputStream());
         try {
@@ -235,26 +255,27 @@ public abstract class GenericEnvBaker implements EnvBaker {
         return face;
     }
 
-
     /**
      * Ends pulling the data into the texture
-     * @param tx the texture to pull into
+     * 
+     * @param tx
+     *            the texture to pull into
      */
     protected void endPulling(Texture tx) {
         for (int i = 0; i < bos.size(); i++) {
             ByteArrayOutputStream bo = bos.get(i);
-            if (bo == null) {
+            if (bo != null) {
+                ByteBuffer faceMip = ByteBuffer.wrap(bo.toByteArray());
+                tx.getImage().setData(i, faceMip);
+            } else {
                 LOG.log(Level.SEVERE, "Missing face {0}. Pulling incomplete!", i);
-                continue;
             }
-            ByteBuffer faceMip = ByteBuffer.wrap(bo.toByteArray());
-            tx.getImage().setData(i, faceMip);
         }
         bos.clear();
         tx.getImage().clearUpdateNeeded();
     }
 
-    protected int limitMips(int nbMipMaps, int baseW, int baseH,RenderManager rm) {
+    protected int limitMips(int nbMipMaps, int baseW, int baseH, RenderManager rm) {
         if (nbMipMaps > 6) nbMipMaps = 6;
         return nbMipMaps;
     }

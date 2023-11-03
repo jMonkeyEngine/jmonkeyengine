@@ -34,7 +34,7 @@ package jme3test.light.pbr;
 import com.jme3.app.SimpleApplication;
 import com.jme3.environment.EnvironmentCamera;
 import com.jme3.environment.LightProbeFactory;
-import com.jme3.environment.LightProbeFactory2;
+import com.jme3.environment.FastLightProbeFactory;
 import com.jme3.environment.generation.JobProgressAdapter;
 import com.jme3.environment.util.EnvMapUtils;
 import com.jme3.environment.util.LightsDebugState;
@@ -204,7 +204,7 @@ public class TestPBRLighting extends SimpleApplication {
             LightProbe probe;
 
             if (USE_ACCELERATED_BAKING) {
-                probe = LightProbeFactory2.makeProbe(renderManager, assetManager, RESOLUTION, Vector3f.ZERO, 1f, 1000f, rootNode);
+                probe = FastLightProbeFactory.makeProbe(renderManager, assetManager, RESOLUTION, Vector3f.ZERO, 1f, 1000f, rootNode);
             } else {
                 probe = LightProbeFactory.makeProbe(stateManager.getState(EnvironmentCamera.class), rootNode, new JobProgressAdapter<LightProbe>() {
 

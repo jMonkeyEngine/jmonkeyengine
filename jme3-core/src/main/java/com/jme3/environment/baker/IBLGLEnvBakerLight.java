@@ -54,8 +54,8 @@ import com.jme3.texture.image.ImageRaster;
 import com.jme3.util.BufferUtils;
 
 /**
- * Fully accelerated env baker for IBL that bakes the specular map and spherical harmonics
- * on the GPU.
+ * Fully accelerated env baker for IBL that bakes the specular map and spherical
+ * harmonics on the GPU.
  * 
  * This is lighter on VRAM but it is not as parallelized as IBLGLEnvBaker
  * 
@@ -65,12 +65,29 @@ public class IBLGLEnvBakerLight extends IBLHybridEnvBakerLight {
     public final static int NUM_SH_COEFFICIENT = 9;
     private static final Logger LOG = Logger.getLogger(IBLGLEnvBakerLight.class.getName());
 
+    /**
+     * Create a new IBL env baker
+     * 
+     * @param rm
+     *            The render manager used to render the env scene
+     * @param am
+     *            The asset manager used to load the baking shaders
+     * @param format
+     *            The format of the color buffers
+     * @param depthFormat
+     *            The format of the depth buffers
+     * @param env_size
+     *            The size in pixels of the output environment cube map (eg.
+     *            1024)
+     * @param specular_size
+     *            The size in pixels of the output specular cube map (eg. 1024)
+     */
     public IBLGLEnvBakerLight(RenderManager rm, AssetManager am, Format format, Format depthFormat, int env_size, int specular_size) {
         super(rm, am, format, depthFormat, env_size, specular_size);
     }
 
     @Override
-    public boolean isTexturePulling() { 
+    public boolean isTexturePulling() {
         return this.texturePulling;
     }
 
@@ -83,8 +100,7 @@ public class IBLGLEnvBakerLight extends IBLHybridEnvBakerLight {
         mat.setTexture("Texture", env);
         mat.setVector2("Resolution", new Vector2f(env.getImage().getWidth(), env.getImage().getHeight()));
         screen.setMaterial(mat);
-        
-        
+
         float remapMaxValue = 0;
         Format format = Format.RGBA32F;
         if (!renderManager.getRenderer().getCaps().contains(Caps.FloatColorBufferRGBA)) {
@@ -93,29 +109,20 @@ public class IBLGLEnvBakerLight extends IBLHybridEnvBakerLight {
             remapMaxValue = 0.05f;
         }
 
-        
         if (remapMaxValue > 0) {
             mat.setFloat("RemapMaxValue", remapMaxValue);
         } else {
             mat.clearParam("RemapMaxValue");
         }
 
-        Texture2D shCoefTx[] = {
-            new Texture2D(NUM_SH_COEFFICIENT, 1, 1, format),
-            new Texture2D(NUM_SH_COEFFICIENT, 1, 1, format)
-        };
+        Texture2D shCoefTx[] = { new Texture2D(NUM_SH_COEFFICIENT, 1, 1, format), new Texture2D(NUM_SH_COEFFICIENT, 1, 1, format) };
 
-
-        FrameBuffer shbaker[] = {
-            new FrameBuffer(NUM_SH_COEFFICIENT, 1, 1),
-            new FrameBuffer(NUM_SH_COEFFICIENT, 1, 1)
-        };
+        FrameBuffer shbaker[] = { new FrameBuffer(NUM_SH_COEFFICIENT, 1, 1), new FrameBuffer(NUM_SH_COEFFICIENT, 1, 1) };
         shbaker[0].setSrgb(false);
         shbaker[0].addColorTarget(FrameBufferTarget.newTarget(shCoefTx[0]));
 
         shbaker[1].setSrgb(false);
         shbaker[1].addColorTarget(FrameBufferTarget.newTarget(shCoefTx[1]));
-        
 
         int renderOnT = -1;
 
@@ -131,21 +138,18 @@ public class IBLGLEnvBakerLight extends IBLHybridEnvBakerLight {
 
             screen.updateLogicalState(0);
             screen.updateGeometricState();
-            
-            renderManager.setCamera(getCam(0, shbaker[renderOnT].getWidth(), shbaker[renderOnT].getHeight(), Vector3f.ZERO, 1, 1000), false);
+
+            renderManager.setCamera(updateAndGetInternalCamera(0, shbaker[renderOnT].getWidth(), shbaker[renderOnT].getHeight(), Vector3f.ZERO, 1, 1000), false);
             renderManager.getRenderer().setFrameBuffer(shbaker[renderOnT]);
             renderManager.renderGeometry(screen);
         }
 
-            
-        ByteBuffer shCoefRaw = BufferUtils.createByteBuffer(
-            NUM_SH_COEFFICIENT * 1 * ( shbaker[renderOnT].getColorTarget().getFormat().getBitsPerPixel() / 8)
-        );
+        ByteBuffer shCoefRaw = BufferUtils.createByteBuffer(NUM_SH_COEFFICIENT * 1 * (shbaker[renderOnT].getColorTarget().getFormat().getBitsPerPixel() / 8));
         renderManager.getRenderer().readFrameBufferWithFormat(shbaker[renderOnT], shCoefRaw, shbaker[renderOnT].getColorTarget().getFormat());
         shCoefRaw.rewind();
 
         Image img = new Image(format, NUM_SH_COEFFICIENT, 1, shCoefRaw, ColorSpace.Linear);
-        ImageRaster imgr=ImageRaster.create(img);
+        ImageRaster imgr = ImageRaster.create(img);
 
         shCoef = new Vector3f[NUM_SH_COEFFICIENT];
         float weightAccum = 0.0f;
@@ -159,14 +163,14 @@ public class IBLGLEnvBakerLight extends IBLHybridEnvBakerLight {
             }
 
         }
-        
+
         if (remapMaxValue > 0) weightAccum /= remapMaxValue;
 
         for (int i = 0; i < NUM_SH_COEFFICIENT; ++i) {
-            if (remapMaxValue > 0)  shCoef[i].divideLocal(remapMaxValue);
+            if (remapMaxValue > 0) shCoef[i].divideLocal(remapMaxValue);
             shCoef[i].multLocal(4.0f * FastMath.PI / weightAccum);
         }
-        
+
         img.dispose();
 
     }

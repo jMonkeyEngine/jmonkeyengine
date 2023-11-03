@@ -33,7 +33,6 @@
 package com.jme3.environment.baker;
 
 import java.util.function.Function;
-
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
@@ -47,38 +46,43 @@ import com.jme3.texture.TextureCubeMap;
 public interface EnvBaker {
     /**
      * Bake the environment
-     * @param scene The scene to bake
-     * @param position The position of the camera
-     * @param frustumNear The near frustum
-     * @param frustumFar The far frustum
-     * @param filter A filter to select which geometries to bake
+     * 
+     * @param scene
+     *            The scene to bake
+     * @param position
+     *            The position of the camera
+     * @param frustumNear
+     *            The near frustum
+     * @param frustumFar
+     *            The far frustum
+     * @param filter
+     *            A filter to select which geometries to bake
      */
     public void bakeEnvironment(Spatial scene, Vector3f position, float frustumNear, float frustumFar, Function<Geometry, Boolean> filter);
-    
+
     /**
      * Get the environment map
+     * 
      * @return The environment map
      */
     public TextureCubeMap getEnvMap();
 
     /**
-     * Clean the environment baker
-     * This method should be called when the baker is no longer needed
-     * It will clean up all the resources
+     * Clean the environment baker This method should be called when the baker
+     * is no longer needed It will clean up all the resources
      */
     public void clean();
-    
-
 
     /**
      * Set if textures should be pulled from the GPU
+     * 
      * @param v
      */
     public void setTexturePulling(boolean v);
 
-
     /**
      * Get if textures should be pulled from the GPU
+     * 
      * @return
      */
     public boolean isTexturePulling();

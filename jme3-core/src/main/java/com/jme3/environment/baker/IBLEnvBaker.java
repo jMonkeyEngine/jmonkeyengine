@@ -30,7 +30,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 package com.jme3.environment.baker;
 
 import com.jme3.texture.Texture2D;
@@ -44,10 +43,11 @@ import com.jme3.texture.TextureCubeMap;
 public interface IBLEnvBaker extends EnvBaker {
     /**
      * Generate the BRDF texture
+     * 
      * @return The BRDF texture
      */
-    public Texture2D genBRTF() ;
-    
+    public Texture2D genBRTF();
+
     /**
      * Bake the irradiance map
      */
@@ -56,16 +56,18 @@ public interface IBLEnvBaker extends EnvBaker {
     /**
      * Bake the specular IBL map
      */
-    public void bakeSpecularIBL() ;
+    public void bakeSpecularIBL();
 
     /**
      * Get the specular IBL map
+     * 
      * @return The specular IBL map
      */
     public TextureCubeMap getSpecularIBL();
 
     /**
      * Get the irradiance map
+     * 
      * @return The irradiance map
      */
     public TextureCubeMap getIrradiance();

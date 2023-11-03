@@ -35,7 +35,6 @@ package com.jme3.environment.baker;
 import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import com.jme3.asset.AssetManager;
 import com.jme3.environment.util.EnvMapUtils;
 import com.jme3.material.Material;
@@ -62,13 +61,28 @@ import com.jme3.texture.image.ColorSpace;
  * @author Riccardo Balbo
  */
 public class IBLHybridEnvBakerLight extends GenericEnvBaker implements IBLEnvBakerLight {
-    private final Logger LOGGER=Logger.getLogger(IBLHybridEnvBakerLight.class.getName());
+    private final Logger LOGGER = Logger.getLogger(IBLHybridEnvBakerLight.class.getName());
     protected TextureCubeMap specular;
     protected Vector3f[] shCoef;
 
-    public IBLHybridEnvBakerLight(RenderManager rm, AssetManager am, Format format, Format depthFormat, int env_size, int specular_size
-
-    ) {
+    /**
+     * Create a new IBL env baker
+     * 
+     * @param rm
+     *            The render manager used to render the env scene
+     * @param am
+     *            The asset manager used to load the baking shaders
+     * @param format
+     *            The format of the color buffers
+     * @param depthFormat
+     *            The format of the depth buffers
+     * @param env_size
+     *            The size in pixels of the output environment cube map (eg.
+     *            1024)
+     * @param specular_size
+     *            The size in pixels of the output specular cube map (eg. 1024)
+     */
+    public IBLHybridEnvBakerLight(RenderManager rm, AssetManager am, Format format, Format depthFormat, int env_size, int specular_size) {
         super(rm, am, format, depthFormat, env_size);
 
         specular = new TextureCubeMap(specular_size, specular_size, format);
@@ -78,7 +92,7 @@ public class IBLHybridEnvBakerLight extends GenericEnvBaker implements IBLEnvBak
         specular.getImage().setColorSpace(ColorSpace.Linear);
 
         int nbMipMaps = (int) (Math.log(specular_size) / Math.log(2) + 1);
-        nbMipMaps = limitMips(nbMipMaps, specular.getImage().getWidth(), specular.getImage().getHeight(),rm);
+        nbMipMaps = limitMips(nbMipMaps, specular.getImage().getWidth(), specular.getImage().getHeight(), rm);
 
         int[] sizes = new int[nbMipMaps];
         for (int i = 0; i < nbMipMaps; i++) {
@@ -89,7 +103,7 @@ public class IBLHybridEnvBakerLight extends GenericEnvBaker implements IBLEnvBak
         specular.getImage().setMipmapsGenerated(true);
 
     }
-    
+
     @Override
     public boolean isTexturePulling() { // always pull textures from gpu
         return true;
@@ -116,7 +130,7 @@ public class IBLHybridEnvBakerLight extends GenericEnvBaker implements IBLEnvBak
             screen.updateLogicalState(0);
             screen.updateGeometricState();
 
-            renderManager.setCamera(getCam(i, specularbaker.getWidth(), specularbaker.getHeight(), Vector3f.ZERO, 1, 1000), false);
+            renderManager.setCamera(updateAndGetInternalCamera(i, specularbaker.getWidth(), specularbaker.getHeight(), Vector3f.ZERO, 1, 1000), false);
             renderManager.getRenderer().setFrameBuffer(specularbaker);
             renderManager.renderGeometry(screen);
 
@@ -146,30 +160,30 @@ public class IBLHybridEnvBakerLight extends GenericEnvBaker implements IBLEnvBak
                 float roughness = (float) mip / (float) (specular.getImage().getMipMapSizes().length - 1);
                 bakeSpecularIBL(mip, roughness, mat, screen);
             } catch (Exception e) {
-                LOGGER.log(Level.WARNING,"Error while computing mip level " + mip,e);
+                LOGGER.log(Level.WARNING, "Error while computing mip level " + mip, e);
                 break;
             }
         }
-        
+
         if (mip < specular.getImage().getMipMapSizes().length) {
-       
-            int[] sizes = specular.getImage().getMipMapSizes();            
-            sizes=Arrays.copyOf(sizes,mip);
+
+            int[] sizes = specular.getImage().getMipMapSizes();
+            sizes = Arrays.copyOf(sizes, mip);
             specular.getImage().setMipMapSizes(sizes);
             specular.getImage().setMipmapsGenerated(true);
             if (sizes.length <= 1) {
                 try {
-                    LOGGER.log(Level.WARNING,"Workaround driver BUG: only one mip level available, regenerate it with higher roughness (shiny fix)");
+                    LOGGER.log(Level.WARNING, "Workaround driver BUG: only one mip level available, regenerate it with higher roughness (shiny fix)");
                     bakeSpecularIBL(0, 1f, mat, screen);
                 } catch (Exception e) {
-                    LOGGER.log(Level.FINE,"Error while recomputing mip level 0",e);
+                    LOGGER.log(Level.FINE, "Error while recomputing mip level 0", e);
                 }
             }
         }
-        
+
         if (isTexturePulling()) endPulling(specular);
         specular.getImage().clearUpdateNeeded();
- 
+
     }
 
     @Override
