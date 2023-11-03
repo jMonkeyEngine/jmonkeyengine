@@ -33,7 +33,6 @@ package com.jme3.environment.baker;
 
 import java.nio.ByteBuffer;
 import java.util.logging.Logger;
-
 import com.jme3.asset.AssetManager;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
