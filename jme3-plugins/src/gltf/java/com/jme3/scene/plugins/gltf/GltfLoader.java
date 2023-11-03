@@ -1496,4 +1496,14 @@ public class GltfLoader implements AssetLoader {
             return new SkinBuffers(data, format.getComponentSize());
         }
     }
+    
+
+    public static void registerExtension(String name, Class<? extends ExtensionLoader> ext) {
+        CustomContentManager.defaultExtensionLoaders.put(name, ext);        
+    }
+    
+
+    public static void unregisterExtension(String name) {
+        CustomContentManager.defaultExtensionLoaders.remove(name);
+    }
 }
