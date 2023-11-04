@@ -428,8 +428,14 @@ public class GltfUtils {
 
         if (dataLength == stride) {
             int length = end - index;
-            int read = stream.read(array, 0, length);
-            assertReadLength(read, length);
+            int n = 0;
+            while (n < length) {
+                int cnt = stream.read(array, n, length - n);
+                if (cnt < 0) {
+                    throw new AssetLoadException("Data ended prematurely");
+                }
+                n += cnt;
+            }
 
             return;
         }
@@ -437,21 +443,13 @@ public class GltfUtils {
         int arrayIndex = 0;
         byte[] buffer = new byte[numComponents];
         while (index < end) {
-            int read = stream.read(buffer, 0, numComponents);
-            assertReadLength(read, numComponents);
-
+            stream.read(buffer, 0, numComponents);
             System.arraycopy(buffer, 0, array, arrayIndex, numComponents);
             arrayIndex += numComponents;
             if (dataLength < stride) {
                 stream.skipBytes(stride - dataLength);
             }
             index += stride;
-        }
-    }
-
-    private static void assertReadLength(int read, int length) {
-        if (read < length) {
-            throw new AssetLoadException("Data ended prematurely");
         }
     }
 
