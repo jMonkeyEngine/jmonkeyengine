@@ -443,7 +443,14 @@ public class GltfUtils {
         int arrayIndex = 0;
         byte[] buffer = new byte[numComponents];
         while (index < end) {
-            stream.read(buffer, 0, numComponents);
+            int n = 0;
+            while (n < numComponents) {
+                int cnt = stream.read(buffer, n, numComponents - n);
+                if (cnt < 0) {
+                    throw new AssetLoadException("Data ended prematurely");
+                }
+                n += cnt;
+            }
             System.arraycopy(buffer, 0, array, arrayIndex, numComponents);
             arrayIndex += numComponents;
             if (dataLength < stride) {
