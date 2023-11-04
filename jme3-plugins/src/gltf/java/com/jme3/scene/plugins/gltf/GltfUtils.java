@@ -427,15 +427,7 @@ public class GltfUtils {
         stream.skipBytes(byteOffset);
 
         if (dataLength == stride) {
-            int length = end - index;
-            int n = 0;
-            while (n < length) {
-                int cnt = stream.read(array, n, length - n);
-                if (cnt < 0) {
-                    throw new AssetLoadException("Data ended prematurely");
-                }
-                n += cnt;
-            }
+            read(stream, array, end - index);
 
             return;
         }
@@ -443,20 +435,24 @@ public class GltfUtils {
         int arrayIndex = 0;
         byte[] buffer = new byte[numComponents];
         while (index < end) {
-            int n = 0;
-            while (n < numComponents) {
-                int cnt = stream.read(buffer, n, numComponents - n);
-                if (cnt < 0) {
-                    throw new AssetLoadException("Data ended prematurely");
-                }
-                n += cnt;
-            }
+            read(stream, buffer, numComponents);
             System.arraycopy(buffer, 0, array, arrayIndex, numComponents);
             arrayIndex += numComponents;
             if (dataLength < stride) {
                 stream.skipBytes(stride - dataLength);
             }
             index += stride;
+        }
+    }
+
+    private static void read(LittleEndien stream, byte[] buffer, int length) throws IOException {
+        int n = 0;
+        while (n < length) {
+            int cnt = stream.read(buffer, n, length - n);
+            if (cnt < 0) {
+                throw new AssetLoadException("Data ended prematurely");
+            }
+            n += cnt;
         }
     }
 
