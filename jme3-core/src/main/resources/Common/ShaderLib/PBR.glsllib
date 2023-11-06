@@ -15,7 +15,6 @@ void Specular_Anti_Aliasing(in vec3 normal, in vec3 half_vector,
 
     float sigma = 0.50f; 							//- screen space variance
     float Kappa = 0.18f;								//- clamping treshold
-    vec2  H = half_vector.xy;
     vec3 dndu = dFdx(normal);
     vec3 dndv = dFdy(normal);
     float  variance = sigma*sigma*(dot(dndu, dndu) + dot(dndv, dndv));
