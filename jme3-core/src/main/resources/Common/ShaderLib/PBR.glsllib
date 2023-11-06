@@ -24,22 +24,6 @@ void Specular_Anti_Aliasing(in vec3 normal, in vec3 half_vector,
     float  kernel_roughness = min(Kappa, variance);
     alpha_x = sqrt(alpha_x*alpha_x + kernel_roughness);
 }
-void Specular_Anti_Aliasing2(in vec3 normal, in vec3 half_vector,
-                           	inout float alpha_x)
-{
-
-    float sigma = 0.50f; 							//- screen space variance
-    float Kappa = 0.18f;								//- clamping treshold
-    vec3 h = TBN * half_vector;
-    vec2  H = h.xy;
-    vec3 dndu = dFdx(normal);
-    vec3 dndv = dFdy(normal);
-    vec2  footprint_bounding_box = fwidth(H); 		//- abs(dfdx(slope_h)) + abs(dfdy(slope_h))
-	vec2  variance = sigma*sigma*footprint_bounding_box*footprint_bounding_box;
-        //float  variance = sigma*sigma*(dot(dndu, dndu) + dot(dndv, dndv));
-    float  kernel_roughness = min(Kappa, variance.x);
-    alpha_x = sqrt(alpha_x*alpha_x + kernel_roughness);
-}
 // END-@jhonkkk
 
 
