@@ -56,6 +56,9 @@ MaterialDef PBR Lighting {
         // Parallax/height map
         Texture2D ParallaxMap -LINEAR
 
+        // Specular-AA
+        Boolean SpecularAA
+
         //Set to true if parallax map is stored in the alpha channel of the normal map
         Boolean PackedNormalParallax   
 
@@ -163,6 +166,7 @@ MaterialDef PBR Lighting {
             USE_PACKED_MR: MetallicRoughnessMap
             USE_PACKED_SG: SpecularGlossinessMap
             SPECULARMAP : SpecularMap
+            SPECULAR_AA : SpecularAA
             GLOSSINESSMAP : GlossinessMap
             NORMAL_TYPE: NormalType
             VERTEX_COLOR : UseVertexColor
