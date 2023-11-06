@@ -88,6 +88,10 @@ uniform float m_Shininess;
     #endif
 #endif
 
+#ifndef NORMAL_TYPE
+  #define NORMAL_TYPE -1.0
+#endif
+
 void main(){
     #if !defined(VERTEX_LIGHTING)
         #if defined(NORMALMAP)

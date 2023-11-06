@@ -92,6 +92,11 @@ uniform float m_AlphaDiscardThreshold;
     #endif
 #endif
 
+
+#ifndef NORMAL_TYPE
+  #define NORMAL_TYPE -1.0
+#endif
+
 void main(){
     vec2 newTexCoord;
      
