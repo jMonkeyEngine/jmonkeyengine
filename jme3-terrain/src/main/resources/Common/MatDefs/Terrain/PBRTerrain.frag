@@ -17,6 +17,14 @@ varying vec3 lightVec;
 varying vec3 inNormal;
 varying vec3 wNormal;
 
+// Specular-AA
+#ifdef SCREEN_SPACE_VARIANCE
+  uniform float m_Sigma;
+#endif
+#ifdef THRESHOLD
+  uniform float m_Kappa;
+#endif
+
 #ifdef DEBUG_VALUES_MODE
     uniform int m_DebugValuesMode;
 #endif
@@ -417,6 +425,16 @@ gl_FragColor.rgb = vec3(0.0);
     
      
     float ndotv = max( dot( normal, viewDir ),0.0);
+    #ifdef SPECULAR_AA
+        float sigma = 0.5f;
+        float kappa = 0.18f;
+        #ifdef SCREEN_SPACE_VARIANCE
+            sigma = m_Sigma;
+        #endif
+        #ifdef THRESHOLD
+            kappa = m_Kappa;
+        #endif
+    #endif
     for( int i = 0;i < NB_LIGHTS; i+=3){
         vec4 lightColor = g_LightData[i];
         vec4 lightData1 = g_LightData[i+1];                
@@ -440,7 +458,11 @@ gl_FragColor.rgb = vec3(0.0);
         vec3 directDiffuse;
         vec3 directSpecular;
         
-        float hdotv = PBR_ComputeDirectLight(normal, lightDir.xyz, viewDir,
+        float hdotv = PBR_ComputeDirectLight(
+        #ifdef SPECULAR_AA
+                            sigma, kappa,
+        #endif
+                            normal, lightDir.xyz, viewDir,
                             lightColor.rgb, fZero, Roughness, ndotv,
                             directDiffuse,  directSpecular);
 
