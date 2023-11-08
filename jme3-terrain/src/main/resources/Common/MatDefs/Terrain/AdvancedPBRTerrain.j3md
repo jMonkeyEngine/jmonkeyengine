@@ -30,9 +30,9 @@ MaterialDef Advanced PBR Terrain {
         // Specular-AA
         Boolean UseSpecularAA : true
         // screen space variance,Use the slider to set the strength of the geometric specular anti-aliasing effect between 0 and 1. Higher values produce a blurrier result with less aliasing.
-        Float Sigma
+        Float SpecularAASigma
         // clamping threshold,Use the slider to set a maximum value for the offset that HDRP subtracts from the smoothness value to reduce artifacts.
-        Float Kappa
+        Float SpecularAAKappa
 
         Texture2D AfflictionAlphaMap
 
@@ -288,8 +288,8 @@ MaterialDef Advanced PBR Terrain {
             USE_SPLAT_NOISE : SplatNoiseVar
 
             SPECULAR_AA : UseSpecularAA
-            SCREEN_SPACE_VARIANCE : Sigma
-            THRESHOLD : Kappa
+            SCREEN_SPACE_VARIANCE : SpecularAASigma
+            THRESHOLD : SpecularAAKappa
 
             TRI_PLANAR_MAPPING : useTriPlanarMapping
 

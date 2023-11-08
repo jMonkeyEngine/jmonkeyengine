@@ -19,10 +19,10 @@ varying vec3 wNormal;
 
 // Specular-AA
 #ifdef SCREEN_SPACE_VARIANCE
-  uniform float m_Sigma;
+  uniform float m_SpecularAASigma;
 #endif
 #ifdef THRESHOLD
-  uniform float m_Kappa;
+  uniform float m_SpecularAAKappa;
 #endif
 
 #ifdef DEBUG_VALUES_MODE
@@ -429,10 +429,10 @@ gl_FragColor.rgb = vec3(0.0);
         float sigma = 1.0;
         float kappa = 0.18;
         #ifdef SCREEN_SPACE_VARIANCE
-            sigma = m_Sigma;
+            sigma = m_SpecularAASigma;
         #endif
         #ifdef THRESHOLD
-            kappa = m_Kappa;
+            kappa = m_SpecularAAKappa;
         #endif
     #endif
     for( int i = 0;i < NB_LIGHTS; i+=3){
