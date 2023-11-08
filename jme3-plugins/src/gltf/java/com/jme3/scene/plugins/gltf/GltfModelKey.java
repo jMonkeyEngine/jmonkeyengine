@@ -54,8 +54,8 @@ public class GltfModelKey extends ModelKey {
 
     private Map<String, MaterialAdapter> materialAdapters = new HashMap<>();
     private static Map<String, ExtensionLoader> extensionLoaders = new HashMap<>();
-    private ExtrasLoader extrasLoader = new UserDataLoader();
     private boolean keepSkeletonPose = false;
+    private ExtrasLoader extrasLoader;
 
     public GltfModelKey(String name) {
         super(name);
@@ -104,7 +104,7 @@ public class GltfModelKey extends ModelKey {
     }
 
     public ExtrasLoader getExtrasLoader() {
-        return extrasLoader;
+        return extrasLoader != null ? extrasLoader : CustomContentManager.getDefaultExtrasLoader();
     }
 
     /**

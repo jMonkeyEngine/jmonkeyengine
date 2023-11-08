@@ -47,6 +47,8 @@ import java.util.logging.Logger;
  * Created by Nehon on 20/08/2017.
  */
 public class CustomContentManager {
+    private final static ThreadLocal<ExtrasLoader> defaultExtraLoader = ThreadLocal
+            .withInitial(() -> new UserDataLoader());
 
     private final static Logger logger = Logger.getLogger(CustomContentManager.class.getName());
 
@@ -67,6 +69,22 @@ public class CustomContentManager {
     private final Map<String, ExtensionLoader> loadedExtensionLoaders = new HashMap<>();
 
     public CustomContentManager() {
+    }
+    
+    /**
+     * Returns the default extras loader.
+     * @return the default extras loader.
+     */
+    public static ExtrasLoader getDefaultExtrasLoader() {
+        return defaultExtraLoader.get();
+    }
+
+    /**
+     * Sets the default extras loader used when no loader is specified in the GltfModelKey.
+     * @param loader the default extras loader.
+     */
+    public static void setDefaultExtrasLoader(ExtrasLoader loader) {
+        defaultExtraLoader.set(loader);
     }
 
     void init(GltfLoader gltfLoader) {
@@ -158,7 +176,7 @@ public class CustomContentManager {
     private <T> T readExtras(String name, JsonElement el, T input) throws AssetLoadException {
         ExtrasLoader loader;
         if (key == null) {
-            loader = new UserDataLoader();
+            loader = getDefaultExtrasLoader();
         } else {
             loader = key.getExtrasLoader();
             if (loader == null) {
