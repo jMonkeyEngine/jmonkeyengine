@@ -104,7 +104,7 @@ public class GltfModelKey extends ModelKey {
     }
 
     public ExtrasLoader getExtrasLoader() {
-        return extrasLoader != null ? extrasLoader : CustomContentManager.getDefaultExtrasLoader();
+        return extrasLoader;
     }
 
     /**
