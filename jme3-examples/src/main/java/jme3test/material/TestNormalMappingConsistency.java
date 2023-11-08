@@ -58,7 +58,7 @@ public class TestNormalMappingConsistency extends SimpleApplication {
     int materialType = 0;
     Spatial loadedSpatial;
 
-    final int maxModels = 2;
+    final int maxModels = 4;
     final int maxMaterials = 3;
 
     public static void main(String[] args) {
@@ -72,7 +72,6 @@ public class TestNormalMappingConsistency extends SimpleApplication {
 
     @Override
     public void simpleInitApp() {
-
         setPauseOnLostFocus(false);
         flyCam.setMoveSpeed(20);
         viewPort.setBackgroundColor(new ColorRGBA().setAsSrgb(0.2f, 0.2f, 0.2f, 1.0f));
@@ -92,7 +91,6 @@ public class TestNormalMappingConsistency extends SimpleApplication {
         materialTxt.setSize(guiFont.getCharSet().getRenderedSize());
         materialTxt.setLocalTranslation(300, 700, 0);
         guiNode.attachChild(materialTxt);
-
     }
 
     @Override
@@ -118,8 +116,11 @@ public class TestNormalMappingConsistency extends SimpleApplication {
             loadedSpatial.removeFromParent();
         }
 
+
         if (modelType == 0) loadedSpatial = loadGltf();
         else if (modelType == 1) loadedSpatial = loadGltfGen();
+        else if (modelType == 2) loadedSpatial = loadOgre();
+        else if (modelType == 3) loadedSpatial = loadOgreGen();
 
         loadedSpatial.scale(scale);
         loadedSpatial.move(offset);
@@ -141,6 +142,21 @@ public class TestNormalMappingConsistency extends SimpleApplication {
         Spatial sp = assetManager.loadModel(k);
         MikktspaceTangentGenerator.generate(loadedSpatial);
         modelTxt.setText("GLTF  - regen tg");
+        return sp;
+    }
+
+    private Spatial loadOgre() {
+        GltfModelKey k = new GltfModelKey("jme3test/normalmapCompare/ogre/NormalTangentMirrorTest.scene");
+        Spatial sp = assetManager.loadModel(k);
+        modelTxt.setText("OGRE");
+        return sp;
+    }
+
+    private Spatial loadOgreGen() {
+        GltfModelKey k = new GltfModelKey("jme3test/normalmapCompare/ogre/NormalTangentMirrorTest.scene");
+        Spatial sp = assetManager.loadModel(k);
+        MikktspaceTangentGenerator.generate(loadedSpatial);
+        modelTxt.setText("OGRE  - regen tg");
         return sp;
     }
 
