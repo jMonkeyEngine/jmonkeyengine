@@ -47,6 +47,12 @@ import com.jme3.scene.plugins.gltf.GltfModelKey;
 import com.jme3.system.AppSettings;
 import com.jme3.util.mikktspace.MikktspaceTangentGenerator;
 
+/**
+ * This test cycles through a model exported in different formats and with different materials with tangents
+ * generated in different ways. The normal map should look correct in all cases. Refer to
+ * https://github.com/KhronosGroup/glTF-Sample-Models/tree/master/2.0/NormalTangentMirrorTest for details on
+ * the correct result and debugging.
+ */
 public class TestNormalMappingConsistency extends SimpleApplication {
     Node probeNode;
     DirectionalLight light;
