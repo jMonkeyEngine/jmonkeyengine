@@ -9,15 +9,15 @@
 // BEGIN-@jhonkkk,Specular AA --------------------------------------------------------------
 // see:http://www.jp.square-enix.com/tech/library/pdf/ImprovedGeometricSpecularAA(slides).pdf
 // https://docs.unity3d.com/Packages/com.unity.render-pipelines.high-definition@15.0/manual/Geometric-Specular-Anti-Aliasing.html
-void Specular_Anti_Aliasing(in vec3 normal, in vec3 half_vector,
-                           	inout float alpha_x, in float sigma, in float kappa)
+float Specular_Anti_Aliasing(in vec3 normal, in vec3 half_vector,
+                           	float alpha, in float sigma, in float kappa)
 {
 
     vec3 dndu = dFdx(normal);
     vec3 dndv = dFdy(normal);
     float  variance = sigma*sigma*(dot(dndu, dndu) + dot(dndv, dndv));
     float  kernel_roughness = min(kappa, variance);
-    alpha_x = sqrt(alpha_x*alpha_x + kernel_roughness);
+    return sqrt(alpha*alpha + kernel_roughness);
 }
 // END-@jhonkkk
 
@@ -50,16 +50,11 @@ vec3 sphericalHarmonics( const in vec3 normal, const vec3 sph[9] ){
     return max(result, vec3(0.0));
 }
 
-
-float PBR_ComputeDirectLight(
-#ifdef SPECULAR_AA
-                            in float sigma, in float kappa,
-#endif
-                            vec3 normal, vec3 lightDir, vec3 viewDir,
-                            vec3 lightColor, vec3 fZero, float roughness, float ndotv,
+// BEGIN-@jhonkkk,todo:Keeping the original PBR_ComputeDirectLight function signature is for backwards compatibility, but this adds an extra internal function call, theoretically here we should use a macro to define Inner_PBR_ComputeDirectLight, or best to calculate alpha externally and directly call the Inner_PBR_ComputeDirectLight function.
+float Inner_PBR_ComputeDirectLight(
+                            vec3 normal, vec3 halfVec, vec3 lightDir, vec3 viewDir,
+                            vec3 lightColor, vec3 fZero, float alpha, float ndotv,
                             out vec3 outDiffuse, out vec3 outSpecular){
-    // Compute halfway vector.
-    vec3 halfVec = normalize(lightDir + viewDir);
 
     // Compute ndotl, ndoth,  vdoth terms which are needed later.
     float ndotl = max( dot(normal,   lightDir), 0.0);
@@ -73,11 +68,6 @@ float PBR_ComputeDirectLight(
 
     //cook-torrence, microfacet BRDF : http://blog.selfshadow.com/publications/s2013-shading-course/karis/s2013_pbs_epic_notes_v2.pdf
    
-    float alpha = roughness * roughness;
-    #ifdef SPECULAR_AA
-        Specular_Anti_Aliasing(normal, halfVec, alpha, sigma, kappa);
-    #endif
-
     //D, GGX normal Distribution function
     float alpha2 = alpha * alpha;
     float sum  = ((ndoth * ndoth) * (alpha2 - 1.0) + 1.0);
@@ -111,6 +101,31 @@ float PBR_ComputeDirectLight(
     outSpecular = vec3(specular) * fresnel * lightColor;
     return hdotv;
 }
+
+float PBR_ComputeDirectLight(
+                            vec3 normal, vec3 lightDir, vec3 viewDir,
+                            vec3 lightColor, vec3 fZero, float roughness, float ndotv,
+                            out vec3 outDiffuse, out vec3 outSpecular){
+    // Compute halfway vector.
+    vec3 halfVec = normalize(lightDir + viewDir);
+    return Inner_PBR_ComputeDirectLight(normal, halfVec, lightDir, viewDir,
+                                        lightColor, fZero, roughness * roughness, ndotv,
+                                        outDiffuse, outSpecular);
+}
+
+float PBR_ComputeDirectLightWithSpecularAA(
+                            vec3 normal, vec3 lightDir, vec3 viewDir,
+                            vec3 lightColor, vec3 fZero, float roughness, float sigma, float kappa, float ndotv,
+                            out vec3 outDiffuse, out vec3 outSpecular){
+    // Compute halfway vector.
+    vec3 halfVec = normalize(lightDir + viewDir);
+    // Specular-AA
+    float alpha = Specular_Anti_Aliasing(normal, halfVec, roughness * roughness, sigma, kappa);
+    return Inner_PBR_ComputeDirectLight(normal, halfVec, lightDir, viewDir,
+                                        lightColor, fZero, alpha, ndotv,
+                                        outDiffuse, outSpecular);
+}
+// END-@jhonkkk
 
 vec3 integrateBRDFApprox( const in vec3 specular, float roughness, float NoV ){
     const vec4 c0 = vec4( -1, -0.0275, -0.572, 0.022 );
