@@ -87,7 +87,7 @@ public class EnvironmentProbeControl extends LightProbe implements Control {
     private boolean bakeNeeded = true;
     private int envMapSize = 256;
     private Spatial spatial;
-    private boolean serializable = false;
+    private boolean requiredSavableResults = false;
     private float frustumNear = 0.001f, frustumFar = 1000f;
     private String uuid = "none";
     private boolean enabled = true;
@@ -202,7 +202,7 @@ public class EnvironmentProbeControl extends LightProbe implements Control {
      *            true to enable (default: false)
      */
     public void setRequiredSavableResults(boolean v) {
-        serializable = v;
+        requiredSavableResults = v;
     }
 
     /**
@@ -211,7 +211,7 @@ public class EnvironmentProbeControl extends LightProbe implements Control {
      * @return true if savable results are required.
      */
     public boolean isRequiredSavableResults() {
-        return serializable;
+        return requiredSavableResults;
     }
 
     @Override
@@ -338,7 +338,7 @@ public class EnvironmentProbeControl extends LightProbe implements Control {
         oc.write(enabled, "enabled", true);
         oc.write(spatial, "spatial", null);
         oc.write(envMapSize, "size", 256);
-        oc.write(serializable, "serializable", false);
+        oc.write(requiredSavableResults, "requiredSavableResults", false);
         oc.write(bakeNeeded, "bakeNeeded", true);
         oc.write(frustumFar, "frustumFar", 1000f);
         oc.write(frustumNear, "frustumNear", 0.001f);
@@ -352,7 +352,7 @@ public class EnvironmentProbeControl extends LightProbe implements Control {
         enabled = ic.readBoolean("enabled", true);
         spatial = (Spatial) ic.readSavable("spatial", null);
         envMapSize = ic.readInt("size", 256);
-        serializable = ic.readBoolean("serializable", false);
+        requiredSavableResults = ic.readBoolean("requiredSavableResults", false);
         bakeNeeded = ic.readBoolean("bakeNeeded", true);
         assetManager = im.getAssetManager();
         frustumFar = ic.readFloat("frustumFar", 1000f);
