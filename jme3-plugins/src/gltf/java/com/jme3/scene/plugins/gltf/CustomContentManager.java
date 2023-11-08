@@ -77,17 +77,23 @@ public class CustomContentManager {
      * @return the default extras loader.
      */
     public ExtrasLoader getDefaultExtrasLoader() {
-        try {
-            if (defaultExtraLoaderInstance == null || defaultExtraLoaderInstance.getClass() != defaultExtraLoaderClass) {
-                if (defaultExtraLoaderClass == null) defaultExtraLoaderInstance = null;
-                else defaultExtraLoaderInstance = defaultExtraLoaderClass.getDeclaredConstructor()
-                        .newInstance();
-            }
-            return defaultExtraLoaderInstance;
-        } catch (Exception e) {
-            logger.log(Level.WARNING, "Could not instantiate default extras loader", e);
+        if (defaultExtraLoaderClass == null) { 
+            defaultExtraLoaderInstance = null; // do not hold reference
             return null;
         }
+
+        if (defaultExtraLoaderInstance.getClass() != defaultExtraLoaderClass) {
+            defaultExtraLoaderInstance = null; // reset instance if class changed
+        }
+
+        try {
+            defaultExtraLoaderInstance = defaultExtraLoaderClass.getDeclaredConstructor().newInstance();
+        } catch (Exception e) {
+            logger.log(Level.WARNING, "Could not instantiate default extras loader", e);
+            defaultExtraLoaderInstance = null;
+        }
+
+        return defaultExtraLoaderInstance;
     }
 
     void init(GltfLoader gltfLoader) {
