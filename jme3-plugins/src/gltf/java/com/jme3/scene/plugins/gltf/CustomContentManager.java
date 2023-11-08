@@ -82,7 +82,8 @@ public class CustomContentManager {
             return null;
         }
 
-        if (defaultExtraLoaderInstance.getClass() != defaultExtraLoaderClass) {
+        if (defaultExtraLoaderInstance != null
+                && defaultExtraLoaderInstance.getClass() != defaultExtraLoaderClass) {
             defaultExtraLoaderInstance = null; // reset instance if class changed
         }
 
