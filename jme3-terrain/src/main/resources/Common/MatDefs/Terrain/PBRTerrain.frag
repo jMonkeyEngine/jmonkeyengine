@@ -426,8 +426,8 @@ gl_FragColor.rgb = vec3(0.0);
      
     float ndotv = max( dot( normal, viewDir ),0.0);
     #ifdef SPECULAR_AA
-        float sigma = 1.0f;
-        float kappa = 0.18f;
+        float sigma = 1.0;
+        float kappa = 0.18;
         #ifdef SCREEN_SPACE_VARIANCE
             sigma = m_Sigma;
         #endif
