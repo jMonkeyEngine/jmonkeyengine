@@ -36,7 +36,7 @@ import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import com.jme3.asset.AssetManager;
@@ -167,7 +167,7 @@ public abstract class GenericEnvBaker implements EnvBaker {
     }
 
     @Override
-    public void bakeEnvironment(Spatial scene, Vector3f position, float frustumNear, float frustumFar, Function<Geometry, Boolean> filter) {
+    public void bakeEnvironment(Spatial scene, Vector3f position, float frustumNear, float frustumFar, Predicate<Geometry> filter) {
         FrameBuffer envbakers[] = new FrameBuffer[6];
         for (int i = 0; i < 6; i++) {
             envbakers[i] = new FrameBuffer(env.getImage().getWidth(), env.getImage().getHeight(), 1);
@@ -192,7 +192,7 @@ public abstract class GenericEnvBaker implements EnvBaker {
             scene.updateLogicalState(0);
             scene.updateGeometricState();
 
-            Function<Geometry, Boolean> ofilter = renderManager.getRenderFilter();
+            Predicate<Geometry> ofilter = renderManager.getRenderFilter();
 
             renderManager.setRenderFilter(filter);
             renderManager.renderViewPort(viewPort, 0.16f);

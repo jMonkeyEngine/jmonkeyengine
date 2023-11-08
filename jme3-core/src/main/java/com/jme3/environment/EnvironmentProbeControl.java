@@ -33,7 +33,7 @@ package com.jme3.environment;
 
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import com.jme3.asset.AssetManager;
@@ -92,7 +92,7 @@ public class EnvironmentProbeControl extends LightProbe implements Control {
     private String uuid = "none";
     private boolean enabled = true;
 
-    private Function<Geometry, Boolean> filter = (s) -> {
+    private Predicate<Geometry> filter = (s) -> {
         return s.getUserData("tags.env") != null || s.getUserData("tags.env.env" + uuid) != null;
     };
 

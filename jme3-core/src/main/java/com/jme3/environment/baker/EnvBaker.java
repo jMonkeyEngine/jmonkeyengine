@@ -32,7 +32,7 @@
 
 package com.jme3.environment.baker;
 
-import java.util.function.Function;
+import java.util.function.Predicate;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
@@ -58,7 +58,7 @@ public interface EnvBaker {
      * @param filter
      *            A filter to select which geometries to bake
      */
-    public void bakeEnvironment(Spatial scene, Vector3f position, float frustumNear, float frustumFar, Function<Geometry, Boolean> filter);
+    public void bakeEnvironment(Spatial scene, Vector3f position, float frustumNear, float frustumFar, Predicate<Geometry> filter);
 
     /**
      * Get the environment map

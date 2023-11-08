@@ -66,7 +66,7 @@ import com.jme3.util.SafeArrayList;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.logging.Logger;
 
 /**
@@ -105,7 +105,7 @@ public class RenderManager {
     private TechniqueDef.LightMode preferredLightMode = TechniqueDef.LightMode.MultiPass;
     private int singlePassLightBatchSize = 1;
     private MatParamOverride boundDrawBufferId=new MatParamOverride(VarType.Int,"BoundDrawBuffer",0);
-    private Function<Geometry, Boolean> renderFilter;
+    private Predicate<Geometry> renderFilter;
 
 
     /**
@@ -628,7 +628,7 @@ public class RenderManager {
      * @see com.jme3.material.Material#render(com.jme3.scene.Geometry, com.jme3.renderer.RenderManager)
      */
     public void renderGeometry(Geometry geom) {
-        if (renderFilter != null && !renderFilter.apply(geom)) return;
+        if (renderFilter != null && !renderFilter.test(geom)) return;
         this.renderer.pushDebugGroup(geom.getName());
         if (geom.isIgnoreTransform()) {
             setWorldMatrix(Matrix4f.IDENTITY);
@@ -1345,7 +1345,7 @@ public class RenderManager {
      * 
      * @param filter
      */
-    public void setRenderFilter(Function<Geometry, Boolean> filter) {
+    public void setRenderFilter(Predicate<Geometry> filter) {
         renderFilter = filter;
     }
 
@@ -1355,7 +1355,7 @@ public class RenderManager {
      * @param filter
      *            the render filter
      */
-    public Function<Geometry, Boolean> getRenderFilter() {
+    public Predicate<Geometry> getRenderFilter() {
         return renderFilter;
     }
 
