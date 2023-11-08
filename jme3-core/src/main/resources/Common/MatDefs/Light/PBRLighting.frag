@@ -99,10 +99,10 @@ varying vec3 wPosition;
 varying vec3 wNormal;
 
 // Specular-AA
-#ifdef SCREEN_SPACE_VARIANCE
+#ifdef SPECULAR_AA_SCREEN_SPACE_VARIANCE
   uniform float m_SpecularAASigma;
 #endif
-#ifdef THRESHOLD
+#ifdef SPECULAR_AA_THRESHOLD
   uniform float m_SpecularAAKappa;
 #endif
 
@@ -258,10 +258,10 @@ void main(){
     #ifdef SPECULAR_AA
         float sigma = 1.0;
         float kappa = 0.18;
-        #ifdef SCREEN_SPACE_VARIANCE
+        #ifdef SPECULAR_AA_SCREEN_SPACE_VARIANCE
             sigma = m_SpecularAASigma;
         #endif
-        #ifdef THRESHOLD
+        #ifdef SPECULAR_AA_THRESHOLD
             kappa = m_SpecularAAKappa;
         #endif
     #endif

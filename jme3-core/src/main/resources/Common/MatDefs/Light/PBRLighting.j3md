@@ -171,8 +171,8 @@ MaterialDef PBR Lighting {
             USE_PACKED_SG: SpecularGlossinessMap
             SPECULARMAP : SpecularMap
             SPECULAR_AA : UseSpecularAA
-            SCREEN_SPACE_VARIANCE : SpecularAASigma
-            THRESHOLD : SpecularAAKappa
+            SPECULAR_AA_SCREEN_SPACE_VARIANCE : SpecularAASigma
+            SPECULAR_AA_THRESHOLD : SpecularAAKappa
             GLOSSINESSMAP : GlossinessMap
             NORMAL_TYPE: NormalType
             VERTEX_COLOR : UseVertexColor
