@@ -264,8 +264,8 @@ MaterialDef PBR Terrain {
             USE_SPLAT_NOISE : SplatNoiseVar
 
             SPECULAR_AA : UseSpecularAA
-            SCREEN_SPACE_VARIANCE : SpecularAASigma
-            THRESHOLD : SpecularAAKappa
+            SPECULAR_AA_SCREEN_SPACE_VARIANCE : SpecularAASigma
+            SPECULAR_AA_THRESHOLD : SpecularAAKappa
 
 
             USE_VERTEX_COLORS_AS_SUN_INTENSITY : UseVertexColorsAsSunIntensity

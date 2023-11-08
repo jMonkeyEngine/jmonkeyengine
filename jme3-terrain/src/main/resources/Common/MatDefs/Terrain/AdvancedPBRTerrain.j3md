@@ -288,8 +288,8 @@ MaterialDef Advanced PBR Terrain {
             USE_SPLAT_NOISE : SplatNoiseVar
 
             SPECULAR_AA : UseSpecularAA
-            SCREEN_SPACE_VARIANCE : SpecularAASigma
-            THRESHOLD : SpecularAAKappa
+            SPECULAR_AA_SCREEN_SPACE_VARIANCE : SpecularAASigma
+            SPECULAR_AA_THRESHOLD : SpecularAAKappa
 
             TRI_PLANAR_MAPPING : useTriPlanarMapping
 
