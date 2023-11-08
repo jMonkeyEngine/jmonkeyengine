@@ -426,7 +426,7 @@ gl_FragColor.rgb = vec3(0.0);
      
     float ndotv = max( dot( normal, viewDir ),0.0);
     #ifdef SPECULAR_AA
-        float sigma = 0.5f;
+        float sigma = 1.0f;
         float kappa = 0.18f;
         #ifdef SCREEN_SPACE_VARIANCE
             sigma = m_Sigma;
@@ -458,13 +458,17 @@ gl_FragColor.rgb = vec3(0.0);
         vec3 directDiffuse;
         vec3 directSpecular;
         
-        float hdotv = PBR_ComputeDirectLight(
         #ifdef SPECULAR_AA
-                            sigma, kappa,
+            float hdotv = PBR_ComputeDirectLightWithSpecularAA(
+                                normal, lightDir.xyz, viewDir,
+                                lightColor.rgb, fZero, Roughness, sigma, kappa, ndotv,
+                                directDiffuse,  directSpecular);
+        #else
+            float hdotv = PBR_ComputeDirectLight(
+                                normal, lightDir.xyz, viewDir,
+                                lightColor.rgb, fZero, Roughness, ndotv,
+                                directDiffuse,  directSpecular);
         #endif
-                            normal, lightDir.xyz, viewDir,
-                            lightColor.rgb, fZero, Roughness, ndotv,
-                            directDiffuse,  directSpecular);
 
         vec3 directLighting = diffuseColor.rgb *directDiffuse + directSpecular;
             
