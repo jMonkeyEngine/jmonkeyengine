@@ -47,7 +47,7 @@ import java.util.logging.Logger;
  * Created by Nehon on 20/08/2017.
  */
 public class CustomContentManager {
-    static Class<? extends ExtrasLoader> defaultExtraLoaderClass = UserDataLoader.class;
+    static volatile Class<? extends ExtrasLoader> defaultExtraLoaderClass = UserDataLoader.class;
     private ExtrasLoader defaultExtraLoaderInstance;
 
 
