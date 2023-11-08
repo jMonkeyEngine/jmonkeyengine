@@ -12,6 +12,7 @@ public class XrHmd
 {
 	public static final float DEFAULT_X_DIST = 0.4f;
 	public static final float DEFAULT_X_ROT = 0.028f;
+	public static final float DEFAULT_POS_MULT = 10.0f;
 	Quaternion tmpQ = new Quaternion();
 	float[] tmpArr = new float[3];
 	Quaternion tmpQdistRotL = new Quaternion().fromAngles(0, -DEFAULT_X_ROT, 0);
@@ -32,8 +33,14 @@ public class XrHmd
 		hmdListeners.add((p,r) -> doMoveRotate(p,r));
 	}
 	
+	Vector3f initPos;
+	Vector3f diffPos = new Vector3f();
 	private void doMoveRotate(Vector3f p, Quaternion r)
 	{
+		if (initPos == null) { initPos = new Vector3f(p.getX(), p.getY(), p.getZ()); }
+		initPos.subtract(p,diffPos);
+		leftEye.moveAbs(diffPos);
+		rightEye.moveAbs(diffPos);
 		tmpQ.set(r);
 		tmpQ.inverseLocal();
 		tmpQ.set(tmpQ.getX(), tmpQ.getY(), -tmpQ.getZ(), tmpQ.getW());
@@ -51,9 +58,13 @@ public class XrHmd
 	public ArrayList<XrListener.ButtonPressedListener> getContr1ButtonPressedListeners() { return contr1Listeners; }
 	public ArrayList<XrListener.ButtonPressedListener> getContr2ButtonPressedListeners() { return contr2Listeners; }
 	
+	Vector3f multPos = new Vector3f();
 	public void onUpdateHmdOrientation(Vector3f viewPos, Quaternion viewRot)
 	{
-		for (XrListener.OrientationListener l : hmdListeners) { l.onUpdateOrientation(viewPos, viewRot); }
+		viewPos.mult(DEFAULT_POS_MULT, multPos);
+		multPos.setX(0.0f-multPos.getX());
+		multPos.setY(0.0f-multPos.getY());
+		for (XrListener.OrientationListener l : hmdListeners) { l.onUpdateOrientation(multPos, viewRot); }
 	}
 	
 	/** Must be called in main function before init.
