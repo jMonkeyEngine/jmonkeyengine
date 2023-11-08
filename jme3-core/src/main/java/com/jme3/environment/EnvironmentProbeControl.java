@@ -90,6 +90,7 @@ public class EnvironmentProbeControl extends LightProbe implements Control {
     private boolean serializable = false;
     private float frustumNear = 0.001f, frustumFar = 1000f;
     private String uuid = "none";
+    private boolean enabled = true;
 
     private Function<Geometry, Boolean> filter = (s) -> {
         return s.getUserData("tags.env") != null || s.getUserData("tags.env.env" + uuid) != null;
@@ -215,8 +216,11 @@ public class EnvironmentProbeControl extends LightProbe implements Control {
 
     @Override
     public void setSpatial(Spatial spatial) {
-        spatial.addLight(this);
+        if (this.spatial != null && spatial != null && spatial != this.spatial) {
+            throw new IllegalStateException("This control has already been added to a Spatial");
+        }
         this.spatial = spatial;
+        if (spatial != null) spatial.addLight(this);
     }
 
     @Override
@@ -226,6 +230,7 @@ public class EnvironmentProbeControl extends LightProbe implements Control {
 
     @Override
     public void render(RenderManager rm, ViewPort vp) {
+        if (!isEnabled()) return;
         if (bakeNeeded) {
             bakeNeeded = false;
             rebakeNow(rm);
@@ -284,14 +289,17 @@ public class EnvironmentProbeControl extends LightProbe implements Control {
 
     void rebakeNow(RenderManager renderManager) {
         if (assetManager == null) {
-            LOG.log(Level.SEVERE, "AssetManager is null, cannot bake environment. Please use setAssetManager() to set it.");
+            LOG.log(Level.SEVERE,
+                    "AssetManager is null, cannot bake environment. Please use setAssetManager() to set it.");
             return;
         }
         IBLHybridEnvBakerLight baker;
         if (!USE_GL_IR) {
-            baker = new IBLHybridEnvBakerLight(renderManager, assetManager, Format.RGB16F, Format.Depth, envMapSize, envMapSize);
+            baker = new IBLHybridEnvBakerLight(renderManager, assetManager, Format.RGB16F, Format.Depth,
+                    envMapSize, envMapSize);
         } else {
-            baker = new IBLGLEnvBakerLight(renderManager, assetManager, Format.RGB16F, Format.Depth, envMapSize, envMapSize);
+            baker = new IBLGLEnvBakerLight(renderManager, assetManager, Format.RGB16F, Format.Depth,
+                    envMapSize, envMapSize);
         }
         baker.setTexturePulling(isRequiredSavableResults());
 
@@ -310,11 +318,25 @@ public class EnvironmentProbeControl extends LightProbe implements Control {
 
         baker.clean();
     }
+    
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public Spatial getSpatial() {
+        return spatial;
+    }
 
     @Override
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
         OutputCapsule oc = ex.getCapsule(this);
+        oc.write(enabled, "enabled", true);
+        oc.write(spatial, "spatial", null);
         oc.write(envMapSize, "size", 256);
         oc.write(serializable, "serializable", false);
         oc.write(bakeNeeded, "bakeNeeded", true);
@@ -327,6 +349,8 @@ public class EnvironmentProbeControl extends LightProbe implements Control {
     public void read(JmeImporter im) throws IOException {
         super.read(im);
         InputCapsule ic = im.getCapsule(this);
+        enabled = ic.readBoolean("enabled", true);
+        spatial = (Spatial) ic.readSavable("spatial", null);
         envMapSize = ic.readInt("size", 256);
         serializable = ic.readBoolean("serializable", false);
         bakeNeeded = ic.readBoolean("bakeNeeded", true);
