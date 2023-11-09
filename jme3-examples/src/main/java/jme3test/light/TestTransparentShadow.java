@@ -50,7 +50,7 @@ import com.jme3.scene.shape.Sphere;
 import com.jme3.shadow.CompareMode;
 import com.jme3.shadow.DirectionalLightShadowRenderer;
 import com.jme3.shadow.EdgeFilteringMode;
-import com.jme3.util.TangentBinormalGenerator;
+import com.jme3.util.mikktspace.MikktspaceTangentGenerator;
 
 public class TestTransparentShadow extends SimpleApplication {
 
@@ -72,7 +72,7 @@ public class TestTransparentShadow extends SimpleApplication {
                 new Vector3f(-10, 0, -10)
         );
         rm.scaleTextureCoordinates(Vector2f.UNIT_XY.mult(10));
-        TangentBinormalGenerator.generate(rm);
+        MikktspaceTangentGenerator.generate(rm);
 
         Geometry geom = new Geometry("floor", rm);
         Material mat = assetManager.loadMaterial("Textures/Terrain/Pond/Pond.j3m");

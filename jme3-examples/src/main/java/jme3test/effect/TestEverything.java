@@ -48,7 +48,7 @@ import com.jme3.scene.shape.Box;
 import com.jme3.shadow.DirectionalLightShadowRenderer;
 import com.jme3.texture.Texture;
 import com.jme3.util.SkyFactory;
-import com.jme3.util.TangentBinormalGenerator;
+import com.jme3.util.mikktspace.MikktspaceTangentGenerator;
 
 public class TestEverything extends SimpleApplication {
 
@@ -122,7 +122,7 @@ public class TestEverything extends SimpleApplication {
     public void setupFloor(){
         Material mat = assetManager.loadMaterial("Textures/Terrain/BrickWall/BrickWall.j3m");
         Box floor = new Box(50, 1f, 50);
-        TangentBinormalGenerator.generate(floor);
+        MikktspaceTangentGenerator.generate(floor);
         floor.scaleTextureCoordinates(new Vector2f(5, 5));
         Geometry floorGeom = new Geometry("Floor", floor);
         floorGeom.setMaterial(mat);

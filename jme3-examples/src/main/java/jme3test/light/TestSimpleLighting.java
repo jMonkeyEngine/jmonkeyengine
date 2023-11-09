@@ -43,7 +43,7 @@ import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Sphere;
 import com.jme3.util.MaterialDebugAppState;
-import com.jme3.util.TangentBinormalGenerator;
+import com.jme3.util.mikktspace.MikktspaceTangentGenerator;
 
 public class TestSimpleLighting extends SimpleApplication {
 
@@ -59,7 +59,7 @@ public class TestSimpleLighting extends SimpleApplication {
     @Override
     public void simpleInitApp() {
         Geometry teapot = (Geometry) assetManager.loadModel("Models/Teapot/Teapot.obj");
-        TangentBinormalGenerator.generate(teapot.getMesh(), true);
+        MikktspaceTangentGenerator.generate(teapot.getMesh());
 
         teapot.setLocalScale(2f);
         Material mat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");

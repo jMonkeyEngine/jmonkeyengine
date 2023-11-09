@@ -44,7 +44,7 @@ import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Quad;
 import com.jme3.scene.shape.Sphere;
-import com.jme3.util.TangentBinormalGenerator;
+import com.jme3.util.mikktspace.MikktspaceTangentGenerator;
 
 /**
  * Checks two-sided lighting capability.
@@ -80,7 +80,7 @@ public class TestTwoSideLighting extends SimpleApplication {
         
         quadGeom.setMaterial(mat1);
         // SimpleBump material requires tangents.
-        TangentBinormalGenerator.generate(quadGeom);
+        MikktspaceTangentGenerator.generate(quadGeom);
         rootNode.attachChild(quadGeom);
         
         Geometry teapot = (Geometry) assetManager.loadModel("Models/Teapot/Teapot.obj");
