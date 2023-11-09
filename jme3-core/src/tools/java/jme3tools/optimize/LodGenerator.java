@@ -580,9 +580,9 @@ public class LodGenerator {
         return cleanBuffer(lods, numBakedLods);
     }
 
-    private VertexBuffer[] cleanBuffer(VertexBuffer[] lods, int lodLevel) {
+    private VertexBuffer[] cleanBuffer(VertexBuffer[] lods, int numBakedLods) {
         int index = 0;
-        VertexBuffer[] result = new VertexBuffer[lodLevel];
+        VertexBuffer[] result = new VertexBuffer[numBakedLods];
 
         for (VertexBuffer lod : lods) {
             if (lod != null) {
