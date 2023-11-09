@@ -59,9 +59,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
+ * @deprecated This is an outdated and non-standard method. Please use @{link MikktspaceTangentGenerator}
+ *             instead.
  * @author Lex (Aleksey Nikiforov)
  */
+@Deprecated
 public class TangentBinormalGenerator {
 
     private static final Logger log = Logger.getLogger(TangentBinormalGenerator.class.getName());

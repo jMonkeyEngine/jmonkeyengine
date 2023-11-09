@@ -43,19 +43,15 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * This tangent generator is highly experimental.
- * This is the Java translation of the mikktspace generator made by Morten S. Mikkelsen
- * C Source code can be found here
- * https://developer.blender.org/diffusion/B/browse/master/intern/mikktspace/mikktspace.c
+ * Mikktspace is a common standard for tangent space used across many 3D software.
+ * 
+ * This is the Java translation of the mikktspace generator made by Morten S. Mikkelsen C Source code can be
+ * found here https://developer.blender.org/diffusion/B/browse/master/intern/mikktspace/mikktspace.c
  * https://developer.blender.org/diffusion/B/browse/master/intern/mikktspace/mikktspace.h
  * 
- * Mikktspace looks like the new standard of tangent generation in 3-D software.
- * Xnormal, Blender, Substance painter, and many more use it.
- * 
- * Usage is :
- * MikktspaceTangentGenerator.generate(spatial);
- * 
- * 
+ * Usage is : <code>
+ *  MikktspaceTangentGenerator.generate(spatial);
+ * </code>
  * 
  * @author Nehon
  */
