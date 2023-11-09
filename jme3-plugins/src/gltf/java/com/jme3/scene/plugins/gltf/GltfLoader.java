@@ -1506,4 +1506,22 @@ public class GltfLoader implements AssetLoader {
     public static void unregisterExtension(String name) {
         CustomContentManager.defaultExtensionLoaders.remove(name);
     }
+    
+    /**
+     * Sets the default extras loader used when no loader is specified in the GltfModelKey.
+     * 
+     * @param loader
+     *            the default extras loader.
+     */
+    public static void registerDefaultExtrasLoader(Class<? extends ExtrasLoader> loader) {
+        CustomContentManager.defaultExtraLoaderClass = loader;
+    }
+
+
+    /**
+     * Unregisters the default extras loader.
+     */
+    public static void unregisterDefaultExtrasLoader() {
+        CustomContentManager.defaultExtraLoaderClass = UserDataLoader.class;
+    }
 }

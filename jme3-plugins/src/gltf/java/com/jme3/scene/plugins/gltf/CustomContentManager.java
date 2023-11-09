@@ -47,6 +47,9 @@ import java.util.logging.Logger;
  * Created by Nehon on 20/08/2017.
  */
 public class CustomContentManager {
+    static volatile Class<? extends ExtrasLoader> defaultExtraLoaderClass = UserDataLoader.class;
+    private ExtrasLoader defaultExtraLoaderInstance;
+
 
     private final static Logger logger = Logger.getLogger(CustomContentManager.class.getName());
 
@@ -67,6 +70,31 @@ public class CustomContentManager {
     private final Map<String, ExtensionLoader> loadedExtensionLoaders = new HashMap<>();
 
     public CustomContentManager() {
+    }
+    
+    /**
+     * Returns the default extras loader.
+     * @return the default extras loader.
+     */
+    public ExtrasLoader getDefaultExtrasLoader() {
+        if (defaultExtraLoaderClass == null) { 
+            defaultExtraLoaderInstance = null; // do not hold reference
+            return null;
+        }
+
+        if (defaultExtraLoaderInstance != null
+                && defaultExtraLoaderInstance.getClass() != defaultExtraLoaderClass) {
+            defaultExtraLoaderInstance = null; // reset instance if class changed
+        }
+
+        try {
+            defaultExtraLoaderInstance = defaultExtraLoaderClass.getDeclaredConstructor().newInstance();
+        } catch (Exception e) {
+            logger.log(Level.WARNING, "Could not instantiate default extras loader", e);
+            defaultExtraLoaderInstance = null;
+        }
+
+        return defaultExtraLoaderInstance;
     }
 
     void init(GltfLoader gltfLoader) {
@@ -156,14 +184,20 @@ public class CustomContentManager {
 
     @SuppressWarnings("unchecked")
     private <T> T readExtras(String name, JsonElement el, T input) throws AssetLoadException {
-        if (key == null) {
+        ExtrasLoader loader = null;
+
+        if (key != null) { // try to get the extras loader from the model key if available
+            loader = key.getExtrasLoader();
+        }
+ 
+        if (loader == null) { // if no loader was found, use the default extras loader
+            loader = getDefaultExtrasLoader();
+        }
+
+        if (loader == null) { // if default loader is not set or failed to instantiate, skip extras
             return input;
         }
-        ExtrasLoader loader;
-        loader = key.getExtrasLoader();
-        if (loader == null) {
-            return input;
-        }
+           
         JsonElement extras = el.getAsJsonObject().getAsJsonObject("extras");
         if (extras == null) {
             return input;

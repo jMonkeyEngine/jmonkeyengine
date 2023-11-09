@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -54,8 +54,8 @@ public class GltfModelKey extends ModelKey {
 
     private Map<String, MaterialAdapter> materialAdapters = new HashMap<>();
     private static Map<String, ExtensionLoader> extensionLoaders = new HashMap<>();
-    private ExtrasLoader extrasLoader;
     private boolean keepSkeletonPose = false;
+    private ExtrasLoader extrasLoader;
 
     public GltfModelKey(String name) {
         super(name);
