@@ -140,6 +140,7 @@ public class MikktspaceTangentGenerator {
             case Triangles:
             case TriangleFan:
             case TriangleStrip:
+            case Patch:
                 hasTriangles = true;
                 break;
 
