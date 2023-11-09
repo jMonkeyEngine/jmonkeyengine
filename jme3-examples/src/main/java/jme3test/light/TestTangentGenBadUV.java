@@ -42,6 +42,7 @@ import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Sphere;
+import com.jme3.util.TangentUtils;
 import com.jme3.util.mikktspace.MikktspaceTangentGenerator;
 
 public class TestTangentGenBadUV extends SimpleApplication {
@@ -71,7 +72,7 @@ public class TestTangentGenBadUV extends SimpleApplication {
 
         Geometry debug = new Geometry(
                 "Debug Teapot",
-                MikktspaceTangentGenerator.genTbnLines(((Geometry) teapot).getMesh(), 0.03f)
+                TangentUtils.genTbnLines(((Geometry) teapot).getMesh(), 0.03f)
         );
         Material debugMat = assetManager.loadMaterial("Common/Materials/VertexColor.j3m");
         debug.setMaterial(debugMat);
