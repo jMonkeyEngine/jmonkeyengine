@@ -98,6 +98,14 @@ varying vec3 wPosition;
 #endif
 varying vec3 wNormal;
 
+// Specular-AA
+#ifdef SPECULAR_AA_SCREEN_SPACE_VARIANCE
+  uniform float m_SpecularAASigma;
+#endif
+#ifdef SPECULAR_AA_THRESHOLD
+  uniform float m_SpecularAAKappa;
+#endif
+
 #ifdef DISCARD_ALPHA
   uniform float m_AlphaDiscardThreshold;
 #endif
@@ -247,6 +255,16 @@ void main(){
        ao = clamp(ao, 0.0, 1.0);
     #endif
 
+    #ifdef SPECULAR_AA
+        float sigma = 1.0;
+        float kappa = 0.18;
+        #ifdef SPECULAR_AA_SCREEN_SPACE_VARIANCE
+            sigma = m_SpecularAASigma;
+        #endif
+        #ifdef SPECULAR_AA_THRESHOLD
+            kappa = m_SpecularAAKappa;
+        #endif
+    #endif
     float ndotv = max( dot( normal, viewDir ),0.0);
     for( int i = 0;i < NB_LIGHTS; i+=3){
         vec4 lightColor = g_LightData[i];
@@ -270,10 +288,18 @@ void main(){
         lightDir.xyz = normalize(lightDir.xyz);            
         vec3 directDiffuse;
         vec3 directSpecular;
-        
-        float hdotv = PBR_ComputeDirectLight(normal, lightDir.xyz, viewDir,
-                            lightColor.rgb, fZero, Roughness, ndotv,
-                            directDiffuse,  directSpecular);
+
+        #ifdef SPECULAR_AA
+            float hdotv = PBR_ComputeDirectLightWithSpecularAA(
+                                normal, lightDir.xyz, viewDir,
+                                lightColor.rgb, fZero, Roughness, sigma, kappa, ndotv,
+                                directDiffuse,  directSpecular);
+        #else
+            float hdotv = PBR_ComputeDirectLight(
+                                normal, lightDir.xyz, viewDir,
+                                lightColor.rgb, fZero, Roughness, ndotv,
+                                directDiffuse,  directSpecular);
+        #endif
 
         vec3 directLighting = diffuseColor.rgb *directDiffuse + directSpecular;
         
