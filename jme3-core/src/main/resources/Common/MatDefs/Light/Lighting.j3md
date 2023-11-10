@@ -67,6 +67,9 @@ MaterialDef Phong Lighting {
         // The glow color of the object
         Color GlowColor
 
+        //The type of normal map: -1.0 (DirectX = default), 1.0 (OpenGl)
+        Float NormalType
+
         // Parameters for fresnel
         // X = bias
         // Y = scale
@@ -169,6 +172,7 @@ MaterialDef Phong Lighting {
             INSTANCING : UseInstancing
             NUM_MORPH_TARGETS: NumberOfMorphTargets
             NUM_TARGETS_BUFFERS: NumberOfTargetsBuffers
+            NORMAL_TYPE: NormalType
 
             // fog - jayfella
             USE_FOG : UseFog
@@ -217,6 +221,7 @@ MaterialDef Phong Lighting {
             INSTANCING : UseInstancing
             NUM_MORPH_TARGETS: NumberOfMorphTargets
             NUM_TARGETS_BUFFERS: NumberOfTargetsBuffers
+            NORMAL_TYPE: NormalType
 
             // fog - jayfella
             USE_FOG : UseFog

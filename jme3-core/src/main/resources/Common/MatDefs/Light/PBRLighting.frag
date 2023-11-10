@@ -181,10 +181,8 @@ void main(){
     // ***********************
     #if defined(NORMALMAP)
       vec4 normalHeight = texture2D(m_NormalMap, newTexCoord);
-      //Note the -2.0 and -1.0. We invert the green channel of the normal map, 
-      //as it's compliant with normal maps generated with blender.
-      //see http://hub.jmonkeyengine.org/forum/topic/parallax-mapping-fundamental-bug/#post-256898
-      //for more explanation.
+      // Note we invert directx style normal maps to opengl style
+
       #ifdef NORMALSCALE
         vec3 normal = normalize((normalHeight.xyz * vec3(2.0, NORMAL_TYPE * 2.0, 2.0) - vec3(1.0, NORMAL_TYPE * 1.0, 1.0)) * vec3(m_NormalScale, m_NormalScale, 1.0));
       #else

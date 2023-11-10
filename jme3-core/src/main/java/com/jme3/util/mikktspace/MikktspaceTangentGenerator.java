@@ -279,7 +279,7 @@ public class MikktspaceTangentGenerator {
                 float tang[] = {pTSpace.os.x, pTSpace.os.y, pTSpace.os.z};
                 float bitang[] = {pTSpace.ot.x, pTSpace.ot.y, pTSpace.ot.z};
                 mikkTSpace.setTSpace(tang, bitang, pTSpace.magS, pTSpace.magT, pTSpace.orient, f, i);
-                mikkTSpace.setTSpaceBasic(tang, pTSpace.orient == true ? 1.0f : (-1.0f), f, i);
+                mikkTSpace.setTSpaceBasic(tang, pTSpace.orient == true ? -1.0f : 1.0f, f, i);
                 ++index;
             }
         }
