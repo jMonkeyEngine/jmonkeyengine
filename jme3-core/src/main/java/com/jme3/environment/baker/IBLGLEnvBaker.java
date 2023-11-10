@@ -159,7 +159,7 @@ public class IBLGLEnvBaker extends GenericEnvBaker implements IBLEnvBaker {
 
         Material mat = new Material(assetManager, "Common/IBL/IBLKernels.j3md");
         mat.setBoolean("UseSpecularIBL", true);
-        mat.setTexture("EnvMap", env);
+        mat.setTexture("EnvMap", envMap);
         screen.setMaterial(mat);
 
         if (isTexturePulling()) {
@@ -262,7 +262,7 @@ public class IBLGLEnvBaker extends GenericEnvBaker implements IBLEnvBaker {
 
         Material mat = new Material(assetManager, "Common/IBL/IBLKernels.j3md");
         mat.setBoolean("UseIrradiance", true);
-        mat.setTexture("EnvMap", env);
+        mat.setTexture("EnvMap", envMap);
         screen.setMaterial(mat);
 
         for (int i = 0; i < 6; i++) {

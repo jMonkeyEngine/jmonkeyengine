@@ -96,8 +96,8 @@ public class IBLGLEnvBakerLight extends IBLHybridEnvBakerLight {
         Geometry screen = new Geometry("BakeBox", boxm);
 
         Material mat = new Material(assetManager, "Common/IBLSphH/IBLSphH.j3md");
-        mat.setTexture("Texture", env);
-        mat.setVector2("Resolution", new Vector2f(env.getImage().getWidth(), env.getImage().getHeight()));
+        mat.setTexture("Texture", envMap);
+        mat.setVector2("Resolution", new Vector2f(envMap.getImage().getWidth(), envMap.getImage().getHeight()));
         screen.setMaterial(mat);
 
         float remapMaxValue = 0;

@@ -151,7 +151,7 @@ public class IBLHybridEnvBakerLight extends GenericEnvBaker implements IBLEnvBak
 
         Material mat = new Material(assetManager, "Common/IBL/IBLKernels.j3md");
         mat.setBoolean("UseSpecularIBL", true);
-        mat.setTexture("EnvMap", env);
+        mat.setTexture("EnvMap", envMap);
         screen.setMaterial(mat);
 
         if (isTexturePulling()) {
