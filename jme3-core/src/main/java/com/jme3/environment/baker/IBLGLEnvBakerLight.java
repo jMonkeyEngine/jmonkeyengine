@@ -61,7 +61,7 @@ import com.jme3.util.BufferUtils;
  * @author Riccardo Balbo
  */
 public class IBLGLEnvBakerLight extends IBLHybridEnvBakerLight {
-    public final static int NUM_SH_COEFFICIENT = 9;
+    private static final int NUM_SH_COEFFICIENT = 9;
     private static final Logger LOG = Logger.getLogger(IBLGLEnvBakerLight.class.getName());
 
     /**

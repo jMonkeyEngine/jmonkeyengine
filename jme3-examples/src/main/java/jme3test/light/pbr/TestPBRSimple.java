@@ -43,7 +43,7 @@ import com.jme3.util.SkyFactory;
 import com.jme3.util.mikktspace.MikktspaceTangentGenerator;
 
 /**
- * TestPBRSimple
+ * A simpler PBR example that uses EnvironmentProbeControl to bake the environment
  */
 public class TestPBRSimple extends SimpleApplication {
     private boolean REALTIME_BAKING = false;

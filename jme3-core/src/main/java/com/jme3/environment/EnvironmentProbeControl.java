@@ -34,8 +34,6 @@ package com.jme3.environment;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import com.jme3.asset.AssetManager;
 import com.jme3.environment.baker.IBLGLEnvBakerLight;
 import com.jme3.environment.baker.IBLHybridEnvBakerLight;
@@ -79,8 +77,6 @@ import com.jme3.texture.Image.Format;
  * @author Riccardo Balbo
  */
 public class EnvironmentProbeControl extends LightProbe implements Control {
-    private final boolean USE_GL_IR = true;
-    private static final Logger LOG = Logger.getLogger(EnvironmentProbeControl.class.getName());
     private static AtomicInteger instanceCounter = new AtomicInteger(0);
 
     private AssetManager assetManager;
@@ -97,7 +93,10 @@ public class EnvironmentProbeControl extends LightProbe implements Control {
     };
 
     protected EnvironmentProbeControl() {
+        super();
         uuid = System.currentTimeMillis() + "_" + instanceCounter.getAndIncrement();
+        this.setAreaType(AreaType.Spherical);
+        this.getArea().setRadius(Float.MAX_VALUE);
     }
 
     /**
@@ -112,9 +111,7 @@ public class EnvironmentProbeControl extends LightProbe implements Control {
     public EnvironmentProbeControl(AssetManager assetManager, int size) {
         this();
         this.envMapSize = size;
-        this.assetManager = assetManager;
-        this.setAreaType(AreaType.Spherical);
-        this.getArea().setRadius(Float.MAX_VALUE);
+        this.assetManager = assetManager;        
     }
 
     /**
@@ -175,7 +172,7 @@ public class EnvironmentProbeControl extends LightProbe implements Control {
      * Untag spatial as part of the environment for every
      * EnvironmentProbeControl.
      * 
-     * @param s
+     * @param s the spatial
      */
     public static void untagGlobal(Spatial s) {
         if (s instanceof Node) {
@@ -247,7 +244,7 @@ public class EnvironmentProbeControl extends LightProbe implements Control {
     /**
      * Set the minimum distance to render
      * 
-     * @param frustumNear
+     * @param frustumNear the minimum distance to render
      */
     public void setFrustumNear(float frustumNear) {
         this.frustumNear = frustumNear;
@@ -255,6 +252,8 @@ public class EnvironmentProbeControl extends LightProbe implements Control {
 
     /**
      * Set the maximum distance to render
+     * 
+     * @param frustumFar the maximum distance to render
      */
     public void setFrustumFar(float frustumFar) {
         this.frustumFar = frustumFar;
@@ -281,28 +280,17 @@ public class EnvironmentProbeControl extends LightProbe implements Control {
     /**
      * Set the asset manager used to load the shaders needed for the baking
      * 
-     * @param assetManager
+     * @param assetManager the asset manager
      */
     public void setAssetManager(AssetManager assetManager) {
         this.assetManager = assetManager;
     }
 
     void rebakeNow(RenderManager renderManager) {
-        if (assetManager == null) {
-            LOG.log(Level.SEVERE,
-                    "AssetManager is null, cannot bake environment. Please use setAssetManager() to set it.");
-            return;
-        }
-        IBLHybridEnvBakerLight baker;
-        if (!USE_GL_IR) {
-            baker = new IBLHybridEnvBakerLight(renderManager, assetManager, Format.RGB16F, Format.Depth,
-                    envMapSize, envMapSize);
-        } else {
-            baker = new IBLGLEnvBakerLight(renderManager, assetManager, Format.RGB16F, Format.Depth,
-                    envMapSize, envMapSize);
-        }
+        IBLHybridEnvBakerLight baker = new IBLGLEnvBakerLight(renderManager, assetManager, Format.RGB16F, Format.Depth,
+                envMapSize, envMapSize);
+                    
         baker.setTexturePulling(isRequiredSavableResults());
-
         baker.bakeEnvironment(spatial, getPosition(), frustumNear, frustumFar, filter);
         baker.bakeSpecularIBL();
         baker.bakeSphericalHarmonicsCoefficients();

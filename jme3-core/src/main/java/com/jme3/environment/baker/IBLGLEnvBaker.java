@@ -60,7 +60,7 @@ import com.jme3.ui.Picture;
  * @author Riccardo Balbo
  */
 public class IBLGLEnvBaker extends GenericEnvBaker implements IBLEnvBaker {
-    private final Logger LOGGER = Logger.getLogger(IBLHybridEnvBakerLight.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(IBLHybridEnvBakerLight.class.getName());
 
     protected Texture2D brtf;
     protected TextureCubeMap irradiance;
@@ -142,7 +142,9 @@ public class IBLGLEnvBaker extends GenericEnvBaker implements IBLEnvBaker {
             renderManager.getRenderer().setFrameBuffer(specularbaker);
             renderManager.renderGeometry(screen);
 
-            if (isTexturePulling()) pull(specularbaker, specular, i);
+            if (isTexturePulling()) {
+                pull(specularbaker, specular, i);
+            }
 
         }
         for (int i = 0; i < 6; i++) {
@@ -160,7 +162,9 @@ public class IBLGLEnvBaker extends GenericEnvBaker implements IBLEnvBaker {
         mat.setTexture("EnvMap", env);
         screen.setMaterial(mat);
 
-        if (isTexturePulling()) startPulling();
+        if (isTexturePulling()) {
+            startPulling();
+        }
 
         int mip = 0;
         for (; mip < specular.getImage().getMipMapSizes().length; mip++) {
@@ -189,7 +193,9 @@ public class IBLGLEnvBaker extends GenericEnvBaker implements IBLEnvBaker {
             }
         }
 
-        if (isTexturePulling()) endPulling(specular);
+        if (isTexturePulling()) {
+            endPulling(specular);
+        }
         specular.getImage().clearUpdateNeeded();
 
     }
@@ -205,7 +211,9 @@ public class IBLGLEnvBaker extends GenericEnvBaker implements IBLEnvBaker {
         brtfbaker.setSrgb(false);
         brtfbaker.addColorTarget(FrameBufferTarget.newTarget(brtf));
 
-        if (isTexturePulling()) startPulling();
+        if (isTexturePulling()) {
+            startPulling();
+        }
 
         Camera envcam = updateAndGetInternalCamera(0, brtf.getImage().getWidth(), brtf.getImage().getHeight(), Vector3f.ZERO, 1, 1000);
 
@@ -220,11 +228,15 @@ public class IBLGLEnvBaker extends GenericEnvBaker implements IBLEnvBaker {
         screen.updateGeometricState();
         renderManager.renderGeometry(screen);
 
-        if (isTexturePulling()) pull(brtfbaker, brtf, 0);
+        if (isTexturePulling()) {
+            pull(brtfbaker, brtf, 0);
+        }
 
         brtfbaker.dispose();
 
-        if (isTexturePulling()) endPulling(brtf);
+        if (isTexturePulling()) {
+            endPulling(brtf);
+        }
         brtf.getImage().clearUpdateNeeded();
 
         return brtf;
@@ -239,9 +251,14 @@ public class IBLGLEnvBaker extends GenericEnvBaker implements IBLEnvBaker {
         FrameBuffer irradiancebaker = new FrameBuffer(irradiance.getImage().getWidth(), irradiance.getImage().getHeight(), 1);
         irradiancebaker.setSrgb(false);
 
-        if (isTexturePulling()) startPulling();
+        if (isTexturePulling()) {
+            startPulling();
+        }
 
-        for (int i = 0; i < 6; i++) irradiancebaker.addColorTarget(FrameBufferTarget.newTarget(irradiance).face(TextureCubeMap.Face.values()[i]));
+        for (int i = 0; i < 6; i++) {
+            irradiancebaker.addColorTarget(
+                    FrameBufferTarget.newTarget(irradiance).face(TextureCubeMap.Face.values()[i]));
+        }
 
         Material mat = new Material(assetManager, "Common/IBL/IBLKernels.j3md");
         mat.setBoolean("UseIrradiance", true);
@@ -260,12 +277,16 @@ public class IBLGLEnvBaker extends GenericEnvBaker implements IBLEnvBaker {
             renderManager.getRenderer().setFrameBuffer(irradiancebaker);
             renderManager.renderGeometry(screen);
 
-            if (isTexturePulling()) pull(irradiancebaker, irradiance, i);
+            if (isTexturePulling()) {
+                pull(irradiancebaker, irradiance, i);
+            }
         }
 
         irradiancebaker.dispose();
 
-        if (isTexturePulling()) endPulling(irradiance);
+        if (isTexturePulling()) {
+            endPulling(irradiance);
+        }
         irradiance.getImage().clearUpdateNeeded();
 
     }

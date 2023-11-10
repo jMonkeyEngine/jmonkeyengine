@@ -176,7 +176,9 @@ public abstract class GenericEnvBaker implements EnvBaker {
             envbakers[i].addColorTarget(FrameBufferTarget.newTarget(env).face(TextureCubeMap.Face.values()[i]));
         }
 
-        if (isTexturePulling()) startPulling();
+        if (isTexturePulling()) {
+            startPulling();
+        }
 
         for (int i = 0; i < 6; i++) {
             FrameBuffer envbaker = envbakers[i];
@@ -198,11 +200,15 @@ public abstract class GenericEnvBaker implements EnvBaker {
             renderManager.renderViewPort(viewPort, 0.16f);
             renderManager.setRenderFilter(ofilter);
 
-            if (isTexturePulling()) pull(envbaker, env, i);
+            if (isTexturePulling()) {
+                pull(envbaker, env, i);
+            }
 
         }
 
-        if (isTexturePulling()) endPulling(env);
+        if (isTexturePulling()) {
+            endPulling(env);
+        }
 
         env.getImage().clearUpdateNeeded();
 
@@ -228,7 +234,7 @@ public abstract class GenericEnvBaker implements EnvBaker {
      *            the texture to pull into
      * @param faceId
      *            id of face if cubemap or 0 otherwise
-     * @return
+     * @return the ByteBuffer containing the pulled data
      */
     protected ByteBuffer pull(FrameBuffer fb, Texture env, int faceId) {
 
@@ -276,7 +282,9 @@ public abstract class GenericEnvBaker implements EnvBaker {
     }
 
     protected int limitMips(int nbMipMaps, int baseW, int baseH, RenderManager rm) {
-        if (nbMipMaps > 6) nbMipMaps = 6;
+        if (nbMipMaps > 6) {
+            nbMipMaps = 6;
+        }
         return nbMipMaps;
     }
 

@@ -61,7 +61,7 @@ import com.jme3.texture.image.ColorSpace;
  * @author Riccardo Balbo
  */
 public class IBLHybridEnvBakerLight extends GenericEnvBaker implements IBLEnvBakerLight {
-    private final Logger LOGGER = Logger.getLogger(IBLHybridEnvBakerLight.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(IBLHybridEnvBakerLight.class.getName());
     protected TextureCubeMap specular;
     protected Vector3f[] shCoef;
 
@@ -134,7 +134,9 @@ public class IBLHybridEnvBakerLight extends GenericEnvBaker implements IBLEnvBak
             renderManager.getRenderer().setFrameBuffer(specularbaker);
             renderManager.renderGeometry(screen);
 
-            if (isTexturePulling()) pull(specularbaker, specular, i);
+            if (isTexturePulling()) {
+                pull(specularbaker, specular, i);
+            }
 
         }
         for (int i = 0; i < 6; i++) {
@@ -152,7 +154,9 @@ public class IBLHybridEnvBakerLight extends GenericEnvBaker implements IBLEnvBak
         mat.setTexture("EnvMap", env);
         screen.setMaterial(mat);
 
-        if (isTexturePulling()) startPulling();
+        if (isTexturePulling()) {
+          startPulling();  
+        } 
 
         int mip = 0;
         for (; mip < specular.getImage().getMipMapSizes().length; mip++) {
@@ -181,7 +185,9 @@ public class IBLHybridEnvBakerLight extends GenericEnvBaker implements IBLEnvBak
             }
         }
 
-        if (isTexturePulling()) endPulling(specular);
+        if (isTexturePulling()) {
+            endPulling(specular);
+        }
         specular.getImage().clearUpdateNeeded();
 
     }

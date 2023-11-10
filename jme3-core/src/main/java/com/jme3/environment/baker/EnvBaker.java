@@ -39,7 +39,7 @@ import com.jme3.scene.Spatial;
 import com.jme3.texture.TextureCubeMap;
 
 /**
- * An environment baker. It bakes the environment.
+ * An environment baker to bake a 3d environment into a cubemap
  *
  * @author Riccardo Balbo
  */
