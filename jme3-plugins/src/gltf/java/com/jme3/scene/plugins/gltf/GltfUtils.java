@@ -425,16 +425,34 @@ public class GltfUtils {
         int stride = Math.max(dataLength, byteStride);
         int end = count * stride + byteOffset;
         stream.skipBytes(byteOffset);
+
+        if (dataLength == stride) {
+            read(stream, array, end - index);
+
+            return;
+        }
+
         int arrayIndex = 0;
+        byte[] buffer = new byte[numComponents];
         while (index < end) {
-            for (int i = 0; i < numComponents; i++) {
-                array[arrayIndex] = stream.readByte();
-                arrayIndex++;
-            }
+            read(stream, buffer, numComponents);
+            System.arraycopy(buffer, 0, array, arrayIndex, numComponents);
+            arrayIndex += numComponents;
             if (dataLength < stride) {
                 stream.skipBytes(stride - dataLength);
             }
             index += stride;
+        }
+    }
+
+    private static void read(LittleEndien stream, byte[] buffer, int length) throws IOException {
+        int n = 0;
+        while (n < length) {
+            int cnt = stream.read(buffer, n, length - n);
+            if (cnt < 0) {
+                throw new AssetLoadException("Data ended prematurely");
+            }
+            n += cnt;
         }
     }
 
@@ -737,30 +755,24 @@ public class GltfUtils {
         }
     }
 
-//    public static boolean equalBindAndLocalTransforms(Joint b) {
-//        return equalsEpsilon(b.getBindPosition(), b.getLocalPosition())
-//                && equalsEpsilon(b.getBindRotation(), b.getLocalRotation())
-//                && equalsEpsilon(b.getBindScale(), b.getLocalScale());
-//    }
-
-    private static float epsilon = 0.0001f;
+    private static final float EPSILON = 0.0001f;
 
     public static boolean equalsEpsilon(Vector3f v1, Vector3f v2) {
-        return FastMath.abs(v1.x - v2.x) < epsilon
-                && FastMath.abs(v1.y - v2.y) < epsilon
-                && FastMath.abs(v1.z - v2.z) < epsilon;
+        return FastMath.abs(v1.x - v2.x) < EPSILON
+                && FastMath.abs(v1.y - v2.y) < EPSILON
+                && FastMath.abs(v1.z - v2.z) < EPSILON;
     }
 
     public static boolean equalsEpsilon(Quaternion q1, Quaternion q2) {
-        return (FastMath.abs(q1.getX() - q2.getX()) < epsilon
-                && FastMath.abs(q1.getY() - q2.getY()) < epsilon
-                && FastMath.abs(q1.getZ() - q2.getZ()) < epsilon
-                && FastMath.abs(q1.getW() - q2.getW()) < epsilon)
+        return (FastMath.abs(q1.getX() - q2.getX()) < EPSILON
+                && FastMath.abs(q1.getY() - q2.getY()) < EPSILON
+                && FastMath.abs(q1.getZ() - q2.getZ()) < EPSILON
+                && FastMath.abs(q1.getW() - q2.getW()) < EPSILON)
                 ||
-                (FastMath.abs(q1.getX() + q2.getX()) < epsilon
-                        && FastMath.abs(q1.getY() + q2.getY()) < epsilon
-                        && FastMath.abs(q1.getZ() + q2.getZ()) < epsilon
-                        && FastMath.abs(q1.getW() + q2.getW()) < epsilon);
+ (FastMath.abs(q1.getX() + q2.getX()) < EPSILON
+                && FastMath.abs(q1.getY() + q2.getY()) < EPSILON
+                && FastMath.abs(q1.getZ() + q2.getZ()) < EPSILON
+                && FastMath.abs(q1.getW() + q2.getW()) < EPSILON);
     }
 
 
