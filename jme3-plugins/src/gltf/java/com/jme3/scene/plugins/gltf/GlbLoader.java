@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,6 +36,8 @@ import com.jme3.util.LittleEndien;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Created by Nehon on 12/09/2017.
@@ -43,6 +45,11 @@ import java.util.ArrayList;
 public class GlbLoader extends GltfLoader {
 
     private static final int JSON_TYPE = 0x4E4F534A;
+    /**
+     * log diagnostic messages from this class
+     */
+    private static final Logger logger = Logger.getLogger(GlbLoader.class.getName());
+
     private ArrayList<byte[]> data = new ArrayList<>();
 
     @Override
@@ -50,7 +57,13 @@ public class GlbLoader extends GltfLoader {
         data.clear();
         LittleEndien stream = new LittleEndien(new DataInputStream(assetInfo.openStream()));
         /* magic */ stream.readInt();
-        /* version */ stream.readInt();
+
+        int version = stream.readInt();
+        if (version != 2) {
+            logger.log(Level.SEVERE, "GlbLoader doesn''t support file version {0}.", version);
+            throw new IOException("GLB file version = " + version);
+        }
+
         int length = stream.readInt();
 
         byte[] json = null;
@@ -73,6 +86,9 @@ public class GlbLoader extends GltfLoader {
             length -= chunkLength + 8;
         }
 
+        if (json == null) {
+            throw new IOException("No JSON chunk found.");
+        }
         return loadFromStream(assetInfo, new ByteArrayInputStream(json));
     }
 
