@@ -64,6 +64,7 @@ public class AnimMigrationUtils {
 
                 Armature armature = new Armature(joints);
                 armature.saveBindPose();
+                armature.saveInitialPose();
                 skeletonArmatureMap.put(skeleton, armature);
 
                 List<TransformTrack> tracks = new ArrayList<>();
