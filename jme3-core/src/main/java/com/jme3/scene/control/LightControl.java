@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -49,7 +49,7 @@ import com.jme3.util.clone.Cloner;
 import java.io.IOException;
 
 /**
- * This Control maintains a reference to a Camera,
+ * This Control maintains a reference to a Light,
  * which will be synched with the position (worldTranslation)
  * of the current spatial.
  *
@@ -92,7 +92,7 @@ public class LightControl extends AbstractControl {
 
     /**
      * @param light The light to be synced.
-     * @param controlDir SpatialToCamera or CameraToSpatial
+     * @param controlDir SpatialToLight or LightToSpatial
      */
     public LightControl(Light light, ControlDirection controlDir) {
         this.light = light;
