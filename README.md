@@ -42,11 +42,10 @@ Note: The master branch on GitHub is a development version of the engine and is 
 
 ### Technology stack
 
- - Java
- - NetBeans Platform
- - Gradle
-
-Plus a bunch of awesome libraries & tight integrations like Bullet, NiftyGUI and other goodies.
+ - NetBeans SDK
+ - libraries for glTF, GUI, networking, physics, SFX, terrain, etcetera
+ - LWJGL v2/v3 (for GLFW, OpenAL, OpenGL, OpenVR) or Android or iOS
+ - Java Virtual Machine (v8 or higher)
 
 ### Documentation
 
