@@ -24,7 +24,7 @@ The engine is used by several commercial game studios and computer-science cours
  - [Leap](https://gamejolt.com/games/leap/313308)
  - [Jumping Jack Flag](http://timealias.bplaced.net/jack/)
  - [PapaSpace Flight Simulation](https://www.papaspace.at/)
- - [Cubic Nightmare](https://jaredbgreat.itch.io/cubic-nightmare)
+ - [Cubic Nightmare (on Itch)](https://jaredbgreat.itch.io/cubic-nightmare)
  - [Chatter Games](https://chatter-games.com)
  - [Exotic Matter](https://exoticmatter.io)
  - [Demon Lord (on Google Play)](https://play.google.com/store/apps/details?id=com.dreiInitiative.demonLord&pli=1)
