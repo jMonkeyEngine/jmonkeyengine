@@ -40,7 +40,7 @@ Go to https://github.com/jMonkeyEngine/sdk/releases to download the jMonkeyEngin
 
 Note: The master branch on GitHub is a development version of the engine and is NOT MEANT TO BE USED IN PRODUCTION.
 
-### Technology Stack
+### Technology stack
 
  - Java
  - NetBeans Platform
