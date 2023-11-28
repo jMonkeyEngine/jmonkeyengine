@@ -36,7 +36,9 @@ The engine is used by several commercial game studios and computer-science cours
 ## Getting Started
 
 Go to https://github.com/jMonkeyEngine/sdk/releases to download the jMonkeyEngine SDK.
-[Read the wiki](https://jmonkeyengine.github.io/wiki) for a complete install guide. You'll want to [join the forum](http://hub.jmonkeyengine.org/) so our tribe can grow stronger.
+[Read the wiki](https://jmonkeyengine.github.io/wiki) for a complete install guide.
+Join [the discussion forum](http://hub.jmonkeyengine.org/) to participate in our community,
+get your questions answered, and share your projects.
 
 Note: The master branch on GitHub is a development version of the engine and is NOT MEANT TO BE USED IN PRODUCTION.
 
