@@ -44,9 +44,10 @@ Note: The master branch on GitHub is a development version of the engine and is 
 
 ### Technology Stack
 
- - NetBeans SDK
- - libraries for glTF, GUI, networking, physics, SFX, terrain, etc.
- - LWJGL v2/v3 (for GLFW, OpenAL, OpenGL, OpenVR) or Android or iOS
+ - windowed, multi-platform IDE derived from NetBeans
+ - libraries for GUI, networking, physics, SFX, terrain, importing assets, etc.
+ - platform-neutral core library for scene graph, animation, rendering, math, etc.
+ - LWJGL v2/v3 (to access GLFW, OpenAL, OpenGL, and OpenVR) or Android or iOS
  - Java Virtual Machine (v8 or higher)
 
 ### Documentation
