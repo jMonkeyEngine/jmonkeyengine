@@ -33,14 +33,14 @@ The engine is used by several commercial game studios and computer-science cours
  - [Depthris (on Itch)](https://codewalker.itch.io/depthris)
  - [Stranded (on Itch)](https://tgiant.itch.io/stranded)
 
-## Getting started
+## Getting Started
 
 Go to https://github.com/jMonkeyEngine/sdk/releases to download the jMonkeyEngine SDK.
 [Read the wiki](https://jmonkeyengine.github.io/wiki) for a complete install guide. You'll want to [join the forum](http://hub.jmonkeyengine.org/) so our tribe can grow stronger.
 
 Note: The master branch on GitHub is a development version of the engine and is NOT MEANT TO BE USED IN PRODUCTION.
 
-### Technology stack
+### Technology Stack
 
  - NetBeans SDK
  - libraries for glTF, GUI, networking, physics, SFX, terrain, etcetera
