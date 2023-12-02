@@ -24,28 +24,31 @@ The engine is used by several commercial game studios and computer-science cours
  - [Leap](https://gamejolt.com/games/leap/313308)
  - [Jumping Jack Flag](http://timealias.bplaced.net/jack/)
  - [PapaSpace Flight Simulation](https://www.papaspace.at/)
- - [Cubic Nightmare](https://jaredbgreat.itch.io/cubic-nightmare)
+ - [Cubic Nightmare (on Itch)](https://jaredbgreat.itch.io/cubic-nightmare)
  - [Chatter Games](https://chatter-games.com)
  - [Exotic Matter](https://exoticmatter.io)
  - [Demon Lord (on Google Play)](https://play.google.com/store/apps/details?id=com.dreiInitiative.demonLord&pli=1)
  - [Marvelous Marbles (on Steam)](https://store.steampowered.com/app/2244540/Marvelous_Marbles/)
  - [Boxer (on Google Play)](https://play.google.com/store/apps/details?id=com.tharg.boxer)
  - [Depthris (on Itch)](https://codewalker.itch.io/depthris)
+ - [Stranded (on Itch)](https://tgiant.itch.io/stranded)
 
-## Getting started
+## Getting Started
 
 Go to https://github.com/jMonkeyEngine/sdk/releases to download the jMonkeyEngine SDK.
-[Read the wiki](https://jmonkeyengine.github.io/wiki) for a complete install guide. Power up with some SDK Plugins and AssetPacks and you are off to the races. At this point you're gonna want to [join the forum](http://hub.jmonkeyengine.org/) so our tribe can grow stronger.
+Read [the wiki](https://jmonkeyengine.github.io/wiki) for the installation guide and tutorials.
+Join [the discussion forum](http://hub.jmonkeyengine.org/) to participate in our community,
+get your questions answered, and share your projects.
 
-Note: The master branch on GitHub is a development version of the engine and is NOT MEANT TO BE USED IN PRODUCTION, it will break constantly during development of the stable jME versions!
+Note: The master branch on GitHub is a development version of the engine and is NOT MEANT TO BE USED IN PRODUCTION.
 
 ### Technology Stack
 
- - Java
- - NetBeans Platform
- - Gradle
-
-Plus a bunch of awesome libraries & tight integrations like Bullet, NiftyGUI and other goodies.
+ - windowed, multi-platform IDE derived from NetBeans
+ - libraries for GUI, networking, physics, SFX, terrain, importing assets, etc.
+ - platform-neutral core library for scene graph, animation, rendering, math, etc.
+ - LWJGL v2/v3 (to access GLFW, OpenAL, OpenGL, and OpenVR) or Android or iOS
+ - Java Virtual Machine (v8 or higher)
 
 ### Documentation
 
