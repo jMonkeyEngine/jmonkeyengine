@@ -1802,6 +1802,9 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     /**
      * Determine the rotation component of this 3-D coordinate transform.
      *
+     * <p>Assumes (but does not verify) that the transform consists entirely of
+     * translation, rotation, and positive scaling -- no reflection or shear.
+     *
      * @return a new rotation Quaternion
      */
     public Quaternion toRotationQuat() {
@@ -1812,6 +1815,9 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * Returns the rotation component of the coordinate transform.
+     *
+     * <p>Assumes (but does not verify) that the transform consists entirely of
+     * translation, rotation, and positive scaling -- no reflection or shear.
      *
      * @param q storage for the result (not null, modified)
      * @return the rotation component (in {@code q}) for chaining
@@ -1824,7 +1830,10 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     /**
      * Determine the rotation component of this 3-D coordinate transform.
      *
-     * @return a new rotation Matrix3f
+     * <p>If the transform includes scaling or reflection or shear, the result
+     * might not be a valid rotation matrix.
+     *
+     * @return a new Matrix3f
      */
     public Matrix3f toRotationMatrix() {
         return new Matrix3f(m00, m01, m02, m10, m11, m12, m20, m21, m22);
@@ -1832,6 +1841,9 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * Determines the rotation component of the coordinate transform.
+     *
+     * <p>If the transform includes scaling or reflection or shear, the result
+     * might not be a valid rotation matrix.
      *
      * @param mat storage for the result (not null, modified)
      */
@@ -1850,6 +1862,9 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     /**
      * Determine the scale component of this 3-D coordinate transform.
      *
+     * <p>All components of the result will be non-negative, even if the
+     * coordinate transform includes reflection.
+     *
      * @return a new Vector3f
      */
     public Vector3f toScaleVector() {
@@ -1860,6 +1875,9 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * Determines the scale component of the coordinate transform.
+     *
+     * <p>All components of the result will be non-negative, even if the
+     * coordinate transform includes reflection.
      *
      * @param store storage for the result (not null, modified)
      * @return the scale factors (in {@code store}) for chaining
