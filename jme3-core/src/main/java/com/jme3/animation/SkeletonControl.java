@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -321,15 +321,20 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
                 VertexBuffer bindPos = mesh.getBuffer(Type.BindPosePosition);
                 VertexBuffer bindNorm = mesh.getBuffer(Type.BindPoseNormal);
                 VertexBuffer pos = mesh.getBuffer(Type.Position);
-                VertexBuffer norm = mesh.getBuffer(Type.Normal);
                 FloatBuffer pb = (FloatBuffer) pos.getData();
-                FloatBuffer nb = (FloatBuffer) norm.getData();
                 FloatBuffer bpb = (FloatBuffer) bindPos.getData();
-                FloatBuffer bnb = (FloatBuffer) bindNorm.getData();
                 pb.clear();
-                nb.clear();
                 bpb.clear();
-                bnb.clear();
+
+                // reset bind normals if there is a BindPoseNormal buffer
+                if (bindNorm != null) {
+                    VertexBuffer norm = mesh.getBuffer(Type.Normal);
+                    FloatBuffer nb = (FloatBuffer) norm.getData();
+                    FloatBuffer bnb = (FloatBuffer) bindNorm.getData();
+                    nb.clear();
+                    bnb.clear();
+                    nb.put(bnb).clear();
+                }
 
                 //reset bind tangents if there is a bind tangent buffer
                 VertexBuffer bindTangents = mesh.getBuffer(Type.BindPoseTangent);
@@ -343,7 +348,6 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
                 }
 
                 pb.put(bpb).clear();
-                nb.put(bnb).clear();
             }
         }
     }
@@ -574,8 +578,10 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
 
         VertexBuffer nb = mesh.getBuffer(Type.Normal);
 
-        FloatBuffer fnb = (FloatBuffer) nb.getData();
-        fnb.rewind();
+        FloatBuffer fnb = (nb == null) ? null : (FloatBuffer) nb.getData();
+        if (fnb != null) {
+            fnb.rewind();
+        }
 
         FloatBuffer ftb = (FloatBuffer) tb.getData();
         ftb.rewind();
@@ -603,7 +609,9 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
             bufLength = Math.min(posBuf.length, fvb.remaining());
             tanLength = Math.min(tanBuf.length, ftb.remaining());
             fvb.get(posBuf, 0, bufLength);
-            fnb.get(normBuf, 0, bufLength);
+            if (fnb != null) {
+                fnb.get(normBuf, 0, bufLength);
+            }
             ftb.get(tanBuf, 0, tanLength);
             int verts = bufLength / 3;
             int idxPositions = 0;
@@ -676,8 +684,10 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
 
             fvb.position(fvb.position() - bufLength);
             fvb.put(posBuf, 0, bufLength);
-            fnb.position(fnb.position() - bufLength);
-            fnb.put(normBuf, 0, bufLength);
+            if (fnb != null) {
+                fnb.position(fnb.position() - bufLength);
+                fnb.put(normBuf, 0, bufLength);
+            }
             ftb.position(ftb.position() - tanLength);
             ftb.put(tanBuf, 0, tanLength);
         }
@@ -685,7 +695,9 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
         vars.release();
 
         vb.updateData(fvb);
-        nb.updateData(fnb);
+        if (nb != null) {
+            nb.updateData(fnb);
+        }
         tb.updateData(ftb);
     }
 
