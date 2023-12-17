@@ -166,7 +166,7 @@ public class Resources {
      *            The resource name
      *
      * 
-     * @return An enumeration of {@link java.net.URL <tt>URL</tt>} objects for
+     * @return An enumeration of {@link java.net.URL <code>URL</code>} objects for
      *         the resource. If no resources could be found, the enumeration
      *         will be empty.
      *

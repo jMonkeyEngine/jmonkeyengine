@@ -277,7 +277,7 @@ public class InstancedGeometry extends Geometry {
     }
 
     /**
-     * @Deprecated use {@link #updateInstances(com.jme3.renderer.Camera)
+     * @deprecated use {@link #updateInstances(com.jme3.renderer.Camera)}
      */
     public void updateInstances() {
         updateInstances(cam);
