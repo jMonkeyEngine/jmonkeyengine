@@ -44,9 +44,12 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.geom.AffineTransform;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -63,6 +66,71 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
 
     /** Logger class. */
     private static final Logger LOGGER = Logger.getLogger(LwjglCanvas.class.getName());
+    
+    /** GL versions map. */
+    private static final Map<String, Consumer<GLData>> RENDER_CONFIGS = new HashMap<>();
+    
+    /*
+        Register the different versions.
+    */
+    static {
+        RENDER_CONFIGS.put(AppSettings.LWJGL_OPENGL30, (data) -> {
+            data.majorVersion = 3;
+            data.minorVersion = 0;
+        });
+        RENDER_CONFIGS.put(AppSettings.LWJGL_OPENGL31, (data) -> {
+            data.majorVersion = 3;
+            data.minorVersion = 1;
+        });
+        RENDER_CONFIGS.put(AppSettings.LWJGL_OPENGL32, (data) -> {
+            //data.forwardCompatible = false;
+            data.majorVersion = 3;
+            data.minorVersion = 2;
+            data.profile = GLData.Profile.COMPATIBILITY;
+        });
+        RENDER_CONFIGS.put(AppSettings.LWJGL_OPENGL33, (data) -> {
+            //data.forwardCompatible = true;
+            data.majorVersion = 3;
+            data.minorVersion = 3;
+            data.profile = GLData.Profile.COMPATIBILITY;
+        });
+        RENDER_CONFIGS.put(AppSettings.LWJGL_OPENGL40, (data) -> {
+            //data.forwardCompatible = true;
+            data.majorVersion = 4;
+            data.minorVersion = 0;
+            data.profile = GLData.Profile.COMPATIBILITY;
+        });
+        RENDER_CONFIGS.put(AppSettings.LWJGL_OPENGL41, (data) -> {
+            //data.forwardCompatible = true;
+            data.majorVersion = 4;
+            data.minorVersion = 1;
+            data.profile = GLData.Profile.COMPATIBILITY;
+        });
+        RENDER_CONFIGS.put(AppSettings.LWJGL_OPENGL42, (data) -> {
+            //data.forwardCompatible = true;
+            data.majorVersion = 4;
+            data.minorVersion = 2;
+            data.profile = GLData.Profile.COMPATIBILITY;
+        });
+        RENDER_CONFIGS.put(AppSettings.LWJGL_OPENGL43, (data) -> {
+            //data.forwardCompatible = true;
+            data.majorVersion = 4;
+            data.minorVersion = 3;
+            data.profile = GLData.Profile.COMPATIBILITY;
+        });
+        RENDER_CONFIGS.put(AppSettings.LWJGL_OPENGL44, (data) -> {
+            //data.forwardCompatible = true;
+            data.majorVersion = 4;
+            data.minorVersion = 4;
+            data.profile = GLData.Profile.COMPATIBILITY;
+        });
+        RENDER_CONFIGS.put(AppSettings.LWJGL_OPENGL45, (data) -> {
+            //data.forwardCompatible = true;
+            data.majorVersion = 4;
+            data.minorVersion = 5;
+            data.profile = GLData.Profile.COMPATIBILITY;
+        });
+    }
     
     private class LwjglAWTGLCanvas extends AWTGLCanvas {
 
@@ -175,7 +243,14 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
     
     @Override
     protected void createContext(AppSettings settings)  {
-        super.createContext(settings);
+        super.createContext(settings);        
+        RENDER_CONFIGS.computeIfAbsent(settings.getRenderer(), (t) -> {
+            return (data) -> {
+                data.majorVersion = 2;
+                data.minorVersion = 0;
+            };
+        }).accept(glData);
+        
         if (settings.getBitsPerPixel() == 24) {
             glData.redSize = 8;
             glData.greenSize = 8;
@@ -196,7 +271,6 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
         glData.stereo = settings.useStereo3D();  
        
         glData.debug = settings.isGraphicsDebug();
-        glData.profile = GLData.Profile.CORE;
         glData.api = GLData.API.GL;
     }
     
@@ -251,15 +325,8 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
 
     @Override
     protected void destroyContext() {
-         synchronized (lock) {
-            canvas.deleteContext();
-        }
-        //// request the cleanup
-        //signalTerminate.release();
-        //try {
-        //    // wait until the thread is done with the cleanup
-        //    signalTerminated.acquire();
-        //} catch (InterruptedException ignored) {
+        //synchronized (lock) {
+        //    canvas.deleteContext();
         //}
         super.destroyContext();
     }
@@ -294,7 +361,7 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
     
     @Override
     protected void printContextInitInfo() {
-        super.printContextInitInfo();        
+        super.printContextInitInfo();
         StringBuilder sb = new StringBuilder();
         sb.append("Initializing LWJGL3-AWT with jMonkeyEngine");
         sb.append('\n')
