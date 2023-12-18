@@ -172,6 +172,10 @@ public class TestCanvas {
                 currentPanel.remove(canvas);
                 app.stop(true);
 
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException ex) { }
+                
                 createCanvas(appClass);
                 currentPanel.add(canvas, BorderLayout.CENTER);
                 frame.pack();
@@ -234,7 +238,7 @@ public class TestCanvas {
     }
 
     public static void startApp(){
-        app.startCanvas();
+        /*app.startCanvas();*/
         app.enqueue(new Callable<Void>(){
             @Override
             public Void call(){
