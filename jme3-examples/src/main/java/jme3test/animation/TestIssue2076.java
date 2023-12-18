@@ -59,7 +59,7 @@ public class TestIssue2076 extends SimpleApplication {
      *
      * @param args array of command-line arguments (not null)
      */
-    public static void main(String... argv) {
+    public static void main(String... args) {
         TestIssue2076 app = new TestIssue2076();
         app.start();
     }
