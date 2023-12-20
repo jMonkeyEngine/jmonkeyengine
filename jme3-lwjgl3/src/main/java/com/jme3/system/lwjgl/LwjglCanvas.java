@@ -44,6 +44,7 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.geom.AffineTransform;
+import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
@@ -59,6 +60,18 @@ import org.lwjgl.opengl.awt.GLData;
 /**
  * Class <code>LwjglCanvas</code> that integrates <a href="https://github.com/LWJGLX/lwjgl3-awt">LWJGLX</a>
  * which allows using AWT-Swing components.
+ * 
+ * <p>
+ * If <b>LwjglCanvas</b> throws an exception due to configuration problems, we can debug as follows:
+ * <br>
+ * - In <code>AppSettings</code>, set this property to enable a debug that displays
+ * the effective data for the context.
+ * <pre><code>
+ * ....
+ *  AppSettings settings = new AppSettings(true);
+ *  settings.putBoolean("GLDataEffectiveDebug", true);
+ * ...
+ * </code></pre>
  * 
  * @author wil
  */
@@ -83,49 +96,41 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
             data.minorVersion = 1;
         });
         RENDER_CONFIGS.put(AppSettings.LWJGL_OPENGL32, (data) -> {
-            //data.forwardCompatible = false;
             data.majorVersion = 3;
             data.minorVersion = 2;
             data.profile = GLData.Profile.COMPATIBILITY;
         });
         RENDER_CONFIGS.put(AppSettings.LWJGL_OPENGL33, (data) -> {
-            //data.forwardCompatible = true;
             data.majorVersion = 3;
             data.minorVersion = 3;
             data.profile = GLData.Profile.COMPATIBILITY;
         });
         RENDER_CONFIGS.put(AppSettings.LWJGL_OPENGL40, (data) -> {
-            //data.forwardCompatible = true;
             data.majorVersion = 4;
             data.minorVersion = 0;
             data.profile = GLData.Profile.COMPATIBILITY;
         });
         RENDER_CONFIGS.put(AppSettings.LWJGL_OPENGL41, (data) -> {
-            //data.forwardCompatible = true;
             data.majorVersion = 4;
             data.minorVersion = 1;
             data.profile = GLData.Profile.COMPATIBILITY;
         });
         RENDER_CONFIGS.put(AppSettings.LWJGL_OPENGL42, (data) -> {
-            //data.forwardCompatible = true;
             data.majorVersion = 4;
             data.minorVersion = 2;
             data.profile = GLData.Profile.COMPATIBILITY;
         });
         RENDER_CONFIGS.put(AppSettings.LWJGL_OPENGL43, (data) -> {
-            //data.forwardCompatible = true;
             data.majorVersion = 4;
             data.minorVersion = 3;
             data.profile = GLData.Profile.COMPATIBILITY;
         });
         RENDER_CONFIGS.put(AppSettings.LWJGL_OPENGL44, (data) -> {
-            //data.forwardCompatible = true;
             data.majorVersion = 4;
             data.minorVersion = 4;
             data.profile = GLData.Profile.COMPATIBILITY;
         });
         RENDER_CONFIGS.put(AppSettings.LWJGL_OPENGL45, (data) -> {
-            //data.forwardCompatible = true;
             data.majorVersion = 4;
             data.minorVersion = 5;
             data.profile = GLData.Profile.COMPATIBILITY;
@@ -137,7 +142,7 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
         public LwjglAWTGLCanvas(GLData data) {
             super(data);
         }
-        
+
         @Override
         public void initGL() {
             throw new UnsupportedOperationException("Not supported yet.");
@@ -151,6 +156,10 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
         @Override
         public synchronized void addComponentListener(ComponentListener l) {
             super.addComponentListener(l);
+        }
+        
+        public GLData getGLDataEffective() {
+            return effective;
         }
 
         @Override
@@ -195,6 +204,7 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
     private final LwjglAWTGLCanvas canvas;
     private GLData glData;
     
+    private final AtomicBoolean showGLDataEffective = new AtomicBoolean(false);
     private final AtomicBoolean hasNativePeer = new AtomicBoolean(false);
     private final AtomicBoolean showing = new AtomicBoolean(false);
     private AtomicBoolean needResize = new AtomicBoolean(false);
@@ -260,6 +270,15 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
             glData.greenSize = 6;
             glData.blueSize = 5;            
         }
+        
+        // Enable vsync for LWJGL3-AWT
+        if (settings.isVSync()) {
+            glData.swapInterval = 1;
+        } else {
+            glData.swapInterval = 0;
+        }
+        
+        showGLDataEffective.set(settings.getBoolean("GLDataEffectiveDebug"));
         
         glData.depthSize = settings.getBitsPerPixel();
         glData.alphaSize = settings.getAlphaBits();
@@ -351,6 +370,14 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
             canvas.afterRender();
         }
         
+        // Whether it is necessary to know the effective attributes to 
+        // initialize the LWJGL3-AWT context
+        if (showGLDataEffective.get()) {
+            showGLDataEffective.set(false);
+            System.out.println(MessageFormat.format("[ DEBUGGER ] :Effective data to initialize the LWJGL3-AWT context\n{0}", 
+                                                getPrintContextInitInfo(canvas.getGLDataEffective())));
+        }
+        
         try {
             if (signalTerminate.tryAcquire(10, TimeUnit.MILLISECONDS)) {
                 canvas.doDisposeCanvas();
@@ -362,10 +389,19 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
     @Override
     protected void printContextInitInfo() {
         super.printContextInitInfo();
+        LOGGER.log(Level.INFO, "Initializing LWJGL3-AWT with jMonkeyEngine\n{0}", getPrintContextInitInfo(glData));
+    }
+    
+    /**
+     * Returns a string with the information obtained from <code>GLData</code>
+     * so that it can be displayed.
+     * 
+     * @param glData context information
+     * @return String
+     */
+    protected String getPrintContextInitInfo(GLData glData) {
         StringBuilder sb = new StringBuilder();
-        sb.append("Initializing LWJGL3-AWT with jMonkeyEngine");
-        sb.append('\n')
-          .append(" *  Double Buffer: ").append(glData.doubleBuffer);
+        sb.append(" *  Double Buffer: ").append(glData.doubleBuffer);
         sb.append('\n')
           .append(" *  Stereo: ").append(glData.stereo);
         sb.append('\n')
@@ -424,7 +460,7 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
           .append(" *  Lose Context On Reset: ").append(glData.loseContextOnReset);
         sb.append('\n')
           .append(" *  Context Reset Isolation: ").append(glData.contextResetIsolation);
-        LOGGER.log(Level.INFO, String.valueOf(sb));
+        return String.valueOf(sb);
     }
     
     @Override
