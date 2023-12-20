@@ -32,6 +32,7 @@
 package com.jme3.scene.plugins.gltf;
 
 import com.jme3.material.MatParam;
+import com.jme3.material.Material;
 import com.jme3.material.RenderState;
 
 /**
@@ -77,5 +78,9 @@ public class UnlitMaterialAdapter extends MaterialAdapter {
             return null;
         }
         return param;
-    }
+    }    
+    
+    @Override
+    protected void initDefaultMatParams(Material material) {}
+    
 }

@@ -61,6 +61,11 @@ public abstract class PBRMaterialAdapter extends MaterialAdapter {
     protected String getMaterialDefPath() {
         return "Common/MatDefs/Light/PBRLighting.j3md";
     }
+    
+    @Override
+    protected void initDefaultMatParams(Material material) {
+        material.setFloat("EmissiveIntensity", 1);
+    }
 
     @Override
     protected MatParam adaptMatParam(MatParam param) {
