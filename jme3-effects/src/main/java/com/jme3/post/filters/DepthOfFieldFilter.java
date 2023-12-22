@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -227,7 +227,7 @@ public class DepthOfFieldFilter extends Filter {
         super.write(ex);
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(blurScale, "blurScale", 1f);
-        oc.write(blurScale, "blurThreshold", 0.2f);
+        oc.write(blurThreshold, "blurThreshold", 0.2f);
         oc.write(focusDistance, "focusDistance", 50f);
         oc.write(focusRange, "focusRange", 10f);
         oc.write(debugUnfocus, "debugUnfocus", false); // strange to write this I guess
