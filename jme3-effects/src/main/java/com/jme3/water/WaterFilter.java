@@ -1045,7 +1045,7 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
     public void setCausticsTexture(Texture2D causticsTexture) {
         this.causticsTexture = causticsTexture;
         if (material != null) {
-            material.setTexture("causticsMap", causticsTexture);
+            material.setTexture("CausticsMap", causticsTexture);
         }
     }
 
