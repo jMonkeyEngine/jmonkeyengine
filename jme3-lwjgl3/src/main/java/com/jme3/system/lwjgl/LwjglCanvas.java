@@ -37,8 +37,13 @@ import com.jme3.input.awt.AwtKeyInput;
 import com.jme3.input.awt.AwtMouseInput;
 import com.jme3.system.AppSettings;
 import com.jme3.system.JmeCanvasContext;
+import com.jme3.system.lwjglx.LwjglxDefaultGLPlatform;
+import com.jme3.system.lwjglx.LwjglxGLPlatform;
 
+import java.awt.AWTException;
 import java.awt.Canvas;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
@@ -54,8 +59,11 @@ import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.lwjgl.opengl.awt.AWTGLCanvas;
+import org.lwjgl.awthacks.NonClearGraphics;
+import org.lwjgl.awthacks.NonClearGraphics2D;
 import org.lwjgl.opengl.awt.GLData;
+
+import static org.lwjgl.system.MemoryUtil.*;
 
 /**
  * Class <code>LwjglCanvas</code> that integrates <a href="https://github.com/LWJGLX/lwjgl3-awt">LWJGLX</a>
@@ -137,20 +145,24 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
         });
     }
     
-    private class LwjglAWTGLCanvas extends AWTGLCanvas {
+    private class LwjglAWTGLCanvas extends Canvas {
+        
+        private LwjglxGLPlatform platformCanvas;
+        
+        private long context;
+        private GLData data;
+        private GLData effective;
 
         public LwjglAWTGLCanvas(GLData data) {
-            super(data);
-        }
-
-        @Override
-        public void initGL() {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        @Override
-        public void paintGL() {
-            throw new UnsupportedOperationException("Not supported yet.");
+            this.effective = new GLData();
+            this.context   = NULL;
+            this.data      = data;
+            
+            try {
+                platformCanvas = LwjglxDefaultGLPlatform.createLwjglxGLPlatform();
+            } catch (UnsupportedOperationException e) {
+                listener.handleError(e.getLocalizedMessage(), e);
+            }
         }
         
         @Override
@@ -161,26 +173,39 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
         public GLData getGLDataEffective() {
             return effective;
         }
-
-        @Override
+        
         public void afterRender() {
-            super.afterRender();
+            platformCanvas.makeCurrent(NULL);
+            try {
+                platformCanvas.unlock(); // <- MUST unlock on Linux
+            } catch (AWTException e) {
+                listener.handleError("Failed to unlock Canvas", e);
+            }
         }
-
-        @Override
+        
         public void beforeRender() {
-            super.beforeRender();
+            if (context == NULL) {
+                try {
+                    context = platformCanvas.create(this, data, effective);
+                } catch (AWTException e) {
+                    listener.handleError("Exception while creating the OpenGL context", e);
+                    return;
+                }
+            }
+            try {
+                platformCanvas.lock(); // <- MUST lock on Linux
+            } catch (AWTException e) {
+                listener.handleError("Failed to lock Canvas", e);
+            }
+            platformCanvas.makeCurrent(context);
         }
-
-        @Override
-        public void disposeCanvas() { }
         
         public void doDisposeCanvas() {
-            super.disposeCanvas();
+            platformCanvas.dispose();
         }
         
-        public void deleteContext() {
-            platformCanvas.deleteContext(context);
+        public void swapBuffers() {
+            platformCanvas.swapBuffers();
         }
         
         @Override
@@ -198,6 +223,23 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
                 hasNativePeer.set(false);
             }            
             super.removeNotify();
+        }
+        
+        public void destroy() {
+            platformCanvas.destroy();
+        }
+        
+        /**
+          * Returns Graphics object that ignores {@link Graphics#clearRect(int, int, int, int)}
+          * calls.
+          * This is done so that the frame buffer will not be cleared by AWT/Swing internals.
+          */
+        @Override
+        public Graphics getGraphics() {
+            Graphics graphics = super.getGraphics();
+            return (graphics instanceof Graphics2D) 
+                    ? new NonClearGraphics2D((Graphics2D) graphics) 
+                    : new NonClearGraphics(graphics);
         }
     }
     
@@ -330,9 +372,6 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
 
     public boolean checkVisibilityState() {
         if (!hasNativePeer.get()) {
-            synchronized (lock) {
-                canvas.doDisposeCanvas();
-            }
             return false;
         }
 
@@ -344,9 +383,9 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
 
     @Override
     protected void destroyContext() {
-        //synchronized (lock) {
-        //    canvas.deleteContext();
-        //}
+        synchronized (lock) {
+            canvas.destroy();
+        }
         super.destroyContext();
     }
 
