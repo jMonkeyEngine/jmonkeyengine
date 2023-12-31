@@ -389,9 +389,12 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Sets the current instance from a transform matrix. Any shear in the
+     * Sets the current instance from a transform matrix. Any reflection or shear in the
      * matrix is lost -- in other words, it may not be possible to recreate the
      * original matrix from the result.
+     *
+     * <p>After this method is invoked, all components of {@code scale} will be
+     * non-negative, even if {@code mat} includes reflection.
      *
      * @param mat the input matrix (not null, unaffected)
      */
@@ -405,6 +408,10 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
 
     /**
      * Returns the inverse. The current instance is unaffected.
+     *
+     * <p>Assumes (but does not verify) that the scale factors are all positive.
+     * If any component of {@code scale} is negative or zero, the result is
+     * undefined.
      *
      * @return a new Transform
      */
