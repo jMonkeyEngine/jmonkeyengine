@@ -230,10 +230,11 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
         }
         
         /**
-          * Returns Graphics object that ignores {@link Graphics#clearRect(int, int, int, int)}
-          * calls.
-          * This is done so that the frame buffer will not be cleared by AWT/Swing internals.
-          */
+         * Returns Graphics object that ignores {@link Graphics#clearRect(int, int, int, int)}
+         * calls.
+         * This is done so that the frame buffer will not be cleared by AWT/Swing internals.
+         * @return Graphics
+         */
         @Override
         public Graphics getGraphics() {
             Graphics graphics = super.getGraphics();
@@ -243,17 +244,31 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
         }
     }
     
+    /** Canvas-AWT. */
     private final LwjglAWTGLCanvas canvas;
+    
+    /**
+     * Configuration data to start the AWT context, this is used by the
+     * {@code lwjgl-awt} library.
+     */
     private GLData glData;
     
+    /** Used to display the effective data for the {@code AWT-Swing} drawing surface per console. */
     private final AtomicBoolean showGLDataEffective = new AtomicBoolean(false);
+    
+    /** Used to notify the canvas status ({@code remove()/add()}). */
     private final AtomicBoolean hasNativePeer = new AtomicBoolean(false);
+    
+    /** Notify if the canvas is visible and has a parent.*/
     private final AtomicBoolean showing = new AtomicBoolean(false);
+    
+    /** Notify if there is a change in canvas dimensions. */
     private AtomicBoolean needResize = new AtomicBoolean(false);
 
+    /** Semaphort used to check the "terminate" signal. */
     private final Semaphore signalTerminate = new Semaphore(0);
-    private final Semaphore signalTerminated = new Semaphore(0);
 
+    /** lock-object. */
     private final Object lock = new Object();
     private int framebufferWidth = 1;
     private int framebufferHeight = 1;
@@ -386,6 +401,9 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
         synchronized (lock) {
             canvas.destroy();
         }
+
+        // request the cleanup
+        signalTerminate.release();
         super.destroyContext();
     }
 
@@ -416,11 +434,10 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
             System.out.println(MessageFormat.format("[ DEBUGGER ] :Effective data to initialize the LWJGL3-AWT context\n{0}", 
                                                 getPrintContextInitInfo(canvas.getGLDataEffective())));
         }
-        
+
         try {
             if (signalTerminate.tryAcquire(10, TimeUnit.MILLISECONDS)) {
                 canvas.doDisposeCanvas();
-                signalTerminated.release();
             }
         } catch (InterruptedException ignored) { }
     }
