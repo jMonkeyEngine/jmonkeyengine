@@ -1,11 +1,37 @@
 /*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ * Copyright (c) 2024 jMonkeyEngine
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ * * Redistributions of source code must retain the above copyright
+ *   notice, this list of conditions and the following disclaimer.
+ *
+ * * Redistributions in binary form must reproduce the above copyright
+ *   notice, this list of conditions and the following disclaimer in the
+ *   documentation and/or other materials provided with the distribution.
+ *
+ * * Neither the name of 'jMonkeyEngine' nor the names of its contributors
+ *   may be used to endorse or promote products derived from this software
+ *   without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package com.jme3.anim;
 
 import com.jme3.scene.Spatial;
-import java.util.Iterator;
 
 /**
  * Extension of {@link ArmatureMask}.
@@ -58,6 +84,7 @@ public class AlertArmatureMask extends ArmatureMask {
         }
         return this;
     }
+    
     /**
      * Adds the given joint and all its children to this mask.
      * @param joint
@@ -67,6 +94,7 @@ public class AlertArmatureMask extends ArmatureMask {
         super.addFromJoint(skin.getArmature(), joint);
         return this;
     }
+    
     /**
      * Adds the given joints to this mask.
      * @param joints
@@ -100,6 +128,7 @@ public class AlertArmatureMask extends ArmatureMask {
     public String getTargetLayer() {
         return layer;
     }
+    
     /**
      * Get the {@link AnimComposer} this mask is for.
      * @return 
@@ -107,6 +136,7 @@ public class AlertArmatureMask extends ArmatureMask {
     public AnimComposer getAnimComposer() {
         return anim;
     }
+    
     /**
      * Get the {@link SkinningControl} this mask is for.
      * @return 
@@ -114,6 +144,7 @@ public class AlertArmatureMask extends ArmatureMask {
     public SkinningControl getSkinningControl() {
         return skin;
     }
+    
     /**
      * Returns true if this mask is checking upper layers for joint use.
      * @return 
@@ -126,16 +157,13 @@ public class AlertArmatureMask extends ArmatureMask {
     public boolean contains(Object target) {
         return simpleContains(target) && (!checkUpperLayers || !isAffectedByUpperLayers(target));
     }
+    
     private boolean simpleContains(Object target) {
         return super.contains(target);
     }
+    
     private boolean isAffectedByUpperLayers(Object target) {
         boolean higher = false;
-        /**
-         * ... Since AnimComposer does not provide a Collection that
-         * has a decending iterator, we will just have to skip over
-         * a bunch of lower layers before we actually need to do anything.
-         */
         for (String name : anim.getLayerNames()) {
             if (name.equals(layer)) {
                 higher = true;
@@ -169,6 +197,7 @@ public class AlertArmatureMask extends ArmatureMask {
     public static AlertArmatureMask all(String layer, Spatial spatial) {
         return new AlertArmatureMask(layer, spatial).addAll();
     }
+    
     /**
      * Creates an {@code AlertArmatureMask} for all joints.
      * @param layer
