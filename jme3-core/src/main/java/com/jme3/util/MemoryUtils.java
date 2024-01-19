@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2024 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -70,7 +70,8 @@ public class MemoryUtils {
             Long value = (Long)mbeans.getAttribute(directPool, "MemoryUsed");
             return value == null ? -1 : value;
         } catch (JMException ex) {
-            Logger.getLogger(MemoryUtils.class.getName()).log(Level.SEVERE, "Error retrieving ‘MemoryUsed’", ex);
+            Logger.getLogger(MemoryUtils.class.getName())
+                    .log(Level.SEVERE, "Error retrieving MemoryUsed", ex);
             return -1;
         }
     }
@@ -84,7 +85,7 @@ public class MemoryUtils {
             Long value = (Long)mbeans.getAttribute(directPool, "Count");
             return value == null ? -1 : value;
         } catch (JMException ex) {
-            Logger.getLogger(MemoryUtils.class.getName()).log(Level.SEVERE, "Error retrieving ‘Count’", ex);
+            Logger.getLogger(MemoryUtils.class.getName()).log(Level.SEVERE, "Error retrieving Count", ex);
             return -1;
         }
     }
@@ -99,7 +100,8 @@ public class MemoryUtils {
             Long value = (Long)mbeans.getAttribute(directPool, "TotalCapacity");
             return value == null ? -1 : value;
         } catch (JMException ex) {
-            Logger.getLogger(MemoryUtils.class.getName()).log(Level.SEVERE, "Error retrieving ‘TotalCapacity’", ex);
+            Logger.getLogger(MemoryUtils.class.getName())
+                    .log(Level.SEVERE, "Error retrieving TotalCapacity", ex);
             return -1;
         }
     }
