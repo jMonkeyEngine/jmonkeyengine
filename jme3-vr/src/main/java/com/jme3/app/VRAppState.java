@@ -72,7 +72,13 @@ import java.util.logging.Logger;
  * </ul>
  * Attaching an instance of this app state to an already started application may cause crashes.
  * @author Julien Seinturier - COMEX SA - <a href="http://www.seinturier.fr">http://www.seinturier.fr</a>
+ *
+ * @deprecated The jme3-vr module is deprecated and will be removed in a future version (as it only supports OpenVR).
+ *             For new Virtual Reality projects, use user libraries that provide OpenXR support.
+ *             See <a href = "https://wiki.jmonkeyengine.org/docs/3.4/core/vr/virtualreality.html">Virtual Reality JME wiki section</a>
+ *             for more information.
  */
+@Deprecated
 public class VRAppState extends AbstractAppState {
     public static final String ID = "VRAppState";
     private static final Logger logger = Logger.getLogger(VRAppState.class.getName());
@@ -117,7 +123,12 @@ public class VRAppState extends AbstractAppState {
      * Create a new VR app state with given settings. The app state relies on the given {@link VREnvironment VR environment}.
      * @param settings the settings to use.
      * @param environment the {@link VREnvironment VR environment} that this app state is using.
+     * @deprecated The jme3-vr module is deprecated and will be removed in a future version (as it only supports OpenVR).
+     *             For new Virtual Reality projects, use user libraries that provide OpenXR support.
+     *             See <a href = "https://wiki.jmonkeyengine.org/docs/3.4/core/vr/virtualreality.html">Virtual Reality JME wiki section</a>
+     *             for more information.
      */
+    @Deprecated
     public VRAppState(AppSettings settings, VREnvironment environment){
         this(environment);
         this.settings = settings;
