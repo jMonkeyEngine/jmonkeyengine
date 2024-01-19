@@ -37,7 +37,6 @@ import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.texture.FrameBuffer;
-import com.jme3.texture.Image.Format;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.Screenshots;
 import java.awt.*;
@@ -57,6 +56,8 @@ import java.util.logging.Logger;
 
 public class AwtPanel extends Canvas implements SceneProcessor {
 
+    private static final Logger logger = Logger.getLogger(AwtPanel.class.getName());
+
     private boolean attachAsMain = false;
 
     private BufferedImage img;
@@ -66,19 +67,19 @@ public class AwtPanel extends Canvas implements SceneProcessor {
     private IntBuffer intBuf;
     private RenderManager rm;
     private PaintMode paintMode;
-    private ArrayList<ViewPort> viewPorts = new ArrayList<>();
+    private final java.util.List<ViewPort> viewPorts = new ArrayList<>();
 
     // Visibility/drawing vars
     private BufferStrategy strategy;
     private AffineTransformOp transformOp;
-    private AtomicBoolean hasNativePeer = new AtomicBoolean(false);
-    private AtomicBoolean showing = new AtomicBoolean(false);
-    private AtomicBoolean repaintRequest = new AtomicBoolean(false);
+    private final AtomicBoolean hasNativePeer = new AtomicBoolean(false);
+    private final AtomicBoolean showing = new AtomicBoolean(false);
+    private final AtomicBoolean repaintRequest = new AtomicBoolean(false);
 
     // Reshape vars
     private int newWidth = 1;
     private int newHeight = 1;
-    private AtomicBoolean reshapeNeeded = new AtomicBoolean(false);
+    private final AtomicBoolean reshapeNeeded = new AtomicBoolean(false);
     private final Object lock = new Object();
 
     public AwtPanel(PaintMode paintMode) {
@@ -180,7 +181,7 @@ public class AwtPanel extends Canvas implements SceneProcessor {
                                     BufferCapabilities.FlipContents.UNDEFINED)
                     );
                 } catch (AWTException ex) {
-                    ex.printStackTrace();
+                    logger.log(Level.WARNING, "Failed to create buffer strategy!", ex);
                 }
                 strategy = getBufferStrategy();
             }
@@ -190,7 +191,7 @@ public class AwtPanel extends Canvas implements SceneProcessor {
                 do {
                     Graphics2D g2d = (Graphics2D) strategy.getDrawGraphics();
                     if (g2d == null) {
-                        Logger.getLogger(AwtPanel.class.getName()).log(Level.WARNING, "OGL: DrawGraphics was null.");
+                        logger.log(Level.WARNING, "OGL: DrawGraphics was null.");
                         return;
                     }
 
@@ -210,7 +211,7 @@ public class AwtPanel extends Canvas implements SceneProcessor {
     }
 
     public void attachTo(boolean overrideMainFramebuffer, ViewPort... vps) {
-        if (viewPorts.size() > 0) {
+        if (!viewPorts.isEmpty()) {
             for (ViewPort vp : viewPorts) {
                 vp.setOutputFrameBuffer(null);
             }
@@ -242,8 +243,8 @@ public class AwtPanel extends Canvas implements SceneProcessor {
         }
 
         fb = new FrameBuffer(width, height, 1);
-        fb.setDepthBuffer(Format.Depth);
-        fb.setColorBuffer(Format.RGB8);
+        fb.setDepthTarget(FrameBuffer.FrameBufferTarget.newTarget(com.jme3.texture.Image.Format.Depth));
+        fb.addColorTarget(FrameBuffer.FrameBufferTarget.newTarget(com.jme3.texture.Image.Format.RGB8));
         fb.setSrgb(srgb);
 
         if (attachAsMain) {

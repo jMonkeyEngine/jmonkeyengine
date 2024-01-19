@@ -31,22 +31,21 @@
  */
 package com.jme3.input;
 
+import com.jme3.cursors.plugins.JmeCursor;
+import com.jme3.input.event.MouseButtonEvent;
+import com.jme3.input.event.MouseMotionEvent;
 import java.awt.Component;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
-import com.jme3.cursors.plugins.JmeCursor;
-import com.jme3.input.MouseInput;
-import com.jme3.input.event.MouseButtonEvent;
-import com.jme3.input.event.MouseMotionEvent;
 import com.jme3.system.AWTContext;
-
 /**
  * The implementation of the {@link MouseInput} dedicated to AWT {@link Component component}.
  * <p>
@@ -70,9 +69,9 @@ public class AWTMouseInput extends AWTInput implements MouseInput, MouseListener
      */
     private static final int WHEEL_SCALE = 10;
 
-    private final LinkedList<MouseMotionEvent> mouseMotionEvents;
+    private final Deque<MouseMotionEvent> mouseMotionEvents;
 
-    private final LinkedList<MouseButtonEvent> mouseButtonEvents;
+    private final Deque<MouseButtonEvent> mouseButtonEvents;
 
     private int mouseX;
     private int mouseY;
@@ -80,8 +79,8 @@ public class AWTMouseInput extends AWTInput implements MouseInput, MouseListener
 
     public AWTMouseInput(AWTContext context) {
         super(context);
-        mouseMotionEvents = new LinkedList<MouseMotionEvent>();
-        mouseButtonEvents = new LinkedList<MouseButtonEvent>();
+        mouseMotionEvents = new LinkedList<>();
+        mouseButtonEvents = new LinkedList<>();
     }
 
     @Override

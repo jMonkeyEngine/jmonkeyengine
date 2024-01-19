@@ -39,6 +39,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
 import java.util.BitSet;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -53,10 +54,10 @@ public class AwtKeyInput implements KeyInput, KeyListener {
 
     private static final Logger logger = Logger.getLogger(AwtKeyInput.class.getName());
     
-    private final ArrayList<KeyInputEvent> eventQueue = new ArrayList<>();
+    private final List<KeyInputEvent> eventQueue = new ArrayList<>();
     private RawInputListener listener;
     private Component component;
-    private BitSet keyStateSet = new BitSet(0xFF);
+    private final BitSet keyStateSet = new BitSet(0xFF);
     
     public AwtKeyInput(){
     }

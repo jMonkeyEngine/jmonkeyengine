@@ -363,7 +363,8 @@ public class FrameBuffer extends NativeObject {
      *
      * @param format The format to use for the depth buffer.
      * @throws IllegalArgumentException If <code>format</code> is not a depth format.
-     * @deprecated Use setDepthTarget
+     * @deprecated Use
+     * {@link #setDepthTarget(com.jme3.texture.FrameBuffer.FrameBufferBufferTarget)}
      */
     @Deprecated
     public void setDepthBuffer(Image.Format format) {
@@ -656,7 +657,8 @@ public class FrameBuffer extends NativeObject {
      * Set the depth texture to use for this framebuffer.
      *
      * @param tex The color texture to set.
-     * @deprecated Use setDepthTarget
+     * @deprecated Use
+     * {@link #setDepthTarget(com.jme3.texture.FrameBuffer.FrameBufferTextureTarget)}
      */
     @Deprecated
     public void setDepthTexture(Texture2D tex) {
@@ -677,7 +679,8 @@ public class FrameBuffer extends NativeObject {
      * 
      * @param tex the TextureArray to apply
      * @param layer (default=-1)
-     * @deprecated Use setDepthTarget
+     * @deprecated Use
+     * {@link #setDepthTarget(com.jme3.texture.FrameBuffer.FrameBufferTextureTarget)}
      */
     @Deprecated
     public void setDepthTexture(TextureArray tex, int layer) {

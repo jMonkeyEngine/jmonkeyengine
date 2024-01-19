@@ -1,5 +1,6 @@
 dependencies {
     api project(':jme3-core')
+    api project(':jme3-desktop')
 
     api "org.lwjgl:lwjgl:${lwjgl3Version}"
     api "org.lwjgl:lwjgl-glfw:${lwjgl3Version}"

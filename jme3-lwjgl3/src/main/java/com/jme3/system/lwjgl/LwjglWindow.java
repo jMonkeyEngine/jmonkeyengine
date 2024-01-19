@@ -46,15 +46,6 @@ import com.jme3.system.JmeSystem;
 import com.jme3.system.NanoTimer;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.SafeArrayList;
-import org.lwjgl.Version;
-import org.lwjgl.glfw.GLFWErrorCallback;
-import org.lwjgl.glfw.GLFWFramebufferSizeCallback;
-import org.lwjgl.glfw.GLFWImage;
-import org.lwjgl.glfw.GLFWVidMode;
-import org.lwjgl.glfw.GLFWWindowFocusCallback;
-import org.lwjgl.glfw.GLFWWindowSizeCallback;
-import org.lwjgl.system.Platform;
-
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
@@ -64,10 +55,17 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
+import org.lwjgl.Version;
 import static org.lwjgl.glfw.GLFW.*;
+import org.lwjgl.glfw.GLFWErrorCallback;
+import org.lwjgl.glfw.GLFWFramebufferSizeCallback;
+import org.lwjgl.glfw.GLFWImage;
+import org.lwjgl.glfw.GLFWVidMode;
+import org.lwjgl.glfw.GLFWWindowFocusCallback;
+import org.lwjgl.glfw.GLFWWindowSizeCallback;
 import static org.lwjgl.opengl.GL11.GL_FALSE;
 import static org.lwjgl.system.MemoryUtil.NULL;
+import org.lwjgl.system.Platform;
 
 /**
  * A wrapper class over the GLFW framework in LWJGL 3.
@@ -155,8 +153,8 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
     protected boolean allowSwapBuffers = false;
 
     // temp variables used for glfw calls
-    private int width[] = new int[1];
-    private int height[] = new int[1];
+    private final int width[] = new int[1];
+    private final int height[] = new int[1];
 
     // state maintained by updateSizes()
     private int oldFramebufferWidth;
@@ -297,6 +295,8 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             requestWidth = videoMode.width();
             requestHeight = videoMode.height();
         }
+        oldFramebufferHeight = requestHeight;
+        oldFramebufferWidth = requestWidth;
         window = glfwCreateWindow(requestWidth, requestHeight, settings.getTitle(), monitor, NULL);
         if (window == NULL) {
             throw new RuntimeException("Failed to create the GLFW window");
