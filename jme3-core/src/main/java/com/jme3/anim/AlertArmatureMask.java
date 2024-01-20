@@ -34,10 +34,8 @@ package com.jme3.anim;
 import com.jme3.scene.Spatial;
 
 /**
- * Extension of {@link ArmatureMask}.
- * 
- * <p>Provides a feature which checks higher layers for joint use before it
- * approves the layer to use a joint.
+ * Mask that excludes joints from participating in the layer
+ * if a higher layer is using those joints in an animation.
  * 
  * @author codex
  */
@@ -49,7 +47,7 @@ public class AlertArmatureMask extends ArmatureMask {
     private boolean checkUpperLayers = true;
     
     /**
-     * @param layer The layer this mask is targeted for. It is extremely important
+     * @param layer The layer this mask is targeted for. It is important
      * that this match the name of the layer this mask is (or will be) part of. You
      * can use {@link makeLayer} to ensure this.
      * @param spatial Spatial containing necessary controls ({@link AnimComposer} and {@link SkinningControl})
@@ -60,6 +58,13 @@ public class AlertArmatureMask extends ArmatureMask {
         anim = spatial.getControl(AnimComposer.class);
         skin = spatial.getControl(SkinningControl.class);
     }
+    /**
+     * @param layer The layer this mask is targeted for. It is important
+     * that this match the name of the layer this mask is (or will be) part of. You
+     * can use {@link makeLayer} to ensure this.
+     * @param anim anim composer this mask is assigned to
+     * @param skin skinning control complimenting the anim composer.
+     */
     public AlertArmatureMask(String layer, AnimComposer anim, SkinningControl skin) {
         super();
         this.layer = layer;
@@ -68,7 +73,7 @@ public class AlertArmatureMask extends ArmatureMask {
     }
     
     /**
-     * Makes a layer for this mask.
+     * Makes a layer from this mask.
      */
     public void makeLayer() {
         anim.makeLayer(layer, this);
@@ -76,7 +81,7 @@ public class AlertArmatureMask extends ArmatureMask {
     
     /**
      * Adds all joints to this mask.
-     * @return 
+     * @return this.instance
      */
     public AlertArmatureMask addAll() {
         for (Joint j : skin.getArmature().getJointList()) {
@@ -88,7 +93,7 @@ public class AlertArmatureMask extends ArmatureMask {
     /**
      * Adds the given joint and all its children to this mask.
      * @param joint
-     * @return 
+     * @return this instance
      */
     public AlertArmatureMask addFromJoint(String joint) {
         super.addFromJoint(skin.getArmature(), joint);
@@ -98,7 +103,7 @@ public class AlertArmatureMask extends ArmatureMask {
     /**
      * Adds the given joints to this mask.
      * @param joints
-     * @return 
+     * @return this instance
      */
     public AlertArmatureMask addJoints(String... joints) {
         super.addBones(skin.getArmature(), joints);
@@ -111,7 +116,7 @@ public class AlertArmatureMask extends ArmatureMask {
      * <p>Not checking is more efficient, but checking can avoid some
      * interpolation issues between layers. Default=true
      * @param check 
-     * @return 
+     * @return this instance
      */
     public AlertArmatureMask setCheckUpperLayers(boolean check) {
         checkUpperLayers = check;
@@ -131,7 +136,7 @@ public class AlertArmatureMask extends ArmatureMask {
     
     /**
      * Get the {@link AnimComposer} this mask is for.
-     * @return 
+     * @return anim composer
      */
     public AnimComposer getAnimComposer() {
         return anim;
@@ -139,7 +144,7 @@ public class AlertArmatureMask extends ArmatureMask {
     
     /**
      * Get the {@link SkinningControl} this mask is for.
-     * @return 
+     * @return skinning control
      */
     public SkinningControl getSkinningControl() {
         return skin;
@@ -190,9 +195,9 @@ public class AlertArmatureMask extends ArmatureMask {
     
     /**
      * Creates an {@code AlertArmatureMask} for all joints.
-     * @param layer
-     * @param spatial
-     * @return 
+     * @param layer layer the returned mask is, or will be, be assigned to
+     * @param spatial spatial containing anim composer and skinning control
+     * @return new mask
      */
     public static AlertArmatureMask all(String layer, Spatial spatial) {
         return new AlertArmatureMask(layer, spatial).addAll();
@@ -200,10 +205,10 @@ public class AlertArmatureMask extends ArmatureMask {
     
     /**
      * Creates an {@code AlertArmatureMask} for all joints.
-     * @param layer
-     * @param anim
-     * @param skin
-     * @return 
+     * @param layer layer the returned mask is, or will be, assigned to
+     * @param anim anim composer
+     * @param skin skinning control
+     * @return new mask
      */
     public static AlertArmatureMask all(String layer, AnimComposer anim, SkinningControl skin) {
         return new AlertArmatureMask(layer, anim, skin).addAll();
