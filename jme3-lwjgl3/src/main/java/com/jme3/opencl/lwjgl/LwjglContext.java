@@ -162,13 +162,12 @@ public class LwjglContext extends Context {
     @Override
     public Buffer bindVertexBuffer(VertexBuffer vb, MemoryAccess access) {
         Utils.assertSharingPossible();
-        int id = vb.getId();
-        if (id == -1) {
+        if (vb.isInvalid()) {
             throw new IllegalArgumentException("vertex buffer was not yet uploaded to the GPU or is CPU only");
         }
         long flags = Utils.getMemoryAccessFlags(access);
         Utils.errorBuffer.rewind();
-        long mem = CL10GL.clCreateFromGLBuffer(context, flags, id, Utils.errorBuffer);
+        long mem = CL10GL.clCreateFromGLBuffer(context, flags, vb.getId(), Utils.errorBuffer);
         Utils.checkError(Utils.errorBuffer, "clCreateFromGLBuffer");
         return new LwjglBuffer(mem);
     }

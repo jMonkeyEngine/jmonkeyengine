@@ -80,7 +80,7 @@ public class AudioBuffer extends AudioData {
     @Override
     public String toString() {
         return getClass().getSimpleName()
-                + "[id=" + id + ", ch=" + channels + ", bits=" + bitsPerSample
+                + "[id=" + getId() + ", ch=" + channels + ", bits=" + bitsPerSample
                 + ", rate=" + sampleRate + ", duration=" + getDuration() + "]";
     }
 
@@ -109,7 +109,7 @@ public class AudioBuffer extends AudioData {
 
     @Override
     public void resetObject() {
-        id = -1;
+        invalidate();
         setUpdateNeeded();
     }
 
@@ -127,11 +127,11 @@ public class AudioBuffer extends AudioData {
 
     @Override
     public NativeObject createDestructableClone() {
-        return new AudioBuffer(id);
+        return new AudioBuffer(getId());
     }
 
     @Override
     public long getUniqueId() {
-        return ((long) OBJTYPE_AUDIOBUFFER << 32) | (0xffffffffL & (long) id);
+        return ((long) OBJTYPE_AUDIOBUFFER << 32) | (0xffffffffL & getId());
     }
 }

@@ -130,7 +130,7 @@ public final class Shader extends NativeObject {
         }
 
         protected ShaderSource(ShaderSource ss) {
-            super(ss.id);
+            super(ss.getId());
             // No data needs to be copied.
             // (This is a destructible clone)
         }
@@ -189,7 +189,7 @@ public final class Shader extends NativeObject {
 
         @Override
         public long getUniqueId() {
-            return ((long)OBJTYPE_SHADERSOURCE << 32) | (0xffffffffL & (long)id);
+            return ((long)OBJTYPE_SHADERSOURCE << 32) | (0xffffffffL & getId());
         }
 
         @Override
@@ -207,7 +207,7 @@ public final class Shader extends NativeObject {
 
         @Override
         public void resetObject() {
-            id = -1;
+            invalidate();
             setUpdateNeeded();
         }
 
@@ -241,7 +241,7 @@ public final class Shader extends NativeObject {
      * @param s (not null)
      */
     protected Shader(Shader s) {
-        super(s.id);
+        super(s.getId());
 
         // Shader sources cannot be shared, therefore they must
         // be destroyed together with the parent shader.
@@ -443,7 +443,7 @@ public final class Shader extends NativeObject {
      */
     @Override
     public void resetObject() {
-        this.id = -1;
+        invalidate();
         for (ShaderSource source : shaderSourceList){
             source.resetObject();
         }
@@ -462,6 +462,6 @@ public final class Shader extends NativeObject {
 
     @Override
     public long getUniqueId() {
-        return ((long)OBJTYPE_SHADER << 32) | (0xffffffffL & (long)id);
+        return ((long)OBJTYPE_SHADER << 32) | (0xffffffffL & getId());
     }
 }

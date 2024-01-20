@@ -38,8 +38,8 @@ public class AndroidAudioData extends AudioData {
 
     @Override
     public void resetObject() {
-        this.id = -1;
-        setUpdateNeeded();  
+        invalidate();
+        setUpdateNeeded();
     }
 
     @Override
@@ -57,11 +57,11 @@ public class AndroidAudioData extends AudioData {
 
     @Override
     public NativeObject createDestructableClone() {
-        return new AndroidAudioData(id);
+        return new AndroidAudioData(getId());
     }
 
     @Override
     public long getUniqueId() {
-        return ((long)OBJTYPE_AUDIOBUFFER << 32) | ((long)id);
+        return ((long)OBJTYPE_AUDIOBUFFER << 32) | (getId());
     }
 }

@@ -102,8 +102,8 @@ public class NativeObjectManager {
      * @param obj the object to register (not null)
      */
     public void registerObject(NativeObject obj) {
-        if (obj.getId() <= 0) {
-            throw new IllegalArgumentException("object id must be greater than zero");
+        if (obj.isInvalid()) {
+            throw new IllegalArgumentException("object is not valid");
         }
 
         NativeObjectRef ref = new NativeObjectRef(refQueue, obj);
@@ -129,8 +129,8 @@ public class NativeObjectManager {
         assert realObj == null || obj.getId() == realObj.getId();
         
         if (deleteGL) {
-            if (obj.getId() <= 0) {
-                logger.log(Level.WARNING, "Object already deleted: {0}", obj.getClass().getSimpleName() + "/" + obj.getId());
+            if (obj.isInvalid()) {
+                logger.log(Level.WARNING, "Object already deleted: {0}", obj.getClass().getSimpleName());
             } else {
                 // Unregister it from cleanup list.
                 NativeObjectRef ref2 = refMap.remove(obj.getUniqueId());
@@ -146,7 +146,7 @@ public class NativeObjectManager {
 
                 // Delete object from the GL driver
                 obj.deleteObject(rendererObject);
-                assert obj.getId() == NativeObject.INVALID_ID;
+                assert obj.isInvalid();
 
                 if (logger.isLoggable(Level.FINEST)) {
                     logger.log(Level.FINEST, "Deleted: {0}", obj.getClass().getSimpleName() + "/" + id);

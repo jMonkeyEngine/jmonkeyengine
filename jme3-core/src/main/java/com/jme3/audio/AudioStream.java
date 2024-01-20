@@ -68,7 +68,7 @@ public class AudioStream extends AudioData implements Closeable {
     }
 
     public void updateData(InputStream in, float duration) {
-        if (id != -1 || this.in != null) {
+        if (isValid() || this.in != null) {
             throw new IllegalStateException("Data already set!");
         }
 
@@ -157,8 +157,7 @@ public class AudioStream extends AudioData implements Closeable {
 
     @Override
     public void resetObject() {
-        id = -1;
-        ids = null;
+        invalidate();
         setUpdateNeeded();
     }
 
@@ -222,6 +221,6 @@ public class AudioStream extends AudioData implements Closeable {
 
     @Override
     public long getUniqueId() {
-        return ((long) OBJTYPE_AUDIOSTREAM << 32) | (0xffffffffL & (long) ids[0]);
+        return ((long) OBJTYPE_AUDIOSTREAM << 32) | (0xffffffffL & ids[0]);
     }
 }

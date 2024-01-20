@@ -151,13 +151,12 @@ public class LwjglContext extends Context {
 
     @Override
     public Buffer bindVertexBuffer(VertexBuffer vb, MemoryAccess access) {
-        int id = vb.getId();
-        if (id == -1) {
+        if (vb.isInvalid()) {
             throw new IllegalArgumentException("vertex buffer was not yet uploaded to the GPU or is CPU only");
         }
         long flags = Utils.getMemoryAccessFlags(access);
         Utils.errorBuffer.rewind();
-        CLMem mem = CL10GL.clCreateFromGLBuffer(context, flags, id, Utils.errorBuffer);
+        CLMem mem = CL10GL.clCreateFromGLBuffer(context, flags, vb.getId(), Utils.errorBuffer);
         Utils.checkError(Utils.errorBuffer, "clCreateFromGLBuffer");
         return new LwjglBuffer(mem);
     }
@@ -165,7 +164,7 @@ public class LwjglContext extends Context {
     @Override
     public Image bindImage(com.jme3.texture.Image image, Texture.Type textureType, int mipLevel, MemoryAccess access) {
         int imageID = image.getId();
-        if (imageID == -1) {
+        if (image.isInvalid()) {
             throw new IllegalArgumentException("image was not yet uploaded to the GPU");
         }
         long memFlags = Utils.getMemoryAccessFlags(access);

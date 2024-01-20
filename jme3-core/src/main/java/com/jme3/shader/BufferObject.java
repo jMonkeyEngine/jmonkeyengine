@@ -248,7 +248,7 @@ public class BufferObject extends NativeObject {
 
     @Override
     public void resetObject() {
-        this.id = -1;
+        invalidate();
         setUpdateNeeded();
     }
 
@@ -829,6 +829,6 @@ public class BufferObject extends NativeObject {
 
     @Override
     public long getUniqueId() {
-        return ((long) OBJTYPE_BO << 32) | (0xffffffffL & (long) id);
+        return ((long) OBJTYPE_BO << 32) | (0xffffffffL & getId());
     }
 }

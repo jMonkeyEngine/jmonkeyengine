@@ -690,7 +690,7 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
     
     @Override
     public void resetObject() {
-        this.id = -1;
+        invalidate();
         this.mipsWereGenerated = false;
         this.lastTextureState.reset();
         setUpdateNeeded();
@@ -710,12 +710,12 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
 
     @Override
     public NativeObject createDestructableClone() {
-        return new Image(id);
+        return new Image(getId());
     }
 
     @Override
     public long getUniqueId() {
-        return ((long)OBJTYPE_TEXTURE << 32) | (0xffffffffL & (long)id);
+        return ((long)OBJTYPE_TEXTURE << 32) | (0xffffffffL & getId());
     }
     
     /**
@@ -1220,7 +1220,7 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
             sb.append(", mips");
 
         if (getId() >= 0)
-            sb.append(", id=").append(id);
+            sb.append(", id=").append(getId());
 
         sb.append("]");
         

@@ -647,7 +647,7 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
      * argument.
      */
     public void setupData(Usage usage, int components, Format format, Buffer data) {
-        if (id != -1) {
+        if (isValid()) {
             throw new UnsupportedOperationException("Data has already been sent. Cannot setupData again.");
         }
 
@@ -690,7 +690,7 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
      * @param data The data buffer to set
      */
     public void updateData(Buffer data) {
-        if (id != -1) {
+        if (isValid()) {
             // request to update data is okay
         }
 
@@ -730,7 +730,7 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
      * Converts single floating-point data to {@link Format#Half half} floating-point data.
      */
     public void convertToHalf() {
-        if (id != -1) {
+        if (isValid()) {
             throw new UnsupportedOperationException("Data has already been sent.");
         }
 
@@ -1037,7 +1037,7 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
         // e.g. re-use ID.
         VertexBuffer vb = (VertexBuffer) super.clone();
         vb.handleRef = new Object();
-        vb.id = -1;
+        vb.invalidate();
         if (data != null) {
             // Make sure to pass a read-only buffer to clone so that
             // the position information doesn't get clobbered by another
@@ -1068,7 +1068,7 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
         vb.data = BufferUtils.clone(getDataReadOnly());
         vb.format = format;
         vb.handleRef = new Object();
-        vb.id = -1;
+        vb.invalidate();
         vb.normalized = normalized;
         vb.instanceSpan = instanceSpan;
         vb.offset = offset;
@@ -1092,8 +1092,8 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
 
     @Override
     public void resetObject() {
-//        assert this.id != -1;
-        this.id = -1;
+//        assert isValid
+        invalidate();
         setUpdateNeeded();
     }
 
@@ -1111,12 +1111,12 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
 
     @Override
     public NativeObject createDestructableClone() {
-        return new VertexBuffer(id);
+        return new VertexBuffer(getId());
     }
 
     @Override
     public long getUniqueId() {
-        return ((long) OBJTYPE_VERTEXBUFFER << 32) | (0xffffffffL & (long) id);
+        return ((long) OBJTYPE_VERTEXBUFFER << 32) | (0xffffffffL & getId());
     }
 
     @Override
