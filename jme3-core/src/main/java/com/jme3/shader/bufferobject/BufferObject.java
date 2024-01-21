@@ -106,6 +106,7 @@ public class BufferObject extends NativeObject implements Savable {
 
     protected ByteBuffer data = null;
     protected ArrayList<BufferRegion> regions = new ArrayList<BufferRegion>();
+    private String name;
 
     public BufferObject() {
         super();
@@ -373,4 +374,22 @@ public class BufferObject extends NativeObject implements Savable {
         return sb.toString();
     }
 
+    /**
+     * Get name of the buffer object
+     * 
+     * @return the name of this buffer object, can be null
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * Set name for debugging purposes
+     * 
+     * @param name
+     *            the name of this buffer object
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
 }
