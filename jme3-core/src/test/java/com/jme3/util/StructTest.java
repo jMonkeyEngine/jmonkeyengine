@@ -90,7 +90,7 @@ public class StructTest {
         nUpdated = 0;
         assertTrue(bo.isUpdateNeeded());
         while (true) {
-            BufferRegion region = dirtyI.getNext();
+            BufferRegion region = dirtyI.next();
             if (region == null) break;
             int start = region.getStart();
             int end = region.getEnd();
@@ -116,7 +116,7 @@ public class StructTest {
         assertFalse(bo.isUpdateNeeded());
         nUpdated = 0;
         while (true) {
-            BufferRegion region = dirtyI.getNext();
+            BufferRegion region = dirtyI.next();
             if (region == null) break;
 
             assertFalse("Update not expected", true);
@@ -134,7 +134,7 @@ public class StructTest {
         assertTrue(bo.isUpdateNeeded());
         nUpdated = 0;
         while (true) {
-            BufferRegion region = dirtyI.getNext();
+            BufferRegion region = dirtyI.next();
             if (region == null) break;
             assertTrue(region.isDirty());
 
@@ -161,7 +161,7 @@ public class StructTest {
         assertTrue(bo.isUpdateNeeded());
         nUpdated = 0;
         while (true) {
-            BufferRegion region = dirtyI.getNext();
+            BufferRegion region = dirtyI.next();
             if (region == null) break;
             assertTrue(region.isDirty());
 
@@ -193,7 +193,7 @@ public class StructTest {
         assertTrue(bo.isUpdateNeeded());
         nUpdated = 0;
         while (true) {
-            BufferRegion region = dirtyI.getNext();
+            BufferRegion region = dirtyI.next();
             if (region == null) break;
             assertTrue(region.isDirty());
 

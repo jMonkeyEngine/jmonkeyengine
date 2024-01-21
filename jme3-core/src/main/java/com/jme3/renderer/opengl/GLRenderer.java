@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2023 jMonkeyEngine
+ * Copyright (c) 2009-2024 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -3028,7 +3028,7 @@ public final class GLRenderer implements Renderer {
         DirtyRegionsIterator it = bo.getDirtyRegions();
         BufferRegion reg;
 
-        while ((reg = it.getNext()) != null) {
+        while ((reg = it.next()) != null) {
             gl3.glBindBuffer(type, bufferId);
             if (reg.isFullBufferRegion()) {
                 ByteBuffer bbf = bo.getData();
