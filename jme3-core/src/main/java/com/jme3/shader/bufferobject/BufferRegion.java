@@ -44,14 +44,14 @@ public class BufferRegion implements Savable, Cloneable {
             source = d;
             int currentPos = source.position();
             int currentLimit = source.limit();
-            source.position(start);
             assert end < source.capacity() : "Can't set limit at " + end + " on capacity " + source.capacity();
             source.limit(end + 1);
+            source.position(start);
             slice = source.slice();
             slice.order(source.order());
             assert slice.limit() == (end - start + 1) : "Capacity is " + slice.limit() + " but " + (end - start + 1) + " expected";
-            source.position(currentPos);
             source.limit(currentLimit);
+            source.position(currentPos);
         }
         slice.rewind();
         return slice;

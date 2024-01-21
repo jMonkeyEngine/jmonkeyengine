@@ -21,14 +21,14 @@ public class DirtyRegionsIterator {
                 source = d;
                 int currentPos = source.position();
                 int currentLimit = source.limit();
-                source.position(0);
                 source.limit(source.capacity());
+                source.position(0);
                 slice = source.slice();
-                source.position(currentPos);
                 source.limit(currentLimit);
+                source.position(currentPos);
             }
-            slice.position(start);
             slice.limit(end);
+            slice.position(start);
             return slice;
         }
 
@@ -64,20 +64,18 @@ public class DirtyRegionsIterator {
             return dirtyRegion;
         }
 
-        int dirtRegions = 0;
 
         while (pos < bufferObject.regions.size()) {
             BufferRegion dr = bufferObject.regions.get(pos++);
             if (dr.isDirty()) {
-                if (dirtRegions == 0) dirtyRegion.start = dr.start;
+                if (dirtyRegion.regions.size() == 0) dirtyRegion.start = dr.start;
                 dirtyRegion.end = dr.end;
-                dirtRegions++;
                 dirtyRegion.regions.add(dr);
-            } else if (dirtRegions != 0) break;
+            } else if (dirtyRegion.regions.size() != 0) break;
         }
 
-        if (dirtRegions == 0) return null;
-        dirtyRegion.fullBufferRegion = dirtRegions == bufferObject.regions.size();
+        if (dirtyRegion.regions.size() == 0) return null;
+        dirtyRegion.fullBufferRegion = dirtyRegion.regions.size() == bufferObject.regions.size();
         dirtyRegion.markDirty();
 
         return dirtyRegion;

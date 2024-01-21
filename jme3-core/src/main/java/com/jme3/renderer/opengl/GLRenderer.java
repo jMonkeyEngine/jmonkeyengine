@@ -1475,8 +1475,11 @@ public final class GLRenderer implements Renderer {
             case UniformBufferObject: {
                 setUniformBufferObject(bindingPoint, bufferObject); // rebind buffer if needed
                 if (bufferBlock.isUpdateNeeded()) {
-                    int blockIndex = gl3.glGetUniformBlockIndex(shaderId, bufferBlock.getName());
-                    bufferBlock.setLocation(blockIndex);
+                    int blockIndex = bufferBlock.getLocation();
+                    if (blockIndex < 0) {
+                        blockIndex = gl3.glGetUniformBlockIndex(shaderId, bufferBlock.getName());
+                        bufferBlock.setLocation(blockIndex);
+                    }
                     if (bufferBlock.getLocation() != NativeObject.INVALID_ID) {
                         gl3.glUniformBlockBinding(shaderId, bufferBlock.getLocation(), bindingPoint);
                     } 
@@ -1486,8 +1489,11 @@ public final class GLRenderer implements Renderer {
             case ShaderStorageBufferObject: {
                 setShaderStorageBufferObject(bindingPoint, bufferObject); // rebind buffer if needed
                 if (bufferBlock.isUpdateNeeded() ) {
-                    int blockIndex = gl4.glGetProgramResourceIndex(shaderId, GL4.GL_SHADER_STORAGE_BLOCK, bufferBlock.getName());
-                    bufferBlock.setLocation(blockIndex);
+                    int blockIndex = bufferBlock.getLocation();
+                    if (blockIndex < 0) {
+                        blockIndex = gl4.glGetProgramResourceIndex(shaderId, GL4.GL_SHADER_STORAGE_BLOCK, bufferBlock.getName());
+                        bufferBlock.setLocation(blockIndex);
+                    }
                     if (bufferBlock.getLocation() != NativeObject.INVALID_ID) {
                         gl4.glShaderStorageBlockBinding(shaderId, bufferBlock.getLocation(), bindingPoint);
                     }
@@ -1560,7 +1566,7 @@ public final class GLRenderer implements Renderer {
 
             source.setId(id);
             if (debug && caps.contains(Caps.GLDebug)) {
-                if(source.getName() != null) glext.glObjectLabel(GLExt.GL_SHADER, id, source.getName());
+                if(source.getName()!=null) glext.glObjectLabel(GLExt.GL_SHADER, id, source.getName());
             }
         } else {
             throw new RendererException("Cannot recompile shader source");
@@ -2217,7 +2223,7 @@ public final class GLRenderer implements Renderer {
 
             context.boundFB = fb;
             if (debug && caps.contains(Caps.GLDebug)) {
-                 if (fb.getName() != null) glext.glObjectLabel(GL3.GL_FRAMEBUFFER, fb.getId(), fb.getName());
+                if (fb.getName() != null) glext.glObjectLabel(GL3.GL_FRAMEBUFFER, fb.getId(), fb.getName());
             }
         }
     }
@@ -2761,6 +2767,10 @@ public final class GLRenderer implements Renderer {
 
         bufferObject.setBinding(bindingPoint);
 
+        if (debug && caps.contains(Caps.GLDebug)) {
+            if (bufferObject.getName() != null) glext.glObjectLabel(GLExt.GL_BUFFER, bufferObject.getId(), bufferObject.getName());
+        }
+
     }
 
     @Override
@@ -2774,6 +2784,10 @@ public final class GLRenderer implements Renderer {
             context.boundBO[bindingPoint] = bufferObject.getWeakRef();
         }
         bufferObject.setBinding(bindingPoint);
+
+        if (debug && caps.contains(Caps.GLDebug)) {
+            if (bufferObject.getName() != null) glext.glObjectLabel(GLExt.GL_BUFFER, bufferObject.getId(), bufferObject.getName());
+        }
     }
 
     /**
@@ -3023,6 +3037,7 @@ public final class GLRenderer implements Renderer {
                 }
                 gl.glBufferData(type, bbf, usage);
                 gl3.glBindBuffer(type, 0);
+                reg.clearDirty();
                 break;
             } else {
                 if (logger.isLoggable(java.util.logging.Level.FINER)) {
@@ -3030,8 +3045,8 @@ public final class GLRenderer implements Renderer {
                 }
                 gl.glBufferSubData(type, reg.getStart(), reg.getData());
                 gl3.glBindBuffer(type, 0);
+                reg.clearDirty();
             }
-            reg.clearDirty();
         }
         bo.clearUpdateNeeded();
     }
