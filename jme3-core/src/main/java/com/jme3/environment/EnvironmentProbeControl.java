@@ -100,7 +100,7 @@ public class EnvironmentProbeControl extends LightProbe implements Control {
     }
 
     /**
-     * Create a new environment probe control.
+     * Creates a new environment probe control.
      * 
      * @param assetManager
      *            the asset manager used to load the shaders needed for the
@@ -115,7 +115,7 @@ public class EnvironmentProbeControl extends LightProbe implements Control {
     }
 
     /**
-     * Tag spatial as part of the environment for this EnvironmentProbeControl.
+     * Tags the specified spatial as part of the environment for this EnvironmentProbeControl.
      * Only tagged spatials will be rendered in the environment map.
      * 
      * @param s
@@ -133,7 +133,7 @@ public class EnvironmentProbeControl extends LightProbe implements Control {
     }
 
     /**
-     * Untag spatial as part of the environment for this
+     * Untags the specified spatial as part of the environment for this
      * EnvironmentProbeControl.
      * 
      * @param s
@@ -151,7 +151,7 @@ public class EnvironmentProbeControl extends LightProbe implements Control {
     }
 
     /**
-     * Tag spatial as part of the environment for every EnvironmentProbeControl.
+     * Tags the specified spatial as part of the environment for every EnvironmentProbeControl.
      * Only tagged spatials will be rendered in the environment map.
      * 
      * @param s
@@ -169,7 +169,7 @@ public class EnvironmentProbeControl extends LightProbe implements Control {
     }
 
     /**
-     * Untag spatial as part of the environment for every
+     * Untags the specified spatial as part of the environment for every
      * EnvironmentProbeControl.
      * 
      * @param s the spatial
@@ -191,7 +191,7 @@ public class EnvironmentProbeControl extends LightProbe implements Control {
     }
 
     /**
-     * Request savable results from the baking process. This will make the
+     * Requests savable results from the baking process. This will make the
      * baking process slower and more memory intensive but will allow to
      * serialize the results with the control.
      * 
@@ -203,7 +203,7 @@ public class EnvironmentProbeControl extends LightProbe implements Control {
     }
 
     /**
-     * Return true if savable results are required by this control.
+     * Returns true if savable results are required by this control.
      * 
      * @return true if savable results are required.
      */
@@ -235,14 +235,14 @@ public class EnvironmentProbeControl extends LightProbe implements Control {
     }
 
     /**
-     * Schedule a rebake of the environment map.
+     * Schedules a rebake of the environment map.
      */
     public void rebake() {
         bakeNeeded = true;
     }
 
     /**
-     * Set the minimum distance to render
+     * Sets the minimum distance to render.
      * 
      * @param frustumNear the minimum distance to render
      */
@@ -251,7 +251,7 @@ public class EnvironmentProbeControl extends LightProbe implements Control {
     }
 
     /**
-     * Set the maximum distance to render
+     * Sets the maximum distance to render.
      * 
      * @param frustumFar the maximum distance to render
      */
@@ -269,7 +269,7 @@ public class EnvironmentProbeControl extends LightProbe implements Control {
     }
 
     /**
-     * Get the maximum distance to render
+     * Gets the maximum distance to render
      * 
      * @return frustum far
      */
@@ -278,7 +278,7 @@ public class EnvironmentProbeControl extends LightProbe implements Control {
     }
 
     /**
-     * Set the asset manager used to load the shaders needed for the baking
+     * Sets the asset manager used to load the shaders needed for the baking
      * 
      * @param assetManager the asset manager
      */
