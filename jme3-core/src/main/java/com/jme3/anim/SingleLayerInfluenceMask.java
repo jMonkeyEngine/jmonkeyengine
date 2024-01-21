@@ -39,7 +39,7 @@ import com.jme3.scene.Spatial;
  * 
  * @author codex
  */
-public class AlertArmatureMask extends ArmatureMask {
+public class SingleLayerInfluenceMask extends ArmatureMask {
     
     private final String layer;
     private final AnimComposer anim;
@@ -52,7 +52,7 @@ public class AlertArmatureMask extends ArmatureMask {
      * can use {@link makeLayer} to ensure this.
      * @param spatial Spatial containing necessary controls ({@link AnimComposer} and {@link SkinningControl})
      */
-    public AlertArmatureMask(String layer, Spatial spatial) {
+    public SingleLayerInfluenceMask(String layer, Spatial spatial) {
         super();
         this.layer = layer;
         anim = spatial.getControl(AnimComposer.class);
@@ -65,7 +65,7 @@ public class AlertArmatureMask extends ArmatureMask {
      * @param anim anim composer this mask is assigned to
      * @param skin skinning control complimenting the anim composer.
      */
-    public AlertArmatureMask(String layer, AnimComposer anim, SkinningControl skin) {
+    public SingleLayerInfluenceMask(String layer, AnimComposer anim, SkinningControl skin) {
         super();
         this.layer = layer;
         this.anim = anim;
@@ -83,7 +83,7 @@ public class AlertArmatureMask extends ArmatureMask {
      * Adds all joints to this mask.
      * @return this.instance
      */
-    public AlertArmatureMask addAll() {
+    public SingleLayerInfluenceMask addAll() {
         for (Joint j : skin.getArmature().getJointList()) {
             super.addBones(skin.getArmature(), j.getName());
         }
@@ -95,7 +95,7 @@ public class AlertArmatureMask extends ArmatureMask {
      * @param joint
      * @return this instance
      */
-    public AlertArmatureMask addFromJoint(String joint) {
+    public SingleLayerInfluenceMask addFromJoint(String joint) {
         super.addFromJoint(skin.getArmature(), joint);
         return this;
     }
@@ -105,7 +105,7 @@ public class AlertArmatureMask extends ArmatureMask {
      * @param joints
      * @return this instance
      */
-    public AlertArmatureMask addJoints(String... joints) {
+    public SingleLayerInfluenceMask addJoints(String... joints) {
         super.addBones(skin.getArmature(), joints);
         return this;
     }
@@ -118,7 +118,7 @@ public class AlertArmatureMask extends ArmatureMask {
      * @param check 
      * @return this instance
      */
-    public AlertArmatureMask setCheckUpperLayers(boolean check) {
+    public SingleLayerInfluenceMask setCheckUpperLayers(boolean check) {
         checkUpperLayers = check;
         return this;
     }
@@ -180,9 +180,9 @@ public class AlertArmatureMask extends ArmatureMask {
             AnimLayer lyr = anim.getLayer(name);  
             // if there is no action playing, no joints are used, so we can skip
             if (lyr.getCurrentAction() == null) continue;
-            if (lyr.getMask() instanceof AlertArmatureMask) {
+            if (lyr.getMask() instanceof SingleLayerInfluenceMask) {
                 // dodge some needless recursion by calling a simpler method
-                if (((AlertArmatureMask)lyr.getMask()).simpleContains(target)) {
+                if (((SingleLayerInfluenceMask)lyr.getMask()).simpleContains(target)) {
                     return true;
                 }
             }
@@ -194,24 +194,24 @@ public class AlertArmatureMask extends ArmatureMask {
     }
     
     /**
-     * Creates an {@code AlertArmatureMask} for all joints.
+     * Creates an {@code SingleLayerInfluenceMask} for all joints.
      * @param layer layer the returned mask is, or will be, be assigned to
      * @param spatial spatial containing anim composer and skinning control
      * @return new mask
      */
-    public static AlertArmatureMask all(String layer, Spatial spatial) {
-        return new AlertArmatureMask(layer, spatial).addAll();
+    public static SingleLayerInfluenceMask all(String layer, Spatial spatial) {
+        return new SingleLayerInfluenceMask(layer, spatial).addAll();
     }
     
     /**
-     * Creates an {@code AlertArmatureMask} for all joints.
+     * Creates an {@code SingleLayerInfluenceMask} for all joints.
      * @param layer layer the returned mask is, or will be, assigned to
      * @param anim anim composer
      * @param skin skinning control
      * @return new mask
      */
-    public static AlertArmatureMask all(String layer, AnimComposer anim, SkinningControl skin) {
-        return new AlertArmatureMask(layer, anim, skin).addAll();
+    public static SingleLayerInfluenceMask all(String layer, AnimComposer anim, SkinningControl skin) {
+        return new SingleLayerInfluenceMask(layer, anim, skin).addAll();
     }
     
 }
