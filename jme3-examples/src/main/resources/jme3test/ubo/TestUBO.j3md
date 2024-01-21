@@ -1,0 +1,16 @@
+
+MaterialDef TestUBO {
+    MaterialParameters {
+        UniformBufferObject TestStruct1
+        UniformBufferObject TestStruct2
+    }
+
+    Technique {
+        VertexShader GLSL150 : jme3test/ubo/TestUBO.vert
+        FragmentShader GLSL150 : jme3test/ubo/TestUBO.frag
+
+        WorldParameters {
+            ViewProjectionMatrix
+        }
+    }
+}

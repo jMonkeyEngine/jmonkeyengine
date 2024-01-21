@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2024 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,6 +38,7 @@ import com.jme3.shader.Shader;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image;
 import java.lang.ref.WeakReference;
+import com.jme3.shader.bufferobject.BufferObject;
 
 /**
  * Represents the current state of the graphics library. This class is used
@@ -48,6 +49,11 @@ public class RenderContext {
      * Number of texture units that JME supports.
      */
     public static final int maxTextureUnits = 16;
+
+    /**
+     * Number of buffer object units that JME supports.
+     */
+    public static final int maxBufferObjectUnits = 8;
 
     /**
      * Criteria for culling faces.
@@ -255,6 +261,15 @@ public class RenderContext {
      */
     public final WeakReference<Image> boundTextures[]
             = new WeakReference[maxTextureUnits];
+
+
+    /**
+     * Current bound buffer object IDs for each buffer object unit.
+     *
+     * @see Renderer#setUniformBufferObject(int, com.jme3.shader.BufferObject)
+     * @see Renderer#setShaderStorageBufferObject(int, com.jme3.shader.BufferObject)
+     */
+    public final WeakReference<BufferObject>[] boundBO = new WeakReference[maxBufferObjectUnits];
 
     /**
      * IDList for texture units.

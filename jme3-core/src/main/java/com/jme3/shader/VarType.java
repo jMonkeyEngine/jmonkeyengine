@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2024 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,8 +31,8 @@
  */
 package com.jme3.shader;
 import com.jme3.math.*;
+import com.jme3.shader.bufferobject.BufferObject;
 import com.jme3.texture.*;
-import com.jme3.shader.BufferObject;
 public enum VarType {
 
     Float("float",float.class,Float.class),
@@ -60,8 +60,8 @@ public enum VarType {
     TextureArray(false,true,"sampler2DArray|sampler2DArrayShadow",TextureArray.class,Texture.class),
     TextureCubeMap(false,true,"samplerCube",TextureCubeMap.class,Texture.class),
     Int("int",int.class,Integer.class),
-    BufferObject(false, false, "custom", BufferObject.class);
-
+    UniformBufferObject(false, false, "custom",BufferObject.class), 
+    ShaderStorageBufferObject(false, false, "custom",BufferObject.class);
 
     private boolean usesMultiData = false;
     private boolean textureType = false;
