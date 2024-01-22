@@ -136,8 +136,8 @@ public abstract class GenericEnvBaker implements EnvBaker {
     }
 
     /**
-     * Update the internal camera to face the given cubemap face
-     * and return it
+     * Updates the internal camera to face the given cubemap face
+     * and return it.
      * 
      * @param faceId
      *            the id of the face (0-5)
@@ -218,7 +218,7 @@ public abstract class GenericEnvBaker implements EnvBaker {
     }
 
     /**
-     * Starts pulling the data from the framebuffer into the texture
+     * Starts pulling the data from the framebuffer into the texture.
      */
     protected void startPulling() {
         bos.clear();
@@ -226,7 +226,7 @@ public abstract class GenericEnvBaker implements EnvBaker {
 
     /**
      * Pulls the data from the framebuffer into the texture Nb. mipmaps must be
-     * pulled sequentially on the same faceId
+     * pulled sequentially on the same faceId.
      * 
      * @param fb
      *            the framebuffer to pull from
@@ -250,7 +250,9 @@ public abstract class GenericEnvBaker implements EnvBaker {
         }
 
         ByteArrayOutputStream bo = bos.get(faceId);
-        if (bo == null) bos.set(faceId, bo = new ByteArrayOutputStream());
+        if (bo == null) {
+            bos.set(faceId, bo = new ByteArrayOutputStream());
+        }
         try {
             byte array[] = new byte[face.limit()];
             face.get(array);
