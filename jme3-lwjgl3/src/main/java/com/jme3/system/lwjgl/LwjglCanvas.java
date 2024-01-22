@@ -62,6 +62,7 @@ import java.util.logging.Logger;
 import org.lwjgl.awthacks.NonClearGraphics;
 import org.lwjgl.awthacks.NonClearGraphics2D;
 import org.lwjgl.opengl.awt.GLData;
+import org.lwjgl.system.Platform;
 
 import static org.lwjgl.system.MemoryUtil.*;
 
@@ -90,6 +91,8 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
     
     /** GL versions map. */
     private static final Map<String, Consumer<GLData>> RENDER_CONFIGS = new HashMap<>();
+    
+    private static final Platform OS = Platform.get();
     
     /*
         Register the different versions.
@@ -223,6 +226,10 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
                 hasNativePeer.set(false);
             }            
             super.removeNotify();
+            if ((OS == Platform.MACOSX) && (context != NULL)) {
+                platformCanvas.deleteContext(context);
+                context = NULL;
+            }
         }
         
         public void destroy() {
@@ -422,7 +429,9 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
         canvas.beforeRender();
         try {
             super.runLoop();
-            canvas.swapBuffers();
+            if (allowSwapBuffers && autoFlush) {
+                canvas.swapBuffers();
+            }
         } finally {
             canvas.afterRender();
         }
@@ -457,65 +466,65 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
      */
     protected String getPrintContextInitInfo(GLData glData) {
         StringBuilder sb = new StringBuilder();
-        sb.append(" *  Double Buffer: ").append(glData.doubleBuffer);
-        sb.append('\n')
-          .append(" *  Stereo: ").append(glData.stereo);
-        sb.append('\n')
-          .append(" *  Red Size: ").append(glData.redSize);
-        sb.append('\n')
-          .append(" *  Rreen Size: ").append(glData.greenSize);
-        sb.append('\n')
-          .append(" *  Blue Size: ").append(glData.blueSize);
-        sb.append('\n')
-          .append(" *  Alpha Size: ").append(glData.alphaSize);
-        sb.append('\n')
-          .append(" *  Depth Size: ").append(glData.depthSize);
-        sb.append('\n')
-          .append(" *  Stencil Size: ").append(glData.stencilSize);
-        sb.append('\n')
-          .append(" *  Accum Red Size: ").append(glData.accumRedSize);
-        sb.append('\n')
-          .append(" *  Accum Green Size: ").append(glData.accumGreenSize);
-        sb.append('\n')
-          .append(" *  Accum Blue Size: ").append(glData.accumBlueSize);
-        sb.append('\n')
-          .append(" *  Accum Alpha Size: ").append(glData.accumAlphaSize);
-        sb.append('\n')
-          .append(" *  Sample Buffers: ").append(glData.sampleBuffers);
-        sb.append('\n')
-          .append(" *  Share Context: ").append(glData.shareContext);
-        sb.append('\n')
-          .append(" *  Major Version: ").append(glData.majorVersion);
-        sb.append('\n')
-          .append(" *  Minor Version: ").append(glData.minorVersion);
-        sb.append('\n')
-          .append(" *  Forward Compatible: ").append(glData.forwardCompatible);
-        sb.append('\n')
-          .append(" *  Profile: ").append(glData.profile);
-        sb.append('\n')
-          .append(" *  API: ").append(glData.api);
-        sb.append('\n')
-          .append(" *  Debug: ").append(glData.debug);
-        sb.append('\n')
-          .append(" *  Swap Interval: ").append(glData.swapInterval);
-        sb.append('\n')
-          .append(" *  SRGB (Gamma Correction): ").append(glData.sRGB);
-        sb.append('\n')
-          .append(" *  Pixel Format Float: ").append(glData.pixelFormatFloat);
-        sb.append('\n')
-          .append(" *  Context Release Behavior: ").append(glData.contextReleaseBehavior);
-        sb.append('\n')
-          .append(" *  Color Samples NV: ").append(glData.colorSamplesNV);
-        sb.append('\n')
-          .append(" *  Swap Group NV: ").append(glData.swapGroupNV);
-        sb.append('\n')
-          .append(" *  Swap Barrier NV: ").append(glData.swapBarrierNV);
-        sb.append('\n')
-          .append(" *  Robustness: ").append(glData.robustness);
-        sb.append('\n')
-          .append(" *  Lose Context On Reset: ").append(glData.loseContextOnReset);
-        sb.append('\n')
-          .append(" *  Context Reset Isolation: ").append(glData.contextResetIsolation);
+            sb.append(" *  Double Buffer: ").append(glData.doubleBuffer);
+            sb.append('\n')
+              .append(" *  Stereo: ").append(glData.stereo);
+            sb.append('\n')
+              .append(" *  Red Size: ").append(glData.redSize);
+            sb.append('\n')
+              .append(" *  Rreen Size: ").append(glData.greenSize);
+            sb.append('\n')
+              .append(" *  Blue Size: ").append(glData.blueSize);
+            sb.append('\n')
+              .append(" *  Alpha Size: ").append(glData.alphaSize);
+            sb.append('\n')
+              .append(" *  Depth Size: ").append(glData.depthSize);
+            sb.append('\n')
+              .append(" *  Stencil Size: ").append(glData.stencilSize);
+            sb.append('\n')
+              .append(" *  Accum Red Size: ").append(glData.accumRedSize);
+            sb.append('\n')
+              .append(" *  Accum Green Size: ").append(glData.accumGreenSize);
+            sb.append('\n')
+              .append(" *  Accum Blue Size: ").append(glData.accumBlueSize);
+            sb.append('\n')
+              .append(" *  Accum Alpha Size: ").append(glData.accumAlphaSize);
+            sb.append('\n')
+              .append(" *  Sample Buffers: ").append(glData.sampleBuffers);
+            sb.append('\n')
+              .append(" *  Share Context: ").append(glData.shareContext);
+            sb.append('\n')
+              .append(" *  Major Version: ").append(glData.majorVersion);
+            sb.append('\n')
+              .append(" *  Minor Version: ").append(glData.minorVersion);
+            sb.append('\n')
+              .append(" *  Forward Compatible: ").append(glData.forwardCompatible);
+            sb.append('\n')
+              .append(" *  Profile: ").append(glData.profile);
+            sb.append('\n')
+              .append(" *  API: ").append(glData.api);
+            sb.append('\n')
+              .append(" *  Debug: ").append(glData.debug);
+            sb.append('\n')
+              .append(" *  Swap Interval: ").append(glData.swapInterval);
+            sb.append('\n')
+              .append(" *  SRGB (Gamma Correction): ").append(glData.sRGB);
+            sb.append('\n')
+              .append(" *  Pixel Format Float: ").append(glData.pixelFormatFloat);
+            sb.append('\n')
+              .append(" *  Context Release Behavior: ").append(glData.contextReleaseBehavior);
+            sb.append('\n')
+              .append(" *  Color Samples NV: ").append(glData.colorSamplesNV);
+            sb.append('\n')
+              .append(" *  Swap Group NV: ").append(glData.swapGroupNV);
+            sb.append('\n')
+              .append(" *  Swap Barrier NV: ").append(glData.swapBarrierNV);
+            sb.append('\n')
+              .append(" *  Robustness: ").append(glData.robustness);
+            sb.append('\n')
+              .append(" *  Lose Context On Reset: ").append(glData.loseContextOnReset);
+            sb.append('\n')
+              .append(" *  Context Reset Isolation: ").append(glData.contextResetIsolation);
         return String.valueOf(sb);
     }
     
