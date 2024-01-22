@@ -97,15 +97,14 @@ public class BaseAction extends Action {
     }
 
     /**
-     * Internal use-only.
-     * 
-     * <p> 
-     * Note: This method can be invoked from the user code only if this Action is wrapped by a {@link BaseAction} and
-     * the {@link BaseAction#isMaskPropagationEnabled()} is false.
-     * </p>
+     * Sets the animation mask which determines which part of the model will 
+     * be animated by the animation layer. If the {@link BaseAction#isMaskPropagationEnabled()} is false, setting
+     * the mask attribute will not affect the actions under this base action. Setting this to 'null' will animate
+     * the entire model.
      *
      * @param mask an animation mask to be applied to this action.
      * @see com.jme3.anim.AnimLayer to adjust the animation mask to control which part will be animated
+     * @see BaseAction#setMaskPropagationEnabled(boolean)
      */
     @Override
     public void setMask(AnimationMask mask) {
