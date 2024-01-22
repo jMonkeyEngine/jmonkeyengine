@@ -36,37 +36,37 @@ import com.jme3.texture.Texture2D;
 import com.jme3.texture.TextureCubeMap;
 
 /**
- * An environment baker, but this one is for Imaged Base Lighting
+ * An environment baker, but this one is for Imaged Base Lighting.
  *
  * @author Riccardo Balbo
  */
 public interface IBLEnvBaker extends EnvBaker {
     /**
-     * Generate the BRDF texture
+     * Generates the BRDF texture.
      * 
      * @return The BRDF texture
      */
     public Texture2D genBRTF();
 
     /**
-     * Bake the irradiance map
+     * Bakes the irradiance map.
      */
     public void bakeIrradiance();
 
     /**
-     * Bake the specular IBL map
+     * Bakes the specular IBL map.
      */
     public void bakeSpecularIBL();
 
     /**
-     * Get the specular IBL map
+     * Gets the specular IBL map.
      * 
      * @return The specular IBL map
      */
     public TextureCubeMap getSpecularIBL();
 
     /**
-     * Get the irradiance map
+     * Gets the irradiance map.
      * 
      * @return The irradiance map
      */
