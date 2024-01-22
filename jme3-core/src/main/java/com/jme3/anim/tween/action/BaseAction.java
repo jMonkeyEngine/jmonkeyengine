@@ -64,7 +64,8 @@ public class BaseAction extends Action {
     private boolean maskPropagationEnabled = true;
 
     /**
-     * Instantiates an action from a tween.
+     * Instantiates an action from a tween by extracting the actions from a tween
+     * to a list of sub-actions to be interpolated later.
      *
      * @param tween a tween to extract the actions from (not null).
      */
