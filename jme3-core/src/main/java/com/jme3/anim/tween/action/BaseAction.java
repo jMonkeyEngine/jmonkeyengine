@@ -103,7 +103,7 @@ public class BaseAction extends Action {
      * the mask attribute will not affect the actions under this base action. Setting this to 'null' will animate
      * the entire model.
      *
-     * @param mask an animation mask to be applied to this action.
+     * @param mask an animation mask to be applied to this action (nullable).
      * @see com.jme3.anim.AnimLayer to adjust the animation mask to control which part will be animated
      * @see BaseAction#setMaskPropagationEnabled(boolean)
      */
