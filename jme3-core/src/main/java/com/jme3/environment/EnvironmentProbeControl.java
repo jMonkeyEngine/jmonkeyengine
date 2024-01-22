@@ -260,7 +260,7 @@ public class EnvironmentProbeControl extends LightProbe implements Control {
     }
 
     /**
-     * Get the minimum distance to render
+     * Gets the minimum distance to render.
      * 
      * @return frustum near
      */
@@ -269,7 +269,7 @@ public class EnvironmentProbeControl extends LightProbe implements Control {
     }
 
     /**
-     * Gets the maximum distance to render
+     * Gets the maximum distance to render.
      * 
      * @return frustum far
      */
@@ -278,7 +278,7 @@ public class EnvironmentProbeControl extends LightProbe implements Control {
     }
 
     /**
-     * Sets the asset manager used to load the shaders needed for the baking
+     * Sets the asset manager used to load the shaders needed for the baking.
      * 
      * @param assetManager the asset manager
      */
