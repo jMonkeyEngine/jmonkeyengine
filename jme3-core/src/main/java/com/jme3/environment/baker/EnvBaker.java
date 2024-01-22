@@ -45,7 +45,7 @@ import com.jme3.texture.TextureCubeMap;
  */
 public interface EnvBaker {
     /**
-     * Bake the environment
+     * Bakes the environment.
      * 
      * @param scene
      *            The scene to bake
@@ -61,27 +61,27 @@ public interface EnvBaker {
     public void bakeEnvironment(Spatial scene, Vector3f position, float frustumNear, float frustumFar, Predicate<Geometry> filter);
 
     /**
-     * Get the environment map
+     * Gets the environment map.
      * 
      * @return The environment map
      */
     public TextureCubeMap getEnvMap();
 
     /**
-     * Clean the environment baker This method should be called when the baker
-     * is no longer needed It will clean up all the resources
+     * Cleans the environment baker This method should be called when the baker
+     * is no longer needed It will clean up all the resources.
      */
     public void clean();
 
     /**
-     * Set if textures should be pulled from the GPU
+     * Specifies whether textures should be pulled from the GPU.
      * 
      * @param v
      */
     public void setTexturePulling(boolean v);
 
     /**
-     * Get if textures should be pulled from the GPU
+     * Gets if textures should be pulled from the GPU.
      * 
      * @return
      */
