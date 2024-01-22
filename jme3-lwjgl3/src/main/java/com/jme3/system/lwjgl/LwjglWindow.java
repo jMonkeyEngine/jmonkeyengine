@@ -631,9 +631,10 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         // If the canvas is not active, there's no need to waste time
         // doing that.
         if (renderable.get()) {
-            // calls swap buffers, etc.
             try {
-                if (allowSwapBuffers && autoFlush) {
+                // If type is 'Canvas'; lwjgl-awt takes care of swap buffers.
+                if ((type != Type.Canvas) && allowSwapBuffers && autoFlush) {
+                    // calls swap buffers, etc.
                     glfwSwapBuffers(window);
                 }
             } catch (Throwable ex) {
