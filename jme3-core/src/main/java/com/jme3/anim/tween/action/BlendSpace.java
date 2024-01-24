@@ -32,8 +32,8 @@
 package com.jme3.anim.tween.action;
 
 /**
- * Controls the blending between 2 successive actions in a {@link BlendAction} by adjusting blending weight value
- * {@link BlendSpace#getWeight()} during application runtime based on an arbitrary value {@link BlendSpace#setValue(float)}.
+ * A provider interface which provides a value {@link BlendSpace#getWeight()} to control the blending between 2 successive actions in a {@link BlendAction}.
+ * The blending weight is a read-only value, and it's manipulatable using the arbitrary value {@link BlendSpace#setValue(float)} during the application runtime.
  * 
  * <p>
  * Notes:
