@@ -49,7 +49,7 @@ package com.jme3.anim.tween.action;
  * a blend value of 1 and the second action will use the blend space weight as a value for the interpolation. </li>
  * <li> In case of (Blending weight = 0), the blending hasn't started yet, only the first action will be interpolated at (weight = 1). </li>
  * <li> In case of (Blending weight = 1), the blending is finished and only the second action will continue to run at (weight = 1). </li>
- * <li> Negative values and values greater than 1 aren't allowed (extrapolations are disabled). </li>
+ * <li> Negative values and values greater than 1 aren't allowed (extrapolations aren't allowed). </li>
  * <li> Find more at {@link BlendAction#doInterpolate(double)} and {@link BlendAction#collectTransform(HasLocalTransform, Transform, float, BlendableAction)}. </li>
  * </p>
  * 
