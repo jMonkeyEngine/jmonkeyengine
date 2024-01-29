@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2023 jMonkeyEngine
+ * Copyright (c) 2009-2024 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -60,7 +60,7 @@ import com.jme3.ui.Picture;
  * @author Riccardo Balbo
  */
 public class IBLGLEnvBaker extends GenericEnvBaker implements IBLEnvBaker {
-    private static final Logger LOGGER = Logger.getLogger(IBLHybridEnvBakerLight.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(IBLGLEnvBakerLight.class.getName());
 
     protected Texture2D brtf;
     protected TextureCubeMap irradiance;
