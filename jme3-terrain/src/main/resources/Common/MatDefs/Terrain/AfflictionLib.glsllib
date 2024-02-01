@@ -1,4 +1,4 @@
-#import "Common/MatDefs/Terrain/NoiseLib.glsllib"
+#import "Common/ShaderLib/NoiseLib.glsllib"
 
 //code for tri-planar mapping on any afflicted shaders
 vec4 getTriPlanarBlend(in vec4 coords, in vec3 blending, in sampler2D map, in float scale) {
