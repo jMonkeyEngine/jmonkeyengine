@@ -8,6 +8,7 @@ import java.nio.*;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.StampedLock;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -164,7 +165,7 @@ public class LWJGLBufferAllocator implements BufferAllocator {
         final long address = getAddress(buffer);
 
         if (address == -1) {
-            LOGGER.warning("Not found address of the " + buffer);
+            LOGGER.log(Level.WARNING, "Not found address of the {0}", buffer);
             return;
         }
 
@@ -172,7 +173,7 @@ public class LWJGLBufferAllocator implements BufferAllocator {
         final Deallocator deallocator = DEALLOCATORS.remove(address);
 
         if (deallocator == null) {
-            LOGGER.warning("Not found a deallocator for address " + address);
+            LOGGER.log(Level.WARNING, "Not found a deallocator for address {0}", address);
             return;
         }
 
