@@ -30,35 +30,17 @@ uniform vec4 g_AmbientLightColor;
     uniform float m_SpecularAAKappa;
 #endif
 
-vec3 calculatePBRLighting(in vec4 albedo, in float Metallic, in float Roughness, in vec3 lightMapColor, in vec3 ao, in float indoorSunLightExposure, in vec3 normal, in vec3 norm, in vec3 viewDir){
+vec3 calculatePBRLighting(in vec4 albedo, in float Metallic, in float Roughness, in vec4 specularColor, in float glossiness, in vec3 lightMapColor, in vec3 ao, in float indoorSunLightExposure, in vec3 normal, in vec3 norm, in vec3 viewDir){
     vec3 finalLightingValue;
     
     #ifdef SPECGLOSSPIPELINE
-
-        #ifdef USE_PACKED_SG
-            vec4 specularColor = texture2D(m_SpecularGlossinessMap, newTexCoord);
-            float glossiness = specularColor.a * m_Glossiness;
-            specularColor *= m_Specular;
-        #else
-            #ifdef SPECULARMAP
-                vec4 specularColor = texture2D(m_SpecularMap, newTexCoord);
-            #else
-                vec4 specularColor = vec4(1.0);
-            #endif
-            #ifdef GLOSSINESSMAP
-                float glossiness = texture2D(m_GlossinessMap, newTexCoord).r * m_Glossiness;
-            #else
-                float glossiness = m_Glossiness;
-            #endif
-            specularColor *= m_Specular;
-        #endif
         vec4 diffuseColor = albedo;// * (1.0 - max(max(specularColor.r, specularColor.g), specularColor.b));
         Roughness = 1.0 - glossiness;
         vec3 fZero = specularColor.xyz;
     #else
         float specular = 0.5;
         float nonMetalSpec = 0.08 * specular;
-        vec4 specularColor = (nonMetalSpec - nonMetalSpec * Metallic) + albedo * Metallic;
+        specularColor = (nonMetalSpec - nonMetalSpec * Metallic) + albedo * Metallic;
         vec4 diffuseColor = albedo - albedo * Metallic;
         vec3 fZero = vec3(specular);
     #endif
