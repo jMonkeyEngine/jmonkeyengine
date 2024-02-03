@@ -10,7 +10,6 @@ vec2 newTexCoord;
     uniform float m_AlphaDiscardThreshold;
 #endif
 
-
 varying vec3 wPosition;    
 
 varying vec3 wNormal;
@@ -27,9 +26,6 @@ varying vec4 wTangent;
 vec4 albedo = vec4(1.0);
 float alpha = 1.0;
 
-float Metallic = 0.0;
-float Roughness = 0.0;
-
 float emissiveIntensity = 0.0;
 float emissivePower = 0.0;
 vec4 emissive = vec4(0.0);
@@ -38,6 +34,14 @@ vec3 ao = vec3(1.0);
 vec3 lightMapColor = vec3(0.0);
 
 float indoorSunLightExposure = 1.0;
+
+//metallic pipeline vars:
+float Metallic = 0.0;
+float Roughness = 0.0;
+
+//spec gloss pipeline vars:
+vec4 specularColor;
+float glossiness;
 
 void main(){
     
@@ -50,10 +54,10 @@ void main(){
     vec3 vViewDir =  viewDir * tbnMat;                                 //other .glslibs may require normal or parallax mapping even if the base model does not hvae those maps
 
     //base PBR params and tex reads:
-    readMatParamsAndTextures(tbnMat, vViewDir, albedo, Metallic, Roughness, lightMapColor, ao, normal, emissive, alpha);
+    readMatParamsAndTextures(tbnMat, vViewDir, albedo, Metallic, Roughness, specularColor, glossiness, lightMapColor, ao, normal, emissive, alpha);
     
     // Lighting calculation:    
-    vec3 finalLightingValue = calculatePBRLighting(albedo, Metallic, Roughness, lightMapColor, ao, indoorSunLightExposure, normal, norm, viewDir);
+    vec3 finalLightingValue = calculatePBRLighting(albedo, Metallic, Roughness, specularColor, glossiness, lightMapColor, ao, indoorSunLightExposure, normal, norm, viewDir);
     gl_FragColor.rgb += finalLightingValue;
 
     //apply final emissive value after lighting
