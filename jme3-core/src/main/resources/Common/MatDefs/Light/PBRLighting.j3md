@@ -132,6 +132,22 @@ MaterialDef PBR Lighting {
         Boolean UseVertexColor
 
         Boolean BackfaceShadows : false
+
+        Boolean UseVertexColorsAsSunIntensity
+        Float StaticSunIntensity
+        Boolean BrightenIndoorShadows
+    
+        Int DebugValuesMode
+            // debugs the final value of the selected layer as a color output:         
+            // Layers:
+            //   0 - albedo (un-shaded)
+            //   1 - normals
+            //   2 - roughness
+            //   3 - metallic
+            //   4 - ao
+            //   5  - emissive
+
+        
     }
 
     Technique {
@@ -182,6 +198,10 @@ MaterialDef PBR Lighting {
             NUM_MORPH_TARGETS: NumberOfMorphTargets
             NUM_TARGETS_BUFFERS: NumberOfTargetsBuffers
             HORIZON_FADE: HorizonFade
+            USE_VERTEX_COLORS_AS_SUN_INTENSITY : UseVertexColorsAsSunIntensity
+            STATIC_SUN_INTENSITY : StaticSunIntensity
+            BRIGHTEN_INDOOR_SHADOWS : BrightenIndoorShadows
+            DEBUG_VALUES_MODE : DebugValuesMode
         }
     }
 
