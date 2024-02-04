@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,11 +32,16 @@
 package com.jme3.post.filters;
 
 import com.jme3.asset.AssetManager;
+import com.jme3.export.InputCapsule;
+import com.jme3.export.JmeExporter;
+import com.jme3.export.JmeImporter;
+import com.jme3.export.OutputCapsule;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.post.Filter;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
+import java.io.IOException;
 
 /**
  * A Post Processing filter that makes the screen look like it was drawn as
@@ -328,5 +333,59 @@ public class CrossHatchFilter extends Filter {
      */
     public float getLuminance5() {
         return luminance5;
+    }
+
+    /**
+     * Load properties when the filter is de-serialized, for example when
+     * loading from a J3O file.
+     *
+     * @param importer the importer to use (not null)
+     * @throws IOException from the importer
+     */
+    @Override
+    public void read(JmeImporter importer) throws IOException {
+        super.read(importer);
+        InputCapsule capsule = importer.getCapsule(this);
+
+        this.colorInfluenceLine = capsule.readFloat("colorInfluenceLine", 0.8f);
+        this.colorInfluencePaper = capsule.readFloat("colorInfluencePaper", 0.1f);
+        this.fillValue = capsule.readFloat("fillValue", 0.9f);
+        this.lineColor = (ColorRGBA) capsule.readSavable(
+                "lineColor", new ColorRGBA(0f, 0f, 0f, 0f));
+        this.lineDistance = capsule.readFloat("lineDistance", 4f);
+        this.lineThickness = capsule.readFloat("lineThickness", 1f);
+        this.luminance1 = capsule.readFloat("luminance1", 0.9f);
+        this.luminance2 = capsule.readFloat("luminance2", 0.7f);
+        this.luminance3 = capsule.readFloat("luminance3", 0.5f);
+        this.luminance4 = capsule.readFloat("luminance4", 0.3f);
+        this.luminance5 = capsule.readFloat("luminance5", 0f);
+        this.paperColor = (ColorRGBA) capsule.readSavable(
+                "paperColor", new ColorRGBA(1f, 1f, 1f, 1f));
+    }
+
+    /**
+     * Save properties when the filter is serialized, for example when saving to
+     * a J3O file.
+     *
+     * @param exporter the exporter to use (not null)
+     * @throws IOException from the exporter
+     */
+    @Override
+    public void write(JmeExporter exporter) throws IOException {
+        super.write(exporter);
+        OutputCapsule capsule = exporter.getCapsule(this);
+
+        capsule.write(colorInfluenceLine, "colorInfluenceLine", 0.8f);
+        capsule.write(colorInfluencePaper, "colorInfluencePaper", 0.1f);
+        capsule.write(fillValue, "fillValue", 0.9f);
+        capsule.write(lineColor, "lineColor", new ColorRGBA(0f, 0f, 0f, 0f));
+        capsule.write(lineDistance, "lineDistance", 4f);
+        capsule.write(lineThickness, "lineThickness", 1f);
+        capsule.write(luminance1, "luminance1", 0.9f);
+        capsule.write(luminance2, "luminance2", 0.7f);
+        capsule.write(luminance3, "luminance3", 0.5f);
+        capsule.write(luminance4, "luminance4", 0.3f);
+        capsule.write(luminance5, "luminance5", 0f);
+        capsule.write(paperColor, "paperColor", new ColorRGBA(1f, 1f, 1f, 1f));
     }
 }

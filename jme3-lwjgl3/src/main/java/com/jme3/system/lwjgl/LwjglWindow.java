@@ -156,8 +156,8 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
     protected boolean allowSwapBuffers = false;
 
     // temp variables used for glfw calls
-    private int width[] = new int[1];
-    private int height[] = new int[1];
+    private final int width[] = new int[1];
+    private final int height[] = new int[1];
 
     // state maintained by updateSizes()
     private int oldFramebufferWidth;
@@ -298,6 +298,8 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             requestWidth = videoMode.width();
             requestHeight = videoMode.height();
         }
+        oldFramebufferHeight = requestHeight;
+        oldFramebufferWidth = requestWidth;
         window = glfwCreateWindow(requestWidth, requestHeight, settings.getTitle(), monitor, NULL);
         if (window == NULL) {
             throw new RuntimeException("Failed to create the GLFW window");

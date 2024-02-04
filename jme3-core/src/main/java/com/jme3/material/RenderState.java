@@ -1767,8 +1767,6 @@ public class RenderState implements Cloneable, Savable {
      * {@code Front} and {@code Front} becomes {@code Back}.
      * <p>{@code FrontAndBack} and {@code Off} are unaffected. This is important
      * for flipping the cull mode when normal vectors are found to be backward.
-     * @param cull
-     * @return flipped cull mode
      */
     public void flipFaceCull() {
         switch (cullMode) {

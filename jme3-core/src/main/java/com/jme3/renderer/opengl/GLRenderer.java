@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2023 jMonkeyEngine
+ * Copyright (c) 2009-2024 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,6 +50,10 @@ import com.jme3.shader.Shader.ShaderSource;
 import com.jme3.shader.Shader.ShaderType;
 import com.jme3.system.JmeSystem;
 import com.jme3.system.Platform;
+import com.jme3.shader.ShaderBufferBlock.BufferType;
+import com.jme3.shader.bufferobject.BufferObject;
+import com.jme3.shader.bufferobject.BufferRegion;
+import com.jme3.shader.bufferobject.DirtyRegionsIterator;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.FrameBuffer.RenderBuffer;
 import com.jme3.texture.Image;
@@ -61,7 +65,9 @@ import com.jme3.texture.image.LastTextureState;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.ListMap;
 import com.jme3.util.MipMapGenerator;
+import com.jme3.util.NativeObject;
 import com.jme3.util.NativeObjectManager;
+
 import jme3tools.shader.ShaderDebug;
 
 import java.lang.ref.WeakReference;
@@ -1445,44 +1451,61 @@ public final class GLRenderer implements Renderer {
         assert shader.getId() > 0;
 
         final BufferObject bufferObject = bufferBlock.getBufferObject();
-        if (bufferObject.getUniqueId() == -1 || bufferObject.isUpdateNeeded()) {
-            updateBufferData(bufferObject);
+        final BufferType bufferType = bufferBlock.getType();
+        
+
+        if (bufferObject.isUpdateNeeded()) {
+            if (bufferType == BufferType.ShaderStorageBufferObject) {
+                updateShaderStorageBufferObjectData(bufferObject);
+            } else {
+                updateUniformBufferObjectData(bufferObject);
+            }
         }
 
-        if (!bufferBlock.isUpdateNeeded()) {
-            return;
-        }
+        int usage = resolveUsageHint(bufferObject.getAccessHint(), bufferObject.getNatureHint());
+        if (usage == -1) return; // cpu only
 
         bindProgram(shader);
 
         final int shaderId = shader.getId();
-        final BufferObject.BufferType bufferType = bufferObject.getBufferType();
 
-        bindBuffer(bufferBlock, bufferObject, shaderId, bufferType);
-
-        bufferBlock.clearUpdateNeeded();
-    }
-
-    private void bindBuffer(final ShaderBufferBlock bufferBlock, final BufferObject bufferObject, final int shaderId,
-                            final BufferObject.BufferType bufferType) {
+        int bindingPoint = bufferObject.getBinding();
 
         switch (bufferType) {
             case UniformBufferObject: {
-                final int blockIndex = gl3.glGetUniformBlockIndex(shaderId, bufferBlock.getName());
-                gl3.glBindBufferBase(GL3.GL_UNIFORM_BUFFER, bufferObject.getBinding(), bufferObject.getId());
-                gl3.glUniformBlockBinding(GL3.GL_UNIFORM_BUFFER, blockIndex, bufferObject.getBinding());
+                setUniformBufferObject(bindingPoint, bufferObject); // rebind buffer if needed
+                if (bufferBlock.isUpdateNeeded()) {
+                    int blockIndex = bufferBlock.getLocation();
+                    if (blockIndex < 0) {
+                        blockIndex = gl3.glGetUniformBlockIndex(shaderId, bufferBlock.getName());
+                        bufferBlock.setLocation(blockIndex);
+                    }
+                    if (bufferBlock.getLocation() != NativeObject.INVALID_ID) {
+                        gl3.glUniformBlockBinding(shaderId, bufferBlock.getLocation(), bindingPoint);
+                    } 
+                }
                 break;
             }
             case ShaderStorageBufferObject: {
-                final int blockIndex = gl4.glGetProgramResourceIndex(shaderId, GL4.GL_SHADER_STORAGE_BLOCK, bufferBlock.getName());
-                gl4.glShaderStorageBlockBinding(shaderId, blockIndex, bufferObject.getBinding());
-                gl4.glBindBufferBase(GL4.GL_SHADER_STORAGE_BUFFER, bufferObject.getBinding(), bufferObject.getId());
+                setShaderStorageBufferObject(bindingPoint, bufferObject); // rebind buffer if needed
+                if (bufferBlock.isUpdateNeeded() ) {
+                    int blockIndex = bufferBlock.getLocation();
+                    if (blockIndex < 0) {
+                        blockIndex = gl4.glGetProgramResourceIndex(shaderId, GL4.GL_SHADER_STORAGE_BLOCK, bufferBlock.getName());
+                        bufferBlock.setLocation(blockIndex);
+                    }
+                    if (bufferBlock.getLocation() != NativeObject.INVALID_ID) {
+                        gl4.glShaderStorageBlockBinding(shaderId, bufferBlock.getLocation(), bindingPoint);
+                    }
+                }
                 break;
             }
             default: {
                 throw new IllegalArgumentException("Doesn't support binding of " + bufferType);
             }
         }
+
+        bufferBlock.clearUpdateNeeded();
     }
 
     protected void updateShaderUniforms(Shader shader) {
@@ -1543,7 +1566,7 @@ public final class GLRenderer implements Renderer {
 
             source.setId(id);
             if (debug && caps.contains(Caps.GLDebug)) {
-                if(source.getName() != null) glext.glObjectLabel(GLExt.GL_SHADER, id, source.getName());
+                if(source.getName()!=null) glext.glObjectLabel(GLExt.GL_SHADER, id, source.getName());
             }
         } else {
             throw new RendererException("Cannot recompile shader source");
@@ -2200,7 +2223,7 @@ public final class GLRenderer implements Renderer {
 
             context.boundFB = fb;
             if (debug && caps.contains(Caps.GLDebug)) {
-                 if (fb.getName() != null) glext.glObjectLabel(GL3.GL_FRAMEBUFFER, fb.getId(), fb.getName());
+                if (fb.getName() != null) glext.glObjectLabel(GL3.GL_FRAMEBUFFER, fb.getId(), fb.getName());
             }
         }
     }
@@ -2730,6 +2753,42 @@ public final class GLRenderer implements Renderer {
         }
     }
 
+    @Override
+    public void setUniformBufferObject(int bindingPoint, BufferObject bufferObject) {
+        if (bufferObject.isUpdateNeeded()) {
+            updateUniformBufferObjectData(bufferObject);
+        }
+
+        if (context.boundBO[bindingPoint] == null || context.boundBO[bindingPoint].get() != bufferObject) {
+            gl3.glBindBufferBase(GL3.GL_UNIFORM_BUFFER, bindingPoint, bufferObject.getId());
+            bufferObject.setBinding(bindingPoint);
+            context.boundBO[bindingPoint] = bufferObject.getWeakRef();
+        }
+
+        bufferObject.setBinding(bindingPoint);
+
+        if (debug && caps.contains(Caps.GLDebug)) {
+            if (bufferObject.getName() != null) glext.glObjectLabel(GLExt.GL_BUFFER, bufferObject.getId(), bufferObject.getName());
+        }
+
+    }
+
+    @Override
+    public void setShaderStorageBufferObject(int bindingPoint, BufferObject bufferObject) {
+        if (bufferObject.isUpdateNeeded()) {
+            updateShaderStorageBufferObjectData(bufferObject);
+        }
+        if (context.boundBO[bindingPoint] == null || context.boundBO[bindingPoint].get() != bufferObject) {
+            gl4.glBindBufferBase(GL4.GL_SHADER_STORAGE_BUFFER, bindingPoint, bufferObject.getId());
+            bufferObject.setBinding(bindingPoint);
+            context.boundBO[bindingPoint] = bufferObject.getWeakRef();
+        }
+        bufferObject.setBinding(bindingPoint);
+
+        if (debug && caps.contains(Caps.GLDebug)) {
+            if (bufferObject.getName() != null) glext.glObjectLabel(GLExt.GL_BUFFER, bufferObject.getId(), bufferObject.getName());
+        }
+    }
 
     /**
      * @deprecated Use modifyTexture(Texture2D dest, Image src, int destX, int destY, int srcX, int srcY, int areaW, int areaH)
@@ -2897,23 +2956,63 @@ public final class GLRenderer implements Renderer {
         vb.clearUpdateNeeded();
     }
 
+    private int resolveUsageHint(BufferObject.AccessHint ah, BufferObject.NatureHint nh) {
+        switch (ah) {
+            case Dynamic: {
+                switch (nh) {
+                    case Draw:
+                        return GL.GL_DYNAMIC_DRAW;
+                    case Read:
+                        return GL4.GL_DYNAMIC_READ;
+                    case Copy:
+                        return GL.GL_DYNAMIC_COPY;
+                }
+            }
+            case Stream: {
+                switch (nh) {
+                    case Draw:
+                        return GL.GL_STREAM_DRAW;
+                    case Read:
+                        return GL.GL_STREAM_READ;
+                    case Copy:
+                        return GL.GL_STREAM_COPY;
+                }
+            }
+            case Static: {
+                switch (nh) {
+                    case Draw:
+                        return GL.GL_STATIC_DRAW;
+                    case Read:
+                        return GL.GL_STATIC_READ;
+                    case Copy:
+                        return GL.GL_STATIC_COPY;
+                }
+            }
+            default:
+        }
+        return -1;
+    }
+
     @Override
-    public void updateBufferData(final BufferObject bo) {
+    public void updateShaderStorageBufferObjectData(BufferObject bo) {
+        if (!caps.contains(Caps.ShaderStorageBufferObject)) throw new IllegalArgumentException("The current video hardware doesn't support shader storage buffer objects ");
+        updateBufferData(GL4.GL_SHADER_STORAGE_BUFFER, bo);
+    }
 
-        int maxSize = Integer.MAX_VALUE;
+    @Override
+    public void updateUniformBufferObjectData(BufferObject bo) {
+        if (!caps.contains(Caps.UniformBufferObject)) throw new IllegalArgumentException("The current video hardware doesn't support uniform buffer objects");
+        updateBufferData(GL4.GL_UNIFORM_BUFFER, bo);
+    }
 
-        final BufferObject.BufferType bufferType = bo.getBufferType();
-
-        if (!caps.contains(bufferType.getRequiredCaps())) {
-            throw new IllegalArgumentException("The current video hardware doesn't support " + bufferType);
-        }
-
-        final ByteBuffer data = bo.computeData(maxSize);
-        if (data == null) {
-            throw new IllegalArgumentException("Can't upload BO without data.");
-        }
-
+    private void updateBufferData(int type, BufferObject bo) {
         int bufferId = bo.getId();
+        int usage = resolveUsageHint(bo.getAccessHint(), bo.getNatureHint());
+        if (usage == -1) {
+            deleteBuffer(bo);
+            return; // CpuOnly
+        }
+
         if (bufferId == -1) {
 
             // create buffer
@@ -2926,26 +3025,29 @@ public final class GLRenderer implements Renderer {
             objManager.registerObject(bo);
         }
 
-        data.rewind();
+        DirtyRegionsIterator it = bo.getDirtyRegions();
+        BufferRegion reg;
 
-        switch (bufferType) {
-            case UniformBufferObject: {
-                gl3.glBindBuffer(GL3.GL_UNIFORM_BUFFER, bufferId);
-                gl3.glBufferData(GL4.GL_UNIFORM_BUFFER, data, GL3.GL_DYNAMIC_DRAW);
-                gl3.glBindBuffer(GL4.GL_UNIFORM_BUFFER, 0);
+        while ((reg = it.next()) != null) {
+            gl3.glBindBuffer(type, bufferId);
+            if (reg.isFullBufferRegion()) {
+                ByteBuffer bbf = bo.getData();
+                if (logger.isLoggable(java.util.logging.Level.FINER)) {
+                    logger.log(java.util.logging.Level.FINER, "Update full buffer {0} with {1} bytes", new Object[] { bo, bbf.remaining() });
+                }
+                gl.glBufferData(type, bbf, usage);
+                gl3.glBindBuffer(type, 0);
+                reg.clearDirty();
                 break;
-            }
-            case ShaderStorageBufferObject: {
-                gl4.glBindBuffer(GL4.GL_SHADER_STORAGE_BUFFER, bufferId);
-                gl4.glBufferData(GL4.GL_SHADER_STORAGE_BUFFER, data, GL4.GL_DYNAMIC_COPY);
-                gl4.glBindBuffer(GL4.GL_SHADER_STORAGE_BUFFER, 0);
-                break;
-            }
-            default: {
-                throw new IllegalArgumentException("Doesn't support binding of " + bufferType);
+            } else {
+                if (logger.isLoggable(java.util.logging.Level.FINER)) {
+                    logger.log(java.util.logging.Level.FINER, "Update region {0} of {1}", new Object[] { reg, bo });
+                }
+                gl.glBufferSubData(type, reg.getStart(), reg.getData());
+                gl3.glBindBuffer(type, 0);
+                reg.clearDirty();
             }
         }
-
         bo.clearUpdateNeeded();
     }
 

@@ -280,7 +280,7 @@ MaterialDef PBR Lighting {
     Technique Glow {
 
         VertexShader   GLSL300 GLSL150 GLSL100:   Common/MatDefs/Misc/Unshaded.vert
-        FragmentShader GLSL300 GLSL150 GLSL100: Common/MatDefs/Light/Glow.frag
+        FragmentShader GLSL300 GLSL150 GLSL100: Common/MatDefs/Light/PBRGlow.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -289,6 +289,8 @@ MaterialDef PBR Lighting {
         }
 
         Defines {
+            HAS_EMISSIVEMAP : EmissiveMap
+            HAS_EMISSIVECOLOR : Emissive
             BOUND_DRAW_BUFFER: BoundDrawBuffer
             NEED_TEXCOORD1
             NUM_BONES : NumberOfBones

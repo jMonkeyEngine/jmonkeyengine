@@ -229,6 +229,15 @@ public class MorphTrack implements AnimTrack<float[]> {
     }
 
     /**
+     * Access the FrameInterpolator.
+     *
+     * @return the pre-existing instance or null
+     */
+    public FrameInterpolator getFrameInterpolator() {
+        return interpolator;
+    }
+
+    /**
      * Replace the FrameInterpolator.
      *
      * @param interpolator the interpolator to use (alias created)

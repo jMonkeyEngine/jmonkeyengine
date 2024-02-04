@@ -211,7 +211,7 @@ public class LWJGLBufferAllocator implements BufferAllocator {
 
     @Override
     public ByteBuffer allocate(final int size) {
-        final Long address = MemoryUtil.nmemAlloc(size);
+        final Long address = MemoryUtil.nmemCalloc(size, 1);
         final ByteBuffer byteBuffer = MemoryUtil.memByteBuffer(address, size);
         DEALLOCATORS.put(address, createDeallocator(address, byteBuffer));
         return byteBuffer;
