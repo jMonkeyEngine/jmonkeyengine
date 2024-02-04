@@ -137,8 +137,6 @@ void readMatParamsAndTextures(in mat3 tbnMat, in vec3 vViewDir, inout vec4 albed
         #endif
         normal = normalize(tbnMat * normal);
         //normal = normalize(normal * inverse(tbnMat));
-    #else
-        normal = norm;
     #endif
     
     //spec gloss tex reads:
