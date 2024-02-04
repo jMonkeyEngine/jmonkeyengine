@@ -47,10 +47,10 @@ import static org.lwjgl.system.jawt.JAWTFunctions.*;
  * 
  * @author wil
  */
-public class X11GLPlatform extends PlatformLinuxGLCanvas implements LwjglxGLPlatform {
+final class X11GLPlatform extends PlatformLinuxGLCanvas implements LwjglxGLPlatform {
     
     /**
-     * (non-JavaDoc)
+     * (non-Javadoc)
      * @see org.lwjgl.opengl.awt.PlatformGLCanvas#swapBuffers() 
      * @return boolean
      */
@@ -78,7 +78,7 @@ public class X11GLPlatform extends PlatformLinuxGLCanvas implements LwjglxGLPlat
     }
 
     /**
-     * (non-JavaDoc)
+     * (non-Javadoc)
      * @see org.lwjgl.opengl.awt.PlatformGLCanvas#makeCurrent(long) 
      * 
      * @param context long
@@ -110,7 +110,7 @@ public class X11GLPlatform extends PlatformLinuxGLCanvas implements LwjglxGLPlat
     }
 
     /**
-     * (non-JavaDoc)
+     * (non-Javadoc)
      * @see com.jme3.system.lwjglx.LwjglxGLPlatform#destroy() 
      */
     @Override

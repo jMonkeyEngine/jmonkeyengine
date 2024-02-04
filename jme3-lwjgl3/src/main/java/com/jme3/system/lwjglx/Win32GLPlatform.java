@@ -32,101 +32,18 @@
 package com.jme3.system.lwjglx;
 
 import static org.lwjgl.system.jawt.JAWTFunctions.*;
-
 import org.lwjgl.opengl.awt.PlatformWin32GLCanvas;
-import org.lwjgl.system.jawt.JAWTDrawingSurfaceInfo;
-import org.lwjgl.system.jawt.JAWTWin32DrawingSurfaceInfo;
-
 
 /**
- * Class <code>Win32GLPlatform</code>; overrides the following methods: <code>swapBuffers()</code> 
- * ,<code>makeCurrent(long context)</code> and <code>delayBeforeSwapNV(float seconds)</code>. 
- * So that the canvas can be removed and added back from its parent component.
- * <p>
- * Only for windows.
+ * <code>Win32GLPlatform</code> class that implements the {@link com.jme3.system.lwjglx.LwjglxGLPlatform} 
+ * interface for the Windows (Win32) platform.
  * 
  * @author wil
  */
-public class Win32GLPlatform extends PlatformWin32GLCanvas implements LwjglxGLPlatform {
-    
-    /**
-     * (non-JavaDoc)
-     * @see org.lwjgl.opengl.awt.PlatformGLCanvas#swapBuffers() 
-     * @return boolean
-     */
-    @Override
-    public boolean swapBuffers() {
-        // Get the drawing surface info
-        JAWTDrawingSurfaceInfo dsi = JAWT_DrawingSurface_GetDrawingSurfaceInfo(ds, ds.GetDrawingSurfaceInfo());
-        if (dsi == null) {
-            throw new IllegalStateException("JAWT_DrawingSurface_GetDrawingSurfaceInfo() failed");
-        }
-        
-        try {
-            // Get the platform-specific drawing info
-            JAWTWin32DrawingSurfaceInfo dsiWin = JAWTWin32DrawingSurfaceInfo.create(dsi.platformInfo());
-            hwnd = dsiWin.hwnd();            
-            return super.swapBuffers();
-        } finally {
-            // Free the drawing surface info
-            JAWT_DrawingSurface_FreeDrawingSurfaceInfo(dsi, ds.FreeDrawingSurfaceInfo());
-        }
-    }
+final class Win32GLPlatform extends PlatformWin32GLCanvas implements LwjglxGLPlatform {
 
     /**
-     * (non-JavaDoc)
-     * @see org.lwjgl.opengl.awt.PlatformGLCanvas#makeCurrent(long) 
-     * 
-     * @param context long
-     * @return boolean
-     */
-    @Override
-    public boolean makeCurrent(long context) {
-        // Get the drawing surface info
-        JAWTDrawingSurfaceInfo dsi = JAWT_DrawingSurface_GetDrawingSurfaceInfo(ds, ds.GetDrawingSurfaceInfo());
-        if (dsi == null) {
-            throw new IllegalStateException("JAWT_DrawingSurface_GetDrawingSurfaceInfo() failed");
-        }
-        
-        try {
-            // Get the platform-specific drawing info
-            JAWTWin32DrawingSurfaceInfo dsiWin = JAWTWin32DrawingSurfaceInfo.create(dsi.platformInfo());
-            hwnd = dsiWin.hwnd();
-            return super.makeCurrent(context);
-        } finally {
-            // Free the drawing surface info
-            JAWT_DrawingSurface_FreeDrawingSurfaceInfo(dsi, ds.FreeDrawingSurfaceInfo());
-        }
-    }
-
-    /**
-     * (non-JavaDoc)
-     * @see org.lwjgl.opengl.awt.PlatformGLCanvas#delayBeforeSwapNV(float) 
-     * 
-     * @param seconds float
-     * @return boolean
-     */
-    @Override
-    public boolean delayBeforeSwapNV(float seconds) {
-        // Get the drawing surface info
-        JAWTDrawingSurfaceInfo dsi = JAWT_DrawingSurface_GetDrawingSurfaceInfo(ds, ds.GetDrawingSurfaceInfo());
-        if (dsi == null) {
-            throw new IllegalStateException("JAWT_DrawingSurface_GetDrawingSurfaceInfo() failed");
-        }
-        
-        try {
-            // Get the platform-specific drawing info
-            JAWTWin32DrawingSurfaceInfo dsiWin = JAWTWin32DrawingSurfaceInfo.create(dsi.platformInfo());
-            hwnd = dsiWin.hwnd();
-            return super.delayBeforeSwapNV(seconds);
-        } finally {
-            // Free the drawing surface info
-            JAWT_DrawingSurface_FreeDrawingSurfaceInfo(dsi, ds.FreeDrawingSurfaceInfo());
-        }
-    }
-    
-    /**
-     * (non-JavaDoc)
+     * (non-Javadoc)
      * @see com.jme3.system.lwjglx.LwjglxGLPlatform#destroy() 
      */
     @Override

@@ -40,10 +40,10 @@ import static org.lwjgl.system.jawt.JAWTFunctions.*;
  * 
  * @author wil
  */
-public class MacOSXGLPlatform extends PlatformMacOSXGLCanvas implements LwjglxGLPlatform {
+final class MacOSXGLPlatform extends PlatformMacOSXGLCanvas implements LwjglxGLPlatform {
 
     /**
-     * (non-JavaDoc)
+     * (non-Javadoc)
      * @see com.jme3.system.lwjglx.LwjglxGLPlatform#destroy() 
      */
     @Override
@@ -53,4 +53,4 @@ public class MacOSXGLPlatform extends PlatformMacOSXGLCanvas implements LwjglxGL
             awt.free();
         }
     }
-}
+ }

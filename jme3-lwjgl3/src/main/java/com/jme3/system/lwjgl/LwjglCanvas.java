@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2023 jMonkeyEngine
+ * Copyright (c) 2009-2024 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,6 @@ import com.jme3.input.awt.AwtKeyInput;
 import com.jme3.input.awt.AwtMouseInput;
 import com.jme3.system.AppSettings;
 import com.jme3.system.JmeCanvasContext;
-import com.jme3.system.lwjglx.LwjglxDefaultGLPlatform;
 import com.jme3.system.lwjglx.LwjglxGLPlatform;
 
 import java.awt.AWTException;
@@ -45,6 +44,7 @@ import java.awt.Canvas;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
+import java.awt.Toolkit;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
@@ -65,6 +65,7 @@ import org.lwjgl.opengl.awt.GLData;
 import org.lwjgl.system.Platform;
 
 import static org.lwjgl.system.MemoryUtil.*;
+import static com.jme3.system.lwjglx.LwjglxDefaultGLPlatform.*;
 
 /**
  * Class <code>LwjglCanvas</code> that integrates <a href="https://github.com/LWJGLX/lwjgl3-awt">LWJGLX</a>
@@ -82,6 +83,16 @@ import static org.lwjgl.system.MemoryUtil.*;
  * ...
  * </code></pre>
  * 
+ * <p>
+ * <b>NOTE:</b> If running <code>LwjglCanvas</code> on older machines, the <code>SRGB | Gamma Correction</code> option 
+ * will raise an exception, so it should be disabled.
+ * <pre><code>
+ * ....
+ *  AppSettings settings = new AppSettings(true);
+ *  settings.setGammaCorrection(false);
+ * ...
+ * </code></pre>
+ * 
  * @author wil
  */
 public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnable {
@@ -92,6 +103,7 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
     /** GL versions map. */
     private static final Map<String, Consumer<GLData>> RENDER_CONFIGS = new HashMap<>();
     
+    /** Type of operating system where this context is running. */
     private static final Platform OS = Platform.get();
     
     /*
@@ -148,36 +160,76 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
         });
     }
     
+    /**
+     * An AWT <code>java.awt.Canvas</code> that supports to be drawn on using OpenGL.
+     */
     private class LwjglAWTGLCanvas extends Canvas {
         
+        /** 
+         * A {@link com.jme3.system.lwjglx.LwjglxGLPlatform} object. 
+         * @see org.lwjgl.opengl.awt.PlatformGLCanvas
+         */
         private LwjglxGLPlatform platformCanvas;
         
+        /**  The OpenGL context (LWJGL3-AWT). */
         private long context;
+        
+        /**
+         * Information object used to create the OpenGL context.
+         */
         private GLData data;
+        
+        /** Effective data to initialize the context. */
         private GLData effective;
 
+        /**
+         * Constructor of the <code>LwjglAWTGLCanva</code> class where objects are
+         * initialized for OpenGL-AWT rendering
+         * 
+         * @param data A {@link org.lwjgl.opengl.awt.GLData} object
+         */
         public LwjglAWTGLCanvas(GLData data) {
             this.effective = new GLData();
             this.context   = NULL;
             this.data      = data;
             
             try {
-                platformCanvas = LwjglxDefaultGLPlatform.createLwjglxGLPlatform();
+                platformCanvas = createLwjglxGLPlatform();
             } catch (UnsupportedOperationException e) {
                 listener.handleError(e.getLocalizedMessage(), e);
             }
         }
         
+        /**
+         * (non-Javadoc)
+         * @see java.awt.Component#addComponentListener(java.awt.event.ComponentListener) 
+         * @param l object-listener
+         */
         @Override
         public synchronized void addComponentListener(ComponentListener l) {
             super.addComponentListener(l);
         }
         
+        /**
+         * Returns the effective data (recommended or ideal) to initialize the 
+         * LWJGL3-AWT context.
+         * 
+         * @return A {@link org.lwjgl.opengl.awt.GLData} object
+         */
         public GLData getGLDataEffective() {
             return effective;
         }
         
+        /**
+         * Called after <code>beforeRender()</code> to release the threads (unlock); 
+         * so that AWT can update its threads normally.
+         * <p>
+         * <b>NOTE:</b> It is very important to call this method and not leave AWT 
+         * hanging (breaking it) regardless of whether an error occurs during OpenGL
+         * rendering.
+         */
         public void afterRender() {
+            // release the rendering context
             platformCanvas.makeCurrent(NULL);
             try {
                 platformCanvas.unlock(); // <- MUST unlock on Linux
@@ -186,7 +238,11 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
             }
         }
         
+        /**
+         * Called before <code>afterRender()</code> to prepare the AWT drawing surface.
+         */
         public void beforeRender() {
+            // this is where the OpenGL rendering context is generated.
             if (context == NULL) {
                 try {
                     context = platformCanvas.create(this, data, effective);
@@ -195,59 +251,99 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
                     return;
                 }
             }
+            
+            /*
+             * To start drawing on the AWT surface, the AWT threads must be locked to
+             * avoid conflicts when drawing on the canvas.
+             */
             try {
                 platformCanvas.lock(); // <- MUST lock on Linux
             } catch (AWTException e) {
                 listener.handleError("Failed to lock Canvas", e);
             }
+            
+            /*
+             * The 'makeCurrent(long)' method converts the specified OpenGL rendering 
+             * context to the current rendering context.
+             */
             platformCanvas.makeCurrent(context);
         }
         
+        /**
+         * Frees up the drawing surface (only on Windows and MacOSX).
+         */
         public void doDisposeCanvas() {
-            platformCanvas.dispose();
+            if (OS != Platform.LINUX) {
+                platformCanvas.dispose();
+            }
         }
         
+        /**
+         * This is where you actually draw on the canvas (framebuffer).
+         */
         public void swapBuffers() {
             platformCanvas.swapBuffers();
         }
         
+        /**
+         * (non-Javadoc)
+         * @see java.awt.Component#addNotify() 
+         */
         @Override
         public void addNotify() {
             super.addNotify();
+            /* you have to notify if the canvas is visible to draw on it. */
             synchronized (lock) {
                 hasNativePeer.set(true);
             }
             requestFocusInWindow();
         }
         
+        /**
+         * (non-Javadoc)
+         * @see java.awt.Component#removeNotify() 
+         */
         @Override
         public void removeNotify() {
             synchronized (lock) {
+                // prepare for a possible re-adding
+                if ((OS != Platform.LINUX) && (context != NULL)) {
+                    platformCanvas.deleteContext(context);
+                    context = NULL;
+                }
                 hasNativePeer.set(false);
             }            
             super.removeNotify();
-            if ((OS == Platform.MACOSX) && (context != NULL)) {
-                platformCanvas.deleteContext(context);
-                context = NULL;
+            if (OS == Platform.WINDOWS) {
+                LOGGER.log(Level.WARNING, "Windows does not support this functionality: remove(__canvas__)");
             }
         }
         
+        /**
+         * (non-Javadoc)
+         * @see com.jme3.system.lwjglx.LwjglxGLPlatform#destroy() 
+         */
         public void destroy() {
             platformCanvas.destroy();
         }
         
         /**
-         * Returns Graphics object that ignores {@link Graphics#clearRect(int, int, int, int)}
+         * Returns Graphics object that ignores {@link java.awt.Graphics#clearRect(int, int, int, int)}
          * calls.
+         * <p>
          * This is done so that the frame buffer will not be cleared by AWT/Swing internals.
+         * 
+         * @see org.lwjgl.awthacks.NonClearGraphics2D
+         * @see org.lwjgl.awthacks.NonClearGraphics
          * @return Graphics
          */
         @Override
         public Graphics getGraphics() {
             Graphics graphics = super.getGraphics();
-            return (graphics instanceof Graphics2D) 
-                    ? new NonClearGraphics2D((Graphics2D) graphics) 
-                    : new NonClearGraphics(graphics);
+            if (graphics instanceof Graphics2D) {
+                return new NonClearGraphics2D((Graphics2D) graphics);
+            }
+            return new NonClearGraphics(graphics);
         }
     }
     
@@ -271,24 +367,43 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
     
     /** Notify if there is a change in canvas dimensions. */
     private AtomicBoolean needResize = new AtomicBoolean(false);
+    
+    /**
+     * Flag that uses the context to check if it is initialized or not, this prevents
+     * it from being initialized multiple times and potentially breaking the JVM.
+     */
+    private AtomicBoolean contextFlag = new AtomicBoolean(false);
 
     /** Semaphort used to check the "terminate" signal. */
     private final Semaphore signalTerminate = new Semaphore(0);
 
     /** lock-object. */
     private final Object lock = new Object();
+    
+    /** Framebuffer width. */
     private int framebufferWidth = 1;
+    
+    /** Framebuffer height. */
     private int framebufferHeight = 1;
 
+    /** AWT keyboard input manager. */
     private AwtKeyInput keyInput;
+    
+    /** AWT mouse input manager. */
     private AwtMouseInput mouseInput;
     
+    /**
+     * Generate a new OpenGL context (<code>LwjglCanvas</code>) to integrate 
+     * AWT/Swing with JME3 in your desktop applications.
+     */
     public LwjglCanvas() {
         super(Type.Canvas);
-
         glData = new GLData();
         canvas = new LwjglAWTGLCanvas(glData);
         canvas.setIgnoreRepaint(true);
+        
+        // To determine the size of the framebuffer every time the user resizes
+        // the canvas (this works if the component has a parent)
         canvas.addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {                
@@ -314,10 +429,47 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
             }            
         });
     }
+
+    /**
+     * (non-Javadoc)
+     * @see com.jme3.system.JmeContext#destroy(boolean) 
+     * @param waitFor boolean
+     */
+    @Override
+    public void destroy(boolean waitFor) {
+        super.destroy(waitFor);
+        this.contextFlag.set(false);
+    }
+
+    /**
+     * (non-Javadoc)
+     * @see com.jme3.system.JmeContext#create(boolean) 
+     * @param waitFor boolean
+     */
+    @Override
+    public void create(boolean waitFor) {
+        if (this.contextFlag.get()) {
+            return;
+        }
+        // create context
+        super.create(waitFor);
+        this.contextFlag.set(true);
+    }
     
+    /**
+     * (non-Javadoc)
+     * @see com.jme3.system.lwjgl.LwjglWindow#createContext(com.jme3.system.AppSettings) 
+     * @param settings A {@link com.jme3.system.AppSettings} object
+     */
     @Override
     protected void createContext(AppSettings settings)  {
-        super.createContext(settings);        
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException ex) {
+            LOGGER.log(Level.SEVERE, "LWJGL3-AWT: Interrupted!", ex);
+        }
+        
+        super.createContext(settings);
         RENDER_CONFIGS.computeIfAbsent(settings.getRenderer(), (t) -> {
             return (data) -> {
                 data.majorVersion = 2;
@@ -342,11 +494,12 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
             glData.swapInterval = 0;
         }
         
+        // This will activate the "effective data" scrubber.
         showGLDataEffective.set(settings.getBoolean("GLDataEffectiveDebug"));
         
         glData.depthSize = settings.getBitsPerPixel();
         glData.alphaSize = settings.getAlphaBits();
-        glData.sRGB = settings.isGammaCorrection();
+        glData.sRGB = settings.isGammaCorrection(); // Not compatible with very old devices
         
         glData.depthSize = settings.getDepthBits();
         glData.stencilSize = settings.getStencilBits();
@@ -357,23 +510,30 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
         glData.api = GLData.API.GL;
     }
     
+    /**
+     * Returns the AWT component where it is drawn (canvas).
+     * @return Canvas
+     */
     @Override
     public Canvas getCanvas() {
         return canvas;
     }
 
+    /** (non-Javadoc) */
     @Override
-    protected void showWindow() {
-    }
-
+    protected void showWindow() { }
+    /** (non-Javadoc) */
+    @Override 
+    protected void setWindowIcon(final AppSettings settings) { }
+    /** (non-Javadoc) */
     @Override
-    protected void setWindowIcon(final AppSettings settings) {
-    }
+    public void setTitle(String title) { }
 
-    @Override
-    public void setTitle(String title) {
-    }
-
+    /**
+     * (non-Javadoc)
+     * @see com.jme3.system.lwjgl.LwjglWindow#getKeyInput() 
+     * @return returns a {@link com.jme3.input.awt.AwtKeyInput} object
+     */
     @Override
     public KeyInput getKeyInput() {
         if (keyInput == null) {
@@ -383,6 +543,11 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
         return keyInput;
     }
 
+    /**
+     * (non-Javadoc)
+     * @see com.jme3.system.lwjgl.LwjglWindow#getMouseInput() 
+     * @return returns a {@link com.jme3.input.awt.AwtMouseInput} object
+     */
     @Override
     public MouseInput getMouseInput() {
         if (mouseInput == null) {
@@ -392,8 +557,19 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
         return mouseInput;
     }
 
+    /**
+     * Check if the canvas is displayed, that is, if it has a parent that has set it up.
+     * <p>
+     * It is very important that this verification be done so that LWJGL3-AWT works correctly.
+     * 
+     * @return returns <code>true</code> if the canvas is ready to draw; otherwise 
+     * returns <code>false</code>
+     */
     public boolean checkVisibilityState() {
         if (!hasNativePeer.get()) {
+            synchronized (lock) {
+                canvas.doDisposeCanvas();
+            }
             return false;
         }
 
@@ -402,7 +578,10 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
         return currentShowing;
     }
 
-
+    /**
+     * (non-Javadoc)
+     * @see com.jme3.system.lwjgl.LwjglWindow#destroyContext() 
+     */
     @Override
     protected void destroyContext() {
         synchronized (lock) {
@@ -414,6 +593,10 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
         super.destroyContext();
     }
 
+    /**
+     * (non-Javadoc)
+     * @see com.jme3.system.lwjgl.LwjglWindow#runLoop() 
+     */
     @Override
     protected void runLoop() {
         if (needResize.get()) {
@@ -421,11 +604,23 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
             settings.setResolution(framebufferWidth, framebufferHeight);
             listener.reshape(framebufferWidth, framebufferHeight);
         }
-
+        
+        // check component status
         if (!checkVisibilityState()) {
             return;
         }
 
+        //----------------------------------------------------------------------
+        //                          AWT - RENDERER
+        //----------------------------------------------------------------------
+        /*
+         * The same logic as AWTGLCanvas is used to draw on the awt drawing surface:
+         * 
+         * 1. Lock any thread to avoid any conflict.
+         * 2. Buffer swap (this is where the framebuffer is actually drawn): swapBuffers()
+         * 3. Unlock so that the AWT thread can work normally. IF NOT DONE, IT WILL 
+         *    BE WAITING AND BREAK ANY AWT/Swing APP.
+         */
         canvas.beforeRender();
         try {
             super.runLoop();
@@ -436,8 +631,15 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
             canvas.afterRender();
         }
         
-        // Whether it is necessary to know the effective attributes to 
-        // initialize the LWJGL3-AWT context
+        // Sync the display on some systems.
+        Toolkit.getDefaultToolkit().sync();
+        
+        //----------------------------------------------------------------------
+        /*
+         * Whether it is necessary to know the effective attributes to 
+         * initialize the LWJGL3-AWT context
+         */
+        //----------------------------------------------------------------------
         if (showGLDataEffective.get()) {
             showGLDataEffective.set(false);
             System.out.println(MessageFormat.format("[ DEBUGGER ] :Effective data to initialize the LWJGL3-AWT context\n{0}", 
@@ -451,6 +653,10 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
         } catch (InterruptedException ignored) { }
     }
     
+    /**
+     * (non-Javadoc)
+     * @see com.jme3.system.lwjgl.LwjglContext#printContextInitInfo() 
+     */
     @Override
     protected void printContextInitInfo() {
         super.printContextInitInfo();
@@ -528,13 +734,23 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
         return String.valueOf(sb);
     }
     
+    /**
+     * (non-Javadoc)
+     * @see com.jme3.system.lwjgl.LwjglWindow#getFramebufferHeight() 
+     * @return int
+     */
     @Override
     public int getFramebufferHeight() {
-        return framebufferHeight;
+        return this.framebufferHeight;
     }
 
+    /**
+     * (non-Javadoc)
+     * @see com.jme3.system.lwjgl.LwjglWindow#getFramebufferWidth() 
+     * @return int
+     */
     @Override
     public int getFramebufferWidth() {
-        return framebufferWidth;
+        return this.framebufferWidth;
     }
 }
