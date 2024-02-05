@@ -17,11 +17,12 @@ varying vec4 wTangent;
 
 #import "Common/ShaderLib/PBRLightingParamsReader.glsllib"
 #import "Common/ShaderLib/PBRLighting.glsllib"
-//Important that these 2 ^ glsllibs are referenced AFTER other variables are declared above. 
-// any variables above are declared there (rather than in a glslib) to reduce rendundancy, because these vars likely to used by more than 1 glslib.
-// Only lighting vars are declared in PBRLighting.glslib, and only basePBR matParams are declared in PBRLightingParamReads.glslib
-//This allows jme devs to fork this shader and make their own changes before the base PBR param-reads or before the final lighting calculation.
-//For example, you could move texCoords based on g_Time prior to texReads for a simple moving water/lava effect. or blend values like albedo/roughness after tex reads but before the final lighting calculations to do things like dynamic texture splatting
+// It is important that these 2 glsllibs are referenced AFTER the other variables above have been declared. 
+// The above variables are declared here (rather than in a glsllib) to reduce redundancy, since these variables are likely to be used by more than one glsllib.
+// Only lighting variables are declared in PBRLighting.glsllib, and only basic PBR material params are declared in PBRLightingParamsReader.glsllib.
+// This allows jme developers to create a fork of this shader and make their own changes before reading the base PBR parameters or before the final lighting calculation.
+// For example, you can move texCoords based on g_Time before texReads for a simple moving water/lava effect, or blend values like albedo/roughness after the param reads
+// but before final lighting calculations to do things like dynamic texture splatting.
 
 vec4 albedo = vec4(1.0);
 float alpha = 1.0;
@@ -48,10 +49,12 @@ void main(){
     vec3 norm = normalize(wNormal);
     vec3 normal = norm;
     vec3 viewDir = normalize(g_CameraPosition - wPosition);
-    
+
+    // Note: These are intentionally not surrounded by ifDefs relating to normal and parallax maps being defined, because
+    // other .glsllibs may require normal or parallax mapping even if the base model does not have those maps
     vec3 tan = normalize(wTangent.xyz);
-    mat3 tbnMat = mat3(tan, wTangent.w * cross( (norm), (tan)), norm); //note: these are intentionaly not surroudned by ifDefs relating to normal and parallax maps being defined, because
-    vec3 vViewDir =  viewDir * tbnMat;                                 //other .glslibs may require normal or parallax mapping even if the base model does not hvae those maps
+    mat3 tbnMat = mat3(tan, wTangent.w * cross( (norm), (tan)), norm); 
+    vec3 vViewDir =  viewDir * tbnMat;                                 
 
     //base PBR params and tex reads:
     readMatParamsAndTextures(tbnMat, vViewDir, albedo, Metallic, Roughness, specularColor, glossiness, lightMapColor, ao, normal, emissive, alpha);
