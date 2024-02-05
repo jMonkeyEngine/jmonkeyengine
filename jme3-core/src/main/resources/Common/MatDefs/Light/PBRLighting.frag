@@ -15,8 +15,8 @@ varying vec3 wPosition;
 varying vec3 wNormal;
 varying vec4 wTangent;
 
-#import "MatDefs/ShaderLib/PBRLightingParamReads.glsllib"
-#import "MatDefs/ShaderLib/PBRLighting.glsllib"
+#import "Common/ShaderLib/PBRLightingParamsReader.glsllib"
+#import "Common/ShaderLib/PBRLighting.glsllib"
 //Important that these 2 ^ glsllibs are referenced AFTER other variables are declared above. 
 // any variables above are declared there (rather than in a glslib) to reduce rendundancy, because these vars likely to used by more than 1 glslib.
 // Only lighting vars are declared in PBRLighting.glslib, and only basePBR matParams are declared in PBRLightingParamReads.glslib
