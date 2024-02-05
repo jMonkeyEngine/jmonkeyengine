@@ -10,8 +10,7 @@ vec2 newTexCoord;
     uniform float m_AlphaDiscardThreshold;
 #endif
 
-varying vec3 wPosition;    
-
+varying vec3 wPosition;
 varying vec3 wNormal;
 varying vec4 wTangent;
 
