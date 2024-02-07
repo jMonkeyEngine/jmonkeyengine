@@ -33,7 +33,7 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package om.jme3.app.state;
+package com.jme3.app.state;
 
 import com.jme3.app.Application;
 import com.jme3.util.SafeArrayList;
