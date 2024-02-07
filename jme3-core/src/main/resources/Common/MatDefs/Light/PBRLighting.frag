@@ -26,8 +26,6 @@ varying vec4 wTangent;
 vec4 albedo = vec4(1.0);
 float alpha = 1.0;
 
-float emissiveIntensity = 0.0;
-float emissivePower = 0.0;
 vec4 emissive = vec4(0.0);
 
 vec3 ao = vec3(1.0);
