@@ -1,6 +1,7 @@
 /*
  * 
  * Copyright (c) 2014-2024 jMonkeyEngine
+ * Copied with Paul Speed's permission from: https://github.com/Simsilica/SiO2
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
