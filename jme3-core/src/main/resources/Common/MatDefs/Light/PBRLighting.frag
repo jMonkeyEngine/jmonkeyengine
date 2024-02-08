@@ -54,7 +54,7 @@ void main(){
     vec3 vViewDir =  viewDir * tbnMat;                                 
 
     //base PBR params and tex reads:
-    readMatParamsAndTextures(tbnMat, vViewDir, albedo, Metallic, Roughness, specularColor, glossiness, lightMapColor, ao, normal, emissive, alpha);
+    readMatParamsAndTextures(tbnMat, vViewDir, albedo, Metallic, Roughness, specularColor, glossiness, lightMapColor, ao, indoorSunLightExposure, normal, emissive, alpha);
     
     // Lighting calculation:    
     vec3 finalLightingValue = calculatePBRLighting(albedo, Metallic, Roughness, specularColor, glossiness, lightMapColor, ao, indoorSunLightExposure, normal, norm, viewDir);
