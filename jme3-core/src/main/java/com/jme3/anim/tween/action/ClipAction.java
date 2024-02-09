@@ -96,6 +96,11 @@ public class ClipAction extends BlendableAction {
 //        }
     }
 
+    /**
+     * Gets the animation clip associated with this object
+     * 
+     * @return The animation clip
+     */
     public AnimClip getAnimClip() {
         return clip;
     }
@@ -137,8 +142,8 @@ public class ClipAction extends BlendableAction {
         try {
             ClipAction clone = (ClipAction) super.clone();
             return clone;
-        } catch (CloneNotSupportedException exception) {
-            throw new RuntimeException(exception);
+        } catch (CloneNotSupportedException ex) {
+            throw new RuntimeException(ex);
         }
     }
 
