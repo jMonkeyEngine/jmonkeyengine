@@ -97,7 +97,7 @@ public class ClipAction extends BlendableAction {
     }
 
     /**
-     * Gets the animation clip associated with this object.
+     * Gets the animation clip associated with this action.
      * 
      * @return The animation clip
      */
