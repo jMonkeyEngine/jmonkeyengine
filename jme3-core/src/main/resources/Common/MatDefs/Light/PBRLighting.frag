@@ -10,9 +10,14 @@ vec2 newTexCoord;
     uniform float m_AlphaDiscardThreshold;
 #endif
 
+#ifdef DEBUG_VALUES_MODE
+    uniform int m_DebugValuesMode;
+#endif
+
 varying vec3 wPosition;
 varying vec3 wNormal;
 varying vec4 wTangent;
+
 
 #import "Common/ShaderLib/PBRLightingParamsReader.glsllib"
 #import "Common/ShaderLib/PBRLighting.glsllib"
