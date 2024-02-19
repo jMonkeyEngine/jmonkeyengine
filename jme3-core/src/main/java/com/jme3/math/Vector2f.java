@@ -55,9 +55,33 @@ public final class Vector2f implements Savable, Cloneable, java.io.Serializable 
      */
     public static final Vector2f ZERO = new Vector2f(0f, 0f);
     /**
+     * Shared instance of the all-NaN vector (NaN,NaN). Do not modify!
+     */
+    public static final Vector2f NAN = new Vector2f(Float.NaN, Float.NaN);
+    /**
+     * Shared instance of the +X direction (1,0). Do not modify!
+     */
+    public static final Vector2f UNIT_X = new Vector2f(1, 0);
+    /**
+     * Shared instance of the +Y direction (0,1). Do not modify!
+     */
+    public static final Vector2f UNIT_Y = new Vector2f(0, 1);
+    /**
      * Shared instance of the all-ones vector (1,1). Do not modify!
      */
     public static final Vector2f UNIT_XY = new Vector2f(1f, 1f);
+    /**
+     * Shared instance of the all-plus-infinity vector (+Inf,+Inf). Do not modify!
+     */
+    public static final Vector2f POSITIVE_INFINITY = new Vector2f(
+            Float.POSITIVE_INFINITY,
+            Float.POSITIVE_INFINITY);
+    /**
+     * Shared instance of the all-negative-infinity vector (-Inf,-Inf). Do not modify!
+     */
+    public static final Vector2f NEGATIVE_INFINITY = new Vector2f(
+            Float.NEGATIVE_INFINITY,
+            Float.NEGATIVE_INFINITY);
     /**
      * The first (X) component.
      */
