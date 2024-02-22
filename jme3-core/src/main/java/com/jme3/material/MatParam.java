@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2024 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,15 +31,25 @@
  */
 package com.jme3.material;
 
+import java.io.IOException;
+import java.util.Arrays;
+
 import com.jme3.asset.TextureKey;
-import com.jme3.export.*;
-import com.jme3.math.*;
+import com.jme3.export.InputCapsule;
+import com.jme3.export.JmeExporter;
+import com.jme3.export.JmeImporter;
+import com.jme3.export.OutputCapsule;
+import com.jme3.export.Savable;
+import com.jme3.math.ColorRGBA;
+import com.jme3.math.Matrix3f;
+import com.jme3.math.Matrix4f;
+import com.jme3.math.Quaternion;
+import com.jme3.math.Vector2f;
+import com.jme3.math.Vector3f;
+import com.jme3.math.Vector4f;
 import com.jme3.shader.VarType;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
-
-import java.io.IOException;
-import java.util.Arrays;
 
 /**
  * Describes a material parameter. This is used for both defining a name and type
@@ -58,8 +68,8 @@ public class MatParam implements Savable, Cloneable {
     /**
      * Create a new material parameter. For internal use only.
      *
-     * @param type the type of the parameter
-     * @param name the desired parameter name
+     * @param type  the type of the parameter
+     * @param name  the desired parameter name
      * @param value the desired parameter value (alias created)
      */
     public MatParam(VarType type, String name, Object value) {
@@ -75,20 +85,19 @@ public class MatParam implements Savable, Cloneable {
     protected MatParam() {
     }
 
-
     public boolean isTypeCheckEnabled() {
         return typeCheck;
     }
-
 
     /**
      * Enable type check for this param.
      * When type check is enabled a RuntimeException is thrown if 
      * an object of the wrong type is passed to setValue.
-     * @param v (default = true)
+     * 
+     * @param typeCheck (default = true)
      */
-    public void setTypeCheckEnabled(boolean v) {
-        typeCheck = v;
+    public void setTypeCheckEnabled(boolean typeCheck) {
+        this.typeCheck = typeCheck;
     }
 
     /**
@@ -102,6 +111,7 @@ public class MatParam implements Savable, Cloneable {
 
     /**
      * Returns the name of the material parameter.
+     * 
      * @return the name of the material parameter.
      */
     public String getName() {
@@ -158,8 +168,10 @@ public class MatParam implements Savable, Cloneable {
                     }
                 }
                 if (!valid) {
-                    throw new RuntimeException("Trying to assign a value of type " + value.getClass() + " to " + this.getName() + " of type " + type.name() + ". Valid types are "
-                            + Arrays.deepToString(type.getJavaType()));
+                    throw new RuntimeException("Trying to assign a value of type " + value.getClass() 
+                            + " to " + this.getName() 
+                            + " of type " + type.name() 
+                            + ". Valid types are " + Arrays.deepToString(type.getJavaType()));
                 }
             }
         }
@@ -274,12 +286,12 @@ When arrays can be inserted in J3M files
             case TextureCubeMap:
                 Texture texVal = (Texture) value;
                 TextureKey texKey = (TextureKey) texVal.getKey();
-                if (texKey == null){
-                  //throw new UnsupportedOperationException("The specified MatParam cannot be represented in J3M");
+                if (texKey == null) {
+                    // throw new UnsupportedOperationException("The specified MatParam cannot be represented in J3M");
                     // this is used in toString and the above line causes blender materials to throw this exception.
                     // toStrings should be very robust IMO as even debuggers often invoke toString and logging code
                     // often does as well, even implicitly.
-                    return texVal+":returned null key";
+                    return texVal + ":returned null key";
                 }
 
                 String ret = "";
@@ -293,16 +305,16 @@ When arrays can be inserted in J3M files
                 ret += getWrapMode(texVal, Texture.WrapAxis.R);
 
                 //Min and Mag filter
-                Texture.MinFilter def =  Texture.MinFilter.BilinearNoMipMaps;
-                if(texVal.getImage().hasMipmaps() || texKey.isGenerateMips()){
+                Texture.MinFilter def = Texture.MinFilter.BilinearNoMipMaps;
+                if (texVal.getImage().hasMipmaps() || texKey.isGenerateMips()) {
                     def = Texture.MinFilter.Trilinear;
                 }
-                if(texVal.getMinFilter() != def){
-                    ret += "Min" + texVal.getMinFilter().name()+ " ";
+                if (texVal.getMinFilter() != def) {
+                    ret += "Min" + texVal.getMinFilter().name() + " ";
                 }
 
-                if(texVal.getMagFilter() != Texture.MagFilter.Bilinear){
-                    ret += "Mag" + texVal.getMagFilter().name()+ " ";
+                if (texVal.getMagFilter() != Texture.MagFilter.Bilinear) {
+                    ret += "Mag" + texVal.getMagFilter().name() + " ";
                 }
 
                 return ret + "\"" + texKey.getName() + "\"";
@@ -315,12 +327,12 @@ When arrays can be inserted in J3M files
         WrapMode mode = WrapMode.EdgeClamp;
         try {
             mode = texVal.getWrap(axis);
-        } catch (IllegalArgumentException e) {
-            //this axis doesn't exist on the texture
+        } catch (IllegalArgumentException ex) {
+            // this axis doesn't exist on the texture
             return "";
         }
         if (mode != WrapMode.EdgeClamp) {
-            return"Wrap"+ mode.name() + "_" + axis.name() + " ";
+            return "Wrap" + mode.name() + "_" + axis.name() + " ";
         }
         return "";
     }
