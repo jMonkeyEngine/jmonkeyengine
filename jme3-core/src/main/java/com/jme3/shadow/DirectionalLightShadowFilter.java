@@ -78,7 +78,7 @@ public class DirectionalLightShadowFilter extends AbstractShadowFilter<Direction
     }
 
     /**
-     * Return the light used to cast shadows.
+     * Returns the light used to cast shadows.
      *
      * @return the DirectionalLight
      */
@@ -107,10 +107,13 @@ public class DirectionalLightShadowFilter extends AbstractShadowFilter<Direction
 
     /**
      * Adjusts the partition of the shadow extend into shadow maps. Lambda is
-     * usually between 0 and 1. A low value gives a more linear partition, resulting
-     * in consistent shadow quality over the extend, but near shadows could look
-     * very jagged. A high value gives a more logarithmic partition, resulting in
-     * high quality for near shadows, but quality decreases rapidly with distance.
+     * usually between 0 and 1.
+     * <p>
+     * A low value gives a more linear partition, resulting in consistent shadow
+     * quality over the extend, but near shadows could look very jagged. A high
+     * value gives a more logarithmic partition, resulting in high quality for near
+     * shadows, but quality decreases rapidly with distance.
+     * <p>
      * The default value is 0.65 (the theoretical optimum).
      *
      * @param lambda the lambda value
