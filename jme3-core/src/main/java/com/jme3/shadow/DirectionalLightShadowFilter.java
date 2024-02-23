@@ -40,7 +40,6 @@ import com.jme3.light.DirectionalLight;
 import java.io.IOException;
 
 /**
- *
  * This Filter does basically the same as a DirectionalLightShadowRenderer
  * except it renders the post shadow pass as a fullscreen quad pass instead of a
  * geometry pass. It's mostly faster than PssmShadowRenderer as long as you have
@@ -48,7 +47,7 @@ import java.io.IOException;
  * that the shadow Receive mode set on spatial is ignored. So basically all and
  * only objects that render depth in the scene receive shadows.
  *
- * API is basically the same as the PssmShadowRenderer;
+ * API is basically the same as the PssmShadowRenderer.
  *
  * @author Rémy Bouquet aka Nehon
  */
@@ -64,8 +63,7 @@ public class DirectionalLightShadowFilter extends AbstractShadowFilter<Direction
     }
     
     /**
-     * Creates a new instance of {@code DirectionalLightShadowFilter} with the
-     * specified parameters.
+     * Creates a DirectionalLightShadowFilter.
      * 
      * @param assetManager  the application's asset manager
      * @param shadowMapSize the size of the rendered shadow maps (512, 1024, 2048, etc...)
