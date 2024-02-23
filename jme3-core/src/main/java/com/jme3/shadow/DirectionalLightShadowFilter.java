@@ -70,6 +70,8 @@ public class DirectionalLightShadowFilter extends AbstractShadowFilter<Direction
      * @param assetManager  the application's asset manager
      * @param shadowMapSize the size of the rendered shadow maps (512, 1024, 2048, etc...)
      * @param nbSplits      the number of shadow maps rendered (more shadow maps = better quality, but slower)
+     * 
+     * @throws IllegalArgumentException if the provided 'nbSplits' is not within the valid range of 1 to 4.
      */
     public DirectionalLightShadowFilter(AssetManager assetManager, int shadowMapSize, int nbSplits) {
         super(assetManager, shadowMapSize, new DirectionalLightShadowRenderer(assetManager, shadowMapSize, nbSplits));
