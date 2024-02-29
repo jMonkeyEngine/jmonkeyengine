@@ -41,7 +41,9 @@ import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
-import com.jme3.system.*;
+import com.jme3.system.AppSettings;
+import com.jme3.system.JmeContext;
+import com.jme3.system.Timer;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 
@@ -226,7 +228,7 @@ public interface Application {
      * After the application has stopped, it cannot be used anymore.
      * 
      @param waitFor true&rarr;wait for the context to be fully destroyed,
-     * true&rarr;don't wait
+     * false&rarr;don't wait
      */
     public void stop(boolean waitFor);
 

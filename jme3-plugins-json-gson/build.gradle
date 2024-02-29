@@ -1,0 +1,16 @@
+sourceSets {
+    main {
+        java {
+           
+            srcDir 'src/main/java'
+
+        }
+    }
+}
+
+dependencies {
+
+    api project(':jme3-plugins-json')
+    api 'com.google.code.gson:gson:2.10.1'
+
+}

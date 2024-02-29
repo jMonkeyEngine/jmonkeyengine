@@ -1,19 +1,21 @@
 MaterialDef Fade {
 
     MaterialParameters {
+        Int BoundDrawBuffer
         Int NumSamples
         Texture2D Texture
         Float Value
     }
 
     Technique {
-        VertexShader GLSL150 GLSL100:   Common/MatDefs/Post/Post.vert
-        FragmentShader GLSL150 GLSL100: Common/MatDefs/Post/Fade.frag
+        VertexShader   GLSL300 GLSL150 GLSL100 :   Common/MatDefs/Post/Post.vert
+        FragmentShader GLSL300 GLSL150 GLSL100 :   Common/MatDefs/Post/Fade.frag
 
         WorldParameters {
         }
 
         Defines {
+            BOUND_DRAW_BUFFER: BoundDrawBuffer
             RESOLVE_MS : NumSamples
         }
     }

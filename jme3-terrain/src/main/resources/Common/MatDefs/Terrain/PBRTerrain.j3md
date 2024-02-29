@@ -2,6 +2,7 @@
 MaterialDef PBR Terrain {
 
     MaterialParameters {
+        Int BoundDrawBuffer
 
 
         Boolean UseVertexColorsAsSunIntensity //set true to make the vertex color's R channel how exposed a vertex is to the sun
@@ -22,6 +23,13 @@ MaterialDef PBR Terrain {
         Texture2D SplatNormalMap  -LINEAR
         Texture2D SplatRoughnessMetallicMap -LINEAR
         Texture2D SplatEmissiveMap -LINEAR
+
+        // Specular-AA
+        Boolean UseSpecularAA : true
+        // screen space variance,Use the slider to set the strength of the geometric specular anti-aliasing effect between 0 and 1. Higher values produce a blurrier result with less aliasing.
+        Float SpecularAASigma
+        // clamping threshold,Use the slider to set a maximum value for the offset that HDRP subtracts from the smoothness value to reduce artifacts.
+        Float SpecularAAKappa
 
         Color AfflictionEmissiveColor : 0.0 0.0 0.0 0.0
 
@@ -228,8 +236,8 @@ MaterialDef PBR Terrain {
 
         LightMode SinglePassAndImageBased
 
-        VertexShader GLSL100 GLSL130 GLSL150:   Common/MatDefs/Terrain/PBRTerrain.vert
-        FragmentShader GLSL100 GLSL130 GLSL150: Common/MatDefs/Terrain/PBRTerrain.frag
+        VertexShader    GLSL300 GLSL150 GLSL130 GLSL100:   Common/MatDefs/Terrain/PBRTerrain.vert
+        FragmentShader  GLSL300 GLSL150 GLSL130 GLSL100: Common/MatDefs/Terrain/PBRTerrain.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -243,6 +251,7 @@ MaterialDef PBR Terrain {
         }
 
         Defines {
+            BOUND_DRAW_BUFFER: BoundDrawBuffer
                 
             TILELOCATION : TileLocation
             AFFLICTIONTEXTURE : AfflictionAlphaMap
@@ -253,6 +262,10 @@ MaterialDef PBR Terrain {
             AFFLICTIONEMISSIVEMAP : SplatEmissiveMap
 
             USE_SPLAT_NOISE : SplatNoiseVar
+
+            SPECULAR_AA : UseSpecularAA
+            SPECULAR_AA_SCREEN_SPACE_VARIANCE : SpecularAASigma
+            SPECULAR_AA_THRESHOLD : SpecularAAKappa
 
 
             USE_VERTEX_COLORS_AS_SUN_INTENSITY : UseVertexColorsAsSunIntensity
@@ -318,8 +331,8 @@ MaterialDef PBR Terrain {
 
     Technique PreShadow {
 
-        VertexShader GLSL100 GLSL150 :   Common/MatDefs/Shadow/PreShadow.vert
-        FragmentShader GLSL100 GLSL150 : Common/MatDefs/Shadow/PreShadow.frag
+        VertexShader   GLSL300 GLSL150 GLSL100:   Common/MatDefs/Shadow/PreShadow.vert
+        FragmentShader GLSL300 GLSL150 GLSL100: Common/MatDefs/Shadow/PreShadow.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -329,6 +342,7 @@ MaterialDef PBR Terrain {
         }
 
         Defines {
+            BOUND_DRAW_BUFFER: BoundDrawBuffer
             DISCARD_ALPHA : AlphaDiscardThreshold
             NUM_BONES : NumberOfBones
             INSTANCING : UseInstancing
@@ -346,8 +360,8 @@ MaterialDef PBR Terrain {
 
 
     Technique PostShadow{
-        VertexShader GLSL100 GLSL150:   Common/MatDefs/Shadow/PostShadow.vert
-        FragmentShader GLSL100 GLSL150: Common/MatDefs/Shadow/PostShadow.frag
+        VertexShader     GLSL300 GLSL150 GLSL100:   Common/MatDefs/Shadow/PostShadow.vert
+        FragmentShader   GLSL300 GLSL150 GLSL100:   Common/MatDefs/Shadow/PostShadow.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -357,6 +371,7 @@ MaterialDef PBR Terrain {
         }
 
         Defines {
+            BOUND_DRAW_BUFFER: BoundDrawBuffer
             HARDWARE_SHADOWS : HardwareShadows
             FILTER_MODE : FilterMode
             PCFEDGE : PCFEdge

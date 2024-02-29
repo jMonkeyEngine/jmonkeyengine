@@ -1,0 +1,34 @@
+MaterialDef IBLSphH {
+    
+    MaterialParameters {
+        Int BoundDrawBuffer
+        TextureCubeMap Texture -LINEAR
+        Int FaceId : 0
+        Texture2D ShCoef -LINEAR
+        Vector2 Resolution
+        Float RemapMaxValue
+    }
+
+    Technique {
+    
+        VertexShader   GLSL300 GLSL150 :  Common/IBLSphH/IBLSphH.vert
+        FragmentShader GLSL300 GLSL150 :  Common/IBLSphH/IBLSphH.frag
+
+        WorldParameters {
+        }
+        
+        RenderState {
+            DepthWrite Off
+            DepthTest Off
+            DepthFunc Equal
+            FaceCull Off
+        }
+
+        Defines {
+            BOUND_DRAW_BUFFER: BoundDrawBuffer
+            REMAP_MAX_VALUE: RemapMaxValue
+            SH_COEF: ShCoef
+        }
+
+    }
+}

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2024 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,6 +47,7 @@ import com.jme3.renderer.TextureUnitException;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.scene.Geometry;
 import com.jme3.shader.*;
+import com.jme3.shader.bufferobject.BufferObject;
 import com.jme3.texture.Image;
 import com.jme3.texture.Texture;
 import com.jme3.texture.image.ColorSpace;
@@ -86,6 +87,16 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
     private boolean transparent = false;
     private boolean receivesShadows = false;
     private int sortingId = -1;
+
+    /**
+     * Track bind ids for textures and buffers
+     * Used internally 
+     */
+    public static class BindUnits {
+        public int textureUnit = 0;
+        public int bufferUnit = 0;
+    }
+    private BindUnits bindUnits = new BindUnits();
 
     public Material(MaterialDef def) {
         if (def == null) {
@@ -507,6 +518,18 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
     }
 
     /**
+     * Pass a parameter to the material shader.
+     *
+     * @param name the name of the parameter defined in the material definition (j3md)
+     * @param value the value of the parameter
+     */
+    public void setParam(String name, Object value) {
+        MatParam p = getMaterialDef().getMaterialParam(name);
+        setParam(name, p.getVarType(), value);
+    }
+
+
+    /**
      * Clear a parameter from this material. The parameter must exist
      * @param name the name of the parameter to clear
      */
@@ -685,8 +708,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
      * @param value the buffer object.
      */
     public void setUniformBufferObject(final String name, final BufferObject value) {
-        value.setBufferType(BufferObject.BufferType.UniformBufferObject);
-        setParam(name, VarType.BufferObject, value);
+        setParam(name, VarType.UniformBufferObject, value);
     }
 
     /**
@@ -696,8 +718,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
      * @param value the buffer object.
      */
     public void setShaderStorageBufferObject(final String name, final BufferObject value) {
-        value.setBufferType(BufferObject.BufferType.ShaderStorageBufferObject);
-        setParam(name, VarType.BufferObject, value);
+        setParam(name, VarType.ShaderStorageBufferObject, value);
     }
 
     /**
@@ -797,7 +818,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         sortingId = -1;
     }
 
-    private int applyOverrides(Renderer renderer, Shader shader, SafeArrayList<MatParamOverride> overrides, int unit) {
+    private void applyOverrides(Renderer renderer, Shader shader, SafeArrayList<MatParamOverride> overrides, BindUnits bindUnits) {
         for (MatParamOverride override : overrides.getArray()) {
             VarType type = override.getVarType();
 
@@ -810,36 +831,64 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
             Uniform uniform = shader.getUniform(override.getPrefixedName());
 
             if (override.getValue() != null) {
-                if (type.isTextureType()) {
-                    try {
-                        renderer.setTexture(unit, (Texture) override.getValue());
-                    } catch (TextureUnitException exception) {
-                        int numTexParams = unit + 1;
-                        String message = "Too many texture parameters ("
-                                + numTexParams + ") assigned\n to " + toString();
-                        throw new IllegalStateException(message);
-                    }
-                    uniform.setValue(VarType.Int, unit);
-                    unit++;
-                } else {
-                    uniform.setValue(type, override.getValue());
-                }
+                updateShaderMaterialParameter(renderer, type, shader, override, bindUnits, true);
             } else {
                 uniform.clearValue();
             }
         }
-        return unit;
     }
 
-    private int updateShaderMaterialParameters(Renderer renderer, Shader shader,
-                                               SafeArrayList<MatParamOverride> worldOverrides, SafeArrayList<MatParamOverride> forcedOverrides) {
 
-        int unit = 0;
+    private void updateShaderMaterialParameter(Renderer renderer, VarType type, Shader shader, MatParam param, BindUnits unit, boolean override) {
+        if (type == VarType.UniformBufferObject || type == VarType.ShaderStorageBufferObject) {
+            ShaderBufferBlock bufferBlock = shader.getBufferBlock(param.getPrefixedName());
+            BufferObject bufferObject = (BufferObject) param.getValue();
+
+            ShaderBufferBlock.BufferType btype;
+            if (type == VarType.ShaderStorageBufferObject) {
+                btype = ShaderBufferBlock.BufferType.ShaderStorageBufferObject;
+                bufferBlock.setBufferObject(btype, bufferObject);
+                renderer.setShaderStorageBufferObject(unit.bufferUnit, bufferObject); // TODO: probably not needed
+            } else {
+                btype = ShaderBufferBlock.BufferType.UniformBufferObject;
+                bufferBlock.setBufferObject(btype, bufferObject);
+                renderer.setUniformBufferObject(unit.bufferUnit, bufferObject); // TODO: probably not needed
+            }
+            unit.bufferUnit++;
+        } else {
+            Uniform uniform = shader.getUniform(param.getPrefixedName());
+            if (!override && uniform.isSetByCurrentMaterial()) return;
+
+            if (type.isTextureType()) {
+                try {
+                    renderer.setTexture(unit.textureUnit, (Texture) param.getValue());
+                } catch (TextureUnitException exception) {
+                    int numTexParams = unit.textureUnit + 1;
+                    String message = "Too many texture parameters (" + numTexParams + ") assigned\n to " + toString();
+                    throw new IllegalStateException(message);
+                }
+                uniform.setValue(VarType.Int, unit.textureUnit);
+                unit.textureUnit++;
+            } else {
+                uniform.setValue(type, param.getValue());
+            }
+        }
+    }
+
+
+
+
+    private BindUnits updateShaderMaterialParameters(Renderer renderer, Shader shader, SafeArrayList<MatParamOverride> worldOverrides,
+            SafeArrayList<MatParamOverride> forcedOverrides) {
+
+        bindUnits.textureUnit = 0;
+        bindUnits.bufferUnit = 0;
+
         if (worldOverrides != null) {
-            unit = applyOverrides(renderer, shader, worldOverrides, unit);
+            applyOverrides(renderer, shader, worldOverrides, bindUnits);
         }
         if (forcedOverrides != null) {
-            unit = applyOverrides(renderer, shader, forcedOverrides, unit);
+            applyOverrides(renderer, shader, forcedOverrides, bindUnits);
         }
 
         for (int i = 0; i < paramValues.size(); i++) {
@@ -847,59 +896,47 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
             MatParam param = paramValues.getValue(i);
             VarType type = param.getVarType();
 
-            if (isBO(type)) {
-
-                final ShaderBufferBlock bufferBlock = shader.getBufferBlock(param.getPrefixedName());
-                bufferBlock.setBufferObject((BufferObject) param.getValue());
-
-            } else {
-
-                Uniform uniform = shader.getUniform(param.getPrefixedName());
-                if (uniform.isSetByCurrentMaterial()) {
-                    continue;
-                }
-
-                if (type.isTextureType()) {
-                    try {
-                        renderer.setTexture(unit, (Texture) param.getValue());
-                    } catch (TextureUnitException exception) {
-                        int numTexParams = unit + 1;
-                        String message = "Too many texture parameters ("
-                                + numTexParams + ") assigned\n to " + toString();
-                        throw new IllegalStateException(message);
-                    }
-                    uniform.setValue(VarType.Int, unit);
-                    unit++;
-                } else {
-                    uniform.setValue(type, param.getValue());
-                }
-            }
+            updateShaderMaterialParameter(renderer, type, shader, param, bindUnits, false);
         }
 
-        //TODO HACKY HACK remove this when texture unit is handled by the uniform.
-        return unit;
+        // TODO HACKY HACK remove this when texture unit is handled by the
+        // uniform.
+        return bindUnits;
     }
 
-    /**
-     * Returns true if the type is Buffer Object's type.
-     *
-     * @param type the material parameter type.
-     * @return true if the type is Buffer Object's type.
-     */
-    private boolean isBO(final VarType type) {
-        return type == VarType.BufferObject;
-    }
 
-    private void updateRenderState(RenderManager renderManager, Renderer renderer, TechniqueDef techniqueDef) {
+
+    private void updateRenderState(Geometry geometry, RenderManager renderManager, Renderer renderer, TechniqueDef techniqueDef) {
         if (renderManager.getForcedRenderState() != null) {
-            renderer.applyRenderState(renderManager.getForcedRenderState());
+            mergedRenderState.copyFrom(renderManager.getForcedRenderState());
+        } else if (techniqueDef.getRenderState() != null) {
+            mergedRenderState.copyFrom(RenderState.DEFAULT);
+            techniqueDef.getRenderState().copyMergedTo(additionalState, mergedRenderState);
         } else {
-            if (techniqueDef.getRenderState() != null) {
-                renderer.applyRenderState(techniqueDef.getRenderState().copyMergedTo(additionalState, mergedRenderState));
-            } else {
-                renderer.applyRenderState(RenderState.DEFAULT.copyMergedTo(additionalState, mergedRenderState));
-            }
+            mergedRenderState.copyFrom(RenderState.DEFAULT);
+            RenderState.DEFAULT.copyMergedTo(additionalState, mergedRenderState);
         }
+        // test if the face cull mode should be flipped before render
+        if (mergedRenderState.isFaceCullFlippable() && isNormalsBackward(geometry.getWorldScale())) {
+            mergedRenderState.flipFaceCull();
+        }
+        renderer.applyRenderState(mergedRenderState);
+    }
+    
+    /**
+     * Returns true if the geometry world scale indicates that normals will be backward.
+     * @param scalar geometry world scale
+     * @return 
+     */
+    private boolean isNormalsBackward(Vector3f scalar) {
+        // count number of negative scalar vector components
+        int n = 0;
+        if (scalar.x < 0) n++;
+        if (scalar.y < 0) n++;
+        if (scalar.z < 0) n++;
+        // An odd number of negative components means the normal vectors
+        // are backward to what they should be.
+        return n == 1 || n == 3;
     }
     
     /**
@@ -1028,7 +1065,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         }
 
         // Apply render state
-        updateRenderState(renderManager, renderer, techniqueDef);
+        updateRenderState(geometry, renderManager, renderer, techniqueDef);
 
         // Get world overrides
         SafeArrayList<MatParamOverride> overrides = geometry.getWorldMatParamOverrides();
@@ -1043,13 +1080,13 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         renderManager.updateUniformBindings(shader);
         
         // Set material parameters
-        int unit = updateShaderMaterialParameters(renderer, shader, overrides, renderManager.getForcedMatParams());
+        BindUnits units = updateShaderMaterialParameters(renderer, shader, overrides, renderManager.getForcedMatParams());
 
         // Clear any uniforms not changed by material.
         resetUniformsNotSetByCurrent(shader);
         
         // Delegate rendering to the technique
-        technique.render(renderManager, shader, geometry, lights, unit);
+        technique.render(renderManager, shader, geometry, lights, units);
     }
 
     /**

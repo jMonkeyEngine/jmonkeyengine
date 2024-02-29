@@ -37,7 +37,11 @@ import com.jme3.asset.AssetManager;
 import com.jme3.audio.AudioContext;
 import com.jme3.audio.AudioRenderer;
 import com.jme3.audio.Listener;
-import com.jme3.input.*;
+import com.jme3.input.InputManager;
+import com.jme3.input.JoyInput;
+import com.jme3.input.KeyInput;
+import com.jme3.input.MouseInput;
+import com.jme3.input.TouchInput;
 import com.jme3.math.Vector3f;
 import com.jme3.profile.AppProfiler;
 import com.jme3.profile.AppStep;
@@ -45,8 +49,14 @@ import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
-import com.jme3.system.*;
+import com.jme3.system.AppSettings;
+import com.jme3.system.JmeContext;
 import com.jme3.system.JmeContext.Type;
+import com.jme3.util.res.Resources;
+import com.jme3.system.JmeSystem;
+import com.jme3.system.NanoTimer;
+import com.jme3.system.SystemListener;
+import com.jme3.system.Timer;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.concurrent.Callable;
@@ -188,9 +198,10 @@ public class LegacyApplication implements Application, SystemListener {
 
     @Deprecated
     public void setAssetManager(AssetManager assetManager) {
-        if (this.assetManager != null)
+        if (this.assetManager != null) {
             throw new IllegalStateException("Can only set asset manager"
                     + " before initialization.");
+        }
 
         this.assetManager = assetManager;
     }
@@ -204,16 +215,18 @@ public class LegacyApplication implements Application, SystemListener {
                 try {
                     assetCfgUrl = new URL(assetCfg);
                 } catch (MalformedURLException ex) {
+                    //do nothing, we check assetCfgUrl
                 }
                 if (assetCfgUrl == null) {
-                    assetCfgUrl = LegacyApplication.class.getClassLoader().getResource(assetCfg);
+                    assetCfgUrl = Resources.getResource(assetCfg);
                     if (assetCfgUrl == null) {
-                        logger.log(Level.SEVERE, "Unable to access AssetConfigURL in asset config:{0}", assetCfg);
+                        logger.log(Level.SEVERE, "Unable to access AssetConfigURL in asset config:{0}", 
+                                assetCfg);
                         return;
                     }
                 }
             }
-        }
+        }      
         if (assetCfgUrl == null) {
             assetCfgUrl = JmeSystem.getPlatformAssetConfigURL();
         }
@@ -332,21 +345,25 @@ public class LegacyApplication implements Application, SystemListener {
      */
     private void initInput() {
         mouseInput = context.getMouseInput();
-        if (mouseInput != null)
+        if (mouseInput != null) {
             mouseInput.initialize();
+        }
 
         keyInput = context.getKeyInput();
-        if (keyInput != null)
+        if (keyInput != null) {
             keyInput.initialize();
+        }
 
         touchInput = context.getTouchInput();
-        if (touchInput != null)
+        if (touchInput != null) {
             touchInput.initialize();
+        }
 
         if (settings.useJoysticks()) {
             joyInput = context.getJoyInput();
-            if (joyInput != null)
+            if (joyInput != null) {
                 joyInput.initialize();
+            }
         }
 
         inputManager = new InputManager(mouseInput, keyInput, joyInput, touchInput);
@@ -580,7 +597,7 @@ public class LegacyApplication implements Application, SystemListener {
 
 
     @Override
-    public void rescale(float x, float y){
+    public void rescale(float x, float y) {
         if (renderManager != null) {
             renderManager.notifyRescale(x, y);
         }
@@ -618,7 +635,7 @@ public class LegacyApplication implements Application, SystemListener {
      * After the application has stopped, it cannot be used anymore.
      *
      * @param waitFor true&rarr;wait for the context to be fully destroyed,
-     * true&rarr;don't wait
+     * false&rarr;don't wait
      */
     @Override
     public void stop(boolean waitFor) {
@@ -770,24 +787,28 @@ public class LegacyApplication implements Application, SystemListener {
         // Make sure the audio renderer is available to callables
         AudioContext.setAudioRenderer(audioRenderer);
 
-        if (prof != null)
+        if (prof != null) {
             prof.appStep(AppStep.QueuedTasks);
+        }
         runQueuedTasks();
 
-        if (speed == 0 || paused)
+        if (speed == 0 || paused) {
             return;
+        }
 
         timer.update();
 
         if (inputEnabled) {
-            if (prof != null)
+            if (prof != null) {
                 prof.appStep(AppStep.ProcessInput);
+            }
             inputManager.update(timer.getTimePerFrame());
         }
 
         if (audioRenderer != null) {
-            if (prof != null)
+            if (prof != null) {
                 prof.appStep(AppStep.ProcessAudio);
+            }
             audioRenderer.update(timer.getTimePerFrame());
         }
 
@@ -795,17 +816,21 @@ public class LegacyApplication implements Application, SystemListener {
     }
 
     protected void destroyInput() {
-        if (mouseInput != null)
+        if (mouseInput != null) {
             mouseInput.destroy();
+        }
 
-        if (keyInput != null)
+        if (keyInput != null) {
             keyInput.destroy();
+        }
 
-        if (joyInput != null)
+        if (joyInput != null) {
             joyInput.destroy();
+        }
 
-        if (touchInput != null)
+        if (touchInput != null) {
             touchInput.destroy();
+        }
 
         inputManager = null;
     }
@@ -819,8 +844,9 @@ public class LegacyApplication implements Application, SystemListener {
         stateManager.cleanup();
 
         destroyInput();
-        if (audioRenderer != null)
+        if (audioRenderer != null) {
             audioRenderer.cleanup();
+        }
 
         timer.reset();
     }

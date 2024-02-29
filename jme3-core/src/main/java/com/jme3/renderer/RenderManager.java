@@ -58,12 +58,15 @@ import com.jme3.scene.VertexBuffer;
 import com.jme3.shader.Shader;
 import com.jme3.shader.UniformBinding;
 import com.jme3.shader.UniformBindingManager;
+import com.jme3.shader.VarType;
 import com.jme3.system.NullRenderer;
 import com.jme3.system.Timer;
+import com.jme3.texture.FrameBuffer;
 import com.jme3.util.SafeArrayList;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.logging.Logger;
 
 /**
@@ -101,6 +104,8 @@ public class RenderManager {
     private LightFilter lightFilter = new DefaultLightFilter();
     private TechniqueDef.LightMode preferredLightMode = TechniqueDef.LightMode.MultiPass;
     private int singlePassLightBatchSize = 1;
+    private MatParamOverride boundDrawBufferId=new MatParamOverride(VarType.Int,"BoundDrawBuffer",0);
+    private Predicate<Geometry> renderFilter;
 
 
     /**
@@ -111,6 +116,7 @@ public class RenderManager {
      */
     public RenderManager(Renderer renderer) {
         this.renderer = renderer;
+        this.forcedOverrides.add(boundDrawBufferId);
     }
 
     /**
@@ -622,11 +628,18 @@ public class RenderManager {
      * @see com.jme3.material.Material#render(com.jme3.scene.Geometry, com.jme3.renderer.RenderManager)
      */
     public void renderGeometry(Geometry geom) {
+        if (renderFilter != null && !renderFilter.test(geom)) return;
         this.renderer.pushDebugGroup(geom.getName());
         if (geom.isIgnoreTransform()) {
             setWorldMatrix(Matrix4f.IDENTITY);
         } else {
             setWorldMatrix(geom.getWorldMatrix());
+        }
+
+        // Use material override to pass the current target index (used in api such as GL ES that do not support glDrawBuffer)
+        FrameBuffer currentFb = this.renderer.getCurrentFrameBuffer();
+        if (currentFb != null && !currentFb.isMultiTarget()) {
+            this.boundDrawBufferId.setValue(currentFb.getTargetIndex());
         }
 
         // Perform light filtering if we have a light filter.
@@ -639,7 +652,7 @@ public class RenderManager {
         }
 
         Material material = geom.getMaterial();
-
+        
         // If forcedTechnique exists, we try to force it for the render.
         // If it does not exist in the mat def, we check for forcedMaterial and render the geom if not null.
         // Otherwise, the geometry is not rendered.
@@ -957,9 +970,7 @@ public class RenderManager {
         if (prof != null) {
             prof.vpStep(VpStep.RenderBucket, vp, Bucket.Opaque);
         }
-        this.renderer.pushDebugGroup(Bucket.Opaque.name());
         rq.renderQueue(Bucket.Opaque, this, cam, flush);
-        this.renderer.popDebugGroup();
 
         // render the sky, with depth range set to the farthest
         if (!rq.isQueueEmpty(Bucket.Sky)) {
@@ -967,9 +978,7 @@ public class RenderManager {
                 prof.vpStep(VpStep.RenderBucket, vp, Bucket.Sky);
             }
             renderer.setDepthRange(1, 1);
-            this.renderer.pushDebugGroup(Bucket.Sky.name());
             rq.renderQueue(Bucket.Sky, this, cam, flush);
-            this.renderer.popDebugGroup();
             depthRangeChanged = true;
         }
 
@@ -985,9 +994,7 @@ public class RenderManager {
                 renderer.setDepthRange(0, 1);
                 depthRangeChanged = false;
             }
-            this.renderer.pushDebugGroup(Bucket.Transparent.name());
             rq.renderQueue(Bucket.Transparent, this, cam, flush);
-            this.renderer.popDebugGroup();
         }
 
         if (!rq.isQueueEmpty(Bucket.Gui)) {
@@ -996,9 +1003,7 @@ public class RenderManager {
             }
             renderer.setDepthRange(0, 0);
             setCamera(cam, true);
-            this.renderer.pushDebugGroup(Bucket.Gui.name());
             rq.renderQueue(Bucket.Gui, this, cam, flush);
-            this.renderer.popDebugGroup();
             setCamera(cam, false);
             depthRangeChanged = true;
         }
@@ -1298,4 +1303,52 @@ public class RenderManager {
             }
         }
     }
+
+
+    /**
+     * Returns true if the draw buffer target id is passed to the shader.
+     * 
+     * @return True if the draw buffer target id is passed to the shaders.
+     */
+    public boolean getPassDrawBufferTargetIdToShaders() {
+        return this.forcedOverrides.contains(boundDrawBufferId);
+    }
+
+    /**
+     * Enable or disable passing the draw buffer target id to the shaders. This
+     * is needed to handle FrameBuffer.setTargetIndex correctly in some
+     * backends.
+     * 
+     * @param v
+     *            True to enable, false to disable (default is true)
+     */
+    public void setPassDrawBufferTargetIdToShaders(boolean v) {
+        if (v) {
+            if (!this.forcedOverrides.contains(boundDrawBufferId)) {
+                this.forcedOverrides.add(boundDrawBufferId);
+            }
+        } else {
+            this.forcedOverrides.remove(boundDrawBufferId);
+        }
+    }
+    /**
+     * Set a render filter. Every geometry will be tested against this filter
+     * before rendering and will only be rendered if the filter returns true.
+     * 
+     * @param filter
+     */
+    public void setRenderFilter(Predicate<Geometry> filter) {
+        renderFilter = filter;
+    }
+
+    /**
+     * Returns the render filter that the RenderManager is currently using
+     * 
+     * @param filter
+     *            the render filter
+     */
+    public Predicate<Geometry> getRenderFilter() {
+        return renderFilter;
+    }
+
 }

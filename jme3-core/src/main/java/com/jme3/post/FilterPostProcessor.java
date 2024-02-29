@@ -149,10 +149,12 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         fsQuad.setHeight(1);
 
         if (!renderer.getCaps().contains(Caps.PackedFloatTexture)) {
-            if (!renderer.getCaps().contains(Caps.FloatTexture)) {
-                fbFormat = Format.RGB8;
-            } else {
+            if(renderer.getCaps().contains(Caps.FloatColorBufferRGB)){
                 fbFormat = Format.RGB16F;
+            } else if(renderer.getCaps().contains(Caps.FloatColorBufferRGBA)){
+                fbFormat = Format.RGBA16F;
+            } else {
+                fbFormat = Format.RGB8;
             }
         }
 
@@ -293,7 +295,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
                 if (msDepth && filter.isRequiresDepthTexture()) {
                     mat.setInt("NumSamplesDepth", depthTexture.getImage().getMultiSamples());
                 }
-
+                
                 if (filter.isRequiresSceneTexture()) {
                     mat.setTexture("Texture", tex);
                     if (tex.getImage().getMultiSamples() > 1) {
@@ -504,6 +506,14 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
             renderFrameBuffer.setDepthTarget(FrameBufferTarget.newTarget(depthFormat));
             filterTexture = new Texture2D(width, height, fbFormat);
             renderFrameBuffer.addColorTarget(FrameBufferTarget.newTarget(filterTexture));
+        }
+
+        if (renderFrameBufferMS != null) {
+            renderFrameBufferMS.setName("FilterPostProcessor MS");
+        }
+
+        if (renderFrameBuffer != null) {
+            renderFrameBuffer.setName("FilterPostProcessor");
         }
 
         for (Filter filter : filters.getArray()) {

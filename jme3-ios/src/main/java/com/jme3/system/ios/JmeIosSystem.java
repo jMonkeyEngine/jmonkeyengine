@@ -35,7 +35,7 @@ import com.jme3.system.AppSettings;
 import com.jme3.system.JmeContext;
 import com.jme3.system.JmeSystemDelegate;
 import com.jme3.system.NullContext;
-import com.jme3.util.functional.VoidFunction;
+import com.jme3.util.res.Resources;
 import com.jme3.audio.AudioRenderer;
 import com.jme3.audio.ios.IosAL;
 import com.jme3.audio.ios.IosALC;
@@ -64,7 +64,7 @@ public class JmeIosSystem extends JmeSystemDelegate {
 
     @Override
     public URL getPlatformAssetConfigURL() {
-        return Thread.currentThread().getContextClassLoader().getResource("com/jme3/asset/IOS.cfg");
+        return Resources.getResource("com/jme3/asset/IOS.cfg");
     }
     
     @Override

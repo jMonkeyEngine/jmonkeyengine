@@ -279,7 +279,9 @@ public class RenderQueue {
     }
 
     public void renderShadowQueue(GeometryList list, RenderManager rm, Camera cam, boolean clear) {
+        rm.getRenderer().pushDebugGroup("ShadowQueue");
         renderGeometryList(list, rm, cam, clear);
+        rm.getRenderer().popDebugGroup();
     }
 
     public boolean isQueueEmpty(Bucket bucket) {
@@ -304,6 +306,7 @@ public class RenderQueue {
     }
 
     public void renderQueue(Bucket bucket, RenderManager rm, Camera cam, boolean clear) {
+        rm.getRenderer().pushDebugGroup(bucket.name());
         switch (bucket) {
             case Gui:
                 renderGeometryList(guiList, rm, cam, clear);
@@ -324,6 +327,7 @@ public class RenderQueue {
             default:
                 throw new UnsupportedOperationException("Unsupported bucket type: " + bucket);
         }
+        rm.getRenderer().popDebugGroup();
     }
 
     public void clear() {

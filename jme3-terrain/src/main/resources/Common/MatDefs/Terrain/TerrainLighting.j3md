@@ -2,6 +2,7 @@
 MaterialDef Terrain Lighting {
 
     MaterialParameters {
+        Int BoundDrawBuffer
 
         // use tri-planar mapping
         Boolean useTriPlanarMapping
@@ -108,8 +109,8 @@ MaterialDef Terrain Lighting {
 
         LightMode MultiPass
 
-        VertexShader GLSL100 GLSL150:   Common/MatDefs/Terrain/TerrainLighting.vert
-        FragmentShader GLSL100 GLSL150: Common/MatDefs/Terrain/TerrainLighting.frag
+        VertexShader    GLSL300 GLSL150 GLSL100:   Common/MatDefs/Terrain/TerrainLighting.vert
+        FragmentShader  GLSL300 GLSL150 GLSL100:   Common/MatDefs/Terrain/TerrainLighting.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -119,6 +120,7 @@ MaterialDef Terrain Lighting {
         }
 
         Defines {
+            BOUND_DRAW_BUFFER: BoundDrawBuffer
             TRI_PLANAR_MAPPING : useTriPlanarMapping
             TERRAIN_GRID : isTerrainGrid
             WARDISO   : WardIso
@@ -173,8 +175,8 @@ MaterialDef Terrain Lighting {
 
         LightMode SinglePass
 
-        VertexShader GLSL100 GLSL150:   Common/MatDefs/Terrain/SPTerrainLighting.vert
-        FragmentShader GLSL100 GLSL150: Common/MatDefs/Terrain/SPTerrainLighting.frag
+        VertexShader    GLSL300 GLSL150 GLSL100:   Common/MatDefs/Terrain/SPTerrainLighting.vert
+        FragmentShader  GLSL300 GLSL150 GLSL100: Common/MatDefs/Terrain/SPTerrainLighting.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -184,6 +186,7 @@ MaterialDef Terrain Lighting {
         }
 
         Defines {
+            BOUND_DRAW_BUFFER: BoundDrawBuffer
             TRI_PLANAR_MAPPING : useTriPlanarMapping
             TERRAIN_GRID : isTerrainGrid
             WARDISO   : WardIso
@@ -236,8 +239,8 @@ MaterialDef Terrain Lighting {
 
     Technique PreShadow {
 
-        VertexShader GLSL100 GLSL150:   Common/MatDefs/Shadow/PreShadow.vert
-        FragmentShader GLSL100 GLSL150: Common/MatDefs/Shadow/PreShadow.frag
+        VertexShader   GLSL300 GLSL150 GLSL100:   Common/MatDefs/Shadow/PreShadow.vert
+        FragmentShader GLSL300 GLSL150 GLSL100: Common/MatDefs/Shadow/PreShadow.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -245,6 +248,7 @@ MaterialDef Terrain Lighting {
         }
 
         Defines {
+            BOUND_DRAW_BUFFER: BoundDrawBuffer
             DIFFUSEMAP_ALPHA : DiffuseMap
         }
 
@@ -260,8 +264,8 @@ MaterialDef Terrain Lighting {
 
   Technique PreNormalPass {
 
-        VertexShader GLSL100 GLSL150:   Common/MatDefs/SSAO/normal.vert
-        FragmentShader GLSL100 GLSL150: Common/MatDefs/SSAO/normal.frag
+        VertexShader   GLSL300 GLSL150 GLSL100:   Common/MatDefs/SSAO/normal.vert
+        FragmentShader GLSL300 GLSL150 GLSL100:   Common/MatDefs/SSAO/normal.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -270,6 +274,7 @@ MaterialDef Terrain Lighting {
         }
 
         Defines {
+            BOUND_DRAW_BUFFER: BoundDrawBuffer
             DIFFUSEMAP_ALPHA : DiffuseMap
         }
 
@@ -283,14 +288,15 @@ MaterialDef Terrain Lighting {
 
     Technique Glow {
 
-        VertexShader GLSL100 GLSL150:   Common/MatDefs/Misc/Unshaded.vert
-        FragmentShader GLSL100 GLSL150: Common/MatDefs/Light/Glow.frag
+        VertexShader    GLSL300 GLSL150 GLSL100:   Common/MatDefs/Misc/Unshaded.vert
+        FragmentShader  GLSL300 GLSL150 GLSL100: Common/MatDefs/Light/Glow.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
         }
 
         Defines {
+            BOUND_DRAW_BUFFER: BoundDrawBuffer
             HAS_GLOWMAP : GlowMap
             HAS_GLOWCOLOR : GlowColor
         }

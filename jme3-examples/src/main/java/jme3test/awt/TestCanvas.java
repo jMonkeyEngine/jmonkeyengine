@@ -29,7 +29,6 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package jme3test.awt;
 
 import com.jme3.app.LegacyApplication;
@@ -171,7 +170,7 @@ public class TestCanvas {
             public void actionPerformed(ActionEvent e) {
                 currentPanel.remove(canvas);
                 app.stop(true);
-
+                
                 createCanvas(appClass);
                 currentPanel.add(canvas, BorderLayout.CENTER);
                 frame.pack();

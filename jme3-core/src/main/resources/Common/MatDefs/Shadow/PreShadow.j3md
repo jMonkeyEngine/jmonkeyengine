@@ -1,7 +1,15 @@
 MaterialDef Pre Shadow {
+    MaterialParameters {
+        Int BoundDrawBuffer
+    }
+
     Technique {
-        VertexShader GLSL100 GLSL150 :   Common/MatDefs/Shadow/PreShadow.vert
-        FragmentShader GLSL100 GLSL150 : Common/MatDefs/Shadow/PreShadow.frag
+        VertexShader   GLSL300 GLSL150 GLSL100:   Common/MatDefs/Shadow/PreShadow.vert
+        FragmentShader GLSL300 GLSL150 GLSL100:   Common/MatDefs/Shadow/PreShadow.frag
+
+        Defines {
+            BOUND_DRAW_BUFFER: BoundDrawBuffer
+        }
 
         WorldParameters {
             WorldViewProjectionMatrix

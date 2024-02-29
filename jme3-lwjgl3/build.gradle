@@ -1,8 +1,12 @@
 dependencies {
     api project(':jme3-core')
+    api project(':jme3-desktop')
+    
+    api "org.lwjglx:lwjgl3-awt:0.1.8"
 
     api "org.lwjgl:lwjgl:${lwjgl3Version}"
     api "org.lwjgl:lwjgl-glfw:${lwjgl3Version}"
+    api "org.lwjgl:lwjgl-jawt:${lwjgl3Version}"
     api "org.lwjgl:lwjgl-jemalloc:${lwjgl3Version}"
     api "org.lwjgl:lwjgl-openal:${lwjgl3Version}"
     api "org.lwjgl:lwjgl-opencl:${lwjgl3Version}"

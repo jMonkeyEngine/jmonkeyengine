@@ -37,8 +37,10 @@
  * Then a power law is applied, using the exponent for each channel.
  * Finally, the output value is scaled linearly, using the scaling factor for each channel.
  *
- * Supports GLSL100 GLSL110 GLSL120 GLSL130.
  */
+
+#import "Common/ShaderLib/GLSLCompat.glsllib"
+#import "Common/ShaderLib/MultiSample.glsllib"
 
 //constant inputs from java source
 uniform float m_redChannelExponent;
@@ -55,7 +57,7 @@ uniform float m_lowerLimit;
 uniform float m_upperLimit;
 
 //container for the input from post.vert
-uniform sampler2D m_Texture;
+uniform COLORTEXTURE m_Texture;
 
 //varying input from post.vert vertex shader
 varying vec2 texCoord;

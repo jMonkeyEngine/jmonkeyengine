@@ -68,6 +68,7 @@ public interface GL {
     public static final int GL_DST_COLOR = 0x306;
     public static final int GL_DYNAMIC_DRAW = 0x88E8;
     public static final int GL_DYNAMIC_COPY = 0x88EA;
+    public static final int GL_DYNAMIC_READ = 0x88E9;
     public static final int GL_ELEMENT_ARRAY_BUFFER = 0x8893;
     public static final int GL_EQUAL = 0x202;
     public static final int GL_EXTENSIONS = 0x1F03;
@@ -148,10 +149,13 @@ public interface GL {
     public static final int GL_SRC_ALPHA_SATURATE = 0x0308;
     public static final int GL_SRC_COLOR = 0x300;
     public static final int GL_STATIC_DRAW = 0x88E4;
+    public static final int GL_STATIC_READ = 0x88E5;
+    public static final int GL_STATIC_COPY = 0x88E6;
     public static final int GL_STENCIL_BUFFER_BIT = 0x400;
     public static final int GL_STENCIL_TEST = 0xB90;
     public static final int GL_STREAM_DRAW = 0x88E0;
     public static final int GL_STREAM_READ = 0x88E1;
+    public static final int GL_STREAM_COPY = 0x88E2;
     public static final int GL_TEXTURE = 0x1702;
     public static final int GL_TEXTURE0 = 0x84C0;
     public static final int GL_TEXTURE1 = 0x84C1;

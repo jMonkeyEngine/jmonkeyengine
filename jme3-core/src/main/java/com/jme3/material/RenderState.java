@@ -1685,6 +1685,56 @@ public class RenderState implements Cloneable, Savable {
         sfactorAlpha = state.sfactorAlpha;
         dfactorAlpha = state.dfactorAlpha;
     }
+    
+    /**
+     * Copy all values from the given state to this state.
+     * <p>
+     * This method is more precise than {@link #set(com.jme3.material.RenderState)}.
+     * @param state state to copy from
+     */
+    public void copyFrom(RenderState state) {
+        this.applyBlendMode = state.applyBlendMode;
+        this.applyColorWrite = state.applyColorWrite;
+        this.applyCullMode = state.applyCullMode;
+        this.applyDepthFunc = state.applyDepthFunc;
+        this.applyDepthTest = state.applyDepthTest;
+        this.applyDepthWrite = state.applyDepthWrite;
+        this.applyLineWidth = state.applyLineWidth;
+        this.applyPolyOffset = state.applyPolyOffset;
+        this.applyStencilTest = state.applyStencilTest;
+        this.applyWireFrame = state.applyWireFrame;
+        this.backStencilDepthFailOperation = state.backStencilDepthFailOperation;
+        this.backStencilDepthPassOperation = state.backStencilDepthPassOperation;
+        this.backStencilFunction = state.backStencilFunction;
+        this.backStencilMask = state.backStencilMask;
+        this.backStencilReference = state.backStencilReference;
+        this.backStencilStencilFailOperation = state.backStencilStencilFailOperation;
+        this.blendEquation = state.blendEquation;
+        this.blendEquationAlpha = state.blendEquationAlpha;
+        this.blendMode = state.blendMode;
+        this.cachedHashCode = state.cachedHashCode;
+        this.colorWrite = state.colorWrite;
+        this.cullMode = state.cullMode;
+        this.depthFunc = state.depthFunc;
+        this.depthTest = state.depthTest;
+        this.depthWrite = state.depthWrite;
+        this.dfactorAlpha = state.dfactorAlpha;
+        this.dfactorRGB = state.dfactorRGB;
+        this.frontStencilDepthFailOperation = state.frontStencilDepthFailOperation;
+        this.frontStencilDepthPassOperation = state.frontStencilDepthPassOperation;
+        this.frontStencilFunction = state.frontStencilFunction;
+        this.frontStencilMask = state.frontStencilMask;
+        this.frontStencilReference = state.frontStencilReference;
+        this.frontStencilStencilFailOperation = state.frontStencilStencilFailOperation;
+        this.lineWidth = state.lineWidth;
+        this.offsetEnabled = state.offsetEnabled;
+        this.offsetFactor = state.offsetFactor;
+        this.offsetUnits = state.offsetUnits;
+        this.sfactorAlpha = state.sfactorAlpha;
+        this.sfactorRGB = state.sfactorRGB;
+        this.stencilTest = state.stencilTest;
+        this.wireframe = state.wireframe;
+    }
 
     @Override
     public String toString() {
@@ -1711,4 +1761,27 @@ public class RenderState implements Cloneable, Savable {
                 + (blendMode.equals(BlendMode.Custom)? "\ncustomBlendFactors=("+sfactorRGB+", "+dfactorRGB+", "+sfactorAlpha+", "+dfactorAlpha+")":"")
                 +"\n]";
     }
+    
+    /**
+     * Flips the given face cull mode so that {@code Back} becomes
+     * {@code Front} and {@code Front} becomes {@code Back}.
+     * <p>{@code FrontAndBack} and {@code Off} are unaffected. This is important
+     * for flipping the cull mode when normal vectors are found to be backward.
+     */
+    public void flipFaceCull() {
+        switch (cullMode) {
+            case Back:  cullMode = FaceCullMode.Front; break;
+            case Front: cullMode = FaceCullMode.Back;  break;
+        }
+    }
+    
+    /**
+     * Checks if the face cull mode is "flippable".
+     * <p>The cull mode is flippable when it is either {@code Front} or {@code Back}.
+     * @return 
+     */
+    public boolean isFaceCullFlippable() {
+        return cullMode == FaceCullMode.Front || cullMode == FaceCullMode.Back;
+    }
+    
 }

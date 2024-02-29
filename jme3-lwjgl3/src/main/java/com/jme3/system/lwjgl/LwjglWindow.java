@@ -46,6 +46,7 @@ import com.jme3.system.JmeSystem;
 import com.jme3.system.NanoTimer;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.SafeArrayList;
+
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWFramebufferSizeCallback;
@@ -155,8 +156,8 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
     protected boolean allowSwapBuffers = false;
 
     // temp variables used for glfw calls
-    private int width[] = new int[1];
-    private int height[] = new int[1];
+    private final int width[] = new int[1];
+    private final int height[] = new int[1];
 
     // state maintained by updateSizes()
     private int oldFramebufferWidth;
@@ -297,6 +298,8 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             requestWidth = videoMode.width();
             requestHeight = videoMode.height();
         }
+        oldFramebufferHeight = requestHeight;
+        oldFramebufferWidth = requestWidth;
         window = glfwCreateWindow(requestWidth, requestHeight, settings.getTitle(), monitor, NULL);
         if (window == NULL) {
             throw new RuntimeException("Failed to create the GLFW window");
@@ -631,9 +634,10 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         // If the canvas is not active, there's no need to waste time
         // doing that.
         if (renderable.get()) {
-            // calls swap buffers, etc.
             try {
-                if (allowSwapBuffers && autoFlush) {
+                // If type is 'Canvas'; lwjgl-awt takes care of swap buffers.
+                if ((type != Type.Canvas) && allowSwapBuffers && autoFlush) {
+                    // calls swap buffers, etc.
                     glfwSwapBuffers(window);
                 }
             } catch (Throwable ex) {

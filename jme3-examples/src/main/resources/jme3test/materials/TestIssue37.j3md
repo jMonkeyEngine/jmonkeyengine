@@ -24,8 +24,8 @@ MaterialDef TestIssue37 {
     }
 
     Technique {
-        VertexShader GLSL100 GLSL150:   Common/MatDefs/Misc/ShowNormals.vert
-        FragmentShader GLSL100 GLSL150: Common/MatDefs/Misc/ShowNormals.frag
+        VertexShader GLSL150 GLSL100:   Common/MatDefs/Misc/ShowNormals.vert
+        FragmentShader GLSL150 GLSL100: Common/MatDefs/Misc/ShowNormals.frag
 
         WorldParameters {
             WorldViewProjectionMatrix

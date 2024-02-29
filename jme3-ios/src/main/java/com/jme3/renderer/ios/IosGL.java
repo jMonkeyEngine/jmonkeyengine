@@ -789,5 +789,20 @@ public class IosGL implements GL, GL2, GLES_30, GLExt, GLFbo {
         JmeIosGLES.glTexSubImage3D(target, level, xoffset, yoffset, zoffset, width, height, depth, format, type, data);
     }
 
+    @Override
+    public void glBindVertexArray(int array) {
+        throw new UnsupportedOperationException("Unimplemented method 'glBindVertexArray'");
+    }
+
+    @Override
+    public void glDeleteVertexArrays(IntBuffer arrays) {
+        throw new UnsupportedOperationException("Unimplemented method 'glDeleteVertexArrays'");
+    }
+
+    @Override
+    public void glGenVertexArrays(IntBuffer arrays) {
+        throw new UnsupportedOperationException("Unimplemented method 'glGenVertexArrays'");
+    }
+
 
 }

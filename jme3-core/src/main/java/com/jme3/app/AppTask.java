@@ -31,7 +31,12 @@
  */
 package com.jme3.app;
 
-import java.util.concurrent.*;
+
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
@@ -52,7 +57,8 @@ public class AppTask<V> implements Future<V> {
 
     private V result;
     private ExecutionException exception;
-    private boolean cancelled, finished;
+    private boolean cancelled;
+    private boolean finished;
     private final ReentrantLock stateLock = new ReentrantLock();
     private final Condition finishedCondition = stateLock.newCondition();
 
@@ -100,7 +106,8 @@ public class AppTask<V> implements Future<V> {
     }
 
     @Override
-    public V get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
+    public V get(long timeout, TimeUnit unit)
+        throws InterruptedException, ExecutionException, TimeoutException {
         stateLock.lock();
         try {
             if (!isDone()) {

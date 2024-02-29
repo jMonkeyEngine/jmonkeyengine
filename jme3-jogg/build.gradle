@@ -1,4 +1,4 @@
 dependencies {
     api project(':jme3-core')
-    api 'com.github.stephengold:j-ogg-vorbis:1.0.3'
+    api 'com.github.stephengold:j-ogg-vorbis:1.0.4'
 }

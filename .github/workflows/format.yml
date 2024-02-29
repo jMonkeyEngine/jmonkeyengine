@@ -1,0 +1,21 @@
+name: auto-format
+on:
+  push:
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    if: ${{ false }} 
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   
+      - name: Prettify code
+        uses: creyD/prettier_action@v4.3
+        with:
+          prettier_options: --tab-width 4 --print-width 110 --write **/**/*.java
+          prettier_version: "2.8.8"
+          only_changed: True
+          commit_message:  "auto-format"
+          prettier_plugins: "prettier-plugin-java"

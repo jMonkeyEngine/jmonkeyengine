@@ -60,13 +60,13 @@ public class DetailedProfilerState extends BaseAppState {
     private static final String TOGGLE_KEY = "Toggle_Detailed_Profiler";
     private static final String CLICK_KEY = "Click_Detailed_Profiler";
     private static final String INSIGNIFICANT = "Hide insignificant stat";
-    final private DetailedProfiler prof = new DetailedProfiler();
+    private final DetailedProfiler prof = new DetailedProfiler();
 
     private float time = 0;
     private BitmapFont font;
     private BitmapFont bigFont;
-    final private Node ui = new Node("Stats ui");
-    final private Map<String, StatLineView> lines = new HashMap<>();
+    private final Node ui = new Node("Stats ui");
+    private final Map<String, StatLineView> lines = new HashMap<>();
     private double totalTimeCpu;
     private double totalTimeGpu;
     private int maxLevel = 0;
@@ -83,14 +83,14 @@ public class DetailedProfilerState extends BaseAppState {
 
     private StatLineView rootLine;
     private int height = 0;
-    final private DecimalFormat df = new DecimalFormat("##0.00", new DecimalFormatSymbols(Locale.US));
+    private final DecimalFormat df = new DecimalFormat("##0.00", new DecimalFormatSymbols(Locale.US));
 
-    final private ColorRGBA dimmedWhite = ColorRGBA.White.mult(0.7f);
-    final private ColorRGBA dimmedGreen = ColorRGBA.Green.mult(0.7f);
-    final private ColorRGBA dimmedOrange = ColorRGBA.Orange.mult(0.7f);
-    final private ColorRGBA dimmedRed = ColorRGBA.Red.mult(0.7f);
+    private final ColorRGBA dimmedWhite = ColorRGBA.White.mult(0.7f);
+    private final ColorRGBA dimmedGreen = ColorRGBA.Green.mult(0.7f);
+    private final ColorRGBA dimmedOrange = ColorRGBA.Orange.mult(0.7f);
+    private final ColorRGBA dimmedRed = ColorRGBA.Red.mult(0.7f);
 
-    final private ProfilerInputListener inputListener = new ProfilerInputListener();
+    private final ProfilerInputListener inputListener = new ProfilerInputListener();
 
     public DetailedProfilerState() {
 
@@ -101,7 +101,8 @@ public class DetailedProfilerState extends BaseAppState {
         Material mat = new Material(app.getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
         mat.setColor("Color", new ColorRGBA(0, 0, 0, 0.5f));
         mat.getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Alpha);
-        Geometry darkenStats = new Geometry("StatsDarken", new Quad(PANEL_WIDTH, app.getCamera().getHeight()));
+        Geometry darkenStats = new Geometry("StatsDarken", new Quad(PANEL_WIDTH,
+                app.getCamera().getHeight()));
         darkenStats.setMaterial(mat);
         darkenStats.setLocalTranslation(0, -app.getCamera().getHeight(), -1);
 
@@ -116,17 +117,20 @@ public class DetailedProfilerState extends BaseAppState {
         BitmapText frameLabel = new BitmapText(bigFont);
         frameLabel.setText("Total Frame Time: ");
         ui.attachChild(frameLabel);
-        frameLabel.setLocalTranslation(new Vector3f(PANEL_WIDTH / 2 - bigFont.getLineWidth(frameLabel.getText()), -PADDING, 0));
+        frameLabel.setLocalTranslation(
+                new Vector3f(PANEL_WIDTH / 2 - bigFont.getLineWidth(frameLabel.getText()), -PADDING, 0));
 
         BitmapText cpuLabel = new BitmapText(bigFont);
         cpuLabel.setText("CPU");
         ui.attachChild(cpuLabel);
-        cpuLabel.setLocalTranslation(PANEL_WIDTH / 4 - bigFont.getLineWidth(cpuLabel.getText()) / 2, -PADDING - 30, 0);
+        cpuLabel.setLocalTranslation(PANEL_WIDTH / 4 - bigFont.getLineWidth(cpuLabel.getText()) / 2,
+                -PADDING - 30, 0);
 
         BitmapText gpuLabel = new BitmapText(bigFont);
         gpuLabel.setText("GPU");
         ui.attachChild(gpuLabel);
-        gpuLabel.setLocalTranslation(3 * PANEL_WIDTH / 4 - bigFont.getLineWidth(gpuLabel.getText()) / 2, -PADDING - 30, 0);
+        gpuLabel.setLocalTranslation(3 * PANEL_WIDTH / 4 - bigFont.getLineWidth(gpuLabel.getText()) / 2,
+                -PADDING - 30, 0);
 
         frameTimeValue = new BitmapText(bigFont);
         frameCpuTimeValue = new BitmapText(bigFont);
@@ -221,16 +225,22 @@ public class DetailedProfilerState extends BaseAppState {
         setColor(frameTimeValue, prof.getAverageFrameTime(), totalTimeCpu, false, false);
 
         frameCpuTimeValue.setText(df.format(getMsFromNs(totalTimeCpu)) + "ms");
-        frameCpuTimeValue.setLocalTranslation(new Vector3f(PANEL_WIDTH / 4 - bigFont.getLineWidth(frameCpuTimeValue.getText()) / 2, -PADDING - 50, 0));
+        frameCpuTimeValue.setLocalTranslation(
+                new Vector3f(PANEL_WIDTH / 4 - bigFont.getLineWidth(frameCpuTimeValue.getText()) / 2,
+                -PADDING - 50, 0));
         setColor(frameCpuTimeValue, totalTimeCpu, totalTimeCpu, false, false);
 
         frameGpuTimeValue.setText(df.format(getMsFromNs(totalTimeGpu)) + "ms");
-        frameGpuTimeValue.setLocalTranslation(new Vector3f(3 * PANEL_WIDTH / 4 - bigFont.getLineWidth(frameGpuTimeValue.getText()) / 2, -PADDING - 50, 0));
+        frameGpuTimeValue.setLocalTranslation(
+                new Vector3f(3 * PANEL_WIDTH / 4 - bigFont.getLineWidth(frameGpuTimeValue.getText()) / 2,
+                -PADDING - 50, 0));
         setColor(frameGpuTimeValue, totalTimeGpu, totalTimeGpu, false, false);
 
-        selectedField.setText("Selected: " + df.format(getMsFromNs(selectedValueCpu)) + "ms / " + df.format(getMsFromNs(selectedValueGpu)) + "ms");
+        selectedField.setText("Selected: " + df.format(getMsFromNs(selectedValueCpu)) + "ms / "
+                + df.format(getMsFromNs(selectedValueGpu)) + "ms");
 
-        selectedField.setLocalTranslation(3 * PANEL_WIDTH / 4 - font.getLineWidth(selectedField.getText()) / 2, -PADDING - 75, 0);
+        selectedField.setLocalTranslation(
+                3 * PANEL_WIDTH / 4 - font.getLineWidth(selectedField.getText()) / 2, -PADDING - 75, 0);
     }
 
     private StatLineView getStatLineView(String path) {
@@ -285,7 +295,8 @@ public class DetailedProfilerState extends BaseAppState {
         ui.removeFromParent();
     }
 
-    public boolean setColor(BitmapText t, double value, double totalTime, boolean isParent, boolean expended) {
+    public boolean setColor(BitmapText t, double value, double totalTime, boolean isParent,
+            boolean expended) {
 
         boolean dimmed = isParent && expended;
         boolean insignificant = false;
@@ -413,7 +424,8 @@ public class DetailedProfilerState extends BaseAppState {
             int y = -(height * LINE_HEIGHT + HEADER_HEIGHT);
 
             label.setLocalTranslation(PADDING + indent * PADDING, y, 0);
-            float gpuPos = PANEL_WIDTH - font.getLineWidth(gpuText.getText()) - PADDING * (maxLevel - indent + 1);
+            float gpuPos = PANEL_WIDTH - font.getLineWidth(gpuText.getText())
+                    - PADDING * (maxLevel - indent + 1);
             cpuText.setLocalTranslation(gpuPos - font.getLineWidth(cpuText.getText()), y, 0);
             gpuText.setLocalTranslation(gpuPos, y, 0);
 
@@ -466,7 +478,8 @@ public class DetailedProfilerState extends BaseAppState {
 
         @Override
         public String toString() {
-            return label.getText() + " - " + df.format(getMsFromNs(cpuValue)) + "ms / " + df.format(getMsFromNs(gpuValue)) + "ms";
+            return label.getText() + " - " + df.format(getMsFromNs(cpuValue)) + "ms / "
+                    + df.format(getMsFromNs(gpuValue)) + "ms";
         }
     }
 

@@ -139,7 +139,13 @@ public enum Platform {
     /**
      * Android running on unknown platform (could be x86 or mips for example).
      */
-    Android_Other(Os.Android);
+    Android_Other(Os.Android),
+    
+    /**
+    * Generic web platform on unknown architecture
+    */
+    Web(Os.Web, true) // assume always 64-bit, it shouldn't matter for web
+    ;
 
     
     /**
@@ -165,7 +171,11 @@ public enum Platform {
         /**
          * Android operating systems
          */
-        Android
+        Android,
+        /**
+         * Generic web platform
+         */
+        Web
     }
 
     private final boolean is64bit;

@@ -1,3 +1,5 @@
+#import "Common/ShaderLib/GLSLCompat.glsllib"
+
 varying vec2 texCoord;
 
 attribute vec3 inPosition;

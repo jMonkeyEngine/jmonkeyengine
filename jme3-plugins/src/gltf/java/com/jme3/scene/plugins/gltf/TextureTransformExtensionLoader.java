@@ -31,9 +31,9 @@
  */
 package com.jme3.scene.plugins.gltf;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import com.jme3.plugins.json.JsonArray;
+import com.jme3.plugins.json.JsonObject;
+import com.jme3.plugins.json.JsonElement;
 import com.jme3.asset.AssetLoadException;
 import com.jme3.math.Matrix3f;
 import com.jme3.math.Vector3f;

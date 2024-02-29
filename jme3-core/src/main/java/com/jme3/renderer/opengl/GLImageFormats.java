@@ -121,7 +121,7 @@ public final class GLImageFormats {
             formatSrgbSwiz(formatToGL, Format.Luminance8Alpha8,     GLExt.GL_SRGB8_ALPHA8_EXT, GL3.GL_RG,       GL.GL_UNSIGNED_BYTE);
         }
         
-        if (caps.contains(Caps.OpenGL20)) {
+        if (caps.contains(Caps.OpenGL20)||caps.contains(Caps.OpenGLES30)) {
             if (!caps.contains(Caps.CoreProfile)) {
                 format(formatToGL, Format.Alpha8,           GL2.GL_ALPHA8,            GL.GL_ALPHA,           GL.GL_UNSIGNED_BYTE);
                 format(formatToGL, Format.Luminance8,       GL2.GL_LUMINANCE8,        GL.GL_LUMINANCE,       GL.GL_UNSIGNED_BYTE);
@@ -242,13 +242,17 @@ public final class GLImageFormats {
         // But for render buffers it's OK.
         format(formatToGL, Format.Depth16, GL.GL_DEPTH_COMPONENT16,  GL.GL_DEPTH_COMPONENT, GL.GL_UNSIGNED_SHORT);
         
-        // NOTE: OpenGL ES 2.0 does not support DEPTH_COMPONENT as internal format -- fallback to 16-bit depth.
-        if (caps.contains(Caps.OpenGLES20)) {
+        
+        if (caps.contains(Caps.WebGL)) {
+            // NOTE: fallback to 24-bit depth as workaround for firefox bug in WebGL 2 where DEPTH_COMPONENT16 is not handled properly
+            format(formatToGL, Format.Depth, GL2.GL_DEPTH_COMPONENT24, GL.GL_DEPTH_COMPONENT, GL.GL_UNSIGNED_INT);
+        } else if (caps.contains(Caps.OpenGLES20)) {
+            // NOTE: OpenGL ES 2.0 does not support DEPTH_COMPONENT as internal format -- fallback to 16-bit depth.
             format(formatToGL, Format.Depth, GL.GL_DEPTH_COMPONENT16, GL.GL_DEPTH_COMPONENT, GL.GL_UNSIGNED_SHORT);
         } else {
             format(formatToGL, Format.Depth, GL.GL_DEPTH_COMPONENT, GL.GL_DEPTH_COMPONENT, GL.GL_UNSIGNED_BYTE);
         }
-        if (caps.contains(Caps.OpenGL20) || caps.contains(Caps.Depth24)) {
+        if (caps.contains(Caps.OpenGLES30) || caps.contains(Caps.OpenGL20) || caps.contains(Caps.Depth24)) {
             format(formatToGL, Format.Depth24, GL2.GL_DEPTH_COMPONENT24,  GL.GL_DEPTH_COMPONENT, GL.GL_UNSIGNED_INT);
         }
         if (caps.contains(Caps.FloatDepthBuffer)) {
@@ -274,10 +278,19 @@ public final class GLImageFormats {
         }
         
         if (caps.contains(Caps.TextureCompressionETC2)) {
+            formatComp(formatToGL, Format.ETC2, GLExt.GL_COMPRESSED_RGBA8_ETC2_EAC, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE);
+            formatComp(formatToGL, Format.ETC2_ALPHA1, GLExt.GL_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE);
             formatComp(formatToGL, Format.ETC1, GLExt.GL_COMPRESSED_RGB8_ETC2, GL.GL_RGB, GL.GL_UNSIGNED_BYTE);
+            if (caps.contains(Caps.Srgb)) {
+                formatCompSrgb(formatToGL, Format.ETC2, GLExt.GL_COMPRESSED_SRGB8_ALPHA8_ETC2_EAC, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE);
+                formatCompSrgb(formatToGL, Format.ETC2_ALPHA1, GLExt.GL_COMPRESSED_SRGB8_PUNCHTHROUGH_ALPHA1_ETC2, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE);
+                formatCompSrgb(formatToGL, Format.ETC1, GLExt.GL_COMPRESSED_SRGB8_ETC2, GL.GL_RGB, GL.GL_UNSIGNED_BYTE);
+            }
         } else if (caps.contains(Caps.TextureCompressionETC1)) {
-            formatComp(formatToGL, Format.ETC1, GLExt.GL_ETC1_RGB8_OES,        GL.GL_RGB, GL.GL_UNSIGNED_BYTE);
+            formatComp(formatToGL, Format.ETC1, GLExt.GL_ETC1_RGB8_OES, GL.GL_RGB, GL.GL_UNSIGNED_BYTE);
         }
+        
+        
         
         if(caps.contains(Caps.OpenGL42) || caps.contains(Caps.TextureCompressionBPTC)) {
             formatComp(formatToGL, Format.BC6H_SF16, GLExt.GL_COMPRESSED_RGB_BPTC_SIGNED_FLOAT, GL.GL_RGB, GL.GL_UNSIGNED_BYTE);

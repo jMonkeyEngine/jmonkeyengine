@@ -1,13 +1,14 @@
 MaterialDef Sky Plane {
     MaterialParameters {
+        Int BoundDrawBuffer
         TextureCubeMap Texture
         Boolean SphereMap
         Boolean EquirectMap
         Vector3 NormalScale
     }
     Technique {
-        VertexShader GLSL100 GLSL150:   Common/MatDefs/Misc/Sky.vert
-        FragmentShader GLSL100 GLSL150: Common/MatDefs/Misc/Sky.frag
+        VertexShader    GLSL300 GLSL150 GLSL100 :   Common/MatDefs/Misc/Sky.vert
+        FragmentShader  GLSL300 GLSL150 GLSL100 :   Common/MatDefs/Misc/Sky.frag
 
         WorldParameters {
             ViewMatrix
@@ -16,6 +17,7 @@ MaterialDef Sky Plane {
         }
 
         Defines {
+            BOUND_DRAW_BUFFER: BoundDrawBuffer
             SPHERE_MAP : SphereMap
             EQUIRECT_MAP : EquirectMap
         }
