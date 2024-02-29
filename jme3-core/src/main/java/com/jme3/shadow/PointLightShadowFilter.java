@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2024 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,56 +40,51 @@ import com.jme3.light.PointLight;
 import java.io.IOException;
 
 /**
- *
  * This Filter does basically the same as a PointLightShadowRenderer except it
  * renders the post shadow pass as a fullscreen quad pass instead of a geometry
  * pass. It's mostly faster than PointLightShadowRenderer as long as you have
  * more than about ten shadow receiving objects. The expense is the drawback
  * that the shadow Receive mode set on spatial is ignored. So basically all and
- * only objects that render depth in the scene receive shadows. See this post
- * for more details
- * http://jmonkeyengine.org/groups/general-2/forum/topic/silly-question-about-shadow-rendering/#post-191599
+ * only objects that render depth in the scene receive shadows.
  *
- * API is basically the same as the PssmShadowRenderer;
+ * API is basically the same as the PssmShadowRenderer.
  *
  * @author Rémy Bouquet aka Nehon
  */
 public class PointLightShadowFilter extends AbstractShadowFilter<PointLightShadowRenderer> {
 
     /**
-     * Used for serialization.
-     * Use PointLightShadowFilter#PointLightShadowFilter(AssetManager
-     * assetManager, int shadowMapSize)
-     * instead.
+     * For serialization only. Do not use.
+     * 
+     * @see #PointLightShadowFilter(AssetManager assetManager, int shadowMapSize)
      */
     protected PointLightShadowFilter() {
         super();
     }
 
     /**
-     * Creates a PointLightShadowFilter
+     * Creates a PointLightShadowFilter.
      *
-     * @param assetManager the application asset manager
-     * @param shadowMapSize the size of the rendered shadowmaps (512,1024,2048,
-     * etc...)
+     * @param assetManager  the application's asset manager
+     * @param shadowMapSize the size of the rendered shadow maps (512, 1024, 2048, etc...)
      */
     public PointLightShadowFilter(AssetManager assetManager, int shadowMapSize) {
         super(assetManager, shadowMapSize, new PointLightShadowRenderer(assetManager, shadowMapSize));
     }
 
     /**
-     * gets the point light used to cast shadows with this processor
+     * Returns the light used to cast shadows.
      *
-     * @return the point light
+     * @return the PointLight
      */
     public PointLight getLight() {
         return shadowRenderer.getLight();
     }
 
     /**
-     * sets the light to use for casting shadows with this processor
+     * Sets the light to use to cast shadows.
      *
-     * @param light the point light
+     * @param light the PointLight
      */
     public void setLight(PointLight light) {
         shadowRenderer.setLight(light);
@@ -100,7 +95,6 @@ public class PointLightShadowFilter extends AbstractShadowFilter<PointLightShado
         super.write(ex);
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(shadowRenderer, "shadowRenderer", null);
-
     }
 
     @Override
@@ -109,4 +103,5 @@ public class PointLightShadowFilter extends AbstractShadowFilter<PointLightShado
         InputCapsule ic = im.getCapsule(this);
         shadowRenderer = (PointLightShadowRenderer) ic.readSavable("shadowRenderer", null);
     }
+    
 }
