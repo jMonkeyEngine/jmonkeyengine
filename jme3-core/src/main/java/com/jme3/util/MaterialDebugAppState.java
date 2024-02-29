@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2024 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -98,9 +98,8 @@ public class MaterialDebugAppState extends AbstractAppState {
     private RenderManager renderManager;
     private AssetManager assetManager;
     private InputManager inputManager;
-    final private List<Binding> bindings = new ArrayList<>();
-    final private Map<Trigger,List<Binding>> fileTriggers = new HashMap<> ();
-    
+    private final List<Binding> bindings = new ArrayList<>();
+    private final Map<Trigger, List<Binding>> fileTriggers = new HashMap<>();
 
     @Override
     public void initialize(AppStateManager stateManager, Application app) {
@@ -119,20 +118,18 @@ public class MaterialDebugAppState extends AbstractAppState {
      * @param spat the spatial to reload
      */
     public void registerBinding(Trigger trigger, final Spatial spat) {
-        if(spat instanceof Geometry){
-            GeometryBinding binding = new GeometryBinding(trigger, (Geometry)spat);           
+        if (spat instanceof Geometry) {
+            GeometryBinding binding = new GeometryBinding(trigger, (Geometry) spat);
             bindings.add(binding);
             if (isInitialized()) {
                 bind(binding);
             }
-        }else if (spat instanceof Node){
-            for (Spatial child : ((Node)spat).getChildren()) {
+        } else if (spat instanceof Node) {
+            for (Spatial child : ((Node) spat).getChildren()) {
                 registerBinding(trigger, child);
             }
         }
     }
-    
-    
 
     /**
      * Will reload the filter's materials whenever the trigger is fired.
@@ -146,7 +143,6 @@ public class MaterialDebugAppState extends AbstractAppState {
             bind(binding);
         }
     }
-
     
     /**
      * Will reload the filter's materials whenever the shader file is changed 
@@ -174,7 +170,7 @@ public class MaterialDebugAppState extends AbstractAppState {
         if (binding.getTrigger() instanceof FileChangedTrigger) {
             FileChangedTrigger t = (FileChangedTrigger) binding.getTrigger();
             List<Binding> b = fileTriggers.get(t);
-            if(b == null){
+            if (b == null) {
                 t.init();
                 b = new ArrayList<Binding>();
                 fileTriggers.put(t, b);
@@ -186,7 +182,7 @@ public class MaterialDebugAppState extends AbstractAppState {
                 @Override
                 public void onAction(String name, boolean isPressed, float tpf) {
                     if (actionName.equals(name) && isPressed) {
-                        //reloading the material
+                        // reloading the material
                         binding.reload();
                     }
                 }
@@ -197,42 +193,41 @@ public class MaterialDebugAppState extends AbstractAppState {
     }
 
     public Material reloadMaterial(Material mat) {
-        //clear the entire cache, there might be more clever things to do, like clearing only the matdef, and the associated shaders.
+        // clear the entire cache, there might be more clever things to do, like
+        // clearing only the matdef, and the associated shaders.
         assetManager.clearCache();
 
-        //creating a dummy mat with the mat def of the mat to reload
+        // creating a dummy mat with the mat def of the mat to reload
         // Force the reloading of the asset, otherwise the new shader code will not be applied.
         Material dummy = new Material(assetManager, mat.getMaterialDef().getAssetName());
 
         for (MatParam matParam : mat.getParams()) {
             dummy.setParam(matParam.getName(), matParam.getVarType(), matParam.getValue());
         }
-        
-        dummy.getAdditionalRenderState().set(mat.getAdditionalRenderState());        
 
-        //creating a dummy geom and assigning the dummy material to it
+        dummy.getAdditionalRenderState().set(mat.getAdditionalRenderState());
+
+        // creating a dummy geom and assigning the dummy material to it
         Geometry dummyGeom = new Geometry("dummyGeom", new Box(1f, 1f, 1f));
         dummyGeom.setMaterial(dummy);
 
         try {
-            //preloading the dummyGeom, this call will compile the shader again
+            // preloading the dummyGeom, this call will compile the shader again
             renderManager.preloadScene(dummyGeom);
         } catch (RendererException e) {
-            //compilation error, the shader code will be output to the console
-            //the following code will output the error
-            //System.err.println(e.getMessage());
+            // compilation error, the shader code will be output to the console
+            // the following code will output the error
             Logger.getLogger(MaterialDebugAppState.class.getName()).log(Level.SEVERE, e.getMessage());
             return null;
         }
 
         Logger.getLogger(MaterialDebugAppState.class.getName()).log(Level.INFO, "Material successfully reloaded");
-        //System.out.println("Material successfully reloaded");
         return dummy;
     }
    
     @Override
     public void update(float tpf) {
-        super.update(tpf); //To change body of generated methods, choose Tools | Templates.
+        super.update(tpf);
         for (Trigger trigger : fileTriggers.keySet()) {
             if (trigger instanceof FileChangedTrigger) {
                 FileChangedTrigger t = (FileChangedTrigger) trigger;
@@ -243,7 +238,7 @@ public class MaterialDebugAppState extends AbstractAppState {
                     }
                 }
             }
-        }       
+        }
     }
 
     private interface Binding {
@@ -263,15 +258,14 @@ public class MaterialDebugAppState extends AbstractAppState {
         public GeometryBinding(Trigger trigger, Geometry geom) {
             this.trigger = trigger;
             this.geom = geom;
-
         }
 
         @Override
         public void reload() {
             Material reloadedMat = reloadMaterial(geom.getMaterial());
-            //if the reload is successful, we re setup the material with its params and reassign it to the box
+            // if the reload is successful, we re setup the material with its params and
+            // reassign it to the box
             if (reloadedMat != null) {
-                // setupMaterial(reloadedMat);
                 geom.setMaterial(reloadedMat);
             }
         }
@@ -279,7 +273,6 @@ public class MaterialDebugAppState extends AbstractAppState {
         @Override
         public String getActionName() {
             return geom.getName() + "Reload";
-
         }
 
         @Override
@@ -319,12 +312,11 @@ public class MaterialDebugAppState extends AbstractAppState {
                         } else {
                             field.set(filter, mat);
                         }
-
                     }
                     if (field.getType().isInstance(p)) {
                         field.setAccessible(true);
                         p = (Filter.Pass) field.get(filter);
-                        if (p!= null && p.getPassMaterial() != null) {
+                        if (p != null && p.getPassMaterial() != null) {
                             Material mat = reloadMaterial(p.getPassMaterial());
                             if (mat == null) {
                                 return;
@@ -352,7 +344,6 @@ public class MaterialDebugAppState extends AbstractAppState {
             } catch (IllegalArgumentException | IllegalAccessException ex) {
                 Logger.getLogger(MaterialDebugAppState.class.getName()).log(Level.SEVERE, null, ex);
             }
-
         }
 
         @Override
