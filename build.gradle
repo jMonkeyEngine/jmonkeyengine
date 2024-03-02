@@ -283,7 +283,7 @@ if (skipPrebuildLibraries != "true" && buildNativeProjects != "true") {
 //}
 
 wrapper {
-    gradleVersion = '7.6.2'
+    gradleVersion = '7.6.4'
 }
 
 
