@@ -18,27 +18,23 @@ attribute vec3 inPosition;
 attribute vec2 inTexCoord;
 attribute vec3 inNormal;
 
-#if defined (VERTEX_COLOR) || defined(USE_VERTEX_COLORS_AS_SUN_INTENSITY)
-    attribute vec4 inColor;
-#endif
-
-#if defined(USE_VERTEX_COLORS_AS_SUN_INTENSITY)
-    varying vec4 vertColors;
+#ifdef VERTEX_COLOR
+  attribute vec4 inColor;
 #endif
 
 varying vec3 wNormal;
 varying vec3 wPosition;
-
-attribute vec4 inTangent;
-varying vec4 wTangent;
+#if defined(NORMALMAP) || defined(PARALLAXMAP)
+    attribute vec4 inTangent;
+    varying vec4 wTangent;
+#endif
 
 void main(){
     vec4 modelSpacePos = vec4(inPosition, 1.0);
     vec3 modelSpaceNorm = inNormal;
-    vec3 modelSpaceTan  = inTangent.xyz;
 
-    #ifdef USE_VERTEX_COLORS_AS_SUN_INTENSITY
-        vertColors = inColor;
+    #if  ( defined(NORMALMAP) || defined(PARALLAXMAP)) && !defined(VERTEX_LIGHTING)
+         vec3 modelSpaceTan  = inTangent.xyz;
     #endif
 
     #ifdef NUM_MORPH_TARGETS
@@ -65,7 +61,10 @@ void main(){
 
     wPosition = TransformWorld(modelSpacePos).xyz;
     wNormal  = TransformWorldNormal(modelSpaceNorm);
-    wTangent = vec4(TransformWorldNormal(modelSpaceTan),inTangent.w);
+
+    #if defined(NORMALMAP) || defined(PARALLAXMAP)
+      wTangent = vec4(TransformWorldNormal(modelSpaceTan),inTangent.w);
+    #endif
 
     Color = m_BaseColor;
     
