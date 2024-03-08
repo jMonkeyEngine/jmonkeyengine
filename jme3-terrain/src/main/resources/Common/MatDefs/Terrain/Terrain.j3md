@@ -13,12 +13,19 @@ MaterialDef Terrain {
 		Float Tex1Scale
 		Float Tex2Scale
 		Float Tex3Scale
+
+		// Context GBuffer Data
+        Texture2D Context_InGBuff0
+        Texture2D Context_InGBuff1
+        Texture2D Context_InGBuff2
+        Texture2D Context_InGBuff3
+        Texture2D Context_InGBuff4
 	}
 
 	Technique {
 		VertexShader    GLSL300 GLSL150 GLSL100:   Common/MatDefs/Terrain/Terrain.vert
 		FragmentShader  GLSL300 GLSL150 GLSL100: Common/MatDefs/Terrain/Terrain.frag
-		
+
 		WorldParameters {
 			WorldViewProjectionMatrix
 		}
@@ -28,6 +35,34 @@ MaterialDef Terrain {
             TRI_PLANAR_MAPPING : useTriPlanarMapping
         }
 	}
+
+	Technique GBufferPass{
+        Pipeline Deferred
+        VertexShader    GLSL300 GLSL150 GLSL100:   Common/MatDefs/Terrain/Terrain.vert
+        FragmentShader  GLSL300 GLSL150 GLSL100: Common/MatDefs/Terrain/GBufferPack/TerrainGBufferPack.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+            ViewProjectionMatrix
+            ViewMatrix
+        }
+
+        Defines {
+            BOUND_DRAW_BUFFER: BoundDrawBuffer
+            INSTANCING : UseInstancing
+            SEPARATE_TEXCOORD : SeparateTexCoord
+            HAS_COLORMAP : ColorMap
+            HAS_LIGHTMAP : LightMap
+            HAS_VERTEXCOLOR : VertexColor
+            HAS_POINTSIZE : PointSize
+            HAS_COLOR : Color
+            NUM_BONES : NumberOfBones
+            DISCARD_ALPHA : AlphaDiscardThreshold
+            NUM_MORPH_TARGETS: NumberOfMorphTargets
+            NUM_TARGETS_BUFFERS: NumberOfTargetsBuffers
+            DESATURATION : DesaturationValue
+        }
+    }
 	
     Technique {
     }

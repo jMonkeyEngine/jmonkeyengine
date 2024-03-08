@@ -92,6 +92,34 @@ MaterialDef Unshaded {
         }
     }
 
+    Technique GBufferPass{
+        Pipeline Deferred
+        VertexShader   GLSL310 GLSL300 GLSL150 GLSL100 :   Common/MatDefs/Misc/Unshaded.vert
+        FragmentShader GLSL310 GLSL300 GLSL150 GLSL100 : Common/MatDefs/Misc/UnshadedGBufferPack.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+            ViewProjectionMatrix
+            ViewMatrix
+        }
+
+        Defines {
+            BOUND_DRAW_BUFFER: BoundDrawBuffer
+            INSTANCING : UseInstancing
+            SEPARATE_TEXCOORD : SeparateTexCoord
+            HAS_COLORMAP : ColorMap
+            HAS_LIGHTMAP : LightMap
+            HAS_VERTEXCOLOR : VertexColor
+            HAS_POINTSIZE : PointSize
+            HAS_COLOR : Color
+            NUM_BONES : NumberOfBones
+            DISCARD_ALPHA : AlphaDiscardThreshold
+            NUM_MORPH_TARGETS: NumberOfMorphTargets
+            NUM_TARGETS_BUFFERS: NumberOfTargetsBuffers
+            DESATURATION : DesaturationValue
+        }
+    }
+
     Technique PreNormalPass {
 
         VertexShader   GLSL310 GLSL300 GLSL150 GLSL100:   Common/MatDefs/SSAO/normal.vert

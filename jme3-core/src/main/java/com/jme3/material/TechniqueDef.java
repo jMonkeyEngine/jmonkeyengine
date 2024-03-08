@@ -63,6 +63,47 @@ public class TechniqueDef implements Savable, Cloneable {
     public static final String DEFAULT_TECHNIQUE_NAME = "Default";
 
     /**
+     * RenderPipeline.
+     */
+    public enum Pipeline{
+        /**
+         * Default, most basic rendering
+         */
+        Forward("Forward"),
+
+        /**
+         * Forward based on Cluster
+         */
+        ForwardPlus("ForwardPlus"),
+
+        /**
+         * Standard Deferred Rendering
+         */
+        Deferred("Deferred"),
+
+        /**
+         * Tiled Based Deferred Rendering
+         */
+        TiledBasedDeferred("TiledBasedDeferred"),
+
+        /**
+         * Clustered Based Deferred Rendering
+         */
+        ClusteredBasedDeferred("ClusteredBasedDeferred"),
+        ;
+
+        private String text;
+        Pipeline(String t){
+            text = t;
+        }
+
+        @Override
+        public String toString() {
+            return text;
+        }
+    }
+
+    /**
      * Describes light rendering mode.
      */
     public enum LightMode {
@@ -99,6 +140,22 @@ public class TechniqueDef implements Savable, Cloneable {
          * Light probes are also passed to the shader.
          */
         SinglePassAndImageBased,
+
+        /**
+         * Enable light rendering by using deferred single pass.
+         * <p>
+         * An array of light positions and light colors is passed to the shader
+         * containing the world light list for the geometry being rendered.
+         */
+        DeferredSinglePass,
+
+        /**
+         * Enable light rendering by using tile-based deferred single pass.
+         * <p>
+         * An array of light positions and light colors is passed to the shader
+         * containing the world light list for the geometry being rendered.
+         */
+        TileBasedDeferredSinglePass,
 
         /**
          * @deprecated OpenGL1 is not supported anymore
@@ -156,6 +213,7 @@ public class TechniqueDef implements Savable, Cloneable {
 
     private LightMode lightMode = LightMode.Disable;
     private ShadowMode shadowMode = ShadowMode.Disable;
+    private Pipeline pipeline = Pipeline.Forward;
     private TechniqueDefLogic logic;
 
     private ArrayList<UniformBinding> worldBinds;
@@ -237,6 +295,19 @@ public class TechniqueDef implements Savable, Cloneable {
                 lightSpace = LightSpace.World;
             }
         }
+    }
+
+    public Pipeline getPipeline() {
+        return pipeline;
+    }
+
+    /**
+     * Set the pipeline
+     * @param pipeline the render pipeline
+     * @see Pipeline
+     */
+    public void setPipeline(Pipeline pipeline){
+        this.pipeline = pipeline;
     }
 
     public void setLogic(TechniqueDefLogic logic) {
@@ -514,13 +585,13 @@ public class TechniqueDef implements Savable, Cloneable {
     }
 
     public Shader getShader(AssetManager assetManager, EnumSet<Caps> rendererCaps, DefineList defines) {
-          Shader shader = definesToShaderMap.get(defines);
-          if (shader == null) {
-              shader = loadShader(assetManager, rendererCaps, defines);
-              definesToShaderMap.put(defines.deepClone(), shader);
-          }
-          return shader;
-     }
+        Shader shader = definesToShaderMap.get(defines);
+        if (shader == null) {
+            shader = loadShader(assetManager, rendererCaps, defines);
+            definesToShaderMap.put(defines.deepClone(), shader);
+        }
+        return shader;
+    }
 
     /**
      * Sets the shaders that this technique definition will use.
@@ -529,7 +600,7 @@ public class TechniqueDef implements Savable, Cloneable {
      * @param shaderLanguages EnumMap containing all shader languages for this stage
      */
     public void setShaderFile(EnumMap<Shader.ShaderType, String> shaderNames,
-            EnumMap<Shader.ShaderType, String> shaderLanguages) {
+                              EnumMap<Shader.ShaderType, String> shaderLanguages) {
         requiredCaps.clear();
 
         weight = 0;
@@ -815,7 +886,7 @@ public class TechniqueDef implements Savable, Cloneable {
         try {
             clone.logic = logic.getClass().getConstructor(TechniqueDef.class).newInstance(clone);
         } catch (InstantiationException | IllegalAccessException
-                | NoSuchMethodException | InvocationTargetException e) {
+                 | NoSuchMethodException | InvocationTargetException e) {
             e.printStackTrace();
         }
 

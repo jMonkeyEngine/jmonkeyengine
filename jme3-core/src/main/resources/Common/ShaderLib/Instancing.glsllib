@@ -26,6 +26,12 @@ uniform mat4 g_WorldViewProjectionMatrix;
 uniform mat4 g_ViewProjectionMatrix;
 uniform mat3 g_NormalMatrix;
 uniform mat3 g_WorldNormalMatrix;
+uniform mat4 g_ViewProjectionMatrixInverse;
+
+
+mat4 GetViewProjectionMatrixInverse(){
+    return g_ViewProjectionMatrixInverse;
+}
 
 #if defined INSTANCING
 

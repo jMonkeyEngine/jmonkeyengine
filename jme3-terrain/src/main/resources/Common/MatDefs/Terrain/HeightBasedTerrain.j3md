@@ -23,6 +23,13 @@ MaterialDef Terrain {
 		Vector3 region2
 		Vector3 region3
 		Vector3 region4
+
+		// Context GBuffer Data
+        Texture2D Context_InGBuff0
+        Texture2D Context_InGBuff1
+        Texture2D Context_InGBuff2
+        Texture2D Context_InGBuff3
+        Texture2D Context_InGBuff4
 	}
 
 	Technique {
@@ -39,6 +46,22 @@ MaterialDef Terrain {
             BOUND_DRAW_BUFFER: BoundDrawBuffer
         }
 	}
+
+	Technique GBufferPass{
+	    Pipeline Deferred
+        VertexShader    GLSL300 GLSL150 GLSL100:   Common/MatDefs/Terrain/HeightBasedTerrain.vert
+        FragmentShader  GLSL300 GLSL150 GLSL100: Common/MatDefs/Terrain/GBufferPack/HeightBasedTerrainGBufferPack.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+            WorldMatrix
+            NormalMatrix
+        }
+
+        Defines {
+            BOUND_DRAW_BUFFER: BoundDrawBuffer
+        }
+    }
 
     Technique {
     }
