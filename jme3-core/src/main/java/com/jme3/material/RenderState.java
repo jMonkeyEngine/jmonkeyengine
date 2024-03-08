@@ -1692,7 +1692,7 @@ public class RenderState implements Cloneable, Savable {
      * This method is more precise than {@link #set(com.jme3.material.RenderState)}.
      * @param state state to copy from
      */
-    public void copyFrom(RenderState state) {
+    public RenderState copyFrom(RenderState state) {
         this.applyBlendMode = state.applyBlendMode;
         this.applyColorWrite = state.applyColorWrite;
         this.applyCullMode = state.applyCullMode;
@@ -1734,6 +1734,7 @@ public class RenderState implements Cloneable, Savable {
         this.sfactorRGB = state.sfactorRGB;
         this.stencilTest = state.stencilTest;
         this.wireframe = state.wireframe;
+        return this;
     }
 
     @Override

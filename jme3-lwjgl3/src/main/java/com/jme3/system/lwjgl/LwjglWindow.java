@@ -46,6 +46,16 @@ import com.jme3.system.JmeSystem;
 import com.jme3.system.NanoTimer;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.SafeArrayList;
+
+import org.lwjgl.Version;
+import org.lwjgl.glfw.GLFWErrorCallback;
+import org.lwjgl.glfw.GLFWFramebufferSizeCallback;
+import org.lwjgl.glfw.GLFWImage;
+import org.lwjgl.glfw.GLFWVidMode;
+import org.lwjgl.glfw.GLFWWindowFocusCallback;
+import org.lwjgl.glfw.GLFWWindowSizeCallback;
+import org.lwjgl.system.Platform;
+
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
@@ -55,17 +65,10 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.lwjgl.Version;
+
 import static org.lwjgl.glfw.GLFW.*;
-import org.lwjgl.glfw.GLFWErrorCallback;
-import org.lwjgl.glfw.GLFWFramebufferSizeCallback;
-import org.lwjgl.glfw.GLFWImage;
-import org.lwjgl.glfw.GLFWVidMode;
-import org.lwjgl.glfw.GLFWWindowFocusCallback;
-import org.lwjgl.glfw.GLFWWindowSizeCallback;
 import static org.lwjgl.opengl.GL11.GL_FALSE;
 import static org.lwjgl.system.MemoryUtil.NULL;
-import org.lwjgl.system.Platform;
 
 /**
  * A wrapper class over the GLFW framework in LWJGL 3.
@@ -631,9 +634,10 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         // If the canvas is not active, there's no need to waste time
         // doing that.
         if (renderable.get()) {
-            // calls swap buffers, etc.
             try {
-                if (allowSwapBuffers && autoFlush) {
+                // If type is 'Canvas'; lwjgl-awt takes care of swap buffers.
+                if ((type != Type.Canvas) && allowSwapBuffers && autoFlush) {
+                    // calls swap buffers, etc.
                     glfwSwapBuffers(window);
                 }
             } catch (Throwable ex) {

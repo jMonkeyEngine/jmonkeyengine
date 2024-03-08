@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2024 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -108,7 +108,6 @@ public abstract class AbstractShadowFilter<T extends AbstractShadowRenderer> ext
         material.setMatrix4("ViewProjectionMatrixInverse", viewPort.getCamera().getViewProjectionMatrix().invert());
         Matrix4f m = viewPort.getCamera().getViewProjectionMatrix();
         material.setVector4("ViewProjectionMatrixRow2", tmpv.set(m.m20, m.m21, m.m22, m.m23));
-
     }
 
     @Override
@@ -258,7 +257,7 @@ public abstract class AbstractShadowFilter<T extends AbstractShadowRenderer> ext
     /**
      *
      * !! WARNING !! this parameter is defaulted to true for the ShadowFilter.
-     * Setting it to true, may produce edges artifacts on shadows.     *
+     * Setting it to true, may produce edges artifacts on shadows.
      *
      * Set to true if you want back faces shadows on geometries.
      * Note that back faces shadows will be blended over dark lighten areas and may produce overly dark lighting.
@@ -272,7 +271,7 @@ public abstract class AbstractShadowFilter<T extends AbstractShadowRenderer> ext
      *
      * @param renderBackFacesShadows true or false.
      */
-    public void setRenderBackFacesShadows(Boolean renderBackFacesShadows) {
+    public void setRenderBackFacesShadows(boolean renderBackFacesShadows) {
         shadowRenderer.setRenderBackFacesShadows(renderBackFacesShadows);
     }
 
@@ -293,7 +292,6 @@ public abstract class AbstractShadowFilter<T extends AbstractShadowRenderer> ext
     public RenderState getPreShadowForcedRenderState() {
         return shadowRenderer.getPreShadowForcedRenderState();
     }
-
 
     /**
      * returns the edge filtering mode
