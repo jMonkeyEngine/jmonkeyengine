@@ -20,25 +20,19 @@
 // #define ENABLE_PBRLightingUtils_computeDirectLightContribution 1
 // #define ENABLE_PBRLightingUtils_computeProbesContribution 1
 
-#if defined(ENABLE_PBRLightingUtils_readPBRSurface) || 
-    defined(ENABLE_PBRLightingUtils_getWorldPosition)
+#if defined(ENABLE_PBRLightingUtils_readPBRSurface)||defined(ENABLE_PBRLightingUtils_getWorldPosition)
     varying vec3 wPosition;
 #endif 
 
-#if defined(ENABLE_PBRLightingUtils_readPBRSurface) || 
-    defined(ENABLE_PBRLightingUtils_getWorldNormal)
+#if defined(ENABLE_PBRLightingUtils_readPBRSurface)||defined(ENABLE_PBRLightingUtils_getWorldNormal)
     varying vec3 wNormal;
 #endif 
 
-#if (defined(ENABLE_PBRLightingUtils_readPBRSurface) &&
-    (defined(NORMALMAP) || defined(PARALLAXMAP))
-    ) || 
-    defined(ENABLE_PBRLightingUtils_getWorldTangent)
-    varying vec3 wTangent;
+#if (defined(ENABLE_PBRLightingUtils_readPBRSurface)&&(defined(NORMALMAP)||defined(PARALLAXMAP)))||defined(ENABLE_PBRLightingUtils_getWorldTangent)
+    varying vec4 wTangent;
 #endif 
 
-#if defined(ENABLE_PBRLightingUtils_readPBRSurface) ||
-    defined(ENABLE_PBRLightingUtils_getTexCoord)
+#if defined(ENABLE_PBRLightingUtils_readPBRSurface)||defined(ENABLE_PBRLightingUtils_getTexCoord)
     varying vec2 texCoord;
     #ifdef SEPARATE_TEXCOORD
         varying vec2 texCoord2;
@@ -48,9 +42,7 @@
 
 
 #ifdef ENABLE_PBRLightingUtils_readPBRSurface   
-
     varying vec4 Color;
-
     
     uniform vec4 g_AmbientLightColor;   
     uniform float m_Roughness;
