@@ -339,7 +339,10 @@ public class Surface extends Mesh {
         List[] listArray = capsule.readSavableArrayListArray("listArray", null);
         int numControlPointLists = listArray.length;
         controlPoints = new ArrayList<>(numControlPointLists);
-        controlPoints.addAll(Arrays.asList(listArray).subList(0, numControlPointLists));
+        for (int i = 0; i < numControlPointLists; ++i) {
+            List<Vector4f> list = listArray[i];
+            controlPoints.add(list);
+        }
     }
 
     /**
