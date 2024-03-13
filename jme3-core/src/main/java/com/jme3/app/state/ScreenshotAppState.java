@@ -51,6 +51,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -326,11 +327,8 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
      * @throws IOException if an I/O error occurs
      */
     protected void writeImageFile(File file) throws IOException {
-        OutputStream outStream = new FileOutputStream(file);
-        try {
+        try(OutputStream outStream = Files.newOutputStream(file.toPath())) {
             JmeSystem.writeImageFile(outStream, "png", outBuf, width, height);
-        } finally {
-            outStream.close();
         }
     }
 }

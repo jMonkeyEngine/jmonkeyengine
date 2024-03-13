@@ -34,6 +34,7 @@ package com.jme3.math;
 import com.jme3.export.*;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -84,10 +85,7 @@ public class Spline implements Savable {
         if (splineType == SplineType.Nurb) {
             throw new IllegalArgumentException("To create NURBS spline use: 'public Spline(Vector3f[] controlPoints, float[] weights, float[] nurbKnots)' constructor!");
         }
-        for (int i = 0; i < controlPoints.length; i++) {
-            Vector3f vector3f = controlPoints[i];
-            this.controlPoints.add(vector3f);
-        }
+        Collections.addAll(this.controlPoints, controlPoints);
         type = splineType;
         this.curveTension = curveTension;
         this.cycle = cycle;
@@ -164,10 +162,7 @@ public class Spline implements Savable {
             CRcontrolPoints.add(list.get(0).subtract(list.get(1).subtract(list.get(0))));
         }
 
-        for (Iterator<Vector3f> it = list.iterator(); it.hasNext();) {
-            Vector3f vector3f = it.next();
-            CRcontrolPoints.add(vector3f);
-        }
+        CRcontrolPoints.addAll(list);
         if (cycle) {
             CRcontrolPoints.add(list.get(1));
         } else {

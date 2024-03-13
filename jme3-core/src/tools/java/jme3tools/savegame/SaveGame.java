@@ -44,6 +44,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.GZIPInputStream;
@@ -104,7 +105,7 @@ public class SaveGame {
                     throw new IllegalStateException("SaveGame dataset cannot be created");
                 }
             }
-            os = new GZIPOutputStream(new BufferedOutputStream(new FileOutputStream(saveFile)));
+            os = new GZIPOutputStream(new BufferedOutputStream(Files.newOutputStream(saveFile.toPath())));
             ex.save(data, os);
             Logger.getLogger(SaveGame.class.getName()).log(Level.FINE, "Saving data to: {0}", saveFile.getAbsolutePath());
         } catch (IOException ex1) {
@@ -182,7 +183,7 @@ public class SaveGame {
             if(!file.exists()){
                 return null;
             }
-            is = new GZIPInputStream(new BufferedInputStream(new FileInputStream(file)));
+            is = new GZIPInputStream(new BufferedInputStream(Files.newInputStream(file.toPath())));
             BinaryImporter imp = BinaryImporter.getInstance();
             if (manager != null) {
                 imp.setAssetManager(manager);

@@ -508,7 +508,7 @@ public class FbxMesh extends FbxObject {
                 int materialId = e.getKey();
                 List<Integer> indexes = e.getValue();
                 Mesh newMesh = mesh.clone();
-                newMesh.setBuffer(VertexBuffer.Type.Index, 3, toArray(indexes.toArray(new Integer[indexes.size()])));
+                newMesh.setBuffer(VertexBuffer.Type.Index, 3, toArray(indexes.toArray(new Integer[0])));
                 newMesh.setStatic();
                 newMesh.updateBound();
                 newMesh.updateCounts();

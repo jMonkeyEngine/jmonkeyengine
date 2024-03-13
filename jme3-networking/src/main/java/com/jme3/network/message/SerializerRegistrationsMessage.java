@@ -151,7 +151,7 @@ public class SerializerRegistrationsMessage extends AbstractMessage {
                 log.log( Level.FINE, "    {0}", reg);
             }
         }
-        compiled = list.toArray(new Registration[list.size()]);
+        compiled = list.toArray(new Registration[0]);
         
         INSTANCE = new SerializerRegistrationsMessage(compiled);  
         

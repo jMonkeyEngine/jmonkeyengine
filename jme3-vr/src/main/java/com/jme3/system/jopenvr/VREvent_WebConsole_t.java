@@ -2,6 +2,7 @@ package com.jme3.system.jopenvr;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 /**
  * <i>native declaration : headers\openvr_capi.h:1405</i><br>
@@ -17,7 +18,7 @@ public class VREvent_WebConsole_t extends Structure {
 	}
         @Override
 	protected List<String> getFieldOrder() {
-		return Arrays.asList("webConsoleHandle");
+		return Collections.singletonList("webConsoleHandle");
 	}
 	/** @param webConsoleHandle C type : WebConsoleHandle_t */
 	public VREvent_WebConsole_t(long webConsoleHandle) {

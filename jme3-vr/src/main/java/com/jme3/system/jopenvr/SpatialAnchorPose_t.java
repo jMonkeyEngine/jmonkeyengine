@@ -2,6 +2,7 @@ package com.jme3.system.jopenvr;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 /**
  * <i>native declaration : headers\openvr_capi.h:1636</i><br>
@@ -17,7 +18,7 @@ public class SpatialAnchorPose_t extends Structure {
 	}
         @Override
 	protected List<String> getFieldOrder() {
-		return Arrays.asList("mAnchorToAbsoluteTracking");
+		return Collections.singletonList("mAnchorToAbsoluteTracking");
 	}
 	/** @param mAnchorToAbsoluteTracking C type : HmdMatrix34_t */
 	public SpatialAnchorPose_t(HmdMatrix34_t mAnchorToAbsoluteTracking) {

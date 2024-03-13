@@ -77,9 +77,7 @@ public class DefaultPlatformChooser implements PlatformChooser {
         //still no one found, try without interop
         LOG.warning("No device with OpenCL-OpenGL-interop found, try without");
         for (Platform p : platforms) {
-            for (Device d : p.getDevices()) {
-                result.add(d);
-            }
+            result.addAll(p.getDevices());
             if (!result.isEmpty()) {
                 return result;
             }

@@ -61,7 +61,7 @@ public class SceneWithAnimationLoader implements AssetLoader {
         Matcher m = splitStrings.matcher(src);
         while(m.find())
             list.add(m.group(1).replace("\"", ""));
-        return list.toArray(new String[list.size()]);
+        return list.toArray(new String[0]);
     }
 
 }

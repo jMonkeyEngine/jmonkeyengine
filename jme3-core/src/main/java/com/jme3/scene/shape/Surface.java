@@ -45,10 +45,7 @@ import com.jme3.scene.VertexBuffer;
 import com.jme3.util.BufferUtils;
 import java.io.IOException;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * This class represents a surface described by knots, weights and control points.
@@ -229,7 +226,7 @@ public class Surface extends Mesh {
             }
         }
 
-        Vector3f[] verticesArray = vertices.toArray(new Vector3f[vertices.size()]);
+        Vector3f[] verticesArray = vertices.toArray(new Vector3f[0]);
         // normalMap merges normals of faces that will be rendered smooth
         Map<Vector3f, Vector3f> normalMap = new HashMap<>(verticesArray.length);
         for (int i = 0; i < indices.length; i += 3) {
@@ -342,10 +339,7 @@ public class Surface extends Mesh {
         List[] listArray = capsule.readSavableArrayListArray("listArray", null);
         int numControlPointLists = listArray.length;
         controlPoints = new ArrayList<>(numControlPointLists);
-        for (int i = 0; i < numControlPointLists; ++i) {
-            List<Vector4f> list = listArray[i];
-            controlPoints.add(list);
-        }
+        controlPoints.addAll(Arrays.asList(listArray).subList(0, numControlPointLists));
     }
 
     /**

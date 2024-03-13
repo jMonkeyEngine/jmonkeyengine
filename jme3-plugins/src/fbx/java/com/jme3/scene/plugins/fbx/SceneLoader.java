@@ -286,7 +286,7 @@ public class SceneLoader implements AssetLoader {
                 limb.buildBindPoseBoneTransform();
             }
         }
-        skeleton = new Skeleton(bones.toArray(new Bone[bones.size()]));
+        skeleton = new Skeleton(bones.toArray(new Bone[0]));
         skeleton.setBindingPose();
         for(FbxNode limb : limbMap.values())
             limb.setSkeleton(skeleton);

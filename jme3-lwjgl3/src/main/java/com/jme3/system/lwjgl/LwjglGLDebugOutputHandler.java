@@ -73,6 +73,6 @@ class LwjglGLDebugOutputHandler extends GLDebugMessageARBCallback {
         String typeStr = constMap.get(type);
         String severityStr = constMap.get(severity);
 
-        System.err.println(String.format(MESSAGE_FORMAT, id, sourceStr, typeStr, severityStr, message));
+        System.err.printf((MESSAGE_FORMAT) + "%n", id, sourceStr, typeStr, severityStr, message);
     }
 }

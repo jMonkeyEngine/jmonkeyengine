@@ -131,7 +131,7 @@ public class TestSkyRotation extends SimpleApplication implements ActionListener
             System.out.print("rotate floor and sky leftward ...");
         } else if (name.equals("right")) {
             angle -= 0.1f; // radians
-            System.out.printf("rotate floor and sky spatials rightward ...");
+            System.out.print("rotate floor and sky spatials rightward ...");
         } else {
             return;
         }

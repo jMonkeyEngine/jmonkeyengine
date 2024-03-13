@@ -2,6 +2,7 @@ package com.jme3.system.jopenvr;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 /**
  * <i>native declaration : headers\openvr_capi.h:1369</i><br>
@@ -16,7 +17,7 @@ public class VREvent_ScreenshotProgress_t extends Structure {
 	}
         @Override
 	protected List<String> getFieldOrder() {
-		return Arrays.asList("progress");
+		return Collections.singletonList("progress");
 	}
 	public VREvent_ScreenshotProgress_t(float progress) {
 		super();

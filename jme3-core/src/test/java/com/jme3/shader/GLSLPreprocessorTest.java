@@ -51,16 +51,16 @@ import jme3tools.shader.Preprocessor;
 public class GLSLPreprocessorTest {
 
     String readAllAsString(InputStream is) throws Exception{
-        String output = "";
+        StringBuilder output = new StringBuilder();
         BufferedReader reader = new BufferedReader(new InputStreamReader(is));
         while (true) {
             String l = reader.readLine();
             if (l == null) break;
-            if (output != "") output += "\n";
-            output += l;
+            if (output.toString() != "") output.append("\n");
+            output.append(l);
         }
         reader.close();
-        return output;
+        return output.toString();
     }
     
     @Test

@@ -256,7 +256,7 @@ public final class OBJLoader implements AssetLoader {
             }else if (split.length == 2){
                 v = Integer.parseInt(split[0].trim());
                 vt = Integer.parseInt(split[1].trim());
-            }else if (split.length == 3 && !split[1].equals("")){
+            }else if (split.length == 3 && !split[1].isEmpty()){
                 v = Integer.parseInt(split[0].trim());
                 vt = Integer.parseInt(split[1].trim());
                 vn = Integer.parseInt(split[2].trim());

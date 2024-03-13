@@ -94,7 +94,7 @@ public class AndroidJoyInput14 extends AndroidJoyInput {
         // load physical gamepads/joysticks
         joystickList.addAll(joystickJoyInput.loadJoysticks(joystickList.size(), inputManager));
         // return the list of joysticks back to InputManager
-        return joystickList.toArray( new Joystick[joystickList.size()] );
+        return joystickList.toArray(new Joystick[0]);
     }
 
     public boolean onGenericMotion(MotionEvent event) {

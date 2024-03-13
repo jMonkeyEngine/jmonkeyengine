@@ -94,7 +94,7 @@ public class AnimMigrationUtils {
                         padJointTracks(tracks, staticJoints[i]);
                     }
 
-                    clip.setTracks(tracks.toArray(new TransformTrack[tracks.size()]));
+                    clip.setTracks(tracks.toArray(new TransformTrack[0]));
 
                     composer.addAnimClip(clip);
                 }

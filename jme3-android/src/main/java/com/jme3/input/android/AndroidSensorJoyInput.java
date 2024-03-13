@@ -546,9 +546,8 @@ public class AndroidSensorJoyInput implements SensorEventListener {
                 return;
             }
             synchronized(sensorData.valuesLock) {
-                for (int i=0; i<sensorData.lastValues.length; i++) {
-                    sensorData.lastValues[i] = se.values[i];
-                }
+                if (sensorData.lastValues.length >= 0)
+                    System.arraycopy(se.values, 0, sensorData.lastValues, 0, sensorData.lastValues.length);
             }
 
             if (sensorData.axes.size() > 0) {

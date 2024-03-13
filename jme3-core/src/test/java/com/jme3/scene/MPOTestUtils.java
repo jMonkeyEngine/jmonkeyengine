@@ -61,17 +61,12 @@ public class MPOTestUtils {
     private static void validateSubScene(Spatial scene) {
         scene.checkCulling(DUMMY_CAM);
 
-        Set<MatParamOverride> actualOverrides = new HashSet<>();
-        for (MatParamOverride override : scene.getWorldMatParamOverrides()) {
-            actualOverrides.add(override);
-        }
+        Set<MatParamOverride> actualOverrides = new HashSet<>(scene.getWorldMatParamOverrides());
 
         Set<MatParamOverride> expectedOverrides = new HashSet<>();
         Spatial current = scene;
         while (current != null) {
-            for (MatParamOverride override : current.getLocalMatParamOverrides()) {
-                expectedOverrides.add(override);
-            }
+            expectedOverrides.addAll(current.getLocalMatParamOverrides());
             current = current.getParent();
         }
 

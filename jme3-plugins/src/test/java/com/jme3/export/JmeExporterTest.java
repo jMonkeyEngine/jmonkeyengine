@@ -37,11 +37,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -168,7 +164,7 @@ public class JmeExporterTest {
         origin.setUserData("testFloat", 1.5f);
         origin.setUserData("1", "test");
         if (testLists) {
-            origin.setUserData("string-list", Arrays.asList("abc"));
+            origin.setUserData("string-list", Collections.singletonList("abc"));
             origin.setUserData("int-list", Arrays.asList(1, 2, 3));
             origin.setUserData("float-list", Arrays.asList(1f, 2f, 3f));
         }
