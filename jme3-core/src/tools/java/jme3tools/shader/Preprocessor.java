@@ -58,6 +58,7 @@ public class Preprocessor {
         String code = bos.toString("UTF-8");
 
         code = Preprocessor.forMacro(code);
+        code = Preprocessor.structMacro(code);
 
         return new ByteArrayInputStream(code.getBytes("UTF-8"));
     }
@@ -115,6 +116,98 @@ public class Preprocessor {
         }
         code = expandedCode.toString();
         if (captured) code = forMacro(code);
+        return code;
+    }
+
+    /**
+     * <code>
+     * #struct MyStruct extends BaseStruct, BaseStruct2
+     *  int i; 
+     *  int b; 
+     * #endstruct
+     * </code>
+     */
+    // match #struct MyStruct extends BaseStruct, BaseStruct2
+    // extends is optional
+    // private static final Pattern FOR_REGEX = Pattern
+    // .compile("([^=]+)=\\s*([0-9]+)\\s*\\.\\.\\s*([0-9]+)\\s*\\((.+)\\)");
+
+    private static final Pattern STRUCT_REGEX = Pattern
+            .compile("(\\w+)(?:\\s+extends\\s+(\\w+(?:,\\s*\\w+)*))?");
+
+    public static String structMacro(String code) {
+        StringBuilder expandedCode = new StringBuilder();
+        StringBuilder currentStruct = null;
+        String structDec = null;
+        int skip = 0;
+        String[] codeLines = code.split("\n");
+        boolean captured = false;
+        for (String line : codeLines) {
+            if (!captured) {
+                String trimmedLine = line.trim();
+                if (trimmedLine.startsWith("#struct")) {
+                    if (skip == 0) {
+                        structDec = trimmedLine;
+                        currentStruct = new StringBuilder();
+                        skip++;
+                        continue;
+                    }
+                    skip++;
+                } else if (trimmedLine.startsWith("#endstruct")) {
+                    skip--;
+                    if (skip == 0) {
+                        structDec = structDec.substring("#struct ".length()).trim();
+
+                        Matcher matcher = STRUCT_REGEX.matcher(structDec);
+                        if (matcher.matches()) {
+                            String structName = matcher.group(1);
+                            if (structName == null) structName = "";
+
+                            String extendsStructs = matcher.group(2);
+                            String extendedStructs[];
+                            if (extendsStructs != null) {
+                                extendedStructs = extendsStructs.split(",\\s*");
+                            } else {
+                                extendedStructs = new String[0];
+                            }
+                            String structBody = currentStruct.toString();
+                            if (structBody == null) structBody = "";
+                            else {
+                                // remove tail spaces
+                                structBody = structBody.replaceAll("\\s+$", "");
+                            }
+
+                            currentStruct = null;
+                            expandedCode.append("#define STRUCT_").append(structName).append(" \\\n");
+                            for (String extendedStruct : extendedStructs) {
+                                expandedCode.append("STRUCT_").append(extendedStruct).append(" \\\n");
+                            }
+                            String structBodyLines[] = structBody.split("\n");
+                            for (int i = 0; i < structBodyLines.length; i++) {
+                                String structBodyLine = structBodyLines[i];
+                                structBodyLine = structBodyLine.trim();
+                                if (structBodyLine == "") continue;
+                                // remove comments if any
+                                int commentIndex = structBodyLine.indexOf("//");
+                                if (commentIndex >= 0)
+                                    structBodyLine = structBodyLine.substring(0, commentIndex);
+                                expandedCode.append(structBodyLine);
+                                if (i < structBodyLines.length - 1) expandedCode.append(" \\");
+                                expandedCode.append("\n");
+                            }
+                            expandedCode.append("struct ").append(structName).append(" { \nSTRUCT_")
+                                    .append(structName).append("\n};\n");
+                            captured = true;
+                            continue;
+                        }
+                    }
+                }
+            }
+            if (currentStruct != null) currentStruct.append(line).append("\n");
+            else expandedCode.append(line).append("\n");
+        }
+        code = expandedCode.toString();
+        if (captured) code = structMacro(code);
         return code;
     }
 
