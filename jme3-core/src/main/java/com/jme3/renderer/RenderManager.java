@@ -1246,6 +1246,12 @@ public class RenderManager {
         // clear any remaining spatials that were not rendered.
         clearQueue(vp);
 
+        /*
+         * the call to setCamera will indirectly cause a clipRect to be set, must be cleared to avoid surprising results
+         * if renderer#copyFrameBuffer is used later
+         */
+        renderer.clearClipRect();
+
         if (prof != null) {
             prof.vpStep(VpStep.EndRender, vp, null);
         }
@@ -1344,8 +1350,7 @@ public class RenderManager {
     /**
      * Returns the render filter that the RenderManager is currently using
      * 
-     * @param filter
-     *            the render filter
+     * @return the render filter
      */
     public Predicate<Geometry> getRenderFilter() {
         return renderFilter;
