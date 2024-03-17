@@ -138,7 +138,7 @@ public class TestSkyRotation extends SimpleApplication implements ActionListener
         /*
          * Update the local rotations of both objects based on the angle.
          */
-        System.out.printf(" to %.1f radians left of start%n\n", angle);
+        System.out.printf(" to %.1f radians left of start%n", angle);
         Quaternion rotation = new Quaternion();
         rotation.fromAngleNormalAxis(angle, Vector3f.UNIT_Y);
         floor.setLocalRotation(rotation);
