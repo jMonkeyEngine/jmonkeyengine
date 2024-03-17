@@ -70,6 +70,6 @@ public class ChannelInfoMessage extends AbstractMessage {
     
     @Override
     public String toString() {
-        return "ChannelInfoMessage[" + id + ", " + Collections.singletonList(ports) + "]";
+        return "ChannelInfoMessage[" + id + ", " + Arrays.toString(ports) + "]";
     }
 }
