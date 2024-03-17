@@ -32,11 +32,14 @@
 package com.jme3.scene.debug;
 
 import com.jme3.animation.Skeleton;
+import com.jme3.export.JmeImporter;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.scene.Geometry;
+import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
 import com.jme3.util.clone.Cloner;
 
+import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -83,14 +86,18 @@ public class SkeletonDebugger extends Node {
         wires = new SkeletonWire(skeleton, boneLengths);
         points = new SkeletonPoints(skeleton, boneLengths);
 
-        this.attachChild(new Geometry(name + "_wires", wires));
-        this.attachChild(new Geometry(name + "_points", points));
+        this.attachChild(new Geometry(getGeometryName("_wires"), wires));
+        this.attachChild(new Geometry(getGeometryName("_points"), points));
         if (boneLengths != null) {
             interBoneWires = new SkeletonInterBoneWire(skeleton, boneLengths);
-            this.attachChild(new Geometry(name + "_interwires", interBoneWires));
+            this.attachChild(new Geometry(getGeometryName("_interwires"), interBoneWires));
         }
 
         this.setQueueBucket(Bucket.Transparent);
+    }
+
+    private String getGeometryName(String suffix) {
+        return name + suffix;
     }
 
     @Override
@@ -131,5 +138,24 @@ public class SkeletonDebugger extends Node {
         this.wires = cloner.clone(wires);
         this.points = cloner.clone(points);
         this.interBoneWires = cloner.clone(interBoneWires);
+    }
+
+    @Override
+    public void read(JmeImporter importer) throws IOException {
+        super.read(importer);
+
+        // Find our stuff
+        wires = getMesh("_wires");
+        points = getMesh("_points");
+        interBoneWires = getMesh("_interwires");
+    }
+
+    private <T extends Mesh> T getMesh(String suffix) {
+        Geometry child = (Geometry)getChild(getGeometryName(suffix));
+        if(child != null) {
+            return (T) child.getMesh();
+        }
+
+        return null;
     }
 }
