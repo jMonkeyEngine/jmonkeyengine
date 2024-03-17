@@ -86,14 +86,18 @@ public class SkeletonDebugger extends Node {
         wires = new SkeletonWire(skeleton, boneLengths);
         points = new SkeletonPoints(skeleton, boneLengths);
 
-        this.attachChild(new Geometry(name + "_wires", wires));
-        this.attachChild(new Geometry(name + "_points", points));
+        this.attachChild(new Geometry(getGeometryName("_wires"), wires));
+        this.attachChild(new Geometry(getGeometryName("_points"), points));
         if (boneLengths != null) {
             interBoneWires = new SkeletonInterBoneWire(skeleton, boneLengths);
-            this.attachChild(new Geometry(name + "_interwires", interBoneWires));
+            this.attachChild(new Geometry(getGeometryName("_interwires"), interBoneWires));
         }
 
         this.setQueueBucket(Bucket.Transparent);
+    }
+
+    private String getGeometryName(String suffix) {
+        return name + suffix;
     }
 
     @Override
@@ -147,7 +151,7 @@ public class SkeletonDebugger extends Node {
     }
 
     private <T extends Mesh> T getMesh(String suffix) {
-        Geometry child = (Geometry)getChild(name + suffix);
+        Geometry child = (Geometry)getChild(getGeometryName(suffix));
         if(child != null) {
             return (T) child.getMesh();
         }
