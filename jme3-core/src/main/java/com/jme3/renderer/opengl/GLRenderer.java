@@ -1398,7 +1398,7 @@ public final class GLRenderer implements Renderer {
             case FloatArray:
                 fb = uniform.getMultiData();
                 assert isValidNumber(fb) : "Invalid float array value "
-                        + Collections.singletonList((float[]) uniform.getValue()) + " for " + uniform.getBinding();
+                        + Arrays.toString((float[]) uniform.getValue()) + " for " + uniform.getBinding();
                 gl.glUniform1(loc, fb);
                 break;
             case Vector2Array:
