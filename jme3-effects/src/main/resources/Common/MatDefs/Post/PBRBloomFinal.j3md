@@ -1,0 +1,22 @@
+MaterialDef PBRBloomFinal {
+
+    MaterialParameters {
+        Texture2D Texture
+        Texture2D GlowMap
+        Int BoundDrawBuffer
+        Int NumSamples
+    }
+
+    Technique {
+        VertexShader   GLSL300 GLSL150 GLSL100: Common/MatDefs/Post/Post.vert
+        FragmentShader GLSL300 GLSL150 GLSL100: Common/MatDefs/Post/PBRBloomFinal.frag
+
+        WorldParameters {
+        }
+
+        Defines {
+            BOUND_DRAW_BUFFER: BoundDrawBuffer
+            RESOLVE_MS : NumSamples
+        }
+    }
+}
