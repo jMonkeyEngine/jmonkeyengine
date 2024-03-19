@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2024 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,7 +34,6 @@ package jme3test.post;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.asset.TextureKey;
-import com.jme3.asset.plugins.FileLocator;
 import com.jme3.environment.EnvironmentProbeControl;
 import com.jme3.light.DirectionalLight;
 import com.jme3.light.PointLight;
@@ -50,6 +49,14 @@ import com.jme3.scene.shape.Box;
 import com.jme3.util.SkyFactory;
 import com.jme3.util.SkyFactory.EnvMapType;
 
+/**
+ * Tests {@link PBRBloomFilter} with HDR.
+ * <p>
+ * Note: the camera is pointed directly at the ground, which is completely
+ * black for some reason.
+ * 
+ * @author codex
+ */
 public class TestPBRBloom extends SimpleApplication {
 
     private FilterPostProcessor fpp;
@@ -62,13 +69,7 @@ public class TestPBRBloom extends SimpleApplication {
     @Override
     public void simpleInitApp() {
         
-        assetManager.registerLocator("../jmonkeyengine/jme3-effects/src/main/resources", FileLocator.class);
-        assetManager.registerLocator("../jmonkeyengine/jme3-testdata/src/main/resources", FileLocator.class);
-        
-        // put the camera in a bad position
-        //cam.setLocation(new Vector3f(-2.336393f, 11.91392f, -7.139601f));
-        //cam.setRotation(new Quaternion(0.23602544f, 0.11321983f, -0.027698677f, 0.96473104f));
-        //cam.setFrustumFar(1000);
+        cam.setLocation(new Vector3f(10, 10, 10));
         flyCam.setMoveSpeed(20);
 
         Material mat = new Material(assetManager,"Common/MatDefs/Light/Lighting.j3md");
@@ -77,7 +78,6 @@ public class TestPBRBloom extends SimpleApplication {
         mat.setColor("Ambient", ColorRGBA.Yellow.mult(0.2f));
         mat.setColor("Diffuse", ColorRGBA.Yellow.mult(0.2f));
         mat.setColor("Specular", ColorRGBA.Yellow.mult(0.8f));
-
 
         Material matSoil = new Material(assetManager,"Common/MatDefs/Light/Lighting.j3md");
         matSoil.setFloat("Shininess", 15f);
@@ -105,8 +105,8 @@ public class TestPBRBloom extends SimpleApplication {
         tankMat.setTexture("SpecularMap", assetManager.loadTexture(new TextureKey("Models/HoverTank/tank_specular.jpg", !true)));
         tankMat.setTexture("NormalMap", assetManager.loadTexture(new TextureKey("Models/HoverTank/tank_normals.png", !true)));
         tankMat.setTexture("EmissiveMap", assetManager.loadTexture(new TextureKey("Models/HoverTank/tank_glow_map.jpg", !true)));
-        tankMat.setFloat("EmissivePower", 100);
-        tankMat.setFloat("EmissiveIntensity", 100);
+        tankMat.setFloat("EmissivePower", 50);
+        tankMat.setFloat("EmissiveIntensity", 50);
         tankMat.setFloat("Metallic", .5f);
         Spatial tank = assetManager.loadModel("Models/HoverTank/Tank2.mesh.xml");
         tank.setLocalTranslation(-10, 5, -10);
