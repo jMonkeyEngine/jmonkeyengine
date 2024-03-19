@@ -32,14 +32,20 @@
 package com.jme3.post.filters;
 
 import com.jme3.asset.AssetManager;
+import com.jme3.export.InputCapsule;
+import com.jme3.export.JmeExporter;
+import com.jme3.export.JmeImporter;
+import com.jme3.export.OutputCapsule;
 import com.jme3.material.Material;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector2f;
 import com.jme3.post.Filter;
+import com.jme3.post.filters.BloomFilter.GlowMode;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
 import com.jme3.texture.Image;
+import java.io.IOException;
 import java.util.LinkedList;
 
 /**
@@ -74,39 +80,8 @@ public class PBRBloomFilter extends Filter {
     /**
      * Creates filter with default settings.
      */
-    public PBRBloomFilter() {}
-    
-    /**
-     * Creates filter with the given number of sampling passes.
-     * 
-     * @param numSamplingPasses 
-     * @see #setNumSamplingPasses(int)
-     */
-    public PBRBloomFilter(int numSamplingPasses) {
-        this.numSamplingPasses = numSamplingPasses;
-    }
-    
-    /**
-     * Creates filter with given glow factor.
-     * 
-     * @param glowFactor
-     * @see #setGlowFactor(float)
-     */
-    public PBRBloomFilter(float glowFactor) {
-        this.glowFactor = glowFactor;
-    }
-    
-    /**
-     * Creates filter with the given number of sampling passes and the given glow factor.
-     * 
-     * @param numSamplingPasses
-     * @param glowFactor 
-     * @see #setNumSamplingPasses(int)
-     * @see #setGlowFactor(float)
-     */
-    public PBRBloomFilter(int numSamplingPasses, float glowFactor) {
-        this.numSamplingPasses = numSamplingPasses;
-        this.glowFactor = glowFactor;
+    public PBRBloomFilter() {
+        super("PBRBloomFilter");
     }
     
     @Override
@@ -206,16 +181,15 @@ public class PBRBloomFilter extends Filter {
      * resolution).
      * <p>
      * Settings this after the filter has been initialized forces reinitialization.
-     * <p>
-     * default=5
+     * <p>numSamplingPassesdefault=5
      * 
-     * @param n number of passes per donwsampling/upsampling step
+     * @param numSamplingPasses number of passes per donwsampling/upsampling step
      */
-    public void setNumSamplingPasses(int n) {
-        if (n <= 0) {
-            throw new IllegalArgumentException("Expected number of sampling passes to be greater than zero (found: "+n+").");
+    public void setNumSamplingPasses(int numSamplingPasses) {
+        if (numSamplingPasses <= 0) {
+            throw new IllegalArgumentException("Expected number of sampling passes to be greater than zero (found: " + numSamplingPasses + ").");
         }
-        numSamplingPasses = n;
+        this.numSamplingPasses = numSamplingPasses;
         if (initialized) {
             initFilter(assetManager, renderManager, viewPort, width, height);
         }
@@ -257,6 +231,22 @@ public class PBRBloomFilter extends Filter {
      */
     public float getGlowFactor() {
         return glowFactor;
+    }
+    
+    @Override
+    public void write(JmeExporter ex) throws IOException {
+        super.write(ex);
+        OutputCapsule oc = ex.getCapsule(this);
+        oc.write(numSamplingPasses, "numSamplingPasses", 5);
+        oc.write(glowFactor, "glowFactor", 0.05f);
+    }
+
+    @Override
+    public void read(JmeImporter im) throws IOException {
+        super.read(im);
+        InputCapsule ic = im.getCapsule(this);
+        numSamplingPasses = ic.readInt("numSamplingPasses", numSamplingPasses);
+        glowFactor = ic.readFloat("glowFactor", glowFactor);
     }
     
 }
