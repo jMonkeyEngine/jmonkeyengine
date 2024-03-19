@@ -156,6 +156,7 @@ public class PBRBloomFilter extends Filter {
         
         material = new Material(assetManager, "Common/MatDefs/Post/PBRBloomFinal.j3md");
         material.setTexture("GlowMap", upsamplingPasses[upsamplingPasses.length-1].getRenderedTexture());
+        material.setFloat("GlowFactor", glowFactor);
         
         initialized = true;
         
