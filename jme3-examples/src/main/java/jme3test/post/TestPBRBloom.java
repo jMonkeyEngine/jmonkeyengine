@@ -83,9 +83,8 @@ public class TestPBRBloom extends SimpleApplication {
         matSoil.setFloat("Shininess", 15f);
         matSoil.setBoolean("UseMaterialColors", true);
         matSoil.setColor("Ambient", ColorRGBA.Gray);
-        matSoil.setColor("Diffuse", ColorRGBA.Black);
+        matSoil.setColor("Diffuse", ColorRGBA.Gray);
         matSoil.setColor("Specular", ColorRGBA.Gray);
-       
 
         Spatial teapot = assetManager.loadModel("Models/Teapot/Teapot.obj");
         teapot.setLocalTranslation(0,0,10);

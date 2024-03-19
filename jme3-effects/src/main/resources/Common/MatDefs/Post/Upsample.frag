@@ -3,7 +3,6 @@
 #import "Common/ShaderLib/MultiSample.glsllib"
 
 uniform COLORTEXTURE m_Texture;
-uniform float m_FilterRadius;
 uniform vec2 m_TexelSize;
 varying vec2 texCoord;
 
@@ -13,8 +12,6 @@ void main() {
 
     // The filter kernel is applied with a radius, specified in texture
     // coordinates, so that the radius will vary across mip resolutions.
-    //float x = m_FilterRadius;
-    //float y = m_FilterRadius;
     float x = m_TexelSize.x;
     float y = m_TexelSize.y;
 
@@ -36,9 +33,9 @@ void main() {
     vec3 i = getColor(m_Texture, vec2(texCoord.x + x, texCoord.y - y)).rgb;
 
     // Apply weighted distribution, by using a 3x3 tent filter:
-    //  1   | 1 2 1 |
-    // -- * | 2 4 2 |
-    // 16   | 1 2 1 |
+    //        | 1 2 1 |
+    // 1/16 * | 2 4 2 |
+    //        | 1 2 1 |
     vec3 upsample = e*4.0;
     upsample += (b+d+f+h)*2.0;
     upsample += (a+c+g+i);

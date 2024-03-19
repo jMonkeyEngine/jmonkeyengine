@@ -3,6 +3,7 @@ MaterialDef PBRBloomFinal {
     MaterialParameters {
         Texture2D Texture
         Texture2D GlowMap
+        Float GlowFactor : 0.05
         Int BoundDrawBuffer
         Int NumSamples
     }
