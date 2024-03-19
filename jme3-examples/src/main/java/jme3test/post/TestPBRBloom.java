@@ -134,15 +134,11 @@ public class TestPBRBloom extends SimpleApplication {
         
         rootNode.addControl(new EnvironmentProbeControl(assetManager, 256));
         
-        fpp=new FilterPostProcessor(assetManager);
-        PBRBloomFilter bloom=new PBRBloomFilter();
+        fpp = new FilterPostProcessor(assetManager);
+        PBRBloomFilter bloom = new PBRBloomFilter();
         fpp.addFilter(bloom);
-        //ToneMapFilter toneMap = new ToneMapFilter();
-        //fpp.addFilter(toneMap);
         viewPort.addProcessor(fpp);
-
+        
     }
-
- 
-
+    
 }

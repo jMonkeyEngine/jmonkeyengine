@@ -216,7 +216,7 @@ public class PBRBloomFilter extends Filter {
     /**
      * Gets the number of downsampling/upsampling passes per step.
      * 
-     * @return glow factor
+     * @return number of downsampling/upsampling passes
      * @see #setNumSamplingPasses(int)
      */
     public int getNumSamplingPasses() {
