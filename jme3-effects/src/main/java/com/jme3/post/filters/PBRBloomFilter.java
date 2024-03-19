@@ -212,6 +212,9 @@ public class PBRBloomFilter extends Filter {
      * @param n number of passes per donwsampling/upsampling step
      */
     public void setNumSamplingPasses(int n) {
+        if (n <= 0) {
+            throw new IllegalArgumentException("Expected number of sampling passes to be greater than zero (found: "+n+").");
+        }
         numSamplingPasses = n;
         if (initialized) {
             initFilter(assetManager, renderManager, viewPort, width, height);
