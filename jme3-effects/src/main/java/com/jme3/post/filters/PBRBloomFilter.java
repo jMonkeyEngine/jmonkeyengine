@@ -182,7 +182,8 @@ public class PBRBloomFilter extends Filter {
      * resolution).
      * <p>
      * Settings this after the filter has been initialized forces reinitialization.
-     * <p>numSamplingPassesdefault=5
+     * <p>
+     * default=5
      * 
      * @param numSamplingPasses number of passes per donwsampling/upsampling step
      */
