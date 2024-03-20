@@ -40,7 +40,7 @@ import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
-import com.jme3.util.TangentBinormalGenerator;
+import com.jme3.util.mikktspace.MikktspaceTangentGenerator;
 
 /**
  *
@@ -57,7 +57,7 @@ public class TestTangentCube extends SimpleApplication {
     public void simpleInitApp() {
         Box aBox = new Box(1, 1, 1);
         Geometry aGeometry = new Geometry("Box", aBox);
-        TangentBinormalGenerator.generate(aBox);
+        MikktspaceTangentGenerator.generate(aBox);
 
         Material aMaterial = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
         aMaterial.setTexture("DiffuseMap",

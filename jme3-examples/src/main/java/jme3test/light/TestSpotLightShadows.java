@@ -49,7 +49,7 @@ import com.jme3.shadow.EdgeFilteringMode;
 import com.jme3.shadow.SpotLightShadowFilter;
 import com.jme3.shadow.SpotLightShadowRenderer;
 import com.jme3.texture.Texture.WrapMode;
-import com.jme3.util.TangentBinormalGenerator;
+import com.jme3.util.mikktspace.MikktspaceTangentGenerator;
 
 public class TestSpotLightShadows extends SimpleApplication {
 
@@ -149,7 +149,7 @@ public class TestSpotLightShadows extends SimpleApplication {
 
 
         Box floor = new Box(50, 1f, 50);
-        TangentBinormalGenerator.generate(floor);
+        MikktspaceTangentGenerator.generate(floor);
         floor.scaleTextureCoordinates(new Vector2f(5, 5));
         Geometry floorGeom = new Geometry("Floor", floor);
         floorGeom.setMaterial(mat);
@@ -166,7 +166,7 @@ public class TestSpotLightShadows extends SimpleApplication {
         signpost.setLocalTranslation(12, 3.5f, 30);
         signpost.setLocalScale(4);
         signpost.setShadowMode(ShadowMode.CastAndReceive);
-        TangentBinormalGenerator.generate(signpost);
+        MikktspaceTangentGenerator.generate(signpost);
         rootNode.attachChild(signpost);
     }
 
