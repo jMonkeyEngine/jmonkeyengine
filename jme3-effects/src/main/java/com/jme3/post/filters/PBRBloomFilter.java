@@ -40,7 +40,6 @@ import com.jme3.material.Material;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector2f;
 import com.jme3.post.Filter;
-import com.jme3.post.filters.BloomFilter.GlowMode;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
@@ -56,7 +55,7 @@ import java.util.LinkedList;
  * <p>
  * This implementation, unlike BloomFilter, has no brightness threshold,
  * meaning all aspects of the scene glow, although only very bright areas will
- * noticably produce glow. For this reason, this filter should <em>only</em> be used
+ * noticeably produce glow. For this reason, this filter should <em>only</em> be used
  * if HDR is also being utilized, otherwise BloomFilter should be preferred.
  * <p>
  * This filter uses the PBR bloom algorithm presented in
@@ -69,9 +68,8 @@ public class PBRBloomFilter extends Filter {
     private AssetManager assetManager;
     private RenderManager renderManager;
     private ViewPort viewPort;
-    private int width, height;
-    private Pass[] downsamplingPasses;
-    private Pass[] upsamplingPasses;
+    private int width;
+    private int height;
     private final Image.Format format = Image.Format.RGBA16F;
     private boolean initialized = false;
     private int numSamplingPasses = 5;
@@ -85,18 +83,18 @@ public class PBRBloomFilter extends Filter {
     }
     
     @Override
-    protected void initFilter(AssetManager am, RenderManager rm, ViewPort vp, int width, int height) {
+    protected void initFilter(AssetManager am, RenderManager rm, ViewPort vp, int w, int h) {
         
         assetManager = am;
         renderManager = rm;
         viewPort = vp;
         postRenderPasses = new LinkedList<>();
         Renderer renderer = renderManager.getRenderer();
-        int w = this.width = width;
-        int h = this.height = height;
+        this.width = w;
+        this.height = h;
         
-        downsamplingPasses = new Pass[numSamplingPasses];
-        upsamplingPasses = new Pass[numSamplingPasses];
+        Pass[] downsamplingPasses = new Pass[numSamplingPasses];
+        Pass[] upsamplingPasses = new Pass[numSamplingPasses];
         
         // downsampling passes
         Material downsampleMat = new Material(assetManager, "Common/MatDefs/Post/Downsample.j3md");
@@ -185,11 +183,12 @@ public class PBRBloomFilter extends Filter {
      * <p>
      * default=5
      * 
-     * @param numSamplingPasses number of passes per donwsampling/upsampling step
+     * @param numSamplingPasses The number of passes per donwsampling/upsampling step. Must be greater than zero.
+     * @throws IllegalArgumentException if argument is less than or equal to zero
      */
     public void setNumSamplingPasses(int numSamplingPasses) {
         if (numSamplingPasses <= 0) {
-            throw new IllegalArgumentException("Expected number of sampling passes to be greater than zero (found: " + numSamplingPasses + ").");
+            throw new IllegalArgumentException("Number of sampling passes must be greater than zero (found: " + numSamplingPasses + ").");
         }
         this.numSamplingPasses = numSamplingPasses;
         if (initialized) {
@@ -202,7 +201,7 @@ public class PBRBloomFilter extends Filter {
      * the scene texture.
      * <p>
      * Low values favor the scene texture more, while high values make
-     * glow more noticable. This value is clamped between 0 and 1.
+     * glow more noticeable. This value is clamped between 0 and 1.
      * <p>
      * default=0.05f
      * 
@@ -247,8 +246,8 @@ public class PBRBloomFilter extends Filter {
     public void read(JmeImporter im) throws IOException {
         super.read(im);
         InputCapsule ic = im.getCapsule(this);
-        numSamplingPasses = ic.readInt("numSamplingPasses", numSamplingPasses);
-        glowFactor = ic.readFloat("glowFactor", glowFactor);
+        numSamplingPasses = ic.readInt("numSamplingPasses", 5);
+        glowFactor = ic.readFloat("glowFactor", 0.05f);
     }
     
 }
