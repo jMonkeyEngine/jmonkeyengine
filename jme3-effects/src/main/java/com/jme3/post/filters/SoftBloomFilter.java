@@ -322,6 +322,7 @@ public class SoftBloomFilter extends Filter {
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(numSamplingPasses, "numSamplingPasses", 5);
         oc.write(glowFactor, "glowFactor", 0.05f);
+        oc.write(bilinearFiltering, "bilinearFiltering", true);
     }
 
     @Override
@@ -330,6 +331,7 @@ public class SoftBloomFilter extends Filter {
         InputCapsule ic = im.getCapsule(this);
         numSamplingPasses = ic.readInt("numSamplingPasses", 5);
         glowFactor = ic.readFloat("glowFactor", 0.05f);
+        bilinearFiltering = ic.readBoolean("bilinearFiltering", true);
     }
     
 }
