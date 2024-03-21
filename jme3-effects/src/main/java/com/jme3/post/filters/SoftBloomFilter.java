@@ -46,6 +46,8 @@ import com.jme3.renderer.ViewPort;
 import com.jme3.texture.Image;
 import com.jme3.texture.Texture;
 import java.io.IOException;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 import java.util.LinkedList;
 
 /**
@@ -66,15 +68,20 @@ import java.util.LinkedList;
  */
 public class SoftBloomFilter extends Filter {
     
+    private static final Logger logger = Logger.getLogger(SoftBloomFilter.class.getName());
+    
     private AssetManager assetManager;
     private RenderManager renderManager;
     private ViewPort viewPort;
     private int width;
     private int height;
+    private Pass[] downsamplingPasses;
+    private Pass[] upsamplingPasses;
     private final Image.Format format = Image.Format.RGBA16F;
     private boolean initialized = false;
     private int numSamplingPasses = 5;
     private float glowFactor = 0.05f;
+    private boolean bilinearFiltering = true;
     
     /**
      * Creates filter with default settings.
@@ -94,13 +101,15 @@ public class SoftBloomFilter extends Filter {
         this.width = w;
         this.height = h;
         
-        Pass[] downsamplingPasses = new Pass[numSamplingPasses];
-        Pass[] upsamplingPasses = new Pass[numSamplingPasses];
+        capPassesToSize(w, h);
+        
+        downsamplingPasses = new Pass[numSamplingPasses];
+        upsamplingPasses = new Pass[numSamplingPasses];
         
         // downsampling passes
         Material downsampleMat = new Material(assetManager, "Common/MatDefs/Post/Downsample.j3md");
         Vector2f initTexelSize = new Vector2f(1f/w, 1f/h);
-        w /= 2; h /= 2;
+        w = w >> 1; h = h >> 1;
         Pass initialPass = new Pass() {
             @Override
             public boolean requiresSceneAsTexture() {
@@ -116,7 +125,7 @@ public class SoftBloomFilter extends Filter {
         downsamplingPasses[0] = initialPass;
         for (int i = 1; i < downsamplingPasses.length; i++) {
             Vector2f texelSize = new Vector2f(1f/w, 1f/h);
-            w /= 2; h /= 2;
+            w = w >> 1; h = h >> 1;
             Pass prev = downsamplingPasses[i-1];
             Pass pass = new Pass() {
                 @Override
@@ -126,7 +135,9 @@ public class SoftBloomFilter extends Filter {
                 }
             };
             pass.init(renderer, w, h, format, Image.Format.Depth, 1, downsampleMat);
-            pass.getRenderedTexture().setMinFilter(Texture.MinFilter.BilinearNoMipMaps);
+            if (bilinearFiltering) {
+                pass.getRenderedTexture().setMinFilter(Texture.MinFilter.BilinearNoMipMaps);
+            }
             postRenderPasses.add(pass);
             downsamplingPasses[i] = pass;
         }
@@ -135,7 +146,7 @@ public class SoftBloomFilter extends Filter {
         Material upsampleMat = new Material(assetManager, "Common/MatDefs/Post/Upsample.j3md");
         for (int i = 0; i < upsamplingPasses.length; i++) {
             Vector2f texelSize = new Vector2f(1f/w, 1f/h);
-            w *= 2; h *= 2;
+            w = w << 1; h = h << 1;
             Pass prev;
             if (i == 0) {
                 prev = downsamplingPasses[downsamplingPasses.length-1];
@@ -150,7 +161,9 @@ public class SoftBloomFilter extends Filter {
                 }
             };
             pass.init(renderer, w, h, format, Image.Format.Depth, 1, upsampleMat);
-            pass.getRenderedTexture().setMagFilter(Texture.MagFilter.Bilinear);
+            if (bilinearFiltering) {
+                pass.getRenderedTexture().setMagFilter(Texture.MagFilter.Bilinear);
+            }
             postRenderPasses.add(pass);
             upsamplingPasses[i] = pass;
         }
@@ -182,7 +195,7 @@ public class SoftBloomFilter extends Filter {
      * of fragments quadruples (which restores the number of fragments to the original
      * resolution).
      * <p>
-     * Settings this after the filter has been initialized forces reinitialization.
+     * Setting this after the filter has been initialized forces reinitialization.
      * <p>
      * default=5
      * 
@@ -193,9 +206,11 @@ public class SoftBloomFilter extends Filter {
         if (numSamplingPasses <= 0) {
             throw new IllegalArgumentException("Number of sampling passes must be greater than zero (found: " + numSamplingPasses + ").");
         }
-        this.numSamplingPasses = numSamplingPasses;
-        if (initialized) {
-            initFilter(assetManager, renderManager, viewPort, width, height);
+        if (this.numSamplingPasses != numSamplingPasses) {
+            this.numSamplingPasses = numSamplingPasses;
+            if (initialized) {
+                initFilter(assetManager, renderManager, viewPort, width, height);
+            }
         }
     }
     
@@ -218,6 +233,39 @@ public class SoftBloomFilter extends Filter {
     }
     
     /**
+     * Sets pass textures to use bilinear filtering.
+     * <p>
+     * If true, downsampling textures are set to {@code min=BilinearNoMipMaps} and
+     * upsampling textures are set to {@code mag=Bilinear}, which produces better
+     * quality glow. If false, textures use their default filters.
+     * <p>
+     * default=true
+     * 
+     * @param bilinearFiltering true to use bilinear filtering
+     */
+    public void setBilinearFiltering(boolean bilinearFiltering) {
+        if (this.bilinearFiltering != bilinearFiltering) {
+            this.bilinearFiltering = bilinearFiltering;
+            if (initialized) {
+                for (Pass p : downsamplingPasses) {
+                    if (this.bilinearFiltering) {
+                        p.getRenderedTexture().setMinFilter(Texture.MinFilter.BilinearNoMipMaps);
+                    } else {
+                        p.getRenderedTexture().setMinFilter(Texture.MinFilter.NearestNoMipMaps);
+                    }
+                }
+                for (Pass p : upsamplingPasses) {
+                    if (this.bilinearFiltering) {
+                        p.getRenderedTexture().setMagFilter(Texture.MagFilter.Bilinear);
+                    } else {
+                        p.getRenderedTexture().setMagFilter(Texture.MagFilter.Nearest);
+                    }
+                }
+            }
+        }
+    }
+    
+    /**
      * Gets the number of downsampling/upsampling passes per step.
      * 
      * @return number of downsampling/upsampling passes
@@ -235,6 +283,37 @@ public class SoftBloomFilter extends Filter {
      */
     public float getGlowFactor() {
         return glowFactor;
+    }
+    
+    /**
+     * Returns true if pass textures use bilinear filtering.
+     * 
+     * @return 
+     * @see #setBilinearFiltering(boolean)
+     */
+    public boolean isBilinearFiltering() {
+        return bilinearFiltering;
+    }
+    
+    /**
+     * Caps the number of sampling passes so that texture size does
+     * not go below 1 on any axis.
+     * <p>
+     * A message will be logged if the number of sampling passes is changed.
+     * 
+     * @param w texture width
+     * @param h texture height
+     */
+    private void capPassesToSize(int w, int h) {
+        int limit = Math.min(w, h);
+        for (int i = 0; i < numSamplingPasses; i++) {
+            limit = limit >> 1;
+            if (limit <= 0) {
+                numSamplingPasses = i;
+                logger.log(Level.INFO, "Number of sampling passes capped at {0} due to texture size.", i);
+                break;
+            }
+        }
     }
     
     @Override

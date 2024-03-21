@@ -35,6 +35,11 @@ package jme3test.post;
 import com.jme3.app.SimpleApplication;
 import com.jme3.asset.TextureKey;
 import com.jme3.environment.EnvironmentProbeControl;
+import com.jme3.font.BitmapText;
+import com.jme3.input.KeyInput;
+import com.jme3.input.controls.ActionListener;
+import com.jme3.input.controls.AnalogListener;
+import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.DirectionalLight;
 import com.jme3.light.PointLight;
 import com.jme3.material.Material;
@@ -57,9 +62,16 @@ import com.jme3.util.SkyFactory.EnvMapType;
  * 
  * @author codex
  */
-public class TestSoftBloom extends SimpleApplication {
+public class TestSoftBloom extends SimpleApplication implements ActionListener, AnalogListener {
 
-    private FilterPostProcessor fpp;
+    private SoftBloomFilter bloom;
+    private BitmapText passes, factor, bilinear;
+    private BitmapText power, intensity;
+    private Material tankMat;
+    private float emissionPower = 50;
+    private float emissionIntensity = 50;
+    private final int maxPasses = 10;
+    private final float factorRate = 0.1f;
     
     public static void main(String[] args){
         TestSoftBloom app = new TestSoftBloom();
@@ -100,12 +112,12 @@ public class TestSoftBloom extends SimpleApplication {
         soil.setShadowMode(ShadowMode.CastAndReceive);
         rootNode.attachChild(soil);
         
-        Material tankMat = new Material(assetManager, "Common/MatDefs/Light/PBRLighting.j3md");
+        tankMat = new Material(assetManager, "Common/MatDefs/Light/PBRLighting.j3md");
         tankMat.setTexture("BaseColorMap", assetManager.loadTexture(new TextureKey("Models/HoverTank/tank_diffuse.jpg", !true)));
         tankMat.setTexture("SpecularMap", assetManager.loadTexture(new TextureKey("Models/HoverTank/tank_specular.jpg", !true)));
         tankMat.setTexture("NormalMap", assetManager.loadTexture(new TextureKey("Models/HoverTank/tank_normals.png", !true)));
         tankMat.setTexture("EmissiveMap", assetManager.loadTexture(new TextureKey("Models/HoverTank/tank_glow_map.jpg", !true)));
-        tankMat.setFloat("EmissivePower", 50);
+        tankMat.setFloat("EmissivePower", emissionPower);
         tankMat.setFloat("EmissiveIntensity", 50);
         tankMat.setFloat("Metallic", .5f);
         Spatial tank = assetManager.loadModel("Models/HoverTank/Tank2.mesh.xml");
@@ -134,11 +146,102 @@ public class TestSoftBloom extends SimpleApplication {
         
         rootNode.addControl(new EnvironmentProbeControl(assetManager, 256));
         
-        fpp = new FilterPostProcessor(assetManager);
-        SoftBloomFilter bloom = new SoftBloomFilter();
+        FilterPostProcessor fpp = new FilterPostProcessor(assetManager);
+        bloom = new SoftBloomFilter();
         fpp.addFilter(bloom);
         viewPort.addProcessor(fpp);
         
+        int textY = context.getSettings().getHeight()-5;
+        float xRow1 = 10, xRow2 = 250;
+        guiFont = assetManager.loadFont("Interface/Fonts/Default.fnt");
+        passes = createText("", xRow1, textY);
+        createText("[ R / F ]", xRow2, textY);
+        factor = createText("", xRow1, textY-25);
+        createText("[ T / G ]", xRow2, textY-25);
+        bilinear = createText("", xRow1, textY-25*2);
+        createText("[ space ]", xRow2, textY-25*2);
+        power = createText("", xRow1, textY-25*3);
+        createText("[ Y / H ]", xRow2, textY-25*3);
+        intensity = createText("", xRow1, textY-25*4);
+        createText("[ U / J ]", xRow2, textY-25*4);
+        updateHud();
+        
+        inputManager.addMapping("incr-passes", new KeyTrigger(KeyInput.KEY_R));
+        inputManager.addMapping("decr-passes", new KeyTrigger(KeyInput.KEY_F));
+        inputManager.addMapping("incr-factor", new KeyTrigger(KeyInput.KEY_T));
+        inputManager.addMapping("decr-factor", new KeyTrigger(KeyInput.KEY_G));
+        inputManager.addMapping("toggle-bilinear", new KeyTrigger(KeyInput.KEY_SPACE));
+        inputManager.addMapping("incr-power", new KeyTrigger(KeyInput.KEY_Y));
+        inputManager.addMapping("decr-power", new KeyTrigger(KeyInput.KEY_H));
+        inputManager.addMapping("incr-intensity", new KeyTrigger(KeyInput.KEY_U));
+        inputManager.addMapping("decr-intensity", new KeyTrigger(KeyInput.KEY_J));
+        inputManager.addListener(this, "incr-passes", "decr-passes", "incr-factor", "decr-factor",
+                "toggle-bilinear", "incr-power", "decr-power", "incr-intensity", "decr-intensity");
+        
+    }
+    @Override
+    public void simpleUpdate(float tpf) {
+        updateHud();
+    }
+    @Override
+    public void onAction(String name, boolean isPressed, float tpf) {
+        if (isPressed) {
+            if (name.equals("incr-passes")) {
+                bloom.setNumSamplingPasses(Math.min(bloom.getNumSamplingPasses()+1, maxPasses));
+            } else if (name.equals("decr-passes")) {
+                bloom.setNumSamplingPasses(Math.max(bloom.getNumSamplingPasses()-1, 1));
+            } else if (name.equals("toggle-bilinear")) {
+                bloom.setBilinearFiltering(!bloom.isBilinearFiltering());
+            }
+            updateHud();
+        }
+    }
+    @Override
+    public void onAnalog(String name, float value, float tpf) {
+        if (name.equals("incr-factor")) {
+            bloom.setGlowFactor(bloom.getGlowFactor()+factorRate*tpf);
+        } else if (name.equals("decr-factor")) {
+            bloom.setGlowFactor(bloom.getGlowFactor()-factorRate*tpf);
+        } else if (name.equals("incr-power")) {
+            emissionPower += 10f*tpf;
+            updateTankMaterial();
+        } else if (name.equals("decr-power")) {
+            emissionPower -= 10f*tpf;
+            updateTankMaterial();
+        } else if (name.equals("incr-intensity")) {
+            emissionIntensity += 10f*tpf;
+            updateTankMaterial();
+        } else if (name.equals("decr-intensity")) {
+            emissionIntensity -= 10f*tpf;
+            updateTankMaterial();
+        }
+        updateHud();
+    }
+    
+    private BitmapText createText(String string, float x, float y) {
+        BitmapText text = new BitmapText(guiFont);
+        text.setSize(guiFont.getCharSet().getRenderedSize());
+        text.setLocalTranslation(x, y, 0);
+        text.setText(string);
+        guiNode.attachChild(text);
+        return text;
+    }
+    private void updateHud() {
+        passes.setText("Passes = " + bloom.getNumSamplingPasses());
+        factor.setText("Glow Factor = " + floatToString(bloom.getGlowFactor(), 5));
+        bilinear.setText("Bilinear Filtering = " + bloom.isBilinearFiltering());
+        power.setText("Emission Power = " + floatToString(emissionPower, 5));
+        intensity.setText("Emission Intensity = " + floatToString(emissionIntensity, 5));
+    }
+    private String floatToString(float value, int length) {
+        String string = Float.toString(value);
+        return string.substring(0, Math.min(length, string.length()));
+    }
+    private void updateTankMaterial() {
+        emissionPower = Math.max(emissionPower, 0);
+        emissionIntensity = Math.max(emissionIntensity, 0);
+        tankMat.setFloat("EmissivePower", emissionPower);
+        tankMat.setFloat("EmissiveIntensity", emissionIntensity);
     }
     
 }
