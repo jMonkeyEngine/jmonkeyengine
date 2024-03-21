@@ -41,7 +41,7 @@ import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.post.FilterPostProcessor;
-import com.jme3.post.filters.PBRBloomFilter;
+import com.jme3.post.filters.SoftBloomFilter;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
@@ -50,7 +50,7 @@ import com.jme3.util.SkyFactory;
 import com.jme3.util.SkyFactory.EnvMapType;
 
 /**
- * Tests {@link PBRBloomFilter} with HDR.
+ * Tests {@link SoftBloomFilter} with HDR.
  * <p>
  * Note: the camera is pointed directly at the ground, which is completely
  * black for some reason.
@@ -135,7 +135,7 @@ public class TestPBRBloom extends SimpleApplication {
         rootNode.addControl(new EnvironmentProbeControl(assetManager, 256));
         
         fpp = new FilterPostProcessor(assetManager);
-        PBRBloomFilter bloom = new PBRBloomFilter();
+        SoftBloomFilter bloom = new SoftBloomFilter();
         fpp.addFilter(bloom);
         viewPort.addProcessor(fpp);
         

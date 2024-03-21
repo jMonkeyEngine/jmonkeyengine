@@ -64,7 +64,7 @@ import java.util.LinkedList;
  * 
  * @author codex
  */
-public class PBRBloomFilter extends Filter {
+public class SoftBloomFilter extends Filter {
     
     private AssetManager assetManager;
     private RenderManager renderManager;
@@ -79,8 +79,8 @@ public class PBRBloomFilter extends Filter {
     /**
      * Creates filter with default settings.
      */
-    public PBRBloomFilter() {
-        super("PBRBloomFilter");
+    public SoftBloomFilter() {
+        super("SoftBloomFilter");
     }
     
     @Override
@@ -127,7 +127,6 @@ public class PBRBloomFilter extends Filter {
             };
             pass.init(renderer, w, h, format, Image.Format.Depth, 1, downsampleMat);
             pass.getRenderedTexture().setMinFilter(Texture.MinFilter.BilinearNoMipMaps);
-            pass.getRenderedTexture().setMagFilter(Texture.MagFilter.Bilinear);
             postRenderPasses.add(pass);
             downsamplingPasses[i] = pass;
         }
