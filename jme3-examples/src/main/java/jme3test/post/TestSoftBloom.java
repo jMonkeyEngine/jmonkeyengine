@@ -179,10 +179,12 @@ public class TestSoftBloom extends SimpleApplication implements ActionListener, 
                 "toggle-bilinear", "incr-power", "decr-power", "incr-intensity", "decr-intensity");
         
     }
+    
     @Override
     public void simpleUpdate(float tpf) {
         updateHud();
     }
+    
     @Override
     public void onAction(String name, boolean isPressed, float tpf) {
         if (isPressed) {
@@ -196,6 +198,7 @@ public class TestSoftBloom extends SimpleApplication implements ActionListener, 
             updateHud();
         }
     }
+    
     @Override
     public void onAnalog(String name, float value, float tpf) {
         if (name.equals("incr-factor")) {
@@ -226,6 +229,7 @@ public class TestSoftBloom extends SimpleApplication implements ActionListener, 
         guiNode.attachChild(text);
         return text;
     }
+    
     private void updateHud() {
         passes.setText("Passes = " + bloom.getNumSamplingPasses());
         factor.setText("Glow Factor = " + floatToString(bloom.getGlowFactor(), 5));
@@ -233,10 +237,12 @@ public class TestSoftBloom extends SimpleApplication implements ActionListener, 
         power.setText("Emission Power = " + floatToString(emissionPower, 5));
         intensity.setText("Emission Intensity = " + floatToString(emissionIntensity, 5));
     }
+    
     private String floatToString(float value, int length) {
         String string = Float.toString(value);
         return string.substring(0, Math.min(length, string.length()));
     }
+    
     private void updateTankMaterial() {
         emissionPower = Math.max(emissionPower, 0);
         emissionIntensity = Math.max(emissionIntensity, 0);
