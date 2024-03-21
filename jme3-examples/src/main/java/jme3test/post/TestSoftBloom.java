@@ -57,12 +57,12 @@ import com.jme3.util.SkyFactory.EnvMapType;
  * 
  * @author codex
  */
-public class TestPBRBloom extends SimpleApplication {
+public class TestSoftBloom extends SimpleApplication {
 
     private FilterPostProcessor fpp;
     
     public static void main(String[] args){
-        TestPBRBloom app = new TestPBRBloom();
+        TestSoftBloom app = new TestSoftBloom();
         app.start();
     }
 

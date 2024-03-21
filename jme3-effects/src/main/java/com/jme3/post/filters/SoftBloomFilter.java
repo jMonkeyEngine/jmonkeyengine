@@ -150,7 +150,6 @@ public class SoftBloomFilter extends Filter {
                 }
             };
             pass.init(renderer, w, h, format, Image.Format.Depth, 1, upsampleMat);
-            pass.getRenderedTexture().setMinFilter(Texture.MinFilter.BilinearNoMipMaps);
             pass.getRenderedTexture().setMagFilter(Texture.MagFilter.Bilinear);
             postRenderPasses.add(pass);
             upsamplingPasses[i] = pass;
