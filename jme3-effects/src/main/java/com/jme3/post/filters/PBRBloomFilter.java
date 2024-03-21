@@ -44,6 +44,7 @@ import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
 import com.jme3.texture.Image;
+import com.jme3.texture.Texture;
 import java.io.IOException;
 import java.util.LinkedList;
 
@@ -125,6 +126,8 @@ public class PBRBloomFilter extends Filter {
                 }
             };
             pass.init(renderer, w, h, format, Image.Format.Depth, 1, downsampleMat);
+            pass.getRenderedTexture().setMinFilter(Texture.MinFilter.BilinearNoMipMaps);
+            pass.getRenderedTexture().setMagFilter(Texture.MagFilter.Bilinear);
             postRenderPasses.add(pass);
             downsamplingPasses[i] = pass;
         }
@@ -148,6 +151,8 @@ public class PBRBloomFilter extends Filter {
                 }
             };
             pass.init(renderer, w, h, format, Image.Format.Depth, 1, upsampleMat);
+            pass.getRenderedTexture().setMinFilter(Texture.MinFilter.BilinearNoMipMaps);
+            pass.getRenderedTexture().setMagFilter(Texture.MagFilter.Bilinear);
             postRenderPasses.add(pass);
             upsamplingPasses[i] = pass;
         }
