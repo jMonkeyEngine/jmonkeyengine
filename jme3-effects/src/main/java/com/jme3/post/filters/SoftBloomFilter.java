@@ -308,7 +308,7 @@ public class SoftBloomFilter extends Filter {
         int limit = Math.min(w, h);
         for (int i = 0; i < numSamplingPasses; i++) {
             limit = limit >> 1;
-            if (limit <= 0) {
+            if (limit <= 2) {
                 numSamplingPasses = i;
                 logger.log(Level.INFO, "Number of sampling passes capped at {0} due to texture size.", i);
                 break;
