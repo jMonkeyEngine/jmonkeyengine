@@ -10,7 +10,7 @@ MaterialDef PBRBloomFinal {
 
     Technique {
         VertexShader   GLSL300 GLSL150 GLSL100: Common/MatDefs/Post/Post.vert
-        FragmentShader GLSL300 GLSL150 GLSL100: Common/MatDefs/Post/PBRBloomFinal.frag
+        FragmentShader GLSL300 GLSL150 GLSL100: Common/MatDefs/Post/SoftBloomFinal.frag
 
         WorldParameters {
         }

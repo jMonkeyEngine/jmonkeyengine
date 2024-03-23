@@ -168,7 +168,7 @@ public class SoftBloomFilter extends Filter {
             upsamplingPasses[i] = pass;
         }
         
-        material = new Material(assetManager, "Common/MatDefs/Post/PBRBloomFinal.j3md");
+        material = new Material(assetManager, "Common/MatDefs/Post/SoftBloomFinal.j3md");
         material.setTexture("GlowMap", upsamplingPasses[upsamplingPasses.length-1].getRenderedTexture());
         material.setFloat("GlowFactor", glowFactor);
         
