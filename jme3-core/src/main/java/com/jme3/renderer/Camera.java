@@ -926,6 +926,8 @@ public class Camera implements Savable, Cloneable {
      *                      (typically {0, 1, 0} in jME.)
      */
     public void lookAt(Vector3f pos, Vector3f worldUpVector) {
+        
+        System.out.println("Set camera to look at "+pos);
         TempVars vars = TempVars.get();
         Vector3f newDirection = vars.vect1;
         Vector3f newUp = vars.vect2;
