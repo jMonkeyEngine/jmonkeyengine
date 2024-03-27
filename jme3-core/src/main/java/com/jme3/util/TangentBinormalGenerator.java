@@ -113,9 +113,7 @@ public class TangentBinormalGenerator {
         }
 
         public void setIndex(int[] index) {
-            for (int i = 0; i < index.length; i++) {
-                this.index[i] = index[i];
-            }
+            System.arraycopy(index, 0, this.index, 0, index.length);
         }
     }
 

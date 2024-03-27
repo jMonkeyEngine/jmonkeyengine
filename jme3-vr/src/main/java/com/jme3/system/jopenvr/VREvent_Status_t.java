@@ -2,6 +2,7 @@ package com.jme3.system.jopenvr;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 /**
  * <i>native declaration : headers\openvr_capi.h:1338</i><br>
@@ -16,7 +17,7 @@ public class VREvent_Status_t extends Structure {
 	}
         @Override
 	protected List<String> getFieldOrder() {
-		return Arrays.asList("statusState");
+		return Collections.singletonList("statusState");
 	}
 	public VREvent_Status_t(int statusState) {
 		super();

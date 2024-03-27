@@ -110,7 +110,7 @@ public class ComboMoveExecution {
             
             // the following for debug only.
             if (currentState.getPressedMappings().length > 0){
-                if (!debugString.equals(""))
+                if (!debugString.isEmpty())
                     debugString += ", ";
 
                 debugString += Arrays.toString(currentState.getPressedMappings()).replace(", ", "+");

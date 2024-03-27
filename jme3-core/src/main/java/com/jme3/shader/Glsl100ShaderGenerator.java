@@ -506,6 +506,7 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
         for (ShaderNodeVariable shaderNodeVariable : info.getVaryings()) {
             if (shaderNodeVariable.equals(v)) {
                 isVarying = true;
+                break;
             }
         }
         return isVarying;

@@ -215,7 +215,7 @@ public class AndroidJoyInput implements JoyInput {
         if (!disableSensors) {
             joystickList.add(sensorJoyInput.loadJoystick(joystickList.size(), inputManager));
         }
-        return joystickList.toArray( new Joystick[joystickList.size()] );
+        return joystickList.toArray(new Joystick[0]);
     }
 
     @Override

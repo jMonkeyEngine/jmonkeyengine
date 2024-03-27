@@ -81,7 +81,7 @@ public final class Skeleton implements Savable, JmeCloneable {
                 rootBoneList.add(b);
             }
         }
-        rootBones = rootBoneList.toArray(new Bone[rootBoneList.size()]);
+        rootBones = rootBoneList.toArray(new Bone[0]);
 
         createSkinningMatrices();
 

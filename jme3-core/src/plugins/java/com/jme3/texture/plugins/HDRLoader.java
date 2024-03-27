@@ -225,7 +225,7 @@ public class HDRLoader implements AssetLoader {
         while (true){
             String ln = readString(in);
             ln = ln.trim();
-            if (ln.startsWith("#") || ln.equals("")){
+            if (ln.startsWith("#") || ln.isEmpty()){
                 if (ln.equals("#?RADIANCE") || ln.equals("#?RGBE"))
                     verifiedFormat = true;
 
