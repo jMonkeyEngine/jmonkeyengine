@@ -238,6 +238,7 @@ public class TestScene extends Node {
     private int width = 3;
     private int height = 3;
     private boolean walls = true;
+    private boolean lights = true;
     private String subSceneAsset;
     private boolean filters = true;
     private FilterPostProcessor fpp;
@@ -294,7 +295,7 @@ public class TestScene extends Node {
     /**
      * Launches a dedicated test application for this class.
      * 
-     * @param args application arguments (unused)
+     * @param args application arguments
      */
     public static void main(String[] args) {
         TestApp.start(args);
@@ -382,17 +383,19 @@ public class TestScene extends Node {
             }
             
             // lights
-            sun = new DirectionalLight();
-            sun.setDirection(new Vector3f(.5f, -1, .3f));
-            sun.setColor(ColorRGBA.White);
-            addLight(sun);
-            atmosphere = new DirectionalLight();
-            atmosphere.setDirection(new Vector3f(-1, -1, 1));
-            atmosphere.setColor(ColorRGBA.White.mult(.2f));
-            addLight(atmosphere);
-            ambient = new AmbientLight();
-            ambient.setColor(ColorRGBA.White.mult(.5f));
-            addLight(ambient);
+            if (lights) {
+                sun = new DirectionalLight();
+                sun.setDirection(new Vector3f(.5f, -1, .3f));
+                sun.setColor(ColorRGBA.White);
+                addLight(sun);
+                atmosphere = new DirectionalLight();
+                atmosphere.setDirection(new Vector3f(-1, -1, 1));
+                atmosphere.setColor(ColorRGBA.White.mult(.2f));
+                addLight(atmosphere);
+                ambient = new AmbientLight();
+                ambient.setColor(ColorRGBA.White.mult(.5f));
+                addLight(ambient);
+            }
             
             // filters
             if (filters) {
@@ -400,16 +403,18 @@ public class TestScene extends Node {
                 if (makeFpp) {
                     fpp = new FilterPostProcessor(assetManager);
                 }
-                if (shadows == Shadows.Renderer) {
-                    shadowRenderer = JmeUtils.createShadowRenderer(assetManager, sun, shadowRes, sunSplits);
-                    shadowRenderer.setRenderBackFacesShadows(false);
-                    shadowRenderer.setShadowCompareMode(CompareMode.Hardware);
-                    viewPort.addProcessor(shadowRenderer);
-                } else if (shadows == Shadows.Filter) {
-                    shadowFilter = JmeUtils.createShadowFilter(assetManager, sun, shadowRes, sunSplits);
-                    shadowFilter.setRenderBackFacesShadows(false);
-                    shadowFilter.setShadowCompareMode(CompareMode.Hardware);
-                    fpp.addFilter(shadowFilter);
+                if (lights) {
+                    if (shadows == Shadows.Renderer) {
+                        shadowRenderer = JmeUtils.createShadowRenderer(assetManager, sun, shadowRes, sunSplits);
+                        shadowRenderer.setRenderBackFacesShadows(false);
+                        shadowRenderer.setShadowCompareMode(CompareMode.Hardware);
+                        viewPort.addProcessor(shadowRenderer);
+                    } else if (shadows == Shadows.Filter) {
+                        shadowFilter = JmeUtils.createShadowFilter(assetManager, sun, shadowRes, sunSplits);
+                        shadowFilter.setRenderBackFacesShadows(false);
+                        shadowFilter.setShadowCompareMode(CompareMode.Hardware);
+                        fpp.addFilter(shadowFilter);
+                    }
                 }
                 if (occlusion) {
                     ssaoFilter = new SSAOFilter();
@@ -701,7 +706,7 @@ public class TestScene extends Node {
     }
     
     /**
-     * Enables walls along the border of the scene.
+     * Enables visible walls along the border of the scene.
      * <p>
      * If disabled, the scene will be the equivalent of a plane.
      * <p>
@@ -740,6 +745,17 @@ public class TestScene extends Node {
      */
     public void setSubScene(String subSceneAsset) {
         this.subSceneAsset = subSceneAsset;
+    }
+    
+    /**
+     * Enables scene lights.
+     * <p>
+     * default=true
+     * 
+     * @param lights 
+     */
+    public void setEnableLights(boolean lights) {
+        this.lights = lights;
     }
     
     /**
@@ -956,6 +972,56 @@ public class TestScene extends Node {
      */
     public Node getSubScene() {
         return subScene;
+    }
+    
+    /**
+     * Returns true if lights are enabled.
+     * 
+     * @return 
+     * @see #setEnableLights(boolean)
+     */
+    public boolean isLightsEnabled() {
+        return lights;
+    }
+    
+    /**
+     * Returns true if filters are enabled.
+     * 
+     * @return 
+     * @see #setEnableFilters(boolean)
+     */
+    public boolean isFiltersEnabled() {
+        return filters;
+    }
+    
+    /**
+     * Returns true if boundary meshes are enabled.
+     * 
+     * @return 
+     * @see #setEnableBoundaries(boolean)
+     */
+    public boolean isBoundariesEnabled() {
+        return boundaries;
+    }
+    
+    /**
+     * Returns true if ambient occlusion is enabled.
+     * 
+     * @return 
+     * @see #setEnableOcclusion(boolean)
+     */
+    public boolean isOcclusionEnabled() {
+        return occlusion;
+    }
+    
+    /**
+     * Returns true if visible walls along the scene edge are enabled.
+     * 
+     * @return 
+     * @see #setEnableWalls(boolean) 
+     */
+    public boolean isWallsEnabled() {
+        return walls;
     }
     
     /**
