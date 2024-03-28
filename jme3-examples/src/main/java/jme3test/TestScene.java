@@ -50,6 +50,7 @@ import com.jme3.post.FilterPostProcessor;
 import com.jme3.post.filters.BloomFilter;
 import com.jme3.post.filters.BloomFilter.GlowMode;
 import com.jme3.post.ssao.SSAOFilter;
+import com.jme3.renderer.Limits;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
@@ -990,7 +991,10 @@ public class TestScene extends Node {
         
         @Override
         public void simpleInitApp() {
-        
+            
+            int maxAnisotropic = renderer.getLimits().get(Limits.TextureAnisotropy);
+            this.renderer.setDefaultAnisotropicFilter(Math.min(8, maxAnisotropic));
+            
             TestScene.setupSimpleApp(this);
             PhysicsSpace space = TestScene.setupPhysics(this, true).getPhysicsSpace();
             
