@@ -255,6 +255,7 @@ public class TestScene extends Node {
     private Node subScene;
     private Spatial sky;
     private DirectionalLight sun;
+    private DirectionalLight atmosphere;
     private AmbientLight ambient;
     private AbstractShadowRenderer shadowRenderer;
     private AbstractShadowFilter shadowFilter;
@@ -385,8 +386,12 @@ public class TestScene extends Node {
             sun.setDirection(new Vector3f(.5f, -1, .3f));
             sun.setColor(ColorRGBA.White);
             addLight(sun);
+            atmosphere = new DirectionalLight();
+            atmosphere.setDirection(new Vector3f(-1, -1, 1));
+            atmosphere.setColor(ColorRGBA.White.mult(.2f));
+            addLight(atmosphere);
             ambient = new AmbientLight();
-            ambient.setColor(ColorRGBA.White.mult(.75f));
+            ambient.setColor(ColorRGBA.White.mult(.5f));
             addLight(ambient);
             
             // filters
@@ -961,6 +966,41 @@ public class TestScene extends Node {
      */
     public FilterPostProcessor getFilterPostProcessor() {
         return fpp;
+    }
+    
+    /**
+     * Gets the sun light source.
+     * <p>
+     * This is the only light source in the scene that casts shadows.
+     * 
+     * @return 
+     */
+    public DirectionalLight getSunLight() {
+        return sun;
+    }
+    
+    /**
+     * Gets the atmospheric light source.
+     * <p>
+     * This light is very dim, but provides much-needed constrast between faces.
+     * It comes from generally the same direction as the sun light (within 90
+     * degrees of).
+     * <p>
+     * This light does not produce shadows.
+     * 
+     * @return 
+     */
+    public DirectionalLight getAtmosphericLight() {
+        return atmosphere;
+    }
+    
+    /**
+     * Gets the ambient light source.
+     * 
+     * @return 
+     */
+    public AmbientLight getAmbientLight() {
+        return ambient;
     }
     
     /**
