@@ -34,6 +34,7 @@ package jme3test;
 import com.jme3.app.Application;
 import com.jme3.app.SimpleApplication;
 import com.jme3.asset.AssetManager;
+import com.jme3.asset.TextureKey;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.PhysicsSpace;
 import com.jme3.bullet.collision.PhysicsCollisionObject;
@@ -42,6 +43,8 @@ import com.jme3.environment.EnvironmentProbeControl;
 import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
 import com.jme3.light.LightProbe;
+import com.jme3.material.Material;
+import com.jme3.material.PBRMaterial;
 import com.jme3.material.UnshadedMaterial;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
@@ -186,6 +189,36 @@ public class TestScene extends Node {
      * for each of 6 texture loads to create a texture for each orthogonal direction.
      */
     public static final String LAGOON_SKY = "multi:Textures/Sky/Lagoon/lagoon_$.jpg";
+    
+    /**
+     * Represents grey grid texture.
+     */
+    public static final String GRAY_TEXTURE = "Scenes/TestScene/grid-grey.png";
+    
+    /**
+     * Represents grey grid texture.
+     */
+    public static final String BLUE_TEXTURE = "Scenes/TestScene/grid-blue.png";
+    
+    /**
+     * Represents grey grid texture.
+     */
+    public static final String RED_TEXTURE = "Scenes/TestScene/grid-red.png";
+    
+    /**
+     * Represents grey grid texture.
+     */
+    public static final String GREEN_TEXTURE = "Scenes/TestScene/grid-green.png";
+    
+    /**
+     * Represents grey grid texture.
+     */
+    public static final String YELLOW_TEXTURE = "Scenes/TestScene/grid-yellow.png";
+    
+    /**
+     * Represents grey grid texture.
+     */
+    public static final String PURPLE_TEXTURE = "Scenes/TestScene/grid-purple.png";
     
     /**
      * Represents the size of each tile.
@@ -981,6 +1014,28 @@ public class TestScene extends Node {
     }
     
     /**
+     * Gets the shadow renderer for sunlight.
+     * <p>
+     * Returns null if the shadow mode is not {@link Shadows#Renderer}.
+     * 
+     * @return 
+     */
+    public AbstractShadowRenderer getSunShadowRenderer() {
+        return shadowRenderer;
+    }
+    
+    /**
+     * Gets the shadow filter for sunlight.
+     * <p>
+     * Returns null if the shadow mode is not {@link Shadows#Filter}.
+     * 
+     * @return 
+     */
+    public AbstractShadowFilter getSunShadowFilter() {
+        return shadowFilter;
+    }
+    
+    /**
      * Dedicated test application for {@link TestScene}.
      */
     private static class TestApp extends SimpleApplication {
@@ -992,11 +1047,10 @@ public class TestScene extends Node {
         @Override
         public void simpleInitApp() {
             
-            int maxAnisotropic = renderer.getLimits().get(Limits.TextureAnisotropy);
-            this.renderer.setDefaultAnisotropicFilter(Math.min(8, maxAnisotropic));
+            JmeUtils.setDefaultAnisotropyLevel(this, 8);
             
             TestScene.setupSimpleApp(this);
-            PhysicsSpace space = TestScene.setupPhysics(this, true).getPhysicsSpace();
+            PhysicsSpace space = TestScene.setupPhysics(this, false).getPhysicsSpace();
             
             TestScene scene = new TestScene(assetManager, viewPort);
             scene.setPhysicsSpace(space);

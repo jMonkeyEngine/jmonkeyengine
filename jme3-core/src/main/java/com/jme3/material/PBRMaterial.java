@@ -36,12 +36,17 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.texture.Texture;
 
 /**
- * Represents a PBRLighting.j3md material.git
+ * Material using PBRLighting.j3md.
  * 
  * @author codex
  */
 public class PBRMaterial extends Material {
     
+    /**
+     * Creates material with PBRLighting.j3md.
+     * 
+     * @param assetManager 
+     */
     public PBRMaterial(AssetManager assetManager) {
         super(assetManager, "Common/MatDefs/Light/PBRLighting.j3md");
     }
@@ -53,7 +58,8 @@ public class PBRMaterial extends Material {
     /**
      * Sets the base color map.
      * <p>
-     * Also known as albedo or diffuse. Overrides base color.
+     * Also known as albedo or diffuse. This defines the base color used to shade
+     * the geometry.
      * <p>
      * default=null
      * 
@@ -66,7 +72,7 @@ public class PBRMaterial extends Material {
     /**
      * Sets the metallic map.
      * <p>
-     * Overrides metallic value. Can be overriden by the metallic-roughness map.
+     * Defines how metallic the geometry will appear when shaded.
      * <p>
      * default=null
      * 
@@ -79,7 +85,8 @@ public class PBRMaterial extends Material {
     /**
      * Sets the roughness map.
      * <p>
-     * Overrides roughness value. Can be overriden by the metallic-roughness map.
+     * Defines how able the geometry can reflect light. Low values cleanly
+     * reflect light directed at them, while high values greatly diffuse the light.
      * <p>
      * default=null
      * 
@@ -92,8 +99,7 @@ public class PBRMaterial extends Material {
     /**
      * Sets the metallic-roughness map.
      * <p>
-     * Overrides individual metallic and roughness maps, as well as individual
-     * metallic and roughness values.
+     * Defines both the metallic and roughness properties.
      * <p>
      * The channels are assigned as follows:
      * <ul>
@@ -106,6 +112,8 @@ public class PBRMaterial extends Material {
      * default=null
      * 
      * @param metallicRoughnessMap 
+     * @see #setMetallicMap(com.jme3.texture.Texture)
+     * @see #setRoughnessMap(com.jme3.texture.Texture) 
      */
     public void setMetallicRoughnessMap(Texture metallicRoughnessMap) {
         setTexture("MetallicRoughnessMap", metallicRoughnessMap);
@@ -114,7 +122,8 @@ public class PBRMaterial extends Material {
     /**
      * Sets the emissive map.
      * <p>
-     * Overrides emissive color.
+     * Defines where the geometry "emits light". Emission areas are not affected
+     * by light sources (or the lack thereof).
      * <p>
      * default=null
      * 
@@ -126,6 +135,8 @@ public class PBRMaterial extends Material {
     
     /**
      * Sets the normal map.
+     * <p>
+     * Simulates fake bumpiness on the geometry by altering normals per-pixel.
      * <p>
      * default=null
      * 
@@ -151,7 +162,8 @@ public class PBRMaterial extends Material {
     /**
      * Sets the specular map.
      * <p>
-     * Overrides specular color. Can be overriden by the specular-glossiness map.
+     * Specular defines the color where light takes exactly one bounce off the geometry
+     * to reach the camera.
      * <p>
      * default=null
      * 
@@ -164,8 +176,6 @@ public class PBRMaterial extends Material {
     /**
      * Sets the glossiness map.
      * <p>
-     * Overrides glossiness value. Can be overriden by the specular-glossiness map.
-     * <p>
      * default=null
      * 
      * @param glossMap 
@@ -177,8 +187,7 @@ public class PBRMaterial extends Material {
     /**
      * Sets the specular-glossiness map.
      * <p>
-     * Overrides both the specular map and glossiness map, as well as the specular
-     * color and the glossiness value.
+     * Defines both the specular and glossiness properties.
      * <p>
      * The channels are assigned as follows:
      * <ul>
@@ -197,7 +206,8 @@ public class PBRMaterial extends Material {
     /**
      * Sets the parallax map.
      * <p>
-     * Can be overriden by enabling normal-parallax packing when the normal map is defined.
+     * Parallax attempts to simulate deeper crevices in the geometry than normal maps
+     * by altering texture coordinates and normals per-pixel.
      * <p>
      * default=null
      * 
@@ -209,6 +219,9 @@ public class PBRMaterial extends Material {
     
     /**
      * Sets the light map.
+     * <p>
+     * Defines where the geometry is exposed to light. This is mainly used with
+     * baked illumination for static scenes.
      * <p>
      * default=null
      * 
@@ -225,7 +238,7 @@ public class PBRMaterial extends Material {
     /**
      * Sets the base color.
      * <p>
-     * This can be overriden by the base color map.
+     * Defines the base color of the geometry before shading.
      * <p>
      * default=(1.0, 1.0, 1.0, 1.0)
      * 
@@ -238,7 +251,8 @@ public class PBRMaterial extends Material {
     /**
      * Sets the emissive color.
      * <p>
-     * This can be overriden by the emissive map.
+     * Defines the color of "light" the entire geometry emits. If this parameter is
+     * not null, the geometry is unaffected by light sources (or the lack thereof).
      * <p>
      * default=null
      * 
@@ -251,7 +265,8 @@ public class PBRMaterial extends Material {
     /**
      * Sets the specular color.
      * <p>
-     * This can be overriden by either the specular map or the specular-glossiness map.
+     * Defines the color where light takes exactly one bounce off the geometry
+     * to reach the camera.
      * <p>
      * default=(1.0, 1.0, 1.0, 1.0)
      * 
@@ -268,8 +283,7 @@ public class PBRMaterial extends Material {
     /**
      * Sets the alpha discard threshold.
      * <p>
-     * Fragments with an alpha value below this threshold will be discarded
-     * in the fragment shader.
+     * Pixels with an alpha value below this threshold will be discarded.
      * <p>
      * default=null
      * 
@@ -282,7 +296,7 @@ public class PBRMaterial extends Material {
     /**
      * Sets the metallic value.
      * <p>
-     * This can be overriden by either the metallic map or the metallic-roughness map.
+     * Defines how metallic the geometry will look when shaded.
      * <p>
      * default=1.0
      * 
@@ -293,7 +307,24 @@ public class PBRMaterial extends Material {
     }
     
     /**
+     * Sets the roughness value.
+     * <p>
+     * Defines how able the geometry can reflect light. Low values cleanly
+     * reflect light directed at them, while high values greatly diffuse the light.
+     * <p>
+     * default=1.0
+     * 
+     * @param roughness 
+     */
+    public void setRoughness(Float roughness) {
+        setFloat("Roughness", roughness);
+    }
+    
+    /**
      * Sets the emissive power value.
+     * <p>
+     * Defines the power of "light" emitted from the geometry. This often puts colors
+     * resulting into HDR, which is important for HDR-dependent filters such as ToneMapFilter.
      * <p>
      * default=3.0
      * 
@@ -306,6 +337,9 @@ public class PBRMaterial extends Material {
     /**
      * Sets the emissive intensity value.
      * <p>
+     * Defines the intensity of "light" emitted from the geometry. This often puts resulting
+     * colors into HDR, which is important for HDR-dependent filters such as ToneMapFilter.
+     * <p>
      * default=2.0
      * 
      * @param emissiveIntensity 
@@ -316,8 +350,6 @@ public class PBRMaterial extends Material {
     
     /**
      * Sets the glossiness value.
-     * <p>
-     * This can be overriden by either the glossiness map or the specular-glossiness map.
      * <p>
      * default=1.0
      * 
@@ -334,7 +366,7 @@ public class PBRMaterial extends Material {
      * 
      * @param sigma 
      */
-    public void setSpecularAASigma(Float sigma) {
+    public void setSpecAntiAliasingVariance(Float sigma) {
         setFloat("SpecularAASigma", sigma);
     }
     
@@ -345,7 +377,7 @@ public class PBRMaterial extends Material {
      * 
      * @param kappa 
      */
-    public void setSpecularAAKappa(Float kappa) {
+    public void setSpecAntiAliasingClamp(Float kappa) {
         setFloat("SpecularAAKappa", kappa);
     }
     
@@ -378,7 +410,7 @@ public class PBRMaterial extends Material {
      ****************/
     
     /**
-     * Enables specular-glossiness pipeline.
+     * Enables using the specular-glossiness map over the individual maps.
      * <p>
      * default=false
      * 
@@ -400,10 +432,8 @@ public class PBRMaterial extends Material {
     }
     
     /**
-     * If true, parallax values will be read from the alpha channel of
-     * the normal map, if it exists.
-     * <p>
-     * Overrides parallax map, if true and normal map exists.
+     * If true, parallax values will be read from the alpha channel of the normal map,
+     * if it exists, instead of the dedicated parallax map.
      * <p>
      * default=false
      * 
@@ -438,7 +468,7 @@ public class PBRMaterial extends Material {
     }
     
     /**
-     * Enables use of seperate texture coordinate (TexCoord2 buffer) for the light map.
+     * Enables use of a seperate texture coordinate (TexCoord2 buffer) for the light map.
      * <p>
      * default=false
      * 
@@ -449,7 +479,7 @@ public class PBRMaterial extends Material {
     }
     
     /**
-     * Sets ambient occlusion to be read from the light map.
+     * If true, ambient occlusion will be read from the light map.
      * <p>
      * default=false
      * 
@@ -460,7 +490,8 @@ public class PBRMaterial extends Material {
     }
     
     /**
-     * Sets ambient occlusion to be read from the red channel of the metallic-roughness map.
+     * If true, ambient occlusion will be read from the red channel of the
+     * metallic-roughness map.
      * <p>
      * default=false
      * 

@@ -31,14 +31,14 @@
  */
 package com.jme3.util;
 
+import com.jme3.app.Application;
 import com.jme3.asset.AssetManager;
 import com.jme3.light.DirectionalLight;
 import com.jme3.light.Light;
 import com.jme3.light.LightProbe;
 import com.jme3.light.PointLight;
 import com.jme3.light.SpotLight;
-import com.jme3.scene.Node;
-import com.jme3.scene.Spatial;
+import com.jme3.renderer.Limits;
 import com.jme3.shadow.AbstractShadowFilter;
 import com.jme3.shadow.AbstractShadowRenderer;
 import com.jme3.shadow.DirectionalLightShadowFilter;
@@ -125,17 +125,17 @@ public class JmeUtils {
      */
     public static AbstractShadowFilter createShadowFilter(AssetManager assetManager, Light light, int resolution, int splits) {
         if (light instanceof DirectionalLight) {
-            DirectionalLightShadowFilter r = new DirectionalLightShadowFilter(assetManager, resolution, splits);
-            r.setLight((DirectionalLight)light);
-            return r;
+            DirectionalLightShadowFilter f = new DirectionalLightShadowFilter(assetManager, resolution, splits);
+            f.setLight((DirectionalLight)light);
+            return f;
         } else if (light instanceof PointLight) {
-            PointLightShadowFilter r = new PointLightShadowFilter(assetManager, resolution);
-            r.setLight((PointLight)light);
-            return r;
+            PointLightShadowFilter f = new PointLightShadowFilter(assetManager, resolution);
+            f.setLight((PointLight)light);
+            return f;
         } else if (light instanceof SpotLight) {
-            SpotLightShadowFilter r = new SpotLightShadowFilter(assetManager, resolution);
-            r.setLight((SpotLight)light);
-            return r;
+            SpotLightShadowFilter f = new SpotLightShadowFilter(assetManager, resolution);
+            f.setLight((SpotLight)light);
+            return f;
         } else {
             throw new IllegalArgumentException("Light must be a DirectionalLight, PointLight, or SpotLight to cast shadows.");
         }
@@ -153,6 +153,27 @@ public class JmeUtils {
      */
     public static LightProbe loadLightProbe(AssetManager assetManager, String assetPath) {
         return (LightProbe)assetManager.loadModel(assetPath).getLocalLightList().get(0);
+    }
+    
+    /**
+     * Sets the default anisotropy level.
+     * <p>
+     * Anisotropy sharpens textures viewed at oblique angles. This feature is only
+     * supported by desktop platforms, not mobile devices.
+     * <p>
+     * If the given level is higher than graphics drivers allow, the level will
+     * be capped at the limit.
+     * <p>
+     * <strong>JME wiki page:</strong> https://wiki.jmonkeyengine.org/docs/3.4/core/texture/anisotropic_filtering.html
+     * 
+     * @param app
+     * @param level unclamped default anisotropy level
+     * @return default anisotropy level after clamping
+     */
+    public static int setDefaultAnisotropyLevel(Application app, int level) {
+        level = Math.min(level, app.getRenderer().getLimits().get(Limits.TextureAnisotropy));
+        app.getRenderer().setDefaultAnisotropicFilter(level);
+        return level;
     }
     
 }

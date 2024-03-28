@@ -119,7 +119,6 @@ public class TestDirectionalLightShadow extends SimpleApplication implements Act
 
         for (int i = 0; i < 60; i++) {
             t = obj[FastMath.nextRandomInt(0, obj.length - 1)].clone(false);
-            t.setShadowMode(ShadowMode.CastAndReceive);
             t.setLocalScale(FastMath.nextRandomFloat() * 10f);
             t.setMaterial(mat[FastMath.nextRandomInt(0, mat.length - 1)]);
             rootNode.attachChild(t);
