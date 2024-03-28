@@ -21,7 +21,7 @@ public class UnshadedMaterial extends Material {
      * @param assetManager 
      */
     public UnshadedMaterial(AssetManager assetManager) {
-        super(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        super(assetManager, Materials.UNSHADED);
     }
     
     /**

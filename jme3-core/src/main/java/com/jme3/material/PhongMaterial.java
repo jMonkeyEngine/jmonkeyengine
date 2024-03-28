@@ -51,7 +51,7 @@ public class PhongMaterial extends Material {
      * @param assetManager 
      */
     public PhongMaterial(AssetManager assetManager) {
-        super(assetManager, "Common/MatDefs/Light/Lighting.j3md");
+        super(assetManager, Materials.LIGHTING);
     }
     
     /**

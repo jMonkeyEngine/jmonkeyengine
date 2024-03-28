@@ -48,7 +48,7 @@ public class PBRMaterial extends Material {
      * @param assetManager 
      */
     public PBRMaterial(AssetManager assetManager) {
-        super(assetManager, "Common/MatDefs/Light/PBRLighting.j3md");
+        super(assetManager, Materials.PBR);
     }
     
     /****************
