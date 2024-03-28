@@ -491,12 +491,19 @@ public class TestScene extends Node {
     public void dump() {
         clearRigidBodies();
         detachAllChildren();
-        removeLight(sun);
-        removeLight(ambient);
         subScene = null;
-        sky = null;
-        sun = null;
-        ambient = null;
+        if (sun != null) {
+            removeLight(sun);
+            sun = null;
+        }
+        if (atmosphere != null) {
+            removeLight(atmosphere);
+            atmosphere = null;
+        }
+        if (ambient != null) {
+            removeLight(ambient);
+            ambient = null;
+        }
         if (hardwareProbe != null) {
             removeLight(hardwareProbe);
             removeControl(hardwareProbe);
@@ -604,12 +611,6 @@ public class TestScene extends Node {
             new Geometry("WestBounds", new NormalQuad(Vector3f.UNIT_X.negate(), Vector3f.UNIT_Y, y, up, .5f, 0)),
             new Geometry("UpperBounds", new NormalQuad(Vector3f.UNIT_Y.negate(), Vector3f.UNIT_Z, x, y, .5f, .5f)),
             new Geometry("LowerBounds", new NormalQuad(Vector3f.UNIT_Y, Vector3f.UNIT_Z, x, y, .5f, .5f)),
-            //new Geometry("NorthBounds", new Quad(1, 1)),
-//            new Geometry("NorthBounds", new Quad(1, 1)),
-//            new Geometry("NorthBounds", new Quad(1, 1)),
-//            new Geometry("NorthBounds", new Quad(1, 1)),
-//            new Geometry("NorthBounds", new Quad(1, 1)),
-//            new Geometry("NorthBounds", new Quad(1, 1)),
         };
         Vector3f offset = new Vector3f(0.5f*width*TILE_SIZE.x, 0, 0.5f*height*TILE_SIZE.z);
         bounds[0].setLocalTranslation(0, 0, offset.z);
@@ -617,8 +618,8 @@ public class TestScene extends Node {
         bounds[2].setLocalTranslation(0, 0, -offset.z);
         bounds[3].setLocalTranslation(offset.x, 0, 0);
         bounds[4].setLocalTranslation(0, up, 0);
-        UnshadedMaterial mat = new UnshadedMaterial(assetManager);
-        mat.setColor(ColorRGBA.BlackNoAlpha);
+        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        mat.setColor("Color", ColorRGBA.BlackNoAlpha);
         for (Geometry g : bounds) {
             g.setMaterial(mat);
             g.setCullHint(Spatial.CullHint.Always);
