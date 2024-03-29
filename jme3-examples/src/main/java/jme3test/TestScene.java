@@ -50,6 +50,7 @@ import com.jme3.post.FilterPostProcessor;
 import com.jme3.post.filters.BloomFilter;
 import com.jme3.post.filters.BloomFilter.GlowMode;
 import com.jme3.post.ssao.SSAOFilter;
+import com.jme3.renderer.Limits;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
@@ -224,6 +225,7 @@ public class TestScene extends Node {
     public static final Vector3f TILE_SIZE = new Vector3f(20, 0, 20);
     
     private static final String BASE_SCENE = "Scenes/TestScene/base-scene.gltf";
+    private static final String MULTI_TEXTURE = "multi:";
     private static final Logger logger = Logger.getLogger(TestScene.class.getName());
     
     private final AssetManager assetManager;
@@ -233,6 +235,7 @@ public class TestScene extends Node {
     
     private int width = 3;
     private int height = 3;
+    private boolean sceneGeometry = true;
     private boolean walls = true;
     private boolean lights = true;
     private String subSceneAsset;
@@ -298,48 +301,6 @@ public class TestScene extends Node {
     }
     
     /**
-     * Sets up the {@link Application} to be more user-friendly.
-     * 
-     * @param app 
-     */
-    public static void setupApp(Application app) {
-        
-        app.getViewPort().setBackgroundColor(new ColorRGBA(.6f, .7f, 1f, 1f));
-        app.getCamera().lookAt(new Vector3f(0, 2, 0), Vector3f.UNIT_Y);
-        app.getCamera().setLocation(new Vector3f(-10, 10, -10));
-        
-    }
-    
-    /**
-     * Sets up the {@link SimpleApplication} to be more user-friendly.
-     * 
-     * @param app 
-     */
-    public static void setupSimpleApp(SimpleApplication app) {
-        
-        setupApp(app);
-        
-        if (app.getFlyByCamera() != null) {
-            app.getFlyByCamera().setMoveSpeed(15);
-        }
-        
-    }
-    
-    /**
-     * Creates a {@link BulletAppState} and attaches it to the {@link StateManager}.
-     * 
-     * @param app
-     * @param debug enable physics debug
-     * @return resulting BulletAppState
-     */
-    public static BulletAppState setupPhysics(Application app, boolean debug) {
-        BulletAppState bullet = new BulletAppState();
-        bullet.setDebugEnabled(debug);
-        app.getStateManager().attach(bullet);
-        return bullet;
-    }
-    
-    /**
      * Loads the scene.
      * 
      * @return this instance
@@ -353,33 +314,25 @@ public class TestScene extends Node {
             setShadowMode(RenderQueue.ShadowMode.CastAndReceive);
             
             // scene
-            if (subSceneAsset != null) {
-                loadSubScene(subSceneAsset);
-            }
-            EnvironmentProbeControl.tagGlobal(loadBaseScene());
-            if (boundaries) {
-                loadBoundaries();
+            if (sceneGeometry) {
+                if (subSceneAsset != null) {
+                    logger.info("Loading subscene.");
+                    loadSubScene(subSceneAsset);
+                }
+                logger.info("Loading main scene.");
+                EnvironmentProbeControl.tagGlobal(loadBaseScene());
+                if (boundaries) {
+                    logger.info("Loading boundary meshes.");
+                    loadBoundaries();
+                }
             }
             if (skyAsset != null) {
-                String multi = "multi:";
-                if (!skyAsset.startsWith(multi)) {
-                    sky = SkyFactory.createSky(assetManager, skyAsset, SkyFactory.EnvMapType.CubeMap);
-                } else {
-                    String a = skyAsset.substring(multi.length());
-                    Texture west = assetManager.loadTexture(a.replace("$", "west"));
-                    Texture east = assetManager.loadTexture(a.replace("$", "east"));
-                    Texture north = assetManager.loadTexture(a.replace("$", "north"));
-                    Texture south = assetManager.loadTexture(a.replace("$", "south"));
-                    Texture up = assetManager.loadTexture(a.replace("$", "up"));
-                    Texture down = assetManager.loadTexture(a.replace("$", "down"));
-                    sky = SkyFactory.createSky(assetManager, west, east, north, south, up, down);
-                }
-                EnvironmentProbeControl.tagGlobal(sky);
-                attachChild(sky);
+                loadSky();
             }
             
             // lights
             if (lights) {
+                logger.info("Loading lights (3).");
                 sun = new DirectionalLight();
                 sun.setDirection(new Vector3f(.5f, -1, .3f));
                 sun.setColor(ColorRGBA.White);
@@ -397,15 +350,18 @@ public class TestScene extends Node {
             if (filters) {
                 boolean makeFpp = (fpp == null);
                 if (makeFpp) {
+                    logger.info("No FilterPostProcessor specified. Creating new instance.");
                     fpp = new FilterPostProcessor(assetManager);
                 }
                 if (lights) {
                     if (shadows == Shadows.Renderer) {
+                        logger.info("Loading shadow renderer.");
                         shadowRenderer = JmeUtils.createShadowRenderer(assetManager, sun, shadowRes, sunSplits);
                         shadowRenderer.setRenderBackFacesShadows(false);
                         shadowRenderer.setShadowCompareMode(CompareMode.Hardware);
                         viewPort.addProcessor(shadowRenderer);
                     } else if (shadows == Shadows.Filter) {
+                        logger.info("Loading shadow filter.");
                         shadowFilter = JmeUtils.createShadowFilter(assetManager, sun, shadowRes, sunSplits);
                         shadowFilter.setRenderBackFacesShadows(false);
                         shadowFilter.setShadowCompareMode(CompareMode.Hardware);
@@ -413,24 +369,27 @@ public class TestScene extends Node {
                     }
                 }
                 if (occlusion) {
+                    logger.info("Loading screenspace ambient occlusion filter.");
                     ssaoFilter = new SSAOFilter();
                     ssaoFilter.setIntensity(1.5f);
                     fpp.addFilter(ssaoFilter);
                 }
                 if (bloom != Bloom.None) {
                     if (!bloom.usesSoftBloom()) {
+                        logger.log(Level.INFO, "Loading bloom filter. GlowMode={0}", bloom.getEquivalent().toString());
                         bloomFilter = new BloomFilter(bloom.getEquivalent());
                         fpp.addFilter(bloomFilter);
                     } else {
                         //softBloomFilter = new SoftBloomFilter();
                         //fpp.addFilter(softBloomFilter);
-                        logger.log(Level.INFO, "SoftScene bloom is currently unsupported.");
+                        logger.warning("SoftScene bloom is currently unsupported.");
                     }
                 }
                 if (makeFpp) {
                     if (!fpp.getFilterList().isEmpty()) {
                         viewPort.addProcessor(fpp);
                     } else {
+                        logger.info("No filters created. Deleting new FilterPostProcessor.");
                         fpp = null;
                     }
                 }
@@ -439,11 +398,11 @@ public class TestScene extends Node {
             // light probes
             if (lightProbeAsset != null) {
                 if (lightProbeAsset.equals(HARDWARE_PROBE)) {
-                    // everything in the main scene is assumed to be static
-                    //EnvironmentProbeControl.tagGlobal(base);
+                    logger.info("Loading hardware light probe.");
                     hardwareProbe = new EnvironmentProbeControl(assetManager, hardwareProbeRes);
                     addControl(hardwareProbe);
                 } else {
+                    logger.info("Loading light probe from asset.");
                     lightProbe = JmeUtils.loadLightProbe(assetManager, lightProbeAsset);
                     addLight(lightProbe);
                 }
@@ -459,6 +418,9 @@ public class TestScene extends Node {
             for (Spatial s : remove) {
                 s.removeFromParent();
             }
+            if (!remove.isEmpty()) {
+                logger.log(Level.INFO, "{0} spatials removed from scene by userdata.", remove.size());
+            }
             
             // physics
             if (space != null) {
@@ -470,10 +432,11 @@ public class TestScene extends Node {
                         it.ignoreChildren();
                     }
                 }
+                logger.log(Level.INFO, "{0} rigid bodies created.", rigidBodyList.size());
             }
             
         } catch (Exception ex) {
-            logger.log(Level.SEVERE, "Failed to load test scene.", ex);
+            logger.log(Level.SEVERE, "An exception occured while loading test scene", ex);
         }
         loaded = true;
         return this;
@@ -634,7 +597,30 @@ public class TestScene extends Node {
             height = Math.max(height, getInt(subScene, "Height", 1));
             attachChild(subScene);
         } catch (Exception ex) {
-            logger.log(Level.SEVERE, "Failed to load subscene: {0}", assetPath);
+            logger.log(Level.SEVERE, "Failed to load subscene from \"{0}\"", assetPath);
+        }
+    }
+    
+    private void loadSky() {
+        try {
+            if (!skyAsset.startsWith(MULTI_TEXTURE)) {
+                logger.info("Loading sky from texture.");
+                sky = SkyFactory.createSky(assetManager, skyAsset, SkyFactory.EnvMapType.CubeMap);
+            } else {
+                logger.info("Loading sky from multiple textures.");
+                String a = skyAsset.substring(MULTI_TEXTURE.length());
+                Texture west = assetManager.loadTexture(a.replace("$", "west"));
+                Texture east = assetManager.loadTexture(a.replace("$", "east"));
+                Texture north = assetManager.loadTexture(a.replace("$", "north"));
+                Texture south = assetManager.loadTexture(a.replace("$", "south"));
+                Texture up = assetManager.loadTexture(a.replace("$", "up"));
+                Texture down = assetManager.loadTexture(a.replace("$", "down"));
+                sky = SkyFactory.createSky(assetManager, west, east, north, south, up, down);
+            }
+            EnvironmentProbeControl.tagGlobal(sky);
+            attachChild(sky);
+        } catch (Exception ex) {
+            logger.log(Level.SEVERE, "Failed to load sky from \"{0}\"", skyAsset);
         }
     }
     
@@ -647,7 +633,7 @@ public class TestScene extends Node {
     
     private void clearRigidBodies() {
         for (PhysicsCollisionObject object : rigidBodyList) {
-            this.space.remove(object);
+            space.remove(object);
         }
         rigidBodyList.clear();
     }
@@ -700,6 +686,19 @@ public class TestScene extends Node {
     public void setMapSize(int width, int height) {
         setWidth(width);
         setHeight(height);
+    }
+    
+    /**
+     * Enables visible scene geometry.
+     * <p>
+     * If not enabled, no scene geometry will be loaded, except the skybox.
+     * <p>
+     * default=true
+     * 
+     * @param sceneGeometry 
+     */
+    public void setEnableSceneGeometry(boolean sceneGeometry) {
+        this.sceneGeometry = sceneGeometry;
     }
     
     /**
@@ -972,6 +971,16 @@ public class TestScene extends Node {
     }
     
     /**
+     * Returns true if scene geometry is enabled.
+     * 
+     * @return 
+     * @see #setEnableSceneGeometry(boolean) 
+     */
+    public boolean isSceneGeometryEnabled() {
+        return sceneGeometry;
+    }
+    
+    /**
      * Returns true if lights are enabled.
      * 
      * @return 
@@ -1150,14 +1159,20 @@ public class TestScene extends Node {
         @Override
         public void simpleInitApp() {
             
-            JmeUtils.setDefaultAnisotropyLevel(this, 8);
+            renderer.setDefaultAnisotropicFilter(Math.min(8, renderer.getLimits().get(Limits.TextureAnisotropy)));
             
-            TestScene.setupSimpleApp(this);
-            PhysicsSpace space = TestScene.setupPhysics(this, false).getPhysicsSpace();
+            viewPort.setBackgroundColor(new ColorRGBA(.6f, .7f, 1f, 1f));
+            cam.lookAt(new Vector3f(0, 2, 0), Vector3f.UNIT_Y);
+            cam.setLocation(new Vector3f(-10, 10, -10));
+            flyCam.setMoveSpeed(15);
+            
+            BulletAppState bullet = new BulletAppState();
+            stateManager.attach(bullet);
             
             TestScene scene = new TestScene(assetManager, viewPort);
-            scene.setPhysicsSpace(space);
+            scene.setPhysicsSpace(bullet.getPhysicsSpace());
             scene.setSubScene(TestScene.PHYSICS_SUBSCENE);
+            scene.setBloom(TestScene.Bloom.Scene);
             rootNode.attachChild(scene.load());
             
         }
