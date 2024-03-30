@@ -52,6 +52,7 @@ import com.jme3.post.filters.BloomFilter.GlowMode;
 import com.jme3.post.ssao.SSAOFilter;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.Limits;
+import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
@@ -59,12 +60,13 @@ import com.jme3.scene.Node;
 import com.jme3.scene.SceneGraphIterator;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.plugins.gltf.GltfModelKey;
-import com.jme3.scene.shape.NormalQuad;
+import com.jme3.scene.shape.RectangleMesh;
 import com.jme3.shadow.AbstractShadowFilter;
 import com.jme3.shadow.AbstractShadowRenderer;
 import com.jme3.shadow.CompareMode;
+import com.jme3.shadow.DirectionalLightShadowFilter;
+import com.jme3.shadow.DirectionalLightShadowRenderer;
 import com.jme3.texture.Texture;
-import com.jme3.util.JmeUtils;
 import com.jme3.util.SkyFactory;
 import java.util.LinkedList;
 import java.util.logging.Level;
@@ -265,8 +267,8 @@ public class TestScene extends Node {
     private DirectionalLight sun;
     private DirectionalLight atmosphere;
     private AmbientLight ambient;
-    private AbstractShadowRenderer shadowRenderer;
-    private AbstractShadowFilter shadowFilter;
+    private DirectionalLightShadowRenderer shadowRenderer;
+    private DirectionalLightShadowFilter shadowFilter;
     private SSAOFilter ssaoFilter;
     private BloomFilter bloomFilter;
     //private SoftBloomFilter softBloomFilter;
@@ -364,13 +366,15 @@ public class TestScene extends Node {
                 if (lights) {
                     if (shadows == Shadows.Renderer) {
                         logger.info("Loading shadow renderer.");
-                        shadowRenderer = JmeUtils.createShadowRenderer(assetManager, sun, shadowRes, sunSplits);
+                        shadowRenderer = new DirectionalLightShadowRenderer(assetManager, shadowRes, sunSplits);
+                        shadowRenderer.setLight(sun);
                         shadowRenderer.setRenderBackFacesShadows(false);
                         shadowRenderer.setShadowCompareMode(CompareMode.Hardware);
                         viewPort.addProcessor(shadowRenderer);
                     } else if (shadows == Shadows.Filter) {
                         logger.info("Loading shadow filter.");
-                        shadowFilter = JmeUtils.createShadowFilter(assetManager, sun, shadowRes, sunSplits);
+                        shadowFilter = new DirectionalLightShadowFilter(assetManager, shadowRes, sunSplits);
+                        shadowFilter.setLight(sun);
                         shadowFilter.setRenderBackFacesShadows(false);
                         shadowFilter.setShadowCompareMode(CompareMode.Hardware);
                         fpp.addFilter(shadowFilter);
@@ -411,8 +415,13 @@ public class TestScene extends Node {
                     addControl(hardwareProbe);
                 } else {
                     logger.info("Loading light probe from asset.");
-                    lightProbe = JmeUtils.loadLightProbe(assetManager, lightProbeAsset);
-                    addLight(lightProbe);
+                    try {
+                        Spatial m = assetManager.loadModel(lightProbeAsset);
+                        lightProbe = (LightProbe)m.getLocalLightList().get(0);
+                        addLight(lightProbe);
+                    } catch (Exception ex) {
+                        logger.log(Level.SEVERE, "Failed to load light probe from \""+lightProbeAsset+"\"", ex);
+                    }
                 }
             }
             
@@ -533,6 +542,17 @@ public class TestScene extends Node {
         cam.lookAtDirection(new Vector3f(1, -1, 1), Vector3f.UNIT_Y);
     }
     
+    /**
+     * Configures the default texture anisotropy level to match the scene.
+     * <p>
+     * Anisotropy makes textures viewed at an oblique angle sharper.
+     * 
+     * @param renderer 
+     */
+    public void configureDefaultAnisotropy(Renderer renderer) {
+        renderer.setDefaultAnisotropicFilter(Math.min(8, renderer.getLimits().get(Limits.TextureAnisotropy)));
+    }
+    
     private Node loadBaseScene() {
         GltfModelKey key = new GltfModelKey(BASE_SCENE);
         Node base = (Node)assetManager.loadModel(key);
@@ -595,24 +615,23 @@ public class TestScene extends Node {
     }
     
     private Node loadBoundaries() {
-        float up = 40;
-        float x = TILE_SIZE.x*width;
-        float y = TILE_SIZE.z*height;
+        float y = 40;
+        float x = TILE_SIZE.x*width*0.5f;
+        float z = TILE_SIZE.z*height*0.5f;
         Node n = new Node("Boundaries");
         Geometry[] bounds = {
-            new Geometry("NorthBounds", new NormalQuad(Vector3f.UNIT_Z.negate(), Vector3f.UNIT_Y, x, up, .5f, 0)),
-            new Geometry("EastBounds", new NormalQuad(Vector3f.UNIT_X, Vector3f.UNIT_Y, y, up, .5f, 0)),
-            new Geometry("SouthBounds", new NormalQuad(Vector3f.UNIT_Z, Vector3f.UNIT_Y, x, up, .5f, 0)),
-            new Geometry("WestBounds", new NormalQuad(Vector3f.UNIT_X.negate(), Vector3f.UNIT_Y, y, up, .5f, 0)),
-            new Geometry("UpperBounds", new NormalQuad(Vector3f.UNIT_Y.negate(), Vector3f.UNIT_Z, x, y, .5f, .5f)),
-            new Geometry("LowerBounds", new NormalQuad(Vector3f.UNIT_Y, Vector3f.UNIT_Z, x, y, .5f, .5f)),
+            new Geometry("NorthBounds", new RectangleMesh(new Vector3f(x, 0, 0), new Vector3f(-x, 0, 0), new Vector3f(x, y*2, 0))),
+            new Geometry("EastBounds", new RectangleMesh(new Vector3f(0, 0, z), new Vector3f(0, 0, -z), new Vector3f(0, y*2, z))),
+            new Geometry("SouthBounds", new RectangleMesh(new Vector3f(-x, 0, 0), new Vector3f(x, 0, 0), new Vector3f(-x, y*2, 0))),
+            new Geometry("WestBounds", new RectangleMesh(new Vector3f(0, 0, -z), new Vector3f(0, 0, z), new Vector3f(0, y*2, -z))),
+            new Geometry("UpperBounds", new RectangleMesh(new Vector3f(-x, y, -z), new Vector3f(x, y, -z), new Vector3f(-x, y, z))),
+            new Geometry("LowerBounds", new RectangleMesh(new Vector3f(x, 0, -z), new Vector3f(-x, 0, -z), new Vector3f(x, 0, z))),
         };
-        Vector3f offset = new Vector3f(0.5f*width*TILE_SIZE.x, 0, 0.5f*height*TILE_SIZE.z);
-        bounds[0].setLocalTranslation(0, 0, offset.z);
-        bounds[1].setLocalTranslation(-offset.x, 0, 0);
-        bounds[2].setLocalTranslation(0, 0, -offset.z);
-        bounds[3].setLocalTranslation(offset.x, 0, 0);
-        bounds[4].setLocalTranslation(0, up, 0);
+        bounds[0].setLocalTranslation(0, 0, z);
+        bounds[1].setLocalTranslation(-x, 0, 0);
+        bounds[2].setLocalTranslation(0, 0, -z);
+        bounds[3].setLocalTranslation(x, 0, 0);
+        bounds[4].setLocalTranslation(0, y, 0);
         Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         mat.setColor("Color", ColorRGBA.BlackNoAlpha);
         for (Geometry g : bounds) {
@@ -911,8 +930,8 @@ public class TestScene extends Node {
     /**
      * Sets the light probe asset path.
      * <p>
-     * Light probes are loaded from j3o files with
-     * {@link JmeUtils#loadLightProbe(com.jme3.asset.AssetManager, java.lang.String)}
+     * The light probe are expected to be the only light added to the main
+     * node of the j3o scene.
      * <p>
      * If the light probe asset path is set to {@link #HARDWARE_PROBE}, then
      * {@link EnvironmentProbeControl} will be used to generate a light probe.
@@ -1168,7 +1187,7 @@ public class TestScene extends Node {
      * 
      * @return 
      */
-    public AbstractShadowRenderer getSunShadowRenderer() {
+    public DirectionalLightShadowRenderer getSunShadowRenderer() {
         return shadowRenderer;
     }
     
@@ -1179,7 +1198,7 @@ public class TestScene extends Node {
      * 
      * @return 
      */
-    public AbstractShadowFilter getSunShadowFilter() {
+    public DirectionalLightShadowFilter getSunShadowFilter() {
         return shadowFilter;
     }
     
@@ -1195,20 +1214,16 @@ public class TestScene extends Node {
         @Override
         public void simpleInitApp() {
             
-            renderer.setDefaultAnisotropicFilter(Math.min(8, renderer.getLimits().get(Limits.TextureAnisotropy)));
-            
-            viewPort.setBackgroundColor(new ColorRGBA(.6f, .7f, 1f, 1f));
-            cam.lookAt(new Vector3f(0, 2, 0), Vector3f.UNIT_Y);
-            cam.setLocation(new Vector3f(-10, 10, -10));
-            
             BulletAppState bullet = new BulletAppState();
             stateManager.attach(bullet);
             
             TestScene scene = new TestScene(assetManager, viewPort);
             scene.setPhysicsSpace(bullet.getPhysicsSpace());
             scene.setSubScene(TestScene.PHYSICS_SUBSCENE);
-            scene.setBloom(TestScene.Bloom.Scene);
             scene.configureFlyCamSpeed(flyCam);
+            scene.configureBackgroundColor();
+            scene.configureCameraPosition(cam);
+            scene.configureDefaultAnisotropy(renderer);
             rootNode.attachChild(scene.load());
             
         }
