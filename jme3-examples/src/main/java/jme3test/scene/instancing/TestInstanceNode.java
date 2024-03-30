@@ -47,9 +47,11 @@ import com.jme3.scene.instancing.InstancedNode;
 import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Sphere;
 import com.jme3.system.AppSettings;
+import jme3test.TestScene;
 
 public class TestInstanceNode extends SimpleApplication  {
 
+    private TestScene scene;
     private Mesh mesh1;
     private Mesh mesh2;
     private final Material[] materials = new Material[6];
@@ -60,7 +62,7 @@ public class TestInstanceNode extends SimpleApplication  {
     public static void main(String[] args){
         TestInstanceNode app = new TestInstanceNode();
         AppSettings settings = new AppSettings(true);
-        settings.setVSync(false);
+        //settings.setVSync(false);
         app.setSettings(settings);
         app.start();
     }
@@ -77,36 +79,43 @@ public class TestInstanceNode extends SimpleApplication  {
     
     @Override
     public void simpleInitApp() {
+        
+        scene = new TestScene(assetManager, viewPort);
+        scene.configureBackgroundColor();
+        scene.setMapSize(4, 4);
+        rootNode.attachChild(scene.load());
+        
         mesh1 = new Sphere(13, 13, 0.4f, true, false);
         mesh2 = new Box(0.4f, 0.4f, 0.4f);
         
-        materials[0] = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        materials[0] = new Material(assetManager, "Common/MatDefs/Light/PBRLighting.j3md");
         materials[0].setBoolean("UseInstancing", INSTANCING);
-        materials[0].setColor("Color", ColorRGBA.Red);
+        materials[0].setColor("BaseColor", ColorRGBA.Red);
         
-        materials[1] = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        materials[1] = new Material(assetManager, "Common/MatDefs/Light/PBRLighting.j3md");
         materials[1].setBoolean("UseInstancing", INSTANCING);
-        materials[1].setColor("Color", ColorRGBA.Green);
+        materials[1].setColor("BaseColor", ColorRGBA.Green);
         
-        materials[2] = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        materials[2] = new Material(assetManager, "Common/MatDefs/Light/PBRLighting.j3md");
         materials[2].setBoolean("UseInstancing", INSTANCING);
-        materials[2].setColor("Color", ColorRGBA.Blue);
+        materials[2].setColor("BaseColor", ColorRGBA.Blue);
         
-        materials[3] = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        materials[3] = new Material(assetManager, "Common/MatDefs/Light/PBRLighting.j3md");
         materials[3].setBoolean("UseInstancing", INSTANCING);
-        materials[3].setColor("Color", ColorRGBA.Cyan);
+        materials[3].setColor("BaseColor", ColorRGBA.Cyan);
         
-        materials[4] = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        materials[4] = new Material(assetManager, "Common/MatDefs/Light/PBRLighting.j3md");
         materials[4].setBoolean("UseInstancing", INSTANCING);
-        materials[4].setColor("Color", ColorRGBA.Magenta);
+        materials[4].setColor("BaseColor", ColorRGBA.Magenta);
         
-        materials[5] = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        materials[5] = new Material(assetManager, "Common/MatDefs/Light/PBRLighting.j3md");
         materials[5].setBoolean("UseInstancing", INSTANCING);
-        materials[5].setColor("Color", ColorRGBA.Yellow);
+        materials[5].setColor("BaseColor", ColorRGBA.Yellow);
        
         instancedNode = new InstancedNode("instanced_node");
+        instancedNode.setLocalTranslation(0, 2, 0);
         
-        rootNode.attachChild(instancedNode);
+        scene.attachChild(instancedNode);
         
         int extent = 30;
         
@@ -133,7 +142,7 @@ public class TestInstanceNode extends SimpleApplication  {
         cam.setLocation(new Vector3f(38.373516f, 6.689055f, 38.482082f));
         cam.setRotation(new Quaternion(-0.04004206f, 0.918326f, -0.096310444f, -0.38183528f));
         flyCam.setMoveSpeed(15);
-        flyCam.setEnabled(false);
+        //flyCam.setEnabled(false);
     }
     
     private float smoothstep(float edge0, float edge1, float x) {

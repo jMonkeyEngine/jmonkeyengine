@@ -50,10 +50,12 @@ import com.jme3.shadow.SpotLightShadowFilter;
 import com.jme3.shadow.SpotLightShadowRenderer;
 import com.jme3.texture.Texture.WrapMode;
 import com.jme3.util.TangentBinormalGenerator;
+import jme3test.TestScene;
 
 public class TestSpotLightShadows extends SimpleApplication {
 
-    final private Vector3f lightTarget = new Vector3f(12, 3.5f, 30);
+    final private Vector3f lightTarget = new Vector3f(12, 3.5f, 0);
+    private FilterPostProcessor fpp;
 
     public static void main(String[] args) {
         TestSpotLightShadows app = new TestSpotLightShadows();
@@ -63,6 +65,7 @@ public class TestSpotLightShadows extends SimpleApplication {
     private Geometry lightMdl;
 
     public void setupLighting() {
+        
         AmbientLight al = new AmbientLight();
         al.setColor(ColorRGBA.White.mult(0.02f));
         rootNode.addLight(al);
@@ -74,7 +77,7 @@ public class TestSpotLightShadows extends SimpleApplication {
         spot.setSpotRange(1000);
         spot.setSpotInnerAngle(5f * FastMath.DEG_TO_RAD);
         spot.setSpotOuterAngle(10 * FastMath.DEG_TO_RAD);
-        spot.setPosition(new Vector3f(70.70334f, 34.013165f, 27.1017f));
+        spot.setPosition(new Vector3f(70.70334f, 34.013165f, -3));
         spot.setDirection(lightTarget.subtract(spot.getPosition()).normalizeLocal());
         spot.setColor(ColorRGBA.White.mult(2));
         rootNode.addLight(spot);
@@ -87,7 +90,7 @@ public class TestSpotLightShadows extends SimpleApplication {
 //      rootNode.addLight(pl);
         lightMdl = new Geometry("Light", new Sphere(10, 10, 0.1f));
         lightMdl.setMaterial(assetManager.loadMaterial("Common/Materials/RedColor.j3m"));
-        lightMdl.setLocalTranslation(new Vector3f(77.70334f, 34.013165f, 27.1017f));
+        lightMdl.setLocalTranslation(new Vector3f(77.70334f, 34.013165f, -3));
         lightMdl.setLocalScale(5);
         rootNode.attachChild(lightMdl);
 
@@ -113,7 +116,7 @@ public class TestSpotLightShadows extends SimpleApplication {
         slsf.setEdgeFilteringMode(EdgeFilteringMode.PCFPOISSON);  
         slsf.setEnabled(false);
         
-        FilterPostProcessor fpp = new FilterPostProcessor(assetManager);
+        fpp = new FilterPostProcessor(assetManager);
         fpp.addFilter(slsf);
         viewPort.addProcessor(fpp);
         
@@ -135,35 +138,13 @@ public class TestSpotLightShadows extends SimpleApplication {
         flyCam.setDragToRotate(true);
     }
 
-    public void setupFloor() {
-        Material mat = assetManager.loadMaterial("Textures/Terrain/Pond/Pond.j3m");
-        mat.getTextureParam("DiffuseMap").getTextureValue().setWrap(WrapMode.Repeat);
-        mat.getTextureParam("NormalMap").getTextureValue().setWrap(WrapMode.Repeat);
-        mat.setBoolean("UseMaterialColors", true);
-        mat.setColor("Diffuse", ColorRGBA.White.clone());
-        mat.setColor("Ambient", ColorRGBA.White.clone());
-       // mat.setColor("Specular", ColorRGBA.White.clone());
-        // mat.getTextureParam("ParallaxMap").getTextureValue().setWrap(WrapMode.Repeat);
-        mat.setFloat("Shininess", 0);
-        //  mat.setBoolean("VertexLighting", true);
-
-
-        Box floor = new Box(50, 1f, 50);
-        TangentBinormalGenerator.generate(floor);
-        floor.scaleTextureCoordinates(new Vector2f(5, 5));
-        Geometry floorGeom = new Geometry("Floor", floor);
-        floorGeom.setMaterial(mat);
-        floorGeom.setShadowMode(ShadowMode.Receive);
-        rootNode.attachChild(floorGeom);
-    }
-
     public void setupSignpost() {
         Spatial signpost = assetManager.loadModel("Models/Sign Post/Sign Post.mesh.xml");
         Material mat = assetManager.loadMaterial("Models/Sign Post/Sign Post.j3m");
         //   mat.setBoolean("VertexLighting", true);
         signpost.setMaterial(mat);
         signpost.rotate(0, FastMath.HALF_PI, 0);
-        signpost.setLocalTranslation(12, 3.5f, 30);
+        signpost.setLocalTranslation(12, 3.5f, 0);
         signpost.setLocalScale(4);
         signpost.setShadowMode(ShadowMode.CastAndReceive);
         TangentBinormalGenerator.generate(signpost);
@@ -175,10 +156,17 @@ public class TestSpotLightShadows extends SimpleApplication {
         cam.setLocation(new Vector3f(27.492603f, 29.138166f, -13.232513f));
         cam.setRotation(new Quaternion(0.25168246f, -0.10547892f, 0.02760565f, 0.96164864f));
         flyCam.setMoveSpeed(30);
-
+        
         setupLighting();
-        setupFloor();
         setupSignpost();
+        
+        TestScene scene = new TestScene(assetManager, viewPort);
+        scene.setEnableLights(false);
+        scene.setShadows(TestScene.Shadows.None);
+        scene.setEnableFilters(false);
+        //scene.setMapSize(4, 4);
+        scene.setLocalScale(5);
+        rootNode.attachChild(scene.load());
 
 
     }

@@ -31,7 +31,6 @@
  */
 package jme3test;
 
-import com.jme3.app.Application;
 import com.jme3.app.SimpleApplication;
 import com.jme3.asset.AssetManager;
 import com.jme3.bullet.BulletAppState;
@@ -39,6 +38,7 @@ import com.jme3.bullet.PhysicsSpace;
 import com.jme3.bullet.collision.PhysicsCollisionObject;
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.environment.EnvironmentProbeControl;
+import com.jme3.input.FlyByCamera;
 import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
 import com.jme3.light.LightProbe;
@@ -50,6 +50,7 @@ import com.jme3.post.FilterPostProcessor;
 import com.jme3.post.filters.BloomFilter;
 import com.jme3.post.filters.BloomFilter.GlowMode;
 import com.jme3.post.ssao.SSAOFilter;
+import com.jme3.renderer.Camera;
 import com.jme3.renderer.Limits;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue;
@@ -224,6 +225,13 @@ public class TestScene extends Node {
      */
     public static final Vector3f TILE_SIZE = new Vector3f(20, 0, 20);
     
+    /**
+     * Default background color for the scene.
+     * <p>
+     * Apply this color to the viewport by calling {@link #configureBackgroundColor()}.
+     */
+    public static final ColorRGBA SCENE_BACKGROUND_COLOR = new ColorRGBA(.6f, .7f, 1f, 1f);
+    
     private static final String BASE_SCENE = "Scenes/TestScene/base-scene.gltf";
     private static final String MULTI_TEXTURE = "multi:";
     private static final Logger logger = Logger.getLogger(TestScene.class.getName());
@@ -243,7 +251,7 @@ public class TestScene extends Node {
     private FilterPostProcessor fpp;
     private PhysicsSpace space;
     private boolean boundaries = true;
-    private int shadowRes = 4096;
+    private int shadowRes = 2048;
     private int sunSplits = 4;
     private Shadows shadows = Shadows.Renderer;
     private boolean occlusion = true;
@@ -495,6 +503,34 @@ public class TestScene extends Node {
             shadowRenderer = null;
         }
         loaded = false;
+    }
+    
+    /**
+     * Configures the viewport background to match the scene.
+     */
+    public void configureBackgroundColor() {
+        viewPort.setBackgroundColor(SCENE_BACKGROUND_COLOR);
+    }
+    
+    /**
+     * Configures {@link FlyByCamera} to the scene.
+     * 
+     * @param cam 
+     */
+    public void configureFlyCamSpeed(FlyByCamera cam) {
+        //cam.get.lookAt(new Vector3f(0, 2, 0), Vector3f.UNIT_Y);
+        //cam.setLocation(new Vector3f(-10, 10, -10));
+        cam.setMoveSpeed(15);
+    }
+    
+    /**
+     * Configures the {@link Camera} to the scene.
+     * 
+     * @param cam 
+     */
+    public void configureCameraPosition(Camera cam) {
+        cam.setLocation(new Vector3f(-10, 10, -10));
+        cam.lookAtDirection(new Vector3f(1, -1, 1), Vector3f.UNIT_Y);
     }
     
     private Node loadBaseScene() {
@@ -822,7 +858,7 @@ public class TestScene extends Node {
     /**
      * Sets the resolution of shadow maps.
      * <p>
-     * default=4096
+     * default=2048
      * 
      * @param shadowRes 
      */
@@ -1164,7 +1200,6 @@ public class TestScene extends Node {
             viewPort.setBackgroundColor(new ColorRGBA(.6f, .7f, 1f, 1f));
             cam.lookAt(new Vector3f(0, 2, 0), Vector3f.UNIT_Y);
             cam.setLocation(new Vector3f(-10, 10, -10));
-            flyCam.setMoveSpeed(15);
             
             BulletAppState bullet = new BulletAppState();
             stateManager.attach(bullet);
@@ -1173,6 +1208,7 @@ public class TestScene extends Node {
             scene.setPhysicsSpace(bullet.getPhysicsSpace());
             scene.setSubScene(TestScene.PHYSICS_SUBSCENE);
             scene.setBloom(TestScene.Bloom.Scene);
+            scene.configureFlyCamSpeed(flyCam);
             rootNode.attachChild(scene.load());
             
         }
