@@ -42,9 +42,19 @@ import java.io.IOException;
  * @version $Id: ColorRGBA.java,v 1.29 2007/09/09 18:25:14 irrisor Exp $
  */
 public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable {
+    /** Saturation-gamma.*/
     static final float GAMMA = 2.2f;
-
+    /** UID for serialization.*/
     static final long serialVersionUID = 1;
+    
+    /** 
+     * Factor to make colors brighter or darker.
+     * 
+     * @see ColorRGBA#brighter(com.jme3.math.ColorRGBA) 
+     * @see ColorRGBA#darker(com.jme3.math.ColorRGBA) 
+     */
+    private static final float FACTOR = 0.7F;
+    
     /**
      * The color black (0,0,0).
      */
@@ -751,6 +761,44 @@ public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable
         return new ColorRGBA(r / 255.0F, g / 255.0F, b / 255.0F, a / 255.0F);
     }
 
+    /**
+     * Returns a darker color than the current color.
+     * 
+     * @param color color.
+     * @return dark {@link com.jme3.math.ColorRGBA}.
+     */
+    public static final ColorRGBA darker(ColorRGBA color) {
+        return new ColorRGBA(Math.max(color.r * FACTOR, 0),
+                             Math.max(color.g * FACTOR, 0),
+                             Math.max(color.b * FACTOR, 0),
+                             color.a);
+    }
+    
+    /**
+     * Returns one more color with more brightness than the current color.
+     * 
+     * @param color color.
+     * @return A new {@link com.jme3.math.ColorRGBA} with a more intense shine.
+     */
+    public static final ColorRGBA brighter(ColorRGBA color) {
+        float r = color.r, g = color.g, b = color.b;        
+        float alpha = color.getAlpha();
+        
+        float i = ((1.0f/3.0f) * (1.0f-FACTOR));
+        if ( r == 0 && g == 0 && b == 0) {
+            return new ColorRGBA(i, i, i, alpha);
+        }
+        
+        if ( r > 0 && r < i ) r = i;
+        if ( g > 0 && g < i ) g = i;
+        if ( b > 0 && b < i ) b = i;
+        
+        return new ColorRGBA(Math.min(r/FACTOR, 1.0F),
+                             Math.min(g/FACTOR, 1.0F),
+                             Math.min(b/FACTOR, 1.0F),
+                             alpha);
+    }
+    
     /**
      * Transform this <code>ColorRGBA</code> to a <code>Vector3f</code> using
      * x = r, y = g, z = b. The Alpha value is not used.
