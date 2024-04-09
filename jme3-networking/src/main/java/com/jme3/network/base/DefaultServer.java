@@ -476,11 +476,7 @@ public class DefaultServer implements Server
 
     protected void connectionClosed( Endpoint p )
     {
-        if( p.isConnected() ) {
-            log.log( Level.FINE, "Connection closed:{0}.", p );
-        } else {
-            log.log( Level.FINE, "Connection closed:{0}.", p );
-        }
+        log.log( Level.FINE, "Connection closed:{0}.", p );
         
         // Try to find the endpoint in all ways that it might
         // exist.  Note: by this point the raw network channel is 

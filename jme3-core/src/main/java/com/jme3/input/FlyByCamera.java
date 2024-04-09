@@ -198,7 +198,7 @@ public class FlyByCamera implements AnalogListener, ActionListener {
      */
     public void setEnabled(boolean enable){
         if (enabled && !enable){
-            if (inputManager!= null && (!dragToRotate || (dragToRotate && canRotate))){
+            if (inputManager != null && (!dragToRotate || canRotate)){
                 inputManager.setCursorVisible(true);
             }
         }

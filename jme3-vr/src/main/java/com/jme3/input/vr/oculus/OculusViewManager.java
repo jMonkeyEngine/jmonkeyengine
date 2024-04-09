@@ -128,12 +128,10 @@ public class OculusViewManager extends AbstractVRViewManager {
 
         // update the HMD's position & orientation
         hardware.getPositionAndOrientation(hmdPos, hmdRot);
-        if (obs != null) {
-            // update hmdPos based on obs rotation
-            finalRotation.set(objRot);
-            finalRotation.mult(hmdPos, hmdPos);
-            finalRotation.multLocal(hmdRot);
-        }
+        // update hmdPos based on obs rotation
+        finalRotation.set(objRot);
+        finalRotation.mult(hmdPos, hmdPos);
+        finalRotation.multLocal(hmdRot);
 
         // Update both eye cameras
         finalizeCamera(hardware.getHMDVectorPoseLeftEye(), objPos, leftCamera);

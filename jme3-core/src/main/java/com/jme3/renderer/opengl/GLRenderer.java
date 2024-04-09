@@ -1309,8 +1309,6 @@ public final class GLRenderer implements Renderer {
     }
 
     protected void updateUniform(Shader shader, Uniform uniform) {
-        int shaderId = shader.getId();
-
         assert uniform.getName() != null;
         assert shader.getId() > 0;
 
