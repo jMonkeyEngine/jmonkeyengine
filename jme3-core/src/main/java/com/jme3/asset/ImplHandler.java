@@ -124,7 +124,7 @@ final class ImplHandler {
             } catch (InstantiationException | IllegalAccessException
                     | IllegalArgumentException | InvocationTargetException
                     | NoSuchMethodException | SecurityException ex) {
-                logger.log(Level.SEVERE, "An exception occured while instantiating asset locator: " + type.getName(), ex);
+                logger.log(Level.SEVERE, "An exception occurred while instantiating asset locator: " + type.getName(), ex);
             }
             return null;
         }
