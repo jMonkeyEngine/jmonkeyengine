@@ -49,15 +49,15 @@ public class PostProcessorPass extends AbstractFGPass {
     @Override
     public void execute(FGRenderContext renderContext) {
         renderContext.setDepthRange(0, 1);
-        ViewPort vp = renderContext.viewPort;
+        ViewPort vp = renderContext.getViewPort();
         SafeArrayList<SceneProcessor> processors = vp.getProcessors();
         if (processors != null) {
-//            if (prof!=null) prof.vpStep(VpStep.PostFrame, vp, null);
+            //if (prof!=null) prof.vpStep(VpStep.PostFrame, vp, null);
             for (SceneProcessor proc : processors.getArray()) {
-//                if (prof != null) prof.spStep(SpStep.ProcPostFrame, proc.getClass().getSimpleName());
+                //if (prof != null) prof.spStep(SpStep.ProcPostFrame, proc.getClass().getSimpleName());
                 proc.postFrame(vp.getOutputFrameBuffer());
             }
-//            if (prof != null) prof.vpStep(VpStep.ProcEndRender, vp, null);
+            //if (prof != null) prof.vpStep(VpStep.ProcEndRender, vp, null);
         }
     }
 

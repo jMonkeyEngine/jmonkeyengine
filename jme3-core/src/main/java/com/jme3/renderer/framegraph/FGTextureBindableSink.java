@@ -33,13 +33,15 @@ package com.jme3.renderer.framegraph;
 
 import com.jme3.material.Material;
 import com.jme3.shader.VarType;
-
 import java.util.ArrayList;
 
-public class FGTextureBindableSink<T extends FGRenderTargetSource.RenderTargetSourceProxy> extends FGContainerBindableSink<T>{
+public class FGTextureBindableSink <T extends FGRenderTargetSource.RenderTargetSourceProxy> extends FGContainerBindableSink<T> {
+    
     private Material material;
     private TextureBindableProxy textureBindableProxy;
-    private static class TextureBindableProxy implements FGBindable{
+    
+    private static class TextureBindableProxy implements FGBindable {
+        
         Material material;
         VarType bindTextureType;
         Object bindValue;
@@ -61,7 +63,9 @@ public class FGTextureBindableSink<T extends FGRenderTargetSource.RenderTargetSo
                 this.material.setParam(bindName, bindTextureType, bindValue);
             }
         }
+        
     }
+    
     public FGTextureBindableSink(String registeredName, ArrayList<FGBindable> container, int index, Material material, VarType bindTextureType) {
         super(registeredName, container, index);
         this.material = material;

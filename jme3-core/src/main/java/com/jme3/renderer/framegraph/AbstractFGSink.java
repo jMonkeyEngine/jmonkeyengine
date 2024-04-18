@@ -37,7 +37,7 @@ package com.jme3.renderer.framegraph;
  */
 public abstract class AbstractFGSink implements FGSink {
     
-    private String registeredName;
+    private final String registeredName;
     private String linkPassName;
     private String linkPassResName;
     protected boolean bIsRequired = false;

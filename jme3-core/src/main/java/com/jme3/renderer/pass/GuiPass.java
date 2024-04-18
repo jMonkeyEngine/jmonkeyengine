@@ -46,15 +46,15 @@ public class GuiPass extends ForwardPass{
             cam = forceViewPort.getCamera();
         }
         else{
-            cam = renderContext.viewPort.getCamera();
+            cam = renderContext.getViewPort().getCamera();
         }
         if(canExecute){
             renderContext.setDepthRange(0, 0);
-            renderContext.renderManager.setCamera(cam, true);
+            renderContext.getRenderManager().setCamera(cam, true);
         }
         super.executeDrawCommandList(renderContext);
         if(canExecute){
-            renderContext.renderManager.setCamera(cam, false);
+            renderContext.getRenderManager().setCamera(cam, false);
         }
     }
 

@@ -67,10 +67,10 @@ public abstract class FGRenderQueuePass extends FGBindingPass implements RenderG
 
     @Override
     public void execute(FGRenderContext renderContext) {
-        renderContext.renderManager.setRenderGeometryHandler(this);
-        dispatchPassSetup(renderContext.renderQueue);
+        renderContext.getRenderManager().setRenderGeometryHandler(this);
+        dispatchPassSetup(renderContext.getRenderQueue());
         if(!canExecute){
-            renderContext.renderManager.setRenderGeometryHandler(null);
+            renderContext.getRenderManager().setRenderGeometryHandler(null);
             return;
         }
         bindAll(renderContext);
@@ -80,7 +80,7 @@ public abstract class FGRenderQueuePass extends FGBindingPass implements RenderG
             // drawcall
         }
         executeDrawCommandList(renderContext);
-        renderContext.renderManager.setRenderGeometryHandler(null);
+        renderContext.getRenderManager().setRenderGeometryHandler(null);
     }
 
     /**

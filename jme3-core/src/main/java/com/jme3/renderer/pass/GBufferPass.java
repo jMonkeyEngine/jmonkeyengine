@@ -38,7 +38,7 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
-import com.jme3.renderer.framegraph.FGFramebufferSource;
+import com.jme3.renderer.framegraph.FramebufferSource;
 import com.jme3.renderer.framegraph.FGRenderContext;
 import com.jme3.renderer.framegraph.FGRenderTargetSource;
 import com.jme3.renderer.framegraph.FGVarSource;
@@ -53,28 +53,21 @@ import java.util.List;
 /**
  * @author JohnKkk
  */
-public class GBufferPass extends OpaquePass{
-    private final static String S_GBUFFER_PASS = "GBufferPass";
-    public final static String S_RT_0 = "RT_0";
-    public final static String S_RT_1 = "RT_1";
-    public final static String S_RT_2 = "RT_2";
-    public final static String S_RT_3 = "RT_3";
-    public final static String S_RT_4 = "RT_4";
-    public final static String S_FB = "GBufferFramebuffer";
-    public final static String S_LIGHT_DATA = "LIGHT_DATA";
-    public final static String S_EXECUTE_STATE = "EXECUTE_STATE";
+public class GBufferPass extends OpaquePass {
+    
+    private final static String GBUFFER_PASS = "GBufferPass";
+    public final static String[] RENDER_TARGETS = {"RT_0", "RT_1", "RT_2", "RT_3", "RT_4"};
+    public final static String G_FRAME_BUFFER = "GBufferFramebuffer";
+    public final static String LIGHT_DATA = "LIGHT_DATA";
+    public final static String EXECUTE_STATE = "EXECUTE_STATE";
+    
     private final LightList lightData = new LightList(null);
-    private final List<Light> tempLights = new ArrayList<Light>();
-    private Boolean bHasDraw = new Boolean(false);
-    private FGVarSource<Boolean> bHasDrawVarSource = null;
-    // gBuffer
+    private final List<Light> tempLights = new ArrayList<>();
+    private boolean bHasDraw = false;
+    private FGVarSource<Boolean> bHasDrawVarSource;
     private FrameBuffer gBuffer;
-    private Texture2D gBufferData0 = null;
-    private Texture2D gBufferData1 = null;
-    private Texture2D gBufferData2 = null;
-    private Texture2D gBufferData3 = null;
-    private Texture2D gBufferData4 = null;
-    private ColorRGBA gBufferMask = new ColorRGBA(0, 0, 0, 0);
+    private final Texture2D[] gBufferData = new Texture2D[5];
+    private final ColorRGBA gBufferMask = new ColorRGBA(0, 0, 0, 0);
     private int frameBufferWidth, frameBufferHeight;
 
     public GBufferPass() {
@@ -87,35 +80,34 @@ public class GBufferPass extends OpaquePass{
             bHasDraw = false;
             tempLights.clear();
             lightData.clear();
-            ViewPort vp = null;
-            if(forceViewPort != null){
+            ViewPort vp;
+            if (forceViewPort != null) {
                 vp = forceViewPort;
+            } else {
+                vp = renderContext.getViewPort();
             }
-            else{
-                vp = renderContext.viewPort;
-            }
-            reshape(renderContext.renderManager.getRenderer(), vp, vp.getCamera().getWidth(), vp.getCamera().getHeight());
+            reshape(renderContext.getRenderer(), vp, vp.getCamera().getWidth(), vp.getCamera().getHeight());
             FrameBuffer opfb = vp.getOutputFrameBuffer();
             vp.setOutputFrameBuffer(gBuffer);
             ColorRGBA opClearColor = vp.getBackgroundColor();
             gBufferMask.set(opClearColor);
             gBufferMask.a = 0.0f;
-            renderContext.renderManager.getRenderer().setFrameBuffer(gBuffer);
-            renderContext.renderManager.getRenderer().setBackgroundColor(gBufferMask);
-            renderContext.renderManager.getRenderer().clearBuffers(vp.isClearColor(), vp.isClearDepth(), vp.isClearStencil());
-            String techOrig = renderContext.renderManager.getForcedTechnique();
-            renderContext.renderManager.setForcedTechnique(S_GBUFFER_PASS);
+            renderContext.getRenderer().setFrameBuffer(gBuffer);
+            renderContext.getRenderer().setBackgroundColor(gBufferMask);
+            renderContext.getRenderer().clearBuffers(vp.isClearColor(), vp.isClearDepth(), vp.isClearStencil());
+            String techOrig = renderContext.getRenderManager().getForcedTechnique();
+            renderContext.getRenderManager().setForcedTechnique(GBUFFER_PASS);
             super.executeDrawCommandList(renderContext);
-            renderContext.renderManager.setForcedTechnique(techOrig);
+            renderContext.getRenderManager().setForcedTechnique(techOrig);
             vp.setOutputFrameBuffer(opfb);
-            renderContext.renderManager.getRenderer().setBackgroundColor(opClearColor);
-            renderContext.renderManager.getRenderer().setFrameBuffer(vp.getOutputFrameBuffer());
+            renderContext.getRenderer().setBackgroundColor(opClearColor);
+            renderContext.getRenderer().setFrameBuffer(vp.getOutputFrameBuffer());
             bHasDrawVarSource.setValue(bHasDraw);
-            if(bHasDraw){
+            if (bHasDraw) {
                 for(Light light : tempLights){
                     lightData.add(light);
                 }
-//                renderContext.renderManager.getRenderer().copyFrameBuffer(gBuffer, vp.getOutputFrameBuffer(), false, true);
+                //renderContext.renderManager.getRenderer().copyFrameBuffer(gBuffer, vp.getOutputFrameBuffer(), false, true);
             }
         }
     }
@@ -131,54 +123,42 @@ public class GBufferPass extends OpaquePass{
 
     public void reshape(Renderer renderer, ViewPort vp, int w, int h){
         boolean recreate = false;
-        if(gBuffer != null){
+        if (gBuffer != null) {
             if(frameBufferWidth != w || frameBufferHeight != h){
                 gBuffer.dispose();
                 gBuffer.deleteObject(renderer);
-
                 frameBufferWidth = w;
                 frameBufferHeight = h;
-
                 recreate = true;
             }
-        }
-        else{
+        } else {
             recreate = true;
             frameBufferWidth = w;
             frameBufferHeight = h;
         }
 
-        if(recreate){
-            // recreate
+        if (recreate) {
             // To ensure accurate results, 32bit is used here for generalization.
-            gBufferData0 = new Texture2D(w, h, Image.Format.RGBA16F);
-            gBufferData1 = new Texture2D(w, h, Image.Format.RGBA16F);
-            gBufferData2 = new Texture2D(w, h, Image.Format.RGBA16F);
-            gBufferData3 = new Texture2D(w, h, Image.Format.RGBA32F);   // The third buffer provides 32-bit floating point to store high-precision information, such as normals
-            this.getSinks().clear();
-            // Depth16/Depth32/Depth32F provide higher precision to prevent clipping when camera gets close, but it seems some devices do not support copying Depth16/Depth32/Depth32F to default FrameBuffer.
-            gBufferData4 = new Texture2D(w, h, Image.Format.Depth);
+            gBufferData[0] = new Texture2D(w, h, Image.Format.RGBA16F);
+            gBufferData[1] = new Texture2D(w, h, Image.Format.RGBA16F);
+            gBufferData[2] = new Texture2D(w, h, Image.Format.RGBA16F);
+            // The third buffer provides 32-bit floating point to store high-precision information, such as normals
+            gBufferData[3] = new Texture2D(w, h, Image.Format.RGBA32F);
+            getSinks().clear();
+            // Depth16/Depth32/Depth32F provide higher precision to prevent clipping when camera gets close,
+            // but it seems some devices do not support copying Depth16/Depth32/Depth32F to default FrameBuffer.
+            gBufferData[4] = new Texture2D(w, h, Image.Format.Depth);
             gBuffer = new FrameBuffer(w, h, 1);
-            FrameBuffer.FrameBufferTextureTarget rt0 = FrameBuffer.FrameBufferTarget.newTarget(gBufferData0);
-            FrameBuffer.FrameBufferTextureTarget rt1 = FrameBuffer.FrameBufferTarget.newTarget(gBufferData1);
-            FrameBuffer.FrameBufferTextureTarget rt2 = FrameBuffer.FrameBufferTarget.newTarget(gBufferData2);
-            FrameBuffer.FrameBufferTextureTarget rt3 = FrameBuffer.FrameBufferTarget.newTarget(gBufferData3);
-            FrameBuffer.FrameBufferTextureTarget rt4 = FrameBuffer.FrameBufferTarget.newTarget(gBufferData4);
-            gBuffer.addColorTarget(rt0);
-            gBuffer.addColorTarget(rt1);
-            gBuffer.addColorTarget(rt2);
-            gBuffer.addColorTarget(rt3);
-            gBuffer.setDepthTarget(rt4);
+            for (int i = 0; i < gBufferData.length; i++) {
+                FrameBuffer.FrameBufferTextureTarget target = FrameBuffer.FrameBufferTarget.newTarget(gBufferData[i]);
+                gBuffer.addColorTarget(target);
+                registerSource(new FGRenderTargetSource(RENDER_TARGETS[i], target));
+            }
             gBuffer.setMultiTarget(true);
-            registerSource(new FGRenderTargetSource(S_RT_0, rt0));
-            registerSource(new FGRenderTargetSource(S_RT_1, rt1));
-            registerSource(new FGRenderTargetSource(S_RT_2, rt2));
-            registerSource(new FGRenderTargetSource(S_RT_3, rt3));
-            registerSource(new FGRenderTargetSource(S_RT_4, rt4));
-            registerSource(new DeferredLightDataSource(S_LIGHT_DATA, lightData));
-            bHasDrawVarSource = new FGVarSource<Boolean>(S_EXECUTE_STATE, bHasDraw);
+            registerSource(new DeferredLightDataSource(LIGHT_DATA, lightData));
+            bHasDrawVarSource = new FGVarSource<>(EXECUTE_STATE, bHasDraw);
             registerSource(bHasDrawVarSource);
-            registerSource(new FGFramebufferSource(S_FB, gBuffer));
+            registerSource(new FramebufferSource(G_FRAME_BUFFER, gBuffer));
         }
     }
 
@@ -188,7 +168,7 @@ public class GBufferPass extends OpaquePass{
         if(material.getMaterialDef().getTechniqueDefs(rm.getForcedTechnique()) == null)return false;
         rm.renderGeometry(geom);
         if(material.getActiveTechnique() != null){
-            if(material.getMaterialDef().getTechniqueDefs(S_GBUFFER_PASS) != null){
+            if(material.getMaterialDef().getTechniqueDefs(GBUFFER_PASS) != null){
                 LightList lights = geom.getFilterWorldLights();
                 for(Light light : lights){
                     if(!tempLights.contains(light)){
@@ -206,13 +186,12 @@ public class GBufferPass extends OpaquePass{
     @Override
     public void prepare(FGRenderContext renderContext) {
         super.prepare(renderContext);
-        ViewPort vp = null;
+        ViewPort vp;
         if(forceViewPort != null){
             vp = forceViewPort;
+        } else {
+            vp = renderContext.getViewPort();
         }
-        else{
-            vp = renderContext.viewPort;
-        }
-        reshape(renderContext.renderManager.getRenderer(), vp, vp.getCamera().getWidth(), vp.getCamera().getHeight());
+        reshape(renderContext.getRenderer(), vp, vp.getCamera().getWidth(), vp.getCamera().getHeight());
     }
 }

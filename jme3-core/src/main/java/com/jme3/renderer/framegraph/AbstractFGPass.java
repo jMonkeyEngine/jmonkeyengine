@@ -93,13 +93,8 @@ public abstract class AbstractFGPass implements FGPass {
     }
     
     @Override
-    public void setSinkLinkage(String registeredName, String target){
-        FGSink sink = getSink(registeredName);
-        String targetSplit[] = target.split("\\.");
-        if(targetSplit.length != 2){
-            System.err.println("Input target has incorrect format");
-        }
-        sink.setTarget(targetSplit[0], targetSplit[1]);
+    public void setSinkLinkage(String registeredName, String targetPass, String targetResource) {
+        getSink(registeredName).setTarget(targetPass, targetResource);
     }
     
     @Override

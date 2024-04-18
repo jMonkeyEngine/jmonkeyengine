@@ -50,16 +50,17 @@ public class ForwardPass extends FGRenderQueuePass {
 
     @Override
     public void executeDrawCommandList(FGRenderContext renderContext) {
-        if(!canExecute)return;
-        Camera cam = null;
+        if (!canExecute) {
+            return;
+        }
+        Camera cam;
         if(forceViewPort != null){
             cam = forceViewPort.getCamera();
+        } else {
+            cam = renderContext.getViewPort().getCamera();
         }
-        else{
-            cam = renderContext.viewPort.getCamera();
-        }
-        RenderManager rm = renderContext.renderManager;
-        renderContext.renderQueue.renderQueue(this.bucket, rm, cam, true);
+        RenderManager rm = renderContext.getRenderManager();
+        renderContext.getRenderQueue().renderQueue(this.bucket, rm, cam, true);
     }
 
     @Override

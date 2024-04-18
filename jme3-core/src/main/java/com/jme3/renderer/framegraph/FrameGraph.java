@@ -36,31 +36,43 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * The FrameGraph system is used to manage render passes and the dependencies between them in a declarative way. Some key aspects:<br/>
- * - It represents the rendering pipeline as a directed acyclic graph of passes and their inputs/outputs.<br/>
- * - Passes can be things like shadow map creation, geometry passes, post-processing etc.<br/>
- * - Outputs from one pass can be reused as inputs to others, avoiding redundant work.<br/>
- * - The FrameGraph handles synchronization, pass scheduling and resource transitions automatically based on dependencies.<br/>
- * - Developers define passes and connect inputs/outputs, while the system handles execution.<br/>
- * - Passes can have arbitrary Java logic, shaders, and framebuffer configurations.<br/>
- * - Framebuffers are created on demand based on pass requirements.<br/>
- * - FrameGraphRecursion queues allow recursive pass execution (e.g. for nested realtime reflections).<br/>
- * - The system optimizes what needs to run each frame based on dirty state.<br/>
- * In summary, FrameGraph enables declaring a rendering pipeline at a high level while handling all the underlying complexity of synchronization, resource management, and efficient execution. This simplifies the developer's job and avoids boilerplate code.<br/>
- * The key advantages are automatic input/output reuse, efficient scheduling and batching, simplified boilerplate, and handling advanced cases like recursions. Overall it provides a clean abstraction for building complex, efficient rendering pipelines.<br/>
- * <a href="https://www.gdcvault.com/play/1024612/FrameGraph-Extensible-Rendering-Architecture-in">https://www.gdcvault.com/play/1024612/FrameGraph-Extensible-Rendering-Architecture-in.</a>
+ * The FrameGraph system is used to manage render passes and the dependencies between them in a declarative way.
+ * <p>
+ * Some key aspects:
+ * <ul>
+ *   <li>It represents the rendering pipeline as a directed acyclic graph of passes and their inputs/outputs.
+ *   <li>Passes can be things like shadow map creation, geometry passes, post-processing etc.
+ *   <li>Outputs from one pass can be reused as inputs to others, avoiding redundant work.
+ *   <li>The FrameGraph handles synchronization, pass scheduling and resource transitions automatically based on dependencies.
+ *   <li>Developers define passes and connect inputs/outputs, while the system handles execution.
+ *   <li>Passes can have arbitrary Java logic, shaders, and framebuffer configurations.
+ *   <li>Framebuffers are created on demand based on pass requirements.
+ *   <li>FrameGraphRecursion queues allow recursive pass execution (e.g. for nested realtime reflections).
+ *   <li>The system optimizes what needs to run each frame based on dirty state.
+ * </ul>
+ * In summary, FrameGraph enables declaring a rendering pipeline at a high level while handling all the
+ * underlying complexity of synchronization, resource management, and efficient execution. This simplifies
+ * the developer's job and avoids boilerplate code.
+ * <p>
+ * The key advantages are automatic input/output reuse, efficient scheduling and batching, simplified boilerplate,
+ * and handling advanced cases like recursions. Overall it provides a clean abstraction for building complex,
+ * efficient rendering pipelines.
+ * <p>
+ * <a href="https://www.gdcvault.com/play/1024612/FrameGraph-Extensible-Rendering-Architecture-in">https://www.gdcvault.com/play/1024612/FrameGraph-Extensible-Rendering-Architecture-in.>For more information</a>
+ * 
  * @author JohnKkk
  */
 public class FrameGraph {
     
     private static final Logger logger = Logger.getLogger(FrameGraph.class.getName());
-    private ArrayList<FGPass> passes;
-    private ArrayList<FGSource> globalSources;
-    private ArrayList<FGSink> globalSinks;
-    private boolean finalized = false;
-    private FGRenderContext renderContext;
     
-    public FrameGraph(FGRenderContext renderContext){
+    private final FGRenderContext renderContext;
+    private final ArrayList<FGPass> passes;
+    private final ArrayList<FGSource> globalSources;
+    private final ArrayList<FGSink> globalSinks;
+    private boolean finalized = false;
+    
+    public FrameGraph(FGRenderContext renderContext) {
         passes = new ArrayList<>();
         globalSinks = new ArrayList<>();
         globalSources = new ArrayList<>();
@@ -74,12 +86,12 @@ public class FrameGraph {
     /**
      * Binding input resources to the global sink in a FrameGraph refers to making certain resources available globally to all passes.
      */
-    protected void linkGlobalSinks(){
+    protected void linkGlobalSinks() {
         for(FGSink sink : globalSinks){
             String linkPassName = sink.getLinkPassName();
-            for(FGPass nextPass : passes){
-                if(nextPass.getName().equals(linkPassName)){
-                    FGSource source = nextPass.getSource(sink.getLinkPassResName());
+            for(FGPass p : passes){
+                if(p.getName().equals(linkPassName)){
+                    FGSource source = p.getSource(sink.getLinkPassResName());
                     sink.bind(source);
                     break;
                 }
@@ -91,7 +103,7 @@ public class FrameGraph {
      * Binding input resources to a specific pass in a FrameGraph refers to connecting the necessary resources that pass requires as inputs.
      * @param pass targetPass
      */
-    protected void linkSinks(FGPass pass){
+    protected void linkSinks(FGPass pass) {
         for(FGSink sink : pass.getSinks()){
             String linkPassName = sink.getLinkPassName();
             
@@ -161,7 +173,7 @@ public class FrameGraph {
      * fg.execute();
      * </code>
      */
-    public void execute(){
+    public void execute() {
         assert finalized;
         for(FGPass nextPass : passes){
             nextPass.execute(renderContext);
@@ -170,8 +182,14 @@ public class FrameGraph {
     }
 
     /**
-     * The FrameGraph can be reused by just calling reset() to clear the current graph, then re-adding the required passes and binding the necessary resources again, before calling execute() once more.<br/>
-     * This allows reusing the same FrameGraph instance to construct different render pipelines, avoiding repeated resource creation. Just update the passes and connections as needed. This improves code reuse and simplifies render pipeline adjustments.<br/>
+     * The FrameGraph can be reused by just calling reset() to clear the current graph,
+     * then re-adding the required passes and binding the necessary resources again,
+     * before calling execute() once more.
+     * <p>
+     * This allows reusing the same FrameGraph instance to construct different render
+     * pipelines, avoiding repeated resource creation. Just update the passes and
+     * connections as needed. This improves code reuse and simplifies render pipeline
+     * adjustments.
      */
     public void reset(){
         assert !finalized;
@@ -179,8 +197,8 @@ public class FrameGraph {
             nextPass.resetPass();
         }
         passes.clear();
-        if(renderContext != null && renderContext.renderManager != null){
-            renderContext.renderManager.setRenderGeometryHandler(null);
+        if(renderContext != null) {
+            renderContext.getRenderManager().setRenderGeometryHandler(null);
         }
     }
 
@@ -211,7 +229,7 @@ public class FrameGraph {
     }
 
     /**
-     * A FrameGraph may contain global sinks, such as a backBuffer.<br/>
+     * A FrameGraph may contain global sinks, such as a backBuffer.
      * @param sink targetFGSink
      */
     public void addGlobalSink(FGSink sink){
@@ -233,20 +251,20 @@ public class FrameGraph {
      * So in summary, add Passes in the desired execution order to the FrameGraph. The FrameGraph system will then handle scheduling them based on resource availability while respecting the original adding order.<br/>
      * @param pass targetPass
      */
-    public final void addPass(FGPass pass){
+    public void addPass(FGPass pass){
         assert !finalized;
         // validate name uniqueness
         for(FGPass nextPass : passes){
             if(nextPass.getName().equals(pass.getName())){
-                logger.throwing(FrameGraph.class.toString(), "<linkSinks>", new NullPointerException("Pass name already exists: " + pass.getName()));
-//                System.err.println("Pass name already exists: " + pass.getName());
+                logger.log(Level.WARNING, "Pass name already exists: {0}", pass.getName());
                 return;
             }
         }
         
         // link outputs from passes (and global outputs) to pass inputs
-        if(pass.getSinks() != null && pass.getSinks().size() > 0)
+        if(pass.getSinks() != null && !pass.getSinks().isEmpty()) {
             linkSinks(pass);
+        }
         
         // add to container of passes
         pass.prepare(renderContext);
@@ -267,7 +285,7 @@ public class FrameGraph {
     /**
      * Prepare all passes to get ready for execution of the frameGraph, by calling this function before executing the frameGraph.<br/>
      */
-    public final void finalize(){
+    public final void finalizePasses(){
         assert !finalized;
         for(FGPass nextPass : passes){
             nextPass.finalizePass();

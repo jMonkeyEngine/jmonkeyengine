@@ -67,7 +67,7 @@ public class DeferredShadingPass extends ScreenPass {
     @Override
     public void prepare(FGRenderContext renderContext) {
         super.prepare(renderContext);
-        ViewPort vp = renderContext.viewPort;
+        ViewPort vp = renderContext.getViewPort();
         if(forceViewPort != null){
             vp = forceViewPort;
         }
@@ -89,19 +89,19 @@ public class DeferredShadingPass extends ScreenPass {
         screenRect.setMaterial(getMaterial());
 
         // register Sinks
-        registerSink(new FGTextureBindableSink<FGRenderTargetSource.RenderTargetSourceProxy>(S_RT_0, binds, binds.size(), screenMat, VarType.Texture2D));
-        registerSink(new FGTextureBindableSink<FGRenderTargetSource.RenderTargetSourceProxy>(S_RT_1, binds, binds.size(), screenMat, VarType.Texture2D));
-        registerSink(new FGTextureBindableSink<FGRenderTargetSource.RenderTargetSourceProxy>(S_RT_2, binds, binds.size(), screenMat, VarType.Texture2D));
-        registerSink(new FGTextureBindableSink<FGRenderTargetSource.RenderTargetSourceProxy>(S_RT_3, binds, binds.size(), screenMat, VarType.Texture2D));
-        registerSink(new FGTextureBindableSink<FGRenderTargetSource.RenderTargetSourceProxy>(S_RT_4, binds, binds.size(), screenMat, VarType.Texture2D));
-        registerSink(new DeferredLightDataSink<DeferredLightDataSource.DeferredLightDataProxy>(S_LIGHT_DATA, binds, binds.size()));
-        registerSink(new FGVarBindableSink<FGVarSource.FGVarBindableProxy>(S_EXECUTE_STATE, binds, binds.size()));
-        registerSink(new FGFramebufferCopyBindableSink<FGFramebufferSource.FrameBufferSourceProxy>(FGGlobal.S_DEFAULT_FB, null, false, true, true, binds, binds.size()));
+        registerSink(new FGTextureBindableSink<>(S_RT_0, binds, binds.size(), screenMat, VarType.Texture2D));
+        registerSink(new FGTextureBindableSink<>(S_RT_1, binds, binds.size(), screenMat, VarType.Texture2D));
+        registerSink(new FGTextureBindableSink<>(S_RT_2, binds, binds.size(), screenMat, VarType.Texture2D));
+        registerSink(new FGTextureBindableSink<>(S_RT_3, binds, binds.size(), screenMat, VarType.Texture2D));
+        registerSink(new FGTextureBindableSink<>(S_RT_4, binds, binds.size(), screenMat, VarType.Texture2D));
+        registerSink(new DeferredLightDataSink<>(S_LIGHT_DATA, binds, binds.size()));
+        registerSink(new FGVarBindableSink<>(S_EXECUTE_STATE, binds, binds.size()));
+        registerSink(new FGFramebufferCopyBindableSink<>(FGGlobal.S_DEFAULT_FB, null, false, true, true, binds, binds.size()));
     }
 
     @Override
     public void executeDrawCommandList(FGRenderContext renderContext) {
-        screenMat.selectTechnique(_S_DEFERRED_PASS, renderContext.renderManager);
+        screenMat.selectTechnique(_S_DEFERRED_PASS, renderContext.getRenderManager());
         DeferredLightDataSink deferredLightDataSink = (DeferredLightDataSink) getSink(S_LIGHT_DATA);
         DeferredLightDataSource.DeferredLightDataProxy deferredLightDataProxy = (DeferredLightDataSource.DeferredLightDataProxy) deferredLightDataSink.getBind();
         LightList lights = deferredLightDataProxy.getLightData();
@@ -111,7 +111,7 @@ public class DeferredShadingPass extends ScreenPass {
         screenMat.getAdditionalRenderState().setDepthTest(false);
         screenMat.setBoolean("UseLightsCullMode", false);
         screenRect.updateGeometricState();
-        screenMat.render(screenRect, lights, renderContext.renderManager);
+        screenMat.render(screenRect, lights, renderContext.getRenderManager());
         screenMat.getAdditionalRenderState().setDepthWrite(depthWrite);
         screenMat.getAdditionalRenderState().setDepthTest(depthTest);
     }

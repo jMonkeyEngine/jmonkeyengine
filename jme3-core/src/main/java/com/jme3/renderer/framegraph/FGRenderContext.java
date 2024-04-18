@@ -32,6 +32,7 @@
 package com.jme3.renderer.framegraph;
 
 import com.jme3.renderer.RenderManager;
+import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue;
 
@@ -40,30 +41,59 @@ import com.jme3.renderer.queue.RenderQueue;
  * @author JohnKkk
  */
 public class FGRenderContext {
-    // PSO
-    public static class FGPipelineObjectState{
+    
+    protected static class FGPipelineObjectState {
+        
         public float startDepth;
         public float endDepth;
+
+        public FGPipelineObjectState(float startDepth, float endDepth) {
+            this.startDepth = startDepth;
+            this.endDepth = endDepth;
+        }
+        
     }
 
-    public RenderManager renderManager;
-    public RenderQueue renderQueue;
-    public ViewPort viewPort;
+    private final RenderManager renderManager;
+    private ViewPort viewPort;
     protected FGPipelineObjectState currentPSO;
 
-    public FGRenderContext(RenderManager renderManager, RenderQueue renderQueue, ViewPort viewPort) {
+    public FGRenderContext(RenderManager renderManager, ViewPort viewPort) {
         this.renderManager = renderManager;
-        this.renderQueue = renderQueue;
         this.viewPort = viewPort;
-        currentPSO = new FGPipelineObjectState();
-        currentPSO.startDepth = 0;
-        currentPSO.endDepth = 1;
+        currentPSO = new FGPipelineObjectState(0, 1);
     }
-    public final void setDepthRange(float start, float end){
+    
+    public void setDepthRange(float start, float end){
         if(currentPSO.startDepth != start || currentPSO.endDepth != end){
             renderManager.getRenderer().setDepthRange(start, end);
             currentPSO.startDepth = start;
             currentPSO.endDepth = end;
         }
     }
+    
+    public void setViewPort(ViewPort viewPort) {
+        this.viewPort = viewPort;
+    } 
+    
+    public RenderManager getRenderManager() {
+        return renderManager;
+    }
+    
+    public ViewPort getViewPort() {
+        return viewPort;
+    }
+    
+    public Renderer getRenderer() {
+        return renderManager.getRenderer();
+    }
+    
+    public RenderQueue getRenderQueue() {
+        if (viewPort != null) {
+            return viewPort.getQueue();
+        } else {
+            return null;
+        }
+    }
+    
 }

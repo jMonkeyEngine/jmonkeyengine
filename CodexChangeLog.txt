@@ -1,3 +1,7 @@
 
+TileBasedDeferredSinglePassLightingLogic.java:
 
+* Fixed syntax error.
+* Added exception when accumulated light sources exceeds maximum.
+* Fixed check for tile demension changes so that demensions are not reset every frame.
 

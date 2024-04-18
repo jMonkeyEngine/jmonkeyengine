@@ -39,11 +39,10 @@ import java.util.ArrayList;
  * @author JohnKkk
  * @param <T>
  */
-public class FGFramebufferCopyBindableSink <T extends FGFramebufferSource.FrameBufferSourceProxy> extends FGContainerBindableSink<T> {
-    FramebufferCopyBindableProxy framebufferCopyBindableProxy;
-    public final void setDistFrameBuffer(FrameBuffer distFrameBuffer){
-        framebufferCopyBindableProxy.distFramebuffer = distFrameBuffer;
-    }
+public class FGFramebufferCopyBindableSink <T extends FramebufferSource.FrameBufferSourceProxy> extends FGContainerBindableSink<T> {
+    
+    private FramebufferCopyBindableProxy framebufferCopyBindableProxy;
+    
     public FGFramebufferCopyBindableSink(String registeredName, FrameBuffer distFrameBuffer, boolean copyColor, boolean copyDepth, boolean copyStencil, ArrayList<FGBindable> container, int index) {
         super(registeredName, container, index);
         framebufferCopyBindableProxy = new FramebufferCopyBindableProxy(distFrameBuffer, copyColor, copyDepth, copyStencil);
@@ -70,9 +69,15 @@ public class FGFramebufferCopyBindableSink <T extends FGFramebufferSource.FrameB
         @Override
         public void bind(FGRenderContext renderContext) {
             if(this.distFramebuffer != null || this.sourceFramebuffer != null){
-                renderContext.renderManager.getRenderer().copyFrameBuffer(this.sourceFramebuffer, this.distFramebuffer != null ? this.distFramebuffer : renderContext.viewPort.getOutputFrameBuffer(), bCopyColor, bCopyDepth || bCopyStencil);
+                renderContext.getRenderer().copyFrameBuffer(this.sourceFramebuffer,
+                        (this.distFramebuffer != null ? this.distFramebuffer : renderContext.getViewPort().getOutputFrameBuffer()),
+                        bCopyColor, bCopyDepth || bCopyStencil);
             }
         }
+    }
+    
+    public final void setDistFrameBuffer(FrameBuffer distFrameBuffer){
+        framebufferCopyBindableProxy.distFramebuffer = distFrameBuffer;
     }
 
     @Override
@@ -82,10 +87,10 @@ public class FGFramebufferCopyBindableSink <T extends FGFramebufferSource.FrameB
             System.err.println("Binding input [" + getRegisteredName() + "] to output [" + getLinkPassName() + "." + getLinkPassResName() + "] " + " { " + fgSource.getName() + " } ");
             return;
         }
-        if(fgSource instanceof FGFramebufferSource){
+        if(fgSource instanceof FramebufferSource){
             linked = true;
-            FGFramebufferSource framebufferSource = (FGFramebufferSource)fgSource;
-            framebufferCopyBindableProxy.setSourceFramebuffer(((FGFramebufferSource.FrameBufferSourceProxy)framebufferSource.yieldBindable()).getFrameBuffer());
+            FramebufferSource framebufferSource = (FramebufferSource)fgSource;
+            framebufferCopyBindableProxy.setSourceFramebuffer(((FramebufferSource.FrameBufferSourceProxy)framebufferSource.yieldBindable()).getFrameBuffer());
             bindableProxy.targetBindable = framebufferCopyBindableProxy;
         }
         else{

@@ -29,7 +29,7 @@ public interface FGPass {
     
     public FGSink getSink(String registeredName);
     
-    public void setSinkLinkage(String registeredName, String target);
+    public void setSinkLinkage(String registeredName, String targetPass, String targetResource);
     
     public void registerSink(AbstractFGSink sink);
     

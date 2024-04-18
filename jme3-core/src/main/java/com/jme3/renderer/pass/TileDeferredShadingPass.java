@@ -37,8 +37,9 @@ import com.jme3.material.MaterialDef;
 import com.jme3.renderer.framegraph.FGRenderContext;
 
 public class TileDeferredShadingPass extends DeferredShadingPass{
-    private static final String _S_TILE_BASED_DEFERRED_SHADING_PASS_MAT_DEF = "Common/MatDefs/ShadingCommon/TileBasedDeferredShading.j3md";
-    protected final static String _S_TILE_BASED_DEFERRED_PASS = "TileBasedDeferredPass";
+    
+    private static final String MAT_DEF = "Common/MatDefs/ShadingCommon/TileBasedDeferredShading.j3md";
+    protected final static String PASS = "TileBasedDeferredPass";
 
     public TileDeferredShadingPass() {
         super("TileDeferredShadingPass");
@@ -46,7 +47,7 @@ public class TileDeferredShadingPass extends DeferredShadingPass{
 
     @Override
     protected Material getMaterial() {
-        MaterialDef def = (MaterialDef) assetManager.loadAsset(_S_TILE_BASED_DEFERRED_SHADING_PASS_MAT_DEF);
+        MaterialDef def = (MaterialDef) assetManager.loadAsset(MAT_DEF);
         screenMat = new Material(def);
         return screenMat;
     }
@@ -58,14 +59,14 @@ public class TileDeferredShadingPass extends DeferredShadingPass{
         LightList lights = deferredLightDataProxy.getLightData();
 
         // Handle FullScreenLights
-        screenMat.selectTechnique(_S_TILE_BASED_DEFERRED_PASS, renderContext.renderManager);
+        screenMat.selectTechnique(PASS, renderContext.getRenderManager());
         boolean depthWrite = screenMat.getAdditionalRenderState().isDepthWrite();
         boolean depthTest = screenMat.getAdditionalRenderState().isDepthTest();
         screenMat.getAdditionalRenderState().setDepthTest(false);
         screenMat.getAdditionalRenderState().setDepthWrite(false);
         screenMat.setBoolean("UseLightsCullMode", false);
         screenRect.updateGeometricState();
-        screenMat.render(screenRect, lights, renderContext.renderManager);
+        screenMat.render(screenRect, lights, renderContext.getRenderManager());
         screenMat.getAdditionalRenderState().setDepthTest(depthTest);
         screenMat.getAdditionalRenderState().setDepthWrite(depthWrite);
 

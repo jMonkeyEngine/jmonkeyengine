@@ -469,5 +469,7 @@ public class TestPBRTerrainAdvancedRenderPath extends SimpleApplication {
         cam.lookAtDirection(new Vector3f(0, -1.5f, -1).normalizeLocal(), Vector3f.UNIT_Y);
 
         getFlyByCamera().setMoveSpeed(camMoveSpeed);
+        flyCam.setEnabled(false);
+        inputManager.setCursorVisible(true);
     }
 }

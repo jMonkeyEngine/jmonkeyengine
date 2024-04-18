@@ -85,6 +85,7 @@ import java.util.logging.Logger;
  * @see Spatial
  */
 public class RenderManager {
+    
     // Maximum total number of light sources for deferred rendering
     private int maxDeferredLights = 1024;
     // TileInfo
@@ -170,7 +171,7 @@ public class RenderManager {
         this.renderer = renderer;
         this.forcedOverrides.add(boundDrawBufferId);
         if(useFramegraph){
-            frameGraph = new FrameGraph(new FGRenderContext(null, null, null));
+            frameGraph = new FrameGraph(new FGRenderContext(this, null));
             gBufferPass = new GBufferPass();
             deferredShadingPass = new DeferredShadingPass();
             tileDeferredShadingPass = new TileDeferredShadingPass();
@@ -1339,85 +1340,92 @@ public class RenderManager {
         if (!vp.isEnabled()) {
             return;
         }
+        
+        if (prof != null) {
+            prof.vpStep(VpStep.BeginRender, vp, null);
+        }
+
+        SafeArrayList<SceneProcessor> processors = vp.getProcessors();
+        if (processors.isEmpty()) {
+            processors = null;
+        }
+
+        if (processors != null) {
+            if (prof != null) {
+                prof.vpStep(VpStep.PreFrame, vp, null);
+            }
+            for (SceneProcessor proc : processors.getArray()) {
+                if (!proc.isInitialized()) {
+                    proc.initialize(this, vp);
+                }
+                proc.setProfiler(this.prof);
+                if (prof != null) {
+                    prof.spStep(SpStep.ProcPreFrame, proc.getClass().getSimpleName());
+                }
+                proc.preFrame(tpf);
+            }
+        }
+
+        renderer.setFrameBuffer(vp.getOutputFrameBuffer());
+        setCamera(vp.getCamera(), false);
+        if (vp.isClearDepth() || vp.isClearColor() || vp.isClearStencil()) {
+            if (vp.isClearColor()) {
+                renderer.setBackgroundColor(vp.getBackgroundColor());
+            }
+            renderer.clearBuffers(vp.isClearColor(), vp.isClearDepth(), vp.isClearStencil());
+        }
 
         if(useFramegraph){
             RenderPath curRenderPath = vp.getRenderPath() == RenderPath.None ? renderPath : vp.getRenderPath();
 
-            if (prof!=null) prof.vpStep(VpStep.BeginRender, vp, null);
-
-            SafeArrayList<SceneProcessor> processors = vp.getProcessors();
-            if (processors.isEmpty()) {
-                processors = null;
+            if (prof != null) {
+                prof.vpStep(VpStep.RenderScene, vp, null);
             }
-
-            if (processors != null) {
-                if (prof != null) prof.vpStep(VpStep.PreFrame, vp, null);
-                for (SceneProcessor proc : processors.getArray()) {
-                    if (!proc.isInitialized()) {
-                        proc.initialize(this, vp);
-                    }
-                    proc.setProfiler(this.prof);
-                    if (prof != null) prof.spStep(SpStep.ProcPreFrame, proc.getClass().getSimpleName());
-                    proc.preFrame(tpf);
-                }
-            }
-
-            renderer.setFrameBuffer(vp.getOutputFrameBuffer());
-            setCamera(vp.getCamera(), false);
-            if (vp.isClearDepth() || vp.isClearColor() || vp.isClearStencil()) {
-                if (vp.isClearColor()) {
-                    renderer.setBackgroundColor(vp.getBackgroundColor());
-                }
-                renderer.clearBuffers(vp.isClearColor(),
-                        vp.isClearDepth(),
-                        vp.isClearStencil());
-            }
-
-            if (prof!=null) prof.vpStep(VpStep.RenderScene, vp, null);
             List<Spatial> scenes = vp.getScenes();
             for (int i = scenes.size() - 1; i >= 0; i--) {
                 renderScene(scenes.get(i), vp);
             }
 
             if (processors != null) {
-                if (prof!=null) prof.vpStep(VpStep.PostQueue, vp, null);
-                for (SceneProcessor proc : processors.getArray()) {
-                    if (prof != null) prof.spStep(SpStep.ProcPostQueue, proc.getClass().getSimpleName());
-                    proc.postQueue(vp.getQueue());
+                if (prof != null) {
+                    prof.vpStep(VpStep.PostQueue, vp, null);
+                }
+                for (SceneProcessor p : processors.getArray()) {
+                    if (prof != null) {
+                        prof.spStep(SpStep.ProcPostQueue, p.getClass().getSimpleName());
+                    }
+                    p.postQueue(vp.getQueue());
                 }
             }
 
             frameGraph.reset();
-            frameGraph.getRenderContext().renderManager = this;
-            frameGraph.getRenderContext().renderQueue = vp.getQueue();
-            frameGraph.getRenderContext().viewPort = vp;
-
-            if(curRenderPath == RenderPath.Deferred){
+            frameGraph.getRenderContext().setViewPort(vp);
+            
+            if (curRenderPath == RenderPath.Deferred) {
                 frameGraph.addPass(gBufferPass);
-                deferredShadingPass.setSinkLinkage(DeferredShadingPass.S_RT_0, gBufferPass.getName() + "." + GBufferPass.S_RT_0);
-                deferredShadingPass.setSinkLinkage(DeferredShadingPass.S_RT_1, gBufferPass.getName() + "." + GBufferPass.S_RT_1);
-                deferredShadingPass.setSinkLinkage(DeferredShadingPass.S_RT_2, gBufferPass.getName() + "." + GBufferPass.S_RT_2);
-                deferredShadingPass.setSinkLinkage(DeferredShadingPass.S_RT_3, gBufferPass.getName() + "." + GBufferPass.S_RT_3);
-                deferredShadingPass.setSinkLinkage(DeferredShadingPass.S_RT_4, gBufferPass.getName() + "." + GBufferPass.S_RT_4);
-                deferredShadingPass.setSinkLinkage(DeferredShadingPass.S_LIGHT_DATA, gBufferPass.getName() + "." + GBufferPass.S_LIGHT_DATA);
-                deferredShadingPass.setSinkLinkage(DeferredShadingPass.S_EXECUTE_STATE, gBufferPass.getName() + "." + GBufferPass.S_EXECUTE_STATE);
-                deferredShadingPass.setSinkLinkage(FGGlobal.S_DEFAULT_FB, gBufferPass.getName() + "." + GBufferPass.S_FB);
+                deferredShadingPass.setSinkLinkage(DeferredShadingPass.S_RT_0, gBufferPass.getName(), GBufferPass.RENDER_TARGETS[0]);
+                deferredShadingPass.setSinkLinkage(DeferredShadingPass.S_RT_1, gBufferPass.getName(), GBufferPass.RENDER_TARGETS[1]);
+                deferredShadingPass.setSinkLinkage(DeferredShadingPass.S_RT_2, gBufferPass.getName(), GBufferPass.RENDER_TARGETS[2]);
+                deferredShadingPass.setSinkLinkage(DeferredShadingPass.S_RT_3, gBufferPass.getName(), GBufferPass.RENDER_TARGETS[3]);
+                deferredShadingPass.setSinkLinkage(DeferredShadingPass.S_RT_4, gBufferPass.getName(), GBufferPass.RENDER_TARGETS[4]);
+                deferredShadingPass.setSinkLinkage(DeferredShadingPass.S_LIGHT_DATA, gBufferPass.getName(), GBufferPass.LIGHT_DATA);
+                deferredShadingPass.setSinkLinkage(DeferredShadingPass.S_EXECUTE_STATE, gBufferPass.getName(), GBufferPass.EXECUTE_STATE);
+                deferredShadingPass.setSinkLinkage(FGGlobal.S_DEFAULT_FB, gBufferPass.getName(), GBufferPass.G_FRAME_BUFFER);
                 frameGraph.addPass(deferredShadingPass);
-            }
-            else if(curRenderPath == RenderPath.TiledDeferred){
+            } else if (curRenderPath == RenderPath.TiledDeferred) {
                 curTileSize = forceTileSize > 0 ? forceTileSize : (getCurrentCamera().getWidth() / numberTileDivisions);
                 int tileWidth = (int)(viewWidth / curTileSize);
                 int tileHeight = (int)(viewHeight / curTileSize);
                 setTileInfo(curTileSize, tileWidth, tileHeight, tileWidth * tileHeight);
                 frameGraph.addPass(gBufferPass);
-                tileDeferredShadingPass.setSinkLinkage(DeferredShadingPass.S_RT_0, gBufferPass.getName() + "." + GBufferPass.S_RT_0);
-                tileDeferredShadingPass.setSinkLinkage(DeferredShadingPass.S_RT_1, gBufferPass.getName() + "." + GBufferPass.S_RT_1);
-                tileDeferredShadingPass.setSinkLinkage(DeferredShadingPass.S_RT_2, gBufferPass.getName() + "." + GBufferPass.S_RT_2);
-                tileDeferredShadingPass.setSinkLinkage(DeferredShadingPass.S_RT_3, gBufferPass.getName() + "." + GBufferPass.S_RT_3);
-                tileDeferredShadingPass.setSinkLinkage(DeferredShadingPass.S_RT_4, gBufferPass.getName() + "." + GBufferPass.S_RT_4);
-                tileDeferredShadingPass.setSinkLinkage(DeferredShadingPass.S_LIGHT_DATA, gBufferPass.getName() + "." + GBufferPass.S_LIGHT_DATA);
-                tileDeferredShadingPass.setSinkLinkage(FGGlobal.S_DEFAULT_FB, gBufferPass.getName() + "." + GBufferPass.S_FB);
-                tileDeferredShadingPass.setSinkLinkage(DeferredShadingPass.S_EXECUTE_STATE, gBufferPass.getName() + "." + GBufferPass.S_EXECUTE_STATE);
+                tileDeferredShadingPass.setSinkLinkage(DeferredShadingPass.S_RT_0, gBufferPass.getName(), GBufferPass.RENDER_TARGETS[0]);
+                tileDeferredShadingPass.setSinkLinkage(DeferredShadingPass.S_RT_1, gBufferPass.getName(), GBufferPass.RENDER_TARGETS[1]);
+                tileDeferredShadingPass.setSinkLinkage(DeferredShadingPass.S_RT_2, gBufferPass.getName(), GBufferPass.RENDER_TARGETS[2]);
+                tileDeferredShadingPass.setSinkLinkage(DeferredShadingPass.S_RT_3, gBufferPass.getName(), GBufferPass.RENDER_TARGETS[3]);
+                tileDeferredShadingPass.setSinkLinkage(DeferredShadingPass.S_RT_4, gBufferPass.getName(), GBufferPass.RENDER_TARGETS[4]);
+                tileDeferredShadingPass.setSinkLinkage(DeferredShadingPass.S_LIGHT_DATA, gBufferPass.getName(), GBufferPass.LIGHT_DATA);
+                tileDeferredShadingPass.setSinkLinkage(FGGlobal.S_DEFAULT_FB, gBufferPass.getName(), GBufferPass.G_FRAME_BUFFER);
+                tileDeferredShadingPass.setSinkLinkage(DeferredShadingPass.S_EXECUTE_STATE, gBufferPass.getName(), GBufferPass.EXECUTE_STATE);
                 frameGraph.addPass(tileDeferredShadingPass);
             }
             frameGraph.addPass(opaquePass);
@@ -1438,49 +1446,14 @@ public class RenderManager {
             //renders the translucent objects queue after processors have been rendered
             frameGraph.addPass(translucentPass);
 
-            frameGraph.finalize();
+            frameGraph.finalizePasses();
             frameGraph.execute();
             // clear any remaining spatials that were not rendered.
             clearQueue(vp);
 
             if (prof!=null) prof.vpStep(VpStep.EndRender, vp, null);
-        }
-        else{
-            if (prof != null) {
-                prof.vpStep(VpStep.BeginRender, vp, null);
-            }
-
-            SafeArrayList<SceneProcessor> processors = vp.getProcessors();
-            if (processors.isEmpty()) {
-                processors = null;
-            }
-
-            if (processors != null) {
-                if (prof != null) {
-                    prof.vpStep(VpStep.PreFrame, vp, null);
-                }
-                for (SceneProcessor proc : processors.getArray()) {
-                    if (!proc.isInitialized()) {
-                        proc.initialize(this, vp);
-                    }
-                    proc.setProfiler(this.prof);
-                    if (prof != null) {
-                        prof.spStep(SpStep.ProcPreFrame, proc.getClass().getSimpleName());
-                    }
-                    proc.preFrame(tpf);
-                }
-            }
-
-            renderer.setFrameBuffer(vp.getOutputFrameBuffer());
-            setCamera(vp.getCamera(), false);
-            if (vp.isClearDepth() || vp.isClearColor() || vp.isClearStencil()) {
-                if (vp.isClearColor()) {
-                    renderer.setBackgroundColor(vp.getBackgroundColor());
-                }
-                renderer.clearBuffers(vp.isClearColor(),
-                        vp.isClearDepth(),
-                        vp.isClearStencil());
-            }
+            
+        } else {
 
             if (prof != null) {
                 prof.vpStep(VpStep.RenderScene, vp, null);

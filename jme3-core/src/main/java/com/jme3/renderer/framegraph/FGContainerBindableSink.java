@@ -42,6 +42,7 @@ import java.util.ArrayList;
  * @param <T>
  */
 public class FGContainerBindableSink <T extends FGBindable> extends AbstractFGSink {
+    
     protected boolean linked = false;
     protected ArrayList<FGBindable> container;
     protected int index;
