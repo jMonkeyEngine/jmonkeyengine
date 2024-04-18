@@ -34,7 +34,9 @@ package com.jme3.renderer.framegraph;
 import java.util.ArrayList;
 
 /**
- *A FGBindingPass represents a Pass that needs to perform state machine binding, ShaderResource binding, FrameBuffer binding and other operations.
+ * A FGBindingPass represents a Pass that needs to perform state machine binding,
+ * ShaderResource binding, FrameBuffer binding or similar operations.
+ * 
  * @author JohnKkk
  */
 public class FGBindingPass extends AbstractFGPass {
@@ -53,7 +55,7 @@ public class FGBindingPass extends AbstractFGPass {
         binds.add(bind);
     }
     
-    public <T extends FGBindable>void addBindSink(String name){
+    public <T extends FGBindable> void addBindSink(String name){
         int index = binds.size() - 1;
         registerSink(new FGContainerBindableSink<T>(name, binds, index));
     }

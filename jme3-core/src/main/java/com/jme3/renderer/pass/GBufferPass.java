@@ -121,8 +121,8 @@ public class GBufferPass extends OpaquePass{
     }
 
     @Override
-    public void reset() {
-        super.reset();
+    public void resetPass() {
+        super.resetPass();
         tempLights.clear();
         lightData.clear();
         bHasDraw = false;

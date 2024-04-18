@@ -127,7 +127,7 @@ public abstract class AbstractFGPass implements FGPass {
     }
     
     @Override
-    public void reset() {
+    public void resetPass() {
         if(isResetResources()){
             getSources().clear();
             getSinks().clear();

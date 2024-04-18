@@ -7,7 +7,8 @@ package com.jme3.renderer.framegraph;
 import java.util.ArrayList;
 
 /**
- *
+ * Defines a rendering pass made by the framegraph.
+ * 
  * @author codex
  */
 public interface FGPass {
@@ -34,7 +35,7 @@ public interface FGPass {
     
     public void registerSource(FGSource source);
     
-    public void reset();
+    public void resetPass();
     
     public void finalizePass();
     

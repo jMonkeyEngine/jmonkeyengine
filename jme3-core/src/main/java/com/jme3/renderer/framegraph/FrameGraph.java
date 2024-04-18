@@ -176,7 +176,7 @@ public class FrameGraph {
     public void reset(){
         assert !finalized;
         for(FGPass nextPass : passes){
-            nextPass.reset();
+            nextPass.resetPass();
         }
         passes.clear();
         if(renderContext != null && renderContext.renderManager != null){

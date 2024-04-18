@@ -90,8 +90,8 @@ public abstract class FGRenderQueuePass extends FGBindingPass implements RenderG
     public abstract void executeDrawCommandList(FGRenderContext renderContext);
 
     @Override
-    public void reset() {
-        super.reset();
+    public void resetPass() {
+        super.resetPass();
         if(passMeshDrawCommandList != null && passMeshDrawCommandList.size() > 0){
             passMeshDrawCommandList.clear();
         }
