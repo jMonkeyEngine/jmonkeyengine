@@ -37,8 +37,10 @@ import java.util.ArrayList;
  *A FGBindingPass represents a Pass that needs to perform state machine binding, ShaderResource binding, FrameBuffer binding and other operations.
  * @author JohnKkk
  */
-public class FGBindingPass extends FGPass{
+public class FGBindingPass extends AbstractFGPass {
+    
     protected ArrayList<FGBindable> binds;
+    
     protected FGBindingPass(String name){
         this(name, new ArrayList<FGBindable>());
     }
@@ -64,6 +66,9 @@ public class FGBindingPass extends FGPass{
     }
 
     @Override
-    public void execute(FGRenderContext renderContext) {
-    }
+    public void prepare(FGRenderContext renderContext) {}
+
+    @Override
+    public void execute(FGRenderContext renderContext) {}
+    
 }

@@ -39,7 +39,7 @@ import java.util.ArrayList;
 public class FGTextureBindableSink<T extends FGRenderTargetSource.RenderTargetSourceProxy> extends FGContainerBindableSink<T>{
     private Material material;
     private TextureBindableProxy textureBindableProxy;
-    private static class TextureBindableProxy extends FGBindable{
+    private static class TextureBindableProxy implements FGBindable{
         Material material;
         VarType bindTextureType;
         Object bindValue;
@@ -57,7 +57,6 @@ public class FGTextureBindableSink<T extends FGRenderTargetSource.RenderTargetSo
 
         @Override
         public void bind(FGRenderContext renderContext) {
-            super.bind(renderContext);
             if(material != null && bindName != null){
                 this.material.setParam(bindName, bindTextureType, bindValue);
             }

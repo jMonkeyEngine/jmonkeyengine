@@ -34,16 +34,21 @@ package com.jme3.renderer.framegraph;
 import java.util.ArrayList;
 
 /**
- *FGContainerBindableSink is used to proxy a FGSink, and also has the role of FGBindable. Typically, a Sink needed by a Pass may be a Bindable object.
+ * FGContainerBindableSink is used to proxy a FGSink, and also has the role of FGBindable.
+ * 
+ * Typically, a Sink needed by a Pass may be a Bindable object.
+ * 
  * @author JohnKkk
+ * @param <T>
  */
-public class FGContainerBindableSink<T extends FGBindable> extends FGSink{
+public class FGContainerBindableSink <T extends FGBindable> extends AbstractFGSink {
     protected boolean linked = false;
     protected ArrayList<FGBindable> container;
     protected int index;
     protected FGBindableProxy bindableProxy;
 
-    public final static class FGBindableProxy extends FGBindable{
+    public final static class FGBindableProxy implements FGBindable {
+        
         public FGBindable targetBindable;
 
         public FGBindableProxy(FGBindable targetBindable) {
@@ -56,6 +61,7 @@ public class FGContainerBindableSink<T extends FGBindable> extends FGSink{
                 targetBindable.bind(renderContext);
             }
         }
+        
     }
 
     public FGContainerBindableSink(String registeredName, ArrayList<FGBindable> container, int index) {

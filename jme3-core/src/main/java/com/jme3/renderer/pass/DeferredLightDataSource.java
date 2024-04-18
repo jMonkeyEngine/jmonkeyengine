@@ -33,9 +33,10 @@ package com.jme3.renderer.pass;
 
 import com.jme3.light.LightList;
 import com.jme3.renderer.framegraph.FGBindable;
-import com.jme3.renderer.framegraph.FGSource;
+import com.jme3.renderer.framegraph.FGRenderContext;
+import com.jme3.renderer.framegraph.AbstractFGSource;
 
-public class DeferredLightDataSource extends FGSource {
+public class DeferredLightDataSource extends AbstractFGSource {
     
     DeferredLightDataProxy deferredLightDataProxy;
     
@@ -54,7 +55,7 @@ public class DeferredLightDataSource extends FGSource {
         return deferredLightDataProxy;
     }
 
-    public static class DeferredLightDataProxy extends FGBindable {
+    public static class DeferredLightDataProxy implements FGBindable {
         
         private LightList lightData;
 
@@ -65,6 +66,9 @@ public class DeferredLightDataSource extends FGSource {
         public LightList getLightData() {
             return lightData;
         }
+        
+        @Override
+        public void bind(FGRenderContext renderContext) {}
         
     }
 

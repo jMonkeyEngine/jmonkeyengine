@@ -38,6 +38,7 @@ import java.util.ArrayList;
  * @author JohnKkk
  */
 public class FGGlobal {
+    
     public final static String S_GLOABLE_PASS_SOURCE_NAME = "$";
     public final static String S_SCENE_COLOR_FB = "sceneColorFramebuffer";
     public final static String S_SCENE_COLOR_RT = "sceneColorRT";
@@ -45,15 +46,17 @@ public class FGGlobal {
     public final static String S_DEFAULT_FB = "defaultFramebuffer";
     private final static ArrayList<FGSink> g_Sinks = new ArrayList<>();
     private final static ArrayList<FGSource> g_Sources = new ArrayList<>();
+    
     public final static boolean linkSink(FGSink outSink){
         boolean bound = false;
-        for(FGSource soucre : g_Sources){
-            if(soucre.getName().equals(outSink.getLinkPassResName())){
-                outSink.bind(soucre);
+        for(FGSource src : g_Sources){
+            if(src.getName().equals(outSink.getLinkPassResName())){
+                outSink.bind(src);
                 bound = true;
                 break;
             }
         }
         return bound;
     }
+    
 }

@@ -34,9 +34,11 @@ package com.jme3.renderer.framegraph;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Texture;
 
-public class FGRenderTargetSource extends FGSource{
+public class FGRenderTargetSource extends AbstractFGSource {
+    
     RenderTargetSourceProxy renderTargetSourceProxy;
-    public final static class RenderTargetSourceProxy extends FGBindable{
+    
+    public final static class RenderTargetSourceProxy implements FGBindable {
         FrameBuffer.FrameBufferTextureTarget renderTarget;
 
         public RenderTargetSourceProxy(FrameBuffer.FrameBufferTextureTarget renderTarget) {
@@ -58,6 +60,10 @@ public class FGRenderTargetSource extends FGSource{
         public Texture getShaderResource(){
             return renderTarget.getTexture();
         }
+        
+        @Override
+        public void bind(FGRenderContext renderContext) {}
+        
     }
     public FGRenderTargetSource(String name, FrameBuffer.FrameBufferTextureTarget renderTarget) {
         super(name);
@@ -73,4 +79,5 @@ public class FGRenderTargetSource extends FGSource{
     public FGBindable yieldBindable() {
         return renderTargetSourceProxy;
     }
+    
 }

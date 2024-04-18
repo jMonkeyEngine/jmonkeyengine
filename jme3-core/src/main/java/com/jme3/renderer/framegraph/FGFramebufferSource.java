@@ -36,9 +36,12 @@ import com.jme3.texture.FrameBuffer;
 /**
  * @author JohnKkk
  */
-public class FGFramebufferSource extends FGSource{
-    private FrameBufferSourceProxy frameBufferSourceProxy;
-    public final static class FrameBufferSourceProxy extends FGBindable{
+public class FGFramebufferSource extends AbstractFGSource {
+    
+    private final FrameBufferSourceProxy frameBufferSourceProxy;
+    
+    public final static class FrameBufferSourceProxy implements FGBindable {
+        
         private FrameBuffer frameBuffer;
 
         public FrameBufferSourceProxy(FrameBuffer frameBuffer) {
@@ -48,6 +51,9 @@ public class FGFramebufferSource extends FGSource{
         public FrameBuffer getFrameBuffer() {
             return frameBuffer;
         }
+        @Override
+        public void bind(FGRenderContext renderContext) {}
+        
     }
     public FGFramebufferSource(String name, FrameBuffer frameBuffer) {
         super(name);

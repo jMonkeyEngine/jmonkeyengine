@@ -35,8 +35,10 @@ package com.jme3.renderer.framegraph;
  * @author JohnKkk
  * @param <T>
  */
-public class FGVarSource<T> extends FGSource{
-    public static class FGVarBindableProxy<T> extends FGBindable{
+public class FGVarSource<T> extends AbstractFGSource {
+    
+    public static class FGVarBindableProxy<T> implements FGBindable {
+        
         T value;
 
         public FGVarBindableProxy(T value) {
@@ -46,11 +48,17 @@ public class FGVarSource<T> extends FGSource{
         public T getValue() {
             return value;
         }
+
+        @Override
+        public void bind(FGRenderContext renderContext) {}
+        
     }
-    private FGVarBindableProxy<T> varBindableProxy;
+    
+    private final FGVarBindableProxy<T> varBindableProxy;
+    
     public FGVarSource(String name, T value) {
         super(name);
-        varBindableProxy = new FGVarBindableProxy<T>(value);
+        varBindableProxy = new FGVarBindableProxy<>(value);
     }
 
     public void setValue(T t){

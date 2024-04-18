@@ -39,7 +39,7 @@ import java.util.ArrayList;
  * @author JohnKkk
  * @param <T>
  */
-public class FGFramebufferCopyBindableSink<T extends FGFramebufferSource.FrameBufferSourceProxy> extends FGContainerBindableSink<T>{
+public class FGFramebufferCopyBindableSink <T extends FGFramebufferSource.FrameBufferSourceProxy> extends FGContainerBindableSink<T> {
     FramebufferCopyBindableProxy framebufferCopyBindableProxy;
     public final void setDistFrameBuffer(FrameBuffer distFrameBuffer){
         framebufferCopyBindableProxy.distFramebuffer = distFrameBuffer;
@@ -49,7 +49,7 @@ public class FGFramebufferCopyBindableSink<T extends FGFramebufferSource.FrameBu
         framebufferCopyBindableProxy = new FramebufferCopyBindableProxy(distFrameBuffer, copyColor, copyDepth, copyStencil);
     }
 
-    private final static class FramebufferCopyBindableProxy extends FGBindable{
+    private final static class FramebufferCopyBindableProxy implements FGBindable {
         FrameBuffer sourceFramebuffer;
         FrameBuffer distFramebuffer;
         boolean bCopyColor;
@@ -78,7 +78,7 @@ public class FGFramebufferCopyBindableSink<T extends FGFramebufferSource.FrameBu
     @Override
     public void bind(FGSource fgSource) {
         T p = (T)fgSource.yieldBindable();
-        if(p == null){
+        if (p == null) {
             System.err.println("Binding input [" + getRegisteredName() + "] to output [" + getLinkPassName() + "." + getLinkPassResName() + "] " + " { " + fgSource.getName() + " } ");
             return;
         }

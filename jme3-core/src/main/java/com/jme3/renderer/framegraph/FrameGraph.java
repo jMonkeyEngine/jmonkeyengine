@@ -52,6 +52,7 @@ import java.util.logging.Logger;
  * @author JohnKkk
  */
 public class FrameGraph {
+    
     private static final Logger logger = Logger.getLogger(FrameGraph.class.getName());
     private ArrayList<FGPass> passes;
     private ArrayList<FGSource> globalSources;
@@ -60,9 +61,9 @@ public class FrameGraph {
     private FGRenderContext renderContext;
     
     public FrameGraph(FGRenderContext renderContext){
-        passes = new ArrayList<FGPass>();
-        globalSinks = new ArrayList<FGSink>();
-        globalSources = new ArrayList<FGSource>();
+        passes = new ArrayList<>();
+        globalSinks = new ArrayList<>();
+        globalSources = new ArrayList<>();
         this.renderContext = renderContext;
     }
 
@@ -151,13 +152,14 @@ public class FrameGraph {
     /**
      * Execute frameGraph
      * <p>
-     *     example:<br/>
-     *     FrameGraph fg = new FrameGraph();<br/>
-     *     fg.addPass(pass1);<br/>
-     *     fg.addPass(pass2);<br/>
-     *     fg.finalize();<br/>
-     *     fg.execute();<br/>
-     * </p>
+     * example:
+     * <code>
+     * FrameGraph fg = new FrameGraph();
+     * fg.addPass(pass1);
+     * fg.addPass(pass2);
+     * fg.finalize();
+     * fg.execute();
+     * </code>
      */
     public void execute(){
         assert finalized;
