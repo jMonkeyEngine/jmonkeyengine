@@ -1,16 +1,21 @@
-#ifdef GL_ES
-  #ifdef FRAGMENT_SHADER
-    precision highp float;
-    precision highp int;
-    precision highp sampler2DArray;
-    precision highp sampler2DShadow;
-    precision highp samplerCube;
-    precision highp sampler3D;
-    precision highp sampler2D;
-    #if __VERSION__ >= 310
-      precision highp sampler2DMS;
+
+#if __VERSION__ >= 130
+    #extension GL_ARB_explicit_attrib_location : enable
+#endif
+
+#if __VERSION__ >= 310
+    #ifdef FRAGMENT_SHADER
+        precision highp float;
+        precision highp int;
+        precision highp sampler2DArray;
+        precision highp sampler2DShadow;
+        precision highp samplerCube;
+        precision highp sampler3D;
+        precision highp sampler2D;
+        #if __VERSION__ >= 310
+            precision highp sampler2DMS;
+        #endif
     #endif
-  #endif
 #endif
 
 #if defined GL_ES
@@ -38,7 +43,7 @@
 #ifdef FRAGMENT_SHADER
   #ifdef GL_ES
     #ifdef BOUND_DRAW_BUFFER
-      #for i=0..15 ( #if $i<=BOUND_DRAW_BUFFER  $0 #endif ) 
+      #for i=0..15 ( #if $i<=BOUND_DRAW_BUFFER  $0 #endif )
         #if BOUND_DRAW_BUFFER == $i
           layout( location = $i ) out highp vec4 outFragColor;
         #else
@@ -109,4 +114,3 @@ mat3 inverse(mat3 m) {
     + (m[0][0] * m[1][1] - m[1][0] * m[0][1])) / determinant(m);
 }
 #endif
-
