@@ -150,7 +150,7 @@ public final class NativeLibraryLoader {
      */
     public static boolean isUsingNativeBullet() {
         try {
-            Class clazz = Class.forName("com.jme3.bullet.util.NativeMeshUtil");
+            Class<?> clazz = Class.forName("com.jme3.bullet.util.NativeMeshUtil");
             return clazz != null;
         } catch (ClassNotFoundException ex) {
             return false;
@@ -245,6 +245,8 @@ public final class NativeLibraryLoader {
             case Windows:
                 userCacheFolder = new File(new File(userHomeFolder, "AppData"), "Local");
                 break;
+            default:
+                break;
         }
         
         if (userCacheFolder == null || !userCacheFolder.exists()) {
@@ -329,31 +331,6 @@ public final class NativeLibraryLoader {
         }
     }
     
-    /**
-     * Removes platform-specific portions of a library file name so
-     * that it can be accepted by {@link System#loadLibrary(java.lang.String) }.
-     * <p>
-     * E.g.<br>
-     * <ul>
-     * <li>jinput-dx8_64.dll => jinput-dx8_64</li>
-     * <li>liblwjgl64.so => lwjgl64</li>
-     * <li>libopenal.so => openal</li>
-     * </ul>
-     * 
-     * @param filename The filename to strip platform-specific parts
-     * @return The stripped library name
-     */
-    private static String unmapLibraryName(String filename) {
-        StringBuilder sb = new StringBuilder(filename);
-        if (sb.indexOf("lib") == 0 && !filename.toLowerCase().endsWith(".dll")) {
-            sb.delete(0, 3);
-        }
-        int dot = sb.lastIndexOf(".");
-        if (dot > 0) {
-            sb.delete(dot, sb.length());
-        }
-        return sb.toString();
-    }
     
     public static File getJarForNativeLibrary(Platform platform, String name) {
         NativeLibrary library = nativeLibraryMap.get(new NativeLibrary.Key(name, platform));

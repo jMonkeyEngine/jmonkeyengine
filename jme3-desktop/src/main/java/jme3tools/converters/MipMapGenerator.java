@@ -87,7 +87,7 @@ public class MipMapGenerator {
         BufferedImage original = ImageToAwt.convert(image, false, true, 0);
         int width = original.getWidth();
         int height = original.getHeight();
-        int level = 0;
+        // int level = 0;
 
         BufferedImage current = original;
         AWTLoader loader = new AWTLoader();
@@ -105,7 +105,7 @@ public class MipMapGenerator {
               break;
             }
 
-            level++;
+            // level++;
 
             height /= 2;
             width /= 2;

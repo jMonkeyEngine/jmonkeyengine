@@ -127,10 +127,10 @@ public class JmeDesktopSystem extends JmeSystemDelegate {
         }
     }
 
-    @SuppressWarnings("unchecked")
+    //@SuppressWarnings("unchecked")
     private JmeContext newContextLwjgl(AppSettings settings, JmeContext.Type type) {
         try {
-            Class ctxClazz = null;
+            Class<?> ctxClazz = null;
             switch (type) {
                 case Canvas:
                     ctxClazz = Class.forName("com.jme3.system.lwjgl.LwjglCanvas");
@@ -158,10 +158,10 @@ public class JmeDesktopSystem extends JmeSystemDelegate {
         return null;
     }
 
-    @SuppressWarnings("unchecked")
+    //@SuppressWarnings("unchecked")
     private JmeContext newContextJogl(AppSettings settings, JmeContext.Type type) {
         try {
-            Class ctxClazz = null;
+            Class<?> ctxClazz = null;
             switch (type) {
                 case Display:
                     ctxClazz = Class.forName("com.jme3.system.jogl.JoglNewtDisplay");
@@ -194,8 +194,8 @@ public class JmeDesktopSystem extends JmeSystemDelegate {
         try {
             String className = settings.getRenderer().substring("CUSTOM".length());
 
-            Class ctxClazz = Class.forName(className);
-            return (JmeContext) ctxClazz.getDeclaredConstructor().newInstance();
+            Class<JmeContext> ctxClazz = (Class<JmeContext>) Class.forName(className);
+            return ctxClazz.getDeclaredConstructor().newInstance();
         } catch (InstantiationException | IllegalAccessException
                 | IllegalArgumentException | InvocationTargetException
                 | NoSuchMethodException | SecurityException ex) {

@@ -87,9 +87,9 @@ public class ImageToAwt {
             this.is = is;
         }
 
-        public DecodeParams(int bpp, int rm, int rs, int im, int is){
-            this(bpp, rm, rs, im, is, false);
-        }
+        /*
+         * public DecodeParams(int bpp, int rm, int rs, int im, int is){ this(bpp, rm, rs, im, is, false); }
+         */
     }
 
     static {
@@ -104,13 +104,21 @@ public class ImageToAwt {
         final int mxxxx = 0xffffffff;
         final int sxxxx = 0;
 
+        @SuppressWarnings("unused")
         final int m4x___ = 0xf000;
+        @SuppressWarnings("unused")
         final int m4_x__ = 0x0f00;
+        @SuppressWarnings("unused")
         final int m4__x_ = 0x00f0;
+        @SuppressWarnings("unused")
         final int m4___x = 0x000f;
+        @SuppressWarnings("unused")
         final int s4x___ = 12;
+        @SuppressWarnings("unused")
         final int s4_x__ = 8;
+        @SuppressWarnings("unused")
         final int s4__x_ = 4;
+        @SuppressWarnings("unused")
         final int s4___x = 0;
 
         final int m5___  = 0xf800;
@@ -326,15 +334,12 @@ public class ImageToAwt {
 
         boolean inAlpha = false;
         boolean inLum = false;
-        boolean inRGB = false;
         if (inParams.am != 0) {
             inAlpha = true;
         }
 
         if (inParams.rm != 0 && inParams.gm == 0 && inParams.bm == 0) {
             inLum = true;
-        } else if (inParams.rm != 0 && inParams.gm != 0 && inParams.bm != 0) {
-            inRGB = true;
         }
 
         int expansionA = 8 - Integer.bitCount(inParams.am);
@@ -377,7 +382,7 @@ public class ImageToAwt {
 
     public static BufferedImage convert(Image image, boolean do16bit, boolean fullAlpha, int mipLevel){
         Format format = image.getFormat();
-        DecodeParams p = params.get(image.getFormat());
+        DecodeParams p = params.get(format);
         if (p == null)
             throw new UnsupportedOperationException();
 

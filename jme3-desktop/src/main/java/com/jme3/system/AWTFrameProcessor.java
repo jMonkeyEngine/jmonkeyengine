@@ -49,13 +49,15 @@ import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.texture.FrameBuffer;
-import com.jme3.texture.Image;
 
 /**
  * A frame processor that enables to render JMonkey frame buffer onto an AWT component.
  * <p>
- * This class is based on the <a href="http://www.oracle.com/technetwork/java/javase/overview/javafx-overview-2158620.html">JavaFX</a> original code provided by Alexander Brui (see <a href="https://github.com/JavaSaBr/JME3-JFX">JME3-FX</a>)
+ * This class is based on the
+ * <a href="http://www.oracle.com/technetwork/java/javase/overview/javafx-overview-2158620.html">JavaFX</a>
+ * original code provided by Alexander Brui (see <a href="https://github.com/JavaSaBr/JME3-JFX">JME3-FX</a>)
  * </p>
+ * 
  * @author Julien Seinturier - COMEX SA - <a href="http://www.seinturier.fr">http://www.seinturier.fr</a>
  * @author Alexander Brui (JavaSaBr)
  *
@@ -63,8 +65,7 @@ import com.jme3.texture.Image;
 public class AWTFrameProcessor implements SceneProcessor, PropertyChangeListener {
 
     public enum TransferMode {
-        ALWAYS,
-        ON_CHANGES
+        ALWAYS, ON_CHANGES
     }
 
     private Application application = null;
@@ -186,12 +187,13 @@ public class AWTFrameProcessor implements SceneProcessor, PropertyChangeListener
 
     @Override
     public void setProfiler(AppProfiler profiler) {
-            // not implemented
+        // not implemented
     }
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        System.out.println("Property changed: "+evt.getPropertyName()+" "+evt.getOldValue()+" -> "+evt.getNewValue());
+        System.out.println("Property changed: " + evt.getPropertyName() + " " + evt.getOldValue() + " -> "
+                + evt.getNewValue());
     }
 
     public AWTFrameProcessor() {
@@ -199,13 +201,14 @@ public class AWTFrameProcessor implements SceneProcessor, PropertyChangeListener
         askWidth = 1;
         askHeight = 1;
         main = true;
-        reshapeNeeded = new AtomicInteger(2);    
+        reshapeNeeded = new AtomicInteger(2);
     }
 
     /**
      * Notify about that the ratio was changed.
      *
-     * @param newValue the new value of the ratio.
+     * @param newValue
+     *            the new value of the ratio.
      */
     protected void notifyChangedRatio(Boolean newValue) {
         notifyComponentResized(destination.getWidth(), destination.getHeight(), newValue);
@@ -214,7 +217,8 @@ public class AWTFrameProcessor implements SceneProcessor, PropertyChangeListener
     /**
      * Notify about that the height was changed.
      *
-     * @param newValue the new value of the height.
+     * @param newValue
+     *            the new value of the height.
      */
     protected void notifyChangedHeight(Number newValue) {
         notifyComponentResized(destination.getWidth(), newValue.intValue(), isPreserveRatio());
@@ -223,7 +227,8 @@ public class AWTFrameProcessor implements SceneProcessor, PropertyChangeListener
     /**
      * Notify about that the width was changed.
      *
-     * @param newValue the new value of the width.
+     * @param newValue
+     *            the new value of the width.
      */
     protected void notifyChangedWidth(Number newValue) {
         notifyComponentResized(newValue.intValue(), destination.getHeight(), isPreserveRatio());
@@ -241,7 +246,8 @@ public class AWTFrameProcessor implements SceneProcessor, PropertyChangeListener
     /**
      * Sets the application.
      *
-     * @param application the application.
+     * @param application
+     *            the application.
      */
     protected void setApplication(Application application) {
         this.application = application;
@@ -259,7 +265,8 @@ public class AWTFrameProcessor implements SceneProcessor, PropertyChangeListener
     /**
      * Sets the destination.
      *
-     * @param destination the destination.
+     * @param destination
+     *            the destination.
      */
     protected void setDestination(Component destination) {
         this.destination = destination;
@@ -267,6 +274,7 @@ public class AWTFrameProcessor implements SceneProcessor, PropertyChangeListener
 
     /**
      * Checks of existing destination.
+     * 
      * @return true if destination is exists.
      */
     protected boolean hasDestination() {
@@ -275,15 +283,16 @@ public class AWTFrameProcessor implements SceneProcessor, PropertyChangeListener
 
     /**
      * Checks of existing application.
+     * 
      * @return true if destination is exists.
      */
     protected boolean hasApplication() {
         return application != null;
     }
 
-
     /**
      * Gets the frame transfer.
+     * 
      * @return the file transfer.
      */
     protected AWTComponentRenderer getFrameTransfer() {
@@ -293,7 +302,8 @@ public class AWTFrameProcessor implements SceneProcessor, PropertyChangeListener
     /**
      * Sets the frame transfer.
      *
-     * @param frameTransfer the file transfer.
+     * @param frameTransfer
+     *            the file transfer.
      */
     protected void setFrameTransfer(AWTComponentRenderer frameTransfer) {
         this.frameTransfer = frameTransfer;
@@ -332,9 +342,12 @@ public class AWTFrameProcessor implements SceneProcessor, PropertyChangeListener
     /**
      * Handle resizing.
      *
-     * @param newWidth  the new width.
-     * @param newHeight the new height.
-     * @param fixAspect true to fix the aspect ratio.
+     * @param newWidth
+     *            the new width.
+     * @param newHeight
+     *            the new height.
+     * @param fixAspect
+     *            true to fix the aspect ratio.
      */
     protected void notifyComponentResized(int newWidth, int newHeight, boolean fixAspect) {
 
@@ -385,8 +398,10 @@ public class AWTFrameProcessor implements SceneProcessor, PropertyChangeListener
     /**
      * Bind this processor.
      *
-     * @param destination the destination.
-     * @param application the application.
+     * @param destination
+     *            the destination.
+     * @param application
+     *            the application.
      */
     public void bind(Component destination, Application application) {
         final RenderManager renderManager = application.getRenderManager();
@@ -406,9 +421,12 @@ public class AWTFrameProcessor implements SceneProcessor, PropertyChangeListener
     /**
      * Bind this processor.
      *
-     * @param destination the destination.
-     * @param application the application.
-     * @param viewPort    the view port.
+     * @param destination
+     *            the destination.
+     * @param application
+     *            the application.
+     * @param viewPort
+     *            the view port.
      */
     public void bind(Component destination, Application application, ViewPort viewPort) {
         bind(destination, application, viewPort, true);
@@ -417,12 +435,17 @@ public class AWTFrameProcessor implements SceneProcessor, PropertyChangeListener
     /**
      * Bind this processor.
      *
-     * @param destination the destination.
-     * @param application the application.
-     * @param viewPort    the view port.
-     * @param main        true if this processor is main.
+     * @param destination
+     *            the destination.
+     * @param application
+     *            the application.
+     * @param viewPort
+     *            the view port.
+     * @param main
+     *            true if this processor is main.
      */
-    public void bind(final Component destination, final Application application, ViewPort viewPort, boolean main) {
+    public void bind(final Component destination, final Application application, ViewPort viewPort,
+            boolean main) {
 
         if (hasApplication()) {
             throw new RuntimeException("This process is already bonded.");
@@ -443,7 +466,8 @@ public class AWTFrameProcessor implements SceneProcessor, PropertyChangeListener
                 @Override
                 public void run() {
                     bindDestination(application, destination);
-                }});
+                }
+            });
         }
     }
 
@@ -465,7 +489,8 @@ public class AWTFrameProcessor implements SceneProcessor, PropertyChangeListener
                 @Override
                 public void run() {
                     unbindDestination();
-                }});
+                }
+            });
         }
 
     }
@@ -473,8 +498,10 @@ public class AWTFrameProcessor implements SceneProcessor, PropertyChangeListener
     /**
      * Bind this processor.
      *
-     * @param application the application.
-     * @param destination the destination.
+     * @param application
+     *            the application.
+     * @param destination
+     *            the destination.
      */
     protected void bindDestination(Application application, Component destination) {
 
@@ -498,10 +525,13 @@ public class AWTFrameProcessor implements SceneProcessor, PropertyChangeListener
                     notifyComponentResized(getDestinationWidth(), getDestinationHeight(), isPreserveRatio());
 
                 } else {
-                    throw new IllegalArgumentException("Underlying application has to use AWTContext (actually using "+application.getContext().getClass().getSimpleName()+")");
+                    throw new IllegalArgumentException(
+                            "Underlying application has to use AWTContext (actually using "
+                                    + application.getContext().getClass().getSimpleName() + ")");
                 }
             } else {
-                throw new IllegalArgumentException("Underlying application has to use a valid AWTContext (context is null)");
+                throw new IllegalArgumentException(
+                        "Underlying application has to use a valid AWTContext (context is null)");
             }
         }
     }
@@ -531,13 +561,11 @@ public class AWTFrameProcessor implements SceneProcessor, PropertyChangeListener
         }
     }
 
-
     protected void bindListeners() {
         Component destination = getDestination();
         destination.addPropertyChangeListener(this);
         destination.addPropertyChangeListener(this);
     }
-
 
     protected void unbindListeners() {
         Component destination = getDestination();
@@ -548,12 +576,16 @@ public class AWTFrameProcessor implements SceneProcessor, PropertyChangeListener
     /**
      * Reshape the current frame transfer for the new size.
      *
-     * @param width     the width.
-     * @param height    the height.
-     * @param fixAspect true to fix the aspect ratio.
+     * @param width
+     *            the width.
+     * @param height
+     *            the height.
+     * @param fixAspect
+     *            true to fix the aspect ratio.
      * @return the new frame transfer.
      */
-    protected AWTComponentRenderer reshapeInThread(final int width, final int height, final boolean fixAspect) {
+    protected AWTComponentRenderer reshapeInThread(final int width, final int height,
+            final boolean fixAspect) {
 
         reshapeCurrentViewPort(width, height);
 
@@ -576,20 +608,26 @@ public class AWTFrameProcessor implements SceneProcessor, PropertyChangeListener
     /**
      * Create a new frame transfer.
      *
-     * @param frameBuffer the frame buffer.
-     * @param width       the width.
-     * @param height      the height.
+     * @param frameBuffer
+     *            the frame buffer.
+     * @param width
+     *            the width.
+     * @param height
+     *            the height.
      * @return the new frame transfer.
      */
     protected AWTComponentRenderer createFrameTransfer(FrameBuffer frameBuffer, int width, int height) {
-        return new AWTComponentRenderer(getDestination(), getTransferMode(), isMain() ? null : frameBuffer, width, height);
+        return new AWTComponentRenderer(getDestination(), getTransferMode(), isMain() ? null : frameBuffer,
+                width, height);
     }
 
     /**
      * Reshape the current view port.
      *
-     * @param width  the width.
-     * @param height the height.
+     * @param width
+     *            the width.
+     * @param height
+     *            the height.
      */
     protected void reshapeCurrentViewPort(int width, int height) {
 
@@ -611,7 +649,7 @@ public class AWTFrameProcessor implements SceneProcessor, PropertyChangeListener
 
         boolean found = false;
         Iterator<SceneProcessor> iter = processors.iterator();
-        while(!found && iter.hasNext()) {
+        while (!found && iter.hasNext()) {
             if (!(iter.next() instanceof AWTFrameProcessor)) {
                 found = true;
             }
@@ -619,11 +657,7 @@ public class AWTFrameProcessor implements SceneProcessor, PropertyChangeListener
 
         if (found) {
 
-            FrameBuffer frameBuffer = new FrameBuffer(width, height, 1);
-            frameBuffer.setDepthBuffer(Image.Format.Depth);
-            frameBuffer.setColorBuffer(Image.Format.RGBA8);
-            frameBuffer.setSrgb(true);
-
+            FrameBuffer frameBuffer = AWTUtils.getFrameBuffer(width, height, 1);
             viewPort.setOutputFrameBuffer(frameBuffer);
         }
 

@@ -95,6 +95,8 @@ public class CursorLoader implements AssetLoader {
         }
     }
 
+
+    // @SuppressWarnings("resource")
     private JmeCursor loadCursor(InputStream inStream) throws IOException {
 
         byte[] icoimages = new byte[0]; // new byte [0] facilitates read()
@@ -107,7 +109,7 @@ public class CursorLoader implements AssetLoader {
             int steps = 0;
             int width = 0;
             int height = 0;
-            int flag = 0; // we don't use that.
+            //int flag = 0; // we don't use that.
             int[] rate = null;
             int[] animSeq = null;
             ArrayList<byte[]> icons;
@@ -135,7 +137,7 @@ public class CursorLoader implements AssetLoader {
                             height = leIn.readInt();
                             leIn.skipBytes(8);
                             jiffy = leIn.readInt();
-                            flag = leIn.readInt();
+                            leIn.readInt(); // flag 
                             nextInt = leIn.readInt();
                         } else if (nextInt == 0x65746172) { // found a 'rate' of animation
 //                            System.out.println("we have 'rate'.");
@@ -207,8 +209,10 @@ public class CursorLoader implements AssetLoader {
                 return setJmeCursor(ciDat);
 
             } else if (riff == 0x58464952) {
+                ((LittleEndien) leIn).close();
                 throw new IllegalArgumentException("Big-Endian RIFX is not supported. Sorry.");
             } else {
+                ((LittleEndien) leIn).close();
                 throw new IllegalArgumentException("Unknown format.");
             }
         } else if (isCur || isIco) {
