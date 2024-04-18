@@ -36,9 +36,6 @@ public interface FGPass {
     
     public void reset();
     
-    // WARNING:
-    // This method's name conflicts with Object.finalize. I am not sure if
-    // that is on purpose, so I will not attempt to change it.
-    public void finalize();
+    public void finalizePass();
     
 }

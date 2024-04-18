@@ -135,10 +135,7 @@ public abstract class AbstractFGPass implements FGPass {
     }
     
     @Override
-    public void finalize() {
-        // WARNING:
-        // This method's name conflicts with Object.finalize. I am not sure if
-        // that is on purpose, so I will not attempt to change it.
+    public void finalizePass() {
         for(FGSink sink : sinks){
             sink.postLinkValidate();
         }

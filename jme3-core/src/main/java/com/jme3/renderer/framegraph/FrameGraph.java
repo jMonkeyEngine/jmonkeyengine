@@ -270,7 +270,7 @@ public class FrameGraph {
     public final void finalize(){
         assert !finalized;
         for(FGPass nextPass : passes){
-            nextPass.finalize();
+            nextPass.finalizePass();
         }
         linkGlobalSinks();
         finalized = true;
