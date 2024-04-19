@@ -21,9 +21,9 @@ public interface FGPass {
     
     public boolean isResetResources();
     
-    public void prepare(FGRenderContext renderContext);
+    public void prepare(RenderContext renderContext);
     
-    public void execute(FGRenderContext renderContext);
+    public void execute(RenderContext renderContext);
     
     public FGSource getSource(String name);
     

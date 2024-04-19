@@ -50,7 +50,7 @@ public class FGVarSource<T> extends AbstractFGSource {
         }
 
         @Override
-        public void bind(FGRenderContext renderContext) {}
+        public void bind(RenderContext renderContext) {}
         
     }
     

@@ -29,48 +29,42 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.renderer.pass;
+package com.jme3.renderer.framegraph;
 
-import com.jme3.renderer.Camera;
-import com.jme3.renderer.RenderManager;
-import com.jme3.renderer.framegraph.RenderContext;
-import com.jme3.renderer.framegraph.FGRenderQueuePass;
-import com.jme3.renderer.queue.RenderQueue;
-import com.jme3.scene.Geometry;
+import com.jme3.material.Material;
+import com.jme3.shader.VarType;
+import com.jme3.texture.FrameBuffer;
 
-/**
- * @author JohnKkk
- */
-public class ForwardPass extends FGRenderQueuePass {
-    private RenderQueue.Bucket bucket;
-    public ForwardPass(String name, RenderQueue.Bucket bucket) {
+public class MatParamSink extends BindableSink {
+    
+    private final Material material;
+    private final VarType type;
+    private Object value;
+    
+    public MatParamSink(String name, Material material, VarType type) {
         super(name);
-        this.bucket = bucket;
+        this.material = material;
+        this.type = type;
     }
 
     @Override
-    public void executeDrawCommands(RenderContext renderContext) {
-        if (!canExecute) {
+    public void bind(FGSource src) {
+        FGBindable p = src.yieldBindable();
+        if(p == null){
+            System.err.println("Binding input [" + getRegisteredName() + "] to output [" + getLinkPassName() + "." + getLinkPassResName() + "] " + " { " + src.getName() + " } ");
             return;
         }
-        Camera cam;
-        if(forceViewPort != null){
-            cam = forceViewPort.getCamera();
-        } else {
-            cam = renderContext.getViewPort().getCamera();
+        linked = true;
+        value = ()((FGShaderResource)p).getResource();
+        //bindableProxy.targetBindable = proxy;
+        target = this;
+    }
+    
+    @Override
+    public void bind(RenderContext context) {
+        if (material != null && getRegisteredName() != null) {
+            material.setParam(getRegisteredName(), type, value);
         }
-        RenderManager rm = renderContext.getRenderManager();
-        renderContext.getRenderQueue().renderQueue(this.bucket, rm, cam, true);
     }
-
-    @Override
-    public void dispatchPassSetup(RenderQueue renderQueue) {
-        canExecute = !renderQueue.isQueueEmpty(this.bucket);
-    }
-
-    @Override
-    public boolean drawGeometry(RenderManager rm, Geometry geom) {
-        rm.renderGeometry(geom);
-        return true;
-    }
+    
 }

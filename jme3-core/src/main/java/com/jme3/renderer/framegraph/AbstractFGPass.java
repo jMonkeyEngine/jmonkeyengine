@@ -93,8 +93,8 @@ public abstract class AbstractFGPass implements FGPass {
     }
     
     @Override
-    public void setSinkLinkage(String registeredName, String targetPass, String targetResource) {
-        getSink(registeredName).setTarget(targetPass, targetResource);
+    public void setSinkLinkage(String sinkName, String targetPass, String targetResource) {
+        getSink(sinkName).setTarget(targetPass, targetResource);
     }
     
     @Override

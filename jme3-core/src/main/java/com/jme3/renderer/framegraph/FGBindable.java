@@ -33,13 +33,14 @@ package com.jme3.renderer.framegraph;
 
 /**
  * FGBindable can be any resource that needs binding (such as state machine, FBO, Texture, Paramater...)
+ * 
  * @author JohnKkk
  */
 public interface FGBindable {
     
     public final static String DEFAULT_BINDABLE_UID = "";
     
-    public void bind(FGRenderContext renderContext);
+    public void bind(RenderContext renderContext);
     
     public default String getUID() {
         return DEFAULT_BINDABLE_UID;

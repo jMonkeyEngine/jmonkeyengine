@@ -6,7 +6,7 @@ package com.jme3.renderer.pass;
 
 import com.jme3.light.LightList;
 import com.jme3.renderer.framegraph.FGBindable;
-import com.jme3.renderer.framegraph.FGRenderContext;
+import com.jme3.renderer.framegraph.RenderContext;
 
 /**
  *
@@ -25,6 +25,6 @@ public class DeferredLightDataProxy implements FGBindable {
     }
 
     @Override
-    public void bind(FGRenderContext renderContext) {}
+    public void bind(RenderContext renderContext) {}
     
 }

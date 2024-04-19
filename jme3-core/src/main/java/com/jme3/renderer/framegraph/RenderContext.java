@@ -40,35 +40,30 @@ import com.jme3.renderer.queue.RenderQueue;
  * In order to be compatible with existing logic, FGRenderContext is currently just a local proxy, and may gradually replace the existing state machine manager in the future.
  * @author JohnKkk
  */
-public class FGRenderContext {
-    
-    protected static class FGPipelineObjectState {
-        
-        public float startDepth;
-        public float endDepth;
-
-        public FGPipelineObjectState(float startDepth, float endDepth) {
-            this.startDepth = startDepth;
-            this.endDepth = endDepth;
-        }
-        
-    }
+public class RenderContext {
 
     private final RenderManager renderManager;
     private ViewPort viewPort;
-    protected FGPipelineObjectState currentPSO;
+    private final DepthRange depth = new DepthRange();
 
-    public FGRenderContext(RenderManager renderManager, ViewPort viewPort) {
+    public RenderContext(RenderManager renderManager, ViewPort viewPort) {
         this.renderManager = renderManager;
         this.viewPort = viewPort;
-        currentPSO = new FGPipelineObjectState(0, 1);
+    }
+    public RenderContext(RenderManager renderManager) {
+        this(renderManager, null);
     }
     
-    public void setDepthRange(float start, float end){
-        if(currentPSO.startDepth != start || currentPSO.endDepth != end){
-            renderManager.getRenderer().setDepthRange(start, end);
-            currentPSO.startDepth = start;
-            currentPSO.endDepth = end;
+    public void setDepthRange(float start, float end) {
+        if (!depth.equals(start, end)) {
+            depth.set(start, end);
+            renderManager.getRenderer().setDepthRange(depth);
+        }
+    }
+    
+    public void setDepthRange(DepthRange depth) {
+        if (!this.depth.equals(depth)) {
+            renderManager.getRenderer().setDepthRange(this.depth.set(depth));
         }
     }
     

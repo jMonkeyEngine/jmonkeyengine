@@ -34,7 +34,7 @@ package com.jme3.renderer.pass;
 import com.jme3.post.SceneProcessor;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.framegraph.AbstractFGPass;
-import com.jme3.renderer.framegraph.FGRenderContext;
+import com.jme3.renderer.framegraph.RenderContext;
 import com.jme3.util.SafeArrayList;
 
 /**
@@ -47,7 +47,7 @@ public class PostProcessorPass extends AbstractFGPass {
     }
 
     @Override
-    public void execute(FGRenderContext renderContext) {
+    public void execute(RenderContext renderContext) {
         renderContext.setDepthRange(0, 1);
         ViewPort vp = renderContext.getViewPort();
         SafeArrayList<SceneProcessor> processors = vp.getProcessors();
@@ -62,6 +62,6 @@ public class PostProcessorPass extends AbstractFGPass {
     }
 
     @Override
-    public void prepare(FGRenderContext renderContext) {}
+    public void prepare(RenderContext renderContext) {}
     
 }

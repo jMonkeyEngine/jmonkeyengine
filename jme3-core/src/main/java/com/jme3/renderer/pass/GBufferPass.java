@@ -39,8 +39,8 @@ import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.framegraph.FramebufferSource;
-import com.jme3.renderer.framegraph.FGRenderContext;
-import com.jme3.renderer.framegraph.FGRenderTargetSource;
+import com.jme3.renderer.framegraph.RenderContext;
+import com.jme3.renderer.framegraph.FGShaderResource;
 import com.jme3.renderer.framegraph.FGVarSource;
 import com.jme3.scene.Geometry;
 import com.jme3.texture.FrameBuffer;
@@ -75,7 +75,7 @@ public class GBufferPass extends OpaquePass {
     }
 
     @Override
-    public void executeDrawCommandList(FGRenderContext renderContext) {
+    public void executeDrawCommands(RenderContext renderContext) {
         if(canExecute){
             bHasDraw = false;
             tempLights.clear();
@@ -97,7 +97,7 @@ public class GBufferPass extends OpaquePass {
             renderContext.getRenderer().clearBuffers(vp.isClearColor(), vp.isClearDepth(), vp.isClearStencil());
             String techOrig = renderContext.getRenderManager().getForcedTechnique();
             renderContext.getRenderManager().setForcedTechnique(GBUFFER_PASS);
-            super.executeDrawCommandList(renderContext);
+            super.executeDrawCommands(renderContext);
             renderContext.getRenderManager().setForcedTechnique(techOrig);
             vp.setOutputFrameBuffer(opfb);
             renderContext.getRenderer().setBackgroundColor(opClearColor);
@@ -149,10 +149,11 @@ public class GBufferPass extends OpaquePass {
             // but it seems some devices do not support copying Depth16/Depth32/Depth32F to default FrameBuffer.
             gBufferData[4] = new Texture2D(w, h, Image.Format.Depth);
             gBuffer = new FrameBuffer(w, h, 1);
+            //gBuffer.addColorTarget(FrameBuffer.FrameBufferTarget.newTarget(Image.Format.RGBA8));
             for (int i = 0; i < gBufferData.length; i++) {
                 FrameBuffer.FrameBufferTextureTarget target = FrameBuffer.FrameBufferTarget.newTarget(gBufferData[i]);
-                gBuffer.addColorTarget(target);
-                registerSource(new FGRenderTargetSource(RENDER_TARGETS[i], target));
+                //gBuffer.addColorTarget(target);
+                //registerSource(new FGRenderTargetSource(RENDER_TARGETS[i], target));
             }
             gBuffer.setMultiTarget(true);
             registerSource(new DeferredLightDataSource(LIGHT_DATA, lightData));
@@ -184,7 +185,7 @@ public class GBufferPass extends OpaquePass {
     }
 
     @Override
-    public void prepare(FGRenderContext renderContext) {
+    public void prepare(RenderContext renderContext) {
         super.prepare(renderContext);
         ViewPort vp;
         if(forceViewPort != null){

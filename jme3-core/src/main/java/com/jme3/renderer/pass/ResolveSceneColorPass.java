@@ -59,7 +59,7 @@ public class ResolveSceneColorPass extends ScreenPass {
     }
 
     @Override
-    public void executeDrawCommandList(FGRenderContext renderContext) {
+    public void executeDrawCommands(RenderContext renderContext) {
         renderContext.getRenderer().setFrameBuffer(null);
         boolean depthWrite = screenMat.getAdditionalRenderState().isDepthWrite();
         boolean depthTest = screenMat.getAdditionalRenderState().isDepthTest();
@@ -89,7 +89,7 @@ public class ResolveSceneColorPass extends ScreenPass {
         screenRect.setMaterial(screenMat);
 
         // register Sinks
-        registerSink(new FGTextureBindableSink<FGRenderTargetSource.RenderTargetSourceProxy>(S_SCENE_COLOR_RT, binds, binds.size(), screenMat, VarType.Texture2D));
-        registerSink(new FGFramebufferCopyBindableSink<FramebufferSource.FrameBufferSourceProxy>(FGGlobal.S_DEFAULT_FB, null, false, true, true, binds, binds.size()));
+        registerBindableSink(new MatParamSink(S_SCENE_COLOR_RT, screenMat, VarType.Texture2D));
+        registerBindableSink(new FGFramebufferCopyBindableSink(FGGlobal.S_DEFAULT_FB, null, false, true, true));
     }
 }

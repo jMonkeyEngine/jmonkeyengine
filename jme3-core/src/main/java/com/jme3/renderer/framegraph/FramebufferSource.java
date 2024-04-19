@@ -52,7 +52,7 @@ public class FramebufferSource extends AbstractFGSource {
             return frameBuffer;
         }
         @Override
-        public void bind(FGRenderContext renderContext) {}
+        public void bind(RenderContext renderContext) {}
         
     }
     public FramebufferSource(String name, FrameBuffer frameBuffer) {

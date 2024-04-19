@@ -47,7 +47,7 @@ public class FGCallbackPass extends FGBindingPass{
     }
 
     @Override
-    public void execute(FGRenderContext renderContext) {
+    public void execute(RenderContext renderContext) {
         bindAll(renderContext);
         if(iFGCallbackInterface != null){
             iFGCallbackInterface.callbackPass();

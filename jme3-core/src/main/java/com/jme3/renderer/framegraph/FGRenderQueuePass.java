@@ -37,21 +37,24 @@ import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.renderer.pass.RenderGeometry;
 
 /**
- * All passes that need to perform rendering must inherit from this class.<br/>
+ * All passes that need to perform rendering must inherit from this class..
+ * 
  * @author JohnKkk
  */
 public abstract class FGRenderQueuePass extends FGBindingPass implements RenderGeometry {
+    
     protected ViewPort forceViewPort;
     // It is just geometry data for now. If we extend the RHI interface in the future, it may be adjusted to MeshDrawCommand.
-    protected GeometryList passMeshDrawCommandList;
-    protected boolean canExecute;
+    protected GeometryList drawCommands;
+    protected boolean canExecute = false;
     
     public FGRenderQueuePass(String name) {
         super(name);
     }
 
     /**
-     * A RenderPass may use a specified viewport. This can be set using this function.<br/>
+     * A RenderPass may use a specified viewport.
+     * 
      * @param forceViewPort targetViewPort
      */
     public void setForceViewPort(ViewPort forceViewPort) {
@@ -59,14 +62,16 @@ public abstract class FGRenderQueuePass extends FGBindingPass implements RenderG
     }
 
     /**
-     * Dispatch visible mesh draw commands to process task, to prepare for this pass.<br/>
-     * todo:For the current GLRenderer, the MeshDrawCommand concept actually does not exist. So this is prepared for future Vulkan-like renderers<br/>
+     * Dispatch visible mesh draw commands to process task, to prepare for this pass.
+     * <p>
+     * For the current GLRenderer, the MeshDrawCommand concept actually does not exist. So this is prepared for future Vulkan-like renderers.
+     * 
      * @param renderQueue targetRenderQueue
      */
     public abstract void dispatchPassSetup(RenderQueue renderQueue);
 
     @Override
-    public void execute(FGRenderContext renderContext) {
+    public void execute(RenderContext renderContext) {
         renderContext.getRenderManager().setRenderGeometryHandler(this);
         dispatchPassSetup(renderContext.getRenderQueue());
         if(!canExecute){
@@ -76,24 +81,27 @@ public abstract class FGRenderQueuePass extends FGBindingPass implements RenderG
         bindAll(renderContext);
 
         // todo:Use the default queue temporarily to avoid creating a temporary copy
-        if(passMeshDrawCommandList != null && passMeshDrawCommandList.size() > 0){
+        //if(passMeshDrawCommandList != null && passMeshDrawCommandList.size() > 0){
             // drawcall
-        }
-        executeDrawCommandList(renderContext);
+        //}
+        executeDrawCommands(renderContext);
         renderContext.getRenderManager().setRenderGeometryHandler(null);
     }
 
     /**
-     * todo:For the current GLRenderer, the MeshDrawCommand concept actually does not exist. So this is prepared for future Vulkan-like renderers<br/>
-     * @param renderContext
+     * For the current GLRenderer, the MeshDrawCommand concept actually does not exist.
+     * <p>
+     * This is prepared for future Vulkan-like renderers.
+     * 
+     * @param context
      */
-    public abstract void executeDrawCommandList(FGRenderContext renderContext);
+    public abstract void executeDrawCommands(RenderContext context);
 
     @Override
     public void resetPass() {
         super.resetPass();
-        if(passMeshDrawCommandList != null && passMeshDrawCommandList.size() > 0){
-            passMeshDrawCommandList.clear();
+        if(drawCommands != null && drawCommands.size() > 0){
+            drawCommands.clear();
         }
     }
     

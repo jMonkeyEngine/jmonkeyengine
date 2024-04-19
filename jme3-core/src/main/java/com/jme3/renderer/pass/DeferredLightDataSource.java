@@ -33,7 +33,7 @@ package com.jme3.renderer.pass;
 
 import com.jme3.light.LightList;
 import com.jme3.renderer.framegraph.FGBindable;
-import com.jme3.renderer.framegraph.FGRenderContext;
+import com.jme3.renderer.framegraph.RenderContext;
 import com.jme3.renderer.framegraph.AbstractFGSource;
 
 public class DeferredLightDataSource extends AbstractFGSource {
@@ -68,7 +68,7 @@ public class DeferredLightDataSource extends AbstractFGSource {
         }
         
         @Override
-        public void bind(FGRenderContext renderContext) {}
+        public void bind(RenderContext renderContext) {}
         
     }
 

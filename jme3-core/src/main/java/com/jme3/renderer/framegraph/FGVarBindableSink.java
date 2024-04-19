@@ -31,19 +31,18 @@
  */
 package com.jme3.renderer.framegraph;
 
-import java.util.ArrayList;
-
 /**
  * @author JohnKkk
- * @param <T>
  */
-public class FGVarBindableSink<T extends FGVarSource.FGVarBindableProxy> extends FGContainerBindableSink<T>{
-    public FGVarBindableSink(String registeredName, ArrayList container, int index) {
-        super(registeredName, container, index);
+public class FGVarBindableSink extends BindableSink {
+    
+    public FGVarBindableSink(String registeredName) {
+        super(registeredName);
     }
 
     @Override
-    public void bind(FGSource fgSource) {
-        super.bind(fgSource);
+    public void bind(FGSource src) {
+        super.bind(src);
     }
+    
 }

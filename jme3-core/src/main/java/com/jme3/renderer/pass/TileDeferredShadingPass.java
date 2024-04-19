@@ -34,11 +34,11 @@ package com.jme3.renderer.pass;
 import com.jme3.light.LightList;
 import com.jme3.material.Material;
 import com.jme3.material.MaterialDef;
-import com.jme3.renderer.framegraph.FGRenderContext;
+import com.jme3.renderer.framegraph.RenderContext;
 
 public class TileDeferredShadingPass extends DeferredShadingPass{
     
-    private static final String MAT_DEF = "Common/MatDefs/ShadingCommon/TileBasedDeferredShading.j3md";
+    private static final String MATDEF = "Common/MatDefs/ShadingCommon/TileBasedDeferredShading.j3md";
     protected final static String PASS = "TileBasedDeferredPass";
 
     public TileDeferredShadingPass() {
@@ -47,13 +47,13 @@ public class TileDeferredShadingPass extends DeferredShadingPass{
 
     @Override
     protected Material getMaterial() {
-        MaterialDef def = (MaterialDef) assetManager.loadAsset(MAT_DEF);
+        MaterialDef def = (MaterialDef) assetManager.loadAsset(MATDEF);
         screenMat = new Material(def);
         return screenMat;
     }
 
     @Override
-    public void executeDrawCommandList(FGRenderContext renderContext) {
+    public void executeDrawCommands(RenderContext renderContext) {
         DeferredLightDataSink deferredLightDataSink = (DeferredLightDataSink) getSink(S_LIGHT_DATA);
         DeferredLightDataSource.DeferredLightDataProxy deferredLightDataProxy = (DeferredLightDataSource.DeferredLightDataProxy) deferredLightDataSink.getBind();
         LightList lights = deferredLightDataProxy.getLightData();

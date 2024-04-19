@@ -31,53 +31,28 @@
  */
 package com.jme3.renderer.framegraph;
 
-import com.jme3.texture.FrameBuffer;
-import com.jme3.texture.Texture;
-
-public class FGRenderTargetSource extends AbstractFGSource {
+public class FGShaderResource <T> extends AbstractFGSource implements FGBindable {
     
-    RenderTargetSourceProxy renderTargetSourceProxy;
+    private final T resource;
     
-    public final static class RenderTargetSourceProxy implements FGBindable {
-        FrameBuffer.FrameBufferTextureTarget renderTarget;
-
-        public RenderTargetSourceProxy(FrameBuffer.FrameBufferTextureTarget renderTarget) {
-            this.renderTarget = renderTarget;
-        }
-
-        /**
-         * return RT.<br/>
-         * @return
-         */
-        public FrameBuffer.FrameBufferTextureTarget getRenderTarget() {
-            return renderTarget;
-        }
-
-        /**
-         * return RT shaderResource.<br/>
-         * @return
-         */
-        public Texture getShaderResource(){
-            return renderTarget.getTexture();
-        }
-        
-        @Override
-        public void bind(FGRenderContext renderContext) {}
-        
-    }
-    public FGRenderTargetSource(String name, FrameBuffer.FrameBufferTextureTarget renderTarget) {
+    public FGShaderResource(String name, T resource) {
         super(name);
-        renderTargetSourceProxy = new RenderTargetSourceProxy(renderTarget);
+        this.resource = resource;
     }
 
     @Override
-    public void postLinkValidate() {
-
-    }
+    public void bind(RenderContext renderContext) {}
+    
+    @Override
+    public void postLinkValidate() {}
 
     @Override
-    public FGBindable yieldBindable() {
-        return renderTargetSourceProxy;
+    public FGShaderResource yieldBindable() {
+        return this;
+    }
+    
+    public T getResource() {
+        return resource;
     }
     
 }

@@ -31,7 +31,7 @@
  */
 package com.jme3.renderer.pass;
 
-import com.jme3.renderer.framegraph.FGRenderContext;
+import com.jme3.renderer.framegraph.RenderContext;
 import com.jme3.renderer.queue.RenderQueue;
 
 /**
@@ -39,11 +39,11 @@ import com.jme3.renderer.queue.RenderQueue;
  */
 public class TransparentPass extends ForwardPass{
     @Override
-    public void executeDrawCommandList(FGRenderContext renderContext) {
+    public void executeDrawCommands(RenderContext renderContext) {
         if(canExecute){
             renderContext.setDepthRange(0, 1);
         }
-        super.executeDrawCommandList(renderContext);
+        super.executeDrawCommands(renderContext);
     }
 
     public TransparentPass() {

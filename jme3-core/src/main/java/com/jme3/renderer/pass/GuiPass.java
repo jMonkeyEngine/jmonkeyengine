@@ -32,7 +32,7 @@
 package com.jme3.renderer.pass;
 
 import com.jme3.renderer.Camera;
-import com.jme3.renderer.framegraph.FGRenderContext;
+import com.jme3.renderer.framegraph.RenderContext;
 import com.jme3.renderer.queue.RenderQueue;
 
 /**
@@ -40,21 +40,21 @@ import com.jme3.renderer.queue.RenderQueue;
  */
 public class GuiPass extends ForwardPass{
     @Override
-    public void executeDrawCommandList(FGRenderContext renderContext) {
+    public void executeDrawCommands(RenderContext context) {
         Camera cam = null;
         if(forceViewPort != null){
             cam = forceViewPort.getCamera();
         }
         else{
-            cam = renderContext.getViewPort().getCamera();
+            cam = context.getViewPort().getCamera();
         }
         if(canExecute){
-            renderContext.setDepthRange(0, 0);
-            renderContext.getRenderManager().setCamera(cam, true);
+            context.setDepthRange(0, 0);
+            context.getRenderManager().setCamera(cam, true);
         }
-        super.executeDrawCommandList(renderContext);
+        super.executeDrawCommands(context);
         if(canExecute){
-            renderContext.getRenderManager().setCamera(cam, false);
+            context.getRenderManager().setCamera(cam, false);
         }
     }
 

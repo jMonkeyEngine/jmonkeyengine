@@ -51,16 +51,22 @@ public class FGBindingPass extends AbstractFGPass {
         this.binds = binds;
     }
     
+    public void registerBindableSink(BindableSink sink) {
+        registerSink(sink);
+        binds.add(sink);
+    }
+    
     public void addBind(FGBindable bind){
         binds.add(bind);
     }
     
-    public <T extends FGBindable> void addBindSink(String name){
-        int index = binds.size() - 1;
-        registerSink(new FGContainerBindableSink<T>(name, binds, index));
+    public void addBindSink(String name) {
+        BindableSink sink = new BindableSink(name);
+        binds.add(sink);
+        registerSink(sink);
     }
     
-    public void bindAll(FGRenderContext renderContext){
+    public void bindAll(RenderContext renderContext){
         // Bind all objects
         for(FGBindable bind : binds){
             bind.bind(renderContext);
@@ -68,9 +74,9 @@ public class FGBindingPass extends AbstractFGPass {
     }
 
     @Override
-    public void prepare(FGRenderContext renderContext) {}
+    public void prepare(RenderContext renderContext) {}
 
     @Override
-    public void execute(FGRenderContext renderContext) {}
+    public void execute(RenderContext renderContext) {}
     
 }

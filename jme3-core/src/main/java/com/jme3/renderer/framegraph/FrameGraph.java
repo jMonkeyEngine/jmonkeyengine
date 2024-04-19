@@ -66,20 +66,20 @@ public class FrameGraph {
     
     private static final Logger logger = Logger.getLogger(FrameGraph.class.getName());
     
-    private final FGRenderContext renderContext;
+    private final RenderContext renderContext;
     private final ArrayList<FGPass> passes;
     private final ArrayList<FGSource> globalSources;
     private final ArrayList<FGSink> globalSinks;
     private boolean finalized = false;
     
-    public FrameGraph(FGRenderContext renderContext) {
+    public FrameGraph(RenderContext renderContext) {
         passes = new ArrayList<>();
         globalSinks = new ArrayList<>();
         globalSources = new ArrayList<>();
         this.renderContext = renderContext;
     }
 
-    public FGRenderContext getRenderContext() {
+    public RenderContext getRenderContext() {
         return renderContext;
     }
 
@@ -87,12 +87,12 @@ public class FrameGraph {
      * Binding input resources to the global sink in a FrameGraph refers to making certain resources available globally to all passes.
      */
     protected void linkGlobalSinks() {
-        for(FGSink sink : globalSinks){
-            String linkPassName = sink.getLinkPassName();
+        for(FGSink s : globalSinks){
+            String linkPassName = s.getLinkPassName();
             for(FGPass p : passes){
                 if(p.getName().equals(linkPassName)){
-                    FGSource source = p.getSource(sink.getLinkPassResName());
-                    sink.bind(source);
+                    FGSource source = p.getSource(s.getLinkPassResName());
+                    s.bind(source);
                     break;
                 }
             }
@@ -175,8 +175,8 @@ public class FrameGraph {
      */
     public void execute() {
         assert finalized;
-        for(FGPass nextPass : passes){
-            nextPass.execute(renderContext);
+        for(FGPass p : passes){
+            p.execute(renderContext);
         }
         finalized = false;
     }

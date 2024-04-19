@@ -449,15 +449,15 @@ public class TestPBRTerrainAdvancedRenderPath extends SimpleApplication {
         directionalLight.setColor(ColorRGBA.White);
         rootNode.addLight(directionalLight);
         
-        for (int i = 0; i < 30; i++) {
-            for (int j = 0; j < 30; j++) {
-                PointLight p = new PointLight();
-                p.setPosition(new Vector3f(-50+i*10, -60, -50+j*10));
-                p.setRadius(50);
-                p.setColor(ColorRGBA.randomColor());
-                rootNode.addLight(p);
-            }
-        }
+//        for (int i = 0; i < 30; i++) {
+//            for (int j = 0; j < 30; j++) {
+//                PointLight p = new PointLight();
+//                p.setPosition(new Vector3f(-50+i*10, -60, -50+j*10));
+//                p.setRadius(50);
+//                p.setColor(ColorRGBA.randomColor());
+//                rootNode.addLight(p);
+//            }
+//        }
 
         ambientLight = new AmbientLight();
         directionalLight.setColor(ColorRGBA.White);

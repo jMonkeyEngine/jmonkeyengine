@@ -31,19 +31,17 @@
  */
 package com.jme3.renderer.pass;
 
-import com.jme3.renderer.framegraph.FGBindable;
-import com.jme3.renderer.framegraph.FGContainerBindableSink;
-import java.util.ArrayList;
+import com.jme3.renderer.framegraph.BindableSink;
 
-public class DeferredLightDataSink <T extends DeferredLightDataSource.DeferredLightDataProxy> extends FGContainerBindableSink<T> {
+public class DeferredLightDataSink extends BindableSink {
     
-    public DeferredLightDataSink(String registeredName, ArrayList<FGBindable> container, int index) {
-        super(registeredName, container, index);
+    public DeferredLightDataSink(String registeredName) {
+        super(registeredName);
     }
 
     @Override
     public void postLinkValidate() {
-        bLinkValidate = bindableProxy.targetBindable != null;
+        bLinkValidate = target != null;
     }
     
 }

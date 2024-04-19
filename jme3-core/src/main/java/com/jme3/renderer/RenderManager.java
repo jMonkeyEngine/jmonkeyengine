@@ -48,7 +48,7 @@ import com.jme3.profile.AppStep;
 import com.jme3.profile.SpStep;
 import com.jme3.profile.VpStep;
 import com.jme3.renderer.framegraph.FGGlobal;
-import com.jme3.renderer.framegraph.FGRenderContext;
+import com.jme3.renderer.framegraph.RenderContext;
 import com.jme3.renderer.framegraph.FrameGraph;
 import com.jme3.renderer.queue.GeometryList;
 import com.jme3.renderer.queue.RenderQueue;
@@ -111,7 +111,7 @@ public class RenderManager {
     // frameGraph=============================================================================↑
 
     // RenderPath
-    public enum RenderPath{
+    public enum RenderPath {
         None(-1, "None"),
         Forward(0, "Forward"),
         ForwardPlus(1, "ForwardPlus"),
@@ -157,7 +157,7 @@ public class RenderManager {
     private LightFilter lightFilter = new DefaultLightFilter();
     private TechniqueDef.LightMode preferredLightMode = TechniqueDef.LightMode.MultiPass;
     private int singlePassLightBatchSize = 1;
-    private MatParamOverride boundDrawBufferId=new MatParamOverride(VarType.Int,"BoundDrawBuffer",0);
+    private MatParamOverride boundDrawBufferId = new MatParamOverride(VarType.Int, "BoundDrawBuffer", 0);
     private Predicate<Geometry> renderFilter;
 
 
@@ -171,7 +171,7 @@ public class RenderManager {
         this.renderer = renderer;
         this.forcedOverrides.add(boundDrawBufferId);
         if(useFramegraph){
-            frameGraph = new FrameGraph(new FGRenderContext(this, null));
+            frameGraph = new FrameGraph(new RenderContext(this, null));
             gBufferPass = new GBufferPass();
             deferredShadingPass = new DeferredShadingPass();
             tileDeferredShadingPass = new TileDeferredShadingPass();
@@ -257,9 +257,9 @@ public class RenderManager {
     }
 
     /**
-     * Set an IRenderGeometry for executing drawing call interfaces for the specified FGPass.<br/>
+     * Set an IRenderGeometry for executing drawing call interfaces for the specified FGPass.
+     * 
      * @param renderGeometry
-     *
      * @see RenderGeometry
      */
     public final void setRenderGeometryHandler(RenderGeometry renderGeometry){
@@ -1374,29 +1374,29 @@ public class RenderManager {
             }
             renderer.clearBuffers(vp.isClearColor(), vp.isClearDepth(), vp.isClearStencil());
         }
+        
+        if (prof != null) {
+            prof.vpStep(VpStep.RenderScene, vp, null);
+        }
+        List<Spatial> scenes = vp.getScenes();
+        for (int i = scenes.size() - 1; i >= 0; i--) {
+            renderScene(scenes.get(i), vp);
+        }
+
+        if (processors != null) {
+            if (prof != null) {
+                prof.vpStep(VpStep.PostQueue, vp, null);
+            }
+            for (SceneProcessor p : processors.getArray()) {
+                if (prof != null) {
+                    prof.spStep(SpStep.ProcPostQueue, p.getClass().getSimpleName());
+                }
+                p.postQueue(vp.getQueue());
+            }
+        }
 
         if(useFramegraph){
             RenderPath curRenderPath = vp.getRenderPath() == RenderPath.None ? renderPath : vp.getRenderPath();
-
-            if (prof != null) {
-                prof.vpStep(VpStep.RenderScene, vp, null);
-            }
-            List<Spatial> scenes = vp.getScenes();
-            for (int i = scenes.size() - 1; i >= 0; i--) {
-                renderScene(scenes.get(i), vp);
-            }
-
-            if (processors != null) {
-                if (prof != null) {
-                    prof.vpStep(VpStep.PostQueue, vp, null);
-                }
-                for (SceneProcessor p : processors.getArray()) {
-                    if (prof != null) {
-                        prof.spStep(SpStep.ProcPostQueue, p.getClass().getSimpleName());
-                    }
-                    p.postQueue(vp.getQueue());
-                }
-            }
 
             frameGraph.reset();
             frameGraph.getRenderContext().setViewPort(vp);
@@ -1448,32 +1448,8 @@ public class RenderManager {
 
             frameGraph.finalizePasses();
             frameGraph.execute();
-            // clear any remaining spatials that were not rendered.
-            clearQueue(vp);
-
-            if (prof!=null) prof.vpStep(VpStep.EndRender, vp, null);
             
         } else {
-
-            if (prof != null) {
-                prof.vpStep(VpStep.RenderScene, vp, null);
-            }
-            List<Spatial> scenes = vp.getScenes();
-            for (int i = scenes.size() - 1; i >= 0; i--) {
-                renderScene(scenes.get(i), vp);
-            }
-
-            if (processors != null) {
-                if (prof != null) {
-                    prof.vpStep(VpStep.PostQueue, vp, null);
-                }
-                for (SceneProcessor proc : processors.getArray()) {
-                    if (prof != null) {
-                        prof.spStep(SpStep.ProcPostQueue, proc.getClass().getSimpleName());
-                    }
-                    proc.postQueue(vp.getQueue());
-                }
-            }
 
             if (prof != null) {
                 prof.vpStep(VpStep.FlushQueue, vp, null);
@@ -1496,13 +1472,16 @@ public class RenderManager {
             }
             //renders the translucent objects queue after processors have been rendered
             renderTranslucentQueue(vp);
-            // clear any remaining spatials that were not rendered.
-            clearQueue(vp);
-
-            if (prof != null) {
-                prof.vpStep(VpStep.EndRender, vp, null);
-            }
+            
         }
+        
+        // clear any remaining spatials that were not rendered.
+        clearQueue(vp);
+
+        if (prof != null) {
+            prof.vpStep(VpStep.EndRender, vp, null);
+        }
+        
     }
 
     /**
