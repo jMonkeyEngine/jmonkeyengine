@@ -55,7 +55,7 @@ public class MatParamSink extends BindableSink {
             return;
         }
         linked = true;
-        value = ()((FGShaderResource)p).getResource();
+        //value = ()((FGShaderResource)p).getResource();
         //bindableProxy.targetBindable = proxy;
         target = this;
     }

@@ -17,6 +17,7 @@ public class MatRenderParam <T> implements RenderParameter<T> {
     private final String name;
     private final Material material;
     private final VarType type;
+    private boolean debug = false;
     private T value;
 
     public MatRenderParam(String name, Material material, VarType type) {
@@ -32,6 +33,9 @@ public class MatRenderParam <T> implements RenderParameter<T> {
     @Override
     public void accept(T value) {
         this.value = value;
+        if (debug) {
+            System.out.println("assign to material: "+this.value);
+        }
         material.setParam(name, type, this.value);
     }
     @Override
@@ -41,6 +45,10 @@ public class MatRenderParam <T> implements RenderParameter<T> {
     @Override
     public void erase() {
         value = null;
+    }
+    
+    public void enableDebug() {
+        debug = true;
     }
     
 }

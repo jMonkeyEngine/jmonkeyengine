@@ -6,6 +6,7 @@ package com.jme3.renderer.pass;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.material.Material;
+import com.jme3.renderer.Camera;
 import com.jme3.renderer.framegraph.RenderContext;
 
 /**
@@ -42,6 +43,12 @@ public class TileDeferredShadingModule extends DeferredShadingModule {
         screenMat.getAdditionalRenderState().setDepthWrite(depthWrite);
 
         // Handle non-fullscreen lights
+    }
+    
+    @Override
+    public void prepare(RenderContext context) {
+        super.prepare(context);
+        context.getRenderManager().calculateTileInfo();
     }
     
 }

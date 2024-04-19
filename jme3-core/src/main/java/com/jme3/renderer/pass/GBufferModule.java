@@ -96,7 +96,9 @@ public class GBufferModule extends OpaqueModule {
     @Override
     public boolean drawGeometry(RenderManager rm, Geometry geom) {
         Material material = geom.getMaterial();
-        if(material.getMaterialDef().getTechniqueDefs(rm.getForcedTechnique()) == null)return false;
+        if(material.getMaterialDef().getTechniqueDefs(rm.getForcedTechnique()) == null) {
+            return false;
+        }
         rm.renderGeometry(geom);
         if(material.getActiveTechnique() != null){
             if(material.getMaterialDef().getTechniqueDefs(GBUFFER_PASS) != null){
@@ -144,11 +146,27 @@ public class GBufferModule extends OpaqueModule {
         // Depth16/Depth32/Depth32F provide higher precision to prevent clipping when camera gets close,
         // but it seems some devices do not support copying Depth16/Depth32/Depth32F to default FrameBuffer.
         textures[4] = new Texture2D(w, h, Image.Format.Depth);
-        for (int i = 0; i < textures.length; i++) {
-            FrameBuffer.FrameBufferTextureTarget t = FrameBuffer.FrameBufferTarget.newTarget(textures[i]);
-            gBuffer.addColorTarget(t);
-            targets[i].setTextureTarget(t);
-        }
+        //gBuffer.addColorTarget(FrameBuffer.FrameBufferTarget.newTarget(Image.Format.RGBA8));
+        //for (int i = 0; i < textures.length; i++) {
+        //    FrameBuffer.FrameBufferTextureTarget t = FrameBuffer.FrameBufferTarget.newTarget(textures[i]);
+        //    gBuffer.addColorTarget(t);
+        //    targets[i].setTextureTarget(t);
+        //}
+        FrameBuffer.FrameBufferTextureTarget t0 = FrameBuffer.FrameBufferTarget.newTarget(textures[0]);
+        gBuffer.addColorTarget(t0);
+        targets[0].setTextureTarget(t0);
+        FrameBuffer.FrameBufferTextureTarget t1 = FrameBuffer.FrameBufferTarget.newTarget(textures[1]);
+        gBuffer.addColorTarget(t1);
+        targets[1].setTextureTarget(t1);
+        FrameBuffer.FrameBufferTextureTarget t2 = FrameBuffer.FrameBufferTarget.newTarget(textures[2]);
+        gBuffer.addColorTarget(t2);
+        targets[2].setTextureTarget(t2);
+        FrameBuffer.FrameBufferTextureTarget t3 = FrameBuffer.FrameBufferTarget.newTarget(textures[3]);
+        gBuffer.addColorTarget(t3);
+        targets[3].setTextureTarget(t3);
+        FrameBuffer.FrameBufferTextureTarget t4 = FrameBuffer.FrameBufferTarget.newTarget(textures[4]);
+        gBuffer.setDepthTarget(t4);
+        targets[4].setTextureTarget(t4);
         gBuffer.setMultiTarget(true);
         bufferParam.accept(gBuffer);
     }

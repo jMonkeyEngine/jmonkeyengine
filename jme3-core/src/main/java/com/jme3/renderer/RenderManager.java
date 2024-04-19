@@ -50,6 +50,7 @@ import com.jme3.profile.VpStep;
 import com.jme3.renderer.framegraph.FGGlobal;
 import com.jme3.renderer.framegraph.RenderContext;
 import com.jme3.renderer.framegraph.FrameGraph;
+import com.jme3.renderer.framegraph.MyFrameGraph;
 import com.jme3.renderer.queue.GeometryList;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
@@ -108,6 +109,7 @@ public class RenderManager {
     private TranslucentPass translucentPass;
     private GuiPass guiPass;
     private PostProcessorPass postProcessorPass;
+    private MyFrameGraph myGraph;
     // frameGraph=============================================================================↑
 
     // RenderPath
@@ -217,6 +219,15 @@ public class RenderManager {
     public final void enableFramegraph(boolean useFramegraph){
         this.useFramegraph = useFramegraph;
     }
+    
+    /**
+     * Sets the framegraph used in the rendering process.
+     * 
+     * @param frameGraph 
+     */
+    public void setFrameGraph(MyFrameGraph frameGraph) {
+        this.myGraph = frameGraph;
+    }
 
     /**
      * For performance considerations, the engine will pre-allocate a texture memory block based on this tag for packing light source data. Therefore, please adjust this to a reasonable maximum value for the scene light sources based on scene needs.
@@ -237,10 +248,20 @@ public class RenderManager {
      * @param tileHeight Number of tiles in the vertical direction for partitioning.
      * @param tileNum
      */
-    private final void setTileInfo(int tileSize, int tileWidth, int tileHeight, int tileNum){
+    private void setTileInfo(int tileSize, int tileWidth, int tileHeight, int tileNum){
         if(tileInfo == null){
             tileInfo = new TileBasedDeferredSinglePassLightingLogic.TileInfo(tileSize, tileWidth, tileHeight, tileNum);
         }
+    }
+    
+    /**
+     * Calculates tiling info.
+     */
+    public void calculateTileInfo() {
+        curTileSize = (forceTileSize > 0 ? forceTileSize : (getCurrentCamera().getWidth() / numberTileDivisions));
+        int tileWidth = viewWidth / curTileSize;
+        int tileHeight = viewHeight / curTileSize;
+        setTileInfo(curTileSize, tileWidth, tileHeight, tileWidth * tileHeight);
     }
 
     /**
@@ -1394,8 +1415,13 @@ public class RenderManager {
                 p.postQueue(vp.getQueue());
             }
         }
-
-        if(useFramegraph){
+        
+        if (myGraph != null) {
+            
+            // to execute the rendering process, simply call execute on the framegraph
+            myGraph.execute(vp);
+            
+        } else if (useFramegraph) {
             RenderPath curRenderPath = vp.getRenderPath() == RenderPath.None ? renderPath : vp.getRenderPath();
 
             frameGraph.reset();

@@ -88,8 +88,8 @@ public class DeferredShadingModule extends ScreenModule {
             vp = context.getViewPort();
         }
         frameBuffer.accept(vp.getOutputFrameBuffer());
-        executeState.accept(false);
-        lightList.erase();
+        //executeState.accept(false);
+        //lightList.erase();
     }
     
     @Override
@@ -101,7 +101,8 @@ public class DeferredShadingModule extends ScreenModule {
         screenMat.getAdditionalRenderState().setDepthTest(false);
         screenMat.setBoolean("UseLightsCullMode", false);
         screenRect.updateGeometricState();
-        screenMat.render(screenRect, lightList.produce(), renderContext.getRenderManager());
+        LightList lights = lightList.produce();
+        screenMat.render(screenRect, lights, renderContext.getRenderManager());
         screenMat.getAdditionalRenderState().setDepthWrite(depthWrite);
         screenMat.getAdditionalRenderState().setDepthTest(depthTest);
     }
