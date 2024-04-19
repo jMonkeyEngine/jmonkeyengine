@@ -218,4 +218,6 @@ void main(){
         gl_FragColor.rgb = shadingInfo.rgb;
         gl_FragColor.a = min(fract(shadingInfo.a) * 10.0f, 0.0f);
     }
+    // debug
+    //gl_FragColor = vec4(1.0);
 }

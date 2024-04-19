@@ -66,12 +66,12 @@ public class MyFrameGraph {
         parameters.register(group);
     }
     
-    public void bindToOutput(String target, RenderParameter input) {
-        parameters.bindToOutput(target, input);
+    public ParameterBinding bindToOutput(String target, RenderParameter input) {
+        return parameters.bindToOutput(target, input);
     }
     
-    public void bindToInput(String target, RenderParameter output) {
-        parameters.bindToInput(target, output);
+    public ParameterBinding bindToInput(String target, RenderParameter output) {
+        return parameters.bindToInput(target, output);
     }
     
     public void removeParameter(RenderParameter param) {

@@ -2,7 +2,11 @@ package jme3test.renderpath;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.environment.EnvironmentCamera;
+import com.jme3.environment.LightProbeFactory;
+import com.jme3.environment.generation.JobProgressAdapter;
+import com.jme3.environment.util.EnvMapUtils;
 import com.jme3.light.DirectionalLight;
+import com.jme3.light.LightProbe;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Quaternion;
@@ -114,7 +118,7 @@ public class TestShadingModel extends SimpleApplication {
         final EnvironmentCamera envCam = new EnvironmentCamera(256, new Vector3f(0, 3f, 0));
         stateManager.attach(envCam);
 
-        new RenderPathHelper(this);
+        //new RenderPathHelper(this);
         flyCam.setMoveSpeed(10.0f);
     }
 
@@ -123,21 +127,21 @@ public class TestShadingModel extends SimpleApplication {
         super.simpleRender(rm);
         frame++;
 
-//        if (frame == 2) {
-//            modelNode.removeFromParent();
-//            final LightProbe probe = LightProbeFactory.makeProbe(stateManager.getState(EnvironmentCamera.class), rootNode, new JobProgressAdapter<LightProbe>() {
-//
-//                @Override
-//                public void done(LightProbe result) {
-//                    System.err.println("Done rendering env maps");
-//                    tex = EnvMapUtils.getCubeMapCrossDebugViewWithMipMaps(result.getPrefilteredEnvMap(), assetManager);
-//                }
-//            });
-//            probe.getArea().setRadius(100);
-//            rootNode.addLight(probe);
-//            //getStateManager().getState(EnvironmentManager.class).addEnvProbe(probe);
-//
-//        }
+        if (frame == 2) {
+            modelNode.removeFromParent();
+            final LightProbe probe = LightProbeFactory.makeProbe(stateManager.getState(EnvironmentCamera.class), rootNode, new JobProgressAdapter<LightProbe>() {
+
+                @Override
+                public void done(LightProbe result) {
+                    System.err.println("Done rendering env maps");
+                    tex = EnvMapUtils.getCubeMapCrossDebugViewWithMipMaps(result.getPrefilteredEnvMap(), assetManager);
+                }
+            });
+            probe.getArea().setRadius(100);
+            rootNode.addLight(probe);
+            //getStateManager().getState(EnvironmentManager.class).addEnvProbe(probe);
+
+        }
         if (frame > 10 && modelNode.getParent() == null) {
             rootNode.attachChild(modelNode);
         }

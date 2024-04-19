@@ -28,10 +28,12 @@ import java.util.ArrayList;
 public class GBufferModule extends OpaqueModule {
     
     private final static String GBUFFER_PASS = "GBufferPass";
-    public final static String[] RENDER_TARGETS = {"RT_0", "RT_1", "RT_2", "RT_3", "RT_4"};
-    public final static String G_FRAME_BUFFER = "GBufferFramebuffer";
-    public final static String LIGHT_DATA = "LIGHT_DATA";
-    public final static String EXECUTE_STATE = "EXECUTE_STATE";
+    public final static String[] RENDER_TARGETS = {
+        "GBufferPass.RT0", "GBufferPass.RT1", "GBufferPass.RT2", "GBufferPass.RT3", "GBufferPass.RT4"
+    };
+    public final static String G_FRAME_BUFFER = "GBufferPass.Framebuffer";
+    public final static String LIGHT_DATA = "GBufferPass.LightData";
+    public final static String EXECUTE_STATE = "GBufferPass.ExecuteState";
     
     private final LightList lightData = new LightList(null);
     private final ArrayList<Light> tempLights = new ArrayList<>();
@@ -73,6 +75,7 @@ public class GBufferModule extends OpaqueModule {
             ColorRGBA opClearColor = vp.getBackgroundColor();
             mask.set(opClearColor);
             mask.a = 0.0f;
+            FrameBuffer rfb = context.getRenderer().getCurrentFrameBuffer();
             context.getRenderer().setFrameBuffer(gBuffer);
             context.getRenderer().setBackgroundColor(mask);
             context.getRenderer().clearBuffers(vp.isClearColor(), vp.isClearDepth(), vp.isClearStencil());
@@ -82,7 +85,7 @@ public class GBufferModule extends OpaqueModule {
             context.getRenderManager().setForcedTechnique(techOrig);
             vp.setOutputFrameBuffer(opfb);
             context.getRenderer().setBackgroundColor(opClearColor);
-            context.getRenderer().setFrameBuffer(vp.getOutputFrameBuffer());
+            context.getRenderer().setFrameBuffer(rfb);
             //bHasDrawVarSource.setValue(bHasDraw);
             if (hasDraw.produce()) {
                 for(Light light : tempLights){

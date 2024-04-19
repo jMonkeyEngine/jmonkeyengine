@@ -29,7 +29,7 @@ public class TileDeferredShadingModule extends DeferredShadingModule {
     
     @Override
     public void executeDrawCommands(RenderContext context) {
-
+        
         // Handle FullScreenLights
         screenMat.selectTechnique(PASS, context.getRenderManager());
         boolean depthWrite = screenMat.getAdditionalRenderState().isDepthWrite();

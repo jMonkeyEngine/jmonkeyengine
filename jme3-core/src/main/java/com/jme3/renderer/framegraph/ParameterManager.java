@@ -18,12 +18,12 @@ public class ParameterManager {
     
     public RenderParameter getParameter(String name, boolean failOnMiss) {
         for (RenderParameter p : parameters) {
-            if (p.getParameterName().equals(name)) {
+            if (p.isPubliclyNamed(name)) {
                 return p;
             }
         }
         if (failOnMiss) {
-            throw new NullPointerException("Input parameter does not exist: "+name);
+            throw new NullPointerException("Input parameter \""+name+"\" does not exist or is private.");
         }
         return null;
     }
@@ -119,6 +119,10 @@ public class ParameterManager {
     public void clear() {
         parameters.clear();
         bindings.clear();
+    }
+    
+    public LinkedList<RenderParameter> getParameterList() {
+        return parameters;
     }
     
 }
