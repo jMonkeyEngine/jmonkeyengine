@@ -27,9 +27,9 @@ public abstract class RenderQueueModule extends AbstractModule implements Render
     public void execute(RenderContext context) {
         context.getRenderManager().setRenderGeometryHandler(this);
         dispatchPassSetup(context.getRenderQueue());
-        if (canExecute) {
+        //if (canExecute) {
             executeDrawCommands(context);
-        }
+        //}
         context.getRenderManager().setRenderGeometryHandler(null);
     }
     

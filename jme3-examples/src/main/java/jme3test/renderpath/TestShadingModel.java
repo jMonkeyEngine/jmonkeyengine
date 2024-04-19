@@ -8,6 +8,7 @@ import com.jme3.environment.util.EnvMapUtils;
 import com.jme3.light.DirectionalLight;
 import com.jme3.light.LightProbe;
 import com.jme3.material.Material;
+import com.jme3.material.RenderState;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
@@ -47,16 +48,18 @@ public class TestShadingModel extends SimpleApplication {
     @Override
     public void simpleInitApp() {
         
-        MyFrameGraph graph = RenderPipelineFactory.create(this, RenderManager.RenderPath.Deferred);
+        MyFrameGraph graph = RenderPipelineFactory.create(this, RenderManager.RenderPath.TiledDeferred);
         renderManager.setFrameGraph(graph);
         
         Geometry debugView = new Geometry("debug", new Quad(200, 200));
         debugView.setLocalTranslation(0, 200, 0);
         Material debugMat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        debugMat.getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Alpha);
+        debugMat.setTransparent(true);
         debugView.setMaterial(debugMat);
         MatRenderParam texParam = new MatRenderParam("ColorMap", debugMat, VarType.Texture2D);
         //texParam.enableDebug();
-        graph.bindToOutput(GBufferModule.RENDER_TARGETS[3], texParam);
+        graph.bindToOutput(GBufferModule.RENDER_TARGETS[2], texParam);
         guiNode.attachChild(debugView);
         
         // UNLIT
@@ -127,21 +130,21 @@ public class TestShadingModel extends SimpleApplication {
         super.simpleRender(rm);
         frame++;
 
-        if (frame == 2) {
-            modelNode.removeFromParent();
-            final LightProbe probe = LightProbeFactory.makeProbe(stateManager.getState(EnvironmentCamera.class), rootNode, new JobProgressAdapter<LightProbe>() {
-
-                @Override
-                public void done(LightProbe result) {
-                    System.err.println("Done rendering env maps");
-                    tex = EnvMapUtils.getCubeMapCrossDebugViewWithMipMaps(result.getPrefilteredEnvMap(), assetManager);
-                }
-            });
-            probe.getArea().setRadius(100);
-            rootNode.addLight(probe);
-            //getStateManager().getState(EnvironmentManager.class).addEnvProbe(probe);
-
-        }
+//        if (frame == 2) {
+//            modelNode.removeFromParent();
+//            final LightProbe probe = LightProbeFactory.makeProbe(stateManager.getState(EnvironmentCamera.class), rootNode, new JobProgressAdapter<LightProbe>() {
+//
+//                @Override
+//                public void done(LightProbe result) {
+//                    System.err.println("Done rendering env maps");
+//                    tex = EnvMapUtils.getCubeMapCrossDebugViewWithMipMaps(result.getPrefilteredEnvMap(), assetManager);
+//                }
+//            });
+//            probe.getArea().setRadius(100);
+//            rootNode.addLight(probe);
+//            //getStateManager().getState(EnvironmentManager.class).addEnvProbe(probe);
+//
+//        }
         if (frame > 10 && modelNode.getParent() == null) {
             rootNode.attachChild(modelNode);
         }

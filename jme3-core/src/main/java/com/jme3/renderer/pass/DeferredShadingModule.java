@@ -7,6 +7,8 @@ package com.jme3.renderer.pass;
 import com.jme3.asset.AssetManager;
 import com.jme3.light.LightList;
 import com.jme3.material.Material;
+import com.jme3.material.RenderState;
+import com.jme3.math.ColorRGBA;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.framegraph.FrameBufferCopyParam;
 import com.jme3.renderer.framegraph.MatRenderParam;
@@ -76,14 +78,14 @@ public class DeferredShadingModule extends ScreenModule {
         }
         frameGraph.bindToOutput(GBufferModule.LIGHT_DATA, lightList);
         frameGraph.bindToOutput(GBufferModule.EXECUTE_STATE, executeState);
-        frameGraph.bindToOutput(GBufferModule.G_FRAME_BUFFER, bufferParam);
+        //frameGraph.bindToOutput(GBufferModule.G_FRAME_BUFFER, bufferParam);
     }
     
     @Override
     public void prepare(RenderContext context) {
         super.prepare(context);
-        bufferParam.setRenderer(context.getRenderer());
-        bufferParam.setTarget(context.getViewPort().getOutputFrameBuffer());
+        //bufferParam.setRenderer(context.getRenderer());
+        //bufferParam.setTarget(context.getViewPort().getOutputFrameBuffer());
         //executeState.accept(false);
         //lightList.erase();
     }
@@ -93,14 +95,20 @@ public class DeferredShadingModule extends ScreenModule {
         
         //context.getViewPort().setOutputFrameBuffer(dBuffer);
         //context.getRenderer().setFrameBuffer(dBuffer);
-        //context.getRenderer().setFrameBuffer(null);
+        //context.getRenderer().setFrameBuffer(context.getViewPort().getOutputFrameBuffer());
+        //context.getRenderer().setBackgroundColor(ColorRGBA.BlackNoAlpha);
         screenMat.selectTechnique(DEFERRED_PASS, context.getRenderManager());
+        boolean depthWrite = screenMat.getAdditionalRenderState().isDepthWrite();
+        boolean depthTest = screenMat.getAdditionalRenderState().isDepthTest();
+        //screenMat.getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Alpha);
         screenMat.getAdditionalRenderState().setDepthWrite(false);
         screenMat.getAdditionalRenderState().setDepthTest(false);
         screenMat.setBoolean("UseLightsCullMode", false);
+        //screenMat.setTransparent(true);
         screenRect.updateGeometricState();
-        LightList lights = lightList.produce();
-        screenMat.render(screenRect, lights, context.getRenderManager());
+        screenMat.render(screenRect, lightList.produce(), context.getRenderManager());
+        screenMat.getAdditionalRenderState().setDepthWrite(depthWrite);
+        screenMat.getAdditionalRenderState().setDepthTest(depthTest);
         
     }
     

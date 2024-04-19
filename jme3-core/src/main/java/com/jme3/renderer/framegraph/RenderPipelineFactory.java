@@ -14,6 +14,7 @@ import com.jme3.renderer.pass.GBufferModule;
 import com.jme3.renderer.pass.GuiModule;
 import com.jme3.renderer.pass.OpaqueModule;
 import com.jme3.renderer.pass.PostProcessingModule;
+import com.jme3.renderer.pass.SkyModule;
 import com.jme3.renderer.pass.TileDeferredShadingModule;
 
 /**
@@ -36,7 +37,8 @@ public class RenderPipelineFactory {
     
     private static MyFrameGraph addBasicPasses(MyFrameGraph g) {
         g.add(new OpaqueModule());
-        g.add(ForwardModule.sky());
+        //g.add(ForwardModule.sky());
+        g.add(new SkyModule());
         g.add(ForwardModule.transparent());
         g.add(new GuiModule());
         g.add(new PostProcessingModule());

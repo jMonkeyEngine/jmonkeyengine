@@ -64,35 +64,33 @@ public class GBufferModule extends OpaqueModule {
 
     @Override
     public void executeDrawCommands(RenderContext context) {
-        if(canExecute){
-            hasDraw.accept(false);
-            tempLights.clear();
-            lightData.clear();
-            ViewPort vp = getViewPort(context);
-            //reshape(context.getRenderer(), vp.getCamera().getWidth(), vp.getCamera().getHeight());
-            FrameBuffer opfb = vp.getOutputFrameBuffer();
-            vp.setOutputFrameBuffer(gBuffer);
-            ColorRGBA opClearColor = vp.getBackgroundColor();
-            mask.set(opClearColor);
-            mask.a = 0.0f;
-            FrameBuffer rfb = context.getRenderer().getCurrentFrameBuffer();
-            context.getRenderer().setFrameBuffer(gBuffer);
-            context.getRenderer().setBackgroundColor(mask);
-            context.getRenderer().clearBuffers(vp.isClearColor(), vp.isClearDepth(), vp.isClearStencil());
-            String techOrig = context.getRenderManager().getForcedTechnique();
-            context.getRenderManager().setForcedTechnique(GBUFFER_PASS);
-            super.executeDrawCommands(context);
-            context.getRenderManager().setForcedTechnique(techOrig);
-            vp.setOutputFrameBuffer(opfb);
-            context.getRenderer().setBackgroundColor(opClearColor);
-            context.getRenderer().setFrameBuffer(rfb);
-            //bHasDrawVarSource.setValue(bHasDraw);
-            if (hasDraw.produce()) {
-                for(Light light : tempLights){
-                    lightData.add(light);
-                }
-                //context.getRenderer().copyFrameBuffer(gBuffer, vp.getOutputFrameBuffer(), false, true);
+        hasDraw.accept(false);
+        tempLights.clear();
+        lightData.clear();
+        ViewPort vp = getViewPort(context);
+        //reshape(context.getRenderer(), vp.getCamera().getWidth(), vp.getCamera().getHeight());
+        FrameBuffer opfb = vp.getOutputFrameBuffer();
+        vp.setOutputFrameBuffer(gBuffer);
+        ColorRGBA opClearColor = vp.getBackgroundColor();
+        mask.set(opClearColor);
+        mask.a = 0.0f;
+        FrameBuffer rfb = context.getRenderer().getCurrentFrameBuffer();
+        context.getRenderer().setFrameBuffer(gBuffer);
+        context.getRenderer().setBackgroundColor(mask);
+        context.getRenderer().clearBuffers(vp.isClearColor(), vp.isClearDepth(), vp.isClearStencil());
+        String techOrig = context.getRenderManager().getForcedTechnique();
+        context.getRenderManager().setForcedTechnique(GBUFFER_PASS);
+        super.executeDrawCommands(context);
+        context.getRenderManager().setForcedTechnique(techOrig);
+        vp.setOutputFrameBuffer(opfb);
+        context.getRenderer().setBackgroundColor(opClearColor);
+        context.getRenderer().setFrameBuffer(rfb);
+        //bHasDrawVarSource.setValue(bHasDraw);
+        if (hasDraw.produce()) {
+            for(Light light : tempLights){
+                lightData.add(light);
             }
+            //context.getRenderer().copyFrameBuffer(gBuffer, vp.getOutputFrameBuffer(), false, true);
         }
     }
     
