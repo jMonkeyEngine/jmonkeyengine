@@ -11,6 +11,7 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.post.FilterPostProcessor;
 import com.jme3.renderer.RenderManager;
+import com.jme3.renderer.framegraph.RenderPipelineFactory;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
@@ -36,6 +37,9 @@ public class TestDeferredShadingPathShadow extends SimpleApplication implements 
 
     @Override
     public void simpleInitApp() {
+        
+        renderManager.setFrameGraph(RenderPipelineFactory.create(this, RenderManager.RenderPath.Deferred));
+        
         Material boxMat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
         Node tank = (Node) assetManager.loadModel("Models/HoverTank/Tank2.mesh.xml");
         tank.setShadowMode(RenderQueue.ShadowMode.CastAndReceive);

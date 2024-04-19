@@ -41,13 +41,14 @@ import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.post.FilterPostProcessor;
+import com.jme3.renderer.RenderManager;
+import com.jme3.renderer.framegraph.RenderPipelineFactory;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Sphere;
 import com.jme3.shadow.*;
-import jme3test.light.ShadowTestUIManager;
 
 /**
  * This example shows all shadow types, check rendering performance under different rendering paths
@@ -65,6 +66,9 @@ public class TestRenderPathPointDirectionalAndSpotLightShadows extends SimpleApp
     
     @Override
     public void simpleInitApp() {
+        
+        renderManager.setFrameGraph(RenderPipelineFactory.create(this, RenderManager.RenderPath.Deferred));
+        
         // Note that for this j3o Cube model, the value of vLightDir passed from vs to ps in MultPass LightModel is different from using SinglePass. See the lightComputeDir() function, there will be some differences when this function calculates in world space and view space. It's an existing bug in JME, so here we set it to use SinglePass instead.
         renderManager.setPreferredLightMode(TechniqueDef.LightMode.SinglePass);
         flyCam.setMoveSpeed(10);

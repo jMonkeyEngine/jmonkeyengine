@@ -48,7 +48,7 @@ public class TestShadingModel extends SimpleApplication {
     @Override
     public void simpleInitApp() {
         
-        MyFrameGraph graph = RenderPipelineFactory.create(this, RenderManager.RenderPath.TiledDeferred);
+        MyFrameGraph graph = RenderPipelineFactory.create(this, RenderManager.RenderPath.Deferred);
         renderManager.setFrameGraph(graph);
         
         Geometry debugView = new Geometry("debug", new Quad(200, 200));

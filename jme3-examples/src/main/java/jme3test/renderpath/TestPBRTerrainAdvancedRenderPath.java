@@ -40,11 +40,11 @@ import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
 import com.jme3.light.LightProbe;
-import com.jme3.light.PointLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
+import com.jme3.renderer.framegraph.RenderPipelineFactory;
 import com.jme3.shader.VarType;
 import com.jme3.terrain.geomipmap.TerrainLodControl;
 import com.jme3.terrain.geomipmap.TerrainQuad;
@@ -196,7 +196,8 @@ public class TestPBRTerrainAdvancedRenderPath extends SimpleApplication {
 
     @Override
     public void simpleInitApp() {
-        renderManager.setRenderPath(RenderManager.RenderPath.TiledDeferred);
+        renderManager.setFrameGraph(RenderPipelineFactory.create(this, RenderManager.RenderPath.Deferred));
+        //renderManager.setRenderPath(RenderManager.RenderPath.TiledDeferred);
         setupKeys();
         setUpTerrain();
         setUpTerrainMaterial(); // <- This method contains the important info about using 'AdvancedPBRTerrain.j3md'
@@ -469,7 +470,7 @@ public class TestPBRTerrainAdvancedRenderPath extends SimpleApplication {
         cam.lookAtDirection(new Vector3f(0, -1.5f, -1).normalizeLocal(), Vector3f.UNIT_Y);
 
         getFlyByCamera().setMoveSpeed(camMoveSpeed);
-        flyCam.setEnabled(false);
-        inputManager.setCursorVisible(true);
+        //flyCam.setEnabled(false);
+        //inputManager.setCursorVisible(true);
     }
 }

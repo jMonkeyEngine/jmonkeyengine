@@ -48,10 +48,15 @@ import com.jme3.input.controls.AnalogListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.*;
 import com.jme3.material.Material;
+import com.jme3.material.RenderState;
 import com.jme3.math.*;
 import com.jme3.post.FilterPostProcessor;
 import com.jme3.post.filters.ToneMapFilter;
 import com.jme3.renderer.RenderManager;
+import com.jme3.renderer.framegraph.MatRenderParam;
+import com.jme3.renderer.framegraph.MyFrameGraph;
+import com.jme3.renderer.framegraph.RenderPipelineFactory;
+import com.jme3.renderer.pass.GBufferModule;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
@@ -60,6 +65,7 @@ import com.jme3.scene.Spatial;
 import com.jme3.scene.instancing.InstancedGeometry;
 import com.jme3.scene.shape.Quad;
 import com.jme3.scene.shape.Sphere;
+import com.jme3.shader.VarType;
 import com.jme3.shadow.DirectionalLightShadowFilter;
 import com.jme3.system.AppSettings;
 import com.jme3.texture.Texture;
@@ -375,7 +381,7 @@ public class TestSimpleDeferredLighting extends SimpleApplication implements Act
         for (Light light : lightList) {
             nb++;
             PointLight p = (PointLight) light;
-            if (nb > 60) {
+            if (nb > 20) {
                 n.removeLight(light);
             } else {
                 int rand = FastMath.nextRandomInt(0, 3);
@@ -384,13 +390,13 @@ public class TestSimpleDeferredLighting extends SimpleApplication implements Act
                         light.setColor(ColorRGBA.Red);
                         break;
                     case 1:
-                        light.setColor(ColorRGBA.Yellow);
+                        light.setColor(ColorRGBA.Blue);
                         break;
                     case 2:
                         light.setColor(ColorRGBA.Green);
                         break;
                     case 3:
-                        light.setColor(ColorRGBA.Orange);
+                        light.setColor(ColorRGBA.Yellow);
                         break;
                 }
             }
@@ -648,8 +654,23 @@ public class TestSimpleDeferredLighting extends SimpleApplication implements Act
 
     @Override
     public void simpleInitApp() {
+        
+        MyFrameGraph graph = RenderPipelineFactory.create(this, RenderManager.RenderPath.Deferred);
+        renderManager.setFrameGraph(graph);
+        
+        Geometry debugView = new Geometry("debug", new Quad(200, 200));
+        debugView.setLocalTranslation(0, 200, 0);
+        Material debugMat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        //debugMat.getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Alpha);
+        //debugMat.setTransparent(true);
+        debugView.setMaterial(debugMat);
+        MatRenderParam texParam = new MatRenderParam("ColorMap", debugMat, VarType.Texture2D);
+        //texParam.enableDebug();
+        graph.bindToOutput(GBufferModule.RENDER_TARGETS[1], texParam);
+        guiNode.attachChild(debugView);
+        
         currentRenderPath = RenderManager.RenderPath.ForwardPlus;
-        renderManager.setRenderPath(currentRenderPath);
+        //renderManager.setRenderPath(currentRenderPath);
         testScene7();
 //        cam.setFrustumPerspective(45.0f, 4.0f / 3.0f, 0.01f, 100.0f);
         flyCam.setMoveSpeed(10.0f);
