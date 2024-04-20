@@ -33,6 +33,7 @@ package com.jme3.renderer;
 
 import com.jme3.math.ColorRGBA;
 import com.jme3.post.SceneProcessor;
+import com.jme3.renderer.framegraph.MyFrameGraph;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
@@ -84,6 +85,10 @@ public class ViewPort {
      * Scene processors currently applied.
      */
     protected final SafeArrayList<SceneProcessor> processors = new SafeArrayList<>(SceneProcessor.class);
+    /**
+     * Dedicated framegraph.
+     */
+    protected MyFrameGraph framegraph;
     /**
      * FrameBuffer for output.
      */
@@ -437,6 +442,14 @@ public class ViewPort {
      */
     public boolean isEnabled() {
         return enabled;
+    }
+    
+    public void setFrameGraph(MyFrameGraph framegraph) {
+        this.framegraph = framegraph;
+    }
+    
+    public MyFrameGraph getFrameGraph() {
+        return framegraph;
     }
 
 }

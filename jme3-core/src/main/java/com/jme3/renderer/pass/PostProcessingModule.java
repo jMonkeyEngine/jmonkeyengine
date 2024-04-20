@@ -21,17 +21,46 @@ import com.jme3.util.SafeArrayList;
  */
 public class PostProcessingModule extends AbstractModule {
     
-    private AppProfiler profiler;
-    
-    public PostProcessingModule() {
-        this(null);
-    }
-    public PostProcessingModule(AppProfiler profiler) {
-        this.profiler = profiler;
-    }
-    
     @Override
     public void initialize(MyFrameGraph frameGraph) {}
+    @Override
+    public void preFrame(RenderContext context) {
+        ViewPort vp = context.getViewPort();
+        SafeArrayList<SceneProcessor> processors = vp.getProcessors();
+        AppProfiler prof = context.getProfiler();
+        if (processors != null && !processors.isEmpty()) {
+            if (prof != null) {
+                prof.vpStep(VpStep.PreFrame, vp, null);
+            }
+            for (SceneProcessor p : processors.getArray()) {
+                if (!p.isInitialized()) {
+                    p.initialize(context.getRenderManager(), vp);
+                }
+                p.setProfiler(context.getProfiler());
+                if (prof != null) {
+                    prof.spStep(SpStep.ProcPreFrame, p.getClass().getSimpleName());
+                }
+                p.preFrame(context.getTpf());
+            }
+        }
+    }
+    @Override
+    public void postQueue(RenderContext context) {
+        ViewPort vp = context.getViewPort();
+        SafeArrayList<SceneProcessor> processors = vp.getProcessors();
+        AppProfiler prof = context.getProfiler();
+        if (processors != null && !processors.isEmpty()) {
+            if (prof != null) {
+                prof.vpStep(VpStep.PostQueue, vp, null);
+            }
+            for (SceneProcessor p : processors.getArray()) {
+                if (prof != null) {
+                    prof.spStep(SpStep.ProcPostQueue, p.getClass().getSimpleName());
+                }
+                p.postQueue(vp.getQueue());
+            }
+        }
+    }
     @Override
     public void prepare(RenderContext context) {}
     @Override
@@ -39,30 +68,23 @@ public class PostProcessingModule extends AbstractModule {
         context.setDepthRange(DepthRange.IDENTITY);
         ViewPort vp = context.getViewPort();
         SafeArrayList<SceneProcessor> processors = vp.getProcessors();
-        if (processors != null) {
-            if (profiler != null) {
-                profiler.vpStep(VpStep.PostFrame, vp, null);
+        AppProfiler prof = context.getProfiler();
+        if (processors != null && !processors.isEmpty()) {
+            if (prof != null) {
+                prof.vpStep(VpStep.PostFrame, vp, null);
             }
             for (SceneProcessor p : processors.getArray()) {
-                if (profiler != null) {
-                    profiler.spStep(SpStep.ProcPostFrame, p.getClass().getSimpleName());
+                if (prof != null) {
+                    prof.spStep(SpStep.ProcPostFrame, p.getClass().getSimpleName());
                 }
                 p.postFrame(vp.getOutputFrameBuffer());
             }
-            if (profiler != null) {
-                profiler.vpStep(VpStep.ProcEndRender, vp, null);
+            if (prof != null) {
+                prof.vpStep(VpStep.ProcEndRender, vp, null);
             }
         }
     }
     @Override
     public void reset() {}
-    
-    public void setProfiler(AppProfiler profiler) {
-        this.profiler = profiler;
-    }
-    
-    public AppProfiler getProfiler() {
-        return profiler;
-    }
     
 }

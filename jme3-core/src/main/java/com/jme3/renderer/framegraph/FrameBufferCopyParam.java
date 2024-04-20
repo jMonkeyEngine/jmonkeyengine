@@ -17,6 +17,7 @@ public class FrameBufferCopyParam implements RenderParameter<FrameBuffer> {
     private Renderer renderer;
     private FrameBuffer target, source;
     private final boolean copyColor, copyDepth;
+    private boolean ready = true;
     
     public FrameBufferCopyParam(String name, Renderer renderer, FrameBuffer target, boolean copyColor, boolean copyDepth) {
         this.name = name;
@@ -32,12 +33,11 @@ public class FrameBufferCopyParam implements RenderParameter<FrameBuffer> {
     }
     @Override
     public void accept(FrameBuffer value) {
-        if (source != value) {
+        if (source != value || ready) {
             source = value;
-            System.out.println("incoming framebuffer source");
-            if (source != null && target != null && renderer != null) {
-                System.out.println("make buffer copy");
+            if ((source != null || target != null) && renderer != null) {
                 renderer.copyFrameBuffer(source, target, copyColor, copyDepth);
+                ready = false;
             }
         }
     }
@@ -51,6 +51,9 @@ public class FrameBufferCopyParam implements RenderParameter<FrameBuffer> {
     }
     public void setTarget(FrameBuffer target) {
         this.target = target;
+    }
+    public void setReady(boolean ready) {
+        this.ready = ready;
     }
     
     public FrameBuffer getSource() {

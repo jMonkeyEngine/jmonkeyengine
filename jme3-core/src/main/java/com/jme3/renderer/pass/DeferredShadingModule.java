@@ -10,15 +10,16 @@ import com.jme3.material.Material;
 import com.jme3.material.RenderState;
 import com.jme3.math.ColorRGBA;
 import com.jme3.renderer.RenderManager;
-import com.jme3.renderer.framegraph.FrameBufferCopyParam;
 import com.jme3.renderer.framegraph.MatRenderParam;
 import com.jme3.renderer.framegraph.MyFrameGraph;
 import com.jme3.renderer.framegraph.RenderContext;
-import com.jme3.renderer.framegraph.RenderParameter;
+import com.jme3.renderer.framegraph.TextureTargetParam;
 import com.jme3.renderer.framegraph.ValueRenderParam;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
 import com.jme3.shader.VarType;
+import com.jme3.texture.FrameBuffer;
+import com.jme3.texture.Texture2D;
 import com.jme3.ui.Picture;
 
 /**
@@ -34,13 +35,17 @@ public class DeferredShadingModule extends ScreenModule {
     public final static String RT_4 = "Context_InGBuff4";
     public final static String LIGHT_DATA = "DeferredShadingPass.LightData";
     public final static String EXECUTE_STATE = "DeferredShadingPass.ExecuteState";
+    public final static String IN_FRAME_BUFFER = "DeferredShadingPass.InFrameBuffer";
+    public final static String DEPTH_DEBUG = "DeferredShadingPass.DepthDebug";
     protected final static String DEFERRED_PASS = "DeferredPass";
     private static final String MATDEF = "Common/MatDefs/ShadingCommon/DeferredShading.j3md";
     
     protected MatRenderParam[] matParams = new MatRenderParam[5];
     protected ValueRenderParam<LightList> lightList;
     protected ValueRenderParam<Boolean> executeState;
-    protected FrameBufferCopyParam bufferParam;
+    protected ValueRenderParam<FrameBuffer> gBuffer;
+    private FrameBuffer debug;
+    private TextureTargetParam depthCopy;
     
     public DeferredShadingModule(AssetManager assetManager) {
         super(assetManager, RenderQueue.Bucket.Opaque);
@@ -55,6 +60,13 @@ public class DeferredShadingModule extends ScreenModule {
         screenRect.setHeight(1);
         screenRect.setMaterial(screenMat);
         
+        RenderState rs = screenMat.getAdditionalRenderState();
+        rs.setDepthWrite(false);
+        rs.setDepthTest(false);
+        //rs.setBlendMode(RenderState.BlendMode.Alpha);
+        //screenMat.setTransparent(true);
+        screenMat.setBoolean("UseLightsCullMode", false);
+        
         // material render parameters automatically apply their values
         matParams[0] = addParameter(new MatRenderParam(RT_0, screenMat, VarType.Texture2D));
         matParams[1] = addParameter(new MatRenderParam(RT_1, screenMat, VarType.Texture2D));
@@ -63,7 +75,10 @@ public class DeferredShadingModule extends ScreenModule {
         matParams[4] = addParameter(new MatRenderParam(RT_4, screenMat, VarType.Texture2D));
         lightList = addParameter(new ValueRenderParam<>(LIGHT_DATA));
         executeState = addParameter(new ValueRenderParam<>(EXECUTE_STATE));
-        bufferParam = addParameter(new FrameBufferCopyParam(RenderParameter.PRIVATE, null, null, false, true));
+        gBuffer = addParameter(new ValueRenderParam<>(IN_FRAME_BUFFER));
+        
+        depthCopy = addParameter(new TextureTargetParam(DEPTH_DEBUG, null));
+        
         bindParameters(frameGraph);
         
     }
@@ -78,37 +93,34 @@ public class DeferredShadingModule extends ScreenModule {
         }
         frameGraph.bindToOutput(GBufferModule.LIGHT_DATA, lightList);
         frameGraph.bindToOutput(GBufferModule.EXECUTE_STATE, executeState);
-        //frameGraph.bindToOutput(GBufferModule.G_FRAME_BUFFER, bufferParam);
+        frameGraph.bindToOutput(GBufferModule.G_FRAME_BUFFER, gBuffer);
     }
     
     @Override
     public void prepare(RenderContext context) {
         super.prepare(context);
-        //bufferParam.setRenderer(context.getRenderer());
-        //bufferParam.setTarget(context.getViewPort().getOutputFrameBuffer());
-        //executeState.accept(false);
-        //lightList.erase();
+        if (debug == null) {
+            debug = new FrameBuffer(context.getWidth(), context.getHeight(), 1);
+            FrameBuffer.FrameBufferTextureTarget t = FrameBuffer.FrameBufferTarget.newTarget(
+                    new Texture2D(context.getWidth(), context.getHeight(), GBufferModule.DEPTH_FORMAT));
+            debug.setDepthTarget(t);
+            depthCopy.setTextureTarget(t);
+        }
     }
     
     @Override
     public void executeDrawCommands(RenderContext context) {
         
-        //context.getViewPort().setOutputFrameBuffer(dBuffer);
-        //context.getRenderer().setFrameBuffer(dBuffer);
-        //context.getRenderer().setFrameBuffer(context.getViewPort().getOutputFrameBuffer());
-        //context.getRenderer().setBackgroundColor(ColorRGBA.BlackNoAlpha);
+        context.getRenderer().copyFrameBuffer(gBuffer.produce(),
+                context.getViewPort().getOutputFrameBuffer(), false, true);
+        
+        System.out.println("render deferred lighting");
+        context.getRenderer().copyFrameBuffer(gBuffer.produce(), debug, false, true);
+        
+        context.getRenderer().setBackgroundColor(ColorRGBA.BlackNoAlpha);
         screenMat.selectTechnique(DEFERRED_PASS, context.getRenderManager());
-        boolean depthWrite = screenMat.getAdditionalRenderState().isDepthWrite();
-        boolean depthTest = screenMat.getAdditionalRenderState().isDepthTest();
-        //screenMat.getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Alpha);
-        screenMat.getAdditionalRenderState().setDepthWrite(false);
-        screenMat.getAdditionalRenderState().setDepthTest(false);
-        screenMat.setBoolean("UseLightsCullMode", false);
-        //screenMat.setTransparent(true);
         screenRect.updateGeometricState();
         screenMat.render(screenRect, lightList.produce(), context.getRenderManager());
-        screenMat.getAdditionalRenderState().setDepthWrite(depthWrite);
-        screenMat.getAdditionalRenderState().setDepthTest(depthTest);
         
     }
     

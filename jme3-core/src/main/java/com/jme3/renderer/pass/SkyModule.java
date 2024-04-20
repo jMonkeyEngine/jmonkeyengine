@@ -16,7 +16,7 @@ import com.jme3.scene.Geometry;
 public class SkyModule extends ForwardModule {
     
     public SkyModule() {
-        super(RenderQueue.Bucket.Sky, new DepthRange(1, 1));
+        super(RenderQueue.Bucket.Sky, DepthRange.REAR);
     }
     
     @Override

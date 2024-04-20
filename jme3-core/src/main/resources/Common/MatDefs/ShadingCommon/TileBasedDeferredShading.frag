@@ -370,8 +370,4 @@ void main(){
         gl_FragColor.rgb = shadingInfo.rgb;
         gl_FragColor.a = min(fract(shadingInfo.a) * 10.0f, 0.0f);
     }
-    // added by codex128
-    if (shadingInfo.a < 0.5) {
-        discard;
-    }
 }

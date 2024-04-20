@@ -261,6 +261,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         boolean msDepth = depthTexture != null && depthTexture.getImage().getMultiSamples() > 1;
         for (int i = 0; i < filters.size(); i++) {
             Filter filter = filters.get(i);
+            System.out.println("render filter: "+filter);
             if (prof != null) prof.spStep(SpStep.ProcPostFrame, FPP, filter.getName());
             if (filter.isEnabled()) {
                 if (filter.getPostRenderPasses() != null) {

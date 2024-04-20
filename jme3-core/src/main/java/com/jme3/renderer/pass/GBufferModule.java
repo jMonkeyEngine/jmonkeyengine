@@ -34,6 +34,7 @@ public class GBufferModule extends OpaqueModule {
     public final static String G_FRAME_BUFFER = "GBufferPass.Framebuffer";
     public final static String LIGHT_DATA = "GBufferPass.LightData";
     public final static String EXECUTE_STATE = "GBufferPass.ExecuteState";
+    public final static Image.Format DEPTH_FORMAT = Image.Format.Depth;
     
     private final LightList lightData = new LightList(null);
     private final ArrayList<Light> tempLights = new ArrayList<>();
@@ -64,33 +65,18 @@ public class GBufferModule extends OpaqueModule {
 
     @Override
     public void executeDrawCommands(RenderContext context) {
-        hasDraw.accept(false);
-        tempLights.clear();
-        lightData.clear();
         ViewPort vp = getViewPort(context);
-        //reshape(context.getRenderer(), vp.getCamera().getWidth(), vp.getCamera().getHeight());
-        FrameBuffer opfb = vp.getOutputFrameBuffer();
-        vp.setOutputFrameBuffer(gBuffer);
-        ColorRGBA opClearColor = vp.getBackgroundColor();
-        mask.set(opClearColor);
-        mask.a = 0.0f;
-        FrameBuffer rfb = context.getRenderer().getCurrentFrameBuffer();
+        String tempFT = context.getRenderManager().getForcedTechnique();
         context.getRenderer().setFrameBuffer(gBuffer);
-        context.getRenderer().setBackgroundColor(mask);
+        context.getRenderer().setBackgroundColor(mask.set(vp.getBackgroundColor()).setAlpha(0));
         context.getRenderer().clearBuffers(vp.isClearColor(), vp.isClearDepth(), vp.isClearStencil());
-        String techOrig = context.getRenderManager().getForcedTechnique();
         context.getRenderManager().setForcedTechnique(GBUFFER_PASS);
         super.executeDrawCommands(context);
-        context.getRenderManager().setForcedTechnique(techOrig);
-        vp.setOutputFrameBuffer(opfb);
-        context.getRenderer().setBackgroundColor(opClearColor);
-        context.getRenderer().setFrameBuffer(rfb);
-        //bHasDrawVarSource.setValue(bHasDraw);
-        if (hasDraw.produce()) {
-            for(Light light : tempLights){
-                lightData.add(light);
-            }
-            //context.getRenderer().copyFrameBuffer(gBuffer, vp.getOutputFrameBuffer(), false, true);
+        context.getRenderManager().setForcedTechnique(tempFT);
+        context.getRenderer().setBackgroundColor(vp.getBackgroundColor());
+        context.getRenderer().setFrameBuffer(vp.getOutputFrameBuffer());
+        for(Light light : tempLights){
+            lightData.add(light);
         }
     }
     
@@ -111,7 +97,7 @@ public class GBufferModule extends OpaqueModule {
                 }
                 // Whether it has lights or not, material objects containing GBufferPass will perform
                 // DeferredShading, and shade according to shadingModelId
-                hasDraw.accept(true);
+                //hasDraw.accept(true);
                 return true;
             }
         }
@@ -123,7 +109,7 @@ public class GBufferModule extends OpaqueModule {
         super.reset();
         tempLights.clear();
         lightData.clear();
-        hasDraw.accept(false);
+        //hasDraw.accept(false);
     }
     
     protected void reshape(Renderer renderer, int w, int h) {
@@ -146,7 +132,7 @@ public class GBufferModule extends OpaqueModule {
         textures[3] = new Texture2D(w, h, Image.Format.RGBA32F);
         // Depth16/Depth32/Depth32F provide higher precision to prevent clipping when camera gets close,
         // but it seems some devices do not support copying Depth16/Depth32/Depth32F to default FrameBuffer.
-        textures[4] = new Texture2D(w, h, Image.Format.Depth);
+        textures[4] = new Texture2D(w, h, DEPTH_FORMAT);
         //gBuffer.addColorTarget(FrameBuffer.FrameBufferTarget.newTarget(Image.Format.RGBA8));
         //for (int i = 0; i < textures.length; i++) {
         //    FrameBuffer.FrameBufferTextureTarget t = FrameBuffer.FrameBufferTarget.newTarget(textures[i]);

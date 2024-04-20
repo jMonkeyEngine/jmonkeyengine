@@ -38,7 +38,7 @@ public class TestDeferredShadingPathShadow extends SimpleApplication implements 
     @Override
     public void simpleInitApp() {
         
-        renderManager.setFrameGraph(RenderPipelineFactory.create(this, RenderManager.RenderPath.Deferred));
+        renderManager.setFrameGraph(RenderPipelineFactory.create(this, RenderManager.RenderPath.Forward));
         
         Material boxMat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
         Node tank = (Node) assetManager.loadModel("Models/HoverTank/Tank2.mesh.xml");

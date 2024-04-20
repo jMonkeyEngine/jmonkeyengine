@@ -2,29 +2,28 @@ package jme3test.renderpath;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.environment.EnvironmentCamera;
-import com.jme3.environment.LightProbeFactory;
-import com.jme3.environment.generation.JobProgressAdapter;
-import com.jme3.environment.util.EnvMapUtils;
+import com.jme3.environment.EnvironmentProbeControl;
+import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
-import com.jme3.light.LightProbe;
 import com.jme3.material.Material;
 import com.jme3.material.RenderState;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.post.FilterPostProcessor;
-import com.jme3.post.filters.ToneMapFilter;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.framegraph.MatRenderParam;
 import com.jme3.renderer.framegraph.MyFrameGraph;
 import com.jme3.renderer.framegraph.RenderPipelineFactory;
-import com.jme3.renderer.pass.GBufferModule;
+import com.jme3.renderer.pass.DeferredShadingModule;
+import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Quad;
 import com.jme3.scene.shape.Sphere;
 import com.jme3.shader.VarType;
+import com.jme3.shadow.DirectionalLightShadowRenderer;
 import com.jme3.texture.plugins.ktx.KTXLoader;
 import com.jme3.util.SkyFactory;
 import com.jme3.util.TangentBinormalGenerator;
@@ -51,25 +50,31 @@ public class TestShadingModel extends SimpleApplication {
         MyFrameGraph graph = RenderPipelineFactory.create(this, RenderManager.RenderPath.Deferred);
         renderManager.setFrameGraph(graph);
         
-        Geometry debugView = new Geometry("debug", new Quad(200, 200));
+        Geometry debugView = new Geometry("debug", new Quad(150, 150));
         debugView.setLocalTranslation(0, 200, 0);
         Material debugMat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        debugMat.getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Alpha);
-        debugMat.setTransparent(true);
+        //debugMat.getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Alpha);
+        //debugMat.setTransparent(true);
         debugView.setMaterial(debugMat);
         MatRenderParam texParam = new MatRenderParam("ColorMap", debugMat, VarType.Texture2D);
         //texParam.enableDebug();
-        graph.bindToOutput(GBufferModule.RENDER_TARGETS[2], texParam);
+        graph.bindToOutput(DeferredShadingModule.DEPTH_DEBUG, texParam);
         guiNode.attachChild(debugView);
         
         // UNLIT
         Material unlitMat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         unlitMat.setTexture("ColorMap", assetManager.loadTexture("Textures/Terrain/Pond/Pond.jpg"));
+        //unlitMat.setColor("Color", new ColorRGBA(0, 0, 1, .5f));
+        //unlitMat.getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Alpha);
+        //unlitMat.getAdditionalRenderState().setDepthWrite(false);
+        //unlitMat.getAdditionalRenderState().setDepthTest(false);
+        unlitMat.setTransparent(true);
         Sphere sp = new Sphere(15, 15, 1.0f);
         Geometry unlitSphere = new Geometry("unlitSphere", sp);
         unlitSphere.setLocalTranslation(-5, 0, 0);
         unlitSphere.setLocalRotation(new Quaternion(new float[]{(float) Math.toRadians(-90), 0, 0}));
         unlitSphere.setMaterial(unlitMat);
+        unlitSphere.setQueueBucket(RenderQueue.Bucket.Transparent);
         rootNode.attachChild(unlitSphere);
 
         // LEGACY_LIGHTING
@@ -78,6 +83,7 @@ public class TestShadingModel extends SimpleApplication {
         Material lightMat = assetManager.loadMaterial("Textures/Terrain/Pond/Pond.j3m");
         lightSphere.setLocalTranslation(5, 0, 0);
         lightSphere.setMaterial(lightMat);
+        lightSphere.setQueueBucket(RenderQueue.Bucket.Inherit);
         rootNode.attachChild(lightSphere);
 
         // STANDARD_LIGHTING
@@ -96,6 +102,9 @@ public class TestShadingModel extends SimpleApplication {
         dl.setColor(ColorRGBA.White);
         modelNode.setLocalScale(0.3f);
         rootNode.attachChild(modelNode);
+        
+        AmbientLight al = new AmbientLight(ColorRGBA.White.mult(0.1f));
+        rootNode.addLight(al);
 
         FilterPostProcessor fpp = new FilterPostProcessor(assetManager);
         int numSamples = context.getSettings().getSamples();
@@ -104,15 +113,20 @@ public class TestShadingModel extends SimpleApplication {
         }
 
 //        fpp.addFilter(new FXAAFilter());
-        fpp.addFilter(new ToneMapFilter(Vector3f.UNIT_XYZ.mult(1.0f)));
+        //fpp.addFilter(new ToneMapFilter(Vector3f.UNIT_XYZ.mult(1.0f)));
 //        fpp.addFilter(new SSAOFilter(0.5f, 3, 0.2f, 0.2f));
-        viewPort.addProcessor(fpp);
+        //viewPort.addProcessor(fpp);
+        
+        DirectionalLightShadowRenderer dr = new DirectionalLightShadowRenderer(assetManager, 1024, 2);
+        dr.setLight(dl);
+        viewPort.addProcessor(dr);
 
         //Spatial sky = SkyFactory.createSky(assetManager, "Textures/Sky/Sky_Cloudy.hdr", SkyFactory.EnvMapType.EquirectMap);
         Spatial sky = SkyFactory.createSky(assetManager, "Textures/Sky/Path.hdr", SkyFactory.EnvMapType.EquirectMap);
         //Spatial sky = SkyFactory.createSky(assetManager, "Textures/Sky/Bright/BrightSky.dds", SkyFactory.EnvMapType.CubeMap);
         //Spatial sky = SkyFactory.createSky(assetManager, "Textures/Sky/road.hdr", SkyFactory.EnvMapType.EquirectMap);
         rootNode.attachChild(sky);
+        EnvironmentProbeControl.tagGlobal(sky);
 
         pbrMat = assetManager.loadMaterial("Models/Tank/tank.j3m");
         model.setMaterial(pbrMat);
@@ -130,7 +144,7 @@ public class TestShadingModel extends SimpleApplication {
         super.simpleRender(rm);
         frame++;
 
-//        if (frame == 2) {
+        if (frame == 2) {
 //            modelNode.removeFromParent();
 //            final LightProbe probe = LightProbeFactory.makeProbe(stateManager.getState(EnvironmentCamera.class), rootNode, new JobProgressAdapter<LightProbe>() {
 //
@@ -142,9 +156,11 @@ public class TestShadingModel extends SimpleApplication {
 //            });
 //            probe.getArea().setRadius(100);
 //            rootNode.addLight(probe);
-//            //getStateManager().getState(EnvironmentManager.class).addEnvProbe(probe);
-//
-//        }
+            //getStateManager().getState(EnvironmentManager.class).addEnvProbe(probe);
+            
+            rootNode.addControl(new EnvironmentProbeControl(assetManager, 256));
+
+        }
         if (frame > 10 && modelNode.getParent() == null) {
             rootNode.attachChild(modelNode);
         }

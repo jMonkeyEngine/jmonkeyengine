@@ -31,6 +31,8 @@
  */
 package com.jme3.renderer.framegraph;
 
+import com.jme3.profile.AppProfiler;
+import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
@@ -44,14 +46,32 @@ public class RenderContext {
 
     private final RenderManager renderManager;
     private ViewPort viewPort;
+    private AppProfiler profiler;
     private final DepthRange depth = new DepthRange();
+    private float tpf;
+    private int width, height;
+    private boolean sizeChanged = false;
 
     public RenderContext(RenderManager renderManager, ViewPort viewPort) {
         this.renderManager = renderManager;
         this.viewPort = viewPort;
+        width = height = -1;
     }
     public RenderContext(RenderManager renderManager) {
         this(renderManager, null);
+    }
+    
+    public void update(ViewPort vp, AppProfiler profiler, float tpf) {
+        this.viewPort = vp;
+        this.profiler = profiler;
+        this.tpf = tpf;
+        if (viewPort == null) {
+            throw new NullPointerException("ViewPort cannot be null.");
+        }
+        Camera cam = viewPort.getCamera();
+        sizeChanged = width != cam.getWidth() || height != cam.getHeight();
+        width = cam.getWidth();
+        height = cam.getHeight();
     }
     
     public void setDepthRange(float start, float end) {
@@ -67,16 +87,20 @@ public class RenderContext {
         }
     }
     
-    public void setViewPort(ViewPort viewPort) {
-        this.viewPort = viewPort;
-    } 
-    
     public RenderManager getRenderManager() {
         return renderManager;
     }
     
     public ViewPort getViewPort() {
         return viewPort;
+    }
+    
+    public AppProfiler getProfiler() {
+        return profiler;
+    }
+    
+    public float getTpf() {
+        return tpf;
     }
     
     public Renderer getRenderer() {
@@ -89,6 +113,22 @@ public class RenderContext {
         } else {
             return null;
         }
+    }
+    
+    public boolean isProfilerAvailable() {
+        return profiler != null;
+    }
+    
+    public int getWidth() {
+        return width;
+    }
+    
+    public int getHeight() {
+        return height;
+    }
+    
+    public boolean isSizeChanged() {
+        return sizeChanged;
     }
     
 }

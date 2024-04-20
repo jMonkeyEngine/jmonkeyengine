@@ -20,6 +20,12 @@ public abstract class AbstractModule implements FGModule {
         return parameters;
     }
     
+    @Override
+    public void preFrame(RenderContext context) {}
+    
+    @Override
+    public void postQueue(RenderContext context) {}
+    
     protected final <T extends RenderParameter> T addParameter(T p) {
         parameters.add(p);
         return p;

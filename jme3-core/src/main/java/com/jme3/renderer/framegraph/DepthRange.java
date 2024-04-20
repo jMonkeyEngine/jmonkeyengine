@@ -11,6 +11,8 @@ package com.jme3.renderer.framegraph;
 public class DepthRange {
     
     public static final DepthRange IDENTITY = new DepthRange();
+    public static final DepthRange FRONT = new DepthRange(0, 0);
+    public static final DepthRange REAR = new DepthRange(1, 1);
     
     private float start, end;
 

@@ -1831,6 +1831,7 @@ public final class GLRenderer implements Renderer {
                     src = mainFbOverride;
                 }
                 if (dst == null) {
+                    System.out.println("assign mainfpOverride to destination framebuffer");
                     dst = mainFbOverride;
                 }
             }

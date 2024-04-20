@@ -22,8 +22,20 @@ public class MyFrameGraph {
         context = new RenderContext(renderManager);
     }
     
-    public void execute(ViewPort vp) {
-        context.setViewPort(vp);
+    public void preFrame() {
+        for (FGModule p : passes) {
+            p.preFrame(context);
+        }
+    }
+    
+    public void postQueue() {
+        for (FGModule p : passes) {
+            p.postQueue(context);
+        }
+    }
+    
+    public void execute() {
+        System.out.println("start framegraph execution");
         // prepare passes for execution
         for (FGModule p : passes) {
             p.prepare(context);
@@ -41,6 +53,8 @@ public class MyFrameGraph {
         for (FGModule p : passes) {
             p.reset();
         }
+        context.getRenderManager().setRenderGeometryHandler(null);
+        System.out.println("end framegraph execution");
     }
     
     public void add(FGModule pass) {

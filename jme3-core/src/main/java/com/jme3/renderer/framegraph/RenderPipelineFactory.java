@@ -36,9 +36,8 @@ public class RenderPipelineFactory {
     }
     
     private static MyFrameGraph addBasicPasses(MyFrameGraph g) {
-        g.add(new OpaqueModule());
-        //g.add(ForwardModule.sky());
-        g.add(new SkyModule());
+        g.add(ForwardModule.opaque());
+        g.add(ForwardModule.sky());
         g.add(ForwardModule.transparent());
         g.add(new GuiModule());
         g.add(new PostProcessingModule());
@@ -58,7 +57,13 @@ public class RenderPipelineFactory {
         MyFrameGraph g = new MyFrameGraph(rm);
         g.add(new GBufferModule());
         g.add(new DeferredShadingModule(am));
-        return addBasicPasses(g);
+        //g.add(ForwardModule.opaque());
+        g.add(ForwardModule.sky());
+        g.add(ForwardModule.transparent());
+        g.add(new GuiModule());
+        //g.add(new PostProcessingModule());
+        //g.add(ForwardModule.translucent());
+        return g;
     }
     
     public static MyFrameGraph createTileDeferredPipeline(AssetManager am, RenderManager rm) {

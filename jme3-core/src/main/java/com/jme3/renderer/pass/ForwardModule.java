@@ -36,11 +36,12 @@ public class ForwardModule extends RenderQueueModule {
     @Override
     public void executeDrawCommands(RenderContext context) {
         if (!canExecute) {
-            return;
+            //return;
         }
         if (depth != null) {
             context.setDepthRange(depth);
         }
+        System.out.println("render queue (forward): "+bucket.name());
         context.getRenderQueue().renderQueue(bucket, context.getRenderManager(), context.getViewPort().getCamera(), true);
     }
     @Override
@@ -53,6 +54,9 @@ public class ForwardModule extends RenderQueueModule {
         return true;
     }
     
+    public static ForwardModule opaque() {
+        return new ForwardModule(RenderQueue.Bucket.Opaque, DepthRange.IDENTITY);
+    }
     public static ForwardModule sky() {
         return new ForwardModule(RenderQueue.Bucket.Sky, new DepthRange(1, 1));
     }

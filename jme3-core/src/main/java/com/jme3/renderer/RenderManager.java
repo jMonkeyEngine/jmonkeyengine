@@ -1370,20 +1370,30 @@ public class RenderManager {
         if (processors.isEmpty()) {
             processors = null;
         }
-
-        if (processors != null) {
+        
+        MyFrameGraph fg = vp.getFrameGraph();
+        if (fg == null) {
+            fg = myGraph;
+        }
+        
+        if (fg != null) {
+            
+            fg.getContext().update(vp, prof, tpf);
+            fg.preFrame();
+            
+        } else if (processors != null) {
             if (prof != null) {
                 prof.vpStep(VpStep.PreFrame, vp, null);
             }
-            for (SceneProcessor proc : processors.getArray()) {
-                if (!proc.isInitialized()) {
-                    proc.initialize(this, vp);
+            for (SceneProcessor p : processors.getArray()) {
+                if (!p.isInitialized()) {
+                    p.initialize(this, vp);
                 }
-                proc.setProfiler(this.prof);
+                p.setProfiler(this.prof);
                 if (prof != null) {
-                    prof.spStep(SpStep.ProcPreFrame, proc.getClass().getSimpleName());
+                    prof.spStep(SpStep.ProcPreFrame, p.getClass().getSimpleName());
                 }
-                proc.preFrame(tpf);
+                p.preFrame(tpf);
             }
         }
 
@@ -1404,7 +1414,11 @@ public class RenderManager {
             renderScene(scenes.get(i), vp);
         }
 
-        if (processors != null) {
+        if (fg != null) {
+            
+            fg.postQueue();
+            
+        } else if (processors != null) {
             if (prof != null) {
                 prof.vpStep(VpStep.PostQueue, vp, null);
             }
@@ -1416,64 +1430,9 @@ public class RenderManager {
             }
         }
         
-        if (myGraph != null) {
+        if (fg != null) {
             
-            // to execute the rendering process, simply call execute on the framegraph
-            myGraph.execute(vp);
-            
-        } else if (useFramegraph) {
-            RenderPath curRenderPath = vp.getRenderPath() == RenderPath.None ? renderPath : vp.getRenderPath();
-
-            frameGraph.reset();
-            frameGraph.getRenderContext().setViewPort(vp);
-            
-            if (curRenderPath == RenderPath.Deferred) {
-                frameGraph.addPass(gBufferPass);
-                deferredShadingPass.setSinkLinkage(DeferredShadingPass.S_RT_0, gBufferPass.getName(), GBufferPass.RENDER_TARGETS[0]);
-                deferredShadingPass.setSinkLinkage(DeferredShadingPass.S_RT_1, gBufferPass.getName(), GBufferPass.RENDER_TARGETS[1]);
-                deferredShadingPass.setSinkLinkage(DeferredShadingPass.S_RT_2, gBufferPass.getName(), GBufferPass.RENDER_TARGETS[2]);
-                deferredShadingPass.setSinkLinkage(DeferredShadingPass.S_RT_3, gBufferPass.getName(), GBufferPass.RENDER_TARGETS[3]);
-                deferredShadingPass.setSinkLinkage(DeferredShadingPass.S_RT_4, gBufferPass.getName(), GBufferPass.RENDER_TARGETS[4]);
-                deferredShadingPass.setSinkLinkage(DeferredShadingPass.S_LIGHT_DATA, gBufferPass.getName(), GBufferPass.LIGHT_DATA);
-                deferredShadingPass.setSinkLinkage(DeferredShadingPass.S_EXECUTE_STATE, gBufferPass.getName(), GBufferPass.EXECUTE_STATE);
-                deferredShadingPass.setSinkLinkage(FGGlobal.S_DEFAULT_FB, gBufferPass.getName(), GBufferPass.G_FRAME_BUFFER);
-                frameGraph.addPass(deferredShadingPass);
-            } else if (curRenderPath == RenderPath.TiledDeferred) {
-                curTileSize = forceTileSize > 0 ? forceTileSize : (getCurrentCamera().getWidth() / numberTileDivisions);
-                int tileWidth = (int)(viewWidth / curTileSize);
-                int tileHeight = (int)(viewHeight / curTileSize);
-                setTileInfo(curTileSize, tileWidth, tileHeight, tileWidth * tileHeight);
-                frameGraph.addPass(gBufferPass);
-                tileDeferredShadingPass.setSinkLinkage(DeferredShadingPass.S_RT_0, gBufferPass.getName(), GBufferPass.RENDER_TARGETS[0]);
-                tileDeferredShadingPass.setSinkLinkage(DeferredShadingPass.S_RT_1, gBufferPass.getName(), GBufferPass.RENDER_TARGETS[1]);
-                tileDeferredShadingPass.setSinkLinkage(DeferredShadingPass.S_RT_2, gBufferPass.getName(), GBufferPass.RENDER_TARGETS[2]);
-                tileDeferredShadingPass.setSinkLinkage(DeferredShadingPass.S_RT_3, gBufferPass.getName(), GBufferPass.RENDER_TARGETS[3]);
-                tileDeferredShadingPass.setSinkLinkage(DeferredShadingPass.S_RT_4, gBufferPass.getName(), GBufferPass.RENDER_TARGETS[4]);
-                tileDeferredShadingPass.setSinkLinkage(DeferredShadingPass.S_LIGHT_DATA, gBufferPass.getName(), GBufferPass.LIGHT_DATA);
-                tileDeferredShadingPass.setSinkLinkage(FGGlobal.S_DEFAULT_FB, gBufferPass.getName(), GBufferPass.G_FRAME_BUFFER);
-                tileDeferredShadingPass.setSinkLinkage(DeferredShadingPass.S_EXECUTE_STATE, gBufferPass.getName(), GBufferPass.EXECUTE_STATE);
-                frameGraph.addPass(tileDeferredShadingPass);
-            }
-            frameGraph.addPass(opaquePass);
-            frameGraph.addPass(skyPass);
-            frameGraph.addPass(transparentPass);
-            frameGraph.addPass(guiPass);
-
-            // todo:A temporary workaround for old pipeline postprocessors, unify later to use FG for internal logic, currently just replace with a simple PostProcessorPass
-//            if (processors != null) {
-//                if (prof!=null) prof.vpStep(VpStep.PostFrame, vp, null);
-//                for (SceneProcessor proc : processors.getArray()) {
-//                    if (prof != null) prof.spStep(SpStep.ProcPostFrame, proc.getClass().getSimpleName());
-//                    proc.postFrame(vp.getOutputFrameBuffer());
-//                }
-//                if (prof != null) prof.vpStep(VpStep.ProcEndRender, vp, null);
-//            }
-            frameGraph.addPass(postProcessorPass);
-            //renders the translucent objects queue after processors have been rendered
-            frameGraph.addPass(translucentPass);
-
-            frameGraph.finalizePasses();
-            frameGraph.execute();
+            fg.execute();
             
         } else {
 
