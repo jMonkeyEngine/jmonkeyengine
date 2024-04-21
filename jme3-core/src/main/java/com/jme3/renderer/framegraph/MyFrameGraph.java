@@ -35,7 +35,6 @@ public class MyFrameGraph {
     }
     
     public void execute() {
-        System.out.println("start framegraph execution");
         // prepare passes for execution
         for (FGModule p : passes) {
             p.prepare(context);
@@ -54,7 +53,6 @@ public class MyFrameGraph {
             p.reset();
         }
         context.getRenderManager().setRenderGeometryHandler(null);
-        System.out.println("end framegraph execution");
     }
     
     public void add(FGModule pass) {

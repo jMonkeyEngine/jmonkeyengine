@@ -1,0 +1,18 @@
+MaterialDef Screen {
+
+    MaterialParameters {
+        Texture2D ColorMap
+        Color Color : 1.0 1.0 1.0 1.0
+    }
+
+    Technique {
+        VertexShader   GLSL300 GLSL150 GLSL100 : Common/MatDefs/Misc/Screen.vert
+        FragmentShader GLSL300 GLSL150 GLSL100 : Common/MatDefs/Misc/Screen.frag
+        WorldParameters {
+        }
+        Defines {
+            MAP : ColorMap
+        }
+    }
+    
+}

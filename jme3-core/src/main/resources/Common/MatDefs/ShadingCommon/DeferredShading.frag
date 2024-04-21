@@ -218,8 +218,9 @@ void main(){
         gl_FragColor.rgb = shadingInfo.rgb;
         gl_FragColor.a = min(fract(shadingInfo.a) * 10.0f, 0.0f);
     }
-    if (innerTexCoord.y > 0.5) {
+    //if (innerTexCoord.y > 0.5) {
         //discard;
-    }
+    //}
+    //discard;
     //gl_FragColor.a = 0.5;
 }

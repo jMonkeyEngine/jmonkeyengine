@@ -110,13 +110,14 @@ public class DeferredShadingModule extends ScreenModule {
     
     @Override
     public void executeDrawCommands(RenderContext context) {
-        
+                
         context.getRenderer().copyFrameBuffer(gBuffer.produce(),
                 context.getViewPort().getOutputFrameBuffer(), false, true);
         
         System.out.println("render deferred lighting");
         context.getRenderer().copyFrameBuffer(gBuffer.produce(), debug, false, true);
         
+        //context.setDepthRange(1, 1);
         context.getRenderer().setBackgroundColor(ColorRGBA.BlackNoAlpha);
         screenMat.selectTechnique(DEFERRED_PASS, context.getRenderManager());
         screenRect.updateGeometricState();

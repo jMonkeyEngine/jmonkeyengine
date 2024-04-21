@@ -41,6 +41,7 @@ import com.jme3.material.RenderState;
 import com.jme3.material.Technique;
 import com.jme3.material.TechniqueDef;
 import com.jme3.material.logic.TileBasedDeferredSinglePassLightingLogic;
+import com.jme3.math.ColorRGBA;
 import com.jme3.math.Matrix4f;
 import com.jme3.post.SceneProcessor;
 import com.jme3.profile.AppProfiler;
@@ -109,7 +110,7 @@ public class RenderManager {
     private TranslucentPass translucentPass;
     private GuiPass guiPass;
     private PostProcessorPass postProcessorPass;
-    private MyFrameGraph myGraph;
+    private MyFrameGraph myFrameGraph;
     // frameGraph=============================================================================↑
 
     // RenderPath
@@ -226,7 +227,7 @@ public class RenderManager {
      * @param frameGraph 
      */
     public void setFrameGraph(MyFrameGraph frameGraph) {
-        this.myGraph = frameGraph;
+        this.myFrameGraph = frameGraph;
     }
 
     /**
@@ -1373,7 +1374,7 @@ public class RenderManager {
         
         MyFrameGraph fg = vp.getFrameGraph();
         if (fg == null) {
-            fg = myGraph;
+            fg = myFrameGraph;
         }
         
         if (fg != null) {
@@ -1409,6 +1410,7 @@ public class RenderManager {
         if (prof != null) {
             prof.vpStep(VpStep.RenderScene, vp, null);
         }
+        // flatten scenes into render queue
         List<Spatial> scenes = vp.getScenes();
         for (int i = scenes.size() - 1; i >= 0; i--) {
             renderScene(scenes.get(i), vp);

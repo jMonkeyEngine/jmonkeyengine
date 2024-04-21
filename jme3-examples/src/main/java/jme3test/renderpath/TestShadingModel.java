@@ -25,6 +25,7 @@ import com.jme3.scene.shape.Sphere;
 import com.jme3.shader.VarType;
 import com.jme3.shadow.DirectionalLightShadowRenderer;
 import com.jme3.texture.plugins.ktx.KTXLoader;
+import com.jme3.ui.Picture;
 import com.jme3.util.SkyFactory;
 import com.jme3.util.TangentBinormalGenerator;
 import com.jme3.util.mikktspace.MikktspaceTangentGenerator;
@@ -48,7 +49,11 @@ public class TestShadingModel extends SimpleApplication {
     public void simpleInitApp() {
         
         MyFrameGraph graph = RenderPipelineFactory.create(this, RenderManager.RenderPath.Deferred);
+        //MyFrameGraph graph = RenderPipelineFactory.createBackroundScreenTest(assetManager, renderManager);
         renderManager.setFrameGraph(graph);
+        
+        viewPort.setBackgroundColor(ColorRGBA.Green.mult(0.2f));
+        //viewPort.setBackgroundColor(ColorRGBA.White);
         
         Geometry debugView = new Geometry("debug", new Quad(150, 150));
         debugView.setLocalTranslation(0, 200, 0);
@@ -90,7 +95,6 @@ public class TestShadingModel extends SimpleApplication {
         roughness = 1.0f;
         assetManager.registerLoader(KTXLoader.class, "ktx");
 
-        viewPort.setBackgroundColor(ColorRGBA.White);
         modelNode = new Node("modelNode");
         model = (Geometry) assetManager.loadModel("Models/Tank/tank.j3o");
         MikktspaceTangentGenerator.generate(model);
@@ -131,10 +135,6 @@ public class TestShadingModel extends SimpleApplication {
         pbrMat = assetManager.loadMaterial("Models/Tank/tank.j3m");
         model.setMaterial(pbrMat);
 
-
-        final EnvironmentCamera envCam = new EnvironmentCamera(256, new Vector3f(0, 3f, 0));
-        stateManager.attach(envCam);
-
         //new RenderPathHelper(this);
         flyCam.setMoveSpeed(10.0f);
     }
@@ -145,18 +145,6 @@ public class TestShadingModel extends SimpleApplication {
         frame++;
 
         if (frame == 2) {
-//            modelNode.removeFromParent();
-//            final LightProbe probe = LightProbeFactory.makeProbe(stateManager.getState(EnvironmentCamera.class), rootNode, new JobProgressAdapter<LightProbe>() {
-//
-//                @Override
-//                public void done(LightProbe result) {
-//                    System.err.println("Done rendering env maps");
-//                    tex = EnvMapUtils.getCubeMapCrossDebugViewWithMipMaps(result.getPrefilteredEnvMap(), assetManager);
-//                }
-//            });
-//            probe.getArea().setRadius(100);
-//            rootNode.addLight(probe);
-            //getStateManager().getState(EnvironmentManager.class).addEnvProbe(probe);
             
             rootNode.addControl(new EnvironmentProbeControl(assetManager, 256));
 
