@@ -61,8 +61,9 @@ public class DeferredShadingModule extends ScreenModule {
         screenRect.setMaterial(screenMat);
         
         RenderState rs = screenMat.getAdditionalRenderState();
-        rs.setDepthWrite(false);
-        rs.setDepthTest(false);
+        rs.setDepthWrite(true);
+        rs.setDepthTest(true);
+        rs.setDepthFunc(RenderState.TestFunction.Greater);
         //rs.setBlendMode(RenderState.BlendMode.Alpha);
         //screenMat.setTransparent(true);
         screenMat.setBoolean("UseLightsCullMode", false);
@@ -114,14 +115,14 @@ public class DeferredShadingModule extends ScreenModule {
         context.getRenderer().copyFrameBuffer(gBuffer.produce(),
                 context.getViewPort().getOutputFrameBuffer(), false, true);
         
-        System.out.println("render deferred lighting");
         context.getRenderer().copyFrameBuffer(gBuffer.produce(), debug, false, true);
         
-        //context.setDepthRange(1, 1);
+        context.setDepthRange(1, 1);
         context.getRenderer().setBackgroundColor(ColorRGBA.BlackNoAlpha);
         screenMat.selectTechnique(DEFERRED_PASS, context.getRenderManager());
         screenRect.updateGeometricState();
-        screenMat.render(screenRect, lightList.produce(), context.getRenderManager());
+        context.getRenderManager().renderGeometry(screenRect);
+        //screenMat.render(screenRect, lightList.produce(), context.getRenderManager());
         
     }
     

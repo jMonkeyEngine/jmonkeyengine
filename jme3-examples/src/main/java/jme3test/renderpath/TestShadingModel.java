@@ -64,7 +64,7 @@ public class TestShadingModel extends SimpleApplication {
         MatRenderParam texParam = new MatRenderParam("ColorMap", debugMat, VarType.Texture2D);
         //texParam.enableDebug();
         graph.bindToOutput(DeferredShadingModule.DEPTH_DEBUG, texParam);
-        guiNode.attachChild(debugView);
+        //guiNode.attachChild(debugView);
         
         // UNLIT
         Material unlitMat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");

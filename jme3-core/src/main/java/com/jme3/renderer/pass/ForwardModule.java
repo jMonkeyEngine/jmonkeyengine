@@ -41,7 +41,6 @@ public class ForwardModule extends RenderQueueModule {
         if (depth != null) {
             context.setDepthRange(depth);
         }
-        System.out.println("render queue (forward): "+bucket.name());
         context.getRenderQueue().renderQueue(bucket, context.getRenderManager(), context.getViewPort().getCamera(), true);
     }
     @Override
