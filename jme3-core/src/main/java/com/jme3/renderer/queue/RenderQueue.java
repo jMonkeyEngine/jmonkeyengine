@@ -34,9 +34,11 @@ package com.jme3.renderer.queue;
 import com.jme3.post.SceneProcessor;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
-import com.jme3.renderer.pass.RenderGeometry;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
+import java.util.Iterator;
+import java.util.LinkedList;
+import com.jme3.renderer.pass.GeometryRenderHandler;
 
 /**
  * <code>RenderQueue</code> is used to queue up and sort
@@ -51,14 +53,12 @@ public class RenderQueue {
     private GeometryList transparentList;
     private GeometryList translucentList;
     private GeometryList skyList;
-    private GeometryList tempList;
 
     /**
      * Creates a new RenderQueue, the default {@link GeometryComparator comparators}
      * are used for all {@link GeometryList geometry lists}.
      */
     public RenderQueue() {
-        this.tempList = new GeometryList(new NullComparator());
         this.opaqueList = new GeometryList(new OpaqueComparator());
         this.guiList = new GeometryList(new GuiComparator());
         this.transparentList = new GeometryList(new TransparentComparator());
@@ -239,11 +239,10 @@ public class RenderQueue {
      * Adds a geometry to the given bucket.
      * The {@link RenderManager} automatically handles this task
      * when flattening the scene graph. The bucket to add
-     * the geometry is determined by {@link Geometry#getQueueBucket() }.
+     * the geometry is determined by {@link Geometry#getQueueBucket()}.
      *
      * @param g  The geometry to add
-     * @param bucket The bucket to add to, usually
-     * {@link Geometry#getQueueBucket() }.
+     * @param bucket The bucket to add to, usually {@link Geometry#getQueueBucket()}.
      */
     public void addToQueue(Geometry g, Bucket bucket) {
         switch (bucket) {
@@ -268,38 +267,31 @@ public class RenderQueue {
     }
 
     private void renderGeometryList(GeometryList list, RenderManager rm, Camera cam, boolean clear) {
-        RenderGeometry renderGeometryHandler = rm.getRenderGeometryHandler();
-        if(renderGeometryHandler != null){
-            list.setCamera(cam); // select camera for sorting
-            list.sort();
-            tempList.clear();
-            for (int i = 0; i < list.size(); i++) {
-                Geometry obj = list.get(i);
-                assert obj != null;
-                // Check if it is actually rendered
-                if(!renderGeometryHandler.drawGeometry(rm, obj)){
-                    tempList.add(obj);
+        GeometryRenderHandler handler = rm.getGeometryRenderHandler();
+        list.setCamera(cam); // select camera for sorting
+        list.sort();
+        if (handler != null && clear) {
+            LinkedList<Geometry> saved = new LinkedList<>();
+            for (Geometry g : list) {
+                assert g != null;
+                if (!handler.renderGeometry(rm, g)) {
+                    saved.add(g);
                 }
-                obj.queueDistance = Float.NEGATIVE_INFINITY;
+                g.queueDistance = Float.NEGATIVE_INFINITY;
             }
-            if (clear) {
-                list.clear();
-                // In order to perform subsequent RenderPath rendering
-                if(tempList.size() > 0){
-                    for(int i = 0;i < tempList.size();i++){
-                        list.add(tempList.get(i));
-                    }
+            list.clear();
+            for (Geometry g : saved) {
+                list.add(g);
+            }
+        } else {
+            for (Geometry g : list) {
+                assert g != null;
+                if (handler != null) {
+                    handler.renderGeometry(rm, g);
+                } else {
+                    rm.renderGeometry(g);
                 }
-            }
-        }
-        else{
-            list.setCamera(cam); // select camera for sorting
-            list.sort();
-            for (int i = 0; i < list.size(); i++) {
-                Geometry obj = list.get(i);
-                assert obj != null;
-                rm.renderGeometry(obj);
-                obj.queueDistance = Float.NEGATIVE_INFINITY;
+                g.queueDistance = Float.NEGATIVE_INFINITY;
             }
             if (clear) {
                 list.clear();

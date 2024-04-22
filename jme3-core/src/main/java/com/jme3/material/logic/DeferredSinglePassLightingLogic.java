@@ -74,7 +74,8 @@ import java.util.List;
  * @author JohnKkk
  */
 public final class DeferredSinglePassLightingLogic extends DefaultTechniqueDefLogic {
-    private final static String _S_LIGHT_CULL_DRAW_STAGE = "Light_Cull_Draw_Stage";
+    
+    private final static String LIGHT_CULL_DRAW_STAGE = "Light_Cull_Draw_Stage";
     private static final String DEFINE_DEFERRED_SINGLE_PASS_LIGHTING = "DEFERRED_SINGLE_PASS_LIGHTING";
     private static final String DEFINE_NB_LIGHTS = "NB_LIGHTS";
     private static final String DEFINE_USE_TEXTURE_PACK_MODE = "USE_TEXTURE_PACK_MODE";
@@ -82,21 +83,14 @@ public final class DeferredSinglePassLightingLogic extends DefaultTechniqueDefLo
     private static final String DEFINE_PACK_NB_LIGHTS = "PACK_NB_LIGHTS";
     private static final String DEFINE_NB_SKY_LIGHT_AND_REFLECTION_PROBES = "NB_SKY_LIGHT_AND_REFLECTION_PROBES";
     private static final RenderState ADDITIVE_LIGHT = new RenderState();
-    private boolean bUseTexturePackMode = true;
-    // Avoid too many lights
-    private static final int MAX_LIGHT_NUM = 9046;
-    // Use textures to store large amounts of light data at once, avoiding multiple draw calls
-    private Texture2D lightData1;
-    private Texture2D lightData2;
-    private Texture2D lightData3;
-    private ImageRaster lightDataUpdateIO1;
-    private ImageRaster lightDataUpdateIO2;
-    private ImageRaster lightDataUpdateIO3;
+    
+    private final Texture2D[] lightTextures = new Texture2D[3];
+    private final ImageRaster[] lightTexRasters = new ImageRaster[3];
+    private boolean packAsTextures = true;
     private int lightNum;
     private boolean useAmbientLight;
-
-    private final ColorRGBA ambientLightColor = new ColorRGBA(0, 0, 0, 1);
-    final private List<LightProbe> skyLightAndReflectionProbes = new ArrayList<>(3);
+    private final ColorRGBA ambientColor = new ColorRGBA(0, 0, 0, 1);
+    private final List<LightProbe> probes = new ArrayList<>(3);
 
     static {
         ADDITIVE_LIGHT.setBlendMode(BlendMode.AlphaAdditive);
@@ -113,75 +107,76 @@ public final class DeferredSinglePassLightingLogic extends DefaultTechniqueDefLo
     public DeferredSinglePassLightingLogic(TechniqueDef techniqueDef) {
         super(techniqueDef);
         singlePassLightingDefineId = techniqueDef.addShaderUnmappedDefine(DEFINE_DEFERRED_SINGLE_PASS_LIGHTING, VarType.Boolean);
-        if(bUseTexturePackMode){
+        if (packAsTextures) {
             packNbLightsDefineId = techniqueDef.addShaderUnmappedDefine(DEFINE_PACK_NB_LIGHTS, VarType.Int);
             packTextureModeDefineId = techniqueDef.addShaderUnmappedDefine(DEFINE_USE_TEXTURE_PACK_MODE, VarType.Boolean);
             prepareLightData(1024);
-        }
-        else{
+        } else {
             nbLightsDefineId = techniqueDef.addShaderUnmappedDefine(DEFINE_NB_LIGHTS, VarType.Int);
         }
         nbSkyLightAndReflectionProbesDefineId = techniqueDef.addShaderUnmappedDefine(DEFINE_NB_SKY_LIGHT_AND_REFLECTION_PROBES, VarType.Int);
         useAmbientLightDefineId = techniqueDef.addShaderUnmappedDefine(DEFINE_USE_AMBIENT_LIGHT, VarType.Boolean);
     }
 
-    private void cleanupLightData(){
-        if(this.lightData1 != null){
-            this.lightData1.getImage().dispose();
+    private void cleanupLightData() {
+        if (lightTextures[0] != null) {
+            lightTextures[0].getImage().dispose();
         }
-        if(this.lightData2 != null){
-            this.lightData2.getImage().dispose();
+        if (lightTextures[1] != null) {
+            lightTextures[1].getImage().dispose();
         }
-        if(this.lightData3 != null){
-            this.lightData3.getImage().dispose();
+        if (lightTextures[2] != null) {
+            lightTextures[2].getImage().dispose();
         }
     }
 
     /**
-     * Try reallocating textures to accommodate enough light data.
-     * <p>Currently, a large amount of light information is stored in textures, divided into three texture1d, <br/>
-     * lightData1 stores lightColor (rgb stores lightColor, a stores lightType), lightData2 stores lightPosition + <br/>
-     * invRange/lightDir, lightData3 stores dir and spotAngleCos about SpotLight.</p>
+     * Creates textures to accomodate light data.
+     * <p>
+     * Currently, a large amount of light information is stored in textures, divided into three texture1d,
+     * lightData[0] stores lightColor (rgb stores lightColor, a stores lightType), lightData[1] stores lightPosition +
+     * invRange/lightDir, lightData[2] stores dir and spotAngleCos about SpotLight.
+     * 
      * @param lightNum By preallocating texture memory for the known number of lights, dynamic reallocation at runtime can be prevented.
      */
-    private void prepareLightData(int lightNum){
+    private void prepareLightData(int lightNum) {
         this.lightNum = lightNum;
         // 1d texture
-        lightData1 = new Texture2D(lightNum, 1, Image.Format.RGBA32F);
-        lightData1.setMinFilter(Texture.MinFilter.NearestNoMipMaps);
-        lightData1.setMagFilter(Texture.MagFilter.Nearest);
-        lightData1.setWrap(Texture.WrapMode.EdgeClamp);
+        lightTextures[0] = new Texture2D(lightNum, 1, Image.Format.RGBA32F);
+        lightTextures[0].setMinFilter(Texture.MinFilter.NearestNoMipMaps);
+        lightTextures[0].setMagFilter(Texture.MagFilter.Nearest);
+        lightTextures[0].setWrap(Texture.WrapMode.EdgeClamp);
         ByteBuffer data = BufferUtils.createByteBuffer( (int)Math.ceil(Image.Format.RGBA32F.getBitsPerPixel() / 8.0) * lightNum);
         Image convertedImage = new Image(Image.Format.RGBA32F, lightNum, 1, data, null, ColorSpace.Linear);
-        lightData1.setImage(convertedImage);
-        lightData1.getImage().setMipmapsGenerated(false);
-        lightDataUpdateIO1 = ImageRaster.create(lightData1.getImage());
+        lightTextures[0].setImage(convertedImage);
+        lightTextures[0].getImage().setMipmapsGenerated(false);
+        lightTexRasters[0] = ImageRaster.create(lightTextures[0].getImage());
 
-        lightData2 = new Texture2D(lightNum, 1, Image.Format.RGBA32F);
-        lightData2.setMinFilter(Texture.MinFilter.NearestNoMipMaps);
-        lightData2.setMagFilter(Texture.MagFilter.Nearest);
-        lightData2.setWrap(Texture.WrapMode.EdgeClamp);
+        lightTextures[1] = new Texture2D(lightNum, 1, Image.Format.RGBA32F);
+        lightTextures[1].setMinFilter(Texture.MinFilter.NearestNoMipMaps);
+        lightTextures[1].setMagFilter(Texture.MagFilter.Nearest);
+        lightTextures[1].setWrap(Texture.WrapMode.EdgeClamp);
         ByteBuffer data2 = BufferUtils.createByteBuffer( (int)Math.ceil(Image.Format.RGBA32F.getBitsPerPixel() / 8.0) * lightNum);
         Image convertedImage2 = new Image(Image.Format.RGBA32F, lightNum, 1, data2, null, ColorSpace.Linear);
-        lightData2.setImage(convertedImage2);
-        lightData2.getImage().setMipmapsGenerated(false);
-        lightDataUpdateIO2 = ImageRaster.create(lightData2.getImage());
+        lightTextures[1].setImage(convertedImage2);
+        lightTextures[1].getImage().setMipmapsGenerated(false);
+        lightTexRasters[1] = ImageRaster.create(lightTextures[1].getImage());
 
-        lightData3 = new Texture2D(lightNum, 1, Image.Format.RGBA32F);
-        lightData3.setMinFilter(Texture.MinFilter.NearestNoMipMaps);
-        lightData3.setMagFilter(Texture.MagFilter.Nearest);
-        lightData3.setWrap(Texture.WrapMode.EdgeClamp);
+        lightTextures[2] = new Texture2D(lightNum, 1, Image.Format.RGBA32F);
+        lightTextures[2].setMinFilter(Texture.MinFilter.NearestNoMipMaps);
+        lightTextures[2].setMagFilter(Texture.MagFilter.Nearest);
+        lightTextures[2].setWrap(Texture.WrapMode.EdgeClamp);
         ByteBuffer data3 = BufferUtils.createByteBuffer( (int)Math.ceil(Image.Format.RGBA32F.getBitsPerPixel() / 8.0) * lightNum);
         Image convertedImage3 = new Image(Image.Format.RGBA32F, lightNum, 1, data3, null, ColorSpace.Linear);
-        lightData3.setImage(convertedImage3);
-        lightData3.getImage().setMipmapsGenerated(false);
-        lightDataUpdateIO3 = ImageRaster.create(lightData3.getImage());
+        lightTextures[2].setImage(convertedImage3);
+        lightTextures[2].getImage().setMipmapsGenerated(false);
+        lightTexRasters[2] = ImageRaster.create(lightTextures[2].getImage());
     }
 
     @Override
     public Shader makeCurrent(AssetManager assetManager, RenderManager renderManager,
             EnumSet<Caps> rendererCaps, LightList lights, DefineList defines) {
-        if(bUseTexturePackMode){
+        if(packAsTextures){
             defines.set(packNbLightsDefineId, this.lightNum);
             defines.set(packTextureModeDefineId, true);
         }
@@ -193,24 +188,26 @@ public final class DeferredSinglePassLightingLogic extends DefaultTechniqueDefLo
         //Though the second pass should not render IBL as it is taken care of on first pass like ambient light in phong lighting.
         //We cannot change the define between passes and the old technique, and for some reason the code fails on mac (renders nothing).
         if(lights != null) {
-            useAmbientLight = SkyLightAndReflectionProbeRender.extractSkyLightAndReflectionProbes(lights, ambientLightColor, skyLightAndReflectionProbes, false);
-            defines.set(nbSkyLightAndReflectionProbesDefineId, skyLightAndReflectionProbes.size());
+            useAmbientLight = SkyLightAndReflectionProbeRender.extractSkyLightAndReflectionProbes(lights, ambientColor, probes, false);
+            defines.set(nbSkyLightAndReflectionProbesDefineId, probes.size());
             defines.set(useAmbientLightDefineId, useAmbientLight);
         }
         return super.makeCurrent(assetManager, renderManager, rendererCaps, lights, defines);
     }
 
     /**
-     * It seems the lighting information is encoded into 3 1D textures that are updated each frame with the currently visible lights:<br/>
-     * lightData1:<br/>
-     * - rgb stores lightColor<br/>
-     * - a stores lightTypeId<br/>
-     * lightData2:<br/>
-     * - directionalLightDirection<br/>
-     * - pointLightPosition + invRadius<br/>
-     * - spotLightPosition + invRadius<br/>
-     * lightData3:<br/>
-     * - spotLightDirection<br/>
+     * Packs light data into textures.
+     * <p>
+     * lightData[0]:<br>
+     * - rgb stores lightColor<br>
+     * - a stores lightTypeId<br>
+     * lightData[1]:<br>
+     * - directionalLightDirection<br>
+     * - pointLightPosition + invRadius<br>
+     * - spotLightPosition + invRadius<br>
+     * lightData[2]:<br>
+     * - spotLightDirection<br>
+     * 
      * @param shader               Current shader used for rendering (a global shader)
      * @param g                    Current geometry used for rendering (a rect)
      * @param lightList            Information about all visible lights this frame
@@ -221,25 +218,26 @@ public final class DeferredSinglePassLightingLogic extends DefaultTechniqueDefLo
      * @param lastTexUnit          lastTexUnit the index of the most recently-used texture unit
      * @return the next starting index in the LightList
      */
-    protected int updateLightListPackToTexture(Shader shader, Geometry g, LightList lightList, int numLights, RenderManager rm, int startIndex, boolean isLightCullStageDraw, int lastTexUnit) {
+    protected int updateLightListPackToTexture(Shader shader, Geometry g, LightList lightList, int numLights,
+            RenderManager rm, int startIndex, boolean isLightCullStageDraw, int lastTexUnit) {
         if (numLights == 0) { // this shader does not do lighting, ignore.
             return 0;
         }
 
         Uniform ambientColor = shader.getUniform("g_AmbientLightColor");
 
-//        skyLightAndReflectionProbes.clear();
+        //skyLightAndReflectionProbes.clear();
         if (startIndex != 0 || isLightCullStageDraw) {
             // apply additive blending for 2nd and future passes
             rm.getRenderer().applyRenderState(ADDITIVE_LIGHT);
             ambientColor.setValue(VarType.Vector4, ColorRGBA.Black);
         } else {
-//            extractSkyLightAndReflectionProbes(lightList,true);
-            ambientColor.setValue(VarType.Vector4, ambientLightColor);
+            //extractSkyLightAndReflectionProbes(lightList,true);
+            ambientColor.setValue(VarType.Vector4, ambientColor);
         }
 
         // render skyLights and reflectionProbes
-        if(!skyLightAndReflectionProbes.isEmpty()){
+        if(!probes.isEmpty()){
             // Matrix4f
             Uniform skyLightData = shader.getUniform("g_SkyLightData");
             Uniform skyLightData2 = shader.getUniform("g_SkyLightData2");
@@ -252,15 +250,18 @@ public final class DeferredSinglePassLightingLogic extends DefaultTechniqueDefLo
             Uniform shCoeffs3 = shader.getUniform("g_ShCoeffs3");
             Uniform reflectionProbePemMap3 = shader.getUniform("g_ReflectionEnvMap3");
 
-            LightProbe skyLight = skyLightAndReflectionProbes.get(0);
-            lastTexUnit = SkyLightAndReflectionProbeRender.setSkyLightAndReflectionProbeData(rm, lastTexUnit, skyLightData, shCoeffs, reflectionProbePemMap, skyLight);
-            if (skyLightAndReflectionProbes.size() > 1) {
-                skyLight = skyLightAndReflectionProbes.get(1);
-                lastTexUnit = SkyLightAndReflectionProbeRender.setSkyLightAndReflectionProbeData(rm, lastTexUnit, skyLightData2, shCoeffs2, reflectionProbePemMap2, skyLight);
+            LightProbe skyLight = probes.get(0);
+            lastTexUnit = SkyLightAndReflectionProbeRender.setSkyLightAndReflectionProbeData(
+                    rm, lastTexUnit, skyLightData, shCoeffs, reflectionProbePemMap, skyLight);
+            if (probes.size() > 1) {
+                skyLight = probes.get(1);
+                lastTexUnit = SkyLightAndReflectionProbeRender.setSkyLightAndReflectionProbeData(
+                        rm, lastTexUnit, skyLightData2, shCoeffs2, reflectionProbePemMap2, skyLight);
             }
-            if (skyLightAndReflectionProbes.size() > 2) {
-                skyLight = skyLightAndReflectionProbes.get(2);
-                SkyLightAndReflectionProbeRender.setSkyLightAndReflectionProbeData(rm, lastTexUnit, skyLightData3, shCoeffs3, reflectionProbePemMap3, skyLight);
+            if (probes.size() > 2) {
+                skyLight = probes.get(2);
+                SkyLightAndReflectionProbeRender.setSkyLightAndReflectionProbeData(
+                        rm, lastTexUnit, skyLightData3, shCoeffs3, reflectionProbePemMap3, skyLight);
             }
         } else {
             Uniform skyLightData = shader.getUniform("g_SkyLightData");
@@ -273,7 +274,6 @@ public final class DeferredSinglePassLightingLogic extends DefaultTechniqueDefLo
         int endIndex = numLights + startIndex;
         ColorRGBA temp = vars.color;
         for (curIndex = startIndex; curIndex < endIndex && curIndex < lightList.size(); curIndex++) {
-
             Light l = lightList.get(curIndex);
             if (l.getType() == Light.Type.Ambient || l.getType() == Light.Type.Probe) {
                 endIndex++;
@@ -285,8 +285,7 @@ public final class DeferredSinglePassLightingLogic extends DefaultTechniqueDefLo
             temp.g = color.getGreen();
             temp.b = color.getBlue();
             temp.a = l.getType().getId();
-            lightDataUpdateIO1.setPixel(curIndex, 0, temp);
-
+            lightTexRasters[0].setPixel(curIndex, 0, temp);
             switch (l.getType()) {
                 case Directional:
                     DirectionalLight dl = (DirectionalLight) l;
@@ -295,7 +294,7 @@ public final class DeferredSinglePassLightingLogic extends DefaultTechniqueDefLo
                     temp.g = dir.getY();
                     temp.b = dir.getZ();
                     temp.a = -1;
-                    lightDataUpdateIO2.setPixel(curIndex, 0, temp);
+                    lightTexRasters[1].setPixel(curIndex, 0, temp);
                     break;
                 case Point:
                     PointLight pl = (PointLight) l;
@@ -305,7 +304,7 @@ public final class DeferredSinglePassLightingLogic extends DefaultTechniqueDefLo
                     temp.g = pos.getY();
                     temp.b = pos.getZ();
                     temp.a = invRadius;
-                    lightDataUpdateIO2.setPixel(curIndex, 0, temp);
+                    lightTexRasters[1].setPixel(curIndex, 0, temp);
                     break;
                 case Spot:
                     SpotLight sl = (SpotLight) l;
@@ -317,7 +316,7 @@ public final class DeferredSinglePassLightingLogic extends DefaultTechniqueDefLo
                     temp.g = pos2.getY();
                     temp.b = pos2.getZ();
                     temp.a = invRange;
-                    lightDataUpdateIO2.setPixel(curIndex, 0, temp);
+                    lightTexRasters[1].setPixel(curIndex, 0, temp);
 
                     //We transform the spot direction in view space here to save 5 varying later in the lighting shader
                     //one vec4 less and a vec4 that becomes a vec3
@@ -326,35 +325,31 @@ public final class DeferredSinglePassLightingLogic extends DefaultTechniqueDefLo
                     temp.g = dir2.getY();
                     temp.b = dir2.getZ();
                     temp.a = spotAngleCos;
-                    lightDataUpdateIO3.setPixel(curIndex, 0, temp);
+                    lightTexRasters[2].setPixel(curIndex, 0, temp);
                     break;
                 default:
                     throw new UnsupportedOperationException("Unknown type of light: " + l.getType());
             }
         }
-//        temp.r = temp.g = temp.b = temp.a = 0;
-//        // Since the drawing is sent within the loop branch, and actually before the actual glSwapBuffers, the gl commands actually reside at the graphics driver level. So in order to correctly branch within the loop, the size must be fixed here (while filling the number of light sources).
-//        ColorRGBA temp2 = vars.color2;
-//        for(;curIndex < this.lightNum;curIndex++){
-//            temp2 = lightDataUpdateIO1.getPixel(curIndex, 0);
-//            if(temp2.r == 0 && temp2.g == 0 && temp2.b == 0 && temp2.a == 0)break;
-//            lightDataUpdateIO1.setPixel(curIndex, 0, temp);
-//            lightDataUpdateIO2.setPixel(curIndex, 0, temp);
-//            lightDataUpdateIO3.setPixel(curIndex, 0, temp);
-//        }
+        //temp.r = temp.g = temp.b = temp.a = 0;
+        // Since the drawing is sent within the loop branch, and actually before the actual glSwapBuffers, the gl commands
+        // actually reside at the graphics driver level. So in order to correctly branch within the loop, the size must be
+        // fixed here (while filling the number of light sources).
+        //ColorRGBA temp2 = vars.color2;
+        //for(;curIndex < this.lightNum;curIndex++){
+        //    temp2 = lightTexRasters[0].getPixel(curIndex, 0);
+        //    if(temp2.r == 0 && temp2.g == 0 && temp2.b == 0 && temp2.a == 0)break;
+        //    lightTexRasters[0].setPixel(curIndex, 0, temp);
+        //    lightTexRasters[1].setPixel(curIndex, 0, temp);
+        //    lightTexRasters[2].setPixel(curIndex, 0, temp);
+        //}
         vars.release();
-        lightData1.getImage().setUpdateNeeded();
-        lightData2.getImage().setUpdateNeeded();
-        lightData3.getImage().setUpdateNeeded();
-//        Uniform g_LightPackData1 = shader.getUniform("g_LightPackData1");
-//        g_LightPackData1.setValue(VarType.Texture2D, lightData1);
-//        Uniform g_LightPackData2 = shader.getUniform("g_LightPackData2");
-//        g_LightPackData2.setValue(VarType.Texture2D, lightData2);
-//        Uniform g_LightPackData3 = shader.getUniform("g_LightPackData3");
-//        g_LightPackData3.setValue(VarType.Texture2D, lightData3);
-        g.getMaterial().setTexture("LightPackData1", lightData1);
-        g.getMaterial().setTexture("LightPackData2", lightData2);
-        g.getMaterial().setTexture("LightPackData3", lightData3);
+        lightTextures[0].getImage().setUpdateNeeded();
+        lightTextures[1].getImage().setUpdateNeeded();
+        lightTextures[2].getImage().setUpdateNeeded();
+        g.getMaterial().setTexture("LightPackData1", lightTextures[0]);
+        g.getMaterial().setTexture("LightPackData2", lightTextures[1]);
+        g.getMaterial().setTexture("LightPackData3", lightTextures[2]);
         return curIndex;
     }
 
@@ -380,7 +375,8 @@ public final class DeferredSinglePassLightingLogic extends DefaultTechniqueDefLo
      * @param isLightCullStageDraw isLightCullStageDraw
      * @return the next starting index in the LightList
      */
-    protected int updateLightListUniforms(Shader shader, Geometry g, LightList lightList, int numLights, RenderManager rm, int startIndex, boolean isLightCullStageDraw) {
+    protected int updateLightListUniforms(Shader shader, Geometry g, LightList lightList, int numLights,
+            RenderManager rm, int startIndex, boolean isLightCullStageDraw) {
         if (numLights == 0) { // this shader does not do lighting, ignore.
             return 0;
         }
@@ -394,7 +390,7 @@ public final class DeferredSinglePassLightingLogic extends DefaultTechniqueDefLo
             rm.getRenderer().applyRenderState(ADDITIVE_LIGHT);
             ambientColor.setValue(VarType.Vector4, ColorRGBA.Black);
         } else {
-            ambientColor.setValue(VarType.Vector4, ambientLightColor);
+            ambientColor.setValue(VarType.Vector4, ambientColor);
         }
 
         int lightDataIndex = 0;
@@ -467,12 +463,13 @@ public final class DeferredSinglePassLightingLogic extends DefaultTechniqueDefLo
     }
 
     @Override
-    public void render(RenderManager renderManager, Shader shader, Geometry geometry, LightList lights, BindUnits lastBindUnit) {
-        int nbRenderedLights = 0;
+    public void render(RenderManager renderManager, Shader shader, Geometry geometry,
+            LightList lights, BindUnits lastBindUnit) {
+        int numLights = 0;
         Renderer renderer = renderManager.getRenderer();
         boolean isLightCullStageDraw = false;
-        if(geometry.getUserData(_S_LIGHT_CULL_DRAW_STAGE) != null){
-            isLightCullStageDraw = geometry.getUserData(_S_LIGHT_CULL_DRAW_STAGE);
+        if(geometry.getUserData(LIGHT_CULL_DRAW_STAGE) != null){
+            isLightCullStageDraw = geometry.getUserData(LIGHT_CULL_DRAW_STAGE);
         }
         // todo: One optimization approach here is:
         // todo: Use uniform array storage scheme:
@@ -487,13 +484,13 @@ public final class DeferredSinglePassLightingLogic extends DefaultTechniqueDefLo
 
         // todo: For light probes (temporarily implemented based on preCompute light probe), get light probe grid based on current view frustum visible range, execute multi pass according to light probe grid
         // todo: For reflection probes, use textureArray (cubemap projection, with mipmap), collect reflection probes visible to current camera view frustum, and limit the number of reflection probes allowed in the current view frustum
-        if(bUseTexturePackMode){
-            if(this.lightNum != renderManager.getMaxDeferredShadingLights()){
+        if(packAsTextures){
+            if (lightNum != renderManager.getMaxDeferredShadingLights()) {
                 cleanupLightData();
                 prepareLightData(renderManager.getMaxDeferredShadingLights());
             }
             // todo:Currently, this texturePackMode is only suitable for scenes where there are a large number of light sources per frame. The number of light sources is submitted to the texture all at once, so lightNum can be pre-allocated, but light source information can also be submitted to the texture all at once here, and then drawn in multiple passes (drawing each time by the specified singlePassLightBatchSize)
-            useAmbientLight = SkyLightAndReflectionProbeRender.extractSkyLightAndReflectionProbes(lights, ambientLightColor, skyLightAndReflectionProbes, true);
+            useAmbientLight = SkyLightAndReflectionProbeRender.extractSkyLightAndReflectionProbes(lights, ambientColor, probes, true);
             int count = lights.size();
             // FIXME:Setting uniform variables this way will take effect immediately in the current frame, however lightData is set through geometry.getMaterial().setTexture(XXX) which will take effect next frame, so here I changed to use geometry.getMaterial().setParam() uniformly to update all parameters, to keep the frequency consistent.
 //            Uniform lightCount = shader.getUniform("g_LightCount");
@@ -501,32 +498,27 @@ public final class DeferredSinglePassLightingLogic extends DefaultTechniqueDefLo
 //            lightCount.setValue(VarType.Int, this.lightNum);
             geometry.getMaterial().setInt("NBLight", count);
             if(count == 0){
-                nbRenderedLights = updateLightListPackToTexture(shader, geometry, lights, count, renderManager, nbRenderedLights, isLightCullStageDraw, lastBindUnit.textureUnit);
+                numLights = updateLightListPackToTexture(shader, geometry, lights, count, renderManager, numLights, isLightCullStageDraw, lastBindUnit.textureUnit);
+                renderer.setShader(shader);
+                renderMeshFromGeometry(renderer, geometry);
+            } else while (numLights < count) {
+                // todo:Optimize deferred using the second method, here use the geometrys (rect, sphere) of the current class for drawing, instead of using the geometry passed in (or pass two geometry externally, one rect one sphereinstance)
+                numLights = updateLightListPackToTexture(shader, geometry, lights, count, renderManager, numLights, isLightCullStageDraw, lastBindUnit.textureUnit);
                 renderer.setShader(shader);
                 renderMeshFromGeometry(renderer, geometry);
             }
-            else{
-                while (nbRenderedLights < count) {
-                    // todo:Optimize deferred using the second method, here use the geometrys (rect, sphere) of the current class for drawing, instead of using the geometry passed in (or pass two geometry externally, one rect one sphereinstance)
-                    nbRenderedLights = updateLightListPackToTexture(shader, geometry, lights, count, renderManager, nbRenderedLights, isLightCullStageDraw, lastBindUnit.textureUnit);
-                    renderer.setShader(shader);
-                    renderMeshFromGeometry(renderer, geometry);
-                }
-            }
-        }
-        else{
+        } else {
             int batchSize = renderManager.getSinglePassLightBatchSize();
             if (lights.size() == 0) {
                 updateLightListUniforms(shader, geometry, lights, batchSize, renderManager, 0, isLightCullStageDraw);
                 renderer.setShader(shader);
                 renderMeshFromGeometry(renderer, geometry);
-            } else {
-                while (nbRenderedLights < lights.size()) {
-                    nbRenderedLights = updateLightListUniforms(shader, geometry, lights, batchSize, renderManager, nbRenderedLights, isLightCullStageDraw);
-                    renderer.setShader(shader);
-                    renderMeshFromGeometry(renderer, geometry);
-                }
+            } else while (numLights < lights.size()) {
+                numLights = updateLightListUniforms(shader, geometry, lights, batchSize, renderManager, numLights, isLightCullStageDraw);
+                renderer.setShader(shader);
+                renderMeshFromGeometry(renderer, geometry);
             }
         }
     }
+    
 }

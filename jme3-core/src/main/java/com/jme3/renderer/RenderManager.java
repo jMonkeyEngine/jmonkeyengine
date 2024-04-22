@@ -41,16 +41,12 @@ import com.jme3.material.RenderState;
 import com.jme3.material.Technique;
 import com.jme3.material.TechniqueDef;
 import com.jme3.material.logic.TileBasedDeferredSinglePassLightingLogic;
-import com.jme3.math.ColorRGBA;
 import com.jme3.math.Matrix4f;
 import com.jme3.post.SceneProcessor;
 import com.jme3.profile.AppProfiler;
 import com.jme3.profile.AppStep;
 import com.jme3.profile.SpStep;
 import com.jme3.profile.VpStep;
-import com.jme3.renderer.framegraph.FGGlobal;
-import com.jme3.renderer.framegraph.RenderContext;
-import com.jme3.renderer.framegraph.FrameGraph;
 import com.jme3.renderer.framegraph.MyFrameGraph;
 import com.jme3.renderer.queue.GeometryList;
 import com.jme3.renderer.queue.RenderQueue;
@@ -74,7 +70,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
-import java.util.logging.Logger;
 
 /**
  * A high-level rendering interface that is
@@ -88,30 +83,13 @@ import java.util.logging.Logger;
  */
 public class RenderManager {
     
-    // Maximum total number of light sources for deferred rendering
+    private GeometryRenderHandler renderGeometry;
+    private MyFrameGraph myFrameGraph;
     private int maxDeferredLights = 1024;
-    // TileInfo
     private TileBasedDeferredSinglePassLightingLogic.TileInfo tileInfo;
-    // Based on your current resolution and total light source count, try adjusting the tileSize - it must be a power of 2 such as 32, 64, 128 etc.
     private int forceTileSize = 64;
-    // If ForceTileSize is not specified, curTileSize is calculated each frame by dividing viewport horizontal width by NumberTileDivisions.
     private int curTileSize = -1;
     private int numberTileDivisions = 4;
-    // frameGraph=============================================================================↓
-    private RenderGeometry renderGeometry;
-    private boolean useFramegraph = true;
-    private FrameGraph frameGraph;
-    private GBufferPass gBufferPass;
-    private DeferredShadingPass deferredShadingPass;
-    private TileDeferredShadingPass tileDeferredShadingPass;
-    private OpaquePass opaquePass;
-    private SkyPass skyPass;
-    private TransparentPass transparentPass;
-    private TranslucentPass translucentPass;
-    private GuiPass guiPass;
-    private PostProcessorPass postProcessorPass;
-    private MyFrameGraph myFrameGraph;
-    // frameGraph=============================================================================↑
 
     // RenderPath
     public enum RenderPath {
@@ -135,9 +113,7 @@ public class RenderManager {
             return info;
         }
     }
-    private RenderPath renderPath = RenderPath.Forward;
 
-    private static final Logger logger = Logger.getLogger(RenderManager.class.getName());
     private final Renderer renderer;
     private final UniformBindingManager uniformBindingManager = new UniformBindingManager();
     private final ArrayList<ViewPort> preViewPorts = new ArrayList<>();
@@ -173,18 +149,6 @@ public class RenderManager {
     public RenderManager(Renderer renderer) {
         this.renderer = renderer;
         this.forcedOverrides.add(boundDrawBufferId);
-        if(useFramegraph){
-            frameGraph = new FrameGraph(new RenderContext(this, null));
-            gBufferPass = new GBufferPass();
-            deferredShadingPass = new DeferredShadingPass();
-            tileDeferredShadingPass = new TileDeferredShadingPass();
-            opaquePass = new OpaquePass();
-            skyPass = new SkyPass();
-            transparentPass = new TransparentPass();
-            translucentPass = new TranslucentPass();
-            guiPass = new GuiPass();
-            postProcessorPass = new PostProcessorPass("PostPass");
-        }
     }
 
     /**
@@ -211,14 +175,6 @@ public class RenderManager {
 
     public int getForceTileSize() {
         return forceTileSize;
-    }
-
-    /**
-     * EnableFrameGraph?
-     * @param useFramegraph
-     */
-    public final void enableFramegraph(boolean useFramegraph){
-        this.useFramegraph = useFramegraph;
     }
     
     /**
@@ -282,34 +238,14 @@ public class RenderManager {
      * Set an IRenderGeometry for executing drawing call interfaces for the specified FGPass.
      * 
      * @param renderGeometry
-     * @see RenderGeometry
+     * @see GeometryRenderHandler
      */
-    public final void setRenderGeometryHandler(RenderGeometry renderGeometry){
+    public final void setGeometryRenderHandler(GeometryRenderHandler renderGeometry){
         this.renderGeometry = renderGeometry;
     }
 
-    public RenderGeometry getRenderGeometryHandler() {
+    public GeometryRenderHandler getGeometryRenderHandler() {
         return renderGeometry;
-    }
-
-    /**
-     * SetRenderPath.
-     * @param renderPath
-     *
-     * @see RenderManager.RenderPath
-     */
-    public final void setRenderPath(RenderPath renderPath){
-        this.renderPath = renderPath;
-    }
-
-    /**
-     * Return renderPath.
-     * @return Current ActiveRenderPath.
-     *
-     * @see RenderManager.RenderPath
-     */
-    public final RenderPath getRenderPath(){
-        return this.renderPath;
     }
 
 
@@ -822,7 +758,33 @@ public class RenderManager {
      * @see com.jme3.material.Material#render(com.jme3.scene.Geometry, com.jme3.renderer.RenderManager)
      */
     public void renderGeometry(Geometry geom) {
-        if (renderFilter != null && !renderFilter.test(geom)) return;
+        
+        if (renderFilter != null && !renderFilter.test(geom)) {
+            return;
+        }
+        
+        LightList lightList = geom.getWorldLightList();
+        if (lightFilter != null) {
+            filteredLightList.clear();
+            lightFilter.filterLights(geom, filteredLightList);
+            lightList = filteredLightList;
+        }
+        
+        renderGeometry(geom, lightList);
+        
+    }
+    
+    /**
+     * 
+     * @param geom
+     * @param lightList 
+     */
+    public void renderGeometry(Geometry geom, LightList lightList) {
+        
+        if (renderFilter != null && !renderFilter.test(geom)) {
+            return;
+        }
+        
         this.renderer.pushDebugGroup(geom.getName());
         if (geom.isIgnoreTransform()) {
             setWorldMatrix(Matrix4f.IDENTITY);
@@ -830,20 +792,13 @@ public class RenderManager {
             setWorldMatrix(geom.getWorldMatrix());
         }
 
-        // Use material override to pass the current target index (used in api such as GL ES that do not support glDrawBuffer)
+        // Use material override to pass the current target index (used in api such as GL ES
+        // that do not support glDrawBuffer)
         FrameBuffer currentFb = this.renderer.getCurrentFrameBuffer();
         if (currentFb != null && !currentFb.isMultiTarget()) {
             this.boundDrawBufferId.setValue(currentFb.getTargetIndex());
         }
-
-        // Perform light filtering if we have a light filter.
-        LightList lightList = geom.getWorldLightList();
-
-        if (lightFilter != null) {
-            filteredLightList.clear();
-            lightFilter.filterLights(geom, filteredLightList);
-            lightList = filteredLightList;
-        }
+        
         // updateFilterLight
         geom.setFilterLight(lightList);
 

@@ -164,7 +164,7 @@ public class GBufferPass extends OpaquePass {
     }
 
     @Override
-    public boolean drawGeometry(RenderManager rm, Geometry geom) {
+    public boolean renderGeometry(RenderManager rm, Geometry geom) {
         Material material = geom.getMaterial();
         if(material.getMaterialDef().getTechniqueDefs(rm.getForcedTechnique()) == null)return false;
         rm.renderGeometry(geom);

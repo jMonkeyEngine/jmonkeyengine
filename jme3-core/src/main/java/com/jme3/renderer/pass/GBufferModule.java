@@ -15,6 +15,7 @@ import com.jme3.renderer.framegraph.MyFrameGraph;
 import com.jme3.renderer.framegraph.RenderContext;
 import com.jme3.renderer.framegraph.TextureTargetParam;
 import com.jme3.renderer.framegraph.ValueRenderParam;
+import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image;
@@ -25,7 +26,7 @@ import java.util.ArrayList;
  *
  * @author codex
  */
-public class GBufferModule extends OpaqueModule {
+public class GBufferModule extends ForwardModule implements GeometryRenderHandler {
     
     private final static String GBUFFER_PASS = "GBufferPass";
     public final static String[] RENDER_TARGETS = {
@@ -42,8 +43,11 @@ public class GBufferModule extends OpaqueModule {
     private FrameBuffer gBuffer;
     private ValueRenderParam<FrameBuffer> bufferParam;
     private final TextureTargetParam[] targets = new TextureTargetParam[5];
-    private final ColorRGBA mask = new ColorRGBA(0, 0, 0, 0);
-    private int width = -1, height = -1;
+    private final ColorRGBA mask = new ColorRGBA();
+
+    public GBufferModule() {
+        super(RenderQueue.Bucket.Opaque);
+    }
     
     @Override
     public void initialize(MyFrameGraph frameGraph) {
@@ -59,29 +63,32 @@ public class GBufferModule extends OpaqueModule {
     @Override
     public void prepare(RenderContext context) {
         super.prepare(context);
-        ViewPort vp = getViewPort(context);
-        reshape(context.getRenderer(), vp.getCamera().getWidth(), vp.getCamera().getHeight());
+        if (context.isSizeChanged() || gBuffer == null) {
+            reshape(context.getRenderer(), context.getWidth(), context.getHeight());
+        }
     }
 
     @Override
-    public void executeDrawCommands(RenderContext context) {
-        ViewPort vp = getViewPort(context);
+    public void execute(RenderContext context) {
+        ViewPort vp = context.getViewPort();
         String tempFT = context.getRenderManager().getForcedTechnique();
         context.getRenderer().setFrameBuffer(gBuffer);
         context.getRenderer().setBackgroundColor(mask.set(vp.getBackgroundColor()).setAlpha(0));
         context.getRenderer().clearBuffers(vp.isClearColor(), vp.isClearDepth(), vp.isClearStencil());
         context.getRenderManager().setForcedTechnique(GBUFFER_PASS);
-        super.executeDrawCommands(context);
+        context.getRenderManager().setGeometryRenderHandler(this);
+        super.execute(context);
+        context.getRenderManager().setGeometryRenderHandler(null);
         context.getRenderManager().setForcedTechnique(tempFT);
         context.getRenderer().setBackgroundColor(vp.getBackgroundColor());
         context.getRenderer().setFrameBuffer(vp.getOutputFrameBuffer());
-        for(Light light : tempLights){
+        for (Light light : tempLights) {
             lightData.add(light);
         }
     }
     
     @Override
-    public boolean drawGeometry(RenderManager rm, Geometry geom) {
+    public boolean renderGeometry(RenderManager rm, Geometry geom) {
         Material material = geom.getMaterial();
         if(material.getMaterialDef().getTechniqueDefs(rm.getForcedTechnique()) == null) {
             return false;
@@ -113,11 +120,6 @@ public class GBufferModule extends OpaqueModule {
     }
     
     protected void reshape(Renderer renderer, int w, int h) {
-        if (width == w && height == h) {
-            return;
-        }
-        width = w;
-        height = h;
         if (gBuffer != null) {
             gBuffer.dispose();
             gBuffer.deleteObject(renderer);
@@ -156,14 +158,6 @@ public class GBufferModule extends OpaqueModule {
         targets[4].setTextureTarget(t4);
         gBuffer.setMultiTarget(true);
         bufferParam.accept(gBuffer);
-    }
-    
-    protected ViewPort getViewPort(RenderContext context) {
-        if (forcedViewPort == null) {
-            return context.getViewPort();
-        } else {
-            return forcedViewPort;
-        }
     }
     
 }

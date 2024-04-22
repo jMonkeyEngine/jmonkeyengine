@@ -69,7 +69,7 @@ public class ForwardPass extends FGRenderQueuePass {
     }
 
     @Override
-    public boolean drawGeometry(RenderManager rm, Geometry geom) {
+    public boolean renderGeometry(RenderManager rm, Geometry geom) {
         rm.renderGeometry(geom);
         return true;
     }

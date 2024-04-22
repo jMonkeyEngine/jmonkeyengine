@@ -5,7 +5,6 @@
 package com.jme3.renderer.framegraph;
 
 import com.jme3.renderer.RenderManager;
-import com.jme3.renderer.ViewPort;
 import java.util.LinkedList;
 
 /**
@@ -47,12 +46,15 @@ public class MyFrameGraph {
             p.execute(context);
             // apply resulting output parameters to connected input parameters
             parameters.push(p);
+            // reset depth render range
+            context.setDepthRange(DepthRange.IDENTITY);
+            // reset geometry handler
+            context.getRenderManager().setGeometryRenderHandler(null);
         }
         // reset passes
         for (FGModule p : passes) {
             p.reset();
         }
-        context.getRenderManager().setRenderGeometryHandler(null);
     }
     
     public void add(FGModule pass) {

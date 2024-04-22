@@ -5,15 +5,15 @@
 package com.jme3.renderer.framegraph;
 
 import com.jme3.renderer.ViewPort;
-import com.jme3.renderer.pass.RenderGeometry;
 import com.jme3.renderer.queue.GeometryList;
 import com.jme3.renderer.queue.RenderQueue;
+import com.jme3.renderer.pass.GeometryRenderHandler;
 
 /**
  *
  * @author codex
  */
-public abstract class RenderQueueModule extends AbstractModule implements RenderGeometry {
+public abstract class RenderQueueModule extends AbstractModule implements GeometryRenderHandler {
     
     protected ViewPort forcedViewPort;
     protected GeometryList drawCommands;
@@ -25,12 +25,12 @@ public abstract class RenderQueueModule extends AbstractModule implements Render
     
     @Override
     public void execute(RenderContext context) {
-        context.getRenderManager().setRenderGeometryHandler(this);
+        context.getRenderManager().setGeometryRenderHandler(this);
         dispatchPassSetup(context.getRenderQueue());
         //if (canExecute) {
             executeDrawCommands(context);
         //}
-        context.getRenderManager().setRenderGeometryHandler(null);
+        context.getRenderManager().setGeometryRenderHandler(null);
     }
     
     @Override

@@ -28,7 +28,7 @@ public class TileDeferredShadingModule extends DeferredShadingModule {
     }
     
     @Override
-    public void executeDrawCommands(RenderContext context) {
+    public void execute(RenderContext context) {
         
         // Handle FullScreenLights
         screenMat.selectTechnique(PASS, context.getRenderManager());

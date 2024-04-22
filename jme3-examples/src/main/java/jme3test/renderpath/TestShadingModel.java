@@ -1,6 +1,7 @@
 package jme3test.renderpath;
 
 import com.jme3.app.SimpleApplication;
+import com.jme3.asset.AssetManager;
 import com.jme3.environment.EnvironmentCamera;
 import com.jme3.environment.EnvironmentProbeControl;
 import com.jme3.light.AmbientLight;
@@ -10,8 +11,10 @@ import com.jme3.material.RenderState;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
+import com.jme3.post.Filter;
 import com.jme3.post.FilterPostProcessor;
 import com.jme3.renderer.RenderManager;
+import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.framegraph.MatRenderParam;
 import com.jme3.renderer.framegraph.MyFrameGraph;
 import com.jme3.renderer.framegraph.RenderPipelineFactory;
@@ -119,7 +122,8 @@ public class TestShadingModel extends SimpleApplication {
 //        fpp.addFilter(new FXAAFilter());
         //fpp.addFilter(new ToneMapFilter(Vector3f.UNIT_XYZ.mult(1.0f)));
 //        fpp.addFilter(new SSAOFilter(0.5f, 3, 0.2f, 0.2f));
-        //viewPort.addProcessor(fpp);
+        //fpp.addFilter(new DepthDebugFilter());
+        viewPort.addProcessor(fpp);
         
         DirectionalLightShadowRenderer dr = new DirectionalLightShadowRenderer(assetManager, 1024, 2);
         dr.setLight(dl);
@@ -158,4 +162,24 @@ public class TestShadingModel extends SimpleApplication {
         TestShadingModel testShadingModel = new TestShadingModel();
         testShadingModel.start();
     }
+    
+    private class DepthDebugFilter extends Filter {
+
+        @Override
+        protected void initFilter(AssetManager assetManager, RenderManager renderManager, ViewPort vp, int w, int h) {
+            material = new Material(assetManager, "Common/MatDefs/Post/DepthDebug.j3md");
+        }
+
+        @Override
+        protected Material getMaterial() {
+            return material;
+        }
+        
+        @Override
+        protected boolean isRequiresDepthTexture() {
+            return true;
+        }
+        
+    }
+    
 }

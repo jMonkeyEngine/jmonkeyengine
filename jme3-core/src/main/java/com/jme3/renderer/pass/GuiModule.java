@@ -5,6 +5,7 @@
 package com.jme3.renderer.pass;
 
 import com.jme3.renderer.Camera;
+import com.jme3.renderer.framegraph.DepthRange;
 import com.jme3.renderer.framegraph.RenderContext;
 import com.jme3.renderer.queue.RenderQueue;
 
@@ -15,25 +16,15 @@ import com.jme3.renderer.queue.RenderQueue;
 public class GuiModule extends ForwardModule {
     
     public GuiModule() {
-        super(RenderQueue.Bucket.Gui);
+        super(RenderQueue.Bucket.Gui, DepthRange.IDENTITY);
     }
     
     @Override
-    public void executeDrawCommands(RenderContext context) {
-        Camera cam;
-        if (forcedViewPort != null) {
-            cam = forcedViewPort.getCamera();
-        } else {
-            cam = context.getViewPort().getCamera();
-        }
-        if (canExecute) {
-            context.setDepthRange(0, 0);
-            context.getRenderManager().setCamera(cam, true);
-        }
-        super.executeDrawCommands(context);
-        if (canExecute) {
-            context.getRenderManager().setCamera(cam, false);
-        }
+    public void execute(RenderContext context) {
+        Camera cam = context.getViewPort().getCamera();
+        context.getRenderManager().setCamera(cam, true);
+        super.execute(context);
+        context.getRenderManager().setCamera(cam, false);
     }
     
 }

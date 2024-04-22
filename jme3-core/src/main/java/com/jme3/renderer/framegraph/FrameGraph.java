@@ -198,7 +198,7 @@ public class FrameGraph {
         }
         passes.clear();
         if(renderContext != null) {
-            renderContext.getRenderManager().setRenderGeometryHandler(null);
+            renderContext.getRenderManager().setGeometryRenderHandler(null);
         }
     }
 

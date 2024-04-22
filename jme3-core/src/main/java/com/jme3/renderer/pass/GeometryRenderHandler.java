@@ -37,12 +37,12 @@ import com.jme3.scene.Geometry;
 /**
  * @author JohnKkk
  */
-public interface RenderGeometry {
+public interface GeometryRenderHandler {
     /**
      * Submit the given Geometry to the Pipeline for rendering.
      * @param rm
      * @param geom
      * @return If true is returned, the geometry will be removed from the render Bucket after being rendered.
      */
-    public boolean drawGeometry(RenderManager rm, Geometry geom);
+    public boolean renderGeometry(RenderManager rm, Geometry geom);
 }

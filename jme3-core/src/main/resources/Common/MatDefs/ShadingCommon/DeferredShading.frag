@@ -223,4 +223,5 @@ void main(){
     //}
     //discard;
     //gl_FragColor.a = 0.5;
+    //gl_FragColor.a = 0.01;
 }

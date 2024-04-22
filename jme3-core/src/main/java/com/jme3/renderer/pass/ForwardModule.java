@@ -5,6 +5,7 @@
 package com.jme3.renderer.pass;
 
 import com.jme3.renderer.RenderManager;
+import com.jme3.renderer.framegraph.AbstractModule;
 import com.jme3.renderer.framegraph.DepthRange;
 import com.jme3.renderer.framegraph.MyFrameGraph;
 import com.jme3.renderer.framegraph.RenderContext;
@@ -16,13 +17,13 @@ import com.jme3.scene.Geometry;
  *
  * @author codex
  */
-public class ForwardModule extends RenderQueueModule {
+public class ForwardModule extends AbstractModule {
 
     private final RenderQueue.Bucket bucket;
     protected DepthRange depth;
 
     public ForwardModule(RenderQueue.Bucket bucket) {
-        this(bucket, null);
+        this(bucket, DepthRange.IDENTITY);
     }
     public ForwardModule(RenderQueue.Bucket bucket, DepthRange depth) {
         this.bucket = bucket;
@@ -30,28 +31,18 @@ public class ForwardModule extends RenderQueueModule {
     }
     
     @Override
-    public void dispatchPassSetup(RenderQueue queue) {
-        canExecute = !queue.isQueueEmpty(bucket);
-    }
+    public void initialize(MyFrameGraph frameGraph) {}
     @Override
-    public void executeDrawCommands(RenderContext context) {
-        if (!canExecute) {
-            //return;
-        }
+    public void prepare(RenderContext context) {}
+    @Override
+    public void execute(RenderContext context) {
         if (depth != null) {
             context.setDepthRange(depth);
         }
         context.getRenderQueue().renderQueue(bucket, context.getRenderManager(), context.getViewPort().getCamera(), true);
     }
     @Override
-    public void initialize(MyFrameGraph frameGraph) {}
-    @Override
-    public void prepare(RenderContext context) {}
-    @Override
-    public boolean drawGeometry(RenderManager rm, Geometry geom) {
-        rm.renderGeometry(geom);
-        return true;
-    }
+    public void reset() {}
     
     public static ForwardModule opaque() {
         return new ForwardModule(RenderQueue.Bucket.Opaque, DepthRange.IDENTITY);

@@ -75,7 +75,7 @@ public class ResolveSceneColorPass extends ScreenPass {
     }
 
     @Override
-    public boolean drawGeometry(RenderManager rm, Geometry geom) {
+    public boolean renderGeometry(RenderManager rm, Geometry geom) {
         return true;
     }
 
