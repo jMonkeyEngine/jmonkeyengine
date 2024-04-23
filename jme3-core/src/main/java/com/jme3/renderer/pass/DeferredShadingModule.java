@@ -8,13 +8,14 @@ import com.jme3.asset.AssetManager;
 import com.jme3.light.LightList;
 import com.jme3.material.Material;
 import com.jme3.material.RenderState;
+import com.jme3.material.TechniqueDef;
+import com.jme3.material.logic.DeferredSinglePassLightingLogic;
 import com.jme3.renderer.framegraph.AbstractModule;
 import com.jme3.renderer.framegraph.MatRenderParam;
 import com.jme3.renderer.framegraph.MyFrameGraph;
 import com.jme3.renderer.framegraph.RenderContext;
 import com.jme3.renderer.framegraph.TextureTargetParam;
 import com.jme3.renderer.framegraph.ValueRenderParam;
-import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.shader.VarType;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Texture2D;
@@ -41,6 +42,7 @@ public class DeferredShadingModule extends AbstractModule {
     protected final AssetManager assetManager;
     protected Material screenMat;
     protected Picture screenRect;
+    protected DeferredSinglePassLightingLogic logic;
     protected MatRenderParam[] matParams = new MatRenderParam[5];
     protected ValueRenderParam<LightList> lightList;
     protected ValueRenderParam<Boolean> executeState;
@@ -69,6 +71,10 @@ public class DeferredShadingModule extends AbstractModule {
         //rs.setBlendMode(RenderState.BlendMode.Alpha);
         //screenMat.setTransparent(true);
         screenMat.setBoolean("UseLightsCullMode", false);
+        
+        TechniqueDef techDef = screenMat.getMaterialDef().getTechniqueDefs(DEFERRED_PASS).get(0);
+        logic = new DeferredSinglePassLightingLogic(techDef, true);
+        techDef.setLogic(logic);
         
         // material render parameters automatically apply their values
         matParams[0] = addParameter(new MatRenderParam(RT_0, screenMat, VarType.Texture2D));

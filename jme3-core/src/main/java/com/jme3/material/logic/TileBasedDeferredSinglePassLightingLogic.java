@@ -74,10 +74,11 @@ import java.util.List;
  * @author JohnKkk
  */
 public class TileBasedDeferredSinglePassLightingLogic extends DefaultTechniqueDefLogic{
-    private final static String _S_LIGHT_CULL_DRAW_STAGE = "Light_Cull_Draw_Stage";
-    private final static String _S_TILE_SIZE = "g_TileSize";
-    private final static String _S_TILE_WIDTH = "g_WidthTile";
-    private final static String _S_TILE_HEIGHT = "g_HeightTile";
+    
+    private final static String LIGHT_CULL_DRAW_STAGE = "Light_Cull_Draw_Stage";
+    private final static String TILE_SIZE = "g_TileSize";
+    private final static String TILE_WIDTH = "g_WidthTile";
+    private final static String TILE_HEIGHT = "g_HeightTile";
     private static final String DEFINE_TILE_BASED_DEFERRED_SINGLE_PASS_LIGHTING = "TILE_BASED_DEFERRED_SINGLE_PASS_LIGHTING";
     private static final String DEFINE_NB_LIGHTS = "NB_LIGHTS";
     private static final String DEFINE_USE_AMBIENT_LIGHT = "USE_AMBIENT_LIGHT";
@@ -91,9 +92,7 @@ public class TileBasedDeferredSinglePassLightingLogic extends DefaultTechniqueDe
     // Sampling offset size in Tile
     private static final String TILE_LIGHT_OFFSET_SIZE = "g_TileLightOffsetSize";
     private static final RenderState ADDITIVE_LIGHT = new RenderState();
-    private boolean bUseTexturePackMode = true;
-    // Avoid too many lights
-    private static final int MAX_LIGHT_NUM = 9046;
+    private boolean packAsTextures = true;
     // Use textures to store large amounts of light data at once, avoiding multiple draw calls
     private Texture2D lightData1;
     private Texture2D lightData2;
@@ -128,7 +127,6 @@ public class TileBasedDeferredSinglePassLightingLogic extends DefaultTechniqueDe
     private float viewPortWidth = -1;
     private float viewPortHeight = -1;
     private final float[] matArray1 = new float[16];
-    private final float[] matArray2 = new float[16];
     private final Vector3f tempVec3 = new Vector3f();
     private final Vector3f tempVec3_2 = new Vector3f();
     private final Vector4f tempVec4 = new Vector4f();
@@ -164,7 +162,7 @@ public class TileBasedDeferredSinglePassLightingLogic extends DefaultTechniqueDe
      * <p>This is a structure representing Tile information, including how many tiles the screen is divided into, how many tiles in horizontal and vertical directions, the size of each tile, etc.</p>
      * @author JohnKkk
      */
-    public static class TileInfo{
+    public static class TileInfo {
         int tileSize = 0;
         int tileWidth = 0;
         int tileHeight = 0;
@@ -249,7 +247,7 @@ public class TileBasedDeferredSinglePassLightingLogic extends DefaultTechniqueDe
 
     /**
      * Reallocate texture memory for the query texture for the specified tile size.
-     * 
+     * <p>
      * This detection is performed every frame to ensure the cache textures
      * lightsDecode and lightsIndex are recreated when screen changes or tiles change dynamically.
      * 
@@ -571,7 +569,7 @@ public class TileBasedDeferredSinglePassLightingLogic extends DefaultTechniqueDe
         super(techniqueDef);
         lightIndexWidth = (int)(Math.floor(Math.sqrt(1024)));
         singlePassLightingDefineId = techniqueDef.addShaderUnmappedDefine(DEFINE_TILE_BASED_DEFERRED_SINGLE_PASS_LIGHTING, VarType.Boolean);
-        if(bUseTexturePackMode){
+        if(packAsTextures){
             packNbLightsDefineId = techniqueDef.addShaderUnmappedDefine(DEFINE_PACK_NB_LIGHTS, VarType.Int);
             packTextureModeDefineId = techniqueDef.addShaderUnmappedDefine(DEFINE_USE_TEXTURE_PACK_MODE, VarType.Boolean);
             prepareLightData(1024);
@@ -653,7 +651,7 @@ public class TileBasedDeferredSinglePassLightingLogic extends DefaultTechniqueDe
     @Override
     public Shader makeCurrent(AssetManager assetManager, RenderManager renderManager,
                               EnumSet<Caps> rendererCaps, LightList lights, DefineList defines) {
-        if(bUseTexturePackMode){
+        if(packAsTextures){
             defines.set(packNbLightsDefineId, this.lightNum);
             defines.set(packTextureModeDefineId, true);
         }
@@ -945,10 +943,10 @@ public class TileBasedDeferredSinglePassLightingLogic extends DefaultTechniqueDe
         int nbRenderedLights = 0;
         Renderer renderer = renderManager.getRenderer();
         boolean isLightCullStageDraw = false;
-        if(geometry.getUserData(_S_LIGHT_CULL_DRAW_STAGE) != null){
-            isLightCullStageDraw = geometry.getUserData(_S_LIGHT_CULL_DRAW_STAGE);
+        if(geometry.getUserData(LIGHT_CULL_DRAW_STAGE) != null){
+            isLightCullStageDraw = geometry.getUserData(LIGHT_CULL_DRAW_STAGE);
         }
-        if(bUseTexturePackMode){
+        if(packAsTextures){
             if(this.lightNum != renderManager.getMaxDeferredShadingLights()){
                 cleanupLightData();
                 prepareLightData(renderManager.getMaxDeferredShadingLights());
@@ -968,9 +966,9 @@ public class TileBasedDeferredSinglePassLightingLogic extends DefaultTechniqueDe
                 int tileWidth = tileInfo.tileWidth;
                 int tileHeight = tileInfo.tileHeight;
                 int tileNum = tileInfo.tileNum;
-                Uniform u_tileSize = shader.getUniform(_S_TILE_SIZE);
-                Uniform u_tileWidth = shader.getUniform(_S_TILE_WIDTH);
-                Uniform u_tileHeight = shader.getUniform(_S_TILE_HEIGHT);
+                Uniform u_tileSize = shader.getUniform(TILE_SIZE);
+                Uniform u_tileWidth = shader.getUniform(TILE_WIDTH);
+                Uniform u_tileHeight = shader.getUniform(TILE_HEIGHT);
                 u_tileSize.setValue(VarType.Int, tileSize);
                 u_tileWidth.setValue(VarType.Int, tileWidth);
                 u_tileHeight.setValue(VarType.Int, tileHeight);

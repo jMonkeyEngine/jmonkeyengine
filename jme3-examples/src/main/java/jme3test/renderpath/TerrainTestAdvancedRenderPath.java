@@ -224,7 +224,6 @@ public class TerrainTestAdvancedRenderPath extends SimpleApplication {
         
         rootNode.attachChild(createAxisMarker(20));
 
-        new RenderPathHelper(this, new Vector3f(0, cam.getHeight() / 2, 0), KeyInput.KEY_K, "K");
         renderManager.setPreferredLightMode(TechniqueDef.LightMode.SinglePass);
     }
 

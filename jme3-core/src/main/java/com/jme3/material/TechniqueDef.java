@@ -162,6 +162,7 @@ public class TechniqueDef implements Savable, Cloneable {
          */
         @Deprecated
         FixedPipeline,
+        
         /**
          * Similar to {@link #SinglePass} except the type of each light is known
          * at shader compile time.
@@ -172,7 +173,8 @@ public class TechniqueDef implements Savable, Cloneable {
          * shaders used balloons because of the variations in the number of
          * lights used by objects.
          */
-        StaticPass
+        StaticPass,
+        
     }
 
     public enum ShadowMode {

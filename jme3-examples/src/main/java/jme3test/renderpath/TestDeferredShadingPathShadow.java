@@ -90,7 +90,7 @@ public class TestDeferredShadingPathShadow extends SimpleApplication implements 
         inputManager.addMapping("toggleRenderPath", new KeyTrigger(KeyInput.KEY_SPACE));
 
         currentRenderPath = RenderManager.RenderPath.Forward;
-        renderManager.setRenderPath(currentRenderPath);
+        //renderManager.setRenderPath(currentRenderPath);
         makeHudText();
 
         flyCam.setMoveSpeed(20.0f);
@@ -113,7 +113,7 @@ public class TestDeferredShadingPathShadow extends SimpleApplication implements 
             else{
                 currentRenderPath = RenderManager.RenderPath.Deferred;
             }
-            renderManager.setRenderPath(currentRenderPath);
+            //renderManager.setRenderPath(currentRenderPath);
             hitText.setText("RendererPath : "+ currentRenderPath.getInfo());
         }
     }

@@ -80,7 +80,7 @@ public class TestRenderPathChanged extends SimpleApplication implements ActionLi
 
         // set RenderPath
         currentRenderPath = RenderManager.RenderPath.Forward;
-        renderManager.setRenderPath(currentRenderPath);
+        //renderManager.setRenderPath(currentRenderPath);
         makeHudText();
 
         flyCam.setMoveSpeed(20.0f);
@@ -98,7 +98,7 @@ public class TestRenderPathChanged extends SimpleApplication implements ActionLi
             else{
                 currentRenderPath = RenderManager.RenderPath.Deferred;
             }
-            renderManager.setRenderPath(currentRenderPath);
+            //renderManager.setRenderPath(currentRenderPath);
             hitText.setText("RendererPath : "+ currentRenderPath.getInfo());
         }
     }

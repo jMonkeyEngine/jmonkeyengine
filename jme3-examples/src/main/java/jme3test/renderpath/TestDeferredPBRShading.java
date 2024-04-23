@@ -38,8 +38,6 @@ public class TestDeferredPBRShading extends SimpleApplication {
     private Node tex;
     @Override
     public void simpleInitApp() {
-        // Baking irradiance data requires the Forward path!
-        renderManager.setRenderPath(RenderManager.RenderPath.Forward);
 
         roughness = 1.0f;
         assetManager.registerLoader(KTXLoader.class, "ktx");
@@ -160,7 +158,7 @@ public class TestDeferredPBRShading extends SimpleApplication {
                     System.err.println("Done rendering env maps");
                     tex = EnvMapUtils.getCubeMapCrossDebugViewWithMipMaps(result.getPrefilteredEnvMap(), assetManager);
                     // Now, switching to the Deferred rendering path.
-                    renderManager.setRenderPath(RenderManager.RenderPath.Deferred);
+                    //renderManager.setRenderPath(RenderManager.RenderPath.Deferred);
                 }
             });
             probe.getArea().setRadius(100);

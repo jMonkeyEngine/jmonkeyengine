@@ -147,8 +147,6 @@ public class TerrainTestAndroidRenderPath extends SimpleApplication {
 
         cam.setLocation(new Vector3f(0, 10, -10));
         cam.setRotation(new Quaternion(0.01f, 0.964871f, -0.25966f, 0.0387f));
-
-        new RenderPathHelper(this, new Vector3f(0, cam.getHeight() / 2, 0), KeyInput.KEY_K, "K");
     }
 
     public void loadHintText() {

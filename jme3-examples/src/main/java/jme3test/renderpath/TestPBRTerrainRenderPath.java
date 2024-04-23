@@ -314,7 +314,7 @@ public class TestPBRTerrainRenderPath extends SimpleApplication {
         matTerrain.setTexture("NormalMap_6", normalMapGravel);
 
         terrain.setMaterial(matTerrain);
-        new RenderPathHelper(this, new Vector3f(0, cam.getHeight() / 2, 0), KeyInput.KEY_K, "K");
+        //new RenderPathHelper(this, new Vector3f(0, cam.getHeight() / 2, 0), KeyInput.KEY_K, "K");
         getStateManager().attach(new DetailedProfilerState());
     }
 

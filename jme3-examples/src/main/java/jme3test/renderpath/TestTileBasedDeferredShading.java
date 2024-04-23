@@ -31,7 +31,7 @@ public class TestTileBasedDeferredShading extends SimpleApplication {
 //        renderManager.setSinglePassLightBatchSize(30);
 //        renderManager.setRenderPath(RenderManager.RenderPath.Forward);
         renderManager.setMaxDeferredShadingLights(1000);
-        renderManager.setRenderPath(RenderManager.RenderPath.TiledDeferred);
+        //renderManager.setRenderPath(RenderManager.RenderPath.TiledDeferred);
         Quad quad = new Quad(15, 15);
         Geometry geo = new Geometry("Floor", quad);
         material = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");

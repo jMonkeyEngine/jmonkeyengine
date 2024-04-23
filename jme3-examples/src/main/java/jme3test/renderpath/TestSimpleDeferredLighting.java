@@ -759,7 +759,7 @@ public class TestSimpleDeferredLighting extends SimpleApplication implements Act
     public void onAction(String name, boolean isPressed, float tpf) {
         if(name.equals("toggleFramegraph") && !isPressed){
             bUseFramegraph = !bUseFramegraph;
-            renderManager.enableFramegraph(bUseFramegraph);
+            //renderManager.enableFramegraph(bUseFramegraph);
         }
         if(name.equals("toggleRenderPath") && !isPressed){
             if(currentRenderPath == RenderManager.RenderPath.Deferred){
@@ -771,7 +771,7 @@ public class TestSimpleDeferredLighting extends SimpleApplication implements Act
             else{
                 currentRenderPath = RenderManager.RenderPath.Deferred;
             }
-            renderManager.setRenderPath(currentRenderPath);
+            //renderManager.setRenderPath(currentRenderPath);
 //            getRenderManager().setForcedTechnique(null);
             hitText.setText("RendererPath : "+ currentRenderPath.getInfo());
         }

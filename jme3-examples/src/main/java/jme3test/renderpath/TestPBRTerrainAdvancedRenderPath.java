@@ -361,7 +361,6 @@ public class TestPBRTerrainAdvancedRenderPath extends SimpleApplication {
         // so setting an emissiveColor will apply equal intensity to every pixel
 
         terrain.setMaterial(matTerrain);
-        new RenderPathHelper(this, new Vector3f(0, cam.getHeight() / 2, 0), KeyInput.KEY_K, "K");
     }
 
     private void setupKeys() {

@@ -86,7 +86,7 @@ public final class DeferredSinglePassLightingLogic extends DefaultTechniqueDefLo
     
     private final Texture2D[] lightTextures = new Texture2D[3];
     private final ImageRaster[] lightTexRasters = new ImageRaster[3];
-    private boolean packAsTextures = true;
+    private final boolean useLightTextures;
     private int lightNum;
     private boolean useAmbientLight;
     private final ColorRGBA ambientColor = new ColorRGBA(0, 0, 0, 1);
@@ -100,22 +100,26 @@ public final class DeferredSinglePassLightingLogic extends DefaultTechniqueDefLo
     private final int singlePassLightingDefineId;
     private int nbLightsDefineId;
     private int packNbLightsDefineId;
-    private int packTextureModeDefineId;
-    private final int nbSkyLightAndReflectionProbesDefineId;
-    private final int useAmbientLightDefineId;
-
-    public DeferredSinglePassLightingLogic(TechniqueDef techniqueDef) {
+    private int textureModeDefine;
+    private final int probeDefine;
+    private final int ambientDefines;
+    
+//    public DeferredSinglePassLightingLogic(TechniqueDef techniqueDef) {
+//        this(techniqueDef, true);
+//    }
+    public DeferredSinglePassLightingLogic(TechniqueDef techniqueDef, boolean useLightTextures) {
         super(techniqueDef);
+        this.useLightTextures = useLightTextures;
         singlePassLightingDefineId = techniqueDef.addShaderUnmappedDefine(DEFINE_DEFERRED_SINGLE_PASS_LIGHTING, VarType.Boolean);
-        if (packAsTextures) {
+        if (this.useLightTextures) {
             packNbLightsDefineId = techniqueDef.addShaderUnmappedDefine(DEFINE_PACK_NB_LIGHTS, VarType.Int);
-            packTextureModeDefineId = techniqueDef.addShaderUnmappedDefine(DEFINE_USE_TEXTURE_PACK_MODE, VarType.Boolean);
+            textureModeDefine = techniqueDef.addShaderUnmappedDefine(DEFINE_USE_TEXTURE_PACK_MODE, VarType.Boolean);
             prepareLightData(1024);
         } else {
             nbLightsDefineId = techniqueDef.addShaderUnmappedDefine(DEFINE_NB_LIGHTS, VarType.Int);
         }
-        nbSkyLightAndReflectionProbesDefineId = techniqueDef.addShaderUnmappedDefine(DEFINE_NB_SKY_LIGHT_AND_REFLECTION_PROBES, VarType.Int);
-        useAmbientLightDefineId = techniqueDef.addShaderUnmappedDefine(DEFINE_USE_AMBIENT_LIGHT, VarType.Boolean);
+        probeDefine = techniqueDef.addShaderUnmappedDefine(DEFINE_NB_SKY_LIGHT_AND_REFLECTION_PROBES, VarType.Int);
+        ambientDefines = techniqueDef.addShaderUnmappedDefine(DEFINE_USE_AMBIENT_LIGHT, VarType.Boolean);
     }
 
     private void cleanupLightData() {
@@ -176,9 +180,9 @@ public final class DeferredSinglePassLightingLogic extends DefaultTechniqueDefLo
     @Override
     public Shader makeCurrent(AssetManager assetManager, RenderManager renderManager,
             EnumSet<Caps> rendererCaps, LightList lights, DefineList defines) {
-        if(packAsTextures){
+        if(useLightTextures){
             defines.set(packNbLightsDefineId, this.lightNum);
-            defines.set(packTextureModeDefineId, true);
+            defines.set(textureModeDefine, true);
         }
         else{
             defines.set(nbLightsDefineId, renderManager.getSinglePassLightBatchSize() * 3);
@@ -189,8 +193,8 @@ public final class DeferredSinglePassLightingLogic extends DefaultTechniqueDefLo
         //We cannot change the define between passes and the old technique, and for some reason the code fails on mac (renders nothing).
         if(lights != null) {
             useAmbientLight = SkyLightAndReflectionProbeRender.extractSkyLightAndReflectionProbes(lights, ambientColor, probes, false);
-            defines.set(nbSkyLightAndReflectionProbesDefineId, probes.size());
-            defines.set(useAmbientLightDefineId, useAmbientLight);
+            defines.set(probeDefine, probes.size());
+            defines.set(ambientDefines, useAmbientLight);
         }
         return super.makeCurrent(assetManager, renderManager, rendererCaps, lights, defines);
     }
@@ -218,22 +222,22 @@ public final class DeferredSinglePassLightingLogic extends DefaultTechniqueDefLo
      * @param lastTexUnit          lastTexUnit the index of the most recently-used texture unit
      * @return the next starting index in the LightList
      */
-    protected int updateLightListPackToTexture(Shader shader, Geometry g, LightList lightList, int numLights,
+    private int updateLightListPackToTexture(Shader shader, Geometry g, LightList lightList, int numLights,
             RenderManager rm, int startIndex, boolean isLightCullStageDraw, int lastTexUnit) {
         if (numLights == 0) { // this shader does not do lighting, ignore.
             return 0;
         }
 
-        Uniform ambientColor = shader.getUniform("g_AmbientLightColor");
+        Uniform ambClr = shader.getUniform("g_AmbientLightColor");
 
         //skyLightAndReflectionProbes.clear();
         if (startIndex != 0 || isLightCullStageDraw) {
             // apply additive blending for 2nd and future passes
             rm.getRenderer().applyRenderState(ADDITIVE_LIGHT);
-            ambientColor.setValue(VarType.Vector4, ColorRGBA.Black);
+            ambClr.setValue(VarType.Vector4, ColorRGBA.Black);
         } else {
             //extractSkyLightAndReflectionProbes(lightList,true);
-            ambientColor.setValue(VarType.Vector4, ambientColor);
+            ambClr.setValue(VarType.Vector4, ambientColor);
         }
 
         // render skyLights and reflectionProbes
@@ -375,7 +379,7 @@ public final class DeferredSinglePassLightingLogic extends DefaultTechniqueDefLo
      * @param isLightCullStageDraw isLightCullStageDraw
      * @return the next starting index in the LightList
      */
-    protected int updateLightListUniforms(Shader shader, Geometry g, LightList lightList, int numLights,
+    private int updateLightListUniforms(Shader shader, Geometry g, LightList lightList, int numLights,
             RenderManager rm, int startIndex, boolean isLightCullStageDraw) {
         if (numLights == 0) { // this shader does not do lighting, ignore.
             return 0;
@@ -484,7 +488,7 @@ public final class DeferredSinglePassLightingLogic extends DefaultTechniqueDefLo
 
         // todo: For light probes (temporarily implemented based on preCompute light probe), get light probe grid based on current view frustum visible range, execute multi pass according to light probe grid
         // todo: For reflection probes, use textureArray (cubemap projection, with mipmap), collect reflection probes visible to current camera view frustum, and limit the number of reflection probes allowed in the current view frustum
-        if(packAsTextures){
+        if(useLightTextures){
             if (lightNum != renderManager.getMaxDeferredShadingLights()) {
                 cleanupLightData();
                 prepareLightData(renderManager.getMaxDeferredShadingLights());

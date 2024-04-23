@@ -138,7 +138,6 @@ public class TestRenderPathPointDirectionalAndSpotLightShadows extends SimpleApp
         fpp.addFilter(slsf);
         viewPort.addProcessor(fpp);
 
-        new RenderPathHelper(this);
     }
 
     private float timeElapsed = 0.0f;
