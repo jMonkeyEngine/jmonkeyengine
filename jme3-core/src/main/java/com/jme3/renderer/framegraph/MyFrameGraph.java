@@ -4,7 +4,9 @@
  */
 package com.jme3.renderer.framegraph;
 
+import com.jme3.profile.AppProfiler;
 import com.jme3.renderer.RenderManager;
+import com.jme3.renderer.ViewPort;
 import java.util.LinkedList;
 
 /**
@@ -19,6 +21,10 @@ public class MyFrameGraph {
     
     public MyFrameGraph(RenderManager renderManager) {
         context = new RenderContext(renderManager);
+    }
+    
+    public void prepareRender(ViewPort vp, AppProfiler prof, float tpf) {
+        context.update(vp, prof, tpf);
     }
     
     public void preFrame() {
@@ -61,6 +67,15 @@ public class MyFrameGraph {
         pass.initialize(this);
         passes.add(pass);
         registerParameterGroup(pass);
+    }
+    
+    public <T extends FGModule> T get(Class<T> type) {
+        for (FGModule p : passes) {
+            if (type.isAssignableFrom(p.getClass())) {
+                return (T)p;
+            }
+        }
+        return null;
     }
     
     public ParameterManager getParameters() {

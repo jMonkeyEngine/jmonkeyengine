@@ -6,49 +6,62 @@ package com.jme3.renderer.pass;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.material.Material;
-import com.jme3.renderer.Camera;
+import com.jme3.material.TechniqueDef;
+import com.jme3.material.logic.TileBasedDeferredSinglePassLightingLogic;
+import com.jme3.material.logic.TileInfoProvider;
+import com.jme3.material.logic.TiledRenderGrid;
+import com.jme3.renderer.framegraph.MyFrameGraph;
 import com.jme3.renderer.framegraph.RenderContext;
+import com.jme3.renderer.framegraph.ValueRenderParam;
+import java.util.LinkedList;
 
 /**
  *
  * @author codex
  */
-public class TileDeferredShadingModule extends DeferredShadingModule {
+public class TileDeferredShadingModule extends DeferredShadingModule implements TileInfoProvider {
     
+    public static final String TILE_INFO = "TileDeferredShading.TileInfo";
     private static final String MATDEF = "Common/MatDefs/ShadingCommon/TileBasedDeferredShading.j3md";
-    protected final static String PASS = "TileBasedDeferredPass";
+    private static final String PASS = "TileBasedDeferredPass";
+    
+    private ValueRenderParam<TiledRenderGrid> tileInfo;
+    private final LinkedList<TileBasedDeferredSinglePassLightingLogic> logic = new LinkedList<>();
     
     public TileDeferredShadingModule(AssetManager assetManager) {
         super(assetManager);
     }
     
     @Override
-    protected Material createMaterial() {
-        return new Material(assetManager, MATDEF);
+    public void initialize(MyFrameGraph frameGraph) {
+        super.initialize(frameGraph);
+        tileInfo = addParameter(new ValueRenderParam<>(TILE_INFO, null, new TiledRenderGrid()));
     }
-    
-    @Override
-    public void execute(RenderContext context) {
-        
-        // Handle FullScreenLights
-        screenMat.selectTechnique(PASS, context.getRenderManager());
-        boolean depthWrite = screenMat.getAdditionalRenderState().isDepthWrite();
-        boolean depthTest = screenMat.getAdditionalRenderState().isDepthTest();
-        screenMat.getAdditionalRenderState().setDepthTest(false);
-        screenMat.getAdditionalRenderState().setDepthWrite(false);
-        screenMat.setBoolean("UseLightsCullMode", false);
-        screenRect.updateGeometricState();
-        screenMat.render(screenRect, lightList.produce(), context.getRenderManager());
-        screenMat.getAdditionalRenderState().setDepthTest(depthTest);
-        screenMat.getAdditionalRenderState().setDepthWrite(depthWrite);
-
-        // Handle non-fullscreen lights
-    }
-    
     @Override
     public void prepare(RenderContext context) {
         super.prepare(context);
-        context.getRenderManager().calculateTileInfo();
+        //context.getRenderManager().calculateTileInfo();
+    }
+    @Override
+    public void execute(RenderContext context) {
+        tileInfo.produce().update(context.getRenderManager().getCurrentCamera());
+        super.execute(context);
+    }
+    @Override
+    protected Material createMaterial() {
+        return new Material(assetManager, MATDEF);
+    }
+    @Override
+    protected void assignTechniqueLogic(Material mat) {
+        for (TechniqueDef t : mat.getMaterialDef().getTechniqueDefs(PASS)) {
+            TileBasedDeferredSinglePassLightingLogic l = new TileBasedDeferredSinglePassLightingLogic(t, this);
+            logic.add(l);
+            t.setLogic(l);
+        }
+    }
+    @Override
+    public TiledRenderGrid getTiledRenderGrid() {
+        return tileInfo.produce();
     }
     
 }

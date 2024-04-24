@@ -87,6 +87,10 @@ public class RenderContext {
         }
     }
     
+    public DepthRange getDepthRange() {
+        return depth;
+    }
+    
     public RenderManager getRenderManager() {
         return renderManager;
     }

@@ -13,13 +13,18 @@ public class ValueRenderParam <T> implements RenderParameter<T> {
     
     private final String name;
     private T value;
+    private T defaultValue;
     
     public ValueRenderParam(String name) {
-        this(name, null);
+        this(name, null, null);
     }
     public ValueRenderParam(String name, T value) {
+        this(name, value, null);
+    }
+    public ValueRenderParam(String name, T value, T defaultValue) {
         this.name = name;
         this.value = value;
+        this.defaultValue = defaultValue;
     }
     
     @Override
@@ -32,7 +37,19 @@ public class ValueRenderParam <T> implements RenderParameter<T> {
     }
     @Override
     public T produce() {
+        return (value != null ? value : defaultValue);
+    }
+    
+    public T produceRaw() {
         return value;
+    }
+    
+    public void setDefaultValue(T defaultValue) {
+        this.defaultValue = defaultValue;
+    }
+    
+    public T getDefaultValue() {
+        return defaultValue;
     }
     
 }

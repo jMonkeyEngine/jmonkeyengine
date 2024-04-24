@@ -86,10 +86,6 @@ public class RenderManager {
     private GeometryRenderHandler renderGeometry;
     private MyFrameGraph myFrameGraph;
     private int maxDeferredLights = 1024;
-    private TileBasedDeferredSinglePassLightingLogic.TileInfo tileInfo;
-    private int forceTileSize = 64;
-    private int curTileSize = -1;
-    private int numberTileDivisions = 4;
 
     // RenderPath
     public enum RenderPath {
@@ -150,104 +146,45 @@ public class RenderManager {
         this.renderer = renderer;
         this.forcedOverrides.add(boundDrawBufferId);
     }
-
-    /**
-     * then the number of tiles per frame is dynamically calculated based on NumberTileDivisions and current viewport width.<br/>
-     * @param numberTileDivisions defaultValue is 4
-     */
-    public void setNumberTileDivisions(int numberTileDivisions) {
-        this.numberTileDivisions = numberTileDivisions;
-    }
-
-    public int getNumberTileDivisions() {
-        return numberTileDivisions;
-    }
-
-    /**
-     * Tile-based DeferredShading divides the screen into multiple tiles, then assigns lights to corresponding tiles for rendering. In theory, the number of tiles should be set as powers of 2, such as 32, 64 etc, but it can be set larger depending on usage.<br/>
-     * 0 means auto calculate, then the number of tiles per frame is dynamically calculated based on NumberTileDivisions and current viewport width.<br/>
-     * Based on your current resolution and total light source count, try adjusting the tileSize - it must be a power of 2 such as 32, 64, 128 etc.<br/>
-     * @param forceTileSize
-     */
-    public void setForceTileSize(int forceTileSize) {
-        this.forceTileSize = forceTileSize;
-    }
-
-    public int getForceTileSize() {
-        return forceTileSize;
-    }
     
     /**
-     * Sets the framegraph used in the rendering process.
+     * Sets the framegraph used for rendering if the rendered viewport
+     * has no framegraph assigned.
      * 
-     * @param frameGraph 
+     * @param frameGraph default framegraph, or null to not use a framegraph by default for rendering
      */
     public void setFrameGraph(MyFrameGraph frameGraph) {
         this.myFrameGraph = frameGraph;
     }
-
+    
     /**
-     * For performance considerations, the engine will pre-allocate a texture memory block based on this tag for packing light source data. Therefore, please adjust this to a reasonable maximum value for the scene light sources based on scene needs.
-     * @param maxDeferredLights default value 1024
+     * Gets the framegraph used for rendering if the rendered viewport
+     * has no framegraph assigned.
+     * 
+     * @return default framegraph, or null if framegraphs are not used by default for rendering
      */
-    public void setMaxDeferredShadingLights(int maxDeferredLights) {
-        this.maxDeferredLights = maxDeferredLights;
-    }
-
-    public int getMaxDeferredShadingLights() {
-        return maxDeferredLights;
+    public MyFrameGraph getFrameGraph() {
+        return myFrameGraph;
     }
 
     /**
-     * SetTileBasedInfo.<br/>
-     * @param tileSize The current size of tiles for partitioning (default 32x32 pixels).
-     * @param tileWidth Number of tiles in the horizontal direction for partitioning.
-     * @param tileHeight Number of tiles in the vertical direction for partitioning.
-     * @param tileNum
+     * Sets the GeometryRenderHandler used to render geometry.
+     * 
+     * @param renderGeometry geometry render handler, or null to not use one for rendering
+     * @see GeometryRenderHandler
      */
-    private void setTileInfo(int tileSize, int tileWidth, int tileHeight, int tileNum){
-        if(tileInfo == null){
-            tileInfo = new TileBasedDeferredSinglePassLightingLogic.TileInfo(tileSize, tileWidth, tileHeight, tileNum);
-        }
+    public void setGeometryRenderHandler(GeometryRenderHandler renderGeometry){
+        this.renderGeometry = renderGeometry;
     }
     
     /**
-     * Calculates tiling info.
-     */
-    public void calculateTileInfo() {
-        curTileSize = (forceTileSize > 0 ? forceTileSize : (getCurrentCamera().getWidth() / numberTileDivisions));
-        int tileWidth = viewWidth / curTileSize;
-        int tileHeight = viewHeight / curTileSize;
-        setTileInfo(curTileSize, tileWidth, tileHeight, tileWidth * tileHeight);
-    }
-
-    /**
-     * update tile size.<br/>
-     * @param tileSize
-     */
-    public final void updateTileSize(int tileSize){
-        if(curTileSize == tileSize)return;
-        curTileSize = tileSize;
-    }
-
-    public TileBasedDeferredSinglePassLightingLogic.TileInfo getTileInfo() {
-        return tileInfo;
-    }
-
-    /**
-     * Set an IRenderGeometry for executing drawing call interfaces for the specified FGPass.
+     * Gest the GeometryRenderHandler used to render geometry.
      * 
-     * @param renderGeometry
-     * @see GeometryRenderHandler
+     * @return geometry render handler, or null of none is used for rendering
      */
-    public final void setGeometryRenderHandler(GeometryRenderHandler renderGeometry){
-        this.renderGeometry = renderGeometry;
-    }
-
     public GeometryRenderHandler getGeometryRenderHandler() {
         return renderGeometry;
     }
-
 
     /**
      * Returns the pre ViewPort with the given name.
@@ -906,7 +843,7 @@ public class RenderManager {
             }
         }
     }
-
+    
     /**
      * Flattens the given scene graph into the ViewPort's RenderQueue,
      * checking for culling as the call goes down the graph recursively.
@@ -937,11 +874,11 @@ public class RenderManager {
      *     contain the flattened scene graph.
      */
     public void renderScene(Spatial scene, ViewPort vp) {
-        //reset of the camera plane state for proper culling
-        //(must be 0 for the first note of the scene to be rendered)
+        // reset of the camera plane state for proper culling
+        // (must be 0 for the first note of the scene to be rendered)
         vp.getCamera().setPlaneState(0);
-        //rendering the scene
-        renderSubScene(scene, vp);
+        // queue the scene for rendering
+        queueSubScene(scene, vp);
     }
 
     /**
@@ -950,13 +887,11 @@ public class RenderManager {
      * @param scene the scene to be rendered (not null)
      * @param vp the ViewPort to render in (not null)
      */
-    private void renderSubScene(Spatial scene, ViewPort vp) {
-
-        // check culling first.
+    private void queueSubScene(Spatial scene, ViewPort vp) {
+        // check culling first
         if (!scene.checkCulling(vp.getCamera())) {
             return;
         }
-
         scene.runControlRender(this, vp);
         if (scene instanceof Node) {
             // Recurse for all children
@@ -967,7 +902,7 @@ public class RenderManager {
             for (int i = 0; i < children.size(); i++) {
                 // Restoring cam state before proceeding children recursively
                 vp.getCamera().setPlaneState(camState);
-                renderSubScene(children.get(i), vp);
+                queueSubScene(children.get(i), vp);
             }
         } else if (scene instanceof Geometry) {
             // add to the render queue
@@ -975,7 +910,6 @@ public class RenderManager {
             if (gm.getMaterial() == null) {
                 throw new IllegalStateException("No material is set for Geometry: " + gm.getName());
             }
-
             vp.getQueue().addToQueue(gm, scene.getQueueBucket());
         }
     }
@@ -1334,7 +1268,7 @@ public class RenderManager {
         
         if (fg != null) {
             
-            fg.getContext().update(vp, prof, tpf);
+            fg.prepareRender(vp, prof, tpf);
             fg.preFrame();
             
         } else if (processors != null) {

@@ -24,7 +24,8 @@ MaterialDef DeferredShading {
         Texture2D TileLightIndex
     }
 
-    Technique TileBasedDeferredPass{
+    Technique TileBasedDeferredPass {
+    
         Pipeline Deferred
         LightMode TileBasedDeferredSinglePass
 

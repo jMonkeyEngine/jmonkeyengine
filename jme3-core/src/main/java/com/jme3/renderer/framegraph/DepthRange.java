@@ -82,4 +82,9 @@ public class DepthRange {
         return hash;
     }
     
+    @Override
+    public String toString() {
+        return "DepthRange["+start+" -> "+end+"]";
+    }
+    
 }

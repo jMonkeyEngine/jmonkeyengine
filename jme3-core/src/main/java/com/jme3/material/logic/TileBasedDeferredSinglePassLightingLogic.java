@@ -140,10 +140,8 @@ public class TileBasedDeferredSinglePassLightingLogic extends DefaultTechniqueDe
     private final LightFrustum _lightFrustum = new LightFrustum(0, 0, 0, 0);
 
     // tile info
-    private TileInfo tileInfo;
-    private int tileWidth = -1;
-    private int tileHeight = -1;
-    private int curTileNum = 0;
+    private TileInfoProvider tileProvider;
+    private TiledRenderGrid tileInfo;
 
     // tile light ids
     private ArrayList<ArrayList<Integer>> tiles;
@@ -158,34 +156,11 @@ public class TileBasedDeferredSinglePassLightingLogic extends DefaultTechniqueDe
     private int lightIndexWidth;
 
     /**
-     * TileInfo
-     * <p>This is a structure representing Tile information, including how many tiles the screen is divided into, how many tiles in horizontal and vertical directions, the size of each tile, etc.</p>
-     * @author JohnKkk
-     */
-    public static class TileInfo {
-        int tileSize = 0;
-        int tileWidth = 0;
-        int tileHeight = 0;
-        int tileNum = 0;
-
-        public TileInfo(int tileSize, int tileWidth, int tileHeight, int tileNum) {
-            this.tileSize = tileSize;
-            this.tileWidth = tileWidth;
-            this.tileHeight = tileHeight;
-            this.tileNum = tileNum;
-        }
-
-        public void updateTileSize(int tileSize){
-            this.tileSize = tileSize;
-        }
-    }
-
-    /**
      * LightFrustum
      * <p>This is an internal helper class to determine the on-screen Rect for the current PointLight. It's called Frustum because it may be expanded to 3D Cluster in space in the future.</p>
      * @author JohnKkk
      */
-    private static class LightFrustum{
+    private static class LightFrustum {
         float left;
         float right;
         float top;
@@ -197,6 +172,23 @@ public class TileBasedDeferredSinglePassLightingLogic extends DefaultTechniqueDe
             this.top = top;
             this.bottom = bottom;
         }
+    }
+
+    public TileBasedDeferredSinglePassLightingLogic(TechniqueDef techniqueDef, TileInfoProvider tileProvider) {
+        super(techniqueDef);
+        this.tileProvider = tileProvider;
+        lightIndexWidth = (int)(Math.floor(Math.sqrt(1024)));
+        singlePassLightingDefineId = techniqueDef.addShaderUnmappedDefine(DEFINE_TILE_BASED_DEFERRED_SINGLE_PASS_LIGHTING, VarType.Boolean);
+        if(packAsTextures){
+            packNbLightsDefineId = techniqueDef.addShaderUnmappedDefine(DEFINE_PACK_NB_LIGHTS, VarType.Int);
+            packTextureModeDefineId = techniqueDef.addShaderUnmappedDefine(DEFINE_USE_TEXTURE_PACK_MODE, VarType.Boolean);
+            prepareLightData(1024);
+        }
+        else{
+            nbLightsDefineId = techniqueDef.addShaderUnmappedDefine(DEFINE_NB_LIGHTS, VarType.Int);
+        }
+        nbSkyLightAndReflectionProbesDefineId = techniqueDef.addShaderUnmappedDefine(DEFINE_NB_SKY_LIGHT_AND_REFLECTION_PROBES, VarType.Int);
+        useAmbientLightDefineId = techniqueDef.addShaderUnmappedDefine(DEFINE_USE_AMBIENT_LIGHT, VarType.Boolean);
     }
 
     /**
@@ -255,25 +247,23 @@ public class TileBasedDeferredSinglePassLightingLogic extends DefaultTechniqueDe
      * @param tileHeight Number of tiles in vertical direction
      * @param tileNum tileWidth * tileHeight
      */
-    private void reset(int tileWidth, int tileHeight, int tileNum) {
-        if (this.tileWidth != tileWidth || this.tileHeight != tileHeight) {
+    private void reset(boolean gridDemensionsChanged, boolean numTilesChanged) {
+        if (gridDemensionsChanged) {
             cleanupTileTexture();
-            this.tileWidth = tileWidth;
-            this.tileHeight = tileHeight;
             createLightsIndexTexture(lightIndexWidth);
-            lightsDecodeData = new Texture2D(tileWidth, tileHeight, Image.Format.RGBA32F);
+            lightsDecodeData = new Texture2D(tileInfo.getGridHeight(), tileInfo.getGridHeight(), Image.Format.RGBA32F);
             lightsDecodeData.setMinFilter(Texture.MinFilter.NearestNoMipMaps);
             lightsDecodeData.setMagFilter(Texture.MagFilter.Nearest);
             lightsDecodeData.setWrap(Texture.WrapMode.EdgeClamp);
-            ByteBuffer dataU = BufferUtils.createByteBuffer( (int)Math.ceil(Image.Format.RGBA32F.getBitsPerPixel() / 8.0) * tileWidth * tileHeight);
-            Image convertedImageU = new Image(Image.Format.RGBA32F, tileWidth, tileHeight, dataU, null, ColorSpace.Linear);
+            ByteBuffer dataU = BufferUtils.createByteBuffer((int)Math.ceil(Image.Format.RGBA32F.getBitsPerPixel() / 8.0) * tileInfo.getNumTiles());
+            Image convertedImageU = new Image(Image.Format.RGBA32F, tileInfo.getGridWidth(), tileInfo.getGridHeight(), dataU, null, ColorSpace.Linear);
             lightsDecodeData.setImage(convertedImageU);
             lightsDecodeData.getImage().setMipmapsGenerated(false);
             lightsDecodeDataUpdateIO = ImageRaster.create(lightsDecodeData.getImage());
         }
-        if(curTileNum != tileNum){
+        if (numTilesChanged) {
             tiles = new ArrayList<>();
-            for (int i = 0; i < tileNum; i++) {
+            for (int i = 0, n = tileInfo.getNumTiles(); i < n; i++) {
                 tiles.add(new ArrayList<>());
             }
         } else for (ArrayList l : tiles) {
@@ -562,23 +552,6 @@ public class TileBasedDeferredSinglePassLightingLogic extends DefaultTechniqueDe
         lightsDecodeData.getImage().setUpdateNeeded();
         g.getMaterial().setTexture(TILE_LIGHT_INDEX, lightsIndexData);
         g.getMaterial().setTexture(TILE_LIGHT_DECODE, lightsDecodeData);
-    }
-
-
-    public TileBasedDeferredSinglePassLightingLogic(TechniqueDef techniqueDef) {
-        super(techniqueDef);
-        lightIndexWidth = (int)(Math.floor(Math.sqrt(1024)));
-        singlePassLightingDefineId = techniqueDef.addShaderUnmappedDefine(DEFINE_TILE_BASED_DEFERRED_SINGLE_PASS_LIGHTING, VarType.Boolean);
-        if(packAsTextures){
-            packNbLightsDefineId = techniqueDef.addShaderUnmappedDefine(DEFINE_PACK_NB_LIGHTS, VarType.Int);
-            packTextureModeDefineId = techniqueDef.addShaderUnmappedDefine(DEFINE_USE_TEXTURE_PACK_MODE, VarType.Boolean);
-            prepareLightData(1024);
-        }
-        else{
-            nbLightsDefineId = techniqueDef.addShaderUnmappedDefine(DEFINE_NB_LIGHTS, VarType.Int);
-        }
-        nbSkyLightAndReflectionProbesDefineId = techniqueDef.addShaderUnmappedDefine(DEFINE_NB_SKY_LIGHT_AND_REFLECTION_PROBES, VarType.Int);
-        useAmbientLightDefineId = techniqueDef.addShaderUnmappedDefine(DEFINE_USE_AMBIENT_LIGHT, VarType.Boolean);
     }
 
     private void cleanupLightData(){
@@ -940,7 +913,7 @@ public class TileBasedDeferredSinglePassLightingLogic extends DefaultTechniqueDe
 
     @Override
     public void render(RenderManager renderManager, Shader shader, Geometry geometry, LightList lights, BindUnits lastBindUnit) {
-        int nbRenderedLights = 0;
+        int renderedLights = 0;
         Renderer renderer = renderManager.getRenderer();
         boolean isLightCullStageDraw = false;
         if(geometry.getUserData(LIGHT_CULL_DRAW_STAGE) != null){
@@ -959,20 +932,17 @@ public class TileBasedDeferredSinglePassLightingLogic extends DefaultTechniqueDe
             // Divide lights into full screen lights and non-full screen lights. Currently only PointLights with radius are treated as non-full screen lights.
             // The lights passed in here must be PointLights with valid radii. Another approach is to fill tiles with infinite range Lights.
             if(count > 0){
-
-                // Get tileInfo from RenderManager
-                tileInfo = renderManager.getTileInfo();
-                int tileSize = tileInfo.tileSize;
-                int tileWidth = tileInfo.tileWidth;
-                int tileHeight = tileInfo.tileHeight;
-                int tileNum = tileInfo.tileNum;
-                Uniform u_tileSize = shader.getUniform(TILE_SIZE);
-                Uniform u_tileWidth = shader.getUniform(TILE_WIDTH);
-                Uniform u_tileHeight = shader.getUniform(TILE_HEIGHT);
-                u_tileSize.setValue(VarType.Int, tileSize);
-                u_tileWidth.setValue(VarType.Int, tileWidth);
-                u_tileHeight.setValue(VarType.Int, tileHeight);
-                reset(tileWidth, tileHeight, tileNum);
+                
+                // get render grid info
+                TiledRenderGrid src = tileProvider.getTiledRenderGrid();
+                src.verify();
+                boolean gridChanged = tileInfo.gridDemensionsDiffer(src);
+                boolean numTilesChanged = tileInfo.numTilesDiffer(src);
+                tileInfo.copyFrom(tileProvider.getTiledRenderGrid());
+                shader.getUniform(TILE_SIZE).setValue(VarType.Int, tileInfo.getTileSize());
+                shader.getUniform(TILE_WIDTH).setValue(VarType.Int, tileInfo.getGridWidth());
+                shader.getUniform(TILE_HEIGHT).setValue(VarType.Int, tileInfo.getGridHeight());
+                reset(gridChanged, numTilesChanged);
 
                 Camera camera = renderManager.getCurrentCamera();
                 viewPortWidth = camera.getWidth() * 0.5f;
@@ -994,27 +964,27 @@ public class TileBasedDeferredSinglePassLightingLogic extends DefaultTechniqueDe
                     if(lights.get(i).getType() == Light.Type.Ambient || lights.get(i).getType() == Light.Type.Probe)continue;
                     lightFrustum = lightClip(lights.get(i));
                     if(lightFrustum != null){
-                        tilesUpdate(tileSize, tileWidth, tileHeight, tileNum, tiles, lightFrustum, i);
+                        tilesUpdate(tileInfo.getTileSize(), tileInfo.getGridWidth(), tileInfo.getGridHeight(), tileInfo.getNumTiles(), tiles, lightFrustum, i);
                     }
                     else{
                         // full tilesLight
-                        tilesFullUpdate(tileWidth, tileHeight, tileNum, tiles, i);
+                        tilesFullUpdate(tileInfo.getGridWidth(), tileInfo.getGridHeight(), tileInfo.getNumTiles(), tiles, i);
                     }
                 }
 
                 // Encode light source information
 //                lightCount.setValue(VarType.Int, count);
 //                geometry.getMaterial().setInt("NBLight", count);
-                tileLightDecode(tileNum, tiles, tileWidth, tileHeight, shader, geometry, lights);
-                while (nbRenderedLights < count) {
-                    nbRenderedLights = updateLightListPackToTexture(shader, geometry, lights, count, renderManager, nbRenderedLights, isLightCullStageDraw, lastBindUnit.textureUnit);
+                tileLightDecode(tileInfo.getNumTiles(), tiles, tileInfo.getGridWidth(), tileInfo.getGridHeight(), shader, geometry, lights);
+                while (renderedLights < count) {
+                    renderedLights = updateLightListPackToTexture(shader, geometry, lights, count, renderManager, renderedLights, isLightCullStageDraw, lastBindUnit.textureUnit);
                     renderer.setShader(shader);
                     renderMeshFromGeometry(renderer, geometry);
                 }
             }
             else{
 //                geometry.getMaterial().setInt("NBLight", 0);
-                nbRenderedLights = updateLightListPackToTexture(shader, geometry, lights, count, renderManager, nbRenderedLights, isLightCullStageDraw, lastBindUnit.textureUnit);
+                renderedLights = updateLightListPackToTexture(shader, geometry, lights, count, renderManager, renderedLights, isLightCullStageDraw, lastBindUnit.textureUnit);
                 renderer.setShader(shader);
                 renderMeshFromGeometry(renderer, geometry);
             }
@@ -1027,8 +997,8 @@ public class TileBasedDeferredSinglePassLightingLogic extends DefaultTechniqueDe
                 renderer.setShader(shader);
                 renderMeshFromGeometry(renderer, geometry);
             } else {
-                while (nbRenderedLights < lights.size()) {
-                    nbRenderedLights = updateLightListUniforms(shader, geometry, lights, batchSize, renderManager, nbRenderedLights, isLightCullStageDraw);
+                while (renderedLights < lights.size()) {
+                    renderedLights = updateLightListUniforms(shader, geometry, lights, batchSize, renderManager, renderedLights, isLightCullStageDraw);
                     renderer.setShader(shader);
                     renderMeshFromGeometry(renderer, geometry);
                 }

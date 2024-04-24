@@ -2,12 +2,10 @@ package jme3test.renderpath;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.asset.AssetManager;
-import com.jme3.environment.EnvironmentCamera;
 import com.jme3.environment.EnvironmentProbeControl;
 import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
-import com.jme3.material.RenderState;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
@@ -27,8 +25,8 @@ import com.jme3.scene.shape.Quad;
 import com.jme3.scene.shape.Sphere;
 import com.jme3.shader.VarType;
 import com.jme3.shadow.DirectionalLightShadowRenderer;
+import com.jme3.system.AppSettings;
 import com.jme3.texture.plugins.ktx.KTXLoader;
-import com.jme3.ui.Picture;
 import com.jme3.util.SkyFactory;
 import com.jme3.util.TangentBinormalGenerator;
 import com.jme3.util.mikktspace.MikktspaceTangentGenerator;
@@ -47,6 +45,15 @@ public class TestShadingModel extends SimpleApplication {
     private Material pbrMat;
     private Geometry model;
     private Node tex;
+
+    public static void main(String[] args) {
+        TestShadingModel app = new TestShadingModel();
+        AppSettings settings = new AppSettings(true);
+        //settings.setGraphicsDebug(true);
+        //settings.setGraphicsTrace(true);
+        app.setSettings(settings);
+        app.start();
+    }
 
     @Override
     public void simpleInitApp() {
@@ -156,11 +163,6 @@ public class TestShadingModel extends SimpleApplication {
         if (frame > 10 && modelNode.getParent() == null) {
             rootNode.attachChild(modelNode);
         }
-    }
-
-    public static void main(String[] args) {
-        TestShadingModel testShadingModel = new TestShadingModel();
-        testShadingModel.start();
     }
     
     private class DepthDebugFilter extends Filter {

@@ -104,9 +104,9 @@ public final class DeferredSinglePassLightingLogic extends DefaultTechniqueDefLo
     private final int probeDefine;
     private final int ambientDefines;
     
-//    public DeferredSinglePassLightingLogic(TechniqueDef techniqueDef) {
-//        this(techniqueDef, true);
-//    }
+    public DeferredSinglePassLightingLogic(TechniqueDef techniqueDef) {
+        this(techniqueDef, true);
+    }
     public DeferredSinglePassLightingLogic(TechniqueDef techniqueDef, boolean useLightTextures) {
         super(techniqueDef);
         this.useLightTextures = useLightTextures;

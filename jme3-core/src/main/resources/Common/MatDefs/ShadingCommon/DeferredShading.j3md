@@ -20,9 +20,9 @@ MaterialDef DeferredShading {
         Texture2D LightPackData3
     }
 
-    Technique DeferredPass{
+    Technique DeferredPass {
+    
         Pipeline Deferred
-        LightMode DeferredSinglePass
 
         VertexShader GLSL310 GLSL300 GLSL100 GLSL150:   Common/MatDefs/ShadingCommon/DeferredShading.vert
         FragmentShader GLSL310 GLSL300 GLSL100 GLSL150: Common/MatDefs/ShadingCommon/DeferredShading.frag
