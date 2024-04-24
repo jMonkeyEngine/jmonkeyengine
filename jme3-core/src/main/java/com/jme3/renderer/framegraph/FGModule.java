@@ -4,6 +4,8 @@
  */
 package com.jme3.renderer.framegraph;
 
+import com.jme3.renderer.framegraph.parameters.RenderParameterGroup;
+
 /**
  *
  * @author codex

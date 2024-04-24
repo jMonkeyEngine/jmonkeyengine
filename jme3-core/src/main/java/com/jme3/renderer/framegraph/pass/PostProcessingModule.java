@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package com.jme3.renderer.pass;
+package com.jme3.renderer.framegraph.pass;
 
 import com.jme3.post.SceneProcessor;
 import com.jme3.profile.AppProfiler;

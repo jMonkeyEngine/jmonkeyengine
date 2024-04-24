@@ -4,6 +4,7 @@
  */
 package com.jme3.renderer.framegraph;
 
+import com.jme3.renderer.framegraph.parameters.ValueRenderParam;
 import com.jme3.texture.FrameBuffer;
 
 /**

@@ -150,6 +150,9 @@ public class RenderManager {
     /**
      * Sets the framegraph used for rendering if the rendered viewport
      * has no framegraph assigned.
+     * <p>
+     * If this framegraph is null, and the viewport currently being rendered has
+     * no framegraph assigned, JME's legacy forward rendering method will be used.
      * 
      * @param frameGraph default framegraph, or null to not use a framegraph by default for rendering
      */
@@ -169,6 +172,8 @@ public class RenderManager {
 
     /**
      * Sets the GeometryRenderHandler used to render geometry.
+     * <p>
+     * default=null
      * 
      * @param renderGeometry geometry render handler, or null to not use one for rendering
      * @see GeometryRenderHandler

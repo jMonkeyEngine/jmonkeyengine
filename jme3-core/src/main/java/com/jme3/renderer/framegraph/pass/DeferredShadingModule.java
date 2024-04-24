@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package com.jme3.renderer.pass;
+package com.jme3.renderer.framegraph.pass;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.light.LightList;
@@ -14,11 +14,11 @@ import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.framegraph.AbstractModule;
-import com.jme3.renderer.framegraph.MatRenderParam;
+import com.jme3.renderer.framegraph.parameters.MatRenderParam;
 import com.jme3.renderer.framegraph.MyFrameGraph;
 import com.jme3.renderer.framegraph.RenderContext;
-import com.jme3.renderer.framegraph.TextureTargetParam;
-import com.jme3.renderer.framegraph.ValueRenderParam;
+import com.jme3.renderer.framegraph.parameters.TextureTargetParam;
+import com.jme3.renderer.framegraph.parameters.ValueRenderParam;
 import com.jme3.shader.VarType;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Texture2D;

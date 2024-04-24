@@ -2,8 +2,9 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package com.jme3.renderer.pass;
+package com.jme3.renderer.framegraph.pass;
 
+import com.jme3.renderer.framegraph.pass.DeferredShadingModule;
 import com.jme3.asset.AssetManager;
 import com.jme3.material.Material;
 import com.jme3.material.TechniqueDef;
@@ -12,7 +13,7 @@ import com.jme3.material.logic.TileInfoProvider;
 import com.jme3.material.logic.TiledRenderGrid;
 import com.jme3.renderer.framegraph.MyFrameGraph;
 import com.jme3.renderer.framegraph.RenderContext;
-import com.jme3.renderer.framegraph.ValueRenderParam;
+import com.jme3.renderer.framegraph.parameters.ValueRenderParam;
 import java.util.LinkedList;
 
 /**

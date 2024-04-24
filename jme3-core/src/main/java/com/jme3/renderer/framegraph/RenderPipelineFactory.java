@@ -8,13 +8,13 @@ import com.jme3.app.Application;
 import com.jme3.asset.AssetManager;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.RenderManager.RenderPath;
-import com.jme3.renderer.pass.BackgroundScreenTestModule;
-import com.jme3.renderer.pass.DeferredShadingModule;
-import com.jme3.renderer.pass.ForwardModule;
-import com.jme3.renderer.pass.GBufferModule;
+import com.jme3.renderer.framegraph.pass.BackgroundScreenTestModule;
+import com.jme3.renderer.framegraph.pass.DeferredShadingModule;
+import com.jme3.renderer.framegraph.pass.ForwardModule;
+import com.jme3.renderer.framegraph.pass.GBufferModule;
 import com.jme3.renderer.pass.GuiModule;
-import com.jme3.renderer.pass.PostProcessingModule;
-import com.jme3.renderer.pass.TileDeferredShadingModule;
+import com.jme3.renderer.framegraph.pass.PostProcessingModule;
+import com.jme3.renderer.framegraph.pass.TileDeferredShadingModule;
 
 /**
  * Constructs basic framegraphs.

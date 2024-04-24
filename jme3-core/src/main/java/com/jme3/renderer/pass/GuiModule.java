@@ -4,6 +4,7 @@
  */
 package com.jme3.renderer.pass;
 
+import com.jme3.renderer.framegraph.pass.ForwardModule;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.framegraph.DepthRange;
 import com.jme3.renderer.framegraph.RenderContext;

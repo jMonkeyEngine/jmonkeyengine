@@ -2,8 +2,9 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package com.jme3.renderer.framegraph;
+package com.jme3.renderer.framegraph.parameters;
 
+import com.jme3.renderer.framegraph.parameters.RenderParameter;
 import java.util.Iterator;
 import java.util.LinkedList;
 

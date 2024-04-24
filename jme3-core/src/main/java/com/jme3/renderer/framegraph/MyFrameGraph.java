@@ -4,6 +4,10 @@
  */
 package com.jme3.renderer.framegraph;
 
+import com.jme3.renderer.framegraph.parameters.RenderParameterGroup;
+import com.jme3.renderer.framegraph.parameters.ParameterBinding;
+import com.jme3.renderer.framegraph.parameters.ParameterManager;
+import com.jme3.renderer.framegraph.parameters.RenderParameter;
 import com.jme3.profile.AppProfiler;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;

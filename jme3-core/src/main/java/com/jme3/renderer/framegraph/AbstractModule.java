@@ -4,6 +4,7 @@
  */
 package com.jme3.renderer.framegraph;
 
+import com.jme3.renderer.framegraph.parameters.RenderParameter;
 import java.util.Collection;
 import java.util.LinkedList;
 
