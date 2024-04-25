@@ -104,17 +104,17 @@ public class DeferredShadingModule extends AbstractModule {
     @Override
     public void execute(RenderContext context) {
         
-        context.getRenderer().copyFrameBuffer(gBuffer.produce(),
+        context.getRenderer().copyFrameBuffer(gBuffer.get(),
                 context.getViewPort().getOutputFrameBuffer(), false, true);
         
-        context.getRenderer().copyFrameBuffer(gBuffer.produce(), debug, false, true);
+        context.getRenderer().copyFrameBuffer(gBuffer.get(), debug, false, true);
         
         //makeRenderStateTests(context, "pre tests");
         selectTechnique(screenMat, context.getRenderManager());
         context.setDepthRange(1, 1);
         context.getRenderer().setFrameBuffer(context.getViewPort().getOutputFrameBuffer());
         screenRect.updateGeometricState();
-        context.getRenderManager().renderGeometry(screenRect, lightList.produce());
+        context.getRenderManager().renderGeometry(screenRect, lightList.get());
         //screenMat.render(screenRect, lightList.produce(), context.getRenderManager());
         
         //makeRenderStateTests(context, "post tests");

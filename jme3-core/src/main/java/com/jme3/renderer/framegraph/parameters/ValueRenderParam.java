@@ -32,11 +32,11 @@ public class ValueRenderParam <T> implements RenderParameter<T> {
         return name;
     }
     @Override
-    public void accept(T value) {
+    public void set(T value) {
         this.value = value;
     }
     @Override
-    public T produce() {
+    public T get() {
         return (value != null ? value : defaultValue);
     }
     

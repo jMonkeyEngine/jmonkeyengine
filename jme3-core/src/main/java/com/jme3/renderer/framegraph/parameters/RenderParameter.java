@@ -28,41 +28,41 @@ public interface RenderParameter <T> {
      * 
      * @param value 
      */
-    public void accept(T value);
+    public void set(T value);
     
     /**
      * Returns the value held by this parameter.
      * 
      * @return 
      */
-    public T produce();
+    public T get();
     
     /**
      * Deletes the value held by this parameter.
      */
     public default void erase() {
-        accept(null);
+        set(null);
     }
     
     /**
-     * Returns the next value 
+     * Returns true if the value returned by {@link #get()} is not null.
      * 
      * @return 
      */
     public default boolean validate() {
-        return produce() != null;
+        return get() != null;
     }
     
     /**
-     * Returns the value returned by {@link #produce()} if {@link #validate()}
+     * Returns the value returned by {@link #get()} if {@link #validate()}
      * returns true, otherwise returns the given value.
      * 
      * @param value
      * @return 
      */
-    public default T produceOrElse(T value) {
+    public default T orElse(T value) {
         if (validate()) {
-            return produce();
+            return get();
         } else {
             return value;
         }

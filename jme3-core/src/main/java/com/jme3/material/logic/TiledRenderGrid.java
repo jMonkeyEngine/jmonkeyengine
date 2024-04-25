@@ -34,6 +34,7 @@ public class TiledRenderGrid {
     }
     
     public void setNumDivisions(int divisions) {
+        assert divisions > 0 : "Number of divisions must be greater than zero.";
         this.divisions = divisions;
     }
     public void setForcedTileSize(int forcedTileSize) {
@@ -76,13 +77,13 @@ public class TiledRenderGrid {
         return grid.getNumTiles() != getNumTiles();
     }
     
-    public void verify() {
-        if (tileSize <= 0) {
-            throw new IllegalStateException("Tile size cannot be less than or equal to zero.");
+    public void verifyUpdated() {
+        if (needsUpdate()) {
+            throw new IllegalStateException("Update is required before use.");
         }
-        if (gridWidth <= 0 || gridHeight <= 0) {
-            throw new IllegalStateException("Grid demensions cannot be negative.");
-        }
+    }
+    public boolean needsUpdate() {
+        return tileSize <= 0 || gridWidth <= 0 || gridHeight <= 0;
     }
     
 }

@@ -4,7 +4,6 @@
  */
 package com.jme3.renderer.framegraph.pass;
 
-import com.jme3.renderer.framegraph.pass.DeferredShadingModule;
 import com.jme3.asset.AssetManager;
 import com.jme3.material.Material;
 import com.jme3.material.TechniqueDef;
@@ -13,7 +12,7 @@ import com.jme3.material.logic.TileInfoProvider;
 import com.jme3.material.logic.TiledRenderGrid;
 import com.jme3.renderer.framegraph.MyFrameGraph;
 import com.jme3.renderer.framegraph.RenderContext;
-import com.jme3.renderer.framegraph.parameters.ValueRenderParam;
+import com.jme3.renderer.framegraph.parameters.WorldRenderParam;
 import java.util.LinkedList;
 
 /**
@@ -26,8 +25,8 @@ public class TileDeferredShadingModule extends DeferredShadingModule implements 
     private static final String MATDEF = "Common/MatDefs/ShadingCommon/TileBasedDeferredShading.j3md";
     private static final String PASS = "TileBasedDeferredPass";
     
-    private ValueRenderParam<TiledRenderGrid> tileInfo;
-    private final LinkedList<TileBasedDeferredSinglePassLightingLogic> logic = new LinkedList<>();
+    private WorldRenderParam<TiledRenderGrid> tileParam;
+    private TiledRenderGrid tileInfo = new TiledRenderGrid();
     
     public TileDeferredShadingModule(AssetManager assetManager) {
         super(assetManager);
@@ -36,7 +35,7 @@ public class TileDeferredShadingModule extends DeferredShadingModule implements 
     @Override
     public void initialize(MyFrameGraph frameGraph) {
         super.initialize(frameGraph);
-        tileInfo = addParameter(new ValueRenderParam<>(TILE_INFO, null, new TiledRenderGrid()));
+        tileParam = addParameter(new WorldRenderParam<>(TILE_INFO, frameGraph.getWorldParameters(), TILE_INFO));
     }
     @Override
     public void prepare(RenderContext context) {
@@ -45,7 +44,11 @@ public class TileDeferredShadingModule extends DeferredShadingModule implements 
     }
     @Override
     public void execute(RenderContext context) {
-        tileInfo.produce().update(context.getRenderManager().getCurrentCamera());
+        TiledRenderGrid t = tileParam.get();
+        if (t != null) {
+            tileInfo.copyFrom(t);
+        }
+        tileInfo.update(context.getRenderManager().getCurrentCamera());
         super.execute(context);
     }
     @Override
@@ -55,14 +58,13 @@ public class TileDeferredShadingModule extends DeferredShadingModule implements 
     @Override
     protected void assignTechniqueLogic(Material mat) {
         for (TechniqueDef t : mat.getMaterialDef().getTechniqueDefs(PASS)) {
-            TileBasedDeferredSinglePassLightingLogic l = new TileBasedDeferredSinglePassLightingLogic(t, this);
-            logic.add(l);
+            TileBasedDeferredSinglePassLightingLogic l = new TileBasedDeferredSinglePassLightingLogic(t, tileInfo);
             t.setLogic(l);
         }
     }
     @Override
     public TiledRenderGrid getTiledRenderGrid() {
-        return tileInfo.produce();
+        return tileParam.orElse(tileInfo);
     }
     
 }

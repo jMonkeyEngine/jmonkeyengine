@@ -37,7 +37,7 @@ public class MatRenderParam <T> implements RenderParameter<T> {
         return name;
     }
     @Override
-    public void accept(T value) {
+    public void set(T value) {
         this.value = value;
         if (debug) {
             System.out.println("assign to material: "+this.value);
@@ -45,7 +45,7 @@ public class MatRenderParam <T> implements RenderParameter<T> {
         material.setParam(matName, type, this.value);
     }
     @Override
-    public T produce() {
+    public T get() {
         return value;
     }
     @Override

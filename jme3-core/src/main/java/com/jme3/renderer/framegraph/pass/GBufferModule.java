@@ -159,7 +159,7 @@ public class GBufferModule extends ForwardModule implements GeometryRenderHandle
         gBuffer.setDepthTarget(t4);
         targets[4].setTextureTarget(t4);
         gBuffer.setMultiTarget(true);
-        bufferParam.accept(gBuffer);
+        bufferParam.set(gBuffer);
     }
     
 }

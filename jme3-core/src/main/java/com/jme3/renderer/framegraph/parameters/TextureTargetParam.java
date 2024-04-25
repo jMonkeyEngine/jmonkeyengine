@@ -22,7 +22,7 @@ public class TextureTargetParam implements RenderParameter<Texture> {
     }
     
     @Override
-    public Texture produce() {
+    public Texture get() {
         if (target != null) {
             return target.getTexture();
         } else {
@@ -36,7 +36,7 @@ public class TextureTargetParam implements RenderParameter<Texture> {
     }
     
     @Override
-    public void accept(Texture value) {}
+    public void set(Texture value) {}
     
     @Override
     public void erase() {

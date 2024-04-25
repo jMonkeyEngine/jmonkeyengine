@@ -33,7 +33,7 @@ public class FrameBufferCopyParam implements RenderParameter<FrameBuffer> {
         return name;
     }
     @Override
-    public void accept(FrameBuffer value) {
+    public void set(FrameBuffer value) {
         if (source != value || ready) {
             source = value;
             if ((source != null || target != null) && renderer != null) {
@@ -43,7 +43,7 @@ public class FrameBufferCopyParam implements RenderParameter<FrameBuffer> {
         }
     }
     @Override
-    public FrameBuffer produce() {
+    public FrameBuffer get() {
         return target;
     }
     

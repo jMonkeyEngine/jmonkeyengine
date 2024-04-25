@@ -40,7 +40,6 @@ import com.jme3.material.MaterialDef;
 import com.jme3.material.RenderState;
 import com.jme3.material.Technique;
 import com.jme3.material.TechniqueDef;
-import com.jme3.material.logic.TileBasedDeferredSinglePassLightingLogic;
 import com.jme3.math.Matrix4f;
 import com.jme3.post.SceneProcessor;
 import com.jme3.profile.AppProfiler;
@@ -48,6 +47,7 @@ import com.jme3.profile.AppStep;
 import com.jme3.profile.SpStep;
 import com.jme3.profile.VpStep;
 import com.jme3.renderer.framegraph.MyFrameGraph;
+import com.jme3.renderer.framegraph.parameters.ParameterSpace;
 import com.jme3.renderer.queue.GeometryList;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
@@ -82,10 +82,6 @@ import java.util.function.Predicate;
  * @see Spatial
  */
 public class RenderManager {
-    
-    private GeometryRenderHandler renderGeometry;
-    private MyFrameGraph myFrameGraph;
-    private int maxDeferredLights = 1024;
 
     // RenderPath
     public enum RenderPath {
@@ -115,12 +111,15 @@ public class RenderManager {
     private final ArrayList<ViewPort> preViewPorts = new ArrayList<>();
     private final ArrayList<ViewPort> viewPorts = new ArrayList<>();
     private final ArrayList<ViewPort> postViewPorts = new ArrayList<>();
+    private final ParameterSpace parameters = new ParameterSpace();
+    private MyFrameGraph myFrameGraph;
     private Camera prevCam = null;
     private Material forcedMaterial = null;
     private String forcedTechnique = null;
     private RenderState forcedRenderState = null;
     private final SafeArrayList<MatParamOverride> forcedOverrides
             = new SafeArrayList<>(MatParamOverride.class);
+    private GeometryRenderHandler renderGeometry;
     private int viewX;
     private int viewY;
     private int viewWidth;
@@ -145,6 +144,15 @@ public class RenderManager {
     public RenderManager(Renderer renderer) {
         this.renderer = renderer;
         this.forcedOverrides.add(boundDrawBufferId);
+    }
+    
+    /**
+     * Gets the global parameter space for rendering.
+     * 
+     * @return 
+     */
+    public ParameterSpace getParameters() {
+        return parameters;
     }
     
     /**

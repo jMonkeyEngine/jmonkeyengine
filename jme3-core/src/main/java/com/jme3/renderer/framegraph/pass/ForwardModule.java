@@ -4,14 +4,11 @@
  */
 package com.jme3.renderer.framegraph.pass;
 
-import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.framegraph.AbstractModule;
 import com.jme3.renderer.framegraph.DepthRange;
 import com.jme3.renderer.framegraph.MyFrameGraph;
 import com.jme3.renderer.framegraph.RenderContext;
-import com.jme3.renderer.framegraph.RenderQueueModule;
 import com.jme3.renderer.queue.RenderQueue;
-import com.jme3.scene.Geometry;
 
 /**
  *
